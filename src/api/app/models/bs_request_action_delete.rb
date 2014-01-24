@@ -11,10 +11,6 @@ class BsRequestActionDelete < BsRequestAction
     errors.add(:target_project, "must not target package and target repository") if target_repository and target_package
   end
 
-  class RepositoryMissing < APIException
-    setup "repository_missing", 404
-  end
-
   def remove_repository(opts)
     prj = Project.get_by_name(self.target_project)
     r=prj.repositories.find_by_name(self.target_repository)

@@ -46,6 +46,9 @@ end
 class DeleteFileNoPermission < APIException
   setup 403
 end
+class PostRequestNoPermission < APIException
+  setup 403
+end
 
 # 404 errors
 class NotFoundError < APIException
@@ -57,6 +60,9 @@ end
 class UnknownRepository < APIException
   setup 404
 end
+class RepositoryMissing < APIException
+  setup 404
+end
 
 # 400 errors
 class MissingParameterError < APIException; end
@@ -64,4 +70,7 @@ class InvalidParameterError < APIException; end
 class InvalidProjectNameError < APIException; end
 class UnknownCommandError < APIException; end
 class NotMissingError < APIException; end
+class ExpandError < APIException; 
+  setup 'expand_error'
+end
 
