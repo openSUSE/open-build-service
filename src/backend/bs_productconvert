@@ -60,8 +60,8 @@ eval{
 
 # read the product xml file
 
-use vars qw ( $opt_h $opt_l $opt_d $opt_m 
-              @errors %conditionals %repositories %groupRefs %archSets $indir $runOnServer);
+use vars qw ($opt_h $opt_d $opt_m 
+             @errors %conditionals %repositories %groupRefs %archSets $indir);
 
 my %product_requires;
 
@@ -76,7 +76,6 @@ sub usage()
   Options:
 
   -h:   help, print this text.
-  -l:   Run local on server, use direct path instead of obs:// URL.
   -d:   debug, create debug output and files
   -m:   mediaset, build only for the given mediaset, identify by name
 END
@@ -734,17 +733,8 @@ sub createInstsource( $$$ )
         } else {
           die( "ERROR: Non obs:// url as repository: $repo->{path} !\n" );
         };
-        if ( $runOnServer ) {
-          for my $arch ( @{$re->{architectures}->{requiredarch}} ) {
-  	     my $path = "$bsdir/build/$kiwipath/$arch->{'ref'}/:full";
-  	     $h{source} = { path => $path };
-	     push @r, \%h;
-             print "WARNING: local path $path does not exist !\n" if ( ! -e "$path" );
-          };
-        }else{
-	  $h{source} = { path => "obs://".$kiwipath };
-	  push @r, \%h;
-        };
+	$h{source} = { path => "obs://".$kiwipath };
+	push @r, \%h;
     }
     $re->{instrepo} = \@r;
     
@@ -1203,10 +1193,9 @@ sub createProductFile ( $$ ) {
 }
 
 # Process the commandline arguments.
-getopts('dlhm:');
+getopts('dhm:');
 
 usage() if $opt_h;
-$runOnServer = "true" if $opt_l;
 
 my ($infile, $outdir, $project) = @ARGV;
 
