@@ -1159,6 +1159,10 @@ sub createProductFile ( $$ ) {
     my $d;
     my $pfile = "\$RPM_BUILD_ROOT/etc/products.d/$product->{name}.prod";
 
+    my $mediaStyle = "suse-11.1"; # fallback value
+    my $medium = $prodRef->{mediasets}->{media}[0];
+    $mediaStyle = $medium->{'mediastyle'} if (defined($medium->{'mediastyle'}));
+
     $zypp_product_file = "mkdir -p \$RPM_BUILD_ROOT/etc/products.d\n";
     $zypp_product->{'arch'} = '%{_target_cpu}'; # write product architecture during rpm build
     $zypp_product->{'schemeversion'} = "0";
@@ -1166,21 +1170,28 @@ sub createProductFile ( $$ ) {
 
     $d->{"target"}  = $product->{'register'}->{'target'};
     $d->{"release"} = $product->{'register'}->{'release'};
-    my @r;
-    foreach my $repo ( @{$prodRef->{repositories}{repository} } ) {
-        next if defined($repo->{product_file}) && $repo->{product_file} eq "ignore";
-        # do only export when build name is specified
-        push @r, { "path" => $repo->{path} } if $repo->{path} =~ /^obs:\/\/(.*)\/(.*)\/(.*)/ && $1 && $2 && $3 ;
-    };
-    $d->{"repositories"}{"repository"} = \@r;
+    if ($mediaStyle =~ /^suse-1[12].[123]$/ || $mediaStyle =~ /^suse-13.1$/ || $mediaStyle =~ /^suse-sle11/) {
+       # old style, export used repositories for support tool
+       my @r;
+       foreach my $repo ( @{$prodRef->{repositories}{repository} } ) {
+           next if defined($repo->{product_file}) && $repo->{product_file} eq "ignore";
+           # do only export when build name is specified
+           push @r, { "path" => $repo->{path} } if $repo->{path} =~ /^obs:\/\/(.*)\/(.*)\/(.*)/ && $1 && $2 && $3 ;
+       };
+       $d->{"repositories"}{"repository"} = \@r;
+    } else {
+       # convert them to repoids
+       my @r;
+       foreach my $repo ( @{$prodRef->{updates}{repository}} ) {
+           push @r, { "repoid" => "obs://$obsname/$repo->{project}/$repo->{name}" };
+       };
+       $d->{"updates"}{"repository"} = \@r;
+    }
     $zypp_product->{'register'} = $d;
 
     # Release package number shall go with the package release
     $zypp_product->{'release'} = $product->{release};
 
-    my $mediaStyle = "suse-11.1"; # fallback value
-    my $medium = $prodRef->{mediasets}->{media}[0];
-    $mediaStyle = $medium->{'mediastyle'} if (defined($medium->{'mediastyle'}));
     if ($mediaStyle =~ /^suse-11.[123]$/ || $mediaStyle eq "suse-sle11-sp2") {
       $zypp_product->{'release'} = "%{release}";
     }

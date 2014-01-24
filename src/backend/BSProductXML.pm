@@ -101,13 +101,21 @@ our $product = [
               'target',
               'release',
               'flavor',
+              # following is for support tools
+              [ 'updates' =>
+                [[ 'repository' =>
+                   'project',   # input
+                   'name',
+                   'repoid',    # output for .prod file
+                ]],
+              ],
               [ 'repositories' =>
                 [[ 'repository' =>
                    'path',
                 ]],
-              ], # this is for prod file export only
+              ], # this is for prod file export only, not used for SLE 12/openSUSE 13.2 media style anymore
            ],
-           [ 'upgrades' =>
+           [ 'upgrades' =>     # to announce service pack releases
               [[ 'upgrade' =>
                  [],
                  'name',
@@ -118,7 +126,7 @@ our $product = [
                  'status',
               ]],
            ],
-           'updaterepokey',
+           'updaterepokey',  # should be obsolete with SLE 12
            [[ 'summary' =>
               'language',
               [],
