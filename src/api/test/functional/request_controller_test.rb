@@ -1242,7 +1242,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     login_tom
     post "/request/#{id}?cmd=addreview&by_user=adrian"
     assert_response 403
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'addreview_not_permitted' })
+    assert_xml_tag(:tag => 'status', :attributes => { code: 'add_review_not_permitted' })
 
     login_Iggy
     post "/request/#{id}?cmd=addreview&by_user=tom"
@@ -1898,7 +1898,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # accept the other request, what will fail
     login_king
     post "/request/#{id2}?cmd=changestate&newstate=accepted&force=1"
-    assert_response 400
+    assert_response 404
     assert_xml_tag(:tag => 'status', :attributes => { code: 'not_existing_target' })
 
     # decline the request
@@ -2482,7 +2482,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # try again and fail
     login_Iggy
     post "/request/#{iddelete2}?cmd=changestate&newstate=accepted"
-    assert_response 400
+    assert_response 404
     assert_xml_tag(:tag => 'status', :attributes => { code: 'repository_missing' })
 
     # cleanup

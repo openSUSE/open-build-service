@@ -62,24 +62,24 @@ class BsRequestAction < ActiveRecord::Base
 
   def self.type_to_class_name(type_name)
     case type_name
-      when :submit then
-        BsRequestActionSubmit
-      when :delete then
-        BsRequestActionDelete
-      when :change_devel then
-        BsRequestActionChangeDevel
-      when :add_role then
-        BsRequestActionAddRole
-      when :set_bugowner then
-        BsRequestActionSetBugowner
-      when :maintenance_incident then
-        BsRequestActionMaintenanceIncident
-      when :maintenance_release then
-        BsRequestActionMaintenanceRelease
-      when :group then
-        BsRequestActionGroup
-      else
-        nil
+    when :submit then
+      BsRequestActionSubmit
+    when :delete then
+      BsRequestActionDelete
+    when :change_devel then
+      BsRequestActionChangeDevel
+    when :add_role then
+      BsRequestActionAddRole
+    when :set_bugowner then
+      BsRequestActionSetBugowner
+    when :maintenance_incident then
+      BsRequestActionMaintenanceIncident
+    when :maintenance_release then
+      BsRequestActionMaintenanceRelease
+    when :group then
+      BsRequestActionGroup
+    else
+      nil
     end
   end
 
@@ -242,7 +242,7 @@ class BsRequestAction < ActiveRecord::Base
     begin
       sd = self.sourcediff(view: 'xml', withissues: true)
     rescue DiffError, Project::UnknownObjectError, Package::UnknownObjectError => e
-      return [{error: e.message}]
+      return [{ error: e.message }]
     end
     diff = sorted_filenames_from_sourcediff(sd)
     if diff[0].empty?
@@ -366,208 +366,8 @@ class BsRequestAction < ActiveRecord::Base
     return reviewers
   end
 
-  class TargetPackageMissing < APIException
-    setup 'post_request_no_permission', 403
-  end
-
-  class SourceMissing < APIException
-    setup 'unknown_package', 404
-  end
-
-  class TargetNotMaintenance < APIException
-    setup 404
-  end
-
-  class ProjectLocked < APIException
-    setup 403, 'The target project is locked'
-  end
-
-  class ExpandError < APIException;
-    setup 'expand_error'
-  end
-  class SourceChanged < APIException;
-  end
-
-  class ReleaseTargetNoPermission < APIException
-    setup 403
-  end
-
-  class NotExistingTarget < APIException;
-  end
-  class RepositoryMissing < APIException;
-  end
-
-  class RequestNoPermission < APIException
-    setup 'post_request_no_permission', 403
-  end
-
   def request_changes_state(state, opts)
     # only groups care for now
-  end
-
-  # check if the action can change state - or throw an APIException if not
-  def check_newstate!(opts)
-    # all action types need a target project in any case for accept
-    target_project = Project.find_by_name(self.target_project)
-    target_package = source_package = nil
-    if not target_project and opts[:newstate] == 'accepted'
-      raise NotExistingTarget.new "Unable to process project #{self.target_project}; it does not exist."
-    end
-
-    if [:submit, :change_devel, :maintenance_release, :maintenance_incident].include? self.action_type
-      source_package = nil
-      if %w(declined revoked superseded).include? opts[:newstate]
-        # relaxed access checks for getting rid of request
-        source_project = Project.find_by_name(self.source_project)
-      else
-        # full read access checks
-        source_project = Project.get_by_name(self.source_project)
-        target_project = Project.get_by_name(self.target_project)
-        if self.action_type == :change_devel and self.target_package.nil?
-          raise TargetPackageMissing.new "Target package is missing in request #{self.bs_request.id} (type #{self.action_type})"
-        end
-        if self.source_package or self.action_type == :change_devel
-          source_package = Package.get_by_project_and_name self.source_project, self.source_package
-        end
-        # require a local source package
-        if [:change_devel].include? self.action_type
-          unless source_package
-            raise SourceMissing.new "Local source package is missing for request #{self.bs_request.id} (type #{self.action_type})"
-          end
-        end
-        # accept also a remote source package
-        if source_package.nil? and [:submit].include? self.action_type
-          unless Package.exists_by_project_and_name(source_project.name, self.source_package,
-                                                    follow_project_links: true, allow_remote_packages: true)
-            raise SourceMissing.new "Source package is missing for request #{self.bs_request.id} (type #{self.action_type})"
-          end
-        end
-        # maintenance incident target permission checks
-        if is_maintenance_incident?
-          if opts[:cmd] == 'setincident'
-            if target_project.is_maintenance_incident?
-              raise TargetNotMaintenance.new 'The target project is already an incident, changing is not possible via set_incident'
-            end
-            unless target_project.project_type == 'maintenance'
-              raise TargetNotMaintenance.new "The target project is not of type maintenance but #{target_project.project_type}"
-            end
-            tip = Project.get_by_name(self.target_project + ':' + opts[:incident])
-            if tip && tip.is_locked?
-              raise ProjectLocked.new
-            end
-          else
-            unless %w(maintenance maintenance_incident).include? target_project.project_type.to_s
-              raise TargetNotMaintenance.new "The target project is not of type maintenance or incident but #{target_project.project_type}"
-            end
-          end
-        end
-        # validate that specified sources do not have conflicts on accepting request
-        if [:submit, :maintenance_incident].include? self.action_type and opts[:cmd] == 'changestate' and opts[:newstate] == 'accepted'
-          query = { expand: 1}
-          query[:rev] = self.source_rev if self.source_rev
-          url = Package.source_path(self.source_project, self.source_package, nil, query)
-          begin
-            ActiveXML.backend.direct_http(url)
-          rescue ActiveXML::Transport::Error
-            raise ExpandError.new "The source of package #{self.source_project}/#{self.source_package}#{self.source_rev ? " for revision #{self.source_rev}" : ''} is broken"
-          end
-        end
-        # maintenance_release accept check
-        if [:maintenance_release].include? self.action_type and opts[:cmd] == 'changestate' and opts[:newstate] == 'accepted'
-          # compare with current sources
-          if self.source_rev
-            # FIXME2.4 we have a directory model
-            url =  Package.source_path(self.source_project, self.source_package, nil, expand: 1)
-            c = ActiveXML.backend.direct_http(url)
-            data = REXML::Document.new(c)
-            unless self.source_rev == data.elements['directory'].attributes['srcmd5']
-              raise SourceChanged.new "The current source revision in #{self.source_project}/#{self.source_package} are not on revision #{self.source_rev} anymore."
-            end
-          end
-
-          # write access check in release targets
-          source_project.repositories.each do |repo|
-            repo.release_targets.each do |releasetarget|
-              unless User.current.can_modify_project? releasetarget.target_repository.project
-                raise ReleaseTargetNoPermission.new "Release target project #{releasetarget.target_repository.project.name} is not writable by you"
-              end
-            end
-          end
-        end
-      end
-      if target_project
-        if self.target_package
-          target_package = target_project.packages.find_by_name(self.target_package)
-        elsif [:submit, :change_devel].include? self.action_type
-          # fallback for old requests, new created ones get this one added in any case.
-          target_package = target_project.packages.find_by_name(self.source_package)
-        end
-      end
-
-    elsif [:delete, :add_role, :set_bugowner].include? self.action_type
-      if self.target_package
-        target_package = target_project.packages.find_by_name(self.target_package) if target_project
-      end
-      if opts[:newstate] == 'accepted' && opts[:cmd] == 'changestate'
-        # target must exist
-        if self.target_package
-          unless target_package
-            raise NotExistingTarget.new "Unable to process package #{self.target_project}/#{self.target_package}; it does not exist."
-          end
-          if self.action_type == :delete
-            target_package.can_be_deleted?
-          end
-        else
-          if self.action_type == :delete
-            if self.target_repository
-              r=Repository.find_by_project_and_repo_name(target_project.name, self.target_repository)
-              unless r
-                raise RepositoryMissing.new "The repository #{target_project} / #{self.target_repository} does not exist"
-              end
-            else
-              # remove entire project
-              target_project.can_be_deleted?
-            end
-          end
-        end
-      end
-    else
-      raise RequestNoPermission.new "Unknown request type #{opts[:newstate]} of request #{self.bs_request.id} (type #{self.action_type})"
-    end
-
-    # general source write permission check (for revoke)
-    if (source_package and User.current.can_modify_package?(source_package, true)) or
-        (not source_package and source_project and User.current.can_modify_project?(source_project, true))
-      write_permission_in_source = true
-    end
-
-    # general write permission check on the target on accept
-    write_permission_in_this_action = false
-    # meta data change shall also be allowed after freezing a project using force:
-    ignoreLock = opts[:force] and [:set_bugowner].include? self.action_type
-    if target_package
-      if User.current.can_modify_package?(target_package, ignoreLock)
-        write_permission_in_target = true
-        write_permission_in_this_action = true
-      end
-    else
-      if target_project and User.current.can_create_package_in?(target_project, true)
-        write_permission_in_target = true
-      end
-      if target_project and User.current.can_create_package_in?(target_project, ignoreLock)
-        write_permission_in_this_action = true
-      end
-    end
-
-    # abort immediatly if we want to write and can't
-    if opts[:cmd] == 'changestate' and %w(accepted).include? opts[:newstate] and not write_permission_in_this_action
-      msg = ''
-      msg = "No permission to modify target of request #{self.bs_request.id} (type #{self.action_type}): project #{self.target_project}" unless self.bs_request.new_record?
-      msg += ", package #{self.target_package}" if self.target_package
-      raise RequestNoPermission.new msg
-    end
-
-    return [write_permission_in_source, write_permission_in_target]
   end
 
   def get_releaseproject(pkg, tprj)
@@ -594,7 +394,7 @@ class BsRequestAction < ActiveRecord::Base
   # general source cleanup, used in submit and maintenance_incident actions
   def source_cleanup
     # cleanup source project
-    delete_path = source_cleanup_delete_path()
+    delete_path = source_cleanup_delete_path
     return unless delete_path
     del_params = {
         user: User.current.login,
@@ -698,7 +498,7 @@ class BsRequestAction < ActiveRecord::Base
             next unless firstarch
             # skip excluded patchinfos
             status = state.get_elements("/resultlist/result[@repository='#{repo.name}' and @arch='#{firstarch.name}']").first
-            unless status and s=status.get_elements("status[@package='#{pkg.name}']").first and s.attributes['code'] == 'excluded'
+            unless status and (s=status.get_elements("status[@package='#{pkg.name}']").first) and s.attributes['code'] == 'excluded'
               raise BuildNotFinished.new "patchinfo #{pkg.name} is broken" if s.attributes['code'] == 'broken'
               binaries = REXML::Document.new(Suse::Backend.get("/build/#{URI.escape(pkg.project.name)}/#{URI.escape(repo.name)}/#{URI.escape(firstarch.name)}/#{URI.escape(pkg.name)}").body)
               l = binaries.get_elements('binarylist/binary')
@@ -739,7 +539,7 @@ class BsRequestAction < ActiveRecord::Base
         newAction.target_package = tpkg + incident_suffix
       end
       newAction.source_rev = rev if rev
-      if self.is_maintenance_release? 
+      if self.is_maintenance_release?
         if pkg.is_channel?
           pkg.channels.each do |channel|
             # no action if channel has no targets defined, the single release action
@@ -758,7 +558,7 @@ class BsRequestAction < ActiveRecord::Base
             submitAction = BsRequestActionSubmit.new
             submitAction.source_project = newAction.source_project
             submitAction.source_package = newAction.source_package
-            submitAction.source_rev     = newAction.source_rev
+            submitAction.source_rev = newAction.source_rev
             submitAction.target_project = tprj.name
             submitAction.target_package = tpkg
             # replace the new action
@@ -766,8 +566,8 @@ class BsRequestAction < ActiveRecord::Base
             newAction = submitAction
           end
         else # non-channel package
-          unless pkg.project.can_be_released_to_project?(tprj) 
-           raise WrongLinkedPackageSource.new "According to the source link of package #{pkg.project.name}/#{pkg.name} it would go to project #{tprj.name} which is not specified as release target."
+          unless pkg.project.can_be_released_to_project?(tprj)
+            raise WrongLinkedPackageSource.new "According to the source link of package #{pkg.project.name}/#{pkg.name} it would go to project #{tprj.name} which is not specified as release target."
           end
         end
       end
@@ -989,7 +789,7 @@ class BsRequestAction < ActiveRecord::Base
 
     # validate that the sources are not broken
     begin
-      query = { expand: 1}
+      query = { expand: 1 }
       query[:rev] = self.source_rev if self.source_rev
       # FIXM2.4 we have a Directory model
       url = Package.source_path(self.source_project, self.source_package, nil, query)

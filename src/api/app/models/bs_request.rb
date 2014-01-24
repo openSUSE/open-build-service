@@ -14,7 +14,7 @@ class BsRequest < ActiveRecord::Base
     setup 'request_save_error'
   end
 
-  scope :to_accept, -> { where(state: 'new').where("accept_at < ?", DateTime.now) }
+  scope :to_accept, -> { where(state: 'new').where('accept_at < ?', DateTime.now) }
 
   has_many :bs_request_actions, -> { includes([:bs_request_action_accept_info]) }, dependent: :destroy
   has_many :bs_request_histories, :dependent => :delete_all
@@ -263,7 +263,7 @@ class BsRequest < ActiveRecord::Base
       self.bs_request_action_groups.each do |g|
         g.remove_request(self.id)
         if opts[:superseded_by] && state == :superseded
-          g.addrequest("newid" => opts[:superseded_by])
+          g.addrequest('newid' => opts[:superseded_by])
         end
       end
       self.state = state
@@ -498,7 +498,7 @@ class BsRequest < ActiveRecord::Base
           what = 'superseded request'
       end
 
-      events[item.created_at] = {:who => item.commenter, :what => what, :when => item.created_at, :comment => item.comment}
+      events[item.created_at] = { who: item.commenter, what: what, when: item.created_at, comment: item.comment }
       events[item.created_at][:color] = color if color
       last_history_item = item
     end
@@ -511,7 +511,7 @@ class BsRequest < ActiveRecord::Base
           events[item.created_at] = ct
         end
 
-        events[item.updated_at] = {:who => item.reviewer, :what => "#{item.state} review", :when => item.updated_at, :comment => item.reason}
+        events[item.updated_at] = { who: item.reviewer, what: "#{item.state} review", when: item.updated_at, comment: item.reason }
         events[item.updated_at][:color] = 'green' if item.state == :accepted
         events[item.updated_at][:color] = 'red' if item.state == :declined
       end
@@ -552,7 +552,7 @@ class BsRequest < ActiveRecord::Base
       else
         raise "unknown state '#{state.inspect}'"
     end
-    events[self.updated_at] = {:who => self.commenter, :what => what, :when => self.updated_at, :comment => comment}
+    events[self.updated_at] = { who: self.commenter, what: what, when: self.updated_at, comment: comment }
     events[self.updated_at][:color] = color if color
     events[self.updated_at][:superseded_by] = self.superseded_by if self.superseded_by
     # That wasn't all to difficult, no? ;-)
@@ -588,14 +588,14 @@ class BsRequest < ActiveRecord::Base
       User.current ||= User.find_by_login self.creator
 
       self.bs_request_actions.each do |action|
-        action.execute_accept({ lowprio: 1, comment: "Auto accept" })
+        action.execute_accept({ lowprio: 1, comment: 'Auto accept' })
       end
 
       self.bs_request_actions.each do |action|
-        action.per_request_cleanup(:comment => "Auto accept")
+        action.per_request_cleanup(:comment => 'Auto accept')
       end
 
-      self.change_state('accepted', :comment => "Auto accept")
+      self.change_state('accepted', :comment => 'Auto accept')
     end
   end
 
@@ -659,7 +659,7 @@ class BsRequest < ActiveRecord::Base
             linkinfo = target_package.linkinfo
             target_package.developed_packages.each do |dev_pkg|
               action[:forward] ||= []
-              action[:forward] << {project: dev_pkg.project.name, :package => dev_pkg.name, :type => 'devel'}
+              action[:forward] << {project: dev_pkg.project.name, package: dev_pkg.name, type: 'devel' }
             end
             if linkinfo
               lprj, lpkg = linkinfo['project'], linkinfo['package']
@@ -711,67 +711,4 @@ class BsRequest < ActiveRecord::Base
     actions
   end
 
-  class AddReviewNotPermitted < APIException
-    setup 'addreview_not_permitted', 403
-  end
-
-  class PostRequestNoPermission < APIException
-    setup 'post_request_no_permission', 403
-  end
-
-  # check if the request can change state - or throw an APIException if not
-  def check_newstate!(opts)
-    # permission and validation check for each action inside
-    write_permission_in_some_source = false
-    write_permission_in_some_target = false
-
-    self.bs_request_actions.each do |action|
-      wins, wint = action.check_newstate! opts
-      write_permission_in_some_source ||= wins
-      write_permission_in_some_target ||= wint
-    end
-
-    # General permission checks if a write access in any location is enough
-    return unless opts[:extra_permission_checks]
-
-    if %w(addreview setincident).include? opts[:cmd]
-      # Is the user involved in any project or package ?
-      unless write_permission_in_some_target or write_permission_in_some_source
-        raise AddReviewNotPermitted.new "You have no role in request #{self.id}"
-      end
-    elsif opts[:cmd] == 'changestate'
-      if %w(superseded).include? opts[:newstate]
-        # Is the user involved in any project or package ?
-        unless write_permission_in_some_target or write_permission_in_some_source
-          raise PostRequestNoPermission.new "You have no role in request #{self.id}"
-        end
-      elsif %w(accepted).include? opts[:newstate]
-        # requires write permissions in all targets, this is already handled in each action check
-      elsif %w(revoked).include? opts[:newstate]
-        # general revoke permission check based on source maintainership. We don't get here if the user is the creator of request
-        unless write_permission_in_some_source
-          raise PostRequestNoPermission.new "No permission to revoke request #{self.id}"
-        end
-      elsif self.state == :revoked and %w(new).include? opts[:newstate]
-        unless write_permission_in_some_source
-          # at least on one target the permission must be granted on decline
-          raise PostRequestNoPermission.new "No permission to reopen request #{self.id}"
-        end
-      elsif self.state == :declined and %w(new).include? opts[:newstate]
-        unless write_permission_in_some_target
-          # at least on one target the permission must be granted on decline
-          raise PostRequestNoPermission.new "No permission to reopen request #{self.id}"
-        end
-      elsif %w(declined).include? opts[:newstate]
-        unless write_permission_in_some_target
-          # at least on one target the permission must be granted on decline
-          raise PostRequestNoPermission.new "No permission to decline request #{self.id}"
-        end
-      else
-        raise PostRequestNoPermission.new "No permission to change request #{self.id} state"
-      end
-    else
-      raise 'PLEASE_REPORT: we lacked to handle this situation in our code !'
-    end
-  end
 end

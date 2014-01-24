@@ -4,8 +4,8 @@ require_dependency 'event/all'
 include MaintenanceHelper
 
 class RequestController < ApplicationController
-  validate_action :show => {:method => :get, :response => :request}
-  validate_action :request_create => {:method => :post, :response => :request}
+  validate_action :show => { method: :get, response: :request }
+  validate_action :request_create => { method: :post, response: :request }
 
   #TODO: allow PUT for non-admins
   before_filter :require_admin, :only => [:update, :destroy]
@@ -97,7 +97,8 @@ class RequestController < ApplicationController
       params[:comment] = request.raw_post
     end
 
-    check_request_change(@req, params) || return
+    # might raise an exception (which then renders an error)
+    check_request_change(@req, params)
 
     # permission granted for the request at this point
 
@@ -186,7 +187,7 @@ class RequestController < ApplicationController
 
       # Autoapproval? Is the creator allowed to accept it?
       if @req.accept_at
-        check_request_change(@req, {:cmd => 'changestate', :newstate => 'accepted'})
+        check_request_change(@req, { cmd: 'changestate', newstate: 'accepted' })
       end
 
       #
@@ -275,10 +276,6 @@ class RequestController < ApplicationController
     else
       render text: diff_text
     end
-  end
-
-  class PostRequestNoPermission < APIException
-    setup 403
   end
 
   class PostRequestMissingParamater < APIException
@@ -409,8 +406,8 @@ i          raise PostRequestNoPermission.new 'Request is in review state. You ma
       raise PostRequestMissingParamater.new "Supersed a request requires a 'superseded_by' parameter with the request id."
     end
 
-    req.check_newstate! params.merge({extra_permission_checks: !permission_granted})
-    true
+    checker = BsRequestPermissionCheck.new(req, params)
+    checker.cmd_permissions(params[:cmd], permission_granted)
   end
 
   def request_command_addrequest

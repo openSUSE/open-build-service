@@ -39,7 +39,7 @@ class BsRequestActionGroup < BsRequestAction
       raise AlreadyGrouped.new "#{req.id} is already part of the group request #{self.bs_request.id}"
     end
     if req.bs_request_actions.first.action_type == :group
-      raise CantGroupInGroups.new "Groups are not supported in groups"
+      raise CantGroupInGroups.new 'Groups are not supported in groups'
     end
     check_permissions_on(req)
     self.bs_requests << req
@@ -47,10 +47,10 @@ class BsRequestActionGroup < BsRequestAction
 
   def store_from_xml(hash)
     super(hash)
-    hash.elements("grouped") do |g|
-      check_and_add_request(Integer(g["id"]))
+    hash.elements('grouped') do |g|
+      check_and_add_request(Integer(g['id']))
     end
-    hash.delete("grouped")
+    hash.delete('grouped')
   end
 
   class GroupActionMustBeSingle < APIException;
@@ -142,9 +142,9 @@ class BsRequestActionGroup < BsRequestAction
   def addrequest(opts)
     newid = nil
     begin
-      newid = Integer(opts["newid"])
+      newid = Integer(opts['newid'])
     rescue TypeError, ArgumentError
-      raise RequireId.new("Need the new id in the newid parameter")
+      raise RequireId.new('Need the new id in the newid parameter')
     end
     check_and_add_request(newid)
     group_state = find_review_state_of_group
@@ -164,9 +164,9 @@ class BsRequestActionGroup < BsRequestAction
     logger.debug "removerequest #{opts}"
     old_id = nil
     begin
-      old_id = Integer(opts["oldid"])
+      old_id = Integer(opts['oldid'])
     rescue TypeError, ArgumentError
-      raise RequireId.new("Need the old id in the oldid parameter")
+      raise RequireId.new('Need the old id in the oldid parameter')
     end
     remove_request(old_id)
     check_for_group_in_new
@@ -181,8 +181,4 @@ class BsRequestActionGroup < BsRequestAction
     return :new
   end
 
-  def check_newstate!(opts)
-    logger.debug "CS #{opts.inspect}"
-    opts[:extra_permission_checks] = false
-  end
 end
