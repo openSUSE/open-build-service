@@ -91,7 +91,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'BsRequestActionMaintenanceIncident#merge_into_maintenance_incident' => 166.26,
       'BsRequestActionMaintenanceRelease#check_permissions!' => 91.4,
       'BsRequestActionSubmit#execute_accept' => 136.79,
-      'BsRequestPermissionCheck#check_newstate_action!' => 217.23, 
       'BuildController#file' => 127.42,
       'BuildController#project_index' => 129.0,
       'Channel#update_from_xml' => 72.6,
