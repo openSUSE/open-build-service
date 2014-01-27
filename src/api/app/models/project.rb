@@ -354,7 +354,6 @@ class Project < ActiveRecord::Base
       end
     end
 
-    logger.debug "### name comparison: self.name -> #{self.name}, project_name -> #{xmlhash['name']}"
     if self.name != xmlhash['name']
       raise SaveError, "project name mismatch: #{self.name} != #{xmlhash['name']}"
     end
@@ -372,80 +371,189 @@ class Project < ActiveRecord::Base
     @commit_opts = { no_backend_write: 1 }
     self.save!
 
-    #--- update linked projects ---#
-    position = 1
-    #destroy all current linked projects
-    self.linkedprojects.destroy_all
+    update_linked_projects(xmlhash)
+    parse_develproject(xmlhash)
 
-    #recreate linked projects from xml
-    xmlhash.elements('link') do |l|
-      link = Project.find_by_name( l['project'] )
-      if link.nil?
-        if Project.find_remote_project(l['project'])
-          self.linkedprojects.create(project: self,
-                                     linked_remote_project_name: l['project'],
-                                     position: position)
-        else
-          raise SaveError, "unable to link against project '#{l['project']}'"
-        end
-      else
-        if link == self
-          raise SaveError, 'unable to link against myself'
-        end
-        self.linkedprojects.create!(project: self,
-                                    linked_db_project: link,
-                                    position: position)
-      end
-      position += 1
-    end
-    #--- end of linked projects update  ---#
-    
-    #--- devel project ---#
-    self.develproject = nil
-    if devel = xmlhash['devel']
-      if prj_name = devel['project']
-        unless develprj = Project.get_by_name(prj_name)
-          raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)"
-        end
-        if develprj == self
-          raise SaveError, 'Devel project can not point to itself'
-        end
-        self.develproject = develprj
-      end
-    end
-    #--- end devel project ---#
-
-    # cycle detection
-    prj = self
-    processed = {}
-    while ( prj and prj.develproject )
-      prj_name = prj.name
-      # cycle detection
-      if processed[prj_name]
-        str = ''
-        processed.keys.each do |key|
-          str = str + ' -- ' + key
-        end
-        raise CycleError.new "There is a cycle in devel definition at #{str}"
-      end
-      processed[prj_name] = 1
-      prj = prj.develproject
-      prj = self if prj && prj.id == self.id
-    end
-    
-    update_maintained_prjs_from_xml( xmlhash )
-    update_relationships_from_xml( xmlhash )
+    update_maintained_prjs_from_xml(xmlhash)
+    update_relationships_from_xml(xmlhash)
 
     #--- update flag group ---#
-    update_all_flags( xmlhash )
+    update_all_flags(xmlhash)
     if ::Configuration.first.default_access_disabled == true and new_record
       # write a default access disable flag by default in this mode for projects if not defined
       if xmlhash.elements('access').empty?
         self.flags.new(:status => 'disable', :flag => 'access')
       end
     end
-    
+
     #--- update repository download settings ---#
+    update_download_settings(xmlhash)
+
+    #--- update repositories ---#
+    update_repositories(xmlhash, force)
+
+    #--- end update repositories ---#
+    self.updated_at = Time.now
+  end
+
+  def update_repositories(xmlhash, force)
+    fill_repo_cache
+
+    @skipped_repos = false
+    xmlhash.elements('repository') do |repo|
+      update_one_repository(repo, true)
+    end
+    if @skipped_repos
+      fill_repo_cache
+
+      xmlhash.elements('repository') do |repo|
+        update_one_repository(repo, false)
+      end
+    end
+
+    # delete remaining repositories in @repocache
+    @repocache.each do |name, object|
+      logger.debug "offending repo: #{object.inspect}"
+      unless force
+        #find repositories that link against this one and issue warning if found
+        list = PathElement.where(repository_id: object.id)
+        check_for_empty_repo_list(list, "Repository #{self.name}/#{name} cannot be deleted because following repos link against it:")
+        list = ReleaseTarget.where(target_repository_id: object.id)
+        check_for_empty_repo_list(list, "Repository #{self.name}/#{name} cannot be deleted because following repos define it as release target:/")
+      end
+      logger.debug "deleting repository '#{name}'"
+      self.repositories.destroy object
+    end
+    # save memory
+    @repocache = nil
+  end
+
+  def fill_repo_cache
+    @repocache = Hash.new
+    self.repositories.each do |repo|
+      @repocache[repo.name] = repo unless repo.remote_project_name
+    end
+  end
+
+  def update_one_repository(repo, skiprepos)
+
+    current_repo = @repocache[repo['name']]
+    if current_repo
+      logger.debug "modifying repository '#{repo['name']}'"
+    else
+      logger.debug "adding repository '#{repo['name']}'"
+      current_repo = self.repositories.new(:name => repo['name'])
+    end
+
+    #--- repository flags ---#
+    # check for rebuild configuration
+    if !repo.has_key? 'rebuild' and current_repo.rebuild
+      current_repo.rebuild = nil
+    end
+    if repo.has_key? 'rebuild'
+      if repo['rebuild'] != current_repo.rebuild
+        current_repo.rebuild = repo['rebuild']
+      end
+    end
+    # check for block configuration
+    if not repo.has_key? 'block' and current_repo.block
+      current_repo.block = nil
+    end
+    if repo.has_key? 'block'
+      if repo['block'] != current_repo.block
+        current_repo.block = repo['block']
+      end
+    end
+    # check for linkedbuild configuration
+    if not repo.has_key? 'linkedbuild' and current_repo.linkedbuild
+      current_repo.linkedbuild = nil
+    end
+    if repo.has_key? 'linkedbuild'
+      if repo['linkedbuild'] != current_repo.linkedbuild
+        current_repo.linkedbuild = repo['linkedbuild']
+      end
+    end
+    #--- end of repository flags ---#
+
+    #destroy all current releasetargets
+    current_repo.release_targets.destroy_all
+
+    #recreate release targets from xml
+    repo.elements('releasetarget') do |rt|
+      target_repo = Repository.find_by_project_and_repo_name(rt['project'], rt['repository'])
+      unless target_repo
+        raise SaveError.new("Unknown target repository '#{rt['project']}/#{rt['repository']}'")
+      end
+      unless target_repo.remote_project_name.nil?
+        raise SaveError.new("Can not use remote repository as release target '#{rt['project']}/#{rt['repository']}'")
+      end
+      current_repo.release_targets.new :target_repository => target_repo, :trigger => rt['trigger']
+    end
+
+    #set host hostsystem
+    if repo.has_key? 'hostsystem'
+      hostsystem = Project.get_by_name repo['hostsystem']['project']
+      target_repo = hostsystem.repositories.find_by_name repo['hostsystem']['repository']
+      if repo['hostsystem']['project'] == self.name and repo['hostsystem']['repository'] == repo['name']
+        raise SaveError, 'Using same repository as hostsystem element is not allowed'
+      end
+      unless target_repo
+        raise SaveError, "Unknown target repository '#{repo['hostsystem']['project']}/#{repo['hostsystem']['repository']}'"
+      end
+      if target_repo != current_repo.hostsystem
+        current_repo.hostsystem = target_repo
+      end
+    elsif current_repo.hostsystem
+      current_repo.hostsystem = nil
+    end
+
+    #destroy all current pathelements
+    current_repo.path_elements.destroy_all
+
+    #recreate pathelements from xml
+    position = 1
+    repo.elements('path') do |path|
+      link_repo = Repository.find_by_project_and_repo_name(path['project'], path['repository'])
+      if path['project'] == self.name
+        if path['repository'] == repo['name']
+          raise SaveError, 'Using same repository as path element is not allowed'
+        end
+        if !link_repo && skiprepos
+          @skipped_repos = true
+          return
+        end
+      end
+      if !link_repo
+        raise SaveError, "unable to walk on path '#{path['project']}/#{path['repository']}'"
+      end
+      current_repo.path_elements.new :link => link_repo, :position => position
+      position += 1
+    end
+
+    current_repo.save! if current_repo.changed?
+
+    #destroy architecture references
+    logger.debug "delete all of #{current_repo.id}"
+    RepositoryArchitecture.delete_all(['repository_id = ?', current_repo.id])
+
+    position = 1
+    repo.elements('arch') do |arch|
+      unless Architecture.archcache.has_key? arch
+        raise SaveError, "unknown architecture: '#{arch}'"
+      end
+      if current_repo.repository_architectures.where(architecture: Architecture.archcache[arch]).exists?
+        raise SaveError, "double use of architecture: '#{arch}'"
+      end
+      current_repo.repository_architectures.create architecture: Architecture.archcache[arch], position: position
+      position += 1
+    end
+
+    current_repo.save!
+
+    @repocache.delete repo['name']
+  end
+
+  def update_download_settings(xmlhash)
     dlcache = Hash.new
     self.downloads.each do |dl|
       dlcache[dl.architecture.name] = dl
@@ -472,158 +580,69 @@ class Project < ActiveRecord::Base
       logger.debug "remove download entry #{arch}"
       self.downloads.destroy object
     end
-    
-    #--- update repositories ---#
-    repocache = Hash.new
-    self.repositories.each do |repo|
-      repocache[repo.name] = repo unless repo.remote_project_name
+  end
+
+  def parse_develproject(xmlhash)
+    self.develproject = nil
+    if devel = xmlhash['devel']
+      if prj_name = devel['project']
+        unless develprj = Project.get_by_name(prj_name)
+          raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)"
+        end
+        if develprj == self
+          raise SaveError, 'Devel project can not point to itself'
+        end
+        self.develproject = develprj
+      end
     end
-    
-    xmlhash.elements('repository') do |repo|
-      was_updated = false
-      
-      current_repo = repocache[repo['name']]
-      if current_repo
-        logger.debug "modifying repository '#{repo['name']}'"
+
+    # cycle detection
+    prj = self
+    processed = {}
+    while (prj and prj.develproject)
+      prj_name = prj.name
+      # cycle detection
+      if processed[prj_name]
+        str = ''
+        processed.keys.each do |key|
+          str = str + ' -- ' + key
+        end
+        raise CycleError.new "There is a cycle in devel definition at #{str}"
+      end
+      processed[prj_name] = 1
+      prj = prj.develproject
+      prj = self if prj && prj.id == self.id
+    end
+
+  end
+
+  def update_linked_projects(xmlhash)
+    position = 1
+    #destroy all current linked projects
+    self.linkedprojects.destroy_all
+
+    #recreate linked projects from xml
+    xmlhash.elements('link') do |l|
+      link = Project.find_by_name(l['project'])
+      if link.nil?
+        if Project.find_remote_project(l['project'])
+          self.linkedprojects.create(project: self,
+                                     linked_remote_project_name: l['project'],
+                                     position: position)
+        else
+          raise SaveError, "unable to link against project '#{l['project']}'"
+        end
       else
-        logger.debug "adding repository '#{repo['name']}'"
-        was_updated = true
-        current_repo = self.repositories.new( :name => repo['name'] )
-      end
-      
-      #--- repository flags ---#
-      # check for rebuild configuration
-      if !repo.has_key? 'rebuild' and current_repo.rebuild
-        current_repo.rebuild = nil
-        was_updated = true
-      end
-      if repo.has_key? 'rebuild'
-        if repo['rebuild'] != current_repo.rebuild
-          current_repo.rebuild = repo['rebuild']
-          was_updated = true
+        if link == self
+          raise SaveError, 'unable to link against myself'
         end
+        self.linkedprojects.create!(project: self,
+                                    linked_db_project: link,
+                                    position: position)
       end
-      # check for block configuration
-      if not repo.has_key? 'block' and current_repo.block
-        current_repo.block = nil
-        was_updated = true
-      end
-      if repo.has_key? 'block'
-        if repo['block'] != current_repo.block
-          current_repo.block = repo['block']
-          was_updated = true
-        end
-      end
-      # check for linkedbuild configuration
-      if not repo.has_key? 'linkedbuild' and current_repo.linkedbuild
-        current_repo.linkedbuild = nil
-        was_updated = true
-      end
-      if repo.has_key? 'linkedbuild'
-        if repo['linkedbuild'] != current_repo.linkedbuild
-          current_repo.linkedbuild = repo['linkedbuild']
-          was_updated = true
-        end
-      end
-      #--- end of repository flags ---#
-
-      #destroy all current releasetargets
-      current_repo.release_targets.destroy_all
-
-      #recreate release targets from xml
-      repo.elements('releasetarget') do |rt|
-        target_repo = Repository.find_by_project_and_repo_name( rt['project'], rt['repository'] )
-        unless target_repo
-          raise SaveError.new("Unknown target repository '#{rt['project']}/#{rt['repository']}'")
-        end
-        unless target_repo.remote_project_name.nil?
-          raise SaveError.new("Can not use remote repository as release target '#{rt['project']}/#{rt['repository']}'")
-        end
-        current_repo.release_targets.new :target_repository => target_repo, :trigger => rt['trigger']
-        was_updated = true
-      end
-
-      #set host hostsystem
-      if repo.has_key? 'hostsystem'
-        hostsystem = Project.get_by_name repo['hostsystem']['project']
-        target_repo = hostsystem.repositories.find_by_name repo['hostsystem']['repository']
-        if repo['hostsystem']['project'] == self.name and repo['hostsystem']['repository'] == repo['name']
-          raise SaveError, 'Using same repository as hostsystem element is not allowed'
-        end
-        unless target_repo
-          raise SaveError, "Unknown target repository '#{repo['hostsystem']['project']}/#{repo['hostsystem']['repository']}'"
-        end
-        if target_repo != current_repo.hostsystem
-          current_repo.hostsystem = target_repo
-          was_updated = true
-        end
-      elsif current_repo.hostsystem
-        current_repo.hostsystem = nil
-        was_updated = true
-      end
-
-      #destroy all current pathelements
-      current_repo.path_elements.destroy_all
-
-      #recreate pathelements from xml
-      position = 1
-      repo.elements('path') do |path|
-        link_repo = Repository.find_by_project_and_repo_name( path['project'], path['repository'] )
-        if path['project'] == self.name and path['repository'] == repo['name']
-          raise SaveError, 'Using same repository as path element is not allowed'
-        end
-        unless link_repo
-          raise SaveError, "unable to walk on path '#{path['project']}/#{path['repository']}'"
-        end
-        current_repo.path_elements.new :link => link_repo, :position => position
-        position += 1
-        was_updated = true
-      end
-
-      was_updated = true if current_repo.architectures.size > 0 or repo.elements('arch').size > 0
-
-      if was_updated
-        current_repo.save!
-      end
-
-      #destroy architecture references
-      logger.debug "delete all of #{current_repo.id}"
-      RepositoryArchitecture.delete_all(['repository_id = ?', current_repo.id])
-
-      position = 1
-      repo.elements('arch') do |arch|
-        unless Architecture.archcache.has_key? arch
-          raise SaveError, "unknown architecture: '#{arch}'"
-        end
-        if current_repo.repository_architectures.where( architecture: Architecture.archcache[arch] ).exists?
-          raise SaveError, "double use of architecture: '#{arch}'"
-        end
-        a = current_repo.repository_architectures.new :architecture => Architecture.archcache[arch]
-        a.position = position
-        position += 1
-        a.save
-        was_updated = true
-      end
-
-      repocache.delete repo['name']
+      position += 1
     end
-
-    # delete remaining repositories in repocache
-    repocache.each do |name, object|
-      logger.debug "offending repo: #{object.inspect}"
-      unless force
-        #find repositories that link against this one and issue warning if found
-        list = PathElement.where(repository_id: object.id)
-        check_for_empty_repo_list(list, "Repository #{self.name}/#{name} cannot be deleted because following repos link against it:")
-        list = ReleaseTarget.where(target_repository_id: object.id)
-        check_for_empty_repo_list(list, "Repository #{self.name}/#{name} cannot be deleted because following repos define it as release target:/")
-      end
-      logger.debug "deleting repository '#{name}'"
-      self.repositories.destroy object
-    end
-    repocache = nil
-    #--- end update repositories ---#
-    self.updated_at = Time.now
+    position
   end
 
   def update_maintained_prjs_from_xml(xmlhash)
