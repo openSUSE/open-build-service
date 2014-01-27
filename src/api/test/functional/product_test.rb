@@ -35,6 +35,8 @@ class ProductTests < ActionDispatch::IntegrationTest
     product = Package.find_by_project_and_name("home:tom:temporary","_product").products.first
     assert_equal "simple", product.name
     assert_equal "cpe:/a:OBS_Fuzzies:simple:11.2", product.cpe
+    assert_equal product.product_update_repositories.first.repository.project.name, "BaseDistro2.0:LinkedUpdateProject"
+    assert_equal product.product_update_repositories.first.repository.name, "BaseDistro2LinkedUpdateProject_repo"
 
     get "/source/home:tom:temporary/_product:simple-SP3-migration/simple-SP3-migration.spec"
     assert_response :success

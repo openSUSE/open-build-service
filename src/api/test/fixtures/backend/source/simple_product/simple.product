@@ -11,6 +11,9 @@
       <register>
         <target>sle-11-%{_target_cpu}</target>
         <release></release>
+        <updates>
+          <repository project="BaseDistro2.0:LinkedUpdateProject" name="BaseDistro2LinkedUpdateProject_repo" />
+        </updates>
       </register>
       <summary>Simple OBS Product</summary>
 

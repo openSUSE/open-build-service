@@ -344,6 +344,7 @@ CREATE TABLE `configurations` (
   `no_proxy` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `theme` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `obs_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `cleanup_after_days` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -653,6 +654,17 @@ CREATE TABLE `product_channels` (
   KEY `product_id` (`product_id`),
   CONSTRAINT `product_channels_ibfk_1` FOREIGN KEY (`channel_id`) REFERENCES `channels` (`id`),
   CONSTRAINT `product_channels_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE `product_update_repositories` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `product_id` int(11) DEFAULT NULL,
+  `repository_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `product_id` (`product_id`),
+  KEY `repository_id` (`repository_id`),
+  CONSTRAINT `product_update_repositories_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`),
+  CONSTRAINT `product_update_repositories_ibfk_2` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `products` (
@@ -1428,6 +1440,8 @@ INSERT INTO schema_migrations (version) VALUES ('20131218071042');
 INSERT INTO schema_migrations (version) VALUES ('20140113110551');
 
 INSERT INTO schema_migrations (version) VALUES ('20140123071042');
+
+INSERT INTO schema_migrations (version) VALUES ('20140124071042');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
