@@ -86,6 +86,7 @@
            <choice>
              <value>l3</value>
              <value>l2</value>
+             <value>l1</value>
              <value>acc</value>
              <value>unsupported</value>
            </choice>
