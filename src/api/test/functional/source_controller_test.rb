@@ -3218,4 +3218,18 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     assert_equal({ 'code' => 'unknown_package', 'summary' => 'home:tom/bar' }, Xmlhash.parse(@response.body))
   end
+
+  test 'issue 328' do
+    login_tom
+    # create a new project with images repo referencing the other
+    put('/source/home:tom:twoatatime/_meta',
+        '<project name="home:tom:twoatatime"> <title/> <description/>
+           <repository name="images">
+             <path project="home:tom:twoatatime" repository="standard"/>
+           </repository>
+           <repository name="standard">
+           </repository>
+         </project>')
+    assert_response :success
+  end
 end

@@ -233,13 +233,13 @@ class SourceController < ApplicationController
 
   # GET /source/:project/:package
   def show_package
-    if @deleted_package 
+    if @deleted_package
       tpkg = Package.find_by_project_and_name(@target_project_name, @target_package_name)
       if tpkg
         raise PackageExists.new 'the package is not deleted'
       else
         validate_read_access_of_deleted_package(@target_project_name, @target_package_name)
-      end 
+      end
     else
       if %w(_project _pattern).include? @target_package_name
         Project.get_by_name @target_project_name
@@ -384,7 +384,7 @@ class SourceController < ApplicationController
 
     unless Package_creating_commands.include? @command and not Project.exists_by_name(@target_project_name)
       # even when we can create the package, an existing instance must be checked if permissions are right
-      @project = Project.get_by_name @target_project_name 
+      @project = Project.get_by_name @target_project_name
       if not Package_creating_commands.include? @command or Package.exists_by_project_and_name( @target_project_name, @target_package_name, follow_project_links: Source_untouched_commands.include?(@command) )
         validate_target_for_package_command_exists!
       end
@@ -451,6 +451,14 @@ class SourceController < ApplicationController
   class ProjectNameMismatch < APIException
   end
 
+  class RepositoryAccessFailure < APIException
+    setup 404
+  end
+
+  class ProjectReadAccessFailure < APIException
+    setup 404
+  end
+
   # PUT /source/:project/_meta
   def update_project_meta
     # init
@@ -509,23 +517,7 @@ class SourceController < ApplicationController
       end
     end
 
-    # the following code checks if the target project of a linked project exists or is not readable by user
-    rdata.elements('link') do |e|
-      # permissions check
-      tproject_name = e.value('project')
-      tprj = Project.get_by_name(tproject_name)
-
-      # The read access protection for own and linked project must be the same.
-      # ignore this for remote targets
-      if tprj.class == Project and tprj.disabled_for?('access', nil, nil) and
-          !FlagHelper.xml_disabled_for?(rdata, 'access')
-        render_error :status => 404, :errorcode => 'project_read_access_failure',
-                     :message => "project links work only when both projects have same read access protection level: #{project_name} -> #{tproject_name}"
-        return
-      end
-
-      logger.debug "project #{project_name} link checked against #{tproject_name} projects permission"
-    end
+    check_target_of_link(project_name, rdata)
 
     new_repo_names = {}
     # Check used repo pathes for existens and read access permissions
@@ -534,13 +526,13 @@ class SourceController < ApplicationController
       r.elements('path') do |e|
         # permissions check
         tproject_name = e.value('project')
-        tprj = Project.get_by_name(tproject_name)
-        if tprj.class == Project and tprj.disabled_for?('access', nil, nil) # user can access tprj, but backend would refuse to take binaries from there
-          render_error :status => 404, :errorcode => 'repository_access_failure',
-                       :message => "The current backend implementation is not using binaries from read access protected projects #{tproject_name}"
-          return
+        if tproject_name != project_name
+          tprj = Project.get_by_name(tproject_name)
+          if tprj.class == Project and tprj.disabled_for?('access', nil, nil) # user can access tprj, but backend would refuse to take binaries from there
+            raise RepositoryAccessFailure.new "The current backend implementation is not using binaries from read access protected projects #{tproject_name}"
+          end
         end
-          
+
         logger.debug "project #{project_name} repository path checked against #{tproject_name} projects permission"
       end
     end
@@ -569,6 +561,24 @@ class SourceController < ApplicationController
       prj.store
     end
     render_ok
+  end
+
+  # the following code checks if the target project of a linked project exists or is not readable by user
+  def check_target_of_link(project_name, rdata)
+    rdata.elements('link') do |e|
+      # permissions check
+      tproject_name = e.value('project')
+      tprj = Project.get_by_name(tproject_name)
+
+      # The read access protection for own and linked project must be the same.
+      # ignore this for remote targets
+      if tprj.class == Project and tprj.disabled_for?('access', nil, nil) and
+          !FlagHelper.xml_disabled_for?(rdata, 'access')
+        raise ProjectReadAccessFailure.new "project links work only when both projects have same read access protection level: #{project_name} -> #{tproject_name}"
+      end
+
+      logger.debug "project #{project_name} link checked against #{tproject_name} projects permission"
+    end
   end
 
   # GET /source/:project/_config
@@ -1040,7 +1050,7 @@ class SourceController < ApplicationController
       rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
       rel = rel.where(bs_request_actions: { type: 'maintenance_release', source_project: @project.name})
       if rel.exists?
-        raise OpenReleaseRequest.new "Unlock of maintenance incident #{} is not possible, because there is a running release request: #{rel.first.id}"	
+        raise OpenReleaseRequest.new "Unlock of maintenance incident #{} is not possible, because there is a running release request: #{rel.first.id}"
       end
     end
 
@@ -1052,8 +1062,8 @@ class SourceController < ApplicationController
         :message => "project '#{@project.name}' is not locked"
       return
     end
-   
-    Project.transaction do 
+
+    Project.transaction do
       @project.flags.delete(f)
       @project.store(p)
 
@@ -1260,7 +1270,7 @@ class SourceController < ApplicationController
       render_invoked
     end
   end
-  
+
   # POST /source/<project>?cmd=createpatchinfo
   def project_command_createpatchinfo
     #project_name = params[:project]
@@ -1423,7 +1433,7 @@ class SourceController < ApplicationController
     path = request.path
     path << build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
     answer = pass_to_backend path
-    
+
     if @package # except in case of _project package
       @package.sources_changed(answer)
     end
@@ -1433,7 +1443,7 @@ class SourceController < ApplicationController
   def package_command_diff
     #oproject_name = params[:oproject]
     #opackage_name = params[:opackage]
- 
+
     path = request.path
     path << build_query_from_hash(params, [:cmd, :rev, :orev, :oproject, :opackage, :expand ,:linkrev, :olinkrev,
                                            :unified ,:missingok, :meta, :file, :filelimit, :tarlimit,
@@ -1472,7 +1482,7 @@ class SourceController < ApplicationController
 
     # We need to use the project name of package object, since it might come via a project linked project
     path = @package.source_path
-    path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand, 
+    path << build_query_from_hash(params, [:cmd, :rev, :user, :comment, :oproject, :opackage, :orev, :expand,
                                            :keeplink, :repairlink, :linkrev, :olinkrev, :requestid,
                                            :noservice, :dontupdatesource, :withhistory])
     pass_to_backend path
@@ -1558,7 +1568,7 @@ class SourceController < ApplicationController
 
   def verify_can_modify_target!
     # we require a target, but are we allowed to modify the existing target ?
-    if Project.exists_by_name(@target_project_name) 
+    if Project.exists_by_name(@target_project_name)
       @project = Project.get_by_name(@target_project_name)
     else
       return if User.current.can_create_project?(@target_project_name)
