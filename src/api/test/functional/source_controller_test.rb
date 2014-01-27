@@ -7,7 +7,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def setup
     super
-#    wait_for_scheduler_start
+    wait_for_scheduler_start
   end
 
   def test_get_projectlist

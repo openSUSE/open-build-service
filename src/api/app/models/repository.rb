@@ -1,12 +1,12 @@
 class Repository < ActiveRecord::Base
 
-  belongs_to :project, foreign_key: :db_project_id
+  belongs_to :project, foreign_key: :db_project_id, inverse_of: :repositories
 
   before_destroy :cleanup_before_destroy
 
   has_many :release_targets, :class_name => "ReleaseTarget", :dependent => :delete_all, :foreign_key => 'repository_id'
-  has_many :path_elements, -> { order("position") }, foreign_key: 'parent_id', dependent: :delete_all
-  has_many :links, :class_name => "PathElement", :foreign_key => 'repository_id'
+  has_many :path_elements, -> { order("position") }, foreign_key: 'parent_id', dependent: :delete_all, inverse_of: :repository
+  has_many :links, :class_name => "PathElement", :foreign_key => 'repository_id', inverse_of: :link
   has_many :targetlinks, :class_name => "ReleaseTarget", :foreign_key => 'target_repository_id'
   has_many :download_stats
   has_one :hostsystem, :class_name => "Repository", :foreign_key => 'hostsystem_id'
@@ -20,7 +20,7 @@ class Repository < ActiveRecord::Base
   validate :validate_duplicates, :on => :create
   def validate_duplicates
     if Repository.where("db_project_id = ? AND name = ? AND ( remote_project_name = ? OR remote_project_name is NULL)", self.db_project_id, self.name, self.remote_project_name).first
-      errors.add(:name, "Project already has repository with name #{self.name}")
+      errors.add(:project, "already has repository with name #{self.name}")
     end
   end
 
