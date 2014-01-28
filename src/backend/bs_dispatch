@@ -77,7 +77,6 @@ while (@ARGV) {
   if ($ARGV[0] eq '--test-directory') {
     shift @ARGV;
     $testdir = shift @ARGV;
-    next;
   } elsif ($ARGV[0] eq '--test-constraints') {
     shift @ARGV;
     my $package = shift @ARGV;
@@ -88,27 +87,24 @@ while (@ARGV) {
     my $workerinfo = readxml($workerinfo_file, $BSXML::worker);
 
     my $constraints;
-    if ($constraints_file && $constraints_file ne "") {
+    if ($constraints_file) {
       my $xml = readstr($constraints_file);
       $constraints = parseconstraints($package, $architecture, $xml);
     }
-    if ($constraintsprj_file && $constraintsprj_file ne "" && open(FILE, "<", $constraintsprj_file)) {
-      my @lines;
-      while(<FILE>) {
-        chomp;
-        push @lines, [ split(' ', $_) ];
-      }
-      close FILE;
+    if ($constraintsprj_file) {
+      my @lines = map { [ split(' ', $_) ] } split("\n", readstr($constraintsprj_file));
       my $prjconfconstraint = list2struct($BSXML::constraints, \@lines);
       if ($prjconfconstraint) {
         $constraints = $constraints ? mergeconstraints($prjconfconstraint, $constraints) : $prjconfconstraint;
       }
     }
-    die("No parseable workerinfo") unless keys %$workerinfo;
-    die("No parseable constraints") unless keys %$constraints;
+    die("No parseable workerinfo\n") unless keys %$workerinfo;
+    die("No parseable constraints\n") unless keys %$constraints;
     my $o = oracle($workerinfo, $constraints);
-    exit 0 if (defined($o) && $o > 0);
+    exit 0 if defined($o) && $o > 0;
     exit 1;
+  } else {
+    last;
   }
 }
 
@@ -361,7 +357,7 @@ sub parseconstraints {
     overwrite($xml, $o);
   }
   return $xml;
-};
+}
 
 sub getconstraints {
   my ($info, $architecture, $constraintsmd5) = @_;
