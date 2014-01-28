@@ -18,10 +18,10 @@ Such requests get not created for projects with open requests or if you remove t
 
     # defaults
     User.current ||= User.find_by_login "Admin"
-    at = AttribType.find_by_namespace_and_name("OBS", "AutoCleanup")
+    @cleanup_attribute = AttribType.find_by_namespace_and_name("OBS", "AutoCleanup")
     @cleanupTime = DateTime.now + cleanupDays.days
 
-    Project.find_by_attribute_type(at).each do |prj|
+    Project.find_by_attribute_type(@cleanup_attribute).each do |prj|
       autoclean_project(prj)
     end
   end
@@ -36,7 +36,7 @@ Such requests get not created for projects with open requests or if you remove t
     # check the time in project attribute
     time = nil
     begin
-      return unless attribute = prj.attribs.find_by_attrib_type_id(at.id)
+      return unless attribute = prj.attribs.find_by_attrib_type_id(@cleanup_attribute.id)
       return unless time = DateTime.parse(attribute.values.first.value)
     rescue ArgumentError
       # not parseable time
