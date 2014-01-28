@@ -398,17 +398,11 @@ class Project < ActiveRecord::Base
 
   def update_repositories(xmlhash, force)
     fill_repo_cache
-
-    @skipped_repos = false
     xmlhash.elements('repository') do |repo|
-      update_one_repository(repo, true)
+      update_one_repository_without_path(repo)
     end
-    if @skipped_repos
-      fill_repo_cache
-
-      xmlhash.elements('repository') do |repo|
-        update_one_repository(repo, false)
-      end
+    xmlhash.elements('repository') do |repo|
+      update_one_repository_add_pathes(repo)
     end
 
     # delete remaining repositories in @repocache
@@ -435,7 +429,32 @@ class Project < ActiveRecord::Base
     end
   end
 
-  def update_one_repository(repo, skiprepos)
+  def update_one_repository_add_pathes(repo)
+    current_repo = self.repositories.find_by_name(repo['name'])
+
+    #destroy all current pathelements
+    current_repo.path_elements.destroy_all
+
+    #recreate pathelements from xml
+    position = 1
+    repo.elements('path') do |path|
+      link_repo = Repository.find_by_project_and_repo_name(path['project'], path['repository'])
+      if path['project'] == self.name
+        if path['repository'] == repo['name']
+          raise SaveError, 'Using same repository as path element is not allowed'
+        end
+      end
+      if !link_repo
+        raise SaveError, "unable to walk on path '#{path['project']}/#{path['repository']}'"
+      end
+      current_repo.path_elements.new :link => link_repo, :position => position
+      position += 1
+    end
+
+    current_repo.save!
+  end
+
+  def update_one_repository_without_path(repo)
 
     current_repo = @repocache[repo['name']]
     if current_repo
@@ -505,29 +524,6 @@ class Project < ActiveRecord::Base
       end
     elsif current_repo.hostsystem
       current_repo.hostsystem = nil
-    end
-
-    #destroy all current pathelements
-    current_repo.path_elements.destroy_all
-
-    #recreate pathelements from xml
-    position = 1
-    repo.elements('path') do |path|
-      link_repo = Repository.find_by_project_and_repo_name(path['project'], path['repository'])
-      if path['project'] == self.name
-        if path['repository'] == repo['name']
-          raise SaveError, 'Using same repository as path element is not allowed'
-        end
-        if !link_repo && skiprepos
-          @skipped_repos = true
-          return
-        end
-      end
-      if !link_repo
-        raise SaveError, "unable to walk on path '#{path['project']}/#{path['repository']}'"
-      end
-      current_repo.path_elements.new :link => link_repo, :position => position
-      position += 1
     end
 
     current_repo.save! if current_repo.changed?

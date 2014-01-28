@@ -3222,14 +3222,24 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   test 'issue 328' do
     login_tom
     # create a new project with images repo referencing the other
-    put('/source/home:tom:twoatatime/_meta',
-        '<project name="home:tom:twoatatime"> <title/> <description/>
+    put('/source/home:tom:threeatatime/_meta',
+        '<project name="home:tom:threeatatime"> <title/> <description/>
            <repository name="images">
-             <path project="home:tom:twoatatime" repository="standard"/>
+             <path project="home:tom:threeatatime" repository="standard"/>
            </repository>
            <repository name="standard">
+             <path project="home:tom:threeatatime" repository="standard2"/>
+           </repository>
+           <repository name="standard2">
            </repository>
          </project>')
     assert_response :success
+    get '/source/home:tom:threeatatime/_meta'
+    assert_response :success
+    assert_xml_tag :tag => "path", :attributes => { :project => "home:tom:threeatatime", :repository => "standard"},
+                   :parent => { :tag => "repository", :attributes => { :name => "images" } }
+    assert_xml_tag :tag => "path", :attributes => { :project => "home:tom:threeatatime", :repository => "standard2"},
+                   :parent => { :tag => "repository", :attributes => { :name => "standard" } }
+    assert_xml_tag :tag => "repository", :attributes => {:name => "standard2"}
   end
 end

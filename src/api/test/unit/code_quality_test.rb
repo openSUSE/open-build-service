@@ -113,7 +113,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Project#update_download_settings' => 52.3, 
       'Project#update_from_xml' => 68.71,
       'Project#update_product_autopackages' => 52.05,
-      'Project#update_one_repository' => 182.18,
+      'Project#update_one_repository_without_path' => 150.7,
       'Project::check_access?' => 54.05,
       'Project::get_by_name' => 53.44,
       'ProjectStatusCalculator#calc_status' => 74.59,
