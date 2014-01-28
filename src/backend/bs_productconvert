@@ -1207,6 +1207,10 @@ sub createProductFile ( $$ ) {
        };
        $d->{"repositories"}{"repository"} = \@r;
     } else {
+       if ($mediaStyle =~ /^suse-sle12/) {
+         # SLE 12 medias require an end-of-life definition
+         die("400 endoflife not defined") unless $product->{'endoflife'};
+       }
        # convert them to repoids
        my @r;
        foreach my $repo ( @{$prodRef->{updates}{repository}} ) {
