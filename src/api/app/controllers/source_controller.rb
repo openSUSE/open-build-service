@@ -1583,21 +1583,15 @@ class SourceController < ApplicationController
   end
 
   def private_branch_command
-    ret = Package.transaction do
-      do_branch params
+    ret = BranchPackage.new(params).branch
+    if ret[:text]
+      render ret
+    else
+      Event::BranchCommand.create project: params[:project], package: params[:package],
+                                  targetproject: params[:target_project], targetpackage: params[:target_package],
+                                  user: User.current.login
+      render_ok ret
     end
-    if ret[:status] == 200
-      if ret[:text]
-        render ret
-      else
-        Event::BranchCommand.create project: params[:project], package: params[:package],
-                                    targetproject: params[:target_project], targetpackage: params[:target_package],
-                                    user: User.current.login
-        render_ok ret
-      end
-      return
-    end
-    render_error ret
   end
 
   # POST /source/<project>/<package>?cmd=branch&target_project="optional_project"&target_package="optional_package"&update_project_attribute="alternative_attribute"&comment="message"

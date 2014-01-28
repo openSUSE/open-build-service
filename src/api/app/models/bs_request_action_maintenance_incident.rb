@@ -1,7 +1,5 @@
 class BsRequestActionMaintenanceIncident < BsRequestAction
 
-  # for now we need do_branch
-  include MaintenanceHelper
   include SubmitRequestSourceDiff
 
   def is_maintenance_incident?
@@ -90,7 +88,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
         unless Package.exists_by_project_and_name(releaseproject, package_name, follow_project_links: true)
           branch_params[:missingok]= 1
         end
-        ret = do_branch branch_params
+        ret = BranchPackage.new(branch_params).branch
         new_pkg = Package.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
 
         # use link target as fallback
@@ -104,7 +102,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
                          :force => 1,
                          :project => linked_project, :package => linked_package}
         branch_params[:requestid] = request.id if request
-        ret = do_branch branch_params
+        ret = BranchPackage.new(branch_params).branch
         new_pkg = Package.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
       else
 
