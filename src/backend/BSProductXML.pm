@@ -93,6 +93,7 @@ our $product = [
            'patchlevel',
            'migrationtarget',
            'release',
+           'endoflife',     # in ISO 8601 format (YYYY-MM-DD)
            'arch',
            'cpeid',         # generated, not for input
            'productline',
