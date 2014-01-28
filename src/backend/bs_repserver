@@ -2835,7 +2835,7 @@ sub getbuildinfo {
     for my $b (@bins) {
       my @bn = split('/', $b);
       my $d = { 'binary' => $bn[-1] };
-      if ($bn[-1] =~ /^(.+)-([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+      if ($bn[-1] =~ /^(?:::import::.*::)?(.+)-([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/) {
         $d->{'name'} = $1;
         $d->{'version'} = $2; 
         $d->{'release'} = $3;
