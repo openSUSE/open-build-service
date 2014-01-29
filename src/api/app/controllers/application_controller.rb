@@ -37,6 +37,7 @@ class ApplicationController < ActionController::Base
   before_action :setup_backend
   before_action :shutup_rails
   before_action :validate_params
+  before_action :require_login
 
   #contains current authentification method, one of (:proxy, :basic)
   attr_accessor :auth_method
@@ -557,6 +558,12 @@ class ApplicationController < ActionController::Base
 
   class AnonymousUser < APIException
    setup 401
+  end
+
+  def require_login
+    # we may allow anonymous GET operations (if configured) but we require
+    # a valid account on other opertations
+    be_not_nobody! unless request.get?
   end
 
   def be_not_nobody!

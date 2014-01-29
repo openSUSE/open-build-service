@@ -122,7 +122,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'ProjectStatusCalculator#calc_status' => 74.59,
       'PublicController#binary_packages' => 131.24,
       'Repository#cleanup_before_destroy' => 85.53,
-      'RequestController#check_request_change' => 257.26,
+      'RequestController#check_request_change' => 255.23,
       'RequestController#render_request_collection' => 92.82,
       'RequestController#request_create' => 107.39,
       'SearchController#find_attribute' => 97.33,

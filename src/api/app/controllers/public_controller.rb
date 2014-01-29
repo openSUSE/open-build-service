@@ -4,6 +4,7 @@ class PublicController < ApplicationController
   # we need to fall back to _nobody_ (_public_)
   before_action :extract_user_public
   skip_before_action :extract_user
+  skip_before_action :require_login
 
   def extract_user_public
     # to become _public_ special user
