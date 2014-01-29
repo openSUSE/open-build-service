@@ -39,6 +39,8 @@ class Event::Request < ::Event::Base
       ret[suffix + '-type'] = a['type']
       if a['targetpackage']
         ret[suffix + '-target'] = "#{a['targetproject']}/#{a['targetpackage']}"
+      elsif a['targetrepository']
+        ret[suffix + '-target'] = "#{a['targetproject']}/#{a['targetrepository']}"
       elsif a['targetproject']
         ret[suffix + '-target'] = a['targetproject']
       end
@@ -56,6 +58,7 @@ class Event::Request < ::Event::Base
     payload['actions'].each do |a|
       str = "#{a['type']} #{a['targetproject']}"
       str += "/#{a['targetpackage']}" if a['targetpackage']
+      str += "/#{a['targetrepository']}" if a['targetrepository']
       ret << str
     end
     ret.join(', ')

@@ -1,1 +1,5 @@
-- delete <%= project_or_package_text(a['targetproject'], a['targetpackage']) %>
+<% if a['targetrepository'] -%>
+- delete repository <%= a['targetrepository'] %> in <%= a['targetproject'] -%>
+<% else -%>
+- delete <%= project_or_package_text(a['targetproject'], a['targetpackage']) -%>
+<% end %>

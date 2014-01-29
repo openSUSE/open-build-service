@@ -113,7 +113,6 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       raw_post '/request?cmd=create', "<request><action type='add_role'><target project='kde4' package='kdelibs'/><person name='Iggy' role='reviewer'/></action></request>"
       assert_response :success
-      assert_response :success
       myid = Xmlhash.parse(@response.body)['id']
     end
 
@@ -122,4 +121,19 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     verify_email('tom_gets_mail_too', myid, email)
   end
 
+  test 'repository delete request' do
+    login_Iggy
+
+    Timecop.travel(2013, 8, 20, 12, 0, 0)
+    myid = ''
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
+      raw_post '/request?cmd=create', "<request><action type='delete'><target project='home:coolo' repository='standard'/></action></request>"
+      assert_response :success
+      myid = Xmlhash.parse(@response.body)['id']
+    end
+
+    email = ActionMailer::Base.deliveries.last
+    # what we want to test here is that tom - as devel package maintainer gets an email too
+    verify_email('repo_delete_request', myid, email)
+  end
 end
