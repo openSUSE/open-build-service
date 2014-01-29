@@ -2370,13 +2370,13 @@ sub update_dst_full {
     # get old state: oldfiles, oldbininfo, oldrepo
     my @oldfiles = sort(ls($dst));
     @oldfiles = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && $_ ne '.bininfo' && $_ ne '.meta.success'} @oldfiles;
+    mkdir_p($dst);
     my $oldbininfo = read_bininfo($dst);
     delete $oldbininfo->{'.bininfo'};	# delete new version marker
     my $oldcache = { map {$_->{'id'} => $_} grep {$_->{'id'}} values %$oldbininfo };
     $oldrepo = findbins_dir([ map {"$dst/$_"} grep {/\.(?:$binsufsre)$/ && !/\.delta\.rpm$/} @oldfiles ], $oldcache);
 
     # move files over (and rename in import case)
-    mkdir_p($dst);
     my %new;
     for my $f (@jobfiles) {
       next if $importarch && $f eq 'replaced.xml';	# not needed
@@ -8310,13 +8310,19 @@ NEXTPRP:
       }
       delete $lastcheck{$prp}->{$packid};
       my $gdst = "$reporoot/$prp/$myarch";
+      my @files = ls($gdst);
+      my @ifiles = grep {/^::import::/ || /^\.meta\.success\.import\./} @files;
+      if (@ifiles) {
+	# only imported stuff?
+        next unless grep {$_ ne '.bininfo' && !(/^::import::/ || /^\.meta\.success\.import\./)} @files;
+      }
       # delete full entries
       my $useforbuildenabled = 1;
       $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
       # hmm, need to exclude patchinfos here. cheating.
       $useforbuildenabled = 0 if -s "$gdst/$packid/.updateinfodata";
       # don't wipe imports if we're excluded
-      my $importarch = $packs->{$packid} ? '' : undef;
+      my $importarch = $packs->{$packid} && @ifiles ? '' : undef;
       update_dst_full($prp, $packid, "$gdst/$packid" , undef, undef, $useforbuildenabled, $prpsearchpath{$prp}, undef, $importarch);
       $changed_med{$prp} = 2;
       sendrepochangeevent($prp);
@@ -8324,7 +8330,15 @@ NEXTPRP:
       unlink("$gdst/:logfiles.success/$packid");
       unlink("$gdst/:logfiles.fail/$packid");
       unlink("$gdst/:meta/$packid");
-      BSUtil::cleandir("$gdst/$packid");
+      if (@ifiles) {
+        for (@files) {
+	  next if $_ eq '.bininfo';
+	  next if /^::import::/ || /^\.meta\.success\.import\./;
+          unlink("$gdst/$packid/$_");
+	}
+      } else {
+        BSUtil::cleandir("$gdst/$packid");
+      }
       rmdir("$gdst/$packid");
       killbuilding($prp, $packid);
       unlink("$reporoot/$prp/$myarch/:repodone");
