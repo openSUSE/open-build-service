@@ -338,6 +338,11 @@ sub createProductOptions($$$)
        foreach my $ar ( @$archSetList ) {
            $info{'BASEARCHS'} .= "$archSets{$ar->{ref}}->{productarch} " if( $archSets{$ar->{ref}} );
        }
+    } else {
+       # for SLE 12 and later
+       foreach my $summary ( @{$product->{'summary'}} ){
+         $info{'SUMMARY'}      = $summary->{'_content'} if ( ! $summary->{'language'} );
+       }
     }
     $options{'REPO_LOCATION'} = getUrl($product,$arch,"repository");
 
