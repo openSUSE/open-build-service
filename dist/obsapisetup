@@ -104,11 +104,18 @@ case "$1" in
 		echo "$FQHOSTNAME" > $backenddir/.oldfqhostname
 
 		echo "Adjust configuration for this hostname"
-                sed -i 's,^frontend_host: .*,frontend_host: "'"$FQHOSTNAME"'",' \
+                # use local host to avoid SSL verification between webui and api
+                sed -i 's,^frontend_host: .*,frontend_host: "localhost",' \
 		    /srv/www/obs/api/config/options.yml
                 sed -i 's,^frontend_port: .*,frontend_port: 443,' \
 		    /srv/www/obs/api/config/options.yml
                 sed -i 's,^frontend_protocol: .*,frontend_protocol: "'"https"'",' \
+		    /srv/www/obs/api/config/options.yml
+                sed -i 's,^external_frontend_host: .*,frontend_host: "'"$FQHOSTNAME"'",' \
+		    /srv/www/obs/api/config/options.yml
+                sed -i 's,^external_frontend_port: .*,frontend_port: 443,' \
+		    /srv/www/obs/api/config/options.yml
+                sed -i 's,^external_frontend_protocol: .*,frontend_protocol: "'"https"'",' \
 		    /srv/www/obs/api/config/options.yml
 # Not needed anymore since 2.5? 
 #               sed -i 's,^download_url: .*,download_url: \"http://'"$FQHOSTNAME:82"'\",' \
