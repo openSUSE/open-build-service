@@ -331,7 +331,7 @@ class RequestController < ApplicationController
     if params[:cmd] == 'changestate' and params[:newstate] == 'accepted'
       if req.state == :review 
         unless params[:force]
-i          raise PostRequestNoPermission.new 'Request is in review state. You may use the force parameter to ignore this.'
+          raise PostRequestNoPermission.new 'Request is in review state. You may use the force parameter to ignore this.'
         end
       elsif req.state != :new
         raise PostRequestNoPermission.new 'Request is not in new state. You may reopen it by setting it to new.'
