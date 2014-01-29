@@ -2701,6 +2701,15 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_branch_creating_project
+    post '/source/home:Iggy/TestPack'
+    assert_response 401
+    c = Configuration.first
+    c.anonymous = false
+    c.save!
+    # still 401 and not 403 (or it breaks osc login)
+    post '/source/home:Iggy/TestPack'
+    assert_response 401
+
     prepare_request_with_user 'fredlibs', 'geröllheimer'
     # ensure he has no home project
     get '/source/home:fredlibs'
@@ -2708,6 +2717,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     # Create public project, but api config is changed to make it closed
     c = Configuration.first
+    c.anonymous = true
     c.allow_user_to_create_home_project = false
     c.save!
     post '/source/home:Iggy/TestPack', :cmd => :branch, :dryrun => '1'
