@@ -8293,29 +8293,31 @@ NEXTPRP:
     # Step 2a: check if packages got deleted/excluded
     for my $packid (grep {!/^[:\.]/} ls("$reporoot/$prp/$myarch")) {
       next if $packid eq '_volatile';
+      my $reason;
       if (!$packs->{$packid}) {
 	next if $packid eq '_deltas';
 	next if $projpacks->{$projid}->{'missingpackages'};
-	print "      - $packid: is obsolete\n";
+	$reason = 'obsolete';
       } else {
 	my $pdata = $packs->{$packid};
 	if (($pdata->{'error'} || '') eq 'excluded') {
-	  print "      - $packid: is excluded\n";
+	  $reason = 'excluded';
 	} else {
 	  my %info = map {$_->{'repository'} => $_} @{$pdata->{'info'} || []};
 	  my $info = $info{$repoid};
 	  next unless $info && ($info->{'error'} || '') eq 'excluded';
-	  print "      - $packid: is excluded\n";
+	  $reason = 'excluded';
 	}
       }
-      delete $lastcheck{$prp}->{$packid};
       my $gdst = "$reporoot/$prp/$myarch";
-      my @files = ls($gdst);
+      my @files = ls("$gdst/$packid");
       my @ifiles = grep {/^::import::/ || /^\.meta\.success\.import\./} @files;
       if (@ifiles) {
 	# only imported stuff?
         next unless grep {$_ ne '.bininfo' && !(/^::import::/ || /^\.meta\.success\.import\./)} @files;
       }
+      print "      - $packid: is $reason\n";
+      delete $lastcheck{$prp}->{$packid};
       # delete full entries
       my $useforbuildenabled = 1;
       $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
