@@ -59,30 +59,26 @@ class BsRequest < ActiveRecord::Base
 
   def self.open_requests_for_source(obj)
    if obj.kind_of? Project
-     project = obj.name
+     return BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
+               where(bs_request_actions: {source_project: obj.name})
    elsif obj.kind_of? Package
-     project = obj.project.name
-     package = obj.name
+     return BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
+               where(bs_request_actions: {source_project: obj.project.name, source_package: obj.name})
    else
      raise "Invalid object #{obj.class}"
    end
-   # all open requests
-   BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
-             where(bs_request_actions: {source_project: project, source_package: package})
   end
 
   def self.open_requests_for_target(obj)
    if obj.kind_of? Project
-     project = obj.name
+     return BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
+               where(bs_request_actions: {target_project: obj.name})
    elsif obj.kind_of? Package
-     project = obj.project.name
-     package = obj.name
+     return BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
+               where(bs_request_actions: {target_project: obj.project.name, target_package: obj.name})
    else
      raise "Invalid object #{obj.class}"
    end
-   # all open requests
-   BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
-             where(bs_request_actions: {target_project: project, target_package: package})
   end
 
   def self.open_requests_for(obj)
