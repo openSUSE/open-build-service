@@ -5219,7 +5219,7 @@ sub rebuildkiwiproduct {
       next;
     }
     next unless @b == 5;
-    next unless $b[4] =~ /^(.+)-([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
+    next unless $b[4] =~ /^(?:::import::.*::)?(.+)-([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
     push @bdeps, {
       'name' => $1,
       'version' => $2,
