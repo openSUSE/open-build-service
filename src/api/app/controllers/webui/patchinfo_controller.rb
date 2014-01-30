@@ -228,6 +228,9 @@ class Webui::PatchinfoController < Webui::WebuiController
         @block_reason = params[:block_reason]
         render :action => 'edit_patchinfo', :project => @project, :package => @package
       end
+    rescue ActiveXML::Transport::UnauthorizedError
+      flash[:error] = 'Unauthorized Access'
+      redirect_to :action => 'show', :project => @project.name, :package => @package.name
     rescue ActiveXML::Transport::ForbiddenError
       flash[:error] = 'No permission to edit the patchinfo-file.'
       redirect_to :action => 'show', :project => @project.name, :package => @package.name
