@@ -2,6 +2,8 @@ require 'obsapi/test_sphinx'
 
 class TestController < ApplicationController
   skip_before_action :extract_user
+  skip_before_action :require_login
+
   before_action do
     return true if Rails.env.test? || Rails.env.development?
     render_error  message: "This is only accessible for testing environments", :status => 403
