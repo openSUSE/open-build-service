@@ -113,9 +113,6 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     elsif new_patchinfo[:expect] == :short_desc_and_sum
       flash_message.must_equal "|| Summary is too short (should have more than 10 signs) || Description is too short (should have more than 50 signs and longer than summary)"
       flash_message_type.must_equal :alert
-    elsif new_patchinfo[:expect] == :no_login
-      flash_message.must_equal "Unauthorized Access"
-      flash_message_type.must_equal :alert
     elsif new_patchinfo[:expect] == :no_permission
       flash_message.must_equal "No permission to edit the patchinfo-file."
       flash_message_type.must_equal :alert
@@ -164,12 +161,8 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     
     # check that the patchinfo is not editable per direct url for unauthorized users
     visit patchinfo_edit_patchinfo_path(project: "home:Iggy", package: "patchinfo")
-    create_patchinfo(
-      :summary => "This is a test for the patchinfoeditor",
-      :description => LONG_DESCRIPTION,
-      :category => "recommended",
-      :rating => "low",
-      :expect => :no_login)    
+    page.must_have_text('Please Log In')
+
     login_Iggy    
     delete_patchinfo('home:Iggy')
   end

@@ -39,6 +39,8 @@ class Webui::PatchinfoController < Webui::WebuiController
   end
 
   def edit_patchinfo
+    require_login
+
     read_patchinfo
     @tracker = 'bnc'
     @binaries.each do |bin|
