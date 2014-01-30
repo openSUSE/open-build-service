@@ -1,9 +1,10 @@
 class Webui::PatchinfoController < Webui::WebuiController
   include Webui::WebuiHelper
   include Webui::PackageHelper
-  before_filter :require_all
+  before_filter :require_project
   before_filter :get_binaries, :except => [:show, :delete]
   before_filter :require_exists, :except => [:new_patchinfo]
+  before_filter :require_login, :except => [:show]
 
   def new_patchinfo
     unless User.current.can_create_package_in? @project.api_obj
@@ -39,8 +40,6 @@ class Webui::PatchinfoController < Webui::WebuiController
   end
 
   def edit_patchinfo
-    require_login
-
     read_patchinfo
     @tracker = 'bnc'
     @binaries.each do |bin|
@@ -230,9 +229,6 @@ class Webui::PatchinfoController < Webui::WebuiController
         @block_reason = params[:block_reason]
         render :action => 'edit_patchinfo', :project => @project, :package => @package
       end
-    rescue ActiveXML::Transport::UnauthorizedError
-      flash[:error] = 'Unauthorized Access'
-      redirect_to :action => 'show', :project => @project.name, :package => @package.name
     rescue ActiveXML::Transport::ForbiddenError
       flash[:error] = 'No permission to edit the patchinfo-file.'
       redirect_to :action => 'show', :project => @project.name, :package => @package.name
@@ -359,9 +355,9 @@ class Webui::PatchinfoController < Webui::WebuiController
     @binarylist.delete('updateinfo.xml')
   end
 
-  def require_all
+  def require_project
     required_parameters :project
-    Rails.logger.debug "require_all #{params[:project]}"
+    Rails.logger.debug "require_project #{params[:project]}"
     @project = WebuiProject.find( params[:project] )
     unless @project
       flash[:error] = "Project not found: #{params[:project]}"
