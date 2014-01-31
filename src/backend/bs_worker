@@ -1017,7 +1017,7 @@ sub manage_cache {
   }
   @$content = grep {defined $_} @$content;
   Storable::nstore($content, "$cachedir/content.new");
-  rename("$cachedir/content.new", "$cachedir/content") || die("rename $cachedir/content.new $cachedir/content");
+  rename("$cachedir/content.new", "$cachedir/content") || die("rename $cachedir/content.new $cachedir/content: $!\n");
   close F;
 }
 
