@@ -24,11 +24,6 @@ their appliance image without data loss. The migration will
 happen automatically.
 
 
-Regressions:
-============
-
- * 
-
 Features
 ========
 
@@ -50,13 +45,26 @@ Features
 
  * build constraints can be defined per architecture or per package now
 
+ * Integrated Notification system. Administrators can activate it globally in
+   the configuration settings. User can modify these settings in their home page.
+
+ * Integrated comment system for projects, packages and requests.
+
+ * Product tracking and product update channel support.
+
+ * groups can have email adresses now.
+
+ * support usage of kernels from OBS repositories inside of kvm and xen builds
+
+ * support ppc64le and m68k architecture
+
 Changes on purpose:
 ===================
 
  * webui and api have merged into a single rails process. Details are described
    in README.Update file.
 
- * api is readable accessable without credentials if the anonymous mode is enabled.
+ * api is accessable without credentials if the anonymous mode is enabled.
 
  * The scheduler states in /build/_workerstates got moved into a 
    partition structure to support multiple backends running in one instance.
@@ -69,17 +77,14 @@ Changes on purpose:
 
  * /about api route is public accessable now for system live checks.
 
-Deprecated:
-===========
+Incompatible changes:
+=====================
 
-List of incompatible changes:
-
- * The /architectures does not provided the attributes "recommended" and "available"
+ * The /architectures route is not providing the attributes "recommended" and "available"
    anymore. It just provides a fixed list of all known architectures in general.
-   => Use /configuration to configure the available architectures for your instance.
+   => Use /configuration route to configure the available architectures for your instance.
       This is also used by the backend now.
    => Define the used architectures for default targets directly in /distribution.
-      A migration is transfering the recommended architectures if not yet defined.
    => Modification of architectures is not supported in this route anymore.
 
 Notes for systems using systemd:
