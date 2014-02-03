@@ -150,7 +150,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
 
     baseuri = URI.parse(page.current_url)
     foundcplus=nil
-    page.all('#packages_table a').each do |link|
+    page.all('#raw_packages a').each do |link|
       next unless link.text == 'Cplus+'
       foundcplus=baseuri.merge(link['href']).to_s
       break

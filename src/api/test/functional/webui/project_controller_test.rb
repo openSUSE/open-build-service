@@ -13,9 +13,11 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   end
 
   test 'kde4 has two packages' do
+    use_js
+
     visit '/project/show?project=kde4'
-    find('#packages_info').must_have_text 'Packages (2)'
-    within('#packages_info') do
+    find('#packages').must_have_text 'Packages (2)'
+    within('#raw_packages') do
       page.must_have_link 'kdebase'
       page.must_have_link 'kdelibs'
     end
