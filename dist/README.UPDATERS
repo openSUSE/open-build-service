@@ -30,9 +30,36 @@ use port 443 now.
  2) Restart memcached after database migration to wipe possible broken
     cache data.
 
- 3) configuration settings moved to /configuration api route as much as 
-    possible to allow a uniq configuration through all OBS frontend and
-    backend parts. Check the release notes for details on this.
+ 3) configuration settings moved from various palces to unique /configuration 
+    api route as much as possible to allow a uniq configuration through all
+    OBS frontend and backend parts. The following settings have been migrated:
+
+    from BSConfig.pm:
+      obsname              => name
+      enforce_project_keys => enforce_project_keys
+      download_on_demand   => download_on_demand
+      http_proxy           => http_proxy
+      no_proxy             => no_proxy
+
+    from api options.yml:
+      new_user_registration             => registration
+      allow_anonymous                   => anonymous
+      default_access_disabled           => default_access_disabled
+      allow_user_to_create_home_project => allow_user_to_create_home_project
+      disallow_group_creation_with_api  => disallow_group_creation
+      change_passwd                     => change_password
+      download_url                      => download_url
+      ymp_url                           => ymp_url
+      http_proxy                        => http_proxy
+
+    from webui options.yml:
+      hide_private_options => hide_private_options
+      use_gravatar         => gravatar
+      http_proxy           => http_proxy
+      download_url         => download_url
+      bugzilla_host        => bugzilla_url
+      theme                => theme
+
 
  4) api interface configuration must be configured in /srv/www/obs/api/config/options.yml
     now. Ensure that at least the following parameters are configured there:
