@@ -169,6 +169,7 @@ OBSApi::Application.routes.draw do
       get 'project/release_request_dialog' => :release_request_dialog
       post 'project/new_release_request/(:project)' => :new_release_request
       get 'project/show/(:project)' => :show, constraints: cons, as: 'project_show'
+      get 'project/packages_simple/:project' => :packages_simple, constraints: cons
       get 'project/linking_projects/:project' => :linking_projects, constraints: cons
       get 'project/add_repository_from_default_list/:project' => :add_repository_from_default_list, constraints: cons
       get 'project/add_repository/:project' => :add_repository, constraints: cons

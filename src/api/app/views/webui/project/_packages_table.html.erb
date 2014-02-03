@@ -27,15 +27,6 @@
                     var packages = [ <%= @packages.map { |p| "['#{p}']" }.join(',').html_safe %> ];
                     renderPackagesTable("packages_table_wrapper", packages);
                 <% end %>
-                <noscript>
-                  <table id="packages_table" cellpadding="0" cellspacing="0" border="0" class="display">
-                    <% @packages.each do |p| %>
-                        <tr>
-                          <td><%= link_to p, packageurl.sub('REPLACEIT', p) %></td>
-                        </tr>
-                    <% end %>
-                  </table>
-                </noscript>
               </div>
           <% end %>
       <% else %>
@@ -58,7 +49,7 @@
 
     <% if @ipackages.present? %>
         <div id="inherited_packages" class="tab">
-          <% packageurl = url_for(controller: 'package', action: 'show', project: 'REPLACEPRJ', package: 'REPLACEPKG') %>
+          <% packageurl = url_for(controller: 'package', action: 'show', project: @project, package: 'REPLACEPKG') %>
           <% cache [packageurl, array_cachekey(@ipackages)] do %>
               <div id="ipackages_wrapper" data-url="<%= packageurl %>">
                 <%= javascript_tag do %>
@@ -70,4 +61,7 @@
         </div>
     <% end %>
   </div>
+  <noscript>
+    <%= link_to 'Packages', action: 'packages_simple', project: @project %>
+  </noscript>
 </div>

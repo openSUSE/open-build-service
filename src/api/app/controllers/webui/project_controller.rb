@@ -16,7 +16,7 @@ class Webui::ProjectController < Webui::WebuiController
                                               :list_public, :new, :package_buildresult,
                                               :save_new, :save_prjconf,
                                               :rebuild_time_png, :new_incident]
-  before_filter :load_project_info, :only => [:show]
+  before_filter :load_project_info, :only => [:show, :packages_simple]
   before_filter :require_login, :only => [:save_new, :toggle_watch, :delete, :new]
   before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list,
                                                             :edit_repository, :update_target]
@@ -321,6 +321,10 @@ class Webui::ProjectController < Webui::WebuiController
     reqs = @project.api_obj.request_ids_by_class
     @requests = (reqs['reviews'] + reqs['targets'] + reqs['incidents'] + reqs['maintenance_release']).sort.uniq
     @nr_of_problem_packages = find_nr_of_problems
+  end
+
+  def packages_simple
+
   end
 
   def show

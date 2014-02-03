@@ -24,6 +24,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     find(:link, 'BaseDistro2.0:LinkedUpdateProject').click
 
     find(:css, '#infos_list').must_have_text %r{Maintained by My:Maintenance}
+    click_link('Inherited Packages')
     first(:link, 'pack2').click
     find(:link, 'Branch package').click
 

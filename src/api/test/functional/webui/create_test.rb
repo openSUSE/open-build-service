@@ -27,7 +27,7 @@ class Webui::CreateProjectTest < Webui::IntegrationTest
 
     assert current_url.end_with?(project_show_path(project: 'home:tom:coolstuff')), "#{current_url} not ending with coolstuff"
     find('#project_title').text.must_equal 'home:tom:coolstuff'
-    find('#packages_info h2').text.must_equal 'Packages (0)'
+    first('#packages li').text.must_equal 'Packages (0)'
   end
 end
 
