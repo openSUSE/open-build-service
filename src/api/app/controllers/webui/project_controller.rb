@@ -308,7 +308,15 @@ class Webui::ProjectController < Webui::WebuiController
     return render_project_missing unless @project
 
     find_maintenance_infos
-    @packages = find_packages_info.map { |p| p[0] }.sort
+    @packages = Array.new
+    @ipackages = Array.new
+    find_packages_info.each do |p|
+      if p[1]
+        @ipackages << [p[0], p[1]]
+      else
+        @packages << p[0]
+      end
+    end
     @linking_projects = @project.api_obj.find_linking_projects.map { |p| p.name }
     reqs = @project.api_obj.request_ids_by_class
     @requests = (reqs['reviews'] + reqs['targets'] + reqs['incidents'] + reqs['maintenance_release']).sort.uniq
@@ -346,12 +354,9 @@ class Webui::ProjectController < Webui::WebuiController
     end
   end
 
+  # TODO: remove this ajax call and replace it with a jquery dialog
   def linking_projects
-    # TODO: remove this ajax call and replace it with a jquery dialog
-    Rails.cache.delete('%s_linking_projects' % @project.name) if discard_cache?
-    @linking_projects = Rails.cache.fetch('%s_linking_projects' % @project.name, :expires_in => 30.minutes) do
-       @project.linking_projects
-    end
+    @linking_projects = @project.linking_projects
     render_dialog
   end
 

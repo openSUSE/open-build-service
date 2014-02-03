@@ -1,0 +1,73 @@
+<% content_for :ready_function do %>
+    $( "#packages" ).tabs();
+<% end %>
+
+<div class="grid_10 alpha box box-shadow">
+
+  <div id="packages">
+    <div class="box-header header-tabs">
+      <ul>
+        <li><a href="#raw_packages" title="Packages directly in the project">Packages (<%= @packages.length %>)</a>
+        </li>
+        <% if @ipackages.present? %>
+            <li>
+              <a href="#inherited_packages"
+                 title="Inherited Packages">Inherited Packages (<%= @ipackages.length %>)</a>
+            </li>
+        <% end %>
+      </ul>
+    </div>
+    <div id="raw_packages" class="tab">
+
+      <% packageurl = url_for(controller: 'package', action: 'show', project: @project, package: 'REPLACEIT') %>
+      <% if @packages.present? %>
+          <% cache [packageurl, array_cachekey(@packages)] do %>
+              <div id="packages_table_wrapper" data-url="<%= packageurl %>">
+                <%= javascript_tag do %>
+                    var packages = [ <%= @packages.map { |p| "['#{p}']" }.join(',').html_safe %> ];
+                    renderPackagesTable("packages_table_wrapper", packages);
+                <% end %>
+                <noscript>
+                  <table id="packages_table" cellpadding="0" cellspacing="0" border="0" class="display">
+                    <% @packages.each do |p| %>
+                        <tr>
+                          <td><%= link_to p, packageurl.sub('REPLACEIT', p) %></td>
+                        </tr>
+                    <% end %>
+                  </table>
+                </noscript>
+              </div>
+          <% end %>
+      <% else %>
+          <p><i>This project does not contain any packages</i></p>
+      <% end %>
+
+      <% if User.current.can_modify_project?(@project.api_obj) %>
+          <% if !@project.is_remote? && !(@is_incident_project && !@packages.blank? && @has_patchinfo && @open_release_requests.length == 0) && !@is_maintenance_project %>
+              <ul class="horizontal-list">
+                <li>
+                  <%= link_to(sprited_text('package_add', 'Create package'), controller: 'project', action: 'new_package', project: @project) %>
+                </li>
+                <li>
+                  <%= link_to sprited_text('package_link', 'Branch existing package'), controller: :project, action: :new_package_branch, project: @project %>
+                </li>
+              </ul>
+          <% end %>
+      <% end %>
+    </div>
+
+    <% if @ipackages.present? %>
+        <div id="inherited_packages" class="tab">
+          <% packageurl = url_for(controller: 'package', action: 'show', project: 'REPLACEPRJ', package: 'REPLACEPKG') %>
+          <% cache [packageurl, array_cachekey(@ipackages)] do %>
+              <div id="ipackages_wrapper" data-url="<%= packageurl %>">
+                <%= javascript_tag do %>
+                    var ipackages = [ <%= @ipackages.map { |p| "#{p}" }.join(',').html_safe %>
+                    ]; renderPackagesProjectsTable({packages: ipackages, length: '25', name: 'ipackages_wrapper'});
+                <% end %>
+              </div>
+          <% end %>
+        </div>
+    <% end %>
+  </div>
+</div>
