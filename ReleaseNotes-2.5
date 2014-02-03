@@ -43,7 +43,7 @@ Features
 
  * Auto cleanup of user ~:branches: projects can be enabled via /configuration
 
- * build constraints can be defined per architecture or per package now
+ * Build constraints can be defined per architecture or per package now
 
  * Integrated Notification system. Administrators can activate it globally in
    the configuration settings. User can modify these settings in their home page.
@@ -52,11 +52,22 @@ Features
 
  * Product tracking and product update channel support.
 
- * groups can have email adresses now.
+ * Groups can have email adresses now.
 
- * support usage of kernels from OBS repositories inside of kvm and xen builds
+ * Support usage of kernels from OBS repositories inside of kvm and xen builds
 
- * support ppc64le and m68k architecture
+ * Support ppc64le and m68k architecture
+
+ * api provides a token system for a secure handling of pre-defined actions.
+   This can be used to update sources of a specific package in the name of a user
+   without the need to expose his credentials. Find details here:
+
+     http://openbuildservice.org/help/manuals/obs-reference-guide/cha.obs.authorization.token.html
+
+ * Entire projects can be linked now with frozen source revisions.
+
+ * Definition of release channel support (can deliever product specific channels
+   from a pool of build packages).
 
 Changes on purpose:
 ===================
