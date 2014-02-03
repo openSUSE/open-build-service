@@ -380,7 +380,7 @@ class Webui::PackageController < Webui::WebuiController
     @rev = params[:rev] || @last_rev
 
     query = {'cmd' => 'diff', 'view' => 'xml', 'withissues' => 1}
-    [:orev, :opackage, :oproject].each do |k|
+    [:orev, :opackage, :oproject, :linkrev, :olinkrev].each do |k|
       query[k] = params[k] unless params[k].blank?
     end
     query[:rev] = @rev if @rev
