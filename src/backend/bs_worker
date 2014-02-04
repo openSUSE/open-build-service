@@ -1017,7 +1017,7 @@ sub manage_cache {
   }
   @$content = grep {defined $_} @$content;
   Storable::nstore($content, "$cachedir/content.new");
-  rename("$cachedir/content.new", "$cachedir/content") || die("rename $cachedir/content.new $cachedir/content: $!\n");
+  rename("$cachedir/content.new", "$cachedir/content") || die("rename $cachedir/content.new $cachedir/content");
   close F;
 }
 
@@ -2004,7 +2004,8 @@ sub patchproductkiwi {
      my $counter = 0;
      for my $path (@{$buildinfo->{'path'} || []}) {
         my $h = { 'source' => { 'path' => "obs://$path->{'project'}/$path->{'repository'}" } };
-        $h->{'priority'} = $repository->{'priority'} if $repository->{'priority'};
+        my $prio = ($repository->{'priority'} || 0) + $counter;
+        $h->{'priority'} = $prio;
         $h->{'local'} = $repository->{'local'} if $repository->{'local'};
         if ($repository->{'name'}) {
           $counter = $counter + 1;
@@ -2285,22 +2286,25 @@ sub dobuild {
     my @kiwiargs;
     my $use_parameters;
     push @kiwiargs, '--kiwi-parameter', '--ignore-repos';
+    my $prio = 0;
     for my $path (@{$kiwi->{'path'} || []}) {
        if ($path->{'project'} ne '_obsrepositories') {
+          $prio = $prio + 1;
           my $repo = "repos/$path->{'project'}/$path->{'repository'}";
           push @kiwiargs, '--kiwi-parameter', '--add-repo', '--kiwi-parameter', $repo;
           push @kiwiargs, '--kiwi-parameter', '--add-repotype', '--kiwi-parameter', "rpm-md";
-          push @kiwiargs, '--kiwi-parameter', '--add-repoprio', '--kiwi-parameter', $path->{'priority'} || 0;
+          push @kiwiargs, '--kiwi-parameter', '--add-repoprio', '--kiwi-parameter', ($path->{'priority'} || $prio);
           next;
        }
        # fill in pathes from buildinfo instead
        $use_parameters = 1;
        for my $prjpath (@{$buildinfo->{'path'} || []}) {
+          $prio = $prio + 1;
           my $repo ="repos/$prjpath->{'project'}/$prjpath->{'repository'}";
           $repo =~ s/:/:\//g;
           push @kiwiargs, '--kiwi-parameter', '--add-repo', '--kiwi-parameter', $repo;
           push @kiwiargs, '--kiwi-parameter', '--add-repotype', '--kiwi-parameter', "rpm-md";
-          push @kiwiargs, '--kiwi-parameter', '--add-repoprio', '--kiwi-parameter', $path->{'priority'} || 0;
+          push @kiwiargs, '--kiwi-parameter', '--add-repoprio', '--kiwi-parameter', ($prio + ($path->{'priority'} || 0));
        }
     }
      @args = ( @args, @kiwiargs ) if $use_parameters;
