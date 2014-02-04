@@ -1983,7 +1983,15 @@ sub patchproductkiwi {
     $repo_only = 1 if $productvar->{'name'} eq 'REPO_ONLY' and $productvar->{'_content'} eq 'true';
     if ($productvar->{'name'} eq 'MEDIUM_NAME') {
       my $mediumbase = $productvar->{'_content'};
-      $mediumbase .= sprintf("-Build%04d", $buildinfo->{'bcnt'} || 0);
+      my $cicnt = $buildinfo->{'versrel'};
+      $cicnt =~ s/.*-//;
+      if ($cicnt eq "1") {
+        # simple case for standard productconverter case
+        $mediumbase .= sprintf("-Build%04d", $buildinfo->{'bcnt'} || 0);
+      } else {
+        # standard CI_CNT-BCNT writing
+        $mediumbase .= sprintf("-Build%s.%d", $cicnt, $buildinfo->{'bcnt'} || 0);
+      }
       pop @vars;
       push @vars, { 'name' => 'BUILD_ID', '_content' => $mediumbase };
       push @vars, { 'name' => 'MEDIUM_NAME', '_content' => "$mediumbase-Media" };
