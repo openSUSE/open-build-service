@@ -39,4 +39,12 @@ class Comment < ActiveRecord::Base
     User.current == self.user || self.user.is_nobody?
   end
 
+  def to_xml(builder)
+    attrs = { who: self.user, when: self.created_at, id: self.id }
+    attrs[:parent] = self.parent_id if self.parent_id
+
+    builder.comment_(attrs) do
+      builder.text(self.body)
+    end
+  end
 end

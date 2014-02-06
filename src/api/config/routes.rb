@@ -651,6 +651,14 @@ OBSApi::Application.routes.draw do
     delete 'source/:project/:package' => :delete_package, constraints: cons
   end
 
+  controller :comments do
+
+    get 'comments/request/:id' => :show_request_comments, constraints: cons, as: :comments_request
+    get 'comments/package/:project/:package' => :show_package_comments, constraints: cons, as: :comments_package
+    get 'comments/project/:project' => :show_project_comments, constraints: cons, as: :comments_project
+
+  end
+
   # this can be requested by non browsers (like HA proxies :)
   get 'apidocs/:filename' => 'webui/apidocs#file', constraints: {filename: %r{[^\/]*}}, as: 'apidocs_file'
 
