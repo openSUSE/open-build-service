@@ -54,14 +54,7 @@ class Event::Request < ::Event::Base
   end
 
   def actions_summary
-    ret = []
-    payload['actions'].each do |a|
-      str = "#{a['type']} #{a['targetproject']}"
-      str += "/#{a['targetpackage']}" if a['targetpackage']
-      str += "/#{a['targetrepository']}" if a['targetrepository']
-      ret << str
-    end
-    ret.join(', ')
+    BsRequest.actions_summary(self.payload)
   end
 
   def calculate_diff(a)

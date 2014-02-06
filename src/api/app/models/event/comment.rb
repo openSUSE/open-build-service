@@ -54,7 +54,9 @@ class Event::CommentForRequest < ::Event::Request
   receiver_roles :target_maintainer, :creator, :reviewer
 
   def subject
-    "Request #{payload['id']} got a new comment by #{User.find(payload['commenter']).login}"
+    req = BsRequest.find(payload['id'])
+    req_payload = req.notify_parameters
+    "Request #{payload['id']} commented by #{User.find(payload['commenter']).login} (#{BsRequest.actions_summary(req_payload)})"
   end
 
 end

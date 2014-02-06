@@ -315,7 +315,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     end
 
     email = ActionMailer::Base.deliveries.last
-    assert_equal 'Request 4 got a new comment by tom', email.subject
+    assert_equal 'Request 4 commented by tom (submit Apache/BranchPack)', email.subject
     verify_email('comment_event', '4', email)
 
     # now check the commenters get no more mails too if unsubscribed
@@ -331,7 +331,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     end
 
     email = ActionMailer::Base.deliveries.last
-    assert_equal 'Request 4 got a new comment by tom', email.subject
+    assert_equal 'Request 4 commented by tom (submit Apache/BranchPack)', email.subject
     verify_email('another_comment_event', '4', email)
   end
 

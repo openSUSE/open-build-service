@@ -452,6 +452,17 @@ class BsRequest < ActiveRecord::Base
     ret
   end
 
+  def self.actions_summary(payload)
+    ret = []
+    payload.with_indifferent_access['actions'].each do |a|
+      str = "#{a['type']} #{a['targetproject']}"
+      str += "/#{a['targetpackage']}" if a['targetpackage']
+      str += "/#{a['targetrepository']}" if a['targetrepository']
+      ret << str
+    end
+    ret.join(', ')
+  end
+
   def review_matches_user?(review, user)
     return false unless user
     if review.by_user
