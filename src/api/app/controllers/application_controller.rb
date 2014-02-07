@@ -552,7 +552,14 @@ class ApplicationController < ActionController::Base
     respond_to do |format|
       format.xml { render template: 'status', status: @status }
       format.json { render json: { errorcode: @errorcode, summary: @summary }, status: @status }
-      format.html { render template: 'webui/error', status: @status }
+      format.html do
+        if request.env['HTTP_REFERER']
+          redirect_to(:back)
+        else
+          flash[:error] = "#{@errorcode}(#{@summary}): #{@message}"
+          redirect_to root_path
+        end
+      end
     end
   end
 
