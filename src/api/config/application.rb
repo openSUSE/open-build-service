@@ -82,8 +82,6 @@ module OBSApi
     
     config.action_controller.perform_caching = true
 
-    config.exceptions_app = self.routes
-
     config.assets.js_compressor = :uglifier
 
     config.assets.precompile += %w( webui/application/cm2/index.js )
