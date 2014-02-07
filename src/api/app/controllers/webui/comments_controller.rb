@@ -7,14 +7,7 @@ class Webui::CommentsController < Webui::WebuiController
       redirect_to :back
       return
     end
-    if comment.children.exists?
-      comment.title = 'This comment has been deleted'
-      comment.body = 'This comment has been deleted'
-      comment.user = User.find_by_login '_nobody_'
-      comment.save!
-    else
-      comment.delete
-    end
+    comment.destroy
 
     respond_to do |format|
       format.js { render json: 'ok' }

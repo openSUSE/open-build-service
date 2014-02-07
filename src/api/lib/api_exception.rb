@@ -40,6 +40,9 @@ class APIException < Exception
 end
 
 # 403 errors (how about a subclass?)
+class NoPermission < APIException
+  setup 403
+end
 class CreateProjectNoPermission < APIException
   setup 403
 end

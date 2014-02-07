@@ -1,6 +1,7 @@
 class CommentsController < ApplicationController
 
   before_filter :find_request, only: [:show_request_comments]
+  before_filter :require_login, only: [:delete_comment, :create_request_comment]
 
   def find_request
     @obj = BsRequest.find(params[:id])
@@ -32,6 +33,19 @@ class CommentsController < ApplicationController
 
   def show_comments
     @comments = @obj.comments.order(:id)
+  end
+
+  def create_request_comment
+    render_ok
+  end
+
+  def delete_comment
+    comment = Comment.find params[:id]
+    unless comment.check_delete_permissions
+      raise NoPermission.new "No permission to delete #{params[:id]}"
+    end
+    comment.destroy
+    render_ok
   end
 
 end
