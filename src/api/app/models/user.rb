@@ -328,14 +328,6 @@ class User < ActiveRecord::Base
                       :too_short => 'must have between 6 and 64 characters.',
                      :if => Proc.new { |user| user.new_password? and not user.password.nil? }
 
-  class NotFound < APIException
-    setup 404
-  end
-
-  class NoPermission < APIException
-    setup 403
-  end
-
   class << self
     def current
       Thread.current[:user]
@@ -352,14 +344,14 @@ class User < ActiveRecord::Base
     def get_default_admin
       admin = CONFIG['default_admin'] || 'Admin'
       user = find_by_login(admin)
-      raise NotFound.new("Admin not found, user #{admin} has not admin permissions") unless user.is_admin?
+      raise NotFoundError.new("Admin not found, user #{admin} has not admin permissions") unless user.is_admin?
       return user
     end
 
     def find_by_login!(login)
       user = find_by_login(login)
       if user.nil? or user.state == User.states['deleted']
-        raise NotFound.new("Couldn't find User with login = #{login}")
+        raise NotFoundError.new("Couldn't find User with login = #{login}")
       end
       return user
     end

@@ -13,7 +13,7 @@ module Webui::ManageRelationships
   def save_person
     begin
       main_object.api_obj.add_role(load_obj, Role.find_by_title!(params[:role]))
-    rescue User::NotFound => e
+    rescue NotFoundError => e
       flash[:error] = e.to_s
       redirect_to add_path(:add_person) and return
     rescue ActiveRecord::RecordInvalid => e
@@ -33,7 +33,7 @@ module Webui::ManageRelationships
   def save_group
     begin
       main_object.api_obj.add_role(load_obj, Role.find_by_title!(params[:role]))
-    rescue ::Group::NotFound => e
+    rescue NotFoundError => e
       flash[:error] = e.to_s
       redirect_to add_path(:add_group)
       return
@@ -50,7 +50,7 @@ module Webui::ManageRelationships
   def remove_role
     begin
       main_object.api_obj.remove_role(load_obj, Role.find_by_title(params[:role]))
-    rescue User::NotFound, ::Group::NotFound => e
+    rescue NotFoundError => e
       flash[:error] = e.summary
     end
     respond_to do |format|

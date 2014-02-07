@@ -69,10 +69,10 @@ class UserTest < ActiveSupport::TestCase
 
   def test_deleted_user
     assert_not_nil User.find_by_login 'deleted'
-    assert_raise User::NotFound do
+    assert_raise NotFoundError do
       User.find_by_login! 'deleted'
     end
-    assert_raise User::NotFound do
+    assert_raise NotFoundError do
       User.get_by_login 'deleted'
     end
   end

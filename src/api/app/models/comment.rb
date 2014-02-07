@@ -47,4 +47,14 @@ class Comment < ActiveRecord::Base
       builder.text(self.body)
     end
   end
+
+  def destroy
+    if self.children.exists?
+      self.body = 'This comment has been deleted'
+      self.user = User.find_by_login '_nobody_'
+      self.save!
+    else
+      super
+    end
+  end
 end

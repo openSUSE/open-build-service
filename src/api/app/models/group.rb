@@ -1,13 +1,10 @@
+require_dependency 'api_exception'
 
 # The Group class represents a group record in the database and thus a group
 # in the ActiveRbac model. Groups are arranged in trees and have a title.
 # Groups have an arbitrary number of roles and users assigned to them.
 #
 class Group < ActiveRecord::Base
-
-  class NotFound < APIException
-    setup 404
-  end
 
   has_many :groups_users, inverse_of: :group
   has_many :relationships, dependent: :destroy, inverse_of: :group
@@ -30,7 +27,7 @@ class Group < ActiveRecord::Base
   has_and_belongs_to_many :roles, -> { uniq }
 
   def self.find_by_title!(title)
-    find_by_title(title) or raise NotFound.new("Couldn't find Group '#{title}'")
+    find_by_title(title) or raise NotFoundError.new("Couldn't find Group '#{title}'")
   end
 
   def update_from_xml( xmlhash )

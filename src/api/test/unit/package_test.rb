@@ -158,7 +158,7 @@ class PackageTest < ActiveSupport::TestCase
         </package>"))
     end
 
-    assert_raise User::NotFound do
+    assert_raise NotFoundError do
       @package.update_from_xml(Xmlhash.parse(
                                    "<package name='TestBack' project='home:Iggy'>
            <title>My Test package</title>
