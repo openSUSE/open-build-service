@@ -285,9 +285,13 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     put "/request/#{id}", load_backend_file('request/set_bugowner')
     assert_response 403
+    put "/request/#{id}", load_backend_file('request/set_bugowner_group')
+    assert_response 403
 
     login_king
     put "/request/#{id}", load_backend_file('request/set_bugowner')
+    assert_response :success
+    put "/request/#{id}", load_backend_file('request/set_bugowner_group')
     assert_response :success
   end
 
