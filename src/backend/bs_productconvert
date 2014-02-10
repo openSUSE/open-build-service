@@ -892,7 +892,7 @@ sub writeProductSPECfile( $$$$ )
     $productprovides.="Provides:       $prodRef->{'project'}->{'name'}\n" if ((defined($prodRef->{'project'}->{'name'})) && ("$prodRef->{'project'}->{'name'}" ne ""));
 
     my $mediaStyle = getMediaStyle($prodRef);
-    if ($mediaStyle =~ /^suse-1[12].[123]$/ || $mediaStyle =~ /^suse-13.1$/ || $mediaStyle =~ /^suse-sle11/) {
+    if ($mediaStyle =~ /^suse-1[12].[123]$/ || $mediaStyle =~ /^suse-sle11/) {
       $productprovides.="Provides:       product()\n";
       $productprovides.="Provides:       product($product->{'name'}) = %version-%release\n";
     } else {
@@ -902,7 +902,8 @@ sub writeProductSPECfile( $$$$ )
       foreach my $shortsummary ( @{$product->{'shortsummary'}} ){
         $productprovides.="Provides:       product-label() = ".escapeProvides($shortsummary->{'_content'})."\n" if ( ! $shortsummary->{'language'} );
       }
-      $productprovides.="Provides:       product-cpeid() = ".escapeProvides(getCpeId($prodRef, $product))."\n";
+      my $cpe = getCpeId($prodRef, $product);
+      $productprovides.="Provides:       product-cpeid() = ".escapeProvides($cpe)."\n" if $cpe;
 #      $productprovides.="Provides:       product-type()\n";
 #      $productprovides.="Provides:       product-flags()\n";
       foreach my $url ( @{$product->{'urls'}->{'url'}} ){
@@ -1149,6 +1150,8 @@ sub writekwd ( $$$ ) {
 
 sub getCpeId ($$) {
     my ($prodRef, $product) = @_;
+    my $mediaStyle = getMediaStyle($prodRef);
+    return undef if ($mediaStyle =~ /^suse-1[12].[123]$/ || $mediaStyle =~ /^suse-sle11/);
     my $tag = "/o"; # operating system
     # is this an add-on product?
     foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
@@ -1158,6 +1161,8 @@ sub getCpeId ($$) {
     my $vendor = $product->{vendor};
     # SLE people wants sometime short, sometime long version
     $vendor = "suse" if $product->{vendor} =~ /^SUSE LINUX/;
+    die("Vendor contains non valid chars") if $product->{vendor} =~ /[^\-+=\.,0-9:%{}\@#%A-Z_a-z~\200-\377]/s;
+    die("Vendor contains non valid chars") if $product->{vendor} =~ /[\/:\.\000-\037]/;
     my $cpeid_uri = lc("cpe:".$tag.":".$vendor.":".$product->{name}.":".$product->{version});
     return $cpeid_uri;
 }
@@ -1178,7 +1183,8 @@ sub createOsReleaseFile ($) {
     $os_release_file .= "BUG_REPORT_URL=\"".$bugtracker."\"\n" if $bugtracker;
     $os_release_file .= "ID=\"".lc($name)."\"\n";
     $os_release_file .= "ANSI_COLOR=\"0;32\"\n";
-    $os_release_file .= "CPE_NAME=\"".getCpeId($prodRef, $product)."\"\n";
+    my $cpe = getCpeId($prodRef, $product)."\"\n";
+    $os_release_file .= "CPE_NAME=\"".$cpe if $cpe;
     $os_release_file .= "EOF\n";
 
 }
@@ -1198,11 +1204,12 @@ sub createProductFile ( $$ ) {
     $zypp_product_file = "mkdir -p \$RPM_BUILD_ROOT/etc/products.d\n";
     $zypp_product->{'arch'} = '%{_target_cpu}'; # write product architecture during rpm build
     $zypp_product->{'schemeversion'} = "0";
-    $zypp_product->{'cpeid'} = getCpeId($prodRef, $product);
+    my $cpe = getCpeId($prodRef, $product)."\"\n";
+    $zypp_product->{'cpeid'} = $cpe if $cpe;
 
     $d->{"target"}  = $product->{'register'}->{'target'};
     $d->{"release"} = $product->{'register'}->{'release'};
-    if ($mediaStyle =~ /^suse-1[12].[123]$/ || $mediaStyle =~ /^suse-13.1$/ || $mediaStyle =~ /^suse-sle11/) {
+    if ($mediaStyle =~ /^suse-1[12].[123]$/ || $mediaStyle =~ /^suse-sle11/) {
        # old style, export used repositories for support tool
        my @r;
        foreach my $repo ( @{$prodRef->{repositories}{repository} } ) {
