@@ -79,7 +79,7 @@ module Webui::WebuiHelper
   end
 
   def format_projectname(prjname, login)
-    splitted = prjname.split(':', 4)
+    splitted = prjname.split(':', 3)
     if splitted[0] == 'home'
       if login and splitted[1] == login
         if splitted.length == 2

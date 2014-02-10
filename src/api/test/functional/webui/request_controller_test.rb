@@ -160,7 +160,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     login_tom to: user_show_path(user: 'tom')
 
     within('tr#tr_request_4') do
-      page.must_have_text '~:kde4 / BranchPack'
+      page.must_have_text '~:branches:kde4 / BranchPack'
       first(:css, 'a.request_link').click
     end
 
