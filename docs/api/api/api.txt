@@ -452,6 +452,7 @@ Parameters:
   meta: bool, switch to meta files, optional
   view: The "info" view will show data like source version, md5sums and build description files. May be used together with parse, arch or repository parameter, optional
         "issues" can be used to show all tracked issues for all packages in project, optional
+        "products" show all products of a package (works only on "_product" packages)
   extension: filter for file extension, optional
   lastworking: bool, show sources of last mergeable sources in case of conflicting changes, optional
   withlinked: bool, show all used package containers (in case of multiple link indirections) in linkinfo information, optional
@@ -459,6 +460,7 @@ Parameters:
   parse: bool, for view=info: take build description into account, optional
   arch: string, for view=info: parse buildinfo for this architecture, optinal
   repository: string, for view=info: parse buildinfo for this repository, optinal
+  product: string, limit the product view to a given product
 
 XmlResult: package directory.xsd
 

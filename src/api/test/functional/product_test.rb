@@ -31,7 +31,14 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "kind", :content => "product"
     get "/source/home:tom:temporary/_product?view=products"
     assert_response :success
-    assert_xml_tag :tag => "product", :attributes => { :id => 'simple' }
+    assert_xml_tag :parent => { :tag => "product", :attributes => { :id => 'simple' } },
+                   :tag => "name", :content => "simple"
+    get "/source/home:tom:temporary/_product?view=products&product=simple"
+    assert_response :success
+    assert_xml_tag :tag => "name", :content => "simple"
+    get "/source/home:tom:temporary/_product?view=products&product=DOES_NOT_EXIST"
+    assert_response :success
+    assert_no_xml_tag :tag => "name", :content => "simple"
     product = Package.find_by_project_and_name("home:tom:temporary","_product").products.first
     assert_equal "simple", product.name
     assert_equal "cpe:/a:OBS_Fuzzies:simple:11.2", product.cpe
