@@ -19,7 +19,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     get comments_project_path(project: 'HiddenProject')
     assert_response 404 # huh? Nothing here
 
-    prepare_request_with_user "hidden_homer", "homer"
+    prepare_request_with_user 'hidden_homer', 'homer'
     get comments_project_path(project: 'HiddenProject')
     assert_response :success
   end
@@ -73,10 +73,19 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
     email = ActionMailer::Base.deliveries.last
     assert_equal 'Request 2 commented by adrian (submit NeitherExisting/unknown, delete NeitherExisting/unknown2)', email.subject
-    assert_equal ["tschmidt@example.com"], email.to
+    assert_equal ['tschmidt@example.com'], email.to
 
     get comments_request_path(id: 2)
     assert_xml_tag tag: 'comment', attributes: { who: 'adrian' }, content: 'Hallo'
 
+    # just check if adrian gets the mail too - he's a commenter now
+    login_dmayr
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
+      raw_post create_request_comment_path(id: 2), 'Hallo'
+      assert_response :success
+    end
+
+    email = ActionMailer::Base.deliveries.last
+    assert_equal %w(adrian@example.com tschmidt@example.com), email.to
   end
 end

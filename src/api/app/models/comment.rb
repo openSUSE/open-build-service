@@ -23,9 +23,10 @@ class Comment < ActiveRecord::Base
     record = Comment.where(object_field => object_value)
     users = []
     record.each do |comment|
-      users << comment.user.id
+      Rails.logger.debug "IU2 #{comment.inspect}"
+      users << comment.user_id
     end
-    users.uniq!
+    users.uniq
   end
 
   def check_delete_permissions

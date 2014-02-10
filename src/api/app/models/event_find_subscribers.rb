@@ -76,7 +76,7 @@ class EventFindSubscribers
 
   def receiver_role_set(role)
     @toconsider.each do |r|
-      if r.receiver_role == r
+      if r.receiver_role.to_sym == r.receiver_role.to_sym
         return true
       end
     end
