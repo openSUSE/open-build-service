@@ -4628,12 +4628,10 @@ sub getfilelist {
     my @res;
     for my $filename (sort keys %$files) {
       next unless $filename =~ /.product$/;
+      next if $cgi->{'product'} and $filename ne "$cgi->{'product'}.product";
       my $xml = BSProductXML::readproductxml( "$srcrep/$rev->{'package'}/$files->{$filename}-$filename", 0, undef, $files);
-      if( defined($xml) ) {
-        push @res, $xml;
-      } else {
-        die("400 Unable to parse $filename: \n");
-      }
+      die("400 Unable to parse $filename: \n") unless defined($xml);
+      push @res, $xml;
     }
     my $ret = {};
     $ret->{'productdefinition'} = \@res;
@@ -7838,7 +7836,7 @@ my $dispatches = [
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,	# obsolete
 
   '/source/$project/$package view=info rev? linkrev? parse:bool? nofilename:bool? repository? arch? withchangesmd5:bool?' => \&getpackagesourceinfo,
-  '/source/$project/$package rev? linkrev? emptylink:bool? deleted:bool? expand:bool? view:? extension:? lastworking:bool? withlinked:bool? meta:bool?' => \&getfilelist,
+  '/source/$project/$package rev? linkrev? emptylink:bool? deleted:bool? expand:bool? view:? extension:? lastworking:bool? withlinked:bool? meta:bool? product:?' => \&getfilelist,
   '/source/$project/$package/_history rev? meta:bool? deleted:bool? limit:num?' => \&getpackagehistory,
   '/source/$project/$package/_meta rev? expand:bool? meta:bool? deleted:bool?' => \&getpackage,
   'PUT:/source/$project/$package/_meta user:? comment:? requestid:num?' => \&putpackage,
