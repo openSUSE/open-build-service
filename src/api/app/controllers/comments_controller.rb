@@ -36,6 +36,9 @@ class CommentsController < ApplicationController
   end
 
   def create_request_comment
+    req = BsRequest.find params[:id]
+
+    req.comment_class.create!(body: request.raw_post, user: User.current, bs_request_id: req.id)
     render_ok
   end
 
