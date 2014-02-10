@@ -36,7 +36,7 @@ class User < ActiveRecord::Base
   has_many :messages
   has_many :tokens, :dependent => :destroy, inverse_of: :user
 
-  has_many :event_subscriptions
+  has_many :event_subscriptions, inverse_of: :user
 
   # users have a n:m relation to group
   has_and_belongs_to_many :groups, -> { uniq }

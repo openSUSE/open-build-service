@@ -280,7 +280,6 @@ CREATE TABLE `channel_targets` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `channel_id` int(11) NOT NULL,
   `repository_id` int(11) NOT NULL,
-  `prefix` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `tag` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_channel_targets_on_channel_id_and_repository_id` (`channel_id`,`repository_id`),
@@ -421,15 +420,11 @@ CREATE TABLE `event_subscriptions` (
   `eventtype` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `receiver_role` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `user_id` int(11) DEFAULT NULL,
-  `project_id` int(11) DEFAULT NULL,
-  `package_id` int(11) DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `receive` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
-  KEY `index_event_subscriptions_on_user_id` (`user_id`),
-  KEY `index_event_subscriptions_on_project_id` (`project_id`),
-  KEY `index_event_subscriptions_on_package_id` (`package_id`)
+  KEY `index_event_subscriptions_on_user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `events` (
@@ -1439,11 +1434,13 @@ INSERT INTO schema_migrations (version) VALUES ('20131218071042');
 
 INSERT INTO schema_migrations (version) VALUES ('20140113110551');
 
+INSERT INTO schema_migrations (version) VALUES ('20140123063641');
+
 INSERT INTO schema_migrations (version) VALUES ('20140123071042');
 
 INSERT INTO schema_migrations (version) VALUES ('20140124071042');
 
-INSERT INTO schema_migrations (version) VALUES ('20140123063641');
+INSERT INTO schema_migrations (version) VALUES ('20140210114542');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

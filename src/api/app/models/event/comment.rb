@@ -1,4 +1,4 @@
-module CommitEvent
+module CommentEvent
 
   def self.included(base)
     base.class_eval do
@@ -23,7 +23,7 @@ module CommitEvent
 end
 
 class Event::CommentForProject < ::Event::Project
-  include CommitEvent
+  include CommentEvent
   receiver_roles :maintainer
 
   self.description = 'New comment for project created'
@@ -35,7 +35,7 @@ class Event::CommentForProject < ::Event::Project
 end
 
 class Event::CommentForPackage < ::Event::Package
-  include CommitEvent
+  include CommentEvent
   receiver_roles :maintainer
 
   self.description = 'New comment for package created'
@@ -48,7 +48,7 @@ end
 
 class Event::CommentForRequest < ::Event::Request
 
-  include CommitEvent
+  include CommentEvent
   self.description = 'New comment for request created'
   payload_keys :request_id
   receiver_roles :target_maintainer, :creator, :reviewer
