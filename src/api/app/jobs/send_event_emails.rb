@@ -9,6 +9,6 @@ class SendEventEmails
   def perform
     users = event.subscribers
     return if users.empty?
-    EventMailer.event(User.where(id: users), event).deliver
+    EventMailer.event(User.where(id: users).order(:id), event).deliver
   end
 end
