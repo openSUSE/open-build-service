@@ -49,7 +49,34 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     get comments_request_path(id: 4)
     assert_response :success
     assert_no_xml_tag tag: 'comment', attributes: { who: 'tom', parent: '300' }
-    assert_xml_tag tag: 'comment', attributes: { who: '_nobody_', id: '301'}, content: 'This comment has been deleted'
+    assert_xml_tag tag: 'comment', attributes: { who: '_nobody_', id: '301' }, content: 'This comment has been deleted'
+
+  end
+
+  test 'create request comment' do
+    post create_request_comment_path(id: 2)
+    assert_response 401 # no anonymous comments
+
+    login_adrian
+    post create_request_comment_path(id: 2000)
+    assert_response 404
+
+    post create_request_comment_path(id: 2)
+    assert_response 400
+    # body can't be empty
+    assert_xml_tag tag: 'status', attributes: { code: 'invalid_record' }
+
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
+      raw_post create_request_comment_path(id: 2), 'Hallo'
+      assert_response :success
+    end
+
+    email = ActionMailer::Base.deliveries.last
+    assert_equal 'Request 2 commented by adrian (submit NeitherExisting/unknown, delete NeitherExisting/unknown2)', email.subject
+    assert_equal ["tschmidt@example.com"], email.to
+
+    get comments_request_path(id: 2)
+    assert_xml_tag tag: 'comment', attributes: { who: 'adrian' }, content: 'Hallo'
 
   end
 end
