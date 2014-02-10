@@ -45,7 +45,6 @@ class EventFindSubscribers
       return 0
     end
 
-    return 1 if (y.package_id || y.project_id)
     return -1
   end
 
@@ -91,7 +90,7 @@ class EventFindSubscribers
     # we have 4 different subscription types and each requires a different strategy
 
     # 1. generic defaults
-    @toconsider = @subscriptions.where('user_id is null and package_id is null and project_id is null').to_a
+    @toconsider = @subscriptions.where('user_id is null').to_a
     @event.class.receiver_roles.each do |r|
       unless receiver_role_set(r)
         @toconsider << EventSubscription.new(eventtype: @event.class.name, receiver_role: r, receive: false)
@@ -99,7 +98,7 @@ class EventFindSubscribers
     end
 
     # 2. user specifics
-    usergenerics = @subscriptions.where('package_id is null and project_id is null')
+    usergenerics = @subscriptions
     @toconsider |= usergenerics.where(receiver_role: :all).to_a
 
     Rails.logger.debug "To consider #{@toconsider.inspect}"

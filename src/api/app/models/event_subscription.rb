@@ -1,16 +1,8 @@
 class EventSubscription < ActiveRecord::Base
-  belongs_to :project
-  belongs_to :package
-  belongs_to :user
+  belongs_to :user, inverse_of: :event_subscriptions
 
   validates :receiver_role, inclusion: { in: [:all, :maintainer, :source_maintainer,
                                               :target_maintainer, :reviewer, :commenter, :creator] }
-  validate :only_package_or_project
-
-  def only_package_or_project
-    # only one can be set
-    errors.add(:package_id, 'is conflicting with project') if self.package && self.project
-  end
 
   def receiver_role
     read_attribute(:receiver_role).to_sym
@@ -30,7 +22,7 @@ class EventSubscription < ActiveRecord::Base
   end
 
   def self._get_rel(eventtype)
-    EventSubscription.where(eventtype: eventtype).where('package_id is null and project_id is null')
+    EventSubscription.where(eventtype: eventtype)
   end
 
   # returns boolean if the eventtype is set for the role
