@@ -920,6 +920,28 @@ class Project < ActiveRecord::Base
     return packages
   end
 
+  # return array of [:name, :package_id] tuples for all products
+  # this function is making the products uniq
+  def expand_all_products( p_map = Hash.new )
+    products = Product.joins(:package).where("packages.project_id = ? and packages.name = '_product'", self.id).pluck(:name, :package_id)
+    products.each { |name, package_id| p_map[name] = 1 } # existing packages map
+    # second path, all packages from indirect linked projects
+    self.linkedprojects.each do |lp|
+      if lp.linked_db_project.nil?
+        # FIXME: this is a remote project
+      else
+        lp.linked_db_project.expand_all_products(p_map).each do |name, package_id|
+          unless p_map[name]
+            products << [name, package_id]
+            p_map[name] = 1
+          end
+        end
+      end
+    end
+
+    return products
+  end
+
   # this is needed to displaying package and project names
   # packages is an array of :name, :db_project_id
   # return [package_name, project_name] where project_name is nil
@@ -936,6 +958,15 @@ class Project < ActiveRecord::Base
       else
         ret << [name, prj_names[prj_id]]
       end
+    end
+    ret
+  end
+
+  def map_products_to_packages(packages)
+    ret = []
+    packages.each do |p|
+      package = Package.find_by_id p[1]
+      ret << [p[0], package.project.name, package.updated_at.to_i]
     end
     ret
   end

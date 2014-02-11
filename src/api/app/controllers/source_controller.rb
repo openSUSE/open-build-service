@@ -102,7 +102,9 @@ class SourceController < ApplicationController
     raise Project::UnknownObjectError.new project_name unless @project
     # we let the backend list the packages after we verified the project is visible
     if params.has_key? :view
-      if params['view'] == 'issues'
+      if params['view'] == 'productlist'
+        render xml: render_project_productlist
+      elsif params['view'] == 'issues'
         render_project_issues
       else
         pass_to_backend
@@ -124,6 +126,21 @@ class SourceController < ApplicationController
     output = String.new
     output << "<directory count='#{packages.length}'>\n"
     output << packages.map { |p| p[1].nil? ? "  <entry name=\"#{p[0]}\"/>\n" : "  <entry name=\"#{p[0]}\" originproject=\"#{p[1]}\"/>\n" }.join
+    output << "</directory>\n"
+    output
+  end
+
+  def render_project_productlist
+    products=nil
+    if params.has_key? :expand
+      products = @project.expand_all_products
+    else
+      products = Product.joins(:package).where("packages.project_id = ? and packages.name = '_product'", @project.id).pluck(:name, :package_id)
+    end
+    products = @project.map_products_to_packages(products)
+    output = String.new
+    output << "<directory count='#{products.length}'>\n"
+    output << products.map { |p| p[1].nil? ? "  <entry name=\"#{p[0]}\"/>\n" : "  <entry name=\"#{p[0]}\" originproject=\"#{p[1]}\" mtime=\"#{p[2]}\"/>\n" }.join
     output << "</directory>\n"
     output
   end

@@ -26,6 +26,17 @@ class ProductTests < ActionDispatch::IntegrationTest
       assert_response :success
     end
 
+    # product views in a project
+    get "/source/home:tom:temporary?view=productlist"
+    assert_response :success
+    assert_xml_tag :tag => "entry", 
+                   :attributes => { :name => "simple", :originproject => "home:tom:temporary" }
+    get "/source/home:tom:temporary?view=productlist&expand=1"
+    assert_response :success
+    assert_xml_tag :tag => "entry", 
+                   :attributes => { :name => "simple", :originproject => "home:tom:temporary" }
+
+    # product views in a package
     get "/source/home:tom:temporary/_product?view=issues"
     assert_response :success
     assert_xml_tag :tag => "kind", :content => "product"
@@ -39,6 +50,7 @@ class ProductTests < ActionDispatch::IntegrationTest
     get "/source/home:tom:temporary/_product?view=products&product=DOES_NOT_EXIST"
     assert_response :success
     assert_no_xml_tag :tag => "name", :content => "simple"
+
     product = Package.find_by_project_and_name("home:tom:temporary","_product").products.first
     assert_equal "simple", product.name
     assert_equal "cpe:/a:OBS_Fuzzies:simple:11.2", product.cpe
