@@ -22,10 +22,18 @@ class Comment < ActiveRecord::Base
   def involved_users(object_field, object_value)
     record = Comment.where(object_field => object_value)
     users = []
+    users_mentioned = []
     record.each do |comment|
-      Rails.logger.debug "IU2 #{comment.inspect}"
+      # take the one making the comment
       users << comment.user_id
+      # check if users are mentioned
+      comment.body.split.each do |word|
+        if word =~ /^@/
+          users_mentioned << word.gsub(%r{^@}, '')
+        end
+      end
     end
+    users += User.where(login: users_mentioned).pluck(:id)
     users.uniq
   end
 
