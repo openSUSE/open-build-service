@@ -29,12 +29,12 @@ class ProductTests < ActionDispatch::IntegrationTest
     # product views in a project
     get "/source/home:tom:temporary?view=productlist"
     assert_response :success
-    assert_xml_tag :tag => "entry", 
-                   :attributes => { :name => "simple", :originproject => "home:tom:temporary" }
+    assert_xml_tag :tag => "product", 
+                   :attributes => { :name => "simple", :cpe => "cpe:/a:OBS_Fuzzies:simple:11.2", :originproject => "home:tom:temporary" }
     get "/source/home:tom:temporary?view=productlist&expand=1"
     assert_response :success
-    assert_xml_tag :tag => "entry", 
-                   :attributes => { :name => "simple", :originproject => "home:tom:temporary" }
+    assert_xml_tag :tag => "product", 
+                   :attributes => { :name => "simple", :cpe => "cpe:/a:OBS_Fuzzies:simple:11.2", :originproject => "home:tom:temporary" }
 
     # product views in a package
     get "/source/home:tom:temporary/_product?view=issues"

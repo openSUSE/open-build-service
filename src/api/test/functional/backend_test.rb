@@ -18,7 +18,7 @@ class BackendTests < ActionDispatch::IntegrationTest
             configuration directory_view download_counter download_counter_summary download_stats group
             highest_rated issue_tracker latest_added latest_updated message messages most_active
             newest_stats packageresult projectresult projects rating redirect_stats status_message
-            status_messages tagcloud taglist tags updated_timestamp distributions).include? schema
+            status_messages tagcloud taglist tags updated_timestamp distributions productlist).include? schema
         # no backend schema exists
         next
       elsif schema == "binarylist"
