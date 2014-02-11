@@ -135,13 +135,13 @@ class SourceController < ApplicationController
     if params.has_key? :expand
       products = @project.expand_all_products
     else
-      products = Product.joins(:package).where("packages.project_id = ? and packages.name = '_product'", @project.id).pluck(:name, :package_id)
+      products = Product.joins(:package).where("packages.project_id = ? and packages.name = '_product'", @project.id).pluck(:name, :cpe, :package_id)
     end
     products = @project.map_products_to_packages(products)
     output = String.new
-    output << "<directory count='#{products.length}'>\n"
-    output << products.map { |p| p[1].nil? ? "  <entry name=\"#{p[0]}\"/>\n" : "  <entry name=\"#{p[0]}\" originproject=\"#{p[1]}\" mtime=\"#{p[2]}\"/>\n" }.join
-    output << "</directory>\n"
+    output << "<productlist count='#{products.length}'>\n"
+    output << products.map { |p| "  <product name=\"#{p[0]}\" cpe=\"#{p[1]}\" originproject=\"#{p[2]}\" mtime=\"#{p[3]}\"/>\n" }.join
+    output << "</productlist>\n"
     output
   end
 
