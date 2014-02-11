@@ -40,7 +40,7 @@ use Storable;
 
 use BSRPC;
 use BSServer;
-use BSConfig;
+use BSConfiguration;
 use BSUtil;
 use BSXML;
 use BSKiwiXML;
