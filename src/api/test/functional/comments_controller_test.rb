@@ -87,5 +87,14 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
     email = ActionMailer::Base.deliveries.last
     assert_equal %w(adrian@example.com tschmidt@example.com), email.to
+
+    # now to something fancy
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
+      raw_post create_request_comment_path(id: 2), 'Hallo @fred'
+      assert_response :success
+    end
+
+    email = ActionMailer::Base.deliveries.last
+    assert_equal %w(adrian@example.com fred@feuerstein.de tschmidt@example.com), email.to
   end
 end
