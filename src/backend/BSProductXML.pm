@@ -238,7 +238,8 @@ our $productdesc = [
             'product',                 # obsolete, should not be used anymore
             'name',
             'flavor',
-            'repo_only',
+            'repo_only',                    # do not create iso files
+            'drop_repo',                    # remove trees, just having iso files as result
             'mediastyle',
             'firmware',
             'registration',

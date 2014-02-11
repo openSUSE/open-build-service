@@ -275,8 +275,16 @@ sub createProductOptions($$$)
     $varsH{RUN_ISOHYBRID} = "true" if (defined($medium->{'run_hybridiso'})) && $medium->{'run_hybridiso'} eq "true";
     $varsH{CREATE_REPOMD} = "true" if (defined($medium->{'create_repomd'})) && $medium->{'create_repomd'} ne "no" && $medium->{'create_repomd'} ne "false";
     $varsH{MAKE_LISTINGS} = 'false' if (defined($medium->{'run_make_listings'})) && $medium->{'run_make_listings'} ne "yes" && $medium->{'run_make_listings'} ne "true";
-    $varsH{REPO_ONLY} = "true" if (defined($medium->{'repo_only'})) && $medium->{'repo_only'} ne "no" && $medium->{'repo_only'} ne "false";
     $varsH{SHA1OPT} = "-x";
+    $varsH{REPO_ONLY} = "true" if (defined($medium->{'repo_only'})) && $medium->{'repo_only'} ne "no" && $medium->{'repo_only'} ne "false";
+
+    # explicit removal of additional tree
+    $varsH{DROP_REPOSITORY} = "true" if (defined($medium->{'drop_repo'})) && $medium->{'drop_repo'} ne "no" && $medium->{'drop_repo'} ne "false";
+    unless ($mediaStyle =~ /^suse-1[12]/ || $mediaStyle =~ /^suse-sle11/) {
+      # remove tree for media style 12 by default
+      $varsH{DROP_REPOSITORY} = "true" unless $varsH{REPO_ONLY} || $varsH{DROP_REPOSITORY};
+    }
+
     # switch to sha256 sums except for old distros
     $varsH{SHA1OPT} .= " -2" unless $mediaStyle eq "suse-11.1" || $mediaStyle eq "suse-11.2" || $mediaStyle eq "suse-11.3" || $mediaStyle eq "suse-sle11-sp2";
 
