@@ -849,6 +849,30 @@ class Package < ActiveRecord::Base
     BackendPackage.where(links_to_id: self.id).delete_all
   end
 
+  def revoke_requests
+    # Find open requests with this package as source and revoke them.
+    rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
+    rel = rel.where('bs_request_actions.source_project = ? and bs_request_actions.source_package = ?', self.project.name, self.name)
+    BsRequest.where(id: rel.pluck('bs_requests.id')).each do |request|
+      request.change_state('revoked', :comment => "The source package '#{self.project.name}' '#{self.name}' was removed")
+    end
+
+    # Find open requests with this package as target and decline them.
+    rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
+    rel = rel.where('bs_request_actions.target_project = ? and bs_request_actions.target_package = ?', self.project.name, self.name)
+    BsRequest.where(id: rel.pluck('bs_requests.id')).each do |request|
+      request.change_state('declined', :comment => "The target package '#{self.project.name}' '#{self.name}' was removed")
+    end
+
+    # Find open requests which have a review involving this project (or it's packages) and remove those reviews
+    # but leave the requests otherwise untouched.
+    rel = BsRequest.where(state: [:new, :review])
+    rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? and reviews.by_package = ? ", self.project.name, self.name)
+    BsRequest.where(id: rel.pluck('bs_requests.id')).each do |request|
+      request.remove_reviews(:by_project => self.project.name, :by_package => self.name)
+    end
+  end
+
   def patchinfo
     begin
       Patchinfo.new(self.source_file('_patchinfo'))

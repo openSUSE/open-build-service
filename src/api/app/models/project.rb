@@ -98,6 +98,30 @@ class Project < ActiveRecord::Base
     end
   end
 
+  def revoke_requests
+    # Find open requests with 'pro' as source or target and decline/revoke them.
+    # Revoke if source or decline if target went away, pick the first action that matches to decide...
+    # Note: As requests are a backend matter, it's pointless to include them into the transaction below
+    self.open_requests_with_project_as_source_or_target.each do |request|
+      request.bs_request_actions.each do |action|
+        if action.source_project == self.name
+          request.change_state('revoked', :comment => "The source project '#{self.name}' was removed")
+          break
+        end
+        if action.target_project == self.name
+          request.change_state('declined', :comment => "The target project '#{self.name}' was removed")
+          break
+        end
+      end
+    end
+
+    # Find open requests which have a review involving this project (or it's packages) and remove those reviews
+    # but leave the requests otherwise untouched.
+    self.open_requests_with_by_project_review.each do |request|
+      request.remove_reviews(:by_project => self.name)
+    end
+  end
+
   def find_repos(sym)
     self.repositories.each do |repo|
       repo.send(sym).each do |lrep|

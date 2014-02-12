@@ -158,6 +158,51 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     Timecop.return
   end
 
+  def test_request_autodecline_on_removal
+    login_Iggy
+    post '/source/home:Iggy/TestPack?target_project=home:Iggy&target_package=TestPack.DELETE', :cmd => :branch
+    assert_response :success
+    post '/source/home:Iggy/TestPack.DELETE?target_project=home:Iggy&target_package=TestPack.DELETE2', :cmd => :branch
+    assert_response :success
+
+    # create requests
+    post '/request?cmd=create', '<request>
+                                   <action type="submit">
+                                     <source project="home:Iggy" package="TestPack.DELETE2"/>
+                                     <target project="home:Iggy" package="DUMMY"/>
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:id)
+    id1 = node.value('id')
+    post '/request?cmd=create', '<request>
+                                   <action type="submit">
+                                     <source project="home:Iggy" package="TestPack.DELETE"/>
+                                     <target project="home:Iggy" package="TestPack.DELETE2"/>
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:id)
+    id2 = node.value('id')
+
+
+    delete '/source/home:Iggy/TestPack.DELETE2'
+    assert_response :success
+    get "/request/#{id1}"
+    assert_response :success
+    assert_xml_tag( tag: 'state', attributes: { name: 'revoked'} )
+    get "/request/#{id2}"
+    assert_response :success
+    assert_xml_tag( tag: 'state', attributes: { name: 'declined'} )
+
+    delete '/source/home:Iggy/TestPack.DELETE'
+    assert_response :success
+  end
+
   def test_submit_request_with_broken_source
     login_Iggy
     post '/source/home:Iggy/TestPack?target_project=home:Iggy&target_package=TestPack.DELETE', :cmd => :branch
