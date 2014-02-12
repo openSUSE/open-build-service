@@ -757,7 +757,6 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 %config /srv/www/obs/api/config/environments/production.rb
 %config /srv/www/obs/api/config/environments/test.rb
 %config /srv/www/obs/api/config/environments/stage.rb
-%config(noreplace) /srv/www/obs/api/config/active_rbac_config.rb
 
 %dir %attr(-,%{apache_user},%{apache_group}) /srv/www/obs/api/log
 %attr(-,%{apache_user},%{apache_group}) /srv/www/obs/api/tmp
