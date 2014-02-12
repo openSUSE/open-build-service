@@ -57,6 +57,12 @@ class IssueTracker < ActiveRecord::Base
       begin
         result = bugzilla_server.search(:last_change_time => self.issues_updated)
       rescue Net::ReadTimeout
+        if (self.issues_updated + 2.days).past?
+           # failures since two days? 
+           # => enforce a full update in small steps to avoid over load at bugzilla side
+           enforced_update_all_issues
+           return true
+        end
         return false
       end
       ids = result["bugs"].map { |x| x["id"].to_i }
@@ -92,11 +98,12 @@ class IssueTracker < ActiveRecord::Base
     return false
   end
 
-  # this function is usually never called. Just for debugging and disaster recovery
+  # this function is for debugging and disaster recovery
   def enforced_update_all_issues
     @update_time_stamp = Time.at(Time.now.to_f - 5)
 
     ids = issues.map { |x| x.name.to_s }
+    ids.sort! { |x,y| y <=> x } # backward
 
     if private_fetch_issues(ids)
       self.issues_updated = @update_time_stamp
@@ -159,7 +166,7 @@ class IssueTracker < ActiveRecord::Base
         issue.state = Issue.bugzilla_state(r["status"])
       end
       u = User.find_by_email(r["assigned_to"].to_s)
-      logger.info "Bug user #{r["assigned_to"].to_s} is not found in OBS user database" unless u
+      logger.info "Bugzilla user #{r["assigned_to"].to_s} is not found in OBS user database" unless u
       issue.owner_id = u.id if u
       issue.updated_at = @update_time_stamp
       if r["is_private"]
