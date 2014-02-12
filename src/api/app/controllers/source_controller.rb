@@ -162,30 +162,9 @@ class SourceController < ApplicationController
     # find linking repos
     private_check_and_remove_repositories(params, pro.repositories) or return
 
-    # Find open requests with 'pro' as source or target and decline/revoke them.
-    # Revoke if source or decline if target went away, pick the first action that matches to decide...
-    # Note: As requests are a backend matter, it's pointless to include them into the transaction below
-    pro.open_requests_with_project_as_source_or_target.each do |request|
-      request.bs_request_actions.each do |action|
-        if action.source_project == pro.name
-          request.change_state('revoked', :comment => "The source project '#{pro.name}' was removed")
-          break
-        end
-        if action.target_project == pro.name
-          request.change_state('declined', :comment => "The target project '#{pro.name}' was removed")
-          break
-        end
-      end
-    end
-
-    # Find open requests which have a review involving this project (or it's packages) and remove those reviews
-    # but leave the requests otherwise untouched.
-    pro.open_requests_with_by_project_review.each do |request|
-      request.remove_reviews(:by_project => pro.name)
-    end
-
     Project.transaction do
       logger.info "destroying project object #{pro.name}"
+      pro.revoke_requests
       pro.destroy
 
       params[:user] = User.current.login
@@ -305,27 +284,7 @@ class SourceController < ApplicationController
     # exec
     Package.transaction do
 
-      # Find open requests with 'tpkg' as source or target and decline/revoke them.
-      # Revoke if source or decline if target went away, pick the first action that matches to decide...
-      tpkg.open_requests_with_package_as_source_or_target.each do |request|
-        request.bs_request_actions.each do |action|
-          if action.matches_package? :source, tpkg
-            request.change_state('revoked', :comment => "The source package '#{tpkg.project.name} / #{tpkg.name}' was removed")
-            break
-          end
-          if action.matches_package? :target, tpkg
-            request.change_state('declined', :comment => "The target package '#{tpkg.project.name} / #{tpkg.name}' was removed")
-            break
-          end
-        end
-      end
-
-      # Find open requests which have a review involving this package and remove those reviews
-      # but leave the requests otherwise untouched.
-      tpkg.open_requests_with_by_package_review.each do |request|
-        request.remove_reviews(:by_project => tpkg.project.name, :by_package => tpkg.name)
-      end
-
+      tpkg.revoke_requests
       tpkg.destroy
 
       params[:user] = User.current
