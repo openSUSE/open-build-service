@@ -47,54 +47,59 @@ class IssueTracker < ActiveRecord::Base
   #    return Issue.find_by_name_and_tracker(issue_id, self.name)
   #  end
 
+  def update_issues_bugzgilla
+    begin
+      result = bugzilla_server.search(:last_change_time => self.issues_updated)
+    rescue Net::ReadTimeout
+      if (self.issues_updated + 2.days).past?
+         # failures since two days? 
+         # => enforce a full update in small steps to avoid over load at bugzilla side
+         enforced_update_all_issues
+         return true
+      end
+      return false
+    end
+    ids = result["bugs"].map { |x| x["id"].to_i }
+
+    if private_fetch_issues(ids)
+      self.issues_updated = @update_time_stamp
+      self.save!
+
+      return true
+    end
+  end
+
+  def update_issues_cve
+    if self.enable_fetch
+      # fixed URL of all entries
+      # cveurl = "http://cve.mitre.org/data/downloads/allitems.xml.gz"
+      http = Net::HTTP.start("cve.mitre.org")
+      header = http.head("/data/downloads/allitems.xml.gz")
+      mtime = Time.parse(header["Last-Modified"])
+      if mtime.nil? or self.issues_updated.nil? or (self.issues_updated < mtime)
+        # new file exists
+        h = http.get("/data/downloads/allitems.xml.gz")
+        unzipedio = Zlib::GzipReader.new(StringIO.new(h.body))
+        listener = CVEparser.new()
+        listener.set_tracker(self)
+        parser = Nokogiri::XML::SAX::Parser.new(listener)
+        parser.parse_io(unzipedio)
+        # done
+        self.issues_updated = mtime - 1.second
+        self.save
+      end
+      return true
+    end
+  end
+
   def update_issues
     # before asking remote to ensure that it is older then on remote, assuming ntp works ...
     # to be sure, just reduce it by 5 seconds (would be nice to have a counter at bugzilla to 
     # guarantee a complete search)
     @update_time_stamp = Time.at(Time.now.to_f - 5)
 
-    if kind == "bugzilla"
-      begin
-        result = bugzilla_server.search(:last_change_time => self.issues_updated)
-      rescue Net::ReadTimeout
-        if (self.issues_updated + 2.days).past?
-           # failures since two days? 
-           # => enforce a full update in small steps to avoid over load at bugzilla side
-           enforced_update_all_issues
-           return true
-        end
-        return false
-      end
-      ids = result["bugs"].map { |x| x["id"].to_i }
-
-      if private_fetch_issues(ids)
-        self.issues_updated = @update_time_stamp
-        self.save!
-
-        return true
-      end
-    elsif kind == "cve"
-      if self.enable_fetch
-        # fixed URL of all entries
-        # cveurl = "http://cve.mitre.org/data/downloads/allitems.xml.gz"
-        http = Net::HTTP.start("cve.mitre.org")
-        header = http.head("/data/downloads/allitems.xml.gz")
-        mtime = Time.parse(header["Last-Modified"])
-        if mtime.nil? or self.issues_updated.nil? or (self.issues_updated < mtime)
-          # new file exists
-          h = http.get("/data/downloads/allitems.xml.gz")
-          unzipedio = Zlib::GzipReader.new(StringIO.new(h.body))
-          listener = CVEparser.new()
-          listener.set_tracker(self)
-          parser = Nokogiri::XML::SAX::Parser.new(listener)
-          parser.parse_io(unzipedio)
-          # done
-          self.issues_updated = mtime
-          self.save
-        end
-        return true
-      end
-    end
+    return update_issues_bugzilla if kind == "bugzilla"
+    return update_issues_cve if kind == "cve"
     return false
   end
 
