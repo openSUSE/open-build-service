@@ -1169,8 +1169,8 @@ sub getCpeId ($$) {
     my $vendor = $product->{vendor};
     # SLE people wants sometime short, sometime long version
     $vendor = "suse" if $product->{vendor} =~ /^SUSE LINUX/;
-    die("Vendor contains non valid chars") if $product->{vendor} =~ /[^\-+=\.,0-9:%{}\@#%A-Z_a-z~\200-\377]/s;
-    die("Vendor contains non valid chars") if $product->{vendor} =~ /[\/:\.\000-\037]/;
+    die("Vendor contains non valid chars") if $vendor =~ /[^\-+=\.,0-9:%{}\@#%A-Z_a-z~\200-\377]/s;
+    die("Vendor contains non valid chars") if $vendor =~ /[\/:\.\000-\037]/;
     my $cpeid_uri = lc("cpe:".$tag.":".$vendor.":".$product->{name}.":".$product->{version});
     return $cpeid_uri;
 }
