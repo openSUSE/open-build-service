@@ -44,7 +44,7 @@ use XML::Structured ':bytes';
 use Storable;
 use Build::Rpm;	# for verscmp
 
-use BSConfig;
+use BSConfiguration;
 use BSRPC;
 use BSUtil;
 use BSXML;

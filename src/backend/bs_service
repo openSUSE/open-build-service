@@ -39,7 +39,7 @@ use Fcntl qw(:DEFAULT :flock);
 use BSRPC;
 use BSServer;
 use BSStdServer;
-use BSConfig;
+use BSConfiguration;
 use BSUtil;
 use BSXML;
 use BSHTTP;
