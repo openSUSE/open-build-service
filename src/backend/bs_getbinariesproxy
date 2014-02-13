@@ -36,7 +36,7 @@ use Data::Dumper;
 use Storable ();
 use Symbol;
 
-use BSConfig;
+use BSConfiguration;
 use BSRPC ':https';
 use BSServer;
 use BSStdServer;

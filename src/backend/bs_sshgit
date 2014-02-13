@@ -28,7 +28,7 @@ BEGIN {
 
 use XML::Structured ':bytes';
 
-use BSConfig;
+use BSConfiguration;
 use BSUtil;
 use BSVerify;
 use BSAccess;
