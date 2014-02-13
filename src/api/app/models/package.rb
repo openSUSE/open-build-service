@@ -73,6 +73,7 @@ class Package < ActiveRecord::Base
   scope :dirty_backend_package, -> { joins('left outer join backend_packages on backend_packages.package_id = packages.id').where('backend_packages.package_id is null') }
 
   validates :name, presence: true, length: { maximum: 200 }
+  validates :title, length: { maximum: 250 }
   validate :valid_name
 
   has_one :backend_package, foreign_key: :package_id, dependent: :destroy, inverse_of: :package

@@ -72,6 +72,7 @@ class Project < ActiveRecord::Base
   default_scope { where('projects.id not in (?)', Relationship.forbidden_project_ids ) }
 
   validates :name, presence: true, length: { maximum: 200 }
+  validates :title, length: { maximum: 250 }
   validates :type_id, presence: true
   validate :valid_name
  
