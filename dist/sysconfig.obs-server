@@ -201,6 +201,25 @@ OBS_WORKER_NICE_LEVEL=18
 OBS_VM_TYPE="auto"
 
 ## Path:        Applications/OBS
+## Description: Provides more worker capabilities
+## Type:        ("on" | "off")
+## Default:     "off"
+## Config:      OBS
+#
+# to deal with _constraints file also on OBS_VM_TYPE="none"
+#
+# forwards:
+#   OBS_WORKER_ROOT_SIZE (disk size for each instance)
+#   OBS_INSTANCE_MEMORY (memory for each instance)
+#
+# Since dispatcher can deploy build jobs which requires those constraints
+# you should consider:
+#   system RAM  > OBS_INSTANCE_MEMORY * OBS_WORKER_INSTANCES
+#   system disk > OBS_WORKER_ROOT_SIZE * OBS_WORKER_INSTANCES
+#
+OBS_VM_TYPE_NONE_CONSTRAINTS="off"
+
+## Path:        Applications/OBS
 ## Description: Set kernel used by worker (kvm)
 ## Type:        ("none" | "/boot/vmlinuz" | "/foo/bar/vmlinuz)
 ## Default:     "none"
@@ -351,4 +370,3 @@ OBS_ROOT_SSHD_KEY_URL=""
 # This is a hook for doing special things in your setup at boot time
 #
 OBS_WORKER_SCRIPT_URL=""
-
