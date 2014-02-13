@@ -1287,7 +1287,7 @@ sub getbinaries_kiwiproduct {
 	if (!link("$localkiwi/build/$projid/$repoid/$arch/$packid/$name", "$ddir/$rarch/$name")) {
 	  # link fails if file already exists, rpc just overwrites
 	  unlink("$ddir/$rarch/$name");
-	  link("$localkiwi/build/$projid/$repoid/$arch/$packid/$name", "$ddir/$rarch/$name") || die("link $localkiwi/build/$projid/$repoid/$arch/$packid/$name $ddir/$rarch/$name: $!\n");
+	  link_or_copy("$localkiwi/build/$projid/$repoid/$arch/$packid/$name", "$ddir/$rarch/$name") || die("link $localkiwi/build/$projid/$repoid/$arch/$packid/$name $ddir/$rarch/$name: $!\n");
 	}
 	push @$res, {'name' => "$rarch/$name"};
       }
