@@ -1,0 +1,63 @@
+
+    <conditionals>
+      <!-- BASELIBS handling -->
+      <conditional name="baselibs_only_ia64">
+        <platform arch="ia64" onlyarch="ia64" />
+      </conditional>
+      <conditional name="baselibs_only_x86_64">
+        <platform arch="x86_64" onlyarch="x86_64"/>
+      </conditional>
+      <conditional name="baselibs_only_ppc64">
+        <platform arch="ppc64" onlyarch="ppc64"/>
+      </conditional>
+      <conditional name="baselibs_only_s390x">
+        <platform arch="s390x" onlyarch="s390x"/>
+      </conditional>
+      <conditional name="s390_special">
+        <platform arch="s390x" addarch="s390" />
+      </conditional>
+      <conditional name="s390_special_noarch">
+        <platform arch="s390x" addarch="noarch" />
+      </conditional>
+      <conditional name="additonal_i686">
+        <platform arch="i586" addarch="i686" />
+      </conditional>
+      <conditional name="i586_on_x86_64">
+        <platform arch="x86_64" onlyarch="i586" />
+      </conditional>
+      <conditional name="i586_only">
+        <platform arch="i586" onlyarch="i586" />
+      </conditional>
+      <conditional name="ppc_special">
+        <platform arch="ppc64" addarch="ppc" />
+      </conditional>
+
+      <conditional name="only_ppc">
+              <platform arch="ppc" />
+      </conditional>
+      <conditional name="only_i586">
+              <platform arch="i586" />
+      </conditional>
+      <conditional name="only_ia64">
+              <platform arch="ia64" />
+      </conditional>
+      <conditional name="only_ppc64">
+              <platform arch="ppc64" />
+      </conditional>
+      <conditional name="only_s390x">
+              <platform arch="s390x" />
+      </conditional>
+      <conditional name="only_x86_64">
+              <platform arch="x86_64" />
+      </conditional>
+      <conditional name="only_i586_and_x86_64">
+              <platform arch="i586" />
+              <platform arch="x86_64" />
+      </conditional>
+
+      <conditional name="FROZEN">
+        <platform onlyarch="skipit" /> <!-- drop it in any case -->
+      </conditional>
+
+    </conditionals>
+
