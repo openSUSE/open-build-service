@@ -925,8 +925,8 @@ class Project < ActiveRecord::Base
 
   # return array of [:name, :project_id] tuples
   def expand_all_packages
-    packages = self.packages.pluck([:name,:project_id])
     p_map = Hash.new
+    packages = self.packages.pluck([:name,:project_id])
     packages.each { |name, prjid| p_map[name] = 1 } # existing packages map
     # second path, all packages from indirect linked projects
     self.linkedprojects.each do |lp|
@@ -947,7 +947,8 @@ class Project < ActiveRecord::Base
 
   # return array of [:name, :package_id] tuples for all products
   # this function is making the products uniq
-  def expand_all_products( p_map = Hash.new )
+  def expand_all_products
+    p_map = Hash.new
     products = Product.joins(:package).where("packages.project_id = ? and packages.name = '_product'", self.id).pluck(:name, :cpe, :package_id)
     products.each { |name, cpe, package_id| p_map[cpe] = 1 } # existing packages map
     # second path, all packages from indirect linked projects
@@ -955,7 +956,7 @@ class Project < ActiveRecord::Base
       if lp.linked_db_project.nil?
         # FIXME: this is a remote project
       else
-        lp.linked_db_project.expand_all_products(p_map).each do |name, cpe, package_id|
+        lp.linked_db_project.expand_all_products.each do |name, cpe, package_id|
           unless p_map[cpe]
             products << [name, cpe, package_id]
             p_map[cpe] = 1
