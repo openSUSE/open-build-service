@@ -16,6 +16,12 @@ class ProductTests < ActionDispatch::IntegrationTest
             <person userid="adrian" role="maintainer" />
          </package>'
     assert_response :success
+    put "/source/home:tom:temporary:link/_meta",
+        '<project name="home:tom:temporary:link"> <title/> <description/> 
+           <link project="home:tom:temporary" />
+           <repository name="me" />
+         </project>'
+    assert_response :success
 
     # everything works even when the project is not owner by me?
     login_adrian
@@ -32,6 +38,15 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "product", 
                    :attributes => { :name => "simple", :cpe => "cpe:/a:OBS_Fuzzies:simple:11.2", :originproject => "home:tom:temporary" }
     get "/source/home:tom:temporary?view=productlist&expand=1"
+    assert_response :success
+    assert_xml_tag :tag => "product", 
+                   :attributes => { :name => "simple", :cpe => "cpe:/a:OBS_Fuzzies:simple:11.2", :originproject => "home:tom:temporary" }
+
+    # product views via project links
+    get "/source/home:tom:temporary:link?view=productlist"
+    assert_response :success
+    assert_no_xml_tag :tag => "product"
+    get "/source/home:tom:temporary:link?view=productlist&expand=1"
     assert_response :success
     assert_xml_tag :tag => "product", 
                    :attributes => { :name => "simple", :cpe => "cpe:/a:OBS_Fuzzies:simple:11.2", :originproject => "home:tom:temporary" }
