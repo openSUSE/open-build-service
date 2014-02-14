@@ -59,7 +59,7 @@ class Package < ActiveRecord::Base
   has_many :products, :dependent => :destroy
   has_many :channels, :dependent => :destroy, foreign_key: :package_id
 
-  has_many :comments, :dependent => :delete_all, inverse_of: :package
+  has_many :comments, :dependent => :destroy, inverse_of: :package
 
   before_destroy :delete_cache_lines
   before_destroy :remove_linked_packages

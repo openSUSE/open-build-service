@@ -11,7 +11,8 @@ class Comment < ActiveRecord::Base
 
   after_create :create_notification
 
-  has_many :children, :class_name => 'Comment', :foreign_key => 'parent_id'
+  has_many :children, dependent: :destroy, :class_name => 'Comment', :foreign_key => 'parent_id'
+
 
   def create_notification(params = {})
     params[:commenter] = self.user.id
@@ -57,13 +58,18 @@ class Comment < ActiveRecord::Base
     end
   end
 
-  def destroy
+  def blank_or_destroy
     if self.children.exists?
       self.body = 'This comment has been deleted'
       self.user = User.find_by_login '_nobody_'
       self.save!
     else
-      super
+      self.destroy
     end
+  end
+
+  # FIXME: This is to work around https://github.com/rails/rails/pull/12450/files
+  def destroy
+    super
   end
 end

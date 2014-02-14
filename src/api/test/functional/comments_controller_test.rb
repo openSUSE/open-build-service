@@ -53,6 +53,20 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
   end
 
+  test 'delete commented project' do
+    # BaseDistro has comments
+    login_king
+    delete '/source/home:king'
+    assert_response :success
+  end
+
+  test 'delete commented package' do
+    # BaseDistro3/pack2 has comments
+    login_king
+    delete '/source/home:king/commentpack'
+    assert_response :success
+  end
+
   test 'create request comment' do
     post create_request_comment_path(id: 2)
     assert_response 401 # no anonymous comments

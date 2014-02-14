@@ -7,7 +7,8 @@ class Webui::CommentsController < Webui::WebuiController
       redirect_to :back
       return
     end
-    comment.destroy
+    comment.blank_or_destroy
+
 
     respond_to do |format|
       format.js { render json: 'ok' }

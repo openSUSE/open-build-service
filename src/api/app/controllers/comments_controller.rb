@@ -47,7 +47,7 @@ class CommentsController < ApplicationController
     unless comment.check_delete_permissions
       raise NoPermission.new "No permission to delete #{params[:id]}"
     end
-    comment.destroy
+    comment.blank_or_destroy
     render_ok
   end
 

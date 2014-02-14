@@ -62,7 +62,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
    assert_response :success
    assert_xml_tag :tag => 'latest_updated', :child => { :tag => 'project' }
    assert_xml_tag :tag => 'project', :attributes => {
-     :name => "kde4",
+     :name => "home:coolo",
    }
 
    login_fred

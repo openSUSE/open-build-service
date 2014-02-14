@@ -247,6 +247,14 @@ home_tom:
   updated_at: 2012-11-29 21:18:02.000000000 Z
   type_id: 1
   delta: 1
+home_king:
+  name: home:king
+  title: test_delete_commented 
+  description: ''
+  created_at: 2014-02-14 01:00:01.000000000 Z
+  updated_at: 2014-02-14 01:00:01.000000000 Z
+  type_id: 1
+  delta: 1
 kde:
   name: kde
   title: blub

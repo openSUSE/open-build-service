@@ -65,7 +65,7 @@ class Project < ActiveRecord::Base
   has_many  :develprojects, :class_name => 'Project', :foreign_key => 'develproject_id'
   belongs_to :develproject, :class_name => 'Project'
 
-  has_many :comments, :dependent => :delete_all, inverse_of: :project
+  has_many :comments, :dependent => :destroy, inverse_of: :project
 
   has_many :project_log_entries, :dependent => :delete_all
 

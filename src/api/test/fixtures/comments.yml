@@ -85,3 +85,55 @@ request_comment_reply_2:
   created_at: 2013-07-25 18:00:21.000000000 Z
   updated_at: 2014-01-13 11:07:05.000000000 Z
   user: adrian
+king_package_comment_parent:
+  id: 400
+  body: This is the start of a comment thread on a package
+  type: CommentPackage
+  created_at: 2014-02-14 12:00:00.000000000 Z
+  updated_at: 2014-02-14 12:00:04.000000000 Z
+  user: Admin
+  package: home_king_commentpack
+king_package_comment_reply_1:
+  id: 401
+  body: This is the first reply
+  parent_id: 400
+  type: CommentPackage
+  created_at: 2014-02-14 12:01:00.000000000 Z
+  updated_at: 2014-02-14 12:01:04.000000000 Z
+  user: tom
+  package: home_king_commentpack
+king_package_comment_reply_2:
+  id: 402
+  body: This is a reply to the first reply
+  parent_id: 401
+  type: CommentPackage
+  created_at: 2014-02-14 12:02:00.000000000 Z
+  updated_at: 2014-02-14 12:02:04.000000000 Z
+  user: adrian
+  package: home_king_commentpack
+king_project_comment_parent:
+  id: 500
+  body: This is the start of a comment thread on a project
+  type: CommentProject
+  created_at: 2014-02-14 12:00:00.000000000 Z
+  updated_at: 2014-02-14 12:00:04.000000000 Z
+  user: Admin
+  project: home_king
+king_project_comment_reply_1:
+  id: 501
+  body: This is the first reply
+  parent_id: 500
+  type: CommentProject
+  created_at: 2014-02-14 12:01:00.000000000 Z
+  updated_at: 2014-02-14 12:01:04.000000000 Z
+  user: tom
+  project: home_king
+king_project_comment_reply_2:
+  id: 502
+  body: This is a reply to the first reply
+  parent_id: 501
+  type: CommentProject
+  created_at: 2014-02-14 12:02:00.000000000 Z
+  updated_at: 2014-02-14 12:02:04.000000000 Z
+  user: adrian
+  project: home_king
