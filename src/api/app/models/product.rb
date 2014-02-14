@@ -17,7 +17,9 @@ class Product < ActiveRecord::Base
   end
 
   def set_CPE(swClass, vendor, version=nil)
-    self.cpe = "cpe:/#{swClass}:#{vendor}:#{self.name}"
+    # hack for old SLE 11 definitions
+    vendor="suse" if vendor.start_with?("SUSE LINUX")
+    self.cpe = "cpe:/#{swClass}:#{vendor.downcase}:#{self.name.downcase}"
     self.cpe += ":#{version}" if version
   end
 
