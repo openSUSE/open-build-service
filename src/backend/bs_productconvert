@@ -1050,7 +1050,7 @@ sub createProductDependencyLines ( $ ) {
       $version = $dependency->{'version'} if defined($dependency->{'version'}); #old style
       if (defined($dependency->{'baseversion'})) {
         $version = $dependency->{'baseversion'};
-        $version .= ".".$dependency->{'patchlevel'} if defined($dependency->{'patchlevel'});
+        $version .= ".".$dependency->{'patchlevel'} if (defined($dependency->{'patchlevel'}) && $dependency->{'patchlevel'} ne '0');
         $version .= "-".$dependency->{'release'} if defined($dependency->{'release'});
       }
       $flavor = "-".$dependency->{'flavor'} if defined($dependency->{'flavor'});
