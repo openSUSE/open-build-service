@@ -109,6 +109,8 @@ Requires:       perl-Compress-Zlib
 Requires:       perl-TimeDate
 Requires:       perl-XML-Parser
 Requires:       screen
+# for build script
+Requires:       psmisc
 # For runlevel script:
 Requires:       curl
 Recommends:     openslp lvm2
