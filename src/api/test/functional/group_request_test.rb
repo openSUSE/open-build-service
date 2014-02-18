@@ -2,6 +2,12 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'request_controller'
 
+#
+# This was available for some time during OBS 2.5 development, but got 
+# dropped again before release. Still there is build.opensuse.org which 
+# contains some requests of group types
+#
+
 class GroupRequestTest < ActionDispatch::IntegrationTest
 
   fixtures :all
