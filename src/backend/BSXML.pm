@@ -1471,6 +1471,7 @@ our $configuration = [
 	'http_proxy',
 	'no_proxy',
 	'theme',
+	'cleanup_empty_projects',
       [ 'schedulers' =>
 	  [ 'arch' ],
       ],

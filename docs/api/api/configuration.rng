@@ -124,6 +124,15 @@
             </choice>
           </element>
         </optional>
+        <optional>
+          <element name="cleanup_empty_projects">
+            <!-- If the last package in a project is cleaned up by sourceupdate=cleanup, delete the whole project? -->
+            <choice>
+              <value>on</value>
+              <value>off</value>
+            </choice>
+          </element>
+        </optional>
 
         <!-- webui only stuff -->
         <optional>
