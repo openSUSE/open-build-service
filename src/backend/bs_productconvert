@@ -1191,8 +1191,8 @@ sub createOsReleaseFile ($) {
     $os_release_file .= "BUG_REPORT_URL=\"".$bugtracker."\"\n" if $bugtracker;
     $os_release_file .= "ID=\"".lc($name)."\"\n";
     $os_release_file .= "ANSI_COLOR=\"0;32\"\n";
-    my $cpe = getCpeId($prodRef, $product)."\"\n";
-    $os_release_file .= "CPE_NAME=\"".$cpe if $cpe;
+    my $cpe = getCpeId($prodRef, $product);
+    $os_release_file .= "CPE_NAME=\"$cpe\"\n" if $cpe;
     $os_release_file .= "EOF\n";
 
 }
@@ -1212,7 +1212,7 @@ sub createProductFile ( $$ ) {
     $zypp_product_file = "mkdir -p \$RPM_BUILD_ROOT/etc/products.d\n";
     $zypp_product->{'arch'} = '%{_target_cpu}'; # write product architecture during rpm build
     $zypp_product->{'schemeversion'} = "0";
-    my $cpe = getCpeId($prodRef, $product)."\"\n";
+    my $cpe = getCpeId($prodRef, $product);
     $zypp_product->{'cpeid'} = $cpe if $cpe;
 
     $d->{"target"}  = $product->{'register'}->{'target'};
