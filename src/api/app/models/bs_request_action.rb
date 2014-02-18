@@ -415,7 +415,7 @@ class BsRequestAction < ActiveRecord::Base
 
   def source_cleanup_delete_path
     source_project = Project.find_by_name!(self.source_project)
-    if source_project.packages.count == 1 or !self.source_package
+    if (source_project.packages.count == 1 and ::Configuration.first.cleanup_empty_projects) or !self.source_package
 
       # remove source project, if this is the only package and not a user's home project
       splits = self.source_project.split(':')
