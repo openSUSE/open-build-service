@@ -754,7 +754,7 @@ class User < ActiveRecord::Base
   def owned_packages
     owned = []
     begin
-      Owner.search({}, @self).each do |owner|
+      Owner.search({}, self).each do |owner|
         owned << [owner.project, owner.package]
       end
     rescue APIException => e # no attribute set
