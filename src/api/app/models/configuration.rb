@@ -26,8 +26,9 @@ class Configuration < ActiveRecord::Base
                    :no_proxy => nil,
                    :cleanup_after_days => nil,
                    :theme => CONFIG['theme'],
+                   :cleanup_empty_projects => nil,
                  }
-  ON_OFF_OPTIONS = [ :anonymous, :default_access_disabled, :allow_user_to_create_home_project, :disallow_group_creation, :change_password, :hide_private_options, :gravatar, :download_on_demand, :enforce_project_keys ]
+  ON_OFF_OPTIONS = [ :anonymous, :default_access_disabled, :allow_user_to_create_home_project, :disallow_group_creation, :change_password, :hide_private_options, :gravatar, :download_on_demand, :enforce_project_keys, :cleanup_empty_projects ]
    
   class << self
     def map_value(key, value)
