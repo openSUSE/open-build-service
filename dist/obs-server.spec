@@ -41,7 +41,7 @@ Release:        0
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 # Sources are retrieved using script which is attached as Source2
-Source:         obs-server-%version.tar.bz2
+Source:         obs-server-%version.tar.xz
 Source2:        update-sources.sh
 BuildRequires:  python-devel
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
@@ -73,6 +73,10 @@ Requires:       patch
 Requires:       %(/bin/bash -c 'rpm -q --qf "%%{name} = %%{version}" createrepo')
 # depend hard to new python-yum. There are too many broken versions of yum-common around.
 Requires:       python-yum
+
+%if 0%{?suse_version} < 1210
+BuildRequires:  xz
+%endif
 
 %if 0%{?suse_version:1}
 BuildRequires:  fdupes
