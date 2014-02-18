@@ -90,6 +90,14 @@ class BsRequestAction < ActiveRecord::Base
 
   def self.new_from_xml_hash(hash)
     classname = type_to_class_name(hash.delete('type').to_sym)
+
+    # request actions of type group were official never supported
+    # but there is build.opensuse.org which contains quite some of these
+    # requests. However, it is not used there anymore, so dis-allow to create
+    # new requests. But we do validate that the code is still working.
+    # FIXME3.0: drop this code and drop these actions from database.
+    raise ArgumentError, "request actions of type group can not be created anymore" if classname == BsRequestActionGroup and not Rails.env.test?
+
     if classname
       a = classname.new
     else
