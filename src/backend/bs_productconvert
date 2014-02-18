@@ -867,7 +867,7 @@ sub writeMigrationSPECfile( $$$$$ )
 sub escapeProvides($)
 {
     my( $string ) = @_;
-    $string =~ s/([^-a-zA-Z0-9_%{}.:\/])/sprintf("%%%02X", ord($1))/ge;
+    $string =~ s/([^-a-zA-Z0-9_%{}.:])/sprintf("%%%02X", ord($1))/ge;
     return $string;
 }
 
