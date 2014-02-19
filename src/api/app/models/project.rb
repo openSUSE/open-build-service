@@ -1070,13 +1070,21 @@ class Project < ActiveRecord::Base
       end
       pkg_to_enable.enable_for_repository(repoName) if pkg_to_enable
     end
-    # take over flags, but explicit disable publishing by default and enable building. Ommiting also lock or we can not create packages
+    # Take over flags, but enable building.
+    # By default, disable 'publish' to save space and bandwidth, but this
+    # can be turned off for small installations.
+    # Also omit 'lock' or we cannot create packages.
+    disable_publish_for_branches = ::Configuration.first.disable_publish_for_branches
     project.flags.each do |f|
-      unless %w(build publish lock).include?(f.flag)
-        self.flags.create(status: f.status, flag: f.flag, architecture: f.architecture, repo: f.repo)
-      end
+      next if %w(build lock).include?(f.flag)
+      next if f.flag == 'publish' and disable_publish_for_branches
+
+      self.flags.create(status: f.status, flag: f.flag, architecture: f.architecture, repo: f.repo)
     end
-    self.flags.create(:status => 'disable', :flag => 'publish') unless self.flags.find_by_flag_and_status( 'publish', 'disable' )
+
+    if disable_publish_for_branches
+      self.flags.create(:status => 'disable', :flag => 'publish') unless self.flags.find_by_flag_and_status( 'publish', 'disable' )
+    end
   end
 
   def open_requests_with_project_as_source_or_target
