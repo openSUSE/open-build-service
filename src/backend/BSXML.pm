@@ -1472,6 +1472,7 @@ our $configuration = [
 	'no_proxy',
 	'theme',
 	'cleanup_empty_projects',
+	'disable_publish_for_branches',
       [ 'schedulers' =>
 	  [ 'arch' ],
       ],

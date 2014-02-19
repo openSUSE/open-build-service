@@ -133,6 +133,15 @@
             </choice>
           </element>
         </optional>
+        <optional>
+          <element name="disable_publish_for_branches">
+            <!-- When a user creates a new project as a side-effect of branching a package, disable publishing that project? The default is "on" to save disk space and bandwidth. -->
+            <choice>
+              <value>on</value>
+              <value>off</value>
+            </choice>
+          </element>
+        </optional>
 
         <!-- webui only stuff -->
         <optional>
