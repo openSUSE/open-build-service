@@ -5,13 +5,9 @@ class Webui::MessagesTest < Webui::IntegrationTest
   test 'add and remove message' do
     use_js
 
-    login_king to: project_show_path(project: 'home:king')
-
-    # create admin's home to avoid interconnect
-    find_button('Create Project').click
+    login_king to: root_path 
 
     message = 'This is just a test'
-    visit root_path
     page.wont_have_selector('#news-message')
 
     find(:id, 'add-new-message').click
@@ -36,12 +32,6 @@ class Webui::MessagesTest < Webui::IntegrationTest
     # check that it's gone
     page.wont_have_selector('#news-message')
     
-    # and now to something completely different - we need to erase home:king
-    # again so that you still get the same interconnect s*** workflow (TODO!!!)
-    visit project_show_path(project: 'home:king')
-    find(:id, 'delete-project').click
-    find_button('Ok').click
-
   end
 
 end

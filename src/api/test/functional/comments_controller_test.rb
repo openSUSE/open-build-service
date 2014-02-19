@@ -53,17 +53,17 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
   end
 
-  test 'delete commented project' do
-    # BaseDistro has comments
+  test 'delete commented package' do
+    # home:king/commentpack has comments
     login_king
-    delete '/source/home:king'
+    delete '/source/home:king/commentpack'
     assert_response :success
   end
 
-  test 'delete commented package' do
-    # BaseDistro3/pack2 has comments
+  test 'delete commented project' do
+    # home:king has comments
     login_king
-    delete '/source/home:king/commentpack'
+    delete '/source/home:king'
     assert_response :success
   end
 

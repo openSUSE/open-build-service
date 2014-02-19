@@ -884,7 +884,7 @@ class Webui::ProjectController < Webui::WebuiController
 
     @buildresult = Buildresult.find( find_opt )
     unless @buildresult
-      flash[:error] = "No build results for project '#{@project}'"
+      flash[:warning] = "No build results for project '#{@project}'"
       redirect_to :action => :show, :project => params[:project]
       return
     end

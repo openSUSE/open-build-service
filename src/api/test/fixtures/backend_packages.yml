@@ -198,3 +198,10 @@ kde4_kdelibs:
   expandedmd5: 1636661d96a88cd985d82dc611ebd723
   maxmtime: 2013-09-30 15:50:37.000000000 Z
   package: kde4_kdelibs
+home_king_commentpack:
+  updated_at: 2013-09-30 15:50:41.000000000 Z
+  srcmd5: d41d8cd98f00b204e9800998ecf8427e
+  verifymd5: d41d8cd98f00b204e9800998ecf8427e
+  expandedmd5: d41d8cd98f00b204e9800998ecf8427e
+  maxmtime: 2013-09-30 15:50:37.000000000 Z
+  package: home_king_commentpack
