@@ -6224,7 +6224,7 @@ sub copybuild {
 
 sub uploadbuild {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
-  die("illageal package '$packid'\n") if $packid =~ /^_/;
+  die("illegal package '$packid'\n") if $packid =~ /^_/;
   checkprojrepoarch($projid, $repoid, $arch);
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
   my $param = {
