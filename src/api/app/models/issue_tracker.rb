@@ -47,7 +47,7 @@ class IssueTracker < ActiveRecord::Base
   #    return Issue.find_by_name_and_tracker(issue_id, self.name)
   #  end
 
-  def update_issues_bugzgilla
+  def update_issues_bugzilla
     begin
       result = bugzilla_server.search(:last_change_time => self.issues_updated)
     rescue Net::ReadTimeout
