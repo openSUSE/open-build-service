@@ -1070,10 +1070,18 @@ class Project < ActiveRecord::Base
       end
       pkg_to_enable.enable_for_repository(repoName) if pkg_to_enable
     end
-    # Take over flags, but enable building.
-    # By default, disable 'publish' to save space and bandwidth, but this
-    # can be turned off for small installations.
-    # Also omit 'lock' or we cannot create packages.
+
+    self.branch_copy_flags(project)
+  end
+
+  def branch_copy_flags(project)
+    # Copy the flags from the other project, adjusting them appropriately
+    # for this one being a branch of it:
+    #
+    # - enable building
+    # - disable 'publish' to save space and bandwidth
+    #   (can be turned off for small installations)
+    # - omit 'lock' or we cannot create packages
     disable_publish_for_branches = ::Configuration.first.disable_publish_for_branches
     project.flags.each do |f|
       next if %w(build lock).include?(f.flag)
