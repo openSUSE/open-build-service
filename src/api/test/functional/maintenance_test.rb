@@ -427,6 +427,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                          </repository>
                                    </project>'
     assert_response :success
+    put '/source/BaseDistro3Channel/_config', 'Repotype: rpm-md-legacy'
+    assert_response :success
     raw_post '/source/BaseDistro3Channel/_attribute', "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-BaseDistro3Channel-%Y-%C</value></attribute></attributes>"
     assert_response :success
     put '/source/Channel/_meta', '<project name="Channel"><title/><description/>
@@ -567,6 +569,15 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     # check for changed updateinfoid.
     assert_xml_tag :parent => { :tag => 'update', :attributes => { :from => 'tom', :status => 'stable',  :type => 'recommended', :version => '1'} }, :tag => 'id', :content => "UpdateInfoTagNew-updateinfo-#{Time.now.utc.year.to_s}-1"
+
+    # repo is configured as legacy rpm-md, so we require short meta data file names
+    get "/published/BaseDistro3Channel/channel_repo/repodata"
+    assert_response :success
+    assert_xml_tag :tag => 'entry', :attributes => { :name =>"filelists.xml.gz" }  # by createrepo
+    assert_xml_tag :tag => 'entry', :attributes => { :name =>"other.xml.gz" }
+    assert_xml_tag :tag => 'entry', :attributes => { :name =>"primary.xml.gz" }
+    assert_xml_tag :tag => 'entry', :attributes => { :name =>"repomd.xml" }
+    assert_xml_tag :tag => 'entry', :attributes => { :name =>"updateinfo.xml.gz" } # by modifyrepo
 
     #cleanup
     login_king
