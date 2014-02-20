@@ -384,14 +384,14 @@ sub createrepo_rpmmd {
   if ($updateinfos && @$updateinfos) {
     print "    adding updateinfo.xml to repodata\n";
     writexml("$extrep/repodata/updateinfo.xml", undef, {'update' => $updateinfos}, $BSXML::updateinfo);
-    qsystem('modifyrepo', "$extrep/repodata/updateinfo.xml", "$extrep/repodata") && die("    modifyrepo failed: $?\n");
+    qsystem('modifyrepo', "$extrep/repodata/updateinfo.xml", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
     unlink("$extrep/repodata/updateinfo.xml");
   }
   unlink("$extrep/repodata/$_") for grep {/appdata\.xml/} @oldrepodata;
   if ($appdatas) {
     print "    adding appdata.xml to repodata\n";
     writexml("$extrep/repodata/appdata.xml", undef, $appdatas, $BSXML::appdata);
-    qsystem('modifyrepo', "$extrep/repodata/appdata.xml", "$extrep/repodata") && die("    modifyrepo failed: $?\n");
+    qsystem('modifyrepo', "$extrep/repodata/appdata.xml", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
     unlink("$extrep/repodata/appdata.xml");
   }
   unlink("$extrep/repodata/$_") for grep {/(?:deltainfo|prestodelta)\.xml/} @oldrepodata;
@@ -413,12 +413,12 @@ sub createrepo_rpmmd {
     my @mergeddeltas = map {$mergeddeltas{$_}} sort keys %mergeddeltas;
     if ($options{'deltainfo'}) {
       writexml("$extrep/repodata/deltainfo.xml", undef, {'newpackage' => \@mergeddeltas}, $BSXML::deltainfo);
-      qsystem('modifyrepo', "$extrep/repodata/deltainfo.xml", "$extrep/repodata") && die("    modifyrepo failed: $?\n");
+      qsystem('modifyrepo', "$extrep/repodata/deltainfo.xml", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
       unlink("$extrep/repodata/deltainfo.xml");
     }
     if ($options{'prestodelta'}) {
       writexml("$extrep/repodata/prestodelta.xml", undef, {'newpackage' => \@mergeddeltas}, $BSXML::prestodelta);
-      qsystem('modifyrepo', "$extrep/repodata/prestodelta.xml", "$extrep/repodata") && die("    modifyrepo failed: $?\n");
+      qsystem('modifyrepo', "$extrep/repodata/prestodelta.xml", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
       unlink("$extrep/repodata/prestodelta.xml");
     }
   }
@@ -769,7 +769,7 @@ sub deleterepo_staticlinks {
 ##########################################################################
 
 sub createpatterns_rpmmd {
-  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $patterns) = @_;
+  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $options, $patterns) = @_;
 
   deletepatterns_rpmmd($extrep);
   return unless @{$patterns || []};
@@ -782,7 +782,15 @@ sub createpatterns_rpmmd {
   print "    adding patterns to repodata\n";
   my $pats = {'pattern' => \@pats, 'count' => scalar(@pats)};
   writexml("$extrep/repodata/patterns.xml", undef, $pats, $BSXML::patterns);
-  qsystem('modifyrepo', "$extrep/repodata/patterns.xml", "$extrep/repodata") && print("    modifyrepo failed: $?\n");
+  my @legacyargs;
+  my %options = map {$_ => 1} @{$options || []};
+  if ($options{'legacy'}) {
+    push @legacyargs, '--simple-md-filenames', '--checksum=sha';
+  } else {
+    # the default in newer createrepos
+    push @legacyargs, '--unique-md-filenames', '--checksum=sha256';
+  }
+  qsystem('modifyrepo', "$extrep/repodata/patterns.xml", "$extrep/repodata", @legacyargs) && print("    modifyrepo failed: $?\n");
   unlink("$extrep/repodata/patterns.xml");
 
 #  for my $pattern (@{$patterns || []}) {
@@ -790,7 +798,7 @@ sub createpatterns_rpmmd {
 #    $pname =~ s/\.xml$//;
 #    print "    adding pattern $pattern->{'name'} to repodata\n";
 #    writestr("$extrep/repodata/$pname.xml", undef, $pattern->{'data'});
-#    qsystem('modifyrepo', "$extrep/repodata/$pname.xml", "$extrep/repodata") && print("    modifyrepo failed: $?\n");
+#    qsystem('modifyrepo', "$extrep/repodata/$pname.xml", "$extrep/repodata", @legacyargs) && print("    modifyrepo failed: $?\n");
 #    unlink("$extrep/repodata/$pname.xml");
 #  }
 
@@ -812,7 +820,7 @@ sub deletepatterns_rpmmd {
 }
 
 sub createpatterns_comps {
-  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $patterns) = @_;
+  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $options, $patterns) = @_;
 
   deletepatterns_comps($extrep);
   return unless @{$patterns || []};
@@ -846,7 +854,15 @@ sub createpatterns_comps {
   print "    adding comps to repodata\n";
   my $comps = {'group' => \@grps};
   writexml("$extrep/repodata/group.xml", undef, $comps, $BSXML::comps);
-  qsystem('modifyrepo', "$extrep/repodata/group.xml", "$extrep/repodata") && print("    modifyrepo failed: $?\n");
+  my @legacyargs;
+  my %options = map {$_ => 1} @{$options || []};
+  if ($options{'legacy'}) {
+    push @legacyargs, '--simple-md-filenames', '--checksum=sha';
+  } else {
+    # the default in newer createrepos
+    push @legacyargs, '--unique-md-filenames', '--checksum=sha256';
+  }
+  qsystem('modifyrepo', "$extrep/repodata/group.xml", "$extrep/repodata", @legacyargs) && print("    modifyrepo failed: $?\n");
   unlink("$extrep/repodata/group.xml");
 
   # re-sign changed repomd.xml file
@@ -1686,12 +1702,12 @@ sub publish {
     deletepatterns_ymp($extrep, $projid, $xrepoid, $signargs, $pubkey);
   }
   if ($patterntype{'rpm-md'}) {
-    createpatterns_rpmmd($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo, $patterns);
+    createpatterns_rpmmd($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo, $repotype{'rpm-md'}, $patterns);
   } else {
     deletepatterns_rpmmd($extrep, $projid, $xrepoid, $signargs, $pubkey);
   }
   if ($patterntype{'comps'}) {
-    createpatterns_comps($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo, $patterns);
+    createpatterns_comps($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo, $repotype{'rpm-md'}, $patterns);
   } else {
     deletepatterns_comps($extrep, $projid, $xrepoid, $signargs, $pubkey);
   }
