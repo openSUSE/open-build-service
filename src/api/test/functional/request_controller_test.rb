@@ -2696,4 +2696,64 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def cleanup_empty_projects_helper(expect_cleanup_empty_project)
+    sprj = 'Apache'
+    bprj = "home:king:branches:#{sprj}"
+
+    post "/source/#{sprj}/apache2", :cmd => :branch, :target_project => "#{bprj}"
+    assert_response :success
+
+    post "/source/#{sprj}/Tidy", :cmd => :branch, :target_project => "#{bprj}"
+    assert_response :success
+
+    # Submit apache2 back. It is not the last project.
+    raw_post '/request?cmd=create', "<request><action type='submit'><source project='#{bprj}' package='apache2'/><target project='#{sprj}' package='apache2'/></action></request>"
+    assert_response :success
+    # Accept our own request :-)
+    id = Xmlhash.parse(@response.body)['id']
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response :success
+    # apache2 has gone, but the project remains
+    get "/source/#{bprj}"
+    assert_response :success
+    assert_no_xml_tag tag: 'entry', attributes: { name: 'apache2' }
+    assert_xml_tag tag: 'entry', attributes: { name: 'Tidy' }
+
+    # Submit Tidy back. It *is* the last project.
+    raw_post '/request?cmd=create', "<request><action type='submit'><source project='#{bprj}' package='Tidy'/><target project='#{sprj}' package='Tidy'/></action></request>"
+    assert_response :success
+    id = Xmlhash.parse(@response.body)['id']
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response :success
+    get "/source/#{bprj}"
+    if expect_cleanup_empty_project
+      assert_response 404
+    else
+      assert_response :success
+      assert_no_xml_tag tag: 'entry', attributes: { name: 'apache2' }
+      assert_no_xml_tag tag: 'entry', attributes: { name: 'Tidy' }
+    end
+  end
+
+  def test_cleanup_empty_projects
+    # we use an admin user so we can twiddle the configuration
+    login_king
+
+    # By default, OBS expects to have thousands of users, so succesfully
+    # submitting the last package in a project cleans up the project to
+    # save resources.
+    cleanup_empty_projects_helper(true)
+
+    # "small team" mode: resources are unconstrained so we're willing to
+    # preserve everyone's project configuration even if the project is empty
+    put '/configuration?cleanup_empty_projects=off'
+    assert_response :success
+    cleanup_empty_projects_helper(false)
+
+    # explicitly go back to the default and check that the result is still
+    # the same
+    put '/configuration?cleanup_empty_projects=on'
+    assert_response :success
+    cleanup_empty_projects_helper(true)
+  end
 end
