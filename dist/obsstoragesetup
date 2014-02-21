@@ -405,22 +405,22 @@ EOF
 			echo "OBS_INSTANCE_MEMORY=\"$INSTANCEMEM\"" >> /etc/buildhost.config
 			if grep ^flags /proc/cpuinfo | egrep -q " (svm|vmx) " && test -n "$RUN_VIRT"; then
                                 # try to use hugetlb on kvm
-                                if ! grep -q \ /hugetlbfs /proc/mounts; then
-					mkdir -p /hugetlbfs
-			                HUGETLBINSTANCEMEM=$(( ($INSTANCEMEM * 512) / 1024 )) # 2M page sizes
-			                HUGETLMEM=$(( $HUGETLBINSTANCEMEM * $OBS_WORKER_INSTANCES ))
-                                        # register huge table memory pages
-                                        echo "$HUGETLMEM" > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
-                                        # enable it if it was successful
-                                        if [ "$HUGETLMEM" == `cat /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages` ] && \
- 					   mount hugetlbfs /hugetlbfs -t hugetlbfs; then
-	                			echo "OBS_VM_USE_HUGETLBFS=\"/hugetlbfs\"" >> /etc/buildhost.config
-					else
-						echo "WARNING: registration of huge table memory pages failed!"
-                                                echo "Just `cat /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages` of $HUGETLMEM registered, resetting ..."
-	                                        echo "0" > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
-					fi
-                                fi
+				mkdir -p /dev/hugetlbfs # systemd may have mounted it already
+			        HUGETLBINSTANCEMEM=$(( ($INSTANCEMEM * 512) / 1024 )) # 2M page sizes
+			        HUGETLMEM=$(( $HUGETLBINSTANCEMEM * $OBS_WORKER_INSTANCES ))
+                                # register huge table memory pages
+                                echo "$HUGETLMEM" > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
+                                # enable it if it was successful
+                                if [ "$HUGETLMEM" == `cat /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages` ]; then
+                                	grep -q \ /dev/hugetlbfs /proc/mounts || \
+ 					   mount hugetlbfs /dev/hugetlbfs -t hugetlbfs
+                                	grep -q \ /dev/hugetlbfs /proc/mounts && \
+	                		   echo "OBS_VM_USE_HUGETLBFS=\"/dev/hugetlbfs\"" >> /etc/buildhost.config
+				else
+					echo "WARNING: registration of huge table memory pages failed!"
+                                        echo "Just `cat /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages` of $HUGETLMEM registered, resetting ..."
+	                                echo "0" > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
+				fi
                         fi
 			# append user presets
 			echo "" >> /etc/buildhost.config
