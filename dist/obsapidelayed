@@ -39,10 +39,10 @@
 
 API_ROOT=/srv/www/obs/api
 CLOCKWORKD=/usr/bin/clockworkd
+export RAILS_ENV="production"
 
 function run_in_api
 {
-  export RAILS_ENV="production"
   # startproc only works for classical daemons
   chroot --userspec=wwwrun:www / /bin/bash -c "cd $API_ROOT && /usr/bin/bundle exec $*"
 }
@@ -57,13 +57,21 @@ case "$1" in
     start)
 	echo -n "Starting OBS api delayed job handler "
         run_in_api script/delayed_job.api.rb start -n $NUM
+	rc_status -v
+	echo -n "Starting OBS api clock daemon "
         run_in_api $CLOCKWORKD -l -c config/clock.rb start
 	rc_status -v
+        # searchd got started by clockd
 	;;
     stop)
 	echo -n "Shutting down OBS api delayed job handler "
         run_in_api script/delayed_job.api.rb stop
+	rc_status -v
+	echo -n "Shutting down OBS api clock daemon "
         run_in_api $CLOCKWORKD -l -c config/clock.rb stop
+	rc_status -v
+	echo -n "Shutting down OBS searchd daemon "
+        chroot --userspec=wwwrun:www / /bin/bash -c "cd $API_ROOT && /usr/bin/bundle exec rake ts:stop"
 	rc_status -v
 	;;
     try-restart|condrestart)
