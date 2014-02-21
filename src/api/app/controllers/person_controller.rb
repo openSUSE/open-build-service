@@ -147,7 +147,7 @@ class PersonController < ApplicationController
       realname = request.env['HTTP_X_FIRSTNAME'] + " " + request.env['HTTP_X_LASTNAME'] unless request.env['HTTP_X_LASTNAME'].blank?
     end
 
-    User.register(login: login, realname: realname, email:
+    UnregisteredUser.register(login: login, realname: realname, email:
         email, password: password, note: note, status: status)
 
     # This may fail when no notification is configured. Not important, so no exception handling for now

@@ -41,7 +41,7 @@
         <% end %>
       </div>
     <% else %>
-      <% unless CONFIG['frontend_ldap_mode'] == :on %>
+      <% if can_register %>
         <%= link_to 'Sign Up', controller: :user, action: :register_user %> |
       <% end %>
       <%= link_to 'Log In', { controller: :user, action: :login }, id: 'login-trigger' %>

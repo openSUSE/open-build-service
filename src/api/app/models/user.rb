@@ -916,55 +916,6 @@ class User < ActiveRecord::Base
     end
   end
 
-  class ErrRegisterSave < APIException
-  end
-
-  def self.register(opts)
-    if CONFIG['ldap_mode'] == :on
-      raise ErrRegisterSave.new 'LDAP mode enabled, users can only be registered via LDAP'
-    end
-    if CONFIG['proxy_auth_mode'] == :on or CONFIG['ichain_mode'] == :on
-      raise ErrRegisterSave.new 'Proxy authentification mode, manual registration is disabled'
-    end
-
-    status = 'confirmed'
-
-    unless User.current and User.current.is_admin?
-      opts[:note] = nil
-    end
-
-    if ::Configuration.first.registration == 'deny'
-      unless User.current and User.current.is_admin?
-        raise ErrRegisterSave.new 'User registration is disabled'
-      end
-    elsif ::Configuration.first.registration == 'confirmation'
-      status = 'unconfirmed'
-    elsif ::Configuration.first.registration != 'allow'
-      render_error :message => 'Admin configured an unknown config option for registration',
-                   :errorcode => 'server_setup_error', :status => 500
-      return
-    end
-    status = opts[:status] if User.current and User.current.is_admin?
-
-    newuser = User.create(
-        :login => opts[:login],
-        :password => opts[:password],
-        :password_confirmation => opts[:password],
-        :email => opts[:email] )
-
-    newuser.realname = opts[:realname]
-    newuser.state = User.states[status]
-    newuser.adminnote = opts[:note]
-    logger.debug('Saving...')
-    newuser.save
-
-    if !newuser.errors.empty?
-      details = newuser.errors.map{ |key, msg| "#{key}: #{msg}" }.join(', ')
-      raise ErrRegisterSave.new "Could not save the registration, details: #{details}"
-    end
-
-  end
-
   # returns the gravatar image as string or :none
   def gravatar_image(size)
     Rails.cache.fetch([self, 'home_face', size, Configuration.first]) do

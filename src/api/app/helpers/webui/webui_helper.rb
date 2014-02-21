@@ -532,4 +532,13 @@ module Webui::WebuiHelper
   def array_cachekey(array)
     Digest::MD5.hexdigest(array.join)
   end
+
+  def can_register
+    begin
+      UnregisteredUser.can_register?
+    rescue APIException
+      return false
+    end
+    return true
+  end
 end

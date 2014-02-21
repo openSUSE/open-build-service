@@ -29,7 +29,7 @@
 </div>
 
 <div class="grid_5 omega">
-  <% if User.current.is_nobody? %>
+  <% if User.current.is_nobody? and can_register %>
       <div class="box box-shadow">
         <h2 class="box-header">New here? Sign up!</h2>
         <%= render :partial => 'shared/sign_up' %>
