@@ -49,12 +49,16 @@ module Clockwork
     ActiveRecord::Base.connection_pool.with_connection do |sql|
       interface = ThinkingSphinx::RakeInterface.new
       interface.stop
+      interface.index
       interface.start
+      @avoid_phinx_index_on_first_run = true
     end
   end
 
   every(1.hour, 'reindex sphinx', thread: true) do
-    ThinkingSphinx::RakeInterface.new.index
+    if @avoid_phinx_index_on_first_run
+      ThinkingSphinx::RakeInterface.new.index
+    end
   end
 
   every(1.day, 'refresh dirties') do
