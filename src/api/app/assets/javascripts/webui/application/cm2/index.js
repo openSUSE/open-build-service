@@ -35,7 +35,6 @@
 //= require codemirror/modes/lua.js
 //= require codemirror/modes/markdown.js
 //= require codemirror/modes/ntriples.js
-//= require codemirror/modes/ocaml.js
 //= require codemirror/modes/pascal.js
 //= require codemirror/modes/perl.js
 //= require codemirror/modes/php.js
