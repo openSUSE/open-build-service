@@ -37,11 +37,10 @@ case $SUBTEST in
    SUBTEST=${SUBTEST/api:/}
    thetest=${SUBTEST/:*/}
    thename=${SUBTEST/*:/}
-   bundle exec ruby -Itest test/$thetest --name=$thename
+   bundle exec ruby -Itest test/$thetest --name=$thename || ret=1
+   tail -n 6000 log/test.log
    ;;
 esac
-
-#tail -n 6000 log/test.log
 
 cd ../..
 cleanup

@@ -31,3 +31,5 @@ seed:
   download_url: http://example.com/download
   ymp_url: http://example.com/ymp
   obs_url: http://localhost
+  cleanup_empty_projects: 1
+  disable_publish_for_branches: 1
