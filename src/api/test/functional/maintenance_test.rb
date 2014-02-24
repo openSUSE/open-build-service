@@ -577,7 +577,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'entry', :attributes => { :name =>"other.xml.gz" }
     assert_xml_tag :tag => 'entry', :attributes => { :name =>"primary.xml.gz" }
     assert_xml_tag :tag => 'entry', :attributes => { :name =>"repomd.xml" }
-    assert_xml_tag :tag => 'entry', :attributes => { :name => %r{.*-updateinfo.xml.gz} } # by modifyrepo
+    assert_xml_tag :tag => 'entry', :attributes => { :name =>"updateinfo.xml.gz" } # by modifyrepo
 
     #cleanup
     login_king
