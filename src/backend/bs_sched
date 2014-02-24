@@ -1790,7 +1790,7 @@ sub fctx_set_metaidmd5 {
   local *F;
   my $metamd5 = '0' x 32;
   my $metaid = '0/0/0';
-  if (open(F, '<', $fctx->{'meta'})) {
+  if (open(F, '<', $fctx->{'lastmeta'})) {
     my @s = stat(F);
     $metaid = "$s[9]/$s[7]/$s[1]" if @s;
     my $ctx = Digest::MD5->new;
