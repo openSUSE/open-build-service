@@ -65,11 +65,9 @@ class Channel < ActiveRecord::Base
         binary.supportstatus = b['supportstatus']
         binary.architecture = Architecture.find_by_name( b['arch'] ) if b['arch']
         project = b['project']
-        if project
-          binary.project = Project.find_by_name( project )
-          binary.package = b['package'] if b['package']
-          binary.repository = binary.project.repositories.find_by_name(b['repository'] ) if b['repository']
-        end
+        binary.project = Project.find_by_name( project ) if project
+        binary.package = b['package'] if b['package']
+        binary.repository = binary.project.repositories.find_by_name(b['repository'] ) if b['repository']
         binary.save
       }
     }

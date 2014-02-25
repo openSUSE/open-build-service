@@ -7,12 +7,9 @@ class ChannelBinary < ActiveRecord::Base
 
   def self.find_by_project_and_package(project, package)
     project = Project.find_by_name(project) if project.is_a? String
-    cbs = Array.new
-    # find direct refences
-    cbs += ChannelBinary.where(project: project, package: package)
-    # find refences where project comes from the default
-    cbs += ChannelBinary.joins(:channel_binary_list).where('channel_binaries.project_id = NULL and channel_binary_lists.project_id = ? and package = ?', project, package)
-    return cbs
+
+    # I am not able to construct this with rails in a valid way :/
+    return ChannelBinary.find_by_sql(['SELECT channel_binaries.* FROM channel_binaries LEFT JOIN channel_binary_lists ON channel_binary_lists.id = channel_binaries.channel_binary_list_id WHERE (channel_binary_lists.project_id = ? and package = ?)', project.id, package])
   end
 
   def create_channel_package(pkg, maintenanceProject)
