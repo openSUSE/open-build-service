@@ -483,7 +483,7 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     begin
-      # just as existens check
+      # just as existence check
       Package.get_by_project_and_name(@linked_project, @linked_package)
     rescue APIException
       flash[:error] = "Unable to find package '#{@linked_package}' in project '#{@linked_project}'."

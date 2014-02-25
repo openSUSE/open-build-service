@@ -276,6 +276,7 @@ class Project < ActiveRecord::Base
           lpro = nil # FIXME2.4
         else
           lpro = Project.find_by_name(local_project, select: 'id,name,remoteurl')
+          logger.debug "Found local project #{local_project} with remoteurl #{lpro[:remoteurl]}" if lpro
         end
         return lpro, remote_project unless lpro.nil? or !lpro.is_remote?
       end
