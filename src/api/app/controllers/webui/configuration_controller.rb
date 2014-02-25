@@ -41,16 +41,12 @@ class Webui::ConfigurationController < Webui::WebuiController
     @project.description = params[:description]
     @project.remoteurl = params[:remoteurl]
 
-    if @project.save!
-      if WebuiProject.exists? "home:#{User.current.login}"
-        flash[:notice] = "Project '#{project_name}' was created successfully"
-        redirect_to :controller => :project, :action => 'show', :project => project_name and return
-      else
-        flash[:notice] = "Project '#{project_name}' was created successfully. Next step is create your home project"
-        redirect_to :controller => :project, :action => :new, :ns => "home:#{User.current.login}"
-      end
+    if @project.store
+      flash[:notice] = "Project '#{project_name}' was created successfully"
+      logger.debug "New remote project with url #{@project.remoteurl}"
+      redirect_to :controller => :project, :action => 'show', :project => project_name and return
     else
-      flash[:error] = "Failed to save project '#{@project}'"
+      flash.now[:error] = "Failed to save project '#{@project}'"
     end
   end
 
