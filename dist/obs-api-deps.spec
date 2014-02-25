@@ -1,7 +1,7 @@
 #
 # spec file for package obs-api-deps
 #
-# Copyright (c) 2013 SUSE LINUX Products GmbH, Nuernberg, Germany.
+# Copyright (c) 2014 SUSE LINUX Products GmbH, Nuernberg, Germany.
 #
 # All modifications and additions to the file contributed by third parties
 # remain the property of their copyright owners, unless otherwise agreed
@@ -20,7 +20,7 @@ Name:           obs-api-deps
 Summary:        The Open Build Service -- Gem dependencies
 License:        MIT
 Group:          Productivity/Networking/Web/Utilities
-Version:        20131125162529.531692f8
+Version:        20140225135221.f44c6296
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -34,22 +34,22 @@ Summary:        The Open Build Service -- The Testsuite dependencies
 Group:          Productivity/Networking/Web/Utilities
 # dependencies not needed in production
 # OBS_TESTSUITE_BEGIN
-Requires:       rubygem(2.0.0:actionmailer) = 4.0.1
-Requires:       rubygem(2.0.0:actionpack) = 4.0.1
-Requires:       rubygem(2.0.0:activemodel) = 4.0.1
-Requires:       rubygem(2.0.0:activerecord) = 4.0.1
+Requires:       rubygem(2.0.0:actionmailer) = 4.0.3
+Requires:       rubygem(2.0.0:actionpack) = 4.0.3
+Requires:       rubygem(2.0.0:activemodel) = 4.0.3
+Requires:       rubygem(2.0.0:activerecord) = 4.0.3
 Requires:       rubygem(2.0.0:activerecord-deprecated_finders) = 1.0.3
-Requires:       rubygem(2.0.0:activesupport) = 4.0.1
+Requires:       rubygem(2.0.0:activesupport) = 4.0.3
 Requires:       rubygem(2.0.0:addressable) = 2.3.5
 Requires:       rubygem(2.0.0:arel) = 4.0.1
 Requires:       rubygem(2.0.0:atomic) = 1.1.14
 Requires:       rubygem(2.0.0:bootstrap-sass-rails) = 3.0.2.1
 Requires:       rubygem(2.0.0:builder) = 3.1.4
-Requires:       rubygem(2.0.0:capybara) = 2.1.0
+Requires:       rubygem(2.0.0:capybara) = 2.2.0
 Requires:       rubygem(2.0.0:capybara_minitest_spec) = 1.0.1
 Requires:       rubygem(2.0.0:chunky_png) = 1.2.9
 Requires:       rubygem(2.0.0:ci_reporter) = 1.9.0
-Requires:       rubygem(2.0.0:cliver) = 0.2.2
+Requires:       rubygem(2.0.0:cliver) = 0.3.1
 Requires:       rubygem(2.0.0:clockwork) = 0.7.0
 Requires:       rubygem(2.0.0:codemirror-rails) = 3.16
 Requires:       rubygem(2.0.0:coderay) = 1.1.0
@@ -60,7 +60,7 @@ Requires:       rubygem(2.0.0:dalli) = 2.6.4
 Requires:       rubygem(2.0.0:database_cleaner) = 1.2.0
 Requires:       rubygem(2.0.0:delayed_job) = 4.0.0
 Requires:       rubygem(2.0.0:delayed_job_active_record) = 4.0.0
-Requires:       rubygem(2.0.0:docile) = 1.1.0
+Requires:       rubygem(2.0.0:docile) = 1.1.1
 Requires:       rubygem(2.0.0:erubis) = 2.7.0
 Requires:       rubygem(2.0.0:escape_utils) = 1.0.0
 Requires:       rubygem(2.0.0:execjs) = 2.0.2
@@ -70,7 +70,7 @@ Requires:       rubygem(2.0.0:font-awesome-rails) = 4.0.3.0
 Requires:       rubygem(2.0.0:haml) = 4.0.4
 Requires:       rubygem(2.0.0:hike) = 1.2.3
 Requires:       rubygem(2.0.0:hoptoad_notifier) = 2.4.11
-Requires:       rubygem(2.0.0:i18n) = 0.6.5
+Requires:       rubygem(2.0.0:i18n) = 0.6.9
 Requires:       rubygem(2.0.0:innertube) = 1.1.0
 Requires:       rubygem(2.0.0:jquery-datatables-rails) = 1.12.2
 Requires:       rubygem(2.0.0:jquery-rails) = 3.0.4
@@ -89,18 +89,18 @@ Requires:       rubygem(2.0.0:minitest-colorize) = 0.0.5
 Requires:       rubygem(2.0.0:mocha) = 0.14.0
 Requires:       rubygem(2.0.0:multi_json) = 1.8.2
 Requires:       rubygem(2.0.0:mysql2) = 0.3.14
-Requires:       rubygem(2.0.0:newrelic_rpm) = 3.6.9.171
+Requires:       rubygem(2.0.0:newrelic_rpm) = 3.7.0.177
 Requires:       rubygem(2.0.0:nokogiri) = 1.6.0
 Requires:       rubygem(2.0.0:pkg-config) = 1.1.4
-Requires:       rubygem(2.0.0:poltergeist) = 1.4.1
+Requires:       rubygem(2.0.0:poltergeist) = 1.5.0
 Requires:       rubygem(2.0.0:polyglot) = 0.3.3
 Requires:       rubygem(2.0.0:pry) = 0.9.12.4
 Requires:       rubygem(2.0.0:rack) = 1.5.2
 Requires:       rubygem(2.0.0:rack-mini-profiler) = 0.1.31
 Requires:       rubygem(2.0.0:rack-test) = 0.6.2
-Requires:       rubygem(2.0.0:rails) = 4.0.1
+Requires:       rubygem(2.0.0:rails) = 4.0.3
 Requires:       rubygem(2.0.0:rails_tokeninput) = 1.6.1.rc1
-Requires:       rubygem(2.0.0:railties) = 4.0.1
+Requires:       rubygem(2.0.0:railties) = 4.0.3
 Requires:       rubygem(2.0.0:raindrops) = 0.12.0
 Requires:       rubygem(2.0.0:rake) = 10.1.0
 Requires:       rubygem(2.0.0:rdoc) = 4.0.1
@@ -121,14 +121,14 @@ Requires:       rubygem(2.0.0:thinking-sphinx) = 3.0.6
 Requires:       rubygem(2.0.0:thor) = 0.18.1
 Requires:       rubygem(2.0.0:thread_safe) = 0.1.3
 Requires:       rubygem(2.0.0:tilt) = 1.4.1
-Requires:       rubygem(2.0.0:timecop) = 0.6.3
+Requires:       rubygem(2.0.0:timecop) = 0.7.0
 Requires:       rubygem(2.0.0:treetop) = 1.4.15
 Requires:       rubygem(2.0.0:tzinfo) = 0.3.37
-Requires:       rubygem(2.0.0:uglifier) = 2.3.1
+Requires:       rubygem(2.0.0:uglifier) = 2.3.2
 Requires:       rubygem(2.0.0:unicorn) = 4.7.0
 Requires:       rubygem(2.0.0:unicorn-rails) = 1.1.0
 Requires:       rubygem(2.0.0:webmock) = 1.16.0
-Requires:       rubygem(2.0.0:websocket-driver) = 0.3.0
+Requires:       rubygem(2.0.0:websocket-driver) = 0.3.1
 Requires:       rubygem(2.0.0:xmlhash) = 1.3.6
 Requires:       rubygem(2.0.0:xpath) = 2.0.0
 Requires:       rubygem(2.0.0:yajl-ruby) = 1.1.0
