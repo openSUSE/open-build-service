@@ -360,7 +360,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   # TODO: remove this ajax call and replace it with a jquery dialog
   def linking_projects
-    @linking_projects = @project.linking_projects
+    @linking_projects = @project.api_obj.find_linking_projects.map { |p| p.name }
     render_dialog
   end
 
@@ -440,7 +440,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def delete_dialog
-    @linking_projects = @project.linking_projects
+    @linking_projects = @project.api_obj.find_linking_projects.map { |p| p.name }
     render_dialog
   end
 

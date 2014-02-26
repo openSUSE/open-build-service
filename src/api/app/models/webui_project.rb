@@ -160,20 +160,6 @@ class WebuiProject < ActiveXML::Node
     repo_hash
   end
     
-  def linking_projects
-    result = []
-    return result if is_remote?
-    begin
-      fc = FrontendCompat.new
-      answer = fc.do_post(nil, {:project => self.name, :cmd => 'showlinked'})
-      doc = ActiveXML::Node.new(answer)
-      doc.each('/collection/project') {|e| result << e.value('name')}
-    rescue ActiveXML::Transport::NotFoundError
-      # No answer is ok, it only means no linking projects...
-    end
-    return result
-  end
-
   def users(role = nil)
     rels = api_obj.relationships
     rels = rels.where(role: Role.rolecache[role]) if role
