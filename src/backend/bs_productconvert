@@ -918,7 +918,9 @@ sub writeProductSPECfile( $$$$ )
         $productprovides.="Provides:       product-url(".escapeProvides($url->{'name'}).") = ".escapeProvides($url->{'_content'})."\n";
       }
       foreach my $repo ( @{$prodRef->{updates}{repository}} ) {
+         $productprovides.="%ifarch $repo->{arch}\n" if $repo->{arch};
          $productprovides.="Provides:       product-updates-repoid() = ".escapeProvides("obs://$obsname/$repo->{project}/$repo->{name}")."\n";
+         $productprovides.="%endif\n" if $repo->{arch};
       };
     }
 
@@ -1206,7 +1208,6 @@ sub createProductFile ( $$ ) {
     if ($product->{'endoflife'} && !($product->{'endoflife'} =~ /^[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]$/)) {
       die("400 endoflife not in ISO 8601 format (YYYY-MM-DD)");
     }
-
     my $mediaStyle = getMediaStyle($prodRef);
 
     $zypp_product_file = "mkdir -p \$RPM_BUILD_ROOT/etc/products.d\n";
@@ -1217,6 +1218,7 @@ sub createProductFile ( $$ ) {
 
     $d->{"target"}  = $product->{'register'}->{'target'};
     $d->{"release"} = $product->{'register'}->{'release'};
+    my $special_arch_update_repo;
     if ($mediaStyle =~ /^suse-1[12].[123]$/ || $mediaStyle =~ /^suse-sle11/) {
        # old style, export used repositories for support tool
        my @r;
@@ -1233,8 +1235,16 @@ sub createProductFile ( $$ ) {
        }
        # convert them to repoids
        my @r;
-       foreach my $repo ( @{$prodRef->{updates}{repository}} ) {
-           push @r, { "repoid" => "obs://$obsname/$repo->{project}/$repo->{name}" };
+       foreach my $repo ( @{$product->{register}->{updates}->{repository}} ) {
+           my $obsurl = "obs://$obsname/$repo->{project}/$repo->{name}";
+           if ($repo->{arch}) {
+              push @r, { "repoid" => "___INTERNAL_MARKER___" } unless $special_arch_update_repo;
+              $special_arch_update_repo.="%ifarch $repo->{arch}\n";
+              $special_arch_update_repo.="      <repository repoid=\"$obsurl\" />\n";
+              $special_arch_update_repo.="%endif\n";
+              next;
+           }
+           push @r, { "repoid" => $obsurl };
        };
        $d->{"updates"}{"repository"} = \@r;
     }
@@ -1249,6 +1259,11 @@ sub createProductFile ( $$ ) {
 
     my $xml = XMLout( $BSProductXML::product, $zypp_product );
     die ( "ERROR: Unable to create xml for $product->{name} !" ) unless $xml;
+    # replace arch specific part
+    if ($special_arch_update_repo) {
+      $xml =~ s/.*___INTERNAL_MARKER___.*\n/$special_arch_update_repo/;
+    }
+    # add header
     $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n$xml";
     $zypp_product_file .= "cat >$pfile << EOF\n";
     $zypp_product_file .= "$xml\nEOF\n\n";
