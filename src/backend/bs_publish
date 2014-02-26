@@ -1249,6 +1249,8 @@ sub publish {
 	$p = "$1/$bin";
       } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.deb$/) {
 	$p = "$1/$bin";
+      } elsif ($bin =~ /\.exe$/) {
+	$p = "$bin";
       } elsif ($bin =~ /\.d?rpm$/) {
 	# legacy format
 	my $q = Build::query("$r/$rbin", 'evra' => 1);
