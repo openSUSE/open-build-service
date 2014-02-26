@@ -284,13 +284,14 @@ class SourceController < ApplicationController
     # exec
     Package.transaction do
 
-      tpkg.revoke_requests
-      tpkg.destroy
-
       params[:user] = User.current
       path = tpkg.source_path
       path << build_query_from_hash(params, [:user, :comment])
       Suse::Backend.delete path
+
+      tpkg.revoke_requests
+      tpkg.destroy
+
     end
     render_ok
   end

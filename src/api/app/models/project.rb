@@ -1225,7 +1225,9 @@ class Project < ActiveRecord::Base
 
   # updates packages automatically generated in the backend after submitting a product file
   def update_product_autopackages
-    self.packages.where(:name => "_product").first.check_write_access!
+    # check access of _product package or the project if it does not exist.
+    obj = self.packages.where(:name => "_product").first || self
+    obj.check_write_access!
 
     backend_pkgs = Collection.find :id, :what => 'package', :match => "@project='#{self.name}' and starts-with(@name,'_product:')"
     b_pkg_index = backend_pkgs.each(:package).inject(Hash.new) {|hash,elem| hash[elem.value(:name)] = elem; hash}

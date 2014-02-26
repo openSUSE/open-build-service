@@ -185,6 +185,15 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_match(/^obs-server: \+Kwd:\\nsupport_l3\\n-Kwd:/, @response.body)
 
     login_tom
+    # remove product and check that _product: get removed as well.
+    get "/source/home:tom:temporary/_product:SUSE_SLES-release"
+    assert_response :success
+    delete "/source/home:tom:temporary/_product"
+    assert_response :success
+    get "/source/home:tom:temporary/_product:SUSE_SLES-release"
+    assert_response 404
+
+    #cleanup
     delete "/source/home:tom:temporary:link"
     assert_response :success
     delete "/source/home:tom:temporary"
