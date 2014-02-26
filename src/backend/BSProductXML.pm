@@ -108,6 +108,7 @@ our $product = [
                    'project',   # input
                    'name',
                    'repoid',    # output for .prod file
+                   'arch',      # for arch specific definitions
                 ]],
               ],
               [ 'repositories' =>
