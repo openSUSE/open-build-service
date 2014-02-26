@@ -990,6 +990,58 @@ sub deletepatterns_ymp {
 
 ##########################################################################
 
+sub sync_to_stage {
+  my ($prp, $extdir, $isdelete) = @_;
+
+  my @stageservers;
+  if ($BSConfig::stageserver) {
+    if (ref($BSConfig::stageserver)) {
+      my @s = @{$BSConfig::stageserver};
+      while (@s) {
+        my ($k, $v) = splice(@s, 0, 2);
+        if ($prp =~ /^$k/) {
+	  $v = [ $v ] unless ref $v;
+	  @stageservers = @$v;
+	  last;
+	}
+      }
+    } else {
+      push @stageservers, $BSConfig::stageserver;
+    }
+  }
+
+  for my $stageserver (@stageservers) {
+    if ($stageserver =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
+      print "    running rsync to $1 at ".localtime(time)."\n";
+      # rsync with a timeout of 1 hour
+      # sync first just the binaries without deletion of the old ones, afterwards the rest(esp. meta data) and cleanup
+      qsystem('echo', "$extdir\0", 'rsync', '-ar0', @binsufsrsync, '--include=*/', '--exclude=*', '--timeout', '7200', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed at ".localtime(time).": $?\n");
+      qsystem('echo', "$extdir\0", 'rsync', '-ar0', '--delete-after', '--exclude=repocache', '--delete-excluded', '--timeout', '7200', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed at ".localtime(time).": $?\n");
+    }
+    if ($stageserver =~ /^script:(\/.*)$/) {
+      print "    running sync script $1 at ".localtime(time)."\n";
+      if ($isdelete) {
+        qsystem($1, $prp) && die("    sync script failed at ".localtime(time).": $?\n");
+      } else {
+        qsystem($1, $prp, $extdir) && die("    sync script failed at ".localtime(time).": $?\n");
+      }
+    }
+  }
+
+  # push done trigger sync to other mirrors
+  mkdir_p($extrepodir_sync);
+  my ($projid) = split('/', $prp, 2);
+  my $projid_ext = $projid;
+  $projid_ext =~ s/:/:\//g;
+  writestr("$extrepodir_sync/.$$:$projid", "$extrepodir_sync/$projid", "$projid_ext\0");
+
+  if ($BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
+    print "    running trigger rsync to $1 at ".localtime(time)."\n";
+    # small sync, timout 1 minute
+    qsystem('rsync', '-a', '--timeout', '120', "$extrepodir_sync/$projid", "$1::$2/$projid") && warn("    trigger rsync failed at ".localtime(time).": $?\n");
+  }
+}
+
 sub deleterepo {
   my ($projid, $repoid) = @_;
   print "    deleting repository\n";
@@ -1069,21 +1121,7 @@ sub deleterepo {
   deletepatterns_ymp($extrep, $projid, $repoid);
   # delete everything else
   qsystem('rm', '-rf', $extrep);
-  if ($BSConfig::stageserver && $BSConfig::stageserver =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
-    print "    running rsync to $1 at ".localtime(time)."\n";
-    # rsync with a timeout of 1 hour
-    # sync first just the binaries without deletion of the old ones, afterwards the rest(esp. meta data) and cleanup
-    qsystem('echo', "$projid_ext\0", 'rsync', '-ar0', @binsufsrsync, '--include=*/', '--exclude=*', '--timeout', '7200', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed at ".localtime(time).": $?\n");
-    qsystem('echo', "$projid_ext\0", 'rsync', '-ar0', '--delete-after', '--exclude=repocache', '--delete-excluded', '--timeout', '7200', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed at ".localtime(time).": $?\n");
-  }
-  # push done trigger sync to other mirrors
-  mkdir_p($extrepodir_sync);
-  writestr("$extrepodir_sync/.$$:$projid", "$extrepodir_sync/$projid", "$projid_ext\0");
-  if ($BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
-    print "    running trigger rsync to $1 at ".localtime(time)."\n";
-    # small sync, timout 1 minute
-    qsystem('rsync', '-a', '--timeout', '120', "$extrepodir_sync/$projid", "$1::$2/$projid") && warn("    trigger rsync failed at ".localtime(time).": $?\n");
-  }
+  sync_to_stage($prp, $projid_ext, 1);
   rmdir("$extrepodir/$projid_ext");
 
   # also delete split debug repo
@@ -1731,24 +1769,7 @@ publishprog_done:
 
   # push the repo (unless there's a redirect)
   if (!($BSConfig::publishredirect && $BSConfig::publishredirect->{$prp})) {
-    # push to stageserver
-    if ($BSConfig::stageserver && $BSConfig::stageserver =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
-      print "    running rsync to $1 at ".localtime(time)."\n";
-      # sync project repos, timeout 1 hour
-      qsystem('echo', "$prp_ext\0", 'rsync', '-ar0', @binsufsrsync, '--include=*/', '--exclude=*', '--timeout', '7200', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed at ".localtime(time).": $?\n");
-      qsystem('echo', "$prp_ext\0", 'rsync', '-ar0', '--delete-after', '--exclude=repocache', '--timeout', '3600', '--files-from=-', $extrepodir, "$1::$2") && die("    rsync failed: $?\n");
-    }
-
-    # push done trigger to stageserver so that it can send it to the world
-    mkdir_p($extrepodir_sync);
-    my $projid_ext = $projid;
-    $projid_ext =~ s/:/:\//g;
-    writestr("$extrepodir_sync/.$projid", "$extrepodir_sync/$projid", "$projid_ext\0");
-    if ($BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
-      print "    running trigger rsync to $1 at ".localtime(time)."\n";
-      # small sync, timeout 1 minute
-      qsystem('rsync', '-a', '--timeout', '60', "$extrepodir_sync/$projid", "$1::$2/$projid") && warn("    trigger rsync failed: $?\n");
-    }
+    sync_to_stage($prp, $prp_ext);
   }
 
   # support for regex usage in $BSConfig::publishedhook
@@ -1761,11 +1782,9 @@ publishprog_done:
       }
     }
   }
-
   if ($BSConfig::publishedhook && $BSConfig::publishedhook->{$publish_prp}) {
     qsystem($BSConfig::publishedhook->{$publish_prp}, $prp, $extrep, @changed) && warn("    $BSConfig::publishedhook->{$publish_prp} failed: $?");
   }
-
 
   notify('REPO_PUBLISHED', { project => $projid , 'repo' => $repoid });
   # all done. till next time...
