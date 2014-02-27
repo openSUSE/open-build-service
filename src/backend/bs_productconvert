@@ -898,6 +898,8 @@ sub writeProductSPECfile( $$$$ )
     my $productprovides="";
     $productprovides.="Provides:       %name-%version\n";
     $productprovides.="Provides:       $prodRef->{'project'}->{'name'}\n" if ((defined($prodRef->{'project'}->{'name'})) && ("$prodRef->{'project'}->{'name'}" ne ""));
+    my $productdependencies="";
+    $productdependencies=createProductDependencyLines($product->{'productdependency'}) if defined($product->{'productdependency'});
 
     my $mediaStyle = getMediaStyle($prodRef);
     if ($mediaStyle =~ /^suse-1[12].[123]$/ || $mediaStyle =~ /^suse-sle11/) {
@@ -933,119 +935,114 @@ sub writeProductSPECfile( $$$$ )
       $productprovides.="Obsoletes:      product:".$product->{name}."-SP".$product->{'patchlevel'}."-migration\n"; # product name
     }
     $productprovides.="Requires:       product_flavor($product->{name})\n";
+    $product_flavors.=createSPECfileFlavors($prodRef,$product);
+
+    # Create product file to be packaged
+    my $zypp_product_file = createProductFile($prodRef,$product);
+       $zypp_product_file.= createFlavorReadme($prodRef,$product);
+    my $os_release_file = createOsReleaseFile($prodRef,$product);
+
+    my $str;
 
     if ("$infile" eq ""){
-     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$ydat,$isdst)=localtime();
-     $year += 1900;
-     my $content=();
-     # write the specfile header
-     $content="#
-# spec file for package $product->{name}-release (Version $product->{version})
+      my ($sec,$min,$hour,$mday,$mon,$year,$wday,$ydat,$isdst)=localtime();
+      $year += 1900;
+      # write the specfile header
+      $str="#
+# sp  c file for package $product->{name}-release (Version $product->{version})
 #
-# Copyright (c) $year $product->{'vendor'}.
+# Co  yright (c) $year $product->{'vendor'}.
 #
-# All modifications and additions to the file contributed by third parties
-# remain the property of their copyright owners, unless otherwise agreed
-# upon. The license for this file, and modifications and additions to the
-# file, is the same license as for the pristine package itself (unless the
-# license for the pristine package is not an Open Source License, in which
-# case the license is the MIT License). An \"Open Source License\" is a
-# license that conforms to the Open Source Definition (Version 1.9)
-# published by the Open Source Initiative.
+# Al   modifications and additions to the file contributed by third parties
+# re  ain the property of their copyright owners, unless otherwise agreed
+# up  n. The license for this file, and modifications and additions to the
+# fi  e, is the same license as for the pristine package itself (unless the
+# li  ense for the pristine package is not an Open Source License, in which
+# ca  e the license is the MIT License). An \"Open Source License\" is a
+# li  ense that conforms to the Open Source Definition (Version 1.9)
+# pu  lished by the Open Source Initiative.
 ";
-     my $bugtracker=getUrl($product,"i586","bugtracker");
-     $content.="\n# Please submit bugfixes or comments via $bugtracker\n#\n\n" if ("$bugtracker" ne "");
-     $content.="\n\n";
-     $content.="Name:           $product->{name}-release\n";
-     $content.="%define         product $product->{name}\n";
-     if (defined ($product->{'buildconfig'}->{'betaversion'})){
-       $content.="%define         betaversion $product->{'buildconfig'}->{'betaversion'}\n";
-     }
-     foreach my $summary ( @{$product->{'summary'}} ){
-       $content.="Summary:        $summary->{_content}\n" if ( ! $summary->{'language'} );
-     }
-     $content.="Version:        ".$product->{version}."\n";
-     $content.="Release:        0\n"; # FIXME: check if this is this really handled via BS
-     $content.="License:        BSD-3-Clause\n";
-     $content.="Group:          System/Fhs\n";
-     $content.=$obsoletepackage;
-     $content.=$productprovides;
-     $content.=createProductDependencyLines($product->{'productdependency'}) if defined($product->{'productdependency'});
-     $content.="\nAutoReqProv:    on\n";
-     $content.="BuildRoot:      %{_tmppath}/%{name}-%{version}-build\n";
-     $content.="\n%description\n";
-     for my $description ( @{$product->{'description'} || []} ){
-       $content.="$description->{_content}\n" if ( ! $description->{'description'} );
-     }
-     $content.="\n\n";
-     $content.=createSPECfileFlavors($prodRef,$product);
-     $content.="\n%prep\n";
-     $content.="\n%build\n\n";
-     $content.="\n%install\n";
-     $content.=createFlavorReadme($prodRef,$product);
-     $content.=createProductFile($prodRef,$product);
-     $content.="\n%clean\n";
-     $content.="rm -rf %buildroot\n";
-     $content.="\n%files\n";
-     $content.="%defattr(644,root,root,755)\n";
-     $content.="%dir /etc/products.d\n";
-     $content.="/etc/products.d/*.prod\n";
-     $content.="\n%changelog\n";
+      my $bugtracker=getUrl($product,"i586","bugtracker");
+      $str.="\n# Please submit bugfixes or comments via $bugtracker\n#\n\n" if ("$bugtracker" ne "");
+      $str.="\n\n";
+      $str.="Name:           $product->{name}-release\n";
+      $str.="%define         product $product->{name}\n";
+      if (defined ($product->{'buildconfig'}->{'betaversion'})){
+        $str.="%define         betaversion $product->{'buildconfig'}->{'betaversion'}\n";
+      }
+      foreach my $summary ( @{$product->{'summary'}} ){
+        $str.="Summary:        $summary->{_content}\n" if ( ! $summary->{'language'} );
+      }
+      $str.="Version:        ".$product->{version}."\n";
+      $str.="Release:        0\n"; # FIXME: check if this is this really handled via BS
+      $str.="License:        BSD-3-Clause\n";
+      $str.="Group:          System/Fhs\n";
+      $str.=$obsoletepackage;
+      $str.=$productprovides;
+      $str.="\n___PRODUCT_DEPENDENCIES___\n";
+      $str.="AutoReqProv:    on\n";
+      $str.="BuildRoot:      %{_tmppath}/%{name}-%{version}-build\n";
+      $str.="\n%description\n";
+      for my $description ( @{$product->{'description'} || []} ){
+        $str.="$description->{_content}\n" if ( ! $description->{'description'} );
+      }
+      $str.="\n\n";
+      $str.="___FLAVOR_PACKAGES___\n";
+      $str.="\n%prep\n";
+      $str.="\n%build\n\n";
+      $str.="\n%install\n";
+      $str.="___CREATE_PRODUCT_FILES___\n";
+      $str.="\n%clean\n";
+      $str.="rm -rf %buildroot\n";
+      $str.="\n%files\n";
+      $str.="%defattr(644,root,root,755)\n";
+      $str.="%dir /etc/products.d\n";
+      $str.="/etc/products.d/*.prod\n";
+      $str.="\n%changelog\n";
 
-     # write out the modified file.
-     writestr($file, undef, $content);      
- 
     } else {
-
-     $product_flavors.=createSPECfileFlavors($prodRef,$product);
-
-     # Create product file to be packaged
-     my $zypp_product_file = createProductFile($prodRef,$product);
-        $zypp_product_file.= createFlavorReadme($prodRef,$product);
-     my $os_release_file = createOsReleaseFile($prodRef,$product);
-
-     my $str = readstr($infile);
-
-     # replace all strings
-     $str =~ s/___DISTNAME___/$product->{name}/g;
-     $str =~ s/___BASE_VERSION___/$product->{baseversion}/g;
-     $str =~ s/___VERSION___/$product->{version}/g;
-     if ( defined $product->{buildconfig}->{betaversion} ) {
-       $str =~ s/___BETA_VERSION___/$product->{buildconfig}->{betaversion}/g;
-     } else {
-       $str =~ s/___BETA_VERSION___//g;
-     }
-     if ((not defined $medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
-        # this is the product release, not a package release. should not be used anymore.
-        # this old way is a problem because it can produce leading zeros in product provides
-        $str =~ s/___RELEASE___/0%{?release}/g;
-     } else {
-        # product release is not really used so far, but defined in zypp stack. So let's
-        # support it. But it is so far 0 on all our products
-        $str =~ s/___RELEASE___/$product->{release}/g;
-     }
-     $str =~ s/___PATCH_LEVEL___/$product->{'patchlevel'}/g;
-     $str =~ s/___PACKAGE_NAME___/$product->{name}-release/g;
-     $str =~ s/___PRODUCT_NAME___/$product->{name}/g;
-     $str =~ s/___SUMMARY___/$product->{summary}[0]->{_content}/g; # FIXME: find the non-lang one
-     $str =~ s/___DESCRIPTION___/$product->{description}[0]->{_content}/g; # FIXME: find the non-lang one
-     $str =~ s/___FLAVOR_PACKAGES___/$product_flavors/g;
-     $str =~ s/___CREATE_PRODUCT_FILES___/$zypp_product_file/g;
-     $str =~ s/___CREATE_OS_RELEASE_FILE___/$os_release_file/g;
-
-     $str =~ s/___PRODUCT_PROVIDES___/$productprovides/g;
-     $str =~ s/___OBSOLETE_PACKAGES___/$obsoletepackage/g;
- 
-     # write out the modified file.
-     writestr($file, undef, $str);
+     $str = readstr($infile);
     }
+
+    # replace all strings
+    $str =~ s/___DISTNAME___/$product->{name}/g;
+    $str =~ s/___BASE_VERSION___/$product->{baseversion}/g;
+    $str =~ s/___VERSION___/$product->{version}/g;
+    if ( defined $product->{buildconfig}->{betaversion} ) {
+      $str =~ s/___BETA_VERSION___/$product->{buildconfig}->{betaversion}/g;
+    } else {
+      $str =~ s/___BETA_VERSION___//g;
+    }
+    if ((not defined $medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
+       # this is the product release, not a package release. should not be used anymore.
+       # this old way is a problem because it can produce leading zeros in product provides
+       $str =~ s/___RELEASE___/0%{?release}/g;
+    } else {
+       # product release is not really used so far, but defined in zypp stack. So let's
+       # support it. But it is so far 0 on all our products
+       $str =~ s/___RELEASE___/$product->{release}/g;
+    }
+    $str =~ s/___PATCH_LEVEL___/$product->{'patchlevel'}/g;
+    $str =~ s/___PACKAGE_NAME___/$product->{name}-release/g;
+    $str =~ s/___PRODUCT_NAME___/$product->{name}/g;
+    $str =~ s/___SUMMARY___/$product->{summary}[0]->{_content}/g; # FIXME: find the non-lang one
+    $str =~ s/___DESCRIPTION___/$product->{description}[0]->{_content}/g; # FIXME: find the non-lang one
+    $str =~ s/___FLAVOR_PACKAGES___/$product_flavors/g;
+    $str =~ s/___CREATE_PRODUCT_FILES___/$zypp_product_file/g;
+    $str =~ s/___PRODUCT_DEPENDENCIES___/$productdependencies/g;
+    $str =~ s/___CREATE_OS_RELEASE_FILE___/$os_release_file/g;
+
+    $str =~ s/___PRODUCT_PROVIDES___/$productprovides/g;
+    $str =~ s/___OBSOLETE_PACKAGES___/$obsoletepackage/g;
+ 
+    # write out the modified file.
+    writestr($file, undef, $str);
 }
 
 sub createProductDependencyLines ( $ ) {
   my ( $productDependency ) = @_;
 
   my $product_dependencies;
-
   foreach my $dependency (@{$productDependency}){
       my ($relship, $version, $flavor, $flag);
       $relship = convertRelationship($dependency->{'relationship'});
