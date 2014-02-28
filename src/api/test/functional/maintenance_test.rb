@@ -275,15 +275,15 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post "/request/#{id1}?cmd=diff&view=xml", nil
     assert_response :success
     # the diffed packages
-    assert_xml_tag( :tag => 'old', :attributes => { :project => 'BaseDistro3', :package => 'pack2', :srcmd5 => '238c45491837d97fd24d8c2b240ff7a6'} )
-    assert_xml_tag( :tag => 'new', :attributes => { :project => 'home:tom:branches:OBS_Maintained:pack2', :package => 'pack2.BaseDistro3', :rev => 'a82b3ac59d7cac03b76cb76dc8f14661', :srcmd5 => 'a82b3ac59d7cac03b76cb76dc8f14661'})
+    assert_xml_tag( :tag => 'old', :attributes => { :project => 'BaseDistro3', :package => 'pack2', :srcmd5 => 'c9d00260281e870396ae3e215439886f'} )
+    assert_xml_tag( :tag => 'new', :attributes => { :project => 'home:tom:branches:OBS_Maintained:pack2', :package => 'pack2.BaseDistro3', :rev => '28b49011ed854e7b3b76e23fd1028587', :srcmd5 => '28b49011ed854e7b3b76e23fd1028587'})
     # the diffed files
     assert_xml_tag( :tag => 'old', :attributes => { :name => 'file', :md5 => '722d122e81cbbe543bd5520bb8678c0e', :size => '4'},
                     :parent => { :tag => 'file', :attributes => { :state => 'changed'} } )
     assert_xml_tag( :tag => 'new', :attributes => { :name => 'file', :md5 => '6c7c49c0d7106a1198fb8f1b3523c971', :size => '16'},
                     :parent => { :tag => 'file', :attributes => { :state => 'changed'} } )
     # the expected file transfer
-    assert_xml_tag( :tag => 'source', :attributes => { :project => 'home:tom:branches:OBS_Maintained:pack2', :package => 'pack2.BaseDistro3', :rev => 'a82b3ac59d7cac03b76cb76dc8f14661'} )
+    assert_xml_tag( :tag => 'source', :attributes => { :project => 'home:tom:branches:OBS_Maintained:pack2', :package => 'pack2.BaseDistro3', :rev => '28b49011ed854e7b3b76e23fd1028587'} )
     assert_xml_tag( :tag => 'target', :attributes => { :project => 'My:Maintenance', :releaseproject => 'BaseDistro3'} )
     # diff contains the critical lines
     assert_match( /^\-NOOP/, @response.body )
