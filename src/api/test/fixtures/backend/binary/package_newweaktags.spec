@@ -2,9 +2,9 @@
 #
 # build the binaries with "rpmbuild -ba package.spec"
 
-# WARNING: you need to build this with rpmbuild from openSUSE 13.1 or older (eg. SLES 11)
+# WARNING: you need to build this with rpmbuild from openSUSE 13.2
 
-Name:           package
+Name:           package_newweaktags
 License:        GPLv2+
 Group:          Development/Tools/Building
 AutoReqProv:    on

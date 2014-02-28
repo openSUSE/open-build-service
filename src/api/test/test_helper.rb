@@ -51,7 +51,7 @@ end
 # or the code has to be fixed
 #$ENABLE_BROKEN_TEST=true
 
-def inject_build_job(project, package, repo, arch)
+def inject_build_job(project, package, repo, arch, extrabinary=nil)
   job=IO.popen("find #{Rails.root}/tmp/backend_data/jobs/#{arch}/ -name #{project}::#{repo}::#{package}-*")
   jobfile=job.readlines.first
   return unless jobfile
@@ -65,7 +65,8 @@ def inject_build_job(project, package, repo, arch)
   f = File.open("#{jobfile}:status", 'w')
   f.write("<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> <workerid>simulated</workerid> <hostarch>#{arch}</hostarch> </jobstatus>")
   f.close
-  system("cd #{Rails.root}/test/fixtures/backend/binary/; exec find . -name '*#{arch}.rpm' -o -name '*src.rpm' -o -name logfile -o -name _statistics | cpio -H newc -o 2>/dev/null | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=#{arch}&code=success&job=#{jobfile.gsub(/.*\//, '')}&jobid=#{jobid}' > /dev/null")
+  extrabinary=" -o -name #{extrabinary}" if extrabinary
+  system("cd #{Rails.root}/test/fixtures/backend/binary/; exec find . -name '*#{arch}.rpm' -o -name '*src.rpm' -o -name logfile -o -name _statistics #{extrabinary} | cpio -H newc -o 2>/dev/null | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=#{arch}&code=success&job=#{jobfile.gsub(/.*\//, '')}&jobid=#{jobid}' > /dev/null")
   system("echo \"#{verifymd5}  #{package}\" > #{jobfile}:dir/meta")
 end
 
