@@ -1,0 +1,31 @@
+#
+# openSUSE Build Service 2.4.6
+#
+
+Updaters from any OBS 2.4 release can just ugrade the packages
+and restart all services. Updaters from former releases should
+read the README.UPDATERS file.
+
+This release fixes a serious security leak tracked as CVE-2013-3703:
+ Users can add or remove other users to projects or packages where
+they have no maintainership.
+
+All OBS 2.4 user a requested to updated immediatly to close this
+hole. Instances with OBS 2.3 and before are not affected.
+
+Feature backports:
+==================
+
+* None
+
+Changes:
+========
+
+* None
+
+Bugfixes:
+=========
+
+* webui: fix a syntax error when storing instance configuration
+* api: fix database locking when changing states of requests
+
