@@ -346,6 +346,7 @@ CREATE TABLE `configurations` (
   `cleanup_after_days` int(11) DEFAULT NULL,
   `cleanup_empty_projects` tinyint(1) DEFAULT '1',
   `disable_publish_for_branches` tinyint(1) DEFAULT '1',
+  `admin_email` varchar(255) COLLATE utf8_bin DEFAULT 'unconfigured@openbuildservice.org',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -1447,6 +1448,8 @@ INSERT INTO schema_migrations (version) VALUES ('20140210114542');
 INSERT INTO schema_migrations (version) VALUES ('20140218174400');
 
 INSERT INTO schema_migrations (version) VALUES ('20140219185200');
+
+INSERT INTO schema_migrations (version) VALUES ('20141302101042');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
