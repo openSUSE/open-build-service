@@ -41,7 +41,6 @@ class UnregisteredUser < User
     state = User.states.key(User.default_state) 
     state = 'unconfirmed' if ::Configuration.first.registration == 'confirmation'
     state = 'confirmed' if ::Configuration.first.registration == 'allow'
-    state = opts[:status] if User.current and User.current.is_admin?
     logger.debug "User state is: #{state}"
     return state
   end
