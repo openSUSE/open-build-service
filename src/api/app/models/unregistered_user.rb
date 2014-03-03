@@ -18,7 +18,7 @@ class UnregisteredUser < User
       if CONFIG['proxy_auth_register_page'].blank?
         raise ErrRegisterSave.new "Sorry, please sign up using the authentification proxy"
       else
-        raise ErrRegisterSave.new "Sorry, please sign up using #{::Configuration.first.proxy_auth_register_page}"
+        raise ErrRegisterSave.new "Sorry, please sign up using #{CONFIG['proxy_auth_register_page']}"
       end
     end
     # Turn off registration if its disabled
