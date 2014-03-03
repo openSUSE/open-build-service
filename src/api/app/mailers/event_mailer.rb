@@ -13,7 +13,7 @@ class EventMailer < ActionMailer::Base
   end
 
   def mail_sender
-    'OBS Notification <obs-email@opensuse.org>'
+    'OBS Notification <' + ::Configuration.first.admin_email + '>'
   end
 
   def format_email(user)

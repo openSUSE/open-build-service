@@ -345,6 +345,7 @@ CREATE TABLE `configurations` (
   `theme` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `obs_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `cleanup_after_days` int(11) DEFAULT NULL,
+  `admin_email` varchar(255) COLLATE utf8_bin DEFAULT 'unconfigured@openbuildservice.org',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -1444,6 +1445,8 @@ INSERT INTO schema_migrations (version) VALUES ('20140123071042');
 INSERT INTO schema_migrations (version) VALUES ('20140124071042');
 
 INSERT INTO schema_migrations (version) VALUES ('20140123063641');
+
+INSERT INTO schema_migrations (version) VALUES ('20141302101042');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
