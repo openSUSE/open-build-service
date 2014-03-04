@@ -1453,10 +1453,12 @@ sub getbinaries_kiwiproduct {
 	if ($bvl && $server ne $buildinfo->{'srcserver'}) {
 	  # the bvl entry seems to be wrong. tell our server about that.
 	  eval {
+	    my @bargs = ("project=$projid", "repository=$repoid", "arch=$arch", "package=$packid");
+	    push @bargs, "workerid=$workerid" if defined $workerid;
 	    BSRPC::rpc({
 	      'uri' => "$server/badpackagebinaryversionlist",
 	      'timeout' => $gettimeout,
-	    }, undef, "project=$projid", "repository=$repoid", "arch=$arch", "package=$packid");
+	    }, undef, @bargs);
 	  };
 	  warn($@) if $@;
 	}
