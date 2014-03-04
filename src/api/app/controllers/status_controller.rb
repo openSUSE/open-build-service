@@ -126,16 +126,22 @@ class StatusController < ApplicationController
     Suse::Backend.start_test_backend if Rails.env.test?
     @id = params[:id]
 
-    action = bsrequest_get_action
+    actions = BsRequestAction.where(bs_request_id: params[:id])
+    raise NotFoundError.new unless actions.count > 0
 
-    sproj = Project.find_by_name!(action.source_project)
-    tproj = Project.find_by_name!(action.target_project)
-    spkg = sproj.packages.find_by_name!(action.source_package)
+    @result = Hash.new
+    actions.each do |action|
 
-    dir = Directory.hashed(project: action.source_project,
-                           package: action.source_package,
-                           expand: 1, rev: action.source_rev)
-    @result = PackageBuildStatus.new(spkg).result(target_project: tproj, srcmd5: dir['srcmd5'])
+      #raise NotSubmitRequest.new 'Not submit' unless action.action_type == :submit
+      sproj = Project.find_by_name!(action.source_project)
+      tproj = Project.find_by_name!(action.target_project)
+      spkg = sproj.packages.find_by_name!(action.source_package)
+
+      dir = Directory.hashed(project: action.source_project,
+                             package: action.source_package,
+                             expand: 1, rev: action.source_rev)
+      @result.deep_merge!(PackageBuildStatus.new(spkg).result(target_project: tproj, srcmd5: dir['srcmd5']))
+    end
     render xml: render_to_string(partial: 'bsrequest')
   end
 
@@ -147,18 +153,6 @@ class StatusController < ApplicationController
   end
 
   class NotSubmitRequest < APIException
-  end
-
-  def bsrequest_get_action
-    rel = BsRequestAction.where(bs_request_id: params[:id])
-    if rel.count > 1
-      raise MultipleNotSupported.new
-    end
-    action = rel.first
-    raise NotFoundError.new unless action
-
-    raise NotSubmitRequest.new 'Not submit' unless action.action_type == :submit
-    action
   end
 
 end
