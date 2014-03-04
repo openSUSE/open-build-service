@@ -32,10 +32,12 @@ use Digest;
 use Digest::MD5 ();
 use Digest::SHA ();
 use XML::Structured ':bytes';
+use XML::Simple ();
 use POSIX;
 use Fcntl qw(:DEFAULT :flock);
 use Data::Dumper;
 use Storable ();
+use MIME::Base64;
 
 use BSConfiguration;
 use BSRPC;
@@ -331,6 +333,55 @@ sub addsizechecksum {
   close F;
 }
 
+sub create_appdata_files {
+  my ($dir, $appdatas) = @_;
+
+  $appdatas = Storable::dclone($appdatas);
+  print "    creating appdata files\n";
+  my %ids;
+  my %written;
+  mkdir_p("$dir/app-icons");
+  for my $app (@{$appdatas->{'application'} || []}) {
+    for my $icon (@{$app->{'icon'} || []}) {
+      my $iconname = ($icon->{'name'} || [])->[0];
+      my $filecontent = ($icon->{'filecontent'} || [])->[0];
+      next unless $iconname && $icon->{'filecontent'};
+      next if $iconname =~ /\//s || $iconname =~ /^\./s;
+      my %files;
+      for my $filecontent (@{$icon->{'filecontent'}}) {
+	next unless $filecontent->{'file'} && $filecontent->{'content'};
+	$files{$filecontent->{'file'}} = $filecontent->{'content'};
+      }
+      next unless %files;
+      my $fn;
+      for my $size (qw(32 48 64 24)) {
+	my @c = grep {/${size}x$size/} sort(keys %files);
+	my @ch = grep {/\/hicolor\//} @c;
+	@c = @ch if @ch;
+	$fn = $c[0];
+	last if $fn;
+      }
+      $fn ||= (sort(keys %files))[0];
+      my $suf = $fn;
+      $suf =~ s/.*\///;
+      $suf =~ s/.*\.//;
+      if (!$written{"$iconname.$suf"}) {
+	writestr("$dir/app-icons/$iconname.$suf", undef, decode_base64($files{$fn}));
+	$written{"$iconname.$suf"} = 1;
+      }
+      $icon = { 'type' => 'cached', 'content' => "$iconname.$suf"};
+    }
+  }
+  unlink("$dir/app-icons.tar");
+  if (%written) {
+    qsystem('chdir', "$dir/app-icons", 'tar', 'cf', '../app-icons.tar', '.') && die("    app-icons tar failed: $?\n");
+    BSUtil::cleandir("$dir/app-icons");
+  }
+  rmdir("$dir/app-icons");
+  my $appdatasxml = XML::Simple::XMLout($appdatas, 'RootName' => 'applications',  XMLDecl => '<?xml version="1.0" encoding="UTF-8"?>');
+  writestr("$dir/appdata.xml", undef, $appdatasxml);
+}
+
 sub createrepo_rpmmd {
   my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $options, $updateinfos, $deltainfos, $appdatas, $supportstatus) = @_;
 
@@ -387,12 +438,19 @@ sub createrepo_rpmmd {
     qsystem('modifyrepo', "$extrep/repodata/updateinfo.xml", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
     unlink("$extrep/repodata/updateinfo.xml");
   }
-  unlink("$extrep/repodata/$_") for grep {/appdata\.xml/} @oldrepodata;
+  unlink("$extrep/repodata/$_") for grep {/appdata\.xml/ || /app-icons/} @oldrepodata;
   if ($appdatas) {
-    print "    adding appdata.xml to repodata\n";
-    writexml("$extrep/repodata/appdata.xml", undef, $appdatas, $BSXML::appdata);
-    qsystem('modifyrepo', "$extrep/repodata/appdata.xml", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
-    unlink("$extrep/repodata/appdata.xml");
+    create_appdata_files("$extrep/repodata", $appdatas);
+    if (-e "$extrep/repodata/appdata.xml") {
+      print "    adding appdata.xml to repodata\n";
+      qsystem('modifyrepo', "$extrep/repodata/appdata.xml", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
+      unlink("$extrep/repodata/appdata.xml");
+    }
+    if (-e "$extrep/repodata/app-icons.tar") {
+      print "    adding app-icons.tar to repodata\n";
+      qsystem('modifyrepo', "$extrep/repodata/app-icons.tar", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
+      unlink("$extrep/repodata/app-icons.tar");
+    }
   }
   unlink("$extrep/repodata/$_") for grep {/(?:deltainfo|prestodelta)\.xml/} @oldrepodata;
   if ($deltainfos && %$deltainfos && ($options{'deltainfo'} || $options{'prestodelta'})) {
@@ -1261,7 +1319,11 @@ sub publish {
         # collect application data
         my $appdataxml = readstr("$r/$bin", 1) || '';
 	$appdatas_state .= Digest::MD5::md5_hex($appdataxml);
-	my $appdata = readxml("$r/$bin", $BSXML::appdata, 1) || {};
+	my $appdata;
+	eval {
+	  $appdata = XML::Simple::XMLin($appdataxml, 'ForceArray' => 1);
+	};
+	$appdata ||= {};
         # merge the applications
 	if ($appdatas) {
 	  push @{$appdatas->{'application'}}, @{$appdata->{'application'} || []};
