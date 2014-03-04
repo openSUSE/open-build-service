@@ -50,6 +50,7 @@ use BSXML;
 my $bsdir;
 my $localarch;
 my $obsname;
+my $project;
 eval{
   require BSConfig;
   $bsdir = "$BSConfig::bsdir" if defined($BSConfig::bsdir);
@@ -323,8 +324,8 @@ sub createProductOptions($$$)
     $info{'DISTRIBUTION'} = $product->{'installconfig'}->{'distribution'};
     $info{'DESCRDIR'}     = $product->{'installconfig'}->{'descriptiondir'};
     $info{'DATADIR'}      = $product->{'installconfig'}->{'datadir'};
-    if (defined($obsname) && (defined($prodRef->{'project'}->{'name'})) && ("$prodRef->{'project'}->{'name'}" ne "")){
-        $info{'REPOID'}       = "obsproduct:://".$obsname."/".$prodRef->{'project'}->{'name'}."/".$product->{'name'}."/".$product->{'version'}."/".$medium->{'flavor'}."/".join( "-", @allarchs );
+    if (defined($obsname) && (defined($project)) && ("$project" ne "")){
+        $info{'REPOID'}       = "obsproduct://".$obsname."/".$project."/".$product->{'name'}."/".$product->{'version'}."/".$medium->{'flavor'}."/".join( "-", @allarchs );
     }
     if (defined($medium->{'preselected_patterns'})){
         $info{'PATTERNS'} .= join(' ',map( $_->{'name'},@{$medium->{'preselected_patterns'}->[0]->{'pattern'}}));
@@ -1271,7 +1272,8 @@ getopts('dhm:');
 
 usage() if $opt_h;
 
-my ($infile, $outdir, $project) = @ARGV;
+my ($infile, $outdir, $_project) = @ARGV;
+$project = $_project;
 
 die( "Please specify input file, output directory (and project name)\n" ) unless $infile;
 die( "Please specify output directory (and project) name\n" ) unless $outdir;
