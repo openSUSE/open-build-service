@@ -1940,7 +1940,18 @@ sub copybuild {
       writexml("$dir/$bin", undef, $updateinfo, $BSXML::updateinfo);
     } else {
       $needsign = 1 if $bin =~ /\.(?:d?rpm|sha256|iso)$/;
-      link("$odir/$bin", "$dir/$bin") || die("link $odir/$bin $dir/$bin: $!\n");
+      my $nbin = $bin;
+      if ($cgi->{'setrelease'}) {
+	my $nrel = $cgi->{'setrelease'};
+	$nrel =~ s/^-?/-/;
+	$nrel =~ s/-?$/-/;
+	$nbin =~ s/-([^-]+)-(Media\d(?:\..*?)?)$/$nrel$1/;
+      }
+      if (-d "$odir/$bin") {
+	BSUtil::linktree("$odir/$bin", "$dir/$nbin");
+      } else {
+        link("$odir/$bin", "$dir/$nbin") || die("link $odir/$bin $dir/$nbin: $!\n");
+      }
     }
   }
   my $info = {
@@ -3858,7 +3869,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num?' => \&getjobhistory,
   'POST:/build/$project/$repository/$arch/_relsync' => \&postrelsync,
   '/build/$project/$repository/$arch/_relsync' => \&getrelsync,
-  'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool?' => \&copybuild,
+  'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool? setrelease:?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
   '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool? nosource:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo_post,
