@@ -217,7 +217,7 @@ should receive notification mail if the API hits any program exception.
 
 It is recommended to enable
 
-  use_xforward:true
+  use_xforward: true
 
 as well here.
 
