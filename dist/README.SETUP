@@ -159,7 +159,7 @@ available after adding the SDK to the available installation repositories.
 
     cd /srv/www/obs/api/
     sudo RAILS_ENV="production" rake db:setup
-    sudo RAILS_ENV="production" ruby writeconfiguration
+    sudo RAILS_ENV="production" rake writeconfiguration
     sudo chown -R wwwrun.www log tmp
 
 
