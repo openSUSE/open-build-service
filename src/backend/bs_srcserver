@@ -6213,6 +6213,7 @@ sub copybuild {
   push @args, "opackage=$opackid";
   push @args, "orepository=$orepoid";
   push @args, "setupdateinfoid=$cgi->{'setupdateinfoid'}" if $cgi->{'setupdateinfoid'};
+  push @args, "setrelease=$cgi->{'setrelease'}" if $cgi->{'setrelease'};
   push @args, 'resign=1' if $cgi->{'resign'};
   my $param = {
     'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid",
@@ -7909,7 +7910,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/_builddepinfo package* view:?' => \&getbuilddepinfo,
   '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num?' => \&getjobhistory,
   'POST:/build/$project/$repository/$arch/_repository match:' =>  \&postrepo,
-  'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool?' => \&copybuild,
+  'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool? setrelease:?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* debug:bool?' => \&getbuildinfo_post,

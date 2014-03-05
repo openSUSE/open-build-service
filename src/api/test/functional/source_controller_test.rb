@@ -2165,10 +2165,41 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/build/home:Iggy/10.2/i586/TestPack/'
     assert_response :success
     assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
+    assert_xml_tag :tag => 'binary', :attributes => { :filename => 'package-1.0-1.i586.rpm' }
 
     get '/build/home:Iggy:RT/rt/i586/TestPack/'
     assert_response :success
     assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
+    assert_xml_tag :tag => 'binary', :attributes => { :filename => 'package-1.0-1.i586.rpm' }
+
+
+
+    # release for real with a defined release tag
+    login_Iggy
+    post '/source/home:Iggy/TestPack?cmd=release&setrelease=Beta1', nil
+    assert_response :success
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'ok' }
+
+    # process events
+    run_scheduler('i586')
+
+    # verify result
+    get '/source/home:Iggy:RT'
+    assert_response :success
+    assert_xml_tag :tag => 'entry', :attributes => { :name => 'TestPack' }
+
+    # compare source with target repo
+    get '/build/home:Iggy/10.2/i586/TestPack/'
+    assert_response :success
+    assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
+    assert_xml_tag :tag => 'binary', :attributes => { :filename => 'package-1.0-1.i586.rpm' }
+
+    get '/build/home:Iggy:RT/rt/i586/TestPack/'
+    assert_response :success
+    assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
+    # binary got  renamed during release
+    assert_no_xml_tag :tag => 'binary', :attributes => { :filename => 'package-1.0-1.i586.rpm' }
+    assert_xml_tag :tag => 'binary', :attributes => { :filename => 'package-1.0-Beta1.i586.rpm' }
 
     # cleanup
     login_Iggy

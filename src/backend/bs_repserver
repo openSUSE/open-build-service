@@ -1943,9 +1943,10 @@ sub copybuild {
       my $nbin = $bin;
       if ($cgi->{'setrelease'}) {
 	my $nrel = $cgi->{'setrelease'};
-	$nrel =~ s/^-?/-/;
-	$nrel =~ s/-?$/-/;
-	$nbin =~ s/-([^-]+)-(Media\d(?:\..*?)?)$/$nrel$1/;
+	$nrel =~ s/^-?/-/; # "-" will drop the release tag
+	$nrel =~ s/-?$//;  # drop leading "-", it depends on the format
+	$nbin =~ s/-([^-]+)-Media(?:\d?)(?:\..*?)$/$nrel-$2/; # kiwi product builds
+	$nbin =~ s/-([^-.]+).([^.]*.rpm)$/$nrel.$2/; # rpms
       }
       if (-d "$odir/$bin") {
 	BSUtil::linktree("$odir/$bin", "$dir/$nbin");

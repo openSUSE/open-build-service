@@ -422,6 +422,8 @@ Parameters:
   withhistory: copies sources with history on copy command
   withbinaries: copies also binaries on copy command
   noservice: do not run source services
+  setrelease: define a specific release tag when used with "release" command. Setting it to "-" strips
+              the release string. Note: this modifies only the filename.
 
 === Packages
 
@@ -752,6 +754,8 @@ Parameters:
   withissues: set to get issues parsed from changelogs (for diff commands)
   onlyissues: used to limit to issues (for diff commands)
   noservice: do not run source services
+  setrelease: define a specific release tag when used with "release" command. Setting it to "-" strips
+              the release string.
 
 
 

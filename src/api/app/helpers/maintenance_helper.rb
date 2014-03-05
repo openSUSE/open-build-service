@@ -44,7 +44,7 @@ module MaintenanceHelper
   end
 
   def release_package(sourcePackage, targetProjectName, targetPackageName,
-                      filterSourceRepository = nil, request = nil)
+                      filterSourceRepository = nil, request = nil, setrelease = nil)
     targetProject = Project.get_by_name targetProjectName
 
     # create package container, if missing
@@ -66,7 +66,7 @@ module MaintenanceHelper
     end
 
     # copy binaries
-    copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject)
+    copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject, setrelease)
 
     # create or update main package linking to incident package
     unless sourcePackage.is_patchinfo?
@@ -154,7 +154,7 @@ module MaintenanceHelper
     Suse::Backend.post cp_path, nil
   end
 
-  def copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject)
+  def copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject, setrelease)
     sourcePackage.project.repositories.each do |sourceRepo|
       next if filterSourceRepository and filterSourceRepository != sourceRepo
       sourceRepo.release_targets.each do |releasetarget|
@@ -163,7 +163,8 @@ module MaintenanceHelper
           if releasetarget.target_repository.project == targetProject
             # get updateinfo id in case the source package comes from a maintenance project
             uID = get_updateinfo_id(sourcePackage, releasetarget.target_repository)
-            copy_single_binary(arch, releasetarget, sourcePackage, sourceRepo, targetPackageName, uID)
+            copy_single_binary(arch, releasetarget, sourcePackage, sourceRepo, targetPackageName, uID,
+                               setrelease, (releasetarget.trigger == 'maintenance'))
           end
         end
         # remove maintenance release trigger in source
@@ -176,18 +177,19 @@ module MaintenanceHelper
     end
   end
 
-  def copy_single_binary(arch, releasetarget, sourcePackage, sourceRepo, targetPackageName, updateinfoId)
+  def copy_single_binary(arch, releasetarget, sourcePackage, sourceRepo, targetPackageName, updateinfoId, setrelease, resign)
     cp_params = {
         :cmd => 'copy',
         :oproject => sourcePackage.project.name,
         :opackage => sourcePackage.name,
         :orepository => sourceRepo.name,
         :user => User.current.login,
-        :resign => '1',
     }
     cp_params[:setupdateinfoid] = updateinfoId if updateinfoId
+    cp_params[:setrelease] = setrelease if setrelease
+    cp_params[:resign] = "1" if resign
     cp_path = "/build/#{CGI.escape(releasetarget.target_repository.project.name)}/#{URI.escape(releasetarget.target_repository.name)}/#{URI.escape(arch.name)}/#{URI.escape(targetPackageName)}"
-    cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :oproject, :opackage, :orepository, :setupdateinfoid, :resign])
+    cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :oproject, :opackage, :orepository, :setupdateinfoid, :resign, :setrelease])
     Suse::Backend.post cp_path, nil
   end
 
