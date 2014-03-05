@@ -159,7 +159,7 @@ available after adding the SDK to the available installation repositories.
 
     cd /srv/www/obs/api/
     sudo RAILS_ENV="production" rake db:setup
-    sudo RAILS_ENV="production" ruby writeconfiguration
+    sudo RAILS_ENV="production" rake writeconfiguration
     sudo chown -R wwwrun.www log tmp
 
 
@@ -184,7 +184,7 @@ Add the follwing apache modules in /etc/sysconfig/apache2:
 
 Enable SSL in /etc/sysconfig/apache2 via
 
-  APACHE_SERVER_FLAGS="-DSSL"
+  APACHE_SERVER_FLAGS="SSL"
 
 Generate an ssl certificate via following commands:
 
@@ -217,7 +217,7 @@ should receive notification mail if the API hits any program exception.
 
 It is recommended to enable
 
-  use_xforward:true
+  use_xforward: true
 
 as well here.
 
@@ -253,7 +253,7 @@ The alternative manual way is to call the following command:
 
   curl -0 --user "Admin:opensuse" -X PUT \
        -T /usr/share/doc/packages/obs-api/openSUSE.org.xml \
-       https://localhost:444/source/openSUSE.org/_meta
+       https://localhost:443/source/openSUSE.org/_meta
 
 If you created a self-signed certificate as described above, also add the
 option "--insecure".
