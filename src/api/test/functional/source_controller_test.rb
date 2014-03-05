@@ -2108,9 +2108,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # define release target
     login_king
 
-    login_Iggy
+    login_adrian
     # create and define manual release target
-    put '/source/home:Iggy:RT/_meta', "<project name='home:Iggy:RT'> <title/> <description/>
+    put '/source/home:adrian:RT/_meta', "<project name='home:adrian:RT'> <title/> <description/>
           <repository name='rt'>
             <arch>i586</arch>
             <arch>x86_64</arch>
@@ -2121,34 +2121,39 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     run_scheduler('i586')
     run_scheduler('x86_64')
 
+    login_Iggy
     get '/source/home:Iggy/_meta'
     assert_response :success
     orig_project_meta = @response.body
     doc = REXML::Document.new(@response.body)
     rt = doc.elements["/project/repository'"].add_element 'releasetarget'
-    rt.add_attribute REXML::Attribute.new('project', 'home:Iggy:RT')
+    rt.add_attribute REXML::Attribute.new('project', 'home:adrian:RT')
     rt.add_attribute REXML::Attribute.new('repository', 'rt')
     put '/source/home:Iggy/_meta', doc.to_s
     assert_response :success
 
     # try to release with incorrect trigger
+    login_adrian
     post '/source/home:Iggy/TestPack?cmd=release', nil
     assert_response 403
     assert_match(/Trigger is not set to manual in repository home:Iggy\/10.2/, @response.body)
 
     # add correct trigger
+    login_Iggy
     rt.add_attribute REXML::Attribute.new('trigger', 'manual')
     put '/source/home:Iggy/_meta', doc.to_s
     assert_response :success
 
     # this user is not allowed
-    login_adrian
     post '/source/home:Iggy/TestPack?cmd=release', nil
     assert_response 403
     assert_xml_tag :tag => 'status', :attributes => { :code => 'cmd_execution_no_permission' }
+    assert_match(/no permission to write in project home:adrian:RT/, @response.body)
+
+
 
     # release for real
-    login_Iggy
+    login_adrian
     post '/source/home:Iggy/TestPack?cmd=release', nil
     assert_response :success
     assert_xml_tag :tag => 'status', :attributes => { :code => 'ok' }
@@ -2157,7 +2162,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     run_scheduler('i586')
 
     # verify result
-    get '/source/home:Iggy:RT'
+    get '/source/home:adrian:RT'
     assert_response :success
     assert_xml_tag :tag => 'entry', :attributes => { :name => 'TestPack' }
 
@@ -2167,7 +2172,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
     assert_xml_tag :tag => 'binary', :attributes => { :filename => 'package-1.0-1.i586.rpm' }
 
-    get '/build/home:Iggy:RT/rt/i586/TestPack/'
+    get '/build/home:adrian:RT/rt/i586/TestPack/'
     assert_response :success
     assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
     assert_xml_tag :tag => 'binary', :attributes => { :filename => 'package-1.0-1.i586.rpm' }
@@ -2175,7 +2180,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
 
     # release for real with a defined release tag
-    login_Iggy
+    login_adrian
     post '/source/home:Iggy/TestPack?cmd=release&setrelease=Beta1', nil
     assert_response :success
     assert_xml_tag :tag => 'status', :attributes => { :code => 'ok' }
@@ -2184,7 +2189,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     run_scheduler('i586')
 
     # verify result
-    get '/source/home:Iggy:RT'
+    get '/source/home:adrian:RT'
     assert_response :success
     assert_xml_tag :tag => 'entry', :attributes => { :name => 'TestPack' }
 
@@ -2194,7 +2199,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
     assert_xml_tag :tag => 'binary', :attributes => { :filename => 'package-1.0-1.i586.rpm' }
 
-    get '/build/home:Iggy:RT/rt/i586/TestPack/'
+    get '/build/home:adrian:RT/rt/i586/TestPack/'
     assert_response :success
     assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
     # binary got  renamed during release
@@ -2205,7 +2210,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     put '/source/home:Iggy/_meta', orig_project_meta
     assert_response :success
-    delete '/source/home:Iggy:RT'
+    login_adrian
+    delete '/source/home:adrian:RT'
     assert_response :success
   end
 

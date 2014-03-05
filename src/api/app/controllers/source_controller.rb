@@ -381,7 +381,7 @@ class SourceController < ApplicationController
   # list of cammands which create the target package
   Package_creating_commands = %w(branch copy undelete)
   # list of commands which are allowed even when the project has the package only via a project link
-  Read_commands = %w(branch diff linkdiff servicediff showlinked getprojectservices)
+  Read_commands = %w(branch diff linkdiff servicediff showlinked getprojectservices release)
 
   def validate_target_for_package_command_exists!
     @project = nil
