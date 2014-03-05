@@ -261,6 +261,8 @@ our $productdesc = [
             'allow_overflow',
             'next_media_in_set',
             'size',
+            'datadir',
+            'descriptiondir',
             [[ 'preselected_patterns' => 
                [[ 'pattern' =>
                   'name',

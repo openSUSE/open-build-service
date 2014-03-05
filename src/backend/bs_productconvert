@@ -322,8 +322,16 @@ sub createProductOptions($$$)
     my %info;
     $info{'VENDOR'}       = $product->{'vendor'};
     $info{'DISTRIBUTION'} = $product->{'installconfig'}->{'distribution'};
-    $info{'DESCRDIR'}     = $product->{'installconfig'}->{'descriptiondir'};
-    $info{'DATADIR'}      = $product->{'installconfig'}->{'datadir'};
+    if (defined($medium->{'descriptiondir'})) {
+	$info{'DESCRDIR'}     = $medium->{'descriptiondir'};
+    } else {
+	$info{'DESCRDIR'}     = $product->{'installconfig'}->{'descriptiondir'};
+    }
+    if (defined($medium->{'datadir'})) {
+	$info{'DATADIR'}      = $medium->{'datadir'};
+    } else {
+	$info{'DATADIR'}      = $product->{'installconfig'}->{'datadir'};
+    }
     if (defined($obsname) && (defined($project)) && ("$project" ne "")){
         $info{'REPOID'}       = "obsproduct://".$obsname."/".$project."/".$product->{'name'}."/".$product->{'version'}."/".$medium->{'flavor'}."/".join( "-", @allarchs );
     }
