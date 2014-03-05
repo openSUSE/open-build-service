@@ -215,12 +215,6 @@ If you change the hostnames/ips of the api, you need to adjust
 You should set "exception_recipients" to a valid mail address which
 should receive notification mail if the API hits any program exception.
 
-It is recommended to enable
-
-  use_xforward:true
-
-as well here.
-
 
 3.2.3 Restart apache2
 =====================
