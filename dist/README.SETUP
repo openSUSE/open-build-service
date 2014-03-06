@@ -257,7 +257,7 @@ The alternative manual way is to call the following command:
 
   curl -0 --user "Admin:opensuse" -X PUT \
        -T /usr/share/doc/packages/obs-api/openSUSE.org.xml \
-       https://localhost:444/source/openSUSE.org/_meta
+       https://localhost:443/source/openSUSE.org/_meta
 
 If you created a self-signed certificate as described above, also add the
 option "--insecure".
