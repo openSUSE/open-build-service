@@ -160,6 +160,7 @@ Requires:       perl-JSON-XS
 Requires:       perl-Net-SSLeay
 Requires:       perl-Socket-MsgHdr
 Requires:       perl-XML-Parser
+Requires:       perl-XML-Simple
 Requires:       sphinx
 Conflicts:      sphinx < 2.0.8
 

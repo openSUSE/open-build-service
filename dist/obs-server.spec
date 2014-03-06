@@ -58,6 +58,7 @@ BuildRequires:  perl-Net-SSLeay
 BuildRequires:  perl-Socket-MsgHdr
 BuildRequires:  perl-TimeDate
 BuildRequires:  perl-XML-Parser
+BuildRequires:  perl-XML-Simple
 BuildRequires:  procps
 BuildRequires:  xorg-x11-server
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
