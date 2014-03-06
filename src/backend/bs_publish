@@ -1845,6 +1845,7 @@ publishprog_done:
     }
   }
   if ($BSConfig::publishedhook && $BSConfig::publishedhook->{$publish_prp}) {
+    print "    calling published hook $BSConfig::publishedhook->{$publish_prp}\n";
     qsystem($BSConfig::publishedhook->{$publish_prp}, $prp, $extrep, @changed) && warn("    $BSConfig::publishedhook->{$publish_prp} failed: $?");
   }
 
