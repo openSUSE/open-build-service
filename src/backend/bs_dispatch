@@ -85,11 +85,12 @@ while (@ARGV) {
     my $constraints_file = shift @ARGV;
     my $constraintsprj_file = shift @ARGV;
     my $workerinfo = readxml($workerinfo_file, $BSXML::worker);
+    my $jobinfo = { 'arch' => $architecture, 'package' => $package };
 
     my $constraints;
     if ($constraints_file) {
-      my $xml = readstr($constraints_file);
-      $constraints = parseconstraints($package, $architecture, $xml);
+      $constraints = readxml($constraints_file, $BSXML::constraints);
+      $constraints = overwriteconstraints($jobinfo, $constraints);
     }
     if ($constraintsprj_file) {
       my @lines = map { [ split(' ', $_) ] } split("\n", readstr($constraintsprj_file));
@@ -347,26 +348,26 @@ sub overwrite {
   }
 }
 
-sub parseconstraints {
-  my ($package, $architecture, $constraintsxml) = @_;
-  my $xml = BSUtil::fromxml($constraintsxml, $BSXML::constraints, 1);
+sub overwriteconstraints {
+  my ($info, $constraints) = @_;
   # use condition specific constraints to merge it properly
-  for my $o (@{$xml->{'overwrite'}||[]}) {
-    next unless $o and $o->{'conditions'};
+  for my $o (@{$constraints->{'overwrite'}||[]}) {
+    next unless $o && $o->{'conditions'};
     if ($o->{'conditions'}->{'arch'}) {
-      next unless grep {$_ eq $architecture} @{$o->{'conditions'}->{'arch'}};
+      next unless grep {$_ eq $info->{'arch'}} @{$o->{'conditions'}->{'arch'}};
     }
     if ($o->{'conditions'}->{'package'}) {
-      next unless grep {$_ eq $package} @{$o->{'conditions'}->{'package'}};
+      next unless grep {$_ eq $info->{'package'}} @{$o->{'conditions'}->{'package'}};
     }
     # conditions are matching, overwrite...
-    overwrite($xml, $o);
+    $constraints = Storable::dclone($constraints);
+    overwrite($constraints, $o);
   }
-  return $xml;
+  return $constraints;
 }
 
 sub getconstraints {
-  my ($info, $architecture, $constraintsmd5) = @_;
+  my ($info, $constraintsmd5) = @_;
   my $param = {
     'uri' => "$BSConfig::srcserver/source/$info->{'project'}/$info->{'package'}/_constraints",
     'timeout' => 300,
@@ -381,7 +382,7 @@ sub getconstraints {
     return [ time() + 600 ];	# better luck next time
   }
   return undef unless $constraintsxml;
-  return parseconstraints($info->{'package'}, $architecture, $constraintsxml);
+  return BSUtil::fromxml($constraintsxml, $BSXML::constraints, 1);
 }
 
 # last one wins
@@ -1229,7 +1230,7 @@ while (1) {
       if ($ic->{$job}->{'constraintsmd5'}) {
 	my $constraintsmd5 = $ic->{$job}->{'constraintsmd5'};
 	if (!exists($constraintscache{$constraintsmd5})) {
-	  $constraintscache{$constraintsmd5} = getconstraints($ic->{$job}, $arch, $constraintsmd5);
+	  $constraintscache{$constraintsmd5} = getconstraints($ic->{$job}, $constraintsmd5);
 	}
 	$constraints = $constraintscache{$constraintsmd5};
 	if (!ref($constraints)) {
@@ -1240,6 +1241,7 @@ while (1) {
 	  delete($constraintscache{$constraintsmd5}) if $constraints->[0] < $now;
 	  next;
 	}
+        $constraints = overwriteconstraints($ic->{$job}, $constraints) if $constraints->{'overwrite'};
       }
       if ($ic->{$job}->{'prjconfconstraint'}) {
 	my @l = map { [ split(' ', $_) ] } @{$ic->{$job}->{'prjconfconstraint'}};
