@@ -383,7 +383,7 @@ sub create_appdata_files {
 }
 
 sub createrepo_rpmmd {
-  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $options, $updateinfos, $deltainfos, $appdatas, $supportstatus) = @_;
+  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $options, $updateinfos, $deltainfos, $appdatas) = @_;
 
   my %options = map {$_ => 1} @{$options || []};
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
@@ -434,7 +434,14 @@ sub createrepo_rpmmd {
   unlink("$extrep/repodata/$_") for grep {/updateinfo\.xml/} @oldrepodata;
   if ($updateinfos && @$updateinfos) {
     print "    adding updateinfo.xml to repodata\n";
-    writexml("$extrep/repodata/updateinfo.xml", undef, {'update' => $updateinfos}, $BSXML::updateinfo);
+    # strip supportstatus from updateinfos
+    my $ui = Storable::dclone($updateinfos);
+    for my $cl (@{($ui->{'pkglist'} || {})->{'collection'} || []}) {
+      for my $pkg (@{$cl->{'package'} || []}) {
+	delete $pkg->{'supportstatus'};
+      }
+    }
+    writexml("$extrep/repodata/updateinfo.xml", undef, {'update' => $ui}, $BSXML::updateinfo);
     qsystem('modifyrepo', "$extrep/repodata/updateinfo.xml", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
     unlink("$extrep/repodata/updateinfo.xml");
   }
@@ -501,7 +508,6 @@ sub createrepo_rpmmd {
     $data{'updateinfos'} = $updateinfos if $updateinfos;
     $data{'deltainfos'} = $deltainfos if $deltainfos;
     $data{'appdata'} = $appdatas if $appdatas;
-    $data{'supportstatus'} = $supportstatus if $supportstatus;
     $BSConfig::createrepo_rpmmd_hook->($projid, $repoid, $extrep, \%options, \%data);
   }
   if ($BSConfig::sign && -e "$extrep/repodata/repomd.xml") {
@@ -1268,9 +1274,6 @@ sub publish {
   my $appdatas;
   my $appdatas_state;
 
-  my $supportstatus;
-  my $supportstatus_state;
-
   my %deltas;	# XXX remove hack
   my %deltainfos;
   my $deltainfos_state;
@@ -1301,11 +1304,6 @@ sub publish {
       $repoinfo = Storable::retrieve("${r}info") || {};
     }
     $repoinfo->{'binaryorigins'} ||= {};
-    my $sups = $repoinfo->{'supportstatus'};
-    if ($sups && !$supportstatus) {
-      $supportstatus = {};
-      $supportstatus_state = "\0";
-    }
     for my $rbin (sort(ls($r))) {
       my $bin = $rbin;
       if ($bin =~ /:updateinfo.xml$/) {
@@ -1420,14 +1418,6 @@ sub publish {
       $bins{$p} = "$r/$rbin";
       $bins_id{$p} = "$s[9]/$s[7]/$s[1]";
       $binaryorigins->{$p} = $repoinfo->{'binaryorigins'}->{$rbin} if defined $repoinfo->{'binaryorigins'}->{$rbin};
-      if ($supportstatus) {
-	if ($sups->{$rbin}) {
-	  $supportstatus->{$p} = $sups->{$rbin};
-	  $supportstatus_state .= "$r/$rbin\0$sups->{$rbin}\0";
-	} else {
-          delete $supportstatus->{$p};
-	}
-      }
       if ($rbin =~ /^(.*)\.drpm$/) {
 	# we took a delta rpm. collect desq if possible
 	my $dseq = "$r/$1.dseq";
@@ -1605,7 +1595,6 @@ sub publish {
   $state .= "\0".$updateinfos_state if $updateinfos_state;
   $state .= "\0".$appdatas_state if $appdatas_state;
   $state .= "\0".$deltainfos_state if $deltainfos_state;
-  $state .= "\0".Digest::MD5::md5_hex($supportstatus_state) if $supportstatus_state;
   $state = Digest::MD5::md5_hex($state) if $state ne '';
 
   # get us the old repoinfo, so we can compare the state
@@ -1765,7 +1754,7 @@ sub publish {
   $xrepoid .= $dbgsplit if $dbgsplit;
 
   if ($repotype{'rpm-md'}) {
-    createrepo_rpmmd($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo, $repotype{'rpm-md'}, \@updateinfos, \%deltainfos, $appdatas, $supportstatus);
+    createrepo_rpmmd($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo, $repotype{'rpm-md'}, \@updateinfos, \%deltainfos, $appdatas);
   } else {
     deleterepo_rpmmd($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo);
   }
