@@ -436,9 +436,11 @@ sub createrepo_rpmmd {
     print "    adding updateinfo.xml to repodata\n";
     # strip supportstatus from updateinfos
     my $ui = Storable::dclone($updateinfos);
-    for my $cl (@{($ui->{'pkglist'} || {})->{'collection'} || []}) {
-      for my $pkg (@{$cl->{'package'} || []}) {
-	delete $pkg->{'supportstatus'};
+    for my $up (@$ui) {
+      for my $cl (@{($up->{'pkglist'} || {})->{'collection'} || []}) {
+        for my $pkg (@{$cl->{'package'} || []}) {
+	  delete $pkg->{'supportstatus'};
+        }
       }
     }
     writexml("$extrep/repodata/updateinfo.xml", undef, {'update' => $ui}, $BSXML::updateinfo);
