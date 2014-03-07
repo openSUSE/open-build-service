@@ -33,5 +33,34 @@
       </disk>
     </hardware>
   </overwrite>
+
+  <overwrite>
+    <conditions>
+      <arch>i586</arch>
+      <arch>x86_64</arch>
+      <package>kernel-obs-qa</package>
+    </conditions>
+    <sandbox>kvm</sandbox>
+    <hardware>
+      <processors>1</processors>
+      <disk>
+        <size unit="G">1</size>
+      </disk>
+    </hardware>
+  </overwrite>
+
+  <overwrite>
+    <conditions>
+      <package>kernel-obs-qa-xen</package>
+    </conditions>
+    <sandbox>xen</sandbox>
+    <hardware>
+      <processors>1</processors>
+      <disk>
+        <size unit="G">1</size>
+      </disk>
+    </hardware>
+  </overwrite>
+
 </constraints>
 

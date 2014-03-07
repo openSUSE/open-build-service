@@ -1,5 +1,5 @@
 
-<worker hostarch="i586" workerid="small">
+<worker hostarch="i586" workerid="medium">
   <buildarch>i586</buildarch>
   <hostlabel>medium_label</hostlabel>
   <hostlabel>junk_label</hostlabel>
