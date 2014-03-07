@@ -25,7 +25,7 @@ function td()
 
   if ./bs_dispatch --test-constraints "$package" "$arch" $worker "$srcconstraint" "$prjconfconstraint"; then
     if [ $expected != "true" ]; then
-      echo "Failed for $package $arch $worker $srcconstraint $prjconfconstraint"
+      echo "Failed $testname for $package $arch $worker $srcconstraint $prjconfconstraint"
       FAILS="$FAILS $testname"
     fi
     echo -n .
@@ -35,7 +35,7 @@ function td()
       exit 2
     fi
     if [ $expected != "false" ]; then
-      echo "Failed for $package $arch $worker $srcconstraint $prjconfconstraint"
+      echo "Failed $testname for $package $arch $worker $srcconstraint $prjconfconstraint"
       FAILS="$FAILS $testname"
     fi
     echo -n .
@@ -51,6 +51,16 @@ td simple05 false "kernel-default" armv7l small kernel
 td simple06 false "kernel-default" aarch64 small kernel
 td simple07 true "kernel-default" aarch64 medium kernel
 td simple08 true "kernel-default" aarch64 large kernel
+
+# simple source constraints like used by suse kernel
+td sandbox31 false "kernel-obs-qa" i586 medium kernel
+td sandbox32 true  "kernel-obs-qa" i586 large  kernel
+td sandbox33 false "kernel-obs-qa" i586 medium kernel
+td sandbox34 true  "kernel-obs-qa" i586 large  kernel
+td sandbox35 true  "kernel-obs-qa-xen" i586 medium kernel
+td sandbox36 false "kernel-obs-qa-xen" i586 large  kernel
+td sandbox37 true  "kernel-obs-qa-xen" i586 medium kernel
+td sandbox38 false "kernel-obs-qa-xen" i586 large  kernel
 
 # simple prjconf constraints for processor numbers and disk storage
 td simple11 true "kernel" i586 large "" kernel-default
