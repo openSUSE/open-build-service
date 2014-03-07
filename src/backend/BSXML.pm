@@ -1345,6 +1345,7 @@ our $updateinfoitem = [
 			'release',
 			'arch',
 			'src',
+			'supportstatus',
 			[],
 			'filename',
 		      [ 'sum' =>	# obsolete?
