@@ -139,6 +139,12 @@
           </element>
         </optional>
         <optional>
+          <element name="admin_email">
+            <!-- default email adress to contact this OBS admin -->
+            <text/>
+          </element>
+        </optional>
+        <optional>
           <element name="theme">
             <!-- used webui theme -->
             <text/>

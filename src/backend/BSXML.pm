@@ -1470,6 +1470,7 @@ our $configuration = [
 	'bugzilla_url',
 	'http_proxy',
 	'no_proxy',
+	'admin_email',
 	'theme',
       [ 'schedulers' =>
 	  [ 'arch' ],
