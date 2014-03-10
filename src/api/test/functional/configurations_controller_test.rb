@@ -39,6 +39,7 @@ class ConfigurationsControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "title", :content => "openSUSE"
     assert_xml_tag :tag => "description", :content => "blah_fasel"
     assert_xml_tag :tag => "name", :content => "obsname"
+    assert_xml_tag :tag => "admin_email", :content => "obs-email@opensuse.org"
     assert_xml_tag :parent => { :tag => "schedulers" },
                    :tag => "arch", :content => "ppc"
     assert_xml_tag :parent => { :tag => "schedulers" },

@@ -1471,6 +1471,7 @@ our $configuration = [
 	'bugzilla_url',
 	'http_proxy',
 	'no_proxy',
+	'admin_email',
 	'theme',
 	'cleanup_empty_projects',
 	'disable_publish_for_branches',
