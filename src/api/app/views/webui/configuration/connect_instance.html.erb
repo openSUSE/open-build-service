@@ -5,7 +5,7 @@ function useOpenSUSE(){
 	document.getElementById('title').value = "Standard OBS instance at build.opensuse.org";
 	document.getElementById('description').value = "This instance delivers the default build targets for OBS.";
 }
-function useMeeGo(){
+function useTizen(){
 	document.getElementById('name').value = "tizen.org";
 	document.getElementById('remoteurl').value = "https://api.tizen.org/public";
 	document.getElementById('title').value = "Official Tizen Project OBS instance at build.tizen.org";
@@ -31,13 +31,17 @@ function usePackman(){
   <p>Connect a remote Open Build Service instance</p>
   
   <h3>Use a public OBS for default base distributions</h3>
-  <%# unless Project.exists?("openSUSE.org") -%>
+  <% unless Project.exists?("openSUSE.org") -%>
     <% name = "openSUSE.org" -%>
     <% remoteurl = "https://api.opensuse.org/public" -%>
-  <%# end -%>
-  <%= button_to_function "build.openSUSE.org", "useOpenSUSE()" %>
-  <input type='button' onclick='javascript:useMeeGo()' value='build.tizen.org'/>
-  <input type='button' onclick='javascript:usePackman()' value='PackMan OBS'/>
+    <%= button_to_function "openSUSE", "useOpenSUSE()" %>
+  <% end -%>
+  <% unless Project.exists?("tizen.org") -%>
+    <input type='button' onclick='javascript:useTizen()' value='Tizen'/>
+  <% end -%>
+  <% unless Project.exists?("Packman") -%>
+    <input type='button' onclick='javascript:usePackman()' value='PackMan'/>
+  <% end -%>
 
   <h3>Add custom OBS instance</h3>
   <%= form_tag  :action => :save_instance do -%>
