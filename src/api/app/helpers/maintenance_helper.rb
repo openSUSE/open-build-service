@@ -43,36 +43,44 @@ module MaintenanceHelper
     return mi
   end
 
+  def _release_product(sourcePackage, targetProject)
+    productPackage = Package.find_by_project_and_name sourcePackage.project.name, "_product"
+    # create package container, if missing
+    tpkg = create_package_container_if_missing(productPackage, "_product", targetProject)
+    # copy sources
+    release_package_copy_sources(request, productPackage, "_product", targetProject)
+    tpkg.project.update_product_autopackages
+    tpkg.sources_changed
+  end
+  def _release_package(sourcePackage, targetProject, targetPackageName, request)
+    # create package container, if missing
+    tpkg = create_package_container_if_missing(sourcePackage, targetPackageName, targetProject)
+
+    # detect local links
+    begin
+      link = sourcePackage.source_file('_link')
+      link = ActiveXML::Node.new(link)
+    rescue ActiveXML::Transport::Error
+      link = nil
+    end
+    if link and (link.value(:project).nil? or link.value(:project) == sourcePackage.project.name)
+      release_package_relink(link, request, targetPackageName, targetProject, tpkg)
+    else
+      # copy sources
+      release_package_copy_sources(request, sourcePackage, targetPackageName, targetProject)
+      tpkg.sources_changed
+    end
+  end
+
   def release_package(sourcePackage, targetProjectName, targetPackageName,
                       filterSourceRepository = nil, request = nil, setrelease = nil, manual = nil)
     targetProject = Project.get_by_name targetProjectName
+    targetProject.check_write_access!
 
     if sourcePackage.name.starts_with? "_product:"
-      productPackage = Package.find_by_project_and_name sourcePackage.project.name, "_product"
-      # create package container, if missing
-      tpkg = create_package_container_if_missing(productPackage, "_product", targetProject)
-      # copy sources
-      release_package_copy_sources(request, productPackage, "_product", targetProject)
-      tpkg.project.update_product_autopackages
-      tpkg.sources_changed
+      _release_product(sourcePackage, targetProject)
     else
-      # create package container, if missing
-      tpkg = create_package_container_if_missing(sourcePackage, targetPackageName, targetProject)
-
-      # detect local links
-      begin
-        link = sourcePackage.source_file('_link')
-        link = ActiveXML::Node.new(link)
-      rescue ActiveXML::Transport::Error
-        link = nil
-      end
-      if link and (link.value(:project).nil? or link.value(:project) == sourcePackage.project.name)
-        release_package_relink(link, request, targetPackageName, targetProject, tpkg)
-      else
-        # copy sources
-        release_package_copy_sources(request, sourcePackage, targetPackageName, targetProject)
-        tpkg.sources_changed
-      end
+      _release_package(sourcePackage, targetProject, targetPackageName, request)
     end
 
     # copy binaries
