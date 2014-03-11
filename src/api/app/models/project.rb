@@ -1160,16 +1160,16 @@ class Project < ActiveRecord::Base
   def do_project_release( params )
     User.current ||= User.find_by_login(params[:user])
 
-    check_write_access!
-
     packages.each do |pkg|
       pkg.project.repositories.each do |repo|
         next if params[:repository] and params[:repository] != repo.name
         next if params[:targetproject] and params[:targetproject] != repo.releasetarget.project
         next if params[:targetreposiory] and params[:targetreposiory] != repo.releasetarget.repository
         repo.release_targets.each do |releasetarget|
+          releasetarget.target_repository.project.check_write_access!
+
           # release source and binaries
-          release_package(pkg, releasetarget.target_repository.project.name, pkg.name, repo)
+          release_package(pkg, releasetarget.target_repository.project.name, pkg.name, repo, nil, params[:setrelease], true)
         end
       end
     end
