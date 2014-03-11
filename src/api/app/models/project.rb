@@ -1151,7 +1151,7 @@ class Project < ActiveRecord::Base
         repo.release_targets.each do |releasetarget|
           # release source and binaries
           # permission checking happens inside this function
-          release_package(pkg, releasetarget.target_repository.project.name, pkg.name, repo, nil, params[:setrelease], true)
+          release_package(pkg, releasetarget.target_repository.project.name, pkg.name, repo)
         end
       end
     end

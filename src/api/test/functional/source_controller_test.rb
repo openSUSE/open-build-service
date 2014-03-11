@@ -2178,9 +2178,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
 
 
-    # release for real with a defined release tag
+    # release for real
     login_adrian
-    post '/source/home:Iggy/TestPack?cmd=release&setrelease=Beta1', nil
+    post '/source/home:Iggy/TestPack?cmd=release', nil
     assert_response :success
     assert_xml_tag :tag => 'status', :attributes => { :code => 'ok' }
 
@@ -2201,9 +2201,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/build/home:adrian:RT/rt/i586/TestPack/'
     assert_response :success
     assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
-    # binary got  renamed during release
-    assert_no_xml_tag :tag => 'binary', :attributes => { :filename => 'package-1.0-1.i586.rpm' }
-    assert_xml_tag :tag => 'binary', :attributes => { :filename => 'package-1.0-Beta1.i586.rpm' }
+    assert_xml_tag :tag => 'binary', :attributes => { :filename => 'package-1.0-1.i586.rpm' }
 
     # cleanup
     login_Iggy
