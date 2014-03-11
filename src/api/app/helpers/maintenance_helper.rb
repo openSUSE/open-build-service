@@ -44,32 +44,42 @@ module MaintenanceHelper
   end
 
   def release_package(sourcePackage, targetProjectName, targetPackageName,
-                      filterSourceRepository = nil, request = nil, setrelease = nil)
+                      filterSourceRepository = nil, request = nil, setrelease = nil, manual = nil)
     targetProject = Project.get_by_name targetProjectName
 
-    # create package container, if missing
-    tpkg = create_package_container_if_missing(sourcePackage, targetPackageName, targetProject)
-
-    # detect local links
-    begin
-      link = sourcePackage.source_file('_link')
-      link = ActiveXML::Node.new(link)
-    rescue ActiveXML::Transport::Error
-      link = nil
-    end
-    if link and (link.value(:project).nil? or link.value(:project) == sourcePackage.project.name)
-      release_package_relink(link, request, targetPackageName, targetProject, tpkg)
-    else
+    if sourcePackage.name.starts_with? "_product:"
+      productPackage = Package.find_by_project_and_name sourcePackage.project.name, "_product"
+      # create package container, if missing
+      tpkg = create_package_container_if_missing(productPackage, "_product", targetProject)
       # copy sources
-      release_package_copy_sources(request, sourcePackage, targetPackageName, targetProject)
+      release_package_copy_sources(request, productPackage, "_product", targetProject)
+      tpkg.project.update_product_autopackages
       tpkg.sources_changed
+    else
+      # create package container, if missing
+      tpkg = create_package_container_if_missing(sourcePackage, targetPackageName, targetProject)
+
+      # detect local links
+      begin
+        link = sourcePackage.source_file('_link')
+        link = ActiveXML::Node.new(link)
+      rescue ActiveXML::Transport::Error
+        link = nil
+      end
+      if link and (link.value(:project).nil? or link.value(:project) == sourcePackage.project.name)
+        release_package_relink(link, request, targetPackageName, targetProject, tpkg)
+      else
+        # copy sources
+        release_package_copy_sources(request, sourcePackage, targetPackageName, targetProject)
+        tpkg.sources_changed
+      end
     end
 
     # copy binaries
     copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject, setrelease)
 
     # create or update main package linking to incident package
-    unless sourcePackage.is_patchinfo?
+    unless sourcePackage.is_patchinfo? or manual
       release_package_create_main_package(request, sourcePackage, targetPackageName, targetProject)
     end
 
@@ -77,7 +87,7 @@ module MaintenanceHelper
     if f=sourcePackage.project.flags.find_by_flag_and_status( 'access', 'disable' )
       unless targetProject.flags.find_by_flag_and_status( 'access', 'disable' )
         sourcePackage.project.flags.delete(f)
-        sourcePackage.project.store({:comment => 'project become public though release'})
+        sourcePackage.project.store({:comment => 'project becomes public on release action'})
         # patchinfos stay unpublished, it is anyway too late to test them now ...
       end
     end

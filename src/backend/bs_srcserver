@@ -6192,7 +6192,7 @@ sub delbinary {
 
 sub copybuild {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
-  die("illegal package '$packid'\n") if $packid =~ /^_/;
+  die("illegal package '$packid'\n") if $packid =~ /^_/ && !($packid =~ /^_product:/);
   checkprojrepoarch($projid, $repoid, $arch);
   my $oprojid = defined($cgi->{'oproject'}) ? $cgi->{'oproject'} : $projid;
   my $opackid = defined($cgi->{'opackage'}) ? $cgi->{'opackage'} : $packid;
@@ -6225,7 +6225,7 @@ sub copybuild {
 
 sub uploadbuild {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
-  die("illegal package '$packid'\n") if $packid =~ /^_/;
+  die("illegal package '$packid'\n") if $packid =~ /^_/ && !($packid =~ /^_product:/);
   checkprojrepoarch($projid, $repoid, $arch);
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
   my $param = {

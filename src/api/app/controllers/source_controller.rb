@@ -1504,7 +1504,7 @@ class SourceController < ApplicationController
       next if params[:repository] and params[:repository] != repo.name
       repo.release_targets.each do |releasetarget|
         # find md5sum and release source and binaries
-        release_package(pkg, releasetarget.target_repository.project.name, pkg.name, repo, nil, params[:setrelease])
+        release_package(pkg, releasetarget.target_repository.project.name, pkg.name, repo, nil, params[:setrelease], true)
       end
     end
 
