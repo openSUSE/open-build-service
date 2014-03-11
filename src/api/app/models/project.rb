@@ -1149,9 +1149,8 @@ class Project < ActiveRecord::Base
         next if params[:targetproject] and params[:targetproject] != repo.releasetarget.project
         next if params[:targetreposiory] and params[:targetreposiory] != repo.releasetarget.repository
         repo.release_targets.each do |releasetarget|
-          releasetarget.target_repository.project.check_write_access!
-
           # release source and binaries
+          # permission checking happens inside this function
           release_package(pkg, releasetarget.target_repository.project.name, pkg.name, repo, nil, params[:setrelease], true)
         end
       end
