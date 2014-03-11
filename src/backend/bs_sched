@@ -5672,8 +5672,8 @@ sub rebuildpatchinfo {
 	'epoch' => $d->{'epoch'} || 0,
 	'arch' => $d->{'arch'},
 	'filename' => $bin,
+	'src' => "$d->{'arch'}/$bin",	# as hopefully written by the publisher
       };
-      $upd->{'src'} = $d->{'source'} if $d->{'source'};
       $upd->{'reboot_suggested'} = 'True' if exists $patchinfo->{'reboot_needed'};
       $upd->{'relogin_suggested'} = 'True' if exists $patchinfo->{'relogin_needed'};
       $upd->{'restart_suggested'} = 'True' if exists $patchinfo->{'zypp_restart_needed'};
