@@ -496,14 +496,21 @@ sub createrepo_rpmmd {
   if (-x "/usr/bin/repoview") {
     if ($BSConfig::repodownload) {
       print "    running repoview\n";
-      qsystem('repoview', '-f', "-u$BSConfig::repodownload/$prp_ext", "-t$title", $extrep) && print("   repoview failed: $?\n");
+      qsystem('repoview', '-f', "-u$BSConfig::repodownload/$prp_ext", "-t$title", $extrep) && print("    repoview failed: $?\n");
     } else {
       print "    running repoview\n";
-      qsystem('repoview', '-f', "-t$title", $extrep) && print("   repoview failed: $?\n");
+      qsystem('repoview', '-f', "-t$title", $extrep) && print("    repoview failed: $?\n");
     }
   }
   if ($BSConfig::createrepo_rpmmd_hook) {
     $BSConfig::createrepo_rpmmd_hook->($projid, $repoid, $extrep, \%options, $data);
+  }
+  if ($options{'rsyncable'}) {
+    if (-x '/usr/bin/rezip_repo_rsyncable') {
+      qsystem('/usr/bin/rezip_repo_rsyncable', $extrep) && print("    rezip_repo_rsyncable failed: $?\n");
+    } else {
+      print "    /usr/bin/rezip_repo_rsyncable not installed, ignoring the rsyncable option\n";
+    }
   }
   if ($BSConfig::sign && -e "$extrep/repodata/repomd.xml") {
     my @signargs;
