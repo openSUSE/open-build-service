@@ -22,11 +22,11 @@ Features
 ========
 
  * Support multiple binary backends in one OBS instance. This means that
-   multiple seperate servers can host a defined part of the binary results.
+   multiple separate servers can host a defined part of the binary results.
 
- * The api can be configured to access protect all new created projects by default
+ * The api can be configured to protect access to all newly created projects by default
 
- * configuration data which is used by multiple obs parts is stored in /configuration
+ * configuration data which is used by multiple obs parts is stored in the /configuration
    path. This is the configuration.xml file in the backend. It contains 
     - enabled scheduler architectures
     - OBS instance name and description
@@ -70,9 +70,9 @@ Changes on purpose:
  * webui and api have merged into a single rails process. Details are described
    in README.Update file.
 
- * api is accessable without credentials if the anonymous mode is enabled.
+ * api is accessible without credentials if the anonymous mode is enabled.
 
- * The scheduler states in /build/_workerstates got moved into a 
+ * The scheduler states in /build/_workerstates were moved into a
    partition structure to support multiple backends running in one instance.
 
  * Submit request for entire projects will skip packages which do not contain
@@ -81,7 +81,7 @@ Changes on purpose:
  * Notification system has been moved from the backend to the api. The backend
    system is still available but declared as deprecated.
 
- * /about api route is public accessable now for system live checks.
+ * /about api route is publicly accessible now for system live checks.
 
 Incompatible changes:
 =====================
@@ -110,7 +110,7 @@ Also stopping services may not kill all processes, which leads to abstract error
 when trying to restart them. We heard also about trashed MySQL databases when using
 systemd.
 
-To avoid these problems you need switch directory to avoid the systemd mapper:
+To avoid these problems you need switch directory to avoid the systemd wrapper:
 
  # cd /etc/init.d
  # ./obssrcserver status|stop|start
