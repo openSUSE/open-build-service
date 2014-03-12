@@ -33,16 +33,16 @@
 Name:           obs-server
 Summary:        The Open Build Service -- Server Component
 License:        GPL-2.0 and GPL-3.0
-%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 Group:          Productivity/Networking/Web/Utilities
+%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 %endif
-Version:        2.5.50
+Version:        2.5.50_113_g117c617
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 # Sources are retrieved using script which is attached as Source2
-Source:         obs-server-%version.tar.xz
-Source2:        update-sources.sh
+Source0:        open-build-service-%version.tar.xz
+Source1:        find-requires.sh
 BuildRequires:  python-devel
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
 # config/environment.rb of the various applications.
@@ -123,9 +123,9 @@ Requires:       bash
 Requires:       binutils
 Requires:       bsdtar
 Summary:        The Open Build Service -- Build Host Component
+Group:          Productivity/Networking/Web/Utilities
 %if 0%{?suse_version}
 %if 0%{?suse_version} < 1210
-Group:          Productivity/Networking/Web/Utilities
 %endif
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
@@ -151,9 +151,9 @@ run a local playground test installation.
 
 %package -n obs-api
 Summary:        The Open Build Service -- The API and WEBUI
+Group:          Productivity/Networking/Web/Utilities
 %if 0%{?suse_version}
 %if 0%{?suse_version} < 1210
-Group:          Productivity/Networking/Web/Utilities
 %endif
 Obsoletes:      obs-common <= 2.2.90
 PreReq:         %fillup_prereq %insserv_prereq
@@ -187,65 +187,14 @@ BuildRequires:  rubygem-ci_reporter
 BuildRequires:  xorg-x11-Xvnc
 BuildRequires:  xorg-x11-server
 BuildRequires:  xorg-x11-server-extra
-# OBS_SERVER_BEGIN
-Requires:       rubygem(2.1.0:actionmailer) = 4.0.2
-Requires:       rubygem(2.1.0:actionpack) = 4.0.2
-Requires:       rubygem(2.1.0:activemodel) = 4.0.2
-Requires:       rubygem(2.1.0:activerecord) = 4.0.2
-Requires:       rubygem(2.1.0:activerecord-deprecated_finders) = 1.0.3
-Requires:       rubygem(2.1.0:activesupport) = 4.0.2
-Requires:       rubygem(2.1.0:arel) = 4.0.1
-Requires:       rubygem(2.1.0:atomic) = 1.1.14
-Requires:       rubygem(2.1.0:builder) = 3.1.4
-Requires:       rubygem(2.1.0:bundler) = 1.3.4
-Requires:       rubygem(2.1.0:clockwork) = 0.7.0
-Requires:       rubygem(2.1.0:daemons) = 1.1.9
-Requires:       rubygem(2.1.0:dalli) = 2.6.4
-Requires:       rubygem(2.1.0:delayed_job) = 4.0.0
-Requires:       rubygem(2.1.0:delayed_job_active_record) = 4.0.0
-Requires:       rubygem(2.1.0:erubis) = 2.7.0
-Requires:       rubygem(2.1.0:escape_utils) = 1.0.1
-Requires:       rubygem(2.1.0:haml) = 4.0.4
-Requires:       rubygem(2.1.0:hike) = 1.2.3
-Requires:       rubygem(2.1.0:hoptoad_notifier) = 2.4.11
-Requires:       rubygem(2.1.0:i18n) = 0.6.9
-Requires:       rubygem(2.1.0:innertube) = 1.1.0
-Requires:       rubygem(2.1.0:kaminari) = 0.15.0
-Requires:       rubygem(2.1.0:mail) = 2.5.4
-Requires:       rubygem(2.1.0:middleware) = 0.1.0
-Requires:       rubygem(2.1.0:mime-types) = 1.25
-Requires:       rubygem(2.1.0:mini_portile) = 0.5.2
-Requires:       rubygem(2.1.0:minitest) = 4.7.5
-Requires:       rubygem(2.1.0:multi_json) = 1.8.2
-Requires:       rubygem(2.1.0:mysql2) = 0.3.15
-Requires:       rubygem(2.1.0:newrelic_rpm) = 3.7.0.177
-Requires:       rubygem(2.1.0:nokogiri) = 1.6.1
-Requires:       rubygem(2.1.0:pkg-config) = 1.1.4
-Requires:       rubygem(2.1.0:polyglot) = 0.3.3
-Requires:       rubygem(2.1.0:rack) = 1.5.2
-Requires:       rubygem(2.1.0:rack-test) = 0.6.2
-Requires:       rubygem(2.1.0:rails) = 4.0.2
-Requires:       rubygem(2.1.0:railties) = 4.0.2
-Requires:       rubygem(2.1.0:rake) = 10.1.0
-Requires:       rubygem(2.1.0:rdoc) = 4.1.0
-Requires:       rubygem(2.1.0:riddle) = 1.5.9
-Requires:       rubygem(2.1.0:ruby-ldap) = 0.9.16
-Requires:       rubygem(2.1.0:sprockets) = 2.10.1
-Requires:       rubygem(2.1.0:sprockets-rails) = 2.0.1
-Requires:       rubygem(2.1.0:thinking-sphinx) = 3.0.6
-Requires:       rubygem(2.1.0:thor) = 0.18.1
-Requires:       rubygem(2.1.0:thread_safe) = 0.1.3
-Requires:       rubygem(2.1.0:tilt) = 1.4.1
-Requires:       rubygem(2.1.0:treetop) = 1.4.15
-Requires:       rubygem(2.1.0:tzinfo) = 0.3.37
-Requires:       rubygem(2.1.0:xmlhash) = 1.3.6
-Requires:       rubygem(2.1.0:yajl-ruby) = 1.2.0
-# OBS_SERVER_END
+# write down dependencies for production
+BuildRequires:  rubygem-bundler
+Requires:       %(echo `bash %{S:1} %{S:0}`)
 
 Requires:       ghostscript-fonts-std
 Summary:        The Open Build Service -- The API and WEBUI
-%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 Group:          Productivity/Networking/Web/Utilities
+%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 %endif
 
 %description -n obs-api
@@ -254,8 +203,8 @@ OBS.
 
 %package -n obs-devel
 Summary:        The Open Build Service -- The API and WEBUI Testsuite
-%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 Group:          Productivity/Networking/Web/Utilities
+%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 %endif
 Obsoletes:      obs-webui-testsuite
 Requires:       obs-api = %{version}-%{release}
@@ -266,8 +215,8 @@ Install to track dependencies for git
 
 %package -n obs-source_service
 Summary:        The Open Build Service -- source service daemon
-%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 Group:          Productivity/Networking/Web/Utilities
+%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 %endif
 # Our default services, used in osc and webui
 Recommends:     obs-service-download_url
@@ -283,8 +232,8 @@ This component is optional and not required to run the service.
 
 %package -n obs-productconverter
 Summary:        The Open Build Service -- product definition utility
-%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 Group:          Productivity/Networking/Web/Utilities
+%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 %endif
 # For perl library files, TODO: split out obs-lib subpackage?
 Requires:       obs-server
@@ -295,20 +244,19 @@ product definition.
 
 %package -n obs-utils
 Summary:        The Open Build Service -- utilities
-%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 Group:          Productivity/Networking/Web/Utilities
+%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 %endif
 Requires:       build
 Requires:       osc
 Requires:       ruby
 
 %description -n obs-utils
-obs_mirror_project is a tool to copy the binary data of a project from one obs to another
 obs_project_update is a tool to copy a packages of a project from one obs to another
 
 #--------------------------------------------------------------------------------
 %prep
-%setup -q
+%setup -q -n open-build-service-%version
 # drop build script, we require the installed one from own package
 rm -rf src/build
 find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf
@@ -342,7 +290,7 @@ mkdir -p $RPM_BUILD_ROOT/srv/www/obs/overview
 install -m 0644 overview.html.TEMPLATE $RPM_BUILD_ROOT/srv/www/obs/overview/
 # install obs mirror script and obs copy script
 install -d -m 755 $RPM_BUILD_ROOT/usr/sbin/
-install -m 0755 obs_mirror_project obs_project_update $RPM_BUILD_ROOT/usr/sbin/
+install -m 0755 obs_project_update $RPM_BUILD_ROOT/usr/sbin/
 # install  runlevel scripts
 install -d -m 755 $RPM_BUILD_ROOT/etc/init.d/
 for i in obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher \
@@ -476,7 +424,7 @@ ln -sf /usr/lib/build build # just for %%check, it is a %%ghost
 for i in bs_*; do
   perl -wc "$i"
 done
-bash $RPM_BUILD_DIR/%name-%version/src/backend/testdata/test_dispatcher || exit 1
+bash $RPM_BUILD_DIR/open-build-service-%version/src/backend/testdata/test_dispatcher || exit 1
 popd
 
 # run in build environment
@@ -781,7 +729,6 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 
 %files -n obs-utils
 %defattr(-,root,root)
-/usr/sbin/obs_mirror_project
 /usr/sbin/obs_project_update
 
 %files -n obs-productconverter
