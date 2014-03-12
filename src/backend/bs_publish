@@ -383,7 +383,7 @@ sub create_appdata_files {
 }
 
 sub createrepo_rpmmd {
-  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $options, $updateinfos, $deltainfos, $appdatas) = @_;
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
 
   my %options = map {$_ => 1} @{$options || []};
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
@@ -406,6 +406,7 @@ sub createrepo_rpmmd {
   my @createrepoargs;
   push @createrepoargs, '--changelog-limit', '20';
   push @createrepoargs, '--repo', $repotag;
+  push @createrepoargs, '--content', 'debug' if $data->{'dbgsplit'};
   my @legacyargs;
   if ($options{'legacy'}) {
     push @legacyargs, '--simple-md-filenames', '--checksum=sha';
@@ -423,33 +424,28 @@ sub createrepo_rpmmd {
     push @updateargs, '--update';
   }
   if (qsystem('createrepo', '-q', '-c', "$extrep/repocache", @updateargs, @createrepoargs, @legacyargs, $extrep)) {
-    if (@updateargs) {
-      print("    createrepo failed: $?\n");
-      print "    re-running without extra options\n";
-      qsystem('createrepo', '-q', '-c', "$extrep/repocache", @createrepoargs, @legacyargs, $extrep) && die("    createrepo failed again: $?\n");
-    } else {
-      die("    createrepo failed: $?\n");
-    }
+    die("    createrepo failed: $?\n") unless @updateargs;
+    print("    createrepo failed: $?\n");
+    print "    re-running without extra options\n";
+    qsystem('createrepo', '-q', '-c', "$extrep/repocache", @createrepoargs, @legacyargs, $extrep) && die("    createrepo failed again: $?\n");
   }
   unlink("$extrep/repodata/$_") for grep {/updateinfo\.xml/} @oldrepodata;
-  if ($updateinfos && @$updateinfos) {
+  if (@{$data->{'updateinfos'} || []}) {
     print "    adding updateinfo.xml to repodata\n";
     # strip supportstatus from updateinfos
-    my $ui = Storable::dclone($updateinfos);
-    for my $up (@$ui) {
+    my $updateinfos = Storable::dclone($data->{'updateinfos'});
+    for my $up (@$updateinfos) {
       for my $cl (@{($up->{'pkglist'} || {})->{'collection'} || []}) {
-        for my $pkg (@{$cl->{'package'} || []}) {
-	  delete $pkg->{'supportstatus'};
-        }
+	delete $_->{'supportstatus'} for @{$cl->{'package'} || []};
       }
     }
-    writexml("$extrep/repodata/updateinfo.xml", undef, {'update' => $ui}, $BSXML::updateinfo);
+    writexml("$extrep/repodata/updateinfo.xml", undef, {'update' => $updateinfos}, $BSXML::updateinfo);
     qsystem('modifyrepo', "$extrep/repodata/updateinfo.xml", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
     unlink("$extrep/repodata/updateinfo.xml");
   }
   unlink("$extrep/repodata/$_") for grep {/appdata\.xml/ || /app-icons/} @oldrepodata;
-  if ($appdatas) {
-    create_appdata_files("$extrep/repodata", $appdatas);
+  if (%{$data->{'appdatas'} || {}}) {
+    create_appdata_files("$extrep/repodata", $data->{'appdatas'});
     if (-e "$extrep/repodata/appdata.xml") {
       print "    adding appdata.xml to repodata\n";
       qsystem('modifyrepo', "$extrep/repodata/appdata.xml", "$extrep/repodata", @legacyargs) && die("    modifyrepo failed: $?\n");
@@ -462,12 +458,12 @@ sub createrepo_rpmmd {
     }
   }
   unlink("$extrep/repodata/$_") for grep {/(?:deltainfo|prestodelta)\.xml/} @oldrepodata;
-  if ($deltainfos && %$deltainfos && ($options{'deltainfo'} || $options{'prestodelta'})) {
+  if (%{$data->{'deltainfos'} || {}} && ($options{'deltainfo'} || $options{'prestodelta'})) {
     print "    adding deltainfo.xml to repodata\n" if $options{'deltainfo'};
     print "    adding prestodelta.xml to repodata\n" if $options{'prestodelta'};
     # things are a bit complex, as we have to merge the deltas, and we also have to add the checksum
     my %mergeddeltas;
-    for my $d (values(%$deltainfos)) {
+    for my $d (values(%{$data->{'deltainfos'}})) {
       addsizechecksum("$extrep/$d->{'delta'}->[0]->{'filename'}", $d->{'delta'}->[0], @legacyargs ? 'sha' : 'sha256');
       my $mkey = "$d->{'arch'}\0$d->{'name'}\0$d->{'epoch'}\0$d->{'version'}\0$d->{'release'}\0";
       if ($mergeddeltas{$mkey}) {
@@ -496,28 +492,25 @@ sub createrepo_rpmmd {
       unlink($_) if @s && $s[9] < $now - 7*86400;
     }
   }
+  my $title = $data->{'repoinfo'}->{'title'};
   if (-x "/usr/bin/repoview") {
     if ($BSConfig::repodownload) {
       print "    running repoview\n";
-      qsystem('repoview', '-f', "-u$BSConfig::repodownload/$prp_ext", "-t$repoinfo->{'title'}", $extrep) && print("   repoview failed: $?\n");
+      qsystem('repoview', '-f', "-u$BSConfig::repodownload/$prp_ext", "-t$title", $extrep) && print("   repoview failed: $?\n");
     } else {
       print "    running repoview\n";
-      qsystem('repoview', '-f', "-t$repoinfo->{'title'}", $extrep) && print("   repoview failed: $?\n");
+      qsystem('repoview', '-f', "-t$title", $extrep) && print("   repoview failed: $?\n");
     }
   }
   if ($BSConfig::createrepo_rpmmd_hook) {
-    my %data;
-    $data{'updateinfos'} = $updateinfos if $updateinfos;
-    $data{'deltainfos'} = $deltainfos if $deltainfos;
-    $data{'appdata'} = $appdatas if $appdatas;
-    $BSConfig::createrepo_rpmmd_hook->($projid, $repoid, $extrep, \%options, \%data);
+    $BSConfig::createrepo_rpmmd_hook->($projid, $repoid, $extrep, \%options, $data);
   }
   if ($BSConfig::sign && -e "$extrep/repodata/repomd.xml") {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
-    push @signargs, @$signargs;
+    push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
-    writestr("$extrep/repodata/repomd.xml.key", undef, $pubkey) if $pubkey;
+    writestr("$extrep/repodata/repomd.xml.key", undef, $data->{'pubkey'}) if $data->{'pubkey'};
   }
   if ($BSConfig::repodownload) {
     local *FILE;
@@ -525,12 +518,12 @@ sub createrepo_rpmmd {
     my $projidHeader = $projid;
     $projidHeader =~ s/:/_/g;
     print FILE "[$projidHeader]\n";
-    print FILE "name=$repoinfo->{'title'}\n";
+    print FILE "name=$title\n";
     print FILE "type=rpm-md\n";
     print FILE "baseurl=$BSConfig::repodownload/$prp_ext/\n";
     print FILE "gpgcheck=1\n";
-    if (!@$signargs) {
-      print FILE "gpgkey=$BSConfig::gpg_standard_key\n" if ( defined($BSConfig::gpg_standard_key) );
+    if (!@{$data->{'signargs'} || []}) {
+      print FILE "gpgkey=$BSConfig::gpg_standard_key\n" if defined $BSConfig::gpg_standard_key;
     } else {
       print FILE "gpgkey=$BSConfig::repodownload/$prp_ext/repodata/repomd.xml.key\n";
     }
@@ -548,7 +541,7 @@ sub deleterepo_rpmmd {
 }
 
 sub createrepo_hdlist2 {
-  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo) = @_;
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
 
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
   my $repotag = "obsrepository://$obsname/$projid/$repoid";
@@ -579,7 +572,7 @@ sub deleterepo_hdlist2 {
 }
 
 sub createrepo_susetags {
-  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo) = @_;
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
 
   mkdir_p("$extrep/media.1");
   mkdir_p("$extrep/descr");
@@ -592,7 +585,7 @@ sub createrepo_susetags {
   $str = <<"EOL";
 PRODUCT Open Build Service $projid $repoid
 VERSION 1.0-0
-LABEL $repoinfo->{'title'}
+LABEL $data->{'repoinfo'}->{'title'}
 VENDOR Open Build Service
 ARCH.x86_64 x86_64 i686 i586 i486 i386 noarch
 ARCH.ppc64p7 ppc64p7 noarch
@@ -632,7 +625,7 @@ sub deleterepo_susetags {
 }
 
 sub createrepo_debian {
-  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo) = @_;
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
 
   unlink("$extrep/Packages");
   unlink("$extrep/Packages.gz");
@@ -667,7 +660,7 @@ sub createrepo_debian {
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
   my $date = POSIX::ctime(time());
   $date =~ s/\n//m;
-  my @debarchs = @{$repoinfo->{'arch'} || []};
+  my @debarchs = @{$data->{'repoinfo'}->{'arch'} || []};
   for (@debarchs) {
      s/x86_64/amd64/g;
      s/i.86/i386/g;
@@ -689,7 +682,7 @@ Origin: obs://$obsname/$projid/$repoid
 Label: $projid
 Architectures: $archs
 Date: $date
-Description: $repoinfo->{'title'}
+Description: $data->{'repoinfo'}->{'title'}
 MD5Sum:
 EOL
 
@@ -704,13 +697,13 @@ EOL
   for my $f ( "Packages", "Packages.gz", "Sources", "Sources.gz" ) {
     my @s = stat("$extrep/$f");
     next unless @s;
-    my $data = readstr("$extrep/$f");
-    my $md5  = Digest::MD5::md5_hex($data);
+    my $fdata = readstr("$extrep/$f");
+    my $md5  = Digest::MD5::md5_hex($fdata);
     my $size = $s[7];
     print OUT " $md5 $size $f\n";
-    my $sha1  = Digest::SHA::sha1_hex($data);
+    my $sha1  = Digest::SHA::sha1_hex($fdata);
     $sha1sums .= " $sha1 $size $f\n";
-    my $sha256  = Digest::SHA::sha256_hex($data);
+    my $sha256  = Digest::SHA::sha256_hex($fdata);
     $sha256sums .= " $sha256 $size $f\n";
   }
   print OUT $sha1sums;
@@ -721,12 +714,12 @@ EOL
   if ($BSConfig::sign && -e "$extrep/Release") {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
-    push @signargs, @$signargs;
+    push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/Release") && die("    sign failed: $?\n");
     rename("$extrep/Release.asc","$extrep/Release.gpg");
   }
   if ($BSConfig::sign) {
-    writestr("$extrep/Release.key", undef, $pubkey) if $pubkey;
+    writestr("$extrep/Release.key", undef, $data->{'pubkey'}) if $data->{'pubkey'};
   }
 }
 
@@ -746,7 +739,7 @@ sub deleterepo_debian {
 ##########################################################################
 
 sub createrepo_arch {
-  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo) = @_;
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
 
   deleterepo_arch($extrep);
   my $rname = $projid;
@@ -765,7 +758,7 @@ sub createrepo_arch {
     if ($BSConfig::sign) {
       my @signargs;
       push @signargs, '--project', $projid if $BSConfig::sign_project;
-      push @signargs, @$signargs;
+      push @signargs, @{$data->{'signargs'} || []};
       if (-e "$extrep/$arch/$rname.db.tar.gz") {
         qsystem($BSConfig::sign, @signargs, '-D', "$extrep/$arch/$rname.db.tar.gz") && die("    sign failed: $?\n");
         link("$extrep/$arch/$rname.db.tar.gz.sig", "$extrep/$arch/$rname.db.sig");
@@ -791,7 +784,7 @@ sub deleterepo_arch {
 ##########################################################################
 
 sub createrepo_staticlinks {
-  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $options) = @_;
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
 
   my $versioned = grep {$_ eq 'versioned'} @{$options || []};
   for my $arch ('.', ls($extrep)) {
@@ -835,9 +828,10 @@ sub deleterepo_staticlinks {
 ##########################################################################
 
 sub createpatterns_rpmmd {
-  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $options, $patterns) = @_;
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
 
   deletepatterns_rpmmd($extrep);
+  my $patterns = $data->{'patterns'};
   return unless @{$patterns || []};
 
   # create patterns data structure
@@ -872,7 +866,7 @@ sub createpatterns_rpmmd {
   if ($BSConfig::sign && -e "$extrep/repodata/repomd.xml") {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
-    push @signargs, @$signargs;
+    push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
   }
 }
@@ -886,9 +880,10 @@ sub deletepatterns_rpmmd {
 }
 
 sub createpatterns_comps {
-  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $options, $patterns) = @_;
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
 
   deletepatterns_comps($extrep);
+  my $patterns = $data->{'patterns'};
   return unless @{$patterns || []};
 
   # create comps data structure
@@ -935,7 +930,7 @@ sub createpatterns_comps {
   if ($BSConfig::sign && -e "$extrep/repodata/repomd.xml") {
     my @signargs;
     push @signargs, '--project', $projid if $BSConfig::sign_project;
-    push @signargs, @$signargs;
+    push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
   }
 }
@@ -950,9 +945,10 @@ sub deletepatterns_comps {
 
 
 sub createpatterns_ymp {
-  my ($extrep, $projid, $repoid, $signargs, $pubkey, $repoinfo, $patterns) = @_;
+  my ($extrep, $projid, $repoid, $data, $options) = @_;
 
   deletepatterns_ymp($extrep, $projid, $repoid);
+  my $patterns = $data->{'patterns'};
   return unless @{$patterns || []};
 
   my $prp_ext = "$projid/$repoid";
@@ -960,6 +956,7 @@ sub createpatterns_ymp {
   my $patterndb = db_open('pattern');
 
   # get title/description data for all involved projects
+  my $repoinfo = $data->{'repoinfo'};
   my %nprojpack;
   my @nprojids = map {$_->{'project'}} @{$repoinfo->{'prpsearchpath'} || []};
   if (@nprojids) {
@@ -1757,52 +1754,63 @@ sub publish {
   my $xrepoid = $repoid;
   $xrepoid .= $dbgsplit if $dbgsplit;
 
+  my $data = {
+    'signargs' => $signargs,
+    'pubkey' => $pubkey,
+    'repoinfo' => $repoinfo,
+    'updateinfos' => \@updateinfos,
+    'deltainfos' => \%deltainfos,
+    'appdatas' => $appdatas,
+    'patterns' => $patterns,
+    'dbgsplit' => $dbgsplit,
+  };
+
   if ($repotype{'rpm-md'}) {
-    createrepo_rpmmd($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo, $repotype{'rpm-md'}, \@updateinfos, \%deltainfos, $appdatas);
+    createrepo_rpmmd($extrep, $projid, $xrepoid, $data, $repotype{'rpm-md'});
   } else {
-    deleterepo_rpmmd($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo);
+    deleterepo_rpmmd($extrep, $projid, $xrepoid, $data);
   }
   if ($repotype{'suse'}) {
-    createrepo_susetags($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo);
+    createrepo_susetags($extrep, $projid, $xrepoid, $data, $repotype{'suse'});
   } else {
-    deleterepo_susetags($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo);
+    deleterepo_susetags($extrep, $projid, $xrepoid, $data);
   }
   # Mandriva format:
   if ($repotype{'hdlist2'}) {
-    createrepo_hdlist2($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo);
+    createrepo_hdlist2($extrep, $projid, $xrepoid, $data, $repotype{'hdlist2'});
   } else {
-    deleterepo_hdlist2($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo);
+    deleterepo_hdlist2($extrep, $projid, $xrepoid, $data);
   }
   if ($repotype{'debian'}) {
-    createrepo_debian($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo);
+    createrepo_debian($extrep, $projid, $xrepoid, $data, $repotype{'debian'});
   } else {
-    deleterepo_debian($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo);
+    deleterepo_debian($extrep, $projid, $xrepoid, $data);
   }
   if ($repotype{'arch'}) {
-    createrepo_arch($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo);
+    createrepo_arch($extrep, $projid, $xrepoid, $data, $repotype{'arch'});
   } else {
-    deleterepo_arch($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo);
+    deleterepo_arch($extrep, $projid, $xrepoid, $data);
   }
   if ($repotype{'staticlinks'}) {
-    createrepo_staticlinks($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo, $repotype{'staticlinks'});
+    createrepo_staticlinks($extrep, $projid, $xrepoid, $data, $repotype{'staticlinks'});
   } else {
-    deleterepo_staticlinks($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo, $repotype{'staticlinks'});
+    deleterepo_staticlinks($extrep, $projid, $xrepoid, $data);
   }
 
   if ($patterntype{'ymp'}) {
-    createpatterns_ymp($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo, $patterns);
+    createpatterns_ymp($extrep, $projid, $xrepoid, $data, $patterntype{'ymp'});
   } else {
-    deletepatterns_ymp($extrep, $projid, $xrepoid, $signargs, $pubkey);
+    deletepatterns_ymp($extrep, $projid, $xrepoid, $data);
   }
   if ($patterntype{'rpm-md'}) {
-    createpatterns_rpmmd($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo, $repotype{'rpm-md'}, $patterns);
+    createpatterns_rpmmd($extrep, $projid, $xrepoid, $data, $patterntype{'rpm-md'});
   } else {
-    deletepatterns_rpmmd($extrep, $projid, $xrepoid, $signargs, $pubkey);
+    deletepatterns_rpmmd($extrep, $projid, $xrepoid, $data);
   }
   if ($patterntype{'comps'}) {
-    createpatterns_comps($extrep, $projid, $xrepoid, $signargs, $pubkey, $repoinfo, $repotype{'rpm-md'}, $patterns);
+    createpatterns_comps($extrep, $projid, $xrepoid, $patterntype{'comps'});
   } else {
-    deletepatterns_comps($extrep, $projid, $xrepoid, $signargs, $pubkey);
+    deletepatterns_comps($extrep, $projid, $xrepoid, $data);
   }
 
 
