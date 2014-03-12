@@ -237,14 +237,10 @@ Afterwards you can start the OBS web api via
 The easiest way is reuse a base distro hosted at openSUSE.org.
 The Open Build Service has a mechanism to reuse projects from a remote
 instance since version 0.9. It is recommended to use this mechanism.
-In addition to that, it is also possible to copy base projects with the
-provided scripts (see 4.2 below).
 
 
 4.1 Reuse projects hosted on openSUSE.org build service
 =======================================================
-
-Note: the appliance is doing this automatically!
 
 Create the reference project pointing to the openSUSE.org build service.
 This will allow you to reuse the base distributions from there and avoids
@@ -262,28 +258,6 @@ The alternative manual way is to call the following command:
 If you created a self-signed certificate as described above, also add the
 option "--insecure".
 
-
-4.2 import base distributions into the backend
-==============================================
-
-This point can be skipped, when you did run point 4.1 successfully.
-In case you want a full copy of a base distribution you need to do
-the following steps:
-
-  # As root, validate that osc has account data. You may need to enter
-  # your account data for api.openSUSE.org here.
-  osc
-
-  # Run the script to mirror "openSUSE:11.2", for example (for this
-  # command, you need the package "obs-utils").
-  obs_mirror_project openSUSE:11.2 standard i586
-
-  # Restart the scheduler to scan the new project
-  rcobsscheduler restart
-
-  # Run the api import script:
-  # cd /srv/www/obs/api/script
-  # RAILS_ENV="production" ruby import
 
 
 5. Access
