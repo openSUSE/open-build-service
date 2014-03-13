@@ -182,9 +182,11 @@ my %lastbuild;	# last time a job was build in that prpa
 my %masterdispatched;	# we masterdispatched those, prpa => [ starttime, ... ]
 
 sub printlog {
+  my ($msg) = @_;
+  $msg =~ s/\n$//s;
   my @ltim = localtime(time);
   my $msgtm = sprintf "%04d-%02d-%02d %02d:%02d:%02d:", $ltim[5] + 1900, $ltim[4] + 1, @ltim[3,2,1,0];
-  printf "%s %s\n", $msgtm, @_;
+  print "$msgtm $msg\n";
 }
 
 sub assignjob {
