@@ -15,7 +15,7 @@ class UserBasicStrategy
   end
 
   def groups(user)
-    user.groups
+    lookup_strategy.groups
   end
 end
 
