@@ -74,7 +74,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'AttributeController#namespace_definition' => 64.52,
       'BranchPackage#find_packages_to_branch' => 239.64,
       'BranchPackage#create_branch_packages' => 210.91,
-      'BranchPackage#determine_details_about_package_to_branch' => 192,
+      'BranchPackage#determine_details_about_package_to_branch' => 198.53,
       'BranchPackage#create_branch_project' => 63.04,
       'BranchPackage#extend_packages_to_link' => 77.5,
       'BranchPackage#check_for_update_project' => 110.23,
