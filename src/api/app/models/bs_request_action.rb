@@ -497,7 +497,7 @@ class BsRequestAction < ActiveRecord::Base
           end
           repos.each do |repo|
             unless %w(finished publishing published unpublished).include? repo.attributes['state']
-              raise BuildNotFinished.new "The repository '#{pkg.project.name}' / '#{repo.attributes['repository']}' / #{repo.attributes['arch']}"
+              raise BuildNotFinished.new "The repository '#{pkg.project.name}' / '#{repo.attributes['repository']}' / #{repo.attributes['arch']} did not finish the build yet"
             end
           end
           pkg.project.repositories.each do |repo|
@@ -556,6 +556,10 @@ class BsRequestAction < ActiveRecord::Base
 
             # add channel targets from _channel file if defined there
             channel.channel_targets.each do |target|
+              # do not put channel package into Channel project via release
+              # if it will land there via submit anyway
+              next if tprj == target.repository.project
+
               releaseAction = newAction.dup
               releaseAction.target_project = target.repository.project.name
               releaseAction.target_package = tpkg + incident_suffix
