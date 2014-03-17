@@ -36,7 +36,7 @@ License:        GPL-2.0 and GPL-3.0
 Group:          Productivity/Networking/Web/Utilities
 %if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 %endif
-Version:        2.4.95
+Version:        2.5.0
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -58,7 +58,6 @@ BuildRequires:  perl-Net-SSLeay
 BuildRequires:  perl-Socket-MsgHdr
 BuildRequires:  perl-TimeDate
 BuildRequires:  perl-XML-Parser
-BuildRequires:  perl-XML-Simple
 BuildRequires:  procps
 BuildRequires:  xorg-x11-server
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
@@ -305,7 +304,6 @@ Requires:       osc
 Requires:       ruby
 
 %description -n obs-utils
-obs_mirror_project is a tool to copy the binary data of a project from one obs to another
 obs_project_update is a tool to copy a packages of a project from one obs to another
 
 #--------------------------------------------------------------------------------
@@ -344,7 +342,7 @@ mkdir -p $RPM_BUILD_ROOT/srv/www/obs/overview
 install -m 0644 overview.html.TEMPLATE $RPM_BUILD_ROOT/srv/www/obs/overview/
 # install obs mirror script and obs copy script
 install -d -m 755 $RPM_BUILD_ROOT/usr/sbin/
-install -m 0755 obs_mirror_project obs_project_update $RPM_BUILD_ROOT/usr/sbin/
+install -m 0755 obs_project_update $RPM_BUILD_ROOT/usr/sbin/
 # install  runlevel scripts
 install -d -m 755 $RPM_BUILD_ROOT/etc/init.d/
 for i in obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher \
@@ -783,7 +781,6 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 
 %files -n obs-utils
 %defattr(-,root,root)
-/usr/sbin/obs_mirror_project
 /usr/sbin/obs_project_update
 
 %files -n obs-productconverter
