@@ -140,7 +140,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'TagController#tagcloud' => 68.37,
       'TagController#update_tags_by_object_and_user' => 67.76,
       'User#can_create_attribute_in?' => 54.4,
-      'User::register' => 71,
       'UnregisteredUser::can_register?' => 56.74, 
       'UserLdapStrategy::find_with_ldap' => 181.11,
       'UserLdapStrategy::initialize_ldap_con' => 64.05,
