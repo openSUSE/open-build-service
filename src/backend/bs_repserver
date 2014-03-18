@@ -1944,7 +1944,7 @@ sub copybuild {
       my $setrelease = $cgi->{'setrelease'};
       # directories get stripped the build/release number by default
       $setrelease="" if -d "$odir/$bin" && !defined($setrelease);
-      if ($setrelease) {
+      if (defined($setrelease)) {
 	$setrelease =~ s/^-?/-/; # "-" will drop the release tag
 	$setrelease =~ s/-?$//;  # drop leading "-", it depends on the format
 	$nbin =~ s/-([^-]+)(-Media(?:\d?)(?:\..*?)?)$/$setrelease$2/; # kiwi product builds
