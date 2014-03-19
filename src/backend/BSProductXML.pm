@@ -103,6 +103,14 @@ our $product = [
               'release',
               'flavor',
               # following is for support tools
+              [ 'pool' =>
+                [[ 'repository' =>
+                   'project',   # input
+                   'name',
+                   'media',
+                   'arch',      # for arch specific definitions
+                ]],
+              ],
               [ 'updates' =>
                 [[ 'repository' =>
                    'project',   # input
