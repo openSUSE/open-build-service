@@ -31,7 +31,7 @@ class IssueTracker < ActiveRecord::Base
   end
 
   def update_package_metadata
-    Project.each do |prj|
+    Project.all.each do |prj|
       next unless Project.exists?(prj)
       prj.packages.each do |pkg|
         next unless Package.exists?(pkg)
