@@ -20,7 +20,7 @@ Name:           obs-server
 Summary:        The Open Build Service -- Server Component
 License:        GPL-2.0 and GPL-3.0
 Group:          Productivity/Networking/Web/Utilities
-Version:        2.4.5
+Version:        2.4.6
 Release:        1
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -81,8 +81,7 @@ PreReq:         %fillup_prereq %insserv_prereq permissions pwdutils
 
 %if 0%{?suse_version:1}
 Recommends:     yum yum-metadata-parser repoview dpkg
-Recommends:     createrepo
-Conflicts:      createrepo < 0.9.8
+Requires:       createrepo >= 0.9.8
 Recommends:     deb >= 1.5
 Recommends:     lvm2
 Recommends:     openslp-server
@@ -169,6 +168,7 @@ BuildRequires:  rubygem-ruby-ldap
 # for test suite:
 BuildRequires:  createrepo
 BuildRequires:  curl
+BuildRequires:  inst-source-utils
 BuildRequires:  mysql
 BuildRequires:  netcfg
 BuildRequires:  rubygem-ci_reporter
