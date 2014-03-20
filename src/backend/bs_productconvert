@@ -743,14 +743,17 @@ sub createInstsource( $$$ )
 	$h{name} = "repository_".$count;
         if ($repo->{path} =~ /^obs:\/\/([^\/]*)\/([^\/]*)$/ ) { #old format without obsname 
 	  $h{local} = "true";
-          $kiwipath = "$1/$2";
+          $kiwipath = "obs://$1/$2";
         } elsif ($repo->{path} =~ /^obs:\/\/([^\/]*)\/([^\/]*)\/([^\/]*)$/ ) {
 	  $h{local} = "true";
-          $kiwipath = "$2/$3";
+          $kiwipath = "obs://$2/$3";
+        } elsif ($repo->{path} =~ /^obsrepositories:/ ) {
+          $h{local} = "true";
+          $kiwipath = "obsrepositories:/";
         } else {
           die( "ERROR: Non obs:// url as repository: $repo->{path} !\n" );
         };
-	$h{source} = { path => "obs://".$kiwipath };
+	$h{source} = { path => $kiwipath };
 	push @r, \%h;
     }
     $re->{instrepo} = \@r;
