@@ -1278,7 +1278,7 @@ sub getbinaries_kiwiproduct {
 	if ($name =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
 	  $rarch = $1;
 	} elsif ($name =~ /appdata\.xml$/) {
-	  $rarch = $arch; 
+	  $rarch = 'appdata'; 
 	}
 	next unless $rarch;
 	next if $nodbgpkgs && $name =~ /-(?:debuginfo|debugsource)-/;
@@ -1387,7 +1387,7 @@ sub getbinaries_kiwiproduct {
 	      if ($name =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
 		$rarch = $1;
 	      } elsif ($name =~ /appdata\.xml$/) {
-	        $rarch = $arch; 
+	        $rarch = 'appdata'; 
 	      }
 	      return undef unless $rarch;
 	      mkdir_p("$param->{'directory'}/$rarch");
@@ -1413,7 +1413,7 @@ sub getbinaries_kiwiproduct {
 	  if ($bin =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
 	    $rarch = $1;
 	  } elsif ($bin =~ /appdata\.xml$/) {
-	    $rarch = $arch; 
+	    $rarch = 'appdata'; 
 	  }
 	  next unless $rarch;
 	  my @s = stat("$ddir/$rarch/$bin.new.rpm");
@@ -1472,7 +1472,7 @@ sub getbinaries_kiwiproduct {
 	    if ($name =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
 	      $rarch = $1;
 	    } elsif ($name =~ /appdata\.xml$/) {
-	      $rarch = $arch;
+	      $rarch = 'appdata';
 	    }
 	    return undef unless $rarch;
 	    return undef if $nodbgpkgs && $name =~ /-(?:debuginfo|debugsource)-/;
