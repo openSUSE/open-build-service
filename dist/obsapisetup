@@ -10,7 +10,7 @@
 ### BEGIN INIT INFO
 # Provides:          obsapisetup
 # X-Start-Before:    apache2
-# Should-Start:      obsstoragesetup
+# Should-Start:      obsstoragesetup obssrcserver
 # Should-Stop:       $none
 # Required-Start:    mysql
 # Required-Stop:     $null
@@ -76,8 +76,6 @@ case "$1" in
 			mkdir -p $backenddir/MySQL
 		fi
 
-		# If we've proper hostname resolution all is fine. But if
-		# there's no proper hostname resolution, adapt BSConfig.pm et al.
 		### In case of the appliance, we never know where we boot up !
 		OLDFQHOSTNAME="NOTHING"
 		if [ -e $backenddir/.oldfqhostname ]; then
@@ -85,9 +83,6 @@ case "$1" in
 		fi
 		if [ "$FQHOSTNAME" != "$OLDFQHOSTNAME" ]; then
 			echo "Appliance hostname changed from $OLDFQHOSTNAME to $FQHOSTNAME !"
-			echo "Adapting hostname in BSConfig.pm"
-			sed -i 's,^my.*hostname.*=.*,my \$hostname = "'"$FQHOSTNAME"'";,' \
-				/usr/lib/obs/server/BSConfig.pm
 			#changed IP means also that leftover jobs are invalid - cope with that
 			echo "Adapting present worker jobs"
 			sed -i "s,server=\"http://[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*:5352,server=\"http://$FQHOSTNAME:5352,g" \
@@ -134,7 +129,7 @@ case "$1" in
                 if [ -n "$RUN_INITIAL_SETUP" ]; then
 			echo "Initialize OBS api database (first time only)"
         		cd $apidir
-			RAILS_ENV=production bundle exec rake db:create db:setup >> $apidir/log/db_migrate.log
+			RAILS_ENV=production bundle exec rake db:create db:setup writeconfiguration >> $apidir/log/db_migrate.log
 		else
 			echo
 			echo "Migrate OBS api database"
