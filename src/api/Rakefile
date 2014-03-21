@@ -13,8 +13,8 @@ task(:updateissues => :environment) { Delayed::Job.enqueue UpdateIssuesJob.new }
 
 task(:updatepackagemeta => :environment) { UpdatePackageMetaJob.new.perform }
 
-require 'workers/write_configuration.rb'
-task(:writeconfiguration => :environment) { WriteConfigurationJob.new.perform }
+# write directly to backend, for initial bootup in obsapisetup
+task(:writeconfiguration => :environment) { ::Configuration.first.write_to_backend }
 
 require 'workers/import_requests.rb'
 task(:importrequests => :environment) { ImportRequestsDelayedJob.new.perform }
