@@ -401,7 +401,7 @@ class UserLdapStrategy
         logger.debug("Search failed:  error #{ @@ldap_search_con.err}: #{ @@ldap_search_con.err2string(@@ldap_search_con.err)}")
         @@ldap_search_con.unbind()
         @@ldap_search_con = nil
-        if ldap_fist_try
+        if ldap_first_try
           ldap_first_try = false
           redo
         end
