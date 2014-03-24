@@ -18,8 +18,11 @@ matrix:
   allow_failures:
     - env: SUBTEST=rake:test REMOVEGEMLOCK=true
 notifications:
-  email:
-    on_success: change
-    on_failure: change
+  irc:
+     channels:
+       - "chat.freenode.net#opensuse-buildservice"
+     on_success: change
+     on_failure: change  
+     use_notice: true
 services:
   - memcached # will start memcached
