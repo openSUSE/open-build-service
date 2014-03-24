@@ -45,15 +45,15 @@ class EventFindSubscribers
       return 0
     end
 
+    # without further information, we prefer those that want mail
+    return -1 if x.receive && !y.receive
+    return 1 if y.receive && !x.receive
+
     return -1
   end
 
   def check_rules?(rules)
     rules.sort! { |x, y| compare_two_rules(x, y) }
-    #rules.each do |r|
-    #  puts "R I#{r.id} T:#{r.type} U:#{r.user_id} P#{r.project_id}#{r.package_id}"
-    #end
-    #puts ""
     return false if !rules[0].receive
     return true
   end
