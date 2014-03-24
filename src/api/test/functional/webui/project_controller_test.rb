@@ -330,7 +330,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     # this time we can assume repos are up
     visit project_show_path(project: 'home:Iggy')
     click_link '10.2'
-    page.must_have_text 'There are no cycles in this repository.'
+    page.must_have_text 'There are no cycles for x86_64'
   end
 
   test 'repository links' do
@@ -387,5 +387,13 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     login_adrian to: project_list_all_path
     # adrian is in test group, which is maintainer so he should see it too
     page.must_have_link 'HiddenProject'
+  end
+  
+  test 'rebuild time on apache' do
+    login_tom to: project_rebuild_time_path(project: 'Apache', arch: 'i586', repository: 'SUSE_Linux_Factory')
+
+    page.must_have_link 'Apache' 
+    # we only test it's not crashing here
+    page.must_have_text 'Rebuildtime: '
   end
 end

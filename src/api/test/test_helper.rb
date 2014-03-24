@@ -140,7 +140,11 @@ module Webui
       at_exit do
         puts "Killing test API with pid: #{@@frontend.pid}"
         Process.kill 'INT', @@frontend.pid
-        Process.wait
+        begin
+          Process.wait @@frontend.pid
+        rescue Errno::ECHILD
+          # already gone
+        end
         @@frontend = nil
       end
     end

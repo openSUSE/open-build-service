@@ -148,7 +148,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     click_button 'Ok'
 
     # we can't release without build results
-    assert_equal "The repository 'My:Maintenance:0' / 'BaseDistro2.0_LinkedUpdateProject' / i586", find(:css, 'span.ui-icon.ui-icon-alert').text
+    find(:css, 'span.ui-icon.ui-icon-alert').must_have_text "The repository 'My:Maintenance:0' / 'BaseDistro2.0_LinkedUpdateProject' / i586 did not finish the build yet"
   end
 
 end

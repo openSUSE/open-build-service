@@ -603,7 +603,7 @@ sub run
 
   my $nwait = @$todo;
 
-  die "BUG: nothing to do\n" unless $nwait;
+  return unless $nwait;
 
   @scheduled = ();
   for my $p (@$todo) {

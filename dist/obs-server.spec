@@ -190,6 +190,8 @@ BuildRequires:  xorg-x11-server-extra
 # write down dependencies for production
 BuildRequires:  rubygem-bundler
 Requires:       %(echo `bash %{S:1} %{S:0}`)
+# for rebuild_time
+Requires:       perl(GD)
 
 Requires:       ghostscript-fonts-std
 Summary:        The Open Build Service -- The API and WEBUI

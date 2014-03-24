@@ -9,7 +9,7 @@ before_script:
 script: bash -x dist/ci/obs_testsuite_travis.sh
 env:
   # just one special test
-  #- SUBTEST=api:functional/maintenance_test.rb:test_create_maintenance_project_and_release_packages
+  #- SUBTEST=api:functional/aaa_pre_consistency_test.rb:test_resubmit_fixtures
   #- SUBTEST=rake:test:api
   #- SUBTEST=rake:test:webui
   # api and webui webrat with latest gems

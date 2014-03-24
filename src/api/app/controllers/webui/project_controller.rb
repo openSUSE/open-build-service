@@ -530,7 +530,9 @@ class Webui::ProjectController < Webui::WebuiController
       return
     end
 
+    @archs = []
     @repository.architectures.each do |arch|
+      @archs << arch.name
       calculate_repo_cycle(arch.name)
     end
   end
@@ -597,19 +599,23 @@ class Webui::ProjectController < Webui::WebuiController
     end
     longest = call_diststats(bdep, jobs)
     @longestpaths = Array.new
-    longest.longestpath.each_path do |path|
+    longest['longestpath'].elements('path') do |path|
       currentpath = Array.new
-      path.each_package do |p|
-        currentpath << p.text
+      path.elements('package') do |p|
+        currentpath << p
       end
       @longestpaths << currentpath
-    end
+    end if longest
     # we append 4 empty paths, so there are always at least 4 in the array
     # to simplify the view code
     4.times { @longestpaths << Array.new }
   end
 
   def call_diststats(bdep, jobs)
+    @timings = Hash.new
+    @pngkey = Digest::MD5.hexdigest(params.to_s)
+    @rebuildtime = 0
+
     indir = Dir.mktmpdir
     f = File.open(indir + '/_builddepinfo.xml', 'w')
     f.write(bdep.dump_xml)
@@ -618,28 +624,34 @@ class Webui::ProjectController < Webui::WebuiController
     f.write(jobs.dump_xml)
     f.close
     outdir = Dir.mktmpdir
+
     logger.debug "cd #{Rails.root.join('vendor', 'diststats').to_s} && perl ./mkdiststats --srcdir=#{indir} --destdir=#{outdir}
              --outfmt=xml #{@project.name}/#{@repository}/#{@arch} --width=910
              --buildhosts=#{@hosts} --scheduler=#{@scheduler}"
-    fork do
-      Dir.chdir(Rails.root.join('vendor', 'diststats'))
-      system('perl', './mkdiststats', "--srcdir=#{indir}", "--destdir=#{outdir}",
-             '--outfmt=xml', "#{@project.name}/#{@repository}/#{@arch}", '--width=910',
-             "--buildhosts=#{@hosts}", "--scheduler=#{@scheduler}")
+    oldpwd = Dir.pwd
+    Dir.chdir(Rails.root.join('vendor', 'diststats'))
+    unless system('perl', './mkdiststats', "--srcdir=#{indir}", "--destdir=#{outdir}",
+                  '--outfmt=xml', "#{@project.name}/#{@repository}/#{@arch}", '--width=910',
+                  "--buildhosts=#{@hosts}", "--scheduler=#{@scheduler}")
+      Dir.chdir(oldpwd)
+      return nil
     end
-    Process.wait
-    f=File.open(outdir + '/rebuild.png')
-    png=f.read
-    f.close
-    @pngkey = Digest::MD5.hexdigest(params.to_s)
+    Dir.chdir(oldpwd)
+    begin
+      f=File.open(outdir + '/rebuild.png')
+      png=f.read
+      f.close
+    rescue
+      return nil
+    end
+
     Rails.cache.write('rebuild-%s.png' % @pngkey, png)
     f=File.open(outdir + '/longest.xml')
-    longest = ActiveXML::Node.new(f.read)
-    @timings = Hash.new
-    longest.timings.each_package do |p|
-      @timings[p.value(:name)] = [p.value(:buildtime), p.value(:finished)]
+    longest = Xmlhash.parse(f.read)
+    longest['timings'].elements('package') do |p|
+      @timings[p['name']] = [p['buildtime'], p['finished']    ]
     end
-    @rebuildtime = Integer(longest.value :rebuildtime)
+    @rebuildtime = Integer(longest['rebuildtime'])
     f.close
     FileUtils.rm_rf indir
     FileUtils.rm_rf outdir
