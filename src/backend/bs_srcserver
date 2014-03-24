@@ -4624,14 +4624,21 @@ sub getfilelist {
     return undef;
   }
 
-  if ($view && $view eq 'products') {
+  if ($view && ($view eq 'products' || $view eq 'productrepositories') ) {
     my @res;
     for my $filename (sort keys %$files) {
       next unless $filename =~ /.product$/;
       next if $cgi->{'product'} and $filename ne "$cgi->{'product'}.product";
       my $xml = BSProductXML::readproductxml( "$srcrep/$rev->{'package'}/$files->{$filename}-$filename", 0, undef, $files);
       die("400 Unable to parse $filename: \n") unless defined($xml);
-      push @res, $xml;
+      if ($view eq 'productrepositories') {
+        push @res, BSProductXML::getproductrepositories($xml);
+      } else {
+        push @res, $xml;
+      }
+    }
+    if ($view eq 'productrepositories') {
+      return ({"product" => @res}, $BSProductXML::productlistrepositories);
     }
     my $ret = {};
     $ret->{'productdefinition'} = \@res;

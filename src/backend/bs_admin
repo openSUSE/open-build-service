@@ -564,6 +564,19 @@ sub check_package {
   write_event($project, undef, $arch, 'package', $package);
 }
 
+sub print_product_repositories {
+  my ($file) = @_;
+
+  print "parsing $file\n";
+  my $xmldesc = BSProductXML::readproductxml($file, 0, 1 );
+  if ( defined($xmldesc) ) {
+    my $prodrepoxml = BSProductXML::getproductrepositories($xmldesc);
+    print XMLout($BSProductXML::productlistrepositories, {'product' => $prodrepoxml});
+  } else {
+    die("ERROR: Unable to parse xml file !\n");
+  }
+}
+
 # make stdout non-buffered
 $| = 1;
 
@@ -679,6 +692,10 @@ while (@ARGV) {
       my $arch = shift @ARGV;
       dump_cache($project, $repo, $arch);
     }
+  } elsif ($arg eq "--print-product-repositories") {
+    die("ERROR: need a product file name as argument!\n") if @ARGV != 1;
+    my $file = shift @ARGV;
+    print_product_repositories($file);
   } elsif ($arg eq "--dump-relsync") {
     die("ERROR: need file as argument!\n") if @ARGV < 1;
     my $file = shift @ARGV;

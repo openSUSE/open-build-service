@@ -161,6 +161,11 @@ class ProductTests < ActionDispatch::IntegrationTest
     get "/source/home:tom:temporary/_product?view=products&product=DOES_NOT_EXIST"
     assert_response :success
     assert_no_xml_tag :tag => "name"
+    # productrepositories
+    get "/source/home:tom:temporary/_product?view=productrepositories"
+    assert_response :success
+    assert_xml_tag :parent => { :tag => "repository", :attributes => { :path => '/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo' } },
+                   :tag => "update"
 
     product = Package.find_by_project_and_name("home:tom:temporary","_product").products.first
     assert_equal "SUSE_SLES", product.name

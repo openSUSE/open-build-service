@@ -102,6 +102,7 @@ our $product = [
               'target',
               'release',
               'flavor',
+
               # following is for support tools
               [ 'pool' =>
                 [[ 'repository' =>
@@ -315,6 +316,23 @@ our $products = [
       [ $productdesc ],
 ];
 
+our $productrepositories = [
+  'product' =>
+    'name',
+    [[
+      'repository' =>
+        'path',
+        'arch', # optional
+        [],
+        'debug',  # optional flags
+        'update',
+    ]],
+];
+our $productlistrepositories = [
+   'productrepositories' =>
+      [ $productrepositories ],
+];
+
 sub mergexmlfiles {
   my ($absfile, $seen, $debug, $files) = @_;
 
@@ -386,6 +404,33 @@ sub readproductxml {
   return XMLin($productdesc, $str) unless $nonfatal;
   eval { $str = XMLin($productdesc, $str); };
   return $@ ? undef : $str;
+}
+
+sub getproductrepositories {
+  my ($xml) = @_;
+
+  my $p;
+  for my $product (@{$xml->{'products'}->{'product'}}) {
+    my @pr;
+    for my $repo (@{$product->{'register'}->{'updates'}->{'repository'}}) {
+      my $project_expanded = $repo->{'project'};
+      $project_expanded =~ s/:/:\//g;
+      my $path = { 'path' => "/$project_expanded/$repo->{'name'}", 'update' => undef };
+      $path->{'arch'} = $repo->{'arch'} if $repo->{'arch'};
+      $path->{'debug'} = undef if $repo->{'name'} =~ m/_debug$/;
+      push @pr, $path;
+    };
+    for my $repo (@{$product->{'register'}->{'pool'}->{'repository'}}) {
+      my $project_expanded = $repo->{'project'};
+      $project_expanded =~ s/:/:\//g;
+      my $path = { 'path' => "/$project_expanded/$repo->{'name'}/repo/$repo->{'media'}" };
+      $path->{'arch'} = $repo->{'arch'} if $repo->{'arch'};
+      push @pr, $path;
+    };
+    push @{$p}, { "name" => $product->{'name'}, "repository" => \@pr };
+  };
+
+  return $p;
 }
 
 1;
