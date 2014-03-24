@@ -32,6 +32,7 @@ gem 'yajl-ruby'
 
 # for searching in webui - 3.0.5 shows some regressions not yet debugged
 gem 'thinking-sphinx'
+gem 'riddle', '1.5.9'
 
 # don't rely on cron+rake 
 gem 'clockwork', '>= 0.7'
