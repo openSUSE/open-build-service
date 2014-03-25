@@ -256,4 +256,32 @@ module MaintenanceHelper
     tpkg
   end
 
+  def import_channel(channel, pkg, targetRepo=nil)
+    channel = REXML::Document.new(channel)
+
+    if targetRepo
+      channel.elements['/channel'].add_element 'target', {
+        "project"    => targetRepo.project.name,
+        "repository" => targetRepo.name
+      }
+    end
+
+    # replace all project definitions with update projects, if they are defined
+    [ '//binaries', '//binary' ].each do |bin|
+      channel.get_elements(bin).each do |b|
+        if attrib = b.attributes.get_attribute('project') and prj = Project.get_by_name(attrib.to_s)
+          if a = prj.find_attribute('OBS', 'UpdateProject') and a.values[0]
+            b.attributes["project"] = a.values[0]
+          end
+        end
+      end
+    end
+
+    query = { user: User.current ? User.current.login : '_nobody_' }
+    query[:comment] = "channel import function"
+    Suse::Backend.put_source(pkg.source_path('_channel', query), channel.to_s)
+
+    pkg.sources_changed
+  end
+
 end

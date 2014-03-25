@@ -437,9 +437,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # create channel package
     put '/source/Channel/BaseDistro3/_meta', '<package project="Channel" name="BaseDistro3"><title/><description/></package>'
     assert_response :success
-    put '/source/Channel/BaseDistro3/_channel', '<?xml version="1.0" encoding="UTF-8"?>
+    post '/source/Channel/BaseDistro3?cmd=importchannel&target_project=BaseDistro3Channel&target_repository=channel_repo', '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
-          <target project="BaseDistro3Channel" repository="channel_repo" />
           <binaries project="BaseDistro3" repository="BaseDistro3_repo" arch="i586">
             <binary name="package" package="pack2.linked" project="BaseDistro2.0" />
           </binaries>
@@ -447,7 +446,11 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/Channel/BaseDistro3/_channel'
     assert_response :success
-    assert_xml_tag :tag => 'binary', :attributes => { :project => 'BaseDistro2.0', :package => 'pack2.linked'}
+    # it found the update project
+    assert_xml_tag :tag => 'binary', :attributes => { :project => 'BaseDistro2.0:LinkedUpdateProject', :package => 'pack2.linked'}
+    # target repo parameter worked
+    assert_xml_tag :tag => 'target', :attributes => { :project => 'BaseDistro3Channel', :repository => 'channel_repo'}
+
     put '/source/Channel/BaseDistro3/_channel', '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
           <target project="BaseDistro3Channel" repository="channel_repo" tag="UpdateInfoTag-" />

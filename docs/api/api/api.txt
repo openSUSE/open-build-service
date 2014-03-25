@@ -637,6 +637,19 @@ Parameters:
 XmlResult: status
 
 
+POST /source/<project>/<package>?cmd=importchannel
+
+  Import a kiwi channel file for OBS. Project names will be set
+  to update projects if defined.
+
+Parameters:
+
+  target_project: optional target repository to set
+  target_repository: optional target repository to set
+
+XmlResult: status
+
+
 POST /source/<project>/<package>?deleteuploadrev
 
   Removes all changes made to the upload revision and reverts to last revision

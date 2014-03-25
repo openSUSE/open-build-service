@@ -341,7 +341,7 @@ class SourceController < ApplicationController
     # valid post commands
     valid_commands=%w(diff branch servicediff linkdiff showlinked copy remove_flag set_flag rebuild undelete
                       wipe runservice commit commitfilelist createSpecFileTemplate deleteuploadrev linktobranch
-                      updatepatchinfo getprojectservices unlock release)
+                      updatepatchinfo getprojectservices unlock release importchannel)
 
     @command = params[:cmd]
     raise IllegalRequest.new 'invalid_command' unless valid_commands.include?(@command)
@@ -1267,6 +1267,16 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=updatepatchinfo
   def package_command_updatepatchinfo
     Patchinfo.new.cmd_update_patchinfo(params[:project], params[:package])
+    render_ok
+  end
+
+  # POST /source/<project>/<package>?cmd=importchannel
+  def package_command_importchannel
+    repo=nil
+    repo=Repository.find_by_project_and_repo_name(params[:target_project], params[:target_repository]) if params[:target_project]
+
+    import_channel(request.raw_post, @package, repo)
+
     render_ok
   end
 
