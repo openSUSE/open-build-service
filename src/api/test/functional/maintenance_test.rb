@@ -422,12 +422,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # define one
     login_king
     put '/source/BaseDistro3Channel/_meta', '<project name="BaseDistro3Channel"><title/><description/>
+                                         <build><disable/></build>
+                                         <publish><enable/></publish>
                                          <repository name="channel_repo">
                                            <arch>i586</arch>
                                          </repository>
                                    </project>'
     assert_response :success
-    put '/source/BaseDistro3Channel/_config', 'Repotype: rpm-md-legacy'
+    put '/source/BaseDistro3Channel/_config', "Repotype: rpm-md-legacy\nType: spec"
     assert_response :success
     raw_post '/source/BaseDistro3Channel/_attribute', "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-BaseDistro3Channel-%Y-%C</value></attribute></attributes>"
     assert_response :success
@@ -540,11 +542,23 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # submit action
     assert_xml_tag :tag => 'target', :attributes => { :project=> 'Channel', :package => 'BaseDistro3'},
                    :parent => { :tag => 'action', :attributes => {:type => 'submit'} }
-    # matching release action for it
-    assert_xml_tag :tag => 'target', :attributes => { :project=> 'BaseDistro3Channel', :package => 'BaseDistro3.0'},
+    # channel package is not released
+    assert_no_xml_tag :tag => 'source', :attributes => { :project=> 'My:Maintenance:0', :package => 'BaseDistro3.Channel'},
                    :parent => { :tag => 'action', :attributes => {:type => 'maintenance_release'} }
-    assert_xml_tag :tag => 'target', :attributes => { :project=> 'Channel', :package => 'patchinfo.0'},
+    # but it has a source change, so submit action
+    assert_xml_tag :tag => 'source', :attributes => { :project=> 'My:Maintenance:0', :package => 'BaseDistro3.Channel'},
+                   :parent => { :tag => 'action', :attributes => {:type => 'submit'} }
+    # no release patchinfo into channel
+    assert_no_xml_tag :tag => 'target', :attributes => { :project=> 'Channel', :package => 'patchinfo.0'},
                    :parent => { :tag => 'action', :attributes => {:type => 'maintenance_release'} }
+    # release of patchinfos
+    assert_xml_tag :tag => 'target', :attributes => { :project=> 'BaseDistro2.0:LinkedUpdateProject', :package => 'patchinfo.0'},
+                   :parent => { :tag => 'action', :attributes => {:type => 'maintenance_release'} }
+    assert_xml_tag :tag => 'target', :attributes => { :project=> 'BaseDistro3', :package => 'patchinfo.0'},
+                   :parent => { :tag => 'action', :attributes => {:type => 'maintenance_release'} }
+    assert_xml_tag :tag => 'target', :attributes => { :project=> 'BaseDistro3Channel', :package => 'patchinfo.0'},
+                   :parent => { :tag => 'action', :attributes => {:type => 'maintenance_release'} }
+
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     reqid = node.value(:id)
@@ -571,6 +585,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :parent => { :tag => 'update', :attributes => { :from => 'tom', :status => 'stable',  :type => 'recommended', :version => '1'} }, :tag => 'id', :content => "UpdateInfoTagNew-updateinfo-#{Time.now.utc.year.to_s}-1"
 
     # repo is configured as legacy rpm-md, so we require short meta data file names
+    get "/build/BaseDistro3Channel/_result"
+    assert_response :success
+    assert_xml_tag :tag => 'result', :attributes => {
+                   :project => "BaseDistro3Channel",
+                   :repository => "channel_repo",
+                   :arch => "i586",
+                   :code => "published",
+                   :state => "published" }
     get "/published/BaseDistro3Channel/channel_repo/repodata"
     assert_response :success
     assert_xml_tag :tag => 'entry', :attributes => { :name =>"filelists.xml.gz" }  # by createrepo
