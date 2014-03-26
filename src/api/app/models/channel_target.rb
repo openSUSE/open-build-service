@@ -11,7 +11,13 @@ class ChannelTarget < ActiveRecord::Base
     end
     return nil if ct.length < 1
 
-    raise "Multiple channel targets found" if ct.length > 1
+    if ct.length > 1
+      msg=""
+      ct.each do |cti|
+        msg << "#{cti.channel.package.project.name}/#{cti.channel.package.name}, "
+      end
+      raise "Multiple channel targets found in #{msg}"
+    end
     return ct.first
   end
 
