@@ -19,13 +19,6 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     ActionMailer::Base.deliveries.clear
   end
 
-  def before_setup
-    super
-    # we need to do this as transaction rollback does not reset the ids
-    # and we rely on fixed request ids in tests
-    BsRequest.connection.execute('alter table bs_requests AUTO_INCREMENT = 1001')
-  end
-
   def test_my_involved_requests
     login_Iggy to: user_requests_path(user: 'king')
 
@@ -43,14 +36,14 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     find(:id, 'role').select('Bugowner')
     fill_in 'description', with: 'I can fix bugs too.'
     click_button 'Ok'
-    # request created
+    requestid = current_path.gsub(%r{\/request\/show\/(\d*)}, '\1').to_i
     page.must_have_text 'Iggy Pop (Iggy) wants the role bugowner for project home:tom'
     find('#description_text').must_have_text 'I can fix bugs too.'
     page.must_have_selector(:xpath, "//input[@name='revoked']")
     page.must_have_text('In state new')
 
     logout
-    login_tom to: request_show_path(1001)
+    login_tom to: request_show_path(requestid)
     page.must_have_text 'Iggy Pop (Iggy) wants the role bugowner for project home:tom'
     click_button 'Accept'
   end
@@ -65,20 +58,20 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     find(:id, 'role').select('Maintainer')
     fill_in 'description', with: 'I can fix bugs too.'
     click_button 'Ok'
-    # request created
+    requestid = current_path.gsub(%r{\/request\/show\/(\d*)}, '\1').to_i
     find('#action_display_0').must_have_text 'Iggy Pop (Iggy) wants the role maintainer for package Apache / apache2'
     find('#description_text').must_have_text 'I can fix bugs too.'
     page.must_have_selector(:xpath, "//input[@name='revoked']")
     page.must_have_text('In state new')
 
     logout
-    login_tom to: request_show_path(1001)
+    login_tom to: request_show_path(requestid)
     find('#action_display_0').must_have_text 'Iggy Pop (Iggy) wants the role maintainer for package Apache / apache2'
     # tom is not apache maintainer
     page.wont_have_button 'Accept'
 
     logout
-    login_fred to: request_show_path(1001)
+    login_fred to: request_show_path(requestid)
     find('#action_display_0').must_have_text 'Iggy Pop (Iggy) wants the role maintainer for package Apache / apache2'
     click_button 'Accept'
 
@@ -97,10 +90,11 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     fill_in 'description', with: 'I want to see his reaction'
     uncheck('supersede')
     click_button 'Ok'
-    click_link 'submit request 1001'
-
+    within '#flash-messages' do
+      click_link 'submit request'
+    end
+    oldrequest = current_path.gsub(%r{\/request\/show\/(\d*)}, '\1').to_i
     # verify it is not superseding anything
-    visit request_show_path(1001)
     page.wont_have_text('Superseding')
 
     # create submission that is superseding the former one
@@ -110,23 +104,26 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     fill_in 'description', with: 'I want to see his reaction'
     check('supersede')
     click_button 'Ok'
-    click_link 'submit request 1002'
+    within '#flash-messages' do
+      click_link 'submit request'
+    end
+    newrequest = current_path.gsub(%r{\/request\/show\/(\d*)}, '\1').to_i
 
     # Verify we know which pkg we superseded
     page.must_have_text('Supersedes')
-    page.must_have_link('1001')
+    page.must_have_link(oldrequest)
 
     # Check if the superseded pkg knows which one is replacing it
-    click_link '1001'
+    click_link oldrequest
     page.must_have_text('Superseded by')
     page.wont_have_text('Supersedes')
-    page.must_have_link('1002')
+    page.must_have_link(newrequest)
   end
 
   test 'invalid id gives error' do
     login_Iggy
-    visit request_show_path(2000)
-    page.must_have_text("Can't find request 2000")
+    visit request_show_path(20000)
+    page.must_have_text("Can't find request 20000")
     page.must_have_text('Requests for Iggy')
   end
 
@@ -137,8 +134,12 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     fill_in 'description', with: 'Want it?'
     click_button 'Ok'
 
-    page.must_have_text 'Created submit request 1001 to home:tom'
-    click_link 'submit request 1001'
+    flash_message.must_match %r{Created submit request .* to home:tom}
+    within '#flash-messages' do
+      click_link 'submit request'
+    end
+
+    requestid = current_path.gsub(%r{\/request\/show\/(\d*)}, '\1').to_i
 
     # request view shows diff
     page.must_have_text '+Group: Group/Subgroup'
@@ -152,7 +153,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     click_button 'Revoke request'
 
     page.must_have_text 'Request revoked!'
-    page.must_have_text 'Request 1001 (revoked)'
+    page.must_have_text "Request #{requestid} (revoked)"
     page.must_have_text "There's nothing to be done right now"
   end
 
@@ -283,7 +284,10 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     fill_in 'description', with: 'I want to see his reaction'
     uncheck('supersede')
     click_button 'Ok'
-    click_link 'submit request 1001'
+    within '#flash-messages' do
+      click_link 'submit request'
+    end
+
     # request history
     page.must_have_text %r{created request.*now}
     page.must_have_selector 'input#revoke_request_button'
