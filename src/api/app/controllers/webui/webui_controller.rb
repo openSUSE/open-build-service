@@ -13,6 +13,15 @@ class Webui::WebuiController < ActionController::Base
   before_filter :require_configuration
   after_filter :clean_cache
 
+  protect_from_forgery
+
+  # We execute both strategies here. The default rails strategy (resetting the session)
+  # and throwing an exception if the session is handled elswhere (e.g. proxy_auth_mode: :on)
+  def handle_unverified_request
+    super
+    raise ActionController::InvalidAuthenticityToken
+  end
+
   # :notice and :alert are default, we add :success and :error
   add_flash_types :success, :error
 
