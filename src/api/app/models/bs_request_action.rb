@@ -541,7 +541,7 @@ class BsRequestAction < ActiveRecord::Base
       if self.is_maintenance_incident?
         newTargets << tprj.name if tprj
         newAction.target_releaseproject = releaseproject.name if releaseproject
-      else
+      elsif not pkg.is_channel?
         newTargets << tprj.name
         newAction.target_project = tprj.name
         newAction.target_package = tpkg + incident_suffix
@@ -549,34 +549,16 @@ class BsRequestAction < ActiveRecord::Base
       newAction.source_rev = rev if rev
       if self.is_maintenance_release?
         if pkg.is_channel?
-          pkg.channels.each do |channel|
-            # no action if channel has no targets defined, the single release action
-            # will move binaries and sources to the right place in that case
-            next if channel.channel_targets.count == 0
-
-            # add channel targets from _channel file if defined there
-            channel.channel_targets.each do |target|
-              # do not put channel package into Channel project via release
-              # if it will land there via submit anyway
-              next if tprj == target.repository.project
-
-              releaseAction = newAction.dup
-              releaseAction.target_project = target.repository.project.name
-              releaseAction.target_package = tpkg + incident_suffix
-              newactions << releaseAction
-            end
-
-            # create submit request for possible changes in the _channel file
-            submitAction = BsRequestActionSubmit.new
-            submitAction.source_project = newAction.source_project
-            submitAction.source_package = newAction.source_package
-            submitAction.source_rev = newAction.source_rev
-            submitAction.target_project = tprj.name
-            submitAction.target_package = tpkg
-            # replace the new action
-            newAction.destroy
-            newAction = submitAction
-          end
+          # create submit request for possible changes in the _channel file
+          submitAction = BsRequestActionSubmit.new
+          submitAction.source_project = newAction.source_project
+          submitAction.source_package = newAction.source_package
+          submitAction.source_rev = newAction.source_rev
+          submitAction.target_project = tprj.name
+          submitAction.target_package = tpkg
+          # replace the new action
+          newAction.destroy
+          newAction = submitAction
         else # non-channel package
           unless pkg.project.can_be_released_to_project?(tprj)
             raise WrongLinkedPackageSource.new "According to the source link of package #{pkg.project.name}/#{pkg.name} it would go to project #{tprj.name} which is not specified as release target."
