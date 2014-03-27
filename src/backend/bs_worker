@@ -2250,8 +2250,8 @@ sub dobuild {
     } else {
       push @args, $vm, "$vm_root";
       push @args, '--swap', "$vm_swap";
-      push @args, '--statistics';
     }
+    push @args, '--statistics';
     my $vmmemory = readstr("$buildroot/memory", 1);
     $vmmemory = $vm_memory if $vm_memory;
     push @args, '--memory', $vmmemory if $vmmemory;
