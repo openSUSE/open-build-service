@@ -6120,6 +6120,12 @@ sub getbinarylist {
     my $bvl = BSWatcher::rpc($param, $BSXML::binaryversionlist, @args);
     return ($bvl, $BSXML::binaryversionlist);
   }
+  if ($view && $view eq 'cpioheaders') {
+     $param->{'ignorestatus'} = 1;
+     $param->{'receiver'} = \&BSServer::reply_receiver;
+     BSWatcher::rpc($param, undef, @args);
+     return undef;
+  }
   my $bl = BSWatcher::rpc($param, $BSXML::binarylist, @args);
   return ($bl, $BSXML::binarylist);
 }

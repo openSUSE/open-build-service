@@ -488,6 +488,47 @@ sub getbinaries {
   return undef;
 }
   
+# TODO: move into Build::Rpm
+sub getrpmheaders {
+  my ($path, $withhdrmd5) = @_;
+
+  my $hdrmd5;
+  local *F;
+  open(F, '<', $path) || die("$path: $!\n");
+  my $buf = '';
+  my $l;
+  while (length($buf) < 96 + 16) {
+    $l = sysread(F, $buf, 4096, length($buf));
+    die("$path: read error\n") unless $l;
+  }
+  die("$path: not a rpm\n") unless unpack('N', $buf) == 0xedabeedb && unpack('@78n', $buf) == 5;
+  my ($headmagic, $cnt, $cntdata) = unpack('@96N@104NN', $buf);
+  die("$path: not a rpm (bad sig header)\n") unless $headmagic == 0x8eade801 && $cnt < 16384 && $cntdata < 1048576;
+  my $hlen = 96 + 16 + $cnt * 16 + $cntdata;
+  $hlen = ($hlen + 7) & ~7;
+  while (length($buf) < $hlen + 16) {
+    $l = sysread(F, $buf, 4096, length($buf));
+    die("$path: read error\n") unless $l;
+  }
+  if ($withhdrmd5) {
+    my $idxarea = substr($buf, 96 + 16, $cnt * 16);
+    die("$path: no md5 signature header\n") unless $idxarea =~ /\A(?:.{16})*\000\000\003\354\000\000\000\007(....)\000\000\000\020/s;
+    my $md5off = unpack('N', $1);
+    die("$path: bad md5 offset\n") unless $md5off;
+    $md5off += 96 + 16 + $cnt * 16; 
+    $hdrmd5 = unpack("\@${md5off}H32", $buf);
+  }
+  ($headmagic, $cnt, $cntdata) = unpack('N@8NN', substr($buf, $hlen));
+  die("$path: not a rpm (bad header)\n") unless $headmagic == 0x8eade801 && $cnt < 1048576 && $cntdata < 33554432;
+  my $hlen2 = $hlen + 16 + $cnt * 16 + $cntdata;
+  while (length($buf) < $hlen2) {
+    $l = sysread(F, $buf, 4096, length($buf));
+    die("$path: read error\n") unless $l;
+  }
+  close F;
+  return (substr($buf, 0, 96), substr($buf, 96, $hlen - 96), substr($buf, $hlen, $hlen2 - $hlen), $hdrmd5);
+}
+
 sub getbinarylist_repository {
   my ($cgi, $projid, $repoid, $arch) = @_;
 
@@ -601,6 +642,39 @@ sub getbinarylist_repository {
       # compatibility code, to be removed...
       if (open($fd, '<', "$reporoot/$prp/$arch/:full.cache")) {
         push @files, { 'name' => 'repositorycache', 'filename' => $fd };
+      }
+    }
+    BSWatcher::reply_cpio(\@files);
+    return undef;
+  }
+
+  if ($view eq 'cpioheaders') {
+    my $pool = BSSolv::pool->new();
+    my $repo = addrepo_scan($pool, $prp, $arch);
+    my %names = $repo ? $repo->pkgnames() : ();
+    my @bins = $cgi->{'binary'} ? @{$cgi->{'binary'}} : sort keys %names;
+    my @files;
+    for my $bin (@bins) {
+      my $p = $names{$bin};
+      if (!$p) {
+	push @files, {'name' => $bin, 'error' => 'not available'};
+	next;
+      }
+      my $path = "$reporoot/".$pool->pkg2fullpath($p, $arch);
+      if ($path !~ /\.rpm$/) {
+	push @files, {'name' => $bin, 'error' => 'not an rpm'};
+	next;
+      }
+      my ($lead, $sighdr, $hdr, $hdrmd5);
+      eval {
+        ($lead, $sighdr, $hdr, $hdrmd5) = getrpmheaders($path, 1);
+      };
+      if ($hdr) {
+	push @files, {'name' => "$bin-$hdrmd5", 'data' => "$lead$sighdr$hdr"};
+      } else {
+        my $err = $@;
+	chomp $err;
+	push @files, {'name' => $bin, 'error' => $err || 'bad rpm'};
       }
     }
     BSWatcher::reply_cpio(\@files);
