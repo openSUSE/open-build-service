@@ -18,6 +18,15 @@ class ApplicationController < ActionController::Base
      prepend_before_filter :start_test_api
   end
 
+  protect_from_forgery
+
+  # We execute both strategies here. The default rails strategy (resetting the session)
+  # and throwing an exception if the session is handled elswhere (e.g. proxy_auth_mode: :on)
+  def handle_unverified_request
+    super
+    raise ActionController::InvalidAuthenticityToken
+  end
+
   # FIXME: This belongs into the user controller my dear.
   # Also it would be better, but also more complicated, to just raise
   # HTTPPaymentRequired, UnauthorizedError or Forbidden
