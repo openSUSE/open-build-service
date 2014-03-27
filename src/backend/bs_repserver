@@ -2698,9 +2698,7 @@ sub getbuildinfo {
   } elsif (@subpacks) {
     $ret->{'subpack'} = [ @subpacks ];
   }
-  my @deps = @{$info->{'prereq'} || []};
-  @deps = grep {!/^\// || $bconf->{'fileprovides'}->{$_}} @deps;
-  unshift @deps, @{$info->{'dep'} || []};
+  my @deps = @{$info->{'dep'} || []};
 
   # expand deps
   $ret->{'expanddebug'} = '' if $cgi->{'debug'};
@@ -2785,7 +2783,8 @@ sub getbuildinfo {
     $pool->createwhatprovides();
   }
 
-  my @bdeps;
+  my @bdeps = grep {!/^\// || $bconf->{'fileprovides'}->{$_}} @{$info->{'prereq'} || []};
+  unshift @bdeps, @deps;
   $Build::expand_dbg = 1 if $cgi->{'debug'};
   my $xp = BSSolv::expander->new($pool, $bconf);
   my $ownexpand = sub {
@@ -2796,7 +2795,7 @@ sub getbuildinfo {
   local *Build::expand = $ownexpand;
   use warnings 'redefine';
   if (!$cgi->{'deps'}) {
-    @bdeps = Build::get_build($bconf, \@subpacks, @deps, @{$cgi->{'add'} || []});
+    @bdeps = Build::get_build($bconf, \@subpacks, @bdeps, @{$cgi->{'add'} || []});
   } else {
     @bdeps = Build::get_deps($bconf, \@subpacks, @deps, @{$cgi->{'add'} || []});
   }
