@@ -92,6 +92,7 @@ module OBSWebUI
     config.action_dispatch.rescue_responses.merge!('ActiveXML::Transport::ConnectionError' => 503)
     config.action_dispatch.rescue_responses.merge!('ActiveXML::Transport::Error' => 500)
     config.action_dispatch.rescue_responses.merge!('Timeout::Error' => 408)
+    config.action_dispatch.rescue_responses.merge!('ActionController::InvalidAuthenticityToken' => 403)
 
     config.after_initialize do
       # See Rails::Configuration for more options
