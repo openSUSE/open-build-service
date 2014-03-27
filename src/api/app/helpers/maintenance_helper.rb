@@ -233,10 +233,11 @@ module MaintenanceHelper
     if p = sourcePackage.project.find_parent and p.is_maintenance?
       projectFilter = p.maintained_projects
     end
+    # prefer a channel in the target project to avoid double hits exceptions
+    ct = ChannelTarget.find_by_repo(targetRepo, [targetRepo.project]) || ChannelTarget.find_by_repo(targetRepo, projectFilter)
     channelTag="" # or strip away a possibly %T in any case
-    if ct = ChannelTarget.find_by_repo(targetRepo, projectFilter)
-       channelTag=ct.tag if ct.tag
-    end
+    channelTag=ct.tag if ct and ct.tag
+
     return uID.gsub(/%T/,channelTag)
   end
 
@@ -282,6 +283,8 @@ module MaintenanceHelper
     Suse::Backend.put_source(pkg.source_path('_channel', query), channel.to_s)
 
     pkg.sources_changed
+    # enforce updated channel list in database:
+    pkg.update_backendinfo
   end
 
 end
