@@ -4632,13 +4632,13 @@ sub getfilelist {
       my $xml = BSProductXML::readproductxml( "$srcrep/$rev->{'package'}/$files->{$filename}-$filename", 0, undef, $files);
       die("400 Unable to parse $filename: \n") unless defined($xml);
       if ($view eq 'productrepositories') {
-        push @res, BSProductXML::getproductrepositories($xml);
+        @res = (@res, @{BSProductXML::getproductrepositories($xml)});
       } else {
         push @res, $xml;
       }
     }
     if ($view eq 'productrepositories') {
-      return ({"product" => @res}, $BSProductXML::productlistrepositories);
+      return ({"product" => \@res}, $BSProductXML::productlistrepositories);
     }
     my $ret = {};
     $ret->{'productdefinition'} = \@res;

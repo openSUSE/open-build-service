@@ -113,9 +113,10 @@ our $product = [
                 ]],
               ],
               [ 'updates' =>
-                [[ 'ncc' =>     # NCC: Novell Customer Center
-                   'distrotarget',
+                [[ 'distrotarget' =>     # for SMT update service
                    'arch',      # for arch specific definitions
+                   [],
+                   '_content'
                 ]],
                 [[ 'repository' =>
                    'project',   # input
@@ -324,9 +325,10 @@ our $productrepositories = [
   'product' =>
     'name',
     [[
-      'ncc' =>
-        'distrotarget',
+      'distrotarget' => 
         'arch', # optional
+        [],
+        '_content',
     ]],
     [[
       'repository' =>
@@ -437,7 +439,7 @@ sub getproductrepositories {
       push @pr, $path;
     };
     my $prod = { "name" => $product->{'name'}, "repository" => \@pr };
-    $prod->{"ncc"} = $product->{'register'}->{'updates'}->{'ncc'} if $product->{'register'}->{'updates'}->{'ncc'};
+    $prod->{"distrotarget"} = $product->{'register'}->{'updates'}->{'distrotarget'} if $product->{'register'}->{'updates'}->{'distrotarget'};
     push @{$p}, $prod;
   };
 

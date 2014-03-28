@@ -1259,11 +1259,11 @@ sub createProductFile ( $$ ) {
        };
        $d->{"updates"}{"repository"} = \@r;
     }
-    foreach my $ncc ( @{$product->{register}->{updates}->{ncc}} ) {
+    foreach my $dt ( @{$product->{register}->{updates}->{distrotarget}} ) {
        $d->{"target"} = "___INTERNAL_NCC_MARKER___";
-       $special_arch_update_ncc.="%ifarch $ncc->{arch}\n" if $ncc->{'arch'};
-       $special_arch_update_ncc.="      <target>$ncc->{'distrotarget'}</target>\n";
-       $special_arch_update_ncc.="%endif\n" if $ncc->{'arch'};
+       $special_arch_update_ncc.="%ifarch $dt->{arch}\n" if $dt->{'arch'};
+       $special_arch_update_ncc.="      <target>$dt->{'_content'}</target>\n";
+       $special_arch_update_ncc.="%endif\n" if $dt->{'arch'};
        next;
     }
     $zypp_product->{'register'} = $d;
