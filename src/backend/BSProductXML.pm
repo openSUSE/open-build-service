@@ -324,6 +324,11 @@ our $productrepositories = [
   'product' =>
     'name',
     [[
+      'ncc' =>
+        'distrotarget',
+        'arch', # optional
+    ]],
+    [[
       'repository' =>
         'path',
         'arch', # optional
@@ -431,7 +436,9 @@ sub getproductrepositories {
       $path->{'arch'} = $repo->{'arch'} if $repo->{'arch'};
       push @pr, $path;
     };
-    push @{$p}, { "name" => $product->{'name'}, "repository" => \@pr };
+    my $prod = { "name" => $product->{'name'}, "repository" => \@pr };
+    $prod->{"ncc"} = $product->{'register'}->{'updates'}->{'ncc'} if $product->{'register'}->{'updates'}->{'ncc'};
+    push @{$p}, $prod;
   };
 
   return $p;

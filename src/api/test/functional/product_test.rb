@@ -166,6 +166,8 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag :parent => { :tag => "repository", :attributes => { :path => '/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo' } },
                    :tag => "update"
+    assert_xml_tag :tag => "ncc", :attributes => { :distrotarget => "DiStroTarGet_x86", :arch => "x86_64" }
+    assert_xml_tag :tag => "ncc", :attributes => { :distrotarget => "DiStroTarGet" }
 
     product = Package.find_by_project_and_name("home:tom:temporary","_product").products.first
     assert_equal "SUSE_SLES", product.name
