@@ -87,7 +87,7 @@ class ApplicationController < ActionController::Base
     begin
       require 'ldap'
       logger.debug( "Using LDAP to find #{@login}" )
-      ldap_info = User.find_with_ldap( @login, @passwd )
+      ldap_info = User.lookup_strategy.find_with_ldap( @login, @passwd )
     rescue LoadError
       logger.warn "ldap_mode selected but 'ruby-ldap' module not installed."
       ldap_info = nil # now fall through as if we'd not found a user
@@ -98,7 +98,7 @@ class ApplicationController < ActionController::Base
 
     if ldap_info
       # We've found an ldap authenticated user - find or create an OBS userDB entry.
-      @http_user = User.find_by_login( login )
+      @http_user = User.find_by_login!( @login )
       if @http_user
         # Check for ldap updates
         if @http_user.email != ldap_info[0]
@@ -118,7 +118,7 @@ class ApplicationController < ActionController::Base
         chars = ["A".."Z","a".."z","0".."9"].collect { |r| r.to_a }.join
         fakepw = (1..24).collect { chars[rand(chars.size)] }.pack('a'*24)
         newuser = User.create(
-            :login => login,
+            :login => @login,
             :password => fakepw,
             :password_confirmation => fakepw,
             :email => ldap_info[0] )
@@ -136,8 +136,6 @@ class ApplicationController < ActionController::Base
         newuser.state = User.states['confirmed']
         newuser.state = User.states['unconfirmed'] if ::Configuration.registration == "confirmation"
         newuser.adminnote = "User created via LDAP"
-        user_role = Role.find_by_title("User")
-        newuser.roles << user_role
 
         logger.debug( "saving new user..." )
         newuser.save
