@@ -1228,6 +1228,7 @@ sub createProductFile ( $$ ) {
     $d->{"target"}  = $product->{'register'}->{'target'};
     $d->{"release"} = $product->{'register'}->{'release'};
     my $special_arch_update_repo;
+    my $special_arch_update_ncc;
     if ($mediaStyle =~ /^suse-1[12].[123]$/ || $mediaStyle =~ /^suse-sle11/) {
        # old style, export used repositories for support tool
        my @r;
@@ -1239,6 +1240,7 @@ sub createProductFile ( $$ ) {
        $d->{"repositories"}{"repository"} = \@r;
     } else {
        if ($mediaStyle =~ /^suse-sle12/) {
+         die("Define NCC targets instead of target") if $product->{'register'}->{'target'};
          # SLE 12 medias require an end-of-life definition
          die("400 endoflife not defined") unless $product->{'endoflife'};
        }
@@ -1257,6 +1259,13 @@ sub createProductFile ( $$ ) {
        };
        $d->{"updates"}{"repository"} = \@r;
     }
+    foreach my $ncc ( @{$product->{register}->{updates}->{ncc}} ) {
+       $d->{"target"} = "___INTERNAL_NCC_MARKER___";
+       $special_arch_update_ncc.="%ifarch $ncc->{arch}\n" if $ncc->{'arch'};
+       $special_arch_update_ncc.="      <target>$ncc->{'distrotarget'}</target>\n";
+       $special_arch_update_ncc.="%endif\n" if $ncc->{'arch'};
+       next;
+    }
     $zypp_product->{'register'} = $d;
 
     # Release package number shall go with the package release
@@ -1268,9 +1277,12 @@ sub createProductFile ( $$ ) {
 
     my $xml = XMLout( $BSProductXML::product, $zypp_product );
     die ( "ERROR: Unable to create xml for $product->{name} !" ) unless $xml;
-    # replace arch specific part
+    # replace arch specific parts
     if ($special_arch_update_repo) {
       $xml =~ s/.*___INTERNAL_MARKER___.*\n/$special_arch_update_repo/;
+    }
+    if ($special_arch_update_ncc) {
+      $xml =~ s/.*___INTERNAL_NCC_MARKER___.*\n/$special_arch_update_ncc/;
     }
     # add header
     $xml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n$xml";

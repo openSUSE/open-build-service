@@ -99,7 +99,7 @@ our $product = [
            'productline',
            [ 'register' => 
               [],
-              'target',
+              'target',     # distro-target for NCC, only for .prod files since SLE 12
               'release',
               'flavor',
 
@@ -113,6 +113,10 @@ our $product = [
                 ]],
               ],
               [ 'updates' =>
+                [[ 'ncc' =>     # NCC: Novell Customer Center
+                   'distrotarget',
+                   'arch',      # for arch specific definitions
+                ]],
                 [[ 'repository' =>
                    'project',   # input
                    'name',
@@ -137,7 +141,7 @@ our $product = [
                  'status',
               ]],
            ],
-           'updaterepokey',  # should be obsolete with SLE 12
+           'updaterepokey',  # obsolete
            [[ 'summary' =>
               'language',
               [],
