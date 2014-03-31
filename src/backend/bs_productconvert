@@ -1248,6 +1248,10 @@ sub createProductFile ( $$ ) {
        my @r;
        foreach my $repo ( @{$product->{register}->{updates}->{repository}} ) {
            my $obsurl = "obs://$obsname/$repo->{project}/$repo->{name}";
+           if ($repo->{zypp}) {
+              die("400 zypp lacks alias attribute") unless $repo->{zypp}->{alias};
+              die("400 zypp lacks name attribute") unless $repo->{zypp}->{name};
+           }
            if ($repo->{arch}) {
               push @r, { "repoid" => "___INTERNAL_MARKER___" } unless $special_arch_update_repo;
               $special_arch_update_repo.="%ifarch $repo->{arch}\n";
