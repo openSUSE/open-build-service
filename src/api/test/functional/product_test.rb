@@ -165,7 +165,8 @@ class ProductTests < ActionDispatch::IntegrationTest
     get "/source/home:tom:temporary/_product?view=productrepositories"
     assert_response :success
     assert_xml_tag :parent => { :tag => "repository", :attributes => { :path => '/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo' } },
-                   :tag => "update"
+                   :tag => "update",
+                   :tag => "zypp", :attributes => { :name => "basedistro2 update distribution", :alias => "basedistro2_alias" }
     assert_xml_tag :tag => "distrotarget", :attributes => { :arch => "x86_64" }, :content => "DiStroTarGet_x86"
     assert_xml_tag :tag => "distrotarget", :content => "DiStroTarGet"
 

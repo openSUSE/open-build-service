@@ -121,6 +121,7 @@ our $product = [
                 [[ 'repository' =>
                    'project',   # input
                    'name',
+                   [ 'zypp' => 'name', 'alias' ],
                    'repoid',    # output for .prod file
                    'arch',      # for arch specific definitions
                 ]],
@@ -335,6 +336,7 @@ our $productrepositories = [
         'path',
         'arch', # optional
         [],
+        [ 'zypp' => 'name', 'alias' ],
         'debug',  # optional flags
         'update',
     ]],
@@ -428,6 +430,7 @@ sub getproductrepositories {
       $project_expanded =~ s/:/:\//g;
       my $path = { 'path' => "/$project_expanded/$repo->{'name'}", 'update' => undef };
       $path->{'arch'} = $repo->{'arch'} if $repo->{'arch'};
+      $path->{'zypp'} = $repo->{'zypp'} if $repo->{'zypp'};
       $path->{'debug'} = undef if $repo->{'name'} =~ m/_debug$/;
       push @pr, $path;
     };

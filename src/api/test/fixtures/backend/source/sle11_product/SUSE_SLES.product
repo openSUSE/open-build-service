@@ -15,7 +15,9 @@
         <updates>
           <distrotarget arch="x86_64">DiStroTarGet_x86</distrotarget>
           <distrotarget>DiStroTarGet</distrotarget>
-          <repository project="BaseDistro2.0:LinkedUpdateProject" name="BaseDistro2LinkedUpdateProject_repo" />
+          <repository project="BaseDistro2.0:LinkedUpdateProject" name="BaseDistro2LinkedUpdateProject_repo" >
+             <zypp name="basedistro2 update distribution" alias="basedistro2_alias"/>
+          </repository>
         </updates>
       </register>
       <summary>Simple OBS Product</summary>
