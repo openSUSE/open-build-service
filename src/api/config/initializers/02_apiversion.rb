@@ -1,5 +1,5 @@
 # define our current api version
-api_version = '2.4.50'
+api_version = '2.5.0'
 
 # the packages define the api_version in environment.rb file already
 if CONFIG['version'].blank?
