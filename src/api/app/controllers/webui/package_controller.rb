@@ -973,7 +973,7 @@ class Webui::PackageController < Webui::WebuiController
       flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
       redirect_to :controller => 'project', :action => 'show', :project => @project, :nextstatus => 404
     else
-      render :text => "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\"", :status => 404 and return
+      render :text => "Package not found in project", :content_type => 'text/plain', :status => 404 and return
     end
   end
 
