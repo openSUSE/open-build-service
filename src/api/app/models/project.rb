@@ -1158,14 +1158,18 @@ class Project < ActiveRecord::Base
 
   # called either directly or from delayed job
   def do_project_release( params )
+    def my_not_equal(a, b)
+       a and a != b
+    end
+
     User.current ||= User.find_by_login(params[:user])
 
     packages.each do |pkg|
       next if pkg.name == "_product" # will be handled via _product:*
       pkg.project.repositories.each do |repo|
-        next if params[:repository] and params[:repository] != repo.name
-        next if params[:targetproject] and params[:targetproject] != repo.releasetarget.project
-        next if params[:targetreposiory] and params[:targetreposiory] != repo.releasetarget.repository
+        next if my_not_equal(params[:repository], repo.name)
+        next if my_not_equal(params[:targetproject], repo.releasetarget.project)
+        next if my_not_equal(params[:targetreposiory], repo.releasetarget.repository)
         repo.release_targets.each do |releasetarget|
           # release source and binaries
           # permission checking happens inside this function
