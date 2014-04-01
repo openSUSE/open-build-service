@@ -221,7 +221,7 @@ case "$1" in
         rm -rf "$workerdir"
         mkdir -p "$workerbootdir"
 #        echo "zombie on"       > $screenrc
-        echo "caption always" >> $screenrc
+        echo 'caption always "%3n %t%? [%h]%?"' >> $screenrc
 
         if [ 0"$OBS_WORKER_INSTANCES" -gt 0 ]; then
             NUM="$OBS_WORKER_INSTANCES"
@@ -324,7 +324,7 @@ case "$1" in
                 SWAP=
                 MEMORY=
             fi
-	    echo "screen -t $WORKERID nice -n $OBS_NICE ./bs_worker $vmopt $port --root $R" \
+	    echo "screen -t $WORKERID nice -n $OBS_NICE ./bs_worker --hardstatus $vmopt $port --root $R" \
                 "--statedir $workerdir/$I --id $WORKERID $REPO_PARAM $HUGETLBFS $HOSTLABELS" \
                 "$HOSTOWNER $OBS_JOBS $OBS_THREADS $OBS_TEST $OBS_WORKER_OPT $TMPFS $DEVICE $SWAP $MEMORY" \
                 "$ARCH $EMULATOR" \
