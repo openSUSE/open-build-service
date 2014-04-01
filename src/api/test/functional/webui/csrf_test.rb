@@ -1,6 +1,6 @@
 require_relative '../../test_helper'
 
-class Webui::AddRepoTest < Webui::IntegrationTest
+class Webui::CSFRTest < Webui::IntegrationTest
 
   def test_csfr_protection
     login_tom
