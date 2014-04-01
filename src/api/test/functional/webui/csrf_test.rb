@@ -1,0 +1,15 @@
+require_relative '../../test_helper'
+
+class Webui::AddRepoTest < Webui::IntegrationTest
+
+  def test_csfr_protection
+    login_tom
+    page.driver.browser.process(:post, '/project/save_person/home%3Atom', { params: {
+      userid: "Admin",
+      role: "maintainer",
+      project: "home%3Atom",
+      commit: "Add+user"
+    }})
+    assert page.status_code.eql? 403
+  end
+end
