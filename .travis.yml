@@ -23,6 +23,5 @@ notifications:
        - "chat.freenode.net#opensuse-buildservice"
      on_success: change
      on_failure: change  
-     use_notice: true
 services:
   - memcached # will start memcached
