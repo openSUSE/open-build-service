@@ -84,7 +84,7 @@ module MaintenanceHelper
     end
 
     # copy binaries
-    copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject, setrelease)
+    uIDs = copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject, setrelease)
 
     # create or update main package linking to incident package
     unless sourcePackage.is_patchinfo? or manual
@@ -99,6 +99,8 @@ module MaintenanceHelper
         # patchinfos stay unpublished, it is anyway too late to test them now ...
       end
     end
+
+    uIDs
   end
 
   def release_package_relink(link, request, targetPackageName, targetProject, tpkg)
@@ -173,6 +175,7 @@ module MaintenanceHelper
   end
 
   def copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject, setrelease)
+    updateIDs=[]
     sourcePackage.project.repositories.each do |sourceRepo|
       next if filterSourceRepository and filterSourceRepository != sourceRepo
       sourceRepo.release_targets.each do |releasetarget|
@@ -182,6 +185,7 @@ module MaintenanceHelper
             # get updateinfo id in case the source package comes from a maintenance project
             uID = get_updateinfo_id(sourcePackage, releasetarget.target_repository)
             copy_single_binary(arch, releasetarget, sourcePackage, sourceRepo, targetPackageName, uID, setrelease)
+	    updateIDs << uID
           end
         end
         # remove maintenance release trigger in source
@@ -192,6 +196,7 @@ module MaintenanceHelper
         end
       end
     end
+    updateIDs
   end
 
   def copy_single_binary(arch, releasetarget, sourcePackage, sourceRepo, targetPackageName, updateinfoId, setrelease)

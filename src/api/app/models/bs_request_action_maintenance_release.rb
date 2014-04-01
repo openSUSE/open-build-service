@@ -17,7 +17,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     # have a unique time stamp for release
     opts[:acceptTimeStamp] ||= Time.now
 
-    release_package(pkg, self.target_project, self.target_package, nil, self.bs_request)
+    opts[:updateinfoIDs] = release_package(pkg, self.target_project, self.target_package, nil, self.bs_request)
     opts[:projectCommit] ||= {}
     opts[:projectCommit][self.target_project] = self.source_project
   end
@@ -31,8 +31,9 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
         :user => User.current.login,
         :requestid => self.bs_request.id,
         :rev => 'latest',
-        :comment => 'Release from project: ' + sprj
+        :comment => 'Releasing from project ' + sprj
       }
+      commit_params[:comment] << " the update " << opts[:updateinfoIDs].join(", ") if opts[:updateinfoIDs]
       commit_path = "/source/#{URI.escape(tprj)}/_project"
       commit_path << Suse::Backend.build_query_from_hash(commit_params, [:cmd, :user, :comment, :requestid, :rev])
       Suse::Backend.post commit_path, nil

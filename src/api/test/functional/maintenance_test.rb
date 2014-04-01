@@ -1458,7 +1458,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :parent => { :tag => 'binarylist'},  :tag => 'binary', :attributes => { :filename => 'package.rpm'}
     get '/source/BaseDistro2.0:LinkedUpdateProject/_project/_history'
     assert_response :success
-    assert_xml_tag :parent => { :tag => 'revision'},  :tag => 'comment', :content => "Release from project: My:Maintenance:#{incidentID}"
+    assert_xml_tag :parent => { :tag => 'revision'},  :tag => 'comment', :content => "Releasing from project My:Maintenance:#{incidentID} the update My-oldname-2010-1"
     get "/source/BaseDistro2.0:LinkedUpdateProject/patchinfo.#{incidentID}/_meta"
     assert_response :success
     # must not build in Update project
