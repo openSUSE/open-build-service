@@ -1144,6 +1144,7 @@ class Project < ActiveRecord::Base
     User.current ||= User.find_by_login(params[:user])
 
     packages.each do |pkg|
+      next if pkg.name == "_product" # will be handled via _product:*
       pkg.project.repositories.each do |repo|
         next if params[:repository] and params[:repository] != repo.name
         next if params[:targetproject] and params[:targetproject] != repo.releasetarget.project
