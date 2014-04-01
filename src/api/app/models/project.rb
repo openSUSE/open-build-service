@@ -1168,9 +1168,9 @@ class Project < ActiveRecord::Base
       next if pkg.name == "_product" # will be handled via _product:*
       pkg.project.repositories.each do |repo|
         next if my_not_equal(params[:repository], repo.name)
-        next if my_not_equal(params[:targetproject], repo.releasetarget.project)
-        next if my_not_equal(params[:targetreposiory], repo.releasetarget.repository)
         repo.release_targets.each do |releasetarget|
+          next if my_not_equal(params[:targetproject], releasetarget.target_repository.project.name)
+          next if my_not_equal(params[:targetreposiory], releasetarget.target_repository.name)
           # release source and binaries
           # permission checking happens inside this function
           release_package(pkg, releasetarget.target_repository.project.name, pkg.name, repo, nil, params[:setrelease], true)

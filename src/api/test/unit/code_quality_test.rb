@@ -111,6 +111,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Package#revoke_requests' => 51.82,
       'PersonController#internal_register' => 108.84,
       'PersonController#put_userinfo' => 56.38,
+      'Project#do_project_release' => 50.51,
       'Project#release_targets_ng' => 57.91,
       'Project#update_download_settings' => 52.3, 
       'Project#update_from_xml' => 68.71,
