@@ -86,6 +86,7 @@ my $localkiwi;
 my $owner;
 my @hostlabel;
 my $getbinariesproxy;
+my $hardstatus;
 
 my $jobs;
 my $threads;
@@ -125,6 +126,14 @@ sub commitstate {
   my ($newstate) = @_;
   writexml("$statedir/state.new", "$statedir/state", $newstate, $BSXML::workerstate) if $newstate;
   close(STATELOCK);
+}
+
+sub hardstatus {
+  return unless $hardstatus;
+  my $l = $_[0] || '';
+  $l =~ s/[\000-\037\177-\377]//g;	# ascii only, please
+  $l = substr($l, 0, 40) if length($l) > 40;
+  print "\033_$l\033\\";
 }
 
 sub trunc_logfile {
@@ -508,6 +517,11 @@ while (@ARGV) {
     shift @ARGV;
     $cachesize = shift @ARGV;
     $cachesize *= 1024*1024;
+    next;
+  }
+  if ($ARGV[0] eq '--hardstatus') {
+    shift @ARGV;
+    $hardstatus = 1;
     next;
   }
   last;
@@ -2476,6 +2490,7 @@ if ($port) {
 }
 mkdir($buildroot) unless -d $buildroot;
 send_state('idle', $port, $hostarch);
+hardstatus('idle');
 
 my $idlecnt = 0;
 my $rekillcnt = 0;
@@ -2707,6 +2722,7 @@ if ($cgi->{'workercode'} && $cgi->{'port'} && $cgi->{'workercode'} ne $workercod
   $state->{'state'} = 'rebooting';
   print "activating new worker code $workercode\n";
   commitstate($state);
+  hardstatus('rebooting');
   die("rebooting...\n");
 }
 
@@ -2786,6 +2802,7 @@ $state->{'state'} = 'building';
 $state->{'jobid'} = $jobid;
 commitstate($state);
 
+hardstatus("$buildinfo->{'arch'} $buildinfo->{'package'}");
 send_state('building', $port, $hostarch, $buildinfo->{'reposerver'});
 
 my $ex;
@@ -3024,6 +3041,7 @@ if ($state->{'nextstate'}) {
 }
 $state = {'state' => 'idle'};
 commitstate($state);
+hardstatus('idle');
 
 exit(0) if $oneshot && time() > $oneshot;
 send_state('idle', $port, $hostarch);
