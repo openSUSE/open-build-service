@@ -62,6 +62,7 @@ BuildRequires:  perl-XML-Simple
 BuildRequires:  procps
 BuildRequires:  xorg-x11-server
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
+BuildArch:      noarch
 Requires:       build >= 20140123
 Requires:       obs-productconverter >= %version
 Requires:       obs-worker
@@ -132,17 +133,10 @@ PreReq:         %fillup_prereq %insserv_prereq
 %if 0%{?suse_version} <= 1030
 Requires:       lzma
 %endif
-%if 0%{?suse_version} >= 1120
-BuildArch:      noarch
 Requires:       util-linux >= 2.16
-%else
-%ifarch x86_64
-Requires:       linux32
-%endif
-%ifarch ppc64
-Requires:       powerpc32
-%endif
-%endif
+# the following may not even exist depending on the architecture
+Recommends:       linux32
+Recommends:       powerpc32
 
 %description -n obs-worker
 This is the obs build host, to be installed on each machine building
