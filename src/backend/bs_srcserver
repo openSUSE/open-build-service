@@ -2569,6 +2569,7 @@ sub getprojectservices {
 sub findfile {
   my ($rev, $repoid, $ext, $files) = @_;
 
+  return (undef, undef) if !$ext || $ext eq 'none';
   $files = lsrev($rev) unless $files;
   return (undef, undef) unless $files;
 
