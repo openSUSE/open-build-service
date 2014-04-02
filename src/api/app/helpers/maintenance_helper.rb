@@ -43,7 +43,7 @@ module MaintenanceHelper
     return mi
   end
 
-  def _release_product(sourcePackage, targetProject)
+  def _release_product(sourcePackage, targetProject, request)
     productPackage = Package.find_by_project_and_name sourcePackage.project.name, "_product"
     # create package container, if missing
     tpkg = create_package_container_if_missing(productPackage, "_product", targetProject)
@@ -78,7 +78,7 @@ module MaintenanceHelper
     targetProject.check_write_access!
 
     if sourcePackage.name.starts_with? "_product:"
-      _release_product(sourcePackage, targetProject)
+      _release_product(sourcePackage, targetProject, request)
     else
       _release_package(sourcePackage, targetProject, targetPackageName, request)
     end

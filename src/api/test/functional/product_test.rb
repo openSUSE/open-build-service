@@ -104,7 +104,6 @@ class ProductTests < ActionDispatch::IntegrationTest
     login_tom
     put "/source/home:tom:temporary/_meta",
         '<project name="home:tom:temporary"> <title/> <description/> 
-           <repository name="me" />
          </project>'
     assert_response :success
     put "/source/home:tom:temporary/_product/_meta",
@@ -115,7 +114,18 @@ class ProductTests < ActionDispatch::IntegrationTest
     put "/source/home:tom:temporary:link/_meta",
         '<project name="home:tom:temporary:link"> <title/> <description/> 
            <link project="home:tom:temporary" />
-           <repository name="me" />
+           <repository name="me">
+             <arch>x86_64</arch>
+           </repository>
+         </project>'
+    assert_response :success
+    # and set release target
+    put "/source/home:tom:temporary/_meta",
+        '<project name="home:tom:temporary"> <title/> <description/> 
+           <repository name="me" >
+             <releasetarget project="home:tom:temporary:link" repository="me" trigger="manual" />
+             <arch>x86_64</arch>
+           </repository>
          </project>'
     assert_response :success
 
@@ -192,7 +202,19 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match(/^obs-server: \+Kwd:\\nsupport_l3\\n-Kwd:/, @response.body)
 
+    # release product
     login_tom
+    get "/source/home:tom:temporary:link"
+    assert_response :success
+    assert_xml_tag :tag => "directory", :attributes => { :count => "0" }
+    post "/source/home:tom:temporary/_product:sle-obs-cd-cd-i586_x86_64?cmd=release"
+    assert_response :success
+    get "/source/home:tom:temporary:link"
+    assert_response :success
+    assert_xml_tag :tag => "entry", :attributes => { :name => "_product:sle-obs-cd-cd-i586_x86_64" },
+                   :parent => { :tag => "directory", :attributes => { :count => "4" } }
+    # FIXME: add tests for release number handling with various products, requires product binaries and trees
+
     # remove product and check that _product: get removed as well.
     get "/source/home:tom:temporary/_product:SUSE_SLES-release"
     assert_response :success
@@ -202,7 +224,7 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_response 404
 
     #cleanup
-    delete "/source/home:tom:temporary:link"
+    delete "/source/home:tom:temporary:link?force=1"
     assert_response :success
     delete "/source/home:tom:temporary"
     assert_response :success
