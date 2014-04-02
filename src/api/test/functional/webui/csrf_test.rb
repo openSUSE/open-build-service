@@ -1,7 +1,6 @@
 require_relative '../../test_helper'
 
-class Webui::CSFRTest < Webui::IntegrationTest
-
+class Webui::CSRFTest < Webui::IntegrationTest
   def test_csfr_protection
     login_tom
     page.driver.browser.process(:post, '/project/save_person/home%3Atom', { params: {
@@ -10,6 +9,6 @@ class Webui::CSFRTest < Webui::IntegrationTest
       project: "home%3Atom",
       commit: "Add+user"
     }})
-    assert page.status_code.eql? 403
+    assert page.status_code.eql? 950
   end
 end
