@@ -263,11 +263,8 @@ option "--insecure".
 5. Access
 =========
 
-By default you can access the api using any browser with the URL
-
-  https://$servername:444
-
-The web interface is accessible via
+By default you can access the OBS server using any browser or osc CLI
+too using the URL
 
   https://$servername
 
@@ -287,7 +284,7 @@ hostnames.
 
 In order to use the command line tool for the build service, run osc with
 
-  osc -A https://your_server:444 ls
+  osc -A https://your_server ls
 
 for example. osc asks the first time for a user and password pair.
 
