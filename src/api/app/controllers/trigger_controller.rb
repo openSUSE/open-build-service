@@ -1,7 +1,12 @@
 class TriggerController < ApplicationController
 
   validate_action :runservice => {:method => :post, :response => :status}
+
+  #
+  # This controller is checking permission always only on the base of tokens
+  #
   skip_before_action :extract_user
+  skip_before_action :require_login
 
   # github.com sends a hash payload
   skip_filter :validate_params, :only => [:runservice]
