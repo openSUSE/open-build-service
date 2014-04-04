@@ -113,6 +113,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'PersonController#put_userinfo' => 56.38,
       'Project#branch_to_repositories_from' => 54.92,
       'Project#release_targets_ng' => 57.91,
+      'Project#do_project_release' => 51.11,
       'Project#update_download_settings' => 52.3, 
       'Project#update_from_xml' => 68.71,
       'Project#update_product_autopackages' => 52.05,
