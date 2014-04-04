@@ -109,6 +109,7 @@ our $product = [
                    'project',   # input
                    'name',
                    'media',
+                   [ 'zypp' => 'name', 'alias' ],
                    'arch',      # for arch specific definitions
                 ]],
               ],
@@ -439,6 +440,7 @@ sub getproductrepositories {
       $project_expanded =~ s/:/:\//g;
       my $path = { 'path' => "/$project_expanded/$repo->{'name'}/repo/$repo->{'media'}" };
       $path->{'arch'} = $repo->{'arch'} if $repo->{'arch'};
+      $path->{'zypp'} = $repo->{'zypp'} if $repo->{'zypp'};
       push @pr, $path;
     };
     my $prod = { "name" => $product->{'name'}, "repository" => \@pr };
