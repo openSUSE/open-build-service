@@ -509,7 +509,7 @@ sub getbinarylist_repository {
       my $repo = addrepo_scan($pool, $prp, $arch);
       if ($repo) {
 	$repo->tofile("$reporoot/$prp/$arch/:full.solv.$$");
-	if (!open($fd, '<', "$reporoot/$prp/$arch/:full.cache.$$")) {
+	if (!open($fd, '<', "$reporoot/$prp/$arch/:full.solv.$$")) {
 	  undef $fd;
 	}
 	unlink("$reporoot/$prp/$arch/:full.solv.$$");
@@ -539,7 +539,7 @@ sub getbinarylist_repository {
       my $repo = addrepo_scan($pool, $prp, $arch);
       if ($repo) {
 	$repo->tofile("$reporoot/$prp/$arch/:full.solv.$$");
-	if (open($fd, '<', "$reporoot/$prp/$arch/:full.cache.$$")) {
+	if (open($fd, '<', "$reporoot/$prp/$arch/:full.solv.$$")) {
           push @files, { 'name' => 'repositorysolv', 'filename' => $fd };
 	}
 	unlink("$reporoot/$prp/$arch/:full.solv.$$");
