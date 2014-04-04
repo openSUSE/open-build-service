@@ -121,6 +121,8 @@ class AttributeTest < ActiveSupport::TestCase
   end
 
   def test_attrib
+    User.current = users( :Iggy )
+
     #check precondition
     assert_equal "OBS", @attrib_ns.name
 
@@ -178,6 +180,8 @@ class AttributeTest < ActiveSupport::TestCase
     assert_raise HasAttributes::AttributeSaveError do
       @package.store_attribute_axml(xml)
     end
+
+    User.current = nil
   end
 
 end
