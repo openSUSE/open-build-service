@@ -9,6 +9,7 @@ class PersonController < ApplicationController
   validate_action :register => {:method => :post, :response => :status}
 
   skip_before_action :extract_user, only: [:command, :register]
+  skip_before_action :require_login, only: [:command, :register]
 
   def show
     if params[:prefix]
