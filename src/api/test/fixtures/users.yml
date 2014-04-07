@@ -158,6 +158,18 @@ king:
   password_hash_type: md5
   password_salt: ''
   state: 2
+maintenance_assi:
+  created_at: 2014-04-07 06:51:18.000000000 Z
+  updated_at: 2014-04-07 06:51:18.000000000 Z
+  login_failure_count: 0
+  login: maintenance_assi
+  email: homer@nospam.net
+  realname: Maintenance Slave
+  password: 1f50dadac54490aed0c3d5beb454a9fc
+  password_hash_type: md5
+  password_salt: 0hY2gWMfcb
+  password_crypted: osAB47949pfHo
+  state: 2
 maintenance_coord:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
