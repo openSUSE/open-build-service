@@ -238,8 +238,8 @@ module MaintenanceHelper
     if p = sourcePackage.project.find_parent and p.is_maintenance?
       projectFilter = p.maintained_projects
     end
-    # prefer a channel in the target project to avoid double hits exceptions
-    ct = ChannelTarget.find_by_repo(targetRepo, [targetRepo.project]) || ChannelTarget.find_by_repo(targetRepo, projectFilter)
+    # prefer a channel in the source project to avoid double hits exceptions
+    ct = ChannelTarget.find_by_repo(targetRepo, [sourcePackage.project]) || ChannelTarget.find_by_repo(targetRepo, projectFilter)
     channelTag="" # or strip away a possibly %T in any case
     channelTag=ct.tag if ct and ct.tag
 
