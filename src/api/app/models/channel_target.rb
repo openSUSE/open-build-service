@@ -16,7 +16,7 @@ class ChannelTarget < ActiveRecord::Base
       ct.each do |cti|
         msg << "#{cti.channel.package.project.name}/#{cti.channel.package.name}, "
       end
-      raise "Multiple channel targets found in #{msg}"
+      raise "Multiple channel targets found in #{msg} for repository #{repo.project.name}/#{repo.name}"
     end
     return ct.first
   end
