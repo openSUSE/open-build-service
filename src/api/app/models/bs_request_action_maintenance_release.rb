@@ -12,12 +12,11 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
   def execute_accept(opts)
     pkg = Package.get_by_project_and_name(self.source_project, self.source_package)
-    #FIXME2.5: support limiters to specified repositories
     
     # have a unique time stamp for release
     opts[:acceptTimeStamp] ||= Time.now
 
-    opts[:updateinfoIDs] = release_package(pkg, self.target_project, self.target_package, nil, self.bs_request)
+    opts[:updateinfoIDs] = release_package(pkg, self.target_project, self.target_package, nil, self)
     opts[:projectCommit] ||= {}
     opts[:projectCommit][self.target_project] = self.source_project
   end

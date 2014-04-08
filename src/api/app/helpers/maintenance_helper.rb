@@ -43,16 +43,16 @@ module MaintenanceHelper
     return mi
   end
 
-  def _release_product(sourcePackage, targetProject, request)
+  def _release_product(sourcePackage, targetProject, action)
     productPackage = Package.find_by_project_and_name sourcePackage.project.name, "_product"
     # create package container, if missing
     tpkg = create_package_container_if_missing(productPackage, "_product", targetProject)
     # copy sources
-    release_package_copy_sources(request, productPackage, "_product", targetProject)
+    release_package_copy_sources(action, productPackage, "_product", targetProject)
     tpkg.project.update_product_autopackages
     tpkg.sources_changed
   end
-  def _release_package(sourcePackage, targetProject, targetPackageName, request)
+  def _release_package(sourcePackage, targetProject, targetPackageName, action)
     # create package container, if missing
     tpkg = create_package_container_if_missing(sourcePackage, targetPackageName, targetProject)
 
@@ -64,23 +64,23 @@ module MaintenanceHelper
       link = nil
     end
     if link and (link.value(:project).nil? or link.value(:project) == sourcePackage.project.name)
-      release_package_relink(link, request, targetPackageName, targetProject, tpkg)
+      release_package_relink(link, action.bs_request, targetPackageName, targetProject, tpkg)
     else
       # copy sources
-      release_package_copy_sources(request, sourcePackage, targetPackageName, targetProject)
+      release_package_copy_sources(action, sourcePackage, targetPackageName, targetProject)
       tpkg.sources_changed
     end
   end
 
   def release_package(sourcePackage, targetProjectName, targetPackageName,
-                      filterSourceRepository = nil, request = nil, setrelease = nil, manual = nil)
+                      filterSourceRepository = nil, action = nil, setrelease = nil, manual = nil)
     targetProject = Project.get_by_name targetProjectName
     targetProject.check_write_access!
 
     if sourcePackage.name.starts_with? "_product:"
-      _release_product(sourcePackage, targetProject, request)
+      _release_product(sourcePackage, targetProject, action)
     else
-      _release_package(sourcePackage, targetProject, targetPackageName, request)
+      _release_package(sourcePackage, targetProject, targetPackageName, action)
     end
 
     # copy binaries
@@ -88,7 +88,7 @@ module MaintenanceHelper
 
     # create or update main package linking to incident package
     unless sourcePackage.is_patchinfo? or manual
-      release_package_create_main_package(request, sourcePackage, targetPackageName, targetProject)
+      release_package_create_main_package(action.bs_request, sourcePackage, targetPackageName, targetProject)
     end
 
     # publish incident if source is read protect, but release target is not. assuming it got public now.
@@ -155,7 +155,7 @@ module MaintenanceHelper
     lpkg.sources_changed(answer)
   end
 
-  def release_package_copy_sources(request, sourcePackage, targetPackageName, targetProject)
+  def release_package_copy_sources(action, sourcePackage, targetPackageName, targetProject)
     # backend copy of current sources as full copy
     # that means the xsrcmd5 is different, but we keep the incident project anyway.
     cp_params = {
@@ -167,11 +167,14 @@ module MaintenanceHelper
         :expand => '1',
         :withvrev => '1',
         :noservice => '1',
+        :withacceptinfo => '1',
     }
-    cp_params[:requestid] = request.id if request
+    cp_params[:requestid] = action.bs_request.id if action
     cp_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetPackageName)}"
-    cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid, :expand, :withvrev, :noservice])
-    Suse::Backend.post cp_path, nil
+    cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid, :expand, :withvrev, :noservice, :withacceptinfo])
+    result = Suse::Backend.post cp_path, nil
+    result = Xmlhash.parse(result.body)
+    action.set_acceptinfo(result["acceptinfo"]) if action
   end
 
   def copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject, setrelease)

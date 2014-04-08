@@ -41,7 +41,6 @@ module SubmitRequestSourceDiff
     def diff_for_source(spkg)
       @target_project = action.target_project
       @target_package = action.target_package
-
       # the target is by default the _link target
       # maintenance_release creates new packages instance, but are changing the source only according to the link
       provided_in_other_action = overwrite_target_by_link(spkg)
@@ -90,7 +89,6 @@ module SubmitRequestSourceDiff
       # run diff
       query[:view] = 'xml' if @view_xml # Request unified diff in full XML view
       query[:withissues] = 1 if @withissues
-
       BsRequestAction.get_package_diff(path, query)
     end
 
@@ -109,7 +107,7 @@ module SubmitRequestSourceDiff
     def overwrite_target_by_link(spkg)
       # the target is by default the _link target
       # maintenance_release creates new packages instance, but are changing the source only according to the link
-      return unless !action.target_package or [:maintenance_release, :maintenance_incident].include? action.action_type
+      return unless !action.target_package or [:maintenance_incident].include? action.action_type
       data = Xmlhash.parse(ActiveXML.backend.direct_http(URI("/source/#{URI.escape(action.source_project)}/#{URI.escape(spkg)}")))
       e = data['linkinfo']
       return unless e
