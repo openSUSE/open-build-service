@@ -51,7 +51,7 @@ class Event::CommentForRequest < ::Event::Request
   include CommentEvent
   self.description = 'New comment for request created'
   payload_keys :request_id
-  receiver_roles :target_maintainer, :creator, :reviewer
+  receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer
 
   def subject
     req = BsRequest.find(payload['id'])
