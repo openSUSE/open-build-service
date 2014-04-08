@@ -6,15 +6,15 @@ class EventFindSubscribers
   end
 
   def expand_toconsider
-    Rails.logger.debug "Expand #{@toconsider.inspect}"
-
     nt = []
     @toconsider.each do |r|
       nt.concat(expand_one_rule(r))
     end
 
     @toconsider = nt
-    Rails.logger.debug "Expanded #{@toconsider.inspect}"
+    @toconsider.each do |t|
+      Rails.logger.debug "Expanded #{t.inspect}"
+    end
   end
 
   def expand_one_rule(r)
@@ -23,7 +23,9 @@ class EventFindSubscribers
     end
 
     users = @event.send("#{r.receiver_role}s")
-    raise "we need an array for #{@event.inspect} -> #{r.receiver_role}" unless users.is_a? Array
+    users.each do |u|
+      Rails.logger.debug "Event for receiver_role #{r.receiver_role} goes to user #{u}"
+    end
 
     # fetch database settings
     ret = EventSubscription.where(eventtype: r.eventtype, receiver_role: r.receiver_role, user_id: users).to_a
@@ -76,7 +78,7 @@ class EventFindSubscribers
 
   def receiver_role_set(role)
     @toconsider.each do |r|
-      if r.receiver_role.to_sym == r.receiver_role.to_sym
+      if r.receiver_role.to_sym == role.to_sym
         return true
       end
     end
@@ -86,8 +88,6 @@ class EventFindSubscribers
   def subscribers
     @payload = @event.payload
     @subscriptions = EventSubscription.where(eventtype: @event.class.classnames)
-
-    # we have 4 different subscription types and each requires a different strategy
 
     # 1. generic defaults
     @toconsider = @subscriptions.where('user_id is null').to_a
@@ -101,7 +101,10 @@ class EventFindSubscribers
     usergenerics = @subscriptions
     @toconsider |= usergenerics.where(receiver_role: :all).to_a
 
-    Rails.logger.debug "To consider #{@toconsider.inspect}"
+
+    @toconsider.each do |t|
+      Rails.logger.debug "To consider #{t.inspect}"
+    end
     return [] if @toconsider.empty?
 
     expand_toconsider
