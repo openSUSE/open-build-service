@@ -13,6 +13,7 @@ function renderPackagesTable(wrapper, packages, length) {
                 }
             }
         ],
+        "iDisplayLength": length,
         "bStateSave": true
     });
 }
