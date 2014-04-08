@@ -1393,6 +1393,15 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag( :parent => { :tag => 'state'}, :tag => 'comment', :content => 'blahfasel')
 
+    # leave a comment
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
+      raw_post create_request_comment_path(id: reqid), 'Release it now!'
+      assert_response :success
+    end
+
+    get comments_request_path(id: reqid)
+    assert_xml_tag tag: 'comment', attributes: { who: 'king' }, content: 'Release it now!'
+
     #### release packages
     # published binaries from incident still exist?
     get "/published/#{incidentProject}/BaseDistro3/i586/package-1.0-1.i586.rpm"
