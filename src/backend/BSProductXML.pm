@@ -83,7 +83,7 @@ our $group = [
 # Defines a single product, will be used in installed system to indentify it 
 our $product = [
            'product' =>
-           'id',
+           'id',            # obsolete, do not use anymore
            'schemeversion',
            [],
            'vendor',

@@ -1322,6 +1322,10 @@ die("illegal product name: $product->{'name'}\n") if $product->{'name'} =~ /^[_\
 die("illegal product name: $product->{'name'}\n") if $product->{'name'} =~ /[\/\000-\037]/;
 die("ERROR: File name does not match to product name ($infile/$prodRef->{'products'}->{'product'}[0]->{'name'}.product)\n") if not $infile =~ /.*\/$prodRef->{'products'}->{'product'}[0]->{'name'}.product$/;
 die("no support for multi product definitions\n") if $prodRef->{'products'}->{'product'}[1];
+my $mediaStyle = getMediaStyle($prodRef);
+unless ($mediaStyle =~ /^suse-1[12].[123]$/ || $mediaStyle =~ /^suse-sle11/) {
+  die("Do not set id attribute in product anymore.\n") if $prodRef->{'products'}->{'product'}[0]->{'id'};
+}
 
 #
 # Calculate version strings
