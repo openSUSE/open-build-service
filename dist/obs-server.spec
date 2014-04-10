@@ -440,6 +440,13 @@ cp config/options.yml{.example,}
 cp config/thinking_sphinx.yml{.example,}
 touch config/test.sphinx.conf
 cat > config/database.yml <<EOF
+migrate:
+  adapter: mysql2
+  host:    localhost
+  database: api_25
+  username: root
+  encoding: utf8
+  socket:   /tmp/obs.test.mysql.socket
 test:
   adapter: mysql2
   host:    localhost
@@ -448,8 +455,14 @@ test:
   encoding: utf8
   socket:   /tmp/obs.test.mysql.socket
 EOF
-export RAILS_ENV=test
 /usr/sbin/memcached -l 127.0.0.1 -d -P $PWD/memcached.pid
+# migration test
+export RAILS_ENV=migrate
+bundle exec rake --trace db:create || exit 1
+xzcat test/dump_2.5.sql.xz | mysql  -u root --socket=/tmp/obs.test.mysql.socket
+bundle exec rake --trace db:migrate db:drop || exit 1
+# entire test suite
+export RAILS_ENV=test
 bundle exec rake --trace db:create db:setup || exit 1
 mv log/test.log{,.old}
 if ! bundle exec rake --trace test:api test:webui ; then
