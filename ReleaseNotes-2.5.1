@@ -1,0 +1,28 @@
+#
+# openSUSE Build Service 2.5.1
+#
+
+Updaters from any OBS 2.5 release can just ugrade the packages
+and restart all services. Updaters from former releases should
+read the README.UPDATERS file.
+
+Feature backports:
+==================
+
+* None
+
+Changes:
+========
+
+* None
+
+Bugfixes:
+=========
+
+* api: fix database migration problem from OBS 2.4.x (github issue 648)
+* api: improve some error message wordings
+* api: fix lost source service trigger events (eg. from github.com)
+* backend: fixed manual release of products
+* backend: fixed dumping of solvstate
+* rubygem-passenger: don't crash on systems using systemd
+
