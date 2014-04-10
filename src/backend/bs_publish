@@ -1851,8 +1851,10 @@ publishprog_done:
     }
   }
   if ($BSConfig::publishedhook && $BSConfig::publishedhook->{$publish_prp}) {
-    print "    calling published hook $BSConfig::publishedhook->{$publish_prp}\n";
-    qsystem($BSConfig::publishedhook->{$publish_prp}, $prp, $extrep, @changed) && warn("    $BSConfig::publishedhook->{$publish_prp} failed: $?");
+    my $hook = $BSConfig::publishedhook->{$publish_prp};
+    $hook = [ $hook ] unless ref $hook;
+    print "    calling published hook @$hook\n";
+    qsystem(@$hook, $prp, $extrep, @changed) && warn("    @$hook failed: $?\n");
   }
 
   notify('REPO_PUBLISHED', { project => $projid , 'repo' => $repoid });
