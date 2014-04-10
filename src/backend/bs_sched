@@ -4616,11 +4616,14 @@ sub metacheck {
     #print "        nothing changed\n";
     return ('done');
   }
-  my $repo = $ctx->{'repo'};
-  if (($packtype eq 'kiwi-image' || $packtype eq 'kiwi-product') && $repo->{'rebuild'} && $repo->{'rebuild'} eq 'local') {
-    #print "      - $packid ($packtype)\n";
-    #print "        nothing changed\n";
-    return ('done');
+  my $repo = $ctx->{'repo'}; 
+  if ($packtype eq 'kiwi-image' || $packtype eq 'kiwi-product') {
+    my $rebuildmethod = $repo->{'rebuild'} || 'transitive';
+    if ($rebuildmethod eq 'local') {
+      #print "      - $packid ($packtype)\n";
+      #print "        nothing changed\n";
+      return ('done');
+    }
   }
   my @diff = diffsortedmd5(\@meta, $new_meta);
   print "      - $packid ($packtype)\n";
@@ -6481,7 +6484,8 @@ sub checkpackage {
     print "        retrying bad build\n";
     return ('scheduled', [ { 'explain' => 'retrying bad build' } ]);
   } else {
-    if ($repo->{'rebuild'} && $repo->{'rebuild'} eq 'local') {
+    my $rebuildmethod = $repo->{'rebuild'} || 'transitive';
+    if ($rebuildmethod eq 'local') {
       # rebuild on src changes only
       goto relsynccheck;
     }
@@ -6494,7 +6498,7 @@ sub checkpackage {
     my $check = substr($mylastcheck, 32, 32);
     my $pool = $ctx->{'pool'};
     my $dep2pkg = $ctx->{'dep2pkg'};
-    $check .= $repo->{'rebuild'} || 'transitive';
+    $check .= $rebuildmethod;
     $check .= $pool->pkg2pkgid($dep2pkg->{$_}) for sort @$edeps;
     $check = Digest::MD5::md5_hex($check);
     if ($check eq substr($mylastcheck, 64, 32)) {
@@ -6566,7 +6570,7 @@ sub checkpackage {
       close F;
       chomp @meta;
     }
-    if ($repo->{'rebuild'} && $repo->{'rebuild'} eq 'direct') {
+    if ($rebuildmethod eq 'direct') {
       @meta = grep {!/\//} @meta;
       @new_meta = grep {!/\//} @new_meta;
     }
@@ -6574,7 +6578,7 @@ sub checkpackage {
       # print "      - $packid ($packtype)\n";
       # print "        nothing changed (looked harder)\n";
       $ctx->{'nharder'}++;
-      if ($repo->{'rebuild'} && $repo->{'rebuild'} eq 'direct') {
+      if ($rebuildmethod eq 'direct') {
 	$lastcheck->{$packid} = $mylastcheck;
       } else {
 	# should not happen, delete lastcheck cache
