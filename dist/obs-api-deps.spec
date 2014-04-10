@@ -24,7 +24,6 @@ Version:        20140225135221.f44c6296
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
-Source0:        update-sources.sh
 
 %description
 This package serves one purpose only: to list the dependencies in Gemfile.lock
