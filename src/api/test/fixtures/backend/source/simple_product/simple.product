@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <productdefinition xmlns:xi="http://www.w3.org/2001/XInclude">
   <products>
-    <product id="simple">
+    <product>
       <vendor>OBS_Fuzzies</vendor>
       <name>simple</name>
       <version>13.1</version>

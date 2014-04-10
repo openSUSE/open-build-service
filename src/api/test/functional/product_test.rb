@@ -57,7 +57,7 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "kind", :content => "product"
     get "/source/home:tom:temporary/_product?view=products"
     assert_response :success
-    assert_xml_tag :parent => { :tag => "product", :attributes => { :id => 'simple' } },
+    assert_xml_tag :parent => { :tag => "product" },
                    :tag => "name", :content => "simple"
     get "/source/home:tom:temporary/_product?view=products&product=simple"
     assert_response :success
