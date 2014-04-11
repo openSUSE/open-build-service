@@ -919,7 +919,7 @@ sub writeProductSPECfile( $$$$ )
       $productprovides.="Provides:       product($product->{'name'}) = %version-%release\n";
     } else {
       # openSUSE 13.2 and SLE 12 case
-      die("product release is not set but required") unless defined($product->{register}->{release}) and $product->{register}->{release} ne "";
+      die("product release is not set but required") unless defined($product->{release}) and $product->{release} ne "";
       $productprovides.="Provides:       product(".$product->{name}.") = ".escapeProvides($product->{version}."-".$product->{register}->{release})."\n";
       foreach my $shortsummary ( @{$product->{'shortsummary'}} ){
         $productprovides.="Provides:       product-label() = ".escapeProvides($shortsummary->{'_content'})."\n" if ( ! $shortsummary->{'language'} );
