@@ -919,6 +919,7 @@ sub writeProductSPECfile( $$$$ )
       $productprovides.="Provides:       product($product->{'name'}) = %version-%release\n";
     } else {
       # openSUSE 13.2 and SLE 12 case
+      die("product register release is obsolete") if defined($product->{register}->{release}); # was used for OEM products on SLE 10
       die("product release is not set but required") unless defined($product->{release}) and $product->{release} ne "";
       $productprovides.="Provides:       product(".$product->{name}.") = ".escapeProvides($product->{version}."-".$product->{register}->{release})."\n";
       foreach my $shortsummary ( @{$product->{'shortsummary'}} ){
