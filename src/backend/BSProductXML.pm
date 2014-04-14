@@ -122,9 +122,9 @@ our $product = [
                 [[ 'repository' =>
                    'project',   # input
                    'name',
-                   [ 'zypp' => 'name', 'alias' ],
                    'repoid',    # output for .prod file
                    'arch',      # for arch specific definitions
+                   [ 'zypp' => 'name', 'alias' ],
                 ]],
               ],
               [ 'repositories' =>
