@@ -124,6 +124,31 @@ reposrv = Thread.new do
   end
 end
 
+while !dienow
+  puts 'Connecting to srcserver...'
+  begin
+    Net::HTTP.start(CONFIG['source_host'], CONFIG['source_port']) { |http| http.get('/') }
+  rescue Errno::ECONNREFUSED, Errno::ENETUNREACH
+    sleep 0.5
+    next
+  end
+  break
+end
+
+while !dienow
+  puts 'Connecting to repserver...'
+  begin
+    Net::HTTP.start(CONFIG['source_host'], 3201) { |http| http.get('/') }
+  rescue Errno::ECONNREFUSED, Errno::ENETUNREACH
+    sleep 0.5
+    next
+  end
+  break
+end
+
+# ensure that backend is in sync with api fixtures
+Suse::Backend.put('/configuration', Configuration.first.render_xml)
+
 puts 'Starting backend serviceserver...'
 servicesrv = Thread.new do
   servicesrv_out = IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_service 2>&1")
@@ -152,28 +177,6 @@ publishsrv = Thread.new do
       break
     end
   end
-end
-
-while !dienow
-  puts 'Connecting to srcserver...'
-  begin
-    Net::HTTP.start(CONFIG['source_host'], CONFIG['source_port']) { |http| http.get('/') }
-  rescue Errno::ECONNREFUSED, Errno::ENETUNREACH
-    sleep 0.5
-    next
-  end
-  break
-end
-
-while !dienow
-  puts 'Connecting to repserver...'
-  begin
-    Net::HTTP.start(CONFIG['source_host'], 3201) { |http| http.get('/') }
-  rescue Errno::ECONNREFUSED, Errno::ENETUNREACH
-    sleep 0.5
-    next
-  end
-  break
 end
 
 while !dienow
