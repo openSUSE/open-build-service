@@ -1585,6 +1585,17 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     end
     #STDERR.puts JSON.pretty_generate(hashed)
     assert hashed['package'].map{|f| f['file']}.include? '/my_packaged_file'
+    # master tags
+    IO.popen("cat #{Rails.root}/tmp/backend_data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/repomd.xml") do |io|
+       hashed = Xmlhash.parse(io.read)
+    end
+    found=nil
+    hashed["data"].each do |d|
+      found=true if d["type"] == "updateinfo"
+    end
+    assert_equal found, true
+    # modifyrepo tends to kill that one:
+    assert_equal hashed["tags"]["repo"], "obsrepository://obstest/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo"
 
     # verify that local linked packages still get branched correctly
     post '/source/BaseDistro2.0/pack2', :cmd => 'branch'

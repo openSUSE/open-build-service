@@ -5,7 +5,8 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
 
   def setup
-    run_scheduler( "i586" )
+    super
+    wait_for_scheduler_start
     wait_for_publisher()
   end
 
@@ -127,6 +128,13 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
     end
     assert package_seen["package"]
     assert package_seen["package_newweaktags"]
+
+    # master tags
+    hashed = nil
+    IO.popen("cat #{Rails.root}/tmp/backend_data/repos/BaseDistro3/BaseDistro3_repo/repodata/repomd.xml") do |io|
+       hashed = Xmlhash.parse(io.read)
+    end
+    assert_equal hashed["tags"]["repo"], "obsrepository://obstest/BaseDistro3/BaseDistro3_repo"
   end
 
   def test_suse_format
