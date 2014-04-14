@@ -70,7 +70,5 @@ class ConfigurationsControllerTest < ActionDispatch::IntegrationTest
                    :tag => "arch", :content => "i586"
     assert_no_xml_tag :parent => { :tag => "schedulers" },
                    :tag => "arch", :content => "s390x"
-    get '/configuration'
-    assert_response :success
   end
 end
