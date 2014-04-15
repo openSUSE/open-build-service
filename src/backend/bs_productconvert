@@ -321,7 +321,6 @@ sub createProductOptions($$$)
 
     my %info;
     $info{'VENDOR'}       = $product->{'vendor'};
-    $info{'DISTRIBUTION'} = $product->{'installconfig'}->{'distribution'};
     if (defined($medium->{'descriptiondir'})) {
 	$info{'DESCRDIR'}     = $medium->{'descriptiondir'};
     } else {
@@ -339,6 +338,7 @@ sub createProductOptions($$$)
         $info{'PATTERNS'} .= join(' ',map( $_->{'name'},@{$medium->{'preselected_patterns'}->[0]->{'pattern'}}));
     }
     if ($mediaStyle =~ "^suse-11" || $mediaStyle =~ "^suse-12" || $mediaStyle =~ "^suse-sle11") {
+       $info{'DISTRIBUTION'} = $product->{'installconfig'}->{'distribution'};
        $info{'NAME'}         = $product->{'name'};
        $info{'VERSION'}      = $product->{'version'};
        $info{'SP_VERSION'}   = $product->{'patchlevel'} if (defined($product->{'patchlevel'}));
@@ -357,9 +357,12 @@ sub createProductOptions($$$)
        }
     } else {
        # for SLE 12 and later
+       my $label="";
        foreach my $summary ( @{$product->{'summary'}} ){
-         $info{'SUMMARY'}      = $summary->{'_content'} if ( ! $summary->{'language'} );
+         $label = $summary->{'_content'} if ( ! $summary->{'language'} );
        }
+       my $cpe = getCpeId($prodRef, $product);
+       $info{'DISTRO'}      = "$cpe,$label";
     }
     $options{'REPO_LOCATION'} = getUrl($product,$arch,"repository");
 
@@ -921,7 +924,8 @@ sub writeProductSPECfile( $$$$ )
       # openSUSE 13.2 and SLE 12 case
       die("product register release is obsolete") if defined($product->{register}->{release}); # was used for OEM products on SLE 10
       die("product release is not set but required") unless defined($product->{release}) and $product->{release} ne "";
-      $productprovides.="Provides:       product(".$product->{name}.") = ".escapeProvides($product->{version}."-".$product->{register}->{release})."\n";
+      $productprovides.="Provides:       product() = $product->{name}\n";
+      $productprovides.="Provides:       product(".$product->{name}.") = ".escapeProvides($product->{version}."-".$product->{release})."\n";
       foreach my $shortsummary ( @{$product->{'shortsummary'}} ){
         $productprovides.="Provides:       product-label() = ".escapeProvides($shortsummary->{'_content'})."\n" if ( ! $shortsummary->{'language'} );
       }
@@ -1227,7 +1231,7 @@ sub createProductFile ( $$ ) {
     $zypp_product->{'cpeid'} = $cpe if $cpe;
 
     $d->{"target"}  = $product->{'register'}->{'target'};
-    $d->{"release"} = $product->{'register'}->{'release'};
+    $d->{"release"} = $product->{'register'}->{'release'} if defined($product->{'register'}->{'release'}); # < SLE 12
     my $special_arch_update_repo;
     my $special_arch_update_ncc;
     if ($mediaStyle =~ /^suse-1[12].[123]$/ || $mediaStyle =~ /^suse-sle11/) {
