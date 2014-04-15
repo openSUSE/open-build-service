@@ -1578,6 +1578,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
       assert_equal 'would_be_nice', pac['format']['rpm:recommends']['rpm:entry']['name']
       assert_equal 'other_package_likes_it', pac['format']['rpm:supplements']['rpm:entry']['name']
       assert_equal 'other_package', pac['format']['rpm:enhances']['rpm:entry']['name']
+    else
+      puts "WARNING: some tests are skipped on non-SUSE systems. rpmmd meta data may not be complete."
     end
     # file lists
     IO.popen("gunzip -cd #{Rails.root}/tmp/backend_data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-filelists.xml.gz") do |io|
@@ -1595,7 +1597,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     end
     assert_equal found, true
     # modifyrepo tends to kill that one:
-    assert_equal hashed["tags"]["repo"], "obsrepository://obstest/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo"
+    if File.exist? '/etc/init.d/boot.local'
+      # seems to be a SUSE system
+      assert_equal hashed["tags"]["repo"], "obsrepository://obstest/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo"
+    end
 
     # verify that local linked packages still get branched correctly
     post '/source/BaseDistro2.0/pack2', :cmd => 'branch'
