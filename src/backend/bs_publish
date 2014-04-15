@@ -1228,7 +1228,18 @@ sub publish {
   # we need the config for repotype/patterntype
   my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid");
   $config = Build::read_config('noarch', [ split("\n", $config) ]);
-  $config->{'repotype'} = [ 'rpm-md' ] unless @{$config->{'repotype'} || []};
+
+  if (!@{$config->{'repotype'} || []}) {
+    # guess repotype from binarytype
+    my $binarytype = $config->{'binarytype'} || '';
+    my $repotype;
+    $repotype = 'rpm-md' if $binarytype eq 'rpm';
+    $repotype = 'debian' if $binarytype eq 'deb';
+    $repotype = 'arch' if $binarytype eq 'arch';
+    $repotype ||= 'rpm-md';
+    $config->{'repotype'} = [ $repotype ];
+  }
+
   my %repotype;
   for (@{$config->{'repotype'} || []}) {
     if (/^(.*?):(.*)$/) {
