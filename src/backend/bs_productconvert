@@ -358,8 +358,8 @@ sub createProductOptions($$$)
     } else {
        # for SLE 12 and later
        my $label="";
-       foreach my $summary ( @{$product->{'summary'}} ){
-         $label = $summary->{'_content'} if ( ! $summary->{'language'} );
+       foreach my $shortsummary ( @{$product->{'summary'}} ){
+         $label = $shortsummary->{'_content'} if ( ! $shortsummary->{'language'} );
        }
        my $cpe = getCpeId($prodRef, $product);
        $info{'DISTRO'}      = "$cpe,$label";
