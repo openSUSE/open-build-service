@@ -138,7 +138,7 @@ class BsRequestPermissionCheck
           err = "Local source package is missing for request #{action.bs_request.id} (type #{action.action_type})"
         when :submit
           # accept also a remote source package
-          unless Package.exists_by_project_and_name(@source_project.name, action.source_package,
+          unless @source_project.class == String or Package.exists_by_project_and_name(@source_project.name, action.source_package,
                                                     follow_project_links: true, allow_remote_packages: true)
             err = "Source package is missing for request #{action.bs_request.id} (type #{action.action_type})"
           end

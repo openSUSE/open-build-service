@@ -659,7 +659,7 @@ class BsRequestAction < ActiveRecord::Base
       unless sprj
         raise UnknownProject.new "Unknown source project #{self.source_project}"
       end
-      unless sprj.class == Project
+      unless sprj.class == Project or self.action_type == :submit
         raise NotSupported.new "Source project #{self.source_project} is not a local project. This is not supported yet."
       end
       if self.source_package
@@ -736,6 +736,9 @@ class BsRequestAction < ActiveRecord::Base
         end
       end
       # allow cleanup only, if no devel package reference
+      if self.sourceupdate == 'cleanup' and sprj.class != Project
+        raise NotSupported.new "Source project #{self.source_project} is not a local project. cleanup is not supported."
+      end
       if self.sourceupdate == 'cleanup' && spkg
         spkg.can_be_deleted?
       end
