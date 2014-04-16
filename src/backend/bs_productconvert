@@ -284,6 +284,9 @@ sub createProductOptions($$$)
     unless ($mediaStyle =~ /^suse-1[12]/ || $mediaStyle =~ /^suse-sle11/) {
       # remove tree for media style 12 by default
       $varsH{DROP_REPOSITORY} = "true" unless $varsH{REPO_ONLY} || $varsH{DROP_REPOSITORY};
+      foreach my $shortsummary ( @{$product->{'shortsummary'}} ){
+        $varsH{PRODUCT_SUMMARY} = $shortsummary->{'_content'} if ( ! $shortsummary->{'language'} );
+      }
     }
 
     # switch to sha256 sums except for old distros
