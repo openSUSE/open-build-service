@@ -534,6 +534,8 @@ module Webui::WebuiHelper
   end
 
   def can_register
+    return true if User.current and User.current.is_admin?
+
     begin
       UnregisteredUser.can_register?
     rescue APIException

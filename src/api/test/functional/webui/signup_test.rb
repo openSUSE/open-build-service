@@ -37,6 +37,10 @@ class Webui::SignupTest < Webui::IntegrationTest
       change_signup_config 'never'
       visit user_register_user_path
       page.must_have_content "Sorry, sign up is disabled"
+      # but still works for admin
+      login_king
+      visit user_register_user_path
+      page.must_have_content "Sign Up for an Open Build Service account"
     end
 
 end
