@@ -530,7 +530,6 @@ end
 
     # cleanup option can not work, do not allow to create requests
     raw_post '/request?cmd=create', "<request><action type='submit'><source project='RemoteInstance:home:Iggy' package='TestPack'/><target project='home:Iggy' package='TEMPORARY'/> <options><sourceupdate>cleanup</sourceupdate></options></action></request>"
-print @response.body
     assert_response 400
     assert_xml_tag :tag => 'status', :attributes => { :code => 'not_supported' }
   end
