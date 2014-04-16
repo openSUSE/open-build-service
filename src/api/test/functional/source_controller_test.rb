@@ -2107,9 +2107,6 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_release_package
-    # define release target
-    login_king
-
     login_adrian
     # define manual release target
     put '/source/home:adrian:RT/_meta', "<project name='home:adrian:RT'> <title/> <description/>
@@ -2132,6 +2129,10 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     rt.add_attribute REXML::Attribute.new('project', 'home:adrian:RT')
     rt.add_attribute REXML::Attribute.new('repository', 'rt')
     put '/source/home:Iggy/_meta', doc.to_s
+    assert_response :success
+    post '/source/home:Iggy/TestPack?cmd=branch&target_project=home:Iggy&target_package=TestPackBranch', nil
+    assert_response :success
+    get '/source/home:Iggy/TestPackBranch/_link'
     assert_response :success
 
     # try to release with incorrect trigger
@@ -2157,6 +2158,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     post '/source/home:Iggy/TestPack?cmd=release', nil
     assert_response :success
     assert_xml_tag :tag => 'status', :attributes => { :code => 'ok' }
+    post '/source/home:Iggy/TestPackBranch?cmd=release', nil
+    assert_response :success
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'ok' }
 
     # process events
     run_scheduler('i586')
@@ -2165,6 +2169,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/home:adrian:RT'
     assert_response :success
     assert_xml_tag :tag => 'entry', :attributes => { :name => 'TestPack' }
+    assert_xml_tag :tag => 'entry', :attributes => { :name => 'TestPackBranch' }
 
     # compare source with target repo
     get '/build/home:Iggy/10.2/i586/TestPack/'
@@ -2177,7 +2182,11 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
     assert_xml_tag :tag => 'binary', :attributes => { :filename => 'package-1.0-1.i586.rpm' }
 
-
+    # link got expanded
+    get '/source/home:adrian:RT/TestPackBranch/TestPack.spec'
+    assert_response :success
+    get '/source/home:adrian:RT/TestPackBranch/_link'
+    assert_response 404
 
     # release for real with a defined release tag
     login_adrian
@@ -2209,6 +2218,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # cleanup
     login_Iggy
     put '/source/home:Iggy/_meta', orig_project_meta
+    assert_response :success
+    delete '/source/home:Iggy/TestPackBranch'
     assert_response :success
     login_adrian
     delete '/source/home:adrian:RT'

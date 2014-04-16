@@ -52,19 +52,22 @@ module MaintenanceHelper
     tpkg.project.update_product_autopackages
     tpkg.sources_changed
   end
-  def _release_package(sourcePackage, targetProject, targetPackageName, action)
+  def _release_package(sourcePackage, targetProject, targetPackageName, action, relink)
     # create package container, if missing
     tpkg = create_package_container_if_missing(sourcePackage, targetPackageName, targetProject)
 
-    # detect local links
-    begin
-      link = sourcePackage.source_file('_link')
-      link = ActiveXML::Node.new(link)
-    rescue ActiveXML::Transport::Error
-      link = nil
+    link = nil
+    if relink
+      # detect local links
+      begin
+        link = sourcePackage.source_file('_link')
+        link = ActiveXML::Node.new(link)
+      rescue ActiveXML::Transport::Error
+        link = nil
+      end
     end
     if link and (link.value(:project).nil? or link.value(:project) == sourcePackage.project.name)
-      release_package_relink(link, action.bs_request, targetPackageName, targetProject, tpkg)
+      release_package_relink(link, action, targetPackageName, targetProject, tpkg)
     else
       # copy sources
       release_package_copy_sources(action, sourcePackage, targetPackageName, targetProject)
@@ -80,7 +83,7 @@ module MaintenanceHelper
     if sourcePackage.name.starts_with? "_product:"
       _release_product(sourcePackage, targetProject, action)
     else
-      _release_package(sourcePackage, targetProject, targetPackageName, action)
+      _release_package(sourcePackage, targetProject, targetPackageName, action, manual ? nil : true)
     end
 
     # copy binaries
@@ -103,7 +106,7 @@ module MaintenanceHelper
     uIDs
   end
 
-  def release_package_relink(link, request, targetPackageName, targetProject, tpkg)
+  def release_package_relink(link, action, targetPackageName, targetProject, tpkg)
     link.delete_attribute('project') # its a local link, project name not needed
     link.set_attribute('package', link.value(:package).gsub(/\..*/, '') + targetPackageName.gsub(/.*\./, '.')) # adapt link target with suffix
     link_xml = link.dump_xml
@@ -116,7 +119,7 @@ module MaintenanceHelper
         :noservice => '1',
         :comment => "Set link to #{targetPackageName} via maintenance_release request",
     }
-    upload_params[:requestid] = request.id if request
+    upload_params[:requestid] = action.bs_request.id if action
     upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}"
     upload_path << Suse::Backend.build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
     answer = Suse::Backend.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
