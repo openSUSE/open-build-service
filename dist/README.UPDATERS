@@ -23,10 +23,6 @@ use port 443 now.
     # RAILS_ENV="production" rake db:migrate
     # chown -R wwwrun.www log tmp
 
-    # cd /srv/www/obs/webui/
-    # RAILS_ENV="production" rake db:migrate
-    # chown -R wwwrun.www log tmp
-
  2) Restart memcached after database migration to wipe possible broken
     cache data.
 
