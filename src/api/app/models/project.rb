@@ -927,7 +927,7 @@ class Project < ActiveRecord::Base
   # return array of [:name, :project_id] tuples
   def expand_all_packages
     p_map = Hash.new
-    packages = self.packages.pluck([:name,:project_id])
+    packages = self.packages.pluck(:name,:project_id)
     packages.each { |name, prjid| p_map[name] = 1 } # existing packages map
     # second path, all packages from indirect linked projects
     self.linkedprojects.each do |lp|

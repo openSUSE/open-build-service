@@ -34,7 +34,7 @@ class Tagcloud
       end
 
     else
-      @tags = Tag.includes(:taggings)
+      @tags = Tag.includes(:taggings).to_a
       @tags.each do |tag|
         tag.cached_count = tag.taggings.count
       end

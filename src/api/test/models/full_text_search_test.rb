@@ -1,4 +1,4 @@
-require 'test_helper'
+require_relative '../test_helper'
 require 'obsapi/test_sphinx'
 
 class FullTextSearchTest < ActiveSupport::TestCase

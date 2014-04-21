@@ -1,4 +1,5 @@
 worker_processes 4
+listen 3000
 
 after_fork do |server, worker|
   listener = server.listener_opts.first[0]

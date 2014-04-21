@@ -339,7 +339,7 @@ The library includes bindings for both the C and C++ languages. It works on POSI
   end
 
   test 'fixtures name' do
-    packages(:home_Iggy_TestPack).fixtures_name.must_equal 'home_Iggy_TestPack'
+    assert_equal 'home_Iggy_TestPack', packages(:home_Iggy_TestPack).fixtures_name
   end
 
   private
