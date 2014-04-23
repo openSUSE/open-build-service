@@ -5,7 +5,6 @@ require File.dirname(__FILE__) + '/environment'
 require 'event'
 
 require 'clockwork'
-require_relative '../lib/obsapi/sphinx_interface'
 
 module Clockwork
   every(30.seconds, 'status.refresh') do
@@ -43,15 +42,9 @@ module Clockwork
     end
   end
 
-  # We want Sphinx to be started everytime clockworkd starts. Scheduling a restart
-  # every week ensures that initial start and doesn't really hurt. Not the
-  # cleanest solution, but avoids creating/modifying init.d scripts
-  every(1.week, 're(start) sphinx', thread: true) do
-    OBSApi::SphinxInterface.restart
-  end
-
+  # Ensure that sphinx's searchd is running and reindex
   every(1.hour, 'reindex sphinx', thread: true) do
-    OBSApi::SphinxInterface.index
+    FullTextSearch.new.delay.index_and_start
   end
 
   every(1.day, 'refresh dirties') do
