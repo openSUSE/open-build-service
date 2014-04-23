@@ -499,7 +499,6 @@ exit 0
 %stop_on_removal obsworker
 
 %post
-[ -d /srv/obs ] || install -d -o obsrun -g obsrun /srv/obs
 %{fillup_and_insserv -n obs-server}
 %restart_on_update obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner
 
@@ -510,6 +509,7 @@ exit 0
 %restart_on_update obsservice
 
 %posttrans
+[ -d /srv/obs ] || install -d -o obsrun -g obsrun /srv/obs
 # this changes from directory to symlink. rpm can not handle this itself.
 if [ -e /usr/lib/obs/server/build -a ! -L /usr/lib/obs/server/build ]; then
   rm -rf /usr/lib/obs/server/build
