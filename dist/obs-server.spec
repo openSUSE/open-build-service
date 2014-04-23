@@ -393,6 +393,7 @@ cp -a api $RPM_BUILD_ROOT/srv/www/obs/api
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/api/log
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/api/tmp
 touch $RPM_BUILD_ROOT/srv/www/obs/api/log/production.log
+touch $RPM_BUILD_ROOT/srv/www/obs/api/config/production.sphinx.conf
 # prepare for running sphinx daemon
 install -m 0755 -d $RPM_BUILD_ROOT/srv/www/obs/api/db/sphinx{,/production}
 
@@ -721,6 +722,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 
 /srv/www/obs/api/config/thinking_sphinx.yml.example
 %config(noreplace) /srv/www/obs/api/config/thinking_sphinx.yml
+%attr(-,%{apache_user},%{apache_group}) %config(noreplace) /srv/www/obs/api/config/production.sphinx.conf
 
 %dir /srv/www/obs
 %dir /srv/www/obs/api
