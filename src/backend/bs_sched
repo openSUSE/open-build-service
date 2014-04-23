@@ -3883,7 +3883,11 @@ sub addrepo_remote_unpackcpio {
     warn($@) if $@;
   } elsif (exists $cpio{'repositorycache'}) {
     my $cache;
-    eval { $cache = Storable::thaw(substr($cpio{'repositorycache'}, 4)); };
+    if (defined &BSSolv::thawcache) {
+      eval { $cache = BSSolv::thawcache($cpio{'repositorycache'}); };
+    } else {
+      eval { $cache = Storable::thaw(substr($cpio{'repositorycache'}, 4)); };
+    }
     delete $cpio{'repositorycache'};	# free mem
     warn($@) if $@;
     return undef unless $cache;
