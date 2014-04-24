@@ -2239,12 +2239,6 @@ sub dobuild {
   push @rpmlist, "preinstall: ".join(' ', map {$_->{'name'}} grep {$_->{'preinstall'}} @bdep);
   push @rpmlist, "vminstall: ".join(' ', map {$_->{'name'}} grep {$_->{'vminstall'}} @bdep);
   push @rpmlist, "runscripts: ".join(' ', map {$_->{'name'}} grep {$_->{'runscripts'}} @bdep);
-  if (grep {$_->{'cbpreinstall'}} @bdep) {
-    push @rpmlist, "cbpreinstall: ".join(' ', map {$_->{'name'}} grep {$_->{'cbpreinstall'}} @bdep);
-  }
-  if (grep {$_->{'cbinstall'}} @bdep) {
-    push @rpmlist, "cbinstall: ".join(' ', map {$_->{'name'}} grep {$_->{'cbinstall'}} @bdep);
-  }
   writestr("$buildroot/.build.rpmlist", undef, join("\n", @rpmlist)."\n");
 
   print "building...\n";
