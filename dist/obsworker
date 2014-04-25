@@ -267,7 +267,16 @@ case "$1" in
         echo "Fetching initial worker code from $WORKER_CODE"
         mkdir -p "$workerbootdir"
         pushd "$workerbootdir" > /dev/null
-        curl -s "$WORKER_CODE"/getworkercode | cpio --quiet --extract 
+        I=0
+        while ! curl -s "$WORKER_CODE"/getworkercode | cpio --quiet --extract ; do
+          # we need to wait for rep server maybe
+          I=$(( $I + 1 ))
+          if test "10" -lt "$I"; then
+             echo "ERROR: Unable to reach rep server $WORKER_CODE!"
+             exit 1
+          fi
+          sleep 10
+        done
         ln -s . XML 
         chmod 755 bs_worker
         popd > /dev/null
