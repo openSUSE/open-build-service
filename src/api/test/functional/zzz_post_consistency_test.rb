@@ -48,7 +48,7 @@ class ZZZPostConsistency < ActionDispatch::IntegrationTest
         next if line =~ /^check finished/;
         next if line =~ /status file without existing job/;
         next if line =~ /build\/home:Iggy\/10.2\/i586\/:full\/rpm.rpm broken rpm/;
-        next if line =~ /build\/home:Iggy\/10.2\/i586\/:full\/rpm.rpm broken signature/;
+        next if line =~ /.rpm broken signature/;
 
         # unhandled line, dump a failure
         failed=true
