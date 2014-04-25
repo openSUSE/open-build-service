@@ -159,7 +159,7 @@ sub check_package_dir {
   closedir (PACK);
   for my $ent (sort(@entry)) {
     next if $ent eq "." || $ent eq "..";
-    if ($ent eq ".bininfo") {
+    if ($ent eq ":bininfo") {
       open (BIN,"$basedir/$ent");
       while (my $bini = <BIN>) {
         chomp($bini);
@@ -206,6 +206,28 @@ sub check_package_dir {
       # FIXME: not checked yet
     } elsif ($ent eq ".errors") {
       # seems to be some legacy file
+    } elsif ($ent eq ":lastcache") {
+      # unchecked for now
+    } elsif ($ent eq ":full.metacache") {
+      # unchecked for now
+    } elsif ($ent eq ".bininfo") {
+      # unchecked for now
+    } elsif ($ent eq ".checksums") {
+      # unchecked for now
+    } elsif ($ent eq "_statistics") {
+      # unchecked for now
+    } elsif ($ent =~ /^pesign-/) {
+      # unchecked for now
+    } elsif ($ent =~ /-appdata\.xml$/) {
+      # unchecked for now
+    } elsif ($ent eq "wibom.applications") {
+      # unchecked for now
+    } elsif ($ent eq ".meta.success") {
+      # unchecked for now
+    } elsif ($ent eq ".nosourceaccess") {
+      # just a flag file
+    } elsif ($ent eq "rpmlint.log") {
+      # unchecked for now
     } else {
       warn ("WARNING: $basedir/$ent strange file in package dir");
     }
@@ -314,7 +336,7 @@ if (-d "$dbroot" && $check_db) {
   closedir(DIR);
   for my $dbdir (sort(@dbdir_a)) {
     next if $dbdir =~ /^\./;
-    if ($dbdir eq "published" || $dbdir eq "request") {
+    if ($dbdir eq "published" || $dbdir eq "request" || $dbdir eq "source") {
       print "PROGRESS: checking $dbdir db\n";
       if (-d "$dbroot/$dbdir") {
       } else {
@@ -329,7 +351,7 @@ if (-d "$dbroot" && $check_db) {
 	}
 	if ($progress ne substr($dbp,0,1)) {
 	  $progress = substr($dbp,0,1);
-	  print "$progress";
+	  print "DBPROGRESS: $progress";
 	}
 	if ($dbp =~ /^[0-9a-f][0-9a-f]$/) {
 	  opendir (DBPP, "$dbroot/$dbdir/$dbp");
@@ -362,6 +384,7 @@ if (-d "$eventroot" && $check_event) {
     next if $evt =~ /^\./;
     if (-f "$eventroot/$evt") {
       next if $evt eq "lastevents";
+      next if $evt eq "lastnotifications";
       warn ("ERROR: $eventroot/$evt strange file");
     } elsif (-d "$eventroot/$evt") {
       opendir(EVTT,"$eventroot/$evt");
@@ -507,7 +530,25 @@ if (-d "$buildroot" && $check_build) {
 		    #eval {
 		    #	my $cache = $pool->repofromfile($proj,"$pra/$prap");
 		    #} || warn ("ERROR: $pra/$prap broken file");
-		  } else {
+                  } elsif ($prap eq ".errors") {
+                    # seems to be some legacy file
+                  } elsif ($prap eq ":bininfo") {
+                    # unchecked for now
+                  } elsif ($prap eq ":lastfailures") {
+                    # unchecked for now
+                  } elsif ($prap eq ":lastcheck") {
+                    # unchecked for now
+                  } elsif ($prap eq ":full.metacache") {
+                    # unchecked for now
+                  } elsif ($prap eq ".bininfo") {
+                    # unchecked for now
+                  } elsif ($prap eq ".checksums") {
+                    # unchecked for now
+                  } elsif ($prap eq ":packstatus.finished") {
+                    # unchecked for now
+                  } elsif ($prap eq ".meta.success") {
+                    # unchecked for now
+                  } else {
 		    warn ("ERROR: strange file $pra/$prap");
 		  }
 		} elsif (-d "$pra/$prap") {
@@ -523,7 +564,7 @@ if (-d "$buildroot" && $check_build) {
 			warn ("WARNING: $pra/$prap/$mta meta file without existing package") unless -d "$pra/$mta";
 			open (META,"$pra/$prap/$mta");
 			while (<META>) {
-			  warn ("ERROR: $pra/$prap/$mta broken meta file") unless /^[0-9a-f]{32}  ..*$/;
+			  warn ("ERROR: $pra/$prap/$mta broken meta file") unless /^[0-9a-f]{32}  ..*$/ || /^fake to detect source changes/;
 			}
 			close (META);
 		      } else {
