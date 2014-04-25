@@ -66,7 +66,7 @@ BuildArch:      noarch
 Requires:       build >= 20140123
 Requires:       obs-productconverter >= %version
 Requires:       obs-worker
-Requires:       perl-BSSolv >= 0.18.0
+Requires:       perl-BSSolv >= 0.19.0
 # Required by source server
 Requires:       diffutils
 PreReq:         git-core
