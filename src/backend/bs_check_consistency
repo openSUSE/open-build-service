@@ -38,12 +38,12 @@ my $check_jobs = 0;
 my $check_db = 0;
 my $check_event = 0;
 my $check_worker = 0;
-my $check_request = 0;
 my $check_build = 0;
 my $do_check_meta = 0;
 my $do_check_signatures = 0;
 my $check_one_project = "";
 my $check_one_package = "";
+my $fix; # undef|1=soft|2=hard
 
 use POSIX;
 use Data::Dumper;
@@ -84,6 +84,9 @@ sub usage {
    print "\n";
    print "        --do-check-package-source PROJECT PACKAGE   check source references of one package\n";
    print "\n";
+   print "        --fix                               fix data which can be re-created, scheduler cold start needed\n";
+   print "        --forced-fix                        fix data by breaking data which can be manually fixed by admin\n";
+   print "\n";
    print "not yet implemented:\n";
    print "        --check-projects\n";
    print "        --check-sources\n";
@@ -103,8 +106,6 @@ while (@ARGV) {
 	$check_event = 1;
   } elsif ($arg eq "--check-worker") {
 	$check_worker = 1;
-  } elsif ($arg eq "--check-request") {
-	$check_request = 1;
   } elsif ($arg eq "--check-build") {
 	$check_build = 1;
   } elsif ($arg eq "--check-all") {
@@ -112,7 +113,6 @@ while (@ARGV) {
 	$check_db = 1;
 	$check_event = 1;
 	$check_worker = 1;
-	$check_request = 1;
 	$check_build = 1;
   } elsif ($arg eq "--do-check-project-build") {
 	$check_build = 1;
@@ -125,15 +125,41 @@ while (@ARGV) {
 	$do_check_meta = 1;
   } elsif ($arg eq "--do-check-signatures") {
 	$do_check_signatures = 1;
+  } elsif ($arg eq "--fix") {
+	$fix = 1;
+  } elsif ($arg eq "--forced-fix") {
+	$fix = 2;
   } else {
     usage();
     exit 1;
   }
 }
 
-unless ($check_jobs || $check_db || $check_event || $check_worker || $check_request || $check_build || $check_package_source) {
+unless ($check_jobs || $check_db || $check_event || $check_worker || $check_build || $check_package_source) {
   usage();
   exit 1;
+}
+
+# to drop files which can be recreated
+sub warnORremove {
+  my ($file, $msg) = @_;
+  if ($fix) {
+    print "FIXING: $msg ($file)";
+    unlink($file)
+  } else {
+    warn("WARNING: $msg ($file)");
+  }
+}
+
+# when removing files will damage data, but should be manually fixable.
+sub warnORbreak {
+  my ($file, $msg) = @_;
+  if ($fix == 2) {
+    warn("REMOVING, MIGHT BREAK STUFF: $msg ($file)");
+    unlink($file)
+  } else {
+    warn("WARNING: $msg ($file)");
+  }
 }
 
 sub is_rpm_package {
@@ -141,13 +167,29 @@ sub is_rpm_package {
   open(FILE,$pack);
   my $tag;
   sysread(FILE,$tag,4);
-  warn "ERROR: $pack broken rpm" unless $tag eq "\xed\xab\xee\xdb";
+  close (FILE);
+  warnORremove($pack, "broken rpm") unless $tag eq "\xed\xab\xee\xdb";
   if ($do_check_signatures) {
     # just check integrity, no gpg verification
     open(CHKSIG,'-|',"rpm --checksig --nosignature $pack 2>&1");
     my $chksig = <CHKSIG>;
     close (CHKSIG);
-    warn ("ERROR: $pack broken signature") unless $chksig =~ /md5 OK$/ || $chksig =~ /md5 gpg OK$/ || $chksig =~ /md5 pgp OK$/;
+    warnORremove($pack, "broken signature") unless $chksig =~ /md5 OK$/ || $chksig =~ /md5 gpg OK$/ || $chksig =~ /md5 pgp OK$/;
+  }
+}
+
+sub check_package_meta {
+  my ($pra, $prap, $metafile) = @_;
+  return unless $do_check_meta;
+
+  if (-f $metafile) {
+    open (META,"$metafile");
+    while (<META>) {
+      warnORremove($metafile, "broken meta file") unless /^[0-9a-f]{32}  ..*$/ || /^fake to detect source changes/;
+    }
+    close (META);
+  } else {
+    warn ("ERROR: $metafile strange entry");
   }
 }
 
@@ -164,7 +206,7 @@ sub check_package_dir {
       while (my $bini = <BIN>) {
         chomp($bini);
         if ($bini =~ /^[0-9a-f]{32}  \(..*\)$/) {
-  	warn "ERROR: $basedir/$ent bininfo missing rpm $2" unless grep {$_ eq $2} @entry;
+  	  warnORremove("$basedir/$ent", "bininfo missing rpm $2") unless grep {$_ eq $2} @entry;
         }
       }
       close (BIN);
@@ -172,7 +214,7 @@ sub check_package_dir {
       next unless $do_check_meta;
       open (META,"$basedir/$ent");
       while (<META>) {
-        warn ("ERROR: $basedir/$ent broken meta file") unless /^[0-9a-f]{32}  ..*$/;
+        warnORremove("$basedir/$ent", "broken meta file") unless /^[0-9a-f]{32}  ..*$/;
       }
       close (META);
     } elsif ($ent eq "history" || $ent eq "logfile" || $ent =~ /\.desktopfiles$/) {
@@ -180,11 +222,11 @@ sub check_package_dir {
     } elsif ($ent eq "reason") {
       eval {
         my $rdx = readxml("$basedir/$ent",$BSXML::buildreason,0)
-      } || warn ("ERROR: $basedir/$ent broken xml file, $@");
+      } || warnORremove("$basedir/$ent", "broken xml file, $@");
     } elsif ($ent eq "status") {
       eval {
         my $rdx = readxml("$basedir/$ent",$BSXML::buildstatus,0)
-      } || warn ("ERROR: $basedir/$ent broken xml file, $@");
+      } || warnORremove("$basedir/$ent", "broken xml file, $@");
     } elsif ($ent =~ /\.rpm$/) {
       is_rpm_package("$basedir/$ent");
     } elsif ($ent =~ /\.sha256$/ || $ent =~ /\.md5$/ || $ent =~ /\.bz2$/ || $ent =~ /\.iso$/ || $ent =~ /\.tar\.gz$/) {
@@ -192,11 +234,11 @@ sub check_package_dir {
     } elsif ($ent =~ /updateinfo.xml$/) {
       eval {
 	my $rdx = readxml("$basedir/$ent",$BSXML::updateinfo,0);
-      } || warn ("ERROR: $basedir/$ent broken xml file, $@");
+      } || warnORremove("$basedir/$ent", "broken xml file, $@");
     } elsif ($ent eq ".updateinfo" || $ent eq ".updateinfodata") {
       eval {
 	  my $rdx = Storable::retrieve("$basedir/$ent") || {};
-      } || warn ("ERROR: $basedir/$ent broken storable file, $@");
+      } || warnORremove("$basedir/$ent", "broken storable file, $@");
     } elsif ($ent =~ /^.waiting_for_/) {
       # okay, might check for 0-size
     } elsif (-d "$basedir/$ent" && $ent =~ /-Media[0-9]*$/) {
@@ -220,7 +262,7 @@ sub check_package_dir {
       # unchecked for now
     } elsif ($ent =~ /-appdata\.xml$/) {
       # unchecked for now
-    } elsif ($ent eq "wibom.applications") {
+    } elsif ($ent =~ /\.applications$/) {
       # unchecked for now
     } elsif ($ent eq ".meta.success") {
       # unchecked for now
@@ -228,8 +270,12 @@ sub check_package_dir {
       # just a flag file
     } elsif ($ent eq "rpmlint.log") {
       # unchecked for now
+    } elsif ($ent eq ".preinstallimages") {
+      # unchecked for now
+    } elsif ($ent =~ /-Build/) {
+      # kiwi build result
     } else {
-      warn ("WARNING: $basedir/$ent strange file in package dir");
+      warnORbreak("$basedir/$ent", "strange file in package dir");
     }
   }
 }
@@ -272,7 +318,7 @@ if (-d $jobsroot && $check_jobs) {
     if (-f $file) {
       eval {
 	my $dp = Storable::retrieve($file) || {};
-      } || warn ("ERROR: $file broken, $@");
+      } || warnORremove($file, "broken, $@");
     } else {
       warn ("WARNING: $file missing");
     }
@@ -294,13 +340,13 @@ if (-d $jobsroot && $check_jobs) {
         my $job = $file;
         $job =~ s/:status$//;
 	unless (-f "$jobsdir/$job") {
-	  warn ("WARNING: $jobsdir/$file status file without existing job");
+	  warnORremove("$jobsdir/$file", "status file without existing job");
 	}
 	next unless -e "$jobsdir/$file";
 	my $status;
 	eval {
 	  $status = readxml("$jobsdir/$file",$BSXML::jobstatus,0);
-	} || warn ("ERROR: $jobsdir/$file broken status $@");
+	} || warnORremove("$jobsdir/$file", "broken status $@");
 	warn ("WARNING: $jobsdir/$file is dispatching") if $status->{'code'} eq "dispatching";
       } elsif ($file =~ /:dir$/) {
 	warn ("ERROR: $jobsdir/$file is not a directory") unless -d "$jobsdir/$file";
@@ -313,7 +359,7 @@ if (-d $jobsroot && $check_jobs) {
           if ($jfile = "meta" && -f "$curjob/$jfile") {
 	    open(META,"$curjob/$jfile");
             while (<META>) {
-	      warn ("ERROR: $curjob/$jfile broken entry $_") unless /^[0-9a-f]{32}  ..*$/;
+	      warnORremove("$curjob/$jfile", "broken entry $_") unless /^[0-9a-f]{32}  ..*$/;
 	    }
             close (META);
 	  }
@@ -324,7 +370,7 @@ if (-d $jobsroot && $check_jobs) {
         my $jobentry;
         eval {
 	  $jobentry = readxml("$jobsdir/$file",$BSXML::buildinfo,0);
-	} || warn ("ERROR: $jobsdir/$file broken buildinfo");
+	} || warnORremove("$jobsdir/$file", "broken buildinfo");
       }
     }
   }
@@ -347,7 +393,7 @@ if (-d "$dbroot" && $check_db) {
       while (my $dbp = readdir(DBP)) {
 	next if $dbp =~ /^\./;
 	unless (-d "$dbroot/$dbdir/$dbp") {
-	  warn ("ERROR: $dbroot/$dbdir/$dbp is not a directory");
+	  warnORbreak ("$dbroot/$dbdir/$dbp", "is not a directory");
 	}
 	if ($progress ne substr($dbp,0,1)) {
 	  $progress = substr($dbp,0,1);
@@ -358,11 +404,11 @@ if (-d "$dbroot" && $check_db) {
 	  while (my $dbpp = readdir(DBPP)) {
 	    next if $dbpp =~ /^\./;
 	    if ($dbpp !~ /^[0-9a-f]{30}$/) {
-	      warn ("ERROR: $dbroot/$dbdir/$dbp/$dbpp strange published entry");
+	      warnORbreak("$dbroot/$dbdir/$dbp/$dbpp", "strange published entry");
 	    }
 	    eval {
 	     my $publ = Storable::retrieve("$dbroot/$dbdir/$dbp/$dbpp") || {};
-	    } || warn ("ERROR: $dbroot/$dbdir/$dbp/$dbpp broken, $@");
+	    } || warnORbreak("$dbroot/$dbdir/$dbp/$dbpp", "broken, $@");
 	  }
 	  closedir (DBPP);
 	} else {
@@ -385,14 +431,14 @@ if (-d "$eventroot" && $check_event) {
     if (-f "$eventroot/$evt") {
       next if $evt eq "lastevents";
       next if $evt eq "lastnotifications";
-      warn ("ERROR: $eventroot/$evt strange file");
+      warnORremove("$eventroot/$evt", "strange file");
     } elsif (-d "$eventroot/$evt") {
       opendir(EVTT,"$eventroot/$evt");
       while (my $evtt = readdir(EVTT)) {
 	next if $evtt =~ /^\./;
 	eval {
 	  my $event = readxml("$eventroot/$evt/$evtt",$BSXML::event,0);
-	} || warn ("ERROR: $eventroot/$evt/$evtt broken event $@");
+	} || warnORremove("$eventroot/$evt/$evtt", "broken event $@");
       }
       closedir(EVTT);
     } else {
@@ -408,7 +454,7 @@ if (-d "$workersroot" && $check_worker) {
   while (my $wrk = readdir(WRK)) {
     next if $wrk =~ /^\./;
     if (-f "$workersroot/$wrk") {
-      warn ("ERROR: $workersroot/$wrk strange file");
+      warnORremove("$workersroot/$wrk", "strange file");
     } elsif (-d "$workersroot/$wrk") {
       opendir(WRKR,"$workersroot/$wrk");
       while (my $wrkr = readdir(WRKR)) {
@@ -418,32 +464,14 @@ if (-d "$workersroot" && $check_worker) {
 	next if ($wrk eq "disable");
 	eval {
 	  my $worker = readxml("$workersroot/$wrk/$wrkr",$BSXML::worker,0);
-	} || warn ("ERROR: $workersroot/$wrk/$wrkr broken worker entry $@");
+	} || warnORremove("$workersroot/$wrk/$wrkr", "broken worker entry $@");
 	} elsif (-e "$workersroot/$wrk/$wrkr") {
-	  warn ("ERROR: $workersroot/$wrk/$wrkr strange directory entry");
+	  warnORremove("$workersroot/$wrk/$wrkr", "strange directory entry");
 	}
       }
       closedir(WRKR);
     } else {
       warn ("ERROR: $workersroot/$wrk strange directory entry");
-    }
-  }
-  closedir(EVT);
-}
-
-if (-d "$requestsroot" && $check_request) {
-  print "PROGRESS: checking requests dir\n";
-  opendir(REQ,$requestsroot);
-  while (my $req = readdir(REQ)) {
-    next if $req =~ /^\./;
-    if (-f "$requestsroot/$req") {
-      eval {
-	my $request = readxml("$requestsroot/$req",$BSXML::request,0);
-        BSVerify::verify_request($request);
-      };
-      warn ("WARNING: $requestsroot/$req broken requests entry $@ (might as well be encoding issue)") if $@;
-    } else {
-      warn ("ERROR: $requestsroot/$req strange directory entry");
     }
   }
   closedir(EVT);
@@ -481,7 +509,7 @@ if (-d "$buildroot" && $check_build) {
 	      if ($arch eq ":repoinfo") {
 		eval {
 		  my $dp = Storable::retrieve("$proj/$rep/$arch") || {};
-		} || warn ("ERROR: $proj/$rep/$arch broken, $@");
+		} || warnORremove("$proj/$rep/$arch", "broken, $@");
 	      } elsif ($arch eq ".finishedlock") {
 		# okay, should be 0 byte
 	      } else {
@@ -504,17 +532,17 @@ if (-d "$buildroot" && $check_build) {
 			|| $prap eq ":repoinfo") {
 		    eval {
 		      my $dp = Storable::retrieve("$pra/$prap") || {};
-		    } || warn ("ERROR: $pra/$prap broken, $@");
+		    } || warnORremove("$pra/$prap", "broken, $@");
 		  } elsif ($prap eq ":packstatus") {
 		    eval {
 		      my $dp = Storable::retrieve("$pra/$prap") || {};
 		    } || eval {
 		      my $dp = readxml("$pra/$prap",$BSXML::packstatuslist,0);
-		    } || warn ("ERROR: $pra/$prap is not a perl storable and not a packstatuslist");
+		    } || warnORremove("$pra/$prap", "is not a perl storable and not a packstatuslist");
 		  } elsif ($prap eq ":jobhistory") {
                     eval {
                       my @hist = BSFileDB::fdb_getall("$pra/$prap", $BSXML::jobhistlay)
-                    } || warn ("ERROR: $pra/$prap is not parsable");
+                    } || warnORbreak("$pra/$prap", "is not parsable");
 		  } elsif ($prap eq ":schedulerstate") {
 		    # FIXME check 1 line content
 		  } elsif ($prap eq ":repodone"
@@ -523,7 +551,7 @@ if (-d "$buildroot" && $check_build) {
 		  } elsif ($prap eq ":repostate") {
 		    eval {
 		      my $repstate = readxml("$pra/$prap",$BSXML::repositorystate,0);
-		    } || warn ("ERROR: $pra/$prap broken repostate $@");
+		    } || warnORremove("$pra/$prap", "broken repostate $@");
 		  } elsif ($prap eq ":full.solv") {
                     # FIXME
 		    #my $pool = BSSolv::pool->new();
@@ -532,7 +560,7 @@ if (-d "$buildroot" && $check_build) {
 		    #} || warn ("ERROR: $pra/$prap broken file");
                   } elsif ($prap eq ".errors") {
                     # seems to be some legacy file
-                  } elsif ($prap eq ":bininfo") {
+                  } elsif ($prap eq ":bininfo" || $prap eq ":bininfo.merge" ) {
                     # unchecked for now
                   } elsif ($prap eq ":lastfailures") {
                     # unchecked for now
@@ -540,14 +568,21 @@ if (-d "$buildroot" && $check_build) {
                     # unchecked for now
                   } elsif ($prap eq ":full.metacache") {
                     # unchecked for now
+                  } elsif ($prap eq ":full.metacache.merge") {
+                    # unchecked for now
+                  } elsif ($prap eq ":full.xcache") {
+                    # unchecked for now
                   } elsif ($prap eq ".bininfo") {
                     # unchecked for now
                   } elsif ($prap eq ".checksums") {
+                    # unchecked for now
+                  } elsif ($prap eq ".preinstallimages") {
                     # unchecked for now
                   } elsif ($prap eq ":packstatus.finished") {
                     # unchecked for now
                   } elsif ($prap eq ".meta.success") {
                     # unchecked for now
+		    check_package_meta($pra, $prap, "$pra/$prap/.meta.success");
                   } else {
 		    warn ("ERROR: strange file $pra/$prap");
 		  }
@@ -560,16 +595,8 @@ if (-d "$buildroot" && $check_build) {
 		    opendir(MTA,"$pra/$prap");
 		    while (my $mta = readdir(MTA)) {
 		      next if $mta eq "." || $mta eq "..";
-		      if (-f "$pra/$prap/$mta") {
-			warn ("WARNING: $pra/$prap/$mta meta file without existing package") unless -d "$pra/$mta";
-			open (META,"$pra/$prap/$mta");
-			while (<META>) {
-			  warn ("ERROR: $pra/$prap/$mta broken meta file") unless /^[0-9a-f]{32}  ..*$/ || /^fake to detect source changes/;
-			}
-			close (META);
-		      } else {
-			warn ("ERROR: $pra/$prap/$mta strange entry");
-		      }
+		      warnORremove("$pra/$prap/$mta", "meta file without existing package") unless -d "$pra/$mta";
+		      check_package_meta($pra, $prap, "$pra/$prap/$mta");
 		    }
 		    closedir (MTA);
 		  } elsif ($prap eq ":full") {
