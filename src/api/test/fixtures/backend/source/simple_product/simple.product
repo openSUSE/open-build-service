@@ -12,6 +12,7 @@
           <repository project="BaseDistro2.0:LinkedUpdateProject" name="BaseDistro2LinkedUpdateProject_repo" />
         </updates>
       </register>
+      <shortsummary>SimpleProduct</shortsummary>
       <summary>Simple OBS Product</summary>
 
       <description>Some text

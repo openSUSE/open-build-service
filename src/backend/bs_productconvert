@@ -287,6 +287,7 @@ sub createProductOptions($$$)
       foreach my $shortsummary ( @{$product->{'shortsummary'}} ){
         $varsH{PRODUCT_SUMMARY} = $shortsummary->{'_content'} if ( ! $shortsummary->{'language'} );
       }
+      die("No short summary defined, but required for current media styles") unless $varsH{PRODUCT_SUMMARY};
     }
 
     # switch to sha256 sums except for old distros
