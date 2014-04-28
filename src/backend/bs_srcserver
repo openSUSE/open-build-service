@@ -7691,7 +7691,7 @@ sub getprojectsourceinfo {
 
 sub getpackagesourceinfo {
   my ($cgi, $projid, $packid) = @_;
-  checkprojrepoarch($projid, $cgi->{'repository'}, $cgi->{'arch'});
+  checkprojrepoarch($projid, $cgi->{'repository'}, $cgi->{'arch'}, 1); #remoteok
   my $bconf;
   if (!$cgi->{'nofilename'}) {
     my $cfile;

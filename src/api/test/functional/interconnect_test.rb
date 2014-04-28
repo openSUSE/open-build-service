@@ -170,6 +170,8 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/RemoteInstance:BaseDistro/pack1/my_file'
     assert_response :success
+    get '/source/RemoteInstance:BaseDistro/pack1?view=info&parse=1' # licensedigger needs it
+    assert_response :success
     post '/source/RemoteInstance:BaseDistro/pack1', :cmd => 'showlinked'
     assert_response :success
     post '/source/RemoteInstance:BaseDistro/pack1', :cmd => 'branch'
