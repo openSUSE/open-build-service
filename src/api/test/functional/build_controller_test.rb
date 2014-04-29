@@ -488,14 +488,6 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  def test_remoteinstance
-    # check that we handle this correctly - the remoteinstance is only in the database
-    get "/build/RemoteInstance:BaseDistro/_result?view=summary"
-    assert_response 404
-  end
- 
-  # FIXME: remoteinstance
-
   def test_jobhistory
     get "/build/home:Iggy/10.2/i586/_jobhistory"
     assert_response :success
