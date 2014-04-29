@@ -64,6 +64,12 @@ use port 443 now.
       frontend_port:
       frontend_protocol:
 
+ 5) Non-Appliance users who do not have obsapisetup init script running need
+    also to call the following once to have a working search:
+
+    # cd /srv/www/obs/api/
+    # RAILS_ENV="production" rake ts:index
+
 For Updaters to OBS 2.4 from OBS 2.3
 ====================================
 
