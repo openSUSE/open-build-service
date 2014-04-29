@@ -172,6 +172,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/RemoteInstance:BaseDistro/pack1?view=info&parse=1' # licensedigger needs it
     assert_response :success
+    assert_xml_tag( :tag => 'sourceinfo', :attributes => { :package => 'pack1' } )
     post '/source/RemoteInstance:BaseDistro/pack1', :cmd => 'showlinked'
     assert_response :success
     post '/source/RemoteInstance:BaseDistro/pack1', :cmd => 'branch'
@@ -220,6 +221,9 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/build/RemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository?view=binaryversions'
     assert_response :success
+    get '/build/RemoteInstance:BaseDistro/_result?package=pack1&lastbuild=1' # for licensedigger
+    assert_response :success
+    assert_xml_tag( :tag => 'result', :attributes => { :project => "BaseDistro", :repository => 'BaseDistro_repo', :arch => 'i586' } )
 
     # direct access to remote instance, not existing project/package
     login_tom

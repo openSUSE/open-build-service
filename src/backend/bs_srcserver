@@ -5874,6 +5874,18 @@ sub getarchlist {
 sub getresult {
   my ($cgi, $projid) = @_;
 
+  my $proj = checkprojrepoarch($projid, undef, undef, 1);
+  if ($proj->{'remoteurl'}) {
+    die("oldstate not supported for remote projects\n") if $cgi->{'oldstate'};
+    my @args;
+    push @args, "lastbuild" if $cgi->{'lastbuild'};
+    push @args, map {"view=$_"} @{$cgi->{'view'} || []};
+    push @args, map {"repository=$_"} @{$cgi->{'repository'} || []};
+    push @args, map {"arch=$_"} @{$cgi->{'arch'} || []};
+    push @args, map {"package=$_"} @{$cgi->{'package'} || []};
+    push @args, map {"code=$_"} @{$cgi->{'code'} || []};
+    return (BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/_result", 'proxy' => $proxy}, $BSXML::resultlist, @args), $BSXML::resultlist);
+  }
   if ($cgi->{'oldstate'} && !$BSStdServer::isajax) {
     my @args = "oldstate=$cgi->{'oldstate'}";
     push @args, "lastbuild" if $cgi->{'lastbuild'};
@@ -5891,7 +5903,6 @@ sub getresult {
   my %view = map {$_ => 1} @{$cgi->{'view'} || ['status']};
   my %code = map {$_ => 1} @{$cgi->{'code'} || []};
 
-  my $proj = readproj($projid);
   if ($cgi->{'repository'}) {
     my %knownrepoids = map {$_->{'name'} => 1} @{$proj->{'repository'} || []};
     for (@{$cgi->{'repository'}}) {
