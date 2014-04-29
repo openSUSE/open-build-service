@@ -1830,8 +1830,11 @@ sub getbinaries {
   importbuild() unless defined &Build::queryhdrmd5;
 
   my @bdep = @{$buildinfo->{'bdep'} || []};
-  my %bdep_noinstall = map {$_->{'name'} => 1} grep {$_->{'noinstall'} && ($_->{'repoarch'} || '') ne 'src'} @bdep;
   my %bdep_notmeta = map {$_->{'name'} => 1} grep {$_->{'notmeta'} && ($_->{'repoarch'} || '') ne 'src'} @bdep;
+  my %bdep_noinstall;		# kiwi mode noinstall
+  if ($kiwimode) {
+    %bdep_noinstall = map {$_->{'name'} => 1} grep {$_->{'noinstall'} && ($_->{'repoarch'} || '') ne 'src'} @bdep;
+  }
   @bdep = map {$_->{'name'}} grep {($_->{'repoarch'} || '') ne 'src'} @bdep;
 
   my %done;
@@ -2220,11 +2223,12 @@ sub dobuild {
   my @bdep = @{$buildinfo->{'bdep'} || []};
   my $imagebins = $preinstallimagedata->{'imagebins'} || {};
   for my $bdep (@bdep) {
-    next if $bdep->{'package'} || $bdep->{'noinstall'} || ($bdep->{'repoarch'} && $bdep->{'repoarch'} eq 'src');
+    next if $bdep->{'package'} || (($bdep->{'repoarch'} || '') eq 'src');
+    next if $kiwimode && $bdep->{'noinstall'};
     my $bin = $bdep->{'name'};
     if ($imagebins->{$bin}) {
-	push @rpmlist, "$bin preinstallimage";
-	next;
+      push @rpmlist, "$bin preinstallimage";
+      next;
     }
     for my $osuf (@binsufs, '__notfound') {
       die("missing package: $bin\n") if $osuf eq '__notfound';
@@ -2239,6 +2243,10 @@ sub dobuild {
   push @rpmlist, "preinstall: ".join(' ', map {$_->{'name'}} grep {$_->{'preinstall'}} @bdep);
   push @rpmlist, "vminstall: ".join(' ', map {$_->{'name'}} grep {$_->{'vminstall'}} @bdep);
   push @rpmlist, "runscripts: ".join(' ', map {$_->{'name'}} grep {$_->{'runscripts'}} @bdep);
+  if (!$kiwimode) {
+    push @rpmlist, "noinstall: ".join(' ', map {$_->{'name'}} grep {$_->{'noinstall'}} @bdep);
+    push @rpmlist, "installonly: ".join(' ', map {$_->{'name'}} grep {$_->{'installonly'}} @bdep);
+  }
   writestr("$buildroot/.build.rpmlist", undef, join("\n", @rpmlist)."\n");
 
   print "building...\n";

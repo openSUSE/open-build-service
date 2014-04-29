@@ -499,6 +499,7 @@ our $buildinfo = [
 	'runscripts',
 	'notmeta',
 	'noinstall',
+	'installonly',
 
 	'epoch',
 	'version',
