@@ -4,6 +4,13 @@ class BsRequestActionSetBugowner < BsRequestAction
     return :set_bugowner
   end
 
+  def check_sanity
+    super
+    if person_name.blank? && group_name.blank?
+      errors.add(:person_name, "Either person or group needs to be set")
+    end
+  end
+
   def execute_accept(opts)
     object = Project.find_by_name!(self.target_project)
     bugowner = Role.find_by_title!("bugowner")

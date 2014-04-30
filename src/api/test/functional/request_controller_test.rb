@@ -340,6 +340,47 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_invalid_bugowner_requests
+    login_Iggy
+    raw_put '/source/home:Iggy:Test/_meta', "<project name='home:Iggy:Test'><title></title><description></description> </project>"
+    assert_response :success
+
+    login_adrian
+    post '/request?cmd=create', '<request>
+                                   <action type="set_bugowner">
+                                     <target project="home:Iggy:Test"/>
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 400
+    assert_xml_tag(:tag => 'status', :attributes => { code: 'invalid_record' })
+
+    post '/request?cmd=create', '<request>
+                                   <action type="set_bugowner">
+                                     <target project="home:Iggy:Test"/>
+                                     <person name="DOESNOTEXIST" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 404
+    assert_xml_tag(:tag => 'status', :attributes => { code: 'not_found' })
+
+    post '/request?cmd=create', '<request>
+                                   <action type="set_bugowner">
+                                     <target project="home:Iggy:Test"/>
+                                     <group name="DOESNOTEXIST" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 404
+    assert_xml_tag(:tag => 'status', :attributes => { code: 'not_found' })
+
+    # cleanup
+    login_Iggy
+    delete '/source/home:Iggy:Test'
+    assert_response :success
+  end
+
   def test_set_bugowner_request_locked_project
     login_Iggy
     raw_put '/source/home:Iggy:Test/_meta', "<project name='home:Iggy:Test'><title></title><description></description>  <lock><enable/></lock></project>"
