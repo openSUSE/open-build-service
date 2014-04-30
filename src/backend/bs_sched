@@ -686,9 +686,9 @@ sub set_building {
     print "          $_\n" for @bdeps;
     return (undef, "unresolvable: ".join(', ', @bdeps));
   }
-  my $engine = $bconf->{'buildengine'} || '';;
+  my $engine = $bconf->{'buildengine'} || '';
   my @sysdeps;
-  if (($engine || '') eq 'mock') {
+  if (($engine || '') eq 'mock' || $packtype ne 'kiwi') {
     @sysdeps = @{$bconf->{'substitute'}->{'engine-packages:mock'} || []};
     @sysdeps = ('mock', 'createrepo') unless @sysdeps;   # default
     ($eok, @sysdeps) = Build::get_build($bconf, [], @sysdeps);
