@@ -20,13 +20,15 @@ class BsRequestActionSetBugowner < BsRequestAction
     object.relationships.where("role_id = ?", bugowner).each do |r|
       r.destroy
     end
-    object.add_user( self.person_name, bugowner, true ) # runs with ignoreLock
+    object.add_user( self.person_name, bugowner, true ) if self.person_name # runs with ignoreLock
+    object.add_group( self.group_name, bugowner, true ) if self.group_name  # runs with ignoreLock
     object.store
   end
   
   def render_xml_attributes(node)
     render_xml_target(node)
-    node.person :name => self.person_name
+    node.person :name => self.person_name if self.person_name
+    node.group :name => self.group_name   if self.group_name
   end
 
 end

@@ -309,11 +309,24 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     post '/request?cmd=create', load_backend_file('request/set_bugowner')
     assert_response :success
+    assert_xml_tag(:tag => 'person', :attributes => { name: 'Iggy' })
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value('id')
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(:tag => 'person', :attributes => { name: 'Iggy' })
 
-    login_Iggy
+    post '/request?cmd=create', load_backend_file('request/set_bugowner_group')
+    assert_response :success
+    assert_xml_tag(:tag => 'group', :attributes => { name: 'test_group' })
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:id)
+    id2 = node.value('id')
+    get "/request/#{id2}"
+    assert_response :success
+    assert_xml_tag(:tag => 'group', :attributes => { name: 'test_group' })
+
     post '/request?cmd=create', load_backend_file('request/set_bugowner_fail')
     assert_response 404
     assert_xml_tag(:tag => 'status', :attributes => { code: 'unknown_package' })
@@ -330,13 +343,36 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     put "/request/#{id}", load_backend_file('request/set_bugowner')
     assert_response 403
-    put "/request/#{id}", load_backend_file('request/set_bugowner_group')
+    put "/request/#{id2}", load_backend_file('request/set_bugowner_group')
     assert_response 403
 
     login_king
     put "/request/#{id}", load_backend_file('request/set_bugowner')
     assert_response :success
-    put "/request/#{id}", load_backend_file('request/set_bugowner_group')
+    put "/request/#{id2}", load_backend_file('request/set_bugowner_group')
+    assert_response :success
+
+    # accept
+    get "/source/kde4/kdelibs/_meta"
+    assert_response :success
+    meta = @response.body
+    assert_no_xml_tag(:tag => 'person', :attributes => { role: 'bugowner' })
+    assert_no_xml_tag(:tag => 'group', :attributes => { role: 'bugowner' })
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response :success
+    get "/source/kde4/kdelibs/_meta"
+    assert_response :success
+    assert_xml_tag(:tag => 'person', :attributes => {userid: 'Iggy',  role: 'bugowner' })
+    assert_no_xml_tag(:tag => 'group', :attributes => { role: 'bugowner' })
+    post "/request/#{id2}?cmd=changestate&newstate=accepted"
+    assert_response :success
+    get "/source/kde4/kdelibs/_meta"
+    assert_response :success
+    assert_no_xml_tag(:tag => 'person', :attributes => { role: 'bugowner' }) # reset
+    assert_xml_tag(:tag => 'group', :attributes => { groupid: 'test_group', role: 'bugowner' })
+
+    # cleanup 
+    put "/source/kde4/kdelibs/_meta", meta
     assert_response :success
   end
 
