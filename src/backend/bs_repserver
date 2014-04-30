@@ -2875,12 +2875,29 @@ sub getbuildinfo {
   }
   $ret->{'expanddebug'} .= "\n" if $ret->{'expanddebug'};
   $ret->{'expanddebug'} .= $xp->debugstr() if defined($ret->{'expanddebug'}) && defined &BSSolv::expander::debugstr;
-  undef $xp;
-  undef $Build::expand_dbg if $cgi->{'debug'};
   if (! shift @bdeps) {
+    undef $xp;
+    undef $Build::expand_dbg if $cgi->{'debug'};
     $ret->{'error'} = "unresolvable: ".join(', ', @bdeps);
     return ($ret, $BSXML::buildinfo);
   }
+
+  my $engine = $bconf->{'buildengine'} || '';
+  my @sysdeps;
+  if (($engine || '') eq 'mock' && $packtype ne 'kiwi') {
+    @sysdeps = @{$bconf->{'substitute'}->{'engine-packages:mock'} || []};
+    @sysdeps = ('mock', 'createrepo') unless @sysdeps;   # default
+    @sysdeps = Build::get_build($bconf, [], @sysdeps);
+    if (! shift @sysdeps) {
+      undef $xp;
+      undef $Build::expand_dbg if $cgi->{'debug'};
+      $ret->{'error'} = "unresolvable: ".join(', ', @bdeps);
+      return ($ret, $BSXML::buildinfo);
+    }
+    @sysdeps = Build::unify(@sysdeps, Build::get_preinstalls($bconf));
+  }
+  undef $xp;
+  undef $Build::expand_dbg if $cgi->{'debug'};
 
   my @pdeps = Build::get_preinstalls($bconf);
   my @vmdeps = Build::get_vminstalls($bconf);
@@ -2889,6 +2906,7 @@ sub getbuildinfo {
   my %pdeps = map {$_ => 1} @pdeps;
   my %vmdeps = map {$_ => 1} @vmdeps;
   my %edeps = map {$_ => 1} @edeps;
+  my %sysdeps = map {$_ => 1} @sysdeps;
 
   if ($packtype eq 'kiwi' && $kiwitype eq 'product') {
     # things are very different here. first we have the packages needed for kiwi
@@ -3020,7 +3038,7 @@ sub getbuildinfo {
     return ($ret, $BSXML::buildinfo);
   }
 
-  @bdeps = unify(@pdeps, @vmdeps, @edeps, @bdeps);
+  @bdeps = unify(@pdeps, @vmdeps, @edeps, @bdeps, @sysdeps);
   for (@bdeps) {
     my $b = {'name' => $_};
     my $p = $dep2pkg{$_};
@@ -3037,7 +3055,12 @@ sub getbuildinfo {
     $b->{'vminstall'} = 1 if $vmdeps{$_};
     $b->{'runscripts'} = 1 if $runscripts{$_};
     $b->{'notmeta'} = 1 unless $edeps{$_};
-    $b->{'noinstall'} = 1 if $packtype eq 'kiwi' && $edeps{$_} && !($bdeps{$_} || $vmdeps{$_} || $pdeps{$_});
+    if ($packtype eq 'kiwi') {
+      $b->{'noinstall'} = 1 if $edeps{$_} && !($bdeps{$_} || $vmdeps{$_} || $pdeps{$_});
+    } else {
+      $b->{'installonly'} = 1 if $sysdeps{$_} && !$bdeps{$_};
+      $b->{'noinstall'} = 1 if $bdeps{$_} && !($sysdeps{$_} || $vmdeps{$_} || $pdeps{$_});
+    }
     $_ = $b;
   }
 
