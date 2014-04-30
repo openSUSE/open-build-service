@@ -333,6 +333,15 @@ OBS_WORKER_ROOT_SIZE=""
 OBS_WORKER_SWAP_SIZE=""
 
 ## Path:        Applications/OBS
+## Description: URL to a proxy service for caching binaries used by worker
+## Type:        string
+## Default:     ""
+## Config:      OBS
+#
+#
+OBS_WORKER_BINARIES_PROXY=""
+
+## Path:        Applications/OBS
 ## Description: URL to a ssh pub key to allow root user login
 ## Type:        string
 ## Default:     ""
