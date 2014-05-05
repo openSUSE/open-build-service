@@ -694,8 +694,8 @@ sub set_building {
     ($eok, @sysdeps) = Build::get_build($bconf, [], @sysdeps);
     if (!$eok) {
       print "        unresolvable:\n";
-      print "          $_\n" for @bdeps;
-      return (undef, "unresolvable: ".join(', ', @bdeps));
+      print "          $_\n" for @sysdeps;
+      return (undef, "unresolvable: ".join(', ', @sysdeps));
     }
     @sysdeps = Build::unify(@sysdeps, Build::get_preinstalls($bconf));
   }

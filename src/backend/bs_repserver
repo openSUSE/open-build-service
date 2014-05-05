@@ -2891,7 +2891,7 @@ sub getbuildinfo {
     if (! shift @sysdeps) {
       undef $xp;
       undef $Build::expand_dbg if $cgi->{'debug'};
-      $ret->{'error'} = "unresolvable: ".join(', ', @bdeps);
+      $ret->{'error'} = "unresolvable: ".join(', ', @sysdeps);
       return ($ret, $BSXML::buildinfo);
     }
     @sysdeps = Build::unify(@sysdeps, Build::get_preinstalls($bconf));
