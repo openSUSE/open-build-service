@@ -1669,4 +1669,25 @@ our $frozenlinks = [
      ]],
 ];
 
+our $report = [
+    'report' =>
+     [[ 'binary' =>
+	    'name',
+	    'epoch',
+	    'version',
+	    'release',
+	    'binaryarch',
+	    'buildtime',
+	    'disturl',
+	    'supportstatus',
+
+	    'project',
+	    'repository',
+	    'package',
+	    'arch',		# schedulerarch
+
+	    '_content',
+     ]],
+];
+
 1;

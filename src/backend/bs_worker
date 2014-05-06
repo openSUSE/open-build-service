@@ -1224,16 +1224,18 @@ sub getbinaries_cache {
   return \%ret;
 }
 
+# this specialized version of getbinaries only works for
+# kiwi product builds
 sub getbinaries_kiwiproduct {
-  my ($buildinfo, $dir, $srcdir) = @_;
+  my ($buildinfo, $dir, $srcdir, $kiwiorigins) = @_;
 
+  mkdir_p($dir);
   # we need the Build package for queryhdrmd5
   importbuild() unless defined &Build::queryhdrmd5;
 
   # create list of prpaps
   my @kdeps;
   my %prpaps;
-  my %linkit;
   my %prpapackages;
   my %packagebinaryversionlist;
   my $nodbgpkgs = $buildinfo->{'nodbgpkgs'};
@@ -1249,7 +1251,6 @@ sub getbinaries_kiwiproduct {
       push @{$prpapackages{"$dep->{'project'}/$dep->{'repository'}/$repoarch"}}, $dep->{'package'};
       $prpaps{"$dep->{'project'}/$dep->{'repository'}/$repoarch/$dep->{'package'}"} = 1;
     }
-    $linkit{"$dep->{'project'}/$dep->{'repository'}/$repoarch/$dep->{'package'}/$dep->{'name'}"} = 1 unless $dep->{'noinstall'};
   }
 
   my %prp2server;
@@ -1270,6 +1271,7 @@ sub getbinaries_kiwiproduct {
   }
   die("getbinaries_kiwiproduct: missing packages: @kdeps\n") if @kdeps;
 
+  # now fetch all packages that go into the repos subdir
   my %meta;
   my $linklocal = $localkiwi && -d "$localkiwi/build" ? 1 : 0;
 
@@ -1303,6 +1305,7 @@ sub getbinaries_kiwiproduct {
 	  unlink("$ddir/$rarch/$name");
 	  link_or_copy("$localkiwi/build/$projid/$repoid/$arch/$packid/$name", "$ddir/$rarch/$name") || die("link $localkiwi/build/$projid/$repoid/$arch/$packid/$name $ddir/$rarch/$name: $!\n");
 	}
+        $kiwiorigins->{"obs://$prpdir/$rarch/$name"} = $prpap;
 	push @$res, {'name' => "$rarch/$name"};
       }
     } else {
@@ -1456,6 +1459,7 @@ sub getbinaries_kiwiproduct {
       if ($bvl && !@bad) {
 	for (@good) {
 	  rename("$ddir/$_.new.rpm", "$ddir/$_") || die("rename $ddir/$_.new.rpm $ddir/$_: $!\n");
+          $kiwiorigins->{"obs://$prpdir/$_"} = $prpap;
 	}
         $res = [ map {{'name' => $_}} @good ];
       } else {
@@ -1492,6 +1496,7 @@ sub getbinaries_kiwiproduct {
 	    return undef if $nodbgpkgs && $name =~ /-(?:debuginfo|debugsource)-/;
 	    return undef if $nosrcpkgs && ($rarch eq 'src' || $rarch eq 'nosrc');
 	    mkdir_p("$param->{'directory'}/$rarch");
+            $kiwiorigins->{"obs://$prpdir/$rarch/$name"} = $prpap;
 	    return "$rarch/$name";
 	  },
 	  'receiver' => \&BSHTTP::cpio_receiver,
@@ -1520,9 +1525,6 @@ sub getbinaries_kiwiproduct {
       my $id = $knownmd5{$f->{'name'}};
       $id ||= Build::queryhdrmd5("$ddir/$f->{'name'}");
       $id ||= 'deaddeaddeaddeaddeaddeaddeaddead';
-      if ($linkit{"$prpap/$n"} && $rarch ne 'src' && $rarch ne 'nosrc') {
-        link("$ddir/$f->{'name'}", "$dir/$n.rpm") unless -e "$dir/$n.rpm";
-      }
       $meta{"$prpap/$n.$rarch"} = $id;
     }
   }
@@ -1822,10 +1824,6 @@ sub getbinaries {
   my $kiwimode;
   $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
 
-  if ($kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product') {
-    return getbinaries_kiwiproduct($buildinfo, $dir, $srcdir);
-  }
-
   # we need the Build package for queryhdrmd5
   importbuild() unless defined &Build::queryhdrmd5;
 
@@ -2092,6 +2090,106 @@ sub patchproductkiwi {
   writexml($kiwifile, undef, $kiwi, $BSKiwiXML::kiwidesc);
 }
 
+sub xmlescape {
+  my ($d) = @_;
+  $d =~ s/&/&amp;/sg;
+  $d =~ s/</&lt;/sg;
+  $d =~ s/>/&gt;/sg;
+  $d =~ s/"/&quot;/sg;
+  return $d;
+}
+
+# parse all .report file and create a channel file from them
+sub createchannel {
+  my ($dir, $kiwiorigins) = @_;
+  my @reports = grep {/\.report$/} ls($dir);
+  my %channel;
+  my $hasunknown;
+  for my $reportfile (@reports) {
+    my $report = readxml("$dir/$reportfile", $BSXML::report, 1);
+    next unless $report;
+    for my $bin (@{$report->{'binary'} || []}) {
+      # update missing entries
+      my $prpap = $kiwiorigins->{$bin->{'_content'}};
+      if (!$prpap) {
+	$prpap = 'UNKNOWN/UNKNOWN/UNKNOWN/UNKNOWN';
+	$hasunknown = 1;
+      }
+      my ($projid, $repoid, $arch, $packid) = split('/', $prpap, 4);
+      $bin->{'project'} = $projid;
+      $bin->{'repository'} = $repoid;
+      $bin->{'arch'} = $arch;
+      $bin->{'package'} = $packid;
+      $channel{"$projid/$repoid/$arch"}->{"$packid/$bin->{'name'}"} = $bin;
+    }
+    writexml("$dir/.$reportfile", "$dir/$reportfile", $report, $BSXML::report);
+  }
+  # sort helper
+  my @chansplits;
+  for my $prpa (keys %channel) {
+    my ($projid, $repoid, $arch) = split('/', $prpa, 3);
+    push @chansplits, {
+      'project' => $projid,
+      'repository' => $repoid,
+      'arch' => $arch,
+      'prpa' => $prpa,
+    };
+  }
+  @chansplits = sort {
+    $a->{'project'} cmp $b->{'project'} ||
+    $a->{'repository'} cmp $b->{'repository'} ||
+    $a->{'arch'} cmp $b->{'arch'}
+  } @chansplits;
+
+  # write the channel
+  # we directly write it so we can format a bit
+  my $c = '';
+  $c .= "\n<!-- WARNING: this file contains UNKNOWN entries -->\n\n" if $hasunknown;
+  $c .= "<channel>\n";
+  for my $chansplit (@chansplits) {
+    $c .= "  <binaries";
+    for (qw{project repository package arch name supportstatus}) {
+      $c .= " $_=\"".xmlescape($chansplit->{$_}).'"' if defined $chansplit->{$_};
+    }
+    $c .= ">\n";
+    my @bins = values(%{$channel{$chansplit->{'prpa'}}});
+    for my $bin (sort {
+			$a->{'project'} cmp $b->{'project'} ||
+			$a->{'repository'} cmp $b->{'repository'} ||
+			$a->{'arch'} cmp $b->{'arch'} ||
+			$a->{'package'} cmp $b->{'package'} ||
+			$a->{'name'} cmp $b->{'name'} ||
+			$a->{'_content'} cmp $b->{'_content'}
+                      } @bins) {
+      $c .= "    <binary";
+      my $x = length("    <binary") + 1;
+      my $first = 0;
+      for (qw{project repository package arch name supportstatus}) {
+	next unless defined($bin->{$_});
+	next if defined($chansplit->{$_}) && $chansplit->{$_} eq $bin->{$_};
+	if ($first == 1 && $x < 48) {
+          my $pad = ' ' x (48 - $x);
+          $c .= $pad;
+          $x += length($pad);
+        }
+        if ($first == 2 && $x < 88) {
+          my $pad = ' ' x (88 - $x);
+          $c .= $pad;
+          $x += length($pad);
+        }
+	my $str = " $_=\"".xmlescape($bin->{$_}).'"';
+        $c .= $str;
+        $x += length($str);
+        $first++;
+      }   
+      $c .= "/>\n";
+    }   
+    $c .= "  </binaries>\n\n";
+  }
+  $c .= "</channel>\n";
+  writestr("$dir/._channel", "$dir/_channel", $c);
+}
+
 sub dobuild {
   my ($buildinfo) = @_;
 
@@ -2101,6 +2199,7 @@ sub dobuild {
   my $arch = $buildinfo->{'arch'};
   my $helperarch = $buildinfo->{'hostarch'} || $arch;
   my $kiwimode;
+  my $kiwiorigins = {};
   my $stats = {};
   $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
   my $deltamode;
@@ -2182,7 +2281,11 @@ sub dobuild {
     }
     getsslcert($buildinfo, $srcdir) if $needsslcert;
     print "packages, ";
-    push @meta, getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
+    if ($kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product') {
+      push @meta, getbinaries_kiwiproduct($buildinfo, $pkgdir, $srcdir, $kiwiorigins);
+    } else {
+      push @meta, getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
+    }
   }
   $preinstallimagedata ||= {};
 
@@ -2408,6 +2511,11 @@ sub dobuild {
   $stats->{'times'}->{'total'}->{'time'}->{'_content'} = (time() - $starttime);
   writexml("$buildroot/.build.packages/OTHER/_statistics.new", "$buildroot/.build.packages/OTHER/_statistics", $stats, $BSXML::buildstatistics);
 
+  # as a special service we also create a channel file from
+  # the report files
+  if ($kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product') {
+    createchannel("$buildroot/.build.packages/OTHER", $kiwiorigins);
+  }
   return 0;
 }
 
