@@ -3057,7 +3057,7 @@ sub getbuildinfo {
     $b->{'notmeta'} = 1 unless $edeps{$_};
     if ($packtype eq 'kiwi') {
       $b->{'noinstall'} = 1 if $edeps{$_} && !($bdeps{$_} || $vmdeps{$_} || $pdeps{$_});
-    } else {
+    } elsif (@sysdeps) {
       $b->{'installonly'} = 1 if $sysdeps{$_} && !$bdeps{$_};
       $b->{'noinstall'} = 1 if $bdeps{$_} && !($sysdeps{$_} || $vmdeps{$_} || $pdeps{$_});
     }
