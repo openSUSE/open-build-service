@@ -10,4 +10,10 @@ module Webui::CommentHelper
       yield
     end
   end
+
+  def comment_body(comment)
+    # Initializes a Markdown parser, if needed
+    @md_parser ||= Redcarpet::Markdown.new(Redcarpet::Render::HTML, autolink: true)
+    @md_parser.render(comment[:body]).html_safe
+  end
 end

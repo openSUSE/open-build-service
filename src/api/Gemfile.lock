@@ -146,6 +146,7 @@ GEM
     rake (10.1.1)
     rdoc (4.1.1)
       json (~> 1.4)
+    redcarpet (3.1.1)
     riddle (1.5.9)
     ruby-ldap (0.9.16)
     ruby_parser (3.4.1)
@@ -247,6 +248,7 @@ DEPENDENCIES
   rails (~> 4.0)
   rails_tokeninput (>= 1.6.1.rc1)
   rdoc
+  redcarpet
   riddle (= 1.5.9)
   ruby-ldap
   sass-rails

@@ -80,8 +80,8 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.wont_have_text '<person userid="Iggy" role="bugowner"/>'
   end
 
-  def fill_comment
-    fill_in 'body', with: 'Comment Body'
+  def fill_comment(body = 'Comment Body')
+    fill_in 'body', with: body
     find_button('Add comment').click
     find('#flash-messages').must_have_text 'Comment added successfully '
   end
@@ -90,7 +90,12 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     use_js
     login_Iggy
     visit root_path + '/package/show/home:Iggy/TestPack'
-    fill_comment
+    fill_comment "Write some http://link.com\n\nand some other\n\n* Markdown\n* markup"
+    within('div.comment_0') do
+      page.must_have_link "http://link.com"
+      page.must_have_xpath '//ul//li[text()="Markdown"]'
+      page.must_have_xpath '//p[text()="and some other"]'
+    end
   end
 
   test 'another succesful comment creation' do

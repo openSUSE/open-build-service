@@ -42,6 +42,7 @@ gem 'kaminari'
 
 gem 'escape_utils'
 gem 'haml'
+gem 'redcarpet'
 
 group :production do
   # if you have an account, it can be configured by
