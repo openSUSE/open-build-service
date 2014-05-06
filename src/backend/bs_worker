@@ -2307,33 +2307,32 @@ sub dobuild {
   push @args, "$srcdir/$buildinfo->{'file'}";
   if ($buildinfo->{'file'} =~ /\.kiwi$/ && $buildinfo->{'imagetype'}->[0] ne 'product') {
     # expand obsrepositories:/ directive for appliances
-    my @rp=();
-    my $kiwi = Build::parse(undef, "$srcdir/$buildinfo->{'file'}");
-    my @kiwiargs;
-    my $use_parameters;
-    push @kiwiargs, '--kiwi-parameter', '--ignore-repos';
-    my $prio = 0;
-    for my $path (@{$kiwi->{'path'} || []}) {
-       if ($path->{'project'} ne '_obsrepositories') {
-          $prio = $prio + 1;
+    my $kiwi = Build::parse(undef, "$srcdir/$buildinfo->{'file'}") || {};
+    if (grep {$_->{'project'} eq '_obsrepositories'} @{$kiwi->{'path'} || []}) {
+      push @args, '--kiwi-parameter', '--ignore-repos';
+      my $prio = 0;
+      for my $path (@{$kiwi->{'path'} || []}) {
+        $prio = $prio + 1;
+        if ($path->{'project'} ne '_obsrepositories') {
           my $repo = "repos/$path->{'project'}/$path->{'repository'}";
-          push @kiwiargs, '--kiwi-parameter', '--add-repo', '--kiwi-parameter', $repo;
-          push @kiwiargs, '--kiwi-parameter', '--add-repotype', '--kiwi-parameter', "rpm-md";
-          push @kiwiargs, '--kiwi-parameter', '--add-repoprio', '--kiwi-parameter', ($path->{'priority'} || $prio);
-          next;
-       }
-       # fill in pathes from buildinfo instead
-       $use_parameters = 1;
-       for my $prjpath (@{$buildinfo->{'path'} || []}) {
-          $prio = $prio + 1;
-          my $repo ="repos/$prjpath->{'project'}/$prjpath->{'repository'}";
-          $repo =~ s/:/:\//g;
-          push @kiwiargs, '--kiwi-parameter', '--add-repo', '--kiwi-parameter', $repo;
-          push @kiwiargs, '--kiwi-parameter', '--add-repotype', '--kiwi-parameter', "rpm-md";
-          push @kiwiargs, '--kiwi-parameter', '--add-repoprio', '--kiwi-parameter', ($prio + ($path->{'priority'} || 0));
-       }
+          push @args, '--kiwi-parameter', '--add-repo', '--kiwi-parameter', $repo;
+          push @args, '--kiwi-parameter', '--add-repotype', '--kiwi-parameter', 'rpm-md';
+          push @args, '--kiwi-parameter', '--add-repoprio', '--kiwi-parameter', ($path->{'priority'} || $prio);
+	} else {
+	  # fill in pathes from buildinfo instead
+	  my $pathprio = 0;
+	  for my $prjpath (@{$buildinfo->{'path'} || []}) {
+	    my $repo ="repos/$prjpath->{'project'}/$prjpath->{'repository'}";
+	    $repo =~ s/:/:\//g;
+	    push @args, '--kiwi-parameter', '--add-repo', '--kiwi-parameter', $repo;
+	    push @args, '--kiwi-parameter', '--add-repotype', '--kiwi-parameter', 'rpm-md';
+	    push @args, '--kiwi-parameter', '--add-repoprio', '--kiwi-parameter', ($path->{'priority'} || $prio) + $pathprio;
+	    $pathprio = $pathprio + 1;
+	  }
+	  $prio += $pathprio - 1;
+	}
+      }
     }
-     @args = ( @args, @kiwiargs ) if $use_parameters;
   }
   qsystem(@args);
 
