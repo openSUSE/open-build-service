@@ -887,7 +887,7 @@ sub escapeProvides($)
 {
     my( $string ) = @_;
     # :- must be escaped for createrepo
-    $string =~ s/([^a-zA-Z0-9_%{}.])/sprintf("%%%02X", ord($1))/ge;
+    $string =~ s/([^a-zA-Z0-9_%{}\.])/sprintf("%%%02X", ord($1))/ge;
     return $string;
 }
 
@@ -930,7 +930,7 @@ sub writeProductSPECfile( $$$$ )
       die("product register release is obsolete") if defined($product->{register}->{release}); # was used for OEM products on SLE 10
       die("product release is not set but required") unless defined($product->{release}) and $product->{release} ne "";
       $productprovides.="Provides:       product() = $product->{name}\n";
-      $productprovides.="Provides:       product(".$product->{name}.") = ".escapeProvides($product->{version}."-".$product->{release})."\n";
+      $productprovides.="Provides:       product(".$product->{name}.") = $product->{version}-$product->{release}\n";
       foreach my $shortsummary ( @{$product->{'shortsummary'}} ){
         $productprovides.="Provides:       product-label() = ".escapeProvides($shortsummary->{'_content'})."\n" if ( ! $shortsummary->{'language'} );
       }
