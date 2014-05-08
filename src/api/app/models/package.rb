@@ -59,7 +59,7 @@ class Package < ActiveRecord::Base
   has_many :products, :dependent => :destroy
   has_many :channels, :dependent => :destroy, foreign_key: :package_id
 
-  has_many :comments, :dependent => :destroy, inverse_of: :package
+  has_many :comments, :dependent => :destroy, inverse_of: :package, class_name: 'CommentPackage'
 
   before_destroy :delete_cache_lines
   before_destroy :remove_linked_packages
@@ -836,10 +836,6 @@ class Package < ActiveRecord::Base
       bp.error = nil
       bp.links_to = nil
     end
-  end
-
-  def comment_class
-    CommentPackage
   end
 
   def delete_cache_lines
