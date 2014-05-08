@@ -6,8 +6,7 @@ module Webui::HasComments
     required_parameters :body
 
     obj = main_object.api_obj
-    comment = obj.comment_class.new(body: params[:body], parent_id: params[:parent_id])
-    obj.comments << comment
+    comment = obj.comments.build(body: params[:body], parent_id: params[:parent_id])
     comment.user = User.current
     comment.save!
 

@@ -120,4 +120,68 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     email = ActionMailer::Base.deliveries.last
     assert_equal %w(adrian@example.com fred@feuerstein.de tschmidt@example.com), email.to
   end
+
+  test 'create project comment' do
+    post create_project_comment_path(project: 'Apache')
+    assert_response 401 # no anonymous comments
+
+    login_adrian
+    post create_project_comment_path(project: 'Apache')
+    assert_response 400
+    # body can't be empty
+    assert_xml_tag tag: 'status', attributes: { code: 'invalid_record' }
+
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
+      raw_post create_project_comment_path(project: 'Apache'), 'Beautiful project'
+      assert_response :success
+    end
+
+    email = ActionMailer::Base.deliveries.last
+    assert_equal 'New comment in project Apache by adrian', email.subject
+    # Fred have two users and both are maintainers of the project
+    assert_equal ['fred@feuerstein.de', 'fred@feuerstein.de'], email.to
+
+    get comments_project_path(project: 'Apache')
+    assert_xml_tag tag: 'comment', attributes: { who: 'adrian' }, content: 'Beautiful project'
+  end
+
+  test 'create package comment' do
+    post create_package_comment_path(project: 'kde4', package: 'kdebase')
+    assert_response 401 # no anonymous comments
+
+    login_tom
+    post create_package_comment_path(project: 'kde4', package: 'kdebase')
+    assert_response 400
+    # body can't be empty
+    assert_xml_tag tag: 'status', attributes: { code: 'invalid_record' }
+
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
+      raw_post create_package_comment_path(project: 'kde4', package: 'kdebase'), "Hola, estoy aprendiendo español"
+      assert_response :success
+    end
+
+    email = ActionMailer::Base.deliveries.last
+    assert_equal 'New comment in package kde4/kdebase by tom', email.subject
+    assert_equal ["adrian@example.com", "fred@feuerstein.de", "king@all-the-kings.org", "fred@feuerstein.de"], email.to
+
+    get comments_package_path(project: 'kde4', package: 'kdebase')
+    assert_xml_tag tag: 'comment', attributes: { who: 'tom' }, content: "Hola, estoy aprendiendo español"
+  end
+
+  test 'create a comment that only mentioned people will notice' do
+    login_tom
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
+      # Trolling
+      raw_post create_package_comment_path(project: 'BaseDistro', package: 'pack1'), "I preffer Apache1, don't you? @fred"
+      assert_response :success
+    end
+
+    email = ActionMailer::Base.deliveries.last
+    assert_equal 'New comment in package BaseDistro/pack1 by tom', email.subject
+    # There are not maintainers for BaseDistro or pack1, so only @fred is notified
+    assert_equal ['fred@feuerstein.de'], email.to
+
+    get comments_package_path(project: 'BaseDistro', package: 'pack1')
+    assert_xml_tag tag: 'comment', attributes: { who: 'tom' }, content: "I preffer Apache1, don't you? @fred"
+  end
 end

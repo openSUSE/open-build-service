@@ -20,7 +20,7 @@ class BsRequest < ActiveRecord::Base
   has_many :bs_request_histories, :dependent => :delete_all
   has_many :reviews, :dependent => :delete_all
   has_and_belongs_to_many :bs_request_action_groups, join_table: :group_request_requests
-  has_many :comments, :dependent => :delete_all, inverse_of: :bs_request
+  has_many :comments, :dependent => :delete_all, inverse_of: :bs_request, class_name: 'CommentRequest'
   validates_inclusion_of :state, :in => VALID_REQUEST_STATES
   validates :creator, :presence => true
   validate :check_supersede_state
@@ -40,10 +40,6 @@ class BsRequest < ActiveRecord::Base
 
   def superseding
     BsRequest.where(superseded_by: id)
-  end
-
-  def comment_class
-    CommentRequest
   end
 
   def state
