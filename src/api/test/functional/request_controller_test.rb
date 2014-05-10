@@ -1799,9 +1799,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # cleanup
     delete '/source/kde4/Testing'
     assert_response :success
-    login_Iggy
-    delete '/source/home:Iggy:branches:kde4'
-    assert_response :success
   end
 
   def test_submit_with_review
