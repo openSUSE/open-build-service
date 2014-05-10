@@ -5,9 +5,12 @@ class TestController < ApplicationController
   skip_before_action :require_login
 
   before_action do
-    return true if Rails.env.test? || Rails.env.development?
-    render_error  message: "This is only accessible for testing environments", :status => 403
-    return false
+    if Rails.env.test? || Rails.env.development?
+      true 
+    else
+      render_error  message: "This is only accessible for testing environments", :status => 403
+      false
+    end
   end
 
   @@started = false
