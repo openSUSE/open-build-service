@@ -31,7 +31,6 @@
 //= require codemirror/modes/htmlmixed.js
 //= require codemirror/modes/javascript.js
 //= require codemirror/modes/jinja2.js
-//= require codemirror/modes/less.js
 //= require codemirror/modes/lua.js
 //= require codemirror/modes/markdown.js
 //= require codemirror/modes/ntriples.js
@@ -42,8 +41,7 @@
 //= require codemirror/modes/properties.js
 //= require codemirror/modes/python.js
 //= require codemirror/modes/r.js
-//= require codemirror/modes/rpm-changes.js
-//= require codemirror/modes/rpm-spec.js
+//= require codemirror/modes/rpm
 //= require codemirror/modes/rst.js
 //= require codemirror/modes/ruby.js
 //= require codemirror/modes/rust.js
