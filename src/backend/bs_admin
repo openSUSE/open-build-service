@@ -96,13 +96,16 @@ Job Controlling
 
  --publish-repository <project> <repository>
    Creates an event for the publisher. The scheduler is NOT scanning for new packages.
-   The publisher may skip the event, if nothing has changed. So you might need to remove
-   the directory in your /repos/ directory first.
+   The publisher may skip the event, if nothing has changed.
+   Use --republish-repository when you want to enforce a publish.
 
  --unpublish-repository <project> <repository>
    Removes the prepared :repo collection and let the publisher remove the result. This 
    is also updating the search database.
    WARNING: this works also for locked projects!
+
+ --republish-repository <project> <repository>
+   enforce to publish a repository
 
  --clone-repository <source project> <source repository> <destination repository>
  --clone-repository <source project> <source repository> <destination project> <destination repository>
@@ -745,16 +748,19 @@ while (@ARGV) {
     $repo = shift @ARGV if @ARGV == 2;
     my $arch = shift @ARGV;
     check_project($project, $repo, $arch, 1);
-  } elsif ( $arg eq "--publish-repository" || $arg eq "--unpublish-repository" ) {
+  } elsif ( $arg eq "--publish-repository" || $arg eq "--unpublish-repository" || $arg eq "--republish-repository" ) {
     die("ERROR: need project and repository as argument!\n") if @ARGV != 2;
     my $project = shift @ARGV;
     my $repo = shift @ARGV;
+    my $repodir = "$reporoot/$project/$repo/";
+    if ( $arg eq "--republish-repository" ) {
+      unlink("$repodir/:repoinfo");
+    }
     if ( $arg eq "--unpublish-repository" ) {
       # remove :repo
-      my $repo = "$reporoot/$project/$repo/";
-      for my $a (ls($repo)) {
-        next unless -e "$repo/$a/:repodone";
-        system('rm', '-rf', "$repo/$a/:repo", "$repo/$a/:repodone");
+      for my $a (ls($repodir)) {
+        next unless -e "$repodir/$a/:repodone";
+        system('rm', '-rf', "$repodir/$a/:repo", "$repo/$a/:repodone");
       }
     }
     write_publish_event($project, $repo);
