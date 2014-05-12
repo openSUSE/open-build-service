@@ -3445,7 +3445,7 @@ sub deletekey {
     $pprojid =~ s/:[^:]*$//;
     my $sk;
     ($sk) = getsignkey({}, $pprojid) if $projid ne $pprojid;
-    die("must have a key for signing\n") unless $sk;
+    die("must have a key for signing in this or upper project\n") unless $sk;
   }
   addrev_meta_multiple($cgi, $projid, undef, 'mrev',
 	[ undef, "$projectsdir/$projid.pkg/_pubkey",  '_pubkey' ],
