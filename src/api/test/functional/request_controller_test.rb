@@ -592,8 +592,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # another final state is not allowed
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=tom&comment=blahfasel"
     assert_response 403
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'post_request_no_permission' })
-    assert_xml_tag(:tag => 'summary', :content => 'set state to accepted from a final state is not allowed.')
+    assert_xml_tag(:tag => 'status', :attributes => { code: 'review_change_state_no_permission' })
+    assert_xml_tag(:tag => 'summary', :content => 'The request is neither in state review nor new')
 
     get "/request/#{id}"
     assert_response :success

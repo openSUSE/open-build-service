@@ -83,10 +83,6 @@ class RequestController < ApplicationController
     # refuse request manipulation for anonymous users
     be_not_nobody!
 
-    unless %w(addrequest removerequest setincident
-              addreview changereviewstate changestate).include? params[:cmd]
-      raise UnknownCommandError.new "Unknown command '#{params[:cmd]}' for path #{request.path}"
-    end
 
     params[:user] = User.current.login
     @req = BsRequest.find params[:id]
@@ -98,7 +94,21 @@ class RequestController < ApplicationController
     end
 
     # might raise an exception (which then renders an error)
-    @req.permission_state_change?(params)
+    if params[:cmd] == 'create'
+      # noop
+    elsif params[:cmd] == 'changereviewstate'
+      @req.permission_check_change_review!(params)
+    elsif params[:cmd] == 'addreview'
+      @req.permission_check_addreview!
+    elsif params[:cmd] == 'setincident'
+      @req.permission_check_setincident!(params[:incident])
+    elsif %w(addrequest removerequest).include? params[:cmd]
+      @req.permission_check_change_groups!
+    elsif params[:cmd] == 'changestate'
+      @req.permission_check_change_state!(params[:newstate], params[:force], params)
+    else
+      raise UnknownCommandError.new "Unknown command '#{params[:cmd]}' for path #{request.path}"
+    end
 
     # permission granted for the request at this point
 
@@ -187,7 +197,7 @@ class RequestController < ApplicationController
 
       # Autoapproval? Is the creator allowed to accept it?
       if @req.accept_at
-        @req.permission_state_change?({ cmd: 'changestate', newstate: 'accepted' })
+        @req.permission_check_change_state!('accepted', nil, {:newstate => 'accepted'})
       end
 
       #
