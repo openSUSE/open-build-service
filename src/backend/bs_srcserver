@@ -3287,7 +3287,7 @@ sub getprojpack {
 	      for ('imagetype', 'path', 'extrasource') {
 	        $rinfo->{$_} = $d->{$_} if exists $d->{$_};
 	      }
-	      if ($remotemap && $rinfo->{'path'} && !$repo->{'path'}) {
+	      if ($remotemap && $rinfo->{'path'}) {
 		# simple way to fill the remote map
 		eval {
 		  concatconfigs($projid, $repoid, $remotemap, map {"$_->{'project'}/$_->{'repository'}"} grep {$_->{'project'} ne '_obsrepositories'} @{$rinfo->{'path'}});
