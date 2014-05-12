@@ -27,6 +27,13 @@ class BsRequestPermissionCheck
     setup 'unknown_package', 404
   end
 
+  class ReviewChangeStateNoPermission < APIException
+    setup 403
+  end
+
+  class ReviewNotSpecified < APIException;
+  end
+
   def check_accepted_action(action)
 
     if not @target_project
@@ -201,13 +208,21 @@ class BsRequestPermissionCheck
   end
 
   def cmd_addreview_permissions(permissions_granted)
+    unless [:review, :new].include? req.state
+      raise ReviewChangeStateNoPermission.new 'The request is not in state new or review'
+    end
+
     req.bs_request_actions.each do |action|
       set_permissions_for_action(action)
     end
     require_permissions_in_target_or_source unless permissions_granted
   end
 
-  def cmd_setincident_permissions(permissions_granted)
+  def cmd_setincident_permissions
+    unless [:review, :new].include? req.state
+      raise ReviewChangeStateNoPermission.new 'The request is not in state new or review'
+    end
+
     req.bs_request_actions.each do |action|
       set_permissions_for_action(action)
 
@@ -223,19 +238,99 @@ class BsRequestPermissionCheck
       end
     end
 
-    require_permissions_in_target_or_source unless permissions_granted
+    require_permissions_in_target_or_source
   end
 
-  def cmd_changestate_permissions(permissions_granted)
-    # permission and validation check for each action inside
+  def cmd_changereviewstate_permissions(opts)
+    # Basic validations of given parameters
+    by_user = User.find_by_login!(opts[:by_user]) if opts[:by_user]
+    by_group = Group.find_by_title!(opts[:by_group]) if opts[:by_group]
+    if opts[:by_project] and opts[:by_package]
+      by_package = Package.get_by_project_and_name(opts[:by_project], opts[:by_package])
+    elsif opts[:by_project]
+      by_project = Project.get_by_name(opts[:by_project])
+    end
 
+    # Admin always ...
+    return true if User.current.is_admin?
+
+    unless [:review, :new].include? req.state
+      raise ReviewChangeStateNoPermission.new 'The request is neither in state review nor new'
+    end
+    unless by_user || by_group || by_package || by_project
+      raise ReviewNotSpecified.new 'The review must specified via by_user, by_group or by_project(by_package) argument.'
+    end
+    if by_user and not User.current == by_user
+      raise ReviewChangeStateNoPermission.new "review state change is not permitted for #{User.current.login}"
+    end
+    if by_group and not User.current.is_in_group?(by_group)
+      raise ReviewChangeStateNoPermission.new "review state change for group #{by_group.title} is not permitted for #{User.current.login}"
+    end
+    if by_package and not User.current.can_modify_package? by_package
+      raise ReviewChangeStateNoPermission.new "review state change for package #{opts[:by_project]}/#{opts[:by_package]} is not permitted for #{User.current.login}"
+    end
+    if by_project and not User.current.can_modify_project? by_project
+      raise ReviewChangeStateNoPermission.new "review state change for project #{opts[:by_project]} is not permitted for #{User.current.login}"
+    end
+  end
+
+  def cmd_changestate_permissions(newstate, force=nil, superseded_by=nil)
+    # We do not support to revert changes from accepted requests (yet)
+    if req.state == :accepted
+      raise PostRequestNoPermission.new 'change state from an accepted state is not allowed.'
+    end
+
+    # enforce state to "review" if going to "new", when review tasks are open
+    if newstate == 'new' and req.reviews
+      req.reviews.each do |r|
+        newstate = 'review' if r.state == :new
+      end
+    end
+    # Do not accept to skip the review, except force argument is given
+    if newstate == 'accepted'
+      if req.state == :review 
+        unless force
+          raise PostRequestNoPermission.new 'Request is in review state. You may use the force parameter to ignore this.'
+        end
+      elsif req.state != :new
+        raise PostRequestNoPermission.new 'Request is not in new state. You may reopen it by setting it to new.'
+      end
+    end
+    # do not allow direct switches from a final state to another one to avoid races and double actions.
+    # request needs to get reopened first.
+    if [:accepted, :superseded, :revoked].include? req.state
+      if %w(accepted declined superseded revoked).include? newstate
+        raise PostRequestNoPermission.new "set state to #{newstate} from a final state is not allowed."
+      end
+    end
+
+    if newstate == 'superseded' and not superseded_by
+      raise PostRequestMissingParamater.new "Supersed a request requires a 'superseded_by' parameter with the request id."
+    end
+
+    permission_granted = false
+    if User.current.is_admin?
+      permission_granted = true
+    elsif newstate == 'deleted'
+      raise PostRequestNoPermission.new 'Deletion of a request is only permitted for administrators. Please revoke the request instead.'
+    end
+
+    if %w(new review revoked superseded).include?(newstate) and req.creator == User.current.login
+      # request creator can reopen, revoke or supersede a request which was declined
+      permission_granted = true
+    elsif req.state == :declined and %w(new review).include?(newstate) and req.commenter == User.current.login
+      # people who declined a request shall also be able to reopen it
+      permission_granted = true
+    end
+
+    # permission and validation check for each action inside
     req.bs_request_actions.each do |action|
       set_permissions_for_action(action)
 
       check_newstate_action! action, opts
 
       # abort immediatly if we want to write and can't
-      if %w(accepted).include? opts[:newstate] and not @write_permission_in_this_action
+      if "accepted" == newstate and not @write_permission_in_this_action
         msg = ''
         msg = "No permission to modify target of request #{action.bs_request.id} (type #{action.action_type}): project #{action.target_project}" unless action.bs_request.new_record?
         msg += ", package #{action.target_package}" if action.target_package
@@ -243,19 +338,7 @@ class BsRequestPermissionCheck
       end
     end
 
-    extra_permissions_check_changestate unless permissions_granted
-  end
-
-  def cmd_permissions(cmd, permissions_granted)
-    if cmd == 'changestate'
-      cmd_changestate_permissions(permissions_granted)
-    elsif cmd == 'addreview'
-      cmd_addreview_permissions(permissions_granted)
-    elsif cmd == 'setincident'
-      cmd_setincident_permissions(permissions_granted)
-    else
-      Rails.logger.debug "no extra permissions check for cmd #{cmd}"
-    end
+    extra_permissions_check_changestate unless permission_granted
   end
 
   attr_accessor :opts, :req

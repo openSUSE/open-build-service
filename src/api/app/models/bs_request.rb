@@ -13,11 +13,6 @@ class BsRequest < ActiveRecord::Base
   class SaveError < APIException
     setup 'request_save_error'
   end
-  class ReviewChangeStateNoPermission < APIException
-    setup 403
-  end
-  class ReviewNotSpecified < APIException;
-  end
 
   scope :to_accept, -> { where(state: 'new').where('accept_at < ?', DateTime.now) }
 
@@ -281,55 +276,19 @@ class BsRequest < ActiveRecord::Base
   end
 
   def permission_check_change_review!(params)
-
-    # Basic validations of given parameters
-    by_user = User.find_by_login!(params[:by_user]) if params[:by_user]
-    by_group = Group.find_by_title!(params[:by_group]) if params[:by_group]
-    if params[:by_project] and params[:by_package]
-      by_package = Package.get_by_project_and_name(params[:by_project], params[:by_package])
-    elsif params[:by_project]
-      by_project = Project.get_by_name(params[:by_project])
-    end
-
-    # Admin always ...
-    return true if User.current.is_admin?
-
-    unless self.state == :review or self.state == :new
-      raise ReviewChangeStateNoPermission.new 'The request is neither in state review nor new'
-    end
-    unless by_user || by_group || by_package || by_project
-      raise ReviewNotSpecified.new 'The review must specified via by_user, by_group or by_project(by_package) argument.'
-    end
-    if by_user and not User.current == by_user
-      raise ReviewChangeStateNoPermission.new "review state change is not permitted for #{User.current.login}"
-    end
-    if by_group and not User.current.is_in_group?(by_group)
-      raise ReviewChangeStateNoPermission.new "review state change for group #{by_group.title} is not permitted for #{User.current.login}"
-    end
-    if by_package and not User.current.can_modify_package? by_package
-      raise ReviewChangeStateNoPermission.new "review state change for package #{params[:by_project]}/#{params[:by_package]} is not permitted for #{User.current.login}"
-    end
-    if by_project and not User.current.can_modify_project? by_project
-      raise ReviewChangeStateNoPermission.new "review state change for project #{params[:by_project]} is not permitted for #{User.current.login}"
-    end
-
+    checker = BsRequestPermissionCheck.new(self, params)
+    checker.cmd_changereviewstate_permissions(params)
   end
 
   def permission_check_setincident!(incident)
-    unless [:review, :new].include? self.state
-      raise ReviewChangeStateNoPermission.new 'The request is not in state new or review'
-    end
     checker = BsRequestPermissionCheck.new(self, {:incident => incident})
-    checker.cmd_permissions("setincident", true)
+    checker.cmd_setincident_permissions
   end
 
   def permission_check_addreview!
-    unless [:review, :new].include? self.state
-      raise ReviewChangeStateNoPermission.new 'The request is not in state new or review'
-    end
     # allow request creator to add further reviewers
     checker = BsRequestPermissionCheck.new(self, {})
-    checker.cmd_permissions("addreview", (self.creator == User.current.login or self.is_reviewer? User.current))
+    checker.cmd_addreview_permissions(self.creator == User.current.login || self.is_reviewer?(User.current))
   end
 
   def permission_check_change_groups!
@@ -340,56 +299,8 @@ class BsRequest < ActiveRecord::Base
   end
 
   def permission_check_change_state!(newstate, force, params)
-    # We do not support to revert changes from accepted requests (yet)
-    if self.state == :accepted
-      raise PostRequestNoPermission.new 'change state from an accepted state is not allowed.'
-    end
-
-    # enforce state to "review" if going to "new", when review tasks are open
-    if newstate == 'new' and self.reviews
-      self.reviews.each do |r|
-        newstate = 'review' if r.state == :new
-      end
-    end
-    # Do not accept to skip the review, except force argument is given
-    if newstate == 'accepted'
-      if self.state == :review 
-        unless force
-          raise PostRequestNoPermission.new 'Request is in review state. You may use the force parameter to ignore this.'
-        end
-      elsif self.state != :new
-        raise PostRequestNoPermission.new 'Request is not in new state. You may reopen it by setting it to new.'
-      end
-    end
-    # do not allow direct switches from a final state to another one to avoid races and double actions.
-    # request needs to get reopened first.
-    if [:accepted, :superseded, :revoked].include? self.state
-      if %w(accepted declined superseded revoked).include? newstate
-        raise PostRequestNoPermission.new "set state to #{newstate} from a final state is not allowed."
-      end
-    end
-
-    if params[:newstate] == 'superseded' and not params[:superseded_by]
-      raise PostRequestMissingParamater.new "Supersed a request requires a 'superseded_by' parameter with the request id."
-    end
-
-    permission_granted = false
-    if User.current.is_admin?
-      permission_granted = true
-    elsif newstate == 'deleted'
-      raise PostRequestNoPermission.new 'Deletion of a request is only permitted for administrators. Please revoke the request instead.'
-    end
-
-    if %w(new review revoked superseded).include?(newstate) and self.creator == User.current.login
-      # request creator can reopen, revoke or supersede a request which was declined
-      permission_granted = true
-    elsif self.state == :declined and %w(new review).include?(newstate) and self.commenter == User.current.login
-      # people who declined a request shall also be able to reopen it
-      permission_granted = true
-    end
-
     checker = BsRequestPermissionCheck.new(self, params)
-    checker.cmd_permissions("changestate", permission_granted)
+    checker.cmd_changestate_permissions(newstate, force, params[:superseded_by])
   end
 
   def change_state(state, opts = {})
