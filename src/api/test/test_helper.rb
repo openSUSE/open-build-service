@@ -158,7 +158,7 @@ module Webui
       click_button 'Log In'
       @current_user = user
       if opts[:do_assert] != false
-        find('#link-to-user-home').text.must_match %r{^#{user}( |$)}
+        assert_match %r{^#{user}( |$)}, find('#link-to-user-home').text
       end
       # login into API to ease test cases
       prepare_request_with_user(user, password)
@@ -234,6 +234,8 @@ module Webui
 
     setup do
       Capybara.current_driver = :rack_test
+# crude work around - one day I will dig into why this is necessary
+      Minitest::Spec.new('MINE') unless Minitest::Spec.current
       self.class.start_test_api
       #Capybara.current_driver = Capybara.javascript_driver
       @starttime = Time.now
@@ -247,7 +249,7 @@ module Webui
 
     teardown do
       dirpath = Rails.root.join('tmp', 'capybara')
-      htmlpath = dirpath.join(self.__name__ + '.html')
+      htmlpath = dirpath.join(self.name + '.html')
       if !passed?
         Dir.mkdir(dirpath) unless Dir.exists? dirpath
         save_page(htmlpath)

@@ -93,7 +93,7 @@ class EventTest < ActiveSupport::TestCase
     UpdateNotificationEvents.new.perform
     oldcount = Event::Base.count
     # the first call fetches around 100
-    assert oldcount - firstcount > 100
+    assert oldcount - firstcount > 100, "oldcount: #{oldcount}, firstcount: #{firstcount} - not +100"
   end
 
   test 'cleanup job' do
