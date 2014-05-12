@@ -98,7 +98,7 @@ class RequestController < ApplicationController
     end
 
     # might raise an exception (which then renders an error)
-    check_request_change(@req, params)
+    @req.permission_state_change?(params)
 
     # permission granted for the request at this point
 
@@ -187,7 +187,7 @@ class RequestController < ApplicationController
 
       # Autoapproval? Is the creator allowed to accept it?
       if @req.accept_at
-        check_request_change(@req, { cmd: 'changestate', newstate: 'accepted' })
+        @req.permission_state_change?({ cmd: 'changestate', newstate: 'accepted' })
       end
 
       #
@@ -282,132 +282,8 @@ class RequestController < ApplicationController
     setup 403
   end
 
-  class ReviewNotSpecified < APIException;
-  end
-
-  class ReviewChangeStateNoPermission < APIException
-    setup 403
-  end
-
   class GroupRequestSpecial < APIException
     setup 'command_only_valid_for_group'
-  end
-
-  def check_request_change(req, params)
-
-    # We do not support to revert changes from accepted requests (yet)
-    if req.state == :accepted
-      raise PostRequestNoPermission.new 'change state from an accepted state is not allowed.'
-    end
-
-    # do not allow direct switches from a final state to another one to avoid races and double actions.
-    # request needs to get reopened first.
-    if [:accepted, :superseded, :revoked].include? req.state
-      if %w(accepted declined superseded revoked).include? params[:newstate]
-        raise PostRequestNoPermission.new "set state to #{params[:newstate]} from a final state is not allowed."
-      end
-    end
-
-    # enforce state to "review" if going to "new", when review tasks are open
-    if params[:cmd] == 'changestate'
-      if params[:newstate] == 'new' and req.reviews
-        req.reviews.each do |r|
-          params[:newstate] = 'review' if r.state == :new
-        end
-      end
-    end
-
-    # adding and removing of requests is only allowed for groups
-    if %w(addrequest removerequest).include? params[:cmd]
-      if req.bs_request_actions.first.action_type != :group
-        raise GroupRequestSpecial.new "Command #{params[:cmd]} is only valid for group requests"
-      end
-    end
-
-    # Do not accept to skip the review, except force argument is given
-    if params[:cmd] == 'changestate' and params[:newstate] == 'accepted'
-      if req.state == :review 
-        unless params[:force]
-          raise PostRequestNoPermission.new 'Request is in review state. You may use the force parameter to ignore this.'
-        end
-      elsif req.state != :new
-        raise PostRequestNoPermission.new 'Request is not in new state. You may reopen it by setting it to new.'
-      end
-    end
-
-    # valid users and groups ?
-    if params[:by_user]
-      User.find_by_login!(params[:by_user])
-    end
-    if params[:by_group]
-      Group.find_by_title!(params[:by_group])
-    end
-
-    # valid project or package ?
-    if params[:by_project] and params[:by_package]
-      pkg = Package.get_by_project_and_name(params[:by_project], params[:by_package])
-    elsif params[:by_project]
-      prj = Project.get_by_name(params[:by_project])
-    end
-
-    # generic permission checks
-    permission_granted = false
-    if User.current.is_admin?
-      permission_granted = true
-    elsif params[:newstate] == 'deleted'
-      raise PostRequestNoPermission.new 'Deletion of a request is only permitted for administrators. Please revoke the request instead.'
-    elsif params[:cmd] == 'addreview' or params[:cmd] == 'setincident'
-      unless [:review, :new].include? req.state
-        raise ReviewChangeStateNoPermission.new 'The request is not in state new or review'
-      end
-      # allow request creator to add further reviewers
-      permission_granted = true if (req.creator == User.current.login or req.is_reviewer? User.current)
-    elsif params[:cmd] == 'changereviewstate'
-      unless req.state == :review or req.state == :new
-        raise ReviewChangeStateNoPermission.new 'The request is neither in state review nor new'
-      end
-      found=nil
-      if params[:by_user]
-        unless User.current.login == params[:by_user]
-          raise ReviewChangeStateNoPermission.new "review state change is not permitted for #{User.current.login}"
-        end
-        found=true
-      end
-      if params[:by_group]
-        unless User.current.is_in_group?(params[:by_group])
-          raise ReviewChangeStateNoPermission.new "review state change for group #{params[:by_group]} is not permitted for #{User.current.login}"
-        end
-        found=true
-      end
-      if params[:by_project]
-        if params[:by_package]
-          unless User.current.can_modify_package? pkg
-            raise ReviewChangeStateNoPermission.new "review state change for package #{params[:by_project]}/#{params[:by_package]} is not permitted for #{User.current.login}"
-          end
-        elsif !User.current.can_modify_project? prj
-          raise ReviewChangeStateNoPermission.new "review state change for project #{params[:by_project]} is not permitted for #{User.current.login}"
-        end
-        found=true
-      end
-      unless found
-        raise ReviewNotSpecified.new 'The review must specified via by_user, by_group or by_project(by_package) argument.'
-      end
-      #
-      permission_granted = true
-    elsif req.state != :accepted and %w(new review revoked superseded).include?(params[:newstate]) and req.creator == User.current.login
-      # request creator can reopen, revoke or supersede a request which was declined
-      permission_granted = true
-    elsif req.state == :declined and (params[:newstate] == 'new' or params[:newstate] == 'review') and req.commenter == User.current.login
-      # people who declined a request shall also be able to reopen it
-      permission_granted = true
-    end
-
-    if params[:newstate] == 'superseded' and not params[:superseded_by]
-      raise PostRequestMissingParamater.new "Supersed a request requires a 'superseded_by' parameter with the request id."
-    end
-
-    checker = BsRequestPermissionCheck.new(req, params)
-    checker.cmd_permissions(params[:cmd], permission_granted)
   end
 
   def request_command_addrequest
