@@ -11,7 +11,7 @@ class BsRequestTest < ActiveSupport::TestCase
   test "if create works" do
     xml = '<request>
               <action type="submit">
-                <source project="LocalProject" package="pack1" rev="1"/>
+                <source project="BaseDistro" package="pack2" rev="1"/>
                 <target project="home:tom" package="pack1"/>
               </action>
               <state name="new" />
@@ -35,7 +35,7 @@ class BsRequestTest < ActiveSupport::TestCase
     wi = req.webui_infos(diffs: false)
     assert_equal wi['id'], req.id
     assert_equal wi['description'], ''
-    assert_equal wi['state'], :new
+    assert_equal wi['state'], :review
     assert_equal wi['creator'], 'Iggy'
     assert_equal wi['is_target_maintainer'], false
     assert_equal wi['my_open_reviews'], []
@@ -51,7 +51,7 @@ class BsRequestTest < ActiveSupport::TestCase
     wi = req.webui_infos(diffs: false)
     assert_equal wi['id'], req.id
     assert_equal wi['description'], ''
-    assert_equal wi['state'], :new
+    assert_equal wi['state'], :review
     assert_equal wi['creator'], 'Iggy'
     assert_equal wi['is_target_maintainer'], true
     assert_equal wi['my_open_reviews'], []

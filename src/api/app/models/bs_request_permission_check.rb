@@ -274,22 +274,22 @@ class BsRequestPermissionCheck
     end
   end
 
-  def cmd_changestate_permissions(newstate, force=nil, superseded_by=nil)
+  def cmd_changestate_permissions(opts)
     # We do not support to revert changes from accepted requests (yet)
     if req.state == :accepted
       raise PostRequestNoPermission.new 'change state from an accepted state is not allowed.'
     end
 
     # enforce state to "review" if going to "new", when review tasks are open
-    if newstate == 'new' and req.reviews
+    if opts[:newstate] == 'new' and req.reviews
       req.reviews.each do |r|
-        newstate = 'review' if r.state == :new
+        opts[:newstate]= 'review' if r.state == :new
       end
     end
     # Do not accept to skip the review, except force argument is given
-    if newstate == 'accepted'
+    if opts[:newstate] == 'accepted'
       if req.state == :review 
-        unless force
+        unless opts[:force]
           raise PostRequestNoPermission.new 'Request is in review state. You may use the force parameter to ignore this.'
         end
       elsif req.state != :new
@@ -299,26 +299,26 @@ class BsRequestPermissionCheck
     # do not allow direct switches from a final state to another one to avoid races and double actions.
     # request needs to get reopened first.
     if [:accepted, :superseded, :revoked].include? req.state
-      if %w(accepted declined superseded revoked).include? newstate
-        raise PostRequestNoPermission.new "set state to #{newstate} from a final state is not allowed."
+      if %w(accepted declined superseded revoked).include? opts[:newstate]
+        raise PostRequestNoPermission.new "set state to #{opts[:newstate]} from a final state is not allowed."
       end
     end
 
-    if newstate == 'superseded' and not superseded_by
+    if opts[:newstate] == 'superseded' and not opts[:superseded_by]
       raise PostRequestMissingParamater.new "Supersed a request requires a 'superseded_by' parameter with the request id."
     end
 
     permission_granted = false
     if User.current.is_admin?
       permission_granted = true
-    elsif newstate == 'deleted'
+    elsif opts[:newstate] == 'deleted'
       raise PostRequestNoPermission.new 'Deletion of a request is only permitted for administrators. Please revoke the request instead.'
     end
 
-    if %w(new review revoked superseded).include?(newstate) and req.creator == User.current.login
+    if %w(new review revoked superseded).include?(opts[:newstate]) and req.creator == User.current.login
       # request creator can reopen, revoke or supersede a request which was declined
       permission_granted = true
-    elsif req.state == :declined and %w(new review).include?(newstate) and req.commenter == User.current.login
+    elsif req.state == :declined and %w(new review).include?(opts[:newstate]) and req.commenter == User.current.login
       # people who declined a request shall also be able to reopen it
       permission_granted = true
     end
@@ -330,7 +330,7 @@ class BsRequestPermissionCheck
       check_newstate_action! action, opts
 
       # abort immediatly if we want to write and can't
-      if "accepted" == newstate and not @write_permission_in_this_action
+      if "accepted" == opts[:newstate] and not @write_permission_in_this_action
         msg = ''
         msg = "No permission to modify target of request #{action.bs_request.id} (type #{action.action_type}): project #{action.target_project}" unless action.bs_request.new_record?
         msg += ", package #{action.target_package}" if action.target_package

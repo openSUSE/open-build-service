@@ -2,6 +2,8 @@ require 'xmlhash'
 require 'event'
 require 'opensuse/backend'
 
+include MaintenanceHelper
+
 class BsRequest < ActiveRecord::Base
 
   class InvalidStateError < APIException
@@ -28,6 +30,21 @@ class BsRequest < ActiveRecord::Base
   validates_length_of :description, :maximum => 300000
 
   after_update :send_state_change
+
+  def save!
+    new = self.created_at ? nil : 1
+    sanitize! if new
+    super
+    notify if new
+  end
+
+  def set_add_revision
+    @addrevision = true
+  end
+
+  def set_ignore_build_state
+    @ignore_build_state = true
+  end
 
   def check_supersede_state
     if self.state == :superseded and ( not self.superseded_by.is_a?(Numeric) or not self.superseded_by > 0 )
@@ -175,7 +192,6 @@ class BsRequest < ActiveRecord::Base
 
       request.updated_at ||= Time.now
     end
-
     request
   end
 
@@ -298,13 +314,59 @@ class BsRequest < ActiveRecord::Base
     end
   end
 
-  def permission_check_change_state!(newstate, force, params)
-    checker = BsRequestPermissionCheck.new(self, params)
-    checker.cmd_changestate_permissions(newstate, force, params[:superseded_by])
+  def permission_check_change_state!(opts)
+    checker = BsRequestPermissionCheck.new(self, opts)
+    checker.cmd_changestate_permissions(opts)
   end
 
-  def change_state(state, opts = {})
-    state = state.to_sym
+  def changestate_accepted(opts)
+    # all maintenance_incident actions go into the same incident project
+    incident_project = nil  # .where(type: 'maintenance_incident')
+    self.bs_request_actions.each do |action|
+      next unless action.is_maintenance_incident?
+
+      tprj = Project.get_by_name action.target_project
+
+      # create a new incident if needed
+      if tprj.is_maintenance?
+        # create incident if it is a maintenance project
+        incident_project ||= create_new_maintenance_incident(tprj, nil, self).project
+        opts[:check_for_patchinfo] = true
+
+        unless incident_project.name.start_with?(tprj.name)
+          raise MultipleMaintenanceIncidents.new 'This request handles different maintenance incidents, this is not allowed !'
+        end
+        action.target_project = incident_project.name
+        action.save!
+      end
+    end
+
+    # We have permission to change all requests inside, now execute
+    self.bs_request_actions.each do |action|
+      action.execute_accept(opts)
+    end
+
+    # now do per request cleanup
+    self.bs_request_actions.each do |action|
+      action.per_request_cleanup(opts)
+    end
+  end
+
+  def changestate_revoked
+    self.bs_request_actions.where(type: 'maintenance_release').each do |action|
+      # unlock incident project in the soft way
+      prj = Project.get_by_name(action.source_project)
+      prj.unlock_by_request(self.id)
+    end
+  end
+
+  def change_state(opts)
+    self.permission_check_change_state!(opts)
+
+    changestate_revoked if opts[:newstate] == 'revoked'
+    changestate_accepted(opts) if opts[:newstate] == 'accepted'
+
+    state = opts[:newstate].to_sym
     self.with_lock do
       create_history
 
@@ -432,6 +494,8 @@ class BsRequest < ActiveRecord::Base
   end
 
   def addreview(opts)
+    self.permission_check_addreview!
+
     self.with_lock do
       check_if_valid_review!(opts)
       create_history
@@ -448,6 +512,27 @@ class BsRequest < ActiveRecord::Base
       newreview.create_notification(self.notify_parameters)
     end
   end
+
+  def setincident(incident)
+    self.permission_check_setincident!(incident)
+
+    touched = false
+    # all maintenance_incident actions go into the same incident project
+    self.bs_request_actions.where(type: 'maintenance_incident').each do |action|
+      tprj = Project.get_by_name action.target_project
+
+      # use an existing incident
+      if tprj.is_maintenance?
+        tprj = Project.get_by_name(action.target_project + ':' + incident.to_s)
+        action.target_project = tprj.name
+        action.save!
+        touched = true
+      end
+    end
+
+    self.save! if touched
+  end
+
 
   IntermediateStates = %w(new review)
 
@@ -650,15 +735,7 @@ class BsRequest < ActiveRecord::Base
     self.with_lock do
       User.current ||= User.find_by_login self.creator
 
-      self.bs_request_actions.each do |action|
-        action.execute_accept({ lowprio: 1, comment: 'Auto accept' })
-      end
-
-      self.bs_request_actions.each do |action|
-        action.per_request_cleanup(:comment => 'Auto accept')
-      end
-
-      self.change_state('accepted', :comment => 'Auto accept')
+      change_state({:newstate => 'accepted', :comment => 'Auto accept'})
     end
   end
 
@@ -688,6 +765,74 @@ class BsRequest < ActiveRecord::Base
       end
     end
     has_target && is_target_maintainer
+  end
+
+  def sanitize!
+    # apply default values, expand and do permission checks
+
+    # ensure correct initial values, no matter what has been sent to us
+    self.commenter = User.current.login
+    self.creator = User.current.login
+    self.state = :new
+
+    # expand release and submit request targets if not specified
+    expand_targets
+
+    self.bs_request_actions.each do |action|
+      # permission checks
+      action.check_action_permission!
+      action.check_for_expand_errors! !@addrevision.nil?
+    end
+
+    # Autoapproval? Is the creator allowed to accept it?
+    if self.accept_at
+      self.permission_check_change_state!({:newstate => 'accepted'})
+    end
+
+    #
+    # Find out about defined reviewers in target
+    #
+    # check targets for defined default reviewers
+    reviewers = []
+
+    self.bs_request_actions.each do |action|
+      reviewers += action.default_reviewers
+
+      action.create_post_permissions_hook({
+         per_package_locking: @per_package_locking,
+      })
+    end
+
+    # apply reviewers
+    reviewers.uniq.each do |r|
+      if r.class == User
+        next if self.reviews.select{|a| a.by_user == r.login}.length > 0
+        self.reviews.new by_user: r.login 
+      elsif r.class == Group
+        next if self.reviews.select{|a| a.by_group == r.title}.length > 0
+        self.reviews.new by_group: r.title
+      elsif r.class == Project
+        next if self.reviews.select{|a| a.by_project == r.name and a.by_package.nil? }.length > 0
+        self.reviews.new by_project: r.name
+      elsif r.class == Package
+        next if self.reviews.select{|a| a.by_project == r.project.name and a.by_package == r.name }.length > 0
+        rev = self.reviews.new by_project: r.project.name
+        rev.by_package = r.name
+      else
+        raise 'Unknown review type'
+      end
+    end
+
+    self.state = :review if self.reviews.length > 0
+  end
+
+  def notify
+    notify = self.notify_parameters
+    Event::RequestCreate.create notify
+
+    self.reviews.each do |review|
+      review.create_notification(notify)
+    end
   end
 
   def webui_actions(with_diff = true)
@@ -772,6 +917,24 @@ class BsRequest < ActiveRecord::Base
       actions << action
     end
     actions
+  end
+
+  def expand_targets
+
+    newactions = []
+    oldactions = []
+
+    self.bs_request_actions.each do |action|
+      na, ppl = action.expand_targets(!@ignore_build_state.nil?)
+      @per_package_locking ||= ppl
+      next if na.nil?
+
+      oldactions << action
+      newactions.concat(na)
+    end
+
+    oldactions.each { |a| self.bs_request_actions.destroy a }
+    newactions.each { |a| self.bs_request_actions << a }
   end
 
 end

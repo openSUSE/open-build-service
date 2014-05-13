@@ -2,6 +2,10 @@ class BsRequestActionSubmit < BsRequestAction
 
   include SubmitRequestSourceDiff
 
+  def is_submit?
+    true
+  end
+
   def self.sti_name
     return :submit
   end

@@ -209,14 +209,31 @@ class Webui::PackageController < Webui::WebuiController
       redirect_to :action => :show, :project => params[:project], :package => params[:package] and return
     end
 
+    req = nil
     begin
-      params[:type] = 'submit'
-      if not params[:sourceupdate] and params[:project].include?(':branches:')
-        params[:sourceupdate] = 'update' # Avoid auto-removal of branch
+      BsRequest.transaction do
+        req = BsRequest.new
+        req.state = "new"
+        req.creator = User.current
+        req.description = params[:description]
+
+        opts = { source_project: params[:project],
+                 source_package: params[:package],
+                 target_project: params[:targetproject] }
+        if params[:sourceupdate] 
+          opts[:sourceupdate] = params[:sourceupdate]
+        elsif params[:project].include?(':branches:')
+          opts[:sourceupdate] = 'update' # Avoid auto-removal of branch
+        end
+        action = BsRequestActionSubmit.new(opts)
+        req.bs_request_actions << action
+        action.bs_request = req
+
+        req.set_add_revision
+        req.save!
       end
-      req = WebuiRequest.new(params)
-      req.save(:create => true)
-    rescue ActiveXML::Transport::Error, ActiveXML::Transport::NotFoundError => e
+    rescue BsRequestAction::UnknownProject,
+           BsRequestAction::UnknownTargetPackage => e
       flash[:error] = "Unable to submit: #{e.message}"
       redirect_to(:action => 'show', :project => params[:project], :package => params[:package]) and return
     end
@@ -226,16 +243,21 @@ class Webui::PackageController < Webui::WebuiController
       pending_requests = BsRequestCollection.list_ids(project: params[:targetproject], package: params[:package], states: %w(new review declined), types: %w(submit))
       pending_requests.each do |request_id|
         next if request_id == req.id # ignore newly created request
+        r = BsRequest.find_by_id request_id
+        next if r.nil? # unable to load
         begin
-          WebuiRequest.modify(request_id, 'superseded', reason: "Superseded by request #{req.id}", superseded_by: req.id)
-        rescue WebuiRequest::ModifyError => e
+          opts = { newstate: "superseded",
+                   reason: "Superseded by request #{req.id}",
+                   superseded_by: req.id }
+          r.change_state(opts)
+        rescue BsRequestAction::UnknownProject, BsRequestAction::UnknownTargetPackage => e
           flash[:error] = e.message
           redirect_to(:action => 'requests', :project => params[:project], :package => params[:package]) and return
         end
       end
     end
 
-    flash[:notice] = "Created <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.value('id'))}'>submit request #{req.value('id')}</a> to <a href='#{url_for(:controller => 'project', :action => 'show', :project => params[:targetproject])}'>#{params[:targetproject]}</a>"
+    flash[:notice] = "Created <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.id)}'>submit request #{req.id}</a> to <a href='#{url_for(:controller => 'project', :action => 'show', :project => params[:targetproject])}'>#{params[:targetproject]}</a>"
     redirect_to(:action => 'show', :project => params[:project], :package => params[:package])
   end
 

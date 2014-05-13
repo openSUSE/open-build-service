@@ -32,7 +32,7 @@ module MaintenanceHelper
       # set default bugowner if missing
       bugowner = Role.rolecache['bugowner']
       unless tprj.relationships.users.where('role_id = ?', bugowner.id).exists?
-        tprj.add_user( @http_user, bugowner )
+        tprj.add_user( User.current, bugowner )
       end
       # and write it
       tprj.set_project_type 'maintenance_incident'

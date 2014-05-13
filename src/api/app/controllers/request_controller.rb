@@ -94,18 +94,21 @@ class RequestController < ApplicationController
     end
 
     # might raise an exception (which then renders an error)
+    # FIXME: this should be moved into the model functions, doing
+    #        these actions
     if params[:cmd] == 'create'
       # noop
     elsif params[:cmd] == 'changereviewstate'
       @req.permission_check_change_review!(params)
     elsif params[:cmd] == 'addreview'
-      @req.permission_check_addreview!
+      # the model is checking already
     elsif params[:cmd] == 'setincident'
-      @req.permission_check_setincident!(params[:incident])
+      # the model is checking already
     elsif %w(addrequest removerequest).include? params[:cmd]
+      # FIXME3.0: to be dropped
       @req.permission_check_change_groups!
     elsif params[:cmd] == 'changestate'
-      @req.permission_check_change_state!(params[:newstate], params[:force], params)
+      # the model is checking already
     else
       raise UnknownCommandError.new "Unknown command '#{params[:cmd]}' for path #{request.path}"
     end
@@ -150,27 +153,6 @@ class RequestController < ApplicationController
 
   private
 
-  def create_expand_targets(req)
-    per_package_locking = false
-
-    newactions = []
-    oldactions = []
-
-    req.bs_request_actions.each do |action|
-      na, ppl = action.expand_targets(!params[:ignore_build_state].nil?)
-      per_package_locking ||= ppl
-      next if na.nil?
-
-      oldactions << action
-      newactions.concat(na)
-    end
-
-    oldactions.each { |a| req.bs_request_actions.destroy a }
-    newactions.each { |a| req.bs_request_actions << a }
-
-    return {per_package_locking: per_package_locking}
-  end
-
   # POST /request?cmd=create
   def request_create
 
@@ -178,66 +160,9 @@ class RequestController < ApplicationController
 
     xml = BsRequest.transaction do
       @req = BsRequest.new_from_xml(body)
-
-      # overwrite stuff
-      @req.commenter = User.current.login
-      @req.creator = User.current.login
-      @req.state = :new
-
-      # expand release and submit request targets if not specified
-      results = create_expand_targets(@req) || return
-      params[:per_package_locking] = results[:per_package_locking]
-
-      @req.bs_request_actions.each do |action|
-        # permission checks
-        action.check_action_permission!
-
-        action.check_for_expand_errors! !params[:addrevision].blank?
-      end
-
-      # Autoapproval? Is the creator allowed to accept it?
-      if @req.accept_at
-        @req.permission_check_change_state!('accepted', nil, {:newstate => 'accepted'})
-      end
-
-      #
-      # Find out about defined reviewers in target
-      #
-      # check targets for defined default reviewers
-      reviewers = []
-
-      @req.bs_request_actions.each do |action|
-        reviewers += action.default_reviewers
-
-        action.create_post_permissions_hook(params)
-      end
-
-      # apply reviewers
-      reviewers.uniq.each do |r|
-        if r.class == User
-          @req.reviews.new by_user: r.login
-        elsif r.class == Group
-          @req.reviews.new by_group: r.title
-        elsif r.class == Project
-          @req.reviews.new by_project: r.name
-        else
-          raise 'Unknown review type' unless r.class == Package
-          rev = @req.reviews.new by_project: r.project.name
-          rev.by_package = r.name
-        end
-        @req.state = :review
-      end
-
-      #
-      # create the actual request
-      #
+      @req.set_add_revision       unless params[:addrevision].blank?
+      @req.set_ignore_build_state unless params[:ignore_build_state].blank?
       @req.save!
-      notify = @req.notify_parameters
-      Event::RequestCreate.create notify
-
-      @req.reviews.each do |review|
-        review.create_notification(notify)
-      end
 
       xml = @req.render_xml
       Suse::Validator.validate(:request, xml)
@@ -307,21 +232,7 @@ class RequestController < ApplicationController
   end
 
   def request_command_setincident
-    touched = false
-    # all maintenance_incident actions go into the same incident project
-    @req.bs_request_actions.where(type: 'maintenance_incident').each do |action|
-      tprj = Project.get_by_name action.target_project
-
-      # use an existing incident
-      if tprj.is_maintenance?
-        tprj = Project.get_by_name(action.target_project + ':' + params[:incident])
-        action.target_project = tprj.name
-        action.save!
-        touched = true
-      end
-    end
-
-    @req.save! if touched
+    @req.setincident(params[:incident])
     render_ok
   end
 
@@ -340,52 +251,9 @@ class RequestController < ApplicationController
   end
 
   def request_command_changestate
-    request_changestate_revoked if params[:newstate] == 'revoked'
-    request_changestate_accepted if params[:newstate] == 'accepted'
-
-    @req.change_state(params[:newstate], params)
+    @req.change_state(params)
     render_ok
   end
 
-  def request_changestate_accepted
-    # all maintenance_incident actions go into the same incident project
-    incident_project = nil  # .where(type: 'maintenance_incident')
-    @req.bs_request_actions.each do |action|
-      next unless action.is_maintenance_incident?
-
-      tprj = Project.get_by_name action.target_project
-
-      # the accept case, create a new incident if needed
-      if tprj.is_maintenance?
-        # create incident if it is a maintenance project
-        incident_project ||= create_new_maintenance_incident(tprj, nil, @req).project
-        params[:check_for_patchinfo] = true
-
-        unless incident_project.name.start_with?(tprj.name)
-          raise MultipleMaintenanceIncidents.new 'This request handles different maintenance incidents, this is not allowed !'
-        end
-        action.target_project = incident_project.name
-        action.save!
-      end
-    end
-
-    # We have permission to change all requests inside, now execute
-    @req.bs_request_actions.each do |action|
-      action.execute_accept(params)
-    end
-
-    # now do per request cleanup
-    @req.bs_request_actions.each do |action|
-      action.per_request_cleanup(params)
-    end
-  end
-
-  def request_changestate_revoked
-    @req.bs_request_actions.where(type: 'maintenance_release').each do |action|
-      # unlock incident project in the soft way
-      prj = Project.get_by_name(action.source_project)
-      prj.unlock_by_request(@req.id)
-    end
-  end
 
 end

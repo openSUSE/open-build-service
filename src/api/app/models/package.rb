@@ -851,14 +851,14 @@ class Package < ActiveRecord::Base
     rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
     rel = rel.where('bs_request_actions.source_project = ? and bs_request_actions.source_package = ?', self.project.name, self.name)
     BsRequest.where(id: rel.pluck('bs_requests.id')).each do |request|
-      request.change_state('revoked', :comment => "The source package '#{self.project.name}' '#{self.name}' was removed")
+      request.change_state({:newstate => 'revoked', :comment => "The source package '#{self.project.name}' '#{self.name}' was removed"})
     end
 
     # Find open requests with this package as target and decline them.
     rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
     rel = rel.where('bs_request_actions.target_project = ? and bs_request_actions.target_package = ?', self.project.name, self.name)
     BsRequest.where(id: rel.pluck('bs_requests.id')).each do |request|
-      request.change_state('declined', :comment => "The target package '#{self.project.name}' '#{self.name}' was removed")
+      request.change_state({:newstate => 'declined', :comment => "The target package '#{self.project.name}' '#{self.name}' was removed"})
     end
 
     # Find open requests which have a review involving this project (or it's packages) and remove those reviews

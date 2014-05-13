@@ -106,11 +106,11 @@ class Project < ActiveRecord::Base
     self.open_requests_with_project_as_source_or_target.each do |request|
       request.bs_request_actions.each do |action|
         if action.source_project == self.name
-          request.change_state('revoked', :comment => "The source project '#{self.name}' was removed")
+          request.change_state({:newstate => 'revoked', :comment => "The source project '#{self.name}' was removed"})
           break
         end
         if action.target_project == self.name
-          request.change_state('declined', :comment => "The target project '#{self.name}' was removed")
+          request.change_state({:newstate => 'declined', :comment => "The target project '#{self.name}' was removed"})
           break
         end
       end

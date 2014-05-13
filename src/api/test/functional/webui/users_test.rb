@@ -53,7 +53,7 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
       visit @userspath
     elsif options[:expect] == :already_exists
       flash_message_type.must_equal :alert
-      flash_message.must_equal 'Validation failed: Role Relationship already exists'
+      flash_message.must_equal 'Relationship already exists'
       visit @userspath
     else
       raise ArgumentError

@@ -284,6 +284,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     fill_in 'description', with: 'I want to see his reaction'
     uncheck('supersede')
     click_button 'Ok'
+
     within '#flash-messages' do
       click_link 'submit request'
     end

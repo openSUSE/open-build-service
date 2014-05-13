@@ -1350,10 +1350,9 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # create request by maintainer
     login_Iggy
     req = load_backend_file('request/submit_without_target')
-    login_Iggy
     post '/request?cmd=create', req
     assert_response 400
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'unknown_target_package' })
+    assert_xml_tag(:tag => 'status', :attributes => { code: 'unknown_target_project' })
 
     req = load_backend_file('request/works')
     post '/request?cmd=create', req

@@ -47,6 +47,10 @@ class BsRequestAction < ActiveRecord::Base
   end
 
   # convenience functions to check types
+  def is_submit?
+    false
+  end
+
   def is_maintenance_release?
     false
   end
@@ -433,6 +437,9 @@ class BsRequestAction < ActiveRecord::Base
   class BuildNotFinished < APIException
   end
 
+  class UnknownTargetProject < APIException
+  end
+
   class UnknownTargetPackage < APIException
   end
 
@@ -462,12 +469,12 @@ class BsRequestAction < ActiveRecord::Base
       # find target via linkinfo or submit to all.
       # FIXME: this is currently handling local project links for packages with multiple spec files.
       #        This can be removed when we handle this as shadow packages in the backend.
-      tprj = pkg.project
-      tpkg = ltpkg = pkg.name
-      rev = self.source_rev
-      data = nil
-      missing_ok_link=false
-      suffix = ''
+      tpkg = ltpkg    = pkg.name
+      rev             = self.source_rev
+      data            = nil
+      missing_ok_link = false
+      suffix          = ''
+      tprj            = pkg.project
       while tprj == pkg.project
         data = Directory.hashed(project: tprj.name, package: ltpkg)
         e = data['linkinfo']
@@ -481,9 +488,14 @@ class BsRequestAction < ActiveRecord::Base
         end
       end
       tpkg = tpkg.gsub(/#{suffix}$/, '') # strip distro specific extension
+      tpkg = self.target_package if self.target_package # already given
 
       # maintenance incidents need a releasetarget
       releaseproject = self.get_releaseproject(pkg, tprj)
+
+      # overwrite target if defined
+      tprj = Project.get_by_name(self.target_project) if self.target_project
+      raise UnknownTargetProject.new 'target project does not exist' unless tprj or self.is_maintenance_release?
 
       # do not allow release requests without binaries
       if self.is_maintenance_release? and data and !opts[:ignore_build_state]
@@ -521,7 +533,7 @@ class BsRequestAction < ActiveRecord::Base
       end
       # Will this be a new package ?
       unless missing_ok_link
-        unless e and tprj.exists_package?(tpkg, follow_project_links: true, allow_remote_packages: false)
+        unless e and tprj and tprj.exists_package?(tpkg, follow_project_links: true, allow_remote_packages: false)
           if self.is_maintenance_release?
             newPackages << pkg
             pkg.project.repositories.includes(:release_targets).each do |repo|
@@ -530,7 +542,7 @@ class BsRequestAction < ActiveRecord::Base
               end
             end
             next
-          elsif !is_maintenance_incident?
+          elsif !is_maintenance_incident? and !is_submit?
             raise UnknownTargetPackage.new 'target package does not exist'
           end
         end
@@ -654,6 +666,7 @@ class BsRequestAction < ActiveRecord::Base
       # validate role object
       role = Role.find_by_title!(self.role)
     end
+
     if self.source_project
       sprj = Project.get_by_name self.source_project
       unless sprj
@@ -774,7 +787,8 @@ class BsRequestAction < ActiveRecord::Base
         packages = Project.get_by_name(self.source_project).packages
       end
 
-      return create_expand_package(packages, ignore_build_state: ignore_build_state), per_package_locking
+      return create_expand_package(packages, {ignore_build_state: ignore_build_state}),
+             per_package_locking
     end
 
     return nil

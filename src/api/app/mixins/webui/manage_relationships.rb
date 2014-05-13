@@ -12,14 +12,13 @@ module Webui::ManageRelationships
 
   def save_person
     begin
-      main_object.api_obj.add_role(load_obj, Role.find_by_title!(params[:role]))
-    rescue NotFoundError => e
+      Relationship.add_user(main_object, load_obj, Role.find_by_title!(params[:role]), nil, true) # report error on duplicate
+      main_object.store
+    rescue NotFoundError,
+           Relationship::SaveError => e
       flash[:error] = e.to_s
-      redirect_to add_path(:add_person) and return
-    rescue ActiveRecord::RecordInvalid => e
-      Rails.logger.debug e.inspect
-      flash[:error] = e.to_s
-      redirect_to add_path(:add_person) and return
+      redirect_to add_path(:add_person)
+      return
     end
     respond_to do |format|
       format.js { render json: 'ok' }
@@ -32,8 +31,10 @@ module Webui::ManageRelationships
 
   def save_group
     begin
-      main_object.api_obj.add_role(load_obj, Role.find_by_title!(params[:role]))
-    rescue NotFoundError => e
+      Relationship.add_group(main_object, load_obj, Role.find_by_title!(params[:role]), nil, true) # report error on duplicate
+      main_object.store
+    rescue NotFoundError,
+           Relationship::SaveError => e
       flash[:error] = e.to_s
       redirect_to add_path(:add_group)
       return
@@ -49,7 +50,8 @@ module Webui::ManageRelationships
 
   def remove_role
     begin
-      main_object.api_obj.remove_role(load_obj, Role.find_by_title(params[:role]))
+      main_object.remove_role(load_obj, Role.find_by_title(params[:role]))
+      main_object.store
     rescue NotFoundError => e
       flash[:error] = e.summary
     end

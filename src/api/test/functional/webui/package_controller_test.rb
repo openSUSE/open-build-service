@@ -287,7 +287,6 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     check('supersede')
     click_button 'Ok'
     page.wont_have_selector '.dialog' # wait for the reload
-
     flash_message.must_match %r{Created submit request .* to home:dmayr}
     new_requestid = flash_message.gsub(%r{Created submit request (\d*) to home:dmayr}, '\1').to_i
     visit request_show_path(id: requestid)

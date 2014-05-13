@@ -229,10 +229,21 @@ class Webui::ProjectController < Webui::WebuiController
 
   def new_incident_request
     begin
-      req = WebuiRequest.new(:project => params[:project], :type => 'maintenance_incident', :description => params[:description])
-      req.save(create: true)
-      flash[:success] = 'Created maintenance release request'
-    rescue ActiveXML::Transport::NotFoundError, ActiveXML::Transport::Error => e
+      BsRequest.transaction do
+        req = BsRequest.new
+        req.state = "new"
+        req.creator = User.current
+        req.description = params[:description]
+
+        action = BsRequestActionMaintenanceIncident.new({source_project: params[:project]})
+        req.bs_request_actions << action
+        action.bs_request = req
+
+        req.save!
+      end
+      flash[:success] = 'Created maintenance incident request'
+    rescue BsRequestAction::UnknownProject,
+           BsRequestAction::UnknownTargetPackage => e
       flash[:error] = e.summary
       redirect_back_or_to :action => 'show', :project => params[:project] and return
     end
@@ -248,11 +259,24 @@ class Webui::ProjectController < Webui::WebuiController
       # FIXME2.3: do it directly here, api function missing
     else
       begin
-        req = WebuiRequest.new(:project => params[:project], :type => 'maintenance_release', :description => params[:description])
-        req.save(create: true)
-        flash[:success] = "Created maintenance release request <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.value('id'))}'>#{req.value('id')}</a>"
-      rescue ActiveXML::Transport::Error => e
-        flash[:error] = e.summary
+        req=nil
+        BsRequest.transaction do
+          req = BsRequest.new
+          req.state = "new"
+          req.creator = User.current
+          req.description = params[:description]
+
+          action = BsRequestActionMaintenanceRelease.new({source_project: params[:project]})
+          req.bs_request_actions << action
+          action.bs_request = req
+
+          req.save!
+        end
+        flash[:success] = "Created maintenance release request <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.id)}'>#{req.id}</a>"
+      rescue BsRequestAction::UnknownProject,
+             BsRequestAction::BuildNotFinished,
+             BsRequestAction::UnknownTargetPackage => e
+        flash[:error] = e.message
         redirect_back_or_to :action => 'show', :project => params[:project] and return
       end
     end
@@ -343,7 +367,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def main_object
-    @project # used by mixins
+    @project.api_obj # used by mixins
   end
 
   def load_releasetargets
@@ -814,18 +838,29 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def remove_target_request
+    req=nil
     begin
-      req = WebuiRequest.new(:type => 'delete', :targetproject => params[:project], :targetrepository => params[:repository], :description => params[:description])
-      req.save(create: true)
-      flash[:success] = "Created <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.value('id'))}'>repository delete request #{req.value('id')}</a>"
-    rescue ActiveXML::Transport::NotFoundError => e
-      flash[:error] = e.summary
+      BsRequest.transaction do
+        req = BsRequest.new
+        req.state = "new"
+        req.creator = User.current
+        req.description = params[:description]
+
+        opts = {target_project: params[:project]}
+        opts[:target_repository] = params[:repository] if params[:repository]
+        action = BsRequestActionDelete.new(opts)
+        req.bs_request_actions << action
+        action.bs_request = req
+
+        req.save!
+      end
+      flash[:success] = "Created <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.id)}'>repository delete request #{req.id}</a>"
+    rescue BsRequestAction::UnknownTargetProject,
+           BsRequestAction::UnknownTargetPackage => e
+      flash[:error] = e.message
       redirect_to :action => :repositories, :project => @project and return
-    rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary
-      redirect_back_or_to :action => :repositories, :project => @project and return
     end
-    redirect_to :controller => :request, :action => :show, :id => req.value('id')
+    redirect_to :controller => :request, :action => :show, :id => req.id
   end
 
   def remove_target

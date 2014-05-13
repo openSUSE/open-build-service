@@ -61,14 +61,13 @@ class Relationship < ActiveRecord::Base
   class SaveError < APIException;
   end
 
-  def self.add_user(obj, user, role, ignoreLock=nil)
+  def self.add_user(obj, user, role, ignoreLock=nil, check=nil)
     obj.check_write_access!(ignoreLock)
-
     unless role.kind_of? Role
       role = Role.find_by_title!(role)
     end
     if role.global
-      #only nonglobal roles may be set in a project
+      #only nonglobal roles may be set in an object
       raise SaveError, "tried to set global role '#{role.title}' for user '#{user}' in #{obj.class} '#{self.name}'"
     end
 
@@ -76,11 +75,10 @@ class Relationship < ActiveRecord::Base
       user = User.find_by_login!(user)
     end
 
-    obj.relationships.each do |r|
-      if r.user_id == user.id && r.role_id == role.id
-        logger.debug "ignore user #{user.login} - already has role #{role.title}"
-        return
-      end
+    if obj.relationships.where(user: user, role: role).exists?
+      raise SaveError, "Relationship already exists" if check
+      logger.debug "ignore user #{user.login} - already has role #{role.title}"
+      return
     end
 
     logger.debug "adding user: #{user.login}, #{role.title}"
@@ -91,7 +89,7 @@ class Relationship < ActiveRecord::Base
     end
   end
 
-  def self.add_group(obj, group, role, ignoreLock=nil)
+  def self.add_group(obj, group, role, ignoreLock=nil, check=nil)
     obj.check_write_access!(ignoreLock)
 
     unless role.kind_of? Role
@@ -99,12 +97,20 @@ class Relationship < ActiveRecord::Base
     end
 
     if role.global
-      #only nonglobal roles may be set in a project
+      #only nonglobal roles may be set in an object
       raise SaveError, "tried to set global role '#{role_title}' for group '#{group}' in #{obj.class} '#{self.name}'"
     end
 
     unless group.kind_of? Group
       group = Group.find_by_title(group.to_s)
+    end
+
+    obj.relationships.each do |r|
+      if r.group_id == group.id && r.role_id == role.id
+        raise SaveError, "Relationship already exists" if check
+        logger.debug "ignore group #{group.title} - already has role #{role.title}"
+        return
+      end
     end
 
     r = obj.relationships.build(group: group, role: role)

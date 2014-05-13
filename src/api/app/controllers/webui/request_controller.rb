@@ -24,19 +24,20 @@ class Webui::RequestController < Webui::WebuiController
       opts = {}
       case params[:review_type]
         when 'user' then
-          opts[:user] = params[:review_user]
+          opts[:by_user] = params[:review_user]
         when 'group' then
-          opts[:group] = params[:review_group]
+          opts[:by_group] = params[:review_group]
         when 'project' then
-          opts[:project] = params[:review_project]
+          opts[:by_project] = params[:review_project]
         when 'package' then
-          opts[:project] = params[:review_project]
-          opts[:package] = params[:review_package]
+          opts[:by_project] = params[:review_project]
+          opts[:by_package] = params[:review_package]
       end
       opts[:comment] = params[:review_comment] if params[:review_comment]
 
-      WebuiRequest.addReview(params[:id], opts)
-    rescue WebuiRequest::ModifyError
+      req = BsRequest.find_by_id(params[:id])
+      req.addreview(opts)
+    rescue BsRequestPermissionCheck::AddReviewNotPermitted
       flash[:error] = "Unable add review to '#{params[:id]}'"
     end
     redirect_to :controller => :request, :action => 'show', :id => params[:id]
@@ -44,26 +45,33 @@ class Webui::RequestController < Webui::WebuiController
 
   def modify_review
     opts = {}
+    state = nil
+    req = nil
     params.each do |key, value|
-      opts[:new_review_state] = 'accepted' if key == 'accepted'
-      opts[:new_review_state] = 'declined' if key == 'declined'
+      state = key if  %w(accepted declined new).include? key
+      req = BsRequest.find_by_id(value) if key.starts_with?('review_request_id_')
 
       # Our views are valid XHTML. So, several forms 'POST'-ing to the same action have different
       # HTML ids. Thus we have to parse 'params' a bit:
       opts[:comment] = value if key.starts_with?('review_comment_')
-      opts[:id] = value if key.starts_with?('review_request_id_')
-      opts[:user] = value if key.starts_with?('review_by_user_')
-      opts[:group] = value if key.starts_with?('review_by_group_')
-      opts[:project] = value if key.starts_with?('review_by_project_')
-      opts[:package] = value if key.starts_with?('review_by_package_')
+      opts[:by_user] = value if key.starts_with?('review_by_user_')
+      opts[:by_group] = value if key.starts_with?('review_by_group_')
+      opts[:by_project] = value if key.starts_with?('review_by_project_')
+      opts[:by_package] = value if key.starts_with?('review_by_package_')
     end
 
-    begin
-      WebuiRequest.modifyReview(opts[:id], opts[:new_review_state], opts)
-    rescue WebuiRequest::ModifyError => e
-      flash[:error] = e.message
+    if req.nil?
+      flash[:error] = "Unable to load request"
+      redirect_back_or_to user_requests_path(User.current)
+      return
+    elsif state.nil?
+      flash[:error] = "Unknown state to set"
+    else
+      req.permission_check_change_review!(opts)
+      req.change_review_state(state, opts)
     end
-    redirect_to :action => 'show', :id => opts[:id]
+
+    redirect_to :action => 'show', :id => req.id
   end
 
   def show
@@ -115,7 +123,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def require_request
     required_parameters :id
-    @req = WebuiRequest.find params[:id]
+    @req = BsRequest.find params[:id]
     unless @req
       flash[:error] = "Can't find request #{params[:id]}"
       redirect_back_or_to user_requests_path(User.current) and return
@@ -131,7 +139,7 @@ class Webui::RequestController < Webui::WebuiController
       end
     end
 
-    if change_request(changestate, params)
+    if change_state(changestate, params)
       # TODO: Make this work for each submit action individually
       if params[:add_submitter_as_maintainer_0]
         if changestate != 'accepted'
@@ -143,7 +151,7 @@ class Webui::RequestController < Webui::WebuiController
           else
             target = Project.Project.find_by_name tprj
           end
-          target.add_user(@req.api_obj.creator, 'maintainer')
+          target.add_user(@req.creator, 'maintainer')
           target.save
         end
       end
@@ -165,21 +173,45 @@ class Webui::RequestController < Webui::WebuiController
 
   def forward_request_to(fwd)
     tgt_prj, tgt_pkg = params[fwd].split('_#_') # split off 'forward_' and split into project and package
-    description = @req.value(:description)
-    if @req.has_element? 'state'
-      who = @req.find_first(:state).value('who')
-      description += ' (forwarded request %d from %s)' % [params[:id], who]
-    end
+    description = @req.description
+    who = @req.creator.login
+    description += ' (forwarded request %d from %s)' % [params[:id], who]
 
     target = @req.find_first(:action).find_first(:target)
     rev = Package.dir_hash(target.value(:project), target.value(:package))['rev']
-    req = WebuiRequest.new(:type => 'submit', :targetproject => tgt_prj, :targetpackage => tgt_pkg,
-                               :project => target.value(:project), :package => target.value(:package),
-                               :rev => rev, :description => description)
-    req.save(:create => true)
+    req = nil
+    begin
+      BsRequest.transaction do
+        req = BsRequest.new
+        req.state = "new"
+        req.creator = User.current
+        req.description = params[:description]
+
+        opts = { source_project: target.value(:project),
+                 source_package: target.value(:package),
+                 source_rev:     rev,
+                 target_project: tgt_prj,
+                 target_package: tgt_pkg }
+        if params[:sourceupdate]
+          opts[:sourceupdate] = params[:sourceupdate]
+        elsif params[:project].include?(':branches:')
+          opts[:sourceupdate] = 'update' # Avoid auto-removal of branch
+        end
+        action = BsRequestActionSubmit.new(opts)
+        req.bs_request_actions << action
+        action.bs_request = req
+
+        req.save!
+      end
+    rescue BsRequestAction::UnknownProject,
+           BsRequestAction::UnknownTargetPackage => e
+      flash[:error] = "Unable to forward submit: #{e.message}"
+      redirect_to(:action => 'show', :project => params[:project], :package => params[:package]) and return
+    end
+
 
     # link_to isn't available here, so we have to write some HTML. Uses url_for to not hardcode URLs.
-    flash[:notice] += " and forwarded to <a href='#{url_for(:controller => 'package', :action => 'show', :project => tgt_prj, :package => tgt_pkg)}'>#{tgt_prj} / #{tgt_pkg}</a> (request <a href='#{url_for(:action => 'show', :id => req.value('id'))}'>#{req.value('id')}</a>)"
+    flash[:notice] += " and forwarded to <a href='#{url_for(:controller => 'package', :action => 'show', :project => tgt_prj, :package => tgt_pkg)}'>#{tgt_prj} / #{tgt_pkg}</a> (request <a href='#{url_for(:action => 'show', :id => req.id)}'>#{req.id}</a>)"
   end
 
   def diff
@@ -213,15 +245,31 @@ class Webui::RequestController < Webui::WebuiController
 
   def delete_request
     required_parameters :project
+    req=nil
     begin
-      req = WebuiRequest.new(:type => 'delete', :targetproject => params[:project], :targetpackage => params[:package], :description => params[:description])
-      req.save(:create => true)
-    rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary
+      BsRequest.transaction do
+        req = BsRequest.new
+        req.state = "new"
+        req.creator = User.current
+        req.description = params[:description]
+
+        opts = {target_project: params[:project]}
+        opts[:target_package] = params[:package] if params[:package]
+        opts[:target_repository] = params[:repository] if params[:repository]
+        action = BsRequestActionDelete.new(opts)
+        req.bs_request_actions << action
+        action.bs_request = req
+
+        req.save!
+      end
+      flash[:success] = "Created <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.id)}'>repository delete request #{req.id}</a>"
+    rescue BsRequestAction::UnknownTargetProject,
+           BsRequestAction::UnknownTargetPackage => e
+      flash[:error] = e.message
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
       redirect_to :controller => :project, :action => :show, :project => params[:project] and return
     end
-    redirect_to :controller => :request, :action => :show, :id => req.value('id')
+    redirect_to :controller => :request, :action => :show, :id => req.id
   end
 
   def add_role_request_dialog
@@ -231,16 +279,33 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def add_role_request
-    required_parameters :project, :role, :user
+    required_parameters :project, :role
+    req=nil
     begin
-      req = WebuiRequest.new(:type => 'add_role', :targetproject => params[:project], :targetpackage => params[:package], :role => params[:role], :person => params[:user], :description => params[:description])
-      req.save(:create => true)
-    rescue ActiveXML::Transport::NotFoundError => e
-      flash[:error] = e.summary
+      BsRequest.transaction do
+        req = BsRequest.new
+        req.state = "new"
+        req.creator = User.current
+        req.description = params[:description]
+
+        opts = {target_project: params[:project],
+                role: params[:role]}
+        opts[:target_package] = params[:package] if params[:package]
+        opts[:person_name] = params[:user] if params[:user]
+        opts[:group_name] = params[:group] if params[:group]
+        action = BsRequestActionAddRole.new(opts)
+        req.bs_request_actions << action
+        action.bs_request = req
+
+        req.save!
+      end
+    rescue BsRequestAction::UnknownTargetProject,
+           BsRequestAction::UnknownTargetPackage => e
+      flash[:error] = e.message
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
       redirect_to :controller => :project, :action => :show, :project => params[:project] and return
     end
-    redirect_to :controller => :request, :action => :show, :id => req.value('id')
+    redirect_to :controller => :request, :action => :show, :id => req.id
   end
 
   def set_bugowner_request_dialog
@@ -249,22 +314,31 @@ class Webui::RequestController < Webui::WebuiController
 
   def set_bugowner_request
     required_parameters :project, :user, :group
+    req=nil
     begin
-      if params[:group] == 'False'
-        req = WebuiRequest.new(:type => 'set_bugowner', :targetproject => params[:project], :targetpackage => params[:package],
-                                   :person => params[:user], :description => params[:description])
+      BsRequest.transaction do
+        req = BsRequest.new
+        req.state = "new"
+        req.creator = User.current
+        req.description = params[:description]
+
+        opts = {target_project: params[:project]}
+        opts[:target_package] = params[:package] if params[:package]
+        opts[:person_name] = params[:user] if params[:user]
+        opts[:group_name] = params[:group] if params[:group]
+        action = BsRequestActionSetBugowner.new(opts)
+        req.bs_request_actions << action
+        action.bs_request = req
+
+        req.save!
       end
-      if params[:user] == 'False'
-        req = WebuiRequest.new(:type => 'set_bugowner', :targetproject => params[:project], :targetpackage => params[:package],
-                                   :group => params[:group], :description => params[:description])
-      end
-      req.save(:create => true)
-    rescue ActiveXML::Transport::NotFoundError => e
-      flash[:error] = e.summary
+    rescue BsRequestAction::UnknownTargetProject,
+           BsRequestAction::UnknownTargetPackage => e
+      flash[:error] = e.message
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
       redirect_to :controller => :project, :action => :show, :project => params[:project] and return
     end
-    redirect_to :controller => :request, :action => :show, :id => req.value('id')
+    redirect_to :controller => :request, :action => :show, :id => req.id
   end
 
   def change_devel_request_dialog
@@ -280,14 +354,32 @@ class Webui::RequestController < Webui::WebuiController
 
   def change_devel_request
     required_parameters :devel_project, :package, :project
+    req=nil
     begin
-      req = WebuiRequest.new(:type => 'change_devel', :project => params[:devel_project], :package => params[:package], :targetproject => params[:project], :targetpackage => params[:package], :description => params[:description])
-      req.save(:create => true)
-    rescue ActiveXML::Transport::NotFoundError => e
-      flash[:error] = "No such package: #{e.summary}"
+      BsRequest.transaction do
+        req = BsRequest.new
+        req.state = "new"
+        req.creator = User.current
+        req.description = params[:description]
+
+        opts = {target_project: params[:project],
+                target_package: params[:package],
+                source_project: params[:devel_project],
+                source_package: params[:devel_package] || params[:package]}
+        action = BsRequestActionChangeDevel.new(opts)
+        req.bs_request_actions << action
+        action.bs_request = req
+
+        req.save!
+      end
+    rescue BsRequestAction::UnknownProject,
+           Package::UnknownObjectError,
+           Package::ReadAccessError,
+           BsRequestAction::UnknownTargetPackage => e
+      flash[:error] = "No such package: #{e.message}"
       redirect_to :controller => 'package', :action => 'show', :project => params[:project], :package => params[:package] and return
     end
-    redirect_to :controller => 'request', :action => 'show', id: req.value('id')
+    redirect_to :controller => 'request', :action => 'show', id: req.id
   end
 
   def set_incident_dialog
@@ -295,33 +387,46 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def set_incident
-    begin
-      WebuiRequest.set_incident(params[:id], params[:incident_project])
-      flash[:notice] = "Set target of request #{params[:id]} to incident #{params[:incident_project]}"
-    rescue WebuiRequest::ModifyError => e
-      flash[:error] = "Incident #{e.message} does not exist"
+    req = BsRequest.find_by_id(params[:id])
+    if req.nil?
+      flash[:error] = "Unable to load request"
+    elsif params[:incident_project].blank?
+      flash[:error] = "Unknown incident project to set"
+    else
+      begin
+        req.permission_check_setincident!(params[:incident_project])
+        req.setincident(params[:incident_project])
+        flash[:notice] = "Set target of request #{req.id} to incident #{params[:incident_project]}"
+      rescue Project::UnknownObjectError => e
+        flash[:error] = "Incident #{e.message} does not exist"
+      end
     end
-    redirect_to :controller => :request, :action => 'show', :id => params[:id]
+
+    redirect_to :action => 'show', :id => params[:id]
   end
 
   # used by mixins
   def main_object
-    WebuiRequest.find params[:id]
+    BsRequest.find params[:id]
   end
 
   private
 
-  def change_request(changestate, params)
-    begin
-      if WebuiRequest.modify(params[:id], changestate, :reason => params[:reason], :force => true)
-        flash[:notice] = "Request #{changestate}!"
-        return true
-      else
-        flash[:error] = "Can't change request to #{changestate}!"
-      end
-    rescue WebuiRequest::ModifyError => e
-      flash[:error] = e.message
+  def change_state(newstate, params)
+    req = BsRequest.find_by_id(params[:id])
+    if req.nil?
+      flash[:error] = "Unable to load request"
+    else
+      # FIXME: make force optional, it hides warnings!
+      opts = { :newstate=>newstate,
+               :force => true,
+               :user => User.current.login,
+               :comment => params[:reason] }
+      req.change_state(opts)
+      flash[:notice] = "Request #{newstate}!"
+      return true
     end
+
     return false
   end
 
