@@ -23,8 +23,8 @@
         <tr id="diff_headline_<%= file_id %>">
           <td style="width: 16px"><%# NOTE: Hand-crafted value for both '[+]' and '[-]' %>
             <% if file_diff_text.length > 0 %>
-              <%= link_to_function('[-]', "collapse_expand('#{file_id}')", :id => "collapse_#{file_id}") %>
-              <%= link_to_function('[+]', "collapse_expand('#{file_id}')", :id => "expand_#{file_id}") %>
+              <a href="#" id="<%= "collapse_#{file_id}" %>" onclick="<%= "collapse_expand(\'#{file_id}\'); return false;"%>">[-]</a>
+              <a href="#" id="<%= "expand_#{file_id}" %>" onclick="<%= "collapse_expand(\'#{file_id}\'); return false;"%>">[+]</a>
               <% content_for :ready_function do %>
                 <% if is_expanded %>
                   $('#expand_<%= file_id %>').hide();
