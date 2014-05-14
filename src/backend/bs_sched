@@ -3188,7 +3188,10 @@ sub update_projpacks {
     %remoteprojs = ();
   } elsif (!($packids && @$packids)) {
     update_prpcheckuseforbuild($projid) if $isgone;
-    delete $remoteprojs{$projid};
+    # delete project from remoteprojs if it is not in the remotemap
+    if (!grep {$_->{'project'} eq $projid} @{$projpacksin->{'remotemap'} || []}) {
+      delete $remoteprojs{$projid};
+    }
   }
   remotemap2remoteprojs($projpacksin->{'remotemap'});
 }
@@ -3208,7 +3211,10 @@ sub update_projpacks_meta {
     $projpacks->{$projid} = $proj;
     update_prpcheckuseforbuild($projid, $proj);
   }
-  delete $remoteprojs{$projid};
+  # delete project from remoteprojs if it is not in the remotemap
+  if (!grep {$_->{'project'} eq $projid} @{$projpacksin->{'remotemap'} || []}) {
+    delete $remoteprojs{$projid};
+  }
   remotemap2remoteprojs($projpacksin->{'remotemap'});
 }
 
