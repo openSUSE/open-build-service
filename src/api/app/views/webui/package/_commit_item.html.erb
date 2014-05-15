@@ -21,15 +21,25 @@
             committed
         <% end %>
     <% end %>
-    <%= fuzzy_time(Time.at(commit['time'].to_i)) %> (revision <%= commit['rev'] %>)<br/>
-    <% unless commit['user'] == '_service' %>
+    <%= fuzzy_time(Time.at(commit['time'].to_i)) %> (revision <%= commit['rev'] %>)
+    <% unless commit['user'] == '_service' or commit['comment'].blank? %>
         <pre class="plain"><%= commit['comment'] %></pre>
     <% end %>
-    <%= link_to(sprite_tag('brick'), {:controller => :package, :action => :rdiff,
-                                      :package => @package, :project => @project,
-                                      :rev => commit['rev'], :linkrev => 'base'}, :style => 'margin-left: 2em') %>
-    <%= link_to('Show diff', :controller => :package, :action => :rdiff,
-                :package => @package, :project => @project, :rev => commit['rev'], :linkrev => 'base') if commit['rev'] != '1' %>
+    <ul class="horizontal-list" style="margin: 5px 0px 0px 20px;">
+    <% if commit['rev'] != '1' %>
+      <li>
+        <%= link_to(sprite_tag('brick'), {:controller => :package, :action => :rdiff,
+                                          :package => @package, :project => @project,
+                                          :rev => commit['rev'], :linkrev => 'base'}) %>
+        <%= link_to('Files changed', :controller => :package, :action => :rdiff,
+                    :package => @package, :project => @project, :rev => commit['rev'], :linkrev => 'base') %>
+      </li>
+    <% end -%>
+      <li>
+        <%= link_to(image_tag('folder_go.png'), :action => 'show', :project => @project, :package => @package, :rev => commit['rev']) %>
+        <%= link_to('Browse Source', :action => 'show', :project => @project, :package => @package, :rev => commit['rev']) %>
+      </li>
+    </ul>
 <% else %>
     <i>Revision <%= rev.to_s %> not found</i>
 <% end %>

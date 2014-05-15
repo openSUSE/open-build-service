@@ -304,4 +304,23 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     # restore now
     Suse::Backend.put( '/source/home:dmayr/x11vnc/README?user=king', 'just to delete')
   end
+
+  test "revisions" do
+    visit package_view_revisions_path(project: 'BaseDistro2.0', package: 'pack2')
+    click_link "Revisions"
+    page.must_have_text "Revision Log of pack2 (3)"
+
+    visit package_view_revisions_path(project: 'BaseDistro2.0', package: 'pack2', rev: '2')
+    page.must_have_text "Revision Log of pack2 (2)"
+    click_link "Show all"
+    page.must_have_text "Revision Log of pack2 (3)"
+
+    login_king
+    20.times { |i| put '/source/BaseDistro2.0/pack2/dummy', i.to_s }
+    visit package_view_revisions_path(project: 'BaseDistro2.0', package: 'pack2')
+    page.must_have_text "Revision Log of pack2 (23)"
+    all(:css, 'div.commit_item').count.must_equal 20
+    click_link "Show all"
+    all(:css, 'div.commit_item').count.must_equal 23
+  end
 end
