@@ -53,11 +53,11 @@ class BsRequestActionSubmit < BsRequestAction
         newxml = Xmlhash.parse(answer.body)
       end
       newxml['name'] = self.target_package
+      newxml['devel'] = nil
       target_package = target_project.packages.new(name: newxml['name'])
       target_package.update_from_xml(newxml)
       if !linked_package
         target_package.flags.destroy_all
-        target_package.develpackage = nil
         if initialize_devel_package
           target_package.develpackage = Package.find_by_project_and_name( self.source_project, self.source_package )
           relinkSource=true

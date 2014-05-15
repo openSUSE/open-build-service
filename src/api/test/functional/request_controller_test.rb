@@ -39,6 +39,55 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response 400
   end
 
+  def test_submit_request_of_new_package_with_devel_package
+    prepare_request_with_user 'Iggy', 'asdfasdf'
+
+    # we have a devel package definition in source
+    get "/source/BaseDistro:Update/pack2/_meta"
+    assert_response :success
+    assert_xml_tag(:tag => 'devel')
+
+    post '/request?cmd=create', '<request>
+                                   <action type="submit">
+                                     <source project="BaseDistro:Update" package="pack2"/>
+                                     <target project="home:Iggy" package="NEW_PACKAGE"/>
+                                   </action>
+                                   <description>Source has a devel package</description>
+                                 </request>'
+    assert_response :success
+    node = Xmlhash.parse(@response.body)
+    id = node['id']
+    assert !id.blank?
+
+    post '/request?cmd=create', '<request>
+                                   <action type="submit">
+                                     <source project="RemoteInstance:BaseDistro:Update" package="pack2"/>
+                                     <target project="home:Iggy" package="NEW_PACKAGE2"/>
+                                   </action>
+                                   <description>Source has a devel package</description>
+                                 </request>'
+    assert_response :success
+    node = Xmlhash.parse(@response.body)
+    id2 = node['id']
+    assert !id2.blank?
+
+    post "/request/#{id}?cmd=changestate&newstate=accepted&comment=approved&force=1"
+    assert_response :success
+    post "/request/#{id2}?cmd=changestate&newstate=accepted&comment=approved&force=1"
+    assert_response :success
+
+    get "/source/home:Iggy/NEW_PACKAGE/_meta"
+    assert_response :success
+    assert_no_xml_tag(:tag => 'devel')
+    get "/source/home:Iggy/NEW_PACKAGE2/_meta"
+    assert_response :success
+    assert_no_xml_tag(:tag => 'devel')
+    delete "/source/home:Iggy/NEW_PACKAGE"
+    assert_response :success
+    delete "/source/home:Iggy/NEW_PACKAGE2"
+    assert_response :success
+  end
+
   test 'submit_request_of_new_package' do
     wait_for_scheduler_start
 
