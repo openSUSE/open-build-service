@@ -232,6 +232,9 @@ class Webui::PackageController < Webui::WebuiController
         req.set_add_revision
         req.save!
       end
+    rescue BsRequestAction::MissingAction => e
+      flash[:error] = "Unable to submit, sources are unchanged"
+      redirect_to(:action => 'show', :project => params[:project], :package => params[:package]) and return
     rescue BsRequestAction::UnknownProject,
            BsRequestAction::UnknownTargetPackage => e
       flash[:error] = "Unable to submit: #{e.message}"

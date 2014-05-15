@@ -237,17 +237,27 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_link 'Submit package'
     page.wont_have_link 'link diff'
 
+    # try to submit unchanged sources
     click_link 'Submit package'
-
     page.must_have_field('targetproject', with: 'home:dmayr')
     page.wont_have_field('targetpackage') # we do not offer renames (yet)
-
     page.wont_have_field('supersede')
     check('sourceupdate')
-
     click_button 'Ok'
     page.wont_have_selector '.dialog' # wait for the reload
+    flash_message.must_match %r{Unable to submit, sources are unchanged}
 
+    # modify and resubmit
+    Suse::Backend.put( '/source/home:adrian/x11vnc/DUMMY?user=adrian', 'DUMMY')
+    click_link 'Submit package'
+    page.must_have_field('targetproject', with: 'home:dmayr')
+    page.wont_have_field('targetpackage') # we do not offer renames (yet)
+    page.wont_have_field('supersede')
+    check('sourceupdate')
+    click_button 'Ok'
+
+    # got a request
+    page.wont_have_selector '.dialog' # wait for the reload
     flash_message.must_match %r{Created submit request \d* to home:dmayr}
     requestid = flash_message.gsub(%r{Created submit request (\d*) to home:dmayr}, '\1').to_i
     within '#flash-messages' do
@@ -256,13 +266,14 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
 
     logout
     login_dmayr to: request_show_path(id: requestid)
-    page.must_have_text 'Submit package home:adrian / x11vnc (revision 1) to package home:dmayr / x11vnc'
-    fill_in 'reason', with: 'You did not changed anything'
+    page.must_have_text 'Submit package home:adrian / x11vnc (revision'
+    page.must_have_text ' to package home:dmayr / x11vnc'
+    fill_in 'reason', with: 'Bad idea'
     click_button 'Decline request' # dmayr is a mean bastard
     logout
 
     login_adrian to: package_show_path(project: 'home:adrian', package: 'x11vnc')
-    # now change something
+    # now change something more for a second request
     open_file 'README'
     page.must_have_text 'just to delete'
     edit_file 'My new cool text'
@@ -271,7 +282,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
 
     click_link 'link diff'
 
-    page.must_have_text 'Difference Between Revision 2 and home:dmayr / x11vnc'
+    page.must_have_text 'Difference Between Revision 3 and home:dmayr / x11vnc'
 
     click_link 'Submit to home:dmayr / x11vnc'
 
@@ -292,7 +303,6 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     visit request_show_path(id: requestid)
     page.must_have_text "Request #{requestid} (superseded)"
     page.must_have_content "Superseded by #{new_requestid}"
-
   end
 
   test 'remove file' do
