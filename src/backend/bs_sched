@@ -1898,6 +1898,24 @@ sub fctx_del_binary_from_full {
   delete $fctx->{'dep2meta'}->{$n} if $fctx->{'dep2meta'};
 }
 
+sub orderpackidsforfull {
+  my (@packids) = @_;
+  my @s;
+  my @back;
+  for (@packids) {
+    if ($_ eq '_volatile') {
+      push @back, $_;
+    } elsif (/^(.*)\.(\d+)$/) {
+      push @s, [ $_, $1, $2];
+    } else {
+      push @s, [ $_, $_, 99999999 ];
+    }
+  }
+  @packids = map {$_->[0]} sort { $a->[1] cmp $b->[1] || $b->[2] <=> $a->[2] || $a->[0] cmp $b->[0] } @s;
+  push @packids, @back;
+  return @packids;
+}
+
 # create full tree hash from gbininfo
 #   maps name -> binobj
 #   sets packid and filename as side effect
@@ -1912,13 +1930,7 @@ sub fctx_gbininfo2full {
   my $prjuseforbuildenabled = 1;
   $prjuseforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $prjuseforbuildenabled);
   my $pdatas = $projpacks->{$projid}->{'package'} || {};
-  my @packids = sort keys %$gbininfo;
-  # bring specials to back
-  for my $packid ('_volatile') {
-    next unless $gbininfo->{$packid};
-    @packids = grep {$_ ne $packid} @packids;
-    push @packids, $packid;
-  }
+  my @packids = orderpackidsforfull(keys %$gbininfo);
   # construct new full
   my %full;
   for my $packid (@packids) {
