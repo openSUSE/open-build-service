@@ -90,7 +90,7 @@ OBSApi::Application.routes.draw do
       get 'package/requests/:project/:package' => :requests, as: 'package_requests', constraints: cons
       get 'package/statistics/:project/:package' => :statistics, as: 'package_statistics', constraints: cons
       get 'package/commit/:project/:package' => :commit, as: 'package_commit', constraints: cons
-      get 'package/revisions/:project/:package' => :revisions, constraints: cons
+      get 'package/revisions/:project/:package' => :revisions, constraints: cons, as: 'package_view_revisions'
       get 'package/submit_request_dialog/:project/:package' => :submit_request_dialog, constraints: cons
       post 'package/submit_request/:project/:package' => :submit_request, constraints: cons
       get 'package/add_person/:project/:package' => :add_person, constraints: cons

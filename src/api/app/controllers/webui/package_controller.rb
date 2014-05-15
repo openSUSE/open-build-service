@@ -175,15 +175,18 @@ class Webui::PackageController < Webui::WebuiController
       flash[:error] = 'Could not access revisions'
       redirect_to :action => :show, :project => @project.name, :package => @package.name and return
     end
-    @max_revision = @package.rev.to_i
-    @upper_bound = @max_revision
+    @lastrev = @package.rev.to_i
+    @lastrev = params[:rev].to_i if params[:rev]
     if params[:showall]
-      @visible_commits = @max_revision
+      @revisions = (1..@lastrev).to_a.reverse
     else
-      @upper_bound = params[:rev].to_i if params[:rev]
-      @visible_commits = [9, @upper_bound].min # Don't show more than 9 requests
+      if @lastrev < 21
+        @revisions = (1..@lastrev).to_a.reverse
+      else
+        @revisions = []
+        @lastrev.downto(@lastrev-19) { |n| @revisions << n }
+      end
     end
-    @lower_bound = [1, @upper_bound - @visible_commits + 1].max
   end
 
   def submit_request_dialog
