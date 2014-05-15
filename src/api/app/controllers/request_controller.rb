@@ -133,6 +133,7 @@ class RequestController < ApplicationController
 
       req = BsRequest.new_from_xml(body)
       req.id = params[:id]
+      req.skip_sanitize
       req.save!
 
       notify = oldrequest.notify_parameters

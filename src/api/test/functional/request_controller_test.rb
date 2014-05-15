@@ -358,13 +358,13 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     meta = @response.body
     assert_no_xml_tag(:tag => 'person', :attributes => { role: 'bugowner' })
     assert_no_xml_tag(:tag => 'group', :attributes => { role: 'bugowner' })
-    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    post "/request/#{id}?cmd=changestate&newstate=accepted&force=1"
     assert_response :success
     get "/source/kde4/kdelibs/_meta"
     assert_response :success
     assert_xml_tag(:tag => 'person', :attributes => {userid: 'Iggy',  role: 'bugowner' })
     assert_no_xml_tag(:tag => 'group', :attributes => { role: 'bugowner' })
-    post "/request/#{id2}?cmd=changestate&newstate=accepted"
+    post "/request/#{id2}?cmd=changestate&newstate=accepted&force=1"
     assert_response :success
     get "/source/kde4/kdelibs/_meta"
     assert_response :success
@@ -902,23 +902,32 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_search_and_involved_requests
-    login_Iggy
-
-    # make sure there is at least one
     req = load_backend_file('request/1')
+
+    # claim to be someone else
+    login_Iggy
+    post '/request?cmd=create', req
+    assert_response 400
+    assert_xml_tag(:tag => 'status', :attributes => { code: 'request_save_error' })
+    assert_xml_tag(:tag => 'summary', :content => "Admin permissions required to set request creator to foreign user")
+
+    # make sure there is at least one request
+    login_tom
     post '/request?cmd=create', req
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
     id = node.value :id
 
+    # admin can define requests in the name of other people
     login_king
     put("/request/#{id}", load_backend_file('request/1'))
     assert_response :success
+    assert_xml_tag(:tag => 'state', :attributes => { who: 'tom' })
 
     get "/request/#{id}"
     assert_response :success
     assert_xml_tag(:tag => 'request', :attributes => { id: id })
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'new' })
+    assert_xml_tag(:tag => 'state', :attributes => { name: 'new', who: 'tom' })
 
     # via GET
     login_Iggy
@@ -932,9 +941,9 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(:tag => 'request', :attributes => { id: id })
 
     # test "osc rq"
-    get '/search/request', :match => "(state/@who='coolo' or history/@who='coolo')"
+    get '/search/request', :match => "(state/@who='tom' or history/@who='tom')"
     assert_response :success
-    assert_xml_tag tag: 'collection', children: { count: 1 }
+    assert_xml_tag tag: 'collection', children: { count: 6 }
 
     # old style listing
     get '/request'
@@ -1802,11 +1811,11 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/request/#{id}"
     assert_response :success
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'new' },
+    assert_xml_tag(:tag => 'state', :attributes => { name: 'review' },
                    :parent => { tag: 'request' }) #switch to new after last review
 
     # approve accepted and check initialized devel package
-    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    post "/request/#{id}?cmd=changestate&newstate=accepted&force=1"
     assert_response :success
     get '/source/kde4/Testing/_meta'
     assert_response :success
@@ -1895,7 +1904,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
               </options>
             </action>
             <description>SUBMIT</description>
-            <state who='Iggy' name='new'/>
+            <state who='tom' name='new'/>
           </request>"
     post '/request?cmd=create', req
     assert_response :success
@@ -1981,10 +1990,9 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
               <target project='DummY' package='pack2'/>
             </action>
             <description>DELETE REQUEST</description>
-            <state who='king' name='new'/>
+            <state who='tom' name='new'/>
           </request>"
     post '/request?cmd=create', req
-    # we explicitly decided to ignore the who, so tom will become creator
     assert_response :success
     assert_xml_tag(:tag => 'request')
     node = Xmlhash.parse(@response.body)
@@ -2071,7 +2079,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
             </action>
             <accept_at>2010-07-13 14:00:21.000000000 Z</accept_at>
             <description>SUBMIT</description>
-            <state who='Iggy' name='new'/>
+            <state/>
           </request>"
     post '/request?cmd=create', req
     # user has no write permission in target
@@ -2099,11 +2107,12 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
             </action>
             <accept_at>2010-07-11 14:00:21.000000000 Z</accept_at>
             <description>SUBMIT</description>
-            <state who='Iggy' name='new'/>
+            <state who='tom' name='new'/>
           </request>"
     post '/request?cmd=create', req
     assert_response 400
     assert_xml_tag(:tag => 'status', :attributes => { code: 'request_save_error' })
+    assert_xml_tag(:tag => 'summary', :content => "Auto accept time is in the past")
 
     # now time travel and accept
     Timecop.freeze(2.days)
@@ -2158,7 +2167,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
               </options>
             </action>
             <description>SUBMIT</description>
-            <state who='Iggy' name='new'/>
+            <state/>
           </request>"
     post '/request?cmd=create', req
     assert_response :success
@@ -2620,7 +2629,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
   test 'delete_request_id' do
 
-    login_Iggy
+    login_tom
     req = load_backend_file('request/1')
     post '/request?cmd=create', req
     assert_response :success

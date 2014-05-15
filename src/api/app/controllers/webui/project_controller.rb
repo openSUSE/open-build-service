@@ -231,8 +231,6 @@ class Webui::ProjectController < Webui::WebuiController
     begin
       BsRequest.transaction do
         req = BsRequest.new
-        req.state = "new"
-        req.creator = User.current
         req.description = params[:description]
 
         action = BsRequestActionMaintenanceIncident.new({source_project: params[:project]})
@@ -262,8 +260,6 @@ class Webui::ProjectController < Webui::WebuiController
         req=nil
         BsRequest.transaction do
           req = BsRequest.new
-          req.state = "new"
-          req.creator = User.current
           req.description = params[:description]
 
           action = BsRequestActionMaintenanceRelease.new({source_project: params[:project]})
@@ -842,8 +838,6 @@ class Webui::ProjectController < Webui::WebuiController
     begin
       BsRequest.transaction do
         req = BsRequest.new
-        req.state = "new"
-        req.creator = User.current
         req.description = params[:description]
 
         opts = {target_project: params[:project]}

@@ -33,7 +33,7 @@ class BsRequest < ActiveRecord::Base
 
   def save!
     new = self.created_at ? nil : 1
-    sanitize! if new
+    sanitize! if new and not @skip_sanitize
     super
     notify if new
   end
@@ -44,6 +44,10 @@ class BsRequest < ActiveRecord::Base
 
   def set_ignore_build_state
     @ignore_build_state = true
+  end
+
+  def skip_sanitize
+    @skip_sanitize = true
   end
 
   def check_supersede_state
@@ -130,7 +134,7 @@ class BsRequest < ActiveRecord::Base
       end
 
       state = hashed.delete('state') || Xmlhash::XMLHash.new({'name' => 'new'})
-      request.state = state.delete('name') { raise ArgumentError, 'state without name' }
+      request.state = state.delete('name') || User.current.login
       request.state = :declined if request.state.to_s == 'rejected'
       request.state = :accepted if request.state.to_s == 'accept'
       request.state = request.state.to_sym
@@ -482,7 +486,6 @@ class BsRequest < ActiveRecord::Base
         self.comment = opts[:comment]
         self.comment = 'All reviewers accepted request' if go_new_state == :accepted
       end
-
       self.save!
     end
   end
@@ -769,10 +772,16 @@ class BsRequest < ActiveRecord::Base
 
   def sanitize!
     # apply default values, expand and do permission checks
+    self.creator ||= User.current.login
+    self.commenter ||= User.current.login
+    unless self.creator == User.current.login or User.current.is_admin?
+      raise SaveError, 'Admin permissions required to set request creator to foreign user'
+    end
+    unless self.commenter == User.current.login or User.current.is_admin?
+      raise SaveError, 'Admin permissions required to set request commenter to foreign user'
+    end
 
     # ensure correct initial values, no matter what has been sent to us
-    self.commenter = User.current.login
-    self.creator = User.current.login
     self.state = :new
 
     # expand release and submit request targets if not specified
@@ -807,23 +816,21 @@ class BsRequest < ActiveRecord::Base
     reviewers.uniq.each do |r|
       if r.class == User
         next if self.reviews.select{|a| a.by_user == r.login}.length > 0
-        self.reviews.new by_user: r.login 
+        self.reviews.new(by_user: r.login, state: :new)
       elsif r.class == Group
         next if self.reviews.select{|a| a.by_group == r.title}.length > 0
-        self.reviews.new by_group: r.title
+        self.reviews.new(by_group: r.title, state: :new)
       elsif r.class == Project
         next if self.reviews.select{|a| a.by_project == r.name and a.by_package.nil? }.length > 0
-        self.reviews.new by_project: r.name
+        self.reviews.new(by_project: r.name, state: :new)
       elsif r.class == Package
         next if self.reviews.select{|a| a.by_project == r.project.name and a.by_package == r.name }.length > 0
-        rev = self.reviews.new by_project: r.project.name
-        rev.by_package = r.name
+        self.reviews.new(by_project: r.project.name, by_package: r.name, state: :new)
       else
         raise 'Unknown review type'
       end
     end
-
-    self.state = :review if self.reviews.length > 0
+    self.state = :review if self.reviews.select{|a| a.state == :new}.length > 0
   end
 
   def notify

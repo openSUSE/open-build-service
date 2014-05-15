@@ -213,8 +213,6 @@ class Webui::PackageController < Webui::WebuiController
     begin
       BsRequest.transaction do
         req = BsRequest.new
-        req.state = "new"
-        req.creator = User.current
         req.description = params[:description]
 
         opts = { source_project: params[:project],

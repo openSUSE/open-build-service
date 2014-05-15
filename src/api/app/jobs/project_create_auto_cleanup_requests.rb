@@ -53,7 +53,7 @@ Such requests get not created for projects with open requests or if you remove t
                                           <target project="' + prj.name + '" />
                                        </action>
                                        <description>'+Description+'</description>
-                                       <state who="Admin" name="new"/>
+                                       <state />
                                        <accept_at>' + @cleanupTime.to_s + '</accept_at>
                                      </request>')
     req.save!

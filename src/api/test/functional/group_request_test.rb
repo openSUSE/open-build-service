@@ -162,6 +162,10 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     assert_response :success
     post "/request/#{withr2}?cmd=changereviewstate&by_group=test_group&newstate=accepted"
     assert_response :success
+    post "/request/#{withr2}?cmd=changereviewstate&by_user=Iggy&newstate=accepted"
+    assert_response :success
+    post "/request/#{withr2}?cmd=changereviewstate&by_group=test_group_b&newstate=accepted"
+    assert_response :success
     get "/request/#{withr2}"
     # now it would be new - but as #{withhr} is still in review, the group blocks it
     assert_xml_tag(:tag => "state", :attributes => {:name => "review"})
@@ -170,6 +174,10 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     post "/request/#{withr}?cmd=changereviewstate&by_user=adrian&newstate=accepted"
     assert_response :success
     post "/request/#{withr}?cmd=changereviewstate&by_group=test_group&newstate=accepted"
+    assert_response :success
+    post "/request/#{withr}?cmd=changereviewstate&by_user=Iggy&newstate=accepted"
+    assert_response :success
+    post "/request/#{withr}?cmd=changereviewstate&by_group=test_group_b&newstate=accepted"
     assert_response :success
     get "/request/#{withr}"
     # should be new as no other review in the group blocked it

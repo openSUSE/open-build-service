@@ -184,7 +184,6 @@ class Webui::RequestController < Webui::WebuiController
       BsRequest.transaction do
         req = BsRequest.new
         req.state = "new"
-        req.creator = User.current
         req.description = params[:description]
 
         opts = { source_project: target.value(:project),
@@ -250,7 +249,6 @@ class Webui::RequestController < Webui::WebuiController
       BsRequest.transaction do
         req = BsRequest.new
         req.state = "new"
-        req.creator = User.current
         req.description = params[:description]
 
         opts = {target_project: params[:project]}
@@ -285,7 +283,6 @@ class Webui::RequestController < Webui::WebuiController
       BsRequest.transaction do
         req = BsRequest.new
         req.state = "new"
-        req.creator = User.current
         req.description = params[:description]
 
         opts = {target_project: params[:project],
@@ -319,7 +316,6 @@ class Webui::RequestController < Webui::WebuiController
       BsRequest.transaction do
         req = BsRequest.new
         req.state = "new"
-        req.creator = User.current
         req.description = params[:description]
 
         opts = {target_project: params[:project]}
@@ -359,7 +355,6 @@ class Webui::RequestController < Webui::WebuiController
       BsRequest.transaction do
         req = BsRequest.new
         req.state = "new"
-        req.creator = User.current
         req.description = params[:description]
 
         opts = {target_project: params[:project],

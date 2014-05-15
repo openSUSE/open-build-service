@@ -3,8 +3,8 @@
     <source project='home:Iggy' package='TestPack' rev='1' />
     <target project='kde4' package="Testing" />
   </action>
-  <review state="new" by_user="adrian" />
-  <review state="new" by_group="test_group" />
+  <review state="new" by_user="Iggy" />
+  <review state="new" by_group="test_group_b" />
   <description/>
   <state who="Iggy" name="new"/>
 </request>
