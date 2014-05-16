@@ -34,7 +34,7 @@ function usePackman(){
   <% unless Project.exists?("openSUSE.org") -%>
     <% name = "openSUSE.org" -%>
     <% remoteurl = "https://api.opensuse.org/public" -%>
-    <%= button_to_function "openSUSE", "useOpenSUSE()" %>
+    <input type='button' onclick='javascript:useOpenSUSE()' value='openSUSE'/>
   <% end -%>
   <% unless Project.exists?("tizen.org") -%>
     <input type='button' onclick='javascript:useTizen()' value='Tizen'/>
