@@ -379,9 +379,6 @@ cd ..
 %fdupes $RPM_BUILD_ROOT/srv/www/obs
 %endif
 
-# no more lighttpd
-rm $RPM_BUILD_ROOT/srv/www/obs/api/config/lighttpd.conf
-
 # these config files must not be hard linked
 install api/config/database.yml.example $RPM_BUILD_ROOT/srv/www/obs/api/config/database.yml
 install api/config/options.yml.example $RPM_BUILD_ROOT/srv/www/obs/api/config/options.yml
