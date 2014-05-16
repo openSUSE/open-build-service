@@ -327,7 +327,7 @@ CREATE TABLE `configurations` (
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `name` varchar(255) COLLATE utf8_bin DEFAULT '',
-  `registration` enum('allow','confirmation','never') COLLATE utf8_bin DEFAULT 'allow',
+  `registration` enum('allow','confirmation','deny') COLLATE utf8_bin DEFAULT 'allow',
   `anonymous` tinyint(1) DEFAULT '1',
   `default_access_disabled` tinyint(1) DEFAULT '0',
   `allow_user_to_create_home_project` tinyint(1) DEFAULT '1',
@@ -1445,6 +1445,8 @@ INSERT INTO schema_migrations (version) VALUES ('20140123071042');
 INSERT INTO schema_migrations (version) VALUES ('20140124071042');
 
 INSERT INTO schema_migrations (version) VALUES ('20140123063641');
+
+INSERT INTO schema_migrations (version) VALUES ('20140516182719');
 
 INSERT INTO schema_migrations (version) VALUES ('20141302101042');
 

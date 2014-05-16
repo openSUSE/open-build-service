@@ -32,9 +32,9 @@ class Webui::SignupTest < Webui::IntegrationTest
       flash_message.must_equal 'Thank you for signing up! An admin has to confirm your account now. Please be patient.'
     end
 
-    def test_signup_never
+    def test_signup_deny
       # Configure denying signups
-      change_signup_config 'never'
+      change_signup_config 'deny'
       visit user_register_user_path
       page.must_have_content "Sorry, sign up is disabled"
       # but still works for admin

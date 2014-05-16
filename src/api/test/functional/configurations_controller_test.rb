@@ -49,11 +49,11 @@ class ConfigurationsControllerTest < ActionDispatch::IntegrationTest
 
     # overwriting options.yml is not allowed
     ::Configuration::OPTIONS_YML[:registration] = "allow"
-    put '/configuration?registration=never'
+    put '/configuration?registration=deny'
     assert_response 403
     assert_xml_tag :tag => "status", :attributes => { :code => "no_permission_to_change" }
-    ::Configuration::OPTIONS_YML[:registration] = "never"
-    put '/configuration?registration=never'
+    ::Configuration::OPTIONS_YML[:registration] = "deny"
+    put '/configuration?registration=deny'
     assert_response :success
     ::Configuration::OPTIONS_YML[:registration] = nil
 
