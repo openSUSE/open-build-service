@@ -38,10 +38,17 @@ class IssueTracker < ActiveRecord::Base
   #  end
 
   # Generates a URL to display a given issue in the upstream issue tracker
-  #  def show_url_for(issue)
-  #    return show_url.gsub('@@@', issue) if issue
-  #    return nil
-  #  end
+  def show_url_for(issue, html=nil)
+    return nil unless issue
+    url = show_url.gsub('@@@', issue)
+    return "<a href=\"#{url}\">#{label.gsub('@@@', issue)}</a>" if html
+    return url
+  end
+
+  # expands all matches with defined urls
+  def get_html(text)
+    text.gsub(Regexp.new(regex)) { |m| show_url_for($1, true) }
+  end
 
   #  def issue(issue_id)
   #    return Issue.find_by_name_and_tracker(issue_id, self.name)
