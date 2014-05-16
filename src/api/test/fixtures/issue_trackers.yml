@@ -6,7 +6,7 @@ bco:
   url: http://bugzilla.clutter-project.org/
   show_url: http://bugzilla.clutter-project.org/show_bug.cgi?id=@@@
   regex: bco#(\d+)
-  label: '@@@'
+  label: 'bco#@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
 bgo:
@@ -160,7 +160,7 @@ issue_trackers_40:
   url: https://features.opensuse.org/
   show_url: https://features.opensuse.org/@@@
   regex: (?:fate|FATE|Fate)\s*#\s*(\d+)
-  label: '@@@'
+  label: 'fate#@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
 issue_trackers_41:

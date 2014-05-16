@@ -41,8 +41,12 @@ class IssueTracker < ActiveRecord::Base
   def show_url_for(issue, html=nil)
     return nil unless issue
     url = show_url.gsub('@@@', issue)
-    return "<a href=\"#{url}\">#{label.gsub('@@@', issue)}</a>" if html
+    return "<a href=\"#{url}\">#{CGI::escapeHTML(show_label_for(issue))}</a>" if html
     return url
+  end
+
+  def show_label_for(issue)
+    label.gsub('@@@', issue)
   end
 
   # expands all matches with defined urls

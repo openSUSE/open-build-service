@@ -155,7 +155,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Webui::PackageController#branch' => 50.36,
       'Webui::PackageController#save_new_link' => 75.86,
       'Webui::PackageController#submit_request' => 123.99,
-      'Webui::PatchinfoController#new_tracker' => 68.43,
+      'Webui::PatchinfoController#new_tracker' => 64.68,
       'Webui::PatchinfoController#read_patchinfo' => 75,
       'Webui::PatchinfoController#save' => 244.01,
       'Webui::ProjectController#calculate_repo_cycle' => 51.82, 
