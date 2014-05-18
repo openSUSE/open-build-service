@@ -10,8 +10,25 @@ require 'action_view/railtie'
 require 'sprockets/railtie'
 require 'rails/test_unit/railtie'
 
-# Assets should be precompiled for production (so we don't need the gems loaded then)
-Bundler.require(*Rails.groups(assets: ['development', 'test']))
+# The bundler_ext rubygem disables enforcement of gem versions in
+# `Gemfile.lock` in favour of the basic constraints defined in the file
+# `Gemfile.in`. The bundler_ext rubygem is not part of the OBS bundle, so you
+# need to explicitly install it, however you install gems on your system. Eg.
+# with gem or your system package manager. Then create the appropriate file
+# with `cp Gemfile Gemfile.in`. For more information see the bundler_ext
+# documentation.
+
+# WARNING: You will be on your own with problems if you use bundler_ext, we
+# only ensure our app works with the exact gems specified in our Gemfile.lock
+gemfile_in = File.expand_path('../Gemfile.in', __dir__)
+if File.exist?(gemfile_in)
+  require 'bundler_ext'
+  BundlerExt.system_require(gemfile_in, *Rails.groups(assets: ['development', 'test']))
+else
+  # Assets should be precompiled for production (so we don't need the gems loaded then)
+  Bundler.require(*Rails.groups(assets: ['development', 'test']))
+end
+
 require_relative '../lib/rabbitmq_bus'
 
 module OBSApi
