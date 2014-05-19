@@ -2939,6 +2939,7 @@ sub xrpc_setchanged {
     if ($changetype eq 'low') {
       # we don't use changed2lookat to prevent infinite looping
       for my $dprp (@prps) {
+	next if $dprp eq $prp;
 	$changed->{$dprp} = 1 if grep {$_ eq $prp} @{$prpdeps{$dprp}};
       }
     } else {
