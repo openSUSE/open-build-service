@@ -1,0 +1,31 @@
+#
+# openSUSE Build Service 2.5.3
+#
+
+Updaters from any OBS 2.5 release can just ugrade the packages
+and restart all services. Updaters from former releases should
+read the README.UPDATERS file.
+
+Feature backports:
+==================
+
+* None
+
+Changes:
+========
+
+* No dependency to newrelic anymore for license reasons.
+
+Bugfixes:
+=========
+
+* api: fixes for set_bugowner request handling using groups
+* api: fixes for dealing with disabled user registration.
+       NOTE: to get this fix active you need to run database migration!
+* backend: fix for remote projects sometimes ceasing to work when remote is changed (eg. openSUSE:*:Update)
+* backend: kiwi product build jobs take constraints into account now
+* backend: fix download optimization for disabled src or debug medium in kiwi product
+* backend: fix for an endless loop in notification emit to api.
+
+
+
