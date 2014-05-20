@@ -343,7 +343,7 @@ sub dump_solv {
 }
 
 sub clone_repository {
-  my ($srcproject, $srcrepo, $destproject, $destrepo) = @_;
+  my ($srcproject, $srcrepo, $destproject, $destrepo, $dovolatile) = @_;
   my $srcdir  = "$reporoot/$srcproject/$srcrepo";
   my $destdir = "$reporoot/$destproject/$destrepo";
   my $tmpdir  = "$BSConfig::bsdir/tmp";
@@ -360,7 +360,7 @@ sub clone_repository {
   }
 
   print "cloning $srcproject / $srcrepo\n";
-  system('cp', '-al', $srcdir, $tmpdir) && die("cloning failed !");
+  system('cp', '-al', $srcdir, $tmpdir) && die("cloning failed!\n");
 
   # remove :repoinfo, as the new repo is not published yet
   unlink("$tmpdir/:repoinfo");
@@ -370,6 +370,14 @@ sub clone_repository {
     unlink("$tmpdir/$a/:jobhistory");
    # the new repo might get published
     system('rm', '-rf', "$tmpdir/$a/:repo", "$tmpdir/$a/:repodone");
+  }
+
+  if ($dovolatile && $BSConfig::new_full_handling) {
+    for my $a (ls($tmpdir)) {
+      next unless -d "$tmpdir/$a/:full";
+      system('rm', '-rf', "$tmpdir/$a/_volatile");
+      system('cp', '-al', "$tmpdir/$a/:full", "$tmpdir/$a/_volatile") && die("volatile cloning failed!\n");
+    }
   }
 
   print "exchanging with $destproject / $destrepo\n";
@@ -765,6 +773,11 @@ while (@ARGV) {
     }
     write_publish_event($project, $repo);
   } elsif ( $arg eq "--clone-repository" ) {
+    my $dovolatile;
+    if (@ARGV && $ARGV[0] eq '--volatile') {
+      $dovolatile = 1;
+      shift @ARGV;
+    }
     die("ERROR: need source project & repository and destination project & repository as argument!\n") if @ARGV < 3;
     my $srcproject = shift @ARGV;
     my $srcrepo = shift @ARGV;
@@ -777,7 +790,7 @@ while (@ARGV) {
        $destproject = shift @ARGV;
        $destrepo = shift @ARGV;
     }
-    clone_repository($srcproject, $srcrepo, $destproject, $destrepo);
+    clone_repository($srcproject, $srcrepo, $destproject, $destrepo, $dovolatile);
   } elsif ($arg eq "--rescan-repository") {
     die("ERROR: need project, repository and architecture as argument!\n") if @ARGV < 3;
     my $project = shift @ARGV;
