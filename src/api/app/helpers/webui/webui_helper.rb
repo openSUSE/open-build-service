@@ -118,6 +118,9 @@ module Webui::WebuiHelper
       end
     elsif %w(- excluded).include? code
       out += code
+    elsif @localpackages and not @localpackages.has_key? packname
+      out += link_to( code.gsub(/\s/, '&nbsp;'), raw_logfile_path(package: packname, project: @project.to_s, arch: arch, repository: repo),
+                                                 title: link_title, rel: 'nofollow')
     else
       out += link_to code.gsub(/\s/, '&nbsp;'), { action: :live_build_log,
                                                   package: packname, project: @project.to_s, arch: arch,

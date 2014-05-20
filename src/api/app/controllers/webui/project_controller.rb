@@ -938,6 +938,8 @@ class Webui::ProjectController < Webui::WebuiController
 
     fill_status_cache
 
+    load_local_packages
+ 
     @packagenames = @packagenames.flatten.uniq.sort
 
     ## Filter for PackageNames ####
@@ -1500,4 +1502,13 @@ class Webui::ProjectController < Webui::WebuiController
     url_for(action: action, project: @project, role: params[:role], userid: params[:userid])
   end
 
+  def load_local_packages
+    unless @project.api_obj.linkedprojects.empty?
+      @localpackages = {}
+      @project.api_obj.packages.each do |p|
+        @localpackages[p[:name]] = 1
+      end
+    end
+  end
+ 
 end
