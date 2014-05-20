@@ -137,7 +137,7 @@ class PersonController < ApplicationController
     email = xml.elements["/unregisteredperson/email"].text
     password = xml.elements["/unregisteredperson/password"].text
     note = xml.elements["/unregisteredperson/note"].text if xml.elements["/unregisteredperson/note"]
-    status = xml.elements["/unregisteredperson/state"].text
+    status = xml.elements["/unregisteredperson/state"].text if xml.elements["/unregisteredperson/status"]
 
     if auth_method == :proxy
       if request.env['HTTP_X_USERNAME'].blank?

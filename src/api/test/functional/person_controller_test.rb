@@ -186,6 +186,47 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag :tag => 'person', :child => {:tag => 'globalrole', :content => "Admin"}
   end
 
+  def test_register_disabled
+    c = ::Configuration.first
+    c.registration = "deny"
+    c.save!
+    data = '<unregisteredperson>
+              <login>adrianSuSE</login>
+              <email>adrian@example.com</email>
+              <realname>Adrian Schroeter</realname>
+              <password>so_alone</password>
+            </unregisteredperson>"
+           '
+    post "/person?cmd=register", data
+    assert_response 400
+    assert_xml_tag :tag => 'status', :attributes => {:code => "err_register_save"}
+    assert_xml_tag :tag => 'summary', :content => "Sorry, sign up is disabled"
+  end
+
+  def test_register_confirmation
+    c = ::Configuration.first
+    c.registration = "confirmation"
+    c.save!
+    data = '<unregisteredperson>
+              <login>adrianSuSE</login>
+              <email>adrian@example.com</email>
+              <realname>Adrian Schroeter</realname>
+              <password>so_alone</password>
+              <state>confirmation</state>
+            </unregisteredperson>"
+           '
+    post "/person?cmd=register", data
+    assert_response 400
+    assert_xml_tag :tag => 'status', :attributes => {:code => "err_register_save"}
+    assert_xml_tag :tag => 'summary', :content => "Thank you for signing up! An admin has to confirm your account now. Please be patient."
+
+    # we tried to register as confirmed up there, ensure that we are not...
+    login_king
+    get "/person/adrianSuSE"
+    assert_response :success
+    assert_xml_tag :tag => 'state', :content => "unconfirmed"
+  end
+
   def test_register_and_change_password_new_way
     data = '<unregisteredperson>
               <login>adrianSuSE</login>
