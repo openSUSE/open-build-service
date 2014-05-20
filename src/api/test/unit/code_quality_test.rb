@@ -129,7 +129,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'SearchController#find_attribute' => 97.33,
       'SearchController#search' => 67.14,
       'SourceController#package_command' => 65.31,
-      'SourceController#project_command_copy' => 140.04,
+      'SourceController#project_command_copy' => 189.46,
       'SourceController#project_command_set_flag' => 53.57,
       'SourceController#project_command_undelete' => 53.7,
       'SourceController#update_file' => 97.26,
