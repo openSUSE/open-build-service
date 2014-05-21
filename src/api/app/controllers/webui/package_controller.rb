@@ -711,6 +711,10 @@ class Webui::PackageController < Webui::WebuiController
 
   def live_build_log
     required_parameters :arch, :repository
+    if @package and not @package.check_source_access?
+      flash[:error] = 'Could not access build log'
+      redirect_to :action => :show, :project => @project.name, :package => @package.name and return
+    end
     @arch = params[:arch]
     @repo = params[:repository]
     begin
