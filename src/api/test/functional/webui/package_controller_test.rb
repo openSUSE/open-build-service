@@ -52,6 +52,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     delete_and_recreate_kdelibs
   end
 
+
   test 'Iggy adds himself as reviewer' do
     use_js
 
@@ -334,5 +335,13 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     all(:css, 'div.commit_item').count.must_equal 20
     click_link "Show all"
     all(:css, 'div.commit_item').count.must_equal 23
+  end
+
+  test 'access live build log' do
+    visit '/package/live_build_log/home:Iggy/TestPack/10.2/i586'
+    page.status_code.must_equal 200
+    login_Iggy to: '/package/live_build_log/SourceprotectedProject/pack/repo/i586'
+    page.status_code.must_equal 200
+    flash_message.must_equal 'Could not access build log'
   end
 end
