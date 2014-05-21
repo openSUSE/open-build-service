@@ -20,7 +20,7 @@ Name:           obs-api-deps
 Summary:        The Open Build Service -- Gem dependencies
 License:        MIT
 Group:          Productivity/Networking/Web/Utilities
-Version:        20140225135221.f44c6296
+Version:        2.5.3
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -88,7 +88,6 @@ Requires:       rubygem(2.0.0:minitest-colorize) = 0.0.5
 Requires:       rubygem(2.0.0:mocha) = 0.14.0
 Requires:       rubygem(2.0.0:multi_json) = 1.8.2
 Requires:       rubygem(2.0.0:mysql2) = 0.3.14
-Requires:       rubygem(2.0.0:newrelic_rpm) = 3.7.0.177
 Requires:       rubygem(2.0.0:nokogiri) = 1.6.0
 Requires:       rubygem(2.0.0:pkg-config) = 1.1.4
 Requires:       rubygem(2.0.0:poltergeist) = 1.5.0
