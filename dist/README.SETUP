@@ -176,7 +176,7 @@ modified when you stay with these defaults: /etc/apache2/vhosts.d/obs.conf
 
 Install the required packages via
 
-  zypper in obs-api apache2 apache2-mod_xforward rubygem-passenger-apache2
+  zypper in obs-api apache2 apache2-mod_xforward rubygem-passenger-apache2 memcached
 
 Add the follwing apache modules in /etc/sysconfig/apache2:
 
@@ -229,6 +229,7 @@ Afterwards you can start the OBS web api via
 
   rcapache2 start        # use "insserv apache2" for permanent start
   rcobsapidelayed start  # use "insserv obsapidelayed" for permanent start
+  rcmemcached start      # use "insserv memcached" for permanent start
 
 
 4. Setup initial distributions
@@ -341,6 +342,7 @@ or via osc, in the same directory as indicated above, with the command:
 To start and stop everything you can use the following command sequences:
 
   rcmysql start
+  rcmemcached start
   rcobsrepserver start
   rcobssrcserver start
   rcobsscheduler start
@@ -358,6 +360,7 @@ To start and stop everything you can use the following command sequences:
   rcobsscheduler stop
   rcobssrcserver stop
   rcobsrepserver stop
+  rcmemcached stop
   rcmysql stop
 
 
@@ -410,12 +413,6 @@ opensuse-buildservice@opensuse.org
 
 8. Miscellaneous notes
 =====================
-
- * OBS in the production mode uses memcached optionally.
-   You can install and enable it as a service:
-
-       zypper in memcached
-       rcmemcached start
 
  * logs are located in various directories.
 
