@@ -5,8 +5,8 @@
       <% end %>
       <div class="comment_thread">
         <div class="comment comment_<%= index %>">
-          <%= user_icon(comment[:user], 24, 'comment_image') %>
-          <%= comment[:user] %>  wrote <span class="comment_time"><%= fuzzy_time(comment[:created_at]) %></span>
+          <%=  user_with_realname_and_icon(comment[:user], no_icon: true, short: true) %>
+          wrote <span class="comment_time"><%= fuzzy_time(comment[:created_at]) %></span>
 
           <%= comment_body(comment) %>
           <%= render :partial => 'webui/comment/links', :locals => { comment: comment } %>
