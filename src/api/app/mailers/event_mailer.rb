@@ -1,4 +1,5 @@
 class EventMailer < ActionMailer::Base
+  helper :comment
 
   def set_headers
     @host = ::Configuration.first.obs_url
