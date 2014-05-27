@@ -22,15 +22,17 @@
     </div>
   <% else %>
     <div class="info">
-      <% if max_clients %>
-        <% if (@project_filter) %>
-          No package of the "<%= @project_filter %>" project is building. Maybe remove the filter?:)
+      <p>
+        <% if max_clients %>
+          <% if (@project_filter) %>
+            No package of the "<%= @project_filter %>" project is building. Maybe remove the filter?:)
+          <% else %>
+            None of the <%= max_clients %> hosts is working atm!
+          <% end %>
         <% else %>
-          None of the <%= max_clients %> hosts is working atm!
+          Nothing to do here!
         <% end %>
-      <% else %>
-        Nothing to do here!
-      <% end %>
+      </p>
     </div>
   <% end %>
 </div>

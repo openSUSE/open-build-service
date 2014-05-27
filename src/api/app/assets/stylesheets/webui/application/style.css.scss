@@ -389,3 +389,8 @@ div.dataTables_wrapper:after {
 .news-message img {
   float: right;
 }
+
+// Indentation for the old monitoring page
+#schedulerstatus, #building_all, #idlehosts {
+  padding-top: 1em;
+}
