@@ -48,10 +48,10 @@ class Channel < ActiveRecord::Base
     xmlhash.elements('target') { |p|
       prj = Project.find_by_name(p['project'])
       r = prj.repositories.find_by_name(p['repository'])
-      self.channel_targets.create(:repository => r, :tag => p['tag']) if r
+      self.channel_targets.build(:repository => r, :tag => p['tag']) if r
     }
     xmlhash.elements('binaries').each { |p|
-      cbl = self.channel_binary_lists.create()
+      cbl = self.channel_binary_lists.build()
       project = p['project']
       unless project.blank?
         cbl.project = Project.find_by_name( project )
@@ -60,7 +60,7 @@ class Channel < ActiveRecord::Base
       cbl.architecture = Architecture.find_by_name( p['arch'] ) if p['arch']
       cbl.save
       p.elements('binary') { |b|
-        binary = cbl.channel_binaries.create( name: b['name'] )
+        binary = cbl.channel_binaries.build( name: b['name'] )
         binary.binaryarch = b['binaryarch']
         binary.supportstatus = b['supportstatus']
         binary.architecture = Architecture.find_by_name( b['arch'] ) if b['arch']

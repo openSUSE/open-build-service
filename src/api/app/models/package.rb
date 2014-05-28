@@ -475,7 +475,7 @@ class Package < ActiveRecord::Base
       self.channels.destroy_all
       if self.is_channel?
         xml = Suse::Backend.get(self.source_path('_channel'))
-        channel = self.channels.create
+        channel = Channel.new(package: self)
         channel.update_from_xml(xml.body.to_s)
       end
     end
