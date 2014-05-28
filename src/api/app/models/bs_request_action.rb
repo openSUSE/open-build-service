@@ -453,6 +453,23 @@ class BsRequestAction < ActiveRecord::Base
     setup 400, 'The request contains no actions. Submit requests without source changes may have skipped!'
   end
 
+  def check_maintenance_release(pkg, repo, arch)
+    binaries = Xmlhash.parse(Suse::Backend.get("/build/#{URI.escape(pkg.project.name)}/#{URI.escape(repo.name)}/#{URI.escape(arch.name)}/#{URI.escape(pkg.name)}").body)
+    l = binaries.elements('binary')
+    unless l and l.count > 0
+      raise BuildNotFinished.new "patchinfo #{pkg.name} is not yet build for repository '#{repo.name}'"
+    end
+
+    # check that we did not skip a source change of patchinfo
+    data = Directory.hashed(project: pkg.project.name, package: pkg.name, expand: 1)
+    verifymd5 = data['srcmd5']
+    history = Xmlhash.parse(Suse::Backend.get("/build/#{URI.escape(pkg.project.name)}/#{URI.escape(repo.name)}/#{URI.escape(arch.name)}/#{URI.escape(pkg.name)}/_history").body)
+    last = history.elements('entry').last
+    unless last and last['srcmd5'].to_s == verifymd5.to_s
+      raise BuildNotFinished.new "last patchinfo #{pkg.name} is not yet build for repository '#{repo.name}'"
+    end
+  end
+
   def create_expand_package(packages, opts = {})
     newactions = Array.new
     incident_suffix = ''
@@ -498,37 +515,31 @@ class BsRequestAction < ActiveRecord::Base
       raise UnknownTargetProject.new 'target project does not exist' unless tprj or self.is_maintenance_release?
 
       # do not allow release requests without binaries
-      if self.is_maintenance_release? and data and !opts[:ignore_build_state]
-        data.elements('entry') do |entry|
-          next unless entry['name'] == '_patchinfo'
-          # check for build state and binaries
-          state = REXML::Document.new(Suse::Backend.get("/build/#{URI.escape(pkg.project.name)}/_result").body)
-          repos = state.get_elements("/resultlist/result[@project='#{pkg.project.name}'')]")
-          unless repos
-            raise BuildNotFinished.new "The project'#{pkg.project.name}' has no building repositories"
+      if self.is_maintenance_release? and pkg.is_patchinfo? and data and !opts[:ignore_build_state]
+        # check for build state and binaries
+        state = REXML::Document.new(Suse::Backend.get("/build/#{URI.escape(pkg.project.name)}/_result").body)
+        repos = state.get_elements("/resultlist/result[@project='#{pkg.project.name}'')]")
+        unless repos
+          raise BuildNotFinished.new "The project'#{pkg.project.name}' has no building repositories"
+        end
+        repos.each do |repo|
+          unless %w(finished publishing published unpublished).include? repo.attributes['state']
+            raise BuildNotFinished.new "The repository '#{pkg.project.name}' / '#{repo.attributes['repository']}' / #{repo.attributes['arch']} did not finish the build yet"
           end
-          repos.each do |repo|
-            unless %w(finished publishing published unpublished).include? repo.attributes['state']
-              raise BuildNotFinished.new "The repository '#{pkg.project.name}' / '#{repo.attributes['repository']}' / #{repo.attributes['arch']} did not finish the build yet"
-            end
-          end
-          pkg.project.repositories.each do |repo|
-            next unless repo
-            firstarch=repo.architectures.first
-            next unless firstarch
-            # skip excluded patchinfos
-            status = state.get_elements("/resultlist/result[@repository='#{repo.name}' and @arch='#{firstarch.name}']").first
-            unless status and (s=status.get_elements("status[@package='#{pkg.name}']").first) and s.attributes['code'] == 'excluded'
-              raise BuildNotFinished.new "patchinfo #{pkg.name} is broken" if s.attributes['code'] == 'broken'
-              binaries = REXML::Document.new(Suse::Backend.get("/build/#{URI.escape(pkg.project.name)}/#{URI.escape(repo.name)}/#{URI.escape(firstarch.name)}/#{URI.escape(pkg.name)}").body)
-              l = binaries.get_elements('binarylist/binary')
-              if l and l.count > 0
-                found_patchinfo = true
-              else
-                raise BuildNotFinished.new "patchinfo #{pkg.name} is not yet build for repository '#{repo.name}'"
-              end
-            end
-          end
+        end
+        pkg.project.repositories.each do |repo|
+          next unless repo
+          firstarch=repo.architectures.first
+          next unless firstarch
+
+          # skip excluded patchinfos
+          status = state.get_elements("/resultlist/result[@repository='#{repo.name}' and @arch='#{firstarch.name}']").first
+          next if status and (s=status.get_elements("status[@package='#{pkg.name}']").first) and s.attributes['code'] == 'excluded'
+          raise BuildNotFinished.new "patchinfo #{pkg.name} is broken" if s.attributes['code'] == 'broken'
+
+          check_maintenance_release(pkg, repo, firstarch)
+
+          found_patchinfo = true
         end
       end
       # Will this be a new package ?

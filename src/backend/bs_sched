@@ -4561,7 +4561,7 @@ sub fakejobfinished {
 }
 
 sub fakejobfinished_nouseforbuild {
-  my ($ctx, $packid, $job, $code, $bininfo) = @_;
+  my ($ctx, $packid, $job, $code, $bininfo, $pdata) = @_;
 
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
@@ -4607,6 +4607,9 @@ sub fakejobfinished_nouseforbuild {
       writestr("$gdst/.:bininfo.merge", "$gdst/:bininfo.merge", '');    # corrupt file, mark
     }
     delete $bininfo->{'.bininfo'};
+    # write history file
+    my $h = {'versrel' => $pdata->{'versrel'}, 'bcnt' => "0", 'time' => time(), 'srcmd5' => $pdata->{'srcmd5'}, 'rev' => $pdata->{'rev'}, 'reason' => ""};
+    BSFileDB::fdb_add("$dst/history", $historylay, $h);
   }
   BSUtil::cleandir($jobdatadir);
   rmdir($jobdatadir);
@@ -5794,7 +5797,7 @@ sub rebuildpatchinfo {
   }
   writestr("$jobdatadir/meta", undef, join("\n", @new_meta)."\n");
   # XXX write reason
-  fakejobfinished_nouseforbuild($ctx, $packid, $job, $broken ? 'failed' : 'succeeded', $bininfo);
+  fakejobfinished_nouseforbuild($ctx, $packid, $job, $broken ? 'failed' : 'succeeded', $bininfo, $pdata);
   return ('done');
 }
 
@@ -6030,7 +6033,7 @@ sub rebuildchannel {
   }
   BSUtil::store("$jobdatadir/.channelinfo", undef, \%channelinfo);
   writestr("$jobdatadir/meta", undef, $new_meta);
-  fakejobfinished_nouseforbuild($ctx, $packid, $job, 'succeeded', $bininfo);
+  fakejobfinished_nouseforbuild($ctx, $packid, $job, 'succeeded', $bininfo, $pdata);
   return ('done');
 }
 
