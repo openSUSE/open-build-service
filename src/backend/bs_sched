@@ -1699,7 +1699,7 @@ sub read_bininfo {
   for my $file (ls($dir)) {
     $bininfo->{'.nosourceaccess'} = {} if $file eq '.nosourceaccess';
     if ($file !~ /\.(?:$binsufsre)$/) {
-      if ($file eq '.channelinfo' && $file eq 'updateinfo.xml') {
+      if ($file eq '.channelinfo' || $file eq 'updateinfo.xml') {
         $bininfo->{'.nouseforbuild'} = {};
       } elsif ($file =~ /-appdata\.xml$/) {
 	local *F;
