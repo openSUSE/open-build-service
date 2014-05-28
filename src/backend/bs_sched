@@ -5492,7 +5492,7 @@ sub checkpatchinfo {
       if ($ptype eq 'binary') {
 	# like aggregates
 	my $d = "$reporoot/$projid/$repoid/$arch/$apackid";
-	my @d = grep {/\.rpm/} ls($d);
+	my @d = grep {/\.rpm$/ && !/^::import::/} ls($d);
 	my $m = '';
 	for my $b (sort @d) {
 	  my @s = stat("$d/$b");
@@ -5640,7 +5640,7 @@ sub rebuildpatchinfo {
       }
     } else {
       $from = "$reporoot/$projid/$repoid/$tocopy";
-      @bins = grep {/\.rpm$/} ls($from);
+      @bins = grep {/\.rpm$/ && !/^::import::/} ls($from);
       if (-e "$from/.channelinfo") {
         $channelinfo = BSUtil::retrieve("$from/.channelinfo");
       }
