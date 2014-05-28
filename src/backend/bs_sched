@@ -2382,7 +2382,7 @@ sub update_dst_full {
     $oldrepo = $jobrepo;
     $bininfo = $jobbininfo;
     $bininfo->{'.nosourceaccess'} = {} if -e "$dst/.nosourceaccess";
-    $bininfo->{'.nouseforbuild'} = {} if -e "$dst/.channelinfo" || -e "$dst/updateinfoxml";
+    $bininfo->{'.nouseforbuild'} = {} if -e "$dst/.channelinfo" || -e "$dst/updateinfo.xml";
   } elsif ($BSConfig::new_full_handling || !$importarch) {
     # get old state: oldfiles, oldbininfo, oldrepo
     my @oldfiles = sort(ls($dst));
