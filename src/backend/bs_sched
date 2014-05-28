@@ -2365,6 +2365,7 @@ sub update_dst_full {
     delete $jobbininfo->{'.bininfo'};	# delete new version marker
     my $cache = { map {$_->{'id'} => $_} grep {$_->{'id'}} values %$jobbininfo };
     $jobrepo = findbins_dir([ map {"$jobdir/$_"} grep {/\.(?:$binsufsre)$/ && !/\.delta\.rpm$/} @jobfiles ], $cache);
+    $useforbuildenabled = 0 if -e "$jobdir/.channelinfo" || -e "$jobdir/updateinfo.xml";	# just in case
   } else {
     $jobrepo = {};
   }
@@ -7206,6 +7207,7 @@ sub event_useforbuild {
     @packs = ($ev->{'package'});
   } else {
     @packs = sort keys %$packs;
+    @packs = reverse(orderpackidsforfull(@packs));
   }
   for my $packid (@packs) {
     my $gdst = "$reporoot/$prp/$myarch";
