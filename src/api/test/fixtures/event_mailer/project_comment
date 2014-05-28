@@ -6,7 +6,7 @@ To: Iggy Pop <Iggy@pop.org>,
 Message-ID: <notrandom@localhost>
 Subject: New comment in project home:Iggy by tom
 Mime-Version: 1.0
-Content-Type: text/plain;
+Content-Type: multipart/alternative;
  charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -14,6 +14,11 @@ X-Mailer: OBS Notification System
 X-OBS-URL: http://localhost
 Auto-Submitted: auto-generated
 X-OBS-event-type: comment_for_project
+
+
+Content-Type: text/plain;
+ charset=UTF-8
+Content-Transfer-Encoding: 7bit
 
 Visit http://localhost/project/show/home:Iggy
 
@@ -24,3 +29,19 @@ Comment Body
 -- 
 Configure notifications at http://localhost/user/notifications
 Open Build Service (http://localhost/)
+
+Content-Type: text/html;
+ charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<p>Visit <a href="http://localhost/project/show/home:Iggy">http://localhost/project/show/home:Iggy</a></p>
+
+<p>Thor wrote in project home:Iggy:</p>
+
+<div><p>Comment Body</p>
+</div>
+<br/>
+--<br/>
+Configure notifications at <a href="http://localhost/user/notifications">http://localhost/user/notifications</a><br/>
+Open Build Service (<a href="http://localhost/">http://localhost/</a>)<br/>
+
