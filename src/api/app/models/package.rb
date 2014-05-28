@@ -477,6 +477,8 @@ class Package < ActiveRecord::Base
         xml = Suse::Backend.get(self.source_path('_channel'))
         channel = Channel.new(package: self)
         channel.update_from_xml(xml.body.to_s)
+        self.channels = [channel]
+        self.save
       end
     end
   end
