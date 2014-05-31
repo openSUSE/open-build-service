@@ -100,9 +100,11 @@ if [ -n "$OBS_CACHE_SIZE" -a -n "$OBS_CACHE_DIR" ]; then
 fi
 
 if [ -n "$OBS_VM_KERNEL" -a "$OBS_VM_KERNEL" != "none" ] ; then
-    if [ -n "$OBS_VM_INITRD" -a "$OBS_VM_INITRD" != "none" ] ; then
-        OBS_WORKER_OPT="$OBS_WORKER_OPT --vm-kernel $OBS_VM_KERNEL  --vm-initrd $OBS_VM_INITRD"
-    fi
+    OBS_WORKER_OPT="$OBS_WORKER_OPT --vm-kernel $OBS_VM_KERNEL"
+fi
+
+if [ -n "$OBS_VM_INITRD" -a "$OBS_VM_INITRD" != "none" ] ; then
+    OBS_WORKER_OPT="$OBS_WORKER_OPT --vm-initrd $OBS_VM_INITRD"
 fi
 
 if [ -n "$OBS_WORKER_LOCALKIWI_DIRECTORY" ]; then
