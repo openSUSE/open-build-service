@@ -31,7 +31,6 @@
 //= require codemirror/modes/htmlmixed.js
 //= require codemirror/modes/javascript.js
 //= require codemirror/modes/jinja2.js
-//= require codemirror/modes/less.js
 //= require codemirror/modes/lua.js
 //= require codemirror/modes/markdown.js
 //= require codemirror/modes/ntriples.js
@@ -42,8 +41,7 @@
 //= require codemirror/modes/properties.js
 //= require codemirror/modes/python.js
 //= require codemirror/modes/r.js
-//= require codemirror/modes/rpm-changes.js
-//= require codemirror/modes/rpm-spec.js
+//= require codemirror/modes/rpm
 //= require codemirror/modes/rst.js
 //= require codemirror/modes/ruby.js
 //= require codemirror/modes/rust.js
@@ -89,13 +87,9 @@ function use_codemirror(id, read_only, mode)
     var editor = CodeMirror.fromTextArea(document.getElementById("editor_" + id), codeMirrorOptions);
     editor.id = id;
     if (!read_only) {
-	editor.setSelections(editor)
-	CodeMirror.on(editor, 'cursorActivity', function(cm) {cm.getPosition(cm)});
+	editor.setSelections(editor);
 	
-	CodeMirror.on(editor, 'update', function(cm) {
-	    //if(typeof(cm) != 'undefined') cm.setWidth(cm);
-	});
-        CodeMirror.on(editor, 'change', function(cm) {
+        editor.on('change', function(cm) {
 	    changed=true; 
 	    cm.updateHistory(cm); 
 	    if (cm.historySize().undo>0)
@@ -103,6 +97,7 @@ function use_codemirror(id, read_only, mode)
 	    else
 		$("#save_" + id).addClass('inactive');
 	});
+	CodeMirror.signal(editor, 'cursorActivity', editor);
 
     }
 
@@ -128,7 +123,7 @@ function use_codemirror(id, read_only, mode)
     editors[id] = editor;
 
     // $('#find_' + id).click(function() { editors[id].Find(this); });
-    $('#line_' + id).keydown(function(event) { if(event.keyCode==13) { editors[id].gotoLine(this) }});
+    //$('#line_' + id).keydown(function(event) { if(event.keyCode==13) { editors[id].gotoLine(this) }});
     // $('#search_disable_' + id).click( function() { editors[id].Search(this) } );
 
 }

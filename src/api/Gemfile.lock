@@ -46,7 +46,7 @@ GEM
     clockwork (0.7.5)
       activesupport
       tzinfo
-    codemirror-rails (3.22)
+    codemirror-rails (4.2)
       railties (>= 3.0, < 5)
     coderay (1.1.0)
     crack (0.4.2)
@@ -219,7 +219,7 @@ DEPENDENCIES
   chunky_png
   ci_reporter
   clockwork (>= 0.7)
-  codemirror-rails (~> 3.13)
+  codemirror-rails (>= 4.2)
   cssmin (>= 1.0.2)
   daemons
   dalli
