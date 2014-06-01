@@ -88,7 +88,7 @@ group :assets do
   gem 'uglifier', '>= 1.2.2'
   gem 'sass-rails', '~> 4.0.3'
   gem 'jquery-datatables-rails'
-  gem 'codemirror-rails', '~> 3.13'
+  gem 'codemirror-rails', '>= 4.2'
   gem 'rails_tokeninput', '>= 1.6.1.rc1'
   gem 'sprite-factory', '>= 1.5.2'
   gem 'chunky_png'

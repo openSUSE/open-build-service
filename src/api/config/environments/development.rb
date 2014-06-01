@@ -30,7 +30,7 @@ OBSApi::Application.configure do
 
   # Expands the lines which load the assets
   config.assets.logger = nil
-  config.assets.debug = false
+  config.assets.debug = true
 
   # Enable debug logging by default
   config.log_level = :debug
