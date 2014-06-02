@@ -8,7 +8,7 @@ In-Reply-To: <obs-request-4@localhost>
 References: <obs-request-4@localhost>
 Subject: Request 4 commented by tom (submit Apache/BranchPack)
 Mime-Version: 1.0
-Content-Type: text/plain;
+Content-Type: multipart/alternative;
  charset=UTF-8
 Content-Transfer-Encoding: 7bit
 Precedence: bulk
@@ -23,6 +23,11 @@ X-OBS-Request-Action-type: submit
 X-OBS-Request-Action-target: Apache/BranchPack
 X-OBS-Request-Action-source: home:Iggy:branches:kde4/BranchPack
 
+
+Content-Type: text/plain;
+ charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
 Visit http://localhost/request/show/4
 
 Thor wrote in request 4:
@@ -32,3 +37,19 @@ Another Body
 -- 
 Configure notifications at http://localhost/user/notifications
 Open Build Service (http://localhost/)
+
+Content-Type: text/html;
+ charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+<p>Visit <a href="http://localhost/request/show/4">http://localhost/request/show/4</a></p>
+
+<p>Thor wrote in request 4:</p>
+
+<div><p>Another Body</p>
+</div>
+<br/>
+--<br/>
+Configure notifications at <a href="http://localhost/user/notifications">http://localhost/user/notifications</a><br/>
+Open Build Service (<a href="http://localhost/">http://localhost/</a>)<br/>
+

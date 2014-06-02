@@ -1,5 +1,3 @@
-require 'obsapi/markdown_renderer'
-
 module Webui::CommentHelper
 
   def save_comment_form
@@ -11,11 +9,5 @@ module Webui::CommentHelper
     form_tag(opts) do
       yield
     end
-  end
-
-  def comment_body(comment)
-    # Initializes a Markdown parser, if needed
-    @md_parser ||= Redcarpet::Markdown.new(OBSApi::MarkdownRenderer, autolink: true)
-    @md_parser.render(comment[:body]).html_safe
   end
 end

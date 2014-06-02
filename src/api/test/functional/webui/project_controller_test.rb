@@ -250,7 +250,10 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
   def verify_email(fixture_name, email)
     should = load_fixture("event_mailer/#{fixture_name}").chomp
-    assert_equal should, email.encoded.lines.map(&:chomp).select { |l| l !~ %r{^Date:} }.join("\n")
+    lines = email.encoded.lines.map(&:chomp).select { |l| l !~ %r{^Date:} }
+    lines.select! { |l| l !~ %r{^ boundary=} }
+    lines.select! { |l| l !~ %r{^----==_mimepart} }
+    assert_equal should, lines.join("\n")
   end
 
   test 'succesful comment creation' do
