@@ -250,7 +250,7 @@ class UserLdapStrategy
       end
 
       unless group.kind_of? String
-        raise ArgumentError, "illegal parameter type to user#render_grouplist_ldap?: #{eachgroup.class.name}"
+        raise ArgumentError, "illegal parameter type to UserLdapStrategy#render_grouplist_ldap?: #{eachgroup.class.name}"
       end
 
       # search group
@@ -461,10 +461,10 @@ class UserLdapStrategy
     logger.debug "List the groups #{self.login} is in"
     ldapgroups = Array.new
     # check with LDAP
-    if User.ldapgroup_enabled?
+    if Configuration.ldapgroup_enabled?
       grouplist = Group.all
       begin
-        ldapgroups = User.render_grouplist_ldap(grouplist, self.login)
+        ldapgroups = UserLdapStrategy.render_grouplist_ldap(grouplist, self.login)
       rescue Exception
         logger.debug "Error occurred in searching user_group in ldap."
       end
