@@ -92,13 +92,14 @@ class ApplicationController < ActionController::Base
       logger.warn "ldap_mode selected but 'ruby-ldap' module not installed."
       ldap_info = nil # now fall through as if we'd not found a user
     rescue Exception
-      logger.debug "#{login} not found in LDAP."
+      logger.debug "#{@login} not found in LDAP."
       ldap_info = nil # now fall through as if we'd not found a user
     end
 
     if ldap_info
       # We've found an ldap authenticated user - find or create an OBS userDB entry.
-      @http_user = User.find_by_login( login )
+      logger.debug "User.find_by_login( #{@login} )"
+      @http_user = User.find_by_login( @login )
       if @http_user
         # Check for ldap updates
         if @http_user.email != ldap_info[0]
