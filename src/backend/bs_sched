@@ -2406,6 +2406,7 @@ sub update_dst_full {
       rename("$jobdir/$f", "$dst/$df") || die("rename $jobdir/$f $dst/$df: $!\n");
       $new{$df} = 1;
       $bininfo->{$df} = $jobbininfo->{$f} if $jobbininfo->{$f};
+      $bininfo->{'.nouseforbuild'} = {} if $f eq '.channelinfo' || $f eq 'updateinfo.xml';
       $jobrepo->{"$jobdir/$df"} = delete $jobrepo->{"$jobdir/$f"} if $df ne $f;
     }
     for my $f (grep {!$new{$_}} @oldfiles) {
