@@ -452,6 +452,9 @@ test:
   username: root
   encoding: utf8
   socket:   /tmp/obs.test.mysql.socket
+  # disable timeout, required on SLES 11 SP3 at least
+  connect_timeout:
+
 EOF
 /usr/sbin/memcached -l 127.0.0.1 -d -P $PWD/memcached.pid
 # migration test
