@@ -4102,7 +4102,16 @@ sub remote_getrev {
       die($@);
     }
   }
-  die("$dir->{'error'}\n") if $dir->{'error'};
+  if ($dir->{'error'}) {
+    if ($linked && $dir->{'linkinfo'} && $dir->{'linkinfo'}->{'linked'}) {
+      # add linked info for getprojpack
+      for my $l (@{$dir->{'linkinfo'}->{'linked'}}) {
+        $l->{'project'} = maptoremote($proj, $l->{'project'});
+        push @$linked, $l if defined($l->{'project'}) && $l->{'project'} ne '_unavailable';
+      }
+    }
+    die("$dir->{'error'}\n");
+  }
   $rev = {};
   $rev->{'rev'} = $dir->{'rev'} || $dir->{'srcmd5'};
   $rev->{'srcmd5'} = $dir->{'srcmd5'};
@@ -4584,7 +4593,16 @@ sub getfilelist {
     $li->{'linked'} = [] if $cgi->{'withlinked'};
     my $lfiles = handlelinks(\%lrev, $files, $li);
     if ($cgi->{'expand'}) {
-      die("$lfiles\n") if !ref $lfiles;
+      if (!ref($lfiles)) {
+	if ($cgi->{'withlinked'} && !$view) {
+	  my $ret = {};
+	  $ret->{'name'} = $packid;
+	  $ret->{'error'} = $lfiles || 'internal error';
+	  $ret->{'linkinfo'} = $li;
+	  return ($ret, $BSXML::dir);
+	}
+	die("$lfiles\n");
+      }
       $files = $lfiles;
       %$rev = %lrev;
       $rev->{'rev'} = $rev->{'srcmd5'};
