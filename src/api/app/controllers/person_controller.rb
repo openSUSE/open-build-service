@@ -233,7 +233,7 @@ class PersonController < ApplicationController
         require 'base64'
         begin
           logger.debug( "Using LDAP to change password for #{login}" )
-          result = User.change_password_ldap(login, ldap_password)
+          result = UserLdapStrategy.change_password_ldap(login, ldap_password)
         rescue Exception
           logger.debug "CONFIG['ldap_mode'] selected but 'ruby-ldap' module not installed."
         end
