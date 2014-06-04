@@ -61,7 +61,7 @@ ans = AttribNamespace.first_or_create name: "OBS"
 ans.attrib_namespace_modifiable_bies.first_or_create(user_id: admin.id)
 
 puts "Seeding attrib_types table..."
-at = ans.attrib_types.where(name: "VeryImportantProject").first_or_create(value_count: 1)
+at = ans.attrib_types.where(name: "VeryImportantProject").first_or_create(value_count: 0)
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
 at = ans.attrib_types.where(name: "UpdateProject").first_or_create(value_count: 1)
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
