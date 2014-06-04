@@ -49,7 +49,7 @@
           %>
           <td class="starttime" <%= raw warning_style if warning_style %> title="start time: <%= start_time.iso8601  %>">
             <span style="display: none" class="sorttime"><%= b["starttime"].to_i %></span>
-            <%= distance_of_time_in_words(@time_now, start_time, true) %>
+            <%= distance_of_time_in_words(@time_now, start_time) %>
           </td>
           <td class="uri"><%= b["workerid"] %></td>
           <td class="hostarch"><%= b["hostarch"] %></td>

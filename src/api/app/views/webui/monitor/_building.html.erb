@@ -12,12 +12,12 @@
 
     <h3>Legend</h3>
     <div>
-      <div style="float: left; margin-right: 10px"><%= distance_of_time_in_words(@time_now, @dead_line, true) -%></div>
+      <div style="float: left; margin-right: 10px"><%= distance_of_time_in_words(@time_now, @dead_line) -%></div>
       <% @max_color.downto(0) do |n| -%>
         <% color = "rgb(255,#{n},0)" %>
         <div style="background-color: <%= color %>; margin: 0px; width: 3px ; height: 1em; float: left;">&nbsp;</div>
       <% end -%>
-      <div style="float: left; margin-left: 10px"><%= distance_of_time_in_words(@time_now, @dead_line-(@max_color*@interval_steps*60), true) -%></div>
+      <div style="float: left; margin-left: 10px"><%= distance_of_time_in_words(@time_now, @dead_line-(@max_color*@interval_steps*60)) -%></div>
       <div class="clear"/>
     </div>
   <% else %>
