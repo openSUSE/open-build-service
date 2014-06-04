@@ -1,3 +1,5 @@
+require_relative 'attribute_descriptions'
+
 puts "Seeding architectures table..."
 # NOTE: armvXel is actually obsolete (because it never exist as official platform), but kept for compatibility reasons
 %w(aarch64 armv4l armv5l armv6l armv7l armv5el armv6el armv7el armv8el hppa i586 i686 ia64 local m68k mips mips32 mips64 ppc ppc64 ppc64p7 ppc64le s390 s390x sparc sparc64 sparc64v sparcv8 sparcv9 sparcv9v x86_64).each do |arch_name|
@@ -59,7 +61,7 @@ ans = AttribNamespace.first_or_create name: "OBS"
 ans.attrib_namespace_modifiable_bies.first_or_create(user_id: admin.id)
 
 puts "Seeding attrib_types table..."
-at = ans.attrib_types.where(name: "VeryImportantProject").first_or_create(value_count: 0)
+at = ans.attrib_types.where(name: "VeryImportantProject").first_or_create(value_count: 1)
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
 at = ans.attrib_types.where(name: "UpdateProject").first_or_create(value_count: 1)
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
@@ -106,6 +108,7 @@ at.allowed_values << AttribAllowedValue.new( value: "Testing" )
 at.allowed_values << AttribAllowedValue.new( value: "Development" )
 at.allowed_values << AttribAllowedValue.new( value: "Private" )
 
+update_all_attrib_type_descriptions
 
 puts "Seeding db_project_type table by loading test fixtures"
 DbProjectType.where(name: "standard").first_or_create
