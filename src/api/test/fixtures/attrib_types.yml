@@ -6,6 +6,7 @@ NSTEST_status:
 OBS_ApprovedRequestSource:
   id: 65
   name: ApprovedRequestSource
+  description: "Source maintainers do not need to approve reviews"
   value_count: 0
   attrib_namespace_id: 9
   issue_list: 0
@@ -87,6 +88,7 @@ OBS_ScreenShots:
 OBS_UpdateProject:
   id: 57
   name: UpdateProject
+  description: "Project is frozen and updates are released via the other project"
   value_count: 1
   attrib_namespace_id: 9
   issue_list: 0

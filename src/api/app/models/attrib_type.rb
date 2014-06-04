@@ -76,6 +76,11 @@ class AttribType < ActiveRecord::Base
       #
       # attribute type definition
       #
+      self.description = nil
+      xmlhash.elements("description") do |c|
+        self.description = c
+      end
+
       # set value counter (this number of values must exist, not more, not less)
       self.value_count = nil
       xmlhash.elements("count") do |c|

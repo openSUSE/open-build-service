@@ -21,6 +21,14 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="description" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Description of the purpose of this attribute
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
   <xs:element name="default">
     <xs:annotation>
       <xs:documentation>
@@ -55,6 +63,7 @@
     </xs:annotation>
     <xs:complexType>
       <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="1" ref="description" />
         <xs:element minOccurs="0" maxOccurs="1" ref="default" />
         <xs:element minOccurs="0" maxOccurs="1" ref="allowed" />
         <xs:element minOccurs="0" maxOccurs="1" name="count" />

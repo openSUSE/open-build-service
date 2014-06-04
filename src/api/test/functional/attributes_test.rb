@@ -42,6 +42,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'definition', :attributes => { :name => "UpdateProject", :namespace => "OBS" }
     assert_xml_tag :child => { :tag => 'modifiable_by', :attributes => { :user => "maintenance_coord" } }
     assert_xml_tag :child => { :tag => 'count', :content => "1" }
+    assert_xml_tag :child => { :tag => 'description', :content => "Project is frozen and updates are released via the other project" }
   end
 
   def test_create_namespace
@@ -120,7 +121,10 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     reset_auth
-    data = "<definition namespace='TEST' name='Dummy'>
+    data = "<definition name='Dummy' namespace='TEST'>
+              <description>Long
+desc
+ription</description>
               <count>2</count>
               <default>
                 <value>A</value>
@@ -131,9 +135,9 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
                 <value>B</value>
                 <value>C</value>
               </allowed>
-              <modifiable_by user='adrian'/>
-              <modifiable_by group='test_group'/>
               <modifiable_by role='maintainer'/>
+              <modifiable_by group='test_group'/>
+              <modifiable_by user='adrian'/>
             </definition>"
 
     post "/attribute/TEST/Dummy/_meta", data
@@ -149,6 +153,9 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/attribute/TEST/Dummy/_meta"
     assert_response :success
+    for i in ['count', 'description', 'default', 'allowed', 'count', 'modifiable_by'] do
+      assert_equal(Xmlhash.parse(data)[i], Xmlhash.parse(@response.body)[i])
+    end
     delete "/attribute/TEST/Dummy/_meta"
     assert_response :success
     get "/attribute/TEST/Dummy/_meta"
