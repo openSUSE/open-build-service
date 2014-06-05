@@ -2004,6 +2004,7 @@ sub copybuild {
   my $dir = "$jobsdir/$arch/$job:dir";
   my $odir = "$reporoot/$oprojid/$orepoid/$arch/$opackid";
   mkdir_p($dir);
+  my $delayed_linking;
   my $needsign;
   for my $bin (grep {$_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls($odir)) {
     if ($bin eq "updateinfo.xml" && $cgi->{'setupdateinfoid'}) {
@@ -2025,12 +2026,25 @@ sub copybuild {
 	$nbin =~ s/-([^-.]+).([^.]*.rpm)$/$setrelease.$2/; # rpms
       }
       if (-d "$odir/$bin") {
-	BSUtil::linktree("$odir/$bin", "$dir/$nbin");
+        $delayed_linking->{"$odir/$bin"} = "$dir/$nbin";
       } else {
         link("$odir/$bin", "$dir/$nbin") || die("link $odir/$bin $dir/$nbin: $!\n");
       }
     }
   }
+
+  # we run the linking of directory tries in background, since it can take a long time
+  # otherwise we do it inline
+  my $pid;
+  $pid = xfork() if $delayed_linking;
+  return $BSStdServer::return_ok if ($pid);
+
+  # now run the delayed tree linking
+  for (keys %$delayed_linking) {
+    BSUtil::linktree($_, $delayed_linking->{$_});
+  }
+
+  # and emit signals to signer and scheduler
   my $info = {
     'project' => $projid,
     'repository' => $repoid,
