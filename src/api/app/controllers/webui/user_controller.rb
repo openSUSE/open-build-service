@@ -62,7 +62,7 @@ class Webui::UserController < Webui::WebuiController
     if params['user'].present?
       begin
         @displayed_user = User.find_by_login!(params['user'])
-      rescue User::NotFoundError
+      rescue NotFoundError
         redirect_to :back, error: "User not found #{params['user']}"
       end
     end

@@ -16,11 +16,13 @@
     <span id="home-username"><%= @displayed_user.login if @displayed_user.login %></span>
     </h1>
 <!-- mail -->
+    <% unless User.current.is_nobody? %>
     <p>
     <% mail_to = 'mailto:' + @displayed_user.email %>
     <%= link_to(sprite_tag('email', title: 'Send mail to user'), mail_to) %>
     <%= mail_to(@displayed_user.email, nil, :title => 'Send mail to user') %>
     </p>
+    <% end %>
 <!--  groups -->
     <% gs = @displayed_user.groups.pluck(:title) %>
     <% unless gs.empty? %>

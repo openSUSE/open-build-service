@@ -11,6 +11,25 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     find('#flash-messages').must_have_text("User data for user 'tom' successfully updated.")
   end
 
+  def test_show_user_page
+    # email hidden to public
+    visit user_show_path(user: 'tom')
+    page.must_have_text 'Home of tom'
+    page.wont_have_text 'tschmidt@example.com'
+
+    # but visible to users
+    login_adrian to: user_show_path(user: 'tom')
+    page.must_have_text 'Home of tom'
+    page.must_have_text 'tschmidt@example.com'
+
+    # deleted accounts are not shown
+    login_adrian to: user_show_path(user: 'deleted')
+    find('#flash-messages').must_have_text("User not found deleted")
+
+    login_king to: user_show_path(user: 'deleted')
+    find('#flash-messages').must_have_text("User not found deleted")
+  end
+
   test 'notification settings for group' do
     login_adrian to: user_notifications_path
 
