@@ -2026,22 +2026,22 @@ sub copybuild {
 	$nbin =~ s/-([^-.]+).([^.]*.rpm)$/$setrelease.$2/; # rpms
       }
       if (-d "$odir/$bin") {
-        $delayed_linking->{"$odir/$bin"} = "$dir/$nbin";
+        $delayed_linking->{"$dir/$nbin"} = "$odir/$bin";
       } else {
         link("$odir/$bin", "$dir/$nbin") || die("link $odir/$bin $dir/$nbin: $!\n");
       }
     }
   }
 
-  # we run the linking of directory tries in background, since it can take a long time
-  # otherwise we do it inline
+  # we run the linking of directory trees in background, since it can take a long time
+  # for simple files it happened already
   my $pid;
   $pid = xfork() if $delayed_linking;
   return $BSStdServer::return_ok if ($pid);
 
   # now run the delayed tree linking
   for (keys %$delayed_linking) {
-    BSUtil::linktree($_, $delayed_linking->{$_});
+    BSUtil::linktree($delayed_linking->{$_}, $_);
   }
 
   # and emit signals to signer and scheduler
