@@ -26,13 +26,12 @@
         - if params[:readonly]
           = hidden_field_tag(:targetproject, @tprj)
 
-        - if params[:targetpackage]
-          = label_tag(:targetpackage, 'To target package:')
-          %br/
-          = text_field_tag(:targetpackage, params[:targetpackage], size: 40, disabled: params[:readonly])
-          %br/
-          - if params[:readonly]
-            = hidden_field_tag(:targetpackage, params[:targetpackage])
+        = label_tag(:targetpackage, 'To target package:')
+        %br/
+        = text_field_tag(:targetpackage, @tpkg, size: 40, disabled: params[:readonly])
+        %br/
+        - if params[:readonly]
+          = hidden_field_tag(:targetpackage, @tpkg)
 
         = label_tag(:description, 'Description:')
         %br/

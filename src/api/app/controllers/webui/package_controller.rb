@@ -199,8 +199,10 @@ class Webui::PackageController < Webui::WebuiController
     @tprj = ''
     if lt = @package.backend_package.links_to
       @tprj = lt.project.name # fill in from link
+      @tpkg = lt.name
     end
     @tprj = params[:targetproject] if params[:targetproject] # allow to override by parameter
+    @tpkg = params[:targetpackage] if params[:targetpackage] # allow to override by parameter
 
     render_dialog
   end
@@ -220,7 +222,8 @@ class Webui::PackageController < Webui::WebuiController
 
         opts = { source_project: params[:project],
                  source_package: params[:package],
-                 target_project: params[:targetproject] }
+                 target_project: params[:targetproject],
+                 target_package: params[:targetpackage] }
         if params[:sourceupdate] 
           opts[:sourceupdate] = params[:sourceupdate]
         elsif params[:project].include?(':branches:')
