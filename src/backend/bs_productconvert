@@ -931,6 +931,12 @@ sub writeProductSPECfile( $$$$ )
       die("product release is not set but required") unless defined($product->{release}) and $product->{release} ne "";
       $productprovides.="Provides:       product() = $product->{name}\n";
       $productprovides.="Provides:       product(".$product->{name}.") = $product->{version}-$product->{release}\n";
+      foreach my $dt ( @{$product->{register}->{updates}->{distrotarget}} ) {
+         $productprovides.="%ifarch $dt->{arch}\n" if $dt->{'arch'};
+         $productprovides.="Provides:       product(register-target) = ".escapeProvides($dt->{'_content'})."\n";
+         $productprovides.="%endif\n" if $dt->{'arch'};
+         next;
+      }
       foreach my $shortsummary ( @{$product->{'shortsummary'}} ){
         $productprovides.="Provides:       product-label() = ".escapeProvides($shortsummary->{'_content'})."\n" if ( ! $shortsummary->{'language'} );
       }
