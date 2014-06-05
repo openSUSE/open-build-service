@@ -217,13 +217,15 @@ class Webui::PackageController < Webui::WebuiController
     req = nil
     begin
       BsRequest.transaction do
-        req = BsRequest.new
+        req = BsRequest.new(state: "new")
         req.description = params[:description]
 
+        tpkg = params[:package]
+        tpkg = params[:targetpackage] unless params[:targetpackage].blank?
         opts = { source_project: params[:project],
                  source_package: params[:package],
                  target_project: params[:targetproject],
-                 target_package: params[:targetpackage] }
+                 target_package: tpkg }
         if params[:sourceupdate] 
           opts[:sourceupdate] = params[:sourceupdate]
         elsif params[:project].include?(':branches:')

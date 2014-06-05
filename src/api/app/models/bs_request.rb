@@ -720,7 +720,7 @@ class BsRequest < ActiveRecord::Base
 
     result['description'] = self.description
     result['state'] = self.state
-    result['creator'] = self.creator
+    result['creator'] = User.find_by_login(self.creator)
     result['created_at'] = self.created_at
     result['accept_at'] = self.accept_at if self.accept_at
     result['superseded_by'] = self.superseded_by if self.superseded_by

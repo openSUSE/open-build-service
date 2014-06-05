@@ -87,7 +87,6 @@ class Webui::RequestController < Webui::WebuiController
     @id = @req['id']
     @state = @req['state'].to_s
     @accept_at = @req['accept_at']
-    @req['creator'] = User.find_by_login! @req['creator']
     @is_author = @req['creator'] == User.current
     @superseded_by = @req['superseded_by']
     @superseding = @req['superseding']
@@ -131,6 +130,13 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def changerequest
+    begin
+      @req = BsRequest.find(params[:id])
+    rescue ActiveRecord::RecordNotFound
+      flash[:error] = "Can't find request #{params[:id]}"
+      redirect_back_or_to user_requests_path(User.current) and return
+    end
+
     changestate = nil
     %w(accepted declined revoked new).each do |s|
       if params.has_key? s
@@ -174,33 +180,31 @@ class Webui::RequestController < Webui::WebuiController
   def forward_request_to(fwd)
     tgt_prj, tgt_pkg = params[fwd].split('_#_') # split off 'forward_' and split into project and package
     description = @req.description
-    who = @req.creator.login
+    who = @req.creator
     description += ' (forwarded request %d from %s)' % [params[:id], who]
 
-    target = @req.find_first(:action).find_first(:target)
-    rev = Package.dir_hash(target.value(:project), target.value(:package))['rev']
     req = nil
     begin
       BsRequest.transaction do
-        req = BsRequest.new
-        req.state = "new"
+        req = BsRequest.new( state: "new")
         req.description = params[:description]
+        @req.bs_request_actions.each do |action|
+          rev = Package.dir_hash(action.target_project, action.target_package)['rev']
 
-        opts = { source_project: target.value(:project),
-                 source_package: target.value(:package),
-                 source_rev:     rev,
-                 target_project: tgt_prj,
-                 target_package: tgt_pkg }
-        if params[:sourceupdate]
-          opts[:sourceupdate] = params[:sourceupdate]
-        elsif params[:project].include?(':branches:')
-          opts[:sourceupdate] = 'update' # Avoid auto-removal of branch
+          opts = { source_project: action.target_project,
+                   source_package: action.target_package,
+                   source_rev:     rev,
+                   target_project: tgt_prj,
+                   target_package: tgt_pkg }
+          if params[:sourceupdate]
+            opts[:sourceupdate] = params[:sourceupdate]
+          end
+          action = BsRequestActionSubmit.new(opts)
+          req.bs_request_actions << action
+          action.bs_request = req
+
+          req.save!
         end
-        action = BsRequestActionSubmit.new(opts)
-        req.bs_request_actions << action
-        action.bs_request = req
-
-        req.save!
       end
     rescue BsRequestAction::UnknownProject,
            BsRequestAction::UnknownTargetPackage => e

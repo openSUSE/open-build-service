@@ -4,6 +4,7 @@ require_relative '../../test_helper'
 class Webui::PackageBranchTest < Webui::IntegrationTest
 
   uses_transaction :test_branch_package_for_global_project
+  uses_transaction :test_branch_package_double_and_submit_back
   uses_transaction :test_branch_package_for_home_project
   uses_transaction :test_branch_package_twice
 
@@ -58,6 +59,43 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :name => 'TestPack_link',
       :original_name => 'TestPack',
       :original_project => 'home:Iggy')
+  end
+    
+  test 'branch_package_double_and_submit_back' do
+    use_js
+
+    login_Iggy to: project_show_path(:project => @project)
+
+    create_package_branch(
+      :name => 'TestPack_link',
+      :original_name => 'TestPack',
+      :original_project => 'home:Iggy')
+    Suse::Backend.put('/source/home:Iggy/TestPack_link/new_file', "test 1")
+
+    visit project_show_path(:project => @project)
+    create_package_branch(
+      :name => 'TestPack_double_branch',
+      :original_name => 'TestPack_link',
+      :original_project => 'home:Iggy')
+    Suse::Backend.put('/source/home:Iggy/TestPack_double_branch/new_file', "test 2")
+
+    # submit
+    click_link 'Submit package'
+    fill_in 'description', with: 'one way back'
+    click_button 'Ok'
+    within '#flash-messages' do
+      click_link 'submit request'
+    end
+    requestid = current_path.gsub(%r{\/request\/show\/(\d*)}, '\1').to_i
+
+    # accept with forward
+    visit request_show_path(requestid)
+    check('forward_link')
+    click_button 'Accept'
+    flash_message.must_have_text "accepted and forwarded"
+
+    # cleanup
+    delete_package("home:Iggy","TestPack_link")
   end
     
   test 'branch_package_for_global_project' do

@@ -841,55 +841,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                           'when' => '2010-07-12T00:00:04',
                           'comment' => 'review2' }] }, node)
 
-    infos = JSON.parse(BsRequest.find(id).webui_infos.to_json)
-
-    assert_equal({ 'id' => id.to_i,
-                   'description' => nil,
-                   'state' => 'review',
-                   'creator' => 'Iggy',
-                   'created_at' => '2010-07-12T00:00:00.000Z',
-                   'is_target_maintainer' => false,
-                   'my_open_reviews' =>
-                       [{ 'by_user' => 'tom',
-                          'when' => '2010-07-12T00:00:03.000Z',
-                          'who' => 'tom',
-                          'state' => 'new' }],
-                   'other_open_reviews' => [],
-                   'events' =>
-                       [{ 'who' => 'Iggy',
-                          'what' => 'created request',
-                          'when' => '2010-07-12T00:00:00.000Z',
-                          'comment' => nil },
-                        { 'who' => 'Iggy',
-                          'what' => 'added review',
-                          'when' => '2010-07-12T00:00:01.000Z',
-                          'comment' => 'couldyou' },
-                        { 'who' => 'tom',
-                          'what' => 'accepted review',
-                          'when' => '2010-07-12T00:00:02.000Z',
-                          'comment' => 'review1',
-                          'color' => 'green' },
-                        { 'who' => 'Iggy',
-                          'what' => 'added review',
-                          'when' => '2010-07-12T00:00:03.000Z',
-                          'comment' => 'overlooked' },
-                        { 'who' => 'tom',
-                          'what' => 'accepted review',
-                          'when' => '2010-07-12T00:00:04.000Z',
-                          'comment' => 'review2',
-                          'color' => 'green' },
-                        { 'who' => 'tom',
-                          'what' => 'reopened review',
-                          'when' => '2010-07-12T00:00:05.000Z',
-                          'comment' => 'reopen2',
-                          'color' => 'maroon' }],
-                   'actions' =>
-                       [{ 'type' => 'add_role',
-                          'tprj' => 'home:Iggy',
-                          'tpkg' => 'TestPack',
-                          'name' => 'Add Role',
-                          'role' => 'reviewer',
-                          'user' => 'Iggy' }] }, infos)
   end
 
   test 'change_review_state_after_leaving_review_phase' do
@@ -2781,7 +2732,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     id = Xmlhash.parse(@response.body)['id']
 
-    infos = JSON.parse(BsRequest.find(id).webui_infos.to_json)
+    infos = BsRequest.find(id).webui_infos
     assert !infos['is_target_maintainer'], 'tom is target maintainer'
   end
 

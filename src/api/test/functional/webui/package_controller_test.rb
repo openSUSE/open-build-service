@@ -242,7 +242,6 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     # try to submit unchanged sources
     click_link 'Submit package'
     page.must_have_field('targetproject', with: 'home:dmayr')
-    page.wont_have_field('targetpackage') # we do not offer renames (yet)
     page.wont_have_field('supersede')
     check('sourceupdate')
     click_button 'Ok'

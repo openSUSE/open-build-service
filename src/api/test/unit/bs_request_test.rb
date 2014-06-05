@@ -36,7 +36,7 @@ class BsRequestTest < ActiveSupport::TestCase
     assert_equal wi['id'], req.id
     assert_equal wi['description'], ''
     assert_equal wi['state'], :review
-    assert_equal wi['creator'], 'Iggy'
+    assert_equal wi['creator'].login, 'Iggy'
     assert_equal wi['is_target_maintainer'], false
     assert_equal wi['my_open_reviews'], []
     
@@ -52,7 +52,7 @@ class BsRequestTest < ActiveSupport::TestCase
     assert_equal wi['id'], req.id
     assert_equal wi['description'], ''
     assert_equal wi['state'], :review
-    assert_equal wi['creator'], 'Iggy'
+    assert_equal wi['creator'].login, 'Iggy'
     assert_equal wi['is_target_maintainer'], true
     assert_equal wi['my_open_reviews'], []
 
