@@ -788,7 +788,10 @@ class BsRequestAction < ActiveRecord::Base
   def expand_targets(ignore_build_state)
     # expand target_package
     if [:submit, :maintenance_release, :maintenance_incident].include?(self.action_type)
-      return nil if self.target_package
+      if self.target_package
+        raise MissingAction.new if self.sourcediff.blank?
+        return nil
+      end
       per_package_locking = false
       packages = Array.new
       if self.source_package

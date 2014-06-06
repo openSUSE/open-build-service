@@ -252,7 +252,6 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     Suse::Backend.put( '/source/home:adrian/x11vnc/DUMMY?user=adrian', 'DUMMY')
     click_link 'Submit package'
     page.must_have_field('targetproject', with: 'home:dmayr')
-    page.wont_have_field('targetpackage') # we do not offer renames (yet)
     page.wont_have_field('supersede')
     check('sourceupdate')
     click_button 'Ok'
