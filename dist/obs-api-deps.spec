@@ -68,8 +68,7 @@ Requires:       perl-Socket-MsgHdr
 Requires:       perl-XML-Parser
 Requires:       perl-XML-Simple
 Requires:       perl(GD)
-Requires:       sphinx
-Conflicts:      sphinx < 2.0.8
+Requires:       sphinx >= 2.1.8
 
 %description -n obs-api-testsuite-deps
 This is the API server instance, and the web client for the 

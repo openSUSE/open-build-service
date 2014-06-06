@@ -39,7 +39,11 @@ Changes on purpose:
 Incompatible changes:
 =====================
 
- *
+ * You get also an update of sphinx searchd. The on-disk db files became 
+   incompatible, so please remove all files in following directory to
+   enforce a re-index to avoid problems:
+
+      /srv/www/obs/api/db/sphinx/production/ 
 
 Notes for systems using systemd:
 ================================

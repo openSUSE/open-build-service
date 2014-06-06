@@ -167,7 +167,7 @@ Requires:       mysql
 
 Requires:       ruby >= 2.0
 # needed for fulltext searching
-Requires:       sphinx >= 2.0.8
+Requires:       sphinx >= 2.1.8
 Supplements:    rubygem-ruby-ldap
 BuildRequires:  obs-api-testsuite-deps
 BuildRequires:  rubygem-ruby-ldap
