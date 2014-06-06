@@ -933,7 +933,7 @@ sub writeProductSPECfile( $$$$ )
       $productprovides.="Provides:       product(".$product->{name}.") = $product->{version}-$product->{release}\n";
       foreach my $dt ( @{$product->{register}->{updates}->{distrotarget}} ) {
          $productprovides.="%ifarch $dt->{arch}\n" if $dt->{'arch'};
-         $productprovides.="Provides:       product(register-target) = ".escapeProvides($dt->{'_content'})."\n";
+         $productprovides.="Provides:       product-register-target() = ".escapeProvides($dt->{'_content'})."\n";
          $productprovides.="%endif\n" if $dt->{'arch'};
          next;
       }
