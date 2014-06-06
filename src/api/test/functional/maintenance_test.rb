@@ -1702,7 +1702,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # submit requests are not allowed against release projects
     post '/request?cmd=create', '<request>
                                    <action type="submit">
-                                     <source project="BaseDistro2.0" package="pack2" />
+                                     <source project="BaseDistro2.0" package="pack2" rev="0" />
                                      <target project="BaseDistro2.0:LinkedUpdateProject" package="pack2" />
                                    </action>
                                    <state name="new" />
@@ -1764,6 +1764,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     # check source link
     get '/source/home:tom:branches:BaseDistro:Update/pack1/_link'
+    assert_response :success
+    # some change
+    put '/source/home:tom:branches:BaseDistro:Update/pack1/file', "file"
     assert_response :success
     # remove release target
     get '/source/home:tom:branches:BaseDistro:Update/_meta'
