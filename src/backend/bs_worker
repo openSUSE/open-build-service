@@ -93,10 +93,11 @@ my $threads;
 my $cachedir;
 my $cachesize;
 
-my $buildlog_maxsize = 500 * 1000000;
-my $buildlog_maxidle = 8 * 3600;
-my $xenstore_maxsize = 20 * 1000000;
-my $gettimeout = 3600; # 1 hour timeout to avoid forever hanging workers
+my $buildlog_maxsize = $BSConfig::buildlog_maxsize ? $BSConfig::buildlog_maxsize : 500 * 1000000;
+my $buildlog_maxidle = $BSConfig::buildlog_maxidle ? $BSConfig::buildlog_maxidle :   8 * 3600;
+my $xenstore_maxsize = $BSConfig::xenstore_maxsize ? $BSConfig::xenstore_maxsize :  20 * 1000000;
+# 1 hour timeout to avoid forever hanging workers
+my $gettimeout =       $BSConfig::gettimeout       ? $BSConfig::gettimeout       :   1 * 3600;
 
 # for collecting statistics
 my $binariesdownload;
@@ -2693,7 +2694,7 @@ while (!BSServer::server($conf)) {
       }
       local *F;
       if (open(F, '>>', "$buildroot/.build.log")) {
-	print F "\n\nJob seems to be stuck here, killed.\n";
+	print F "\n\nJob seems to be stuck here, killed. (after $buildlog_maxidle seconds of inactivity)\n";
 	close F;
       }
       $state->{'state'} = 'killed';
