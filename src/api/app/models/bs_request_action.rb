@@ -789,8 +789,8 @@ class BsRequestAction < ActiveRecord::Base
     # expand target_package
 
     if [:submit, :maintenance_incident].include?(self.action_type)
-      if self.target_package
-        raise MissingAction.new if Package.exists_by_project_and_name(self.target_project, self.target_package) and self.sourcediff.blank?
+      if self.target_package and Package.exists_by_project_and_name(self.target_project, self.target_package)
+        raise MissingAction.new if self.sourcediff.blank?
         return nil
       end
     end

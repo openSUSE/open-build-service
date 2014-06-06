@@ -213,6 +213,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     post '/source/home:Iggy/TestPack.DELETE?target_project=home:Iggy&target_package=TestPack.DELETE2', :cmd => :branch
     assert_response :success
+    put '/source/home:Iggy/TestPack.DELETE2/file', 'some'
+    assert_response :success
 
     # create requests
     post '/request?cmd=create', '<request>
@@ -1891,10 +1893,14 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_equal 'BaseDistro2.0:LinkedUpdateProject', ret['project']
     assert_nil ret['package'] # same package name
 
+    # do some modification
+    put '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/NEW_FILE', 'content'
+    assert_response :success
+
     # create request
     req = "<request>
             <action type='submit'>
-              <source project='home:tom:branches:BaseDistro2.0:LinkedUpdateProject' package='pack2' rev='1' />
+              <source project='home:tom:branches:BaseDistro2.0:LinkedUpdateProject' package='pack2' />
               <target project='DummY' package='pack2' />
               <options>
                 <sourceupdate>noupdate</sourceupdate>
@@ -1936,7 +1942,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # create request
     req = "<request>
             <action type='submit'>
-              <source project='home:tom:branches:BaseDistro2.0:LinkedUpdateProject' package='pack2' rev='2' />
+              <source project='home:tom:branches:BaseDistro2.0:LinkedUpdateProject' package='pack2' />
               <target project='DummY' package='pack2' />
               <options>
                 <sourceupdate>cleanup</sourceupdate>
@@ -1977,7 +1983,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_match 'NEW_FILE', @response.body
     post "/request/#{id}?cmd=diff&view=xml", nil
     assert_response :success
-    assert_xml_tag(:parent => { tag: 'file', attributes: { state: 'added' } }, :tag => 'new', :attributes => { name: 'NEW_FILE' })
+    assert_xml_tag(:parent => { tag: 'file', attributes: { state: 'changed' } }, :tag => 'new', :attributes => { name: 'NEW_FILE' })
 
     ###
     # create delete request two times
@@ -2289,13 +2295,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # FIXME: implementation unclear
   end
 
-  ## create request from hidden package to open place - invalid user  - fail !
-  def test_create_request_from_hidden_package_to_open_place_invalid_user
-    request_hidden('Iggy', 'asdfasdf', 'request/from_hidden_to_open_invalid')
-    assert_response 404
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'unknown_project' })
-  end
-
   ### bugowner
   ### role 
   def test_hidden_add_role_request
@@ -2428,7 +2427,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     req = "<request>
             <action type='submit'>
-              <source project='home:Iggy' package='TestPack' />
+              <source project='home:Iggy' package='TestPack' rev='0' />
               <target project='home:Iggy' package='TestPack' />
               <options>
                 <sourceupdate>cleanup</sourceupdate>
@@ -2784,8 +2783,12 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     post "/source/#{sprj}/apache2", :cmd => :branch, :target_project => "#{bprj}"
     assert_response :success
+    put "/source/#{bprj}/apache2/dummy", "dummy"
+    assert_response :success
 
     post "/source/#{sprj}/Tidy", :cmd => :branch, :target_project => "#{bprj}"
+    assert_response :success
+    put "/source/#{bprj}/Tidy/dummy", "dummy"
     assert_response :success
 
     # Submit apache2 back. It is not the last project.
@@ -2815,6 +2818,11 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
       assert_no_xml_tag tag: 'entry', attributes: { name: 'apache2' }
       assert_no_xml_tag tag: 'entry', attributes: { name: 'Tidy' }
     end
+
+    delete "/source/#{sprj}/Tidy/dummy", "dummy"
+    assert_response :success
+    delete "/source/#{sprj}/apache2/dummy", "dummy"
+    assert_response :success
   end
 
   def test_cleanup_empty_projects
