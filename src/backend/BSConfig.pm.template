@@ -159,6 +159,11 @@ our $relsync_pool = {
 
 # config options for the bs_worker
 #
+#our buildlog_maxsize = 500 * 1000000;
+#our buildlog_maxidle =   8 * 3600;
+#our xenstore_maxsize =  20 * 1000000;
+#our gettimeout =         1 * 3600;
+#
 # run a script to check if the worker is good enough for the job
 #our workerhostcheck = 'my_check_script';
 # 
