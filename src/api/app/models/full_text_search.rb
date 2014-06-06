@@ -41,7 +41,7 @@ class FullTextSearch
              per_page:      options[:per_page] || FullTextSearch.per_page,
              without:       {:project_id => Relationship.forbidden_project_ids} }
 
-    args[:select] = "*, (@weight + "\
+    args[:select] = "*, (weight() + "\
                     "#{FullTextSearch.linked_count_weight} * linked_count + "\
                     "#{FullTextSearch.links_to_other_weight} * links_to_other + "\
                     "#{FullTextSearch.is_devel_weight} * is_devel + "\
