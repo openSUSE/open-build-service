@@ -1505,8 +1505,10 @@ class Webui::ProjectController < Webui::WebuiController
   def load_local_packages
     unless @project.api_obj.linkedprojects.empty?
       @localpackages = {}
-      @project.api_obj.packages.each do |p|
-        @localpackages[p[:name]] = 1
+      prjs = {}
+      find_packages_info.each do |p|
+        prjs[p[1]] ||= Project.find_by_name(p[1])
+        @localpackages[p[0]] = 1 unless prjs[p[1]].is_a? String
       end
     end
   end
