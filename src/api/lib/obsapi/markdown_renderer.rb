@@ -3,8 +3,7 @@ module OBSApi
     include Rails.application.routes.url_helpers
 
     def self.default_url_options
-      @uri ||= URI.parse ::Configuration.first.obs_url
-      { host: @uri.host, port: @uri.port }
+      { host: ::Configuration.first.obs_url }
     end
 
     def preprocess(fulldoc)
