@@ -300,6 +300,7 @@ sub createProductOptions($$$)
     $varsH{PRODUCT_DIR} = "/";
     $varsH{PRODUCT_NAME} = '$DISTNAME-$FLAVOR';
     $varsH{PRODUCT_VERSION} = '$VERSION';
+    $varsH{PRODUCT_RELEASE} = $product->{'release'} if $product->{'release'};
 
     my @vars;
     foreach my $opt ( sort keys %varsH ) {
