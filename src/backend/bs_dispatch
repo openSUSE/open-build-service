@@ -641,7 +641,7 @@ sub dispatchslave {
       my $infoxml = readstr("$jobsdir/$arch/$job", 1);
       next unless $infoxml;
       my $info = BSUtil::fromxml($infoxml, $BSXML::buildinfo, 1);
-      next unless $info;
+      next unless $info && $info->{'file'};
       $info->{'masterdispatched'} = Digest::MD5::md5_hex($infoxml);
       $infoxml = XMLout($BSXML::buildinfo, $info);
       undef $info;
@@ -694,7 +694,7 @@ sub dispatchslave {
       my ($projid, $repoid, $packid) = split('::', $jn);
       if (!defined($packid)) {
         my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
-	next unless $info;
+        next unless $info && $info->{'file'};
 	($projid, $repoid, $packid) = ($info->{'project'}, $info->{'repository'}, $info->{'package'});
 	next unless defined $packid;
       }
@@ -1009,7 +1009,7 @@ while (1) {
       my ($projid, $repoid, $packid) = split('::', $jn);
       if (!defined($packid)) {
 	my $info = $ic->{$job} || readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
-	next unless $info;
+        next unless $info && $info->{'file'};
 	$ic->{$job} = $info;
 	($projid, $repoid, $packid) = ($info->{'project'}, $info->{'repository'}, $info->{'package'});
 	next unless defined $packid;
@@ -1031,7 +1031,7 @@ while (1) {
 	  $info = {'project' => $projid, 'repository' => $repoid, 'package' => $packid, 'arch' => $arch};
 	} else {
           $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
-	  next unless $info;
+          next unless $info && $info->{'file'};
 	  $ic->{$job} = $info;
 	}
       }
