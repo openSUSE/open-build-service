@@ -12,6 +12,7 @@ class AcceptRequestsJob
              Package::UnknownObjectError,
              Package::ReadAccessError,
              BsRequestAction::UnknownTargetPackage,
+             BsRequestPermissionCheck::NotExistingTarget,
              Project::UnknownObjectError => e
         r.change_state('revoked', :comment => "Accept failed with: #{e.message}")
       end
