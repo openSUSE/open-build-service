@@ -740,6 +740,24 @@ class Webui::PackageController < Webui::WebuiController
     render json: { status: 'ok' }
   end
 
+  def set_job_status
+    @percent = nil
+
+    begin
+      jobstatus = get_job_status( @project, @package, @repo, @arch )
+      unless jobstatus.blank?
+        js = Xmlhash.parse(jobstatus)
+        @workerid = js.get('workerid')
+        @buildtime = Time.now.to_i - js.get('starttime').to_i
+        lst = js.get('lastsuccesstime')
+        @percent = (@buildtime / lst.to_i) * 100 unless lst.blank?
+      end
+    rescue
+      @workerid = nil
+      @buildtime = nil
+    end
+  end
+
   def live_build_log
     required_parameters :arch, :repository
     if @package and not @package.check_source_access?
@@ -748,16 +766,10 @@ class Webui::PackageController < Webui::WebuiController
     end
     @arch = params[:arch]
     @repo = params[:repository]
+
+    set_job_status
+
     begin
-      jobstatus = get_job_status( @project, @package, @repo, @arch )
-      unless jobstatus.blank?
-        js = Xmlhash.parse(jobstatus)
-        @workerid = js.get('workerid')
-        @buildtime = Time.now.to_i - js.get('starttime').to_i
-        lst = js.get('lastsuccesstime')
-        @percent = nil
-        @percent = (@buildtime / lst.to_i) * 100 unless lst.blank?
-      end
       size = get_size_of_log(@project, @package, @repo, @arch)
       logger.debug('log size is %d' % size)
       @offset = size - 32 * 1024
