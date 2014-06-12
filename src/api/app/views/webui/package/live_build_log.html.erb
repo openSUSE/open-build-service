@@ -10,7 +10,9 @@
 <% end -%>
 
 <h2>Build Log for Package <%= @package %> (Project <%= @project %>)</h2>
-<p><strong>Repository:</strong> <%= @repo %> <strong>Architecture:</strong> <%= @arch %></p>
+
+<%= render :partial => "job_status" if @workerid %>
+
 <p><strong>Status:</strong> <span id="status">Updating...</span></p>
 
 <%= render :partial => "live_log_controls" %>

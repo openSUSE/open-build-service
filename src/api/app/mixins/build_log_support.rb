@@ -40,4 +40,9 @@ module BuildLogSupport
     0
   end
 
+  def get_job_status( project, package, repo, arch  )
+    path = "/build/#{pesc project}/#{pesc repo}/#{pesc arch}/#{pesc package}/_status"
+    ActiveXML::backend.direct_http URI("#{path}"), :timeout => 500
+   end
+
 end
