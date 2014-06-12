@@ -93,11 +93,13 @@ my $threads;
 my $cachedir;
 my $cachesize;
 
+# current XEN has no xenstore anymore
+my $xenstore_maxsize = 20 * 1000000;
+# 1 hour timeout to avoid forever hanging workers
+my $gettimeout = 1 * 3600;
+
 my $buildlog_maxsize = $BSConfig::buildlog_maxsize ? $BSConfig::buildlog_maxsize : 500 * 1000000;
 my $buildlog_maxidle = $BSConfig::buildlog_maxidle ? $BSConfig::buildlog_maxidle :   8 * 3600;
-my $xenstore_maxsize = $BSConfig::xenstore_maxsize ? $BSConfig::xenstore_maxsize :  20 * 1000000;
-# 1 hour timeout to avoid forever hanging workers
-my $gettimeout =       $BSConfig::gettimeout       ? $BSConfig::gettimeout       :   1 * 3600;
 
 # for collecting statistics
 my $binariesdownload;
