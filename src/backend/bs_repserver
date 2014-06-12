@@ -941,6 +941,25 @@ sub getbuildstatus {
   return ($res, $BSXML::buildstatus);
 }
 
+sub getjobstatus {
+  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+
+  my $status = readxml("$reporoot/$projid/$repoid/$arch/$packid/status", $BSXML::buildstatus, 1);
+  # not even scheduled
+  return ({}, $BSXML::jobstatus) unless $status && $status->{'status'} eq 'scheduled';
+
+  my $jobstatus = readxml("$jobsdir/$arch/$status->{'job'}:status", $BSXML::jobstatus, 1);
+  # not yet building
+  return ({}, $BSXML::jobstatus) unless $status && $status->{'status'} eq 'scheduled';
+
+  # find last successful build
+  my @history = BSFileDB::fdb_getall_reverse("$reporoot/$projid/$repoid/$arch/$packid/history", $historylay, 1);
+  my $lastbuildtime = $history[0]->{time} if @history > 0;
+  $jobstatus->{'lastsuccesstime'} = $lastbuildtime if $lastbuildtime;
+
+  return ($jobstatus, $BSXML::jobstatus);
+}
+
 sub getlogfile {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
 
@@ -3982,8 +4001,9 @@ my $dispatches = [
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,
-  '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
+  '/build/$project/$repository/$arch/$package/_status' => \&getjobstatus,
   '/build/$project/$repository/$arch/$package/_history limit:num?' => \&getbuildhistory,
+  '/build/$project/$repository/$arch/$package/_state' => \&getbuildstate,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? start:intnum? end:num? handoff:bool? last:bool? view:?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package:package_repository/$filename view:?' => \&getbinary,
   'PUT:/build/$project/$repository/$arch/_repository/$filename ignoreolder:bool? wipe:bool?' => \&putbinary,

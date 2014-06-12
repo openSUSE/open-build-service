@@ -536,6 +536,7 @@ our $jobstatus = [
 	[],
 	'starttime',
 	'endtime',
+	'lastsuccesstime', # optional
 	'workerid',
 	'hostarch',
 
