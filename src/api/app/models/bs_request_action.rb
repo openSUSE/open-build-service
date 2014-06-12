@@ -837,7 +837,7 @@ class BsRequestAction < ActiveRecord::Base
   def self.get_package_diff(path, query)
     path += "?#{query.to_query}"
     begin
-      Suse::Backend.post(path, '', 'Timeout' => 10).body
+      Suse::Backend.post(path, '', 'Timeout' => 30).body
     rescue Timeout::Error
       raise DiffError.new("Timeout while diffing #{path}")
     rescue ActiveXML::Transport::Error => e
