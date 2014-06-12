@@ -13,7 +13,7 @@
 set -xe
 
 sudo chmod a+w /etc/apt/sources.list.d
-echo 'deb http://download.opensuse.org/repositories/OBS:/Server:/Unstable/xUbuntu_12.04 /' > /etc/apt/sources.list.d/opensuse.list
+echo 'deb http://download.opensuse.org/repositories/OBS:/Server:/2.5/xUbuntu_12.04 /' > /etc/apt/sources.list.d/opensuse.list
 #sudo apt-get update
 sudo apt-get update -o Dir::Etc::sourcelist="sources.list.d/opensuse.list" -o Dir::Etc::sourceparts="-" -o APT::Get::List-Cleanup="0"
 
