@@ -421,9 +421,14 @@ class Webui::RequestController < Webui::WebuiController
                :force => true,
                :user => User.current.login,
                :comment => params[:reason] }
-      req.change_state(opts)
-      flash[:notice] = "Request #{newstate}!"
-      return true
+      begin
+        req.change_state(opts)
+        flash[:notice] = "Request #{newstate}!"
+        return true
+      rescue APIException => e
+        flash[:error] = "Failed to change state: #{e.message}!"
+        return false
+      end
     end
 
     return false
