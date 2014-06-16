@@ -107,7 +107,13 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     use_js
     login_Iggy 
     visit root_path + '/package/show?project=home:Iggy&package=TestPack'
-    fill_comment
+    # @Iggy works at the very beginning and requests are case insensitive
+    fill_comment "@Iggy likes to mention himself and to write request#23 with capital 'R', like Request#23."
+    within('div.comment_0') do
+      page.must_have_xpath '//a[contains(@href, "/request/show/23") and text()="request#23"]'
+      page.must_have_xpath '//a[contains(@href, "/request/show/23") and text()="Request#23"]'
+      page.must_have_xpath '//a[contains(@href, "user/show/Iggy") and text()="@Iggy"]'
+    end
   end
 
 # broken test: issue 408
