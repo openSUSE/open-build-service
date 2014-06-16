@@ -6335,7 +6335,7 @@ sub getjobstatus {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
-  my $jobstatus = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/$packid/_status", $BSXML::jobstatus);
+  my $jobstatus = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/$packid/_jobstatus", $BSXML::jobstatus);
   return ($jobstatus, $BSXML::jobstatus);
 }
 
@@ -7966,7 +7966,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/$package_repository view:? binary:filename* nometa:bool? nosource:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* debug:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool?' => \&getbuildinfo,
-  '/build/$project/$repository/$arch/$package/_status' => \&getjobstatus,
+  '/build/$project/$repository/$arch/$package/_jobstatus' => \&getjobstatus,
   '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? start:intnum? end:num? view:?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,

@@ -91,6 +91,12 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     get "/build/home:Iggy/10.2/i586/TestPack/package-1.0-1.i586.rpm"
     assert_response :success
+    get "/build/home:Iggy/10.2/i586/TestPack/_status"
+    assert_response :success
+    assert_xml_tag :tag => "status", :attributes => { :package => "TestPack", :code => "succeeded" }
+    get "/build/home:Iggy/10.2/i586/TestPack/_jobstatus"
+    assert_response :success
+    assert_xml_tag :tag => "jobstatus"
     get "/build/home:Iggy/10.2/i586/TestPack/_statistics"
     assert_response :success
     get "/build/home:Iggy/10.2/i586/_repository"

@@ -1095,6 +1095,13 @@ GET /build/<project>/<repository>/<arch>/<package>/_reason
 XmlResult: buildreason
 
 
+GET /build/<project>/<repository>/<arch>/<package>/_jobstatus
+
+  Get build status of a current running build job or empty result if no job is running.
+
+XmlResult: jobstatus
+
+
 GET /build/<project>/<repository>/<arch>/<package>/_status
 
   Get build status of the specified project/package/repo/arch combination
