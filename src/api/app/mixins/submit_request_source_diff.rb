@@ -11,7 +11,7 @@ module SubmitRequestSourceDiff
 
       action_diff = ''
       gather_source_packages.each do |spkg|
-        action_diff += diff_for_source(spkg)
+        action_diff += diff_for_source(spkg, opts[:target_project], opts[:target_package])
       end
       return action_diff
     end
@@ -38,7 +38,7 @@ module SubmitRequestSourceDiff
       spkgs
     end
 
-    def diff_for_source(spkg)
+    def diff_for_source(spkg, target_project=nil, target_package=nil)
       @target_project = action.target_project
       @target_package = action.target_package
       # the target is by default the _link target
@@ -89,6 +89,8 @@ module SubmitRequestSourceDiff
       # run diff
       query[:view] = 'xml' if @view_xml # Request unified diff in full XML view
       query[:withissues] = 1 if @withissues
+      query[:oproject] = target_project if target_project
+      query[:opackage] = target_package if target_package
       BsRequestAction.get_package_diff(path, query)
     end
 

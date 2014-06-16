@@ -1875,6 +1875,88 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_submit_unchanged_sources
+    # create ower playground
+    login_king
+    put '/source/DummY/_meta', "<project name='DummY'><title/><description/><link project='BaseDistro2.0'/></project>"
+    assert_response :success
+
+    # branch a package which does not exist in project, but project is linked
+    login_tom
+    post '/source/DummY/pack2', :cmd => :branch
+    assert_response :success
+
+    # check source link
+    get '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/_link'
+    assert_response :success
+    ret = Xmlhash.parse @response.body
+    assert_equal 'BaseDistro2.0:LinkedUpdateProject', ret['project']
+    assert_nil ret['package'] # same package name
+
+    # create request back of unchanged sources
+    req = "<request>
+            <action type='submit'>
+              <source project='home:tom:branches:BaseDistro2.0:LinkedUpdateProject' package='pack2' />
+              <target project='DummY' package='pack2' />
+              <options>
+                <sourceupdate>noupdate</sourceupdate>
+              </options>
+            </action>
+            <description>SUBMIT</description>
+            <state who='tom' name='new'/>
+          </request>"
+    post '/request?cmd=create', req
+    assert_response 400
+    assert_xml_tag(:tag => 'status', :attributes => { :code => "missing_action" })
+    req = "<request>
+            <action type='submit'>
+              <source project='RemoteInstance:home:tom:branches:BaseDistro2.0:LinkedUpdateProject' package='pack2' />
+              <target project='DummY' package='pack2' />
+              <options>
+                <sourceupdate>noupdate</sourceupdate>
+              </options>
+            </action>
+            <description>SUBMIT</description>
+            <state who='tom' name='new'/>
+          </request>"
+    post '/request?cmd=create', req
+    assert_response 400
+    assert_xml_tag(:tag => 'status', :attributes => { :code => "missing_action" })
+
+    # create request to a different place works
+    req = "<request>
+            <action type='submit'>
+              <source project='home:tom:branches:BaseDistro2.0:LinkedUpdateProject' package='pack2' />
+              <target project='DummY' package='packNew' />
+              <options>
+                <sourceupdate>noupdate</sourceupdate>
+              </options>
+            </action>
+            <description>SUBMIT</description>
+            <state who='tom' name='new'/>
+          </request>"
+    post '/request?cmd=create', req
+    assert_response :success
+    req = "<request>
+            <action type='submit'>
+              <source project='RemoteInstance:home:tom:branches:BaseDistro2.0:LinkedUpdateProject' package='pack2' />
+              <target project='DummY' package='packNew' />
+              <options>
+                <sourceupdate>noupdate</sourceupdate>
+              </options>
+            </action>
+            <description>SUBMIT</description>
+            <state who='tom' name='new'/>
+          </request>"
+    post '/request?cmd=create', req
+    assert_response :success
+
+    #cleanup
+    login_king
+    delete '/source/DummY'
+    assert_response :success
+  end
+
   def test_branch_and_submit_request_to_linked_project_and_delete_it_again
     # create ower playground
     login_king
