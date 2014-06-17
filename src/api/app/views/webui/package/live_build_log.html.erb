@@ -22,10 +22,10 @@
      data-url="<%= url_for(action: :update_build_log,
 		   package: @package, project: @project,
 		   arch: @arch, repository: @repo) %>">
-  <pre id="log_space"><%= raw @initiallog %></pre>
+  <pre id="log_space"></pre>
 </div>
 
-<% if not @initiallog.empty? %>
+<% if not @workerid %>
   <%= render :partial => "live_log_controls" %>
 <% end %>
 

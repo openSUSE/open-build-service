@@ -766,20 +766,21 @@ class Webui::PackageController < Webui::WebuiController
     end
     @arch = params[:arch]
     @repo = params[:repository]
+    @offset = 0
 
     set_job_status
+  end
 
+  def set_initial_offset
+    # Do not start at the beginning long time ago
     begin
       size = get_size_of_log(@project, @package, @repo, @arch)
       logger.debug('log size is %d' % size)
       @offset = size - 32 * 1024
       @offset = 0 if @offset < 0
-      @initiallog = get_log_chunk( @project, @package, @repo, @arch, @offset, size)
     rescue => e
       logger.error "Got #{e.class}: #{e.message}; returning empty log."
-      @initiallog = ''
     end
-    @offset = (@offset || 0) + ActiveXML::backend.last_body_length
   end
 
   def update_build_log
@@ -793,6 +794,8 @@ class Webui::PackageController < Webui::WebuiController
     @offset = params[:offset].to_i
     @finished = false
     @maxsize = 1024 * 64
+
+    set_initial_offset if @offset == 0
 
     begin
       @log_chunk = get_log_chunk( @project, @package, @repo, @arch, @offset, @offset + @maxsize)
