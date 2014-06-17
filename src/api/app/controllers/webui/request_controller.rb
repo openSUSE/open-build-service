@@ -38,7 +38,9 @@ class Webui::RequestController < Webui::WebuiController
       req = BsRequest.find_by_id(params[:id])
       req.addreview(opts)
     rescue BsRequestPermissionCheck::AddReviewNotPermitted
-      flash[:error] = "Unable add review to '#{params[:id]}'"
+      flash[:error] = "Not permitted to add a review to '#{params[:id]}'"
+    rescue APIException => e
+      flash[:error] = "Unable add review to '#{params[:id]}': #{e.message}"
     end
     redirect_to :controller => :request, :action => 'show', :id => params[:id]
   end
@@ -206,8 +208,7 @@ class Webui::RequestController < Webui::WebuiController
           req.save!
         end
       end
-    rescue BsRequestAction::UnknownProject,
-           BsRequestAction::UnknownTargetPackage => e
+    rescue APIException => e
       flash[:error] = "Unable to forward submit: #{e.message}"
       redirect_to(:action => 'show', :project => params[:project], :package => params[:package]) and return
     end
@@ -265,8 +266,7 @@ class Webui::RequestController < Webui::WebuiController
         req.save!
       end
       flash[:success] = "Created <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.id)}'>repository delete request #{req.id}</a>"
-    rescue BsRequestAction::UnknownTargetProject,
-           BsRequestAction::UnknownTargetPackage => e
+    rescue APIException => e
       flash[:error] = e.message
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
       redirect_to :controller => :project, :action => :show, :project => params[:project] and return
@@ -300,8 +300,7 @@ class Webui::RequestController < Webui::WebuiController
 
         req.save!
       end
-    rescue BsRequestAction::UnknownTargetProject,
-           BsRequestAction::UnknownTargetPackage => e
+    rescue APIException => e
       flash[:error] = e.message
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
       redirect_to :controller => :project, :action => :show, :project => params[:project] and return
@@ -332,8 +331,7 @@ class Webui::RequestController < Webui::WebuiController
 
         req.save!
       end
-    rescue BsRequestAction::UnknownTargetProject,
-           BsRequestAction::UnknownTargetPackage => e
+    rescue APIException => e
       flash[:error] = e.message
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
       redirect_to :controller => :project, :action => :show, :project => params[:project] and return
@@ -377,6 +375,9 @@ class Webui::RequestController < Webui::WebuiController
            BsRequestAction::UnknownTargetPackage => e
       flash[:error] = "No such package: #{e.message}"
       redirect_to :controller => 'package', :action => 'show', :project => params[:project], :package => params[:package] and return
+    rescue APIException => e
+      flash[:error] = "Unable to create request: #{e.message}"
+      redirect_to :controller => 'package', :action => 'show', :project => params[:project], :package => params[:package] and return
     end
     redirect_to :controller => 'request', :action => 'show', id: req.id
   end
@@ -398,6 +399,8 @@ class Webui::RequestController < Webui::WebuiController
         flash[:notice] = "Set target of request #{req.id} to incident #{params[:incident_project]}"
       rescue Project::UnknownObjectError => e
         flash[:error] = "Incident #{e.message} does not exist"
+      rescue APIExcetion => e
+        flash[:error] = "Not able to set incident: #{e.message}"
       end
     end
 
