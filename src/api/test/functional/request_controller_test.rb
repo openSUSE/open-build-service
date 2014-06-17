@@ -1893,7 +1893,39 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_equal 'BaseDistro2.0:LinkedUpdateProject', ret['project']
     assert_nil ret['package'] # same package name
 
-    # create request back of unchanged sources
+    # create request back of unchanged sources, but creating a new package instance
+    req = "<request>
+            <action type='submit'>
+              <source project='home:tom:branches:BaseDistro2.0:LinkedUpdateProject' package='pack2' />
+              <target project='DummY' package='pack2' />
+              <options>
+                <sourceupdate>noupdate</sourceupdate>
+              </options>
+            </action>
+            <description>SUBMIT</description>
+            <state who='tom' name='new'/>
+          </request>"
+    post '/request?cmd=create', req
+    assert_response :success
+    req = "<request>
+            <action type='submit'>
+              <source project='RemoteInstance:home:tom:branches:BaseDistro2.0:LinkedUpdateProject' package='pack2' />
+              <target project='DummY' package='pack2' />
+              <options>
+                <sourceupdate>noupdate</sourceupdate>
+              </options>
+            </action>
+            <description>SUBMIT</description>
+            <state who='tom' name='new'/>
+          </request>"
+    post '/request?cmd=create', req
+    assert_response :success
+
+    # now link package inside, so sources are unchanged
+    login_king
+    post '/source/BaseDistro2.0/pack2', :cmd => :branch, :target_project => "DummY"
+    assert_response :success
+    login_tom
     req = "<request>
             <action type='submit'>
               <source project='home:tom:branches:BaseDistro2.0:LinkedUpdateProject' package='pack2' />
