@@ -97,7 +97,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Channel::verify_xml!' => 76.81,
       'ChannelBinary#create_channel_package' => 50.78, 
       'ConfigurationsController#update' => 85.63,
-      'Distribution::all_including_remotes' => 58.7,
+      'Distribution::all_including_remotes' => 63.81,
       'HasAttributes#render_main_attributes' => 81.58,
       'IssueTrackersController#create' => 53.05,
       'IssueTrackersController#update' => 100.78,
