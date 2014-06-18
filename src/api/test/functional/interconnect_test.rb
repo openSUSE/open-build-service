@@ -67,6 +67,34 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/public/source/RemoteInstance:BaseDistro/pack1/my_file'
     assert_response :success
+    get '/public/build/RemoteInstance:home:Iggy/10.2/i586/pack1?view=cpio'
+    assert_response :success
+    get '/public/build/RemoteInstance:home:Iggy/10.2/i586/pack1?view=binaryversions'
+    assert_response :success
+
+    # and is it also working with an OBS proxy in the middle?
+    get '/public/source/RemoteInstance:RemoteInstance:BaseDistro'
+    assert_response :success
+    get '/public/source/RemoteInstance:RemoteInstance:BaseDistro/_meta'
+    assert_response :success
+    get '/public/source/RemoteInstance:RemoteInstance:BaseDistro/_config'
+    assert_response :success
+    get '/public/source/RemoteInstance:RemoteInstance:BaseDistro/_pubkey'
+    assert_response :success
+    get '/public/source/RemoteInstance:RemoteInstance:BaseDistro/pack1'
+    assert_response :success
+    get '/public/source/RemoteInstance:RemoteInstance:BaseDistro/pack1?expand'
+    assert_response :success
+    get '/public/source/RemoteInstance:RemoteInstance:BaseDistro/pack1?expand=1'
+    assert_response :success
+    get '/public/source/RemoteInstance:RemoteInstance:BaseDistro/pack1/_meta'
+    assert_response :success
+    get '/public/source/RemoteInstance:RemoteInstance:BaseDistro/pack1/my_file'
+    assert_response :success
+    get '/public/build/RemoteInstance:RemoteInstance:home:Iggy/10.2/i586/pack1?view=cpio'
+    assert_response :success
+    get '/public/build/RemoteInstance:RemoteInstance:home:Iggy/10.2/i586/pack1?view=binaryversions'
+    assert_response :success
 
     # public binary access
     get '/public/build/home:Iggy/10.2/i586/_repository?view=cache'

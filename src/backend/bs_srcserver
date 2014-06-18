@@ -6131,6 +6131,10 @@ sub getbinarylist {
       'receiver' => \&BSServer::reply_receiver,
     };
     if ($proj->{'remoteurl'}) {
+      if ($view && $view eq 'cpio') {
+         # hand over to worker_getbinaries to get the answer cached
+         return worker_getbinaries($cgi, $projid, $repoid, $arch, $packid);
+      }
       $param->{'uri'} = "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch/$packid";
       $param->{'proxy'} = $proxy;
     }
