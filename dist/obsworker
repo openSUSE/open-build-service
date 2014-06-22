@@ -276,9 +276,10 @@ case "$1" in
         I=0
         while ! curl -s "$WORKER_CODE"/getworkercode | cpio --quiet --extract ; do
           # we need to wait for rep server maybe
+          echo >&2 "WARNING: Could not reach rep server $WORKER_CODE. Trying again."
           I=$(( $I + 1 ))
           if test "10" -lt "$I"; then
-             echo "ERROR: Unable to reach rep server $WORKER_CODE!"
+             echo >&2 "ERROR: Unable to reach rep server $WORKER_CODE!"
              exit 1
           fi
           sleep 10
