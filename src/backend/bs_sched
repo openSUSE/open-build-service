@@ -3826,6 +3826,9 @@ sub fetchremoteproj {
     for my $pathel (@{$repo->{'path'} || []}) {
       $pathel->{'project'} = maptoremote($proj, $pathel->{'project'});
     }    
+    for my $pathel (@{$repo->{'releasetarget'} || []}) {
+      $pathel->{'project'} = maptoremote($proj, $pathel->{'project'});
+    }
   }
   for my $link (@{$rproj->{'link'} || []}) {
     $link->{'project'} = maptoremote($proj, $link->{'project'});
