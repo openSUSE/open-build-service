@@ -1983,6 +1983,37 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', req
     assert_response :success
 
+    # now with modified sources
+    login_tom
+    raw_put '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/new_file', "just to have changed source"
+    assert_response :success
+    req = "<request>
+            <action type='submit'>
+              <source project='home:tom:branches:BaseDistro2.0:LinkedUpdateProject' package='pack2' />
+              <target project='DummY' package='pack2' />
+              <options>
+                <sourceupdate>noupdate</sourceupdate>
+              </options>
+            </action>
+            <description>SUBMIT</description>
+            <state who='tom' name='new'/>
+          </request>"
+    post '/request?cmd=create', req
+    assert_response :success
+    req = "<request>
+            <action type='submit'>
+              <source project='RemoteInstance:home:tom:branches:BaseDistro2.0:LinkedUpdateProject' package='pack2' />
+              <target project='DummY' package='pack2' />
+              <options>
+                <sourceupdate>noupdate</sourceupdate>
+              </options>
+            </action>
+            <description>SUBMIT</description>
+            <state who='tom' name='new'/>
+          </request>"
+    post '/request?cmd=create', req
+    assert_response :success
+
     #cleanup
     login_king
     delete '/source/DummY'

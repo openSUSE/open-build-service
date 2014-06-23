@@ -591,7 +591,7 @@ class BsRequestAction < ActiveRecord::Base
       # no action, nothing to do
       next unless newAction
       # check if the source contains really a diff or we can skip the entire action
-      if newAction.action_type == :submit and newAction.sourcediff.blank?
+      if newAction.action_type == :submit and newAction.sourcediff().blank?
         # submit contains no diff, drop it again
         newAction.destroy
       else
@@ -791,10 +791,7 @@ class BsRequestAction < ActiveRecord::Base
     if [:submit, :maintenance_incident].include?(self.action_type)
       if self.target_package and
          Package.exists_by_project_and_name(self.target_project, self.target_package, { :follow_project_links => false })
-        raise MissingAction.new if self.sourcediff({
-                                        :target_project => self.target_project,
-                                        :target_package => self.target_package,
-                                   }).blank?
+        raise MissingAction.new if self.sourcediff().blank?
         return nil
       end
     end

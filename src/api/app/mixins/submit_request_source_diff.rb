@@ -11,7 +11,7 @@ module SubmitRequestSourceDiff
 
       action_diff = ''
       gather_source_packages.each do |spkg|
-        action_diff += diff_for_source(spkg, opts[:target_project], opts[:target_package])
+        action_diff += diff_for_source(spkg, action.target_project, action.target_package)
       end
       return action_diff
     end
@@ -22,10 +22,18 @@ module SubmitRequestSourceDiff
         return [action.source_package]
       else
         if action.source_package
-          sp = Package.find_by_project_and_name(action.source_project, action.source_package)
+          sp = Package.get_by_project_and_name(action.source_project, action.source_package)
+          if sp.class == String
+            # a remote package
+            return [action.source_package]
+          end
           if sp
             sp.check_source_access!
             return [sp.name]
+          end
+          if Project.exists_by_name(action.source_project)
+            # it is a remote project
+            return [action.source_package]
           end
         else
           prj = Project.find_by_name(action.source_project)
@@ -39,8 +47,8 @@ module SubmitRequestSourceDiff
     end
 
     def diff_for_source(spkg, target_project=nil, target_package=nil)
-      @target_project = action.target_project
-      @target_package = action.target_package
+      @target_project = target_project || action.target_project
+      @target_package = target_package || action.target_package
       # the target is by default the _link target
       # maintenance_release creates new packages instance, but are changing the source only according to the link
       provided_in_other_action = overwrite_target_by_link(spkg)
@@ -89,8 +97,6 @@ module SubmitRequestSourceDiff
       # run diff
       query[:view] = 'xml' if @view_xml # Request unified diff in full XML view
       query[:withissues] = 1 if @withissues
-      query[:oproject] = target_project if target_project
-      query[:opackage] = target_package if target_package
       BsRequestAction.get_package_diff(path, query)
     end
 
