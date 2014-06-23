@@ -248,6 +248,7 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     # Supersede logic has to be below addition as we need the new request id
+    supersede_notice = ""
     if params[:supersede]
       pending_requests = BsRequestCollection.list_ids(project: params[:targetproject], package: params[:package], states: %w(new review declined), types: %w(submit))
       pending_requests.each do |request_id|
@@ -259,14 +260,13 @@ class Webui::PackageController < Webui::WebuiController
                    reason: "Superseded by request #{req.id}",
                    superseded_by: req.id }
           r.change_state(opts)
-        rescue BsRequestAction::UnknownProject, BsRequestAction::UnknownTargetPackage => e
-          flash[:error] = e.message
-          redirect_to(:action => 'requests', :project => params[:project], :package => params[:package]) and return
+        rescue APIException
+          supersede_notice += "Unable to supersede request #{req.id}: #{e.message}<br/>"
         end
       end
     end
 
-    flash[:notice] = "Created <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.id)}'>submit request #{req.id}</a> to <a href='#{url_for(:controller => 'project', :action => 'show', :project => params[:targetproject])}'>#{params[:targetproject]}</a>"
+    flash[:notice] = "Created <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.id)}'>submit request #{req.id}</a> to <a href='#{url_for(:controller => 'project', :action => 'show', :project => params[:targetproject])}'>#{params[:targetproject]}</a><br>" + supersede_notice
     redirect_to(:action => 'show', :project => params[:project], :package => params[:package])
   end
 
