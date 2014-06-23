@@ -954,6 +954,9 @@ sub writeProductSPECfile( $$$$ )
          $productprovides.="%endif\n" if $repo->{arch};
       };
     }
+    foreach my $predecessor ( @{$product->{'predecessor'}} ){
+      $productprovides.="Obsoletes:       product() = $predecessor\n";
+    }
 
     if (defined($product->{'endoflife'}) && $product->{'endoflife'} ne '') {
       $productprovides.="Provides:       product-endoflife() = ".escapeProvides($product->{'endoflife'})."\n";

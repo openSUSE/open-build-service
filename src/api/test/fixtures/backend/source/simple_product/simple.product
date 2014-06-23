@@ -4,6 +4,8 @@
     <product>
       <vendor>OBS_Fuzzies</vendor>
       <name>simple</name>
+      <predecessor>too_complex</predecessor>
+      <predecessor>silly_fork</predecessor>
       <version>13.1</version>
       <release>0</release>
       <register>

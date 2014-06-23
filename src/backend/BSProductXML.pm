@@ -92,6 +92,7 @@ our $product = [
            'baseversion',
            'patchlevel',
            'migrationtarget',
+           [ 'predecessor' ],   # former name of product(s) replaced by this.
            'release',
            'endoflife',     # in ISO 8601 format (YYYY-MM-DD)
            'arch',
