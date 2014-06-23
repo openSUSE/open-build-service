@@ -6122,6 +6122,16 @@ sub getbinarylist {
     # do not check arch in interconnect mode
     my $proj = checkprojrepoarch($projid, $repoid, undef, 1);
     if (!$BSStdServer::isajax) {
+      if ($proj->{'remoteurl'} && $view eq 'cpio' && $packid eq '_repository' && !$nosource && @{$cgi->{'binary'} || []}) {
+	# hand over to worker_getbinaries to get the answer cached
+	@args = ();
+	push @args, "project=$projid";
+	push @args, "repository=$repoid";
+	push @args, "arch=$arch";
+	push @args, "binaries=".join(',', @{$cgi->{'binary'} || []});
+	BSHandoff::handoff($ajaxsocket, '/getbinaries', undef, @args);
+	exit(0);
+      }
       BSHandoff::handoff($ajaxsocket, "/build/$projid/$repoid/$arch/$packid", undef, @args);
       exit(0);
     }
@@ -6131,10 +6141,6 @@ sub getbinarylist {
       'receiver' => \&BSServer::reply_receiver,
     };
     if ($proj->{'remoteurl'}) {
-      if ($view && $view eq 'cpio') {
-         # hand over to worker_getbinaries to get the answer cached
-         return worker_getbinaries($cgi, $projid, $repoid, $arch, $packid);
-      }
       $param->{'uri'} = "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch/$packid";
       $param->{'proxy'} = $proxy;
     }
