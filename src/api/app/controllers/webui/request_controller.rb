@@ -69,8 +69,14 @@ class Webui::RequestController < Webui::WebuiController
     elsif state.nil?
       flash[:error] = "Unknown state to set"
     else
-      req.permission_check_change_review!(opts)
-      req.change_review_state(state, opts)
+      begin
+        req.permission_check_change_review!(opts)
+        req.change_review_state(state, opts)
+      rescue BsRequestPermissionCheck::ReviewChangeStateNoPermission
+        flash[:error] = "Not permitted to change review state: #{e.message}"
+      rescue APIException => e
+        flash[:error] = "Unable changing review state: #{e.message}"
+      end
     end
 
     redirect_to :action => 'show', :id => req.id
