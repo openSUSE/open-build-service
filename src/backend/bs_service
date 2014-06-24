@@ -31,10 +31,11 @@ BEGIN {
 }
 
 use Digest::MD5 ();
+use File::Copy qw(move);
 use XML::Structured ':bytes';
 use Data::Dumper;
 use POSIX;
-use Fcntl qw(:DEFAULT :flock);
+use Fcntl qw(:DEFAULT);
 
 use BSRPC;
 use BSServer;
@@ -128,7 +129,7 @@ sub run_source_update {
   mkdir_p($myworkdir."/.old");
   for my $file (grep {/^_service[:_]/} ls(".")) {
     print "moving old file ".$file." to .old\n";
-    rename($file,".old/".$file);
+    move($file,".old/".$file);
   }
 
   # set environment
@@ -184,7 +185,7 @@ sub run_source_update {
           my $mode = (stat("$myworkdir/.tmp/$file"))[2];
           if (!S_ISDIR($mode)) {
             my $tfile = "_service:".$service->{'name'}.":".$file;
-            rename("$myworkdir/.tmp/".$file, $tfile);
+            move("$myworkdir/.tmp/".$file, $tfile);
           }
         }
       } else { 

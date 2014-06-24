@@ -9,7 +9,7 @@ BEGIN {
 
 use Date::Parse;
 use Data::Dumper;
-
+use File::Copy qw(move);
 use XML::Structured ':bytes';
 
 use BSConfig;
@@ -50,7 +50,7 @@ for my $id (@r) {
   next if $t + $cut > $now;
   print "state $state, ".localtime($t)."\n";
   $db->updateindex($id, $req, {});
-  rename("$requestsdir/$id", "$oldrequestsdir/$id") || die("rename $requestsdir/$id $oldrequestsdir/$id: $!\n");
+  move("$requestsdir/$id", "$oldrequestsdir/$id") || die("move $requestsdir/$id $oldrequestsdir/$id: $!\n");
 }
 
 

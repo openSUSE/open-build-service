@@ -31,10 +31,11 @@ BEGIN {
 use Digest;
 use Digest::MD5 ();
 use Digest::SHA ();
+use File::Copy qw(copy move);
 use XML::Structured ':bytes';
 use XML::Simple ();
 use POSIX;
-use Fcntl qw(:DEFAULT :flock);
+use Fcntl qw(:DEFAULT);
 use Data::Dumper;
 use Storable ();
 use MIME::Base64;
@@ -233,7 +234,7 @@ sub db_sync {
     warn($@);
     mkdir_p($1) if $extrepodb =~ /^(.*)\//;
     Storable::nstore(\@db_sync, "$extrepodb.sync.new");
-    rename("$extrepodb.sync.new", "$extrepodb.sync") || die("rename $extrepodb.sync.new $extrepodb.sync: $!\n");
+    move("$extrepodb.sync.new", "$extrepodb.sync") || die("move $extrepodb.sync.new $extrepodb.sync: $!\n");
   } else {
     @db_sync = ();
     unlink("$extrepodb.sync");
@@ -536,7 +537,7 @@ sub createrepo_rpmmd {
     }
     print FILE "enabled=1\n";
     close(FILE) || die("close: $!\n");
-    rename("$extrep/$projid.repo$$", "$extrep/$projid.repo") || die("rename $extrep/$projid.repo$$ $extrep/$projid.repo: $!\n");
+    move("$extrep/$projid.repo$$", "$extrep/$projid.repo") || die("move $extrep/$projid.repo$$ $extrep/$projid.repo: $!\n");
   }
 }
 
@@ -647,10 +648,10 @@ sub createrepo_debian {
       die("    dpkg-scanpackages failed: $?\n");
   }
   if (-f "$extrep/Packages.new") {
-    link("$extrep/Packages.new", "$extrep/Packages");
+    link("$extrep/Packages.new", "$extrep/Packages") || copy("$extrep/Packages.new", "$extrep/Packages");
     qsystem('gzip', '-9', '-f', "$extrep/Packages") && print "    gzip Packages failed: $?\n";
     unlink("$extrep/Packages");
-    rename("$extrep/Packages.new", "$extrep/Packages");
+    move("$extrep/Packages.new", "$extrep/Packages");
   }
 
   print "    running dpkg-scansources\n";
@@ -658,10 +659,10 @@ sub createrepo_debian {
       die("    dpkg-scansources failed: $?\n");
   }
   if (-f "$extrep/Sources.new") {
-    link("$extrep/Sources.new", "$extrep/Sources");
+    link("$extrep/Sources.new", "$extrep/Sources") || copy("$extrep/Sources.new", "$extrep/Sources");
     qsystem('gzip', '-9', '-f', "$extrep/Sources") && print "    gzip Sources failed: $?\n";
     unlink("$extrep/Sources");
-    rename("$extrep/Sources.new", "$extrep/Sources");
+    move("$extrep/Sources.new", "$extrep/Sources");
   }
 
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
@@ -723,7 +724,7 @@ EOL
     push @signargs, '--project', $projid if $BSConfig::sign_project;
     push @signargs, @{$data->{'signargs'} || []};
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/Release") && die("    sign failed: $?\n");
-    rename("$extrep/Release.asc","$extrep/Release.gpg");
+    move("$extrep/Release.asc","$extrep/Release.gpg");
   }
   if ($BSConfig::sign) {
     writestr("$extrep/Release.key", undef, $data->{'pubkey'}) if $data->{'pubkey'};
@@ -757,10 +758,10 @@ sub createrepo_arch {
     print "    running bs_mkarchrepo $arch\n";
     qsystem("$INC[0]/bs_mkarchrepo", $rname, "$extrep/$arch") && die("    repo creation failed: $?\n");
     if (-e "$extrep/$arch/$rname.db.tar.gz") {
-      link("$extrep/$arch/$rname.db.tar.gz", "$extrep/$arch/$rname.db");
+      link("$extrep/$arch/$rname.db.tar.gz", "$extrep/$arch/$rname.db") || copy("$extrep/$arch/$rname.db.tar.gz", "$extrep/$arch/$rname.db");
     }
     if (-e "$extrep/$arch/$rname.files.tar.gz") {
-      link("$extrep/$arch/$rname.files.tar.gz", "$extrep/$arch/$rname.files");
+      link("$extrep/$arch/$rname.files.tar.gz", "$extrep/$arch/$rname.files") || copy("$extrep/$arch/$rname.files.tar.gz", "$extrep/$arch/$rname.files");
     }
     if ($BSConfig::sign) {
       my @signargs;
@@ -768,11 +769,11 @@ sub createrepo_arch {
       push @signargs, @{$data->{'signargs'} || []};
       if (-e "$extrep/$arch/$rname.db.tar.gz") {
         qsystem($BSConfig::sign, @signargs, '-D', "$extrep/$arch/$rname.db.tar.gz") && die("    sign failed: $?\n");
-        link("$extrep/$arch/$rname.db.tar.gz.sig", "$extrep/$arch/$rname.db.sig");
+        link("$extrep/$arch/$rname.db.tar.gz.sig", "$extrep/$arch/$rname.db.sig") || copy("$extrep/$arch/$rname.db.tar.gz.sig", "$extrep/$arch/$rname.db.sig");
       }
       if (-e "$extrep/$arch/$rname.files.tar.gz") {
         qsystem($BSConfig::sign, @signargs, '-D', "$extrep/$arch/$rname.files.tar.gz") && die("    sign failed: $?\n");
-        link("$extrep/$arch/$rname.files.tar.gz.sig", "$extrep/$arch/$rname.files.sig");
+        link("$extrep/$arch/$rname.files.tar.gz.sig", "$extrep/$arch/$rname.files.sig") || copy("$extrep/$arch/$rname.files.tar.gz.sig", "$extrep/$arch/$rname.files.sig");
       }
     }
   }
@@ -815,7 +816,7 @@ sub createrepo_staticlinks {
       next unless $link;
       unlink("$extrep/$arch/.$link"); # drop left over
       symlink($_, "$extrep/$arch/.$link");
-      rename("$extrep/$arch/.$link", "$extrep/$arch/$link"); # atomar update
+      move("$extrep/$arch/.$link", "$extrep/$arch/$link"); # atomar update
     }
   }
 }
@@ -1262,9 +1263,9 @@ sub publish {
   # get us the lock
   local *F;
   open(F, '>', "$reporoot/$prp/.finishedlock") || die("$reporoot/$prp/.finishedlock: $!\n");
-  if (!flock(F, LOCK_EX | LOCK_NB)) {
+  if (!fcntl(F, F_SETFL, O_EXCL | O_NONBLOCK)) {
     print "    waiting for lock...\n";
-    flock(F, LOCK_EX) || die("flock: $!\n");
+    fcntl(F, F_SETFL, O_EXCL | O_NONBLOCK) || die("fcntl: $!\n");
     print "    got the lock...\n";
   }
 
@@ -1520,7 +1521,7 @@ sub publish {
       }
       if ("$s[9]/$s[7]/$s[1]" ne $bins_id{$p}) {
         unlink("$r/$bin") || die("unlink $r/$bin: $!\n");
-        link($bins{$p}, "$r/$bin") || die("link $bins{$p} $r/$bin: $!\n");
+        link($bins{$p}, "$r/$bin") || copy($bins{$p}, "$r/$bin") || die("link $bins{$p} $r/$bin: $!\n");
 	push @db_changed, $p if $p =~ /\.(?:$binsufsre)$/;
 	push @changed, $p;
         $changed = 1;
@@ -1568,7 +1569,7 @@ sub publish {
 	if (! -l $bins{$p} && -d _) {
 	  BSUtil::linktree($bins{$p}, "$r/$bin");
 	} else {
-          link($bins{$p}, "$r/$bin") || die("link $bins{$p} $r/$bin: $!\n");
+          link($bins{$p}, "$r/$bin") || copy($bins{$p}, "$r/$bin") || die("link $bins{$p} $r/$bin: $!\n");
 	}
 	push @db_changed, $p if $p =~ /\.(?:$binsufsre)$/;
 	push @changed, $p;
@@ -1592,7 +1593,7 @@ sub publish {
     if (! -l $bins{$p} && -d _) {
       BSUtil::linktree($bins{$p}, "$r/$bin");
     } else {
-      link($bins{$p}, "$r/$bin") || die("link $bins{$p} $r/$bin: $!\n");
+      link($bins{$p}, "$r/$bin") || copy($bins{$p}, "$r/$bin") || die("link $bins{$p} $r/$bin: $!\n");
     }
     push @db_changed, $p if $p =~ /\.(?:$binsufsre)$/;
     push @changed, $p;
@@ -1758,7 +1759,7 @@ sub publish {
   if ($BSConfig::publishprogram && $BSConfig::publishprogram->{$prp}) {
     local *PPLOCK;
     open(PPLOCK, '>', "$reporoot/$prp/.pplock") || die("$reporoot/$prp/.pplock: $!\n");
-    flock(PPLOCK, LOCK_EX) || die("flock: $!\n");
+    fcntl(PPLOCK, F_SETFL, O_EXCL | O_NONBLOCK) || die("fcntl: $!\n");
     if (xfork()) {
       close PPLOCK;
       return;
@@ -1887,7 +1888,7 @@ print "starting build service publisher\n";
 
 mkdir_p($rundir);
 open(RUNLOCK, '>>', "$rundir/bs_publish.lock") || die("$rundir/bs_publish.lock: $!\n");
-flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("publisher is already running!\n");
+fcntl(RUNLOCK, F_SETFL, O_EXCL | O_NONBLOCK) || die("publisher is already running!\n");
 utime undef, undef, "$rundir/bs_publish.lock";
 
 mkdir_p($myeventdir);
@@ -1935,7 +1936,7 @@ while(1) {
       # check if background publish is still running
       local *PPLOCK;
       if (open(PPLOCK, '<', "$reporoot/$prp/.pplock")) {
-        if (flock(PPLOCK, LOCK_EX | LOCK_NB)) {
+        if (fcntl(PPLOCK, F_SETFL, O_EXCL | O_NONBLOCK)) {
 	  close PPLOCK;
 	  print "$prp: external publish program still running\n";
 	  $publish_retry{$event} = time() + 60;
@@ -1951,7 +1952,7 @@ while(1) {
 	$publish_retry{$event} = $starttime + 60 * 5;
 	next;
       }
-    rename("$myeventdir/$event", "$myeventdir/${event}::inprogress");
+    move("$myeventdir/$event", "$myeventdir/${event}::inprogress");
     notify('REPO_PUBLISH_STATE', { 'project' => $ev->{'project'}, 'repo' => $ev->{'repository'}, 'state' => 'publishing'} );
     eval {
       publish($ev->{'project'}, $ev->{'repository'});
@@ -1968,7 +1969,7 @@ while(1) {
 	  }
 	};
       }
-      rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
+      move("$myeventdir/${event}::inprogress", "$myeventdir/$event");
       $publish_retry{$event} = time() + 60;
       db_sync();
     } else {

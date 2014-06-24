@@ -28,7 +28,8 @@ require Exporter;
 
 use XML::Structured;
 use POSIX;
-use Fcntl qw(:DEFAULT :flock);
+use Fcntl qw(:DEFAULT);
+use File::Copy qw(copy move);
 use Encode;
 use Storable ();
 use IO::Handle;
@@ -64,7 +65,7 @@ sub writexml {
   close(F) || die("$fn close: $!\n");
   return unless defined $fnf;
   $! = 0;
-  rename($fn, $fnf) || die("rename $fn $fnf: $!\n");
+  move($fn, $fnf) || die("move $fn $fnf: $!\n");
 }
 
 sub writestr {
@@ -77,7 +78,7 @@ sub writestr {
   do_fdatasync(fileno(F)) if defined($fnf) && $fdatasync_before_rename;
   close(F) || die("$fn close: $!\n");
   return unless defined $fnf;
-  rename($fn, $fnf) || die("rename $fn $fnf: $!\n");
+  move($fn, $fnf) || die("move $fn $fnf: $!\n");
 }
 
 sub appendstr {
@@ -248,7 +249,7 @@ sub linktree {
       mkdir_p("$to/$f");
       unshift @todo, map {"$f/$_"} ls("$from/$f");
     } else {
-      link("$from/$f", "$to/$f") || die("link $from/$f $to/$f: $!\n");
+      link("$from/$f", "$to/$f") || copy("$from/$f", "$to/$f") || die("link $from/$f $to/$f: $!\n");
     }
   }
 }
@@ -295,7 +296,7 @@ sub cp {
   close(F);
   close(T) || die("$to: $!\n");
   if (defined($tof)) {
-    rename($to, $tof) || die("rename $to $tof: $!\n");
+    move($to, $tof) || die("move $to $tof: $!\n");
   }
 }
 
@@ -408,7 +409,7 @@ sub lockopen {
       return undef if $nonfatal;
       die("$fn: $!\n");
     }
-    flock(F, LOCK_EX) || die("flock $fn: $!\n");
+    fcntl(F, F_SETFL, O_EXCL | O_NONBLOCK) || die("fcntl $fn: $!\n");
     my @s = stat(F);
     return 1 if @s && $s[3];
     close F;
@@ -422,7 +423,7 @@ sub lockcheck {
     if (!open(F, $op, $fn)) {
       return -1;
     }
-    if (!flock(F, LOCK_EX | LOCK_NB)) {
+    if (!fcntl(F, F_SETFL, O_EXCL | O_NONBLOCK)) {
       close(F);
       return 0;
     }
@@ -452,8 +453,8 @@ sub lockcreatexml {
   local *F = $fg; 
   writexml($fn, undef, $dd, $dtd);
   open(F, '<', $fn) || die("$fn: $!\n");
-  flock(F, LOCK_EX | LOCK_NB) || die("lock: $!\n");
-  if (!link($fn, $fnf)) {
+  fcntl(F, F_SETFL, O_EXCL | O_NONBLOCK) || die("fcntl lock: $!\n");
+  if (!(link($fn, $fnf) || copy($fn, $fnf))) {
     unlink($fn);
     close F;
     return undef;
@@ -533,7 +534,7 @@ sub store {
   }
   return unless defined $fnf;
   $! = 0;
-  rename($fn, $fnf) || die("rename $fn $fnf: $!\n");
+  move($fn, $fnf) || die("move $fn $fnf: $!\n");
 }
 
 sub retrieve {

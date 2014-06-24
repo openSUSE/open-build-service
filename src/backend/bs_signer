@@ -31,7 +31,8 @@ BEGIN {
 use POSIX;
 use Data::Dumper;
 use Digest::MD5 ();
-use Fcntl qw(:DEFAULT :flock);
+use Fcntl qw(:DEFAULT);
+use File::Copy qw(move);
 use XML::Structured ':bytes';
 use Build;
 use Storable;
@@ -520,7 +521,7 @@ sub ping {
 sub signevent {
   my ($event, $ev) = @_;
 
-  rename("$myeventdir/$event", "$myeventdir/${event}::inprogress");
+  move("$myeventdir/$event", "$myeventdir/${event}::inprogress");
   my $job = $ev->{'job'};
   my $arch = $ev->{'arch'};
   my $res;
@@ -529,7 +530,7 @@ sub signevent {
   };
   if ($@) {
     warn("sign failed: $@");
-    rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
+    move("$myeventdir/${event}::inprogress", "$myeventdir/$event");
     return;
   } elsif ($res) {
     my $name = $ev->{'type'} eq 'built' ? 'finished' : $ev->{'type'};
@@ -560,7 +561,7 @@ print "starting build service signer\n";
 # get lock
 mkdir_p($rundir);
 open(RUNLOCK, '>>', "$rundir/bs_signer.lock") || die("$rundir/bs_signer.lock: $!\n");
-flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("signer is already running!\n");
+fcntl(RUNLOCK, F_SETFL, O_EXCL | O_NONBLOCK) || die("signer is already running!\n");
 utime undef, undef, "$rundir/bs_signer.lock";
 
 die("sign program is not configured!\n") unless $BSConfig::sign;
@@ -573,7 +574,7 @@ if (!-p "$myeventdir/.ping") {
 sysopen(PING, "$myeventdir/.ping", POSIX::O_RDWR) || die("$myeventdir/.ping: $!");
 
 for my $event (grep {s/::inprogress$//s} ls($myeventdir)) {
-  rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
+  move("$myeventdir/${event}::inprogress", "$myeventdir/$event");
 }
 
 check_sign_S();

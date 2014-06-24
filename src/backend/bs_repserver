@@ -36,8 +36,9 @@ BEGIN {
 }
 
 use POSIX;
-use Fcntl qw(:DEFAULT :flock);
+use Fcntl qw(:DEFAULT);
 BEGIN { Fcntl->import(':seek') unless defined &SEEK_SET; }
+use File::Copy qw(copy move);
 use XML::Structured ':bytes';
 use Storable ();
 use Data::Dumper;
@@ -224,7 +225,7 @@ sub fetchdodbinary {
   $param->{'maxredirects'} = $maxredirects if defined $maxredirects;
   my $r = BSWatcher::rpc($param);
   return unless defined $r;
-  rename($tmp, $localname) || die("rename $tmp $localname: $!\n");
+  move($tmp, $localname) || die("move $tmp $localname: $!\n");
   return $localname;
 }
 
@@ -631,7 +632,7 @@ sub getbinarylist_repository {
 	  Storable::nstore_fd(\%data, $fd) || die("nstore_fd $tmpname: $!\n");
 	  $fd->flush();
 	  BSUtil::do_fdatasync(fileno($fd)) if $BSUtil::fdatasync_before_rename;
-	  rename($tmpname, "$reporoot/$prp/$arch/:full.xcache");
+	  move($tmpname, "$reporoot/$prp/$arch/:full.xcache");
 	  sysseek($fd, 64, Fcntl::SEEK_SET);
           push @files, { 'name' => 'repositorycache', 'filename' => $fd };
 	}
@@ -1274,7 +1275,7 @@ sub putbinary {
     for my $file (@$uploaded) {
       my $fn = $file->{'name'};
       next if $cgi->{'ignoreolder'} && isolder("$tdir/$fn", "$fdir/$fn");
-      rename("$fdir/$fn", "$tdir/$fn") || die("rename $fdir/$fn $tdir/$fn: $!\n");
+      move("$fdir/$fn", "$tdir/$fn") || die("move $fdir/$fn $tdir/$fn: $!\n");
       $fn =~ s/\.(?:$binsufsre|meta)$//;
       unlink("$tdir/$fn.meta") unless $upfiles{"$fn.meta"};
     }
@@ -1294,7 +1295,7 @@ sub putbinary {
       return $BSStdServer::return_ok;
     }
     mkdir_p($tdir);
-    rename($fn, $tn) || die("rename $fn $tn: $!\n");
+    move($fn, $tn) || die("move $fn $tn: $!\n");
     if ($tn =~ s/\.(?:$binsufsre)$//) {
       unlink("$tn.meta");
     }
@@ -1632,7 +1633,7 @@ sub workerstatus {
     }
     next if %types && !$types{$daemondata->{'type'}};
     if (open(F, '<', "$rundir/$lock")) {
-      if (!flock(F, LOCK_EX | LOCK_NB)) {
+      if (!fcntl(F, F_SETFL, O_EXCL | O_NONBLOCK)) {
         my @s = stat(F);
         $daemondata->{'state'} = 'running';
         $daemondata->{'starttime'} = $s[9] if @s;
@@ -1739,7 +1740,7 @@ sub receivekiwitree {
       if ($extra) {
 	die("extra is not a md5 sum\n") unless $extra =~ /^[0-9a-f]{32}$/s;
 	$leads ||= receivekiwitree_scan($info);
-	if ($leads->{$extra} && link("$reporoot/$leads->{$extra}", "$dir/$file")) {
+	if ($leads->{$extra} && (link("$reporoot/$leads->{$extra}", "$dir/$file") || copy("$reporoot/$leads->{$extra}", "$dir/$file"))) {
 	  # make sure it's really the correct file
 	  my $leadsigmd5;
 	  eval { Build::queryhdrmd5("$dir/$file", \$leadsigmd5); };
@@ -1860,7 +1861,7 @@ sub putjob {
         BSUtil::cleandir($dir);
         rmdir($dir);
       }
-      rename($tmpdir, $dir) || die("rename $tmpdir $dir: $!\n");
+      move($tmpdir, $dir) || die("move $tmpdir $dir: $!\n");
     }
   };
   if ($@) {
@@ -2047,7 +2048,7 @@ sub copybuild {
       if (-d "$odir/$bin") {
         $delayed_linking->{"$dir/$nbin"} = "$odir/$bin";
       } else {
-        link("$odir/$bin", "$dir/$nbin") || die("link $odir/$bin $dir/$nbin: $!\n");
+        link("$odir/$bin", "$dir/$nbin") || copy("$odir/$bin", "$dir/$nbin") || die("link $odir/$bin $dir/$nbin: $!\n");
       }
     }
   }

@@ -33,6 +33,7 @@ use XML::Structured ':bytes';
 use POSIX;
 use Digest::MD5 ();
 use Data::Dumper;
+use File::Copy qw(copy move);
 use Storable ();
 use Symbol;
 
@@ -100,14 +101,14 @@ sub manage_cache {
       my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
       mkdir_p("$cachedir/".substr($cacheid, 0, 2));
       unlink("$cachefile.$$");
-      next unless link($path, "$cachefile.$$");
-      rename("$cachefile.$$", $cachefile) || die("rename $cachefile.$$ $cachefile: $!\n");
+      next unless link($path, "$cachefile.$$") || copy($path, "$cachefile.$$");
+      move("$cachefile.$$", $cachefile) || die("move $cachefile.$$ $cachefile: $!\n");
       my $mpath = "$path.meta";
       $mpath = "$1.meta" if $path =~ /^(.*)\.(?:$binsufsre)$/;
       if (-s $mpath) {
 	unlink("$cachefile.meta.$$");
-	if (link($mpath, "$cachefile.meta.$$")) {
-	  rename("$cachefile.meta.$$", "$cachefile.meta") || die("rename $cachefile.meta.$$ $cachefile.meta: $!\n");
+	if ((link($mpath, "$cachefile.meta.$$") || copy($mpath, "$cachefile.meta.$$"))) {
+	  move("$cachefile.meta.$$", "$cachefile.meta") || die("move $cachefile.meta.$$ $cachefile.meta: $!\n");
 	} else {
 	  unlink("$cachefile.meta");
 	}
@@ -136,7 +137,7 @@ sub manage_cache {
   }
   @$content = grep {defined $_} @$content;
   Storable::nstore($content, "$cachedir/content.new");
-  rename("$cachedir/content.new", "$cachedir/content") || die("rename $cachedir/content.new $cachedir/content");
+  move("$cachedir/content.new", "$cachedir/content") || die("move $cachedir/content.new $cachedir/content");
   close F;
 }
 
@@ -228,7 +229,7 @@ sub getbinaries {
     } else {
       my $fd = gensym;
       my $tmpname = "$cachetmpdir/$tmpprefix$bv->{'name'}";
-      if (link($cachefile, $tmpname)) {
+      if ((link($cachefile, $tmpname) || copy($cachefile, $tmpname))) {
 	# check hdrmd5 to be sure we got the right bin
 	my $id;
 	eval {

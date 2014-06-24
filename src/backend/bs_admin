@@ -30,6 +30,7 @@ BEGIN {
 
 use POSIX;
 use Data::Dumper;
+use File::Copy qw(move);
 use Getopt::Long;
 use Storable ();
 use Digest::MD5 ();
@@ -381,8 +382,8 @@ sub clone_repository {
   }
 
   print "exchanging with $destproject / $destrepo\n";
-  rename($destdir, "$tmpdir.old") || die("rename $destdir $tmpdir.old: $!\n");
-  rename($tmpdir, $destdir) || die("rename $tmpdir $destdir: $!\n");
+  move($destdir, "$tmpdir.old") || die("move $destdir $tmpdir.old: $!\n");
+  move($tmpdir, $destdir) || die("move $tmpdir $destdir: $!\n");
 
   print "tell schedulers about the change ";
   my @archs = grep {-d "$destdir/$_"} ls($destdir);

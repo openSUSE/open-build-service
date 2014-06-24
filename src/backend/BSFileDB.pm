@@ -24,14 +24,14 @@ package BSFileDB;
 
 use strict;
 
-use Fcntl qw(:DEFAULT :flock);
+use Fcntl qw(:DEFAULT);
 
 sub lockopen {
   my ($fg, $fn) = @_;
   local *FL = $fg;
   while (1) {
     open(FL, '+>>', $fn) || die("$fn: $!\n");
-    flock(FL, LOCK_EX) || die("$fn: $!\n");
+    fcntl(FL, F_SETFL, O_EXCL | O_NONBLOCK) || die("$fn: $!\n");
     my @s = stat(FL);
     return if @s && $s[3];
     close FL;

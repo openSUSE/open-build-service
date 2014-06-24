@@ -31,10 +31,11 @@ BEGIN {
 
 use Digest::MD5 ();
 use Data::Dumper;
+use File::Copy qw(copy move);
 use Storable ();
 use XML::Structured ':bytes';
 use POSIX;
-use Fcntl qw(:DEFAULT :flock);
+use Fcntl qw(:DEFAULT);
 
 use BSConfiguration;
 use BSRPC ':https';
@@ -242,7 +243,7 @@ sub writesolv {
   }
   return unless defined $fnf;
   $! = 0;
-  rename($fn, $fnf) || die("rename $fn $fnf: $!\n");
+  move($fn, $fnf) || die("move $fn $fnf: $!\n");
 }
 
 my $projpacks;		# global project/package data
@@ -973,8 +974,8 @@ sub createdeltajob {
   for my $delta (@$needdelta) {
     #print Dumper($delta);
     my $deltaid = $delta->[2];
-    link($delta->[0], "$jobdatadir/$deltaid.old") || return (undef, "link error: $!");
-    link($delta->[1], "$jobdatadir/$deltaid.new") || return (undef, "link error: $!");
+    link($delta->[0], "$jobdatadir/$deltaid.old") || copy($delta->[0], "$jobdatadir/$deltaid.old") || return (undef, "link error: $!");
+    link($delta->[1], "$jobdatadir/$deltaid.new") || copy($delta->[1], "$jobdatadir/$deltaid.new") || return (undef, "link error: $!");
     my $qold = Build::Rpm::query("$jobdatadir/$deltaid.old", 'evra' => 1);
     my $qnew = Build::Rpm::query("$jobdatadir/$deltaid.new", 'evra' => 1);
     return (undef, "bad rpms") unless $qold && $qnew;
@@ -1167,8 +1168,8 @@ sub makedeltas {
 	      # yes, link it over
 	      unlink("$ddir/$deltaid");
 	      unlink("$ddir/$deltaid.dseq");
-	      $ddir{$deltaid} = 1 if link("$ddir/$olddeltaid", "$ddir/$deltaid");
-	      $ddir{"$deltaid.dseq"} = 1 if link("$ddir/$olddeltaid.dseq", "$ddir/$deltaid.dseq");
+	      $ddir{$deltaid} = 1 if (link("$ddir/$olddeltaid", "$ddir/$deltaid") || copy("$ddir/$olddeltaid", "$ddir/$deltaid"));
+	      $ddir{"$deltaid.dseq"} = 1 if (link("$ddir/$olddeltaid.dseq", "$ddir/$deltaid.dseq") || copy("$ddir/$olddeltaid.dseq", "$ddir/$deltaid.dseq"));
 	    }
 	  }
 	  $deltaids{$deltaid} = 1;
@@ -1312,8 +1313,8 @@ sub publishdelta {
     print @sr ? "      ! :repo/${rbin}::$deltaname\n" : "      + :repo/${rbin}::$deltaname\n";
     unlink("$rdir/${rbin}::$deltaname");
     unlink("$rdir/${rbin}::$deltaseqname");
-    link("$reporoot/$prp/$myarch/_deltas/$delta->[0]", "$rdir/${rbin}::$deltaname") || die("link $reporoot/$prp/$myarch/_deltas/$delta->[0] $rdir/${rbin}::$deltaname: $!");
-    link("$reporoot/$prp/$myarch/_deltas/$delta->[0].dseq", "$rdir/${rbin}::$deltaseqname") || die("link $reporoot/$prp/$myarch/_deltas/$delta->[0].dseq $rdir/${rbin}::$deltaseqname: $!");
+    link("$reporoot/$prp/$myarch/_deltas/$delta->[0]", "$rdir/${rbin}::$deltaname") || copy("$reporoot/$prp/$myarch/_deltas/$delta->[0]", "$rdir/${rbin}::$deltaname") || die("link $reporoot/$prp/$myarch/_deltas/$delta->[0] $rdir/${rbin}::$deltaname: $!");
+    link("$reporoot/$prp/$myarch/_deltas/$delta->[0].dseq", "$rdir/${rbin}::$deltaseqname") || copy("$reporoot/$prp/$myarch/_deltas/$delta->[0].dseq", "$rdir/${rbin}::$deltaseqname") || die("link $reporoot/$prp/$myarch/_deltas/$delta->[0].dseq $rdir/${rbin}::$deltaseqname: $!");
     $changed = 1;
   }
   $origin->{"${rbin}::$deltaname"} = $packid;
@@ -1329,9 +1330,9 @@ sub prpfinished {
   my ($projid, $repoid) = split('/', $prp, 2);
   local *F;
   open(F, '>', "$reporoot/$prp/.finishedlock") || die("$reporoot/$prp/.finishedlock: $!\n");
-  if (!flock(F, LOCK_EX | LOCK_NB)) {
+  if (!fcntl(F, F_SETFL, O_EXCL | O_NONBLOCK)) {
     print "    waiting for lock...\n";
-    flock(F, LOCK_EX) || die("flock: $!\n");
+    fcntl(F, F_SETFL, O_EXCL | O_NONBLOCK) || die("fcntl: $!\n");
     print "    got the lock...\n";
   }
   if (!$packs) {
@@ -1462,7 +1463,7 @@ sub prpfinished {
       if (! -l "$pdir/$bin" && -d _) {
 	BSUtil::linktree("$pdir/$bin", "$rdir/$rbin");
       } else {
-        link("$pdir/$bin", "$rdir/$rbin") || die("link $pdir/$bin $rdir/$rbin: $!\n");
+        link("$pdir/$bin", "$rdir/$rbin") || copy("$pdir/$bin", "$rdir/$rbin") || die("link $pdir/$bin $rdir/$rbin: $!\n");
 	if ($deltas->{"$packid/$bin"}) {
 	  for my $delta (@{$deltas->{"$packid/$bin"}}) {
 	    publishdelta($prp, $delta, $bin, $rdir, $rbin, \%origin, $packid);
@@ -1532,15 +1533,15 @@ sub createexportjob {
   my $dir = "$jobsdir/$arch/$job:dir";
   mkdir_p($dir);
   if ($meta) {
-    link($meta, "$meta.dup");
-    rename("$meta.dup", "$dir/meta");
+    link($meta, "$meta.dup") || copy($meta, "$meta.dup");
+    move("$meta.dup", "$dir/meta");
     unlink("$meta.dup");
   }
   my %seen;
   while (@exports) {
     my ($rp, $r) = splice(@exports, 0, 2);
     next unless $r->{'source'};
-    link("$dst/$rp", "$dir/$rp") || warn("link $dst/$rp $dir/$rp: $!\n");
+    link("$dst/$rp", "$dir/$rp") || copy("$dst/$rp", "$dir/$rp") || warn("link $dst/$rp $dir/$rp: $!\n");
     $seen{$r->{'id'}} = 1;
   }
   my @replaced;
@@ -1842,12 +1843,12 @@ sub fctx_add_binary_to_full {
     $dir = "$gdst/$packid";
   }
   # link gives an error if the dest exists, so we dup
-  # and rename instead.
-  # when the dest is the same file, rename doesn't do
-  # anything, so we need the unlink after the rename
+  # and move instead.
+  # when the dest is the same file, move doesn't do
+  # anything, so we need the unlink after the move
   unlink("$dir/$fn.dup");
-  link("$dir/$fn", "$dir/$fn.dup");
-  rename("$dir/$fn.dup", "$gdst/:full/$n.$suf") || die("rename $dir/$fn.dup $gdst/:full/$n.$suf: $!\n");
+  link("$dir/$fn", "$dir/$fn.dup") || copy("$dir/$fn", "$dir/$fn.dup");
+  move("$dir/$fn.dup", "$gdst/:full/$n.$suf") || die("move $dir/$fn.dup $gdst/:full/$n.$suf: $!\n");
   unlink("$dir/$fn.dup");
   $fctx->{'oldids'}->{"$n.$suf"} = $r->{'id'};
   for my $osuf (@binsufs) {
@@ -1863,8 +1864,8 @@ sub fctx_add_binary_to_full {
       $fctx->{'lastmeta'} = $meta;
     }
     fctx_check_linkedmeta($fctx) if $BSConfig::maxmetahardlink;
-    link($meta, "$meta.dup");
-    rename("$meta.dup", "$gdst/:full/$n.meta") || die("rename $meta.dup $gdst/:full/$n.meta: $!\n");
+    link($meta, "$meta.dup") || copy($meta, "$meta.dup");
+    move("$meta.dup", "$gdst/:full/$n.meta") || die("move $meta.dup $gdst/:full/$n.meta: $!\n");
     unlink("$meta.dup");
     fctx_set_metaidmd5($fctx) if $fctx->{'metacache'} && !$fctx->{'metamd5'};
     $fctx->{'metacache'}->{$n} = [$fctx->{'metaid'}, $fctx->{'metamd5'}] if $fctx->{'metacache'};
@@ -2107,7 +2108,7 @@ sub fctx_migrate_full {
 	next unless $m && $m =~ s/^.*?  //;;
 	next if $packidschecked{$m};
 	next unless grep {$_ eq $m} @{$knownids{$id}};
-	link($meta, "$gdst/$m/.meta.success");
+	link($meta, "$gdst/$m/.meta.success") || copy($meta, "$gdst/$m/.meta.success");
 	$packidschecked{$m} = 1;
       }
       next;
@@ -2115,9 +2116,9 @@ sub fctx_migrate_full {
     mkdir_p("$gdst/_volatile");
     unlink("$gdst/_volatile/$bin");
     unlink("$gdst/_volatile/$name.meta");
-    link("$gdst/:full/$bin", "$gdst/_volatile/$bin") || die("link $gdst/:full/$bin $gdst/_volatile/$bin: $!\n");
+    link("$gdst/:full/$bin", "$gdst/_volatile/$bin") || copy("$gdst/:full/$bin", "$gdst/_volatile/$bin") || die("link $gdst/:full/$bin $gdst/_volatile/$bin: $!\n");
     if ($meta) {
-      link($meta, "$gdst/_volatile/$name.meta") || die("link $meta $gdst/_volatile/$name.meta: $!\n");
+      link($meta, "$gdst/_volatile/$name.meta") || copy($meta, "$gdst/_volatile/$name.meta") || die("link $meta $gdst/_volatile/$name.meta: $!\n");
     }
     $dirty = 1;
   }
@@ -2394,7 +2395,7 @@ sub update_dst_full {
     my $oldcache = { map {$_->{'id'} => $_} grep {$_->{'id'}} values %$oldbininfo };
     $oldrepo = findbins_dir([ map {"$dst/$_"} grep {/\.(?:$binsufsre)$/ && !/\.delta\.rpm$/} @oldfiles ], $oldcache);
 
-    # move files over (and rename in import case)
+    # move files over (and move in import case)
     my %new;
     for my $f (@jobfiles) {
       next if $importarch && $f eq 'replaced.xml';	# not needed
@@ -2403,7 +2404,7 @@ sub update_dst_full {
 	rmdir("$dst/$f");
       }
       my $df = $importarch ? "::import::${importarch}::$f" : $f;
-      rename("$jobdir/$f", "$dst/$df") || die("rename $jobdir/$f $dst/$df: $!\n");
+      move("$jobdir/$f", "$dst/$df") || die("move $jobdir/$f $dst/$df: $!\n");
       $new{$df} = 1;
       $bininfo->{$df} = $jobbininfo->{$f} if $jobbininfo->{$f};
       $bininfo->{'.nouseforbuild'} = {} if $f eq '.channelinfo' || $f eq 'updateinfo.xml';
@@ -2440,7 +2441,7 @@ sub update_dst_full {
     my $dmeta = $importarch ? ".meta.success.import.$importarch" : '.meta.success';
     unlink("$dst/$dmeta");
     if ($meta) {
-      link($meta, "$dst/$dmeta") || die("link $meta $dst/$dmeta: $!\n");
+      link($meta, "$dst/$dmeta") || copy($meta, "$dst/$dmeta") || die("link $meta $dst/$dmeta: $!\n");
     }
     # we only check 'sourceaccess', not 'access' here. 'access' has
     # to be handled anyway, so we don't gain anything by limiting
@@ -2711,10 +2712,10 @@ sub update_preinstallimage {
       push @bins, $2;
     }
     unlink("$jobdir/.preinstallimage.$id");
-    link("$jobdir/$tar", "$jobdir/.preinstallimage.$id") || die("link $jobdir/$tar $jobdir/.preinstallimage.$id");
+    link("$jobdir/$tar", "$jobdir/.preinstallimage.$id") || copy("$jobdir/$tar", "$jobdir/.preinstallimage.$id") || die("link $jobdir/$tar $jobdir/.preinstallimage.$id");
     if ($dst && $dst ne $jobdir) {
       unlink("$dst/.preinstallimage.$id");
-      link("$jobdir/.preinstallimage.$id", "$dst/.preinstallimage.$id") || die("link $jobdir/.$id $dst/.preinstallimage.$id");
+      link("$jobdir/.preinstallimage.$id", "$dst/.preinstallimage.$id") || copy("$jobdir/.preinstallimage.$id", "$dst/.preinstallimage.$id") || die("link $jobdir/.$id $dst/.preinstallimage.$id");
     }
     my $sizek = int(($s[7] + 1023) / 1024);
     push @$imagedata, {'package' => $packid, 'hdrmd5' => $id, 'file' => $tar, 'sizek' => $sizek, 'bitstring' => $b, 'hdrmd5s' => \@hdrmd5s, 'bins' => \@bins};
@@ -4277,8 +4278,8 @@ sub jobfinished {
     print "  - $job: build result is unchanged\n";
     if ( -e "$gdst/:logfiles.success/$packid" ){
       # make sure to use the last succeeded logfile matching to these binaries
-      link("$gdst/:logfiles.success/$packid", "$dst/logfile.dup");
-      rename("$dst/logfile.dup", "$dst/logfile");
+      link("$gdst/:logfiles.success/$packid", "$dst/logfile.dup") || copy("$gdst/:logfiles.success/$packid", "$dst/logfile.dup");
+      move("$dst/logfile.dup", "$dst/logfile");
       unlink("$dst/logfile.dup");
     }
     if (open(F, '+>>', "$dst/logfile")) {
@@ -4287,7 +4288,7 @@ sub jobfinished {
       close(F);
     }
     unlink("$gdst/:logfiles.fail/$packid");
-    rename($meta, "$gdst/:meta/$packid") if $meta;
+    move($meta, "$gdst/:meta/$packid") if $meta;
     unlink($_) for @all;
     rmdir($jobdatadir);
     addjobhist($prp, $info, $status, $js, 'unchanged');
@@ -4298,10 +4299,10 @@ sub jobfinished {
   }
   if ($code eq 'failed') {
     print "  - $job: build failed\n";
-    link("$jobdatadir/logfile", "$jobdatadir/logfile.dup");
-    rename("$jobdatadir/logfile", "$dst/logfile");
-    rename("$jobdatadir/logfile.dup", "$gdst/:logfiles.fail/$packid");
-    rename($meta, "$gdst/:meta/$packid") if $meta;
+    link("$jobdatadir/logfile", "$jobdatadir/logfile.dup") || copy("$jobdatadir/logfile", "$jobdatadir/logfile.dup");
+    move("$jobdatadir/logfile", "$dst/logfile");
+    move("$jobdatadir/logfile.dup", "$gdst/:logfiles.fail/$packid");
+    move($meta, "$gdst/:meta/$packid") if $meta;
     unlink($_) for @all;
     rmdir($jobdatadir);
     $status->{'status'} = 'failed';
@@ -4326,7 +4327,7 @@ sub jobfinished {
   $changed->{$prp} ||= 1;
 
   # save meta file
-  rename($meta, "$gdst/:meta/$packid") if $meta;
+  move($meta, "$gdst/:meta/$packid") if $meta;
 
   # write new status
   $status->{'status'} = 'succeeded';
@@ -4349,9 +4350,9 @@ sub jobfinished {
   }
   
   # save logfile
-  link("$jobdatadir/logfile", "$jobdatadir/logfile.dup");
-  rename("$jobdatadir/logfile", "$dst/logfile");
-  rename("$jobdatadir/logfile.dup", "$gdst/:logfiles.success/$packid");
+  link("$jobdatadir/logfile", "$jobdatadir/logfile.dup") || copy("$jobdatadir/logfile", "$jobdatadir/logfile.dup");
+  move("$jobdatadir/logfile", "$dst/logfile");
+  move("$jobdatadir/logfile.dup", "$gdst/:logfiles.success/$packid");
   unlink("$gdst/:logfiles.fail/$packid");
   unlink($_) for @all;
   rmdir($jobdatadir);
@@ -4402,7 +4403,7 @@ sub aggregatefinished {
   unlink("$dst/logfile");
   unlink("$dst/status");
   mkdir_p("$gdst/:meta");
-  rename("$jobdatadir/meta", "$gdst/:meta/$packid") || die("rename $jobdatadir/meta $gdst/:meta/$packid: $!\n");
+  move("$jobdatadir/meta", "$gdst/:meta/$packid") || die("move $jobdatadir/meta $gdst/:meta/$packid: $!\n");
   patchpackstatus($prp, $packid, 'succeeded');
 }
 
@@ -4437,7 +4438,7 @@ sub deltafinished {
   if ($code ne 'succeeded') {
     print "  - $job: build failed\n";
     unlink("$dst/logfile");
-    rename("$jobdatadir/logfile", "$dst/logfile");
+    move("$jobdatadir/logfile", "$dst/logfile");
     unlink("$reporoot/$prp/$myarch/:repodone");
     return;
   }
@@ -4447,15 +4448,15 @@ sub deltafinished {
     next unless $f =~ /^(.*)\.(drpm|out|dseq)$/s;
     my $deltaid = $1;
     if ($2 ne 'dseq') {
-      rename("$jobdatadir/$f", "$dst/$deltaid");
+      move("$jobdatadir/$f", "$dst/$deltaid");
     } else {
-      rename("$jobdatadir/$f", "$dst/$deltaid.dseq");
+      move("$jobdatadir/$f", "$dst/$deltaid.dseq");
     }
   }
   $changed->{$prp} ||= 1;
   unlink("$reporoot/$prp/$myarch/:repodone");
   unlink("$dst/logfile");
-  rename("$jobdatadir/logfile", "$dst/logfile");
+  move("$jobdatadir/logfile", "$dst/logfile");
 }
 
 sub uploadbuildevent {
@@ -4577,20 +4578,20 @@ sub fakejobfinished_nouseforbuild {
   mkdir_p("$gdst/:logfiles.success");
   unlink("$reporoot/$prp/$myarch/:repodone");
   if (-e "$jobdatadir/logfile") {
-    link("$jobdatadir/logfile", "$jobdatadir/logfile.dup");
+    link("$jobdatadir/logfile", "$jobdatadir/logfile.dup") || copy("$jobdatadir/logfile", "$jobdatadir/logfile.dup");
     if ($code eq 'failed') {
-      rename("$jobdatadir/logfile.dup", "$gdst/:logfiles.fail/$packid");
+      move("$jobdatadir/logfile.dup", "$gdst/:logfiles.fail/$packid");
     } else {
-      rename("$jobdatadir/logfile.dup", "$gdst/:logfiles.success/$packid");
+      move("$jobdatadir/logfile.dup", "$gdst/:logfiles.success/$packid");
       unlink("$gdst/:logfiles.fail/$packid");
     }
-    rename("$jobdatadir/logfile", "$dst/logfile");
+    move("$jobdatadir/logfile", "$dst/logfile");
   }
-  rename("$jobdatadir/meta", "$gdst/:meta/$packid");
+  move("$jobdatadir/meta", "$gdst/:meta/$packid");
   if ($code eq 'succeeded') {
     BSUtil::cleandir($dst);
     for my $f (ls($jobdatadir)) {
-      rename("$jobdatadir/$f", "$dst/$f") || die("rename $jobdatadir/$f $dst/$f: $!\n");
+      move("$jobdatadir/$f", "$dst/$f") || die("move $jobdatadir/$f $dst/$f: $!\n");
     }
     if (!checkaccess('sourceaccess', $projid, $packid, $repoid)) {
       BSUtil::touch("$dst/.nosourceaccess");
@@ -5668,7 +5669,7 @@ sub rebuildpatchinfo {
         }
         next;
       }
-      if (!link("$from/$bin", "$jobdatadir/$bin")) {
+      if (!(link("$from/$bin", "$jobdatadir/$bin") || copy("$from/$bin", "$jobdatadir/$bin"))) {
         my $error = "link $from/$bin $jobdatadir/$bin: $!\n";
         return ('broken', $error);
       }
@@ -6027,7 +6028,7 @@ sub rebuildchannel {
       rmdir($jobdatadir);
       return ('broken', "id mismatch in $arepoid/$apackid $s[9]/$s[7]/$s[1] $bi->{'id'}");
     }
-    link($file, "$jobdatadir/$bi->{'filename'}") || die("link $file $jobdatadir/$bi->{'filename'}: $!\n");
+    link($file, "$jobdatadir/$bi->{'filename'}") || copy($file, "$jobdatadir/$bi->{'filename'}") || die("link $file $jobdatadir/$bi->{'filename'}: $!\n");
     $bininfo->{$bi->{'filename'}} = $bi;
     my $ci = { 'repository' => $arepoid, 'package' => $apackid };
     $ci->{'supportstatus'} = $supportstatus if defined $supportstatus;
@@ -7541,7 +7542,7 @@ print "starting build service scheduler\n";
 mkdir_p($rundir);
 if (!$testprojid) {
   open(RUNLOCK, '>>', "$rundir/bs_sched.$myarch.lock") || die("$rundir/bs_sched.$myarch.lock: $!\n");
-  flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("scheduler is already running for $myarch!\n");
+  fcntl(RUNLOCK, F_SETFL, O_EXCL | O_NONBLOCK) || die("scheduler is already running for $myarch!\n");
   utime undef, undef, "$rundir/bs_sched.$myarch.lock";
 }
 
@@ -9036,8 +9037,8 @@ NEXTPRP:
       };
       if (!$@) {
 	unlink("$reporoot/$prp/$myarch/:relsync$$");
-	link("$reporoot/$prp/$myarch/:relsync", "$reporoot/$prp/$myarch/:relsync$$");
-	rename("$reporoot/$prp/$myarch/:relsync$$", "$reporoot/$prp/$myarch/:relsync.sent");
+	link("$reporoot/$prp/$myarch/:relsync", "$reporoot/$prp/$myarch/:relsync$$") || copy("$reporoot/$prp/$myarch/:relsync", "$reporoot/$prp/$myarch/:relsync$$");
+	move("$reporoot/$prp/$myarch/:relsync$$", "$reporoot/$prp/$myarch/:relsync.sent");
       } else {
 	warn($@);
       }
