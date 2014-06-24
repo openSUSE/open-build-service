@@ -2374,6 +2374,7 @@ sub dobuild {
       push @args, '--swap', "$vm_swap";
     }
     push @args, '--statistics';
+    push @args, '--vm-watchdog';
     my $vmmemory = readstr("$buildroot/memory", 1);
     $vmmemory = $vm_memory if $vm_memory;
     push @args, '--memory', $vmmemory if $vmmemory;
