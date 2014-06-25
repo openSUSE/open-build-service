@@ -88,7 +88,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'BsRequestAction#check_sanity' => 78.06,
       'BsRequestAction#create_expand_package' => 291.31,
       'BsRequestAction#check_maintenance_release' => 71.16,
-      'BsRequestAction#default_reviewers' => 135.96,
+      'BsRequestAction#default_reviewers' => 141.02,
       'BsRequestAction#find_reviewers' => 61.68,
       'BsRequestAction#store_from_xml' => 88.01,
       'BsRequestActionMaintenanceIncident#merge_into_maintenance_incident' => 166.26,

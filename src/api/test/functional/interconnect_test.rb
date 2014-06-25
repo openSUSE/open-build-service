@@ -369,6 +369,19 @@ end
     assert_response :success
   end
 
+  def test_invalid_submit_to_remote_instance
+    login_king
+    post '/request?cmd=create', '<request>
+                                   <action type="submit">
+                                     <source project="BaseDistro" package="pack1" rev="1"/>
+                                     <target project="RemoteInstance:home:tom" package="pack1"/>
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 400
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'remote_target' }
+  end
+
   def test_submit_requests_from_remote
 
     login_king

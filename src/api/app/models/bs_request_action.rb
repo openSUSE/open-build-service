@@ -12,6 +12,8 @@ class BsRequestAction < ActiveRecord::Base
     # a diff error can have many reasons, but most likely something within us
     setup 404
   end
+  class RemoteTarget < APIException
+  end
 
   belongs_to :bs_request
   has_one :bs_request_action_accept_info, :dependent => :delete
@@ -273,6 +275,9 @@ class BsRequestAction < ActiveRecord::Base
     return reviews unless self.target_project
 
     tprj = Project.get_by_name self.target_project
+    if tprj.class == String
+      raise RemoteTarget.new 'No support to target to remote projects. Create a request in remote instance instead.'
+    end
     tpkg = nil
     if self.target_package
       if self.is_maintenance_release?
