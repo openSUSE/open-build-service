@@ -671,6 +671,7 @@ sub createrepo_debian {
   for (@debarchs) {
      s/x86_64/amd64/g;
      s/i.86/i386/g;
+     s/ppc64le/ppc64el/g;
   };
   my $archs = join(' ', @debarchs);
 
