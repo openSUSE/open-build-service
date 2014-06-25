@@ -110,6 +110,7 @@ our $product = [
                    'project',   # input
                    'name',
                    'media',
+                   'url',       # this conflicts with project/name/media
                    [ 'zypp' => 'name', 'alias' ],
                    'arch',      # for arch specific definitions
                 ]],
