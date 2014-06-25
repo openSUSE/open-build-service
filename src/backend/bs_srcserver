@@ -916,7 +916,7 @@ sub getrev {
 	push @$linked, {'project' => $lprojid, 'package' => $packid};
         my $frozenp = $frozen->{'/all'} || $frozen->{$lprojid};
 	my $lrev;
-        if ($frozenp->{$packid}) {
+        if ($frozenp->{$packid} && !($rev && $rev =~ /^[0-9a-f]{32}$/)) {
 	  eval {
 	    $lrev = getrev($lprojid, $packid, $frozenp->{$packid}->{'srcmd5'}, $linked, $missingok);
 	    $lrev->{'vrev'} = $frozenp->{$packid}->{'vrev'} if defined $frozenp->{$packid}->{'vrev'};
