@@ -282,12 +282,13 @@ sub createProductOptions($$$)
     # explicit removal of additional tree
     $varsH{DROP_REPOSITORY} = "true" if (defined($medium->{'drop_repo'})) && $medium->{'drop_repo'} ne "no" && $medium->{'drop_repo'} ne "false";
     unless ($mediaStyle =~ /^suse-1[12]/ || $mediaStyle =~ /^suse-sle11/) {
-      # remove tree for media style 12 by default
+      # remove tree for media style sle12/13.2 by default
       $varsH{DROP_REPOSITORY} = "true" unless $varsH{REPO_ONLY} || $varsH{DROP_REPOSITORY};
       foreach my $shortsummary ( @{$product->{'shortsummary'}} ){
         $varsH{PRODUCT_SUMMARY} = $shortsummary->{'_content'} if ( ! $shortsummary->{'language'} );
       }
       die("No short summary defined, but required for current media styles") unless $varsH{PRODUCT_SUMMARY};
+      $varsH{PRODUCT_RELEASE} = $product->{'release'} if defined($product->{'release'});
     }
 
     # switch to sha256 sums except for old distros
@@ -300,7 +301,6 @@ sub createProductOptions($$$)
     $varsH{PRODUCT_DIR} = "/";
     $varsH{PRODUCT_NAME} = '$DISTNAME-$FLAVOR';
     $varsH{PRODUCT_VERSION} = '$VERSION';
-    $varsH{PRODUCT_RELEASE} = $product->{'release'} if defined($product->{'release'});
 
     my @vars;
     foreach my $opt ( sort keys %varsH ) {
@@ -992,18 +992,18 @@ sub writeProductSPECfile( $$$$ )
       $year += 1900;
       # write the specfile header
       $str="#
-# sp  c file for package $product->{name}-release (Version $product->{version})
+# spec file for package $product->{name}-release (Version $product->{version})
 #
-# Co  yright (c) $year $product->{'vendor'}.
+# Copyright (c) $year $product->{'vendor'}.
 #
-# Al   modifications and additions to the file contributed by third parties
-# re  ain the property of their copyright owners, unless otherwise agreed
-# up  n. The license for this file, and modifications and additions to the
-# fi  e, is the same license as for the pristine package itself (unless the
-# li  ense for the pristine package is not an Open Source License, in which
-# ca  e the license is the MIT License). An \"Open Source License\" is a
-# li  ense that conforms to the Open Source Definition (Version 1.9)
-# pu  lished by the Open Source Initiative.
+# All modifications and additions to the file contributed by third parties
+# remain the property of their copyright owners, unless otherwise agreed
+# upon. The license for this file, and modifications and additions to the
+# file, is the same license as for the pristine package itself (unless the
+# license for the pristine package is not an Open Source License, in which
+# case the license is the MIT License). An \"Open Source License\" is a
+# license that conforms to the Open Source Definition (Version 1.9)
+# published by the Open Source Initiative.
 ";
       my $bugtracker=getUrl($product,"i586","bugtracker");
       $str.="\n# Please submit bugfixes or comments via $bugtracker\n#\n\n" if ("$bugtracker" ne "");
