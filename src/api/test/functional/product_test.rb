@@ -51,6 +51,14 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "product", 
                    :attributes => { :name => "simple", :cpe => "cpe:/o:obs_fuzzies:simple:13.1", :originproject => "home:tom:temporary" }
 
+    # productrepositories
+    get "/source/home:tom:temporary:link/_product?view=productrepositories"
+    assert_response :success
+    assert_xml_tag :parent => { :tag => "repository", :attributes => { :path => '/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo' } },
+                   :tag => "update"
+    assert_xml_tag :tag => "repository", :attributes => { :path => '/BaseDistro/prod/repo/DVD' }
+    assert_xml_tag :tag => "repository", :attributes => { :url => 'http://external.url/to.some.one' }
+
     # product views in a package
     get "/source/home:tom:temporary/_product?view=issues"
     assert_response :success

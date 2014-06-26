@@ -336,7 +336,8 @@ our $productrepositories = [
     ]],
     [[
       'repository' =>
-        'path',
+        'path', # eith path or url is set
+        'url',
         'arch', # optional
         [],
         [ 'zypp' => 'name', 'alias' ],
@@ -438,9 +439,15 @@ sub getproductrepositories {
       push @pr, $path;
     };
     for my $repo (@{$product->{'register'}->{'pool'}->{'repository'}}) {
-      my $project_expanded = $repo->{'project'};
-      $project_expanded =~ s/:/:\//g;
-      my $path = { 'path' => "/$project_expanded/$repo->{'name'}/repo/$repo->{'media'}" };
+      die("path AND url is set!") if defined ($repo->{'project'}) && defined($repo->{'url'});
+      my $path;
+      if (defined($repo->{'url'})) {
+        $path = { 'url' => $repo->{'url'} };
+      } else {
+        my $project_expanded = $repo->{'project'};
+        $project_expanded =~ s/:/:\//g;
+        $path = { 'path' => "/$project_expanded/$repo->{'name'}/repo/$repo->{'media'}" };
+      }
       $path->{'arch'} = $repo->{'arch'} if $repo->{'arch'};
       $path->{'zypp'} = $repo->{'zypp'} if $repo->{'zypp'};
       push @pr, $path;
