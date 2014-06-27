@@ -2318,9 +2318,10 @@ sub update_bininfo_merge {
 }
 
 sub update_dst_full {
-  my ($prp, $packid, $dst, $jobdir, $meta, $useforbuildenabled, $prpsearchpath, $fullcache, $importarch) = @_;
+  my ($prp, $packid, $jobdir, $meta, $useforbuildenabled, $prpsearchpath, $fullcache, $importarch) = @_;
 
-  die unless defined($dst);	# just in case...
+  my $gdst = "$reporoot/$prp/$myarch";
+  my $dst = "$gdst/$packid";
 
   my ($projid, $repoid) = split('/', $prp, 2);
 
@@ -2372,8 +2373,6 @@ sub update_dst_full {
 
   ##################################################################
   # part 1: move files into package directory ($dst)
-
-  my $gdst = "$reporoot/$prp/$myarch";
 
   my $oldrepo;
   my $bininfo;
@@ -4319,7 +4318,7 @@ sub jobfinished {
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-  update_dst_full($prp, $packid, $dst, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp}, $fullcache);
+  update_dst_full($prp, $packid, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp}, $fullcache);
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
   $repounchanged{$prp} = 2 if $repounchanged{$prp};
@@ -4391,7 +4390,7 @@ sub aggregatefinished {
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-  update_dst_full($prp, $packid, $dst, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath{$prp});
+  update_dst_full($prp, $packid, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
   $repounchanged{$prp} = 2 if $repounchanged{$prp};
@@ -4492,7 +4491,7 @@ sub uploadbuildevent {
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-  update_dst_full($prp, $packid, $dst, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath{$prp});
+  update_dst_full($prp, $packid, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
   $repounchanged{$prp} = 2 if $repounchanged{$prp};
@@ -4525,7 +4524,7 @@ sub importevent {
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled) if $projpacks->{$projid};
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-  update_dst_full($prp, $packid, "$gdst/$packid", $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp}, undef, $importarch);
+  update_dst_full($prp, $packid, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp}, undef, $importarch);
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
   unlink($_) for @all;
@@ -7167,7 +7166,7 @@ sub event_wipe {
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled) if $projpacks->{$projid};
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
   my $importarch = '';	# keep those imports
-  update_dst_full($prp, $packid, "$gdst/$packid" , undef, undef, $useforbuildenabled, $prpsearchpath{$prp}, undef, $importarch);
+  update_dst_full($prp, $packid, undef, undef, $useforbuildenabled, $prpsearchpath{$prp}, undef, $importarch);
   delete $repounchanged{$prp};
   # delete other files
   unlink("$gdst/:logfiles.success/$packid");
@@ -7220,7 +7219,7 @@ sub event_useforbuild {
     next unless $useforbuildenabled;
     my $meta = "$gdst/:meta/$packid";
     undef $meta unless -s $meta;
-    update_dst_full($prp, $packid, "$gdst/$packid", "$gdst/$packid", $meta, $useforbuildenabled, $prpsearchpath{$prp});
+    update_dst_full($prp, $packid, "$gdst/$packid", $meta, $useforbuildenabled, $prpsearchpath{$prp});
   }
   for $prp (@prps) {
     if ((split('/', $prp, 2))[0] eq $projid) {
@@ -8358,7 +8357,7 @@ NEXTPRP:
       $useforbuildenabled = 0 if -s "$gdst/$packid/.updateinfodata";
       # don't wipe imports if we're excluded
       my $importarch = $packs->{$packid} && @ifiles ? '' : undef;
-      update_dst_full($prp, $packid, "$gdst/$packid" , undef, undef, $useforbuildenabled, $prpsearchpath{$prp}, undef, $importarch);
+      update_dst_full($prp, $packid, undef, undef, $useforbuildenabled, $prpsearchpath{$prp}, undef, $importarch);
       $changed_med{$prp} = 2;
       sendrepochangeevent($prp);
       # delete other files
