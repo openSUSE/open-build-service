@@ -35,7 +35,7 @@ use Data::Dumper;
 
 use Socket;
 use POSIX;
-use Fcntl qw(:DEFAULT :flock);
+use Fcntl qw(:DEFAULT);
 BEGIN { Fcntl->import(':seek') unless defined &SEEK_SET; }
 use Symbol;
 
@@ -118,7 +118,7 @@ sub serveropen_unix {
   # we need a lock for exclusive socket access
   mkdir_p($1) if $filename =~ /^(.*)\//;
   open(LCK, '>', "$filename.lock") || die("$filename.lock: $!\n");
-  flock(LCK, LOCK_EX | LOCK_NB) || die("$filename: already in use\n");
+  fcntl(LCK, F_SETFL, O_EXCL | O_NONBLOCK) || die("$filename: already in use\n");
   socket(MS, PF_UNIX, SOCK_STREAM, 0) || die("socket: $!\n");
   unlink($filename);
   bind(MS, sockaddr_un($filename)) || die("bind: $!\n");

@@ -30,6 +30,7 @@ BEGIN {
   unshift @INC,  "$wd";
 }
 
+use File::Copy qw(copy move);
 use XML::Structured ':bytes';
 use POSIX;
 use Digest::MD5 ();
@@ -127,7 +128,7 @@ sub prune_lastnotifications {
     unlink("$eventdir/.lastnotifications.$$");
     if (! -e "$eventdir/.lastnotifications.$$") {
       BSFileDB::fdb_add_multiple("$eventdir/.lastnotifications.$$", $notificationlay, @l);
-      rename("$eventdir/.lastnotifications.$$", "$eventdir/lastnotifications") || die("rename $eventdir/.lastnotifications.$$ $eventdir/lastnotifications: $!\n");
+      move("$eventdir/.lastnotifications.$$", "$eventdir/lastnotifications") || die("move $eventdir/.lastnotifications.$$ $eventdir/lastnotifications: $!\n");
     }
   }
   close F;
@@ -591,7 +592,7 @@ sub expandproduct {
   BSUtil::cleandir($dir);
   mkdir_p($dir);
   for my $file (sort keys %$files) {
-    link("$srcrep/$packid/$files->{$file}-$file", "$dir/$file") || die("link $srcrep/$packid/$files->{$file}-$file $dir/$file: $!\n");
+    link("$srcrep/$packid/$files->{$file}-$file", "$dir/$file") || copy("$srcrep/$packid/$files->{$file}-$file", "$dir/$file") || die("link $srcrep/$packid/$files->{$file}-$file $dir/$file: $!\n");
   }
   my @prods = grep {/.product$/}  sort keys %$files;
   my %pids;
@@ -823,13 +824,13 @@ sub addfile {
     $md5 = $ctx->hexdigest();
   }
   if (! -e "$srcrep/$packid/$md5-$filename") {
-    if (!rename($tmpfile, "$srcrep/$packid/$md5-$filename")) {
+    if (!move($tmpfile, "$srcrep/$packid/$md5-$filename")) {
       mkdir_p("$srcrep/$packid");
-      if (!rename($tmpfile, "$srcrep/$packid/$md5-$filename")) {
+      if (!move($tmpfile, "$srcrep/$packid/$md5-$filename")) {
         my $err = $!;
         if (! -e "$srcrep/$packid/$md5-$filename") {
           $! = $err;
-          die("rename $tmpfile $srcrep/$packid/$md5-$filename: $!\n");
+          die("move $tmpfile $srcrep/$packid/$md5-$filename: $!\n");
         }
       }
     }
@@ -851,7 +852,7 @@ sub copyfiles {
   for my $f (sort keys %$files) {
     next if $except && $except->{$f};
     next if -e "$srcrep/$packid/$files->{$f}-$f";
-    link("$srcrep/$opackid/$files->{$f}-$f", "$srcrep/$packid/$files->{$f}-$f");
+    link("$srcrep/$opackid/$files->{$f}-$f", "$srcrep/$packid/$files->{$f}-$f") || copy("$srcrep/$opackid/$files->{$f}-$f", "$srcrep/$packid/$files->{$f}-$f") ;
     die("link error $srcrep/$opackid/$files->{$f}-$f\n") unless -e "$srcrep/$packid/$files->{$f}-$f";
   }
 }
@@ -1562,7 +1563,7 @@ sub patchspec {
     print O "$_\n";
   }
   close(O) || die("close: $!\n");
-  rename("$dir/.patchspec$$", "$dir/$spec") || die("rename $dir/.patchspec$$ $dir/$spec: $!\n");
+  move("$dir/.patchspec$$", "$dir/$spec") || die("move $dir/.patchspec$$ $dir/$spec: $!\n");
   return '';
 }
 # " Make emacs wired syntax highlighting happy
@@ -1581,7 +1582,7 @@ sub topaddspec {
     print O "$_\n";
   }
   close(O) || die("close: $!\n");
-  rename("$dir/.topaddspec$$", "$dir/$spec") || die("rename $dir/.topaddspec$$ $dir/$spec: $!\n");
+  move("$dir/.topaddspec$$", "$dir/$spec") || die("move $dir/.topaddspec$$ $dir/$spec: $!\n");
 }
 
 #
@@ -1668,12 +1669,12 @@ sub applylink {
   if (!$isbranch) {
     for my $f (sort keys %$fsrc) {
       next if $flnk->{$f} && !$apply{$f};
-      link("$srcrep/$lsrc->{'package'}/$fsrc->{$f}-$f", "$tmpdir/$f") || die("$f: $!\n");
+      link("$srcrep/$lsrc->{'package'}/$fsrc->{$f}-$f", "$tmpdir/$f") || copy("$srcrep/$lsrc->{'package'}/$fsrc->{$f}-$f", "$tmpdir/$f") || die("$f: $!\n");
       $fl{$f} = "$lsrc->{'package'}/$fsrc->{$f}-$f";
     }
     for my $f (sort keys %$flnk) {
       next if $apply{$f} || $f eq '_link';
-      link("$srcrep/$llnk->{'package'}/$flnk->{$f}-$f", "$tmpdir/$f") || die("$f: $!\n");
+      link("$srcrep/$llnk->{'package'}/$flnk->{$f}-$f", "$tmpdir/$f") || copy("$srcrep/$llnk->{'package'}/$flnk->{$f}-$f", "$tmpdir/$f") || die("$f: $!\n");
       $fl{$f} = "$llnk->{'package'}/$flnk->{$f}-$f";
     }
   }
@@ -1713,13 +1714,13 @@ sub applylink {
 	my $mlnk = $flnk->{$f} || '';
 	if ($mbas eq $mlnk) {
 	  next if $msrc eq '';
-	  link("$srcrep/$lsrc->{'package'}/$fsrc->{$f}-$f", "$tmpdir/$f") || die("$fsrc->{$f}-$f: $!\n");
+	  link("$srcrep/$lsrc->{'package'}/$fsrc->{$f}-$f", "$tmpdir/$f") || copy("$srcrep/$lsrc->{'package'}/$fsrc->{$f}-$f", "$tmpdir/$f") || die("$fsrc->{$f}-$f: $!\n");
 	  $fl{$f} = "$lsrc->{'package'}/$fsrc->{$f}-$f";
 	  next;
 	}
 	if ($mbas eq $msrc || $mlnk eq $msrc) {
 	  next if $mlnk eq '';
-	  link("$srcrep/$llnk->{'package'}/$flnk->{$f}-$f", "$tmpdir/$f") || die("$flnk->{$f}-$f: $!\n");
+	  link("$srcrep/$llnk->{'package'}/$flnk->{$f}-$f", "$tmpdir/$f") || copy("$srcrep/$llnk->{'package'}/$flnk->{$f}-$f", "$tmpdir/$f") || die("$flnk->{$f}-$f: $!\n");
 	  $fl{$f} = "$llnk->{'package'}/$flnk->{$f}-$f";
 	  next;
 	}
@@ -1728,9 +1729,9 @@ sub applylink {
 	  last;
 	}
         # run diff3
-	link("$srcrep/$lsrc->{'package'}/$fsrc->{$f}-$f", "$tmpdir/$f.new") || die("link $fsrc->{$f}-$f: $!\n");
-	link("$srcrep/$lsrc->{'package'}/$fbas->{$f}-$f", "$tmpdir/$f.old") || die("link $fbas->{$f}-$f: $!\n");
-	link("$srcrep/$llnk->{'package'}/$flnk->{$f}-$f", "$tmpdir/$f.mine") || die("link $flnk->{$f}-$f: $!\n");
+	link("$srcrep/$lsrc->{'package'}/$fsrc->{$f}-$f", "$tmpdir/$f.new") || copy("$srcrep/$lsrc->{'package'}/$fsrc->{$f}-$f", "$tmpdir/$f.new") || die("link $fsrc->{$f}-$f: $!\n");
+	link("$srcrep/$lsrc->{'package'}/$fbas->{$f}-$f", "$tmpdir/$f.old") || copy("$srcrep/$lsrc->{'package'}/$fbas->{$f}-$f", "$tmpdir/$f.old") || die("link $fbas->{$f}-$f: $!\n");
+	link("$srcrep/$llnk->{'package'}/$flnk->{$f}-$f", "$tmpdir/$f.mine") || copy("$srcrep/$llnk->{'package'}/$flnk->{$f}-$f", "$tmpdir/$f.mine") || die("link $flnk->{$f}-$f: $!\n");
 	if (!isascii("$tmpdir/$f.new") || !isascii("$tmpdir/$f.old") || !isascii("$tmpdir/$f.mine")) {
 	  $failed = "conflict in file $f";
 	  last;
@@ -1819,7 +1820,7 @@ sub applylink {
     print F "\n$failed\n";
     close F;
     # link error marker
-    if ($md5 && !link("$tmpdir/.log", "$srcrep/$llnk->{'package'}/$md5-_linkerror")) {
+    if ($md5 && !(link("$tmpdir/.log", "$srcrep/$llnk->{'package'}/$md5-_linkerror") || copy("$tmpdir/.log", "$srcrep/$llnk->{'package'}/$md5-_linkerror"))) {
       my $err = "link $tmpdir/.log $srcrep/$llnk->{'package'}/$md5-_linkerror: $!\n";
       die($err) unless -e "$srcrep/$llnk->{'package'}/$md5-_linkerror";
     }
@@ -1852,9 +1853,9 @@ sub applylink {
 
   # if we just want the patched files we're finished
   if (!$md5) {
-    # rename into md5 form, sort so that there's no collision
+    # move into md5 form, sort so that there's no collision
     for my $f (sort {length($b) <=> length($a) || $a cmp $b} @newf) {
-      rename("$tmpdir/$f", "$tmpdir/$newf->{$f}-$f");
+      move("$tmpdir/$f", "$tmpdir/$newf->{$f}-$f");
     }
     return $newf;
   }
@@ -2370,7 +2371,7 @@ sub extract_old_meta {
     if ($signkey) {
       writestr("$uploaddir/$$.2", undef, $signkey);
       chmod(0600, "$uploaddir/$$.2");
-      rename("$uploaddir/$$.2", "$projectsdir/$projid.pkg/_signkey") || die("rename $uploaddir/$$.2 $projectsdir/$projid.pkg/_signkey: $!\n");
+      move("$uploaddir/$$.2", "$projectsdir/$projid.pkg/_signkey") || die("move $uploaddir/$$.2 $projectsdir/$projid.pkg/_signkey: $!\n");
     }
     my $meta;
     $meta = repreadstr($rev, '_meta', $files->{'_meta'}, 1) if $files->{'_meta'};
@@ -2448,7 +2449,7 @@ sub addrev_meta_multiple {
     my ($tmpfile, $file, $rfile) = @$todo;
     if (defined($file)) {
       if (defined($tmpfile)) {
-        rename($tmpfile, $file) || die("rename $tmpfile $file: $!\n");
+        move($tmpfile, $file) || die("move $tmpfile $file: $!\n");
       } else {
         unlink($file);
       }
@@ -5308,11 +5309,11 @@ sub integratelink {
 	  my $oppatch = $_->{'apply'}->{'name'};
 	  if ($files->{$oppatch}) {
 	    $dontcopy{$oppatch} = 1;
-	    # argh, patch file already exists, rename...
+	    # argh, patch file already exists, move...
 	    my $ppatch = findprojectpatchname($files);
 	    mkdir_p($uploaddir);
 	    unlink("$uploaddir/$$");
-	    link("$srcrep/$opackid/$ofiles->{$oppatch}-$oppatch", "$uploaddir/$$") || die("link $srcrep/$opackid/$ofiles->{$oppatch}-$oppatch $uploaddir/$$: $!\n");
+	    link("$srcrep/$opackid/$ofiles->{$oppatch}-$oppatch", "$uploaddir/$$") || copy("$srcrep/$opackid/$ofiles->{$oppatch}-$oppatch", "$uploaddir/$$") || die("link $srcrep/$opackid/$ofiles->{$oppatch}-$oppatch $uploaddir/$$: $!\n");
             $files->{$ppatch} = addfile($projid, $packid, "$uploaddir/$$", $ppatch);
 	    push @{$nl->{'patches'}->{''}}, {'apply' => {'name' => $ppatch}};
 	    next;
@@ -7289,7 +7290,7 @@ sub worker_getbinaries {
       my $cachemd5 = Digest::MD5::md5_hex("$projid/$repoid/$arch/$bin");
       substr($cachemd5, 2, 0, '/');
       mkdir_p("$remotecache/".substr($cachemd5, 0, 2));
-      rename("$remotecache/$f->{'name'}", "$remotecache/$cachemd5");
+      move("$remotecache/$f->{'name'}", "$remotecache/$cachemd5");
       push @reply, {'name' => $fetch{$bin}->{'filename'}, 'filename' => "$remotecache/$cachemd5"};
       delete $fetch{$bin};
     }

@@ -22,7 +22,8 @@
 package BSDBIndex;
 
 use strict;
-use Fcntl qw(:DEFAULT :flock);
+use Fcntl qw(:DEFAULT);
+use File::Copy qw(move);
 use POSIX;
 use Digest::MD5 ();
 use Storable ();
@@ -120,7 +121,7 @@ sub modify {
         next if mkdir("$dbdir/$dn") || $! == POSIX::EEXIST;
 	die("mkdir $dbdir/$dn: $!\n");
       }
-      die("flock $dbdir/$dn/$fn: $!\n") unless flock($usedfiles{$file}, LOCK_EX);
+      die("fcntl $dbdir/$dn/$fn: $!\n") unless fcntl($usedfiles{$file}, F_SETFL, O_EXCL | O_NONBLOCK);
       last if (stat($usedfiles{$file}))[3];
     }
   }
@@ -185,7 +186,7 @@ sub modify {
       Storable::nstore_fd(\@data, \*F) || die("store file failed\n");
       close(F) || die("close $dbdir/$dn/$fn.new: $!\n");
       # this will free the lock
-      rename("$dbdir/$dn/$fn.new", "$dbdir/$dn/$fn") || die("rename $dbdir/$dn/$fn.new $dbdir/$dn/$fn");
+      move("$dbdir/$dn/$fn.new", "$dbdir/$dn/$fn") || die("move $dbdir/$dn/$fn.new $dbdir/$dn/$fn");
     } else {
       truncate $usedfiles{$file}, 0;
 

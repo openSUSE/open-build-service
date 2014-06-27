@@ -39,7 +39,7 @@ use POSIX;
 use Data::Dumper;
 use Digest::MD5 ();
 use List::Util;
-use Fcntl qw(:DEFAULT :flock);
+use Fcntl qw(:DEFAULT);
 use XML::Structured ':bytes';
 use Storable;
 use Build::Rpm;	# for verscmp
@@ -820,7 +820,7 @@ printlog("starting build service dispatcher");
 # get lock
 mkdir_p($rundir);
 open(RUNLOCK, '>>', "$rundir/bs_dispatch.lock") || die("$rundir/bs_dispatch.lock: $!\n");
-flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("dispatcher is already running!\n");
+fcntl(RUNLOCK, F_SETFL, O_EXCL | O_NONBLOCK) || die("dispatcher is already running!\n");
 utime undef, undef, "$rundir/bs_dispatch.lock";
 
 my $dispatchprios;

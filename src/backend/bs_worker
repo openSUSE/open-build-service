@@ -30,10 +30,11 @@ BEGIN {
 }
 
 use Digest::MD5 ();
+use File::Copy qw(copy move);
 use XML::Structured ':bytes';
 use Data::Dumper;
 use POSIX;
-use Fcntl qw(:DEFAULT :flock);
+use Fcntl qw(:DEFAULT);
 BEGIN { Fcntl->import(':seek') unless defined &SEEK_SET; }
 
 use Storable;
@@ -111,7 +112,7 @@ $hostcheck = $BSConfig::workerhostcheck if defined($BSConfig::workerhostcheck);
 sub lockstate {
   while (1) {
     open(STATELOCK, '>>', "$statedir/state") || die("$statedir/state: $!\n");
-    flock(STATELOCK, LOCK_EX) || die("flock $statedir/state: $!\n");
+    fcntl(STATELOCK, F_SETFL, O_EXCL | O_NONBLOCK) || die("fcntl $statedir/state: $!\n");
     my @s = stat(STATELOCK);
     last if $s[3];	# check nlink
     close(STATELOCK);	# race, try again
@@ -152,7 +153,7 @@ sub trunc_logfile {
   open(LF, ">$lf.new") || return; 
   syswrite(LF, $buf);
   close LF;
-  rename("$lf.new", $lf);
+  move("$lf.new", $lf);
 }
 
 sub tail_logfile {
@@ -809,9 +810,9 @@ sub getcode {
 
   # ok, commit
   if (-e $dir) {
-    rename($dir, $odir) || die("rename $dir $odir: $!\n");
+    move($dir, $odir) || die("move $dir $odir: $!\n");
   }
-  rename($ndir, $dir) || die("rename $ndir $dir: $!\n");
+  move($ndir, $dir) || die("move $ndir $dir: $!\n");
   rm_rf($odir) if -e $odir;
   my $md5 = '';
   for my $file (sort {$a->{'name'} cmp $b->{'name'}} @$res) {
@@ -952,7 +953,7 @@ sub qsystem {
 sub link_or_copy {
   my ($from, $to) = @_;
   unlink($to);
-  return 1 if link($from, $to);
+  return 1 if (link($from, $to) || copy($from, $to));
   local *F;
   local *G;
   return undef unless open(F, '<', $from);
@@ -997,13 +998,13 @@ sub manage_cache {
       mkdir_p("$cachedir/".substr($cacheid, 0, 2));
       unlink("$cachefile.$$");
       next unless link_or_copy($path, "$cachefile.$$");
-      rename("$cachefile.$$", $cachefile) || die("rename $cachefile.$$ $cachefile: $!\n");
+      move("$cachefile.$$", $cachefile) || die("move $cachefile.$$ $cachefile: $!\n");
       my $mpath = "$path.meta";
       $mpath = "$1.meta" if $path =~ /^(.*)\.(?:$binsufsre)$/;
       if (-s $mpath) {
 	unlink("$cachefile.meta.$$");
 	if (link_or_copy($mpath, "$cachefile.meta.$$")) {
-	  rename("$cachefile.meta.$$", "$cachefile.meta") || die("rename $cachefile.meta.$$ $cachefile.meta: $!\n");
+	  move("$cachefile.meta.$$", "$cachefile.meta") || die("move $cachefile.meta.$$ $cachefile.meta: $!\n");
 	} else {
 	  unlink("$cachefile.meta");
 	}
@@ -1034,7 +1035,7 @@ sub manage_cache {
   }
   @$content = grep {defined $_} @$content;
   Storable::nstore($content, "$cachedir/content.new");
-  rename("$cachedir/content.new", "$cachedir/content") || die("rename $cachedir/content.new $cachedir/content: $!\n");
+  move("$cachedir/content.new", "$cachedir/content") || die("move $cachedir/content.new $cachedir/content: $!\n");
   close F;
 }
 
@@ -1303,7 +1304,7 @@ sub getbinaries_kiwiproduct {
 	next if $nodbgpkgs && $name =~ /-(?:debuginfo|debugsource)-/;
 	next if $nosrcpkgs && ($rarch eq 'src' || $rarch eq 'nosrc');
 	mkdir_p("$ddir/$rarch") unless -d "$ddir/$rarch";
-	if (!link("$localkiwi/build/$projid/$repoid/$arch/$packid/$name", "$ddir/$rarch/$name")) {
+	if (!(link("$localkiwi/build/$projid/$repoid/$arch/$packid/$name", "$ddir/$rarch/$name") || copy("$localkiwi/build/$projid/$repoid/$arch/$packid/$name", "$ddir/$rarch/$name"))) {
 	  # link fails if file already exists, rpc just overwrites
 	  unlink("$ddir/$rarch/$name");
 	  link_or_copy("$localkiwi/build/$projid/$repoid/$arch/$packid/$name", "$ddir/$rarch/$name") || die("link $localkiwi/build/$projid/$repoid/$arch/$packid/$name $ddir/$rarch/$name: $!\n");
@@ -1461,7 +1462,7 @@ sub getbinaries_kiwiproduct {
       }
       if ($bvl && !@bad) {
 	for (@good) {
-	  rename("$ddir/$_.new.rpm", "$ddir/$_") || die("rename $ddir/$_.new.rpm $ddir/$_: $!\n");
+	  move("$ddir/$_.new.rpm", "$ddir/$_") || die("move $ddir/$_.new.rpm $ddir/$_: $!\n");
           $kiwiorigins->{"obs://$prpdir/$_"} = $prpap;
 	}
         $res = [ map {{'name' => $_}} @good ];
@@ -1619,7 +1620,7 @@ sub getpreinstallimage_metas {
 	my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
 	unlink("$cachefile.meta.$$");
 	if (link_or_copy("$dir/$bin.meta", "$cachefile.meta.$$")) {
-	  rename("$cachefile.meta.$$", "$cachefile.meta") || die("rename $cachefile.meta.$$ $cachefile.meta: $!\n");
+	  move("$cachefile.meta.$$", "$cachefile.meta") || die("move $cachefile.meta.$$ $cachefile.meta: $!\n");
 	}
       }
     } else {
@@ -2469,8 +2470,8 @@ sub dobuild {
   if ($vm =~ /(xen|kvm|zvm|emulator)/) {
     rm_rf("$buildroot/.build.packages");
     # move directory with extracted build results
-    if(!rename("$buildroot/.mount/.build.packages", "$buildroot/.build.packages")) {
-      print "final rename failed: $!";
+    if(!move("$buildroot/.mount/.build.packages", "$buildroot/.build.packages")) {
+      print "final move failed: $!";
       return 1;
     }
     # XXX: extracted cpio is flat but code below expects those directories...
@@ -2586,7 +2587,7 @@ $| = 1;
 print "starting worker $workercode build $buildcode\n";
 
 open(RUNLOCK, '>>', "$statedir/lock") || die("$statedir/lock: $!");
-flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("worker is already running on $statedir!\n");
+fcntl(RUNLOCK, F_SETFL, O_EXCL | O_NONBLOCK) || die("worker is already running on $statedir!\n");
 utime undef, undef, "$statedir/lock";
 
 # we always start idle
@@ -2870,7 +2871,7 @@ if (!$nobuildcodecheck && $cgi->{'buildcode'} && $cgi->{'port'} && $cgi->{'build
   die("could not update build code\n") unless $buildcode;
 }
 
-rename('job.new', 'job') || die("rename job.new job: $!\n");
+move('job.new', 'job') || die("move job.new job: $!\n");
 
 if ($hostcheck) {
   my $server = $buildinfo->{'srcserver'} || $srcserver;
@@ -2945,7 +2946,7 @@ if ($buildinfo->{'followupfile'}) {
 	my $buf;
 	syswrite(T, $buf) while sysread(F, $buf, 8192);
 	close T;
-	rename("$buildsrcdir/logfile", "$buildroot/.build.log");
+	move("$buildsrcdir/logfile", "$buildroot/.build.log");
       }
       close F;
     }
@@ -3101,12 +3102,12 @@ if (!$testmode) {
     BSUtil::cleandir($jobdir);
     for my $f (ls("$buildroot/.build.packages/KIWI")) {
       system('chown', '-h', '-R', '--reference', "$jobdir", "$buildroot/.build.packages/KIWI/$f");
-      rename("$buildroot/.build.packages/KIWI/$f", "$jobdir/$f") || die("rename $buildroot/.build.packages/KIWI/$f $jobdir/$f: $!\n");
+      move("$buildroot/.build.packages/KIWI/$f", "$jobdir/$f") || die("move $buildroot/.build.packages/KIWI/$f $jobdir/$f: $!\n");
     }
     chown($localkiwi_uid, $localkiwi_gid, "$buildroot/.build.log");
     chown($localkiwi_uid, $localkiwi_gid, "$buildroot/.build.meta");
-    rename("$buildroot/.build.log", "$jobdir/logfile");
-    rename("$buildroot/.build.meta", "$jobdir/meta");
+    move("$buildroot/.build.log", "$jobdir/logfile");
+    move("$buildroot/.build.meta", "$jobdir/meta");
     @send = ();
   }
   my $param = {
