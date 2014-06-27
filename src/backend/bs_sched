@@ -1831,16 +1831,14 @@ sub fctx_add_binary_to_full {
   my $n = $r->{'name'};
   my $suf = $r->{'suf'};
   my $gdst = "$reporoot/$fctx->{'prp'}/$myarch";
-  my $dir;
   if (!defined($packid)) {
     print "      + :full/$n.$suf ($fn)\n";
     $packid = $fctx->{'packid'};
     $meta = $fctx->{'meta'};
-    $dir = $fctx->{'dst'};
   } else {
     print "      + :full/$n.$suf ($packid/$fn)\n";
-    $dir = "$gdst/$packid";
   }
+  my $dir = "$gdst/$packid";
   # link gives an error if the dest exists, so we dup
   # and rename instead.
   # when the dest is the same file, rename doesn't do
@@ -2516,7 +2514,6 @@ sub update_dst_full {
   my $fctx = {
     'prp' => $prp,
     'packid' => $packid,
-    'dst' => $dst,
     'meta' => $meta,
     'filter' => $filter,
     'importarch' => $importarch,
