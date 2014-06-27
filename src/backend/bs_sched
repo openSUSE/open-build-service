@@ -1368,7 +1368,7 @@ sub prpfinished {
   my $rinfo;
   my $rinfo_packid2bins;
 
-  # link all packages into :repo
+  # link all packages into :repo, put origin data into :repoinfo
   my %origin;
   my $changed;
   my $filter;
@@ -2029,10 +2029,20 @@ sub fctx_rebuild_full {
     fctx_del_binary_from_full($fctx, $r);
   }
   mkdir_p("$gdst/:full") if %newfullsuf;
+
   # now the full tree contains only entries we want. put the missing ones in.
+  my $out_of_sync;
   for my $bin (sort {$newfullsuf{$a}->{'packid'} cmp $newfullsuf{$b}->{'packid'} || $a cmp $b} grep {!$kept{$_}} keys(%newfullsuf)) {
     my $r = $newfullsuf{$bin};
     my $packid = $r->{'packid'};
+
+    # check if we're out of sync
+    my @s = stat("$gdst/$packid/$r->{'filename'}");
+    if (!@s || "$s[9]/$s[7]/$s[1]" ne $r->{'id'}) {
+      unlink("$gdst/$packid/.bininfo");		# ohhh, we're out of sync! rebuild that bininfo...
+      $out_of_sync = 1;
+    }
+
     if (defined($fctx->{'packid'}) && $packid eq $fctx->{'packid'}) {
       fctx_add_binary_to_full($fctx, $r->{'filename'}, $r);
     } else {
@@ -2040,6 +2050,17 @@ sub fctx_rebuild_full {
       fctx_add_binary_to_full($fctx, $r->{'filename'}, $r, $packid, $meta);
     }
   }
+
+  if ($out_of_sync) {
+    print "detected out-of-sync condition, rebuilding bad bininfos\n";
+    unlink("$gdst/:bininfo");
+    unlink("$gdst/:bininfo.merge");
+    $gbininfo = read_gbininfo($gdst);
+    my %newfull = fctx_gbininfo2full($fctx, $gbininfo, undef, undef, $fctx->{'newuseforbuild'});
+    fctx_rebuild_full($fctx, \%newfull, $gbininfo);
+    return;
+  }
+
   if ($gbininfo->{'_volatile'}) {
     # try to clean up _volatile
     my $bininfo = $gbininfo->{'_volatile'};
