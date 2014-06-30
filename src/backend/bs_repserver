@@ -847,6 +847,7 @@ sub getbinarylist {
   if ($view eq 'cpio') {
     my @files;
     my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls("$reporoot/$prp/$arch/$packid");
+    @bins = grep {!/^::import::/} @bins if $cgi->{'noimport'};
     @bins = filtersources(@bins) if $cgi->{'nosource'} || -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
     for (sort @bins) {
       next if %binaries && !$binaries{$_};
@@ -864,6 +865,7 @@ sub getbinarylist {
     for (sort keys %$bininfo) {
       my $bin = $bininfo->{$_};
       next if %binaries && !$binaries{$bin->{'filename'}};
+      next if $cgi->{'noimport'} && $bin->{'filename'} =~ /^::import::/;
       my $r = { 'name' => $bin->{'filename'} };
       $r->{'hdrmd5'} = $bin->{'hdrmd5'} if $bin->{'hdrmd5'};
       $r->{'leadsigmd5'} = $bin->{'leadsigmd5'} if $bin->{'leadsigmd5'};
@@ -876,6 +878,7 @@ sub getbinarylist {
   die("unsupported view '$view'\n") if $view;
   my @res;
   my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls("$reporoot/$prp/$arch/$packid");
+  @bins = grep {!/^::import::/} @bins if $cgi->{'noimport'};
   @bins = filtersources(@bins) if $cgi->{'nosource'} || -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
   for (sort @bins) {
     next if %binaries && !$binaries{$_};
@@ -3997,7 +4000,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/_relsync' => \&getrelsync,
   'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool? setrelease:?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
-  '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool? nosource:bool?' => \&getbinarylist,
+  '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool? nosource:bool? noimport:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,
