@@ -2281,9 +2281,9 @@ sub fctx_integrate_package_into_full {
     for my $n (sort keys %interesting) {
       my $or = $oldfull{$n};
       my $nr = $newfull{$n};
-      next unless $or && !$nr;
-      fctx_del_binary_from_full($fctx, $or);
-      push @volrm, $or if $or->{'packid'} eq '_volatile';
+      next unless $or;
+      fctx_del_binary_from_full($fctx, $or) unless $nr;
+      push @volrm, $or if $or->{'packid'} eq '_volatile' && !($nr && $nr == $or);
     }
     fcrx_remove_from_volatile($fctx, \@volrm) if @volrm;
     return;
