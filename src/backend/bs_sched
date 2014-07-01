@@ -2628,7 +2628,7 @@ sub move_into_full {
 
 # check if the useforbuild settings have changed. If yes, update the :full tree
 sub checkuseforbuild {
-  my ($prp, $prpsearchpath, $fullcache) = @_;
+  my ($prp, $prpsearchpath, $fullcache, $forcerebuild) = @_;
   return unless $BSConfig::new_full_handling;
   my $gdst = "$reporoot/$prp/$myarch";
   my ($projid, $repoid) = split('/', $prp, 2);
@@ -2659,6 +2659,7 @@ sub checkuseforbuild {
   if (!$olduseforbuild) {
     $olduseforbuild = [] unless -d "$gdst/:full";
   }
+  $olduseforbuild = undef if $forcerebuild;
   if ($olduseforbuild) {
     return if join('/', @$olduseforbuild) eq join('/', @$newuseforbuild);
     # diff it. only care about current packages.
@@ -7226,6 +7227,11 @@ sub event_useforbuild {
   } else {
     @packs = sort keys %$packs;
     @packs = reverse(orderpackidsforfull(@packs));
+    if ($BSConfig::new_full_handling) {
+      # force a rebuild of the full tree
+      checkuseforbuild($prp, $prpsearchpath{$prp}, undef, 1);
+      @packs = ();
+    }
   }
   for my $packid (@packs) {
     my $gdst = "$reporoot/$prp/$myarch";
