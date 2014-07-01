@@ -11,7 +11,7 @@
       <register>
         <target>sle-11-%{_target_cpu}</target>
         <pool>
-          <repository project="BaseDistro" name="prod" media="DVD" />
+          <repository project="BaseDistro" name="BaseDistro_repo" media="DVD" />
           <repository url="http://external.url/to.some.one" />
         </pool>
         <updates>

@@ -10,9 +10,10 @@ class Repository < ActiveRecord::Base
   has_many :targetlinks, :class_name => "ReleaseTarget", :foreign_key => 'target_repository_id'
   has_many :download_stats
   has_one :hostsystem, :class_name => "Repository", :foreign_key => 'hostsystem_id'
-  has_many :product_update_repositories # no automatic destroy to avoid accidental removal of used update channels
-
-  has_many :repository_architectures, -> { order("position") }, :dependent => :delete_all, inverse_of: :repository
+  has_many :binary_releases, :dependent => :destroy
+  has_many :product_update_repositories, dependent: :delete_all
+  has_many :product_media, dependent: :delete_all
+  has_many :repository_architectures, -> { order("position") }, :dependent => :destroy, inverse_of: :repository
   has_many :architectures, -> { order("position") }, :through => :repository_architectures
 
   scope :not_remote, -> { where(:remote_project_name => nil) }

@@ -1358,6 +1358,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag( :tag => 'target', :attributes => { project: 'BaseDistro3', package: 'pack2.' + incidentID } )
     assert_xml_tag( :tag => 'target', :attributes => { project: 'BaseDistro3', package: 'patchinfo.' + incidentID } )
     assert_xml_tag( :tag => 'review', :attributes => { by_group: 'test_group' } )
+    assert_xml_tag( :tag => 'review', :attributes => { by_user: 'fred' } ) # BaseDistro2:Update pack2
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     reqid = node.value(:id)

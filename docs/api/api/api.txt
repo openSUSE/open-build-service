@@ -1319,7 +1319,7 @@ XmlResult: collection
 
 GET /search/published/binary/id
 
-  Search for published binary packages
+  Search for currenlty available binaries in the publish area.
 
 Parameters:
 
@@ -1331,6 +1331,35 @@ XmlResult: collection
 GET /search/published/pattern/id
 
   Search for published patterns
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
+GET /search/released/binary
+
+  Search for binaries which got released. This works only for binaries published
+  via release mechanism. It also includes binaries which got removed again.
+
+  It is recommended to specify at least the @name binary package name or the
+  @disturl.
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
+GET /search/released/binary/id
+
+  Search for binaries which got released. This works only for binaries published
+  via release mechanism. It also includes binaries which got removed again.
+
+  This is the short version without full release data information.
 
 Parameters:
 

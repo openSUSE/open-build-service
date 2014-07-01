@@ -553,6 +553,8 @@ OBSApi::Application.routes.draw do
       match 'search/published/binary/id' => :pass_to_backend, via: [:get, :post]
       # ACL(/search/published/pattern/id) TODO: direct passed call to  'pass_to_backend'
       match 'search/published/pattern/id' => :pass_to_backend, via: [:get, :post]
+      match 'search/released/binary/id' => :released_binary_id, via: [:get, :post]
+      match 'search/released/binary' => :released_binary, via: [:get, :post]
       match 'search/project/id' => :project_id, via: [:get, :post]
       match 'search/package/id' => :package_id, via: [:get, :post]
       match 'search/project_id' => :project_id, via: [:get, :post] #FIXME3.0: to be removed

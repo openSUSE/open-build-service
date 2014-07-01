@@ -16,7 +16,8 @@ class XpathEngine
       'person' => 'users',
       'repository' => 'repositories',
       'issue' => 'issues',
-      'request' => 'requests'
+      'request' => 'requests',
+      'released_binary' => 'binaries'
     }
     
     @attribs = {
@@ -131,6 +132,16 @@ class XpathEngine
           ['LEFT JOIN attribs ON attribs.project_id = projects.id',
            'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
            'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id']},
+      },
+      'binaries' => {
+        '@name' => {:cpart => 'binary_name'},
+        '@version' => {:cpart => 'binary_version'},
+        '@release' => {:cpart => 'binary_release'},
+        '@arch' => {:cpart => 'binary_arch'},
+        '@disturl' => {:cpart => 'binary_disturl'},
+        '@supportstatus' => {:cpart => 'binary_supportstatus'},
+        'repository/@project' => {:cpart => 'release_projects.name'},
+        'repository/@name' => {:cpart => 'release_repositories.name'},
       },
       'users' => {
         '@login' => {:cpart => 'users.login'},
@@ -267,6 +278,10 @@ class XpathEngine
       relation = User.all
     when 'issues'
       relation = Issue.all
+    when 'binaries'
+      relation = BinaryRelease.all
+      @joins << ['LEFT JOIN repositories AS release_repositories ON binary_releases.repository_id = release_repositories.id',
+                 'LEFT JOIN projects AS release_projects ON release_repositories.db_project_id = release_projects.id']
     else
       logger.debug "strange base table: #{@base_table}"
     end

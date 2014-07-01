@@ -38,6 +38,14 @@ class SearchController < ApplicationController
     search(:request, false)
   end
 
+  def released_binary
+    search(:released_binary, true)
+  end
+
+  def released_binary_id
+    search(:released_binary, false)
+  end
+
   def attribute
     unless params[:namespace] and params[:name]
       render_error :status => 400, :message => "need namespace and name parameter"
@@ -193,6 +201,9 @@ class SearchController < ApplicationController
       includes = [:bs_request_actions, :bs_request_histories, :reviews]
     when :person
       relation = User.where(id: search_items)
+      includes = []
+    when :released_binary
+      relation = BinaryRelease.where(id: search_items)
       includes = []
     when :issue
       relation = Issue.where(id: search_items)

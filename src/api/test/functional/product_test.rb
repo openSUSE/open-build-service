@@ -56,7 +56,7 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag :parent => { :tag => "repository", :attributes => { :path => '/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo' } },
                    :tag => "update"
-    assert_xml_tag :tag => "repository", :attributes => { :path => '/BaseDistro/prod/repo/DVD' }
+    assert_xml_tag :tag => "repository", :attributes => { :path => '/BaseDistro/BaseDistro_repo/repo/DVD' }
     assert_xml_tag :tag => "repository", :attributes => { :url => 'http://external.url/to.some.one' }
 
     # product views in a package
@@ -93,6 +93,24 @@ class ProductTests < ActionDispatch::IntegrationTest
     get "/source/home:tom:temporary/_product:simple-cd-cd-i586_x86_64/simple-cd-cd-i586_x86_64.kwd"
     assert_response :success
     assert_match(/^obs-server: \+Kwd:\\nsupport_l3\\n-Kwd:/, @response.body)
+
+    # indexed data
+    pkg=Package.find_by_project_and_name("home:tom:temporary", "_product")
+    assert_not_nil pkg
+    product=Product.find_by_name_and_package("simple", pkg)
+    assert_not_nil product
+    assert_equal product.count, 1
+    product = product.first
+    assert_equal product.name, "simple"
+    assert_equal product.cpe, "cpe:/o:obs_fuzzies:simple:13.1"
+    assert_equal product.product_update_repositories.count, 1
+    pu = product.product_update_repositories.first
+    assert_equal pu.repository.project.name, "BaseDistro2.0:LinkedUpdateProject"
+    assert_equal pu.repository.name, "BaseDistro2LinkedUpdateProject_repo"
+    assert_equal product.product_media.count, 1
+    pm = product.product_media.first
+    assert_equal pm.repository.project.name, "BaseDistro"
+    assert_equal pm.repository.name, "BaseDistro_repo"
 
     # invalid uploads 
     raw_put "/source/home:tom:temporary/_product/obs.group",

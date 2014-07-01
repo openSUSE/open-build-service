@@ -148,6 +148,30 @@ CREATE TABLE `backend_packages` (
   CONSTRAINT `backend_packages_ibfk_2` FOREIGN KEY (`links_to_id`) REFERENCES `packages` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+CREATE TABLE `binary_releases` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `repository_id` int(11) NOT NULL,
+  `build_repository_id` int(11) DEFAULT NULL,
+  `binary_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `binary_epoch` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `binary_version` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
+  `binary_release` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
+  `binary_arch` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
+  `binary_disturl` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `binary_buildtime` datetime DEFAULT NULL,
+  `binary_releasetime` datetime NOT NULL,
+  `binary_deletetime` datetime DEFAULT NULL,
+  `binary_supportstatus` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `binary_maintainer` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_binary_releases_on_binary_name` (`binary_name`),
+  KEY `ra_name_index` (`repository_id`,`binary_name`),
+  KEY `exact_search_index` (`binary_name`,`binary_epoch`,`binary_version`,`binary_release`,`binary_arch`),
+  KEY `build_repository_id` (`build_repository_id`),
+  CONSTRAINT `binary_releases_ibfk_1` FOREIGN KEY (`build_repository_id`) REFERENCES `repositories` (`id`),
+  CONSTRAINT `binary_releases_ibfk_2` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `blacklist_tags` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
@@ -652,6 +676,18 @@ CREATE TABLE `product_channels` (
   KEY `product_id` (`product_id`),
   CONSTRAINT `product_channels_ibfk_1` FOREIGN KEY (`channel_id`) REFERENCES `channels` (`id`),
   CONSTRAINT `product_channels_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE `product_media` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `product_id` int(11) DEFAULT NULL,
+  `repository_id` int(11) DEFAULT NULL,
+  `medium` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `product_id` (`product_id`),
+  KEY `repository_id` (`repository_id`),
+  CONSTRAINT `product_media_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`),
+  CONSTRAINT `product_media_ibfk_2` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `product_update_repositories` (
@@ -1445,6 +1481,8 @@ INSERT INTO schema_migrations (version) VALUES ('20140124071042');
 
 INSERT INTO schema_migrations (version) VALUES ('20140210114542');
 
+INSERT INTO schema_migrations (version) VALUES ('20140213101042');
+
 INSERT INTO schema_migrations (version) VALUES ('20140218174400');
 
 INSERT INTO schema_migrations (version) VALUES ('20140219185200');
@@ -1453,7 +1491,9 @@ INSERT INTO schema_migrations (version) VALUES ('20140516182719');
 
 INSERT INTO schema_migrations (version) VALUES ('20140604101042');
 
-INSERT INTO schema_migrations (version) VALUES ('20141302101042');
+INSERT INTO schema_migrations (version) VALUES ('20140624101042');
+
+INSERT INTO schema_migrations (version) VALUES ('20140627071042');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
