@@ -650,6 +650,7 @@ our $buildhist = [
 	    'versrel',
 	    'bcnt',
 	    'time',
+	    'duration',
      ]],
 ];
 
