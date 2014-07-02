@@ -134,8 +134,16 @@ sub modify {
 
     my @data;
     if (-s $usedfiles{$file}) {
-      my $data = Storable::fd_retrieve($usedfiles{$file});
-      die("retrieve file failed\n") unless $data;
+      my $data;
+      eval {
+        $data = Storable::fd_retrieve($usedfiles{$file});
+      };
+      if (!$data) {
+	my $fn = Digest::MD5::md5_hex($file);
+	my $dn = substr($fn, 0, 2);
+	$fn = substr($fn, 2);
+	die("retrieve file $dn/$fn failed: $@");
+      }
       @data = @$data;
     }
     my $oldcnt = @data;
