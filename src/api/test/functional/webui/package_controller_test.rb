@@ -91,7 +91,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     use_js
     login_Iggy
     visit root_path + '/package/show/home:Iggy/TestPack'
-    fill_comment "Write some http://link.com\n\nand some other\n\n* Markdown\n* markup\n\nReferencing sr#23, bco#24, fate#25 and @Iggy."
+    fill_comment "Write some http://link.com\n\nand some other\n\n* Markdown\n* markup\n\nReferencing sr#23, bco#24, fate#25, @_nobody_, @a-dashed-user and @Iggy."
     within('div.comment_0') do
       page.must_have_link "http://link.com"
       page.must_have_xpath '//ul//li[text()="Markdown"]'
@@ -99,6 +99,8 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
       page.must_have_xpath '//a[contains(@href, "/request/show/23") and text()="sr#23"]'
       page.must_have_xpath '//a[@href="http://bugzilla.clutter-project.org/show_bug.cgi?id=24" and text()="bco#24"]'
       page.must_have_xpath '//a[@href="https://features.opensuse.org/25" and text()="fate#25"]'
+      page.must_have_xpath '//a[contains(@href, "user/show/_nobody_") and text()="@_nobody_"]'
+      page.must_have_xpath '//a[contains(@href, "user/show/a-dashed-user") and text()="@a-dashed-user"]'
       page.must_have_xpath '//a[contains(@href, "user/show/Iggy") and text()="@Iggy"]'
     end
   end
