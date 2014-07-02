@@ -74,7 +74,7 @@ $proxy = $BSConfig::proxy if defined($BSConfig::proxy);
 
 BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BSConfig::disable_data_sync;
 
-my $historylay = [qw{versrel bcnt srcmd5 rev time}];
+my $historylay = [qw{versrel bcnt srcmd5 rev time duration}];
 
 my $reporoot = "$BSConfig::bsdir/build";
 my $workersdir = "$BSConfig::bsdir/workers";
@@ -956,9 +956,10 @@ sub getjobstatus {
   return ({}, $BSXML::jobstatus) unless $status && $status->{'status'} eq 'scheduled';
 
   # find last successful build
-  my @history = BSFileDB::fdb_getall_reverse("$reporoot/$projid/$repoid/$arch/$packid/history", $historylay, 1);
-  my $lastbuildtime = $history[0]->{time} if @history > 0;
-  $jobstatus->{'lastsuccesstime'} = $lastbuildtime if $lastbuildtime;
+  my @history = BSFileDB::fdb_getlast("$reporoot/$projid/$repoid/$arch/$packid/history", $historylay);
+  my $lastduration;
+  $lastduration = $history[0]->{duration} if @history > 0;
+  $jobstatus->{'lastduration'} = $lastduration if $lastduration;
 
   return ($jobstatus, $BSXML::jobstatus);
 }
@@ -2485,7 +2486,7 @@ sub getlastfailures {
 sub getlastfailures_old {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my $filter;
- # report last success/unchanged and all fails for earch package
+ # report last success/unchanged and all fails for each package
   my %success;
   if ($cgi->{'package'}) {
     my %packid = map {$_ => 1} @{$cgi->{'package'}};

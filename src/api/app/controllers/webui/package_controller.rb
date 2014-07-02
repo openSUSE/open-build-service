@@ -749,8 +749,8 @@ class Webui::PackageController < Webui::WebuiController
         js = Xmlhash.parse(jobstatus)
         @workerid = js.get('workerid')
         @buildtime = Time.now.to_i - js.get('starttime').to_i
-        lst = js.get('lastsuccesstime')
-        @percent = (@buildtime / lst.to_i) * 100 unless lst.blank?
+        ld = js.get('lastduration')
+        @percent = (@buildtime * 100) / ld.to_i unless ld.blank?
       end
     rescue
       @workerid = nil

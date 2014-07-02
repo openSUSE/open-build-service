@@ -110,7 +110,7 @@ if (!$BSCando::knownarch{$myarch}) {
 my $myjobsdir = "$jobsdir/$myarch";
 my $myeventdir = "$eventdir/$myarch";
 
-my $historylay = [qw{versrel bcnt srcmd5 rev time}];
+my $historylay = [qw{versrel bcnt srcmd5 rev time duration}];
 
 my %remoteprojs;	# remote project cache
 
@@ -4352,7 +4352,8 @@ sub jobfinished {
   writexml("$statusdir/.status", "$statusdir/status", $status, $BSXML::buildstatus);
 
   # write history file
-  my $h = {'versrel' => $info->{'versrel'}, 'bcnt' => $info->{'bcnt'}, 'time' => $now, 'srcmd5' => $info->{'srcmd5'}, 'rev' => $info->{'rev'}, 'reason' => $info->{'reason'}};
+  my $duration =  $js->{'endtime'} - $js->{'starttime'};
+  my $h = {'versrel' => $info->{'versrel'}, 'bcnt' => $info->{'bcnt'}, 'time' => $now, 'srcmd5' => $info->{'srcmd5'}, 'rev' => $info->{'rev'}, 'reason' => $info->{'reason'}, 'duration' => $duration};
   BSFileDB::fdb_add("$reporoot/$prp/$myarch/$packid/history", $historylay, $h);
 
   # update relsync file (use relsync.merge if relsync is too big)
@@ -4628,7 +4629,7 @@ sub fakejobfinished_nouseforbuild {
     }
     delete $bininfo->{'.bininfo'};
     # write history file
-    my $h = {'versrel' => $pdata->{'versrel'}, 'bcnt' => "0", 'time' => time(), 'srcmd5' => $pdata->{'srcmd5'}, 'rev' => $pdata->{'rev'}, 'reason' => ""};
+    my $h = {'versrel' => $pdata->{'versrel'}, 'bcnt' => "0", 'time' => time(), 'srcmd5' => $pdata->{'srcmd5'}, 'rev' => $pdata->{'rev'}, 'reason' => "", 'duration' => "0"};
     BSFileDB::fdb_add("$dst/history", $historylay, $h);
   }
   BSUtil::cleandir($jobdatadir);
