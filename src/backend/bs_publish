@@ -71,7 +71,7 @@ my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 my @binsufsrsync = map {"--include=*.$_"} @binsufs;
 
 sub notify {
-  my ($type, $p) = @_;
+  my ($type, $p, $payload) = @_;
   # strip
   $p = { map {$_ => $p->{$_}} grep {defined($p->{$_}) && !ref($p->{$_})} sort keys %{$p || {}} };
   if (0) {
@@ -84,11 +84,18 @@ sub notify {
       'headers' => [ 'Content-Type: application/x-www-form-urlencoded' ],
       'timeout' => 60,
     };
+    if ($payload) {
+      $param->{'headers'} = [ 'Content-Type: application/octet-stream' ];
+      $param->{'data'} = $payload;
+    }
     my @args = map {"$_=$p->{$_}"} sort keys %$p;
     eval {
       BSRPC::rpc($param, undef, @args);
     };
-    warn($@) if $@;
+    if ($@) {
+      die($@) if $payload;	# payload transfers are fatal
+      warn($@);
+    }
   }
 }
 
@@ -1296,6 +1303,8 @@ sub publish {
   my %deltainfos;
   my $deltainfos_state;
 
+  my %kiwireport;
+
   if ($archorder) {
     my %archorder = map {$_ => 1} @$archorder;
     my %archs = map {$_ => 1} @archs;
@@ -1408,6 +1417,10 @@ sub publish {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.vmdk(?:\.sha256)?$/) {
 	  $p = "$bin";
+        } elsif ($bin =~ /^(.*)\.report$/) {
+	  # collect kiwi reports
+	  $kiwireport{$1} = readxml("$r/$rbin", $BSXML::report, 1);
+	  next;
 	} elsif (-d "$r/$rbin") {
 	  $p = "repo/$bin";
 	} else {
@@ -1673,6 +1686,41 @@ sub publish {
     $patterns = getpatterns($projid);
   }
 
+  # collect packtrack data (if needed)
+  my $packtrack;
+  if ($BSConfig::packtrack && grep {$prp =~ /^$_/} @$BSConfig::packtrack) {
+    $packtrack = {};
+    for my $bin (sort keys %bins) {
+      if ($bin =~ /\.(?:$binsufsre)$/) {
+	my $res;
+	eval {
+          $res = Build::query("$extrep/$bin", 'evra' => 1, 'buildtime' => 1, 'disturl' => 1);
+	};
+	next unless $res;
+	my $pt = {
+	  'project' => $projid,
+	  'repository' => $repoid,
+	};
+	$pt->{'arch'} = $1 if $bins{$bin} =~ /^\Q$reporoot\E\/\Q$prp\E\/([^\/]+)\//;
+	$pt->{'package'} = $binaryorigins->{$bin} if $binaryorigins->{$bin};
+	for (qw{name epoch version release disturl buildtime}) {
+	  $pt->{$_} = $res->{$_} if defined $res->{$_};
+	}
+	$pt->{'binaryarch'} = $res->{'arch'} if defined $res->{'arch'};
+	$packtrack->{$bin} = $pt;
+      } elsif (($bin =~ /^iso\/(.*)\.iso$/ || $bin =~ /^repo\/(.*)$/) && $kiwireport{$1}) {
+	for my $kb (@{$kiwireport{$1}->{'binary'} || []}) {
+	  my $pt = { %$kb };
+	  delete $pt->{'_content'};
+	  # beware of mixery!
+	  my $fn = '';
+	  $fn .= "/".(defined($pt->{$_}) ? $pt->{$_} : '') for qw{arch name epoch version release};
+	  $packtrack->{"kiwireport$fn"} = $pt;
+	}
+      }
+    }
+  }
+
   # create and store the new repoinfo
   $repoinfo = {
     'prpsearchpath' => $prpsearchpath,
@@ -1870,6 +1918,11 @@ publishprog_done:
   }
 
   notify('REPO_PUBLISHED', { project => $projid , 'repo' => $repoid });
+
+  if ($packtrack) {
+    notify('PACKTRACK', { project => $projid , 'repo' => $repoid }, Storable::nfreeze([ map { $packtrack->{$_} } sort keys %$packtrack ]));
+  }
+
   # all done. till next time...
   if ($BSConfig::publishprogram && $BSConfig::publishprogram->{$prp}) {
     exit(0);
