@@ -171,6 +171,10 @@ class Webui::PatchinfoController < Webui::WebuiController
           node.packager    packager
           if issues
             issues.each do |issue|
+              unless IssueTracker.find_by_name(issue[1])
+                flash[:error] = "Unknown Issue tracker #{issue[1]}"
+                return
+              end
               node.issue(issue[2], :tracker=>issue[1], :id=>issue[0])
             end
           end
