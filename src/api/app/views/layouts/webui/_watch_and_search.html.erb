@@ -20,13 +20,13 @@
           <li>
             <%= link_to(content_tag(:span, content_tag(:span, "", class:
                     "icons-project") + elide(project, 32), class: "project-link"),
-                        controller: 'project', action: :show, project: project) %>
+                    project_show_path(project)) %>
           </li>
       <% end -%>
     </ul>
 <%- end -%>
 
-<%= form_tag({ controller: 'search', action: 'index' }, { id: "global-search-form", class: "label-overlay" }) do -%>
+<%= form_tag(search_path, { id: "global-search-form", class: "label-overlay" }) do -%>
     <div style="display: inline">
       <label for="search" class="hidden">Search</label>
       <%= text_field_tag 'search_text', '', id: 'search' -%>
