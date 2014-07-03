@@ -265,6 +265,7 @@ class XpathEngine
     #logger.debug "-------------------- end parsing xpath: #{xpath} ---------------------"
 
     relation = nil
+    order = nil
     case @base_table
     when 'packages'
       relation = Package.all
@@ -282,6 +283,7 @@ class XpathEngine
       relation = BinaryRelease.all
       @joins << ['LEFT JOIN repositories AS release_repositories ON binary_releases.repository_id = release_repositories.id',
                  'LEFT JOIN projects AS release_projects ON release_repositories.db_project_id = release_projects.id']
+      order = :binary_releasetime
     else
       logger.debug "strange base table: #{@base_table}"
     end
@@ -289,7 +291,7 @@ class XpathEngine
 
     logger.debug("#{relation.to_sql}.find #{ { joins: @joins.flatten.uniq.join(' '),
                                                conditions: cond_ary}.inspect }")
-    relation = relation.joins(@joins.flatten.uniq.join(" ")).where(cond_ary)
+    relation = relation.joins(@joins.flatten.uniq.join(" ")).where(cond_ary).order(order)
     relation.pluck(:id).uniq
   end
 
