@@ -1209,7 +1209,7 @@ sub deleterepo {
   # also delete the split debug repo
   deleterepo($projid, $repoid, $repoinfo->{'splitdebug'}) if $repoinfo->{'splitdebug'} && !$dbgsplit;
 
-  if (!$dbgsplit && $BSConfig::packtrack && grep {$prp =~ /^$_/} @$BSConfig::packtrack) {
+  if (!$dbgsplit && $BSConfig::packtrack && (($repoinfo->{'projectkind'} || '') eq 'maintenance_release' || grep {$prp =~ /^$_/} @$BSConfig::packtrack)) {
     my $packtrack = {};
     notify('PACKTRACK', { project => $projid , 'repo' => $repoid }, Storable::nfreeze([ map { $packtrack->{$_} } sort keys %$packtrack ]));
   }
@@ -1701,10 +1701,7 @@ sub publish {
 
   # collect packtrack data (if needed)
   my $packtrack;
-  if (defined($BSConfig::packtrack) &&
-      (($proj->{'kind'} && $proj->{'kind'} eq 'maintenance_release')
-       || grep {$prp =~ /^$_/} @$BSConfig::packtrack)
-     ) {
+  if ($BSConfig::packtrack && (($proj->{'kind'} || '') eq 'maintenance_release' || grep {$prp =~ /^$_/} @$BSConfig::packtrack)) {
     $packtrack = $dbgpacktrack || {};
     for my $bin (sort keys %bins) {
       if ($bin =~ /\.(?:$binsufsre)$/) {
@@ -1760,6 +1757,7 @@ sub publish {
     'title' => $title,
     'state' => $state,
   };
+  $repoinfo->{'projectkind'} = $proj->{'kind'} if $proj->{'kind'};
   $repoinfo->{'arch'} = $repo->{'arch'} if $repo->{'arch'};
   $repoinfo->{'splitdebug'} = $repotype{'splitdebug'}->[0] if defined $dbgsplit;
   $repoinfo->{'subdir'} = $subdir if $subdir;
