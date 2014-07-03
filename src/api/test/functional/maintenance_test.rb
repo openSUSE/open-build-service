@@ -587,6 +587,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     run_scheduler('i586')
     wait_for_publisher
 
+    # event handling
+    UpdateNotificationEvents.new.perform
+
     # collect the job results
     get "/build/#{incidentProject}/_result"
     assert_response :success

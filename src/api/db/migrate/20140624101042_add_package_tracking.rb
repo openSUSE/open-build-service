@@ -3,9 +3,10 @@ class AddPackageTracking < ActiveRecord::Migration
     create_table :binary_releases do |t|
       t.references :repository, null: false  # this destroys the entry when it gets removed
       t.integer    :operation, null: false
+      t.datetime   :obsolete_time            # set when binary gets deleted or modified later
 
       t.integer    :build_repository_id                    # might get removed after release
-#      t.integer    :release_container_id
+      t.integer    :release_package_id
  
       t.string     :binary_name,        null: false
       t.string     :binary_epoch,                    :limit => 64
@@ -25,9 +26,11 @@ class AddPackageTracking < ActiveRecord::Migration
     add_index :binary_releases, [:repository_id, :binary_name], :name => "ra_name_index"
     add_index :binary_releases, [:binary_name, :binary_epoch, :binary_version, :binary_release, :binary_arch], :name => "exact_search_index"
 
-    execute "alter table binary_releases add FOREIGN KEY (build_repository_id) references repositories (id);"
-    execute("alter table binary_releases add foreign key (repository_id) references repositories(id)")
     execute("alter table binary_releases modify column `operation` enum('added','removed', 'modified') DEFAULT 'added';")
+    execute "alter table binary_releases add FOREIGN KEY (build_repository_id) references repositories (id);"
+    execute("alter table binary_releases add FOREIGN KEY (repository_id) references repositories(id)")
+    execute("alter table binary_releases add FOREIGN KEY (build_repository_id) references repositories(id)")
+    execute("alter table binary_releases add FOREIGN KEY (release_package_id) references packages(id)")
   end
 
   def down

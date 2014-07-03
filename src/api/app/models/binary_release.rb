@@ -17,6 +17,9 @@ class BinaryRelease < ActiveRecord::Base
     def find_by_repo_and_name( repo, name )
       self.where(:repository => repo, :binary_name => name)
     end
+    def get_all_current_binaries( repo )
+      self.where(:repository => repo, :obsolete_time => nil)
+    end
   end
 
   def create_attributes

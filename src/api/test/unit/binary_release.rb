@@ -43,4 +43,12 @@ class BinaryReleaseTest < ActiveSupport::TestCase
     assert_nil BinaryRelease.find_by_id(id)
   end
 
+  def test_update_from_json_hash
+    json = [{"arch"=>"i586", "binaryarch"=>"i586", "repository"=>"BaseDistro3_repo", "release"=>"1", "name"=>"delete_me", "project"=>"BaseDistro3", "version"=>"1.0", "package"=>"pack2"}, {"arch"=>"i586", "binaryarch"=>"i586", "name"=>"package", "repository"=>"BaseDistro3_repo", "release"=>"1", "project"=>"BaseDistro3", "version"=>"1.0", "package"=>"pack2"}, {"arch"=>"i586", "binaryarch"=>"src", "name"=>"package", "repository"=>"BaseDistro3_repo", "release"=>"1", "project"=>"BaseDistro3", "version"=>"1.0", "package"=>"pack2"}, {"binaryarch"=>"x86_64", "arch"=>"i586", "package"=>"pack2", "project"=>"BaseDistro3", "version"=>"1.0", "release"=>"1", "repository"=>"BaseDistro3_repo", "name"=>"package_newweaktags"}]
+
+    r = Repository.find_by_project_and_repo_name("BaseDistro3", "BaseDistro3_repo")
+
+    r.update_binary_releases_via_json(json)
+  end
+
 end

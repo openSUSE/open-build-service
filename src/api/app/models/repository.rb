@@ -63,6 +63,75 @@ class Repository < ActiveRecord::Base
     end
   end
 
+  def update_binary_releases(key)
+    begin
+      pt = ActiveSupport::JSON.decode(Suse::Backend.get("/notificationpayload/#{key}").body)
+    rescue
+      logger.error("Failed to parse package tracking information for #{key}")
+      return
+    end
+     self.update_binary_releases_via_json(pt)
+  end
+
+  def update_binary_releases_via_json(json)
+    oldlist = BinaryRelease.get_all_current_binaries(self)
+
+    BinaryRelease.transaction do
+      json.each do |binary|
+        # identifier
+        hash={ :binary_name => binary["name"],
+               :binary_version => binary["version"],
+               :binary_release => binary["release"],
+               :binary_epoch => binary["epoch"],
+               :binary_arch => binary["binaryarch"]
+             }
+        # check for existing entry
+        existing = oldlist.where(hash)
+        raise SaveError if existing.count > 1
+        
+        # complete data
+        if existing.count == 1
+          entry = existing.first
+          if entry.binary_disturl       != binary["disturl"] or
+             entry.binary_supportstatus != binary["supportstatus"] or
+             entry.binary_buildtime     != binary["buildtime"] or
+             entry.binary_releasetime   != binary["releasetime"]
+            # same binary name and location, but different content
+             entry.operation = "modified"
+             entry.obsolete_time = Time.now
+             entry.save!
+             oldlist.delete(entry)
+          end
+        end
+
+        # complete hash for new entry
+        hash['binary_disturl'] = binary["disturl"]
+        hash['binary_supportstatus'] = binary["supportstatus"]
+
+#  `build_repository_id` int(11) DEFAULT NULL,
+#  `binary_buildtime` datetime DEFAULT NULL,
+#  `binary_releasetime` datetime NOT NULL,
+#  `binary_supportstatus` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+
+        if binary["project"]
+          rp = Package.find_by_project_and_name(binary["project"], binary["package"])
+          hash['release_package_id'] = rp.id
+#          hash['binary_maintainer'] = rp.owner
+        end
+
+        # new entry, also for modified binaries.
+        self.binary_releases.create(hash)
+      end
+
+      # and drop all removed binaries
+      oldlist.each do |e|
+        e.operation = "removed"
+        e.obsolete_time = Time.now
+        e.save!
+      end
+    end
+  end
+
   class << self
     def find_by_project_and_repo_name( project, repo )
       result = not_remote.joins(:project).where(:projects => {:name => project}, :name => repo).first
