@@ -1348,7 +1348,7 @@ our $updateinfoitem = [
 			'release',
 			'arch',
 			'src',
-			'supportstatus',
+			'supportstatus',	# extension
 			[],
 			'filename',
 		      [ 'sum' =>	# obsolete?
@@ -1361,6 +1361,7 @@ our $updateinfoitem = [
 		 ]],
 	     ]],
 	  ],
+	    'patchinforef',			# extension, "project/package"
 ];
 
 our $updateinfo = [

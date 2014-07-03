@@ -438,9 +438,10 @@ sub createrepo_rpmmd {
   unlink("$extrep/repodata/$_") for grep {/updateinfo\.xml/} @oldrepodata;
   if (@{$data->{'updateinfos'} || []}) {
     print "    adding updateinfo.xml to repodata\n";
-    # strip supportstatus from updateinfos
+    # strip supportstatus and patchinforef from updateinfos
     my $updateinfos = Storable::dclone($data->{'updateinfos'});
     for my $up (@$updateinfos) {
+      delete $up->{'patchinforef'};
       for my $cl (@{($up->{'pkglist'} || {})->{'collection'} || []}) {
 	delete $_->{'supportstatus'} for @{$cl->{'package'} || []};
       }
@@ -1728,6 +1729,22 @@ sub publish {
 	  my $fn = '';
 	  $fn .= "/".(defined($pt->{$_}) ? $pt->{$_} : '') for qw{arch name epoch version release};
 	  $packtrack->{"kiwireport$fn"} = $pt;
+	}
+      }
+    }
+    # argh, find patchinforef and put it in update
+    if (@updateinfos) {
+      for my $up (@updateinfos) {
+	next unless $up->{'patchinforef'};
+	for my $cl (@{($up->{'pkglist'} || {})->{'collection'} || []}) {
+	  for my $pkg (@{$cl->{'package'} || []}) {
+	    my $pn = ($subdir ? "$subdir/" : '') . "$pkg->{'arch'}/$pkg->{'filename'}";
+	    if ($packtrack->{$pn}) {
+	      $packtrack->{$pn}->{'patchinforef'} = $up->{'patchinforef'};
+	      # XXX: do this in hook?
+	      $packtrack->{$pn}->{'supportstatus'} = $pkg->{'supportstatus'} if $pkg->{'supportstatus'};
+	    }
+	  }
 	}
       }
     }
