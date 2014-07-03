@@ -4,6 +4,8 @@
 
 # WARNING: you need to build this with rpmbuild from openSUSE 13.1 or older (eg. SLES 11)
 
+%global disturl obs://testsuite/BaseDistro/repo/ce167c27b536e6ca39f8d951fa02a4ff-package
+
 Name:           package
 License:        GPLv2+
 Group:          Development/Tools/Building
