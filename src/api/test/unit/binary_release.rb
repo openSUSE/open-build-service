@@ -25,6 +25,7 @@ class BinaryReleaseTest < ActiveSupport::TestCase
                               :binary_release => "2.3",
                               :binary_arch => "noarch",
                               :binary_supportstatus => "unsupported",
+                              :binary_maintainer => "tom",
                              )
     sbr = BinaryRelease.find_by_repo_and_name( r, "package" )
     assert_equal sbr.first, br
@@ -33,6 +34,7 @@ class BinaryReleaseTest < ActiveSupport::TestCase
     assert_equal sbr.first.binary_release, "2.3"
     assert_equal sbr.first.binary_arch, "noarch"
     assert_equal sbr.first.binary_supportstatus, "unsupported"
+    assert_equal sbr.first.binary_maintainer, "tom"
     assert_equal sbr.first.binary_releasetime, Time.now
     sbr = BinaryRelease.find_by_repo_and_name( r, "package" )
     assert_equal sbr.first, br

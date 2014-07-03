@@ -103,21 +103,25 @@ class Repository < ActiveRecord::Base
           entry.obsolete_time = Time.now
           entry.save!
           oldlist.delete(entry)
-          hash['operation'] = "modified" # new entry will get "modified" instead of "added"
+          hash[:operation] = "modified" # new entry will get "modified" instead of "added"
         end
 
         # complete hash for new entry
-        hash['binary_releasetime'] = time
-        hash['binary_disturl'] = binary["disturl"]
-        hash['binary_supportstatus'] = binary["supportstatus"]
+        hash[:binary_releasetime] = time
+        hash[:binary_disturl] = binary["disturl"]
+        hash[:binary_supportstatus] = binary["supportstatus"]
 
         if binary["project"] and rp = Package.find_by_project_and_name(binary["project"], binary["package"])
-          hash['release_package_id'] = rp.id
+          hash[:release_package_id] = rp.id
         end
         if binary["patchinforef"]
-          pi = Patchinfo.new(Suse::Backend.get("/source/#{binary["patchinforef"]}/_patchinfo").body)
+          begin
+            pi = Patchinfo.new(Suse::Backend.get("/source/#{binary["patchinforef"]}/_patchinfo").body)
+          rescue ActiveXML::Transport::NotFoundError
+            # patchinfo disappeared meanwhile
+          end
           # no database object on purpose, since it must also work for historic releases...
-          hash['binary_maintainer'] = pi.to_hash['packager'] if pi and pi.to_hash['packager']
+          hash[:binary_maintainer] = pi.to_hash['packager'] if pi and pi.to_hash['packager']
         end
 
         # new entry, also for modified binaries.
