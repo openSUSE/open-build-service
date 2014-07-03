@@ -151,6 +151,7 @@ CREATE TABLE `backend_packages` (
 CREATE TABLE `binary_releases` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `repository_id` int(11) NOT NULL,
+  `operation` enum('added','removed','modified') COLLATE utf8_unicode_ci DEFAULT 'added',
   `build_repository_id` int(11) DEFAULT NULL,
   `binary_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `binary_epoch` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,

@@ -1,6 +1,7 @@
 BaseDistro3_BaseDistro3_repo:
   id: 1
   repository_id: 93
+  operation: 'added'
 #  build_container_id:
 #  release_container_id: BaseDistro3_pack2
   binary_name: package
