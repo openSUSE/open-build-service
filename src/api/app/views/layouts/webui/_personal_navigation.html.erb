@@ -13,14 +13,14 @@
         <%= User.current %>
        <% end %>
     <% end %> |
-    <%= link_to 'Home Project', controller: 'project', action: :show, project: "home:#{User.current.login}" %> |
-    <%= link_to 'Logout', { controller: 'user', action: 'logout' }, method: :post, id: 'logout-link' %>
+    <%= link_to 'Home Project', project_show_path("home:#{User.current.login}") %> |
+    <%= link_to 'Logout', logout_path, method: :post, id: 'logout-link' %>
   <% else %>
     <% if CONFIG['proxy_auth_mode'] == :on %>
       <% unless CONFIG['proxy_auth_register_page'].blank? %>
         <%= link_to 'Sign Up', "#{CONFIG['proxy_auth_register_page']}?%22#{@return_to_host}#{@return_to_path}%22" %> |
       <% end %>
-      <%= link_to 'Log In', { controller: :user, action: :login }, id: 'login-trigger' %>
+      <%= link_to 'Log In', login_path, id: 'login-trigger' %>
       <div id="login-form">
         <%= form_tag(CONFIG['proxy_auth_login_page'], method: :post, id: 'login_form', enctype: 'application/x-www-form-urlencoded') do %>
           <p>
@@ -42,11 +42,11 @@
       </div>
     <% else %>
       <% if can_register %>
-        <%= link_to 'Sign Up', controller: :user, action: :register_user %> |
+        <%= link_to 'Sign Up', register_user_path %> |
       <% end %>
-      <%= link_to 'Log In', { controller: :user, action: :login }, id: 'login-trigger' %>
+      <%= link_to 'Log In', login_path, id: 'login-trigger' %>
       <div id="login-form">
-        <%= form_tag(controller: :user, action: :do_login) do %>
+        <%= form_tag(do_login_path) do %>
           <p>
             <%= hidden_field_tag(:return_to_path, @return_to_path) %>
             <%= label_tag(:username, 'Username') %>
