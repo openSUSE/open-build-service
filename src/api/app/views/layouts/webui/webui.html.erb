@@ -85,7 +85,7 @@
         <ul>
           <li><%= link_to "Your Profile", user_show_path(User.current) %> </li>
           <li><%= link_to "Home Project", project_show_path("home:#{User.current.login}") %></li>
-          <li><%= link_to 'Logout', logout_path, method: :post %></li>
+          <li><%= link_to 'Logout', user_logout_path, method: :post %></li>
         </ul>
       </div>
     <% end -%>
@@ -94,7 +94,7 @@
       <div class="grid_3">
         <strong class="grey-medium spacer1">Locations</strong>
         <ul>
-          <li><%= link_to "Projects", public_projects_path %></li>
+          <li><%= link_to "Projects", project_list_public_path %></li>
           <li><%= link_to "Search", search_path, class: 'search-link' %></li>
           <% unless @spider_bot -%>
             <li><%= link_to "Status Monitor", monitor_path %></li>

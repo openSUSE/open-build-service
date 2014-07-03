@@ -74,7 +74,7 @@ OBSApi::Application.routes.draw do
     end
 
     controller 'webui/monitor' do
-      get 'monitor/' => :index, as: 'monitor'
+      get 'monitor/' => :index
       get 'monitor/old' => :old
       get 'monitor/update_building' => :update_building
       get 'monitor/events' => :events
@@ -149,7 +149,7 @@ OBSApi::Application.routes.draw do
 
     controller 'webui/project' do
       get 'project/' => :index
-      get 'project/list_public' => :list_public, as: 'public_projects'
+      get 'project/list_public' => :list_public
       get 'project/list_all' => :list_all
       get 'project/list' => :list
       get 'project/list_simple' => :list_simple
@@ -251,17 +251,17 @@ OBSApi::Application.routes.draw do
     end
 
     controller 'webui/search' do
-      match 'search' => :index, via: [:get, :post], as: 'search'
+      match 'search' => :index, via: [:get, :post]
       get 'search/owner' => :owner
     end
 
     controller 'webui/user' do
 
-      post 'user/register' => :register, as: 'register'
-      get 'user/register_user' => :register_user, as: 'register_user'
+      post 'user/register' => :register
+      get 'user/register_user' => :register_user
 
-      get 'user/login' => :login, as: 'login'
-      post 'user/logout' => :logout, as: 'logout'
+      get 'user/login' => :login
+      post 'user/logout' => :logout
       get 'user/logout' => :logout
 
       post 'user/save' => :save
@@ -278,7 +278,7 @@ OBSApi::Application.routes.draw do
       get 'user/autocomplete' => :autocomplete
       get 'user/tokens' => :tokens
 
-      post 'user/do_login' => :do_login, as: 'do_login'
+      post 'user/do_login' => :do_login
       get 'configuration/users/:user' => :edit, as: 'configuration_user'
 
       post 'user/notifications' => :update_notifications
