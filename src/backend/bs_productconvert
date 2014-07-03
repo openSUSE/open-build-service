@@ -929,6 +929,7 @@ sub writeProductSPECfile( $$$$ )
     } else {
       # openSUSE 13.2 and SLE 12 case
       die("product register release is obsolete") if defined($product->{register}->{release}); # was used for OEM products on SLE 10
+      die("product register flavor") if defined($product->{register}->{flavor}); # was used for OEM products on SLE 10
       die("product release is not set but required") unless defined($product->{release}) and $product->{release} ne "";
       $productprovides.="Provides:       product() = $product->{name}\n";
       $productprovides.="Provides:       product(".$product->{name}.") = $product->{version}-$product->{release}\n";
