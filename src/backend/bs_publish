@@ -1121,28 +1121,35 @@ sub sync_to_stage {
 }
 
 sub deleterepo {
-  my ($projid, $repoid) = @_;
+  my ($projid, $repoid, $dbgsplit) = @_;
+  my $prp = "$projid/$repoid";
   print "    deleting repository\n";
   my $projid_ext = $projid;
   $projid_ext =~ s/:/:\//g;
-  my $prp = "$projid/$repoid";
   my $prp_ext = $prp;
   $prp_ext =~ s/:/:\//g;
   my $extrep = "$extrepodir/$prp_ext";
+
   if ($BSConfig::publishredirect && exists($BSConfig::publishredirect->{$prp})) {
     $extrep = $BSConfig::publishredirect->{$prp};
   }
+  $extrep .= $dbgsplit if $dbgsplit;
+  $prp_ext .= $dbgsplit if $dbgsplit;
+
   if (! -d $extrep) {
     rmdir("$extrepodir/$projid_ext");
+    return if $dbgsplit;
     print "    nothing to delete...\n";
     unlink("$reporoot/$prp/:repoinfo");
     rmdir("$reporoot/$prp");
     return;
   }
+
   # get old repoinfo
   my $repoinfo = {};
   if (-s "$reporoot/$prp/:repoinfo") {
     $repoinfo = Storable::retrieve("$reporoot/$prp/:repoinfo", 1) || {};
+    delete $repoinfo->{'splitdebug'} if $dbgsplit;	# do not recurse!
   }
   # delete all binaries
   my $subdir = $repoinfo->{'subdir'} || '';
@@ -1169,16 +1176,13 @@ sub deleterepo {
       push @db_deleted, $p if $p =~ /\.(?:$binsufsre)$/;
     }
   }
-  # update repoinfo
-  unlink("$reporoot/$prp/:repoinfo");
-  rmdir("$reporoot/$prp/$subdir") if $subdir;
-  rmdir("$reporoot/$prp");
 
   # update published database
   my $binarydb = db_open('binary');
   updatebinaryindex($binarydb, [ map {"$prp_ext/$_"} @db_deleted ], []) if $binarydb;
+
   my $repoinfodb = db_open('repoinfo');
-  db_store($repoinfodb, $prp, undef) if $repoinfodb;
+  db_store($repoinfodb, $dbgsplit ? "$prp$dbgsplit" : $prp, undef) if $repoinfodb;
 
   if ($BSConfig::markfileorigins) {
     for my $f (sort @db_deleted) {
@@ -1202,12 +1206,21 @@ sub deleterepo {
   sync_to_stage($prp, $projid_ext, 1);
   rmdir("$extrepodir/$projid_ext");
 
-  # also delete split debug repo
-  deleterepo($projid, "$repoid$repoinfo->{'splitdebug'}") if $repoinfo->{'splitdebug'};
+  # also delete the split debug repo
+  deleterepo($projid, $repoid, $repoinfo->{'splitdebug'}) if $repoinfo->{'splitdebug'} && !$dbgsplit;
+
+  if (!$dbgsplit && $BSConfig::packtrack && grep {$prp =~ /^$_/} @$BSConfig::packtrack) {
+    my $packtrack = {};
+    notify('PACKTRACK', { project => $projid , 'repo' => $repoid }, Storable::nfreeze([ map { $packtrack->{$_} } sort keys %$packtrack ]));
+  }
+
+  # delete repoinfo
+  unlink("$reporoot/$prp/:repoinfo") unless $dbgsplit;
+  rmdir("$reporoot/$prp");
 }
 
 sub publish {
-  my ($projid, $repoid, $dbgsplit) = @_;
+  my ($projid, $repoid, $dbgsplit, $dbgpacktrack) = @_;
   my $prp = "$projid/$repoid";
 
   print localtime(time)." publishing $prp\n";
@@ -1320,7 +1333,7 @@ sub publish {
     $found_repo = 1 if -e $r;
   }
   if (!defined($found_repo)) {
-    deleterepo($projid, "$repoid");
+    deleterepo($projid, $repoid);
     return;
   }
 
@@ -1641,7 +1654,7 @@ sub publish {
   }
 
   if (($repoinfo->{'splitdebug'} || '') ne (($repotype{'splitdebug'} || [])->[0] || '')) {
-    deleterepo($projid, "$repoid$repoinfo->{'splitdebug'}") if $repoinfo->{'splitdebug'};
+    deleterepo($projid, $repoid, $repoinfo->{'splitdebug'}) if $repoinfo->{'splitdebug'};
     $changed = 1;
   }
 
@@ -1689,7 +1702,7 @@ sub publish {
   # collect packtrack data (if needed)
   my $packtrack;
   if ($BSConfig::packtrack && grep {$prp =~ /^$_/} @$BSConfig::packtrack) {
-    $packtrack = {};
+    $packtrack = $dbgpacktrack || {};
     for my $bin (sort keys %bins) {
       if ($bin =~ /\.(?:$binsufsre)$/) {
 	my $res;
@@ -1822,6 +1835,7 @@ sub publish {
   $xrepoid .= $dbgsplit if $dbgsplit;
 
   my $data = {
+    'subdir' => $subdir,
     'signargs' => $signargs,
     'pubkey' => $pubkey,
     'repoinfo' => $repoinfo,
@@ -1830,6 +1844,7 @@ sub publish {
     'appdatas' => $appdatas,
     'patterns' => $patterns,
     'dbgsplit' => $dbgsplit,
+    'packtrack' => $packtrack,
   };
 
   if ($repotype{'rpm-md'}) {
@@ -1919,18 +1934,18 @@ publishprog_done:
 
   notify('REPO_PUBLISHED', { project => $projid , 'repo' => $repoid });
 
-  if ($packtrack) {
-    notify('PACKTRACK', { project => $projid , 'repo' => $repoid }, Storable::nfreeze([ map { $packtrack->{$_} } sort keys %$packtrack ]));
-  }
-
   # all done. till next time...
   if ($BSConfig::publishprogram && $BSConfig::publishprogram->{$prp}) {
     exit(0);
   }
 
-  if ($repotype{'splitdebug'} && $repotype{'splitdebug'}->[0] && !$dbgsplit) {
-    publish($projid, $repoid, $repotype{'splitdebug'}->[0]);
+  # recurse for dbgsplit
+  publish($projid, $repoid, $repoinfo->{'splitdebug'}, $packtrack) if $repoinfo->{'splitdebug'} && !$dbgsplit;
+
+  if ($packtrack && !$dbgsplit) {
+    notify('PACKTRACK', { project => $projid , 'repo' => $repoid }, Storable::nfreeze([ map { $packtrack->{$_} } sort keys %$packtrack ]));
   }
+
 }
 
 
