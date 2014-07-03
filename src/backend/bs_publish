@@ -1701,7 +1701,10 @@ sub publish {
 
   # collect packtrack data (if needed)
   my $packtrack;
-  if ($BSConfig::packtrack && grep {$prp =~ /^$_/} @$BSConfig::packtrack) {
+  if (defined($BSConfig::packtrack) &&
+      (($proj->{'kind'} && $proj->{'kind'} eq 'maintenance_release')
+       || grep {$prp =~ /^$_/} @$BSConfig::packtrack)
+     ) {
     $packtrack = $dbgpacktrack || {};
     for my $bin (sort keys %bins) {
       if ($bin =~ /\.(?:$binsufsre)$/) {
