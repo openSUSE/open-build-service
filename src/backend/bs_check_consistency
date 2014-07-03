@@ -382,7 +382,7 @@ if (-d "$dbroot" && $check_db) {
   closedir(DIR);
   for my $dbdir (sort(@dbdir_a)) {
     next if $dbdir =~ /^\./;
-    if ($dbdir eq "published" || $dbdir eq "request" || $dbdir eq "source") {
+    if ($dbdir eq "published" || $dbdir eq "source") { # request db dir is obsolete
       print "PROGRESS: checking $dbdir db\n";
       if (-d "$dbroot/$dbdir") {
       } else {
