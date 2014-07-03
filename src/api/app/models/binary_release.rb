@@ -69,4 +69,11 @@ class BinaryRelease < ActiveRecord::Base
     end
   end
 
+  after_rollback :reset_cache
+  after_save :reset_cache
+
+  def reset_cache
+    Rails.cache.delete('xml_binary_release_%d' % id)
+  end
+
 end
