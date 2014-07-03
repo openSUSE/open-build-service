@@ -195,7 +195,7 @@ sub db_open {
   return undef unless $extrepodb;
   if (!$db_oldsync_read) {
     if (-s "$extrepodb.sync") {
-      my $oldsync = Storable::retrieve("$extrepodb.sync");
+      my $oldsync = BSUtil::retrieve("$extrepodb.sync");
       @db_sync = @{$oldsync || []};
     }
     $db_oldsync_read = 1;
@@ -239,8 +239,7 @@ sub db_sync {
   if ($@) {
     warn($@);
     mkdir_p($1) if $extrepodb =~ /^(.*)\//;
-    Storable::nstore(\@db_sync, "$extrepodb.sync.new");
-    rename("$extrepodb.sync.new", "$extrepodb.sync") || die("rename $extrepodb.sync.new $extrepodb.sync: $!\n");
+    BSUtil::store("$extrepodb.sync.new", "$extrepodb.sync", \@db_sync);
   } else {
     @db_sync = ();
     unlink("$extrepodb.sync");
@@ -1148,7 +1147,7 @@ sub deleterepo {
   # get old repoinfo
   my $repoinfo = {};
   if (-s "$reporoot/$prp/:repoinfo") {
-    $repoinfo = Storable::retrieve("$reporoot/$prp/:repoinfo", 1) || {};
+    $repoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo", 1) || {};
     delete $repoinfo->{'splitdebug'} if $dbgsplit;	# do not recurse!
   }
   # delete all binaries
@@ -1341,7 +1340,7 @@ sub publish {
     my $r = "$reporoot/$prp/$arch/:repo";
     my $repoinfo = {};
     if (-s "${r}info") {
-      $repoinfo = Storable::retrieve("${r}info") || {};
+      $repoinfo = BSUtil::retrieve("${r}info") || {};
     }
     $repoinfo->{'binaryorigins'} ||= {};
     for my $rbin (sort(ls($r))) {
@@ -1646,7 +1645,7 @@ sub publish {
   # get us the old repoinfo, so we can compare the state
   my $repoinfo = {};
   if (-s "$reporoot/$prp/:repoinfo") {
-    $repoinfo = Storable::retrieve("$reporoot/$prp/:repoinfo") || {};
+    $repoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo") || {};
   }
 
   if (($repoinfo->{'state'} || '') ne $state) {
@@ -1749,7 +1748,7 @@ sub publish {
   # store repoinfo on disk
   if (!$dbgsplit) {
     if ($state ne '') {
-      Storable::nstore($repoinfo, "$reporoot/$prp/:repoinfo");
+      BSUtil::store("$reporoot/$prp/.:repoinfo", "$reporoot/$prp/:repoinfo", $repoinfo);
     } else {
       unlink("$reporoot/$prp/:repoinfo");
     }
@@ -2027,15 +2026,13 @@ while(1) {
     };
     if ($@) {
       warn("publish failed: $@");
-      # delete state from repoinfo so that we will really re-publish
+      # delete state from repoinfo so that we will always re-publish
       if (-s "$reporoot/$prp/:repoinfo") {
-	eval {
-	  my $repoinfo = Storable::retrieve("$reporoot/$prp/:repoinfo") || {};
-	  if ($repoinfo->{'state'}) {
-	    delete $repoinfo->{'state'};
-	    Storable::nstore($repoinfo, "$reporoot/$prp/:repoinfo");
-	  }
-	};
+	my $repoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo", 1) || {};
+	if ($repoinfo->{'state'}) {
+	  delete $repoinfo->{'state'};
+	  BSUtil::store("$reporoot/$prp/.:repoinfo", "$reporoot/$prp/:repoinfo", $repoinfo);
+	}
       }
       rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
       $publish_retry{$event} = time() + 60;
