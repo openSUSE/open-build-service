@@ -4353,7 +4353,8 @@ sub jobfinished {
   writexml("$statusdir/.status", "$statusdir/status", $status, $BSXML::buildstatus);
 
   # write history file
-  my $duration =  $js->{'endtime'} - $js->{'starttime'};
+  my $duration = 0;
+  $duration = $js->{'endtime'} - $js->{'starttime'} if $js->{'endtime'} && $js->{'starttime'};;
   my $h = {'versrel' => $info->{'versrel'}, 'bcnt' => $info->{'bcnt'}, 'time' => $now, 'srcmd5' => $info->{'srcmd5'}, 'rev' => $info->{'rev'}, 'reason' => $info->{'reason'}, 'duration' => $duration};
   BSFileDB::fdb_add("$reporoot/$prp/$myarch/$packid/history", $historylay, $h);
 
