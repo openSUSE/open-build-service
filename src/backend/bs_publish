@@ -306,7 +306,7 @@ sub getpatterns {
     eval {
       $pat = BSRPC::rpc("$BSConfig::srcserver/source/$projid/_pattern/$entry->{'name'}", undef, @args);
       # only patterns we can parse, please
-      XMLin($BSXML::pattern, $pat);
+      BSUtil::fromxml($pat, $BSXML::pattern);
     };
     if ($@) {
       warn("   pattern $entry->{'name'}: $@");
@@ -851,7 +851,7 @@ sub createpatterns_rpmmd {
   # create patterns data structure
   my @pats;
   for my $pattern (@$patterns) {
-    push @pats, XMLin($BSXML::pattern, $pattern->{'data'});
+    push @pats, BSUtil::fromxml($pattern->{'data'}, $BSXML::pattern);
   }
   print "    adding patterns to repodata\n";
   my $pats = {'pattern' => \@pats, 'count' => scalar(@pats)};
@@ -903,7 +903,7 @@ sub createpatterns_comps {
   # create comps data structure
   my @grps;
   for my $pattern (@$patterns) {
-    my $pat = XMLin($BSXML::pattern, $pattern->{'data'});
+    my $pat = BSUtil::fromxml($pattern->{'data'}, $BSXML::pattern);
     my $grp = { 'id' => $pattern->{'name'} };
     for (@{$pat->{'summary'}}) {
       my $el = { '_content' => $_->{'_content'} };
@@ -983,7 +983,7 @@ sub createpatterns_ymp {
     my $ympname = $pattern->{'name'};
     $ympname =~ s/\.xml$//;
     $ympname .= ".ymp";
-    my $pat = XMLin($BSXML::pattern, $pattern->{'data'});
+    my $pat = BSUtil::fromxml($pattern->{'data'}, $BSXML::pattern);
     next if !exists $pat->{'uservisible'};
     print "    writing ymp for pattern $pat->{'name'}\n";
     my $ymp = {};
@@ -1520,7 +1520,7 @@ sub publish {
 
   my @db_deleted;  	# for published db update
   my @db_changed;	# for published db update
-  my @changed;  	# All changed files for hooks.
+  my @changed;  	# all changed files for hooks.
 
   my %bins_done;
   @archs = sort(ls($extrep));
@@ -1947,6 +1947,16 @@ publishprog_done:
 
 }
 
+sub clear_repoinfo_state {
+  my ($prp) = @_;
+  if (-s "$reporoot/$prp/:repoinfo") {
+    my $repoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo", 1) || {};
+    if ($repoinfo->{'state'}) {
+      delete $repoinfo->{'state'};
+      BSUtil::store("$reporoot/$prp/.:repoinfo", "$reporoot/$prp/:repoinfo", $repoinfo);
+    }
+  }
+}
 
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
@@ -2013,12 +2023,11 @@ while(1) {
       }
     }
     my $starttime = time();
-    if ($publish_lasttime{$prp} && $publish_duration{$prp} > 300 && $publish_lasttime{$prp} + 5 * $publish_duration{$prp} > $starttime)
-      {
-	print "$prp: not yet\n";
-	$publish_retry{$event} = $starttime + 60 * 5;
-	next;
-      }
+    if ($publish_lasttime{$prp} && $publish_duration{$prp} > 300 && $publish_lasttime{$prp} + 5 * $publish_duration{$prp} > $starttime) {
+      print "$prp: not yet\n";
+      $publish_retry{$event} = $starttime + 60 * 5;
+      next;
+    }
     rename("$myeventdir/$event", "$myeventdir/${event}::inprogress");
     notify('REPO_PUBLISH_STATE', { 'project' => $ev->{'project'}, 'repo' => $ev->{'repository'}, 'state' => 'publishing'} );
     eval {
@@ -2027,13 +2036,7 @@ while(1) {
     if ($@) {
       warn("publish failed: $@");
       # delete state from repoinfo so that we will always re-publish
-      if (-s "$reporoot/$prp/:repoinfo") {
-	my $repoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo", 1) || {};
-	if ($repoinfo->{'state'}) {
-	  delete $repoinfo->{'state'};
-	  BSUtil::store("$reporoot/$prp/.:repoinfo", "$reporoot/$prp/:repoinfo", $repoinfo);
-	}
-      }
+      clear_repoinfo_state($prp);
       rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
       $publish_retry{$event} = time() + 60;
       db_sync();
