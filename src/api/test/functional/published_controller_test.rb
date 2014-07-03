@@ -103,7 +103,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
          assert_equal "old_crap", p["format"]["rpm:obsoletes"]['rpm:entry']['name']
          if p["name"] == "package"
            assert_equal "package-1.0-1.src.rpm", p["format"]["rpm:sourcerpm"]
-           assert_equal "2084", p["format"]["rpm:header-range"]['end']
+           assert_equal "2156", p["format"]["rpm:header-range"]['end']
            assert_equal "package", p["format"]["rpm:provides"]['rpm:entry'][1]['name']
            assert_equal "package(x86-32)", p["format"]["rpm:provides"]['rpm:entry'][2]['name']
          elsif p["name"] == "package_newweaktags"

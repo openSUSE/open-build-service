@@ -108,8 +108,7 @@ class Repository < ActiveRecord::Base
         hash['binary_disturl'] = binary["disturl"]
         hash['binary_supportstatus'] = binary["supportstatus"]
 
-        if binary["project"]
-          rp = Package.find_by_project_and_name(binary["project"], binary["package"])
+        if binary["project"] and rp = Package.find_by_project_and_name(binary["project"], binary["package"])
           hash['release_package_id'] = rp.id
 #          hash['binary_maintainer'] = rp.owner
         end
