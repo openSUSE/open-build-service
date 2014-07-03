@@ -92,15 +92,18 @@ class Repository < ActiveRecord::Base
         # complete data
         if existing.count == 1
           entry = existing.first
-          if entry.binary_disturl       != binary["disturl"] or
-             entry.binary_supportstatus != binary["supportstatus"] or
-             entry.binary_buildtime     != binary["buildtime"]
-            # same binary name and location, but different content
-             entry.obsolete_time = Time.now
-             entry.save!
+          if entry.binary_disturl       == binary["disturl"] and
+             entry.binary_supportstatus == binary["supportstatus"] and
+             entry.binary_buildtime     == binary["buildtime"]
+             # same binary, don't touch
              oldlist.delete(entry)
-             hash['operation'] = "modified" # new entry will get "modified" instead of "added"
+             next
           end
+          # same binary name and location, but different content
+          entry.obsolete_time = Time.now
+          entry.save!
+          oldlist.delete(entry)
+          hash['operation'] = "modified" # new entry will get "modified" instead of "added"
         end
 
         # complete hash for new entry
@@ -110,7 +113,11 @@ class Repository < ActiveRecord::Base
 
         if binary["project"] and rp = Package.find_by_project_and_name(binary["project"], binary["package"])
           hash['release_package_id'] = rp.id
-#          hash['binary_maintainer'] = rp.owner
+        end
+        if binary["patchinforef"]
+          pi = Patchinfo.new(Suse::Backend.get("/source/#{binary["patchinforef"]}/_patchinfo").body)
+          # no database object on purpose, since it must also work for historic releases...
+          hash['binary_maintainer'] = pi.to_hash['packager'] if pi and pi.to_hash['packager']
         end
 
         # new entry, also for modified binaries.
