@@ -153,7 +153,6 @@ CREATE TABLE `binary_releases` (
   `repository_id` int(11) NOT NULL,
   `operation` enum('added','removed','modified') COLLATE utf8_unicode_ci DEFAULT 'added',
   `obsolete_time` datetime DEFAULT NULL,
-  `build_repository_id` int(11) DEFAULT NULL,
   `release_package_id` int(11) DEFAULT NULL,
   `binary_name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `binary_epoch` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -170,12 +169,9 @@ CREATE TABLE `binary_releases` (
   KEY `index_binary_releases_on_binary_name` (`binary_name`),
   KEY `ra_name_index` (`repository_id`,`binary_name`),
   KEY `exact_search_index` (`binary_name`,`binary_epoch`,`binary_version`,`binary_release`,`binary_arch`),
-  KEY `build_repository_id` (`build_repository_id`),
   KEY `release_package_id` (`release_package_id`),
-  CONSTRAINT `binary_releases_ibfk_1` FOREIGN KEY (`build_repository_id`) REFERENCES `repositories` (`id`),
-  CONSTRAINT `binary_releases_ibfk_2` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
-  CONSTRAINT `binary_releases_ibfk_3` FOREIGN KEY (`build_repository_id`) REFERENCES `repositories` (`id`),
-  CONSTRAINT `binary_releases_ibfk_4` FOREIGN KEY (`release_package_id`) REFERENCES `packages` (`id`)
+  CONSTRAINT `binary_releases_ibfk_1` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
+  CONSTRAINT `binary_releases_ibfk_2` FOREIGN KEY (`release_package_id`) REFERENCES `packages` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `blacklist_tags` (

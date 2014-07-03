@@ -63,17 +63,17 @@ class Repository < ActiveRecord::Base
     end
   end
 
-  def update_binary_releases(key)
+  def update_binary_releases(key, time = Time.now)
     begin
       pt = ActiveSupport::JSON.decode(Suse::Backend.get("/notificationpayload/#{key}").body)
     rescue
       logger.error("Failed to parse package tracking information for #{key}")
       return
     end
-     self.update_binary_releases_via_json(pt)
+     self.update_binary_releases_via_json(pt, time)
   end
 
-  def update_binary_releases_via_json(json)
+  def update_binary_releases_via_json(json, time = Time.now)
     oldlist = BinaryRelease.get_all_current_binaries(self)
 
     BinaryRelease.transaction do
@@ -94,24 +94,19 @@ class Repository < ActiveRecord::Base
           entry = existing.first
           if entry.binary_disturl       != binary["disturl"] or
              entry.binary_supportstatus != binary["supportstatus"] or
-             entry.binary_buildtime     != binary["buildtime"] or
-             entry.binary_releasetime   != binary["releasetime"]
+             entry.binary_buildtime     != binary["buildtime"]
             # same binary name and location, but different content
-             entry.operation = "modified"
              entry.obsolete_time = Time.now
              entry.save!
              oldlist.delete(entry)
+             hash['operation'] = "modified" # new entry will get "modified" instead of "added"
           end
         end
 
         # complete hash for new entry
+        hash['binary_releasetime'] = time
         hash['binary_disturl'] = binary["disturl"]
         hash['binary_supportstatus'] = binary["supportstatus"]
-
-#  `build_repository_id` int(11) DEFAULT NULL,
-#  `binary_buildtime` datetime DEFAULT NULL,
-#  `binary_releasetime` datetime NOT NULL,
-#  `binary_supportstatus` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
 
         if binary["project"]
           rp = Package.find_by_project_and_name(binary["project"], binary["package"])

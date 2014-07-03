@@ -275,15 +275,15 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post "/request/#{id1}?cmd=diff&view=xml", nil
     assert_response :success
     # the diffed packages
-    assert_xml_tag( :tag => 'old', :attributes => { project: 'BaseDistro3', package: 'pack2', srcmd5: 'c9d00260281e870396ae3e215439886f' } )
-    assert_xml_tag( :tag => 'new', :attributes => { project: 'home:tom:branches:OBS_Maintained:pack2', package: 'pack2.BaseDistro3', rev: '28b49011ed854e7b3b76e23fd1028587', srcmd5: '28b49011ed854e7b3b76e23fd1028587' })
+    assert_xml_tag( :tag => 'old', :attributes => { project: 'BaseDistro3', package: 'pack2', srcmd5: 'e4b3b98ad76a0fbcdbf888694842c149' } )
+    assert_xml_tag( :tag => 'new', :attributes => { project: 'home:tom:branches:OBS_Maintained:pack2', package: 'pack2.BaseDistro3', rev: 'a645178fa01c5efa76cfba0a1e94f6ba', srcmd5: 'a645178fa01c5efa76cfba0a1e94f6ba' })
     # the diffed files
     assert_xml_tag( :tag => 'old', :attributes => { name: 'file', md5: '722d122e81cbbe543bd5520bb8678c0e', size: '4' },
                     :parent => { tag: 'file', attributes: { state: 'changed' } } )
     assert_xml_tag( :tag => 'new', :attributes => { name: 'file', md5: '6c7c49c0d7106a1198fb8f1b3523c971', size: '16' },
                     :parent => { tag: 'file', attributes: { state: 'changed' } } )
     # the expected file transfer
-    assert_xml_tag( :tag => 'source', :attributes => { project: 'home:tom:branches:OBS_Maintained:pack2', package: 'pack2.BaseDistro3', rev: '28b49011ed854e7b3b76e23fd1028587' } )
+    assert_xml_tag( :tag => 'source', :attributes => { project: 'home:tom:branches:OBS_Maintained:pack2', package: 'pack2.BaseDistro3', rev: 'a645178fa01c5efa76cfba0a1e94f6ba' } )
     assert_xml_tag( :tag => 'target', :attributes => { project: 'My:Maintenance', releaseproject: 'BaseDistro3' } )
     # diff contains the critical lines
     assert_match( /^\-NOOP/, @response.body )
@@ -587,9 +587,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     run_scheduler('i586')
     wait_for_publisher
 
-    # event handling
-    UpdateNotificationEvents.new.perform
-
     # collect the job results
     get "/build/#{incidentProject}/_result"
     assert_response :success
@@ -619,6 +616,20 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'entry', :attributes => { name: 'primary.xml.gz' }
     assert_xml_tag :tag => 'entry', :attributes => { name: 'repomd.xml' }
     assert_xml_tag :tag => 'entry', :attributes => { name: 'updateinfo.xml.gz' } # by modifyrepo
+
+    # event handling
+    get '/search/released/binary', match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo']"
+    assert_response :success
+    assert_no_xml_tag :tag => 'binary', :attributes => { name: 'package_newweaktags' }
+    UpdateNotificationEvents.new.perform
+    get '/search/released/binary', match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo']"
+    assert_response :success
+    assert_xml_tag :parent => { :tag => 'binary', :attributes =>
+                     { name: 'package_newweaktags', version: "1.0", release: "1", arch: "x86_64" } },
+                   :tag => 'release', :attributes => { package: "pack2" }
+    assert_xml_tag :parent => { :tag => 'binary', :attributes =>
+                     { name: 'package', version: "1.0", release: "1", arch: "i586" } },
+                   :tag => 'disturl', :content => "obs://testsuite/BaseDistro/repo/ce167c27b536e6ca39f8d951fa02a4ff-package"
 
     #cleanup
     login_king
@@ -1561,7 +1572,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'release', :content => '1'
     assert_xml_tag :tag => 'arch', :content => 'i586'
     assert_xml_tag :tag => 'summary', :content => 'Test Package'
-    assert_xml_tag :tag => 'size', :content => '2191'
+    assert_xml_tag :tag => 'size', :content => '2263'
     assert_xml_tag :tag => 'description'
     assert_xml_tag :tag => 'mtime'
     hashed=node=nil
@@ -1583,7 +1594,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_equal 'GPLv2+', pac['format']['rpm:license']
     assert_equal 'Development/Tools/Building', pac['format']['rpm:group']
     assert_equal 'package-1.0-1.src.rpm', pac['format']['rpm:sourcerpm']
-    assert_equal '2060', pac['format']['rpm:header-range']['end']
+    assert_equal '2132', pac['format']['rpm:header-range']['end']
     assert_equal '280', pac['format']['rpm:header-range']['start']
     assert_equal 'bash', pac['format']['rpm:requires']['rpm:entry']['name']
     assert_equal 'myself', pac['format']['rpm:provides']['rpm:entry'][0]['name']

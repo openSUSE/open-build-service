@@ -3,8 +3,7 @@ class BinaryRelease < ActiveRecord::Base
   belongs_to :repository
 
   # optional
-  has_one :build_container, :class_name => "Package", foreign_key: :id
-  belongs_to :release_container, :class_name => "Package", foreign_key: "release_container_id"
+  belongs_to :release_package, :class_name => "Package", foreign_key: "release_package_id"
 
   before_create :set_release_time
 
@@ -39,22 +38,16 @@ class BinaryRelease < ActiveRecord::Base
     builder = Nokogiri::XML::Builder.new
     builder.binary(create_attributes) do |b|
       r={}
-      if self.release_container
-        r[:project] = self.release_container.project.name
-        r[:package] = self.release_container.name
+      if self.release_package
+#        r[:project] = self.release_package.project.name # pointless, it is our binary project
+        r[:package] = self.release_package.name
       end
       r[:time] = self.binary_releasetime if self.binary_releasetime
       b.release(r) if r.length > 0
 
-      r={}
-      if self.build_container
-        r[:project] = self.build_container.project.name
-        r[:package] = self.build_container.name
-      end
-      r[:time] = self.binary_buildtime if self.binary_buildtime
-      b.build(r) if r.length > 0
+      b.build(:time => self.binary_buildtime) if self.binary_buildtime
 
-      b.delete(:time => self.binary_deletetime) if self.binary_deletetime
+      b.obsolete(:time => self.obsolete_time) if self.obsolete_time
 
       b.supportstatus self.binary_supportstatus if self.binary_supportstatus
       b.maintainer self.binary_maintainer if self.binary_maintainer
