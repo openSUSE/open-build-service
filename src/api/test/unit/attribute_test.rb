@@ -171,15 +171,17 @@ class AttributeTest < ActiveSupport::TestCase
     # store in a project
     @project = Project.find_by_name( "kde4" )
     assert_not_nil @project
-    assert_raise HasAttributes::AttributeSaveError do
+    assert_raise ActiveRecord::RecordInvalid do
       @project.store_attribute_axml(xml)
     end
     # store in a package
     @package = Package.find_by_project_and_name( "kde4", "kdebase" )
     assert_not_nil @package
-    assert_raise HasAttributes::AttributeSaveError do
+    e = assert_raise(ActiveRecord::RecordInvalid) do
       @package.store_attribute_axml(xml)
     end
+    assert_match %r{Values has 1 values, but only 0 are allowed}, e.message
+
 
     User.current = nil
   end

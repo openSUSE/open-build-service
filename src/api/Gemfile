@@ -41,6 +41,10 @@ gem 'kaminari'
 gem 'escape_utils'
 gem 'haml'
 gem 'redcarpet'
+# use cocoon for nested attribute forms
+gem 'cocoon'
+# use act_as_list for AttribValues lists
+gem 'acts_as_list'
 
 group :production do
   # if you have an account, it can be configured by

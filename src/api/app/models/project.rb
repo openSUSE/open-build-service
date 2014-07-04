@@ -1446,4 +1446,12 @@ class Project < ActiveRecord::Base
     Suse::Backend.get(source_path(file, opts)).body
   end
 
+  def api_obj
+    self
+  end
+
+  def to_s
+    name
+  end
+
 end

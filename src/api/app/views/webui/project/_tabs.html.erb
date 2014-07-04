@@ -35,7 +35,7 @@
     <ul>
       <%= tab 'projectconfig', 'Project Config', :controller => :project, :action => :prjconf unless @project.is_remote? or @is_maintenance_project %>
       <% unless @spider_bot -%>
-        <%= tab 'attributes', 'Attributes', :controller => :project, :action => :attributes %>
+        <%= tab 'attribute', 'Attributes', :controller => :attribute, :project => @project, :action => 'index' %>
         <%= tab 'meta', "Meta", :controller => :project, :action => :meta %>
         <%= tab 'status', 'Status', :controller => :project, :action => :status unless @project.is_remote? or @is_maintenance_project %>
       <% end -%>

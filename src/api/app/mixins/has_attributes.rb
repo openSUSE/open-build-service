@@ -22,7 +22,6 @@ module HasAttributes
   end
 
   def store_attribute_axml(attrib, binary=nil)
-
     values = []
     attrib.each('value') do |val|
       values << val.text
@@ -37,69 +36,49 @@ module HasAttributes
   end
 
   def store_attribute(namespace, name, values, issues, binary = nil)
-
-    atype = check_attrib!(namespace, name, values, issues)
+    # get attrib_type
+    if (not attrib_type = AttribType.find_by_namespace_and_name(namespace, name) or attrib_type.blank?)
+      raise AttributeSaveError, "unknown attribute type '#{namespace}':'#{name}'"
+    end
 
     # update or create attribute entry
     changed = false
-    a = find_attribute(namespace, name, binary)
+    begin
+      a = find_attribute(namespace, name, binary)
+    rescue AttributeFindError => e
+      raise AttributeSaveError, e
+    end
     if a.nil?
-      # create the new attribute entry
-      a = self.attribs.create(attrib_type: atype, binary: binary)
-      changed = true
-    end
-
-    # write values
-    a.update(values, issues) || changed
-  end
-
-  def check_attrib!(namespace, name, values, issues)
-    raise AttributeAttributeSaveError, "attribute type without a namespace " if not namespace
-    raise AttributeAttributeSaveError, "attribute type without a name " if not name
-
-    # check attribute type
-    if (not atype = AttribType.find_by_namespace_and_name(namespace, name) or atype.blank?)
-      raise AttributeSaveError, "unknown attribute type '#{namespace}':'#{name}'"
-    end
-    # verify the number of allowed values
-    if atype.value_count && atype.value_count != values.length
-      raise AttributeSaveError, "attribute '#{namespace}:#{name}' has #{values.length} values, but only #{atype.value_count} are allowed"
-    end
-    if issues.present? and not atype.issue_list
-      raise AttributeSaveError, "attribute '#{namespace}:#{name}' has issue elements which are not allowed in this attribute"
-    end
-
-    # verify with allowed values for this attribute definition
-    return atype if atype.allowed_values.empty?
-
-    logger.debug("Verify value with allowed")
-    values.each do |value|
-      found = false
-      atype.allowed_values.each do |allowed|
-        if allowed.value == value
-          found = true
-          break
+      # create the new attribute
+      a = Attrib.new(attrib_type: attrib_type, binary: binary)
+      a.project = self if self.is_a? Project
+      a.package = self if self.is_a? Package
+      if a.attrib_type.value_count
+        a.attrib_type.value_count.times do |i|
+          a.values.build(position: i, value: "")
         end
       end
-      if !found
-        raise AttributeSaveError, "attribute value #{value} for '#{namespace}':'#{name} is not allowed'"
+      if a.save
+        changed = true
+      else
+        raise AttributeSaveError, a.errors.full_messages.join(", ")
       end
     end
-
-    atype
+    # write values
+    a.update_with_associations(values, issues) || changed
   end
 
   def find_attribute(namespace, name, binary=nil)
     logger.debug "find_attribute for #{namespace}:#{name}"
     if namespace.nil?
-      raise RuntimeError, "Namespace must be given"
+      raise AttributeFindError, "Namespace must be given"
     end
     if name.nil?
-      raise RuntimeError, "Name must be given"
+      raise AttributeFindError, "Name must be given"
     end
     if binary
       if self.is_a? Project
-        raise RuntimeError, "binary packages are not allowed in project attributes"
+        raise AttributeFindError, "binary packages are not allowed in project attributes"
       end
       a = attribs.joins(:attrib_type => :attrib_namespace).where("attrib_types.name = ? and attrib_namespaces.name = ? AND attribs.binary = ?", name, namespace, binary).first
     else
@@ -143,7 +122,7 @@ module HasAttributes
       builder.attribute(p) do
         unless attr.issues.blank?
           attr.issues.each do |ai|
-            builder.issue(:name => ai.issue.name, :tracker => ai.issue.issue_tracker.name)
+            builder.issue(:name => ai.name, :tracker => ai.issue_tracker.name)
           end
         end
         render_single_attribute(attr, params[:with_default], builder)

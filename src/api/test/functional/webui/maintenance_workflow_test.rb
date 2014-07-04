@@ -10,8 +10,8 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     find(:id, 'advanced_tabs_trigger').click
     find(:link, 'Attributes').click
     find(:id, 'add-new-attribute').click
-    find(:id, 'attribute').select('OBS:Maintained')
-    find_button('Save attribute').click
+    find(:id, 'attrib_attrib_type_id').select('OBS:Maintained')
+    find_button('Create Attribute').click
 
     logout
     # now let tom branch a package

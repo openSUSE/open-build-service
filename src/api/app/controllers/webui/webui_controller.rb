@@ -90,6 +90,15 @@ class Webui::WebuiController < ActionController::Base
     logger.debug "Setting return_to: \"#{@return_to_path}\""
   end
 
+  # Same as redirect_to(:back) if there is a valid HTTP referer, otherwise redirect_to()
+  def redirect_back_or_to(options = {}, response_status = {})
+    if request.env['HTTP_REFERER']
+      redirect_to(:back)
+    else
+      redirect_to(options, response_status)
+    end
+  end
+
   def require_login
     if User.current.is_nobody?
       render :text => 'Please login' and return false if request.xhr?
@@ -164,7 +173,7 @@ class Webui::WebuiController < ActionController::Base
   def required_parameters(*parameters)
     parameters.each do |parameter|
       unless params.include? parameter.to_s
-        raise MissingParameterError.new "Required Parameter #{parameter} missing in #{request.url}"
+        raise MissingParameterError.new "Required Parameter #{parameter} missing"
       end
     end
   end

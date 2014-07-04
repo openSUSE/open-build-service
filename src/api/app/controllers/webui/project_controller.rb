@@ -173,10 +173,6 @@ class Webui::ProjectController < Webui::WebuiController
     @parentprojects = @parentprojects.sort # Sort by hash key for better display
   end
 
-  def attributes
-    @attributes = @project.api_obj.attribs
-  end
-
   def new
     @namespace = params[:ns]
     @project_name = params[:project]

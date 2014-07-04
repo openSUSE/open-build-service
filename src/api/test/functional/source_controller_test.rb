@@ -3279,7 +3279,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_tom
     put "/source/home:tom/_project/_attribute?meta=1", ''
     assert_response 400
-    assert_select 'status[code] > summary', "Attributes need to be changed through /project/attributes/home:tom"
+    assert_select 'status[code] > summary', "Attributes need to be changed through /source/home:tom/_attribute"
   end
 
   test 'issue 441' do

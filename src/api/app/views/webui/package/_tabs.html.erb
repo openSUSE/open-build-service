@@ -28,7 +28,7 @@
   <% unless @spider_bot -%>
     <div id="advanced_tabs" class="hidden">
       <ul>
-        <%= tab 'attributes', 'Attributes', :controller => 'package', :action => 'attributes' %>
+        <%= tab 'attributes', 'Attributes', controller: :attribute, :package => @package, :project => @project, :action => 'index' %>
         <%= tab 'meta', 'Meta', :controller => 'package', :action => 'meta' %>
       </ul>
     </div>

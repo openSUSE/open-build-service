@@ -7,6 +7,7 @@ class Issue < ActiveRecord::Base
   end
   
   has_many :package_issues, :foreign_key => 'issue_id', dependent: :delete_all
+
   belongs_to :issue_tracker
   belongs_to :owner, :class_name => "User"
 
@@ -142,4 +143,10 @@ class Issue < ActiveRecord::Base
     end
   end
 
+  # FIXME: As soon as we can convert the 'has_many :package_issues' above to use
+  #        a normal CollectionProxy instead of a manually created class, get rid of this
+  #        and change app/views/source/_package_issues.xml.builder to use issues directly
+  def issue
+    self
+  end
 end

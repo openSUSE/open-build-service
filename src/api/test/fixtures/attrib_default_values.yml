@@ -1,0 +1,5 @@
+attrib_default_values_QualityCategory:
+  id: 1
+  attrib_type_id: 75 
+  value: Development
+  position: 1 

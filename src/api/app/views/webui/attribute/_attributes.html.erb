@@ -11,29 +11,20 @@
           <% end %>
         </tr>
         <% @attributes.each do |attribute| %>
-            <% atype = attribute.attrib_type %>
-
             <tr class='attribute-values'>
-              <td class='attribute-name'><%= atype.attrib_namespace.name %>:<%= atype.name %></td>
-              <td class='attribute-value'>
-                <% attribute.values.each do |value| %>
-                    <%= value.to_s %>
-                    <br/>
-                <% end %>
+              <td class='<%= "#{attribute.namespace}-#{attribute.name}" %>'><%= attribute.fullname %></td>
+              <td class="<%= "#{attribute.namespace}-#{attribute.name}-values" %>">
+                <%= attribute.values.map{ |a| a.value }.join(', ') %>
+                <%= attribute.issues.map{ |i| i.name }.join(', ') %>
               </td>
               <% unless User.current.is_nobody? %>
                   <td>
                     <%= link_to(sprite_tag('note_edit', title: 'Edit values'),
-                                { :controller => 'attribute', :action => 'edit',
-                                  :project => @project.name, :package => @package,
-                                  :namespace => atype.attrib_namespace.name, :name => atype.name },
-                                class: 'edit-values') %>
-                    <%= button_to('Delete attribute',
-                                  { :controller => 'attribute', :action => 'delete',
-                                    :project => @project.name, :package => @package,
-                                    :namespace => atype.attrib_namespace.name, :name => atype.name },
-                                  { data: { confirm: "Really remove attribute '#{atype.attrib_namespace.name}:#{atype.name}'?" },
-                                    method: :delete, class: 'delete-attribute' }) %>
+                                edit_attribs_path(:project => @project.name, :package => @package, :attribute => attribute.fullname),
+                                class: 'edit-values') if attribute.values_editable? %>
+                    <%= button_to('Delete attribute', attrib_path(attribute),
+                                  { data: { confirm: "Really remove attribute '#{attribute.fullname}'?" },
+                                    method: :delete, class: 'delete-attribute', id: "#{attribute.namespace}-#{attribute.name}-delete", title: "Delete" }) %>
                   </td>
               <% end %>
             </tr>
@@ -45,6 +36,7 @@
 <% unless User.current.is_nobody? %>
     <p>
       <%= link_to(sprited_text('note_add', 'Add a new attribute'),
-                  { :controller => :attribute, :action => :edit, :project => @project.name, :package => @package }, id: 'add-new-attribute') %>
+                  new_attribs_path(:project => @project.name, :package => @package),
+                  id: 'add-new-attribute') %>
     </p>
 <% end %>

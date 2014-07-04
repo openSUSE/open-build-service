@@ -248,7 +248,7 @@ ription</description>
             </attribute></attributes>"
     post "/source/home:tom/_attribute", data
     assert_response 400
-    assert_select "status[code] > summary", /attribute 'OBS:Maintained' has 1 values, but only 0 are allowed/
+    assert_select "status[code] > summary", /has 1 values, but only 0 are allowed/
   
     data = "<attributes><attribute namespace='OBS' name='Maintained'></attribute></attributes>"
     post "/source/home:tom/_attribute", data
@@ -349,7 +349,7 @@ ription</description>
             </attribute></attributes>"
     post "/source/kde4/kdelibs/_attribute", data
     assert_response 400
-    assert_select "status[code] > summary", /attribute 'OBS:Maintained' has 1 values, but only 0 are allowed/
+    assert_select "status[code] > summary", /has 1 values, but only 0 are allowed/
 
     data = "<attributes><attribute namespace='OBS' name='Maintained'></attribute></attributes>"
     post "/source/kde4/kdelibs/_attribute", data

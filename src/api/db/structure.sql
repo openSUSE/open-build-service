@@ -102,7 +102,6 @@ CREATE TABLE `attrib_values` (
   `value` text CHARACTER SET utf8 NOT NULL,
   `position` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `index_attrib_values_on_attrib_id_and_position` (`attrib_id`,`position`),
   KEY `index_attrib_values_on_attrib_id` (`attrib_id`),
   CONSTRAINT `attrib_values_ibfk_1` FOREIGN KEY (`attrib_id`) REFERENCES `attribs` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -1496,6 +1495,8 @@ INSERT INTO schema_migrations (version) VALUES ('20140604101042');
 INSERT INTO schema_migrations (version) VALUES ('20140624101042');
 
 INSERT INTO schema_migrations (version) VALUES ('20140627071042');
+
+INSERT INTO schema_migrations (version) VALUES ('20141302101043');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

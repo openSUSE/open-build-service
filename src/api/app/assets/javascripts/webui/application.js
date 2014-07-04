@@ -18,6 +18,7 @@
 //= require jquery.tokeninput
 //= require jquery_ujs
 //= require dataTables/jquery.dataTables
+//= require cocoon
 //
 //= require webui/application/jquery.expander.js
 //= require webui/application/jquery.flot.js
@@ -30,6 +31,7 @@
 //= require webui/application/request
 //= require webui/application/patchinfo
 //= require webui/application/comment
+//= require webui/application/attribute
 //= require webui/application/main
 
 // toggle visibility of an element via the CSS "display" property

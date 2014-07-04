@@ -780,7 +780,7 @@ class SourceController < ApplicationController
       @allowed = permissions.project_change? @prj
 
       if @file == '_attribute' &&  @package_name == '_project'
-        raise WrongRouteForAttribute.new "Attributes need to be changed through #{project_attributes_path(project: params[:project])}"
+        raise WrongRouteForAttribute.new "Attributes need to be changed through #{change_attribute_path(project: params[:project])}"
       end
     else
       # we need a local package here in any case for modifications

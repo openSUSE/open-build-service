@@ -975,10 +975,6 @@ class Webui::PackageController < Webui::WebuiController
     render :text => 'Config successfully saved', :content_type => 'text/plain'
   end
 
-  def attributes
-    @attributes = @package.attribs
-  end
-
   def edit
   end
 

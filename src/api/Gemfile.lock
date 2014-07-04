@@ -27,6 +27,8 @@ GEM
       minitest (~> 5.1)
       thread_safe (~> 0.1)
       tzinfo (~> 1.1)
+    acts_as_list (0.4.0)
+      activerecord (>= 3.0)
     addressable (2.3.6)
     arel (5.0.1.20140414130214)
     builder (3.2.2)
@@ -46,6 +48,7 @@ GEM
     clockwork (0.7.5)
       activesupport
       tzinfo
+    cocoon (1.2.6)
     codemirror-rails (4.2)
       railties (>= 3.0, < 5)
     coderay (1.1.0)
@@ -215,10 +218,12 @@ PLATFORMS
 
 DEPENDENCIES
   actionmailer
+  acts_as_list
   capybara_minitest_spec
   chunky_png
   ci_reporter
   clockwork (>= 0.7)
+  cocoon
   codemirror-rails (>= 4.2)
   cssmin (>= 1.0.2)
   daemons

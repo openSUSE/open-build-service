@@ -4,6 +4,9 @@ class AttribNamespace < ActiveRecord::Base
   has_many :attrib_types, dependent: :destroy
   has_many :attrib_namespace_modifiable_bies, :class_name => 'AttribNamespaceModifiableBy', dependent: :delete_all
 
+  validates :name, presence: true
+  validates_associated :attrib_types
+
   def to_s
     self.name 
   end

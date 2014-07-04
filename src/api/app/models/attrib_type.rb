@@ -3,12 +3,13 @@
 
 class AttribType < ActiveRecord::Base
   belongs_to :attrib_namespace
-  delegate :name, to: :attrib_namespace, prefix: true
 
   has_many :attribs, dependent: :destroy
-  has_many :default_values, :class_name => 'AttribDefaultValue', dependent: :delete_all
+  has_many :default_values, -> { order("position ASC") }, :class_name => 'AttribDefaultValue', dependent: :delete_all
   has_many :allowed_values, :class_name => 'AttribAllowedValue', dependent: :delete_all
   has_many :attrib_type_modifiable_bies, :class_name => 'AttribTypeModifiableBy', dependent: :delete_all
+
+  validates :name, presence: true
 
   class << self
     def find_by_name(name)
@@ -28,11 +29,11 @@ class AttribType < ActiveRecord::Base
   end
 
   def namespace
-    read_attribute :attrib_namespace
+    self.attrib_namespace.name
   end
- 
-  def namespace=(val)
-    write_attribute :attrib_namespace, val
+
+  def fullname
+    return "#{self.attrib_namespace}:#{self.name}"
   end
 
   def create_one_rule(m)

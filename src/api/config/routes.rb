@@ -47,10 +47,12 @@ OBSApi::Application.routes.draw do
       get 'project/latest_commits/:project' => :commits, defaults: { format: 'atom' }, constraints: cons, as: 'commits_feed'
     end
 
-    controller 'webui/attribute' do
-      get 'attribute/edit' => :edit
-      post 'attribute/save' => :save
-      match 'attribute/delete' => :delete, via: [:post, :delete]
+    resources :attribs, constraints: cons, only: [:create, :update, :destroy], controller: 'webui/attribute' do
+      collection do
+        get ':project(/:package)/new' => :new, constraints: cons, as: 'new'
+        get ':project(/:package)/:attribute/edit' => :edit, constraints: cons, as: 'edit'
+        get ':project(/:package)' => :index, constraints: cons,  as: 'index'
+      end
     end
 
     controller 'webui/configuration' do
@@ -124,7 +126,8 @@ OBSApi::Application.routes.draw do
       get 'package/rpmlint_log' => :rpmlint_log, constraints: cons
       get 'package/meta/:project/:package' => :meta, constraints: cons, as: 'package_meta'
       post 'package/save_meta/:project/:package' => :save_meta, constraints: cons
-      get 'package/attributes/:project/:package' => :attributes, constraints: cons, as: 'package_attributes'
+      # compat route
+      get 'package/attributes/:project/:package', to: redirect('/attribs/%{project}/%{package}')
       get 'package/edit/:project/:package' => :edit, constraints: cons
       get 'package/repositories/:project/:package' => :repositories, constraints: cons
       post 'package/change_flag/:project/:package' => :change_flag, constraints: cons
@@ -159,7 +162,7 @@ OBSApi::Application.routes.draw do
       get 'project/autocomplete_repositories' => :autocomplete_repositories
       get 'project/users/:project' => :users, constraints: cons, as: 'project_users'
       get 'project/subprojects/:project' => :subprojects, constraints: cons, as: 'project_subprojects'
-      get 'project/attributes/:project' => :attributes, constraints: cons, as: 'project_attributes'
+      get 'project/attributes/:project', to: redirect('/attribs/%{project}')
       get 'project/new' => :new
       post 'project/new_incident' => :new_incident
       get 'project/new_package/:project' => :new_package, constraints: cons
@@ -408,7 +411,7 @@ OBSApi::Application.routes.draw do
       match 'attribute/:namespace/:name/_meta' => :attribute_definition, via: [:get, :delete, :post]
 
       get 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :show_attribute, constraints: cons
-      post 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :cmd_attribute, constraints: cons
+      post 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :cmd_attribute, constraints: cons, as: :change_attribute
       delete 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :delete_attribute, constraints: cons
     end
 

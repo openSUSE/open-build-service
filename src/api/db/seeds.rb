@@ -63,17 +63,45 @@ ans.attrib_namespace_modifiable_bies.first_or_create(user_id: admin.id)
 puts "Seeding attrib_types table..."
 at = ans.attrib_types.where(name: "VeryImportantProject").first_or_create(value_count: 0)
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
-at = ans.attrib_types.where(name: "UpdateProject").first_or_create(value_count: 1)
-at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
-at = ans.attrib_types.where(name: "RejectRequests").first_or_create
-at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
 at = ans.attrib_types.where(name: "ApprovedRequestSource").first_or_create(value_count: 0)
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
 at = ans.attrib_types.where(name: "Maintained").first_or_create(value_count: 0)
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
 at = ans.attrib_types.where(name: "MaintenanceProject").first_or_create(value_count: 0)
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
+at = ans.attrib_types.where(name: "InitializeDevelPackage").first_or_create(value_count: 0)
+at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
+at = ans.attrib_types.where(name: "BranchTarget").first_or_create(value_count: 0)
+at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
+at = ans.attrib_types.where(name: "Issues").first_or_create(value_count: 0, issue_list: true)
+at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
+at.attrib_type_modifiable_bies.where(role_id: bugowner_role.id).first_or_create
+at.attrib_type_modifiable_bies.where(role_id: reviewer_role.id).first_or_create
+
+at = ans.attrib_types.where(name: "UpdateProject").first_or_create(value_count: 1)
+at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
+at = ans.attrib_types.where(name: "RequestCloned").first_or_create(value_count: 1)
+at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
+at = ans.attrib_types.where(name: "ProjectStatusPackageFailComment").first_or_create(value_count: 1)
+at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
+at = ans.attrib_types.where(name: "BranchRepositoriesFromProject").first_or_create(value_count: 1)
+at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
+at = ans.attrib_types.where(name: "AutoCleanup").first_or_create(value_count: 1)
+at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
+
+at = ans.attrib_types.where(name: "QualityCategory").first_or_create(value_count: 1)
+at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
+at.allowed_values << AttribAllowedValue.new( value: "Stable" )
+at.allowed_values << AttribAllowedValue.new( value: "Testing" )
+at.allowed_values << AttribAllowedValue.new( value: "Development" )
+at.allowed_values << AttribAllowedValue.new( value: "Private" )
+at.default_values.where(value: 'Development', position: 1).first_or_create
+
 at = ans.attrib_types.where(name: "MaintenanceIdTemplate").first_or_create(value_count: 1)
+at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
+at.default_values.where(value: '%Y-%C', position: 1).first_or_create
+
+at = ans.attrib_types.where(name: "RejectRequests").first_or_create
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
 at = ans.attrib_types.where(name: "ScreenShots").first_or_create
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
@@ -82,31 +110,6 @@ at = ans.attrib_types.where(name: "OwnerRootProject").first_or_create
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
 at.allowed_values << AttribAllowedValue.new( value: "DisableDevel" )
 at.allowed_values << AttribAllowedValue.new( value: "BugownerOnly" )
-
-at = ans.attrib_types.where(name: "RequestCloned").first_or_create(value_count: 1)
-at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
-at = ans.attrib_types.where(name: "ProjectStatusPackageFailComment").first_or_create(value_count: 1)
-at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
-at = ans.attrib_types.where(name: "InitializeDevelPackage").first_or_create(value_count: 0)
-at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
-at = ans.attrib_types.where(name: "BranchTarget").first_or_create(value_count: 0)
-at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
-at = ans.attrib_types.where(name: "BranchRepositoriesFromProject").first_or_create(value_count: 1)
-at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
-at = ans.attrib_types.where(name: "AutoCleanup").first_or_create(value_count: 1)
-at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
-
-at = ans.attrib_types.where(name: "Issues").first_or_create(value_count: 0)
-at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
-at.attrib_type_modifiable_bies.where(role_id: bugowner_role.id).first_or_create
-at.attrib_type_modifiable_bies.where(role_id: reviewer_role.id).first_or_create
-
-at = ans.attrib_types.where(name: "QualityCategory").first_or_create(value_count: 1)
-at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
-at.allowed_values << AttribAllowedValue.new( value: "Stable" )
-at.allowed_values << AttribAllowedValue.new( value: "Testing" )
-at.allowed_values << AttribAllowedValue.new( value: "Development" )
-at.allowed_values << AttribAllowedValue.new( value: "Private" )
 
 update_all_attrib_type_descriptions
 
