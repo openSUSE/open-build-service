@@ -62,12 +62,10 @@ class Product < ActiveRecord::Base
                     end
                   else
                     # new
-                    ProductMedium.create(product: self, repository: poolRepo, medium: repo.get('media'))
+                    self.product_media.create(product: self, repository: poolRepo, medium: repo.get('media'))
                   end
                 end
-                medium.each do |m|
-                  m.destroy
-                end
+                self.product_media.delete(medium.values)
               end
               r.elements('updates') do |u|
                 update = {}
@@ -82,9 +80,7 @@ class Product < ActiveRecord::Base
                     update.delete(updateRepo.id)
                   end
                 end
-                update.each do |ur|
-                  ur.destroy
-                end
+                self.product_update_repositories.delete(update.values)
               end
             end
           end

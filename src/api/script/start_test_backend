@@ -195,6 +195,7 @@ Project.all.each do |p|
   Suse::Backend.put("/source/#{CGI.escape(p.name)}/_meta?user=king", p.to_axml)
 end
 Package.all.each do |p|
+  next if p.name.starts_with? "_product:"
   Suse::Backend.put("/source/#{CGI.escape(p.project.name)}/#{CGI.escape(p.name)}/_meta?user=king", p.to_axml)
 end
 Suse::Backend.put('/issue_trackers', IssueTracker.all.to_xml(IssueTracker::DEFAULT_RENDER_PARAMS))
@@ -203,6 +204,7 @@ Suse::Backend.put('/source/BaseDistro/pack1/my_file?user=king', 'just a file')
 Suse::Backend.put('/source/BaseDistro/pack2/my_file?user=king', 'different content')
 Suse::Backend.put('/source/BaseDistro/pack2/my_file?user=king', 'second commit')
 Suse::Backend.put('/source/BaseDistro/pack3/my_file?user=king', 'just a file')
+Suse::Backend.put('/source/BaseDistro/_product/fixed.product?user=king', File.open("#{Rails.root}/test/fixtures/backend/source/fixed_product/fixed.product").read())
 Suse::Backend.put('/source/BaseDistro/patchinfo/_patchinfo?user=king', File.open("#{Rails.root}/test/fixtures/backend/source/_patchinfo").read())
 Suse::Backend.put('/source/BaseDistro2.0/_config?user=king', 'Type: spec')
 Suse::Backend.post('/source/BaseDistro2.0/pack2?cmd=commitfilelist&vrev=2.3&version=1.0&user=king', '<directory/>') # set vrev like it get created with makeolder=1
@@ -258,6 +260,7 @@ FileUtils.rm("#{Rails.root}/tmp/backend_data/projects/BaseDistro.pkg/_project.mr
 Suse::Backend.put('/source/BaseDistro/_meta?user=king', Project.find_by_name('BaseDistro').to_axml)
 
 # reindex all sources
+Package.all.each{ |pkg| pkg.sources_changed }
 UpdatePackageMetaJob.new.perform
 
 @http_user = nil
