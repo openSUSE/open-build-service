@@ -1645,8 +1645,10 @@ sub publish {
 
   # get us the old repoinfo, so we can compare the state
   my $repoinfo = {};
+  my $packtrackcache;
   if (-s "$reporoot/$prp/:repoinfo") {
     $repoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo") || {};
+    $packtrackcache = $repoinfo->{'trackercache'} if $repoinfo->{'trackercache'};
   }
 
   if (($repoinfo->{'state'} || '') ne $state) {
@@ -1703,13 +1705,25 @@ sub publish {
   my $packtrack;
   if ($BSConfig::packtrack && (($proj->{'kind'} || '') eq 'maintenance_release' || grep {$prp =~ /^$_/} @$BSConfig::packtrack)) {
     $packtrack = $dbgpacktrack || {};
+    my %cache = @{$packtrackcache || []};
     for my $bin (sort keys %bins) {
       if ($bin =~ /\.(?:$binsufsre)$/) {
 	my $res;
-	eval {
-          $res = Build::query("$extrep/$bin", 'evra' => 1, 'buildtime' => 1, 'disturl' => 1);
-	};
-	next unless $res;
+	my @s = stat("$extrep/$bin");
+	next unless @s;
+	my $c = $cache{"$bin/$s[9]/$s[7]/$s[1]"};
+	if ($c) {
+	  my @d = qw{arch name epoch version release disturl buildtime};
+	  $res = {};
+	  for (@$c) {
+	    $res->{shift @d} = $_ if defined $_;
+	  }
+	} else {
+	  eval {
+            $res = Build::query("$extrep/$bin", 'evra' => 1, 'buildtime' => 1, 'disturl' => 1);
+	  };
+	  next unless $res;
+	}
 	my $pt = {
 	  'project' => $projid,
 	  'repository' => $repoid,
@@ -1720,6 +1734,7 @@ sub publish {
 	  $pt->{$_} = $res->{$_} if defined $res->{$_};
 	}
 	$pt->{'binaryarch'} = $res->{'arch'} if defined $res->{'arch'};
+	$pt->{'id'} = "$bin/$s[9]/$s[7]/$s[1]";
 	$packtrack->{$bin} = $pt;
       } elsif (($bin =~ /^iso\/(.*)\.iso$/ || $bin =~ /^repo\/(.*)$/) && $kiwireport{$1}) {
 	for my $kb (@{$kiwireport{$1}->{'binary'} || []}) {
@@ -1749,6 +1764,7 @@ sub publish {
       }
     }
   }
+  undef $packtrackcache;
 
   # create and store the new repoinfo
   $repoinfo = {
@@ -1960,6 +1976,20 @@ publishprog_done:
   publish($projid, $repoid, $repoinfo->{'splitdebug'}, $packtrack) if $repoinfo->{'splitdebug'} && !$dbgsplit;
 
   if ($packtrack && !$dbgsplit) {
+    # update the packtrack cache (and remove the 'id' entry)
+    my @newcache;
+    for my $pt (values %$packtrack) {
+      my $id = delete $pt->{'id'};
+      push @newcache, $id, [ map {$pt->{$_}} qw{arch name epoch version release disturl buildtime} ] if $id;
+    }
+    $repoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo") || {};
+    if (%$repoinfo) {
+      $repoinfo->{'trackercache'} = \@newcache;
+      BSUtil::store("$reporoot/$prp/.:repoinfo", "$reporoot/$prp/:repoinfo", $repoinfo);
+      @newcache = ();	# free mem
+      undef $repoinfo;	# free mem
+    }
+    # send notification
     notify('PACKTRACK', { project => $projid , 'repo' => $repoid }, Storable::nfreeze([ map { $packtrack->{$_} } sort keys %$packtrack ]));
   }
 
