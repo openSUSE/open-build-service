@@ -70,10 +70,10 @@ class Review < ActiveRecord::Base
 
   def users_for_review
     if self.by_user
-       return [User.find_by_login(self.by_user).id]
+       return [User.find_by_login!(self.by_user).id]
     end
     if self.by_group
-      return Group.find_by_title(self.by_group).email_users.pluck('users.id')
+      return Group.find_by_title!(self.by_group).email_users.pluck('users.id')
     end
     obj = nil
     if self.by_package
