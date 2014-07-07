@@ -1838,7 +1838,7 @@ sub fctx_add_binary_to_full {
   } else {
     print "      + :full/$n.$suf ($packid/$fn)\n";
   }
-  my $dir = "$gdst/$packid";
+  my $dir = $fctx->{'dst'} || "$gdst/$packid";
   # link gives an error if the dest exists, so we dup
   # and rename instead.
   # when the dest is the same file, rename doesn't do
@@ -2543,6 +2543,7 @@ sub update_dst_full {
   if ($BSConfig::new_full_handling) {
     move_into_full($fctx, \%old, \%new, $fullcache);
   } else {
+    $fctx->{'dst'} = $jobdir if $importarch;	# override source dir for imports
     # note that we use oldrepo here instead of \%old
     move_into_full($fctx, $oldrepo, \%new, $fullcache);
   }
