@@ -58,12 +58,18 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     login_king
     delete '/source/home:king/commentpack'
     assert_response :success
+
+    post '/source/home:king/commentpack?cmd=undelete'
+    assert_response :success
   end
 
   test 'delete commented project' do
     # home:king has comments
     login_king
     delete '/source/home:king'
+    assert_response :success
+
+    post '/source/home:king?cmd=undelete'
     assert_response :success
   end
 
