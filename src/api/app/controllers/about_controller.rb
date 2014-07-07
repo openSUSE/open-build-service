@@ -6,5 +6,9 @@ class AboutController < ApplicationController
   def index
     @api_revision = CONFIG['version'].to_s
   end
+
+  def crash
+    raise RuntimeError.new("Runtime error exception to test error handling")
+  end
   
 end

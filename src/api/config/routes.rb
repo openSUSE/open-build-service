@@ -396,6 +396,8 @@ OBSApi::Application.routes.draw do
     get 'source/:project/_tags' => 'tag#project_tags', constraints: cons
 
     get 'about' => 'about#index'
+# you may enable this to test erbit setups
+#    get 'about/crash' => 'about#crash'
 
     controller :test do
       post 'test/killme' => :killme
