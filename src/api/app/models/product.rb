@@ -58,8 +58,8 @@ class Product < ActiveRecord::Base
                       # update
                       medium[poolRepo.id].medium = repo.get('media')
                       medium[poolRepo.id].save
-                      medium.delete(poolRepo.id)
                     end
+                    medium.delete(poolRepo.id)
                   else
                     # new
                     self.product_media.create(product: self, repository: poolRepo, medium: repo.get('media'))

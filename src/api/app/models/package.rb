@@ -484,26 +484,27 @@ class Package < ActiveRecord::Base
   end
 
   def update_product_list
-    unless self.is_product?
-      self.products.destroy_all
-      return
-    end
+
+    # hash existing entries
+    old = Hash.new
+    self.products.each { |p| old[p.name] = p }
+
     Product.transaction do
-      begin
-        xml = Xmlhash.parse(Suse::Backend.get(self.source_path(nil, view: :products)).body)
-      rescue ActiveXML::Transport::Error
-        return # do not touch
-      end
-      self.products.destroy_all
+      xml = Xmlhash.parse(Suse::Backend.get(self.source_path(nil, view: :products)).body)
       xml.elements('productdefinition') do |pd|
         pd.elements('products') do |ps|
           ps.elements('product') do |p|
             product = Product.find_or_create_by_name_and_package(p['name'], self)
+            product = product.first unless product.class == Product
             product.update_from_xml(xml)
             product.save!
+            old.delete(product.name)
           end
         end
       end
+
+      # drop old entries
+      self.products.delete(old.values)
     end
   end
 

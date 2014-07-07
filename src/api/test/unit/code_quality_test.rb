@@ -93,7 +93,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'MaintenanceIncident#getUpdateinfoId' => 136.88,
       'Owner::extract_maintainer' => 155.65,
       'PersonController#internal_register' => 112.01,
-      'Product#update_from_xml' => 159.98,
+      'Product#update_from_xml' => 166.69, # function is following xml structure
       'Project#update_one_repository_without_path' => 150.7,
       'PublicController#binary_packages' => 131.24,
       'Repository#cleanup_before_destroy' => 85.53,

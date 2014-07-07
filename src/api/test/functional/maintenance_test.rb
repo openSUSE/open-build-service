@@ -630,6 +630,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :parent => { :tag => 'binary', :attributes =>
                      { name: 'package', version: "1.0", release: "1", arch: "i586" } },
                    :tag => 'disturl', :content => "obs://testsuite/BaseDistro/repo/ce167c27b536e6ca39f8d951fa02a4ff-package"
+    assert_xml_tag :tag => 'product', :attributes => { project: "BaseDistro", name: "fixed" }
 
     #cleanup
     login_king
@@ -2137,7 +2138,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/CopyOfBaseDistro'
     assert_response :success
-    assert_xml_tag(:tag => 'directory', :attributes => { count: '4' })
+    assert_xml_tag(:tag => 'directory', :attributes => { count: '6' })
+    assert_xml_tag(:tag => 'entry', :attributes => { name: '_product' })
+    assert_xml_tag(:tag => 'entry', :attributes => { name: '_product:fixed-release' })
     assert_xml_tag(:tag => 'entry', :attributes => { name: 'patchinfo' })
     assert_xml_tag(:tag => 'entry', :attributes => { name: 'pack1' })
     assert_xml_tag(:tag => 'entry', :attributes => { name: 'pack2' })

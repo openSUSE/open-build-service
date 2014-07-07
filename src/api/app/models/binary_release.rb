@@ -21,7 +21,14 @@ class BinaryRelease < ActiveRecord::Base
     end
   end
 
-  def create_attributes
+  def used_in_products
+    # check if any product is referencing the repository where this binary lives
+    products = ProductMedium.where( :repository => repository ).map{ |i| i.product if i.product }
+    products += ProductUpdateRepository.where( :repository => repository ).map{ |i| i.product if i.product }
+    products.uniq
+  end
+
+  def render_attributes
     p = { :project    => repository.project.name,
           :repository => repository.name,
         }
@@ -36,7 +43,7 @@ class BinaryRelease < ActiveRecord::Base
 
   def render_xml
     builder = Nokogiri::XML::Builder.new
-    builder.binary(create_attributes) do |b|
+    builder.binary(render_attributes) do |b|
       r={}
       if self.release_package
 #        r[:project] = self.release_package.project.name # pointless, it is our binary project
@@ -53,13 +60,18 @@ class BinaryRelease < ActiveRecord::Base
       b.maintainer self.binary_maintainer if self.binary_maintainer
       b.disturl self.binary_disturl if self.binary_disturl
 
+      b.products do |p|
+         self.used_in_products.each do |product|
+           p.product( :project => product.package.project.name, :name => product.name )
+         end
+      end
     end
     builder.to_xml
   end
 
   def to_axml_id
     builder = Nokogiri::XML::Builder.new
-    builder.binary(create_attributes)
+    builder.binary(render_attributes)
     builder.to_xml
   end
 
