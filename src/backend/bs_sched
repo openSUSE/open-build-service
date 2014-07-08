@@ -670,7 +670,7 @@ sub set_building {
 
   # calculate packages needed for building
   my @bdeps = grep {!/^\// || $bconf->{'fileprovides'}->{$_}} @{$info->{'prereq'} || []};
-  unshift @bdeps, @{$info->{'dep'} || []};
+  unshift @bdeps, @{$info->{'dep'} || []}, '--directdepsend--';
 
   if ($packtype eq 'kiwi') {
     # packages used for build environment setup
@@ -2481,7 +2481,6 @@ sub update_dst_full {
       $_->{'source'} = 1;
       $oldrepo->{$rp} = $_;
     }
-    $dst = $jobdir;	# get em from the jobdir
   }
 
   # write .bininfo file and update :bininfo.merge (jobdir is undef for package deletion)
