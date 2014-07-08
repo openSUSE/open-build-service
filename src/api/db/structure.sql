@@ -161,7 +161,6 @@ CREATE TABLE `binary_releases` (
   `binary_disturl` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `binary_buildtime` datetime DEFAULT NULL,
   `binary_releasetime` datetime NOT NULL,
-  `binary_deletetime` datetime DEFAULT NULL,
   `binary_supportstatus` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `binary_maintainer` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),

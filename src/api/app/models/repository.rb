@@ -75,6 +75,8 @@ class Repository < ActiveRecord::Base
 
   def update_binary_releases_via_json(json, time = Time.now)
     oldlist = BinaryRelease.get_all_current_binaries(self)
+    processed_item = {} # we can not just remove it from relation
+                        # delete would affect the object
 
     BinaryRelease.transaction do
       json.each do |binary|
@@ -83,7 +85,8 @@ class Repository < ActiveRecord::Base
                :binary_version => binary["version"],
                :binary_release => binary["release"],
                :binary_epoch => binary["epoch"],
-               :binary_arch => binary["binaryarch"]
+               :binary_arch => binary["binaryarch"],
+               :obsolete_time => nil
              }
         # check for existing entry
         existing = oldlist.where(hash)
@@ -96,13 +99,13 @@ class Repository < ActiveRecord::Base
              entry.binary_supportstatus == binary["supportstatus"] and
              entry.binary_buildtime     == binary["buildtime"]
              # same binary, don't touch
-             oldlist.delete(entry)
+             processed_item[entry.id] = true
              next
           end
           # same binary name and location, but different content
-          entry.obsolete_time = Time.now
+          entry.obsolete_time = time
           entry.save!
-          oldlist.delete(entry)
+          processed_item[entry.id] = true
           hash[:operation] = "modified" # new entry will get "modified" instead of "added"
         end
 
@@ -125,13 +128,15 @@ class Repository < ActiveRecord::Base
         end
 
         # new entry, also for modified binaries.
-        self.binary_releases.create(hash)
+        entry = self.binary_releases.create(hash)
+        processed_item[entry.id] = true
       end
 
-      # and drop all removed binaries
+      # and mark all not processed binaries as removed
       oldlist.each do |e|
+        next if processed_item[e.id]
         e.operation = "removed"
-        e.obsolete_time = Time.now
+        e.obsolete_time = time
         e.save!
       end
     end

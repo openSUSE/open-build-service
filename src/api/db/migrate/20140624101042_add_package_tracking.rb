@@ -15,7 +15,6 @@ class AddPackageTracking < ActiveRecord::Migration
       t.string     :binary_disturl
       t.datetime   :binary_buildtime
       t.datetime   :binary_releasetime, null: false
-      t.datetime   :binary_deletetime
  
       t.string     :binary_supportstatus
       t.string     :binary_maintainer
