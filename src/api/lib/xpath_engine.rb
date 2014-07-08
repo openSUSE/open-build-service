@@ -140,6 +140,7 @@ class XpathEngine
         '@arch' => {:cpart => 'binary_arch'},
         '@disturl' => {:cpart => 'binary_disturl'},
         '@supportstatus' => {:cpart => 'binary_supportstatus'},
+        'obsolete/@time' => {:cpart => 'obsolete_time'},
         'repository/@project' => {:cpart => 'release_projects.name'},
         'repository/@name' => {:cpart => 'release_repositories.name'},
       },
@@ -532,10 +533,9 @@ class XpathEngine
     # capabilities of your DBMS is neeed :-)
 
     @condition_values_needed = 2
-    parse_predicate(root, expr)
-    cond = @conditions.pop
+    cond = evaluate_expr(expr, root)
 
-    condition = "(NOT #{cond} OR #{cond} IS NULL)"
+    condition = "(NOT #{cond} OR ISNULL(#{cond}))"
     #logger.debug "-- condition : [#{condition}]"
 
     @condition_values_needed = 1

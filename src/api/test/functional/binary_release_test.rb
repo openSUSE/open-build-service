@@ -53,6 +53,12 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     get '/search/released/binary', match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo']"
     assert_response :success
     assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :name => "package", :version => "1.0", :release => "1", :arch => "i586"}
+    assert_xml_tag :tag => "obsolete"
+
+    # without obsoelete rpms
+    get '/search/released/binary', match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo'] and obsolete[not(@time)]"
+    assert_response :success
+    assert_no_xml_tag :tag => "obsolete"
   end
 
 end
