@@ -1211,6 +1211,7 @@ sub deleterepo {
 
   if (!$dbgsplit && $BSConfig::packtrack && (($repoinfo->{'projectkind'} || '') eq 'maintenance_release' || grep {$prp =~ /^$_/} @$BSConfig::packtrack)) {
     my $packtrack = {};
+    print "    sending binary release tracking notification\n";
     notify('PACKTRACK', { project => $projid , 'repo' => $repoid }, Storable::nfreeze([ map { $packtrack->{$_} } sort keys %$packtrack ]));
   }
 
@@ -1990,6 +1991,7 @@ publishprog_done:
       undef $repoinfo;	# free mem
     }
     # send notification
+    print "    sending binary release tracking notification\n";
     notify('PACKTRACK', { project => $projid , 'repo' => $repoid }, Storable::nfreeze([ map { $packtrack->{$_} } sort keys %$packtrack ]));
   }
 
