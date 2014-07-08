@@ -97,7 +97,7 @@ class Repository < ActiveRecord::Base
           entry = existing.first
           if entry.binary_disturl       == binary["disturl"] and
              entry.binary_supportstatus == binary["supportstatus"] and
-             entry.binary_buildtime     == binary["buildtime"]
+             entry.binary_buildtime     == Time.at(binary["buildtime"])
              # same binary, don't touch
              processed_item[entry.id] = true
              next
@@ -111,9 +111,9 @@ class Repository < ActiveRecord::Base
 
         # complete hash for new entry
         hash[:binary_releasetime] = time
+        hash[:binary_buildtime] = Time.at(binary["buildtime"])
         hash[:binary_disturl] = binary["disturl"]
         hash[:binary_supportstatus] = binary["supportstatus"]
-
         if binary["project"] and rp = Package.find_by_project_and_name(binary["project"], binary["package"])
           hash[:release_package_id] = rp.id
         end
