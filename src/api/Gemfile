@@ -5,46 +5,44 @@ source 'https://rubygems.org'
 gem 'rails', '~> 4.1.1'
 gem 'actionmailer'
 
+# as our database
 gem 'mysql2'
-
-# activexml require
+# as requirement for activexml
 gem 'nokogiri', '~>1.6.2.1'
-
-gem 'tilt', '>= 1.4.1'
-
-# make sure we can delay tasks
+# for delayed tasks
 gem 'delayed_job_active_record', '>= 4.0.0'
 # to have the delayed job daemon
 gem 'daemons'
-
 # to fill errbit
 gem 'hoptoad_notifier', "~> 2.3"
-
+# to document ruby code
 gem 'rdoc'
-gem 'xmlhash', '>=1.3.6'
-gem 'ruby-ldap', require: false
-
-# memcache client
+# as memcache client
 gem 'dalli', require: false
-
-# JSON library - the default json conflicts with activerecord (by means of vice-versa monkey patching)
+# as JSON library - the default json conflicts with activerecord (by means of vice-versa monkey patching)
 gem 'yajl-ruby'
-
+# to search the database
 gem 'thinking-sphinx', '> 3.1'
-
-# don't rely on cron+rake 
+# to not rely on cron+rake
 gem 'clockwork', '>= 0.7'
-
-# used to paginate search results
+# to paginate search results
 gem 'kaminari'
-
-gem 'escape_utils'
+# as abstract HTML of the bratwurst 'theme'
 gem 'haml'
+# to avoid tilt downgrade
+gem 'tilt', '>= 1.4.1'
+# to use markdown in the comment system
 gem 'redcarpet'
-# use cocoon for nested attribute forms
+# for nested attribute forms
 gem 'cocoon'
-# use act_as_list for AttribValues lists
+# for activerecord lists. Used for AttribValues
 gem 'acts_as_list'
+# as interface to LDAP
+gem 'ruby-ldap', require: false
+# to parse a XML string into a ruby hash
+gem 'xmlhash', '>=1.3.6'
+# to escape HTML (FIXME: do we still use this?)
+gem 'escape_utils'
 
 group :production do
   # if you have an account, it can be configured by
@@ -53,55 +51,72 @@ group :production do
 #  gem 'newrelic_rpm'
 end
 
+# Gems used only for testing the application and not required in production environments by default.
 group :test do
-  gem 'database_cleaner', '>= 1.0.1'
-  gem 'ci_reporter'
-  gem 'simplecov', require: false
+  # as testing frameworks
   # to update to 5.3.4, we need to fix randomization
   # see https://github.com/seattlerb/minitest/issues/431
   gem 'minitest', '= 5.3.3'
-  # colorize minitest output
-  #gem 'minitest-colorize'
-  # generate random long strings
+  # to ensure a clean state for testing
+  gem 'database_cleaner', '>= 1.0.1'
+  # for jenkins
+  gem 'ci_reporter'
+  # for test coverage reports
+  gem 'simplecov', require: false
+  # to colorize minitest output
+  # gem 'minitest-colorize'
+  # for rspec like matchers
+  gem 'capybara_minitest_spec'
+  # to generate random long strings
   gem 'faker'
-  # freeze time
+  # to freeze time
   gem 'timecop'
   # to fake backend replies
   gem 'webmock', '>= 1.18.0'
   # for code quality checks
   gem 'flog', '> 4.1.0'
-
-  gem 'capybara_minitest_spec'
-
+  # as driver for Capybara
   # See test/test_helper.rb for details:
   gem 'poltergeist', '>= 1.4'
-
+  # for mocking and stubbing
   gem 'mocha', '> 0.13.0', require: false
-
 end
 
+# Gems used only during development not required in production environments by default.
 group :development do
+  # as alternative to the standard IRB shell
   gem 'pry', '>= 0.9.12'
+  # to make rack(and rails) use unicorn by default
   gem 'unicorn-rails' # webrick won't work
+  # for client side, DB and server profiling
   gem 'rack-mini-profiler'
 end
 
 # Gems used only for assets and not required in production environments by default.
 group :assets do
+  # for minifying CSS
   gem 'cssmin', '>= 1.0.2'
+  # for minifying JavaScript
   gem 'uglifier', '>= 1.2.2'
+  # to use sass in the asset pipeline
   gem 'sass-rails', '~> 4.0.3'
+  # assets for jQuery DataTables
   gem 'jquery-datatables-rails'
+  # assets for the text editor
   gem 'codemirror-rails', '>= 4.2'
+  # assets for jQuery tokeninput
   gem 'rails_tokeninput', '>= 1.6.1.rc1'
+  # to create our sprite images/stylesheets
   gem 'sprite-factory', '>= 1.5.2'
+  # to read and write PNG images
   gem 'chunky_png'
-
+  # assets for jQuery and jQuery-ujs
   gem 'jquery-rails'
+  # assets for jQuery-ui
   gem 'jquery-ui-rails'
-  # Use bootstrap as the front-end framework
+  # assets for the bootstrap front-end framework. Used by the bratwurst theme
   #gem 'bootstrap-sass-rails'
-  # Use font-awesome as scalable vector icons
+  # assets for font-awesome vector icons
   gem "font-awesome-rails"
 end
 
