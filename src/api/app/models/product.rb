@@ -70,12 +70,13 @@ class Product < ActiveRecord::Base
               r.elements('updates') do |u|
                 update = {}
                 self.product_update_repositories.each do |pu|
-                  update[pu.repository.id] = pu
+                  update[pu.repository.id] = pu if pu.repository # it may be remote or not yet exist
                 end
                 u.elements('repository') do |repo|
                   updateRepo = Repository.find_by_project_and_repo_name(repo.get('project'), repo.get('name'))
-                  raise UnknownRepository.new "Update repository #{repo['project']}/#{repo['name']} does not exist" unless updateRepo
-                  unless update[updateRepo]
+                  # we support currently to use remote or split repositories here
+#                  raise UnknownRepository.new "Update repository #{repo['project']}/#{repo['name']} does not exist" unless updateRepo
+                  unless updateRepo.nil? or update[updateRepo]
                     ProductUpdateRepository.create(product: self, repository: updateRepo)
                     update.delete(updateRepo.id)
                   end
