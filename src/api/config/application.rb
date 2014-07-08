@@ -4,6 +4,8 @@ require 'rails/all'
 
 # Assets should be precompiled for production (so we don't need the gems loaded then)
 Bundler.require(*Rails.groups(assets: %w(development test)))
+require_relative '../lib/engines/base.rb'
+OBSEngine::load_engines
 
 module OBSApi
   class Application < Rails::Application
