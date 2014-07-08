@@ -76,7 +76,7 @@ class Product < ActiveRecord::Base
                   updateRepo = Repository.find_by_project_and_repo_name(repo.get('project'), repo.get('name'))
                   # we support currently to use remote or split repositories here
 #                  raise UnknownRepository.new "Update repository #{repo['project']}/#{repo['name']} does not exist" unless updateRepo
-                  unless updateRepo.nil? or update[updateRepo]
+                  if updateRepo and not update[updateRepo]
                     ProductUpdateRepository.create(product: self, repository: updateRepo)
                     update.delete(updateRepo.id)
                   end
