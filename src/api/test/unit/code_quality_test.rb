@@ -88,7 +88,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'BuildController#file' => 127.42,
       'BuildController#project_index' => 129.0,
       'ConfigurationsController#update' => 85.63,
-      'HasAttributes#render_main_attributes' => 81.58,
       'IssueTrackersController#update' => 100.78,
       'MaintenanceIncident#getUpdateinfoId' => 136.88,
       'Owner::extract_maintainer' => 155.65,
