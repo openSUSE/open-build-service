@@ -2895,7 +2895,8 @@ sub getbuildinfo {
   }
 
   my @bdeps = grep {!/^\// || $bconf->{'fileprovides'}->{$_}} @{$info->{'prereq'} || []};
-  unshift @bdeps, @deps, '--directdepsend--';
+  unshift @bdeps, '--directdepsend--' if @bdeps;
+  unshift @bdeps, @deps;
   $Build::expand_dbg = 1 if $cgi->{'debug'};
   my $xp = BSSolv::expander->new($pool, $bconf);
   my $ownexpand = sub {

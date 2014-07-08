@@ -670,7 +670,8 @@ sub set_building {
 
   # calculate packages needed for building
   my @bdeps = grep {!/^\// || $bconf->{'fileprovides'}->{$_}} @{$info->{'prereq'} || []};
-  unshift @bdeps, @{$info->{'dep'} || []}, '--directdepsend--';
+  unshift @bdeps, '--directdepsend--' if @bdeps;
+  unshift @bdeps, @{$info->{'dep'} || []};
 
   if ($packtype eq 'kiwi') {
     # packages used for build environment setup
