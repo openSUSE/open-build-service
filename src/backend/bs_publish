@@ -1737,14 +1737,15 @@ sub publish {
 	$pt->{'binaryarch'} = $res->{'arch'} if defined $res->{'arch'};
 	$pt->{'id'} = "$bin/$s[9]/$s[7]/$s[1]";
 	$packtrack->{$bin} = $pt;
-      } elsif (($bin =~ /^iso\/(.*)\.iso$/ || $bin =~ /^repo\/(.*)$/) && $kiwireport{$1}) {
-	for my $kb (@{$kiwireport{$1}->{'binary'} || []}) {
+      } elsif (($bin =~ /^iso\/((.*)\.iso)$/ || $bin =~ /^repo\/((.*))$/) && $kiwireport{$2}) {
+	my ($mediumext, $medium) = ($1, $2);
+	for my $kb (@{$kiwireport{$medium}->{'binary'} || []}) {
 	  my $pt = { %$kb };
 	  delete $pt->{'_content'};
-	  # beware of mixery!
 	  my $fn = '';
 	  $fn .= "/".(defined($pt->{$_}) ? $pt->{$_} : '') for qw{arch name epoch version release};
-	  $packtrack->{"kiwireport$fn"} = $pt;
+	  $packtrack->{"$mediumext$fn"} = $pt;
+	  $pt->{'medium'} = $mediumext;
 	}
       }
     }
