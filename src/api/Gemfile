@@ -43,6 +43,8 @@ gem 'ruby-ldap', require: false
 gem 'xmlhash', '>=1.3.6'
 # to escape HTML (FIXME: do we still use this?)
 gem 'escape_utils'
+# as authorization system
+gem "pundit"
 
 group :production do
   # if you have an account, it can be configured by
