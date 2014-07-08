@@ -628,7 +628,7 @@ sub set_building {
 
   # a new one. expand usedforbuild. write info file.
   my $prptype = $bconf->{'type'};
-  $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
+  $info->{'file'} =~ /\.(spec|dsc|kiwi|livebuild)$/;
   my $packtype = $1 || 'spec';
   $packtype = 'arch' if $info->{'file'} eq 'PKGBUILD';
   $packtype = 'preinstallimage' if $info->{'file'} eq '_preinstallimage';
@@ -678,6 +678,11 @@ sub set_building {
     @bdeps = @{$bconf->{'substitute'}->{'kiwi-setup:image'} || []};
     @bdeps = ('kiwi', 'createrepo', 'tar') unless @bdeps;	# default
     push @bdeps, grep {/^kiwi-.*:/} @{$info->{'dep'} || []};
+  }
+
+  if ($packtype eq 'livebuild') {
+    # packages used for build environment setup
+    @bdeps = ('apt-utils', 'dpkg-dev', 'live-build', 'lsb-release', 'tar');
   }
 
   my $eok;
@@ -746,7 +751,7 @@ sub set_building {
     $_->{'vminstall'} = 1 if $vmdeps{$n};
     $_->{'runscripts'} = 1 if $runscripts{$n};
     $_->{'notmeta'} = 1 unless $edeps{$n};
-    if ($packtype eq 'kiwi') {
+    if ($packtype =~ /^(kiwi|livebuild)$/) {
       $_->{'noinstall'} = 1 if $edeps{$n} && !($bdeps{$n} || $vmdeps{$n} || $pdeps{$n});
     } elsif (@sysdeps) {
       $_->{'installonly'} = 1 if $sysdeps{$n} && !$bdeps{$n};
@@ -6938,6 +6943,11 @@ my %handlers = (
     'check' => \&checkchannel,
     'rebuild' => \&rebuildchannel,
   },
+  'livebuild' => {
+    'expand' => \&Build::get_deps,
+    'check' => \&checkpackage,
+    'rebuild' => \&rebuildpackage,
+  },
 );
 
 my $unknownchecker = {
@@ -8516,7 +8526,7 @@ NEXTPRP:
 	  $packtype = 'arch';
 	} elsif ($info->{'file'} eq '_preinstallimage') {
 	  $packtype = 'preinstallimage';
-	} elsif ($info->{'file'} =~ /\.(spec|dsc|kiwi)$/) {
+	} elsif ($info->{'file'} =~ /\.(spec|dsc|kiwi|livebuild)$/) {
 	  $packtype = $1;
 	  if ($packtype eq 'kiwi') {
 	    # check if it is kiwi-product
