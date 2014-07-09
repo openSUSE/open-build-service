@@ -148,7 +148,9 @@ module Event
       self.create_jobs.each do |job|
         eclass = job.to_s.camelize.safe_constantize
         raise "#{job.to_s.camelize} does not map to a constant" if eclass.nil?
-        eclass.new(self).delay.perform
+        queue = {}
+        queue = { :queue => eclass.job_queue } if eclass.methods.include? :job_queue
+        eclass.new(self).delay(queue).perform
       end
     end
 

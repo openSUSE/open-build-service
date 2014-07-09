@@ -1,5 +1,9 @@
 class UpdateIssuesJob
 
+  def self.job_queue
+    'issuetracker'
+  end
+
   def initialize
   end
 

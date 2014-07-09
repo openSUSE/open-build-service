@@ -57,6 +57,8 @@ case "$1" in
     start)
 	echo -n "Starting OBS api delayed job handler "
         run_in_api script/delayed_job.api.rb start -n $NUM
+        run_in_api script/delayed_job.api.rb --queue=releasetracking start -i 1000
+        run_in_api script/delayed_job.api.rb --queue=issuetracking start -i 1010
 	rc_status -v
 	echo -n "Starting OBS api clock daemon "
         run_in_api $CLOCKWORKD -l -c config/clock.rb start
