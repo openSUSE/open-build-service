@@ -163,6 +163,7 @@ CREATE TABLE `binary_releases` (
   `binary_releasetime` datetime NOT NULL,
   `binary_supportstatus` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `binary_maintainer` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `medium` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_binary_releases_on_binary_name` (`binary_name`),
   KEY `ra_name_index` (`repository_id`,`binary_name`),
@@ -1494,6 +1495,8 @@ INSERT INTO schema_migrations (version) VALUES ('20140604101042');
 INSERT INTO schema_migrations (version) VALUES ('20140624101042');
 
 INSERT INTO schema_migrations (version) VALUES ('20140627071042');
+
+INSERT INTO schema_migrations (version) VALUES ('20140709071042');
 
 INSERT INTO schema_migrations (version) VALUES ('20141302101043');
 

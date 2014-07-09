@@ -12,7 +12,7 @@ class Repository < ActiveRecord::Base
   has_one :hostsystem, :class_name => "Repository", :foreign_key => 'hostsystem_id'
   has_many :binary_releases, :dependent => :destroy
   has_many :product_update_repositories, dependent: :delete_all
-  has_many :product_media, dependent: :delete_all
+  has_many :product_medium, dependent: :delete_all
   has_many :repository_architectures, -> { order("position") }, :dependent => :destroy, inverse_of: :repository
   has_many :architectures, -> { order("position") }, :through => :repository_architectures
 
@@ -95,7 +95,8 @@ class Repository < ActiveRecord::Base
         # compare with existing entry
         if existing.count == 1
           entry = existing.first
-          if entry.binary_disturl       == binary["disturl"] and
+          if entry.medium               == binary["medium"] and
+             entry.binary_disturl       == binary["disturl"] and
              entry.binary_supportstatus == binary["supportstatus"] and
              entry.binary_buildtime     == Time.at(binary["buildtime"]||0)
              # same binary, don't touch
@@ -110,9 +111,10 @@ class Repository < ActiveRecord::Base
         end
 
         # complete hash for new entry
+        hash[:medium] = binary["medium"]
         hash[:binary_releasetime] = time
         hash[:binary_buildtime] = nil
-        hash[:binary_buildtime] = Time.at(binary["buildtime"]) if binary["buildtime"].to_i > 0
+        hash[:binary_buildtime] = Time.at(binary["buildtime"].to_i) if binary["buildtime"].to_i > 0
         hash[:binary_disturl] = binary["disturl"]
         hash[:binary_supportstatus] = binary["supportstatus"]
         if binary["project"] and rp = Package.find_by_project_and_name(binary["project"], binary["package"])

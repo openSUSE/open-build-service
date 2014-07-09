@@ -32,7 +32,7 @@ class BinaryRelease < ActiveRecord::Base
     p = { :project    => repository.project.name,
           :repository => repository.name,
         }
-    [ :binary_name, :binary_epoch, :binary_version, :binary_release, :binary_arch ].each do |key|
+    [ :binary_name, :binary_epoch, :binary_version, :binary_release, :binary_arch, :medium ].each do |key|
       value = self.send(key)
       next unless value
       ekey = key.to_s.gsub(/^binary_/, '')
