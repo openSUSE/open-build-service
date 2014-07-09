@@ -233,7 +233,8 @@ class BsRequest < ActiveRecord::Base
       r.accept_at self.accept_at unless self.accept_at.nil?
       r.description self.description unless self.description.nil?
     end
-    builder.to_xml
+    builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                                 Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
   def is_reviewer? (user)

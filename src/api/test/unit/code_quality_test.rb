@@ -92,11 +92,11 @@ class CodeQualityTest < ActiveSupport::TestCase
       'MaintenanceIncident#getUpdateinfoId' => 136.88,
       'Owner::extract_maintainer' => 155.65,
       'PersonController#internal_register' => 112.01,
-      'Product#update_from_xml' => 166.69, # function is following xml structure
+      'Product#update_from_xml' => 162.12, # function is following xml structure
       'Project#update_one_repository_without_path' => 150.7,
       'PublicController#binary_packages' => 131.24,
       'Repository#cleanup_before_destroy' => 85.53,
-      'Repository#update_binary_releases_via_json' => 95.11,
+      'Repository#update_binary_releases_via_json' => 100.51,
       'RequestController#render_request_collection' => 92.82,
       'SearchController#find_attribute' => 97.33,
       'SourceController#project_command_copy' => 140.04,

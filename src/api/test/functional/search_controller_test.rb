@@ -339,7 +339,6 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     get "search/request", match: "(action/target/@project='Apache' and action/@type='submit' and state/@name='review' ) or (action/target/@project='Apache' and action/@type='maintenance_release' and state/@name='review' )"
     assert_response :success
-
     assert_xml_tag tag: "collection", attributes: { "matches"=> "1" }
     assert_xml_tag tag: "request", children: { count: 3, only: { tag: "review"} }
     assert_xml_tag tag: "request", children: { count: 3, only: { tag: "history"} }

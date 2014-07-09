@@ -74,7 +74,6 @@ class BsRequestTest < ActiveSupport::TestCase
 
   test "parse bigger" do
     xml = <<eos
-<?xml version=\"1.0\"?>
 <request id="1027">
   <action type="submit">
     <source project="home:Iggy" package="TestPack" rev="1"/>

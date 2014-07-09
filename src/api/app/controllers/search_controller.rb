@@ -170,8 +170,7 @@ class SearchController < ApplicationController
 
     includes = nil
 
-    output = ActiveXML::Node.new '<collection/>'
-    output.set_attribute("matches", matches.to_s)
+    output = "<collection matches=\"#{matches.to_s}\">\n"
 
     xml = Hash.new # filled by filter
     if render_all
@@ -216,14 +215,17 @@ class SearchController < ApplicationController
     # TODO support sort_by and order parameters?
 
     relation.each do |item|
+      next if xml[item.id]
       xml[item.id] = render_all ? item.to_axml : item.to_axml_id
+      xml[item.id].gsub!(/(..*)/, "  \\1") # indent it by two spaces, if line is not empty
     end if items.size > 0
 
     items.each do |i|
-      output.add_node(xml[i])
+      output << xml[i]
     end
 
-    render :text => output.dump_xml, :content_type => "text/xml"
+    output << "</collection>"
+    render :text => output, :content_type => "text/xml"
   end
 
   # specification of this function:
