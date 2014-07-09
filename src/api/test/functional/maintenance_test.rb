@@ -638,6 +638,16 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                    :tag => 'disturl', :content => "obs://testsuite/BaseDistro/repo/ce167c27b536e6ca39f8d951fa02a4ff-package"
     assert_xml_tag :tag => 'product', :attributes => { project: "BaseDistro", name: "fixed" }
 
+    assert_xml_tag :parent => { :tag => 'binary', :attributes =>
+           { name: 'package', project: "BaseDistro3", repository: "BaseDistro3_repo", arch: "i586" } },
+                   :tag => 'operation', :content => "modified"
+    assert_xml_tag :parent => { :tag => 'binary', :attributes =>
+           { name: 'package', project: "BaseDistro3", repository: "BaseDistro3_repo", arch: "src" } },
+                   :tag => 'operation', :content => "added"
+    assert_xml_tag :parent => { :tag => 'binary', :attributes =>
+           { name: 'dropped', project: "BaseDistro3", repository: "BaseDistro3_repo", arch: "i586" } },
+                   :tag => 'operation', :content => "removed"
+
     #cleanup
     login_king
     delete '/source/BaseDistro3Channel'

@@ -92,7 +92,7 @@ class Repository < ActiveRecord::Base
         existing = oldlist.where(hash)
         raise SaveError if existing.count > 1
         
-        # complete data
+        # compare with existing entry
         if existing.count == 1
           entry = existing.first
           if entry.binary_disturl       == binary["disturl"] and

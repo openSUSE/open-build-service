@@ -45,6 +45,7 @@ class BinaryRelease < ActiveRecord::Base
     builder = Nokogiri::XML::Builder.new
     builder.binary(render_attributes) do |b|
       r={}
+      b.operation self.operation
       if self.release_package
 #        r[:project] = self.release_package.project.name # pointless, it is our binary project
         r[:package] = self.release_package.name
