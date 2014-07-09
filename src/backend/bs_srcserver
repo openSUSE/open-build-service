@@ -243,6 +243,12 @@ sub getnotificationpayload {
   return (readstr("$notificationpayloaddir/$payloadkey"), 'Content-Type: application/json');
 }
 
+sub deletenotificationpayload {
+  my ($cgi, $payloadkey) = @_;
+  unlink("$notificationpayloaddir/$payloadkey");
+  return $BSStdServer::return_ok;
+}
+
 sub notify_repservers {
   my ($type, $projid, $packid) = @_;
 
@@ -7963,6 +7969,7 @@ my $dispatches = [
   '!- /lastevents $filter:* start:num? obsname:?' => \&lastevents,
   '/lastnotifications start:num? view:? block:bool? noprune:bool?' => \&lastnotifications,
   '/notificationpayload/$payloadkey:filename' => \&getnotificationpayload,
+  'DELETE:/notificationpayload/$payloadkey:filename' => \&deletenotificationpayload,
   'POST:/event type: project: package:? repository:? arch:? job:?' => \&newevent,
   # tmp until lightty gets fixed
   '/public/lastevents $filter:* start:num? obsname:?' => \&lastevents,
