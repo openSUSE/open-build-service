@@ -91,4 +91,88 @@ class BinaryRelease < ActiveRecord::Base
     Rails.cache.delete('xml_binary_release_%d' % id)
   end
 
+  def self.update_binary_releases(repository, key, time = Time.now)
+    begin
+      pt = ActiveSupport::JSON.decode(Suse::Backend.get("/notificationpayload/#{key}").body)
+    rescue
+      logger.error("Failed to parse package tracking information for #{key}")
+      return
+    end
+    update_binary_releases_via_json(repository, pt, time)
+    # drop it 
+    Suse::Backend.delete("/notificationpayload/#{key}")
+  end
+
+  def self.update_binary_releases_via_json(repository, json, time = Time.now)
+    oldlist = get_all_current_binaries(repository)
+    processed_item = {} # we can not just remove it from relation
+                        # delete would affect the object
+
+    BinaryRelease.transaction do
+      json.each do |binary|
+        # identifier
+        hash={ :binary_name => binary["name"],
+               :binary_version => binary["version"],
+               :binary_release => binary["release"],
+               :binary_epoch => binary["epoch"],
+               :binary_arch => binary["binaryarch"],
+               :obsolete_time => nil
+             }
+        # check for existing entry
+        existing = oldlist.where(hash)
+        raise SaveError if existing.count > 1
+        
+        # compare with existing entry
+        if existing.count == 1
+          entry = existing.first
+          if entry.medium               == binary["medium"] and
+             entry.binary_disturl       == binary["disturl"] and
+             entry.binary_supportstatus == binary["supportstatus"] and
+             entry.binary_buildtime     == ::Time.at(binary["buildtime"]||0)
+             # same binary, don't touch
+             processed_item[entry.id] = true
+             next
+          end
+          # same binary name and location, but different content
+          entry.obsolete_time = time
+          entry.save!
+          processed_item[entry.id] = true
+          hash[:operation] = "modified" # new entry will get "modified" instead of "added"
+        end
+
+        # complete hash for new entry
+        hash[:medium] = binary["medium"]
+        hash[:binary_releasetime] = time
+        hash[:binary_buildtime] = nil
+        hash[:binary_buildtime] = ::Time.at(binary["buildtime"].to_i) if binary["buildtime"].to_i > 0
+        hash[:binary_disturl] = binary["disturl"]
+        hash[:binary_supportstatus] = binary["supportstatus"]
+        if binary["project"] and rp = Package.find_by_project_and_name(binary["project"], binary["package"])
+          hash[:release_package_id] = rp.id
+        end
+        if binary["patchinforef"]
+          begin
+            pi = Patchinfo.new(Suse::Backend.get("/source/#{binary["patchinforef"]}/_patchinfo").body)
+          rescue ActiveXML::Transport::NotFoundError
+            # patchinfo disappeared meanwhile
+          end
+          # no database object on purpose, since it must also work for historic releases...
+          hash[:binary_maintainer] = pi.to_hash['packager'] if pi and pi.to_hash['packager']
+        end
+
+        # new entry, also for modified binaries.
+        entry = repository.binary_releases.create(hash)
+        processed_item[entry.id] = true
+      end
+
+      # and mark all not processed binaries as removed
+      oldlist.each do |e|
+        next if processed_item[e.id]
+        e.operation = "removed"
+        e.obsolete_time = time
+        e.save!
+      end
+    end
+  end
+
 end

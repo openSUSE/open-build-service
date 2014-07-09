@@ -50,7 +50,7 @@ class BinaryReleaseTest < ActiveSupport::TestCase
 
     r = Repository.find_by_project_and_repo_name("BaseDistro3", "BaseDistro3_repo")
 
-    r.update_binary_releases_via_json(json)
+    BinaryRelease.update_binary_releases_via_json(r, json)
   end
 
 end

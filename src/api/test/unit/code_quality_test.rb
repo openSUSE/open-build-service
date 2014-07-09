@@ -68,6 +68,7 @@ class CodeQualityTest < ActiveSupport::TestCase
   BlackList = {
       'ApplicationController#extract_ldap_user' => 123.29,
       'AttributeController#attribute_definition' => 87.7,
+      'BinaryRelease::update_binary_releases_via_json' => 111.01,
       'BranchPackage#find_packages_to_branch' => 239.64,
       'BranchPackage#create_branch_packages' => 210.91,
       'BranchPackage#determine_details_about_package_to_branch' => 198.53,
@@ -96,7 +97,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Project#update_one_repository_without_path' => 150.7,
       'PublicController#binary_packages' => 131.24,
       'Repository#cleanup_before_destroy' => 85.53,
-      'Repository#update_binary_releases_via_json' => 100.51,
       'RequestController#render_request_collection' => 92.82,
       'SearchController#find_attribute' => 97.33,
       'SourceController#project_command_copy' => 140.04,
