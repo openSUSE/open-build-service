@@ -109,8 +109,8 @@ our $product = [
                 [[ 'repository' =>
                    'project',   # input
                    'name',
-                   'media',
-                   'url',       # this conflicts with project/name/media
+                   'medium',
+                   'url',       # this conflicts with project/name/medium
                    [ 'zypp' => 'name', 'alias' ],
                    'arch',      # for arch specific definitions
                 ]],
@@ -446,7 +446,7 @@ sub getproductrepositories {
       } else {
         my $project_expanded = $repo->{'project'};
         $project_expanded =~ s/:/:\//g;
-        $path = { 'path' => "/$project_expanded/$repo->{'name'}/repo/$repo->{'media'}" };
+        $path = { 'path' => "/$project_expanded/$repo->{'name'}/repo/$repo->{'medium'}" };
       }
       $path->{'arch'} = $repo->{'arch'} if $repo->{'arch'};
       $path->{'zypp'} = $repo->{'zypp'} if $repo->{'zypp'};

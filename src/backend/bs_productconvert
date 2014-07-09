@@ -937,11 +937,11 @@ sub writeProductSPECfile( $$$$ )
          if ($r->{'url'}) {
            die("conflicting values url<>project") if defined($r->{'project'});
            die("conflicting values url<>name")    if defined($r->{'name'});
-           die("conflicting values url<>media")   if defined($r->{'media'});
+           die("conflicting values url<>medium")   if defined($r->{'medium'});
          } else {
            die("missing project in pool repository") unless defined($r->{'project'});
            die("missing name in pool repository")    unless defined($r->{'name'});
-           die("missing media in pool repository")   unless defined($r->{'media'});
+           die("missing medium in pool repository")   unless defined($r->{'medium'});
          }
       }
       foreach my $dt ( @{$product->{register}->{updates}->{distrotarget}} ) {

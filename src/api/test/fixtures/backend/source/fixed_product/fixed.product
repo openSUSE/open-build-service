@@ -11,7 +11,7 @@
       <release>3</release>
       <register>
         <pool>
-          <repository project="BaseDistro3" name="BaseDistro3_repo" media="DVD" />
+          <repository project="BaseDistro3" name="BaseDistro3_repo" medium="DVD" />
         </pool>
         <updates>
           <repository project="BaseDistro2.0:LinkedUpdateProject" name="BaseDistro2LinkedUpdateProject_repo" />
