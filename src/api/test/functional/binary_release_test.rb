@@ -35,12 +35,12 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
                         { :time => "2013-09-29 15:50:31 UTC" }
 
     # by disturl
-    get '/search/released/binary/id', match: "@disturl = '#{disturl}'"
+    get '/search/released/binary/id', match: "disturl = '#{disturl}'"
     assert_response :success
     assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :name => "package", :version => "1.0", :release => "1", :arch => "i586"}
 
     # exact search
-    get '/search/released/binary', match: "@name = 'package' and @version = '1.0' and @release = '1' and @arch = 'i586' and @supportstatus = 'l3'"
+    get '/search/released/binary', match: "@name = 'package' and @version = '1.0' and @release = '1' and @arch = 'i586' and supportstatus = 'l3' and operation = 'added'"
     assert_response :success
     assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :name => "package", :version => "1.0", :release => "1", :arch => "i586"}
 
