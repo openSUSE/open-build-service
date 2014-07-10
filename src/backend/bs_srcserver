@@ -122,6 +122,7 @@ sub notify {
       mkdir_p($notificationpayloaddir);
       writestr("$notificationpayloaddir/.$payloadkey", "$notificationpayloaddir/$payloadkey", $json_payload);
       $p->{'payload'} = $payloadkey;
+      print "notification payload for $p->{'project'}/$p->{'repo'} stored in $payloadkey\n" if $p->{'project'} && $p->{'repo'};
     }
   }
   my @n = map {"$_=$p->{$_}"} grep {defined($p->{$_}) && !ref($p->{$_})} sort keys %{$p || {}};
