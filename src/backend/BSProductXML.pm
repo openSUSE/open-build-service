@@ -80,6 +80,14 @@ our $group = [
           ]],
 ];
 
+# private zypp element definition
+our $zypp = [ 'zypp' =>
+             'name',
+             'alias',
+             [],
+             'disable', # repo should be added, but not enabled by default
+           ],
+
 # Defines a single product, will be used in installed system to indentify it 
 our $product = [
            'product' =>
@@ -111,12 +119,7 @@ our $product = [
                    'name',
                    'medium',
                    'url',       # this conflicts with project/name/medium
-                   [ 'zypp' =>
-                     'name',
-                     'alias',
-                     [],
-                     'disable', # repo should be added, but not enabled by default
-                   ],
+                   $zypp,
                    'arch',      # for arch specific definitions
                 ]],
               ],
@@ -131,12 +134,7 @@ our $product = [
                    'name',
                    'repoid',    # output for .prod file
                    'arch',      # for arch specific definitions
-                   [ 'zypp' =>
-                     'name',
-                     'alias',
-                     [],
-                     'disable', # repo should be added, but not enabled by default
-                   ],
+                   $zypp,
                 ]],
               ],
               [ 'repositories' =>
@@ -350,7 +348,7 @@ our $productrepositories = [
         'url',
         'arch', # optional
         [],
-        [ 'zypp' => 'name', 'alias' ],
+        $zypp,
         'debug',  # optional flags
         'update',
     ]],
