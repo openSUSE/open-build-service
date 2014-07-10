@@ -45,6 +45,8 @@ gem 'redcarpet'
 gem 'cocoon'
 # use act_as_list for AttribValues lists
 gem 'acts_as_list'
+# as authorization system
+gem "pundit"
 
 group :production do
   # if you have an account, it can be configured by
