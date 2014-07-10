@@ -4,6 +4,9 @@ class Webui::AttributeController < Webui::WebuiController
   before_filter :set_attribute, :only => [:update, :destroy]
   before_filter :set_attribute_by_name, :only => [:edit]
 
+  # raise an exception if authorize has not yet been called.
+  after_action :verify_authorized, :except => :index
+
   helper 'webui/project'
 
   def index
@@ -16,9 +19,11 @@ class Webui::AttributeController < Webui::WebuiController
     else
       @attribute = Attrib.new(project_id: @project.id)
     end
+    authorize @attribute, :create?
   end
 
   def edit
+    authorize @attribute
     if @attribute.attrib_type.value_count and ( @attribute.attrib_type.value_count > @attribute.values.length )
       ( @attribute.attrib_type.value_count - @attribute.values.length ).times do |i|
         @attribute.values.build(attrib: @attribute)
@@ -28,11 +33,10 @@ class Webui::AttributeController < Webui::WebuiController
 
   def create
     @attribute = Attrib.new(attrib_params)
-    # check access
-    unless User.current.can_create_attribute_in? @attribute.container, namespace: @attribute.namespace, name: @attribute.name
-      redirect_to :back, error: "You have no permission to create attribute #{@attribute.fullname}"
-      return
-    end
+
+    authorize @attribute
+
+    # build the default values
     if @attribute.attrib_type.value_count
       @attribute.attrib_type.value_count.times do
         @attribute.values.build(attrib: @attribute)
@@ -53,11 +57,7 @@ class Webui::AttributeController < Webui::WebuiController
   end
 
   def update
-    # check access
-    unless User.current.can_create_attribute_in? @attribute.container, namespace: @attribute.namespace, name: @attribute.name
-      redirect_to :back, error: "You have no permission to modify attribute #{@attribute.fullname}"
-      return
-    end
+    authorize @attribute
 
     if @attribute.update(attrib_params)
       redirect_to edit_attribs_path(:project => @attribute.project.to_s, :package => @attribute.package.to_s, :attribute => @attribute.fullname),
@@ -68,12 +68,8 @@ class Webui::AttributeController < Webui::WebuiController
   end
 
   def destroy
-    # check access
-    unless User.current.can_create_attribute_in? @attribute.container, namespace: @attribute.namespace, name: @attribute.name
-      redirect_to :back, error: "You have no permission to modify attribute #{@attribute.fullname}"
-      return
-    end
-
+    authorize @attribute
+    
     @attribute.destroy
     redirect_to :back, notice: 'Attribute sucessfully deleted!'
   end
