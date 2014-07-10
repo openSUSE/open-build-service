@@ -1,0 +1,34 @@
+#
+# openSUSE Build Service 2.5.4
+#
+
+Updaters from any OBS 2.5 release can just ugrade the packages
+and restart all services. Updaters from former releases should
+read the README.UPDATERS file.
+
+Feature backports:
+==================
+
+* backend: Caching of downloaded binaries when stacking multiple OBS interconnects together.
+           (This is still not 100% supported, change notifications will still not be forwarded atm).
+* backend: Make worker build log limits configurable.
+
+Changes:
+========
+
+* none
+
+Bugfixes:
+=========
+
+* webui: Do not crash when adding a repository and a remote instance with invalid SSL CA
+         got added.
+* api: Runtime fixes for LDAP support (but it remains to be an untested feature)
+* backend: fix for stuck "service in progress" states for remote project linked packages
+* backend: optimization of "obs_admin" source delete functionality
+* backend: fix uri encoding in some situations, esp. for interconnect case
+* backend: fix event handling of local linked packages, in project linked projects to remote OBS instances
+* documentation updates
+
+
+
