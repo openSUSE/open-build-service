@@ -2680,7 +2680,7 @@ sub getbuildinfo {
   die("bad info\n") unless $info && $info->{'repository'} eq $repoid;
 
   my $packtype = 'spec';
-  $packtype = $1 if $info->{'file'} && $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
+  $packtype = $1 if $info->{'file'} && $info->{'file'} =~ /\.(spec|dsc|kiwi|livebuild)$/;
 
   my @configpath;
   my $kiwitype;
@@ -2894,6 +2894,19 @@ sub getbuildinfo {
     $pool->createwhatprovides();
   }
 
+  if ($bconf->{'type'} eq 'livebuild') {
+    # defaults live-build package dependencies base on 4.0~a26 gathered with:
+    # $ grep Check_package -r /usr/lib/live/build
+    my @lb4_requirements = (
+      'apt-utils', 'dctrl-tools', 'debconf', 'dosfstools', 'e2fsprogs', 'grub',
+      'librsvg2-bin', 'live-boot', 'live-config', 'mtd-tools', 'parted',
+      'squashfs-tools', 'syslinux', 'syslinux-common', 'wget', 'xorriso',
+      'zsync' );
+
+    # dependency injection based on live-build version
+    push @deps, @{$bconf->{'substitute'}->{'build-packages:livebuild'} || \@lb4_requirements};
+  }
+
   my @bdeps = grep {!/^\// || $bconf->{'fileprovides'}->{$_}} @{$info->{'prereq'} || []};
   unshift @bdeps, '--directdepsend--' if @bdeps;
   unshift @bdeps, @deps;
@@ -2925,6 +2938,14 @@ sub getbuildinfo {
   if ($engine eq 'mock' && $packtype ne 'kiwi') {
     @sysdeps = @{$bconf->{'substitute'}->{'engine-packages:mock'} || []};
     @sysdeps = ('mock', 'createrepo') unless @sysdeps;   # default
+  }
+  elsif ($bconf->{'type'} eq 'livebuild') {
+    # packages used for build environment setup (build-recipe-livebuild deps)
+    @sysdeps = @{$bconf->{'substitute'}->{'system-packages:livebuild'} || []};
+    @sysdeps = ('apt-utils', 'cpio', 'dpkg-dev', 'live-build', 'lsb-release',
+                'tar') unless @sysdeps;
+  }
+  if (@sysdeps) {
     @sysdeps = Build::get_build($bconf, [], @sysdeps);
     if (! shift @sysdeps) {
       undef $xp;
@@ -3161,6 +3182,10 @@ sub getbuildinfo_post {
   } elsif ($bconf->{'type'} eq 'arch') {
     $d = Build::Arch::parse($bconf, $descr);
     $info->{'file'} = 'PKGBUILD';
+  } elsif ($bconf->{'type'} eq 'livebuild') {
+    $d = Build::LiveBuild::parse($bconf, $descr);
+    $info->{'path'} = $d->{'path'};
+    $info->{'file'} = 'upload.livebuild';
   } else {
     die("unknown repository type $bconf->{'type'}\n");
   }
@@ -3168,7 +3193,7 @@ sub getbuildinfo_post {
   unless (defined $d->{'name'}) {
     unlink("$dir/$_") for ls($dir);
     rmdir($dir) if -d $dir;
-    die("could not parse build description (spec/dsc/kiwi)\n");
+    die("could not parse build description (spec/dsc/kiwi/livebuild)\n");
   }
   $info->{'name'} = $d->{'name'};
   $info->{'dep'} = $d->{'deps'};
