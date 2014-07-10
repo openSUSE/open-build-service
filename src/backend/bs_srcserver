@@ -2608,13 +2608,6 @@ sub findfile {
   # create filename -> return value hash
   my %files = map {$_ => [$files->{$_}, $_]} keys %$files;
 
-  return @{$files{'_preinstallimage'}} if $ext ne 'kiwi' && keys(%files) == 1 && $files{'_preinstallimage'};
-
-  if ($ext eq 'arch') {
-    return @{$files{'PKGBUILD'}} if $files{'PKGBUILD'};
-    return (undef, undef);
-  }
-
   # map services files to their real name
   if ($files{'_service'}) {
     for (sort keys %files) {
@@ -2623,6 +2616,13 @@ sub findfile {
       $files{$1} = $files{$_};
       delete $files{$_};
     }
+  }
+
+  return @{$files{'_preinstallimage'}} if $ext ne 'kiwi' && keys(%files) == 1 && $files{'_preinstallimage'};
+
+  if ($ext eq 'arch') {
+    return @{$files{'PKGBUILD'}} if $files{'PKGBUILD'};
+    return (undef, undef);
   }
 
   my $packid = $rev->{'package'};
