@@ -61,9 +61,14 @@ sub urlencode {
 sub createuri {
   my ($param, @args) = @_;
   my $uri = $param->{'uri'};
-  if (!$param->{'verbatim_uri'} && $uri =~ /^(https?:\/\/[^\/]*\/)(.*)$/s) {
-    $uri = $1; 
-    $uri .= BSRPC::urlencode($2);
+  if (!$param->{'verbatim_uri'}) {
+    # encode uri, but do not encode the host part
+    if ($uri =~ /^(https?:\/\/[^\/]*\/)(.*)$/s) {
+      $uri = $1; 
+      $uri .= urlencode($2);
+    } else {
+      $uri = urlencode($uri);
+    }
   }
   if (@args) {
     for (@args) {
