@@ -2922,7 +2922,7 @@ sub getbuildinfo {
 
   my $engine = $bconf->{'buildengine'} || '';
   my @sysdeps;
-  if (($engine || '') eq 'mock' && $packtype ne 'kiwi') {
+  if ($engine eq 'mock' && $packtype ne 'kiwi') {
     @sysdeps = @{$bconf->{'substitute'}->{'engine-packages:mock'} || []};
     @sysdeps = ('mock', 'createrepo') unless @sysdeps;   # default
     @sysdeps = Build::get_build($bconf, [], @sysdeps);
