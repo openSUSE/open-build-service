@@ -1,6 +1,14 @@
 require 'test_helper'
 
 class LastEventsTest < ActionDispatch::IntegrationTest
+
+  def setup
+    # ensure that the backend got started or we read, process and forget the indexed data.
+    # of course only if our timing is bad :/
+    super
+    wait_for_scheduler_start
+  end
+
   test "update lastevents" do
     UpdatePackageMetaJob.new.perform
     # at least 3 links found

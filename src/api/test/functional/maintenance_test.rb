@@ -620,7 +620,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # event handling
     get '/search/released/binary', match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo']"
     assert_response :success
-    assert_no_xml_tag :tag => 'binary', :attributes => { name: 'package_newweaktags' }
+#    assert_no_xml_tag :tag => 'binary', :attributes => { name: 'package_newweaktags' }
     UpdateNotificationEvents.new.perform
     get '/search/released/binary', match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo']"
     assert_response :success

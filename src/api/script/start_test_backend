@@ -344,7 +344,7 @@ scheduler_thread = Thread.new do
   end
 
   # update event database, esp. binary_release table
-  ActiveRecord::Base.transaction(requires_new: true) do
+  BinaryRelease.transaction(requires_new: true) do
     UpdateNotificationEvents.new.perform
   end
 
