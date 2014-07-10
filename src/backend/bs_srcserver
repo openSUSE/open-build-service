@@ -4115,11 +4115,11 @@ sub remote_getrev {
   my $cacherev = !defined($rev) || $rev eq 'build' ? '' : $rev;
   if ($remote_getrev_cache{"$projid/$packid/$cacherev"}) {
     $rev = { %{$remote_getrev_cache{"$projid/$packid/$cacherev"}} };
+    push @$linked, map { { %$_ } } @{$rev->{'linked'}} if $linked && $rev->{'linked'};
     if ($rev->{'error'}) {
       return {'project' => $projid, 'package' => $packid, 'srcmd5' => $emptysrcmd5} if $missingok && $rev->{'error'} =~ /^404[^\d]/;
       die("$rev->{'error'}\n");
     }
-    push @$linked, map { { %$_ } } @{$rev->{'linked'}} if $linked && $rev->{'linked'};
     delete $rev->{'linked'};
     $rev->{'project'} = $projid;
     $rev->{'package'} = $packid;
