@@ -6,14 +6,15 @@ require 'frontend_compat'
 class Webui::WebuiController < ActionController::Base
   Rails.cache.set_domain if Rails.cache.respond_to?('set_domain')
 
+  include Pundit
+  protect_from_forgery
+
   before_filter :setup_view_path
   before_filter :instantiate_controller_and_action_names
   before_filter :set_return_to, :reset_activexml, :authenticate
   before_filter :check_user
   before_filter :require_configuration
   after_filter :clean_cache
-
-  protect_from_forgery
 
   # We execute both strategies here. The default rails strategy (resetting the session)
   # and throwing an exception if the session is handled elswhere (e.g. proxy_auth_mode: :on)
@@ -24,6 +25,25 @@ class Webui::WebuiController < ActionController::Base
 
   # :notice and :alert are default, we add :success and :error
   add_flash_types :success, :error
+
+  rescue_from Pundit::NotAuthorizedError do |exception|
+    pundit_action = case exception.query.to_s
+       when "index?" then "list"
+       when "show?" then "view"
+       when "create?" then "create"
+       when "new?" then "create"
+       when "update?" then "update"
+       when "edit?" then "edit"
+       when "destroy?" then "delete"
+       else exception.query
+    end
+    if exception.message
+      flash[:error] = "Sorry you're not allowed to #{pundit_action} this #{exception.record.class}"
+    else
+      flash[:error] = "Sorry, you are not authorized to perform this action."
+    end
+    redirect_back_or_to root_path
+  end
 
   # FIXME: This belongs into the user controller my dear.
   # Also it would be better, but also more complicated, to just raise
@@ -273,5 +293,13 @@ class Webui::WebuiController < ActionController::Base
 
   def check_ajax
     raise ActionController::RoutingError.new('Expected AJAX call') unless request.xhr?
+  end
+
+  def pundit_user
+    if User.current.is_nobody?
+      return nil
+    else
+      return User.current
+    end
   end
 end
