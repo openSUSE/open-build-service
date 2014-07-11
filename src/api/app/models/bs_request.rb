@@ -134,7 +134,7 @@ class BsRequest < ActiveRecord::Base
       end
 
       state = hashed.delete('state') || Xmlhash::XMLHash.new({'name' => 'new'})
-      request.state = state.delete('name') || User.current.login
+      request.state = state.delete('name') || 'new'
       request.state = :declined if request.state.to_s == 'rejected'
       request.state = :accepted if request.state.to_s == 'accept'
       request.state = request.state.to_sym
