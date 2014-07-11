@@ -29,7 +29,7 @@ class EventTest < ActionDispatch::IntegrationTest
   end
 
   test 'receive roles for build failure' do
-    assert_equal [:maintainer], events(:build_fails_with_deleted_user_and_request).receiver_roles
+    assert_equal [:maintainer, :bugowner], events(:build_fails_with_deleted_user_and_request).receiver_roles
   end
 
   def users_for_event(e)

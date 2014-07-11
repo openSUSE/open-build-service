@@ -101,7 +101,7 @@ class Event::Request < ::Event::Base
   def action_maintainers(prjname, pkgname)
     ret = []
     payload['actions'].each do |a|
-      ret.concat _maintainers(a[prjname], a[pkgname])
+      ret.concat _roles('maintainer', a[prjname], a[pkgname])
     end
     ret.uniq
   end

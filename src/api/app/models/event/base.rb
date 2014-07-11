@@ -201,38 +201,45 @@ module Event
       self.class.name.gsub('Event::', '').underscore
     end
 
-    def obj_maintainers(obj)
+    def obj_roles(obj, role)
       # old/deleted obj
-      return [] unless obj
+      return [] unless obj or role.blank?
 
-      maintainer = obj.relationships.where(role: Role.rolecache['maintainer'])
-      users = maintainer.joins(:user).pluck('users.id')
-      users |= maintainer.joins(:groups_users).pluck('groups_users.user_id')
+      user = obj.relationships.where(role: Role.rolecache[role])
+      users = user.joins(:user).pluck('users.id')
+      users |= user.joins(:groups_users).pluck('groups_users.user_id')
 
       if users.empty? && obj.respond_to?(:project)
-        users = obj_maintainers(obj.project)
+        users = obj_roles(obj.project, role)
       end
 
       # for now we define develpackage maintainers as being maintainers too
       if obj.respond_to?(:develpackage)
-        users.concat(obj_maintainers(obj.develpackage))
+        users.concat(obj_roles(obj.develpackage, role))
       end
       users
     end
 
     def maintainers
       Rails.logger.debug "Maintainers #{payload.inspect}"
-      ret = _maintainers(payload['project'], payload['package'])
+      ret = _roles('maintainer', payload['project'], payload['package'])
       Rails.logger.debug "Maintainers ret #{ret.inspect}"
       ret
     end
 
-    def _maintainers(project, package = nil)
+    def bugowners
+      Rails.logger.debug "Maintainers #{payload.inspect}"
+      ret = _roles('bugowner', payload['project'], payload['package'])
+      Rails.logger.debug "Maintainers ret #{ret.inspect}"
+      ret
+    end
+
+    def _roles(role, project, package = nil)
       return [] unless project
       p = nil
       p = ::Package.find_by_project_and_name(project, package) if package
       p ||= ::Project.find_by_name(project)
-      obj_maintainers(p)
+      obj_roles(p, role)
     end
 
   end
