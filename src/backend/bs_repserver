@@ -2894,19 +2894,6 @@ sub getbuildinfo {
     $pool->createwhatprovides();
   }
 
-  if ($bconf->{'type'} eq 'livebuild') {
-    # defaults live-build package dependencies base on 4.0~a26 gathered with:
-    # $ grep Check_package -r /usr/lib/live/build
-    my @lb4_requirements = (
-      'apt-utils', 'dctrl-tools', 'debconf', 'dosfstools', 'e2fsprogs', 'grub',
-      'librsvg2-bin', 'live-boot', 'live-config', 'mtd-tools', 'parted',
-      'squashfs-tools', 'syslinux', 'syslinux-common', 'wget', 'xorriso',
-      'zsync' );
-
-    # dependency injection based on live-build version
-    push @deps, @{$bconf->{'substitute'}->{'build-packages:livebuild'} || \@lb4_requirements};
-  }
-
   my @bdeps = grep {!/^\// || $bconf->{'fileprovides'}->{$_}} @{$info->{'prereq'} || []};
   unshift @bdeps, '--directdepsend--' if @bdeps;
   unshift @bdeps, @deps;
@@ -2932,28 +2919,13 @@ sub getbuildinfo {
     $ret->{'error'} = "unresolvable: ".join(', ', @bdeps);
     return ($ret, $BSXML::buildinfo);
   }
-
-  my $engine = $bconf->{'buildengine'} || '';
   my @sysdeps;
-  if ($engine eq 'mock' && $packtype ne 'kiwi') {
-    @sysdeps = @{$bconf->{'substitute'}->{'engine-packages:mock'} || []};
-    @sysdeps = ('mock', 'createrepo') unless @sysdeps;   # default
-  }
-  elsif ($bconf->{'type'} eq 'livebuild') {
-    # packages used for build environment setup (build-recipe-livebuild deps)
-    @sysdeps = @{$bconf->{'substitute'}->{'system-packages:livebuild'} || []};
-    @sysdeps = ('apt-utils', 'cpio', 'dpkg-dev', 'live-build', 'lsb-release',
-                'tar') unless @sysdeps;
-  }
-  if (@sysdeps) {
-    @sysdeps = Build::get_build($bconf, [], @sysdeps);
-    if (! shift @sysdeps) {
-      undef $xp;
-      undef $Build::expand_dbg if $cgi->{'debug'};
-      $ret->{'error'} = "unresolvable: ".join(', ', @sysdeps);
-      return ($ret, $BSXML::buildinfo);
-    }
-    @sysdeps = Build::unify(@sysdeps, Build::get_preinstalls($bconf));
+  @sysdeps = Build::get_sysbuild($bconf, $packtype) if defined &Build::get_sysbuild;
+  if (@sysdeps && !shift(@sysdeps)) {
+    undef $xp;
+    undef $Build::expand_dbg if $cgi->{'debug'};
+    $ret->{'error'} = "unresolvable: ".join(', ', @sysdeps);
+    return ($ret, $BSXML::buildinfo);
   }
   undef $xp;
   undef $Build::expand_dbg if $cgi->{'debug'};
