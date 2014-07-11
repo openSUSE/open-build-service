@@ -116,6 +116,7 @@ class BinaryRelease < ActiveRecord::Base
                :binary_release => binary["release"],
                :binary_epoch => binary["epoch"],
                :binary_arch => binary["binaryarch"],
+               :medium => binary["medium"],
                :obsolete_time => nil
              }
         # check for existing entry
@@ -125,8 +126,7 @@ class BinaryRelease < ActiveRecord::Base
         # compare with existing entry
         if existing.count == 1
           entry = existing.first
-          if entry.medium               == binary["medium"] and
-             entry.binary_disturl       == binary["disturl"] and
+          if entry.binary_disturl       == binary["disturl"] and
              entry.binary_supportstatus == binary["supportstatus"] and
              entry.binary_buildtime     == ::Time.at(binary["buildtime"]||0)
              # same binary, don't touch
@@ -141,7 +141,6 @@ class BinaryRelease < ActiveRecord::Base
         end
 
         # complete hash for new entry
-        hash[:medium] = binary["medium"]
         hash[:binary_releasetime] = time
         hash[:binary_buildtime] = nil
         hash[:binary_buildtime] = ::Time.at(binary["buildtime"].to_i) if binary["buildtime"].to_i > 0
