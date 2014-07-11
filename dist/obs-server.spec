@@ -545,8 +545,6 @@ for i in production.rb ; do
     cp /srv/www/obs/frontend/config/environments/$i /srv/www/obs/api/config/environments/$i
   fi
 done
-# sphinx db is very often incompatible, so wipe it for re-index
-rm -f /srv/www/obs/api/db/sphinx/production/* 2> /dev/null
 SECRET_KEY="/srv/www/obs/api/config/secret.key"
 if [ ! -e "$SECRET_KEY" ]; then
   ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >$SECRET_KEY )

@@ -88,6 +88,14 @@ case "$1" in
 	fi
 	rc_status
 	;;
+    clean-restart)
+	$0 stop
+        rm -f $API_ROOT/db/sphinx/production/*
+        run_in_api rake ts:index
+	$0 start
+
+	rc_status
+	;;
     restart)
 	$0 stop
 	$0 start
