@@ -2,7 +2,7 @@ require 'event/all'
 
 module Webui::NotificationSettings
 
-  Roles = [:maintainer, :source_maintainer, :target_maintainer, :reviewer, :commenter, :creator]
+  Roles = [:maintainer, :bugowner, :source_maintainer, :target_maintainer, :reviewer, :commenter, :creator]
   Event_types = %w{RequestCreate RequestStatechange CommentForProject CommentForPackage CommentForRequest BuildFail ReviewWanted}
 
   # find subscribed roles for the user (nil for global settings)
