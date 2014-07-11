@@ -628,7 +628,7 @@ sub set_building {
 
   # a new one. expand usedforbuild. write info file.
   my $prptype = $bconf->{'type'};
-  $info->{'file'} =~ /\.(spec|dsc|kiwi)$/;
+  $info->{'file'} =~ /\.(spec|dsc|kiwi|livebuild)$/;
   my $packtype = $1 || 'spec';
   $packtype = 'arch' if $info->{'file'} eq 'PKGBUILD';
   $packtype = 'preinstallimage' if $info->{'file'} eq '_preinstallimage';
@@ -680,6 +680,19 @@ sub set_building {
     push @bdeps, grep {/^kiwi-.*:/} @{$info->{'dep'} || []};
   }
 
+  if ($bconf->{'type'} eq 'livebuild') {
+    # defaults live-build package dependencies base on 4.0~a26 gathered with:
+    # $ grep Check_package -r /usr/lib/live/build
+    my @lb4_requirements = (
+      'apt-utils', 'dctrl-tools', 'debconf', 'dosfstools', 'e2fsprogs', 'grub',
+      'librsvg2-bin', 'live-boot', 'live-config', 'mtd-tools', 'parted',
+      'squashfs-tools', 'syslinux', 'syslinux-common', 'wget', 'xorriso',
+      'zsync' );
+
+    # dependency injection based on live-build version
+    push @bdeps, @{$bconf->{'substitute'}->{'build-packages:livebuild'} || \@lb4_requirements};
+  }
+
   my $eok;
   ($eok, @bdeps) = Build::get_build($bconf, $subpacks, @bdeps);
   if (!$eok) {
@@ -689,9 +702,17 @@ sub set_building {
   }
   my $engine = $bconf->{'buildengine'} || '';
   my @sysdeps;
-  if (($engine || '') eq 'mock' && $packtype ne 'kiwi') {
+  if ($engine eq 'mock' && $packtype ne 'kiwi') {
     @sysdeps = @{$bconf->{'substitute'}->{'engine-packages:mock'} || []};
     @sysdeps = ('mock', 'createrepo') unless @sysdeps;   # default
+  }
+  elsif ($bconf->{'type'} eq 'livebuild') {
+    # packages used for build environment setup (build-recipe-livebuild deps)
+    @sysdeps = @{$bconf->{'substitute'}->{'system-packages:livebuild'} || []};
+    @sysdeps = ('apt-utils', 'cpio', 'dpkg-dev', 'live-build', 'lsb-release',
+                'tar') unless @sysdeps;
+  }
+  if (@sysdeps) {
     ($eok, @sysdeps) = Build::get_build($bconf, [], @sysdeps);
     if (!$eok) {
       print "        unresolvable:\n";
@@ -6938,6 +6959,11 @@ my %handlers = (
     'check' => \&checkchannel,
     'rebuild' => \&rebuildchannel,
   },
+  'livebuild' => {
+    'expand' => \&Build::get_deps,
+    'check' => \&checkpackage,
+    'rebuild' => \&rebuildpackage,
+  },
 );
 
 my $unknownchecker = {
@@ -8516,7 +8542,7 @@ NEXTPRP:
 	  $packtype = 'arch';
 	} elsif ($info->{'file'} eq '_preinstallimage') {
 	  $packtype = 'preinstallimage';
-	} elsif ($info->{'file'} =~ /\.(spec|dsc|kiwi)$/) {
+	} elsif ($info->{'file'} =~ /\.(spec|dsc|kiwi|livebuild)$/) {
 	  $packtype = $1;
 	  if ($packtype eq 'kiwi') {
 	    # check if it is kiwi-product
