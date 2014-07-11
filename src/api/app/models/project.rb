@@ -135,8 +135,13 @@ class Project < ActiveRecord::Base
     find_repos(:linking_repositories) do |link_rep|
       link_rep.path_elements.includes(:link).each do |pe|
         next unless Repository.find(pe.repository_id).db_project_id == self.id
-        pe.link = @del_repo
-        pe.save
+        if link_rep.path_elements.includes(:link).include? @del_repo
+          # repository has already a path to deleted repo
+          pe.destroy
+        else
+          pe.link = @del_repo
+          pe.save
+        end
         #update backend
         link_rep.project.write_to_backend
       end
