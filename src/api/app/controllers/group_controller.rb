@@ -14,7 +14,7 @@ class GroupController < ApplicationController
       @list = Group.all
     end
     if params[:prefix]
-      @list = @list.find_all { |group| group.title.match(/^#{params[:prefix]}/) }
+      @list = @list.find_all { |group| group.title.starts_with? params[:prefix] }
     end
   end
 
