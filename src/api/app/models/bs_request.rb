@@ -739,7 +739,11 @@ class BsRequest < ActiveRecord::Base
     self.with_lock do
       User.current ||= User.find_by_login self.creator
 
-      change_state({:newstate => 'accepted', :comment => 'Auto accept'})
+      begin
+        change_state({:newstate => 'accepted', :comment => 'Auto accept'})
+      rescue BsRequestPermissionCheck::NotExistingTarget
+        change_state({:newstate => 'revoked', :comment => 'Target disappeared'})
+      end
     end
   end
 

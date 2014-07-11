@@ -2242,6 +2242,13 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     node = Xmlhash.parse(@response.body)
     id = node['id']
     assert id.present?
+    # and a second request
+    post '/request?cmd=create', req
+    assert_response :success
+    assert_xml_tag(:tag => 'request')
+    node = Xmlhash.parse(@response.body)
+    id2 = node['id']
+    assert id.present?
 
     # correct rendered
     get "/request/#{id}"
@@ -2276,6 +2283,12 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # and now check that the package is gone indeed
     get '/source/home:Iggy/TestPack'
     assert_response 404
+
+    # the other one got close because the target does not exist anymore
+    get "/request/#{id2}"
+    assert_response :success
+    assert_xml_tag(tag: 'state', attributes: { name: 'revoked', when: '2010-07-14T00:00:00', who: 'Iggy' })
+    assert_xml_tag(:tag => 'comment', :content => 'Target disappeared')
 
     # good, now revive to fix the state of the union
     post '/source/home:Iggy/TestPack?cmd=undelete'
