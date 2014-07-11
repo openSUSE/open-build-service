@@ -743,6 +743,10 @@ class BsRequest < ActiveRecord::Base
         change_state({:newstate => 'accepted', :comment => 'Auto accept'})
       rescue BsRequestPermissionCheck::NotExistingTarget
         change_state({:newstate => 'revoked', :comment => 'Target disappeared'})
+      rescue BsRequestPermissionCheck::PostRequestNoPermission
+        change_state({:newstate => 'revoked', :comment => 'Permission problem'})
+      rescue APIException
+        change_state({:newstate => 'declined', :comment => 'Unhandled error during accept'})
       end
     end
   end
