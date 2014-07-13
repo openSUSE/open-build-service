@@ -200,7 +200,6 @@ class BsRequest < ActiveRecord::Base
   end
 
   def to_axml
-    # FIXME: naming it axml is nonsense if it's just a string
     Rails.cache.fetch('xml_bs_request_%d' % id) do
       render_xml
     end
@@ -208,7 +207,7 @@ class BsRequest < ActiveRecord::Base
 
   def to_axml_id
     # FIXME: naming it axml is nonsense if it's just a string
-    "<request id='#{self.id}'/>"
+    "<request id='#{self.id}'/>\n"
   end
 
   def render_xml

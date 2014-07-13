@@ -101,7 +101,7 @@ class Repository < ActiveRecord::Base
   end
 
   def to_axml_id
-    return "<repository project='#{::Builder::XChar.encode(project.name)}' name='#{::Builder::XChar.encode(name)}'/>"
+    return "<repository project='#{::Builder::XChar.encode(project.name)}' name='#{::Builder::XChar.encode(name)}'/>\n"
   end
 
   def to_s

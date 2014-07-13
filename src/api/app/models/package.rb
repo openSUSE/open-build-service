@@ -635,7 +635,7 @@ class Package < ActiveRecord::Base
   end
 
   def to_axml_id
-    return "<package project='#{::Builder::XChar.encode(project.name)}' name='#{::Builder::XChar.encode(name)}'/>"
+    return "<package project='#{::Builder::XChar.encode(project.name)}' name='#{::Builder::XChar.encode(name)}'/>\n"
   end
 
   def to_axml

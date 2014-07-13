@@ -764,7 +764,7 @@ class Project < ActiveRecord::Base
   end
 
   def to_axml_id
-    return "<project name='#{::Builder::XChar.encode(name)}'/>"
+    return "<project name='#{::Builder::XChar.encode(name)}'/>\n"
   end
 
   # calculate enabled/disabled per repo/arch
