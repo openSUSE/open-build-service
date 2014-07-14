@@ -1717,7 +1717,8 @@ sub publish {
 	  my @d = qw{arch name epoch version release disturl buildtime};
 	  $res = {};
 	  for (@$c) {
-	    $res->{shift @d} = $_ if defined $_;
+	    my $dd = shift @d;
+	    $res->{$dd} = $_ if defined $_;
 	  }
 	} else {
 	  eval {
