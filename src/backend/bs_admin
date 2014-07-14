@@ -762,7 +762,12 @@ while (@ARGV) {
     my $repo = shift @ARGV;
     my $repodir = "$reporoot/$project/$repo/";
     if ( $arg eq "--republish-repository" ) {
-      unlink("$repodir/:repoinfo");
+      # clear the repository state to force republishing
+      my $repoinfo = BSUtil::retrieve("$repodir/:repoinfo", 1) || {};
+      if ($repoinfo->{'state'}) {
+	delete $repoinfo->{'state'};
+	BSUtil::store("$repodir/.:repoinfo", "$repodir/:repoinfo", $repoinfo);
+      }
     }
     if ( $arg eq "--unpublish-repository" ) {
       # remove :repo
