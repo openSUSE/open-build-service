@@ -1,13 +1,9 @@
-class UpdateReleasedBinaries
+class UpdateReleasedBinaries < CreateJob
 
   attr_accessor :event
 
   def self.job_queue
     'releasetracking'
-  end
-
-  def initialize(event)
-    self.event = event
   end
 
   def perform
