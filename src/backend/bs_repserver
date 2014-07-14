@@ -2679,12 +2679,11 @@ sub getbuildinfo {
   my $info = $pdata->{'info'}->[0];
   die("bad info\n") unless $info && $info->{'repository'} eq $repoid;
 
-  my $packtype = 'spec';
-  $packtype = $1 if $info->{'file'} && $info->{'file'} =~ /\.(spec|dsc|kiwi|livebuild)$/;
+  my $buildtype = Build::recipe2buildtype($info->{'file'}) || 'spec';
 
   my @configpath;
   my $kiwitype;
-  if ($packtype eq 'kiwi') {
+  if ($buildtype eq 'kiwi') {
     if (@{$info->{'path'} || []}) {
       # fill in all remotemap entries we need
       @args = map {"project=$_->{'project'}"} grep {$_->{'project'} ne '_obsrepositories'} @{$info->{'path'}};
@@ -2706,6 +2705,7 @@ sub getbuildinfo {
     }
   }
   my $bconf = getconfig($projid, $repoid, $arch, \@configpath);
+  $bconf->{'type'} = $buildtype if $buildtype;
 
   my $ret;
   $ret->{'project'} = $projid;
@@ -2716,7 +2716,7 @@ sub getbuildinfo {
   $ret->{'hostarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'};
   $ret->{'path'} = $repo->{'path'} || [];
   my @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
-  if ($packtype eq 'kiwi') {
+  if ($buildtype eq 'kiwi') {
     $ret->{'imagetype'} = $info->{'imagetype'} || [];
     if (@prp < 2 || grep {$_->{'project'} eq '_obsrepositories'} @{$info->{'path'} || []}) {
       $ret->{'path'} = [ expandkiwipath_hash($info, $repo) ];
@@ -2823,11 +2823,11 @@ sub getbuildinfo {
     $bconf->{'support'} = [];
   }
   $Build::expand_dbg = 1 if $cgi->{'debug'};
-  @subpacks = () if $packtype eq 'kiwi';
+  @subpacks = () if $buildtype eq 'kiwi';
   my @edeps;
-  if ($packtype eq 'kiwi' && $kiwitype eq 'product') {
+  if ($buildtype eq 'kiwi' && $kiwitype eq 'product') {
     @edeps = (1, @deps);
-  } elsif ($packtype eq 'kiwi') {
+  } elsif ($buildtype eq 'kiwi') {
     my $bconfignore = $bconf->{'ignore'};
     my $bconfignoreh = $bconf->{'ignoreh'};
     delete $bconf->{'ignore'};
@@ -2861,7 +2861,7 @@ sub getbuildinfo {
     $ret->{'error'} = "unresolvable: ".join(', ', @edeps);
     return ($ret, $BSXML::buildinfo);
   }
-  if ($packtype eq 'kiwi') {
+  if ($buildtype eq 'kiwi') {
     # packages used for build environment
     if ($kiwitype ne 'product') {
       @deps = @{$bconf->{'substitute'}->{'kiwi-setup:image'} || []};
@@ -2874,7 +2874,7 @@ sub getbuildinfo {
   }
 
   my $epool;
-  if ($packtype eq 'kiwi' && $kiwitype eq 'image' && @{$repo->{'path'} || []} >= 2) {
+  if ($buildtype eq 'kiwi' && $kiwitype eq 'image' && @{$repo->{'path'} || []} >= 2) {
     # use different path for system setup
     $bconf = getconfig($projid, $repoid, $arch);
     @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
@@ -2919,8 +2919,7 @@ sub getbuildinfo {
     $ret->{'error'} = "unresolvable: ".join(', ', @bdeps);
     return ($ret, $BSXML::buildinfo);
   }
-  my @sysdeps;
-  @sysdeps = Build::get_sysbuild($bconf, $packtype) if defined &Build::get_sysbuild;
+  my @sysdeps = Build::get_sysbuild($bconf, $buildtype);
   if (@sysdeps && !shift(@sysdeps)) {
     undef $xp;
     undef $Build::expand_dbg if $cgi->{'debug'};
@@ -2939,7 +2938,7 @@ sub getbuildinfo {
   my %edeps = map {$_ => 1} @edeps;
   my %sysdeps = map {$_ => 1} @sysdeps;
 
-  if ($packtype eq 'kiwi' && $kiwitype eq 'product') {
+  if ($buildtype eq 'kiwi' && $kiwitype eq 'product') {
     # things are very different here. first we have the packages needed for kiwi
     # from the full tree
     @bdeps = unify(@pdeps, @vmdeps, @bdeps);
@@ -2992,7 +2991,7 @@ sub getbuildinfo {
     $ret->{'bdep'} = \@bdeps;
     return ($ret, $BSXML::buildinfo);
   }
-  if ($packtype eq 'kiwi' && $kiwitype eq 'image') {
+  if ($buildtype eq 'kiwi' && $kiwitype eq 'image') {
     my @rdeps;
     if ($epool) {
       my %allnames;
@@ -3086,7 +3085,7 @@ sub getbuildinfo {
     $b->{'vminstall'} = 1 if $vmdeps{$_};
     $b->{'runscripts'} = 1 if $runscripts{$_};
     $b->{'notmeta'} = 1 unless $edeps{$_};
-    if ($packtype eq 'kiwi') {
+    if ($buildtype eq 'kiwi') {
       $b->{'noinstall'} = 1 if $edeps{$_} && !($bdeps{$_} || $vmdeps{$_} || $pdeps{$_});
     } elsif (@sysdeps) {
       $b->{'installonly'} = 1 if $sysdeps{$_} && !$bdeps{$_};
@@ -3156,7 +3155,6 @@ sub getbuildinfo_post {
     $info->{'file'} = 'PKGBUILD';
   } elsif ($bconf->{'type'} eq 'livebuild') {
     $d = Build::LiveBuild::parse($bconf, $descr);
-    $info->{'path'} = $d->{'path'};
     $info->{'file'} = 'upload.livebuild';
   } else {
     die("unknown repository type $bconf->{'type'}\n");
