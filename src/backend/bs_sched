@@ -627,14 +627,10 @@ sub set_building {
   $job = "$job-$srcmd5";
 
   # a new one. expand usedforbuild. write info file.
-  my $prptype = $bconf->{'type'};
-  $info->{'file'} =~ /\.(spec|dsc|kiwi|livebuild)$/;
-  my $packtype = $1 || 'spec';
-  $packtype = 'arch' if $info->{'file'} eq 'PKGBUILD';
-  $packtype = 'preinstallimage' if $info->{'file'} eq '_preinstallimage';
+  my $buildtype = Build::recipe2buildtype($info->{'file'});
 
   my $syspath;
-  if ($packtype eq 'kiwi') {
+  if ($buildtype eq 'kiwi') {
     if ($prpsearchpath) {
       $syspath = [];
       for (@$prpsearchpath) {
@@ -673,7 +669,7 @@ sub set_building {
   unshift @bdeps, '--directdepsend--' if @bdeps;
   unshift @bdeps, @{$info->{'dep'} || []};
 
-  if ($packtype eq 'kiwi') {
+  if ($buildtype eq 'kiwi') {
     # packages used for build environment setup
     @bdeps = @{$bconf->{'substitute'}->{'kiwi-setup:image'} || []};
     @bdeps = ('kiwi', 'createrepo', 'tar') unless @bdeps;	# default
@@ -687,8 +683,7 @@ sub set_building {
     print "          $_\n" for @bdeps;
     return (undef, "unresolvable: ".join(', ', @bdeps));
   }
-  my @sysdeps;
-  @sysdeps = Build::get_sysbuild($bconf, $packtype) if defined &Build::get_sysbuild;
+  my @sysdeps = Build::get_sysbuild($bconf, $buildtype);
   if (@sysdeps && !shift(@sysdeps)) {
     print "        unresolvable:\n";
     print "          $_\n" for @sysdeps;
@@ -740,7 +735,7 @@ sub set_building {
     $_->{'vminstall'} = 1 if $vmdeps{$n};
     $_->{'runscripts'} = 1 if $runscripts{$n};
     $_->{'notmeta'} = 1 unless $edeps{$n};
-    if ($packtype eq 'kiwi') {
+    if ($buildtype eq 'kiwi') {
       $_->{'noinstall'} = 1 if $edeps{$n} && !($bdeps{$n} || $vmdeps{$n} || $pdeps{$n});
     } elsif (@sysdeps) {
       $_->{'installonly'} = 1 if $sysdeps{$n} && !$bdeps{$n};
@@ -982,7 +977,6 @@ sub createdeltajob {
     writestr("$jobdatadir/$deltaid.info", undef, $info);
   }
   # create job
-  my $prptype = $bconf->{'type'};
   my ($eok, @bdeps) = Build::get_build($bconf, [], "deltarpm");
   if (!$eok) {
     print "        unresolvable:\n";
