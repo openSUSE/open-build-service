@@ -451,6 +451,9 @@ class UserLdapStrategy
           end
           user_con.unbind()
         end
+      else # If no CONFIG['ldap_authenticate'] is given do not return the ldap_info !
+        Rails.logger.error("Unknown ldap_authenticate setting: '#{CONFIG['ldap_authenticate']}' so  #{dn} not authenticated. Ensure ldap_authenticate uses a valid symbol")
+        return nil
     end
     Rails.cache.write(key, [Digest::MD5.digest(password), ldap_info[0], ldap_info[1]], :expires_in => 2.minute)
     Rails.logger.debug("login success for checking with ldap server")
