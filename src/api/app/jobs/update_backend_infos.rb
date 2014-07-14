@@ -1,10 +1,10 @@
-class UpdateBackendInfos
+class UpdateBackendInfos < CreateJob
 
   attr_accessor :event
   attr_accessor :checked_pkgs
 
   def initialize(event)
-    self.event = event
+    super(event)
     self.checked_pkgs = {}
   end
 

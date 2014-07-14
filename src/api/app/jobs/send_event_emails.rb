@@ -1,10 +1,6 @@
-class SendEventEmails 
+class SendEventEmails < CreateJob
 
   attr_accessor :event
-
-  def initialize(event)
-    self.event = event
-  end
 
   def perform
     users = event.subscribers

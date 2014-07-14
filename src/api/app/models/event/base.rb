@@ -145,13 +145,20 @@ module Event
     after_create :perform_create_jobs
 
     def perform_create_jobs
+      self.undone_jobs = 0
+      self.save
+      Rails.logger.debug "PCJ #{self.inspect} #{self.create_jobs.inspect}"
       self.create_jobs.each do |job|
         eclass = job.to_s.camelize.safe_constantize
         raise "#{job.to_s.camelize} does not map to a constant" if eclass.nil?
-        queue = {}
-        queue = { :queue => eclass.job_queue } if eclass.methods.include? :job_queue
-        eclass.new(self).delay(queue).perform
+        djob = eclass.new(self)
+        raise "#{job.to_s.camelize} is not a CreateJob" unless djob.is_a? CreateJob
+        opts = {}
+        opts = { queue: eclass.job_queue } if eclass.methods.include? :job_queue
+        djob = Delayed::Job.enqueue djob, opts
+        self.undone_jobs += 1
       end
+      self.save if self.undone_jobs > 0
     end
 
     # to be overwritten in subclasses

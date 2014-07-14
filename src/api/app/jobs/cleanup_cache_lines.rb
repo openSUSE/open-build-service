@@ -1,9 +1,9 @@
-class CleanupCacheLines
+class CleanupCacheLines < CreateJob
 
   attr_accessor :event
 
   def initialize(event)
-    self.event = event
+    super(event)
   end
 
   def perform
