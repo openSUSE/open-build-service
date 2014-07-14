@@ -123,16 +123,17 @@ ldap_search_auth: ""
 #
 # Also note that openLDAP must be configured to use the memberOf overlay
 
-# How to verify:
+# ldap_authenticate says how the credentials are verified:
 #   :ldap = attempt to bind to ldap as user using supplied credentials
 #   :local = compare the credentials supplied with those in
 #            LDAP using #{ldap_auth_attr} & #{ldap_auth_mech}
-#       ldap_auth_mech can be
-#       : md5
-#       : cleartext
-ldap_authenticate: ldap
+#       if :local is used then ldap_auth_mech can be
+#       :md5
+#       :cleartext
+ldap_authenticate: :ldap
+ldap_auth_mech: :md5
+# This is a string
 ldap_auth_attr: userPassword
-ldap_auth_mech: md5
 
 # Whether to update the user info to LDAP server, it does not take effect
 # when ldap_mode is not set.
