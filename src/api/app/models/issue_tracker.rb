@@ -143,7 +143,7 @@ class IssueTracker < ActiveRecord::Base
   def self.update_all_issues
     IssueTracker.all.each do |t|
       next unless t.enable_fetch
-      t.delay.update_issues
+      t.delay(:queue => "issuetracking").update_issues
     end
   end
 
