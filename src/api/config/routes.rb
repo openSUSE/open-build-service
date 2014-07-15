@@ -601,6 +601,10 @@ OBSApi::Application.routes.draw do
     # update is missing here
     resources :distributions, only: [:index, :show, :create, :destroy]
 
+    ### /mail_handler
+
+    put '/mail_handler' => 'mail_handler#upload'
+
     ### /public
 
     controller :public do
