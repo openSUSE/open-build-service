@@ -241,7 +241,9 @@ sub lastnotifications {
 
 sub getnotificationpayload {
   my ($cgi, $payloadkey) = @_;
-  return (readstr("$notificationpayloaddir/$payloadkey"), 'Content-Type: application/json');
+  my $file = "$notificationpayloaddir/$payloadkey";
+  die("404 payload does not exist!\n") unless -e $file;
+  return (readstr($file), 'Content-Type: application/json');
 }
 
 sub deletenotificationpayload {
