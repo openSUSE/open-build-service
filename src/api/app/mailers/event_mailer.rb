@@ -27,7 +27,12 @@ class EventMailer < ActionMailer::Base
     users = users.to_a
 
     set_headers
-    @e = e.expanded_payload
+    begin
+      @e = e.expanded_payload
+    rescue Project::UnknownObjectError, Package::UnknownObjectError
+      # object got removed already
+      return
+    end
 
     headers(e.custom_headers)
 
