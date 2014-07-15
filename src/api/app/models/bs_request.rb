@@ -735,6 +735,10 @@ class BsRequest < ActiveRecord::Base
   end
 
   def auto_accept
+    # do not run for processed requests. Ignoring review on purpose since this
+    # must also work when people do not react anymore
+    return unless self.state == :new or self.state == :review
+
     self.with_lock do
       User.current ||= User.find_by_login self.creator
 
