@@ -128,7 +128,7 @@ class BinaryRelease < ActiveRecord::Base
           entry = existing.first
           if entry.binary_disturl       == binary["disturl"] and
              entry.binary_supportstatus == binary["supportstatus"] and
-             entry.binary_buildtime     == ::Time.at(binary["buildtime"].to_i||0)
+             entry.binary_buildtime.utc == DateTime.new(binary["buildtime"].to_i).utc
              # same binary, don't touch
              processed_item[entry.id] = true
              next
@@ -143,7 +143,7 @@ class BinaryRelease < ActiveRecord::Base
         # complete hash for new entry
         hash[:binary_releasetime] = time
         hash[:binary_buildtime] = nil
-        hash[:binary_buildtime] = ::Time.at(binary["buildtime"].to_i) if binary["buildtime"].to_i > 0
+        hash[:binary_buildtime] = DateTime.new(binary["buildtime"].to_i).utc if binary["buildtime"].to_i > 0
         hash[:binary_disturl] = binary["disturl"]
         hash[:binary_supportstatus] = binary["supportstatus"]
         if binary["project"] and rp = Package.find_by_project_and_name(binary["project"], binary["package"])
