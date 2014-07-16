@@ -11,5 +11,5 @@ attrib_values_UpdateProject_for_BaseDistro2_0:
 attrib_My_Maintenance_updateinfo:
   id: 3
   attrib_id: 1040753499
-  value: "%Tupdateinfo%N-%Y-%C"
+  value: "updateinfo%N-%Y-%C"
   position: 0

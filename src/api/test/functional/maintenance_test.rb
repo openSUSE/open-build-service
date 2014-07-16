@@ -321,6 +321,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :parent => { tag: 'build' }, :tag => 'enable'
     assert_xml_tag :parent => { tag: 'publish' }, :tag => 'enable'
     assert_xml_tag :parent => { tag: 'useforbuild' }, :tag => 'disable'
+    # add an old style patch name, only used via %N (in BaseDistro3Channel at the end of this test)
+    get "/source/#{incidentProject}/patchinfo/_patchinfo"
+    assert_response :success
+    pi = ActiveXML::Node.new( @response.body )
+    e = pi.add_element 'name'
+    e.text = "patch_name"
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    assert_response :success
 
     # create maintenance request with invalid target
     post '/request?cmd=create', '<request>
@@ -455,7 +463,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     put '/source/Channel/BaseDistro3/_channel', '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
-          <target project="BaseDistro3Channel" repository="channel_repo" tag="UpdateInfoTag-" />
+          <target project="BaseDistro3Channel" repository="channel_repo" id_template="UpdateInfoTag-&#37;Y-&#37;C" />
           <binaries project="BaseDistro3" repository="BaseDistro3_repo" arch="i586">
             <binary name="package" package="pack2" supportstatus="l3" />
             <binary name="does_not_exist" />
@@ -525,7 +533,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # and check what happens after modifing _channel file
     put '/source/My:Maintenance:0/BaseDistro3.Channel/_channel', '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
-          <target project="BaseDistro3Channel" repository="channel_repo" tag="UpdateInfoTagNew-" />
+          <target project="BaseDistro3Channel" repository="channel_repo" id_template="UpdateInfoTagNew-&#37;N-&#37;Y-&#37;C" />
           <binaries project="BaseDistro3" repository="BaseDistro3_repo" arch="i586">
             <binary name="package" package="pack2" project="BaseDistro3" />
           </binaries>
@@ -598,7 +606,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/build/BaseDistro3Channel/channel_repo/i586/patchinfo.#{incidentID}/updateinfo.xml"
     assert_response :success
     # check for changed updateinfoid.
-    assert_xml_tag :parent => { tag: 'update', attributes: { from: 'tom', status: 'stable', type: 'recommended', version: '1' } }, :tag => 'id', :content => "UpdateInfoTagNew-updateinfo-#{Time.now.utc.year.to_s}-1"
+    assert_xml_tag :parent => { tag: 'update', attributes: { from: 'tom', status: 'stable', type: 'recommended', version: '1' } }, :tag => 'id', :content => "UpdateInfoTagNew-patch_name-#{Time.now.utc.year.to_s}-1"
 
     # repo is configured as legacy rpm-md, so we require short meta data file names
     get '/build/BaseDistro3Channel/_result'

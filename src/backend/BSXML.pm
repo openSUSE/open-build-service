@@ -246,7 +246,7 @@ our $channel = [
      [[ 'target' =>
 	    'project',
 	    'repository',
-	    'tag',         # optional
+	    'id_template', # optional
      ]],
      [[ 'binaries' =>
 	    'project',

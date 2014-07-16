@@ -34,7 +34,7 @@
        <attribute name="project"/>
        <attribute name="repository"/>
        <optional>
-         <attribute name="tag"/>
+         <attribute name="id_template"/>
        </optional>
        <empty/>
      </element>

@@ -305,7 +305,7 @@ CREATE TABLE `channel_targets` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `channel_id` int(11) NOT NULL,
   `repository_id` int(11) NOT NULL,
-  `tag` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `id_template` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_channel_targets_on_channel_id_and_repository_id` (`channel_id`,`repository_id`),
   KEY `repository_id` (`repository_id`),
@@ -590,6 +590,9 @@ CREATE TABLE `maintenance_incidents` (
   `request` int(11) DEFAULT NULL,
   `updateinfo_id` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `incident_id` int(11) DEFAULT NULL,
+  `counter` int(11) DEFAULT NULL,
+  `released_at` datetime DEFAULT NULL,
+  `name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_maintenance_incidents_on_db_project_id` (`db_project_id`),
   KEY `index_maintenance_incidents_on_maintenance_db_project_id` (`maintenance_db_project_id`)
@@ -975,6 +978,7 @@ CREATE TABLE `updateinfo_counter` (
   `month` int(11) DEFAULT NULL,
   `year` int(11) DEFAULT NULL,
   `counter` int(11) DEFAULT '0',
+  `name` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -1502,6 +1506,8 @@ INSERT INTO schema_migrations (version) VALUES ('20140704101043');
 INSERT INTO schema_migrations (version) VALUES ('20140709071042');
 
 INSERT INTO schema_migrations (version) VALUES ('20140714112346');
+
+INSERT INTO schema_migrations (version) VALUES ('20160714112346');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

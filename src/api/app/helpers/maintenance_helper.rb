@@ -238,19 +238,18 @@ module MaintenanceHelper
     if a = mi.maintenance_db_project.find_attribute('OBS', 'MaintenanceIdTemplate')
       id_template = a.values[0].value
     end
-    uID = mi.getUpdateinfoId(id_template, patchName)
 
-    # expand a possible defined release target channel tag
+    # expand a possible defined update info template in release target of channel
     projectFilter = nil
     if p = sourcePackage.project.find_parent and p.is_maintenance?
       projectFilter = p.maintained_projects
     end
     # prefer a channel in the source project to avoid double hits exceptions
     ct = ChannelTarget.find_by_repo(targetRepo, [sourcePackage.project]) || ChannelTarget.find_by_repo(targetRepo, projectFilter)
-    channelTag="" # or strip away a possibly %T in any case
-    channelTag=ct.tag if ct and ct.tag
+    id_template=ct.id_template if ct and ct.id_template
 
-    return uID.gsub(/%T/,channelTag)
+    uID = mi.getUpdateinfoId(id_template, patchName)
+    return uID
   end
 
   def create_package_container_if_missing(sourcePackage, targetPackageName, targetProject)

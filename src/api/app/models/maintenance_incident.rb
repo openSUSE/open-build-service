@@ -24,58 +24,75 @@ class MaintenanceIncident < ActiveRecord::Base
       return name
   end
 
-  def getUpdateinfoId( id_template, patch_name=nil )
-    # already set for this incident?
-    return self.updateinfo_id if self.updateinfo_id
-
+  def initUpdateinfoId(template = "%Y-%C", patch_name = nil)
     # set current time, to be used 
-    myTime = Time.now.utc
-    my_id = id_template || "%Y-%C"
+    self.released_at = Time.now.utc
+    self.name = patch_name
 
     # Run an atomar counter++ based on the used scheme
-    if my_id =~ /%Y/
-      counterType = " AND year  = " + myTime.year.to_s
-      year = "'" + myTime.year.to_s + "'"
+    if template =~ /%Y/
+      counterType = " AND year  = " + self.released_at.year.to_s
+      year = "'" + self.released_at.year.to_s + "'"
     else
       counterType = " AND ISNULL(year)"
       year = "NULL"
     end
-    if my_id =~ /%M/
-      counterType << " AND month = " + myTime.month.to_s
-      month = "'" + myTime.month.to_s + "'"
+    if template =~ /%M/
+      counterType << " AND month = " + self.released_at.month.to_s
+      month = "'" + self.released_at.month.to_s + "'"
     else
       counterType << " AND ISNULL(month)"
       month = "NULL"
     end
-    if my_id =~ /%D/
-      counterType << " AND day   = " + myTime.day.to_s
-      day = "'" + myTime.day.to_s + "'"
+    if template =~ /%D/
+      counterType << " AND day   = " + self.released_at.day.to_s
+      day = "'" + self.released_at.day.to_s + "'"
     else
       counterType << " AND ISNULL(day)"
       day = "NULL"
     end
+    if template =~ /%N/
+      name = "'" + (self.name||"") + "'"
+      counterType << " AND name   = " + name
+    else
+      counterType << " AND ISNULL(name)"
+      name = "NULL"
+    end
     sql = ActiveRecord::Base.connection()
     r = sql.execute( "SELECT counter FROM updateinfo_counter WHERE maintenance_db_project_id = " + self.maintenance_db_project.id.to_s + counterType + " FOR UPDATE" ).first
-    if r.nil?
+    if r
+      # counter exists already for this kind of template and maintenance project
+      # just take the number if it got also released already
+      return if self.released_at
+    else
       # no counter exists, initialize it and select again
-      sql.execute( "INSERT INTO updateinfo_counter(maintenance_db_project_id, year, month, day) VALUES('" + self.maintenance_db_project.id.to_s + "', " + year + ", " + month + ", " + day + ")" )
+      sql.execute( "INSERT INTO updateinfo_counter(maintenance_db_project_id, year, month, day, name) VALUES('" + self.maintenance_db_project.id.to_s + "', " + year + ", " + month + ", " + day + "," + name + ")" )
       r = sql.execute( "SELECT counter FROM updateinfo_counter WHERE maintenance_db_project_id = " + self.maintenance_db_project.id.to_s + counterType + " FOR UPDATE" ).first
     end
     # do an atomic increase of counter
     sql.execute( "UPDATE updateinfo_counter SET counter = counter+1 WHERE maintenance_db_project_id = " + self.maintenance_db_project.id.to_s + counterType )
-    counter = self.incident_id = r[0].to_i + 1
+    self.counter = self.incident_id = r[0].to_i + 1
+
+    self.save!
+  end
+
+  def getUpdateinfoId( id_template, patch_name=nil )
+    # this is not used anymore, but we need to keep it for released incidents base on old (OBS 2.5) code
+    return self.updateinfo_id if self.updateinfo_id
+    # initialize on first run
+    initUpdateinfoId(id_template, patch_name) unless self.released_at
+
+    my_id = id_template
 
     # replace place holders
-    my_id.gsub!( /%C/, counter.to_s )
-    my_id.gsub!( /%Y/, myTime.year.to_s )
-    my_id.gsub!( /%M/, myTime.month.to_s )
-    my_id.gsub!( /%D/, myTime.day.to_s )
-    my_id.gsub!( /%N/, patch_name || "" )
+    my_id.gsub!( /%C/, self.counter.to_s )
+    my_id.gsub!( /%Y/, self.released_at.year.to_s )
+    my_id.gsub!( /%M/, self.released_at.month.to_s )
+    my_id.gsub!( /%D/, self.released_at.day.to_s )
+    my_id.gsub!( /%N/, self.name || "" )
     my_id.gsub!( /%i/, self.incident_id.to_s )
     my_id.gsub!( /%g/, self.id.to_s )
-    self.updateinfo_id = my_id
-    self.save!
 
-    return self.updateinfo_id
+    return my_id
   end
 end
