@@ -34,6 +34,11 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "build", :attributes =>
                         { :time => "2013-09-29 15:50:31 UTC" }
 
+    # by updateinfo identifier
+    get '/search/released/binary/id', match: "updateinfo = 'updateinfo_identifier'"
+    assert_response :success
+    assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :name => "package", :version => "1.0", :release => "1", :arch => "i586"}
+
     # by disturl
     get '/search/released/binary/id', match: "disturl = '#{disturl}'"
     assert_response :success

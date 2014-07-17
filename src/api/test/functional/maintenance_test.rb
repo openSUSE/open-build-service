@@ -429,7 +429,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     #
     # define one
     login_king
-    put '/source/BaseDistro3Channel/_meta', '<project name="BaseDistro3Channel"><title/><description/>
+    put '/source/BaseDistro3Channel/_meta', '<project name="BaseDistro3Channel" kind="maintenance_release"><title/><description/>
                                          <build><disable/></build>
                                          <publish><enable/></publish>
                                          <repository name="channel_repo">
@@ -655,6 +655,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :parent => { :tag => 'binary', :attributes =>
            { name: 'dropped', project: "BaseDistro3", repository: "BaseDistro3_repo", arch: "i586" } },
                    :tag => 'operation', :content => "removed"
+
+    # search via official updateinfo id tag
+    get '/search/released/binary/id', match: "updateinfo = 'UpdateInfoTagNew-patch_name-#{Time.now.utc.year.to_s}-1'"
+    assert_response :success
+    assert_xml_tag :tag => 'binary', :attributes =>
+           { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "i586" }
+    assert_xml_tag :tag => 'binary', :attributes =>
+           { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "src" }
 
     #cleanup
     login_king
