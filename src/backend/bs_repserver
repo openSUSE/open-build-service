@@ -3134,7 +3134,7 @@ sub getbuildinfo_post {
     ($depfile) = map { $_->{'name'} =~ /(deps)/ } @$uploaded;
     $depfile = "$dir/$depfile" if defined $depfile;
     $fn = (grep { $_->{'name'} ne "deps" } @$uploaded)[0];
-    die("no spec/dsc/kiwi file found\n") unless $fn;
+    die("no build recipe file found\n") unless $fn;
     my @r;
     eval {
       @r = getbuildinfo_post({ %$cgi, '_fn' => "$dir/$fn->{'name'}", '_depfile' => $depfile}, $projid, $repoid, $arch, $packid);
@@ -3153,8 +3153,8 @@ sub getbuildinfo_post {
   unlink($fn);
   die("unknown repository type $bconf->{'type'}\n") unless $d;
   if (!defined $d->{'name'}) {
-    die("could not parse build description (spec/dsc/kiwi/livebuild): $d->{'error'}\n") if $d->{'error'};
-    die("could not parse build description (spec/dsc/kiwi/livebuild)\n");
+    die("could not parse build description ($bconf->{'type'}): $d->{'error'}\n") if $d->{'error'};
+    die("could not parse build description ($bconf->{'type'})\n");
   }
   my $info = { 'repository' => $repoid };
   $info->{'name'} = $d->{'name'};
