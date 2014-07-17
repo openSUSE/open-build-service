@@ -8505,20 +8505,15 @@ NEXTPRP:
       } elsif ($pdata->{'channel'}) {
 	$packtype = 'channel';
       } elsif ($info && $info->{'file'}) {
-	if ($info->{'file'} eq 'PKGBUILD') {
-	  $packtype = 'arch';
-	} elsif ($info->{'file'} eq '_preinstallimage') {
-	  $packtype = 'preinstallimage';
-	} elsif ($info->{'file'} =~ /\.(spec|dsc|kiwi|livebuild)$/) {
+	if ($info->{'file'} =~ /\.(spec|dsc|kiwi|livebuild)$/) {
 	  $packtype = $1;
-	  if ($packtype eq 'kiwi') {
-	    # check if it is kiwi-product
-	    if ($info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product') {
-	      $packtype = 'kiwi-product';
-	    } else {
-	      $packtype = 'kiwi-image';
-	    }
-	  }
+	} elsif ($info->{'file'} =~ /PKGBUILD$/) {
+	  $packtype = 'arch';
+	} elsif ($info->{'file'} =~ /_preinstallimage$/) {
+	  $packtype = 'preinstallimage';
+	}
+	if ($packtype eq 'kiwi') {
+	  $packtype = $info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product' ? 'kiwi-product' : 'kiwi-image';
 	}
       }
       $pkg2packtype{$packid} = $packtype;
