@@ -3281,56 +3281,61 @@ sub getprojpack {
 	      }
 	      next;
 	    }
-	    if ($type eq 'kiwi' && $BSConfig::kiwiprojects && !$cgi->{'ignoredisable'}) {
+	    $rinfo->{'file'} = $file;
+	    my $buildtype = Build::recipe2buildtype($file);
+	    if (!$buildtype) {
+	      $rinfo->{'error'} = "don't know how to build $file";
+	      next;
+	    }
+	    if (($type eq 'kiwi' || $buildtype eq 'kiwi') && $BSConfig::kiwiprojects && !$cgi->{'ignoredisable'}) {
 	      my %kiwiprojects = map {$_ => 1} @$BSConfig::kiwiprojects;
 	      if (!$kiwiprojects{$projid}) {
 		$rinfo->{'error'} = 'kiwi image building is not enabled for this project';
 	        next;
 	      }
 	    }
-	    $rinfo->{'file'} = $file;
 	    # get build dependency info
-	    my $d = Build::parse($conf, "$srcrep/$packid/$md5-$file");
+	    my $d = Build::parse_typed($conf, "$srcrep/$packid/$md5-$file", $buildtype);
 	    data2utf8xml($d);
-            if (defined($d->{'name'})) {
-	      my $version = defined($d->{'version'}) ? $d->{'version'} : 'unknown';
-	      $pinfo->{'versrel'} ||= "$version-$rev->{'vrev'}";
-	      $rinfo->{'name'} = $d->{'name'};
-	      $rinfo->{'dep'} = $d->{'deps'};
-              if ($d->{'prereqs'}) {
-		my %deps = map {$_ => 1} (@{$d->{'deps'} || []}, @{$d->{'subpacks'} || []});
-		my @prereqs = grep {!$deps{$_} && !/^%/} @{$d->{'prereqs'}};
-		$rinfo->{'prereq'} = \@prereqs if @prereqs;
-	      }
-	      # KIWI Products need local arch added if we have it defined on this server
-	      if ($type eq 'kiwi' && ($d->{'imagetype'}[0] || '') eq 'product' && $d->{'exclarch'}) {
-		$rinfo->{'imagearch'} = [ @{$d->{'exclarch'}} ];
-	        unshift @{$d->{'exclarch'}}, 'local' if defined($BSConfig::localarch);
-	      }
-	      # KIWI Products support debugmedium and sourcemedium filters
-	      if ($type eq 'kiwi' && ($d->{'imagetype'}[0] || '') eq 'product') {
-		$rinfo->{'nodbgpkgs'} = 1 if defined($d->{'debugmedium'}) && $d->{'debugmedium'} <= 0;
-		$rinfo->{'nosrcpkgs'} = 1 if defined($d->{'sourcemedium'}) && $d->{'sourcemedium'} <= 0;
-	      }
-	      # KIWI Images don't build with local arch
-	      if ($type eq 'kiwi' && ($d->{'imagetype'}[0] || '') ne 'product') {
-	        $rinfo->{'error'} = 'excluded' if defined($BSConfig::localarch) && $arch eq 'local';
-	      }
-	      my $myarch = $conf->{'target'} ? (split('-', $conf->{'target'}))[0] : $arch;
-	      $rinfo->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $myarch} @{$d->{'exclarch'}};
-	      $rinfo->{'error'} = 'excluded' if $d->{'badarch'} && grep {$_ eq $myarch} @{$d->{'badarch'}};
-	      for ('imagetype', 'path', 'extrasource') {
-	        $rinfo->{$_} = $d->{$_} if exists $d->{$_};
-	      }
-	      if ($remotemap && $rinfo->{'path'}) {
-		# simple way to fill the remote map
-		eval {
-		  concatconfigs($projid, $repoid, $remotemap, map {"$_->{'project'}/$_->{'repository'}"} grep {$_->{'project'} ne '_obsrepositories'} @{$rinfo->{'path'}});
-		};
-	      }
-	    } else {
+	    if (!$d || !defined($d->{'name'})) {
 	      $rinfo->{'error'} = "can not parse package name from $file";
 	      $rinfo->{'error'} .= " because: ".$d->{'error'} if $d->{'error'};
+	      next;
+	    }
+	    my $version = defined($d->{'version'}) ? $d->{'version'} : 'unknown';
+	    $pinfo->{'versrel'} ||= "$version-$rev->{'vrev'}";
+	    $rinfo->{'name'} = $d->{'name'};
+	    $rinfo->{'dep'} = $d->{'deps'};
+	    if ($d->{'prereqs'}) {
+	      my %deps = map {$_ => 1} (@{$d->{'deps'} || []}, @{$d->{'subpacks'} || []});
+	      my @prereqs = grep {!$deps{$_} && !/^%/} @{$d->{'prereqs'}};
+	      $rinfo->{'prereq'} = \@prereqs if @prereqs;
+	    }
+	    # KIWI Products need local arch added if we have it defined on this server
+	    if ($type eq 'kiwi' && ($d->{'imagetype'}[0] || '') eq 'product' && $d->{'exclarch'}) {
+	      $rinfo->{'imagearch'} = [ @{$d->{'exclarch'}} ];
+	      unshift @{$d->{'exclarch'}}, 'local' if defined($BSConfig::localarch);
+	    }
+	    # KIWI Products support debugmedium and sourcemedium filters
+	    if ($type eq 'kiwi' && ($d->{'imagetype'}[0] || '') eq 'product') {
+	      $rinfo->{'nodbgpkgs'} = 1 if defined($d->{'debugmedium'}) && $d->{'debugmedium'} <= 0;
+	      $rinfo->{'nosrcpkgs'} = 1 if defined($d->{'sourcemedium'}) && $d->{'sourcemedium'} <= 0;
+	    }
+	    # KIWI Images don't build with local arch
+	    if ($type eq 'kiwi' && ($d->{'imagetype'}[0] || '') ne 'product') {
+	      $rinfo->{'error'} = 'excluded' if defined($BSConfig::localarch) && $arch eq 'local';
+	    }
+	    my $myarch = $conf->{'target'} ? (split('-', $conf->{'target'}))[0] : $arch;
+	    $rinfo->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $myarch} @{$d->{'exclarch'}};
+	    $rinfo->{'error'} = 'excluded' if $d->{'badarch'} && grep {$_ eq $myarch} @{$d->{'badarch'}};
+	    for ('imagetype', 'path', 'extrasource') {
+	      $rinfo->{$_} = $d->{$_} if exists $d->{$_};
+	    }
+	    if ($remotemap && $rinfo->{'path'}) {
+	      # simple way to fill the remote map
+	      eval {
+		concatconfigs($projid, $repoid, $remotemap, map {"$_->{'project'}/$_->{'repository'}"} grep {$_->{'project'} ne '_obsrepositories'} @{$rinfo->{'path'}});
+	      };
 	    }
 	  }
 	  $pinfo->{'info'} = \@dinfo if @dinfo;

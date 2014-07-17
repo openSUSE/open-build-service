@@ -2649,7 +2649,6 @@ sub getkiwiproductpackages {
 sub getbuildinfo {
   my ($cgi, $projid, $repoid, $arch, $packid, $pdata) = @_;
   my $projpack;
-  my $uploaded;
   my @args = ("project=$projid", "repository=$repoid", "arch=$arch");
   if (defined($packid)) {
     push @args, "package=$packid";
@@ -2663,7 +2662,6 @@ sub getbuildinfo {
   } else {
     $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'withremotemap', @args);
     die("404 no such project/repository\n") unless $projpack->{'project'};
-    $uploaded = 1;
   }
   my %remotemap = map {$_->{'project'} => $_} @{$projpack->{'remotemap'} || []};
   my $proj = $projpack->{'project'}->[0];
@@ -2679,7 +2677,7 @@ sub getbuildinfo {
   my $info = $pdata->{'info'}->[0];
   die("bad info\n") unless $info && $info->{'repository'} eq $repoid;
 
-  my $buildtype = Build::recipe2buildtype($info->{'file'}) || 'spec';
+  my $buildtype = $pdata->{'buildtype'} || Build::recipe2buildtype($info->{'file'}) || 'spec';
 
   my @configpath;
   my $kiwitype;
@@ -2765,12 +2763,14 @@ sub getbuildinfo {
     }
   }
 
+  if (defined $info->{'file'}) {
+    $ret->{'specfile'} = $info->{'file'};
+    $ret->{'file'} = $info->{'file'};
+  }
   if ($info->{'error'}) {
     $ret->{'error'} = $info->{'error'};
     return ($ret, $BSXML::buildinfo);
   }
-  $ret->{'specfile'} = $info->{'file'} unless $uploaded;
-  $ret->{'file'} = $info->{'file'} unless $uploaded;
 
   my $pool = BSSolv::pool->new();
   $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
@@ -3110,61 +3110,53 @@ sub getbuildinfo {
 sub getbuildinfo_post {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
 
-  undef $packid if $packid eq '_repository';
-  my $bconf = getconfig($projid, $repoid, $arch);
-
-  my $fn = "$uploaddir/$$";
-  my $descr = $fn;
-  my $dir = "$uploaddir/$$.dir";
-  my $depfile;
-  mkdir_p($uploaddir);
-  die("upload failed\n") unless BSServer::read_file($fn);
+  my $fn = $cgi->{'_fn'};
+  my $depfile = $cgi->{'_depfile'};
+  if (!$fn) {
+    mkdir_p($uploaddir);
+    $fn = "$uploaddir/$$";
+    die("upload failed\n") unless BSServer::read_file($fn);
+  }
 
   local *F;
-  open(F, '<', "$fn") || die("$fn: $!\n");
+  open(F, '<', $fn) || die("$fn: $!\n");
   my $magic;
   sysread(F, $magic, 6);
-  if ($magic eq "070701") {
+  if ($magic eq "070701" && !$cgi->{'_fn'}) {
+    # have cpio archive, extract recipe and depfile, recurse
+    unlink($fn);
     sysseek(F, 0, 0);
+    my $dir = "$uploaddir/$$.dir";
     mkdir_p($dir);
     my $uploaded = BSHTTP::cpio_receiver(BSHTTP::fd2hdr(\*F), {'directory' => $dir});
+    close(F);
     # should we check if the cpio archive contains <= 2 files?
     ($depfile) = map { $_->{'name'} =~ /(deps)/ } @$uploaded;
     $depfile = "$dir/$depfile" if defined $depfile;
-    $descr = (grep { $_->{'name'} ne "deps" } @$uploaded)[0];
-    die("no spec/dsc/kiwi file found\n") unless $descr;
-    $descr = "$dir/$descr->{'name'}";
-  }
-  close(F);
-  my $d;
-  my $info = {'repository' => $repoid};
-  if ($bconf->{'type'} eq 'dsc') {
-    $d = Build::Deb::parse($bconf, $descr);
-    $info->{'file'} = 'upload.dsc';
-  } elsif ($bconf->{'type'} eq 'kiwi') {
-    $d = Build::Kiwi::parse($bconf, $descr);
-    $info->{'imagetype'} = $d->{'imagetype'};
-    $info->{'imagearch'} = $d->{'exclarch'} if $d->{'exclarch'};
-    $info->{'path'} = $d->{'path'};
-    $info->{'file'} = 'upload.kiwi';
-  } elsif ($bconf->{'type'} eq 'spec') {
-    $d = Build::Rpm::parse($bconf, $descr);
-    $info->{'file'} = 'upload.spec';
-  } elsif ($bconf->{'type'} eq 'arch') {
-    $d = Build::Arch::parse($bconf, $descr);
-    $info->{'file'} = 'PKGBUILD';
-  } elsif ($bconf->{'type'} eq 'livebuild') {
-    $d = Build::LiveBuild::parse($bconf, $descr);
-    $info->{'file'} = 'upload.livebuild';
-  } else {
-    die("unknown repository type $bconf->{'type'}\n");
-  }
-  unlink($fn);
-  unless (defined $d->{'name'}) {
+    $fn = (grep { $_->{'name'} ne "deps" } @$uploaded)[0];
+    die("no spec/dsc/kiwi file found\n") unless $fn;
+    my @r;
+    eval {
+      @r = getbuildinfo_post({ %$cgi, '_fn' => "$dir/$fn->{'name'}", '_depfile' => $depfile}, $projid, $repoid, $arch, $packid);
+    };
     unlink("$dir/$_") for ls($dir);
     rmdir($dir) if -d $dir;
+    die("$@\n") if $@;
+    return @r;
+  }
+  close(F);
+
+  undef $packid if $packid eq '_repository';
+
+  my $bconf = getconfig($projid, $repoid, $arch);
+  my $d = Build::parse_typed($bconf, $fn, $bconf->{'type'});
+  unlink($fn);
+  die("unknown repository type $bconf->{'type'}\n") unless $d;
+  if (!defined $d->{'name'}) {
+    die("could not parse build description (spec/dsc/kiwi/livebuild): $d->{'error'}\n") if $d->{'error'};
     die("could not parse build description (spec/dsc/kiwi/livebuild)\n");
   }
+  my $info = { 'repository' => $repoid };
   $info->{'name'} = $d->{'name'};
   $info->{'dep'} = $d->{'deps'};
   $info->{'subpacks'} = $d->{'subpacks'};
@@ -3173,17 +3165,14 @@ sub getbuildinfo_post {
     my @prereqs = grep {!$deps{$_} && !/^%/} @{$d->{'prereqs'}};
     $info->{'prereq'} = \@prereqs if @prereqs;
   }
-  my $pdata = {'info' => [ $info ]};
+  if ($bconf->{'type'} eq 'kiwi') {
+    $info->{'imagetype'} = $d->{'imagetype'};
+    $info->{'imagearch'} = $d->{'exclarch'} if $d->{'exclarch'};
+    $info->{'path'} = $d->{'path'};
+  }
+  my $pdata = {'buildtype' => $bconf->{'type'}, 'info' => [ $info ]};
   $pdata->{'ldepfile'} = $depfile if defined $depfile;
-
-  my @r;
-  eval {
-    @r = getbuildinfo($cgi, $projid, $repoid, $arch, $packid, $pdata);
-  };
-  unlink("$dir/$_") for ls($dir);
-  rmdir($dir) if -d $dir;
-  die("$@\n") if $@;
-  return @r;
+  return getbuildinfo($cgi, $projid, $repoid, $arch, $packid, $pdata);
 }
 
 sub getbuilddepinfo {
