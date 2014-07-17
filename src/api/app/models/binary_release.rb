@@ -65,7 +65,14 @@ class BinaryRelease < ActiveRecord::Base
          self.used_in_products.each do |product|
            p.product( :project => product.package.project.name, :name => product.name )
          end
-      end
+      end if self.used_in_products.length > 0
+      b.updates do |u|
+         self.release_package.updateinfos.each do |update|
+           u.updateinfo( update.identifier,
+                         :project => update.package.project.name,
+                         :package => update.package.name )
+         end
+      end if self.release_package and self.release_package.updateinfos.length > 0
     end
     builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                  Nokogiri::XML::Node::SaveOptions::FORMAT

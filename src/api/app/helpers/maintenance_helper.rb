@@ -186,13 +186,21 @@ module MaintenanceHelper
     sourcePackage.project.repositories.each do |sourceRepo|
       next if filterSourceRepository and filterSourceRepository != sourceRepo
       sourceRepo.release_targets.each do |releasetarget|
-        #FIXME2.5: filter given release and/or target repos here
+        #FIXME: filter given release and/or target repos here
         sourceRepo.architectures.each do |arch|
           if releasetarget.target_repository.project == targetProject
             # get updateinfo id in case the source package comes from a maintenance project
             uID = get_updateinfo_id(sourcePackage, releasetarget.target_repository)
             copy_single_binary(arch, releasetarget, sourcePackage, sourceRepo, targetPackageName, uID, setrelease)
-	    updateIDs << uID
+            if uID
+	      updateIDs << uID
+              # add uID to database
+              pkg = targetProject.packages.where(name: targetPackageName).first
+              Updateinfo.create(repository: releasetarget.target_repository, 
+                                package: pkg,
+                                identifier: uID,
+                                created_at: Time.now)
+            end
           end
         end
         # remove maintenance release trigger in source

@@ -59,7 +59,7 @@ repositories_92:
   id: 92
   name: BaseDistro2_repo
   project: BaseDistro2.0
-repositories_93:
+BaseDistro3_repo:
   id: 93
   name: BaseDistro3_repo
   project: BaseDistro3

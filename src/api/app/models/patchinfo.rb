@@ -32,7 +32,7 @@ class Patchinfo < ActiveXML::Node
     return true
   end
 
-  # check if we caa find the releasetarget (xmlhash) in the project
+  # check if we can find the releasetarget (xmlhash) in the project
   def check_releasetarget!(rt)
     @project.repositories.each do |r|
       r.release_targets.each do |prt|

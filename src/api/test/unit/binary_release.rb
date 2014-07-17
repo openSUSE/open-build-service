@@ -15,6 +15,21 @@ class BinaryReleaseTest < ActiveSupport::TestCase
     Timecop.return
   end
 
+  def test_render_fixture
+    r = Repository.find_by_project_and_repo_name("BaseDistro3",
+                                                 "BaseDistro3_repo")
+    br = BinaryRelease.where(repository: r).first
+    xml = br.render_xml
+    assert_xml_tag xml, :tag => 'binary',
+                        :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo",
+                                         :name => "package", :version => "1.0", :release => "1", :arch => "i586" }
+    assert_xml_tag xml, :tag => 'maintainer', :content => 'Iggy'
+    assert_xml_tag xml, :tag => 'operation', :content => 'added'
+    assert_xml_tag xml, :tag => 'supportstatus', :content => 'l3'
+    assert_xml_tag xml, :tag => 'updateinfo', :content => 'updateinfo_identifier',
+                        :attributes => { :package => "pack2" }
+  end
+
   def test_create_and_find_entries
     p = Project.find_by_name("BaseDistro")
     r = p.repositories.build(:name => "Dummy")

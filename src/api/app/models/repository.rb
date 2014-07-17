@@ -13,6 +13,7 @@ class Repository < ActiveRecord::Base
   has_many :binary_releases, :dependent => :destroy
   has_many :product_update_repositories, dependent: :delete_all
   has_many :product_medium, dependent: :delete_all
+  has_many :updateinfos, dependent: :delete_all
   has_many :repository_architectures, -> { order("position") }, :dependent => :destroy, inverse_of: :repository
   has_many :architectures, -> { order("position") }, :through => :repository_architectures
 

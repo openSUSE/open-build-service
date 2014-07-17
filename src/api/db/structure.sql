@@ -170,7 +170,9 @@ CREATE TABLE `binary_releases` (
   KEY `exact_search_index` (`binary_name`,`binary_epoch`,`binary_version`,`binary_release`,`binary_arch`),
   KEY `release_package_id` (`release_package_id`),
   CONSTRAINT `binary_releases_ibfk_1` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
-  CONSTRAINT `binary_releases_ibfk_2` FOREIGN KEY (`release_package_id`) REFERENCES `packages` (`id`)
+  CONSTRAINT `binary_releases_ibfk_2` FOREIGN KEY (`release_package_id`) REFERENCES `packages` (`id`),
+  CONSTRAINT `binary_releases_ibfk_3` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
+  CONSTRAINT `binary_releases_ibfk_4` FOREIGN KEY (`release_package_id`) REFERENCES `packages` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `blacklist_tags` (
@@ -982,6 +984,16 @@ CREATE TABLE `updateinfo_counter` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `updateinfos` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `repository_id` int(11) NOT NULL,
+  `package_id` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `identifier` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_updateinfos_on_repository_id_and_package_id` (`repository_id`,`package_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `user_registrations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL DEFAULT '0',
@@ -1506,6 +1518,8 @@ INSERT INTO schema_migrations (version) VALUES ('20140704101043');
 INSERT INTO schema_migrations (version) VALUES ('20140709071042');
 
 INSERT INTO schema_migrations (version) VALUES ('20140714112346');
+
+INSERT INTO schema_migrations (version) VALUES ('20140717101042');
 
 INSERT INTO schema_migrations (version) VALUES ('20160714112346');
 

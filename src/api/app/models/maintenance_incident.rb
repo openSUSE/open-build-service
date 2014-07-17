@@ -79,6 +79,7 @@ class MaintenanceIncident < ActiveRecord::Base
   def getUpdateinfoId( id_template, patch_name=nil )
     # this is not used anymore, but we need to keep it for released incidents base on old (OBS 2.5) code
     return self.updateinfo_id if self.updateinfo_id
+
     # initialize on first run
     initUpdateinfoId(id_template, patch_name) unless self.released_at
 
