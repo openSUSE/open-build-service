@@ -48,14 +48,14 @@ our %cando = (
   'parisc64'=> [ 'hppa64', 'hppa:linux32' ],
 
   'ppc'     => [ 'ppc' ],
-  'ppc64'   => [ 'ppc64le', 'ppc64', 'ppc:powerpc32' ],
-  'ppc64p7' => [ 'ppc64le', 'ppc64p7', 'ppc:powerpc32' ],
-  'ppc64le' => [ 'ppc64le', 'ppc64', 'ppc' ],
+  'ppc64'   => [ 'ppc64le', 'ppc64', 'ppc:linux32' ],
+  'ppc64p7' => [ 'ppc64le', 'ppc64p7', 'ppc:linux32' ],
+  'ppc64le' => [ 'ppc64le', 'ppc64', 'ppc:linux32' ],
 
   'ia64'    => [ 'ia64' ],
 
   's390'    => [ 's390' ],
-  's390x'   => [ 's390x', 's390:s390' ],
+  's390x'   => [ 's390x', 's390:linux32' ],
 
   'sparc'   => [ 'sparcv8', 'sparc' ],
   'sparc64' => [ 'sparc64v', 'sparc64', 'sparcv9v', 'sparcv9', 'sparcv8:linux32', 'sparc:linux32' ],
