@@ -403,7 +403,9 @@ CREATE TABLE `delayed_jobs` (
   `failed_at` datetime DEFAULT NULL,
   `locked_by` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `queue` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `index_delayed_jobs_on_locked_at` (`locked_at`),
+  KEY `index_delayed_jobs_on_queue` (`queue`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `distribution_icons` (
@@ -1522,6 +1524,8 @@ INSERT INTO schema_migrations (version) VALUES ('20140714112346');
 INSERT INTO schema_migrations (version) VALUES ('20140717101042');
 
 INSERT INTO schema_migrations (version) VALUES ('20160714112346');
+
+INSERT INTO schema_migrations (version) VALUES ('20160721112346');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
