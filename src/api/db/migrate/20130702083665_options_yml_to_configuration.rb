@@ -9,7 +9,7 @@ class OptionsYmlToConfiguration < ActiveRecord::Migration
       add_column :configurations, :change_password, :boolean, :default => true
       add_column :configurations, :hide_private_options, :boolean, :default => false
       add_column :configurations, :gravatar, :boolean, :default => true
-      add_column :configurations, :enforce_project_keys, :boolean, :default => true
+      add_column :configurations, :enforce_project_keys, :boolean, :default => false
       add_column :configurations, :download_on_demand, :boolean, :default => true
       add_column :configurations, :multiaction_notify_support, :boolean, :default => true
       add_column :configurations, :download_url, :string
