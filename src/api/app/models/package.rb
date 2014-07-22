@@ -486,6 +486,11 @@ class Package < ActiveRecord::Base
   end
 
   def update_product_list
+    # short cut to ensure that no products are left over
+    unless self.is_product?
+      self.products.delete_all
+      return
+    end
 
     # hash existing entries
     old = Hash.new
