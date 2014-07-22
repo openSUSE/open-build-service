@@ -619,7 +619,7 @@ class Webui::PackageController < Webui::WebuiController
       end
     elsif file_url.present?
       # we have a remote file uri
-      return unless add_file_url(file_url)
+      return unless add_file_url(file_url, filename)
     else
       return unless add_file_filename(filename)
     end
@@ -650,12 +650,12 @@ class Webui::PackageController < Webui::WebuiController
     true
   end
 
-  def add_file_url(file_url)
+  def add_file_url(file_url, filename=nil)
     @services = Service.find(project: @project, package: @package.name)
     unless @services
       @services = Service.new(project: @project, package: @package.name)
     end
-    @services.addDownloadURL(file_url)
+    @services.addDownloadURL(file_url, filename) # detects automatically git://, src.rpm formats
     unless @services.save
       flash[:error] = "Failed to add file from URL '#{file_url}'. -> #{e.class}"
       redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package]

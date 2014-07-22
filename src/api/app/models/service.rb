@@ -4,13 +4,14 @@ class Service < ActiveXML::Node
     "<services/>"
   end
 
-  def addDownloadURL(url)
+  def addDownloadURL(url, filename=nil)
     begin
       uri = URI.parse(url)
     rescue
       return false
     end
 
+    # default for download_url and download_src_package
     p = []
     p << {:name => "host", :value => uri.host}
     p << {:name => "protocol", :value => uri.scheme}
@@ -23,8 +24,19 @@ class Service < ActiveXML::Node
     if uri.path =~ /.src.rpm$/ or uri.path =~ /.spm$/
       # download and extract source package
       addService("download_src_package", -1, p)
+    elsif uri.scheme == "git"
+      p = []
+      p << {:name => "scm", :value => "git"}
+      p << {:name => "url", :value => url}
+      addService("tar_scm", -1, p)
+      p = []
+      p << {:name => "compression", :value => "xz"}
+      p << {:name => "file", :value => "*.tar"}
+      addService("recompress", -1, p)
+      addService("set_version")
     else
       # just download
+      p << {:name => "filename", :value => filename} unless filename.blank?
       addService("download_url", -1, p)
     end
     return true

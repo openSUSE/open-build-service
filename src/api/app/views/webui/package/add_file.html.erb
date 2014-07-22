@@ -6,6 +6,7 @@
 <h3>Add File to <%= @package.name %> (Project <%= @project.name %>)</h3>
 
 <p>The filename is taken from the uploaded file if none is provided. Alternatively, if only a filename is provided, a new empty file is created (i.e. touched).</p>
+<p>You may also specify remote URLs to src.rpm files which will get extracted. URLs to git repositories willbe stored in a tar ball.</p>
 
 <%= form_tag({:action => :save_file, :project => @project, :package => @package}, {:multipart => true}) do %>
   <p>
