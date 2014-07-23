@@ -3137,7 +3137,7 @@ sub getbuildinfo_post {
     die("no build recipe file found\n") unless $fn;
     my @r;
     eval {
-      @r = getbuildinfo_post({ %$cgi, '_fn' => "$dir/$fn->{'name'}", '_depfile' => $depfile}, $projid, $repoid, $arch, $packid);
+      @r = getbuildinfo_post({ %$cgi, '_fn' => "$dir/$fn->{'name'}", '_depfile' => $depfile, '_buildtype' => Build::recipe2buildtype($fn->{'name'})}, $projid, $repoid, $arch, $packid);
     };
     unlink("$dir/$_") for ls($dir);
     rmdir($dir) if -d $dir;
@@ -3149,6 +3149,7 @@ sub getbuildinfo_post {
   undef $packid if $packid eq '_repository';
 
   my $bconf = getconfig($projid, $repoid, $arch);
+  $bconf->{'type'} = $cgi->{'_buildtype'} if $cgi->{'_buildtype'};
   my $d = Build::parse_typed($bconf, $fn, $bconf->{'type'});
   unlink($fn);
   die("unknown repository type $bconf->{'type'}\n") unless $d;
