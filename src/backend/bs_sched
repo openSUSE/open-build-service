@@ -1330,7 +1330,7 @@ sub prpfinished {
     if (-d $r) {
       BSUtil::cleandir($r);
       rmdir($r) || die("rmdir $r: $!\n");
-    } else {
+    } elsif (! -e "$reporoot/$prp/:repoinfo") {
       print "    nothing to delete...\n";
       close(F);
       return '';
@@ -8182,7 +8182,8 @@ NEXTPRP:
 	    $others = 1;
 	  }
 	  if (!$others) {
-	    unlink("$reporoot/$prp/:repoinfo");
+	    # cannot delete repoinfo because it maz contain splitdbg data
+	    # unlink("$reporoot/$prp/:repoinfo");
 	    unlink("$reporoot/$prp/.finishedlock");
 	    rmdir("$reporoot/$prp");
 	  }
