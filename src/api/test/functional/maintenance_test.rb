@@ -664,6 +664,15 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'binary', :attributes =>
            { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "src" }
 
+    # test retracting of released updates
+    # cleans up the backend and validates that DB constraints get a cleanup
+    delete '/source/BaseDistro3Channel/patchinfo.0'
+    assert_response :success
+    delete '/source/BaseDistro3/patchinfo.0'
+    assert_response :success
+    delete '/source/BaseDistro3/pack2.0'
+    assert_response :success
+
     #cleanup
     login_king
     delete '/source/BaseDistro3Channel'
@@ -674,8 +683,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     delete "/source/#{incidentProject}"
     assert_response :success
-#    delete '/source/BaseDistro3Channel'
-#    assert_response :success
     delete '/source/Channel'
     assert_response :success
   end
