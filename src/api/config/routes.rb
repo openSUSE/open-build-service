@@ -205,7 +205,7 @@ OBSApi::Application.routes.draw do
       post 'project/remove_role/:project' => :remove_role, constraints: cons
       post 'project/remove_person/:project' => :remove_person, constraints: cons
       post 'project/remove_group/:project' => :remove_group, constraints: cons
-      get 'project/monitor/(:project)' => :monitor, constraints: cons
+      get 'project/monitor/(:project)' => :monitor, constraints: cons, as: 'project_monitor'
       get 'project/package_buildresult/:project' => :package_buildresult, constraints: cons
       # TODO: this should be POST (and the link AJAX)
       get 'project/toggle_watch/:project' => :toggle_watch, constraints: cons
