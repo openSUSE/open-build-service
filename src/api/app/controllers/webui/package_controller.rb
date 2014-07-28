@@ -238,6 +238,9 @@ class Webui::PackageController < Webui::WebuiController
         req.set_add_revision
         req.save!
       end
+    rescue BsRequestAction::DiffError => e
+      flash[:error] = "Unable to diff sources: #{e.message}"
+      redirect_to(:action => 'show', :project => params[:project], :package => params[:package]) and return
     rescue BsRequestAction::MissingAction => e
       flash[:error] = "Unable to submit, sources are unchanged"
       redirect_to(:action => 'show', :project => params[:project], :package => params[:package]) and return
