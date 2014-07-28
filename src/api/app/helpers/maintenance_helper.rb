@@ -241,7 +241,7 @@ module MaintenanceHelper
     mi = MaintenanceIncident.find_by_db_project_id(sourcePackage.project_id)
     return nil unless mi
 
-    id_template = nil
+    id_template = "%Y-%C"
     # check for a definition in maintenance project
     if a = mi.maintenance_db_project.find_attribute('OBS', 'MaintenanceIdTemplate')
       id_template = a.values[0].value
