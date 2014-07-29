@@ -192,15 +192,7 @@ module MaintenanceHelper
             # get updateinfo id in case the source package comes from a maintenance project
             uID = get_updateinfo_id(sourcePackage, releasetarget.target_repository)
             copy_single_binary(arch, releasetarget, sourcePackage, sourceRepo, targetPackageName, uID, setrelease)
-            if uID
-	      updateIDs << uID
-              # add uID to database
-              pkg = targetProject.packages.where(name: targetPackageName).first
-              Updateinfo.create(repository: releasetarget.target_repository, 
-                                package: pkg,
-                                identifier: uID,
-                                created_at: Time.now)
-            end
+	    updateIDs << uID if uID
           end
         end
         # remove maintenance release trigger in source

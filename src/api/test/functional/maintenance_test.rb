@@ -626,7 +626,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'entry', :attributes => { name: 'updateinfo.xml.gz' } # by modifyrepo
 
     # event handling
-    get '/search/released/binary', match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo']"
+    get '/search/released/binary/id', match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo']"
     assert_response :success
 #    assert_no_xml_tag :tag => 'binary', :attributes => { name: 'package_newweaktags' }
     UpdateNotificationEvents.new.perform
@@ -657,12 +657,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                    :tag => 'operation', :content => "removed"
 
     # search via official updateinfo id tag
-    get '/search/released/binary/id', match: "updateinfo = 'UpdateInfoTagNew-patch_name-#{Time.now.utc.year.to_s}-1'"
+    get '/search/released/binary', match: "updateinfo/@id = 'UpdateInfoTagNew-patch_name-#{Time.now.utc.year.to_s}-1'"
     assert_response :success
     assert_xml_tag :tag => 'binary', :attributes =>
            { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "i586" }
     assert_xml_tag :tag => 'binary', :attributes =>
            { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "src" }
+    assert_xml_tag :tag => 'updateinfo', :attributes =>
+           { id: "UpdateInfoTagNew-patch_name-#{Time.now.utc.year.to_s}-1", version: "1" }
 
     # test retracting of released updates
     # cleans up the backend and validates that DB constraints get a cleanup

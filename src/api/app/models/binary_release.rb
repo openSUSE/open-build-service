@@ -58,6 +58,9 @@ class BinaryRelease < ActiveRecord::Base
       b.obsolete(:time => self.obsolete_time) if self.obsolete_time
 
       b.supportstatus self.binary_supportstatus if self.binary_supportstatus
+      if self.binary_updateinfo
+        b.updateinfo( { :id => self.binary_updateinfo, :version => self.binary_updateinfo_version } )
+      end
       b.maintainer self.binary_maintainer if self.binary_maintainer
       b.disturl self.binary_disturl if self.binary_disturl
 
@@ -66,13 +69,6 @@ class BinaryRelease < ActiveRecord::Base
            p.product( :project => product.package.project.name, :name => product.name )
          end
       end if self.used_in_products.length > 0
-      b.updates do |u|
-         self.release_package.updateinfos.each do |update|
-           u.updateinfo( update.identifier,
-                         :project => update.package.project.name,
-                         :package => update.package.name )
-         end
-      end if self.release_package and self.release_package.updateinfos.length > 0
     end
     builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                  Nokogiri::XML::Node::SaveOptions::FORMAT
@@ -154,6 +150,10 @@ class BinaryRelease < ActiveRecord::Base
         hash[:binary_buildtime] = ::Time.at(binary["buildtime"].to_i).to_datetime if binary["buildtime"].to_i > 0
         hash[:binary_disturl] = binary["disturl"]
         hash[:binary_supportstatus] = binary["supportstatus"]
+        if binary["updateinfoid"]
+          hash[:binary_updateinfo] = binary["updateinfoid"]
+          hash[:binary_updateinfo_version] = binary["updateinfoversion"]
+        end
         if binary["project"] and rp = Package.find_by_project_and_name(binary["project"], binary["package"])
           hash[:release_package_id] = rp.id
         end

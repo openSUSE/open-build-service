@@ -26,8 +26,7 @@ class BinaryReleaseTest < ActiveSupport::TestCase
     assert_xml_tag xml, :tag => 'maintainer', :content => 'Iggy'
     assert_xml_tag xml, :tag => 'operation', :content => 'added'
     assert_xml_tag xml, :tag => 'supportstatus', :content => 'l3'
-    assert_xml_tag xml, :tag => 'updateinfo', :content => 'updateinfo_identifier',
-                        :attributes => { :package => "pack2" }
+    assert_xml_tag xml, :tag => 'updateinfo', :attributes => { :id => "OBS-2014-42", :version => "1" }
   end
 
   def test_create_and_find_entries

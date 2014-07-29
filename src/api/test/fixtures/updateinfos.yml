@@ -1,6 +1,0 @@
-one_updateinfo:
-  repository: BaseDistro3_repo
-  package: BaseDistro3_pack2
-  created_at: 2005-01-01 01:00:01.000000000 Z
-  identifier: updateinfo_identifier
-

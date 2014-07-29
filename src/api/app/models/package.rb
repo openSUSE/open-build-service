@@ -61,7 +61,6 @@ class Package < ActiveRecord::Base
 
   has_many :comments, :dependent => :destroy, inverse_of: :package, class_name: 'CommentPackage'
 
-  has_many :updateinfos, dependent: :delete_all
   has_many :binary_releases, dependent: :delete_all, :foreign_key => 'release_package_id'
 
   before_destroy :delete_cache_lines

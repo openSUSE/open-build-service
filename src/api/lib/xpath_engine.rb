@@ -140,8 +140,8 @@ class XpathEngine
         '@arch' => {:cpart => 'binary_arch'},
         'disturl' => {:cpart => 'binary_disturl'},
         'supportstatus' => {:cpart => 'binary_supportstatus'},
-        'updateinfo' => {:cpart => 'updateinfos.identifier', :joins =>
-           ['LEFT JOIN updateinfos ON updateinfos.package_id = binary_releases.release_package_id']},
+        'updateinfo/@id' => {:cpart => 'binary_updateinfo'},
+        'updateinfo/@version' => {:cpart => 'binary_updateinfo_version'},
         'operation' => {:cpart => 'operation'},
         'obsolete/@time' => {:cpart => 'obsolete_time'},
         'repository/@project' => {:cpart => 'release_projects.name'},
