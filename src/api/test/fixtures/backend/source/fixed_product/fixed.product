@@ -15,6 +15,7 @@
         </pool>
         <updates>
           <repository project="BaseDistro2.0:LinkedUpdateProject" name="BaseDistro2LinkedUpdateProject_repo" />
+          <repository project="BaseDistro3" name="BaseDistro3_repo" />
         </updates>
       </register>
       <shortsummary>TestProduct</shortsummary>

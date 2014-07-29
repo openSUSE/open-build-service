@@ -23,7 +23,10 @@ class BinaryRelease < ActiveRecord::Base
 
   def used_in_products
     # check if any product is referencing the repository where this binary lives
-    products = ProductMedium.where( :repository => repository ).map{ |i| i.product if i.product }
+    products = []
+    # add products only when they have the binary on a media
+    products += ProductMedium.where( :repository => repository, :medium => medium ).map{ |i| i.product if i.product } if medium
+    # add products if they use the update channel
     products += ProductUpdateRepository.where( :repository => repository ).map{ |i| i.product if i.product }
     products.uniq
   end
