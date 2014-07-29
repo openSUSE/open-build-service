@@ -45,6 +45,7 @@ class BinaryRelease < ActiveRecord::Base
   end
 
   def render_xml
+    product_hash = {}
     builder = Nokogiri::XML::Builder.new
     builder.binary(render_attributes) do |b|
       r={}
@@ -61,17 +62,22 @@ class BinaryRelease < ActiveRecord::Base
       b.obsolete(:time => self.obsolete_time) if self.obsolete_time
 
       b.supportstatus self.binary_supportstatus if self.binary_supportstatus
-      if self.binary_updateinfo
-        b.updateinfo( { :id => self.binary_updateinfo, :version => self.binary_updateinfo_version } )
-      end
+      b.updateinfo({:id => self.binary_updateinfo,
+                    :version => self.binary_updateinfo_version}) if self.binary_updateinfo
       b.maintainer self.binary_maintainer if self.binary_maintainer
       b.disturl self.binary_disturl if self.binary_disturl
 
+      # render all products using this binary, but cache it in a hash
+      location_key = self.repository_id.to_s + ":" + medium.to_s
+      unless product_hash.has_key? location_key
+        product_hash[location_key] = self.used_in_products.map{|p|
+                                       {project: p.package.project.name, name: p.name} }
+      end
       b.products do |p|
-         self.used_in_products.each do |product|
-           p.product( :project => product.package.project.name, :name => product.name )
-         end
-      end if self.used_in_products.length > 0
+        product_hash[location_key].each do |product|
+           p.product(product)
+        end
+      end if product_hash[location_key].length > 0
     end
     builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                  Nokogiri::XML::Node::SaveOptions::FORMAT
