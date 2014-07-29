@@ -1763,6 +1763,8 @@ sub publish {
 	    my $pn = ($subdir ? "$subdir/" : '') . "$pkg->{'arch'}/$pkg->{'filename'}";
 	    if ($packtrack->{$pn}) {
 	      $packtrack->{$pn}->{'patchinforef'} = $up->{'patchinforef'};
+	      $packtrack->{$pn}->{'updateinfoid'} = $up->{'id'};
+	      $packtrack->{$pn}->{'updateinfoversion'} = $up->{'version'};
 	      # XXX: do this in hook?
 	      $packtrack->{$pn}->{'supportstatus'} = $pkg->{'supportstatus'} if $pkg->{'supportstatus'};
 	    }
