@@ -1,8 +1,12 @@
 class DelayedJobIndexes < ActiveRecord::Migration
   def up
     # avoiding performance penalty with increasing number jobs
-    add_index :delayed_jobs, :locked_at
-    add_index :delayed_jobs, :queue
+    begin
+      add_index :delayed_jobs, :locked_at
+      add_index :delayed_jobs, :queue
+    rescue
+      # we had a wrong migration id first
+    end
   end
 
   def down
