@@ -275,7 +275,7 @@ OBS_VM_DISK_AUTOSETUP_MOUNT_OPTIONS=""
 OBS_VM_USE_TMPFS=""
 
 ## Path:        Applications/OBS
-## Description: Memory allocated for each VM (256) if not set
+## Description: Memory allocated for each VM (512) if not set
 ## Type:        integer
 ## Default:     ""
 ## Config:      OBS
