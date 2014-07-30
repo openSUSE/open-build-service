@@ -283,7 +283,7 @@ sub createProductOptions($$$)
     $varsH{DROP_REPOSITORY} = "true" if (defined($medium->{'drop_repo'})) && $medium->{'drop_repo'} ne "no" && $medium->{'drop_repo'} ne "false";
     unless ($mediaStyle =~ /^suse-1[12]/ || $mediaStyle =~ /^suse-sle11/) {
       # remove tree for media style sle12/13.2 by default
-      $varsH{DROP_REPOSITORY} = "true" unless $varsH{REPO_ONLY} || $varsH{DROP_REPOSITORY};
+      $varsH{DROP_REPOSITORY} = "true" unless defined($medium->{'drop_repo'}) || $varsH{REPO_ONLY} || $varsH{DROP_REPOSITORY};
       foreach my $shortsummary ( @{$product->{'shortsummary'}} ){
         $varsH{PRODUCT_SUMMARY} = $shortsummary->{'_content'} if ( ! $shortsummary->{'language'} );
       }
