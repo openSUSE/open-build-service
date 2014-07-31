@@ -157,8 +157,11 @@ sub trunc_logfile {
 
 sub tail_logfile {
   my ($lf, $size) = @_;
+  local *LF;
   open(LF, '<', $lf) || return ''; 
-  defined(sysseek(LF, -$size, 2)) || return '';
+  if (-s LF > $size) {
+    defined(sysseek(LF, -$size, 2)) || return '';
+  }
   my $buf = '';
   sysread(LF, $buf, $size);
   close LF;
@@ -3063,22 +3066,17 @@ if (!$ex) {
   print "build failed, marked as bad build host...\n";
   $code = 'badhost';
   # Check if buildconfig is just broken and won't ever succeed
-  if (open(LL, '<', "$buildroot/.build.log")) {
-    my $data = '';
-    sysseek(LL, -10240, 2);
-    sysread(LL, $data, 10240);
-    close LL;
+  my $data = tail_logfile("$buildroot/.build.log", 10240);
+  if ($data) {
     # Remove timing prefix, e.g.
     # [   41s]
     $data =~ s/^(?:\[[\d\s]+s\]\s*)?//gm;
-
     # Match any of those:
     # run-init: /.build/build: Exec format error
     # /bin/rpm: Exec format error
     # /bin/sh: error while loading shared libraries: libgcc_s.so.1: cannot open shared object file
     if ($data =~ /^(\S{1,30}): error while loading shared libraries: lib/m
-        || $data =~ /^(?:run-init: )?\S{1,3330}: Exec format error/m
-       ) {
+        || $data =~ /^(?:run-init: )?\S{1,3330}: Exec format error/m) {
       print "Wait ... spotted failed build. Host is good.\n";
       $code = 'failed';
     }
