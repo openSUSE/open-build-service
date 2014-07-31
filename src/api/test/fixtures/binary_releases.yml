@@ -2,8 +2,8 @@ BaseDistro3_BaseDistro3_repo:
   id: 1
   repository_id: 93
   operation: 'added'
-#  build_container_id:
   release_package: BaseDistro3_pack2
+#  medium: DVD
   binary_name: package
 #  binary_epoch: 
   binary_version: 1.0
@@ -22,7 +22,6 @@ BaseDistro3_BaseDistro3_repo_droped:
   repository_id: 93
   operation: 'removed'
   obsolete_time: 2013-09-31 15:50:30.000000000 Z
-#  build_container_id:
 #  release_package: BaseDistro3_pack2
   binary_name: dropped
 #  binary_epoch: 

@@ -21,14 +21,13 @@ class BinaryRelease < ActiveRecord::Base
     end
   end
 
-  def used_in_products
-    # check if any product is referencing the repository where this binary lives
-    products = []
-    # add products only when they have the binary on a media
-    products += ProductMedium.where( :repository => repository, :medium => medium ).map{ |i| i.product if i.product } if medium
-    # add products if they use the update channel
-    products += ProductUpdateRepository.where( :repository => repository ).map{ |i| i.product if i.product }
-    products.uniq
+  def update_for_product
+    self.repository.product_update_repositories.map{ |i| i.product if i.product }
+  end
+
+  def on_product_medium
+    return [] unless medium
+    self.repository.product_media.where("repository.product_media.medium" => medium).map{ |i| i.product if i.product }
   end
 
   def render_attributes
@@ -45,17 +44,14 @@ class BinaryRelease < ActiveRecord::Base
   end
 
   def render_xml
-    product_hash = {}
     builder = Nokogiri::XML::Builder.new
     builder.binary(render_attributes) do |b|
-      r={}
       b.operation self.operation
-      if self.release_package
-#        r[:project] = self.release_package.project.name # pointless, it is our binary project
-        r[:package] = self.release_package.name
-      end
-      r[:time] = self.binary_releasetime if self.binary_releasetime
-      b.release(r) if r.length > 0
+
+      p={}
+      p[:package] = self.release_package.name if self.release_package
+      p[:time] = self.binary_releasetime if self.binary_releasetime
+      b.publish(p) if p.length > 0
 
       b.build(:time => self.binary_buildtime) if self.binary_buildtime
 
@@ -67,17 +63,10 @@ class BinaryRelease < ActiveRecord::Base
       b.maintainer self.binary_maintainer if self.binary_maintainer
       b.disturl self.binary_disturl if self.binary_disturl
 
-      # render all products using this binary, but cache it in a hash
-      location_key = self.repository_id.to_s + ":" + medium.to_s
-      unless product_hash.has_key? location_key
-        product_hash[location_key] = self.used_in_products.map{|p|
-                                       {project: p.package.project.name, name: p.name} }
+      update_for_product.uniq.each do |up|
+        b.updatefor(project: up.package.project.name, product: up.name)
       end
-      b.products do |p|
-        product_hash[location_key].each do |product|
-           p.product(product)
-        end
-      end if product_hash[location_key].length > 0
+
     end
     builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                  Nokogiri::XML::Node::SaveOptions::FORMAT

@@ -284,7 +284,7 @@ class XpathEngine
     when 'issues'
       relation = Issue.all
     when 'binaries'
-      relation = BinaryRelease.all
+      relation = BinaryRelease.includes(:repository).all
       @joins << ['LEFT JOIN repositories AS release_repositories ON binary_releases.repository_id = release_repositories.id',
                  'LEFT JOIN projects AS release_projects ON release_repositories.db_project_id = release_projects.id']
       order = :binary_releasetime
