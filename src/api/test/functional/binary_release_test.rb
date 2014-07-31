@@ -7,7 +7,7 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
 
   def setup
     super
-#    wait_for_scheduler_start
+    wait_for_scheduler_start
   end
 
   def test_search_binary_release_in_fixtures
@@ -59,6 +59,12 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :name => "package", :version => "1.0", :release => "1", :arch => "i586"}
     assert_xml_tag :tag => "obsolete"
+
+    # by product
+    get '/search/released/binary', match: "product/[@project = 'BaseDistro' and @name = 'fixed']"
+    assert_response :success
+    assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :name => "package", :version => "1.0", :release => "1", :arch => "i586"}
+    assert_xml_tag :tag => "updatefor", :attributes => { project: "BaseDistro", product: "fixed" }
 
     # without obsoelete rpms
     get '/search/released/binary', match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo'] and obsolete[not(@time)]"

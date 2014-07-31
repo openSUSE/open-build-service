@@ -146,6 +146,16 @@ class XpathEngine
         'obsolete/@time' => {:cpart => 'obsolete_time'},
         'repository/@project' => {:cpart => 'release_projects.name'},
         'repository/@name' => {:cpart => 'release_repositories.name'},
+        'product/@project' => {:cpart => 'pprj.name', :joins => [
+          'join product_media pm1 on pm1.repository_id=release_repositories.id',
+          'join product_media pm2 on pm2.medium=binary_releases.medium',
+          'join products pn on pn.id=pm1.product_id ',
+          'join packages ppkg on ppkg.id=pn.package_id ',
+          'join projects pprj on pprj.id=ppkg.project_id ']},
+        'product/@name' => {:cpart => 'ppn.name', :joins => [
+          'join product_media ppm1 on ppm1.repository_id=release_repositories.id',
+          'join product_media ppm2 on ppm2.medium=binary_releases.medium',
+          'join products ppn on ppn.id=ppm1.product_id ']},
       },
       'users' => {
         '@login' => {:cpart => 'users.login'},
@@ -285,8 +295,8 @@ class XpathEngine
       relation = Issue.all
     when 'binaries'
       relation = BinaryRelease.includes(:repository).all
-      @joins << ['LEFT JOIN repositories AS release_repositories ON binary_releases.repository_id = release_repositories.id',
-                 'LEFT JOIN projects AS release_projects ON release_repositories.db_project_id = release_projects.id']
+      @joins = ['LEFT JOIN repositories AS release_repositories ON binary_releases.repository_id = release_repositories.id',
+                 'LEFT JOIN projects AS release_projects ON release_repositories.db_project_id = release_projects.id'] << @joins
       order = :binary_releasetime
     else
       logger.debug "strange base table: #{@base_table}"
