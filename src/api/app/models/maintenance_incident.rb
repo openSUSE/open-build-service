@@ -25,6 +25,8 @@ class MaintenanceIncident < ActiveRecord::Base
   end
 
   def initUpdateinfoId(template = "%Y-%C", patch_name = nil)
+    return if self.released_at
+
     # set current time, to be used 
     self.released_at = Time.now.utc
     self.name = patch_name
@@ -60,18 +62,14 @@ class MaintenanceIncident < ActiveRecord::Base
     end
     sql = ActiveRecord::Base.connection()
     r = sql.execute( "SELECT counter FROM updateinfo_counter WHERE maintenance_db_project_id = " + self.maintenance_db_project.id.to_s + counterType + " FOR UPDATE" ).first
-    if r
-      # counter exists already for this kind of template and maintenance project
-      # just take the number if it got also released already
-      return if self.released_at
-    else
+    unless r
       # no counter exists, initialize it and select again
       sql.execute( "INSERT INTO updateinfo_counter(maintenance_db_project_id, year, month, day, name) VALUES('" + self.maintenance_db_project.id.to_s + "', " + year + ", " + month + ", " + day + "," + name + ")" )
       r = sql.execute( "SELECT counter FROM updateinfo_counter WHERE maintenance_db_project_id = " + self.maintenance_db_project.id.to_s + counterType + " FOR UPDATE" ).first
     end
     # do an atomic increase of counter
     sql.execute( "UPDATE updateinfo_counter SET counter = counter+1 WHERE maintenance_db_project_id = " + self.maintenance_db_project.id.to_s + counterType )
-    self.counter = self.incident_id = r[0].to_i + 1
+    self.counter = r[0].to_i + 1
 
     self.save!
   end
@@ -81,7 +79,7 @@ class MaintenanceIncident < ActiveRecord::Base
     return self.updateinfo_id if self.updateinfo_id
 
     # initialize on first run
-    initUpdateinfoId(id_template, patch_name) unless self.released_at
+    initUpdateinfoId(id_template, patch_name)
 
     my_id = id_template
 
