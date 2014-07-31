@@ -7,11 +7,15 @@ class ProjectTest < ActiveSupport::TestCase
   def test_indexed_fixture
     #check that fixtures got indexed
     Suse::Backend.start_test_backend
+
     assert_equal 1, Product.all.count
-    p = Product.all.first
+    p = Product.find_by_name("fixed")
     assert_equal "fixed", p.name
     assert_equal "BaseDistro", p.package.project.name
     assert_equal "cpe:/o:obs_fuzzies:fixed:1.2", p.cpe
+
+    m = ProductMedium.where(product: p).first
+    assert_equal "DVD", m.medium
   end
 
 end

@@ -54,15 +54,15 @@ class Product < ActiveRecord::Base
                   poolRepo = Repository.find_by_project_and_repo_name(repo['project'], repo['name'])
                   raise UnknownRepository.new "Pool repository #{repo['project']}/#{repo['name']} does not exist" unless poolRepo
                   if medium[poolRepo.id]
-                    if medium[poolRepo.id].medium != repo.get('media')
+                    if medium[poolRepo.id].medium != repo.get('medium')
                       # update
-                      medium[poolRepo.id].medium = repo.get('media')
+                      medium[poolRepo.id].medium = repo.get('medium')
                       medium[poolRepo.id].save
                     end
                     medium.delete(poolRepo.id)
                   else
                     # new
-                    self.product_media.create(product: self, repository: poolRepo, medium: repo.get('media'))
+                    self.product_media.create(product: self, repository: poolRepo, medium: repo.get('medium'))
                   end
                 end
                 self.product_media.delete(medium.values)
