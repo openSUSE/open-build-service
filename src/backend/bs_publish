@@ -384,6 +384,7 @@ sub create_appdata_files {
     BSUtil::cleandir("$dir/app-icons");
   }
   rmdir("$dir/app-icons");
+  $appdatas->{'version'} ||= '0.6';
   my $appdatasxml = XML::Simple::XMLout($appdatas, 'RootName' => 'applications',  XMLDecl => '<?xml version="1.0" encoding="UTF-8"?>');
   writestr("$dir/appdata.xml", undef, $appdatasxml);
 }
@@ -1363,9 +1364,21 @@ sub publish {
 	  $appdata = XML::Simple::XMLin($appdataxml, 'ForceArray' => 1);
 	};
 	$appdata ||= {};
-        # merge the applications
+	# merge the applications/components
 	if ($appdatas) {
-	  push @{$appdatas->{'application'}}, @{$appdata->{'application'} || []};
+	  if ($appdata->{'version'}) {
+	    my $v1 = $appdata->{'version'};
+	    my $v2 = $appdatas->{'version'} || '';
+	    $v1 =~ s/(\d+)/substr("00000000$1", -9)/ge;
+	    $v2 =~ s/(\d+)/substr("00000000$1", -9)/ge;
+	    $appdatas->{'version'} = $appdata->{'version'} if $v1 gt $v2;
+	  }
+	  if ($appdata->{'component'} || $appdatas->{'component'}) {
+	    $appdatas->{'component'} = delete $appdatas->{'application'} if $appdatas->{'application'};
+	    push @{$appdatas->{'component'}}, @{$appdata->{'component'} || $appdata->{'application'} || []};
+	  } else {
+	    push @{$appdatas->{'application'}}, @{$appdata->{'application'} || []};
+	  }
 	} else {
 	  $appdatas = $appdata;
 	}
