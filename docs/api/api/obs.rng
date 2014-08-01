@@ -107,6 +107,16 @@
     </choice>
   </define>
 
+  <define ns="" name="supportstatus-choices">
+    <choice>
+      <value>l3</value>
+      <value>l2</value>
+      <value>l1</value>
+      <value>acc</value>
+      <value>unsupported</value>
+    </choice>
+  </define>
+
   <define ns="" name="local-role">
     <choice>
       <value>maintainer</value>
