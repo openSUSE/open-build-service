@@ -18,11 +18,8 @@ class BackendTests < ActionDispatch::IntegrationTest
             configuration directory_view download_counter download_counter_summary download_stats group
             highest_rated issue_tracker latest_added latest_updated message messages most_active
             newest_stats packageresult projectresult projects rating redirect_stats status_message
-            status_messages tagcloud taglist tags updated_timestamp distributions productlist).include? schema
+            status_messages tagcloud taglist tags updated_timestamp distributions productlist binary_released).include? schema
         # no backend schema exists
-        next
-      elsif schema == "binarylist"
-        # Urgs, different definition exists
         next
       elsif schema == "aggregate"
         schema = "aggregatelist"
@@ -47,7 +44,7 @@ class BackendTests < ActionDispatch::IntegrationTest
 #      puts "SCHEMA", schema, f 
 
       r = system("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} -mXML::Structured -mBSXML -mBSUtil -e \"use XML::Structured ':bytes'; BSUtil::readxml('#{dir}#{f}', \\\$BSXML::#{schema}, 0);\" 2>&1")
-      assert_equal r, true
+      assert_equal true, r
 
     end
   end
