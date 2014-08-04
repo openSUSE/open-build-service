@@ -379,7 +379,7 @@ sub signjob {
     unlink("$jobdir/.checksums");
 
     my $followupspec;
-    if (!$info->{'followupfile'} && grep {/\.rsasign$/} @signfiles) {
+    if (!$info->{'followupfile'} && ($info->{'file'} || '') ne '_aggregate' && grep {/\.rsasign$/} @signfiles) {
       $followupspec = (grep {/\.spec$/} @files)[0];
       @signfiles = grep {/\.rsasign$/} @signfiles if $followupspec;
     }
