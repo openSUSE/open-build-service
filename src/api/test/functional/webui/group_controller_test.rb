@@ -9,7 +9,7 @@ class Webui::GroupControllerTest < Webui::IntegrationTest
 
     login_king to: configuration_groups_path
 
-    find(:id, 'group_table_wrapper').must_have_text 'Showing 1 to 3 of 3 entries'
+    find(:id, 'group_table_wrapper').must_have_text 'Showing 1 to 4 of 4 entries'
     find(:id, 'test_group_b').click
     find(:id, 'content').must_have_text 'This group does not contain users'
 

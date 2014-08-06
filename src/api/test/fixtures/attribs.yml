@@ -26,3 +26,9 @@ maintained_apache2_package:
   id: 101
   attrib_type_id: 58
   package: Apache_apache2
+quality_category_apache2_package:
+  attrib_type_id: 75
+  package: Apache_apache2
+apache_issues:
+  attrib_type_id: 67
+  project: Apache

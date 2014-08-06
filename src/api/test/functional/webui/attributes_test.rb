@@ -185,36 +185,4 @@ class Webui::AttributesTest < Webui::IntegrationTest
            name: 'OBS:QualityCategory')
   end
 
-  test 'admin can delete attributes set by a user' do
-    login_Iggy
-
-    add(project: 'home:Iggy',
-        name: 'OBS:RequestCloned',
-        value: 'cloneclone')
-
-    logout
-    login_king
-
-    delete(project: 'home:Iggy',
-           name: 'OBS:RequestCloned')
-  end
-
-  test 'modifiable_by user' do
-    skip "to be implemented"
-    # Add as user where not allowed
-    login_Iggy
-
-    add(project: 'home:Iggy',
-        name: 'OBS:VeryImportantProject',
-        expect: :no_permission)
-  end
-
-  test 'modifiable_by group' do
-    skip "to be implemented"
-  end
-
-  test 'modifiable_by role' do
-    skip "to be implemented"
-  end
-
 end

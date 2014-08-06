@@ -97,11 +97,7 @@ class Webui::AttributeController < Webui::WebuiController
   end
 
   def set_attribute_by_name
-    logger.debug "Trying to find attribute #{params[:attribute]} on #{@container.to_s}"
     @attribute = Attrib.find_by_container_and_fullname( @container, params[:attribute] )
-    unless @attribute
-      logger.debug "Did not find attribute #{params[:attribute]} on #{@container.to_s}"
-    end
   end
 
   def set_attribute

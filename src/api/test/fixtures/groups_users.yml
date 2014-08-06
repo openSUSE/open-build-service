@@ -13,3 +13,7 @@ record_2:
   email: 1
   user: adrian
   group: test_group
+user6_honks:
+  email: 1
+  user: user6
+  group: honks

@@ -37,7 +37,6 @@ class AttribPolicy < ApplicationPolicy
       namespace_perms.each do |rule|
         next if rule.user and rule.user != @user
         next if rule.group and not @user.is_in_group? rule.group
-        next if rule.role and not @user.has_local_role?(rule.role, @attrib.container)
         return true
       end
     end
