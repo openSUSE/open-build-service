@@ -5934,8 +5934,8 @@ sub checkchannel {
 	  $pin = $pout;
 	}
 	$lapackid = $apackid;
-	if ($pout =~ s/^\Q$pin\E//) {
-	  $lapackid =~ s/\Q$pout\E$//;
+	if ($pin =~ s/^\Q$pout\E//) {
+	  $lapackid =~ s/\Q$pin\E$//;
 	}
       }
 
