@@ -92,6 +92,8 @@ group :development do
   gem 'unicorn-rails' # webrick won't work
   # for client side, DB and server profiling
   gem 'rack-mini-profiler'
+  # for calling single testd
+  gem 'single_test'
 end
 
 # Gems used only for assets and not required in production environments by default.

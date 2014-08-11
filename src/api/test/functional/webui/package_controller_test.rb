@@ -313,6 +313,32 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_content "Superseded by #{new_requestid}"
   end
 
+  test 'supersede foreign request' do
+    use_js
+
+    login_adrian to: project_show_path(project: 'home:adrian')
+    click_link 'Branch existing package'
+    fill_in 'linked_project', with: 'Apache'
+    fill_in 'linked_package', with: 'apache2'
+    click_button 'Create Branch'
+
+    page.must_have_link 'Submit package'
+    page.wont_have_link 'link diff'
+
+    # modify and resubmit
+    Suse::Backend.put( '/source/home:adrian/apache2/DUMMY?user=adrian', 'DUMMY')
+    click_link 'Submit package'
+    page.must_have_field('targetproject', with: 'Apache')
+    check('supersede')
+    check('sourceupdate')
+    click_button 'Ok'
+
+    # got a request
+    page.wont_have_selector '.dialog' # wait for the reload
+    flash_message.must_match %r{Created submit request \d* to Apache}
+    flash_message.must_match %r{Superseding failed: You have no role in request.*set state to superseded from a final state is not allowed}
+  end
+
   test 'remove file' do
     use_js
 

@@ -19,6 +19,8 @@ task(:writeconfiguration => :environment) { ::Configuration.first.write_to_backe
 require 'workers/import_requests.rb'
 task(:importrequests => :environment) { ImportRequestsDelayedJob.new.perform }
 
+require 'single_test/tasks'
+
 if Rails.env.test?
   begin
     require 'ci/reporter/rake/minitest'
