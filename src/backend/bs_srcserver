@@ -4362,6 +4362,13 @@ sub concatconfigs {
       $macros .= $BSConfig::extramacros->{$_} if $projid =~ /$_/;
     }
   }
+  if ($BSConfig::extraconfig) {
+    my $extraconfig = '';
+    for (sort keys %{$BSConfig::extraconfig}) {
+      $extraconfig .= $BSConfig::extraconfig->{$_} if $projid =~ /$_/;
+    }
+    $config .= "\n$extraconfig" if $extraconfig;
+  }
   $config .= "\nMacros:\n$macros" if $macros ne '';
   return $config;
 }

@@ -395,9 +395,15 @@ sub enabled {
 sub getconfig {
   my ($arch, $path) = @_;
   my $config = '';
+  my $extraconfig = '';
   if (@$path) {
     my ($p, $r) = split('/', $path->[0], 2);
     $config .= "%define _project $p\n";
+    if ($BSConfig::extraconfig) {
+      for (sort keys %{$BSConfig::extraconfig}) {
+	$extraconfig .= $BSConfig::extraconfig->{$_} if $p =~ /$_/;
+      }
+    }
   }
   for my $prp (reverse @$path) {
     my ($p, $r) = split('/', $prp, 2);
@@ -421,6 +427,7 @@ sub getconfig {
   # it's an error if we have no config at all
   return undef unless $config ne '';
   # now we got the combined config, parse it
+  $config .= "\n$extraconfig" if $extraconfig;
   my @c = split("\n", $config);
   my $c = Build::read_config($arch, \@c);
   $c->{'repotype'} = [ 'rpm-md' ] unless @{$c->{'repotype'}};
