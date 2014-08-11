@@ -431,13 +431,7 @@ sub getconfig {
   my @c = split("\n", $config);
   my $c = Build::read_config($arch, \@c);
   $c->{'repotype'} = [ 'rpm-md' ] unless @{$c->{'repotype'}};
-  # compatibility with older build versions
-  if (!$c->{'binarytype'}) {
-    $c->{'binarytype'} = 'rpm' if $c->{'type'} eq 'spec' || $c->{'type'} eq 'kiwi';
-    $c->{'binarytype'} = 'deb' if $c->{'type'} eq 'dsc';
-    $c->{'binarytype'} = 'arch' if $c->{'type'} eq 'arch';
-    $c->{'binarytype'} ||= 'UNKNWON';
-  }
+  $c->{'binarytype'} ||= 'UNDEFINED';
   return $c;
 }
 

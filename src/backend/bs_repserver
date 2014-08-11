@@ -1046,13 +1046,7 @@ sub getconfig {
   my @configpath = map {"path=$_"} @{$path || []};
   my $config = BSRPC::rpc("$BSConfig::srcserver/getconfig", undef, "project=$projid", "repository=$repoid", @configpath);
   my $bconf = Build::read_config($arch, [split("\n", $config)]);
-  # compatibility with older build versions
-  if (!$bconf->{'binarytype'}) {
-    $bconf->{'binarytype'} = 'rpm' if $bconf->{'type'} eq 'spec' || $bconf->{'type'} eq 'kiwi';
-    $bconf->{'binarytype'} = 'deb' if $bconf->{'type'} eq 'dsc';
-    $bconf->{'binarytype'} = 'arch' if $bconf->{'type'} eq 'arch';
-    $bconf->{'binarytype'} ||= 'UNKNWON';
-  }
+  $bconf->{'binarytype'} ||= 'UNDEFINED';
   return $bconf;
 }
 
@@ -1113,12 +1107,7 @@ sub getbinary_info {
     $config = $proj->{'config'} if defined $config;	# sent with the content
     if ($config) {
       $bconf = Build::read_config($arch, [split("\n", $config)]);
-      if (!$bconf->{'binarytype'}) {
-	$bconf->{'binarytype'} = 'rpm' if $bconf->{'type'} eq 'spec' || $bconf->{'type'} eq 'kiwi';
-	$bconf->{'binarytype'} = 'deb' if $bconf->{'type'} eq 'dsc';
-	$bconf->{'binarytype'} = 'arch' if $bconf->{'type'} eq 'arch';
-	$bconf->{'binarytype'} ||= 'UNKNWON';
-      }
+      $bconf->{'binarytype'} ||= 'UNDEFINED';
     } else {
       $bconf = getconfig($projid, $repoid, $arch);
     }
