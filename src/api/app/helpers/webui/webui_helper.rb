@@ -388,7 +388,7 @@ module Webui::WebuiHelper
   end
 
   def remove_dialog_tag(text)
-    link_to(text, '#', title: 'Remove Dialog', id: 'remove_dialog')
+    link_to(text, '#', title: 'Close', id: 'remove_dialog')
   end
 
   # dialog_init is a function name called before dialog is shown

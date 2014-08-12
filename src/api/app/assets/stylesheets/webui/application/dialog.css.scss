@@ -1,5 +1,3 @@
-/* TODO/FIXME: the images used in url() seem to be missing for a while now */
-
 .dialog {
   z-index: 90;
   position: fixed;
@@ -8,131 +6,40 @@
   height: 10em;
   width: 26em;
   margin-left: -13em;
-  &#disable_mask {
-    z-index: 89;
-    top: 0px;
-    left: 0px;
-    height: 100%;
-    margin-top: 0px;
-    width: 100%;
-    margin-left: 0px;
-    background-image: image-url("transparency_grey_20.png");
+  .dialog-content {
+    overflow: auto;
+    max-height: 400px;
+    input:not([type=submit]):not([type=file]) {
+      width: 95%;
+    }
   }
-  .box_content {
-    width: 95%;
-    padding: 2%;
-    position: absolute;
-    height: 9em;
-    border-left: 1px solid #e0e0e0;
-    border-right: 1px solid #e0e0e0;
+  .dialog-buttons {
     text-align: center;
-    background-color: white;
-    table {
-      /* content of dialog box */
-      width: 100%;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    a, input {
+      font-size: 1.2em;
+      padding: 3px 1ex;
+      background: #FFF;
+      background-color: #fff;
+      border-color: #EEE;
+      color: #999;
+      &:visited {
+        text-decoration: none;
+      }
+      &:hover {
+        text-decoration: none;
+        color: #666;
+      }
     }
-    td {
-      height: 6em;
-      text-align: center;
-      vertical-align: middle;
+    #remove_dialog {
+      border-radius: 5px;
+      border: 1px solid #eee;
+      padding: 8px;
+      /* Make it look like the default option*/
+      font-weight: bold;
+      font-size: 1.2em;
     }
-  }
-  .box_top_row, .box_bottom_row {
-    background-image: none;
-  }
-  .box_middle {
-    float: left;
-    width: 94%;
-    height: 10px;
-    margin: 0 10px;
-    background: transparent url(/css/common/images/darkgrey_box/top_middle.png) repeat-x scroll left bottom;
-  }
-  .box_bottom_row {
-    .box_middle {
-      float: left;
-      width: 94%;
-      height: 10px;
-      margin: 0 10px;
-      background: transparent url(/css/common/images/darkgrey_box/top_middle.png) repeat-x scroll left bottom;
-      background: transparent url(/css/common/images/darkgrey_box/bottom_middle_darkgrey.png) repeat-x scroll left bottom;
-    }
-    .box_right, .box_left {
-      position: absolute;
-    }
-  }
-  .box_top_row {
-    .box_right, .box_left {
-      position: absolute;
-    }
-    .box_right {
-      position: absolute;
-      right: auto;
-      left: 0;
-      background: transparent url(/css/local/images/darkgrey_box/top_left_corner.png) no-repeat scroll right bottom;
-    }
-  }
-  .box_bottom_row .box_right {
-    position: absolute;
-    right: auto;
-    left: 0;
-    background: transparent url(/css/local/images/darkgrey_box/top_left_corner.png) no-repeat scroll right bottom;
-  }
-  .box_top_row .box_left, .box_bottom_row .box_left {
-    position: absolute;
-    right: 0;
-    left: auto;
-    background: transparent url(/css/local/images/darkgrey_box/top_right_corner.png) no-repeat scroll right bottom;
-  }
-  .box_title_row! .box_title {}
-  .box_bottom_row {
-    position: relative;
-    top: 10em;
-  }
-  .box_footer_row {
-    width: 100%;
-  }
-  .box_bottom_row {
-    .box_left {
-      background: transparent url(/css/local/images/darkgrey_box/bottom_right_corner.png) no-repeat scroll left top;
-    }
-    .box_right {
-      background: transparent url(/css/local/images/darkgrey_box/bottom_left_corner.png) no-repeat scroll right top;
-    }
-  }
-  input[type="submit"], .buttons a {
-    padding: 3px 1ex;
-    /*padding-left: 1ex;*/
-    margin: 4px;
-    font-size: 1.2em;
-    font-weight: bold;
-    /*
-    border-top: 2px solid #ddd;
-    border-left: 2px solid #ddd;
-    border-right: 2px solid #333;
-    border-bottom: 2px solid #333;
-    background: #999;
-    */
-    color: #999;
-  }
-  input[type="submit"] {
-    background: #FFF;
-    border-color: #FFF;
-    &:visited {
-      text-decoration: none;
-    }
-  }
-  .buttons a:visited {
-    text-decoration: none;
-  }
-  input[type="submit"]:hover, .buttons a:hover {
-    text-decoration: none;
-    color: #666;
-    /*background: #dd77dd;*/
-  }
-  input[type="text"] {
-    width: 95%;
-    /* same as textarea */
   }
 }
 
-/* rlihm pfusch */
