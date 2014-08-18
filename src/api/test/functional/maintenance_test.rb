@@ -513,6 +513,21 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro3', arch: 'i586', state: 'published' } }, :tag => 'status', :attributes => { package: 'patchinfo', code: 'succeeded' }
     assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro3Channel', arch: 'i586', state: 'published' } }, :tag => 'status', :attributes => { package: 'patchinfo', code: 'succeeded' }
 
+    # check published search db
+    get "/search/published/binary/id?match=project='"+incidentProject+"'"
+    assert_response :success
+    assert_xml_tag :tag => "binary", :attributes => { name: "package", project: incidentProject, package: "patchinfo",
+                                                      repository: "BaseDistro3", version: "1.0", release: "1", arch: "i586",
+                                                      filename: "package-1.0-1.i586.rpm",
+                                                      filepath: "My:/Maintenance:/0/BaseDistro3/i586/package-1.0-1.i586.rpm",
+                                                      baseproject: "BaseDistro3", type: "rpm" }
+    assert_xml_tag :tag => "binary", :attributes => { name: "package", project: incidentProject, package: "patchinfo",
+                                                      repository: "BaseDistro3Channel", version: "1.0", release: "1", arch: "i586",
+                                                      filename: "package-1.0-1.i586.rpm",
+                                                      filepath: "My:/Maintenance:/0/BaseDistro3Channel/i586/package-1.0-1.i586.rpm",
+                                                      baseproject: "BaseDistro3Channel", type: "rpm" }
+
+
     # create release request
     post '/request?cmd=create&ignore_build_state=1', '<request>
                                    <action type="maintenance_release">
