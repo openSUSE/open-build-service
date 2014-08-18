@@ -6835,6 +6835,8 @@ sub published_projectindexfunc {
     my $repoinfo = $prp_to_repoinfo{$prp} || prp_to_repoinfo($prp);
     for (keys %{$repoinfo->{'binaryorigins'} || {}}) {
       next unless /\//;
+      # keep in sync with updatebinaryindex in bs_publish
+      next unless /\.(?:rpm|deb|pkg\.tar\..z)$/;
       $bins{"$prp_ext/$_"} = 1;
     }
   }
