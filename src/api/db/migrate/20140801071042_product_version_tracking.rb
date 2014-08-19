@@ -4,6 +4,8 @@ class ProductVersionTracking < ActiveRecord::Migration
     add_column :products, :baseversion, :string
     add_column :products, :patchlevel, :string
     add_column :products, :release, :string
+
+    rename_column :product_media, :medium, :name
   end
 
   def down
@@ -11,5 +13,7 @@ class ProductVersionTracking < ActiveRecord::Migration
     remove_column :products, :baseversion
     remove_column :products, :patchlevel
     remove_column :products, :release
+
+    rename_column :product_media, :name, :medium
   end
 end
