@@ -2691,6 +2691,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/home:tom:temporary/kdelibs/_meta'
     meta = @response.body
     assert_response :success
+    assert_xml_tag :tag => 'package', :attributes => { :project => 'home:tom:temporary' }
     delete '/source/home:tom:temporary/kdelibs'
     assert_response :success
     delete '/source/home:tom:temporary/kdelibs'

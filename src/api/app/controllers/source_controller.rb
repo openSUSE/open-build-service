@@ -359,11 +359,6 @@ class SourceController < ApplicationController
     if origin_package_name && !%w(_project _pattern).include?(origin_package_name) && !(params[:missingok] && @command == 'branch')
       @spkg = Package.get_by_project_and_name(origin_project_name, origin_package_name) if origin_package_name && !%w(_project _pattern).include?(origin_package_name)
     end
-    if @spkg
-      # use real source in case we followed project link
-      params[:oproject] = origin_project_name = @spkg.project.name
-      params[:opackage] = origin_package_name = @spkg.name
-    end
 
     unless Package_creating_commands.include? @command and not Project.exists_by_name(@target_project_name)
       # even when we can create the package, an existing instance must be checked if permissions are right
@@ -1464,11 +1459,14 @@ class SourceController < ApplicationController
 
     verify_can_modify_target!
 
-    # TODO: why not using the already set @target_package?
-    sproject = params[:project]
-    sproject = params[:oproject] if params[:oproject]
-    spackage = params[:package]
-    spackage = params[:opackage] if params[:opackage]
+    if @spkg
+      # use real source in case we followed project link
+      sproject = params[:oproject] = @spkg.project.name
+      spackage = params[:opackage] = @spkg.name
+    else
+      sproject = params[:oproject] || params[:project]
+      spackage = params[:opackage] || params[:package]
+    end
 
     # create target package, if it does not exist
     reparse_backend_package(spackage, sproject) unless @package
