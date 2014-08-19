@@ -48,6 +48,8 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     put "/group/new_group", xml
     assert_response 403
     delete "/group/new_group"
+    assert_response 404
+    delete "/group/test_group" #exists
     assert_response 403
 
     login_king
@@ -59,20 +61,40 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # add a user
-    xml2 = "<group><title>new_group</title> <email>obs@obs.com</email> <person><person userid='fred' /></person> </group>"
+    xml2 = "<group><title>new_group</title> <email>obs@obs.com</email>
+              <person><person userid='fred' /></person>
+            </group>"
     put "/group/new_group", xml2
     assert_response :success
     get "/group/new_group"
     assert_response :success
     assert_xml_tag :tag => 'email', :content => "obs@obs.com"
+
+    login_Iggy # not a group maintainer (yet)
+    put "/group/new_group", xml2
+    assert_response 403
+
     # double save is done by webui, we need to support it. Drop email adress also
-    xml2 = "<group><title>new_group</title> <person><person userid='fred' /><person userid='fred' /></person> </group>"
+    login_king
+    xml2 = "<group><title>new_group</title> 
+              <maintainer userid='Iggy' />
+              <person><person userid='fred' /><person userid='fred' /></person>
+            </group>"
     put "/group/new_group", xml2
     assert_response :success
     get "/group/new_group"
     assert_response :success
     assert_xml_tag :tag => 'person', :attributes => {:userid => 'fred'}
+    assert_xml_tag :tag => 'maintainer', :attributes => {:userid => 'Iggy'}
     assert_no_xml_tag :tag => 'email'
+
+    # check permissions
+    login_adrian
+    put "/group/new_group", xml2
+    assert_response 403
+    login_Iggy # group maintainer
+    put "/group/new_group", xml2
+    assert_response :success
 
     # remove user
     put "/group/new_group", xml
@@ -82,6 +104,7 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag :tag => 'person', :attributes => {:userid => 'fred'}
 
     # remove group
+    login_king
     delete "/group/new_group"
     assert_response :success
     get "/group/new_group"

@@ -8,6 +8,7 @@ require_dependency 'api_exception'
 
 class ApplicationController < ActionController::Base
 
+  include Pundit
   protect_from_forgery
 
   class NoDataEntered < APIException
@@ -41,7 +42,15 @@ class ApplicationController < ActionController::Base
 
   #contains current authentification method, one of (:proxy, :basic)
   attr_accessor :auth_method
-  
+
+  def pundit_user
+    if User.current.is_nobody?
+      return nil
+    else
+      return User.current
+    end
+  end
+
   protected
 
   def load_nobody

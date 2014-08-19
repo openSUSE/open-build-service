@@ -498,6 +498,17 @@ CREATE TABLE `flags` (
   CONSTRAINT `flags_ibfk_5` FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `group_maintainers` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `group_id` int(11) DEFAULT NULL,
+  `user_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `group_id` (`group_id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `group_maintainers_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `groups` (`id`),
+  CONSTRAINT `group_maintainers_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `group_request_requests` (
   `bs_request_action_group_id` int(11) DEFAULT NULL,
   `bs_request_id` int(11) DEFAULT NULL,
@@ -1527,6 +1538,8 @@ INSERT INTO schema_migrations (version) VALUES ('20140721112346');
 INSERT INTO schema_migrations (version) VALUES ('20140729101042');
 
 INSERT INTO schema_migrations (version) VALUES ('20140801071042');
+
+INSERT INTO schema_migrations (version) VALUES ('20140819071042');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

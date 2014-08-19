@@ -12,15 +12,23 @@
       <optional>
         <element name="email"><text/></element>
       </optional>
-      <element name="person"> <!-- FIXME3.0: should be plural -->
       <zeroOrMore>
-        <element name="person">
+        <element name="maintainer">
           <attribute name="userid">
             <data type="string" />
           </attribute>
           <empty/>
         </element>
       </zeroOrMore>
+      <element name="person"> <!-- FIXME3.0: should be plural -->
+        <zeroOrMore>
+          <element name="person">
+            <attribute name="userid">
+              <data type="string" />
+            </attribute>
+            <empty/>
+          </element>
+        </zeroOrMore>
       </element>
       <empty/>
     </element>

@@ -6,7 +6,8 @@ require_dependency 'api_exception'
 #
 class Group < ActiveRecord::Base
 
-  has_many :groups_users, inverse_of: :group
+  has_many :groups_users, inverse_of: :group, dependent: :destroy
+  has_many :group_maintainers, inverse_of: :group, dependent: :destroy
   has_many :relationships, dependent: :destroy, inverse_of: :group
 
   validates_format_of  :title,
@@ -42,6 +43,25 @@ class Group < ActiveRecord::Base
     end
     self.save!
 
+    # update maintainer list
+    cache = Hash.new
+    self.group_maintainers.each do |gu|
+      cache[gu.user.id] = gu
+    end
+    xmlhash.elements('maintainer') do |maintainer|
+      next unless maintainer['userid']
+      user = User.find_by_login!(maintainer['userid'])
+      if cache.has_key? user.id
+        #user has already a role in this package
+        cache.delete(user.id)
+      else
+        GroupMaintainer.create( user: user, group: self).save
+      end
+    end
+    cache.each do |login_id, gu|
+      GroupMaintainer.delete_all(['user_id = ? AND group_id = ?', login_id, self.id])
+    end
+
     # update user list
     cache = Hash.new
     self.groups_users.each do |gu|
@@ -55,18 +75,15 @@ class Group < ActiveRecord::Base
         user = User.find_by_login!(person['userid'])
         if cache.has_key? user.id
           #user has already a role in this package
-          cache[user.id] = :keep
+          cache.delete(user.id)
         else
-          gu = GroupsUser.create( user: user, group: self)
-          gu.save!
-          cache[user.id] = :keep
+          GroupsUser.create( user: user, group: self).save
         end
       end
     end
 
     #delete all users which were not listed
     cache.each do |login_id, gu|
-      next if gu == :keep
       GroupsUser.delete_all(['user_id = ? AND group_id = ?', login_id, self.id])
     end
   end

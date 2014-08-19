@@ -3,7 +3,7 @@ class Webui::GroupController < Webui::WebuiController
   include Webui::WebuiHelper
 
   before_filter :overwrite_group, only: [:edit]
-  before_filter :require_admin, only: [:save]
+  before_filter :require_login, only: [:save]
 
   def autocomplete
     required_parameters :term
@@ -38,7 +38,12 @@ class Webui::GroupController < Webui::WebuiController
   end
 
   def save
-    group = Group.where(title: params[:name]).first_or_create
+    group = Group.where(title: params[:name]).first
+    if group.nil?
+      authorize Group, :create?
+      group = Group.create(title: params[:name])
+    end
+    authorize group, :update?
     Group.transaction do
       group.users.delete_all
       params[:members].split(',').each do |m|
