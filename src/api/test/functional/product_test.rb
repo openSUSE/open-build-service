@@ -229,6 +229,7 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_match(/^obs-server: \+Kwd:\\nsupport_l3\\n-Kwd:/, @response.body)
 
     # release product
+    UpdateNotificationEvents.new.perform
     login_tom
     get "/source/home:tom:temporary:link"
     assert_response :success

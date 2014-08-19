@@ -30,6 +30,9 @@
     </xs:annotation>
     <xs:complexType>
       <xs:attribute name="name" type="xs:string"/>
+      <xs:attribute name="version" type="xs:string"/>
+      <xs:attribute name="baseversion" type="xs:string" use="optional"/>
+      <xs:attribute name="patchlevel" type="xs:string" use="optional"/>
       <xs:attribute name="cpe" type="xs:string"/>
       <xs:attribute name="originproject" type="xs:string"/>
       <xs:attribute name="mtime" type="xs:string"/>

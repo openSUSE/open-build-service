@@ -17,11 +17,11 @@ class Product < ActiveRecord::Base
     return self.where(name: name, package: package).load
   end
 
-  def set_CPE(swClass, vendor, version=nil)
+  def set_CPE(swClass, vendor, pversion=nil)
     # hack for old SLE 11 definitions
     vendor="suse" if vendor.start_with?("SUSE LINUX")
     self.cpe = "cpe:/#{swClass}:#{vendor.downcase}:#{self.name.downcase}"
-    self.cpe += ":#{version}" if version
+    self.cpe += ":#{pversion}" unless pversion.blank?
   end
 
   def update_from_xml(xml)
@@ -38,55 +38,62 @@ class Product < ActiveRecord::Base
         pd.elements('products') do |ps|
           ps.elements('product') do |p|
             next unless p['name'] == self.name
-            unless version = p['version']
-              version = "#{p['baseversion']}.#{p['patchlevel']}"
-            end
-            self.set_CPE(swClass, p['vendor'], version)
+            self.baseversion = p['baseversion']
+            self.patchlevel = p['patchlevel']
+            pversion = p['version']
+            pversion = "#{p['baseversion']}.#{p['patchlevel']}" if pversion.blank? and p['baseversion']
+            self.set_CPE(swClass, p['vendor'], pversion)
+            self.version = pversion
             # update update channel connections
             p.elements('register') do |r|
-              r.elements('pool') do |u|
-                medium = {}
-                self.product_media.each do |pm|
-                  medium[pm.repository.id] = pm
-                end
-                u.elements('repository') do |repo|
-                  next if repo['project'].blank? # it may be just a url= reference
-                  poolRepo = Repository.find_by_project_and_repo_name(repo['project'], repo['name'])
-                  raise UnknownRepository.new "Pool repository #{repo['project']}/#{repo['name']} does not exist" unless poolRepo
-                  if medium[poolRepo.id]
-                    if medium[poolRepo.id].medium != repo.get('medium')
-                      # update
-                      medium[poolRepo.id].medium = repo.get('medium')
-                      medium[poolRepo.id].save
-                    end
-                    medium.delete(poolRepo.id)
-                  else
-                    # new
-                    self.product_media.create(product: self, repository: poolRepo, medium: repo.get('medium'))
-                  end
-                end
-                self.product_media.delete(medium.values)
-              end
-              r.elements('updates') do |u|
-                update = {}
-                self.product_update_repositories.each do |pu|
-                  update[pu.repository.id] = pu if pu.repository # it may be remote or not yet exist
-                end
-                u.elements('repository') do |repo|
-                  updateRepo = Repository.find_by_project_and_repo_name(repo.get('project'), repo.get('name'))
-                  # we support currently to use remote or split repositories here
-#                  raise UnknownRepository.new "Update repository #{repo['project']}/#{repo['name']} does not exist" unless updateRepo
-                  if updateRepo and not update[updateRepo]
-                    ProductUpdateRepository.create(product: self, repository: updateRepo)
-                    update.delete(updateRepo.id)
-                  end
-                end
-                self.product_update_repositories.delete(update.values)
-              end
+              _update_from_xml_register(r)
             end
           end
         end
       end
+    end
+  end
+
+  private
+  def _update_from_xml_register(rxml)
+    rxml.elements('pool') do |u|
+      medium = {}
+      self.product_media.each do |pm|
+        medium[pm.repository.id] = pm
+      end
+      u.elements('repository') do |repo|
+        next if repo['project'].blank? # it may be just a url= reference
+        poolRepo = Repository.find_by_project_and_repo_name(repo['project'], repo['name'])
+        raise UnknownRepository.new "Pool repository #{repo['project']}/#{repo['name']} does not exist" unless poolRepo
+        if medium[poolRepo.id]
+          if medium[poolRepo.id].name != repo.get('medium')
+            # update
+            medium[poolRepo.id].name = repo.get('medium')
+            medium[poolRepo.id].save
+          end
+          medium.delete(poolRepo.id)
+        else
+          # new
+          self.product_media.create(product: self, repository: poolRepo, name: repo.get('medium'))
+        end
+      end
+      self.product_media.delete(medium.values)
+    end
+    rxml.elements('updates') do |u|
+      update = {}
+      self.product_update_repositories.each do |pu|
+        update[pu.repository.id] = pu if pu.repository # it may be remote or not yet exist
+      end
+      u.elements('repository') do |repo|
+        updateRepo = Repository.find_by_project_and_repo_name(repo.get('project'), repo.get('name'))
+        # we support currently to use remote or split repositories here
+#        raise UnknownRepository.new "Update repository #{repo['project']}/#{repo['name']} does not exist" unless updateRepo
+        if updateRepo and not update[updateRepo]
+          ProductUpdateRepository.create(product: self, repository: updateRepo)
+          update.delete(updateRepo.id)
+        end
+      end
+      self.product_update_repositories.delete(update.values)
     end
   end
 end

@@ -25,10 +25,14 @@ class BinaryRelease < ActiveRecord::Base
     self.repository.product_update_repositories.map{ |i| i.product if i.product }
   end
 
-  def on_product_medium
-    return [] unless medium
-    self.repository.product_media.where("repository.product_media.medium" => medium).map{ |i| i.product if i.product }
+  def on_product
+    self.repository.product_medium.map{ |i| i.product if i.product }
   end
+
+#  def on_product_medium
+#    return [] unless medium
+#    self.repository.product_medium.where("repository.product_medium.name" => medium).map{ |i| i.product if i.product }
+#  end
 
   def render_attributes
     p = { :project    => repository.project.name,

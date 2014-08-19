@@ -15,7 +15,7 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal "cpe:/o:obs_fuzzies:fixed:1.2", p.cpe
 
     m = ProductMedium.where(product: p).first
-    assert_equal "DVD", m.medium
+    assert_equal "DVD", m.name
   end
 
 end

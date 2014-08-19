@@ -694,7 +694,7 @@ CREATE TABLE `product_media` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `product_id` int(11) DEFAULT NULL,
   `repository_id` int(11) DEFAULT NULL,
-  `medium` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `product_id` (`product_id`),
   KEY `repository_id` (`repository_id`),
@@ -718,6 +718,10 @@ CREATE TABLE `products` (
   `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `package_id` int(11) NOT NULL,
   `cpe` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `version` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `baseversion` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `patchlevel` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `release` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_products_on_name_and_package_id` (`name`,`package_id`),
   KEY `package_id` (`package_id`),
@@ -1521,6 +1525,8 @@ INSERT INTO schema_migrations (version) VALUES ('20140718112346');
 INSERT INTO schema_migrations (version) VALUES ('20140721112346');
 
 INSERT INTO schema_migrations (version) VALUES ('20140729101042');
+
+INSERT INTO schema_migrations (version) VALUES ('20140801071042');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
