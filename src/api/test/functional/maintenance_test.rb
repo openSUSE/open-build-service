@@ -432,6 +432,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     put '/source/BaseDistro3Channel/_meta', '<project name="BaseDistro3Channel" kind="maintenance_release"><title/><description/>
                                          <build><disable/></build>
                                          <publish><enable/></publish>
+                                         <person userid="adrian_reader" role="reviewer" />
                                          <repository name="channel_repo">
                                            <arch>i586</arch>
                                          </repository>
@@ -536,6 +537,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    <state name="new" />
                                  </request>'
     assert_response :success
+    assert_xml_tag :tag => "review", :attributes => { by_user: "adrian_reader", state: "new" }     # from channel
+    assert_xml_tag :tag => "review", :attributes => { by_user: "fred", state: "new" }
+    assert_xml_tag :tag => "review", :attributes => { by_group: "test_group", state: "new" }
     # no submit action
     assert_no_xml_tag :tag => 'action', :attributes => { type: 'submit' }
     node = ActiveXML::Node.new(@response.body)
