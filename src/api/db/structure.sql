@@ -364,7 +364,7 @@ CREATE TABLE `configurations` (
   `change_password` tinyint(1) DEFAULT '1',
   `hide_private_options` tinyint(1) DEFAULT '0',
   `gravatar` tinyint(1) DEFAULT '1',
-  `enforce_project_keys` tinyint(1) DEFAULT '1',
+  `enforce_project_keys` tinyint(1) DEFAULT '0',
   `download_on_demand` tinyint(1) DEFAULT '1',
   `download_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   `ymp_url` varchar(255) COLLATE utf8_bin DEFAULT NULL,
