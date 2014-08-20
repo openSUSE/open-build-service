@@ -608,7 +608,7 @@ sub triggerservicerun {
 # all _product:xxx packages
 #
 sub expandproduct {
-  my ($projid, $packid, $files, $user, $fail) = @_;
+  my ($projid, $packid, $rev, $files, $user, $fail) = @_;
 
   if (!$files) {
     # gone!
@@ -621,6 +621,16 @@ sub expandproduct {
       notify_repservers('package', $projid, $opid);
     }
     return 1;
+  }
+  if ($files->{'_link'}) {
+    eval {
+      $files = handlelinks({ %$rev }, $files);
+      die("$files\n") unless ref $files;
+    };
+    if ($@) {
+      die($@) if $fail;
+      return undef;
+    }
   }
   my $dir = "$uploaddir/expandproduct_$$";
   BSUtil::cleandir($dir);
@@ -1253,9 +1263,6 @@ sub addrev {
   die("bad files (slash)\n") if grep {/\// && $_ ne '/SERVICE'} keys %$files;
   die("bad files (glyph)\n") if grep {!/^[0-9a-f]{32}$/} values %$files;
 
-  if ($packid eq '_product') {
-    expandproduct($projid, $packid, $files, $user, 1);
-  }
   if ($files->{'_patchinfo'}) {
     die("bad files in patchinfo container\n") if grep {$_ ne '_patchinfo'} keys %$files;
     my $p = repreadxml({'project' => $projid, 'package' => $packid}, '_patchinfo', $files->{'_patchinfo'}, $BSXML::patchinfo);
@@ -1268,6 +1275,10 @@ sub addrev {
   delete $files->{'/SERVICE'};
 
   my $rev = {'srcmd5' => $srcmd5, 'time' => time(), 'user' => $user, 'comment' => $comment, 'requestid' => $requestid};
+
+  if ($packid eq '_product') {
+    expandproduct($projid, $packid, $rev, $files, $user, 1);
+  }
 
   if ($packid ne '_project' && $packid ne '_pattern') {
     my ($version, $release) = getcommitinfo($projid, $packid, $srcmd5, $files);
@@ -3781,7 +3792,7 @@ sub delpackage {
   }
   unlink("$projectsdir/$projid.pkg/$packid.mrev");
   if ($packid eq '_product') {
-    expandproduct($projid, $packid, undef);
+    expandproduct($projid, $packid, undef, undef);
   }
   notify_repservers('package', $projid, $packid);
   notify("SRCSRV_DELETE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown"), "comment" => $cgi->{'comment'}, "requestid" => $cgi->{'requestid'} });
