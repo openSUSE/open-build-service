@@ -247,7 +247,10 @@ class Webui::PackageController < Webui::WebuiController
     rescue Project::UnknownObjectError,
            BsRequestAction::UnknownProject,
            BsRequestAction::UnknownTargetPackage => e
-      flash[:error] = "Unable to submit: #{e.message}"
+      flash[:error] = "Unable to submit (missing target): #{e.message}"
+      redirect_to(:action => 'show', :project => params[:project], :package => params[:package]) and return
+    rescue APIException
+      flash[:error] = "Unable to submit"
       redirect_to(:action => 'show', :project => params[:project], :package => params[:package]) and return
     end
 
