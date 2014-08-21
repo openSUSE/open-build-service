@@ -52,7 +52,7 @@ case "$1" in
 		chown obsrun:obsrun "$logdir" "$rundir"
                 # FIXME: not nice, this should receive a proper daemon handling, 
                 #        including real logging, pid file and startproc
-		startproc -l "$logdir"/signer.log \
+		startproc -f -l "$logdir"/signer.log \
 		    "$obsdir"/bs_signer
 		rc_status -v
 	;;

@@ -50,7 +50,7 @@ case "$1" in
 		echo -n "Initializing obspublisher"
                 # FIXME: not nice, this should receive a proper daemon handling, 
                 #        including real logging, pid file and startproc
-		startproc -l "$logdir"/publisher.log \
+		startproc -f -l "$logdir"/publisher.log \
 		    "$obsdir"/bs_publish
 		rc_status -v
 	;;

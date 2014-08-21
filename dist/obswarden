@@ -50,7 +50,7 @@ case "$1" in
 		echo -n "Initializing obswarden"
                 # FIXME: not nice, this should receive a proper daemon handling, 
                 #        including real logging, pid file and startproc
-		startproc -l "$logdir"/warden.log \
+		startproc -f -l "$logdir"/warden.log \
 		    "$obsdir"/bs_warden
 		rc_status -v
 	;;

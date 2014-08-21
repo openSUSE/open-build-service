@@ -50,7 +50,7 @@ case "$1" in
 		echo -n "Initializing obsdispatcher"
                 # FIXME: not nice, this should receive a proper daemon handling, 
                 #        including real logging, pid file and startproc
-	        startproc -l "$logdir"/dispatcher.log "$obsdir"/bs_dispatch
+	        startproc -f -l "$logdir"/dispatcher.log "$obsdir"/bs_dispatch
 		rc_status -v
 	;;
 	stop)
