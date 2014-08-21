@@ -505,10 +505,12 @@ our $buildinfo = [
 	'version',
 	'release',
 	'arch',
+	'hdrmd5',
+
 	'project',
 	'repository',
 	'repoarch',
-	'binary',
+	'binary',	# filename
 	'package',
 	'srcmd5',
      ]],
