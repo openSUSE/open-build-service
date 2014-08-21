@@ -172,6 +172,7 @@ CREATE TABLE `binary_releases` (
   KEY `exact_search_index` (`binary_name`,`binary_epoch`,`binary_version`,`binary_release`,`binary_arch`),
   KEY `release_package_id` (`release_package_id`),
   KEY `index_binary_releases_on_binary_updateinfo` (`binary_updateinfo`),
+  KEY `index_binary_releases_on_medium` (`medium`),
   CONSTRAINT `binary_releases_ibfk_1` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
   CONSTRAINT `binary_releases_ibfk_2` FOREIGN KEY (`release_package_id`) REFERENCES `packages` (`id`),
   CONSTRAINT `binary_releases_ibfk_3` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
@@ -709,6 +710,7 @@ CREATE TABLE `product_media` (
   PRIMARY KEY (`id`),
   KEY `product_id` (`product_id`),
   KEY `repository_id` (`repository_id`),
+  KEY `index_product_media_on_name` (`name`),
   CONSTRAINT `product_media_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`),
   CONSTRAINT `product_media_ibfk_2` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -1540,6 +1542,8 @@ INSERT INTO schema_migrations (version) VALUES ('20140729101042');
 INSERT INTO schema_migrations (version) VALUES ('20140801071042');
 
 INSERT INTO schema_migrations (version) VALUES ('20140819071042');
+
+INSERT INTO schema_migrations (version) VALUES ('20140821105426');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
