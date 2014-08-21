@@ -258,6 +258,8 @@ sub check_package_dir {
       # unchecked for now
     } elsif ($ent eq "_statistics") {
       # unchecked for now
+    } elsif ($ent eq "_info") {
+      # unchecked for now
     } elsif ($ent =~ /^pesign-/) {
       # unchecked for now
     } elsif ($ent =~ /-appdata\.xml$/) {

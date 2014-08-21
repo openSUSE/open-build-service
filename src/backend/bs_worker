@@ -1900,9 +1900,17 @@ sub getbinaries {
     $nometa = 1 if $buildinfo->{'file'} eq '_preinstallimage';
     my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
     my $got = getbinaries_cache($ddir, $server, $repo->{'project'}, $repo->{'repository'}, $buildinfo->{'arch'}, $nometa, $dlbins, $bvls{"$repo->{'project'}/$repo->{'repository'}/$buildinfo->{'arch'}"});
-    for (keys %$got) {
-      $done{$_} = $got->{$_}->{'name'};
-      $meta{$_} = 1 if !$nometa && $got->{$_}->{'meta'};
+    my $outbdep = ($buildinfo->{'outbuildinfo'} || {})->{'bdep'};
+    for (sort keys %$got) {
+      my $gotpkg = $got->{$_};
+      $done{$_} = $gotpkg->{'name'};
+      $meta{$_} = 1 if !$nometa && $gotpkg->{'meta'};
+      if ($outbdep) {
+	my $obdep = { 'name' => $gotpkg->{'name'}, 'project' => $repo->{'project'}, 'repository' => $repo->{'repository'} };
+	$obdep->{'hdrmd5'} = $gotpkg->{'hdrmd5'} if $gotpkg->{'hdrmd5'};
+	# fill epoch/version/release/arch?
+	push @$outbdep, $obdep;
+      }
     }
     @todo = grep {!$done{$_}} @todo;
     if ($kiwimode) {
@@ -2241,6 +2249,17 @@ sub dobuild {
   BSUtil::cleandir($pkgdir) if -d $pkgdir;
   rm_rf($oldpkgdir) if -d $oldpkgdir;
 
+  if (!$kiwimode && !$followupmode && !$deltamode) {
+    $buildinfo->{'outbuildinfo'} = {
+      'project' => $projid,
+      'package' => $packid,
+      'repository' => $repoid,
+      'arch' => $arch,
+      'srcmd5' => $buildinfo->{'srcmd5'},
+      'verifymd5' => $buildinfo->{'verifymd5'} || $buildinfo->{'srcmd5'},
+      'bdep' => [],
+    };
+  }
   ####### download phase
   $binariesdownload = 0;
   $binariescachehits = 0;
@@ -2517,6 +2536,10 @@ sub dobuild {
   $stats->{'times'}->{'total'}->{'time'}->{'unit'} = "s";
   $stats->{'times'}->{'total'}->{'time'}->{'_content'} = (time() - $starttime);
   writexml("$buildroot/.build.packages/OTHER/_statistics.new", "$buildroot/.build.packages/OTHER/_statistics", $stats, $BSXML::buildstatistics);
+
+  if ($buildinfo->{'outbuildinfo'}) {
+    writexml("$buildroot/.build.packages/OTHER/_info", undef, $buildinfo->{'outbuildinfo'}, $BSXML::buildinfo);
+  }
 
   # as a special service we also create a channel file from
   # the report files
@@ -2954,7 +2977,7 @@ if ($buildinfo->{'followupfile'}) {
     }
   }
   if (-d "$buildroot/.build.packages/OTHER") {
-    for my $f ('rpmlint.log', '_statistics') {
+    for my $f ('rpmlint.log', '_statistics', '_info') {
       next unless -s "$buildsrcdir/$f";
       BSUtil::cp("$buildsrcdir/$f", "$buildroot/.build.packages/OTHER/$f");
     }
