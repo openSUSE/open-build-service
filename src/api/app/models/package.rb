@@ -488,7 +488,7 @@ class Package < ActiveRecord::Base
   def update_product_list
     # short cut to ensure that no products are left over
     unless self.is_product?
-      self.products.delete_all
+      self.products.destroy_all
       return
     end
 
@@ -497,7 +497,11 @@ class Package < ActiveRecord::Base
     self.products.each { |p| old[p.name] = p }
 
     Product.transaction do
-      xml = Xmlhash.parse(Suse::Backend.get(self.source_path(nil, view: :products)).body)
+      begin
+        xml = Xmlhash.parse(Suse::Backend.get(self.source_path(nil, view: :products)).body)
+      rescue
+        return
+      end
       xml.elements('productdefinition') do |pd|
         pd.elements('products') do |ps|
           ps.elements('product') do |p|
@@ -511,7 +515,7 @@ class Package < ActiveRecord::Base
       end
 
       # drop old entries
-      self.products.delete(old.values)
+      self.products.destroy(old.values)
     end
   end
 

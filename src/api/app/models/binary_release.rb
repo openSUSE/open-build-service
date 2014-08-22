@@ -25,8 +25,8 @@ class BinaryRelease < ActiveRecord::Base
     self.repository.product_update_repositories.map{ |i| i.product if i.product }
   end
 
-  def on_product
-    self.repository.product_medium.map{ |i| i.product if i.product }
+  def on_product_medium
+    self.repository.product_medium
   end
 
 #  def on_product_medium
@@ -69,6 +69,10 @@ class BinaryRelease < ActiveRecord::Base
 
       update_for_product.uniq.each do |up|
         b.updatefor(project: up.package.project.name, product: up.name)
+      end
+
+      on_product_medium.uniq.each do |opm|
+        b.product(project: opm.product.package.project.name, product: opm.product.name, medium: opm.name)
       end
 
     end
