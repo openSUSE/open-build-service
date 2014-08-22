@@ -2538,7 +2538,7 @@ sub dobuild {
   writexml("$buildroot/.build.packages/OTHER/_statistics.new", "$buildroot/.build.packages/OTHER/_statistics", $stats, $BSXML::buildstatistics);
 
   if ($buildinfo->{'outbuildinfo'}) {
-    writexml("$buildroot/.build.packages/OTHER/_info", undef, $buildinfo->{'outbuildinfo'}, $BSXML::buildinfo);
+    writexml("$buildroot/.build.packages/OTHER/_buildenv", undef, $buildinfo->{'outbuildinfo'}, $BSXML::buildinfo);
   }
 
   # as a special service we also create a channel file from
@@ -2977,7 +2977,7 @@ if ($buildinfo->{'followupfile'}) {
     }
   }
   if (-d "$buildroot/.build.packages/OTHER") {
-    for my $f ('rpmlint.log', '_statistics', '_info') {
+    for my $f ('rpmlint.log', '_statistics', '_buildenv') {
       next unless -s "$buildsrcdir/$f";
       BSUtil::cp("$buildsrcdir/$f", "$buildroot/.build.packages/OTHER/$f");
     }

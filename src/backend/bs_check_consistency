@@ -258,7 +258,7 @@ sub check_package_dir {
       # unchecked for now
     } elsif ($ent eq "_statistics") {
       # unchecked for now
-    } elsif ($ent eq "_info") {
+    } elsif ($ent eq "_buildenv") {
       # unchecked for now
     } elsif ($ent =~ /^pesign-/) {
       # unchecked for now
