@@ -5,7 +5,7 @@
       </li>
       <% if params[:project] -%>
           <li>
-            <a id="toggle_watch" href="<%= url_for controller: "project", action: :toggle_watch, project: params[:project] %>">
+            <a id="toggle_watch" href="<%= project_toggle_watch_path(params[:project]) %>">
               <% if User.current.watches? params[:project] -%>
                   <span>Remove this project from Watchlist</span>
                   <span class="desc">Do not watch this project anymore</span>
