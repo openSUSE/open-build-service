@@ -265,10 +265,14 @@ class Webui::ProjectController < Webui::WebuiController
           req.save!
         end
         flash[:success] = "Created maintenance release request <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.id)}'>#{req.id}</a>"
-      rescue BsRequestAction::UnknownProject,
+      rescue Patchinfo::IncompletePatchinfo,
+             BsRequestAction::UnknownProject,
              BsRequestAction::BuildNotFinished,
              BsRequestAction::UnknownTargetPackage => e
         flash[:error] = e.message
+        redirect_back_or_to :action => 'show', :project => params[:project] and return
+      rescue APIException
+        flash[:error] = 'Internal problem while release request creation'
         redirect_back_or_to :action => 'show', :project => params[:project] and return
       end
     end
