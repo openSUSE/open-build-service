@@ -45,7 +45,7 @@ module Webui::ProjectHelper
   end
 
   def project_bread_crumb(*args)
-    @crumb_list = [link_to('Projects', :controller => 'project', :action => :list_public)]
+    @crumb_list = [link_to('Projects', project_list_public_path)]
     return if @spider_bot
     unless @project.nil? || @project.is_remote?
       prj_parents = nil
@@ -57,7 +57,7 @@ module Webui::ProjectHelper
       end
       project_list = []
       prj_parents.each do |name, short_name|
-        project_list << link_to(short_name, controller: 'project', action: 'show', project: name)
+        project_list << link_to(short_name, project_show_path(project: name))
       end
       @crumb_list << project_list if project_list.length > 0
     end
