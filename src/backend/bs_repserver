@@ -2030,7 +2030,10 @@ sub copybuild {
       my $nbin = $bin;
       my $setrelease = $cgi->{'setrelease'};
       # directories get stripped the build/release number by default
-      $setrelease="" if -d "$odir/$bin" && !defined($setrelease);
+      if (!defined($setrelease)) {
+        $setrelease = '' if -d "$odir/$bin";
+        $setrelease = '' if $bin =~ /^(.*)\.report$/ && -d "$odir/$1";	# need to keep report in sync with dir
+      }
       if (defined($setrelease)) {
 	$setrelease =~ s/^-?/-/; # "-" will drop the release tag
 	$setrelease =~ s/-?$//;  # drop leading "-", it depends on the format
