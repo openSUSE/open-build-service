@@ -72,7 +72,7 @@ class BinaryRelease < ActiveRecord::Base
       end
 
       on_product_medium.uniq.each do |opm|
-        b.product(project: opm.product.package.project.name, product: opm.product.name, medium: opm.name)
+        b.product(project: opm.product.package.project.name, name: opm.product.name, medium: opm.name)
       end
 
     end
