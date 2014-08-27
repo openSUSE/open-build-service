@@ -59,22 +59,19 @@ class Product < ActiveRecord::Base
     rxml.elements('pool') do |u|
       medium = {}
       self.product_media.each do |pm|
-        medium[pm.repository.id] = pm
+        medium["#{pm.repository.id}/#{pm.name}"] = pm.id
       end
       u.elements('repository') do |repo|
         next if repo['project'].blank? # it may be just a url= reference
         poolRepo = Repository.find_by_project_and_repo_name(repo['project'], repo['name'])
         raise UnknownRepository.new "Pool repository #{repo['project']}/#{repo['name']} does not exist" unless poolRepo
-        if medium[poolRepo.id]
-          if medium[poolRepo.id].name != repo.get('medium')
-            # update
-            medium[poolRepo.id].name = repo.get('medium')
-            medium[poolRepo.id].save
-          end
-          medium.delete(poolRepo.id)
+        name = repo.get('medium')
+        key = "#{poolRepo.id}/#{name}"
+        if medium[key]
+          medium.delete(key)
         else
           # new
-          self.product_media.create(product: self, repository: poolRepo, name: repo.get('medium'))
+          self.product_media.create(product: self, repository: poolRepo, name: name)
         end
       end
       self.product_media.delete(medium.values)
@@ -82,16 +79,15 @@ class Product < ActiveRecord::Base
     rxml.elements('updates') do |u|
       update = {}
       self.product_update_repositories.each do |pu|
-        update[pu.repository.id] = pu if pu.repository # it may be remote or not yet exist
+        update[pu.repository.id] = pu.id if pu.repository # it may be remote or not yet exist
       end
       u.elements('repository') do |repo|
         updateRepo = Repository.find_by_project_and_repo_name(repo.get('project'), repo.get('name'))
-        # we support currently to use remote or split repositories here
-#        raise UnknownRepository.new "Update repository #{repo['project']}/#{repo['name']} does not exist" unless updateRepo
-        if updateRepo and not update[updateRepo]
+        next unless updateRepo # it might be a remote repo, which will not become indexed
+        unless update[updateRepo.id]
           ProductUpdateRepository.create(product: self, repository: updateRepo)
-          update.delete(updateRepo.id)
         end
+        update.delete(updateRepo.id)
       end
       self.product_update_repositories.delete(update.values)
     end
