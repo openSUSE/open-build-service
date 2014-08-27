@@ -3,6 +3,11 @@ require 'source_controller'
 
 class ProductTests < ActionDispatch::IntegrationTest 
   fixtures :all
+
+  def setup
+    super
+    wait_for_scheduler_start
+  end
   
   def test_simple_product_file
     login_tom
