@@ -708,6 +708,7 @@ CREATE TABLE `product_media` (
   `repository_id` int(11) DEFAULT NULL,
   `name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `index_unique` (`product_id`,`repository_id`,`name`),
   KEY `product_id` (`product_id`),
   KEY `repository_id` (`repository_id`),
   KEY `index_product_media_on_name` (`name`),
@@ -720,6 +721,7 @@ CREATE TABLE `product_update_repositories` (
   `product_id` int(11) DEFAULT NULL,
   `repository_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `index_unique` (`product_id`,`repository_id`),
   KEY `product_id` (`product_id`),
   KEY `repository_id` (`repository_id`),
   CONSTRAINT `product_update_repositories_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`),
@@ -1544,6 +1546,8 @@ INSERT INTO schema_migrations (version) VALUES ('20140801071042');
 INSERT INTO schema_migrations (version) VALUES ('20140819071042');
 
 INSERT INTO schema_migrations (version) VALUES ('20140821105426');
+
+INSERT INTO schema_migrations (version) VALUES ('20140827105426');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
