@@ -318,6 +318,16 @@ class Project < ActiveRecord::Base
     @is_locked
   end
 
+  def is_unreleased?
+    # returns true if NONE of the defined release targets are used
+    self.repositories.includes(:release_targets).each do |repo|
+      repo.release_targets.each do |rt|
+        return false unless rt.trigger == "maintenance"
+      end
+    end
+    true
+  end
+
   # set defaults
   def init
     return unless new_record?

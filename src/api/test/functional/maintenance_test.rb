@@ -1438,6 +1438,15 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert node.has_attribute?(:id)
     reqid = node.value(:id)
 
+    # check that changes get still fetched on new branches
+    post '/source/BaseDistro2.0/pack2', :cmd => 'branch'
+    assert_response :success
+    get '/source/home:maintenance_coord:branches:BaseDistro2.0:LinkedUpdateProject/pack2/_history'
+    assert_response :success
+    assert_xml_tag :tag => 'comment', :content => %r{fetch updates from open incident project #{incidentProject}}
+    delete '/source/home:maintenance_coord:branches:BaseDistro2.0:LinkedUpdateProject'
+    assert_response :success
+
     # find the request for the maintenance incident through it's parent (maintenance) project
     get '/request?view=collection&types=maintenance_release&project=My:Maintenance&subprojects=true'
     assert_response :success

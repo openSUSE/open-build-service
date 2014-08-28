@@ -287,7 +287,7 @@ class BranchPackage
             logger.error "read permission or data inconsistency, backend delivered package as linked package where no database object exists: #{e.attributes['project']} / #{e.attributes['name']}"
           else
             # is incident ?
-            if ipkg.project.is_maintenance_incident? and not ipkg.project.is_locked?
+            if ipkg.project.is_maintenance_incident? and ipkg.project.is_unreleased?
               # is a newer incident ?
               if incident_pkg.nil? or ipkg.project.name.gsub(/.*:/, '').to_i > incident_pkg.project.name.gsub(/.*:/, '').to_i
                 incident_pkg = ipkg
