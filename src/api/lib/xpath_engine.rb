@@ -148,22 +148,22 @@ class XpathEngine
         'repository/@name' => {:cpart => 'release_repositories.name'},
         'updatefor/@project' => {:cpart => 'puprj.name', :joins => [
           'LEFT join product_update_repositories pur on pur.repository_id=release_repositories.id',
-          'join products pun on pun.id=pur.product_id ',
-          'join packages pupkg on pupkg.id=pun.package_id ',
-          'join projects puprj on puprj.id=pupkg.project_id ']},
-        'updatefor/@name' => {:cpart => 'pupn.name', :joins => [
+          'INNER join products pun on pun.id=pur.product_id ',
+          'INNER join packages pupkg on pupkg.id=pun.package_id ',
+          'INNER join projects puprj on puprj.id=pupkg.project_id ']},
+        'updatefor/@product' => {:cpart => 'pupn.name', :joins => [
           'LEFT join product_update_repositories pnur on pnur.repository_id=release_repositories.id',
-          'join products pupn on pupn.id=pnur.product_id ']},
+          'INNER join products pupn on pupn.id=pnur.product_id ']},
         'product/@project' => {:cpart => 'pprj.name', :joins => [
-          'LEFT join product_media pm1 on pm1.repository_id=release_repositories.id',
-          'join product_media pm2 on pm2.name=binary_releases.medium',
-          'join products pn on pn.id=pm1.product_id ',
-          'join packages ppkg on ppkg.id=pn.package_id ',
-          'join projects pprj on pprj.id=ppkg.project_id ']},
+          'LEFT join product_media pm on (pm.repository_id=release_repositories.id
+            AND pm.name=binary_releases.medium)',
+          'INNER join products pn on pn.id=pm.product_id ',
+          'INNER join packages ppkg on ppkg.id=pn.package_id ',
+          'INNER join projects pprj on pprj.id=ppkg.project_id ']},
         'product/@name' => {:cpart => 'ppn.name', :joins => [
-          'LEFT join product_media ppm1 on ppm1.repository_id=release_repositories.id',
-          'join product_media ppm2 on ppm2.name=binary_releases.medium',
-          'join products ppn on ppn.id=ppm1.product_id ']},
+          'LEFT join product_media ppm on (ppm.repository_id=release_repositories.id
+            AND ppm.name=binary_releases.medium)',
+          'INNER join products ppn on ppn.id=ppm.product_id ']},
         'product/@medium' => {:cpart => 'mpm.name', :joins => [
           'LEFT join product_media mpm on mpm.repository_id=release_repositories.id']},
       },
@@ -304,9 +304,10 @@ class XpathEngine
     when 'issues'
       relation = Issue.all
     when 'binaries'
-      relation = BinaryRelease.includes(:repository).all
-      @joins = ['JOIN repositories AS release_repositories ON binary_releases.repository_id = release_repositories.id',
-                 'JOIN projects AS release_projects ON release_repositories.db_project_id = release_projects.id'] << @joins
+      relation = BinaryRelease.includes(repository:[{product_medium: [{product: [{package: :project}]}]}])
+#      relation = BinaryRelease.all
+      @joins = ['LEFT JOIN repositories AS release_repositories ON binary_releases.repository_id = release_repositories.id',
+                 'LEFT JOIN projects AS release_projects ON release_repositories.db_project_id = release_projects.id'] << @joins
       order = :binary_releasetime
     else
       logger.debug "strange base table: #{@base_table}"
