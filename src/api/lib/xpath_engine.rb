@@ -148,22 +148,22 @@ class XpathEngine
         'repository/@name' => {:cpart => 'release_repositories.name'},
         'updatefor/@project' => {:cpart => 'puprj.name', :joins => [
           'LEFT join product_update_repositories pur on pur.repository_id=release_repositories.id',
-          'INNER join products pun on pun.id=pur.product_id ',
-          'INNER join packages pupkg on pupkg.id=pun.package_id ',
-          'INNER join projects puprj on puprj.id=pupkg.project_id ']},
+          'LEFT join products pun on pun.id=pur.product_id ',
+          'LEFT join packages pupkg on pupkg.id=pun.package_id ',
+          'LEFT join projects puprj on puprj.id=pupkg.project_id ']},
         'updatefor/@product' => {:cpart => 'pupn.name', :joins => [
           'LEFT join product_update_repositories pnur on pnur.repository_id=release_repositories.id',
-          'INNER join products pupn on pupn.id=pnur.product_id ']},
+          'LEFT join products pupn on pupn.id=pnur.product_id ']},
         'product/@project' => {:cpart => 'pprj.name', :joins => [
           'LEFT join product_media pm on (pm.repository_id=release_repositories.id
             AND pm.name=binary_releases.medium)',
-          'INNER join products pn on pn.id=pm.product_id ',
-          'INNER join packages ppkg on ppkg.id=pn.package_id ',
-          'INNER join projects pprj on pprj.id=ppkg.project_id ']},
+          'LEFT join products pn on pn.id=pm.product_id ',
+          'LEFT join packages ppkg on ppkg.id=pn.package_id ',
+          'LEFT join projects pprj on pprj.id=ppkg.project_id ']},
         'product/@name' => {:cpart => 'ppn.name', :joins => [
           'LEFT join product_media ppm on (ppm.repository_id=release_repositories.id
             AND ppm.name=binary_releases.medium)',
-          'INNER join products ppn on ppn.id=ppm.product_id ']},
+          'LEFT join products ppn on ppn.id=ppm.product_id ']},
         'product/@medium' => {:cpart => 'mpm.name', :joins => [
           'LEFT join product_media mpm on mpm.repository_id=release_repositories.id']},
       },
