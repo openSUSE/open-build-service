@@ -1304,6 +1304,7 @@ sub createProductFile ( $$ ) {
        $special_arch_update_ncc.="%endif\n" if $dt->{'arch'};
        next;
     }
+    $d->{flavor} = $product->{register}->{flavor} if defined($product->{register}->{flavor});
     $zypp_product->{'register'} = $d;
 
     # Release package number shall go with the package release
