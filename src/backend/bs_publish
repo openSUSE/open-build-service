@@ -1121,6 +1121,25 @@ sub sync_to_stage {
   }
 }
 
+sub map_to_extrep {
+  my ($prp, $prp_ext) = @_;
+  
+  my $extrep = "$extrepodir/$prp_ext";
+  return $extrep unless $BSConfig::publishredirect;
+  if ($BSConfig::publishedredirect_use_regex || $BSConfig::publishedredirect_use_regex) {
+    for my $key (sort {$b cmp $a} keys %{$BSConfig::publishredirect}) {
+      if ($prp =~ /^$key/) {
+	$extrep = $BSConfig::publishredirect->{$key};
+	last;
+      }
+    }
+  } elsif (exists($BSConfig::publishredirect->{$prp})) {
+    $extrep = $BSConfig::publishredirect->{$prp};
+  }
+  $extrep = $extrep->($prp, $prp_ext) if $extrep && ref($extrep) eq 'CODE';
+  return $extrep;
+}
+
 sub deleterepo {
   my ($projid, $repoid, $dbgsplit) = @_;
   my $prp = "$projid/$repoid";
@@ -1129,11 +1148,8 @@ sub deleterepo {
   $projid_ext =~ s/:/:\//g;
   my $prp_ext = $prp;
   $prp_ext =~ s/:/:\//g;
-  my $extrep = "$extrepodir/$prp_ext";
-
-  if ($BSConfig::publishredirect && exists($BSConfig::publishredirect->{$prp})) {
-    $extrep = $BSConfig::publishredirect->{$prp};
-  }
+  my $extrep = map_to_extrep($prp, $prp_ext);
+  return unless $extrep;
   $extrep .= $dbgsplit if $dbgsplit;
   $prp_ext .= $dbgsplit if $dbgsplit;
 
@@ -1282,6 +1298,13 @@ sub publish {
     BSVerify::verify_filename($subdir);
   }
 
+  my $prp_ext = $prp;
+  $prp_ext =~ s/:/:\//g;
+  my $extrep = map_to_extrep($prp, $prp_ext);
+  return unless $extrep;
+  $extrep .= $dbgsplit if $dbgsplit;
+  $prp_ext .= $dbgsplit if $dbgsplit;
+
   # get us the lock
   local *F;
   open(F, '>', "$reporoot/$prp/.finishedlock") || die("$reporoot/$prp/.finishedlock: $!\n");
@@ -1290,16 +1313,6 @@ sub publish {
     flock(F, LOCK_EX) || die("flock: $!\n");
     print "    got the lock...\n";
   }
-
-  my $prp_ext = $prp;
-  $prp_ext =~ s/:/:\//g;
-  my $extrep = "$extrepodir/$prp_ext";
-
-  if ($BSConfig::publishredirect && exists($BSConfig::publishredirect->{$prp})) {
-    $extrep = $BSConfig::publishredirect->{$prp};
-  }
-  $extrep .= $dbgsplit if $dbgsplit;
-  $prp_ext .= $dbgsplit if $dbgsplit;
 
   # we now know that $reporoot/$prp/*/:repo will not change.
   # Build repo by mixing all architectures.
@@ -1966,13 +1979,14 @@ publishprog_done:
   }
 
   # push the repo (unless there's a redirect)
+  # FIXME: use different mechanism to disable sync
   if (!($BSConfig::publishredirect && $BSConfig::publishredirect->{$prp})) {
     sync_to_stage($prp, $prp_ext);
   }
 
   # support for regex usage in $BSConfig::publishedhook
   my $publish_prp = $prp;
-  if ($BSConfig::publishedhook_use_regex) {
+  if ($BSConfig::publishedhook_use_regex || $BSConfig::publishedhook_use_regex) {
     for my $key (sort {$b cmp $a} keys %{$BSConfig::publishedhook}) {
       if ($prp =~ /^$key/) {
         $publish_prp = $key;
