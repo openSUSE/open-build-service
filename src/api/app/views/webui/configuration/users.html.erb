@@ -32,25 +32,25 @@
               <li>
                 <%= sprite_tag('accept') %>
                 <%= link_to('Confirm user', {:controller => "user", :action => "confirm", :user => user.login },
-                          :method => :post, :confirm => "Are you sure?")
+                          :method => :post, data: { confirm: "Are you sure?" })
                           %>
               </li>
               <li>
                 <%= sprite_tag('lock') %>
                 <%= link_to('Lock user', {:controller => "user", :action => "lock", :user => user.login },
-                          :method => :post, :confirm => "Are you sure?")
+                          :method => :post, data: { confirm: "Are you sure?" })
                           %>
               </li>
               <li>
                 <%= sprite_tag('cancel') %>
                 <%= link_to('Delete user', {:controller => "user", :action => "delete", :user => user.login },
-                          :method => :delete, :confirm => "Are you sure?")
+                          :method => :delete, data: { confirm: "Are you sure?" })
                           %>
               </li>
               <li>
                 <%= sprite_tag('cog_add') %>
                 <%= link_to('Make user admin', {:controller => "user", :action => "admin", :user => user.login },
-                        :method => :post, :confirm => "Are you sure?")
+                        :method => :post, data: { confirm: "Are you sure?" })
                         %>
               </li>
               <li>
