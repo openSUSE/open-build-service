@@ -31,7 +31,7 @@
                 <% end %>
               <% end %>
               <%= link_to(image_tag('drive_delete.png'), {:action => :remove_path_from_target, :project => @project, :repository => repository.name, :path_project => path.project, :path_repository => path.repository},
-                           {:confirm => "Really remove #{path.project} / #{path.repository} path from repository  '#{repository.name}'?", :class => 'x', :method => :post}) -%>
+                           {data: { confirm: "Really remove #{path.project} / #{path.repository} path from repository  '#{repository.name}'?" }, :class => 'x', :method => :post}) -%>
               <br/>
             <% end %>
           <% end -%>
