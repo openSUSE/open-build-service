@@ -25,16 +25,12 @@ class BinaryRelease < ActiveRecord::Base
     self.repository.product_update_repositories.map{ |i| i.product if i.product }
   end
 
-  def on_product_medium
-    self.repository.product_medium
+  def product_medium
+    self.repository.product_medium.where(name: medium).first
   end
 
-#  def on_product_medium
-#    return [] unless medium
-#    self.repository.product_medium.where("repository.product_medium.name" => medium).map{ |i| i.product if i.product }
-#  end
-
   def render_attributes
+    # renders all values, which are used as identifier of a binary entry.
     p = { :project    => repository.project.name,
           :repository => repository.name,
         }
@@ -71,8 +67,17 @@ class BinaryRelease < ActiveRecord::Base
         b.updatefor(project: up.package.project.name, product: up.name)
       end
 
-      on_product_medium.uniq.each do |opm|
-        b.product(project: opm.product.package.project.name, name: opm.product.name, medium: opm.name)
+      if self.product_medium
+        product = self.product_medium.product
+        h = {project: product.package.project.name, name: product.name}
+        if product.baseversion
+          h[:baseversion] = product.baseversion
+          h[:patchlevel] = product.patchlevel
+        else
+          h[:version] = product.version
+        end
+        h[:release] = product.release if product.release
+        b.product(h)
       end
 
     end

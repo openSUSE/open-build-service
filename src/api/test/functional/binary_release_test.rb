@@ -70,7 +70,7 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :name => "package", :version => "1.0", :release => "1", :arch => "i586", :medium => "DVD"}
     assert_xml_tag :tag => "updatefor", :attributes => { project: "BaseDistro", product: "fixed" }
-    assert_xml_tag :tag => "product", :attributes => { project: "BaseDistro", name: "fixed", medium: "DVD" }
+    assert_xml_tag :tag => "product", :attributes => { project: "BaseDistro", name: "fixed", version: "1.2" }
     get '/search/released/binary', match: "product/[@project = 'BaseDistro' and @name = 'fixed' and @medium = 'DVD']"
     assert_response :success
     assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :name => "package", :version => "1.0", :release => "1", :arch => "i586", :medium => "DVD"}
@@ -86,7 +86,7 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :name => "package", :version => "1.0", :release => "1", :arch => "i586"}
     assert_xml_tag :tag => "updatefor", :attributes => { project: "BaseDistro", product: "fixed" }
-    assert_xml_tag :tag => "product", :attributes => { project: "BaseDistro", name: "fixed", medium: "DVD" }
+    assert_xml_tag :tag => "product", :attributes => { project: "BaseDistro", name: "fixed", version: "1.2" }
 
   end
 
