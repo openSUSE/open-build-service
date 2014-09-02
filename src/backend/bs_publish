@@ -814,10 +814,10 @@ sub createrepo_staticlinks {
       } elsif (/^(.*)_([^_]*)-[^_]*\.deb$/s) {
         $link = "$1.deb";
         $link = "${1}_$2.deb" if $versioned;
-      } elsif (/^(.*)-(\d+\.\d+\.\d+)-Build\d+\.\d+([-\.].*\.(gz|bz2|tbz|xz))$/s) {
+      } elsif (/^(.*)-(\d+\.\d+\.\d+)-Build\d+\.\d+([-\.].*\.(gz|bz2|tbz|xz)?(?:\.sha256)?)$/s) {
         $link = "$1$3";
         $link = "$1-$2$3" if $versioned;
-      } elsif (/^(.*)-(\d+\.\d+\.\d+)-Build\d+\.\d+(\.(raw.install.raw.xz|raw.xz|box|json|install.iso|tbz|iso|qcow2|ova))$/s) {
+      } elsif (/^(.*)-(\d+\.\d+\.\d+)-Build\d+\.\d+(\.(raw.install.raw.xz|raw.xz|box|json|install.iso|tbz|iso|qcow2|ova)?(?:\.sha256)?)$/s) {
         $link = "$1$3";
         $link = "$1-$2$3" if $versioned;
       }
@@ -1444,8 +1444,6 @@ sub publish {
 	} elsif ($bin =~ /\.raw(?:\.install)?(?:\.sha256)?$/) {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.tar(?:\.(?:gz|bz2|xz))?(?:\.sha256)?$/) {
-	  $p = "$bin";
-	} elsif ($bin =~ /\.tbz?(?:\.sha256)?$/) {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.diff\.(?:gz)(?:\.sha256)?$/) {
 	  $p = "$bin";
