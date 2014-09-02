@@ -136,9 +136,9 @@ class BinaryRelease < ActiveRecord::Base
         # compare with existing entry
         if existing.count == 1
           entry = existing.first
-          if entry.binary_disturl       == binary["disturl"] and
-             entry.binary_supportstatus == binary["supportstatus"] and
-             entry.binary_buildtime.utc == ::Time.at(binary["buildtime"].to_i).to_datetime.utc
+          if entry.binary_disturl                   == binary["disturl"] and
+             entry.binary_supportstatus             == binary["supportstatus"] and
+             entry.binary_buildtime.to_datetime.utc == ::Time.at(binary["buildtime"].to_i).to_datetime.utc
              # same binary, don't touch
              processed_item[entry.id] = true
              next

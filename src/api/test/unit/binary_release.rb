@@ -60,11 +60,21 @@ class BinaryReleaseTest < ActiveSupport::TestCase
   end
 
   def test_update_from_json_hash
-    json = [{"arch"=>"i586", "binaryarch"=>"i586", "repository"=>"BaseDistro3_repo", "release"=>"1", "name"=>"delete_me", "project"=>"BaseDistro3", "version"=>"1.0", "package"=>"pack2"}, {"arch"=>"i586", "binaryarch"=>"i586", "name"=>"package", "repository"=>"BaseDistro3_repo", "release"=>"1", "project"=>"BaseDistro3", "version"=>"1.0", "package"=>"pack2"}, {"arch"=>"i586", "binaryarch"=>"src", "name"=>"package", "repository"=>"BaseDistro3_repo", "release"=>"1", "project"=>"BaseDistro3", "version"=>"1.0", "package"=>"pack2"}, {"binaryarch"=>"x86_64", "arch"=>"i586", "package"=>"pack2", "project"=>"BaseDistro3", "version"=>"1.0", "release"=>"1", "repository"=>"BaseDistro3_repo", "name"=>"package_newweaktags"}]
+    json = [{"arch"=>"i586", "binaryarch"=>"i586", "repository"=>"BaseDistro3_repo", "release"=>"1", "name"=>"delete_me", "project"=>"BaseDistro3", "version"=>"1.0", "package"=>"pack2", "buildtime"=>"1409642056"}, {"arch"=>"i586", "binaryarch"=>"i586", "name"=>"package", "repository"=>"BaseDistro3_repo", "release"=>"1", "project"=>"BaseDistro3", "version"=>"1.0", "package"=>"pack2", "buildtime"=>"1409642056"}, {"arch"=>"i586", "binaryarch"=>"src", "name"=>"package", "repository"=>"BaseDistro3_repo", "release"=>"1", "project"=>"BaseDistro3", "version"=>"1.0", "package"=>"pack2", "buildtime"=>"1409642056"}, {"binaryarch"=>"x86_64", "arch"=>"i586", "package"=>"pack2", "project"=>"BaseDistro3", "version"=>"1.0", "release"=>"1", "repository"=>"BaseDistro3_repo", "name"=>"package_newweaktags", "buildtime"=>"1409642056"}]
 
     r = Repository.find_by_project_and_repo_name("BaseDistro3", "BaseDistro3_repo")
 
     BinaryRelease.update_binary_releases_via_json(r, json)
+    count = BinaryRelease.all.length
+    # no new entries
+    BinaryRelease.update_binary_releases_via_json(r, json)
+    assert_equal count, BinaryRelease.all.length
+
+     # modify just one timestampe
+    json = [{"arch"=>"i586", "binaryarch"=>"i586", "repository"=>"BaseDistro3_repo", "release"=>"1", "name"=>"delete_me", "project"=>"BaseDistro3", "version"=>"1.0", "package"=>"pack2", "buildtime"=>"1409642056"}, {"arch"=>"i586", "binaryarch"=>"i586", "name"=>"package", "repository"=>"BaseDistro3_repo", "release"=>"1", "project"=>"BaseDistro3", "version"=>"1.0", "package"=>"pack2", "buildtime"=>"1409642056"}, {"arch"=>"i586", "binaryarch"=>"src", "name"=>"package", "repository"=>"BaseDistro3_repo", "release"=>"1", "project"=>"BaseDistro3", "version"=>"1.0", "package"=>"pack2", "buildtime"=>"1409642056"}, {"binaryarch"=>"x86_64", "arch"=>"i586", "package"=>"pack2", "project"=>"BaseDistro3", "version"=>"1.0", "release"=>"1", "repository"=>"BaseDistro3_repo", "name"=>"package_newweaktags", "buildtime"=>"1409642057"}]
+    BinaryRelease.update_binary_releases_via_json(r, json)
+    assert_equal count, BinaryRelease.all.length-1 # one entry added
+
   end
 
 end
