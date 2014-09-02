@@ -849,8 +849,9 @@ while (@ARGV) {
             foreach my $file (readdir(E)) {
               if ( $file =~ /(.+)\.(mrev|rev)(\.del){0,1}$/ ) {
 		my $pkg = $1;
-                push @revfiles, "$projectsdir/$prjdir/$file";
-                open(F, '<', $projectsdir.'/'.$prjdir.'/'.$file) || die($!);
+		my $manifestfile = "$projectsdir/$prjdir/$file";
+                push @revfiles, "$manifestfile";
+                open(F, '<', $manifestfile) || die($!);
                   my @lines = <F>;
                 close(F);
 
@@ -863,7 +864,7 @@ while (@ARGV) {
                 # remove lines to keep from normal timestamp checking and put them directly into hash
                 foreach my $line (@keeplines) {
                   my ($hash, $time) = ( split(/\|/, $line))[2,4];
-                  push @{$keephashes{$hash}}, { project => $prjdir, file => $projectsdir.'/'.$prjdir.'/'.$file };
+                  push @{$keephashes{$hash}}, { project => $prjdir, file => $manifestfile };
                 }
 
                 foreach my $line (@lines) {
@@ -879,9 +880,9 @@ while (@ARGV) {
 		      }
 		    }
 		  if ( $delete_this_hash ) {
-		    push @{$deletehashes{$hash}},  { project => $prjdir, file => $projectsdir.'/'.$prjdir.'/'.$file };
+		    push @{$deletehashes{$hash}},  { project => $prjdir, file => $manifestfile };
 		  } else {
-                    push @{$keephashes{$hash}}, { project => $prjdir, file => $projectsdir.'/'.$prjdir.'/'.$file };
+                    push @{$keephashes{$hash}}, { project => $prjdir, file => $manifestfile };
                   }
 		  # Now peek inside the MD5SUMS manifest for any
 		  # /SERVICE entry as that's just another -MD5SUMS
@@ -890,20 +891,23 @@ while (@ARGV) {
 		  # they're not used elsewhere
 		  my $p = $prjdir;
 		  $p =~ s/.pkg$//;
-		  my $manifestfile = "$treesdir/$p/$pkg/$hash-MD5SUMS";
-		  open(M, '<', $manifestfile) || die($!);
-		  my @manifest = <M>;
-		  close(M);
-		  for my $service (@manifest) {
-		    if ($service =~ /^(\S*)\s+\/SERVICE$/ ) {
-		      my $servicehash = $1;
-		      print "Found a /SERVICE file pointing to '$servicehash' to delete in $manifestfile whilst processing $pkg\n" if ($debug);
-		      if ( $delete_this_hash ) {
-			push @{$deletehashes{$servicehash}},  { project => $prjdir, file => $manifestfile };
-		      } else {
-			push @{$keephashes{$servicehash}},  { project => $prjdir, file => $manifestfile };
+		  my $servicemanifestfile = "$treesdir/$p/$pkg/$hash-MD5SUMS";
+		  if (open(M, '<', $servicemanifestfile)) {
+		    my @manifest = <M>;
+		    close(M);
+		    for my $service (@manifest) {
+		      if ($service =~ /^(\S*)\s+\/SERVICE$/ ) {
+			my $servicehash = $1;
+			print "Found a /SERVICE file pointing to '$servicehash' in $servicemanifestfile whilst processing $pkg\n" if ($debug);
+			if ( $delete_this_hash ) {
+			  push @{$deletehashes{$servicehash}},  { project => $prjdir, file => $servicemanifestfile };
+			} else {
+			  push @{$keephashes{$servicehash}},  { project => $prjdir, file => $servicemanifestfile };
+			}
 		      }
 		    }
+		  } else {
+		    warn("Couldn't open $servicemanifestfile referenced in $manifestfile: $!");
 		  }
 		}
               }
