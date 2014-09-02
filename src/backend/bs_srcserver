@@ -7765,7 +7765,8 @@ sub sourceinfo {
 
 sub getprojectsourceinfo {
   my ($cgi, $projid) = @_;
-  checkprojrepoarch($projid, $cgi->{'repository'}, $cgi->{'arch'});
+  my $proj = checkprojrepoarch($projid, $cgi->{'repository'}, $cgi->{'arch'}, 1);
+  die("need package list for remote projects\n") if $proj->{'remoteurl'} && !$cgi->{'package'};
   my @packages = @{$cgi->{'package'} || []};
   $frozenlinks_cache = {};
   @packages = findpackages($projid) unless @packages;
