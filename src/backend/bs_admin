@@ -1031,7 +1031,7 @@ while (@ARGV) {
       open(F, '<', $treesfiles{$file}) || die($!);
         while (<F>) {
           my ($hash, $desc) = split(/\s+/, $_);
-          if ( /_link/ ) {
+          if ( /_link$/ ) {
             my ($hash, $desc) = split(/\s+/, $_);
             next if !defined( $sourcefiles{$hash.'-'.$desc});
             # open link file to look if it links to a file that will be deleted
