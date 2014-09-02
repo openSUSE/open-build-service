@@ -43,6 +43,17 @@ class BinaryRelease < ActiveRecord::Base
     return p
   end
 
+  def _extend_product_with_version(h, product)
+    if product.baseversion
+      h[:baseversion] = product.baseversion
+      h[:patchlevel] = product.patchlevel
+    else
+      h[:version] = product.version
+    end
+    h[:release] = product.release if product.release
+    h
+  end
+
   def render_xml
     builder = Nokogiri::XML::Builder.new
     builder.binary(render_attributes) do |b|
@@ -64,20 +75,11 @@ class BinaryRelease < ActiveRecord::Base
       b.disturl self.binary_disturl if self.binary_disturl
 
       update_for_product.uniq.each do |up|
-        b.updatefor(project: up.package.project.name, product: up.name)
+        b.updatefor( _extend_product_with_version({project: up.package.project.name, product: up.name}, up) )
       end
 
       if self.product_medium
-        product = self.product_medium.product
-        h = {project: product.package.project.name, name: product.name}
-        if product.baseversion
-          h[:baseversion] = product.baseversion
-          h[:patchlevel] = product.patchlevel
-        else
-          h[:version] = product.version
-        end
-        h[:release] = product.release if product.release
-        b.product(h)
+        b.product( _extend_product_with_version({name: self.product_medium.product.name}, self.product_medium.product) )
       end
 
     end
