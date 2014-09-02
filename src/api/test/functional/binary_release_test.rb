@@ -74,6 +74,10 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     get '/search/released/binary', match: "product/[@project = 'BaseDistro' and @name = 'fixed' and @medium = 'DVD']"
     assert_response :success
     assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :name => "package", :version => "1.0", :release => "1", :arch => "i586", :medium => "DVD"}
+    # by version
+    get '/search/released/binary', match: "product/[@project = 'BaseDistro' and @name = 'fixed' and @version = '1.2']"
+    assert_response :success
+    assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :name => "package", :version => "1.0", :release => "1", :arch => "i586", :medium => "DVD"}
 
     # by update for product
     get '/search/released/binary', match: "updatefor/[@project = 'BaseDistro' and @product = 'fixed']"

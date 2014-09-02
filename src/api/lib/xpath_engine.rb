@@ -160,6 +160,22 @@ class XpathEngine
           'LEFT join products pn on pn.id=pm.product_id ',
           'LEFT join packages ppkg on ppkg.id=pn.package_id ',
           'LEFT join projects pprj on pprj.id=ppkg.project_id ']},
+        'product/@version' => {:cpart => 'pvv.version', :joins => [
+          'LEFT join product_media pmv on (pmv.repository_id=release_repositories.id
+            AND pmv.name=binary_releases.medium)',
+          'LEFT join products pvv on pvv.id=pmv.product_id ']},
+        'product/@release' => {:cpart => 'pvr.release', :joins => [
+          'LEFT join product_media pmr on (pmr.repository_id=release_repositories.id
+            AND pmr.name=binary_releases.medium)',
+          'LEFT join products pvr on pvr.id=pmr.product_id ']},
+        'product/@baseversion' => {:cpart => 'pvb.baseversion', :joins => [
+          'LEFT join product_media pmb on (pmb.repository_id=release_repositories.id
+            AND pmb.name=binary_releases.medium)',
+          'LEFT join products pvb on pvb.id=pmb.product_id ']},
+        'product/@patchlevel' => {:cpart => 'pvp.patchlevel', :joins => [
+          'LEFT join product_media pmp on (pmp.repository_id=release_repositories.id
+            AND pmp.name=binary_releases.medium)',
+          'LEFT join products pvp on pvp.id=pmp.product_id ']},
         'product/@name' => {:cpart => 'ppn.name', :joins => [
           'LEFT join product_media ppm on (ppm.repository_id=release_repositories.id
             AND ppm.name=binary_releases.medium)',
