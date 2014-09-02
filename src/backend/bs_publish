@@ -1679,7 +1679,7 @@ sub publish {
   my $packtrackcache;
   if (-s "$reporoot/$prp/:repoinfo") {
     $repoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo") || {};
-    $packtrackcache = $repoinfo->{'trackercache'} if $repoinfo->{'trackercache'};
+    $packtrackcache = $repoinfo->{'trackercache'} if $repoinfo->{'trackercache'} && ($repoinfo->{'trackercacheversion'} || '') eq '1';
   }
 
   if (($repoinfo->{'state'} || '') ne $state) {
@@ -2016,11 +2016,12 @@ publishprog_done:
     my @newcache;
     for my $pt (values %$packtrack) {
       my $id = delete $pt->{'id'};
-      push @newcache, $id, [ map {$pt->{$_}} qw{arch name epoch version release disturl buildtime} ] if $id;
+      push @newcache, $id, [ map {$pt->{$_ eq 'arch' ? 'binaryarch' : $_}} qw{arch name epoch version release disturl buildtime} ] if $id;
     }
     $repoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo") || {};
     if (%$repoinfo) {
       $repoinfo->{'trackercache'} = \@newcache;
+      $repoinfo->{'trackercacheversion'} = '1';
       BSUtil::store("$reporoot/$prp/.:repoinfo", "$reporoot/$prp/:repoinfo", $repoinfo);
       @newcache = ();	# free mem
       undef $repoinfo;	# free mem
