@@ -262,4 +262,56 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_submit_request
+    login_tom
+    put "/source/home:tom:temporary/_meta",
+        '<project name="home:tom:temporary"> <title/> <description/> 
+         </project>'
+    assert_response :success
+    put "/source/home:tom:temporary/_product/_meta",
+        '<package project="home:tom:temporary" name="_product"> <title/> <description/> 
+            <person userid="adrian" role="maintainer" />
+         </package>'
+    assert_response :success
+
+    # branch
+    post '/source/home:tom:temporary/_product', :cmd => :branch
+    assert_response :success
+
+    # upload sources in right order
+    ["defaults-archsets.include", "defaults-conditionals.include", "defaults-repositories.include", "obs.group", "obs-release.spec", "SUSE_SLES.product"].each do |file|
+      raw_put "/source/home:tom:branches:home:tom:temporary/_product/#{file}",
+              File.open("#{Rails.root}/test/fixtures/backend/source/sle11_product/#{file}").read()
+      assert_response :success
+    end
+
+    # create request
+    req = "<request>
+            <action type='submit'>
+              <source project='home:tom:branches:home:tom:temporary' package='_product' />
+            </action>
+            <description>SUBMIT</description>
+            <state who='tom' name='new'/>
+          </request>"
+    post '/request?cmd=create', req
+    assert_response :success
+    assert_xml_tag(:tag => 'request')
+    node = Xmlhash.parse(@response.body)
+    id = node['id']
+    assert id.present?
+
+    # accept the request
+    post "/request/#{id}?cmd=changestate&newstate=accepted"
+    assert_response :success
+
+    # validate the run of product converter
+    get "/source/home:tom:temporary/_product:SUSE_SLES-release"
+    assert_response :success
+    get "/source/home:tom:temporary/_product:sle-obs-cd-cd-i586_x86_64"
+    assert_response :success
+
+    # cleanup
+    delete "/source/home:tom:temporary"
+    assert_response :success
+  end
 end

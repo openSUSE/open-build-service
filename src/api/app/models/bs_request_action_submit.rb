@@ -112,7 +112,7 @@ class BsRequestActionSubmit < BsRequestAction
     end
     
     if self.target_package == "_product"
-      update_product_autopackages self.target_project
+      Project.find_by_name!(self.target_project).update_product_autopackages
     end    
 
   end
