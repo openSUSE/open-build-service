@@ -156,13 +156,13 @@ class XpathEngine
           'LEFT join products pupn on pupn.id=pnur.product_id ']},
         'updatefor/@baseversion' => {:cpart => 'pupnb.baseversion', :joins => [
           'LEFT join product_update_repositories pnurb on pnurb.repository_id=release_repositories.id',
-          'LEFT join products pupnb on pupn.id=pnurb.product_id ']},
+          'LEFT join products pupnb on pupnb.id=pnurb.product_id ']},
         'updatefor/@patchlevel' => {:cpart => 'pupnp.patchlevel', :joins => [
           'LEFT join product_update_repositories pnurp on pnurp.repository_id=release_repositories.id',
-          'LEFT join products pupnp on pupn.id=pnurp.product_id ']},
+          'LEFT join products pupnp on pupnp.id=pnurp.product_id ']},
         'updatefor/@version' => {:cpart => 'pupnv.version', :joins => [
           'LEFT join product_update_repositories pnurv on pnurv.repository_id=release_repositories.id',
-          'LEFT join products pupnv on pupn.id=pnurv.product_id ']},
+          'LEFT join products pupnv on pupnv.id=pnurv.product_id ']},
         'product/@project' => {:cpart => 'pprj.name', :joins => [
           'LEFT join product_media pm on (pm.repository_id=release_repositories.id
             AND pm.name=binary_releases.medium)',

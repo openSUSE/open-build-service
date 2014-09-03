@@ -87,7 +87,7 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     get '/search/released/binary', match: "product/[@project = 'BaseDistro' and @name = 'fixed' and @baseversion = '1.2' and @patchlevel='0']"
     assert_response :success
     # not matching baseversion
-    get '/search/released/binary', match: "product/[@project = 'BaseDistro' and @name = 'fixed' and @baseversion = '1.3' and @patchlevel='0']"
+    get '/search/released/binary', match: "product/[@project = 'BaseDistro' and @name = 'fixed' and @baseversion = '1.2' and @patchlevel='43']"
     assert_response :success
     assert_xml_tag :tag => "collection", :attributes => { :matches => "0" }
 
@@ -107,6 +107,16 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag :tag => "collection", :attributes => { :matches => "0" }
 
+    # basic no-crash tests
+    get '/search/released/binary', match: "updatefor/@version = '1.3'"
+    assert_response :success
+    assert_xml_tag :tag => "collection", :attributes => { :matches => "0" }
+    get '/search/released/binary', match: "updatefor/@baseversion = '1.3'"
+    assert_response :success
+    assert_xml_tag :tag => "collection", :attributes => { :matches => "0" }
+    get '/search/released/binary', match: "updatefor/@patchlevel = '1.3'"
+    assert_response :success
+    assert_xml_tag :tag => "collection", :attributes => { :matches => "0" }
 
     # by update for product OR product itself
     get '/search/released/binary', match: "product/[@project = 'BaseDistro' and @name = 'fixed'] or updatefor/[@project = 'BaseDistro' and @product = 'fixed']"
