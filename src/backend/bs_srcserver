@@ -624,7 +624,7 @@ sub expandproduct {
   }
   if ($files->{'_link'}) {
     eval {
-      $files = handlelinks({ %$rev }, $files);
+      $files = handlelinks({ %$rev, 'project' => $projid, 'package' => $packid }, $files);
       die("$files\n") unless ref $files;
     };
     if ($@) {
