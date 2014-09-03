@@ -200,6 +200,11 @@
             </optional>
           </element>
         </optional>
+        <optional>
+          <element name="priority">
+            <ref name="obs-ratings" />
+          </element>
+        </optional>
        <zeroOrMore>
           <element name="review">
             <attribute name="state">

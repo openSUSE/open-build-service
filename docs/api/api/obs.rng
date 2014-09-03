@@ -349,4 +349,14 @@
     </element>
   </define>
 
+  <!-- OBS rating values, used in patchinfos and requests -->
+  <define ns="" name="obs-ratings">
+    <choice>
+      <value>low</value>
+      <value>moderate</value> <!-- default -->
+      <value>important</value>
+      <value>critical</value>
+    </choice>
+  </define>
+
 </grammar>

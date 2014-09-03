@@ -1143,6 +1143,7 @@ our $request = [
 		'package',
 	  ],
       ],
+      'priority',
       [ 'state' =>
 	    'name',
 	    'who',

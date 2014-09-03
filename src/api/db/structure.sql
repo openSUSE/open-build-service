@@ -251,6 +251,7 @@ CREATE TABLE `bs_requests` (
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   `accept_at` datetime DEFAULT NULL,
+  `priority` enum('critical','important','moderate','low') COLLATE utf8_bin DEFAULT 'moderate',
   PRIMARY KEY (`id`),
   KEY `index_bs_requests_on_creator` (`creator`),
   KEY `index_bs_requests_on_state` (`state`)
@@ -1548,6 +1549,8 @@ INSERT INTO schema_migrations (version) VALUES ('20140819071042');
 INSERT INTO schema_migrations (version) VALUES ('20140821105426');
 
 INSERT INTO schema_migrations (version) VALUES ('20140827105426');
+
+INSERT INTO schema_migrations (version) VALUES ('20140903105426');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

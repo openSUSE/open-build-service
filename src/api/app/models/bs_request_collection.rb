@@ -7,7 +7,7 @@ class BsRequestCollection
     @review_states = opts[:review_states] || %w(new)
     @subprojects = opts[:subprojects]
     @project = opts[:project]
-    @rel = BsRequest.joins(:bs_request_actions).distinct
+    @rel = BsRequest.joins(:bs_request_actions).distinct.order(priority: :desc, id: :desc)
 
     # filter for request state(s)
     unless @states.blank?
@@ -38,7 +38,7 @@ class BsRequestCollection
   end
 
   def ids
-    @rel.pluck('distinct bs_requests.id').sort
+    @rel.pluck('distinct bs_requests.id')
   end
 
   def relation

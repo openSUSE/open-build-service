@@ -133,6 +133,8 @@ class BsRequest < ActiveRecord::Base
         actions = [actions]
       end
 
+      request.priority = hashed.delete('priority') || 'moderate'
+
       state = hashed.delete('state') || Xmlhash::XMLHash.new({'name' => 'new'})
       request.state = state.delete('name') || 'new'
       request.state = :declined if request.state.to_s == 'rejected'
@@ -218,17 +220,23 @@ class BsRequest < ActiveRecord::Base
       end
       attributes = {name: self.state, who: self.commenter, when: self.updated_at.strftime('%Y-%m-%dT%H:%M:%S')}
       attributes[:superseded_by] = self.superseded_by if self.superseded_by
+
+      r.priority self.priority unless self.priority == "moderate"
+
       r.state(attributes) do |s|
         comment = self.comment
         comment ||= ''
         s.comment! comment
       end
+
       self.reviews.each do |review|
         review.render_xml(r)
       end
+
       self.bs_request_histories.each do |history|
         history.render_xml(r)
       end
+
       r.accept_at self.accept_at unless self.accept_at.nil?
       r.description self.description unless self.description.nil?
     end
@@ -719,6 +727,7 @@ class BsRequest < ActiveRecord::Base
     result['id'] = self.id
 
     result['description'] = self.description
+    result['priority'] = self.priority
     result['state'] = self.state
     result['creator'] = User.find_by_login(self.creator)
     result['created_at'] = self.created_at

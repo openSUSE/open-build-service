@@ -57,7 +57,7 @@
           <ref name="patchinfo-categories" />
         </element>
         <element name="rating"> 
-          <ref name="patchinfo-ratings" />
+          <ref name="obs-ratings" />
         </element>
         <element name="summary"> 
           <text/>
@@ -114,15 +114,6 @@
         <text/>
       </optional>
     </element>
-  </define>
-
-  <define ns="" name="patchinfo-ratings">
-    <choice>
-      <value>low</value>
-      <value>moderate</value>
-      <value>important</value>
-      <value>critical</value>
-    </choice>
   </define>
 
   <define ns="" name="patchinfo-categories">

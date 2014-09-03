@@ -83,6 +83,7 @@ class BsRequestTest < ActiveSupport::TestCase
     </options>
     <acceptinfo rev="1" srcmd5="806a6e27ed7915d1bb8d8a989404fd5a" osrcmd5="d41d8cd98f00b204e9800998ecf8427e"/>
   </action>
+  <priority>moderate</priority>
   <state name="review" who="Iggy" when="2012-11-07T21:13:12">
     <comment>No comment</comment>
   </state>

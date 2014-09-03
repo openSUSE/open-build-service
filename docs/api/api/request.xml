@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <request id="12">
+ <priority>moderate</priority>
  <action type="submit">
    <source project="home:kfreitag" package="kraft" rev="23" />
    <target project="openSUSE:10.3" package="kraft" />
