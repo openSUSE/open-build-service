@@ -2983,81 +2983,32 @@ sub getbuildinfo {
     $ret->{'bdep'} = \@bdeps;
     return ($ret, $BSXML::buildinfo);
   }
-  if ($buildtype eq 'kiwi' && $kiwitype eq 'image') {
-    my @rdeps;
-    if ($epool) {
-      my %allnames;
-      for my $repo ($epool->repos()) {
-	my %names = $repo->pkgnames();
-	for (keys %names) {
-	  next unless $edeps{$_};
-	  push @{$allnames{$_}}, $names{$_};
-	}
+
+  my @rdeps;
+  if ($buildtype eq 'kiwi' && $kiwitype eq 'image' && $epool) {
+    # have special system setup pool
+    for (@edeps) {
+      my $p = $dep2pkg{$_};
+      my $b = {'name' => $_};
+      if (!$cgi->{'internal'}) {
+	my $prp = $epool->pkg2reponame($p);
+	($b->{'project'}, $b->{'repository'}) = split('/', $prp) if $prp ne '';
       }
-      for (@edeps) {
-	for my $p (@{$allnames{$_} || []}) {
-	  my $b = {'name' => $_};
-	  if (!$cgi->{'internal'}) {
-	    my $prp = $epool->pkg2reponame($p);
-	    ($b->{'project'}, $b->{'repository'}) = split('/', $prp) if $prp ne '';
-	  }
-	  my $d = $epool->pkg2data($p);
-	  $b->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
-	  $b->{'version'} = $d->{'version'};
-	  $b->{'release'} = $d->{'release'} if exists $d->{'release'};
-	  $b->{'arch'} = $d->{'arch'} if $d->{'arch'};
-	  $b->{'noinstall'} = 1;
-	  push @rdeps, $b;
-	  next;
-	}
-      }
-      @edeps = ();
-      %edeps = ();
-      %dep2pkg = ();
+      my $d = $epool->pkg2data($p);
+      $b->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
+      $b->{'version'} = $d->{'version'};
+      $b->{'release'} = $d->{'release'} if exists $d->{'release'};
+      $b->{'arch'} = $d->{'arch'} if $d->{'arch'};
+      $b->{'noinstall'} = 1;
+      push @rdeps, $b;
     }
-    # kiwi images take the binaries from all repos
-    my %allnames;
-    for my $repo ($pool->repos()) {
-      my %names = $repo->pkgnames();
-      for (keys %names) {
-	next unless $edeps{$_};
-	push @{$allnames{$_}}, $names{$_};
-      }
-    }
+    @edeps = ();
+    %edeps = ();
+    %dep2pkg = ();
     for my $p ($pool->consideredpackages()) {
       my $n = $pool->pkg2name($p);
-      next if $edeps{$n};
-      push @{$allnames{$n}}, $p;
       $dep2pkg{$n} = $p;
     }
-    @bdeps = unify(@pdeps, @vmdeps, @edeps, @bdeps);
-    for (@bdeps) {
-      for my $p (@{$allnames{$_} || []}) {
-	my $b = {'name' => $_};
-	if (!$cgi->{'internal'}) {
-	  my $prp = $pool->pkg2reponame($p);
-	  ($b->{'project'}, $b->{'repository'}) = split('/', $prp) if $prp ne '';
-	}
-	my $d = $pool->pkg2data($p);
-	$b->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
-	$b->{'version'} = $d->{'version'};
-	$b->{'release'} = $d->{'release'} if exists $d->{'release'};
-	$b->{'arch'} = $d->{'arch'} if $d->{'arch'};
-	$b->{'notmeta'} = 1 unless $edeps{$_};
-	if ($p != $dep2pkg{$_}) {
-	  $b->{'noinstall'} = 1;
-	  push @rdeps, $b;
-	  next;
-	}
-	$b->{'preinstall'} = 1 if $pdeps{$_};
-	$b->{'vminstall'} = 1 if $vmdeps{$_};
-	$b->{'runscripts'} = 1 if $runscripts{$_};
-	$b->{'noinstall'} = 1 if $edeps{$_} && !($bdeps{$_} || $vmdeps{$_} || $pdeps{$_});
-	push @rdeps, $b;
-      }
-    }
-    $ret->{'bdep'} = \@rdeps;
-    return ($ret, $BSXML::buildinfo);
   }
 
   @bdeps = unify(@pdeps, @vmdeps, @edeps, @bdeps, @sysdeps);
@@ -3083,19 +3034,19 @@ sub getbuildinfo {
       $b->{'installonly'} = 1 if $sysdeps{$_} && !$bdeps{$_};
       $b->{'noinstall'} = 1 if $bdeps{$_} && !($sysdeps{$_} || $vmdeps{$_} || $pdeps{$_});
     }
-    $_ = $b;
+    push @rdeps, $b;
   }
 
   # add extra source (needed for kiwi)
   # ADRIAN: is it not enough to do this for product only above ?
   if ($info->{'extrasource'}) {
-    push @bdeps, map {{
+    push @rdeps, map {{
       'name' => $_->{'file'}, 'version' => '', 'repoarch' => $_->{'arch'}, 'arch' => 'src',
       'project' => $_->{'project'}, 'package' => $_->{'package'}, 'srcmd5' => $_->{'srcmd5'},
     }} @{$info->{'extrasource'}};
   }
 
-  $ret->{'bdep'} = \@bdeps;
+  $ret->{'bdep'} = \@rdeps;
   return ($ret, $BSXML::buildinfo);
 }
 

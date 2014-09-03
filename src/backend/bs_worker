@@ -1881,25 +1881,20 @@ sub getbinaries {
   $imagebins ||= {};
 
   for my $repo (@{$buildinfo->{'path'} || []}) {
-    last if !@todo && !$kiwimode;
+    last if !@todo;
     my @args;
     my $ddir = $dir;
-    my $dlbins;
     if ($kiwimode) {
       my $prpdir = "$repo->{'project'}/$repo->{'repository'}";
       $ddir = "$srcdir/repos/$prpdir";
-      # Always try to get all binaries, because kiwi needs to decide which to take
-      $dlbins = \@bdep;
     } else {
       $ddir = $dir;
-      # get only missing packages
-      $dlbins = \@todo;
     }
     my $nometa = 0;
     $nometa = 1 if $kiwimode || $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid;
     $nometa = 1 if $buildinfo->{'file'} eq '_preinstallimage';
     my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
-    my $got = getbinaries_cache($ddir, $server, $repo->{'project'}, $repo->{'repository'}, $buildinfo->{'arch'}, $nometa, $dlbins, $bvls{"$repo->{'project'}/$repo->{'repository'}/$buildinfo->{'arch'}"});
+    my $got = getbinaries_cache($ddir, $server, $repo->{'project'}, $repo->{'repository'}, $buildinfo->{'arch'}, $nometa, \@todo, $bvls{"$repo->{'project'}/$repo->{'repository'}/$buildinfo->{'arch'}"});
     my $outbdep = ($buildinfo->{'outbuildinfo'} || {})->{'bdep'};
     for (sort keys %$got) {
       my $gotpkg = $got->{$_};
