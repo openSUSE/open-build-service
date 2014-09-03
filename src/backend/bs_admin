@@ -707,7 +707,7 @@ while (@ARGV) {
     die("ERROR: need a product file name as argument!\n") if @ARGV != 1;
     my $file = shift @ARGV;
     print_product_repositories($file);
-  } elsif ($arg eq "--dump-relsync") {
+  } elsif ($arg eq "--dump-relsync" || $arg eq '--dump') {
     die("ERROR: need file as argument!\n") if @ARGV < 1;
     my $file = shift @ARGV;
     my $sel = shift @ARGV;
@@ -727,7 +727,7 @@ while (@ARGV) {
   } elsif ($arg eq "--dump-state") {
     die("ERROR: need architecture as argument!\n") if @ARGV < 1;
     my $arch = shift @ARGV;
-    dump_state( $arch );
+    dump_state($arch);
   } elsif ($arg eq "--shutdown-scheduler") {
     die("ERROR: need architecture as argument!\n") if @ARGV < 1;
     my $arch = shift @ARGV;
