@@ -2259,6 +2259,9 @@ sub dobuild {
       'verifymd5' => $buildinfo->{'verifymd5'} || $buildinfo->{'srcmd5'},
       'bdep' => [],
     };
+    for ('versrel', 'bcnt', 'release') {
+      $buildinfo->{'outbuildinfo'}->{$_} = $buildinfo->{$_} if defined $buildinfo->{$_};
+    }
   }
   ####### download phase
   $binariesdownload = 0;
