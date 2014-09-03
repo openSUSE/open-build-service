@@ -10,6 +10,8 @@ class ApplicationController < ActionController::Base
 
   protect_from_forgery
 
+  include ForbidsAnonymousUsers
+
   class NoDataEntered < APIException
     setup 403
   end
@@ -562,22 +564,6 @@ class ApplicationController < ActionController::Base
         end
       end
     end
-  end
-
-  class AnonymousUser < APIException
-   setup 401
-  end
-
-  def require_login
-    # we may allow anonymous GET operations (if configured) but we require
-    # a valid account on other opertations
-    be_not_nobody! unless request.get?
-  end
-
-  def be_not_nobody!
-    if !User.current || User.current.is_nobody?
-      raise AnonymousUser.new  "Anonymous user is not allowed here - please login"
-    end 
   end
 
   def render_ok(opt={})
