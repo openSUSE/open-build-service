@@ -25,7 +25,11 @@ class PublicController < ApplicationController
 
     # don't use the cache for use_source
     if use_source
-      Package.get_by_project_and_name(project, package)
+      begin
+        Package.get_by_project_and_name(project, package)
+      rescue ForbidsAnonymousUsers::AnonymousUser
+        raise Package::ReadSourceAccessError, "#{project} / #{package} "
+      end
       return
     end
 
