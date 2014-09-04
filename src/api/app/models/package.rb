@@ -7,6 +7,7 @@ require_dependency 'has_relationships'
 class Package < ActiveRecord::Base
   include FlagHelper
   include CanRenderModel
+  include ForbidsAnonymousUsers
   include HasRelationships
   has_many :relationships, dependent: :destroy, inverse_of: :package
 
@@ -255,6 +256,7 @@ class Package < ActiveRecord::Base
 
   def check_source_access!
     if !self.check_source_access?
+      be_not_nobody!
       raise ReadSourceAccessError, "#{self.project.name}/#{self.name}"
     end
   end
