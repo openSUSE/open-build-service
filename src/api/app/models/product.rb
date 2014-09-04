@@ -59,9 +59,9 @@ class Product < ActiveRecord::Base
     rxml.elements('pool') do |u|
       medium = {}
       self.product_media.each do |pm|
-        key="#{pm.repository.id}/#{pm.name}"
+        key = "#{pm.repository.id}/#{pm.name}"
         key.downcase!
-        medium["#{pm.repository.id}/#{pm.name}"] = pm.id
+        medium[key] = pm.id
       end
       u.elements('repository') do |repo|
         next if repo['project'].blank? # it may be just a url= reference
