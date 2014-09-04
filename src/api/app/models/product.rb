@@ -59,6 +59,8 @@ class Product < ActiveRecord::Base
     rxml.elements('pool') do |u|
       medium = {}
       self.product_media.each do |pm|
+        key="#{pm.repository.id}/#{pm.name}"
+        key.downcase!
         medium["#{pm.repository.id}/#{pm.name}"] = pm.id
       end
       u.elements('repository') do |repo|
@@ -67,6 +69,7 @@ class Product < ActiveRecord::Base
         raise UnknownRepository.new "Pool repository #{repo['project']}/#{repo['name']} does not exist" unless poolRepo
         name = repo.get('medium')
         key = "#{poolRepo.id}/#{name}"
+        key.downcase!
         if medium[key]
           medium.delete(key)
         else
