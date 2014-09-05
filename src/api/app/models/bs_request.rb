@@ -172,19 +172,10 @@ class BsRequest < ActiveRecord::Base
       hashed.delete('accept_at')
       raise SaveError, 'Auto accept time is in the past' if request.accept_at and request.accept_at < DateTime.now
 
-      history = hashed.delete('history')
-      if history.kind_of? Hash
-        history = [history]
-      end
-      first_history = true
-      history.each do |h|
-        h = BsRequestHistory.new_from_xml_hash(h)
-        if first_history
-          first_history = false
-          request.creator = h.commenter
-        end
-        request.bs_request_histories << h
-      end if history
+      # we do not support to import history anymore on purpose
+      # would be all fake, but means also history gets lost when
+      # updating from OBS 2.3 or older.
+      hashed.delete('history')
 
       reviews = hashed.delete('review')
       if reviews.kind_of? Hash
@@ -233,7 +224,8 @@ class BsRequest < ActiveRecord::Base
         review.render_xml(r)
       end
 
-      self.bs_request_histories.each do |history|
+      History.find_by_request(self).each do |history|
+        # we do ignore the review history here on purpose to stay compatible
         history.render_xml(r)
       end
 
@@ -291,16 +283,13 @@ class BsRequest < ActiveRecord::Base
         # if the review is open, there is nothing we have to care about
         return if r.state == :new
       end
-      create_history
       self.comment = "removed from group #{group.bs_request.id}"
       self.state = :new
       self.save
-    end
-  end
 
-  def create_history
-    bs_request_histories.create comment: self.comment, commenter: self.commenter,
-                                state: self.state, superseded_by: self.superseded_by, created_at: self.updated_at
+      p={request: self, comment: "Reopened by removing from group #{group.bs_request.id}", user_id: User.current.id}
+      HistoryElement::RequestReopened.create(p)
+    end
   end
 
   def permission_check_change_review!(params)
@@ -311,6 +300,11 @@ class BsRequest < ActiveRecord::Base
   def permission_check_setincident!(incident)
     checker = BsRequestPermissionCheck.new(self, {:incident => incident})
     checker.cmd_setincident_permissions
+  end
+
+  def permission_check_setpriority!
+    checker = BsRequestPermissionCheck.new(self, {})
+    checker.cmd_setpriority_permissions
   end
 
   def permission_check_addreview!
@@ -380,8 +374,6 @@ class BsRequest < ActiveRecord::Base
 
     state = opts[:newstate].to_sym
     self.with_lock do
-      create_history
-
       bs_request_actions.each do |a|
         # "inform" the actions
         a.request_changes_state(state, opts)
@@ -410,6 +402,24 @@ class BsRequest < ActiveRecord::Base
       end
       self.save!
     end
+
+    params={request: self, comment: opts[:comment], user_id: User.current.id}
+    case opts[:newstate]
+      when "accepted" then
+        history = HistoryElement::RequestAccepted
+      when "declined" then
+        history = HistoryElement::RequestDeclined
+      when "revoked" then
+        history = HistoryElement::RequestRevoked
+      when "superseded" then
+        history = HistoryElement::RequestSuperseded
+        params[:description_extension] = self.superseded_by.to_s
+      when "review" then
+        history = HistoryElement::RequestReopened
+      when "new" then
+        history = HistoryElement::RequestReopened
+    end
+    history.create(params)
   end
 
   def change_review_state(state, opts = {})
@@ -435,7 +445,7 @@ class BsRequest < ActiveRecord::Base
         matching = false if review.by_project && review.by_project != opts[:by_project]
         matching = false if review.by_package && review.by_package != opts[:by_package]
 
-        rkey = "#{review.by_user}-#{review.by_group}-#{review.by_project}-#{review.by_package}"
+        rkey = "#{review.by_user}@#{review.by_group}@#{review.by_project}@#{review.by_package}"
 
         # This is needed for MeeGo BOSS, which adds multiple reviews b
         # FIXME3.0: think about review ordering and make reviews addressable
@@ -448,6 +458,13 @@ class BsRequest < ActiveRecord::Base
             review.state = state
             review.reviewer = User.current.login
             review.save!
+
+            history = nil
+            history = HistoryElement::ReviewAccepted if state == :accepted
+            history = HistoryElement::ReviewDeclined if state == :declined
+            history = HistoryElement::ReviewReopened if state == :new
+            history.create(review: review, comment: opts[:comment], user_id: User.current.id) if history
+
             go_new_state = :new if go_new_state == :review && review.state == :accepted
             go_new_state = review.state if go_new_state == :review && review.state != :new # take decline
           else
@@ -462,39 +479,46 @@ class BsRequest < ActiveRecord::Base
       end
 
       raise Review::NotFoundError.new unless found
-      if go_new_state || state == :superseded
-        create_history
-
-        if state == :superseded
-          self.state = :superseded
-          self.superseded_by = opts[:superseded_by]
-        elsif go_new_state # either no open reviews anymore or going back to review
-          if go_new_state == :new
-            # if it would go to new, we need to check if all groups agree
-            self.bs_request_action_groups.each do |g|
-              if g.find_review_state_of_group == :review
-                go_new_state = nil
-              end
-            end
-            # if all groups agreed, we can set all now to new
-            if go_new_state
-              self.bs_request_action_groups.each do |g|
-                g.set_group_to_new
-              end
-            end
-          elsif go_new_state == :review
-            self.bs_request_action_groups.each do |g|
-              g.set_group_to_review
+      history=nil
+      p={request: self, comment: opts[:comment], user_id: User.current.id}
+      if state == :superseded
+        self.state = :superseded
+        self.superseded_by = opts[:superseded_by]
+        history = HistoryElement::RequestSuperseded
+        p[:description_extension] = self.superseded_by.to_s
+        self.save!
+        history.create(p)
+      elsif go_new_state # either no open reviews anymore or going back to review
+        if go_new_state == :new
+          history = HistoryElement::RequestReviewApproved
+          # if it would go to new, we need to check if all groups agree
+          self.bs_request_action_groups.each do |g|
+            if g.find_review_state_of_group == :review
+              go_new_state = nil
+              history = nil
             end
           end
-          self.state = go_new_state if go_new_state
+          # if all groups agreed, we can set all now to new
+          if go_new_state
+            self.bs_request_action_groups.each do |g|
+              g.set_group_to_new
+            end
+          end
+        elsif go_new_state == :review
+          self.bs_request_action_groups.each do |g|
+            g.set_group_to_review
+          end
+        elsif go_new_state == :declined
+          history = HistoryElement::RequestDeclined
         end
+        self.state = go_new_state if go_new_state
 
         self.commenter = User.current.login
         self.comment = opts[:comment]
         self.comment = 'All reviewers accepted request' if go_new_state == :accepted
       end
       self.save!
+      history.create(p) if history
     end
   end
 
@@ -509,7 +533,6 @@ class BsRequest < ActiveRecord::Base
 
     self.with_lock do
       check_if_valid_review!(opts)
-      create_history
 
       self.state = 'review'
       self.commenter = User.current.login
@@ -520,8 +543,23 @@ class BsRequest < ActiveRecord::Base
                                       by_package: opts[:by_package], creator: User.current.login
       self.save!
 
+      p={request: self, user_id: User.current.id, description_extension: newreview.id.to_s}
+      p[:comment] = opts[:comment] if opts[:comment]
+      HistoryElement::RequestReviewAdded.create(p)
       newreview.create_notification(self.notify_parameters)
     end
+  end
+
+  def setpriority(opts)
+    self.permission_check_setpriority!
+
+    p={request: self, user_id: User.current.id, description_extension: "#{self.priority} => #{opts[:priority]}"}
+    p[:comment] = opts[:comment] if opts[:comment]
+
+    self.priority = opts[:priority]
+    self.save!
+
+    HistoryElement::RequestPriorityChange.create(p)
   end
 
   def setincident(incident)
@@ -529,6 +567,7 @@ class BsRequest < ActiveRecord::Base
 
     touched = false
     # all maintenance_incident actions go into the same incident project
+    p={request: self, user_id: User.current.id}
     self.bs_request_actions.where(type: 'maintenance_incident').each do |action|
       tprj = Project.get_by_name action.target_project
 
@@ -538,10 +577,14 @@ class BsRequest < ActiveRecord::Base
         action.target_project = tprj.name
         action.save!
         touched = true
+        p[:description_extension] = tprj.name
       end
     end
 
-    self.save! if touched
+    if touched
+      self.save!
+      HistoryElement::RequestSetIncident.create(p)
+    end
   end
 
 

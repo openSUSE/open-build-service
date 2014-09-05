@@ -102,6 +102,8 @@ class RequestController < ApplicationController
       @req.permission_check_change_review!(params)
     elsif params[:cmd] == 'addreview'
       # the model is checking already
+    elsif params[:cmd] == 'setpriority'
+      # the model is checking already
     elsif params[:cmd] == 'setincident'
       # the model is checking already
     elsif %w(addrequest removerequest).include? params[:cmd]
@@ -239,6 +241,11 @@ class RequestController < ApplicationController
 
   def request_command_addreview
     @req.addreview(params)
+    render_ok
+  end
+
+  def request_command_setpriority
+    @req.setpriority(params)
     render_ok
   end
 

@@ -12,8 +12,10 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
 
   fixtures :all
 
-  setup do
+  def setup
+    super
     Timecop.freeze(2010, 7, 12)
+    wait_for_scheduler_start
   end
 
   teardown do
@@ -116,8 +118,10 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
                        "who" => "king",
                        "when" => "2010-07-12T00:00:03",
                        "comment" => "removed from group #{id}"},
-                  "history" => {"name" => "review", "who" => "king", "when" => "2010-07-12T00:00:02"},
-
+                  "history" => {"who" => "king", 
+                                "when" => "2010-07-12T00:00:03",
+                                "description"=>"Request got reopened",
+                                "comment"=>"Reopened by removing from group #{id}"},
                   "description" => {}
                  }, Xmlhash.parse(@response.body))
 

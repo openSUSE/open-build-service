@@ -553,6 +553,20 @@ CREATE TABLE `groups_users` (
   CONSTRAINT `groups_users_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `history_elements` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `type` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `op_object_id` int(11) NOT NULL,
+  `created_at` datetime NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `description_extension` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `comment` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `index_history_elements_on_created_at` (`created_at`),
+  KEY `index_history_elements_on_type` (`type`),
+  KEY `index_history_elements_on_op_object_id` (`op_object_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `incident_counter` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `maintenance_db_project_id` int(11) DEFAULT NULL,
@@ -1551,6 +1565,8 @@ INSERT INTO schema_migrations (version) VALUES ('20140821105426');
 INSERT INTO schema_migrations (version) VALUES ('20140827105426');
 
 INSERT INTO schema_migrations (version) VALUES ('20140903105426');
+
+INSERT INTO schema_migrations (version) VALUES ('20140903125426');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

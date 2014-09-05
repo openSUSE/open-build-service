@@ -48,12 +48,14 @@
  </state>
  <review state="accepted" by_user="adrian" who="adrian" when="2008-12-30T09:00:00">
    <comment>Looks great!</comment>
+   <history who="mls" when="2007-12-22T23:00:00">
+     <description>Review got accepted</description>
+     <comment>I don't want to make Klaas my enemy...</comment>
+   </history>
  </review>
  <review state="new" by_group="suse_review_group" />
- <history name="new" who="freitag" when="2007-12-12T07:00:00">
-   <comment>Please add this to openSUSE</comment>
- </history>
- <history name="review" who="mls" when="2007-12-22T23:00:00">
+ <history who="mls" when="2007-12-22T23:00:00">
+   <description>Review got approved</description>
    <comment>I don't want to make Klaas my enemy...</comment>
  </history>
  <accept_at>2009-12-22T23:00:00</accept_at>

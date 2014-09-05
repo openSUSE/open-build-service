@@ -1163,6 +1163,13 @@ our $request = [
 	    'when',
 	    [],
 	    'comment',
+            [[ 'history' =>
+                   'who',
+                   'when',
+                   [],
+                   'comment',
+                   'description',
+            ]],
      ]],
      [[ 'history' =>
 	    'name',
@@ -1171,6 +1178,7 @@ our $request = [
 	    'superseded_by',
 	    [],
 	    'comment',
+	    'description',
      ]],
 	'accept_at',
 	'title',

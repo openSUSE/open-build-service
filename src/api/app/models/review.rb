@@ -58,6 +58,9 @@ class Review < ActiveRecord::Base
   def render_xml(builder)
     builder.review(_get_attributes) do
       builder.comment! self.reason if self.reason
+      History.find_by_review(self).each do |history|
+        history.render_xml(builder)
+      end
     end
   end
 

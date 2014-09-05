@@ -6,6 +6,11 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
   fixtures :all
 
+  def setup
+    super
+    wait_for_scheduler_start
+  end
+
   teardown do
     Timecop.return
   end
@@ -110,6 +115,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     Timecop.freeze(2010, 7, 12)
     # submit request
     post '/request?cmd=create', '<request>
+                                   <priority>critical</priority>
                                    <action type="submit">
                                      <source project="home:Iggy:branches:home:Iggy" package="NEW_PACKAGE"/>
                                    </action>
@@ -136,7 +142,10 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                              [{ 'arch' => 'i586', 'result' => 'unknown' },
                               { 'arch' => 'x86_64', 'result' => 'unknown' }] } }, node)
 
-    # create more history entries decline, reopen and finally accept it
+    # create more history entries prio change, decline, reopen and finally accept it
+    post "/request/#{id}?cmd=setpriority&priority=low&comment=dontcare"
+    assert_response :success
+    Timecop.freeze(1)
     post "/request/#{id}?cmd=changestate&newstate=declined&comment=notgood"
     assert_response :success
     Timecop.freeze(1)
@@ -163,7 +172,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     node = Xmlhash.parse(@response.body)
     assert_xml_tag(:tag => 'acceptinfo', :attributes => { rev: '1', srcmd5: '1ded65e42c0f04bd08075dfd1fd08105', osrcmd5: 'd41d8cd98f00b204e9800998ecf8427e' })
     assert_xml_tag(:tag => 'state', :attributes => { name: 'accepted', who: 'Iggy' })
-    assert_xml_tag(:tag => 'history', :attributes => { name: 'new', who: 'Iggy' })
+    assert_xml_tag(:tag => 'history', :attributes => { who: 'Iggy' })
     assert_equal({
                      'id' => id,
                      'action' => {
@@ -173,18 +182,19 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                          'options' => { 'sourceupdate' => 'cleanup' },
                          'acceptinfo' => { 'rev' => '1', 'srcmd5' => '1ded65e42c0f04bd08075dfd1fd08105', 'osrcmd5' => 'd41d8cd98f00b204e9800998ecf8427e' }
                      },
-                     'state' => { 'name' => 'accepted', 'who' => 'Iggy', 'when' => '2010-07-12T00:00:03', 'comment' => 'approved' },
+                     'priority' => 'low',
+                     'state' => { 'name' => 'accepted', 'who' => 'Iggy', 'when' => '2010-07-12T00:00:04', 'comment' => 'approved' },
                      'history' => [
-                         { 'name' => 'new', 'who' => 'Iggy', 'when' => '2010-07-12T00:00:00' },
-                         { 'name' => 'declined', 'who' => 'Iggy', 'when' => '2010-07-12T00:00:01', 'comment' => 'notgood' },
-                         { 'name' => 'new', 'who' => 'Iggy', 'when' => '2010-07-12T00:00:02', 'comment' => 'oops' }
+                         {"who"=>"Iggy", "when"=>"2010-07-12T00:00:01", "description"=>"Request got a new priority: critical => low", "comment"=>"dontcare"},
+                         {"who"=>"Iggy", "when"=>"2010-07-12T00:00:02", "description"=>"Request got declined", "comment"=>"notgood"},
+                         {"who"=>"Iggy", "when"=>"2010-07-12T00:00:03", "description"=>"Request got reopened", "comment"=>"oops"},
+                         {"who"=>"Iggy", "when"=>"2010-07-12T00:00:04", "description"=>"Request got accepted", "comment"=>"approved"}
                      ],
                      'description' => 'DESCRIPTION IS HERE' }, node)
 
     # compare times
     node = ActiveXML::Node.new(@response.body)
-    assert((node.find_first('state').value('when') > node.each(:history).last.value('when')), 'Current state is not newer than the former state')
-    assert_equal create_time, node.each(:history).first.value('when')
+    assert((node.find_first('state').value('when') == node.each(:history).last.value('when')), 'Current state is has NOT same time as last history item')
     oldhistory=nil
     node.each(:history) do |h|
       unless h
@@ -818,27 +828,38 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                           'when' => '2010-07-12T00:00:01',
                           'who' => 'tom',
                           'by_user' => 'tom',
-                          'comment' => 'review1' },
+                          'comment' => 'review1',
+                          "history" => {"who"=>"tom", "when"=>"2010-07-12T00:00:02",
+                                         "description"=>"Review got accepted",
+                                         "comment"=>"review1"},
+                        },
                         { 'state' => 'new',
                           'when' => '2010-07-12T00:00:03',
                           'who' => 'tom',
                           'by_user' => 'tom',
-                          'comment' => 'reopen2' }],
+                          'comment' => 'reopen2',
+                          "history" => [{"who"=>"tom", "when"=>"2010-07-12T00:00:04",
+                                         "description"=>"Review got accepted",
+                                         "comment"=>"review2"},
+                                        {"who"=>"tom", "when"=>"2010-07-12T00:00:05",
+                                         "description"=>"Review got reopened",
+                                         "comment"=>"reopen2"}],
+                         }],
                    'history' =>
-                       [{ 'name' => 'new', 'who' => 'Iggy', 'when' => '2010-07-12T00:00:00' },
-                        { 'name' => 'review',
+                       [
+                        { "description" => "Request got a new review request",
                           'who' => 'Iggy',
                           'when' => '2010-07-12T00:00:01',
                           'comment' => 'couldyou' },
-                        { 'name' => 'new',
+                        { "description" => "Request got reviewed",
                           'who' => 'tom',
                           'when' => '2010-07-12T00:00:02',
                           'comment' => 'review1' },
-                        { 'name' => 'review',
+                        { "description" => "Request got a new review request",
                           'who' => 'Iggy',
                           'when' => '2010-07-12T00:00:03',
                           'comment' => 'overlooked' },
-                        { 'name' => 'new',
+                        { "description" => "Request got reviewed",
                           'who' => 'tom',
                           'when' => '2010-07-12T00:00:04',
                           'comment' => 'review2' }] }, node)
@@ -2858,7 +2879,9 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                          'who' => 'Iggy',
                          'when' => '2010-07-12T00:00:00',
                          'comment' => "The target project 'home:Iggy:fordecline' was removed" },
-                   'history' => { 'name' => 'new', 'who' => 'Iggy', 'when' => '2010-07-12T00:00:00' } }, node)
+                   'history' => { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:00',
+                                  "description" => "Request got declined",
+                                  'comment' => "The target project 'home:Iggy:fordecline' was removed"} }, node)
 
     post "/request/#{id}?cmd=changestate&newstate=revoked"
     assert_response :success
@@ -2875,11 +2898,11 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                                 'when' => '2010-07-12T00:00:00',
                                 'comment' => {} },
                    'history' =>
-                       [{ 'name' => 'new', 'who' => 'Iggy', 'when' => '2010-07-12T00:00:00' },
-                        { 'name' => 'declined',
-                          'who' => 'Iggy',
-                          'when' => '2010-07-12T00:00:00',
-                          'comment' => "The target project 'home:Iggy:fordecline' was removed" }] }, node)
+                       [{"who"=>"Iggy", "when"=>"2010-07-12T00:00:00",
+                         "description"=>"Request got declined",
+                         "comment"=>"The target project 'home:Iggy:fordecline' was removed"},
+                        {"who"=>"Iggy", "when"=>"2010-07-12T00:00:00",
+                         "description"=>"Request got revoked"}] }, node)
 
   end
 

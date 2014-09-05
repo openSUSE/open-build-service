@@ -245,24 +245,39 @@
                 <text/>
               </element>
             </optional>
+            <zeroOrMore>
+              <element name="history">
+                <attribute name="who">
+                  <data type="string" />
+                </attribute>
+                <attribute name="when">
+                  <data type="string" />
+                </attribute>
+                <element name="description">
+                  <text/>
+                </element>
+                <optional>
+                  <element name="comment">
+                    <text/>
+                  </element>
+                </optional>
+                <empty/>
+              </element>
+            </zeroOrMore>
             <empty/>
           </element>
         </zeroOrMore>
         <zeroOrMore>
           <element name="history">
-            <attribute name="name">
-              <ref name="request-states" />
+            <attribute name="who">
+              <data type="string" />
             </attribute>
-            <optional>
-              <attribute name="who">
-                <data type="string" />
-              </attribute>
-            </optional>
-            <optional>
-              <attribute name="when">
-                <data type="string" />
-              </attribute>
-            </optional>
+            <attribute name="when">
+              <data type="string" />
+            </attribute>
+            <element name="description">
+              <text/>
+            </element>
             <optional>
               <element name="comment">
                 <text/>

@@ -866,16 +866,17 @@ POST /request/<id>
 XmlResult: request
 
   Commands on processing requests
+  addreview: Adds a review to a request
   changestate: Modifies the state of a request
+  setpriority: Modifies the priority of a requst
 
 Parameters: 
-  newstate: to define the new state of a request
-
-
-DELETE /request/<id>
-  
-  Delete a request
-
+  newstate: to define the new state
+  priority: to define the new priority
+  by_user: Specify the user of the new review
+  by_group: Specify the group of the new review
+  by_project: Specify the project of the new review
+  by_package: Specify the user of the new review
 
 
 == Attribute definition api

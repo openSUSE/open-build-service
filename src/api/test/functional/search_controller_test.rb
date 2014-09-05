@@ -341,7 +341,6 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: "collection", attributes: { "matches"=> "1" }
     assert_xml_tag tag: "request", children: { count: 3, only: { tag: "review"} }
-    assert_xml_tag tag: "request", children: { count: 3, only: { tag: "history"} }
 
     get "/search/request", match: "[@id=#{1}]"
     assert_response :success
