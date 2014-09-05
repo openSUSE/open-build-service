@@ -19,6 +19,9 @@ armv7el:
 armv7l:
   name: armv7l
   available: 0
+armv7hl:
+  name: armv7hl
+  available: 0
 armv8el:
   name: armv8el
   available: 0
