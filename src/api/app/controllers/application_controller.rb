@@ -119,7 +119,7 @@ class ApplicationController < ActionController::Base
         chars = ["A".."Z","a".."z","0".."9"].collect { |r| r.to_a }.join
         fakepw = (1..24).collect { chars[rand(chars.size)] }.pack('a'*24)
         newuser = User.create(
-            :login => login,
+            :login => @login,
             :password => fakepw,
             :password_confirmation => fakepw,
             :email => ldap_info[0] )
