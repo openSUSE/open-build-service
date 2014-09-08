@@ -19,7 +19,6 @@ class BsRequest < ActiveRecord::Base
   scope :to_accept, -> { where(state: 'new').where('accept_at < ?', DateTime.now) }
 
   has_many :bs_request_actions, -> { includes([:bs_request_action_accept_info]) }, dependent: :destroy
-  has_many :bs_request_histories, :dependent => :delete_all
   has_many :reviews, :dependent => :delete_all
   has_and_belongs_to_many :bs_request_action_groups, join_table: :group_request_requests
   has_many :comments, :dependent => :delete_all, inverse_of: :bs_request, class_name: 'CommentRequest'
@@ -661,109 +660,6 @@ class BsRequest < ActiveRecord::Base
     return user_reviews, other_open_reviews
   end
 
-  def events
-    # Try to find out what happened over time...
-    events = {}
-    last_history_item = nil
-    self.bs_request_histories.order(:created_at).each do |item|
-      what, color = '', nil
-      case item.state
-        when :new then
-          if last_history_item && last_history_item.state == :review
-            what, color = 'accepted review', 'green' # Moving back to state 'new'
-          elsif last_history_item && last_history_item.state == :declined
-            what, color = 'reopened', 'maroon'
-          else
-            what = 'created request' # First history item, regardless of 'state' (may be 'review')
-          end
-        when :review then
-          if !last_history_item # First history item
-            what = 'created request'
-          elsif last_history_item && last_history_item.state == :declined
-            what, color = 'reopened review', 'maroon'
-          else # Other items...
-            what = 'added review'
-          end
-        when :accepted then
-          what, color = 'accepted request', 'green'
-        when :declined then
-          color = 'red'
-          if last_history_item
-            case last_history_item.state
-              when :review then
-                what = 'declined review'
-              when :new then
-                what = 'declined request'
-            end
-          end
-        when 'superseded' then
-          what = 'superseded request'
-      end
-
-      events[item.created_at] = { who: item.commenter, what: what, when: item.created_at, comment: item.comment }
-      events[item.created_at][:color] = color if color
-      last_history_item = item
-    end
-    last_review_item = nil
-    self.reviews.each do |item|
-      if [:accepted, :declined].include?(item.state)
-        if item.creator # default reviews in a project are not "added"
-          ct = events[item.created_at] || {who: item.creator, what: 'added review', when: item.created_at}
-          ct[:comment] ||= item.reason
-          events[item.created_at] = ct
-        end
-
-        events[item.updated_at] = { who: item.reviewer, what: "#{item.state} review", when: item.updated_at, comment: item.reason }
-        events[item.updated_at][:color] = 'green' if item.state == :accepted
-        events[item.updated_at][:color] = 'red' if item.state == :declined
-      end
-      last_review_item = item
-    end
-    # The <state ... /> element describes the last event in request's history:
-    state, what, color = self.state, '', ''
-    comment = self.comment
-    case state
-      when :accepted then
-        what, color = 'accepted request', 'green'
-      when :declined then
-        what, color = 'declined request', 'red'
-      when :new, :review
-        if last_history_item # Last history entry
-          case last_history_item.state
-            when :review then
-              # TODO: There is still a case left, see sr #106286, factory-auto added a review for autobuild-team, the
-              # request # remained in state 'review', but another review was accepted in between. That is kind of hard
-              # to grasp from the pack of <history/>, <review/> and <state/> items without breaking # the other cases ;-)
-              #what, color = "accepted review for #{last_history_item.value('who')}", 'green'
-              what, color = 'accepted review', 'green'
-              comment = last_review_item.reason # Yes, the comment for the last history item is in the last review ;-)
-            when :new then
-              what, color = 'reopened review', 'maroon'
-            when :declined then
-              what, color = 'reopened request', 'maroon'
-            else
-              what = "weird state of last history item - #{last_history_item.state}"
-          end
-        else
-          what = 'created request'
-        end
-      when :superseded then
-        what, color = 'superseded request', 'green'
-      when :revoked then
-        what, color = 'revoked request', 'green'
-      else
-        raise "unknown state '#{state.inspect}'"
-    end
-    events[self.updated_at] = { who: self.commenter, what: what, when: self.updated_at, comment: comment }
-    events[self.updated_at][:color] = color if color
-    events[self.updated_at][:superseded_by] = self.superseded_by if self.superseded_by
-    # That wasn't all to difficult, no? ;-)
-
-    sorted_events = [] # Store events sorted by key (i.e. datetime)
-    events.keys.sort.each { |key| sorted_events << events[key] }
-    return sorted_events
-  end
-
   def webui_infos(opts = {})
     opts.reverse_merge!(diffs: true)
     result = Hash.new
@@ -781,7 +677,6 @@ class BsRequest < ActiveRecord::Base
 
     result['my_open_reviews'], result['other_open_reviews'] = self.reviews_for_user_and_others(User.current)
 
-    result['events'] = self.events
     result['actions'] = self.webui_actions(opts[:diffs])
     result
   end

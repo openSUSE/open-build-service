@@ -15,7 +15,7 @@ class HistoryElement::Review < ::HistoryElement::Base
   end
 
   def render_xml(builder)
-    attributes = {who: User.find_by_id(self.user_id).login, when: self.created_at.strftime('%Y-%m-%dT%H:%M:%S')}
+    attributes = {who: self.user.login, when: self.created_at.strftime('%Y-%m-%dT%H:%M:%S')}
     builder.history(attributes) do
       builder.description! self.description
       builder.comment! self.comment unless self.comment.blank?

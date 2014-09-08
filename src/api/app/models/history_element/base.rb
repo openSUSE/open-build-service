@@ -3,6 +3,8 @@ module HistoryElement
 # that users (or services) would like to know about
   class Base < ActiveRecord::Base
 
+    belongs_to :user
+
     self.table_name = 'history_elements'
 
     class << self
@@ -13,6 +15,9 @@ module HistoryElement
       @object = nil
     end
 
+    def color
+      nil
+    end
   end
 
 end

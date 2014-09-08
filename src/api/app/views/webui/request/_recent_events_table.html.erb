@@ -4,26 +4,43 @@
 
 <table>
   <tbody>
-    <% @events.each do |event| %>
+    <!-- add a history item based on the request creation information -->
+    <tr>
+      <td class="nowrap" style="width: 1%;">
+        <%= user_with_realname_and_icon @bsreq.creator, short: true %>
+      </td>
+      <td>
+        <span style="color: black;">created request</span>
+      </td>
+      <td class="nowrap" style="width: 1%;">
+        <span class="hidden"><%= @bsreq.created_at.to_i %></span>
+        <%= fuzzy_time(@bsreq.created_at) %>
+      </td>
+    </tr>
+    <tr class="odd">
+      <td colspan="3" class="expandable_event_comment"><pre class="plain"><%= @bsreq.description %></pre></td>
+    </tr>
+    <!-- and now everything from the history log -->
+    <% @history.each do |element| %>
       <tr>
         <td class="nowrap" style="width: 1%;">
-          <%= user_with_realname_and_icon event[:who], short: true %>
+          <%= user_with_realname_and_icon element.user.login, short: true %>
         </td>
         <td>
-          <% if event[:superseded_by] %>
-            <%= link_to(event[:what], :id => event[:superseded_by]) %>
+          <% if element.class == HistoryElement::RequestSuperseded %>
+            <%= link_to(element.description, :id => element.description_extension) %>
           <% else %>
-            <span style="color: <%= event[:color] %>;"><%= event[:what] %></span>
+            <span style="color: <%= element.color %>;"><%= element.description %></span>
           <% end %>
         </td>
         <td class="nowrap" style="width: 1%;">
-          <span class="hidden"><%= event[:when].to_i %></span>
-          <%= fuzzy_time(event[:when]) %>
+          <span class="hidden"><%= element.created_at.to_i %></span>
+          <%= fuzzy_time(element.created_at) %>
         </td>
       </tr>
-      <% if !event[:comment].blank? %>
+      <% unless element.comment.blank? %>
         <tr class="odd">
-          <td colspan="3" class="expandable_event_comment"><pre class="plain"><%= event[:comment] %></pre></td>
+          <td colspan="3" class="expandable_event_comment"><pre class="plain"><%= element.comment %></pre></td>
         </tr>
       <% end %>
     <% end %>

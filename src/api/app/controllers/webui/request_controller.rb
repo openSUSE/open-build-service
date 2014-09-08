@@ -85,13 +85,13 @@ class Webui::RequestController < Webui::WebuiController
   def show
     redirect_back_or_to user_requests_path(User.current) and return if !params[:id]
     begin
-      @req = BsRequest.find(params[:id])
+      @bsreq = BsRequest.find(params[:id])
     rescue ActiveRecord::RecordNotFound
       flash[:error] = "Can't find request #{params[:id]}"
       redirect_back_or_to user_requests_path(User.current) and return
     end
 
-    @req = @req.webui_infos
+    @req = @bsreq.webui_infos
     @id = @req['id']
     @state = @req['state'].to_s
     @accept_at = @req['accept_at']
@@ -105,7 +105,7 @@ class Webui::RequestController < Webui::WebuiController
     @can_add_reviews = %w(new review).include?(@state) && (@is_author || @is_target_maintainer || @my_open_reviews.length > 0) && !User.current.is_nobody?
     @can_handle_request = %w(new review declined).include?(@state) && (@is_target_maintainer || @is_author) && !User.current.is_nobody?
 
-    @events = @req['events']
+    @history = History.find_by_request(@bsreq, {withreviews: 1})
     @actions = @req['actions']
 
     request_list = session[:requests]

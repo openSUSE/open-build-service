@@ -634,12 +634,18 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response 403
 
     # update comment for real
+    h1 = History.find_by_request(BsRequest.find(id))
+    hr1 = History.find_by_request(BsRequest.find(id), { withreviews: 1 })
     login_tom
     post "/request/#{id}?cmd=changereviewstate&newstate=new&by_user=tom&comment=blahfasel"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
     assert_xml_tag(:parent => { tag: 'review', attributes: { by_user: 'tom' } }, :tag => 'comment', :content => 'blahfasel')
+    h2 = History.find_by_request(BsRequest.find(id))
+    hr2 = History.find_by_request(BsRequest.find(id), { withreviews: 1 })
+    assert_equal h2.length-h1.length, 0 # no change
+    assert_equal hr2.length-hr1.length, 1 # review accepted
 
     # invalid state
     post "/request/#{id}?cmd=changereviewstate&newstate=INVALID&by_user=tom&comment=blahfasel"
