@@ -1354,6 +1354,14 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_read_file_sourceaccess_proj
+    # anonymous (testing a side-effect of ApplicationController:check_for_anonymous_user)
+    get '/source/SourceprotectedProject/pack/my_file'
+    assert_response 401
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'authentication_required' }
+    # anonymous with user-agent set
+    get '/source/SourceprotectedProject/pack/my_file', nil, { 'HTTP_USER_AGENT' => 'osc-something' }
+    assert_response 401
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'anonymous_user' }
     # nobody 
     prepare_request_with_user 'adrian_nobody', 'so_alone'
     get '/source/SourceprotectedProject/pack/my_file'

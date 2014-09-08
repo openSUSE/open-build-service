@@ -49,6 +49,14 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     get "/source/SourceprotectedProject/pack"
     assert_response 401
 
+    # anonymous access with user-agent set
+    get "/source/SourceprotectedProject", nil, { 'HTTP_USER_AGENT' => 'osc-something' }
+    assert_response 200
+    get "/source/SourceprotectedProject/_meta", nil, { 'HTTP_USER_AGENT' => 'osc-something' }
+    assert_response 200
+    get "/source/SourceprotectedProject/pack",  nil, { 'HTTP_USER_AGENT' => 'osc-something' }
+    assert_response 401
+
     # user access
     login_tom
     get "/source/SourceprotectedProject"
@@ -72,6 +80,10 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     # anonymous access
     get "/build/SourceprotectedProject/repo/i586/pack"
     assert_response 401
+
+    # anonymous access with user-agent set
+    get "/build/SourceprotectedProject/repo/i586/pack",  nil, { 'HTTP_USER_AGENT' => 'osc-something' }
+    assert_response 200
 
     srcrpm="package-1.0-1.src.rpm"
 

@@ -372,7 +372,7 @@ class Webui::PatchinfoController < Webui::WebuiController
 
   def require_exists
     unless params[:package].blank?
-      @package = Package.get_by_project_and_name( @project.to_param, params[:package] )
+      @package = Package.get_by_project_and_name( @project.to_param, params[:package], use_source: false )
     end
     @patchinfo = @file = @package.patchinfo
 
