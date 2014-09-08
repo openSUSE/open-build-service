@@ -3,7 +3,7 @@ class HistoryElement::Request < ::HistoryElement::Base
   self.abstract_class = true
 
   def request
-    BsRequest.find_by_id(self.op_object_id)
+    BsRequest.find(self.op_object_id)
   end
 
   def request=(request)

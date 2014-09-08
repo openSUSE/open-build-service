@@ -197,7 +197,7 @@ class SearchController < ApplicationController
       includes = [:project]
     when :request
       relation = BsRequest.where(id: search_items)
-      includes = [:bs_request_actions, :bs_request_histories, :reviews]
+      includes = [:bs_request_actions, :reviews]
     when :person
       relation = User.where(id: search_items)
       includes = []

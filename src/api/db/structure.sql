@@ -560,7 +560,7 @@ CREATE TABLE `history_elements` (
   `created_at` datetime NOT NULL,
   `user_id` int(11) NOT NULL,
   `description_extension` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `comment` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `comment` text COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_history_elements_on_created_at` (`created_at`),
   KEY `index_history_elements_on_type` (`type`),
@@ -1567,6 +1567,8 @@ INSERT INTO schema_migrations (version) VALUES ('20140827105426');
 INSERT INTO schema_migrations (version) VALUES ('20140903105426');
 
 INSERT INTO schema_migrations (version) VALUES ('20140903125426');
+
+INSERT INTO schema_migrations (version) VALUES ('20140908125426');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

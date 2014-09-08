@@ -6,7 +6,7 @@ class AddGenericOperationHistory < ActiveRecord::Migration
       t.datetime   :created_at, null: false
       t.references :user, null: false
       t.string     :description_extension       # by code
-      t.string     :comment                     # by user
+      t.text       :comment                     # by user
     end
   
     add_index :history_elements, :created_at
