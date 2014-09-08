@@ -3027,4 +3027,84 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     cleanup_empty_projects_helper(true)
   end
+
+  def test_ordering_of_requests
+    prepare_request_with_user 'Iggy', 'asdfasdf'
+
+    Timecop.freeze(2010, 07, 12)
+    post '/request?cmd=create', '<request>
+                                   <action type="submit">
+                                     <source project="BaseDistro:Update" package="pack2"/>
+                                     <target project="home:Iggy" package="default"/>
+                                   </action>
+                                   <description></description>
+                                 </request>'
+    assert_response :success
+    node = Xmlhash.parse(@response.body)
+    default = node['id']
+    assert !default.blank?
+    Timecop.freeze(1)
+    # a second default
+    post '/request?cmd=create', '<request>
+                                   <action type="submit">
+                                     <source project="BaseDistro:Update" package="pack2"/>
+                                     <target project="home:Iggy" package="moderate"/>
+                                   </action>
+                                   <priority>moderate</priority>
+                                   <description></description>
+                                 </request>'
+    assert_response :success
+    node = Xmlhash.parse(@response.body)
+    moderate = node['id']
+    assert !moderate.blank?
+    Timecop.freeze(1)
+    post '/request?cmd=create', '<request>
+                                   <action type="submit">
+                                     <source project="BaseDistro:Update" package="pack2"/>
+                                     <target project="home:Iggy" package="low"/>
+                                   </action>
+                                   <priority>low</priority>
+                                   <description></description>
+                                 </request>'
+    assert_response :success
+    node = Xmlhash.parse(@response.body)
+    low = node['id']
+    assert !low.blank?
+    Timecop.freeze(1)
+    post '/request?cmd=create', '<request>
+                                   <action type="submit">
+                                     <source project="BaseDistro:Update" package="pack2"/>
+                                     <target project="home:Iggy" package="critical"/>
+                                   </action>
+                                   <priority>critical</priority>
+                                   <description></description>
+                                 </request>'
+    assert_response :success
+    node = Xmlhash.parse(@response.body)
+    critical = node['id']
+    assert !critical.blank?
+    post '/request?cmd=create', '<request>
+                                   <action type="submit">
+                                     <source project="BaseDistro:Update" package="pack2"/>
+                                     <target project="home:Iggy" package="important"/>
+                                   </action>
+                                   <priority>important</priority>
+                                   <description></description>
+                                 </request>'
+    assert_response :success
+    node = Xmlhash.parse(@response.body)
+    important = node['id']
+    assert !important.blank?
+    Timecop.freeze(1)
+
+    get 'search/request', :match => "target/@project = 'home:Iggy'"
+    assert_response :success
+    assert_xml_tag(:tag => 'collection', :child => { tag: 'request' },
+                   :attributes => { :matches => 6 })
+    node = Xmlhash.parse(@response.body)
+    assert_equal node['request'][0]['priority'], 'critical'
+    assert_equal node['request'][1]['priority'], 'important'
+    # three "moderate" requests, not showing a priority field
+    assert_equal node['request'][5]['priority'], 'low'
+  end
 end

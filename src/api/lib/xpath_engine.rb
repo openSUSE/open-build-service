@@ -324,6 +324,7 @@ class XpathEngine
       relation = Repository.where("db_project_id not in (?)", Relationship.forbidden_project_ids)
     when 'requests'
       relation = BsRequest.all
+      order = [:priority, :created_at]
     when 'users'
       relation = User.all
     when 'issues'

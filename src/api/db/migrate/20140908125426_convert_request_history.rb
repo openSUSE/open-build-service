@@ -5,7 +5,7 @@ class ConvertRequestHistory < ActiveRecord::Migration
   end
 
   def self.up
-    s = OldHistory.find_by_sql "SELECT bs_request_id,state,comment,commenter,superseded_by,created_at FROM bs_request_histories ORDER BY bs_request_id ASC, state DESC"
+    s = OldHistory.find_by_sql "SELECT id,bs_request_id,state,comment,commenter,superseded_by,created_at FROM bs_request_histories ORDER BY bs_request_id ASC, state DESC"
 
     oldid=nil
     puts "Converting #{s.length} request history elements into new structure"

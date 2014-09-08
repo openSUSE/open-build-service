@@ -3,11 +3,11 @@ class HistoryElement::Review < ::HistoryElement::Base
   self.abstract_class = true
 
   def review
-    Review.find_by_id(self.op_object_id)
+    Review.find(self.op_object_id)
   end
 
   def request
-    Review.find_by_id(self.op_object_id).bs_request
+    Review.find(self.op_object_id).bs_request
   end
 
   def review=(review)
