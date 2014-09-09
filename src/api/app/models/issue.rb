@@ -69,7 +69,7 @@ class Issue < ActiveRecord::Base
   def fetch_issues
     # inject update jobs after issue got created
     IssueTracker.all.each do |t|
-      t.delay.fetch_issues()
+      t.delay(queue: 'issuetracking').fetch_issues
     end
   end
 
