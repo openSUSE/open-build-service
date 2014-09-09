@@ -3066,7 +3066,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     Timecop.freeze(1)
     post '/request?cmd=create', '<request>
                                    <action type="submit">
-                                     <source project="BaseDistro:Update" package="pack2"/>
+                                     <source project="BaseDistro" package="pack2"/>
                                      <target project="home:Iggy" package="low"/>
                                    </action>
                                    <priority>low</priority>
@@ -3091,7 +3091,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert !critical.blank?
     post '/request?cmd=create', '<request>
                                    <action type="submit">
-                                     <source project="BaseDistro:Update" package="pack2"/>
+                                     <source project="BaseDistro2.0" package="pack2"/>
                                      <target project="home:Iggy" package="important"/>
                                    </action>
                                    <priority>important</priority>
@@ -3112,5 +3112,45 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_equal node['request'][1]['priority'], 'important'
     # three "moderate" requests, not showing a priority field
     assert_equal node['request'][5]['priority'], 'low'
+
+    # now re-priorize via incident attribute
+    login_king
+    post "/source/BaseDistro2.0/_attribute", "<attributes><attribute namespace='OBS' name='IncidentPriority' >
+              <value>100</value>
+            </attribute></attributes>"
+    assert_response :success
+    get 'search/request', :match => "target/@project = 'home:Iggy'"
+    assert_response :success
+    assert_xml_tag(:tag => 'collection', :child => { tag: 'request' },
+                   :attributes => { :matches => 6 })
+    node = Xmlhash.parse(@response.body)
+    assert_equal 'important', node['request'][0]['priority']
+
+    # make the low and important request equal high prio
+    post "/source/BaseDistro/_attribute", "<attributes><attribute namespace='OBS' name='IncidentPriority' >
+              <value>100</value>
+            </attribute></attributes>"
+    assert_response :success
+    get 'search/request', :match => "target/@project = 'home:Iggy'"
+    assert_response :success
+    assert_xml_tag(:tag => 'collection', :child => { tag: 'request' },
+                   :attributes => { :matches => 6 })
+    node = Xmlhash.parse(@response.body)
+    # they are equal, so important wins
+    assert_equal 'important', node['request'][0]['priority']
+    assert_equal 'low', node['request'][1]['priority']
+
+    # make the low most important
+    post "/source/BaseDistro/_attribute", "<attributes><attribute namespace='OBS' name='IncidentPriority' >
+              <value>101</value>
+            </attribute></attributes>"
+    assert_response :success
+    get 'search/request', :match => "target/@project = 'home:Iggy'"
+    assert_response :success
+    assert_xml_tag(:tag => 'collection', :child => { tag: 'request' },
+                   :attributes => { :matches => 6 })
+    node = Xmlhash.parse(@response.body)
+    assert_equal 'low', node['request'][0]['priority']
+    assert_equal 'important', node['request'][1]['priority']
   end
 end

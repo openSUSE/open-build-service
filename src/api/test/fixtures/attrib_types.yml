@@ -104,3 +104,9 @@ OBS_AutoCleanup:
   value_count: 1
   attrib_namespace_id: 9
   issue_list: 0
+OBS_IncidentPriority:
+  id: 79
+  name: IncidentPriority
+  value_count: 1
+  attrib_namespace_id: 9
+  issue_list: 0

@@ -105,6 +105,8 @@ at = ans.attrib_types.where(name: "RejectRequests").first_or_create
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
 at = ans.attrib_types.where(name: "ScreenShots").first_or_create
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
+at = ans.attrib_types.where(name: "IncidentPriority").first_or_create
+at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create
 
 at = ans.attrib_types.where(name: "OwnerRootProject").first_or_create
 at.attrib_type_modifiable_bies.where(user_id: admin.id).first_or_create

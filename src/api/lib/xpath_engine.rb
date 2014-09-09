@@ -324,7 +324,13 @@ class XpathEngine
       relation = Repository.where("db_project_id not in (?)", Relationship.forbidden_project_ids)
     when 'requests'
       relation = BsRequest.all
-      order = [:priority, :created_at]
+      attrib = AttribType.find_by_namespace_and_name('OBS', 'IncidentPriority')
+      # this join is only for ordering by the OBS:IncidentPriority attribute, possibly existing in source project
+      @joins = [ "LEFT JOIN bs_request_actions req_order_action ON req_order_action.bs_request_id = bs_requests.id",
+                 "LEFT JOIN projects req_order_project ON req_order_action.source_project = req_order_project.name",
+                 "LEFT JOIN attribs req_order_attrib ON (req_order_attrib.attrib_type_id = '#{attrib.id}' AND req_order_attrib.project_id = req_order_project.id)",
+                 "LEFT JOIN attrib_values req_order_attrib_value ON req_order_attrib.id = req_order_attrib_value.attrib_id" ] << @joins
+      order = ["req_order_attrib_value.value DESC", :priority, :created_at]
     when 'users'
       relation = User.all
     when 'issues'
