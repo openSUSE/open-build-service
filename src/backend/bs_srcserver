@@ -482,6 +482,12 @@ sub runservice {
         die("bad link: $files\n") unless ref $files;
       };
       if ($@) {
+	if (($@ =~ /service in progress/) && $linkfiles->{'/SERVICE'}) {
+	  # delay, hope for an event
+	  my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$rev->{'project'}/$rev->{'package'}" : "$treesdir/$rev->{'package'}";
+	  unlink("$treedir/$linkfiles->{'/SERVICE'}-_serviceerror");	# remove lock
+	  return;
+	}
         $files = $linkfiles;
         addrev_service($cgi, $rev, $files, $@);
         notify_repservers('package', $projid, $packid);
