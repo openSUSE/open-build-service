@@ -77,7 +77,7 @@ class HistoryElement::RequestReviewAdded < HistoryElement::Request
   end
 end
 
-class HistoryElement::RequestReviewApproved < HistoryElement::Request
+class HistoryElement::RequestAllReviewsApproved < HistoryElement::Request
   def color
     'green'
   end

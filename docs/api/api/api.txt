@@ -871,8 +871,8 @@ XmlResult: request
   setpriority: Modifies the priority of a requst
 
 Parameters: 
-  newstate: to define the new state
-  priority: to define the new priority
+  newstate: Define the new state
+  priority: Define the new priority
   by_user: Specify the user of the new review
   by_group: Specify the group of the new review
   by_project: Specify the project of the new review

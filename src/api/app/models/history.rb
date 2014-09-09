@@ -9,9 +9,7 @@ class History
        reviews = Review.where(bs_request: request)
        rev_history = HistoryElement::Review.where(op_object_id: reviews)
 
-       all = HistoryElement::Base.where(id: (req_history+rev_history)).order(:created_at)
-
-       return all
+       return HistoryElement::Base.where(id: (req_history+rev_history)).order(:created_at)
      end
 
      HistoryElement::Request.where(op_object_id: request.id).order(:created_at)

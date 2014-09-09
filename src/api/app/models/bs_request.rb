@@ -417,6 +417,8 @@ class BsRequest < ActiveRecord::Base
         history = HistoryElement::RequestReopened
       when "new" then
         history = HistoryElement::RequestReopened
+      else
+        raise RuntimeError, "Unhandled state #{opts[:newstate]} for history"
     end
     history.create(params)
   end
@@ -489,7 +491,7 @@ class BsRequest < ActiveRecord::Base
         history.create(p)
       elsif go_new_state # either no open reviews anymore or going back to review
         if go_new_state == :new
-          history = HistoryElement::RequestReviewApproved
+          history = HistoryElement::RequestAllReviewsApproved
           # if it would go to new, we need to check if all groups agree
           self.bs_request_action_groups.each do |g|
             if g.find_review_state_of_group == :review
@@ -509,6 +511,8 @@ class BsRequest < ActiveRecord::Base
           end
         elsif go_new_state == :declined
           history = HistoryElement::RequestDeclined
+        else
+          raise RuntimeError, "Unhandled state #{go_new_state} for history"
         end
         self.state = go_new_state if go_new_state
 
