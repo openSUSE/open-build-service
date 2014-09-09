@@ -128,5 +128,13 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
       object.flags.create(:status => 'enable', :flag => 'lock')
       object.store
     end
+
+  end
+
+  def minimum_priority
+    spkg = Package.find_by_project_and_name self.source_project, self.source_package
+    return unless spkg and spkg.is_patchinfo?
+    pi = Xmlhash.parse(spkg.patchinfo.dump_xml)
+    pi["rating"]
   end
 end

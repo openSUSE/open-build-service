@@ -1196,7 +1196,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     pi = ActiveXML::Node.new( @response.body )
     pi.find_first('summary').text = 'if you are bored'
     pi.find_first('description').text = 'if you are bored and really want fixes'
-    pi.find_first('rating').text = 'low'
+    pi.find_first('rating').text = 'important'
     pi.add_element('name').text = 'oldname'
     pi.add_element 'issue', { 'id' => '0815', 'tracker' => 'bnc'}
     pi.add_element 'releasetarget', { project: 'BaseDistro2.0:LinkedUpdateProject' }
@@ -1434,6 +1434,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag( :tag => 'target', :attributes => { project: 'BaseDistro3', package: 'patchinfo.' + incidentID } )
     assert_xml_tag( :tag => 'review', :attributes => { by_group: 'test_group' } )
     assert_xml_tag( :tag => 'review', :attributes => { by_user: 'fred' } ) # BaseDistro2:Update pack2
+    assert_xml_tag( :tag => 'priority', :content => "important" ) # from patchinfo rating
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     reqid = node.value(:id)

@@ -23,6 +23,10 @@ class BsRequestAction < ActiveRecord::Base
 
   validate :check_sanity
 
+  def minimum_priority
+    nil
+  end
+
   def check_sanity
     if [:submit, :maintenance_incident, :maintenance_release, :change_devel].include? action_type
       errors.add(:source_project, "should not be empty for #{action_type} requests") if source_project.blank?

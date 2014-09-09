@@ -561,8 +561,20 @@ class BsRequest < ActiveRecord::Base
 
     self.priority = opts[:priority]
     self.save!
+    reset_cache
 
     HistoryElement::RequestPriorityChange.create(p)
+  end
+
+  def raisepriority(new)
+    # rails enums do not support compare and break db constraints :/
+    if new == "critical"
+      self.priority = new
+    elsif new == "important" and [ "moderate", "low" ].include? self.priority
+      self.priority = new
+    elsif new == "moderate" and "low" == self.priority
+      self.priority = new
+    end
   end
 
   def setincident(incident)
@@ -754,6 +766,7 @@ class BsRequest < ActiveRecord::Base
       # permission checks
       action.check_action_permission!
       action.check_for_expand_errors! !@addrevision.nil?
+      self.raisepriority(action.minimum_priority)
     end
 
     # Autoapproval? Is the creator allowed to accept it?
@@ -761,6 +774,10 @@ class BsRequest < ActiveRecord::Base
       self.permission_check_change_state!({:newstate => 'accepted'})
     end
 
+    apply_default_reviewers
+  end
+
+  def apply_default_reviewers
     #
     # Find out about defined reviewers in target
     #

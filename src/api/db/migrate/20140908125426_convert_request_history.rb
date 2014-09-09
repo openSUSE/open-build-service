@@ -38,13 +38,13 @@ class ConvertRequestHistory < ActiveRecord::Migration
             e.destroy
             next
           end
-          history = HistoryElement::RequestReopened
+          history = HistoryElement::RequestAllReviewsApproved
         when "new" then
           if firstentry
             e.destroy
             next
           end
-          history = HistoryElement::RequestAllReviewsApproved
+          history = HistoryElement::RequestReopened
       end
       next unless history
       history.create(p)
