@@ -7,7 +7,11 @@ class ConvertRequestHistory < ActiveRecord::Migration
   def self.up
     user={}
 
+    # one big transaction to improve speed
+    ActiveRecord::Base.transaction do
+
     puts "Creating some history elements based on request state..."
+    puts "This can take some time..." if BsRequest.count > 1000
     BsRequest.all.each do |request|
       next if request.state == :new #nothing happend yet
       user[request.commenter]||=User.find_by_login request.commenter
@@ -97,6 +101,8 @@ class ConvertRequestHistory < ActiveRecord::Migration
           history = HistoryElement::ReviewDeclined
       end
       history.create(p) if history
+    end
+
     end
   end
 
