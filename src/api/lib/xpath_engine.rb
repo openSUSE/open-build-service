@@ -233,8 +233,9 @@ class XpathEngine
         'review/@by_project' => { :cpart => 'r.by_project', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
         'review/@by_package' => { :cpart => 'r.by_package', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
         'review/@state' => { :cpart => 'r.state', joins: "LEFT JOIN reviews r ON r.bs_request_id = bs_requests.id" },
-        'history/@who' => { :cpart => 'husers.login', joins: [ "LEFT JOIN history_elements he ON he.op_object_id = bs_requests.id",
+        'history/@who' => { :cpart => 'husers.login', joins: [ "LEFT JOIN history_elements he ON (he.op_object_id = bs_requests.id AND he.type IN (\"#{HistoryElement::Request.descendants.join('","')}\") )",
                             "LEFT JOIN users husers ON he.user_id = husers.id" ] },
+
         'submit/target/@project' => { empty: true },
         'submit/target/@package' => { empty: true },
         'submit/source/@project' => { empty: true },

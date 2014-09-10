@@ -969,6 +969,11 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(:tag => 'request', :attributes => { id: id })
 
+    # search history
+    get '/search/request', :match => "history/@who='Iggy'"
+    assert_response :success
+    assert_xml_tag(:tag => 'history', :attributes => { who: "Iggy" })
+
     # test "osc rq"
     get '/search/request', :match => "(state/@who='tom' or history/@who='tom')"
     assert_response :success
