@@ -337,6 +337,8 @@ class Webui::ProjectController < Webui::WebuiController
         @packages << p[0]
       end
     end
+    @ipackages.sort!
+    @packages.sort!
     @linking_projects = @project.api_obj.find_linking_projects.map { |p| p.name }
     reqs = @project.api_obj.request_ids_by_class
     @requests = (reqs['reviews'] + reqs['targets'] + reqs['incidents'] + reqs['maintenance_release']).sort.uniq
