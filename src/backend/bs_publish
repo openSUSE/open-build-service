@@ -1331,7 +1331,8 @@ sub publish {
   my %deltainfos;
   my $deltainfos_state;
 
-  my %kiwireport;
+  my %kiwireport;	# store collected report (under the original name)
+  my %kiwimedium;	# maps published name to original name
 
   if ($archorder) {
     my %archorder = map {$_ => 1} @$archorder;
@@ -1437,6 +1438,7 @@ sub publish {
       } else {
 	if ($bin =~ /\.iso(?:\.sha256)?$/) {
 	  $p = "iso/$bin";
+	  $kiwimedium{$p} = $1 if $bin =~ /(.+)\.iso$/;
 	} elsif ($bin =~ /\.raw\.(?:gz|bz2|xz)(?:\.sha256)?$/) {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.tbz?(?:\.sha256)?$/) {
@@ -1467,6 +1469,25 @@ sub publish {
 	  next;
 	} elsif (-d "$r/$rbin") {
 	  $p = "repo/$bin";
+	  if ($repotype{'slepool'}) {
+	    # HACK: do fancy sle repo renaming
+	    my $name = $repotype{'slepool'}->[0] || 'product';
+	    $p = $bin;
+	    if ($bin =~ /.*-Media1(\.license|)$/) {
+	      $p = "$name$1";
+	    } elsif ($bin =~ /-Media3$/) {
+	      $p = "${name}_debug";
+	    } elsif ($bin =~ /-Media2$/) {
+	      my $rbin3 = $rbin;
+	      $rbin3 =~ s/2$/3/;
+	      if (-d "$r/$rbin3") {
+	        $p = "${name}_source";	# 3 media available, 2 is source
+	      } else {
+	        $p = "${name}_debug";	# source is on media 1, 2 is debug
+	      }
+	    }
+	  }
+	  $kiwimedium{$p} = $bin;
 	} else {
 	  next;
 	}
@@ -1768,15 +1789,16 @@ sub publish {
 	$pt->{'binaryarch'} = $res->{'arch'} if defined $res->{'arch'};
 	$pt->{'id'} = "$bin/$s[9]/$s[7]/$s[1]";
 	$packtrack->{$bin} = $pt;
-      } elsif (($bin =~ /^iso\/((.*)\.iso)$/ || $bin =~ /^repo\/((.*))$/) && $kiwireport{$2}) {
-	my ($mediumext, $medium) = ($1, $2);
-	for my $kb (@{$kiwireport{$medium}->{'binary'} || []}) {
+      } elsif ($kiwimedium{$bin} && $kiwireport{$kiwimedium{$bin}}) {
+	my $medium = $bin;
+	$medium =~ s/.*\///;	# basename
+	for my $kb (@{$kiwireport{$kiwimedium{$bin}}->{'binary'} || []}) {
 	  my $pt = { %$kb };
 	  delete $pt->{'_content'};
+	  $pt->{'medium'} = $medium;
 	  my $fn = '';
 	  $fn .= "/".(defined($pt->{$_}) ? $pt->{$_} : '') for qw{arch name epoch version release};
-	  $packtrack->{"$mediumext$fn"} = $pt;
-	  $pt->{'medium'} = $mediumext;
+	  $packtrack->{"$medium$fn"} = $pt;
 	}
       }
     }
