@@ -33,8 +33,8 @@
 Name:           obs-server
 Summary:        The Open Build Service -- Server Component
 License:        GPL-2.0 and GPL-3.0
-Group:          Productivity/Networking/Web/Utilities
 %if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
+Group:          Productivity/Networking/Web/Utilities
 %endif
 Version:        2.5.50_113_g117c617
 Release:        0
@@ -124,9 +124,9 @@ Requires:       bash
 Requires:       binutils
 Requires:       bsdtar
 Summary:        The Open Build Service -- Build Host Component
-Group:          Productivity/Networking/Web/Utilities
 %if 0%{?suse_version}
 %if 0%{?suse_version} < 1210
+Group:          Productivity/Networking/Web/Utilities
 %endif
 PreReq:         %fillup_prereq %insserv_prereq
 %endif
@@ -145,9 +145,9 @@ run a local playground test installation.
 
 %package -n obs-api
 Summary:        The Open Build Service -- The API and WEBUI
-Group:          Productivity/Networking/Web/Utilities
 %if 0%{?suse_version}
 %if 0%{?suse_version} < 1210
+Group:          Productivity/Networking/Web/Utilities
 %endif
 Obsoletes:      obs-common <= 2.2.90
 PreReq:         %fillup_prereq %insserv_prereq
@@ -183,14 +183,18 @@ BuildRequires:  xorg-x11-server
 BuildRequires:  xorg-x11-server-extra
 # write down dependencies for production
 BuildRequires:  rubygem-bundler
-Requires:       %(echo `bash %{S:1} %{S:0}`)
+%if 0%{?suse_version} == 01315
+Requires:       %(echo `bash %{S:1} %{S:0} "ruby:2.1.0"`)
+%else
+Requires:       %(echo `bash %{S:1} %{S:0} "2.1.0"`)
+%endif
 # for rebuild_time
 Requires:       perl(GD)
 
 Requires:       ghostscript-fonts-std
 Summary:        The Open Build Service -- The API and WEBUI
-Group:          Productivity/Networking/Web/Utilities
 %if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
+Group:          Productivity/Networking/Web/Utilities
 %endif
 
 %description -n obs-api
@@ -199,8 +203,8 @@ OBS.
 
 %package -n obs-devel
 Summary:        The Open Build Service -- The API and WEBUI Testsuite
-Group:          Productivity/Networking/Web/Utilities
 %if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
+Group:          Productivity/Networking/Web/Utilities
 %endif
 Obsoletes:      obs-webui-testsuite
 Requires:       obs-api = %{version}-%{release}
@@ -211,8 +215,8 @@ Install to track dependencies for git
 
 %package -n obs-source_service
 Summary:        The Open Build Service -- source service daemon
-Group:          Productivity/Networking/Web/Utilities
 %if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
+Group:          Productivity/Networking/Web/Utilities
 %endif
 # Our default services, used in osc and webui
 Recommends:     obs-service-download_url
@@ -228,8 +232,8 @@ This component is optional and not required to run the service.
 
 %package -n obs-productconverter
 Summary:        The Open Build Service -- product definition utility
-Group:          Productivity/Networking/Web/Utilities
 %if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
+Group:          Productivity/Networking/Web/Utilities
 %endif
 # For perl library files, TODO: split out obs-lib subpackage?
 Requires:       obs-server
@@ -240,8 +244,8 @@ product definition.
 
 %package -n obs-utils
 Summary:        The Open Build Service -- utilities
-Group:          Productivity/Networking/Web/Utilities
 %if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
+Group:          Productivity/Networking/Web/Utilities
 %endif
 Requires:       build
 Requires:       osc
