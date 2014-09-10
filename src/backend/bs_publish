@@ -1486,6 +1486,7 @@ sub publish {
 	        $p = "${name}_debug";	# source is on media 1, 2 is debug
 	      }
 	    }
+	    $p = $bin if $kiwimedium{$p};	# what???
 	  }
 	  $kiwimedium{$p} = $bin;
 	} else {
