@@ -10,7 +10,7 @@ class ConvertRequestHistory < ActiveRecord::Migration
     # one big transaction to improve speed
     ActiveRecord::Base.transaction do
 
-    puts "Creating some history elements based on request state..."
+    puts "Creating some history elements based on #{BsRequest.count}request states..."
     puts "This can take some time..." if BsRequest.count > 1000
     BsRequest.all.each do |request|
       next if request.state == :new #nothing happend yet
@@ -44,8 +44,10 @@ class ConvertRequestHistory < ActiveRecord::Migration
       p={created_at: e.created_at, user: user[e.commenter], op_object_id: e.bs_request_id}
       p[:comment] = e.comment unless e.comment.blank?
 
-      firstentry = (oldid==e.bs_request_id)
+      firstentry = (oldid!=e.bs_request_id)
       oldid = e.bs_request_id
+      firstreviews=true if firstentry
+      firstreviews=nil unless e.state == "review"
 
       history=nil
       case e.state
@@ -61,17 +63,17 @@ class ConvertRequestHistory < ActiveRecord::Migration
         when "deleted" then
           e.destroy
         when "review" then
-          if firstentry
+          if firstreviews
             e.destroy
             next
           end
-          history = HistoryElement::RequestAllReviewsApproved
+          history = HistoryElement::RequestReviewAdded
         when "new" then
           if firstentry
             e.destroy
             next
           end
-          history = HistoryElement::RequestReopened
+          history = HistoryElement::RequestAllReviewsApproved
       end
       next unless history
       history.create(p)
@@ -86,7 +88,7 @@ class ConvertRequestHistory < ActiveRecord::Migration
       puts "         a typical reason are entries of not anymore existing users"
     end
 
-    puts "Creating some history elements based on reviews..."
+    puts "Creating some history elements based on #{Review.count} reviews..."
     Review.all.each do |review|
       next if review.state == :new #nothing happend yet
       user[review.reviewer]||=User.find_by_login review.reviewer
