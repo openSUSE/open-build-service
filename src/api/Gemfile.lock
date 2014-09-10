@@ -153,7 +153,7 @@ GEM
     redcarpet (3.1.2)
     riddle (1.5.11)
     ruby-ldap (0.9.16)
-    ruby_parser (3.5.0)
+    ruby_parser (3.6.1)
       sexp_processor (~> 4.1)
     safe_yaml (1.0.3)
     sass (3.2.19)
