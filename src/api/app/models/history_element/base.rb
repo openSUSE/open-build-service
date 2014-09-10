@@ -10,7 +10,6 @@ module HistoryElement
     class << self
       attr_accessor :description, :raw_type
       attr_accessor :comment, :raw_type
-      attr_accessor :user, :raw_type
       attr_accessor :created_at, :raw_type
       @object = nil
     end

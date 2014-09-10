@@ -10,7 +10,7 @@ class ConvertRequestHistory < ActiveRecord::Migration
     # one big transaction to improve speed
     ActiveRecord::Base.transaction do
 
-    puts "Creating some history elements based on #{BsRequest.count}request states..."
+    puts "Creating some history elements based on #{BsRequest.count} request states..."
     puts "This can take some time..." if BsRequest.count > 1000
     BsRequest.all.each do |request|
       next if request.state == :new #nothing happend yet
@@ -40,7 +40,7 @@ class ConvertRequestHistory < ActiveRecord::Migration
     puts "This can take some time..." if s.length > 1000
     s.each do |e|
       user[e.commenter]||=User.find_by_login e.commenter
-      next unless user
+      next unless user[e.commenter]
       p={created_at: e.created_at, user: user[e.commenter], op_object_id: e.bs_request_id}
       p[:comment] = e.comment unless e.comment.blank?
 
