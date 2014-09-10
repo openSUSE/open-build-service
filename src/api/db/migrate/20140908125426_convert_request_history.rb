@@ -33,7 +33,7 @@ class ConvertRequestHistory < ActiveRecord::Migration
       history.create(p) if history
     end
 
-    s = OldHistory.find_by_sql "SELECT id,bs_request_id,state,comment,commenter,superseded_by,created_at FROM bs_request_histories ORDER BY bs_request_id ASC, state DESC"
+    s = OldHistory.find_by_sql "SELECT id,bs_request_id,state,comment,commenter,superseded_by,created_at FROM bs_request_histories ORDER BY bs_request_id ASC, created_at ASC"
 
     oldid=nil
     puts "Converting #{s.length} request history elements into new structure"
