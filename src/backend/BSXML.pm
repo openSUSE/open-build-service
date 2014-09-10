@@ -817,6 +817,7 @@ our $workerstate = [
 	'state',
 	'nextstate',	# for exit/restart
 	'jobid',
+	'pid',		# pid of building worker process
 ];
 
 our $jobhistlay = [

@@ -2694,6 +2694,22 @@ while (!BSServer::server($conf)) {
     $rekillcnt = 0;
   }
 
+  if ($state->{'state'} eq 'killed' || $state->{'state'} eq 'discarded' || $state->{'state'} eq 'building') {
+    if ($state->{'pid'} && !kill(0, $state->{'pid'})) {
+      $state = lockstate();
+      if ($state->{'state'} eq 'killed' || $state->{'state'} eq 'discarded' || $state->{'state'} eq 'building') {
+	if ($state->{'pid'} && !kill(0, $state->{'pid'})) {
+	  # our worker process is gone, should never happen...
+          kill_job();	# just in case...
+	  $state = {'state' => $state->{'nextstate'} || 'idle'};
+	  commitstate($state);
+	  next;
+	}
+      }
+      unlockstate();
+    }
+  }
+
   next unless $state->{'state'} eq 'building';
 
   my $locked = -1;
@@ -2937,6 +2953,7 @@ writestr("$buildroot/.build.log", undef, '');
 
 $state->{'state'} = 'building';
 $state->{'jobid'} = $jobid;
+$state->{'pid'} = $$;
 commitstate($state);
 
 hardstatus("$buildinfo->{'arch'} $buildinfo->{'package'}");
