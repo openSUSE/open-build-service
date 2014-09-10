@@ -468,6 +468,7 @@ end
 
 class ActiveSupport::TestCase
   set_fixture_class events: Event::Base
+  set_fixture_class history_elements: HistoryElement::Base
 
   def assert_xml_tag(data, conds)
     node = ActiveXML::Node.new(data)
