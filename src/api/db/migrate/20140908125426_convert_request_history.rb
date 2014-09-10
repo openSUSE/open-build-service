@@ -5,12 +5,35 @@ class ConvertRequestHistory < ActiveRecord::Migration
   end
 
   def self.up
+    user={}
+
+    puts "Creating some history elements based on request state..."
+    BsRequest.all.each do |request|
+      next if request.state == :new #nothing happend yet
+      user[request.commenter]||=User.find_by_login request.commenter
+      next unless user[request.commenter]
+      p={created_at: request.updated_at, user: user[request.commenter], op_object_id: request.id}
+      p[:comment] = request.comment unless request.comment.blank?
+      history=nil
+      case request.state
+        when :accepted then
+          history = HistoryElement::RequestAccepted
+        when :declined then
+          history = HistoryElement::RequestDeclined
+        when :revoked then
+          history = HistoryElement::RequestRevoked
+        when :superseded then
+          history = HistoryElement::RequestSuperseded
+          p[:description_extension] = request.superseded_by.to_s
+      end
+      history.create(p) if history
+    end
+
     s = OldHistory.find_by_sql "SELECT id,bs_request_id,state,comment,commenter,superseded_by,created_at FROM bs_request_histories ORDER BY bs_request_id ASC, state DESC"
 
     oldid=nil
     puts "Converting #{s.length} request history elements into new structure"
     puts "This can take some time..." if s.length > 1000
-    user={}
     s.each do |e|
       user[e.commenter]||=User.find_by_login e.commenter
       next unless user
