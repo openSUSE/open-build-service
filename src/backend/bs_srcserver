@@ -7032,6 +7032,89 @@ sub published {
   return ({'entry' => \@res}, $BSXML::dir);
 }
 
+my $extrepodir = "$BSConfig::bsdir/repos";
+
+sub map_to_extrep {
+  my ($prp, $prp_ext) = @_;
+  
+  my $extrep = "$BSConfig::bsdir/repos/$prp_ext";
+  return $extrep unless $BSConfig::publishredirect;
+  if ($BSConfig::publishedredirect_use_regex || $BSConfig::publishedredirect_use_regex) {
+    for my $key (sort {$b cmp $a} keys %{$BSConfig::publishredirect}) {
+      if ($prp =~ /^$key/) {
+        $extrep = $BSConfig::publishredirect->{$key};
+        last;
+      }    
+    }    
+  } elsif (exists($BSConfig::publishredirect->{$prp})) {
+    $extrep = $BSConfig::publishredirect->{$prp};
+  }
+  $extrep = $extrep->($prp, $prp_ext) if $extrep && ref($extrep) eq 'CODE';
+  return $extrep;
+}
+
+sub published_path {
+  my ($cgi, $projid, $repoid) = @_;
+  my $medium = $cgi->{'medium'};
+  my $prp = "$projid/$repoid";
+  my $prp_ext = $prp;
+  my $ret = {'project' => $projid, 'repository' => $repoid};
+  $ret->{'medium'} = $medium if $medium;
+  $prp_ext =~ s/:/:\//g;
+  my $extrep = map_to_extrep($prp, $prp_ext);
+  $extrep = [ $extrep ] unless ref $extrep;
+  my ($path, $url) = ($extrep->[1], $extrep->[2]);
+  if ($BSConfig::prp_ext_map && $BSConfig::prp_ext_map->{$prp}) {
+    $url = $BSConfig::prp_ext_map->{$prp} unless defined $url;
+  }
+  if ($extrep->[0] =~ /^\Q$BSConfig::bsdir\E\/repos\/(.*)$/) {
+    $path = $1 unless defined $path;
+    if ($BSConfig::repodownload) {
+      $url = "$BSConfig::repodownload/".BSRPC::urlencode($1) unless defined $url;
+    }
+  }
+  if ($medium && $medium =~ /\.iso$/) {
+    $medium = "iso/$medium";
+  } elsif ($medium) {
+    my @path = expandsearchpath($projid, $repoid);
+    my $c = concatconfigs($projid, $cgi->{'repository'}, undef, @path);
+    my $bconf = Build::read_config('noarch', [ split("\n", $c) ]);
+    my %repotype;
+    for (@{$bconf->{'repotype'} || []}) {
+      if (/^(.*?):(.*)$/) {
+        $repotype{$1} = [ split(':', $2) ];
+      } else {
+        $repotype{$_} = [];
+      }    
+    }
+    if ($repotype{'slepool'}) {
+      my $name = $repotype{'slepool'}->[0] || 'product';
+      if ($medium =~ /-Media1$/) {
+	$medium = $name;
+      } elsif ($medium =~ /-Media3$/) {
+	$medium = "${name}_debug";
+      } elsif ($medium =~ /-Media2$/) {
+        my $repoinfo;
+	eval {
+	  $repoinfo = $prp_to_repoinfo{$prp};
+	};
+	my $binaryorigins = ($repoinfo || {})->{'binaryorigins'};
+	$medium = $binaryorigins->{"${name}_source"} ? "${name}_source" : "${name}_debug";
+      }
+    } else {
+      $medium = "repo/$medium";
+    }
+  }
+  if ($medium) {
+    $path .= "/$medium" if defined $path;
+    $url .= "/".BSRPC::urlencode($medium) if defined $url;
+  }
+  $ret->{'path'} = $path if defined $path;
+  $ret->{'url'} = $url if defined $url;
+  return ($ret, $BSXML::publishedpath);
+}
+  
+
 sub pkdecodetaglenoff {
   my ($pkg) = @_;
   my $tag = unpack('C', $pkg);
@@ -7982,6 +8065,7 @@ my $dispatches = [
   # /published name spec: access published binaries
   '/published' => \&published,
   '/published/$project' => \&published,
+  '/published/$project/$repository view=publishedpath medium:?' => \&published_path,
   '/published/$project/$repository' => \&published,
   '/published/$project/$repository/$arch:filename view:?' => \&published,
   '/published/$project/$repository/$arch:filename/$filename view:?' => \&published,

@@ -1705,4 +1705,14 @@ our $report = [
      ]],
 ];
 
+our $publishedpath = [
+    'publishedpath' =>
+	'project',
+	'repository',
+	'medium',
+	[],
+	'path',
+	'url',
+];
+
 1;

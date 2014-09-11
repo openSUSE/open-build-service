@@ -1150,6 +1150,7 @@ sub deleterepo {
   $prp_ext =~ s/:/:\//g;
   my $extrep = map_to_extrep($prp, $prp_ext);
   return unless $extrep;
+  $extrep = $extrep->[0] if ref $extrep;
   $extrep .= $dbgsplit if $dbgsplit;
   $prp_ext .= $dbgsplit if $dbgsplit;
 
@@ -1302,6 +1303,7 @@ sub publish {
   $prp_ext =~ s/:/:\//g;
   my $extrep = map_to_extrep($prp, $prp_ext);
   return unless $extrep;
+  $extrep = $extrep->[0] if ref $extrep;
   $extrep .= $dbgsplit if $dbgsplit;
   $prp_ext .= $dbgsplit if $dbgsplit;
 
