@@ -61,8 +61,6 @@ our $servicedir = "/usr/lib/obs/service/";
 #our $service_maxchild = 20;
 
 #our $gpg_standard_key = "/etc/obs-default-gpg.asc";
-# public download service:
-our $repodownload = "http://$hostname/repositories";
 # optional notification service:
 #our $hermesserver = "http://$hostname/hermes";
 #our $hermesnamespace = "OBS";
