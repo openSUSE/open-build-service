@@ -651,7 +651,7 @@ class Package < ActiveRecord::Base
     return "<package project='#{::Builder::XChar.encode(project.name)}' name='#{::Builder::XChar.encode(name)}'/>\n"
   end
 
-  def to_axml
+  def to_axml(opts={})
     Rails.cache.fetch('xml_package_%d' % self.id) do
       # CanRenderModel
       render_xml

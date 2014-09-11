@@ -191,9 +191,19 @@ class BsRequest < ActiveRecord::Base
     request
   end
 
-  def to_axml
-    Rails.cache.fetch('xml_bs_request_%d' % id) do
-      render_xml
+  def to_axml(opts={})
+    if opts[:withfullhistory]
+      Rails.cache.fetch('xml_bs_request_fullhistory_%d' % id) do
+        render_xml({withfullhistory: 1})
+      end
+    elsif opts[:withhistory]
+      Rails.cache.fetch('xml_bs_request_history_%d' % id) do
+        render_xml({withhistory: 1})
+      end
+    else
+      Rails.cache.fetch('xml_bs_request_%d' % id) do
+        render_xml
+      end
     end
   end
 
@@ -202,7 +212,7 @@ class BsRequest < ActiveRecord::Base
     "<request id='#{self.id}'/>\n"
   end
 
-  def render_xml
+  def render_xml(opts={})
     builder = Nokogiri::XML::Builder.new
     builder.request(id: self.id) do |r|
       self.bs_request_actions.each do |action|
@@ -223,9 +233,16 @@ class BsRequest < ActiveRecord::Base
         review.render_xml(r)
       end
 
-      History.find_by_request(self).each do |history|
-        # we do ignore the review history here on purpose to stay compatible
-        history.render_xml(r)
+      if opts[:withfullhistory]
+        History.find_by_request(self, {withreviews: 1}).each do |history|
+          # we do ignore the review history here on purpose to stay compatible
+          history.render_xml(r)
+        end
+      elsif opts[:withhistory]
+        History.find_by_request(self).each do |history|
+          # we do ignore the review history here on purpose to stay compatible
+          history.render_xml(r)
+        end
       end
 
       r.accept_at self.accept_at unless self.accept_at.nil?

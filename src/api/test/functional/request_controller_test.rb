@@ -167,7 +167,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'user', :content => 'Iggy'
 
     # validate request
-    get "/request/#{id}"
+    get "/request/#{id}?withhistory=1"
     assert_response :success
     node = Xmlhash.parse(@response.body)
     assert_xml_tag(:tag => 'acceptinfo', :attributes => { rev: '1', srcmd5: '1ded65e42c0f04bd08075dfd1fd08105', osrcmd5: 'd41d8cd98f00b204e9800998ecf8427e' })
@@ -812,7 +812,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     Timecop.freeze(1) # 0:0:5 reopened from tom
     post "/request/#{id}?cmd=changereviewstate&newstate=new&by_user=tom&comment=reopen2", nil
     assert_response :success
-    get "/request/#{id}"
+    get "/request/#{id}?withhistory=1"
     assert_response :success
 
     assert_xml_tag(:tag => 'state', :attributes => { name: 'review' })
@@ -971,6 +971,9 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     # search history
     get '/search/request', :match => "history/@who='Iggy'"
+    assert_response :success
+    assert_no_xml_tag(:tag => 'history')
+    get '/search/request', :match => "history/@who='Iggy'", :withhistory => "1"
     assert_response :success
     assert_xml_tag(:tag => 'history', :attributes => { who: "Iggy" })
 
@@ -2878,7 +2881,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     delete '/source/home:Iggy:fordecline'
     assert_response :success
 
-    get "/request/#{id}"
+    get "/request/#{id}?withhistory=1"
     node = Xmlhash.parse(@response.body)
     assert_equal({ 'id' => id,
                    'action' =>
@@ -2897,7 +2900,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post "/request/#{id}?cmd=changestate&newstate=revoked"
     assert_response :success
 
-    get "/request/#{id}"
+    get "/request/#{id}?withhistory=1"
     node = Xmlhash.parse(@response.body)
     assert_equal({ 'id' => id,
                    'action' =>

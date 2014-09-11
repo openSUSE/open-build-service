@@ -766,7 +766,7 @@ class Project < ActiveRecord::Base
     self.class.find_parent_for self.name
   end
 
-  def to_axml
+  def to_axml(opts={})
     Rails.cache.fetch('xml_project_%d' % id) do
       # CanRenderModel
       render_xml

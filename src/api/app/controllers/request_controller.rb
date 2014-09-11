@@ -49,7 +49,7 @@ class RequestController < ApplicationController
     matches=0
     rel.each do |r|
       matches = matches+1
-      xml.add_node(r.render_xml)
+      xml.add_node(r.render_xml(params))
     end
     xml.set_attribute('matches', matches.to_s)
     render xml: xml.dump_xml
@@ -60,7 +60,7 @@ class RequestController < ApplicationController
     required_parameters :id
 
     req = BsRequest.find(params[:id])
-    render xml: req.render_xml
+    render xml: req.render_xml(params)
   end
 
   # POST /request?cmd=create

@@ -97,6 +97,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Repository#cleanup_before_destroy' => 85.53,
       'RequestController#render_request_collection' => 92.82,
       'SearchController#find_attribute' => 97.33,
+      'SearchController#search' => 81.64, 
       'SourceController#project_command_copy' => 140.04,
       'SourceController#update_file' => 97.26,
       'SourceController#update_project_meta' => 127.52,

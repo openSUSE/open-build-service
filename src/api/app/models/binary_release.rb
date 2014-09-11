@@ -94,7 +94,7 @@ class BinaryRelease < ActiveRecord::Base
                                  Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
-  def to_axml
+  def to_axml(opts={})
     Rails.cache.fetch('xml_binary_release_%d' % id) do
       render_xml
     end

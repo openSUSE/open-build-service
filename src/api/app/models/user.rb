@@ -398,7 +398,7 @@ class User < ActiveRecord::Base
     end
   end
 
-  def to_axml
+  def to_axml(opts={})
     render_axml
   end
 

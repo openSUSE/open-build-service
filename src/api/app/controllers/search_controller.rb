@@ -169,6 +169,7 @@ class SearchController < ApplicationController
     end
 
     includes = nil
+    opts = {}
 
     output = "<collection matches=\"#{matches.to_s}\">\n"
 
@@ -198,6 +199,8 @@ class SearchController < ApplicationController
     when :request
       relation = BsRequest.where(id: search_items)
       includes = [:bs_request_actions, :reviews]
+      opts[:withhistory] = 1 if params[:withhistory]
+      opts[:withfullhistory] = 1 if params[:withfullhistory]
     when :person
       relation = User.where(id: search_items)
       includes = []
@@ -216,7 +219,7 @@ class SearchController < ApplicationController
 
     relation.each do |item|
       next if xml[item.id]
-      xml[item.id] = render_all ? item.to_axml : item.to_axml_id
+      xml[item.id] = render_all ? item.to_axml(opts) : item.to_axml_id
       xml[item.id].gsub!(/(..*)/, "  \\1") # indent it by two spaces, if line is not empty
     end if items.size > 0
 

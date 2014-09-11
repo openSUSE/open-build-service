@@ -107,7 +107,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     assert_response :success
     Timecop.freeze(1)
     # group_1 should be in new again
-    get "/request/#{adi}"
+    get "/request/#{adi}?withhistory=1"
     assert_response :success
     assert_equal({"id" => adi,
                   "action" => {"type" => "add_role",
