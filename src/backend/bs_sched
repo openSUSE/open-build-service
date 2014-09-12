@@ -282,6 +282,7 @@ sub addrepo {
       return $r if $r;
     }
     if ($repodata->{'error'}) {
+      print "    repo $prp: $repodata->{'error'}\n";
       return undef;
     }
   }
