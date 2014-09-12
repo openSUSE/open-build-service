@@ -1,7 +1,7 @@
 <% request_table_id ||= 'request_table' %>
 <% hide_state ||= false %>
 <% no_target ||= false %>
-<% sort_columns = %w(null null) %>
+<% sort_columns = %w(null null null) %>
 
 <% if requests.blank? %>
     <p>No requests.</p>
@@ -21,7 +21,9 @@
         <% if !hide_state
              sort_columns << 'null' -%>
             <th>State</th>
+            <% sort_columns.concat %w(null) %>
         <% end %>
+        <th>Priority</th>
         <th>Actions</th>
       </tr>
       </thead>
