@@ -33,8 +33,24 @@ class ConvertRequestHistory < ActiveRecord::Migration
       history.create(p) if history
     end
 
-    s = OldHistory.find_by_sql "SELECT id,bs_request_id,state,comment,commenter,superseded_by,created_at FROM bs_request_histories ORDER BY bs_request_id ASC, created_at ASC"
+    puts "Creating some history elements based on #{Review.count} reviews..."
+    Review.all.each do |review|
+      next if review.state == :new #nothing happend yet
+      user[review.reviewer]||=User.find_by_login review.reviewer
+      next unless user[review.reviewer]
+      p={created_at: review.updated_at, user: user[review.reviewer], op_object_id: review.id}
+      p[:comment] = review.reason unless review.reason.blank?
+      history=nil
+      case review.state
+        when :accepted then
+          history = HistoryElement::ReviewAccepted
+        when :declined then
+          history = HistoryElement::ReviewDeclined
+      end
+      history.create(p) if history
+    end
 
+    s = OldHistory.find_by_sql "SELECT id,bs_request_id,state,comment,commenter,superseded_by,created_at FROM bs_request_histories ORDER BY bs_request_id ASC, created_at ASC"
     oldid=nil
     puts "Converting #{s.length} request history elements into new structure"
     puts "This can take some time..." if s.length > 1000
@@ -86,23 +102,6 @@ class ConvertRequestHistory < ActiveRecord::Migration
       puts "WARNING: not all old request history elements could be transfered to new model"
       puts "         bs_request_histories SQL table still contains not transfered entries"
       puts "         a typical reason are entries of not anymore existing users"
-    end
-
-    puts "Creating some history elements based on #{Review.count} reviews..."
-    Review.all.each do |review|
-      next if review.state == :new #nothing happend yet
-      user[review.reviewer]||=User.find_by_login review.reviewer
-      next unless user[review.reviewer]
-      p={created_at: review.updated_at, user: user[review.reviewer], op_object_id: review.id}
-      p[:comment] = review.reason unless review.reason.blank?
-      history=nil
-      case review.state
-        when :accepted then
-          history = HistoryElement::ReviewAccepted
-        when :declined then
-          history = HistoryElement::ReviewDeclined
-      end
-      history.create(p) if history
     end
 
     end
