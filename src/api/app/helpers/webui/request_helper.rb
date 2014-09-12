@@ -58,4 +58,30 @@ module Webui::RequestHelper
     end
   end
 
+  def priority_description(prio)
+    case prio
+    when "low" then
+      'Work on this request if nothing else needs to be done.'
+    when "moderate" then
+      'Work on this request.'
+    when "important" then
+      'Finish other requests you have begun, then work on this request.'
+    when "critical" then
+      'Drop everything and work on this request.'
+    end
+  end
+
+  def priority_number(prio)
+    case prio
+    when "low" then
+      "1"
+    when "moderate" then
+      "2"
+    when "important" then
+      "3"
+    when "critical" then
+      "4"
+    end
+  end
+
 end
