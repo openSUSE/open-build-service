@@ -2832,7 +2832,7 @@ sub getbuildinfo {
     no warnings 'redefine';
     local *Build::expand = $ownexpand;
     use warnings 'redefine';
-    @edeps = Build::get_deps($bconf, \@subpacks, @deps);
+    @edeps = Build::get_build($bconf, \@subpacks, @deps);
     $bconf->{'ignore'} = $bconfignore if $bconfignore;
     $bconf->{'ignoreh'} = $bconfignoreh if $bconfignoreh;
     $ret->{'expanddebug'} .= $xp->debugstr() if defined($ret->{'expanddebug'}) && defined &BSSolv::expander::debugstr;
