@@ -64,7 +64,7 @@ class Webui::RequestController < Webui::WebuiController
 
     if req.nil?
       flash[:error] = "Unable to load request"
-      redirect_back_or_to user_requests_path(User.current)
+      redirect_back_or_to user_show_path(User.current)
       return
     elsif state.nil?
       flash[:error] = "Unknown state to set"
@@ -83,12 +83,12 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def show
-    redirect_back_or_to user_requests_path(User.current) and return if !params[:id]
+    redirect_back_or_to user_show_path(User.current) and return if !params[:id]
     begin
       @bsreq = BsRequest.find(params[:id])
     rescue ActiveRecord::RecordNotFound
       flash[:error] = "Can't find request #{params[:id]}"
-      redirect_back_or_to user_requests_path(User.current) and return
+      redirect_back_or_to user_show_path(User.current) and return
     end
 
     @req = @bsreq.webui_infos
@@ -133,7 +133,7 @@ class Webui::RequestController < Webui::WebuiController
     @req = BsRequest.find params[:id]
     unless @req
       flash[:error] = "Can't find request #{params[:id]}"
-      redirect_back_or_to user_requests_path(User.current) and return
+      redirect_back_or_to user_show_path(User.current) and return
     end
   end
 
@@ -142,7 +142,7 @@ class Webui::RequestController < Webui::WebuiController
       @req = BsRequest.find(params[:id])
     rescue ActiveRecord::RecordNotFound
       flash[:error] = "Can't find request #{params[:id]}"
-      redirect_back_or_to user_requests_path(User.current) and return
+      redirect_back_or_to user_show_path(User.current) and return
     end
 
     changestate = nil
@@ -230,7 +230,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def list
-    redirect_to user_requests_path(User.current) and return unless request.xhr? # non ajax request
+    redirect_to user_show_path(User.current) and return unless request.xhr? # non ajax request
     requests = BsRequestCollection.list_ids(params)
     elide_len = 44
     elide_len = params[:elide_len].to_i if params[:elide_len]
@@ -241,7 +241,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def list_small
     required_parameters :project # the minimum
-    redirect_to user_requests_path(User.current) and return unless request.xhr? # non ajax request
+    redirect_to user_show_path(User.current) and return unless request.xhr? # non ajax request
     requests = BsRequestCollection.list_ids(params)
     requests = BsRequestCollection.new(ids: requests).relation
     render partial: 'requests_small', locals: {requests: requests}

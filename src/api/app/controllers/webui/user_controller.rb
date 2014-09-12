@@ -93,7 +93,6 @@ class Webui::UserController < Webui::WebuiController
     @default_request_type = params[:type] if params[:type]
     @default_request_state = params[:state] if params[:state]
     respond_to do |format|
-      format.html
       format.json { render_requests_json }
     end
   end

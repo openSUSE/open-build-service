@@ -20,9 +20,9 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   end
 
   def test_my_involved_requests
-    login_Iggy to: user_requests_path(user: 'king')
+    login_king to: user_show_path(user: 'king')
 
-    page.must_have_selector 'table#request_table tr'
+    page.must_have_selector 'table#requests_in_table tr'
 
     # walk over the table
     rs = find('tr#tr_request_1').find('.request_target')
@@ -124,7 +124,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     login_Iggy
     visit request_show_path(20000)
     page.must_have_text("Can't find request 20000")
-    page.must_have_text('Requests for Iggy')
+    page.must_have_text('Home of Iggy')
   end
 
   test 'submit package and revoke' do
