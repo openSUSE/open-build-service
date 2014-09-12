@@ -6256,6 +6256,10 @@ sub getbinary {
     BSHandoff::handoff($ajaxsocket, '/getbinaries', undef, @args);
     exit(0);
   }
+  if ($view eq 'publishedpath') {
+    die("publishedpath does not work for _repository\n") if $packid eq '_repository';
+    return published_path($cgi, $projid, $repoid);
+  }
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
   my @args;
   push @args, "view=$view" if $view;
@@ -7064,6 +7068,8 @@ sub published_path {
   my $extrep = map_to_extrep($prp, $prp_ext);
   $extrep = [ $extrep ] unless ref $extrep;
   my ($path, $url) = ($extrep->[1], $extrep->[2]);
+  # update to get fresh version of repodownload
+  BSConfiguration::update_from_configuration();
   if ($BSConfig::prp_ext_map && $BSConfig::prp_ext_map->{$prp}) {
     $url = $BSConfig::prp_ext_map->{$prp} unless defined $url;
   }
@@ -7071,6 +7077,28 @@ sub published_path {
     $path = $1 unless defined $path;
     if ($BSConfig::repodownload) {
       $url = "$BSConfig::repodownload/".BSRPC::urlencode($1) unless defined $url;
+    }
+  }
+  if ($cgi->{'filename'}) {
+    # called from getbinary
+    my $bin = $cgi->{'filename'};
+    my $p;
+    if ($bin =~ /^.+-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.d?rpm$/) {
+      $p = "$1/$bin";
+    } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.deb$/) {
+      $p = "$1/$bin";
+    } elsif ($bin =~ /\.exe$/) {
+      $p = $bin;
+    } elsif ($bin =~ /\.(?:pkg\.tar\.gz|pkg\.tar\.xz)$/) {
+      $p = ($cgi->{'arch'} eq 'i586' ? 'i686' : $cgi->{'arch'})."/bin";
+    } elsif ($bin =~ /\.iso(?:\.report)$/) {
+      $p = "iso/$bin";
+    } elsif ($bin =~ /-Media\d+$/) {
+      $medium = $bin;
+    }
+    if (defined $p) {
+      $path .= "/$p" if defined $path;
+      $url .= "/".BSRPC::urlencode($p) if defined $url;
     }
   }
   if ($medium && $medium =~ /\.iso$/) {
