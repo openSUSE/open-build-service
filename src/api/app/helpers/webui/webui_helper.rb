@@ -6,14 +6,6 @@ module Webui::WebuiHelper
 
   include ActionView::Helpers::JavaScriptHelper
 
-  def repo_url(project, repo='')
-    if @configuration['download_url']
-      "#{@configuration['download_url']}/" + project.to_s.gsub(/:/, ':/') + "/#{repo}"
-    else
-      nil
-    end
-  end
-
   def get_frontend_url_for(opt={})
     opt[:host] ||= CONFIG['external_frontend_host'] || CONFIG['frontend_host']
     opt[:port] ||= CONFIG['external_frontend_port'] || CONFIG['frontend_port']

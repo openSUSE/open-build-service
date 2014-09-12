@@ -173,11 +173,15 @@ class PublicController < ApplicationController
           @binary_links[dist_id][:binary] ||= []
           binary_map[repo.name].each do |b|
             binary_type = b.value(:type)
-            @binary_links[dist_id][:binary] << {:type => binary_type, :arch => b.value(:arch), :url => download_url(b.value(:filepath))}
+            # filepath is historic and contains unfortunatly the old repo mapping already.
+            # So we have to revert this here...
+            filepath=b.value(:filepath)
+            filepath.gsub!(/:\//, ":").gsub!(/^[^\/]*\/[^\/]*\//, '')
+
+            @binary_links[dist_id][:binary] << {:type => binary_type, :arch => b.value(:arch), :url => repo.download_url(filepath)}
             if @binary_links[dist_id][:repository].blank?
               repo_filename = (binary_type == 'rpm') ? "#{@pkg.project.name}.repo" : ''
-              repository_path = File.join(@pkg.project.download_name, repo.name, repo_filename)
-              @binary_links[dist_id][:repository] ||= { :url => download_url(repository_path) }
+              @binary_links[dist_id][:repository] ||= { :url => repo.download_url(repo_filename) }
             end
           end
           #

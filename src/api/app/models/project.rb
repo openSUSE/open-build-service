@@ -76,10 +76,6 @@ class Project < ActiveRecord::Base
   validates :type_id, presence: true
   validate :valid_name
  
-  def download_name
-    self.name.gsub(/:/, ':/')
-  end
-  
   def cleanup_before_destroy
     CacheLine.cleanup_project(self.name)
     @del_repo = Project.find_by_name('deleted').repositories[0]

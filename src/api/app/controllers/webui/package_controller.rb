@@ -120,8 +120,8 @@ class Webui::PackageController < Webui::WebuiController
         :package => @package, :repository => @repository, :nextstatus => 404
       return
     end
-    @durl = "#{repo_url( @project, @repository )}/#{@fileinfo.value(:arch)}/#{@filename}" if @fileinfo.value :arch
-    @durl = "#{repo_url( @project, @repository )}/iso/#{@filename}" if (@fileinfo.value :filename) =~ /\.iso$/
+    repo = Repository.find_by_project_and_repo_name(@project.to_s, @repository.to_s)
+    @durl = repo.download_url_for_package(@package, @arch, @filename)
     if @durl and not file_available?( @durl )
       # ignore files not available
       @durl = nil

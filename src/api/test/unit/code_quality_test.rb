@@ -93,7 +93,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Owner::extract_maintainer' => 155.65,
       'PersonController#internal_register' => 112.01,
       'Project#update_one_repository_without_path' => 150.7,
-      'PublicController#binary_packages' => 131.24,
+      'PublicController#binary_packages' => 126.16,
       'Repository#cleanup_before_destroy' => 85.53,
       'RequestController#render_request_collection' => 92.82,
       'SearchController#find_attribute' => 97.33,

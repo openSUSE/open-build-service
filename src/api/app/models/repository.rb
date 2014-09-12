@@ -108,4 +108,32 @@ class Repository < ActiveRecord::Base
     name
   end
 
+  def download_medium_url(medium)
+    Rails.cache.fetch("download_url_#{self.project.name}##{self.name}##medium##{medium}") do
+      path  = "/published/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}"
+      path += "?view=publishedpath"
+      path += "&medium=#{CGI.escape(file)}"
+      xml = Xmlhash.parse(Suse::Backend.get(path).body)
+      xml.elements('url').last.to_s
+    end
+  end
+
+  def download_url(file)
+    url = Rails.cache.fetch("download_url_#{self.project.name}##{self.name}") do
+      path  = "/published/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}"
+      path += "?view=publishedpath"
+      xml = Xmlhash.parse(Suse::Backend.get(path).body)
+      xml.elements('url').last.to_s
+    end
+    url += "/" + file unless file.blank?
+  end
+
+  def download_url_for_package(package, architecture, filename)
+    Rails.cache.fetch("download_url_for_package_#{self.project.name}##{self.name}##{package.name}##{architecture}##{filename}") do
+      path  = "/build/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}/#{URI.escape(architecture)}/#{URI.escape(package.name)}/#{URI.escape(filename)}"
+      path += "?view=publishedpath"
+      xml = Xmlhash.parse(Suse::Backend.get(path).body)
+      xml.elements('url').last.to_s
+    end
+  end
 end
