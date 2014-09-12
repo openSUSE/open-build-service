@@ -351,10 +351,10 @@
   <!-- OBS rating values, used in patchinfos and requests -->
   <define ns="" name="obs-ratings">
     <choice>
-      <value>low</value>
-      <value>moderate</value> <!-- default -->
-      <value>important</value>
-      <value>critical</value>
+      <value>low</value>       <!-- work on it when nothing else needs to be done -->
+      <value>moderate</value>  <!-- default: normal priority -->
+      <value>important</value> <!-- prefer this over the others, but finish your current task first -->
+      <value>critical</value>  <!-- everything and work only on this -->
     </choice>
   </define>
 
