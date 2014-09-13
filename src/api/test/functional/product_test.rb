@@ -59,9 +59,9 @@ class ProductTests < ActionDispatch::IntegrationTest
     # productrepositories
     get "/source/home:tom:temporary:link/_product?view=productrepositories"
     assert_response :success
-    assert_xml_tag :parent => { :tag => "repository", :attributes => { :path => '/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo' } },
+    assert_xml_tag :parent => { :tag => "repository", :attributes => { :path => 'BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo' } },
                    :tag => "update"
-    assert_xml_tag :tag => "repository", :attributes => { :path => '/BaseDistro/BaseDistro_repo/repo/DVD' }
+    assert_xml_tag :tag => "repository", :attributes => { :path => 'BaseDistro/BaseDistro_repo/repo/DVD' }
     assert_xml_tag :tag => "repository", :attributes => { :url => 'http://external.url/to.some.one' }
 
     # product views in a package
@@ -205,7 +205,7 @@ class ProductTests < ActionDispatch::IntegrationTest
     # productrepositories
     get "/source/home:tom:temporary/_product?view=productrepositories"
     assert_response :success
-    assert_xml_tag :parent => { :tag => "repository", :attributes => { :path => '/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo' } },
+    assert_xml_tag :parent => { :tag => "repository", :attributes => { :path => 'BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo' } },
                    :tag => "update",
                    :tag => "zypp", :attributes => { :name => "basedistro2 update distribution", :alias => "basedistro2_alias" }
     assert_xml_tag :tag => "distrotarget", :attributes => { :arch => "x86_64" }, :content => "DiStroTarGet_x86"

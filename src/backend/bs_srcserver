@@ -4589,6 +4589,41 @@ sub getfilelist_ajax {
   return '';
 }
 
+sub getproductrepositories {
+  my ($xml) = @_;
+
+  my $p;
+  for my $product (@{$xml->{'products'}->{'product'}}) {
+    my @pr;
+    for my $repo (@{$product->{'register'}->{'updates'}->{'repository'}}) {
+      my @p = published_path(undef, $repo->{'project'}, $repo->{'name'});
+      my $path = { 'path' => $p[0]{'path'}, 'update' => undef };
+      $path->{'arch'} = $repo->{'arch'} if $repo->{'arch'};
+      $path->{'zypp'} = $repo->{'zypp'} if $repo->{'zypp'};
+      $path->{'debug'} = undef if $repo->{'name'} =~ m/_debug$/;
+      push @pr, $path;
+    };
+    for my $repo (@{$product->{'register'}->{'pool'}->{'repository'}}) {
+      die("path AND url is set!") if defined ($repo->{'project'}) && defined($repo->{'url'});
+      my $path;
+      if (defined($repo->{'url'})) {
+        $path = { 'url' => $repo->{'url'} };
+      } else {
+        my @p = published_path({"medium" => $repo->{'medium'}}, $repo->{'project'}, $repo->{'name'});
+        $path = { 'path' => $p[0]{'path'} };
+      }
+      $path->{'arch'} = $repo->{'arch'} if $repo->{'arch'};
+      $path->{'zypp'} = $repo->{'zypp'} if $repo->{'zypp'};
+      push @pr, $path;
+    };
+    my $prod = { "name" => $product->{'name'}, "repository" => \@pr };
+    $prod->{"distrotarget"} = $product->{'register'}->{'updates'}->{'distrotarget'} if $product->{'register'}->{'updates'}->{'distrotarget'};
+    push @{$p}, $prod;
+  };
+
+  return $p;
+}
+
 sub getfilelist {
   my ($cgi, $projid, $packid) = @_;
 
@@ -4721,7 +4756,7 @@ sub getfilelist {
       my $xml = BSProductXML::readproductxml( "$srcrep/$rev->{'package'}/$files->{$filename}-$filename", 0, undef, $files);
       die("400 Unable to parse $filename: \n") unless defined($xml);
       if ($view eq 'productrepositories') {
-        @res = (@res, @{BSProductXML::getproductrepositories($xml)});
+        @res = (@res, @{getproductrepositories($xml)});
       } else {
         push @res, $xml;
       }

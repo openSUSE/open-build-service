@@ -431,41 +431,4 @@ sub readproductxml {
   return $@ ? undef : $str;
 }
 
-sub getproductrepositories {
-  my ($xml) = @_;
-
-  my $p;
-  for my $product (@{$xml->{'products'}->{'product'}}) {
-    my @pr;
-    for my $repo (@{$product->{'register'}->{'updates'}->{'repository'}}) {
-      my $project_expanded = $repo->{'project'};
-      $project_expanded =~ s/:/:\//g;
-      my $path = { 'path' => "/$project_expanded/$repo->{'name'}", 'update' => undef };
-      $path->{'arch'} = $repo->{'arch'} if $repo->{'arch'};
-      $path->{'zypp'} = $repo->{'zypp'} if $repo->{'zypp'};
-      $path->{'debug'} = undef if $repo->{'name'} =~ m/_debug$/;
-      push @pr, $path;
-    };
-    for my $repo (@{$product->{'register'}->{'pool'}->{'repository'}}) {
-      die("path AND url is set!") if defined ($repo->{'project'}) && defined($repo->{'url'});
-      my $path;
-      if (defined($repo->{'url'})) {
-        $path = { 'url' => $repo->{'url'} };
-      } else {
-        my $project_expanded = $repo->{'project'};
-        $project_expanded =~ s/:/:\//g;
-        $path = { 'path' => "/$project_expanded/$repo->{'name'}/repo/$repo->{'medium'}" };
-      }
-      $path->{'arch'} = $repo->{'arch'} if $repo->{'arch'};
-      $path->{'zypp'} = $repo->{'zypp'} if $repo->{'zypp'};
-      push @pr, $path;
-    };
-    my $prod = { "name" => $product->{'name'}, "repository" => \@pr };
-    $prod->{"distrotarget"} = $product->{'register'}->{'updates'}->{'distrotarget'} if $product->{'register'}->{'updates'}->{'distrotarget'};
-    push @{$p}, $prod;
-  };
-
-  return $p;
-}
-
 1;
