@@ -185,6 +185,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                      'priority' => 'low',
                      'state' => { 'name' => 'accepted', 'who' => 'Iggy', 'when' => '2010-07-12T00:00:04', 'comment' => 'approved' },
                      'history' => [
+                         {"who"=>"Iggy", "when"=>"2010-07-12T00:00:00", "description"=>"Request created", "comment"=>"DESCRIPTION IS HERE"},
                          {"who"=>"Iggy", "when"=>"2010-07-12T00:00:01", "description"=>"Request got a new priority: critical => low", "comment"=>"dontcare"},
                          {"who"=>"Iggy", "when"=>"2010-07-12T00:00:02", "description"=>"Request got declined", "comment"=>"notgood"},
                          {"who"=>"Iggy", "when"=>"2010-07-12T00:00:03", "description"=>"Request got reopened", "comment"=>"oops"},
@@ -853,6 +854,9 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                          }],
                    'history' =>
                        [
+                        { "who"=>"Iggy",
+                          "when"=>"2010-07-12T00:00:00",
+                          "description"=>"Request created"},
                         { "description" => "Request got a new review request",
                           'who' => 'Iggy',
                           'when' => '2010-07-12T00:00:01',
@@ -2893,9 +2897,12 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                          'who' => 'Iggy',
                          'when' => '2010-07-12T00:00:00',
                          'comment' => "The target project 'home:Iggy:fordecline' was removed" },
-                   'history' => { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:00',
-                                  "description" => "Request got declined",
-                                  'comment' => "The target project 'home:Iggy:fordecline' was removed"} }, node)
+                   'history' => [{"who"=>"Iggy", 
+                                  "when"=>"2010-07-12T00:00:00",
+                                  "description"=>"Request created"},
+                                 { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:00',
+                                   "description" => "Request got declined",
+                                   'comment' => "The target project 'home:Iggy:fordecline' was removed"}] }, node)
 
     post "/request/#{id}?cmd=changestate&newstate=revoked"
     assert_response :success
@@ -2913,6 +2920,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                                 'comment' => {} },
                    'history' =>
                        [{"who"=>"Iggy", "when"=>"2010-07-12T00:00:00",
+                         "description"=>"Request created"},
+                        {"who"=>"Iggy", "when"=>"2010-07-12T00:00:00",
                          "description"=>"Request got declined",
                          "comment"=>"The target project 'home:Iggy:fordecline' was removed"},
                         {"who"=>"Iggy", "when"=>"2010-07-12T00:00:00",

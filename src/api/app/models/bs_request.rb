@@ -233,6 +233,14 @@ class BsRequest < ActiveRecord::Base
         review.render_xml(r)
       end
 
+      if opts[:withfullhistory] or opts[:withhistory]
+        attributes = {who: self.creator, when: self.created_at.strftime('%Y-%m-%dT%H:%M:%S')}
+        builder.history(attributes) do
+          # request description is on purpose the comment in history:
+          builder.description! "Request created"
+          builder.comment! self.description unless self.description.blank?
+        end
+      end
       if opts[:withfullhistory]
         History.find_by_request(self, {withreviews: 1}).each do |history|
           # we do ignore the review history here on purpose to stay compatible

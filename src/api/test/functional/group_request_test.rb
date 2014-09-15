@@ -118,10 +118,13 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
                        "who" => "king",
                        "when" => "2010-07-12T00:00:03",
                        "comment" => "removed from group #{id}"},
-                  "history" => {"who" => "king", 
+                  "history" => [{"who"=>"king",
+                                 "when"=>"2010-07-12T00:00:01",
+                                 "description"=>"Request created"},
+                                {"who" => "king",
                                 "when" => "2010-07-12T00:00:03",
                                 "description"=>"Request got reopened",
-                                "comment"=>"Reopened by removing from group #{id}"},
+                                "comment"=>"Reopened by removing from group #{id}"}],
                   "description" => {}
                  }, Xmlhash.parse(@response.body))
 
