@@ -149,7 +149,7 @@ class SearchController < ApplicationController
   def search(what, render_all)
     if render_all and params[:match].blank?
       render_error :status => 400, :errorcode => "empty_match",
-                   :message => "No predicate fround in match argument"
+                   :message => "No predicate found in match argument"
       return
     end
 
