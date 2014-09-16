@@ -1471,25 +1471,6 @@ sub publish {
 	  next;
 	} elsif (-d "$r/$rbin") {
 	  $p = "repo/$bin";
-	  if ($repotype{'slepool'}) {
-	    # HACK: do fancy sle repo renaming
-	    my $name = $repotype{'slepool'}->[0] || 'product';
-	    $p = $bin;
-	    if ($bin =~ /.*-Media1(\.license|)$/) {
-	      $p = "$name$1";
-	    } elsif ($bin =~ /-Media3$/) {
-	      $p = "${name}_debug";
-	    } elsif ($bin =~ /-Media2$/) {
-	      my $rbin3 = $rbin;
-	      $rbin3 =~ s/2$/3/;
-	      if (-d "$r/$rbin3") {
-	        $p = "${name}_source";	# 3 media available, 2 is source
-	      } else {
-	        $p = "${name}_debug";	# source is on media 1, 2 is debug
-	      }
-	    }
-	    $p = $bin if $kiwimedium{$p};	# what???
-	  }
 	  $kiwimedium{$p} = $bin;
 	} else {
 	  next;
