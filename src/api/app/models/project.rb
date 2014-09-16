@@ -1387,7 +1387,7 @@ class Project < ActiveRecord::Base
     # other day, so it never hurts to have a look into the future:
     global_patchinfo = nil
     self.packages.each do |pkg|
-      if pkg.name == 'patchinfo'
+      if pkg.is_patchinfo?
         # Global 'patchinfo' without specific release target:
         global_patchinfo = pkg.patchinfo
         next
@@ -1395,8 +1395,8 @@ class Project < ActiveRecord::Base
 
       pkg_name, rt_name = pkg.name.split('.', 2)
       next unless rt_name
-      if pkg_name == 'patchinfo'
-        # Holy crap, we found a patchinfo that is specific to (at least) one release target!
+      if pkg.is_patchinfo?
+        # We found a patchinfo that is specific to (at least) one release target!
         pi = pkg.patchinfo
         begin
           release_targets_ng[rt_name][:patchinfo] = pi
