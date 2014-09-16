@@ -414,6 +414,7 @@ sub signjob {
 	$jobstatus->{'result'} = 'failed';
       }
       if ($jobstatus->{'result'} && $jobstatus->{'result'} eq 'rebuild') {
+        warn("rebuilding: $error\n");
 	if ($info->{'followupfile'}) {
 	  delete $info->{'followupfile'};
           writexml("$jobsdir/$arch/.$job", "$jobsdir/$arch/$job", $info, $BSXML::buildinfo);
@@ -425,6 +426,7 @@ sub signjob {
 	return undef;
       }
       if ($jobstatus->{'result'} && $jobstatus->{'result'} eq 'failed') {
+        warn("failed: $error\n");
 	BSUtil::appendstr("$jobdir/logfile", "\n\n$error");
 	$jobstatus->{'code'} = 'finished';
 	writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
