@@ -20,7 +20,7 @@ BaseDistro3_BaseDistro3_repo:
 BaseDistro3_BaseDistro3_repo_droped:
   id: 2
   repository_id: 93
-  operation: 'removed'
+  operation: 'added'
   obsolete_time: 2013-09-31 15:50:30.000000000 Z
   binary_name: dropped
   binary_version: 1.0

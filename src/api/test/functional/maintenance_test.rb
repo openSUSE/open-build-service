@@ -673,7 +673,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                    :tag => 'operation', :content => "added"
     assert_xml_tag :parent => { :tag => 'binary', :attributes =>
            { name: 'dropped', project: "BaseDistro3", repository: "BaseDistro3_repo", arch: "i586" } },
-                   :tag => 'operation', :content => "removed"
+                   :tag => 'operation', :content => "added"
 
     # search via official updateinfo id tag
     get '/search/released/binary', match: "updateinfo/@id = 'UpdateInfoTagNew-patch_name-#{Time.now.utc.year.to_s}-1'"

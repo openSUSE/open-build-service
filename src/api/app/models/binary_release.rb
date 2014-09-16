@@ -188,7 +188,6 @@ class BinaryRelease < ActiveRecord::Base
       # and mark all not processed binaries as removed
       oldlist.each do |e|
         next if processed_item[e.id]
-        e.operation = "removed"
         e.obsolete_time = time
         e.save!
       end

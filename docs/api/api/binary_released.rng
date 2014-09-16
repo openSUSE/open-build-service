@@ -44,8 +44,7 @@
         <element name="operation">
           <choice>
             <value>added</value>    <!-- this is a new binary -->
-            <value>removed</value>  <!-- this binary got removed later. check obsolete time. -->
-            <value>modified</value> <!-- this binary modified a former released one, which became obsolete -->
+            <value>modified</value> <!-- this binary modifies a former released one, which became obsolete -->
           </choice>
         </element>
         <optional>
