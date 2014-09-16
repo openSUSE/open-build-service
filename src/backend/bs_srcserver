@@ -3424,12 +3424,19 @@ sub getproject {
 sub pubkey2sslcert {
   my ($projid, $pubkeyfile, $signkeyfile) = @_;
   die("don't know how to generate a ssl cert\n") unless $BSConfig::sign;
-  my $cert = '';
   $pubkeyfile ||= "$projectsdir/$projid.pkg/_pubkey";
   $signkeyfile ||= "$projectsdir/$projid.pkg/_signkey";
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
-  return BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-P', $signkeyfile, '-C', $pubkeyfile);
+  my $cert = '';
+  eval {
+    $cert = BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-P', $signkeyfile, '-C', $pubkeyfile);
+  };
+  if ($@) {
+    die("Need an RSA key for openssl signing, please create a new key for $projid\n") if $@ =~ /not an RSA private key/i;
+    die($@);
+  }
+  return $cert;
 }
 
 sub updatesslcert {

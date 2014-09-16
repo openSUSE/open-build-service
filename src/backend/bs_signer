@@ -407,8 +407,12 @@ sub signjob {
     };
     if ($@) {
       # signing failed, either retry, rebuild or fail
+      my $error = $@;
       unlink("$uploaddir/signer.$$") if $signkey;
-      $jobstatus->{'result'} = 'failed' if $@ =~ /Need RSA key for openssl sign/i;
+      if ($error =~ /Need RSA key for openssl sign/i) {
+	$error = "Need an RSA key for openssl signing, please create a new key\n";
+	$jobstatus->{'result'} = 'failed';
+      }
       if ($jobstatus->{'result'} && $jobstatus->{'result'} eq 'rebuild') {
 	if ($info->{'followupfile'}) {
 	  delete $info->{'followupfile'};
@@ -421,14 +425,14 @@ sub signjob {
 	return undef;
       }
       if ($jobstatus->{'result'} && $jobstatus->{'result'} eq 'failed') {
-	BSUtil::appendstr("$jobdir/logfile", "\n\n$@");
+	BSUtil::appendstr("$jobdir/logfile", "\n\n$error");
 	$jobstatus->{'code'} = 'finished';
 	writexml("$jobsdir/$arch/.$job:status", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus);
 	close F;
 	return 1;
       }
       close(F);
-      die($@);
+      die($error);
     }
 
     # all files signed now
