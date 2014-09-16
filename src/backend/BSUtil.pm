@@ -590,4 +590,91 @@ sub restartexit {
   }
 }
 
+sub xsystem {
+  my ($in, @args) = @_;
+
+  local (*RIN, *WIN);
+  local (*RERR, *WERR);
+  local *P;
+  if (defined($in)) {
+    pipe(RIN, WIN) || die("stdin pipe: $!\n");
+  }
+  pipe(RERR, WERR) || die("stderr pipe: $!\n");
+  my $pid;
+  $pid = open(P, '-|');
+  die("fork: $!\n") unless defined $pid;
+  if (!$pid) {
+    close WIN if defined $in;
+    close RERR;
+    open(STDIN, defined($in) ? "<&RIN" : "</dev/null");
+    open(STDERR, ">&WERR");
+    eval {
+      exec(@args);
+      die("$args[0]: $!\n");
+    };
+    warn($@) if $@;
+    exit 1;
+  }
+  close RIN if defined $in;
+  close WERR;
+  my ($indead, $outdead, $errdead);
+  $indead = 1 unless defined $in;
+  my ($out, $err) = ('', '');
+  my $stat;
+  while (!($outdead && $errdead)) {
+    my ($rin, $win) = ('', '');
+    vec($win, fileno(WIN), 1) = 1 unless $indead;
+    vec($rin, fileno(P),  1) = 1 unless $outdead;
+    vec($rin, fileno(RERR),  1) = 1 unless $errdead;
+    my $nfound = select($rin, $win, undef, undef);
+    if (!defined($nfound) || $nfound == -1) {
+      next if $! == POSIX::EINTR;
+      die("select: $!\n");
+    }
+    next unless $nfound;
+    if (!$indead && vec($win, fileno(WIN), 1)) {
+      my $l = syswrite(WIN, $in);
+      if (!defined($l) || $l < 0) {
+        next if $! == POSIX::EINTR || $! == POSIX::EWOULDBLOCK;
+        close(WIN);
+        $indead = 1;
+      } else {
+        $in = substr($in, $l);
+        if (length($in) <= 0) {
+          close(WIN);
+          $indead = 1;
+        }
+      }
+    }
+    if (!$outdead && vec($rin, fileno(P), 1)) {
+      my $l = sysread(P, $out, 4096, length($out));
+      if (!defined($l) || $l <= 0) {
+        next if !defined($l) && ($! == POSIX::EINTR || $! == POSIX::EWOULDBLOCK);
+        $stat = close(P);
+        $outdead = 1;
+      }
+    }
+    if (!$errdead && vec($rin, fileno(RERR), 1)) {
+      my $l = sysread(RERR, $err, 4096, length($err));
+      if (!defined($l) || $l <= 0) {
+        next if !defined($l) && ($! == POSIX::EINTR || $! == POSIX::EWOULDBLOCK);
+        close(RERR);
+        $errdead = 1;
+      }
+    }
+  }
+  close WIN unless $indead;
+  if (!$stat) {
+    chomp $err;
+    die(($err || "$args[0]: $?") . "\n");
+  }
+  if (!wantarray) {
+    chomp $err;
+    warn("$err\n") if $err;
+    return $out;
+  } else {
+    return ($out, $err);
+  }
+}
+
 1;
