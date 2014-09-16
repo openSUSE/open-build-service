@@ -735,6 +735,10 @@ class Package < ActiveRecord::Base
         package_name = li['package']
       end
     end
+    # Update projects are usually used in _channels
+    if prj = Project.find_by_name(project_name) and a = prj.find_attribute('OBS', 'UpdateProject') and a.values[0]
+      project_name = a.values[0].value
+    end
     parent = nil
     ChannelBinary.find_by_project_and_package(project_name, package_name).each do |cb|
       parent ||= self.project.find_parent
