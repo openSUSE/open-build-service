@@ -2277,6 +2277,7 @@ sub dobuild {
     $buildinfo->{'file'} = 'worker-deltagen.spec';
   } elsif ($followupmode) {
     getfollowupsources($buildinfo, $srcdir);
+    getsslcert($buildinfo, $srcdir);
     print "packages, ";
     getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
     undef $oldpkgdir;
