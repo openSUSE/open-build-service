@@ -96,33 +96,6 @@ sub writeblk {
   (syswrite($fd, $cnt) || 0) == length($cnt) || die("syswrite: $!\n");
 }
 
-sub signfilter {
-  my ($content, @signargs) = @_;
-  local (*RH, *WH);
-  local *P;
-  pipe(RH, WH) || die("pipe: $!\n");
-  my $pid;
-  $pid = open(P, '-|');
-  die("fork: $!\n") unless defined $pid;
-  if (!$pid) {
-    close WH;
-    open(STDIN, "<&RH");
-    eval {
-      exec($BSConfig::sign, @signargs);
-      die("$BSConfig::sign: $!\n");
-    };
-    warn($@) if $@;
-    exit 1;
-  }
-  close RH;
-  print WH $content if defined $content;
-  close WH;
-  my $ret = '';
-  $ret .= $_ while <P>;
-  close(P) || die("sign: $?\n");
-  return $ret;
-}
-
 sub readisodir {
   my ($fd, $dirpos) = @_;
 
@@ -209,8 +182,8 @@ sub signisofiles {
 	die("don't know which file to sign: $e->[0]\n") unless @se == 1;
 	my $sf = readblk($fd, $se[0]->[1], ($len + 0x7ff) >> 11);
 	$sf = substr($sf, 0, $len);
-        die("selected wrong file\n") if $sum != unpack("%32C*", $sf);
-	my $sig = signfilter($sf, @signargs, '-d');
+	die("selected wrong file\n") if $sum != unpack("%32C*", $sf);
+	my $sig = BSUtil::xsystem($sf, $BSConfig::sign, @signargs, '-d');
 	die("returned signature is empty\n") unless $sig;
 	die("returned signature is too big\n") if length($sig) > 2048;
 	# replace old content
@@ -224,7 +197,7 @@ sub signisofiles {
       if ($e->[0] =~ /\.key$/i && $e->[2] == 8192) {
 	my $signfile = readblk($fd, $e->[1]);
 	next if substr($signfile, 0, 8) ne "sIGnMeP\n";
-	$pubkey = signfilter(undef, @signargs, '-p') unless $pubkey;
+	$pubkey = BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-p') unless $pubkey;
 	die("pubkey is not available\n") unless $pubkey;
 	die("pubkey is too big\n") if length($pubkey) > 8192;
 	# replace old content
@@ -278,7 +251,7 @@ sub rsasign {
   my ($signfile, $jobstatus, @signargs) = @_;
   my @opensslsignargs = ('-h', 'sha256');
   if ($signfile !~ /\.cpio\.rsasign$/) {
-    system($BSConfig::sign, @signargs, '-O', @opensslsignargs, $signfile) && die("openssl sign $signfile failed\n");
+    BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-O', @opensslsignargs, $signfile) && die("openssl sign $signfile failed\n");
     return;
   }
   # cpio case, sign every plain file in the archive
@@ -293,7 +266,7 @@ sub rsasign {
 	my ($par, $ent) = @_;
 	return unless ($ent->{'mode'} & 0xf000) == 0x8000;	# files only
 	$retrysign = 1;
-	my $sig = signfilter($ent->{'data'}, @signargs, '-O', @opensslsignargs);
+	my $sig = BSUtil::xsystem($ent->{'data'}, $BSConfig::sign, @signargs, '-O', @opensslsignargs);
 	undef $retrysign;
 	$ent->{'data'} = '';	# free mem
 	push @res, { 'name' => "$ent->{'name'}.sig", 'data' => $sig };
@@ -407,7 +380,7 @@ sub signjob {
 	  next unless (-s "$jobdir/$signfile") == 8192;
 	  my $signfilec = readstr("$jobdir/$signfile");
 	  next if substr($signfilec, 0, 8) ne "sIGnMeP\n";
-	  $pubkey ||= signfilter(undef, @signargs, '-p');
+	  $pubkey ||= BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-p');
 	  die("pubkey is not available\n") unless $pubkey;
 	  writestr("$jobdir/$signfile.tmp$$", "$jobdir/$signfile", $pubkey);
 	  next;
@@ -435,6 +408,7 @@ sub signjob {
     if ($@) {
       # signing failed, either retry, rebuild or fail
       unlink("$uploaddir/signer.$$") if $signkey;
+      $jobstatus->{'result'} = 'failed' if $@ =~ /Need RSA key for openssl sign/i;
       if ($jobstatus->{'result'} && $jobstatus->{'result'} eq 'rebuild') {
 	if ($info->{'followupfile'}) {
 	  delete $info->{'followupfile'};

@@ -3429,11 +3429,7 @@ sub pubkey2sslcert {
   $signkeyfile ||= "$projectsdir/$projid.pkg/_signkey";
   my @signargs;
   push @signargs, '--project', $projid if $BSConfig::sign_project;
-  local *F;
-  open(F, '-|', $BSConfig::sign, @signargs, '-P', $signkeyfile, '-C', $pubkeyfile) || die("$BSConfig::sign: $!\n");
-  1 while sysread(F, $cert, 4096, length($cert));
-  close(F) || die("$BSConfig::sign: $?\n");
-  return $cert;
+  return BSUtil::xsystem(undef, $BSConfig::sign, @signargs, '-P', $signkeyfile, '-C', $pubkeyfile);
 }
 
 sub updatesslcert {
