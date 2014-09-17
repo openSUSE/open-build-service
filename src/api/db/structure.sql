@@ -617,6 +617,17 @@ CREATE TABLE `linked_projects` (
   UNIQUE KEY `linked_projects_index` (`db_project_id`,`linked_db_project_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `maintained_projects` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `project_id` int(11) NOT NULL,
+  `maintenance_project_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_index` (`project_id`,`maintenance_project_id`),
+  KEY `maintenance_project_id` (`maintenance_project_id`),
+  CONSTRAINT `maintained_projects_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`),
+  CONSTRAINT `maintained_projects_ibfk_2` FOREIGN KEY (`maintenance_project_id`) REFERENCES `projects` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `maintenance_incidents` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `db_project_id` int(11) DEFAULT NULL,
@@ -787,14 +798,12 @@ CREATE TABLE `projects` (
   `remoteurl` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `remoteproject` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `type_id` int(11) NOT NULL,
-  `maintenance_project_id` int(11) DEFAULT NULL,
   `develproject_id` int(11) DEFAULT NULL,
   `delta` tinyint(1) NOT NULL DEFAULT '1',
   PRIMARY KEY (`id`),
   UNIQUE KEY `projects_name_index` (`name`(255)),
   KEY `updated_at_index` (`updated_at`),
   KEY `devel_project_id_index` (`develproject_id`),
-  KEY `index_db_projects_on_maintenance_project_id` (`maintenance_project_id`),
   KEY `type_id` (`type_id`),
   CONSTRAINT `projects_ibfk_1` FOREIGN KEY (`type_id`) REFERENCES `db_project_types` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -1571,6 +1580,8 @@ INSERT INTO schema_migrations (version) VALUES ('20140903125426');
 INSERT INTO schema_migrations (version) VALUES ('20140908125426');
 
 INSERT INTO schema_migrations (version) VALUES ('20140908135426');
+
+INSERT INTO schema_migrations (version) VALUES ('20140916135426');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

@@ -285,8 +285,10 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def find_maintenance_infos
-    pm = @project.api_obj.maintenance_project
-    @project_maintenance_project = pm.name if pm
+    @project.api_obj.maintenance_projects.each do |pm|
+      # FIXME: skip the non official ones
+      @project_maintenance_project = pm.maintenance_project.name
+    end
 
     @is_maintenance_project = @project.api_obj.is_maintenance?
     if @is_maintenance_project
@@ -298,7 +300,7 @@ class Webui::ProjectController < Webui::WebuiController
 
       @maintained_projects = []
       @project.api_obj.maintained_projects.each do |mp|
-        @maintained_projects << mp.name
+        @maintained_projects << mp.project.name
       end
     end
     @is_incident_project = @project.api_obj.is_maintenance_incident?

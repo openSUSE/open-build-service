@@ -26,11 +26,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     put '/source/home:tom:maintenance/_meta', '<project name="home:tom:maintenance" kind="maintenance" > <title/> <description/> <maintenance><maintains project="kde4"/></maintenance> </project>'
     assert_response :success
+    get '/source/home:tom:maintenance/_meta'
+    assert_response :success
+    assert_xml_tag :tag => 'maintains', :attributes => { project: 'kde4' }
 
     get '/search/project', :match => '[maintenance/maintains/@project="kde4"]'
     assert_response :success
     assert_xml_tag :tag => 'collection', :children => { count: 1 }
-    assert_xml_tag :child => { tag: 'project', attributes: { name: 'home:tom:maintenance' } }
+    assert_xml_tag :tag => 'maintains', :attributes => { project: 'kde4' }
 
     # cleanup
     delete '/source/home:tom:maintenance'
@@ -486,9 +489,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/source/#{incidentProject}/BaseDistro3.Channel/_meta"
     assert_response 404 # not a maintained project
     # make Channel project a maintained project and try again.
-    prj = Project.find_by_name('My:Maintenance')
-    prj.maintained_projects << Project.find_by_name('Channel')
-    prj.save
+    mprj = Project.find_by_name('My:Maintenance')
+    MaintainedProject.create(project: Project.find_by_name('Channel'), maintenance_project: mprj)
+
     post "/source/#{incidentProject}?cmd=addchannels", nil
     assert_response :success
     get "/source/#{incidentProject}/BaseDistro3.Channel/_meta"

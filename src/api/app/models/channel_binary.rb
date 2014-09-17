@@ -21,7 +21,7 @@ class ChannelBinary < ActiveRecord::Base
     return if Package.exists_by_project_and_name(pkg.project.name, name)
 
     # do we need to take care about a maintained list from upper project?
-    if maintenanceProject and not maintenanceProject.maintained_projects.include? cp.project
+    if maintenanceProject and MaintainedProject.where(maintenance_project: maintenanceProject, project: cp.project).count < 1
       # not a maintained project here
       return
     end

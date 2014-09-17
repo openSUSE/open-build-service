@@ -242,7 +242,7 @@ module MaintenanceHelper
     # expand a possible defined update info template in release target of channel
     projectFilter = nil
     if p = sourcePackage.project.find_parent and p.is_maintenance?
-      projectFilter = p.maintained_projects
+      projectFilter = p.maintained_projects.map{|mp| mp.project}
     end
     # prefer a channel in the source project to avoid double hits exceptions
     ct = ChannelTarget.find_by_repo(targetRepo, [sourcePackage.project]) || ChannelTarget.find_by_repo(targetRepo, projectFilter)

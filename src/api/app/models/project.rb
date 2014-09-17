@@ -58,10 +58,11 @@ class Project < ActiveRecord::Base
   # optional
   has_one :maintenance_incident, dependent: :delete, foreign_key: :db_project_id
 
-  # self-reference between devel projects and maintenance projects
-  has_many :maintained_projects, :class_name => 'Project', :foreign_key => 'maintenance_project_id'
-  belongs_to :maintenance_project, :class_name => 'Project'
+  # projects can maintain other projects
+  has_many :maintained_projects, :class_name => 'MaintainedProject', foreign_key: :maintenance_project_id, :dependent => :delete_all
+  has_many :maintenance_projects, :class_name => 'MaintainedProject', foreign_key: :project_id, :dependent => :delete_all
 
+  # develproject is history, use develpackage instead. FIXME3.0: clean this up
   has_many  :develprojects, :class_name => 'Project', :foreign_key => 'develproject_id'
   belongs_to :develproject, :class_name => 'Project'
 
@@ -679,25 +680,19 @@ class Project < ActiveRecord::Base
   end
 
   def update_maintained_prjs_from_xml(xmlhash)
-    #--- maintenance-related parts ---#
-
     # First check all current maintained project relations
-    olds = maintained_projects.pluck(:name)
+    olds = {}
+    self.maintained_projects.each{|mp| olds[mp.project.name]=mp}
 
     # Set this project as the maintenance project for all maintained projects found in the XML
     xmlhash.get('maintenance').elements('maintains') do |maintains|
       pn = maintains['project']
       next if olds.delete(pn)
       maintained_project = Project.find_by_name!(pn)
-      maintained_project.maintenance_project = self
-      maintained_project.save!
+      MaintainedProject.create(project: maintained_project, maintenance_project: self)
     end
 
-    olds.each do |pn|
-      maintained_project = Project.find_by_name!(pn)
-      maintained_project.maintenance_project = nil
-      maintained_project.save!
-    end
+    maintained_projects.delete(project: olds.values)
   end
 
   def check_for_empty_repo_list(list, error_prefix)
@@ -1021,28 +1016,6 @@ class Project < ActiveRecord::Base
     self.type_id = mytype.id
     self.save!
     return true
-  end
-
-  def maintenance_project
-    return Project.find_by_id(maintenance_project_id)
-  end
-
-  def set_maintenance_project(project)
-    check_write_access!
-
-    if project.class == Project
-      self.maintenance_project_id = project.id
-      self.save!
-      return true
-    elsif project.is_a? String
-      prj = Project.find_by_name(project)
-      if prj
-        self.maintenance_project_id = prj.id
-        self.save!
-        return true
-      end
-    end
-    return false
   end
 
   def add_repository_with_targets(repoName, source_repo, add_target_repos = [])
@@ -1393,7 +1366,7 @@ class Project < ActiveRecord::Base
         next
       end
 
-      pkg_name, rt_name = pkg.name.split('.', 2)
+      rt_name = pkg.name.split('.', 2).last
       next unless rt_name
       if pkg.is_patchinfo?
         # We found a patchinfo that is specific to (at least) one release target!

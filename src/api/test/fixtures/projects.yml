@@ -14,7 +14,6 @@ BaseDistro:
   updated_at: 2005-01-01 01:00:01.000000000 Z
   type_id: 1
   delta: 1
-  maintenance_project: My_Maintenance
 BaseDistro2.0:
   name: BaseDistro2.0
   title: This is another base distro
@@ -32,7 +31,6 @@ BaseDistro2.0_LinkedUpdateProject:
   updated_at: 2005-01-01 01:00:01.000000000 Z
   type_id: 4
   delta: 1
-  maintenance_project: My_Maintenance
 BaseDistro3:
   name: BaseDistro3
   title: This is another base distro, without update project
@@ -41,7 +39,6 @@ BaseDistro3:
   updated_at: 2005-01-01 01:00:01.000000000 Z
   type_id: 4
   delta: 1
-  maintenance_project: My_Maintenance
 BaseDistro_Update:
   name: BaseDistro:Update
   title: This is an update project for the base distro

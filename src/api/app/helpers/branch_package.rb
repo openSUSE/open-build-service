@@ -270,35 +270,38 @@ class BranchPackage
         logger.info "sources will get copied from devel package #{p[:copy_from_devel].project.name}/#{p[:copy_from_devel].name}" unless p[:copy_from_devel] == p[:package]
       end
 
+      incident_pkg = nil
       if (!p[:copy_from_devel] or p[:copy_from_devel] == p[:package]) \
              and p[:package].is_a? Package \
-             and p[:link_target_project].is_a?(Project) and p[:link_target_project].is_maintenance_release? \
-             and mp = p[:link_target_project].maintenance_project
-        # no defined devel area or no package inside, but we branch from a release are: check in open incidents
+             and p[:link_target_project].is_a?(Project) \
+             and p[:link_target_project].is_maintenance_release? \
+             and p[:link_target_project].maintenance_projects.count
+        p[:link_target_project].maintenance_projects.each do |mp|
+          # no defined devel area or no package inside, but we branch from a release are: check in open incidents
 
-        path = "/search/package/id?match=(linkinfo/@package=\"#{CGI.escape(p[:package].name)}\"+and+linkinfo/@project=\"#{CGI.escape(p[:link_target_project].name)}\""
-        path += "+and+starts-with(@project,\"#{CGI.escape(mp.name)}%3A\"))"
-        answer = Suse::Backend.post path, nil
-        data = REXML::Document.new(answer.body)
-        incident_pkg = nil
-        data.elements.each('collection/package') do |e|
-          ipkg = Package.find_by_project_and_name(e.attributes['project'], e.attributes['name'])
-          if ipkg.nil?
-            logger.error "read permission or data inconsistency, backend delivered package as linked package where no database object exists: #{e.attributes['project']} / #{e.attributes['name']}"
-          else
-            # is incident ?
-            if ipkg.project.is_maintenance_incident? and ipkg.project.is_unreleased?
-              # is a newer incident ?
-              if incident_pkg.nil? or ipkg.project.name.gsub(/.*:/, '').to_i > incident_pkg.project.name.gsub(/.*:/, '').to_i
-                incident_pkg = ipkg
+          path = "/search/package/id?match=(linkinfo/@package=\"#{CGI.escape(p[:package].name)}\"+and+linkinfo/@project=\"#{CGI.escape(p[:link_target_project].name)}\""
+          path += "+and+starts-with(@project,\"#{CGI.escape(mp.maintenance_project.name)}%3A\"))"
+          answer = Suse::Backend.post path, nil
+          data = REXML::Document.new(answer.body)
+          data.elements.each('collection/package') do |e|
+            ipkg = Package.find_by_project_and_name(e.attributes['project'], e.attributes['name'])
+            if ipkg.nil?
+              logger.error "read permission or data inconsistency, backend delivered package as linked package where no database object exists: #{e.attributes['project']} / #{e.attributes['name']}"
+            else
+              # is incident ?
+              if ipkg.project.is_maintenance_incident? and ipkg.project.is_unreleased?
+                # is a newer incident ?
+                if incident_pkg.nil? or ipkg.project.name.gsub(/.*:/, '').to_i > incident_pkg.project.name.gsub(/.*:/, '').to_i
+                  incident_pkg = ipkg
+                end
               end
             end
           end
         end
-        if incident_pkg
-          p[:copy_from_devel] = incident_pkg
-          logger.info "sources will get copied from incident package #{p[:copy_from_devel].project.name}/#{p[:copy_from_devel].name}"
-        end
+      end
+      if incident_pkg
+        p[:copy_from_devel] = incident_pkg
+        logger.info "sources will get copied from incident package #{p[:copy_from_devel].project.name}/#{p[:copy_from_devel].name}"
       elsif not @copy_from_devel and p[:package].is_a? Package and (p[:package].develpackage or p[:package].project.develproject)
         p[:package] = p[:package].resolve_devel_package
         p[:link_target_project] = p[:package].project

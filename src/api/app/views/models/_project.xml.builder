@@ -66,10 +66,10 @@ xml.project(project_attributes) do
     end
   end
 
-  unless my_model.maintained_projects.empty?
+  unless MaintainedProject.where(maintenance_project_id: my_model.id).empty?
     xml.maintenance do |maintenance|
-      my_model.maintained_projects.each do |mp|
-        maintenance.maintains(:project => mp.name)
+      MaintainedProject.where(maintenance_project_id: my_model.id).each do |mp|
+        maintenance.maintains(:project => mp.project.name)
       end
     end
   end
