@@ -1639,6 +1639,7 @@ sub getpreinstallimage {
   my @bins = @$todo;
   my %prpas;	# server -> prpas on this server
   my %hdrmd5s;
+  my %imageorigins;
   my $projid = $buildinfo->{'project'};
   my $repoid = $buildinfo->{'repository'};
   my %metas;
@@ -1673,9 +1674,12 @@ sub getpreinstallimage {
 	$metas{$1} = $_ if !$nometa && $_->{'metamd5'};
       }
     }
+    my @origin = ($repo->{'project'}, $repo->{'repository'}, $buildinfo->{'arch'});
     for my $bin (@bins) {
       my $bv = $bv{$bin} || {};
-      $hdrmd5s{$bin} = $bv->{'hdrmd5'} unless $bv->{'error'};
+      next if $bv->{'error'};
+      $hdrmd5s{$bin} = $bv->{'hdrmd5'};
+      $imageorigins{$bin} = \@origin if exists $hdrmd5s{$bin};
     }
     @bins = grep {!exists $hdrmd5s{$_}} @bins;
     last unless @bins;
@@ -1816,11 +1820,14 @@ sub getpreinstallimage {
   for my $bin (keys %metas) {
     delete $metas{$bin} unless $imagebins{$bin};	# only return metas on the image
   }
+  for my $bin (keys %imageorigins) {
+    delete $imageorigins{$bin} unless $imagebins{$bin};	# only return origins on the image
+  }
   my $imagesource = $imageinfo->{'prpa'};
   $imagesource =~ s/\/[^\/]*$//;	# strip arch
   $imagesource .= "/$imageinfo->{'package'}" if $imageinfo->{'package'};
   $imagesource .= " [$imageinfo->{'hdrmd5'}]";
-  return $imagefile, \%imagebins, $imagesource, \%metas;
+  return $imagefile, \%imagebins, $imagesource, \%metas, \%imageorigins;
 }
 
 sub getbinaries {
@@ -1840,6 +1847,7 @@ sub getbinaries {
     %bdep_noinstall = map {$_->{'name'} => 1} grep {$_->{'noinstall'} && ($_->{'repoarch'} || '') ne 'src'} @bdep;
   }
   @bdep = map {$_->{'name'}} grep {($_->{'repoarch'} || '') ne 'src'} @bdep;
+  my $outbdep = ($buildinfo->{'outbuildinfo'} || {})->{'bdep'};
 
   my %done;
   my @todo = @bdep;
@@ -1866,14 +1874,20 @@ sub getbinaries {
   my %bvls;		# bvl cache, the query is not free
   my ($imagefile, $imagebins);
   if (@todo && !$kiwimode && $preinstallimagedata && $Build::Features::preinstallimage) {
-    my $imagesource;
-    my $imagemetas;
-    ($imagefile, $imagebins, $imagesource, $imagemetas) = getpreinstallimage($buildinfo, $dir, \@todo, \%bvls);
+    my ($imagesource, $imagemetas, $imageorigins);
+    ($imagefile, $imagebins, $imagesource, $imagemetas, $imageorigins) = getpreinstallimage($buildinfo, $dir, \@todo, \%bvls);
     if ($imagefile && $imagebins && $imagemetas) {
       $preinstallimagedata->{'imagename'} = $imagefile;
       $preinstallimagedata->{'imagebins'} = $imagebins;
       $preinstallimagedata->{'imagesource'} = $imagesource;
       $meta{$_} = 1 for keys %$imagemetas;
+      if ($outbdep) {
+	# record preinstallimage data
+        for (grep {$imagebins->{$_}} @todo) {
+	  my $obdep = { 'name' => $_, 'hdrmd5' => $imagebins->{$_}, 'project' => $imageorigins->{$_}->[0], 'repository' => $imageorigins->{$_}->[1] };
+	  push @$outbdep, $obdep;
+        }
+      }
       # remove image packages from todo
       @todo = grep {!$imagebins->{$_}} @todo;
     }
@@ -1895,7 +1909,6 @@ sub getbinaries {
     $nometa = 1 if $buildinfo->{'file'} eq '_preinstallimage';
     my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
     my $got = getbinaries_cache($ddir, $server, $repo->{'project'}, $repo->{'repository'}, $buildinfo->{'arch'}, $nometa, \@todo, $bvls{"$repo->{'project'}/$repo->{'repository'}/$buildinfo->{'arch'}"});
-    my $outbdep = ($buildinfo->{'outbuildinfo'} || {})->{'bdep'};
     for (sort keys %$got) {
       my $gotpkg = $got->{$_};
       $done{$_} = $gotpkg->{'name'};
