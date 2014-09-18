@@ -2073,11 +2073,29 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # this user is not allowed
-    post '/source/home:Iggy?cmd=release', nil
+    post '/source/home:Iggy/TestPack?cmd=release', nil
     assert_response 403
     assert_xml_tag :tag => 'status', :attributes => { :code => 'cmd_execution_no_permission' }
 
-    # release for real
+    # but he can release it to own space
+    post '/source/home:Iggy/TestPack?cmd=release&target_project=home:Iggy', nil
+    assert_response 400
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'missing_parameter' }
+
+    post '/source/home:Iggy/TestPack?cmd=release&target_project=home:Iggy:TEST&repository=10.2&target_repository=10.2', nil
+    assert_response 404
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'unknown_project' }
+    # create project
+    doc.root.attributes['name'] = "home:Iggy:TEST"
+    put '/source/home:Iggy:TEST/_meta', doc.to_s
+    assert_response :success
+    # but now it works for real
+    post '/source/home:Iggy/TestPack?cmd=release&target_project=home:Iggy:TEST&repository=10.2&target_repository=10.2', nil
+    assert_response :success
+    delete '/source/home:Iggy:TEST'
+    assert_response :success
+
+    # release entire project as well to default target
     login_adrian
     post '/source/home:Iggy?cmd=release', nil
     assert_response :success

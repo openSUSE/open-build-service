@@ -572,6 +572,9 @@ POST /source/<project>/<package>?cmd=release
 Parameters:
   comment: description for the history
   repository: limit the release to the specified repository
+  target_repository: specify the target repository name (together with target_project)
+  target_project: overwrites the target definition from project meta
+                  (repository and target_repository parameter required as well)
 
 XmlResult: status
 

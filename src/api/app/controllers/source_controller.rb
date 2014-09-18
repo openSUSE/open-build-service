@@ -309,7 +309,7 @@ class SourceController < ApplicationController
     @deleted_package = params.has_key? :deleted
 
     # FIXME: for OBS 3, api of branch and copy calls have target and source in the opossite place
-    if params[:cmd] == 'branch'
+    if ['branch', 'release'].include? params[:cmd]
       @target_package_name = params[:package]
       @target_project_name = params[:target_project] # might be nil
       @target_package_name = params[:target_package] if params[:target_package]
@@ -356,10 +356,9 @@ class SourceController < ApplicationController
     # Check for existens/access of origin package when specified
     @spkg = nil
     Project.get_by_name origin_project_name if origin_project_name
-    if origin_package_name && !%w(_project _pattern).include?(origin_package_name) && !(params[:missingok] && @command == 'branch')
-      @spkg = Package.get_by_project_and_name(origin_project_name, origin_package_name) if origin_package_name && !%w(_project _pattern).include?(origin_package_name)
+    if origin_package_name && !%w(_project _pattern).include?(origin_package_name) && !(params[:missingok] && [ 'branch', 'release' ].include?(@command))
+      @spkg = Package.get_by_project_and_name(origin_project_name, origin_package_name)
     end
-
     unless Package_creating_commands.include? @command and not Project.exists_by_name(@target_project_name)
       # even when we can create the package, an existing instance must be checked if permissions are right
       @project = Project.get_by_name @target_project_name
@@ -374,7 +373,7 @@ class SourceController < ApplicationController
 
   Source_untouched_commands = %w(branch diff linkdiff servicediff showlinked rebuild wipe remove_flag set_flag getprojectservices)
   # list of cammands which create the target package
-  Package_creating_commands = %w(branch copy undelete)
+  Package_creating_commands = %w(branch release copy undelete)
   # list of commands which are allowed even when the project has the package only via a project link
   Read_commands = %w(branch diff linkdiff servicediff showlinked getprojectservices release)
 
@@ -1522,21 +1521,46 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=release
   def package_command_release
 
-    spkg = Package.get_by_project_and_name(params[:project], params[:package])
-
-    verify_repos_match!(spkg.project)
-
     pkg = Package.get_by_project_and_name params[:project], params[:package], use_source: true, follow_project_links: false
-    pkg.project.repositories.each do |repo|
-      next if params[:repository] and params[:repository] != repo.name
-      repo.release_targets.each do |releasetarget|
-        # find md5sum and release source and binaries
-        release_package(pkg, releasetarget.target_repository.project.name, pkg.name, repo, nil, params[:setrelease], true)
+
+    # specified target
+    if params[:target_project]
+      # we do not create it ourself
+      Project.get_by_name(params[:target_project])
+      _package_command_release_manual_target(pkg)
+    else
+      spkg = Package.get_by_project_and_name(params[:project], params[:package])
+      verify_repos_match!(spkg.project)
+
+      # loop via all defined targets
+      pkg.project.repositories.each do |repo|
+        next if params[:repository] and params[:repository] != repo.name
+        repo.release_targets.each do |releasetarget|
+          # find md5sum and release source and binaries
+          release_package(pkg, releasetarget.target_repository.project.name, pkg.name, repo, nil, params[:setrelease], true)
+        end
       end
     end
 
     render_ok
   end
+
+  def _package_command_release_manual_target(pkg)
+      verify_can_modify_target!
+
+      if params[:target_repository].blank? or params[:repository].blank?
+        raise MissingParameterError.new 'release action with specified target project needs also "repository" and "target_repository" parameter'
+      end
+      targetrepo=Repository.find_by_project_and_repo_name(@target_project_name, params[:target_repository])
+      raise UnknownRepository.new "Repository does not exist #{params[:target_repository]}" unless targetrepo
+
+      repo=pkg.project.repositories.where(name: params[:repository])
+      raise UnknownRepository.new "Repository does not exist #{params[:repository]}" unless repo.count > 0
+      repo=repo.first
+
+      release_package(pkg, targetrepo.project.name, pkg.name, repo, nil, params[:setrelease], true)
+  end
+  private  :_package_command_release_manual_target
 
   # POST /source/<project>/<package>?cmd=runservice
   def package_command_runservice
