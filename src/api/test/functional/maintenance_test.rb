@@ -24,23 +24,29 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     delete '/source/home:tom:maintenance'
     assert_response :success
 
-    put '/source/home:tom:maintenance/_meta', '<project name="home:tom:maintenance" kind="maintenance" > <title/> <description/> <maintenance><maintains project="kde4"/></maintenance> </project>'
+    # need write permission in maintained project...
+    put '/source/home:tom:maintenance/_meta', '<project name="home:tom:maintenance" kind="maintenance" > <title/> <description/> <maintenance><maintains project="BaseDistro"/></maintenance> </project>'
+    assert_response 403
+    assert_xml_tag :tag => 'summary', :content => "No write access to maintained project BaseDistro"
+
+    # create one ...
+    put '/source/home:tom:maintenance/_meta', '<project name="home:tom:maintenance" kind="maintenance" > <title/> <description/> <maintenance><maintains project="home:tom"/></maintenance> </project>'
     assert_response :success
     get '/source/home:tom:maintenance/_meta'
     assert_response :success
-    assert_xml_tag :tag => 'maintains', :attributes => { project: 'kde4' }
+    assert_xml_tag :tag => 'maintains', :attributes => { project: 'home:tom' }
 
-    get '/search/project', :match => '[maintenance/maintains/@project="kde4"]'
+    get '/search/project', :match => '[maintenance/maintains/@project="home:tom"]'
     assert_response :success
     assert_xml_tag :tag => 'collection', :children => { count: 1 }
-    assert_xml_tag :tag => 'maintains', :attributes => { project: 'kde4' }
+    assert_xml_tag :tag => 'maintains', :attributes => { project: 'home:tom' }
 
     # cleanup
     delete '/source/home:tom:maintenance'
     assert_response :success
 
     # search does not find a maintained project anymore
-    get '/search/project', :match => '[maintenance/maintains/@project="kde4"]'
+    get '/search/project', :match => '[maintenance/maintains/@project="home:tom"]'
     assert_response :success
     assert_xml_tag :tag => 'collection', :children => { count: 0 }
   end
@@ -1069,12 +1075,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   end
 
   def test_create_maintenance_project_and_release_packages
-    prepare_request_with_user 'maintenance_coord', 'power'
 
     # the birthday of J.K.
     Timecop.freeze(2010, 7, 12)
 
     # setup 'My:Maintenance' as a maintenance project by fetching it's meta and set a type
+    login_king
     get '/source/My:Maintenance/_meta'
     assert_response :success
     maintenance_project_meta = REXML::Document.new(@response.body)
@@ -1082,6 +1088,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     raw_put '/source/My:Maintenance/_meta', maintenance_project_meta.to_s
     assert_response :success
 
+    prepare_request_with_user 'maintenance_coord', 'power'
     raw_post '/source/My:Maintenance/_attribute', "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-%N-%Y-%C</value></attribute></attributes>"
     assert_response :success
 

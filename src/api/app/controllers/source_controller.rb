@@ -496,25 +496,10 @@ class SourceController < ApplicationController
     end
 
     check_target_of_link(project_name, rdata)
+    _update_project_meta_maintains(rdata)
+    new_repo_names = _update_project_meta_repos(project_name, rdata)
 
-    new_repo_names = {}
-    # Check used repo pathes for existens and read access permissions
-    rdata.elements('repository') do |r|
-      new_repo_names[r['name']] = 1
-      r.elements('path') do |e|
-        # permissions check
-        tproject_name = e.value('project')
-        if tproject_name != project_name
-          tprj = Project.get_by_name(tproject_name)
-          if tprj.class == Project and tprj.disabled_for?('access', nil, nil) # user can access tprj, but backend would refuse to take binaries from there
-            raise RepositoryAccessFailure.new "The current backend implementation is not using binaries from read access protected projects #{tproject_name}"
-          end
-        end
-
-        logger.debug "project #{project_name} repository path checked against #{tproject_name} projects permission"
-      end
-    end
-
+    # permission check passed, write meta
     if prj
       removedRepositories = Array.new
       prj.repositories.each do |repo|
@@ -540,6 +525,40 @@ class SourceController < ApplicationController
     end
     render_ok
   end
+  def _update_project_meta_repos(project_name, rdata)
+    new_repo_names = {}
+    # Check used repo pathes for existens and read access permissions
+    rdata.elements('repository') do |r|
+      new_repo_names[r['name']] = 1
+      r.elements('path') do |e|
+        # permissions check
+        tproject_name = e.value('project')
+        if tproject_name != project_name
+          tprj = Project.get_by_name(tproject_name)
+          if tprj.class == Project and tprj.disabled_for?('access', nil, nil) # user can access tprj, but backend would refuse to take binaries from there
+            raise RepositoryAccessFailure.new "The current backend implementation is not using binaries from read access protected projects #{tproject_name}"
+          end
+        end
+
+        logger.debug "project #{project_name} repository path checked against #{tproject_name} projects permission"
+      end
+    end
+    new_repo_names
+  end
+  private :_update_project_meta_repos
+  def _update_project_meta_maintains(rdata)
+    # Check if used maintains statements point only to projects with write access
+    rdata.elements('maintenance') do |m|
+      m.elements('maintains') do |r|
+        tproject_name = r.value('project')
+        tprj = Project.get_by_name(tproject_name)
+        unless tprj.class == Project and User.current.can_modify_project?(tprj)
+          raise ModifyProjectNoPermission.new "No write access to maintained project #{tproject_name}"
+        end
+      end
+    end
+  end
+  private :_update_project_meta_maintains
 
   # the following code checks if the target project of a linked project exists or is not readable by user
   def check_target_of_link(project_name, rdata)
