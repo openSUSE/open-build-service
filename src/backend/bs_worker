@@ -2127,6 +2127,8 @@ sub createchannel {
   my @reports = grep {/\.report$/} ls($dir);
   my %channel;
   my $hasunknown;
+  my $hasconflict = '';
+  my %channelnames;
   for my $reportfile (@reports) {
     my $report = readxml("$dir/$reportfile", $BSXML::report, 1);
     next unless $report;
@@ -2142,6 +2144,12 @@ sub createchannel {
       $bin->{'repository'} = $repoid;
       $bin->{'arch'} = $arch;
       $bin->{'package'} = $packid;
+      # do not put src rpms into channel
+      next if $bin->{'binaryarch'} eq 'src' || $bin->{'binaryarch'} eq 'nosrc';
+      if ($channelnames{$bin->{'name'}} && $channelnames{$bin->{'name'}} ne "$projid/$repoid/$arch/$packid") {
+	$hasconflict .= "$bin->{'name'}: $channelnames{$bin->{'name'}} - $projid/$repoid/$arch/$packid\n";
+      }
+      $channelnames{$bin->{'name'}} = "$projid/$repoid/$arch/$packid";
       $channel{"$projid/$repoid/$arch"}->{"$packid/$bin->{'name'}"} = $bin;
     }
     writexml("$dir/.$reportfile", "$dir/$reportfile", $report, $BSXML::report);
@@ -2167,6 +2175,7 @@ sub createchannel {
   # we directly write it so we can format a bit
   my $c = '';
   $c .= "\n<!-- WARNING: this file contains UNKNOWN entries -->\n\n" if $hasunknown;
+  $c .= "\n<!-- WARNING: this file contains the following conflicts:\n\n$hasconflict\n-->\n\n" if $hasconflict;
   $c .= "<channel>\n";
   for my $chansplit (@chansplits) {
     $c .= "  <binaries";
