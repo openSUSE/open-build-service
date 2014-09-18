@@ -7142,7 +7142,34 @@ sub published_path {
   if ($medium && $medium =~ /\.iso$/) {
     $medium = "iso/$medium";
   } elsif ($medium) {
-    $medium = "repo/$medium";
+    my @path = expandsearchpath($projid, $repoid);
+    my $c = concatconfigs($projid, $cgi->{'repository'}, undef, @path);
+    my $bconf = Build::read_config('noarch', [ split("\n", $c) ]);
+    my %repotype;
+    for (@{$bconf->{'repotype'} || []}) {
+      if (/^(.*?):(.*)$/) {
+        $repotype{$1} = [ split(':', $2) ];
+      } else {
+        $repotype{$_} = [];
+      }    
+    }
+    if ($repotype{'slepool'}) {
+      my $name = $repotype{'slepool'}->[0] || 'product';
+      if ($medium =~ /-Media1$/) {
+	$medium = $name;
+      } elsif ($medium =~ /-Media3$/) {
+	$medium = "${name}_debug";
+      } elsif ($medium =~ /-Media2$/) {
+        my $repoinfo;
+	eval {
+	  $repoinfo = $prp_to_repoinfo{$prp};
+	};
+	my $binaryorigins = ($repoinfo || {})->{'binaryorigins'};
+	$medium = $binaryorigins->{"${name}_source"} ? "${name}_source" : "${name}_debug";
+      }
+    } else {
+      $medium = "repo/$medium";
+    }
   }
   if ($medium) {
     $path .= "/$medium" if defined $path;
