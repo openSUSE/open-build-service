@@ -1110,10 +1110,9 @@ sub sync_to_stage {
   # push done trigger sync to other mirrors
   mkdir_p($extrepodir_sync);
   my ($projid) = split('/', $prp, 2);
-  my $projid_ext = $projid;
-  $projid_ext =~ s/:/:\//g;
-  writestr("$extrepodir_sync/.$$:$projid", "$extrepodir_sync/$projid", "$projid_ext\0");
-
+  my $triggerdir = $extdir;
+  $triggerdir = ~ s/\/.*?$// unless $isdelete;
+  writestr("$extrepodir_sync/.$$:$projid", "$extrepodir_sync/$projid", "$triggerdir\0");
   if ($BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
     print "    running trigger rsync to $1 at ".localtime(time)."\n";
     # small sync, timout 1 minute
@@ -1144,8 +1143,6 @@ sub deleterepo {
   my ($projid, $repoid, $dbgsplit) = @_;
   my $prp = "$projid/$repoid";
   print "    deleting repository\n";
-  my $projid_ext = $projid;
-  $projid_ext =~ s/:/:\//g;
   my $prp_ext = $prp;
   $prp_ext =~ s/:/:\//g;
   my $extrep = map_to_extrep($prp, $prp_ext);
@@ -1155,7 +1152,11 @@ sub deleterepo {
   $prp_ext .= $dbgsplit if $dbgsplit;
 
   if (! -d $extrep) {
-    rmdir("$extrepodir/$projid_ext");
+    if ($extrep =~ /\Q$extrepodir\E\/(.+)$/) {
+      my $extdir = $1;
+      $extdir =~ s/\/.*?$//;
+      rmdir("$extrepodir/$extdir");
+    }
     return if $dbgsplit;
     print "    nothing to delete...\n";
     unlink("$reporoot/$prp/:repoinfo");
@@ -1221,8 +1222,13 @@ sub deleterepo {
   deletepatterns_ymp($extrep, $projid, $repoid);
   # delete everything else
   qsystem('rm', '-rf', $extrep);
-  sync_to_stage($prp, $projid_ext, 1);
-  rmdir("$extrepodir/$projid_ext");
+
+  if ($extrep =~ /\Q$extrepodir\E\/(.+)$/) {
+    my $extdir = $1;
+    $extdir =~ s/\/.*?$//;
+    sync_to_stage($prp, $extdir, 1);
+    rmdir("$extrepodir/$extdir");
+  }
 
   # also delete the split debug repo
   deleterepo($projid, $repoid, $repoinfo->{'splitdebug'}) if $repoinfo->{'splitdebug'} && !$dbgsplit;
@@ -2006,7 +2012,9 @@ publishprog_done:
   # push the repo (unless there's a redirect)
   # FIXME: use different mechanism to disable sync
   if (!($BSConfig::publishredirect && $BSConfig::publishredirect->{$prp})) {
-    sync_to_stage($prp, $prp_ext);
+    if ($extrep =~ /\Q$extrepodir\E\/(.+)$/) {
+      sync_to_stage($prp, $1);
+    }
   }
 
   # support for regex usage in $BSConfig::publishedhook
