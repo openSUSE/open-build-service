@@ -1616,6 +1616,33 @@ sub publish {
       $bins_done{$p} = 1;
       next;
     }
+    if ($bins{$arch}) {
+      my @s = lstat($r);
+      die("$r: $!\n") unless @s;
+      next if "$s[9]/$s[7]/$s[1]" eq $bins_id{$arch};
+      if (-d _) {
+	if (! -l $bins{$arch} && -d _) {
+	  my $info1 = BSUtil::treeinfo($bins{$arch});
+	  my $info2 = BSUtil::treeinfo($r);
+	  if (join(',', @$info1) eq join(',', @$info2)) {
+	    $bins_done{$arch} = 1;
+	    next;
+	  }
+	  print "      ! $arch\n";
+	  BSUtil::cleandir($r);
+	  rmdir($r) || die("rmdir $r: $!\n");
+	}
+	if (! -l $bins{$arch} && -d _) {
+	  BSUtil::linktree($bins{$arch}, $r);
+	} else {
+	  link($bins{$arch}, $r) || die("link $bins{$arch} $r: $!\n");
+	}
+	push @db_changed, $arch if $arch =~ /\.(?:$binsufsre)$/;
+	push @changed, $arch;
+	$changed = 1;
+	next;
+      }
+    }
     next unless -d $r;
     for my $bin (sort(ls($r))) {
       my $p = "$arch/$bin";
