@@ -4787,7 +4787,7 @@ sub checkkiwiimage {
     print "        blocked (@blocked)\n";
     return ('blocked', join(', ', @blocked));
   }
-  @new_meta = sort sort {substr($a, 34) cmp substr($b, 34)} @new_meta;
+  @new_meta = sort {substr($a, 34) cmp substr($b, 34)} @new_meta;
   unshift @new_meta, map {"$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}"} @{$info->{'extrasource'} || []};
   unshift @new_meta, ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
   return metacheck($ctx, $packid, 'kiwi-image', \@new_meta, [ $bconf, \@edeps ]);
