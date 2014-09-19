@@ -1922,12 +1922,11 @@ sub getbinaries {
     }
     @todo = grep {!$done{$_}} @todo;
     if ($kiwimode) {
-      my @m;
       for my $n (keys %$got) {
 	my $f = $got->{$n};
 	if (!$bdep_notmeta{$n}) {
 	  my $id = Build::queryhdrmd5("$ddir/$f->{'name'}") || "deaddeaddeaddeaddeaddeaddeaddead";
-	  push @m, "$id  $repo->{'project'}/$repo->{'repository'}/$n";
+	  push @meta, "$id  $repo->{'project'}/$repo->{'repository'}/$n";
 	}
 	if (!$buildinfo->{'syspath'} && !$bdep_noinstall{$n}) {
           if (!-e "$dir/$f->{'name'}") {
@@ -1935,7 +1934,6 @@ sub getbinaries {
 	  }
 	}
       }
-      push @meta, sort {substr($a, 34) cmp substr($b, 34)} @m;
     }
   }
   die("getbinaries: missing packages: @todo\n") if @todo;
@@ -1986,6 +1984,9 @@ sub getbinaries {
     }
     @meta = BSBuild::gen_meta(($buildinfo->{'verifymd5'} || $buildinfo->{'srcmd5'})."  $packid", $buildinfo->{'subpack'} || [], @meta);
     shift @meta;	# strip srcinfo again
+  } else {
+    # simply sort the meta
+    @meta = sort {substr($a, 34) cmp substr($b, 34)} @meta;
   }
   return @meta;
 }

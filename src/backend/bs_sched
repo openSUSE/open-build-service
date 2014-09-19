@@ -4756,10 +4756,6 @@ sub checkkiwiimage {
   $bconf->{'ignoreh'} = $bconfignoreh if $bconfignoreh;
 
   my @new_meta;
-  push @new_meta, ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
-  for (@{$info->{'extrasource'} || []}) {
-    push @new_meta, "$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}";
-  }
 
   my %dep2pkg;
   for my $p ($pool->consideredpackages()) {
@@ -4780,7 +4776,7 @@ sub checkkiwiimage {
   }
   
   my @blocked;
-  for my $n (@edeps) {
+  for my $n (sort @edeps) {
     my $p = $dep2pkg{$n};
     my $aprp = $pool->pkg2reponame($p);
     push @blocked, $prp ne $aprp ? "$aprp/$n" : $n if $nrs{$aprp}->{$n};
@@ -4791,6 +4787,9 @@ sub checkkiwiimage {
     print "        blocked (@blocked)\n";
     return ('blocked', join(', ', @blocked));
   }
+  @new_meta = sort sort {substr($a, 34) cmp substr($b, 34)} @new_meta;
+  unshift @new_meta, map {"$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}"} @{$info->{'extrasource'} || []};
+  unshift @new_meta, ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
   return metacheck($ctx, $packid, 'kiwi-image', \@new_meta, [ $bconf, \@edeps ]);
 }
 
