@@ -1111,7 +1111,7 @@ sub sync_to_stage {
   mkdir_p($extrepodir_sync);
   my ($projid) = split('/', $prp, 2);
   my $triggerdir = $extdir;
-  $triggerdir = ~ s/\/.*?$// unless $isdelete;
+  $triggerdir =~ s/\/.*?$// unless $isdelete;
   writestr("$extrepodir_sync/.$$:$projid", "$extrepodir_sync/$projid", "$triggerdir\0");
   if ($BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
     print "    running trigger rsync to $1 at ".localtime(time)."\n";
