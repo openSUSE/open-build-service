@@ -4617,6 +4617,7 @@ sub getproductrepositories {
       }
       $path->{'arch'} = $repo->{'arch'} if $repo->{'arch'};
       $path->{'zypp'} = $repo->{'zypp'} if $repo->{'zypp'};
+      $path->{'debug'} = undef if $repo->{'name'} =~ m/_debug$/;
       push @pr, $path;
     };
     my $prod = { "name" => $product->{'name'}, "repository" => \@pr };
