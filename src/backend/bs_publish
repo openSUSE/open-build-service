@@ -1448,11 +1448,9 @@ sub publish {
 	if ($bin =~ /\.iso(?:\.sha256)?$/) {
 	  $p = "iso/$bin";
 	  $kiwimedium{$p} = $1 if $bin =~ /(.+)\.iso$/;
-	} elsif ($bin =~ /\.raw\.(?:gz|bz2|xz)(?:\.sha256)?$/) {
+	} elsif ($bin =~ /\.raw(?:\.install)?(?:\.(?:gz|bz2|xz))?(?:\.sha256)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /\.install\.(?:tbz|tgz)?(?:\.sha256)?$/) {
-	  $p = "$bin";
-	} elsif ($bin =~ /\.raw(?:\.install)?(?:\.sha256)?$/) {
+	} elsif ($bin =~ /-Build\d.*\.(?:tbz|tgz|tar|tar\.gz|tar\.bz2|tar\.xz)(?:\.sha256)?$/) {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.tar(?:\.(?:gz|bz2|xz))?(?:\.sha256)?$/) {
 	  $p = "$bin";
@@ -1460,17 +1458,7 @@ sub publish {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.dsc(?:\.sha256)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /\.ovf(?:\.sha256)?$/) {
-	  $p = "$bin";
-	} elsif ($bin =~ /\.ova(?:\.sha256)?$/) {
-	  $p = "$bin";
-	} elsif ($bin =~ /\.box(?:\.sha256)?$/) {
-	  $p = "$bin";
-	} elsif ($bin =~ /\.json(?:\.sha256)?$/) {
-	  $p = "$bin";
-	} elsif ($bin =~ /\.qcow2(?:\.sha256)?$/) {
-	  $p = "$bin";
-	} elsif ($bin =~ /\.vmdk(?:\.sha256)?$/) {
+	} elsif ($bin =~ /\.(?:box|json|ovf|qcow2|vmdk)(?:\.sha256)?$/) {
 	  $p = "$bin";
         } elsif ($bin =~ /^(.*)\.report$/) {
 	  # collect kiwi reports
