@@ -6037,6 +6037,8 @@ sub rebuildchannel {
   mkdir_p($jobdatadir);
   my %channelinfo;
   my $bininfo = {};
+  my $checksums = '';
+  my %checksums_seen;
   for my $cb (@$channelbins) {
     my ($arepoid, $apackid, $bi, $supportstatus) = @$cb;
     my $file = "$reporoot/$projid/$arepoid/$myarch/$apackid/$bi->{'filename'}";
@@ -6047,12 +6049,20 @@ sub rebuildchannel {
       return ('broken', "id mismatch in $arepoid/$apackid $s[9]/$s[7]/$s[1] $bi->{'id'}");
     }
     link($file, "$jobdatadir/$bi->{'filename'}") || die("link $file $jobdatadir/$bi->{'filename'}: $!\n");
+    if (!$checksums_seen{"$arepoid/$apackid"}) {
+      $checksums_seen{"$arepoid/$apackid"} = 1;
+      # just append the checksums, it does not matter if we pick up too many
+      if (-s "$reporoot/$projid/$arepoid/$myarch/$apackid/.checksums") {
+        $checksums .= readstr("$reporoot/$projid/$arepoid/$myarch/$apackid/.checksums", 1) || '';
+      }
+    }
     $bininfo->{$bi->{'filename'}} = $bi;
     my $ci = { 'repository' => $arepoid, 'package' => $apackid };
     $ci->{'supportstatus'} = $supportstatus if defined $supportstatus;
     $channelinfo{$bi->{'filename'}} = $ci;
   }
   BSUtil::store("$jobdatadir/.channelinfo", undef, \%channelinfo);
+  writestr("$jobdatadir/.checksums", undef, $checksums) if $checksums;
   writestr("$jobdatadir/meta", undef, $new_meta);
   fakejobfinished_nouseforbuild($ctx, $packid, $job, 'succeeded', $bininfo, $pdata);
   return ('done');
