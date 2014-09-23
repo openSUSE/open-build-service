@@ -1563,7 +1563,6 @@ sub publish {
   # do debug filtering if requested
   if (defined($dbgsplit)) {
     if ($dbgsplit) {
-      @updateinfos = ();
       for my $p (keys %bins) {
         next if $p =~ /-debug(?:info|source)-.*rpm$/;
         delete $bins{$p};
@@ -1886,6 +1885,25 @@ sub publish {
   if (defined($dbgsplit)) {
     for (keys %$binaryorigins) {
       delete $binaryorigins->{$_} unless $bins{$_};
+    }
+    if (@updateinfos) {
+      my $dbgsplittype = ($repotype{'splitdebug'}->[1]) || 'main';
+      @updateinfos = () if $dbgsplit;
+      if ($dbgsplittype ne 'main' && !$dbgsplit) {
+	for my $up (@updateinfos) {
+	  for my $cl (@{($up->{'pkglist'} || {})->{'collection'} || []}) {
+	    next unless $cl->{'package'};
+	    my $haveremovedpkg;
+	    for my $pkg (@{$cl->{'package'}}) {
+	      next unless $pkg->{'filename'} =~ /-debug(?:info|source)-.*rpm$/;
+	      $pkg = undef;
+	      $haveremovedpkg = 1;
+	    }
+	    next unless $haveremovedpkg;
+	    $cl->{'package'} = [ grep {defined($_)} @{$cl->{'package'}} ];
+	  }
+	}
+      }
     }
   }
 
