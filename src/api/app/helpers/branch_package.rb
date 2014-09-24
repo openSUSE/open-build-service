@@ -163,7 +163,7 @@ class BranchPackage
         end
 
         # fetch newer sources from devel package, if defined
-        if p[:copy_from_devel] and p[:copy_from_devel].project != tpkg.project
+        if p[:copy_from_devel] and p[:copy_from_devel].project != tpkg.project and not p[:rev]
           msg="fetch+updates+from+devel+package+#{CGI.escape(p[:copy_from_devel].project.name)}/#{CGI.escape(p[:copy_from_devel].name)}"
           msg="fetch+updates+from+open+incident+project+#{CGI.escape(p[:copy_from_devel].project.name)}" if p[:copy_from_devel].project.is_maintenance_incident?
           # TODO: make this a query hash
