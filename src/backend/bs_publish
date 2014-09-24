@@ -1875,9 +1875,9 @@ sub publish {
       delete $binaryorigins->{$_} unless $bins{$_};
     }
     if (@updateinfos) {
-      my $dbgsplittype = ($repotype{'splitdebug'}->[1]) || 'main';
+      my $dbgsplittype = ($repotype{'splitdebug'}->[1]) || 'mainupdateinfo';
       @updateinfos = () if $dbgsplit;
-      if ($dbgsplittype ne 'main' && !$dbgsplit) {
+      if ($dbgsplittype ne 'mainupdateinfo' && !$dbgsplit) {
 	for my $up (@updateinfos) {
 	  for my $cl (@{($up->{'pkglist'} || {})->{'collection'} || []}) {
 	    next unless $cl->{'package'};
