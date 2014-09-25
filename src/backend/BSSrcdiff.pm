@@ -35,10 +35,32 @@ use BSUtil;
 # tmax: maximum number of lines in a tardiff
 #
 
+sub opengem {
+  my ($fp, $gem, $gemdata, @taropts) = @_;
+  if (!open(F, '-|')) {
+    if (!open(STDIN, '-|')) {
+      exec('tar', '-xOf', $gem, $gemdata);
+      die("tar $gemdata");
+    }
+    if ($gemdata =~ /\.gz$/) {
+      exec('tar', '-z', @taropts, '-');
+    } elsif ($gemdata =~ /\.xz$/) {
+      exec('tar', '--xz', @taropts, '-');
+    } else {
+      exec('tar', @taropts, '-');
+    }
+    die('tar');
+  }
+}
+
 sub listtar {
-  my ($tar) = @_;
+  my ($tar, $gemdata) = @_;
   local *F;
-  open(F, '-|', 'tar', '--numeric-owner', '-tvf', $tar) || die("tar: $!\n");
+  if ($gemdata) {
+    opengem(\*F, $tar, $gemdata, '--numeric-owner', '-tvf');
+  } else {
+    open(F, '-|', 'tar', '--numeric-owner', '-tvf', $tar) || die("tar: $!\n");
+  }
   my @c;
   my $fc = 0;
   while(<F>) {
@@ -69,7 +91,11 @@ sub listtar {
   }
   close(F) || die("tar: $!\n");
   if ($fc) {
-    open(F, '-|', 'tar', '-xOf', $tar) || die("tar: $!\n");
+    if ($gemdata) {
+      opengem(\*F, $tar, $gemdata, '-xOf');
+    } else {
+      open(F, '-|', 'tar', '-xOf', $tar) || die("tar: $!\n");
+    }
     for my $c (@c) {
       next unless $c->{'type'} eq '-' && $c->{'size'};
       my $ctx = Digest::MD5->new;
@@ -90,13 +116,25 @@ sub listtar {
 }
 
 sub extracttar {
-  my ($tar, $cp) = @_;
+  my ($tar, $cp, $gemdata) = @_;
 
   local *F;
   local *G;
-  open(F, '-|', 'tar', '-xOf', $tar) || die("tar: $!\n");
+  if ($gemdata) {
+    opengem(\*F, $tar, $gemdata, '-xOf');
+  } else {
+    open(F, '-|', 'tar', '-xOf', $tar) || die("tar: $!\n");
+  }
+  my $skipgemdata;
   for my $c (@$cp) {
-    next unless $c->{'type'} eq '-';
+    next unless $c->{'type'} eq '-' || $c->{'type'} eq 'gemdata';
+    if ($c->{'type'} eq 'gemdata') {
+      my @data = grep {$_->{'name'} =~ /^data\// && $_->{'type'} ne 'gemdata'} @$cp;
+      extracttar($tar, \@data, $c->{'name'});
+      delete $c->{'extract'};	# just in case...
+      $skipgemdata = 1;
+    }
+    next if $skipgemdata && $c->{'type'} ne 'gemdata' && $c->{'name'} =~ /^data\//;
     if (exists $c->{'extract'}) {
       open(G, '>', $c->{'extract'}) || die("$c->{'extract'}: $!\n");
       my $s = $c->{'size'};
@@ -121,6 +159,29 @@ sub extracttar {
     }
   }
   close(F) || die("tar: $!\n");
+}
+
+sub listgem {
+  my ($gem) = @_;
+
+  my @gem;
+  my @tar = listtar($gem);
+  my $founddata = 0;
+  for my $t (@tar) {
+    if ($t->{'name'} =~ /^data\.tar\.[xg]z$/) {
+      die("multiple data sections in gem\n") if $founddata++;
+      $t->{'type'} = 'gemdata';
+      push @gem, $t;
+      my @data = listtar($gem, $t->{'name'});
+      $_->{'name'} = "data/".$_->{'name'} for @data;
+      push @gem, @data;
+    } elsif ($t->{'name'} =~ /^data\//) {
+      die("bad gemfile\n");
+    } else {
+      push @gem, $t;
+    }
+  }
+  return @gem;
 }
 
 #
@@ -308,8 +369,8 @@ sub tardiff {
   my $max = $opts{'tmax'};
   my $edir = $opts{'edir'};
 
-  my @l1 = listtar($f1);
-  my @l2 = listtar($f2);
+  my @l1 = ($f1 =~ /\.gem$/) ? listgem($f1) : listtar($f1);
+  my @l2 = ($f2 =~ /\.gem$/) ? listgem($f2) : listtar($f2);
 
   die unless $edir;
   for (@l1, @l2) {
@@ -348,22 +409,31 @@ sub tardiff {
   my $e1cnt = 0;
   my $e2cnt = 0;
 
+  my @efiles;
   for my $f (@f) {
     next if $f eq '';
     next if $ren{$f};
+    my $suf1 = '';
+    $suf1 = $1 if $l1{$f} && $l1{$f}->{'name'} =~ /(\.[gx]z)$/;
+    my $suf2 = '';
+    $suf2 = $1 if $l2{$f} && $l2{$f}->{'name'} =~ /(\.[gx]z)$/;
     if ($l1{$f} && $l2{$f}) {
       next if $l1{$f}->{'type'} ne $l2{$f}->{'type'};
       next if $l1{$f}->{'type'} ne '-';
       next if $l1{$f}->{'info'} eq $l2{$f}->{'info'};
-      $l1{$f}->{'extract'} = "$edir/a$e1cnt";
+      $l1{$f}->{'extract'} = "$edir/a$e1cnt$suf1";
+      push @efiles, "$edir/a$e1cnt$suf1";
       $e1cnt++;
-      $l2{$f}->{'extract'} = "$edir/b$e2cnt";
+      $l2{$f}->{'extract'} = "$edir/b$e2cnt$suf2";
+      push @efiles, "$edir/b$e2cnt$suf2";
       $e2cnt++;
     } elsif ($l1{$f} && $l1{$f}->{'size'}) {
-      $l1{$f}->{'extract'} = "$edir/a$e1cnt";
+      $l1{$f}->{'extract'} = "$edir/a$e1cnt$suf1";
+      push @efiles, "$edir/a$e1cnt$suf1";
       $e1cnt++;
     } elsif ($l2{$f} && $l2{$f}->{'size'}) {
-      $l2{$f}->{'extract'} = "$edir/b$e2cnt";
+      $l2{$f}->{'extract'} = "$edir/b$e2cnt$suf2";
+      push @efiles, "$edir/b$e2cnt$suf2";
       $e2cnt++;
     }
   }
@@ -396,6 +466,7 @@ sub tardiff {
     next unless $l1{$f} || $l2{$f};
     if ($l1{$f} && $l2{$f}) {
       next if $l1{$f}->{'type'} eq $l2{$f}->{'type'} && (!defined($l1{$f}->{'info'}) || $l1{$f}->{'info'} eq $l2{$f}->{'info'});
+      next if $l1{$f}->{'type'} eq 'gemdata' && $l2{$f}->{'type'} eq 'gemdata';
     }
     $fmax = $max > $lcnt ? $max - $lcnt : 0 if defined $max;
     my $r = filediff(fixup($l1{$f}), fixup($l2{$f}), %opts, 'fmax' => $fmax);
@@ -409,14 +480,7 @@ sub tardiff {
     my $r = {'lines' => $lcnt, 'shown' => 0};
     @ret = ($r);
   }
-  while ($e1cnt > 0) {
-    $e1cnt--;
-    unlink("$edir/a$e1cnt");
-  }
-  while ($e2cnt > 0) {
-    $e2cnt--;
-    unlink("$edir/b$e2cnt");
-  }
+  unlink($_) for @efiles;
   rmdir($edir);
   return @ret;
 }
@@ -426,7 +490,7 @@ my @simclasses = (
   'dsc',
   'changes',
   '(?:diff?|patch)(?:\.gz|\.bz2|\.xz)?',
-  '(?:tar|tar\.gz|tar\.bz2|tar\.xz|tgz|tbz)',
+  '(?:tar|tar\.gz|tar\.bz2|tar\.xz|tgz|tbz|gem)',
 );
 
 sub findsim {
@@ -580,7 +644,7 @@ sub srcdiff {
       next if $old->{$of} eq $new->{$f};
       $d .= "\n++++++ $f\n" if $of eq $f;
     }
-    if ($f =~ /\.(?:tgz|tar\.gz|tar\.bz2|tbz|tar\.xz)$/) {
+    if ($f =~ /\.(?:tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem)$/) {
       if (defined $of) {
 	my @r = tardiff("$pold/$old->{$of}-$of", "$pnew/$new->{$f}-$f", %opts);
 	for my $r (@r) {
@@ -670,7 +734,7 @@ sub datadiff {
       delete $r->{'state'};
       push @added, {'state' => 'added', 'diff' => $r, 'new' => {'name' => $f, 'md5' => $new->{$f}, 'size' => $s[7]}};
     } elsif ($old->{$of} ne $new->{$f}) {
-      if ($opts{'doarchive'} && $f =~ /\.(?:tgz|tar\.gz|tar\.bz2|tbz|tar\.xz)$/) {
+      if ($opts{'doarchive'} && $f =~ /\.(?:tgz|tar\.gz|tar\.bz2|tbz|tar\.xz|gem)$/) {
 	my @r = tardiff("$pold/$old->{$of}-$of", "$pnew/$new->{$f}-$f", %opts);
         if (@r == 0 && $f ne $of) {
 	  # (almost) identical tars but renamed
