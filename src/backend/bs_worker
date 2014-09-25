@@ -302,7 +302,7 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
        --help      : this message
 
 EOF
-  exit $ret || 0;
+  exit($ret || 0);
 }
 
 my @saveargv = @ARGV;	# so we can restart ourself
@@ -1230,6 +1230,18 @@ sub getbinaries_cache {
   return \%ret;
 }
 
+# bring xarch to the back... (last one wins)
+sub prpasort {
+  my ($xarch, @p) = @_;
+  my %h;
+  for my $prpap (@p) {
+    my ($projid, $repoid, $arch, $packid) = split('/', $prpap, 4);
+    $arch = "~$arch" if $arch eq $xarch;
+    $h{$prpap} = "$projid/$repoid/$arch/$packid";
+  }
+  return sort { $h{$a} cmp $h{$b} } @p;
+}
+
 # this specialized version of getbinaries only works for
 # kiwi product builds
 sub getbinaries_kiwiproduct {
@@ -1285,7 +1297,11 @@ sub getbinaries_kiwiproduct {
   my @cacheold;
   my $downloadsizek = 0;
 
-  for my $prpap (sort keys %prpaps) {
+  my @prpaps = sort keys %prpaps;
+  if ($buildinfo->{'package'} =~ /-([^-]+)$/) {
+    @prpaps = prpasort($1, @prpaps);
+  }
+  for my $prpap (@prpaps) {
     my ($projid, $repoid, $arch, $packid) = split('/', $prpap, 4);
     my $prpdir = "$projid/$repoid";
     my $ddir = "$srcdir/repos/$prpdir";
