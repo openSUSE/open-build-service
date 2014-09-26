@@ -1558,7 +1558,7 @@ class SourceController < ApplicationController
       raise UnknownRepository.new "Repository does not exist #{params[:repository]}" unless repo.count > 0
       repo=repo.first
 
-      release_package(pkg, targetrepo.project.name, pkg.name, repo, nil, params[:setrelease], true)
+      release_package(pkg, targetrepo.project.name, pkg.name, repo, nil, params[:setrelease], true, targetrepo)
   end
   private  :_package_command_release_manual_target
 

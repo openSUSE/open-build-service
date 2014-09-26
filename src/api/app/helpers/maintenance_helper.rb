@@ -76,7 +76,7 @@ module MaintenanceHelper
   end
 
   def release_package(sourcePackage, targetProjectName, targetPackageName,
-                      filterSourceRepository = nil, action = nil, setrelease = nil, manual = nil)
+                      filterSourceRepository = nil, action = nil, setrelease = nil, manual = nil, targetrepo = nil)
     targetProject = Project.get_by_name targetProjectName
     targetProject.check_write_access!
 
@@ -87,7 +87,11 @@ module MaintenanceHelper
     end
 
     # copy binaries
-    uIDs = copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject, setrelease)
+    if targetrepo
+      uIDs = copy_binaries_targetrepo(filterSourceRepository, sourcePackage, targetPackageName, targetProject, setrelease, targetrepo)
+    else
+      uIDs = copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject, setrelease)
+    end
 
     # create or update main package linking to incident package
     unless sourcePackage.is_patchinfo? or manual
@@ -191,7 +195,7 @@ module MaintenanceHelper
           if releasetarget.target_repository.project == targetProject
             # get updateinfo id in case the source package comes from a maintenance project
             uID = get_updateinfo_id(sourcePackage, releasetarget.target_repository)
-            copy_single_binary(arch, releasetarget, sourcePackage, sourceRepo, targetPackageName, uID, setrelease)
+            copy_single_binary(arch, releasetarget.target_repository, sourcePackage, sourceRepo, targetPackageName, uID, setrelease)
 	    updateIDs << uID if uID
           end
         end
@@ -206,7 +210,23 @@ module MaintenanceHelper
     updateIDs
   end
 
-  def copy_single_binary(arch, releasetarget, sourcePackage, sourceRepo, targetPackageName, updateinfoId, setrelease)
+  def copy_binaries_targetrepo(filterSourceRepository, sourcePackage, targetPackageName, targetProject, setrelease, targetrepo)
+    updateIDs=[]
+    sourcePackage.project.repositories.each do |sourceRepo|
+      next if filterSourceRepository and filterSourceRepository != sourceRepo
+      sourceRepo.architectures.each do |arch|
+        if targetrepo.project == targetProject
+          # get updateinfo id in case the source package comes from a maintenance project
+          uID = get_updateinfo_id(sourcePackage, targetrepo)
+          copy_single_binary(arch, targetrepo, sourcePackage, sourceRepo, targetPackageName, uID, setrelease)
+	    updateIDs << uID if uID
+        end
+      end
+    end
+    updateIDs
+  end
+
+  def copy_single_binary(arch, target_repository, sourcePackage, sourceRepo, targetPackageName, updateinfoId, setrelease)
     cp_params = {
         :cmd => 'copy',
         :oproject => sourcePackage.project.name,
@@ -217,7 +237,7 @@ module MaintenanceHelper
     }
     cp_params[:setupdateinfoid] = updateinfoId if updateinfoId
     cp_params[:setrelease] = setrelease if setrelease
-    cp_path = "/build/#{CGI.escape(releasetarget.target_repository.project.name)}/#{URI.escape(releasetarget.target_repository.name)}/#{URI.escape(arch.name)}/#{URI.escape(targetPackageName)}"
+    cp_path = "/build/#{CGI.escape(target_repository.project.name)}/#{URI.escape(target_repository.name)}/#{URI.escape(arch.name)}/#{URI.escape(targetPackageName)}"
     cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :oproject, :opackage, :orepository, :setupdateinfoid, :resign, :setrelease])
     Suse::Backend.post cp_path, nil
   end
