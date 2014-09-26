@@ -1246,6 +1246,8 @@ sub createProductFile ( $$ ) {
     my ($prodRef, $product) = @_;
     my $zypp_product_file = "";
     my $zypp_product = Storable::dclone($product);
+    # not wanted there
+    delete $zypp_product->{'releasepkgname'};
     my $d;
     my $pfile = "\$RPM_BUILD_ROOT/etc/products.d/$product->{name}.prod";
     if ($product->{'endoflife'} && !($product->{'endoflife'} =~ /^[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]$/)) {
