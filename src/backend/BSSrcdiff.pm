@@ -35,11 +35,15 @@ use BSUtil;
 # tmax: maximum number of lines in a tardiff
 #
 
-sub opengem {
-  my ($fp, $gem, $gemdata, @taropts) = @_;
-  if (!open(F, '-|')) {
+sub opentar {
+  my ($fp, $tar, $gemdata, @taropts) = @_;
+  if (!$gemdata) {
+     open($fp, '-|', 'tar', @taropts, $tar) || die("tar: $!\n");
+     return;
+  }
+  if (!open($fp, '-|')) {
     if (!open(STDIN, '-|')) {
-      exec('tar', '-xOf', $gem, $gemdata);
+      exec('tar', '-xOf', $tar, $gemdata);
       die("tar $gemdata");
     }
     if ($gemdata =~ /\.gz$/) {
@@ -56,11 +60,8 @@ sub opengem {
 sub listtar {
   my ($tar, $gemdata) = @_;
   local *F;
-  if ($gemdata) {
-    opengem(\*F, $tar, $gemdata, '--numeric-owner', '-tvf');
-  } else {
-    open(F, '-|', 'tar', '--numeric-owner', '-tvf', $tar) || die("tar: $!\n");
-  }
+  
+  opentar(\*F, $tar, $gemdata, '--numeric-owner', '-tvf');
   my @c;
   my $fc = 0;
   while(<F>) {
@@ -91,11 +92,7 @@ sub listtar {
   }
   close(F) || die("tar: $!\n");
   if ($fc) {
-    if ($gemdata) {
-      opengem(\*F, $tar, $gemdata, '-xOf');
-    } else {
-      open(F, '-|', 'tar', '-xOf', $tar) || die("tar: $!\n");
-    }
+    opentar(\*F, $tar, $gemdata, '-xOf');
     for my $c (@c) {
       next unless $c->{'type'} eq '-' && $c->{'size'};
       my $ctx = Digest::MD5->new;
@@ -120,11 +117,7 @@ sub extracttar {
 
   local *F;
   local *G;
-  if ($gemdata) {
-    opengem(\*F, $tar, $gemdata, '-xOf');
-  } else {
-    open(F, '-|', 'tar', '-xOf', $tar) || die("tar: $!\n");
-  }
+  opentar(\*F, $tar, $gemdata, '-xOf');
   my $skipgemdata;
   for my $c (@$cp) {
     next unless $c->{'type'} eq '-' || $c->{'type'} eq 'gemdata';
@@ -176,7 +169,7 @@ sub listgem {
       $_->{'name'} = "data/".$_->{'name'} for @data;
       push @gem, @data;
     } elsif ($t->{'name'} =~ /^data\//) {
-      die("bad gemfile\n");
+      die("gemfile contains data directory\n");
     } else {
       push @gem, $t;
     }
