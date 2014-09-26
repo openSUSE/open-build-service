@@ -1570,6 +1570,10 @@ foreach my $medium ( @$media ){
             push @{$kiwi->{instsource}->{repopackages}[0]->{repopackage}}, { "name" => $releasepkgname, addarch => $addarch };
             # add the flavor package
             push @{$kiwi->{instsource}->{repopackages}[0]->{repopackage}}, { "name" => "$releasepkgname-$flavor", addarch => $addarch };
+            if (%supportstates) {
+              $supportstates{$releasepkgname} ||= 'l3';
+              $supportstates{"$releasepkgname-$flavor"} ||= 'l3';
+            }
           }
 
           my $file = "$productname-$type-$flavor-$archStr";
