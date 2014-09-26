@@ -106,6 +106,7 @@ our $product = [
            'arch',
            'cpeid',         # generated, not for input
            'productline',
+           'releasepkgname', # defaults to $name-release
            [ 'register' => 
               [],
               'target',     # distro-target for NCC, only for .prod files since SLE 12

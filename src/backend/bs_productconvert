@@ -804,7 +804,7 @@ sub createFlavorReadme( $$ ){
     my $reame_file="";
     foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
       next if ((!defined ($flavor->{'flavor'}) || ("$flavor->{'flavor'}" eq "")));
-      my $readmedir = "\$RPM_BUILD_ROOT/%{_defaultdocdir}/$product->{name}-release-$flavor->{flavor}";
+      my $readmedir = "\$RPM_BUILD_ROOT/%{_defaultdocdir}/$product->{releasepkgname}-$flavor->{flavor}";
       $reame_file .= "mkdir -p $readmedir\n";
       $reame_file .= "cat >$readmedir/README << EOF\n";
       $reame_file .= "This package only exists for providing the product flavor \'$flavor->{flavor}\'.\n";
@@ -995,7 +995,7 @@ sub writeProductSPECfile( $$$$ )
       $year += 1900;
       # write the specfile header
       $str="#
-# spec file for package $product->{name}-release (Version $product->{version})
+# spec file for package $product->{releasepkgname} (Version $product->{version})
 #
 # Copyright (c) $year $product->{'vendor'}.
 #
@@ -1011,7 +1011,7 @@ sub writeProductSPECfile( $$$$ )
       my $bugtracker=getUrl($product,"i586","bugtracker");
       $str.="\n# Please submit bugfixes or comments via $bugtracker\n#\n\n" if ("$bugtracker" ne "");
       $str.="\n\n";
-      $str.="Name:           $product->{name}-release\n";
+      $str.="Name:           $product->{releasepkgname}\n";
       $str.="%define         product $product->{name}\n";
       if (defined ($product->{'buildconfig'}->{'betaversion'})){
         $str.="%define         betaversion $product->{'buildconfig'}->{'betaversion'}\n";
@@ -1069,7 +1069,7 @@ sub writeProductSPECfile( $$$$ )
        $str =~ s/___RELEASE___/$product->{release}/g;
     }
     $str =~ s/___PATCH_LEVEL___/$product->{'patchlevel'}/g;
-    $str =~ s/___PACKAGE_NAME___/$product->{name}-release/g;
+    $str =~ s/___PACKAGE_NAME___/$product->{releasepkgname}/g;
     $str =~ s/___PRODUCT_NAME___/$product->{name}/g;
     $str =~ s/___SUMMARY___/$product->{summary}[0]->{_content}/g; # FIXME: find the non-lang one
     $str =~ s/___DESCRIPTION___/$product->{description}[0]->{_content}/g; # FIXME: find the non-lang one
@@ -1153,7 +1153,7 @@ sub createSPECfileFlavors ( $$ ) {
       $product_flavors.="\n";
       $product_flavors.="%files $flavor->{flavor}\n";
       $product_flavors.="%defattr(-,root,root)\n";
-      $product_flavors.="%doc %{_defaultdocdir}/$product->{name}-release-$flavor->{flavor}\n";
+      $product_flavors.="%doc %{_defaultdocdir}/$product->{releasepkgname}-$flavor->{flavor}\n";
       $product_flavors.="\n"
     }
     return $product_flavors;
@@ -1361,6 +1361,7 @@ my $mediaStyle = getMediaStyle($prodRef);
 unless ($mediaStyle =~ /^suse-1[12].[123]$/ || $mediaStyle =~ /^suse-sle11/) {
   die("Do not set id attribute in product anymore.\n") if $prodRef->{'products'}->{'product'}[0]->{'id'};
 }
+$product->{'releasepkgname'} ||= "$product->{'name'}-release";
 
 #
 # Calculate version strings
@@ -1440,6 +1441,8 @@ if (defined($product->{migrationtarget})){
 
 my $SPECtemplateFile;
 if ($infile =~ /(.*\/)(.+)$/) {
+  # not using $product->{releasepkgname} for compatibility reasons
+  # instead only using this inside the specfile
   $SPECtemplateFile = $1."/".$product->{name}."-release.spec";
 };
 if ( !$SPECtemplateFile || ! -e $SPECtemplateFile ) {
@@ -1482,16 +1485,24 @@ if( $opt_m ) {
 foreach my $medium ( @$media ){
     my $type = $medium->{type};
     my $flavor = $medium->{flavor};
-    my $product = $medium->{product};  # note: this needs to reference a product from the products section 
-    $product = $prodRef->{'products'}->{'product'}[0]->{'name'} unless $product; # use global name as fallback
+    my $productname;
+    my $releasepkgname;
     my $name = $medium->{name};
+    if ($medium->{product}) {
+      $productname = $medium->{product};
+      $releasepkgname = "$medium->{product}-release";
+    } else {
+      # use global name as fallback
+      $productname = $prodRef->{'products'}->{'product'}[0]->{'name'};
+      $releasepkgname = $prodRef->{'products'}->{'product'}[0]->{'releasepkgname'};
+    }
 
     # bug compatibility for 11.3 and before (ignoring product name definition per media)
     if ((not defined $medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
-      $product = $prodRef->{'products'}->{'product'}[0]->{'name'};
+      $productname = $prodRef->{'products'}->{'product'}[0]->{'name'};
       if ($medium->{'product'}) {
         print "WARNING: own product attribute \"product\" per media is used. This may create inconsistent medias!\n";
-        $product = $medium->{'product'};
+        $productname = $medium->{'product'};
       }
     }
    
@@ -1555,16 +1566,13 @@ foreach my $medium ( @$media ){
 
           # add implicit the release packages to media
           if ( $kiwi->{instsource}->{repopackages}[0] && (!defined($medium->{'skip_release_package'}) || $medium->{'skip_release_package'} ne "true") ){
-            my %product_pack;
             my $addarch = join( ",", @productarch );
-            my $name = $product."-release";
-            push @{$kiwi->{instsource}->{repopackages}[0]->{repopackage}}, { "name" => $name, addarch => $addarch };
+            push @{$kiwi->{instsource}->{repopackages}[0]->{repopackage}}, { "name" => $releasepkgname, addarch => $addarch };
             # add the flavor package
-            $name .= "-".$flavor;
-            push @{$kiwi->{instsource}->{repopackages}[0]->{repopackage}}, { "name" => $name, addarch => $addarch };
+            push @{$kiwi->{instsource}->{repopackages}[0]->{repopackage}}, { "name" => "$releasepkgname-$flavor", addarch => $addarch };
           }
 
-          my $file = "$product-$type-$flavor-$archStr";
+          my $file = "$productname-$type-$flavor-$archStr";
           die("illegal kiwi product: $file\n") if $file =~ /^[_\.]/;
           die("illegal kiwi product: $file\n") if $file =~ /[\/\000-\037]/;
       
@@ -1585,7 +1593,7 @@ foreach my $medium ( @$media ){
             $pkgmeta->{'project'} = $project;
             $pkgmeta->{'title'} = "KIWI image build" ;
             $pkgmeta->{'description'} = "Automatically generate from _product" ;
-            $pkgmeta->{'bcntsynctag'} = "_product:".$product ;
+            $pkgmeta->{'bcntsynctag'} = "_product:".$productname ;
             writexml( "$metaFile$$", $metaFile, $pkgmeta, $BSXML::pack );
           }
 
