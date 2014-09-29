@@ -45,7 +45,7 @@ class Project < ActiveRecord::Base
   has_many :messages, :as => :db_object, :dependent => :delete_all
   has_many :watched_projects, :dependent => :destroy, inverse_of: :project
 
-  has_many :linkedprojects, -> { order(:position) }, :class_name => 'LinkedProject', foreign_key: :db_project_id
+  has_many :linkedprojects, -> { order(:position) }, :class_name => 'LinkedProject', foreign_key: :db_project_id, :dependent => :delete_all
 
   has_many :taggings, :as => :taggable, :dependent => :delete_all
   has_many :tags, :through => :taggings
@@ -80,6 +80,9 @@ class Project < ActiveRecord::Base
   def cleanup_before_destroy
     CacheLine.cleanup_project(self.name)
     @del_repo = Project.find_by_name('deleted').repositories[0]
+
+    # find linking projects
+    cleanup_linking_projects
 
     # find linking repositories
     cleanup_linking_repos
@@ -128,8 +131,19 @@ class Project < ActiveRecord::Base
     end
   end
 
+  def cleanup_linking_projects
+    #replace links to this project with links to the "deleted" project
+    LinkedProject.transaction do
+      LinkedProject.where(linked_db_project: self).each do |lp|
+        id = lp.db_project_id
+        lp.destroy
+        Rails.cache.delete('xml_project_%d' % id)
+      end
+    end
+  end
+
   def cleanup_linking_repos
-    #replace links to this projects with links to the "deleted" project
+    #replace links to this project repositories with links to the "deleted" repository
     find_repos(:linking_repositories) do |link_rep|
       link_rep.path_elements.includes(:link).each do |pe|
         next unless Repository.find(pe.repository_id).db_project_id == self.id

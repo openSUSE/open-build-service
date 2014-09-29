@@ -266,6 +266,44 @@ END
     assert_equal 'maintenance', maintenance_project.project_type()
   end
   
+  def test_handle_project_links
+    User.current = users( :Iggy )
+
+    # project A
+    axml = Xmlhash.parse(
+      "<project name='home:Iggy:A'>
+        <title>Iggy's Home Project</title>
+        <description>dummy</description>
+        <link project='home:Iggy' />
+      </project>"
+      )
+    projectA = Project.create( :name => "home:Iggy:A" )
+    projectA.update_from_xml(axml)
+    projectA.save!
+    # project B
+    axml = Xmlhash.parse(
+      "<project name='home:Iggy:B'>
+        <title>Iggy's Home Project</title>
+        <description>dummy</description>
+        <link project='home:Iggy:A' />
+      </project>"
+      )
+    projectB = Project.create( :name => "home:Iggy:B" )
+    projectB.update_from_xml(axml)
+    projectB.save!
+
+    # validate xml
+    xml_string = projectA.to_axml
+    assert_xml_tag xml_string, :tag => :link, :attributes => { :project => "home:Iggy" }
+    xml_string = projectB.to_axml
+    assert_xml_tag xml_string, :tag => :link, :attributes => { :project => "home:Iggy:A" }
+
+    projectA.destroy
+    projectB.reload
+    xml_string = projectB.to_axml
+    assert_no_xml_tag xml_string, :tag => :link
+  end  
+
   
   #helper
   def put_flags(flags)
