@@ -880,12 +880,44 @@ sub getbinarylist {
   my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls("$reporoot/$prp/$arch/$packid");
   @bins = grep {!/^::import::/} @bins if $cgi->{'noimport'};
   @bins = filtersources(@bins) if $cgi->{'nosource'} || -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
+  my %md5sums;
+  if ($cgi->{'withmd5'}) {
+    if (-s "$reporoot/$prp/$arch/$packid/.checksums") {
+      my %chksum;
+      local *CS;
+      if (open(CS, '<', "$reporoot/$prp/$arch/$packid/.checksums")) {
+	while (<CS>) {
+	  $chksum{$1} = $2 if /^(.{32}) .*md5:(.{32})/;
+	}
+	close CS;
+      }
+      if (%chksum) {
+	my $bininfo = read_bininfo("$reporoot/$prp/$arch/$packid");
+	for my $fn (sort keys %{$bininfo || []}) {
+	  $md5sums{"$fn-".($bininfo->{$fn}->{'id'} || '')} = $chksum{$bininfo->{$fn}->{'leadsigmd5'} || ''};
+	}
+      }
+    }
+  }
   for (sort @bins) {
     next if %binaries && !$binaries{$_};
     my @s = stat("$reporoot/$prp/$arch/$packid/$_");
     next unless @s;
     next if -d _;
-    push @res, {'filename' => $_, 'size' => $s[7], 'mtime' => $s[9]};
+    my $r = {'filename' => $_, 'size' => $s[7], 'mtime' => $s[9]};
+    if ($cgi->{'withmd5'} && /\.(?:$binsufsre)$/) {
+      $r->{'md5'} = $md5sums{"$_-$s[9]/$s[7]/$s[1]"};
+      if (!$r->{'md5'}) {
+        my $ctx = Digest::MD5->new;
+	local *F;
+	if (open(F, '<', "$reporoot/$prp/$arch/$packid/$_")) {
+          $ctx->addfile(*F);
+	  close F;
+	}
+        $r->{'md5'} = $ctx->hexdigest();
+      }
+    }
+    push @res, $r;
   }
   return ({'binary' => \@res}, $BSXML::binarylist);
 }
@@ -3930,7 +3962,7 @@ my $dispatches = [
   '/build/$project/$repository/$arch/_relsync' => \&getrelsync,
   'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool? setrelease:?' => \&copybuild,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
-  '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool? nosource:bool? noimport:bool?' => \&getbinarylist,
+  '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool? nosource:bool? noimport:bool? withmd5:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo_post,
   '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,

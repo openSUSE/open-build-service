@@ -905,6 +905,7 @@ our $binarylist = [
 	'package',
      [[ 'binary' =>
 	    'filename',
+	    'md5',
 	    'size',
 	    'mtime',
      ]],
