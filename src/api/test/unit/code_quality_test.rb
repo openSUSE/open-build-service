@@ -70,7 +70,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'AttributeController#attribute_definition' => 87.7,
       'BinaryRelease::update_binary_releases_via_json' => 122.54,
       'BranchPackage#find_packages_to_branch' => 239.64,
-      'BranchPackage#create_branch_packages' => 210.91,
+      'BranchPackage#create_branch_packages' => 214.0,
       'BranchPackage#determine_details_about_package_to_branch' => 207.47,
       'BranchPackage#check_for_update_project' => 110.23,
       'BsRequest#change_review_state' => 203.53,
