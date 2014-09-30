@@ -733,25 +733,31 @@ CREATE TABLE `product_media` (
   `product_id` int(11) DEFAULT NULL,
   `repository_id` int(11) DEFAULT NULL,
   `name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `arch_filter_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_unique` (`product_id`,`repository_id`,`name`),
   KEY `product_id` (`product_id`),
   KEY `repository_id` (`repository_id`),
   KEY `index_product_media_on_name` (`name`),
+  KEY `index_product_media_on_arch_filter_id` (`arch_filter_id`),
   CONSTRAINT `product_media_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`),
-  CONSTRAINT `product_media_ibfk_2` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`)
+  CONSTRAINT `product_media_ibfk_2` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
+  CONSTRAINT `product_media_ibfk_3` FOREIGN KEY (`arch_filter_id`) REFERENCES `architectures` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `product_update_repositories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `product_id` int(11) DEFAULT NULL,
   `repository_id` int(11) DEFAULT NULL,
+  `arch_filter_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_unique` (`product_id`,`repository_id`),
   KEY `product_id` (`product_id`),
   KEY `repository_id` (`repository_id`),
+  KEY `index_product_update_repositories_on_arch_filter_id` (`arch_filter_id`),
   CONSTRAINT `product_update_repositories_ibfk_1` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`),
-  CONSTRAINT `product_update_repositories_ibfk_2` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`)
+  CONSTRAINT `product_update_repositories_ibfk_2` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
+  CONSTRAINT `product_update_repositories_ibfk_3` FOREIGN KEY (`arch_filter_id`) REFERENCES `architectures` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `products` (
@@ -1582,6 +1588,8 @@ INSERT INTO schema_migrations (version) VALUES ('20140908125426');
 INSERT INTO schema_migrations (version) VALUES ('20140908135426');
 
 INSERT INTO schema_migrations (version) VALUES ('20140916135426');
+
+INSERT INTO schema_migrations (version) VALUES ('20140930135426');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

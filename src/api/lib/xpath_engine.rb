@@ -152,6 +152,9 @@ class XpathEngine
           'LEFT join products pun on pun.id=pur.product_id ',
           'LEFT join packages pupkg on pupkg.id=pun.package_id ',
           'LEFT join projects puprj on puprj.id=pupkg.project_id ']},
+        'updatefor/@arch' => {:cpart => 'pupa.name', :joins => [
+          'LEFT join product_update_repositories pnuar on pnuar.repository_id=release_repositories.id',
+          'LEFT join architectures pupa on pupa.id=pnuar.arch_filter_id ']},
         'updatefor/@product' => {:cpart => 'pupn.name', :joins => [
           'LEFT join product_update_repositories pnur on pnur.repository_id=release_repositories.id',
           'LEFT join products pupn on pupn.id=pnur.product_id ']},
@@ -190,6 +193,10 @@ class XpathEngine
           'LEFT join product_media ppm on (ppm.repository_id=release_repositories.id
             AND ppm.name=binary_releases.medium)',
           'LEFT join products ppn on ppn.id=ppm.product_id ']},
+        'product/@arch' => {:cpart => 'ppna.name', :joins => [
+          'LEFT join product_media ppma on (ppma.repository_id=release_repositories.id
+            AND ppma.name=binary_releases.medium)',
+          'LEFT join architectures ppna on ppna.id=ppm.arch_filter_id ']},
         'product/@medium' => {:cpart => 'mpm.name', :joins => [
           'LEFT join product_media mpm on mpm.repository_id=release_repositories.id']},
       },

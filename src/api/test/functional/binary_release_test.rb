@@ -66,7 +66,8 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag :tag => "obsolete"
 
     # by product
-    get '/search/released/binary', match: "product/[@project = 'BaseDistro' and @name = 'fixed']"
+    get '/search/released/binary', match: "product/[@project = 'BaseDistro' and @name = 'fixed' and (@arch = 'x86_64' or not(@arch))]"
+    get '/search/released/binary', match: "product/[@project = 'BaseDistro' and @name = 'fixed' and (@arch = 'i586' or not(@arch))]"
     assert_response :success
     assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :name => "package", :version => "1.0", :release => "1", :arch => "i586", :medium => "DVD"}
     assert_xml_tag :tag => "updatefor", :attributes => { project: "BaseDistro", product: "fixed" }
@@ -92,7 +93,10 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "collection", :attributes => { :matches => "0" }
 
     # by update for product
-    get '/search/released/binary', match: "updatefor/[@project = 'BaseDistro' and @product = 'fixed']"
+    get '/search/released/binary', match: "updatefor/[@project = 'BaseDistro' and @product = 'fixed' and @arch = 'i586']"
+    assert_response :success
+    assert_no_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3" }
+    get '/search/released/binary', match: "updatefor/[@project = 'BaseDistro' and @product = 'fixed' and @arch = 'x86_64']"
     assert_response :success
     assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :name => "package", :version => "1.0", :release => "1", :arch => "i586" }
     assert_xml_tag :tag => "updatefor", :attributes => { project: "BaseDistro", product: "fixed" }

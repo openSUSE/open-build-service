@@ -55,11 +55,16 @@ class Product < ActiveRecord::Base
   end
 
   private
-  def _update_from_xml_register(rxml)
+  def _update_from_xml_register_pool(rxml)
     rxml.elements('pool') do |u|
       medium = {}
       self.product_media.each do |pm|
         key = "#{pm.repository.id}/#{pm.name}"
+        arch = nil
+        if pm.arch_filter_id
+          arch = pm.arch_filter.name
+          key += "/#{arch}"
+        end
         key.downcase!
         medium[key] = pm.id
       end
@@ -68,31 +73,54 @@ class Product < ActiveRecord::Base
         poolRepo = Repository.find_by_project_and_repo_name(repo['project'], repo['name'])
         raise UnknownRepository.new "Pool repository #{repo['project']}/#{repo['name']} does not exist" unless poolRepo
         name = repo.get('medium')
+        arch = repo.get('arch')
         key = "#{poolRepo.id}/#{name}"
+        key += "/#{arch}" unless arch.blank?
         key.downcase!
-        if medium[key]
-          medium.delete(key)
-        else
+        unless medium[key]
           # new
-          self.product_media.create(product: self, repository: poolRepo, name: name)
+          p = {product: self, repository: poolRepo, name: name}
+          unless arch.blank?
+            arch_filter = Architecture.find_by_name(arch)
+            raise NotFoundError.new("Architecture #{arch} not valid") unless arch_filter
+            p[:arch_filter_id] = arch_filter.id
+          end
+          self.product_media.create(p)
         end
+        medium.delete(key)
       end
       self.product_media.delete(medium.values)
     end
+  end
+  def _update_from_xml_register_update(rxml)
     rxml.elements('updates') do |u|
       update = {}
       self.product_update_repositories.each do |pu|
-        update[pu.repository.id] = pu.id if pu.repository # it may be remote or not yet exist
+        next unless pu.repository # it may be remote or not yet exist
+        key = pu.repository.id.to_s
+        key += "/" + pu.arch_filter.name if pu.arch_filter_id
+        update[key] = pu.id
       end
       u.elements('repository') do |repo|
         updateRepo = Repository.find_by_project_and_repo_name(repo.get('project'), repo.get('name'))
         next unless updateRepo # it might be a remote repo, which will not become indexed
-        unless update[updateRepo.id]
-          ProductUpdateRepository.create(product: self, repository: updateRepo)
+        arch = repo.get('arch')
+        key = updateRepo.id.to_s
+        p = {product: self, repository: updateRepo}
+        unless arch.blank?
+          key += "/#{arch}"
+          arch_filter = Architecture.find_by_name(arch)
+          raise NotFoundError.new("Architecture #{arch} not valid") unless arch_filter
+          p[:arch_filter_id] = arch_filter.id
         end
-        update.delete(updateRepo.id)
+        ProductUpdateRepository.create(p) unless update[key]
+        update.delete(key)
       end
       self.product_update_repositories.delete(update.values)
     end
+  end
+  def _update_from_xml_register(rxml)
+    _update_from_xml_register_update(rxml)
+    _update_from_xml_register_pool(rxml)
   end
 end
