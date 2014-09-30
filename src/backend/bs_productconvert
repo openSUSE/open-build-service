@@ -962,7 +962,7 @@ sub writeProductSPECfile( $$$$ )
       foreach my $url ( @{$product->{'urls'}->{'url'}} ){
         $productprovides.="Provides:       product-url(".escapeProvides($url->{'name'}).") = ".escapeProvides($url->{'_content'})."\n";
       }
-      foreach my $repo ( @{$prodRef->{updates}{repository}} ) {
+      foreach my $repo ( @{$product->{register}->{updates}{repository}} ) {
          $productprovides.="%ifarch $repo->{arch}\n" if $repo->{arch};
          $productprovides.="Provides:       product-updates-repoid() = ".escapeProvides("obs://$obsname/$repo->{project}/$repo->{name}")."\n";
          $productprovides.="%endif\n" if $repo->{arch};
