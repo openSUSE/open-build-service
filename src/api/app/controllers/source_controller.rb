@@ -1537,7 +1537,7 @@ class SourceController < ApplicationController
         next if params[:repository] and params[:repository] != repo.name
         repo.release_targets.each do |releasetarget|
           # find md5sum and release source and binaries
-          release_package(pkg, releasetarget.target_repository.project.name, pkg.name, repo, nil, params[:setrelease], true)
+          release_package(pkg, releasetarget.target_repository, pkg.name, repo, nil, params[:setrelease], true)
         end
       end
     end
@@ -1558,7 +1558,7 @@ class SourceController < ApplicationController
       raise UnknownRepository.new "Repository does not exist #{params[:repository]}" unless repo.count > 0
       repo=repo.first
 
-      release_package(pkg, targetrepo.project.name, pkg.name, repo, nil, params[:setrelease], true, targetrepo)
+      release_package(pkg, targetrepo, pkg.name, repo, nil, params[:setrelease], true,)
   end
   private  :_package_command_release_manual_target
 

@@ -1171,7 +1171,7 @@ class Project < ActiveRecord::Base
           next if my_not_equal(params[:targetreposiory], releasetarget.target_repository.name)
           # release source and binaries
           # permission checking happens inside this function
-          release_package(pkg, releasetarget.target_repository.project.name, pkg.name, repo, nil, params[:setrelease], true)
+          release_package(pkg, releasetarget.target_repository, pkg.name, repo, nil, params[:setrelease], true)
         end
       end
     end

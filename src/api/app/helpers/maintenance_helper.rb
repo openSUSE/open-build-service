@@ -75,9 +75,14 @@ module MaintenanceHelper
     end
   end
 
-  def release_package(sourcePackage, targetProjectName, targetPackageName,
-                      filterSourceRepository = nil, action = nil, setrelease = nil, manual = nil, targetrepo = nil)
-    targetProject = Project.get_by_name targetProjectName
+  def release_package(sourcePackage, target, targetPackageName,
+                      filterSourceRepository = nil, action = nil, setrelease = nil, manual = nil)
+    if target.kind_of? Repository
+      targetProject = target.project
+    else
+      # project
+      targetProject = target
+    end
     targetProject.check_write_access!
 
     if sourcePackage.name.starts_with? "_product:"
@@ -87,8 +92,8 @@ module MaintenanceHelper
     end
 
     # copy binaries
-    if targetrepo
-      uIDs = copy_binaries_targetrepo(filterSourceRepository, sourcePackage, targetPackageName, targetProject, setrelease, targetrepo)
+    if target.kind_of? Repository
+      uIDs = copy_binaries_to_repository(filterSourceRepository, sourcePackage, target, targetPackageName, setrelease)
     else
       uIDs = copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject, setrelease)
     end
@@ -191,13 +196,9 @@ module MaintenanceHelper
       next if filterSourceRepository and filterSourceRepository != sourceRepo
       sourceRepo.release_targets.each do |releasetarget|
         #FIXME: filter given release and/or target repos here
-        sourceRepo.architectures.each do |arch|
-          if releasetarget.target_repository.project == targetProject
-            # get updateinfo id in case the source package comes from a maintenance project
-            uID = get_updateinfo_id(sourcePackage, releasetarget.target_repository)
-            copy_single_binary(arch, releasetarget.target_repository, sourcePackage, sourceRepo, targetPackageName, uID, setrelease)
-	    updateIDs << uID if uID
-          end
+        if releasetarget.target_repository.project == targetProject
+          uID = copy_binaries_to_repository(sourceRepo, sourcePackage, releasetarget.target_repository, targetPackageName, setrelease)
+	  updateIDs << uID if uID
         end
         # remove maintenance release trigger in source
         if releasetarget.trigger == 'maintenance'
@@ -210,20 +211,13 @@ module MaintenanceHelper
     updateIDs
   end
 
-  def copy_binaries_targetrepo(filterSourceRepository, sourcePackage, targetPackageName, targetProject, setrelease, targetrepo)
-    updateIDs=[]
-    sourcePackage.project.repositories.each do |sourceRepo|
-      next if filterSourceRepository and filterSourceRepository != sourceRepo
-      sourceRepo.architectures.each do |arch|
-        if targetrepo.project == targetProject
-          # get updateinfo id in case the source package comes from a maintenance project
-          uID = get_updateinfo_id(sourcePackage, targetrepo)
-          copy_single_binary(arch, targetrepo, sourcePackage, sourceRepo, targetPackageName, uID, setrelease)
-	    updateIDs << uID if uID
-        end
-      end
+  def copy_binaries_to_repository(sourceRepository, sourcePackage, targetRepo, targetPackageName, setrelease)
+    uID = get_updateinfo_id(sourcePackage, targetRepo)
+    sourceRepository.architectures.each do |arch|
+      # get updateinfo id in case the source package comes from a maintenance project
+      copy_single_binary(arch, targetRepo, sourcePackage, sourceRepository, targetPackageName, uID, setrelease)
     end
-    updateIDs
+    uID
   end
 
   def copy_single_binary(arch, target_repository, sourcePackage, sourceRepo, targetPackageName, updateinfoId, setrelease)
