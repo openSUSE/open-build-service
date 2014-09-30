@@ -905,7 +905,7 @@ sub getbinarylist {
     next unless @s;
     next if -d _;
     my $r = {'filename' => $_, 'size' => $s[7], 'mtime' => $s[9]};
-    if ($cgi->{'withmd5'} && /\.(?:$binsufsre)$/) {
+    if ($cgi->{'withmd5'}) {
       $r->{'md5'} = $md5sums{"$_-$s[9]/$s[7]/$s[1]"};
       if (!$r->{'md5'}) {
         my $ctx = Digest::MD5->new;
