@@ -1113,12 +1113,13 @@ sub sync_to_stage {
 
   # push done trigger sync to other mirrors
   mkdir_p($extrepodir_sync);
-  my ($projid) = split('/', $prp, 2);
-  writestr("$extrepodir_sync/.$$:$projid", "$extrepodir_sync/$projid", "$extdir\0");
+  my $filename = $prp;
+  $filename =~ s/\//_/g;
+  writestr("$extrepodir_sync/.$$:$filename", "$extrepodir_sync/$filename", "$extdir\0");
   if ($BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
     print "    running trigger rsync to $1 at ".localtime(time)."\n";
     # small sync, timout 1 minute
-    qsystem('rsync', '-a', '--timeout', '120', "$extrepodir_sync/$projid", "$1::$2/$projid") && warn("    trigger rsync failed at ".localtime(time).": $?\n");
+    qsystem('rsync', '-a', '--timeout', '120', "$extrepodir_sync/$filename", "$1::$2/$filename") && warn("    trigger rsync failed at ".localtime(time).": $?\n");
   }
 }
 
