@@ -1213,8 +1213,9 @@ sub servicemark_noservice {
 sub addrev {
   my ($cgi, $projid, $packid, $files, $target) = @_;
   die("404 project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
-  die("403 package '$packid' is read-only\n") if $packid =~ /^_product:/;
-
+  if ($packid =~ /^_product:/) {
+    die("403 package '$packid' is read-only if a '_product' package exists\n") if -e "$projectsdir/$projid.pkg/_product.xml";
+  }
   my $user = $cgi->{'user'};
   my $comment = $cgi->{'comment'};
   my $requestid = $cgi->{'requestid'};
@@ -3759,7 +3760,9 @@ sub putpackage {
   writexml("$uploaddir/$$.2", undef, $pack, $BSXML::pack);
   unlink("$uploaddir/$$");
   my $proj = readproj($projid);
-  die("package '$packid' is read-only\n") if ($packid =~ /^_product:/) && ! -e "$projectsdir/$projid.pkg/$packid.xml";
+  if (($packid =~ /^_product:/) && ! -e "$projectsdir/$projid.pkg/$packid.xml") {
+    die("403 cannot create '$packid' if a '_product' package exists\n") if -e "$projectsdir/$projid.pkg/_product.xml";
+  }
   mkdir_p("$projectsdir/$projid.pkg");
 
   my $oldpack = readxml("$projectsdir/$projid.pkg/$packid.xml", $BSXML::pack, 1);
@@ -3779,7 +3782,9 @@ sub delpackage {
   $cgi->{'comment'} ||= 'package was deleted';
   die("404 project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
   die("404 package '$packid' does not exist in project '$projid'\n") unless -e "$projectsdir/$projid.pkg/$packid.xml";
-  die("403 package '$packid' is read-only\n") if $packid =~ /^_product:/;
+  if ($packid =~ /^_product:/) {
+    die("403 cannot delete '$packid' if a '_product' package exists\n") if -e "$projectsdir/$projid.pkg/_product.xml";
+  }
   # add delete commit to both source and meta
   addrev_meta($cgi, $projid, $packid, undef, undef, undef, 'rev');
   addrev_meta($cgi, $projid, $packid, undef, undef, undef);
