@@ -528,6 +528,7 @@ our $buildinfo = [
 	'expanddebug',
 	'followupfile',	# for two-stage builds
 	'masterdispatched',	# dispatched through a master dispatcher
+	'nounchanged',	# do not check for "unchanged" builds
 ];
 
 our $jobstatus = [

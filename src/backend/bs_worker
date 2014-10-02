@@ -2351,6 +2351,7 @@ sub dobuild {
     }
   }
   $preinstallimagedata ||= {};
+  undef $oldpkgdir if $buildinfo->{'nounchanged'};
 
   writestr("$buildroot/.build.meta", undef, join("\n", @meta)."\n");
 

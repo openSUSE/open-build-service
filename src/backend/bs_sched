@@ -778,6 +778,7 @@ sub set_building {
   $binfo->{'hostarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'};
   $binfo->{'constraintsmd5'} = $pdata->{'constraintsmd5'} if $pdata->{'constraintsmd5'};
   $binfo->{'prjconfconstraint'} = $bconf->{'constraint'} if @{$bconf->{'constraint'} || []};
+  $binfo->{'nounchanged'} = 1 if $info->{'nounchanged'};
   if ($pdata->{'revtime'}) {
     $binfo->{'revtime'} = $pdata->{'revtime'};
     # use max of revtime for interproject links
@@ -6686,9 +6687,11 @@ sub rebuildpackage {
       $needed->{$_}++ for map { $dep2src->{$_} || $_ } @{$edeps->{$p}};
     }
   }
+  $info->{'nounchanged'} = 1 if $ctx->{'cychash'}->{$packid};
   my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $ctx->{'conf'},
      $ctx->{'subpacks'}->{$info->{'name'}} || [], $ctx->{'edeps'}->{$packid} || [],
      $ctx->{'prpsearchpath'}, $data->[0], $ctx->{'relsyncmax'}, $needed->{$packid} || 0);
+  delete $info->{'nounchanged'};
   return ('broken', $joberror) unless $job;	# could not start job
   return ('scheduled', $job);
 }
