@@ -3760,6 +3760,12 @@ sub putpackage {
   writexml("$uploaddir/$$.2", undef, $pack, $BSXML::pack);
   unlink("$uploaddir/$$");
   my $proj = readproj($projid);
+  die("$projid is a remote project\n") if $proj->{'remoteurl'};
+  if ($packid eq '_product' && ! -e "$projectsdir/$projid.pkg/$packid.xml") {
+    # creating a _product package, make sure that there is no _product:xxx package
+    my @pkgs = findpackages($projid, $proj, 1, undef, undef, 1);
+    die("cannot create '$packid' if _product:* packages already exist\n") if grep {/^_product:/} @pkgs;
+  }
   if (($packid =~ /^_product:/) && ! -e "$projectsdir/$projid.pkg/$packid.xml") {
     die("403 cannot create '$packid' if a '_product' package exists\n") if -e "$projectsdir/$projid.pkg/_product.xml";
   }
