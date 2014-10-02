@@ -41,7 +41,7 @@ class Webui::PatchinfoController < Webui::WebuiController
 
   def edit_patchinfo
     read_patchinfo
-    @tracker = 'bnc'
+    @tracker = 'boo'
     @binaries.each do |bin|
       if @binarylist.find(bin)
         @binarylist.delete(bin)
@@ -307,7 +307,7 @@ class Webui::PatchinfoController < Webui::WebuiController
       end
     end
     error += "#{invalid_tracker}" 
-    error += "#{invalid_format}has no valid format. (Correct formats are e.g. bnc#123456, CVE-1234-5678 and the string has to be a comma-separated list)" if !invalid_format.empty?
+    error += "#{invalid_format}has no valid format. (Correct formats are e.g. boo#123456, CVE-1234-5678 and the string has to be a comma-separated list)" if !invalid_format.empty?
     render :nothing => true, :json => { :error => error, :issues => issue_collection}
   end
 
