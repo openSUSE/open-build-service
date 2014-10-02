@@ -152,6 +152,6 @@ private
     @issue_tracker_list = IssueTracker.order(:name).map do |t|
       ["#{t.name} (#{t.description})", t.name]
     end
-    @default_tracker = 'boo'
+    @default_tracker = ::Configuration.first.registration.default_tracker
   end
 end

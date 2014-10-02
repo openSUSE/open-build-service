@@ -1474,6 +1474,7 @@ our $configuration = [
 	'anonymous',
 	'registration',
 	'default_access_disabled',
+	'default_tracker',
 	'allow_user_to_create_home_project',
 	'multiaction_notify_support',
 	'disallow_group_creation',
