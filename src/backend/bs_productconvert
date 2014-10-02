@@ -962,9 +962,9 @@ sub writeProductSPECfile( $$$$ )
       foreach my $url ( @{$product->{'urls'}->{'url'}} ){
         $productprovides.="Provides:       product-url(".escapeProvides($url->{'name'}).") = ".escapeProvides($url->{'_content'})."\n";
       }
-      foreach my $repo ( @{$product->{register}->{updates}{repository}} ) {
+      foreach my $repo ( @{$product->{register}->{updates}->{repository}} ) {
          $productprovides.="%ifarch $repo->{arch}\n" if $repo->{arch};
-         $productprovides.="Provides:       product-updates-repoid() = ".escapeProvides("obs://$obsname/$repo->{project}/$repo->{name}")."\n";
+         $productprovides.="Provides:       product-updates-repoid() = ".escapeProvides("obsrepository://$obsname/$repo->{project}/$repo->{name}")."\n";
          $productprovides.="%endif\n" if $repo->{arch};
       };
     }
@@ -1283,7 +1283,7 @@ sub createProductFile ( $$ ) {
        # convert them to repoids
        my @r;
        foreach my $repo ( @{$product->{register}->{updates}->{repository}} ) {
-           my $obsurl = "obs://$obsname/$repo->{project}/$repo->{name}";
+           my $obsurl = "obsrepository://$obsname/$repo->{project}/$repo->{name}";
            if ($repo->{zypp}) {
               die("400 zypp lacks alias attribute") unless $repo->{zypp}->{alias};
               die("400 zypp lacks name attribute") unless $repo->{zypp}->{name};
