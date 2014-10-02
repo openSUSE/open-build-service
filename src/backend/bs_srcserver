@@ -5936,6 +5936,67 @@ sub linktobranch {
   return ($rev, $BSXML::revision);
 }
 
+sub sourcecollectbuildenv {
+  my ($cgi, $projid, $packid) = @_;
+  my $oprojid = $cgi->{'oproject'} || $projid;
+  my $opackid = $cgi->{'opackage'} || $packid;
+  die("cannot collect from myself\n") if $oprojid eq $projid && $opackid eq $packid;
+  my $proj = checkprojrepoarch($projid);
+  my $oproj = checkprojrepoarch($oprojid);
+  my %orepoids = map {+"$oprojid/$_->{'name'}" => $_} (@{$oproj->{'repository'} || []});
+  my %buildenvs;
+  for my $repo (@{$proj->{'repository'} || []}) {
+    next unless @{$repo->{'arch'} || []};
+    my $repoid = $repo->{'name'};
+    my @xpath = expandsearchpath($projid, $repoid);
+    my $orepo;
+    for my $xr (@xpath) {
+      $orepo = $orepoids{$xr};
+      last if $orepo;
+    }
+    if ($orepo) {
+      my $orepoid = $orepo->{'name'};
+      my %oarchs = map {$_ => 1} @{$orepo->{'arch'} || []};
+      for my $arch (@{$repo->{'arch'}}) {
+	my $be;
+	if (!$oarchs{$arch}) {
+	  # arch not included, use error buildenv
+	  $be = { 'error', "$arch missing in $oprojid/$orepoid" };
+	} else {
+	  my $reposerver = $BSConfig::partitioning ? projid2reposerver($oprojid) : $BSConfig::reposerver;
+	  eval {
+	    $be = BSRPC::rpc("$reposerver/build/$oprojid/$orepoid/$arch/$opackid/_buildenv", $BSXML::buildinfo);
+	  };
+	  if ($@) {
+	    die($@) if $@ !~ /^404/;
+	    $be = { 'error', "_buildenv missing in $oprojid/$orepoid" };
+	  }
+	  $be ||= { 'error', "could not get _buildenv in $oprojid/$orepoid" };
+	}
+        $buildenvs{"_buildenv.$repoid.$arch"} = BSUtil::toxml($be, $BSXML::buildinfo);
+      }
+    }
+  }
+  die("could not get any buildenv, something is wrong\n") unless %buildenvs;
+  # add "fallback" error buildenv
+  my $be = { 'error', "no buildenv for this repo/arch" };
+  $buildenvs{"_buildenv"} = BSUtil::toxml($be, $BSXML::buildinfo);
+  # now add all the buildenvs to the last commit (unexpanded is enough for us)
+  my $rev = getrev($projid, $packid);
+  my $files = lsrev($rev);
+  delete $files->{$_} for grep {/^_buildenv/} keys %$files;
+  mkdir_p($uploaddir);
+  for my $file (sort keys %buildenvs) {
+    writestr("$uploaddir/_be$$", undef, $buildenvs{$file});
+    $files->{$file} = addfile($projid, $packid, "$uploaddir/_be$$", $file);
+  }
+  $rev = addrev($cgi, $projid, $packid, $files);
+  runservice($cgi, $rev, $files);
+  delete $rev->{'project'};
+  delete $rev->{'package'};
+  return ($rev, $BSXML::revision);
+}
+
 sub deleteuploadrev {
   my ($cgi, $projid, $packid) = @_;
   unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
@@ -8121,6 +8182,7 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? noservice:bool?' => \&sourcecommit,
   'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? time:num? version:? vrev:? noservice:bool? servicemark:?' => \&sourcecommitfilelist,
   'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool? noservice:bool? withvrev:bool? withacceptinfo:bool?' => \&sourcecopy,
+  'POST:/source/$project/$package cmd=collectbuildenv user:? comment:? orev:rev? oproject:project? opackage:package?' => \&sourcecollectbuildenv,
   'POST:/source/$project/$package cmd=branch rev? user:? comment:? orev:rev? oproject:project? opackage:package? olinkrev:linkrev? requestid:num? force:bool? keepcontent:bool? missingok:bool? noservice:bool? withacceptinfo:bool?' => \&sourcebranch,
   'POST:/source/$project/$package cmd=linktobranch rev? user:? comment:? linkrev?' => \&linktobranch,
   'POST:/source/$project/$package cmd=deleteuploadrev' => \&deleteuploadrev,
