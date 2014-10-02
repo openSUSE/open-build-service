@@ -2855,6 +2855,7 @@ if ($state->{'state'} eq 'discarded') {
   }
   $state = {'state' => 'idle'};
   commitstate($state);
+  hardstatus('idle');
   exit(0) if $oneshot && time() > $oneshot;
   send_state('idle', $port, $hostarch);
   exit(0);
