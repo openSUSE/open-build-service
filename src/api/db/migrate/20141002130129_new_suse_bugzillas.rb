@@ -1,8 +1,9 @@
 class NewSuseBugzillas < ActiveRecord::Migration
   def up
     t=IssueTracker.find_by_name('bnc')
+    t||=IssueTracker.find_by_name('boo')
     t.regex='(?:bnc|BNC|bsc|BSC|boo|BOO)\s*[#:]\s*(\d+)'
-    t.name="boo"
+    t.name="bnc"
     t.description="openSUSE Bugzilla"
     t.url="https://bugzilla.opensuse.org/"
     t.label="boo#@@@"
@@ -13,7 +14,8 @@ class NewSuseBugzillas < ActiveRecord::Migration
   end
 
   def down
-    t=IssueTracker.find_by_name('boo')
+    t=IssueTracker.find_by_name('bnc')
+    t||=IssueTracker.find_by_name('boo')
     t.regex='(?:bnc|BNC)\s*[#:]\s*(\d+)'
     t.name="bnc"
     t.description="Novell Bugzilla"
