@@ -347,16 +347,20 @@ sub create_appdata_files {
   my %ids;
   my %written;
   mkdir_p("$dir/app-icons");
-  for my $app (@{$appdatas->{'application'} || []}) {
+  for my $app (@{$appdatas->{'application'} || []}, @{$appdatas->{'component'} || []}) {
     for my $icon (@{$app->{'icon'} || []}) {
       my $iconname = ($icon->{'name'} || [])->[0];
       my $filecontent = ($icon->{'filecontent'} || [])->[0];
       next unless $iconname && $icon->{'filecontent'};
-      next if $iconname =~ /\//s || $iconname =~ /^\./s;
+      next if $iconname =~ /\//s;
       my %files;
       for my $filecontent (@{$icon->{'filecontent'}}) {
-	next unless $filecontent->{'file'} && $filecontent->{'content'};
-	$files{$filecontent->{'file'}} = $filecontent->{'content'};
+	if (ref($filecontent)) {
+	  next unless $filecontent->{'content'};
+	  $files{$filecontent->{'file'} || $iconname} ||= $filecontent->{'content'};
+	} else {
+	  $files{$iconname} ||= $filecontent if $filecontent;
+	}
       }
       next unless %files;
       my $fn;
@@ -368,14 +372,15 @@ sub create_appdata_files {
 	last if $fn;
       }
       $fn ||= (sort(keys %files))[0];
-      my $suf = $fn;
-      $suf =~ s/.*\///;
-      $suf =~ s/.*\.//;
-      if (!$written{"$iconname.$suf"}) {
-	writestr("$dir/app-icons/$iconname.$suf", undef, decode_base64($files{$fn}));
-	$written{"$iconname.$suf"} = 1;
+      if ($iconname !~ /\./) {
+	next unless $fn =~ /(\.[^\.\/]+)$/;
+	$iconname .= $1;
       }
-      $icon = { 'type' => 'cached', 'content' => "$iconname.$suf"};
+      if (!$written{$iconname}) {
+	writestr("$dir/app-icons/$iconname", undef, decode_base64($files{$fn}));
+	$written{$iconname} = 1;
+      }
+      $icon = { 'type' => 'cached', 'content' => $iconname};
     }
   }
   unlink("$dir/app-icons.tar");
@@ -385,7 +390,9 @@ sub create_appdata_files {
   }
   rmdir("$dir/app-icons");
   $appdatas->{'version'} ||= '0.6';
-  my $appdatasxml = XML::Simple::XMLout($appdatas, 'RootName' => 'applications',  XMLDecl => '<?xml version="1.0" encoding="UTF-8"?>');
+  my $rootname = @{$appdatas->{'application'} || []} ? 'applications' : 'components';
+  my $appdatasxml = XML::Simple::XMLout($appdatas, 'RootName' => $rootname,  XMLDecl => '<?xml version="1.0" encoding="UTF-8"?>');
+  Encode::_utf8_off($appdatasxml);
   writestr("$dir/appdata.xml", undef, $appdatasxml);
 }
 
