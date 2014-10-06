@@ -1,6 +1,6 @@
 class AddDefaultTrackerConfiguration < ActiveRecord::Migration
   def self.up
-    add_column :configurations, :default_tracker, :string, :default => "boo"
+    add_column :configurations, :default_tracker, :string, :default => "bnc"
   end
 
   def self.down
