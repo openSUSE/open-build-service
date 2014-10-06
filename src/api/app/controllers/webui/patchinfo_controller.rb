@@ -41,7 +41,7 @@ class Webui::PatchinfoController < Webui::WebuiController
 
   def edit_patchinfo
     read_patchinfo
-    @tracker = ::Configuration.first.registration.default_tracker
+    @tracker = ::Configuration.first.default_tracker
     @binaries.each do |bin|
       if @binarylist.find(bin)
         @binarylist.delete(bin)
