@@ -1343,6 +1343,7 @@ sub publish {
 
   my $appdatas;
   my $appdatas_state;
+  my %appdatas_seen;
 
   my %deltas;	# XXX remove hack
   my %deltainfos;
@@ -1389,7 +1390,10 @@ sub publish {
       if ($bin =~ /-appdata.xml$/) {
         # collect application data
         my $appdataxml = readstr("$r/$bin", 1) || '';
-	$appdatas_state .= Digest::MD5::md5_hex($appdataxml);
+	my $appdatamd5 = Digest::MD5::md5_hex($appdataxml);
+	next if $appdatas_seen{$appdatamd5};
+	$appdatas_seen{$appdatamd5} = 1;
+	$appdatas_state .= $appdatamd5;
 	my $appdata;
 	eval {
 	  $appdata = XML::Simple::XMLin($appdataxml, 'ForceArray' => 1);
