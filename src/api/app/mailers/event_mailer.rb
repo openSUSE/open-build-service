@@ -17,14 +17,8 @@ class EventMailer < ActionMailer::Base
     'OBS Notification <' + ::Configuration.first.admin_email + '>'
   end
 
-  def format_email(user)
-    address = Mail::Address.new user.email
-    address.display_name = user.realname
-    address.format
-  end
-
-  def event(users, e)
-    users = users.to_a
+  def event(subscribers, e)
+    subscribers = subscribers.to_a
 
     set_headers
     begin
@@ -41,10 +35,10 @@ class EventMailer < ActionMailer::Base
 
     # no need to tell user about this own actions
     # TODO: make configurable?
-    users.delete(orig)
-    return if users.empty?
+    subscribers.delete(orig)
+    return if subscribers.empty?
 
-    tos = users.map { |u| format_email(u) }
+    tos = subscribers.map { |u| u.display_name }
 
     if orig
       orig = format_email(orig)

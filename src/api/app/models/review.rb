@@ -71,12 +71,12 @@ class Review < ActiveRecord::Base
     ret
   end
 
-  def users_for_review
+  def users_and_groups_for_review
     if self.by_user
-       return [User.find_by_login!(self.by_user).id]
+       return [User.find_by_login!(self.by_user)]
     end
     if self.by_group
-      return Group.find_by_title!(self.by_group).email_users.pluck('users.id')
+      return [Group.find_by_title!(self.by_group)]
     end
     obj = nil
     if self.by_package
@@ -85,13 +85,14 @@ class Review < ActiveRecord::Base
       obj = Project.find_by_name(self.by_project)
     end
     return [] unless obj
-    User.where(id: obj.relationships.users.where(role: Role.rolecache['maintainer']).pluck(:user_id))
+    ugs = User.where(id: obj.relationships.users.where(role: Role.rolecache['maintainer']))
+    ugs.concat(Group.where(id: obj.relationships.groups.where(role: Role.rolecache['maintainer'])))
   end
 
   def create_notification(params = {})
     params = params.merge(_get_attributes)
     params[:comment] = self.reason
-    params[:reviewers] = users_for_review
+    params[:reviewers] = users_and_groups_for_review
 
     # send email later
     Event::ReviewWanted.create params

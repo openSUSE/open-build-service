@@ -88,7 +88,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
 
     email = ActionMailer::Base.deliveries.last
     # what we want to test here is that tom - as devel package maintainer gets an email too
-    verify_email('tom_gets_mail_too', myid, email)
+    verify_email('test_group_gets_mail_too', myid, email)
   end
 
   test 'repository delete request' do
