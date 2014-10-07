@@ -3,8 +3,8 @@ From: Thor <tschmidt@example.com>
 Sender: OBS Notification <obs-email@opensuse.org>
 To: OBS Instance Superuser <root@localhost>, 
  Johnny Thunders <adrian@example.com>, 
- Iggy Pop <Iggy@pop.org>, 
- test_group <test_group@testsuite.org>
+ test_group <test_group@testsuite.org>, 
+ Iggy Pop <Iggy@pop.org>
 Message-ID: <notrandom@localhost>
 In-Reply-To: <obs-request-4@localhost>
 References: <obs-request-4@localhost>

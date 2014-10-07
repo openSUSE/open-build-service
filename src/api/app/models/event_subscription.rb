@@ -31,11 +31,8 @@ class EventSubscription < ActiveRecord::Base
     rel = _get_rel(eventtype)
 
     # check user or group config first
-    if subscriber.kind_of? User
-      rule = _get_role_rule(rel.where(user: subscriber), role)
-      return rule.receive if rule
-    elsif subscriber.kind_of? Group
-      rule = _get_role_rule(rel.where(group: subscriber), role)
+    if subscriber
+      rule = _get_role_rule(filter_relationships(rel, subscriber), role)
       return rule.receive if rule
     end
 
@@ -49,16 +46,23 @@ class EventSubscription < ActiveRecord::Base
 
   def self.update_subscription(eventtype, role, subscriber, value)
     rel = _get_rel(eventtype)
-    if subscriber.kind_of? User
-      rel = rel.where(user: subscriber)
-    elsif subscriber.kind_of? Group
-      rel = rel.where(group: subscriber)
-    else
-      rel = rel.where(user_id: nil, group_id: nil)
-    end
+    rel = filter_relationships(rel, subscriber)
     rule = rel.where(receiver_role: role).first_or_create
     rule.receive = value
     rule.save
+  end
+
+  private
+  def self.filter_relationships(rel, obj)
+    if obj.kind_of? User
+      return rel.where(user: obj)
+    elsif obj.kind_of? Group
+      return rel.where(group: obj)
+    elsif obj.nil?
+      return rel.where(user_id: nil, group_id: nil)
+    end
+
+    raise "Unable to filter by #{obj.class}"
   end
 
 end

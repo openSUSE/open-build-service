@@ -41,7 +41,7 @@ class EventMailer < ActionMailer::Base
     tos = subscribers.map { |u| u.display_name }
 
     if orig
-      orig = format_email(orig)
+      orig = orig.display_name
     else
       orig = mail_sender
     end

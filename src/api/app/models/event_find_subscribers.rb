@@ -65,43 +65,42 @@ class EventFindSubscribers
     return true
   end
 
-  def filter_toconsider
-    ret=[]
+  def user_subscribed_to_group_email?(group, user)
+    GroupsUser.where(group: group, user: user).first.email
+  end
 
-    users = Hash.new
-    groups = Hash.new
+  def filter_toconsider
+
+    receivers = Hash.new
+
     @toconsider.each do |r|
       if r.group_id
         group = Group.find(r.group_id)
         if group.email
           # group has a common email configured
-          groups[group] ||= Array.new
-          groups[group] << r
+          receivers[group] ||= Array.new
+          receivers[group] << r
         else
-          # it has not, so write all users individually
+          # it has not, so write to all users individually
           group.users.each do |u|
-            next unless GroupsUser.where(group: group, user: u).first.email
-            users[u] ||= Array.new
-            users[u] << r
+            next unless user_subscribed_to_group_email?(group, u)
+            receivers[u] ||= Array.new
+            receivers[u] << r
           end
         end
       end
 
+      # add users
       next unless r.user_id
-      user = User.find(r.user_id)
-      users[user] ||= Array.new
-      users[user] << r
+      u = User.find(r.user_id)
+      receivers[u] ||= Array.new
+      receivers[u] << r
     end
 
-    users.each do |user, rules|
+    ret=[]
+    receivers.each do |rcv, rules|
       if check_rules? rules
-        ret << user
-      end
-    end
-
-    groups.each do |group, rules|
-      if check_rules? rules
-        ret << group
+        ret << rcv
       end
     end
 
