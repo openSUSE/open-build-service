@@ -212,19 +212,17 @@ module Event
       # old/deleted obj
       return [] unless obj or role.blank?
 
-      user = obj.relationships.where(role: Role.rolecache[role])
-      users = user.joins(:user).pluck('users.id')
-      users |= user.joins(:groups_users).pluck('groups_users.user_id')
-
-      if users.empty? && obj.respond_to?(:project)
-        users = obj_roles(obj.project, role)
+      rel = obj.relationships.where(role: Role.rolecache[role])
+      receivers = rel.map{ |r| r.user_id ? r.user : r.group }
+      if receivers.empty? && obj.respond_to?(:project)
+        receivers = obj_roles(obj.project, role)
       end
 
       # for now we define develpackage maintainers as being maintainers too
       if obj.respond_to?(:develpackage)
-        users.concat(obj_roles(obj.develpackage, role))
+        receivers.concat(obj_roles(obj.develpackage, role))
       end
-      users
+      receivers
     end
 
     def maintainers

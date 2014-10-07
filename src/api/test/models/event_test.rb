@@ -37,6 +37,11 @@ class EventTest < ActionDispatch::IntegrationTest
     User.where(id: users).pluck(:login).sort
   end
 
+  def groups_for_event(e)
+    groups = EventFindSubscribers.new(e).subscribers
+    Group.where(id: groups).pluck(:title).sort
+  end
+
   test 'find subscribers' do
     # for this test we don't want fixtures to interfere
     EventSubscription.delete_all
@@ -49,14 +54,16 @@ class EventTest < ActionDispatch::IntegrationTest
                                       'sender' => 'tom'})
 
     # fred, fredlibs and king are maintainer, adrian is in test_group
-    assert_equal %w(adrian fred fredlibs king), users_for_event(e)
+    assert_equal %w(fred fredlibs king), users_for_event(e)
+    assert_equal %w(test_group), groups_for_event(e)
 
     # now fred configures it off
     EventSubscription.create eventtype: 'Event::CreatePackage',
                              user: users(:fred), receiver_role: :all, receive: false
 
     # fred, fredlibs and king are maintainer, adrian is in test_group - fred disabled it
-    assert_equal %w(adrian fredlibs king), users_for_event(e)
+    assert_equal %w(fredlibs king), users_for_event(e)
+    assert_equal %w(test_group), groups_for_event(e)
 
     # now the global default is turned off again
     all_get_events.delete

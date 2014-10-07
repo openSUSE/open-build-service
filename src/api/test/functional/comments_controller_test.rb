@@ -168,7 +168,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
     email = ActionMailer::Base.deliveries.last
     assert_equal 'New comment in package kde4/kdebase by tom', email.subject
-    assert_equal ["adrian@example.com", "fred@feuerstein.de", "king@all-the-kings.org", "fred@feuerstein.de"], email.to
+    assert_equal ["fred@feuerstein.de", "king@all-the-kings.org", "fred@feuerstein.de", "test_group@testsuite.org"], email.to
 
     get comments_package_path(project: 'kde4', package: 'kdebase')
     assert_xml_tag tag: 'comment', attributes: { who: 'tom' }, content: "Hola, estoy aprendiendo español"

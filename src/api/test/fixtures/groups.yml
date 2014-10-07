@@ -6,6 +6,7 @@ test_group:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
   title: test_group
+  email: test_group@testsuite.org
 test_group_b:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z

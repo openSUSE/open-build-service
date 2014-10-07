@@ -89,13 +89,13 @@ class Event::Request < ::Event::Base
   def reviewers
     ret = []
     BsRequest.find(payload['id']).reviews.each do |r|
-      ret.concat(r.users_for_review)
+      ret.concat(r.users_and_groups_for_review)
     end
     ret.uniq
   end
 
   def creators
-    [User.find_by_login(payload['author']).id]
+    [User.find_by_login(payload['author'])]
   end
 
   def action_maintainers(prjname, pkgname)
@@ -189,6 +189,15 @@ class Event::ReviewWanted < Event::Request
 
   # for review_wanted we ignore all the other reviews
   def reviewers
-    payload['reviewers']
+    ret = []
+    payload["reviewers"].each do |r|
+      if r["title"]
+        ret << Group.find_by_title(r["title"])
+      end
+      if r["login"]
+        ret << User.find_by_login(r["login"])
+      end
+    end
+    ret.uniq
   end
 end

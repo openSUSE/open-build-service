@@ -43,19 +43,19 @@ class EventMailerTest < ActionMailer::TestCase
     email = ActionMailer::Base.deliveries.last
 
     assert_equal "Request #{myid} requires review (submit Apache/BranchPack)", email.subject
-    assert_equal %w(adrian@example.com), email.to
+    assert_equal %w(test_group@testsuite.org), email.to
   end
 
-  # now check that disabling it for adrian works too
-  test 'group emails disabled' do
+  # now check that disabling it for users in groups works too
+  test 'group emails to users disabled' do
     User.current = users(:Iggy)
 
-    # the default is reviewer groups get email, so check that adrian gets an email
     req = bs_requests(:submit_from_home_project)
 
-    GroupsUser.where(user: users(:adrian), group: groups(:test_group)).first.update_attribute(:email, false)
+    GroupsUser.where(user: users(:maintenance_assi), group: groups(:maint_coord)).first.update_attribute(:email, false)
+    GroupsUser.where(user: users(:maintenance_coord), group: groups(:maint_coord)).first.update_attribute(:email, false)
     assert_difference 'ActionMailer::Base.deliveries.size', 0 do
-      req.addreview(by_group: 'test_group', comment: 'does it still look ok?')
+      req.addreview(by_group: 'maint_coord', comment: 'does it still look ok?')
     end
   end
 
