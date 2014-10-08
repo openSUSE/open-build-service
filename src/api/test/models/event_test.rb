@@ -130,4 +130,15 @@ end
 
     assert_equal %w(Iggy), users_for_event(events(:build_failure_for_iggy))
   end
+
+  test 'maintainer mails for source service fail' do
+    # for this test we don't want fixtures to interfere
+    EventSubscription.delete_all
+
+    # just one subsciption
+    EventSubscription.create eventtype: 'Event::ServiceFail', receiver_role: :maintainer, user: users(:Iggy)
+
+    assert_equal %w(Iggy), users_for_event(events(:service_failure_for_iggy))
+  end
+
 end
