@@ -114,7 +114,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
          else
            assert nil  # unhandled src rpm
          end
-         if File.exist? "/etc/init.d/boot.local"
+         if File.exist? "/var/adm/fillup-templates"
            # seems to be a SUSE system
            if p["format"]["rpm:suggests"].nil?
              print "createrepo seems not to create week dependencies, we need this at least on SUSE systems"
@@ -138,7 +138,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_suse_format
-    return unless File.exist? "/etc/init.d/boot.local"
+    return unless File.exist? "/var/adm/fillup-templates"
     login_adrian
     get "/published/BaseDistro3/BaseDistro3_repo/content"
     assert_response :success
