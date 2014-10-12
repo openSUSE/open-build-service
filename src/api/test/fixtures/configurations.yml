@@ -19,6 +19,7 @@ seed:
   name: obstest
   registration: allow
   anonymous: 1
+  default_tracker: bnc
   default_access_disabled: 0
   allow_user_to_create_home_project: 1
   disallow_group_creation: 0
