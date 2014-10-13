@@ -2041,7 +2041,7 @@ sub patchproductkiwi {
       my $mediumbase = $productvar->{'_content'};
       my $cicnt = $buildinfo->{'versrel'};
       $cicnt =~ s/.*-//;
-      if ($cicnt eq "1") {
+      if ($cicnt eq '1') {
         # simple case for standard productconverter case
         $mediumbase .= sprintf("-Build%04d", $buildinfo->{'bcnt'} || 0);
       } else {
@@ -2099,29 +2099,20 @@ sub patchproductkiwi {
         push @rp, $rp;
         next;
       }
-
       for my $pkg (sort keys %allpkgs) {
         # exclude blind take of all debug packages. They will be taken
         # automatically if a configured debug medium exists.
-        next if $pkg =~ /-debuginfo$/;
-        next if $pkg =~ /-debugsource$/;
-        next if $pkg =~ /-debuginfo-32bit$/;
-        next if $pkg =~ /-debugsource-32bit$/;
-        next if $pkg =~ /-debuginfo-64bit$/;
-        next if $pkg =~ /-debugsource-64bit$/;
-        next if $pkg =~ /-debuginfo-x86$/;
-        next if $pkg =~ /-debugsource-x86$/;
+        next if $pkg =~ /-debug(?:info|source)(?:-32bit|-64bit|-x86)?$/;
         my @a;
         for my $availableArch (sort keys %{$allpkgs{$pkg}}){
-          if ($availableArch eq "noarch") {
-            for my $a (sort map { $_->{'ref'} } @{$kiwi->{'instsource'}->{'architectures'}->{'requiredarch'}}) {
-              push @a, $a;
-           }
-          }else{
+          if ($availableArch eq 'noarch') {
+            push @a, sort(map { $_->{'ref'} } @{$kiwi->{'instsource'}->{'architectures'}->{'requiredarch'}});
+          } else {
             push @a, $availableArch;
           }
         }
-        push @rp, {'name' => $pkg, 'arch' => "".join(",", @a)};
+        my %a = map {$_ => 1} @a;
+        push @rp, {'name' => $pkg, 'arch' => join(',', sort keys %a)};
       }
     }
     $repopackages->{'repopackage'} = \@rp;
