@@ -66,7 +66,7 @@ class Product < ActiveRecord::Base
           key += "/#{arch}"
         end
         key.downcase!
-        medium[key] = pm.id
+        medium[key] = pm
       end
       u.elements('repository') do |repo|
         next if repo['project'].blank? # it may be just a url= reference
@@ -99,7 +99,7 @@ class Product < ActiveRecord::Base
         next unless pu.repository # it may be remote or not yet exist
         key = pu.repository.id.to_s
         key += "/" + pu.arch_filter.name if pu.arch_filter_id
-        update[key] = pu.id
+        update[key] = pu
       end
       u.elements('repository') do |repo|
         updateRepo = Repository.find_by_project_and_repo_name(repo.get('project'), repo.get('name'))
