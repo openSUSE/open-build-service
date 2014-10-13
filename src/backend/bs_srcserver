@@ -3244,6 +3244,7 @@ sub getprojpack {
 	  my @dinfo;
 
 	  $pinfo->{'constraintsmd5'} = $files->{'_constraints'} if $files->{'_constraints'};
+	  $pinfo->{'hasbuildenv'} = 1 if $files->{'_buildenv'};
 	  for my $repo (@{$proj->{'repository'} || []}) {
 	    my $repoid = $repo->{'name'};
 	    next if $repoids && !$repoids->{$repoid};
@@ -5978,9 +5979,9 @@ sub sourcecollectbuildenv {
     }
   }
   die("could not get any buildenv, something is wrong\n") unless %buildenvs;
-  # add "fallback" error buildenv
+  # add master buildenv, in our case a "fallback error" buildenv
   my $be = { 'error', "no buildenv for this repo/arch" };
-  $buildenvs{"_buildenv"} = BSUtil::toxml($be, $BSXML::buildinfo);
+  $buildenvs{'_buildenv'} = BSUtil::toxml($be, $BSXML::buildinfo);
   # now add all the buildenvs to the last commit (unexpanded is enough for us)
   my $rev = getrev($projid, $packid);
   my $files = lsrev($rev);

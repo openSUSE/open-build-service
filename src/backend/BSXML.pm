@@ -301,6 +301,7 @@ our $projpack = [
 		$channel,
 		@flags,
 		'bcntsynctag',
+		'hasbuildenv',
 	 ]],
 	    'missingpackages',
      ]],
