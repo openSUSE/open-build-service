@@ -27,13 +27,41 @@ use BSConfig;
 
 use strict;
 
+#
+# Backend notifications are always routed through the source server. The API
+# is processing them via /lastnotifications route and afterwards delivers
+# them to the backend notifiy plugins via /notify_plugins.
+#
 sub notify($$) {
-  # gone
+  my ($type, $p) = @_;
+
+  # strip
+  $p = { map {$_ => $p->{$_}} grep {defined($p->{$_}) && !ref($p->{$_})} sort keys %{$p || {}} };
+
+  my $param = {
+    'uri' => "$BSConfig::srcserver/notify/$type",
+    'request' => 'POST',
+    'headers' => [ 'Content-Type: application/x-www-form-urlencoded' ],
+    'timeout' => 60,
+  };
+  if ($payload) {
+    $param->{'headers'} = [ 'Content-Type: application/octet-stream' ];
+    $param->{'data'} = $payload;
+  }
+  my @args = map {"$_=$p->{$_}"} sort keys %$p;
+  eval {
+    BSRPC::rpc($param, undef, @args);
+  };
+  if ($@) {
+    die($@) if $payload;	# payload transfers are fatal
+    warn($@) if $@;
+  }
 }
 
-# this is called from the /notification route that the API
-# calls for all events (no matter the origin) if the API
-# is configured to do so
+#
+# this is called from the /notify_plugins route that the API calls for all
+# events (no matter the origin) if the API is configured to do so.
+#
 sub notify_plugins($$) {
   my ($type, $paramRef ) = @_;
 
