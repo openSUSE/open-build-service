@@ -1930,7 +1930,7 @@ sub getbinaries {
       $done{$_} = $gotpkg->{'name'};
       $meta{$_} = 1 if !$nometa && $gotpkg->{'meta'};
       if ($outbdep) {
-	my $obdep = { 'name' => $gotpkg->{'name'}, 'project' => $repo->{'project'}, 'repository' => $repo->{'repository'} };
+	my $obdep = { 'name' => $_, 'project' => $repo->{'project'}, 'repository' => $repo->{'repository'} };
 	$obdep->{'hdrmd5'} = $gotpkg->{'hdrmd5'} if $gotpkg->{'hdrmd5'};
 	# fill epoch/version/release/arch?
 	push @$outbdep, $obdep;
