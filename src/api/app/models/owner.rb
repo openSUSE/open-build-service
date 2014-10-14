@@ -158,9 +158,9 @@ class Owner
 
     # fast find packages with defintions
     # relationship in package object
-    defined_packages = Package.where(project_id: projects).joins(:relationships).where(relationships: { role_id: roles}).pluck(:name)
+    defined_packages = Package.where(project_id: projects).joins(:relationships => :user).where(["relationships.role_id IN (?) AND (ISNULL(user_id) OR users.state = ?)", roles, User.states['confirmed']]).pluck(:name)
     # relationship in project object
-    Project.joins(:relationships).where("projects.id in (?) AND role_id in (?)", projects, roles).each do |prj|
+    Project.joins(:relationships => :user).where("projects.id in (?) AND role_id in (?) AND (ISNULL(user_id) OR users.state = ?)", projects, roles, User.states['confirmed']).each do |prj|
       defined_packages += prj.packages.map{ |p| p.name }
     end
     if devel == true
@@ -291,41 +291,40 @@ class Owner
       sql = "( 1 "
     end
     sql << " )"
+
+    # lookup in package container
+    m = _extract_from_container(m, pkg.relationships, sql, objfilter)
+
+    # did it it match? if not fallback to project level
+    unless m.users or m.groups
+      m.package = nil
+      m = _extract_from_container(m, pkg.project.relationships, sql, objfilter)
+    end
+    # still not matched? Ignore it
+    return nil unless m.users or m.groups
+
+    return m
+  end
+
+  private
+  def self._extract_from_container(m, r, sql, objfilter)
     usersql = groupsql = sql
     usersql  = sql << " AND user_id = " << objfilter.id.to_s  if objfilter.class == User
     groupsql = sql << " AND group_id = " << objfilter.id.to_s if objfilter.class == Group
 
-    # lookup
-    pkg.relationships.users.where(usersql).each do |p|
+    r.users.where(usersql).each do |p|
+      next unless p.user.state == User.states['confirmed']
       m.users ||= {}
       m.users[p.role.title] ||= []
       m.users[p.role.title] << p.user.login
     end unless objfilter.class == Group
 
-    pkg.relationships.groups.where(groupsql).each do |p|
+    r.groups.where(groupsql).each do |p|
+      next unless p.group.users.where(state: User.states['confirmed']).length > 0
       m.groups ||= {}
       m.groups[p.role.title] ||= []
       m.groups[p.role.title] << p.group.title
     end unless objfilter.class == User
-
-    # did it it match? if not fallback to project level
-    unless m.users or m.groups
-      m.package = nil
-      pkg.project.relationships.users.where(usersql).each do |p|
-        m.users ||= {}
-        m.users[p.role.title] ||= []
-        m.users[p.role.title] << p.user.login
-      end unless objfilter.class == Group
-
-      pkg.project.relationships.groups.where(groupsql).each do |p|
-        m.groups ||= {}
-        m.groups[p.role.title] ||= []
-        m.groups[p.role.title] << p.group.title
-      end unless objfilter.class == User
-    end
-    # still not matched? Ignore it
-    return nil unless  m.users or m.groups
-
     return m
   end
 end

@@ -543,6 +543,15 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag tag: 'owner', :attributes => { :project => "TEMPORARY", :package => "pack" }
     assert_no_xml_tag tag: 'owner', :attributes => { :project => "home:coolo:test" }
     assert_no_xml_tag tag: 'group', :attributes => { :name => "test_group", :role => "bugowner" }
+    # disable a user and check that he disappears
+    u=User.find_by_login "Iggy"
+    u.state = User.states['unconfirmed']
+    u.save!
+    get "/search/owner?project=TEMPORARY&binary=package&filter=bugowner"
+    assert_response :success
+    assert_no_xml_tag tag: 'person', :attributes => { :name => "Iggy", :role => "bugowner" }
+    u.state = User.states['confirmed']
+    u.save
 
     # group in project meta
     get "/search/owner?project=TEMPORARY&binary=package&filter=maintainer"
