@@ -10,6 +10,7 @@ class Webui::OwnerSearchTest < Webui::IntegrationTest
   def setup
     @attrib = Attrib.find_or_create_by!(attrib_type: AttribType.where(name: "OwnerRootProject").first,
                    project: Project.where(name: "home:Iggy").first)
+    wait_for_scheduler_start
   end
 
   def visit_owner_search
@@ -67,7 +68,8 @@ class Webui::OwnerSearchTest < Webui::IntegrationTest
     assert result[:owners].include? "(fred) as maintainer"
     assert result[:owners].include? "(Iggy) as maintainer"
     assert result[:owners].include? "(Iggy) as bugowner"
-    assert result[:owners].include? "test_group_b as maintainer"
+    # test_group_b is maintainer, but has no active member
+    assert_not result[:owners].include? "test_group_b as maintainer"
   end
 
   test "owner_search_with_devel" do
