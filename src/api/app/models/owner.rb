@@ -74,12 +74,12 @@ class Owner
       end
 
       if obj.nil?
-        owners += find_containers_without_definition(project, devel, filter)
+        owners += self.find_containers_without_definition(project, devel, filter)
       elsif obj.is_a? String
-        owners += find_assignees(project, obj, limit.to_i, devel,
+        owners += self.find_assignees(project, obj, limit.to_i, devel,
                                                 filter, (true unless params[:webui_mode].blank?))
       else
-        owners += find_containers(project, obj, devel, filter)
+        owners += self.find_containers(project, obj, devel, filter)
       end
 
     end
@@ -106,7 +106,6 @@ class Owner
     path += "))"
     answer = Suse::Backend.post path, nil
     data = Xmlhash.parse(answer.body)
-
     # found binary package?
     return [] if data["matches"].to_i == 0
 
@@ -120,7 +119,7 @@ class Owner
         next if pkg.nil?
 
         # the "" means any matching relationships will get taken
-        m, limit, already_checked = lookup_package_owner(rootproject, pkg, "", limit, devel, filter, deepest, already_checked)
+        m, limit, already_checked = self.lookup_package_owner(rootproject, pkg, "", limit, devel, filter, deepest, already_checked)
 
         unless m
           # collect all no matched entries
@@ -236,25 +235,25 @@ class Owner
 
     # optional check for devel package instance first
     m = nil
-    m = extract_maintainer(rootproject, pkg.resolve_devel_package, filter, owner) if devel == true
-    m = extract_maintainer(rootproject, pkg, filter, owner) unless m
+    m = self.extract_maintainer(rootproject, pkg.resolve_devel_package, filter, owner) if devel == true
+    m = self.extract_maintainer(rootproject, pkg, filter, owner) unless m
 
     already_checked[pkg.id] = 1
 
+    # found entry
+    return m, (limit-1), already_checked if m
+
     # no match, loop about projects below with this package container name
-    unless m
-      pkg.project.expand_all_projects.each do |prj|
-        p = prj.packages.find_by_name(pkg.name )
-        next if p.nil? or already_checked[p.id]
+    pkg.project.expand_all_projects.each do |prj|
+      p = prj.packages.find_by_name(pkg.name )
+      next if p.nil? or already_checked[p.id]
 
-        already_checked[p.id] = 1
+      already_checked[p.id] = 1
 
-        m = extract_maintainer(rootproject, p.resolve_devel_package, filter, owner) if devel == true
-        m = extract_maintainer(rootproject, p, filter, owner) unless m
-        if m
-          break unless deepest
-        end
-      end
+      m = self.extract_maintainer(rootproject, p.resolve_devel_package, filter, owner) if devel == true
+      m = self.extract_maintainer(rootproject, p, filter, owner) unless m
+
+      break unless deepest if m
     end
 
     # found entry
@@ -293,12 +292,12 @@ class Owner
     sql << " )"
 
     # lookup in package container
-    m = _extract_from_container(m, pkg.relationships, sql, objfilter)
+    m = self._extract_from_container(m, pkg.relationships, sql, objfilter)
 
     # did it it match? if not fallback to project level
     unless m.users or m.groups
       m.package = nil
-      m = _extract_from_container(m, pkg.project.relationships, sql, objfilter)
+      m = self._extract_from_container(m, pkg.project.relationships, sql, objfilter)
     end
     # still not matched? Ignore it
     return nil unless m.users or m.groups
