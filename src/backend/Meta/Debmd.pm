@@ -42,10 +42,24 @@ sub parse {
 
   my %packs = ();
   my $cur = {};
+  my $id = 0;
   open(F, '<', $fn) or die("open: $!\n");
   while (<F>) {
     chomp;
-    next unless /^(Package|Version|Provides|Depends|Pre-Depends|Filename|Source|Architecture|Size):\s(.*)/;
+    if ($_ =~ /^$/) {
+      $cur->{'id'} = "-1/$id/-1";
+      $cur->{'hdrmd5'} = 0;
+      my $rel = exists $cur->{'release'} ? "-$cur->{'release'}" : '';
+      push @{$cur->{'provides'}}, "$cur->{'name'} = $cur->{'version'}$rel";
+      $cur->{'requires'} = [] unless exists $cur->{'requires'};
+      $cur->{'source'} = $cur->{'name'} unless exists $cur->{'source'};
+      $packs{$cur->{'name'}} = $cur;
+      $cur = {};
+      $id = $id +1;
+      next;
+    }
+    
+    next unless /^(Package|Version|Provides|Depends|Pre-Depends|Filename|Source|Architecture):\s(.*)/;
     my ($tag, $what) = ($1, $2);
     if ($tag =~ /^[\w-]*Depends|Provides/) {
       my @m = $what =~ /([^\s,]+)(\s[^,]*)?[\s,]*/g;
@@ -64,17 +78,6 @@ sub parse {
       next;
     }
     # Size is the last entry in a package section
-    if ($tag eq 'Size') {
-      $cur->{'id'} = "-1/$what/-1";
-      $cur->{'hdrmd5'} = 0;
-      my $rel = exists $cur->{'release'} ? "-$cur->{'release'}" : '';
-      push @{$cur->{'provides'}}, "$cur->{'name'} = $cur->{'version'}$rel";
-      $cur->{'requires'} = [] unless exists $cur->{'requires'};
-      $cur->{'source'} = $cur->{'name'} unless exists $cur->{'source'};
-      $packs{$cur->{'name'}} = $cur;
-      $cur = {};
-      next;
-    }
     $cur->{$tagmap{$tag}} = $what;
     if ($tag eq 'Version') {
       # stolen from Build/Deb.pm
