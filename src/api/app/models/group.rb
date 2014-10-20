@@ -9,6 +9,7 @@ class Group < ActiveRecord::Base
   has_many :groups_users, inverse_of: :group, dependent: :destroy
   has_many :group_maintainers, inverse_of: :group, dependent: :destroy
   has_many :relationships, dependent: :destroy, inverse_of: :group
+  has_many :event_subscriptions, dependent: :destroy, inverse_of: :group
 
   validates_format_of  :title,
                        :with => %r{\A[\w\.\-]*\z},

@@ -85,14 +85,19 @@ class Review < ActiveRecord::Base
       obj = Project.find_by_name(self.by_project)
     end
     return [] unless obj
-    ugs = User.where(id: obj.relationships.users.where(role: Role.rolecache['maintainer']))
-    ugs.concat(Group.where(id: obj.relationships.groups.where(role: Role.rolecache['maintainer'])))
+    relationships = obj.relationships
+    role = Role.rolecache['maintainer']
+    User.where(id: relationships.users.where(role: role)) + Group.where(id: relationships.groups.where(role: role))
+  end
+
+  def map_objects_to_ids(objs)
+    objs.map { |obj| { "#{obj.class.to_s.downcase}_id" => obj.id } }
   end
 
   def create_notification(params = {})
     params = params.merge(_get_attributes)
     params[:comment] = self.reason
-    params[:reviewers] = users_and_groups_for_review
+    params[:reviewers] = map_objects_to_ids(users_and_groups_for_review)
 
     # send email later
     Event::ReviewWanted.create params

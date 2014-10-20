@@ -189,15 +189,7 @@ class Event::ReviewWanted < Event::Request
 
   # for review_wanted we ignore all the other reviews
   def reviewers
-    ret = []
-    payload["reviewers"].each do |r|
-      if r["title"]
-        ret << Group.find_by_title(r["title"])
-      end
-      if r["login"]
-        ret << User.find_by_login(r["login"])
-      end
-    end
-    ret.uniq
+    User.where(id: payload["reviewers"].map { |r| r['user_id'] }) +
+        Group.where(id: payload["reviewers"].map { |r| r['group_id'] })
   end
 end

@@ -11,7 +11,7 @@ class EventTest < ActionDispatch::IntegrationTest
     # ensure that the backend got started or we read, process and forget the indexed data.
     # of course only if our timing is bad :/
     super
-    wait_for_scheduler_start
+    Suse::Backend.start_test_backend
   end
 
   test 'find nothing' do

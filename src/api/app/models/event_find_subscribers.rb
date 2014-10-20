@@ -23,21 +23,39 @@ class EventFindSubscribers
 
     receivers = @event.send("#{r.receiver_role}s")
     receivers.each do |u|
-      Rails.logger.debug "Event for receiver_role #{r.receiver_role} goes to user #{u.login}" if u.kind_of? User
-      Rails.logger.debug "Event for receiver_role #{r.receiver_role} goes to group #{u.title}" if u.kind_of? Group
+      Rails.logger.debug "Event for receiver_role #{r.receiver_role} goes to #{u}"
     end
 
     # fetch database settings
-    users = receivers.map { |rcv| rcv if rcv.kind_of? User }
-    groups = receivers.map { |rcv| rcv if rcv.kind_of? Group }
-    ret=[]
-    ret.concat(EventSubscription.where(eventtype: r.eventtype, receiver_role: r.receiver_role, user_id: users)) if users.length > 0
-    ret.concat(EventSubscription.where(eventtype: r.eventtype, receiver_role: r.receiver_role, group_id: groups)) if groups.length > 0
+    user_ids = receivers.select { |rcv| rcv.kind_of? User }.map { |u| u.id }
+    groups = receivers.select { |rcv| rcv.kind_of? Group }
+    group_ids = []
+    groups.each do |group|
+      if group.email
+        group_ids << group.id
+      else
+        # it has not, so write to all users individually
+        group.users.each do |u|
+          next unless user_subscribed_to_group_email?(group, u)
+          user_ids << u.id
+        end
+      end
+    end
+
+    table = EventSubscription.arel_table
+
+    rel = EventSubscription.where(eventtype: r.eventtype, receiver_role: r.receiver_role)
+    ret = rel.where(table[:user_id].in(user_ids).or(table[:group_id].in(group_ids))).to_a
 
     receivers.each do |ug|
       # add a default
-      ret << EventSubscription.new(eventtype: r.eventtype, receiver_role: r.receiver_role, receive: r.receive, user_id: ug.id) if ug.kind_of? User
-      ret << EventSubscription.new(eventtype: r.eventtype, receiver_role: r.receiver_role, receive: r.receive, group_id: ug.id) if ug.kind_of? Group
+      nes = EventSubscription.new(eventtype: r.eventtype, receiver_role: r.receiver_role, receive: r.receive)
+      if ug.kind_of? User
+        nes.user = ug
+      else
+        nes.group = ug
+      end
+      ret << nes
     end
     ret
   end
@@ -76,18 +94,9 @@ class EventFindSubscribers
     @toconsider.each do |r|
       if r.group_id
         group = Group.find(r.group_id)
-        if group.email
-          # group has a common email configured
-          receivers[group] ||= Array.new
-          receivers[group] << r
-        else
-          # it has not, so write to all users individually
-          group.users.each do |u|
-            next unless user_subscribed_to_group_email?(group, u)
-            receivers[u] ||= Array.new
-            receivers[u] << r
-          end
-        end
+        next if group.email.blank?
+        receivers[group] ||= Array.new
+        receivers[group] << r
       end
 
       # add users
