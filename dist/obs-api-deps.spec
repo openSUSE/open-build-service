@@ -26,7 +26,7 @@ Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        open-build-service-%version.tar.xz
 Source1:        find-requires.sh
-BuildRequires:  rubygem-bundler
+BuildRequires:  rubygem(bundler)
 %if 0%{?suse_version} < 1210
 BuildRequires:  xz
 %endif
@@ -38,11 +38,7 @@ This package serves one purpose only: to list the dependencies in Gemfile.lock
 Summary:        The Open Build Service -- The Testsuite dependencies
 Group:          Productivity/Networking/Web/Utilities
 # dependencies not needed in production
-%if 0%{?suse_version} == 01315
 Requires:       %(echo `bash %{S:1} %{S:0} "ruby:2.1.0"`)
-%else
-Requires:       %(echo `bash %{S:1} %{S:0} "2.1.0"`)
-%endif
 
 Requires:       perl-BSSolv >= 0.18.0
 # Required by source server

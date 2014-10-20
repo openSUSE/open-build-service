@@ -75,9 +75,7 @@ Requires:       patch
 Requires:       %(/bin/bash -c 'rpm -q --qf "%%{name} = %%{version}-%%{release}" createrepo')
 Requires:       %(/bin/bash -c 'rpm -q --qf "%%{name} = %%{version}-%%{release}" python-yum')
 
-%if 0%{?suse_version} < 1210
 BuildRequires:  xz
-%endif
 
 %if 0%{?suse_version:1}
 BuildRequires:  fdupes
@@ -135,7 +133,6 @@ Requires:       lzma
 %endif
 Requires:       util-linux >= 2.16
 # the following may not even exist depending on the architecture
-Recommends:       linux32
 Recommends:       powerpc32
 
 %description -n obs-worker
@@ -154,35 +151,34 @@ PreReq:         %fillup_prereq %insserv_prereq
 %endif
 
 #For apache
-Recommends:     apache2 apache2-mod_xforward rubygem-passenger-apache2
+Recommends:     apache2 apache2-mod_xforward rubygem(passenger-apache2)
 
 # memcache is required for session data
 Requires:       memcached
 Conflicts:      memcached < 1.4
 
 # For local runs
-BuildRequires:  rubygem-sqlite3
+BuildRequires:  rubygem(sqlite3)
 
 Requires:       mysql
 
 Requires:       ruby >= 2.0
 # needed for fulltext searching
 Requires:       sphinx >= 2.1.8
-Supplements:    rubygem-ruby-ldap
 BuildRequires:  obs-api-testsuite-deps
-BuildRequires:  rubygem-ruby-ldap
+BuildRequires:  rubygem(ruby-ldap)
 # for test suite:
 BuildRequires:  createrepo
 BuildRequires:  curl
 BuildRequires:  memcached >= 1.4
 BuildRequires:  mysql
 BuildRequires:  netcfg
-BuildRequires:  rubygem-ci_reporter
+BuildRequires:  rubygem(ci_reporter)
 BuildRequires:  xorg-x11-Xvnc
 BuildRequires:  xorg-x11-server
 BuildRequires:  xorg-x11-server-extra
 # write down dependencies for production
-BuildRequires:  rubygem-bundler
+BuildRequires:  rubygem(bundler)
 %if 0%{?suse_version} > 1310
 Requires:       %(echo `bash %{S:1} %{S:0} "ruby:2.1.0"`)
 %else
