@@ -361,7 +361,8 @@ class XpathEngine
     logger.debug("#{relation.to_sql}.find #{ { joins: @joins.flatten.uniq.join(' '),
                                                conditions: cond_ary}.inspect }")
     relation = relation.joins(@joins.flatten.uniq.join(" ")).where(cond_ary).order(order)
-    relation.pluck(:id).uniq
+    # .distinct is critical for perfomance here...
+    relation.distinct.pluck(:id)
   end
 
   def parse_predicate(root, stack)
