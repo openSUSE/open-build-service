@@ -367,6 +367,19 @@ sub addrev_service {
     mkdir_p($treedir);
     if ($error) {
       writestr("$treedir/.$srcmd5-_serviceerror", "$treedir/$srcmd5-_serviceerror", "$error\n");
+
+      my $user = $cgi->{'user'};
+      my $comment = $cgi->{'comment'};
+      my $requestid = $cgi->{'requestid'};
+      $user = '' unless defined $user;
+      $user = 'unknown' if $user eq '';
+      $user = str2utf8xml($user);
+      $comment = '' unless defined $comment;
+      $comment = str2utf8xml($comment);
+      notify('SRCSRV_SERVICE_FAIL', {project => $projid, package => $packid,
+                                     error => $error, rev => $rev->{'rev'},
+                                     user => $user, comment => $comment,
+                                     'requestid' => $requestid});
     } else {
       return if -e "$treedir/$srcmd5-MD5SUMS";	# huh? why did we run twice?
       my $meta = '';

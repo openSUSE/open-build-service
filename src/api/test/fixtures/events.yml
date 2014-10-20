@@ -17,6 +17,15 @@ build_failure_for_iggy:
   created_at: 2013-08-31 14:56:52.000000000 Z
   updated_at: 2013-08-31 14:56:52.000000000 Z
   project_logged: 0
+service_failure_for_iggy:
+  id: 18
+  eventtype: Event::ServiceFail
+  payload: '{"project":"home:Iggy","package":"TestPack","rev":"2","comment":"trigger service run","error":"service daemon error:\n400 remote error: /usr/lib/obs/service//not_existing  No such file or directory","user":"Admin"}'
+  queued: 0
+  lock_version: 0
+  created_at: 2013-08-31 14:56:52.000000000 Z
+  updated_at: 2013-08-31 14:56:52.000000000 Z
+  project_logged: 0
 build_success_from_deleted_project:
   id: 2
   eventtype: Event::BuildSuccess

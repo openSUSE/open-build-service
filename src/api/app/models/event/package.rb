@@ -71,4 +71,22 @@ module Event
     payload_keys :project, :package, :comment, :filename, :requestid, :target, :user
   end
 
+  class ServiceFail < Package
+    self.raw_type = 'SRCSRV_SERVICE_FAIL'
+    self.description = 'Package souce service has failed'
+    payload_keys :comment, :error, :package, :project, :rev, :user
+    receiver_roles :maintainer, :bugowner
+
+    def subject
+      "Source service failure of #{payload['project']}/#{payload['package']}"
+    end
+
+    def custom_headers
+      h = super
+      h['X-OBS-Package'] = "#{payload['project']}/#{payload['package']}"
+      h
+    end
+
+  end
+
 end
