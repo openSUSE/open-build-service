@@ -72,7 +72,7 @@ class Webui::RequestController < Webui::WebuiController
       begin
         req.permission_check_change_review!(opts)
         req.change_review_state(state, opts)
-      rescue BsRequestPermissionCheck::ReviewChangeStateNoPermission
+      rescue BsRequestPermissionCheck::ReviewChangeStateNoPermission => e
         flash[:error] = "Not permitted to change review state: #{e.message}"
       rescue APIException => e
         flash[:error] = "Unable changing review state: #{e.message}"
