@@ -926,6 +926,12 @@ class User < ActiveRecord::Base
     end
   end
 
+  def display_name
+    address = Mail::Address.new self.email
+    address.display_name = self.realname 
+    address.format
+  end
+
   protected
   # This method allows to execute a block while deactivating timestamp
   # updating.

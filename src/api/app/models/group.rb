@@ -145,4 +145,10 @@ class Group < ActiveRecord::Base
   def email_users
     User.where(id: groups_users.where(email: true).pluck(:user_id))
   end
+
+  def display_name
+    address = Mail::Address.new self.email
+    address.display_name = self.title
+    address.format
+  end
 end

@@ -1,8 +1,8 @@
 Return-Path: <obs-email@opensuse.org>
 From: Iggy Pop <Iggy@pop.org>
 Sender: OBS Notification <obs-email@opensuse.org>
-To: Johnny Thunders <adrian@example.com>, 
- Frederic Feuerstone <fred@feuerstein.de>, 
+To: Frederic Feuerstone <fred@feuerstein.de>, 
+ test_group <test_group@testsuite.org>, 
  Thor <tschmidt@example.com>
 Message-ID: <obs-request-REQUESTID@localhost>
 Subject: Request REQUESTID created by Iggy (add_role kde4/kdelibs)

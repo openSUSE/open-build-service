@@ -461,8 +461,10 @@ CREATE TABLE `event_subscriptions` (
   `created_at` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT NULL,
   `receive` tinyint(1) NOT NULL DEFAULT '1',
+  `group_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `index_event_subscriptions_on_user_id` (`user_id`)
+  KEY `index_event_subscriptions_on_user_id` (`user_id`),
+  KEY `index_event_subscriptions_on_group_id` (`group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `events` (
@@ -1591,6 +1593,8 @@ INSERT INTO schema_migrations (version) VALUES ('20140908135426');
 INSERT INTO schema_migrations (version) VALUES ('20140916135426');
 
 INSERT INTO schema_migrations (version) VALUES ('20140930135426');
+
+INSERT INTO schema_migrations (version) VALUES ('20141001135426');
 
 INSERT INTO schema_migrations (version) VALUES ('20141002130128');
 

@@ -1,5 +1,6 @@
 class EventSubscription < ActiveRecord::Base
   belongs_to :user, inverse_of: :event_subscriptions
+  belongs_to :group, inverse_of: :event_subscriptions
 
   validates :receiver_role, inclusion: { in: [:all, :maintainer, :bugowner, :source_maintainer,
                                               :target_maintainer, :reviewer, :commenter, :creator] }
@@ -26,33 +27,42 @@ class EventSubscription < ActiveRecord::Base
   end
 
   # returns boolean if the eventtype is set for the role
-  def self.subscription_value(eventtype, role, user)
+  def self.subscription_value(eventtype, role, subscriber)
     rel = _get_rel(eventtype)
 
-    if user
-      # check user config first
-      rule = _get_role_rule(rel.where(user: user), role)
+    # check user or group config first
+    if subscriber
+      rule = _get_role_rule(filter_relationships(rel, subscriber), role)
       return rule.receive if rule
     end
 
     # now global default
-    rule = _get_role_rule(rel.where(user_id: nil), role)
+    rule = _get_role_rule(rel.where(user_id: nil, group_id: nil), role)
     return rule.receive if rule
 
     # if nothing set, nothing is set
     false
   end
 
-  def self.update_subscription(eventtype, role, user, value)
+  def self.update_subscription(eventtype, role, subscriber, value)
     rel = _get_rel(eventtype)
-    if user
-      rel = rel.where(user: user)
-    else
-      rel = rel.where(user_id: nil)
-    end
+    rel = filter_relationships(rel, subscriber)
     rule = rel.where(receiver_role: role).first_or_create
     rule.receive = value
     rule.save
+  end
+
+  private
+  def self.filter_relationships(rel, obj)
+    if obj.kind_of? User
+      return rel.where(user: obj)
+    elsif obj.kind_of? Group
+      return rel.where(group: obj)
+    elsif obj.nil?
+      return rel.where(user_id: nil, group_id: nil)
+    end
+
+    raise "Unable to filter by #{obj.class}"
   end
 
 end

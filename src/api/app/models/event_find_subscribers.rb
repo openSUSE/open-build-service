@@ -10,7 +10,6 @@ class EventFindSubscribers
     @toconsider.each do |r|
       nt.concat(expand_one_rule(r))
     end
-
     @toconsider = nt
     @toconsider.each do |t|
       Rails.logger.debug "Expanded #{t.inspect}"
@@ -22,17 +21,23 @@ class EventFindSubscribers
       return [r]
     end
 
-    users = @event.send("#{r.receiver_role}s")
-    users.each do |u|
-      Rails.logger.debug "Event for receiver_role #{r.receiver_role} goes to user #{u}"
+    receivers = @event.send("#{r.receiver_role}s")
+    receivers.each do |u|
+      Rails.logger.debug "Event for receiver_role #{r.receiver_role} goes to user #{u.login}" if u.kind_of? User
+      Rails.logger.debug "Event for receiver_role #{r.receiver_role} goes to group #{u.title}" if u.kind_of? Group
     end
 
     # fetch database settings
-    ret = EventSubscription.where(eventtype: r.eventtype, receiver_role: r.receiver_role, user_id: users).to_a
+    users = receivers.map { |rcv| rcv if rcv.kind_of? User }
+    groups = receivers.map { |rcv| rcv if rcv.kind_of? Group }
+    ret=[]
+    ret.concat(EventSubscription.where(eventtype: r.eventtype, receiver_role: r.receiver_role, user_id: users)) if users.length > 0
+    ret.concat(EventSubscription.where(eventtype: r.eventtype, receiver_role: r.receiver_role, group_id: groups)) if groups.length > 0
 
-    users.each do |u|
+    receivers.each do |ug|
       # add a default
-      ret << EventSubscription.new(eventtype: r.eventtype, receiver_role: r.receiver_role, receive: r.receive, user_id: u)
+      ret << EventSubscription.new(eventtype: r.eventtype, receiver_role: r.receiver_role, receive: r.receive, user_id: ug.id) if ug.kind_of? User
+      ret << EventSubscription.new(eventtype: r.eventtype, receiver_role: r.receiver_role, receive: r.receive, group_id: ug.id) if ug.kind_of? Group
     end
     ret
   end
@@ -60,19 +65,45 @@ class EventFindSubscribers
     return true
   end
 
+  def user_subscribed_to_group_email?(group, user)
+    GroupsUser.where(group: group, user: user).first.email
+  end
+
   def filter_toconsider
-    users = Hash.new
+
+    receivers = Hash.new
+
     @toconsider.each do |r|
+      if r.group_id
+        group = Group.find(r.group_id)
+        if group.email
+          # group has a common email configured
+          receivers[group] ||= Array.new
+          receivers[group] << r
+        else
+          # it has not, so write to all users individually
+          group.users.each do |u|
+            next unless user_subscribed_to_group_email?(group, u)
+            receivers[u] ||= Array.new
+            receivers[u] << r
+          end
+        end
+      end
+
+      # add users
       next unless r.user_id
-      users[r.user_id] ||= Array.new
-      users[r.user_id] << r
+      u = User.find(r.user_id)
+      receivers[u] ||= Array.new
+      receivers[u] << r
     end
+
     ret=[]
-    users.each do |user, rules|
+    receivers.each do |rcv, rules|
       if check_rules? rules
-        ret << user
+        ret << rcv
       end
     end
+
     ret
   end
 
@@ -90,17 +121,16 @@ class EventFindSubscribers
     @subscriptions = EventSubscription.where(eventtype: @event.class.classnames)
 
     # 1. generic defaults
-    @toconsider = @subscriptions.where('user_id is null').to_a
+    @toconsider = @subscriptions.where('user_id is null AND group_id is null').to_a
     @event.class.receiver_roles.each do |r|
       unless receiver_role_set(r)
         @toconsider << EventSubscription.new(eventtype: @event.class.name, receiver_role: r, receive: false)
       end
     end
 
-    # 2. user specifics
-    usergenerics = @subscriptions
-    @toconsider |= usergenerics.where(receiver_role: :all).to_a
-
+    # 2. user and group specifics
+    generics = @subscriptions
+    @toconsider |= generics.where(receiver_role: :all).to_a
 
     @toconsider.each do |t|
       Rails.logger.debug "To consider #{t.inspect}"

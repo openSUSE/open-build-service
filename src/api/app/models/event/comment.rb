@@ -18,7 +18,8 @@ module CommentEvent
   end
 
   def commenters
-    payload['commenters'] || []
+    return [] unless payload['commenters']
+    User.find(payload['commenters'])
   end
 end
 
