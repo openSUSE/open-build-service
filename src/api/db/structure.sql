@@ -254,7 +254,8 @@ CREATE TABLE `bs_requests` (
   `priority` enum('critical','important','moderate','low') COLLATE utf8_bin DEFAULT 'moderate',
   PRIMARY KEY (`id`),
   KEY `index_bs_requests_on_creator` (`creator`),
-  KEY `index_bs_requests_on_state` (`state`)
+  KEY `index_bs_requests_on_state` (`state`),
+  KEY `index_bs_requests_on_superseded_by` (`superseded_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `cache_lines` (
@@ -567,7 +568,8 @@ CREATE TABLE `history_elements` (
   PRIMARY KEY (`id`),
   KEY `index_history_elements_on_created_at` (`created_at`),
   KEY `index_history_elements_on_type` (`type`),
-  KEY `index_history_elements_on_op_object_id` (`op_object_id`)
+  KEY `index_history_elements_on_op_object_id` (`op_object_id`),
+  KEY `index_search` (`op_object_id`,`type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `incident_counter` (
@@ -1601,6 +1603,8 @@ INSERT INTO schema_migrations (version) VALUES ('20141002130128');
 INSERT INTO schema_migrations (version) VALUES ('20141002130129');
 
 INSERT INTO schema_migrations (version) VALUES ('20141002231042');
+
+INSERT INTO schema_migrations (version) VALUES ('20141022105426');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

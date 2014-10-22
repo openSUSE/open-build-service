@@ -7,7 +7,8 @@ class History
        req_history = HistoryElement::Request.where(op_object_id: request.id)
 
        reviews = Review.where(bs_request: request)
-       rev_history = HistoryElement::Review.where(op_object_id: reviews)
+       # the .pluck(:id) is speeding up mysql queries by disabling it's sub-select optimizer
+       rev_history = HistoryElement::Review.where(op_object_id: reviews.pluck(:id))
 
        return HistoryElement::Base.where(id: (req_history+rev_history)).order(:created_at)
      end
