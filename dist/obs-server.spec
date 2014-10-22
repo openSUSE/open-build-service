@@ -179,11 +179,7 @@ BuildRequires:  xorg-x11-server
 BuildRequires:  xorg-x11-server-extra
 # write down dependencies for production
 BuildRequires:  rubygem(bundler)
-%if 0%{?suse_version} > 1310
 Requires:       %(echo `bash %{S:1} %{S:0} "ruby:2.1.0"`)
-%else
-Requires:       %(echo `bash %{S:1} %{S:0} "2.1.0"`)
-%endif
 # for rebuild_time
 Requires:       perl(GD)
 
