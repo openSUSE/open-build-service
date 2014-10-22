@@ -173,6 +173,7 @@ CREATE TABLE `binary_releases` (
   KEY `release_package_id` (`release_package_id`),
   KEY `index_binary_releases_on_binary_updateinfo` (`binary_updateinfo`),
   KEY `index_binary_releases_on_medium` (`medium`),
+  KEY `index_binary_releases_on_binary_name_and_binary_arch` (`binary_name`,`binary_arch`),
   CONSTRAINT `binary_releases_ibfk_1` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
   CONSTRAINT `binary_releases_ibfk_2` FOREIGN KEY (`release_package_id`) REFERENCES `packages` (`id`),
   CONSTRAINT `binary_releases_ibfk_3` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`),
@@ -1605,6 +1606,8 @@ INSERT INTO schema_migrations (version) VALUES ('20141002130129');
 INSERT INTO schema_migrations (version) VALUES ('20141002231042');
 
 INSERT INTO schema_migrations (version) VALUES ('20141022105426');
+
+INSERT INTO schema_migrations (version) VALUES ('20141022205426');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

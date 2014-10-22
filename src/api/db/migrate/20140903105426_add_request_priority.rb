@@ -1,9 +1,6 @@
 class AddRequestPriority < ActiveRecord::Migration
   def self.up
-    add_column :bs_requests, :priority, :integer, default: "moderate"
-
-    execute("alter table bs_requests modify column `priority` enum('critical','important','moderate','low') DEFAULT 'moderate';")
-    execute("UPDATE bs_requests SET priority = 'moderate' WHERE ISNULL(priority);")
+    execute("alter table bs_requests add column `priority` enum('critical','important','moderate','low') DEFAULT 'moderate';")
   end
 
   def self.down
