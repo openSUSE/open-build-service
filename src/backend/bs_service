@@ -19,8 +19,8 @@
 #
 ################################################################
 #
-# Worker build process. Builds jobs received from a Repository Server,
-# sends build binary packages back.
+# Source service process. Processes package and project _service
+# files.
 #
 
 BEGIN {
