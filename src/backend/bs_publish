@@ -2199,7 +2199,7 @@ while(1) {
       publish($ev->{'project'}, $ev->{'repository'});
     };
     if ($@) {
-      warn("publish failed: $@");
+      warn("publish failed for $ev->{'project'}, $ev->{'repository'} : $@");
       # delete state from repoinfo so that we will always re-publish
       clear_repoinfo_state($prp);
       rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
