@@ -151,6 +151,7 @@ class PublicController < ApplicationController
     binaries.each do |bin|
       repo_string = bin.value(:repository)
       next if bin.value(:arch) == 'src'
+      next unless bin.value(:filepath)
       binary_map[repo_string] ||= Array.new
       binary_map[repo_string] << bin
     end
@@ -176,7 +177,9 @@ class PublicController < ApplicationController
             # filepath is historic and contains unfortunatly the old repo mapping already.
             # So we have to revert this here...
             filepath=b.value(:filepath)
-            filepath.gsub!(/:\//, ":").gsub!(/^[^\/]*\/[^\/]*\//, '')
+            # having both gsub! in one line can crash with some ruby builds
+            filepath.gsub!(/:\//, ":")
+            filepath.gsub!(/^[^\/]*\/[^\/]*\//, '')
 
             @binary_links[dist_id][:binary] << {:type => binary_type, :arch => b.value(:arch), :url => repo.download_url(filepath)}
             if @binary_links[dist_id][:repository].blank?
