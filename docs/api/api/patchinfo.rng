@@ -65,6 +65,11 @@
         <element name="description"> 
           <text/>
         </element>
+        <optional>
+          <element name="message"> <!-- optional pop-up message -->
+            <text/>
+          </element>
+        </optional>
         <element name="packager"> 
           <text/>
         </element>

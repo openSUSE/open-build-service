@@ -336,6 +336,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     pi = ActiveXML::Node.new( @response.body )
     e = pi.add_element 'name'
     e.text = "patch_name"
+    e = pi.add_element 'message'
+    e.text = "During reboot a popup with a question will appear"
     put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response :success
 

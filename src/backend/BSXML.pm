@@ -229,6 +229,7 @@ our $patchinfo = [
             'name', # optional, old patchinfo name which will become part of incident string
             'summary',
             'description',
+            'message',  # optional pop-up message
             'swampid',	# obsolete
             'packager',
             'stopped',
@@ -1351,6 +1352,7 @@ our $updateinfoitem = [
 	     ]],
 	  ],
 	    'description',
+	    'message',     #optional popup message
 	  [ 'pkglist',
 	     [[	'collection' =>
 		    'short',
