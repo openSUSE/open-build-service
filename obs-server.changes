@@ -1,3 +1,6 @@
+* Tue Oct 28 2014 David Greaves <david@dgreaves.com> - 2.5.4-2
+- Rebase to 2.5 branch tip 112d06 for various security fixes
+
 * Tue Jul 15 2014 Oleg Girko <oleg.girko@jolla.com> - 2.5.4-1
 - Rebase on OBS 2.5.4
 * Thu May 22 2014 Oleg Girko <oleg.girko@jolla.com> - 2.5.3-1

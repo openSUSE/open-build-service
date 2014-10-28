@@ -36,32 +36,40 @@ License:        GPL-2.0 and GPL-3.0
 Group:          Productivity/Networking/Web/Utilities
 %if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 %endif
-Version:        2.5.4
-Release:        1
+Version: 2.5.4
+Release: 2
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 # Sources are retrieved using script which is attached as Source2
 Source:         obs-server-%version.tar.xz
-Patch1:         0001-backend-Add-sb2install-dependancy-handling.patch
-Patch2:         0002-dist-Use-.log-instead-of-_log-for-apache-logs-so-the.patch
-Patch3:         0003-backend-Force-curl-to-use-no-proxy-to-get-the-bs_wor.patch
-Patch4:         0004-backend-Modify-copybuild-so-as-to-shortcircuit-unnec.patch
-Patch5:         0005-repserver-Make-prjlinks-a-bit-more-transparent.patch
-Patch6:         0006-backend-refactor-prjcopy-code-to-be-faster-and-less-.patch
-Patch7:         0007-backend-Revert-changes-to-upstream-copybuild-leave-t.patch
-Patch8:         0008-Use-the-copybinary-repo-server-API-Clarify-a-little-.patch
-Patch9:         0009-backend-Provide-OBS_WORKER_DISCRETE_IDS-to-permit-wo.patch
-Patch10:        0010-api-backend-Allow-per-package-build-flag-in-project-.patch
-Patch11:        0011-backend-Allow-package-build-flags-in-prjmeta-to-over.patch
-Patch12:        0012-api-Try-harder-to-preserve-flags.patch
-Patch13:        0013-backend-Worakaround-arch-mismatch-in-dod-armv7hl-met.patch
-Patch14:        0014-backend-Enable-HTTPS-support-for-the-benifit-of-http.patch
-Patch15:        0015-backend-Fix-tmpfs-umount-issues.patch
-Patch16:        0016-backend-fix-64bit-debian-dod.patch
-Patch17:        0017-api-Don-t-use-ftools.patch
-Patch18:        0018-api-Rename-Flag-model-s-package-field-to-pkgname.patch
-Patch19:        0019-api-Actually-preserve-flags-during-project-copy.patch
-Patch20:        0020-api-Change-expected-score-in-code-quality-test.patch
+Patch1:	0001-api-Refactor-AnonymousUser-exception-into-ForbidsAno.patch
+Patch2:	0002-api-More-corrections-for-login.-Report-the-exception.patch
+Patch3:	0003-backend-Correct-comment-to-describe-service-service.patch
+Patch4:	0004-backend-Add-a-little-more-information-about-what-fai.patch
+Patch5:	0005-backend-Guard-the-readxml-against-bad-XML.patch
+Patch6:	0006-dist-Use-.log-instead-of-_log-for-apache-logs-so-the.patch
+Patch7:	0007-backend-Add-sb2install-dependancy-handling.patch
+Patch8:	0008-backend-Force-curl-to-use-no-proxy-to-get-the-bs_wor.patch
+Patch9:	0009-backend-Modify-copybuild-so-as-to-shortcircuit-unnec.patch
+Patch10:	0010-repserver-Make-prjlinks-a-bit-more-transparent.patch
+Patch11:	0011-backend-refactor-prjcopy-code-to-be-faster-and-less-.patch
+Patch12:	0012-backend-Revert-changes-to-upstream-copybuild-leave-t.patch
+Patch13:	0013-Use-the-copybinary-repo-server-API-Clarify-a-little-.patch
+Patch14:	0014-backend-Provide-OBS_WORKER_DISCRETE_IDS-to-permit-wo.patch
+Patch15:	0015-api-backend-Allow-per-package-build-flag-in-project-.patch
+Patch16:	0016-backend-Allow-package-build-flags-in-prjmeta-to-over.patch
+Patch17:	0017-api-Try-harder-to-preserve-flags.patch
+Patch18:	0018-backend-Worakaround-arch-mismatch-in-dod-armv7hl-met.patch
+Patch19:	0019-backend-Enable-HTTPS-support-for-the-benifit-of-http.patch
+Patch20:	0020-backend-Fix-tmpfs-umount-issues.patch
+Patch21:	0021-backend-fix-64bit-debian-dod.patch
+Patch22:	0022-api-Don-t-use-ftools.patch
+Patch23:	0023-api-Rename-Flag-model-s-package-field-to-pkgname.patch
+Patch24:	0024-api-Actually-preserve-flags-during-project-copy.patch
+Patch25:	0025-api-Change-expected-score-in-code-quality-test.patch
+Patch26:	0026-backend-obs_admin-source-deletion-should-handle-_ser.patch
+Patch27:	0027-backend-obs_admin-source-deletion-needs-to-match-_li.patch
+Patch28:	0028-backend-use-manifestfile-and-servicemanifestfile-var.patch
 BuildRequires:  python-devel
 # make sure this is in sync with the RAILS_GEM_VERSION specified in the
 # config/environment.rb of the various applications.
@@ -348,6 +356,14 @@ obs_project_update is a tool to copy a packages of a project from one obs to ano
 %patch18 -p1
 %patch19 -p1
 %patch20 -p1
+%patch21 -p1
+%patch22 -p1
+%patch23 -p1
+%patch24 -p1
+%patch25 -p1
+%patch26 -p1
+%patch27 -p1
+%patch28 -p1
 # drop build script, we require the installed one from own package
 rm -rf src/build
 find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf
