@@ -294,7 +294,7 @@ for i in obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispat
 done
 # install logrotate
 install -d -m 755 $RPM_BUILD_ROOT/etc/logrotate.d/
-for i in obs-api obs-build obs-server ; do
+for i in obs-api obs-server ; do
   install -m 0644 ${i}.logrotate \
            $RPM_BUILD_ROOT/etc/logrotate.d/$i
 done
@@ -678,7 +678,6 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /srv/www/obs/api/config.ru
 /srv/www/obs/api/config/application.rb
 /srv/www/obs/api/config/clock.rb
-/etc/logrotate.d/obs-build
 /etc/logrotate.d/obs-api
 /etc/init.d/obsapidelayed
 /etc/init.d/obsapisetup
