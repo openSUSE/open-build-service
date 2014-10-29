@@ -359,7 +359,10 @@ sub overwriteconstraints {
       next unless grep {$_ eq $info->{'arch'}} @{$o->{'conditions'}->{'arch'}};
     }
     if ($o->{'conditions'}->{'package'}) {
-      next unless grep {$_ eq $info->{'package'}} @{$o->{'conditions'}->{'package'}};
+      my $packagename = $info->{'package'};
+      my $shortpackagename = $info->{'package'};
+      $shortpackagename =~ s/\..*//;
+      next unless grep {$_ eq $packagename or $_ eq $shortpackagename} @{$o->{'conditions'}->{'package'}};
     }
     # conditions are matching, overwrite...
     $constraints = Storable::dclone($constraints);

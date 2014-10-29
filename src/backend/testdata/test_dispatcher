@@ -61,6 +61,11 @@ td sandbox35 true  "kernel-obs-qa-xen" i586 medium kernel
 td sandbox36 false "kernel-obs-qa-xen" i586 large  kernel
 td sandbox37 true  "kernel-obs-qa-xen" i586 medium kernel
 td sandbox38 false "kernel-obs-qa-xen" i586 large  kernel
+# overwrite works also for maintenance incidents
+td sandbox35 true  "kernel-obs-qa-xen.openSUSE_13.2" i586 medium kernel
+td sandbox36 false "kernel-obs-qa-xen.openSUSE_13.2" i586 large  kernel
+td sandbox37 true  "kernel-obs-qa-xen.openSUSE_13.2" i586 medium kernel
+td sandbox38 false "kernel-obs-qa-xen.openSUSE_13.2" i586 large  kernel
 
 # simple prjconf constraints for processor numbers and disk storage
 td simple11 true "kernel" i586 large "" kernel-default
