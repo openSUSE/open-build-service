@@ -95,13 +95,14 @@ sub time2mystr {
 }
 
 sub setentry {
-  my ($time, $email, $text) = @_;
+  my ($time, $timestr, $email, $text) = @_;
   if ($entries->{$time} && !$force) {
     # entry exists already, is it the same?
     if ($entries->{$time}->{text} ne $text) {
       die("Two different entries for ".time2mystr($time));
     }
   } else {
+    $entries->{$time}->{time} = $timestr;
     $entries->{$time}->{email} = $email;
     $entries->{$time}->{text} = $text;
   }
@@ -119,6 +120,7 @@ while (@files) {
   my $init;
   my $email;
   my $time;
+  my $timestr;
   my $text = ""; 
   my $cycle = 0;
   foreach my $line (@lines) {
@@ -137,10 +139,9 @@ while (@files) {
     $force = 1 if $cycle > 2;
 
     unless($time) {
-      my ($timestr, $emailstr) = split(' - ', $line, 2);
+      ($timestr, $email) = split(' - ', $line, 2);
       $time = str2time($timestr);
       die("unable to parse time $line") unless $time;
-      $email = $emailstr;
       die("unable to find email in time line") unless $email;
       print "Read $time\n" if $verbose;
       next;
@@ -153,7 +154,7 @@ while (@files) {
       # we take this as one blob.
       # Accept this only for entries in 2006 and before with 00 minutes and 00 seconds
       if ( $lt[5] > 106 || $lt[1] != 0 || $lt[0] != 0) {
-        setentry($time, $email, $text);
+        setentry($time, $timestr, $email, $text);
         $text = ""; 
         $time = undef;
         $email = undef;
@@ -166,7 +167,7 @@ while (@files) {
     $text .= "\n";
   };
   # last entry
-  setentry($time, $email, $text);
+  setentry($time, $timestr, $email, $text);
 }
 
 print "Merged ouput:\n===========\n" if $verbose;
@@ -175,7 +176,7 @@ print Dumper(%entries);
 # output the hash
 for my $time (sort{$b cmp $a} keys %$entries) {
   print $seperator."\n";
-  print time2mystr($time)." - ".$entries->{$time}->{email}."\n";
+  print $entries->{$time}->{time}." - ".$entries->{$time}->{email}."\n";
   print $entries->{$time}->{text};
 }
 
