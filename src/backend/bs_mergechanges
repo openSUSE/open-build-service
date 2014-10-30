@@ -96,9 +96,9 @@ sub time2mystr {
 
 sub setentry {
   my ($time, $email, $text) = @_;
-  if ($entries->{$time}) {
+  if ($entries->{$time} && !$force) {
     # entry exists already, is it the same?
-    if (!$force && $entries->{$time}->{text} ne $text) {
+    if ($entries->{$time}->{text} ne $text) {
       die("Two different entries for ".time2mystr($time));
     }
   } else {
@@ -120,6 +120,7 @@ while (@files) {
   my $email;
   my $time;
   my $text = ""; 
+  my $cycle = 0;
   foreach my $line (@lines) {
     chomp($line);
     unless($init) {
@@ -130,6 +131,10 @@ while (@files) {
       }
       next;
     }
+
+    $cycle = $cycle + 1;
+    # old and upstream new entries where identical. So let our new version win.
+    $force = 1 if $cycle > 2;
 
     unless($time) {
       my ($timestr, $emailstr) = split(' - ', $line, 2);

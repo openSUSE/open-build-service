@@ -1809,7 +1809,7 @@ sub applylink {
 	    open(STDERR, '>>', "$tmpdir/.log") || die(".log: $!\n");
 	    open(STDOUT, '>', "$tmpdir/$f") || die("$f: $!\n");
             print STDERR "running merge tool on $f\n";
-	    exec('./bs_mergechanges', "$tmpdir/$f.mine", "$tmpdir/$f.new");
+	    exec('./bs_mergechanges', "$tmpdir/$f.old", "$tmpdir/$f.new", "$tmpdir/$f.mine");
 	    die("./bs_mergechanges: $!\n");
 	  }
   	  waitpid($pid, 0) == $pid || die("waitpid $pid: $!\n");
