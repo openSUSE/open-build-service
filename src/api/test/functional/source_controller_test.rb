@@ -2462,7 +2462,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/home:Iggy/kdelibs_branch/kdelibs.changes?expand=1'
     assert_response :success
-    assert_equal @response.body, File.open("#{Rails.root}/test/fixtures/backend/source/kde4/kdelibs/kdelibs.changes.merged").read
+    assert_equal File.open("#{Rails.root}/test/fixtures/backend/source/kde4/kdelibs/kdelibs.changes.merged").read, @response.body
 
     #cleanup
     delete '/source/home:Iggy/kdelibs_branch'

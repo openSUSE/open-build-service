@@ -89,7 +89,7 @@ my %entries;
 
 sub time2mystr {
   my ($time) = @_;
-  my @lt = localtime($time);
+  my @lt = gmtime($time);
   # ctime(3) format output
   return strftime("%a %b %e %H:%M:%S UTC %Y", @lt);
 }
@@ -133,7 +133,7 @@ while (@files) {
 
     unless($time) {
       my ($timestr, $emailstr) = split(' - ', $line, 2);
-      $time = str2time($timestr, "UTC");
+      $time = str2time($timestr);
       die("unable to parse time $line") unless $time;
       $email = $emailstr;
       die("unable to find email in time line") unless $email;
@@ -142,10 +142,12 @@ while (@files) {
     }
     
     if ($line eq $seperator) {
-      my @lt = localtime($time);
+      my @lt = gmtime($time);
       # check for the special case, we had many entries at 00:00:00 on same day in the past ...
+      # ignoring the hour due to timezone issues, but do not accept it anymore for current entries
       # we take this as one blob.
-      if ( $lt[0] != 0 || $lt[1] != 0 || $lt[2] != 0) {
+      # Accept this only for entries in 2006 and before with 00 minutes and 00 seconds
+      if ( $lt[5] > 106 || $lt[1] != 0 || $lt[0] != 0) {
         setentry($time, $email, $text);
         $text = ""; 
         $time = undef;
