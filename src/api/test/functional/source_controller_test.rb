@@ -2445,6 +2445,32 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+
+  def test_branch_and_merge_changes
+    login_Iggy
+    post '/source/kde4/kdelibs?cmd=branch&target_project=home:Iggy&target_package=kdelibs_upstream', nil
+    assert_response :success
+    raw_put "/source/home:Iggy/kdelibs_upstream/kdelibs.changes", File.open("#{Rails.root}/test/fixtures/backend/source/kde4/kdelibs/kdelibs.changes").read
+    post '/source/home:Iggy/kdelibs_upstream?cmd=branch&target_project=home:Iggy&target_package=kdelibs_branch', nil
+    assert_response :success
+    # apply conflicting changes for diff3 ... but not for our changes merge tool
+    raw_put "/source/home:Iggy/kdelibs_branch/kdelibs.changes", File.open("#{Rails.root}/test/fixtures/backend/source/kde4/kdelibs/kdelibs.changes.branch").read
+    raw_put "/source/home:Iggy/kdelibs_upstream/kdelibs.changes", File.open("#{Rails.root}/test/fixtures/backend/source/kde4/kdelibs/kdelibs.changes.new").read
+
+    # merge is working?
+    get '/source/home:Iggy/kdelibs_branch?expand=1'
+    assert_response :success
+    get '/source/home:Iggy/kdelibs_branch/kdelibs.changes?expand=1'
+    assert_response :success
+    assert_equal @response.body, File.open("#{Rails.root}/test/fixtures/backend/source/kde4/kdelibs/kdelibs.changes.merged").read
+
+    #cleanup
+    delete '/source/home:Iggy/kdelibs_branch'
+    assert_response :success
+    delete '/source/home:Iggy/kdelibs_upstream'
+    assert_response :success
+  end
+
   def test_list_of_linking_instances
     login_tom
 

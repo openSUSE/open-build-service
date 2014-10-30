@@ -1793,7 +1793,7 @@ sub applylink {
 	  $failed = "conflict in file $f";
 	  last;
 	}
-        # run diff3
+        # run merge tools
 	link("$srcrep/$lsrc->{'package'}/$fsrc->{$f}-$f", "$tmpdir/$f.new") || die("link $fsrc->{$f}-$f: $!\n");
 	link("$srcrep/$lsrc->{'package'}/$fbas->{$f}-$f", "$tmpdir/$f.old") || die("link $fbas->{$f}-$f: $!\n");
 	link("$srcrep/$llnk->{'package'}/$flnk->{$f}-$f", "$tmpdir/$f.mine") || die("link $flnk->{$f}-$f: $!\n");
@@ -1802,19 +1802,35 @@ sub applylink {
 	  last;
 	}
 	my $pid;
-	if (!($pid = xfork())) {
-	  delete $SIG{'__DIE__'};
-	  chdir($tmpdir) || die("$tmpdir: $!\n");
-	  open(STDERR, '>>', ".log") || die(".log: $!\n");
-	  open(STDOUT, '>', $f) || die("$f: $!\n");
-          print STDERR "running diff3 on $f\n";
-	  exec('/usr/bin/diff3', '-m', '-E', "$f.mine", "$f.old", "$f.new");
-	  die("/usr/bin/diff3: $!\n");
-	}
-	waitpid($pid, 0) == $pid || die("waitpid $pid: $!\n");
-	if ($?) {
-	  $failed = "conflict in file $f";
-	  last;
+        if ( $f =~ /\.changes$/ ) {
+          # try our changelog merge tool first
+  	  if (!($pid = xfork())) {
+	    delete $SIG{'__DIE__'};
+	    open(STDERR, '>>', "$tmpdir/.log") || die(".log: $!\n");
+	    open(STDOUT, '>', "$tmpdir/$f") || die("$f: $!\n");
+            print STDERR "running merge tool on $f\n";
+	    exec('./bs_mergechanges', "$tmpdir/$f.mine", "$tmpdir/$f.new");
+	    die("./bs_mergechanges: $!\n");
+	  }
+  	  waitpid($pid, 0) == $pid || die("waitpid $pid: $!\n");
+	  $pid = undef if $?;
+        };
+	if (!$pid) {
+          # default diff3 merge tool. always using as fallback
+	  if (!($pid = xfork())) {
+	    delete $SIG{'__DIE__'};
+	    chdir($tmpdir) || die("$tmpdir: $!\n");
+	    open(STDERR, '>>', ".log") || die(".log: $!\n");
+	    open(STDOUT, '>', $f) || die("$f: $!\n");
+            print STDERR "running diff3 on $f\n";
+	    exec('/usr/bin/diff3', '-m', '-E', "$f.mine", "$f.old", "$f.new");
+	    die("/usr/bin/diff3: $!\n");
+	  }
+	  waitpid($pid, 0) == $pid || die("waitpid $pid: $!\n");
+	  if ($?) {
+	    $failed = "conflict in file $f";
+	    last;
+	  }
 	}
 	unlink("$tmpdir/$f.old");
 	unlink("$tmpdir/$f.new");
