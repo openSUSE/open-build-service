@@ -40,9 +40,9 @@ class Webui::MonitorControllerTest < Webui::IntegrationTest
 
     # this is pure guessing - hopeing May is always visible throughout the year
     # we can't use timecop as long as we have 2 processes
-    page.must_have_selector(:xpath, '//div[text()="May" or text()="Mar"]')
+    page.must_have_selector(:xpath, '//div[text()="May" or text()="Mar" or text()="Jun"]')
     tickLabels = all('.tickLabel').each.map { |n| n.text }
-    assert (tickLabels.include?('Mar') or tickLabels.include?('May'))
+    assert (tickLabels.include?('Mar') or tickLabels.include?('May') or tickLabels.include?('Jun'))
 
   end
 end
