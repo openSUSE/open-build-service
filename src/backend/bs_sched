@@ -6045,6 +6045,11 @@ sub rebuildchannel {
     my ($arepoid, $apackid, $bi, $supportstatus) = @$cb;
     my $file = "$reporoot/$projid/$arepoid/$myarch/$apackid/$bi->{'filename'}";
     my @s = stat($file);
+    if (!@s) {
+       # not found, but it may got imported?
+       $file = "$reporoot/$projid/$arepoid/$myarch/$apackid/::import::$bi->{'arch'}::$bi->{'filename'}";
+       @s = stat($file);
+    }
     if (!@s || "$s[9]/$s[7]/$s[1]" ne $bi->{'id'}) {
       BSUtil::cleandir($jobdatadir);
       rmdir($jobdatadir);
