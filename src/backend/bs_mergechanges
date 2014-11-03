@@ -171,7 +171,6 @@ while (@files) {
 }
 
 print "Merged ouput:\n===========\n" if $verbose;
-print Dumper(%entries);
 
 # output the hash
 for my $time (sort{$b cmp $a} keys %$entries) {
