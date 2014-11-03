@@ -2416,7 +2416,10 @@ sub update_dst_full {
       my $df = $importarch ? "::import::${importarch}::$f" : $f;
       rename("$jobdir/$f", "$dst/$df") || die("rename $jobdir/$f $dst/$df: $!\n");
       $new{$df} = 1;
-      $bininfo->{$df} = $jobbininfo->{$f} if $jobbininfo->{$f};
+      if ($jobbininfo->{$f}) {
+        $bininfo->{$df} = $jobbininfo->{$f};
+        $bininfo->{$df}->{'filename'} = $df if $importarch;
+      }
       $bininfo->{'.nouseforbuild'} = {} if $f eq '.channelinfo' || $f eq 'updateinfo.xml';
       $jobrepo->{"$jobdir/$df"} = delete $jobrepo->{"$jobdir/$f"} if $df ne $f;
     }
@@ -6045,11 +6048,6 @@ sub rebuildchannel {
     my ($arepoid, $apackid, $bi, $supportstatus) = @$cb;
     my $file = "$reporoot/$projid/$arepoid/$myarch/$apackid/$bi->{'filename'}";
     my @s = stat($file);
-    if (!@s) {
-       # not found, but it may got imported?
-       $file = "$reporoot/$projid/$arepoid/$myarch/$apackid/::import::$bi->{'arch'}::$bi->{'filename'}";
-       @s = stat($file);
-    }
     if (!@s || "$s[9]/$s[7]/$s[1]" ne $bi->{'id'}) {
       BSUtil::cleandir($jobdatadir);
       rmdir($jobdatadir);
