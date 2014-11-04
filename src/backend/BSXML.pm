@@ -1466,6 +1466,7 @@ our $configuration = [
 	'enforce_project_keys',
 	'download_on_demand',
 	'download_url',
+	'obs_url',
 	'ymp_url',
 	'errbit_url',
 	'bugzilla_url',
