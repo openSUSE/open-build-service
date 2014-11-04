@@ -36,7 +36,7 @@ License:        GPL-2.0 and GPL-3.0
 %if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 Group:          Productivity/Networking/Web/Utilities
 %endif
-Version:        2.5.50_113_g117c617
+Version:        2.6.50_113_g117c617
 Release:        0
 Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
