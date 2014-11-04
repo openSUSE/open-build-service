@@ -276,7 +276,11 @@ cd dist
 %endif
 # configure apache web service
 mkdir -p $RPM_BUILD_ROOT/etc/apache2/vhosts.d/
+%if 0%{?suse_version} < 1300
 install -m 0644 obs-apache2.conf $RPM_BUILD_ROOT/etc/apache2/vhosts.d/obs.conf
+%else
+install -m 0644 obs-apache24.conf $RPM_BUILD_ROOT/etc/apache2/vhosts.d/obs.conf
+%endif
 # install overview page template
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/overview
 install -m 0644 overview.html.TEMPLATE $RPM_BUILD_ROOT/srv/www/obs/overview/
