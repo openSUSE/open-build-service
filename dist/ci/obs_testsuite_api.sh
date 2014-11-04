@@ -9,14 +9,14 @@
 #
 # Project name: obs_testsuite_api
 # Description:
-#   OBS API testsuite on git master branch.
+#   OBS API testsuite on git 2.6 branch.
 #
 #   Updates source code repository and runs unit and integration tests.
 #
 # Source Code Management:
 #   Git:
 #     Repositories: git://github.com/openSUSE/open-build-service.git
-#     Branches to build: master
+#     Branches to build: 2.6
 #     Repository browser: githubweb
 #       URL: https://github.com/openSUSE/open-build-service
 #     Excluded Regions:
