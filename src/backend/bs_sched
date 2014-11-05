@@ -1906,6 +1906,25 @@ sub orderpackidsforfull {
   return @packids;
 }
 
+sub volatile_cmp {
+  my ($r, $or) = @_;
+  return 0 if $r->{'imported'} && !$or->{'imported'};
+  return 1 if $or->{'imported'} && !$r->{'imported'};
+  # XXX: the following should be package type dependent...
+  if ($r->{'arch'} ne $or->{'arch'}) {
+    return 0 if $r->{'arch'} eq 'noarch' || $r->{'arch'} eq 'all' || $r->{'arch'} eq 'any';
+    return 1 if $or->{'arch'} eq 'noarch' || $or->{'arch'} eq 'all' || $or->{'arch'} eq 'any';
+    return $r->{'arch'} gt $or->{'arch'} ? 1 : 0;
+  }
+  my $x = Build::Rpm::verscmp($r->{'epoch'} || '0', $or->{'epoch'} || '0');
+  return $x > 0 ? 1 : 0 if $x;
+  $x = Build::Rpm::verscmp($r->{'version'} || '', $or->{'version'} || '');
+  return $x > 0 ? 1 : 0 if $x;
+  $x = Build::Rpm::verscmp($r->{'release'} || '', $or->{'release'} || '');
+  return $x > 0 ? 1 : 0 if $x;
+  return 0;
+}
+
 # create full tree hash from gbininfo
 #   maps name -> binobj
 #   sets packid and filename as side effect
@@ -1943,6 +1962,11 @@ sub fctx_gbininfo2full {
       my $r = $f{$fn};
       $r->{'packid'} = $packid;
       $r->{'filename'} = $fn;
+      if ($packid eq '_volatile') {
+	# volatile may have multiple architectures and multiple versions...
+	my $or = $full{$r->{'name'}};
+	$full{$r->{'name'}} = $r if $or && volatile_cmp($r, $or);
+      }
       $full{$r->{'name'}} ||= $r;
     }
   }
