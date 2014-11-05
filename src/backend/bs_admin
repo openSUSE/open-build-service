@@ -37,7 +37,6 @@ use XML::Structured ':bytes';
 
 use Build;
 
-our $nosharedtrees;
 use BSConfig;
 use BSFileDB;
 use BSWatcher;
@@ -49,7 +48,11 @@ use BSDB;
 use BSDBIndex;
 use BSSolv;
 
+my $nosharedtrees;
 $nosharedtrees = $BSConfig::nosharedtrees if defined($BSConfig::nosharedtrees);
+
+my $new_full_handling = 1; 
+$new_full_handling = $BSConfig::new_full_handling if defined($BSConfig::new_full_handling);
 
 my $reporoot  = "$BSConfig::bsdir/build";
 my $eventroot = "$BSConfig::bsdir/events";
@@ -372,7 +375,7 @@ sub clone_repository {
     system('rm', '-rf', "$tmpdir/$a/:repo", "$tmpdir/$a/:repodone");
   }
 
-  if ($dovolatile && $BSConfig::new_full_handling) {
+  if ($dovolatile && $new_full_handling) {
     for my $a (ls($tmpdir)) {
       next unless -d "$tmpdir/$a/:full";
       system('rm', '-rf', "$tmpdir/$a/_volatile");

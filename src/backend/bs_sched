@@ -74,6 +74,9 @@ $sign = $BSConfig::sign if defined($BSConfig::sign);
 my $proxy;
 $proxy = $BSConfig::proxy if defined($BSConfig::proxy);
 
+my $new_full_handling = 1;
+$new_full_handling = $BSConfig::new_full_handling if defined($BSConfig::new_full_handling);
+
 BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BSConfig::disable_data_sync;
 
 my $reporoot = "$bsdir/build";
@@ -2419,7 +2422,7 @@ sub update_dst_full {
     $bininfo = $jobbininfo;
     $bininfo->{'.nosourceaccess'} = {} if -e "$dst/.nosourceaccess";
     $bininfo->{'.nouseforbuild'} = {} if -e "$dst/.channelinfo" || -e "$dst/updateinfo.xml";
-  } elsif ($BSConfig::new_full_handling || !$importarch) {
+  } elsif ($new_full_handling || !$importarch) {
     # get old state: oldfiles, oldbininfo, oldrepo
     my @oldfiles = sort(ls($dst));
     @oldfiles = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && $_ ne '.bininfo' && $_ ne '.meta.success'} @oldfiles;
@@ -2503,7 +2506,7 @@ sub update_dst_full {
   }
 
   # write .bininfo file and update :bininfo.merge (jobdir is undef for package deletion)
-  if ($BSConfig::new_full_handling || !$importarch) {
+  if ($new_full_handling || !$importarch) {
     my @bininfo_s;
     if (defined($jobdir) && defined($bininfo)) {
       BSUtil::store("$dst/.bininfo.new", "$dst/.bininfo", $bininfo);
@@ -2558,7 +2561,7 @@ sub update_dst_full {
     'filter' => $filter,
     'importarch' => $importarch,
   };
-  if ($BSConfig::new_full_handling) {
+  if ($new_full_handling) {
     move_into_full($fctx, \%old, \%new, $fullcache);
   } else {
     $fctx->{'dst'} = $jobdir if $importarch;	# override source dir for imports
@@ -2601,7 +2604,7 @@ sub move_into_full {
   $fctx->{'dep2meta'} = $repodatas{$prp}->{'meta'} if $repodatas{$prp} && $repodatas{$prp}->{'meta'};
   mkdir_p("$gdst/:full") if $new && %$new && ! -d "$gdst/:full";
 
-  if ($BSConfig::new_full_handling) {
+  if ($new_full_handling) {
     fctx_integrate_package_into_full($fctx, $old, $new);
   } else {
     my %fnew;
@@ -2649,7 +2652,7 @@ sub move_into_full {
 # check if the useforbuild settings have changed. If yes, update the :full tree
 sub checkuseforbuild {
   my ($prp, $prpsearchpath, $fullcache, $forcerebuild) = @_;
-  return unless $BSConfig::new_full_handling;
+  return unless $new_full_handling;
   my $gdst = "$reporoot/$prp/$myarch";
   my ($projid, $repoid) = split('/', $prp, 2);
   my $pdatas = $projpacks->{$projid}->{'package'} || {};
@@ -7274,7 +7277,7 @@ sub event_useforbuild {
   } else {
     @packs = sort keys %$packs;
     @packs = reverse(orderpackidsforfull(@packs));
-    if ($BSConfig::new_full_handling) {
+    if ($new_full_handling) {
       # force a rebuild of the full tree
       checkuseforbuild($prp, $prpsearchpath{$prp}, undef, 1);
       @packs = ();
