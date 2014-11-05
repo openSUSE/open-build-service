@@ -250,6 +250,8 @@ sub check_package_dir {
       # seems to be some legacy file
     } elsif ($ent eq ":lastcache") {
       # unchecked for now
+    } elsif ($ent eq ":full.useforbuild") {
+      # unchecked for now
     } elsif ($ent eq ":full.metacache") {
       # unchecked for now
     } elsif ($ent eq ".bininfo") {
@@ -567,6 +569,8 @@ if (-d "$buildroot" && $check_build) {
                   } elsif ($prap eq ":lastfailures") {
                     # unchecked for now
                   } elsif ($prap eq ":lastcheck") {
+                    # unchecked for now
+                  } elsif ($prap eq ":full.useforbuild") {
                     # unchecked for now
                   } elsif ($prap eq ":full.metacache") {
                     # unchecked for now
