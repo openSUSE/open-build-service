@@ -578,6 +578,8 @@ if (-d "$buildroot" && $check_build) {
                     # unchecked for now
                   } elsif ($prap eq ":full.xcache") {
                     # unchecked for now
+                  } elsif ($ent eq ":full.useforbuild") {
+                    # unchecked for now
                   } elsif ($prap eq ".bininfo") {
                     # unchecked for now
                   } elsif ($prap eq ".checksums") {
