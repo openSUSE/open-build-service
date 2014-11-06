@@ -8364,8 +8364,14 @@ NEXTPRP:
     print "  - $prp\n";
 
     if ($prpcheckuseforbuild{$prp}) {
-      checkuseforbuild($prp, $prpsearchpath{$prp}, undef);
-      delete $prpcheckuseforbuild{$prp};
+      my $packs = $projpacks->{$projid}->{'package'} || {};
+      # the if statement below is to ease transition to the new full handling
+      # for manually created "base" repos
+      if (!$new_full_handling || %$packs || ! -d "$reporoot/$prp/$myarch/:full" ||
+          -e "$reporoot/$prp/$myarch/:full.useforbuild") {
+        checkuseforbuild($prp, $prpsearchpath{$prp}, undef);
+        delete $prpcheckuseforbuild{$prp};
+      }
     }
     if (!$lastcheck{$prp}) {
       my $oldlastcheck = BSUtil::retrieve("$reporoot/$prp/$myarch/:lastcheck", 1) || {};
