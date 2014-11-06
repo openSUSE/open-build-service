@@ -18,7 +18,7 @@ Such requests get not created for projects with open requests or if you remove t
 
     # defaults
     User.current ||= User.find_by_login "Admin"
-    @cleanup_attribute = AttribType.find_by_namespace_and_name("OBS", "AutoCleanup")
+    @cleanup_attribute = AttribType.find_by_namespace_and_name!("OBS", "AutoCleanup")
     @cleanupTime = DateTime.now + cleanupDays.days
 
     Project.find_by_attribute_type(@cleanup_attribute).each do |prj|

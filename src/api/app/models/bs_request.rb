@@ -12,6 +12,12 @@ class BsRequest < ActiveRecord::Base
   class InvalidReview < APIException
     setup 'invalid_review', 400, 'request review item is not specified via by_user, by_group or by_project'
   end
+  class InvalidDate < APIException
+    setup 'invalid_date', 400
+  end
+  class UnderEmbargo < APIException
+    setup 'under_embargo', 400
+  end
   class SaveError < APIException
     setup 'request_save_error'
   end
@@ -353,6 +359,25 @@ class BsRequest < ActiveRecord::Base
     # all maintenance_incident actions go into the same incident project
     incident_project = nil  # .where(type: 'maintenance_incident')
     self.bs_request_actions.each do |action|
+      if action.source_project
+        sprj = Project.get_by_name action.source_project
+        if sprj.kind_of? Project
+        at = AttribType.find_by_namespace_and_name!("OBS", "EmbargoDate")
+        attrib = sprj.attribs.where(attrib_type_id: at.id).first
+        if attrib and v=attrib.values.first 
+          begin
+            embargo = DateTime.parse(v.value)
+          rescue ArgumentError
+            raise InvalidDate.new "Unable to parse the date in OBS:EmbargoDate of project #{sprj.name}: #{v}"
+          end
+          if embargo >= DateTime.now
+            raise UnderEmbargo.new "The project #{sprj.name} is under embargo until #{v}"
+          end
+        end
+        end
+      end
+
+      tprj = Project.get_by_name action.target_project
       next unless action.is_maintenance_incident?
 
       tprj = Project.get_by_name action.target_project

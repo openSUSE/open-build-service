@@ -37,9 +37,7 @@ module HasAttributes
 
   def store_attribute(namespace, name, values, issues, binary = nil)
     # get attrib_type
-    if (not attrib_type = AttribType.find_by_namespace_and_name(namespace, name) or attrib_type.blank?)
-      raise AttributeSaveError, "unknown attribute type '#{namespace}':'#{name}'"
-    end
+    attrib_type = AttribType.find_by_namespace_and_name!(namespace, name)
 
     # update or create attribute entry
     changed = false

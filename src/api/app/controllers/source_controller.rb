@@ -922,10 +922,7 @@ class SourceController < ApplicationController
     end
 
     # find maintenance project via attribute
-    at = AttribType.find_by_name(params[:attribute])
-    unless at
-      raise AttributeNotFound.new "The given attribute #{params[:attribute]} does not exist"
-    end
+    at = AttribType.find_by_name!(params[:attribute])
     prj = Project.find_by_attribute_type( at ).first()
     actually_create_incident(prj)
   end

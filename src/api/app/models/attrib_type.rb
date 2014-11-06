@@ -12,19 +12,35 @@ class AttribType < ActiveRecord::Base
   validates :name, presence: true
 
   class << self
-    def find_by_name(name)
+    class UnknownAttributeTypeError < APIException
+      setup 'unknown_attribute_type', 404, 'Unknown Attribute Type'
+    end
+
+    def find_by_name!(name)
+       find_by_name(name, true)
+    end
+
+    def find_by_name(name, or_fail=false)
       name_parts = name.split(/:/)
       if name_parts.length != 2
         raise ArgumentError, "attribute '#{name}' must be in the $NAMESPACE:$NAME style"
       end
-      find_by_namespace_and_name(name_parts[0], name_parts[1])
+      find_by_namespace_and_name(name_parts[0], name_parts[1], or_fail)
     end
   
-    def find_by_namespace_and_name(namespace, name)
+    def find_by_namespace_and_name!(namespace, name)
+       find_by_namespace_and_name(namespace, name, true)
+    end
+
+    def find_by_namespace_and_name(namespace, name, or_fail=false)
       unless namespace and name
         raise ArgumentError, "Need namespace and name as parameters"
       end
-      joins(:attrib_namespace).where("attrib_namespaces.name = ? and attrib_types.name = ?", namespace, name).first
+      ats = joins(:attrib_namespace).where("attrib_namespaces.name = ? and attrib_types.name = ?", namespace, name)
+      if or_fail and ats.count != 1
+        raise UnknownAttributeTypeError, "Attribute Type #{namespace}:#{name} does not exist"
+      end
+      ats.first
     end
   end
 

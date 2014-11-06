@@ -162,10 +162,6 @@ class AttributeController < ApplicationController
     setup 400, "Attribute access to remote project is not yet supported"
   end
 
-  class NotExistingAttribute < APIException
-    setup 404, "Attribute is not defined in system"
-  end
-
   class InvalidAttribute < APIException
   end
 
@@ -180,13 +176,16 @@ class AttributeController < ApplicationController
     # init
     # checks
     # exec
-    if params[:rev]
-      path = "/source/#{URI.escape(params[:project])}/#{URI.escape(params[:package]||'_project')}/_attribute?meta=1&rev=#{CGI.escape(params[:rev])}"
+    if params[:rev] or @attribute_container.nil?
+      # old or remote instance entry
+      path = "/source/#{URI.escape(params[:project])}/#{URI.escape(params[:package]||'_project')}/_attribute?meta=1"
+      path += "&rev=#{CGI.escape(params[:rev])}" if params[:rev]
       answer = Suse::Backend.get(path)
       render :text => answer.body.to_s, :content_type => 'text/xml'
-    else
-      render :text => @attribute_container.render_attribute_axml(params), :content_type => 'text/xml'
+      return
     end
+
+    render :text => @attribute_container.render_attribute_axml(params), :content_type => 'text/xml'
   end
 
   # DELETE
@@ -290,27 +289,20 @@ class AttributeController < ApplicationController
       @attribute_container = Project.get_by_name(params[:project])
     end
 
-    if @attribute_container.nil?
-      raise NotExistingAttribute.new
-    end
-
     # is the attribute type defined at all ?
-    if params[:attribute]
-      # Valid attribute
-      aname = params[:attribute]
-      name_parts = aname.split(/:/)
-      if name_parts.length != 2
-        raise InvalidAttribute.new "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
-      end
-      # existing ?
-      at = AttribType.find_by_name(params[:attribute])
-      unless at
-        raise NotExistingAttribute.new
-      end
-      # only needed for a get request
-      params[:namespace] = name_parts[0]
-      params[:name] = name_parts[1]
+    return if params[:attribute].blank?
+
+    # Valid attribute
+    aname = params[:attribute]
+    name_parts = aname.split(/:/)
+    if name_parts.length != 2
+      raise InvalidAttribute.new "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
     end
+    # existing ?
+    AttribType.find_by_name!(params[:attribute])
+    # only needed for a get request
+    params[:namespace] = name_parts[0]
+    params[:name] = name_parts[1]
   end
 
 end

@@ -583,10 +583,7 @@ class User < ActiveRecord::Base
     end
 
     # find attribute type definition
-    atype = AttribType.find_by_namespace_and_name(opts[:namespace], opts[:name])
-    if atype.blank?
-      raise ActiveRecord::RecordNotFound, "unknown attribute type '#{opts[:namespace]}:#{opts[:name]}'"
-    end
+    atype = AttribType.find_by_namespace_and_name!(opts[:namespace], opts[:name])
 
     return true if is_admin?
 

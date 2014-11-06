@@ -110,3 +110,9 @@ OBS_IncidentPriority:
   value_count: 1
   attrib_namespace_id: 9
   issue_list: 0
+OBS_EmbargoDate:
+  id: 80
+  name: EmbargoDate
+  value_count: 1
+  attrib_namespace_id: 9
+  issue_list: 0

@@ -64,7 +64,7 @@ class Attrib < ActiveRecord::Base
   scope :nobinary, -> { where(:binary => nil) }
 
   def self.find_by_container_and_fullname( container, fullname )
-    atype = AttribType.find_by_name(fullname)
+    atype = AttribType.find_by_name!(fullname)
     return container.attribs.where(attrib_type: atype).first
   end
 

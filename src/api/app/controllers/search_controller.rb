@@ -248,11 +248,7 @@ class SearchController < ApplicationController
   #          and values   = <values>value+</values>
   #          and value    = <value>CDATA</value>
   def find_attribute(namespace, name)
-    attrib = AttribType.find_by_namespace_and_name(namespace, name)
-    unless attrib
-      render_error :status => 404, :message => "no such attribute"
-      return
-    end
+    attrib = AttribType.find_by_namespace_and_name!(namespace, name)
 
     # gather the relation for attributes depending on project/package combination
     if params[:package]

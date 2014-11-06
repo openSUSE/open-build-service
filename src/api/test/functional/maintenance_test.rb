@@ -1164,6 +1164,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post "/source/#{incidentProject}?cmd=set_flag&flag=lock&status=disable"
     assert_response :success
 
+    # set an invalid
+    post "/source/#{incidentProject}/_attribute", "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>INVALID_DATE_STRING</value></attribute></attributes>"
+    assert_response :success
+
     # create some changes, including issue tracker references
     Timecop.freeze(1)
     raw_put '/source/'+incidentProject+'/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes', 'DUMMY bnc#1042'
@@ -1547,6 +1551,20 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     get comments_request_path(id: reqid)
     assert_xml_tag tag: 'comment', attributes: { who: 'king' }, content: 'Release it now!'
+
+    #### blocked attempt to release packages
+    # block the release until tomorrow
+    post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
+    assert_response 400
+    assert_xml_tag(:tag => 'status', :attributes => { :code => "invalid_date" })
+    post "/source/#{incidentProject}/_attribute", "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{(DateTime.now+1.day).to_s}</value></attribute></attributes>"
+    assert_response :success
+    post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
+    assert_response 400
+    assert_xml_tag(:tag => 'status', :attributes => { :code => "under_embargo" })
+    # set it to yesterday, so it works below
+    post "/source/#{incidentProject}/_attribute", "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{(DateTime.now-1.day).to_s}</value></attribute></attributes>"
+    assert_response :success
 
     #### release packages
     # published binaries from incident still exist?

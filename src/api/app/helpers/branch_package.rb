@@ -224,8 +224,7 @@ class BranchPackage
   end
 
   def add_autocleanup_attribute(tprj)
-    at = AttribType.find_by_namespace_and_name('OBS', 'AutoCleanup')
-    return unless at
+    at = AttribType.find_by_namespace_and_name!('OBS', 'AutoCleanup')
     a = Attrib.new(project: tprj, attrib_type: at)
     a.values << AttribValue.new(value: (DateTime.now + @auto_cleanup.days), position: 1)
     a.save
@@ -499,10 +498,7 @@ class BranchPackage
       @copy_from_devel = true
       @add_repositories = true # osc mbranch shall create repos by default
       # find packages via attributes
-      at = AttribType.find_by_name(@attribute)
-      unless at
-        raise NotFoundError.new "The given attribute #{@attribute} does not exist"
-      end
+      at = AttribType.find_by_name!(@attribute)
       if params[:value]
         Package.find_by_attribute_type_and_value(at, params[:value], params[:package]) do |p|
           logger.info "Found package instance #{p.project.name}/#{p.name} for attribute #{at.name} with value #{params[:value]}"

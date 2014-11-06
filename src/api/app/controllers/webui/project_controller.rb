@@ -41,7 +41,7 @@ class Webui::ProjectController < Webui::WebuiController
     @important_projects = []
     # return all projects and their title
     ret = {}
-    atype = AttribType.find_by_namespace_and_name('OBS', 'VeryImportantProject')
+    atype = AttribType.find_by_namespace_and_name!('OBS', 'VeryImportantProject')
     important = {}
     Project.find_by_attribute_type(atype).pluck('projects.id').each do |p|
       important[p] = true
@@ -1155,7 +1155,7 @@ class Webui::ProjectController < Webui::WebuiController
       return
     end
 
-    at = AttribType.find_by_namespace_and_name('OBS', 'ProjectStatusPackageFailComment')
+    at = AttribType.find_by_namespace_and_name!('OBS', 'ProjectStatusPackageFailComment')
     attr = @package.attribs.where(attrib_type: at).first_or_initialize
     v = attr.values.first_or_initialize
     v.value = params[:text]

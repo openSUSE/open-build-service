@@ -6,6 +6,11 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
   
   fixtures :all
 
+  def setup
+    super
+    wait_for_scheduler_start
+  end
+
   def test_index
     get "/attribute/"
     assert_response 401
@@ -29,7 +34,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
 
     get "/attribute/OBS"
     assert_response :success
-    count = 18
+    count = 19
     assert_xml_tag :tag => 'directory', :attributes => { :count => count }
     assert_xml_tag :children => { :count => count }
     assert_xml_tag :child => { :tag => 'entry', :attributes => { :name => "Maintained" } }
@@ -223,7 +228,7 @@ ription</description>
 
     get "/attribute/OBS"
     assert_response :success
-    count = 18
+    count = 19
     assert_xml_tag :tag => 'directory', :attributes => { :count => count }
     assert_xml_tag :children => { :count => count }
     assert_xml_tag :child => { :tag => 'entry', :attributes => { :name => "Maintained" } }
@@ -241,7 +246,7 @@ ription</description>
     data = "<attributes><attribute namespace='OBS' name='Playground'/></attributes>"
     post "/source/home:tom/_attribute", data
     assert_response 404
-    assert_select "status[code] > summary", /unknown attribute type 'OBS:Playground'/ 
+    assert_select "status[code] > summary", /Attribute Type OBS:Playground does not exist/
 
     data = "<attributes><attribute namespace='OBS' name='Maintained' >
               <value>blah</value>
@@ -335,7 +340,7 @@ ription</description>
     data = "<attributes><attribute namespace='OBS' name='Playground'/></attributes>"
     post "/source/kde4/kdelibs/_attribute", data
     assert_response 404
-    assert_select "status[code] > summary", /unknown attribute type 'OBS:Playground'/
+    assert_select "status[code] > summary", /Attribute Type OBS:Playground does not exist/
 
     data = "<attributes><attribute namespace='OBS' name='Maintained' >
               <BROKENXML>

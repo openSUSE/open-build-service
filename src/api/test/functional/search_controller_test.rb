@@ -17,7 +17,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     login_Iggy 
     get "/search/attribute?namespace=OBS&name=FailedCommend"
     assert_response 404
-    assert_select "status[code] > summary", /no such attribute/
+    assert_select "status[code] > summary", /Attribute Type OBS:FailedCommend does not exist/
   end
 
   def test_search_one_maintained_package

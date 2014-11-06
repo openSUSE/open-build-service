@@ -3,9 +3,6 @@ require 'api_exception'
 
 class Owner
 
-  class UnknownAttributeTypeError < APIException
-    setup 'unknown_attribute_type', 404
-  end
   class AttributeNotSetError < APIException
     setup 'attribute_not_set', 400
   end
@@ -31,10 +28,7 @@ class Owner
 
   def self.search(params, obj)
     params[:attribute] ||= "OBS:OwnerRootProject"
-    at = AttribType.find_by_name(params[:attribute])
-    unless at
-      raise UnknownAttributeTypeError, "Attribute Type #{params[:attribute]} does not exist"
-    end
+    at = AttribType.find_by_name!(params[:attribute])
 
     limit  = params[:limit] || 1
 
