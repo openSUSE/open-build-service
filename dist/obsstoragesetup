@@ -237,6 +237,7 @@ EOF
 					pvs="$pvs $i"
 				fi
 			done
+			disks_per_instance=1
 			pvs=( $pvs )
 			pv_count=${#pvs[@]}
 			PE_SIZE=`vgdisplay -c OBS | cut -d: -f13`
@@ -304,9 +305,8 @@ EOF
 				else
 					# More disks than build instances
 					# Use striping to boost IO performance
+					disks_per_instance=$pv_count
 					I="0"
-					# FIXME: this is a bit too simple, it can't handle float numbers
-					disks_per_instance=$(( $pv_count / $NUM ))
 					while test "$NUM" -gt "$I"; do
 						I=$(( $I + 1 ))
 	
@@ -317,14 +317,14 @@ EOF
 							DEVS="$DEVS ${pvs[$(( $I * $disks_per_instance + $J ))]}"
 						done
 	
-						lvcreate -n worker_root_${I} -L ${OBS_WORKER_ROOT_SIZE}M OBS $DEVS || exit
-				                lvcreate -n worker_swap_${I} -L ${OBS_WORKER_SWAP_SIZE}M OBS $DEVS || exit
+						lvcreate -n worker_root_${I} -i $disks_per_instance -L ${OBS_WORKER_ROOT_SIZE}M OBS $DEVS || exit
+				                lvcreate -n worker_swap_${I} -i $disks_per_instance -L ${OBS_WORKER_SWAP_SIZE}M OBS $DEVS || exit
 					done
 				fi
 
 				# Create cache partition on remaining space
-				#lvcreate -n cache -l 100%FREE OBS || exit
-				lvcreate -n cache -L "${OBS_WORKER_CACHE_SIZE}M" OBS || exit
+				#lvcreate -n cache -i $disks_per_instance -l 100%FREE OBS || exit
+				lvcreate -n cache -i $disks_per_instance -L "${OBS_WORKER_CACHE_SIZE}M" OBS || exit
 				mkfs -text4 /dev/OBS/cache || exit
 			fi
 		fi
