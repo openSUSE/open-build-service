@@ -2225,7 +2225,7 @@ sub readbuildenv {
   # have a buildenv! patch stuff!
   $buildinfo->{'hasbuildenv'} = 1;
   # work around buildenv generation bug
-  $_->{'name'} =~ /\.rpm$// for @{$bi->{'bdep'} || []};
+  $_->{'name'} =~ s/\.rpm$// for @{$bi->{'bdep'} || []};
   for (qw{error versrel bcnt release bdep}) {
     $buildinfo->{$_} = $bi->{$_} if defined $bi->{$_};
   }
