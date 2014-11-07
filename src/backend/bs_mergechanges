@@ -143,7 +143,7 @@ while (@files) {
       $time = str2time($timestr);
       die("unable to parse time $line") unless $time;
       die("unable to find email in time line") unless $email;
-      print "Read $time\n" if $verbose;
+      print "Read ".time2mystr($time)."($time) for $line\n" if $verbose;
       next;
     }
     
@@ -173,7 +173,7 @@ while (@files) {
 print "Merged ouput:\n===========\n" if $verbose;
 
 # output the hash
-for my $time (sort{$b cmp $a} keys %$entries) {
+for my $time (sort{$b <=> $a} keys %$entries) {
   print $seperator."\n";
   print $entries->{$time}->{time}." - ".$entries->{$time}->{email}."\n";
   print $entries->{$time}->{text};
