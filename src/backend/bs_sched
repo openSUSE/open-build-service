@@ -8598,6 +8598,10 @@ NEXTPRP:
       }
       $pkg2src{$packid} = $info->{'name'};
 
+      if ($pdata->{'hasbuildenv'}) {
+        $pdeps{$packid} = [];
+        next;
+      }
       my @deps = @{$info->{'dep'} || []};
       my ($eok, @edeps) = ($handlers{$packtype} || $unknownchecker)->{'expand'}->($bconf, $subpacks{$info->{'name'}}, @deps);
       if (! $eok) {

@@ -2670,6 +2670,20 @@ sub getkiwiproductpackages {
   return @got;
 }
 
+sub getbuildenv {
+  my ($projid, $repoid, $arch, $packid, $srcmd5) = @_;
+  my $res = BSRPC::rpc({
+    'uri' => "$BSConfig::srcserver/source/$projid/$packid",
+  }, $BSXML::dir, "rev=$srcmd5");
+  my %entries = map {$_->{'name'} => $_} @{$res->{'entry'} || []};
+  my $bifile = "_buildenv.$repoid.$arch";
+  $bifile = '_buildenv' unless $entries{$bifile};
+  die("srcserver is confused about the buildenv\n") unless $entries{$bifile};
+  return BSRPC::rpc({
+    'uri' => "$BSConfig::srcserver/source/$projid/$packid/$bifile",
+  }, $BSXML::buildinfo, "rev=$srcmd5");
+}
+
 sub getbuildinfo {
   my ($cgi, $projid, $repoid, $arch, $packid, $pdata) = @_;
   my $projpack;
@@ -2696,7 +2710,9 @@ sub getbuildinfo {
     $pdata = $proj->{'package'}->[0];
     die("no such package\n") unless $pdata && $pdata->{'name'} eq $packid;
     die("$pdata->{'error'}\n") if $pdata->{'error'};
+    $pdata->{'buildenv'} = getbuildenv($projid, $repoid, $arch, $packid, $pdata->{'srcmd5'}) if $pdata->{'hasbuildenv'};
   }
+  die("$pdata->{'buildenv'}->{'error'}\n") if $pdata->{'buildenv'} && $pdata->{'buildenv'}->{'error'};
 
   my $info = $pdata->{'info'}->[0];
   die("bad info\n") unless $info && $info->{'repository'} eq $repoid;
@@ -2868,6 +2884,8 @@ sub getbuildinfo {
     $bconf->{'ignore'} = $bconfignore if $bconfignore;
     $bconf->{'ignoreh'} = $bconfignoreh if $bconfignoreh;
     $ret->{'expanddebug'} .= $xp->debugstr() if defined($ret->{'expanddebug'}) && defined &BSSolv::expander::debugstr;
+  } elsif ($pdata->{'buildenv'}) {
+     @edeps = (1);
   } else {
     my $xp = BSSolv::expander->new($pool, $bconf);
     my $ownexpand = sub {
@@ -2930,7 +2948,9 @@ sub getbuildinfo {
   no warnings 'redefine';
   local *Build::expand = $ownexpand;
   use warnings 'redefine';
-  if (!$cgi->{'deps'}) {
+  if ($pdata->{'buildenv'}) {
+    @bdeps = (1);
+  } elsif (!$cgi->{'deps'}) {
     @bdeps = Build::get_build($bconf, \@subpacks, @bdeps, @{$cgi->{'add'} || []});
   } else {
     @bdeps = Build::get_deps($bconf, \@subpacks, @deps, @{$cgi->{'add'} || []});
@@ -2961,6 +2981,102 @@ sub getbuildinfo {
   my %vmdeps = map {$_ => 1} @vmdeps;
   my %edeps = map {$_ => 1} @edeps;
   my %sysdeps = map {$_ => 1} @sysdeps;
+
+  if ($pdata->{'buildenv'}) {
+    # crude way to get ids of all packages
+    my $npkgs = 0;
+    for my $r ($pool->repos()) {
+      my @pids = $r->getpathid();
+      $npkgs += @pids / 2;
+    }
+    my %allpackages;
+    my @allpackages;
+    @allpackages = 2 ... ($npkgs + 1) if $npkgs;
+    for my $p (@allpackages) {
+      my $n = $pool->pkg2name($p);
+      my $hdrmd5 = $pool->pkg2pkgid($p);
+      next unless $n && $hdrmd5;
+      push @{$allpackages{"$n.$hdrmd5"}}, $p;
+    }
+    @bdeps = @{$pdata->{'buildenv'}->{'bdep'}};
+    # check if we got em all
+    if (grep {$_->{'hdrmd5'} && !$allpackages{"$_->{'name'}.$_->{'hdrmd5'}"}} @bdeps) {
+      # nope, need to search package data as well
+      for my $aprp (@prp) {
+	my ($aprojid, $arepoid) = split('/', $aprp, 2);
+        my $gbininfo = read_gbininfo("$reporoot/$aprp/$arch");
+	if ($gbininfo) {
+	  for my $packid (sort keys %$gbininfo) {
+	    for (map {$gbininfo->{$packid}->{$_}} sort keys %{$gbininfo->{$packid}}) {
+	      next unless $_->{'name'} && $_->{'hdrmd5'};
+	      $_->{'package'} = $packid;
+	      $_->{'prp'} = $aprp;
+              push @{$allpackages{"$_->{'name'}.$_->{'hdrmd5'}"}}, $_;
+	    }
+	  }
+	}
+        if (!$gbininfo && $remotemap{$aprojid}) {
+	  my $remoteproj = $remotemap{$aprojid};
+	  print "fetching remote project binary state for $aprp/$arch\n";
+	  my $param = {
+	    'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$arepoid/$arch",
+	    'timeout' => 200,
+	    'proxy' => $proxy,
+	  };
+	  my $packagebinarylist = BSRPC::rpc($param, $BSXML::packagebinaryversionlist, "view=binaryversions");
+	  for my $binaryversionlist (@{$packagebinarylist->{'binaryversionlist'} || []}) {
+	    for my $binary (@{$binaryversionlist->{'binary'} || []}) {
+	      next unless $binary->{'hdrmd5'};
+	      # XXX: rpm filenames don't have the epoch...
+	      next unless $binary->{'name'} =~ /^(?:::import::.*::)?(.+)-(?:(\d+?):)?([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
+	      my $d = {
+		'name' => $1,
+		'epoch' => $2,
+		'version' => $3,
+		'release' => $4,
+		'arch' => $5,
+		'filename' => $binary->{'name'},
+		'prp' => $aprp,
+		'package' => $binaryversionlist->{'package'},
+	      };
+	      push @{$allpackages{"$1.$binary->{'hdrmd5'}"}}, $d;
+	    }
+	  }
+	}
+      }
+    }
+    for (@bdeps) {
+      $_->{'name'} =~ s/\.rpm$//;	# workaround bug in buildenv generation
+      if ($_->{'hdrmd5'}) {
+	my $n = $_->{'name'};
+	my $hdrmd5 = $_->{'hdrmd5'};
+	die("package $n\@$hdrmd5 is unavailable\n") unless $allpackages{"$n.$hdrmd5"};
+	my $p = $allpackages{"$n.$hdrmd5"}->[0];
+	my ($d, $prp);
+	if (ref($p)) {
+	  $d = $p;
+          $prp = $d->{'prp'};
+	} else {
+          $d = $pool->pkg2data($p);
+          $prp = $pool->pkg2reponame($p);
+	}
+        ($_->{'project'}, $_->{'repository'}) = split('/', $prp) if $prp ne '';
+        $_->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
+        $_->{'version'} = $d->{'version'};
+        $_->{'release'} = $d->{'release'} if exists $d->{'release'};
+        $_->{'arch'} = $d->{'arch'} if $d->{'arch'};
+        $_->{'package'} = $d->{'package'} if defined $d->{'package'};
+      } else {
+	die("buildenv package $_->{'name'} has no hdrmd5 set\n");
+      }
+      $_->{'notmeta'} = 1; 
+      $_->{'preinstall'} = 1 if $pdeps{$_->{'name'}};
+      $_->{'vminstall'} = 1 if $vmdeps{$_->{'name'}};
+      $_->{'runscripts'} = 1 if $runscripts{$_->{'name'}};
+    }
+    $ret->{'bdep'} = \@bdeps;
+    return ($ret, $BSXML::buildinfo);
+  }
 
   if ($buildtype eq 'kiwi' && $kiwitype eq 'product') {
     # things are very different here. first we have the packages needed for kiwi
@@ -3106,13 +3222,15 @@ sub getbuildinfo_post {
     my $uploaded = BSHTTP::cpio_receiver(BSHTTP::fd2hdr(\*F), {'directory' => $dir});
     close(F);
     # should we check if the cpio archive contains <= 2 files?
-    ($depfile) = map { $_->{'name'} =~ /(deps)/ } @$uploaded;
-    $depfile = "$dir/$depfile" if defined $depfile;
-    $fn = (grep { $_->{'name'} ne "deps" } @$uploaded)[0];
+    $depfile = (grep { $_->{'name'} eq 'deps' } @$uploaded)[0];
+    $depfile = "$dir/$depfile->{'name'}" if $depfile;
+    my $bifile = (grep { $_->{'name'} eq 'buildenv' } @$uploaded)[0];
+    $bifile = "$dir/$bifile->{'name'}" if $bifile;
+    $fn = (grep { $_->{'name'} ne "deps" && $_->{'name'} ne 'buildenv'} @$uploaded)[0];
     die("no build recipe file found\n") unless $fn;
     my @r;
     eval {
-      @r = getbuildinfo_post({ %$cgi, '_fn' => "$dir/$fn->{'name'}", '_depfile' => $depfile, '_buildtype' => Build::recipe2buildtype($fn->{'name'})}, $projid, $repoid, $arch, $packid);
+      @r = getbuildinfo_post({ %$cgi, '_fn' => "$dir/$fn->{'name'}", '_depfile' => $depfile, '_buildenvfile' => $bifile, '_buildtype' => Build::recipe2buildtype($fn->{'name'})}, $projid, $repoid, $arch, $packid);
     };
     unlink("$dir/$_") for ls($dir);
     rmdir($dir) if -d $dir;
@@ -3147,6 +3265,7 @@ sub getbuildinfo_post {
     $info->{'path'} = $d->{'path'};
   }
   my $pdata = {'buildtype' => $bconf->{'type'}, 'info' => [ $info ]};
+  $pdata->{'buildenv'} = readxml($cgi->{'_buildenvfile'}, $BSXML::buildinfo) if $cgi->{'_buildenvfile'};
   $pdata->{'ldepfile'} = $depfile if defined $depfile;
   return getbuildinfo($cgi, $projid, $repoid, $arch, $packid, $pdata);
 }

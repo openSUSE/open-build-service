@@ -922,6 +922,21 @@ sub getfollowupsources {
   }, undef, "job=$buildinfo->{'job'}", "arch=$buildinfo->{'arch'}", "jobid=$buildinfo->{'jobid'}");
   die("Error\n") unless ref($res) eq 'ARRAY';
   die("no old sources in followup job\n") unless @$res;
+  # need to get buildenv from old sources ;(
+  $res = BSRPC::rpc({
+    'uri' => "$server/source/$buildinfo->{'project'}/$buildinfo->{'package'}",
+    'timeout' => $gettimeout,
+  }, $BSXML::dir, "rev=$buildinfo->{'srcmd5'}");
+  my %entries = map {$_->{'name'} => $_} @{$res->{'entry'} || []};
+  my $bifile = "_buildenv.$buildinfo->{'repository'}.$buildinfo->{'arch'}";
+  $bifile = '_buildenv' unless $entries{$bifile};
+  return unless $entries{$bifile};
+  BSRPC::rpc({
+    'uri' => "$server/source/$buildinfo->{'project'}/$buildinfo->{'package'}/$bifile",
+    'timeout' => $gettimeout,
+    'receiver' => \&BSHTTP::file_receiver,
+    'filename' => "$dir/_buildenv.$buildinfo->{'repository'}.$buildinfo->{'arch'}",
+  }, undef, "rev=$buildinfo->{'srcmd5'}");
 }
 
 sub getsslcert {
@@ -1846,9 +1861,185 @@ sub getpreinstallimage {
   return $imagefile, \%imagebins, $imagesource, \%metas, \%imageorigins;
 }
 
+sub getbinaries_buildenv {
+  my ($buildinfo, $dir, $srcdir) = @_;
+
+  mkdir_p($dir);
+  importbuild() unless defined &Build::queryhdrmd5;
+
+  my @bdeps = grep {$_->{'name'} && $_->{'hdrmd5'}} @{$buildinfo->{'bdep'} || []};
+  die("binaries without hdrmd5 in buildenv\n") unless @bdeps == @{$buildinfo->{'bdep'} || []};
+  my %needed = map {+"$_->{'name'}.$_->{'hdrmd5'}" => []} @bdeps;;
+  my %needed_names = map {$_->{'name'} => 1} @bdeps;
+  my @needed_names = sort(keys %needed_names);
+
+  my $arch = $buildinfo->{'arch'};
+  for my $repo (@{$buildinfo->{'path'} || []}) {
+    my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
+    my $projid = $repo->{'project'};
+    my $repoid = $repo->{'repository'};
+    my $pbvl;
+    eval {
+      if ($server ne $buildinfo->{'srcserver'}) {
+        $pbvl = BSRPC::rpc({
+          'uri' => "$server/getpackagebinaryversionlist",
+          'timeout' => $gettimeout,
+        }, $BSXML::packagebinaryversionlist, "project=$projid", "repository=$repoid", "arch=$arch", map {"package=$_"} @needed_names);
+      } else {
+        $pbvl = BSRPC::rpc({
+          'uri' => "$server/build/$projid/$repoid/$arch",
+          'timeout' => $gettimeout,
+        }, $BSXML::packagebinaryversionlist, "view=binaryversions", map {"package=$_"} @needed_names);
+      }
+    };
+    undef $pbvl if $@;
+    warn($@) if $@;
+    next unless $pbvl;
+    $pbvl = { map {$_->{'package'} => $_} @{$pbvl->{'binaryversionlist'} || []} };
+    for my $packid (sort keys %$pbvl) {
+      my $bvl = $pbvl->{$packid};
+      for (@{$bvl->{'binary'} || []}) {
+        next unless $_->{'name'} && $_->{'hdrmd5'};
+        next unless $_->{'name'} =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+	$_->{'repo'} = $repo;
+	$_->{'package'} = $packid;
+	$_->{'binary'} = $1;
+	$_->{'filename'} = $_->{'name'};
+	$_->{'name'} = "$1.rpm";
+	push @{$needed{"$1.$_->{'hdrmd5'}"}}, $_ if $needed{"$1.$_->{'hdrmd5'}"};
+      }
+    }
+  }
+  %needed_names = ();
+  $needed_names{$_->{'name'}} = 1 for grep {!@{$needed{"$_->{'name'}.$_->{'hdrmd5'}"}}} @bdeps;
+  @needed_names = sort(keys %needed_names);
+  if (@needed_names) {
+    # maybe we need to look at the full tree as well...
+    for my $repo (@{$buildinfo->{'path'} || []}) {
+      my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
+      my @args;
+      push @args, "project=$repo->{'project'}";
+      push @args, "repository=$repo->{'repository'}";
+      push @args, "arch=$arch";
+      push @args, 'nometa';
+      push @args, "binaries=".join(',', @needed_names);
+      my $bvl;
+      eval {
+        $bvl = BSRPC::rpc({
+          'uri' => "$server/getbinaryversions",
+          'timeout' => $gettimeout,
+        }, $BSXML::binaryversionlist, @args);
+      };
+      undef $bvl if $@;
+      warn($@) if $@;
+      next unless $bvl;
+      for (@{$bvl->{'binary'} || []}) {
+        next unless $_->{'hdrmd5'};
+        next unless $_->{'name'} =~ /(.*)\.(?:$binsufsre)$/;
+	$_->{'repo'} = $repo;
+	$_->{'binary'} = $1;
+	push @{$needed{"$1.$_->{'hdrmd5'}"}}, $_ if $needed{"$1.$_->{'hdrmd5'}"};
+      }
+    }
+  }
+  # ok, all info is collected
+  my @missing = grep {!@{$needed{"$_->{'name'}.$_->{'hdrmd5'}"}}} @bdeps;
+  die("missing packages: ".join(', ', map {+"$_->{'name'}\@$_->{'hdrmd5'}"} @missing)."\n") if @missing;
+
+  my @cacheold;
+  my @cachenew;
+
+  # check the cache
+  if ($cachedir) {
+    for my $needed (sort keys %needed) {
+      for my $bv ($needed{$needed}) {
+        my $repo = $bv->{'repo'};
+        my $projid = $repo->{'project'};
+        my $repoid = $repo->{'repository'};
+        my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}");
+        my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
+        if (link_or_copy($cachefile, "$dir/$bv->{'name'}")) {
+	  my @s = stat("$dir/$bv->{'name'}");
+	  die unless @s;
+	  my $id = Build::queryhdrmd5("$dir/$bv->{'name'}");
+	  if ($id eq $bv->{'hdrmd5'}) {
+	    push @cacheold, [$cacheid, $s[7]];
+	    delete $needed{$needed};
+          }
+	} else {
+	  unlink("$dir/$bv->{'name'}");
+	}
+      }
+    }
+  }
+
+  my $downloadsizek = 0;
+  for my $needed (keys %needed) {
+    $downloadsizek += $needed{$needed}->[0]->{'sizek'} || 0;
+  }
+  $binariescachehits += @cacheold;
+  $binariesdownload += keys %needed;
+  $binariesdownloadsize += $downloadsizek;
+  if ($cachedir && $downloadsizek * 1024 * 100 > $cachesize) {
+    # reserve space
+    manage_cache($cachesize - $downloadsizek * 1024);
+  }
+
+  # download... slowly...
+  for my $needed (sort keys %needed) {
+    for my $bv ($needed{$needed}) {
+      my $repo = $bv->{'repo'};
+      my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
+      my $projid = $repo->{'project'};
+      my $repoid = $repo->{'repository'};
+      my $param;
+      unlink("$dir/$bv->{'name'}");
+      if ($bv->{'package'}) {
+	$param = {
+          'uri' => "$server/build/$projid/$repoid/$arch/$bv->{'package'}/$bv->{'filename'}",
+          'timeout' => $gettimeout,
+	  'receiver' => \&BSHTTP::file_receiver,
+	  'filename' => "$dir/$bv->{'name'}",
+	};
+      } else {
+	$param = {
+          'uri' => "$server/build/$projid/$repoid/$arch/_repository/$bv->{'name'}",
+          'timeout' => $gettimeout,
+	  'receiver' => \&BSHTTP::file_receiver,
+	  'filename' => "$dir/$bv->{'name'}",
+	};
+      }
+      eval {
+        BSRPC::rpc($param);
+      };
+      if ($@) {
+	warn($@);
+        unlink("$dir/$bv->{'name'}");
+	next;
+      }
+      my @s = stat("$dir/$bv->{'name'}");
+      next unless @s;
+      my $id = Build::queryhdrmd5("$dir/$bv->{'name'}");
+      if ($id ne $bv->{'hdrmd5'}) {
+        unlink("$dir/$bv->{'name'}");
+	next;
+      }
+      my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}");
+      push @cachenew, [$cacheid, $s[7], "$dir/$bv->{'name'}"];
+      delete $needed{$needed};
+      last;
+    }
+    die("download of $needed failed\n") if $needed{$needed};
+  }
+
+  manage_cache($cachesize, \@cacheold, \@cachenew) if $cachedir;
+  return ();	# no meta
+}
+
 sub getbinaries {
   my ($buildinfo, $dir, $srcdir, $preinstallimagedata) = @_;
 
+  return getbinaries_buildenv($buildinfo, $dir, $srcdir) if $buildinfo->{'hasbuildenv'};
   mkdir_p($dir);
   my $kiwimode;
   $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
@@ -2025,6 +2216,35 @@ sub getoldpackages {
   }
 }
 
+sub readbuildenv {
+  my ($buildinfo, $src) = @_;
+  my $bi = readxml("$src/_buildenv.$buildinfo->{'repository'}.$buildinfo->{'arch'}", $BSXML::buildinfo, 1);
+  $bi ||= readxml("$src/_buildenv", $BSXML::buildinfo, 1);
+  return unless $bi;
+  die("buildenv does not work for kiwi builds\n") if $buildinfo->{'file'} =~ /\.kiwi$/;
+  # have a buildenv! patch stuff!
+  $buildinfo->{'hasbuildenv'} = 1;
+  # work around buildenv generation bug
+  $_->{'name'} =~ /\.rpm$// for @{$bi->{'bdep'} || []};
+  for (qw{error versrel bcnt release bdep}) {
+    $buildinfo->{$_} = $bi->{$_} if defined $bi->{$_};
+  }
+  if (!grep {$_->{'preinstall'}} @{$buildinfo->{'bdep'} || []}) {
+    # fixup preinstall/vminstall...
+    importbuild() unless defined &Build::queryhdrmd5;
+    my $server = $buildinfo->{'srcserver'} || $srcserver;
+    my $bconf = BSRPC::rpc("$server/getconfig", undef, "project=$buildinfo->{'project'}", "repository=$buildinfo->{'repository'}");
+    $bconf = Build::read_config($buildinfo->{'arch'}, [ split("\n", $bconf) ]);
+    my %pdeps = map {$_ => 1} Build::get_preinstalls($bconf);
+    my %vmdeps = map {$_ => 1} Build::get_vminstalls($bconf);
+    my %runscripts = map {$_ => 1} Build::get_runscripts($bconf);
+    for (@{$buildinfo->{'bdep'} || []}) {
+      $_->{'preinstall'} = 1 if $pdeps{$_->{'name'}};
+      $_->{'vminstall'} = 1 if $vmdeps{$_->{'name'}};
+      $_->{'runscripts'} = 1 if $runscripts{$_->{'name'}};
+    }
+  }
+}
 
 sub patchproductkiwi {
   my ($buildinfo, $kiwifile, $meta) = @_;
@@ -2308,6 +2528,8 @@ sub dobuild {
   } elsif ($followupmode) {
     getfollowupsources($buildinfo, $srcdir);
     getsslcert($buildinfo, $srcdir);
+    readbuildenv($buildinfo, $srcdir);
+    unlink("$srcdir/_buildenv.$buildinfo->{'repository'}.$buildinfo->{'arch'}");
     print "packages, ";
     getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
     undef $oldpkgdir;
@@ -2334,6 +2556,7 @@ sub dobuild {
       }
     }
     getsslcert($buildinfo, $srcdir) if $needsslcert;
+    readbuildenv($buildinfo, $srcdir);
     print "packages, ";
     if ($kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product') {
       push @meta, getbinaries_kiwiproduct($buildinfo, $pkgdir, $srcdir, $kiwiorigins);
@@ -2409,6 +2632,7 @@ sub dobuild {
 
   print "building...\n";
 
+  die("$buildinfo->{'error'}\n") if $buildinfo->{'error'};
   if ($buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product') {
     patchproductkiwi($buildinfo, "$srcdir/$buildinfo->{'file'}", \@meta);
   }
