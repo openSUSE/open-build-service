@@ -26,6 +26,7 @@ def update_all_attrib_type_descriptions
   
   for k in d.keys do
     at = ans.attrib_types.where(name: k).first
+    next unless at # might be called in older migrations
     at.description = d[k]
     at.save
   end
