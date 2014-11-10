@@ -741,7 +741,7 @@ CREATE TABLE `product_media` (
   `name` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `arch_filter_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `index_unique` (`product_id`,`repository_id`,`name`),
+  UNIQUE KEY `index_unique` (`product_id`,`repository_id`,`name`,`arch_filter_id`),
   KEY `product_id` (`product_id`),
   KEY `repository_id` (`repository_id`),
   KEY `index_product_media_on_name` (`name`),
@@ -757,7 +757,7 @@ CREATE TABLE `product_update_repositories` (
   `repository_id` int(11) DEFAULT NULL,
   `arch_filter_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `index_unique` (`product_id`,`repository_id`),
+  UNIQUE KEY `index_unique` (`product_id`,`repository_id`,`arch_filter_id`),
   KEY `product_id` (`product_id`),
   KEY `repository_id` (`repository_id`),
   KEY `index_product_update_repositories_on_arch_filter_id` (`arch_filter_id`),
@@ -1608,6 +1608,8 @@ INSERT INTO schema_migrations (version) VALUES ('20141022105426');
 INSERT INTO schema_migrations (version) VALUES ('20141022205426');
 
 INSERT INTO schema_migrations (version) VALUES ('20141107135426');
+
+INSERT INTO schema_migrations (version) VALUES ('20141110105426');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
