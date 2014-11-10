@@ -9013,7 +9013,7 @@ NEXTPRP:
     }
 
     # we always publish kiwi...
-    if ((!%unfinished && !$ctx->{'havedelayed'}) || $prptype eq 'kiwi') {
+    if ((!%unfinished && !$ctx->{'havedelayed'}) || $prptype eq 'kiwi' || ($repo->{'block'} && $repo->{'block'} eq 'never')) {
       my $locked = 0;
       $locked = enabled($repoid, $projpacks->{$projid}->{'lock'}, $locked) if $projpacks->{$projid}->{'lock'};
       my $pubenabled = enabled($repoid, $projpacks->{$projid}->{'publish'}, 1);
