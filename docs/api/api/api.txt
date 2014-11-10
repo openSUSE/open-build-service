@@ -952,6 +952,25 @@ XmlBody: attribute_meta_data
 XmlResult: status
 
 
+== Comments api
+
+GET /comments/request/:id
+GET /comments/project/:name
+GET /comments/package/:project/:pname
+  
+  Get all comments for the object
+
+XmlResult: directory
+
+POST /comments/request/:id
+POST /comments/project/:name
+POST /comments/package/:project/:pname
+
+  Create a comment for the object
+
+XmlResult: status
+
+
 == Build Results
 
 <build>: Build repository
