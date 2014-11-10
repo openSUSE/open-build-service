@@ -526,7 +526,7 @@ class BsRequestAction < ActiveRecord::Base
       tpkg = tpkg.gsub(/#{suffix}$/, '') # strip distro specific extension
       tpkg = self.target_package if self.target_package # already given
 
-      # maintenance incidents need a releasetarget
+      # maintenance incident actions need a releasetarget
       releaseproject = self.get_releaseproject(pkg, tprj)
 
       # overwrite target if defined

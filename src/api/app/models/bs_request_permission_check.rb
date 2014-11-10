@@ -108,6 +108,7 @@ class BsRequestPermissionCheck
     # write access check in release targets
     @source_project.repositories.each do |repo|
       repo.release_targets.each do |releasetarget|
+        next unless releasetarget.trigger == 'maintenance'
         unless User.current.can_modify_project? releasetarget.target_repository.project
           raise ReleaseTargetNoPermission.new "Release target project #{releasetarget.target_repository.project.name} is not writable by you"
         end
