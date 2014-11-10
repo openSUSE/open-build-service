@@ -5744,6 +5744,13 @@ sub rebuildpatchinfo {
         unlink("$jobdatadir/$bin");
         next;
       }
+      if ($d->{'arch'} ne 'src' && $d->{'arch'} ne 'nosrc' && -e "$from/$d->{'name'}-appdata.xml") {
+	unlink("$jobdatadir/$d->{'name'}-appdata.xml");
+	if (!link("$from/$d->{'name'}-appdata.xml", "$jobdatadir/$bin")) {
+          my $error = "link $from/$d->{'name'}-appdata.xml $jobdatadir/$bin: $!\n";
+          return ('broken', $error);
+	}
+      }
       $donebins{$bin} = $tocopy;
       $bininfo->{$bin} = {'name' => $d->{'name'}, 'arch' => $d->{'arch'}, 'hdrmd5' => $d->{'hdrmd5'}, 'filename' => $bin, 'id' => "$s[9]/$s[7]/$s[1]"};
       $bininfo->{$bin}->{'leadsigmd5'} = $d->{'leadsigmd5'} if $d->{'leadsigmd5'};
@@ -6073,7 +6080,8 @@ sub rebuildchannel {
   my %checksums_seen;
   for my $cb (@$channelbins) {
     my ($arepoid, $apackid, $bi, $supportstatus) = @$cb;
-    my $file = "$reporoot/$projid/$arepoid/$myarch/$apackid/$bi->{'filename'}";
+    my $dir = "$reporoot/$projid/$arepoid/$myarch/$apackid";
+    my $file = "$dir/$bi->{'filename'}";
     my @s = stat($file);
     if (!@s || "$s[9]/$s[7]/$s[1]" ne $bi->{'id'}) {
       BSUtil::cleandir($jobdatadir);
@@ -6081,6 +6089,10 @@ sub rebuildchannel {
       return ('broken', "id mismatch in $arepoid/$apackid $s[9]/$s[7]/$s[1] $bi->{'id'}");
     }
     link($file, "$jobdatadir/$bi->{'filename'}") || die("link $file $jobdatadir/$bi->{'filename'}: $!\n");
+    if ($bi->{'arch'} ne 'src' && $bi->{'src'} ne 'nosrc' && -e "$dir/$bi->{'name'}-appdata.xml") {
+      unlink("$jobdatadir/$bi->{'name'}-appdata.xml");
+      link("$dir/$bi->{'name'}-appdata.xml", "$jobdatadir/$bi->{'name'}-appdata.xml") || die("link $bi->{'name'}-appdata.xml $jobdatadir/$bi->{'name'}-appdata.xml: $!\n");
+    }
     if (!$checksums_seen{"$arepoid/$apackid"}) {
       $checksums_seen{"$arepoid/$apackid"} = 1;
       # just append the checksums, it does not matter if we pick up too many
