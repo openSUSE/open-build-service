@@ -923,6 +923,7 @@ sub getfollowupsources {
   die("Error\n") unless ref($res) eq 'ARRAY';
   die("no old sources in followup job\n") unless @$res;
   # need to get buildenv from old sources ;(
+  $server = $buildinfo->{'srcserver'} || $srcserver;
   $res = BSRPC::rpc({
     'uri' => "$server/source/$buildinfo->{'project'}/$buildinfo->{'package'}",
     'timeout' => $gettimeout,
