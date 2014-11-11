@@ -1953,7 +1953,7 @@ sub getbinaries_buildenv {
   # check the cache
   if ($cachedir) {
     for my $needed (sort keys %needed) {
-      for my $bv ($needed{$needed}) {
+      for my $bv (@{$needed{$needed}}) {
         my $repo = $bv->{'repo'};
         my $projid = $repo->{'project'};
         my $repoid = $repo->{'repository'};
@@ -1966,6 +1966,7 @@ sub getbinaries_buildenv {
 	  if ($id eq $bv->{'hdrmd5'}) {
 	    push @cacheold, [$cacheid, $s[7]];
 	    delete $needed{$needed};
+	    last;
           }
 	} else {
 	  unlink("$dir/$bv->{'name'}");
@@ -1988,7 +1989,7 @@ sub getbinaries_buildenv {
 
   # download... slowly...
   for my $needed (sort keys %needed) {
-    for my $bv ($needed{$needed}) {
+    for my $bv (@{$needed{$needed}}) {
       my $repo = $bv->{'repo'};
       my $server = $repo->{'server'} || $buildinfo->{'reposerver'};
       my $projid = $repo->{'project'};
