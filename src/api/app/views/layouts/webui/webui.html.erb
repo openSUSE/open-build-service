@@ -90,7 +90,7 @@
       </div>
     <% end -%>
 
-    <% if @anonymous_forbidden.nil? -%>
+    <% if ::Configuration.anonymous? -%>
       <div class="grid_3">
         <strong class="grey-medium spacer1">Locations</strong>
         <ul>

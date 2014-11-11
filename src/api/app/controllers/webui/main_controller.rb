@@ -5,6 +5,7 @@ class Webui::MainController < Webui::WebuiController
 
   # permissions.status_message_create
   before_filter :require_admin, only: [:delete_message, :add_news]
+  skip_before_action :check_anonymous, only: [:index]
 
   def gather_busy
     busy = []
