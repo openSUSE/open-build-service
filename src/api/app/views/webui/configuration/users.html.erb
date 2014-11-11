@@ -21,7 +21,7 @@
     <% @users.each do |user| %>
       <tr id='user-<%= valid_xml_id(user.login) %>'>
         <td><%= user_with_realname_and_icon(user, no_icon: true) %></td>
-        <td><%= user.state %></td>
+        <td><%= user.state_name %></td>
         <td class="nowrap">
           <a href="#" class="dropdown-menu" id="actions-trigger-<%= user.login %>"><strong>Actions</strong></a>
           <ul class="dropdown-menu-content" style="z-index:1;" id="actions-trigger-<%= user.login %>-content">

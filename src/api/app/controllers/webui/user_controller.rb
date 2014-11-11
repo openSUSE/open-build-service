@@ -108,25 +108,24 @@ class Webui::UserController < Webui::WebuiController
 
   def save
     if User.current.is_admin?
-      person = User.find_by_login!(params[:user])
+      user = User.find_by_login!(params[:user])
     else
-      person = User.current
-      if person.login != params[:user]
+      user = User.current
+      if user.login != params[:user]
         flash[:error] = "Can't edit #{params[:user]}"
         redirect_to(:back) and return
       end
     end
-    person.realname = params[:realname]
-    person.email = params[:email]
+    user.realname = params[:realname]
+    user.email = params[:email]
     if User.current.is_admin?
-      person.state = User.states[params[:state]]
-      roles = [params[:globalrole]]
-      person.update_globalroles(roles)
+      user.state = User.states[params[:state]] if params[:state]
+      user.update_globalroles([params[:globalrole]]) if params[:globalrole]
     end
-    person.save!
+    user.save!
 
-    flash[:success] = "User data for user '#{person.login}' successfully updated."
-    redirect_back_or_to :action => 'show', user: person
+    flash[:success] = "User data for user '#{user.login}' successfully updated."
+    redirect_back_or_to :action => 'show', user: user
   end
 
   def edit
