@@ -13,6 +13,7 @@ class Webui::WebuiController < ActionController::Base
   before_filter :instantiate_controller_and_action_names
   before_filter :set_return_to, :reset_activexml, :authenticate
   before_filter :check_user
+  before_filter :check_anonymous
   before_filter :require_configuration
   after_filter :clean_cache
 
@@ -273,6 +274,18 @@ class Webui::WebuiController < ActionController::Base
     unless User.current.is_admin?
       flash[:error] = 'Requires admin privileges'
       redirect_back_or_to :controller => 'main', :action => 'index' and return
+    end
+  end
+
+  # before filter to only show the frontpage to anonymous users
+  def check_anonymous
+    if User.current and User.current.is_nobody?
+      unless ::Configuration.anonymous?
+        flash[:error] = "No anonymous access. Please log in!"
+        redirect_back_or_to root_path
+      end
+    else
+      false
     end
   end
 
