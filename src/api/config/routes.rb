@@ -267,7 +267,7 @@ OBSApi::Application.routes.draw do
       post 'user/logout' => :logout
       get 'user/logout' => :logout
 
-      post 'user/save' => :save
+      post 'user/save' => :save, constraints: cons
       get 'user/save_dialog' => :save_dialog
 
       post 'user/change_password' => :change_password
@@ -282,14 +282,14 @@ OBSApi::Application.routes.draw do
       get 'user/tokens' => :tokens
 
       post 'user/do_login' => :do_login
-      get 'configuration/users/:user' => :edit, as: 'configuration_user'
+      get 'configuration/users/:user' => :edit, constraints: cons, as: 'configuration_user'
 
       post 'user/notifications' => :update_notifications
       get 'user/notifications' => :notifications
 
-      get 'user/show/:user' => :show, as: 'user_show'
-      get 'user/icon/:user' => :icon, as: 'user_icon'
-      get 'user/requests/:user' => :requests, as: 'user_requests'
+      get 'user/show/:user' => :show, constraints: cons, as: 'user_show'
+      get 'user/icon/:user' => :icon, constraints: cons, as: 'user_icon'
+      get 'user/requests/:user' => :requests, constraints: cons, as: 'user_requests'
       # Only here to make old /home url's work
       get 'home/' => :home, as: 'home'
       get 'home/my_work' => :home
