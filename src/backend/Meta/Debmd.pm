@@ -45,6 +45,17 @@ sub parse {
   open(F, '<', $fn) or die("open: $!\n");
   while (<F>) {
     chomp;
+    # Empty line signifies the end of a package section
+    if (/^$/) {
+      $cur->{'hdrmd5'} = 0;
+      my $rel = exists $cur->{'release'} ? "-$cur->{'release'}" : '';
+      push @{$cur->{'provides'}}, "$cur->{'name'} = $cur->{'version'}$rel";
+      $cur->{'requires'} = [] unless exists $cur->{'requires'};
+      $cur->{'source'} = $cur->{'name'} unless exists $cur->{'source'};
+      $packs{$cur->{'name'}} = $cur;
+      $cur = {};
+      next;
+    }
     next unless /^(Package|Version|Provides|Depends|Pre-Depends|Filename|Source|Architecture|Size):\s(.*)/;
     my ($tag, $what) = ($1, $2);
     if ($tag =~ /^[\w-]*Depends|Provides/) {
@@ -63,16 +74,8 @@ sub parse {
       push @{$cur->{$tagmap{$tag}}}, @l;
       next;
     }
-    # Size is the last entry in a package section
     if ($tag eq 'Size') {
       $cur->{'id'} = "-1/$what/-1";
-      $cur->{'hdrmd5'} = 0;
-      my $rel = exists $cur->{'release'} ? "-$cur->{'release'}" : '';
-      push @{$cur->{'provides'}}, "$cur->{'name'} = $cur->{'version'}$rel";
-      $cur->{'requires'} = [] unless exists $cur->{'requires'};
-      $cur->{'source'} = $cur->{'name'} unless exists $cur->{'source'};
-      $packs{$cur->{'name'}} = $cur;
-      $cur = {};
       next;
     }
     $cur->{$tagmap{$tag}} = $what;
