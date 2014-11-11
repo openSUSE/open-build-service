@@ -2287,6 +2287,55 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_collectbuildenv
+    login_Iggy
+    post '/source/home:Iggy/TestPack?cmd=branch&target_project=home:Iggy&target_package=TestPackBranch', nil
+    assert_response :success
+    get '/source/home:Iggy/TestPackBranch/_link'
+    assert_response :success
+
+    post '/source/home:Iggy/TestPackBranch?cmd=collectbuildenv'
+    assert_response 400
+    assert_xml_tag :tag => 'status', :attributes => { :code => "missing_parameter" }
+
+    post '/source/home:Iggy/TestPackBranch?cmd=collectbuildenv&oproject=home:Iggy&opackage=TestPack&comment=my+collectbuildenv', nil
+    assert_response :success
+
+    get '/source/home:Iggy/TestPackBranch/_history'
+    assert_response :success
+    assert_xml_tag :tag => 'comment', :content => "my collectbuildenv"
+ 
+    # global fallback _buildenv, contains always an error 
+    get '/source/home:Iggy/TestPackBranch/_buildenv'
+    assert_response :success
+    assert_xml_tag :tag => 'error', :content => "no buildenv for this repo/arch"
+   
+    # specialized buildenv, does not exist in source
+    get '/source/home:Iggy/TestPackBranch/_buildenv.10.2.i586'
+    assert_response :success
+    assert_xml_tag :tag => 'error', :content => "_buildenv missing in home:Iggy/10.2"
+    get '/source/home:Iggy/TestPackBranch/_buildenv.10.2.x86_64'
+    assert_response :success
+    assert_xml_tag :tag => 'error', :content => "_buildenv missing in home:Iggy/10.2"
+ 
+    # from BaseDistro project, we build against
+    post '/source/home:Iggy/TestPackBranch?cmd=collectbuildenv&oproject=BaseDistro&opackage=pack1&comment=my+collectbuildenv', nil
+    assert_response :success
+    # global fallback _buildenv, contains always an error 
+    get '/source/home:Iggy/TestPackBranch/_buildenv'
+    assert_response :success
+    assert_xml_tag :tag => 'error', :content => "no buildenv for this repo/arch"
+   
+    # specialized buildenv, contains the right repo name
+    get '/source/home:Iggy/TestPackBranch/_buildenv.10.2.i586'
+    assert_response :success
+    assert_xml_tag :tag => 'error', :content => "_buildenv missing in BaseDistro/BaseDistro_repo"
+
+    #cleanup
+    delete '/source/home:Iggy/TestPackBranch'
+    assert_response :success
+  end
+ 
   def test_copy_project
     # NOTE: copy tests for release projects are part of maintenance tests
     login_fred

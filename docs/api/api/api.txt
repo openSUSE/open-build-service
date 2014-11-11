@@ -640,6 +640,21 @@ Parameters:
 XmlResult: status
 
 
+POST /source/<project>/<package>?cmd=collectbuildenv
+
+  Creates _buildenv files based on origin package builds. This can be used
+  to re-use exact older build enviroment even when further new binary packages
+  got added. For example to re-build an old maintenance update in the same way.
+
+Parameters:
+
+  oproject: Origin project to copy from (required)
+  opackage: Origin package to copy from (required)
+  comment: Optional comment by the user
+
+XmlResult: status
+
+
 POST /source/<project>/<package>?cmd=importchannel
 
   Import a kiwi channel file for OBS. Project names will be set

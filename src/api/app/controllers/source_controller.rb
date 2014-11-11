@@ -341,7 +341,7 @@ class SourceController < ApplicationController
     # valid post commands
     valid_commands=%w(diff branch servicediff linkdiff showlinked copy remove_flag set_flag rebuild undelete
                       wipe runservice commit commitfilelist createSpecFileTemplate deleteuploadrev linktobranch
-                      updatepatchinfo getprojectservices unlock release importchannel)
+                      updatepatchinfo getprojectservices unlock release importchannel collectbuildenv)
 
     @command = params[:cmd]
     raise IllegalRequest.new 'invalid_command' unless valid_commands.include?(@command)
@@ -1342,6 +1342,18 @@ class SourceController < ApplicationController
       end
     end
     render :text => xml, :content_type => 'text/xml'
+  end
+
+  # POST /source/<project>/<package>?cmd=collectbuildenv
+  def package_command_collectbuildenv
+    required_parameters :oproject, :opackage
+
+    Package.get_by_project_and_name(@target_project_name, @target_package_name)
+
+    path = request.path
+    path << build_query_from_hash(params, [:cmd, :user, :comment, :orev, :oproject, :opackage])
+    pass_to_backend path
+
   end
 
   # POST /source/<project>/<package>?cmd=undelete
