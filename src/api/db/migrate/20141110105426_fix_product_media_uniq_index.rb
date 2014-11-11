@@ -3,6 +3,10 @@ class FixProductMediaUniqIndex < ActiveRecord::Migration
     execute("alter table product_media drop foreign key `product_media_ibfk_1`")
     execute("alter table product_media drop foreign key `product_media_ibfk_2`")
     execute("alter table product_media drop foreign key `product_media_ibfk_3`")
+    execute("alter table product_update_repositories drop foreign key `product_update_repositories_ibfk_1`")
+    execute("alter table product_update_repositories drop foreign key `product_update_repositories_ibfk_2`")
+    execute("alter table product_update_repositories drop foreign key `product_update_repositories_ibfk_3`")
+
 
     remove_index :product_media, unique: true, :name => "index_unique"
     remove_index :product_update_repositories, unique: true, :name => "index_unique"
@@ -13,12 +17,18 @@ class FixProductMediaUniqIndex < ActiveRecord::Migration
     execute("alter table product_media add FOREIGN KEY (`product_id`) REFERENCES `products` (`id`)")
     execute("alter table product_media add FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`)")
     execute("alter table product_media add FOREIGN KEY (`arch_filter_id`) REFERENCES `architectures` (`id`)")
+    execute("alter table product_update_repositories add FOREIGN KEY (`product_id`) REFERENCES `products` (`id`)")
+    execute("alter table product_update_repositories add FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`)")
+    execute("alter table product_update_repositories add FOREIGN KEY (`arch_filter_id`) REFERENCES `architectures` (`id`)")
   end
 
   def self.down
     execute("alter table product_media drop foreign key `product_media_ibfk_1`")
     execute("alter table product_media drop foreign key `product_media_ibfk_2`")
     execute("alter table product_media drop foreign key `product_media_ibfk_3`")
+    execute("alter table product_update_repositories drop foreign key `product_update_repositories_ibfk_1`")
+    execute("alter table product_update_repositories drop foreign key `product_update_repositories_ibfk_2`")
+    execute("alter table product_update_repositories drop foreign key `product_update_repositories_ibfk_3`")
     remove_index :product_media, unique: true, :name => "index_unique"
     remove_index :product_update_repositories, unique: true, :name => "index_unique"
 
@@ -27,5 +37,8 @@ class FixProductMediaUniqIndex < ActiveRecord::Migration
     execute("alter table product_media add FOREIGN KEY (`product_id`) REFERENCES `products` (`id`)")
     execute("alter table product_media add FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`)")
     execute("alter table product_media add FOREIGN KEY (`arch_filter_id`) REFERENCES `architectures` (`id`)")
+    execute("alter table product_update_repositories add FOREIGN KEY (`product_id`) REFERENCES `products` (`id`)")
+    execute("alter table product_update_repositories add FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`)")
+    execute("alter table product_update_repositories add FOREIGN KEY (`arch_filter_id`) REFERENCES `architectures` (`id`)")
   end
 end
