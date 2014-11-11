@@ -23,8 +23,8 @@
         <td><%= user_with_realname_and_icon(user, no_icon: true) %></td>
         <td><%= user.state_name %></td>
         <td class="nowrap">
-          <a href="#" class="dropdown-menu" id="actions-trigger-<%= user.login %>"><strong>Actions</strong></a>
-          <ul class="dropdown-menu-content" style="z-index:1;" id="actions-trigger-<%= user.login %>-content">
+          <a href="#" class="dropdown-menu" id="actions-trigger-<%= user.login.gsub(/[\.]/,'-') %>"><strong>Actions</strong></a>
+          <ul class="dropdown-menu-content" style="z-index:1;" id="actions-trigger-<%= user.login.gsub(/[\.]/,'-') %>-content">
               <li>
                 <%= sprite_tag('accessories-text-editor') %>
                 <%= link_to('Edit user', :controller => "user", :action => "edit", :user => user.login) %>
