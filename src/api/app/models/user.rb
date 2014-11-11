@@ -420,6 +420,10 @@ class User < ActiveRecord::Base
     STATES
   end
 
+  def state_name
+    STATES.invert[state]
+  end
+
   # updates users email address and real name using data transmitted by authentification proxy
   def update_user_info_from_proxy_env(env)
     proxy_email = env['HTTP_X_EMAIL']

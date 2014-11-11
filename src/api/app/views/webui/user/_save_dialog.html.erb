@@ -6,10 +6,6 @@
     <div class="dialog-content">
       <%= form_tag(:action => 'save') do %>
         <input id="user" name="user" type="hidden" value="<%= User.current.login %>" />
-        <% if User.current.is_admin? %>
-          <input id="globalrole" name="globalrole" type="hidden" value="Admin" />
-        <% end %>
-        <input id="state" name="state" type="hidden" value="<%= User.current.state %>" />
         <p>
           <%= label_tag :realname, 'Name:' %><br/>
           <%= text_field_tag :realname, User.current.realname %>
