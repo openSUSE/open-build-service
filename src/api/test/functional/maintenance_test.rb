@@ -741,6 +741,41 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_branch_from_service_pack_WIP
+    login_king
+    put '/source/ServicePack/_meta', "<project name='ServicePack'><title/><description/><link project='BaseDistro'/></project>"
+    assert_response :success
+    # attribute setup
+    post '/source/BaseDistro/_attribute', "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
+    assert_response :success
+    post '/source/ServicePack/_attribute', "<attributes> 
+                                               <attribute namespace='OBS' name='Maintained' /> 
+                                               <attribute namespace='OBS' name='BranchTarget' /> 
+                                            </attributes>"
+    assert_response :success
+
+    get "/source/BaseDistro/pack2/_meta"
+    assert_response :success
+    get "/source/BaseDistro:Update/pack2/_meta"
+    assert_response :success
+    assert_xml_tag :tag => 'package', :attributes => { project: 'BaseDistro:Update', name: 'pack2' }
+
+
+    post '/source/ServicePack/pack2', :cmd => 'branch'
+    assert_response :success
+
+    get '/source/home:king:branches:ServicePack/pack2/_link'
+    assert_response :success
+    assert_xml_tag :tag => 'link', :attributes => { project: 'ServicePack' }
+    get '/source/home:king:branches:ServicePack/pack2/_history'
+    assert_response :success
+    # we found the new code in update project nevertheless that ServicePack does not link to it
+    assert_xml_tag :tag => "comment", :content => "fetch updates from devel package BaseDistro:Update/pack2"
+                   
+    delete '/source/ServicePack'
+    assert_response :success
+  end
+
   def test_mbranch_and_maintenance_entire_project_request
     login_king
     put '/source/ServicePack/_meta', "<project name='ServicePack'><title/><description/><link project='kde4'/></project>"

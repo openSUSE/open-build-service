@@ -259,7 +259,7 @@ class BranchPackage
   def determine_details_about_package_to_branch(p)
     return unless p[:link_target_project].is_a? Project # only for local source projects
 
-    check_for_update_project(p)
+    check_for_update_project(p) unless params[:ignoredevel]
 
     # validate and resolve devel package or devel project definitions
     unless params[:ignoredevel] or p[:copy_from_devel]
@@ -345,9 +345,7 @@ class BranchPackage
       pkg_name = pkg
       logger.debug "Check package string #{pkg}"
     end
-
     # Check for defined update project
-    update_project_name = update_project_for_project(prj)
     if update_project_name = update_project_for_project(prj)
       pa = Package.find_by_project_and_name(update_project_name, pkg_name)
       if pa
@@ -356,6 +354,11 @@ class BranchPackage
         unless p[:link_target_project].is_a? Project and p[:link_target_project].find_attribute('OBS', 'BranchTarget')
           p[:link_target_project] = pa.project
           logger.info "branch call found package in update project #{pa.project.name}"
+        end
+        if p[:link_target_project].find_package(pa.name) != pa
+          # our link target has no project link finding the package. 
+          # It got found via update project for example, so we need to use it's source
+          p[:copy_from_devel] = p[:package]
         end
       else
         update_prj = Project.find_by_name(update_project_name)
