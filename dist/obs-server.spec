@@ -412,7 +412,7 @@ EOF
 %if 0%{?suse_version}
 # adapt to SUSE style ruby parallel installation
 find %{buildroot} -executable -a -type f | while read file; do
-  sed -i -s 's,^#!/usr/bin/env ruby$,#!/usr/bin/env ruby2.1,' "$file"
+  sed -i -s 's,^#!/usr/bin/env ruby$,#!/usr/bin/env ruby.ruby2.1,' "$file"
 done
 %endif
 
