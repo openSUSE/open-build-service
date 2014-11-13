@@ -1071,6 +1071,13 @@ class Project < ActiveRecord::Base
     end
 
     self.branch_copy_flags(project)
+
+    if pkg_to_enable.is_channel?
+      # explizit call for a channel package, so create the repos for it
+      pkg_to_enable.channels.each do |channel|
+        channel.add_channel_repos_to_project(pkg_to_enable)
+      end
+    end
   end
 
   def branch_copy_flags(project)

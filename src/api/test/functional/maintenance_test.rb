@@ -1950,7 +1950,11 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
          </request>'
     post '/request?cmd=create', rq
     assert_response 400
-    assert_xml_tag :tag => 'status', :attributes => { code: 'wrong_linked_package_source' }
+    assert_xml_tag :tag => 'status', :attributes => { code: 'missing_patchinfo' }
+    post '/request?cmd=create&ignore_build_state=1', rq
+    assert_response 400
+    #assert_xml_tag :tag => 'status', :attributes => { code: 'wrong_linked_package_source' }
+    assert_xml_tag :tag => 'status', :attributes => { code: 'missing_action' }
 
     # add a release target
     login_tom
@@ -2007,6 +2011,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     put '/source/home:tom:branches:BaseDistro:Update/_meta', meta.to_s
     assert_response :success
 
+    rq = '<request>
+           <action type="maintenance_release">
+             <source project="home:tom:branches:BaseDistro:Update" package="pack1" />
+             <target project="home:tom:branches:BaseDistro:Update" package="pack1" />
+           </action>
+           <state name="new" />
+         </request>'
     prepare_request_with_user 'maintenance_coord', 'power'
     post '/request?cmd=create&ignore_build_state=1', rq
     assert_response 400

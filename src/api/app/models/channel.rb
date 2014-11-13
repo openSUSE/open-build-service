@@ -74,4 +74,39 @@ class Channel < ActiveRecord::Base
     self.save
   end
 
+  def branch_channel_package_into_project(project)
+    cp = self.package
+
+    # create a package container
+    tpkg = Package.new(:name => self.name, :title => cp.title, :description => cp.description)
+    project.packages << tpkg
+    tpkg.store
+
+    # branch sources
+    tpkg.branch_from(cp.project.name, cp.name)
+    tpkg.sources_changed
+
+    add_channel_repos_to_project(tpkg)
+  end
+
+  def add_channel_repos_to_project(tpkg)
+    cp = self.package
+
+    if self.channel_targets.empty?
+      # not defined in channel, so take all from project
+      tpkg.project.branch_to_repositories_from(cp.project, cp, true)
+      return
+    end
+
+    # defined in channel
+    self.channel_targets.each do |ct|
+      repo_name = ct.repository.extended_name
+      # add repositories
+      unless cp.project.repositories.find_by_name(repo_name)
+        tpkg.project.add_repository_with_targets(repo_name, ct.repository, [ct.repository]) 
+      end
+      # enable package
+      tpkg.enable_for_repository repo_name
+    end
+  end
 end

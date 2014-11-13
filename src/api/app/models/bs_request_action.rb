@@ -565,12 +565,12 @@ class BsRequestAction < ActiveRecord::Base
       unless missing_ok_link
         unless e and tprj and tprj.exists_package?(tpkg, follow_project_links: true, allow_remote_packages: false)
           if self.is_maintenance_release?
-            newPackages << pkg
             pkg.project.repositories.includes(:release_targets).each do |repo|
               repo.release_targets.each do |rt|
                 newTargets << rt.target_repository.project.name
               end
             end
+            newPackages << pkg
             next
           elsif !is_maintenance_incident? and !is_submit?
             raise UnknownTargetPackage.new 'target package does not exist'
@@ -602,6 +602,7 @@ class BsRequestAction < ActiveRecord::Base
           newAction.destroy
           newAction = submitAction
         else # non-channel package
+          next if ReleaseTarget.where(repository: pkg.project.repositories, target_repository: tprj.repositories, trigger: "maintenance").count < 1
           unless pkg.project.can_be_released_to_project?(tprj)
             raise WrongLinkedPackageSource.new "According to the source link of package #{pkg.project.name}/#{pkg.name} it would go to project #{tprj.name} which is not specified as release target."
           end
@@ -623,6 +624,7 @@ class BsRequestAction < ActiveRecord::Base
 
     # new packages (eg patchinfos) go to all target projects by default in maintenance requests
     newTargets.uniq!
+    newPackages.uniq!
     newPackages.each do |pkg|
       releaseTargets=nil
       if pkg.is_patchinfo?
@@ -639,6 +641,10 @@ class BsRequestAction < ActiveRecord::Base
           end
           next unless found
         end
+
+        # skip if there is no active maintenance trigger for this package
+        next if self.is_maintenance_release? and ReleaseTarget.where(repository: pkg.project.repositories, target_repository: Project.find_by_name(p).repositories, trigger: "maintenance").count < 1
+ 
         newAction = self.dup
         newAction.source_package = pkg.name
         unless self.is_maintenance_incident?

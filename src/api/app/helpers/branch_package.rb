@@ -124,15 +124,6 @@ class BranchPackage
         end
         tprj.packages << tpkg
       end
-
-      # create repositories, if missing
-      if @add_repositories
-        if p[:link_target_project].is_a? Project
-          tprj.branch_to_repositories_from(p[:link_target_project], tpkg, @extend_names)
-        else
-          # FIXME for remote project instances
-        end
-      end
       tpkg.store
 
       if p[:local_link]
@@ -171,6 +162,15 @@ class BranchPackage
         end
 
         tpkg.sources_changed
+      end
+
+      # create repositories, if missing
+      if @add_repositories
+        if p[:link_target_project].is_a? Project
+          tprj.branch_to_repositories_from(p[:link_target_project], tpkg, @extend_names)
+        else
+          # FIXME for remote project instances
+        end
       end
 
       if tprj.is_maintenance_incident?
