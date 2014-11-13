@@ -6391,6 +6391,7 @@ sub rebuildaggregate {
 	  my $basename = $abin;
 	  $basename =~ s/.*\///;
 	  $basename =~ s/^upload:// if $cpio;
+	  $basename =~ s/^::import::.*?:://;
 	  next if $jobbins{$basename};	# first one wins
 	  $jobbins{$basename} = 1;
 	  BSUtil::cp($abin, "$jobdatadir/$basename");
