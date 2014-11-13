@@ -5747,12 +5747,16 @@ sub sourcecopy {
   die("illegal rev parameter\n") if $cgi->{'rev'} && $cgi->{'rev'} ne 'upload';
   my $oprojid = exists($cgi->{'oproject'}) ? $cgi->{'oproject'} : $projid;
   my $opackid = exists($cgi->{'opackage'}) ? $cgi->{'opackage'} : $packid;
+  die("makeoriginolder only makes sense with withvrev\n") if $cgi->{'makeoriginolder'} && !$cgi->{'withvrev'};
   my $orev = $cgi->{'orev'};
   $orev = getrev($oprojid, $opackid, defined($orev) ? $orev : 'latest');
+  die("origin must not be virtual for makeoriginolder\n") if $cgi->{'makeoriginolder'} && $orev->{'originproject'};
   $orev->{'linkrev'} = $cgi->{'olinkrev'} if $cgi->{'olinkrev'};
   my $orev_srcmd5 = $orev->{'srcmd5'};  # so that we can restore it later
   my $files = $cgi->{'noservice'} || $cgi->{'expand'} ? lsrev_service($orev) : lsrev($orev);
   die("need a revision to copy\n") if !$cgi->{'rev'} && !$cgi->{'orev'} && $oprojid eq $projid && $opackid eq $packid && !($files->{'_link'} && $cgi->{'expand'});
+
+  die("makeoriginolder currently does not work on links\n") if $cgi->{'makeoriginolder'} && $files->{'_link'};
 
   my $autosimplifylink;
   my $autosimplifylink_lrev;
@@ -5798,11 +5802,29 @@ sub sourcecopy {
     $cgi->{'vrev'} = $oldvrev;
     # bump vrev so that new builds will have a bigger release number
     # (just like in copyproject)
-    $cgi->{'vrev'} =~ s/(\d+)$/$1+1/e;
+    if ($cgi->{'makeoriginolder'}) {
+      $cgi->{'vrev'} =~ s/(\d+)$/$1+2/e;
+    } else {
+      $cgi->{'vrev'} =~ s/(\d+)$/$1+1/e;
+    }
   }
   $files = keeplink($cgi, $projid, $packid, $files) if $cgi->{'keeplink'};
   my $rev = addrev($cgi, $projid, $packid, $files, $cgi->{'rev'});
   delete $cgi->{'vrev'};
+
+  if ($cgi->{'makeoriginolder'}) {
+    # add dummy commit
+    my $lastline = BSFileDB::fdb_getlast("$projectsdir/$oprojid.pkg/$opackid.rev", $srcrevlay);
+    die("makeoriginolder: $oprojid/$opackid does not exists?\n") unless defined $lastline;
+    delete $lastline->{'requestid'};
+    delete $lastline->{'rev'};
+    $lastline->{'user'} = 'buildservice-autocommit';
+    $lastline->{'comment'} = "makeolder vrev update for $projid/$packid";
+    $lastline->{'requestid'} = $cgi->{'requestid'} if $cgi->{'requestid'};
+    $lastline->{'vrev'} =~ s/(\d+)$/($1+1).".1"/e;
+    BSFileDB::fdb_add_i("$projectsdir/$oprojid.pkg/$opackid.rev", $srcrevlay, $lastline);
+    notify_repservers('package', $oprojid, $opackid);
+  }
 
   if ($autosimplifylink && !defined($autosimplifylink->{'rev'})) {
     $orev->{'srcmd5'} = $orev_srcmd5;	# back to unexpanded
@@ -8211,7 +8233,7 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=servicediff rev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool?' => \&servicediff,
   'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? noservice:bool?' => \&sourcecommit,
   'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? time:num? version:? vrev:? noservice:bool? servicemark:?' => \&sourcecommitfilelist,
-  'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool? noservice:bool? withvrev:bool? withacceptinfo:bool?' => \&sourcecopy,
+  'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool? noservice:bool? withvrev:bool? withacceptinfo:bool? makeoriginolder:bool?' => \&sourcecopy,
   'POST:/source/$project/$package cmd=collectbuildenv user:? comment:? orev:rev? oproject:project? opackage:package?' => \&sourcecollectbuildenv,
   'POST:/source/$project/$package cmd=branch rev? user:? comment:? orev:rev? oproject:project? opackage:package? olinkrev:linkrev? requestid:num? force:bool? keepcontent:bool? missingok:bool? noservice:bool? withacceptinfo:bool?' => \&sourcebranch,
   'POST:/source/$project/$package cmd=linktobranch rev? user:? comment:? linkrev?' => \&linktobranch,
