@@ -4,6 +4,7 @@ class Repository < ActiveRecord::Base
 
   before_destroy :cleanup_before_destroy
 
+  has_many :channel_targets, :class_name => "ChannelTarget", :dependent => :delete_all, :foreign_key => 'repository_id'
   has_many :release_targets, :class_name => "ReleaseTarget", :dependent => :delete_all, :foreign_key => 'repository_id'
   has_many :path_elements, -> { order("position") }, foreign_key: 'parent_id', dependent: :delete_all, inverse_of: :repository
   has_many :links, :class_name => "PathElement", :foreign_key => 'repository_id', inverse_of: :link
