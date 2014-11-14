@@ -1669,6 +1669,7 @@ our $notifications = [
     'notifications' =>
 	'next',
 	'sync',
+	'limit_reached',
      [[ 'notification' =>
 	    'type',
 	    'time',

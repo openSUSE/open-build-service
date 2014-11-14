@@ -213,6 +213,7 @@ sub lastnotifications {
   }
   # don't send more than 1000 notifications to the poor api
   if (@l > 1000) {
+    $res->{'limit_reached'} = 1; # tell the api that there is more
     $res->{'next'} = $l[1000]->{'number'};
     @l = splice(@l, 0, 1000);
   }

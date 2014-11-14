@@ -30,6 +30,8 @@ class UpdateNotificationEvents
     # pick first admin so we can see all projects - as this function is called from delayed job
     User.current ||= User.get_default_admin
 
+    limit_reached=false
+    begin
     semaphore.synchronize do
       nr = BackendInfo.lastnotification_nr
       # 0 is a bad start
@@ -46,11 +48,13 @@ class UpdateNotificationEvents
         BackendInfo.lastnotification_nr = Integer(@last['next'])
         return
       end
+      limit_reached=(not @last['limit_reached'].blank?)
 
       Event::Base.transaction do
         create_events
       end
     end
+    end while limit_reached
 
   end
 end

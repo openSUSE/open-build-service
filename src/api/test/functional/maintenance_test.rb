@@ -695,7 +695,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # event handling
     UpdateNotificationEvents.new.perform
-    UpdateNotificationEvents.new.perform
     get '/search/released/binary', match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo']"
     assert_response :success
     assert_xml_tag :parent => { :tag => 'binary', :attributes =>
