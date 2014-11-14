@@ -3743,6 +3743,7 @@ sub getpackage {
     return ($meta);
   }
   my $pack = readpack($projid, $packid, 1);
+  $pack->{'project'} ||= $projid if $pack;
   if (!$pack && $proj->{'link'}) {
     my %checked = ($projid => 1);
     my @todo = map {$_->{'project'}} @{$proj->{'link'}};
@@ -3765,6 +3766,7 @@ sub getpackage {
 	}
       } else {
         $pack = readpack($lprojid, $packid, 1);
+        $pack->{'project'} ||= $lprojid if $pack;
         unshift @todo, map {$_->{'project'}} @{$lproj->{'link'}} if !$pack && $lproj->{'link'};
       }
       last if $pack;
