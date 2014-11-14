@@ -223,11 +223,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     run_scheduler('i586')
     run_scheduler('x86_64')
     wait_for_publisher
-    # published binaries from incident got removed?
-    get "/published/#{incidentProject}/BaseDistro3/i586/package-1.0-1.i586.rpm"
-    assert_response 404
-    get "/published/#{incidentProject}/BaseDistro2.0_LinkedUpdateProject/x86_64/package-1.0-1.x86_64.rpm"
-    assert_response 404
 
     # validate result
     get '/source/BaseDistro2Channel/patchinfo.1'
@@ -239,6 +234,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     delete "/source/#{incidentProject}"
     assert_response :success
     delete "/source/#{kernelIncidentProject}"
+    assert_response :success
+    delete "/source/My:Maintenance"
+    assert_response :success
+    delete "/source/BaseDistro2Channel"
     assert_response :success
   end
 
