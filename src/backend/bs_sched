@@ -1094,9 +1094,7 @@ sub makedeltas {
     for my $bin (@all) {
       next if $bin =~ /^::import::/;	# no deltas for imports, they don't get published
       next if $bin =~ /\.(?:no)?src\.rpm$/;	# no source deltas
-      if ($nosourceaccess) {
-	next if $bin =~ /-debug(:?info|source).*\.rpm$/;
-      }
+      next if $bin =~ /-debug(:?info|source).*\.rpm$/;	# no debug deltas
       next unless $bin =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.rpm$/;
       my $binname = $1;
       my $binarch = $2;
