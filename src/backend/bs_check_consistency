@@ -258,6 +258,8 @@ sub check_package_dir {
       # unchecked for now
     } elsif ($ent eq ".checksums") {
       # unchecked for now
+    } elsif ($ent eq ".channelinfo") {
+      # unchecked for now
     } elsif ($ent eq "_statistics") {
       # unchecked for now
     } elsif ($ent eq "_buildenv") {
