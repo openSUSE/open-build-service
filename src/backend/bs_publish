@@ -429,7 +429,7 @@ sub createrepo_rpmmd {
     push @legacyargs, '--unique-md-filenames', '--checksum=sha256';
   }
   my @updateargs;
-  # createrepo 0.9.9 defaults to usually not used sqlite database.
+  # createrepo 0.9.9 defaults to creating the sqlite database.
   # We do disable it since it is time and space consuming.
   # doing this via @updateargs for the case that an old createrepo is installed which does not support
   # this switch.
@@ -479,7 +479,7 @@ sub createrepo_rpmmd {
     # things are a bit complex, as we have to merge the deltas, and we also have to add the checksum
     my %mergeddeltas;
     for my $d (values(%{$data->{'deltainfos'}})) {
-      addsizechecksum("$extrep/$d->{'delta'}->[0]->{'filename'}", $d->{'delta'}->[0], @legacyargs ? 'sha' : 'sha256');
+      addsizechecksum("$extrep/$d->{'delta'}->[0]->{'filename'}", $d->{'delta'}->[0], $options{'legacy'} ? 'sha' : 'sha256');
       my $mkey = "$d->{'arch'}\0$d->{'name'}\0$d->{'epoch'}\0$d->{'version'}\0$d->{'release'}\0";
       if ($mergeddeltas{$mkey}) {
 	push @{$mergeddeltas{$mkey}->{'delta'}}, $d->{'delta'}->[0];
