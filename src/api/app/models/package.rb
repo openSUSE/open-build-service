@@ -732,8 +732,9 @@ class Package < ActiveRecord::Base
     return self unless li
 
     # from external project, so it is my origin
-    pkg = Package.get_by_project_and_name(li['project'], li['package'])
-    return pkg if li['project'] != self.project.name
+    prj = Project.get_by_name(li['project'])
+    pkg = prj.find_package(li['package'])
+    return pkg if li['project'] != prj.name
 
     # broke or remote link, aborting
     return nil if pkg.nil?
