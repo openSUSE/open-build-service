@@ -1033,6 +1033,7 @@ class Project < ActiveRecord::Base
   end
 
   def add_repository_with_targets(repoName, source_repo, add_target_repos = [])
+    return if self.repositories.where(name: repoName).exists?
     trepo = self.repositories.create :name => repoName
     source_repo.repository_architectures.each do |ra|
       trepo.repository_architectures.create :architecture => ra.architecture, :position => ra.position

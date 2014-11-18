@@ -458,22 +458,49 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     put '/source/Channel/_meta', '<project name="Channel"><title/><description/>
                                    </project>'
     assert_response :success
+    raw_post '/source/Channel/_attribute', "<attributes><attribute namespace='OBS' name='Maintained'></attribute></attributes>"
+    assert_response :success
+
     # create channel package
+    put '/source/Channel/BaseDistro2/_meta', '<package project="Channel" name="BaseDistro2"><title/><description/></package>'
+    assert_response :success
+    post '/source/Channel/BaseDistro2?cmd=importchannel&target_project=BaseDistro3Channel&target_repository=channel_repo', '<?xml version="1.0" encoding="UTF-8"?>
+        <channel>
+          <binaries project="BaseDistro2.0:LinkedUpdateProject" repository="BaseDistro2LinkedUpdateProject_repo" arch="i586">
+            <binary name="package" package="pack2.linked" project="BaseDistro2.0:LinkedUpdateProject" />
+          </binaries>
+        </channel>'
+    assert_response :success
     put '/source/Channel/BaseDistro3/_meta', '<package project="Channel" name="BaseDistro3"><title/><description/></package>'
     assert_response :success
     post '/source/Channel/BaseDistro3?cmd=importchannel&target_project=BaseDistro3Channel&target_repository=channel_repo', '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
           <binaries project="BaseDistro3" repository="BaseDistro3_repo" arch="i586">
-            <binary name="package" package="pack2.linked" project="BaseDistro2.0" />
+            <binary name="does_not_exist" />
           </binaries>
         </channel>'
     assert_response :success
-    get '/source/Channel/BaseDistro3/_channel'
+    get '/source/Channel/BaseDistro2/_channel'
     assert_response :success
     # it found the update project
     assert_xml_tag :tag => 'binary', :attributes => { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'pack2.linked' }
     # target repo parameter worked
     assert_xml_tag :tag => 'target', :attributes => { project: 'BaseDistro3Channel', repository: 'channel_repo' }
+    # create channel packages and repos
+    login_adrian
+    post "/source/#{incidentProject}?cmd=addchannels", nil
+    assert_response 403
+    prepare_request_with_user 'maintenance_coord', 'power'
+    post "/source/#{incidentProject}?cmd=addchannels", nil
+    assert_response :success
+    get "/source/#{incidentProject}/BaseDistro2.Channel/_meta"
+    assert_response :success
+    #cleanup channel 2
+    login_king
+    delete "/source/#{incidentProject}/BaseDistro2.Channel"
+    assert_response :success
+    delete '/source/Channel/BaseDistro2'
+    assert_response :success
 
     put '/source/Channel/BaseDistro3/_channel', '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
@@ -496,11 +523,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     prepare_request_with_user 'maintenance_coord', 'power'
     post "/source/#{incidentProject}?cmd=addchannels", nil
     assert_response :success
-    get "/source/#{incidentProject}/BaseDistro3.Channel/_meta"
-    assert_response 404 # not a maintained project
-    # make Channel project a maintained project and try again.
-    mprj = Project.find_by_name('My:Maintenance')
-    MaintainedProject.create(project: Project.find_by_name('Channel'), maintenance_project: mprj)
 
     post "/source/#{incidentProject}?cmd=addchannels", nil
     assert_response :success

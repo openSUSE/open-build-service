@@ -722,27 +722,52 @@ class Package < ActiveRecord::Base
     super
   end
 
+  def origin_container
+    # no link, so I am origin
+    return self unless self.dir_hash
+
+    # link target package name is more important, since local name could be
+    # extended. for example in maintenance incident projects.
+    li = self.dir_hash['linkinfo']
+    return self unless li
+
+    # from external project, so it is my origin
+    pkg = Package.get_by_project_and_name(li['project'], li['package'])
+    return pkg if li['project'] != self.project.name
+
+    # broke or remote link, aborting
+    return nil if pkg.nil?
+
+    # local link, go one step deeper
+    return pkg.origin_container
+  end
+
   def add_channels
-    project_name = self.project.name
-    package_name = self.name
-    dir = self.dir_hash
-    if dir
-      # link target package name is more important, since local name could be
-      # extended. for example in maintenance incident projects.
-      li = dir['linkinfo']
-      if li
-        project_name = li['project']
-        package_name = li['package']
-      end
-    end
+    opkg = self.origin_container
+    # remote or broken link?
+    return if opkg.nil?
+
+    project_name = opkg.project.name
+
     # Update projects are usually used in _channels
     if prj = Project.find_by_name(project_name) and a = prj.find_attribute('OBS', 'UpdateProject') and a.values[0]
       project_name = a.values[0].value
+      prj = Project.find_by_name(project_name)
     end
-    parent = nil
-    ChannelBinary.find_by_project_and_package(project_name, package_name).each do |cb|
-      parent ||= self.project.find_parent
-      cb.create_channel_package(self, parent)
+    
+    at = AttribType.find_by_namespace_and_name("OBS", "Maintained")
+
+    # main package
+    ChannelBinary.find_by_project_and_package(project_name, opkg.name).each do |cb|
+      next if at and cb.channel_binary_list.channel.package.project.attribs.where(attrib_type: at).count < 1
+      cb.create_channel_package_into(self.project)
+    end
+    # and all possible existing local links
+    opkg.find_project_local_linking_packages.each do |p|
+      ChannelBinary.find_by_project_and_package(project_name, p.name).each do |cb|
+        next if at and cb.channel_binary_list.channel.package.project.attribs.where(attrib_type: at).count < 1
+        cb.create_channel_package_into(self.project)
+      end
     end
     self.project.store
   end

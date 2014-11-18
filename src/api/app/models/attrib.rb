@@ -80,10 +80,6 @@ class Attrib < ActiveRecord::Base
     end
   end
 
-  #def project
-  #  return project if self.project_id
-  #  return package.project if self.package_id
-  #end
   def project
     if package
       return package.project
