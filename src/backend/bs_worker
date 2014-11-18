@@ -2221,7 +2221,7 @@ sub getoldpackages {
 sub readbuildenv {
   my ($buildinfo, $src) = @_;
   my $bi = readxml("$src/_buildenv.$buildinfo->{'repository'}.$buildinfo->{'arch'}", $BSXML::buildinfo, 1);
-  $bi ||= readxml("$src/_buildenv", $BSXML::buildinfo, 1);
+  $bi ||= readxml("$src/_buildenv", $BSXML::buildinfo, 1) unless $buildinfo->{'followupfile'};
   return unless $bi;
   die("buildenv does not work for kiwi builds\n") if $buildinfo->{'file'} =~ /\.kiwi$/;
   # have a buildenv! patch stuff!
