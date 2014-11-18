@@ -5649,6 +5649,9 @@ sub rebuildpatchinfo {
   }
 
   my %supportstatus;
+  my $target;
+  my $firstissued = ($updateinfodata || {})->{'firstissued'} || $now;
+
   for my $tocopy (@tocopy) {
     my ($arch, $apackid) = split('/', $tocopy, 2);
     my @bins;
@@ -5687,11 +5690,13 @@ sub rebuildpatchinfo {
 	  $channelinfo->{$_} = { 'supportstatus' => $oldsupportstatus->{$_} };
 	}
       }
+      $target ||= $updateinfodata->{'target'} if $updateinfodata->{'target'};
     } else {
       $from = "$reporoot/$projid/$repoid/$tocopy";
       @bins = grep {/\.rpm$/ && !/^::import::/} ls($from);
       if (-e "$from/.channelinfo") {
         $channelinfo = BSUtil::retrieve("$from/.channelinfo");
+	$target ||= $channelinfo->{'/target'} if $channelinfo->{'/target'};
       }
     }
     if (defined($mpackid)) {
@@ -5793,6 +5798,19 @@ sub rebuildpatchinfo {
     $update->{'id'} = $projid;
     $update->{'id'} =~ s/:/_/g;
   }
+  if ($target && $target->{'id_template'}) {
+    my $template = $target->{'id_template'};
+    my @lt = localtime($firstissued);
+    $template =~ s/%Y/$lt[5] + 1900/eg;
+    $template =~ s/%M/$lt[4] + 1/eg;
+    $template =~ s/%D/$lt[3]/eg;
+    if ($template =~ /%C/) {
+      $template =~ s/%C/$update->{'id'}/g;
+    } else {
+      $template .= "-$update->{'id'}";
+    }
+    $update->{'id'} = $template;
+  }
   $update->{'type'} = $patchinfo->{'category'};
   $update->{'title'} = $patchinfo->{'summary'};
   $update->{'severity'} = $patchinfo->{'rating'} if defined $patchinfo->{'rating'};
@@ -5841,9 +5859,11 @@ sub rebuildpatchinfo {
     'packages' => \@tocopy,
     'metas' => \%metas,
     'binaryorigins' => \%donebins,
+    'firstissued' => $firstissued,
   };
   $updateinfodata->{'supportstatus'} = \%supportstatus if %supportstatus;
   $updateinfodata->{'filtered'} = \%filtered if %filtered;
+  $updateinfodata->{'target'} = $target if $target;
   BSUtil::store("$jobdatadir/.updateinfodata", undef, $updateinfodata);
   if ($broken) {
     BSUtil::cleandir($jobdatadir);
@@ -5883,17 +5903,17 @@ sub checkchannel {
       $proj2repo{$rtprojid}->{$arepo->{'name'}} = 1;
     }
   }
-  my $forme = 1;
+  my $forme = {};
   if ($channel->{'target'}) {
-    $forme = 0;
+    $forme = undef;
     for (@{$channel->{'target'}}) {
       if (!$_->{'project'}) {
-	$forme = 1 if $_->{'repository'} && $repoid eq $_->{'repository'};
+	$forme = $_ if $_->{'repository'} && $repoid eq $_->{'repository'};
       } else {
 	if ($_->{'repository'}) {
-	  $forme = 1 if $proj2repo{"$_->{'project'}/$_->{'repository'}"};
+	  $forme = $_ if $proj2repo{"$_->{'project'}/$_->{'repository'}"};
 	} else {
-	  $forme = 1 if $proj2repo{$_->{'project'}};
+	  $forme = $_ if $proj2repo{$_->{'project'}};
 	}
       }
     }
@@ -6057,13 +6077,14 @@ sub checkchannel {
   print "      - $packid (channel)\n";
   print "        $_\n" for @diff;
   my $new_meta = join('', map {"$_\n"} @new_meta);
-  return ('scheduled', [ $new_meta, \@channelbins ]);
+  return ('scheduled', [ $new_meta, \@channelbins, $forme ]);
 }
 
 sub rebuildchannel {
   my ($ctx, $packid, $pdata, $info, $data) = @_;
   my $new_meta = $data->[0];
   my $channelbins = $data->[1];
+  my $forme = $data->[2];
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $prp = "$projid/$repoid";
@@ -6072,7 +6093,7 @@ sub rebuildchannel {
   my $jobdatadir = "$myjobsdir/$job:dir";
   unlink "$jobdatadir/$_" for ls($jobdatadir);
   mkdir_p($jobdatadir);
-  my %channelinfo;
+  my %channelinfo = ('/target' => $forme);
   my $bininfo = {};
   my $checksums = '';
   my %checksums_seen;
