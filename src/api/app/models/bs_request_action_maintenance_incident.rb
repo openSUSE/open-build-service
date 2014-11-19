@@ -177,12 +177,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     if self.target_project
       maintenanceProject = Project.get_by_name self.target_project
     else
-      # hardcoded default. frontends can lookup themselfs a different target via attribute search
-      at = AttribType.find_by_namespace_and_name!('OBS','MaintenanceProject')
-      maintenanceProject = Project.find_by_attribute_type(at).first
-      unless maintenanceProject
-        raise UnknownProject.new 'There is no project flagged as maintenance project on server and no target in request defined.'
-      end
+      maintenanceProject = Project.get_maintenance_project
       self.target_project = maintenanceProject.name
     end
     unless maintenanceProject.is_maintenance_incident? or maintenanceProject.is_maintenance?

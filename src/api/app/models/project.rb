@@ -245,6 +245,16 @@ class Project < ActiveRecord::Base
       return dbp
     end
 
+    def get_maintenance_project
+      # hardcoded default. frontends can lookup themselfs a different target via attribute search
+      at = AttribType.find_by_namespace_and_name!('OBS','MaintenanceProject')
+      maintenanceProject = Project.find_by_attribute_type(at).first
+      unless maintenanceProject and check_access?(maintenanceProject)
+        raise UnknownProject.new 'There is no project flagged as maintenance project on server and no target in request defined.'
+      end
+      maintenanceProject
+    end
+
     # to check existens of a project (local or remote)
     def exists_by_name(name)
       dbp = where(name: name).first
@@ -943,6 +953,19 @@ class Project < ActiveRecord::Base
 
     return projects
   end
+
+  def expand_maintained_projects
+    projects = []
+
+    self.maintained_projects.each do |mp|
+      mp.project.expand_all_projects.each do |p|
+        projects << p
+      end
+    end
+
+    return projects
+  end
+
 
   # return array of [:name, :project_id] tuples
   def expand_all_packages

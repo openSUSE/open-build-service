@@ -458,7 +458,11 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     put '/source/Channel/_meta', '<project name="Channel"><title/><description/>
                                    </project>'
     assert_response :success
-    raw_post '/source/Channel/_attribute', "<attributes><attribute namespace='OBS' name='Maintained'></attribute></attributes>"
+    get '/source/My:Maintenance/_meta'
+    assert_response :success
+    meta = ActiveXML::Node.new( @response.body )
+    meta.find_first('maintenance').add_element 'maintains', { project: 'Channel' }
+    put '/source/My:Maintenance/_meta', meta.dump_xml
     assert_response :success
 
     # create channel package

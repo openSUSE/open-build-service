@@ -756,17 +756,13 @@ class Package < ActiveRecord::Base
       prj = Project.find_by_name(project_name)
     end
     
-    at = AttribType.find_by_namespace_and_name("OBS", "Maintained")
-
     # main package
     ChannelBinary.find_by_project_and_package(project_name, opkg.name).each do |cb|
-      next if at and cb.channel_binary_list.channel.package.project.attribs.where(attrib_type: at).count < 1
       cb.create_channel_package_into(self.project)
     end
     # and all possible existing local links
     opkg.find_project_local_linking_packages.each do |p|
       ChannelBinary.find_by_project_and_package(project_name, p.name).each do |cb|
-        next if at and cb.channel_binary_list.channel.package.project.attribs.where(attrib_type: at).count < 1
         cb.create_channel_package_into(self.project)
       end
     end
