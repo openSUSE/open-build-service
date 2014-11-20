@@ -373,6 +373,21 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post '/request?cmd=create', '<request>
                                    <action type="maintenance_incident">
                                      <source project="home:tom:branches:OBS_Maintained:pack2" package="pack2.BaseDistro2.0_LinkedUpdateProject" />
+                                   </action>
+                                   <action type="maintenance_incident">
+                                     <source project="home:tom:branches:OBS_Maintained:pack2" package="pack2.linked.BaseDistro2.0_LinkedUpdateProject" />
+                                   </action>
+                                   <state name="new" />
+                                   <description>To fix my other bug</description>
+                                 </request>'
+    assert_response :success
+    assert_xml_tag( :tag => 'target', :attributes => { project: 'My:Maintenance' } )
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:id)
+    id2 = node.value(:id)
+    post '/request?cmd=create', '<request>
+                                   <action type="maintenance_incident">
+                                     <source project="home:tom:branches:OBS_Maintained:pack2" package="pack2.BaseDistro2.0_LinkedUpdateProject" />
                                      <options>
                                        <sourceupdate>cleanup</sourceupdate>
                                      </options>
@@ -390,7 +405,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag( :tag => 'target', :attributes => { project: 'My:Maintenance' } )
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
-    id2 = node.value(:id)
+    id3 = node.value(:id)
 
     # validate that request is diffable and that the linked package is not double diffed
     post "/request/#{id2}?cmd=diff&view=xml", nil
@@ -432,10 +447,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag :tag => 'packager', :content => 'tom'
     assert_xml_tag :tag => 'description', :content => 'To fix my bug'
-
-    #validate cleanup
-    get '/source/home:tom:branches:OBS_Maintained:pack2'
-    assert_response 404
 
     #
     # Add channels
@@ -499,7 +510,28 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get "/source/#{incidentProject}/BaseDistro2.Channel/_meta"
     assert_response :success
-    #cleanup channel 2
+    # accept another request to check that addchannel is working automatically
+    prepare_request_with_user 'maintenance_coord', 'power'
+    post "/request/#{id3}?cmd=changestate&newstate=accepted&force=1" # ignore reviews and accept
+    assert_response :success
+    get "/request/#{id3}"
+    assert_response :success
+    data = REXML::Document.new(@response.body)
+    maintenanceYetAnotherProject=data.elements['/request/action/target'].attributes.get_attribute('project').to_s
+    #validate cleanup
+    get '/source/home:tom:branches:OBS_Maintained:pack2'
+    assert_response 404
+    get "/source/#{maintenanceYetAnotherProject}"
+    assert_response :success
+    assert_xml_tag :tag => "entry", :attributes => { name: "BaseDistro2.Channel" }
+    assert_xml_tag :tag => "entry", :attributes => { name: "pack2.BaseDistro2.0_LinkedUpdateProject" }
+    assert_xml_tag :tag => "entry", :attributes => { name: "pack2.linked.BaseDistro2.0_LinkedUpdateProject" }
+    assert_xml_tag :tag => "entry", :attributes => { name: "patchinfo" }
+    assert_xml_tag :tag => "directory", :attributes => { count: "4" }
+    # cleanup
+    delete "/source/#{maintenanceYetAnotherProject}"
+    assert_response :success
+    # cleanup channel 2
     login_king
     delete "/source/#{incidentProject}/BaseDistro2.Channel"
     assert_response :success
