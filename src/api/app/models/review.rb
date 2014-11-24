@@ -71,6 +71,13 @@ class Review < ActiveRecord::Base
     ret
   end
 
+  def reviewers_for_obj(obj)
+    return [] unless obj
+    relationships = obj.relationships
+    roles = relationships.where(role: Role.rolecache['maintainer'])
+    User.where(id: roles.users.pluck(:user_id)) + Group.where(id: roles.groups.pluck(:group_id))
+  end
+
   def users_and_groups_for_review
     if self.by_user
        return [User.find_by_login!(self.by_user)]
@@ -81,17 +88,15 @@ class Review < ActiveRecord::Base
     obj = nil
     if self.by_package
       obj = Package.find_by_project_and_name(self.by_project, self.by_package)
+      return [] unless obj
+      reviewers_for_obj(obj) + reviewers_for_obj(obj.project)
     else
-      obj = Project.find_by_name(self.by_project)
+      reviewers_for_obj(Project.find_by_name(self.by_project))
     end
-    return [] unless obj
-    relationships = obj.relationships
-    role = Role.rolecache['maintainer']
-    User.where(id: relationships.users.where(role: role)) + Group.where(id: relationships.groups.where(role: role))
   end
 
   def map_objects_to_ids(objs)
-    objs.map { |obj| { "#{obj.class.to_s.downcase}_id" => obj.id } }
+    objs.map { |obj| { "#{obj.class.to_s.downcase}_id" => obj.id } }.uniq
   end
 
   def create_notification(params = {})

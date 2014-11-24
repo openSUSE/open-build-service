@@ -148,4 +148,30 @@ end
     assert_equal %w(Iggy), users_for_event(events(:service_failure_for_iggy))
   end
 
+  test 'package maintainer mail' do
+    ActionMailer::Base.deliveries.clear
+    User.current = users(:Iggy)
+    req = bs_requests(:submit_from_home_project)
+    myid = req.id
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
+      req.addreview by_project: 'home:Iggy', by_package: 'TestPack', comment: 'Can you check that?'
+    end
+    email = ActionMailer::Base.deliveries.last
+
+    assert_equal "Request #{myid} requires review (submit Apache/BranchPack)", email.subject
+    # fred is maintainer of the package, hidden_homer of the project, Iggy triggers the event, so doesn't get email
+    assert_equal %w(homer@nospam.net fred@feuerstein.de), email.to
+
+    # now verify another review sends other emails
+    ActionMailer::Base.deliveries.clear
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
+      req.addreview by_project: 'Apache', by_package: 'apache2', comment: 'Can you check that?'
+    end
+    email = ActionMailer::Base.deliveries.last
+
+    assert_equal "Request #{myid} requires review (submit Apache/BranchPack)", email.subject
+    # fred and fredlibs are project maintainers, apache2 has no package maintainer - and they share the email address (DUDE!)
+    assert_equal %w(fred@feuerstein.de fred@feuerstein.de), email.to
+  end
+
 end
