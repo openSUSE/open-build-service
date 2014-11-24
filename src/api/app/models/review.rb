@@ -87,7 +87,8 @@ class Review < ActiveRecord::Base
     return [] unless obj
     relationships = obj.relationships
     role = Role.rolecache['maintainer']
-    User.where(id: relationships.users.where(role: role)) + Group.where(id: relationships.groups.where(role: role))
+    User.where(id: relationships.users.where(role: role).pluck(:user_id)) \
+      + Group.where(id: relationships.groups.where(role: role).pluck(:group_id))
   end
 
   def map_objects_to_ids(objs)
