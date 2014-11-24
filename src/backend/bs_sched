@@ -6093,7 +6093,7 @@ sub rebuildchannel {
       return ('broken', "id mismatch in $arepoid/$apackid $s[9]/$s[7]/$s[1] $bi->{'id'}");
     }
     link($file, "$jobdatadir/$bi->{'filename'}") || die("link $file $jobdatadir/$bi->{'filename'}: $!\n");
-    if ($bi->{'arch'} ne 'src' && $bi->{'src'} ne 'nosrc' && -e "$dir/$bi->{'name'}-appdata.xml") {
+    if ($bi->{'arch'} ne 'src' && $bi->{'arch'} ne 'nosrc' && -e "$dir/$bi->{'name'}-appdata.xml") {
       unlink("$jobdatadir/$bi->{'name'}-appdata.xml");
       link("$dir/$bi->{'name'}-appdata.xml", "$jobdatadir/$bi->{'name'}-appdata.xml") || die("link $bi->{'name'}-appdata.xml $jobdatadir/$bi->{'name'}-appdata.xml: $!\n");
     }
