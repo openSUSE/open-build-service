@@ -2530,6 +2530,12 @@ sub update_dst_full {
   my %old = set_suf_and_filter_exports($oldrepo, $filter, \%oldexports);
   my %new = set_suf_and_filter_exports($jobrepo, $filter, \%newexports);
 
+  # do not export channels or patchinfos
+  if ($bininfo && $bininfo->{'.nouseforbuild'}) {
+    %oldexports = ();
+    %newexports = ();
+  }
+
   # make sure the old export archs are known
   $newexports{$_} ||= [] for keys %oldexports;
 
