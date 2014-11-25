@@ -165,3 +165,8 @@ IssueTracker.where(name: 'sf').first_or_create(description: 'SourceForge.net Tra
 IssueTracker.where(name: 'Xamarin').first_or_create(description: 'Xamarin Bugzilla', kind: 'bugzilla', regex: 'Xamarin#(\d+)', url: 'http://bugzilla.xamarin.com/index.cgi', label: 'Xamarin#@@@', show_url: 'http://bugzilla.xamarin.com/show_bug.cgi?id=@@@')
 IssueTracker.where(name: 'bxo').first_or_create(description: 'XFCE Bugzilla', kind: 'bugzilla', regex: 'bxo#(\d+)', url: 'https://bugzilla.xfce.org/', label: 'bxo#@@@', show_url: 'https://bugzilla.xfce.org/show_bug.cgi?id=@@@')
 
+# OBS github tracker
+IssueTracker.where(name: 'obs').first_or_create(description: 'OBS GitHub Issues', kind: 'github', regex: 'obs#(\d+)', url: 'https://github.com/openSUSE/open-build-service/issues', label: 'obs#@@@', show_url: 'https://github.com/openSUSE/open-build-service/issues/@@@')
+IssueTracker.where(name: 'build').first_or_create(description: 'OBS build script Issues', kind: 'github', regex: 'build#(\d+)', url: 'https://github.com/openSUSE/obs-build/issues', label: 'build#@@@', show_url: 'https://github.com/openSUSE/obs-build/issues/@@@')
+IssueTracker.where(name: 'osc').first_or_create(description: 'OBS CLI Issues', kind: 'github', regex: 'osc#(\d+)', url: 'https://github.com/openSUSE/osc/issues', label: 'osc#@@@', show_url: 'https://github.com/openSUSE/osc/issues/@@@')
+

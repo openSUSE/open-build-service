@@ -583,7 +583,7 @@ CREATE TABLE `incident_counter` (
 CREATE TABLE `issue_trackers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) CHARACTER SET utf8 NOT NULL,
-  `kind` enum('other','bugzilla','cve','fate','trac','launchpad','sourceforge') CHARACTER SET utf8 DEFAULT NULL,
+  `kind` enum('other','bugzilla','cve','fate','trac','launchpad','sourceforge','github') COLLATE utf8_bin NOT NULL,
   `description` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `url` varchar(255) CHARACTER SET utf8 NOT NULL,
   `show_url` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
@@ -1610,6 +1610,8 @@ INSERT INTO schema_migrations (version) VALUES ('20141022205426');
 INSERT INTO schema_migrations (version) VALUES ('20141107135426');
 
 INSERT INTO schema_migrations (version) VALUES ('20141110105426');
+
+INSERT INTO schema_migrations (version) VALUES ('20141125105426');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
