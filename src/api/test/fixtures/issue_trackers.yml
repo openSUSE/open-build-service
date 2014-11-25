@@ -251,3 +251,13 @@ perl_rt:
   label: '@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
+obs_github:
+  name: obs
+  kind: github
+  description: OBS issues on github
+  url: https://api.github.com/repos/openSUSE/open-build-service/issues
+  show_url: https://github.com/openSUSE/open-build-service/issues/@@@
+  regex: obs#(\d+)
+  label: obs#@@@
+  issues_updated: 2011-07-29 14:00:21.000000000 Z
+  enable_fetch: 0
