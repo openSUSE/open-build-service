@@ -139,8 +139,6 @@ class ApplicationController < ActionController::Base
         newuser.state = User.states['confirmed']
         newuser.state = User.states['unconfirmed'] if ::Configuration.registration == "confirmation"
         newuser.adminnote = "User created via LDAP"
-        user_role = Role.find_by_title("User")
-        newuser.roles << user_role
 
         logger.debug( "saving new user..." )
         newuser.save

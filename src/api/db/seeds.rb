@@ -12,7 +12,6 @@ end
 
 puts "Seeding roles table..."
 admin_role      = Role.where(title: "Admin").first_or_create global: true
-#user_role       = Role.where(title: "User").first_or_create, global: true
 maintainer_role = Role.where(title: "maintainer").first_or_create
 bugowner_role   = Role.where(title: "bugowner").first_or_create
 reviewer_role   = Role.where(title: "reviewer").first_or_create
