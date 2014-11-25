@@ -979,7 +979,7 @@ class SourceController < ApplicationController
   end
 
   def private_remove_repositories( repositories, full_remove = false )
-    del_repo = Project.find_by_name('deleted').repositories[0]
+    del_repo = Repository.deleted_instance
 
     repositories.each do |repo|
       linking_repos = repo.linking_repositories

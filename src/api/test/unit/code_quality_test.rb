@@ -66,7 +66,7 @@ class CodeQualityTest < ActiveSupport::TestCase
 
   # our current exceptions
   BlackList = {
-      'ApplicationController#extract_ldap_user' => 123.29,
+      'ApplicationController#extract_ldap_user' => 116.66,
       'AttributeController#attribute_definition' => 87.7,
       'BinaryRelease::update_binary_releases_via_json' => 122.54,
       'BranchPackage#find_packages_to_branch' => 234.73,
@@ -94,7 +94,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'PersonController#internal_register' => 112.01,
       'Project#update_one_repository_without_path' => 150.7,
       'PublicController#binary_packages' => 126.16,
-      'Repository#cleanup_before_destroy' => 85.53,
+      'Repository#cleanup_before_destroy' => 82.98,
       'RequestController#render_request_collection' => 92.82,
       'SearchController#find_attribute' => 97.33,
       'SearchController#search' => 81.64, 
