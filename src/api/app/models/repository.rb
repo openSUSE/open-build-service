@@ -26,16 +26,14 @@ class Repository < ActiveRecord::Base
 
   def cleanup_before_destroy
     # change all linking repository pathes
-    del_repo = nil
     self.linking_repositories.each do |lrep|
       lrep.path_elements.includes(:link, :repository).each do |pe|
         next unless pe.link == self # this is not pointing to our repo
-        del_repo ||= Project.find_by_name("deleted").repositories[0]
-        if lrep.path_elements.where(repository_id: del_repo).size > 0
-          # repo has already a path element pointing to del_repo
+        if lrep.path_elements.where(repository_id: Repository.deleted_instance).size > 0
+          # repo has already a path element pointing to deleted repository
           pe.destroy 
         else
-          pe.link = del_repo
+          pe.link = Repository.deleted_instance
           pe.save
         end
       end
@@ -46,15 +44,14 @@ class Repository < ActiveRecord::Base
     self.linking_target_repositories.each do |lrep|
       lrep.targetlinks.includes(:target_repository, :repository).each do |rt|
         next unless rt.target_repository == self # this is not pointing to our repo
-        del_repo ||= Project.find_by_name("deleted").repositories[0]
         repo = rt.repository
-        if lrep.targetlinks.where(repository_id: del_repo).size > 0
-          # repo has already a path element pointing to del_repo
+        if lrep.targetlinks.where(repository_id: Repository.deleted_instance).size > 0
+          # repo has already a path element pointing to deleted repository
           logger.debug "destroy release target #{rt.target_repository.project.name}/#{rt.target_repository.name}"
           rt.destroy 
         else
           logger.debug "set deleted repo for releasetarget #{rt.target_repository.project.name}/#{rt.target_repository.name}"
-          rt.target_repository = del_repo
+          rt.target_repository = Repository.deleted_instance
           rt.save
         end
         repo.project.store({:lowprio => true})
@@ -75,6 +72,15 @@ class Repository < ActiveRecord::Base
       end
 
       return nil
+    end
+
+    def deleted_instance
+      repo = Repository.find_by_project_and_repo_name( "deleted", "deleted" )
+      return repo unless repo.nil?
+
+      # does not exist, so let's create it
+      project = Project.deleted_instance
+      project.repositories.find_or_create_by(name: "deleted")
     end
   end
 

@@ -149,12 +149,6 @@ c++:
   updated_at: 2011-07-29 14:00:21.000000000 Z
   type_id: 1
   delta: 1
-deleted:
-  name: deleted
-  created_at: 2011-07-29 14:00:21.000000000 Z
-  updated_at: 2011-07-29 14:00:21.000000000 Z
-  type_id: 1
-  delta: 1
 home_Iggy:
   name: home:Iggy
   title: Iggy Home Project

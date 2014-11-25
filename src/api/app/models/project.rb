@@ -79,9 +79,15 @@ class Project < ActiveRecord::Base
     self.name.gsub(/:/, ':/')
   end
   
+  def self.deleted_instance
+    prj = Project.find_by_name('deleted')
+    return unless prj.nil?
+    Project.create(name: 'deleted',
+                   title: 'Place holder for a deleted project instance')
+  end
+
   def cleanup_before_destroy
     CacheLine.cleanup_project(self.name)
-    @del_repo = Project.find_by_name('deleted').repositories[0]
 
     # find linking repositories
     cleanup_linking_repos
@@ -135,11 +141,11 @@ class Project < ActiveRecord::Base
     find_repos(:linking_repositories) do |link_rep|
       link_rep.path_elements.includes(:link).each do |pe|
         next unless Repository.find(pe.repository_id).db_project_id == self.id
-        if link_rep.path_elements.find_by_repository_id @del_repo
+        if link_rep.path_elements.find_by_repository_id Repository.deleted_instance
           # repository has already a path to deleted repo
           pe.destroy
         else
-          pe.link = @del_repo
+          pe.link = Repository.deleted_instance
           pe.save
         end
         #update backend
@@ -153,7 +159,7 @@ class Project < ActiveRecord::Base
     find_repos(:linking_target_repositories) do |link_rep|
       link_rep.release_targets.includes(:target_repository).each do |rt|
         next unless Repository.find(rt.repository_id).db_project_id == self.id
-        rt.target_repository = @del_repo
+        rt.target_repository = Repository.deleted_instance
         rt.save
         #update backend
         link_rep.project.write_to_backend

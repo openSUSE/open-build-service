@@ -112,11 +112,6 @@ DbProjectType.where(name: "maintenance").first_or_create
 DbProjectType.where(name: "maintenance_incident").first_or_create
 DbProjectType.where(name: "maintenance_release").first_or_create
 
-# default repository to link when original one got removed
-Project.where(name: "deleted").first_or_create do |d|
-  d.repositories.new name: "deleted"
-end
-
 # set default configuration settings if no settings exist
 Configuration.first_or_create(name: "private", title: "Open Build Service") do |conf|
 conf.description = <<-EOT

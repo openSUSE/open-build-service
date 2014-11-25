@@ -67,7 +67,7 @@ class CodeQualityTest < ActiveSupport::TestCase
   # our current exceptions
   BlackList = {
       'ApplicationController#validate_xml_response' => 59.51,
-      'ApplicationController#extract_ldap_user' => 123.29,
+      'ApplicationController#extract_ldap_user' => 116.66,
       'ApplicationController#extract_proxy_user' => 65.48,
       'AttributeController#attribute_definition' => 87.7,
       'AttributeController#find_attribute_container' => 62.42,
@@ -121,9 +121,9 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Project::check_access?' => 54.05,
       'Project::get_by_name' => 53.44,
       'ProjectStatusCalculator#calc_status' => 74.59,
-      'PublicController#binary_packages' => 131.24,
-      'Repository#cleanup_before_destroy' => 85.53,
       'RequestController#check_request_change' => 255.23,
+      'PublicController#binary_packages' => 131.29,
+      'Repository#cleanup_before_destroy' => 82.98,
       'RequestController#render_request_collection' => 92.82,
       'RequestController#request_create' => 107.39,
       'SearchController#find_attribute' => 97.33,

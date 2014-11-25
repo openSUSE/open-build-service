@@ -3,10 +3,6 @@ BaseDistro2LinkedUpdateProject_repo:
   name: BaseDistro2LinkedUpdateProject_repo
   rebuild: local
   project: BaseDistro2.0_LinkedUpdateProject
-deleted_deleted:
-  id: 211
-  name: deleted
-  project: deleted
 repositories_141:
   id: 141
   name: home_coolo_standard
