@@ -42,6 +42,12 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     login_king
     post '/request?cmd=create', 'GRFZL'
     assert_response 400
+
+    reset_auth
+    # make sure requests from not valid users do not pass
+    req = load_backend_file('request/1')
+    post '/request?cmd=create', req
+    assert_response 401
   end
 
   def test_submit_request_of_new_package_with_devel_package

@@ -31,6 +31,7 @@ class BsRequest < ActiveRecord::Base
   validates_inclusion_of :state, :in => VALID_REQUEST_STATES
   validates :creator, :presence => true
   validate :check_supersede_state
+  validate :check_creator, :on => :create
   validates_length_of :comment, :maximum => 300000
   validates_length_of :description, :maximum => 300000
 
@@ -53,6 +54,19 @@ class BsRequest < ActiveRecord::Base
 
   def skip_sanitize
     @skip_sanitize = true
+  end
+
+  def check_creator
+    unless self.creator
+      errors.add(:creator, 'No creator defined')
+    end
+    user = User.get_by_login self.creator
+    unless user
+      errors.add(:creator, "Invalid creator specified #{self.creator}")
+    end
+    unless user.is_active?
+      errors.add(:creator, "Login #{user.login} is not an active user")
+    end
   end
 
   def check_supersede_state

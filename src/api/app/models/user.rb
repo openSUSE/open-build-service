@@ -456,6 +456,10 @@ class User < ActiveRecord::Base
     self.login == '_nobody_'
   end
 
+  def is_active?
+    self.state == User.states['confirmed']
+  end
+
   # used to avoid
   def is_admin=(is_she)
     @is_admin = is_she
