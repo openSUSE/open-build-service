@@ -519,6 +519,7 @@ class UserLdapStrategy
   # and password
   def self.initialize_ldap_con(user_name, password)
     return nil unless defined?(CONFIG['ldap_servers'])
+    require 'ldap'
     ldap_servers = CONFIG['ldap_servers'].split(":")
     ping = false
     server = nil
@@ -558,10 +559,10 @@ class UserLdapStrategy
       end
       conn.bind(user_name, password)
     rescue LDAP::ResultError
-      if not conn.nil?
+      if not conn.nil? and conn.bound?
         conn.unbind()
       end
-      Rails.logger.debug("Not bound:  error #{conn.err} for #{user_name}")
+      Rails.logger.debug("Not bound as #{user_name}: #{conn.err2string(conn.err)}")
       return nil
     end
     Rails.logger.debug("Bound as #{user_name}")
