@@ -966,7 +966,11 @@ sub writeProductSPECfile( $$$$ )
          $productprovides.="%ifarch $repo->{arch}\n" if $repo->{arch};
          $productprovides.="Provides:       product-updates-repoid() = ".escapeProvides("obsrepository://$obsname/$repo->{project}/$repo->{name}")."\n";
          $productprovides.="%endif\n" if $repo->{arch};
-      };
+      }
+      if ($product->{register}->{flavor}) {
+         $productprovides.="Provides:       product-register-flavor() = ";
+         $productprovides.=escapeProvides($product->{register}->{flavor})."\n";
+      }
     }
     foreach my $predecessor ( @{$product->{'predecessor'}} ){
       $productprovides.="Obsoletes:       product:$predecessor\n";
