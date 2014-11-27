@@ -430,27 +430,27 @@ class UserLdapStrategy
     end
     # Attempt to authenticate user
     case CONFIG['ldap_authenticate']
-      when :local then
-        if not authenticate_with_local(password, user)
-          Rails.logger.debug("Unable to local authenticate #{user['dn']}")
-          return nil
-        end
-      when :ldap then
-        # Don't match the passwd locally, try to bind to the ldap server
-        user_con= initialize_ldap_con(user['dn'], password)
-        if user_con.nil?
-          Rails.logger.debug("Unable to connect to LDAP server as #{user['dn']} using credentials supplied")
-          return nil
-        else
-          # Redo the search as the user for situations where the anon search may not be able to see attributes
-          user_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter) do |entry|
-            user.replace(entry.to_hash())
-          end
-          user_con.unbind()
-        end
-      else # If no CONFIG['ldap_authenticate'] is given do not return the ldap_info !
-        Rails.logger.error("Unknown ldap_authenticate setting: '#{CONFIG['ldap_authenticate']}' so  #{user['dn']} not authenticated. Ensure ldap_authenticate uses a valid symbol")
+    when :local then
+      if not authenticate_with_local(password, user)
+        Rails.logger.debug("Unable to local authenticate #{user['dn']}")
         return nil
+      end
+    when :ldap then
+      # Don't match the passwd locally, try to bind to the ldap server
+      user_con= initialize_ldap_con(user['dn'], password)
+      if user_con.nil?
+        Rails.logger.debug("Unable to connect to LDAP server as #{user['dn']} using credentials supplied")
+        return nil
+      else
+        # Redo the search as the user for situations where the anon search may not be able to see attributes
+        user_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter) do |entry|
+          user.replace(entry.to_hash())
+        end
+        user_con.unbind()
+      end
+    else # If no CONFIG['ldap_authenticate'] is given do not return the ldap_info !
+      Rails.logger.error("Unknown ldap_authenticate setting: '#{CONFIG['ldap_authenticate']}' so  #{user['dn']} not authenticated. Ensure ldap_authenticate uses a valid symbol")
+      return nil
     end
 
     # Only collect the required user information *AFTER* we successfully
