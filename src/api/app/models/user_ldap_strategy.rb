@@ -367,6 +367,23 @@ class UserLdapStrategy
     return authenticated
   end
 
+  # convert distinguished name to user principal name
+  # see also: http://technet.microsoft.com/en-us/library/cc977992.aspx
+  def self.dn2user_principal_name(dn)
+    upn = String.new
+    # implicitly convert array to string
+    dn = [ dn ].flatten.join(',')
+    begin
+      dn_components = dn.split(',').map{ |n| n.strip().split('=') }
+      dn_uid = dn_components.select{ |x,y| x == 'uid' }.map{ |x,y| y }
+      dn_path = dn_components.select{ |x,y| x == 'dc' }.map{ |x,y| y }
+      upn = "#{dn_uid.fetch(0)}@#{dn_path.join('.')}"
+    rescue
+      # if we run into unexpected input just return an empty string
+    end
+    return upn
+  end
+
   # This static method tries to find a user with the given login and
   # password in the active directory server.  Returns nil unless
   # credentials are correctly found using LDAP.
@@ -457,6 +474,8 @@ class UserLdapStrategy
     # completed the authentication!
     if user[CONFIG['ldap_mail_attr']] then
       ldap_info[0] = String.new(user[CONFIG['ldap_mail_attr']][0])
+    else
+      ldap_info[0] = dn2user_principal_name(user['dn'])
     end
     if user[CONFIG['ldap_name_attr']] then
       ldap_info[1] = String.new(user[CONFIG['ldap_name_attr']][0])

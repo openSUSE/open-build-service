@@ -38,7 +38,26 @@ class UserLdapStrategyTest < ActiveSupport::TestCase
     assert a == false
     a = UserLdapStrategy.authenticate_with_local("test", test_entry)
     assert a == true
+  end
 
+  def test_dn2user_principal_name
+    a = UserLdapStrategy.dn2user_principal_name(["uid=jdoe", "ou=People", "dc=opensuse", "dc=org"])
+    assert a == "jdoe@opensuse.org"
+
+    a = UserLdapStrategy.dn2user_principal_name(["uid=jdoe,ou=People, dc=opensuse,dc=org"])
+    assert a == "jdoe@opensuse.org"
+
+    a = UserLdapStrategy.dn2user_principal_name("uid=jdoe,ou=People, dc=opensuse,dc=org")
+    assert a == "jdoe@opensuse.org"
+
+    a = UserLdapStrategy.dn2user_principal_name("uid=jdoe, dc=opensuse,dc=org")
+    assert a == "jdoe@opensuse.org"
+
+    a = UserLdapStrategy.dn2user_principal_name(" dc=opensuse,dc=org")
+    assert a.empty?
+
+    a = UserLdapStrategy.dn2user_principal_name([" dc=opensuse,dc=org"])
+    assert a.empty?
   end
 
 end
