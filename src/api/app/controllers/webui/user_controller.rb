@@ -11,6 +11,8 @@ class Webui::UserController < Webui::WebuiController
   before_filter :require_login, :only => [:edit, :save, :notifications, :update_notifications]
   before_filter :overwrite_user, :only => [:show, :edit, :requests, :list_my]
   before_filter :require_admin, :only => [:edit, :delete, :lock, :confirm, :admin]
+  
+  skip_before_action :check_anonymous, only: [:do_login]
 
   def logout
     logger.info "Logging out: #{session[:login]}"
