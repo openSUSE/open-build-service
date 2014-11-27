@@ -340,6 +340,33 @@ class UserLdapStrategy
     return
   end
 
+  def self.authenticate_with_local(password, entry)
+    if not entry.key?(CONFIG['ldap_auth_attr']) or entry[CONFIG['ldap_auth_attr']].empty?
+      Rails.logger.info("Failed to get attr:#{CONFIG['ldap_auth_attr']}")
+      return false
+    end
+
+    authenticated = false
+    ldap_password = entry[CONFIG['ldap_auth_attr']][0]
+
+    case CONFIG['ldap_auth_mech']
+    when :cleartext then
+      if ldap_password == password then
+        authenticated = true
+      end
+    when :md5 then
+      require 'digest/md5'
+      require 'base64'
+      if ldap_password == "{MD5}"+Base64.encode64(Digest::MD5.digest(password))
+        authenticated = true
+      end
+    else
+      Rails.logger.error("Unknown ldap_auth_mech setting: #{CONFIG['ldap_auth_mech']}")
+    end
+
+    return authenticated
+  end
+
   # This static method tries to find a user with the given login and
   # password in the active directory server.  Returns nil unless
   # credentials are correctly found using LDAP.
@@ -364,8 +391,7 @@ class UserLdapStrategy
     # simply it try it a seccond time, which forces the ldap connection to
     # reinitialize (@@ldap_search_con is unbound and nil).
     ldap_first_try = true
-    dn = String.new
-    ldap_password = String.new
+    user = nil
     user_filter = String.new
     1.times do
       if @@ldap_search_con.nil?
@@ -385,17 +411,7 @@ class UserLdapStrategy
       Rails.logger.debug("Search for #{user_filter}")
       begin
         ldap_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter) do |entry|
-          dn = entry.dn
-          ldap_info[0] = String.new(entry[CONFIG['ldap_mail_attr']][0])
-          ldap_info[1] = String.new(entry[CONFIG['ldap_name_attr']][0])
-          if CONFIG.has_key?('ldap_authenticate') && CONFIG['ldap_authenticate'] == :local
-            if entry[CONFIG['ldap_auth_attr']] then
-              ldap_password = entry[CONFIG['ldap_auth_attr']][0]
-              Rails.logger.debug("Get auth_attr:#{ldap_password}")
-            else
-              Rails.logger.debug("Failed to get attr:#{CONFIG['ldap_auth_attr']}")
-            end
-          end
+          user = entry.to_hash
         end
       rescue
         Rails.logger.debug("Search failed:  error #{ @@ldap_search_con.err}: #{ @@ldap_search_con.err2string(@@ldap_search_con.err)}")
@@ -408,54 +424,46 @@ class UserLdapStrategy
         return nil
       end
     end
-    if dn.empty?
+    if user.nil?
       Rails.logger.debug("User not found in ldap")
       return nil
     end
     # Attempt to authenticate user
     case CONFIG['ldap_authenticate']
       when :local then
-        authenticated = false
-        case CONFIG['ldap_auth_mech']
-          when :cleartext then
-            if ldap_password == password then
-              authenticated = true
-            end
-          when :md5 then
-            require 'digest/md5'
-            require 'base64'
-            if ldap_password == "{MD5}"+Base64.b64encode(Digest::MD5.digest(password)) then
-              authenticated = true
-            end
-        end
-        if authenticated == true
-          ldap_info[0] = String.new(entry[CONFIG['ldap_mail_attr']][0])
-          ldap_info[1] = String.new(entry[CONFIG['ldap_name_attr']][0])
+        if not authenticate_with_local(password, user)
+          Rails.logger.debug("Unable to local authenticate #{user['dn']}")
+          return nil
         end
       when :ldap then
         # Don't match the passwd locally, try to bind to the ldap server
-        user_con= initialize_ldap_con(dn, password)
+        user_con= initialize_ldap_con(user['dn'], password)
         if user_con.nil?
-          Rails.logger.debug("Unable to connect to LDAP server as #{dn} using credentials supplied")
+          Rails.logger.debug("Unable to connect to LDAP server as #{user['dn']} using credentials supplied")
           return nil
         else
           # Redo the search as the user for situations where the anon search may not be able to see attributes
           user_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter) do |entry|
-            if entry[CONFIG['ldap_mail_attr']] then
-              ldap_info[0] = String.new(entry[CONFIG['ldap_mail_attr']][0])
-            end
-            if entry[CONFIG['ldap_name_attr']] then
-              ldap_info[1] = String.new(entry[CONFIG['ldap_name_attr']][0])
-            else
-              ldap_info[1] = login
-            end
+            user.replace(entry.to_hash())
           end
           user_con.unbind()
         end
       else # If no CONFIG['ldap_authenticate'] is given do not return the ldap_info !
-        Rails.logger.error("Unknown ldap_authenticate setting: '#{CONFIG['ldap_authenticate']}' so  #{dn} not authenticated. Ensure ldap_authenticate uses a valid symbol")
+        Rails.logger.error("Unknown ldap_authenticate setting: '#{CONFIG['ldap_authenticate']}' so  #{user['dn']} not authenticated. Ensure ldap_authenticate uses a valid symbol")
         return nil
     end
+
+    # Only collect the required user information *AFTER* we successfully
+    # completed the authentication!
+    if user[CONFIG['ldap_mail_attr']] then
+      ldap_info[0] = String.new(user[CONFIG['ldap_mail_attr']][0])
+    end
+    if user[CONFIG['ldap_name_attr']] then
+      ldap_info[1] = String.new(user[CONFIG['ldap_name_attr']][0])
+    else
+      ldap_info[1] = login
+    end
+
     Rails.cache.write(key, [Digest::MD5.digest(password), ldap_info[0], ldap_info[1]], :expires_in => 2.minute)
     Rails.logger.debug("login success for checking with ldap server")
     ldap_info
@@ -538,6 +546,9 @@ class UserLdapStrategy
       Rails.logger.debug("Unable to ping to any LDAP server: #{CONFIG['ldap_servers']}")
       return nil
     end
+
+    # implicitly turn array into string
+    user_name = [ user_name ].flatten.join('')
 
     Rails.logger.debug("Connecting to #{server} as '#{user_name}'")
     begin
