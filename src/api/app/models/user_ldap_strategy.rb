@@ -437,6 +437,7 @@ class UserLdapStrategy
         user_con= initialize_ldap_con(dn, password)
         if user_con.nil?
           Rails.logger.debug("Unable to connect to LDAP server as #{dn} using credentials supplied")
+          return nil
         else
           # Redo the search as the user for situations where the anon search may not be able to see attributes
           user_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter) do |entry|
