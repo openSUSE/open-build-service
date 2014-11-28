@@ -5894,6 +5894,8 @@ sub checkchannel {
   my ($ctx, $packid, $pdata, $info) = @_;
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
+  my $repo = $ctx->{'repo'};
+  my %repoarchs = map {$_ => 1} @{$repo->{'arch'} || []};
   my $channel = $pdata->{'channel'};
   # do the channel filtering, same project but different repositories
 
@@ -5936,19 +5938,25 @@ sub checkchannel {
     my $defarch = $binaries->{'arch'};
     for my $binary (@{$binaries->{'binary'} || []}) {
       next unless $binary->{'name'};
-      my $arch = $binary->{'arch'} || $defarch || '';
+      my $bi = $binary;
+      my $arch = $bi->{'arch'} || $defarch || '';
+      if ($arch && !$repoarchs{$arch}) {
+	# not in repo, go for the import!
+	$bi = { %$binary, 'importedfrom' => $arch };
+	$arch = $myarch;
+      }
       next unless !$arch || $arch eq $myarch;
-      my $aprojid = $binary->{'project'} || $defprojid || $projid;
+      my $aprojid = $bi->{'project'} || $defprojid || $projid;
       next unless $aprojid;
-      my $arepoid = $binary->{'repository'} || $defrepoid || '';
+      my $arepoid = $bi->{'repository'} || $defrepoid || '';
       my $rtkey = $arepoid ? "$aprojid/$arepoid" : $aprojid;
       next unless $proj2repo{$rtkey};
       for my $arepoid (keys %{$proj2repo{$rtkey}}) {
         $arepos{$arepoid} = 1;
-        push @{$filter{"$arepoid/$binary->{'name'}"}}, $binary;
+        push @{$filter{"$arepoid/$bi->{'name'}"}}, $bi;
       }
-      if ($binary->{'package'}) {
-	push @{$packagefilter{"$arepoid/$binary->{'package'}"}}, $binary;
+      if ($bi->{'package'}) {
+	push @{$packagefilter{"$arepoid/$bi->{'package'}"}}, $bi;
       }
     }
   }
@@ -6026,9 +6034,11 @@ sub checkchannel {
 	next unless $filter{"$arepoid/$n"};
 	my $found;
 	my $supportstatus;
+	my $importedfrom;
 	for my $f (@{$filter{"$arepoid/$n"}}) {
-          next if $f->{'package'} && $apackid ne $f->{'package'} && $lapackid ne $f->{'package'};
-          next if $f->{'binaryarch'} && $bi->{'arch'} ne $f->{'binaryarch'};
+	  next if $f->{'importedfrom'} && $filename !~ /^::import::\Q$f->{'importedfrom'}\E::/;
+	  next if $f->{'package'} && $apackid ne $f->{'package'} && $lapackid ne $f->{'package'};
+	  next if $f->{'binaryarch'} && $bi->{'arch'} ne $f->{'binaryarch'};
 	  $supportstatus = $f->{'supportstatus'};
 	  $found = 1;
 	  last;
