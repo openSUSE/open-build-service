@@ -98,7 +98,7 @@ class RequestController < ApplicationController
     #        these actions
     if params[:cmd] == 'create'
       # noop
-    elsif params[:cmd] == 'changereviewstate'
+    elsif params[:cmd] == 'changereviewstate' or params[:cmd] == 'assignreview'
       @req.permission_check_change_review!(params)
     elsif params[:cmd] == 'addreview'
       # the model is checking already
@@ -246,6 +246,11 @@ class RequestController < ApplicationController
 
   def request_command_setpriority
     @req.setpriority(params)
+    render_ok
+  end
+
+  def request_command_assignreview
+    @req.assignreview(params)
     render_ok
   end
 

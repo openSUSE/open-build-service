@@ -487,6 +487,41 @@ class BsRequest < ActiveRecord::Base
     history.create(params)
   end
 
+  def assignreview(opts = {})
+ 
+    unless self.state == :review || (self.state == :new && state == :new)
+      raise InvalidStateError.new 'request is not in review state'
+    end
+    user = User.find_by_login!(opts[:reviewer])
+    review_comment = nil
+
+    self.with_lock do
+      self.reviews.reverse.each do |review|
+        next if review.by_group && review.by_group != opts[:by_group]
+        next if review.by_project && review.by_project != opts[:by_project]
+        next if review.by_package && review.by_package != opts[:by_package]
+
+        # approve for this review
+        review.state = :accepted
+        review.save!
+
+        review_comment = "review for group #{opts[:by_group]}" if opts[:by_group]
+        review_comment = "review for project #{opts[:by_project]}" if opts[:by_project]
+        review_comment = "review for package #{opts[:by_project]} / #{opts[:by_package]}" if opts[:by_package]
+        HistoryElement::ReviewAccepted.create(review: review, comment: "review assigend to user #{user.login}", user_id: User.current.id)
+      end
+      raise Review::NotFoundError.new unless review_comment
+
+      # check if user is a reviewer already
+      review = self.reviews.where(by_user: user.login).last
+      review = self.reviews.create(by_user: user.login, creator: User.current.login) unless review
+      review.state = :new
+      review.save!
+      HistoryElement::ReviewAssigned.create(review: review, comment: review_comment, user_id: User.current.id)
+      self.save!
+    end
+  end
+
   def change_review_state(state, opts = {})
     self.with_lock do
       state = state.to_sym

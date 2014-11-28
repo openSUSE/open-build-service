@@ -882,6 +882,62 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
   end
 
+  test 'assign_from_group' do
+
+    login_Iggy
+    req = load_backend_file('request/works')
+    post '/request?cmd=create', req
+    assert_response :success
+    assert_xml_tag(:tag => 'request')
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
+
+    # add reviewer group
+    login_Iggy
+    post "/request/#{id}?cmd=addreview&by_group=test_group"
+    assert_response :success
+    post "/request/#{id}?cmd=addreview&by_group=test_group_b"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(:tag => 'review', :attributes => { by_group: 'test_group' })
+
+    # adrian assigns to adrian_downloader
+    login_adrian
+    post "/request/#{id}?by_group=test_group&cmd=assignreview&reviewer=adrian_downloader", 'adrian_downloader, please have a look'
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+
+    login_adrian_downloader
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=adrian_downloader"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'accepted', by_user: 'adrian_downloader' })
+
+    # adrian_downloader assigns to himself
+    post "/request/#{id}?by_group=test_group_b&cmd=assignreview&reviewer=adrian_downloader", 'I will work on it as well'
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'adrian_downloader' })
+    assert_no_xml_tag(:tag => 'review', :attributes => { state: 'accepted', by_user: 'adrian_downloader' })
+
+    # ah, no.....
+    post "/request/#{id}?cmd=changereviewstate&newstate=declined&by_user=adrian_downloader"
+    assert_response :success
+
+    # validate
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(:tag => 'state', :attributes => { name: 'declined' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'declined', by_user: 'adrian_downloader' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'accepted', by_group: 'test_group' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'accepted', by_group: 'test_group_b' })
+  end
+
   test 'change_review_state_after_leaving_review_phase' do
 
     login_Iggy
@@ -910,7 +966,9 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     login_adrian
     post "/request/#{id}?newstate=new&by_group=test_group&cmd=changereviewstate", 'adrian is looking'
+    assert_response :success
     post "/request/#{id}?newstate=new&by_group=test_group&cmd=changereviewstate", 'adrian does not care'
+    assert_response :success
 
     login_tom
     post "/request/#{id}?cmd=changereviewstate&newstate=declined&by_user=tom"

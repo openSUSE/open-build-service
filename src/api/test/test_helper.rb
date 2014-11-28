@@ -451,6 +451,10 @@ module ActionDispatch
       prepare_request_with_user 'adrian', 'so_alone'
     end
 
+    def login_adrian_downloader
+      prepare_request_with_user 'adrian_downloader', 'so_alone'
+    end
+
     def login_fred
       prepare_request_with_user 'fred', 'geröllheimer'
     end
