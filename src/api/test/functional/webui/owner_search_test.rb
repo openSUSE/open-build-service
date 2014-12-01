@@ -69,7 +69,7 @@ class Webui::OwnerSearchTest < Webui::IntegrationTest
     assert result[:owners].include? "(Iggy) as maintainer"
     assert result[:owners].include? "(Iggy) as bugowner"
     # test_group_b is maintainer, but has no active member
-    assert_not result[:owners].include? "test_group_b as maintainer"
+    assert_not result[:owners].include? "test_group_empty as maintainer"
   end
 
   test "owner_search_with_devel" do

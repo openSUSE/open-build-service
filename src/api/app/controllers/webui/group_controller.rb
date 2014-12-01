@@ -3,7 +3,7 @@ class Webui::GroupController < Webui::WebuiController
   include Webui::WebuiHelper
 
   before_filter :overwrite_group, only: [:edit]
-  before_filter :require_login, only: [:save]
+  before_filter :require_login, except: [:show, :tokens, :autocomplete]
 
   def autocomplete
     required_parameters :term
