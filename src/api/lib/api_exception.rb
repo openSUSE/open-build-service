@@ -73,6 +73,7 @@ class InvalidParameterError < APIException; end
 class InvalidProjectNameError < APIException; end
 class UnknownCommandError < APIException; end
 class NotMissingError < APIException; end
+class PackageAlreadyExists < APIException; end
 class ExpandError < APIException; 
   setup 'expand_error'
 end

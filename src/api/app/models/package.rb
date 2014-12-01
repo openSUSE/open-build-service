@@ -722,6 +722,7 @@ class Package < ActiveRecord::Base
     super
   end
 
+  # first package in link chain outside of my project
   def origin_container
     # no link, so I am origin
     return self unless self.dir_hash
@@ -736,11 +737,32 @@ class Package < ActiveRecord::Base
     pkg = prj.find_package(li['package'])
     return pkg if li['project'] != prj.name
 
-    # broke or remote link, aborting
+    # broken or remote link, aborting
     return nil if pkg.nil?
 
     # local link, go one step deeper
     return pkg.origin_container
+  end
+
+  # last package in link chain in my project
+  def local_origin_container
+    # no link, so I am origin
+    return self unless self.dir_hash
+
+    # link target package name is more important, since local name could be
+    # extended. for example in maintenance incident projects.
+    li = self.dir_hash['linkinfo']
+    return self unless li
+
+    # links to external project, so I am origin
+    return self if li['project'] != self.project.name
+
+    # local link, go one step deeper
+    prj = Project.get_by_name(li['project'])
+    pkg = prj.find_package(li['package'])
+    # broken or remote link, aborting
+    return nil if pkg.nil?
+    return pkg.local_origin_container
   end
 
   def add_channels
@@ -767,6 +789,16 @@ class Package < ActiveRecord::Base
       end
     end
     self.project.store
+  end
+
+  def update_instance(attribute=nil)
+    # check if a newer instance exists in a defined update project
+    if a = self.project.find_attribute('OBS', 'UpdateProject') and a.values[0]
+      project_name = a.values[0].value
+      prj = Project.find_by_name(project_name)
+      return prj.find_package(self.name)
+    end
+    self
   end
 
   def developed_packages

@@ -129,8 +129,6 @@ class Patchinfo < ActiveXML::Node
 
   class PatchinfoFileExists < APIException;
   end
-  class PackageAlreadyExists < APIException;
-  end
 
   def create_patchinfo_package(pkg_name)
     Package.transaction do

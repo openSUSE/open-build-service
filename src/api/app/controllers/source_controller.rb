@@ -341,7 +341,7 @@ class SourceController < ApplicationController
     # valid post commands
     valid_commands=%w(diff branch servicediff linkdiff showlinked copy remove_flag set_flag rebuild undelete
                       wipe runservice commit commitfilelist createSpecFileTemplate deleteuploadrev linktobranch
-                      updatepatchinfo getprojectservices unlock release importchannel collectbuildenv)
+                      updatepatchinfo getprojectservices unlock release importchannel collectbuildenv instantiate)
 
     @command = params[:cmd]
     raise IllegalRequest.new 'invalid_command' unless valid_commands.include?(@command)
@@ -373,7 +373,7 @@ class SourceController < ApplicationController
 
   Source_untouched_commands = %w(branch diff linkdiff servicediff showlinked rebuild wipe remove_flag set_flag getprojectservices)
   # list of cammands which create the target package
-  Package_creating_commands = %w(branch release copy undelete)
+  Package_creating_commands = %w(branch release copy undelete instantiate)
   # list of commands which are allowed even when the project has the package only via a project link
   Read_commands = %w(branch diff linkdiff servicediff showlinked getprojectservices release)
 
@@ -1356,6 +1356,29 @@ class SourceController < ApplicationController
 
   end
 
+  # POST /source/<project>/<package>?cmd=instantiate
+  def package_command_instantiate
+    project = Project.get_by_name(params[:project])
+    opackage = Package.get_by_project_and_name(project.name, params[:package])
+
+    if project == opackage.project
+      raise CmdExecutionNoPermission.new "package is already intialized here"
+    end
+    unless User.current.can_modify_project?(project)
+      raise CmdExecutionNoPermission.new "no permission to execute command 'copy'"
+    end
+    unless User.current.can_modify_package?(opackage, true) #ignoreLock option
+      raise CmdExecutionNoPermission.new "no permission to modify source package"
+    end
+
+    at=AttribType.find_by_namespace_and_name!("OBS", "MakeOriginOlder")
+    makeoriginolder=project.attribs.where(attrib_type_id: at.id).first # object or nil
+    makeoriginolder=true if params[:makeoriginolder]
+
+    instantiate_container(project, opackage.update_instance, makeoriginolder)
+    render_ok
+  end
+
   # POST /source/<project>/<package>?cmd=undelete
   def package_command_undelete
 
@@ -1643,7 +1666,7 @@ class SourceController < ApplicationController
 
     # The branch command may be used just for simulation
     if !params[:dryrun] && @target_project_name
-      verify_can_modify_target! unless params[:dryrun]
+      verify_can_modify_target!
     end
 
     private_branch_command

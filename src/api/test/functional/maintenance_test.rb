@@ -1940,7 +1940,38 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag :tag => 'releasetarget', :attributes => { trigger: 'maintenance' }
 
+    # create a service pack on top of it
+    put '/source/BaseDistro2.0:ServicePack1/_meta', '<project name="BaseDistro2.0:ServicePack1"> <title/><description/><link project="BaseDistro2.0"/></project>'
+    assert_response :success
+    # get current vrev
+    get '/source/BaseDistro2.0:LinkedUpdateProject/pack2?view=info'
+    assert_response :success
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:vrev)
+    vrev = node.value(:vrev)
+    vrev1 = vrev.gsub(/\..*/, '')
+    vrev2 = vrev.gsub(/.*\./, '')
+    # get a package
+    post '/source/BaseDistro2.0:ServicePack1/pack2.linked?cmd=instantiate&makeoriginolder=1'
+    assert_response :success
+    get '/source/BaseDistro2.0:ServicePack1'
+    assert_response :success
+    get '/source/BaseDistro2.0:LinkedUpdateProject/pack2?view=info'
+    assert_response :success
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:vrev)
+    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+1).to_s}.1" # got increased and extended by .1
+    get '/source/BaseDistro2.0:ServicePack1/pack2?view=info'
+    assert_response :success
+    get '/source/BaseDistro2.0:ServicePack1/pack2.linked?view=info'
+    assert_response :success
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:vrev)
+    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+2).to_s}" # got increased by 2
+
     # cleanup
+    delete '/source/BaseDistro2.0:ServicePack1'
+    assert_response :success
     delete "/source/#{incidentProject}"
     assert_response :success
     delete '/source/BaseDistro3/pack2.0'

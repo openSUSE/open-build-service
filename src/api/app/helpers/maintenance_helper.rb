@@ -312,4 +312,48 @@ module MaintenanceHelper
     pkg.update_backendinfo
   end
 
+  def instantiate_container(project, opackage, makeoriginolder=nil)
+    opkg = opackage.local_origin_container
+
+    # target packages must not exist yet
+    if Package.exists_by_project_and_name(project.name, opkg.name, follow_project_links: false)
+      raise PackageAlreadyExists "package #{opkg.name} already exists"
+    end
+    opkg.find_project_local_linking_packages.each do |p|
+      if Package.exists_by_project_and_name(project.name, p.name, follow_project_links: false)
+        raise PackageAlreadyExists "package #{p.name} already exists"
+      end
+    end
+
+    pkg = project.packages.create(:name => opkg.name, :title => opkg.title, :description => opkg.description)
+    pkg.store
+
+    if makeoriginolder
+      # versioned copy
+      Suse::Backend.post pkg.source_path + "?cmd=copy&makeoriginolder=1&withvrev=1&oproject=#{CGI.escape(opkg.project.name)}&opackage=#{CGI.escape(opkg.name)}&user=#{CGI.escape(User.current.login)}&comment=initialize+package+and+make+source+instance+older", nil
+    else
+      # simple branch
+      Suse::Backend.post pkg.source_path + "?cmd=branch&oproject=#{CGI.escape(opkg.project.name)}&opackage=#{CGI.escape(opkg.name)}&user=#{CGI.escape(User.current.login)}&comment=initialize+package+as+branch", nil
+    end
+    pkg.sources_changed
+
+    # and create the needed local links
+    opkg.find_project_local_linking_packages.each do |p|
+      # create container
+      lpkg = project.packages.create(:name => p.name, :title => p.title, :description => p.description)
+      lpkg.store
+
+      # copy project local linked packages
+      Suse::Backend.post "/source/#{pkg.project.name}/#{p.name}?cmd=copy&oproject=#{CGI.escape(p.project.name)}&opackage=#{CGI.escape(p.name)}&user=#{CGI.escape(User.current.login)}", nil
+
+      # and fix the link
+      ret = ActiveXML::Node.new(lpkg.source_file('_link'))
+      ret.delete_attribute('project') # its a local link, project name not needed
+      ret.set_attribute('package', pkg.name)
+      Suse::Backend.put lpkg.source_path('_link', user: User.current.login), ret.dump_xml
+      lpkg.sources_changed
+    end
+
+  end
+
 end

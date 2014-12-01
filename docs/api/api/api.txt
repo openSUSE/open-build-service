@@ -563,6 +563,18 @@ Parameters:
 Result: diff as text/plain
 
 
+POST /source/<project>/<package>?cmd=instantiate
+
+  Instantiate a package container, which is available via project links only so far.
+
+Parameters:
+
+  makeoriginolder: optional, can be used to modify source and target to guarantee that new version 
+                   stay older also on future updates in older code stream
+
+XmlResult: status
+
+
 POST /source/<project>/<package>?cmd=release
 
   Releases sources and binaries of that package. This requires a set

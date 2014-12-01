@@ -116,3 +116,9 @@ OBS_EmbargoDate:
   value_count: 1
   attrib_namespace_id: 9
   issue_list: 0
+OBS_MakeOriginOlder:
+  id: 81
+  name: MakeOriginOlder
+  value_count: 0
+  attrib_namespace_id: 9
+  issue_list: 0

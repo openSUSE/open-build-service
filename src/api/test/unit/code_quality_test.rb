@@ -90,6 +90,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'ConfigurationsController#update' => 85.63,
       'IssueTrackersController#update' => 100.78,
       'MaintenanceIncident#initUpdateinfoId' => 140.32,
+      'MaintenanceHelper#instantiate_container' => 111.99,
       'Owner::_extract_from_container' => 84.07,
       'PersonController#internal_register' => 112.01,
       'Project#update_one_repository_without_path' => 150.7,
