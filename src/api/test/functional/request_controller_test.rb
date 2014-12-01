@@ -2946,6 +2946,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     id = Xmlhash.parse(@response.body)['id']
 
+    Timecop.freeze(1)
     delete '/source/home:Iggy:fordecline'
     assert_response :success
 
@@ -2959,15 +2960,16 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                    'state' =>
                        { 'name' => 'declined',
                          'who' => 'Iggy',
-                         'when' => '2010-07-12T00:00:00',
+                         'when' => '2010-07-12T00:00:01',
                          'comment' => "The target project 'home:Iggy:fordecline' was removed" },
                    'history' => [{"who"=>"Iggy", 
                                   "when"=>"2010-07-12T00:00:00",
                                   "description"=>"Request created"},
-                                 { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:00',
+                                 { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:01',
                                    "description" => "Request got declined",
                                    'comment' => "The target project 'home:Iggy:fordecline' was removed"}] }, node)
 
+    Timecop.freeze(1)
     post "/request/#{id}?cmd=changestate&newstate=revoked"
     assert_response :success
 
@@ -2980,15 +2982,15 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                          'person' => { 'name' => 'Iggy', 'role' => 'reviewer' } },
                    'state' => { 'name' => 'revoked',
                                 'who' => 'Iggy',
-                                'when' => '2010-07-12T00:00:00',
+                                'when' => '2010-07-12T00:00:02',
                                 'comment' => {} },
                    'history' =>
                        [{"who"=>"Iggy", "when"=>"2010-07-12T00:00:00",
                          "description"=>"Request created"},
-                        {"who"=>"Iggy", "when"=>"2010-07-12T00:00:00",
+                        {"who"=>"Iggy", "when"=>"2010-07-12T00:00:01",
                          "description"=>"Request got declined",
                          "comment"=>"The target project 'home:Iggy:fordecline' was removed"},
-                        {"who"=>"Iggy", "when"=>"2010-07-12T00:00:00",
+                        {"who"=>"Iggy", "when"=>"2010-07-12T00:00:02",
                          "description"=>"Request got revoked"}] }, node)
 
   end
