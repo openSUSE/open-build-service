@@ -7,7 +7,7 @@ class Webui::RequestController < Webui::WebuiController
   helper 'webui/comment'
   helper 'webui/package'
 
-  before_filter :require_login, :only => [:save_comment]
+  before_filter :require_login, :except => [:show, :sourcediff, :diff]
   # requests do not really add much value for our page rank :)
   before_filter :lockout_spiders
 
