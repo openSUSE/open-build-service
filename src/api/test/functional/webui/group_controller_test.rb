@@ -9,13 +9,13 @@ class Webui::GroupControllerTest < Webui::IntegrationTest
 
     login_king to: configuration_groups_path
 
-    find(:id, 'group_table_wrapper').must_have_text 'Showing 1 to 4 of 4 entries'
-    find(:id, 'test_group_b').click
+    find(:id, 'group_table_wrapper').must_have_text 'Showing 1 to 5 of 5 entries'
+    find(:id, 'test_group_empty').click
     find(:id, 'content').must_have_text 'This group does not contain users'
 
     visit configuration_groups_path
     find(:id, 'test_group').click
-    find(:id, 'group_members_table_wrapper').must_have_text 'Showing 1 to 1 of 1 entries'
+    find(:id, 'group_members_table_wrapper').must_have_text 'Showing 1 to 2 of 2 entries'
     find(:link, 'adrian').click
     assert page.current_url.end_with? user_show_path(user: 'adrian')
   end
@@ -25,7 +25,7 @@ class Webui::GroupControllerTest < Webui::IntegrationTest
 
     login_king to: configuration_groups_path
     within '#group-test_group' do
-      find('td.users').text.must_equal 'adrian'
+      find('td.users').text.must_equal 'adrian_downloader, adrian'
       click_link 'Edit Group'
     end
     page.must_have_text 'Edit Group test_group'
@@ -56,7 +56,7 @@ class Webui::GroupControllerTest < Webui::IntegrationTest
     visit group_tokens_path(q: 'test')
     page.status_code.must_equal 200
 
-    JSON.parse(page.source).must_equal [{'name' => 'test_group'}, {'name' => 'test_group_b'}]
+    JSON.parse(page.source).must_equal [{'name' => 'test_group'}, {'name' => 'test_group_b'}, {'name' => 'test_group_empty'}]
   end
 
   test 'autocomplete group' do
@@ -71,7 +71,7 @@ class Webui::GroupControllerTest < Webui::IntegrationTest
     visit group_autocomplete_path(term: 'test')
     page.status_code.must_equal 200
 
-    JSON.parse(page.source).must_equal %w(test_group test_group_b)
+    JSON.parse(page.source).must_equal %w(test_group test_group_b test_group_empty)
   end
 
 end

@@ -4,6 +4,7 @@ class Webui::DriverUpdateController < Webui::PackageController
   before_filter :require_package
   before_filter :require_available_architectures, :only => [:create, :edit]
   before_filter :check_images_repo, :only => [:create, :edit]
+  before_filter :require_login
 
   def create
     services = Service.find :project => @project, :package => @package
