@@ -1969,7 +1969,17 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert node.has_attribute?(:vrev)
     assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+2).to_s}" # got increased by 2
 
+    # check that new packages in update project get also found
+    post '/source/BaseDistro2.0:LinkedUpdateProject/packNEW?cmd=copy&oproject=BaseDistro2.0&opackage=pack2'
+    assert_response :success
+    post '/source/BaseDistro2.0:ServicePack1/packNEW?cmd=instantiate'
+    assert_response :success
+    get '/source/BaseDistro2.0:ServicePack1/packNEW/_link'
+    assert_response :success
+
     # cleanup
+    delete '/source/BaseDistro2.0:LinkedUpdateProject/packNEW'
+    assert_response :success
     delete '/source/BaseDistro2.0:ServicePack1'
     assert_response :success
     delete "/source/#{incidentProject}"

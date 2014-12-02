@@ -346,64 +346,61 @@ class BranchPackage
       logger.debug "Check package string #{pkg}"
     end
     # Check for defined update project
-    if update_project_name = update_project_for_project(prj)
-      pa = Package.find_by_project_and_name(update_project_name, pkg_name)
-      if pa
-        # We have a package in the update project already, take that
-        p[:package] = pa
-        unless p[:link_target_project].is_a? Project and p[:link_target_project].find_attribute('OBS', 'BranchTarget')
-          p[:link_target_project] = pa.project
-          logger.info "branch call found package in update project #{pa.project.name}"
-        end
-        if p[:link_target_project].find_package(pa.name) != pa
-          # our link target has no project link finding the package. 
-          # It got found via update project for example, so we need to use it's source
-          p[:copy_from_devel] = p[:package]
+    update_project = update_project_for_project(prj)
+    return unless update_project
+
+    pa = update_project.packages.where(name: pkg_name).first
+    if pa
+      # We have a package in the update project already, take that
+      p[:package] = pa
+      unless p[:link_target_project].is_a? Project and p[:link_target_project].find_attribute('OBS', 'BranchTarget')
+        p[:link_target_project] = pa.project
+        logger.info "branch call found package in update project #{pa.project.name}"
+      end
+      if p[:link_target_project].find_package(pa.name) != pa
+        # our link target has no project link finding the package. 
+        # It got found via update project for example, so we need to use it's source
+        p[:copy_from_devel] = p[:package]
+      end
+    else
+      unless p[:link_target_project].is_a? Project and p[:link_target_project].find_attribute('OBS', 'BranchTarget')
+        p[:link_target_project] = update_project
+      end
+      update_pkg = update_project.find_package(pkg_name)
+      if update_pkg
+        # We have no package in the update project yet, but sources are reachable via project link
+        if update_project.develproject and up = update_project.develproject.find_package(pkg_name)
+          # nevertheless, check if update project has a devel project which contains an instance
+          p[:package] = up
+          unless p[:link_target_project].is_a? Project and p[:link_target_project].find_attribute('OBS', 'BranchTarget')
+            p[:link_target_project] = up.project unless @copy_from_devel
+          end
+          logger.info "link target will create package in update project #{up.project.name} for #{prj.name}"
+        else
+          logger.info "link target will use old update in update project #{prj.name}"
         end
       else
-        update_prj = Project.find_by_name(update_project_name)
-        if update_prj
-          unless p[:link_target_project].is_a? Project and p[:link_target_project].find_attribute('OBS', 'BranchTarget')
-            p[:link_target_project] = update_prj
-          end
-          update_pkg = update_prj.find_package(pkg_name)
-          if update_pkg
-            # We have no package in the update project yet, but sources are reachable via project link
-            if update_prj.develproject and up = update_prj.develproject.find_package(pkg_name)
-              # nevertheless, check if update project has a devel project which contains an instance
-              p[:package] = up
-              unless p[:link_target_project].is_a? Project and p[:link_target_project].find_attribute('OBS', 'BranchTarget')
-                p[:link_target_project] = up.project unless @copy_from_devel
-              end
-              logger.info "link target will create package in update project #{up.project.name} for #{prj.name}"
-            else
-              logger.info "link target will use old update in update project #{prj.name}"
-            end
-          else
-            # The defined update project can't reach the package instance at all.
-            # So we need to create a new package and copy sources
-            params[:missingok] = 1 # implicit missingok or better report an error ?
-            p[:copy_from_devel] = p[:package] if p[:package].is_a? Package
-            p[:package] = pkg_name
-          end
-        end
+        # The defined update project can't reach the package instance at all.
+        # So we need to create a new package and copy sources
+        params[:missingok] = 1 # implicit missingok or better report an error ?
+        p[:copy_from_devel] = p[:package] if p[:package].is_a? Package
+        p[:package] = pkg_name
       end
-      # Reset target package name
-      # not yet existing target package
-      p[:target_package] = p[:package]
-      # existing target
-      p[:target_package] = "#{p[:package].name}" if p[:package].is_a? Package
-      # user specified target name
-      p[:target_package] = params[:target_package] if params[:target_package]
-      # extend parameter given
-      p[:target_package] += ".#{p[:link_target_project].name}" if @extend_names
     end
+    # Reset target package name
+    # not yet existing target package
+    p[:target_package] = p[:package]
+    # existing target
+    p[:target_package] = "#{p[:package].name}" if p[:package].is_a? Package
+    # user specified target name
+    p[:target_package] = params[:target_package] if params[:target_package]
+    # extend parameter given
+    p[:target_package] += ".#{p[:link_target_project].name}" if @extend_names
   end
 
   def update_project_for_project(prj)
-    return nil unless prj
-    a = prj.find_attribute(@up_attribute_namespace, @up_attribute_name)
-    return a.values[0].value if a && a.values.present?
+    updateprj = prj.update_instance(@up_attribute_namespace, @up_attribute_name)
+    return updateprj if updateprj != prj
     nil
   end
 

@@ -137,6 +137,14 @@ class Project < ActiveRecord::Base
     end
   end
 
+  def update_instance(namespace='OBS', name='UpdateProject')
+    # check if a newer instance exists in a defined update project
+    if a = self.find_attribute(namespace, name) and a.values[0]
+      return Project.find_by_name(a.values[0].value)
+    end
+    self
+  end
+
   def cleanup_linking_projects
     #replace links to this project with links to the "deleted" project
     LinkedProject.transaction do
@@ -897,7 +905,7 @@ class Project < ActiveRecord::Base
   end
 
   # find a package in a project and its linked projects
-  def find_package(package_name, processed={})
+  def find_package(package_name, check_update_project=nil, processed={})
     # cycle check in linked projects
     if processed[self]
       str = self.name
@@ -910,11 +918,10 @@ class Project < ActiveRecord::Base
     processed[self]=1
 
     # package exists in this project
-    pkg = self.packages.find_by_name(package_name)
-#    return pkg unless pkg.nil?
-    unless pkg.nil?
-      return pkg if Package.check_access?(pkg)
-    end
+    pkg = nil
+    pkg = self.update_instance.packages.find_by_name(package_name) if check_update_project
+    pkg = self.packages.find_by_name(package_name) if pkg.nil?
+    return pkg if pkg and Package.check_access?(pkg)
 
     # search via all linked projects
     self.linkedprojects.each do |lp|
@@ -927,7 +934,7 @@ class Project < ActiveRecord::Base
         # We can't get a package object from a remote instance ... how shall we handle this ?
         pkg = nil
       else
-        pkg = lp.linked_db_project.find_package(package_name, processed)
+        pkg = lp.linked_db_project.find_package(package_name, check_update_project, processed)
       end
       unless pkg.nil?
         return pkg if Package.check_access?(pkg)
@@ -1083,9 +1090,7 @@ class Project < ActiveRecord::Base
 
   def branch_to_repositories_from(project, pkg_to_enable, extend_names=nil)
     # shall we use the repositories from a different project?
-    if project and a = project.find_attribute('OBS', 'BranchRepositoriesFromProject') and a.values.first
-      project = Project.get_by_name(a.values.first.value)
-    end
+    project = project.update_instance('OBS', 'BranchRepositoriesFromProject')
 
     project.repositories.each do |repo|
       repoName = extend_names ? repo.extended_name : repo.name

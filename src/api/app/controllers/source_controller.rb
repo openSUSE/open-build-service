@@ -1359,7 +1359,7 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=instantiate
   def package_command_instantiate
     project = Project.get_by_name(params[:project])
-    opackage = Package.get_by_project_and_name(project.name, params[:package])
+    opackage = Package.get_by_project_and_name(project.name, params[:package], {check_update_project: true})
 
     if project == opackage.project
       raise CmdExecutionNoPermission.new "package is already intialized here"

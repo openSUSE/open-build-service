@@ -129,7 +129,7 @@ class Package < ActiveRecord::Base
     # use_source: false to skip check for sourceaccess permissions
     # function returns a nil object in case the package is on remote instance
     def get_by_project_and_name(project, package, opts = {})
-      opts = { use_source: true, follow_project_links: true }.merge(opts)
+      opts = { use_source: true, follow_project_links: true, check_update_project: false }.merge(opts)
 
       pkg = check_cache(project, package, opts)
       return pkg if pkg
@@ -137,11 +137,13 @@ class Package < ActiveRecord::Base
       prj = internal_get_project(project)
       return nil unless prj # remote prjs
 
-      if opts[:follow_project_links]
-        pkg = prj.find_package(package)
-      else
-        pkg = prj.packages.find_by_name(package)
+      if pkg.nil? and opts[:follow_project_links]
+        pkg = prj.find_package(package, opts[:check_update_project])
+      elsif pkg.nil?
+        pkg = prj.update_instance.packages.find_by_name(package) if opts[:check_update_project]
+        pkg = prj.packages.find_by_name(package) if pkg.nil?
       end
+
       if pkg.nil? and opts[:follow_project_links]
         # in case we link to a remote project we need to assume that the
         # backend may be able to find it even when we don't have the package local
@@ -770,14 +772,9 @@ class Package < ActiveRecord::Base
     # remote or broken link?
     return if opkg.nil?
 
-    project_name = opkg.project.name
-
     # Update projects are usually used in _channels
-    if prj = Project.find_by_name(project_name) and a = prj.find_attribute('OBS', 'UpdateProject') and a.values[0]
-      project_name = a.values[0].value
-      prj = Project.find_by_name(project_name)
-    end
-    
+    project_name = opkg.project.update_instance.name
+
     # main package
     ChannelBinary.find_by_project_and_package(project_name, opkg.name).each do |cb|
       cb.create_channel_package_into(self.project)
@@ -791,14 +788,9 @@ class Package < ActiveRecord::Base
     self.project.store
   end
 
-  def update_instance(attribute=nil)
+  def update_instance(namespace='OBS', name='UpdateProject')
     # check if a newer instance exists in a defined update project
-    if a = self.project.find_attribute('OBS', 'UpdateProject') and a.values[0]
-      project_name = a.values[0].value
-      prj = Project.find_by_name(project_name)
-      return prj.find_package(self.name)
-    end
-    self
+    self.project.update_instance(namespace, name).find_package(self.name)
   end
 
   def developed_packages

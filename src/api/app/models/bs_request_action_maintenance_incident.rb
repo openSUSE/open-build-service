@@ -26,9 +26,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       releaseproject = tprj
     end
     # Automatically switch to update project
-    if a = releaseproject.find_attribute('OBS', 'UpdateProject') and a.values[0]
-      releaseproject = Project.get_by_name a.values[0].value
-    end
+    releaseproject = releaseproject.update_instance
     unless releaseproject.is_maintenance_release?
       raise NoMaintenanceReleaseTarget.new "Maintenance incident request contains release target project #{releaseproject.name} with invalid project kind \"#{releaseproject.project_type}\" for package #{pkg.name}"
     end
