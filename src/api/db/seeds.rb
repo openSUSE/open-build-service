@@ -72,6 +72,8 @@ at = ans.attrib_types.where(name: "InitializeDevelPackage").first_or_create(valu
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
 at = ans.attrib_types.where(name: "BranchTarget").first_or_create(value_count: 0)
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
+at = ans.attrib_types.where(name: "MakeOriginOlder").first_or_create(value_count: 0)
+at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
 at = ans.attrib_types.where(name: "Issues").first_or_create(value_count: 0, issue_list: true)
 at.attrib_type_modifiable_bies.where(role_id: maintainer_role.id).first_or_create
 at.attrib_type_modifiable_bies.where(role_id: bugowner_role.id).first_or_create

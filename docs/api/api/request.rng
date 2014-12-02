@@ -159,6 +159,14 @@
                 </choice>
               </element>
             </optional>
+            <optional>
+              <element name="makeoriginolder">
+                <choice>
+                  <value>true</value>
+                  <value>false</value>
+                </choice>
+              </element>
+            </optional>
             <empty/>
           </element>
         </optional>

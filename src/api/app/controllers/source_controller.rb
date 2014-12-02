@@ -1371,11 +1371,11 @@ class SourceController < ApplicationController
       raise CmdExecutionNoPermission.new "no permission to modify source package"
     end
 
+    opts={}
     at=AttribType.find_by_namespace_and_name!("OBS", "MakeOriginOlder")
-    makeoriginolder=project.attribs.where(attrib_type_id: at.id).first # object or nil
-    makeoriginolder=true if params[:makeoriginolder]
-
-    instantiate_container(project, opackage.update_instance, makeoriginolder)
+    opts[:makeoriginolder]=true if project.attribs.where(attrib_type_id: at.id).first # object or nil
+    opts[:makeoriginolder]=true if params[:makeoriginolder]
+    instantiate_container(project, opackage.update_instance, opts)
     render_ok
   end
 

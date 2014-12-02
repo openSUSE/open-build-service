@@ -47,39 +47,27 @@ class BsRequestActionSubmit < BsRequestAction
       # create package in database
       linked_package = target_project.find_package(self.target_package)
       if linked_package
-        newxml = Xmlhash.parse(linked_package.to_axml)
+        # exists via project links
+        opts = { requestid: self.bs_request.id.to_s }
+        opts[:makeoriginolder] = true if self.makeoriginolder
+        instantiate_container(target_project, linked_package.update_instance, opts)
+        target_package = target_project.packages.find_by_name(linked_package.name)
       else
+        # new package, base container on source container
         answer = Suse::Backend.get("/source/#{URI.escape(self.source_project)}/#{URI.escape(self.source_package)}/_meta")
         newxml = Xmlhash.parse(answer.body)
-      end
-      newxml['name'] = self.target_package
-      newxml['devel'] = nil
-      target_package = target_project.packages.new(name: newxml['name'])
-      target_package.update_from_xml(newxml)
-      if !linked_package
+        newxml['name'] = self.target_package
+        newxml['devel'] = nil
+        target_package = target_project.packages.new(name: newxml['name'])
+        target_package.update_from_xml(newxml)
         target_package.flags.destroy_all
+        target_package.remove_all_persons
+        target_package.remove_all_groups
         if initialize_devel_package
           target_package.develpackage = Package.find_by_project_and_name( self.source_project, self.source_package )
           relinkSource=true
         end
-      end
-      target_package.remove_all_persons
-      target_package.remove_all_groups
-      target_package.store
-
-      # check if package was available via project link and create a branch from it in that case
-      if linked_package
-        h = {}
-        h[:cmd] = "branch"
-        h[:user] = User.current.login
-        h[:comment] = "empty branch to project linked package"
-        h[:requestid] = self.bs_request.id
-        h[:noservice] = "1"
-        h[:oproject] = linked_package.project.name
-        h[:opackage] = linked_package.name
-        cp_path = "/source/#{CGI.escape(self.target_project)}/#{CGI.escape(self.target_package)}"
-        cp_path << Suse::Backend.build_query_from_hash(h, [:user, :comment, :cmd, :oproject, :opackage, :requestid, :orev, :noservice])
-        Suse::Backend.post cp_path, nil
+        target_package.store
       end
     end
 

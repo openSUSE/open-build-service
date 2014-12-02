@@ -163,6 +163,7 @@ class BsRequestAction < ActiveRecord::Base
       self.sourceupdate = nil unless VALID_SOURCEUPDATE_OPTIONS.include? self.sourceupdate
 
       self.updatelink = true if o.delete('updatelink') == 'true'
+      self.makeoriginolder = o.delete('makeoriginolder')
       raise ArgumentError, "too much information #{s.inspect}" unless o.blank?
     end
 
@@ -217,6 +218,7 @@ class BsRequestAction < ActiveRecord::Base
         action.options do
           action.sourceupdate self.sourceupdate if self.sourceupdate
           action.updatelink 'true' if self.updatelink
+          action.makeoriginolder 'true' if self.makeoriginolder
         end
       end
       bs_request_action_accept_info.render_xml(builder) unless bs_request_action_accept_info.nil?
@@ -241,6 +243,7 @@ class BsRequestAction < ActiveRecord::Base
     ret[:targetrepository] = self.target_repository
     ret[:target_releaseproject] = self.target_releaseproject
     ret[:sourceupdate] = self.sourceupdate
+    ret[:makeoriginolder] = self.makeoriginolder
 
     if self.action_type == :change_devel
       ret[:targetpackage] ||= self.source_package
@@ -312,6 +315,12 @@ class BsRequestAction < ActiveRecord::Base
     else
       if self.source_package
         tpkg = tprj.packages.find_by_name self.source_package
+      end
+    end
+    if self.makeoriginolder
+      originpkg = Package.get_by_project_and_name self.target_project, self.target_package
+      unless User.current.can_modify_package? originpkg
+        raise LackingMaintainership.new "Package target can not get initialized using makeoriginolder. No permission in project #{originpkg.project.name}"
       end
     end
 
@@ -783,6 +792,10 @@ class BsRequestAction < ActiveRecord::Base
             self.sourceupdate = 'cleanup'
           end
         end
+      end
+      if self.action_type == :submit and tprj.kind_of? Project
+        at = AttribType.find_by_namespace_and_name!("OBS", "MakeOriginOlder")
+        self.makeoriginolder = true if tprj.attribs.where(attrib_type_id: at.id).first
       end
       # allow cleanup only, if no devel package reference
       if self.sourceupdate == 'cleanup' and sprj.class != Project

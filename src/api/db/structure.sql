@@ -218,6 +218,7 @@ CREATE TABLE `bs_request_actions` (
   `role` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `target_repository` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `makeoriginolder` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `bs_request_id` (`bs_request_id`),
   KEY `index_bs_request_actions_on_target_project` (`target_project`),
@@ -1614,6 +1615,8 @@ INSERT INTO schema_migrations (version) VALUES ('20141110105426');
 INSERT INTO schema_migrations (version) VALUES ('20141125105426');
 
 INSERT INTO schema_migrations (version) VALUES ('20141201135426');
+
+INSERT INTO schema_migrations (version) VALUES ('20141202135426');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

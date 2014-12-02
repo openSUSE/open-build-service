@@ -312,7 +312,7 @@ module MaintenanceHelper
     pkg.update_backendinfo
   end
 
-  def instantiate_container(project, opackage, makeoriginolder=nil)
+  def instantiate_container(project, opackage, opts={})
     opkg = opackage.local_origin_container
 
     # target packages must not exist yet
@@ -328,12 +328,15 @@ module MaintenanceHelper
     pkg = project.packages.create(:name => opkg.name, :title => opkg.title, :description => opkg.description)
     pkg.store
 
-    if makeoriginolder
+    arguments="&noservice=1"
+    arguments << "&requestid=" << opts[:requestid] if opts[:requestid]
+    arguments << "&comment=" << CGI.escape(opts[:comment]) if opts[:comment]
+    if opts[:makeoriginolder]
       # versioned copy
-      Suse::Backend.post pkg.source_path + "?cmd=copy&makeoriginolder=1&withvrev=1&oproject=#{CGI.escape(opkg.project.name)}&opackage=#{CGI.escape(opkg.name)}&user=#{CGI.escape(User.current.login)}&comment=initialize+package+and+make+source+instance+older", nil
+      Suse::Backend.post pkg.source_path + "?cmd=copy&makeoriginolder=1&withvrev=1&oproject=#{CGI.escape(opkg.project.name)}&opackage=#{CGI.escape(opkg.name)}#{arguments}&user=#{CGI.escape(User.current.login)}&comment=initialize+package+and+make+source+instance+older", nil
     else
       # simple branch
-      Suse::Backend.post pkg.source_path + "?cmd=branch&oproject=#{CGI.escape(opkg.project.name)}&opackage=#{CGI.escape(opkg.name)}&user=#{CGI.escape(User.current.login)}&comment=initialize+package+as+branch", nil
+      Suse::Backend.post pkg.source_path + "?cmd=branch&oproject=#{CGI.escape(opkg.project.name)}&opackage=#{CGI.escape(opkg.name)}#{arguments}&user=#{CGI.escape(User.current.login)}&comment=initialize+package+as+branch", nil
     end
     pkg.sources_changed
 
@@ -344,7 +347,7 @@ module MaintenanceHelper
       lpkg.store
 
       # copy project local linked packages
-      Suse::Backend.post "/source/#{pkg.project.name}/#{p.name}?cmd=copy&oproject=#{CGI.escape(p.project.name)}&opackage=#{CGI.escape(p.name)}&user=#{CGI.escape(User.current.login)}", nil
+      Suse::Backend.post "/source/#{pkg.project.name}/#{p.name}?cmd=copy&oproject=#{CGI.escape(p.project.name)}&opackage=#{CGI.escape(p.name)}#{arguments}&user=#{CGI.escape(User.current.login)}", nil
 
       # and fix the link
       ret = ActiveXML::Node.new(lpkg.source_file('_link'))

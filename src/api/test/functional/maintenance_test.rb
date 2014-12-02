@@ -1977,6 +1977,37 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/BaseDistro2.0:ServicePack1/packNEW/_link'
     assert_response :success
 
+    # create a new package via submit request the right way
+    delete '/source/BaseDistro2.0:ServicePack1/pack2.linked'
+    assert_response :success
+    delete '/source/BaseDistro2.0:ServicePack1/pack2'
+    assert_response :success
+    post "/source/BaseDistro2.0:ServicePack1/_attribute", "<attributes><attribute namespace='OBS' name='MakeOriginOlder'/></attributes>"
+    assert_response :success
+    post '/request?cmd=create', '<request>
+                                   <action type="submit">
+                                     <source project="BaseDistro2.0" package="pack2" rev="0" />
+                                     <target project="BaseDistro2.0:ServicePack1" package="pack2" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:id)
+    reqid = node.value(:id)
+    # and accept it
+    post "/request/#{reqid}?cmd=changestate&newstate=accepted"
+    assert_response :success
+    get '/source/BaseDistro2.0:ServicePack1/pack2'
+    assert_response :success
+    get '/source/BaseDistro2.0:ServicePack1/pack2/_link'
+    assert_response 404 # a makeoriginolder copy due to attribute
+    get '/source/BaseDistro2.0:LinkedUpdateProject/pack2?view=info'
+    assert_response :success
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:vrev)
+    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+1).to_s}.2.1" # got extended again
+
     # cleanup
     delete '/source/BaseDistro2.0:LinkedUpdateProject/packNEW'
     assert_response :success
