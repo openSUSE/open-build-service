@@ -4582,6 +4582,7 @@ sub importevent {
   rmdir($jobdatadir);
 }
 
+# used for aggregates
 sub fakejobfinished {
   my ($ctx, $packid, $job, $code, $buildinfoskel, $needsign) = @_;
 
@@ -4612,6 +4613,7 @@ sub fakejobfinished {
   $ourjobs{$job} = 1;
 }
 
+# used for channel and patchinfo builds (they don't need signing)
 sub fakejobfinished_nouseforbuild {
   my ($ctx, $packid, $job, $code, $bininfo, $pdata) = @_;
 
@@ -4638,6 +4640,13 @@ sub fakejobfinished_nouseforbuild {
   }
   rename("$jobdatadir/meta", "$gdst/:meta/$packid");
   if ($code eq 'succeeded') {
+    $bininfo ||= {};
+    # fixup filename entries
+    for (keys %$bininfo) {
+      die("job $job contains imported files\n") if /^::import::/;
+      $bininfo->{$_}->{'filename'} = $_ if exists $bininfo->{$_}->{'filename'};
+    }
+    # commit job and
     BSUtil::cleandir($dst);
     for my $f (ls($jobdatadir)) {
       rename("$jobdatadir/$f", "$dst/$f") || die("rename $jobdatadir/$f $dst/$f: $!\n");
@@ -6017,7 +6026,14 @@ sub checkchannel {
 
       my @pf = @{$packagefilter{"$arepoid/$apackid"} || $packagefilter{"$arepoid/$lapackid"} || []};
 
-      for my $filename (sort keys %$bininfo) {
+      my @bins = sort keys %$bininfo;
+      # put imports last
+      my @ibins = grep {/^::import::/} @bins;
+      if (@ibins) {
+	@bins = grep {!/^::import::/} @bins;
+	push @bins, @ibins;
+      }
+      for my $filename (@bins) {
 	my $bi = $bininfo->{$filename};
 	my $n = $bi->{'name'};
 	next unless $n;
@@ -6030,7 +6046,9 @@ sub checkchannel {
 	    push @pf, $f if $f->{'name'} ne $n || ($f->{'binaryarch'} && $bi->{'arch'} ne $f->{'binaryarch'});
 	  }
 	}
-	next if $collected{$bi->{'filename'}};
+	my $tfilename = $filename;
+	$tfilename =~ s/^::import::.*?:://;
+	next if $collected{$tfilename};
 	next unless $filter{"$arepoid/$n"};
 	my $found;
 	my $supportstatus;
@@ -6045,15 +6063,18 @@ sub checkchannel {
 	}
 	next unless $found;
 	# oooh, this binary goes into the channel!
-	$collected{$bi->{'filename'}} = 1;
+	$collected{$tfilename} = 1;
 	$usedsrc{$bi->{'source'}} = 1;
 	my $m = Digest::MD5::md5_hex($bi->{'id'})."  $arepoid/$apackid/$n.$bi->{'arch'}";
 	push @new_meta, $m;
+	$bi->{'filename'} = $filename;	# work around bug in bininfo generation
 	push @channelbins, [ $arepoid, $apackid, $bi, $supportstatus ];
       }
       if (%usedsrc) {
 	for my $bi (@sbins) {
 	  next unless $usedsrc{$bi->{'name'}};
+	  next if $collected{$bi->{'filename'}};
+	  $collected{$bi->{'filename'}} = 1;
 	  my $m = Digest::MD5::md5_hex($bi->{'id'})."  $arepoid/$apackid/$bi->{'name'}.$bi->{'arch'}";
 	  push @new_meta, $m;
 	  push @channelbins, [ $arepoid, $apackid, $bi ];
@@ -6123,7 +6144,9 @@ sub rebuildchannel {
       rmdir($jobdatadir);
       return ('broken', "id mismatch in $arepoid/$apackid $s[9]/$s[7]/$s[1] $bi->{'id'}");
     }
-    link($file, "$jobdatadir/$bi->{'filename'}") || die("link $file $jobdatadir/$bi->{'filename'}: $!\n");
+    my $tfilename = $bi->{'filename'};
+    $tfilename =~ s/^::import::.*?:://;
+    link($file, "$jobdatadir/$tfilename") || die("link $file $jobdatadir/$tfilename: $!\n");
     if ($bi->{'arch'} ne 'src' && $bi->{'arch'} ne 'nosrc' && -e "$dir/$bi->{'name'}-appdata.xml") {
       unlink("$jobdatadir/$bi->{'name'}-appdata.xml");
       link("$dir/$bi->{'name'}-appdata.xml", "$jobdatadir/$bi->{'name'}-appdata.xml") || die("link $bi->{'name'}-appdata.xml $jobdatadir/$bi->{'name'}-appdata.xml: $!\n");
@@ -6135,7 +6158,7 @@ sub rebuildchannel {
         $checksums .= readstr("$reporoot/$projid/$arepoid/$myarch/$apackid/.checksums", 1) || '';
       }
     }
-    $bininfo->{$bi->{'filename'}} = $bi;
+    $bininfo->{$tfilename} = $bi;
     my $ci = { 'repository' => $arepoid, 'package' => $apackid };
     $ci->{'supportstatus'} = $supportstatus if defined $supportstatus;
     $channelinfo{$bi->{'filename'}} = $ci;
