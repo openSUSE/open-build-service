@@ -4644,7 +4644,9 @@ sub fakejobfinished_nouseforbuild {
     # fixup filename entries
     for (keys %$bininfo) {
       die("job $job contains imported files\n") if /^::import::/;
-      $bininfo->{$_}->{'filename'} = $_ if exists $bininfo->{$_}->{'filename'};
+      if (defined($bininfo->{$_}->{'filename'}) && $bininfo->{$_}->{'filename'} ne $_) {
+        $bininfo->{$_} = { %{$bininfo->{$_}}, 'filename' => $_ };
+      }
     }
     # commit job and
     BSUtil::cleandir($dst);
