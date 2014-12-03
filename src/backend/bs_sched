@@ -5171,12 +5171,24 @@ sub checkkiwiproduct {
 	}
 	my @got;
 	my $needit;
-	for my $b (values %$bininfo) {
-	  next unless $b->{'filename'} && $b->{'filename'} =~ /\.rpm$/;
-	  next if $nodbgpkgs && $b->{'filename'} =~ /-(?:debuginfo|debugsource)-/;
-	  next if $nosrcpkgs && $b->{'filename'} =~ /\.(?:nosrc|src)\.rpm$/;
+	my @bi = keys %$bininfo;
+	# put imports last
+	my @ibi = grep {/^::import::/} @bi;
+	if (@ibi) {
+	  @bi = grep {!/^::import::/} @bi;
+	  push @bi, @ibi;
+	}
+	for my $fn (@bi) {
+	  next unless $fn =~ /\.rpm$/;
+	  next if $nodbgpkgs && $fn =~ /-(?:debuginfo|debugsource)-/;
+	  next if $nosrcpkgs && $fn =~ /\.(?:nosrc|src)\.rpm$/;
+	  if ($fn =~ /^::import::.*?::(.*)$/) {
+	    # ignore import if we already got the package (can happen with aggregates)
+	    next if $rpms_meta{"$aprp/$arch/$apackid/$1"};
+ 	  }
+	  my $b = $bininfo->{$fn};
 	  $needit = 1 if $deps{$b->{'name'}} || ($allpacks && !$deps{"-$b->{'name'}"});
-	  push @got, "$aprp/$arch/$apackid/$b->{'filename'}";
+	  push @got, "$aprp/$arch/$apackid/$fn";
 	  $rpms_hdrmd5{$got[-1]} = $b->{'hdrmd5'} if $b->{'hdrmd5'};
 	  $rpms_meta{$got[-1]} = "$aprp/$arch/$apackid/$b->{'name'}.$b->{'arch'}";
         }
