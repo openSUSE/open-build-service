@@ -248,6 +248,8 @@ our $channel = [
 	    'project',
 	    'repository',
 	    'id_template', # optional
+            [],
+	    'disabled', # optional
      ]],
      [[ 'binaries' =>
 	    'project',

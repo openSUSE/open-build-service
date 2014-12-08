@@ -48,7 +48,10 @@ class Channel < ActiveRecord::Base
     xmlhash.elements('target') { |p|
       prj = Project.find_by_name(p['project'])
       r = prj.repositories.find_by_name(p['repository'])
-      self.channel_targets.build(:repository => r, :id_template => p['id_template']) if r
+      next unless r
+      self.channel_targets.build(:repository => r, 
+                                 :id_template => p['id_template'], 
+                                 :disabled => (p.elements('disabled').count>0))
     }
     xmlhash.elements('binaries').each { |p|
       cbl = self.channel_binary_lists.build()
@@ -106,7 +109,7 @@ class Channel < ActiveRecord::Base
         tpkg.project.add_repository_with_targets(repo_name, ct.repository, [ct.repository]) 
       end
       # enable package
-      tpkg.enable_for_repository repo_name
+      tpkg.enable_for_repository repo_name unless ct.disabled
     end
   end
 end

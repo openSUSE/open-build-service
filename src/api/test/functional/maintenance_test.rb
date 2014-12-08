@@ -541,6 +541,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     put '/source/Channel/BaseDistro3/_channel', '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
           <target project="BaseDistro3Channel" repository="channel_repo" id_template="UpdateInfoTag-&#37;Y-&#37;C" />
+          <target project="BaseDistro2.0:LinkedUpdateProject" repository="BaseDistro2LinkedUpdateProject_repo"><disabled/></target>
           <binaries project="BaseDistro3" repository="BaseDistro3_repo" arch="i586">
             <binary name="package" package="pack2" supportstatus="l3" />
             <binary name="does_not_exist" />
