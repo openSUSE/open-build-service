@@ -2231,6 +2231,9 @@ sub readbuildenv {
   for (qw{error versrel bcnt release bdep}) {
     $buildinfo->{$_} = $bi->{$_} if defined $bi->{$_};
   }
+  for ('versrel', 'bcnt', 'release') {
+    $buildinfo->{'outbuildinfo'}->{$_} = $bi->{$_} if $buildinfo->{'outbuildinfo'} && defined $bi->{$_};
+  }
   if (!grep {$_->{'preinstall'}} @{$buildinfo->{'bdep'} || []}) {
     # fixup preinstall/vminstall...
     importbuild() unless defined &Build::queryhdrmd5;
