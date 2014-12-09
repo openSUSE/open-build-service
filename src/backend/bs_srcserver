@@ -5998,7 +5998,15 @@ sub sourcecollectbuildenv {
   die("cannot collect from myself\n") if $oprojid eq $projid && $opackid eq $packid;
   my $proj = checkprojrepoarch($projid);
   my $oproj = checkprojrepoarch($oprojid);
-  my %orepoids = map {+"$oprojid/$_->{'name'}" => $_} (@{$oproj->{'repository'} || []});
+  my %orepoids;
+  for (@{$oproj->{'repository'} || []}) {
+    $orepoids{"$oprojid/$_->{'name'}"} = $_;
+  }
+  for (@{$oproj->{'repository'} || []}) {
+    for my $rt (@{$_->{'releasetarget'} || []}) {
+      $orepoids{"$rt->{'project'}/$rt->{'repository'}"} ||= $_;
+    }
+  }
   my %buildenvs;
   for my $repo (@{$proj->{'repository'} || []}) {
     next unless @{$repo->{'arch'} || []};
