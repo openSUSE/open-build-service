@@ -76,6 +76,10 @@ class Repository < ActiveRecord::Base
       return nil
     end
 
+    def find_by_project_and_path( project, path )
+      not_remote.joins(:path_elements).where(:project => project, :path_elements => {:link => path})
+    end
+
     def deleted_instance
       repo = Repository.find_by_project_and_repo_name( "deleted", "deleted" )
       return repo unless repo.nil?

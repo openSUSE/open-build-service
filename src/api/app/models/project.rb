@@ -1079,12 +1079,9 @@ class Project < ActiveRecord::Base
     trigger = 'maintenance' if MaintenanceIncident.find_by_db_project_id( self.id ) # is target an incident project ?
     if add_target_repos.length > 0
       # add repository targets
-      add_target_repos.each do |rt|
-        trepo.release_targets.create(:target_repository => rt, :trigger => trigger)
+      add_target_repos.each do |repo|
+        trepo.release_targets.create(:target_repository => repo, :trigger => trigger)
       end
-    elsif source_repo.project.is_maintenance_release?
-      # branch from official release project?
-      trepo.release_targets.create(:target_repository => source_repo, :trigger => trigger)
     end
   end
 
@@ -1095,12 +1092,24 @@ class Project < ActiveRecord::Base
     project.repositories.each do |repo|
       repoName = extend_names ? repo.extended_name : repo.name
       unless self.repositories.find_by_name(repoName)
-        targets = source_repo.release_targets if (pkg_to_enable and pkg_to_enable.is_channel?)
-        if targets
-          self.add_repository_with_targets(repoName, repo, targets.map{|t| t.target_repository})
-        else
-          self.add_repository_with_targets(repoName, repo)
+        # copy target repository when operating on a channel
+        targets = repo.release_targets if (pkg_to_enable and pkg_to_enable.is_channel?)
+        # base is a maintenance incident, take its target instead (kgraft case)
+        targets = repo.release_targets if repo.project.is_maintenance_incident?
+
+        target_repos = []
+        target_repos = targets.map{|t| t.target_repository} if targets
+        # or branch from official release project? release to it ...
+        target_repos = [repo] if repo.project.is_maintenance_release?
+
+        update_project = repo.project.update_instance
+        if update_project != repo.project
+          # building against gold master projects might happen (kgraft), but release
+          # must happen to the right repos in the update project
+          target_repos = Repository.find_by_project_and_path(update_project, repo)
         end
+
+        self.add_repository_with_targets(repoName, repo, target_repos)
       end
       pkg_to_enable.enable_for_repository(repoName) if pkg_to_enable
     end

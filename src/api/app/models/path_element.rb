@@ -6,7 +6,4 @@ class PathElement < ActiveRecord::Base
   validate :repository, presence: true
   validate :position, presence: true
 
-  #def to_s
-  # self.link.remote_project_name ? "#{self.link.project.name}:#{self.link.remote_project_name}/#{self.link.name}" : "#{self.link.project.name}/#{self.link.name}" 
-  #end
 end

@@ -34,6 +34,16 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post '/source/BaseDistro2.0/_attribute', "<attributes><attribute namespace='OBS' name='UpdateProject' > <value>BaseDistro2.0:LinkedUpdateProject</value> </attribute> </attributes>"
     assert_response :success
 
+    # lock GM distro to be sure that nothing can be released to
+    get '/source/BaseDistro2.0/_meta'
+    assert_response :success
+    assert_no_xml_tag :tag => "lock" # or our fixtures have changed
+    doc = REXML::Document.new(@response.body)
+    doc.elements['/project'].add_element 'lock'
+    doc.elements['/project/lock'].add_element 'enable'
+    put '/source/BaseDistro2.0/_meta', doc.to_s
+    assert_response :success
+
     # create maintenance incident for first kernel update
     Timecop.freeze(1)
     post '/source', :cmd => 'createmaintenanceincident'
@@ -44,7 +54,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     kernelIncidentID=kernelIncidentProject.gsub( /^My:Maintenance:/, '')
     # submit packages via mbranch
     Timecop.freeze(1)
-    post '/source', :cmd => 'branch', :package => 'pack2', :target_project => kernelIncidentProject
+    post '/source', :cmd => 'branch', :package => 'pack2', :target_project => kernelIncidentProject, :add_repositories => 1
+    assert_response :success
+    get "/source/#{kernelIncidentProject}/_meta"
     assert_response :success
 
     # create maintenance incident for first kgraft update
@@ -107,27 +119,11 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro2Channel" } },
                    :tag => "path", :attributes => { :project => "BaseDistro2Channel", :repository => "channel_repo" },
                    :tag => "releasetarget", :attributes => { :project => "BaseDistro2Channel", :repository => "channel_repo", :trigger => "maintenance" }
-    # add release targets
-    data = REXML::Document.new(@response.body)
-    data.elements.each("project/repository") do |e|
-      if e.attributes["name"] == kernelIncidentProject.gsub(/:/, "_")
-        rt = e.add_element REXML::Element.new('releasetarget')
-        rt.add_attribute REXML::Attribute.new('project', kernelIncidentProject)
-        rt.add_attribute REXML::Attribute.new('repository', "BaseDistro2.0_LinkedUpdateProject")
-      end
-      if e.attributes["name"] == "BaseDistro2.0"
-        rt = e.add_element 'releasetarget'
-        rt.add_attribute REXML::Attribute.new('project', "BaseDistro2.0")
-        rt.add_attribute REXML::Attribute.new('repository', "BaseDistro2_repo")
-      end
-    end
-    raw_put "/source/"+incidentProject+"/_meta", data.to_s
-    assert_response :success
 
     raw_put "/source/"+incidentProject+"/BaseDistro2.Channel/_channel", "<?xml version='1.0' encoding='UTF-8'?>
         <channel>
           <target project='BaseDistro2Channel' repository='channel_repo'/>
-          <binaries arch='i586' project='BaseDistro2.0' repository='BaseDistro2_repo'>
+          <binaries arch='i586' project='BaseDistro2.0:LinkedUpdateProject' repository='BaseDistro2LinkedUpdateProject_repo'>
             <binary name='package' package='kgraft-GA' />
             <binary name='package' package='kgraft-incident-0' />
           </binaries>
@@ -196,9 +192,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                  </request>'
     assert_response :success
     assert_no_xml_tag( :tag => 'source', :attributes => { rev: nil } )
-    # we do not touch the code streams, because releasetargets have no trigger attribute
+    # GM project may be locked, must not appear
     assert_no_xml_tag( :tag => 'target', :attributes => { project: 'BaseDistro2.0' } )
-    assert_no_xml_tag( :tag => 'target', :attributes => { project: 'BaseDistro2.0:LinkedUpdateProject' } )
     # update channel file
     assert_xml_tag( :parent => { :tag => "action", :attributes => { :type => "submit" } },
                     :tag => 'target', :attributes => { project: 'Channel', package: 'BaseDistro2' } )
@@ -229,6 +224,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # cleanup
+    post "/source/BaseDistro2.0", { cmd: 'unlock', comment: 'revert' }
+    assert_response :success
     post "/source/#{incidentProject}", { cmd: 'unlock', comment: 'cleanup' }
     assert_response :success
     delete "/source/#{incidentProject}"
