@@ -1091,6 +1091,7 @@ class Project < ActiveRecord::Base
     project.flags.each do |f|
       next if %w(build lock).include?(f.flag)
       next if f.flag == 'publish' and disable_publish_for_branches
+      next if self.flags.where(status: f.status, flag: f.flag, architecture: f.architecture, repo: f.repo).exists?
 
       self.flags.create(status: f.status, flag: f.flag, architecture: f.architecture, repo: f.repo)
     end
