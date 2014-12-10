@@ -1076,7 +1076,7 @@ class Project < ActiveRecord::Base
     end
     trepo.path_elements.create(:link => source_repo, :position => 1)
     trigger = nil # no trigger is set by default
-    trigger = 'maintenance' if MaintenanceIncident.find_by_db_project_id( self.id ) # is target an incident project ?
+    trigger = 'maintenance' if self.is_maintenance_incident?
     if add_target_repos.length > 0
       # add repository targets
       add_target_repos.each do |repo|
@@ -1091,27 +1091,27 @@ class Project < ActiveRecord::Base
 
     project.repositories.each do |repo|
       repoName = extend_names ? repo.extended_name : repo.name
-      unless self.repositories.find_by_name(repoName)
-        # copy target repository when operating on a channel
-        targets = repo.release_targets if (pkg_to_enable and pkg_to_enable.is_channel?)
-        # base is a maintenance incident, take its target instead (kgraft case)
-        targets = repo.release_targets if repo.project.is_maintenance_incident?
-
-        target_repos = []
-        target_repos = targets.map{|t| t.target_repository} if targets
-        # or branch from official release project? release to it ...
-        target_repos = [repo] if repo.project.is_maintenance_release?
-
-        update_project = repo.project.update_instance
-        if update_project != repo.project
-          # building against gold master projects might happen (kgraft), but release
-          # must happen to the right repos in the update project
-          target_repos = Repository.find_by_project_and_path(update_project, repo)
-        end
-
-        self.add_repository_with_targets(repoName, repo, target_repos)
-      end
       pkg_to_enable.enable_for_repository(repoName) if pkg_to_enable
+      next if self.repositories.find_by_name(repoName)
+
+      # copy target repository when operating on a channel
+      targets = repo.release_targets if (pkg_to_enable and pkg_to_enable.is_channel?)
+      # base is a maintenance incident, take its target instead (kgraft case)
+      targets = repo.release_targets if repo.project.is_maintenance_incident?
+
+      target_repos = []
+      target_repos = targets.map{|t| t.target_repository} if targets
+      # or branch from official release project? release to it ...
+      target_repos = [repo] if repo.project.is_maintenance_release?
+
+      update_project = repo.project.update_instance
+      if update_project != repo.project
+        # building against gold master projects might happen (kgraft), but release
+        # must happen to the right repos in the update project
+        target_repos = Repository.find_by_project_and_path(update_project, repo)
+      end
+
+      self.add_repository_with_targets(repoName, repo, target_repos)
     end
 
     self.branch_copy_flags(project)
