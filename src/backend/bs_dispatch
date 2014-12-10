@@ -644,7 +644,7 @@ sub dispatchslave {
       my $infoxml = readstr("$jobsdir/$arch/$job", 1);
       next unless $infoxml;
       my $info = BSUtil::fromxml($infoxml, $BSXML::buildinfo, 1);
-      next unless $info && $info->{'file'};
+      next unless $info && $info->{'file'} && $info->{'file'} ne '_aggregate';
       $info->{'masterdispatched'} = Digest::MD5::md5_hex($infoxml);
       $infoxml = XMLout($BSXML::buildinfo, $info);
       undef $info;
@@ -697,7 +697,7 @@ sub dispatchslave {
       my ($projid, $repoid, $packid) = split('::', $jn);
       if (!defined($packid)) {
         my $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
-        next unless $info && $info->{'file'};
+        next unless $info && $info->{'file'} && $info->{'file'} ne '_aggregate';
 	($projid, $repoid, $packid) = ($info->{'project'}, $info->{'repository'}, $info->{'package'});
 	next unless defined $packid;
       }
@@ -1012,7 +1012,7 @@ while (1) {
       my ($projid, $repoid, $packid) = split('::', $jn);
       if (!defined($packid)) {
 	my $info = $ic->{$job} || readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
-        next unless $info && $info->{'file'};
+        next unless $info && $info->{'file'} && $info->{'file'} ne '_aggregate';
 	$ic->{$job} = $info;
 	($projid, $repoid, $packid) = ($info->{'project'}, $info->{'repository'}, $info->{'package'});
 	next unless defined $packid;
@@ -1034,7 +1034,7 @@ while (1) {
 	  $info = {'project' => $projid, 'repository' => $repoid, 'package' => $packid, 'arch' => $arch};
 	} else {
           $info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
-          next unless $info && $info->{'file'};
+          next unless $info && $info->{'file'} && $info->{'file'} ne '_aggregate';
 	  $ic->{$job} = $info;
 	}
       }
@@ -1203,6 +1203,8 @@ while (1) {
 
     my $rerun;
     for my $job (@b) {
+      my $info = $ic->{$job};
+      next unless $info && $info->{'file'} && $info->{'file'} ne '_aggregate';
       if (!$srcchange{$job} && !$didsrcchange{$prpa}) {
 	$didsrcchange{$prpa} = 1;
 	$load->{$prpa} *= $nosrcchangescale;
@@ -1212,7 +1214,7 @@ while (1) {
 	  last;
 	}
       }
-      my @idle = List::Util::shuffle(@{$idlearch{$ic->{$job}->{'hostarch'} || $arch} || []});
+      my @idle = List::Util::shuffle(@{$idlearch{$info->{'hostarch'} || $arch} || []});
       last unless @idle;
       my %poweridle;
       if ($powerjobs{$job}) {
@@ -1232,10 +1234,10 @@ while (1) {
       my $lastoracle = 0;
       my $lastoracleidle;
       my $constraints;
-      if ($ic->{$job}->{'constraintsmd5'}) {
+      if ($info->{'constraintsmd5'}) {
 	my $constraintsmd5 = $ic->{$job}->{'constraintsmd5'};
 	if (!exists($constraintscache{$constraintsmd5})) {
-	  $constraintscache{$constraintsmd5} = getconstraints($ic->{$job}, $constraintsmd5);
+	  $constraintscache{$constraintsmd5} = getconstraints($info, $constraintsmd5);
 	}
 	$constraints = $constraintscache{$constraintsmd5};
 	if (!ref($constraints)) {
@@ -1246,10 +1248,10 @@ while (1) {
 	  delete($constraintscache{$constraintsmd5}) if $constraints->[0] < $now;
 	  next;
 	}
-        $constraints = overwriteconstraints($ic->{$job}, $constraints) if $constraints->{'overwrite'};
+        $constraints = overwriteconstraints($info, $constraints) if $constraints->{'overwrite'};
       }
-      if ($ic->{$job}->{'prjconfconstraint'}) {
-	my @l = map { [ split(' ', $_) ] } @{$ic->{$job}->{'prjconfconstraint'}};
+      if ($info->{'prjconfconstraint'}) {
+	my @l = map { [ split(' ', $_) ] } @{$info->{'prjconfconstraint'}};
 	my $prjconfconstraint = list2struct($BSXML::constraints, \@l, "$arch/$job");
 	if ($prjconfconstraint) {
 	  $constraints = $constraints ? mergeconstraints($prjconfconstraint, $constraints) : $prjconfconstraint;
@@ -1264,8 +1266,8 @@ while (1) {
 	  $lastoracleidle = '__lastoracle';
 	}
 	my ($harch, $hname) = split(':', $idle, 2);
-	next if $badhost{"$project/$ic->{$job}->{'package'}/$arch/$hname"};
-	next if $badhost{"$project/:repo:$ic->{$job}->{'repository'}/$arch/$hname"};
+	next if $badhost{"$project/$info->{'package'}/$arch/$hname"};
+	next if $badhost{"$project/:repo:$info->{'repository'}/$arch/$hname"};
 	if (!$workerinfo{$idle}) {
 	  my @s = stat("$workersdir/idle/$idle");
 	  next unless @s;
@@ -1280,7 +1282,7 @@ while (1) {
 	  $workerinfo_mtime{$idle} = $s[7];
 	}
 	if ($BSConfig::dispatch_constraint) {
-	  next if !$BSConfig::dispatch_constraint->($ic->{$job}, $workerinfo{$idle});
+	  next if !$BSConfig::dispatch_constraint->($info, $workerinfo{$idle});
 	}
 	if ($constraints) {
 	  my $ora = oracle($workerinfo{$idle}, $constraints);
@@ -1288,7 +1290,7 @@ while (1) {
 	  if ($ora < 1) {
 	    if ($lastoracleidle && $lastoracleidle eq '__lastoracle') {
 	      my $widle = $now - $workerinfo_mtime{$idle};
-	      my $jwait = $now - $ic->{'job'}->{'readytime'};
+	      my $jwait = $now - $info->{'readytime'};
 	      $widle = 0 if $widle < 0;
 	      $jwait = 0 if $jwait < 0;
 	      next if $widle / 60 < 1 - $ora && $jwait / 300 < 1 - $ora;
