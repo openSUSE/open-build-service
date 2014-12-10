@@ -5,7 +5,7 @@ class Buildresult < ActiveXML::Node
   @@status_hash = nil
 
   def self.avail_status_values
-    return Avail_status_values
+    Avail_status_values
   end
 
   def self.code2index(code)
@@ -18,11 +18,11 @@ class Buildresult < ActiveXML::Node
       end
     end
     raise ArgumentError, "code '#{code}' unknown #{@@status_hash.inspect}" unless @@status_hash[code]
-    return @@status_hash[code]
+    @@status_hash[code]
   end
 
   def self.index2code(index)
-    return Avail_status_values[index]
+    Avail_status_values[index]
   end
 
 end
