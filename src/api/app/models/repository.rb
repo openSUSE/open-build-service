@@ -102,6 +102,7 @@ class Repository < ActiveRecord::Base
     self.path_elements.includes(:link).each do |pe|
       return true if ChannelTarget.find_by_repo(pe.link, [self.project])
     end
+    return true if ChannelTarget.find_by_repo(self, [self.project])
     false
   end
 
