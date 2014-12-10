@@ -12,12 +12,13 @@ class ChannelTarget < ActiveRecord::Base
 
     return nil if ct.empty?
 
-    msg=""
-    ct.each do |cti|
-        msg << "#{cti.channel.package.project.name}/#{cti.channel.package.name}, "
+    if ct.length > 1
+        msg=""
+        ct.each do |cti|
+            msg << "#{cti.channel.package.project.name}/#{cti.channel.package.name}, "
+        end
+        raise "Multiple channel targets found in #{msg} for repository #{repo.project.name}/#{repo.name}"
     end
-    # i dont get it. you raise it always? 
-    raise "Multiple channel targets found in #{msg} for repository #{repo.project.name}/#{repo.name}"
     ct.first
   end
 
