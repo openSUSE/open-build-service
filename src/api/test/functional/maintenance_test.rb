@@ -510,6 +510,27 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get "/source/#{incidentProject}/BaseDistro2.Channel/_meta"
     assert_response :success
+
+    # validate branch from projects with local channel repos
+    get "/source/#{incidentProject}/_meta"
+    assert_response :success
+    assert_xml_tag :tag => "repository", :attributes => {name: "BaseDistro3Channel"}
+    post "/source/#{incidentProject}/pack2.BaseDistro2.0_LinkedUpdateProject", :cmd => 'branch', :add_repositories => 1
+    assert_response :success
+    get "/source/home:maintenance_coord:branches:My:Maintenance:0/_meta"
+    assert_response :success
+    # local channel got skipped:
+    assert_no_xml_tag :tag => "repository", :attributes => {name: "BaseDistro3Channel"}
+    post "/source/#{incidentProject}/BaseDistro2.Channel", :cmd => 'branch', :add_repositories => 1
+    assert_response :success
+    get "/source/home:maintenance_coord:branches:My:Maintenance:0/_meta"
+    assert_response :success
+    # added by branching the channel package container
+    assert_xml_tag :tag => "repository", :attributes => {name: "BaseDistro3Channel"}
+    delete "/source/home:maintenance_coord:branches:My:Maintenance:0"
+    assert_response :success
+
+
     # accept another request to check that addchannel is working automatically
     prepare_request_with_user 'maintenance_coord', 'power'
     post "/request/#{id3}?cmd=changestate&newstate=accepted&force=1" # ignore reviews and accept

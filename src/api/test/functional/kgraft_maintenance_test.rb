@@ -171,6 +171,16 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     inject_build_job( incidentProject, "kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}", kernelIncidentProject.gsub( /:/, '_'), 'x86_64')
     inject_build_job( incidentProject, "kgraft-GA.BaseDistro2.0", "BaseDistro2.0", 'i586')
 
+    # lock kernelIncident to be sure that nothing can be released to
+    get '/source/'+kernelIncidentProject+'/_meta'
+    assert_response :success
+    assert_no_xml_tag :tag => "lock" # or our fixtures have changed
+    doc = REXML::Document.new(@response.body)
+    doc.elements['/project'].add_element 'lock'
+    doc.elements['/project/lock'].add_element 'enable'
+    put '/source/'+kernelIncidentProject+'/_meta', doc.to_s
+    assert_response :success
+
     # collect the job results
     run_scheduler('x86_64')
     run_scheduler('i586')
@@ -225,6 +235,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # cleanup
     post "/source/BaseDistro2.0", { cmd: 'unlock', comment: 'revert' }
+    assert_response :success
+    post "/source/#{kernelIncidentProject}", { cmd: 'unlock', comment: 'revert' }
     assert_response :success
     post "/source/#{incidentProject}", { cmd: 'unlock', comment: 'cleanup' }
     assert_response :success
