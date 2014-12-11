@@ -34,6 +34,7 @@
 /src/api/db/schema.rb
 /src/api/files/distributions.xml
 /src/api/log
+/src/api/public/assets
 /src/api/mkmf.log
 /src/api/tmp
 /src/backend/blib
