@@ -1,124 +1,154 @@
-NSTEST_status:
-  id: 59
-  name: status
-  attrib_namespace_id: 8
-  issue_list: 0
-OBS_ApprovedRequestSource:
-  id: 65
-  name: ApprovedRequestSource
-  description: "Source maintainers do not need to approve reviews"
-  value_count: 0
-  attrib_namespace_id: 9
-  issue_list: 0
-OBS_BranchRepositoriesFromProject:
-  id: 78
-  name: BranchRepositoriesFromProject
-  value_count: 1
-  attrib_namespace_id: 9
-  issue_list: 0
-OBS_BranchTarget:
-  id: 66
-  name: BranchTarget
-  value_count: 0
-  attrib_namespace_id: 9
-  issue_list: 0
-OBS_InitializeDevelPackage:
-  id: 61
-  name: InitializeDevelPackage
-  value_count: 0
-  attrib_namespace_id: 9
-  issue_list: 0
-OBS_Issues:
-  id: 67
-  name: Issues
-  value_count: 0
-  attrib_namespace_id: 9
-  issue_list: 1
-OBS_Maintained:
-  id: 58
-  name: Maintained
-  value_count: 0
-  attrib_namespace_id: 9
-  issue_list: 0
-OBS_MaintenanceIdTemplate:
-  id: 63
-  name: MaintenanceIdTemplate
-  value_count: 1
-  attrib_namespace_id: 9
-  issue_list: 0
-OBS_MaintenanceProject:
-  id: 62
-  name: MaintenanceProject
-  value_count: 0
-  attrib_namespace_id: 9
-  issue_list: 0
-OBS_OwnerRootProject:
-  id: 77
-  name: OwnerRootProject
-  attrib_namespace_id: 9
-  issue_list: 0
-OBS_ProjectStatusPackageFailComment:
-  id: 74
-  name: ProjectStatusPackageFailComment
-  value_count: 1
-  attrib_namespace_id: 9
-  issue_list: 0
-OBS_QualityCategory:
-  id: 75
-  name: QualityCategory
-  value_count: 1
-  attrib_namespace_id: 9
-  issue_list: 0
-OBS_RejectRequests:
-  id: 64
-  name: RejectRequests
-  attrib_namespace_id: 9
-  issue_list: 0
-OBS_RequestCloned:
-  id: 60
-  name: RequestCloned
-  value_count: 1
-  attrib_namespace_id: 9
-  issue_list: 0
-OBS_ScreenShots:
-  id: 73
-  name: ScreenShots
-  attrib_namespace_id: 9
-  issue_list: 0
-OBS_UpdateProject:
-  id: 57
-  name: UpdateProject
-  description: "Project is frozen and updates are released via the other project"
-  value_count: 1
-  attrib_namespace_id: 9
-  issue_list: 0
-OBS_VeryImportantProject:
-  id: 56
+attrib_types_1:
+  id: 1
   name: VeryImportantProject
+  description: Mark this project as very important. For instance for the project list
+    in the web interface.
   value_count: 0
-  attrib_namespace_id: 9
+  attrib_namespace_id: 1
   issue_list: 0
-OBS_AutoCleanup:
-  id: 76
+attrib_types_10:
+  id: 10
+  name: RequestCloned
+  description: Use this attribute to reference a request which will get superseded
+    when a new submit request from this project gets created.
+  value_count: 1
+  attrib_namespace_id: 1
+  issue_list: 0
+attrib_types_11:
+  id: 11
+  name: ProjectStatusPackageFailComment
+  description: Use this attribute to explain why this package is failing. This is
+    displayed on the project status page for instance.
+  value_count: 1
+  attrib_namespace_id: 1
+  issue_list: 0
+attrib_types_12:
+  id: 12
+  name: BranchRepositoriesFromProject
+  description: Use repository definitions from the specified project when creating
+    a branch.
+  value_count: 1
+  attrib_namespace_id: 1
+  issue_list: 0
+attrib_types_13:
+  id: 13
   name: AutoCleanup
+  description: The object will recieve a delete request at specified time (YYYY-MM-DD
+    HH:MM:SS) in the value
   value_count: 1
-  attrib_namespace_id: 9
+  attrib_namespace_id: 1
   issue_list: 0
-OBS_IncidentPriority:
-  id: 79
+attrib_types_14:
+  id: 14
+  name: QualityCategory
+  description: Use this attrbitue to classify the usability of a project. This gets
+    used by the user package search for instance.
+  value_count: 1
+  attrib_namespace_id: 1
+  issue_list: 0
+attrib_types_15:
+  id: 15
+  name: MaintenanceIdTemplate
+  description: Released maintenance updates get an ID on first release. This attribute
+    can be used to modify the default scheme.
+  value_count: 1
+  attrib_namespace_id: 1
+  issue_list: 0
+attrib_types_16:
+  id: 16
+  name: RejectRequests
+  description: Request against this object get rejected. The first (optional) value
+    will be given as reason to the requester. Adding more values limits the rejection
+    to the given request types (like "submit" or "delete").
+  attrib_namespace_id: 1
+  issue_list: 0
+attrib_types_17:
+  id: 17
+  name: ScreenShots
+  attrib_namespace_id: 1
+  issue_list: 0
+attrib_types_18:
+  id: 18
   name: IncidentPriority
+  description: A numeric value which defines the importance of this incident project.
   value_count: 1
-  attrib_namespace_id: 9
+  attrib_namespace_id: 1
   issue_list: 0
-OBS_EmbargoDate:
-  id: 80
+attrib_types_19:
+  id: 19
   name: EmbargoDate
+  description: A timestamp until outgoing requests can not get accepted.
   value_count: 1
-  attrib_namespace_id: 9
+  attrib_namespace_id: 1
   issue_list: 0
-OBS_MakeOriginOlder:
-  id: 81
-  name: MakeOriginOlder
+attrib_types_2:
+  id: 2
+  name: ApprovedRequestSource
+  description: Bypass the automatic request review when the request creator isn't
+    the maintainer of this object.
   value_count: 0
-  attrib_namespace_id: 9
+  attrib_namespace_id: 1
+  issue_list: 0
+attrib_types_20:
+  id: 20
+  name: OwnerRootProject
+  description: 'Mark this project as starting point for the package ownership search.
+    Optional values: "DisableDevel": don''t follow devel project links. "BugownerOnly":
+    limit the result to bugowners (ignoring the maintainer role).'
+  attrib_namespace_id: 1
+  issue_list: 0
+attrib_types_3:
+  id: 3
+  name: Maintained
+  description: Marks this as object as maintained. For instance to find packages automatically
+    when using the maintenance features like "osc mbranch".
+  value_count: 0
+  attrib_namespace_id: 1
+  issue_list: 0
+attrib_types_4:
+  id: 4
+  name: MaintenanceProject
+  description: Mark this project as central maintenance project, which is used to
+    coordinate all official updates.
+  value_count: 0
+  attrib_namespace_id: 1
+  issue_list: 0
+attrib_types_5:
+  id: 5
+  name: InitializeDevelPackage
+  description: Accepting a new package via a submit request to this project will set
+    the devel project of the new package to the source of the request.
+  value_count: 0
+  attrib_namespace_id: 1
+  issue_list: 0
+attrib_types_6:
+  id: 6
+  name: BranchTarget
+  description: Branches from this project will not follow any project links for the
+    target link.
+  value_count: 0
+  attrib_namespace_id: 1
+  issue_list: 0
+attrib_types_7:
+  id: 7
+  name: MakeOriginOlder
+  description: Initialize packages by making the build results newer then updated
+    ones
+  value_count: 0
+  attrib_namespace_id: 1
+  issue_list: 0
+attrib_types_8:
+  id: 8
+  name: Issues
+  description: Use this attribute to reference issues this object has
+  value_count: 0
+  attrib_namespace_id: 1
+  issue_list: 1
+attrib_types_9:
+  id: 9
+  name: UpdateProject
+  description: Mark this project as frozen, updates are handled via the project defined
+    in the value.
+  value_count: 1
+  attrib_namespace_id: 1
   issue_list: 0

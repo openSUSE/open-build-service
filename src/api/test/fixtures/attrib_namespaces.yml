@@ -1,6 +1,3 @@
-nstest:
-  id: 8
-  name: NSTEST
-obs:
-  id: 9
+attrib_namespaces_1:
+  id: 1
   name: OBS

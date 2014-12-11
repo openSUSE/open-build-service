@@ -1,3 +1,6 @@
+aarch64:
+  name: aarch64
+  available: 0
 armv4l:
   name: armv4l
   available: 0
@@ -16,12 +19,12 @@ armv6l:
 armv7el:
   name: armv7el
   available: 0
-armv7l:
-  name: armv7l
-  available: 0
 armv7hl:
   name: armv7hl
   available: 0
+armv7l:
+  name: armv7l
+  available: 1
 armv8el:
   name: armv8el
   available: 0
@@ -40,6 +43,9 @@ ia64:
 local:
   name: local
   available: 0
+m68k:
+  name: m68k
+  available: 0
 mips:
   name: mips
   available: 0
@@ -57,6 +63,9 @@ ppc64:
   available: 0
 ppc64le:
   name: ppc64le
+  available: 0
+ppc64p7:
+  name: ppc64p7
   available: 0
 s390:
   name: s390
