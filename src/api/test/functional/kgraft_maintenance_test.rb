@@ -73,7 +73,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # add channel
-    put '/source/BaseDistro2Channel/_meta', '<project name="BaseDistro2Channel" kind="maintenance_release"><title/><description/>
+    put '/source/BaseDistro2Channel/_meta', '<project name="BaseDistro2Channel"><title/><description/>
                                          <build><disable/></build>
                                          <publish><enable/></publish>
                                          <repository name="channel_repo">
@@ -224,7 +224,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'binary', attributes: {filename: "package-1.0-1.i586.rpm"}
     assert_xml_tag tag: 'binary', attributes: {filename: "package_newweaktags-1.0-1.x86_64.rpm"}
 
-
     #
     # create release request
     raw_post '/request?cmd=create&addrevision=1', '<request>
@@ -237,6 +236,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_no_xml_tag( :tag => 'source', :attributes => { rev: nil } )
     # GM project may be locked, must not appear
     assert_no_xml_tag( :tag => 'target', :attributes => { project: 'BaseDistro2.0' } )
+    # code stream gets the sources of the packages
+    assert_xml_tag( :parent => { :tag => "action", :attributes => { :type => "maintenance_release" } },
+                    :tag => 'source', :attributes => { project: incidentProject, package: 'kgraft-GA.BaseDistro2.0' },
+                    :tag => 'target', :attributes => { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'kgraft-GA.1' } )
     # update channel file
     assert_xml_tag( :parent => { :tag => "action", :attributes => { :type => "submit" } },
                     :tag => 'target', :attributes => { project: 'Channel', package: 'BaseDistro2' } )

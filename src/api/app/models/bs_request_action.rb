@@ -14,6 +14,8 @@ class BsRequestAction < ActiveRecord::Base
   end
   class RemoteTarget < APIException
   end
+  class InvalidReleaseTarget < APIException
+  end
 
   belongs_to :bs_request
   has_one :bs_request_action_accept_info, :dependent => :delete
@@ -570,6 +572,25 @@ class BsRequestAction < ActiveRecord::Base
           found_patchinfo = true
         end
       end
+
+      # re-route (for the kgraft case building against GM or former incident) 
+      if self.is_maintenance_release? and tprj
+        tprj = tprj.update_instance
+        if tprj.is_maintenance_incident?
+          release_target = nil
+          pkg.project.repositories.includes(:release_targets).each do |repo|
+            repo.release_targets.each do |rt|
+              next if rt.trigger != "maintenance"
+              next unless rt.target_repository.project.is_maintenance_release?
+              raise InvalidReleaseTarget.new "Multiple release target projects are not supported" if release_target and release_target != rt.target_repository.project
+              release_target = rt.target_repository.project
+            end
+          end
+          raise InvalidReleaseTarget.new "Can not release to a maintenance incident project" unless release_target
+          tprj = release_target
+        end
+      end
+
       # Will this be a new package ?
       unless missing_ok_link
         unless e and tprj and tprj.exists_package?(tpkg, follow_project_links: true, allow_remote_packages: false)
