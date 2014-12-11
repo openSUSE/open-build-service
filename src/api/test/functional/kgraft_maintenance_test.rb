@@ -87,6 +87,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                          <publish><enable/></publish>
                                          <repository name="channel_repo">
                                            <arch>i586</arch>
+                                           <arch>x86_64</arch>
                                          </repository>
                                    </project>'
     assert_response :success
@@ -125,7 +126,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
           <target project='BaseDistro2Channel' repository='channel_repo'/>
           <binaries arch='i586' project='BaseDistro2.0:LinkedUpdateProject' repository='BaseDistro2LinkedUpdateProject_repo'>
             <binary name='package' package='kgraft-GA' />
-            <binary name='package' package='kgraft-incident-0' />
+          </binaries>
+          <binaries arch='x86_64' project='BaseDistro2.0:LinkedUpdateProject' repository='BaseDistro2LinkedUpdateProject_repo'>
+            <binary name='package_newweaktags' package='kgraft-incident-0' />
           </binaries>
         </channel>"
     assert_response :success
@@ -168,7 +171,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # upload build result as a worker would do
     inject_build_job( incidentProject, "kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}", kernelIncidentProject.gsub( /:/, '_'), 'i586')
-    inject_build_job( incidentProject, "kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}", kernelIncidentProject.gsub( /:/, '_'), 'x86_64')
+    inject_build_job( incidentProject, "kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}", kernelIncidentProject.gsub( /:/, '_'), 'x86_64', "package_newweaktags-1.0-1.x86_64.rpm")
     inject_build_job( incidentProject, "kgraft-GA.BaseDistro2.0", "BaseDistro2.0", 'i586')
 
     # lock kernelIncident to be sure that nothing can be released to
@@ -190,6 +193,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro2Channel', arch: 'i586', state: 'published' } },
                :tag => 'status', :attributes => { package: 'BaseDistro2.Channel', code: 'succeeded' },
                :tag => 'status', :attributes => { package: 'patchinfo', code: 'succeeded' }
+    get "/build/#{incidentProject}/BaseDistro2Channel/i586/patchinfo/"
+    assert_response :success
+    assert_xml_tag tag: 'binary', attributes: {filename: "updateinfo.xml"}
+    assert_xml_tag tag: 'binary', attributes: {filename: "package-1.0-1.src.rpm"}
+    assert_xml_tag tag: 'binary', attributes: {filename: "package-1.0-1.i586.rpm"}
+    assert_xml_tag tag: 'binary', attributes: {filename: "package_newweaktags-1.0-1.x86_64.rpm"}
 
 
     #
