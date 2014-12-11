@@ -1088,7 +1088,6 @@ class Project < ActiveRecord::Base
   def branch_to_repositories_from(project, pkg_to_enable, extend_names=nil)
     # shall we use the repositories from a different project?
     project = project.update_instance('OBS', 'BranchRepositoriesFromProject')
-
     project.repositories.each do |repo|
       repoName = extend_names ? repo.extended_name : repo.name
       next if repo.is_local_channel?

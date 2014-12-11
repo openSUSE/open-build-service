@@ -70,11 +70,8 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
 
         # use specified release project if defined
       elsif releaseproject
-        if e
-          package_name = e.attributes['package']
-        else
-          package_name = pkg.name
-        end
+        package_name = pkg.name
+        package_name = e.attributes['package'] if e
 
         branch_params = {:target_project => incidentProject.name,
                          :maintenance => 1,
@@ -82,9 +79,16 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
                          :comment => 'Initial new branch',
                          :project => releaseproject, :package => package_name}
         branch_params[:requestid] = request.id if request
+        # accept branching from former update incidents or GM (for kgraft case)
+        if e and linkprj = Project.find_by_name(e.attributes['project'])
+          if linkprj.is_maintenance_incident? or linkprj != linkprj.update_instance or pkg.is_channel?
+            branch_params[:project] = e.attributes['project']
+            branch_params[:ignoredevel] = "1"
+          end
+        end
         # it is fine to have new packages
-        unless Package.exists_by_project_and_name(releaseproject, package_name, follow_project_links: true)
-          branch_params[:missingok]= 1
+        unless Package.exists_by_project_and_name(branch_params[:project], package_name, follow_project_links: true)
+          branch_params[:missingok] = 1
         end
         ret = BranchPackage.new(branch_params).branch
         new_pkg = Package.get_by_project_and_name(ret[:data][:targetproject], ret[:data][:targetpackage])
