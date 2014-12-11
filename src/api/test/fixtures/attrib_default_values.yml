@@ -1,10 +1,5 @@
-attrib_default_values_2:
-  id: 2
-  attrib_type_id: 15
-  value: "%Y-%C"
-  position: 1
 attrib_default_values_QualityCategory:
   id: 1
-  attrib_type_id: 14
+  attrib_type_id: 75 
   value: Development
-  position: 1
+  position: 1 

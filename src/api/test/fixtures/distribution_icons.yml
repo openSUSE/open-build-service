@@ -1,0 +1,10 @@
+distribution_icons_72:
+  id: 72
+  url: https://static.opensuse.org/distributions/logos/opensuse-Factory-8.png
+  width: 8
+  height: 8
+distribution_icons_73:
+  id: 73
+  url: https://static.opensuse.org/distributions/logos/opensuse-Factory-16.png
+  width: 16
+  height: 16

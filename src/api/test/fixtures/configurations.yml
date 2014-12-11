@@ -1,5 +1,5 @@
-configurations_1:
-  id: 1
+seed:
+  id: 980190964
   title: Open Build Service
   description: |2
       <p class="description">
@@ -14,20 +14,24 @@ configurations_1:
       <p class="description">
         The Open Build Service developer team is greeting you. In case you use your OBS productive in your facility, please do us a favor and add yourself at <a href="http://wiki.opensuse.org/openSUSE:Build_Service_installations">this wiki page</a>. Have fun and fast build times!
       </p>
-  created_at: 2014-12-11 09:19:18.000000000 Z
-  updated_at: 2014-12-11 09:19:18.000000000 Z
-  name: private
+  created_at: 2012-01-17 09:54:33.000000000 Z
+  updated_at: 2013-07-24 07:13:36.000000000 Z
+  name: obstest
   registration: allow
   anonymous: 1
+  default_tracker: bnc
   default_access_disabled: 0
   allow_user_to_create_home_project: 1
   disallow_group_creation: 0
   change_password: 1
   hide_private_options: 0
-  gravatar: 1
+  cleanup_after_days: 3
+  gravatar: 0
   enforce_project_keys: 0
   download_on_demand: 1
+  admin_email: obs-email@opensuse.org
+  download_url: http://example.com/download
+  ymp_url: http://example.com/ymp
+  obs_url: http://localhost
   cleanup_empty_projects: 1
   disable_publish_for_branches: 1
-  admin_email: unconfigured@openbuildservice.org
-  default_tracker: bnc

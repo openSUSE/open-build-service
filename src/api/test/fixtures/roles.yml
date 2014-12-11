@@ -1,6 +1,9 @@
 Admin:
   title: Admin
   global: 1
+User:
+  title: User
+  global: 1
 bugowner:
   title: bugowner
   global: 0
