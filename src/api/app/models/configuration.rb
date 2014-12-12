@@ -32,18 +32,11 @@ class Configuration < ActiveRecord::Base
                    :admin_email => nil,
                  }
   ON_OFF_OPTIONS = [ :anonymous, :default_access_disabled, :allow_user_to_create_home_project, :disallow_group_creation, :change_password, :hide_private_options, :gravatar, :download_on_demand, :enforce_project_keys, :cleanup_empty_projects, :disable_publish_for_branches ]
-   
+
   class << self
     def map_value(key, value)
-      if ON_OFF_OPTIONS.include? key
-        # make them boolean
-        if [ :on, ":on", "on", "true", true ].include? value
-           value = true
-        else
-           value = false
-        end
-      end
-      return value
+      return false unless ON_OFF_OPTIONS.include? key
+      [ :on, ":on", "on", "true", true ].include? value
     end
 
     def first
@@ -53,7 +46,7 @@ class Configuration < ActiveRecord::Base
     def anonymous?
       first.anonymous
     end
-   
+
     def registration
       first.registration
     end

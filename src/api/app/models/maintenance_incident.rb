@@ -7,70 +7,100 @@ class MaintenanceIncident < ActiveRecord::Base
 
   def project_name
       unless self.incident_id
-        sql = ActiveRecord::Base.connection()
-        r = sql.execute( "SELECT counter FROM incident_counter WHERE maintenance_db_project_id = " + self.maintenance_db_project_id.to_s + " FOR UPDATE" ).first
+        r = MaintenanceIncident.escape_sql(
+        ["SELECT counter FROM incident_counter WHERE maintenance_db_project_id = ? FOR UPDATE",
+          self.maintenance_db_project_id]
+          ).first
 
         if r.nil?
           # no counter exists, initialize it and select again
-          sql.execute( "INSERT INTO incident_counter(maintenance_db_project_id) VALUES('" + self.maintenance_db_project_id.to_s + "')" )
-          r = sql.execute( "SELECT counter FROM incident_counter WHERE maintenance_db_project_id = " + self.maintenance_db_project_id.to_s + " FOR UPDATE" ).first
+          MaintenanceIncident.escape_sql(
+          ["INSERT INTO incident_counter(maintenance_db_project_id) VALUES('?')",
+            self.maintenance_db_project_id]
+            )
+          r = MaintenanceIncident.escape_sql(
+          ["SELECT counter FROM incident_counter WHERE maintenance_db_project_id = ? FOR UPDATE",
+            self.maintenance_db_project_id ]
+            ).first
         end
         # do an atomic increase of counter
-        sql.execute( "UPDATE incident_counter SET counter = counter+1 WHERE maintenance_db_project_id = " + self.maintenance_db_project_id.to_s )
+        MaintenanceIncident.escape_sql(
+        ["UPDATE incident_counter SET counter = ? WHERE maintenance_db_project_id = ?",
+          counter+1,self.maintenance_db_project_id]
+          )
         self.incident_id = r[0]
       end
-
-      name = self.maintenance_db_project.name + ":" + self.incident_id.to_s 
-      return name
+      # is that the self.name or just a local variable?
+      #name = self.maintenance_db_project.name + ":" + self.incident_id.to_s
+      self.maintenance_db_project.name + ":" + self.incident_id.to_s
   end
 
   def initUpdateinfoId(template = "%Y-%C", patch_name = nil)
     return if self.released_at
 
-    # set current time, to be used 
+
+    # set current time, to be used
     self.released_at = Time.now.utc
     self.name = patch_name
 
+    counterType
+    values = []
+
     # Run an atomar counter++ based on the used scheme
     if template =~ /%Y/
-      counterType = " AND year  = " + self.released_at.year.to_s
-      year = "'" + self.released_at.year.to_s + "'"
+      counterType " AND year = ?"
+      values << self.released_at.year.to_s
+      year =  self.released_at.year.to_s
     else
       counterType = " AND ISNULL(year)"
       year = "NULL"
     end
     if template =~ /%M/
-      counterType << " AND month = " + self.released_at.month.to_s
-      month = "'" + self.released_at.month.to_s + "'"
+
+      counterType << " AND month = ?"
+      values << self.released_at.month.to_s
+      month = self.released_at.month.to_s
     else
       counterType << " AND ISNULL(month)"
       month = "NULL"
     end
+
     if template =~ /%D/
-      counterType << " AND day   = " + self.released_at.day.to_s
-      day = "'" + self.released_at.day.to_s + "'"
+      counterType << " AND day   = ?"
+      values << self.released_at.day.to_s
+      day = self.released_at.day.to_s
     else
       counterType << " AND ISNULL(day)"
       day = "NULL"
     end
     if template =~ /%N/
-      name = "'" + (self.name||"") + "'"
-      counterType << " AND name   = " + name
+      name = (self.name||"")
+      counterType << " AND name   = ?" + name
+      values << name
     else
       counterType << " AND ISNULL(name)"
       name = "NULL"
     end
-    sql = ActiveRecord::Base.connection()
-    r = sql.execute( "SELECT counter FROM updateinfo_counter WHERE maintenance_db_project_id = " + self.maintenance_db_project.id.to_s + counterType + " FOR UPDATE" ).first
+
+
+    r = MaintenanceIncident.escape_sql([
+      "SELECT counter FROM updateinfo_counter WHERE maintenance_db_project_id = ? #{counterType} FOR UPDATE",self.maintenance_db_project.id,counterType,*values
+      ]).first
+
     unless r
+
       # no counter exists, initialize it and select again
-      sql.execute( "INSERT INTO updateinfo_counter(maintenance_db_project_id, year, month, day, name) VALUES('" + self.maintenance_db_project.id.to_s + "', " + year + ", " + month + ", " + day + "," + name + ")" )
-      r = sql.execute( "SELECT counter FROM updateinfo_counter WHERE maintenance_db_project_id = " + self.maintenance_db_project.id.to_s + counterType + " FOR UPDATE" ).first
+      r = MaintenanceIncident.escape_sql([
+        "INSERT INTO updateinfo_counter(maintenance_db_project_id, year, month, day, name) VALUES(?,?,?,?,?)",self.maintenance_db_project.id,year,month,day,name
+        ])
+
+      r = MaintenanceIncident.escape_sql([
+        "SELECT counter FROM updateinfo_counter WHERE maintenance_db_project_id = ? #{counterType} FOR UPDATE", self.maintenance_db_project.id, *values
+        ]).first
     end
     # do an atomic increase of counter
-    sql.execute( "UPDATE updateinfo_counter SET counter = counter+1 WHERE maintenance_db_project_id = " + self.maintenance_db_project.id.to_s + counterType )
+    MaintenanceIncident.escape_sql ["UPDATE updateinfo_counter SET counter = ?  WHERE maintenance_db_project_id = ? #{counterType}",counter+1, self.maintenance_db_project.id,*values]
     self.counter = r[0].to_i + 1
-
     self.save!
   end
 
@@ -94,4 +124,5 @@ class MaintenanceIncident < ActiveRecord::Base
 
     return my_id
   end
+
 end
