@@ -1,3 +1,29 @@
+For Updaters to OBS 2.6 from OBS 2.5
+====================================
+
+Appliance users can just do a package update and reboot or use the
+new appliance image to update their configurations.
+
+In case the installation is not done via packages all 
+rubygems according to Gemfile need to get installed.
+
+ 1) Database migration
+
+    # cd /srv/www/obs/api/
+    # RAILS_ENV="production" rake db:migrate
+    # chown -R wwwrun.www log tmp
+
+ 2) Restart following services in this order
+
+      * apache2
+
+      * obsapidelayed
+
+      * memcached
+
+    The backend daemons are restarting automatically on update.
+
+
 For Updaters to OBS 2.5 from OBS 2.4
 ====================================
 
