@@ -4,6 +4,13 @@ class Flag < ActiveRecord::Base
 
   belongs_to :architecture
 
+  validate :validate_duplicates, :on => :create
+  def validate_duplicates
+    if Flag.where("status = ? AND repo = ? AND project_id = ? AND package_id = ? AND architecture_id = ? AND flag = ?", self.status, self.repo, self.project_id, self.package_id, self.architecture_id, self.flag).exists?
+      errors.add(:flag, "Flag already exists")
+    end
+  end
+
   def to_xml(builder)
     raise RuntimeError.new( "FlagError: No flag-status set. \n #{self.inspect}" ) if self.status.nil?
     options = Hash.new
