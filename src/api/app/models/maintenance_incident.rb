@@ -54,7 +54,7 @@ class MaintenanceIncident < ActiveRecord::Base
       day = "NULL"
     end
     if template =~ /%N/
-      name = "'" + (self.name||"") + "'"
+      name = ActiveRecord::Base.connection.quote(self.name||"")
       counterType << " AND name   = " + name
     else
       counterType << " AND ISNULL(name)"
