@@ -2050,7 +2050,8 @@ sub copybuild {
   mkdir_p($dir);
   my %delayed_linking;
   my $needsign;
-  for my $bin (grep {$_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls($odir)) {
+  my %renamed;
+  for my $bin (grep {$_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} sort(ls($odir))) {
     if ($bin eq "updateinfo.xml" && $cgi->{'setupdateinfoid'}) {
       my $updateinfo = readxml("$odir/$bin", $BSXML::updateinfo);
       for (@{$updateinfo->{'update'} || []}) {
@@ -2072,9 +2073,28 @@ sub copybuild {
 	$nbin =~ s/-([^-]+)(-Media(?:\d?)(?:\..*?)?)$/$setrelease$2/; # kiwi product builds
 	$nbin =~ s/-([^-.]+).([^.]*.rpm)$/$setrelease.$2/; # rpms
       }
+      $renamed{$bin} = $nbin if $bin ne $nbin;
       if (-d "$odir/$bin") {
         $delayed_linking{"$dir/$nbin"} = "$odir/$bin";
       } else {
+	# patch in new file name if we renamed files
+	if (%renamed && $bin =~ /\.sha256$/) {
+	  my $shafile = readstr("$odir/$bin");
+	  if ($shafile =~ /-----BEGIN PGP SIGNED MESSAGE-----\n/s) {
+	    # de-pgp
+	    $shafile =~ s/.*-----BEGIN PGP SIGNED MESSAGE-----//s;
+	    $shafile =~ s/.*?\n\n//;
+	    $shafile =~ s/-----BEGIN PGP SIGNATURE-----.*//;
+	  }
+	  my $writeit;
+	  for (sort keys %renamed) {
+	    $writeit = 1 if $shafile =~ s/([ \/])\Q$_\E\n/$1$renamed{$_}\n/g;
+	  }
+	  if ($writeit) {
+	    writestr("$dir/$nbin", undef, $shafile);
+	    next;
+	  }
+	}
         link("$odir/$bin", "$dir/$nbin") || die("link $odir/$bin $dir/$nbin: $!\n");
       }
     }

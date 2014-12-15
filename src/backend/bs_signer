@@ -30,6 +30,7 @@ BEGIN {
 
 use POSIX;
 use Data::Dumper;
+use Digest;
 use Digest::MD5 ();
 use Fcntl qw(:DEFAULT :flock);
 use XML::Structured ':bytes';
@@ -285,6 +286,26 @@ sub rsasign {
   }
 }
 
+sub fixup_sha256_checksum {
+  my ($jobdir, $shafile, $isofile) = @_;
+  my $sha = readstr("$jobdir/$shafile", 1);
+  return unless $sha;
+  return unless $sha =~ /[ \/]\Q$isofile\E\n/s;
+  # ok, needs patching...
+  if ($sha =~ /-----BEGIN PGP SIGNED MESSAGE-----\n/s) {
+    # de-pgp
+    $sha =~ s/.*-----BEGIN PGP SIGNED MESSAGE-----//s;
+    $sha =~ s/.*?\n\n//;
+    $sha =~ s/-----BEGIN PGP SIGNATURE-----.*//;
+  }
+  local *F;
+  open(F, '<', "$jobdir/$isofile") || return;
+  my $ctx = Digest->new('SHA-256');
+  $ctx->addfile(\*F);
+  close F;
+  $sha =~ s/^.{64}(  (?:.*\/)?\Q$isofile\E)$/$ctx->hexdigest().$1/em;
+  writestr("$jobdir/$shafile", undef, $sha);
+}
 
 sub signjob {
   my ($job, $arch) = @_;
@@ -390,6 +411,9 @@ sub signjob {
 	  die("pubkey is not available\n") unless $pubkey;
 	  writestr("$jobdir/$signfile.tmp$$", "$jobdir/$signfile", $pubkey);
 	  next;
+	}
+	if ($signfile =~ /^(.*\.iso)\.sha256$/) {
+	  fixup_sha256_checksum($jobdir, $signfile, $1);
 	}
 	if ($signfile =~ /\.asc$/s) {
 	  next unless (-s "$jobdir/$signfile") == 2048;
