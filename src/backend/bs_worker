@@ -1720,6 +1720,10 @@ sub getpreinstallimage {
   for (keys %hdrmd5s) {
     delete $hdrmd5s{$_} unless defined $hdrmd5s{$_};
   }
+  # wipe noinstall packages from hdrmd5s (buildengine case)
+  for (grep {$_->{'noinstall'}} @{$buildinfo->{'bdep'} || []}) {
+    delete $hdrmd5s{$_->{'name'}};
+  }
   return undef unless %hdrmd5s && %prpas;
 
   # ok, now check if there is an image on one of the repo servers
