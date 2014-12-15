@@ -288,6 +288,7 @@ sub rsasign {
 
 sub fixup_sha256_checksum {
   my ($jobdir, $shafile, $isofile) = @_;
+  return if ((-s "$jobdir/$shafile") || 0) > 65536;
   my $sha = readstr("$jobdir/$shafile", 1);
   return unless $sha;
   return unless $sha =~ /[ \/]\Q$isofile\E\n/s;

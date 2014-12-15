@@ -2078,7 +2078,7 @@ sub copybuild {
         $delayed_linking{"$dir/$nbin"} = "$odir/$bin";
       } else {
 	# patch in new file name if we renamed files
-	if (%renamed && $bin =~ /\.sha256$/) {
+	if (%renamed && $bin =~ /\.sha256$/ && (((-s "$odir/$bin") || 0) <= 65536)) {
 	  my $shafile = readstr("$odir/$bin");
 	  if ($shafile =~ /-----BEGIN PGP SIGNED MESSAGE-----\n/s) {
 	    # de-pgp
