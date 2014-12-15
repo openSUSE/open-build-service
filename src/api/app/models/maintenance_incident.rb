@@ -56,7 +56,6 @@ class MaintenanceIncident < ActiveRecord::Base
       year = "NULL"
     end
     if template =~ /%M/
-
       counterType << " AND month = ?"
       values << self.released_at.month.to_s
       month = self.released_at.month.to_s
