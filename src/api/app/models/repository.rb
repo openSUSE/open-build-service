@@ -97,6 +97,15 @@ class Repository < ActiveRecord::Base
     links.map {|l| l.repository}
   end
 
+  def is_local_channel?
+    # is any our path elements the target of a channel package in this project?
+    self.path_elements.includes(:link).each do |pe|
+      return true if ChannelTarget.find_by_repo(pe.link, [self.project])
+    end
+    return true if ChannelTarget.find_by_repo(self, [self.project])
+    false
+  end
+
   def linking_target_repositories
     return [] if targetlinks.size == 0
     targetlinks.map {|l| l.target_repository}

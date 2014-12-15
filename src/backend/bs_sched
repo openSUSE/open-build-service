@@ -5830,9 +5830,11 @@ sub rebuildpatchinfo {
   if ($target && $target->{'id_template'}) {
     my $template = $target->{'id_template'};
     my @lt = localtime($firstissued);
+    my $patch_name = $patchinfo->{'name'} || "_UNDEFINED_";
     $template =~ s/%Y/$lt[5] + 1900/eg;
     $template =~ s/%M/$lt[4] + 1/eg;
     $template =~ s/%D/$lt[3]/eg;
+    $template =~ s/%N/$patch_name/eg;
     if ($template =~ /%C/) {
       $template =~ s/%C/$update->{'id'}/g;
     } else {

@@ -9,9 +9,12 @@ class AddGithubIssueParser < ActiveRecord::Migration
   end
 
   def self.down
-    IssueTracker.where(name: 'obs').first.destroy
-    IssueTracker.where(name: 'build').first.destroy
-    IssueTracker.where(name: 'osc').first.destroy
+    i = IssueTracker.where(name: 'obs').first
+    i.destroy if i
+    i = IssueTracker.where(name: 'build').first
+    i.destroy if i
+    i = IssueTracker.where(name: 'osc').first
+    i.destroy if i
 
     execute "alter table issue_trackers modify column kind enum('other','bugzilla','cve','fate','trac','launchpad','sourceforge') not null;"
   end

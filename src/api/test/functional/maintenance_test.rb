@@ -510,6 +510,27 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get "/source/#{incidentProject}/BaseDistro2.Channel/_meta"
     assert_response :success
+
+    # validate branch from projects with local channel repos
+    get "/source/#{incidentProject}/_meta"
+    assert_response :success
+    assert_xml_tag :tag => "repository", :attributes => {name: "BaseDistro3Channel"}
+    post "/source/#{incidentProject}/pack2.BaseDistro2.0_LinkedUpdateProject", :cmd => 'branch', :add_repositories => 1
+    assert_response :success
+    get "/source/home:maintenance_coord:branches:My:Maintenance:0/_meta"
+    assert_response :success
+    # local channel got skipped:
+    assert_no_xml_tag :tag => "repository", :attributes => {name: "BaseDistro3Channel"}
+    post "/source/#{incidentProject}/BaseDistro2.Channel", :cmd => 'branch', :add_repositories => 1
+    assert_response :success
+    get "/source/home:maintenance_coord:branches:My:Maintenance:0/_meta"
+    assert_response :success
+    # added by branching the channel package container
+    assert_xml_tag :tag => "repository", :attributes => {name: "BaseDistro3Channel"}
+    delete "/source/home:maintenance_coord:branches:My:Maintenance:0"
+    assert_response :success
+
+
     # accept another request to check that addchannel is working automatically
     prepare_request_with_user 'maintenance_coord', 'power'
     post "/request/#{id3}?cmd=changestate&newstate=accepted&force=1" # ignore reviews and accept
@@ -591,6 +612,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro3', arch: 'i586', state: 'published' } }, :tag => 'status', :attributes => { package: 'patchinfo', code: 'succeeded' }
     assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro3Channel', arch: 'i586', state: 'published' } }, :tag => 'status', :attributes => { package: 'patchinfo', code: 'succeeded' }
+    # check updateinfo
+    get "/build/#{incidentProject}/BaseDistro3Channel/i586/patchinfo/updateinfo.xml"
+    assert_response :success
+if $ENABLE_BROKEN_TEST
+    # FIXME: the backend .channelinfo structure does not allow multiple targets atm, so the result is invalid here
+    assert_xml_tag :parent => { tag: 'update', attributes: { from: 'maintenance_coord', status: 'stable', type: 'security', version: '1' } }, :tag => 'id', :content => "UpdateInfoTag-patch_name-0"
+end
 
     # check published search db
     get "/search/published/binary/id?match=project='"+incidentProject+"'"
@@ -1545,6 +1573,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'reference', :attributes => { href: 'http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-0815', id: 'CVE-2009-0815', type: 'cve' }
     assert_no_xml_tag :tag => 'reference', :attributes => { href: 'https://bugzilla.novell.com/show_bug.cgi?id=' }
     assert_no_xml_tag :tag => 'reference', :attributes => { id: '' }
+    # check updateinfo
+    get "/build/#{incidentProject}/BaseDistro3/i586/patchinfo/updateinfo.xml"
+    assert_response :success
+    assert_xml_tag :parent => { tag: 'update', attributes: { from: 'maintenance_coord', status: 'stable', type: 'security', version: '1' } }, :tag => 'id', :content => nil
 
     # let's say the maintenance guy wants to publish it now
     get "/source/#{incidentProject}/_meta"

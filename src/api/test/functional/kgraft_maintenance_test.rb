@@ -59,34 +59,26 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/source/#{kernelIncidentProject}/_meta"
     assert_response :success
 
-    # create maintenance incident for first kgraft update
-    Timecop.freeze(1)
-    post '/source', :cmd => 'createmaintenanceincident'
-    assert_response :success
-    assert_xml_tag( :tag => 'data', :attributes => { name: 'targetproject' } )
-    data = REXML::Document.new(@response.body)
-    incidentProject=data.elements['/status/data'].text
-    incidentID=incidentProject.gsub( /^My:Maintenance:/, '')
-
     # create a GA update patch
     Timecop.freeze(1)
-    post '/source/BaseDistro2.0/kgraft-GA', :cmd => 'branch', :target_project => incidentProject, :missingok => 1, :extend_package_names => 1, :add_repositories => 1, :ignoredevel => 1
+    post '/source/BaseDistro2.0/kgraft-GA', :cmd => 'branch', :missingok => 1, :extend_package_names => 1, :add_repositories => 1, :ignoredevel => 1
     assert_response :success
-    raw_put "/source/#{incidentProject}/kgraft-GA.BaseDistro2.0/package.spec", File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read
+    raw_put "/source/home:king:branches:BaseDistro2.0/kgraft-GA.BaseDistro2.0/package.spec", File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read
     assert_response :success
-    # create a update patch base on incident
+    # create a update patch based on former kernel incident
     Timecop.freeze(1)
-    post '/source/'+kernelIncidentProject+'/kgraft-incident-'+kernelIncidentID, :cmd => 'branch', :target_project => incidentProject, :missingok => 1, :extend_package_names => 1, :add_repositories => 1
+    post '/source/'+kernelIncidentProject+'/kgraft-incident-'+kernelIncidentID, :cmd => 'branch', :target_project => "home:king:branches:BaseDistro2.0", :missingok => 1, :extend_package_names => 1, :add_repositories => 1
     assert_response :success
-    raw_put "/source/#{incidentProject}/kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}/packageNew.spec", File.open("#{Rails.root}/test/fixtures/backend/binary/packageNew.spec").read
+    raw_put "/source/home:king:branches:BaseDistro2.0/kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}/packageNew.spec", File.open("#{Rails.root}/test/fixtures/backend/binary/packageNew.spec").read
     assert_response :success
 
     # add channel
-    put '/source/BaseDistro2Channel/_meta', '<project name="BaseDistro2Channel" kind="maintenance_release"><title/><description/>
+    put '/source/BaseDistro2Channel/_meta', '<project name="BaseDistro2Channel"><title/><description/>
                                          <build><disable/></build>
                                          <publish><enable/></publish>
                                          <repository name="channel_repo">
                                            <arch>i586</arch>
+                                           <arch>x86_64</arch>
                                          </repository>
                                    </project>'
     assert_response :success
@@ -105,9 +97,53 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
           </binaries>
         </channel>'
     assert_response :success
-    post '/source/Channel/BaseDistro2', :cmd => 'branch', :target_project => incidentProject, :extend_package_names => 1, :add_repositories => 1
+    post '/source/Channel/BaseDistro2', :cmd => 'branch', :target_project => "home:king:branches:BaseDistro2.0", :extend_package_names => 1, :add_repositories => 1
+    assert_response :success
+    raw_put "/source/home:king:branches:BaseDistro2.0/BaseDistro2.Channel/_channel", "<?xml version='1.0' encoding='UTF-8'?>
+        <channel>
+          <target project='BaseDistro2Channel' repository='channel_repo'/>
+          <binaries arch='i586' project='BaseDistro2.0:LinkedUpdateProject' repository='BaseDistro2LinkedUpdateProject_repo'>
+            <binary name='package' package='kgraft-GA' />
+          </binaries>
+          <binaries arch='x86_64' project='BaseDistro2.0:LinkedUpdateProject' repository='BaseDistro2LinkedUpdateProject_repo'>
+            <binary name='package_newweaktags' package='kgraft-incident-0' />
+          </binaries>
+        </channel>"
     assert_response :success
 
+    # make the kgraft update an incident via maintenance_incident request
+    post '/request?cmd=create', '<request>
+                                   <action type="maintenance_incident">
+                                     <source project="home:king:branches:BaseDistro2.0" />
+                                     <target project="My:Maintenance" releaseproject="BaseDistro2.0:LinkedUpdateProject" />
+                                     <options>
+                                       <sourceupdate>cleanup</sourceupdate>
+                                     </options>
+                                   </action>
+                                   <description>To fix my bug</description>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    assert_xml_tag( :tag => 'target', :attributes => { project: 'My:Maintenance', releaseproject: 'BaseDistro2.0:LinkedUpdateProject' } )
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:id)
+    id1 = node.value(:id)
+    post "/request/#{id1}?cmd=changestate&newstate=accepted&force=1"
+    assert_response :success
+    get "/request/#{id1}"
+    assert_response :success
+    data = REXML::Document.new(@response.body)
+    incidentProject=data.elements['/request/action/target'].attributes.get_attribute('project').to_s
+    incidentID=incidentProject.gsub( /^My:Maintenance:/, '')
+
+    # validate sources
+    get "/source/"+incidentProject
+    assert_response :success
+    assert_xml_tag :tag => "directory", :attributes => {count: 4}
+    assert_xml_tag :tag => "entry", :attributes => {name: "BaseDistro2.Channel"}
+    assert_xml_tag :tag => "entry", :attributes => {name: "kgraft-GA.BaseDistro2.0"}
+    assert_xml_tag :tag => "entry", :attributes => {name: "kgraft-incident-0.My_Maintenance_0"}
+    assert_xml_tag :tag => "entry", :attributes => {name: "patchinfo"}
 
     # validate repos
     get "/source/"+incidentProject+"/_meta"
@@ -120,15 +156,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                    :tag => "path", :attributes => { :project => "BaseDistro2Channel", :repository => "channel_repo" },
                    :tag => "releasetarget", :attributes => { :project => "BaseDistro2Channel", :repository => "channel_repo", :trigger => "maintenance" }
 
-    raw_put "/source/"+incidentProject+"/BaseDistro2.Channel/_channel", "<?xml version='1.0' encoding='UTF-8'?>
-        <channel>
-          <target project='BaseDistro2Channel' repository='channel_repo'/>
-          <binaries arch='i586' project='BaseDistro2.0:LinkedUpdateProject' repository='BaseDistro2LinkedUpdateProject_repo'>
-            <binary name='package' package='kgraft-GA' />
-            <binary name='package' package='kgraft-incident-0' />
-          </binaries>
-        </channel>"
-    assert_response :success
 
     # Create patchinfo informations
     Timecop.freeze(1)
@@ -168,8 +195,18 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # upload build result as a worker would do
     inject_build_job( incidentProject, "kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}", kernelIncidentProject.gsub( /:/, '_'), 'i586')
-    inject_build_job( incidentProject, "kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}", kernelIncidentProject.gsub( /:/, '_'), 'x86_64')
+    inject_build_job( incidentProject, "kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}", kernelIncidentProject.gsub( /:/, '_'), 'x86_64', "package_newweaktags-1.0-1.x86_64.rpm")
     inject_build_job( incidentProject, "kgraft-GA.BaseDistro2.0", "BaseDistro2.0", 'i586')
+
+    # lock kernelIncident to be sure that nothing can be released to
+    get '/source/'+kernelIncidentProject+'/_meta'
+    assert_response :success
+    assert_no_xml_tag :tag => "lock" # or our fixtures have changed
+    doc = REXML::Document.new(@response.body)
+    doc.elements['/project'].add_element 'lock'
+    doc.elements['/project/lock'].add_element 'enable'
+    put '/source/'+kernelIncidentProject+'/_meta', doc.to_s
+    assert_response :success
 
     # collect the job results
     run_scheduler('x86_64')
@@ -180,7 +217,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro2Channel', arch: 'i586', state: 'published' } },
                :tag => 'status', :attributes => { package: 'BaseDistro2.Channel', code: 'succeeded' },
                :tag => 'status', :attributes => { package: 'patchinfo', code: 'succeeded' }
-
+    get "/build/#{incidentProject}/BaseDistro2Channel/i586/patchinfo/"
+    assert_response :success
+    assert_xml_tag tag: 'binary', attributes: {filename: "updateinfo.xml"}
+    assert_xml_tag tag: 'binary', attributes: {filename: "package-1.0-1.src.rpm"}
+    assert_xml_tag tag: 'binary', attributes: {filename: "package-1.0-1.i586.rpm"}
+    assert_xml_tag tag: 'binary', attributes: {filename: "package_newweaktags-1.0-1.x86_64.rpm"}
 
     #
     # create release request
@@ -194,6 +236,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_no_xml_tag( :tag => 'source', :attributes => { rev: nil } )
     # GM project may be locked, must not appear
     assert_no_xml_tag( :tag => 'target', :attributes => { project: 'BaseDistro2.0' } )
+    # code stream gets the sources of the packages
+    assert_xml_tag( :parent => { :tag => "action", :attributes => { :type => "maintenance_release" } },
+                    :tag => 'source', :attributes => { project: incidentProject, package: 'kgraft-GA.BaseDistro2.0' },
+                    :tag => 'target', :attributes => { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'kgraft-GA.1' } )
     # update channel file
     assert_xml_tag( :parent => { :tag => "action", :attributes => { :type => "submit" } },
                     :tag => 'target', :attributes => { project: 'Channel', package: 'BaseDistro2' } )
@@ -225,6 +271,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # cleanup
     post "/source/BaseDistro2.0", { cmd: 'unlock', comment: 'revert' }
+    assert_response :success
+    post "/source/#{kernelIncidentProject}", { cmd: 'unlock', comment: 'revert' }
     assert_response :success
     post "/source/#{incidentProject}", { cmd: 'unlock', comment: 'cleanup' }
     assert_response :success

@@ -74,7 +74,7 @@ class MaintenanceIncident < ActiveRecord::Base
     end
     if template =~ /%N/
       name = (self.name||"")
-      counterType << " AND name   = ?" + name
+      counterType << " AND name   = ?" 
       values << name
     else
       counterType << " AND ISNULL(name)"

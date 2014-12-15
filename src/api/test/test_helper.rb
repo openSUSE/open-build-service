@@ -435,7 +435,7 @@ module ActionDispatch
       perlopts="-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
       IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode #{arch}") do |io|
         # just for waiting until scheduler finishes
-        io.each { |line| line.strip.chomp unless line.blank? }
+        io.each { |line| Rails.logger.debug("scheduler(#{arch}): #{line.strip.chomp}") unless line.blank? }
       end
     end
 

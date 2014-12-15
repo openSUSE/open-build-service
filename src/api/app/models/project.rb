@@ -1076,7 +1076,7 @@ class Project < ActiveRecord::Base
     end
     trepo.path_elements.create(:link => source_repo, :position => 1)
     trigger = nil # no trigger is set by default
-    trigger = 'maintenance' if MaintenanceIncident.find_by_db_project_id( self.id ) # is target an incident project ?
+    trigger = 'maintenance' if self.is_maintenance_incident?
     if add_target_repos.length > 0
       # add repository targets
       add_target_repos.each do |repo|
@@ -1088,30 +1088,30 @@ class Project < ActiveRecord::Base
   def branch_to_repositories_from(project, pkg_to_enable, extend_names=nil)
     # shall we use the repositories from a different project?
     project = project.update_instance('OBS', 'BranchRepositoriesFromProject')
-
     project.repositories.each do |repo|
       repoName = extend_names ? repo.extended_name : repo.name
-      unless self.repositories.find_by_name(repoName)
-        # copy target repository when operating on a channel
-        targets = repo.release_targets if (pkg_to_enable and pkg_to_enable.is_channel?)
-        # base is a maintenance incident, take its target instead (kgraft case)
-        targets = repo.release_targets if repo.project.is_maintenance_incident?
-
-        target_repos = []
-        target_repos = targets.map{|t| t.target_repository} if targets
-        # or branch from official release project? release to it ...
-        target_repos = [repo] if repo.project.is_maintenance_release?
-
-        update_project = repo.project.update_instance
-        if update_project != repo.project
-          # building against gold master projects might happen (kgraft), but release
-          # must happen to the right repos in the update project
-          target_repos = Repository.find_by_project_and_path(update_project, repo)
-        end
-
-        self.add_repository_with_targets(repoName, repo, target_repos)
-      end
+      next if repo.is_local_channel?
       pkg_to_enable.enable_for_repository(repoName) if pkg_to_enable
+      next if self.repositories.find_by_name(repoName)
+
+      # copy target repository when operating on a channel
+      targets = repo.release_targets if (pkg_to_enable and pkg_to_enable.is_channel?)
+      # base is a maintenance incident, take its target instead (kgraft case)
+      targets = repo.release_targets if repo.project.is_maintenance_incident?
+
+      target_repos = []
+      target_repos = targets.map{|t| t.target_repository} if targets
+      # or branch from official release project? release to it ...
+      target_repos = [repo] if repo.project.is_maintenance_release?
+
+      update_project = repo.project.update_instance
+      if update_project != repo.project
+        # building against gold master projects might happen (kgraft), but release
+        # must happen to the right repos in the update project
+        target_repos = Repository.find_by_project_and_path(update_project, repo)
+      end
+
+      self.add_repository_with_targets(repoName, repo, target_repos)
     end
 
     self.branch_copy_flags(project)
@@ -1136,7 +1136,9 @@ class Project < ActiveRecord::Base
     project.flags.each do |f|
       next if %w(build lock).include?(f.flag)
       next if f.flag == 'publish' and disable_publish_for_branches
-      next if self.flags.where(status: f.status, flag: f.flag, architecture: f.architecture, repo: f.repo).exists?
+      # NOTE: it does not matter if that flag is set to enable or disable, so we do not check fro
+      #       for same flag status here explizit
+      next if self.flags.where(flag: f.flag, architecture: f.architecture, repo: f.repo).exists?
 
       self.flags.create(status: f.status, flag: f.flag, architecture: f.architecture, repo: f.repo)
     end
