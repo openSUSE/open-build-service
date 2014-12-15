@@ -2086,7 +2086,7 @@ sub copybuild {
     my $pid = xfork();
     return $BSStdServer::return_ok if $pid;
     for (sort(keys %delayed_linking)) {
-      BSUtil::linktree($delayed_linking->{$_}, $_);
+      BSUtil::linktree($delayed_linking{$_}, $_);
     }
   }
 
