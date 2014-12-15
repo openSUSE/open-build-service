@@ -351,13 +351,19 @@ sub signjob {
     }
     unlink("$jobdir/.checksums");
 
-    my $followupspec;
-    if (!$info->{'followupfile'} && ($info->{'file'} || '') ne '_aggregate' && grep {/\.rsasign$/} @signfiles) {
-      $followupspec = (grep {/\.spec$/} @files)[0];
-      @signfiles = grep {/\.rsasign$/} @signfiles if $followupspec;
+    my $followupfile;
+    # check for followup files
+    if (!$info->{'followupfile'} && ($info->{'file'} || '') ne '_aggregate') {
+      if (grep {/\.rsasign$/} @signfiles) {
+        $followupfile = (grep {/\.spec$/} @files)[0];
+        @signfiles = grep {/\.rsasign$/} @signfiles if $followupfile;
+      }
+      if (!$followupfile && grep {/\.followup.spec$/} @files) {
+	$followupfile = (grep {/\.followup.spec$/} @files)[0];
+      }
     }
 
-    push @signargs, '-S', "$jobdir/.checksums" if !$followupspec && $sign_supports_S;
+    push @signargs, '-S', "$jobdir/.checksums" if !$followupfile && $sign_supports_S;
 
     eval {
       for my $signfile (@signfiles) {
@@ -366,7 +372,7 @@ sub signjob {
 	  next;
 	}
 	if ($signfile =~ /\.rsasign$/) {
-	  rsasign("$jobdir/$signfile", $jobstatus, @signargs) if $followupspec;
+	  rsasign("$jobdir/$signfile", $jobstatus, @signargs) if $followupfile;
 	  next;
 	}
 	if ($info->{'file'} eq '_aggregate' && ($signfile =~ /\.d?rpm$/)) {
@@ -440,9 +446,9 @@ sub signjob {
     # all files signed now
     unlink("$uploaddir/signer.$$") if $signkey;
 
-    if ($followupspec) {
+    if ($followupfile) {
       # we need to create a followup job to integrate the signatures
-      $info->{'followupfile'} = $followupspec;
+      $info->{'followupfile'} = $followupfile;
       writexml("$jobsdir/$arch/.$job", "$jobsdir/$arch/$job", $info, $BSXML::buildinfo);
       unlink("$jobsdir/$arch/$job:status");
       close F;
