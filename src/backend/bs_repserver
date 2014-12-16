@@ -2083,8 +2083,8 @@ sub copybuild {
 	  if ($shafile =~ /-----BEGIN PGP SIGNED MESSAGE-----\n/s) {
 	    # de-pgp
 	    $shafile =~ s/.*-----BEGIN PGP SIGNED MESSAGE-----//s;
-	    $shafile =~ s/.*?\n\n//;
-	    $shafile =~ s/-----BEGIN PGP SIGNATURE-----.*//;
+	    $shafile =~ s/.*?\n\n//s;
+	    $shafile =~ s/-----BEGIN PGP SIGNATURE-----.*//s;
 	  }
 	  my $writeit;
 	  for (sort keys %renamed) {

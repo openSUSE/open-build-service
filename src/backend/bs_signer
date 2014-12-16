@@ -296,8 +296,8 @@ sub fixup_sha256_checksum {
   if ($sha =~ /-----BEGIN PGP SIGNED MESSAGE-----\n/s) {
     # de-pgp
     $sha =~ s/.*-----BEGIN PGP SIGNED MESSAGE-----//s;
-    $sha =~ s/.*?\n\n//;
-    $sha =~ s/-----BEGIN PGP SIGNATURE-----.*//;
+    $sha =~ s/.*?\n\n//s;
+    $sha =~ s/-----BEGIN PGP SIGNATURE-----.*//s;
   }
   local *F;
   open(F, '<', "$jobdir/$isofile") || return;
