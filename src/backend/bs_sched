@@ -596,17 +596,13 @@ sub expandkiwipath {
 #
 # set_building  - create a new build job
 #
-# input:  $projid        - project this package belongs to
-#         $repoid        - repository we are building for
+# input:  $ctx           - prp context
 #         $packid        - package to be built
 #         $pdata         - package data
 #         $info          - file and dependency information
-#         $bconf         - project configuration
 #         $subpacks      - all subpackages of this package we know of
 #         $edeps         - expanded build dependencies
-#         $prpsearchpath - build repository search path
 #         $reason        - what triggered the build
-#         $relsyncmax    - bcnt sync data
 #         $needed        - packages blocked by this job
 #
 # output: $job           - the job identifier
@@ -618,8 +614,13 @@ sub expandkiwipath {
 # not that hard, was it?
 #
 sub set_building {
-  my ($projid, $repoid, $packid, $pdata, $info, $bconf, $subpacks, $edeps, $prpsearchpath, $reason, $relsyncmax, $needed) = @_;
+  my ($ctx, $packid, $pdata, $info, $subpacks, $edeps, $reason, $needed) = @_;
 
+  my $projid = $ctx->{'project'};
+  my $repoid = $ctx->{'repository'};
+  my $bconf = $ctx->{'conf'};
+  my $prpsearchpath = $ctx->{'prpsearchpath'};
+  my $relsyncmax = $ctx->{'relsyncmax'};
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
   my $job = jobname($prp, $packid);
@@ -4882,12 +4883,12 @@ sub rebuildkiwiimage {
     no warnings 'redefine';
     local *Build::expand = $ownexpand;
     use warnings 'redefine';
-    ($job, $joberror) = set_building($ctx->{'project'}, $ctx->{'repository'}, $packid, $pdata, $info, $bconf, [], $edeps, undef, $reason, $ctx->{'relsyncmax'}, 0);
+    ($job, $joberror) = set_building({ %$ctx, 'conf' => $bconf, 'prpsearchpath' => undef }, $packid, $pdata, $info, [], $edeps, $reason, 0);
   } else {
     # repo has a configured path, expand kiwi system with it
     my $prp = "$projid/$repoid";
     return ('broken', 'no config') unless $bconf;	# should not happen
-    ($job, $joberror) = set_building($ctx->{'project'}, $ctx->{'repository'}, $packid, $pdata, $info, $ctx->{'conf'}, [], $edeps, $ctx->{'prpsearchpath'} || [], $reason, $ctx->{'relsyncmax'}, 0);
+    ($job, $joberror) = set_building($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
   }
   if ($job) {
     return ('scheduled', $job);
@@ -6563,11 +6564,9 @@ sub checkpreinstallimage {
 
 sub rebuildpreinstallimage {
   my ($ctx, $packid, $pdata, $info, $data) = @_;
-  my $projid = $ctx->{'project'};
-  my $repoid = $ctx->{'repository'};
   my $bdeps = $data->[0];
   my $reason = $data->[1];
-  my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $ctx->{'conf'}, [], $bdeps, $ctx->{'prpsearchpath'}, $reason, $ctx->{'relsyncmax'}, 0);
+  my ($job, $joberror) = set_building($ctx, $packid, $pdata, $info, [], $bdeps, $reason, 0);
   return ('broken', $joberror) unless $job;
   return ('scheduled', $job);
 }
@@ -6794,8 +6793,7 @@ relsynccheck:
 sub rebuildpackage {
   my ($ctx, $packid, $pdata, $info, $data) = @_;
 
-  my $projid = $ctx->{'project'};
-  my $repoid = $ctx->{'repository'};
+  my $reason = $data->[0];
   my $needed = $ctx->{'rebuildpackage_needed'};
   if (!$needed) {
     $needed = $ctx->{'rebuildpackage_needed'} = {};
@@ -6806,9 +6804,7 @@ sub rebuildpackage {
     }
   }
   $info->{'nounchanged'} = 1 if $ctx->{'cychash'}->{$packid};
-  my ($job, $joberror) = set_building($projid, $repoid, $packid, $pdata, $info, $ctx->{'conf'},
-     $ctx->{'subpacks'}->{$info->{'name'}} || [], $ctx->{'edeps'}->{$packid} || [],
-     $ctx->{'prpsearchpath'}, $data->[0], $ctx->{'relsyncmax'}, $needed->{$packid} || 0);
+  my ($job, $joberror) = set_building($ctx, $packid, $pdata, $info, $ctx->{'subpacks'}->{$info->{'name'}} || [], $ctx->{'edeps'}->{$packid} || [], $reason, $needed->{$packid} || 0);
   delete $info->{'nounchanged'};
   return ('broken', $joberror) unless $job;	# could not start job
   return ('scheduled', $job);
