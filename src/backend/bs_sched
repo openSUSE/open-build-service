@@ -595,7 +595,7 @@ sub expandkiwipath {
 
 sub path2buildinfopath {
   my ($path) = @_;
-  my $ret = [];
+  my @ret;
   for (@{$path || []}) {
     my @pr = split('/', $_, 2);
     my $server = $workerreposerver;
@@ -607,9 +607,9 @@ sub path2buildinfopath {
 	$server = ($BSConfig::workerpartitionservers || {})->{$par} || $remoteprojs{$pr[0]}->{'remoteurl'};
       }
     }
-    push @$ret, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $server};
+    push @ret, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $server};
   }
-  return $ret;
+  return \@ret;
 }
 
 #
