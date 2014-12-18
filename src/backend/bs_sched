@@ -689,7 +689,10 @@ sub set_building {
     print "          $_\n" for @bdeps;
     return (undef, "unresolvable: ".join(', ', @bdeps));
   }
-  my @sysdeps = Build::get_sysbuild($bconf, $buildtype);
+  if (!$ctx->{"sysbuild_$buildtype"}) {
+    $ctx->{"sysbuild_$buildtype"} = [ Build::get_sysbuild($bconf, $buildtype) ];
+  }
+  my @sysdeps = @{$ctx->{"sysbuild_$buildtype"}};
   if (@sysdeps && !shift(@sysdeps)) {
     print "        unresolvable:\n";
     print "          $_\n" for @sysdeps;
