@@ -377,6 +377,7 @@ sub addrev_service {
       $user = str2utf8xml($user);
       $comment = '' unless defined $comment;
       $comment = str2utf8xml($comment);
+      $error = str2utf8xml($error);
       notify('SRCSRV_SERVICE_FAIL', {project => $projid, package => $packid,
                                      error => $error, rev => $rev->{'rev'},
                                      user => $user, comment => $comment,
