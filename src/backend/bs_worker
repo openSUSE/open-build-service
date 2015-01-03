@@ -3241,7 +3241,7 @@ if ($@) {
 }
 if ($buildinfo->{'followupfile'}) {
   my $buildsrcdir = "$buildroot/.build.packages/SOURCES";
-  $buildsrcdir = "$buildroot/.build-srcdir" if $vm =~ /(xen|kvm)/;
+  $buildsrcdir = "$buildroot/.build-srcdir" if $vm =~ /(xen|kvm|emulator)/;
   # if it was a follow up build, prepend old logfile
   if (-s "$buildsrcdir/logfile") {
     local *F;
