@@ -71,7 +71,10 @@ class Product < ActiveRecord::Base
       u.elements('repository') do |repo|
         next if repo['project'].blank? # it may be just a url= reference
         poolRepo = Repository.find_by_project_and_repo_name(repo['project'], repo['name'])
-        raise UnknownRepository.new "Pool repository #{repo['project']}/#{repo['name']} does not exist" unless poolRepo
+        unless poolRepo
+          errors.add(:missing, "Pool repository #{repo['project']}/#{repo['name']} missing")
+          next
+        end
         name = repo.get('medium')
         arch = repo.get('arch')
         key = "#{poolRepo.id}/#{name}"
@@ -82,8 +85,11 @@ class Product < ActiveRecord::Base
           p = {product: self, repository: poolRepo, name: name}
           unless arch.blank?
             arch_filter = Architecture.find_by_name(arch)
-            raise NotFoundError.new("Architecture #{arch} not valid") unless arch_filter
-            p[:arch_filter_id] = arch_filter.id
+            if arch_filter
+              p[:arch_filter_id] = arch_filter.id
+            else
+              errors.add(:invalid, "Architecture #{arch} not valid")
+            end
           end
           self.product_media.create(p)
         end
@@ -110,8 +116,11 @@ class Product < ActiveRecord::Base
         unless arch.blank?
           key += "/#{arch}"
           arch_filter = Architecture.find_by_name(arch)
-          raise NotFoundError.new("Architecture #{arch} not valid") unless arch_filter
-          p[:arch_filter_id] = arch_filter.id
+          if arch_filter
+            p[:arch_filter_id] = arch_filter.id
+          else
+            errors.add(:invalid, "Architecture #{arch} not valid")
+          end
         end
         ProductUpdateRepository.create(p) unless update[key]
         update.delete(key)
