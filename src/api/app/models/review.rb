@@ -9,6 +9,13 @@ class Review < ActiveRecord::Base
   belongs_to :bs_request
   validates_inclusion_of :state, :in => VALID_REQUEST_STATES
 
+  validates :by_user, length: { maximum: 250 }
+  validates :by_group, length: { maximum: 250 }
+  validates :by_project, length: { maximum: 250 }
+  validates :by_package, length: { maximum: 250 }
+  validates :reviewer, length: { maximum: 250 }
+  validates :reason, length: { maximum: 65534 }
+
   before_validation(on: :create) do
     if read_attribute(:state).nil?
       self.state = :new
