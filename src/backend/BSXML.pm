@@ -706,6 +706,7 @@ our $worker = [
       [ 'hardware' =>
         [ 'cpu' =>
           [ 'flag' ],
+          [ 'kind' ],
         ],
         'processors',
 	'memory',	# in MBytes

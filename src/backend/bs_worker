@@ -651,6 +651,10 @@ my $workerenvstate = {};
       if (/^processor/s) {
         $hw->{'processors'} = $hw->{'processors'} + 1;
       }
+      elsif (/cpu[\s]*:\s(.*)$/) {
+        (my $cpukind) = ($1 =~ /\A(.*?) /);
+        $hw->{'cpu'}->{'kind'} = $cpukind;
+      }
       elsif (/^flags[\s]*:\s(.*)$/) {
         my @cpuflags = split(' ', $1);
         $hw->{'cpu'}->{'flag'} = \@cpuflags;
