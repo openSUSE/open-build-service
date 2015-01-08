@@ -670,7 +670,7 @@ sub set_building {
 
     # switch searchpath to kiwi info path
     $syspath = $searchpath if @$searchpath;
-    $searchpath = path2buildinfopath(expandkiwipath($info, $prpsearchpath));
+    $searchpath = path2buildinfopath([ expandkiwipath($info, $prpsearchpath) ]);
   }
 
   my $eok;
