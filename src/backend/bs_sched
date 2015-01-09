@@ -5825,11 +5825,11 @@ sub rebuildpatchinfo {
   if ($target && $target->{'id_template'}) {
     my $template = $target->{'id_template'};
     my @lt = localtime($firstissued);
-    my $patch_name = $patchinfo->{'name'} || "_UNDEFINED_";
+    $broken ||= 'patchinfo name is required' if $template =~ m/%N/ && not defined $patchinfo->{'name'};
     $template =~ s/%Y/$lt[5] + 1900/eg;
     $template =~ s/%M/$lt[4] + 1/eg;
     $template =~ s/%D/$lt[3]/eg;
-    $template =~ s/%N/$patch_name/eg;
+    $template =~ s/%N/$patchinfo->{'name'}/eg;
     if ($template =~ /%C/) {
       $template =~ s/%C/$update->{'id'}/g;
     } else {
