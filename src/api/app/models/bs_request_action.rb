@@ -216,7 +216,7 @@ class BsRequestAction < ActiveRecord::Base
   def render_xml(builder)
     builder.action :type => self.action_type do |action|
       render_xml_attributes(action)
-      if self.sourceupdate || self.updatelink
+      if self.sourceupdate || self.updatelink || self.makeoriginolder
         action.options do
           action.sourceupdate self.sourceupdate if self.sourceupdate
           action.updatelink 'true' if self.updatelink

@@ -2025,6 +2025,7 @@ end
                                    <state name="new" />
                                  </request>'
     assert_response :success
+    assert_xml_tag :tag => 'makeoriginolder', :content => "true"
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     reqid = node.value(:id)
