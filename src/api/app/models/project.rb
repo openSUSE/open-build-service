@@ -259,9 +259,9 @@ class Project < ActiveRecord::Base
       return dbp
     end
 
-    def get_maintenance_project
+    def get_maintenance_project(at=nil)
       # hardcoded default. frontends can lookup themselfs a different target via attribute search
-      at = AttribType.find_by_namespace_and_name!('OBS','MaintenanceProject')
+      at ||= AttribType.find_by_namespace_and_name!('OBS','MaintenanceProject')
       maintenanceProject = Project.find_by_attribute_type(at).first
       unless maintenanceProject and check_access?(maintenanceProject)
         raise UnknownProject.new 'There is no project flagged as maintenance project on server and no target in request defined.'
