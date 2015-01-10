@@ -24,12 +24,21 @@ end
 
 OBSApi::Application.routes.draw do
 
-  constraints(WebuiMatcher) do
+  cons = {
+    arch:          %r{[^\/]*},
+    binary:        %r{[^\/]*},
+    filename:      %r{[^\/]*},
+    id:            %r{\d*},
+    login:         %r{[^\/]*},
+    package:       %r{[^\/]*},
+    project:       %r{[^\/]*},
+    repository:    %r{[^\/]*},
+    service:       %r{\w[^\/]*},
+    title:         %r{[^\/]*},
+    user:          %r{[^\/]*}
+  }
 
-    cons = {project: %r{[^\/]*}, package: %r{[^\/]*}, binary: %r{[^\/]*},
-            user: %r{[^\/]*}, login: %r{[^\/]*}, title: %r{[^\/]*}, service: %r{\w[^\/]*},
-            repository: %r{[^\/]*}, filename: %r{[^\/]*}, arch: %r{[^\/]*},
-            id: %r{\d*}}
+  constraints(WebuiMatcher) do
 
     root 'webui/main#index'
 
@@ -319,11 +328,6 @@ OBSApi::Application.routes.draw do
   end
 
   # first the routes where the mime type does not matter
-  cons = {project: %r{[^\/]*}, package: %r{[^\/]*},
-          binary: %r{[^\/]*}, user: %r{[^\/]*}, login: %r{[^\/]*},
-          title: %r{[^\/]*}, service: %r{\w[^\/]*},
-          repository: %r{[^\/]*}, filename: %r{[^\/]*},
-          arch: %r{[^\/]*}, id: %r{\d*}}
 
   ### /build
   match 'build/:project/:repository/:arch/:package/_status' => 'build#index', constraints: cons, via: [:get, :post]
@@ -676,7 +680,7 @@ OBSApi::Application.routes.draw do
   end
 
   # this can be requested by non browsers (like HA proxies :)
-  get 'apidocs/:filename' => 'webui/apidocs#file', constraints: {filename: %r{[^\/]*}}, as: 'apidocs_file'
+  get 'apidocs/:filename' => 'webui/apidocs#file', constraints: cons, as: 'apidocs_file'
 
   # TODO: move to api
   # spiders request this, not browsers
