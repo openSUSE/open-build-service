@@ -1601,6 +1601,47 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(:tag => 'status', :attributes => { code: 'lacking_maintainership' })
   end
 
+  def test_makeoriginolder_request
+    login_Iggy
+
+    put '/source/home:Iggy:Apache/_meta', "<project name='home:Iggy:Apache'> <title/> <description/>
+                                         <link project='Apache'/>
+                                        </project>"
+    assert_response :success
+
+    req = "<request>
+            <action type='submit'>
+              <source project='Apache' package='apache2' rev='1' />
+              <target project='home:Iggy:Apache' package='apache2' />
+              <options>
+                <makeoriginolder>true</makeoriginolder>
+              </options>
+            </action>
+            <description/>
+          </request>"
+    post '/request?cmd=create', req
+    assert_response :success
+    node = Xmlhash.parse(@response.body)
+    id = node['id']
+    assert !id.blank?
+
+    # approvereview
+    login_fred
+    post "/request/#{id}?cmd=changereviewstate&by_project=Apache&by_package=apache2&newstate=accepted"
+    assert_response :success
+
+    login_Iggy
+    post "/request/#{id}?cmd=changestate&newstate=accepted&comment=But+I+want+it"
+    assert_response 403
+    assert_xml_tag(:tag => 'status', :attributes => { code: 'post_request_no_permission' })
+    post "/request/#{id}?cmd=changestate&newstate=accepted&force=1&comment=But+I+want+it"
+    assert_response 403
+    assert_xml_tag(:tag => 'status', :attributes => { code: 'post_request_no_permission' })
+
+    delete '/source/home:Iggy:Apache'
+    assert_response :success
+  end
+
   def test_reopen_a_review_declined_request
     %w(new review).each do |newstate|
       login_Iggy

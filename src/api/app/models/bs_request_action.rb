@@ -319,12 +319,6 @@ class BsRequestAction < ActiveRecord::Base
         tpkg = tprj.packages.find_by_name self.source_package
       end
     end
-    if self.makeoriginolder
-      originpkg = Package.get_by_project_and_name self.target_project, self.target_package
-      unless User.current.can_modify_package? originpkg
-        raise LackingMaintainership.new "Package target can not get initialized using makeoriginolder. No permission in project #{originpkg.project.name}"
-      end
-    end
 
     if self.source_project
       # if the user is not a maintainer if current devel package, the current maintainer gets added as reviewer of this request

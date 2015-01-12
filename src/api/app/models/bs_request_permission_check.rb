@@ -163,6 +163,14 @@ class BsRequestPermissionCheck
         raise TargetNotMaintenance.new "The target project is not of type maintenance or incident but #{@target_project.project_type}"
       end
     end
+
+    if action.makeoriginolder
+      # the target project may link to another project where we need to check modification permissions
+      originpkg = Package.get_by_project_and_name action.target_project, action.target_package
+      unless User.current.can_modify_package? originpkg
+        raise PostRequestNoPermission.new "Package target can not get initialized using makeoriginolder. No permission in project #{originpkg.project.name}"
+      end
+    end
   end
 
   def set_permissions_for_action(action)
