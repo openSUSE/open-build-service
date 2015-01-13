@@ -1423,7 +1423,7 @@ end
 
     # add another issue and update patchinfo
     Timecop.freeze(1)
-    raw_put '/source/'+incidentProject+'/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes', 'DUMMY bnc#1042 CVE-2009-0815 bnc#4201'
+    raw_put '/source/'+incidentProject+'/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes', 'DUMMY bnc#1042 cve-2009-0815 bnc#4201'
     assert_response :success
     get "/source/#{incidentProject}/pack2.BaseDistro2.0_LinkedUpdateProject?view=issues"
     assert_response :success
@@ -1444,7 +1444,7 @@ end
     assert_no_xml_tag :parent => { tag: 'issue' }, :tag => 'issue', :attributes => { change: '' }
     assert_xml_tag :parent => { tag: 'issue' }, :tag => 'name', :content => '1042'
     assert_xml_tag :parent => { tag: 'issue' }, :tag => 'tracker', :content => 'bnc'
-    assert_xml_tag :parent => { tag: 'issue' }, :tag => 'name', :content => 'CVE-2009-0815'
+    assert_xml_tag :parent => { tag: 'issue' }, :tag => 'name', :content => '2009-0815'
     assert_xml_tag :parent => { tag: 'issue' }, :tag => 'tracker', :content => 'cve'
     assert_xml_tag :parent => { tag: 'issue' }, :tag => 'name', :content => '4201'
     assert_xml_tag :parent => { tag: 'issue' }, :tag => 'tracker', :content => 'bnc'
@@ -1570,7 +1570,7 @@ end
     assert_xml_tag :parent => { tag: 'update', attributes: { from: 'maintenance_coord', status: 'stable', type: 'security', version: '1' } }, :tag => 'id', :content => nil
     assert_xml_tag :tag => 'reference', :attributes => { href: 'https://bugzilla.novell.com/show_bug.cgi?id=1042', id: '1042', type: 'bugzilla' }
     assert_xml_tag :tag => 'reference', :attributes => { href: 'https://bugzilla.novell.com/show_bug.cgi?id=4201', id: '4201', type: 'bugzilla' }
-    assert_xml_tag :tag => 'reference', :attributes => { href: 'http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-0815', id: 'CVE-2009-0815', type: 'cve' }
+    assert_xml_tag :tag => 'reference', :attributes => { href: 'http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-0815', id: '2009-0815', type: 'cve' }
     assert_no_xml_tag :tag => 'reference', :attributes => { href: 'https://bugzilla.novell.com/show_bug.cgi?id=' }
     assert_no_xml_tag :tag => 'reference', :attributes => { id: '' }
     # check updateinfo
