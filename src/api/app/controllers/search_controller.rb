@@ -69,6 +69,8 @@ class SearchController < ApplicationController
     obj = params[:binary] unless params[:binary].blank?
     obj = User.find_by_login!(params[:user]) unless params[:user].blank?
     obj = Group.find_by_title!(params[:group]) unless params[:group].blank?
+    obj = Package.get_by_project_and_name(params[:project], params[:package]) unless params[:project].blank? or params[:package].blank?
+    obj = Project.get_by_name(params[:project]) unless not obj.nil? or params[:project].blank?
 
     if obj.blank?
       render_error :status => 400, :errorcode => "no_binary",
