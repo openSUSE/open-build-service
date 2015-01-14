@@ -2863,16 +2863,18 @@ sub getbuildinfo {
   }
   my $pname = $info->{'name'};
   my @subpacks = grep {defined($dep2src{$_}) && $dep2src{$_} eq $pname} keys %dep2src;
+  @subpacks = () if $buildtype eq 'kiwi';
   if ($info->{'subpacks'}) {
     $ret->{'subpack'} = $info->{'subpacks'};
   } elsif (@subpacks) {
     $ret->{'subpack'} = [ @subpacks ];
   }
-  my @deps = @{$info->{'dep'} || []};
 
-  # expand deps
+  # expand meta deps
+  my @edeps = @{$info->{'dep'} || []};
+  local $Build::expand_dbg = 1 if $cgi->{'debug'};
   $ret->{'expanddebug'} = '' if $cgi->{'debug'};
-  if (grep {$_ eq '-simple_expansion_hack'} @deps) {
+  if (grep {$_ eq '-simple_expansion_hack'} @edeps) {
     # special hack to expand dependencies without the build packages
     delete $bconf->{'ignore'};
     delete $bconf->{'ignoreh'};
@@ -2881,57 +2883,42 @@ sub getbuildinfo {
     $bconf->{'required'} = [];
     $bconf->{'support'} = [];
   }
-  $Build::expand_dbg = 1 if $cgi->{'debug'};
-  @subpacks = () if $buildtype eq 'kiwi';
-  my @edeps;
   if ($buildtype eq 'kiwi' && $kiwitype eq 'product') {
-    @edeps = (1, @deps);
+    @edeps = (1, @edeps);
   } elsif ($buildtype eq 'kiwi') {
     my $bconfignore = $bconf->{'ignore'};
     my $bconfignoreh = $bconf->{'ignoreh'};
     delete $bconf->{'ignore'};
     delete $bconf->{'ignoreh'};
     my $xp = BSSolv::expander->new($pool, $bconf);
-    my $ownexpand = sub {
-      $_[0] = $xp;
-      goto &BSSolv::expander::expand;
-    };
     no warnings 'redefine';
-    local *Build::expand = $ownexpand;
+    local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
-    @edeps = Build::get_build($bconf, \@subpacks, @deps);
+    @edeps = Build::get_build($bconf, [], @edeps, '--ignoreignore--');
     $bconf->{'ignore'} = $bconfignore if $bconfignore;
     $bconf->{'ignoreh'} = $bconfignoreh if $bconfignoreh;
-    $ret->{'expanddebug'} .= $xp->debugstr() if defined($ret->{'expanddebug'}) && defined &BSSolv::expander::debugstr;
+    if (defined($ret->{'expanddebug'})) {
+      $ret->{'expanddebug'} .= "\n" if $ret->{'expanddebug'};
+      $ret->{'expanddebug'} .= "=== kiwi image expansion\n";
+      $ret->{'expanddebug'} .= $xp->debugstr() if defined &BSSolv::expander::debugstr;
+    }
   } elsif ($pdata->{'buildenv'}) {
      @edeps = (1);
   } else {
     my $xp = BSSolv::expander->new($pool, $bconf);
-    my $ownexpand = sub {
-      $_[0] = $xp;
-      goto &BSSolv::expander::expand;
-    };
     no warnings 'redefine';
-    local *Build::expand = $ownexpand;
+    local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
-    @edeps = Build::get_deps($bconf, \@subpacks, @deps);
-    $ret->{'expanddebug'} .= $xp->debugstr() if defined($ret->{'expanddebug'}) && defined &BSSolv::expander::debugstr;
+    @edeps = Build::get_deps($bconf, \@subpacks, @edeps);
+    if (defined($ret->{'expanddebug'})) {
+      $ret->{'expanddebug'} .= "\n" if $ret->{'expanddebug'};
+      $ret->{'expanddebug'} .= "=== meta deps expansion\n";
+      $ret->{'expanddebug'} .= $xp->debugstr() if defined &BSSolv::expander::debugstr;
+    }
   }
-  undef $Build::expand_dbg if $cgi->{'debug'};
   if (! shift @edeps) {
     $ret->{'error'} = "unresolvable: ".join(', ', @edeps);
     return ($ret, $BSXML::buildinfo);
-  }
-  if ($buildtype eq 'kiwi') {
-    # packages used for build environment
-    if ($kiwitype ne 'product') {
-      @deps = @{$bconf->{'substitute'}->{'kiwi-setup:image'} || []};
-      @deps = ('kiwi', 'createrepo', 'tar') unless @deps;       # default
-    } else {
-      @deps = @{$bconf->{'substitute'}->{'kiwi-setup:product'} || []};
-      @deps = ('kiwi') unless @deps;
-    }
-    push @deps, grep {/^kiwi-.*:/} @{$info->{'dep'} || []};
   }
 
   my $epool;
@@ -2955,34 +2942,52 @@ sub getbuildinfo {
     $pool->createwhatprovides();
   }
 
-  my @bdeps = grep {!/^\// || $bconf->{'fileprovides'}->{$_}} @{$info->{'prereq'} || []};
-  unshift @bdeps, '--directdepsend--' if @bdeps;
-  unshift @bdeps, @deps;
-  $Build::expand_dbg = 1 if $cgi->{'debug'};
+  # create expander
   my $xp = BSSolv::expander->new($pool, $bconf);
-  my $ownexpand = sub {
-    $_[0] = $xp;
-    goto &BSSolv::expander::expand;
-  };
   no warnings 'redefine';
-  local *Build::expand = $ownexpand;
+  local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
   use warnings 'redefine';
+
+  # expand sysbuild deps
+  my @sysdeps;
+  if ($buildtype eq 'kiwi') {
+    @sysdeps = Build::get_sysbuild($bconf, "kiwi-$kiwitype", [ @{$cgi->{'add'} || []}, grep {/^kiwi-.*:/} @{$info->{'dep'} || []} ]);
+  } else {
+    @sysdeps = Build::get_sysbuild($bconf, $buildtype);
+  }
+  if (@sysdeps && defined($ret->{'expanddebug'})) {
+    $ret->{'expanddebug'} .= "\n" if $ret->{'expanddebug'};
+    $ret->{'expanddebug'} .= "=== sysdeps expansion\n";
+    $ret->{'expanddebug'} .= $xp->debugstr() if defined &BSSolv::expander::debugstr;
+  }
+
+  # expand build deps
+  my @bdeps;
   if ($pdata->{'buildenv'}) {
     @bdeps = (1);
-  } elsif (!$cgi->{'deps'}) {
-    @bdeps = Build::get_build($bconf, \@subpacks, @bdeps, @{$cgi->{'add'} || []});
+  } elsif ($cgi->{'deps'}) {
+    @bdeps = Build::get_deps($bconf, \@subpacks, @{$info->{'dep'} || []}, @{$cgi->{'add'} || []});
+  } elsif ($buildtype eq 'kiwi') {
+    @bdeps = (1, @edeps);	# reuse meta deps
   } else {
-    @bdeps = Build::get_deps($bconf, \@subpacks, @deps, @{$cgi->{'add'} || []});
+    @bdeps = (@{$info->{'dep'} || []}, @{$cgi->{'add'} || []});
+    push @bdeps, '--ignoreignore--' if @sysdeps;
+    my @prereqs = grep {!/^\// || $bconf->{'fileprovides'}->{$_}} @{$info->{'prereq'} || []};
+    unshift @prereqs, '--directdepsend--' if @prereqs;
+    @bdeps = Build::get_build($bconf, \@subpacks, @bdeps, @prereqs);
+    if (defined($ret->{'expanddebug'})) {
+      $ret->{'expanddebug'} .= "\n" if $ret->{'expanddebug'};
+      $ret->{'expanddebug'} .= "=== build expansion\n";
+      $ret->{'expanddebug'} .= $xp->debugstr() if defined &BSSolv::expander::debugstr;
+    }
   }
-  $ret->{'expanddebug'} .= "\n" if $ret->{'expanddebug'};
-  $ret->{'expanddebug'} .= $xp->debugstr() if defined($ret->{'expanddebug'}) && defined &BSSolv::expander::debugstr;
-  if (! shift @bdeps) {
+  if (!shift(@bdeps)) {
     undef $xp;
     undef $Build::expand_dbg if $cgi->{'debug'};
     $ret->{'error'} = "unresolvable: ".join(', ', @bdeps);
     return ($ret, $BSXML::buildinfo);
   }
-  my @sysdeps = Build::get_sysbuild($bconf, $buildtype);
+
   if (@sysdeps && !shift(@sysdeps)) {
     undef $xp;
     undef $Build::expand_dbg if $cgi->{'debug'};
@@ -2990,7 +2995,6 @@ sub getbuildinfo {
     return ($ret, $BSXML::buildinfo);
   }
   undef $xp;
-  undef $Build::expand_dbg if $cgi->{'debug'};
 
   my @pdeps = Build::get_preinstalls($bconf);
   my @vmdeps = Build::get_vminstalls($bconf);
@@ -3100,7 +3104,7 @@ sub getbuildinfo {
   if ($buildtype eq 'kiwi' && $kiwitype eq 'product') {
     # things are very different here. first we have the packages needed for kiwi
     # from the full tree
-    @bdeps = unify(@pdeps, @vmdeps, @bdeps);
+    @bdeps = unify(@pdeps, @vmdeps, @sysdeps);
     for (splice(@bdeps)) {
       my $b = {'name' => $_};
       my $p = $dep2pkg{$_};
@@ -3153,8 +3157,8 @@ sub getbuildinfo {
 
   my @rdeps;
   if ($buildtype eq 'kiwi' && $kiwitype eq 'image' && $epool) {
-    # have special system setup pool
-    for (@edeps) {
+    # have special system setup pool, first add image packages, then fall through to system setup packages
+    for (@bdeps) {
       my $p = $dep2pkg{$_};
       my $b = {'name' => $_};
       if (!$cgi->{'internal'}) {
@@ -3169,8 +3173,8 @@ sub getbuildinfo {
       $b->{'noinstall'} = 1;
       push @rdeps, $b;
     }
-    @edeps = ();
-    %edeps = ();
+    @edeps = @bdeps = ();
+    %edeps = %bdeps = ();
     %dep2pkg = ();
     for my $p ($pool->consideredpackages()) {
       my $n = $pool->pkg2name($p);
@@ -3195,10 +3199,8 @@ sub getbuildinfo {
     $b->{'vminstall'} = 1 if $vmdeps{$_};
     $b->{'runscripts'} = 1 if $runscripts{$_};
     $b->{'notmeta'} = 1 unless $edeps{$_};
-    if ($buildtype eq 'kiwi') {
-      $b->{'noinstall'} = 1 if $edeps{$_} && !($bdeps{$_} || $vmdeps{$_} || $pdeps{$_});
-    } elsif (@sysdeps) {
-      $b->{'installonly'} = 1 if $sysdeps{$_} && !$bdeps{$_};
+    if (@sysdeps) {
+      $b->{'installonly'} = 1 if $sysdeps{$_} && !$bdeps{$_} && $buildtype ne 'kiwi';
       $b->{'noinstall'} = 1 if $bdeps{$_} && !($sysdeps{$_} || $vmdeps{$_} || $pdeps{$_});
     }
     push @rdeps, $b;

@@ -638,7 +638,6 @@ sub set_building {
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $bconf = $ctx->{'conf'};
-  my $prpsearchpath = $ctx->{'prpsearchpath'};
   my $relsyncmax = $ctx->{'relsyncmax'};
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
@@ -655,35 +654,38 @@ sub set_building {
   my $buildtype = Build::recipe2buildtype($info->{'file'});
 
   my $syspath;
-  my $searchpath = path2buildinfopath($prpsearchpath);
+  my $searchpath = path2buildinfopath($ctx->{'prpsearchpath'});
+  if ($buildtype eq 'kiwi') {
+    # switch searchpath to kiwi info path
+    $syspath = $searchpath if @$searchpath;
+    $searchpath = path2buildinfopath([ expandkiwipath($info, $ctx->{'prpsearchpath'}) ]);
+  }
+
+  # calculate sysdeps (cannot cache in the kiwi case)
+  my @sysdeps;
+  if ($buildtype eq 'kiwi') {
+    @sysdeps = Build::get_sysbuild($bconf, 'kiwi-image', [ grep {/^kiwi-.*:/} @{$info->{'dep'} || []} ]);
+  } else {
+    $ctx->{"sysbuild_$buildtype"} ||= [ Build::get_sysbuild($bconf, $buildtype) ];
+    @sysdeps = @{$ctx->{"sysbuild_$buildtype"}};
+  }
 
   # calculate packages needed for building
   my @bdeps = grep {!/^\// || $bconf->{'fileprovides'}->{$_}} @{$info->{'prereq'} || []};
   unshift @bdeps, '--directdepsend--' if @bdeps;
   unshift @bdeps, @{$info->{'dep'} || []};
+  push @bdeps, '--ignoreignore--' if @sysdeps;
 
   if ($buildtype eq 'kiwi') {
-    # packages used for build environment setup
-    @bdeps = @{$bconf->{'substitute'}->{'kiwi-setup:image'} || []};
-    @bdeps = ('kiwi', 'createrepo', 'tar') unless @bdeps;	# default
-    push @bdeps, grep {/^kiwi-.*:/} @{$info->{'dep'} || []};
-
-    # switch searchpath to kiwi info path
-    $syspath = $searchpath if @$searchpath;
-    $searchpath = path2buildinfopath([ expandkiwipath($info, $prpsearchpath) ]);
+    @bdeps = (1, @$edeps);	# reuse edeps packages, no need to expand again
+  } else {
+    @bdeps = Build::get_build($bconf, $subpacks, @bdeps);
   }
-
-  my $eok;
-  ($eok, @bdeps) = Build::get_build($bconf, $subpacks, @bdeps);
-  if (!$eok) {
+  if (!shift(@bdeps)) {
     print "        unresolvable:\n";
     print "          $_\n" for @bdeps;
     return (undef, "unresolvable: ".join(', ', @bdeps));
   }
-  if (!$ctx->{"sysbuild_$buildtype"}) {
-    $ctx->{"sysbuild_$buildtype"} = [ Build::get_sysbuild($bconf, $buildtype) ];
-  }
-  my @sysdeps = @{$ctx->{"sysbuild_$buildtype"}};
   if (@sysdeps && !shift(@sysdeps)) {
     print "        unresolvable:\n";
     print "          $_\n" for @sysdeps;
@@ -735,10 +737,8 @@ sub set_building {
     $_->{'vminstall'} = 1 if $vmdeps{$n};
     $_->{'runscripts'} = 1 if $runscripts{$n};
     $_->{'notmeta'} = 1 unless $edeps{$n};
-    if ($buildtype eq 'kiwi') {
-      $_->{'noinstall'} = 1 if $edeps{$n} && !($bdeps{$n} || $vmdeps{$n} || $pdeps{$n});
-    } elsif (@sysdeps) {
-      $_->{'installonly'} = 1 if $sysdeps{$n} && !$bdeps{$n};
+    if (@sysdeps) {
+      $_->{'installonly'} = 1 if $sysdeps{$n} && !$bdeps{$n} && $buildtype ne 'kiwi';
       $_->{'noinstall'} = 1 if $bdeps{$n} && !($sysdeps{$n} || $vmdeps{$n} || $pdeps{$n});
     }
   }
@@ -4779,14 +4779,10 @@ sub checkkiwiimage {
   delete $bconf->{'ignoreh'};
   my @deps = @{$info->{'dep'} || []};
   my $xp = BSSolv::expander->new($pool, $bconf);
-  my $ownexpand = sub {
-    $_[0] = $xp; 
-    goto &BSSolv::expander::expand;
-  };   
   no warnings 'redefine';
-  local *Build::expand = $ownexpand;
+  local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
   use warnings 'redefine';
-  my ($eok, @edeps) = Build::get_build($bconf, [], @deps);
+  my ($eok, @edeps) = Build::get_build($bconf, [], @deps, '--ignoreignore--');
   if (!$eok) {
     print "      - $packid (kiwi-image)\n";
     print "        unresolvable:\n";
@@ -4870,12 +4866,8 @@ sub rebuildkiwiimage {
     }
     $pool->createwhatprovides();
     my $xp = BSSolv::expander->new($pool, $bconf);
-    my $ownexpand = sub {
-      $_[0] = $xp; 
-      goto &BSSolv::expander::expand;
-    };   
     no warnings 'redefine';
-    local *Build::expand = $ownexpand;
+    local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
     ($job, $joberror) = set_building({ %$ctx, 'conf' => $bconf, 'prpsearchpath' => [] }, $packid, $pdata, $info, [], $edeps, $reason, 0);
   } else {
@@ -4991,12 +4983,8 @@ sub checkkiwiproduct {
 #print "deps: @deps\n";
   if ($archs[0] eq $myarch) {
     # calculate packages needed for building
-    my @kdeps = @{$bconf->{'substitute'}->{'kiwi-setup:product'} || []};
-    @kdeps = ('kiwi') unless @kdeps;	# default
-    push @kdeps, grep {/^kiwi-.*:/} @{$info->{'dep'} || []};
     my $pool = BSSolv::pool->new();
     $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
-
     for my $aprp (@bprps) {
       if (!checkprpaccess($aprp, $prp)) {
 	print "      - $packid (kiwi-product)\n";
@@ -5016,15 +5004,10 @@ sub checkkiwiproduct {
     }
     $pool->createwhatprovides();
     my $xp = BSSolv::expander->new($pool, $bconf);
-    my $ownexpand = sub {
-      $_[0] = $xp; 
-      goto &BSSolv::expander::expand;
-    };   
     no warnings 'redefine';
-    local *Build::expand = $ownexpand;
+    local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
-    my $eok;
-    ($eok, @kdeps) = Build::get_build($bconf, [], @kdeps);
+    my ($eok, @kdeps) = Build::get_sysbuild($bconf, 'kiwi-product', [ grep {/^kiwi-.*:/} @{$info->{'dep'} || []} ]);
     if (!$eok) {
       print "      - $packid (kiwi-product)\n";
       print "        unresolvable:\n";
@@ -8597,12 +8580,8 @@ NEXTPRP:
     }
 
     my $xp = BSSolv::expander->new($pool, $bconf);
-    my $ownexpand = sub {
-      $_[0] = $xp;
-      goto &BSSolv::expander::expand;
-    };
     no warnings 'redefine';
-    local *Build::expand = $ownexpand;
+    local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
 
     my $prpchecktime = time();
