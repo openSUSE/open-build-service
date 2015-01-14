@@ -1128,8 +1128,9 @@ our $request = [
 	  ],
           [ 'options' =>
 		[],
-		'sourceupdate', # can be cleanup, update or noupdate
-		'updatelink',   # can be true or false
+		'sourceupdate',    # can be cleanup, update or noupdate
+		'updatelink',      # can be true or false
+		'makeoriginolder', # can be true or false
           ],
 	  [ 'acceptinfo' =>
 	        'rev',
