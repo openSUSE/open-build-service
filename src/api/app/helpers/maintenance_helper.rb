@@ -331,9 +331,14 @@ module MaintenanceHelper
     arguments="&noservice=1"
     arguments << "&requestid=" << opts[:requestid] if opts[:requestid]
     arguments << "&comment=" << CGI.escape(opts[:comment]) if opts[:comment]
-    if opts[:makeoriginolder]
+    if opts[:makeoriginolder] 
       # versioned copy
-      Suse::Backend.post pkg.source_path + "?cmd=copy&makeoriginolder=1&withvrev=1&oproject=#{CGI.escape(opkg.project.name)}&opackage=#{CGI.escape(opkg.name)}#{arguments}&user=#{CGI.escape(User.current.login)}&comment=initialize+package+and+make+source+instance+older", nil
+      path = pkg.source_path + "?cmd=copy&withvrev=1&oproject=#{CGI.escape(opkg.project.name)}&opackage=#{CGI.escape(opkg.name)}#{arguments}&user=#{CGI.escape(User.current.login)}&comment=initialize+package"
+      if Package.exists_by_project_and_name(project.name, opkg.name, allow_remote_packages: true)
+        # a package exists via project link, make it older in any case
+        path << "+and+make+source+instance+older&makeoriginolder=1"
+      end
+      Suse::Backend.post path, nil
     else
       # simple branch
       Suse::Backend.post pkg.source_path + "?cmd=branch&oproject=#{CGI.escape(opkg.project.name)}&opackage=#{CGI.escape(opkg.name)}#{arguments}&user=#{CGI.escape(User.current.login)}&comment=initialize+package+as+branch", nil

@@ -12,6 +12,8 @@ class BsRequestAction < ActiveRecord::Base
     # a diff error can have many reasons, but most likely something within us
     setup 404
   end
+  class RemoteSource < APIException
+  end
   class RemoteTarget < APIException
   end
   class InvalidReleaseTarget < APIException
@@ -507,6 +509,9 @@ class BsRequestAction < ActiveRecord::Base
     newTargets = Array.new
 
     packages.each do |pkg|
+      unless pkg.kind_of? Package
+        raise RemoteSource.new 'No support for auto expanding from remote instance. You need to submit a full specified request in that case.'
+      end
       # find target via linkinfo or submit to all.
       # FIXME: this is currently handling local project links for packages with multiple spec files.
       #        This can be removed when we handle this as shadow packages in the backend.
@@ -732,7 +737,7 @@ class BsRequestAction < ActiveRecord::Base
       unless sprj
         raise UnknownProject.new "Unknown source project #{self.source_project}"
       end
-      unless sprj.class == Project or self.action_type == :submit
+      unless sprj.class == Project or [:submit, :maintenance_incident].include? self.action_type
         raise NotSupported.new "Source project #{self.source_project} is not a local project. This is not supported yet."
       end
       if self.source_package
@@ -849,8 +854,18 @@ class BsRequestAction < ActiveRecord::Base
       end
     end
 
+    # complete in formation available already?
+    return nil if self.action_type == :submit and self.target_package
+    return nil if self.action_type == :maintenance_release and self.target_package
+    if self.action_type == :maintenance_incident and self.target_releaseproject
+      pkg = Package.get_by_project_and_name(self.source_project, self.source_package)
+      prj = Project.get_by_name(self.target_releaseproject).update_instance
+      self.target_releaseproject = prj.name
+      get_releaseproject(pkg, prj) if pkg
+      return nil
+    end
+
     if [:submit, :maintenance_release, :maintenance_incident].include?(self.action_type)
-      return nil if self.target_package
       per_package_locking = false
       packages = Array.new
       if self.source_package

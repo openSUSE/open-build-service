@@ -107,7 +107,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  def test_maintenance_request_from_foreign_project
+  def test_maintenance_request_from_foreign_and_remote_project
     login_king
     # special kdelibs
     put '/source/BaseDistro2.0:LinkedUpdateProject/kdelibs/_meta', "<package name='kdelibs'><title/><description/></package>"
@@ -119,7 +119,25 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # create maintenance request for one package from a unrelated project
     post '/request?cmd=create', '<request>
                                    <action type="maintenance_incident">
+                                     <source project="RemoteInstance:kde4" package="kdelibs" />
+                                   </action>
+                                   <description>To fix my bug</description>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 400
+    assert_xml_tag(:tag => 'status', :attributes => { :code => "remote_source" })
+    post '/request?cmd=create', '<request>
+                                   <action type="maintenance_incident">
                                      <source project="kde4" package="kdelibs" />
+                                     <target project="My:Maintenance" releaseproject="BaseDistro2.0:LinkedUpdateProject" />
+                                   </action>
+                                   <description>To fix my bug</description>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    post '/request?cmd=create', '<request>
+                                   <action type="maintenance_incident">
+                                     <source project="RemoteInstance:kde4" package="kdelibs" />
                                      <target project="My:Maintenance" releaseproject="BaseDistro2.0:LinkedUpdateProject" />
                                    </action>
                                    <description>To fix my bug</description>
@@ -136,9 +154,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     # the diffed packages
     assert_xml_tag( :tag => 'old', :attributes => { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'kdelibs' } )
-    assert_xml_tag( :tag => 'new', :attributes => { project: 'kde4', package: 'kdelibs' } )
+    assert_xml_tag( :tag => 'new', :attributes => { project: 'RemoteInstance:kde4', package: 'kdelibs' } )
     # the expected file transfer
-    assert_xml_tag( :tag => 'source', :attributes => { project: 'kde4', package: 'kdelibs' } )
+    assert_xml_tag( :tag => 'source', :attributes => { project: 'RemoteInstance:kde4', package: 'kdelibs' } )
     assert_xml_tag( :tag => 'target', :attributes => { project: 'My:Maintenance', releaseproject: 'BaseDistro2.0:LinkedUpdateProject' } )
     # diff contains the critical lines
     assert_match( /^\-NOOP/, @response.body )

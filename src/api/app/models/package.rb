@@ -326,7 +326,7 @@ class Package < ActiveRecord::Base
   before_destroy :check_for_product
 
   def private_set_package_kind(dir)
-    kinds = detect_package_kinds(dir)
+    kinds = Package.detect_package_kinds(dir)
 
     self.package_kinds.each do |pk|
       if kinds.include? pk.kind
@@ -523,7 +523,7 @@ class Package < ActiveRecord::Base
     end
   end
 
-  def detect_package_kinds(directory)
+  def self.detect_package_kinds(directory)
     raise ArgumentError.new 'neh!' if  directory.has_key? 'time'
     ret = []
     directory.elements('entry') do |e|
@@ -537,7 +537,7 @@ class Package < ActiveRecord::Base
       end
       # further types my be spec, dsc, kiwi in future
     end
-    ret
+    ret.uniq
   end
 
   def resolve_devel_package
