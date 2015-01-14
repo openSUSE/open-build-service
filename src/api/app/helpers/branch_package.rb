@@ -256,6 +256,39 @@ class BranchPackage
     @packages.each { |p| extend_packages_to_link(p) }
   end
 
+  def lookup_incident_pkg(p)
+    @obs_maintenanceproject ||= AttribType.find_by_namespace_and_name!('OBS','MaintenanceProject')
+    @maintenanceProjects ||= Project.find_by_attribute_type(@obs_maintenanceproject)
+    incident_pkg=nil
+    p[:link_target_project].maintenance_projects.each do |mp|
+      # no defined devel area or no package inside, but we branch from a release are: check in open incidents
+
+      # only approved maintenance projects
+      next unless @maintenanceProjects.include? mp.maintenance_project 
+
+      path = "/search/package/id?match=(linkinfo/@package=\"#{CGI.escape(p[:package].name)}\"+and+linkinfo/@project=\"#{CGI.escape(p[:link_target_project].name)}\""
+      path += "+and+starts-with(@project,\"#{CGI.escape(mp.maintenance_project.name)}%3A\"))"
+      answer = Suse::Backend.post path, nil
+      data = REXML::Document.new(answer.body)
+      data.elements.each('collection/package') do |e|
+        ipkg = Package.find_by_project_and_name(e.attributes['project'], e.attributes['name'])
+        if ipkg.nil?
+          logger.error "read permission or data inconsistency, backend delivered package as linked package where no database object exists: #{e.attributes['project']} / #{e.attributes['name']}"
+        else
+          # is incident ?
+          if ipkg.project.is_maintenance_incident? and ipkg.project.is_unreleased?
+            # is a newer incident ?
+            if incident_pkg.nil? or ipkg.project.name.gsub(/.*:/, '').to_i > incident_pkg.project.name.gsub(/.*:/, '').to_i
+              incident_pkg = ipkg
+            end
+          end
+        end
+      end
+    end
+    # newest incident pkg or nil
+    incident_pkg
+  end
+
   def determine_details_about_package_to_branch(p)
     return unless p[:link_target_project].is_a? Project # only for local source projects
 
@@ -275,30 +308,8 @@ class BranchPackage
              and p[:link_target_project].is_a?(Project) \
              and p[:link_target_project].is_maintenance_release? \
              and p[:link_target_project].maintenance_projects.count
-        p[:link_target_project].maintenance_projects.each do |mp|
-          # no defined devel area or no package inside, but we branch from a release are: check in open incidents
-
-          path = "/search/package/id?match=(linkinfo/@package=\"#{CGI.escape(p[:package].name)}\"+and+linkinfo/@project=\"#{CGI.escape(p[:link_target_project].name)}\""
-          path += "+and+starts-with(@project,\"#{CGI.escape(mp.maintenance_project.name)}%3A\"))"
-          answer = Suse::Backend.post path, nil
-          data = REXML::Document.new(answer.body)
-          data.elements.each('collection/package') do |e|
-            ipkg = Package.find_by_project_and_name(e.attributes['project'], e.attributes['name'])
-            if ipkg.nil?
-              logger.error "read permission or data inconsistency, backend delivered package as linked package where no database object exists: #{e.attributes['project']} / #{e.attributes['name']}"
-            else
-              # is incident ?
-              if ipkg.project.is_maintenance_incident? and ipkg.project.is_unreleased?
-                # is a newer incident ?
-                if incident_pkg.nil? or ipkg.project.name.gsub(/.*:/, '').to_i > incident_pkg.project.name.gsub(/.*:/, '').to_i
-                  incident_pkg = ipkg
-                end
-              end
-            end
-          end
-        end
       end
-      if incident_pkg
+      if incident_pkg = lookup_incident_pkg(p)
         p[:copy_from_devel] = incident_pkg
         logger.info "sources will get copied from incident package #{p[:copy_from_devel].project.name}/#{p[:copy_from_devel].name}"
       elsif not @copy_from_devel and p[:package].is_a? Package and (p[:package].develpackage or p[:package].project.develproject)
