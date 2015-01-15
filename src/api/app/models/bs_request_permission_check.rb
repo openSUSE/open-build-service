@@ -164,7 +164,7 @@ class BsRequestPermissionCheck
       end
     end
 
-    if action.makeoriginolder
+    if action.makeoriginolder and Package.exists_by_project_and_name(action.target_project, action.target_package)
       # the target project may link to another project where we need to check modification permissions
       originpkg = Package.get_by_project_and_name action.target_project, action.target_package
       unless User.current.can_modify_package? originpkg
