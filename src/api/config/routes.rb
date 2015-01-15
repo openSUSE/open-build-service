@@ -136,7 +136,7 @@ OBSApi::Application.routes.draw do
       get 'package/meta/:project/:package' => :meta, constraints: cons, as: 'package_meta'
       post 'package/save_meta/:project/:package' => :save_meta, constraints: cons
       # compat route
-      get 'package/attributes/:project/:package', to: redirect('/attribs/%{project}/%{package}')
+      get 'package/attributes/:project/:package', to: redirect('/attribs/%{project}/%{package}'), constraints: cons
       get 'package/edit/:project/:package' => :edit, constraints: cons
       get 'package/repositories/:project/:package' => :repositories, constraints: cons
       post 'package/change_flag/:project/:package' => :change_flag, constraints: cons
@@ -150,7 +150,7 @@ OBSApi::Application.routes.draw do
       post 'patchinfo/new_patchinfo' => :new_patchinfo
       post 'patchinfo/updatepatchinfo' => :updatepatchinfo
       get 'patchinfo/edit_patchinfo' => :edit_patchinfo
-      get 'patchinfo/show/:project/:package' => :show, as: 'patchinfo_show'
+      get 'patchinfo/show/:project/:package' => :show, as: 'patchinfo_show', constraints: cons
       get 'patchinfo/read_patchinfo' => :read_patchinfo
       post 'patchinfo/save' => :save
       post 'patchinfo/remove' => :remove
@@ -171,7 +171,7 @@ OBSApi::Application.routes.draw do
       get 'project/autocomplete_repositories' => :autocomplete_repositories
       get 'project/users/:project' => :users, constraints: cons, as: 'project_users'
       get 'project/subprojects/:project' => :subprojects, constraints: cons, as: 'project_subprojects'
-      get 'project/attributes/:project', to: redirect('/attribs/%{project}')
+      get 'project/attributes/:project', to: redirect('/attribs/%{project}'), constraints: cons
       get 'project/new' => :new
       post 'project/new_incident' => :new_incident
       get 'project/new_package/:project' => :new_package, constraints: cons
@@ -179,7 +179,7 @@ OBSApi::Application.routes.draw do
       get 'project/incident_request_dialog' => :incident_request_dialog
       post 'project/new_incident_request' => :new_incident_request
       get 'project/release_request_dialog' => :release_request_dialog
-      post 'project/new_release_request/(:project)' => :new_release_request
+      post 'project/new_release_request/(:project)' => :new_release_request, constraints: cons
       get 'project/show/(:project)' => :show, constraints: cons, as: 'project_show'
       get 'project/packages_simple/:project' => :packages_simple, constraints: cons
       get 'project/linking_projects/:project' => :linking_projects, constraints: cons
@@ -190,8 +190,8 @@ OBSApi::Application.routes.draw do
       get 'project/buildresult' => :buildresult, constraints: cons
       get 'project/delete_dialog' => :delete_dialog
       post 'project/delete' => :delete
-      get 'project/edit_repository/:project' => :edit_repository
-      post 'project/update_target/:project' => :update_target
+      get 'project/edit_repository/:project' => :edit_repository, constraints: cons
+      post 'project/update_target/:project' => :update_target, constraints: cons
       get 'project/repositories/:project' => :repositories, constraints: cons, as: 'project_repositories'
       get 'project/repository_state/:project/:repository' => :repository_state, constraints: cons, as: 'project_repository_state'
       get 'project/rebuild_time/:project' => :rebuild_time, constraints: cons, as: 'project_rebuild_time'
@@ -365,10 +365,10 @@ OBSApi::Application.routes.draw do
     ### /person
     post 'person' => 'person#command'
     get 'person' => 'person#show'
-    post 'person/:login/login' => 'person#login' # temporary hack for webui, do not use, to be removed
-    get 'person/:login/token' => 'person#tokenlist'
-    post 'person/:login/token' => 'person#command_token'
-    delete 'person/:login/token/:id' => 'person#delete_token'
+    post 'person/:login/login' => 'person#login', constraints: cons # temporary hack for webui, do not use, to be removed
+    get 'person/:login/token' => 'person#tokenlist', constraints: cons
+    post 'person/:login/token' => 'person#command_token', constraints: cons
+    delete 'person/:login/token/:id' => 'person#delete_token', constraints: { id: %r{[^\/]*}, login: %r{[^\/]*} }
 
     # FIXME3.0: this is no clean namespace, a person "register" or "changepasswd" could exist ...
     #           remove these for OBS 3.0
@@ -520,7 +520,7 @@ OBSApi::Application.routes.draw do
       get 'statistics/global_counters' => :global_counters
       get 'statistics/latest_built' => :latest_built
 
-      get 'statistics/active_request_creators/:project' => :active_request_creators
+      get 'statistics/active_request_creators/:project' => :active_request_creators, constraints: cons
     end
 
     ### /status_message
