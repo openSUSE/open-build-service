@@ -857,7 +857,7 @@ class BsRequestAction < ActiveRecord::Base
     # complete in formation available already?
     return nil if self.action_type == :submit and self.target_package
     return nil if self.action_type == :maintenance_release and self.target_package
-    if self.action_type == :maintenance_incident and self.target_releaseproject
+    if self.action_type == :maintenance_incident and self.target_releaseproject and self.source_package
       pkg = Package.get_by_project_and_name(self.source_project, self.source_package)
       prj = Project.get_by_name(self.target_releaseproject).update_instance
       self.target_releaseproject = prj.name

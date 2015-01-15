@@ -82,7 +82,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'BsRequestAction#create_expand_package' => 375.53,
       'BsRequestAction#default_reviewers' => 141.02,
       'BsRequestAction#store_from_xml' => 88.01,
-      'BsRequestActionMaintenanceIncident#_merge_pkg_into_maintenance_incident' => 124.31,
+      'BsRequestActionMaintenanceIncident#_merge_pkg_into_maintenance_incident' => 117.08,
       'BsRequestActionMaintenanceRelease#check_permissions!' => 91.4,
       'BsRequestActionSubmit#execute_accept' => 126.05,
       'BsRequestPermissionCheck#cmd_changestate_permissions' => 114.87,
