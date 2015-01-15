@@ -2028,7 +2028,7 @@ end
     get '/source/BaseDistro2.0:ServicePack1/packNEW/_link'
     assert_response :success
 
-    # create a new package via submit request the right way
+    # create a new package instance via submit request the right way
     delete '/source/BaseDistro2.0:ServicePack1/pack2.linked'
     assert_response :success
     delete '/source/BaseDistro2.0:ServicePack1/pack2'
@@ -2059,6 +2059,42 @@ end
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:vrev)
     assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+1).to_s}.2.1" # got extended again
+    delete '/source/BaseDistro2.0:ServicePack1/pack2.linked'
+    assert_response :success
+    delete '/source/BaseDistro2.0:ServicePack1/pack2'
+    assert_response :success
+
+    # create an entirely new package via submit request the right way
+    # pack2NEW is not available via project link
+    post "/source/BaseDistro2.0:ServicePack1/_attribute", "<attributes><attribute namespace='OBS' name='MakeOriginOlder'/></attributes>"
+    assert_response :success
+    post '/request?cmd=create', '<request>
+                                   <action type="submit">
+                                     <source project="BaseDistro2.0" package="pack2" rev="0" />
+                                     <target project="BaseDistro2.0:ServicePack1" package="pack2NEW" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response :success
+    assert_xml_tag :tag => 'makeoriginolder', :content => "true"
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:id)
+    reqid = node.value(:id)
+    # and accept it
+    post "/request/#{reqid}?cmd=changestate&newstate=accepted"
+    assert_response :success
+    get '/source/BaseDistro2.0:ServicePack1/pack2NEW'
+    assert_response :success
+    get '/source/BaseDistro2.0:ServicePack1/pack2NEW/_link'
+    assert_response 404 # a new copy due to MakeOriginOlder attribute.
+    delete '/source/BaseDistro2.0:ServicePack1/pack2NEW'
+    assert_response :success
+    # must be untouched
+    get '/source/BaseDistro2.0:LinkedUpdateProject/pack2?view=info'
+    assert_response :success
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:vrev)
+    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+1).to_s}.2.1" # untouched
 
     # cleanup
     delete '/source/BaseDistro2.0:LinkedUpdateProject/packNEW'
