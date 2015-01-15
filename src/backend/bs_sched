@@ -947,8 +947,10 @@ sub set_repo_state {
 # output: $job           - the job identifier
 #         $error         - in case we could not start the job
 sub createdeltajob {
-  my ($projid, $repoid, $packid, $bconf, $prpsearchpath, $suffix, $needdelta) = @_;
+  my ($ctx, $packid, $suffix, $needdelta) = @_;
 
+  my $projid = $ctx->{'project'};
+  my $repoid = $ctx->{'repository'};
   my $job = jobname("$projid/$repoid", $packid);
   $job .= "-$suffix" if defined $suffix;
   if (-e "$myjobsdir/$job") {
@@ -978,6 +980,7 @@ sub createdeltajob {
     writestr("$jobdatadir/$deltaid.info", undef, $info);
   }
   # create job
+  my $bconf = $ctx->{'conf'};
   my ($eok, @bdeps) = Build::get_build($bconf, [], "deltarpm");
   if (!$eok) {
     print "        unresolvable:\n";
@@ -999,21 +1002,7 @@ sub createdeltajob {
     $_->{'runscripts'} = 1 if $runscripts{$_->{'name'}};
     $_->{'notmeta'} = 1;
   }
-  my $searchpath = [];
-  for (@$prpsearchpath) {
-    my @pr = split('/', $_, 2);
-    my $server = $workerreposerver;
-    if ($remoteprojs{$pr[0]}) {
-      $server = $workersrcserver;
-      my $par = $remoteprojs{$pr[0]}->{'partition'};
-      if ($par) {
-	# XXX: should also come from src server
-	$server = ($BSConfig::workerpartitionservers || {})->{$par} || $remoteprojs{$pr[0]}->{'remoteurl'};
-      }
-    }
-    push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $server};
-  }
-
+  my $searchpath = path2buildinfopath($ctx->{'prpsearchpath'});
   my $binfo = {
     'project' => $projid,
     'repository' => $repoid,
@@ -1034,6 +1023,7 @@ sub createdeltajob {
   $binfo->{'hostarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'};
 
   writexml("$myjobsdir/.$job", "$myjobsdir/$job", $binfo, $BSXML::buildinfo);
+  add_crossmarker($bconf, $job) if $bconf->{'hostarch'};
   print "    created deltajob...\n";
   return $job;
 }
@@ -1042,8 +1032,9 @@ sub createdeltajob {
 # create a deltajob if some are missing
 # note that we must have the repo lock so that $extrep does not change!
 sub makedeltas {
-  my ($prp, $packs, $pubenabled, $bconf, $prpsearchpath) = @_;
+  my ($ctx, $packs, $pubenabled) = @_;
 
+  my $prp = $ctx->{'prp'};
   my ($projid, $repoid) = split('/', $prp, 2);
   my $rdir = "$reporoot/$prp/$myarch/:repo";
   my $ddir = "$reporoot/$prp/$myarch/_deltas";
@@ -1112,7 +1103,7 @@ sub makedeltas {
 
       # find all delta candidates for this package. we currently just
       # use the searchpath, this may be configurable in a later version
-      my @aprp = @$prpsearchpath;
+      my @aprp = @{$ctx->{'prpsearchpath'} || []};
       for my $aprp (@aprp) {
 	# look in the *published* repos. We allow a special
 	# extradeltarepos override in the config.
@@ -1180,7 +1171,7 @@ sub makedeltas {
 	      last;
 	    }
 	    $suffix++ if defined $suffix;
-	    my ($job, $joberror) = createdeltajob($projid, $repoid, '_deltas', $bconf, $prpsearchpath, $suffix, \@needdelta);
+	    my ($job, $joberror) = createdeltajob($ctx, '_deltas', $suffix, \@needdelta);
 	    return (undef, $joberror) if $joberror;
 	    $running_jobs++ if $job;
 	    @needdelta = ();
@@ -1196,7 +1187,7 @@ sub makedeltas {
 
   if (@needdelta && $running_jobs < $maxjobs) {
     $suffix++ if defined $suffix;
-    my ($job, $joberror) = createdeltajob($projid, $repoid, '_deltas', $bconf, $prpsearchpath, $suffix, \@needdelta);
+    my ($job, $joberror) = createdeltajob($ctx, '_deltas', $suffix, \@needdelta);
     return (undef, $joberror) if $joberror;
   }
 
@@ -1310,8 +1301,9 @@ sub publishdelta {
 }
 
 sub prpfinished {
-  my ($prp, $packs, $pubenabled, $bconf, $prpsearchpath) = @_;
+  my ($ctx, $packs, $pubenabled) = @_;
 
+  my $prp = $ctx->{'prp'};
   print "    prp $prp is finished...\n";
 
   my ($projid, $repoid) = split('/', $prp, 2);
@@ -1340,10 +1332,12 @@ sub prpfinished {
     return '';
   }
 
+  my $bconf = $ctx->{'conf'};
+
   # make all the deltas we need
   my $needdeltas;
   $needdeltas = 1 if grep {"$_:" =~ /:(?:deltainfo|prestodelta):/} @{$bconf->{'repotype'} || []};
-  my ($deltas, $err) = makedeltas($prp, $needdeltas ? $packs : undef, $pubenabled, $bconf, $prpsearchpath);
+  my ($deltas, $err) = makedeltas($ctx, $needdeltas ? $packs : undef, $pubenabled);
   if (!$deltas) {
       close(F);
       $err ||= 'internal error';
@@ -8274,7 +8268,8 @@ NEXTPRP:
 	$changed_med{$prp} = 2;
 	sendrepochangeevent($prp);
 	killbuilding($prp);
-	prpfinished($prp);
+	my $ctx = {'prp' => $prp};
+	prpfinished($ctx);
 	# now that :repo is gone we can remove the directory
 	while (!rmdir("$reporoot/$prp/$myarch")) {
 	  die("$reporoot/$prp/$myarch: $!\n") unless -e "$reporoot/$prp/$myarch/:schedulerstate.dirty";
@@ -9092,7 +9087,7 @@ NEXTPRP:
       } elsif (! -e "$reporoot/$prp/$myarch/:repodone") {
 	if (($repodonestate !~ /^disabled/) || -d "$reporoot/$prp/$myarch/:repo") {
 	  mkdir_p("$reporoot/$prp/$myarch");
-	  $publisherror = prpfinished($prp, \@packs, \%pubenabled, $bconf, $prpsearchpath{$prp});
+	  $publisherror = prpfinished($ctx, \@packs, \%pubenabled);
 	} else {
 	  print "    publishing is disabled\n";
 	}
