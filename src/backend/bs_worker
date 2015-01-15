@@ -650,17 +650,14 @@ my $workerenvstate = {};
       chomp;
       if (/^processor/s) {
         $hw->{'processors'} = $hw->{'processors'} + 1;
-      }
-      elsif (/^flags\s*:\s(.*)$/) {
+      } elsif (/^flags\s*:\s(.*)$/) {
         my @cpuflags = split(' ', $1);
         $hw->{'cpu'}->{'flag'} = \@cpuflags;
-      }
-      elsif (/^cpu\s*:\sPOWER8/) {
+      } elsif (/^cpu\s*:\sPOWER8/) {
         # PowerPC kernel does not provide any flags, but we need to be able
         # to distinguish between power7 and 8 at least
         $hw->{'cpu'}->{'flag'} = [ "power7", "power8" ];
-      }
-      elsif (/^cpu\s*:\sPOWER7/) {
+      } elsif (/^cpu\s*:\sPOWER7/) {
         $hw->{'cpu'}->{'flag'} = [ "power7" ];
       }
     }
