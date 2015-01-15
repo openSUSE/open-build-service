@@ -76,6 +76,14 @@ class BsRequestPermissionCheck
     if action.action_type == :delete
       check_delete_accept(action)
     end
+
+    if action.makeoriginolder and Package.exists_by_project_and_name(action.target_project, action.target_package)
+      # the target project may link to another project where we need to check modification permissions
+      originpkg = Package.get_by_project_and_name action.target_project, action.target_package
+      unless User.current.can_modify_package? originpkg
+        raise PostRequestNoPermission.new "Package target can not get initialized using makeoriginolder. No permission in project #{originpkg.project.name}"
+      end
+    end
   end
 
   def check_delete_accept(action)
@@ -161,14 +169,6 @@ class BsRequestPermissionCheck
     if action.is_maintenance_incident?
       unless %w(maintenance maintenance_incident).include? @target_project.project_type.to_s
         raise TargetNotMaintenance.new "The target project is not of type maintenance or incident but #{@target_project.project_type}"
-      end
-    end
-
-    if action.makeoriginolder and Package.exists_by_project_and_name(action.target_project, action.target_package)
-      # the target project may link to another project where we need to check modification permissions
-      originpkg = Package.get_by_project_and_name action.target_project, action.target_package
-      unless User.current.can_modify_package? originpkg
-        raise PostRequestNoPermission.new "Package target can not get initialized using makeoriginolder. No permission in project #{originpkg.project.name}"
       end
     end
   end

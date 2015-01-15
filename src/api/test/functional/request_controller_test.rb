@@ -1624,6 +1624,13 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     node = Xmlhash.parse(@response.body)
     id = node['id']
     assert !id.blank?
+    # no write permission
+    post "/request/#{id}?cmd=changestate&newstate=accepted&comment=But+I+want+it"
+    assert_response 403
+    post "/request/#{id}?cmd=changestate&newstate=revoked&comment=take+it+back"
+    assert_response :success
+    post "/request/#{id}?cmd=changestate&newstate=new&comment=try+again"
+    assert_response :success
 
     # approvereview
     login_fred
