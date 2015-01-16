@@ -4673,52 +4673,52 @@ sub fakejobfinished_nouseforbuild {
 ##
 
 sub metacheck {
-  my ($ctx, $packid, $packtype, $new_meta, $data) = @_;
+  my ($ctx, $packid, $buildtype, $new_meta, $data) = @_;
   
   my $prp = $ctx->{'prp'};
   my @meta = split("\n", (readstr("$reporoot/$prp/$myarch/:meta/$packid", 1) || ''));
   if (!@meta) {
-    print "      - $packid ($packtype)\n";
+    print "      - $packid ($buildtype)\n";
     print "        no former build, start build\n";
     return ('scheduled', [ @$data, {'explain' => 'new build'} ]);
   }
   if ($meta[0] ne $new_meta->[0]) {
-    print "      - $packid ($packtype)\n";
+    print "      - $packid ($buildtype)\n";
     print "        src change, start build\n";
     return ('scheduled', [ @$data, {'explain' => 'source change', 'oldsource' => substr($meta[0], 0, 32)} ]);
   }
   if (@meta == 2 && $meta[1] =~ /^fake/) {
     my @s = stat("$reporoot/$prp/$myarch/:meta/$packid");
     if (!@s || $s[9] + 14400 > time()) {
-      print "      - $packid ($packtype)\n";
+      print "      - $packid ($buildtype)\n";
       print "        buildsystem setup failure\n";
       return ('failed')
     }
-    print "      - $packid ($packtype)\n";
+    print "      - $packid ($buildtype)\n";
     print "        retrying bad build\n";
     return ('scheduled', [ @$data, { 'explain' => 'retrying bad build' } ]);
   }
   if (join('\n', @meta) eq join('\n', @$new_meta)) {
-    if (($packtype eq 'kiwi-image' || $packtype eq 'kiwi-product') && $ctx->{'relsynctrigger'}->{$packid}) {
-      print "      - $packid ($packtype)\n";
+    if (($buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product') && $ctx->{'relsynctrigger'}->{$packid}) {
+      print "      - $packid ($buildtype)\n";
       print "        rebuild counter sync\n";
       return ('scheduled', [ @$data, {'explain' => 'rebuild counter sync'} ]);
     }
-    #print "      - $packid ($packtype)\n";
+    #print "      - $packid ($buildtype)\n";
     #print "        nothing changed\n";
     return ('done');
   }
   my $repo = $ctx->{'repo'}; 
-  if ($packtype eq 'kiwi-image' || $packtype eq 'kiwi-product') {
+  if ($buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product') {
     my $rebuildmethod = $repo->{'rebuild'} || 'transitive';
     if ($rebuildmethod eq 'local') {
-      #print "      - $packid ($packtype)\n";
+      #print "      - $packid ($buildtype)\n";
       #print "        nothing changed\n";
       return ('done');
     }
   }
   my @diff = diffsortedmd5(\@meta, $new_meta);
-  print "      - $packid ($packtype)\n";
+  print "      - $packid ($buildtype)\n";
   print "        $_\n" for @diff;
   print "        meta change, start build\n";
   return ('scheduled', [ @$data, {'explain' => 'meta change', 'packagechange' => sortedmd5toreason(@diff)} ]);
@@ -6550,7 +6550,7 @@ sub rebuildpreinstallimage {
 ##
 
 sub checkpackage {
-  my ($ctx, $packid, $pdata, $info, $packtype) = @_;
+  my ($ctx, $packid, $pdata, $info, $buildtype) = @_;
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $repo = $ctx->{'repo'};
@@ -6578,7 +6578,7 @@ sub checkpackage {
     if (@blocked && $cycpass == 3) {
       # cycpass == 2 means that packages of this cycle are building
       # because of source changes
-      print "      - $packid ($packtype)\n";
+      print "      - $packid ($buildtype)\n";
       print "        blocked by cycle builds ($blocked[0]...)\n";
       return ('blocked', join(', ', @blocked));
     }
@@ -6587,12 +6587,12 @@ sub checkpackage {
     my $building = $ctx->{'building'};
     @blocked = grep {!$cycs{$dep2src->{$_}} || !$building->{$dep2src->{$_}}} @blocked;
     if (@blocked) {
-      print "      - $packid ($packtype)\n";
+      print "      - $packid ($buildtype)\n";
       print "        blocked ($blocked[0]...)\n";
     }
   }
   if (@blocked) {
-    # print "      - $packid ($packtype)\n";
+    # print "      - $packid ($buildtype)\n";
     # print "        blocked\n";
     return ('blocked', join(', ', @blocked));
   }
@@ -6626,21 +6626,21 @@ sub checkpackage {
     }
   }
   if (!$mylastcheck) {
-    print "      - $packid ($packtype)\n";
+    print "      - $packid ($buildtype)\n";
     print "        no meta, start build\n";
     return ('scheduled', [ { 'explain' => 'new build' } ]);
   } elsif (substr($mylastcheck, 0, 32) ne ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})) {
-    print "      - $packid ($packtype)\n";
+    print "      - $packid ($buildtype)\n";
     print "        src change, start build\n";
     return ('scheduled', [ { 'explain' => 'source change', 'oldsource' => substr($mylastcheck, 0, 32) } ]);
   } elsif (substr($mylastcheck, 32, 32) eq 'fakefakefakefakefakefakefakefake') {
     my @s = stat("$reporoot/$prp/$myarch/:meta/$packid");
     if (!@s || $s[9] + 14400 > time()) {
-      print "      - $packid ($packtype)\n";
+      print "      - $packid ($buildtype)\n";
       print "        buildsystem setup failure\n";
       return ('failed')
     }
-    print "      - $packid ($packtype)\n";
+    print "      - $packid ($buildtype)\n";
     print "        retrying bad build\n";
     return ('scheduled', [ { 'explain' => 'retrying bad build' } ]);
   } else {
@@ -6651,7 +6651,7 @@ sub checkpackage {
     }
     # more work, check if dep rpm changed
     if ($ctx->{'incycle'}) {
-      # print "      - $packid ($packtype)\n";
+      # print "      - $packid ($buildtype)\n";
       # print "        in cycle, no source change...\n";
       return ('done');
     }
@@ -6662,7 +6662,7 @@ sub checkpackage {
     $check .= $pool->pkg2pkgid($dep2pkg->{$_}) for sort @$edeps;
     $check = Digest::MD5::md5_hex($check);
     if ($check eq substr($mylastcheck, 64, 32)) {
-      # print "      - $packid ($packtype)\n";
+      # print "      - $packid ($buildtype)\n";
       # print "        nothing changed\n";
       goto relsynccheck;
     }
@@ -6718,7 +6718,7 @@ sub checkpackage {
     @new_meta = BSSolv::gen_meta($ctx->{'subpacks'}->{$info->{'name'}} || [], @new_meta);
     unshift @new_meta, ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
     if (Digest::MD5::md5_hex(join("\n", @new_meta)) eq substr($mylastcheck, 32, 32)) {
-      # print "      - $packid ($packtype)\n";
+      # print "      - $packid ($buildtype)\n";
       # print "        nothing changed (looked harder)\n";
       $ctx->{'nharder'}++;
       $lastcheck->{$packid} = $mylastcheck;
@@ -6735,7 +6735,7 @@ sub checkpackage {
       @new_meta = grep {!/\//} @new_meta;
     }
     if (@meta == @new_meta && join('\n', @meta) eq join('\n', @new_meta)) {
-      # print "      - $packid ($packtype)\n";
+      # print "      - $packid ($buildtype)\n";
       # print "        nothing changed (looked harder)\n";
       $ctx->{'nharder'}++;
       if ($rebuildmethod eq 'direct') {
@@ -6747,14 +6747,14 @@ sub checkpackage {
       goto relsynccheck;
     }
     my @diff = diffsortedmd5(\@meta, \@new_meta);
-    print "      - $packid ($packtype)\n";
+    print "      - $packid ($buildtype)\n";
     print "        $_\n" for @diff;
     print "        meta change, start build\n";
     return ('scheduled', [ { 'explain' => 'meta change', 'packagechange' => sortedmd5toreason(@diff) } ] );
   }
 relsynccheck:
   if ($ctx->{'relsynctrigger'}->{$packid}) {
-    print "      - $packid ($packtype)\n";
+    print "      - $packid ($buildtype)\n";
     print "        rebuild counter sync, start build\n";
     return ('scheduled', [ { 'explain' => 'rebuild counter sync' } ] );
   }
@@ -8592,7 +8592,7 @@ NEXTPRP:
     my %pkg2src;
     my %pkgdisabled;
     my %havepatchinfos;
-    my %pkg2packtype;
+    my %pkg2buildtype;
     for my $packid (@packs) {
       my $pdata = $packs->{$packid};
 
@@ -8604,27 +8604,26 @@ NEXTPRP:
       my $info = (grep {$_->{'repository'} eq $repoid} @{$pdata->{'info'} || []})[0];
 
       # calculate package type
-      my $packtype = 'unknown';
+      my $buildtype;
       if ($pdata->{'aggregatelist'}) {
-	$packtype = 'aggregate';
+	$buildtype = 'aggregate';
       } elsif ($pdata->{'patchinfo'}) {
-	$packtype = 'patchinfo';
+	$buildtype = 'patchinfo';
       } elsif ($pdata->{'channel'}) {
-	$packtype = 'channel';
+	$buildtype = 'channel';
       } elsif ($info && $info->{'file'}) {
 	if ($info->{'file'} =~ /\.(spec|dsc|kiwi|livebuild)$/) {
-	  $packtype = $1;
-	} elsif ($info->{'file'} =~ /PKGBUILD$/) {
-	  $packtype = 'arch';
-	} elsif ($info->{'file'} =~ /_preinstallimage$/) {
-	  $packtype = 'preinstallimage';
-	}
-	if ($packtype eq 'kiwi') {
-	  $packtype = $info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product' ? 'kiwi-product' : 'kiwi-image';
+	  $buildtype = $1;
+	  if ($buildtype eq 'kiwi') {
+	    $buildtype = $info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product' ? 'kiwi-product' : 'kiwi-image';
+	  }
+	} else {
+	  $buildtype = Build::recipe2buildtype($info->{'file'});
 	}
       }
-      $pkg2packtype{$packid} = $packtype;
-      $havepatchinfos{$packid} = 1 if $packtype eq 'patchinfo';
+      $buildtype ||= 'unknown';
+      $pkg2buildtype{$packid} = $buildtype;
+      $havepatchinfos{$packid} = 1 if $buildtype eq 'patchinfo';
 
       if (!$info || !defined($info->{'file'}) || !defined($info->{'name'})) {
 	if ($pdata->{'error'} && $pdata->{'error'} eq 'disabled') {
@@ -8654,8 +8653,9 @@ NEXTPRP:
         next;
       }
       my @deps = @{$info->{'dep'} || []};
-      my ($eok, @edeps) = ($handlers{$packtype} || $unknownchecker)->{'expand'}->($bconf, $subpacks{$info->{'name'}}, @deps);
-      if (! $eok) {
+      my $handler = $handlers{$buildtype} || $unknownchecker;
+      my ($eok, @edeps) = $handler->{'expand'}->($bconf, $subpacks{$info->{'name'}}, @deps);
+      if (!$eok) {
 	$experrors{$packid} = join(', ', @edeps) || '?';
 	@edeps = @deps;
       }
@@ -8890,27 +8890,27 @@ NEXTPRP:
       }
 
       # calculate package build type
-      my $packtype = $pkg2packtype{$packid};
-      if (!$packtype || $packtype eq 'unknown') {
-	print "      - $packid (no spec/dsc/kiwi file)\n";
+      my $buildtype = $pkg2buildtype{$packid};
+      if (!$buildtype || $buildtype eq 'unknown') {
+	print "      - $packid (no recipe file)\n";
 	$packstatus{$packid} = 'broken';
-	$packerror{$packid} = 'no spec/dsc/kiwi file';
+	$packerror{$packid} = 'no recipe file';
 	next;
       }
-      my $handler = $handlers{$packtype};
+      my $handler = $handlers{$buildtype};
       if (!$handler) {
-	print "      - $packid (no handler for type $packtype)\n";
+	print "      - $packid (no handler for type $buildtype)\n";
 	$packstatus{$packid} = 'broken';
-	$packerror{$packid} = "no handler for type $packtype";
+	$packerror{$packid} = "no handler for type $buildtype";
 	next;
       }
-      #print "      - $packid ($packtype)\n";
+      #print "      - $packid ($buildtype)\n";
 
       if (!$incycle) {
 	# hmm, this might be a bad idea...
 	my $job = jobname($prp, $packid)."-$pdata->{'srcmd5'}";
 	if (-s "$myjobsdir/$job") {
-	  # print "      - $packid ($packtype)\n";
+	  # print "      - $packid ($buildtype)\n";
 	  # print "        already scheduled\n";
 	  add_crossmarker($bconf, $job) if $bconf->{'hostarch'};
 	  my $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $prjuseforbuildenabled);
@@ -8924,7 +8924,7 @@ NEXTPRP:
 
       # now print expandsion errors
       if ($experrors{$packid}) {
-	print "      - $packid ($packtype)\n";
+	print "      - $packid ($buildtype)\n";
 	print "        unresolvable:\n";
 	print "            $experrors{$packid}\n";
 	$packstatus{$packid} = 'unresolvable';
@@ -8933,7 +8933,7 @@ NEXTPRP:
       }
 
       # dispatch to handlers
-      my ($astatus, $aerror) = $handler->{'check'}->($ctx, $packid, $pdata, $info, $packtype);
+      my ($astatus, $aerror) = $handler->{'check'}->($ctx, $packid, $pdata, $info, $buildtype);
       if ($astatus eq 'scheduled') {
 	# aerror contains rebuild data in this case
 	($astatus, $aerror) = $handler->{'rebuild'}->($ctx, $packid, $pdata, $info, $aerror);
