@@ -6984,21 +6984,6 @@ sub no_expander {
 }
 
 my %handlers = (
-  'spec' => {
-    'expand' => \&Build::get_deps,
-    'check' => \&checkpackage,
-    'rebuild' => \&rebuildpackage,
-  },
-  'dsc' => {
-    'expand' => \&Build::get_deps,
-    'check' => \&checkpackage,
-    'rebuild' => \&rebuildpackage,
-  },
-  'arch' => {
-    'expand' => \&Build::get_deps,
-    'check' => \&checkpackage,
-    'rebuild' => \&rebuildpackage,
-  },
   'kiwi-product' => {
     'expand' => \&no_expander,
     'check' => \&checkkiwiproduct,
@@ -7029,16 +7014,16 @@ my %handlers = (
     'check' => \&checkchannel,
     'rebuild' => \&rebuildchannel,
   },
-  'livebuild' => {
-    'expand' => \&Build::get_deps,
-    'check' => \&checkpackage,
-    'rebuild' => \&rebuildpackage,
+  'unknown' => {
+    'expand' => \&no_expander,
+    'check' => sub {return ('broken', 'unknown package type')},
   },
 );
 
-my $unknownchecker = {
-  'expand' => \&no_expander,
-  'check' => sub {return ('broken', 'unknown package type')},
+my $defaulthandler = {
+  'expand' => \&Build::get_deps,
+  'check' => \&checkpackage,
+  'rebuild' => \&rebuildpackage,
 };
 
 
@@ -8612,16 +8597,18 @@ NEXTPRP:
       } elsif ($pdata->{'channel'}) {
 	$buildtype = 'channel';
       } elsif ($info && $info->{'file'}) {
+        # directly implement most common types
 	if ($info->{'file'} =~ /\.(spec|dsc|kiwi|livebuild)$/) {
 	  $buildtype = $1;
 	  if ($buildtype eq 'kiwi') {
 	    $buildtype = $info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product' ? 'kiwi-product' : 'kiwi-image';
 	  }
 	} else {
-	  $buildtype = Build::recipe2buildtype($info->{'file'});
+	  $buildtype = Build::recipe2buildtype($info->{'file'}) || 'unknown';
 	}
+      } else {
+        $buildtype = 'unknown';
       }
-      $buildtype ||= 'unknown';
       $pkg2buildtype{$packid} = $buildtype;
       $havepatchinfos{$packid} = 1 if $buildtype eq 'patchinfo';
 
@@ -8653,7 +8640,7 @@ NEXTPRP:
         next;
       }
       my @deps = @{$info->{'dep'} || []};
-      my $handler = $handlers{$buildtype} || $unknownchecker;
+      my $handler = $handlers{$buildtype} || $defaulthandler;
       my ($eok, @edeps) = $handler->{'expand'}->($bconf, $subpacks{$info->{'name'}}, @deps);
       if (!$eok) {
 	$experrors{$packid} = join(', ', @edeps) || '?';
@@ -8890,20 +8877,14 @@ NEXTPRP:
       }
 
       # calculate package build type
-      my $buildtype = $pkg2buildtype{$packid};
-      if (!$buildtype || $buildtype eq 'unknown') {
+      my $buildtype = $pkg2buildtype{$packid} || 'unknown';
+      if ($buildtype eq 'unknown') {
 	print "      - $packid (no recipe file)\n";
 	$packstatus{$packid} = 'broken';
 	$packerror{$packid} = 'no recipe file';
 	next;
       }
-      my $handler = $handlers{$buildtype};
-      if (!$handler) {
-	print "      - $packid (no handler for type $buildtype)\n";
-	$packstatus{$packid} = 'broken';
-	$packerror{$packid} = "no handler for type $buildtype";
-	next;
-      }
+      my $handler = $handlers{$buildtype} || $defaulthandler;
       #print "      - $packid ($buildtype)\n";
 
       if (!$incycle) {
