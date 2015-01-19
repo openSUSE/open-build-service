@@ -6289,9 +6289,9 @@ sub checkprojrepoarch {
   return $proj if $proj->{'remoteurl'};
   return $proj unless defined $repoid;
   my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
-  die("404 project has no repository '$repoid'\n") unless $repo;
+  die("404 project '$projid' has no repository '$repoid'\n") unless $repo;
   return $proj unless defined $arch;
-  die("404 project has no architecture '$arch'\n") unless grep {$_ eq $arch} @{$repo->{'arch'} || []};
+  die("404 repository '$projid/$repoid' has no architecture '$arch'\n") unless grep {$_ eq $arch} @{$repo->{'arch'} || []};
   return $proj;
 }
 
