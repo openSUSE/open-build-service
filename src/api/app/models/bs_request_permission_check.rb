@@ -292,10 +292,10 @@ class BsRequestPermissionCheck
     if by_group and not User.current.is_in_group?(by_group)
       raise ReviewChangeStateNoPermission.new "review state change for group #{by_group.title} is not permitted for #{User.current.login}"
     end
-    if by_package and not User.current.can_modify_package? by_package
+    if by_package and not User.current.can_modify_package?(by_package, true)
       raise ReviewChangeStateNoPermission.new "review state change for package #{opts[:by_project]}/#{opts[:by_package]} is not permitted for #{User.current.login}"
     end
-    if by_project and not User.current.can_modify_project? by_project
+    if by_project and not User.current.can_modify_project?(by_project, true)
       raise ReviewChangeStateNoPermission.new "review state change for project #{opts[:by_project]} is not permitted for #{User.current.login}"
     end
   end
