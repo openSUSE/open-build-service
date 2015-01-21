@@ -658,6 +658,31 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
 
+  def test_remove_myself_from_home_project_and_readd
+    login_fred
+
+    # Get meta file  
+    get url_for(:controller => :source, :action => :show_project_meta, :project => 'home:fred')
+    assert_response :success
+    xml = @response.body
+    doc = REXML::Document.new(xml)
+
+    # drop myself (fred)
+    doc.elements['/project'].delete_element 'person'
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'home:fred'), doc.to_s
+    assert_response :success
+
+    # no person inside anymore
+    get url_for(:controller => :source, :action => :show_project_meta, :project => 'home:fred')
+    assert_response :success
+    assert_no_xml_tag :tag => 'person'
+
+    # but we are still allowed to modify our home meta, for example to re-add ourself
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'home:fred'), xml
+    assert_response :success
+  end
+
+
   def test_lock_project
     login_Iggy
     put '/source/home:Iggy/TestLinkPack/_meta', "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"

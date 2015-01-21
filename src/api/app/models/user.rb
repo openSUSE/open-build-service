@@ -496,6 +496,7 @@ class User < ActiveRecord::Base
     return true if is_admin?
     return true if has_global_permission? 'change_project'
     return true if has_local_permission? 'change_project', project
+    return true if project.name == "home:#{self.login}" # users tend to remove themself, allow to re-add them
     return false
   end
   private :can_modify_project_internal
