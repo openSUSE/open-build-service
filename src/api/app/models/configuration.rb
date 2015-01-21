@@ -37,13 +37,9 @@ class Configuration < ActiveRecord::Base
     def map_value(key, value)
       if ON_OFF_OPTIONS.include? key
         # make them boolean
-        if [ :on, ":on", "on", "true", true ].include? value
-           value = true
-        else
-           value = false
-        end
+        return [ :on, ":on", "on", "true", true ].include? value
       end
-      return value
+      value
     end
 
     def first
