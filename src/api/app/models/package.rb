@@ -737,7 +737,7 @@ class Package < ActiveRecord::Base
     # from external project, so it is my origin
     prj = Project.get_by_name(li['project'])
     pkg = prj.find_package(li['package'])
-    return pkg if li['project'] != prj.name
+    return pkg if self.project != prj
 
     # broken or remote link, aborting
     return nil if pkg.nil?
@@ -780,8 +780,14 @@ class Package < ActiveRecord::Base
       cb.create_channel_package_into(self.project)
     end
     # and all possible existing local links
+    if opkg.project.is_maintenance_release? and opkg.is_link?
+      opkg = opkg.project.packages.find_by_name opkg.linkinfo["package"]
+    end
     opkg.find_project_local_linking_packages.each do |p|
-      ChannelBinary.find_by_project_and_package(project_name, p.name).each do |cb|
+      name = p.name
+      # strip incident suffix in update release projects
+      name.gsub!(/\.[^\.]*/,'') if opkg.project.is_maintenance_release? and opkg.is_link?
+      ChannelBinary.find_by_project_and_package(project_name, name).each do |cb|
         cb.create_channel_package_into(self.project)
       end
     end
