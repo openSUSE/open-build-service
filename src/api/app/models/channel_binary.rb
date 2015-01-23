@@ -5,6 +5,10 @@ class ChannelBinary < ActiveRecord::Base
   belongs_to :repository
   belongs_to :architecture
 
+  def self._sync_keys
+    [ :name, :project, :repository, :architecture, :package, :binaryarch ]
+  end
+
   def self.find_by_project_and_package(project, package)
     project = Project.find_by_name(project) if project.is_a? String
 

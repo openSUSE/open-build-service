@@ -3,6 +3,10 @@ class ChannelTarget < ActiveRecord::Base
   belongs_to :channel
   belongs_to :repository
 
+  def self._sync_keys
+    [ :repository ]
+  end
+
   def self.find_by_repo(repo, projectFilter=nil)
     ct = []
 

@@ -92,8 +92,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     post '/source/Channel/BaseDistro2?cmd=importchannel&target_project=BaseDistro2Channel&target_repository=channel_repo', '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
-          <binaries project="BaseDistro2.0" repository="BaseDistro_repo" arch="i586">
-            <binary name="package" package="pack2" project="BaseDistro2.0" />
+          <binaries project="BaseDistro:Update" repository="BaseDistroUpdateProject_repo" arch="i586">
+            <binary name="package" package="pack2" project="BaseDistro2.0:LinkedUpdateProject" repository="BaseDistro2LinkedUpdateProject_repo" />
           </binaries>
         </channel>'
     assert_response :success

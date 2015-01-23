@@ -1,5 +1,7 @@
 class Channel < ActiveRecord::Base
 
+  include ModelHelper
+
   belongs_to :package, foreign_key: :package_id
   has_many :channel_targets, dependent: :destroy
   has_many :channel_binary_lists, dependent: :destroy
@@ -43,38 +45,78 @@ class Channel < ActiveRecord::Base
     return name
   end
 
-  def update_from_xml(xmlhash, check=false)
-    xmlhash = Xmlhash.parse(xmlhash) if xmlhash.is_a? String
-    xmlhash.elements('target') { |p|
+  def _update_from_xml_targets(xmlhash)
+    # sync channel targets
+    hasharray=[]
+    xmlhash.elements('target').each { |p|
       prj = Project.find_by_name(p['project'])
       r = prj.repositories.find_by_name(p['repository'])
       next unless r
-      self.channel_targets.build(:repository => r, 
-                                 :id_template => p['id_template'], 
-                                 :disabled => (p.elements('disabled').count>0))
+      hasharray << { repository: r, id_template: p['id_template'],
+                     disabled: (p.elements('disabled').count>0) }
     }
+    sync_hash_with_model(ChannelTarget, self.channel_targets, hasharray)
+  end
+
+  def _update_from_xml_binary_lists(xmlhash)
+    # sync binary lists
+    hasharray=[]
     xmlhash.elements('binaries').each { |p|
-      cbl = self.channel_binary_lists.build()
+      repository = nil
       project = p['project']
       unless project.blank?
-        cbl.project = Project.find_by_name( project )
-        cbl.repository = cbl.project.repositories.find_by_name( p['repository'] ) if p['repository']
+        project = Project.find_by_name(project)
+        repository = project.repositories.find_by_name(p['repository']) if p['repository']
       end
-      cbl.architecture = Architecture.find_by_name( p['arch'] ) if p['arch']
-      cbl.save
-      p.elements('binary') { |b|
-        binary = cbl.channel_binaries.build( name: b['name'] )
-        binary.binaryarch = b['binaryarch']
-        binary.supportstatus = b['supportstatus']
-        binary.architecture = Architecture.find_by_name( b['arch'] ) if b['arch']
-        project = b['project']
-        binary.project = Project.find_by_name( project ) if project
-        binary.package = b['package'] if b['package']
-        binary.repository = binary.project.repositories.find_by_name(b['repository'] ) if b['repository']
-        binary.save
-      }
+      hasharray << { project: project, architecture: Architecture.find_by_name(p['arch']), 
+                     repository: repository }
     }
-    self.save
+    sync_hash_with_model(ChannelBinaryList, self.channel_binary_lists, hasharray)
+  end
+
+  def _update_from_xml_binaries(cbl, xmlhash)
+    hasharray=[]
+    xmlhash.elements('binary') { |b|
+      hash = { name: b['name'], binaryarch: b['binaryarch'], supportstatus: b['supportstatus'],
+               project: nil, architecture: Architecture.find_by_name(b['arch']), 
+               package: b['package'], repository: nil
+             }
+      if b['project']
+        hash[:project] = Project.get_by_name(b['project'])
+        hash[:repository] = hash[:project].repositories.find_by_name(b['repository']) if b['repository']
+      end
+      hasharray << hash
+    }
+    sync_hash_with_model(ChannelBinary, cbl.channel_binaries, hasharray)
+  end
+
+  def update_from_xml(xmlhash)
+    xmlhash = Xmlhash.parse(xmlhash) if xmlhash.is_a? String
+
+    _update_from_xml_targets(xmlhash)
+    _update_from_xml_binary_lists(xmlhash)
+
+    # sync binaries for all lists
+    self.channel_binary_lists.each { |cbl|
+      p = nil
+      # search the right xml binaries group for this cbl
+      xmlhash.elements('binaries') do |b|
+        next if cbl.project      and b['project'] != cbl.project.name
+        next if cbl.repository   and b['repository'] != cbl.repository.name
+        next if cbl.architecture and b['arch'] != cbl.architecture.name
+        next if cbl.project.nil?      and b['project']
+        next if cbl.repository.nil?   and b['repository']
+        next if cbl.architecture.nil? and b['arch']
+        # match, but only once
+        raise "Illegal double match of binary list" if p
+        p=b
+      end
+      # no match? either not created or searched in the right way
+      raise "Unable to find binary list" unless p
+      # update...
+      _update_from_xml_binaries(cbl, p)
+    }
+    save
   end
 
   def branch_channel_package_into_project(project)

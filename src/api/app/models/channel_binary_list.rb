@@ -6,4 +6,8 @@ class ChannelBinaryList < ActiveRecord::Base
   belongs_to :architecture
   has_many :channel_binaries, dependent: :destroy
 
+  def self._sync_keys
+    [ :project, :repository, :architecture ]
+  end
+
 end
