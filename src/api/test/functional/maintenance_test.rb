@@ -750,6 +750,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post '/source/'+incidentProject+'/pack2.BaseDistro2.0_LinkedUpdateProject?unified=1&cmd=diff&filelimit=0&expand=1'
     assert_response :success
     assert_match(/DUMMY bnc#1042/, @response.body)
+    get "/source/#{incidentProject}/pack2.BaseDistro2.0_LinkedUpdateProject?view=issues"
+    assert_response :success
+    assert_xml_tag :parent => { tag: 'issue', :attributes=>{change:"added"} },
+                   :tag=>'name', :content=>'1042'
 
     # add a new package with defined link target
     Timecop.freeze(1)

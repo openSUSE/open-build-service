@@ -404,12 +404,13 @@ class Package < ActiveRecord::Base
   end
 
   def update_issue_list
-    current_issues = []
+    current_issues = {}
     if self.is_patchinfo?
       xml = Patchinfo.new.read_patchinfo_xmlhash(self)
       xml.elements('issue') do |i|
         begin
-          current_issues << [ Issue.find_or_create_by_name_and_tracker(i['id'], i['tracker']) ,'kept' ]
+          current_issues['kept'] ||= []
+          current_issues['kept'] << Issue.find_or_create_by_name_and_tracker(i['id'], i['tracker'])
         rescue IssueTracker::NotFoundError => e
           # if the issue is invalid, we ignore it
           Rails.logger.debug e
@@ -420,60 +421,70 @@ class Package < ActiveRecord::Base
       current_issues = find_changed_issues
     end
 
-    # hash existing entries
-    pis = Hash.new
-    self.package_issues.each { |pi| pis[pi.issue.label] = pi }
-
-    # new/update issue entries
-    current_issues.each do |issue, change|
-      if pi = pis[issue.label] 
-        # issue exists already for this package
-        unless pi.change == change
-          # update state
-          pi.change = change
-          pi.save!
-        end
-        # entry exists already in correct way, do not drop it
-        pis.delete(issue.label)
-      else
-        # new entry
-        self.package_issues.create(issue: issue, change: change)
-      end
-    end
-
-    # drop old entries
-    self.package_issues.delete(pis.values)
+    # fast sync our relations
+    PackageIssue.sync_relations(self, current_issues)
   end
 
-  def parse_issues_xml(query)
+  def parse_issues_xml(query, force_state=nil)
     begin
-      issues = Suse::Backend.post(self.source_path(nil, query), nil)
-      xml = Xmlhash.parse(issues.body)
-      xml.get('issues').elements('issue') do |i|
-        issue = Issue.find_or_create_by_name_and_tracker(i['name'], i['tracker'])
-        yield issue, i['state']
-      end
+      answer = Suse::Backend.post(self.source_path(nil, query), nil)
     rescue ActiveXML::Transport::Error => e
       Rails.logger.debug "failed to parse issues: #{e.inspect}"
+      return {}
     end
+    xml = Xmlhash.parse(answer.body)
+
+    # collect all issues and put them into an hash
+    issues = {}
+    xml.get('issues').elements('issue') do |i|
+      issues[i['tracker']] ||= {}
+      issues[i['tracker']][i['name']] = force_state || i['state']
+    end
+
+    issues
   end
 
   def find_changed_issues
-    issue_change={}
     # no expand=1, so only branches are tracked
     query = { cmd: :diff, orev: 0, onlyissues: 1, linkrev: :base, view: :xml }
-    parse_issues_xml(query) do |issue, state|
-      issue_change[issue] = 'kept'
-    end
-
+    issue_change = parse_issues_xml(query, 'kept')
     # issues introduced by local changes
-    return issue_change unless self.is_link?
-    query = { cmd: :linkdiff, onlyissues: 1, linkrev: :base, view: :xml }
-    parse_issues_xml(query) do |issue, state|
-      issue_change[issue] = state
+    if self.is_link?
+      query = { cmd: :linkdiff, onlyissues: 1, linkrev: :base, view: :xml }
+      new = parse_issues_xml(query)
+      (issue_change.keys + new.keys).uniq.each do |key|
+        issue_change[key] ||= {}
+        issue_change[key].merge!(new[key]) if new[key]
+        issue_change['kept'].delete(new[key]) if issue_change['kept'] and key != 'kept'
+      end
     end
 
-    issue_change
+    myissues = {}
+    Issue.transaction do
+      # update existing issues
+      self.issues.each do |issue|
+        next unless issue_change[issue.issue_tracker.name]
+        next unless issue_change[issue.issue_tracker.name][issue.name]
+        state = issue_change[issue.issue_tracker.name][issue.name]
+        myissues[state] ||= []
+        myissues[state] << issue
+        issue_change[issue.issue_tracker.name].delete(issue.name)
+      end
+
+      issue_change.keys.each do |tracker|
+        t=IssueTracker.find_by_name tracker
+
+        # create new issues
+        issue_change[tracker].keys.each do |name|
+          issue = t.issues.find_by_name(name) || t.issues.create(name: name)
+          state = issue_change[tracker][name]
+          myissues[state] ||= []
+          myissues[state] << issue
+        end
+      end
+    end
+
+    myissues
   end
 
   def update_channel_list
