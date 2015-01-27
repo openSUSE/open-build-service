@@ -328,6 +328,7 @@ CREATE TABLE `channels` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `package_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `index_unique` (`package_id`),
   KEY `package_id` (`package_id`),
   CONSTRAINT `channels_ibfk_1` FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -1622,6 +1623,8 @@ INSERT INTO schema_migrations (version) VALUES ('20141202135426');
 INSERT INTO schema_migrations (version) VALUES ('20141208135426');
 
 INSERT INTO schema_migrations (version) VALUES ('20150112135426');
+
+INSERT INTO schema_migrations (version) VALUES ('20150127135426');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

@@ -488,14 +488,11 @@ class Package < ActiveRecord::Base
   end
 
   def update_channel_list
-    Channel.transaction do
-      if self.is_channel?
-        xml = Suse::Backend.get(self.source_path('_channel'))
-        self.channels = [Channel.create(package: self)] if self.channels.size < 1
-        self.channels.first.update_from_xml(xml.body.to_s)
-      else
-        self.channels.destroy_all
-      end
+    if self.is_channel?
+      xml = Suse::Backend.get(self.source_path('_channel'))
+      self.channels.first_or_create.update_from_xml(xml.body.to_s)
+    else
+      self.channels.destroy_all
     end
   end
 
