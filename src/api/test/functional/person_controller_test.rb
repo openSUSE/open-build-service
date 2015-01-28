@@ -93,7 +93,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
 
   def test_update_user_info
     prepare_request_valid_user
-    
+
     # get original data
     get "/person/tom"
     assert_response :success
@@ -125,7 +125,8 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     get "/person/tom"
     assert_response :success
-    assert_xml_tag :tag => "globalrole", :content => "Admin" # written as non-Admin
+    assert_xml_tag :tag => "globalrole", :content => "Admin" # written as Admin
+
     #revert
     doc.elements["/person"].delete_element "globalrole"
     put "/person/tom", doc.to_s

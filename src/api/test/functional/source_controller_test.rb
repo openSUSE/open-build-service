@@ -1302,7 +1302,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # write to illegal location: 
     put url_for(:controller => :source, :action => :update_package_meta, :project => 'kde4', :package => '.'), doc.to_s
     assert_response 400
-    assert_xml_tag :tag => 'status', :child => { :content => %r{project validation error: Expecting element project} }
+    assert_xml_tag :tag => 'status', :attributes => { :code => "invalid_package_name" }
 
     #must not create a package with different pathname and name in _meta.xml:
     put url_for(:controller => :source, :action => :update_package_meta, :project => 'kde4', :package => 'kdelibs2000'), doc.to_s

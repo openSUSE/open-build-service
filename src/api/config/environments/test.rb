@@ -2,6 +2,10 @@
 
 ENV['CACHENAMESPACE'] ||= "obs-api-test-#{Time.now.to_i}"
 
+Rails.application.configure do
+  config.active_support.test_order = :sorted # switch to :random ?
+end
+
 OBSApi::Application.configure do
 
   # The test environment is used exclusively to run your application's

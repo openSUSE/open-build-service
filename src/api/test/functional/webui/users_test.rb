@@ -90,7 +90,7 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
 
     add_user 'sadasxsacxsacsa', 'reader', :expect => :unknown_user
     add_user '', 'maintainer', :expect => :unknown_user
-    add_user '~@$@#%#%@$0-=<m,.,\/\/12`;.{{}}{}', 'maintainer', :expect => :unknown_user
+    add_user '~@$@#%#%@$0-=m,.,\/\/12`;.{{}}{}', 'maintainer', :expect => :unknown_user
     
     # add_package_role_to_username_with_question_sign do
     add_user 'still-buggy?', 'maintainer', :expect => :unknown_user
@@ -141,7 +141,7 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
 
     add_user 'sadasxsacxsacsa', 'reader', :expect => :unknown_user
     add_user '', 'maintainer', :expect => :unknown_user
-    add_user '~@$@#%#%@$0-=<m,.,\/\/12`;.{{}}{}', 'maintainer', :expect => :unknown_user
+    add_user '~@$@#%#%@$0-=m,.,\/\/12`;.{{}}{}', 'maintainer', :expect => :unknown_user
     add_user 'still-buggy?', 'maintainer', :expect => :unknown_user
 
     edit_user :name => :user3,

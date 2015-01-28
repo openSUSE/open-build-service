@@ -151,6 +151,7 @@ class ProjectTest < ActiveSupport::TestCase
       </project>"
       )
     @project.update_from_xml(axml)
+    @project.reload
     
     xml = @project.render_xml
     

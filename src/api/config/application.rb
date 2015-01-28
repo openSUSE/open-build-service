@@ -73,6 +73,9 @@ module OBSApi
     # rake gems:unpack (this unpacks the gems to vendor/gems)
     
     config.cache_store = :dalli_store, 'localhost:11211', {:namespace => 'obs-api', :compress => true }
+
+    # will become default
+    config.active_record.raise_in_transactional_callbacks = true
     
     # Activate observers that should always be running
     # config.active_record.observers = :cacher, :garbage_collector

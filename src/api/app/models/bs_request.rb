@@ -90,6 +90,7 @@ class BsRequest < ActiveRecord::Base
   after_save :reset_cache
 
   def reset_cache
+    return unless id
     Rails.cache.delete('xml_bs_request_fullhistory_%d' % id)
     Rails.cache.delete('xml_bs_request_history_%d' % id)
     Rails.cache.delete('xml_bs_request_%d' % id)
