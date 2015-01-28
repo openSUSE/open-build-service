@@ -1,3 +1,5 @@
+require 'delayed_job'
+require File.join(Rails.root, 'app/jobs/update_package_meta_job.rb')
 
 class AddChannelIndex < ActiveRecord::Migration
   def self.up
@@ -5,8 +7,10 @@ class AddChannelIndex < ActiveRecord::Migration
     Channel.all.destroy_all
 
     add_index :channels, [:package_id], unique: true, :name => "index_unique"
-  
-    PackageKind.all.where(kind: "channel").each{|pk| pk.package.update_backendinfo}
+
+    # trigger reparsing of all channels in delayed job
+    PackageKind.all.where(kind: "channel").each{|pk| BackendPackage.where(package_id: pk.package).delete_all}
+    Delayed::Job.enqueue UpdatePackageMetaJob.new
   end
 
   def self.down
