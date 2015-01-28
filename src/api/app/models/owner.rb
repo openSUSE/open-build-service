@@ -33,7 +33,11 @@ class Owner
     limit  = params[:limit] || 1
 
     projects = []
-    if params[:project]
+    if obj.is_a? Project
+      projects = [obj]
+    elsif obj.is_a? Package
+      projects = [obj.project]
+    elsif params[:project]
       # default project specified
       projects = [Project.get_by_name(params[:project])]
     else
@@ -72,6 +76,8 @@ class Owner
       elsif obj.is_a? String
         owners += self.find_assignees(project, obj, limit.to_i, devel,
                                                 filter, (true unless params[:webui_mode].blank?))
+      elsif obj.is_a? Project or obj.is_a? Package
+        owners += self.find_maintainers(obj, filter)
       else
         owners += self.find_containers(project, obj, devel, filter)
       end
@@ -224,6 +230,35 @@ class Owner
     return maintainers
   end
 
+  def self.find_maintainers(container, filter)
+    maintainers = []
+    sql = self._build_rolefilter_sql(filter)
+    add_owners = Proc.new {|cont|
+      m = Owner.new
+      m.rootproject = ''
+      if cont.is_a? Package
+        m.project = cont.project.name
+        m.package = cont.name 
+      else
+        m.project = cont.name
+      end
+      m.filter = filter
+      self._extract_from_container(m, cont.relationships, sql, nil)
+      maintainers << m unless m.users.nil? and m.groups.nil?
+    }
+    project = container
+    if container.is_a? Package
+      add_owners.call container
+      project = container.project
+    end
+    # add maintainers from parent projects
+    while not project.nil?
+      add_owners.call(project)
+      project = project.find_parent
+    end
+    maintainers
+  end
+
   def self.lookup_package_owner(rootproject, pkg, owner, limit, devel, filter, deepest, already_checked={})
     return nil, limit, already_checked if already_checked[pkg.id]
 
@@ -266,25 +301,7 @@ class Owner
 
     # no filter defined, so do not check for roles and just return container
     return m if rolefilter.empty?
-
-    # construct where condition
-    sql = nil
-    if rolefilter.length > 0
-      rolefilter.each do |rf|
-       if sql.nil?
-         sql = "( "
-       else
-         sql << " OR "
-       end
-       role = Role.find_by_title!(rf)
-       sql << "role_id = " << role.id.to_s
-      end
-    else
-      # match all roles
-      sql = "( 1 "
-    end
-    sql << " )"
-
+    sql = self._build_rolefilter_sql(rolefilter)
     # lookup in package container
     m = self._extract_from_container(m, pkg.relationships, sql, objfilter)
 
@@ -320,4 +337,25 @@ class Owner
     end unless objfilter.class == User
     return m
   end
+
+  def self._build_rolefilter_sql(rolefilter)
+    # construct where condition
+    sql = nil
+    if rolefilter.length > 0
+      rolefilter.each do |rf|
+       if sql.nil?
+         sql = "( "
+       else
+         sql << " OR "
+       end
+       role = Role.find_by_title!(rf)
+       sql << "role_id = " << role.id.to_s
+      end
+    else
+      # match all roles
+      sql = "( 1 "
+    end
+    sql << " )"
+  end
+
 end

@@ -434,6 +434,44 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'collection', :children => { :count => 0 }
 
+    # lookup maintainers
+    get "/search/owner?project=home:Iggy"
+    assert_response :success
+    assert_xml_tag tag: 'collection', :children => { :count => 1 }
+    assert_xml_tag :parent => { tag: 'owner', :children => { :count => 2 },
+                                :attributes => { :rootproject => "", :project => "home:Iggy" }},
+                   tag: 'person', :attributes => { :name => "Iggy", :role => "maintainer" }
+
+    get "/search/owner?project=home:Iggy&package=TestPack"
+    assert_xml_tag tag: 'collection', :children => { :count => 2 }
+    assert_xml_tag :parent => { tag: 'owner', :children => { :count => 4 },
+                                :attributes => { :project => "home:Iggy", :package => "TestPack" }},
+                   tag: 'person', :attributes => { :name => "fred", :role => "maintainer" }
+    assert_xml_tag :parent => { tag: 'owner', :children => { :count => 4 },
+                                :attributes => { :project => "home:Iggy", :package => "TestPack" }},
+                   tag: 'person', :attributes => { :name => "Iggy", :role => "bugowner" }
+    assert_xml_tag :parent => { tag: 'owner', :children => { :count => 4 },
+                                :attributes => { :project => "home:Iggy", :package => "TestPack" }},
+                   tag: 'person', :attributes => { :name => "Iggy", :role => "maintainer" }
+    assert_xml_tag :parent => { tag: 'owner', :children => { :count => 4 },
+                                :attributes => { :project => "home:Iggy", :package => "TestPack" }},
+                   tag: 'group', :attributes => { :name => "test_group_b", :role => "maintainer" }
+    assert_xml_tag :parent => { tag: 'owner', :children => { :count => 2 }},
+                                :attributes => { :project => "home:Iggy" },
+                   tag: 'person', :attributes => { :name => "hidden_homer", :role => "maintainer" }
+
+    get "/search/owner?project=home:Iggy&package=TestPack&filter=bugowner"
+    # no bugowner defined for the project => no owner node for the project
+    assert_xml_tag tag: 'collection', :children => { :count => 1 }
+    assert_xml_tag :parent => { tag: 'owner', :children => { :count => 1 },
+                                :attributes => { :project => "home:Iggy", :package => "TestPack" }},
+                   tag: 'person', :attributes => { :name => "Iggy", :role => "bugowner" }
+
+    get "/search/owner?project=home:coolo:test"
+    assert_xml_tag tag: 'collection', :children => { :count => 2 }
+    assert_xml_tag tag: 'owner', :children => { :count => 1 }, :attributes => { :project => "home:coolo:test" }
+    assert_xml_tag tag: 'owner', :children => { :count => 1 }, :attributes => { :project => "home:coolo" }
+
     # some illegal searches
     get "/search/owner?user=INVALID&filter=bugowner"
     assert_response 404
@@ -441,6 +479,11 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get "/search/owner?user=fred&filter=INVALID"
     assert_response 404
     assert_xml_tag tag: 'status', :attributes => { :code => "not_found" }
+    get "/search/owner?package=TestPack"
+    assert_response 400
+    assert_xml_tag tag: 'status', :attributes => { :code => "no_binary" }
+    get "/search/owner?project=DOESNOTEXIST"
+    assert_response 404
 
     # set devel package (this one has another devel package in home:coolo:test)
     pkg = Package.find_by_project_and_name "home:Iggy", "TestPack"
