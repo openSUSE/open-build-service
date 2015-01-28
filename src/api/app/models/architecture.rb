@@ -24,6 +24,10 @@ class Architecture < ActiveRecord::Base
     end
   end
 
+  def to_s
+    name
+  end
+
   after_save 'Architecture.discard_cache'
   after_destroy 'Architecture.discard_cache'
 end
