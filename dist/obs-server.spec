@@ -38,7 +38,7 @@ Group:          Productivity/Networking/Web/Utilities
 %endif
 Version:        2.5.50_113_g117c617
 Release:        0
-Url:            http://en.opensuse.org/Build_Service
+Url:            http://www.openbuildservice.org
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 # Sources are retrieved using script which is attached as Source2
 Source0:        open-build-service-%version.tar.xz
