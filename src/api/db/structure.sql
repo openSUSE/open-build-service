@@ -949,6 +949,8 @@ CREATE TABLE `roles_users` (
   `user_id` int(11) NOT NULL DEFAULT '0',
   `role_id` int(11) NOT NULL DEFAULT '0',
   `created_at` datetime DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`),
   UNIQUE KEY `roles_users_all_index` (`user_id`,`role_id`),
   KEY `role_id` (`role_id`),
   CONSTRAINT `roles_users_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
@@ -1625,6 +1627,8 @@ INSERT INTO schema_migrations (version) VALUES ('20141208135426');
 INSERT INTO schema_migrations (version) VALUES ('20150112135426');
 
 INSERT INTO schema_migrations (version) VALUES ('20150127135426');
+
+INSERT INTO schema_migrations (version) VALUES ('20150129135426');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
