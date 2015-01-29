@@ -522,6 +522,8 @@ CREATE TABLE `group_maintainers` (
 CREATE TABLE `group_request_requests` (
   `bs_request_action_group_id` int(11) DEFAULT NULL,
   `bs_request_id` int(11) DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`),
   KEY `index_group_request_requests_on_bs_request_id` (`bs_request_id`),
   KEY `index_group_request_requests_on_bs_request_action_group_id` (`bs_request_action_group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -1629,6 +1631,8 @@ INSERT INTO schema_migrations (version) VALUES ('20150112135426');
 INSERT INTO schema_migrations (version) VALUES ('20150127135426');
 
 INSERT INTO schema_migrations (version) VALUES ('20150129135426');
+
+INSERT INTO schema_migrations (version) VALUES ('20150129135427');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

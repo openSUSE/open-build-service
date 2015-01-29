@@ -30,8 +30,6 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     node.value :id
   end
 
-if $ENABLE_BROKEN_TEST
-# currently broken since rails 4.2. but this is any just playground, so just disabled for now
   def test_set_and_get
     login_king
     # make sure there is at least one
@@ -281,5 +279,4 @@ if $ENABLE_BROKEN_TEST
     assert_response :success
     assert_xml_tag(:tag => "collection", :attributes => {:matches => "1"})
   end
-end
 end
