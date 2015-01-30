@@ -67,7 +67,9 @@ sub notify_plugins($$) {
 
   return unless $BSConfig::notification_plugin;
 
-  for my $plugin (split(' ', $BSConfig::notification_plugin)) {
+  my $plugins = $BSConfig::notification_plugin;
+  $plugins = [ split(' ', $plugins) ] unless ref($plugins);	# compat
+  for my $plugin (@$plugins) {
     my $notifier = loadPackage($plugin);
     $notifier->notify($type, $paramRef);
   }
