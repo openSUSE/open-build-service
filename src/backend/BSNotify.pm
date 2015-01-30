@@ -63,30 +63,23 @@ sub notify {
 # events (no matter the origin) if the API is configured to do so.
 #
 sub notify_plugins($$) {
-  my ($type, $paramRef ) = @_;
+  my ($type, $paramRef) = @_;
 
   return unless $BSConfig::notification_plugin;
 
-  my @hostnames = split(/\s+/, $BSConfig::notification_plugin);
-
-  for my $hostname (@hostnames) {
-      my $notifier = &loadPackage($hostname);
-      $notifier->notify($type, $paramRef );
+  for my $plugin (split(' ', $BSConfig::notification_plugin)) {
+    my $notifier = loadPackage($plugin);
+    $notifier->notify($type, $paramRef);
   }
-
 }
 
 sub loadPackage {
-  my ($componentname) = @_;
-  my $file = "plugins/$componentname.pm";
-
-  my $componentfile = $file;
-  eval{
-     require "$componentfile";
+  my ($plugin) = @_;
+  eval {
+     require "plugins/$plugin.pm";
   };
-  print "error: $@" if $@;
-  my $obj = $componentname->new();
-  return $obj;    
+  warn("error: $@") if $@;
+  return $plugin->new();
 }
 
 1;
