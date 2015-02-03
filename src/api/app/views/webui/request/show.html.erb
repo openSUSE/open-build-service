@@ -257,7 +257,7 @@
       <% @my_open_reviews.each_with_index do |review, index| %>
           <div class="review_descision_display <%= 'hidden' if index != 0 %>" id="review_descision_display_<%= index %>">
             <%= form_tag(:action => 'modify_review') do %>
-                <p><%= text_area_tag("review_comment_#{index}", review[:reason], :size => '80x2', :style => 'width: 99%', :class => 'review_comment') %></p>
+                <p><%= text_area_tag("review_comment_#{index}", review[:reason], :size => '80x2', :style => 'width: 99%', :class => 'review_comment', :placeholder => 'Please comment on your decision') %></p>
 
                 <p>
                   <%= hidden_field_tag("review_request_id_#{index}", @id) %>
@@ -265,8 +265,8 @@
                   <%= hidden_field_tag("review_by_group_#{index}", review[:by_group]) if review[:by_group] %>
                   <%= hidden_field_tag("review_by_project_#{index}", review[:by_project]) if review[:by_project] %>
                   <%= hidden_field_tag("review_by_package_#{index}", review[:by_package]) if review[:by_package] %>
-                  <%= submit_tag 'Accept review', name: 'accepted', id: "review_accept_button_#{index}" %>
-                  <%= submit_tag 'Decline review', name: 'declined', id: "review_decline_button_#{index}" %>
+                  <%= submit_tag 'Approve', name: 'accepted', id: "review_accept_button_#{index}", title: 'Give this request your blessing, it will continue.' %>
+                  <%= submit_tag 'Disregard', name: 'declined', id: "review_decline_button_#{index}", title: 'Veto this request, it will be declined.' %>
                 </p>
             <% end %>
           </div>
