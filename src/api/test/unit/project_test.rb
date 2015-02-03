@@ -182,6 +182,71 @@ class ProjectTest < ActiveSupport::TestCase
     
   end
     
+  def test_maintains
+    User.current = users( :Iggy )
+
+    #project is given as axml
+    axml = Xmlhash.parse(
+      "<project name='home:Iggy'>
+        <title>Iggy's Home Project</title>
+        <description>dummy</description>
+        <maintenance>
+          <maintains project='BaseDistro'/>
+        </maintenance>
+      </project>"
+      )
+    @project.update_from_xml(axml)
+    @project.reload
+    xml = @project.render_xml
+    assert_xml_tag xml, :tag => :maintains, :attributes => { :project => "BaseDistro" }
+
+    # add one maintained project
+    axml = Xmlhash.parse(
+      "<project name='home:Iggy'>
+        <title>Iggy's Home Project</title>
+        <description>dummy</description>
+        <maintenance>
+          <maintains project='BaseDistro'/>
+          <maintains project='BaseDistro2.0'/>
+        </maintenance>
+      </project>"
+      )
+    @project.update_from_xml(axml)
+    @project.reload
+    xml = @project.render_xml
+    assert_xml_tag xml, :tag => :maintains, :attributes => { :project => "BaseDistro" }
+    assert_xml_tag xml, :tag => :maintains, :attributes => { :project => "BaseDistro2.0" }
+
+    # remove one maintained project
+    axml = Xmlhash.parse(
+      "<project name='home:Iggy'>
+        <title>Iggy's Home Project</title>
+        <description>dummy</description>
+        <maintenance>
+          <maintains project='BaseDistro2.0'/>
+        </maintenance>
+      </project>"
+      )
+    @project.update_from_xml(axml)
+    @project.reload
+    xml = @project.render_xml
+    assert_no_xml_tag xml, :tag => :maintains, :attributes => { :project => "BaseDistro" }
+    assert_xml_tag xml, :tag => :maintains, :attributes => { :project => "BaseDistro2.0" }
+    assert_xml_tag xml, :tag => :maintenance
+
+    # drop entire <maintenance> defs
+    axml = Xmlhash.parse(
+      "<project name='home:Iggy'>
+        <title>Iggy's Home Project</title>
+        <description>dummy</description>
+      </project>"
+      )
+    @project.update_from_xml(axml)
+    @project.reload
+    xml = @project.render_xml
+    assert_no_xml_tag xml, :tag => :maintenance
+  end
+
   test "duplicated repos" do
      User.current = users( :king )
      orig = @project.render_xml
