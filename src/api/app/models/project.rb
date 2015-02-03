@@ -708,11 +708,11 @@ class Project < ActiveRecord::Base
     xmlhash.get('maintenance').elements('maintains') do |maintains|
       pn = maintains['project']
       next if olds.delete(pn)
-      maintained_project = Project.find_by_name!(pn)
+      maintained_project = Project.get_by_name(pn)
       MaintainedProject.create(project: maintained_project, maintenance_project: self)
     end
 
-    maintained_projects.delete(project: olds.values)
+    maintained_projects.delete(olds.values)
   end
 
   def check_for_empty_repo_list(list, error_prefix)
