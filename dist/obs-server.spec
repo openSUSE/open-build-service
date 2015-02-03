@@ -36,7 +36,7 @@ License:        GPL-2.0 and GPL-3.0
 %if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 Group:          Productivity/Networking/Web/Utilities
 %endif
-Version:        2.5.50_113_g117c617
+Version:        2.6.0
 Release:        0
 Url:            http://www.openbuildservice.org
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
@@ -133,7 +133,7 @@ Requires:       lzma
 %endif
 Requires:       util-linux >= 2.16
 # the following may not even exist depending on the architecture
-Recommends:       powerpc32
+Recommends:     powerpc32
 
 %description -n obs-worker
 This is the obs build host, to be installed on each machine building
@@ -173,10 +173,10 @@ BuildRequires:  curl
 BuildRequires:  memcached >= 1.4
 BuildRequires:  mysql
 BuildRequires:  netcfg
-BuildRequires:  rubygem(ci_reporter)
 BuildRequires:  xorg-x11-Xvnc
 BuildRequires:  xorg-x11-server
 BuildRequires:  xorg-x11-server-extra
+BuildRequires:  rubygem(ci_reporter)
 # write down dependencies for production
 BuildRequires:  rubygem(bundler)
 Requires:       %(echo `bash %{S:1} %{S:0} "ruby:2.1.0"`)
@@ -247,6 +247,7 @@ Requires:       ruby
 obs_project_update is a tool to copy a packages of a project from one obs to another
 
 #--------------------------------------------------------------------------------
+
 %prep
 %setup -q -n open-build-service-%version
 # drop build script, we require the installed one from own package
