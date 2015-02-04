@@ -35,7 +35,7 @@ class Comment < ActiveRecord::Base
         end
       end
     end
-    users += User.where(login: users_mentioned).pluck(:id)
+    users += User.where(login: users_mentioned.to_a).pluck(:id)
     users.to_a
   end
 
