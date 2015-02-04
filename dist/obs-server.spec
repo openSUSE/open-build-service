@@ -391,7 +391,7 @@ done
 pushd $RPM_BUILD_ROOT/srv/www/obs/api
 # we need to have *something* as secret key
 echo "" | sha256sum| cut -d\  -f 1 > config/secret.key
-bundle exec rake --trace assets:precompile RAILS_ENV=production RAILS_GROUPS=assets
+bundle exec rake assets:precompile RAILS_ENV=production RAILS_GROUPS=assets
 rm -rf tmp/cache/sass tmp/cache/assets config/secret.key
 export BUNDLE_WITHOUT=test:assets:development
 export BUNDLE_FROZEN=1
@@ -466,12 +466,12 @@ EOF
 /usr/sbin/memcached -l 127.0.0.1 -d -P $PWD/memcached.pid
 # migration test
 export RAILS_ENV=migrate
-bundle exec rake --trace db:create || exit 1
+bundle exec rake db:create || exit 1
 xzcat test/dump_2.5.sql.xz | mysql  -u root --socket=/tmp/obs.test.mysql.socket
-bundle exec rake --trace db:migrate db:drop || exit 1
+bundle exec rake db:migrate db:drop || exit 1
 # entire test suite
 export RAILS_ENV=test
-bundle exec rake --trace db:create db:setup || exit 1
+bundle exec rake db:create db:setup || exit 1
 mv log/test.log{,.old}
 if ! bundle exec rake test:api test:webui ; then
   cat log/test.log

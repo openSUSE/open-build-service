@@ -59,7 +59,7 @@ cd ../..
 
 cd src/api
 echo "Invoke rake"
-bundle exec rake ci:setup:minitest test:api test:webui CI_REPORTS=results --trace || ret=1
+bundle exec rake ci:setup:minitest test:api test:webui CI_REPORTS=results || ret=1
 cd ../..
 
 cleanup
