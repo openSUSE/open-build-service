@@ -18,8 +18,7 @@ class BackendInfo < ActiveRecord::Base
 
   def self.get_integer(key)
     nr = self.get_value(key)
-    return 0 if nr.empty?
-    Integer(nr[0])
+    nr.empty? ? 0 : nr[0].to_i
   end
 
   def self.lastnotification_nr
