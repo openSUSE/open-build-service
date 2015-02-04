@@ -473,7 +473,7 @@ bundle exec rake --trace db:migrate db:drop || exit 1
 export RAILS_ENV=test
 bundle exec rake --trace db:create db:setup || exit 1
 mv log/test.log{,.old}
-if ! bundle exec rake --trace test:api test:webui ; then
+if ! bundle exec rake test:api test:webui ; then
   cat log/test.log
   kill $(cat memcached.pid)
   exit 1
