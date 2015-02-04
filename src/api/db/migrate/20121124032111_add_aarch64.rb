@@ -2,7 +2,7 @@ class AddAarch64 < ActiveRecord::Migration
 
 
   def self.up
-    Architecture.find_or_create_by_name "aarch64"
+    Architecture.where(name: "aarch64").first_or_create
   end
 
 

@@ -2,7 +2,7 @@ class AddM68k < ActiveRecord::Migration
 
 
   def self.up
-    Architecture.find_or_create_by_name "m68k"
+    Architecture.where(name: "m68k").first_or_create
   end
 
 
