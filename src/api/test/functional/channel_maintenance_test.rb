@@ -627,7 +627,7 @@ end
         <channel>
           <target project="BaseDistro3Channel" repository="channel_repo" />
           <binaries project="BaseDistro2.0:LinkedUpdateProject" repository="BaseDistro2LinkedUpdateProject_repo" arch="i586">
-            <binary name="package" package="pack2" supportstatus="l3" />
+            <binary name="package" package="pack2.linked" supportstatus="l3" />
           </binaries>
         </channel>'
     assert_response :success
