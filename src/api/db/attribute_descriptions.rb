@@ -23,6 +23,7 @@ def update_all_attrib_type_descriptions
     "IncidentPriority" => "A numeric value which defines the importance of this incident project.",
     "EmbargoDate" => "A timestamp until outgoing requests can not get accepted.",
     "MakeOriginOlder" => "Initialize packages by making the build results newer then updated ones",
+    "LockedBy" => "Gives a hint to other users that a contributor is performing tasks that take some time while others should not act on the same project",
   }
   
   for k in d.keys do
