@@ -1470,7 +1470,7 @@ sub publish {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.dsc(?:\.sha256)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /\.(?:box|json|ovf|qcow2|vmdk)(?:\.sha256)?$/) {
+	} elsif ($bin =~ /\.(?:box|json|ovf|qcow2|vmx|vmdk)(?:\.sha256)?$/) {
 	  $p = "$bin";
         } elsif ($bin =~ /^(.*)\.report$/) {
 	  # collect kiwi reports
