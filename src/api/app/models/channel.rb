@@ -96,6 +96,12 @@ class Channel < ActiveRecord::Base
     _update_from_xml_targets(xmlhash)
     _update_from_xml_binary_lists(xmlhash)
 
+    if self.package.project.is_maintenance_incident?
+      # we skip binaries in incidents because we do not need them
+      save
+      return
+    end
+
     # sync binaries for all lists
     self.channel_binary_lists.each { |cbl|
       p = nil

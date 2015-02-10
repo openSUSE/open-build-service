@@ -23,7 +23,7 @@ class ChannelBinary < ActiveRecord::Base
     channel = self.channel_binary_list.channel
 
     # does it exist already? then just skip it
-    return if Package.exists_by_project_and_name(project.name, channel.name)
+    return if Package.exists_by_project_and_name(project.name, channel.name, follow_project_links: false, allow_remote_packages: false)
 
     # create a channel package beside my package
     channel.branch_channel_package_into_project(project)
