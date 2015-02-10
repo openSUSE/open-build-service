@@ -68,7 +68,7 @@ class CodeQualityTest < ActiveSupport::TestCase
   BlackList = {
       'ApplicationController#extract_ldap_user' => 116.66,
       'AttributeController#attribute_definition' => 87.7,
-      'BinaryRelease::update_binary_releases_via_json' => 122.54,
+      'BinaryRelease::update_binary_releases_via_json' => 128.58,
       'BranchPackage#find_packages_to_branch' => 234.73,
       'BranchPackage#create_branch_packages' => 214.0,
       'BranchPackage#determine_details_about_package_to_branch' => 124.62,
