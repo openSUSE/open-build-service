@@ -76,7 +76,10 @@ module OBSApi
 
     # will become default
     config.active_record.raise_in_transactional_callbacks = true
-    
+
+    # required since rails 4.2
+    config.active_job.queue_adapter = :delayed_job
+
     # Activate observers that should always be running
     # config.active_record.observers = :cacher, :garbage_collector
     

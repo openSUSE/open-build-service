@@ -7,6 +7,9 @@ class BinaryRelease < ActiveRecord::Base
 
   before_create :set_release_time
 
+  class SaveError < APIException
+  end
+
   def set_release_time
     # created_at, but readable in database
     self.binary_releasetime = Time.now
