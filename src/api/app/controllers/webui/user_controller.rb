@@ -177,8 +177,8 @@ class Webui::UserController < Webui::WebuiController
   private :overwrite_user
 
   def icon
-    required_parameters :user
-    user = User.find_by_login! params[:user]
+    required_parameters :icon
+    user = User.find_by_login! params[:icon].gsub(/.png$/,'')
     size = params[:size].to_i || '20'
     content = user.gravatar_image(size)
 

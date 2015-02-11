@@ -288,7 +288,7 @@ OBSApi::Application.routes.draw do
       get 'user/notifications' => :notifications
 
       get 'user/show/:user' => :show, constraints: cons, as: 'user_show'
-      get 'user/icon/:user' => :icon, constraints: cons, as: 'user_icon'
+      get 'user/icon/:icon' => :icon, constraints: cons, as: 'user_icon'
       get 'user/requests/:user' => :requests, constraints: cons, as: 'user_requests'
       # Only here to make old /home url's work
       get 'home/' => :home, as: 'home'
