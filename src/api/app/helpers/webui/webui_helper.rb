@@ -50,7 +50,7 @@ module Webui::WebuiHelper
       end
       "<img src='data:image/jpeg;base64,#{Base64.encode64(content)}' width='#{size}' height='#{size}' alt='#{alt}' class='#{css_class}'/>".html_safe
     else
-      image_tag(url_for(controller: :user, action: :icon, user: user.login, size: size),
+      image_tag(url_for(controller: :user, action: :user_icon, icon: user.login, size: size),
                 width: size, height: size, alt: alt, class: css_class)
     end
   end
