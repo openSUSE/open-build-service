@@ -39,28 +39,28 @@ class MaintenanceIncident < ActiveRecord::Base
     # Run an atomar counter++ based on the used scheme
     if template =~ /%Y/
       counterType << " AND year = ? "
-      values << self.released_at.year.to_s
-      year =  self.released_at.year.to_s
+      values << self.released_at.year
+      year =  self.released_at.year
     else
       counterType = " AND ISNULL(year) "
-      year = "NULL"
+      year = nil
     end
     if template =~ /%M/
       counterType << " AND month = ? "
-      values << self.released_at.month.to_s
-      month = self.released_at.month.to_s
+      values << self.released_at.month
+      month = self.released_at.month
     else
       counterType << " AND ISNULL(month) "
-      month = "NULL"
+      month = nil
     end
 
     if template =~ /%D/
       counterType << " AND day   = ? "
-      values << self.released_at.day.to_s
-      day = self.released_at.day.to_s
+      values << self.released_at.day
+      day = self.released_at.day
     else
       counterType << " AND ISNULL(day) "
-      day = "NULL"
+      day = nil
     end
     if template =~ /%N/
       name = (self.name||"")
@@ -68,7 +68,7 @@ class MaintenanceIncident < ActiveRecord::Base
       values << name
     else
       counterType << " AND ISNULL(name) "
-      name = "NULL"
+      name = nil
     end
 
     r = MaintenanceIncident.exec_query(["SELECT counter FROM updateinfo_counter WHERE maintenance_db_project_id = ? #{counterType} FOR UPDATE",
