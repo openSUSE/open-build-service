@@ -793,7 +793,7 @@ class Package < ActiveRecord::Base
     opkg.find_project_local_linking_packages.each do |p|
       name = p.name
       # strip incident suffix in update release projects
-      name.gsub!(/\.[^\.]*/,'') if opkg.project.is_maintenance_release? and opkg.is_link?
+      name.gsub!(/\.[^\.]*$/,'') if opkg.project.is_maintenance_release?
       ChannelBinary.find_by_project_and_package(project_name, name).each do |cb|
         cb.create_channel_package_into(self.project)
       end

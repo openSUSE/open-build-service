@@ -20,7 +20,7 @@ class CreateJob
       puts exception.inspect, exception.backtrace
       return
     end
-    HoptoadNotifier.notify(exception, job.inspect)
+    HoptoadNotifier.notify(exception, {failed_job: job.inspect})
     notify_hoptoad(ex)
   end
 end

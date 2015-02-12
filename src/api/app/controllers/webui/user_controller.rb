@@ -176,6 +176,12 @@ class Webui::UserController < Webui::WebuiController
 
   private :overwrite_user
 
+  def user_icon
+    required_parameters :icon
+    params[:user] = params[:icon].gsub(/.png$/,'')
+    icon
+  end
+
   def icon
     required_parameters :user
     user = User.find_by_login! params[:user]

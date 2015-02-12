@@ -18,7 +18,11 @@ class Webui::PackageController < Webui::WebuiController
   before_filter :require_project, :except => [:submit_request, :devel_project]
   before_filter :require_package, :except => [:submit_request, :save_new_link, :save_new, :devel_project ]
   # make sure it's after the require_, it requires both
-  before_filter :require_login, :only => [:branch, :submit_request, :save, :save_new, :save_new_link]
+  before_filter :require_login, :except => [:show, :linking_packages, :show , :linking_packages , :dependency,
+                                            :binary, :binaries, :users, :requests, :statistics, :commit,
+                                            :revisions, :rdiff, :wizard_new, :view_file, :live_build_log,
+                                            :update_build_log, :devel_project, :buildresult, :rpmlint_result,
+                                            :rpmlint_log, :meta, :attributes, :repositories, :files ]
   prepend_before_filter :lockout_spiders, :only => [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
 
   def show
@@ -43,7 +47,7 @@ class Webui::PackageController < Webui::WebuiController
       if @forced_unexpand.blank?
         @is_current_rev = !@revision || (@revision == @current_rev)
       else
-        flash[:error] = "Files could not be expanded: #{@forced_unexpand}"
+        flash.now[:error] = "Files could not be expanded: #{@forced_unexpand}"
       end
     elsif @revision_parameter
       flash[:error] = "No such revision: #{@revision_parameter}"

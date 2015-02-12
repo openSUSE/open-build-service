@@ -7,6 +7,9 @@ class BinaryRelease < ActiveRecord::Base
 
   before_create :set_release_time
 
+  class SaveError < APIException
+  end
+
   def set_release_time
     # created_at, but readable in database
     self.binary_releasetime = Time.now
@@ -138,7 +141,9 @@ class BinaryRelease < ActiveRecord::Base
              }
         # check for existing entry
         existing = oldlist.where(hash)
-        raise SaveError if existing.count > 1
+        Rails.logger.info "ERROR: multiple matches, cleaning up: #{existing.inspect}" if existing.count > 1
+        # double definition means broken DB entries
+        existing.offset(1).destroy_all
         
         # compare with existing entry
         if existing.count == 1

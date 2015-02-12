@@ -1,6 +1,6 @@
 class CommentsController < ApplicationController
 
-  before_filter :require_login, only: [:destroy, :create]
+  before_filter :require_login, except: [:show_comments]
   before_filter :find_obj, only: [:show_comments, :create]
 
   def show_comments

@@ -275,12 +275,13 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # branch
+    login_adrian
     post '/source/home:tom:temporary/_product', :cmd => :branch
     assert_response :success
 
     # upload sources in right order
     ["defaults-archsets.include", "defaults-conditionals.include", "defaults-repositories.include", "obs.group", "obs-release.spec", "SUSE_SLES.product"].each do |file|
-      raw_put "/source/home:tom:branches:home:tom:temporary/_product/#{file}",
+      raw_put "/source/home:adrian:branches:home:tom:temporary/_product/#{file}",
               File.open("#{Rails.root}/test/fixtures/backend/source/sle11_product/#{file}").read()
       assert_response :success
     end
@@ -288,10 +289,9 @@ class ProductTests < ActionDispatch::IntegrationTest
     # create request
     req = "<request>
             <action type='submit'>
-              <source project='home:tom:branches:home:tom:temporary' package='_product' />
+              <source project='home:adrian:branches:home:tom:temporary' package='_product' />
             </action>
             <description>SUBMIT</description>
-            <state who='tom' name='new'/>
           </request>"
     post '/request?cmd=create', req
     assert_response :success
@@ -301,6 +301,7 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert id.present?
 
     # accept the request
+    login_tom
     post "/request/#{id}?cmd=changestate&newstate=accepted"
     assert_response :success
 
