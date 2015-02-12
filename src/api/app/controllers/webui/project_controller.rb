@@ -696,7 +696,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def requests
-    @requests = @project.api_obj.request_ids_by_class
+    @requests = @project.api_obj.request_ids_by_class(false)
     @default_request_type = params[:type] if params[:type]
     @default_request_state = params[:state] if params[:state]
   end
