@@ -12,11 +12,8 @@ class RequestController < ApplicationController
 
   # GET /request
   def index
-    if params[:view] == 'collection'
-
-      # Do not allow a full collection to avoid server load
-      return render_request_collection
-    end
+    # Do not allow a full collection to avoid server load
+    return render_request_collection if params[:view] == 'collection'
 
     # directory list of all requests. not very useful but for backward compatibility...
     # OBS3: make this more useful
@@ -28,9 +25,8 @@ class RequestController < ApplicationController
   end
 
   def render_request_collection
-    if params[:project].blank? and params[:user].blank? and params[:states].blank? and params[:types].blank? and params[:reviewstates].blank? and params[:ids].blank?
-      raise RequireFilter.new
-    end
+    # if all params areblank, something is wrong
+    raise RequireFilter.new if [:project,:user,:states,:types,:reviewstates,:ids].all? { |f| params[f].blank? }
 
     # convert comma seperated values into arrays
     roles = params[:roles].split(',') if params[:roles]
@@ -40,6 +36,7 @@ class RequestController < ApplicationController
     ids = params[:ids].split(',').map { |i| i.to_i } if params[:ids]
 
     params.merge!({states: states, types: types, review_states: review_states, roles: roles, ids: ids})
+
     rel = BsRequestCollection.new(params).relation
     rel = rel.includes([:reviews])
     rel = rel.includes({bs_request_actions: :bs_request_action_accept_info})
@@ -58,19 +55,19 @@ class RequestController < ApplicationController
   # GET /request/:id
   def show
     required_parameters :id
-
     req = BsRequest.find(params[:id])
     render xml: req.render_xml(params)
   end
 
   # POST /request?cmd=create
   def global_command
+
     unless %w(create).include? params[:cmd]
       raise UnknownCommandError.new "Unknown command '#{params[opt[:cmd_param]]}' for path #{request.path}"
     end
+
     # refuse request creation for anonymous users
     be_not_nobody!
-
     # no need for dispatch_command, there is only one command
     request_create
   end
@@ -83,34 +80,25 @@ class RequestController < ApplicationController
     # refuse request manipulation for anonymous users
     be_not_nobody!
 
-
     params[:user] = User.current.login
     @req = BsRequest.find params[:id]
 
     # transform request body into query parameter 'comment'
     # the query parameter is preferred if both are set
-    if params[:comment].blank?
-      params[:comment] = request.raw_post
-    end
+    params[:comment] = request.raw_post if params[:comment].blank?
 
     # might raise an exception (which then renders an error)
     # FIXME: this should be moved into the model functions, doing
     #        these actions
-    if params[:cmd] == 'create'
-      # noop
-    elsif params[:cmd] == 'changereviewstate' or params[:cmd] == 'assignreview'
+    case params[:cmd]
+    when 'create','changestate','addreview','setpriority','setincident'
+      # create -> noop
+      # changestate,addressview,setpriority,setincident -> the model is checking already
+    when 'changereviewstate','assignreview'
       @req.permission_check_change_review!(params)
-    elsif params[:cmd] == 'addreview'
-      # the model is checking already
-    elsif params[:cmd] == 'setpriority'
-      # the model is checking already
-    elsif params[:cmd] == 'setincident'
-      # the model is checking already
-    elsif %w(addrequest removerequest).include? params[:cmd]
+    when 'addrequest','removerequest'
       # FIXME3.0: to be dropped
       @req.permission_check_change_groups!
-    elsif params[:cmd] == 'changestate'
-      # the model is checking already
     else
       raise UnknownCommandError.new "Unknown command '#{params[:cmd]}' for path #{request.path}"
     end
@@ -186,10 +174,10 @@ class RequestController < ApplicationController
     diff_text = ''
     action_counter = 0
 
-    if params[:view] == 'xml'
-      xml_request = ActiveXML::Node.new("<request id='#{req.id}'/>")
+    xml_request = if params[:view] == 'xml'
+      ActiveXML::Node.new("<request id='#{req.id}'/>")
     else
-      xml_request = nil
+      nil
     end
 
     req.bs_request_actions.each do |action|
@@ -267,6 +255,5 @@ class RequestController < ApplicationController
     @req.change_state(params)
     render_ok
   end
-
 
 end
