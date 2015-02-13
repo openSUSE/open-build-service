@@ -36,8 +36,8 @@ class Patchinfo < ActiveXML::Node
   # check if we can find the releasetarget (xmlhash) in the project
   def check_releasetarget!(rt)
     @project.repositories.each do |r|
-      r.release_targets.any? do |prt|
-        is_repository_matching?(prt.target_repository, rt)
+      r.release_targets.each do |prt|
+        return if is_repository_matching?(prt.target_repository, rt)
       end
     end
     raise ReleasetargetNotFound.new "Release target '#{rt['project']}/#{rt['repository']}' is not defined in this project '#{@project.name}'. Please ask your OBS administrator to add it."
@@ -86,7 +86,7 @@ class Patchinfo < ActiveXML::Node
 
     # update informations of empty issues
     patchinfo.each('issue') do |i|
-      next unless i.text.blank? or i.value(:name).blank?
+      next if !i.text.blank? or i.value(:name).blank?
       issue = Issue.find_or_create_by_name_and_tracker(i.value(:name), i.value(:tracker))
       next unless issue
       # enforce update from issue server
