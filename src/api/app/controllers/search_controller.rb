@@ -82,15 +82,17 @@ class SearchController < ApplicationController
   end
 
   def predicate_from_match_parameter(p)
-    if p=~ /^\(\[(.*)\]\)$/
-      pred = $1
-    elsif p=~ /^\[(.*)\]$/
-      pred = $1
-    else
-      pred = p
-    end
+
+    pred = case p
+    	   when  /^\(\[(.*)\]\)$/
+      		$1
+    	   when /^\[(.*)\]$/
+          	$1
+    	   else
+      		p
+    	   end
     pred = "*" if pred.nil? or pred.empty?
-    return pred
+    pred
   end
 
   def filter_items(items, offset, limit)
@@ -106,7 +108,6 @@ class SearchController < ApplicationController
     end
     nitems = Array.new
     items.each do |item|
-
       if @offset > 0
         @offset -= 1
       else
