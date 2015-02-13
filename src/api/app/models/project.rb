@@ -1297,18 +1297,22 @@ class Project < ActiveRecord::Base
     end
   end
 
-  def request_ids_by_class
-    rel = BsRequestCollection.new(project: name, states: %w(review), roles: %w(reviewer))
+  def request_ids_by_class(useroles=true)
+    roles = %w(reviewer) if useroles
+    rel = BsRequestCollection.new(project: name, states: %w(review), roles: roles )
     reviews = rel.ids
 
-    rel = BsRequestCollection.new(project: name, states: %w(new), roles: %w(target))
+    roles = %w(target) if useroles
+    rel = BsRequestCollection.new(project: name, states: %w(new), roles: roles )
     targets = rel.ids
 
-    rel = BsRequestCollection.new(project: name, states: %w(new), roles: %w(source), types: %w(maintenance_incident))
+    roles = %w(source) if useroles
+    rel = BsRequestCollection.new(project: name, states: %w(new), roles: roles, types: %w(maintenance_incident))
     incidents = rel.ids
 
     if is_maintenance?
-      rel = BsRequestCollection.new(project: name, states: %w(new), roles: %w(source), types: %w(maintenance_release), subprojects: true)
+      roles = %w(source) if useroles
+      rel = BsRequestCollection.new(project: name, states: %w(new), roles: roles, types: %w(maintenance_release), subprojects: true)
       maintenance_release = rel.ids
     else
       maintenance_release = []

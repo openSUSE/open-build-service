@@ -188,6 +188,7 @@ class Webui::ProjectController < Webui::WebuiController
         end
       end
     end
+    # regexp named group prj_name
     if @project_name =~ /home:(.+)/
       @project_title = "#$1's Home Project"
     else
@@ -507,12 +508,11 @@ class Webui::ProjectController < Webui::WebuiController
 
   def update_target
     repo = @project.api_obj.repositories.where(name: params[:repo]).first
-    archs = []
-    if params[:arch]
-      params[:arch].keys.each do |arch|
-        archs << Architecture.find_by_name(arch)
-      end
-    end
+    archs = if params[:arch]
+      		params[:arch].keys.map { |arch| Architecture.find_by_name(arch) }
+            else
+		[]
+    	    end
     repo.architectures = archs
     repo.save
     @project.api_obj.store
