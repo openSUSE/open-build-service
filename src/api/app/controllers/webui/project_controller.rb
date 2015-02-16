@@ -508,11 +508,8 @@ class Webui::ProjectController < Webui::WebuiController
 
   def update_target
     repo = @project.api_obj.repositories.where(name: params[:repo]).first
-    archs = if params[:arch]
-      		params[:arch].keys.map { |arch| Architecture.find_by_name(arch) }
-            else
-		[]
-    	    end
+    archs = []
+    archs = params[:arch].keys.map { |arch| Architecture.find_by_name(arch) } if params[:arch]
     repo.architectures = archs
     repo.save
     @project.api_obj.store
