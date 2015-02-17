@@ -348,8 +348,10 @@ module MaintenanceHelper
     # and create the needed local links
     opkg.find_project_local_linking_packages.each do |p|
       # create container
-      lpkg = project.packages.create(:name => p.name, :title => p.title, :description => p.description)
-      lpkg.store
+      unless project.packages.where(name: p.name).exists?
+        lpkg = project.packages.create(:name => p.name, :title => p.title, :description => p.description)
+        lpkg.store
+      end
 
       # copy project local linked packages
       Suse::Backend.post "/source/#{pkg.project.name}/#{p.name}?cmd=copy&oproject=#{CGI.escape(p.project.name)}&opackage=#{CGI.escape(p.name)}#{arguments}&user=#{CGI.escape(User.current.login)}", nil
