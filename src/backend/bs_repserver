@@ -835,6 +835,28 @@ sub getbinarylist {
     BSWatcher::reply_cpio(\@files);
     return undef;
   }
+  if ($view eq 'cpioheaders') {
+    my @files;
+    my @bins = grep {/\.rpm$/ && !/^\./} ls("$reporoot/$prp/$arch/$packid");
+    @bins = grep {!/^::import::/} @bins if $cgi->{'noimport'};
+    @bins = filtersources(@bins) if $cgi->{'nosource'} || -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
+    for my $bin (sort @bins) {
+      next if %binaries && !$binaries{$_};
+      my ($lead, $sighdr, $hdr, $hdrmd5);
+      eval {
+        ($lead, $sighdr, $hdr, $hdrmd5) = getrpmheaders("$reporoot/$prp/$arch/$packid/$bin", 1);
+      };
+      if ($hdr) {
+        push @files, {'name' => "$bin-$hdrmd5", 'data' => "$lead$sighdr$hdr"};
+      } else {
+        my $err = $@;
+        chomp $err;
+        push @files, {'name' => $bin, 'error' => $err || 'bad rpm'};
+      }
+    }
+    BSWatcher::reply_cpio(\@files);
+    return undef;
+  }
   if ($view eq 'binaryversions') {
     my $bininfo = read_bininfo("$reporoot/$prp/$arch/$packid");
     filtersources_bininfo($bininfo) if $cgi->{'nosource'} || $bininfo->{'.nosourceaccess'};
