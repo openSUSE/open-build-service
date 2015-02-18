@@ -1879,14 +1879,21 @@ sub fctx_del_binary_from_full {
 }
 
 sub orderpackidsforfull {
-  my (@packids) = @_;
+  my ($proj, @packids) = @_;
   my @s;
   my @back;
+  my $kind = $proj->{'kind'} || '';
   for (@packids) {
     if ($_ eq '_volatile') {
       push @back, $_;
     } elsif (/^(.*)\.(\d+)$/) {
-      push @s, [ $_, $1, $2];
+      # we ignore the name for maintenance release projects and sort only
+      # by the incident number
+      if ($kind eq 'maintenance_release') {
+        push @s, [ $_, '', $2];
+      } else {
+        push @s, [ $_, $1, $2];
+      }
     } else {
       push @s, [ $_, $_, 99999999 ];
     }
@@ -1926,10 +1933,11 @@ sub fctx_gbininfo2full {
     $gbininfo->{$oldpackid} ||= {};	# make sure oldpackid is included
   }
   my ($projid, $repoid) = split('/', $fctx->{'prp'}, 2);
+  my $proj = $projpacks->{$projid} || {},
   my $prjuseforbuildenabled = 1;
-  $prjuseforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $prjuseforbuildenabled);
-  my $pdatas = $projpacks->{$projid}->{'package'} || {};
-  my @packids = orderpackidsforfull(keys %$gbininfo);
+  $prjuseforbuildenabled = enabled($repoid, $proj->{'useforbuild'}, $prjuseforbuildenabled);
+  my $pdatas = $proj->{'package'} || {};
+  my @packids = orderpackidsforfull($proj, keys %$gbininfo);
   # construct new full
   my %full;
   for my $packid (@packids) {
@@ -7311,13 +7319,14 @@ sub event_useforbuild {
   my $repoid = $ev->{'repository'};
   return unless defined($projid) && defined($repoid);
   my $prp = "$projid/$repoid";
-  my $packs = $projpacks->{$projid}->{'package'} || {};
+  my $proj = $projpacks->{$projid} || {};
+  my $packs = $proj->{'package'} || {};
   my @packs;
   if ($ev->{'package'}) {
     @packs = ($ev->{'package'});
   } else {
     @packs = sort keys %$packs;
-    @packs = reverse(orderpackidsforfull(@packs));
+    @packs = reverse(orderpackidsforfull($proj, @packs));
     if ($new_full_handling) {
       # force a rebuild of the full tree
       checkuseforbuild($prp, $prpsearchpath{$prp}, undef, 1);
