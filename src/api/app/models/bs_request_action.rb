@@ -552,7 +552,13 @@ class BsRequestAction < ActiveRecord::Base
           raise BuildNotFinished.new "The project'#{pkg.project.name}' has no building repositories"
         end
         repos.each do |repo|
-          unless %w(finished publishing published unpublished).include? repo.attributes['state']
+          if repo.attributes['dirty']
+            raise BuildNotFinished.new "The repository '#{pkg.project.name}' / '#{repo.attributes['repository']}' / #{repo.attributes['arch']} needs recalculation by the schedulers"
+          end
+          if %w(finished publishing).include? repo.attributes['state']
+            raise BuildNotFinished.new "The repository '#{pkg.project.name}' / '#{repo.attributes['repository']}' / #{repo.attributes['arch']} did not finish the publish yet"
+          end
+          unless %w(published unpublished).include? repo.attributes['state']
             raise BuildNotFinished.new "The repository '#{pkg.project.name}' / '#{repo.attributes['repository']}' / #{repo.attributes['arch']} did not finish the build yet"
           end
         end

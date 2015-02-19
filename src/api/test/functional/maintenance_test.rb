@@ -922,6 +922,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     run_scheduler('x86_64')
     run_scheduler('i586')
     run_publisher
+    get '/build/BaseDistro2.0:LinkedUpdateProject/_result'
+    assert_response :success
+    # it is unpublished, because api does not see a single published package. this still verifies that repo is not in intermediate state anymore.
+    assert_xml_tag :tag => 'result', :attributes => { repository: 'BaseDistro2LinkedUpdateProject_repo', arch: 'i586', state: 'unpublished' }
     get "/build/#{incidentProject}/_result"
     assert_response :success
     assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro2.0_LinkedUpdateProject', arch: 'i586', state: 'unpublished' } },
@@ -985,14 +989,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     maintenance_project_meta.elements['/project'].delete_element 'publish'
     raw_put "/source/#{incidentProject}/_meta", maintenance_project_meta.to_s
     assert_response :success
-    run_scheduler('x86_64')
-    run_scheduler('i586')
-    run_publisher
-    # is it published?
-    get "/published/#{incidentProject}/BaseDistro3/i586/package-1.0-1.i586.rpm"
-    assert_response :success
-    get "/published/#{incidentProject}/BaseDistro2.0_LinkedUpdateProject/x86_64/package-1.0-1.x86_64.rpm"
-    assert_response :success
 
     # mess up patchinfo and try to create release request
     pi.add_element('binary').text = 'does not exist'
@@ -1006,12 +1002,33 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                  </request>'
     assert_response 400
     assert_match(/last patchinfo patchinfo is not yet build/, @response.body)
+
     # revert
     pi.delete_element 'binary'
     raw_put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response :success
+    run_scheduler('x86_64')
+    run_scheduler('i586')
 
-    # create release request
+    # publisher run did not happen yet
+    raw_post '/request?cmd=create&addrevision=1', '<request>
+                                   <action type="maintenance_release">
+                                     <source project="' + incidentProject + '" />
+                                   </action>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 400
+    assert_match(/did not finish the publish yet/, @response.body)
+
+    # publish and release
+    run_publisher
+    # is it published?
+    get "/published/#{incidentProject}/BaseDistro3/i586/package-1.0-1.i586.rpm"
+    assert_response :success
+    get "/published/#{incidentProject}/BaseDistro2.0_LinkedUpdateProject/x86_64/package-1.0-1.x86_64.rpm"
+    assert_response :success
+
+    # create release request for real
     raw_post '/request?cmd=create&addrevision=1', '<request>
                                    <action type="maintenance_release">
                                      <source project="' + incidentProject + '" />
