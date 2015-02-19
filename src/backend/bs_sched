@@ -7474,7 +7474,6 @@ sub do_fetchprojpacks {
 	$foundit = 1;
       }
     }
-    next unless $foundit;	# can't delay it, we never look at the project
     push @{$delayedfetchprojpacks->{$projid}}, @{$fetchprojpacks->{$projid}};
     my $linked = find_linked_sources($projid, $fetchprojpacks->{$projid});
     if (%$linked) {
@@ -7489,6 +7488,8 @@ sub do_fetchprojpacks {
       }
     }
     delete $fetchprojpacks->{$projid};
+    # if we never look at the project
+    delete $delayedfetchprojpacks->{$projid} unless $foundit;
   }
   return unless %$fetchprojpacks;
 
