@@ -60,6 +60,7 @@ class Webui::OwnerSearchTest < Webui::IntegrationTest
   end
 
   test "basic_owner_search" do
+    run_publisher
     visit_owner_search
     search text: "package", expect: "success"
     result = search_results.first
@@ -73,6 +74,7 @@ class Webui::OwnerSearchTest < Webui::IntegrationTest
   end
 
   test "owner_search_with_devel" do
+    run_publisher
     use_js
 
     # set devel package (this one has another devel package in home:coolo:test)
