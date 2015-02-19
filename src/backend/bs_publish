@@ -70,6 +70,8 @@ my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 my @binsufsrsync = map {"--include=*.$_"} @binsufs;
 
+my $testmode;
+
 sub qsystem {
   my @args = @_;
   my $pid;
@@ -2106,6 +2108,10 @@ sysopen(PING, "$myeventdir/.ping", POSIX::O_RDWR) || die("$myeventdir/.ping: $!"
 
 db_sync();
 
+if (@ARGV && $ARGV[0] eq '--testmode') {
+  $testmode = 1;
+  shift @ARGV;
+}
 if (@ARGV > 1 && $ARGV[0] eq '--event') {
   my $eventfile = $ARGV[1];
   my $ev = readxml($eventfile, $BSXML::event);
@@ -2217,6 +2223,10 @@ while(1) {
     print "sleeping 10 seconds...\n";
     sleep(10);
   } else {
+    if ($testmode) {
+      print "Test mode, all events processed, exiting...\n";
+      exit(0);
+    }
     print "waiting for an event...\n";
     sysread(PING, $dummy, 1, 0);
   }

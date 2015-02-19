@@ -56,7 +56,6 @@ Thread.abort_on_exception = true
 srcsrv_out = nil
 reposrv_out = nil
 servicesrv_out = nil
-publishsrv_out = nil
 dienow = false
 logger = Rails.logger
 FileUtils.rm_rf("#{Rails.root}/tmp/backend_data")
@@ -291,9 +290,6 @@ at_exit do
   servicesrv_out.close
   servicesrv_out = nil
   servicesrv.join
-  publishsrv_out.close
-  publishsrv_out = nil
-  publishsrv.join
   FileUtils.rm_rf("#{Rails.root}/tmp/backend_data")
   FileUtils.rm_rf("#{Rails.root}/tmp/backend_config")
   File.delete(schedulerdone_file) if File.exists?(schedulerdone_file)
