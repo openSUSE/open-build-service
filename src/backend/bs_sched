@@ -3679,9 +3679,16 @@ sub calc_prps {
   %prpnoleaf = ();
   for my $projid (sort keys %$projpacks) {
     my $repos = $projpacks->{$projid}->{'repository'} || [];
-    my @aggs = grep {$_->{'aggregatelist'}} values(%{$projpacks->{$projid}->{'package'} || {}});
-    my @channels = grep {$_->{'channel'}} values(%{$projpacks->{$projid}->{'package'} || {}});
-    my @kiwiinfos = grep {$_->{'path'}} map {@{$_->{'info'} || []}} values(%{$projpacks->{$projid}->{'package'} || {}});
+    my @myrepos;	# repos which include my arch
+    for my $repo (@$repos) {
+      push @myrepos, $repo if grep {$_ eq $myarch} @{$repo->{'arch'} || []};
+    }
+    next unless @myrepos;	# not for us
+    my @pdatas = values(%{$projpacks->{$projid}->{'package'} || {}});
+    my @aggs = grep {$_->{'aggregatelist'}} @pdatas;
+    my @channels = grep {$_->{'channel'}} @pdatas;
+    my @kiwiinfos = grep {$_->{'path'}} map {@{$_->{'info'} || []}} @pdatas;
+    @pdatas = ();		# free mem
     my %channelrepos;
     for my $channel (map {$_->{'channel'}} @channels) {
       next unless $channel->{'target'};
@@ -3698,16 +3705,14 @@ sub calc_prps {
 	  $targets{"$projid/$rt->{'repository'}"} = 1;
 	}
       }
-      for my $repo (@$repos) {
-	next unless grep {$_ eq $myarch} @{$repo->{'arch'} || []};
+      for my $repo (@myrepos) {
 	for my $rt (@{$repo->{'releasetarget'} || []}) {
 	  $channelrepos{$repo->{'name'}} = 1 if $targets{$rt->{'project'}} || $targets{"$rt->{'project'}/$rt->{'repository'}"};
 	}
 	$channelrepos{$repo->{'name'}} = 1 if $targets{"$projid/$repo->{'name'}"};
       }
     }
-    for my $repo (@$repos) {
-      next unless grep {$_ eq $myarch} @{$repo->{'arch'} || []};
+    for my $repo (@myrepos) {
       my $repoid = $repo->{'name'};
       my $prp = "$projid/$repoid";
       push @prps, $prp;
