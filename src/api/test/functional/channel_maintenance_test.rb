@@ -388,7 +388,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     inject_build_job( incidentProject, 'pack2.linked.BaseDistro2.0_LinkedUpdateProject', 'BaseDistro2.0_LinkedUpdateProject', 'x86_64')
     run_scheduler('x86_64')
     run_scheduler('i586')
-    wait_for_publisher
+    run_publisher
     get "/build/#{incidentProject}/_result"
     assert_response :success
     assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro3', arch: 'i586', state: 'published' } }, :tag => 'status', :attributes => { package: 'patchinfo', code: 'succeeded' }
@@ -447,7 +447,7 @@ end
     assert_response :success
     run_scheduler('x86_64')
     run_scheduler('i586')
-    wait_for_publisher
+    run_publisher
     get "/build/#{incidentProject}/_result"
     assert_response :success
     assert_xml_tag :tag => "result", :attributes => { repository: "BaseDistro3Channel", code: "published" }
@@ -521,7 +521,7 @@ end
 #                   :tag => 'new', :attributes => { :project=> 'BaseDistro2.0:LinkedUpdateProject', :package=> 'pack2.0'}
     run_scheduler('x86_64')
     run_scheduler('i586')
-    wait_for_publisher
+    run_publisher
 
     # collect the job results
     get "/build/#{incidentProject}/_result"

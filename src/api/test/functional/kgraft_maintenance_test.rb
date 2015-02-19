@@ -211,7 +211,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # collect the job results
     run_scheduler('x86_64')
     run_scheduler('i586')
-    wait_for_publisher
+    run_publisher
     get "/build/#{incidentProject}/_result"
     assert_response :success
     assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro2Channel', arch: 'i586', state: 'published' } },
@@ -263,7 +263,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag( :parent => { tag: 'state' }, :tag => 'comment', :content => 'releasing')
     run_scheduler('i586')
     run_scheduler('x86_64')
-    wait_for_publisher
+    run_publisher
 
     # validate result
     get '/source/BaseDistro2Channel/patchinfo.1'

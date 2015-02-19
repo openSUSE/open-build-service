@@ -411,18 +411,12 @@ module ActionDispatch
       super(hash)
     end
 
-    def wait_for_publisher
-      Rails.logger.debug 'Wait for publisher'
-      counter = 0
-      while counter < 100
-        events = Dir.open(Rails.root.join('tmp/backend_data/events/publish'))
-        #  3 => ".", ".." and ".ping"
-        break unless events.count > 3
-        sleep 0.5
-        counter = counter + 1
-      end
-      if counter == 100
-        raise 'Waited 50 seconds for publisher'
+    def run_publisher
+      Rails.logger.debug 'run publisher'
+      perlopts="-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
+      IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_publish --testmode") do |io|
+        # just for waiting until publisher finishes
+        io.each { |line| Rails.logger.debug("publisher: #{line.strip.chomp}") unless line.blank? }
       end
     end
 

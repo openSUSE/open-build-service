@@ -165,17 +165,15 @@ servicesrv = Thread.new do
 end
 
 puts 'Starting backend publisher...'
-publishsrv = Thread.new do
-  publishsrv_out = IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_publish 2>&1")
-  puts "Started backend publish server with pid #{publishsrv_out.pid}"
-  while publishsrv_out && !dienow
-    begin
-      line = publishsrv_out.gets
-      break if line.nil?
-      logger.debug line.strip unless line.empty?
-    rescue IOError
-      break
-    end
+publishsrv_out = IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_publish --testmode 2>&1")
+puts "Started backend publish server with pid #{publishsrv_out.pid}"
+while publishsrv_out && !dienow
+  begin
+    line = publishsrv_out.gets
+    break if line.nil?
+    logger.debug line.strip unless line.empty?
+  rescue IOError
+    break
   end
 end
 
@@ -275,15 +273,10 @@ at_exit do
 
   system("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_srcserver --stop")
   system("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_repserver --stop")
-  system("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_publish --stop")
 
   Process.kill 'TERM', srcsrv_out.pid
   Process.kill 'TERM', reposrv_out.pid
   Process.kill 'TERM', servicesrv_out.pid
-  begin
-    Process.kill 'TERM', publishsrv_out.pid
-  rescue Errno::ESRCH
-  end
 
   if memcached_npid.to_i > 0
     Process.kill 'TERM', memcached_npid

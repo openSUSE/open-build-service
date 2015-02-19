@@ -55,7 +55,7 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
     get "/status/workerstatus"
     assert_response :success
     # just the publisher is running in the background during test suite run
-    assert_xml_tag(:tag => "daemon", :attributes => {:type => 'publisher', :state => 'running'})
+    assert_xml_tag(:tag => "daemon", :attributes => {:type => 'publisher', :state => 'dead'})
   end
 
   def test_project_status

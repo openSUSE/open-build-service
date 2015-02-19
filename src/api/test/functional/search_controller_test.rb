@@ -385,7 +385,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'status', :attributes => { :code => "no_binary" }
 
     # must be after first search controller call or backend might not be started on single test case runs
-    wait_for_publisher()
+    run_publisher()
 
     get "/search/owner?binary='package'"
     assert_response 400
@@ -539,7 +539,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     run_scheduler("i586")
     inject_build_job( "TEMPORARY", "pack", "standard", "i586" )
     run_scheduler("i586")
-    wait_for_publisher()
+    run_publisher()
 
     get "/search/owner?project=TEMPORARY&binary=package&limit=0&devel=false"
     assert_response :success
@@ -667,7 +667,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     login_king
 
     # must be after first search controller call or backend might not be started on single test case runs
-    wait_for_publisher()
+    run_publisher()
 
     # setup projects and packages
     put "/source/TEMPORARY:GA/_meta", "<project name='TEMPORARY:GA'><title/><description/>
@@ -699,7 +699,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     run_scheduler("i586")
     inject_build_job( "TEMPORARY:Update", "package", "standard", "i586" )
     run_scheduler("i586")
-    wait_for_publisher()
+    run_publisher()
 
     # search: upper hit
     get "/search/owner?binary=package&project=TEMPORARY:Update"

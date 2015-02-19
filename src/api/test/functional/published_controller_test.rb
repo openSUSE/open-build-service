@@ -7,7 +7,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
   def setup
     super
     wait_for_scheduler_start
-    wait_for_publisher()
+    run_publisher()
   end
 
   def test_index

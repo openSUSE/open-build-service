@@ -921,7 +921,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # collect the job results
     run_scheduler('x86_64')
     run_scheduler('i586')
-    wait_for_publisher
+    run_publisher
     get "/build/#{incidentProject}/_result"
     assert_response :success
     assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro2.0_LinkedUpdateProject', arch: 'i586', state: 'unpublished' } },
@@ -944,7 +944,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # collect the job results
     run_scheduler('x86_64')
     run_scheduler('i586')
-    wait_for_publisher
+    run_publisher
     get "/build/#{incidentProject}/_result"
     assert_response :success
     assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro2.0_LinkedUpdateProject', arch: 'i586', state: 'unpublished' } },
@@ -956,7 +956,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # collect the job results
     run_scheduler('x86_64')
     run_scheduler('i586')
-    wait_for_publisher
+    run_publisher
     get "/build/#{incidentProject}/_result"
     assert_response :success
     assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro2.0_LinkedUpdateProject', arch: 'i586', state: 'unpublished' } },
@@ -987,7 +987,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     run_scheduler('x86_64')
     run_scheduler('i586')
-    wait_for_publisher
+    run_publisher
     # is it published?
     get "/published/#{incidentProject}/BaseDistro3/i586/package-1.0-1.i586.rpm"
     assert_response :success
@@ -1161,7 +1161,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag( :parent => { tag: 'state' }, :tag => 'comment', :content => 'releasing')
     run_scheduler('i586')
     run_scheduler('x86_64')
-    wait_for_publisher
+    run_publisher
     # published binaries from incident got removed?
     get "/published/#{incidentProject}/BaseDistro3/i586/package-1.0-1.i586.rpm"
     assert_response 404
@@ -1238,7 +1238,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_no_xml_tag :parent => { tag: 'collection' },  :tag => 'project', :attributes => { name: incidentProject }
 
     # check released data
-    wait_for_publisher
+    run_publisher
     get '/build/BaseDistro2.0:LinkedUpdateProject/_result'
     assert_response :success
     assert_xml_tag :tag => 'result', :attributes => { repository: 'BaseDistro2LinkedUpdateProject_repo', arch: 'i586', state: 'published' }
@@ -1352,7 +1352,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_no_xml_tag :parent => { tag: 'binarylist' },  :tag => 'binary'
     # publish repo got cleaned
-    wait_for_publisher
+    run_publisher
     get '/build/BaseDistro2.0:LinkedUpdateProject/_result'
     assert_response :success
     # it is unpublished, because api does not see a single published package. this still verifies that repo is not in intermediate state anymore.
