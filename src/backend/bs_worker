@@ -94,6 +94,7 @@ my $jobs;
 my $threads;
 my $cachedir;
 my $cachesize;
+my $cleanup_chroot;
 
 # current XEN has no xenstore anymore
 my $xenstore_maxsize = 20 * 1000000;
@@ -177,6 +178,14 @@ sub cleanup_job {
       qsystem("umount", "-l", $buildroot) && die("umount tmpfs failed: $!\n");
     }
   }
+
+  # if this is the chroot case, get rid of it after the build
+  if ((!$vm || $vm =~ /lxc/) && $cleanup_chroot) {
+      printf "Removing buildroot $buildroot";
+      rm_rf($buildroot);
+      mkdir_p($buildroot);
+  }
+
 }
 
 sub kill_job {
@@ -541,6 +550,11 @@ while (@ARGV) {
   if ($ARGV[0] eq '--hardstatus') {
     shift @ARGV;
     $hardstatus = 1;
+    next;
+  }
+  if ($ARGV[0] eq '--cleanup-chroot') {
+    shift @ARGV;
+    $cleanup_chroot = 1;
     next;
   }
   last;

@@ -80,6 +80,9 @@ if [ -n "$OBS_WORKER_NICE_LEVEL" ]; then
 else
     OBS_NICE=18
 fi
+if [ -n "$OBS_WORKER_CLEANUP_CHROOT" ]; then
+    OBS_CLEANUP_CHROOT="--cleanup-chroot"
+fi
 
 REPO_PARAM=
 for i in $OBS_REPO_SERVERS; do
@@ -347,7 +350,7 @@ case "$1" in
 	    echo "screen -t $WORKERID nice -n $OBS_NICE ./bs_worker --hardstatus $vmopt $port --root $R" \
                 "--statedir $workerdir/$I --id $WORKERID $REPO_PARAM $HUGETLBFS $HOSTLABELS" \
                 "$HOSTOWNER $OBS_JOBS $OBS_THREADS $OBS_TEST $OBS_WORKER_OPT $TMPFS $DEVICE $SWAP $MEMORY" \
-                "$ARCH $EMULATOR" \
+                "$OBS_CLEANUP_CHROOT $ARCH $EMULATOR" \
                 >> $screenrc
 	    mkdir -p $workerdir/$I
         done
