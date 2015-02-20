@@ -1071,10 +1071,9 @@ class Project < ActiveRecord::Base
   def add_repository_with_targets(repoName, source_repo, add_target_repos = [])
     return if self.repositories.where(name: repoName).exists?
     trepo = self.repositories.create :name => repoName
-    source_repo.repository_architectures.each do |ra|
-      trepo.repository_architectures.create :architecture => ra.architecture, :position => ra.position
-    end
-    trepo.path_elements.create(:link => source_repo, :position => 1)
+
+    trepo.clone_repository_from(source_repo)
+
     trigger = nil # no trigger is set by default
     trigger = 'maintenance' if self.is_maintenance_incident?
     if add_target_repos.length > 0

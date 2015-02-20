@@ -128,6 +128,34 @@ class Repository < ActiveRecord::Base
     name
   end
 
+  def is_kiwi_type?
+    # HACK: will be cleaned up after implementing FATE #308899
+    self.name == "images"
+  end
+
+  def clone_repository_from(source_repository)
+    source_repository.repository_architectures.each do |ra|
+      self.repository_architectures.create :architecture => ra.architecture, :position => ra.position
+    end
+
+    if source_repository.is_kiwi_type?
+      # kiwi builds need to copy path elements
+      source_repository.path_elements.each do |pa|
+        self.path_elements.create(:link => pa.link, :position => pa.position)
+      end
+      # and set type in prjconf
+      prjconf = self.project.source_file('_config')
+      unless prjconf =~ /^Type:/
+        prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
+        Suse::Backend.put_source(self.project.source_path('_config'), prjconf)
+      end
+      return
+    end
+
+    # we build against the other repository by default
+    self.path_elements.create(:link => source_repository, :position => 1)
+  end
+
   def download_medium_url(medium)
     Rails.cache.fetch("download_url_#{self.project.name}##{self.name}##medium##{medium}") do
       path  = "/published/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}"

@@ -2053,6 +2053,65 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_branch_images_repo_without_path
+    login_adrian
+    put '/source/home:adrian:IMAGES/_meta', "<project name='home:adrian:IMAGES'> <title/> <description/>
+          <repository name='images'>
+            <arch>i586</arch>
+            <arch>x86_64</arch>
+          </repository>
+        </project>"
+    assert_response :success
+
+    put '/source/home:adrian:IMAGES/appliance/_meta', "<package project='home:adrian:IMAGES' name='appliance'> <title/> <description/> </package>"
+    assert_response :success
+
+    post '/source/home:adrian:IMAGES/appliance', :cmd => 'branch', :add_repositories => 1
+    assert_response :success
+
+    get '/source/home:adrian:branches:home:adrian:IMAGES/_meta'
+    assert_response :success
+    assert_xml_tag(:tag => 'repository', :attributes => { :name => 'images' })
+    assert_no_xml_tag(:tag => 'path')
+
+    get '/source/home:adrian:branches:home:adrian:IMAGES/_config'
+    assert_response :success
+    assert_match(/Type: kiwi/, @response.body)
+
+    delete '/source/home:adrian:IMAGES'
+    assert_response :success
+  end
+
+  def test_branch_images_repo_with_path
+    login_adrian
+    put '/source/home:adrian:IMAGES/_meta', "<project name='home:adrian:IMAGES'> <title/> <description/>
+          <repository name='images'>
+            <path project='BaseDistro' repository='BaseDistro_repo' />
+            <arch>x86_64</arch>
+          </repository>
+        </project>"
+    assert_response :success
+
+    put '/source/home:adrian:IMAGES/appliance/_meta', "<package project='home:adrian:IMAGES' name='appliance'> <title/> <description/> </package>"
+    assert_response :success
+
+    post '/source/home:adrian:IMAGES/appliance', :cmd => 'branch', :add_repositories => 1
+    assert_response :success
+
+    get '/source/home:adrian:branches:home:adrian:IMAGES/_meta'
+    assert_response :success
+    assert_xml_tag(:tag => 'repository', :attributes => { :name => 'images' })
+    assert_xml_tag(:tag => 'path', :attributes => {project: "BaseDistro", repository: "BaseDistro_repo"})
+
+    get '/source/home:adrian:branches:home:adrian:IMAGES/_config'
+    assert_response :success
+    assert_match(/Type: kiwi/, @response.body)
+
+    delete '/source/home:adrian:IMAGES'
+    assert_response :success
+  end
+
+
   def test_release_project
     # create manual release target
     login_adrian
