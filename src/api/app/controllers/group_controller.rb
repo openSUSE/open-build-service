@@ -58,7 +58,10 @@ class GroupController < ApplicationController
     end
     authorize group, :update?
 
-    group.update_from_xml(Xmlhash.parse(request.raw_post))
+    xmlhash = Xmlhash.parse(request.raw_post)
+    raise InvalidParameterError, "group name from path and xml mismatch" unless group.title == xmlhash.value('title')
+
+    group.update_from_xml(xmlhash)
     group.save!
 
     render_ok

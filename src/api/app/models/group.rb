@@ -34,8 +34,6 @@ class Group < ActiveRecord::Base
 
   def update_from_xml( xmlhash )
     self.with_lock do
-      self.title = xmlhash.value('title')
-
       if xmlhash.value('email')
         self.email = xmlhash.value('email')
       else

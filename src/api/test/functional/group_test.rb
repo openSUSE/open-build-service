@@ -57,6 +57,14 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     delete "/group/new_group"
     assert_response 404
+    put "/group/test_group", xml
+    assert_response 400
+    assert_xml_tag :tag => 'status', :attributes => {code: "invalid_parameter"}
+    assert_xml_tag :tag => 'summary', :content => "group name from path and xml mismatch"
+    put "/group/NOT_EXISTING_group", xml
+    assert_response 400
+    assert_xml_tag :tag => 'status', :attributes => {code: "invalid_parameter"}
+    assert_xml_tag :tag => 'summary', :content => "group name from path and xml mismatch"
     put "/group/new_group", xml
     assert_response :success
 
