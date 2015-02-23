@@ -620,6 +620,42 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "TEMPORARY", :project => "TEMPORARY", :package => "pack" }
 
+    # set an empty group
+    put "/source/TEMPORARY/pack/_meta", "<package name='pack' project='TEMPORARY'><title/><description/><group groupid='test_group_empty' role='bugowner'/></package>"
+    assert_response :success
+    get "/search/missing_owner?project=TEMPORARY&filter=bugowner"
+    assert_response :success
+    assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "TEMPORARY", :project => "TEMPORARY", :package => "pack" }
+
+    # set an valid group
+    put "/source/TEMPORARY/pack/_meta", "<package name='pack' project='TEMPORARY'><title/><description/><group groupid='test_group' role='bugowner'/></package>"
+    assert_response :success
+    get "/search/missing_owner?project=TEMPORARY&filter=bugowner"
+    assert_response :success
+    assert_no_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "TEMPORARY", :project => "TEMPORARY", :package => "pack" }
+    assert_response :success
+
+    # set an valid group via project
+    put "/source/TEMPORARY/pack/_meta", "<package name='pack' project='TEMPORARY'><title/><description/></package>"
+    assert_response :success
+    get "/search/missing_owner?project=TEMPORARY&filter=maintainer"
+    assert_response :success
+    assert_no_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "TEMPORARY", :project => "TEMPORARY", :package => "pack" }
+    assert_response :success
+    # empty group in project
+    put "/source/TEMPORARY/_meta", "<project name='TEMPORARY'><title/><description/><link project='home:Iggy'/>
+                                      <group groupid='test_group_empty' role='bugowner' />
+                                      <repository name='standard'>
+                                        <path project='home:Iggy' repository='10.2'/>
+                                        <arch>i586</arch>
+                                      </repository>
+                                    </project>"
+    assert_response :success
+    get "/search/missing_owner?project=TEMPORARY&filter=bugowner"
+    assert_response :success
+    assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "TEMPORARY", :project => "TEMPORARY", :package => "pack" }
+    assert_response :success
+
     # reset devel package setting again
     pkg.develpackage = nil
     pkg.save

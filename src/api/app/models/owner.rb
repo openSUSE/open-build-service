@@ -155,11 +155,20 @@ class Owner
       roles << Role.find_by_title!(f)
     end
 
+    # find all groups which have an active user
+    maintained_groups = Group.joins(:groups_users).joins(:users).where("users.state = ?", User.states['confirmed']).to_a
+
     # fast find packages with defintions
-    # relationship in package object
-    defined_packages = Package.where(project_id: projects).joins(:relationships => :user).where(["relationships.role_id IN (?) AND (ISNULL(user_id) OR users.state = ?)", roles, User.states['confirmed']]).pluck(:name)
-    # relationship in project object
-    Project.joins(:relationships => :user).where("projects.id in (?) AND role_id in (?) AND (ISNULL(user_id) OR users.state = ?)", projects, roles, User.states['confirmed']).each do |prj|
+    # relationship in package object by user
+    defined_packages = Package.where(project_id: projects).joins(:relationships => :user).where(["relationships.role_id IN (?) AND users.state = ?", roles, User.states['confirmed']]).pluck(:name)
+    # relationship in package object by group
+    defined_packages += Package.where(project_id: projects).joins(:relationships).where(["relationships.role_id IN (?) AND group_id IN (?)", roles, maintained_groups]).pluck(:name)
+    # relationship in project object by user
+    Project.joins(:relationships => :user).where("projects.id in (?) AND role_id in (?) AND users.state = ?", projects, roles, User.states['confirmed']).each do |prj|
+      defined_packages += prj.packages.map{ |p| p.name }
+    end
+    # relationship in project object by group
+    Project.joins(:relationships).where("projects.id in (?) AND role_id in (?) AND group_id IN (?)", projects, roles, maintained_groups).each do |prj|
       defined_packages += prj.packages.map{ |p| p.name }
     end
     if devel == true
