@@ -51,6 +51,12 @@ module Event
     self.raw_type = 'SRCSRV_VERSION_CHANGE'
     self.description = 'Package has changed its version'
     payload_keys :comment, :requestid, :files, :rev, :newversion, :user, :oldversion
+
+    def set_payload(attribs, keys)
+      attribs['comment'] = attribs['comment'][0..800] unless attribs['comment'].blank?
+      attribs['files'] = attribs['files'][0..800] unless attribs['files'].blank?
+      super(attribs, keys)
+    end
   end
 
   class Commit < Package
@@ -65,7 +71,6 @@ module Event
     end
 
     def set_payload(attribs, keys)
-      # limit the error string
       attribs['comment'] = attribs['comment'][0..800] unless attribs['comment'].blank?
       attribs['files'] = attribs['files'][0..800] unless attribs['files'].blank?
       super(attribs, keys)
