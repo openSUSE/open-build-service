@@ -1349,6 +1349,15 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     delete '/source/home:king:branches:BaseDistro2.0:LinkedUpdateProject'
     assert_response :success
 
+    # check ownership of packages
+    get "/search/missing_owner?project=BaseDistro2.0:LinkedUpdateProject&filter=bugowner"
+    assert_response :success
+    # no bugowner for this 
+    assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "BaseDistro2.0:LinkedUpdateProject", :project => "BaseDistro2.0:LinkedUpdateProject", :package => "pack2" }
+    # but do not list all the incident containers here, the main package is enough
+    assert_no_xml_tag tag: 'missing_owner', :attributes => {:package => "pack2.0" }
+    assert_no_xml_tag tag: 'missing_owner', :attributes => {:package => "patchinfo.0" }
+
     # revoke a release update
     delete '/source/BaseDistro2.0:LinkedUpdateProject/pack2'
     assert_response :success
