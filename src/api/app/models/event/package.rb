@@ -63,6 +63,13 @@ module Event
     def subject
       "#{payload['project']}/#{payload['package']} r#{payload['rev']} commited"
     end
+
+    def set_payload(attribs, keys)
+      # limit the error string
+      attribs['comment'] = attribs['comment'][0..800] unless attribs['comment'].blank?
+      attribs['files'] = attribs['files'][0..800] unless attribs['files'].blank?
+      super(attribs, keys)
+    end
   end
 
   class Upload < Package
