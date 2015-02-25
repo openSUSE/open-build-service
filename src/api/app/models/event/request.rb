@@ -3,6 +3,8 @@ class Event::Request < ::Event::Base
   self.abstract_class = true
   payload_keys :author, :comment, :description, :id, :actions, :state, :when, :who
 
+  DiffLimit = 120
+
   def self.message_id(id)
     "<obs-request-#{id}@#{message_domain}>"
   end
@@ -67,8 +69,6 @@ class Event::Request < ::Event::Base
       return nil # can't help
     end
   end
-
-  DiffLimit = 120
 
   def payload_with_diff
     ret = payload

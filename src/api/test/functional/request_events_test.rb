@@ -36,6 +36,31 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     verify_email('request_event', myid, email)
   end
 
+  test 'very_large_request_event' do
+    login_Iggy
+
+    Timecop.travel(2013, 8, 20, 12, 0, 0)
+    myid = 0
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
+      body = "<request>\n"
+      actions=1000
+      actions.times do |t|
+        body += "<action type='add_role'><target project='home:tom'/><person name='Iggy' role='reviewer'/></action>\n"
+      end
+      body += "</request>"
+      raw_post '/request?cmd=create', body
+      assert_response :success
+      req = Xmlhash.parse(@response.body)
+      assert_equal actions, req['action'].count
+      myid = req['id']
+    end
+
+    email = ActionMailer::Base.deliveries.last
+
+    assert_match(/^Request #{myid} created by Iggy \(add_role home:tom, /, email.subject)
+    assert_equal %w(tschmidt@example.com), email.to # tom is maintainer
+  end
+
   test 'set_bugowner event' do
     login_Iggy
 

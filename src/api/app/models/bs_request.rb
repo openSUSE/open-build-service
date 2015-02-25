@@ -714,6 +714,8 @@ class BsRequest < ActiveRecord::Base
     Event::RequestStatechange.create(self.notify_parameters)
   end
 
+  ActionNotifyLimit=50
+
   def notify_parameters(ret = {})
     ret[:id] = self.id
     ret[:description] = self.description
@@ -726,7 +728,7 @@ class BsRequest < ActiveRecord::Base
 
     # Use a nested data structure to support multiple actions in one request
     ret[:actions] = []
-    self.bs_request_actions.each do |a|
+    self.bs_request_actions[0..ActionNotifyLimit].each do |a|
       ret[:actions] << a.notify_params
     end
     ret
@@ -734,7 +736,7 @@ class BsRequest < ActiveRecord::Base
 
   def self.actions_summary(payload)
     ret = []
-    payload.with_indifferent_access['actions'].each do |a|
+    payload.with_indifferent_access['actions'][0..ActionNotifyLimit].each do |a|
       str = "#{a['type']} #{a['targetproject']}"
       str += "/#{a['targetpackage']}" if a['targetpackage']
       str += "/#{a['targetrepository']}" if a['targetrepository']
