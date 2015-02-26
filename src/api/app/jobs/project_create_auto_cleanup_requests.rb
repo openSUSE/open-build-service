@@ -1,6 +1,6 @@
 require 'opensuse/backend'
 
-class ProjectCreateAutoCleanupRequests
+class ProjectCreateAutoCleanupRequests < ActiveJob::Base
 
   Description="This is a kind request to remove this project.
 Accepting this request will free resources on our always crowded server.

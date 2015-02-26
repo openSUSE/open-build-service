@@ -1,4 +1,4 @@
-class UpdatePackageMetaJob
+class UpdatePackageMetaJob < ActiveJob::Base
 
   def scan_links
     names = Package.distinct(:name).order(:name).pluck(:name)

@@ -57,11 +57,11 @@ module Clockwork
   end
 
   every(1.day, 'clean old events') do
-    CleanupEvents.new.delay.perform
+    CleanupEvents.new.perform_later
   end
 
   every(1.day, 'create cleanup requests') do
     User.current = User.get_default_admin
-    ProjectCreateAutoCleanupRequests.new.delay.perform
+    ProjectCreateAutoCleanupRequests.new.perform_later
   end
 end

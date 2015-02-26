@@ -25,7 +25,7 @@ class IssueTracker < ActiveRecord::Base
     Suse::Backend.put_source(path, IssueTracker.all.to_xml(DEFAULT_RENDER_PARAMS))
 
     # We need to parse again ALL sources ...
-    UpdatePackageMetaJob.new.delay.perform
+    UpdatePackageMetaJob.perform_later
   end
 
   before_validation(:on => :create) do
