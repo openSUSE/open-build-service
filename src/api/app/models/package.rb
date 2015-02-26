@@ -340,7 +340,7 @@ class Package < ActiveRecord::Base
     end
   end
 
-  def sources_changed(dir_xml = nil)
+  def sources_changed(dir_xml = nil, wait_for_update=nil)
     update_activity
     # mark the backend infos "dirty"
     BackendPackage.where(package_id: self.id).delete_all
@@ -351,8 +351,12 @@ class Package < ActiveRecord::Base
     end
     private_set_package_kind Xmlhash.parse(dir_xml)
     check_for_product
-    # now trigger a delayed job
-    self.delay.update_if_dirty
+    if wait_for_update
+      self.update_if_dirty
+    else
+      # now trigger a delayed job
+      self.delay.update_if_dirty
+    end
   end
 
   def self.source_path(project, package, file = nil, opts = {})

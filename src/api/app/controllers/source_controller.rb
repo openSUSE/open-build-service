@@ -867,8 +867,7 @@ class SourceController < ApplicationController
 
     # update package timestamp and reindex sources
     unless params[:rev] == 'repository' or %w(_project _pattern).include? @package_name
-      @pack.sources_changed
-      @pack.update_if_dirty if special_file # scan
+      @pack.sources_changed(nil, special_file) # wait for indexing for special files
     end
   end
 
