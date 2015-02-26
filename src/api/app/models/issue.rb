@@ -68,9 +68,7 @@ class Issue < ActiveRecord::Base
   after_create :fetch_issues
   def fetch_issues
     # inject update jobs after issue got created
-    IssueTracker.all.each do |t|
-      t.delay(queue: 'issuetracking').fetch_issues
-    end
+    self.issue_tracker.delay(queue: 'issuetracking').fetch_issues
   end
 
   def fetch_updates
