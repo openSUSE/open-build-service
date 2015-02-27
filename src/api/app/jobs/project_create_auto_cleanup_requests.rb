@@ -8,9 +8,6 @@ Please decline this request if you want to keep this repository nevertheless. Ot
 will get accepted automatically in near future.
 Such requests get not created for projects with open requests or if you remove the OBS:AutoCleanup attribute."
 
-  def initialize
-  end
-
   def perform
     # disabled ?
     cleanupDays = ::Configuration.first.cleanup_after_days
