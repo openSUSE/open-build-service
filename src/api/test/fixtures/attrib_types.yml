@@ -16,6 +16,9 @@ OBS_BranchRepositoriesFromProject:
   value_count: 1
   attrib_namespace_id: 9
   issue_list: 0
+OBS_BranchSkipRepositories:
+  name: BranchSkipRepositories
+  attrib_namespace_id: 9
 OBS_BranchTarget:
   id: 66
   name: BranchTarget

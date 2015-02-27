@@ -2082,6 +2082,76 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_branch_repository_attribute_tests
+    login_adrian
+    put '/source/home:adrian:TEMP/_meta', "<project name='home:adrian:TEMP'> <title/> <description/>
+          <repository name='repo1'>
+            <arch>x86_64</arch>
+          </repository>
+          <repository name='repo2'>
+            <arch>x86_64</arch>
+          </repository>
+          <repository name='repo3'>
+            <arch>x86_64</arch>
+          </repository>
+        </project>"
+    assert_response :success
+    put '/source/home:adrian:TEMP/dummy/_meta', "<package project='home:adrian:TEMP' name='dummy'> <title/> <description/> </package>"
+    assert_response :success
+
+    # without attribute
+    post '/source/home:adrian:TEMP/dummy', :cmd => 'branch', :add_repositories => 1
+    assert_response :success
+    get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
+    assert_response :success
+    assert_xml_tag(:tag => 'repository', :attributes => {name:"repo1"})
+    assert_xml_tag(:tag => 'repository', :attributes => {name:"repo2"})
+    assert_xml_tag(:tag => 'repository', :attributes => {name:"repo3"})
+    delete '/source/home:adrian:branches:home:adrian:TEMP'
+    assert_response :success
+
+    # use repos from other project
+    post "/source/home:adrian:TEMP/_attribute","
+        <attributes><attribute namespace='OBS' name='BranchRepositoriesFromProject'>
+          <value>BaseDistro</value>
+        </attribute></attributes>"
+    assert_response :success
+    post '/source/home:adrian:TEMP/dummy', :cmd => 'branch', :add_repositories => 1
+    assert_response :success
+    get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
+    assert_response :success
+    assert_xml_tag(:tag => 'repository', :attributes => {name:"BaseDistro_repo"})
+    assert_no_xml_tag(:tag => 'repository', :attributes => {name:"repo1"})
+    assert_no_xml_tag(:tag => 'repository', :attributes => {name:"repo2"})
+    assert_no_xml_tag(:tag => 'repository', :attributes => {name:"repo3"})
+    delete '/source/home:adrian:branches:home:adrian:TEMP'
+    assert_response :success
+    delete "/source/home:adrian:TEMP/_attribute/OBS:BranchRepositoriesFromProject"
+    assert_response :success
+
+    # use just some repositories
+    post "/source/home:adrian:TEMP/_attribute","
+        <attributes><attribute namespace='OBS' name='BranchSkipRepositories'>
+          <value>repo1</value><value>repo3</value>
+        </attribute></attributes>"
+    assert_response :success
+    post '/source/home:adrian:TEMP/dummy', :cmd => 'branch', :add_repositories => 1
+    assert_response :success
+    get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
+    assert_response :success
+    assert_no_xml_tag(:tag => 'repository', :attributes => {name:"repo1"})
+    assert_xml_tag(:tag => 'repository', :attributes => {name:"repo2"})
+    assert_no_xml_tag(:tag => 'repository', :attributes => {name:"repo3"})
+    delete '/source/home:adrian:branches:home:adrian:TEMP'
+    assert_response :success
+    delete "/source/home:adrian:TEMP/_attribute/OBS:BranchSkipRepositories"
+    assert_response :success
+
+    #cleanup
+    delete '/source/home:adrian:TEMP'
+    assert_response :success
+  end
+
   def test_branch_images_repo_with_path
     login_adrian
     put '/source/home:adrian:IMAGES/_meta', "<project name='home:adrian:IMAGES'> <title/> <description/>

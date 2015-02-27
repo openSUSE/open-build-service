@@ -17,6 +17,7 @@ def update_all_attrib_type_descriptions
     "InitializeDevelPackage" => "Accepting a new package via a submit request to this project will set the devel project of the new package to the source of the request.",
     "BranchTarget" => "Branches from this project will not follow any project links for the target link.",
     "BranchRepositoriesFromProject" => "Use repository definitions from the specified project when creating a branch.",
+    "BranchSkipRepositories" => "Skip the listed repositories when branching from this projet.",
     "AutoCleanup" => "The object will recieve a delete request at specified time (YYYY-MM-DD HH:MM:SS) in the value",
     "Issues" => "Use this attribute to reference issues this object has",
     "QualityCategory" => "Use this attrbitue to classify the usability of a project. This gets used by the user package search for instance.",
