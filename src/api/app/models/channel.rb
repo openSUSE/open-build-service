@@ -68,7 +68,9 @@ class Channel < ActiveRecord::Base
         project = Project.find_by_name(project)
         repository = project.repositories.find_by_name(p['repository']) if p['repository']
       end
-      hasharray << { project: project, architecture: Architecture.find_by_name(p['arch']), 
+      arch = nil
+      arch = Architecture.find_by_name!(p['arch']) if p['arch']
+      hasharray << { project: project, architecture: arch, 
                      repository: repository }
     }
     sync_hash_with_model(ChannelBinaryList, self.channel_binary_lists, hasharray)
@@ -77,8 +79,10 @@ class Channel < ActiveRecord::Base
   def _update_from_xml_binaries(cbl, xmlhash)
     hasharray=[]
     xmlhash.elements('binary') { |b|
+      arch = nil
+      arch = Architecture.find_by_name!(b['arch']) if b['arch']
       hash = { name: b['name'], binaryarch: b['binaryarch'], supportstatus: b['supportstatus'],
-               project: nil, architecture: Architecture.find_by_name(b['arch']), 
+               project: nil, architecture: arch,
                package: b['package'], repository: nil
              }
       if b['project']
