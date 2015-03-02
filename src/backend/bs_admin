@@ -192,6 +192,7 @@ Debug Options
    Show all architectures which are configured in configuration.xml to be supported by this instance.
 ";
 }
+my $emptysrcmd5 = 'd41d8cd98f00b204e9800998ecf8427e';
 
 #### FIXME: these functions are copied from src server. We should move it to some util class maybe.
 my $srcrevlay = [qw{rev vrev srcmd5 version time user comment requestid}];
@@ -204,14 +205,14 @@ sub getrev {
   undef $rev if $rev && $rev eq 'upload' && ! -e "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS";
   if (!defined($rev)) {
     $rev = BSFileDB::fdb_getlast("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay);
-    $rev = {'srcmd5' => 'd41d8cd98f00b204e9800998ecf8427e'} unless $rev;
+    $rev = {'srcmd5' => $emptymd5} unless $rev;
   } elsif ($rev =~ /^[0-9a-f]{32}$/) {
     return undef unless -e "$projectsdir/$projid.pkg/$packid.rev";
     $rev = {'srcmd5' => $rev, 'rev' => $rev};
   } elsif ($rev eq 'upload') {
     $rev = {'srcmd5' => 'upload', 'rev' => 'upload'}
   } elsif ($rev eq 'repository') {
-    $rev = {'srcmd5' => 'd41d8cd98f00b204e9800998ecf8427e', 'rev' => 'repository'}
+    $rev = {'srcmd5' => $emptymd5, 'rev' => 'repository'}
   } else {
     $rev = BSFileDB::fdb_getmatch("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, 'rev', $rev);
   }
@@ -227,7 +228,7 @@ sub lsrep {
     open(F, '<', "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS") || die("$packid/$srcmd5-$packid: not in repository\n");
   } elsif ($srcmd5 eq 'pattern') {
     open(F, '<', "$projectsdir/$projid.pkg/pattern-MD5SUMS") || return {};
-  } elsif ($srcmd5 eq 'empty' || $srcmd5 eq 'd41d8cd98f00b204e9800998ecf8427e') {
+  } elsif ($srcmd5 eq 'empty' || $srcmd5 eq $emptymd5) {
     return {};
   } else {
     die("bad srcmd5 '$srcmd5'\n") if $srcmd5 !~ /^[0-9a-f]{32}$/;
