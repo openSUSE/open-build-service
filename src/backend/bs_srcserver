@@ -7014,7 +7014,8 @@ sub binary_key_to_data {
   };
   $res->{'release'} = $release if defined $release;
   $res->{'path'} = $repoinfo->{'prpsearchpath'} if $repoinfo->{'prpsearchpath'};
-  $res->{'package'} = $repoinfo->{'binaryorigins'}->{"$arch/$binary"} if defined $repoinfo->{'binaryorigins'}->{"$arch/$binary"};
+  my $location = join('/', @p, $arch, $binary);
+  $res->{'package'} = $repoinfo->{'binaryorigins'}->{$location} if defined $repoinfo->{'binaryorigins'}->{$location};
   if ($repoinfo->{'base'}) {
     $res->{'baseproject'} = $repoinfo->{'base'}->{'project'};
   } elsif ($res->{'path'}) {
