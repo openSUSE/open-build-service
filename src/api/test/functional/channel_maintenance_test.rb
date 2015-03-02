@@ -236,7 +236,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
                                          </repository>
                                    </project>'
     assert_response :success
-    put '/source/BaseDistro3Channel/_config', "Repotype: rpm-md-legacy\nType: spec"
+    put '/source/BaseDistro3Channel/_config', "Repotype: rpm-md-legacy packagesubdir:rpm\nType: spec"
     assert_response :success
 
     raw_post '/source/BaseDistro3Channel/_attribute', "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-BaseDistro3Channel-%Y-%C</value></attribute></attributes>"
@@ -412,7 +412,7 @@ end
     assert_xml_tag :tag => "binary", :attributes => { name: "package", project: incidentProject, package: "patchinfo",
                                                       repository: "BaseDistro3Channel", version: "1.0", release: "1", arch: "i586",
                                                       filename: "package-1.0-1.i586.rpm",
-                                                      filepath: "My:/Maintenance:/0/BaseDistro3Channel/i586/package-1.0-1.i586.rpm",
+                                                      filepath: "My:/Maintenance:/0/BaseDistro3Channel/rpm/i586/package-1.0-1.i586.rpm",
                                                       baseproject: "BaseDistro3Channel", type: "rpm" }
 
 
@@ -457,10 +457,10 @@ end
     assert_xml_tag :tag => 'binary', :attributes => { filename: 'package-1.0-1.i586.rpm' }
     assert_xml_tag :tag => 'binary', :attributes => { filename: 'package-1.0-1.src.rpm' }
     assert_xml_tag :tag => 'binary', :attributes => { filename: 'updateinfo.xml' }
-    get "/published/#{incidentProject}/BaseDistro3Channel/i586"
+    get "/published/#{incidentProject}/BaseDistro3Channel/rpm/i586"
     assert_response :success
     assert_xml_tag :tag => 'entry', :attributes => { name: 'package-1.0-1.i586.rpm' }
-    get "/published/#{incidentProject}/BaseDistro3Channel/src"
+    get "/published/#{incidentProject}/BaseDistro3Channel/rpm/src"
     assert_response :success
     assert_xml_tag :tag => 'entry', :attributes => { name: 'package-1.0-1.src.rpm' }
     get "/published/#{incidentProject}/BaseDistro3Channel/repodata"
