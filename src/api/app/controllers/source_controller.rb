@@ -1030,51 +1030,12 @@ class SourceController < ApplicationController
     render :text => xml, :content_type => 'text/xml'
   end
 
-  class OpenReleaseRequest < APIException
-    setup 403
-  end
-
   # unlock a project
   # POST /source/<project>?cmd=unlock
   def project_command_unlock
     required_parameters :comment
 
-    if @project.is_maintenance_incident?
-      rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
-      rel = rel.where(bs_request_actions: { type: 'maintenance_release', source_project: @project.name})
-      if rel.exists?
-        raise OpenReleaseRequest.new "Unlock of maintenance incident #{} is not possible, because there is a running release request: #{rel.first.id}"
-      end
-    end
-
-    p = { :comment => params[:comment] }
-
-    f = @project.flags.find_by_flag_and_status('lock', 'enable')
-    unless f
-      render_error :status => 400, :errorcode => 'not_locked',
-        :message => "project '#{@project.name}' is not locked"
-      return
-    end
-
-    Project.transaction do
-      @project.flags.delete(f)
-      @project.store(p)
-
-      # maintenance incidents need special treatment
-      if @project.is_maintenance_incident?
-        # reopen all release targets
-        @project.repositories.each do |repo|
-          repo.release_targets.each do |releasetarget|
-            releasetarget.trigger = 'maintenance'
-            releasetarget.save!
-          end
-        end
-        @project.store(p)
-
-        # ensure higher build numbers for re-release
-        Suse::Backend.post "/build/#{URI.escape(@project.name)}?cmd=wipe", nil
-      end
-    end
+    @project.unlock(params[:comment])
 
     render_ok
   end

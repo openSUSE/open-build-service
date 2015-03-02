@@ -1347,6 +1347,41 @@ class Project < ActiveRecord::Base
     projects
   end
 
+  def unlock(comment=nil)
+    if self.is_maintenance_incident?
+      rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
+      rel = rel.where(bs_request_actions: { type: 'maintenance_release', source_project: self.name})
+      if rel.exists?
+        raise OpenReleaseRequest.new "Unlock of maintenance incident #{} is not possible, because there is a running release request: #{rel.first.id}"
+      end
+    end
+
+    p = { :comment => comment }
+
+    f = self.flags.find_by_flag_and_status('lock', 'enable')
+    raise ProjectNotLocked.new "project '#{@project.name}' is not locked" unless f
+
+    self.transaction do
+      self.flags.delete(f)
+      self.store(p)
+
+      # maintenance incidents need special treatment
+      if self.is_maintenance_incident?
+        # reopen all release targets
+        self.repositories.each do |repo|
+          repo.release_targets.each do |releasetarget|
+            releasetarget.trigger = 'maintenance'
+            releasetarget.save!
+          end
+        end
+        self.store(p)
+
+        # ensure higher build numbers for re-release
+        Suse::Backend.post "/build/#{URI.escape(self.name)}?cmd=wipe", nil
+      end
+    end
+  end
+
   def unlock_by_request(id)
     f = self.flags.find_by_flag_and_status('lock', 'enable')
     if f

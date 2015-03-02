@@ -52,6 +52,10 @@ end
 class PostRequestNoPermission < APIException
   setup 403
 end
+class OpenReleaseRequest < APIException
+  setup 403
+end
+
 
 # 404 errors
 class NotFoundError < APIException
@@ -76,5 +80,8 @@ class NotMissingError < APIException; end
 class PackageAlreadyExists < APIException; end
 class ExpandError < APIException; 
   setup 'expand_error'
+end
+class ProjectNotLocked < APIException
+  setup 'not_locked'
 end
 
