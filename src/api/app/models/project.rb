@@ -1380,6 +1380,8 @@ class Project < ActiveRecord::Base
         Suse::Backend.post "/build/#{URI.escape(self.name)}?cmd=wipe", nil
       end
     end
+
+    update_packages_if_dirty
   end
 
   def unlock_by_request(id)
