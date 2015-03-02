@@ -1,3 +1,5 @@
+require_relative '../attribute_descriptions'
+
 class AddObsBranchSkipRepositoriesAttribute  < ActiveRecord::Migration
 
   class AttribTypeModifiableBy < ActiveRecord::Base; end
