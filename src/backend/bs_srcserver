@@ -3151,7 +3151,22 @@ sub getprojpack {
 	    $files = "$@";
 	    $files =~ s/\n$//;
 	  }
-          $pinfo->{'linked'} = $linked if @$linked;
+	  if (@$linked) {
+	    $pinfo->{'linked'} = $linked;
+	    if ($remotemap && $remotemap->{':partitions'}) {
+	      # we need to have all partition infos set for the links
+	      for my $li (@$linked) {
+		my $lprojid = $li->{'project'};
+		next if $remotemap->{$lprojid} || $remotemap->{':partitions'}->{$lprojid};
+		my $lproj = readproj($lprojid, 1);
+		if ($lproj && !$lproj->{'remoteurl'}) {
+		  checkpartition($remotemap, $lprojid, $lproj);
+		} else {
+		  $remotemap->{':partitions'}->{$lprojid} = 1;  # not on a partition
+		}
+	      }
+	    }
+	  }
 	  if (!ref $files) {
 	    $pinfo->{'error'} = defined($files) ? $files : "could not get file list";
 	    if (!$packages_pass && $pinfo->{'error'} =~ /collect_remote_getrev$/) {
