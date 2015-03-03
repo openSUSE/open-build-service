@@ -110,6 +110,9 @@ Job Controlling
  --republish-repository <project> <repository>
    enforce to publish a repository
 
+ --rebuild-full-tree <project> <repository> <arch>
+   rebuild the content of :full/ directory
+
  --clone-repository <source project> <source repository> <destination repository>
  --clone-repository <source project> <source repository> <destination project> <destination repository>
    Clone an existing repo into another existing repository.
@@ -558,6 +561,11 @@ sub shutdown_scheduler {
   write_event( '', undef, $arch, 'exitcomplete' );
 }
 
+sub rebuild_full_tree {
+  my ($project, $repo, $arch) = @_;
+  write_event($project, $repo, $arch, 'useforbuild');
+}
+
 sub check_project {
   my ($project, $repo, $arch, $deep, $admin) = @_;
   if (defined $deep) {
@@ -736,6 +744,12 @@ while (@ARGV) {
     my $package = shift @ARGV;
     my $arch = shift @ARGV;
     check_package($project, $package, $arch);
+  } elsif ( $arg eq "--rebuild-full-tree" ) {
+    die("ERROR: need project ,repository and architecture as argument!\n") if @ARGV < 3;
+    my $project = shift @ARGV;
+    my $repo = shift @ARGV;
+    my $arch = shift @ARGV;
+    rebuild_full_tree($project, $repo, $arch);
   } elsif ( $arg eq "--deep-check-project" ) {
     die("ERROR: need at least project and architecture as argument!\n") if @ARGV < 2;
     my $project = shift @ARGV;
