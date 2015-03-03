@@ -251,7 +251,7 @@ class SourceController < ApplicationController
 
     # exec
     path = request.path
-    path << build_query_from_hash(params, [:rev, :linkrev, :emptylink, :expand, :view, :extension, :lastworking, :withlinked, :meta, :deleted, :parse, :arch, :repository, :product])
+    path << build_query_from_hash(params, [:rev, :linkrev, :emptylink, :expand, :view, :extension, :lastworking, :withlinked, :meta, :deleted, :parse, :arch, :repository, :product, :nofilename])
     pass_to_backend path
   end
 
