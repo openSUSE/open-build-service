@@ -50,6 +50,7 @@ class Channel < ActiveRecord::Base
     hasharray=[]
     xmlhash.elements('target').each { |p|
       prj = Project.find_by_name(p['project'])
+      next unless prj
       r = prj.repositories.find_by_name(p['repository'])
       next unless r
       hasharray << { repository: r, id_template: p['id_template'],
@@ -66,7 +67,9 @@ class Channel < ActiveRecord::Base
       project = p['project']
       unless project.blank?
         project = Project.find_by_name(project)
+        next unless project
         repository = project.repositories.find_by_name(p['repository']) if p['repository']
+        next unless repository
       end
       arch = nil
       arch = Architecture.find_by_name!(p['arch']) if p['arch']
