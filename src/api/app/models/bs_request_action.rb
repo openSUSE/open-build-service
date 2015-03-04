@@ -525,7 +525,7 @@ class BsRequestAction < ActiveRecord::Base
         data = Directory.hashed(project: tprj.name, package: ltpkg)
         e = data['linkinfo']
         if e
-          suffix = ltpkg.gsub(/^#{e['package']}/, '')
+          suffix = ltpkg.gsub(/^#{Regexp.escape(e['package'])}/, '')
           ltpkg = e['package']
           tprj = Project.get_by_name(e['project'])
           missing_ok_link=true if e['missingok']
@@ -533,7 +533,7 @@ class BsRequestAction < ActiveRecord::Base
           tprj = nil
         end
       end
-      tpkg = tpkg.gsub(/#{suffix}$/, '') # strip distro specific extension
+      tpkg = tpkg.gsub(/#{Regexp.escape(suffix)}$/, '') # strip distro specific extension
       tpkg = self.target_package if self.target_package # already given
 
       # maintenance incident actions need a releasetarget
