@@ -190,7 +190,7 @@ sub kill_job {
     }
   } else {
     push @args, '--root', $buildroot;
-    push @args, '--vm-type', $vm if $vm =~ /lxc/;
+    push @args, '--vm-type', 'lxc' if $vm =~ /lxc/;
   }
   if (system("$statedir/build/build", @args, "--kill")) {
     return 0;
@@ -2443,7 +2443,7 @@ sub dobuild {
     push @args, '--vm-worker-nr', $vm_worker_instance if $vm_worker_instance;
   } else {
     push @args, '--root', $buildroot;
-    push @args, '--vm-type', $vm if $vm =~ /lxc/;
+    push @args, '--vm-type', 'lxc' if $vm =~ /lxc/;
   }
   push @args, '--clean';
   push @args, '--changelog';
