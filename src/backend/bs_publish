@@ -1028,7 +1028,7 @@ sub deletepatterns_ymp {
 ##########################################################################
 
 sub sync_to_stage {
-  my ($prp, $extdir, $isdelete) = @_;
+  my ($prp, $extdir, $dbgsplit, $isdelete) = @_;
 
   my @stageservers;
   if ($BSConfig::stageserver) {
@@ -1073,6 +1073,7 @@ sub sync_to_stage {
   mkdir_p($extrepodir_sync);
   my $filename = $prp;
   $filename =~ s/\//_/g;
+  $filename .= $dbgsplit if $dbgsplit;
   writestr("$extrepodir_sync/.$$:$filename", "$extrepodir_sync/$filename", "$extdir\0");
   if ($BSConfig::stageserver_sync && $BSConfig::stageserver_sync =~ /^rsync:\/\/([^\/]+)\/(.*)$/) {
     print "    running trigger rsync to $1 at ".localtime(time)."\n";
@@ -1186,7 +1187,7 @@ sub deleterepo {
 
   if ($extrep =~ /\Q$extrepodir\E\/(.+)$/) {
     my $extdir = $1;
-    sync_to_stage($prp, $extdir, 1);
+    sync_to_stage($prp, $extdir, $dbgsplit, 1);
     rmdir("$extrepodir/$extdir");
   }
 
@@ -2010,7 +2011,7 @@ publishprog_done:
   # FIXME: use different mechanism to disable sync
   if (!($BSConfig::publishredirect && $BSConfig::publishredirect->{$prp})) {
     if ($extrep =~ /\Q$extrepodir\E\/(.+)$/) {
-      sync_to_stage($prp, $1);
+      sync_to_stage($prp, $1, $dbgsplit);
     }
   }
 
