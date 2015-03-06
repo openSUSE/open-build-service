@@ -76,7 +76,7 @@ class Configuration < ActiveRecord::Base
   def update_from_options_yml
     # strip the not set ones
     attribs = ::Configuration::OPTIONS_YML.clone
-    attribs.keys.each do |k|
+    attribs.each_key do |k|
       if attribs[k].nil?
         attribs.delete(k)
         next
