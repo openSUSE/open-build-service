@@ -210,16 +210,16 @@ class ProjectStatusCalculator
 
     check_md5(mypackages.values)
 
-    links = Array.new
+    links = []
     # find links
-    mypackages.each_value.each do |package|
+    mypackages.each_value do |package|
       if package.project == @dbproj.name and package.links_to_id
         links << package.links_to_id
       end
     end
     links = Package.where(id: links).includes(:project).to_a
 
-    tocheck = Array.new
+    tocheck = []
     links.each do |pack|
       pack = PackInfo.new(pack)
       next if mypackages.has_key? pack.key
@@ -229,7 +229,7 @@ class ProjectStatusCalculator
     check_md5(tocheck)
 
     list = Project.joins(:packages).where(packages: {id: mypackages.keys}).pluck("projects.id as pid, projects.name, packages.id")
-    projects = Hash.new
+    projects = {}
     list.each do |pid, pname, id|
       obj = mypackages[id]
       obj.project = pname

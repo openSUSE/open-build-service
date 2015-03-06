@@ -67,14 +67,16 @@ class StatusController < ApplicationController
 
   def history
     required_parameters :hours, :key
-    samples = begin
-      Integer(params[:samples] || '100') rescue 0
-    end
+
+    params[:samples] ||= '100'
+    params[:hours]   ||= '24'
+
+    samples = params[:samples].respond_to?(:to_i) ?  params[:samples].to_i : 0
+    
     @samples = [samples, 1].max
 
-    hours = begin
-      Integer(params[:hours] || '24') rescue 24
-    end
+    hours = params[:hours].respond_to?(:to_i) ?  params[:hours].to_i : 24
+ 
     starttime = Time.now.to_i - hours.to_i * 3600
     @values = StatusHistory.where("time >= ? AND \`key\` = ?", starttime, params[:key]).pluck(:time, :value).collect { |time, value| [time.to_i, value.to_f] }
   end
@@ -93,7 +95,7 @@ class StatusController < ApplicationController
   end
 
   def find_relationships_for_packages(packages)
-    package_hash = Hash.new
+    package_hash = {}
     packages.each_value do |p|
       package_hash[p.package_id] = p
       if p.develpack
