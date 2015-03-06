@@ -97,12 +97,10 @@ class PackInfo
   end
 
   def fails
-    ret = Array.new
-    @failed.each do |repo, tuple|
+    @failed.map do |repo, tuple|
       # repo, arch, time, md5
-      ret << [repo, tuple[1], tuple[0], tuple[2]]
+      [repo, tuple[1], tuple[0], tuple[2]]
     end
-    return ret
   end
 
 end
@@ -131,26 +129,29 @@ class ProjectStatusCalculator
 
     uri = '/build/%s/%s/%s/_jobhistory?code=lastfailures' % [CGI.escape(dname), CGI.escape(repo), arch]
 
-    ret = []
     d = Suse::Backend.get(uri).body
-    unless d.blank?
-      data = Xmlhash.parse(d)
 
-      data.elements('jobhist') do |p|
+    return [] if d.blank?
+
+    data = Xmlhash.parse(d)
+
+    data.elements('jobhist').map do |p|
         line = {'name' => p['package'],
                 'code' => p['code'],
                 'versrel' => p['versrel'],
                 'verifymd5' => p['verifymd5']}
 
-        begin
-          line['readytime'] = Integer(p['readytime'])
-        rescue
-          line['readytime'] = 0
+        if p.has_key?('readytime')
+            if p['readytime'].respond_to?(:to_i)
+                line['readytime'] = p['readytime'].to_i 
+            else
+                line['readytime'] = 0
+            end
+        else
+            line['readytime'] = 0
         end
-        ret << line
-      end
+        line
     end
-    ret
   end
 
   def update_jobhistory(proj, mypackages)
@@ -211,7 +212,7 @@ class ProjectStatusCalculator
 
     links = Array.new
     # find links
-    mypackages.values.each do |package|
+    mypackages.each_value.each do |package|
       if package.project == @dbproj.name and package.links_to_id
         links << package.links_to_id
       end
@@ -245,7 +246,7 @@ class ProjectStatusCalculator
     end
 
     # cleanup
-    mypackages.keys.each do |key|
+    mypackages.each_key do |key|
       mypackages.delete(key) if mypackages[key].project != @dbproj.name
     end
 

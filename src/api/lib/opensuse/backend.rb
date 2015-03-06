@@ -135,18 +135,13 @@ module Suse
 
             if hash[key].nil?
               # just a boolean argument ?
-              [hash[key]].flatten.map { |x| "#{key}" }.join("&")
+              [hash[key]].flat_map { |x| "#{key}" }.join("&")
             else
-              [hash[key]].flatten.map { |x| "#{key}=#{CGI.escape(hash[key].to_s)}" }.join("&")
+              [hash[key]].flat_map { |x| "#{key}=#{CGI.escape(hash[key].to_s)}" }.join("&")
             end
           end
         end
-
-        if query.empty?
-          return ""
-        else
-          return "?"+query.compact.join('&')
-        end
+        query.empty? ? "" : "?#{query.compact.join('&')}"
       end
 
       private
@@ -193,7 +188,7 @@ module Suse
       public
 
       def test_backend?
-        return true if @@backend && @@backend != :dont
+        (!@@backend.nil? && @@backend != :dont)
       end
 
       def do_not_start_test_backend
@@ -237,7 +232,6 @@ module Suse
           counter = counter + 1
         end
       end
-
     end
   end
 end

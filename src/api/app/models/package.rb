@@ -158,7 +158,7 @@ class Package < ActiveRecord::Base
       pkg.check_source_access! if opts[:use_source]
 
       Rails.cache.write(@key, [pkg.id, pkg.updated_at, prj.updated_at])
-      return pkg
+      pkg
     end
 
     def get_by_project_and_name!(project, package, opts = {})
@@ -188,11 +188,11 @@ class Package < ActiveRecord::Base
       rescue ActiveXML::Transport::Error
         # ignored
       end
-      return false
+      false
     end
 
     def find_by_project_and_name(project, package)
-      return Package.where(name: package.to_s, projects: { name: project }).includes(:project).first
+      Package.where(name: package.to_s, projects: { name: project }).includes(:project).first
     end
 
     def find_by_attribute_type(attrib_type, package=nil)
@@ -219,7 +219,7 @@ class Package < ActiveRecord::Base
       ret.each do |dbpkg|
         ret.delete(dbpkg) unless Package.check_access?(dbpkg)
       end
-      return ret
+      ret
     end
 
     def find_by_attribute_type_and_value(attrib_type, value, package=nil)
@@ -245,7 +245,7 @@ class Package < ActiveRecord::Base
       ret.each do |dbpkg|
         ret.delete(dbpkg) unless Package.check_access?(dbpkg)
       end
-      return ret
+      ret
     end
 
   end # self
@@ -304,17 +304,15 @@ class Package < ActiveRecord::Base
     answer = Suse::Backend.post path, nil
     data = REXML::Document.new(answer.body)
     result = []
-
     data.elements.each('collection/package') do |e|
       p = Package.find_by_project_and_name(e.attributes['project'], e.attributes['name'])
       if p.nil?
         logger.error "read permission or data inconsistency, backend delivered package as linked package where no database object exists: #{e.attributes['project']} / #{e.attributes['name']}"
       else
-        result.push(p)
+        result << p
       end
     end
-
-    return result
+    result
   end
 
   def check_for_product
