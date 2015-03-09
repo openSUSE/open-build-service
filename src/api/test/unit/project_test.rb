@@ -385,6 +385,17 @@ END
   test 'invalid names' do
     # no ::
     assert !Project.valid_name?('home:M0ses:raspi::qtdesktop')
+    assert !Project.valid_name?(10)
+    assert !Project.valid_name?('')
+    assert !Project.valid_name?('_foobar')
+    assert !Project.valid_name?("4" * 250)
+  end
+
+  test 'valid name' do
+    assert Project.valid_name?("foobar")
+    assert Project.valid_name?("Foobar_")
+    assert Project.valid_name?("foo1234")
+    assert Project.valid_name?("4" * 200)
   end
 end
 
