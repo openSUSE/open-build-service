@@ -77,6 +77,13 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
     get "/status/history?hours=24&key=idle_i586"
     assert_response :success
     # there is no history in fixtures so the result doesn't matter
+    # invalid parameters
+    get "/status/history?hours=-1&samples=-10"
+    assert_response 400
+
+
+    get "/status/history?hours=5&samples=10&key=idle_i586"
+    assert_not_nil assigns(@samples)
   end
 end
 
