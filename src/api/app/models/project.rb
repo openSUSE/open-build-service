@@ -746,11 +746,12 @@ class Project < ActiveRecord::Base
     @commit_opts ||= {}
     
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
-      login = User.current.login unless @commit_opts[:login] # Allow to override if User.current isn't available yet
-      path = "/source/#{self.name}/_meta?user=#{CGI.escape(login)}"
-      path += "&comment=#{CGI.escape(@commit_opts[:comment])}" unless @commit_opts[:comment].blank?
-      path += '&lowprio=1' if @commit_opts[:lowprio]
-      Suse::Backend.put_source( path, to_axml )
+      login = @commit_opts[:login] || User.current.login
+      query = { user: login }
+      query[:comment] = @commit_opts[:comment] unless @commit_opts[:comment].blank?
+      query[:requestid] = @commit_opts[:requestid] unless @commit_opts[:requestid].blank?
+      query[:lowprio] = '1' if @commit_opts[:lowprio]
+      Suse::Backend.put_source(self.source_path('_meta', query), to_axml)
     end
     @commit_opts = {}
   end

@@ -57,7 +57,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
         new_pkg = incidentProject.packages.create(:name => source_package, :title => pkg_title, :description => pkg_description)
         new_pkg.flags.create(:status => 'enable', :flag => 'build')
         new_pkg.flags.create(:status => 'enable', :flag => 'publish') unless incidentProject.flags.find_by_flag_and_status('access', 'disable')
-        new_pkg.store
+        new_pkg.store(comment: "maintenance_incident request #{self.bs_request.id}", requestid: self.bs_request.id)
       end
 
       # use specified release project if defined
@@ -106,7 +106,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
         else
           new_pkg = Package.new(:name => source_package, :title => pkg.title, :description => pkg.description)
           incidentProject.packages << new_pkg
-          new_pkg.store
+          new_pkg.store(comment: "maintenance_incident request #{self.bs_request.id}", requestid: self.bs_request.id)
         end
       else
         # no link and not a patchinfo
@@ -146,7 +146,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     end
 
     incidentProject.save!
-    incidentProject.store
+    incidentProject.store(comment: "maintenance_incident request #{self.bs_request.id}", requestid: self.bs_request.id)
   end
 
   def execute_accept(opts)

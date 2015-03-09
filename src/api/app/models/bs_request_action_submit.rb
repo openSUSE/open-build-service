@@ -67,7 +67,7 @@ class BsRequestActionSubmit < BsRequestAction
           target_package.develpackage = Package.find_by_project_and_name( self.source_project, self.source_package )
           relinkSource=true
         end
-        target_package.store
+        target_package.store(comment: "submit request #{self.bs_request.id}", requestid: self.bs_request.id)
       end
     end
 

@@ -655,6 +655,7 @@ class Package < ActiveRecord::Base
     if CONFIG['global_write_through']
       query = { user: User.current ? User.current.login : '_nobody_' }
       query[:comment] = @commit_opts[:comment] unless @commit_opts[:comment].blank?
+      query[:requestid] = @commit_opts[:requestid] unless @commit_opts[:requestid].blank?
       Suse::Backend.put_source(self.source_path('_meta', query), to_axml)
     end
     @commit_opts = {}

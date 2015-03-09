@@ -432,12 +432,18 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(:tag => 'person', :attributes => {userid: 'Iggy',  role: 'bugowner' })
     assert_no_xml_tag(:tag => 'group', :attributes => { role: 'bugowner' })
+    get "/source/kde4/kdelibs/_history?meta=1"
+    assert_response :success
     post "/request/#{id2}?cmd=changestate&newstate=accepted&force=1"
     assert_response :success
     get "/source/kde4/kdelibs/_meta"
     assert_response :success
     assert_no_xml_tag(:tag => 'person', :attributes => { role: 'bugowner' }) # reset
     assert_xml_tag(:tag => 'group', :attributes => { groupid: 'test_group', role: 'bugowner' })
+    get "/source/kde4/kdelibs/_history?meta=1"
+    assert_response :success
+    assert_xml_tag(:tag => 'comment', :content => "set_bugowner request #{id2}")
+    assert_xml_tag(:tag => 'requestid', :content => id2)
 
     # cleanup 
     put "/source/kde4/kdelibs/_meta", meta

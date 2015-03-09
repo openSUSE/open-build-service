@@ -25,7 +25,7 @@ class BsRequestActionAddRole < BsRequestAction
       role = Role.find_by_title!(self.role)
       object.add_group( self.group_name, role )
     end
-    object.store
+    object.store(comment: "add_role request #{self.bs_request.id}", requestid: self.bs_request.id)
   end
 
   def render_xml_attributes(node)

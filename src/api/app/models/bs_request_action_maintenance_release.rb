@@ -126,7 +126,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
       f = object.flags.find_by_flag_and_status('lock', 'disable')
       object.flags.delete(f) if f # remove possible existing disable lock flag
       object.flags.create(:status => 'enable', :flag => 'lock')
-      object.store
+      object.store(comment: "maintenance_release request")
     end
 
   end
