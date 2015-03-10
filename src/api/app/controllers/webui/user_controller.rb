@@ -40,8 +40,7 @@ class Webui::UserController < Webui::WebuiController
 
       begin
         ActiveXML.api.direct_http "/person/#{session[:login]}/login", method: 'POST'
-        # TODO: remove again and use
-        User.current = User.where(login: session[:login]).first
+        User.current = User.find_by_login!(session[:login])
       rescue ActiveXML::Transport::UnauthorizedError
         User.current = nil
       end
