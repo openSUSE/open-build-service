@@ -245,6 +245,18 @@ class Webui::WebuiController < ActionController::Base
     User.current ||= User.find_by_login('_nobody_')
   end
 
+  def check_display_user
+    if params['user'].present?
+      begin
+        @displayed_user = User.find_by_login!(params['user'])
+      rescue NotFoundError
+        # admins can see deleted users
+        @displayed_user = User.find_by_login(params['user']) if User.current and User.current.is_admin?
+        redirect_to :back, error: "User not found #{params['user']}" unless @displayed_user
+      end
+    end
+  end
+
   def map_to_workers(arch)
     case arch
     when 'i586' then 'x86_64'

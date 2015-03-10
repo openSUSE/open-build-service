@@ -8,8 +8,9 @@ class Webui::UserController < Webui::WebuiController
 
   before_filter :check_user, :only => [:edit, :save, :change_password, :register, :delete, :confirm,
                                        :lock, :admin, :login, :notifications, :update_notifications, :show]
+  before_filter :check_display_user, :only => [:show, :edit, :requests, :list_my, :icon, :delete, :save, :confirm, :admin, :lock]
   before_filter :require_login, :only => [:edit, :save, :notifications, :update_notifications]
-  before_filter :overwrite_user, :only => [:show, :edit, :requests, :list_my]
+#  before_filter :require_login, :except => [:login, :do_login, :home, :requests, :render_requests_json, :user_icon, :icon, :register, :register_dialog, :autocomplete, :tokens, :list_users]
   before_filter :require_admin, :only => [:edit, :delete, :lock, :confirm, :admin]
   
   skip_before_action :check_anonymous, only: [:do_login]
@@ -60,13 +61,6 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def show
-    if params['user'].present?
-      begin
-        @displayed_user = User.find_by_login!(params['user'])
-      rescue NotFoundError
-        redirect_to :back, error: "User not found #{params['user']}"
-      end
-    end
     @iprojects = @displayed_user.involved_projects.pluck(:name, :title)
     @ipackages = @displayed_user.involved_packages.joins(:project).pluck(:name, 'projects.name as pname')
     @owned = @displayed_user.owned_packages
@@ -108,25 +102,22 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def save
-    if User.current.is_admin?
-      user = User.find_by_login!(params[:user])
-    else
-      user = User.current
-      if user.login != params[:user]
-        flash[:error] = "Can't edit #{params[:user]}"
+    unless User.current.is_admin?
+      if User.current != @displayed_user
+        flash[:error] = "Can't edit #{@displayed_user.login}"
         redirect_to(:back) and return
       end
     end
-    user.realname = params[:realname]
-    user.email = params[:email]
+    @displayed_user.realname = params[:realname]
+    @displayed_user.email = params[:email]
     if User.current.is_admin?
-      user.state = User.states[params[:state]] if params[:state]
-      user.update_globalroles([params[:globalrole]]) if params[:globalrole]
+      @displayed_user.state = User.states[params[:state]] if params[:state]
+      @displayed_user.update_globalroles([params[:globalrole]]) if params[:globalrole]
     end
-    user.save!
+    @displayed_user.save!
 
-    flash[:success] = "User data for user '#{user.login}' successfully updated."
-    redirect_back_or_to :action => 'show', user: user
+    flash[:success] = "User data for user '#{@displayed_user.login}' successfully updated."
+    redirect_back_or_to :action => 'show', user: @displayed_user
   end
 
   def edit
@@ -135,45 +126,33 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def delete
-    u = User.find_by_login(params[:user])
-    u.state = User.states['deleted']
-    u.save
-    redirect_back_or_to :action => 'show', user: u
+    @displayed_user.state = User.states['deleted']
+    @displayed_user.save
+    redirect_back_or_to :action => 'show', user: @displayed_user
   end
 
   def confirm
-    u = User.find_by_login(params[:user])
-    u.state = User.states['confirmed']
-    u.save
-    redirect_back_or_to :action => 'show', user: u
+    @displayed_user.state = User.states['confirmed']
+    @displayed_user.save
+    redirect_back_or_to :action => 'show', user: @displayed_user
   end
 
   def lock
-    u = User.find_by_login(params[:user])
-    u.state = User.states['locked']
-    redirect_back_or_to :action => 'show', user: u
-    u.save
+    @displayed_user.state = User.states['locked']
+    @displayed_user.save
+    redirect_back_or_to :action => 'show', user: @displayed_user
   end
 
   def admin
-    u = User.find_by_login(params[:user])
-    u.update_globalroles(%w(Admin))
-    redirect_back_or_to :action => 'show', user: u
-    u.save
+    @displayed_user.update_globalroles(%w(Admin))
+    @displayed_user.save
+    redirect_back_or_to :action => 'show', user: @displayed_user
   end
 
   def save_dialog
     @roles = Role.global_roles
     render_dialog
   end
-
-  def overwrite_user
-    @displayed_user = User.current
-    user = User.find_by_login(params['user']) if params['user'].present?
-    @displayed_user = user if user
-  end
-
-  private :overwrite_user
 
   def user_icon
     required_parameters :icon
@@ -183,9 +162,8 @@ class Webui::UserController < Webui::WebuiController
 
   def icon
     required_parameters :user
-    user = User.find_by_login! params[:user]
     size = params[:size].to_i || '20'
-    content = user.gravatar_image(size)
+    content = @displayed_user.gravatar_image(size)
 
     if content == :none
       redirect_to ActionController::Base.helpers.asset_path('default_face.png')

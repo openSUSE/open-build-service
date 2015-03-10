@@ -22,12 +22,20 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     page.must_have_text 'Home of tom'
     page.must_have_text 'tschmidt@example.com'
 
-    # deleted accounts are not shown
+    # deleted accounts are not shown to users
     login_adrian to: user_show_path(user: 'deleted')
     find('#flash-messages').must_have_text("User not found deleted")
 
+    # but admins
     login_king to: user_show_path(user: 'deleted')
-    find('#flash-messages').must_have_text("User not found deleted")
+    page.must_have_text 'Home of deleted'
+
+    # invalid accounts do not crash
+    login_adrian to: user_show_path(user: 'INVALID')
+    find('#flash-messages').must_have_text("User not found INVALID")
+
+    login_king to: user_show_path(user: 'INVALID')
+    find('#flash-messages').must_have_text("User not found INVALID")
   end
 
   test 'notification settings for group' do
