@@ -361,8 +361,8 @@ EOF
 		                # support virtio
 		                # FIXME: find a better way to do this without getting removed by kiwi again.
 		                if [ -e /etc/dracut.conf ]; then
-		                   if ! grep -q "^dracutmodules+=\"loop" /etc/dracut.conf; then
-                                      sed -i -e 's/[#]dracutmodules+="/dracutmodules+="loop dm-mod dm-snapshot binfmt_misc fuse squashfs ext3 ext4 reiserfs btrfs virtio_pci virtio_blk nls_cp437 nf_conntrack_ipv6 fat vfat /' /etc/dracut.conf
+		                   if ! grep -q "^add_drivers+=\"loop" /etc/dracut.conf; then
+                                      sed -i -e 's/[#]add_drivers+="/add_drivers+="loop dm-mod dm-snapshot binfmt_misc fuse squashfs ext3 ext4 reiserfs btrfs virtio_pci virtio_blk nls_cp437 nf_conntrack_ipv6 fat vfat /' /etc/dracut.conf
                                       dracut --force
                                    fi
 		                elif ! grep -q "^INITRD_MODULES=.*virtio_pci virtio_blk" /etc/sysconfig/kernel; then
