@@ -38,10 +38,10 @@ class Webui::UserController < Webui::WebuiController
       session[:password] = params[:password]
       authenticate_form_auth
 
-      # TODO: remove again and use
-      User.current = User.where(login: session[:login]).first
       begin
         ActiveXML.api.direct_http "/person/#{session[:login]}/login", method: 'POST'
+        # TODO: remove again and use
+        User.current = User.where(login: session[:login]).first
       rescue ActiveXML::Transport::UnauthorizedError
         User.current = nil
       end
