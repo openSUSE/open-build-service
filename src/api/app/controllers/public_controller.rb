@@ -54,8 +54,8 @@ class PublicController < ApplicationController
     # project visible/known ? 
     Project.get_by_name(params[:project])
 
-    path = unshift_public(request.path)
-    path << "?#{request.query_string}" unless request.query_string.empty?
+    path = unshift_public(request.path_info)
+    path += "?#{request.query_string}" unless request.query_string.empty?
 
     pass_to_backend path
   end
@@ -65,14 +65,14 @@ class PublicController < ApplicationController
     # project visible/known ? 
     Project.get_by_name(params[:project])
 
-    pass_to_backend unshift_public(request.path)
+    pass_to_backend unshift_public(request.path_info)
   end
 
   # GET /public/source/:project
   def project_index
     # project visible/known ? 
     Project.get_by_name(params[:project])
-    path = unshift_public(request.path)
+    path = unshift_public(request.path_info)
     if params[:view] == 'info'
       # nofilename since a package may have no source access
       if params[:nofilename] and params[:nofilename] != '1'
@@ -94,7 +94,7 @@ class PublicController < ApplicationController
     # project visible/known ? 
     Project.get_by_name(params[:project])
 
-    path = unshift_public(request.path)
+    path = unshift_public(request.path_info)
     path += "?#{request.query_string}" unless request.query_string.empty?
     pass_to_backend path
   end
@@ -103,7 +103,7 @@ class PublicController < ApplicationController
   def package_index
     check_package_access(params[:project], params[:package])
 
-    path = unshift_public(request.path)
+    path = unshift_public(request.path_info)
     path += "?#{request.query_string}" unless request.query_string.empty?
     pass_to_backend path
   end
@@ -112,7 +112,7 @@ class PublicController < ApplicationController
   def package_meta
     check_package_access(params[:project], params[:package], false)
 
-    pass_to_backend unshift_public(request.path)
+    pass_to_backend unshift_public(request.path_info)
   end
 
   # GET /public/source/:project/:package/:filename
