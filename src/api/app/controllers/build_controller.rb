@@ -152,7 +152,7 @@ class BuildController < ApplicationController
       return
     end
 
-    path = request.path+"?"+request.query_string
+    path = request.path_info+"?"+request.query_string
 
     if request.delete?
       unless permissions.project_change? params[:project]

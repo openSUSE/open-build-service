@@ -393,9 +393,8 @@ class ApplicationController < ActionController::Base
   end
 
   def get_request_path
-    path = request.path
+    path = request.path_info
     query_string = request.query_string
-    path.slice!( 0, root_path.length-1 ) if path.start_with?( root_path )
     if request.form_data?
       # it's uncommon, but possible that we have both
       query_string += "&" unless query_string.blank?
@@ -407,11 +406,7 @@ class ApplicationController < ActionController::Base
 
   def pass_to_backend( path = nil )
 
-    if path
-      path.slice!( 0, root_path.length-1 ) if path.start_with?( root_path )
-    else
-      path = get_request_path
-    end
+    path ||= get_request_path
 
     if request.get? || request.head?
       forward_from_backend( path )
