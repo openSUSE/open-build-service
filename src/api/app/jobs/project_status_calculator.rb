@@ -129,13 +129,14 @@ class ProjectStatusCalculator
 
     uri = '/build/%s/%s/%s/_jobhistory?code=lastfailures' % [CGI.escape(dname), CGI.escape(repo), arch]
 
+    ret = []
     d = Suse::Backend.get(uri).body
 
     return [] if d.blank?
 
     data = Xmlhash.parse(d)
 
-    data.elements('jobhist').map do |p|
+    data.elements('jobhist') do |p|
         line = {'name' => p['package'],
                 'code' => p['code'],
                 'versrel' => p['versrel'],
@@ -150,8 +151,9 @@ class ProjectStatusCalculator
         else
             line['readytime'] = 0
         end
-        line
+        ret << line
     end
+    ret
   end
 
   def update_jobhistory(proj, mypackages)
