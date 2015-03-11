@@ -85,7 +85,8 @@ module MaintenanceHelper
     end
     targetProject.check_write_access!
 
-    if sourcePackage.name.starts_with? "_product:"
+    if sourcePackage.name.starts_with? "_product:" and targetProject.packages.where(name: "_product").count>0
+      # a master _product container exists, so we need to copy all sources
       _release_product(sourcePackage, targetProject, action)
     else
       _release_package(sourcePackage, targetProject, targetPackageName, action, manual ? nil : true)

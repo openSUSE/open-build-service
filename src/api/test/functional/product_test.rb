@@ -244,7 +244,7 @@ class ProductTests < ActionDispatch::IntegrationTest
     get "/source/home:tom:temporary:link"
     assert_response :success
     assert_xml_tag :tag => "entry", :attributes => { :name => "_product:sle-obs-cd-cd-i586_x86_64" },
-                   :parent => { :tag => "directory", :attributes => { :count => "4" } }
+                   :parent => { :tag => "directory", :attributes => { :count => "1" } }
     # FIXME: add tests for release number handling with various products, requires product binaries and trees
 
     # remove product and check that _product: get removed as well.
