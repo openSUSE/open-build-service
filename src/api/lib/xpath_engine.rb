@@ -147,6 +147,9 @@ class XpathEngine
         'obsolete/@time' => {:cpart => 'obsolete_time'},
         'repository/@project' => {:cpart => 'release_projects.name'},
         'repository/@name' => {:cpart => 'release_repositories.name'},
+        'publish/@package' => {:cpart => 'ppkg.name', :joins => [
+          'LEFT join packages ppkg on ppkg.id=release_package_id'
+        ]},
         'updatefor/@project' => {:cpart => 'puprj.name', :joins => [
           'LEFT join product_update_repositories pur on pur.repository_id=release_repositories.id',
           'LEFT join products pun on pun.id=pur.product_id ',
