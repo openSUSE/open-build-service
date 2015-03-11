@@ -245,6 +245,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     login_tom
     put '/source/home:tom/service/_meta', "<package project='home:tom' name='service'> <title /> <description /> </package>"
     assert_response :success
+    wait_for_service( 'home:tom', 'service')
     put '/source/home:tom/service/_service', '<services> <service name="set_version" > <param name="version">0819</param> <param name="file">pack.spec</param> </service> </services>'
     assert_response :success
     wait_for_service( 'home:tom', 'service')
@@ -302,6 +303,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     put '/source/home:tom/service/pack.spec', "# Comment \nVersion: 12\nRelease: 9\nSummary: asd"
     assert_response :success
 
+    # unknown service
     put '/source/home:tom/_project/_service', '<services> <service name="not_existing" /> </services>'
     assert_response :success
     post '/source/home:tom/service?cmd=runservice'
@@ -310,6 +312,18 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     get '/source/home:tom/service'
     assert_response :success
     assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'failed' }
+    assert_match(/not_existing.service  No such file or directory/, @response.body)
+
+    # unknown parameter
+    put '/source/home:tom/_project/_service', '<services> <service name="set_version" > <param name="INVALID">0817</param></service> </services>'
+    assert_response :success
+    post '/source/home:tom/service?cmd=runservice'
+    assert_response :success
+    wait_for_service( 'home:tom', 'service')
+    get '/source/home:tom/service'
+    assert_response :success
+    assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'failed' }
+    assert_match(/service parameter INVALID is not defined/, @response.body)
 
     put '/source/home:tom/_project/_service', '<services> <service name="set_version" > <param name="version">0817</param> <param name="file">pack.spec</param> </service> </services>'
     assert_response :success
