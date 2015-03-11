@@ -143,6 +143,7 @@ sub run_source_update {
     my $infoxml = readstr($sf);
     my $serviceinfo = XMLin($BSXML::services, $infoxml);
     for my $service (@{$serviceinfo->{'service'}}) {
+      BSVerify::verify_filename($service->{'name'});
       if (defined($service->{'mode'}) && ($service->{'mode'} eq 'localonly' || $service->{'mode'} eq 'disabled')) {
         print "Skip ".$service->{'name'}."\n";
         next;
