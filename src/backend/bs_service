@@ -148,6 +148,7 @@ sub run_source_update {
         next;
       }
       print "Run for ".$service->{'name'}."\n";
+      my $servicedef = readxml($rootservicedir."/".$service->{'name'}.".service", $BSXML::servicetype);
       my @run;
       if (defined $BSConfig::service_wrapper->{$service->{'name'}} ) {
         push @run, $BSConfig::service_wrapper->{$service->{'name'}};
@@ -160,6 +161,7 @@ sub run_source_update {
       for my $param (@{$service->{'param'}}) {
         next if $param->{'name'} eq 'outdir';
         next unless $param->{'_content'};
+        die("$run[0]: service parameter $param->{'name'} is not defined\n") unless grep {$_->{'name'} eq $param->{'name'}} @{$servicedef->{'parameter'}};
         push @run, "--$param->{'name'}";
         push @run, $param->{'_content'};
       }

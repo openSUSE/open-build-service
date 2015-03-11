@@ -76,6 +76,14 @@ sub verify_packid_repository {
   verify_packid($_[0]) unless $_[0] && $_[0] eq '_repository';
 }
 
+sub verify_service {
+  my $p = $_[0];
+  verify_filename($p->{'name'}) if defined($p->{'name'});
+  for my $param (@{$p->{'param'} || []}) {
+    verify_filename($param->{'name'});
+  }
+}
+
 sub verify_patchinfo {
   # This verifies the absolute minimum required content of a patchinfo file
   my $p = $_[0];

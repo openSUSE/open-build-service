@@ -266,7 +266,19 @@ class SourceServicesTest < ActionController::IntegrationTest
     wait_for_service( "home:tom", "service" )
     get "/source/home:tom/service"
     assert_response :success
-    assert_xml_tag :tag => "serviceinfo", :attributes => { :code => 'failed' }
+    assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'failed' }
+    assert_match(/not_existing.service  No such file or directory/, @response.body)
+
+    # unknown parameter
+    put '/source/home:tom/_project/_service', '<services> <service name="set_version" > <param name="INVALID">0817</param></service> </services>'
+    assert_response :success
+    post '/source/home:tom/service?cmd=runservice'
+    assert_response :success
+    wait_for_service( 'home:tom', 'service')
+    get '/source/home:tom/service'
+    assert_response :success
+    assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'failed' }
+    assert_match(/service parameter INVALID is not defined/, @response.body)
 
     put "/source/home:tom/_project/_service", '<services> <service name="set_version" > <param name="version">0817</param> <param name="file">pack.spec</param> </service> </services>'
     assert_response :success
