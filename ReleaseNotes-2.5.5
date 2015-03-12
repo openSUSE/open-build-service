@@ -1,0 +1,31 @@
+#
+# openSUSE Build Service 2.5.5
+#
+
+Updaters from any OBS 2.5 release can just ugrade the packages
+and restart all services. Updaters from former releases should
+read the README.UPDATERS file.
+
+Feature backports:
+==================
+
+* none
+
+Changes:
+========
+
+* none
+
+Bugfixes:
+=========
+
+* api: Fixes for LDAP authentification
+* api: Do not enable enforce_project_keys by default for new installations
+* api: Use be_not_nobody! in Package model check_source_access
+* api: use own delayed job queue for bugzilla monitoring
+* backend: do not depend ith initrd creation on LVM
+* backend: Add armv7hl again for compatibility on setup using it to build soft/hardfloat side-by-side
+* backend: LVM setup: take size of OBS server partition into account
+
+
+
