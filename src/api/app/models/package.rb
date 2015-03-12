@@ -1035,6 +1035,49 @@ class Package < ActiveRecord::Base
     Rails.cache.read(cache_key)
   end
 
+  def self.verify_file!(pkg, name, content)
+    # schema validation, if possible
+    %w{aggregate constraints link service patchinfo channel}.each do |schema|
+      if name == '_' + schema
+        Suse::Validator.validate(schema, content)
+      end
+    end
+
+    # validate all files inside of _pattern container
+    if pkg and pkg.name == "_pattern"
+      Suse::Validator.validate('pattern', content)
+    end
+
+    # verify link
+    if name == '_link'
+      data = ActiveXML::Node.new(content)
+      if data
+        tproject_name = data.value('project') || pkg.project.name
+        tpackage_name = data.value('package') || pkg.name
+        if data.has_attribute? 'missingok'
+          Project.get_by_name(tproject_name) # permission check
+          if Package.exists_by_project_and_name(tproject_name, tpackage_name, follow_project_links: true, allow_remote_packages: true)
+            raise NotMissingError.new "Link contains a missingok statement but link target (#{tproject_name}/#{tpackage_name}) exists."
+          end
+        else
+          # permission check
+          Package.get_by_project_and_name(tproject_name, tpackage_name)
+        end
+      end
+    end
+
+    # special checks in their models
+    if name == '_service'
+      Service.verify_xml!(content)
+    end
+    if name == '_channel'
+      Channel.verify_xml!(content)
+    end
+    if name == '_patchinfo'
+      Patchinfo.new.verify_data(pkg.project, content)
+    end
+  end
+
   def save_file(opt = {})
     content = '' # touch an empty file first
     content = opt[:file] if opt[:file]

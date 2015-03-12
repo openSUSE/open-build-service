@@ -810,68 +810,23 @@ class SourceController < ApplicationController
       raise PutFileNoPermission.new "Insufficient permissions to store file in package #{@package_name}, project #{@project_name}"
     end
 
-    @path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink, :meta])
-
-    special_file = false
-
-    # file validation where possible
-    %w{aggregate constraints link service patchinfo channel}.each do |special|
-      if params[:filename] == '_' + special
-        special_file = true
-        Suse::Validator.validate( special, request.raw_post.to_s)
-      end
-    end
-
-    if params[:package] == '_pattern'
-      Suse::Validator.validate( 'pattern', request.raw_post.to_s)
-    end
-
-    # verify link
-    if params[:filename] == '_link'
-      data = ActiveXML::Node.new(request.raw_post.to_s)
-      if data
-        tproject_name = data.value('project') || @project_name
-        tpackage_name = data.value('package') || @package_name
-        if data.has_attribute? 'missingok'
-          Project.get_by_name(tproject_name) # permission check
-          if Package.exists_by_project_and_name(tproject_name, tpackage_name, follow_project_links: true, allow_remote_packages: true)
-            raise NotMissingError.new "Link contains a missingok statement but link target (#{tproject_name}/#{tpackage_name}) exists."
-          end
-        else
-          # permission check
-          Package.get_by_project_and_name(tproject_name, tpackage_name)
-        end
-      end
-    end
-
-    # verify channel data
-    if params[:filename] == '_channel'
-      Channel.verify_xml!(request.raw_post.to_s)
-    end
-
-    # verify patchinfo data
-    if params[:filename] == '_patchinfo'
-      Patchinfo.new.verify_data(@prj, request.raw_post.to_s)
-    end
-
-    # verify service data
-    if params[:filename] == '_service'
-      Service.verify_xml!(request.raw_post.to_s)
-    end
-
     # _pattern was not a real package in former OBS 2.0 and before, so we need to create the
     # package here implicit to stay api compatible.
     # FIXME3.0: to be revisited
     if @package_name == '_pattern' and not Package.exists_by_project_and_name( @project_name, @package_name, follow_project_links: false )
-      pack = Package.new(:name => '_pattern', :title => 'Patterns', :description => 'Package Patterns')
-      @prj.packages << pack
-      pack.save
+      @pack = Package.new(:name => '_pattern', :title => 'Patterns', :description => 'Package Patterns')
+      @prj.packages << @pack
+      @pack.save
     end
 
+    Package.verify_file!(@pack, params[:filename], request.raw_post.to_s)
+
+    @path += build_query_from_hash(params, [:user, :comment, :rev, :linkrev, :keeplink, :meta])
     pass_to_backend @path
 
     # update package timestamp and reindex sources
     unless params[:rev] == 'repository' or %w(_project _pattern).include? @package_name
+      special_file = %w{_aggregate _constraints _link _service _patchinfo _channel}.include? params[:filename]
       @pack.sources_changed(nil, special_file) # wait for indexing for special files
     end
   end
@@ -880,13 +835,13 @@ class SourceController < ApplicationController
   def delete_file
     check_permissions_for_file
 
-    @path += build_query_from_hash(params, [:user, :comment, :meta, :rev, :linkrev, :keeplink])
-
     unless @allowed
       raise DeleteFileNoPermission.new 'Insufficient permissions to delete file'
     end
 
+    @path += build_query_from_hash(params, [:user, :comment, :meta, :rev, :linkrev, :keeplink])
     Suse::Backend.delete @path
+
     unless @package_name == '_pattern' or @package_name == '_project'
       # _pattern was not a real package in old times
       @pack.sources_changed
