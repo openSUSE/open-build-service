@@ -471,13 +471,8 @@ class SourceController < ApplicationController
     # Need permission
     logger.debug 'Checking permission for the put'
     if prj
-      # is lock explicit set to disable ? allow the un-freeze of the project in that case ...
-      ignoreLock = nil
-      # do not support unlock via meta data, just via command or request revoke for now
-      # ignoreLock = true if rdata.has_key?("lock/disable")
-
       # project exists, change it
-      unless User.current.can_modify_project?(prj, ignoreLock)
+      unless User.current.can_modify_project?(prj)
         if prj.is_locked?
           logger.debug "no permission to modify LOCKED project #{prj.name}"
           raise ChangeProjectNoPermission.new "The project #{prj.name} is locked"
@@ -702,13 +697,8 @@ class SourceController < ApplicationController
 
     # check for project
     if Package.exists_by_project_and_name(@project_name, @package_name, follow_project_links: false)
-      # is lock explicit set to disable ? allow the un-freeze of the project in that case ...
-      ignoreLock = nil
-      # unlock only via command for now
-      #         ignoreLock = 1 if Xmlhash.parse(request.raw_post).get("lock")["disable"]
-
       pkg = Package.get_by_project_and_name(@project_name, @package_name, use_source: false)
-      unless User.current.can_modify_package?(pkg, ignoreLock)
+      unless User.current.can_modify_package?(pkg)
         render_error :status => 403, :errorcode => 'change_package_no_permission',
                      :message => "no permission to modify package '#{pkg.project.name}'/#{pkg.name}"
         return
