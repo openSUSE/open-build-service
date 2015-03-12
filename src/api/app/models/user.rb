@@ -337,8 +337,8 @@ class User < ActiveRecord::Base
       Thread.current[:user] = user
     end
 
-    def nobodyID
-      return Thread.current[:nobody_id] ||= find_by_login!('_nobody_').id
+    def nobody_login
+      '_nobody_'
     end
 
     def get_default_admin
@@ -346,6 +346,12 @@ class User < ActiveRecord::Base
       user = find_by_login(admin)
       raise NotFoundError.new("Admin not found, user #{admin} has not admin permissions") unless user.is_admin?
       return user
+    end
+
+    def find_nobody!
+      Thread.current[:nobody_user] ||= find_by_login(nobody_login)
+      raise NotFoundError.new("Couldn't find #{nobody_login} user") if Thread.current[:nobody_user].nil?
+      return Thread.current[:nobody_user]
     end
 
     def find_by_login!(login)

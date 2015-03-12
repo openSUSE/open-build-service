@@ -56,7 +56,7 @@ class ApplicationController < ActionController::Base
   protected
 
   def load_nobody
-    @http_user = User.find_by_login( "_nobody_" )
+    @http_user = User.find_nobody!
     User.current = @http_user
     User.current.is_admin = false
     @user_permissions = Suse::Permission.new( User.current )

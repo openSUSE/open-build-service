@@ -653,7 +653,7 @@ class Package < ActiveRecord::Base
     @commit_opts ||= {}
     #--- write through to backend ---#
     if CONFIG['global_write_through']
-      query = { user: User.current ? User.current.login : '_nobody_' }
+      query = { user: User.current ? User.current.login : User.nobody_login }
       query[:comment] = @commit_opts[:comment] unless @commit_opts[:comment].blank?
       query[:requestid] = @commit_opts[:requestid] unless @commit_opts[:requestid].blank?
       Suse::Backend.put_source(self.source_path('_meta', query), to_axml)

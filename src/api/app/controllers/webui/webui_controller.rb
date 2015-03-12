@@ -242,7 +242,7 @@ class Webui::WebuiController < ActionController::Base
       User.current = User.find_by_login(session[:login])
     end
     # TODO: rebase on application_controller and use load_nobdy
-    User.current ||= User.find_by_login('_nobody_')
+    User.current ||= User.find_nobody!
   end
 
   def check_display_user
@@ -256,7 +256,7 @@ class Webui::WebuiController < ActionController::Base
       end
     else
         @displayed_user = User.current
-        @displayed_user ||= User.find_by_login!(User.nobodyID)
+        @displayed_user ||= User.find_nobody!
     end
   end
 

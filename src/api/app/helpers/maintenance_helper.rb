@@ -304,7 +304,7 @@ module MaintenanceHelper
       end
     end
 
-    query = { user: User.current ? User.current.login : '_nobody_' }
+    query = { user: User.current ? User.current.login : User.nobody_login }
     query[:comment] = "channel import function"
     Suse::Backend.put_source(pkg.source_path('_channel', query), channel.to_s)
 

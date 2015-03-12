@@ -143,7 +143,7 @@ class Relationship < ActiveRecord::Base
       return ret if user.is_admin?
       userid = user.id
     else
-      userid = User.nobodyID
+      userid = User.find_nobody!.id
     end
     project_user_cache.each do |project_id, users|
       ret << project_id unless users[userid]

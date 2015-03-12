@@ -48,7 +48,7 @@ class Webui::UserController < Webui::WebuiController
       unless User.current
         reset_session
         flash.now[:error] = 'Authentication failed'
-        User.current = User.find_by_login('_nobody_')
+        User.current = User.find_nobody!
         render :template => 'webui/user/login', :locals => { :return_to_path => @return_to_path }
         return
       end
