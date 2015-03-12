@@ -254,6 +254,9 @@ class Webui::WebuiController < ActionController::Base
         @displayed_user = User.find_by_login(params['user']) if User.current and User.current.is_admin?
         redirect_to :back, error: "User not found #{params['user']}" unless @displayed_user
       end
+    else
+        @displayed_user = User.current
+        @displayed_user ||= User.find_by_login!(User.nobodyID)
     end
   end
 
