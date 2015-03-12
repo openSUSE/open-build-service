@@ -854,6 +854,11 @@ class SourceController < ApplicationController
       Patchinfo.new.verify_data(@prj, request.raw_post.to_s)
     end
 
+    # verify service data
+    if params[:filename] == '_service'
+      Service.verify_xml!(request.raw_post.to_s)
+    end
+
     # _pattern was not a real package in former OBS 2.0 and before, so we need to create the
     # package here implicit to stay api compatible.
     # FIXME3.0: to be revisited

@@ -325,6 +325,18 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'failed' }
     assert_match(/service parameter INVALID is not defined/, @response.body)
 
+    # invalid names
+    put '/source/home:tom/_project/_service', '<services> <service name="set_version ; `ls`" ></service> </services>'
+    assert_response 400
+    assert_match(/service name.*contains invalid chars/, @response.body)
+    put '/source/home:tom/_project/_service', '<services> <service name="../blahfasel" ></service> </services>'
+    assert_response 400
+    assert_match(/service name.*contains invalid chars/, @response.body)
+    put '/source/home:tom/_project/_service', '<services> <service name="set_version" > <param name="asd; `ls`">0817</param></service> </services>'
+    assert_response 400
+    assert_match(/service parameter.*contains invalid chars/, @response.body)
+
+    # reset
     put '/source/home:tom/_project/_service', '<services> <service name="set_version" > <param name="version">0817</param> <param name="file">pack.spec</param> </service> </services>'
     assert_response :success
 

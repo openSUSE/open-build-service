@@ -4,6 +4,9 @@ class Service < ActiveXML::Node
     "<services/>"
   end
 
+  class InvalidParameter < APIException
+  end
+
   def addDownloadURL(url, filename=nil)
     begin
       uri = URI.parse(url)
@@ -100,6 +103,25 @@ class Service < ActiveXML::Node
     logger.debug 'execute services'
     fc = FrontendCompat.new
     fc.do_post nil, opt
+  end
+
+  def self.valid_name?(name)
+    return false unless name.kind_of? String
+    return false if name.length > 200 || name.blank?
+    return false if name =~ %r{^[_\.]}
+    return false if name =~ %r{::}
+    return true if name =~ /\A\w[-+\w\.:]*\z/
+    false
+  end
+
+  def self.verify_xml!(raw_post)
+    data = Xmlhash.parse(raw_post)
+    data.elements('service').each do |s|
+      raise InvalidParameter.new "service name #{s['name']} contains invalid chars" unless valid_name?(s['name'])
+      s.elements('param').each do |p|
+        raise InvalidParameter.new "service parameter #{p['name']} contains invalid chars" unless valid_name?(p['name'])
+      end
+    end
   end
 
   def save
