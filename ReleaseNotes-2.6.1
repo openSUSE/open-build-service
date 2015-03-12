@@ -1,0 +1,31 @@
+#
+# openSUSE Build Service 2.6.1
+#
+
+Updaters from any OBS 2.6 release can just ugrade the packages
+and restart all services. Updaters from former releases should
+read the README.UPDATERS file.
+
+Feature backports:
+==================
+
+* support static links for vmx/vmdk files
+
+Changes:
+========
+
+* none
+
+Bugfixes:
+=========
+
+* api: fix handling of special chars in maintenance package names
+* api: do not allow to overwrite existing groups via wrong route
+* api: fix first time login when using LDAP
+* webui: fix user icon fetching as done by google bot
+* webui: fix display issues (github issues obs#320, obs#711, obs#806)
+* backend: fix arbitrary command execution in service daemon (CVE-2015-0778)
+* backend: fix lxc support in worker
+* backend: fix event handling when using multiple backend servers
+* backend: fix publishing of vmx files
+
