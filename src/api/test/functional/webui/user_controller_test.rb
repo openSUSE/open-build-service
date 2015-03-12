@@ -38,6 +38,17 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     find('#flash-messages').must_have_text("User not found INVALID")
   end
 
+  def test_show_icons
+    visit '/user/icon/Iggy.png'
+    page.status_code.must_equal 200
+    visit '/user/icon/Iggy.png?size=20'
+    page.status_code.must_equal 200
+    visit '/user/show/Iggy'
+    page.status_code.must_equal 200
+    visit '/user/show/Iggy?size=20'
+    page.status_code.must_equal 200
+  end
+
   test 'notification settings for group' do
     login_adrian to: user_notifications_path
 
