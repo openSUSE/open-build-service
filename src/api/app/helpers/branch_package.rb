@@ -298,22 +298,14 @@ class BranchPackage
     # validate and resolve devel package or devel project definitions
     unless params[:ignoredevel] or p[:copy_from_devel]
 
-      if @copy_from_devel and p[:package].is_a? Package
+      devel_package = p[:package].resolve_devel_package if p[:package].is_a? Package
+      if @copy_from_devel and devel_package and p[:package] != devel_package
         p[:copy_from_devel] = p[:package].resolve_devel_package
-        logger.info "sources will get copied from devel package #{p[:copy_from_devel].project.name}/#{p[:copy_from_devel].name}" unless p[:copy_from_devel] == p[:package]
-      end
-
-      incident_pkg = nil
-      if (!p[:copy_from_devel] or p[:copy_from_devel] == p[:package]) \
-             and p[:package].is_a? Package \
-             and p[:link_target_project].is_a?(Project) \
-             and p[:link_target_project].is_maintenance_release? \
-             and p[:link_target_project].maintenance_projects.count
-      end
-      if incident_pkg = lookup_incident_pkg(p)
+        logger.info "sources will get copied from devel package #{devel_package.project.name}/#{devel_package.name}"
+      elsif incident_pkg = lookup_incident_pkg(p)
         p[:copy_from_devel] = incident_pkg
-        logger.info "sources will get copied from incident package #{p[:copy_from_devel].project.name}/#{p[:copy_from_devel].name}"
-      elsif not @copy_from_devel and p[:package].is_a? Package and (p[:package].develpackage or p[:package].project.develproject)
+        logger.info "sources will get copied from incident package #{incident_pkg.project.name}/#{incident_pkg.name}"
+      elsif not @copy_from_devel and devel_package and p[:package] != devel_package
         p[:package] = p[:package].resolve_devel_package
         p[:link_target_project] = p[:package].project
         p[:target_package] = p[:package].name

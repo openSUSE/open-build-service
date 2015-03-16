@@ -71,7 +71,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'BinaryRelease::update_binary_releases_via_json' => 128.58,
       'BranchPackage#find_packages_to_branch' => 234.73,
       'BranchPackage#create_branch_packages' => 214.0,
-      'BranchPackage#determine_details_about_package_to_branch' => 124.62,
+      'BranchPackage#determine_details_about_package_to_branch' => 88.24,
       'BranchPackage#check_for_update_project' => 101.04,
       'BranchPackage#lookup_incident_pkg' => 80.64,
       'BsRequest#change_review_state' => 203.53,
