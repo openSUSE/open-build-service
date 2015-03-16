@@ -551,6 +551,14 @@ class Package < ActiveRecord::Base
     ret.uniq
   end
 
+  # delivers only a defined devel package
+  def find_devel_package
+     pkg = self.resolve_devel_package
+     return nil if pkg == self
+     pkg
+  end
+
+  # delivers always a package
   def resolve_devel_package
     pkg = self
     prj_name = pkg.project.name

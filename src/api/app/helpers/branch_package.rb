@@ -298,15 +298,15 @@ class BranchPackage
     # validate and resolve devel package or devel project definitions
     unless params[:ignoredevel] or p[:copy_from_devel]
 
-      devel_package = p[:package].resolve_devel_package if p[:package].is_a? Package
-      if @copy_from_devel and devel_package and p[:package] != devel_package
-        p[:copy_from_devel] = p[:package].resolve_devel_package
+      devel_package = p[:package].find_devel_package if p[:package].is_a? Package
+      if @copy_from_devel and devel_package
+        p[:copy_from_devel] = devel_package
         logger.info "sources will get copied from devel package #{devel_package.project.name}/#{devel_package.name}"
       elsif incident_pkg = lookup_incident_pkg(p)
         p[:copy_from_devel] = incident_pkg
         logger.info "sources will get copied from incident package #{incident_pkg.project.name}/#{incident_pkg.name}"
-      elsif not @copy_from_devel and devel_package and p[:package] != devel_package
-        p[:package] = p[:package].resolve_devel_package
+      elsif not @copy_from_devel and devel_package
+        p[:package] = devel_package
         p[:link_target_project] = p[:package].project
         p[:target_package] = p[:package].name
         p[:target_package] += ".#{p[:link_target_project].name}" if @extend_names
