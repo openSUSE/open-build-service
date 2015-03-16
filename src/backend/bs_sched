@@ -5855,6 +5855,7 @@ sub rebuildpatchinfo {
       my $it = (grep {$_->{'name'} eq $b->{'tracker'}} @{$issue_trackers->{'issue-tracker'} || []})[0];
       if ($it && $b->{'id'}) {
         my $id = $b->{'id'};
+        # stay compatible with case insensitive writings and old _patchinfo files
         $id =~ s/^(?:cve-)?//i if $b->{'tracker'} eq 'cve';
         my $url = $it->{'show-url'};
         $url =~ s/@@@/$id/g;
