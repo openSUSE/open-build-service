@@ -5859,7 +5859,7 @@ sub rebuildpatchinfo {
         if ($b->{'tracker'} eq 'cve') {
           # stay compatible with case insensitive writings and old _patchinfo files
           $trackerid =~ s/^(?:cve-)?//i;
-          $referenceid =~ s/^(?:cve-)?//i;
+          $referenceid =~ s/^(?:cve-)?/CVE-/i;
         }
         my $url = $it->{'show-url'};
         $url =~ s/@@@/$trackerid/g;
