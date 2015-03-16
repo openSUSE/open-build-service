@@ -908,7 +908,8 @@ class BsRequestAction < ActiveRecord::Base
         # it is a remote project
         return
       end
-      raise UnknownPackage.new "Package #{self.source_project} #{self.source_package} not found"
+      # produce the same exception for webui
+      Package.get_by_project_and_name(self.source_project, self.source_package)
     end
     if sp.class == String
       # a remote package
