@@ -145,7 +145,6 @@ class BsRequestPermissionCheck
     end
 
     # full read access checks
-    @source_project = Project.get_by_name(action.source_project)
     @target_project = Project.get_by_name(action.target_project)
 
     # require a local source package
@@ -156,12 +155,10 @@ class BsRequestPermissionCheck
       case action.action_type
         when :change_devel
           err = "Local source package is missing for request #{action.bs_request.id} (type #{action.action_type})"
-        when :submit
-          # accept also a remote source package
-          unless @source_project.class == String or Package.exists_by_project_and_name(@source_project.name, action.source_package,
-                                                    follow_project_links: true, allow_remote_packages: true)
-            err = "Source package is missing for request #{action.bs_request.id} (type #{action.action_type})"
-          end
+        when :set_bugowner
+        when :add_role
+        else
+          action.source_access_check!
       end
       raise SourceMissing.new err if err
     end

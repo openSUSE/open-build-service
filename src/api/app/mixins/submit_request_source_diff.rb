@@ -22,19 +22,8 @@ module SubmitRequestSourceDiff
         return [action.source_package]
       else
         if action.source_package
-          sp = Package.get_by_project_and_name(action.source_project, action.source_package)
-          if sp.class == String
-            # a remote package
-            return [action.source_package]
-          end
-          if sp
-            sp.check_source_access!
-            return [sp.name]
-          end
-          if Project.exists_by_name(action.source_project)
-            # it is a remote project
-            return [action.source_package]
-          end
+          action.source_access_check!
+          return [action.source_package]
         else
           prj = Project.find_by_name(action.source_project)
           prj.packages.each do |p|

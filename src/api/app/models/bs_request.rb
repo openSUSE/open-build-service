@@ -376,8 +376,8 @@ class BsRequest < ActiveRecord::Base
     # all maintenance_incident actions go into the same incident project
     incident_project = nil  # .where(type: 'maintenance_incident')
     self.bs_request_actions.each do |action|
-      if action.source_project
-        sprj = Project.get_by_name action.source_project
+      sprj = Project.find_by_name action.source_project
+      if action.source_project and action.is_maintenance_release?
         if sprj.kind_of? Project
         at = AttribType.find_by_namespace_and_name!("OBS", "EmbargoDate")
         attrib = sprj.attribs.where(attrib_type_id: at.id).first
@@ -394,15 +394,13 @@ class BsRequest < ActiveRecord::Base
         end
       end
 
-      tprj = Project.get_by_name action.target_project
       next unless action.is_maintenance_incident?
 
       tprj = Project.get_by_name action.target_project
-
       # create a new incident if needed
       if tprj.is_maintenance?
         # create incident if it is a maintenance project
-        incident_project ||= create_new_maintenance_incident(tprj, nil, self).project
+        incident_project ||= create_new_maintenance_incident(tprj, nil, self, sprj.nil?).project
         opts[:check_for_patchinfo] = true
 
         unless incident_project.name.start_with?(tprj.name)

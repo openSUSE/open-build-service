@@ -332,23 +332,15 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'collection', :children => { count: 3 }
    
     # do the real mbranch for default maintained packages
+    # test it with "noaccess"
     login_tom
-    post '/source', :cmd => 'branch', :package => 'pack2', :noaccess => 1
-    assert_response :success
-    get '/source/home:tom:branches:OBS_Maintained:pack2/_meta'
-    assert_response :success
-    assert_xml_tag( :parent => { tag: 'access' }, :tag => 'disable', :content => nil )
-    delete '/source/home:tom:branches:OBS_Maintained:pack2'
-    assert_response :success
-    post '/source', :cmd => 'branch', :package => 'pack2'
+    post '/source', :cmd => 'branch', :package => 'pack2', :noaccess => "1"
     assert_response :success
 
     # validate result
-    get '/source/home:tom:branches:OBS_Maintained:pack2'
-    assert_response :success
     get '/source/home:tom:branches:OBS_Maintained:pack2/_meta'
     assert_response :success
-    assert_no_xml_tag( :parent => { tag: 'access' }, :tag => 'disable', :content => nil )
+    assert_xml_tag( :parent => { tag: 'access' }, :tag => 'disable', :content => nil )
     get '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject/_meta'
     assert_response :success
     get '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro_Update/_meta'
@@ -458,8 +450,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/home:tom:branches:OBS_Maintained:pack2/patchinfo/_meta'
     assert_response :success
     assert_xml_tag :parent => { tag: 'build' }, :tag => 'enable'
-    assert_xml_tag :parent => { tag: 'publish' }, :tag => 'enable'
     assert_xml_tag :parent => { tag: 'useforbuild' }, :tag => 'disable'
+    assert_no_xml_tag :parent => { tag: 'publish' } # due to noaccess
 
     # delete kdelibs package again or incident creation will fail since it does not point to a maintained project.
     delete '/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.kde4'
@@ -498,8 +490,18 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     oprojectmeta = ActiveXML::Node.new(@response.body)
     assert_response :success
 
-    # accept request
+    get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
+    assert_response :success
+    assert_xml_tag( :parent => { tag: 'access' }, :tag => 'disable', :content => nil )
+
+    # switch user, still diffable
     prepare_request_with_user 'maintenance_coord', 'power'
+    get "/source/home:tom:branches:OBS_Maintained:pack2/_meta"
+    assert_response 404 # due to noaccess
+    post "/request/#{id}?cmd=diff&view=xml", nil
+    assert_response :success
+
+    # accept request
     post "/request/#{id}?cmd=changestate&newstate=accepted"
     assert_response :success
 
@@ -517,6 +519,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/source/#{incidentProject}/_meta"
     assert_response :success
     assert_xml_tag( :parent => { tag: 'build' }, :tag => 'disable', :content => nil )
+    assert_xml_tag( :parent => { tag: 'access' }, :tag => 'disable', :content => nil )
     node = ActiveXML::Node.new(@response.body)
     # repository definition must be the same, except for the maintenance trigger
     node.each('repository') do |r|
@@ -545,7 +548,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/source/#{incidentProject}/patchinfo/_meta"
     assert_response :success
     assert_xml_tag( :tag => 'enable', :parent => { tag: 'build' } )
-    assert_xml_tag( :tag => 'enable', :parent => { tag: 'publish' } )
+    assert_no_xml_tag( tag: 'publish' ) # noaccess
 
     get "/source/#{incidentProject}/patchinfo?view=issues"
     assert_response :success

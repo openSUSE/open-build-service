@@ -444,7 +444,8 @@ class BsRequestAction < ActiveRecord::Base
   end
 
   def source_cleanup_delete_path
-    source_project = Project.find_by_name!(self.source_project)
+    source_project = Project.find_by_name(self.source_project)
+    return unless source_project
     if (source_project.packages.count == 1 and ::Configuration.first.cleanup_empty_projects) or !self.source_package
 
       # remove source project, if this is the only package and not a user's home project
@@ -886,6 +887,34 @@ class BsRequestAction < ActiveRecord::Base
     end
 
     return nil
+  end
+
+  def source_access_check!
+    sp = Package.find_by_project_and_name(self.source_project, self.source_package)
+    if sp.nil?
+      # either not there or read permission problem
+      if Package.exists_on_backend?(self.source_package, self.source_project)
+        # user is not allowed to read the source, but when he can write
+        # the target, the request creator (who must have permissions to read source)
+        # wanted the target owner to review it
+        tprj = Project.find_by_name(self.target_project)
+        if tprj.nil? or not User.current.can_modify_project? tprj
+          # produce an error for the source
+          Package.get_by_project_and_name(self.source_project, self.source_package)
+        end
+        return
+      end
+      if Project.exists_by_name(self.source_project)
+        # it is a remote project
+        return
+      end
+      raise UnknownPackage.new "Package #{self.source_project} #{self.source_package} not found"
+    end
+    if sp.class == String
+      # a remote package
+      return
+    end
+    sp.check_source_access!
   end
 
   def check_for_expand_errors!(add_revision)
