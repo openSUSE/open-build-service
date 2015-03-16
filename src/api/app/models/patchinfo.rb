@@ -196,7 +196,12 @@ class Patchinfo < ActiveXML::Node
   end
 
   def read_patchinfo_xmlhash(pkg)
-    Xmlhash.parse(pkg.source_file('_patchinfo'))
+    xml = Xmlhash.parse(pkg.source_file('_patchinfo'))
+    # patch old data to stay compatible
+    xml.elements('issue') do |i|
+      i['id'].gsub!(/^(CVE|cve)-/,'') if i['tracker'] == "cve"
+    end
+    xml
   end
 
   class IncompletePatchinfo < APIException;end
