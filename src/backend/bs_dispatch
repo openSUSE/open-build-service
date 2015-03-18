@@ -1231,7 +1231,19 @@ while (1) {
 	  last;
 	}
       }
-      my @idle = List::Util::shuffle(@{$idlearch{$info->{'hostarch'} || $arch} || []});
+
+      # Sort by lowest usage first to distribute load better than random
+      # Calculate free% of worker hosts by (idle*100 / (busy+idle))
+      my @busy = grep {!/^\./} ls("$workersdir/building");
+      my %idling;
+      for my $i (@idle) {
+        my $host = join(":", (split/:/, $i)[0..1]);
+        my $idlecount = grep {/^$host/} @idle;
+        my $workercount = $idlecount + scalar grep {/^$host/} @busy;
+        $idling{$host} = $idlecount * 100 / $workercount;
+      }
+
+      my @idle = sort { lowest_usage_first($a,$b,%idling) } @{$idlearch{$info->{'hostarch'} || $arch} || []};
       last unless @idle;
       my %poweridle;
       if ($powerjobs{$job}) {
@@ -1376,4 +1388,16 @@ while (1) {
     }
   }
   filechecks();
+}
+
+# a, b are "arch:hostname:instance"
+# Sorted by lowest usage, equals randomized
+sub lowest_usage_first {
+  my ($a, $b, %idling) = @_;
+  my $ahost = join(":", (split/:/, $a)[0..1]);
+  my $bhost = join(":", (split/:/, $b)[0..1]);
+  my $aidle = $idling{$ahost};
+  my $bidle = $idling{$bhost};
+  return ($bidle <=> $aidle) if ($aidle != $bidle);
+  return (-1, 0, 1)[rand(3)];
 }
