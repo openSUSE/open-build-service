@@ -226,7 +226,7 @@ case "$1" in
         chown obsrun:obsrun "$obsrundir"
         rm -rf "$workerdir"
         mkdir -p "$workerbootdir"
-#        echo "zombie on"       > $screenrc
+        echo "zombie on"       > $screenrc
         echo 'caption always "%3n %t%? [%h]%?"' >> $screenrc
 
         if [ 0"$OBS_WORKER_INSTANCES" -gt 0 ]; then
