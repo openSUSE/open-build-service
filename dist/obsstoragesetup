@@ -397,15 +397,17 @@ EOF
 				fi
 			fi
 			echo "OBS_WORKER_JOBS=\"$MYJOBS\"" >> /etc/buildhost.config
-			
-			# Memory which can be used
-			TOTALMEM=$(( `free | sed -n 's/^Mem:[ ]*\([^ ]*\).*/\1/p'` / 1024 ))
-			INSTANCEMEM=$(( $TOTALMEM / ( 2 * $OBS_WORKER_INSTANCES ) ))
-			echo "OBS_INSTANCE_MEMORY=\"$INSTANCEMEM\"" >> /etc/buildhost.config
+
+                        if [ -z "$OBS_INSTANCE_MEMORY" ]; then
+				# Guess how much memory can be used
+				TOTALMEM=$(( `free | sed -n 's/^Mem:[ ]*\([^ ]*\).*/\1/p'` / 1024 ))
+				INSTANCEMEM=$(( $TOTALMEM / ( 2 * $OBS_WORKER_INSTANCES ) ))
+				echo "OBS_INSTANCE_MEMORY=\"$INSTANCEMEM\"" >> /etc/buildhost.config
+                        fi
 			if grep ^flags /proc/cpuinfo | egrep -q " (svm|vmx) " && test -n "$RUN_VIRT"; then
                                 # try to use hugetlb on kvm
 				mkdir -p /dev/hugetlbfs # systemd may have mounted it already
-			        HUGETLBINSTANCEMEM=$(( ($INSTANCEMEM * 512) / 1024 )) # 2M page sizes
+			        HUGETLBINSTANCEMEM=$(( ($OBS_INSTANCE_MEMORY * 512) / 1024 )) # 2M page sizes
 			        HUGETLMEM=$(( $HUGETLBINSTANCEMEM * $OBS_WORKER_INSTANCES ))
                                 # register huge table memory pages
                                 echo "$HUGETLMEM" > /sys/devices/system/node/node0/hugepages/hugepages-2048kB/nr_hugepages
