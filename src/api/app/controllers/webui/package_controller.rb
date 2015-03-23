@@ -1009,12 +1009,12 @@ class Webui::PackageController < Webui::WebuiController
   private
 
   def file_available? url, max_redirects=5
-    uri = URI.parse( url )
-    http = Net::HTTP.new(uri.host, uri.port)
-    http.open_timeout = 15
-    http.read_timeout = 15
-    logger.debug "Checking url: #{url}"
     begin
+      logger.debug "Checking url: #{url}"
+      uri = URI.parse( url )
+      http = Net::HTTP.new(uri.host, uri.port)
+      http.open_timeout = 15
+      http.read_timeout = 15
       response =  http.head uri.path
       if response.code.to_i == 302 and response['location'] and max_redirects > 0
         return file_available? response['location'], (max_redirects - 1)
