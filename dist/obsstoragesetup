@@ -401,8 +401,8 @@ EOF
                         if [ -z "$OBS_INSTANCE_MEMORY" ]; then
 				# Guess how much memory can be used
 				TOTALMEM=$(( `free | sed -n 's/^Mem:[ ]*\([^ ]*\).*/\1/p'` / 1024 ))
-				INSTANCEMEM=$(( $TOTALMEM / ( 2 * $OBS_WORKER_INSTANCES ) ))
-				echo "OBS_INSTANCE_MEMORY=\"$INSTANCEMEM\"" >> /etc/buildhost.config
+				OBS_INSTANCE_MEMORY=$(( $TOTALMEM / ( 2 * $OBS_WORKER_INSTANCES ) ))
+				echo "OBS_INSTANCE_MEMORY=\"$OBS_INSTANCE_MEMORY\"" >> /etc/buildhost.config
                         fi
 			if grep ^flags /proc/cpuinfo | egrep -q " (svm|vmx) " && test -n "$RUN_VIRT"; then
                                 # try to use hugetlb on kvm
