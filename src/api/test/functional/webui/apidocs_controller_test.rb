@@ -5,7 +5,7 @@ class Webui::ApidocsControllerTest < Webui::IntegrationTest
   def test_index
     # test relative links
     visit apidocs_path
-    first('.request').find(:link, 'Example').click
+    page.first('a', :text => 'Example').click
     assert page.source =~ %r{<title>Open Build Service API</title>}
   end
 
