@@ -326,6 +326,7 @@ class SourceController < ApplicationController
 
   def verify_can_modify_target_package!
     unless User.current.can_modify_package?(@package)
+      raise CmdExecutionNoPermission.new "no permission to execute command '#{params[:cmd]}' for unspecified package" unless @package.class == Package
       raise CmdExecutionNoPermission.new "no permission to execute command '#{params[:cmd]}' for package #{@package.name} in project #{@package.project.name}"
     end
   end
