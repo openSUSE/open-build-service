@@ -24,6 +24,7 @@ package BSConfig;
 
 use Net::Domain;
 use Socket;
+use File::Basename qw(dirname);
 
 my $hostname = Net::Domain::hostfqdn() || 'localhost';
 # IP corresponding to hostname (only used for $ipaccess); fallback to localhost since inet_aton may fail to resolve at shutdown.
@@ -198,7 +199,7 @@ our $relsync_pool = {
 
 # host specific configs
 my $hostconfig = "bsconfig." . $hostname;
-if(-r $hostconfig) {
+if(-r join('/', dirname(__FILE__), $hostconfig)) {
   print "reading $hostconfig...\n";
   require $hostconfig;
 }
