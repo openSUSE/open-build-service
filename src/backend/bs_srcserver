@@ -4701,9 +4701,9 @@ sub getproductrepositories {
       $path->{'zypp'} = $repo->{'zypp'} if $repo->{'zypp'};
       $path->{'debug'} = undef if $repo->{'name'} =~ m/_debug$/;
       push @pr, $path;
-    };
+    }
     for my $repo (@{$product->{'register'}->{'pool'}->{'repository'}}) {
-      die("path AND url is set!") if defined ($repo->{'project'}) && defined($repo->{'url'});
+      die("getproductrepositories: path AND url is set!\n") if defined ($repo->{'project'}) && defined($repo->{'url'});
       my $path;
       if (defined($repo->{'url'})) {
         $path = { 'url' => $repo->{'url'} };
@@ -4715,11 +4715,11 @@ sub getproductrepositories {
       $path->{'zypp'} = $repo->{'zypp'} if $repo->{'zypp'};
       $path->{'debug'} = undef if $repo->{'medium'} =~ m/_debug$/;
       push @pr, $path;
-    };
-    my $prod = { "name" => $product->{'name'}, "repository" => \@pr };
-    $prod->{"distrotarget"} = $product->{'register'}->{'updates'}->{'distrotarget'} if $product->{'register'}->{'updates'}->{'distrotarget'};
-    push @{$p}, $prod;
-  };
+    }
+    my $prod = { 'name' => $product->{'name'}, 'repository' => \@pr };
+    $prod->{'distrotarget'} = $product->{'register'}->{'updates'}->{'distrotarget'} if $product->{'register'}->{'updates'}->{'distrotarget'};
+    push @$p, $prod;
+  }
 
   return $p;
 }
