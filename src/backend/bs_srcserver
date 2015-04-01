@@ -1852,7 +1852,7 @@ sub applylink {
 	  }
   	  waitpid($pid, 0) == $pid || die("waitpid $pid: $!\n");
 	  $pid = undef if $?;
-        };
+        }
 	if (!$pid) {
           # default diff3 merge tool. always using as fallback
 	  if (!($pid = xfork())) {
@@ -6936,7 +6936,7 @@ sub search_published_updatedb {
       if (!$repoinfodb) {
         $repoinfodb = BSDB::opendb($extrepodb, 'repoinfo');
         $repoinfodb->{'noindexatall'} = 1;
-      };
+      }
       $repoinfodb->store($k, $v);
     } else {
       die("bad data type: '$w'\n");
