@@ -148,7 +148,7 @@ GEM
     rake (10.3.2)
     rdoc (4.1.2)
       json (~> 1.4)
-    redcarpet (3.2.0)
+    redcarpet (3.2.3)
     riddle (1.5.11)
     ruby-ldap (0.9.16)
     ruby_parser (3.6.3)
