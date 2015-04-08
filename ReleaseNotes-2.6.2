@@ -1,0 +1,23 @@
+#
+# openSUSE Build Service 2.6.2
+#
+
+Updaters from any OBS 2.6 release can just ugrade the packages
+and restart all services. Updaters from former releases should
+read the README.UPDATERS file.
+
+Feature backports:
+==================
+
+* none
+
+Changes:
+========
+
+* dispatcher sends no armv7 jobs to aarch64 build hosts anymore
+
+Bugfixes:
+=========
+
+* webui: depends on rubygem-redcarpet 3.2.3, fixes possible XSS attack (boo#926328)
+
