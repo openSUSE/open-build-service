@@ -31,7 +31,8 @@ package BSCando;
 #FIXME 3.0: obsolete the not exiting arm architectures
 
 our %cando = (
-  'aarch64' => [ 'aarch64', 'armv8l' ], # armv8l is aarch32 (32-bit mode of aarch64), not a full subset of armv7l
+  'aarch64' => [ 'aarch64_ilp32', 'aarch64', 'armv8l' ], # armv8l is aarch32 (32-bit mode of aarch64), not a full subset of armv7l
+  'aarch64_ilp32' => [ 'aarch64_ilp32', 'aarch64', 'armv8l' ],
   'armv4l'  => [ 'armv4l'                                                                                                 ],
   'armv5l'  => [ 'armv4l', 'armv5l'                    , 'armv5el'                                                        ],
   'armv6l'  => [ 'armv4l', 'armv5l', 'armv6l'          , 'armv5el', 'armv6el'                                             ],

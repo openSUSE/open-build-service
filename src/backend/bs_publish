@@ -585,7 +585,8 @@ ARCH.ppc64le ppc64le noarch
 ARCH.ppc ppc noarch
 ARCH.sh4 sh4 noarch
 ARCH.m68k m68k noarch
-ARCH.aarch64 aarch64 noarch
+ARCH.aarch64 aarch64 aarch64_ilp32 noarch
+ARCH.aarch64_ilp32 aarch64_ilp32 noarch
 ARCH.armv4l arm       armv4l noarch
 ARCH.armv5l arm armel armv4l armv5l armv5tel noarch
 ARCH.armv6l arm armel armv4l armv5l armv5tel armv6l armv6vl armv6hl noarch
