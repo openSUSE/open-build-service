@@ -3412,6 +3412,14 @@ sub getprojpack {
 	      my @prereqs = grep {!$deps{$_} && !/^%/} @{$d->{'prereqs'}};
 	      $rinfo->{'prereq'} = \@prereqs if @prereqs;
 	    }
+            # add all source services to be used at build time
+	    if ($files->{'_service'}) {
+              my $services = repreadxml($rev, '_service', $files->{'_service'}, $BSXML::services, 1);
+              for my $service (@{$services->{'service'} || []}) {
+                next unless $service->{'mode'} && $service->{'mode'} eq "buildtime";
+                push @{$rinfo->{'dep'}}, "obs-service-$service->{'name'}";
+              }
+            }
 	    # KIWI Products need local arch added if we have it defined on this server
 	    if ($type eq 'kiwi' && ($d->{'imagetype'}[0] || '') eq 'product' && $d->{'exclarch'}) {
 	      $rinfo->{'imagearch'} = [ @{$d->{'exclarch'}} ];

@@ -3244,13 +3244,15 @@ sub getbuildinfo_post {
     # should we check if the cpio archive contains <= 2 files?
     $depfile = (grep { $_->{'name'} eq 'deps' } @$uploaded)[0];
     $depfile = "$dir/$depfile->{'name'}" if $depfile;
+    my $servicefile = (grep { $_->{'name'} eq '_service' } @$uploaded)[0];
+    $servicefile = "$dir/$servicefile->{'name'}" if $servicefile;
     my $bifile = (grep { $_->{'name'} eq 'buildenv' } @$uploaded)[0];
     $bifile = "$dir/$bifile->{'name'}" if $bifile;
     $fn = (grep { $_->{'name'} ne "deps" && $_->{'name'} ne 'buildenv'} @$uploaded)[0];
     die("no build recipe file found\n") unless $fn;
     my @r;
     eval {
-      @r = getbuildinfo_post({ %$cgi, '_fn' => "$dir/$fn->{'name'}", '_depfile' => $depfile, '_buildenvfile' => $bifile, '_buildtype' => Build::recipe2buildtype($fn->{'name'})}, $projid, $repoid, $arch, $packid);
+      @r = getbuildinfo_post({ %$cgi, '_fn' => "$dir/$fn->{'name'}", '_depfile' => $depfile, '_buildenvfile' => $bifile, '_servicefile' => $servicefile, '_buildtype' => Build::recipe2buildtype($fn->{'name'})}, $projid, $repoid, $arch, $packid);
     };
     unlink("$dir/$_") for ls($dir);
     rmdir($dir) if -d $dir;
@@ -3286,6 +3288,13 @@ sub getbuildinfo_post {
   }
   my $pdata = {'buildtype' => $bconf->{'type'}, 'info' => [ $info ]};
   $pdata->{'buildenv'} = readxml($cgi->{'_buildenvfile'}, $BSXML::buildinfo) if $cgi->{'_buildenvfile'};
+  if ($cgi->{'_servicefile'}) {
+    my $services = readxml($cgi->{'_servicefile'}, $BSXML::services);
+    for my $service (@{$services->{'service'} || []}) {
+       next unless $service->{'mode'} && $service->{'mode'} eq "buildtime";
+       push @{$info->{'dep'}}, "obs-service-$service->{'name'}";
+     }
+  }
   $pdata->{'ldepfile'} = $depfile if defined $depfile;
   return getbuildinfo($cgi, $projid, $repoid, $arch, $packid, $pdata);
 }

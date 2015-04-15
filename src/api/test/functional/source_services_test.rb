@@ -3,6 +3,11 @@ require 'source_controller'
 
 class SourceServicesTest < ActionDispatch::IntegrationTest 
   fixtures :all
+
+  def setup
+    super
+    wait_for_scheduler_start
+  end
   
   def test_get_servicelist
     get '/service'
@@ -84,7 +89,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     login_tom
     raw_put '/source/home:tom/service/_meta', "<package project='home:tom' name='service'> <title /> <description /> </package>"
     assert_response :success
-    raw_put '/source/home:tom/service/pack.spec', "# Comment \nVersion: 12\nRelease: 9\nSummary: asd"
+    raw_put '/source/home:tom/service/pack.spec', "# Comment \nName: pack\nVersion: 12\nRelease: 9\nSummary: asd"
     assert_response :success
 
     raw_put '/source/home:tom/service/_service', '<services> <service name="not_existing" /> </services>'
@@ -239,6 +244,36 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response 404
     post '/source/BaseDistro2.0/pack2?cmd=runservice'
     assert_response 404
+  end
+
+  def test_buildtime_service
+    login_Iggy
+    raw_put '/source/home:Iggy/service/_meta', "<package project='home:Iggy' name='service'> <title /> <description /> <build><enable/></build></package>"
+    assert_response :success
+    raw_put '/source/home:Iggy/service/pack.spec', "# Comment \nName: pack\nVersion: 12\nRelease: 9\nSummary: asd"
+    assert_response :success
+
+    wait_for_service( 'home:Iggy', 'service')
+    put '/source/home:Iggy/service/_service', '<services> <service name="set_version" mode="buildtime"> <param name="version">0817</param> <param name="file">pack.spec</param> </service> </services>'
+    assert_response :success
+    wait_for_service( 'home:Iggy', 'service')
+    run_scheduler('i586')
+    get '/build/home:Iggy/_result'
+    assert_response :success
+    assert_xml_tag :tag => "details", :content => "nothing provides obs-service-set_version"
+
+    # osc local package build call
+    get "/build/home:Iggy/10.2/i586/service/_buildinfo"
+    assert_response :success
+    assert_xml_tag :tag => "error", :content => "unresolvable: nothing provides obs-service-set_version"
+    # osc local package build call sending own spec and _service file
+    cpio=IO.popen("cd #{Rails.root}/test/fixtures/backend/source/buildtime_service_source/; exec ls -1 | cpio -H newc -o 2>/dev/null")
+    raw_post "/build/home:Iggy/10.2/i586/service/_buildinfo", cpio.sysread(1024*1024)
+    assert_response :success
+    assert_xml_tag :tag => "error", :content => "unresolvable: nothing provides obs-service-recompresserator"
+
+    delete '/source/home:Iggy/service'
+    assert_response :success
   end
 
   def test_source_commit_with_service
