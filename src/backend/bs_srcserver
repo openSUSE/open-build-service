@@ -612,7 +612,7 @@ sub triggerservicerun {
     runservice($cgi, $rev, $files);
   } else {
     my $servicemark = genservicemark($projid, $packid, $files);
-    if ($servicemark || $linkinfo->{'xservicemd5'}) {
+    if ($servicemark || $linkinfo->{'xservicemd5'} || $packid eq '_product') {
       # have to do a new commit...
       $cgi->{'comment'} ||= 'trigger service run';
       $cgi->{'servicemark'} = $servicemark;
