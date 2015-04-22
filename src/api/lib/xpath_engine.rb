@@ -79,8 +79,8 @@ class XpathEngine
           ['LEFT JOIN relationships rpr ON packages.id = rpr.package_id',
            'LEFT JOIN roles AS ppr ON rpr.role_id = ppr.id']},
         'group/@groupid' => {:cpart => 'groups.title', :joins =>
-          ['LEFT JOIN relationships AS ppr ON packages.id = ppr.package_id',
-           'LEFT JOIN groups ON groups.id = ppr.group_id']},
+          ['LEFT JOIN relationships AS pgr ON packages.id = pgr.package_id',
+           'LEFT JOIN groups ON groups.id = pgr.group_id']},
         'group/@role' => {:cpart => 'gpr.title', :joins =>
           ['LEFT JOIN relationships ON packages.id = relationships.package_id',
            'LEFT JOIN roles AS gpr ON relationships.role_id = gpr.id']},
@@ -116,8 +116,8 @@ class XpathEngine
           ['LEFT JOIN relationships gprs ON projects.id = gprs.project_id',
            'LEFT JOIN groups ON groups.id = gprs.group_id']},
         'group/@role' => {:cpart => 'gpr.title', :joins =>
-          ['LEFT JOIN relationships AS gprs ON projects.id = gprs.project_id',
-           'LEFT JOIN roles AS gpr ON gprs.role_id = gpr.id']},
+          ['LEFT JOIN relationships AS gprrs ON projects.id = gprrs.project_id',
+           'LEFT JOIN roles AS gpr ON gprrs.role_id = gpr.id']},
         'repository/@name' => {:cpart => 'repositories.name'},
         'repository/path/@project' => {:cpart => 'childs.name', :joins => [
           'join repositories r on r.db_project_id=projects.id',
