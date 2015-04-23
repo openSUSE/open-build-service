@@ -59,8 +59,9 @@ case "$1" in
         run_in_api script/delayed_job.api.rb --queue=quick start -n $NUM
         run_in_api script/delayed_job.api.rb --queue=releasetracking start -i 1000
         run_in_api script/delayed_job.api.rb --queue=issuetracking start -i 1010
+        run_in_api script/delayed_job.api.rb --queue=mailers start -i 1020
         # to be removed later. This is just for processing old jobs without default queue
-        run_in_api script/delayed_job.api.rb start -i 1020
+        run_in_api script/delayed_job.api.rb start -i 1030
 	rc_status -v
 	echo -n "Starting OBS api clock daemon "
         run_in_api $CLOCKWORKD --log-dir=log -l -c config/clock.rb start
