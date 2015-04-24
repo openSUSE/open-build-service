@@ -191,6 +191,7 @@ sub kill_job {
   } else {
     push @args, '--root', $buildroot;
     push @args, '--vm-type', 'lxc' if $vm =~ /lxc/;
+    push @args, '--vm-type', 'docker' if $vm =~ /docker/;
   }
   if (system("$statedir/build/build", @args, "--kill")) {
     return 0;
@@ -224,6 +225,8 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
        --xen       : enable xen
 
        --lxc       : enable lxc
+
+       --docker    : enable docker
 
        --emulator  : enable emulator (requires prepared emulator.sh script)
        
@@ -378,7 +381,7 @@ while (@ARGV) {
     $testmode = 1;
     next;
   }
-  if ($ARGV[0] =~ /^--(kvm|xen|lxc|emulator|zvm)$/) {
+  if ($ARGV[0] =~ /^--(kvm|xen|lxc|emulator|zvm|docker)$/) {
     $vm = "--$1";
     shift @ARGV;
     next;
@@ -631,6 +634,7 @@ my $workerenvstate = {};
   $workerenvstate->{'sandbox'} = 'emulator' if $vm =~ /emulator/;
   $workerenvstate->{'sandbox'} = 'lxc' if $vm =~ /lxc/;
   $workerenvstate->{'sandbox'} = 'zvm' if $vm =~ /zvm/;
+  $workerenvstate->{'sandbox'} = 'docker' if $vm =~ /docker/;
   # build host owner
   $workerenvstate->{'owner'} = $owner if $owner;
   # linux kernel
@@ -2444,6 +2448,7 @@ sub dobuild {
   } else {
     push @args, '--root', $buildroot;
     push @args, '--vm-type', 'lxc' if $vm =~ /lxc/;
+    push @args, '--vm-type', 'docker' if $vm =~ /docker/;
   }
   push @args, '--clean';
   push @args, '--changelog';
