@@ -965,7 +965,7 @@ class Project < ActiveRecord::Base
       end
     end
 
-    return projects
+    projects
   end
 
   def expand_maintained_projects
@@ -977,7 +977,7 @@ class Project < ActiveRecord::Base
       end
     end
 
-    return projects
+    projects
   end
 
 
@@ -1000,7 +1000,7 @@ class Project < ActiveRecord::Base
       end
     end
 
-    return packages
+    packages
   end
 
   # return array of [:name, :package_id] tuples for all products
@@ -1023,7 +1023,7 @@ class Project < ActiveRecord::Base
       end
     end
 
-    return products
+    products
   end
 
   # this is needed to displaying package and project names
@@ -1066,7 +1066,7 @@ class Project < ActiveRecord::Base
     return false unless mytype
     self.type_id = mytype.id
     self.save!
-    return true
+    true
   end
 
   def add_repository_with_targets(repoName, source_repo, add_target_repos = [])
@@ -1155,14 +1155,14 @@ class Project < ActiveRecord::Base
     # Includes also requests for packages contained in this project
     rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
     rel = rel.where('bs_request_actions.source_project = ? or bs_request_actions.target_project = ?', self.name, self.name)
-    return BsRequest.where(id: rel.pluck('bs_requests.id'))
+    BsRequest.where(id: rel.pluck('bs_requests.id'))
   end
 
   def open_requests_with_by_project_review
     # Includes also by_package reviews for packages contained in this project
     rel = BsRequest.where(state: [:new, :review])
     rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? ", self.name)
-    return BsRequest.where(id: rel.pluck('bs_requests.id'))
+    BsRequest.where(id: rel.pluck('bs_requests.id'))
   end
 
   # list only the repositories that have a target project in the build path
@@ -1268,10 +1268,14 @@ class Project < ActiveRecord::Base
     return false unless name.kind_of? String
     # this length check is duplicated but useful for other uses for this function
     return false if name.length > 200 || name.blank?
-    return false if name =~ %r{^[_\.]} 
-    return false if name =~ %r{::}
-    return true if name =~ /\A\w[-+\w\.:]*\z/
-    return false
+    case name
+    when /^[_\.]/,/::/ # it doesnt start with _ or it has ::
+	false
+    when /\A\w[-+\w\.:]*\z/ # all strings 
+	true
+    else
+        false
+    end
   end
 
   def valid_name
@@ -1431,7 +1435,7 @@ class Project < ActiveRecord::Base
         return false if %w(broken failed unresolvable).include?(state)
       end
     end
-    return true
+    true
   end
 
   def find_incident_issues

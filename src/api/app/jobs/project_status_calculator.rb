@@ -97,12 +97,10 @@ class PackInfo
   end
 
   def fails
-    ret = Array.new
-    @failed.each do |repo, tuple|
+    @failed.map do |repo, tuple|
       # repo, arch, time, md5
-      ret << [repo, tuple[1], tuple[0], tuple[2]]
+      [repo, tuple[1], tuple[0], tuple[2]]
     end
-    return ret
   end
 
 end
@@ -133,22 +131,27 @@ class ProjectStatusCalculator
 
     ret = []
     d = Suse::Backend.get(uri).body
-    unless d.blank?
-      data = Xmlhash.parse(d)
 
-      data.elements('jobhist') do |p|
+    return [] if d.blank?
+
+    data = Xmlhash.parse(d)
+
+    data.elements('jobhist') do |p|
         line = {'name' => p['package'],
                 'code' => p['code'],
                 'versrel' => p['versrel'],
                 'verifymd5' => p['verifymd5']}
 
-        begin
-          line['readytime'] = Integer(p['readytime'])
-        rescue
-          line['readytime'] = 0
+        if p.has_key?('readytime')
+            if p['readytime'].respond_to?(:to_i)
+                line['readytime'] = p['readytime'].to_i 
+            else
+                line['readytime'] = 0
+            end
+        else
+            line['readytime'] = 0
         end
         ret << line
-      end
     end
     ret
   end
@@ -209,16 +212,16 @@ class ProjectStatusCalculator
 
     check_md5(mypackages.values)
 
-    links = Array.new
+    links = []
     # find links
-    mypackages.values.each do |package|
+    mypackages.each_value do |package|
       if package.project == @dbproj.name and package.links_to_id
         links << package.links_to_id
       end
     end
     links = Package.where(id: links).includes(:project).to_a
 
-    tocheck = Array.new
+    tocheck = []
     links.each do |pack|
       pack = PackInfo.new(pack)
       next if mypackages.has_key? pack.key
@@ -228,7 +231,7 @@ class ProjectStatusCalculator
     check_md5(tocheck)
 
     list = Project.joins(:packages).where(packages: {id: mypackages.keys}).pluck("projects.id as pid, projects.name, packages.id")
-    projects = Hash.new
+    projects = {}
     list.each do |pid, pname, id|
       obj = mypackages[id]
       obj.project = pname
@@ -245,7 +248,7 @@ class ProjectStatusCalculator
     end
 
     # cleanup
-    mypackages.keys.each do |key|
+    mypackages.each_key do |key|
       mypackages.delete(key) if mypackages[key].project != @dbproj.name
     end
 
