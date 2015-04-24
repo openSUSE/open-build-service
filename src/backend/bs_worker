@@ -2665,8 +2665,8 @@ sub dobuild {
       push @args, '--emulator-script', $emulator_script if $emulator_script;
     } else {
       push @args, $vm, "$vm_root";
-      push @args, '--swap', "$vm_swap";
     }
+    push @args, '--swap', "$vm_swap";
     push @args, '--statistics';
     push @args, '--vm-watchdog';
     my $vmmemory = readstr("$buildroot/memory", 1);
