@@ -252,7 +252,9 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_response :success
     delete "/source/home:tom:temporary/_product"
     assert_response :success
-    get "/source/home:tom:temporary/_product:SUSE_SLES-release"
+    get "/source/home:tom:temporary/_product:SUSE_SLES-release/_meta" # api
+    assert_response 404
+    get "/source/home:tom:temporary/_product:SUSE_SLES-release"       # source server
     assert_response 404
 
     #cleanup

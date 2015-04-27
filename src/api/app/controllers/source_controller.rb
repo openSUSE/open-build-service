@@ -285,7 +285,7 @@ class SourceController < ApplicationController
     Package.transaction do
    
       project = nil
-      project = tpkg.project if tpkg == "_product"
+      project = tpkg.project if tpkg and tpkg.name == "_product"
 
       # we need to keep this order to delete first the api model
       tpkg.revoke_requests
