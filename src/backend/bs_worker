@@ -1314,6 +1314,9 @@ sub getbinaries_kiwiproduct {
   }
   die("getbinaries_kiwiproduct: missing packages: @kdeps\n") if @kdeps;
 
+  # all done for followup builds
+  return () if $buildinfo->{'followupfile'};
+
   # now fetch all packages that go into the repos subdir
   my %meta;
   my $linklocal = $localkiwi && -d "$localkiwi/build" ? 1 : 0;
@@ -2476,9 +2479,10 @@ sub dobuild {
   my $arch = $buildinfo->{'arch'};
   my $helperarch = $buildinfo->{'hostarch'} || $arch;
   my $kiwimode;
+  $kiwimode = 'image' if $buildinfo->{'file'} =~ /\.kiwi$/;
+  $kiwimode = 'product' if $kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product';
   my $kiwiorigins = {};
   my $stats = {};
-  $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
   my $deltamode;
   $deltamode = 1 if $buildinfo->{'file'} eq '_delta';
   my $followupmode = $buildinfo->{'followupfile'};
@@ -2549,9 +2553,18 @@ sub dobuild {
     readbuildenv($buildinfo, $srcdir);
     unlink("$srcdir/_buildenv.$buildinfo->{'repository'}.$buildinfo->{'arch'}");
     print "packages, ";
-    getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
+    if (($kiwimode || '') eq 'product') {
+      getbinaries_kiwiproduct($buildinfo, $pkgdir, $srcdir, {});
+      $kiwiorigins->{$_} = readstr("$srcdir/$_") for grep {$_ eq '_channel' || /\.report$/} ls($srcdir);
+    } else {
+      getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
+    }
     undef $oldpkgdir;
     $buildinfo->{'file'} = $followupmode;
+    # recalc kiwimode as we changed the file
+    undef $kiwimode;
+    $kiwimode = 'image' if $buildinfo->{'file'} =~ /\.kiwi$/;
+    $kiwimode = 'product' if $kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product';
     @meta = split("\n", readstr("$srcdir/meta"));
   } else {
     my $needsslcert;
@@ -2576,7 +2589,7 @@ sub dobuild {
     getsslcert($buildinfo, $srcdir) if $needsslcert;
     readbuildenv($buildinfo, $srcdir);
     print "packages, ";
-    if ($kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product') {
+    if (($kiwimode || '') eq 'product') {
       push @meta, getbinaries_kiwiproduct($buildinfo, $pkgdir, $srcdir, $kiwiorigins);
     } else {
       push @meta, getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
@@ -2651,7 +2664,7 @@ sub dobuild {
   print "building...\n";
 
   die("$buildinfo->{'error'}\n") if $buildinfo->{'error'};
-  if ($buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product') {
+  if (($kiwimode || '') eq 'product') {
     patchproductkiwi($buildinfo, "$srcdir/$buildinfo->{'file'}", \@meta);
   }
 
@@ -2705,9 +2718,9 @@ sub dobuild {
   push @args, '--reason', "Building $packid for project '$projid' repository '$repoid' arch '$arch' srcmd5 '$buildinfo->{'srcmd5'}'";
   push @args, '--disturl', $disturl;
   push @args, '--linksources' if $localkiwi;
-  push @args, '--signdummy' if $kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product' && -e "$statedir/build/signdummy";
+  push @args, '--signdummy' if ($kiwimode || '') eq 'product' && -e "$statedir/build/signdummy";
   push @args, "$srcdir/$buildinfo->{'file'}";
-  if ($buildinfo->{'file'} =~ /\.kiwi$/ && $buildinfo->{'imagetype'}->[0] ne 'product') {
+  if ($kiwimode && $kiwimode ne 'product') {
     # expand obsrepositories:/ directive for appliances
     my $kiwi = Build::parse(undef, "$srcdir/$buildinfo->{'file'}") || {};
     if (grep {$_->{'project'} eq '_obsrepositories'} @{$kiwi->{'path'} || []}) {
@@ -2816,8 +2829,11 @@ sub dobuild {
 
   # as a special service we also create a channel file from
   # the report files
-  if ($kiwimode && $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product') {
+  if (($kiwimode || '') eq 'product' && !$followupmode) {
     createchannel("$buildroot/.build.packages/OTHER", $kiwiorigins);
+  }
+  if ($followupmode && %$kiwiorigins) {
+    writestr("$buildroot/.build.packages/OTHER/$_", undef, $kiwiorigins->{$_}) for keys %$kiwiorigins;
   }
   return 0;
 }
