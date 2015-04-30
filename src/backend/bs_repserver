@@ -3248,7 +3248,7 @@ sub getbuildinfo_post {
     $servicefile = "$dir/$servicefile->{'name'}" if $servicefile;
     my $bifile = (grep { $_->{'name'} eq 'buildenv' } @$uploaded)[0];
     $bifile = "$dir/$bifile->{'name'}" if $bifile;
-    $fn = (grep { $_->{'name'} ne "deps" && $_->{'name'} ne 'buildenv'} @$uploaded)[0];
+    $fn = (grep { $_->{'name'} ne "deps" && $_->{'name'} ne 'buildenv' && $_->{'name'} ne '_service'} @$uploaded)[0];
     die("no build recipe file found\n") unless $fn;
     my @r;
     eval {
