@@ -394,7 +394,7 @@ class Project < ActiveRecord::Base
       rescue Package::DeleteError => e
         e.packages.each do |p|
           if p.project != self
-            raise DeleteError.new "Package #{self.name}/{pkg.name} can not be deleted as it's devel package of #{p.project.name}/#{p.name}"
+            raise DeleteError.new "Package #{self.name}/#{pkg.name} can not be deleted as it's the devel package of #{p.project.name}/#{p.name}"
           end
         end
       end
