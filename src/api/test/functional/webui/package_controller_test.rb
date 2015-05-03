@@ -91,7 +91,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     use_js
     login_Iggy
     visit root_path + '/package/show/home:Iggy/TestPack'
-    fill_comment "Write some http://link.com\n\nand some other\n\n* Markdown\n* markup\n\nReferencing sr#23, bco#24, fate#25, @_nobody_, @a-dashed-user and @Iggy."
+    fill_comment "Write some http://link.com\n\nand some other\n\n* Markdown\n* markup\n\nReferencing sr#23, bco#24, fate#25, @_nobody_, @a-dashed-user and @Iggy. https://anotherlink.com"
     within('div.comment_0') do
       page.must_have_link "http://link.com"
       page.must_have_xpath '//ul//li[text()="Markdown"]'
@@ -102,6 +102,8 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
       page.must_have_xpath '//a[contains(@href, "user/show/_nobody_") and text()="@_nobody_"]'
       page.must_have_xpath '//a[contains(@href, "user/show/a-dashed-user") and text()="@a-dashed-user"]'
       page.must_have_xpath '//a[contains(@href, "user/show/Iggy") and text()="@Iggy"]'
+      page.must_have_xpath '//a[@href="http://link.com"]'
+      page.must_have_xpath '//a[@href="https://anotherlink.com"]'
     end
   end
 
