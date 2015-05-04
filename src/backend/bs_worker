@@ -3351,7 +3351,8 @@ if ($ex == 0) {
   my @d;
   push @d, map {"RPMS/$_"} sort(ls("$buildroot/.build.packages/RPMS"));
   push @d, 'SRPMS';
-  @d = ('DEBS') if $buildinfo->{'file'} =~ /\.dsc$/;
+  push @d, 'DEBS' if -d "$buildroot/.build.packages/DEBS";
+  push @d, 'SDEBS' if -d "$buildroot/.build.packages/SDEBS";
   @d = ('ARCHPKGS') if $buildinfo->{'file'} =~ /PKGBUILD$/;
   @d = ('KIWI') if $buildinfo->{'file'} =~ /\.kiwi$/;
   push @d, 'OTHER';
