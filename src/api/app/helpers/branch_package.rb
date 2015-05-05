@@ -237,10 +237,12 @@ class BranchPackage
       @packages.each do |p|
         if p[:package].is_a? Package
           builder.package(:project => p[:link_target_project].name, :package => p[:package].name) do
+            builder.devel(:project => p[:copy_from_devel].project.name, :package => p[:copy_from_devel].name) if p[:copy_from_devel]
             builder.target(:project => @target_project, :package => p[:target_package])
           end
         else
           builder.package(:project => p[:link_target_project], :package => p[:package]) do
+            builder.devel(:project => p[:copy_from_devel].project.name, :package => p[:copy_from_devel].name) if p[:copy_from_devel]
             builder.target(:project => @target_project, :package => p[:target_package])
           end
         end
