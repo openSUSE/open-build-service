@@ -2560,6 +2560,7 @@ sub dobuild {
       getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
     }
     undef $oldpkgdir;
+    $buildinfo->{'rootforbuild'} = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
     $buildinfo->{'file'} = $followupmode;
     # recalc kiwimode as we changed the file
     undef $kiwimode;
@@ -2704,7 +2705,7 @@ sub dobuild {
   push @args, '--clean';
   push @args, '--changelog';
   push @args, '--oldpackages', $oldpkgdir if $oldpkgdir && -d $oldpkgdir;
-  push @args, '--norootforbuild' unless $BSConfig::norootexceptions && grep {"$projid/$packid" =~ /^$_$/} keys %$BSConfig::norootexceptions;
+  push @args, '--norootforbuild' unless $buildinfo->{'rootforbuild'} || ($BSConfig::norootexceptions && grep {"$projid/$packid" =~ /^$_$/} keys %$BSConfig::norootexceptions);
   push @args, '--baselibs-internal';
   push @args, '--lint';
   push @args, '--dist', "$buildroot/.build.config";
