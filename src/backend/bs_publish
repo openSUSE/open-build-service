@@ -494,11 +494,14 @@ sub createrepo_rpmmd {
     print FILE "name=$title\n";
     print FILE "type=rpm-md\n";
     print FILE "baseurl=$BSConfig::repodownload/$prp_ext/\n";
-    print FILE "gpgcheck=1\n";
-    if (!@{$data->{'signargs'} || []}) {
-      print FILE "gpgkey=$BSConfig::gpg_standard_key\n" if defined $BSConfig::gpg_standard_key;
-    } else {
-      print FILE "gpgkey=$BSConfig::repodownload/$prp_ext/repodata/repomd.xml.key\n";
+    if ($BSConfig::sign) {
+      print FILE "gpgcheck=1\n";
+      if (-e "$extrep/repodata/repomd.xml.key") {
+        print FILE "gpgkey=$BSConfig::repodownload/$prp_ext/repodata/repomd.xml.key\n";
+      } else {
+        die("neither a project key is available nor gpg_standard_key is set\n") unless defined($BSConfig::gpg_standard_key);
+        print FILE "gpgkey=$BSConfig::gpg_standard_key\n";
+      }
     }
     print FILE "enabled=1\n";
     close(FILE) || die("close: $!\n");
