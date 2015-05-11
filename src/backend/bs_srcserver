@@ -126,6 +126,7 @@ sub notify {
     }
   }
   my @n = map {"$_=$p->{$_}"} grep {defined($p->{$_}) && !ref($p->{$_})} sort keys %{$p || {}};
+  mkdir_p($eventdir);
   BSFileDB::fdb_add_i("$eventdir/lastnotifications", $notificationlay, {'type' => $type, 'time' => $time, 'data' => \@n});
 }
 
