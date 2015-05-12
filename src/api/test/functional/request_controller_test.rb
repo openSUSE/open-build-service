@@ -2247,7 +2247,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
               <source project='home:tom:branches:BaseDistro2.0:LinkedUpdateProject' package='pack2' />
               <target project='DummY' package='pack2' />
               <options>
-                <sourceupdate>cleanup</sourceupdate>
                 <updatelink>true</updatelink>
               </options>
             </action>
@@ -2287,12 +2286,50 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(:parent => { tag: 'file', attributes: { state: 'changed' } }, :tag => 'new', :attributes => { name: 'NEW_FILE' })
 
+    # create request
+    req = "<request>
+            <action type='submit'>
+              <source project='home:tom:branches:BaseDistro2.0:LinkedUpdateProject' package='pack2' />
+              <target project='DummY' package='pack2.NEW' />
+              <options>
+                <sourceupdate>cleanup</sourceupdate>
+                <updatelink>true</updatelink>
+              </options>
+            </action>
+            <description>SUBMIT</description>
+            <state who='Iggy' name='new'/>
+          </request>"
+    post '/request?cmd=create', req
+    assert_response :success
+    assert_xml_tag(:tag => 'request')
+    node = Xmlhash.parse(@response.body)
+    id = node['id']
+    assert id.present?
+
+    # ensure that the diff shows the link change
+    post "/request/#{id}?cmd=diff&view=xml", nil
+    assert_response :success
+    assert_xml_tag(:parent => { tag: 'file', attributes: { state: 'added' } }, :tag => 'new', :attributes => { name: '_link' })
+
+    # accept the request
+    login_king
+    post "/request/#{id}?cmd=changestate&newstate=accepted&force=1"
+    assert_response :success
+
+    # the link got transfered
+    get '/source/DummY/pack2.NEW/_link'
+    assert_response :success
+    assert_xml_tag(:tag => 'link', :attributes => { project: 'BaseDistro2.0:LinkedUpdateProject', package: nil })
+
     ###
     # create delete request two times
     login_tom
     req = "<request>
             <action type='delete'>
               <target project='DummY' package='pack2'/>
+            </action>
+            <action type='delete'>
+              <target project='DummY' package='pack2.NEW'/>
             </action>
             <description>DELETE REQUEST</description>
             <state who='tom' name='new'/>
