@@ -2299,7 +2299,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
             <description>SUBMIT</description>
             <state who='Iggy' name='new'/>
           </request>"
-    post '/request?cmd=create', req
+    post '/request?cmd=create&addrevision=1', req
     assert_response :success
     assert_xml_tag(:tag => 'request')
     node = Xmlhash.parse(@response.body)

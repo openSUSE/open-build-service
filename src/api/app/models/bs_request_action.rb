@@ -924,7 +924,8 @@ class BsRequestAction < ActiveRecord::Base
 
     # validate that the sources are not broken
     begin
-      query = { expand: 1 }
+      query = {}
+      query[:expand] = "1" unless self.updatelink
       query[:rev] = self.source_rev if self.source_rev
       # FIXM2.4 we have a Directory model
       url = Package.source_path(self.source_project, self.source_package, nil, query)
