@@ -5133,7 +5133,7 @@ sub checkkiwiproduct {
 	};
 	sendevent($ev, $arch, "unblocked::${projid}::${repoid}");
       }
-      @apackids = unify(@apackids, sort keys %{$gbininfo || {}});
+      @apackids = unify(@apackids, sort keys %$gbininfo) if $gbininfo;
 
       for my $apackid (@apackids) {
         if (($allpacks && !$deps{"-$apackid"} && !$deps{'-'.($known{$apackid} || '')}) || $deps{$apackid} || $deps{$known{$apackid} || ''}) {
