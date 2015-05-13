@@ -5120,7 +5120,6 @@ sub checkkiwiproduct {
 	  return ('delayed', $error) if defined $gbininfo;
 	  return ('broken', $error);
 	}
-	@apackids = unify(@apackids, sort keys %$gbininfo);
       } else {
         $gbininfo = read_gbininfo("$reporoot/$aprp/$arch", $arch eq $myarch ? 0 : 1);
       }
@@ -5134,6 +5133,7 @@ sub checkkiwiproduct {
 	};
 	sendevent($ev, $arch, "unblocked::${projid}::${repoid}");
       }
+      @apackids = unify(@apackids, sort keys %{$gbininfo || {}});
 
       for my $apackid (@apackids) {
         if (($allpacks && !$deps{"-$apackid"} && !$deps{'-'.($known{$apackid} || '')}) || $deps{$apackid} || $deps{$known{$apackid} || ''}) {
