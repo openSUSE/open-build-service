@@ -2285,7 +2285,7 @@ sub fctx_integrate_package_into_full {
       my $nr = $newfull{$n};
       next unless $nr;
       next if $or && $or == $nr;
-      if ($nr->{'packid'} ne $packid) {
+      if ($nr->{'packid'} ne ($packid || '')) {
 	my $meta = findmeta($gdst, $nr->{'packid'}, $nr);
         fctx_add_binary_to_full($fctx, $nr->{'filename'}, $nr, $nr->{'packid'}, $meta);
       } else {
