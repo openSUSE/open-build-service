@@ -250,6 +250,7 @@ sub writesolv {
 
 my $projpacks;		# global project/package data
 my %prpcheckuseforbuild;	# project/package meta has changed
+my %channeldata;	# global channel data unificator to save memory
 
 #  'lastscan'   last time we scanned
 #  'meta'       meta cache
@@ -3223,6 +3224,13 @@ sub update_projpacks {
       delete $projpacks->{$projid}->{'package'}->{$packid};
     }
   }
+  # incorporate new channel data
+  for my $cd (@{$projpacksin->{'channeldata'} || []}) {
+    my ($md5, $channel) = ($cd->{'md5'}, $cd->{'channel'});
+    next if $channeldata{$md5};
+    $channel->{'_md5'} = $md5;
+    $channeldata{$md5} = $channel;
+  }
   for my $proj (@{$projpacksin->{'project'} || []}) {
     if ($packids && @$packids) {
       die("bad projpack answer\n") unless $proj->{'name'} eq $projid;
@@ -3248,6 +3256,14 @@ sub update_projpacks {
     for my $pack (@{$proj->{'package'} || []}) {
       $packages->{$pack->{'name'}} = $pack;
       delete $pack->{'name'};
+      my $channelmd5 = delete($pack->{'channelmd5'});
+      if ($channelmd5) {
+	if ($channeldata{$channelmd5}) {
+	  $pack->{'channel'} = $channeldata{$channelmd5};
+	} else {
+	  $pack->{'error'} = 'missing channeldata in projpack';
+	}
+      }
     }
     if (%$packages) {
       $proj->{'package'} = $packages;
@@ -3663,6 +3679,8 @@ sub expandprojlink {
 # find all prps we have to schedule, expand search path for every prp,
 # set up inter-prp dependency graph, sort prps using this graph.
 #
+# also gets rid of no longer used channeldata
+#
 # input:  $projpacks     (global)
 # output: @prps          (global)
 #         %prpsearchpath (global)
@@ -3677,6 +3695,7 @@ sub calc_prps {
   %prpsearchpath = ();
   %prpdeps = ();
   %prpnoleaf = ();
+  my %newchanneldata;
   for my $projid (sort keys %$projpacks) {
     my $repos = $projpacks->{$projid}->{'repository'} || [];
     my @myrepos;	# repos which include my arch
@@ -3691,6 +3710,7 @@ sub calc_prps {
     @pdatas = ();		# free mem
     my %channelrepos;
     for my $channel (map {$_->{'channel'}} @channels) {
+      $newchanneldata{$channel->{'_md5'} || ''} ||= $channel;
       next unless $channel->{'target'};
       # calculate list targeted tepos
       my %targets;
@@ -3767,6 +3787,9 @@ sub calc_prps {
       }
     }
   }
+  # good bye no longer used entries!
+  delete $newchanneldata{''};
+  %channeldata = %newchanneldata;
 
   # do the real sorting
   print "sorting projects and repositories...\n";

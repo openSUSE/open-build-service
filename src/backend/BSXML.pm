@@ -301,7 +301,7 @@ our $projpack = [
 		[ $packinfo ],
 		$aggregatelist,
 		$patchinfo,
-		$channel,
+		'channelmd5',
 		@flags,
 		'bcntsynctag',
 		'hasbuildenv',
@@ -323,6 +323,10 @@ our $projpack = [
 	  [ $repo ],
 	    'error',
      ]],
+     [[ 'channeldata' => 
+	    'md5',
+	    $channel,
+    ]],
 ];
 
 our $linkinfo = [

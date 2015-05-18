@@ -2925,6 +2925,7 @@ sub getprojpack {
   my $bconf = Build::read_config($arch);
 
   $frozenlinks_cache = {};
+  my %channeldata;
   my @res;
   for my $projid (@$projids) {
     my $jinfo = { 'name' => $projid };
@@ -3296,21 +3297,24 @@ sub getprojpack {
 	    $pinfo->{'info'} = \@dinfo if @dinfo;
 	  }
 	} elsif ($files->{'_channel'}) {
-	  my $channel = repreadxml($rev, '_channel', $files->{'_channel'}, $BSXML::channel, 1);
-          if (!$channel) {
-	    $pinfo->{'error'} = "bad channel data";
+	  if (!exists($channeldata{$files->{'_channel'}})) {
+	    eval {
+	      my $channel = repreadxml($rev, '_channel', $files->{'_channel'}, $BSXML::channel);
+	      BSVerify::verify_channel($channel);
+	      $channeldata{$files->{'_channel'}} = $channel;
+	    };
+	    if ($@) {
+	      my $err = $@;
+	      chomp $err;
+	      $channeldata{$files->{'_channel'}} = $err;
+	    }
+	  }
+	  my $channel = $channeldata{$files->{'_channel'}} || 'bad data';
+          if (!ref($channel)) {
+	    $pinfo->{'error'} = "bad channel: $channel";
 	    next;
 	  }
-          eval {
-	    BSVerify::verify_channel($channel);
-          };
-	  if ($@) {
-	    my $err = $@;
-	    chomp $err;
-	    $pinfo->{'error'} = "bad channel: $err";
-	    next;
-	  }
-          $pinfo->{'channel'} = $channel;
+          $pinfo->{'channelmd5'} = $files->{'_channel'};
 	  if (($enable && %$enable) || ($disable && %$disable)) {
 	    my @dinfo = ();
 	    for my $repo (@{$proj->{'repository'} || []}) {
@@ -3471,6 +3475,12 @@ sub getprojpack {
       }
       $r->{'error'} =~ s/\n$// if $r->{'error'};
       push @{$ret->{'remotemap'}}, $r;
+    }
+  }
+  if (%channeldata) {
+    for my $md5 (sort keys %channeldata) {
+      next unless ref($channeldata{$md5});
+      push  @{$ret->{'channeldata'}}, {'md5' => $md5, 'channel' => $channeldata{$md5} };
     }
   }
   return ($ret, $BSXML::projpack);
