@@ -122,12 +122,15 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
         :opackage => source_package,
         :keeplink => 1,
         :expand => 1,
+        :withacceptinfo => 1,
         :comment => 'Maintenance incident copy from project ' + source_project
     }
     cp_params[:requestid] = request.id if request
     cp_path = "/source/#{CGI.escape(incidentProject.name)}/#{CGI.escape(new_pkg.name)}"
-    cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :keeplink, :expand, :comment, :requestid])
-    Suse::Backend.post cp_path, nil
+    cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :keeplink, :expand, :comment, :requestid, :withacceptinfo])
+    result = Suse::Backend.post cp_path, nil
+    result = Xmlhash.parse(result.body)
+    self.set_acceptinfo(result["acceptinfo"])
 
     new_pkg.sources_changed
   end

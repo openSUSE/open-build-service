@@ -177,6 +177,8 @@
 	    <attribute name="osrcmd5"/>
 	    <optional>
 	      <attribute name="xsrcmd5"/>
+	    </optional>
+	    <optional>
 	      <attribute name="oxsrcmd5"/>
 	    </optional>
 	    <empty/>
