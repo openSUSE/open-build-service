@@ -2870,6 +2870,7 @@ sub getprojpack {
   my ($cgi, $projids, $repoids, $packids, $arch) = @_;
   local *oldbsrpc = *BSRPC::rpc;
   local *BSRPC::rpc;
+  die("unsupported view\n") if $cgi->{'view'} && $cgi->{'view'} ne 'storable';
   if ($cgi->{'noremote'}) {
     *BSRPC::rpc = sub {die("500 interconnect error: noremote option\n");};
   } else {
@@ -3482,6 +3483,9 @@ sub getprojpack {
       next unless ref($channeldata{$md5});
       push  @{$ret->{'channeldata'}}, {'md5' => $md5, 'channel' => $channeldata{$md5} };
     }
+  }
+  if ($cgi->{'view'} && $cgi->{'view'} eq 'storable') {
+    return ('pst0'.Storable::nfreeze($ret), 'Content-Type: application/octet-stream');
   }
   return ($ret, $BSXML::projpack);
 }
@@ -8349,7 +8353,7 @@ my $dispatches = [
   '/published/$project/$repository/$arch:filename/$filename/$subfilename:filename view:?' => \&published,
 
   # scheduler calls
-  '/getprojpack $project* $repository* $package* $arch? withrepos:bool? withsrcmd5:bool? withdeps:bool? withconfig:bool? expandedrepos:bool? ignoredisable:bool? nopackages:bool? withremotemap:bool? noremote:bool? partition:?' => \&getprojpack,
+  '/getprojpack $project* $repository* $package* $arch? withrepos:bool? withsrcmd5:bool? withdeps:bool? withconfig:bool? expandedrepos:bool? ignoredisable:bool? nopackages:bool? withremotemap:bool? noremote:bool? partition:? view:?' => \&getprojpack,
   'POST:/relsync $project $repository $arch' => \&postrelsync,
   '/relsync $project $repository $arch' => \&getrelsync,
 

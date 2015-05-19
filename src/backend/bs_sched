@@ -56,6 +56,7 @@ my $testprojid;
 my $testmode;
 my $asyncmode;
 my $startupmode;
+my $usestorableforprojpack = 1;
 
 $asyncmode = $BSConfig::sched_asyncmode if $BSConfig::sched_asyncmode;
 $startupmode = $BSConfig::sched_startupmode if $BSConfig::sched_startupmode;
@@ -3039,6 +3040,12 @@ sub checkbuildrepoid {
 sub get_projpacks_resume {
   my ($handle, $error, $projpacksin) = @_;
 
+  if (!$error && $handle->{'_usestorable'}) {
+    eval {
+      $projpacksin = Storable::thaw(substr($projpacksin, 4));
+    };
+    $error = $_ if $@;
+  }
   # what we asked about
   my $projid = $handle->{'_projid'};
   if ($error) {
@@ -3153,7 +3160,13 @@ sub get_projpacks {
 	$param->{'async'}->{'_packids'} = [ @packids ] if @packids;
       }
       eval {
-        $projpacksin = xrpc($ctx, $projid, $param, $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'withconfig', 'withremotemap', "arch=$myarch", @args);
+	if ($usestorableforprojpack) {
+	  $param->{'async'}->{'_usestorable'} = 1 if $doasync;
+	  $projpacksin = xrpc($ctx, $projid, $param, undef, 'view=storable', 'withsrcmd5', 'withdeps', 'withrepos', 'withconfig', 'withremotemap', "arch=$myarch", @args);
+	  $projpacksin = Storable::thaw(substr($projpacksin, 4)) if $projpacksin && !$param->{'async'};
+	} else {
+	  $projpacksin = xrpc($ctx, $projid, $param, $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'withconfig', 'withremotemap', "arch=$myarch", @args);
+	}
       };
       return 0 if !$@ && $projpacksin && $param->{'async'};
       last unless $@ || !$projpacksin;
