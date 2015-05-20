@@ -351,9 +351,12 @@ sub rpc {
   #  print "< $ans\n";
   #}
   if ($xmlargs) {
-    die("answer is not xml\n") if $ans !~ /<.*?>/s;
-    my $res = XMLin($xmlargs, $ans);
-    return $res;
+    if (ref($xmlargs) eq 'CODE') {
+      $ans = $xmlargs->($ans);
+    } else {
+      die("answer is not xml\n") if $ans !~ /<.*?>/s;
+      $ans = XMLin($xmlargs, $ans);
+    }
   }
   return $ans;
 }

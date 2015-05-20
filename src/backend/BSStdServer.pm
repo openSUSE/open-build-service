@@ -46,7 +46,11 @@ sub stdreply {
   my @rep = @_;
   return unless @rep && defined($rep[0]);
   if (ref($rep[0]) eq 'HASH') {
-    $rep[1] = XMLout($rep[1], $rep[0]);
+    if (ref($rep[1]) eq 'CODE') {
+      $rep[1] = $rep[1]->($rep[0]);
+    } else {
+      $rep[1] = XMLout($rep[1], $rep[0]);
+    }
     shift @rep;
   }
   push @rep, 'Content-Type: text/xml' if @rep == 1;

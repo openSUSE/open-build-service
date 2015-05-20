@@ -3040,12 +3040,6 @@ sub checkbuildrepoid {
 sub get_projpacks_resume {
   my ($handle, $error, $projpacksin) = @_;
 
-  if (!$error && $handle->{'_usestorable'}) {
-    eval {
-      $projpacksin = Storable::thaw(substr($projpacksin, 4));
-    };
-    $error = $_ if $@;
-  }
   # what we asked about
   my $projid = $handle->{'_projid'};
   if ($error) {
@@ -3161,9 +3155,7 @@ sub get_projpacks {
       }
       eval {
 	if ($usestorableforprojpack) {
-	  $param->{'async'}->{'_usestorable'} = 1 if $doasync;
-	  $projpacksin = xrpc($ctx, $projid, $param, undef, 'view=storable', 'withsrcmd5', 'withdeps', 'withrepos', 'withconfig', 'withremotemap', "arch=$myarch", @args);
-	  $projpacksin = Storable::thaw(substr($projpacksin, 4)) if $projpacksin && !$param->{'async'};
+	  $projpacksin = xrpc($ctx, $projid, $param, \&BSUtil::fromstorable, 'view=storable', 'withsrcmd5', 'withdeps', 'withrepos', 'withconfig', 'withremotemap', "arch=$myarch", @args);
 	} else {
 	  $projpacksin = xrpc($ctx, $projid, $param, $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'withconfig', 'withremotemap', "arch=$myarch", @args);
 	}

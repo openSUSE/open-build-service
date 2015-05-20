@@ -557,6 +557,18 @@ sub retrieve {
   return $dd;
 }
 
+sub tostorable {
+  my ($d) = @_;
+  return 'pst0'.Storable::nfreeze($d);
+}
+
+sub fromstorable {
+  my ($d, $nonfatal) = @_;
+  return Storable::thaw(substr($d, 4)) unless $nonfatal;
+  eval { $d = Storable::thaw(substr($d, 4)); };
+  return $@ ? undef : $d;
+}
+
 sub ping {
   my ($pingfile) = @_;
   local *F;

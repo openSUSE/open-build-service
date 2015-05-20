@@ -3485,7 +3485,7 @@ sub getprojpack {
     }
   }
   if ($cgi->{'view'} && $cgi->{'view'} eq 'storable') {
-    return ('pst0'.Storable::nfreeze($ret), 'Content-Type: application/octet-stream');
+    return ($ret, \&BSUtil::tostorable, 'Content-Type: application/octet-stream');
   }
   return ($ret, $BSXML::projpack);
 }
