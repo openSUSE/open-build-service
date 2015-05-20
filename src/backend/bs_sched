@@ -5173,6 +5173,7 @@ sub checkkiwiproduct {
       @apackids = unify(@apackids, sort keys %$gbininfo) if $gbininfo;
 
       for my $apackid (@apackids) {
+        next if $apackid eq '_volatile';
         if (($allpacks && !$deps{"-$apackid"} && !$deps{'-'.($known{$apackid} || '')}) || $deps{$apackid} || $deps{$known{$apackid} || ''}) {
 	  # hey, we probably need this package! wait till it's finished
 	  my $code = $ps->{$apackid} || 'unknown';
