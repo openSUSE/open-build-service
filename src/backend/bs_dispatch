@@ -721,7 +721,7 @@ sub dispatchslave {
       BSRPC::rpc({
         'uri'     => "$BSConfig::masterdispatcher/jobs/_mdload",
         'request' => 'POST',
-        'data' => "pst0".Storable::nfreeze($load),
+        'data' => BSUtil::tostorable($load);
         'timeout' => 60,
       }, undef);
     };

@@ -1758,10 +1758,7 @@ sub getpreinstallimage {
     };
     warn($@) if $@;
     if ($serverimages && substr($serverimages, 0, 4) eq 'pst0') {
-      eval {
-	$serverimages = Storable::thaw(substr($serverimages, 4));
-      };
-      warn($@) if $@;
+      $serverimages = BSUtil::fromstorable($serverimages, 2);
     }
     $serverimages = [] unless $serverimages && ref($serverimages);
     $_->{'server'} = $server for @$serverimages;

@@ -4000,7 +4000,7 @@ sub addrepo_remote_unpackcpio {
     if (defined &BSSolv::thawcache) {
       eval { $cache = BSSolv::thawcache($cpio{'repositorycache'}); };
     } else {
-      eval { $cache = Storable::thaw(substr($cpio{'repositorycache'}, 4)); };
+      eval { $cache = BSUtil::fromstorable($cpio{'repositorycache'}); };
     }
     delete $cpio{'repositorycache'};	# free mem
     warn($@) if $@;
@@ -9187,7 +9187,7 @@ NEXTPRP:
 	$relsyncmax->{"$tag/$1"} = $2;
       }
       updaterelsyncmax($prp, $myarch, $relsyncmax, %unfinished ? 0 : 1);
-      my $relsyncdata = "pst0".Storable::nfreeze($relsyncmax);
+      my $relsyncdata = BSUtil::tostorable($relsyncmax);
       # sent new data!
       my $param = {
 	'uri' => "$BSConfig::srcserver/relsync",

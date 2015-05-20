@@ -566,7 +566,11 @@ sub fromstorable {
   my ($d, $nonfatal) = @_;
   return Storable::thaw(substr($d, 4)) unless $nonfatal;
   eval { $d = Storable::thaw(substr($d, 4)); };
-  return $@ ? undef : $d;
+  if ($@) {
+    warn($@) if $nonfatal == 2;
+    return undef;
+  }
+  return $d;
 }
 
 sub ping {

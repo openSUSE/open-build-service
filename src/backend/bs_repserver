@@ -160,10 +160,8 @@ sub addrepo_remote {
   my $cpio = BSRPC::rpc($param, undef, "view=cache");
   my %cpio = map {$_->{'name'} => $_->{'data'}} @{$cpio || []}; 
   if (exists $cpio{'repositorycache'}) {
-    my $cache;
-    eval { $cache = Storable::thaw(substr($cpio{'repositorycache'}, 4)); };
+    my $cache = BSUtil::fromstorable($cpio{'repositorycache'}, 2);
     delete $cpio{'repositorycache'};	# free mem
-    warn($@) if $@;
     return undef unless $cache;
     # free some unused entries to save mem
     for (values %$cache) {
@@ -598,7 +596,7 @@ sub getbinarylist_repository {
         }
 	if (keys(%data) < 100 && $s[7] < 10000) {
 	  # small repo, feed from memory
-	  push @files, { 'name' => 'repositorycache', 'data' => "pst0".Storable::nfreeze(\%data) };
+	  push @files, { 'name' => 'repositorycache', 'data' => BSUtil::tostorable(\%data) };
 	} else {
 	  # cache result
 	  my $tmpname = "$reporoot/$prp/$arch/:full.xcache.$$";
@@ -1508,7 +1506,7 @@ sub getpreinstallimageinfos {
   }
   print "- sending data for ".@infos." of $imagescnt images\n";
   # send answer as perl storable
-  my $answer = "pst0".Storable::nfreeze(\@infos);
+  my $answer = BSUtil::tostorable(\@infos);
   return ($answer, 'Content-Type: application/octet-stream');
 }
 
@@ -3866,10 +3864,10 @@ sub getrelsync {
   if ($relsync_merge) {
     my $relsync = BSUtil::retrieve("$reporoot/$prp/$arch/:relsync", 1) || {};
     $relsync = { %$relsync, %$relsync_merge };
-    $relsyncdata = "pst0".Storable::nfreeze($relsync);
+    $relsyncdata = BSUtil::tostorable($relsync);
   } else {
     $relsyncdata = readstr("$reporoot/$prp/$arch/:relsync");
-    $relsyncdata ||= "pst0".Storable::nfreeze({});
+    $relsyncdata ||= BSUtil::tostorable({});
   }
   return ($relsyncdata, 'Content-Type: application/octet-stream');
 }
@@ -3879,7 +3877,7 @@ sub postrelsync {
   my $prp = "$projid/$repoid";
 
   my $newdata = BSServer::read_data(10000000);
-  my $new = Storable::thaw(substr($newdata, 4));
+  my $new = BSUtil::fromstorable($newdata);
   die("no data\n") unless $new;
 
   local *F;
@@ -4014,7 +4012,7 @@ sub postmdload {
   my ($cgi) = @_;
 
   my $newdata = BSServer::read_data(200000000);
-  my $newmdload = Storable::thaw(substr($newdata, 4));
+  my $newmdload = BSUtil::fromstorable($newdata);
   die("no data\n") unless $newmdload;
   return $BSStdServer::return_ok unless %$newmdload;
   local *F;
