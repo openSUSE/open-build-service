@@ -1091,9 +1091,9 @@ class Project < ActiveRecord::Base
     skip_repos=[]
     a = project.find_attribute('OBS', 'BranchSkipRepositories') and skip_repos=a.values.map{|v| v.value}
     project.repositories.each do |repo|
+      next if skip_repos.include? repo.name
       repoName = extend_names ? repo.extended_name : repo.name
       next if repo.is_local_channel?
-      next if skip_repos.include? repoName
       pkg_to_enable.enable_for_repository(repoName) if pkg_to_enable
       next if self.repositories.find_by_name(repoName)
 

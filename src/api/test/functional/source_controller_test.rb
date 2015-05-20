@@ -2144,10 +2144,20 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag(:tag => 'repository', :attributes => {name:"repo3"})
     delete '/source/home:adrian:branches:home:adrian:TEMP'
     assert_response :success
-    delete "/source/home:adrian:TEMP/_attribute/OBS:BranchSkipRepositories"
+    # again as maintenance branch
+    post '/source/home:adrian:TEMP/dummy', :cmd => 'branch', :maintenance => 1
+    assert_response :success
+    get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
+    assert_response :success
+    assert_no_xml_tag(:tag => 'repository', :attributes => {name:"home_adrian_TEMP_repo1"})
+    assert_xml_tag(:tag => 'repository', :attributes => {name:"home_adrian_TEMP_repo2"})
+    assert_no_xml_tag(:tag => 'repository', :attributes => {name:"home_adrian_TEMP_repo3"})
+    delete '/source/home:adrian:branches:home:adrian:TEMP'
     assert_response :success
 
     #cleanup
+    delete "/source/home:adrian:TEMP/_attribute/OBS:BranchSkipRepositories"
+    assert_response :success
     delete '/source/home:adrian:TEMP'
     assert_response :success
   end
