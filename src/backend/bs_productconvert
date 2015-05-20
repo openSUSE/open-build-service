@@ -1141,6 +1141,7 @@ sub createSPECfileFlavors ( $$ ) {
       }
       if (defined($flavor->{'productdependency'})){
         # old compat code.
+        die("productdependency works only with new mediastyles") unless defined($medium->{'mediastyle'});
         if ($medium->{'mediastyle'} ne "suse-11.1" && $medium->{'mediastyle'} ne "suse-11.2" && $medium->{'mediastyle'} ne "suse-11.3" && $medium->{'mediastyle'} ne "suse-12.1" && $medium->{'mediastyle'} ne "suse-sle11-sp2" ) {
             die("productdependency must be defined per product for post 12.1 media styles");
         }
