@@ -40,6 +40,7 @@ use Storable;
 
 use BSRPC;
 use BSServer;
+use BSDispatch;		# for parse_cgi
 use BSConfiguration;
 use BSUtil;
 use BSXML;
@@ -3060,7 +3061,7 @@ my $req = BSServer::readrequest();
 my $path = $req->{'path'};
 my $multies;
 $multies = {'file' => undef} if $path eq '/kiwitree';
-my $cgi = BSServer::parse_cgi($req, $multies);
+my $cgi = BSDispatch::parse_cgi($req, $multies);
 if ($path eq '/info') {
   # check state?
   my $state = readxml("$statedir/state", $BSXML::workerstate, 1);

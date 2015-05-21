@@ -33,6 +33,9 @@ use strict;
 
 our $gev;	# our event
 
+# FIXME: should not set global
+$BSServer::request if 0;	# get rid of used only once warning
+
 sub gethead {
   # parses http header and fills hash
   # $h: reference to the hash to be filled
@@ -354,6 +357,8 @@ sub getrequest {
     die("501 invalid path\n") unless $path =~ /^\//;
     my $req = {'action' => $act, 'path' => $path, 'query' => $query_string, 'headers' => $headers};
     $ev->{'request'} = $req;
+    # FIXME: should not use global
+    $BSServer::request = $req;
     my $conf = $ev->{'conf'};
     $conf->{'dispatch'}->($conf, $req);
   };

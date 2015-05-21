@@ -27,6 +27,7 @@ use Fcntl;
 
 use BSWatcher;
 use BSServer;
+use BSDispatch;
 use BSVerify;
 use BSServerEvents;
 use BSXML;
@@ -94,7 +95,7 @@ sub dispatch {
   if ($isajax) {
     BSServerEvents::cloneconnect("OK\n", "Content-Type: text/plain");
   }
-  BSServer::dispatch($conf, $req);
+  BSDispatch::dispatch($conf, $req);
 }
 
 sub periodic {
@@ -197,7 +198,7 @@ sub server {
   BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup) || die("unable to create $bsdir\n");
 
   if ($conf) {
-    $conf->{'dispatches'} = BSServer::compile_dispatches($conf->{'dispatches'}, $BSVerify::verifyers) if $conf->{'dispatches'};
+    $conf->{'dispatches'} = BSDispatch::compile_dispatches($conf->{'dispatches'}, $BSVerify::verifyers) if $conf->{'dispatches'};
     $conf->{'dispatch'} ||= \&dispatch;
     $conf->{'stdreply'} ||= \&stdreply;
     $conf->{'errorreply'} ||= \&errreply;

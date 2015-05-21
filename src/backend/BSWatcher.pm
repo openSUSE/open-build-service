@@ -25,6 +25,7 @@ package BSWatcher;
 
 use BSServer;
 use BSServerEvents;
+use BSDispatch;
 use BSRPC;
 use BSEvents;
 use BSHTTP;
@@ -1062,7 +1063,7 @@ sub addhandler {
 
 sub compile_dispatches {
   my ($dispatches, $verifyers) = @_;
-  return BSServer::compile_dispatches($dispatches, $verifyers, \&addhandler);
+  return BSDispatch::compile_dispatches($dispatches, $verifyers, \&addhandler);
 }
 
 1;
