@@ -4979,15 +4979,23 @@ sub checkkiwiproduct {
   my $prp = "$projid/$repoid";
 
   # calculate all involved architectures
+  my $buildarch = ($repo->{'arch'} || [])->[0] || '';
+  # compat to old OBS versions, prefer local...
+  $buildarch = 'local' if $BSConfig::localarch && grep {$_ eq 'local'} @{$repo->{'arch'} || []};
+  # localbuildarch is where we take the buildenv from
+  my $localbuildarch = $buildarch eq 'local' && $BSConfig::localarch ? $BSConfig::localarch : $buildarch;
+  my $markerdir = "$reporoot/$projid/$repoid/$buildarch/$packid";
+
   my %imagearch = map {$_ => 1} @{$info->{'imagearch'} || []};
   return ('broken', 'no architectures for packages') unless grep {$imagearch{$_}} @{$repo->{'arch'} || []};
-  $imagearch{'local'} = 1 if $BSConfig::localarch;
   my @archs = grep {$imagearch{$_}} @{$repo->{'arch'} || []};
-  
-  if (!grep {$_ eq $myarch} @archs) {
-    print "      - $packid (kiwi-product)\n";
-    print "        not mine\n";
-    return ('excluded');
+
+  if ($myarch ne $buildarch && $myarch ne $localbuildarch) {
+    if (!grep {$_ eq $myarch} @archs) {
+      print "      - $packid (kiwi-product)\n";
+      print "        not mine\n";
+      return ('excluded');
+    }
   }
 
   my @deps = @{$info->{'dep'} || []};	# expanded?
@@ -5017,7 +5025,7 @@ sub checkkiwiproduct {
 #print "prps: @aprps\n";
 #print "archs: @archs\n";
 #print "deps: @deps\n";
-  if ($archs[0] eq $myarch) {
+  if ($myarch eq $buildarch || $myarch eq $localbuildarch) {
     # calculate packages needed for building
     my $pool = BSSolv::pool->new();
     $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
@@ -5027,8 +5035,7 @@ sub checkkiwiproduct {
 	print "        repository $aprp is unavailable";
 	return ('broken', "repository $aprp is unavailable");
       }
-      my $arch = $myarch eq 'local' && $BSConfig::localarch ? $BSConfig::localarch : $myarch;
-      my $r = $arch eq $myarch ? addrepo($ctx, $pool, $aprp) : addrepo_alien($ctx, $pool, $aprp, $arch);
+      my $r = $localbuildarch eq $myarch ? addrepo($ctx, $pool, $aprp) : addrepo_alien($ctx, $pool, $aprp, $localbuildarch);
       if (!$r) {
 	my $error = "repository '$aprp' is unavailable";
 	$error .= " (delayed)" if defined $r;
@@ -5063,7 +5070,7 @@ sub checkkiwiproduct {
       }
     }
     # check if we are blocked
-    if ($myarch eq 'local' && $BSConfig::localarch) {
+    if ($myarch ne $localbuildarch) {
       my %used;
       for my $bin (@kdeps) {
         my $p = $dep2pkg{$bin};
@@ -5075,9 +5082,9 @@ sub checkkiwiproduct {
         my %pnames = map {$_ => 1} @{$used{$aprp}};
 	next unless %pnames;
 	# FIXME: does not work for remote repos
-	my $ps = BSUtil::retrieve("$reporoot/$aprp/$BSConfig::localarch/:packstatus", 1);
+	my $ps = BSUtil::retrieve("$reporoot/$aprp/$localbuildarch/:packstatus", 1);
 	if (!$ps) {
-	  $ps = (readxml("$reporoot/$aprp/$BSConfig::localarch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
+	  $ps = (readxml("$reporoot/$aprp/$localbuildarch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
 	  $ps = { 'packstatus' => { map {$_->{'name'} => $_->{'status'}} @$ps } };
 	}
         $ps = ($ps || {})->{'packstatus'} || {};
@@ -5085,12 +5092,12 @@ sub checkkiwiproduct {
 	push @blocked, grep {$ps->{$_} && ($ps->{$_} eq 'scheduled' || $ps->{$_} eq 'blocked' || $ps->{$_} eq 'finished')} sort keys %pnames;
       }
       if (@blocked) {
-	if (! -e "$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$BSConfig::localarch") {
-          mkdir_p("$reporoot/$projid/$repoid/$myarch/$packid");
-          BSUtil::touch("$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$BSConfig::localarch");
+	if (! -e "$markerdir/.waiting_for_$localbuildarch") {
+          mkdir_p($markerdir);
+          BSUtil::touch("$markerdir/.waiting_for_$localbuildarch");
 	}
       } else {
-	unlink("$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$BSConfig::localarch");
+	unlink("$markerdir/.waiting_for_$localbuildarch");
       }
     } else {
       my $notready = $ctx->{'notready'};
@@ -5126,7 +5133,8 @@ sub checkkiwiproduct {
       my $info = (grep {$_->{'repository'} eq $arepoid} @{$pdatas->{$apackid}->{'info'} || []})[0];
       $known{$apackid} = $info->{'name'} if $info && $info->{'name'};
     }
-    for my $arch ($archs[0] eq $myarch ? @archs : $myarch) {
+    for my $arch (@archs) {
+      next if $myarch ne $buildarch && $myarch ne $arch;
       my $ps = BSUtil::retrieve("$reporoot/$aprp/$arch/:packstatus", 1);
       if (!$ps) {
 	$ps = (readxml("$reporoot/$aprp/$arch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
@@ -5136,11 +5144,7 @@ sub checkkiwiproduct {
 
       my $gbininfo;
       if ($remoteprojs{$aprojid}) {
-	if ($arch eq 'local' && $BSConfig::localarch) {
-	  $gbininfo = {};
-	} else {
-	  $gbininfo = read_gbininfo_remote($ctx, "$aprp/$arch", $remoteprojs{$aprojid}, $ps);
-	}
+        $gbininfo = read_gbininfo_remote($ctx, "$aprp/$arch", $remoteprojs{$aprojid}, $ps);
 	if (!$gbininfo) {
 	  my $error = "project binary state of $aprp is unavailable";
 	  $error .= " (delayed)" if defined $gbininfo;
@@ -5222,14 +5226,15 @@ sub checkkiwiproduct {
     }
     last if @blocked > $maxblocked;
   }
-  if ($archs[0] eq $myarch) {
-    for my $arch (grep {$_ ne $myarch} @archs) {
+  if ($myarch eq $buildarch) {
+    # update waiting_for markers
+    for my $arch (grep {$_ ne $buildarch} @archs) {
       if ($blockedarch{$arch}) {
-	next if -e "$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch";
-        mkdir_p("$reporoot/$projid/$repoid/$myarch/$packid");
-        BSUtil::touch("$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch");
+	next if -e "$markerdir/.waiting_for_$arch";
+        mkdir_p($markerdir);
+        BSUtil::touch("$markerdir/.waiting_for_$arch");
       } else {
-	unlink("$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch");
+	unlink("$markerdir/.waiting_for_$arch");
       }
     }
   }
@@ -5240,21 +5245,20 @@ sub checkkiwiproduct {
     return ('blocked', join(', ', @blocked));
   }
 
-  if ($archs[0] ne $myarch) {
-    # looks good from our side. tell master arch
-    # to check it
-    if (-e "$reporoot/$projid/$repoid/$archs[0]/$packid/.waiting_for_$myarch") {
-      unlink("$reporoot/$projid/$repoid/$archs[0]/$packid/.waiting_for_$myarch");
+  if ($myarch ne $buildarch) {
+    # looks good from our side. tell master arch to check it
+    if (-e "$markerdir/.waiting_for_$myarch") {
+      unlink("$markerdir/.waiting_for_$myarch");
       my $ev = {
         'type' => 'unblocked',
         'project' => $projid,
         'repository' => $repoid,
       };
-      sendevent($ev, $archs[0], "unblocked::${projid}::${repoid}");
+      sendevent($ev, $buildarch, "unblocked::${projid}::${repoid}");
       print "      - $packid (kiwi-product)\n";
       print "        unblocked\n";
     }
-    return ('excluded', "is built in architecture '$archs[0]'");
+    return ('excluded', "is built in architecture '$buildarch'");
   }
 
   # now create meta info
@@ -5294,6 +5298,7 @@ sub rebuildkiwiproduct {
     killjob($otherjob);
   }
 
+  my $localbuildarch = $myarch eq 'local' && $BSConfig::localarch ? $BSConfig::localarch : $myarch;
   my $now = time(); # ensure that we use the same time in all logs
 
   my $syspath;
@@ -5339,10 +5344,11 @@ sub rebuildkiwiproduct {
   for my $rpm (unify(@pdeps, @vmdeps, @{$rpms || []})) {
     my @b = split('/', $rpm);
     if (@b == 1) {
+      # this is a build environment package
       push @bdeps, { 'name' => $rpm, 'notmeta' => 1, };
       $bdeps[-1]->{'preinstall'} = 1 if $pdeps{$rpm};
       $bdeps[-1]->{'vminstall'} = 1 if $vmdeps{$rpm};
-      $bdeps[-1]->{'repoarch'} = $BSConfig::localarch if $myarch eq 'local' && $BSConfig::localarch;
+      $bdeps[-1]->{'repoarch'} = $localbuildarch if $localbuildarch ne $myarch;
       next;
     }
     next unless @b == 5;
