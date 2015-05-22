@@ -1361,7 +1361,8 @@ sub prpfinished {
   $filter ||= $default_publishfilter;
   $filter = compile_publishfilter($filter);
 
-  for my $packid (@$packs) {
+  # sort like in the full tree
+  for my $packid (orderpackids($projpacks->{'projid'}, @$packs)) {
     if ($pubenabled && !$pubenabled->{$packid}) {
       # publishing of this package is disabled, copy binary list from old info
       if (!$rinfo) {
@@ -1880,8 +1881,9 @@ sub fctx_del_binary_from_full {
   delete $fctx->{'dep2meta'}->{$n} if $fctx->{'dep2meta'};
 }
 
-sub orderpackidsforfull {
+sub orderpackids {
   my ($proj, @packids) = @_;
+  $proj ||= {};
   my @s;
   my @back;
   my $kind = $proj->{'kind'} || '';
@@ -1939,7 +1941,7 @@ sub fctx_gbininfo2full {
   my $prjuseforbuildenabled = 1;
   $prjuseforbuildenabled = enabled($repoid, $proj->{'useforbuild'}, $prjuseforbuildenabled);
   my $pdatas = $proj->{'package'} || {};
-  my @packids = orderpackidsforfull($proj, keys %$gbininfo);
+  my @packids = orderpackids($proj, keys %$gbininfo);
   # construct new full
   my %full;
   for my $packid (@packids) {
@@ -7372,7 +7374,7 @@ sub event_useforbuild {
     @packs = ($ev->{'package'});
   } else {
     @packs = sort keys %$packs;
-    @packs = reverse(orderpackidsforfull($proj, @packs));
+    @packs = reverse(orderpackids($proj, @packs));
     if ($new_full_handling) {
       # force a rebuild of the full tree
       checkuseforbuild($prp, $prpsearchpath{$prp}, undef, 1);
