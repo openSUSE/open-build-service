@@ -615,7 +615,7 @@ sub groupToPackages( $$$$$ )
 		if( $p->{arch} ) {
 		    $takeIt = 0;
 		    foreach my $validArch( @validArchs ) {
-			if( grep( /$validArch/, @condArchs ) ) {
+			if( grep( /\b$validArch\b/, @condArchs ) ) {
 			    $takeIt = 1;
 			    last;
 			}
