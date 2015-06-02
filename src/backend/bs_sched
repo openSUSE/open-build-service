@@ -2058,7 +2058,7 @@ sub fctx_rebuild_full {
     my @s = stat("$gdst/$packid/$r->{'filename'}");
     if (!@s || "$s[9]/$s[7]/$s[1]" ne $r->{'id'}) {
       unlink("$gdst/$packid/.bininfo");		# ohhh, we're out of sync! rebuild that bininfo...
-      $out_of_sync = 1;
+      $out_of_sync = "$packid/$r->{'filename'}";
       next;
     }
 
@@ -2071,7 +2071,7 @@ sub fctx_rebuild_full {
   }
 
   if ($out_of_sync) {
-    print "detected out-of-sync condition, rebuilding bad bininfos\n";
+    print "detected out-of-sync condition for $out_of_sync, rebuilding bad bininfos\n";
     unlink("$gdst/:bininfo");
     unlink("$gdst/:bininfo.merge");
     $gbininfo = read_gbininfo($gdst);
