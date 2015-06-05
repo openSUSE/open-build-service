@@ -101,6 +101,7 @@ Requires:       perl-Net-SSLeay
 Requires:       perl-Socket-MsgHdr
 Requires:       perl-XML-Parser
 Requires:       perl-XML-Simple
+Requires:       perl-XML-Structured
 
 %description
 The Open Build Service (OBS) backend is used to store all sources and binaries. It also
@@ -112,6 +113,7 @@ Requires:       curl
 Requires:       perl-Compress-Zlib
 Requires:       perl-TimeDate
 Requires:       perl-XML-Parser
+Requires:       perl-XML-Structured
 Requires:       screen
 # for build script
 Requires:       psmisc
