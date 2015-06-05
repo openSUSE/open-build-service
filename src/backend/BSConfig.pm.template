@@ -200,7 +200,7 @@ our $relsync_pool = {
 my $hostconfig = __FILE__;
 $hostconfig =~ s/[^\/]*$/bsconfig.$hostname/;
 if (-r $hostconfig) {
-  print "reading $hostconfig...\n";
+  print STDERR "reading $hostconfig...\n";
   require $hostconfig;
 }
 
