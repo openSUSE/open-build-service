@@ -220,14 +220,7 @@ The obs-api package comes with an apache configuration file.
 /etc/apache2/vhosts.d/obs.conf
 ```
 
-6. Enable the xforward mode.
-<br>
-In */srv/www/obs/api/config/options.yml*:
-```
-use_xforward: true
-```
-
-7. Create a self-signed SSL certificate
+6. Create a self-signed SSL certificate
 ```
 mkdir /srv/obs/certs
 openssl genrsa -out /srv/obs/certs/server.key 1024
@@ -236,25 +229,25 @@ openssl x509 -req -days 365 -in /srv/obs/certs/server.csr -signkey /srv/obs/cert
 cat /srv/obs/certs/server.key /srv/obs/certs/server.crt > /srv/obs/certs/server.pem
 ```
 
-8. Trust this certificate on your host
+7. Trust this certificate on your host
 ```
 cp /srv/obs/certs/server.pem /etc/ssl/certs/
 c_rehash /etc/ssl/certs/
 ```
 
-9. Start the web server permanently
+8. Start the web server permanently
 ```
 systemctl enable apache2
 systemctl start apache2
 ```
 
-10. Start the OBS delayed job daemon
+9. Start the OBS delayed job daemon
 ```
 systemctl enable obsapidelayed.service
 systemctl start obsapidelayed.service
 ```
 
-11. Check out your OBS frontend
+10. Check out your OBS frontend
 By default, you can see the HTML views on port 443 (e.g: https://localhost) and the repos on port 82 (once some packages are built). The default admin user is "Admin" with the password "opensuse".
 
 #### Development
