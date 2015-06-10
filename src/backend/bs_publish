@@ -473,6 +473,7 @@ sub createrepo_rpmmd {
   }
   if ($options{'rsyncable'}) {
     if (-x '/usr/bin/rezip_repo_rsyncable') {
+      unlink("$extrep/repodata/repomd.xml.asc");
       qsystem('/usr/bin/rezip_repo_rsyncable', $extrep) && print("    rezip_repo_rsyncable failed: $?\n");
     } else {
       print "    /usr/bin/rezip_repo_rsyncable not installed, ignoring the rsyncable option\n";
