@@ -674,6 +674,31 @@ end
     get '/source/home:tom:branches:OBS_Maintained:pack2'
     assert_response 404
 
+    # test package initialization for projects linking to maintenance_release projects
+    put '/source/TEST/_meta', '<project name="TEST"> <title/><description/><link project="BaseDistro2.0:LinkedUpdateProject"/></project>'
+    assert_response :success
+    post '/request?cmd=create', '<request>
+                                   <action type="submit">
+                                     <source project="BaseDistro2.0" package="pack2"/>
+                                     <target project="TEST" package="pack2"/>
+                                   </action>
+                                   <description>Source has a devel package</description>
+                                 </request>'
+    assert_response :success
+    node = Xmlhash.parse(@response.body)
+    id = node['id']
+    assert !id.blank?
+    post "/request/#{id}?cmd=changestate&newstate=accepted&comment=approved"
+    assert_response :success
+    get '/source/TEST'
+    assert_response :success
+    # ensure that we did not got the incident number extension, but the local linked package
+    assert_xml_tag( :tag => 'directory', :attributes => { count: '2' } )
+    assert_xml_tag( :tag => 'entry', :attributes => { name: 'pack2' } )
+    assert_xml_tag( :tag => 'entry', :attributes => { name: 'pack2.linked' } )
+    delete '/source/TEST'
+    assert_response :success
+
     # test retracting of released updates
     # cleans up the backend and validates that DB constraints get a cleanup
     [ 'pack2', 'pack2.0', 'pack2.linked', 'pack2.linked.0', 'patchinfo.0' ].each do |p|

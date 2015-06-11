@@ -315,18 +315,28 @@ module MaintenanceHelper
 
   def instantiate_container(project, opackage, opts={})
     opkg = opackage.local_origin_container
+    pkg_name = opkg.name
+    if opkg.is_a? Package and opkg.project.is_maintenance_release?
+      # strip incident suffix
+      pkg_name = opkg.name.gsub(/\.[^\.]*$/, '')
+    end
 
     # target packages must not exist yet
-    if Package.exists_by_project_and_name(project.name, opkg.name, follow_project_links: false)
+    if Package.exists_by_project_and_name(project.name, pkg_name, follow_project_links: false)
       raise PackageAlreadyExists "package #{opkg.name} already exists"
     end
     opkg.find_project_local_linking_packages.each do |p|
-      if Package.exists_by_project_and_name(project.name, p.name, follow_project_links: false)
+      lpkg_name = p.name
+      if p.is_a? Package and p.project.is_maintenance_release?
+        # strip incident suffix
+        lpkg_name = p.name.gsub(/\.[^\.]*$/, '')
+      end
+      if Package.exists_by_project_and_name(project.name, lpkg_name, follow_project_links: false)
         raise PackageAlreadyExists "package #{p.name} already exists"
       end
     end
 
-    pkg = project.packages.create(:name => opkg.name, :title => opkg.title, :description => opkg.description)
+    pkg = project.packages.create(:name => pkg_name, :title => opkg.title, :description => opkg.description)
     pkg.store
 
     arguments="&noservice=1"
@@ -348,14 +358,21 @@ module MaintenanceHelper
 
     # and create the needed local links
     opkg.find_project_local_linking_packages.each do |p|
+      lpkg_name = p.name
+      if p.is_a? Package and p.project.is_maintenance_release?
+        # strip incident suffix
+        lpkg_name = p.name.gsub(/\.[^\.]*$/, '')
+        # skip the base links
+        next if lpkg_name == p.name
+      end
       # create container
-      unless project.packages.where(name: p.name).exists?
-        lpkg = project.packages.create(:name => p.name, :title => p.title, :description => p.description)
+      unless project.packages.where(name: lpkg_name).exists?
+        lpkg = project.packages.create(:name => lpkg_name, :title => p.title, :description => p.description)
         lpkg.store
       end
 
       # copy project local linked packages
-      Suse::Backend.post "/source/#{pkg.project.name}/#{p.name}?cmd=copy&oproject=#{CGI.escape(p.project.name)}&opackage=#{CGI.escape(p.name)}#{arguments}&user=#{CGI.escape(User.current.login)}", nil
+      Suse::Backend.post "/source/#{pkg.project.name}/#{lpkg.name}?cmd=copy&oproject=#{CGI.escape(p.project.name)}&opackage=#{CGI.escape(p.name)}#{arguments}&user=#{CGI.escape(User.current.login)}", nil
 
       # and fix the link
       ret = ActiveXML::Node.new(lpkg.source_file('_link'))

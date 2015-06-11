@@ -89,7 +89,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'BuildController#project_index' => 129.0,
       'ConfigurationsController#update' => 85.63,
       'IssueTrackersController#update' => 100.78,
-      'MaintenanceHelper#instantiate_container' => 137.45,
+      'MaintenanceHelper#instantiate_container' => 160.21,
       'Owner::_extract_from_container' => 84.07,
       'PersonController#internal_register' => 112.01,
       'Package#find_changed_issues' => 93.74,

@@ -106,7 +106,6 @@ class BranchPackage
 
       # find origin package to be branched
       branch_target_package = p[:target_package]
-      #proj_name = @target_project.gsub(':', '_')
       pack_name = branch_target_package.gsub(':', '_')
 
       # create branch package
