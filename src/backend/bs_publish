@@ -1390,6 +1390,7 @@ sub publish {
       my $p;
       if ($bin =~ /^.+-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.d?rpm$/) {
 	$p = "$1/$bin";
+	$p = $1 eq 'src' || $1 eq 'nosrc' ? "SRPMS/$bin" : "RPMS/$bin" if $repotype{'resarchhack'};
       } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.deb$/) {
 	$p = "$1/$bin";
       } elsif ($bin =~ /\.exe$/) {
