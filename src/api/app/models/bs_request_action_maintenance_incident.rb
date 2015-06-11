@@ -110,7 +110,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
         end
       else
         # no link and not a patchinfo
-        return # error out instead ?
+        return nil # error out instead ?
       end
     end
 
@@ -133,23 +133,18 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     self.set_acceptinfo(result["acceptinfo"])
 
     new_pkg.sources_changed
+    new_pkg
   end
 
   def merge_into_maintenance_incident(incidentProject, source_project, source_package, releaseproject=nil, request=nil)
 
     # copy all or selected packages and project source files from base project
     # we don't branch from it to keep the link target.
-    if source_package
-      _merge_pkg_into_maintenance_incident(incidentProject, source_project, source_package, releaseproject, request)
-    else
-      packages = Project.get_by_name(source_project).packages
-      packages.each do |pkg|
-        _merge_pkg_into_maintenance_incident(incidentProject, source_project, source_package, releaseproject, request)
-      end
-    end
+    pkg = _merge_pkg_into_maintenance_incident(incidentProject, source_project, source_package, releaseproject, request)
 
     incidentProject.save!
     incidentProject.store(comment: "maintenance_incident request #{self.bs_request.id}", requestid: self.bs_request.id)
+    pkg
   end
 
   def execute_accept(opts)
@@ -157,7 +152,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     incident_project = Project.get_by_name(self.target_project)
 
     # the incident got created before
-    merge_into_maintenance_incident(incident_project, self.source_project, self.source_package, self.target_releaseproject, self.bs_request)
+    self.target_package = merge_into_maintenance_incident(incident_project, self.source_project, self.source_package, self.target_releaseproject, self.bs_request)
 
     # update action with real target project
     self.target_project = incident_project.name
@@ -185,6 +180,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     unless maintenanceProject.is_maintenance_incident? or maintenanceProject.is_maintenance?
       raise NoMaintenanceProject.new 'Maintenance incident requests have to go to projects of type maintenance or maintenance_incident'
     end
+    raise IllegalRequest.new 'Target package must not be specified in maintenance_incident actions' if self.target_package
     super(ignore_build_state)
   end
 

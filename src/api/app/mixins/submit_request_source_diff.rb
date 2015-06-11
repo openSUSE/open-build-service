@@ -91,11 +91,10 @@ module SubmitRequestSourceDiff
 
     def find_target_pkg
       tpkg = nil
-      if Package.exists_by_project_and_name(@target_project, @target_package, follow_project_links: false)
-        tpkg = Package.get_by_project_and_name(@target_project, @target_package)
-      elsif Package.exists_by_project_and_name(@target_project, @target_package, follow_project_links: true)
+      if Package.exists_by_project_and_name(@target_project, @target_package, follow_project_links: true)
         tpkg = Package.get_by_project_and_name(@target_project, @target_package)
       else
+        # for permission check
         Project.get_by_name(@target_project)
       end
       tpkg
