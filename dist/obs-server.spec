@@ -602,6 +602,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /usr/lib/obs/server/BSCando.pm
 /usr/lib/obs/server/BSConfiguration.pm
 /usr/lib/obs/server/BSConfig.pm.template
+/usr/lib/obs/server/BSDispatch.pm
 /usr/lib/obs/server/BSEvents.pm
 /usr/lib/obs/server/BSFileDB.pm
 /usr/lib/obs/server/BSHTTP.pm
