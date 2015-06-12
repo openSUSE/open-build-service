@@ -1,6 +1,6 @@
 class BsRequestActionMaintenanceIncident < BsRequestAction
 
-  include SubmitRequestSourceDiff
+  include RequestSourceDiff
 
   def is_maintenance_incident?
     true

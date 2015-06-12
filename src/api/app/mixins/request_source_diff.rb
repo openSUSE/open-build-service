@@ -1,5 +1,5 @@
 # this overwrites the sourcediff function for submit requests and maintenance
-module SubmitRequestSourceDiff
+module RequestSourceDiff
 
   class ActionSourceDiffer
 

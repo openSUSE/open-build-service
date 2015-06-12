@@ -1,6 +1,6 @@
 class BsRequestActionSubmit < BsRequestAction
 
-  include SubmitRequestSourceDiff
+  include RequestSourceDiff
 
   def is_submit?
     true

@@ -1,6 +1,6 @@
 class BsRequestActionMaintenanceRelease < BsRequestAction
 
-  include SubmitRequestSourceDiff
+  include RequestSourceDiff
 
   def self.sti_name
     return :maintenance_release
