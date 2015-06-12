@@ -38,12 +38,6 @@ module SubmitRequestSourceDiff
     def diff_for_source(spkg, target_project=nil, target_package=nil)
       @target_project = target_project || action.target_project
       @target_package = target_package || action.target_package
-      # the target is by default the _link target
-      # maintenance_release creates new packages instance, but are changing the source only according to the link
-      provided_in_other_action = overwrite_target_by_link(spkg)
-
-      # maintenance incidents shall show the final result after release
-      @target_project = action.target_releaseproject if action.target_releaseproject
 
       # fallback name as last resort
       @target_package ||= action.source_package
@@ -56,6 +50,13 @@ module SubmitRequestSourceDiff
         query[:rev] = ai.xsrcmd5 || ai.srcmd5
         query[:orev] = ai.oxsrcmd5 || ai.osrcmd5 || '0'
       else
+        # the target is by default the _link target
+        # maintenance_release creates new packages instance, but are changing the source only according to the link
+        provided_in_other_action = overwrite_target_by_link(spkg)
+
+        # maintenance incidents shall show the final result after release
+        @target_project = action.target_releaseproject if action.target_releaseproject
+
         # for requests not yet accepted or accepted with OBS 2.0 and before
         tpkg = find_target_pkg
 

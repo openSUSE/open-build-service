@@ -217,7 +217,15 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # accept request
     prepare_request_with_user 'maintenance_coord', 'power'
+
     post "/request/#{id2}?cmd=changestate&newstate=accepted&force=1"
+    assert_response :success
+    get "/request/#{id2}"
+    assert_response :success
+    # package and acceptinfo got added
+    assert_xml_tag( :tag => 'target', :attributes => { package: 'kdelibs.BaseDistro2.0_LinkedUpdateProject' } )
+    assert_xml_tag( :tag => 'acceptinfo' )
+    post "/request/#{id2}?cmd=diff&view=xml", nil
     assert_response :success
 
     get "/request/#{id2}"

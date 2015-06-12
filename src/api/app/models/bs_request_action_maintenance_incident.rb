@@ -166,6 +166,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       Patchinfo.new.create_patchinfo_from_request(incident_project, self.bs_request)
     end
 
+    self.save
   end
 
   def expand_targets(ignore_build_state)
