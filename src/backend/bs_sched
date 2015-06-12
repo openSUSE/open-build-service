@@ -1898,6 +1898,13 @@ sub orderpackids {
       } else {
         push @s, [ $_, $1, $2];
       }
+    } elsif (/^(.*)\.imported_.*?(\d+)$/) {
+      # code11 import hack...
+      if ($kind eq 'maintenance_release') {
+        push @s, [ $_, '', $2 - 1000000];
+      } else {
+        push @s, [ $_, $1, $2 - 1000000];
+      }
     } else {
       push @s, [ $_, $_, 99999999 ];
     }
