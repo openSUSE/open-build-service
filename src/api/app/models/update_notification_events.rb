@@ -15,8 +15,19 @@ class UpdateNotificationEvents
       e.elements('data') do |d|
         data[d['key']] = d['_content']
       end
-      event = Event::Factory.new_from_type(type, data)
-      event.save!
+      begin
+        event = Event::Factory.new_from_type(type, data)
+        event.save!
+      rescue => e
+        if Rails.env.test?
+          # make debug output useful in test suite, not just showing backtrace to HoptoaddNotifier
+          Rails.logger.error "ERROR: #{e.inspect}: #{e.backtrace}"
+          puts e.inspect, e.backtrace
+          return
+        end
+        HoptoadNotifier.notify(e, {failed_job: type.inspect})
+        notify_hoptoad(e)
+      end
     end
     BackendInfo.lastnotification_nr = Integer(@last['next'])
   end
