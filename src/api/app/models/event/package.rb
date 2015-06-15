@@ -86,7 +86,7 @@ module Event
   class ServiceFail < Package
     self.raw_type = 'SRCSRV_SERVICE_FAIL'
     self.description = 'Package souce service has failed'
-    payload_keys :comment, :error, :package, :project, :rev, :user
+    payload_keys :comment, :error, :package, :project, :rev, :user, :requestid
     receiver_roles :maintainer, :bugowner
 
     def subject
