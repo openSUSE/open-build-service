@@ -258,10 +258,41 @@ systemctl start obsapidelayed.service
 By default, you can see the HTML views on port 443 (e.g: https://localhost) and the repos on port 82 (once some packages are built). The default admin user is "Admin" with the password "opensuse".
 
 #### Development
+We are using [Vagrant](https://www.vagrantup.com/) to create our development environments.
 
-#### Test
+1. Install [Vagrant](https://www.vagrantup.com/downloads.html) and [VirtualBox](https://www.virtualbox.org/wiki/Downloads). Both tools support Linux, MacOS and Windows and in principal setting up your OBS development environment works similar.
 
-##### Apache
-##### openSSL
+2. Clone this code repository
+```
+git clone --depth 1 git@github.com:openSUSE/open-build-service.git
+```
+
+3. Inside your clone execute Vagrant
+```
+vagrant up
+```
+
+4. Start your development backend with
+```
+vagrant exec ./script/start_test_backend
+```
+
+5. Start your development OBS frontend
+```
+vagrant exec rails s
+```
+
+6. Check out your OBS frontend
+You can access the frontend at [localhost:3000](http://localhost:3000). Whatever you change in your cloned repository will have effect in the development environment. 
+
+7. Changed something? Test your changes!
+```
+vagrant exec rake test
+```
+
+8. Explore the development environment
+```
+vagrant ssh
+```
 
 :heart: Your Open Build Service Team
