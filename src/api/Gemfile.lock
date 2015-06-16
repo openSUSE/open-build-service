@@ -133,6 +133,7 @@ GEM
       cliver (~> 0.3.1)
       multi_json (~> 1.0)
       websocket-driver (>= 0.2.0)
+    power_assert (0.2.3)
     pry (0.10.1)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
@@ -208,6 +209,8 @@ GEM
       actionpack (>= 3.0)
       activesupport (>= 3.0)
       sprockets (>= 2.8, < 4.0)
+    test-unit (3.0.8)
+      power_assert
     thinking-sphinx (3.1.3)
       activerecord (>= 3.1.0)
       builder (>= 2.1.2)
@@ -293,6 +296,7 @@ DEPENDENCIES
   simplecov
   single_test
   sprite-factory (>= 1.5.2)
+  test-unit
   thinking-sphinx (> 3.1)
   tilt (>= 1.4.1)
   timecop

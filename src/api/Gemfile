@@ -47,6 +47,7 @@ gem 'escape_utils'
 gem "pundit"
 #
 gem 'responders', '~> 2.0'
+gem 'test-unit'
 
 group :production do
   # if you have an account, it can be configured by
