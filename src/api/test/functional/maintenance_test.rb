@@ -1468,7 +1468,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     post '/request?cmd=create', '<request>
                                    <action type="submit">
-                                     <source project="BaseDistro2.0" package="pack2" rev="0" />
+                                     <source project="BaseDistro2.0" package="pack2" />
                                      <target project="BaseDistro2.0:ServicePack1" package="pack2" />
                                    </action>
                                    <state name="new" />
@@ -1485,6 +1485,11 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/BaseDistro2.0:ServicePack1/pack2/_link'
     assert_response 404 # a makeoriginolder copy due to attribute
+    get '/source/BaseDistro2.0:ServicePack1/pack2?view=info'
+    assert_response :success
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:vrev)
+    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+1).to_s}.4" # is higher
     get '/source/BaseDistro2.0:LinkedUpdateProject/pack2?view=info'
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
@@ -1501,7 +1506,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     post '/request?cmd=create', '<request>
                                    <action type="submit">
-                                     <source project="BaseDistro2.0" package="pack2" rev="0" />
+                                     <source project="BaseDistro2.0" package="pack2" />
                                      <target project="BaseDistro2.0:ServicePack1" package="pack2NEW" />
                                    </action>
                                    <state name="new" />
