@@ -264,6 +264,8 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
         </channel>'
     assert_response :success
     # set target via xml
+    put '/source/Channel/BaseDistro2.0/_meta', '<package project="Channel" name="BaseDistro2.0"><title/><description/></package>'
+    assert_response :success
     put '/source/Channel/BaseDistro3/_meta', '<package project="Channel" name="BaseDistro3"><title/><description/></package>'
     assert_response :success
     post '/source/Channel/BaseDistro3?cmd=importchannel', '<?xml version="1.0" encoding="UTF-8"?>
@@ -340,10 +342,18 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     delete '/source/Channel/BaseDistro2'
     assert_response :success
 
+    put '/source/Channel/BaseDistro2.0/_channel', '<?xml version="1.0" encoding="UTF-8"?>
+        <channel>
+          <target project="BaseDistro2.0:LinkedUpdateProject" repository="BaseDistro2LinkedUpdateProject_repo"><disabled/></target>
+          <binaries project="BaseDistro3" repository="BaseDistro3_repo" arch="i586">
+            <binary name="package" package="pack2" supportstatus="l3" />
+            <binary name="does_not_exist" />
+          </binaries>
+        </channel>'
+    assert_response :success
     put '/source/Channel/BaseDistro3/_channel', '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
           <target project="BaseDistro3Channel" repository="channel_repo" id_template="UpdateInfoTag-&#37;Y-&#37;C" />
-          <target project="BaseDistro2.0:LinkedUpdateProject" repository="BaseDistro2LinkedUpdateProject_repo"><disabled/></target>
           <binaries project="BaseDistro3" repository="BaseDistro3_repo" arch="i586">
             <binary name="package" package="pack2" supportstatus="l3" />
             <binary name="does_not_exist" />
@@ -393,6 +403,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro3', arch: 'i586', state: 'published' } }, :tag => 'status', :attributes => { package: 'patchinfo', code: 'succeeded' }
     assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro3Channel', arch: 'i586', state: 'published' } }, :tag => 'status', :attributes => { package: 'patchinfo', code: 'succeeded' }
+    # BaseDistro2 is in LTSS, repos exist but none enabled
+    assert_no_xml_tag :tag => 'status', :attributes => { package: "BaseDistro2.0.Channel", code: 'succeeded' }
+    assert_xml_tag :tag => 'status', :attributes => { package: "BaseDistro2.0.Channel", code: 'disabled' }
     # check updateinfo
     get "/build/#{incidentProject}/BaseDistro3Channel/i586/patchinfo/updateinfo.xml"
     assert_response :success

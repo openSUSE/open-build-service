@@ -54,7 +54,7 @@ class Channel < ActiveRecord::Base
       r = prj.repositories.find_by_name(p['repository'])
       next unless r
       hasharray << { repository: r, id_template: p['id_template'],
-                     disabled: (p.elements('disabled').count>0) }
+                     disabled: (p.has_key? 'disabled') }
     }
     sync_hash_with_model(ChannelTarget, self.channel_targets, hasharray)
   end
