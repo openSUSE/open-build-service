@@ -125,7 +125,7 @@ class Channel < ActiveRecord::Base
         p=b
       end
       # no match? either not created or searched in the right way
-      raise "Unable to find binary list" unless p
+      raise "Unable to find binary list #{cbl.project.name} #{cbl.repository.name} #{cbl.architecture.name}" unless p
       # update...
       _update_from_xml_binaries(cbl, p)
     }
