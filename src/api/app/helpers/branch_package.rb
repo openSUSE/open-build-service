@@ -371,7 +371,7 @@ class BranchPackage
       unless p[:link_target_project].is_a? Project and p[:link_target_project].find_attribute('OBS', 'BranchTarget')
         p[:link_target_project] = update_project
       end
-      update_pkg = update_project.find_package(pkg_name)
+      update_pkg = update_project.find_package(pkg_name, true) # true for check_update_package in older service pack projects
       if update_pkg
         # We have no package in the update project yet, but sources are reachable via project link
         if update_project.develproject and up = update_project.develproject.find_package(pkg_name)
@@ -388,7 +388,7 @@ class BranchPackage
         # The defined update project can't reach the package instance at all.
         # So we need to create a new package and copy sources
         params[:missingok] = 1 # implicit missingok or better report an error ?
-        p[:copy_from_devel] = p[:package] if p[:package].is_a? Package
+        p[:copy_from_devel] = p[:package].find_devel_package if p[:package].is_a? Package
         p[:package] = pkg_name
       end
     end
@@ -483,8 +483,10 @@ class BranchPackage
           raise NotMissingError.new "Branch call with missingok paramater but branch source (#{params[:project]}/#{params[:package]}) exists."
         end
       else
-        pkg = Package.get_by_project_and_name params[:project], params[:package]
-        unless prj.is_a? Project and prj.find_attribute('OBS', 'BranchTarget')
+        pkg = Package.get_by_project_and_name params[:project], params[:package], {check_update_project: true}
+        if prj.is_a? Project and prj.find_attribute('OBS', 'BranchTarget')
+          @copy_from_devel = true
+        else
           prj = pkg.project if pkg
         end
       end

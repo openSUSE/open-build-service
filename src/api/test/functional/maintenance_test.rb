@@ -310,7 +310,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/home:king:branches:ServicePack/pack2/_history'
     assert_response :success
     # we found the new code in update project nevertheless that ServicePack does not link to it
-    assert_xml_tag :tag => "comment", :content => "fetch updates from devel package BaseDistro:Update/pack2"
+    # and the update package even has a devel area defined here
+    assert_xml_tag :tag => "comment", :content => "fetch updates from devel package Devel:BaseDistro:Update/pack2"
                    
     delete '/source/ServicePack'
     assert_response :success
@@ -1451,12 +1452,19 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert node.has_attribute?(:vrev)
     assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+2).to_s}" # got increased by 2
 
-    # check that new packages in update project get also found
+    # new packages in Update project found, even we just project-link only to GA
     post '/source/BaseDistro2.0:LinkedUpdateProject/packNEW?cmd=copy&oproject=BaseDistro2.0&opackage=pack2'
     assert_response :success
+    post '/source/BaseDistro2.0:ServicePack1/packNEW?cmd=branch'
+    assert_response :success
+    delete '/source/home:king:branches:BaseDistro2.0:LinkedUpdateProject/packNEW'
+    assert_response :success
+    # same for instantiate
     post '/source/BaseDistro2.0:ServicePack1/packNEW?cmd=instantiate'
     assert_response :success
     get '/source/BaseDistro2.0:ServicePack1/packNEW/_link'
+    assert_response :success
+    delete '/source/BaseDistro2.0:LinkedUpdateProject/packNEW'
     assert_response :success
 
     # create a new package instance via submit request the right way
@@ -1533,8 +1541,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+1).to_s}.2.1" # untouched
 
     # cleanup
-    delete '/source/BaseDistro2.0:LinkedUpdateProject/packNEW'
-    assert_response :success
     delete '/source/BaseDistro2.0:ServicePack1'
     assert_response :success
     delete "/source/#{incidentProject}"
