@@ -70,6 +70,7 @@
 *~
 *.bak
 *.tmp
+*.vagrant
 .*.sw*
 .directory
 .o
