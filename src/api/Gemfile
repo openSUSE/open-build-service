@@ -2,7 +2,7 @@
 # This preamble is the current preamble for Rails 3 apps; edit as needed.
 source 'https://rubygems.org'
 
-gem 'rails', '~> 4.2.0'
+gem 'rails', '~> 4.2.2'
 gem 'actionmailer'
 
 # as our database
@@ -58,9 +58,8 @@ end
 # Gems used only for testing the application and not required in production environments by default.
 group :test do
   # as testing frameworks
-  # to update to 5.3.4, we need to fix randomization
-  # see https://github.com/seattlerb/minitest/issues/431
-  gem 'minitest', '= 5.3.3'
+  gem 'minitest', '= 5.7.0'
+  gem 'test-unit'
   # to ensure a clean state for testing
   gem 'database_cleaner', '>= 1.0.1'
   # for jenkins

@@ -153,7 +153,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro2.0" } },
                    :tag => "path", :attributes => { :project => "BaseDistro2.0", :repository => "BaseDistro2_repo" }
     assert_xml_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro2Channel" } },
-                   :tag => "path", :attributes => { :project => "BaseDistro2Channel", :repository => "channel_repo" },
+                   :tag => "path", :attributes => { :project => "BaseDistro2Channel", :repository => "channel_repo" }
+    assert_xml_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro2Channel" } },
                    :tag => "releasetarget", :attributes => { :project => "BaseDistro2Channel", :repository => "channel_repo", :trigger => "maintenance" }
 
 
@@ -183,13 +184,17 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/build/#{incidentProject}/_result"
     assert_response :success
     assert_xml_tag :parent => { tag: 'result', attributes: { repository: kernelIncidentProject.gsub( /:/, '_'), arch: 'i586', code: 'building' } },
-               :tag => 'status', :attributes => { package: "kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}", code: 'scheduled' },
-               :tag => 'status', :attributes => { package: 'kgraft-GA.BaseDistro2.0', code: 'disabled' },
-               :tag => 'status', :attributes => { package: 'BaseDistro2.Channel', code: 'disabled' },
+               :tag => 'status', :attributes => { package: "kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}", code: 'scheduled' }
+    assert_xml_tag :parent => { tag: 'result', attributes: { repository: kernelIncidentProject.gsub( /:/, '_'), arch: 'i586', code: 'building' } },
+               :tag => 'status', :attributes => { package: 'kgraft-GA.BaseDistro2.0', code: 'disabled' }
+    assert_xml_tag :parent => { tag: 'result', attributes: { repository: kernelIncidentProject.gsub( /:/, '_'), arch: 'i586', code: 'building' } },
+               :tag => 'status', :attributes => { package: 'BaseDistro2.Channel', code: 'disabled' }
+    assert_xml_tag :parent => { tag: 'result', attributes: { repository: kernelIncidentProject.gsub( /:/, '_'), arch: 'i586', code: 'building' } },
                :tag => 'status', :attributes => { package: "patchinfo", code: 'blocked' }
     assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro2Channel', arch: 'i586' } }
     assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro2.0', arch: 'i586', code: 'building' } },
-               :tag => 'status', :attributes => { package: 'kgraft-GA.BaseDistro2.0', code: 'scheduled' },
+               :tag => 'status', :attributes => { package: 'kgraft-GA.BaseDistro2.0', code: 'scheduled' }
+    assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro2.0', arch: 'i586', code: 'building' } },
                :tag => 'status', :attributes => { package: 'patchinfo', code: 'blocked' }
 
 
@@ -215,7 +220,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/build/#{incidentProject}/_result"
     assert_response :success
     assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro2Channel', arch: 'i586', state: 'published' } },
-               :tag => 'status', :attributes => { package: 'BaseDistro2.Channel', code: 'succeeded' },
+               :tag => 'status', :attributes => { package: 'BaseDistro2.Channel', code: 'succeeded' }
+    assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro2Channel', arch: 'i586', state: 'published' } },
                :tag => 'status', :attributes => { package: 'patchinfo', code: 'succeeded' }
     get "/build/#{incidentProject}/BaseDistro2Channel/i586/patchinfo/"
     assert_response :success
@@ -238,14 +244,16 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_no_xml_tag( :tag => 'target', :attributes => { project: 'BaseDistro2.0' } )
     # code stream gets the sources of the packages
     assert_xml_tag( :parent => { :tag => "action", :attributes => { :type => "maintenance_release" } },
-                    :tag => 'source', :attributes => { project: incidentProject, package: 'kgraft-GA.BaseDistro2.0' },
+                    :tag => 'source', :attributes => { project: incidentProject, package: 'kgraft-GA.BaseDistro2.0' } )
+    assert_xml_tag( :parent => { :tag => "action", :attributes => { :type => "maintenance_release" } },
                     :tag => 'target', :attributes => { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'kgraft-GA.1' } )
     # update channel file
     assert_xml_tag( :parent => { :tag => "action", :attributes => { :type => "submit" } },
                     :tag => 'target', :attributes => { project: 'Channel', package: 'BaseDistro2' } )
     # release to channels
     assert_xml_tag( :parent => { :tag => "action", :attributes => { :type => "maintenance_release" } },
-                    :tag => 'source', :attributes => { project: incidentProject, package: 'patchinfo' },
+                    :tag => 'source', :attributes => { project: incidentProject, package: 'patchinfo' } )
+    assert_xml_tag( :parent => { :tag => "action", :attributes => { :type => "maintenance_release" } },
                     :tag => 'target', :attributes => { project: 'BaseDistro2Channel', package: 'patchinfo.1' } )
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
@@ -270,6 +278,16 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # cleanup
+    delete '/source/BaseDistro2.0:LinkedUpdateProject/kgraft-GA.1'
+    assert_response :success
+    delete '/source/BaseDistro2.0:LinkedUpdateProject/kgraft-GA'
+    assert_response :success
+    delete '/source/BaseDistro2.0:LinkedUpdateProject/kgraft-incident-0.1'
+    assert_response :success
+    delete '/source/BaseDistro2.0:LinkedUpdateProject/kgraft-incident-0'
+    assert_response :success
+    delete '/source/BaseDistro2.0:LinkedUpdateProject/patchinfo.1'
+    assert_response :success
     post "/source/BaseDistro2.0", { cmd: 'unlock', comment: 'revert' }
     assert_response :success
     post "/source/#{kernelIncidentProject}", { cmd: 'unlock', comment: 'revert' }

@@ -42,7 +42,7 @@ class BuildContainer < ActiveRecord::Base
     raise NotFoundError.new( "Error: Package not valid." ) unless package.kind_of? String
     raise NotFoundError.new( "Error: Repository not valid." ) unless repository.kind_of? Repository
     raise NotFoundError.new( "Error: Architecture not valid." ) unless architecture.kind_of? Architecture
-    obj = self.joins(:repository_architecture).where(package_id: nil, local_project: project, remote_package: package, remote_package: package, repository_architectures: {repository_id: repository.id, architecture_id: architecture.id})
+    obj = self.joins(:repository_architecture).where(package_id: nil, local_project: project, remote_package: package, repository_architectures: {repository_id: repository.id, architecture_id: architecture.id})
 
     return nil if obj.empty?
     return obj.load

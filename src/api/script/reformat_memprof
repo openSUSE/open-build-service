@@ -1,4 +1,4 @@
-#! /usr/bin/ruby
+#! /usr/bin/ruby.ruby2.2
 
 require 'rubygems'
 require 'json'

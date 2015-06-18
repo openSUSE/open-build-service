@@ -1515,11 +1515,11 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_add_file_to_package
     url1='/source/kde4/kdelibs'
-    asserttag1={ :tag => 'directory', :attributes => { :srcmd5 => '1636661d96a88cd985d82dc611ebd723' } }
+    asserttag1={ :tag => 'directory', :attributes => { :srcmd5 => '77b54d2fdcebfa537962d1c5af1b9976' } }
     url2='/source/kde4/kdelibs/testfile'
     assertresp2=:success
     assertselect2='revision > srcmd5'
-    assertselect2rev='bc1d31b2403fa8925b257101b96196ec'
+    assertselect2rev='327dd575d732cc1d2aee302b29b928fc'
     assertresp3=:success
     asserteq3=true
     assertresp4=:success
@@ -3477,6 +3477,14 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   test 'have the same user role twice in package meta' do
+    login_tom
+    get '/source/home:Iggy/_meta'
+    assert_response :success
+    orig_prj_meta = @response.body
+    get '/source/home:Iggy/TestPack/_meta'
+    assert_response :success
+    orig_pkg_meta = @response.body
+
     ret = duplicated_user_test('package', 'user', '/source/home:Iggy/TestPack/_meta')
     assert_equal({ 'name' => 'TestPack',
                    'project' => 'home:Iggy',
@@ -3514,6 +3522,13 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                    'group' =>
                        [{ 'groupid' => 'test_group', 'role' => 'bugowner' },
                         { 'groupid' => 'test_group', 'role' => 'maintainer' }] }, ret)
+
+    # restore (esp in backend)
+    login_king
+    put '/source/home:Iggy/_meta', orig_prj_meta
+    assert_response :success
+    put '/source/home:Iggy/TestPack/_meta', orig_pkg_meta
+    assert_response :success
   end
 
   test 'store invalid package' do

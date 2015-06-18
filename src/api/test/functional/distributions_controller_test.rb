@@ -7,8 +7,7 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
     get distribution_path(id: distributions(:two).to_param)
     assert_response :success
     # the default XML renderer just s***s
-    assert_equal({"id"=>{"type"=>"integer", "_content"=>"2"},
-                   "id"=>{"type"=>"integer", "_content"=>"2"},
+    assert_equal({ "id"=>{"type"=>"integer", "_content"=>"2"},
                    "link"=>"http://www.openbuildservice.org/",
                    "name"=>"OBS Base 2.0",
                    "project"=>"BaseDistro2.0",

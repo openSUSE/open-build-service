@@ -15,7 +15,7 @@ class Group < ActiveRecord::Base
                        :with => %r{\A[\w\.\-]*\z},
                        :message => 'must not contain invalid characters.'
   validates_length_of  :title,
-                       :in => 2..100, :allow_nil => true,
+                       :in => 2..100,
                        :too_long => 'must have less than 100 characters.',
                        :too_short => 'must have more than two characters.',
                        :allow_nil => false

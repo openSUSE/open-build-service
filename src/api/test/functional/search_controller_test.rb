@@ -456,8 +456,8 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :parent => { tag: 'owner', :children => { :count => 4 },
                                 :attributes => { :project => "home:Iggy", :package => "TestPack" }},
                    tag: 'group', :attributes => { :name => "test_group_b", :role => "maintainer" }
-    assert_xml_tag :parent => { tag: 'owner', :children => { :count => 2 }},
-                                :attributes => { :project => "home:Iggy" },
+    assert_xml_tag :parent => { tag: 'owner', :children => { :count => 2 },
+                                :attributes => { :project => "home:Iggy" } },
                    tag: 'person', :attributes => { :name => "hidden_homer", :role => "maintainer" }
 
     get "/search/owner?project=home:Iggy&package=TestPack&filter=bugowner"

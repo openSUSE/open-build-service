@@ -602,7 +602,9 @@ end
     assert_response :success
     assert_xml_tag :parent => { :tag => 'binary', :attributes =>
            { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "i586" } },
-                   :tag => 'operation', :content => "added",
+                   :tag => 'operation', :content => "added"
+    assert_xml_tag :parent => { :tag => 'binary', :attributes =>
+           { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "i586" } },
                    :tag => 'supportstatus', :content => "l3"
     assert_xml_tag :parent => { :tag => 'binary', :attributes =>
            { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "i586" } },
