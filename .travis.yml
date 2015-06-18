@@ -1,6 +1,6 @@
 language: ruby
 rvm:
-  - 2.1
+  - 2.2
 before_script: 
   - mysql -e 'create database ci_api_test;'
   - sed -e 's,password:.*,password:,' -i src/api/config/database.yml.example
