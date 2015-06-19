@@ -181,7 +181,7 @@ BuildRequires:  xorg-x11-server
 BuildRequires:  xorg-x11-server-extra
 # write down dependencies for production
 BuildRequires:  rubygem(bundler)
-Requires:       %(echo `bash %{S:1} %{S:0} "ruby:2.1.0"`)
+Requires:       %(echo `bash %{S:1} %{S:0} "ruby:2.2.0"`)
 # for rebuild_time
 Requires:       perl(GD)
 
@@ -413,9 +413,9 @@ EOF
 
 %if 0%{?suse_version}
 # adapt to SUSE style ruby parallel installation
-find %{buildroot} -executable -a -type f | while read file; do
-  sed -i -s 's,^#!/usr/bin/env ruby$,#!/usr/bin/env ruby.ruby2.1,' "$file"
-done
+#find %{buildroot} -executable -a -type f | while read file; do
+#  sed -i -s 's,^#!/usr/bin/env ruby$,#!/usr/bin/env ruby.ruby2.1,' "$file"
+#done
 %endif
 
 %check
