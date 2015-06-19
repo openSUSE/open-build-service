@@ -27,6 +27,10 @@ sudo apt-get update -o Dir::Etc::sourcelist="sources.list.d/security.list" -o Di
 # dependencies of backend
 sudo apt-get install --force-yes travis-deps libxml-parser-perl libfile-sync-perl python-rpm python-urlgrabber python-sqlitecachec python-libxml2 createrepo libbssolv-perl sphinxsearch libjson-xs-perl libxml-simple-perl libgd-gd2-perl
 
+# create versioned links for travis
+sudo ln -s ruby /usr/bin/ruby.ruby2.2
+sudo ln -s rake /usr/bin/rake.ruby2.2
+
 pushd src/api
 if test "$REMOVEGEMLOCK" = true; then
   rm Gemfile.lock
