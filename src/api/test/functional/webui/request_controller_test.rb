@@ -157,6 +157,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.must_have_text "There's nothing to be done right now"
   end
 
+  uses_transaction :test_tom_adds_reviewer_Iggy
   test 'tom adds reviewer Iggy' do
     login_tom to: user_show_path(user: 'tom')
 
@@ -237,6 +238,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.must_have_text '+DummyContent'
   end
 
+  uses_transaction :test_add_submitter_as_maintainer
   test 'add_submitter_as_maintainer' do
     use_js
 
