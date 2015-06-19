@@ -166,7 +166,8 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.wont_have_selector '#images' # The repo "images" should be gone by now
   end
 
-  test 'add repo' do
+  uses_transaction :test_add_and_modify_repo
+  def test_add_and_modify_repo
     use_js
 
     visit project_repositories_path(project: 'home:Iggy')
@@ -198,6 +199,28 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     # somehow the autocomplete logic creates a problem - and click_button refuses to click
     page.execute_script "$('#add_repository_button').click();"
     find(:id, 'flash-messages').must_have_text 'Build targets were added successfully'
+
+    click_link 'edit_repository_link_images'
+    page.must_have_text 'Edit images' # popup opened
+    uncheck('arch_i586')
+    click_button 'Update images'
+
+    # wait for the button to be disabled again before continue
+    page.must_have_xpath('.//input[@id="save_button-images"][@disabled="disabled"]')
+
+    # now check again
+    visit project_repositories_path(project: 'home:tom:addrepo')
+    page.must_have_text 'images (x86_64)'
+
+    # verify _meta
+    visit project_meta_path(project: 'home:tom:addrepo')
+    page.wont_have_text '<arch>i586</arch>'
+
+    # check API too
+    get '/source/home:tom:addrepo/_meta'
+    assert_response :success
+    assert_xml_tag :parent => { :tag => "repository", :attributes => { name: "images" } },
+                   :tag => "arch", :content => "x86_64"
   end
 
   test 'list all' do
@@ -283,33 +306,6 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     fill_in 'reply_body_100', with: 'Comment Body'
     find(:id, 'add_reply_100').click
     find('#flash-messages').must_have_text 'Comment added successfully '
-  end
-
-  test 'removing architectures in repo works' do
-    use_js
-    login_Iggy to: project_repositories_path(project: 'home:Iggy')
-
-    page.must_have_text '10.2 (i586, x86_64)'
-    click_link 'Edit repository'
-    page.must_have_text 'Edit 10.2' # popup opened
-    uncheck('arch_i586')
-    click_button 'Update 10.2'
-
-    # wait for the button to be disabled again before continue
-    page.must_have_xpath('.//input[@id="save_button-_10_2"][@disabled="disabled"]')
-
-    # now check again
-    visit project_repositories_path(project: 'home:Iggy')
-    page.must_have_text '10.2 (x86_64)'
-
-    # verify _meta
-    visit project_meta_path(project: 'home:Iggy')
-    page.wont_have_text '<arch>i586</arch>'
-
-    # check API too
-    get '/source/home:Iggy/_meta'
-    assert_response :success
-    assert_equal('x86_64', Xmlhash.parse(@response.body)['repository']['arch'])
   end
 
   test 'buildresults' do
