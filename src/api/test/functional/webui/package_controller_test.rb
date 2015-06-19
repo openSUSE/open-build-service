@@ -38,6 +38,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     flash_message.must_equal 'Project not found: home:Oggy'
   end
 
+  uses_transaction :test_delete_package_as_user
   test 'delete package as user' do
     use_js
 
@@ -45,6 +46,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     delete_and_recreate_kdelibs
   end
 
+  uses_transaction :test_delete_package_as_admin
   test 'delete package as admin' do
     use_js
 

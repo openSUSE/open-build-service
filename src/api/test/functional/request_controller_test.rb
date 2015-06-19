@@ -1792,7 +1792,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     req = load_backend_file('request/cover_all_action_types_request')
     login_Iggy
 
-    # create kdelibs package
+    # create kdebase package
     post '/source/kde4/kdebase', :cmd => :branch
     assert_response :success
     post '/request?cmd=create', req
