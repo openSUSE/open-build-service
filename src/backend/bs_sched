@@ -6368,7 +6368,7 @@ sub checkaggregate {
 	my $m = '';
         if ($remoteprojs{$aprojid}) {
 	  my $bininfo = ($gbininfos{"$aprojid/$arepoid/$myarch"} || {})->{$apackid} || {};
-	  for my $b (values %$bininfo) {
+	  for my $b (sort {$a->{'filename'} cmp $b->{'filename'}} values %$bininfo) {
 	    next unless $b->{'filename'} && ($b->{'filename'} eq 'updateinfo.xml' || $b->{'filename'} =~ /\.(?:$binsufsre)$/);
 	    $m .= $b->{'hdrmd5'} || $b->{'md5sum'} || '';
 	  }
