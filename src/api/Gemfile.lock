@@ -252,6 +252,7 @@ PLATFORMS
 DEPENDENCIES
   actionmailer
   acts_as_list
+  bundler
   capybara_minitest_spec
   chunky_png
   ci_reporter
