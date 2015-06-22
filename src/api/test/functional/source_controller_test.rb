@@ -115,6 +115,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     raw_put '/source/kde4/kdelibs/DUMMY?comment=illegalchar%96%96asd', 'NOTWORKING'
     assert_response 400
     assert_xml_tag :tag => 'status', :attributes => { :code => 'invalid_text_encoding' }
+    delete '/source/kde4/kdelibs/DUMMY'
+    assert_response :success
   end
 
   def test_get_project_meta
@@ -1515,11 +1517,11 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_add_file_to_package
     url1='/source/kde4/kdelibs'
-    asserttag1={ :tag => 'directory', :attributes => { :srcmd5 => '77b54d2fdcebfa537962d1c5af1b9976' } }
+    asserttag1={ :tag => 'directory', :attributes => { :srcmd5 => '1636661d96a88cd985d82dc611ebd723' } }
     url2='/source/kde4/kdelibs/testfile'
     assertresp2=:success
     assertselect2='revision > srcmd5'
-    assertselect2rev='327dd575d732cc1d2aee302b29b928fc'
+    assertselect2rev='bc1d31b2403fa8925b257101b96196ec'
     assertresp3=:success
     asserteq3=true
     assertresp4=:success
@@ -1561,6 +1563,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     get '/source/kde4/kdelibs/my_patch.diff'
     assert_response :success
+
+    # reset file in backend to fixture setup
+    raw_put '/source/kde4/kdelibs/my_patch.diff?user=king', 'argl'
   end
 
   def test_get_project_meta_history
