@@ -406,6 +406,27 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     # BaseDistro2 is in LTSS, repos exist but none enabled
     assert_no_xml_tag :tag => 'status', :attributes => { package: "BaseDistro2.0.Channel", code: 'succeeded' }
     assert_xml_tag :tag => 'status', :attributes => { package: "BaseDistro2.0.Channel", code: 'disabled' }
+
+    # enable the patchinfo via api call
+    login_king
+    put "/source/BaseDistro2.0/_product/_meta", "<package project='BaseDistro2.0' name='_product'><title/><description/></package>"
+    assert_response :success
+    ["defaults-archsets.include", "defaults-conditionals.include", "defaults-repositories.include", "obs.group", "obs-release.spec", "simple.product"].each do |file|
+      raw_put "/source/BaseDistro2.0/_product/#{file}",
+              File.open("#{Rails.root}/test/fixtures/backend/source/simple_product/#{file}").read()
+      assert_response :success
+    end
+    prepare_request_with_user 'maintenance_coord', 'power'
+    post "/source/#{incidentProject}/BaseDistro2.0.Channel?cmd=set_flag&product=simple&flag=build&status=enable"
+    assert_response :success
+    get "/source/#{incidentProject}/BaseDistro2.0.Channel/_meta"
+    assert_response :success
+    assert_xml_tag :tag => 'enable', :attributes => {repository: "BaseDistro2.0_LinkedUpdateProject"}
+    login_king
+    delete "/source/BaseDistro2.0/_product"
+    assert_response :success
+    prepare_request_with_user 'maintenance_coord', 'power'
+
     # check updateinfo
     get "/build/#{incidentProject}/BaseDistro3Channel/i586/patchinfo/updateinfo.xml"
     assert_response :success

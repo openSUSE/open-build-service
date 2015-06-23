@@ -80,7 +80,7 @@ module FlagHelper
     return position
   end
 
-  def remove_flag(flag, repository, arch)
+  def remove_flag(flag, repository, arch = nil)
     validate_type flag
     flaglist = self.type_flags(flag)
     arch = Architecture.find_by_name(arch) if arch
@@ -97,7 +97,7 @@ module FlagHelper
   end
 
   def add_flag(flag, status, repository = nil, arch = nil)
-    validate_type flag 
+    validate_type flag
     unless status == 'enable' or status == 'disable'
       raise ArgumentError.new("Error: unknown status for flag '#{status}'")
     end
@@ -105,6 +105,37 @@ module FlagHelper
       f.architecture = Architecture.find_by_name(arch) if arch
       f.repo = repository
     end
+  end
+
+  def set_repository_by_product(flag, status, product_name, patchlevel=nil)
+    validate_type flag
+
+    prj = self
+    prj = self.project if self.kind_of? Package
+    update = nil
+
+    # we find all repositories targeted by given products
+    p={name: product_name}
+    p[:patchlevel] = patchlevel if p
+    Product.where(p).each do |product|
+      # FIXME: limit to official ones
+
+      product.product_update_repositories.each do |ur|
+        prj.repositories.each do |repo|
+          repo.release_targets.each do |rt|
+            next unless rt.target_repository == ur.repository
+            # MATCH!
+            if status
+              add_flag(flag, status, rt.repository.name)
+            else
+              remove_flag(flag, rt.repository.name)
+            end
+          end
+        end
+      end
+    end
+
+    self.store if update
   end
 
   def enabled_for?(flag_type, repo, arch)
