@@ -411,13 +411,6 @@ This package does not contain any development files. But it helps you start with
 git development - look at http://github.com/opensuse/open-build-service
 EOF
 
-%if 0%{?suse_version}
-# adapt to SUSE style ruby parallel installation
-#find %{buildroot} -executable -a -type f | while read file; do
-#  sed -i -s 's,^#!/usr/bin/env ruby$,#!/usr/bin/env ruby.ruby2.1,' "$file"
-#done
-%endif
-
 %check
 # check installed backend
 pushd $RPM_BUILD_ROOT/usr/lib/obs/server/
