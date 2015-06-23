@@ -5619,6 +5619,47 @@ sub sourcecommitfilelist {
   return getfilelist($cgi, $projid, $packid);
 }
 
+# admin only, move entire project
+sub moveproject {
+  my ($cgi, $projid) = @_;
+  my $oprojid = $cgi->{'oproject'};
+  return $BSStdServer::return_ok if $oprojid eq $projid;
+
+  my $oproj = readproj($oprojid);
+
+  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $oreposerver = $BSConfig::partitioning ? projid2reposerver($oprojid) : $BSConfig::reposerver;
+  if ($reposerver ne $oreposerver) {
+    die("cannot copy binaries between different reposiory servers yet\n");
+  }
+  if (-e "$projectsdir/$projid.pkg" || -e "$projectsdir/$projid.conf" || -e "$projectsdir/$projid.xml") {
+    die("Target project exists already\n");
+  }
+
+  rename("$projectsdir/$oprojid.xml", "$projectsdir/$projid.xml");
+  rename("$projectsdir/$oprojid.pkg", "$projectsdir/$projid.pkg") if -e "$projectsdir/$oprojid.pkg";
+  rename("$projectsdir/$oprojid.conf", "$projectsdir/$projid.conf") if -e "$projectsdir/$oprojid.conf";
+
+  # move in the backend as well
+  my @args;
+  push @args, "cmd=move";
+  push @args, "oproject=$oprojid";
+  my $param = {
+    'uri' => "$reposerver/build/$projid",
+    'request' => 'POST',
+  };
+  eval {
+    # ignore failures for now
+    BSWatcher::rpc($param, undef, @args);
+  };
+  warn($@) if $@;
+
+  # check all packages in project
+  notify_repservers('package', $projid);
+  notify_repservers('package', $oprojid);
+  return $BSStdServer::return_ok;
+}
+
 # copy sources of entire project, project exists ensured by api.
 sub copyproject {
   my ($cgi, $projid) = @_;
@@ -8301,6 +8342,7 @@ my $dispatches = [
   'POST:/source/$project cmd=extendkey user:? comment:?' => \&extendkey,
   'POST:/source/$project cmd=undelete user:? comment:?' => \&undeleteproject,
   'POST:/source/$project cmd=copy user:? comment:? oproject:project withbinaries:bool? withhistory:bool? makeolder:bool? resign:bool? noservice:bool?' => \&copyproject,
+  'POST:/source/$project cmd=move oproject:project' => \&moveproject,
   'POST:/source/$project cmd: *:*' => \&unknowncmd,
   '/source/$project view=info parse:bool? nofilename:bool? repository? arch? package* withchangesmd5:bool?' => \&getprojectsourceinfo,
   '/source/$project deleted:bool? expand:bool? noorigins:bool?' => \&getpackagelist,

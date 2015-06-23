@@ -400,6 +400,7 @@ POST /source/<project>
   undelete: undelete the project and all packages existing when the project got removed.
   showlinked: List all projects linking to this one
   copy: copy the entire project
+  move: ADMIN ONLY. schedulers need to be stopped. move all sources and binaries around from oproject.
   createmaintenanceincident: create a single mainatenance incident project as sub project
   createpatchinfo: create a new patchinfo package collecting all mentioned issues in sources
   addchannels: add channel packages and repositories for matching packages in project

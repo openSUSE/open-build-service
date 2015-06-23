@@ -2026,6 +2026,18 @@ sub getjobdata {
   return undef;
 }
 
+sub moveproject {
+  my ($cgi, $projid) = @_;
+  my $oprojid = $cgi->{'oproject'};
+  return $BSStdServer::return_ok if $oprojid eq $projid;
+  return $BSStdServer::return_ok unless -d "$reporoot/$oprojid";
+
+  # FIXME: this is only save when scheduler are stopped. let them doing this ...
+  rename("$reporoot/$oprojid", "$reporoot/$projid");
+
+  return $BSStdServer::return_ok;
+}
+
 sub copybuild {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   my $oprojid = defined($cgi->{'oproject'}) ? $cgi->{'oproject'} : $projid;
@@ -4107,6 +4119,7 @@ my $dispatches = [
   'POST:/build/$project/$repository/$arch/_relsync' => \&postrelsync,
   '/build/$project/$repository/$arch/_relsync' => \&getrelsync,
   'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool? setrelease:?' => \&copybuild,
+  'POST:/build/$project cmd=move oproject:project' => \&moveproject,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
   '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool? nosource:bool? noimport:bool? withmd5:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo_post,

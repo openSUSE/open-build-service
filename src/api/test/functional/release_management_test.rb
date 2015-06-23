@@ -3,7 +3,47 @@ require 'source_controller'
 
 class ReleaseManagementTests < ActionDispatch::IntegrationTest 
   fixtures :all
-  
+
+  def test_move_entire_project
+    wait_for_scheduler_start
+
+    login_tom
+
+    # try as non-admin
+    post "/source/home:tom:BaseDistro", :cmd => :move, :oproject => "BaseDistro"
+    assert_response 403
+
+    login_king
+    post "/source/home:tom", :cmd => :move, :oproject => "BaseDistro"
+    assert_response 400
+
+    # real move
+    post "/source/TEMP:BaseDistro", :cmd => :move, :oproject => "BaseDistro"
+    assert_response :success
+    assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
+    get "/build/TEMP:BaseDistro"
+    assert_response :success
+    get "/build/TEMP:BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm"
+    assert_response :success
+    get "/build/BaseDistro"
+    assert_response 404
+    get "/build/BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm"
+    assert_response 404
+
+    # move back
+    post "/source/BaseDistro", :cmd => :move, :oproject => "TEMP:BaseDistro"
+    assert_response :success
+    assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
+    get "/build/TEMP:BaseDistro"
+    assert_response 404
+    get "/build/TEMP:BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm"
+    assert_response 404
+    get "/build/BaseDistro"
+    assert_response :success
+    get "/build/BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm"
+    assert_response :success
+  end
+
   def test_release_project
     login_tom
 

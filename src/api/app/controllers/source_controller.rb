@@ -185,7 +185,7 @@ class SourceController < ApplicationController
     # init and validation
     #--------------------
     valid_commands=%w(undelete showlinked remove_flag set_flag createpatchinfo createkey extendkey copy
-                      createmaintenanceincident unlock release addchannels)
+                      createmaintenanceincident unlock release addchannels move)
     if params[:cmd]
       raise IllegalRequest.new 'invalid_command' unless valid_commands.include?(params[:cmd])
       command = params[:cmd]
@@ -195,7 +195,7 @@ class SourceController < ApplicationController
 
     params[:user] = User.current.login
 
-    if %w(undelete release copy).include? command
+    if %w(undelete release copy move).include? command
       return dispatch_command(:project_command, command)
     end
 
@@ -257,6 +257,9 @@ class SourceController < ApplicationController
 
   class DeletePackageNoPermission < APIException
     setup 403
+  end
+
+  class ProjectExists < APIException
   end
 
   class PackageExists < APIException
@@ -1105,6 +1108,25 @@ class SourceController < ApplicationController
   end
   class ProjectCopyNoPermission < APIException
     setup 403
+  end
+
+  # POST /source/<project>?cmd=move&oproject=<project>
+  def project_command_move
+    project_name = params[:oproject]
+
+    unless User.current.is_admin?
+      raise CmdExecutionNoPermission.new "Admin permissions required. STOP SCHEDULER BEFORE."
+    end
+    if Project.exists_by_name(params[:project])
+      raise ProjectExists.new "Target project exists already."
+    end
+
+    project = Project.get_by_name(project_name)
+    project.name = params[:project]
+    project.save # not store, will be done by backend
+
+    Suse::Backend.post "/source/#{URI.escape(project.name)}?cmd=move&oproject=#{CGI.escape(project_name)}", nil
+    render_ok
   end
 
   # POST /source/<project>?cmd=copy
