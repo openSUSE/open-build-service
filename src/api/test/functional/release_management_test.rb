@@ -21,10 +21,18 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     post "/source/TEMP:BaseDistro", :cmd => :move, :oproject => "BaseDistro"
     assert_response :success
     assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
+    get "/source/TEMP:BaseDistro"
+    assert_response :success
+    get "/source/TEMP:BaseDistro/_project"
+    assert_response :success
+    get "/source/TEMP:BaseDistro/pack2"
+    assert_response :success
     get "/build/TEMP:BaseDistro"
     assert_response :success
     get "/build/TEMP:BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm"
     assert_response :success
+    get "/source/BaseDistro"
+    assert_response 404
     get "/build/BaseDistro"
     assert_response 404
     get "/build/BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm"

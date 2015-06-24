@@ -1122,10 +1122,20 @@ class SourceController < ApplicationController
     end
 
     project = Project.get_by_name(project_name)
-    project.name = params[:project]
-    project.save # not store, will be done by backend
+    begin
+      project.name = params[:project]
 
-    Suse::Backend.post "/source/#{URI.escape(project.name)}?cmd=move&oproject=#{CGI.escape(project_name)}", nil
+      Suse::Backend.post "/source/#{URI.escape(project.name)}?cmd=move&oproject=#{CGI.escape(project_name)}", nil
+      project.store
+    rescue
+      render_error :status => 400, :errorcode => 'move_failed',
+        :message => 'Move operation failed'
+      return
+    end
+
+    project.all_sources_changed
+    project.find_linking_projects.each {|p| p.all_sources_changed}
+
     render_ok
   end
 

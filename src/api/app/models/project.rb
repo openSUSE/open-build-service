@@ -1208,7 +1208,14 @@ class Project < ActiveRecord::Base
       p.update_from_xml(Xmlhash.parse(Suse::Backend.get(path).body))
       p.save! # do not store
     end
-    packages.each { |p| p.sources_changed }
+    all_sources_changed
+  end
+
+  def all_sources_changed
+    self.packages.each do |p|
+      p.sources_changed
+      p.find_linking_packages.each { |lp| lp.sources_changed }
+    end
   end
 
   # called either directly or from delayed job

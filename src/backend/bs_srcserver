@@ -5639,6 +5639,7 @@ sub moveproject {
   rename("$projectsdir/$oprojid.xml", "$projectsdir/$projid.xml");
   rename("$projectsdir/$oprojid.pkg", "$projectsdir/$projid.pkg") if -e "$projectsdir/$oprojid.pkg";
   rename("$projectsdir/$oprojid.conf", "$projectsdir/$projid.conf") if -e "$projectsdir/$oprojid.conf";
+  rename("$treesdir/$oprojid", "$treesdir/$projid") if -e "$treesdir/$oprojid";
 
   # move in the backend as well
   my @args;
