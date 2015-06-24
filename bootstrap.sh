@@ -1,6 +1,7 @@
 #!/bin/bash
 
 echo -e "\ninstalling required software packages...\n"
+echo 'solver.allowVendorChange = true' >> /etc/zypp/zypp.conf
 zypper -q ar -f http://download.opensuse.org/repositories/OBS:/Server:/Unstable/openSUSE_13.2/OBS:Server:Unstable.repo
 zypper -q --gpg-auto-import-keys refresh
 zypper -q -n install ruby-devel make gcc patch cyrus-sasl-devel openldap2-devel libmysqld-devel libxml2-devel zlib-devel libxslt-devel nodejs mariadb memcached sphinx screen sphinx obs-server

@@ -262,35 +262,40 @@ We are using [Vagrant](https://www.vagrantup.com/) to create our development env
 
 1. Install [Vagrant](https://www.vagrantup.com/downloads.html) and [VirtualBox](https://www.virtualbox.org/wiki/Downloads). Both tools support Linux, MacOS and Windows and in principal setting up your OBS development environment works similar.
 
-2. Clone this code repository
+2. Install [vagrant-exec](https://github.com/p0deje/vagrant-exec)
+```
+vagrant plugin install vagrant-exec
+```
+
+3. Clone this code repository
 ```
 git clone --depth 1 git@github.com:openSUSE/open-build-service.git
 ```
 
-3. Inside your clone execute Vagrant
+4. Inside your clone execute Vagrant
 ```
 vagrant up
 ```
 
-4. Start your development backend with
+5. Start your development backend with
 ```
 vagrant exec ./script/start_test_backend
 ```
 
-5. Start your development OBS frontend
+6. Start your development OBS frontend
 ```
 vagrant exec rails s
 ```
 
-6. Check out your OBS frontend
+7. Check out your OBS frontend
 You can access the frontend at [localhost:3000](http://localhost:3000). Whatever you change in your cloned repository will have effect in the development environment. 
 
-7. Changed something? Test your changes!
+8. Changed something? Test your changes!
 ```
 vagrant exec rake test
 ```
 
-8. Explore the development environment
+9. Explore the development environment
 ```
 vagrant ssh
 ```
