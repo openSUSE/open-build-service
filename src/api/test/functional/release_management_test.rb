@@ -25,8 +25,12 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     assert_response :success
     get "/source/TEMP:BaseDistro/_project"
     assert_response :success
-    get "/source/TEMP:BaseDistro/pack2"
+    get "/source/TEMP:BaseDistro/_project/_history?meta=1"
     assert_response :success
+    assert_xml_tag :tag => "comment", :content => "Project move from BaseDistro to TEMP:BaseDistro"
+    get "/source/TEMP:BaseDistro/pack2/_meta"
+    assert_response :success
+    assert_xml_tag :tag => "package", :attributes => { :project => "TEMP:BaseDistro" }
     get "/build/TEMP:BaseDistro"
     assert_response :success
     get "/build/TEMP:BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm"
@@ -42,6 +46,12 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     post "/source/BaseDistro", :cmd => :move, :oproject => "TEMP:BaseDistro"
     assert_response :success
     assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
+    get "/source/BaseDistro/pack2/_meta"
+    assert_response :success
+    assert_xml_tag :tag => "package", :attributes => { :project => "BaseDistro" }
+    get "/source/BaseDistro/_project/_history?meta=1"
+    assert_response :success
+    assert_xml_tag :tag => "comment", :content => "Project move from TEMP:BaseDistro to BaseDistro"
     get "/build/TEMP:BaseDistro"
     assert_response 404
     get "/build/TEMP:BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm"

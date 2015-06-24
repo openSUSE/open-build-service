@@ -1114,6 +1114,12 @@ class SourceController < ApplicationController
   def project_command_move
     project_name = params[:oproject]
 
+    commit = { :login => User.current.login,
+               :lowprio => 1,
+               :comment => "Project move from #{params[:oproject]} to #{params[:project]}"
+             }
+    commit[:comment] = params[:comment] unless params[:comment].blank?
+
     unless User.current.is_admin?
       raise CmdExecutionNoPermission.new "Admin permissions required. STOP SCHEDULER BEFORE."
     end
@@ -1126,7 +1132,9 @@ class SourceController < ApplicationController
       project.name = params[:project]
 
       Suse::Backend.post "/source/#{URI.escape(project.name)}?cmd=move&oproject=#{CGI.escape(project_name)}", nil
-      project.store
+      project.store(commit)
+      # update meta data in all packages, they contain the project name as well
+      project.packages.each {|p| p.store(commit)}
     rescue
       render_error :status => 400, :errorcode => 'move_failed',
         :message => 'Move operation failed'
