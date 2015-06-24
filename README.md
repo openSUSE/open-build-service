@@ -270,6 +270,7 @@ vagrant plugin install vagrant-exec
 3. Clone this code repository
 ```
 git clone --depth 1 git@github.com:openSUSE/open-build-service.git
+git submodule update
 ```
 
 4. Inside your clone execute Vagrant
