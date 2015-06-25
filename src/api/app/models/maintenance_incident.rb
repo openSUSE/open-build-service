@@ -62,14 +62,15 @@ class MaintenanceIncident < ActiveRecord::Base
       counterType << " AND ISNULL(day) "
       day = nil
     end
-    if template =~ /%N/
-      name = (self.name||"")
-      counterType << " AND name   = ? "
-      values << name
-    else
+# FIXME: temporary disabled for validation, clean up including db migration later
+#    if template =~ /%N/
+#      name = (self.name||"")
+#      counterType << " AND name   = ? "
+#      values << name
+#    else
       counterType << " AND ISNULL(name) "
       name = nil
-    end
+#    end
 
     r = MaintenanceIncident.exec_query(["SELECT counter FROM updateinfo_counter WHERE maintenance_db_project_id = ? #{counterType} FOR UPDATE",
                                         self.maintenance_db_project_id,*values]).first
