@@ -104,6 +104,8 @@ class SourceController < ApplicationController
     if params.has_key? :view
       if params['view'] == 'productlist'
         render xml: render_project_productlist
+      elsif params['view'] == 'verboseproductlist'
+        render xml: render_project_verboseproductlist
       elsif params['view'] == 'issues'
         render_project_issues
       else
@@ -135,12 +137,27 @@ class SourceController < ApplicationController
     if params.has_key? :expand
       products = @project.expand_all_products
     else
-      products = Product.joins(:package).where("packages.project_id = ? and packages.name = '_product'", @project.id).pluck(:name, :cpe, :package_id)
+      products = Product.joins(:package).where("packages.project_id = ? and packages.name = '_product'", @project.id)
     end
-    products = @project.map_products_to_packages(products)
     output = String.new
     output << "<productlist count='#{products.length}'>\n"
-    output << products.map { |p| "  <product name=\"#{p[0]}\" cpe=\"#{p[1]}\" originproject=\"#{p[2]}\" mtime=\"#{p[3]}\"/>\n" }.join
+    output << products.map { |p| "  <product name=\"#{p.name}\" cpe=\"#{p.cpe}\" originproject=\"#{p.package.project.name}\" mtime=\"#{p.package.updated_at.to_i}\"/>\n" }.join
+    output << "</productlist>\n"
+    output
+  end
+
+  def render_project_verboseproductlist
+    products=nil
+    if params.has_key? :expand
+      products = @project.expand_all_products
+    else
+      products = Product.joins(:package).where("packages.project_id = ? and packages.name = '_product'", @project.id)
+    end
+    output = String.new
+    output << "<productlist count='#{products.length}'>\n"
+    products.each do |p|
+      output << p.to_axml
+    end
     output << "</productlist>\n"
     output
   end

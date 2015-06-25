@@ -4,6 +4,8 @@ class Product < ActiveRecord::Base
   has_many :product_update_repositories, dependent: :destroy
   has_many :product_media, dependent: :destroy
 
+  include CanRenderModel
+
   def self.find_or_create_by_name_and_package( name, package )
     raise Product::NotFoundError.new( "Error: Package not valid." ) unless package.class == Package
     product = self.find_by_name_and_package name, package
@@ -15,6 +17,13 @@ class Product < ActiveRecord::Base
 
   def self.find_by_name_and_package( name, package )
     return self.where(name: name, package: package).load
+  end
+
+  def to_axml(opts={})
+    Rails.cache.fetch('xml_product_%d' % self.id) do
+      # CanRenderModel
+      render_xml
+    end
   end
 
   def set_CPE(swClass, vendor, pversion=nil)

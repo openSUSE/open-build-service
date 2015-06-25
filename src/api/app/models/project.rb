@@ -1007,17 +1007,17 @@ class Project < ActiveRecord::Base
   # this function is making the products uniq
   def expand_all_products
     p_map = Hash.new
-    products = Product.joins(:package).where("packages.project_id = ? and packages.name = '_product'", self.id).pluck(:name, :cpe, :package_id)
-    products.each { |name, cpe, package_id| p_map[cpe] = 1 } # existing packages map
+    products = Product.joins(:package).where("packages.project_id = ? and packages.name = '_product'", self.id)
+    products.each { |p| p_map[p.cpe] = 1 } # existing packages map
     # second path, all packages from indirect linked projects
     self.linkedprojects.each do |lp|
       if lp.linked_db_project.nil?
         # FIXME: this is a remote project
       else
-        lp.linked_db_project.expand_all_products.each do |name, cpe, package_id|
-          unless p_map[cpe]
-            products << [name, cpe, package_id]
-            p_map[cpe] = 1
+        lp.linked_db_project.expand_all_products.each do |p|
+          unless p_map[p.cpe]
+            products << p
+            p_map[p.cpe] = 1
           end
         end
       end
@@ -1042,15 +1042,6 @@ class Project < ActiveRecord::Base
       else
         ret << [name, prj_names[prj_id]]
       end
-    end
-    ret
-  end
-
-  def map_products_to_packages(packages)
-    ret = []
-    packages.each do |p|
-      package = Package.find_by_id p[2]
-      ret << [p[0], p[1], package.project.name, package.updated_at.to_i]
     end
     ret
   end
