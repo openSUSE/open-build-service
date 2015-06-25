@@ -104,10 +104,7 @@ module Webui::WebuiHelper
 
     out = "<td class='#{theclass} buildstatus'>"
     if %w(unresolvable blocked).include? code
-      out += link_to code, '#', title: link_title, id: status_id
-      content_for :ready_function do
-        "$('a##{status_id}').click(function() { alert('#{link_title.gsub(/'/, '\\\\\'')}'); return false; });\n".html_safe
-      end
+      out += link_to code, '#', title: link_title, id: status_id, class: code
     elsif %w(- excluded).include? code
       out += code
     elsif @localpackages and not @localpackages.has_key? packname
