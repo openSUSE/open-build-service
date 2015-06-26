@@ -585,6 +585,18 @@ CREATE TABLE `incident_counter` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `incident_updateinfo_counter_values` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `updateinfo_counter_id` int(11) NOT NULL,
+  `project_id` int(11) NOT NULL,
+  `value` int(11) NOT NULL,
+  `released_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uniq_id_index` (`updateinfo_counter_id`,`project_id`),
+  KEY `project_id` (`project_id`),
+  CONSTRAINT `incident_updateinfo_counter_values_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `issue_trackers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) CHARACTER SET utf8 NOT NULL,
@@ -646,9 +658,7 @@ CREATE TABLE `maintenance_incidents` (
   `request` int(11) DEFAULT NULL,
   `updateinfo_id` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `incident_id` int(11) DEFAULT NULL,
-  `counter` int(11) DEFAULT NULL,
   `released_at` datetime DEFAULT NULL,
-  `name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_maintenance_incidents_on_db_project_id` (`db_project_id`),
   KEY `index_maintenance_incidents_on_maintenance_db_project_id` (`maintenance_db_project_id`)
@@ -1040,14 +1050,13 @@ CREATE TABLE `tokens` (
   CONSTRAINT `tokens_ibfk_2` FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-CREATE TABLE `updateinfo_counter` (
+CREATE TABLE `updateinfo_counters` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `maintenance_db_project_id` int(11) DEFAULT NULL,
   `day` int(11) DEFAULT NULL,
   `month` int(11) DEFAULT NULL,
   `year` int(11) DEFAULT NULL,
   `counter` int(11) DEFAULT '0',
-  `name` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -1637,6 +1646,8 @@ INSERT INTO schema_migrations (version) VALUES ('20150129135427');
 INSERT INTO schema_migrations (version) VALUES ('20150227063641');
 
 INSERT INTO schema_migrations (version) VALUES ('20150623063641');
+
+INSERT INTO schema_migrations (version) VALUES ('20150625105426');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
