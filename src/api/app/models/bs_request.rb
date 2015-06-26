@@ -498,6 +498,7 @@ class BsRequest < ActiveRecord::Base
 
     self.with_lock do
       self.reviews.reverse.each do |review|
+        next if review.by_user
         next if review.by_group && review.by_group != opts[:by_group]
         next if review.by_project && review.by_project != opts[:by_project]
         next if review.by_package && review.by_package != opts[:by_package]

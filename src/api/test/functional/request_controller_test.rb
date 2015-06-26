@@ -901,6 +901,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     # add reviewer group
     login_Iggy
+    post "/request/#{id}?cmd=addreview&by_user=king"
+    assert_response :success
     post "/request/#{id}?cmd=addreview&by_group=test_group"
     assert_response :success
     post "/request/#{id}?cmd=addreview&by_group=test_group_b"
@@ -911,10 +913,18 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     # adrian assigns to adrian_downloader
     login_adrian
+    get "/request/#{id}"
+    assert_response :success
+    assert_no_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'adrian_downloader' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'king' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_group: 'test_group' })
     post "/request/#{id}?by_group=test_group&cmd=assignreview&reviewer=adrian_downloader", 'adrian_downloader, please have a look'
     assert_response :success
     get "/request/#{id}"
     assert_response :success
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'adrian_downloader' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'king' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'accepted', by_group: 'test_group' })
 
     login_adrian_downloader
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=adrian_downloader"
