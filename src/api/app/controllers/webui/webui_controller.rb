@@ -83,6 +83,10 @@ class Webui::WebuiController < ActionController::Base
     end
   end
 
+
+  # FIXME: This is more than stupid. Why do we tell the user that something isn't found
+  # just because there is some data missing to compute the request? Someone needs to read
+  # http://guides.rubyonrails.org/active_record_validations.html
   class MissingParameterError < Exception; end
   rescue_from MissingParameterError do |exception|
     logger.debug "#{exception.class.name} #{exception.message} #{exception.backtrace.join('\n')}"

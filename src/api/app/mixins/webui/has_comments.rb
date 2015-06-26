@@ -1,23 +1,21 @@
 module Webui::HasComments
 
+
   def save_comment
     require_login || return
 
-    required_parameters :body
-
     comment = main_object.comments.build(body: params[:body], parent_id: params[:parent_id])
     comment.user = User.current
-    comment.save!
 
     respond_to do |format|
-      format.js do
-        render json: 'ok'
-      end
-      format.html do
-        flash[:notice] = 'Comment added successfully'
+      if comment.save
+        format.html { redirect_to :back , notice: 'Comment was successfully created.' }
+        format.json { render json: 'ok' }
+      else
+        format.html { redirect_to :back, error: "Comment can't be saved: #{comment.errors.full_messages.to_sentence}." }
+        format.json { render json: comment.errors, status: :unprocessable_entity }
       end
     end
-    redirect_to :back
   end
 
   protected
