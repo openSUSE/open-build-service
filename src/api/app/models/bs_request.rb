@@ -433,11 +433,11 @@ class BsRequest < ActiveRecord::Base
   def change_state(opts)
     self.permission_check_change_state!(opts)
 
-    changestate_revoked if opts[:newstate] == 'revoked'
-    changestate_accepted(opts) if opts[:newstate] == 'accepted'
-
-    state = opts[:newstate].to_sym
     self.with_lock do
+      changestate_revoked if opts[:newstate] == 'revoked'
+      changestate_accepted(opts) if opts[:newstate] == 'accepted'
+
+      state = opts[:newstate].to_sym
       bs_request_actions.each do |a|
         # "inform" the actions
         a.request_changes_state(state, opts)
