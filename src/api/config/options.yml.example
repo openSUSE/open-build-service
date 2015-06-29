@@ -5,7 +5,7 @@
 #read_only_hosts: [ "build.opensuse.org", "software.opensuse.org" ]
 
 # Make use of mod_xforward module in apache
-#use_xforward: true
+use_xforward: true
 
 # Make use of X-Accel-Redirect for Nginx.
 # http://kovyrin.net/2010/07/24/nginx-fu-x-accel-redirect-remote
