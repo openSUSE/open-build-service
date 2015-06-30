@@ -430,10 +430,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     # check updateinfo
     get "/build/#{incidentProject}/BaseDistro3Channel/i586/patchinfo/updateinfo.xml"
     assert_response :success
-if $ENABLE_BROKEN_TEST
-    # FIXME: the backend .channelinfo structure does not allow multiple targets atm, so the result is invalid here
-    assert_xml_tag :parent => { tag: 'update', attributes: { from: 'maintenance_coord', status: 'stable', type: 'security', version: '1' } }, :tag => 'id', :content => "UpdateInfoTag-patch_name-0"
-end
+    assert_xml_tag :parent => { tag: 'update', attributes: { from: 'tom', status: 'stable', type: 'recommended', version: '1' } }, :tag => 'id', :content => "UpdateInfoTag-#{Time.now.utc.year.to_s}-My_Maintenance_0"
 
     # check published search db
     get "/search/published/binary/id?match=project='"+incidentProject+"'"
@@ -543,16 +540,18 @@ end
     get "/request/#{reqid}"
     assert_response :success
     # check for acceptinfo
-#   assert_xml_tag :parent => { :tag => 'action', :attributes => { :type=> 'maintenance_release'} },
-#                  :tag => 'source', :attributes => { :project=> 'My:Maintenance:0', :package=> 'pack2.BaseDistro3'},
-#                  :tag => 'target', :attributes => { :project=> 'BaseDistro3', :package=> 'pack2.0'},
-#                  :tag => 'acceptinfo', :attributes => { :rev=> '1', :srcmd5=> 'd4009ce72631596f0b7f691e615cfe2c', :osrcmd5 => "d41d8cd98f00b204e9800998ecf8427e" }
+    assert_xml_tag :parent => { :tag => 'action', :attributes => { :type=> 'maintenance_release'} },
+                   :tag => 'source', :attributes => { :project=> 'My:Maintenance:0', :package=> 'pack2.BaseDistro3'}
+    assert_xml_tag :parent => { :tag => 'action', :attributes => { :type=> 'maintenance_release'} },
+                   :tag => 'target', :attributes => { :project=> 'BaseDistro3', :package=> 'pack2.0'}
+    assert_xml_tag :parent => { :tag => 'action', :attributes => { :type=> 'maintenance_release'} },
+                   :tag => 'acceptinfo', :attributes => { :rev=> '1', :oproject => "BaseDistro3", :opackage => "pack2", :srcmd5=> 'd2f2a0f4ae1faf4feea334851acac0a5', :osrcmd5 => "e4b3b98ad76a0fbcdbf888694842c149" }
 
     # diffing works
     post "/request/#{reqid}?cmd=diff&view=xml", nil
     assert_response :success
-#    assert_xml_tag :tag => 'old', :attributes => { :project=> 'BaseDistro2.0:LinkedUpdateProject', :package=> 'pack2.0'},
-#                   :tag => 'new', :attributes => { :project=> 'BaseDistro2.0:LinkedUpdateProject', :package=> 'pack2.0'}
+    assert_xml_tag :tag => 'old', :attributes => { :project=> 'BaseDistro2.0:LinkedUpdateProject', :package=> 'pack2.0'}
+    assert_xml_tag :tag => 'new', :attributes => { :project=> 'BaseDistro2.0:LinkedUpdateProject', :package=> 'pack2.0'}
     run_scheduler('x86_64')
     run_scheduler('i586')
     run_publisher

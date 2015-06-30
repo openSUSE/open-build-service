@@ -49,6 +49,8 @@ module RequestSourceDiff
         path = Package.source_path(@target_project, @target_package)
         query[:rev] = ai.xsrcmd5 || ai.srcmd5
         query[:orev] = ai.oxsrcmd5 || ai.osrcmd5 || '0'
+        query[:oproject] = ai.oproject if ai.oproject
+        query[:opackage] = ai.opackage if ai.opackage
       else
         # the target is by default the _link target
         # maintenance_release creates new packages instance, but are changing the source only according to the link
@@ -104,7 +106,7 @@ module RequestSourceDiff
     def overwrite_target_by_link(spkg)
       # the target is by default the _link target
       # maintenance_release creates new packages instance, but are changing the source only according to the link
-      return unless !action.target_package or [:maintenance_incident, :maintenance_release].include? action.action_type
+      return unless !action.target_package or [:maintenance_incident].include? action.action_type
       data = Xmlhash.parse(ActiveXML.backend.direct_http(URI("/source/#{URI.escape(action.source_project)}/#{URI.escape(spkg)}")))
       e = data['linkinfo']
       return unless e

@@ -196,6 +196,8 @@ CREATE TABLE `bs_request_action_accept_infos` (
   `osrcmd5` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `oxsrcmd5` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
+  `oproject` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `opackage` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `bs_request_action_id` (`bs_request_action_id`),
   CONSTRAINT `bs_request_action_accept_infos_ibfk_1` FOREIGN KEY (`bs_request_action_id`) REFERENCES `bs_request_actions` (`id`)
@@ -1648,6 +1650,8 @@ INSERT INTO schema_migrations (version) VALUES ('20150227063641');
 INSERT INTO schema_migrations (version) VALUES ('20150623063641');
 
 INSERT INTO schema_migrations (version) VALUES ('20150625105426');
+
+INSERT INTO schema_migrations (version) VALUES ('20150630135426');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

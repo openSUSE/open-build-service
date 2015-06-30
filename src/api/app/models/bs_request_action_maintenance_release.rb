@@ -111,7 +111,23 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     unless spkg or not User.current.can_modify_package? spkg
       raise LackingReleaseMaintainership.new 'Creating a release request action requires maintainership in source package'
     end
-    
+  end
+
+  def set_acceptinfo(ai)
+    # packages in maintenance_release projects are expanded copies, so we can not use
+    # the link information. We need to patch the "old" part
+    basePackageName = self.target_package.gsub(/\.[^\.]*$/, '')
+    pkg = Package.find_by_project_and_name( self.target_project, basePackageName )
+    if pkg
+      opkg = pkg.local_origin_container
+      if opkg.name != self.target_package or opkg.project.name != self.target_project
+        ai['oproject'] = opkg.project.name
+        ai['opackage'] = opkg.name
+        ai['osrcmd5'] = opkg.backend_package.srcmd5
+        ai['oxsrcmd5'] = opkg.backend_package.verifymd5 if opkg.backend_package.srcmd5 != opkg.backend_package.verifymd5
+      end
+    end
+    self.bs_request_action_accept_info = BsRequestActionAcceptInfo.create(ai)
   end
 
   def create_post_permissions_hook(opts)

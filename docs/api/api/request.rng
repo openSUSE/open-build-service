@@ -176,6 +176,12 @@
 	    <attribute name="srcmd5"/>
 	    <attribute name="osrcmd5"/>
 	    <optional>
+	      <attribute name="oproject"/>
+	    </optional>
+	    <optional>
+	      <attribute name="opackage"/>
+	    </optional>
+	    <optional>
 	      <attribute name="xsrcmd5"/>
 	    </optional>
 	    <optional>

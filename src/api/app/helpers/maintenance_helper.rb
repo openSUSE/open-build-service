@@ -187,8 +187,7 @@ module MaintenanceHelper
     cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid, :expand, :withvrev, :noservice, :withacceptinfo])
     result = Suse::Backend.post cp_path, nil
     result = Xmlhash.parse(result.body)
-# further discussion is needed from where we take the origin source revision on maintenance release
-#    action.set_acceptinfo(result["acceptinfo"]) if action
+    action.set_acceptinfo(result["acceptinfo"]) if action
   end
 
   def copy_binaries(filterSourceRepository, sourcePackage, targetPackageName, targetProject, setrelease)
