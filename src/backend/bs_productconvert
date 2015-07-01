@@ -1374,6 +1374,7 @@ $product->{'releasepkgname'} ||= "$product->{'name'}-release";
 # Calculate version strings
 #
 die ("It is not allowed to specify baseversion and version.") if (defined($product->{'baseversion'}) && defined($product->{'version'}) );
+die("You must use baseversion instead of version when using a patchlevel definition") if (defined($product->{'version'}) && defined($product->{'patchlevel'}));
 if (defined($product->{'baseversion'})) {
     $product->{'version'}      = $product->{'baseversion'};
     $product->{'version'}     .= ".".$product->{'patchlevel'} if (defined($product->{'patchlevel'}) && $product->{'patchlevel'} ne '0');
