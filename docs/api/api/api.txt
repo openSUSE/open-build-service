@@ -1000,6 +1000,13 @@ POST /comments/package/:project/:pname
 XmlResult: status
 
 
+DELETE /comment/:id
+
+  Delete a comment specified by the comment id
+
+XmlResult: status
+
+
 == Build Results
 
 <build>: Build repository
