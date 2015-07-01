@@ -17,23 +17,26 @@
       <p><b>Additional package repositories (searched in descending order):</b></p>
       <div style="margin-left: 30px">
         <% begin -%>
-          <% repository.each_path do |path| -%>
-            <% if path.project == 'deleted' %>
+          <% repository.path_elements.each do |path| -%>
+            <% if path.link.nil? || path.link.project.nil? %>
               <%= image_tag 'exclamation.png' %> Target repository has been removed
             <% else %>
-              <span><%= path.project + "/" + path.repository %></span>
-              <% if repository.each_path.length > 1 %>
-                <% if path != repository.each_path.first %>
-                    <%= link_to(image_tag('arrow_up.png'), {:action => :move_path_up, :project => @project, :repository => repository.name, :path_project => path.project, :path_repository => path.repository}, {:class => 'x', :method => :post}) -%>
+              <span><%= path.link.project.name + "/" + path.link.name %></span>
+
+              <% if repository.path_elements.size > 1 %>
+                <% if path != repository.path_elements.first %>
+                  <%= link_to(image_tag('arrow_up.png'), { :action => :move_path_up, :project => @project, :repository => repository.name, :path_project => path.link.project.name, :path_repository => path.link.name }, { :class => 'x', :method => :post, :id => "move_path_up-#{valid_xml_id(path.link.project.name + "/" + path.link.name)}" }) -%>
                 <% end %>
-                <% if path != repository.each_path.last %>
-                    <%= link_to(image_tag('arrow_down.png'), {:action => :move_path_down, :project => @project, :repository => repository.name, :path_project => path.project, :path_repository => path.repository}, {:class => 'x', :method => :post}) -%>
+
+                <% if path != repository.path_elements.last %>
+                  <%= link_to(image_tag('arrow_down.png'), { :action => :move_path_down, :project => @project, :repository => repository.name, :path_project => path.link.project.name, :path_repository => path.link.name }, { :class => 'x', :method => :post, :id => "move_path_down-#{valid_xml_id(path.link.project.name + "/" + path.link.name)}" }) -%>
                 <% end %>
               <% end %>
-              <%= link_to(image_tag('drive_delete.png'), {:action => :remove_path_from_target, :project => @project, :repository => repository.name, :path_project => path.project, :path_repository => path.repository},
-                           {data: { confirm: "Really remove #{path.project} / #{path.repository} path from repository  '#{repository.name}'?" }, :class => 'x', :method => :post}) -%>
-              <br/>
+
+              <%= link_to(image_tag('drive_delete.png'), { :action => :remove_path_from_target, :project => @project, :repository => repository.name, :path_project => path.link.project.name, :path_repository => path.link.name }, { data: { confirm: "Really remove #{path.link.project.name} / #{path.link.name} path from repository  '#{repository.name}'?" }, :class => 'x', :method => :post }) -%>
             <% end %>
+
+            <br/>
           <% end -%>
         <% rescue; end %>
       </div>

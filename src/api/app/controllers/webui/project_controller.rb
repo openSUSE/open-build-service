@@ -897,19 +897,20 @@ class Webui::ProjectController < Webui::WebuiController
     redirect_to :action => :repositories, :project => @project
   end
 
-  def move_repo(direction)
+  def move_path_up
     required_parameters :repository, :path_project, :path_repository
-    @project.repository[params[:repository]].move_path(params[:path_project] + '/' + params[:path_repository], direction)
+    @project.move_path_up_in_repository(params[:repository], params[:path_project], params[:path_repository])
     @project.save
+    flash[:success] = "Path #{params['path_project']}/#{params['path_repository']} moved up successfully"
     redirect_to :action => :repositories, :project => @project
   end
 
-  def move_path_up
-    move_repo(:up)
-  end
-
   def move_path_down
-    move_repo(:down)
+    required_parameters :repository, :path_project, :path_repository
+    @project.move_path_down_in_repository(params[:repository], params[:path_project], params[:path_repository])
+    @project.save
+    flash[:success] = "Path #{params['path_project']}/#{params['path_repository']} moved down successfully"
+    redirect_to :action => :repositories, :project => @project
   end
 
   def monitor
