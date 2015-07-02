@@ -284,7 +284,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       fill_in 'body', with: 'Comment Body'
       find_button('Add comment').click
-      find('#flash-messages').must_have_text 'Comment added successfully '
+      find('#flash-messages').must_have_text 'Comment was successfully created.'
     end
     email = ActionMailer::Base.deliveries.last
     verify_email('project_comment', email)
@@ -303,7 +303,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     find(:id, 'reply_link_id_100').click
     fill_in 'reply_body_100', with: 'Comment Body'
     find(:id, 'add_reply_100').click
-    find('#flash-messages').must_have_text 'Comment added successfully '
+    find('#flash-messages').must_have_text 'Comment was successfully created.'
   end
 
   test 'buildresults' do

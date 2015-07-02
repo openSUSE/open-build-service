@@ -38,6 +38,8 @@ GEM
       tzinfo (~> 1.1)
     acts_as_list (0.7.2)
       activerecord (>= 3.0)
+    acts_as_tree (2.2.0)
+      activerecord (>= 3.0.0)
     addressable (2.3.8)
     arel (6.0.0)
     binding_of_caller (0.7.2)
@@ -252,6 +254,7 @@ PLATFORMS
 DEPENDENCIES
   actionmailer
   acts_as_list
+  acts_as_tree
   bundler
   capybara_minitest_spec
   chunky_png

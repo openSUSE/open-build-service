@@ -14,6 +14,12 @@ class Comment < ActiveRecord::Base
 
   has_many :children, dependent: :destroy, :class_name => 'Comment', :foreign_key => 'parent_id'
 
+  extend ActsAsTree::TreeWalker
+  acts_as_tree order: "created_at"
+
+  def to_s
+    body
+  end
 
   def create_notification(params = {})
     params[:commenter] = self.user.id
