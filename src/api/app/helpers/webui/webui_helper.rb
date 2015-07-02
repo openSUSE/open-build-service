@@ -427,7 +427,7 @@ module Webui::WebuiHelper
     opts[:package_text] ||= opts[:package]
 
     opts[:project_text], opts[:package_text] =
-        elide_two(opts[:project_text], opts[:package_text], opts[:trim_to])
+        elide_two(opts[:project_text], opts[:package_text], opts[:trim_to]) unless opts[:trim_to].nil?
 
     if opts[:short]
       out = ''.html_safe
@@ -458,7 +458,8 @@ module Webui::WebuiHelper
     else
       out = 'project '.html_safe
     end
-    out + link_to_if(prj, elide(opts[:project_text], opts[:trim_to]),
+    project_text = opts[:trim_to].nil? ? opts[:project_text] : elide(opts[:project_text], opts[:trim_to])
+    out + link_to_if(prj, project_text,
                      { controller: 'project', action: 'show', project: opts[:project] },
                      { class: 'project', title: opts[:project] })
   end
