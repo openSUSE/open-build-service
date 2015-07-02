@@ -213,12 +213,12 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     # move BaseDistro:Update path down
     click_link 'edit_repository_link_BaseDistro_BaseDistro_repo'
     click_link 'move_path_down-BaseDistro_Update_BaseDistroUpdateProject_repo'
-    find(:id, 'flash-messages').must_have_text 'Path BaseDistro:Update/BaseDistroUpdateProject_repo moved down successfully'
+    find(:id, 'flash-messages').must_have_text 'Path BaseDistro:Update/BaseDistroUpdateProject_repo moved successfully'
 
     # move BaseDistro:Update path up again
     click_link 'edit_repository_link_BaseDistro_BaseDistro_repo'
     click_link 'move_path_up-BaseDistro_Update_BaseDistroUpdateProject_repo'
-    find(:id, 'flash-messages').must_have_text 'Path BaseDistro:Update/BaseDistroUpdateProject_repo moved up successfully'
+    find(:id, 'flash-messages').must_have_text 'Path BaseDistro:Update/BaseDistroUpdateProject_repo moved successfully'
   end
 
   test 'list all' do

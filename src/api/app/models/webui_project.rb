@@ -92,37 +92,17 @@ class WebuiProject < ActiveXML::Node
     end
   end
 
-  def move_path_up_in_repository(repository, path_project, path_repository)
-    return nil if not repository
+  def move_path_in_repository(repository_name, path_project, path_repository, direction)
+    return nil if not repository_name
     return nil if not path_project
     return nil if not path_repository
 
-    repository = self.find_first("//repository[@name='#{repository}']")
-
-    previous_path = nil
-    repository.each(:path).each do |path|
-      if path.value(:project) == path_project and path.value(:repository) == path_repository
-        path.move_before(previous_path) if previous_path
-        return
-      end
-      previous_path = path
-    end if repository
-  end
-
-  def move_path_down_in_repository(repository, path_project, path_repository)
-    return nil if not repository
-    return nil if not path_project
-    return nil if not path_repository
-
-    repository = self.find_first("//repository[@name='#{repository}']")
-
-    next_path = nil
-    repository.each(:path).reverse.each do |path|
-      if path.value(:project) == path_project and path.value(:repository) == path_repository
-        path.move_after(next_path) if next_path
-        return
-      end
-      next_path = path
+    repository = self.find_first("//repository[@name='#{repository_name}']")
+    case direction
+    when :up
+      move_path_up_in_repository(repository, path_project, path_repository)
+    when :down
+      move_path_down_in_repository(repository, path_project, path_repository)
     end if repository
   end
 
@@ -307,5 +287,29 @@ class WebuiProject < ActiveXML::Node
       data = @api_obj.to_axml
     end
     super(data)
+  end
+
+  private
+
+  def move_path_up_in_repository(repository, path_project, path_repository)
+    previous_path = nil
+    repository.each(:path).each do |path|
+      if path.value(:project) == path_project and path.value(:repository) == path_repository
+        path.move_before(previous_path) if previous_path
+        return
+      end
+      previous_path = path
+    end
+  end
+
+  def move_path_down_in_repository(repository, path_project, path_repository)
+    next_path = nil
+    repository.each(:path).reverse.each do |path|
+      if path.value(:project) == path_project and path.value(:repository) == path_repository
+        path.move_after(next_path) if next_path
+        return
+      end
+      next_path = path
+    end
   end
 end
