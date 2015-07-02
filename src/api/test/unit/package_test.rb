@@ -19,7 +19,7 @@ class PackageTest < ActiveSupport::TestCase
 
   def test_flags_to_axml
     #check precondition
-    assert_equal 1, @package.type_flags('build').size
+    assert_equal 2, @package.type_flags('build').size
     assert_equal 1, @package.type_flags('publish').size
     assert_equal 1, @package.type_flags('debuginfo').size
 
@@ -28,7 +28,7 @@ class PackageTest < ActiveSupport::TestCase
     #check the results
     xml = REXML::Document.new(xml_string)
     assert_equal 1, xml.root.get_elements("/package/build").size
-    assert_equal 1, xml.root.get_elements("/package/build/*").size
+    assert_equal 2, xml.root.get_elements("/package/build/*").size
 
     assert_equal 1, xml.root.get_elements("/package/publish").size
     assert_equal 1, xml.root.get_elements("/package/publish/*").size
@@ -103,7 +103,7 @@ class PackageTest < ActiveSupport::TestCase
 
   def test_delete_flags_through_xml
     #check precondition
-    assert_equal 1, @package.type_flags('build').size
+    assert_equal 2, @package.type_flags('build').size
     assert_equal 1, @package.type_flags('publish').size
 
     #package is given as axml

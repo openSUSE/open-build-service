@@ -255,14 +255,18 @@ sub deletenotificationpayload {
 }
 
 sub notify_repservers {
-  my ($type, $projid, $packid) = @_;
+  my ($type, $projid, $packid, $repository, $arch) = @_;
 
   my $ev = {'type' => $type, 'project' => $projid};
   $ev->{'package'} = $packid if defined $packid;
+  $ev->{'repository'} = $repository if defined $repository;
+  $ev->{'arch'} = $arch if defined $arch;
   addevent($ev);
 
   my @args = ("type=$type", "project=$projid");
   push @args, "package=$packid" if defined $packid;
+  push @args, "repository=$repository" if defined $repository;
+  push @args, "arch=$arch" if defined $arch;
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
   my $param = {
     'uri' => "$reposerver/event",
@@ -8008,6 +8012,7 @@ sub newevent {
     $ev->{$_} = $cgi->{$_} if defined $cgi->{$_};
   }
   addevent($ev);
+  notify_repservers($ev->{type}, $ev->{project}, undef, $ev->{repository}, $ev->{arch}) if $ev->{type} eq 'repository';
   return $BSStdServer::return_ok;
 }
 

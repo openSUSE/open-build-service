@@ -73,10 +73,14 @@ if ($BSConfig::secure_sandboxes) {
 }
 
 my $testdir;
+my $testmode;
 while (@ARGV) {
   if ($ARGV[0] eq '--test-directory') {
     shift @ARGV;
     $testdir = shift @ARGV;
+  } elsif ($ARGV[0] eq '--test-mode') {
+    shift @ARGV;
+    $testmode = 1;
   } elsif ($ARGV[0] eq '--test-constraints') {
     shift @ARGV;
     my $package = shift @ARGV;
@@ -732,7 +736,7 @@ sub dispatchslave {
   return $synced;
 }
 
-sub forwardevents {
+sub forwardlocalevents {
   for my $evname (ls("$eventdir/repository")) {
     next if $evname =~ /^\./;
     my $ev = readxml("$eventdir/repository/$evname", $BSXML::event, 1);
@@ -746,6 +750,10 @@ sub forwardevents {
       unlink("$eventdir/repository/$evname");
     }
   }
+}
+
+sub forwardevents {
+  forwardlocalevents();
   for my $evname (ls("$eventdir/dispatch")) {
     next if $evname =~ /^\./;
     my $ev = readxml("$eventdir/dispatch/$evname", $BSXML::event, 1);
@@ -843,6 +851,12 @@ if ($BSConfig::masterdispatcher && $BSConfig::masterdispatcher ne $BSConfig::rep
   printlog("running is dispatch slave mode");
 }
 
+if ($testmode) {
+  forwardevents();
+  print "Test mode, dispatcher is exiting..";
+  exit(0);
+}
+
 while (1) {
 
   if (-s "$jobsdir/finished") {
@@ -886,6 +900,8 @@ while (1) {
     sleep(1) unless $synced;
     filechecks();
     next;
+  } else {
+    forwardlocalevents();
   }
 
   my @dispatchprios_s = stat("$jobsdir/dispatchprios");

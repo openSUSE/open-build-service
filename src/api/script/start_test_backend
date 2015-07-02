@@ -75,6 +75,7 @@ File.open("#{Rails.root}/../backend/BSConfig.pm.template") do |template|
     line.gsub!(/(our \$bsuser)/, '#\1')
     line.gsub!(/(our \$bsgroup)/, '#\1')
     line.gsub!(/^(my \$hostname).*/, '\1 = "localhost";')
+    line.gsub!(/.*our \$localarch.*/, 'our $localarch = "x86_64";')
     line.gsub!(/our \$bsdir = .*/, "our $bsdir = '#{Rails.root}/tmp/backend_data';")
     line.gsub!(/our \$servicedir = .*/, "our $servicedir = '#{Rails.root}/test/fixtures/backend/services';")
     line.gsub!(/:5352/, ":#{CONFIG['source_port']}")
@@ -85,7 +86,7 @@ File.open("#{Rails.root}/../backend/BSConfig.pm.template") do |template|
 end
 file.close
 
-%w{bs_admin bs_srcserver bs_repserver bs_service bs_sched bs_publish bs_productconvert bs_check_consistency bs_mergechanges}.each do |srv|
+%w{bs_admin bs_srcserver bs_repserver bs_service bs_sched bs_publish bs_dispatch bs_productconvert bs_check_consistency bs_mergechanges}.each do |srv|
   FileUtils.symlink("#{Rails.root}/../backend/#{srv}", "#{Rails.root}/tmp/backend_config/#{srv}")
   unless system("cd #{Rails.root}/tmp/backend_config && exec perl -c #{perlopts} ./#{srv} 2>&1")
     puts "ERROR: syntax broken of #{srv}"
@@ -240,7 +241,7 @@ Suse::Backend.put('/source/Apache/libapr-util1/onefile?user=king', 'just another
 Suse::Backend.put('/source/LocalProject/remotepackage/_link?user=king', "<link project=\"RemoteInstance:BaseDistro\" package=\"pack1\" />")
 Suse::Backend.put('/source/home:adrian:ProtectionTest/_config?user=king', 'Type: spec')
 Suse::Backend.put('/source/home:adrian:ProtectionTest/aggregate/_aggregate?user=king', '<aggregatelist><aggregate project="SourceprotectedProject"><package>pack</package></aggregate></aggregatelist>')
-Suse::Backend.put('/source/home:Iggy/_config?user=king', 'Type: spec')
+Suse::Backend.put('/source/home:Iggy/_config?user=king', "Type: spec\nSubstitute: kiwi package\nSubstitute: kiwi-packagemanager:instsource package\nIgnore: package:bash")
 Suse::Backend.put('/source/home:Iggy/TestPack/myfile?user=king', 'DummyContent')
 Suse::Backend.put('/source/home:Iggy/TestPack/TestPack.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/source/home:Iggy/TestPack/TestPack.spec").read())
 Suse::Backend.put('/source/home:Iggy:branches:kde4/BranchPack/myfile?user=king', 'DummyContent')
@@ -290,8 +291,8 @@ at_exit do
   servicesrv_out.close
   servicesrv_out = nil
   servicesrv.join
-  FileUtils.rm_rf("#{Rails.root}/tmp/backend_data")
-  FileUtils.rm_rf("#{Rails.root}/tmp/backend_config")
+#  FileUtils.rm_rf("#{Rails.root}/tmp/backend_data")
+#  FileUtils.rm_rf("#{Rails.root}/tmp/backend_config")
   File.delete(schedulerdone_file) if File.exists?(schedulerdone_file)
 end
 
@@ -305,9 +306,15 @@ scheduler_thread = Thread.new do
     # just for waiting until scheduler finishes
     io.each { |line| logger.debug line.strip unless line.blank? }
   end
+  # run scheduler once
+  IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode x86_64") do |io|
+    # just for waiting until scheduler finishes
+    io.each { |line| logger.debug line.strip unless line.blank? }
+  end
 
   # Inject build job results
   inject_build_job('home:Iggy', 'TestPack', '10.2', 'i586')
+  inject_build_job('home:Iggy', 'TestPack', '10.2', 'x86_64')
   inject_build_job('HiddenProject', 'pack', 'nada', 'i586')
   inject_build_job('BinaryprotectedProject', 'bdpack', 'nada', 'i586')
   inject_build_job('SourceprotectedProject', 'pack', 'repo', 'i586')

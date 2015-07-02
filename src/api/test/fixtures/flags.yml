@@ -10,12 +10,19 @@ record_1:
   position: 1
   flag: useforbuild
   package: BaseDistro_pack1
-record_2:
+build_enable_for_Iggy_TestPack_i586:
   status: enable
   repo: '10.2'
   position: 1
   flag: build
   architecture: i586
+  package: home_Iggy_TestPack
+build_enable_for_Iggy_TestPack_x86_64:
+  status: enable
+  repo: '10.2'
+  position: 1
+  flag: build
+  architecture: x86_64
   package: home_Iggy_TestPack
 record_3:
   status: disable

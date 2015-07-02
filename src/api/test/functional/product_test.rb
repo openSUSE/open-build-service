@@ -14,7 +14,14 @@ class ProductTests < ActionDispatch::IntegrationTest
     put "/source/home:tom:temporary/_meta",
         '<project name="home:tom:temporary"> <title/> <description/> 
            <repository name="me" />
+           <repository name="images">
+             <arch>local</arch>
+             <arch>x86_64</arch>
+             <arch>i586</arch>
+           </repository>
          </project>'
+    assert_response :success
+    put '/source/home:tom:temporary/_config?user=tom', "Type: kiwi\nRepotype: none\nSubstitute: kiwi-packagemanager:instsource package\nRequired: kiwi"
     assert_response :success
     put "/source/home:tom:temporary/_product/_meta",
         '<package project="home:tom:temporary" name="_product"> <title/> <description/> 
@@ -136,6 +143,46 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "status", :attributes => { :code => '400', :origin => 'backend' }
     assert_match(/Illegal support key ILLEGAL for obs-server/, @response.body)
 
+    # check scheduling
+    login_king
+    put "/source/home:Iggy/TestPack/DUMMY_CHANGE", "JUST TO TRIGGER A BUILD"
+    assert_response :success
+    login_tom
+    run_scheduler('i586')
+    run_scheduler('x86_64')
+    run_scheduler('local')
+    get "/build/home:Iggy/_result"
+    assert_response :success
+    assert_xml_tag :parent => {:tag => "result", :attributes => {project:"home:Iggy", repository:"10.2", arch:"i586"} },
+                   :tag => "status", :attributes => { :package => 'TestPack', :code => 'scheduled' }
+    get "/build/home:tom:temporary/_result"
+    assert_response :success
+    assert_xml_tag :parent => {:tag => "result", :attributes => {project:"home:tom:temporary", repository:"images", arch:"local"} },
+                   :tag => "status", :attributes => { :package => '_product:simple-cd-cd-i586_x86_64', :code => 'blocked' }
+
+    login_king
+    inject_build_job( "home:Iggy", "TestPack", "10.2", "i586" )
+    inject_build_job( "home:Iggy", "TestPack", "10.2", "x86_64" )
+    run_scheduler('i586')
+    run_scheduler('x86_64')
+    run_scheduler('local')
+    run_dispatcher # to hand over repository events
+    run_scheduler('i586')
+    run_scheduler('x86_64')
+    run_scheduler('local')
+    get "/build/home:Iggy/_result"
+    assert_response :success
+    assert_xml_tag :parent => {:tag => "result", :attributes => {project:"home:Iggy", repository:"10.2", arch:"i586"} },
+                   :tag => "status", :attributes => { :package => 'TestPack', :code => 'succeeded' }
+    assert_xml_tag :parent => {:tag => "result", :attributes => {project:"home:Iggy", repository:"10.2", arch:"x86_64"} },
+                   :tag => "status", :attributes => { :package => 'TestPack', :code => 'succeeded' }
+    get "/build/home:tom:temporary/_result"
+    assert_response :success
+    assert_xml_tag :parent => {:tag => "result", :attributes => {project:"home:tom:temporary", repository:"images", arch:"local"} },
+                   :tag => "status", :attributes => { :package => '_product:simple-cd-cd-i586_x86_64', :code => 'scheduled' }
+
+    delete "/source/home:Iggy/TestPack/DUMMY_CHANGE"
+    assert_response :success
     login_tom
     delete "/source/home:tom:temporary:link"
     assert_response :success

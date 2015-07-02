@@ -4986,7 +4986,6 @@ sub checkkiwiproduct {
   my $repoid = $ctx->{'repository'};
   my $repo = $ctx->{'repo'};
   my $prp = "$projid/$repoid";
-
   # calculate all involved architectures
   my $buildarch = ($repo->{'arch'} || [])->[0] || '';
   # compat to old OBS versions, prefer local...
@@ -5059,7 +5058,7 @@ sub checkkiwiproduct {
     no warnings 'redefine';
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
-    my ($eok, @kdeps) = Build::get_sysbuild($bconf, 'kiwi-product', [ grep {/^kiwi-.*:/} @{$info->{'dep'} || []} ]);
+    my ($eok, @kdeps) = Build::get_sysbuild($bconf, 'kiwi-product', [ grep {/:/} @{$info->{'dep'} || []} ]);
     if (!$eok) {
       print "      - $packid (kiwi-product)\n";
       print "        unresolvable:\n";
@@ -8252,7 +8251,10 @@ NEXTPRP:
     if (!defined($prp)) {
       if ($testmode && !%iswaiting) {
 	print "Test mode, all sources and events processed, exiting...\n";
-	exit(0);
+        # clean suicide
+        my $ev = { 'type' => 'exitcomplete' };
+        my $evname = "$ev->{'type'}::";
+        sendevent($ev, $myarch, $evname);
       }
       my @ltim = localtime(time);
       my $msgtm = sprintf "%04d-%02d-%02d %02d:%02d:%02d:", $ltim[5] + 1900, $ltim[4] + 1, @ltim[3,2,1,0];
