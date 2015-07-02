@@ -48,6 +48,9 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     get '/search/released/binary/id', match: "publish/@package = 'pack2'"
     assert_response :success
     assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :name => "package", :version => "1.0", :release => "1", :arch => "i586"}
+    get '/search/released/binary/id', match: "publish/@time = '2013-09-30 15:50:30 UTC'"
+    assert_response :success
+    assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :name => "package", :version => "1.0", :release => "1", :arch => "i586"}
 
     # exact search
     get '/search/released/binary', match: "@name = 'package' and @version = '1.0' and @release = '1' and @arch = 'i586' and supportstatus = 'l3' and operation = 'added'"
