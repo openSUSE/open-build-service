@@ -54,8 +54,8 @@ class Webui::PackageController < Webui::WebuiController
       redirect_back_or_to :controller => 'package', :action => 'show', :project => @project, :package => @package and return
     end
 
-    sort_comments(@package.comments)
 
+    @comments = @package.comments
     @requests = []
     # TODO!!!
     #BsRequest.list({:states => %w(review), :reviewstates => %w(new), :roles => %w(reviewer), :project => @project.name, :package => @package.name}) +
