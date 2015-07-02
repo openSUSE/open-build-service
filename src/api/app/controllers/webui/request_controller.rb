@@ -119,8 +119,7 @@ class Webui::RequestController < Webui::WebuiController
       # will be nul for after end
       @request_after = request_list[index+1]
     end
-
-    sort_comments(BsRequest.find(params[:id]).comments)
+    @comments = @bsreq.comments
   end
 
   def sourcediff

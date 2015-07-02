@@ -505,6 +505,7 @@ module Webui::WebuiHelper
     end
   end
 
+  # If there is any content add the ul tag
   def possibly_empty_ul(html_opts, &block)
     content = capture(&block)
     if content.blank?
