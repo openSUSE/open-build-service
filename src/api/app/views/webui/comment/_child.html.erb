@@ -4,7 +4,7 @@
         <div class="comment comment_child <%= 'comment_odd' if level.odd? %>">
           <%= user_icon(comment[:user], 24, 'comment_image') %>
           <%= comment[:user] %> wrote <span class="comment_time"><%= fuzzy_time(comment[:created_at]) %></span>
-          <%= simple_format(comment[:body]) %>
+          <%= comment_body(comment) %>
           <%= render :partial => "webui/comment/links", :locals => {:comment => comment} %>
           <%= render :partial => "webui/comment/reply", :locals => {:comment => comment, level: level} %>
           <% unless comment[:children].blank? %>
