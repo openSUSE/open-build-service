@@ -143,3 +143,10 @@
   </div>
 
 </div>
+
+<% content_for :ready_function do %>
+    $('.unresolvable, .blocked').click(function() {
+    var title = $(this).attr('title');
+    alert(title);
+    });
+<% end %>
