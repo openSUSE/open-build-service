@@ -25,3 +25,4 @@ notifications:
      on_failure: change  
 services:
   - memcached # will start memcached
+sudo: required
