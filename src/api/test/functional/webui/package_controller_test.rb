@@ -196,7 +196,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     while Time.now - starttime < 10
       first('.icons-reload').click
       if page.has_selector? '.buildstatus'
-        break if find('.buildstatus').text == 'succeeded'
+        break if first('.buildstatus').text == 'succeeded'
       end
     end
     find('.buildstatus').must_have_text 'succeeded'
