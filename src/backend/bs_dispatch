@@ -900,8 +900,6 @@ while (1) {
     sleep(1) unless $synced;
     filechecks();
     next;
-  } else {
-    forwardlocalevents();
   }
 
   my @dispatchprios_s = stat("$jobsdir/dispatchprios");
