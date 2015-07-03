@@ -308,6 +308,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     # added by branching the channel package container
     assert_xml_tag :tag => "repository", :attributes => {name: "BaseDistro3Channel"}
+    # cleanup
     delete "/source/home:maintenance_coord:branches:My:Maintenance:0"
     assert_response :success
 
@@ -422,6 +423,16 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get "/source/#{incidentProject}/BaseDistro2.0.Channel/_meta"
     assert_response :success
     assert_xml_tag :tag => 'enable', :attributes => {repository: "BaseDistro2.0_LinkedUpdateProject"}
+    # check repository search by product
+    get "/search/repository/id?match=targetproduct/@name='simple'" #+and+target/product/@version='10.2'"
+    assert_response :success
+    assert_xml_tag tag: 'collection', :children => {count: 1}
+    assert_xml_tag tag: 'repository', :attributes => { project: 'BaseDistro2.0:LinkedUpdateProject', name: 'BaseDistro2LinkedUpdateProject_repo' }
+    get "/search/repository/id?match=targetproduct/[@name='simple'+and+@version='13.1']+and+@project='BaseDistro2.0:LinkedUpdateProject'"
+    assert_response :success
+    assert_xml_tag tag: 'collection', :children => {count: 1}
+    assert_xml_tag tag: 'repository', :attributes => { project: 'BaseDistro2.0:LinkedUpdateProject', name: 'BaseDistro2LinkedUpdateProject_repo' }
+
     login_king
     delete "/source/BaseDistro2.0/_product"
     assert_response :success

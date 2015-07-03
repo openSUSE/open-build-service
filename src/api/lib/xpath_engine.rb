@@ -134,6 +134,38 @@ class XpathEngine
            'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
            'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id']},
       },
+      'repositories' => {
+        '@project' => {cpart: 'pr.name',
+                       joins: 'LEFT JOIN projects AS pr ON repositories.db_project_id=pr.id' },
+        '@name' => {cpart: 'repositories.name'},
+        'path/@project' => {:cpart => 'pathrepoprj.name', :joins => [
+          'LEFT join path_elements pep on pep.parent_id=repositories.id',
+          'LEFT join repositories pathrepop on pep.repository_id=pathrepop.id',
+          'LEFT join projects pathrepoprj on pathrepop.db_project_id=pathrepoprj.id']},
+        'path/@repository' => {:cpart => 'pathrepo.name', :joins => [
+          'LEFT join path_elements pe on pe.parent_id=repositories.id',
+          'LEFT join repositories pathrepo on pe.repository_id=pathrepo.id ']},
+        'targetproduct/@project' => {:cpart => 'tpprj.name', :joins => [
+          'LEFT join product_update_repositories tpr on tpr.repository_id=repositories.id',
+          'LEFT join products tpn on tpn.id=tpr.product_id ',
+          'LEFT join packages tppkg on tppkg.id=tpn.package_id ',
+          'LEFT join projects tpprj on tpprj.id=tppkg.project_id ']},
+        'targetproduct/@arch' => {:cpart => 'tppa.name', :joins => [
+          'LEFT join product_update_repositories pnuar on pnuar.repository_id=repositories.id',
+          'LEFT join architectures tppa on tppa.id=pnuar.arch_filter_id ']},
+        'targetproduct/@name' => {:cpart => 'tppn.name', :joins => [
+          'LEFT join product_update_repositories pnur on pnur.repository_id=repositories.id',
+          'LEFT join products tppn on tppn.id=pnur.product_id ']},
+        'targetproduct/@baseversion' => {:cpart => 'tppnb.baseversion', :joins => [
+          'LEFT join product_update_repositories pnurb on pnurb.repository_id=repositories.id',
+          'LEFT join products tppnb on tppnb.id=pnurb.product_id ']},
+        'targetproduct/@patchlevel' => {:cpart => 'tppnp.patchlevel', :joins => [
+          'LEFT join product_update_repositories pnurp on pnurp.repository_id=repositories.id',
+          'LEFT join products tppnp on tppnp.id=pnurp.product_id ']},
+        'targetproduct/@version' => {:cpart => 'tppnv.version', :joins => [
+          'LEFT join product_update_repositories pnurv on pnurv.repository_id=repositories.id',
+          'LEFT join products tppnv on tppnv.id=pnurv.product_id ']},
+      },
       'binaries' => {
         '@name' => {:cpart => 'binary_name'},
         '@version' => {:cpart => 'binary_version'},
@@ -335,7 +367,7 @@ class XpathEngine
     when 'projects'
       relation = Project.all
     when 'repositories'
-      relation = Repository.where("db_project_id not in (?)", Relationship.forbidden_project_ids)
+      relation = Repository.where("repositories.db_project_id not in (?)", Relationship.forbidden_project_ids)
     when 'requests'
       relation = BsRequest.all
       attrib = AttribType.find_by_namespace_and_name('OBS', 'IncidentPriority')

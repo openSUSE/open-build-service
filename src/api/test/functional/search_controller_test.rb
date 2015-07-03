@@ -293,7 +293,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :parent => { tag: 'issue'}, tag: 'label', :content => "bnc#123456"
   end
 
-  def test_search_repository_id
+  def test_search_repository
     login_Iggy 
     get "/search/repository/id"
     assert_response :success
@@ -309,6 +309,25 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     repos = get_repos
     assert repos.include?('home:Iggy/10.2')
     assert repos.include?('HiddenProject/nada'), "HiddenProject repos public"
+
+    get "/source/home:Iggy/_meta"
+    get "/search/repository/id?match=@project='home:Iggy'+and+@name='10.2'"
+    assert_response :success
+    assert_xml_tag tag: 'collection'
+    assert_xml_tag tag: 'repository', :attributes => { project: 'home:Iggy', name: '10.2' }
+    assert repos.count, 1
+
+    get "/search/repository/id?match=path/@repository='BaseDistro_repo'"
+    assert_response :success
+    assert_xml_tag tag: 'collection'
+    assert_xml_tag tag: 'repository', :attributes => { project: 'home:Iggy', name: '10.2' }
+    assert repos.count, 1
+
+    get "/search/repository/id?match=path/[@project='BaseDistro'+and+@repository='BaseDistro_repo']"
+    assert_response :success
+    assert_xml_tag tag: 'collection'
+    assert_xml_tag tag: 'repository', :attributes => { project: 'home:Iggy', name: '10.2' }
+    assert repos.count, 1
   end
 
   def test_osc_search_devel_package_after_request_accept
