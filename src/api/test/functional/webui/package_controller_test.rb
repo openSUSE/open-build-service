@@ -199,7 +199,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
         break if first('.buildstatus').text == 'succeeded'
       end
     end
-    find('.buildstatus').must_have_text 'succeeded'
+    first('.buildstatus').must_have_text 'succeeded'
     click_link 'succeeded'
     find(:id, 'log_space').must_have_text '[1] this is my dummy logfile -> ümlaut'
     first(:link, 'Download logfile').click
