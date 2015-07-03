@@ -424,14 +424,17 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag :tag => 'enable', :attributes => {repository: "BaseDistro2.0_LinkedUpdateProject"}
     # check repository search by product
-    get "/search/repository/id?match=targetproduct/@name='simple'" #+and+target/product/@version='10.2'"
+    get "/search/repository/id?match=targetproduct/@name='simple'"
+    assert_response :success
+    assert_xml_tag tag: 'collection', :children => {count: 2}
+    assert_xml_tag tag: 'repository', :attributes => { project: "home:tom:branches:OBS_Maintained:pack2", name: 'BaseDistro2.0_LinkedUpdateProject' }
+    assert_xml_tag tag: 'repository', :attributes => { project: incidentProject, name: 'BaseDistro2.0_LinkedUpdateProject' }
+    get "/search/repository/id?match=targetproduct/[@name='simple'+and+@version='13.1']+and+@project='#{incidentProject}'"
     assert_response :success
     assert_xml_tag tag: 'collection', :children => {count: 1}
-    assert_xml_tag tag: 'repository', :attributes => { project: 'BaseDistro2.0:LinkedUpdateProject', name: 'BaseDistro2LinkedUpdateProject_repo' }
-    get "/search/repository/id?match=targetproduct/[@name='simple'+and+@version='13.1']+and+@project='BaseDistro2.0:LinkedUpdateProject'"
-    assert_response :success
-    assert_xml_tag tag: 'collection', :children => {count: 1}
-    assert_xml_tag tag: 'repository', :attributes => { project: 'BaseDistro2.0:LinkedUpdateProject', name: 'BaseDistro2LinkedUpdateProject_repo' }
+    assert_xml_tag tag: 'repository', :attributes => { project: incidentProject, name: 'BaseDistro2.0_LinkedUpdateProject' }
+    get "/search/repository/id?match=targetproduct/[@name='simple'+and+@baseversion='1'+and+@patchlevel='1']"
+    assert_response :success # empty, just to check for crashes
 
     login_king
     delete "/source/BaseDistro2.0/_product"
