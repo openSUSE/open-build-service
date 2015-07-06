@@ -151,7 +151,7 @@
   </div>
 <% end %>
 
- <% if @requests_in.present? or @requests_out.present? or @declined_requests.present? %>
+ <% if @requests_in.present? || @requests_out.present? || @declined_requests.present? || @user_have_requests %>
   <div class="grid_16 alpha omega box box-shadow">
     <div id="requests">
       <div class="box-header header-tabs">
@@ -164,6 +164,9 @@
           <% end -%>
           <% if @declined_requests.count > 0 %>
             <li><a href="#requests_declined" title="Requests from <%= @displayed_user.login %> that are declined">Declined Requests</a></li>
+          <% end -%>
+          <% if @user_have_requests %>
+            <li><a href="#all_requests" title="All Requests from <%= @displayed_user.login %>">All Requests</a></li>
           <% end -%>
         </ul>
       </div>
@@ -180,6 +183,11 @@
       <% if @declined_requests.count > 0 %>
         <div id="requests_declined" class="tab">
           <%= render(:partial => 'shared/requests', :locals => { :requests => @declined_requests, :request_table_id => 'requests_declined_table', :hide_state => true }) %>
+        </div>
+      <% end -%>
+      <% if @user_have_requests %>
+        <div id="all_requests" class="tab">
+          <%= render(:partial => 'shared/requests', :locals => { :request_table_id => 'all_requests_table', :hide_state => true, :serverProcessing => true}) %>
         </div>
       <% end -%>
    </div>
@@ -236,4 +244,3 @@
       $( "#requests" ).tabs();
       $( "#patchinfos" ).tabs();
 <% end %>
-

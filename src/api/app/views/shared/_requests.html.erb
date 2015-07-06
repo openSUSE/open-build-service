@@ -1,9 +1,17 @@
-<% request_table_id ||= 'request_table' %>
-<% hide_state ||= false %>
-<% no_target ||= false %>
-<% sort_columns = %w(null null null) %>
+<%
+  serverProcessing ||= false
+  request_table_id ||= 'request_table'
+  hide_state ||= false
+  no_target ||= false
+  paginate = serverProcessing ? true : requests.count > 25
+  if serverProcessing
+    sort_columns = ['null', "{'bSortable': false}", '{\'bSortable\': false}']
+  else
+    sort_columns = %w(null null null)
+  end
+%>
 
-<% if requests.blank? %>
+<% if !serverProcessing && requests.blank? %>
     <p>No requests.</p>
 <% else %>
     <table id="<%= request_table_id %>">
@@ -17,30 +25,42 @@
         <% end -%>
         <th>Requester</th>
         <th>Type</th>
-        <% sort_columns.concat %w(null null) %>
+        <%
+        if serverProcessing
+          sort_columns.concat ['null', "{'bSortable': false}"]
+        else
+          sort_columns.concat %w(null null)
+        end
+        %>
         <% if !hide_state
              sort_columns << 'null' -%>
             <th>State</th>
             <% sort_columns.concat %w(null) %>
         <% end %>
         <th>Priority</th>
-        <th>Actions</th>
+        <th></th>
       </tr>
       </thead>
       <tbody>
       <% requests.each do |req| -%>
           <%= render partial: 'shared/single_request', locals: { req: req, no_target: no_target, hide_state: hide_state } %>
-      <% end %>
+      <% end unless serverProcessing %>
       </tbody>
     </table>
     <% content_for :ready_function do %>
         $('#<%= request_table_id %>').dataTable({
-        'aoColumns': [
-        <%= sort_columns.join(',') %>,
-        {'bSortable': false}
-        ],
-        'bInfo': false,
-        'bPaginate': false,
+          'aoColumns': [
+          <%== sort_columns.join(",\n") %>,
+          {'bSortable': false}
+          ],
+          'bInfo': false,
+          'bPaginate': <%= paginate %>,
+          sPaginationType: "full_numbers",
+          <% if serverProcessing %>
+          bProcessing: true,
+          bServerSide: true,
+          sAjaxSource: '<%= user_requests_path %>',
+          <% end %>
         });
     <% end %>
 <% end %>
