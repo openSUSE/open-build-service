@@ -105,7 +105,7 @@ class Package < ActiveRecord::Base
       end
       pid, old_pkg_time, old_prj_time = Rails.cache.read(@key)
       if pid
-        pkg=Package.where(id: pid).first
+        pkg=Package.where(id: pid).includes(:projects).first
         return pkg if pkg && pkg.updated_at == old_pkg_time && pkg.project.updated_at == old_prj_time
         Rails.cache.delete(@key) # outdated anyway
       end
