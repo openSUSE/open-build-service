@@ -9140,6 +9140,7 @@ NEXTPRP:
       if ($locked) {
 	print "    publishing is locked\n";
       } elsif (! -e "$reporoot/$prp/$myarch/:repodone") {
+	sendrepochangeevent($prp, "repositoryfinished");
 	if (($repodonestate !~ /^disabled/) || -d "$reporoot/$prp/$myarch/:repo") {
 	  mkdir_p("$reporoot/$prp/$myarch");
 	  $publisherror = prpfinished($ctx, \@packs, \%pubenabled);

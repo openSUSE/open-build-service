@@ -8011,8 +8011,12 @@ sub newevent {
   for ('type', 'project', 'package', 'repository', 'arch', 'job') {
     $ev->{$_} = $cgi->{$_} if defined $cgi->{$_};
   }
+  if ($ev->{type} eq 'repositoryfinished') {
+    # wake up scheduler on local partition, they may have products using this
+    $ev->{type} = 'repository';
+    notify_repservers($ev->{type}, $ev->{project}, undef, $ev->{repository}, $ev->{arch});
+  };
   addevent($ev);
-  notify_repservers($ev->{type}, $ev->{project}, undef, $ev->{repository}, $ev->{arch}) if $ev->{type} eq 'repository';
   return $BSStdServer::return_ok;
 }
 
