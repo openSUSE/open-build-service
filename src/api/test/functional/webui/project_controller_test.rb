@@ -301,33 +301,31 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     assert_equal should, lines.join("\n")
   end
 
-  test 'succesful comment creation' do
-    use_js
-
+  test 'successful comment creation' do
     login_tom to: '/project/show/home:Iggy'
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       fill_in 'body', with: 'Comment Body'
       find_button('Add comment').click
-      find('#flash-messages').must_have_text 'Comment added successfully '
+      find('#flash-messages').must_have_text 'Comment was successfully created.'
     end
     email = ActionMailer::Base.deliveries.last
     verify_email('project_comment', email)
   end
 
-  test 'another succesful comment creation' do
-    login_Iggy to: '/project/show?project=home:Iggy'
-    fill_in 'body', with: 'Comment Body'
+  test 'unsuccessful comment creation' do
+    login_tom to: '/project/show/home:Iggy'
     find_button('Add comment').click
-    find('#flash-messages').must_have_text 'Comment added successfully '
+    find('#flash-messages').must_have_text "Comment can't be saved: Body can't be blank."
   end
 
-  test 'succesful reply comment creation' do
+  test 'successful reply comment creation' do
     use_js
+
     login_Iggy to: '/project/show/BaseDistro'
     find(:id, 'reply_link_id_100').click
     fill_in 'reply_body_100', with: 'Comment Body'
     find(:id, 'add_reply_100').click
-    find('#flash-messages').must_have_text 'Comment added successfully '
+    find('#flash-messages').must_have_text 'Comment was successfully created.'
   end
 
   test 'buildresults' do

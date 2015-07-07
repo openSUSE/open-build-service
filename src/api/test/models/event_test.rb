@@ -103,14 +103,13 @@ class EventTest < ActionDispatch::IntegrationTest
   end
 
   test 'get last' do
-if false
-# this just hangs forever, if not enough events got produced yet
+    skip("this just hangs forever, if not enough events got produced yet")
+
     firstcount = Event::Base.count
     UpdateNotificationEvents.new.perform
     oldcount = Event::Base.count
     # the first call fetches around 100
     assert oldcount - firstcount > 100, "oldcount: #{oldcount}, firstcount: #{firstcount} - not +100"
-end
   end
 
   test 'cleanup job' do

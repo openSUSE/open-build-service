@@ -363,7 +363,7 @@ class Webui::ProjectController < Webui::WebuiController
         @has_patchinfo = true if e['name'] == '_patchinfo'
       end
     end
-    sort_comments(@project.api_obj.comments)
+    @comments = @project.api_obj.comments
     render :show, status: params[:nextstatus] if params[:nextstatus]
   end
 

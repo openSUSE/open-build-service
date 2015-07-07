@@ -86,7 +86,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   def fill_comment(body = 'Comment Body')
     fill_in 'body', with: body
     find_button('Add comment').click
-    find('#flash-messages').must_have_text 'Comment added successfully '
+    find('#flash-messages').must_have_text 'Comment was successfully created.'
   end
 
   test 'succesful comment creation' do
@@ -94,7 +94,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     login_Iggy
     visit root_path + '/package/show/home:Iggy/TestPack'
     fill_comment "Write some http://link.com\n\nand some other\n\n* Markdown\n* markup\n\nReferencing sr#23, bco#24, fate#25, @_nobody_, @a-dashed-user and @Iggy. https://anotherlink.com"
-    within('div.comment_0') do
+    within('div.thread_level_0') do
       page.must_have_link "http://link.com"
       page.must_have_xpath '//ul//li[text()="Markdown"]'
       page.must_have_xpath '//p[text()="and some other"]'
@@ -115,7 +115,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     visit root_path + '/package/show?project=home:Iggy&package=TestPack'
     # @Iggy works at the very beginning and requests are case insensitive
     fill_comment "@Iggy likes to mention himself and to write request#23 with capital 'R', like Request#23."
-    within('div.comment_0') do
+    within('div.thread_level_0') do
       page.must_have_xpath '//a[contains(@href, "/request/show/23") and text()="request#23"]'
       page.must_have_xpath '//a[contains(@href, "/request/show/23") and text()="Request#23"]'
       page.must_have_xpath '//a[contains(@href, "user/show/Iggy") and text()="@Iggy"]'
@@ -137,7 +137,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     find(:id, 'reply_link_id_201').click
     fill_in 'reply_body_201', with: 'Comment Body'
     find(:id, 'add_reply_201').click
-    find('#flash-messages').must_have_text 'Comment added successfully '
+    find('#flash-messages').must_have_text 'Comment was successfully created.'
   end
 
   test 'diff is empty' do
