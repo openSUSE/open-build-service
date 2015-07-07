@@ -237,7 +237,8 @@ class Webui::ProjectController < Webui::WebuiController
         req.save!
       end
       flash[:success] = 'Created maintenance incident request'
-    rescue BsRequestAction::UnknownProject,
+    rescue MaintenanceHelper::MissingAction,
+           BsRequestAction::UnknownProject,
            BsRequestAction::UnknownTargetPackage => e
       flash[:error] = e.summary
       redirect_back_or_to :action => 'show', :project => params[:project] and return
