@@ -647,7 +647,7 @@ class BsRequestAction < ActiveRecord::Base
       # no action, nothing to do
       next unless newAction
       # check if the source contains really a diff or we can skip the entire action
-      if newAction.action_type == :submit and !newAction.contains_change?
+      if [:submit, :maintenance_incident].include? newAction.action_type and !newAction.contains_change?
         # submit contains no diff, drop it again
         newAction.destroy
       else

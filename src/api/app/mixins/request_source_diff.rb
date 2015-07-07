@@ -116,7 +116,7 @@ module RequestSourceDiff
       # a local link, check if the real source change gets also transported in a seperate action
       action.bs_request.bs_request_actions.each do |a|
         return true if check_action_target(a)
-      end
+      end if action.bs_request
     end
 
     # check if the action is the same target

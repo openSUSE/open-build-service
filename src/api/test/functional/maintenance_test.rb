@@ -482,12 +482,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
-    assert_xml_tag( :tag => 'request', :children => { count: 8, only: { tag: 'action' } })
+    assert_xml_tag( :tag => 'request', :children => { count: 4, only: { tag: 'action' } }) # only with changed sources
     assert_xml_tag( :tag => 'source', :attributes => { project: 'home:tom:branches:OBS_Maintained:pack2' } )
     assert_xml_tag( :tag => 'target', :attributes => { project: 'My:Maintenance' } )
-    assert_xml_tag( :tag => 'target', :attributes => { releaseproject: 'BaseDistro3' } )
     assert_xml_tag( :tag => 'target', :attributes => { releaseproject: 'BaseDistro2.0:LinkedUpdateProject' } )
     assert_xml_tag( :tag => 'target', :attributes => { releaseproject: 'BaseDistro:Update' } )
+    assert_no_xml_tag( :tag => 'target', :attributes => { releaseproject: 'BaseDistro3' } ) # no source change
 
     # validate that request is diffable (not broken)
     post "/request/#{id}?cmd=diff&view=xml", nil
@@ -542,11 +542,11 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     get "/source/#{incidentProject}"
     assert_response :success
-    assert_xml_tag( :tag => 'directory', :attributes => { count: '8' } )
+    assert_xml_tag( :tag => 'directory', :attributes => { count: '3' } )
 
-    get "/source/#{incidentProject}/pack2.BaseDistro2.0_LinkedUpdateProject/_meta"
+    get "/source/#{incidentProject}/pack2.BaseDistro_Update/_meta"
     assert_response :success
-    assert_xml_tag( :tag => 'enable', :parent => { tag: 'build' }, :attributes => { repository: 'BaseDistro2.0_LinkedUpdateProject' } )
+    assert_xml_tag( :tag => 'enable', :parent => { tag: 'build' }, :attributes => { repository: 'BaseDistro_Update' } )
 
     get "/source/#{incidentProject}/pack2.BaseDistro_Update?view=issues"
     assert_response :success

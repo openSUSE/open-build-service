@@ -43,6 +43,21 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
 
     # validate result is done in project wide test case
 
+    # try to create a request without a change
+    post '/request?cmd=create&addrevision=1', '<request>
+                                   <action type="maintenance_incident">
+                                     <source project="home:tom:branches:OBS_Maintained:pack2" package="pack2.BaseDistro3" />
+                                     <options>
+                                       <sourceupdate>cleanup</sourceupdate>
+                                     </options>
+                                   </action>
+                                   <description>To fix my bug</description>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 400
+    assert_xml_tag( :tag => 'status', :attributes => { code: 'missing_action' } )
+    # also for entire project
+
     # do some file changes
     put '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject/new_file', 'new_content_0815'
     assert_response :success
@@ -679,6 +694,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
             <binary name="package" package="pack2.linked" supportstatus="l3" />
           </binaries>
         </channel>'
+    assert_response :success
+    # another change needed
+    put '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject/another_file', 'new_content_0815_changed'
     assert_response :success
     post '/request?cmd=create&addrevision=1', '<request>
                                    <action type="maintenance_incident">
