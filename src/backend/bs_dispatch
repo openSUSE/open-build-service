@@ -553,6 +553,7 @@ sub oracle {
   if ($constraints->{'hardware'}) {
     return 0 unless $worker->{'hardware'};
     return 0 if $constraints->{'hardware'}->{'processors'} && $constraints->{'hardware'}->{'processors'} > ($worker->{'hardware'}->{'processors'} || 0);
+    return 0 if $constraints->{'hardware'}->{'jobs'} && $constraints->{'hardware'}->{'jobs'} > ($worker->{'hardware'}->{'jobs'} || 0);
     return 0 if $constraints->{'hardware'}->{'disk'} && getmbsize($constraints->{'hardware'}->{'disk'}) > ($worker->{'hardware'}->{'disk'} || 0);
     my $memory = ($worker->{'hardware'}->{'memory'} || 0);
     my $swap = ($worker->{'hardware'}->{'swap'} || 0);
