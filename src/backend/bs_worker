@@ -694,6 +694,7 @@ if (open(FILE, "<", "/proc/cpuinfo")) {
   }
   close FILE;
 }
+$hw->{'jobs'} = $jobs if $jobs;
 $hw->{'memory'} = $vm_memory if $vm_memory;
 $hw->{'swap'} = $vmdisk_swapsize if $vmdisk_swapsize;
 $hw->{'disk'} = $vmdisk_rootsize if $vmdisk_rootsize;

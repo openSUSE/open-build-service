@@ -737,6 +737,7 @@ our $worker = [
           [ 'flag' ],
         ],
         'processors',
+        'jobs',
         'nativeonly',   # don't allow usage via the helper script
 	'memory',	# in MBytes
 	'swap',		# in MBytes
@@ -1647,6 +1648,7 @@ our @constraint = (
 	      [ 'flag' ],
 	  ],
 	    'processors',
+	    'jobs',
 	  [ 'disk' => $size ],
 	  [ 'memory' => $size ],
 	  [ 'physicalmemory' => $size ],
