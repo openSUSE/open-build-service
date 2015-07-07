@@ -384,10 +384,14 @@ class BsRequest < ActiveRecord::Base
         if attrib and v=attrib.values.first 
           begin
             embargo = DateTime.parse(v.value)
+            if v.value =~ /^\d{4}-\d\d?-\d\d?$/
+              # no time specified, allow it next day
+              embargo = embargo.tomorrow
+            end
           rescue ArgumentError
             raise InvalidDate.new "Unable to parse the date in OBS:EmbargoDate of project #{sprj.name}: #{v}"
           end
-          if embargo >= DateTime.now
+          if embargo > DateTime.now
             raise UnderEmbargo.new "The project #{sprj.name} is under embargo until #{v}"
           end
         end

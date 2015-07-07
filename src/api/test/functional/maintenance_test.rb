@@ -482,12 +482,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
-    assert_xml_tag( :tag => 'request', :children => { count: 4, only: { tag: 'action' } }) # only with changed sources
+    assert_xml_tag( :tag => 'request', :children => { count: 2, only: { tag: 'action' } }) # only with changed sources
     assert_xml_tag( :tag => 'source', :attributes => { project: 'home:tom:branches:OBS_Maintained:pack2' } )
     assert_xml_tag( :tag => 'target', :attributes => { project: 'My:Maintenance' } )
-    assert_xml_tag( :tag => 'target', :attributes => { releaseproject: 'BaseDistro2.0:LinkedUpdateProject' } )
     assert_xml_tag( :tag => 'target', :attributes => { releaseproject: 'BaseDistro:Update' } )
     assert_no_xml_tag( :tag => 'target', :attributes => { releaseproject: 'BaseDistro3' } ) # no source change
+    assert_no_xml_tag( :tag => 'target', :attributes => { releaseproject: 'BaseDistro:LinkedUpdateProject' } )
 
     # validate that request is diffable (not broken)
     post "/request/#{id}?cmd=diff&view=xml", nil
@@ -1185,8 +1185,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
     assert_response 400
     assert_xml_tag(:tag => 'status', :attributes => { :code => "under_embargo" })
+    # use the special form, no time specified
+    post "/source/#{incidentProject}/_attribute", "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{DateTime.now.year}-#{DateTime.now.month}-#{DateTime.now.day}</value></attribute></attributes>"
+    assert_response :success
+    post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
+    assert_response 400
+    assert_xml_tag(:tag => 'status', :attributes => { :code => "under_embargo" })
     # set it to yesterday, so it works below
-    post "/source/#{incidentProject}/_attribute", "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{(DateTime.now-1.day).to_s}</value></attribute></attributes>"
+    post "/source/#{incidentProject}/_attribute", "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{DateTime.now.yesterday.year}-#{DateTime.now.yesterday.month}-#{DateTime.now.yesterday.day}</value></attribute></attributes>"
     assert_response :success
 
     #### release packages
