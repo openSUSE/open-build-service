@@ -262,7 +262,7 @@ class BsRequestAction < ActiveRecord::Base
   def contains_change?
     begin
       return !sourcediff().blank?
-    rescue BsRequestAction::DiffError 
+    rescue BsRequestAction::DiffError
       # if the diff can'be created we can't say
       # but let's assume the reason for the problem lies in the change
       return true
@@ -476,10 +476,6 @@ class BsRequestAction < ActiveRecord::Base
   class MissingPatchinfo < APIException
   end
 
-  class MissingAction < APIException
-    setup 400, 'The request contains no actions. Submit requests without source changes may have skipped!'
-  end
-
   def check_maintenance_release(pkg, repo, arch)
     binaries = Xmlhash.parse(Suse::Backend.get("/build/#{URI.escape(pkg.project.name)}/#{URI.escape(repo.name)}/#{URI.escape(arch.name)}/#{URI.escape(pkg.name)}").body)
     l = binaries.elements('binary')
@@ -691,7 +687,6 @@ class BsRequestAction < ActiveRecord::Base
       end
     end
 
-    raise MissingAction.new if newactions.empty?
     return newactions
   end
 

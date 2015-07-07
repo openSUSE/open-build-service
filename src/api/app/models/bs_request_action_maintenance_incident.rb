@@ -33,6 +33,16 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     return releaseproject
   end
 
+  def sourcediff(opts = {})
+    unless opts[:view] == "xml"
+      # skip local links
+      hash = Package.dir_hash(source_project, source_package)
+      return '' unless hash and hash['linkinfo']
+      return '' if hash['linkinfo']['project'] == self.source_project
+    end
+    super(opts)
+  end
+
   def _merge_pkg_into_maintenance_incident(incidentProject, source_project, source_package, releaseproject=nil, request=nil)
     # recreate package based on link target and throw everything away, except source changes
     # silently as maintenance teams requests ...

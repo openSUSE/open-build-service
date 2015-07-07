@@ -2,6 +2,10 @@ include ValidationHelper
 
 module MaintenanceHelper
 
+  class MissingAction < APIException
+    setup 400, 'The request contains no actions. Submit requests without source changes may have skipped!'
+  end
+
   # updates packages automatically generated in the backend after submitting a product file
   def create_new_maintenance_incident( maintenanceProject, baseProject = nil, request = nil, noaccess = false )
     mi = nil

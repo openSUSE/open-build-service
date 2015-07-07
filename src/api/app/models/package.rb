@@ -791,6 +791,15 @@ class Package < ActiveRecord::Base
     return pkg.local_origin_container
   end
 
+  def is_local_link?
+    # no link
+    return false unless self.dir_hash
+    li = self.dir_hash['linkinfo']
+    return false unless li
+    # linking to my project?
+    return li['project'] == self.project.name
+  end
+
   def add_channels
     opkg = self.origin_container
     # remote or broken link?

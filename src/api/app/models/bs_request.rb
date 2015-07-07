@@ -1022,6 +1022,8 @@ class BsRequest < ActiveRecord::Base
       oldactions << action
       newactions.concat(na)
     end
+    # will become an empty request
+    raise MissingAction.new if newactions.empty? and oldactions.size == self.bs_request_actions.size
 
     oldactions.each { |a| self.bs_request_actions.destroy a }
     newactions.each { |a| self.bs_request_actions << a }

@@ -1806,9 +1806,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/source/kde4/kdebase', :cmd => :branch
     assert_response :success
     post '/request?cmd=create', req
-    assert_response 400
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'missing_action' })
-    put '/source/home:Iggy:branches:kde4/kdebase/change', 'avoid failure of unchanged package submit'
+    assert_response :success
+    put '/source/home:Iggy:branches:kde4/kdebase/change', 'avoid dropped submit action'
     assert_response :success
     post '/request?cmd=create', req
     assert_response :success

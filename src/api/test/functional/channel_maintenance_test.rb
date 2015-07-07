@@ -57,6 +57,18 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response 400
     assert_xml_tag( :tag => 'status', :attributes => { code: 'missing_action' } )
     # also for entire project
+    post '/request?cmd=create&addrevision=1', '<request>
+                                   <action type="maintenance_incident">
+                                     <source project="home:tom:branches:OBS_Maintained:pack2"/>
+                                     <options>
+                                       <sourceupdate>cleanup</sourceupdate>
+                                     </options>
+                                   </action>
+                                   <description>To fix my bug</description>
+                                   <state name="new" />
+                                 </request>'
+    assert_response 400
+    assert_xml_tag( :tag => 'status', :attributes => { code: 'missing_action' } )
 
     # do some file changes
     put '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject/new_file', 'new_content_0815'
@@ -201,7 +213,6 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match(/new_content_0815/, @response.body) # check if our changes are part of the diff
     assert_xml_tag :parent=>{ tag: 'file', attributes: { state: 'added' } }, :tag => 'new', :attributes=>{ name: 'new_file' }
-    assert_xml_tag :parent=>{ tag: 'file', attributes: { state: 'added' } }, :tag => 'new', :attributes=>{ name: '_link' } # local link is unexpanded
 
     # set incident to merge into existing one
     prepare_request_with_user 'maintenance_coord', 'power'
@@ -738,7 +749,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag( :tag => 'directory', :attributes => { count: '5' } ) # and nothing else
 
     #validate cleanup
-    get '/source/home:tom:branches:OBS_Maintained:pack2'
+    get '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject'
     assert_response 404
 
     # test package initialization for projects linking to maintenance_release projects
@@ -746,7 +757,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     post '/request?cmd=create', '<request>
                                    <action type="submit">
-                                     <source project="BaseDistro2.0" package="pack2"/>
+                                     <source project="BaseDistro3" package="pack2"/>
                                      <target project="TEST" package="pack2"/>
                                    </action>
                                    <description>Source has a devel package</description>
