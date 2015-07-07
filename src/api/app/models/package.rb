@@ -105,7 +105,7 @@ class Package < ActiveRecord::Base
       end
       pid, old_pkg_time, old_prj_time = Rails.cache.read(@key)
       if pid
-        pkg=Package.where(id: pid).includes(:projects).first
+        pkg=Package.where(id: pid).includes(:project).first
         return pkg if pkg && pkg.updated_at == old_pkg_time && pkg.project.updated_at == old_prj_time
         Rails.cache.delete(@key) # outdated anyway
       end
@@ -352,8 +352,14 @@ class Package < ActiveRecord::Base
     if wait_for_update
       self.update_if_dirty
     else
-      # now trigger a delayed job
-      self.delay.update_if_dirty
+      retries=10
+      begin
+        self.delay.update_if_dirty
+      rescue ActiveRecord::StatementInvalid
+        # mysql lock errors in delayed job handling... we need to retry
+        retries = retries - 1
+        retry if retries > 0
+      end
     end
   end
 

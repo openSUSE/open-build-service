@@ -15,9 +15,15 @@ class UpdateNotificationEvents
       e.elements('data') do |d|
         data[d['key']] = d['_content']
       end
+      retries=10
       begin
         event = Event::Factory.new_from_type(type, data)
         event.save!
+      rescue ActiveRecord::StatementInvalid => e
+        retries = retries - 1
+        retry if retries > 0
+        HoptoadNotifier.notify(e, {failed_job: "RETRYED 10 times: #{type.inspect}"})
+        notify_hoptoad(e)
       rescue => e
         if Rails.env.test?
           # make debug output useful in test suite, not just showing backtrace to HoptoaddNotifier
