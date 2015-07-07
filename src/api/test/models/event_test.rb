@@ -102,16 +102,6 @@ class EventTest < ActionDispatch::IntegrationTest
     Event::NotifyBackends.trigger_delayed_sent
   end
 
-  test 'get last' do
-    skip("this just hangs forever, if not enough events got produced yet")
-
-    firstcount = Event::Base.count
-    UpdateNotificationEvents.new.perform
-    oldcount = Event::Base.count
-    # the first call fetches around 100
-    assert oldcount - firstcount > 100, "oldcount: #{oldcount}, firstcount: #{firstcount} - not +100"
-  end
-
   test 'cleanup job' do
     firstcount = Event::Base.count
     CleanupEvents.new.perform

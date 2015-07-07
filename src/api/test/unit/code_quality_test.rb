@@ -74,6 +74,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'BranchPackage#check_for_update_project' => 101.04,
       'BranchPackage#lookup_incident_pkg' => 80.64,
       'BsRequest#change_review_state' => 203.53,
+      'BsRequest#changestate_accepted' => 80.21,
       'BsRequest#apply_default_reviewers' => 129.52,
       'BsRequest#webui_actions' => 130.13,
       'BsRequest::new_from_xml' => 113.77,
