@@ -70,7 +70,12 @@ case "$1" in
 	;;
     stop)
 	echo -n "Shutting down OBS api delayed job handler "
-        run_in_api script/delayed_job.api.rb stop
+        run_in_api script/delayed_job.api.rb --queue=quick stop
+        run_in_api script/delayed_job.api.rb --queue=releasetracking stop -i 1000
+        run_in_api script/delayed_job.api.rb --queue=issuetracking stop -i 1010
+        run_in_api script/delayed_job.api.rb --queue=mailers stop -i 1020
+        # to be removed later. This is just for processing old jobs without default queue
+        run_in_api script/delayed_job.api.rb stop -i 1030
 	rc_status -v
 	echo -n "Shutting down OBS api clock daemon "
         run_in_api $CLOCKWORKD -l -c config/clock.rb stop
