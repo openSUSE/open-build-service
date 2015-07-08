@@ -5645,6 +5645,10 @@ sub moveproject {
   rename("$projectsdir/$oprojid.conf", "$projectsdir/$projid.conf") if -e "$projectsdir/$oprojid.conf";
   rename("$treesdir/$oprojid", "$treesdir/$projid") if -e "$treesdir/$oprojid";
 
+  for my $f (ls("$projectsdir/$projid.pkg")) {
+    updatelinkinfodb($projid, $1) if ($f =~ /^(.*)\.rev$/);
+  }
+
   # move in the backend as well
   my @args;
   push @args, "cmd=move";
