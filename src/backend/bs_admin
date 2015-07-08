@@ -135,7 +135,7 @@ Maintenance Tasks
 Note: the --update-*-db calls are usually only needed when corrupt data has been created, for
       example after a file system corruption.
 
- --update-source-db
+ --update-source-db [<project>]
    Update the index for all source files.
 
  --update-request-db
@@ -639,7 +639,11 @@ while (@ARGV) {
     }
   } elsif ($arg eq "--update-source-db") {
     BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
-    for my $projid (findprojects()) {
+    my $prjs = findprojects();
+    if (@ARGV == 1) {
+       $prjs = (shift @ARGV);
+    }
+    for my $projid ($prjs) {
       for my $packid (findpackages($projid)) {
         print "$projid/$packid\n";
         my $rev = getrev($projid, $packid);
