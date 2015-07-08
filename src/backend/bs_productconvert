@@ -1089,6 +1089,16 @@ sub writeProductSPECfile( $$$$ )
     writestr($file, undef, $str);
 }
 
+sub createPreSelectPatternDeps ( $ ) {
+  my ( $patterns ) = @_;
+
+  my $pattern_lines="";
+  foreach my $pattern (@{$patterns->[0]->{'pattern'}}){
+      $pattern_lines.="Recommends:     pattern() = $pattern->{'name'}\n";
+  }
+  return $pattern_lines;
+}
+
 sub createProductDependencyLines ( $ ) {
   my ( $productDependency ) = @_;
 
@@ -1129,6 +1139,9 @@ sub createSPECfileFlavors ( $$ ) {
       }
       $product_flavors.="Provides:       product_flavor()\n";
       $product_flavors.="Provides:       flavor($flavor->{flavor})\n";
+      if (defined($flavor->{'preselected_patterns'})){
+        $product_flavors.=createPreSelectPatternDeps($flavor->{'preselected_patterns'});
+      }
       # take media style from first media. not nice, but we can only have one product package for all of them.
       my $medium = $prodRef->{mediasets}->{media}[0];
       if ((not defined $medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
