@@ -195,7 +195,7 @@ Debug Options
    Show all architectures which are configured in configuration.xml to be supported by this instance.
 ";
 }
-my $emptysrcmd5 = 'd41d8cd98f00b204e9800998ecf8427e';
+my $emptymd5 = 'd41d8cd98f00b204e9800998ecf8427e';
 
 #### FIXME: these functions are copied from src server. We should move it to some util class maybe.
 my $srcrevlay = [qw{rev vrev srcmd5 version time user comment requestid}];
