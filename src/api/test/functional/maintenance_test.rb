@@ -1040,8 +1040,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/published/#{incidentProject}/BaseDistro2.0_LinkedUpdateProject/x86_64/package-1.0-1.x86_64.rpm"
     assert_response :success
 
-#https://api.opensuse.org/source?attribute=OBS%3AMaintained&cmd=branch&dryrun=1&update_project_attribute=OBS%3AUpdateProject&package=glibc
-
     # A new branch would fetch sources from us already
     post '/source', :cmd => 'branch', :dryrun => 1, :package => "pack2"
     assert_response :success
@@ -1074,9 +1072,15 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag( :tag => 'review', :attributes => { by_group: 'test_group' } )
     assert_xml_tag( :tag => 'review', :attributes => { by_user: 'fred' } ) # BaseDistro2:Update pack2
     assert_xml_tag( :tag => 'priority', :content => "important" ) # from patchinfo rating
+
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     reqid = node.value(:id)
+    post "/request/#{reqid}?cmd=diff&view=xml", nil
+    assert_response :success
+    # the diffed packages
+    assert_xml_tag( :tag => 'old', :attributes => { project: 'BaseDistro2.0:LinkedUpdateProject', package: 'pack2' } )
+    assert_xml_tag( :tag => 'new', :attributes => { project: incidentProject, package: 'pack2.BaseDistro2.0_LinkedUpdateProject' } )
 
     # check that changes get still fetched on new branches
     post '/source/BaseDistro2.0/pack2', :cmd => 'branch'

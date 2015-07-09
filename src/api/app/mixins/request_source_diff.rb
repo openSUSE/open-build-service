@@ -41,7 +41,6 @@ module RequestSourceDiff
 
       # fallback name as last resort
       @target_package ||= action.source_package
-
       query = {'cmd' => 'diff'}
       ai = action.bs_request_action_accept_info
       if ai
@@ -59,8 +58,16 @@ module RequestSourceDiff
         # maintenance incidents shall show the final result after release
         @target_project = action.target_releaseproject if action.target_releaseproject
 
+        tprj = Project.get_by_name(@target_project)
+
+        # maintenance release targets will have a base link
+        @target_package.gsub!(/\.[^\.]$/, '') if tprj.is_maintenance_release?
+
         # for requests not yet accepted or accepted with OBS 2.0 and before
-        tpkg = find_target_pkg
+        tpkg = tprj = nil
+        if Package.exists_by_project_and_name(@target_project, @target_package, follow_project_links: true)
+          tpkg = Package.get_by_project_and_name(@target_project, @target_package)
+        end
 
         path = Package.source_path(action.source_project, spkg)
         query[:filelimit] = 10000
@@ -90,17 +97,6 @@ module RequestSourceDiff
       query[:view] = 'xml' if @view_xml # Request unified diff in full XML view
       query[:withissues] = 1 if @withissues
       BsRequestAction.get_package_diff(path, query)
-    end
-
-    def find_target_pkg
-      tpkg = nil
-      if Package.exists_by_project_and_name(@target_project, @target_package, follow_project_links: true)
-        tpkg = Package.get_by_project_and_name(@target_project, @target_package)
-      else
-        # for permission check
-        Project.get_by_name(@target_project)
-      end
-      tpkg
     end
 
     def overwrite_target_by_link(spkg)
