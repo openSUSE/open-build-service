@@ -181,12 +181,13 @@ class SourceController < ApplicationController
 
     Project.transaction do
       logger.info "destroying project object #{pro.name}"
+      params[:user] = User.current.login
+      path = pro.source_path
+      path << build_query_from_hash(params, [:user, :comment])
+
       pro.revoke_requests
       pro.destroy
 
-      params[:user] = User.current.login
-      path = "/source/#{pro.name}"
-      path << build_query_from_hash(params, [:user, :comment])
       Suse::Backend.delete path
       logger.debug "delete request to backend: #{path}"
     end
@@ -306,13 +307,13 @@ class SourceController < ApplicationController
    
       project = nil
       project = tpkg.project if tpkg and tpkg.name == "_product"
+      path = tpkg.source_path
 
       # we need to keep this order to delete first the api model
       tpkg.revoke_requests
       tpkg.destroy
 
       params[:user] = User.current
-      path = tpkg.source_path
       path << build_query_from_hash(params, [:user, :comment])
       Suse::Backend.delete path
 
