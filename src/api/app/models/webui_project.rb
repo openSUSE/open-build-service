@@ -200,7 +200,8 @@ class WebuiProject < ActiveXML::Node
   end
 
   def project_type
-    api_obj.project_type
+    return api_obj.project_type if api_obj
+    return "standard"
   end
 
   def set_project_type(project_type)
@@ -211,8 +212,14 @@ class WebuiProject < ActiveXML::Node
     return false
   end
 
+  def is_maintenance?
+    return api_obj.is_maintenance? if api_obj
+    false
+  end
+
   def is_remote?
-    api_obj.remoteurl.present?
+    api_obj.remoteurl.present? if api_obj
+    false
   end
 
   def self.attributes(project_name)
@@ -261,7 +268,8 @@ class WebuiProject < ActiveXML::Node
   end
 
   def is_locked?
-    api_obj.is_locked?
+    api_obj.is_locked? if api_obj
+    false
   end
 
   def self.find(name, opts = {})

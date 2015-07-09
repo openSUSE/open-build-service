@@ -22,7 +22,7 @@ module Webui::RequiresProject
       return render_project_missing
     end
     # Is this a maintenance master project ?
-    @is_maintenance_project = @project.project_type == 'maintenance'
+    @is_maintenance_project = @project.is_maintenance?
   end
 
   def check_valid_project_name
