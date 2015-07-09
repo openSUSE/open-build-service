@@ -5176,8 +5176,19 @@ sub checkkiwiproduct {
       }
       @apackids = unify(@apackids, sort keys %$gbininfo) if $gbininfo;
 
-      for my $apackid (@apackids) {
+      # just for maintenance_release project handling
+      my $xpackid;
+      my $seen_pack;
+
+      for my $apackid (orderpackids($projpacks->{$aprojid}, @apackids)) {
         next if $apackid eq '_volatile';
+        if ($projpacks->{$aprojid}->{'kind'} && $projpacks->{$aprojid}->{'kind'} eq 'maintenance_release') {
+          $xpackid = "";
+	  $xpackid = $1 if $apackid =~ /^(.*)\.(imported_)?(\d+)$/;
+	  next if $xpackid && $seen_pack->{$xpackid};
+	  $seen_pack->{$xpackid} = $apackid;
+        }
+
         if (($allpacks && !$deps{"-$apackid"} && !$deps{'-'.($known{$apackid} || '')}) || $deps{$apackid} || $deps{$known{$apackid} || ''}) {
 	  # hey, we probably need this package! wait till it's finished
 	  my $code = $ps->{$apackid} || 'unknown';
