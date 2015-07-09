@@ -1361,6 +1361,12 @@ sub prpfinished {
   $filter ||= $default_publishfilter;
   $filter = compile_publishfilter($filter);
 
+  my $seen_pack;
+  my $xpackid;
+  my $singleexport;
+  $singleexport = $bconf->{'singleexport'} if $bconf;
+  print "    prp $prp is singleexport $singleexport\n" if $singleexport;
+
   # sort like in the full tree
   for my $packid (orderpackids($projpacks->{'projid'}, @$packs)) {
     if ($pubenabled && !$pubenabled->{$packid}) {
@@ -1383,6 +1389,13 @@ sub prpfinished {
       }
       next;
     }
+    if ($singleexport) {
+      $xpackid = "";
+      if ($packid =~ /^(.*)\.(imported_)?(\d+)$/) {
+        $xpackid = $1;
+      }
+      next if $xpackid && $seen_pack->{$xpackid};
+    }
     my $pdir = "$reporoot/$prp/$myarch/$packid";
     my @all = sort(ls($pdir));
     my %all = map {$_ => 1} @all;
@@ -1392,6 +1405,7 @@ sub prpfinished {
     @all = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'rpmlint.log' && $_ ne '_statistics' && $_ ne '_buildenv' && $_ ne '_channel' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && !/^\./} @all;
     for my $bin (@all) {
       next if $bin =~ /^::import::/;
+      $seen_pack->{$xpackid} = $packid if $singleexport;
       my $rbin = $bin;
       # XXX: should be source name instead?
       $rbin = "${packid}::$bin" if $debian || $bin eq 'updateinfo.xml';
