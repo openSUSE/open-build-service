@@ -5587,6 +5587,7 @@ sub checkpatchinfo {
   my %metas;
   my $empty_channel_seen;
   my $rpms_seen;
+  my $enabled_seen;
   for my $arch (@archs) {
     if ($arch eq $myarch) {
       $apackstatus = $ctx->{'packstatus'};
@@ -5601,9 +5602,8 @@ sub checkpatchinfo {
     my $blockedarch;
     for my $apackid (@packages) {
       my $code = $apackstatus->{$apackid} || '';
-      if ($code eq 'excluded') {
-	next;
-      }
+      next if $code eq 'excluded';
+      $enabled_seen = 1 unless $code eq 'disabled';
       if ($code ne 'done' && $code ne 'disabled') {
 	$blockedarch = 1;
 	push @blocked, "$arch/$apackid";
@@ -5671,9 +5671,8 @@ sub checkpatchinfo {
     return ('blocked', join(', ', @blocked));
   }
 
-  if ($empty_channel_seen && !$rpms_seen) {
-    return ('excluded', 'no binary in channel');
-  }
+  return ('excluded', 'no binary in channel') if ($empty_channel_seen && !$rpms_seen);
+  return ('excluded', 'no package enabled') unless $enabled_seen;
 
   return ('broken', 'no binaries found') unless @tocopy;
 
