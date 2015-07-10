@@ -255,6 +255,13 @@ class BranchPackage
     end
 
     @packages.each { |p| extend_packages_to_link(p) }
+
+    # avoid double hits eg, when the same update project is used by multiple GA projects
+    seen={}
+    @packages.each do |p|
+      @packages.delete(p) if seen[p[:package]]
+      seen[p[:package]]=true
+    end
   end
 
   def lookup_incident_pkg(p)
