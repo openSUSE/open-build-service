@@ -800,7 +800,9 @@ class Package < ActiveRecord::Base
     return li['project'] == self.project.name
   end
 
-  def add_channels
+  def add_channels(mode=nil)
+    raise InvalidParameterError unless [nil, :add_disabled, :skip_disabled, :enable_all].include? mode
+
     opkg = self.origin_container
     # remote or broken link?
     return if opkg.nil?
@@ -810,7 +812,9 @@ class Package < ActiveRecord::Base
 
     # main package
     ChannelBinary.find_by_project_and_package(project_name, opkg.name).each do |cb|
-      cb.create_channel_package_into(self.project)
+      cpkg = cb.create_channel_package_into(self.project)
+      next unless cpkg
+      cpkg.channels.first.add_channel_repos_to_project(cpkg, mode)
     end
     # and all possible existing local links
     if opkg.project.is_maintenance_release? and opkg.is_link?
@@ -824,7 +828,9 @@ class Package < ActiveRecord::Base
       # strip incident suffix in update release projects
       name.gsub!(/\.[^\.]*$/,'') if opkg.project.is_maintenance_release?
       ChannelBinary.find_by_project_and_package(project_name, name).each do |cb|
-        cb.create_channel_package_into(self.project)
+        cpkg = cb.create_channel_package_into(self.project)
+        next unless cpkg
+        cpkg.channels.first.add_channel_repos_to_project(cpkg, mode)
       end
     end
     self.project.store

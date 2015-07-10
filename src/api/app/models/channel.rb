@@ -144,10 +144,10 @@ class Channel < ActiveRecord::Base
     tpkg.branch_from(cp.project.name, cp.name)
     tpkg.sources_changed
 
-    add_channel_repos_to_project(tpkg)
+    tpkg
   end
 
-  def add_channel_repos_to_project(tpkg)
+  def add_channel_repos_to_project(tpkg, mode=nil)
     cp = self.package
 
     if self.channel_targets.empty?
@@ -158,13 +158,14 @@ class Channel < ActiveRecord::Base
 
     # defined in channel
     self.channel_targets.each do |ct|
+      next if mode==:skip_disabled and ct.disabled
       repo_name = ct.repository.extended_name
       # add repositories
       unless cp.project.repositories.find_by_name(repo_name)
         tpkg.project.add_repository_with_targets(repo_name, ct.repository, [ct.repository]) 
       end
       # enable package
-      tpkg.enable_for_repository repo_name unless ct.disabled
+      tpkg.enable_for_repository repo_name unless ct.disabled or mode==:enable_all
     end
   end
 end
