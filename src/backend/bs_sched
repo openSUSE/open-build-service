@@ -1368,7 +1368,7 @@ sub prpfinished {
   print "    prp $prp is singleexport $singleexport\n" if $singleexport;
 
   # sort like in the full tree
-  for my $packid (orderpackids($projpacks->{'projid'}, @$packs)) {
+  for my $packid (orderpackids($projpacks->{$projid}, @$packs)) {
     if ($pubenabled && !$pubenabled->{$packid}) {
       # publishing of this package is disabled, copy binary list from old info
       if (!$rinfo) {
