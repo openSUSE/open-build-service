@@ -65,16 +65,20 @@ OBSApi::Application.routes.draw do
     end
 
     controller 'webui/configuration' do
-      get 'configuration/' => :index
-      get 'configuration/users' => :users
-      get 'configuration/groups' => :groups
-      get 'configuration/connect_instance' => :connect_instance
-      post 'configuration/save_instance' => :save_instance
-      post 'configuration/update_configuration' => :update_configuration
-      post 'configuration/update_architectures' => :update_architectures
+      get 'configuration' => :index
+      patch 'configuration' => :update
+      get 'configuration/interconnect' => :interconnect
+      post 'configuration/interconnect' => :create_interconnect
+    end
 
-      get 'configuration/notifications' => :notifications
-      post 'configuration/notifications' => :update_notifications
+    controller 'webui/notifications' do
+      get 'notifications' => :index
+      patch 'notifications' => :bulk_update, as: 'bulk_update_notifications'
+    end
+
+    controller 'webui/architectures' do
+      get 'architectures' => :index
+      patch 'architectures/bulk_update_availability' => :bulk_update_availability, as: 'bulk_update_availability'
     end
 
     controller 'webui/driver_update' do
@@ -269,6 +273,8 @@ OBSApi::Application.routes.draw do
 
     controller 'webui/user' do
 
+      get 'users' => :index
+
       post 'user/register' => :register
       get 'user/register_user' => :register_user
 
@@ -291,7 +297,7 @@ OBSApi::Application.routes.draw do
       get 'user/tokens' => :tokens
 
       post 'user/do_login' => :do_login
-      get 'configuration/users/:user' => :edit, constraints: cons, as: 'configuration_user'
+      get 'user/edit/:user' => :edit, constraints: cons, as: 'user_edit'
 
       post 'user/notifications' => :update_notifications
       get 'user/notifications' => :notifications
@@ -308,9 +314,10 @@ OBSApi::Application.routes.draw do
       get 'user/:user/icon' => :icon, constraints: cons
     end
 
-    controller 'webui/group' do
+    controller 'webui/groups' do
+      get 'groups' => :index
       get 'group/show/:id' => :show, constraints: {:id => /[^\/]*/}, as: 'group_show'
-      get 'group/add' => :add
+      get 'group/new' => :new
       post 'group/save' => :save
       get 'group/autocomplete' => :autocomplete
       get 'group/tokens' => :tokens

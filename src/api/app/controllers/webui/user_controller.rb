@@ -10,9 +10,13 @@ class Webui::UserController < Webui::WebuiController
                                        :lock, :admin, :login, :notifications, :update_notifications, :show]
   before_filter :check_display_user, :only => [:show, :edit, :requests, :list_my, :delete, :save, :confirm, :admin, :lock]
   before_filter :require_login, :only => [:edit, :save, :notifications, :update_notifications]
-  before_filter :require_admin, :only => [:edit, :delete, :lock, :confirm, :admin]
+  before_filter :require_admin, :only => [:edit, :delete, :lock, :confirm, :admin, :index]
 
   skip_before_action :check_anonymous, only: [:do_login]
+
+  def index
+    @users = User.all_without_nobody
+  end
 
   def logout
     logger.info "Logging out: #{session[:login]}"
@@ -199,7 +203,7 @@ class Webui::UserController < Webui::WebuiController
     flash[:success] = "The account \"#{params[:login]}\" is now active."
 
     if User.current.is_admin?
-      redirect_to :controller => :configuration, :action => :users
+      redirect_to :controller => :user, :action => :index
     else
       session[:login] = opts[:login]
       session[:password] = opts[:password]
@@ -252,7 +256,7 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def notifications
-    notifications_for_user(User.current)
+    @notifications = notifications_for_user(User.current)
   end
 
   def update_notifications
@@ -261,7 +265,7 @@ class Webui::UserController < Webui::WebuiController
       gu.save
     end
 
-    update_notifications_for_user(User.current)
+    update_notifications_for_user(User.current, params)
 
     flash[:notice] = 'Notifications settings updated'
     redirect_to action: :notifications

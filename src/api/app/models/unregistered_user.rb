@@ -22,13 +22,13 @@ class UnregisteredUser < User
       end
     end
     # Turn off registration if its disabled
-    if ::Configuration.first.registration == 'deny'
+    if ::Configuration.registration == 'deny'
       return if User.current and User.current.is_admin?
       logger.debug 'Someone tried to register but its disabled'
       raise ErrRegisterSave.new 'Sorry, sign up is disabled'
     end
     # Turn on registration if it's enabled
-    if ::Configuration.first.registration == 'allow' or ::Configuration.first.registration == 'confirmation'
+    if ::Configuration.registration == 'allow' or ::Configuration.registration == 'confirmation'
       return
     end
     # This shouldn't happen, but disable registration by default.
@@ -38,8 +38,8 @@ class UnregisteredUser < User
 
   def self.get_state
     state = User.states.key(User.default_state) 
-    state = 'unconfirmed' if ::Configuration.first.registration == 'confirmation'
-    state = 'confirmed' if ::Configuration.first.registration == 'allow'
+    state = 'unconfirmed' if ::Configuration.registration == 'confirmation'
+    state = 'confirmed' if ::Configuration.registration == 'allow'
     logger.debug "User state is: #{state}"
     return state
   end

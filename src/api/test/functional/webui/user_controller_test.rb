@@ -3,7 +3,7 @@ require_relative '../../test_helper'
 class Webui::UserControllerTest < Webui::IntegrationTest
 
   def test_edit
-    login_king to: configuration_user_path(user: 'tom')
+    login_king to: user_edit_path(user: 'tom')
 
     fill_in 'realname', with: 'Tom Thunder'
     click_button 'Update'
@@ -74,19 +74,19 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     login_adrian to: user_notifications_path
 
     page.must_have_text 'Events to get email for'
-    page.must_have_checked_field('RequestStatechange_creator')
-    uncheck('RequestStatechange_creator')
-    check('CommentForPackage_maintainer')
-    check('CommentForPackage_commenter')
-    check('CommentForProject_maintainer')
-    check('CommentForProject_commenter')
+    page.must_have_checked_field('Event::RequestStatechange_creator')
+    uncheck('Event::RequestStatechange_creator')
+    check('Event::CommentForPackage_maintainer')
+    check('Event::CommentForPackage_commenter')
+    check('Event::CommentForProject_maintainer')
+    check('Event::CommentForProject_commenter')
     click_button 'Update'
     flash_message.must_equal 'Notifications settings updated'
     page.must_have_text 'Events to get email for'
-    page.must_have_unchecked_field('RequestStatechange_creator')
-    page.must_have_checked_field('CommentForPackage_maintainer')
-    page.must_have_checked_field('CommentForPackage_commenter')
-    page.must_have_checked_field('CommentForProject_maintainer')
-    page.must_have_checked_field('CommentForProject_commenter')
+    page.must_have_unchecked_field('Event::RequestStatechange_creator')
+    page.must_have_checked_field('Event::CommentForPackage_maintainer')
+    page.must_have_checked_field('Event::CommentForPackage_commenter')
+    page.must_have_checked_field('Event::CommentForProject_maintainer')
+    page.must_have_checked_field('Event::CommentForProject_commenter')
   end
 end

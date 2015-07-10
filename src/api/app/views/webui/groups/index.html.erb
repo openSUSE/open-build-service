@@ -3,7 +3,7 @@
 <% @layouttype = 'custom' %>
 
 <div class="grid_16 alpha omega box box-shadow">
-  <%= render :partial => 'tabs' %>
+  <%= render :partial => 'webui/configuration/tabs' %>
   <p>
     Manage groups.
   </p>
@@ -20,13 +20,13 @@
         <tbody>
         <% @groups.each do |group| %>
             <tr id="group-<%= valid_xml_id(group.title) %>">
-              <td><%= link_to(group.title, {:controller => 'group', :action => 'show', id: group.title}, {id: group.title}) %></td>
+              <td><%= link_to(group.title, {:controller => 'groups', :action => 'show', id: group.title}, {id: group.title}) %></td>
               <td class='users'>
                 <%= group.groups_users.map { |member|
                   link_to(member.user, user_show_path(member.user)) }.join(', ').html_safe %>
               </td>
               <td class="nowrap">
-                <%= link_to(sprited_text('accessories-text-editor', 'Edit Group'), :controller => 'group', :action => 'edit', :group => group.title) %>
+                <%= link_to(sprited_text('accessories-text-editor', 'Edit Group'), :controller => 'groups', :action => 'edit', :group => group.title) %>
               </td>
             </tr>
         <% end %>
@@ -37,7 +37,7 @@
         <i>There are no groups configured</i>
       </p>
   <% end %>
-  <p><%= link_to sprited_text('group_add', 'Add group'), :controller => 'group', :action => :add %></p>
+  <p><%= link_to sprited_text('group_add', 'Add group'), :controller => 'groups', :action => :new %></p>
 </div>
 
 

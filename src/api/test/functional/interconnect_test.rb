@@ -207,7 +207,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/RemoteInstance:BaseDistro2.0:LinkedUpdateProject'
     assert_response :success
-    assert_xml_tag( :tag => 'directory', :children => { :count => 0 } ) # backend does not provide a counter
+    assert_xml_tag( :tag => 'directory', :children => { :count => 1 } ) # backend does not provide a counter
     get '/source/RemoteInstance:BaseDistro2.0:LinkedUpdateProject?expand=1'
     assert_response :success
     assert_xml_tag( :tag => 'entry', :attributes => { :name => 'pack2', :originproject => 'RemoteInstance:BaseDistro2.0' } )

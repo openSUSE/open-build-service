@@ -5,6 +5,7 @@ require 'digest/md5'
 module Webui::WebuiHelper
 
   include ActionView::Helpers::JavaScriptHelper
+  include ActionView::Helpers::AssetTagHelper
 
   def get_frontend_url_for(opt={})
     opt[:host] ||= CONFIG['external_frontend_host'] || CONFIG['frontend_host']
@@ -489,7 +490,7 @@ module Webui::WebuiHelper
     user = User.find_by_login(user) unless user.is_a? User
     return '' unless user
 
-    Rails.cache.fetch([user, 'realname_and_icon', opts, Configuration.first]) do
+    Rails.cache.fetch([user, 'realname_and_icon', opts, ::Configuration.first]) do
       realname = user.realname
 
       if opts[:short] || realname.empty?

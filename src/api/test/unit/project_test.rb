@@ -482,6 +482,18 @@ END
     assert Project.valid_name?("foo1234")
     assert Project.valid_name?("4" * 200)
   end
-end
 
+  test 'exists_by_name' do
+    User.current = users( :Iggy )
+
+    assert Project.exists_by_name('home:Iggy')
+    assert Project.exists_by_name('RemoteInstance')
+    assert Project.exists_by_name('RemoteInstance:NoMatterIfThisProjectExistsOrNot')
+    assert Project.exists_by_name('RemoteInstance:NoMatter:IfThisProjectExistsOrNot')
+    assert_not Project.exists_by_name('NonExistingProject')
+    assert_not Project.exists_by_name('Some:NonExistingProject')
+    assert_not Project.exists_by_name('HiddenProject')
+    assert_not Project.exists_by_name('HiddenRemoteInstance')
+  end
+end
 

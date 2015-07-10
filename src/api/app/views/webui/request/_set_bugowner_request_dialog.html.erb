@@ -15,7 +15,7 @@
             <input id="groupbkp" name="group" type="hidden" value="False" />
             <%= text_field_tag(:group, nil, :onclick => "javascript:document.getElementById('user').disabled=true", :name => 'group' ) %><br/>
             <%= javascript_tag do %>
-              $("#group").autocomplete({source: '<%= url_for :controller => 'group', :action => 'autocomplete' %>', minLength: 2});
+              $("#group").autocomplete({source: '<%= url_for :controller => 'groups', :action => 'autocomplete' %>', minLength: 2});
             <% end %>
             for<br>
             <% params['projects'].each do |project| %>

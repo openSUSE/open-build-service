@@ -62,6 +62,16 @@ BaseDistro2.0_pack2.linked:
   activity_index: 10.0
   delta: 1
   project: BaseDistro2.0
+LinkedUpdateProject_pack_local:
+  name: pack_local
+  title: For linked project tests
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  update_counter: 1
+  activity_index: 10.0
+  delta: 1
+  project: BaseDistro2.0_LinkedUpdateProject
 BaseDistro3_pack2:
   name: pack2
   title: For maintenance tests

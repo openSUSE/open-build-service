@@ -50,7 +50,6 @@ class Project < ActiveRecord::Base
   has_many :taggings, :as => :taggable, :dependent => :delete_all
   has_many :tags, :through => :taggings
 
-  has_many :download_stats
   has_many :downloads, :dependent => :delete_all, foreign_key: :db_project_id
 
   has_many :flags, dependent: :delete_all, inverse_of: :project
@@ -273,20 +272,17 @@ class Project < ActiveRecord::Base
       maintenanceProject
     end
 
-    # to check existens of a project (local or remote)
+    # check existence of a project (local or remote)
     def exists_by_name(name)
-      dbp = where(name: name).first
-      if dbp.nil?
-        return true if find_remote_project(name)
-        return false
+      local_project = where(name: name).first
+      if local_project.nil?
+        !!find_remote_project(name)
+      else
+        check_access?(local_project) 
       end
-      unless check_access?(dbp)
-        return false
-      end
-      return true
     end
 
-    # to be obsoleted, this function is not throwing exceptions on problems
+    # FIXME: to be obsoleted, this function is not throwing exceptions on problems
     # use get_by_name or exists_by_name instead
     def find_by_name(name, opts = {})
       arel = where(name: name)
@@ -428,7 +424,7 @@ class Project < ActiveRecord::Base
       end
     end
     new_record = self.new_record?
-    if ::Configuration.first.default_access_disabled == true and not new_record
+    if ::Configuration.default_access_disabled == true and not new_record
       if self.disabled_for?('access', nil, nil) and not FlagHelper.xml_disabled_for?(xmlhash, 'access')
         raise ForbiddenError.new
       end
@@ -459,7 +455,7 @@ class Project < ActiveRecord::Base
 
     #--- update flag group ---#
     update_all_flags(xmlhash)
-    if ::Configuration.first.default_access_disabled == true and new_record
+    if ::Configuration.default_access_disabled == true and new_record
       # write a default access disable flag by default in this mode for projects if not defined
       if xmlhash.elements('access').empty?
         self.flags.new(:status => 'disable', :flag => 'access')
@@ -1151,7 +1147,7 @@ class Project < ActiveRecord::Base
     # - disable 'publish' to save space and bandwidth
     #   (can be turned off for small installations)
     # - omit 'lock' or we cannot create packages
-    disable_publish_for_branches = ::Configuration.first.disable_publish_for_branches
+    disable_publish_for_branches = ::Configuration.disable_publish_for_branches
     project.flags.each do |f|
       next if %w(build lock).include?(f.flag)
       next if f.flag == 'publish' and disable_publish_for_branches

@@ -336,7 +336,7 @@ class BranchPackage
     # set default based on first found package location
     unless @target_project
       @target_project = "home:#{User.current.login}:branches:#{p[:link_target_project].name}"
-      @auto_cleanup = ::Configuration.first.cleanup_after_days
+      @auto_cleanup = ::Configuration.cleanup_after_days
     end
 
     # link against srcmd5 instead of plain revision
@@ -566,7 +566,7 @@ class BranchPackage
         @target_project = "home:#{User.current.login}:branches:#{@attribute.gsub(':', '_')}"
         @target_project += ":#{params[:package]}" if params[:package]
       end
-      @auto_cleanup = ::Configuration.first.cleanup_after_days
+      @auto_cleanup = ::Configuration.cleanup_after_days
     end
     if @target_project
       valid_project_name! @target_project

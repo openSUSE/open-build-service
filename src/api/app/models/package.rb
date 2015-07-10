@@ -44,8 +44,6 @@ class Package < ActiveRecord::Base
   has_many :taggings, :as => :taggable, dependent: :delete_all
   has_many :tags, :through => :taggings
 
-  has_many :download_stats
-
   has_many :flags, -> { order(:position) }, dependent: :delete_all, inverse_of: :package
 
   belongs_to :develpackage, :class_name => 'Package', :foreign_key => 'develpackage_id'

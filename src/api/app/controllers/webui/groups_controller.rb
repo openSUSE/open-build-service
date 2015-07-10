@@ -1,18 +1,12 @@
-class Webui::GroupController < Webui::WebuiController
-
+class Webui::GroupsController < Webui::WebuiController
   include Webui::WebuiHelper
 
+  before_filter :require_admin, only: [:index]
   before_filter :overwrite_group, only: [:edit]
   before_filter :require_login, except: [:show, :tokens, :autocomplete]
 
-  def autocomplete
-    required_parameters :term
-    render json: list_groups(params[:term])
-  end
-
-  def tokens
-    required_parameters :q
-    render json: list_groups(params[:q], true)
+  def index
+    @groups = Group.all
   end
 
   def show
@@ -20,19 +14,18 @@ class Webui::GroupController < Webui::WebuiController
     @group = Group.find_by_title(params[:id])
     unless @group
       flash[:error] = "Group '#{params[:id]}' does not exist"
-      redirect_back_or_to :controller => 'main', :action => 'index'
+      redirect_back_or_to controller: 'main', action: 'index'
     end
   end
 
-  def add
-  end
+  def new; end
 
   def edit
     required_parameters :group
     @roles = Role.global_roles
     @members = []
     @displayed_group.users.each do |person|
-      user = {'name' => person.login }
+      user = { 'name' => person.login }
       @members << user
     end
   end
@@ -52,7 +45,17 @@ class Webui::GroupController < Webui::WebuiController
       group.save!
     end
     flash[:success] = "Group '#{group.title}' successfully updated."
-    redirect_to controller: :configuration, action: :groups
+    redirect_to controller: :groups, action: :index
+  end
+
+  def autocomplete
+    required_parameters :term
+    render json: list_groups(params[:term])
+  end
+
+  def tokens
+    required_parameters :q
+    render json: list_groups(params[:q], true)
   end
 
   def overwrite_group
@@ -65,17 +68,16 @@ class Webui::GroupController < Webui::WebuiController
 
   protected
 
-  def list_groups(prefix=nil, hash=nil)
+  def list_groups(prefix = nil, hash = nil)
     names = []
     groups = Group.arel_table
     Group.where(groups[:title].matches("#{prefix}%")).pluck(:title).each do |group|
       if hash
-        names << {'name' => group}
+        names << { 'name' => group }
       else
         names << group
       end
     end
     names
   end
-
 end

@@ -40,7 +40,7 @@ class EventSubscription < ActiveRecord::Base
     rule = _get_role_rule(rel.where(user_id: nil, group_id: nil), role)
     return rule.receive if rule
 
-    # if nothing set, nothing is set
+    # if nothing set, nothing is set. Thank you captain obvious!
     false
   end
 

@@ -100,7 +100,7 @@ class Webui::WebuiController < ActionController::Base
       @return_to_host = params['return_to_host']
     else
       # we have a proxy in front of us
-      @return_to_host = ::Configuration.first.obs_url
+      @return_to_host = ::Configuration.obs_url
       unless @return_to_host
         # fetch old config value and store in db
         @return_to_host = CONFIG['external_webui_protocol'] || 'http'
@@ -319,7 +319,7 @@ class Webui::WebuiController < ActionController::Base
   # before filter to only show the frontpage to anonymous users
   def check_anonymous
     if User.current and User.current.is_nobody?
-      unless ::Configuration.anonymous?
+      unless ::Configuration.anonymous
         flash[:error] = "No anonymous access. Please log in!"
         redirect_back_or_to root_path
       end
