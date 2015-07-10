@@ -404,6 +404,7 @@ POST /source/<project>
   createmaintenanceincident: create a single mainatenance incident project as sub project
   createpatchinfo: create a new patchinfo package collecting all mentioned issues in sources
   addchannels: add channel packages and repositories for matching packages in project
+  modifychannels: modify existing channels by specified mode
   set_flag: change a defined flag, requires at least flag and status parameters
   remove_flag: remove a defined flag, requires at least flag and status parameters
   unlock: unlock a locked project
@@ -416,6 +417,8 @@ Parameters:
   flag: modify this flag (build/publish/..) for set_flag command
   status: enable or disable for set_flag command
   comment: description for the history
+  # for modifychannels and addchannels command only:
+  mode: how to deal with disabled channels: skip_disabled, add_disabled, enable_all
   # for copy command only:
   oproject: origin project name (required)
   resign: resign all binaries with new target project key
@@ -768,6 +771,7 @@ POST /source/<project>/<package>
   release: release sources and binaries according to release target specification
   branch: branch a package into another one
   linktobranch: convert a plain source link into a full branch
+  enablechannel: adds repositories and enable this channel package
   updatepatchinfo: update _patchinfo file, esp. the issues list
   remove_flag: remove a specific flag from meta (flag must be defined, optionally arch and repository)
   set_flag: remove a specific flag from meta (flag must be defined, optionally arch and repository)

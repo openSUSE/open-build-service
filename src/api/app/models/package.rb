@@ -800,6 +800,13 @@ class Package < ActiveRecord::Base
     return li['project'] == self.project.name
   end
 
+  def modify_channel(mode=nil)
+    raise InvalidParameterError unless [:add_disabled, :enable_all].include? mode
+    channel = self.channels.first
+    return unless channel
+    channel.add_channel_repos_to_project(self, mode)
+  end
+
   def add_channels(mode=nil)
     raise InvalidParameterError unless [nil, :add_disabled, :skip_disabled, :enable_all].include? mode
 
@@ -812,6 +819,7 @@ class Package < ActiveRecord::Base
 
     # main package
     ChannelBinary.find_by_project_and_package(project_name, opkg.name).each do |cb|
+      next if mode == :skip_disabled and not cb.channel_binary_list.channel.is_active?
       cpkg = cb.create_channel_package_into(self.project)
       next unless cpkg
       cpkg.channels.first.add_channel_repos_to_project(cpkg, mode)
@@ -828,6 +836,7 @@ class Package < ActiveRecord::Base
       # strip incident suffix in update release projects
       name.gsub!(/\.[^\.]*$/,'') if opkg.project.is_maintenance_release?
       ChannelBinary.find_by_project_and_package(project_name, name).each do |cb|
+        next if mode == :skip_disabled and not cb.channel_binary_list.channel.is_active?
         cpkg = cb.create_channel_package_into(self.project)
         next unless cpkg
         cpkg.channels.first.add_channel_repos_to_project(cpkg, mode)

@@ -147,6 +147,13 @@ class Channel < ActiveRecord::Base
     tpkg
   end
 
+  def is_active?
+    # no targets defined, the project has some
+    return true if self.channel_targets.size == 0
+
+    self.channel_targets.where(disabled: false).size > 0
+  end
+
   def add_channel_repos_to_project(tpkg, mode=nil)
     cp = self.package
 
@@ -165,7 +172,7 @@ class Channel < ActiveRecord::Base
         tpkg.project.add_repository_with_targets(repo_name, ct.repository, [ct.repository]) 
       end
       # enable package
-      tpkg.enable_for_repository repo_name unless ct.disabled or mode==:enable_all
+      tpkg.enable_for_repository repo_name if mode==:enable_all or not ct.disabled
     end
   end
 end

@@ -203,7 +203,7 @@ class SourceController < ApplicationController
     # init and validation
     #--------------------
     valid_commands=%w(undelete showlinked remove_flag set_flag createpatchinfo createkey extendkey copy
-                      createmaintenanceincident unlock release addchannels move)
+                      createmaintenanceincident unlock release addchannels modifychannels move)
     if params[:cmd]
       raise IllegalRequest.new 'invalid_command' unless valid_commands.include?(params[:cmd])
       command = params[:cmd]
@@ -362,8 +362,9 @@ class SourceController < ApplicationController
 
     # valid post commands
     valid_commands=%w(diff branch servicediff linkdiff showlinked copy remove_flag set_flag rebuild undelete
-                      wipe runservice commit commitfilelist createSpecFileTemplate deleteuploadrev linktobranch
-                      updatepatchinfo getprojectservices unlock release importchannel collectbuildenv instantiate)
+                      wipe runservice commit commitfilelist createSpecFileTemplate deleteuploadrev
+                      linktobranch updatepatchinfo getprojectservices unlock release importchannel
+                      collectbuildenv instantiate enablechannel)
 
     @command = params[:cmd]
     raise IllegalRequest.new 'invalid_command' unless valid_commands.include?(@command)
@@ -1015,9 +1016,27 @@ class SourceController < ApplicationController
   # add channel packages and extend repository list
   # POST /source/<project>?cmd=addchannels
   def project_command_addchannels
+    mode=nil
+    mode=:add_disabled  if params[:mode] == "add_disabled"
+    mode=:skip_disabled if params[:mode] == "skip_disabled"
+    mode=:enable_all    if params[:mode] == "enable_all"
 
     @project.packages.each do |pkg|
-      pkg.add_channels
+      pkg.add_channels(mode)
+    end
+
+    render_ok
+  end
+
+  # add repositories and/or enable them for all existing channel instances
+  # POST /source/<project>?cmd=modifychannels
+  def project_command_modifychannels
+    mode=nil
+    mode=:add_disabled  if params[:mode] == "add_disabled"
+    mode=:enable_all    if params[:mode] == "enable_all"
+
+    @project.packages.each do |pkg|
+      pkg.modify_channel(mode)
     end
 
     render_ok
@@ -1273,6 +1292,15 @@ class SourceController < ApplicationController
     raise NotLocked.new("package '#{@package.project.name}/#{@package.name}' is not locked") unless f
     @package.flags.delete(f)
     @package.store(p)
+
+    render_ok
+  end
+
+  # add repositories and/or enable them for a specified channel
+  # POST /source/<project>/<package>?cmd=enablechannel
+  def package_command_enablechannel
+    @package.modify_channel(:enable_all)
+    @package.store({user: User.current.login})
 
     render_ok
   end

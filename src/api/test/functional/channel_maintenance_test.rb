@@ -397,10 +397,16 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     post "/source/#{incidentProject}?cmd=addchannels", nil
     assert_response 403
     prepare_request_with_user 'maintenance_coord', 'power'
-    post "/source/#{incidentProject}?cmd=addchannels", nil
+    post "/source/#{incidentProject}?cmd=addchannels&mode=skip_disabled", nil
+    assert_response :success
+    get "/source/#{incidentProject}/BaseDistro2.0.Channel/_meta"
+    assert_response 404 # skipped because it just has a disabled target
+    get "/source/#{incidentProject}/BaseDistro3.Channel/_meta"
     assert_response :success
 
-    post "/source/#{incidentProject}?cmd=addchannels", nil
+    post "/source/#{incidentProject}?cmd=addchannels&mode=add_disabled", nil
+    assert_response :success # now it appeared
+    get "/source/#{incidentProject}/BaseDistro2.0.Channel/_meta"
     assert_response :success
     get "/source/#{incidentProject}/BaseDistro3.Channel/_meta"
     assert_response :success
@@ -444,11 +450,24 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
       assert_response :success
     end
     prepare_request_with_user 'maintenance_coord', 'power'
+    get "/source/#{incidentProject}/BaseDistro2.0.Channel/_meta"
+    old_meta = @response.body
+    assert_response :success
+    assert_no_xml_tag :tag => 'enable', :attributes => {repository: "BaseDistro2.0_LinkedUpdateProject"}
     post "/source/#{incidentProject}/BaseDistro2.0.Channel?cmd=set_flag&product=simple&flag=build&status=enable"
     assert_response :success
     get "/source/#{incidentProject}/BaseDistro2.0.Channel/_meta"
     assert_response :success
     assert_xml_tag :tag => 'enable', :attributes => {repository: "BaseDistro2.0_LinkedUpdateProject"}
+    # revert and enable via enablechannel
+    put "/source/#{incidentProject}/BaseDistro2.0.Channel/_meta", old_meta
+    assert_response :success
+    post "/source/#{incidentProject}/BaseDistro2.0.Channel?cmd=enablechannel"
+    assert_response :success
+    get "/source/#{incidentProject}/BaseDistro2.0.Channel/_meta"
+    assert_response :success
+    assert_xml_tag :tag => 'enable', :attributes => {repository: "BaseDistro2.0_LinkedUpdateProject"}
+
     # check repository search by product
     get "/search/repository/id?match=targetproduct/@name='simple'"
     assert_response :success
