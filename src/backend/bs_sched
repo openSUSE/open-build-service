@@ -5152,8 +5152,7 @@ sub checkkiwiproduct {
     my $pdatas = ($projpacks->{$aprojid} || {})->{'package'} || {};
     my @apackids = sort keys %$pdatas;
     for my $apackid (@apackids) {
-      my $pdata = $projpacks->{$aprojid}->{'package'}->{$apackid};
-      next if $pdata->{'patchinfo'};
+      next if $pdatas->{$apackid}->{'patchinfo'};
       my $info = (grep {$_->{'repository'} eq $arepoid} @{$pdatas->{$apackid}->{'info'} || []})[0];
       $known{$apackid} = $info->{'name'} if $info && $info->{'name'};
     }
@@ -5198,8 +5197,7 @@ sub checkkiwiproduct {
 
       for my $apackid (orderpackids($projpacks->{$aprojid}, @apackids)) {
         next if $apackid eq '_volatile';
-        my $pdata = $projpacks->{$aprojid}->{'package'}->{$apackid};
-        next if $pdata->{'patchinfo'};
+        next if $pdatas->{$apackid}->{'patchinfo'};
         if ($projpacks->{$aprojid}->{'kind'} && $projpacks->{$aprojid}->{'kind'} eq 'maintenance_release') {
           $xpackid = "";
 	  $xpackid = $1 if $apackid =~ /^(.*)\.(imported_)?(\d+)$/;
