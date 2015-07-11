@@ -5051,6 +5051,7 @@ sub checkkiwiproduct {
     # calculate packages needed for building
     my $pool = BSSolv::pool->new();
     $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
+    my $delayed_errors="";
     for my $aprp (@bprps) {
       if (!checkprpaccess($aprp, $prp)) {
 	print "      - $packid (kiwi-product)\n";
@@ -5063,10 +5064,14 @@ sub checkkiwiproduct {
 	$error .= " (delayed)" if defined $r;
 	print "      - $packid (kiwi-product)\n";
 	print "        $error\n";
-	return ('delayed', $error) if defined $r;
+	if (defined $r) {
+          $delayed_errors .= "$error; ";
+          next;
+        }
 	return ('broken', $error);
       }
     }
+    return ('delayed', $delayed_errors) if $delayed_errors ne "";
     $pool->createwhatprovides();
     my $xp = BSSolv::expander->new($pool, $bconf);
     no warnings 'redefine';
@@ -5075,7 +5080,7 @@ sub checkkiwiproduct {
     my ($eok, @kdeps) = Build::get_sysbuild($bconf, 'kiwi-product', [ grep {/:/} @{$info->{'dep'} || []} ]);
     if (!$eok) {
       print "      - $packid (kiwi-product)\n";
-      print "        unresolvable:\n";
+      print "        unresolvable for sysbuild:\n";
       print "          $_\n" for @kdeps;
       return ('unresolvable', join(', ', @kdeps));
     }
@@ -5087,7 +5092,7 @@ sub checkkiwiproduct {
     for my $aprp (@aprps) {
       if (!checkprpaccess($aprp, $prp)) {
 	print "      - $packid (kiwi-product)\n";
-	print "        repository $aprp is unavailable";
+	print "        repository $aprp is unavailable for sysbuild";
 	return ('broken', "repository $aprp is unavailable");
       }
     }
@@ -5134,7 +5139,7 @@ sub checkkiwiproduct {
     }
     if (@blocked) {
       print "      - $packid (kiwi-product)\n";
-      print "        blocked (@blocked)\n";
+      print "        blocked for sysbuild (@blocked)\n";
       return ('blocked', join(', ', @blocked));
     }
     push @rpms, @kdeps;
