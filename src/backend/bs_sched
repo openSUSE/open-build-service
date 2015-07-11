@@ -4815,6 +4815,7 @@ sub checkkiwiimage {
   my $pool = BSSolv::pool->new();
   $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
 
+  my $delayed_errors = "";
   for my $aprp (@aprps) {
     if (!checkprpaccess($aprp, $prp)) {
       print "      - $packid (kiwi-image)\n";
@@ -4824,13 +4825,19 @@ sub checkkiwiimage {
     my $r = addrepo($ctx, $pool, $aprp);
     if (!$r) {
       my $error = "repository '$aprp' is unavailable";
-      $error .= " (delayed)" if defined $r;
+      if (defined $r) {
+        $error .= " (delayed)";
+        $delayed_errors .= "$error; ";
+        my ($prj, $repo) = split('/', $aprp, 2);
+        addwatchremote('repository', $projpacks->{$prj}, "/$repo/$myarch");
+        next;
+      }
       print "      - $packid (kiwi-image)\n";
       print "        $error\n";
-      return ('delayed', $error) if defined $r;
       return ('broken', $error);
     }
   }
+  return ('delayed', $delayed_errors) if $delayed_errors ne "";
   $pool->createwhatprovides();
   my $bconfignore = $bconf->{'ignore'};
   my $bconfignoreh = $bconf->{'ignoreh'};
@@ -5066,6 +5073,8 @@ sub checkkiwiproduct {
 	print "        $error\n";
 	if (defined $r) {
           $delayed_errors .= "$error; ";
+          my ($prj, $repo) = split('/', $aprp, 2);
+          addwatchremote('repository', $projpacks->{$prj}, "/$repo/$myarch");
           next;
         }
 	return ('broken', $error);
