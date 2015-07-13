@@ -1564,6 +1564,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     Suse::Backend.put( '/source/BaseDistro3/pack2/_meta?user=king', p.to_axml)
     raw_put '/source/BaseDistro3/pack2/package.spec', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read
     assert_response :success
+    inject_build_job('BaseDistro3', 'pack2', 'BaseDistro3_repo', 'i586', "package_newweaktags-1.0-1.x86_64.rpm")
+    run_scheduler('i586')
   end
 
   def test_create_invalid_patchinfo

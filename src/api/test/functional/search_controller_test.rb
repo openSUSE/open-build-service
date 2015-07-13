@@ -688,8 +688,6 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   def test_search_for_binary_without_definition_yet
     login_Iggy
 
-    skip("broken by a real fix in the scheduler. some other test case seems to publish different now. This test in clean env is working")
-
     get "/search/owner?project=BaseDistro3&filter=bugowner&binary=package&limit=1"
     assert_response :success
     # found project container
