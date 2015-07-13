@@ -402,7 +402,7 @@ sub signjob {
 	  system('rpm', '--delsign', "$jobdir/$signfile") && warn("delsign $jobdir/$signfile failed: $?\n");
 	}
 	my @signmode;
-	@signmode = ('-r') if $signfile =~ /\.drpm$/;
+	@signmode = ('-r', '-T', 'buildtime') if $signfile =~ /\.drpm$/;
 	@signmode = ('-D') if $signfile =~ /\.pkg\.tar\.(?:gz|xz)$/;
 	if ($signfile =~ /\.key$/s) {
 	  next unless (-s "$jobdir/$signfile") == 8192;
