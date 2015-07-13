@@ -3855,13 +3855,15 @@ sub remoteprojid {
   if ($proj) {
     return undef unless $proj->{'remoteurl'};
     return undef unless $proj->{'remoteproject'};
-    return {
+    my $answer = {
       'name' => $projid,
       'root' => $projid,
       'remoteroot' => $proj->{'remoteproject'},
       'remoteurl' => $proj->{'remoteurl'},
       'remoteproject' => $proj->{'remoteproject'},
     };
+    $answer->{'partition'} = $proj->{'partition'} if $proj->{'partition'};
+    return $answer;
   }
   while ($projid =~ /^(.*)(:.*?)$/) {
     $projid = $1;
@@ -3874,13 +3876,15 @@ sub remoteprojid {
       } else {
 	$rsuf =~ s/^://;
       }
-      return {
+      my $answer = {
         'name' => $origprojid,
         'root' => $projid,
         'remoteroot' => $proj->{'remoteproject'},
         'remoteurl' => $proj->{'remoteurl'},
         'remoteproject' => $rsuf,
       };
+      $answer->{'partition'} = $proj->{'partition'} if $proj->{'partition'};
+      return $answer;
     }
   }
   return undef;
