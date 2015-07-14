@@ -3554,6 +3554,13 @@ sub get_projpacks_postprocess {
 sub addwatchremote {
   my ($type, $projid, $watch) = @_;
 
+  # sanitize check. Other code might create empty hashes when using invalid project
+  # references elsewhere
+  if ($projpacks->{$projid} && !keys %{$projpacks->{$projid}}) {
+    print "Dropping invalid (empty) reference to project $projid\n";
+    delete $projpacks->{$projid};
+  }
+
   return undef if $projpacks->{$projid} && !$projpacks->{$projid}->{'remoteurl'};
   my $proj = remoteprojid($projid);
   $watchremoteprojs{$projid} = $proj;
