@@ -157,6 +157,9 @@ Debug Options
 
  --dump-state <architecture>
 
+ --dump-project-from-state <project> <arch>
+   dump the state of a project.
+
  --dump-relsync <file>
    To dump content of :relsync files.
 
@@ -727,6 +730,24 @@ while (@ARGV) {
     die("ERROR: need architecture as argument!\n") if @ARGV < 1;
     my $arch = shift @ARGV;
     dump_state($arch);
+  } elsif ($arg eq "--dump-project-from-state") {
+    die("ERROR: need project as argument!\n") if @ARGV < 1;
+    my $project = shift @ARGV;
+    die("ERROR: need architecture as argument!\n") if @ARGV < 1;
+    my $arch = shift @ARGV;
+    if (! -e "$rundir/bs_sched.$arch.state") {
+      print "Error: no dumped scheduler state, use --dump-state first.\n";
+      exit(1);
+    }
+    my $schedstate = BSUtil::retrieve("$rundir/bs_sched.$arch.state", 2);
+    if (defined($schedstate->{'remoteprojs'}->{$project})) {
+      print "remotemap:\n";
+      print Dumper($schedstate->{'remoteprojs'}->{$project});
+    }
+    if (defined($schedstate->{'projpacks'}->{$project})) {
+      print "projpack:\n";
+      print Dumper($schedstate->{'projpacks'}->{$project});
+    }
   } elsif ($arg eq "--shutdown-scheduler") {
     die("ERROR: need architecture as argument!\n") if @ARGV < 1;
     my $arch = shift @ARGV;
