@@ -1,9 +1,9 @@
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'source_controller'
 
-class MaintenanceTests < ActionDispatch::IntegrationTest 
+class MaintenanceTests < ActionDispatch::IntegrationTest
   fixtures :all
-  
+
   def setup
     super
     wait_for_scheduler_start
@@ -23,7 +23,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/My:Maintenance/_meta'
     assert_response :success
 
-    raw_post '/source/My:Maintenance/_attribute', "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-%N-%Y-%C</value></attribute></attributes>"
+    raw_post '/source/My:Maintenance/_attribute',
+             "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-%N-%Y-%C</value></attribute></attributes>"
     assert_response :success
 
     Timecop.freeze(1)
@@ -31,7 +32,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post '/source/BaseDistro2.0/_attribute', "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
     Timecop.freeze(1)
-    post '/source/BaseDistro2.0/_attribute', "<attributes><attribute namespace='OBS' name='UpdateProject' > <value>BaseDistro2.0:LinkedUpdateProject</value> </attribute> </attributes>"
+    post '/source/BaseDistro2.0/_attribute',
+         "<attributes><attribute namespace='OBS' name='UpdateProject' > <value>BaseDistro2.0:LinkedUpdateProject</value> </attribute> </attributes>"
     assert_response :success
 
     # lock GM distro to be sure that nothing can be released to
@@ -63,13 +65,17 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     Timecop.freeze(1)
     post '/source/BaseDistro2.0/kgraft-GA', :cmd => 'branch', :missingok => 1, :extend_package_names => 1, :add_repositories => 1, :ignoredevel => 1
     assert_response :success
-    raw_put "/source/home:king:branches:BaseDistro2.0/kgraft-GA.BaseDistro2.0/package.spec", File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read
+    raw_put "/source/home:king:branches:BaseDistro2.0/kgraft-GA.BaseDistro2.0/package.spec",
+            File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read
     assert_response :success
     # create a update patch based on former kernel incident
     Timecop.freeze(1)
-    post '/source/'+kernelIncidentProject+'/kgraft-incident-'+kernelIncidentID, :cmd => 'branch', :target_project => "home:king:branches:BaseDistro2.0", :missingok => 1, :extend_package_names => 1, :add_repositories => 1
+    post '/source/'+kernelIncidentProject+'/kgraft-incident-'+kernelIncidentID,
+         :cmd => 'branch', :target_project => "home:king:branches:BaseDistro2.0",
+         :missingok => 1, :extend_package_names => 1, :add_repositories => 1
     assert_response :success
-    raw_put "/source/home:king:branches:BaseDistro2.0/kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}/packageNew.spec", File.open("#{Rails.root}/test/fixtures/backend/binary/packageNew.spec").read
+    raw_put "/source/home:king:branches:BaseDistro2.0/kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}/packageNew.spec",
+            File.open("#{Rails.root}/test/fixtures/backend/binary/packageNew.spec").read
     assert_response :success
 
     # add channel
@@ -90,6 +96,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     put '/source/Channel/BaseDistro2/_meta', '<package project="Channel" name="BaseDistro2"><title/><description/></package>'
     assert_response :success
+    # rubocop:disable Metrics/LineLength
     post '/source/Channel/BaseDistro2?cmd=importchannel&target_project=BaseDistro2Channel&target_repository=channel_repo', '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
           <binaries project="BaseDistro:Update" repository="BaseDistroUpdateProject_repo" arch="i586">
@@ -109,6 +116,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
             <binary name='package_newweaktags' package='kgraft-incident-0' />
           </binaries>
         </channel>"
+    # rubocop:enable Metrics/LineLength
     assert_response :success
 
     # make the kgraft update an incident via maintenance_incident request
@@ -155,7 +163,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro2Channel" } },
                    :tag => "path", :attributes => { :project => "BaseDistro2Channel", :repository => "channel_repo" }
     assert_xml_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro2Channel" } },
-                   :tag => "releasetarget", :attributes => { :project => "BaseDistro2Channel", :repository => "channel_repo", :trigger => "maintenance" }
+                   :tag => "releasetarget",
+                   :attributes => { :project => "BaseDistro2Channel", :repository => "channel_repo", :trigger => "maintenance" }
 
 
     # Create patchinfo informations
@@ -199,8 +208,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
 
     # upload build result as a worker would do
-    inject_build_job( incidentProject, "kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}", kernelIncidentProject.gsub( /:/, '_'), 'i586')
-    inject_build_job( incidentProject, "kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}", kernelIncidentProject.gsub( /:/, '_'), 'x86_64', "package_newweaktags-1.0-1.x86_64.rpm")
+    inject_build_job( incidentProject, "kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}",
+                      kernelIncidentProject.gsub( /:/, '_'), 'i586')
+    inject_build_job( incidentProject, "kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}",
+                      kernelIncidentProject.gsub( /:/, '_'), 'x86_64', "package_newweaktags-1.0-1.x86_64.rpm")
     inject_build_job( incidentProject, "kgraft-GA.BaseDistro2.0", "BaseDistro2.0", 'i586')
 
     # lock kernelIncident to be sure that nothing can be released to

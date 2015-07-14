@@ -2,7 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class DistributionsControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
-  
+
   test "should show distribution" do
     get distribution_path(id: distributions(:two).to_param)
     assert_response :success
@@ -55,7 +55,7 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
                  <architecture>i586</architecture>
                </distribution>
              </distributions>
-             ' 
+             '
 
     put "/distributions", data
     assert_response 401
@@ -86,7 +86,7 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
 
   test "remotes work" do
     login_tom
-    
+
     fake_distribution_body = File.open(Rails.root.join("test/fixtures/backend/distributions.xml")).read
 
     # using mocha has the disadvantage of not testing the complete function
@@ -107,7 +107,8 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "reponame", :content => "openSUSE_12.2"
     assert_xml_tag :tag => "repository", :content => "standard"
     assert_xml_tag :tag => "link", :content => "http://www.opensuse.org/"
-    assert_xml_tag :tag => "icon", :attributes => { :url => "https://static.opensuse.org/distributions/logos/opensuse-12.2-8.png", :width => "8", :height => "8" }
+    assert_xml_tag :tag => "icon", :attributes => { :url => "https://static.opensuse.org/distributions/logos/opensuse-12.2-8.png",
+                                                    :width => "8", :height => "8" }
     # local repos
     assert_no_xml_tag :parent => { :tag => "distribution", :attributes => { :vendor => "openSUSE", :version =>"1.0" } },
                    :tag => 'architecture'

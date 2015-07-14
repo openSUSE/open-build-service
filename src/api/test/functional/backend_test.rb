@@ -41,9 +41,9 @@ class BackendTests < ActionDispatch::IntegrationTest
         schema = "person"
       end
 
-#      puts "SCHEMA", schema, f 
-
+      # rubocop:disable Metrics/LineLength
       r = system("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} -mXML::Structured -mBSXML -mBSUtil -e \"use XML::Structured ':bytes'; BSUtil::readxml('#{dir}#{f}', \\\$BSXML::#{schema}, 0);\" 2>&1")
+      # rubocop:enable Metrics/LineLength
       assert_equal true, r
 
     end

@@ -1,10 +1,10 @@
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'source_controller'
 
-class InterConnectTests < ActionDispatch::IntegrationTest 
+class InterConnectTests < ActionDispatch::IntegrationTest
 
   fixtures :all
-   
+
   def setup
     wait_for_scheduler_start
   end
@@ -175,7 +175,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     put '/source/RemoteInstance/_meta', @response.body.dup
     assert_response :success
 
-    # cleanup     
+    # cleanup
     delete '/source/home:tom:testing'
     assert_response :success
   end
@@ -568,7 +568,9 @@ end
 
   def test_submit_from_remote
     login_Iggy
-    raw_post '/request?cmd=create', "<request><action type='submit'><source project='RemoteInstance:home:Iggy' package='TestPack'/><target project='home:Iggy' package='TEMPORARY'/></action></request>"
+    raw_post '/request?cmd=create',
+             "<request><action type='submit'><source project='RemoteInstance:home:Iggy' package='TestPack'/>
+              <target project='home:Iggy' package='TEMPORARY'/></action></request>"
     assert_response :success
     id = Xmlhash.parse(@response.body)['id']
     post "/request/#{id}?cmd=changestate&newstate=accepted"
@@ -580,7 +582,9 @@ end
     assert_response :success
 
     # cleanup option can not work, do not allow to create requests
-    raw_post '/request?cmd=create', "<request><action type='submit'><source project='RemoteInstance:home:Iggy' package='TestPack'/><target project='home:Iggy' package='TEMPORARY'/> <options><sourceupdate>cleanup</sourceupdate></options></action></request>"
+    raw_post '/request?cmd=create',
+             "<request><action type='submit'><source project='RemoteInstance:home:Iggy' package='TestPack'/>
+              <target project='home:Iggy' package='TEMPORARY'/> <options><sourceupdate>cleanup</sourceupdate></options></action></request>"
     assert_response 400
     assert_xml_tag :tag => 'status', :attributes => { :code => 'not_supported' }
   end

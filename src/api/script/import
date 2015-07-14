@@ -35,9 +35,9 @@ ActiveXML::Node.config do |conf|
     map.default_server :rest, "#{CONFIG['source_protocol']}://#{CONFIG['source_host']}:#{CONFIG['source_port']}"
 
     map.connect :xproject, "rest:///source/:name/_meta",
-      :all => "rest:///source/:name"
+                :all => "rest:///source/:name"
     map.connect :xpackage, "rest:///source/:project/:name/_meta",
-      :all => "rest:///source/:project/:name/"
+                :all => "rest:///source/:project/:name/"
   end
 end
 
@@ -80,7 +80,7 @@ def store_packages_for( p )
       # remove devel entries
       xpack.data.each_element('devel') {|e| xpack.data.delete_element e}
       pack = Package.new( xpack.dump_xml, :project => p.name )
-      
+
       create_missing_users_for xpack
 
       pack.save
@@ -137,7 +137,7 @@ projects.each_entry do |entry|
     next unless filter.include? entry.name
   end
 
-  p = nil 
+  p = nil
   begin
     p = Project.find( entry.name )
   rescue ActiveXML::Transport::NotFoundError
@@ -160,7 +160,7 @@ while( cache.length > 0 )
       repo.each_path do |path|
         unless cache.has_key?(path.project.to_s) or Project.find_by_name(path.project.to_s)
           STDERR.puts "fetching dependency #{path.project}"
-          cache[path.project.to_s] = Project.new(Xproject.find(path.project.to_s).dump_xml) 
+          cache[path.project.to_s] = Project.new(Xproject.find(path.project.to_s).dump_xml)
         end
       end
     end

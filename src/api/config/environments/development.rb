@@ -39,7 +39,9 @@ OBSApi::Application.configure do
 
   config.eager_load = false
 
+  # rubocop:disable Metrics/LineLength
   config.secret_key_base = '92b2ed725cb4d68cc5fbf86d6ba204f1dec4172086ee7eac8f083fb62ef34057f1b770e0722ade7b298837be7399c6152938627e7d15aca5fcda7a4faef91fc7'
+  # rubocop:enable Metrics/LineLength
 end
 
 CONFIG['extended_backend_log'] = true
@@ -52,9 +54,7 @@ require 'socket'
 fname = "#{Rails.root}/config/environments/development.#{Socket.gethostname}.rb"
 if File.exists? fname
   STDERR.puts "Using local environment #{fname}"
-  eval File.read(fname)  
+  eval File.read(fname)
 else
   STDERR.puts "Custom development.#{Socket.gethostname}.rb not found - using defaults"
 end
-
-

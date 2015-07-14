@@ -24,7 +24,8 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     Timecop.travel(2013, 8, 20, 12, 0, 0)
     myid = 0
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      raw_post '/request?cmd=create', "<request><action type='add_role'><target project='home:tom'/><person name='Iggy' role='reviewer'/></action></request>"
+      raw_post '/request?cmd=create',
+               "<request><action type='add_role'><target project='home:tom'/><person name='Iggy' role='reviewer'/></action></request>"
       assert_response :success
       myid = Xmlhash.parse(@response.body)['id']
     end
@@ -106,7 +107,8 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     Timecop.travel(2013, 8, 20, 12, 0, 0)
     myid = ''
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      raw_post '/request?cmd=create', "<request><action type='add_role'><target project='kde4' package='kdelibs'/><person name='Iggy' role='reviewer'/></action></request>"
+      raw_post '/request?cmd=create',
+               "<request><action type='add_role'><target project='kde4' package='kdelibs'/><person name='Iggy' role='reviewer'/></action></request>"
       assert_response :success
       myid = Xmlhash.parse(@response.body)['id']
     end

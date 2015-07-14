@@ -2,10 +2,10 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'source_controller'
 
-class ReadPermissionTest < ActionDispatch::IntegrationTest 
+class ReadPermissionTest < ActionDispatch::IntegrationTest
 
   fixtures :all
-  
+
   def setup
     super
     wait_for_scheduler_start
@@ -118,7 +118,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response :success
     # can't do any check on the list without also deleting projects, which is too much for this test
     assert_xml_tag( :tag => "directory" )
-  end 
+  end
 
   def do_read_access_all_pathes(user, response, debug=false)
     prepare_request_with_user user, "so_alone" #adrian users have all the same password
@@ -189,7 +189,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
 
     # open -> hidden
     # unauthorized
-    reset_auth 
+    reset_auth
     sprj="home:coolo:test"       # source project
     spkg="kdelibs_DEVEL_package" # source package
     tprj="HiddenProject"         # target project
@@ -331,10 +331,10 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     login_king
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     #
-    # reverse 
+    # reverse
     #
     # invalid
-    reset_auth 
+    reset_auth
     srcprj="CopyTest"
     srcpkg="test"
     destprj="HiddenProject"
@@ -385,10 +385,10 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     login_king
     do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
     #
-    # reverse 
+    # reverse
     #
     # invalid
-    reset_auth 
+    reset_auth
     srcprj="CopyTest"
     srcpkg="test"
     destprj="SourceprotectedProject"
@@ -541,8 +541,10 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:PublicProject"),
         '<project name="home:adrian:PublicProject"> <title/> <description/> </project>'
     assert_response :success
+    # rubocop:disable Metrics/LineLength
     put url_for(:controller => :source, :action => :update_package_meta, :project => "home:adrian:PublicProject", :package => "ProtectedPackage"),
         '<package name="ProtectedPackage" project="home:adrian:PublicProject"> <title/> <description/>  <sourceaccess><disable/></sourceaccess>  </package>'
+    # rubocop:enable Metrics/LineLength
     assert_response :success
     put "/source/home:adrian:PublicProject/ProtectedPackage/dummy_file", "dummy"
 
@@ -686,7 +688,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     # Allow linking from not sourceaccess protected project to protected own. src.rpms are not delivered by the backend.
     #
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject1"),
-     '<project name="home:adrian:ProtectedProject1"> <title/> <description/> <link project="home:adrian:ProtectedProject2"/> </project>'
+        '<project name="home:adrian:ProtectedProject1"> <title/> <description/> <link project="home:adrian:ProtectedProject2"/> </project>'
     assert_response :success
 
     # try to link to an access protected hidden project from access hidden project
@@ -705,9 +707,10 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject4"),
         '<project name="home:adrian:ProtectedProject4"> <title/> <description/> <access><disable/></access> </project>'
     assert_response :success
-
+    # rubocop:disable Metrics/LineLength
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject4"),
         '<project name="home:adrian:ProtectedProject4"> <title/> <description/> <access><disable/></access> <link project="home:adrian:ProtectedProject2"/> </project>'
+    # rubocop:enable Metrics/LineLength
     assert_response :success
 
     # try to access it directly with a user not permitted
@@ -791,8 +794,10 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
         '<project name="home:binary_homer:ProtectedProject1"> <title/> <description/> <binarydownload><disable/></binarydownload> </project>'
     assert_response 200
 
+    # rubocop:disable Metrics/LineLength
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:binary_homer:ProtectedProject1"),
         '<project name="home:binary_homer:ProtectedProject1"> <title/> <description/> <repository name="BinaryprotectedProjectRepo"> <path repository="nada" project="BinaryprotectedProject"/> <arch>i586</arch> </repository> </project>'
+    # rubocop:enable Metrics/LineLength
     assert_response 200
 
     # check if sufficiently protected projects can access protected projects
@@ -806,8 +811,10 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     login_tom
 
     # check if unsufficiently permitted users tries to access protected projects
+    # rubocop:disable Metrics/LineLength
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:tom:ProtectedProject2"),
         '<project name="home:tom:ProtectedProject2"> <title/> <description/>  <repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
+    # rubocop:enable Metrics/LineLength
     assert_response 404
 
     # try to access it with a user permitted for access
@@ -818,13 +825,17 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     #STDERR.puts(@response.body)
     assert_response 200
 
+    # rubocop:disable Metrics/LineLength
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject1"),
         '<project name="home:adrian:ProtectedProject1"> <title/> <description/> <repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
+    # rubocop:enable Metrics/LineLength
     assert_response 404
 
     # building against
+    # rubocop:disable Metrics/LineLength
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject2"),
         '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
+    # rubocop:enable Metrics/LineLength
     assert_response 404
 
     # check if download protected project has to access protected project, which reveals Hidden project existence to others and is and error
@@ -832,9 +843,10 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
         '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <binarydownload><disable/></binarydownload> </project>'
     assert_response 200
 
+    # rubocop:disable Metrics/LineLength
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject2"),
         '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
-    #STDERR.puts(@response.body)
+    # rubocop:enable Metrics/LineLength
     assert_response 404
 
     # check if access protected project has access binarydownload protected project
@@ -844,9 +856,10 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     #STDERR.puts(@response.body)
     assert_response 200
 
+    # rubocop:disable Metrics/LineLength
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:binary_homer:ProtectedProject3"),
         '<project name="home:binary_homer:ProtectedProject3"> <title/> <description/> <repository name="BinaryprotectedProjectRepo"> <path repository="nada" project="BinaryprotectedProject"/> <arch>i586</arch> </repository> </project>'
-    #STDERR.puts(@response.body)
+    # rubocop:enable Metrics/LineLength
     assert_response 200
 
   end
@@ -880,7 +893,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put "/source/home:tom/ProtectedPackage/_meta",
         '<package project="home:tom" name="ProtectedPackage"> <title/> <description/> <sourceaccess><disable/></sourceaccess> </package>'
     assert_response :success
-    
+
     post "/source/CopyOfProject?cmd=copy&oproject=home:tom&nodelay=1"
     assert_response :success
     get "/source/CopyOfProject/_meta"
