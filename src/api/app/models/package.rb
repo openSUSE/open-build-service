@@ -73,7 +73,9 @@ class Package < ActiveRecord::Base
 
   default_scope { where('packages.project_id not in (?)', Relationship.forbidden_project_ids) }
 
+  # rubocop:disable Metrics/LineLength
   scope :dirty_backend_package, -> { joins('left outer join backend_packages on backend_packages.package_id = packages.id').where('backend_packages.package_id is null') }
+  # rubocop:enable Metrics/LineLength
 
   validates :name, presence: true, length: { maximum: 200 }
   validates :title, length: { maximum: 250 }
@@ -125,7 +127,7 @@ class Package < ActiveRecord::Base
 
     # returns an object of package or raises an exception
     # should be always used when a project is required
-    # in case you don't access sources or build logs in any way use 
+    # in case you don't access sources or build logs in any way use
     # use_source: false to skip check for sourceaccess permissions
     # function returns a nil object in case the package is on remote instance
     def get_by_project_and_name(project, package, opts = {})
@@ -286,7 +288,7 @@ class Package < ActiveRecord::Base
     # check if other packages have me as devel package
     packs = self.develpackages.to_a
     unless packs.empty?
-      msg = packs.map { |p| p.project.name + '/' + p.name }.join(', ') 
+      msg = packs.map { |p| p.project.name + '/' + p.name }.join(', ')
       de = DeleteError.new "Package is used by following packages as devel package: #{msg}"
       de.packages = packs
       raise de
@@ -307,7 +309,8 @@ class Package < ActiveRecord::Base
     data.elements.each('collection/package') do |e|
       p = Package.find_by_project_and_name(e.attributes['project'], e.attributes['name'])
       if p.nil?
-        logger.error "read permission or data inconsistency, backend delivered package as linked package where no database object exists: #{e.attributes['project']} / #{e.attributes['name']}"
+        logger.error "read permission or data inconsistency, backend delivered package as linked package " +
+                     "where no database object exists: #{e.attributes['project']} / #{e.attributes['name']}"
       else
         result << p
       end
@@ -725,7 +728,9 @@ class Package < ActiveRecord::Base
 
   def open_requests_with_package_as_source_or_target
     rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
+    # rubocop:disable Metrics/LineLength
     rel = rel.where('(bs_request_actions.source_project = ? and bs_request_actions.source_package = ?) or (bs_request_actions.target_project = ? and bs_request_actions.target_package = ?)', self.project.name, self.name, self.project.name, self.name)
+    # rubocop:enable Metrics/LineLength
     return BsRequest.where(id: rel.select('bs_requests.id').map { |r| r.id })
   end
 
@@ -1015,7 +1020,7 @@ class Package < ActiveRecord::Base
     sources_changed
   end
 
-  def enable_for_repository repoName 
+  def enable_for_repository repoName
     update_needed = nil
     if self.project.flags.find_by_flag_and_status( 'build', 'disable' )
       # enable package builds if project default is disabled
@@ -1030,7 +1035,10 @@ class Package < ActiveRecord::Base
     self.store if update_needed
   end
 
-  BINARY_EXTENSIONS = %w{.0 .bin .bin_mid .bz .bz2 .ccf .cert .chk .der .dll .exe .fw .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .otf .oxt .pdf .pk3 .png .ps .rpm .sig .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz .txz .ucode .xpm .xz .z .zip .ttf}
+  BINARY_EXTENSIONS = %w{.0 .bin .bin_mid .bz .bz2 .ccf .cert .chk .der .dll .exe .fw
+                         .gem .gif .gz .jar .jpeg .jpg .lzma .ogg .otf .oxt .pdf .pk3
+                         .png .ps .rpm .sig .svgz .tar .taz .tb2 .tbz .tbz2 .tgz .tlz
+                         .txz .ucode .xpm .xz .z .zip .ttf}
 
   def self.is_binary_file?(filename)
     BINARY_EXTENSIONS.include?(File.extname(filename).downcase)

@@ -78,9 +78,11 @@ module HasAttributes
       if self.is_a? Project
         raise AttributeFindError, "binary packages are not allowed in project attributes"
       end
+      # rubocop:disable Metrics/LineLength
       a = attribs.joins(:attrib_type => :attrib_namespace).where("attrib_types.name = ? and attrib_namespaces.name = ? AND attribs.binary = ?", name, namespace, binary).first
     else
       a = attribs.nobinary.joins(:attrib_type => :attrib_namespace).where("attrib_types.name = ? and attrib_namespaces.name = ?", name, namespace).first
+      # rubocop:enable Metrics/LineLength
     end
     if a && a.readonly? # FIXME: joins make things read only
       a = attribs.find a.id

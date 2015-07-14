@@ -28,7 +28,9 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     # Automatically switch to update project
     releaseproject = releaseproject.update_instance
     unless releaseproject.is_maintenance_release?
-      raise NoMaintenanceReleaseTarget.new "Maintenance incident request contains release target project #{releaseproject.name} with invalid project kind \"#{releaseproject.project_type}\" for package #{pkg.name}"
+      raise NoMaintenanceReleaseTarget.new "Maintenance incident request contains release target " +
+                                           "project #{releaseproject.name} with invalid project" +
+                                           "kind \"#{releaseproject.project_type}\" for package #{pkg.name}"
     end
     return releaseproject
   end
@@ -96,7 +98,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
 
       # use link target as fallback
     elsif linkinfo and not linkinfo['missingok']
-      # linked to an existing package in an external project 
+      # linked to an existing package in an external project
       linked_project = linkinfo['project']
       linked_package = linkinfo['package']
 
@@ -136,7 +138,9 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     }
     cp_params[:requestid] = request.id if request
     cp_path = "/source/#{CGI.escape(incidentProject.name)}/#{CGI.escape(new_pkg.name)}"
-    cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :keeplink, :expand, :comment, :requestid, :withacceptinfo])
+    cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage,
+                                                               :keeplink, :expand, :comment,
+                                                               :requestid, :withacceptinfo])
     result = Suse::Backend.post cp_path, nil
     result = Xmlhash.parse(result.body)
     self.set_acceptinfo(result["acceptinfo"])
@@ -161,7 +165,9 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     incident_project = Project.get_by_name(self.target_project)
 
     # the incident got created before
-    self.target_package = merge_into_maintenance_incident(incident_project, self.source_project, self.source_package, self.target_releaseproject, self.bs_request)
+    self.target_package = merge_into_maintenance_incident(incident_project,
+                                                          self.source_project, self.source_package,
+                                                          self.target_releaseproject, self.bs_request)
 
     # update action with real target project
     self.target_project = incident_project.name

@@ -330,7 +330,7 @@ class BsRequestAction < ActiveRecord::Base
 
       if !self.is_maintenance_release?
         # Creating requests from packages where no maintainer right exists will enforce a maintainer review
-        # to avoid that random people can submit versions without talking to the maintainers 
+        # to avoid that random people can submit versions without talking to the maintainers
         # projects may skip this by setting OBS:ApprovedRequestSource attributes
         if self.source_package
           spkg = Package.find_by_project_and_name self.source_project, self.source_package
@@ -376,7 +376,7 @@ class BsRequestAction < ActiveRecord::Base
 
   #
   # find default reviewers of a project/package via role
-  # 
+  #
   def find_reviewers(obj)
     # obj can be a project or package object
     reviewers = []
@@ -477,7 +477,9 @@ class BsRequestAction < ActiveRecord::Base
   end
 
   def check_maintenance_release(pkg, repo, arch)
+    # rubocop:disable Metrics/LineLength
     binaries = Xmlhash.parse(Suse::Backend.get("/build/#{URI.escape(pkg.project.name)}/#{URI.escape(repo.name)}/#{URI.escape(arch.name)}/#{URI.escape(pkg.name)}").body)
+    # rubocop:enable Metrics/LineLength
     l = binaries.elements('binary')
     unless l and l.count > 0
       raise BuildNotFinished.new "patchinfo #{pkg.name} is not yet build for repository '#{repo.name}'"
@@ -486,7 +488,9 @@ class BsRequestAction < ActiveRecord::Base
     # check that we did not skip a source change of patchinfo
     data = Directory.hashed(project: pkg.project.name, package: pkg.name, expand: 1)
     verifymd5 = data['srcmd5']
+    # rubocop:disable Metrics/LineLength
     history = Xmlhash.parse(Suse::Backend.get("/build/#{URI.escape(pkg.project.name)}/#{URI.escape(repo.name)}/#{URI.escape(arch.name)}/#{URI.escape(pkg.name)}/_history").body)
+    # rubocop:enable Metrics/LineLength
     last = history.elements('entry').last
     unless last and last['srcmd5'].to_s == verifymd5.to_s
       raise BuildNotFinished.new "last patchinfo #{pkg.name} is not yet build for repository '#{repo.name}'"
@@ -550,13 +554,16 @@ class BsRequestAction < ActiveRecord::Base
         end
         repos.each do |repo|
           if repo.attributes['dirty']
-            raise BuildNotFinished.new "The repository '#{pkg.project.name}' / '#{repo.attributes['repository']}' / #{repo.attributes['arch']} needs recalculation by the schedulers"
+            raise BuildNotFinished.new "The repository '#{pkg.project.name}' / '#{repo.attributes['repository']}' / #{repo.attributes['arch']} " +
+                                       "needs recalculation by the schedulers"
           end
           if %w(finished publishing).include? repo.attributes['state']
-            raise BuildNotFinished.new "The repository '#{pkg.project.name}' / '#{repo.attributes['repository']}' / #{repo.attributes['arch']} did not finish the publish yet"
+            raise BuildNotFinished.new "The repository '#{pkg.project.name}' / '#{repo.attributes['repository']}' / #{repo.attributes['arch']}" +
+                                       "did not finish the publish yet"
           end
           unless %w(published unpublished).include? repo.attributes['state']
-            raise BuildNotFinished.new "The repository '#{pkg.project.name}' / '#{repo.attributes['repository']}' / #{repo.attributes['arch']} did not finish the build yet"
+            raise BuildNotFinished.new "The repository '#{pkg.project.name}' / '#{repo.attributes['repository']}' / #{repo.attributes['arch']} " +
+                                       "did not finish the build yet"
           end
         end
         pkg.project.repositories.each do |repo|
@@ -575,7 +582,7 @@ class BsRequestAction < ActiveRecord::Base
         end
       end
 
-      # re-route (for the kgraft case building against GM or former incident) 
+      # re-route (for the kgraft case building against GM or former incident)
       if self.is_maintenance_release? and tprj
         tprj = tprj.update_instance
         if tprj.is_maintenance_incident?
@@ -584,7 +591,9 @@ class BsRequestAction < ActiveRecord::Base
             repo.release_targets.each do |rt|
               next if rt.trigger != "maintenance"
               next unless rt.target_repository.project.is_maintenance_release?
-              raise InvalidReleaseTarget.new "Multiple release target projects are not supported" if release_target and release_target != rt.target_repository.project
+              if release_target && release_target != rt.target_repository.project
+                raise InvalidReleaseTarget.new "Multiple release target projects are not supported"
+              end
               release_target = rt.target_repository.project
             end
           end
@@ -636,7 +645,9 @@ class BsRequestAction < ActiveRecord::Base
         else # non-channel package
           next if ReleaseTarget.where(repository: pkg.project.repositories, target_repository: tprj.repositories, trigger: "maintenance").count < 1
           unless pkg.project.can_be_released_to_project?(tprj)
-            raise WrongLinkedPackageSource.new "According to the source link of package #{pkg.project.name}/#{pkg.name} it would go to project #{tprj.name} which is not specified as release target."
+            raise WrongLinkedPackageSource.new "According to the source link of package " +
+                                               "#{pkg.project.name}/#{pkg.name} it would go to project" +
+                                               "#{tprj.name} which is not specified as release target."
           end
         end
       end
@@ -674,9 +685,11 @@ class BsRequestAction < ActiveRecord::Base
           next unless found
         end
 
+        # rubocop:disable Metrics/LineLength
         # skip if there is no active maintenance trigger for this package
         next if self.is_maintenance_release? and ReleaseTarget.where(repository: pkg.project.repositories, target_repository: Project.find_by_name(p).repositories, trigger: "maintenance").count < 1
- 
+        # rubocop:enable Metrics/LineLength
+
         newAction = self.dup
         newAction.source_package = pkg.name
         unless self.is_maintenance_incident?
@@ -751,7 +764,8 @@ class BsRequestAction < ActiveRecord::Base
       tprj = Project.get_by_name self.target_project
       if tprj.is_a? Project
         if tprj.is_maintenance_release? and self.action_type == :submit
-          raise SubmitRequestRejected.new "The target project #{self.target_project} is a maintenance release project, a submit self is not possible, please use the maintenance workflow instead."
+          raise SubmitRequestRejected.new "The target project #{self.target_project} is a maintenance release project, " +
+                                          "a submit self is not possible, please use the maintenance workflow instead."
         end
         if a = tprj.find_attribute('OBS', 'RejectRequests') and a.values.first
           if a.values.length < 2 or a.values.find_by_value(self.action_type)
@@ -760,13 +774,16 @@ class BsRequestAction < ActiveRecord::Base
         end
       end
       if self.target_package
+        # rubocop:disable Metrics/LineLength
         if Package.exists_by_project_and_name(self.target_project, self.target_package) or [:delete, :change_devel, :add_role, :set_bugowner].include? self.action_type
           tpkg = Package.get_by_project_and_name self.target_project, self.target_package
         end
+        # rubocop:enable Metrics/LineLength
 
         if tpkg && (a = tpkg.find_attribute('OBS', 'RejectRequests') and a.values.first)
           if a.values.length < 2 or a.values.find_by_value(self.action_type)
-            raise RequestRejected.new "The target package #{self.target_project} / #{self.target_package} is not accepting requests because: #{a.values.first.value.to_s}"
+            raise RequestRejected.new "The target package #{self.target_project} / #{self.target_package} is not accepting " +
+                                      "requests because: #{a.values.first.value.to_s}"
           end
         end
       end
@@ -929,7 +946,9 @@ class BsRequestAction < ActiveRecord::Base
         self.source_rev = Xmlhash.parse(c)['srcmd5']
       end
     rescue ActiveXML::Transport::Error
+      # rubocop:disable Metrics/LineLength
       raise ExpandError.new "The source of package #{self.source_project}/#{self.source_package}#{self.source_rev ? " for revision #{self.source_rev}" : ''} is broken"
+      # rubocop:enable Metrics/LineLength
     end
   end
 

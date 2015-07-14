@@ -54,7 +54,9 @@ class BsRequestPermissionCheck
       begin
         ActiveXML.backend.direct_http(url)
       rescue ActiveXML::Transport::Error
+        # rubocop:disable Metrics/LineLength
         raise ExpandError.new "The source of package #{action.source_project}/#{action.source_package}#{action.source_rev ? " for revision #{action.source_rev}" : ''} is broken"
+        # rubocop:enable Metrics/LineLength
       end
     end
 
@@ -81,7 +83,8 @@ class BsRequestPermissionCheck
       # the target project may link to another project where we need to check modification permissions
       originpkg = Package.get_by_project_and_name action.target_project, action.target_package
       unless User.current.can_modify_package?(originpkg, true)
-        raise PostRequestNoPermission.new "Package target can not get initialized using makeoriginolder. No permission in project #{originpkg.project.name}"
+        raise PostRequestNoPermission.new "Package target can not get initialized using makeoriginolder." +
+                                          "No permission in project #{originpkg.project.name}"
       end
     end
   end
@@ -109,7 +112,8 @@ class BsRequestPermissionCheck
       c = ActiveXML.backend.direct_http(url)
       data = REXML::Document.new(c)
       unless action.source_rev == data.elements['directory'].attributes['srcmd5']
-        raise SourceChanged.new "The current source revision in #{action.source_project}/#{action.source_package} are not on revision #{action.source_rev} anymore."
+        raise SourceChanged.new "The current source revision in #{action.source_project}/#{action.source_package}" +
+                                "are not on revision #{action.source_rev} anymore."
       end
     end
 
@@ -290,7 +294,8 @@ class BsRequestPermissionCheck
       raise ReviewChangeStateNoPermission.new "review state change for group #{by_group.title} is not permitted for #{User.current.login}"
     end
     if by_package and not User.current.can_modify_package?(by_package, true)
-      raise ReviewChangeStateNoPermission.new "review state change for package #{opts[:by_project]}/#{opts[:by_package]} is not permitted for #{User.current.login}"
+      raise ReviewChangeStateNoPermission.new "review state change for package #{opts[:by_project]}/#{opts[:by_package]} " +
+                                              "is not permitted for #{User.current.login}"
     end
     if by_project and not User.current.can_modify_project?(by_project, true)
       raise ReviewChangeStateNoPermission.new "review state change for project #{opts[:by_project]} is not permitted for #{User.current.login}"
@@ -311,7 +316,7 @@ class BsRequestPermissionCheck
     end
     # Do not accept to skip the review, except force argument is given
     if opts[:newstate] == 'accepted'
-      if req.state == :review 
+      if req.state == :review
         unless opts[:force]
           raise PostRequestNoPermission.new 'Request is in review state. You may use the force parameter to ignore this.'
         end
@@ -355,7 +360,8 @@ class BsRequestPermissionCheck
       # abort immediatly if we want to write and can't
       if "accepted" == opts[:newstate] and not @write_permission_in_this_action
         msg = ''
-        msg = "No permission to modify target of request #{action.bs_request.id} (type #{action.action_type}): project #{action.target_project}" unless action.bs_request.new_record?
+        msg = "No permission to modify target of request " +
+              "#{action.bs_request.id} (type #{action.action_type}): project #{action.target_project}" unless action.bs_request.new_record?
         msg += ", package #{action.target_package}" if action.target_package
         raise PostRequestNoPermission.new msg
       end

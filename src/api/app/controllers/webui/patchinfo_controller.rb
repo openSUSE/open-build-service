@@ -102,7 +102,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     @category = @file.value(:category)
     @rating = @file.value(:rating)
     @summary = @file.value(:summary)
-    
+
     @description = @file.value(:description)
     if @file.has_element?('relogin_needed')
       @relogin = true
@@ -199,7 +199,7 @@ class Webui::PatchinfoController < Webui::WebuiController
           frontend.put_file( xml, :project => @project,
             :package => @package, :filename => filename)
           flash[:notice] = "Successfully edited #{@package}"
-        rescue Timeout::Error 
+        rescue Timeout::Error
           flash[:error] = 'Timeout when saving file. Please try again.'
         end
 
@@ -283,7 +283,7 @@ class Webui::PatchinfoController < Webui::WebuiController
       end
       if issue.length > 1
         begin
-          
+
           issueurl = IssueTracker.find_by_name(issue[0])
           if issueurl
             Rails.logger.debug "URL2 #{issueurl.inspect}"
@@ -306,8 +306,9 @@ class Webui::PatchinfoController < Webui::WebuiController
         invalid_format += "#{issue[0]} "
       end
     end
-    error += "#{invalid_tracker}" 
-    error += "#{invalid_format}has no valid format. (Correct formats are e.g. boo#123456, CVE-1234-5678 and the string has to be a comma-separated list)" if !invalid_format.empty?
+    error += "#{invalid_tracker}"
+    error += "#{invalid_format}has no valid format. (Correct formats are e.g. boo#123456, CVE-1234-5678 " +
+             "and the string has to be a comma-separated list)" if !invalid_format.empty?
     render :nothing => true, :json => { :error => error, :issues => issue_collection}
   end
 

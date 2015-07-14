@@ -72,7 +72,10 @@ class BsRequestActionSubmit < BsRequestAction
     end
 
     cp_path = "/source/#{self.target_project}/#{self.target_package}"
-    cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :orev, :expand, :keeplink, :comment, :requestid, :dontupdatesource, :noservice, :withacceptinfo])
+    cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage,
+                                                               :orev, :expand, :keeplink, :comment,
+                                                               :requestid, :dontupdatesource, :noservice,
+                                                               :withacceptinfo])
     result = Suse::Backend.post cp_path, nil
     result = Xmlhash.parse(result.body)
     self.set_acceptinfo(result["acceptinfo"])
@@ -98,10 +101,10 @@ class BsRequestActionSubmit < BsRequestAction
     elsif self.sourceupdate == "cleanup"
       self.source_cleanup
     end
-    
+
     if self.target_package == "_product"
       Project.find_by_name!(self.target_project).update_product_autopackages
-    end    
+    end
 
   end
 
