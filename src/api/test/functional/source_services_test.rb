@@ -1,14 +1,14 @@
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'source_controller'
 
-class SourceServicesTest < ActionDispatch::IntegrationTest 
+class SourceServicesTest < ActionDispatch::IntegrationTest
   fixtures :all
 
   def setup
     super
     wait_for_scheduler_start
   end
-  
+
   def test_get_servicelist
     get '/service'
     assert_response 401
@@ -18,7 +18,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag :tag => 'servicelist'
 
-    # not using assert_xml_tag for doing a propper error message on missing 
+    # not using assert_xml_tag for doing a propper error message on missing
     # source service packages
     download_url = set_version = download_files = nil
     services = ActiveXML::Node.new(@response.body)
@@ -41,7 +41,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
   def test_combine_project_service_list
     login_king
 
-    raw_put '/source/BaseDistro2.0/_project/_service', '<services> <service name="set_version" > <param name="version">0815</param> </service> </services>'
+    raw_put '/source/BaseDistro2.0/_project/_service',
+            '<services> <service name="set_version" > <param name="version">0815</param> </service> </services>'
     assert_response :success
     raw_put '/source/BaseDistro2.0:LinkedUpdateProject/_project/_service', '<services> <service name="download_files" /> </services>'
     assert_response :success
@@ -49,14 +50,17 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     login_tom
     post '/source/BaseDistro2.0:LinkedUpdateProject/pack2', :cmd => 'branch'
     assert_response :success
-    raw_put '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/_project/_service', '<services> <service name="download_url" > <param name="host">blahfasel</param> </service> </services>'
+    raw_put '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/_project/_service',
+            '<services> <service name="download_url" > <param name="host">blahfasel</param> </service> </services>'
     assert_response :success
 
     post '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2', :cmd => 'getprojectservices'
     assert_response :success
     assert_xml_tag( :tag => 'service', :attributes => { :name => 'download_files' } )
-    assert_xml_tag( :parent => { :tag => 'service', :attributes => { :name => 'download_url' } }, :tag => 'param', :attributes => { :name => 'host' }, :content => 'blahfasel')
-    assert_xml_tag( :parent => { :tag => 'service', :attributes => { :name => 'set_version' } }, :tag => 'param', :attributes => { :name => 'version' }, :content => '0815')
+    assert_xml_tag( :parent => { :tag => 'service', :attributes => { :name => 'download_url' } },
+                    :tag => 'param', :attributes => { :name => 'host' }, :content => 'blahfasel')
+    assert_xml_tag( :parent => { :tag => 'service', :attributes => { :name => 'set_version' } },
+                    :tag => 'param', :attributes => { :name => 'version' }, :content => '0815')
 
     # cleanup
     login_king
@@ -106,7 +110,11 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response 400
     assert_match(/not_existing/, @response.body) # multiple line error shows up
 
-    raw_put '/source/home:tom/service/_service', '<services> <service name="download_url" > <param name="host">localhost</param> <param name="path">/directory/subdirectory/file</param> </service> </services>'
+    raw_put '/source/home:tom/service/_service',
+            '<services> <service name="download_url" >
+             <param name="host">localhost</param>
+             <param name="path">/directory/subdirectory/file</param>
+             </service> </services>'
     assert_response :success
     post '/source/home:tom/service?cmd=runservice'
     assert_response :success
@@ -135,7 +143,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
 
     # accept
     post "/request/#{id}?cmd=changestate&newstate=accepted"
-    assert_response :success 
+    assert_response :success
 
     # same result as in source package
     get '/source/home:tom/new_package'
@@ -172,7 +180,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     id = node.value('id')
     # accept
     post "/request/#{id}?cmd=changestate&newstate=accepted"
-    assert_response :success 
+    assert_response :success
     get '/source/home:tom:branches:home:tom/service/_service:download_url:file?expand=1'
     assert_response :success
     get '/source/home:tom/service/_service:download_url:file?expand=1'
@@ -254,13 +262,18 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
 
   def test_buildtime_service
     login_Iggy
-    raw_put '/source/home:Iggy/service/_meta', "<package project='home:Iggy' name='service'> <title /> <description /> <build><enable/></build></package>"
+    raw_put '/source/home:Iggy/service/_meta',
+            "<package project='home:Iggy' name='service'> <title /> <description /> <build><enable/></build></package>"
     assert_response :success
     raw_put '/source/home:Iggy/service/pack.spec', "# Comment \nName: pack\nVersion: 12\nRelease: 9\nSummary: asd"
     assert_response :success
 
     wait_for_service( 'home:Iggy', 'service')
-    put '/source/home:Iggy/service/_service', '<services> <service name="set_version" mode="buildtime"> <param name="version">0817</param> <param name="file">pack.spec</param> </service> </services>'
+    put '/source/home:Iggy/service/_service',
+        '<services> <service name="set_version" mode="buildtime">
+         <param name="version">0817</param>
+         <param name="file">pack.spec</param>
+         </service> </services>'
     assert_response :success
     wait_for_service( 'home:Iggy', 'service')
     run_scheduler('i586')
@@ -287,7 +300,10 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     put '/source/home:tom/service/_meta', "<package project='home:tom' name='service'> <title /> <description /> </package>"
     assert_response :success
     wait_for_service( 'home:tom', 'service')
-    put '/source/home:tom/service/_service', '<services> <service name="set_version" > <param name="version">0819</param> <param name="file">pack.spec</param> </service> </services>'
+    put '/source/home:tom/service/_service',
+        '<services> <service name="set_version" >
+         <param name="version">0819</param>
+         <param name="file">pack.spec</param> </service> </services>'
     assert_response :success
     wait_for_service( 'home:tom', 'service')
     put '/source/home:tom/service/pack.spec', "# Comment \nVersion: 12\nRelease: 9\nSummary: asd"
@@ -304,7 +320,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     # do a commit to trigger the service
     put '/source/home:tom/service/filename?rev=repository', 'CONTENT'
     assert_response :success
-    filelist = '<directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> <entry name="_service" md5="' + md5sum_service + '" /> <entry name="pack.spec" md5="' + md5sum_spec + '" /> </directory> '
+    filelist = '<directory> <entry name="filename" md5="45685e95985e20822fb2538a522a5ccf" /> <entry name="_service" md5="' +
+               md5sum_service + '" /> <entry name="pack.spec" md5="' + md5sum_spec + '" /> </directory> '
     raw_post '/source/home:tom/service?cmd=commitfilelist', filelist
     assert_response :success
     wait_for_service( 'home:tom', 'service')
@@ -378,7 +395,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_match(/service parameter.*contains invalid chars/, @response.body)
 
     # reset
-    put '/source/home:tom/_project/_service', '<services> <service name="set_version" > <param name="version">0817</param> <param name="file">pack.spec</param> </service> </services>'
+    put '/source/home:tom/_project/_service',
+        '<services> <service name="set_version" > <param name="version">0817</param> <param name="file">pack.spec</param> </service> </services>'
     assert_response :success
 
     put '/source/home:tom/service2/_meta', "<package project='home:tom' name='service2'> <title /> <description /> </package>"

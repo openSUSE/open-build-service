@@ -2,7 +2,11 @@ require_relative '../../test_helper'
 
 class Webui::AttributesTest < Webui::IntegrationTest
 
-  ATTRIBUTES = %w(NSTEST:status OBS:VeryImportantProject OBS:UpdateProject OBS:OwnerRootProject OBS:Maintained OBS:RequestCloned OBS:InitializeDevelPackage OBS:MaintenanceProject OBS:MaintenanceIdTemplate OBS:RejectRequests OBS:ApprovedRequestSource OBS:BranchTarget OBS:ScreenShots OBS:ProjectStatusPackageFailComment OBS:QualityCategory).sort
+  ATTRIBUTES = %w(NSTEST:status OBS:VeryImportantProject OBS:UpdateProject
+                  OBS:OwnerRootProject OBS:Maintained OBS:RequestCloned
+                  OBS:InitializeDevelPackage OBS:MaintenanceProject OBS:MaintenanceIdTemplate
+                  OBS:RejectRequests OBS:ApprovedRequestSource OBS:BranchTarget
+                  OBS:ScreenShots OBS:ProjectStatusPackageFailComment OBS:QualityCategory).sort
 
   setup do
     use_js
@@ -70,7 +74,7 @@ class Webui::AttributesTest < Webui::IntegrationTest
         flash_message.must_match %r{Saving attribute failed: attribute value #{attribute[:value]} for}
       end
     end
-    
+
     unless attribute[:expect] == :no_permission
       # Check the existence and correct value
       visit index_attribs_path(project: attribute[:project], package: attribute[:package] )

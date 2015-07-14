@@ -1,4 +1,5 @@
 # encoding: UTF-8
+# rubocop:disable Metrics/LineLength
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'source_controller'
 
@@ -255,8 +256,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_king
     post '/source/home:Iggy/TestPack', :cmd => 'branch', :target_package => 'TestPack2'
     assert_response :success
-    # this is behaving strange as it's creating a TestPack3 pack, but returns a 400 
-    # as it tries to branch TestPack2 -> TestPack too and fails 
+    # this is behaving strange as it's creating a TestPack3 pack, but returns a 400
+    # as it tries to branch TestPack2 -> TestPack too and fails
     if $ENABLE_BROKEN_TEST
       post '/source/home:Iggy/TestPack', :cmd => 'branch', :target_package => 'TestPack3'
       assert_response :success
@@ -296,7 +297,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     put url_for(:controller => :source, :action => :update_project_meta, :project => 'kde4'), doc.to_s
     assert_response 403
 
-    # admin only tag    
+    # admin only tag
     d = doc.elements['/project']
     d = d.add_element 'remoteurl'
     d.text = 'http://localhost:5352'
@@ -360,7 +361,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     delete '/source/kde4:subproject'
     assert_response :success
-    # maintainer 
+    # maintainer
     login_fred
     put url_for(:controller => :source, :action => :update_project_meta, :project => 'kde4:subproject'), subprojectmeta
     assert_response :success
@@ -373,7 +374,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     delete '/source/kde4:subproject'
     assert_response :success
 
-    # create illegal project 
+    # create illegal project
     login_fred
     subprojectmeta="<project name='kde4_subproject'><title></title><description/></project>"
     put url_for(:controller => :source, :action => :update_project_meta, :project => 'kde4:subproject'), subprojectmeta
@@ -596,13 +597,13 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_create_and_delete_project
     prepare_request_with_user('king', 'sunflower')
-    # Get meta file  
+    # Get meta file
     get url_for(:controller => :source, :action => :show_project_meta, :project => 'kde4')
     assert_response :success
 
     xml = @response.body
     doc = REXML::Document.new(xml)
-    # change name to kde5: 
+    # change name to kde5:
     d = doc.elements['/project']
     d.delete_attribute('name')
     d.add_attribute('name', 'kde5')
@@ -628,7 +629,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   def test_put_invalid_project_meta
     login_fred
 
-    # Get meta file  
+    # Get meta file
     get url_for(:controller => :source, :action => :show_project_meta, :project => 'kde4')
     assert_response :success
 
@@ -641,7 +642,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'status', :attributes => { :code => 'validation_failed' }
 
     login_king
-    # write to illegal location: 
+    # write to illegal location:
     put url_for(:controller => :source, :action => :update_project_meta, :project => '$hash'), doc.to_s
     assert_response 400
     assert_xml_tag :tag => 'status', :attributes => { :code => 'invalid_project_name' }
@@ -653,7 +654,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     #TODO: referenced repository names must exist
 
 
-    #verify data is unchanged: 
+    #verify data is unchanged:
     get url_for(:controller => :source, :action => :show_project_meta, :project => 'kde4')
     assert_response :success
     assert_equal(olddoc.to_s, REXML::Document.new((@response.body)).to_s)
@@ -663,7 +664,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   def test_remove_myself_from_home_project_and_readd
     login_fred
 
-    # Get meta file  
+    # Get meta file
     get url_for(:controller => :source, :action => :show_project_meta, :project => 'home:fred')
     assert_response :success
     xml = @response.body
@@ -817,7 +818,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     put url_for(:controller => :source, :action => :update_package_meta, :project => 'kde4', :package => 'kdelibs'), doc.to_s
     assert_response 403
 
-    #verify data is unchanged: 
+    #verify data is unchanged:
     get url_for(:controller => :source, :action => :show_package_meta, :project => 'kde4', :package => 'kdelibs')
     assert_response :success
     assert_equal(olddoc.to_s, REXML::Document.new((@response.body)).to_s)
@@ -867,7 +868,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     # Write changed data back
     put url_for(:controller => :source, :action => :update_package_meta, :project => project, :package => package), doc.to_s
-    assert_response response2 #(:success, "--> Was not able to update kdelibs _meta")   
+    assert_response response2 #(:success, "--> Was not able to update kdelibs _meta")
     assert_xml_tag tag2 #( :tag => "status", :attributes => { :code => "ok"} )
 
     # Get data again and check that it is the changed data
@@ -1301,7 +1302,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response 400
 
     login_king
-    # write to illegal location: 
+    # write to illegal location:
     put url_for(:controller => :source, :action => :update_package_meta, :project => 'kde4', :package => '.'), doc.to_s
     assert_response 400
     assert_xml_tag :tag => 'status', :attributes => { :code => "invalid_package_name" }
@@ -1310,7 +1311,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     put url_for(:controller => :source, :action => :update_package_meta, :project => 'kde4', :package => 'kdelibs2000'), doc.to_s
     assert_response 400
     assert_xml_tag :tag => 'status', :attributes => { :code => 'package_name_mismatch' }
-    #verify data is unchanged: 
+    #verify data is unchanged:
     get url_for(:controller => :source, :action => :show_package_meta, :project => 'kde4', :package => 'kdelibs')
     assert_response :success
     assert_equal(olddoc.to_s, REXML::Document.new((@response.body)).to_s)
@@ -1330,13 +1331,13 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_read_file_hidden_proj
-    # nobody 
+    # nobody
     prepare_request_with_user 'adrian_nobody', 'so_alone'
     get '/source/HiddenProject/pack/my_file'
 
     assert_response 404
     assert_xml_tag :tag => 'status', :attributes => { :code => 'unknown_project' }
-    # uninvolved, 
+    # uninvolved,
     login_tom
     get '/source/HiddenProject/pack/my_file'
     assert_response 404
@@ -1356,12 +1357,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_read_filelist_sourceaccess_proj
-    # nobody 
+    # nobody
     prepare_request_with_user 'adrian_nobody', 'so_alone'
     get '/source/SourceprotectedProject/pack'
     assert_response 403
     assert_xml_tag :tag => 'status', :attributes => { :code => 'source_access_no_permission' }
-    # uninvolved, 
+    # uninvolved,
     login_tom
     get '/source/SourceprotectedProject/pack'
     assert_response 403
@@ -1389,12 +1390,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/SourceprotectedProject/pack/my_file', nil, { 'HTTP_USER_AGENT' => 'osc-something' }
     assert_response 401
     assert_xml_tag :tag => 'status', :attributes => { :code => 'anonymous_user' }
-    # nobody 
+    # nobody
     prepare_request_with_user 'adrian_nobody', 'so_alone'
     get '/source/SourceprotectedProject/pack/my_file'
     assert_response 403
     assert_xml_tag :tag => 'status', :attributes => { :code => 'source_access_no_permission' }
-    # uninvolved, 
+    # uninvolved,
     login_tom
     get '/source/SourceprotectedProject/pack/my_file'
     assert_response 403
@@ -1453,7 +1454,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     add_file_to_package(url1, asserttag1, url2, assertresp2,
                         assertselect2, assertselect2rev,
                         assertresp3, asserteq3, assertresp4)
-    # nobody 
+    # nobody
     prepare_request_with_user 'adrian_nobody', 'so_alone'
     add_file_to_package(url1, asserttag1, url2, assertresp2,
                         assertselect2, assertselect2rev,
@@ -1491,7 +1492,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     add_file_to_package(url1, nil, url2, assertresp2,
                         assertselect2, assertselect2rev,
                         assertresp3, asserteq3, assertresp4)
-    # nobody 
+    # nobody
     prepare_request_with_user 'adrian_nobody', 'so_alone'
     add_file_to_package(url1, nil, url2, assertresp2,
                         assertselect2, assertselect2rev,
@@ -1537,7 +1538,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     add_file_to_package(url1, asserttag1, url2, assertresp2,
                         assertselect2, assertselect2rev,
                         assertresp3, asserteq3, assertresp4)
-    # write without permission: 
+    # write without permission:
     login_tom
     get url_for(:controller => :source, :action => :get_file, :project => 'kde4', :package => 'kdelibs', :filename => 'my_patch.diff')
     assert_response :success
@@ -1547,7 +1548,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response(403, message='Was able to write a package file without permission')
     assert_xml_tag(:tag => 'status')
 
-    # check that content is unchanged: 
+    # check that content is unchanged:
     get url_for(:controller => :source, :action => :get_file, :project => 'kde4', :package => 'kdelibs', :filename => 'my_patch.diff')
     assert_response :success
     assert_equal(@response.body.to_s, origstring, message='Package file was changed without permissions')
@@ -2473,12 +2474,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/home:Iggy/TestPackBranch/_history'
     assert_response :success
     assert_xml_tag :tag => 'comment', :content => "my collectbuildenv"
- 
-    # global fallback _buildenv, contains always an error 
+
+    # global fallback _buildenv, contains always an error
     get '/source/home:Iggy/TestPackBranch/_buildenv'
     assert_response :success
     assert_xml_tag :tag => 'error', :content => "no buildenv for this repo/arch"
-   
+
     # specialized buildenv, does not exist in source
     get '/source/home:Iggy/TestPackBranch/_buildenv.10.2.i586'
     assert_response :success
@@ -2486,15 +2487,15 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/home:Iggy/TestPackBranch/_buildenv.10.2.x86_64'
     assert_response :success
     assert_xml_tag :tag => 'error', :content => "_buildenv missing in home:Iggy/10.2"
- 
+
     # from BaseDistro project, we build against
     post '/source/home:Iggy/TestPackBranch?cmd=collectbuildenv&oproject=BaseDistro&opackage=pack1&comment=my+collectbuildenv', nil
     assert_response :success
-    # global fallback _buildenv, contains always an error 
+    # global fallback _buildenv, contains always an error
     get '/source/home:Iggy/TestPackBranch/_buildenv'
     assert_response :success
     assert_xml_tag :tag => 'error', :content => "no buildenv for this repo/arch"
-   
+
     # specialized buildenv, contains the right repo name
     get '/source/home:Iggy/TestPackBranch/_buildenv.10.2.i586'
     assert_response :success
@@ -2504,7 +2505,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     delete '/source/home:Iggy/TestPackBranch'
     assert_response :success
   end
- 
+
   def test_copy_project
     # NOTE: copy tests for release projects are part of maintenance tests
     login_fred
@@ -2937,7 +2938,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'status', :attributes => { :code => 'project_save_error' }
     assert_match(/Using same repository as path element is not allowed/, @response.body)
     put url_for(:controller => :source, :action => :update_project_meta, :project => 'home:tom:temporary'),
-        '<project name="home:tom:temporary"> <title/> <description/> 
+        '<project name="home:tom:temporary"> <title/> <description/>
            <repository name="me">
              <hostsystem project="home:tom:temporary" repository="me" />
            </repository>
@@ -2947,7 +2948,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_match(/Using same repository as hostsystem element is not allowed/, @response.body)
     # not existing repo
     put url_for(:controller => :source, :action => :update_project_meta, :project => 'home:tom:temporary'),
-        '<project name="home:tom:temporary"> <title/> <description/> 
+        '<project name="home:tom:temporary"> <title/> <description/>
            <repository name="me">
              <path project="home:tom:temporary" repository="DOESNOTEXIST" />
            </repository>
@@ -2956,7 +2957,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'status', :attributes => { :code => 'project_save_error' }
     assert_match(/unable to walk on path/, @response.body)
     put url_for(:controller => :source, :action => :update_project_meta, :project => 'home:tom:temporary'),
-        '<project name="home:tom:temporary"> <title/> <description/> 
+        '<project name="home:tom:temporary"> <title/> <description/>
            <repository name="me">
              <hostsystem project="home:tom:temporary" repository="DOESNOTEXIST" />
            </repository>
@@ -3634,3 +3635,4 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "repository", :attributes => {:name => "standard2"}
   end
 end
+# rubocop:enable Metrics/LineLength

@@ -1,9 +1,10 @@
+# rubocop:disable Metrics/LineLength
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'source_controller'
 
-class MaintenanceTests < ActionDispatch::IntegrationTest 
+class MaintenanceTests < ActionDispatch::IntegrationTest
   fixtures :all
-  
+
   def setup
     super
     wait_for_scheduler_start
@@ -49,7 +50,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
   def test_create_maintenance_project
     login_tom
-    
+
     put '/source/home:tom:maintenance/_meta', '<project name="home:tom:maintenance" > <title/> <description/> </project>'
     assert_response :success
     put '/source/home:tom:maintenance/_meta', '<project name="home:tom:maintenance" kind="maintenance" > <title/> <description/> </project>'
@@ -352,7 +353,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # we found the new code in update project nevertheless that ServicePack does not link to it
     # and the update package even has a devel area defined here
     assert_xml_tag :tag => "comment", :content => "fetch updates from devel package Devel:BaseDistro:Update/pack2"
-                   
+
     delete '/source/ServicePack'
     assert_response :success
   end
@@ -439,7 +440,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/search/package?match=%28%40name+%3D+%27pack2%27%29+and+%28project%2Fattribute%2F%40name%3D%27OBS%3AMaintained%27+or+attribute%2F%40name%3D%27OBS%3AMaintained%27%29'
     assert_response :success
     assert_xml_tag :tag => 'collection', :children => { count: 3 }
-   
+
     # do the real mbranch for default maintained packages
     # test it with "noaccess"
     login_tom
@@ -497,7 +498,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     put '/source/home:coolo:test/kdelibs_DEVEL_package/DUMMY', 'CONTENT'
     assert_response :success
 
-    # add an issue 
+    # add an issue
     put '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro_Update/dummy.changes', 'DUMMY bnc#1042'
     assert_response :success
     get '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro_Update?view=issues'
@@ -681,7 +682,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                            </project>'
     assert_response :success
 
-    reset_auth 
+    reset_auth
     post '/source/Temp:Maintenance', :cmd => 'createmaintenanceincident'
     assert_response 401
 
@@ -1356,7 +1357,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'binary', :attributes => { filename: 'updateinfo.xml' }
     get "/build/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/patchinfo.#{incidentID}/updateinfo.xml"
     assert_response :success
-    # check for changed updateinfoid 
+    # check for changed updateinfoid
     assert_xml_tag :parent => { tag: 'update', attributes: { from: 'maintenance_coord', status: 'stable', type: 'security', version: '1' } }, :tag => 'id', :content => "My-oldname-#{Time.now.utc.year.to_s}-1"
     # check :full tree
     get '/build/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/_repository'
@@ -1440,7 +1441,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
       # seems to be a SUSE system
       if pac['format']['rpm:suggests'].nil?
         print 'createrepo seems not to create week dependencies, we want this on SUSE systems'
-      end 
+      end
       assert_equal 'pure_optional', pac['format']['rpm:suggests']['rpm:entry']['name']
       assert_equal 'would_be_nice', pac['format']['rpm:recommends']['rpm:entry']['name']
       assert_equal 'other_package_likes_it', pac['format']['rpm:supplements']['rpm:entry']['name']
@@ -1486,7 +1487,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # check ownership of packages
     get "/search/missing_owner?project=BaseDistro2.0:LinkedUpdateProject&filter=bugowner"
     assert_response :success
-    # no bugowner for this 
+    # no bugowner for this
     assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "BaseDistro2.0:LinkedUpdateProject", :project => "BaseDistro2.0:LinkedUpdateProject", :package => "pack2" }
     # but do not list all the incident containers here, the main package is enough
     assert_no_xml_tag tag: 'missing_owner', :attributes => {:package => "pack2.0" }
@@ -2024,7 +2025,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post "/request/#{reqid}?cmd=changestate&newstate=revoked"
     assert_response :success
 
-    # cleanup 
+    # cleanup
     delete '/source/home:tom:test'
     assert_response :success
   end
@@ -2065,7 +2066,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post "/request/#{reqid}?cmd=changestate&newstate=revoked"
     assert_response :success
 
-    # disable lock and cleanup 
+    # disable lock and cleanup
     get '/source/home:tom:test/_meta'
     assert_response :success
     assert_no_xml_tag( :parent => { tag: 'lock' }, :tag => 'enable')
@@ -2078,7 +2079,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   def last_revision(axml)
     axml.each('revision').last
   end
-  
+
   def test_copy_project_for_release
     # temporary lock the project to validate copy
     login_king
@@ -2303,3 +2304,4 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   end
 
 end
+# rubocop:enable Metrics/LineLength

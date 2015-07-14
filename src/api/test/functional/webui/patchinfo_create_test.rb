@@ -6,7 +6,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
   uses_transaction :test_create_patchinfo_with_too_short_summary
   uses_transaction :test_create_patchinfo_with_too_short_sum_and_desc
 
-  CATEGORIES = [ "", 
+  CATEGORIES = [ "",
                  "recommended",
                  "security",
                  "optional",
@@ -15,7 +15,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
   setup do
     use_js
-    @project = 'home:Iggy' 
+    @project = 'home:Iggy'
   end
 
   def open_new_patchinfo
@@ -25,7 +25,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
   def create_patchinfo new_patchinfo
     new_patchinfo[:expect] ||= :success
-    new_patchinfo[:packager] ||= current_user 
+    new_patchinfo[:packager] ||= current_user
     new_patchinfo[:summary] ||= ""
     new_patchinfo[:description] ||= ""
 
@@ -37,14 +37,14 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     assert RATINGS.include? new_patchinfo[:rating]
     find('select#rating').select(new_patchinfo[:rating])
     new_patchinfo[:issue] ||= ""
-    
+
     new_patchinfo[:zypp_restart_needed] ||= false
     new_patchinfo[:relogin] ||= false
     new_patchinfo[:reboot] ||= false
     new_patchinfo[:block] ||= false
     new_patchinfo[:block_reason] ||= ""
 
-    fill_in "summary", with: new_patchinfo[:summary]   
+    fill_in "summary", with: new_patchinfo[:summary]
     fill_in "description", with: new_patchinfo[:description]
     if !new_patchinfo[:issue].blank?
       fill_in "issue", with: new_patchinfo[:issue]
@@ -59,7 +59,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
         click_button("add")
       end
     end
-    
+
     find(:id, "zypp_restart_needed").click if new_patchinfo[:zypp_restart_needed]
     find(:id, "relogin").click if new_patchinfo[:relogin]
     find(:id, "reboot").click if new_patchinfo[:reboot]
@@ -111,7 +111,9 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
       flash_message.must_equal "|| Description is too short (should have more than 50 signs and longer than summary)"
       flash_message_type.must_equal :alert
     elsif new_patchinfo[:expect] == :short_desc_and_sum
+      # rubocop:disable Metrics/LineLength
       flash_message.must_equal "|| Summary is too short (should have more than 10 signs) || Description is too short (should have more than 50 signs and longer than summary)"
+      # rubocop:enable Metrics/LineLength
       flash_message_type.must_equal :alert
     elsif new_patchinfo[:expect] == :no_permission
       flash_message.must_equal "No permission to edit the patchinfo-file."
@@ -129,6 +131,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
   end
   
   def test_create_patchinfo_with_desc_and_sum
+
     login_Iggy
     visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
@@ -143,7 +146,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     visit patchinfo_show_path(project: "home:Iggy", package: "patchinfo")
     page.wont_have_content("Edit patchinfo")
     page.wont_have_content("Delete patchinfo")
-    
+
     # check that the patchinfo is not editable per direct url for unauthorized users
     visit patchinfo_edit_patchinfo_path(project: "home:Iggy", package: "patchinfo")
     create_patchinfo(
@@ -151,19 +154,19 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
       :description => LONG_DESCRIPTION,
       :category => "recommended",
       :rating => "low",
-      :expect => :no_permission)    
+      :expect => :no_permission)
 
     # check that the patchinfo is not editable for anonymous user per buttons
     logout
     visit patchinfo_show_path(project: "home:Iggy", package: "patchinfo")
     page.wont_have_content("Edit patchinfo")
     page.wont_have_content("Delete patchinfo")
-    
+
     # check that the patchinfo is not editable per direct url for unauthorized users
     visit patchinfo_edit_patchinfo_path(project: "home:Iggy", package: "patchinfo")
     page.must_have_text('Please Log In')
 
-    login_Iggy    
+    login_Iggy
     delete_patchinfo('home:Iggy')
   end
 
@@ -267,13 +270,13 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
       :select_binaries => %w(package delete_me),
       :expect => :success)
     click_link("Edit patchinfo")
-    
+
     #remove 'delete_me' from selected binaries
     find('select#selected_binaries').select('delete_me')
     click_button("remove")
     click_button("Save Patchinfo")
     page.wont_have_text('delete_me')
- 
+
     delete_patchinfo('home:Iggy')
   end
 
@@ -315,7 +318,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
   # RUBY CODE ENDS HERE.
   # BELOW ARE APPENDED ALL DATA STRUCTURES USED BY THE TESTS.
-  
+
 
 # -------------------------------------------------------------------------------------- #
 LONG_DESCRIPTION = <<LICENSE_END

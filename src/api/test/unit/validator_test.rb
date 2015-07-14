@@ -74,7 +74,7 @@ class ValidatorTest < ActiveSupport::TestCase
      request.env['RAW_POST_DATA'] = '<link project="invalid"/>'
      assert_equal true, Suse::Validator.validate('link', request.raw_post.to_s)
   end
-  
+
   def test_assert_xml
     xml = <<-EOS
 <services>
@@ -87,7 +87,7 @@ class ValidatorTest < ActiveSupport::TestCase
   </service>
 </services>
 EOS
-    assert_xml_tag xml, :tag => "service", :attributes => { :name => "download_url", :not_present_tag => nil } 
+    assert_xml_tag xml, :tag => "service", :attributes => { :name => "download_url", :not_present_tag => nil }
     assert_xml_tag xml, :before => { :attributes => { :name => "set_version" } }, :attributes => { :name => "download_files" }
     assert_xml_tag xml, :after => { :attributes => { :name => "download_url" } }, :attributes => { :name => "download_files" }
     assert_xml_tag xml, :sibling => { :attributes => { :name => "download_url" } }, :attributes => { :name => "set_version" }
@@ -95,10 +95,16 @@ EOS
     assert_xml_tag xml, :descendant => { :content => "0815" }
     assert_no_xml_tag xml, :descendant => { :content => "0815" }, :tag => "param", :attributes => { :name => "host" }
     assert_xml_tag xml, :tag => "services", :children => { :count => 3, :only => { :tag => "service" } }
-    assert_xml_tag xml, :tag => "service", :attributes => { :name => "download_files" } 
-    assert_xml_tag xml, :parent => { :tag => "service", :attributes => { :name => "download_url" } }, :tag => "param", :attributes => { :name => "host"}, :content => "blahfasel" 
-    assert_xml_tag xml, :parent => { :tag => "service", :attributes => { :name => "set_version" } }, :tag => "param", :attributes => { :name => "version"}, :content => "0815" 
-    assert_no_xml_tag xml, :parent => { :tag => "service", :attributes => { :name => "set_version" } }, :tag => "param", :attributes => { :name => "version"}, :content => "0816"
+    assert_xml_tag xml, :tag => "service", :attributes => { :name => "download_files" }
+    assert_xml_tag xml, :parent => { :tag => "service", :attributes => { :name => "download_url" } },
+                        :tag => "param", :attributes => { :name => "host"},
+                        :content => "blahfasel"
+    assert_xml_tag xml, :parent => { :tag => "service", :attributes => { :name => "set_version" } },
+                        :tag => "param", :attributes => { :name => "version"},
+                        :content => "0815"
+    assert_no_xml_tag xml, :parent => { :tag => "service", :attributes => { :name => "set_version" } },
+                           :tag => "param", :attributes => { :name => "version"},
+                           :content => "0816"
     assert_xml_tag xml, :child => { :tag => "param" }, :attributes => { :name => "download_url" }
 
     xml = <<-EOS

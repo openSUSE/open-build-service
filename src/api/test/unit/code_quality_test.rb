@@ -42,7 +42,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       failed = Integer(output.split(':')[1])
       failedfile = nil
       linenrs.each do |ruby_file, line|
-        break if line > failed 
+        break if line > failed
         failedfile = ruby_file
       end
       IO.popen("ruby -cv #{failedfile} 2>&1 > /dev/null | grep #{Rails.root}") do |io|
@@ -99,17 +99,19 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Project#update_one_repository_without_path' => 118.34,
       'PublicController#binary_packages' => 126.16,
       'Repository#cleanup_before_destroy' => 82.98,
-      'BsRequest#assignreview' => 86.62, 
+      'BsRequest#assignreview' => 86.62,
       'SearchController#find_attribute' => 97.33,
       'SearchController#search' => 84.06,
+      'SearchController#search' => 81.64,
       'SourceController#project_command_copy' => 140.04,
       'SourceController#update_project_meta' => 106.89,
       'UserLdapStrategy::find_with_ldap' => 119.04,
       'UserLdapStrategy::render_grouplist_ldap' => 100.3,
       'Webui::DriverUpdateController#save' => 97.16,
-      'Webui::PackageController#submit_request' => 140.91,
-      'Webui::PatchinfoController#save' => 246.65,
-      'Webui::ProjectController#check_devel_package_status' => 81.95, 
+      'Webui::PackageController#submit_request' => 149.9,
+      'Webui::PatchinfoController#save' => 252.95,
+      'Webui::ProjectController#check_devel_package_status' => 81.95,
+      'Webui::ProjectController#save_new' => 90,
       'Webui::ProjectController#save_targets' => 123.29,
       'Webui::SearchController#set_parameters' => 98.04,
       'Webui::WebuiHelper#flag_status' => 93.0,
@@ -119,7 +121,10 @@ class CodeQualityTest < ActiveSupport::TestCase
   test 'code complexity' do
     require 'flog_cli'
     flog = Flog.new :continue => true
-    dirs = %w(app/controllers app/views app/models app/mixins app/indices app/helpers app/jobs webui/app/controllers webui/app/models webui/app/helpers webui/app/mixins)
+    dirs = %w(app/controllers app/views app/models
+              app/mixins app/indices app/helpers
+              app/jobs webui/app/controllers webui/app/models
+              webui/app/helpers webui/app/mixins)
     files = FlogCLI.expand_dirs_to_files(*dirs)
     flog.flog(*files)
 

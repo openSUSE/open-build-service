@@ -202,10 +202,12 @@ Suse::Backend.put('/source/BaseDistro/pack1/my_file?user=king', 'just a file')
 Suse::Backend.put('/source/BaseDistro/pack2/my_file?user=king', 'different content')
 Suse::Backend.put('/source/BaseDistro/pack2/my_file?user=king', 'second commit')
 Suse::Backend.put('/source/BaseDistro/pack3/my_file?user=king', 'just a file')
-Suse::Backend.put('/source/BaseDistro/_product/fixed.product?user=king', File.open("#{Rails.root}/test/fixtures/backend/source/fixed_product/fixed.product").read())
+Suse::Backend.put('/source/BaseDistro/_product/fixed.product?user=king',
+                  File.open("#{Rails.root}/test/fixtures/backend/source/fixed_product/fixed.product").read())
 Suse::Backend.put('/source/BaseDistro/patchinfo/_patchinfo?user=king', File.open("#{Rails.root}/test/fixtures/backend/source/_patchinfo").read())
 Suse::Backend.put('/source/BaseDistro2.0/_config?user=king', 'Type: spec')
-Suse::Backend.post('/source/BaseDistro2.0/pack2?cmd=commitfilelist&vrev=2.3&version=1.0&user=king', '<directory/>') # set vrev like it get created with makeolder=1
+# set vrev like it get created with makeolder=1
+Suse::Backend.post('/source/BaseDistro2.0/pack2?cmd=commitfilelist&vrev=2.3&version=1.0&user=king', '<directory/>')
 Suse::Backend.put('/source/BaseDistro2.0/pack2/myfile?user=king', 'DummyContent of BaseDistro2.0/pack2')
 Suse::Backend.put('/source/BaseDistro2.0/pack2/package.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read())
 Suse::Backend.put('/source/BaseDistro2.0/pack2.linked/_link?user=king', "<link package=\"pack2\" cicount='copy' />")
@@ -224,11 +226,13 @@ Suse::Backend.put('/source/HiddenProject/target/my_file?user=king', 'Protected C
 # BinaryprotectedProject
 Suse::Backend.put('/source/BinaryprotectedProject/_config?user=king', 'Type: spec')
 Suse::Backend.put('/source/BinaryprotectedProject/bdpack/my_file?user=king', 'Protected Content')
-Suse::Backend.put('/source/BinaryprotectedProject/bdpack/package.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read())
+Suse::Backend.put('/source/BinaryprotectedProject/bdpack/package.spec?user=king',
+                  File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read())
 # SourceaccessProject (sourceaccess flag)
 Suse::Backend.put('/source/SourceprotectedProject/_config?user=king', 'Type: spec')
 Suse::Backend.put('/source/SourceprotectedProject/pack/my_file?user=king', 'Protected Content')
-Suse::Backend.put('/source/SourceprotectedProject/pack/package.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read())
+Suse::Backend.put('/source/SourceprotectedProject/pack/package.spec?user=king',
+                  File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read())
 Suse::Backend.put('/source/SourceprotectedProject/target/my_file?user=king', 'Protected Content target')
 # Copytest
 Suse::Backend.put('/source/CopyTest/_config?user=king', 'Type: spec')
@@ -240,10 +244,13 @@ Suse::Backend.put('/source/Apache/libapr-util1/onefile?user=king', 'just another
 
 Suse::Backend.put('/source/LocalProject/remotepackage/_link?user=king', "<link project=\"RemoteInstance:BaseDistro\" package=\"pack1\" />")
 Suse::Backend.put('/source/home:adrian:ProtectionTest/_config?user=king', 'Type: spec')
-Suse::Backend.put('/source/home:adrian:ProtectionTest/aggregate/_aggregate?user=king', '<aggregatelist><aggregate project="SourceprotectedProject"><package>pack</package></aggregate></aggregatelist>')
-Suse::Backend.put('/source/home:Iggy/_config?user=king', "Type: spec\nSubstitute: kiwi package\nSubstitute: kiwi-packagemanager:instsource package\nIgnore: package:bash")
+Suse::Backend.put('/source/home:adrian:ProtectionTest/aggregate/_aggregate?user=king',
+                  '<aggregatelist><aggregate project="SourceprotectedProject"><package>pack</package></aggregate></aggregatelist>')
+Suse::Backend.put('/source/home:Iggy/_config?user=king',
+                  "Type: spec\nSubstitute: kiwi package\nSubstitute: kiwi-packagemanager:instsource package\nIgnore: package:bash")
 Suse::Backend.put('/source/home:Iggy/TestPack/myfile?user=king', 'DummyContent')
-Suse::Backend.put('/source/home:Iggy/TestPack/TestPack.spec?user=king', File.open("#{Rails.root}/test/fixtures/backend/source/home:Iggy/TestPack/TestPack.spec").read())
+Suse::Backend.put('/source/home:Iggy/TestPack/TestPack.spec?user=king',
+                  File.open("#{Rails.root}/test/fixtures/backend/source/home:Iggy/TestPack/TestPack.spec").read())
 Suse::Backend.put('/source/home:Iggy:branches:kde4/BranchPack/myfile?user=king', 'DummyContent')
 Suse::Backend.put('/source/kde4/kdebase/myfile2?user=king', 'DummyContent')
 Suse::Backend.put('/source/kde4/kdelibs/my_patch.diff?user=king', 'argl')
@@ -321,7 +328,8 @@ scheduler_thread = Thread.new do
   inject_build_job('BaseDistro3', 'pack2', 'BaseDistro3_repo', 'i586', "package_newweaktags-1.0-1.x86_64.rpm")
 
   # upload a binary file to repository directly
-  Suse::Backend.put('/build/home:Iggy/10.2/i586/_repository/delete_me.rpm?wipe=1', File.open("#{Rails.root}/test/fixtures/backend/binary/delete_me-1.0-1.i586.rpm").read())
+  Suse::Backend.put('/build/home:Iggy/10.2/i586/_repository/delete_me.rpm?wipe=1',
+                    File.open("#{Rails.root}/test/fixtures/backend/binary/delete_me-1.0-1.i586.rpm").read())
 
   # run scheduler again to handle the build result
   IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode i586") do |io|
@@ -329,7 +337,7 @@ scheduler_thread = Thread.new do
     io.each { |line| logger.debug line.strip unless line.blank? }
   end
 
-  # copy build result 
+  # copy build result
   Suse::Backend.post('/build/HiddenProject/nada/i586/packCopy?cmd=copy&opackage=pack', nil)
   Suse::Backend.post('/build/BaseDistro/BaseDistro_repo/i586/pack2?cmd=copy&oproject=home:Iggy&orepository=10.2&opackage=TestPack', nil)
 
@@ -356,4 +364,3 @@ trap('INT') { dienow = true }
 while !dienow do
   sleep 1
 end
-

@@ -47,7 +47,7 @@ class BsRequestTest < ActiveSupport::TestCase
     assert_equal wi['creator'].login, 'Iggy'
     assert_equal wi['is_target_maintainer'], false
     assert_equal wi['my_open_reviews'], []
-    
+
     wia = wi["actions"][0]
     assert_equal wia[:type], :add_role
     assert_equal wia[:tprj], 'kde4'
@@ -108,7 +108,7 @@ class BsRequestTest < ActiveSupport::TestCase
 eos
     req = BsRequest.new_from_xml(xml)
     req.save!
-    
+
     newxml = req.render_xml
     assert_equal xml, newxml
 
@@ -124,7 +124,7 @@ eos
       :name=>"Submit TestPack"
     }
 
-    
+
   end
 
   def check_user_targets(user, *trues)
@@ -133,7 +133,8 @@ eos
     BsRequest.all.each do |r|
       #puts r.render_xml
       expect = trues.include?(r.id)
-      assert_equal expect, r.webui_infos(diffs: false)['is_target_maintainer'], "Request #{r.id} should have #{expect} in target_maintainer for #{user}"
+      assert_equal expect, r.webui_infos(diffs: false)['is_target_maintainer'],
+                   "Request #{r.id} should have #{expect} in target_maintainer for #{user}"
     end
   end
 

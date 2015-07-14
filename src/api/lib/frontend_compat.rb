@@ -18,7 +18,7 @@ class FrontendCompat
     path = "/source/#{pesc opt[:project]}"
     path += "/#{esc opt[:package].to_s}" if opt[:package]
     path += "?cmd=#{cmd}#{extraparams}"
-    
+
     transport.direct_http URI(path), :method => 'POST', :data => ''
   end
 
@@ -63,7 +63,7 @@ class FrontendCompat
   def delete_package( opt={} )
     logger.debug "deleting: #{opt.inspect}"
     transport.direct_http URI("/source/#{pesc opt[:project]}/#{pesc opt[:package]}"),
-      :method => 'DELETE', :timeout => 500
+                          :method => 'DELETE', :timeout => 500
   end
 
   def transport

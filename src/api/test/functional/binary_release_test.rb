@@ -1,8 +1,9 @@
+# rubocop:disable Metrics/LineLength
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'xmlhash'
 
-class BinaryReleaseTest < ActionDispatch::IntegrationTest 
-  
+class BinaryReleaseTest < ActionDispatch::IntegrationTest
+
   fixtures :all
 
   def setup
@@ -17,7 +18,7 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     get '/search/released/binary', match: "@name = 'package'"
     assert_response 401
 
-    login_Iggy 
+    login_Iggy
     get '/search/released/binary/id', match: "@name = 'package'"
     assert_response :success
     assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :name => "package", :version => "1.0", :release => "1", :arch => "i586"}
@@ -108,8 +109,8 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :name => "package", :version => "1.0", :release => "1", :arch => "i586" }
     assert_xml_tag :tag => "updatefor", :attributes => { project: "BaseDistro", product: "fixed" }
-  
-    # by version 
+
+    # by version
     get '/search/released/binary', match: "updatefor/[@project = 'BaseDistro' and @product = 'fixed' and @baseversion = '1.2' and @patchlevel='0']"
     assert_response :success
     get '/search/released/binary', match: "updatefor/[@project = 'BaseDistro' and @product = 'fixed' and @version = '1.2']"
@@ -139,4 +140,4 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
   end
 
 end
-
+# rubocop:enable Metrics/LineLength
