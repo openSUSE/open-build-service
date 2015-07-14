@@ -76,7 +76,9 @@ class StatusController < ApplicationController
       Integer(params[:hours] || '24') rescue 24
     end
     starttime = Time.now.to_i - hours.to_i * 3600
+    # rubocop:disable Metrics/LineLength
     @values = StatusHistory.where("time >= ? AND \`key\` = ?", starttime, params[:key]).pluck(:time, :value).collect { |time, value| [time.to_i, value.to_f] }
+    # rubocop:enable Metrics/LineLength
   end
 
   # move to models?

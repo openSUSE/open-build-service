@@ -10,7 +10,3 @@ Metrics/LineLength:
   Exclude:
     - 'db/**/*'
 
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-Style/AlignParameters:
-  Enabled: true

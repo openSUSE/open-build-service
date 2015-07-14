@@ -170,7 +170,7 @@ class StatisticsController < ApplicationController
       @timelimit = Time.at(0)
     else
       @timelimit = params[:timelimit].to_i.day.ago
-      # Override the default, since we want to limit by the time here.                                                                                                                                                                             
+      # Override the default, since we want to limit by the time here.
       @limit = nil if params[:limit].nil?
     end
 

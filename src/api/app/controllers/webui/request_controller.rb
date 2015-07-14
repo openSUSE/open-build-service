@@ -102,7 +102,9 @@ class Webui::RequestController < Webui::WebuiController
 
     @my_open_reviews = @req['my_open_reviews']
     @other_open_reviews = @req['other_open_reviews']
+    # rubocop:disable Metrics/LineLength
     @can_add_reviews = %w(new review).include?(@state) && (@is_author || @is_target_maintainer || @my_open_reviews.length > 0) && !User.current.is_nobody?
+    # rubocop:enable Metrics/LineLength
     @can_handle_request = %w(new review declined).include?(@state) && (@is_target_maintainer || @is_author) && !User.current.is_nobody?
 
     @history = History.find_by_request(@bsreq, {withreviews: 1})
@@ -124,7 +126,10 @@ class Webui::RequestController < Webui::WebuiController
 
   def sourcediff
     check_ajax
-    render :partial => 'shared/editor', :locals => {:text => params[:text], :mode => 'diff', :read_only => true, :height => 'auto', :width => '750px', :no_border => true, uid: params[:uid]}
+    render :partial => 'shared/editor', :locals => {:text => params[:text],
+                                                    :mode => 'diff', :read_only => true,
+                                                    :height => 'auto', :width => '750px',
+                                                    :no_border => true, uid: params[:uid]}
   end
 
   def require_request
@@ -221,7 +226,13 @@ class Webui::RequestController < Webui::WebuiController
 
 
     # link_to isn't available here, so we have to write some HTML. Uses url_for to not hardcode URLs.
-    flash[:notice] += " and forwarded to <a href='#{url_for(:controller => 'package', :action => 'show', :project => tgt_prj, :package => tgt_pkg)}'>#{tgt_prj} / #{tgt_pkg}</a> (request <a href='#{url_for(:action => 'show', :id => req.id)}'>#{req.id}</a>)"
+    flash[:notice] += " and forwarded to
+                       <a href='#{url_for(:controller => 'package',
+                                          :action => 'show',
+                                          :project => tgt_prj,
+                                          :package => tgt_pkg)}'>#{tgt_prj} / #{tgt_pkg}</a>
+                       (request <a href='#{url_for(:action => 'show',
+                                                   :id => req.id)}'>#{req.id}</a>)"
   end
 
   def diff
@@ -271,7 +282,9 @@ class Webui::RequestController < Webui::WebuiController
 
         req.save!
       end
-      flash[:success] = "Created <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.id)}'>repository delete request #{req.id}</a>"
+      flash[:success] = "Created <a href='#{url_for(:controller => 'request',
+                                                    :action => 'show',
+                                                    :id => req.id)}'>repository delete request #{req.id}</a>"
     rescue APIException => e
       flash[:error] = e.message
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]

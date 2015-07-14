@@ -26,7 +26,8 @@ class AllowedValuesValidator < ActiveModel::Validator
           end
         end
         if !found
-          record.errors[:values] << "value \'#{value}\' is not allowed. Please use one of: #{record.attrib_type.allowed_values.map{|av| av.value }.join(', ')}"
+          record.errors[:values] << "value \'#{value}\' is not allowed. Please use one of: " +
+                                    "#{record.attrib_type.allowed_values.map{|av| av.value }.join(', ')}"
         end
       end
     end

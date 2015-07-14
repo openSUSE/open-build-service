@@ -113,6 +113,7 @@ Metrics/BlockNesting:
 # Configuration parameters: CountComments.
 Metrics/ClassLength:
   Max: 2817
+  Enabled: false
 
 # Offense count: 249
 Metrics/CyclomaticComplexity:
@@ -753,3 +754,9 @@ Style/WhileUntilModifier:
 # Configuration parameters: WordRegex.
 Style/WordArray:
   MinSize: 6
+
+Style/DoubleNegation:
+  Enabled: false
+
+Style/AlignParameters:
+  Enabled: false

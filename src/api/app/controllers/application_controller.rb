@@ -293,7 +293,8 @@ class ApplicationController < ActionController::Base
       return true
     end
 
-    raise InactiveUserError.new "User is registered but not in confirmed state. Your account is a registered account, but it is in a not active state."
+    raise InactiveUserError.new "User is registered but not in confirmed state. Your account is a registered account, " +
+                                "but it is in a not active state."
   end
 
   def require_valid_project_name
@@ -401,7 +402,7 @@ class ApplicationController < ActionController::Base
       query_string += request.raw_post
     end
     query_string = "?" + query_string unless query_string.blank?
-    path + query_string 
+    path + query_string
   end
 
   def pass_to_backend( path = nil )
@@ -663,6 +664,7 @@ class ApplicationController < ActionController::Base
 
   def validate_xml_response
     return if @skip_validation
+    # rubocop:disable Metrics/LineLength
     if request.format != 'json' && response.status.to_s[0..2] == '200' && response.headers['Content-Type'] !~ /.*\/json/i && response.headers['Content-Disposition'] != 'attachment'
       opt = params()
       opt[:method] = request.method.to_s
@@ -679,6 +681,7 @@ class ApplicationController < ActionController::Base
       end
       logger.debug "Validate XML response: #{response} took #{Integer(ms + 0.5)}ms"
     end
+    # rubocop:enable Metrics/LineLength
   end
 
   private

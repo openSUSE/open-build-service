@@ -78,7 +78,9 @@ class Webui::MainController < Webui::WebuiController
     result.each do |pid, name|
       @packages << [projects[pid], name]
     end
-    render :template => 'webui/main/sitemap_packages', :layout => false, :locals => {:action => params[:listaction]}, :content_type => 'application/xml'
+    render :template => 'webui/main/sitemap_packages',
+           :layout => false, :locals => {:action => params[:listaction]},
+           :content_type => 'application/xml'
   end
 
   def add_news_dialog
