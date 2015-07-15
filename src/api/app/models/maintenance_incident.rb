@@ -18,7 +18,8 @@ class MaintenanceIncident < ActiveRecord::Base
         end
 
         # do an atomic increase of counter
-        MaintenanceIncident.exec_query ["UPDATE incident_counter SET counter = counter+1 WHERE maintenance_db_project_id = ?", self.maintenance_db_project_id]
+        MaintenanceIncident.exec_query ["UPDATE incident_counter SET counter = counter+1 WHERE maintenance_db_project_id = ?",
+                                        self.maintenance_db_project_id]
         self.incident_id = r[0]
       end
       name = self.maintenance_db_project.name + ":" + self.incident_id.to_s

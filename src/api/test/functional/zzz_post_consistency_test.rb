@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_consistency_helper"
 
-class ZZZPostConsistency < ActionDispatch::IntegrationTest 
+class ZZZPostConsistency < ActionDispatch::IntegrationTest
   require 'source_controller'
   fixtures :all
 
@@ -8,7 +8,7 @@ class ZZZPostConsistency < ActionDispatch::IntegrationTest
     super
     wait_for_scheduler_start
   end
-  
+
   def test_resubmit_fixtures
     resubmit_all_fixtures
   end
@@ -17,7 +17,7 @@ class ZZZPostConsistency < ActionDispatch::IntegrationTest
     login_king
     get "/source/My:Maintenance/_meta"
     assert_response :success
-    
+
     get "/search/project", :match => '[maintenance/maintains/@project="BaseDistro2.0:LinkedUpdateProject"]'
     assert_response :success
     assert_tag :tag => 'collection', :children => { :count => 1 }
@@ -30,6 +30,7 @@ class ZZZPostConsistency < ActionDispatch::IntegrationTest
 
     progress=nil
     failed=nil
+    # rubocop:disable Metrics/LineLength
     IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_check_consistency --check-all --do-check-meta --do-check-signatures 2>&1") do |io|
       io.each do |line|
 #        puts ">#{line}<"
@@ -57,9 +58,9 @@ class ZZZPostConsistency < ActionDispatch::IntegrationTest
         progress=nil
         puts line
       end
+    # rubocop:enable Metrics/LineLength
     end
 
     assert_nil failed
   end
 end
-

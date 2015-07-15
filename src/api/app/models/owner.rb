@@ -75,7 +75,7 @@ class Owner
         owners += self.find_containers_without_definition(project, devel, filter)
       elsif obj.is_a? String
         owners += self.find_assignees(project, obj, limit.to_i, devel,
-                                                filter, (true unless params[:webui_mode].blank?))
+                                      filter, (true unless params[:webui_mode].blank?))
       elsif obj.is_a? Project or obj.is_a? Package
         owners += self.find_maintainers(obj, filter)
       else
@@ -160,19 +160,24 @@ class Owner
 
     # fast find packages with defintions
     # relationship in package object by user
-    defined_packages = Package.where(project_id: projects).joins(:relationships => :user).where(["relationships.role_id IN (?) AND users.state = ?", roles, User.states['confirmed']]).pluck(:name)
+    defined_packages = Package.where(project_id: projects).joins(:relationships => :user).where(["relationships.role_id IN (?) AND users.state = ?",
+                       roles, User.states['confirmed']]).pluck(:name)
     # relationship in package object by group
-    defined_packages += Package.where(project_id: projects).joins(:relationships).where(["relationships.role_id IN (?) AND group_id IN (?)", roles, maintained_groups]).pluck(:name)
+    defined_packages += Package.where(project_id: projects).joins(:relationships).where(["relationships.role_id IN (?) AND group_id IN (?)",
+                        roles, maintained_groups]).pluck(:name)
     # relationship in project object by user
-    Project.joins(:relationships => :user).where("projects.id in (?) AND role_id in (?) AND users.state = ?", projects, roles, User.states['confirmed']).each do |prj|
+    Project.joins(:relationships => :user).where("projects.id in (?) AND role_id in (?) AND users.state = ?",
+                                                 projects, roles, User.states['confirmed']).each do |prj|
       defined_packages += prj.packages.pluck(:name)
     end
     # relationship in project object by group
     Project.joins(:relationships).where("projects.id in (?) AND role_id in (?) AND group_id IN (?)", projects, roles, maintained_groups).each do |prj|
       defined_packages += prj.packages.pluck(:name)
     end
+    # rubocop:disable Metrics/LineLength
     # accept all incident containers in release projects. the main package (link) is enough here
     defined_packages += Package.where(project_id: projects).joins("LEFT JOIN projects ON packages.project_id=projects.id LEFT JOIN package_kinds ON packages.id=package_kinds.package_id").distinct.where("projects.type_id=? AND (ISNULL(package_kinds.kind) OR package_kinds.kind='patchinfo')", DbProjectType.find_by_name!('maintenance_release')).pluck(:name)
+    # rubocop:enable Metrics/LineLength
 
     if devel == true
       #FIXME add devel packages, but how do recursive lookup fast in SQL?
@@ -250,7 +255,7 @@ class Owner
       m.rootproject = ''
       if cont.is_a? Package
         m.project = cont.project.name
-        m.package = cont.name 
+        m.package = cont.name
       else
         m.project = cont.name
       end

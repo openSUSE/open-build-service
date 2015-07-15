@@ -3,11 +3,11 @@ class Webui::SearchController < Webui::WebuiController
   before_filter :set_attribute_list
   before_filter :set_tracker_list
   before_filter :set_parameters
-  
+
   def index
     search
   end
-  
+
   def owner
     Suse::Backend.start_test_backend if Rails.env.test?
 
@@ -44,7 +44,7 @@ class Webui::SearchController < Webui::WebuiController
       flash[:error] = "Search string must contain at least two characters."
       return
     end
-    
+
     if @search_text.starts_with?("obs://")
     # The user entered an OBS-specific RPM disturl, redirect to package source files with respective revision
       flash[:error] = "This disturl does not compute!" unless handle_disturl(@search_text)
@@ -74,12 +74,12 @@ class Webui::SearchController < Webui::WebuiController
   #   - +disturl+ -> A dist url string like obs://INSTANCE/PROJECT/REPO/REVISION-PACKAGE
   #   obs://build.opensuse.org/openSUSE:Maintenance:1055/openSUSE_12.2_Update/255b363336b47a513d4df73a92bc2acc-aaa_base.openSUSE_12.2_Update
   # * *Returns* :
-  #   - 
+  #   -
   # * *Redirects* :
   #   - +package/show+ -> if the disturl is computeable
   #   - +search/index+ -> if the disturl isn't computeable
   # * *Raises* :
-  #   - 
+  #   -
   #
   def handle_disturl(disturl)
     disturl_project, _, disturl_pkgrev = disturl.split('/')[3..5]
@@ -87,7 +87,9 @@ class Webui::SearchController < Webui::WebuiController
       disturl_rev, disturl_package = disturl_pkgrev.split('-', 2)
     end
     unless disturl_package.nil? || disturl_rev.nil?
-      redirect_to :controller => 'package', :action => 'show', :project => disturl_project, :package => disturl_package, :rev => disturl_rev and return true
+      redirect_to :controller => 'package', :action => 'show',
+                  :project => disturl_project, :package => disturl_package,
+                  :rev => disturl_rev and return true
     end
     logger.debug "Computing disturl #{disturl} failed"
     return false
@@ -120,21 +122,21 @@ private
     @search_text = ""
     @search_text = params[:search_text].strip unless params[:search_text].blank?
     @search_text = @search_text.gsub("'", "").gsub("[", "").gsub("]", "").gsub("\n", "")
-   
+
     @search_what = []
     @search_what << 'package' if params[:package] == "1" or params[:package].nil?
     @search_what << 'project' if params[:project] == "1" or params[:project].nil? and !@search_issue
     @search_what << 'owner' if params[:owner] == "1" and !@search_issue
-    
+
     @search_where = []
     @search_where << 'name' if params[:name] == "1" or params[:name].nil?
     @search_where << 'title' if params[:title] == "1"
     @search_where << 'description' if params[:description] == "1"
-    
+
     @owner_limit = nil
     @owner_limit = "1" if params[:limit].nil?
     @owner_limit = params[:limit] if !params[:limit].nil?
-    
+
     @owner_devel = nil
     @owner_devel = "0" if params[:devel] == "off"
     @owner_devel = "1" if params[:devel] == "on"

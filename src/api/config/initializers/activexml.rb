@@ -9,9 +9,9 @@ map.connect :directory, 'rest:///source/:project/:package?:expand&:rev&:meta&:li
 map.connect :jobhistory, 'rest:///build/:project/:repository/:arch/_jobhistory?:package&:limit&:code'
 
 map.connect :collection, 'rest:///search/:what?:match',
-   id: 'rest:///search/:what/id?:match',
-   package: 'rest:///search/package?:match',
-   project: 'rest:///search/project?:match'
+            id: 'rest:///search/:what/id?:match',
+            package: 'rest:///search/package?:match',
+            project: 'rest:///search/project?:match'
 
 map.connect :fileinfo, 'rest:///build/:project/:repository/:arch/:package/:filename?:view'
 
@@ -36,11 +36,10 @@ end
 map = ActiveXML::setup_transport_api(CONFIG['frontend_protocol'], CONFIG['frontend_host'], CONFIG['frontend_port'], CONFIG['api_relative_url_root'])
 
 map.connect :webuiproject, 'rest:///source/:name/_meta?:view',
-    :delete => 'rest:///source/:name?:force',
-    :issues => 'rest:///source/:name?view=issues'
+            :delete => 'rest:///source/:name?:force',
+            :issues => 'rest:///source/:name?view=issues'
 
 map.connect :webuirequest, 'rest:///request/:id', :create => 'rest:///request?cmd=create'
 
 map.set_additional_header( 'User-Agent', "obs-webui/#{CONFIG['version']}" )
 map.set_additional_header( 'Accept', 'application/xml' )
-

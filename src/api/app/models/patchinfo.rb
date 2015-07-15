@@ -40,7 +40,8 @@ class Patchinfo < ActiveXML::Node
         return if is_repository_matching?(prt.target_repository, rt)
       end
     end
-    raise ReleasetargetNotFound.new "Release target '#{rt['project']}/#{rt['repository']}' is not defined in this project '#{@project.name}'. Please ask your OBS administrator to add it."
+    raise ReleasetargetNotFound.new "Release target '#{rt['project']}/#{rt['repository']}' is not defined " +
+                                    "in this project '#{@project.name}'. Please ask your OBS administrator to add it."
   end
 
   def verify_data(project, raw_post)
@@ -246,7 +247,9 @@ class Patchinfo < ActiveXML::Node
   CATEGORIES = [''].concat(CATEGORY_COLORS.keys)
 
   def save
+    # rubocop:disable Metrics/LineLength
     path = self.init_options[:package] ? "/source/#{self.init_options[:project]}/#{self.init_options[:package]}/_patchinfo" : "/source/#{self.init_options[:package]}/_patchinfo"
+    # rubocop:enable Metrics/LineLength
     begin
       frontend = ActiveXML::api
       frontend.direct_http URI("#{path}"), :method => 'POST', :data => self.dump_xml

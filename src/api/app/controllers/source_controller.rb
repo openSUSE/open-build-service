@@ -141,7 +141,9 @@ class SourceController < ApplicationController
     end
     output = String.new
     output << "<productlist count='#{products.length}'>\n"
+    # rubocop:disable Metrics/LineLength
     output << products.map { |p| "  <product name=\"#{p.name}\" cpe=\"#{p.cpe}\" originproject=\"#{p.package.project.name}\" mtime=\"#{p.package.updated_at.to_i}\"/>\n" }.join
+    # rubocop:enable Metrics/LineLength
     output << "</productlist>\n"
     output
   end
@@ -269,7 +271,11 @@ class SourceController < ApplicationController
 
     # exec
     path = request.path_info
-    path += build_query_from_hash(params, [:rev, :linkrev, :emptylink, :expand, :view, :extension, :lastworking, :withlinked, :meta, :deleted, :parse, :arch, :repository, :product, :nofilename])
+    path += build_query_from_hash(params, [:rev, :linkrev, :emptylink,
+                                           :expand, :view, :extension,
+                                           :lastworking, :withlinked, :meta,
+                                           :deleted, :parse, :arch,
+                                           :repository, :product, :nofilename])
     pass_to_backend path
   end
 
@@ -304,7 +310,7 @@ class SourceController < ApplicationController
 
     # exec
     Package.transaction do
-   
+
       project = nil
       project = tpkg.project if tpkg and tpkg.name == "_product"
       path = tpkg.source_path
@@ -347,8 +353,10 @@ class SourceController < ApplicationController
 
   def verify_can_modify_target_package!
     unless User.current.can_modify_package?(@package)
-      raise CmdExecutionNoPermission.new "no permission to execute command '#{params[:cmd]}' for unspecified package" unless @package.class == Package
-      raise CmdExecutionNoPermission.new "no permission to execute command '#{params[:cmd]}' for package #{@package.name} in project #{@package.project.name}"
+      raise CmdExecutionNoPermission.new "no permission to execute command '#{params[:cmd]}' " +
+                                         "for unspecified package" unless @package.class == Package
+      raise CmdExecutionNoPermission.new "no permission to execute command '#{params[:cmd]}' " +
+                                         "for package #{@package.name} in project #{@package.project.name}"
     end
   end
 
@@ -379,15 +387,21 @@ class SourceController < ApplicationController
     # Check for existens/access of origin package when specified
     @spkg = nil
     Project.get_by_name origin_project_name if origin_project_name
+    # rubocop:disable Metrics/LineLength
     if origin_package_name && !%w(_project _pattern).include?(origin_package_name) && !(params[:missingok] && [ 'branch', 'release' ].include?(@command))
       @spkg = Package.get_by_project_and_name(origin_project_name, origin_package_name)
     end
+    # rubocop:enable Metrics/LineLength
     unless Package_creating_commands.include? @command and not Project.exists_by_name(@target_project_name)
       # even when we can create the package, an existing instance must be checked if permissions are right
       @project = Project.get_by_name @target_project_name
-      if not Package_creating_commands.include? @command or Package.exists_by_project_and_name( @target_project_name, @target_package_name, follow_project_links: Source_untouched_commands.include?(@command) )
+      # rubocop:disable Metrics/LineLength
+      if not Package_creating_commands.include? @command or Package.exists_by_project_and_name( @target_project_name,
+                                                                                                @target_package_name,
+                                                                                                follow_project_links: Source_untouched_commands.include?(@command) )
         validate_target_for_package_command_exists!
       end
+      # rubocop:enable Metrics/LineLength
     end
 
     dispatch_command(:package_command, @command)
@@ -410,7 +424,7 @@ class SourceController < ApplicationController
       use_source = true
       use_source = false if @command == 'showlinked'
       @package = Package.get_by_project_and_name(@target_project_name, @target_package_name,
-                                             use_source: use_source, follow_project_links: follow_project_links)
+                                                 use_source: use_source, follow_project_links: follow_project_links)
       if @package # for remote package case it's nil
         @project = @package.project
         ignoreLock = @command == 'unlock'
@@ -552,11 +566,12 @@ class SourceController < ApplicationController
         tproject_name = e.value('project')
         if tproject_name != project_name
           tprj = Project.get_by_name(tproject_name)
-          if tprj.class == Project and tprj.disabled_for?('access', nil, nil) # user can access tprj, but backend would refuse to take binaries from there
-            raise RepositoryAccessFailure.new "The current backend implementation is not using binaries from read access protected projects #{tproject_name}"
+          # user can access tprj, but backend would refuse to take binaries from there
+          if tprj.class == Project and tprj.disabled_for?('access', nil, nil)
+            raise RepositoryAccessFailure.new "The current backend implementation is not using binaries " +
+                                              "from read access protected projects #{tproject_name}"
           end
         end
-
         logger.debug "project #{project_name} repository path checked against #{tproject_name} projects permission"
       end
     end
@@ -588,7 +603,8 @@ class SourceController < ApplicationController
       # ignore this for remote targets
       if tprj.class == Project and tprj.disabled_for?('access', nil, nil) and
           !FlagHelper.xml_disabled_for?(rdata, 'access')
-        raise ProjectReadAccessFailure.new "project links work only when both projects have same read access protection level: #{project_name} -> #{tproject_name}"
+        raise ProjectReadAccessFailure.new "project links work only when both projects have same read access " +
+                                           "protection level: #{project_name} -> #{tproject_name}"
       end
 
       logger.debug "project #{project_name} link checked against #{tproject_name} projects permission"
@@ -665,7 +681,8 @@ class SourceController < ApplicationController
     if User.current.is_admin?
       pass_to_backend path
     else
-      raise DeleteProjectPubkeyNoPermission.new "No permission to delete public key for project '#{params[:project]}'. Either maintainer permissions by upper project or admin permissions is needed."
+      raise DeleteProjectPubkeyNoPermission.new "No permission to delete public key for project '#{params[:project]}'. " +
+                                                "Either maintainer permissions by upper project or admin permissions is needed."
     end
   end
 
@@ -965,7 +982,7 @@ class SourceController < ApplicationController
           private_remove_repositories( linking_repos, true )
         end
 
-        # try to remove the repository 
+        # try to remove the repository
         # but never remove the special repository named "deleted"
         unless repo == del_repo
           # permission check
@@ -1130,7 +1147,8 @@ class SourceController < ApplicationController
           raise CmdExecutionNoPermission.new "no permission to write in project #{releasetarget.target_repository.project.name}"
         end
         unless releasetarget.trigger == 'manual'
-          raise CmdExecutionNoPermission.new "Trigger is not set to manual in repository #{releasetarget.repository.project.name}/#{releasetarget.repository.name}"
+          raise CmdExecutionNoPermission.new "Trigger is not set to manual in repository" +
+                                             " #{releasetarget.repository.project.name}/#{releasetarget.repository.name}"
         end
         repo_matches=true
       end
@@ -1658,7 +1676,9 @@ class SourceController < ApplicationController
     end
   end
 
+  # rubocop:disable Metrics/LineLength
   # POST /source/<project>/<package>?cmd=branch&target_project="optional_project"&target_package="optional_package"&update_project_attribute="alternative_attribute"&comment="message"
+  # rubocop:enable Metrics/LineLength
   def package_command_branch
     # find out about source and target dependening on command   - FIXME: ugly! sync calls
 

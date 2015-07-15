@@ -61,13 +61,14 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     find(:id, 'action_display_0').must_have_text ('Release in BaseDistro2.0:LinkedUpdateProject')
     fill_in 'reason', with: 'really? ok'
     find(:id, 'accept_request_button').click
+    # rubocop:disable Metrics/LineLength
     find(:css, '#action_display_0').must_have_text %r{Submit update from package home:tom:branch.*UpdateProject / pack2 to package My:Maintenance:0 / pack2\..*}
-
+    # rubocop:enable Metrics/LineLength
     visit(project_show_path(project: 'My:Maintenance:0'))
     find(:link, 'Patchinfo present').click
     find(:id, 'edit-patchinfo').click
 
-    page.evaluate_script('window.confirm = function() { return true; }')                    
+    page.evaluate_script('window.confirm = function() { return true; }')
     find(:link, 'Update issues from sources').click
     page.must_have_text('Patchinfo-Editor for')
 
@@ -135,7 +136,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     fill_in 'incident_project', with: '2'
     find_button('Ok').click
     find(:css, 'span.ui-icon.ui-icon-alert').must_have_text 'does not exist'
- 
+
     find(:link, 'Merge with existing incident').click
     fill_in 'incident_project', with: '0'
     find_button('Ok').click
@@ -150,8 +151,10 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     fill_in 'description', with: 'RELEASE!'
     click_button 'Ok'
 
+    # rubocop:disable Metrics/LineLength
     # we can't release without build results
     find(:css, 'span.ui-icon.ui-icon-alert').must_have_text "The repository 'My:Maintenance:0' / 'BaseDistro2.0_LinkedUpdateProject' / i586 did not finish the build yet"
+    # rubocop:enable Metrics/LineLength
   end
 
 end

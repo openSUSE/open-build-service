@@ -1,18 +1,19 @@
+# rubocop:disable Metrics/LineLength
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'source_controller'
 
-class ProductTests < ActionDispatch::IntegrationTest 
+class ProductTests < ActionDispatch::IntegrationTest
   fixtures :all
 
   def setup
     super
     wait_for_scheduler_start
   end
-  
+
   def test_simple_product_file
     login_tom
     put "/source/home:tom:temporary/_meta",
-        '<project name="home:tom:temporary"> <title/> <description/> 
+        '<project name="home:tom:temporary"> <title/> <description/>
            <repository name="me" />
            <repository name="images">
              <arch>local</arch>
@@ -24,12 +25,12 @@ class ProductTests < ActionDispatch::IntegrationTest
     put '/source/home:tom:temporary/_config?user=tom', "Type: kiwi\nRepotype: none\nSubstitute: kiwi-packagemanager:instsource package\nRequired: kiwi"
     assert_response :success
     put "/source/home:tom:temporary/_product/_meta",
-        '<package project="home:tom:temporary" name="_product"> <title/> <description/> 
+        '<package project="home:tom:temporary" name="_product"> <title/> <description/>
             <person userid="adrian" role="maintainer" />
          </package>'
     assert_response :success
     put "/source/home:tom:temporary:link/_meta",
-        '<project name="home:tom:temporary:link"> <title/> <description/> 
+        '<project name="home:tom:temporary:link"> <title/> <description/>
            <link project="home:tom:temporary" />
            <repository name="me" />
          </project>'
@@ -47,22 +48,22 @@ class ProductTests < ActionDispatch::IntegrationTest
     # product views in a project
     get "/source/home:tom:temporary?view=productlist"
     assert_response :success
-    assert_xml_tag :tag => "product", 
+    assert_xml_tag :tag => "product",
                    :attributes => { :name => "simple", :cpe => "cpe:/o:obs_fuzzies:simple:13.1", :originproject => "home:tom:temporary" }
     get "/source/home:tom:temporary?view=productlist&expand=1"
     assert_response :success
-    assert_xml_tag :tag => "product", 
+    assert_xml_tag :tag => "product",
                    :attributes => { :name => "simple", :cpe => "cpe:/o:obs_fuzzies:simple:13.1", :originproject => "home:tom:temporary" }
 
     # verbose
     get "/source/home:tom:temporary?view=verboseproductlist"
     assert_response :success
-    assert_xml_tag :parent => { :tag => "product", 
+    assert_xml_tag :parent => { :tag => "product",
                           :attributes => { :name => "simple", :originproject => "home:tom:temporary" } },
                    :tag => "cpe", :content => "cpe:/o:obs_fuzzies:simple:13.1"
     get "/source/home:tom:temporary?view=verboseproductlist&expand=1"
     assert_response :success
-    assert_xml_tag :parent => { :tag => "product", 
+    assert_xml_tag :parent => { :tag => "product",
                           :attributes => { :name => "simple", :originproject => "home:tom:temporary" } },
                    :tag => "cpe", :content => "cpe:/o:obs_fuzzies:simple:13.1"
 
@@ -72,7 +73,7 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_no_xml_tag :tag => "product"
     get "/source/home:tom:temporary:link?view=productlist&expand=1"
     assert_response :success
-    assert_xml_tag :tag => "product", 
+    assert_xml_tag :tag => "product",
                    :attributes => { :name => "simple", :cpe => "cpe:/o:obs_fuzzies:simple:13.1", :originproject => "home:tom:temporary" }
 
     # productrepositories
@@ -136,9 +137,9 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_equal pm.repository.project.name, "BaseDistro"
     assert_equal pm.repository.name, "BaseDistro_repo"
 
-    # invalid uploads 
+    # invalid uploads
     raw_put "/source/home:tom:temporary/_product/obs.group",
-      File.open("#{Rails.root}/test/fixtures/backend/source/simple_product/INVALID_obs.group").read()
+            File.open("#{Rails.root}/test/fixtures/backend/source/simple_product/INVALID_obs.group").read()
     assert_response 400
     assert_xml_tag :tag => "status", :attributes => { :code => '400', :origin => 'backend' }
     assert_match(/Illegal support key ILLEGAL for obs-server/, @response.body)
@@ -193,16 +194,16 @@ class ProductTests < ActionDispatch::IntegrationTest
   def test_sle11_product_file
     login_tom
     put "/source/home:tom:temporary/_meta",
-        '<project name="home:tom:temporary"> <title/> <description/> 
+        '<project name="home:tom:temporary"> <title/> <description/>
          </project>'
     assert_response :success
     put "/source/home:tom:temporary/_product/_meta",
-        '<package project="home:tom:temporary" name="_product"> <title/> <description/> 
+        '<package project="home:tom:temporary" name="_product"> <title/> <description/>
             <person userid="adrian" role="maintainer" />
          </package>'
     assert_response :success
     put "/source/home:tom:temporary:link/_meta",
-        '<project name="home:tom:temporary:link"> <title/> <description/> 
+        '<project name="home:tom:temporary:link"> <title/> <description/>
            <link project="home:tom:temporary" />
            <repository name="me">
              <arch>x86_64</arch>
@@ -211,7 +212,7 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_response :success
     # and set release target
     put "/source/home:tom:temporary/_meta",
-        '<project name="home:tom:temporary"> <title/> <description/> 
+        '<project name="home:tom:temporary"> <title/> <description/>
            <repository name="me" >
              <releasetarget project="home:tom:temporary:link" repository="me" trigger="manual" />
              <arch>x86_64</arch>
@@ -231,11 +232,11 @@ class ProductTests < ActionDispatch::IntegrationTest
     # product views in a project
     get "/source/home:tom:temporary?view=productlist"
     assert_response :success
-    assert_xml_tag :tag => "product", 
+    assert_xml_tag :tag => "product",
                    :attributes => { :name => "SUSE_SLES", :cpe => "cpe:/a:suse:suse_sles:11.2", :originproject => "home:tom:temporary" }
     get "/source/home:tom:temporary?view=productlist&expand=1"
     assert_response :success
-    assert_xml_tag :tag => "product", 
+    assert_xml_tag :tag => "product",
                    :attributes => { :name => "SUSE_SLES", :cpe => "cpe:/a:suse:suse_sles:11.2", :originproject => "home:tom:temporary" }
 
     # product views via project links
@@ -244,7 +245,7 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_no_xml_tag :tag => "product"
     get "/source/home:tom:temporary:link?view=productlist&expand=1"
     assert_response :success
-    assert_xml_tag :tag => "product", 
+    assert_xml_tag :tag => "product",
                    :attributes => { :name => "SUSE_SLES", :cpe => "cpe:/a:suse:suse_sles:11.2", :originproject => "home:tom:temporary" }
 
     # product views in a package
@@ -327,11 +328,11 @@ class ProductTests < ActionDispatch::IntegrationTest
   def test_submit_request
     login_tom
     put "/source/home:tom:temporary/_meta",
-        '<project name="home:tom:temporary"> <title/> <description/> 
+        '<project name="home:tom:temporary"> <title/> <description/>
          </project>'
     assert_response :success
     put "/source/home:tom:temporary/_product/_meta",
-        '<package project="home:tom:temporary" name="_product"> <title/> <description/> 
+        '<package project="home:tom:temporary" name="_product"> <title/> <description/>
             <person userid="adrian" role="maintainer" />
          </package>'
     assert_response :success
@@ -378,3 +379,4 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_response :success
   end
 end
+# rubocop:enable Metrics/LineLength

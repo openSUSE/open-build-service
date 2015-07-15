@@ -31,8 +31,11 @@ class Configuration < ActiveRecord::Base
                    :disable_publish_for_branches => nil,
                    :admin_email => nil,
                  }
-  ON_OFF_OPTIONS = [ :anonymous, :default_access_disabled, :allow_user_to_create_home_project, :disallow_group_creation, :change_password, :hide_private_options, :gravatar, :download_on_demand, :enforce_project_keys, :cleanup_empty_projects, :disable_publish_for_branches ]
-   
+  ON_OFF_OPTIONS = [ :anonymous, :default_access_disabled, :allow_user_to_create_home_project,
+                     :disallow_group_creation, :change_password, :hide_private_options, :gravatar,
+                     :download_on_demand, :enforce_project_keys, :cleanup_empty_projects,
+                     :disable_publish_for_branches ]
+
   class << self
     def map_value(key, value)
       if ON_OFF_OPTIONS.include? key
@@ -49,7 +52,7 @@ class Configuration < ActiveRecord::Base
     def anonymous?
       first.anonymous
     end
-   
+
     def registration
       first.registration
     end

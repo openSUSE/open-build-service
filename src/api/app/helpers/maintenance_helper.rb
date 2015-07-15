@@ -11,7 +11,7 @@ module MaintenanceHelper
     mi = nil
     tprj = nil
     Project.transaction do
-      mi = MaintenanceIncident.new( :maintenance_db_project => maintenanceProject ) 
+      mi = MaintenanceIncident.new( :maintenance_db_project => maintenanceProject )
       tprj = Project.create :name => mi.project_name
       if baseProject
         # copy as much as possible from base project
@@ -30,7 +30,7 @@ module MaintenanceHelper
         tprj.flags.create( :flag => 'access', :status => 'disable')
       end
       # take over roles from maintenance project
-      maintenanceProject.relationships.each do |r| 
+      maintenanceProject.relationships.each do |r|
         tprj.relationships.create(user: r.user, role: r.role, group: r.group)
       end
       # set default bugowner if missing
@@ -124,7 +124,9 @@ module MaintenanceHelper
     link.delete_attribute('project') # its a local link, project name not needed
     link.set_attribute('package', link.value(:package).gsub(/\..*/, '') + targetPackageName.gsub(/.*\./, '.')) # adapt link target with suffix
     link_xml = link.dump_xml
+    # rubocop:disable Metrics/LineLength
     answer = Suse::Backend.put "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}/_link?rev=repository&user=#{CGI.escape(User.current.login)}", link_xml
+    # rubocop:enable Metrics/LineLength
     md5 = Digest::MD5.hexdigest(link_xml)
                                      # commit with noservice parameneter
     upload_params = {
@@ -188,7 +190,10 @@ module MaintenanceHelper
     }
     cp_params[:requestid] = action.bs_request.id if action
     cp_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetPackageName)}"
-    cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :user, :oproject, :opackage, :comment, :requestid, :expand, :withvrev, :noservice, :withacceptinfo])
+    cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :user, :oproject,
+                                                               :opackage, :comment, :requestid,
+                                                               :expand, :withvrev, :noservice,
+                                                               :withacceptinfo])
     result = Suse::Backend.post cp_path, nil
     result = Xmlhash.parse(result.body)
     action.set_acceptinfo(result["acceptinfo"]) if action
@@ -235,8 +240,12 @@ module MaintenanceHelper
     }
     cp_params[:setupdateinfoid] = updateinfoId if updateinfoId
     cp_params[:setrelease] = setrelease if setrelease
+    # rubocop:disable Metrics/LineLength
     cp_path = "/build/#{CGI.escape(target_repository.project.name)}/#{URI.escape(target_repository.name)}/#{URI.escape(arch.name)}/#{URI.escape(targetPackageName)}"
-    cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :oproject, :opackage, :orepository, :setupdateinfoid, :resign, :setrelease])
+    # rubocop:enable Metrics/LineLength
+    cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :oproject, :opackage,
+                                                               :orepository, :setupdateinfoid,
+                                                               :resign, :setrelease])
     Suse::Backend.post cp_path, nil
   end
 
@@ -345,17 +354,21 @@ module MaintenanceHelper
     arguments="&noservice=1"
     arguments << "&requestid=" << opts[:requestid] if opts[:requestid]
     arguments << "&comment=" << CGI.escape(opts[:comment]) if opts[:comment]
-    if opts[:makeoriginolder] 
+    if opts[:makeoriginolder]
+      # rubocop:disable Metrics/LineLength
       # versioned copy
       path = pkg.source_path + "?cmd=copy&withvrev=1&oproject=#{CGI.escape(opkg.project.name)}&opackage=#{CGI.escape(opkg.name)}#{arguments}&user=#{CGI.escape(User.current.login)}&comment=initialize+package"
+      # rubocop:enable Metrics/LineLength
       if Package.exists_by_project_and_name(project.name, opkg.name, allow_remote_packages: true)
         # a package exists via project link, make it older in any case
         path << "+and+make+source+instance+older&makeoriginolder=1"
       end
       Suse::Backend.post path, nil
     else
+      # rubocop:disable Metrics/LineLength
       # simple branch
       Suse::Backend.post pkg.source_path + "?cmd=branch&oproject=#{CGI.escape(opkg.project.name)}&opackage=#{CGI.escape(opkg.name)}#{arguments}&user=#{CGI.escape(User.current.login)}&comment=initialize+package+as+branch", nil
+      # rubocop:enable Metrics/LineLength
     end
     pkg.sources_changed
 
@@ -374,9 +387,10 @@ module MaintenanceHelper
         lpkg.store
       end
 
+      # rubocop:disable Metrics/LineLength
       # copy project local linked packages
       Suse::Backend.post "/source/#{pkg.project.name}/#{lpkg.name}?cmd=copy&oproject=#{CGI.escape(p.project.name)}&opackage=#{CGI.escape(p.name)}#{arguments}&user=#{CGI.escape(User.current.login)}", nil
-
+      # rubocop:enable Metrics/LineLength
       # and fix the link
       ret = ActiveXML::Node.new(lpkg.source_file('_link'))
       ret.delete_attribute('project') # its a local link, project name not needed

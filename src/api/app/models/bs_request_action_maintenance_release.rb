@@ -14,7 +14,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
   def execute_accept(opts)
     pkg = Package.get_by_project_and_name(self.source_project, self.source_package)
-    
+
     # have a unique time stamp for release
     opts[:acceptTimeStamp] ||= Time.now
 
@@ -54,7 +54,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
   class RepositoryWithoutReleaseTarget < APIException
     setup 'repository_without_releasetarget'
   end
-  
+
   class RepositoryWithoutArchitecture < APIException
     setup 'repository_without_architecture'
   end
@@ -62,7 +62,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
   class ArchitectureOrderMissmatch < APIException
     setup 'architecture_order_missmatch'
   end
-  
+
   class OpenReleaseRequests < APIException
     setup 'open_release_requests'
   end
@@ -79,7 +79,8 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
       end
       repo.release_targets.each do |rt|
         unless repo.architectures.first == rt.target_repository.architectures.first
-          raise ArchitectureOrderMissmatch.new "Repository and releasetarget have not the same architecture on first position: #{prj.name} / #{repo.name}"
+          raise ArchitectureOrderMissmatch.new "Repository and releasetarget have not the same architecture" +
+                                               "on first position: #{prj.name} / #{repo.name}"
         end
       end
     end
@@ -90,7 +91,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
     # check for open release requests with same target, the binaries can't get merged automatically
     # either exact target package match or with same prefix (when using the incident extension)
-    
+
     # patchinfos don't get a link, all others should not conflict with any other
     # FIXME2.4 we have a directory model
     answer = Suse::Backend.get "/source/#{CGI.escape(self.source_project)}/#{CGI.escape(self.source_package)}"
@@ -103,10 +104,10 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
       tpkgprefix = self.target_package.gsub(/\.[^\.]*$/, '')
       rel = rel.where('bs_request_actions.target_package = ? or bs_request_actions.target_package like ?', self.target_package, "#{tpkgprefix}.%")
     end
-    
+
     # run search
     open_ids = rel.select('bs_requests.id').map { |r| r.id }
-    
+
     unless open_ids.blank?
       msg = "The following open requests have the same target #{self.target_project} / #{tpkgprefix}: " + open_ids.join(', ')
       raise OpenReleaseRequests.new msg

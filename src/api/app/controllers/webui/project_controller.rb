@@ -266,7 +266,8 @@ class Webui::ProjectController < Webui::WebuiController
 
           req.save!
         end
-        flash[:success] = "Created maintenance release request <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.id)}'>#{req.id}</a>"
+        flash[:success] = "Created maintenance release request " +
+                          "<a href='#{url_for(:controller => 'request', :action => 'show', :id => req.id)}'>#{req.id}</a>"
       rescue Patchinfo::IncompletePatchinfo,
              BsRequestAction::UnknownProject,
              BsRequestAction::BuildNotFinished,
@@ -400,7 +401,8 @@ class Webui::ProjectController < Webui::WebuiController
 
     if @distributions.empty?
       if User.current.is_admin?
-        flash.now[:notice] = "There are no distributions configured! Check out <a href=\"/configuration/connect_instance\">Configuration > Interconnect</a>"
+        flash.now[:notice] = "There are no distributions configured! Check out" +
+                             "<a href=\"/configuration/connect_instance\">Configuration > Interconnect</a>"
       else
         redirect_to :controller => 'project', :action => 'add_repository', :project => @project
       end
@@ -850,7 +852,9 @@ class Webui::ProjectController < Webui::WebuiController
 
         req.save!
       end
-      flash[:success] = "Created <a href='#{url_for(:controller => 'request', :action => 'show', :id => req.id)}'>repository delete request #{req.id}</a>"
+      flash[:success] = "Created <a href='#{url_for(:controller => 'request',
+                                                    :action => 'show',
+                                                    :id => req.id)}'>repository delete request #{req.id}</a>"
     rescue BsRequestAction::UnknownTargetProject,
            BsRequestAction::UnknownTargetPackage => e
       flash[:error] = e.message
@@ -934,7 +938,7 @@ class Webui::ProjectController < Webui::WebuiController
     fill_status_cache
 
     load_local_packages
- 
+
     @packagenames = @packagenames.flatten.uniq.sort
 
     ## Filter for PackageNames ####
@@ -1098,7 +1102,10 @@ class Webui::ProjectController < Webui::WebuiController
   def change_flag
     check_ajax
     required_parameters :cmd, :flag
-    frontend.source_cmd params[:cmd], :project => @project, :repository => params[:repository], :arch => params[:arch], :flag => params[:flag], :status => params[:status]
+    frontend.source_cmd params[:cmd], :project => @project,
+                        :repository => params[:repository],
+                        :arch => params[:arch], :flag => params[:flag],
+                        :status => params[:status]
     @flags = @project.api_obj.expand_flags[params[:flag]]
   end
 

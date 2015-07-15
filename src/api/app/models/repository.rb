@@ -21,7 +21,8 @@ class Repository < ActiveRecord::Base
 
   validate :validate_duplicates, :on => :create
   def validate_duplicates
-    if Repository.where("db_project_id = ? AND name = ? AND ( remote_project_name = ? OR remote_project_name is NULL)", self.db_project_id, self.name, self.remote_project_name).first
+    if Repository.where("db_project_id = ? AND name = ? AND ( remote_project_name = ? OR remote_project_name is NULL)",
+                        self.db_project_id, self.name, self.remote_project_name).first
       errors.add(:project, "already has repository with name #{self.name}")
     end
   end
@@ -33,7 +34,7 @@ class Repository < ActiveRecord::Base
         next unless pe.link == self # this is not pointing to our repo
         if lrep.path_elements.where(repository_id: Repository.deleted_instance).size > 0
           # repo has already a path element pointing to deleted repository
-          pe.destroy 
+          pe.destroy
         else
           pe.link = Repository.deleted_instance
           pe.save
@@ -50,7 +51,7 @@ class Repository < ActiveRecord::Base
         if lrep.targetlinks.where(repository_id: Repository.deleted_instance).size > 0
           # repo has already a path element pointing to deleted repository
           logger.debug "destroy release target #{rt.target_repository.project.name}/#{rt.target_repository.name}"
-          rt.destroy 
+          rt.destroy
         else
           logger.debug "set deleted repo for releasetarget #{rt.target_repository.project.name}/#{rt.target_repository.name}"
           rt.target_repository = Repository.deleted_instance
@@ -178,7 +179,9 @@ class Repository < ActiveRecord::Base
 
   def download_url_for_package(package, architecture, filename)
     Rails.cache.fetch("download_url_for_package_#{self.project.name}##{self.name}##{package.name}##{architecture}##{filename}") do
+      # rubocop:disable Metrics/LineLength
       path  = "/build/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}/#{URI.escape(architecture)}/#{URI.escape(package.name)}/#{URI.escape(filename)}"
+      # rubocop:enable Metrics/LineLength
       path += "?view=publishedpath"
       xml = Xmlhash.parse(Suse::Backend.get(path).body)
       xml.elements('url').last.to_s

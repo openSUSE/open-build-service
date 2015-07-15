@@ -101,6 +101,8 @@ group :development do
   gem 'single_test'
   # as debugging tool in the default error page
   gem 'web-console', '~> 2.0'
+  # for style checks
+  gem 'rubocop', require: false
 end
 
 # Gems used only for assets and not required in production environments by default.

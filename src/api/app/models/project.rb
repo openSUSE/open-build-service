@@ -80,7 +80,7 @@ class Project < ActiveRecord::Base
   validates :title, length: { maximum: 250 }
   validates :type_id, presence: true
   validate :valid_name
- 
+
   def self.deleted_instance
     prj = Project.find_by_name('deleted')
     return unless prj.nil?
@@ -195,7 +195,7 @@ class Project < ActiveRecord::Base
 
     def is_remote_project?(name, skip_access=false)
       lpro = find_remote_project(name, skip_access)
-      
+
       lpro && lpro[0].is_remote?
     end
 
@@ -236,7 +236,7 @@ class Project < ActiveRecord::Base
 
     # returns an object of project(local or remote) or raises an exception
     # should be always used when a project is required
-    # The return value is either a Project for local project or an xml 
+    # The return value is either a Project for local project or an xml
     # array for a remote project
     def get_by_name(name, opts = {})
       arel = where(name: name)
@@ -410,7 +410,7 @@ class Project < ActiveRecord::Base
         raise DeleteError.new 'This maintenance project has incident projects and can therefore not be deleted.'
       end
     end
-    
+
   end
 
   def update_from_xml(xmlhash, force=nil)
@@ -748,7 +748,7 @@ class Project < ActiveRecord::Base
     # expire cache
     reset_cache
     @commit_opts ||= {}
-    
+
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       login = @commit_opts[:login] || User.current.login
       query = { user: login }
@@ -855,7 +855,7 @@ class Project < ActiveRecord::Base
   # give out the XML for all repos/arch combos
   def expand_flags(pkg = nil)
     ret = Hash.new
-   
+
     repos = repositories.not_remote
 
     FlagHelper.flag_types.each do |flag_name|
@@ -1270,7 +1270,7 @@ class Project < ActiveRecord::Base
     return false unless name.kind_of? String
     # this length check is duplicated but useful for other uses for this function
     return false if name.length > 200 || name.blank?
-    return false if name =~ %r{^[_\.]} 
+    return false if name =~ %r{^[_\.]}
     return false if name =~ %r{::}
     return true if name =~ /\A\w[-+\w\.:]*\z/
     return false
@@ -1462,7 +1462,9 @@ class Project < ActiveRecord::Base
     release_targets_ng = {}
     self.repositories.each do |repo|
       repo.release_targets.each do |rt|
-        release_targets_ng[rt.target_repository.project.name] = {:reponame => repo.name, :packages => [], :patchinfo => nil, :package_issues => {}, :package_issues_by_tracker => {}}
+        release_targets_ng[rt.target_repository.project.name] = {:reponame => repo.name,
+                                                                 :packages => [], :patchinfo => nil,
+                                                                 :package_issues => {}, :package_issues_by_tracker => {}}
       end
     end
 

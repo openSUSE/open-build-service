@@ -1,4 +1,5 @@
 # encoding: UTF-8
+# rubocop:disable Metrics/LineLength
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'request_controller'
 
@@ -445,7 +446,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(:tag => 'comment', :content => "set_bugowner request #{id2}")
     assert_xml_tag(:tag => 'requestid', :content => id2)
 
-    # cleanup 
+    # cleanup
     put "/source/kde4/kdelibs/_meta", meta
     assert_response :success
   end
@@ -2657,7 +2658,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   end
 
   ### bugowner
-  ### role 
+  ### role
   def test_hidden_add_role_request
     login_Iggy
     post '/request?cmd=create', load_backend_file('request/hidden_add_role_fail')
@@ -3062,7 +3063,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                          'who' => 'Iggy',
                          'when' => '2010-07-12T00:00:01',
                          'comment' => "The target project 'home:Iggy:fordecline' was removed" },
-                   'history' => [{"who"=>"Iggy", 
+                   'history' => [{"who"=>"Iggy",
                                   "when"=>"2010-07-12T00:00:00",
                                   "description"=>"Request created"},
                                  { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:01',
@@ -3337,3 +3338,4 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_equal 'important', node['request'][1]['priority']
   end
 end
+# rubocop:enable Metrics/LineLength

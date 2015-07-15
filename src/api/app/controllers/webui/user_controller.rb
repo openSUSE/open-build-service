@@ -10,9 +10,8 @@ class Webui::UserController < Webui::WebuiController
                                        :lock, :admin, :login, :notifications, :update_notifications, :show]
   before_filter :check_display_user, :only => [:show, :edit, :requests, :list_my, :delete, :save, :confirm, :admin, :lock]
   before_filter :require_login, :only => [:edit, :save, :notifications, :update_notifications]
-#  before_filter :require_login, :except => [:login, :do_login, :home, :requests, :render_requests_json, :user_icon, :icon, :register, :register_dialog, :autocomplete, :tokens, :list_users]
   before_filter :require_admin, :only => [:edit, :delete, :lock, :confirm, :admin]
-  
+
   skip_before_action :check_anonymous, only: [:do_login]
 
   def logout
@@ -83,7 +82,9 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def requests
+    # rubocop:disable Metrics/LineLength
     session[:requests] = @displayed_user.declined_requests.pluck(:id) + @displayed_user.involved_reviews.map { |r| r.id } + @displayed_user.incoming_requests.pluck(:id)
+    # rubocop:enable Metrics/LineLength
     @requests = @displayed_user.declined_requests + @displayed_user.involved_reviews + @displayed_user.incoming_requests
     @default_request_type = params[:type] if params[:type]
     @default_request_state = params[:state] if params[:state]
@@ -189,7 +190,7 @@ class Webui::UserController < Webui::WebuiController
     end
 
     flash[:success] = "The account \"#{params[:login]}\" is now active."
- 
+
     if User.current.is_admin?
       redirect_to :controller => :configuration, :action => :users
     else
@@ -208,7 +209,7 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def change_password
-    # check the valid of the params  
+    # check the valid of the params
     if not params[:password] == session[:password]
       errmsg = 'The value of current password does not match your current password. Please enter the password and try again.'
     end
