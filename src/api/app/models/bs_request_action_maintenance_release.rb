@@ -2,6 +2,8 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
 
   include RequestSourceDiff
 
+  before_create :sanity_check!
+
   def self.sti_name
     return :maintenance_release
   end
@@ -65,7 +67,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     setup 'open_release_requests'
   end
 
-  def check_permissions!
+  def sanity_check!
     # get sure that the releasetarget definition exists or we release without binaries
     prj = Project.get_by_name(self.source_project)
     prj.repositories.includes(:release_targets).each do |repo|
@@ -81,7 +83,11 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
         end
       end
     end
+  end
     
+  def check_permissions!
+    sanity_check!
+
     # check for open release requests with same target, the binaries can't get merged automatically
     # either exact target package match or with same prefix (when using the incident extension)
     
