@@ -37,8 +37,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     unless opts[:view] == "xml"
       # skip local links
       hash = Package.dir_hash(source_project, source_package)
-      return '' unless hash and hash['linkinfo']
-      return '' if hash['linkinfo']['project'] == self.source_project
+      return '' if hash and hash['linkinfo'] and hash['linkinfo']['project'] == self.source_project
     end
     super(opts)
   end

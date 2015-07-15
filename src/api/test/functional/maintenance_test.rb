@@ -482,7 +482,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id = node.value(:id)
-    assert_xml_tag( :tag => 'request', :children => { count: 2, only: { tag: 'action' } }) # only with changed sources
+    assert_xml_tag( :tag => 'request', :children => { count: 3, only: { tag: 'action' } }) # only with changed sources
     assert_xml_tag( :tag => 'source', :attributes => { project: 'home:tom:branches:OBS_Maintained:pack2' } )
     assert_xml_tag( :tag => 'target', :attributes => { project: 'My:Maintenance' } )
     assert_xml_tag( :tag => 'target', :attributes => { releaseproject: 'BaseDistro:Update' } )
