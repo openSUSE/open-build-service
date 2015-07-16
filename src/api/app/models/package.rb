@@ -809,6 +809,7 @@ class Package < ActiveRecord::Base
 
   def add_channels(mode=nil)
     raise InvalidParameterError unless [nil, :add_disabled, :skip_disabled, :enable_all].include? mode
+    return if self.is_channel?
 
     opkg = self.origin_container
     # remote or broken link?
