@@ -248,6 +248,7 @@ our $channel = [
 	    'project',
 	    'repository',
 	    'id_template', # optional
+	    'requires_issue', # optional
             [],
 	    'disabled', # optional
      ]],

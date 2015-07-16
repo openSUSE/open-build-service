@@ -380,7 +380,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     put '/source/Channel/BaseDistro3/_channel', '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
-          <target project="BaseDistro3Channel" repository="channel_repo" id_template="UpdateInfoTag-&#37;Y-&#37;C" />
+          <target project="BaseDistro3Channel" repository="channel_repo" id_template="UpdateInfoTag-&#37;Y-&#37;C" requires_issue="true" />
           <binaries project="BaseDistro3" repository="BaseDistro3_repo" arch="i586">
             <binary name="package" package="pack2" supportstatus="l3" />
             <binary name="does_not_exist" />
@@ -435,7 +435,8 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get "/build/#{incidentProject}/_result"
     assert_response :success
     assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro3', arch: 'i586', state: 'published' } }, :tag => 'status', :attributes => { package: 'patchinfo', code: 'succeeded' }
-    assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro3Channel', arch: 'i586', state: 'published' } }, :tag => 'status', :attributes => { package: 'patchinfo', code: 'succeeded' }
+    # validate that patchinfo is not building in channel without an issue
+    assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro3Channel', arch: 'i586', state: 'published' } }, :tag => 'status', :attributes => { package: 'patchinfo', code: 'failed' }
     # BaseDistro2 is in LTSS, repos exist but none enabled
     assert_no_xml_tag :tag => 'status', :attributes => { package: "BaseDistro2.0.Channel", code: 'succeeded' }
     assert_xml_tag :tag => 'status', :attributes => { package: "BaseDistro2.0.Channel", code: 'disabled' }
@@ -486,7 +487,20 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     prepare_request_with_user 'maintenance_coord', 'power'
 
-    # check updateinfo
+    # no updateinfo create, so add an issue to the patchinfo
+    get "/build/#{incidentProject}/BaseDistro3Channel/i586/patchinfo/updateinfo.xml"
+    assert_response 404
+    get "/source/#{incidentProject}/patchinfo/_patchinfo"
+    assert_response :success
+    pi = ActiveXML::Node.new( @response.body )
+    pi.add_element 'issue', { 'id' => '0815', 'tracker' => 'bnc'}
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    assert_response :success
+
+    # create and check updateinfo
+    run_scheduler('x86_64')
+    run_scheduler('i586')
+    run_publisher
     get "/build/#{incidentProject}/BaseDistro3Channel/i586/patchinfo/updateinfo.xml"
     assert_response :success
     assert_xml_tag :parent => { tag: 'update', attributes: { from: 'tom', status: 'stable', type: 'recommended', version: '1' } }, :tag => 'id', :content => "UpdateInfoTag-#{Time.now.utc.year.to_s}-My_Maintenance_0"
@@ -529,7 +543,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     # and check what happens after modifing _channel file
     put '/source/My:Maintenance:0/BaseDistro3.Channel/_channel', '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
-          <target project="BaseDistro3Channel" repository="channel_repo" id_template="UpdateInfoTagNew-&#37;N-&#37;Y-&#37;C" />
+          <target project="BaseDistro3Channel" repository="channel_repo" id_template="UpdateInfoTagNew-&#37;N-&#37;Y-&#37;C" requires_issue="true" />
           <binaries project="BaseDistro3" repository="BaseDistro3_repo" arch="i586">
             <binary name="package" package="pack2" project="BaseDistro3" />
           </binaries>

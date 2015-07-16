@@ -319,6 +319,7 @@ CREATE TABLE `channel_targets` (
   `repository_id` int(11) NOT NULL,
   `id_template` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `disabled` tinyint(1) DEFAULT '0',
+  `requires_issue` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_channel_targets_on_channel_id_and_repository_id` (`channel_id`,`repository_id`),
   KEY `repository_id` (`repository_id`),
@@ -1652,6 +1653,8 @@ INSERT INTO schema_migrations (version) VALUES ('20150623063641');
 INSERT INTO schema_migrations (version) VALUES ('20150625105426');
 
 INSERT INTO schema_migrations (version) VALUES ('20150630135426');
+
+INSERT INTO schema_migrations (version) VALUES ('20150715112346');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

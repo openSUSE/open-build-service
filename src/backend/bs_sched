@@ -5965,6 +5965,9 @@ sub rebuildpatchinfo {
       }
     }
   }
+  if ($target && $target->{'requires_issue'}) {
+    $broken ||= 'no issue referenced' unless @references;
+  }
   $update->{'references'} = { 'reference' => \@references };
   # XXX: set name and short
   my $col = {
