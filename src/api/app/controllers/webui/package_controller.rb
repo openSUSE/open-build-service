@@ -39,11 +39,15 @@ class Webui::PackageController < Webui::WebuiController
     @failures = 0
     load_buildresults
     set_linking_packages
-    @expand = 1
-    if params[:expand]
-      @expand = params[:expand].to_i
+
+    @expand = if @spider_bot
+      0
+    elsif params[:expand]
+      params[:expand].to_i
+    else
+      1
     end
-    @expand = 0 if @spider_bot
+
     @is_current_rev = false
     if set_file_details
       if @forced_unexpand.blank?
