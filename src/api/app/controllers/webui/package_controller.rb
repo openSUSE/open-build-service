@@ -40,7 +40,9 @@ class Webui::PackageController < Webui::WebuiController
     load_buildresults
     set_linking_packages
     @expand = 1
-    @expand = begin Integer(params[:expand]) rescue 1 end if params[:expand]
+    if params[:expand]
+      @expand = params[:expand].to_i
+    end
     @expand = 0 if @spider_bot
     @is_current_rev = false
     if set_file_details
