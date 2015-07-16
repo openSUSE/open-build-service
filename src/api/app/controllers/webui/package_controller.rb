@@ -185,17 +185,12 @@ class Webui::PackageController < Webui::WebuiController
       flash[:error] = 'Could not access revisions'
       redirect_to :action => :show, :project => @project.name, :package => @package.name and return
     end
-    @lastrev = @package.rev.to_i
-    @lastrev = params[:rev].to_i if params[:rev]
-    if params[:showall]
+    @lastrev = params[:rev].try(:to_i) || @package.rev.to_i
+    if params[:showall] || @lastrev < 21
       @revisions = (1..@lastrev).to_a.reverse
     else
-      if @lastrev < 21
-        @revisions = (1..@lastrev).to_a.reverse
-      else
-        @revisions = []
-        @lastrev.downto(@lastrev-19) { |n| @revisions << n }
-      end
+      @revisions = []
+      @lastrev.downto(@lastrev-19) { |n| @revisions << n }
     end
   end
 
