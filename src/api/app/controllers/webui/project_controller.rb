@@ -1182,6 +1182,13 @@ class Webui::ProjectController < Webui::WebuiController
     currentpack = Hash.new
     pname = p.name
 
+    currentpack['requests_from'] = Array.new
+    key = @api_obj.name + '/' + pname
+    if @submits.has_key? key
+      currentpack['requests_from'].concat(@submits[key])
+    end
+    return if @ignore_pending && currentpack['requests_from'].any?
+
     currentpack['name'] = pname
     currentpack['failedcomment'] = p.failed_comment unless p.failed_comment.blank?
 
@@ -1198,15 +1205,7 @@ class Webui::ProjectController < Webui::WebuiController
     return if !currentpack['firstfail'] && @limit_to_fails
 
     currentpack['problems'] = Array.new
-    currentpack['requests_from'] = Array.new
     currentpack['requests_to'] = Array.new
-
-    key = @api_obj.name + '/' + pname
-    if @submits.has_key? key
-      currentpack['requests_from'].concat(@submits[key])
-    end
-
-    return if !currentpack['requests_from'].empty? && @ignore_pending
 
     currentpack['md5'] = p.verifymd5
 
