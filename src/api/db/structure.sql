@@ -418,7 +418,6 @@ CREATE TABLE `delayed_jobs` (
   `locked_by` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `queue` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `index_delayed_jobs_on_locked_at` (`locked_at`),
   KEY `index_delayed_jobs_on_queue` (`queue`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
