@@ -1,4 +1,3 @@
-#!/usr/bin/perl -w
 #
 # Copyright (c) 2006, 2007 Michael Schroeder, Novell Inc.
 #
@@ -351,8 +350,7 @@ sub createrepo_rpmmd {
   my ($extrep, $projid, $repoid, $data, $options) = @_;
 
   my %options = map {$_ => 1} @{$options || []};
-  my $obsname = $BSConfig::obsname || 'build.opensuse.org';
-  my $repotag = "obsrepository://$obsname/$projid/$repoid";
+  my @repotags = @{$data->{'repotags'} || []};
   my $prp_ext = "$projid/$repoid";
   $prp_ext =~ s/:/:\//g;
   print "    running createrepo\n";
@@ -370,7 +368,7 @@ sub createrepo_rpmmd {
   # --update requires a newer createrepo version, tested with version 0.4.10
   my @createrepoargs;
   push @createrepoargs, '--changelog-limit', '20';
-  push @createrepoargs, '--repo', $repotag;
+  push @createrepoargs, map { ('--repo', $_ ) } @repotags;
   push @createrepoargs, '--content', 'debug' if $data->{'dbgsplit'};
   my @legacyargs;
   if ($options{'legacy'}) {
@@ -520,10 +518,7 @@ sub deleterepo_rpmmd {
 sub createrepo_hdlist2 {
   my ($extrep, $projid, $repoid, $data, $options) = @_;
 
-  my $obsname = $BSConfig::obsname || 'build.opensuse.org';
-  my $repotag = "obsrepository://$obsname/$projid/$repoid";
   print "    running hdlist2\n";
-
   # create generic rpm-md meta data
   for my $arch (ls($extrep)) {
     next if $arch =~ /^\./;
@@ -533,7 +528,6 @@ sub createrepo_hdlist2 {
       print("    genhdlist2 failed: $?\n");
     }
   }
-
   # signing is done only via rpm packages to my information
 }
 
@@ -1936,6 +1930,16 @@ sub publish {
   my $xrepoid = $repoid;
   $xrepoid .= $dbgsplit if $dbgsplit;
 
+  my @repotags = @{$repotype{'repotag'} || []};
+  # de-escape (mostly done for ':'
+  s/%([a-fA-F0-9]{2})/chr(hex($1))/ge for @repotags;
+  if (grep {$_ eq '-obsrepository'} @repotags) {
+    @repotags = grep {$_ ne '-obsrepository'} @repotags;
+  } else {
+    my $obsname = $BSConfig::obsname || 'build.opensuse.org';
+    push @repotags, "obsrepository://$obsname/$projid/$repoid";
+  }
+
   my $data = {
     'subdir' => $subdir,
     'signargs' => $signargs,
@@ -1947,6 +1951,7 @@ sub publish {
     'patterns' => $patterns,
     'dbgsplit' => $dbgsplit,
     'packtrack' => $packtrack,
+    'repotags' => \@repotags,
   };
 
   if ($repotype{'rpm-md'}) {
