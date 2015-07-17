@@ -736,7 +736,7 @@ sub dispatchslave {
   return $synced;
 }
 
-sub forwardlocalevents {
+sub forwardevents {
   for my $evname (ls("$eventdir/repository")) {
     next if $evname =~ /^\./;
     my $ev = readxml("$eventdir/repository/$evname", $BSXML::event, 1);
@@ -750,10 +750,6 @@ sub forwardlocalevents {
       unlink("$eventdir/repository/$evname");
     }
   }
-}
-
-sub forwardevents {
-  forwardlocalevents();
   for my $evname (ls("$eventdir/dispatch")) {
     next if $evname =~ /^\./;
     my $ev = readxml("$eventdir/dispatch/$evname", $BSXML::event, 1);
