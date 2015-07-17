@@ -5019,6 +5019,7 @@ sub checkkiwiproduct {
   my $repoid = $ctx->{'repository'};
   my $repo = $ctx->{'repo'};
   my $prp = "$projid/$repoid";
+
   # calculate all involved architectures
   my $buildarch = ($repo->{'arch'} || [])->[0] || '';
   # compat to old OBS versions, prefer local...
@@ -5098,7 +5099,7 @@ sub checkkiwiproduct {
     no warnings 'redefine';
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
-    my ($eok, @kdeps) = Build::get_sysbuild($bconf, 'kiwi-product', [ grep {/:/} @{$info->{'dep'} || []} ]);
+    my ($eok, @kdeps) = Build::get_sysbuild($bconf, 'kiwi-product', [ grep {/^kiwi-.*:/} @{$info->{'dep'} || []} ]);
     if (!$eok) {
       print "      - $packid (kiwi-product)\n";
       print "        unresolvable for sysbuild:\n";
