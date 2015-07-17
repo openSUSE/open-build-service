@@ -5643,7 +5643,7 @@ sub moveproject {
   rename("$projectsdir/$oprojid.xml", "$projectsdir/$projid.xml");
   rename("$projectsdir/$oprojid.pkg", "$projectsdir/$projid.pkg") if -e "$projectsdir/$oprojid.pkg";
   rename("$projectsdir/$oprojid.conf", "$projectsdir/$projid.conf") if -e "$projectsdir/$oprojid.conf";
-  rename("$treesdir/$oprojid", "$treesdir/$projid") if -e "$treesdir/$oprojid";
+  rename("$treesdir/$oprojid", "$treesdir/$projid") if $BSConfig::nosharedtrees && -e "$treesdir/$oprojid";
 
   for my $f (ls("$projectsdir/$projid.pkg")) {
     updatelinkinfodb($projid, $1) if ($f =~ /^(.*)\.rev$/);
