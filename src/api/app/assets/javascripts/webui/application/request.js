@@ -11,6 +11,7 @@ function updateSupersedeAndDevelPackageDisplay() {
             url: $('#targetproject').data('requests-url'),
             data: {
                 project: $('#targetproject')[0].value,
+                source_project: $('#project')[0].value,
                 package: $('#package')[0].value,
                 types: 'submit',
                 states: ['new', 'review', 'declined']

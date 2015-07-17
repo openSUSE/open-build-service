@@ -301,8 +301,6 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_field('targetproject', with: 'home:dmayr')
     page.must_have_field('targetpackage', with: 'x11vnc')
 
-    # TODO: actually it does not make sense to display requests that we can't supersede
-    # but that's for later
     within '#supersede_display' do
       page.must_have_text "#{requestid} by adrian"
     end
@@ -316,33 +314,29 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     visit request_show_path(id: requestid)
     page.must_have_text "Request #{requestid} (superseded)"
     page.must_have_content "Superseded by #{new_requestid}"
-  end
 
-  test 'supersede foreign request' do
-    use_js
-
-    login_adrian to: project_show_path(project: 'home:adrian')
-    click_link 'Branch existing package'
-    fill_in 'linked_project', with: 'Apache'
-    fill_in 'linked_package', with: 'apache2'
-    click_button 'Create Branch'
-
-    page.must_have_link 'Submit package'
-    page.wont_have_link 'link diff'
-
-    # modify and resubmit
-    Suse::Backend.put( '/source/home:adrian/apache2/DUMMY?user=adrian', 'DUMMY')
+    # You are not allowed to supersede requests you have no role in.
+    #
+    # TODO: actually it does not make sense to display requests that we can't supersede
+    # but that's for later
+    Suse::Backend.put( '/source/home:adrian/x11vnc/DUMMY2?user=adrian', 'DUMMY2')
+    login_tom to: package_show_path(project: 'home:adrian', package: 'x11vnc')
     click_link 'Submit package'
-    page.must_have_field('targetproject', with: 'Apache')
     page.must_have_field('supersede_request_ids[]')
     all('input[name="supersede_request_ids[]"]').each {|input| check(input[:id]) }
-    check('sourceupdate')
     click_button 'Ok'
-
-    # got a request
     page.wont_have_selector '.dialog' # wait for the reload
-    flash_message.must_match %r{Created submit request \d* to Apache}
+    flash_message.must_match %r{Created submit request \d* to home:dmayr}
     flash_message.must_match %r{Superseding failed: You have no role in request \d*}
+
+    # You will not be given the option to supersede requests from other source projects
+    login_tom to: project_show_path(project: 'home:tom')
+    click_link 'Branch existing package'
+    fill_in 'linked_project', with: 'home:dmayr'
+    fill_in 'linked_package', with: 'x11vnc'
+    click_button 'Create Branch'
+    click_link 'Submit package'
+    page.wont_have_field('supersede_request_ids[]')
   end
 
   test 'remove file' do
