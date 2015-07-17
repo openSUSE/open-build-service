@@ -16,6 +16,8 @@ class BranchPackage
     @target_project = nil
     @auto_cleanup = nil
     @add_repositories = params[:add_repositories]
+    # check if repository path elements do use each other and adapt our own path elements
+    @update_path_elements = params[:update_path_elements]
     # create hidden project ?
     @noaccess = params[:noaccess]
     # extend repo and package names ?
@@ -27,6 +29,7 @@ class BranchPackage
       @extend_names = true
       @copy_from_devel = true
       @add_repositories = true
+      @update_path_elements = true
     end
 
   end
@@ -176,6 +179,7 @@ class BranchPackage
         tpkg.add_channels
       end
     end
+    tprj.sync_repository_pathes if @update_path_elements
 
     # store project data in DB and XML
     tprj.store

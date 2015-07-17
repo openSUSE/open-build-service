@@ -829,8 +829,6 @@ class Package < ActiveRecord::Base
     if opkg.project.is_maintenance_release? and opkg.is_link?
       opkg = opkg.project.packages.find_by_name opkg.linkinfo["package"]
     end
-    # ensure that channel tracking is correct
-    opkg.update_if_dirty
 
     opkg.find_project_local_linking_packages.each do |p|
       name = p.name

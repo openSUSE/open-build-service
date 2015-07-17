@@ -370,6 +370,91 @@ END
     assert_no_xml_tag xml_string, :tag => :link
   end  
 
+    
+  def test_repository_path_sync
+    User.current = users( :king )
+
+    prj = Project.new(name: "Enterprise-SP0:GA")
+    prj.update_from_xml( Xmlhash.parse(
+      "<project name='Enterprise-SP0:GA'>
+        <title/>
+        <description/>
+        <repository name='sp0_ga' />
+      </project>"
+      )
+    )
+    prj = Project.new(name: "Enterprise-SP0:Update")
+    prj.update_from_xml( Xmlhash.parse(
+      "<project name='Enterprise-SP0:Update'>
+        <title/>
+        <description/>
+        <repository name='sp0_update' >
+          <path project='Enterprise-SP0:GA' repository='sp0_ga' />
+        </repository>
+      </project>"
+      )
+    )
+    prj = Project.new(name: "Enterprise-SP1:GA")
+    prj.update_from_xml( Xmlhash.parse(
+      "<project name='Enterprise-SP1:GA'>
+        <title/>
+        <description/>
+        <repository name='sp1_ga' >
+          <path project='Enterprise-SP0:GA' repository='sp0_ga' />
+        </repository>
+      </project>"
+      )
+    )
+    prj = Project.new(name: "Enterprise-SP1:Update")
+    prj.update_from_xml( Xmlhash.parse(
+      "<project name='Enterprise-SP1:Update'>
+        <title/>
+        <description/>
+        <repository name='sp1_update' >
+          <path project='Enterprise-SP1:GA' repository='sp1_ga' />
+          <path project='Enterprise-SP0:Update' repository='sp0_update' />
+        </repository>
+      </project>"
+      )
+    )
+    # this is what the classic add_repository call is producing:
+    prj = Project.new(name: "My:Branch")
+    prj.update_from_xml( Xmlhash.parse(
+      "<project name='My:Branch'>
+        <title/>
+        <description/>
+        <repository name='my_branch_sp0_update' >
+          <path project='Enterprise-SP0:Update' repository='sp0_update' />
+        </repository>
+        <repository name='my_branch_sp1_update' >
+          <path project='Enterprise-SP1:Update' repository='sp1_update' />
+        </repository>
+      </project>"
+      )
+    )
+    # however, this is not correct, because my:branch (or an incident)
+    # is providing in this situation often a package in SP0:Update which
+    # must be used for building the package in sp1 repo.
+    # Since the order of adding the repositories is not fixed or can even
+    # be extended with later calls, we need to sync this always after finishing a 
+    # a setup of new branched packages with this sync function:
+    xml = prj.to_axml
+    assert_xml_tag xml, :tag => :repository, :attributes => {name: "my_branch_sp1_update"},
+                        :children => { count: 1, :only => { :tag => :path } }
+
+    assert_no_xml_tag xml, :tag => :path, :attributes => { project: "My:Branch", repository: "my_branch_sp0_update" }
+    prj.sync_repository_pathes
+    xml = prj.to_axml
+    assert_xml_tag xml, :tag => :repository, :attributes => {name: "my_branch_sp1_update"},
+                        :children => { count: 2, :only => { :tag => :path } }
+    assert_xml_tag xml, :tag => :repository, :attributes => {name: "my_branch_sp0_update"},
+                        :children => { count: 1, :only => { :tag => :path } } # untouched
+    assert_xml_tag xml, :tag => :path, :attributes => { project: "My:Branch", repository: "my_branch_sp0_update" }
+
+    # must not change again anything
+    prj.sync_repository_pathes
+    assert_equal xml, prj.to_axml
+  end  
   
   #helper
   def put_flags(flags)

@@ -1122,6 +1122,27 @@ class Project < ActiveRecord::Base
     end
   end
 
+  def sync_repository_pathes
+    # check all my repositories and ..
+    self.repositories.each do |repo|
+      repo.path_elements.each do |path|
+        # go to all my path elements
+        path.link.path_elements.each do |ipe|
+          # is this path pointing to some repository which is used in another
+          # of my repositories?
+          self.repositories.joins(:path_elements).where("path_elements.repository_id = ?", ipe.link).each do |my_repo|
+            next if my_repo == repo # do not add my self
+            next if repo.path_elements.where(link: my_repo).count > 0    # already exists
+            repo.path_elements.where(position: ipe.position).delete_all  # avoid conflicting entries
+            # add it at the same position
+            repo.path_elements.create(:link => my_repo, :position => ipe.position)
+          end
+        end
+      end
+    end
+    reset_cache
+  end
+
   def branch_copy_flags(project)
     # Copy the flags from the other project, adjusting them appropriately
     # for this one being a branch of it:

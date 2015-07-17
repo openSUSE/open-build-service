@@ -1,6 +1,6 @@
 = Open Build Service API
 
-Version: 2.4
+Version: 2.7
 
   Only authenticated users are allowed to access the API. Authentication is done
   by sending a Basic HTTP Authorisation header. 
@@ -620,6 +620,7 @@ Parameters:
   noaccess: the new created project will be read protected, bool, optional
   missingok: the target package does not exist
   add_repositories: bool, optional, adds repositories base on source project (default for new projects)
+  update_path_elements: bool, optional, update all path elements if needed (used repositories depend on each other)
   extend_package_names: bool, optional, extends package and repository names to allow multiple instances of same package
 
 XmlResult: status
