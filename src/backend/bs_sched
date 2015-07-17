@@ -4840,8 +4840,6 @@ sub checkkiwiimage {
       if (defined $r) {
         $error .= " (delayed)";
         $delayed_errors .= "$error; ";
-        my ($prj, $repo) = split('/', $aprp, 2);
-        addwatchremote('repository', $projpacks->{$prj}, "/$repo/$myarch");
         next;
       }
       print "      - $packid (kiwi-image)\n";
@@ -5086,8 +5084,6 @@ sub checkkiwiproduct {
 	print "        $error\n";
 	if (defined $r) {
           $delayed_errors .= "$error; ";
-          my ($prj, $repo) = split('/', $aprp, 2);
-          addwatchremote('repository', $projpacks->{$prj}, "/$repo/$myarch");
           next;
         }
 	return ('broken', $error);
