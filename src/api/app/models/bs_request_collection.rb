@@ -6,6 +6,7 @@ class BsRequestCollection
     types = opts[:types] || []
     @review_states = opts[:review_states] || %w(new)
     @subprojects = opts[:subprojects]
+    @source_project = opts[:source_project]
     @project = opts[:project]
     @rel = BsRequest.joins(:bs_request_actions).distinct.order(priority: :asc, id: :desc)
 
@@ -17,6 +18,10 @@ class BsRequestCollection
     # Filter by request type (submit, delete, ...)
     unless types.blank?
       @rel = @rel.where('bs_request_actions.type in (?)', types).references(:bs_request_actions)
+    end
+
+    unless @source_project.blank?
+      @rel = @rel.where('bs_request_actions.source_project = ?', @source_project).references(:bs_request_actions)
     end
 
     unless @project.blank?

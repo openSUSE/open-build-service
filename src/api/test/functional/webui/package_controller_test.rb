@@ -315,6 +315,15 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     visit request_show_path(id: requestid)
     page.must_have_text "Request #{requestid} (superseded)"
     page.must_have_content "Superseded by #{new_requestid}"
+
+    # You will not be given the option to supersede requests from other source projects
+    login_king to: project_show_path(project: 'home:king')
+    click_link 'Branch existing package'
+    fill_in 'linked_project', with: 'home:dmayr'
+    fill_in 'linked_package', with: 'x11vnc'
+    click_button 'Create Branch'
+    click_link 'Submit package'
+    page.wont_have_field('supersede')
   end
 
   test 'supersede foreign request' do
@@ -333,6 +342,9 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     Suse::Backend.put( '/source/home:adrian/apache2/DUMMY?user=adrian', 'DUMMY')
     click_link 'Submit package'
     page.must_have_field('targetproject', with: 'Apache')
+    page.wont_have_field('supersede')
+    page.execute_script("$('#supersede_display').show();") # show hidden supersede input to send an unacceptable supersede request
+    page.must_have_selector('#supersede')
     check('supersede')
     check('sourceupdate')
     click_button 'Ok'
