@@ -19,7 +19,7 @@
       <% User.current.watched_project_names.each do |project| -%>
           <li>
             <%= link_to(content_tag(:span, content_tag(:span, "", class:
-                    "icons-project") + elide(project, 32), class: "project-link"),
+                    "icons-project") + raw(project.gsub(":", ":<wbr>")), class: "project-link"),
                     project_show_path(project)) %>
           </li>
       <% end -%>
