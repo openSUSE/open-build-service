@@ -176,8 +176,6 @@ class RequestController < ApplicationController
 
     xml_request = if params[:view] == 'xml'
       ActiveXML::Node.new("<request id='#{req.id}'/>")
-    else
-      nil
     end
 
     req.bs_request_actions.each do |action|
