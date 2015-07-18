@@ -172,8 +172,6 @@ class RequestController < ApplicationController
     req = BsRequest.find params[:id]
 
     diff_text = ''
-    action_counter = 0
-
     xml_request = if params[:view] == 'xml'
       ActiveXML::Node.new("<request id='#{req.id}'/>")
     end
@@ -194,7 +192,7 @@ class RequestController < ApplicationController
     end
 
     if xml_request
-      xml_request.set_attribute('actions', action_counter.to_s)
+      xml_request.set_attribute('actions', "0")
       render xml: xml_request.dump_xml
     else
       render text: diff_text
