@@ -146,10 +146,9 @@ class RequestController < ApplicationController
 
   # POST /request?cmd=create
   def request_create
-
     body = request.raw_post.to_s
-
-    xml = BsRequest.transaction do
+    xml = nil
+    BsRequest.transaction do
       @req = BsRequest.new_from_xml(body)
       @req.set_add_revision       unless params[:addrevision].blank?
       @req.set_ignore_build_state unless params[:ignore_build_state].blank?
@@ -157,7 +156,6 @@ class RequestController < ApplicationController
 
       xml = @req.render_xml
       Suse::Validator.validate(:request, xml)
-      xml
     end
 
     # cache the diff (in the backend)
