@@ -146,10 +146,9 @@ class RequestController < ApplicationController
 
   # POST /request?cmd=create
   def request_create
-    body = request.raw_post.to_s
     xml = nil
     BsRequest.transaction do
-      @req = BsRequest.new_from_xml(body)
+      @req = BsRequest.new_from_xml(request.raw_post.to_s)
       @req.set_add_revision       unless params[:addrevision].blank?
       @req.set_ignore_build_state unless params[:ignore_build_state].blank?
       @req.save!
