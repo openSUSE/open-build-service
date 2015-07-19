@@ -6,11 +6,8 @@ module RequestSourceDiff
     attr_accessor :action
 
     def perform(opts)
-      @view_xml = (opts[:view] == 'xml')
-      @withissues = opts[:withissues]
-
       gather_source_packages.map { |spkg|
-        diff_for_source(spkg)
+        diff_for_source(spkg, opts)
       }.join
     end
 
@@ -33,7 +30,7 @@ module RequestSourceDiff
       end
     end
 
-    def diff_for_source(spkg)
+    def diff_for_source(spkg, options = {})
       @target_project = action.target_project
       @target_package = action.target_package
 
@@ -92,8 +89,8 @@ module RequestSourceDiff
         end
       end
       # run diff
-      query[:view] = 'xml' if @view_xml # Request unified diff in full XML view
-      query[:withissues] = 1 if @withissues
+      query[:view] = 'xml' if options[:view] == 'xml' # Request unified diff in full XML view
+      query[:withissues] = 1 if options[:withissues]
       BsRequestAction.get_package_diff(path, query)
     end
 
