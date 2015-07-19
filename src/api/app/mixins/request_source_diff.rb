@@ -115,11 +115,9 @@ module RequestSourceDiff
 
     # check if the action is the same target
     def check_action_target(other)
-      if action.source_project == other.source_project and
-          @target_package == other.source_package and
-          action.target_project == other.target_project
-        return true
-      end
+      action.source_project == other.source_project &&
+        @target_package == other.source_package &&
+        action.target_project == other.target_project
     end
   end
 
