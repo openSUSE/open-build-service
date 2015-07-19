@@ -56,13 +56,13 @@ module RequestSourceDiff
         # maintenance incidents shall show the final result after release
         @target_project = action.target_releaseproject if action.target_releaseproject
 
-        tprj = Project.get_by_name(@target_project)
-
         # maintenance release targets will have a base link
-        @target_package.gsub!(/\.[^\.]$/, '') if tprj.is_maintenance_release?
+        if Project.get_by_name(@target_project).is_maintenance_release?
+          @target_package.gsub!(/\.[^\.]$/, '')
+        end
 
         # for requests not yet accepted or accepted with OBS 2.0 and before
-        tpkg = tprj = nil
+        tpkg = nil
         if Package.exists_by_project_and_name(@target_project, @target_package, follow_project_links: true)
           tpkg = Package.get_by_project_and_name(@target_project, @target_package)
         end
