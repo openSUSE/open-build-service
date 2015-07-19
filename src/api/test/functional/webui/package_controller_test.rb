@@ -254,7 +254,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     # try to submit unchanged sources
     click_link 'Submit package'
     page.must_have_field('targetproject', with: 'home:dmayr')
-    page.wont_have_field('supersede')
+    page.wont_have_field('supersede_request_ids[]')
     check('sourceupdate')
     click_button 'Ok'
     page.wont_have_selector '.dialog' # wait for the reload
@@ -264,7 +264,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     Suse::Backend.put( '/source/home:adrian/x11vnc/DUMMY?user=adrian', 'DUMMY')
     click_link 'Submit package'
     page.must_have_field('targetproject', with: 'home:dmayr')
-    page.wont_have_field('supersede')
+    page.wont_have_field('supersede_request_ids[]')
     check('sourceupdate')
     click_button 'Ok'
 
@@ -307,7 +307,8 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
       page.must_have_text "#{requestid} by adrian"
     end
 
-    check('supersede')
+    page.must_have_field('supersede_request_ids[]')
+    all('input[name="supersede_request_ids[]"]').each {|input| check(input[:id]) }
     click_button 'Ok'
     page.wont_have_selector '.dialog' # wait for the reload
     flash_message.must_match %r{Created submit request .* to home:dmayr}
@@ -333,7 +334,8 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     Suse::Backend.put( '/source/home:adrian/apache2/DUMMY?user=adrian', 'DUMMY')
     click_link 'Submit package'
     page.must_have_field('targetproject', with: 'Apache')
-    check('supersede')
+    page.must_have_field('supersede_request_ids[]')
+    all('input[name="supersede_request_ids[]"]').each {|input| check(input[:id]) }
     check('sourceupdate')
     click_button 'Ok'
 

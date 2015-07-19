@@ -88,7 +88,6 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     click_link 'Submit package'
     fill_in 'targetproject', with: 'kde4'
     fill_in 'description', with: 'I want to see his reaction'
-    uncheck('supersede')
     click_button 'Ok'
     within '#flash-messages' do
       click_link 'submit request'
@@ -96,13 +95,15 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     oldrequest = current_path.gsub(%r{\/request\/show\/(\d*)}, '\1').to_i
     # verify it is not superseding anything
     page.wont_have_text('Superseding')
+    page.wont_have_field('supersede_request_ids[]')
 
     # create submission that is superseding the former one
     visit package_show_path(project: 'Apache', package: 'apache2')
     click_link 'Submit package'
     fill_in 'targetproject', with: 'kde4'
     fill_in 'description', with: 'I want to see his reaction'
-    check('supersede')
+    page.must_have_field('supersede_request_ids[]')
+    all('input[name="supersede_request_ids[]"]').each {|input| check(input[:id]) }
     click_button 'Ok'
     within '#flash-messages' do
       click_link 'submit request'
@@ -284,7 +285,6 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     click_link 'Submit package'
     fill_in 'targetproject', with: 'kde4'
     fill_in 'description', with: 'I want to see his reaction'
-    uncheck('supersede')
     click_button 'Ok'
 
     within '#flash-messages' do

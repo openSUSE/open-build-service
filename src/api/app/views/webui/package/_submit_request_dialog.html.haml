@@ -39,12 +39,10 @@
         %br/
 
         %span#supersede_display.hidden
-          = label_tag(:pending_requests, 'Pending requests:')
+          = label_tag(:supersede_requests, 'Supersede requests:')
           %br/
-          %span#pending_requests
-          = check_box_tag(:supersede)
-          Supersede pending requests
-          %br/
+          %span#supersede_requests
+
         %span#sourceupdate_display
           = check_box_tag(:sourceupdate, 'cleanup', @cleanup_source)
           Remove local package if request is accepted
