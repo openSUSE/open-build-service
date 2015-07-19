@@ -261,7 +261,7 @@ class Webui::PackageController < Webui::WebuiController
     # Supersede logic has to be below addition as we need the new request id
     supersede_errors = []
     if params[:supersede]
-      pending_requests = BsRequestCollection.list_ids(project: params[:targetproject], package: params[:package], states: %w(new review declined), types: %w(submit))
+      pending_requests = BsRequestCollection.list_ids(project: params[:targetproject], package: params[:package], states: %w(new review declined), types: %w(submit)).uniq
       pending_requests.each do |request_id|
         next if request_id == req.id # ignore newly created request
         r = BsRequest.find_by_id request_id

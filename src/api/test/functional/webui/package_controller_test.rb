@@ -340,7 +340,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     # got a request
     page.wont_have_selector '.dialog' # wait for the reload
     flash_message.must_match %r{Created submit request \d* to Apache}
-    flash_message.must_match %r{Superseding failed: You have no role in request.*set state to superseded from a final state is not allowed}
+    flash_message.must_match %r{Superseding failed: You have no role in request \d*}
   end
 
   test 'remove file' do
