@@ -146,18 +146,15 @@ class RequestController < ApplicationController
 
   # POST /request?cmd=create
   def request_create
-
-    body = request.raw_post.to_s
-
-    xml = BsRequest.transaction do
-      @req = BsRequest.new_from_xml(body)
+    xml = nil
+    BsRequest.transaction do
+      @req = BsRequest.new_from_xml(request.raw_post.to_s)
       @req.set_add_revision       unless params[:addrevision].blank?
       @req.set_ignore_build_state unless params[:ignore_build_state].blank?
       @req.save!
 
       xml = @req.render_xml
       Suse::Validator.validate(:request, xml)
-      xml
     end
 
     # cache the diff (in the backend)
@@ -172,17 +169,12 @@ class RequestController < ApplicationController
     req = BsRequest.find params[:id]
 
     diff_text = ''
-    action_counter = 0
-
     xml_request = if params[:view] == 'xml'
       ActiveXML::Node.new("<request id='#{req.id}'/>")
-    else
-      nil
     end
 
     req.bs_request_actions.each do |action|
-      withissues = false
-      withissues = true if params[:withissues] == '1' || params[:withissues].to_s == 'true'
+      withissues = ["1", "true"].include?(params[:withissues].to_s)
       action_diff = action.sourcediff(view: params[:view], withissues: withissues)
 
       if xml_request
@@ -197,7 +189,7 @@ class RequestController < ApplicationController
     end
 
     if xml_request
-      xml_request.set_attribute('actions', action_counter.to_s)
+      xml_request.set_attribute('actions', "0")
       render xml: xml_request.dump_xml
     else
       render text: diff_text
