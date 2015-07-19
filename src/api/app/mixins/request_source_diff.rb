@@ -10,7 +10,7 @@ module RequestSourceDiff
       @withissues = opts[:withissues]
 
       gather_source_packages.map { |spkg|
-        diff_for_source(spkg, action.target_project, action.target_package)
+        diff_for_source(spkg)
       }.join
     end
 
@@ -33,9 +33,9 @@ module RequestSourceDiff
       end
     end
 
-    def diff_for_source(spkg, target_project=nil, target_package=nil)
-      @target_project = target_project || action.target_project
-      @target_package = target_package || action.target_package
+    def diff_for_source(spkg)
+      @target_project = action.target_project
+      @target_package = action.target_package
 
       # fallback name as last resort
       @target_package ||= action.source_package
