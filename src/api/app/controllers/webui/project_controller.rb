@@ -1185,9 +1185,9 @@ class Webui::ProjectController < Webui::WebuiController
     currentpack['requests_from'] = Array.new
     key = @api_obj.name + '/' + pname
     if @submits.has_key? key
+      return if @ignore_pending
       currentpack['requests_from'].concat(@submits[key])
     end
-    return if @ignore_pending && currentpack['requests_from'].any?
 
     currentpack['name'] = pname
     currentpack['failedcomment'] = p.failed_comment unless p.failed_comment.blank?
