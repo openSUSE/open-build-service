@@ -27,6 +27,8 @@ module RequestSourceDiff
             p.check_source_access!
             p.name
           }
+        else
+          []
         end
       end
     end
