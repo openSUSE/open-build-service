@@ -17,18 +17,16 @@ module RequestSourceDiff
     def gather_source_packages
       if action.bs_request_action_accept_info # the old package can be gone
         return [action.source_package]
+      elsif action.source_package
+        action.source_access_check!
+        return [action.source_package]
       else
-        if action.source_package
-          action.source_access_check!
-          return [action.source_package]
-        else
-          prj = Project.find_by_name(action.source_project)
-          if prj
-            return prj.packages.map { |p|
-              p.check_source_access!
-              p.name
-            }
-          end
+        prj = Project.find_by_name(action.source_project)
+        if prj
+          return prj.packages.map { |p|
+            p.check_source_access!
+            p.name
+          }
         end
       end
     end
