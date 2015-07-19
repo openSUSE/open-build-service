@@ -69,11 +69,12 @@ module RequestSourceDiff
         path = Package.source_path(action.source_project, spkg)
         query[:filelimit] = 10000
 
-        unless provided_in_other_action
+        if !provided_in_other_action && !action.updatelink
           # do show the same diff multiple times, so just diff unexpanded so we see possible link changes instead
           # also get sure that the request would not modify the link in the target
-          query[:expand] = 1 unless action.updatelink
+          query[:expand] = 1
         end
+
         if tpkg
           query[:oproject] = @target_project
           query[:opackage] = @target_package
