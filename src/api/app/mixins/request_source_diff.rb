@@ -102,10 +102,10 @@ module RequestSourceDiff
       # maintenance_release creates new packages instance, but are changing the source only according to the link
       return unless !action.target_package or [:maintenance_incident].include? action.action_type
       data = Xmlhash.parse(ActiveXML.backend.direct_http(URI("/source/#{URI.escape(action.source_project)}/#{URI.escape(spkg)}")))
-      e = data['linkinfo']
-      return unless e
-      @target_project = e["project"]
-      @target_package = e["package"]
+      linkinfo = data['linkinfo']
+      return unless linkinfo
+      @target_project = linkinfo["project"]
+      @target_package = linkinfo["package"]
       return unless @target_project == action.source_project
       # a local link, check if the real source change gets also transported in a seperate action
       if action.bs_request
