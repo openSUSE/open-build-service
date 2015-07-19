@@ -9,11 +9,9 @@ module RequestSourceDiff
       @view_xml = (opts[:view] == 'xml')
       @withissues = opts[:withissues]
 
-      action_diff = ''
-      gather_source_packages.each do |spkg|
-        action_diff += diff_for_source(spkg, action.target_project, action.target_package)
-      end
-      return action_diff
+      gather_source_packages.map { |spkg|
+        diff_for_source(spkg, action.target_project, action.target_package)
+      }.join
     end
 
     def gather_source_packages
