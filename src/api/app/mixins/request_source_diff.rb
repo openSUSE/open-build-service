@@ -15,7 +15,6 @@ module RequestSourceDiff
     end
 
     def gather_source_packages
-      spkgs = []
       if action.bs_request_action_accept_info # the old package can be gone
         return [action.source_package]
       else
@@ -24,13 +23,14 @@ module RequestSourceDiff
           return [action.source_package]
         else
           prj = Project.find_by_name(action.source_project)
-          prj.packages.each do |p|
-            p.check_source_access!
-            spkgs << p.name
-          end if prj
+          if prj
+            return prj.packages.map { |p|
+              p.check_source_access!
+              p.name
+            }
+          end
         end
       end
-      spkgs
     end
 
     def diff_for_source(spkg, target_project=nil, target_package=nil)
