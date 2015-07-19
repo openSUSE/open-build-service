@@ -1376,7 +1376,8 @@ class Project < ActiveRecord::Base
       rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
       rel = rel.where(bs_request_actions: { type: 'maintenance_release', source_project: self.name})
       if rel.exists?
-        raise OpenReleaseRequest.new "Unlock of maintenance incident #{} is not possible, because there is a running release request: #{rel.first.id}"
+        incident_name = self.maintenance_incident.project.name
+        raise OpenReleaseRequest.new "Unlock of maintenance incident #{incident_name} is not possible, because there is a running release request: #{rel.first.id}"
       end
     end
 
@@ -1412,7 +1413,7 @@ class Project < ActiveRecord::Base
     f = self.flags.find_by_flag_and_status('lock', 'enable')
     if f
       self.flags.delete(f)
-      self.store(comment: "Request #{} got revoked", request: id, lowprio: 1)
+      self.store(comment: "Request got revoked", request: id, lowprio: 1)
     end
   end
 
