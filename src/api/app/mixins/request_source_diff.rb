@@ -62,7 +62,6 @@ module RequestSourceDiff
         end
 
         # for requests not yet accepted or accepted with OBS 2.0 and before
-        tpkg = nil
         if Package.exists_by_project_and_name(@target_project, @target_package, follow_project_links: true)
           tpkg = Package.get_by_project_and_name(@target_project, @target_package)
         end
