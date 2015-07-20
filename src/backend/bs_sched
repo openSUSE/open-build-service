@@ -7502,6 +7502,7 @@ sub event_exit {
   $schedstate->{'lookat_oobhigh'} = $ectx->{'lookat_high'};
   $schedstate->{'prpfinished'} = \%prpfinished;
   $schedstate->{'globalnotready'} = \%prpnotready;
+  $schedstate->{'repounchanged'} = \%repounchanged;
   $schedstate->{'fetchprojpacks'} = $ectx->{'fetchprojpacks'} if %{$ectx->{'fetchprojpacks'} || {}};
   $schedstate->{'delayedfetchprojpacks'} = $ectx->{'delayedfetchprojpacks'};
   $schedstate->{'watchremote_start'} = \%watchremote_start;
@@ -7890,6 +7891,12 @@ if (!$testprojid && -s "$rundir/bs_sched.$myarch.state") {
     my $oldprpnotready = $schedstate->{'globalnotready'} || {};
     for my $prp (@prps) {
       $prpnotready{$prp} = $oldprpnotready->{$prp} if %{$oldprpnotready->{$prp} || {}};
+    }
+
+    # update repounchanged hash
+    my $oldrepounchanged = $schedstate->{'repounchanged'} || {};
+    for my $prp (@prps) {
+      $repounchanged{$prp} = $oldrepounchanged->{$prp} if %{$oldrepounchanged->{$prp} || {}};
     }
 
     # update delayedfetchprojpacks hash
