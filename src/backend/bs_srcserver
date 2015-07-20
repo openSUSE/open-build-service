@@ -3439,7 +3439,6 @@ sub getprojpack {
 	    if ($type eq 'kiwi' && ($d->{'imagetype'}[0] || '') eq 'product') {
 	      # KIWI Products always build on the first repo arch
 	      $rinfo->{'imagearch'} = [ @{$d->{'exclarch'}} ] if $d->{'exclarch'};
-	      $rinfo->{'error'} = 'excluded' if $arch ne (($repo->{'arch'} || [])->[0] || '');
 	    } else {
 	      my $myarch = $conf->{'target'} ? (split('-', $conf->{'target'}))[0] : $arch;
 	      $rinfo->{'error'} = 'excluded' if $d->{'exclarch'} && !grep {$_ eq $myarch} @{$d->{'exclarch'}};
