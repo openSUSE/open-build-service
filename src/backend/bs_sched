@@ -921,6 +921,13 @@ sub sendpublishevent {
   sendevent($ev, 'publish', "${projid}::$repoid");
 }
 
+#
+# sendrepochangeevent - send a repository/repoinfo event
+#
+# we don't directly send it to the src server, as this would
+# slow down the scheduler too much. Instead, we write it on
+# disk and the dispatcher will pick it up and send it for us.
+#
 sub sendrepochangeevent {
   my ($prp, $type) = @_;
 
@@ -932,6 +939,21 @@ sub sendrepochangeevent {
     'arch' => $myarch,
   };
   sendevent($ev, 'repository', "${projid}::${repoid}::${myarch}");
+}
+
+#
+# sendrepochangeevent - send an unblocked event to another scheduler
+#
+sub sendunblockedevent {
+  my ($prp, $arch) = @_;
+
+  my ($projid, $repoid) = split('/', $prp, 2);
+  my $ev = {
+    'type' => 'unblocked',
+    'project' => $projid,
+    'repository' => $repoid,
+  };
+  sendevent($ev, $arch, "unblocked::${projid}::${repoid}");
 }
 
 sub set_repo_state {
@@ -5200,15 +5222,10 @@ sub checkkiwiproduct {
       } else {
         $gbininfo = read_gbininfo("$reporoot/$aprp/$arch", $arch eq $myarch ? 0 : 1);
       }
-      if (!$gbininfo && -d "$eventdir/$arch") {
+      if (!$gbininfo && $arch ne $myarch && -d "$eventdir/$arch") {
+        # mis-use unblocked to tell other scheduler that it is missing
         print "    requesting :repoinfo for $aprp/$arch\n";
-        # tell other scheduler that it is missing
-	my $ev = {
-	  'type' => 'unblocked',
-	  'project' => $aprojid,
-	  'repository' => $arepoid,
-	};
-	sendevent($ev, $arch, "unblocked::${projid}::${repoid}");
+	sendunblockedevent($aprp, $arch);
       }
       @apackids = unify(@apackids, sort keys %$gbininfo) if $gbininfo;
 
@@ -5306,12 +5323,7 @@ sub checkkiwiproduct {
     # looks good from our side. tell master arch to check it
     if (-e "$markerdir/.waiting_for_$myarch") {
       unlink("$markerdir/.waiting_for_$myarch");
-      my $ev = {
-        'type' => 'unblocked',
-        'project' => $projid,
-        'repository' => $repoid,
-      };
-      sendevent($ev, $buildarch, "unblocked::${projid}::${repoid}");
+      sendunblockedevent($prp, $buildarch);
       print "      - $packid (kiwi-product)\n";
       print "        unblocked\n";
     }
@@ -5567,12 +5579,7 @@ sub checkpatchinfo {
     if (!$blocked) {
       if (-e "$reporoot/$projid/$repoid/$archs[0]/$packid/.waiting_for_$myarch") {
         unlink("$reporoot/$projid/$repoid/$archs[0]/$packid/.waiting_for_$myarch");
-        my $ev = {
-          'type' => 'unblocked',
-          'project' => $projid,
-          'repository' => $repoid,
-        };
-        sendevent($ev, $archs[0], "unblocked::${projid}::${repoid}");
+	sendunblockedevent("$projid/$repoid", $archs[0]);
         print "      - $packid (patchinfo)\n";
         print "        unblocked\n";
       }
