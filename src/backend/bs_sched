@@ -1387,7 +1387,8 @@ sub prpfinished {
   my $xpackid;
   my $singleexport;
   $singleexport = $bconf->{'singleexport'} if $bconf;
-  print "    prp $prp is singleexport $singleexport\n" if $singleexport;
+  $singleexport = 1 if $bconf && grep {$_ eq 'singleexport'} @{$bconf->{'repotype'} || []};
+  print "    prp $prp is singleexport\n" if $singleexport;
 
   # sort like in the full tree
   for my $packid (orderpackids($projpacks->{$projid}, @$packs)) {
