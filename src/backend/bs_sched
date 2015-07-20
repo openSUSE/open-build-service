@@ -8312,10 +8312,7 @@ NEXTPRP:
     if (!defined($prp)) {
       if ($testmode && !%iswaiting) {
 	print "Test mode, all sources and events processed, exiting...\n";
-        # clean suicide
-        my $ev = { 'type' => 'exitcomplete' };
-        my $evname = "$ev->{'type'}::";
-        sendevent($ev, $myarch, $evname);
+        event_exit($gctx, { 'type' => 'exitcomplete' });
       }
       my @ltim = localtime(time);
       my $msgtm = sprintf "%04d-%02d-%02d %02d:%02d:%02d:", $ltim[5] + 1900, $ltim[4] + 1, @ltim[3,2,1,0];
