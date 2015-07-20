@@ -3859,14 +3859,13 @@ sub calc_prps {
 
 sub updateremoteprojs {
   for my $projid (keys %remoteprojs) {
-    my $or = $remoteprojs{$projid};
-    next if $or && $or->{'partition'};	# XXX how do we update them?, do not drop at least ...
-
     my $r = $watchremoteprojs{$projid};
     if (!$r) {
       delete $remoteprojs{$projid};
       next;
     }
+    my $or = $remoteprojs{$projid};
+    next if $or && $or->{'partition'};	# XXX how do we update them?
     next if $or && $or->{'remoteurl'} eq $r->{'remoteurl'} && $or->{'remoteproject'} eq $r->{'remoteproject'};
     delete $remoteprojs{$projid};
   }
