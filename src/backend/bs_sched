@@ -5853,7 +5853,7 @@ sub rebuildpatchinfo {
 	die("$jobdatadir/$bin: no hdrmd5\n") unless Build::queryhdrmd5("$jobdatadir/$bin", \$leadsigmd5);
 	$d->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
       };
-      if (@$ || !$d) {
+      if ($@ || !$d) {
         return ('broken', "$bin: bad rpm");
       }
       if (%binaryfilter && !$binaryfilter{$d->{'name'}}) {
