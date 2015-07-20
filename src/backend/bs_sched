@@ -4845,7 +4845,7 @@ sub checkkiwiimage {
   my $pool = BSSolv::pool->new();
   $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
 
-  my $delayed_errors = "";
+  my $delayed_errors = '';
   for my $aprp (@aprps) {
     if (!checkprpaccess($aprp, $prp)) {
       print "      - $packid (kiwi-image)\n";
@@ -4857,7 +4857,7 @@ sub checkkiwiimage {
       my $error = "repository '$aprp' is unavailable";
       if (defined $r) {
         $error .= " (delayed)";
-        $delayed_errors .= "$error; ";
+        $delayed_errors .= ", $error";
         next;
       }
       print "      - $packid (kiwi-image)\n";
@@ -4865,7 +4865,7 @@ sub checkkiwiimage {
       return ('broken', $error);
     }
   }
-  return ('delayed', $delayed_errors) if $delayed_errors ne "";
+  return ('delayed', substr($delayed_errors, 2)) if $delayed_errors;
   $pool->createwhatprovides();
   my $bconfignore = $bconf->{'ignore'};
   my $bconfignoreh = $bconf->{'ignoreh'};
@@ -5087,7 +5087,7 @@ sub checkkiwiproduct {
     # calculate packages needed for building
     my $pool = BSSolv::pool->new();
     $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
-    my $delayed_errors="";
+    my $delayed_errors = '';
     for my $aprp (@bprps) {
       if (!checkprpaccess($aprp, $prp)) {
 	print "      - $packid (kiwi-product)\n";
@@ -5101,13 +5101,13 @@ sub checkkiwiproduct {
 	print "      - $packid (kiwi-product)\n";
 	print "        $error\n";
 	if (defined $r) {
-          $delayed_errors .= "$error; ";
+          $delayed_errors .= ", $error";
           next;
         }
 	return ('broken', $error);
       }
     }
-    return ('delayed', $delayed_errors) if $delayed_errors ne "";
+    return ('delayed', substr($delayed_errors, 2)) if $delayed_errors;
     $pool->createwhatprovides();
     my $xp = BSSolv::expander->new($pool, $bconf);
     no warnings 'redefine';
