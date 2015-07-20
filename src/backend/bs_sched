@@ -5503,6 +5503,8 @@ sub checkpatchinfo {
   my $repo = $ctx->{'repo'};
   my @archs = @{$repo->{'arch'}};
   return ('broken', 'missing archs') unless @archs;	# can't happen
+  my $buildarch = $archs[0];	# always build in first arch
+  my $markerdir = "$reporoot/$projid/$repoid/$buildarch/$packid";
   my $patchinfo = $pdata->{'patchinfo'};
 
   if (@{$patchinfo->{'releasetarget'} || []}) {
@@ -5541,7 +5543,7 @@ sub checkpatchinfo {
     $broken = 'no packages found';
   }
 
-  if ($archs[0] ne $myarch) {
+  if ($buildarch ne $myarch) {
     # XXX wipe just in case! remove when we do that elsewhere...
     if (-d "$reporoot/$projid/$repoid/$myarch/$packid") {
       # (patchinfo packages will not be in :full)
@@ -5577,14 +5579,14 @@ sub checkpatchinfo {
       }
     }
     if (!$blocked) {
-      if (-e "$reporoot/$projid/$repoid/$archs[0]/$packid/.waiting_for_$myarch") {
-        unlink("$reporoot/$projid/$repoid/$archs[0]/$packid/.waiting_for_$myarch");
-	sendunblockedevent("$projid/$repoid", $archs[0]);
-        print "      - $packid (patchinfo)\n";
-        print "        unblocked\n";
+      if (-e "$markerdir/.waiting_for_$myarch") {
+	unlink("$markerdir/.waiting_for_$myarch");
+	sendunblockedevent("$projid/$repoid", $buildarch);
+	print "      - $packid (patchinfo)\n";
+	print "        unblocked\n";
       }
     }
-    return ('excluded');
+    return ('excluded', "is built in architecture '$buildarch'");
   }
 
   return ('broken', $broken) if $broken;
@@ -5686,9 +5688,9 @@ sub checkpatchinfo {
     }
     if ($blockedarch && $arch ne $myarch) {
       mkdir_p("$reporoot/$projid/$repoid/$myarch/$packid");
-      BSUtil::touch("$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch") unless -e "$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch";
+      BSUtil::touch("$markerdir/.waiting_for_$arch") unless -e "$markerdir/.waiting_for_$arch";
     } else {
-      unlink("$reporoot/$projid/$repoid/$myarch/$packid/.waiting_for_$arch");
+      unlink("$markerdir/.waiting_for_$arch");
     }
   }
 
