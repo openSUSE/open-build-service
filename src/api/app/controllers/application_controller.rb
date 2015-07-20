@@ -140,7 +140,7 @@ class ApplicationController < ActionController::Base
         unless newuser.errors.empty?
           errstr = String.new
           logger.debug("Creating User failed with: ")
-          newuser.errors.each_full do |msg|
+          newuser.errors.full_messages.each do |msg|
             errstr = errstr+msg
             logger.debug(msg)
           end
