@@ -942,7 +942,7 @@ sub sendrepochangeevent {
 }
 
 #
-# sendrepochangeevent - send an unblocked event to another scheduler
+# sendunblockedevent - send an unblocked event to another scheduler
 #
 sub sendunblockedevent {
   my ($prp, $arch) = @_;
