@@ -1998,7 +1998,7 @@ sub publish {
     deletepatterns_rpmmd($extrep, $projid, $xrepoid, $data);
   }
   if ($patterntype{'comps'}) {
-    createpatterns_comps($extrep, $projid, $xrepoid, $patterntype{'comps'});
+    createpatterns_comps($extrep, $projid, $xrepoid, $data, $patterntype{'comps'});
   } else {
     deletepatterns_comps($extrep, $projid, $xrepoid, $data);
   }
