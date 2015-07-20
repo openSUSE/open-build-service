@@ -797,7 +797,7 @@ class BsRequestAction < ActiveRecord::Base
         raise 'We should have expanded a target_project' unless self.target_project
         # validate project type
         prj = Project.get_by_name(self.target_project)
-        unless %w(maintenance maintenance_incident).include? prj.project_type.to_s
+        unless %w(maintenance maintenance_incident).include? prj.kind
           raise IncidentHasNoMaintenanceProject.new 'incident projects shall only create below maintenance projects'
         end
       end

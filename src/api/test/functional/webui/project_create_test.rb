@@ -44,37 +44,33 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
       current_user.must_equal new_project[:name]
     else
       new_project[:name] ||= ''
-      fill_in 'name', with: new_project[:name]
+      fill_in 'project_name', with: new_project[:name]
     end
 
     new_project[:description].squeeze!(' ')
     new_project[:description].gsub!(/ *\n +/, "\n")
     new_project[:description].strip!
-    message_prefix = "Project '#{new_project[:namespace] + new_project[:name]}' "
 
-    fill_in 'title', with: new_project[:title]
-    fill_in 'description', with: new_project[:description]
+    fill_in 'project_title', with: new_project[:title]
+    fill_in 'project_description', with: new_project[:description]
     find(:id, 'maintenance_project').click if new_project[:maintenance]
     find(:id, 'access_protection').click if new_project[:access_protection]
     click_button('Create Project')
 
     if new_project[:expect] == :success
-      flash_message.must_equal message_prefix + 'was created successfully'
+      flash_message.must_equal "Project '#{new_project[:namespace] + new_project[:name]}' was created successfully"
       flash_message_type.must_equal :info
 
       new_project[:description] = 'No description set' if new_project[:description].empty?
       assert_equal new_project[:description].gsub(%r{\s+}, ' '), project_description
     elsif new_project[:expect] == :invalid_name
-      flash_message.must_equal "Invalid project name '#{new_project[:name]}'."
+      flash_message.must_equal "Failed to save project '#{new_project[:namespace] + new_project[:name]}'. Name is illegal."
       flash_message_type.must_equal :alert
     elsif new_project[:expect] == :no_permission
-      permission_error = 'You lack the permission to create '
-      permission_error += "the project '#{new_project[:namespace] + new_project[:name]}'. "
-      permission_error += "Please create it in your home:#{current_user} namespace"
-      flash_message.must_equal permission_error
+      flash_message.must_equal "Sorry you're not allowed to create this Project"
       flash_message_type.must_equal :alert
     elsif new_project[:expect] == :already_exists
-      flash_message.must_equal message_prefix + 'already exists.'
+      flash_message.must_equal "Failed to save project '#{new_project[:namespace] + new_project[:name]}'. Name has already been taken."
       flash_message_type.must_equal :alert
     else
       throw 'Invalid value for argument <expect>.'
@@ -140,6 +136,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
     open_create_subproject(project: 'home:Iggy')
     create_project(
         name: '',
+        namespace: 'home:Iggy:',
         title: 'NewTitle' + Time.now.to_i.to_s,
         description: 'Test generated empty project without name. Should give error!',
         expect: :invalid_name)
@@ -152,6 +149,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
     open_create_subproject(project: 'home:Iggy')
     create_project(
         name: 'project name with spaces',
+        namespace: 'home:Iggy:',
         title: 'NewTitle' + Time.now.to_i.to_s,
         description: 'Test generated empty project without name. Should give error!',
         expect: :invalid_name)
@@ -209,7 +207,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
   end
 
   def test_first_case_of_issue_204
-    login_king to: project_new_path
+    login_king to: projects_path
 
     prjroot = Faker::Lorem.characters(20)
     create_project(
@@ -220,7 +218,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
     visit project_subprojects_path project: prjroot
     click_link 'Create subproject'
 
-    fill_in :name, with: 'b'
+    fill_in :project_name, with: 'b'
     click_button 'Create Project'
 
     # the parent project should be clickable
@@ -233,14 +231,14 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
     prjroot = Faker::Lorem.characters(20)
     subproject = prjroot + ':b'
 
-    login_king to: project_new_path
+    login_king to: projects_path
 
-    fill_in :name, with: subproject
+    fill_in :project_name, with: subproject
     click_button 'Create Project'
 
     # now create the parent project
-    visit project_new_path
-    fill_in :name, with: prjroot
+    visit projects_path
+    fill_in :project_name, with: prjroot
     click_button 'Create Project'
 
     visit project_show_path project: subproject

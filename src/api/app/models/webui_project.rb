@@ -200,8 +200,7 @@ class WebuiProject < ActiveXML::Node
   end
 
   def project_type
-    return api_obj.project_type if api_obj
-    return "standard"
+    api_obj ? api_obj.kind : 'standard'
   end
 
   def set_project_type(project_type)

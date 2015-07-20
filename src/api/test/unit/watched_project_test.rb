@@ -4,7 +4,8 @@ class WatchedProjectTest < ActiveSupport::TestCase
   fixtures :all
 
   def test_watchlist_cleaned_after_project_removal
-    tmp_prj = Project.create(name: 'no:use:for:a:name')
+    User.current = users(:Iggy)
+    tmp_prj = Project.create(name: 'home:Iggy:whatever')
     user_ids = User.limit(5).map{|u|u.id} # Roundup some users to watch tmp_prj
     user_ids.each do |uid|
       tmp_prj.watched_projects.create(user_id: uid)

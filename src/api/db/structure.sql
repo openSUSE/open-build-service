@@ -391,12 +391,6 @@ CREATE TABLE `configurations` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-CREATE TABLE `db_project_types` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) CHARACTER SET utf8 NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
 CREATE TABLE `db_projects_tags` (
   `db_project_id` int(11) NOT NULL,
   `tag_id` int(11) NOT NULL,
@@ -826,15 +820,13 @@ CREATE TABLE `projects` (
   `updated_at` datetime DEFAULT '0000-00-00 00:00:00',
   `remoteurl` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `remoteproject` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `type_id` int(11) NOT NULL,
   `develproject_id` int(11) DEFAULT NULL,
   `delta` tinyint(1) NOT NULL DEFAULT '1',
+  `kind` enum('standard','maintenance','maintenance_incident','maintenance_release') COLLATE utf8_bin DEFAULT 'standard',
   PRIMARY KEY (`id`),
   UNIQUE KEY `projects_name_index` (`name`(255)),
   KEY `updated_at_index` (`updated_at`),
-  KEY `devel_project_id_index` (`develproject_id`),
-  KEY `type_id` (`type_id`),
-  CONSTRAINT `projects_ibfk_1` FOREIGN KEY (`type_id`) REFERENCES `db_project_types` (`id`)
+  KEY `devel_project_id_index` (`develproject_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `ratings` (
@@ -1656,6 +1648,8 @@ INSERT INTO schema_migrations (version) VALUES ('20150630135426');
 INSERT INTO schema_migrations (version) VALUES ('20150715112346');
 
 INSERT INTO schema_migrations (version) VALUES ('20150716112346');
+
+INSERT INTO schema_migrations (version) VALUES ('20150716124906');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

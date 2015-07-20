@@ -47,9 +47,13 @@ module Webui::ProjectHelper
   def project_bread_crumb(*args)
     @crumb_list = [link_to('Projects', project_list_public_path)]
     return if @spider_bot
-    unless @project.nil? || @project.is_remote?
+    # Sometimes @project is a WebuiProject and sometimes a Project
+    # We need to check this before calling new_record?
+    unless @project.nil? ||
+        (@project.kind_of?(Project) && @project.new_record?) ||
+        @project.is_remote?
       prj_parents = nil
-      if @namespace # corner case where no project object is available (i.e. 'new' action)
+      if @namespace # corner case where no project object is available
         prj_parents = Project.parent_projects(@namespace)
       else
         #FIXME: Some controller's @project is a Project object whereas other's @project is a String object.

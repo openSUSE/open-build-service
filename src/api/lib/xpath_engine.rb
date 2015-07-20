@@ -100,8 +100,7 @@ class XpathEngine
       },
       'projects' => {
         '@name' => {:cpart => 'projects.name'},
-        '@kind' => {:cpart => 'pt.name', :joins => [
-          'LEFT JOIN db_project_types pt ON projects.type_id = pt.id']},
+        '@kind' => {:cpart => 'projects.kind'},
         'title' => {:cpart => 'projects.title'},
         'description' => {:cpart => 'projects.description'},
         'maintenance/maintains/@project' => {:cpart => 'maintains_prj.name', :joins => [

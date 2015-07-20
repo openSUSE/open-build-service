@@ -85,7 +85,7 @@ class Repository < ActiveRecord::Base
 
       # does not exist, so let's create it
       project = Project.deleted_instance
-      project.repositories.find_or_create_by(name: "deleted")
+      project.repositories.find_or_create_by!(name: "deleted")
     end
   end
 

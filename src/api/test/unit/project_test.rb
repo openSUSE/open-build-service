@@ -299,6 +299,7 @@ END
      @project.reload
      assert_equal orig, @project.render_xml
   end
+
   test "not duplicated repos with remote" do
      User.current = users( :Iggy )
      xml = <<END
@@ -325,13 +326,6 @@ END
      assert_equal xml, @project.render_xml
   end
 
-  def test_create_maintenance_project_and_maintained_project
-    User.current = users( :king )
-    maintenance_project = Project.new(:name => 'Maintenance:Project')
-    assert_equal true, maintenance_project.set_project_type('maintenance')
-    assert_equal 'maintenance', maintenance_project.project_type()
-  end
-  
   def test_handle_project_links
     User.current = users( :Iggy )
 
@@ -345,7 +339,6 @@ END
       )
     projectA = Project.create( :name => "home:Iggy:A" )
     projectA.update_from_xml(axml)
-    projectA.save!
     # project B
     axml = Xmlhash.parse(
       "<project name='home:Iggy:B'>
@@ -356,7 +349,6 @@ END
       )
     projectB = Project.create( :name => "home:Iggy:B" )
     projectB.update_from_xml(axml)
-    projectB.save!
 
     # validate xml
     xml_string = projectA.to_axml

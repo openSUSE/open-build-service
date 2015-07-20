@@ -24,6 +24,8 @@ class Webui::ProjectController < Webui::WebuiController
   before_filter :load_releasetargets, :only => [ :show, :incident_request_dialog, :release_repository_dialog ]
   prepend_before_filter :lockout_spiders, :only => [:requests, :rebuild_time, :buildresults, :maintenance_incidents]
 
+  after_action :verify_authorized, :only => :save_new
+
   def index
     redirect_to :action => 'list_public'
   end
@@ -136,11 +138,10 @@ class Webui::ProjectController < Webui::WebuiController
     unless excludefilter.blank?
       rel = rel.where.not(projects[:name].matches("#{excludefilter}%"))
     end
-    mi = DbProjectType.find_by_name!('maintenance_incident')
     if opts[:only_incidents]
-      rel = rel.where(type_id: mi.id)
+      rel = rel.where(kind: 'maintenance_incident')
     else
-      rel = rel.where.not(type_id: mi.id)
+      rel = rel.where.not(kind: 'maintenance_incident')
     end
     @projects = rel.pluck(:name)
     @projects =  @projects.sort_by { |a| project_key a }
@@ -194,6 +195,8 @@ class Webui::ProjectController < Webui::WebuiController
     else
       @project_title = ''
     end
+
+    @project = Project.new
   end
 
   def new_incident
@@ -294,9 +297,8 @@ class Webui::ProjectController < Webui::WebuiController
 
     @is_maintenance_project = @project.api_obj.is_maintenance?
     if @is_maintenance_project
-      mi = DbProjectType.find_by_name!('maintenance_incident')
       subprojects = Project.where('projects.name like ?', @project.name + ':%').
-          where(type_id: mi.id).joins(:repositories => :release_targets).
+          where(kind: 'maintenance_incident').joins(:repositories => :release_targets).
           where("release_targets.trigger = 'maintenance'")
       @open_maintenance_incidents = subprojects.pluck('projects.name').sort.uniq
 
@@ -481,15 +483,15 @@ class Webui::ProjectController < Webui::WebuiController
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary
     end
-    if @project.project_type != 'maintenance'
+    if @project.is_maintenance?
+      redirect_to :action => 'show', :project => @project
+    else
       parent_projects = Project.parent_projects(@project.name)
       if parent_projects.present?
         redirect_to :action => 'show', :project => parent_projects[parent_projects.length - 1][0]
       else
         redirect_to :action => 'list_public'
       end
-    else
-      redirect_to :action => 'show', :project => @project
     end
   end
 
@@ -700,49 +702,39 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def save_new
-    if params[:name].blank? || !Project.valid_name?( params[:name] )
-      flash[:error] = "Invalid project name '#{params[:name]}'."
-      redirect_to :action => 'new', :ns => params[:ns] and return
-    end
+    # ns means namespace / parent project
+    params[:project][:name] = "#{params[:ns]}:#{params[:project][:name]}" if params[:ns]
 
-    project_name = params[:name].strip
-    project_name = params[:ns].strip + ':' + project_name.strip if params[:ns]
+    @project = Project.new(project_params)
+    authorize(@project, :create?)
 
-    if WebuiProject.exists? project_name
-      flash[:error] = "Project '#{project_name}' already exists."
-      redirect_to :action => 'new', :ns => params[:ns] and return
-    end
+    @project.relationships.build(user: User.current,
+                                 role: Role.find_by_title('maintainer'))
 
-    #store project
-    @project = WebuiProject.new(name: project_name)
-    @project.find_first(:title).text = params[:title]
-    @project.find_first(:description).text = params[:description]
-    @project.set_project_type('maintenance') if params[:maintenance_project]
-    if params[:remoteurl]
-      @project.add_element('remoteurl').text = params[:remoteurl]
-    end
+    @project.kind = 'maintenance' if params[:maintenance_project]
+
+    # TODO: do this with nested attributes
     if params[:access_protection]
-      @project.add_element('access').add_element 'disable'
+      @project.flags.new(status: 'disable', flag: 'access')
     end
+
+    # TODO: do this with nested attributes
     if params[:source_protection]
-      @project.add_element('sourceaccess').add_element 'disable'
+      @project.flags.new(status: 'disable', flag: 'sourceaccess')
     end
+
+    # TODO: do this with nested attributes
     if params[:disable_publishing]
-      @project.add_element('publish').add_element 'disable'
+      @project.flags.new(status: 'disable', flag: 'publish')
     end
-    begin
-      if @project.save
-        flash[:notice] = "Project '#{@project}' was created successfully"
-        redirect_to :action => 'show', :project => project_name and return
-      else
-        flash[:error] = "Failed to save project '#{@project}'"
-      end
-    rescue ActiveXML::Transport::ForbiddenError
-      flash[:error] = "You lack the permission to create the project '#{@project}'. " +
-        'Please create it in your home:%s namespace' % User.current.login
-      redirect_to :action => 'new', :ns => 'home:' + User.current.login and return
+
+    if @project.valid? && @project.store
+      flash[:notice] = "Project '#{@project}' was created successfully"
+      redirect_to :action => 'show', :project => @project.name
+    else
+      flash[:error] = "Failed to save project '#{@project}'. #{@project.errors.full_messages.to_sentence}."
+      redirect_to :back
     end
-    redirect_to :action => 'new'
   end
 
   def save
@@ -1481,6 +1473,19 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   private
+
+  def project_params
+    params.require(:project).permit(
+        :name,
+        :ns,
+        :title,
+        :description,
+        :maintenance_project,
+        :access_protection,
+        :source_protection,
+        :disable_publishing
+    )
+  end
 
   def filter_packages( project, filterstring )
     result = Collection.find :id, :what => 'package',

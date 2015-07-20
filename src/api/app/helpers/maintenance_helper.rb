@@ -39,7 +39,7 @@ module MaintenanceHelper
         tprj.add_user( User.current, bugowner )
       end
       # and write it
-      tprj.set_project_type 'maintenance_incident'
+      tprj.kind = 'maintenance_incident'
       tprj.store
       mi.db_project_id = tprj.id
       mi.save!

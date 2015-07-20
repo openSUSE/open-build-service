@@ -176,7 +176,7 @@ OBSApi::Application.routes.draw do
       get 'project/users/:project' => :users, constraints: cons, as: 'project_users'
       get 'project/subprojects/:project' => :subprojects, constraints: cons, as: 'project_subprojects'
       get 'project/attributes/:project', to: redirect('/attribs/%{project}'), constraints: cons
-      get 'project/new' => :new
+      get 'project/new' => :new, as: 'projects'
       post 'project/new_incident' => :new_incident
       get 'project/new_package/:project' => :new_package, constraints: cons
       get 'project/new_package_branch/:project' => :new_package_branch, constraints: cons
@@ -202,7 +202,7 @@ OBSApi::Application.routes.draw do
       get 'project/rebuild_time_png/:project' => :rebuild_time_png, constraints: cons
       get 'project/packages/:project' => :packages, constraints: cons
       get 'project/requests/:project' => :requests, constraints: cons
-      post 'project/save_new' => :save_new, constraints: cons
+      post 'project/save_new' => :save_new, constraints: cons, as: 'projects_create'
       post 'project/save' => :save, constraints: cons
       post 'project/save_targets' => :save_targets
       get 'project/remove_target_request_dialog' => :remove_target_request_dialog

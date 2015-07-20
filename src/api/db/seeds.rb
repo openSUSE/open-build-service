@@ -118,12 +118,6 @@ at.allowed_values << AttribAllowedValue.new( value: "BugownerOnly" )
 
 update_all_attrib_type_descriptions
 
-puts "Seeding db_project_type table by loading test fixtures"
-DbProjectType.where(name: "standard").first_or_create
-DbProjectType.where(name: "maintenance").first_or_create
-DbProjectType.where(name: "maintenance_incident").first_or_create
-DbProjectType.where(name: "maintenance_release").first_or_create
-
 # set default configuration settings if no settings exist
 Configuration.first_or_create(name: "private", title: "Open Build Service") do |conf|
 conf.description = <<-EOT

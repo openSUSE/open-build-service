@@ -172,7 +172,9 @@ class Owner
       defined_packages += prj.packages.pluck(:name)
     end
     # accept all incident containers in release projects. the main package (link) is enough here
-    defined_packages += Package.where(project_id: projects).joins("LEFT JOIN projects ON packages.project_id=projects.id LEFT JOIN package_kinds ON packages.id=package_kinds.package_id").distinct.where("projects.type_id=? AND (ISNULL(package_kinds.kind) OR package_kinds.kind='patchinfo')", DbProjectType.find_by_name!('maintenance_release')).pluck(:name)
+    defined_packages += Package.where(project_id: projects).
+        joins("LEFT JOIN projects ON packages.project_id=projects.id LEFT JOIN package_kinds ON packages.id=package_kinds.package_id").
+        distinct.where("projects.kind='maintenance_release' AND (ISNULL(package_kinds.kind) OR package_kinds.kind='patchinfo')").pluck(:name)
 
     if devel == true
       #FIXME add devel packages, but how do recursive lookup fast in SQL?

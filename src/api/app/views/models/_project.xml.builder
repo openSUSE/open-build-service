@@ -1,6 +1,6 @@
 project_attributes = { name: my_model.name }
 # Check if the project has a special type defined (like maintenance)
-project_attributes[:kind] = my_model.project_type if my_model.project_type and my_model.project_type != "standard"
+project_attributes[:kind] = my_model.kind unless my_model.is_standard?
 
 xml.project(project_attributes) do
   xml.title(my_model.title)
