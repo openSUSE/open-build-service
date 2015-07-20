@@ -6,38 +6,33 @@ module RequestSourceDiff
     attr_accessor :action
 
     def perform(opts)
-      @view_xml = (opts[:view] == 'xml')
-      @withissues = opts[:withissues]
-
-      action_diff = ''
-      gather_source_packages.each do |spkg|
-        action_diff += diff_for_source(spkg, action.target_project, action.target_package)
-      end
-      return action_diff
+      gather_source_packages.map { |spkg|
+        diff_for_source(spkg, opts)
+      }.join
     end
 
     def gather_source_packages
-      spkgs = []
       if action.bs_request_action_accept_info # the old package can be gone
         return [action.source_package]
+      elsif action.source_package
+        action.source_access_check!
+        return [action.source_package]
       else
-        if action.source_package
-          action.source_access_check!
-          return [action.source_package]
-        else
-          prj = Project.find_by_name(action.source_project)
-          prj.packages.each do |p|
+        prj = Project.find_by_name(action.source_project)
+        if prj
+          return prj.packages.map { |p|
             p.check_source_access!
-            spkgs << p.name
-          end if prj
+            p.name
+          }
+        else
+          []
         end
       end
-      spkgs
     end
 
-    def diff_for_source(spkg, target_project=nil, target_package=nil)
-      @target_project = target_project || action.target_project
-      @target_package = target_package || action.target_package
+    def diff_for_source(spkg, options = {})
+      @target_project = action.target_project
+      @target_package = action.target_package
 
       # fallback name as last resort
       @target_package ||= action.source_package
@@ -58,13 +53,12 @@ module RequestSourceDiff
         # maintenance incidents shall show the final result after release
         @target_project = action.target_releaseproject if action.target_releaseproject
 
-        tprj = Project.get_by_name(@target_project)
-
         # maintenance release targets will have a base link
-        @target_package.gsub!(/\.[^\.]$/, '') if tprj.is_maintenance_release?
+        if Project.get_by_name(@target_project).is_maintenance_release?
+          @target_package.gsub!(/\.[^\.]$/, '')
+        end
 
         # for requests not yet accepted or accepted with OBS 2.0 and before
-        tpkg = tprj = nil
         if Package.exists_by_project_and_name(@target_project, @target_package, follow_project_links: true)
           tpkg = Package.get_by_project_and_name(@target_project, @target_package)
         end
@@ -72,11 +66,12 @@ module RequestSourceDiff
         path = Package.source_path(action.source_project, spkg)
         query[:filelimit] = 10000
 
-        unless provided_in_other_action
+        if !provided_in_other_action && !action.updatelink
           # do show the same diff multiple times, so just diff unexpanded so we see possible link changes instead
           # also get sure that the request would not modify the link in the target
-          query[:expand] = 1 unless action.updatelink
+          query[:expand] = 1
         end
+
         if tpkg
           query[:oproject] = @target_project
           query[:opackage] = @target_package
@@ -94,8 +89,8 @@ module RequestSourceDiff
         end
       end
       # run diff
-      query[:view] = 'xml' if @view_xml # Request unified diff in full XML view
-      query[:withissues] = 1 if @withissues
+      query[:view] = 'xml' if options[:view] == 'xml' # Request unified diff in full XML view
+      query[:withissues] = 1 if options[:withissues]
       BsRequestAction.get_package_diff(path, query)
     end
 
@@ -104,24 +99,22 @@ module RequestSourceDiff
       # maintenance_release creates new packages instance, but are changing the source only according to the link
       return unless !action.target_package or [:maintenance_incident].include? action.action_type
       data = Xmlhash.parse(ActiveXML.backend.direct_http(URI("/source/#{URI.escape(action.source_project)}/#{URI.escape(spkg)}")))
-      e = data['linkinfo']
-      return unless e
-      @target_project = e["project"]
-      @target_package = e["package"]
+      linkinfo = data['linkinfo']
+      return unless linkinfo
+      @target_project = linkinfo["project"]
+      @target_package = linkinfo["package"]
       return unless @target_project == action.source_project
       # a local link, check if the real source change gets also transported in a seperate action
-      action.bs_request.bs_request_actions.each do |a|
-        return true if check_action_target(a)
-      end if action.bs_request
+      if action.bs_request
+        action.bs_request.bs_request_actions.any? { |a| check_action_target(a) }
+      end
     end
 
     # check if the action is the same target
     def check_action_target(other)
-      if action.source_project == other.source_project and
-          @target_package == other.source_package and
-          action.target_project == other.target_project
-        return true
-      end
+      action.source_project == other.source_project &&
+        @target_package == other.source_package &&
+        action.target_project == other.target_project
     end
   end
 
