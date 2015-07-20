@@ -5168,7 +5168,9 @@ sub checkkiwiproduct {
   for my $aprp (@aprps) {
     my %known;
     my ($aprojid, $arepoid) = split('/', $aprp, 2);
-    my $pdatas = ($projpacks->{$aprojid} || {})->{'package'} || {};
+    my $aproj = $projpacks->{$aprojid} || {};
+    $aproj = $remoteprojs{$aprojid} if $remoteprojs{$aprojid};
+    my $pdatas = $aproj->{'package'} || {};
     my @apackids = sort keys %$pdatas;
     for my $apackid (@apackids) {
       next if $pdatas->{$apackid}->{'patchinfo'};
@@ -5211,17 +5213,18 @@ sub checkkiwiproduct {
       @apackids = unify(@apackids, sort keys %$gbininfo) if $gbininfo;
 
       # just for maintenance_release project handling
-      my $xpackid;
       my $seen_pack;
 
-      for my $apackid (orderpackids($projpacks->{$aprojid}, @apackids)) {
+      for my $apackid (orderpackids($aproj, @apackids)) {
         next if $apackid eq '_volatile';
-        next if $pdatas->{$apackid}->{'patchinfo'};
-        if ($projpacks->{$aprojid}->{'kind'} && $projpacks->{$aprojid}->{'kind'} eq 'maintenance_release') {
-          $xpackid = "";
+        next if ($pdatas->{$apackid} || {})->{'patchinfo'};
+        if (($aproj->{'kind'} || '') eq 'maintenance_release') {
+	  my $xpackid;
 	  $xpackid = $1 if $apackid =~ /^(.*)\.(imported_)?(\d+)$/;
-	  next if $xpackid && $seen_pack->{$xpackid};
-	  $seen_pack->{$xpackid} = $apackid;
+	  if ($xpackid) {
+	    next if $seen_pack->{$xpackid};
+	    $seen_pack->{$xpackid} = $apackid;
+	  }
         }
 
         if (($allpacks && !$deps{"-$apackid"} && !$deps{'-'.($known{$apackid} || '')}) || $deps{$apackid} || $deps{$known{$apackid} || ''}) {
