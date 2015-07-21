@@ -24,17 +24,23 @@ class BsRequestCollection
       wrapper_for_inner_or { extend_query_for_project }
     end
 
-    if opts[:user]
-      wrapper_for_inner_or { extend_query_for_user(opts[:user]) }
-    end
+    wrapper_for_inner_or { extend_query_for_user(opts[:user]) } if opts[:user]
 
-    if opts[:group]
-      wrapper_for_inner_or { extend_query_for_group(opts[:group]) }
-    end
+    wrapper_for_inner_or { extend_query_for_group(opts[:group]) } if opts[:group]
 
-    if opts[:ids]
-      @rel = @rel.where(id: opts[:ids])
-    end
+    @rel = @rel.where(id: opts[:ids]) if opts[:ids]
+
+    # Searching capabilities using dataTable (1.9)
+    searchable_fields = [
+      'bs_requests.creator',
+      'bs_requests.priority',
+      'bs_request_actions.target_project',
+      'bs_request_actions.source_project',
+      'bs_request_actions.type'
+    ]
+    bind_search = ["%#{opts[:search]}%"] * searchable_fields.length
+    @rel = @rel.where([searchable_fields.map { |field| "#{field} like ?" }.join(' or '),
+                       bind_search].flatten) if opts[:search]
   end
 
   def ids

@@ -65,7 +65,7 @@ class Webui::WebuiController < ActionController::Base
       end
     end
   end
-  
+
   rescue_from ActionController::RedirectBackError do |exception|
     redirect_to root_path
   end
@@ -124,6 +124,26 @@ class Webui::WebuiController < ActionController::Base
     end
   end
 
+  # Renders a json response for jquery dataTables
+  def render_json_response_for_dataTable(options)
+    options[:echo_next_count] ||= 1
+    options[:total_records_count] ||= 0
+    options[:total_displayed_records] ||= 0
+    response = {
+      sEcho: options[:echo_next_count].to_i + 1,
+      iTotalRecords: options[:total_records_count].to_i,
+      iTotalDisplayRecords: options[:total_filtered_records_count].to_i,
+      aaData: options[:records].map do |record|
+        if block_given?
+          yield record
+        else
+          record
+        end
+      end
+    }
+    render json: Yajl::Encoder.encode(response)
+  end
+
   def require_login
     if User.current.is_nobody?
       render :text => 'Please login' and return false if request.xhr?
@@ -162,7 +182,7 @@ class Webui::WebuiController < ActionController::Base
     if mode == :simulate
       proxy_user ||= CONFIG['proxy_auth_test_user'] || CONFIG['proxy_test_user']
       proxy_email ||= CONFIG['proxy_auth_test_email']
-    end 
+    end
     if proxy_user
       session[:login] = proxy_user
       session[:email] = proxy_email
@@ -272,7 +292,7 @@ class Webui::WebuiController < ActionController::Base
     else arch
     end
   end
- 
+
   private
 
   def put_body_to_tempfile(xmlbody)

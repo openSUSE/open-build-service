@@ -10,9 +10,8 @@ class Webui::UserController < Webui::WebuiController
                                        :lock, :admin, :login, :notifications, :update_notifications, :show]
   before_filter :check_display_user, :only => [:show, :edit, :requests, :list_my, :delete, :save, :confirm, :admin, :lock]
   before_filter :require_login, :only => [:edit, :save, :notifications, :update_notifications]
-#  before_filter :require_login, :except => [:login, :do_login, :home, :requests, :render_requests_json, :user_icon, :icon, :register, :register_dialog, :autocomplete, :tokens, :list_users]
   before_filter :require_admin, :only => [:edit, :delete, :lock, :confirm, :admin]
-  
+
   skip_before_action :check_anonymous, only: [:do_login]
 
   def logout
@@ -71,6 +70,7 @@ class Webui::UserController < Webui::WebuiController
         @requests_in = @displayed_user.incoming_requests
         @requests_out = @displayed_user.outgouing_requests
         @declined_requests = @displayed_user.declined_requests
+        @user_have_requests = @displayed_user.requests?
     end
   end
 
@@ -82,23 +82,31 @@ class Webui::UserController < Webui::WebuiController
     end
   end
 
+  # Request from the user
   def requests
-    session[:requests] = @displayed_user.declined_requests.pluck(:id) + @displayed_user.involved_reviews.map { |r| r.id } + @displayed_user.incoming_requests.pluck(:id)
-    @requests = @displayed_user.declined_requests + @displayed_user.involved_reviews + @displayed_user.incoming_requests
-    @default_request_type = params[:type] if params[:type]
-    @default_request_state = params[:state] if params[:state]
+    sortable_fields = {
+        0 => :created_at,
+        3 => :creator,
+        5 => :priority
+      }
+    sorting_field = sortable_fields[params[:iSortCol_0].to_i]
+    sorting_field ||= :created_at
+    @requests = @displayed_user.requests(params[:sSearch])
+    @requests_count = @requests.clone.count
+    @requests = @requests.offset(params[:iDisplayStart].to_i).limit(params[:iDisplayLength].to_i).reorder(sorting_field => params[:sSortDir_0].to_sym)
     respond_to do |format|
-      format.json { render_requests_json }
+      # For jquery dataTable
+      format.json {
+        render_json_response_for_dataTable(
+          echo_next_count: params[:sEcho].to_i + 1,
+          total_records_count: @displayed_user.requests.count,
+          total_filtered_records_count: @requests_count,
+          records: @requests
+        ) do |request|
+          render_to_string(:partial => "shared/single_request.json", locals: { req: request, no_target: true, hide_state: true }).to_s.split(',')
+        end
+      }
     end
-  end
-
-  def render_requests_json
-    rawdata = Hash.new
-    rawdata['review'] = @displayed_user.involved_reviews.to_a
-    rawdata['new'] = @displayed_user.incoming_requests.to_a
-    rawdata['declined'] = @displayed_user.declined_requests.to_a
-    rawdata['patchinfos'] = @displayed_user.involved_patchinfos.to_a
-    render json: Yajl::Encoder.encode(rawdata)
   end
 
   def save
@@ -189,7 +197,7 @@ class Webui::UserController < Webui::WebuiController
     end
 
     flash[:success] = "The account \"#{params[:login]}\" is now active."
- 
+
     if User.current.is_admin?
       redirect_to :controller => :configuration, :action => :users
     else
@@ -208,7 +216,7 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def change_password
-    # check the valid of the params  
+    # check the valid of the params
     if not params[:password] == session[:password]
       errmsg = 'The value of current password does not match your current password. Please enter the password and try again.'
     end

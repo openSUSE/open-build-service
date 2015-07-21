@@ -52,8 +52,8 @@ class User < ActiveRecord::Base
   end
 
   # When a record object is initialized, we set the state, password
-  # hash type, indicator whether the password has freshly been set 
-  # (@new_password) and the login failure count to 
+  # hash type, indicator whether the password has freshly been set
+  # (@new_password) and the login failure count to
   # unconfirmed/false/0 when it has not been set yet.
   before_validation(:on => :create) do
 
@@ -84,7 +84,7 @@ class User < ActiveRecord::Base
   # again.
   after_save '@new_hash_type = false'
 
-  # Add accessors for "new_password" property. This boolean property is set 
+  # Add accessors for "new_password" property. This boolean property is set
   # to true when the password has been set and validation on this password is
   # required.
   attr_accessor :new_password
@@ -115,9 +115,9 @@ class User < ActiveRecord::Base
   end
 
     # Method to update the password and confirmation at the same time. Call
-  # this method when you update the password from code and don't need 
+  # this method when you update the password from code and don't need
   # password_confirmation - which should really only be used when data
-  # comes from forms. 
+  # comes from forms.
   #
   # A ussage example:
   #
@@ -145,7 +145,7 @@ class User < ActiveRecord::Base
   end
 
   # This method creates a new registration token for the current user. Raises
-  # a MultipleRegistrationTokens Exception if the user already has a 
+  # a MultipleRegistrationTokens Exception if the user already has a
   # registration token assigned to him.
   #
   # Use this method instead of creating user_registration objects directly!
@@ -222,7 +222,7 @@ class User < ActiveRecord::Base
     return hash_string(value) == self.password
   end
 
-  # Sets the last login time and saves the object. Note: Must currently be 
+  # Sets the last login time and saves the object. Note: Must currently be
   # called explicitely!
   def did_log_in
     self.last_logged_in_at = DateTime.now
@@ -268,7 +268,7 @@ class User < ActiveRecord::Base
   validates_uniqueness_of :login,
                           :message => 'is the name of an already existing user.'
 
-  # Overriding this method to do some more validation: Password equals 
+  # Overriding this method to do some more validation: Password equals
   # password_confirmation, state an password hash type being in the range
   # of allowed values.
   def validate
@@ -380,7 +380,7 @@ class User < ActiveRecord::Base
 
   end
 
-  # After validation, the password should be encrypted  
+  # After validation, the password should be encrypted
   after_validation(:on => :create) do
     if errors.empty? and @new_password and !password.nil?
       # generate a new 10-char long hash only Base64 encoded so things are compatible
@@ -650,7 +650,7 @@ class User < ActiveRecord::Base
       return true if can_download_binaries?(parm)
     end
     return true if can_access?(parm)
-    return false
+    false
   end
 
   def can_access_downloadsrcany?(parm)
@@ -659,7 +659,7 @@ class User < ActiveRecord::Base
       return true if can_source_access?(parm)
     end
     return true if can_access?(parm)
-    return false
+    false
   end
 
   def has_local_role?( role, object )
@@ -678,7 +678,7 @@ class User < ActiveRecord::Base
       return has_local_role?(role, object.project)
     end
 
-    return false
+    false
   end
 
   # local permission check
@@ -716,7 +716,7 @@ class User < ActiveRecord::Base
       return has_local_permission?(perm_string, parent)
     end
 
-    return false
+    false
   end
 
   def involved_projects_ids
@@ -734,7 +734,7 @@ class User < ActiveRecord::Base
 
   def involved_projects
     # now filter the projects that are not visible
-    return Project.where(id: involved_projects_ids)
+    Project.where(id: involved_projects_ids)
   end
 
   # lists packages maintained by this user and are not in maintained projects
@@ -751,7 +751,7 @@ class User < ActiveRecord::Base
     # all packages where user is maintainer via a group
     packages += Relationship.packages.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).pluck(:package_id)
 
-    return Package.where(id: packages).where('project_id not in (?)', projects)
+    Package.where(id: packages).where('project_id not in (?)', projects)
   end
 
   # list packages owned by this user.
@@ -764,7 +764,7 @@ class User < ActiveRecord::Base
     rescue APIException => e # no attribute set
       Rails.logger.debug "0wned #{e.inspect}"
     end
-    return owned
+    owned
   end
 
   # lists reviews involving this user
@@ -772,36 +772,41 @@ class User < ActiveRecord::Base
     open_reviews = BsRequestCollection.new(user: self.login, roles: %w(reviewer creator), reviewstates: %w(new), states: %w(review)).relation
     reviews_in = []
     open_reviews.each do |review|
-      if review['creator'] != login
-        reviews_in << review
-      end
+      reviews_in << review if review['creator'] != login
     end
-    return reviews_in
+    reviews_in
   end
 
   # list requests involving this user
   def declined_requests
-    declined_requests = BsRequestCollection.new(user: self.login, states: %w(declined), roles: %w(creator)).relation
-    return declined_requests
+    BsRequestCollection.new(user: self.login, states: %w(declined), roles: %w(creator)).relation
   end
 
   # list incoming requests involving this user
   def incoming_requests
-    requests_in = BsRequestCollection.new(user: self.login, states: %w(new), roles: %w(maintainer)).relation
-    return requests_in
+    BsRequestCollection.new(user: self.login, states: %w(new), roles: %w(maintainer)).relation
   end
 
   # list outgoing requests involving this user
   def outgouing_requests
-    requests_out = BsRequestCollection.new(user: self.login, states: %w(new review), roles: %w(creator)).relation
-    return requests_out
+    BsRequestCollection.new(user: login, states: %w(new review), roles: %w(creator)).relation
+  end
+
+  # finds if the user have any request
+  def requests?
+    requests.count > 0
+  end
+
+  # list of all requests
+  def requests(search = nil)
+    BsRequestCollection.new(user: login, states: VALID_REQUEST_STATES, roles: %w(creator maintainer reviewer), search: search).relation
   end
 
   # lists running maintenance updates where this user is involved in
   def involved_patchinfos
     array = Array.new
 
-    rel = PackageIssue.joins(:issue).where(issues: { state: 'OPEN', owner_id: self.id})
+    rel = PackageIssue.joins(:issue).where(issues: { state: 'OPEN', owner_id: id})
     rel = rel.joins('LEFT JOIN package_kinds ON package_kinds.package_id = package_issues.package_id')
     ids = rel.where('package_kinds.kind="patchinfo"').pluck('distinct package_issues.package_id')
 
@@ -940,7 +945,7 @@ class User < ActiveRecord::Base
 
   def display_name
     address = Mail::Address.new self.email
-    address.display_name = self.realname 
+    address.display_name = self.realname
     address.format
   end
 
