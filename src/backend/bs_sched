@@ -7895,7 +7895,7 @@ if (!$testprojid && -s "$rundir/bs_sched.$myarch.state") {
     # update repounchanged hash
     my $oldrepounchanged = $schedstate->{'repounchanged'} || {};
     for my $prp (@prps) {
-      $repounchanged{$prp} = $oldrepounchanged->{$prp} if %{$oldrepounchanged->{$prp} || {}};
+      $repounchanged{$prp} = $oldrepounchanged->{$prp} if exists $oldrepounchanged->{$prp};
     }
 
     # update delayedfetchprojpacks hash
