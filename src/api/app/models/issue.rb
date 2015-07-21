@@ -36,18 +36,20 @@ class Issue < ActiveRecord::Base
     return self.find_by_name_and_tracker( name, issue_tracker_name, force_update, true )
   end
 
-  def self.find_by_name_and_tracker( name, issue_tracker_name, force_update=nil, create_missing=nil )
-    issue_tracker = IssueTracker.find_by_name( issue_tracker_name )
-    raise IssueTracker::NotFoundError.new( "Error: Issue Tracker '#{issue_tracker_name}' not found." ) unless issue_tracker
+  def self.find_by_name_and_tracker(name, issue_tracker_name, force_update=nil, create_missing=nil)
+    issue_tracker = IssueTracker.find_by_name(issue_tracker_name)
+    unless issue_tracker
+      raise IssueTracker::NotFoundError.new("Error: Issue Tracker '#{issue_tracker_name}' not found.")
+    end
 
-    # find existing
     issue = issue_tracker.issues.find_by_name name
 
-    # create missing
-    issue = issue_tracker.issues.create( :name => name ) if issue.nil? and create_missing
+    if issue.nil? && create_missing
+      issue = issue_tracker.issues.create(:name => name)
+    end
 
     # force update
-    if force_update and not issue.nil?
+    if force_update && issue
       issue.fetch_updates
       issue = issue_tracker.issues.find_by_name name
     end
