@@ -604,6 +604,7 @@ while (1) {
   my @events = ls($myeventdir);
   @events = grep {!/^\./ && !/::inprogress$/} @events;
   my $havedelayed;
+  my $havereaped;
 
   for my $event (@events) {
     last if -e "$rundir/bs_signer.exit";
@@ -639,6 +640,13 @@ while (1) {
     }
     $chld{$pid} = $flavor;
     $chld_flavor{$flavor}->{$pid} = undef if defined $flavor;
+    while (($pid = waitpid(-1, defined($maxchild) && keys(%chld) > $maxchild ? 0 : POSIX::WNOHANG)) > 0) {
+      my $cflavor = delete $chld{$pid};
+      delete $chld_flavor{$cflavor}->{$pid} if defined $cflavor && $chld_flavor{$cflavor};
+    }
+    $havereaped = 1;
+  }
+  if ($havedelayed && %chld && !$havereaped) {
     while (($pid = waitpid(-1, defined($maxchild) && keys(%chld) > $maxchild ? 0 : POSIX::WNOHANG)) > 0) {
       my $cflavor = delete $chld{$pid};
       delete $chld_flavor{$cflavor}->{$pid} if defined $cflavor && $chld_flavor{$cflavor};
