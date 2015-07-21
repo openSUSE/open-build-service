@@ -14,10 +14,13 @@ class Issue < ActiveRecord::Base
   scope :stateless, -> { where(:state => nil) }
 
   def self.find_or_create_by_name_and_tracker( name, issue_tracker_name, force_update=nil )
-    return self.find_by_name_and_tracker( name, issue_tracker_name, force_update, true )
+    self.find_by_name_and_tracker(name, issue_tracker_name, {
+      :force_update => force_update,
+      :create_missing => true
+    })
   end
 
-  def self.find_by_name_and_tracker(name, issue_tracker_name, force_update=nil, create_missing=nil)
+  def self.find_by_name_and_tracker(name, issue_tracker_name, options = {})
     issue_tracker = IssueTracker.find_by_name(issue_tracker_name)
     unless issue_tracker
       raise IssueTracker::NotFoundError.new("Error: Issue Tracker '#{issue_tracker_name}' not found.")
@@ -25,12 +28,11 @@ class Issue < ActiveRecord::Base
 
     issue = issue_tracker.issues.find_by_name name
 
-    if issue.nil? && create_missing
+    if issue.nil? && options[:create_missing]
       issue = issue_tracker.issues.create(:name => name)
     end
 
-    # force update
-    if force_update && issue
+    if options[:force_update] && issue
       issue.fetch_updates
       issue = issue_tracker.issues.find_by_name name
     end
