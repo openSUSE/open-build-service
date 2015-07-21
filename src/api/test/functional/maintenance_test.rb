@@ -14,6 +14,39 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     Timecop.return
   end
 
+  def test_instantiate_for_service_packs
+    login_tom
+    # add a new package with defined link target
+    put '/source/home:tom:BaseDistro:SP1/_meta',
+          '<project name="home:tom:BaseDistro:SP1" kind="maintenance_release">
+            <title/> <description/>
+            <link project="BaseDistro:Update"/>
+          </project>'
+    assert_response :success
+
+    post '/source/home:tom:BaseDistro:SP1/pack1', :cmd => 'branch', :target_project => 'home:tom:Branch', :missingok => 1
+    assert_response 400
+    # osc catches this error code and is fallingback to newinstance=1
+    assert_xml_tag tag: 'status', attributes: {code: "not_missing"}
+
+    post '/source/home:tom:BaseDistro:SP1/pack1', :cmd => 'branch', :target_project => 'home:tom:Branch', :newinstance => 1
+    assert_response :success
+    assert_xml_tag tag: 'data', attributes: {name: "sourceproject"}, content: "home:tom:BaseDistro:SP1"
+
+    get "/source/home:tom:Branch/pack1/_link"
+    assert_response :success
+    assert_xml_tag tag: 'link', attributes: {project: "home:tom:BaseDistro:SP1"}
+
+    post '/source/BaseDistro:Update/pack1', :cmd => 'branch', :target_project => 'home:tom:Branch', :missingok => 1, :extend_package_names => 1
+    assert_response 400
+    assert_xml_tag tag: 'status', attributes: {code: "not_missing"}
+
+    delete "/source/home:tom:Branch"
+    assert_response :success
+    delete "/source/home:tom:BaseDistro:SP1"
+    assert_response :success
+  end
+
   def test_create_maintenance_project
     login_tom
     

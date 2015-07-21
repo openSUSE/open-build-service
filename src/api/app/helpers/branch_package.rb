@@ -328,6 +328,11 @@ class BranchPackage
       end
     end
 
+    if params[:newinstance]
+      # user explicit wants this link target
+      p[:link_target_project] = Project.get_by_name params[:project]
+    end
+
     # set default based on first found package location
     unless @target_project
       @target_project = "home:#{User.current.login}:branches:#{p[:link_target_project].name}"
