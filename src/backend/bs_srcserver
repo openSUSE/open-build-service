@@ -5632,7 +5632,7 @@ sub moveproject {
     die("cannot copy binaries between different reposiory servers yet\n");
   }
   if (-e "$projectsdir/$projid.pkg" || -e "$projectsdir/$projid.conf" || -e "$projectsdir/$projid.xml") {
-    die("Target project exists already\n");
+    die("target project already exists\n");
   }
 
   rename("$projectsdir/$oprojid.xml", "$projectsdir/$projid.xml");
@@ -5640,8 +5640,21 @@ sub moveproject {
   rename("$projectsdir/$oprojid.conf", "$projectsdir/$projid.conf") if -e "$projectsdir/$oprojid.conf";
   rename("$treesdir/$oprojid", "$treesdir/$projid") if $BSConfig::nosharedtrees && -e "$treesdir/$oprojid";
 
-  for my $f (ls("$projectsdir/$projid.pkg")) {
-    updatelinkinfodb($projid, $1) if ($f =~ /^(.*)\.rev$/);
+  # move entries in linkinfo database
+  if (-d $sourcedb) {
+    my $linkdb = BSDB::opendb($sourcedb, 'linkinfo');
+    if ($linkdb) {
+      my @packids = grep {s/\Q$oprojid\E\///} $linkdb->keys();
+      for my $packid (@packids) {
+	next unless -e "$projectsdir/$projid.pkg/$packid.xml";
+	eval {
+	  my $rev = getrev($projid, $packid);
+	  updatelinkinfodb($projid, $packid, $rev, lsrev($rev)) if $rev;
+	};
+	warn($@) if $@;
+	updatelinkinfodb($oprojid, $packid);
+      }
+    }
   }
 
   # move in the backend as well
