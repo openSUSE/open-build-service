@@ -13,12 +13,16 @@ class Issue < ActiveRecord::Base
 
   scope :stateless, -> { where(:state => nil) }
 
-  def self.get_by_name_and_tracker( name, issue_tracker_name, force_update=nil )
-    issue_tracker = IssueTracker.find_by_name( issue_tracker_name )
-    raise IssueTracker::NotFoundError.new( "Error: Issue Tracker '#{issue_tracker_name}' not found." ) unless issue_tracker
+  def self.get_by_name_and_tracker(name, issue_tracker_name, force_update=nil)
+    issue_tracker = IssueTracker.find_by_name(issue_tracker_name)
+    unless issue_tracker
+      raise IssueTracker::NotFoundError.new("Error: Issue Tracker '#{issue_tracker_name}' not found.")
+    end
 
     issue = issue_tracker.issues.find_by_name name
-    raise NotFoundError.new( "Error: Issue '#{name}' not found." ) unless issue
+    unless issue
+      raise NotFoundError.new("Error: Issue '#{name}' not found.")
+    end
     
     if force_update
       issue.fetch_updates
