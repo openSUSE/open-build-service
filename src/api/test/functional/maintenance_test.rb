@@ -29,11 +29,11 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # osc catches this error code and is fallingback to newinstance=1
     assert_xml_tag tag: 'status', attributes: {code: "not_missing"}
 
-    post '/source/home:tom:BaseDistro:SP1/pack1', :cmd => 'branch', :target_project => 'home:tom:Branch', :newinstance => 1
+    post '/source/home:tom:BaseDistro:SP1/pack1', :cmd => 'branch', :target_project => 'home:tom:Branch', :newinstance => 1, :extend_package_names => 1
     assert_response :success
     assert_xml_tag tag: 'data', attributes: {name: "sourceproject"}, content: "home:tom:BaseDistro:SP1"
 
-    get "/source/home:tom:Branch/pack1/_link"
+    get "/source/home:tom:Branch/pack1.home_tom_BaseDistro_SP1/_link"
     assert_response :success
     assert_xml_tag tag: 'link', attributes: {project: "home:tom:BaseDistro:SP1"}
 

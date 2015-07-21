@@ -72,7 +72,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'BranchPackage#find_packages_to_branch' => 234.73,
       'BranchPackage#create_branch_packages' => 214.0,
       'BranchPackage#check_for_update_project' => 101.04,
-      'BranchPackage#determine_details_about_package_to_branch' => 81.6,
+      'BranchPackage#determine_details_about_package_to_branch' => 91.39,
       'BranchPackage#lookup_incident_pkg' => 80.64,
       'BsRequest#change_review_state' => 203.53,
       'BsRequest#changestate_accepted' => 80.21,

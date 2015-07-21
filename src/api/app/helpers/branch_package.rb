@@ -307,6 +307,12 @@ class BranchPackage
 
     check_for_update_project(p) unless params[:ignoredevel]
 
+    if params[:newinstance]
+      p[:link_target_project] = Project.get_by_name params[:project]
+      p[:target_package] = p[:package].name
+      p[:target_package] += ".#{p[:link_target_project].name}" if @extend_names
+    end
+
     # validate and resolve devel package or devel project definitions
     unless params[:ignoredevel] or p[:copy_from_devel]
 
@@ -319,18 +325,13 @@ class BranchPackage
         logger.info "sources will get copied from incident package #{incident_pkg.project.name}/#{incident_pkg.name}"
       elsif not @copy_from_devel and devel_package
         p[:package] = devel_package
-        p[:link_target_project] = p[:package].project
+        p[:link_target_project] = p[:package].project unless params[:newinstance]
         p[:target_package] = p[:package].name
         p[:target_package] += ".#{p[:link_target_project].name}" if @extend_names
         # user specified target name
         p[:target_package] = params[:target_package] if params[:target_package]
         logger.info "devel project is #{p[:link_target_project].name} #{p[:package].name}"
       end
-    end
-
-    if params[:newinstance]
-      # user explicit wants this link target
-      p[:link_target_project] = Project.get_by_name params[:project]
     end
 
     # set default based on first found package location
