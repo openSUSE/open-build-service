@@ -1,17 +1,33 @@
 class Buildresult < ActiveXML::Node
 
-  Avail_status_values = %w(succeeded failed unresolvable broken blocked dispatching scheduled
-                           building finished signing disabled excluded locked deleting unknown)
+  AVAIL_STATUS_VALUES = [
+    "succeeded",
+    "failed",
+    "unresolvable",
+    "broken",
+    "blocked",
+    "dispatching",
+    "scheduled",
+    "building",
+    "finished",
+    "signing",
+    "disabled",
+    "excluded",
+    "locked",
+    "deleting",
+    "unknown"
+  ]
+
   @@status_hash = nil
 
   def self.avail_status_values
-    Avail_status_values
+    AVAIL_STATUS_VALUES
   end
 
   def self.code2index(code)
     unless @@status_hash
       @@status_hash = Hash.new
-      Avail_status_values.each_with_index do |s,index|
+      AVAIL_STATUS_VALUES.each_with_index do |s,index|
         @@status_hash[s] = index
       end
     end
@@ -20,7 +36,7 @@ class Buildresult < ActiveXML::Node
   end
 
   def self.index2code(index)
-    Avail_status_values[index]
+    AVAIL_STATUS_VALUES[index]
   end
 
 end
