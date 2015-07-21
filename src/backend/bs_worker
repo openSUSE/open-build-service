@@ -1027,12 +1027,14 @@ sub manage_cache {
       unlink("$cachefile.$$");
       next unless link_or_copy($path, "$cachefile.$$");
       rename("$cachefile.$$", $cachefile) || die("rename $cachefile.$$ $cachefile: $!\n");
+      unlink("$cachefile.$$");
       my $mpath = "$path.meta";
       $mpath = "$1.meta" if $path =~ /^(.*)\.(?:$binsufsre)$/;
       if (-s $mpath) {
 	unlink("$cachefile.meta.$$");
 	if (link_or_copy($mpath, "$cachefile.meta.$$")) {
 	  rename("$cachefile.meta.$$", "$cachefile.meta") || die("rename $cachefile.meta.$$ $cachefile.meta: $!\n");
+	  unlink("$cachefile.meta.$$");
 	} else {
 	  unlink("$cachefile.meta");
 	}
