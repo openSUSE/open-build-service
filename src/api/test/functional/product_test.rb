@@ -163,9 +163,14 @@ class ProductTests < ActionDispatch::IntegrationTest
     login_king
     inject_build_job( "home:Iggy", "TestPack", "10.2", "i586" )
     inject_build_job( "home:Iggy", "TestPack", "10.2", "x86_64" )
-    run_scheduler('i586')
+    run_scheduler('local') # run first, so the waiting_for are still there
+    get "/build/home:tom:temporary/_result"
+    assert_response :success
+    assert_xml_tag :parent => {:tag => "result", :attributes => {project:"home:tom:temporary", repository:"images", arch:"local"} },
+                   :tag => "status", :attributes => { :package => '_product:simple-cd-cd-i586_x86_64', :code => 'blocked' }
+    run_scheduler('i586')  # but they get removed now ...
     run_scheduler('x86_64')
-    run_scheduler('local')
+    run_scheduler('local') # check that i586 & x86_64 schedulers removed waiting_for
     get "/build/home:Iggy/_result"
     assert_response :success
     assert_xml_tag :parent => {:tag => "result", :attributes => {project:"home:Iggy", repository:"10.2", arch:"i586"} },
