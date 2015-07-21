@@ -26,18 +26,17 @@ class Issue < ActiveRecord::Base
       raise IssueTracker::NotFoundError.new("Error: Issue Tracker '#{issue_tracker_name}' not found.")
     end
 
-    issue = issue_tracker.issues.find_by_name name
-
+    issue = issue_tracker.issues.find_by_name(name)
     if issue.nil? && options[:create_missing]
       issue = issue_tracker.issues.create(:name => name)
     end
 
     if options[:force_update] && issue
       issue.fetch_updates
-      issue = issue_tracker.issues.find_by_name name
+      issue = issue_tracker.issues.find_by_name(name)
     end
 
-    return issue
+    issue
   end
 
   def self.states
