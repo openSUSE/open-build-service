@@ -70,19 +70,22 @@ class Issue < ActiveRecord::Base
   end
 
   def webui_infos
-    issue = { created_at: self.created_at }
-    issue[:updated_at] = self.updated_at  if self.updated_at
-    issue[:name] = self.name
-    issue[:tracker] = self.issue_tracker.name
-    issue[:label] = self.label
-    issue[:url] = self.issue_tracker.show_url.gsub('@@@', self.name)
-    issue[:state] = self.state     if self.state
-    issue[:summary] = self.summary if self.summary
+    issue = {
+      created_at: self.created_at,
+      name:       self.name,
+      tracker:    self.issue_tracker.name,
+      label:      self.label,
+      url:        self.issue_tracker.show_url.gsub('@@@', self.name)
+    }
 
+    issue[:updated_at] = self.updated_at if self.updated_at
+    issue[:state]      = self.state if self.state
+    issue[:summary]    = self.summary if self.summary
     # self.owner must not by used, since it is reserved by rails
-    o = User.find_by_id self.owner_id
+    o = User.find_by_id(self.owner_id)
     issue[:owner] = o.login if o
-    return issue
+
+    issue
   end
   
   def url
