@@ -75,7 +75,7 @@ class Issue < ActiveRecord::Base
       name:       self.name,
       tracker:    self.issue_tracker.name,
       label:      self.label,
-      url:        self.issue_tracker.show_url.gsub('@@@', self.name)
+      url:        self.url
     }
 
     issue[:updated_at] = self.updated_at if self.updated_at
