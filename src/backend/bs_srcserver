@@ -2827,6 +2827,7 @@ sub checkpartition {
     return;
   }
   $remotemap->{$projid}->{'repository'} = $proj->{'repository'} if $proj->{'repository'};
+  $remotemap->{$projid}->{'kind'} = $proj->{'kind'} if $proj->{'kind'};
   if ($proj->{'access'}) {
     for ('access', 'publish', 'person', 'group') {
       $remotemap->{$projid}->{$_} = $proj->{$_} if exists $proj->{$_};
@@ -4114,7 +4115,7 @@ sub fetchremoteproj {
     }
     die($@);
   }
-  for (qw{name root remoteroot remoteurl remoteproject}) {
+  for (qw{name kind root remoteroot remoteurl remoteproject}) {
     $rproj->{$_} = $proj->{$_};
   }
   for my $repo (@{$rproj->{'repository'} || []}) {

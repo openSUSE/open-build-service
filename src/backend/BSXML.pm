@@ -311,6 +311,7 @@ our $projpack = [
      ]],
      [[ 'remotemap' =>
 	    'project',
+	    'kind',
 	    'root',
 	    'remoteurl', 
 	    'remoteproject', 
