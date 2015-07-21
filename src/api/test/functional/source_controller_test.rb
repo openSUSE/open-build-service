@@ -1968,10 +1968,10 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # listings
     get '/source/BaseDistro2.0:LinkedUpdateProject'
     assert_response :success
-    assert_xml_tag(:tag => 'directory', :attributes => { :count => '0' })
+    assert_xml_tag(:tag => 'directory', :attributes => { :count => '1' })
     get '/source/BaseDistro2.0:LinkedUpdateProject?expand=1'
     assert_response :success
-    assert_xml_tag(:tag => 'directory', :attributes => { :count => '2' })
+    assert_xml_tag(:tag => 'directory', :attributes => { :count => '3' })
     assert_xml_tag(:tag => 'entry', :attributes => { :name => 'pack2', :originproject => 'BaseDistro2.0' })
     assert_xml_tag(:tag => 'entry', :attributes => { :name => 'pack2.linked', :originproject => 'BaseDistro2.0' })
 

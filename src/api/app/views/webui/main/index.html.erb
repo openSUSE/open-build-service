@@ -37,6 +37,6 @@
   <% end %>
   <%= render :partial => 'sponsors' %>
   <%= render :partial => 'news' %>
-  <%= render :partial => 'latest_updates' if (@latest_updates and ::Configuration.anonymous?) %>
+  <%= render :partial => 'latest_updates' if (@latest_updates and ::Configuration.anonymous) %>
 </div>
 

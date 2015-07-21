@@ -4,11 +4,12 @@ class Architecture < ActiveRecord::Base
 
   has_many :repository_architectures, inverse_of: :architecture
   has_many :repositories, :through => :repository_architectures
-  
-  has_many :download_stats
+
   has_many :downloads
 
   has_many :flags
+
+  validates_uniqueness_of :name
 
   def self.discard_cache
     Rails.cache.delete("archcache")
@@ -31,4 +32,3 @@ class Architecture < ActiveRecord::Base
   after_save 'Architecture.discard_cache'
   after_destroy 'Architecture.discard_cache'
 end
-

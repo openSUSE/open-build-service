@@ -8,7 +8,7 @@ class PublicController < ApplicationController
 
   def extract_user_public
     # to become _public_ special user
-    if ::Configuration.anonymous?
+    if ::Configuration.anonymous
       load_nobody
       return true
     end

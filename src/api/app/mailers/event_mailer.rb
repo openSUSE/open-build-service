@@ -2,7 +2,7 @@ class EventMailer < ActionMailer::Base
   helper :comment
 
   def set_headers
-    @host = ::Configuration.first.obs_url
+    @host = ::Configuration.obs_url
     @configuration = ::Configuration.first
 
     headers['Precedence'] = 'bulk'
@@ -14,7 +14,7 @@ class EventMailer < ActionMailer::Base
   end
 
   def mail_sender
-    'OBS Notification <' + ::Configuration.first.admin_email + '>'
+    'OBS Notification <' + ::Configuration.admin_email + '>'
   end
 
   def event(subscribers, e)

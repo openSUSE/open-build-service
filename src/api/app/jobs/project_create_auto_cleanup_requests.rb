@@ -10,7 +10,7 @@ Such requests get not created for projects with open requests or if you remove t
 
   def perform
     # disabled ?
-    cleanupDays = ::Configuration.first.cleanup_after_days
+    cleanupDays = ::Configuration.cleanup_after_days
     return unless cleanupDays and cleanupDays > 0
 
     # defaults

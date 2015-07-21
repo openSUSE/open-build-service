@@ -260,7 +260,7 @@ class ApplicationController < ActionController::Base
   end
 
   def check_for_anonymous_user
-    if ::Configuration.anonymous?
+    if ::Configuration.anonymous
       # Fixed list of clients which do support the read only mode
       hua = request.env['HTTP_USER_AGENT']
       if hua # ignore our test suite (TODO: we need to fix that)

@@ -73,6 +73,16 @@
       <% end %>
     <% end %>
   </div>
+  <% if @packages.present? && @ipackages.present? %>
+    <%= javascript_tag do %>
+        $('#packages_table_wrapper_table_filter input:first-of-type').on("keyup paste", function() {
+          $('#ipackages_wrapper_table').dataTable().fnFilter( $(this).val());
+        });
+        $('#ipackages_wrapper_table_filter input:first-of-type').on("keyup paste", function() {
+          $('#packages_table_wrapper_table').dataTable().fnFilter( $(this).val());
+        });
+    <% end %>
+  <% end %>
   <noscript>
     <%= link_to 'Packages', action: 'packages_simple', project: @project %>
   </noscript>

@@ -1,38 +1,30 @@
 require 'event/all'
-
+# Get/Set notifications. To be used in controllers
 module Webui::NotificationSettings
+  EVENT_TYPES = [Event::RequestCreate, Event::RequestStatechange,
+                 Event::CommentForProject, Event::CommentForPackage,
+                 Event::CommentForRequest, Event::BuildFail,
+                 Event::ReviewWanted]
 
-  Roles = [:maintainer, :bugowner, :source_maintainer, :target_maintainer, :reviewer, :commenter, :creator]
-  Event_types = %w{RequestCreate RequestStatechange CommentForProject CommentForPackage CommentForRequest BuildFail ReviewWanted}
+  def notifications_for_user(user = nil)
+    result = []
 
-  # find subscribed roles for the user (nil for global settings)
-  def notifications_for_user(user)
-    @notifications = []
-
-    Event_types.each do |event_type|
-      type = 'Event::'+event_type
-      display_roles = type.constantize.receiver_roles
-      tmp = []
-      Roles.each do |role|
-        next unless display_roles.include?(role)
-        value = EventSubscription.subscription_value(type, role, user)
-        tmp << [role, value]
+    EVENT_TYPES.each do |event_type|
+      display_roles = event_type.receiver_roles.clone
+      display_roles.map! do |role|
+        [role, EventSubscription.subscription_value(event_type.to_s, role, user)]
       end
-      @notifications << [event_type, type.constantize.description, tmp]
+      result << [event_type.to_s, event_type.description, display_roles]
     end
-
-    Rails.logger.debug @notifications.inspect
+    result
   end
 
-  # updates settings - user is nil for global
-  def update_notifications_for_user(user)
-    Event_types.each do |event_type|
-      values = params[event_type] || {}
-      type = 'Event::'+event_type
-      display_roles = type.constantize.receiver_roles
-      Roles.each do |role|
-        next unless display_roles.include?(role)
-        EventSubscription.update_subscription(type, role, user, !values[role].nil?)
+  def update_notifications_for_user(user = nil, params)
+    EVENT_TYPES.each do |event_type|
+      values = params[event_type.to_s] || {}
+      display_roles = event_type.receiver_roles
+      display_roles.each do |role|
+        EventSubscription.update_subscription(event_type.to_s, role, user, !values[role].nil?)
       end
     end
   end

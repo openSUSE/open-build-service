@@ -2,27 +2,27 @@ class Webui::PatchinfoController < Webui::WebuiController
   include Webui::WebuiHelper
   include Webui::PackageHelper
   before_filter :require_project
-  before_filter :get_binaries, :except => [:show, :delete]
-  before_filter :require_exists, :except => [:new_patchinfo]
-  before_filter :require_login, :except => [:show]
+  before_filter :get_binaries, except: [:show, :delete]
+  before_filter :require_exists, except: [:new_patchinfo]
+  before_filter :require_login, except: [:show]
 
   def new_patchinfo
     unless User.current.can_create_package_in? @project.api_obj
       flash[:error] = 'No permission to create packages'
-      redirect_to :controller => 'project', :action => 'show', project: @project and return
+      redirect_to controller: 'project', action: 'show', project: @project and return
     end
 
     unless @project.api_obj.exists_package? 'patchinfo'
       unless Patchinfo.new.create_patchinfo(@project.name, nil)
         flash[:error] = 'Error creating patchinfo'
-        redirect_to :controller => 'project', :action => 'show', project: @project and return
+        redirect_to controller: 'project', action: 'show', project: @project and return
       end
     end
     @package = @project.api_obj.packages.find_by_name('patchinfo')
     @file = @package.patchinfo
     unless @file
       flash[:error] = "Patchinfo not found for #{params[:project]}"
-      redirect_to :controller => 'package', :action => 'show', :project => @project, :package => @package and return
+      redirect_to controller: 'package', action: 'show', project: @project, package: @package and return
     end
 
     read_patchinfo
@@ -35,13 +35,13 @@ class Webui::PatchinfoController < Webui::WebuiController
 
   def updatepatchinfo
     path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=updatepatchinfo"
-    frontend.transport.direct_http( URI(path), :method => 'POST')
-    redirect_to :action => 'edit_patchinfo', :project => @project, :package => @package
+    frontend.transport.direct_http(URI(path), method: 'POST')
+    redirect_to action: 'edit_patchinfo', project: @project, package: @package
   end
 
   def edit_patchinfo
     read_patchinfo
-    @tracker = ::Configuration.first.default_tracker
+    @tracker = ::Configuration.default_tracker
     @binaries.each do |bin|
       if @binarylist.find(bin)
         @binarylist.delete(bin)
@@ -59,14 +59,15 @@ class Webui::PatchinfoController < Webui::WebuiController
   def read_patchinfo
     @binaries = Array.new
     @file.each(:binary) do |binaries|
-        @binaries << binaries.text
-      end
+      @binaries << binaries.text
+    end
     @binary = []
     @packager = @file.value(:packager)
     @issues = []
     @file.each(:issue) do |a|
       if a.text == ''
-        # old uploaded patchinfos could have broken tracker-names like "bnc " instead of "bnc". Catch these.
+        # old uploaded patchinfos could have broken tracker-names like "bnc "
+        # instead of "bnc". Catch these.
         begin
           get_issue_sum(a.value(:tracker), a.value(:id))
           a.text = @issuesum
@@ -74,7 +75,7 @@ class Webui::PatchinfoController < Webui::WebuiController
           a.text = 'PLEASE CHECK THE FORMAT OF THE ISSUE'
         end
       end
-      issue = Array.new
+      issue = []
       issueid = a.value(:id)
       issueurl = IssueTracker.find_by_name(a.value(:tracker))
       if issueurl
@@ -89,11 +90,11 @@ class Webui::PatchinfoController < Webui::WebuiController
       @issues << issue
     end
 
-    if params[:issue] == nil
-      params[:issue] = Array.new
+    if params[:issue].nil?
+      params[:issue] = []
       params[:issue] << params[:issueid]
     end
-    if params[:issueid] != nil
+    unless params[:issueid].nil?
       params[:issue] << params[:issueid]
       @issues = params[:issue]
     end
@@ -102,7 +103,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     @category = @file.value(:category)
     @rating = @file.value(:rating)
     @summary = @file.value(:summary)
-    
+
     @description = @file.value(:description)
     if @file.has_element?('relogin_needed')
       @relogin = true
@@ -147,9 +148,9 @@ class Webui::PatchinfoController < Webui::WebuiController
         reboot = params[:reboot]
         zypp_restart_needed = params[:zypp_restart_needed]
         if params[:issueid]
-          issues = Array.new
+          issues = []
           params[:issueid].each_with_index do |new_issue, index|
-            issue = Array.new
+            issue = []
             issue << new_issue
             issue << params[:issuetracker][index]
             issue << params[:issuesum][index]
@@ -157,9 +158,9 @@ class Webui::PatchinfoController < Webui::WebuiController
           end
         end
         rating = params[:rating]
-        node = Builder::XmlMarkup.new(:indent=>2)
+        node = Builder::XmlMarkup.new(indent: 2)
         attrs = {}
-        attrs[:incident] = @package.project.name.gsub(/.*:/,'')
+        attrs[:incident] = @package.project.name.gsub(/.*:/, '')
         xml = node.patchinfo(attrs) do |n|
           if binaries
             binaries.each do |binary|
@@ -168,19 +169,19 @@ class Webui::PatchinfoController < Webui::WebuiController
               end
             end
           end
-          node.packager    packager
+          node.packager packager
           if issues
             issues.each do |issue|
               unless IssueTracker.find_by_name(issue[1])
                 flash[:error] = "Unknown Issue tracker #{issue[1]}"
                 return
               end
-              node.issue(issue[2], :tracker=>issue[1], :id=>issue[0])
+              node.issue(issue[2], tracker: issue[1], id: issue[0])
             end
           end
-          node.category    params[:category]
-          node.rating      rating
-          node.summary     params[:summary]
+          node.category params[:category]
+          node.rating rating
+          node.summary params[:summary]
           node.description params[:description].gsub("\r\n", "\n")
           if reboot
             node.reboot_needed
@@ -196,25 +197,25 @@ class Webui::PatchinfoController < Webui::WebuiController
           end
         end
         begin
-          frontend.put_file( xml, :project => @project,
-            :package => @package, :filename => filename)
+          frontend.put_file(xml, project: @project,
+                                 package: @package, filename: filename)
           flash[:notice] = "Successfully edited #{@package}"
-        rescue Timeout::Error 
+        rescue Timeout::Error
           flash[:error] = 'Timeout when saving file. Please try again.'
         end
 
-        redirect_to :controller => 'patchinfo', :action => 'show',
-          :project => @project.name, :package => @package
+        redirect_to controller: 'patchinfo', action: 'show',
+                    project: @project.name, package: @package
       end
       if valid_params == false
         @tracker = params[:tracker]
         @packager = params[:packager]
         @binaries = params[:selected_binaries]
         @binarylist = params[:available_binaries]
-        @issues = Array.new
+        @issues = []
         if params[:issueid]
           params[:issueid].each_with_index do |new_issue, index|
-            issue = Array.new
+            issue = []
             issue << new_issue
             issue << params[:issuetracker][index]
             issue << params[:issueurl][index]
@@ -231,31 +232,31 @@ class Webui::PatchinfoController < Webui::WebuiController
         @zypp_restart_needed = params[:zypp_restart_needed]
         @block = params[:block]
         @block_reason = params[:block_reason]
-        render :action => 'edit_patchinfo', :project => @project, :package => @package
+        render action: 'edit_patchinfo', project: @project, package: @package
       end
     rescue ActiveXML::Transport::ForbiddenError
       flash[:error] = 'No permission to edit the patchinfo-file.'
-      redirect_to :action => 'show', :project => @project.name, :package => @package.name
+      redirect_to action: 'show', project: @project.name, package: @package.name
     end
   end
 
   def remove
     begin
-      FrontendCompat.new.delete_package :project => @project, :package => @package
+      FrontendCompat.new.delete_package project: @project, package: @package
       flash[:notice] = "'#{@package}' was removed successfully from project '#{@project}'"
       Rails.cache.delete('%s_packages_mainpage' % @project)
       Rails.cache.delete('%s_problem_packages' % @project)
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary
     end
-    redirect_to :controller => 'project', :action => 'show', :project => @project
+    redirect_to controller: 'project', action: 'show', project: @project
   end
 
   def delete_dialog
     render_dialog
   end
 
-  def valid_summary? name
+  def valid_summary?(name)
     name != nil and name =~ /^.{10,}$/m
   end
 
@@ -265,16 +266,16 @@ class Webui::PatchinfoController < Webui::WebuiController
   end
 
   def new_tracker
-    #new_issues = list of new issues to add
+    # new_issues = list of new issues to add
     new_issues = params[:issues]
-    #collection with all informations of the new issues
-    issue_collection = Array.new
-    error = String.new
-    invalid_format = String.new
-    invalid_tracker = String.new
+    # collection with all informations of the new issues
+    issue_collection = []
+    error = ''
+    invalid_format = ''
+    invalid_tracker = ''
     new_issues.each do |new_issue|
-      #issue = collecting all informations of an new issue
-      issue = Array.new
+      # issue = collecting all informations of an new issue
+      issue = []
       if new_issue.starts_with? 'CVE-'
         issue[0] = 'cve'
         issue[1] = new_issue
@@ -283,7 +284,7 @@ class Webui::PatchinfoController < Webui::WebuiController
       end
       if issue.length > 1
         begin
-          
+
           issueurl = IssueTracker.find_by_name(issue[0])
           if issueurl
             Rails.logger.debug "URL2 #{issueurl.inspect}"
@@ -306,9 +307,9 @@ class Webui::PatchinfoController < Webui::WebuiController
         invalid_format += "#{issue[0]} "
       end
     end
-    error += "#{invalid_tracker}" 
+    error += "#{invalid_tracker}"
     error += "#{invalid_format}has no valid format. (Correct formats are e.g. boo#123456, CVE-1234-5678 and the string has to be a comma-separated list)" if !invalid_format.empty?
-    render :nothing => true, :json => { :error => error, :issues => issue_collection}
+    render nothing: true, json: { error: error, issues: issue_collection }
   end
 
   def get_issue_sum(tracker, issueid)
@@ -318,7 +319,7 @@ class Webui::PatchinfoController < Webui::WebuiController
       bug = issueid
     end
     path = "/issue_trackers/#{CGI.escape(tracker)}"
-    tracker_result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), :method => 'GET'))
+    tracker_result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), method: 'GET'))
     regexp = '^'
     regexp += tracker_result.value(:regex)
     regexp += '$'
@@ -326,10 +327,10 @@ class Webui::PatchinfoController < Webui::WebuiController
     if bug.match(regexp)
       begin
         path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}"
-        result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), :method => 'GET'))
+        result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), method: 'GET'))
         unless result.value(:summary)
           path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}?force_update=1"
-          result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), :method => 'GET'))
+          result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), method: 'GET'))
         end
         @issuesum = result.value(:summary) || ''
         @issuesum.gsub!(/\\|'/) { |c| '' }
@@ -345,12 +346,12 @@ class Webui::PatchinfoController < Webui::WebuiController
   private
 
   def get_binaries
-    @binarylist = Array.new
-    @binary_list = Buildresult.find(:project => params[:project], :view => 'binarylist')
+    @binarylist = []
+    @binary_list = Buildresult.find(project: params[:project], view: 'binarylist')
     @binary_list.to_hash.elements('result') do |r|
       r.elements('binarylist') do |l|
         l.elements('binary') do |b|
-          @binarylist << b['filename'].sub(/-[^-]*-[^-]*.rpm$/, '' )
+          @binarylist << b['filename'].sub(/-[^-]*-[^-]*.rpm$/, '')
         end
       end
     end
@@ -362,23 +363,23 @@ class Webui::PatchinfoController < Webui::WebuiController
   def require_project
     required_parameters :project
     Rails.logger.debug "require_project #{params[:project]}"
-    @project = WebuiProject.find( params[:project] )
+    @project = WebuiProject.find(params[:project])
     unless @project
       flash[:error] = "Project not found: #{params[:project]}"
-      redirect_to :controller => 'project', :action => 'list_public'
+      redirect_to controller: 'project', action: 'list_public'
       return false
     end
   end
 
   def require_exists
     unless params[:package].blank?
-      @package = Package.get_by_project_and_name( @project.to_param, params[:package], use_source: false )
+      @package = Package.get_by_project_and_name(@project.to_param, params[:package], use_source: false)
     end
     @patchinfo = @file = @package.patchinfo
 
     unless @file
       flash[:error] = "Patchinfo not found for #{params[:project]}"
-      redirect_to :controller => 'package', :action => 'show', :project => @project, :package => @package and return
+      redirect_to controller: 'package', action: 'show', project: @project, package: @package and return
     end
   end
 end

@@ -29,7 +29,7 @@
     <p>Member of the group</p>
     <ul>
       <% gs.each do |group| %>
-        <li><%= link_to(group, :controller => 'group', :action => 'show', id: group) %></li>
+        <li><%= link_to(group, :controller => 'groups', :action => 'show', id: group) %></li>
       <% end %>
     </ul>
     <% end %>

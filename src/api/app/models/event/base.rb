@@ -1,8 +1,7 @@
-module Event
 # This class represents some kind of event within the build service
 # that users (or services) would like to know about
+module Event
   class Base < ActiveRecord::Base
-
     scope :not_in_queue, -> { where(queued: false) }
 
     self.inheritance_column = 'eventtype'
@@ -138,7 +137,7 @@ module Event
       ret = Suse::Backend.post("/notify_plugins/#{self.class.raw_type}",
                                Yajl::Encoder.encode(p),
                                'Content-Type' => 'application/json')
-      return Xmlhash.parse(ret.body)['code'] == 'ok'
+      Xmlhash.parse(ret.body)['code'] == 'ok'
     end
 
     create_jobs :send_event_emails
@@ -155,7 +154,7 @@ module Event
         raise "#{job.to_s.camelize} is not a CreateJob" unless djob.is_a? CreateJob
         opts = {}
         opts = { queue: eclass.job_queue } if eclass.methods.include? :job_queue
-        djob = Delayed::Job.enqueue djob, opts
+        Delayed::Job.enqueue djob, opts
         self.undone_jobs += 1
       end
       self.save if self.undone_jobs > 0
@@ -167,7 +166,7 @@ module Event
     end
 
     def self.message_domain
-      domain = URI.parse(::Configuration.first.obs_url)
+      domain = URI.parse(::Configuration.obs_url)
       domain.host.downcase
     end
 
@@ -210,10 +209,10 @@ module Event
 
     def obj_roles(obj, role)
       # old/deleted obj
-      return [] unless obj or role.blank?
+      return [] unless obj || role.blank?
 
       rel = obj.relationships.where(role: Role.rolecache[role])
-      receivers = rel.map{ |r| r.user_id ? r.user : r.group }
+      receivers = rel.map { |r| r.user_id ? r.user : r.group }
       if receivers.empty? && obj.respond_to?(:project)
         receivers = obj_roles(obj.project, role)
       end
@@ -246,7 +245,5 @@ module Event
       p ||= ::Project.find_by_name(project)
       obj_roles(p, role)
     end
-
   end
-
 end

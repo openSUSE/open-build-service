@@ -92,6 +92,8 @@ class User < ActiveRecord::Base
   # Generate accessors for the password confirmation property.
   attr_accessor :password_confirmation
 
+  scope :all_without_nobody, -> { where("login != '#{nobody_login}'") }
+
   # Overriding the default accessor to update @new_password on setting this
   # property.
   def password=(value)
@@ -552,8 +554,8 @@ class User < ActiveRecord::Base
   # project_name is name of the project
   def can_create_project?(project_name)
     ## special handling for home projects
-    return true if project_name == "home:#{self.login}" and ::Configuration.first.allow_user_to_create_home_project
-    return true if /^home:#{self.login}:/.match( project_name ) and ::Configuration.first.allow_user_to_create_home_project
+    return true if project_name == "home:#{self.login}" and ::Configuration.allow_user_to_create_home_project
+    return true if /^home:#{self.login}:/.match( project_name ) and ::Configuration.allow_user_to_create_home_project
 
     return true if has_global_permission? 'create_project'
     p = Project.find_parent_for(project_name)
@@ -929,7 +931,7 @@ class User < ActiveRecord::Base
   def gravatar_image(size)
     Rails.cache.fetch([self, 'home_face', size, Configuration.first]) do
 
-      if ::Configuration.use_gravatar?
+      if ::Configuration.gravatar
         hash = Digest::MD5.hexdigest(self.email.downcase)
         begin
           content = ActiveXML.backend.load_external_url("http://www.gravatar.com/avatar/#{hash}?s=#{size}&d=wavatar")
