@@ -166,10 +166,6 @@ class ProductTests < ActionDispatch::IntegrationTest
     run_scheduler('i586')
     run_scheduler('x86_64')
     run_scheduler('local')
-    run_dispatcher # to hand over repository events
-    run_scheduler('i586')
-    run_scheduler('x86_64')
-    run_scheduler('local')
     get "/build/home:Iggy/_result"
     assert_response :success
     assert_xml_tag :parent => {:tag => "result", :attributes => {project:"home:Iggy", repository:"10.2", arch:"i586"} },
