@@ -13,42 +13,30 @@ class Issue < ActiveRecord::Base
 
   scope :stateless, -> { where(:state => nil) }
 
-  def self.get_by_name_and_tracker( name, issue_tracker_name, force_update=nil )
-    issue_tracker = IssueTracker.find_by_name( issue_tracker_name )
-    raise IssueTracker::NotFoundError.new( "Error: Issue Tracker '#{issue_tracker_name}' not found." ) unless issue_tracker
-
-    issue = issue_tracker.issues.find_by_name name
-    raise NotFoundError.new( "Error: Issue '#{name}' not found." ) unless issue
-    
-    if force_update
-      issue.fetch_updates
-      return issue_tracker.issues.find_by_name name
-    end
-
-    return issue
-  end
-
   def self.find_or_create_by_name_and_tracker( name, issue_tracker_name, force_update=nil )
-    return self.find_by_name_and_tracker( name, issue_tracker_name, force_update, true )
+    self.find_by_name_and_tracker(name, issue_tracker_name, {
+      :force_update => force_update,
+      :create_missing => true
+    })
   end
 
-  def self.find_by_name_and_tracker( name, issue_tracker_name, force_update=nil, create_missing=nil )
-    issue_tracker = IssueTracker.find_by_name( issue_tracker_name )
-    raise IssueTracker::NotFoundError.new( "Error: Issue Tracker '#{issue_tracker_name}' not found." ) unless issue_tracker
-
-    # find existing
-    issue = issue_tracker.issues.find_by_name name
-
-    # create missing
-    issue = issue_tracker.issues.create( :name => name ) if issue.nil? and create_missing
-
-    # force update
-    if force_update and not issue.nil?
-      issue.fetch_updates
-      issue = issue_tracker.issues.find_by_name name
+  def self.find_by_name_and_tracker(name, issue_tracker_name, options = {})
+    issue_tracker = IssueTracker.find_by_name(issue_tracker_name)
+    unless issue_tracker
+      raise IssueTracker::NotFoundError.new("Error: Issue Tracker '#{issue_tracker_name}' not found.")
     end
 
-    return issue
+    issue = issue_tracker.issues.find_by_name(name)
+    if issue.nil? && options[:create_missing]
+      issue = issue_tracker.issues.create(:name => name)
+    end
+
+    if options[:force_update] && issue
+      issue.fetch_updates
+      issue = issue_tracker.issues.find_by_name(name)
+    end
+
+    issue
   end
 
   def self.states
@@ -82,19 +70,22 @@ class Issue < ActiveRecord::Base
   end
 
   def webui_infos
-    issue = { created_at: self.created_at }
-    issue[:updated_at] = self.updated_at  if self.updated_at
-    issue[:name] = self.name
-    issue[:tracker] = self.issue_tracker.name
-    issue[:label] = self.label
-    issue[:url] = self.issue_tracker.show_url.gsub('@@@', self.name)
-    issue[:state] = self.state     if self.state
-    issue[:summary] = self.summary if self.summary
+    issue = {
+      created_at: self.created_at,
+      name:       self.name,
+      tracker:    self.issue_tracker.name,
+      label:      self.label,
+      url:        self.url
+    }
 
+    issue[:updated_at] = self.updated_at if self.updated_at
+    issue[:state]      = self.state if self.state
+    issue[:summary]    = self.summary if self.summary
     # self.owner must not by used, since it is reserved by rails
-    o = User.find_by_id self.owner_id
+    o = User.find_by_id(self.owner_id)
     issue[:owner] = o.login if o
-    return issue
+
+    issue
   end
   
   def url
