@@ -113,11 +113,11 @@ class Webui::PatchinfoController < Webui::WebuiController
       flash[:error] = nil
       if !valid_summary? params[:summary]
         valid_params = false
-        flash[:error] = "#{flash[:error]}" + ' || Summary is too short (should have more than 10 signs)'
+        flash[:error] = "|| Summary is too short (should have more than 10 signs)"
       end
       if !valid_description? params[:description]
         valid_params = false
-        flash[:error] = "#{flash[:error]}" + ' || Description is too short (should have more than 50 signs and longer than summary)'
+        flash[:error] = "#{flash[:error]} || Description is too short (should have more than 50 signs and longer than summary)"
       end
 
       if valid_params
