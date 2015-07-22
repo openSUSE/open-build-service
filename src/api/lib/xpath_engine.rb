@@ -178,6 +178,10 @@ class XpathEngine
         '@binaryarch' => {:cpart => 'binaryarch'},
         '@package' => {:cpart => 'package'},
         '@supportstatus' => {:cpart => 'supportstatus'},
+        'target/disabled' => {:cpart => 'ufdct.disabled', :joins => [
+          'LEFT join channel_binary_lists ufdcbl on ufdcbl.id=channel_binaries.channel_binary_list_id',
+          'LEFT join channels ufdc on ufdc.id=ufdcbl.channel_id',
+          'LEFT join channel_targets ufdct on ufdct.channel_id=ufdc.id']},
         'updatefor/@project' => {:cpart => 'puprj.name', :joins => [
           'LEFT join channel_binary_lists ufcbl on ufcbl.id=channel_binaries.channel_binary_list_id',
           'LEFT join channels ufc on ufc.id=ufcbl.channel_id',
@@ -648,6 +652,19 @@ class XpathEngine
     end
     #logger.debug "-- condition : [#{condition}]"
 
+    @conditions << condition
+  end
+
+  def xpath_func_boolean(root, expr)
+    #logger.debug "-- xpath_func_boolean(#{expr}) --"
+
+    @condition_values_needed = 2
+    cond = evaluate_expr(expr, root)
+
+    condition = "NOT (NOT #{cond} OR ISNULL(#{cond}))"
+    #logger.debug "-- condition : [#{condition}]"
+
+    @condition_values_needed = 1
     @conditions << condition
   end
 

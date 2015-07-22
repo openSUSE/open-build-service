@@ -680,7 +680,19 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get '/search/channel/binary?match=updatefor/[@project="BaseDistro"+and+@product="fixed"]'
     assert_response :success
     assert_xml_tag tag: "collection", attributes: {matches: "2"}
-
+    get '/search/channel/binary?match=updatefor/[@project="BaseDistro"+and+@product="fixed"]+and+not(target/disabled)'
+    assert_response :success
+    assert_xml_tag tag: "collection", attributes: {matches: "0"}
+    get '/search/channel/binary?match=updatefor/[@project="BaseDistro"+and+@product="fixed"]+and+boolean(target/disabled)'
+    assert_response :success
+    assert_xml_tag tag: "collection", attributes: {matches: "2"}
+    get '/search/channel/binary?match=not(target/disabled)'
+    assert_response :success
+    assert_xml_tag tag: "collection", attributes: {matches: "1"}
+    assert_xml_tag parent: {tag: "channel", attributes: {project: "Channel", package: "BaseDistro3"}},
+                   tag: "binary", attributes: {package: "pack2", name: "package"}
+    assert_xml_tag parent: {tag: "channel", attributes: {project: "Channel", package: "BaseDistro3"}},
+                   tag: "target", attributes: {project: "BaseDistro3Channel", repository: "channel_repo"}
 
     # event handling
     UpdateNotificationEvents.new.perform

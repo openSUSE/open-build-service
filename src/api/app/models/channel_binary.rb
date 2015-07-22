@@ -54,6 +54,7 @@ class ChannelBinary < ActiveRecord::Base
         # report target repository and products using it.
         channel.channel_targets.each do |ct|
           c.target(project: ct.repository.project.name, repository: ct.repository.name) do |target|
+            target.disabled() if ct.disabled
             ct.repository.product_update_repositories.each do |up|
               target.updatefor(up.product.extend_id_hash({project: up.product.package.project.name, product: up.product.name}))
             end
