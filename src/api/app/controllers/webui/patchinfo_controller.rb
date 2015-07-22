@@ -96,21 +96,9 @@ class Webui::PatchinfoController < Webui::WebuiController
     @summary = @file.value(:summary)
 
     @description = @file.value(:description)
-    if @file.has_element?('relogin_needed')
-      @relogin = true
-    else
-      @relogin = false
-    end
-    if @file.has_element?('reboot_needed')
-      @reboot = true
-    else
-      @reboot = false
-    end
-    if @file.has_element?('zypp_restart_needed')
-      @zypp_restart_needed = true
-    else
-      @zypp_restart_needed = false
-    end
+    @relogin = @file.has_element?('relogin_needed')
+    @reboot = @file.has_element?('reboot_needed')
+    @zypp_restart_needed = @file.has_element?('zypp_restart_needed')
     if @file.has_element?('stopped')
       @block = true
       @block_reason = @file.value(:stopped)
