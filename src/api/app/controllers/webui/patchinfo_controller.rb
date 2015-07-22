@@ -75,14 +75,12 @@ class Webui::PatchinfoController < Webui::WebuiController
           a.text = 'PLEASE CHECK THE FORMAT OF THE ISSUE'
         end
       end
-      issue = []
+
       issueid = a.value(:id)
-      issueurl = IssueTracker.find_by_name(a.value(:tracker)).to_s
-      if issueurl
-        issueurl = issueurl.show_url_for(issueid)
-      else
-        issueurl = ''
-      end
+      issueurl = IssueTracker.find_by_name(a.value(:tracker))
+      issueurl = issueurl.show_url_for(issueid)
+
+      issue = []
       issue << a.value(:tracker)
       issue << issueid
       issue << issueurl
@@ -91,10 +89,9 @@ class Webui::PatchinfoController < Webui::WebuiController
     end
 
     if params[:issue].nil?
-      params[:issue] = []
-      params[:issue] << params[:issueid]
+      params[:issue] = [params[:issueid]]
     end
-    unless params[:issueid].nil?
+    if params[:issueid]
       params[:issue] << params[:issueid]
       @issues = params[:issue]
     end
