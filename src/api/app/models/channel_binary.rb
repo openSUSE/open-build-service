@@ -31,11 +31,21 @@ class ChannelBinary < ActiveRecord::Base
   end
 
   def to_axml_id(opts={})
-    channel = channel_binary_list.channel
-    builder = Nokogiri::XML::Builder.new
-    builder.channel(project: channel.package.project.name, package: channel.package.name)
-    builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                                 Nokogiri::XML::Node::SaveOptions::FORMAT
+    Rails.cache.fetch('xml_channel_binary_id_%d' % id) do
+      channel = channel_binary_list.channel
+      builder = Nokogiri::XML::Builder.new
+      builder.channel(project: channel.package.project.name, package: channel.package.name) do |c|
+        p={}
+        p[:package] = package if package
+        p[:name] = name if name
+        p[:binaryarch] = binaryarch if binaryarch
+        p[:supportstatus] = supportstatus if supportstatus
+        next unless p.length > 0
+        c.binary(p)
+      end
+      builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                                   Nokogiri::XML::Node::SaveOptions::FORMAT
+    end
   end
 
   def to_axml(opts={})

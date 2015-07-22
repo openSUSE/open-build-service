@@ -174,10 +174,10 @@ class XpathEngine
           'LEFT join products tppnv on tppnv.id=pnurv.product_id ']},
       },
       'channel_binaries' => {
-        '@name' => {:cpart => 'name'},
-        '@binaryarch' => {:cpart => 'binaryarch'},
-        '@package' => {:cpart => 'package'},
-        '@project' => {:cpart => 'ufdct.disabled', :joins => [
+        '@name' => {:cpart => 'channel_binaries.name'},
+        '@binaryarch' => {:cpart => 'channel_binaries.binaryarch'},
+        '@package' => {:cpart => 'channel_binaries.package'},
+        '@project' => {:cpart => 'cprj.name', :joins => [
           'LEFT join channel_binary_lists cblp on cblp.id=channel_binaries.channel_binary_list_id',
           'LEFT join channels cp on cp.id=cblp.channel_id',
           'LEFT join packages cpkg on cpkg.id=cp.package_id',

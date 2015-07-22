@@ -2911,6 +2911,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: "collection", attributes: {matches: "1"}
     assert_xml_tag tag: "channel", attributes: {project: "home:Iggy", package: "TestChannel"}
+    assert_xml_tag tag: "binary", attributes: {package: "pack1", name: "glibc-devel", binaryarch: "noarch"}
+    assert_no_xml_tag tag: "target"
 
     # cleanup
     delete '/source/home:Iggy/TestChannel'
