@@ -11,6 +11,7 @@ function updateSupersedeAndDevelPackageDisplay() {
             url: $('#targetproject').data('requests-url'),
             data: {
                 project: $('#targetproject')[0].value,
+                source_project: $('#project')[0].value,
                 package: $('#package')[0].value,
                 types: 'submit',
                 states: ['new', 'review', 'declined']
@@ -18,11 +19,10 @@ function updateSupersedeAndDevelPackageDisplay() {
             success: function (data) {
                 if (data.indexOf('No requests') == -1) {
                     $('#supersede_display').show();
-                    $('#supersede').prop('checked', true);
-                    $('#pending_requests').html(data);
+                    $('#supersede_requests').html(data);
                 } else {
                     $('#supersede_display').hide();
-                    $('#supersede').prop('checked', false);
+                    $('#supersede_requests').html('');
                 }
             }
         });
