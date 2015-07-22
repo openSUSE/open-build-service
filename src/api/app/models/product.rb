@@ -33,6 +33,19 @@ class Product < ActiveRecord::Base
     self.cpe += ":#{pversion}" unless pversion.blank?
   end
 
+  def extend_id_hash(h)
+    # extends an existing hash for xml rendering with our version
+    if baseversion
+      h[:baseversion] = baseversion
+      h[:patchlevel] = patchlevel
+    else
+      h[:version] = version
+    end
+    h[:release] = release if release
+    h
+  end
+
+
   def update_from_xml(xml)
     self.transaction do
       xml.elements('productdefinition') do |pd|

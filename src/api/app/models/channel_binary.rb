@@ -30,4 +30,40 @@ class ChannelBinary < ActiveRecord::Base
     return channel.branch_channel_package_into_project(project)
   end
 
+  def to_axml_id(opts={})
+    channel = channel_binary_list.channel
+    builder = Nokogiri::XML::Builder.new
+    builder.channel(project: channel.package.project.name, package: channel.package.name)
+    builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                                 Nokogiri::XML::Node::SaveOptions::FORMAT
+  end
+
+  def to_axml(opts={})
+    Rails.cache.fetch('xml_channel_binary_%d' % id) do
+      channel = channel_binary_list.channel
+      builder = Nokogiri::XML::Builder.new
+      builder.channel(project: channel.package.project.name, package: channel.package.name) do |c|
+        p={}
+        p[:package] = package if package
+        p[:name] = name if name
+        p[:binaryarch] = binaryarch if binaryarch
+        p[:supportstatus] = supportstatus if supportstatus
+        next unless p.length > 0
+        c.binary(p)
+
+        # report target repository and products using it.
+        channel.channel_targets.each do |ct|
+          c.target(project: ct.repository.project.name, repository: ct.repository.name) do |target|
+            ct.repository.product_update_repositories.each do |up|
+              target.updatefor(up.product.extend_id_hash({project: up.product.package.project.name, product: up.product.name}))
+            end
+          end
+        end
+
+      end
+      builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                                   Nokogiri::XML::Node::SaveOptions::FORMAT
+    end
+  end
+
 end

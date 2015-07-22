@@ -17,7 +17,8 @@ class XpathEngine
       'repository' => 'repositories',
       'issue' => 'issues',
       'request' => 'requests',
-      'released_binary' => 'binaries'
+      'channel_binary' => 'channel_binaries',
+      'released_binary' => 'released_binaries'
     }
     
     @attribs = {
@@ -172,7 +173,27 @@ class XpathEngine
           'LEFT join product_update_repositories pnurv on pnurv.repository_id=tprtv.target_repository_id',
           'LEFT join products tppnv on tppnv.id=pnurv.product_id ']},
       },
-      'binaries' => {
+      'channel_binaries' => {
+        '@name' => {:cpart => 'name'},
+        '@binaryarch' => {:cpart => 'binaryarch'},
+        '@package' => {:cpart => 'package'},
+        '@supportstatus' => {:cpart => 'supportstatus'},
+        'updatefor/@project' => {:cpart => 'puprj.name', :joins => [
+          'LEFT join channel_binary_lists ufcbl on ufcbl.id=channel_binaries.channel_binary_list_id',
+          'LEFT join channels ufc on ufc.id=ufcbl.channel_id',
+          'LEFT join channel_targets ufct on ufct.channel_id=ufc.id',
+          'LEFT join product_update_repositories pur on pur.repository_id=ufct.repository_id',
+          'LEFT join products pun on pun.id=pur.product_id ',
+          'LEFT join packages pupkg on pupkg.id=pun.package_id ',
+          'LEFT join projects puprj on puprj.id=pupkg.project_id ']},
+        'updatefor/@product' => {:cpart => 'pupn.name', :joins => [
+          'LEFT join channel_binary_lists ufncbl on ufncbl.id=channel_binaries.channel_binary_list_id',
+          'LEFT join channels ufnc on ufnc.id=ufncbl.channel_id',
+          'LEFT join channel_targets ufnct on ufnct.channel_id=ufnc.id',
+          'LEFT join product_update_repositories pnur on pnur.repository_id=ufnct.repository_id',
+          'LEFT join products pupn on pupn.id=pnur.product_id ']},
+      },
+      'released_binaries' => {
         '@name' => {:cpart => 'binary_name'},
         '@version' => {:cpart => 'binary_version'},
         '@release' => {:cpart => 'binary_release'},
@@ -387,7 +408,9 @@ class XpathEngine
       relation = User.all
     when 'issues'
       relation = Issue.all
-    when 'binaries'
+    when 'channel_binaries'
+      relation = ChannelBinary.all
+    when 'released_binaries'
       relation = BinaryRelease.includes(
                     :repository => [ {:product_medium => {:product => {:package => :project}}},
                                      {:product_update_repositories => :product} ])

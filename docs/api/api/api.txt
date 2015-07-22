@@ -1411,6 +1411,34 @@ Parameters:
 XmlResult: collection
 
 
+GET /search/channel/binary
+
+  Search for packages, sources or binaries which are referenced in channel files.
+  Unlike the released/binary search this works already after setting up a channel
+  even without releasing files.
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
+GET /search/channel/binary/id
+
+  Search for packages, sources or binaries which are referenced in channel files.
+  Unlike the released/binary search this works already after setting up a channel
+  even without releasing files.
+
+  This is the short version without full release data information.
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
 GET /search/released/binary
 
   Search for binaries which got released. This works only for binaries published

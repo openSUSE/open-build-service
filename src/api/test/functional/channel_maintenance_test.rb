@@ -663,6 +663,25 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     end
     assert_equal "UpdateInfoTagNew-patch_name-#{Time.now.year}-1", node.elements['/updates/update/id'].first.to_s
 
+    # channel search tests
+    get '/search/channel/binary?match=@name="package"'
+    assert_response :success
+    assert_xml_tag tag: "collection", attributes: {matches: "2"}
+    assert_xml_tag parent: {tag: "channel", attributes: {project: "Channel", package: "BaseDistro3"}},
+                   tag: "binary", attributes: {package: "pack2", name: "package"}
+    assert_xml_tag parent: {tag: "channel", attributes: {project: "Channel", package: "BaseDistro3"}},
+                   tag: "target", attributes: {project: "BaseDistro3Channel", repository: "channel_repo"}
+    assert_xml_tag parent: {tag: "target", attributes: {project: "BaseDistro2.0:LinkedUpdateProject", repository: "BaseDistro2LinkedUpdateProject_repo"}},
+                   tag: "updatefor", attributes: {project: "BaseDistro", product: "fixed", version: "1.2"}
+    get '/search/channel/binary?match=@package="pack2"'
+    assert_response :success
+    assert_xml_tag tag: "collection", attributes: {matches: "2"}
+    # search by given product
+    get '/search/channel/binary?match=updatefor/[@project="BaseDistro"+and+@product="fixed"]'
+    assert_response :success
+    assert_xml_tag tag: "collection", attributes: {matches: "2"}
+
+
     # event handling
     UpdateNotificationEvents.new.perform
     get '/search/released/binary', match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo']"

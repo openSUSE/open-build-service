@@ -2888,6 +2888,30 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_match b.repository.project.name, 'BaseDistro'
     assert_match b.repository.name, 'BaseDistro_repo'
 
+    # check search interface
+    get '/search/channel/binary?match=@name="glibc-devel"'
+    assert_response :success
+    assert_xml_tag tag: "collection", attributes: {matches: "1"}
+    assert_xml_tag parent: {tag: "channel", attributes: {project: "home:Iggy", package: "TestChannel"}},
+                   tag: "binary", attributes: {package: "pack1", name: "glibc-devel", binaryarch: "noarch"}
+    assert_xml_tag parent: {tag: "channel", attributes: {project: "home:Iggy", package: "TestChannel"}},
+                   tag: "target", attributes: {project: "BaseDistro", repository: "BaseDistro_repo"}
+    get '/search/channel/binary?match=@package="pack1"'
+    assert_response :success
+    assert_xml_tag tag: "collection", attributes: {matches: "1"}
+    get '/search/channel/binary?match=@binaryarch="noarch"'
+    assert_response :success
+    assert_xml_tag tag: "collection", attributes: {matches: "1"}
+    # no product, but no crash either. More checks are in channel_maintenance test case
+    get '/search/channel/binary?match=updatefor/[@project="not_defined"+and+@product="missing"]'
+    assert_response :success
+    assert_xml_tag tag: "collection", attributes: {matches: "0"}
+    # simple short form test
+    get '/search/channel/binary/id?match=@name="glibc-devel"'
+    assert_response :success
+    assert_xml_tag tag: "collection", attributes: {matches: "1"}
+    assert_xml_tag tag: "channel", attributes: {project: "home:Iggy", package: "TestChannel"}
+
     # cleanup
     delete '/source/home:Iggy/TestChannel'
     assert_response :success

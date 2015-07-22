@@ -38,6 +38,14 @@ class SearchController < ApplicationController
     search(:request, false)
   end
 
+  def channel_binary
+    search(:channel_binary, true)
+  end
+
+  def channel_binary_id
+    search(:channel_binary, false)
+  end
+
   def released_binary
     search(:released_binary, true)
   end
@@ -206,6 +214,9 @@ class SearchController < ApplicationController
       opts[:withfullhistory] = 1 if params[:withfullhistory]
     when :person
       relation = User.where(id: search_items)
+      includes = []
+    when :channel_binary
+      relation = ChannelBinary.where(id: search_items)
       includes = []
     when :released_binary
       relation = BinaryRelease.where(id: search_items)
