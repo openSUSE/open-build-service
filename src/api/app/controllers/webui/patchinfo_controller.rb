@@ -88,12 +88,8 @@ class Webui::PatchinfoController < Webui::WebuiController
       @issues << issue
     end
 
-    if params[:issue].nil?
-      params[:issue] = [params[:issueid]]
-    end
     if params[:issueid]
-      params[:issue] << params[:issueid]
-      @issues = params[:issue]
+      @issues = params[:issue].to_a << params[:issueid]
     end
     @category = @file.value(:category)
     @rating = @file.value(:rating)
