@@ -88,6 +88,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'BsRequestPermissionCheck#cmd_changestate_permissions' => 114.87,
       'BuildController#file' => 127.42,
       'BuildController#project_index' => 129.0,
+      'ChannelBinary#to_axml' => 82.0,
       'ConfigurationsController#update' => 85.63,
       'IssueTrackersController#update' => 100.78,
       'MaintenanceHelper#instantiate_container' => 160.21,
