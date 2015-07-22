@@ -93,8 +93,6 @@ class Webui::PatchinfoController < Webui::WebuiController
     end
     @category = @file.value(:category)
     @rating = @file.value(:rating)
-    @category = @file.value(:category)
-    @rating = @file.value(:rating)
     @summary = @file.value(:summary)
 
     @description = @file.value(:description)
