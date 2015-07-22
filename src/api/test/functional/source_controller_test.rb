@@ -2889,7 +2889,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_match b.repository.name, 'BaseDistro_repo'
 
     # check search interface
-    get '/search/channel/binary?match=@name="glibc-devel"'
+    get '/search/channel/binary?match=@project="home:Iggy"+and+@name="glibc-devel"'
     assert_response :success
     assert_xml_tag tag: "collection", attributes: {matches: "1"}
     assert_xml_tag parent: {tag: "channel", attributes: {project: "home:Iggy", package: "TestChannel"}},

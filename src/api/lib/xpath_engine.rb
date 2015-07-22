@@ -177,6 +177,11 @@ class XpathEngine
         '@name' => {:cpart => 'name'},
         '@binaryarch' => {:cpart => 'binaryarch'},
         '@package' => {:cpart => 'package'},
+        '@project' => {:cpart => 'ufdct.disabled', :joins => [
+          'LEFT join channel_binary_lists cblp on cblp.id=channel_binaries.channel_binary_list_id',
+          'LEFT join channels cp on cp.id=cblp.channel_id',
+          'LEFT join packages cpkg on cpkg.id=cp.package_id',
+          'LEFT join projects cprj on cprj.id=cpkg.project_id']},
         '@supportstatus' => {:cpart => 'supportstatus'},
         'target/disabled' => {:cpart => 'ufdct.disabled', :joins => [
           'LEFT join channel_binary_lists ufdcbl on ufdcbl.id=channel_binaries.channel_binary_list_id',
