@@ -323,7 +323,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     post '/source/ServicePack/_attribute', "<attributes> 
                                                <attribute namespace='OBS' name='Maintained' /> 
-                                               <attribute namespace='OBS' name='BranchTarget' /> 
                                             </attributes>"
     assert_response :success
 
@@ -337,6 +336,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post '/source/ServicePack/pack2', :cmd => 'branch'
     assert_response :success
 
+    # default case, work on devel package base
+    get '/source/home:king:branches:Devel:BaseDistro:Update/pack2/_link'
+    assert_response :success
+    assert_xml_tag :tag => 'link', :attributes => { project: 'Devel:BaseDistro:Update' }
+
+    # new instance of a package wanted. so we need to link to ServicePack and copy sources from devel
+    post '/source/ServicePack/pack2', :cmd => 'branch', :newinstance => 1
+    assert_response :success
     get '/source/home:king:branches:ServicePack/pack2/_link'
     assert_response :success
     assert_xml_tag :tag => 'link', :attributes => { project: 'ServicePack' }

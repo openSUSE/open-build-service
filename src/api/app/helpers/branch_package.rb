@@ -24,6 +24,7 @@ class BranchPackage
     @extend_names = params[:extend_package_names]
     # copy from devel package instead branching ?
     @copy_from_devel = false
+    @copy_from_devel = true if params[:newinstance]
     # explicit asked for maintenance branch ?
     if params[:maintenance]
       @extend_names = true
