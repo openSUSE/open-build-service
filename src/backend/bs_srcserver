@@ -2874,7 +2874,7 @@ sub getprojpack {
   local *BSRPC::rpc;
   die("unsupported view\n") if $cgi->{'view'} && $cgi->{'view'} ne 'storable';
   if ($cgi->{'noremote'}) {
-    *BSRPC::rpc = sub {die("500 interconnect error: noremote option\n");};
+    *BSRPC::rpc = sub {die("400 interconnect error: noremote option\n");};
   } else {
     *BSRPC::rpc = sub {
       my $r = eval { oldbsrpc(@_) };

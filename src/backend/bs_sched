@@ -2896,6 +2896,13 @@ $maxserverload = $BSConfig::sched_maxserverload if $BSConfig::sched_maxserverloa
 my %iswaiting_serverload;
 my %iswaiting_serverload_low;
 
+sub is_transient_error {
+  my ($error) = @_;
+  return 1 if $error =~ /^5\d\d/;
+  return 0 if $error =~ /remote error:/;
+  return 1;
+}
+
 sub xrpc {
   my ($ctx, $resource, $param, @args) = @_;
 
@@ -3951,7 +3958,7 @@ sub fetchremoteproj {
     my $error = $@;
     $error =~ s/\n$//s;
     $rproj = {'error' => $error};
-    addretryevent({'type' => 'project', 'project' => $projid}) if $error !~ /remote error:/;
+    addretryevent({'type' => 'project', 'project' => $projid}) if is_transient_error($error);
   }
   return undef unless $rproj;
   for (qw{name root remoteroot remoteurl remoteproject}) {
@@ -3994,7 +4001,7 @@ sub fetchremoteconfig {
     warn($@);
     $proj->{'error'} = $@;
     $proj->{'error'} =~ s/\n$//s;
-    addretryevent({'type' => 'project', 'project' => $projid}) if $proj->{'error'} !~ /remote error:/;
+    addretryevent({'type' => 'project', 'project' => $projid}) if is_transient_error($proj->{'error'});
     return undef;
   }
   $proj->{'config'} = $c;
@@ -4020,7 +4027,7 @@ sub addrepo_remote_unpackcpio {
   if ($error) {
     chomp $error;
     warn("$error\n");
-    if ($error !~ /remote error:/) {
+    if (is_transient_error($error)) {
       my ($projid, $repoid) = split('/', $prp, 2);
       addretryevent({'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $arch});
       if (-s "$remotecache/$cachemd5.solv") {
@@ -4090,7 +4097,7 @@ sub addrepo_remote_resume {
   my ($handle, $error, $cpio) = @_;
   my $pool = BSSolv::pool->new();
   my $r = addrepo_remote_unpackcpio($pool, $handle->{'_prp'}, $handle->{'_arch'}, $cpio, $handle->{'_solvok'}, $error);
-  xrpc_setchanged($handle) unless !$r && $error && $error !~ /remote error:/;
+  xrpc_setchanged($handle) unless !$r && $error && is_transient_error($error);
 }
 
 sub addrepo_remote {
@@ -4285,7 +4292,7 @@ sub read_gbininfo_remote {
     my $error = $@;
     $error =~ s/\n$//s;
     ($projid, $repoid) = split('/', $ctx->{'prp'}, 2);
-    addretryevent({'type' => 'recheck', 'project' => $projid, 'repository' => $repoid}) if $error !~ /remote error:/;
+    addretryevent({'type' => 'recheck', 'project' => $projid, 'repository' => $repoid}) if is_transient_error($error);
     return undef;
   }
   return 0 if $packagebinarylist && $param->{'async'};
@@ -6326,9 +6333,11 @@ sub checkaggregate {
       next;
     }
     if ($proj->{'error'}) {
-      # XXX: hmm, there's already a project retryevent on $aprojid
-      addretryevent({'type' => 'package', 'project' => $projid, 'package' => $packid}) if $proj->{'error'} !~ /remote error:/;
-      $delayed = 1 if $proj->{'error'} !~ /remote error:/;
+      if (is_transient_error($proj->{'error'})) {
+        # XXX: hmm, there's already a project retryevent on $aprojid
+        addretryevent({'type' => 'package', 'project' => $projid, 'package' => $packid}) if is_transient_error($proj->{'error'});
+        $delayed = 1;
+      }
       push @broken, $aprojid;
       next;
     }
@@ -6542,7 +6551,7 @@ sub rebuildaggregate {
 	    warn($@);
 	    $error = $@;
 	    $error =~ s/\n$//s;
-	    addretryevent({'type' => 'repository', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $myarch}) if $error !~ /remote error:/;
+	    addretryevent({'type' => 'repository', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $myarch}) if is_transient_error($error);
 	    last;
 	  }
 	  for my $bin (@{$cpio || []}) {
