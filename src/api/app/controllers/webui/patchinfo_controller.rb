@@ -69,8 +69,7 @@ class Webui::PatchinfoController < Webui::WebuiController
         # old uploaded patchinfos could have broken tracker-names like "bnc "
         # instead of "bnc". Catch these.
         begin
-          get_issue_sum(a.value(:tracker), a.value(:id))
-          a.text = @issuesum
+          a.text = get_issue_sum(a.value(:tracker), a.value(:id))
         rescue ActiveXML::Transport::NotFoundError
           a.text = 'PLEASE CHECK THE FORMAT OF THE ISSUE'
         end
@@ -268,12 +267,12 @@ class Webui::PatchinfoController < Webui::WebuiController
             Rails.logger.debug "URL2 #{issueurl.inspect}"
             issueurl = issueurl.show_url_for(issue[1])
             issue << issueurl
-            get_issue_sum(issue[0], issue[1])
-            if !@error.nil?
+            issuesum = get_issue_sum(issue[0], issue[1])
+            if issuesum.nil?
               invalid_format += "#{issue[0]} "
               next
             end
-            issue << @issuesum
+            issue << issuesum
             issue_collection << issue
           else
             invalid_tracker += "#{issue[0]} is not a valid tracker.\n"
@@ -290,6 +289,9 @@ class Webui::PatchinfoController < Webui::WebuiController
     render nothing: true, json: { error: error, issues: issue_collection }
   end
 
+  # returns issue summary of an issue
+  # returns empty string in case of ActiveXML::Transport::Error exception
+  # returns nil in case of error (bug mismatches tracker result regex)
   def get_issue_sum(tracker, issueid)
     if !issueid.starts_with? 'CVE-'
       bug = tracker + '#' + issueid
@@ -306,14 +308,13 @@ class Webui::PatchinfoController < Webui::WebuiController
           path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}?force_update=1"
           result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), method: 'GET'))
         end
-        @issuesum = result.value(:summary) || ''
-        @issuesum.gsub!(/\\|'/) { |c| '' }
+        return (result.value(:summary) || '').gsub(/\\|'/) { |c| '' }
       # Add no summary if a connection to bugzilla doesn't work e.g. in the testsuite
       rescue ActiveXML::Transport::Error
-        @issuesum = ''
+        return ""
       end
     else
-      @error = "#{bug} has no valid format"
+      nil
     end
   end
 
