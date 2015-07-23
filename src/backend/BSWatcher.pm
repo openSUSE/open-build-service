@@ -620,7 +620,7 @@ sub rpc_recv_forward {
 
 sub rpc_recv_file_data_handler {
   my ($ev, $rev, $data) = @_;
-  if ((syswrite($ev->{'fd'}, $data) || 0) != length($data)) {
+  if (($ev->{'writehandler'}->($ev->{'fd'}, $data) || 0) != length($data)) {
     print "rpc_recv_file_data_handler: write error\n";
     BSServerEvents::stream_close($rev, $ev);
     return 0;
@@ -651,7 +651,7 @@ sub rpc_recv_file_close_handler {
 }
 
 sub rpc_recv_file {
-  my ($ev, $chunked, $data, $filename, $withmd5) = @_;
+  my ($ev, $chunked, $data, $filename, $withmd5, $wev_write_handler, $wev_close_handler) = @_;
   #print "rpc_recv_file $filename\n";
   my $fd = gensym;
   if (!open($fd, '>', $filename)) {
@@ -670,12 +670,50 @@ sub rpc_recv_file {
     $wev->{'handler'} = \&rpc_recv_unchunked_stream_handler;
   }
   $wev->{'datahandler'} = \&rpc_recv_file_data_handler;
-  $wev->{'closehandler'} = \&rpc_recv_file_close_handler;
+  unless ($wev_write_handler) {
+    # hmm or should we always simply use the else part?
+    if ($^V ge v5.16) {
+      $wev_write_handler = \&CORE::syswrite;
+    } else {
+      $wev_write_handler = sub {
+        my ($fd, $buf) = @_;
+        return syswrite($fd, $buf);
+      };
+    }
+  }
+  $wev->{'writehandler'} = $wev_write_handler;
+  $wev->{'closehandler'} = $wev_close_handler || \&rpc_recv_file_close_handler;
   $ev->{'handler'} = \&BSServerEvents::stream_read_handler;
   BSEvents::add($ev);
   BSEvents::add($wev);	# do this last
 }
 
+###########################################################################
+#
+#  non-receiver methods
+#
+
+sub rpc_recv_non_receiver_write_handler {
+  my ($fd, $data) = @_;
+  my $ret = print $fd $data;
+  return $ret ? length($data) : 0;
+}
+
+sub rpc_recv_non_receiver_close_handler {
+  my ($ev) = @_;
+  my $rev = $ev->{'readev'};
+  close($ev->{'fd'});
+  delete $ev->{'fd'};
+  rpc_result($rev, $rev->{'writebuf'});
+  delete $rpcs{$rev->{'rpcuri'}};
+}
+
+sub rpc_recv_non_receiver {
+  my ($ev, $chunked, $data) = @_;
+  rpc_recv_file($ev, $chunked, $data, \$ev->{'writebuf'}, 0,
+    \&rpc_recv_non_receiver_write_handler,
+    \&rpc_recv_non_receiver_close_handler);
+}
 
 ###########################################################################
 #
@@ -714,21 +752,9 @@ sub rpc_recv_handler {
     return;
   }
   my $ans;
-  $ev->{'rpceof'} = 1 if !$r;
   $ans = $ev->{'recvbuf'};
-
-  if ($ev->{'_need'}) {
-    #shortcut for need more bytes...
-    if (!$ev->{'rpceof'} && length($ans) < $ev->{'_need'}) {
-      #printf "... %d/%d\n", length($ans), $ev->{'_need'};
-      BSEvents::add($ev);
-      return;
-    }
-    delete $ev->{'_need'};
-  }
-
   if ($ans !~ /\n\r?\n/s) {
-    if ($ev->{'rpceof'}) {
+    if (!$r) {
       rpc_error($ev, "EOF from $ev->{'rpcdest'}");
       return;
     }
@@ -783,10 +809,10 @@ sub rpc_recv_handler {
 
   my $cl = $headers{'content-length'};
   my $chunked = $headers{'transfer-encoding'} && lc($headers{'transfer-encoding'}) eq 'chunked' ? 1 : 0;
+  $ev->{'contentlength'} = $cl if !$chunked;
 
   if ($param->{'receiver'}) {
     #rpc_error($ev, "answer is neither chunked nor does it contain a content length\n") unless $chunked || defined($cl);
-    $ev->{'contentlength'} = $cl if !$chunked;
     if ($param->{'receiver'} == \&BSHTTP::file_receiver) {
       rpc_recv_file($ev, $chunked, $ans, $param->{'filename'}, $param->{'withmd5'});
     } elsif ($param->{'receiver'} == \&BSHTTP::cpio_receiver) {
@@ -806,22 +832,7 @@ sub rpc_recv_handler {
     }
     return;
   }
-
-  if ($chunked) {
-    rpc_error($ev, "chunked decoder not implemented yet for non-receiver requests\n");
-    return;
-  }
-  if ($ev->{'rpceof'} && $cl && length($ans) < $cl) {
-    rpc_error($ev, "EOF from $ev->{'rpcdest'}");
-    return;
-  }
-  if (!$ev->{'rpceof'} && (!defined($cl) || length($ans) < $cl)) {
-    $ev->{'_need'} = length($headers) + $cl if defined $cl;
-    BSEvents::add($ev);
-    return;
-  }
-  $ans = substr($ans, 0, $cl) if defined $cl;
-  rpc_result($ev, $ans);
+  rpc_recv_non_receiver($ev, $chunked, $ans);
 }
 
 sub rpc_send_handler {
