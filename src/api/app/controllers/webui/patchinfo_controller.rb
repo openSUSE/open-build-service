@@ -298,11 +298,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     end
     path = "/issue_trackers/#{CGI.escape(tracker)}"
     tracker_result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), method: 'GET'))
-    regexp = '^'
-    regexp += tracker_result.value(:regex)
-    regexp += '$'
-    regexp = Regexp.new(regexp)
-    if bug.match(regexp)
+    if bug.match(/^#{tracker_result.value(:regex)}$/)
       begin
         path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}"
         result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), method: 'GET'))
