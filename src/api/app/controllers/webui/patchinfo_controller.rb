@@ -63,31 +63,32 @@ class Webui::PatchinfoController < Webui::WebuiController
     end
     @binary = []
     @packager = @file.value(:packager)
-    @issues = []
-    @file.each(:issue) do |a|
-      if a.text == ''
-        # old uploaded patchinfos could have broken tracker-names like "bnc "
-        # instead of "bnc". Catch these.
-        begin
-          a.text = get_issue_sum(a.value(:tracker), a.value(:id))
-        rescue ActiveXML::Transport::NotFoundError
-          a.text = 'PLEASE CHECK THE FORMAT OF THE ISSUE'
-        end
-      end
-
-      issueurl = IssueTracker.find_by_name(a.value(:tracker)).
-        try(:show_url_for, a.value(:id)).to_s
-
-      @issues << [
-        a.value(:tracker),
-        a.value(:id),
-        issueurl,
-        a.text
-      ]
-    end
 
     if params[:issueid]
       @issues = params[:issue].to_a << params[:issueid]
+    else
+      @issues = []
+      @file.each(:issue) do |a|
+        if a.text == ''
+          # old uploaded patchinfos could have broken tracker-names like "bnc "
+          # instead of "bnc". Catch these.
+          begin
+            a.text = get_issue_sum(a.value(:tracker), a.value(:id))
+          rescue ActiveXML::Transport::NotFoundError
+            a.text = 'PLEASE CHECK THE FORMAT OF THE ISSUE'
+          end
+        end
+
+        issueurl = IssueTracker.find_by_name(a.value(:tracker)).
+          try(:show_url_for, a.value(:id)).to_s
+
+        @issues << [
+          a.value(:tracker),
+          a.value(:id),
+          issueurl,
+          a.text
+        ]
+      end
     end
     @category = @file.value(:category)
     @rating = @file.value(:rating)
