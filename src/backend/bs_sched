@@ -5219,7 +5219,7 @@ sub checkkiwiproduct {
       if ($remoteprojs{$aprojid}) {
         $gbininfo = read_gbininfo_remote($ctx, "$aprp/$arch", $remoteprojs{$aprojid}, $ps);
 	if (!$gbininfo) {
-	  my $error = "project binary state of $aprp is unavailable";
+	  my $error = "project binary state of $aprp/$arch is unavailable";
 	  $error .= " (delayed)" if defined $gbininfo;
 	  print "      - $packid (kiwi-product)\n";
 	  print "        $error\n";
