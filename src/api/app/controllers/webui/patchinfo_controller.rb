@@ -302,10 +302,10 @@ class Webui::PatchinfoController < Webui::WebuiController
     tracker_result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), method: 'GET'))
     if bug.match(/^#{tracker_result.value(:regex)}$/)
       begin
-        path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}"
+        path << "/issues/#{CGI.escape(issueid)}"
         result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), method: 'GET'))
         unless result.value(:summary)
-          path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}?force_update=1"
+          path << "?force_update=1"
           result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), method: 'GET'))
         end
         return (result.value(:summary) || '').gsub(/\\|'/) { |c| '' }
