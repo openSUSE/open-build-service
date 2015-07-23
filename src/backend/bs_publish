@@ -618,14 +618,6 @@ sub deleterepo_susetags {
 sub createrepo_debian {
   my ($extrep, $projid, $repoid, $data, $options) = @_;
 
-  #unlink("$extrep/Packages");
-  #unlink("$extrep/Packages.gz");
-  #unlink("$extrep/Sources");
-  #unlink("$extrep/Sources.gz");
-  #unlink("$extrep/Release");
-  #unlink("$extrep/Release.gpg");
-  #unlink("$extrep/Release.key");
-
   print "    running dpkg-scanpackages\n";
   if (qsystem('chdir', $extrep, 'stdout', 'Packages.new', 'dpkg-scanpackages', '-m', '.', '/dev/null')) {
       die("    dpkg-scanpackages failed: $?\n");
@@ -633,10 +625,13 @@ sub createrepo_debian {
   if (-f "$extrep/Packages.new") {
     unlink("$extrep/Packages");
     link("$extrep/Packages.new", "$extrep/Packages");
-    qsystem('gzip', '-9', '-f', "$extrep/Packages.new") && print "    gzip Packages.new failed: $?\n";
+    qsystem('gzip', '-9', '-n', '-f', "$extrep/Packages.new") && print "    gzip Packages.new failed: $?\n";
     unlink("$extrep/Packages.new");
     unlink("$extrep/Packages.gz");
     rename("$extrep/Packages.new.gz", "$extrep/Packages.gz");
+  } else {
+    unlink("$extrep/Packages");
+    unlink("$extrep/Packages.gz");
   }
 
   print "    running dpkg-scansources\n";
@@ -646,9 +641,13 @@ sub createrepo_debian {
   if (-f "$extrep/Sources.new") {
     unlink("$extrep/Sources");
     link("$extrep/Sources.new", "$extrep/Sources");
-    qsystem('gzip', '-9', '-f', "$extrep/Sources.new") && print "    gzip Sources.new failed: $?\n";
+    qsystem('gzip', '-9', '-n', '-f', "$extrep/Sources.new") && print "    gzip Sources.new failed: $?\n";
+    unlink("$extrep/Sources.new");
     unlink("$extrep/Sources.gz");
     rename("$extrep/Sources.new.gz", "$extrep/Sources.gz");
+  } else {
+    unlink("$extrep/Sources");
+    unlink("$extrep/Sources.gz");
   }
 
   my $obsname = $BSConfig::obsname || 'build.opensuse.org';
@@ -704,6 +703,9 @@ EOL
   print OUT $sha1sums;
   print OUT $sha256sums;
   close(OUT) || die("close: $!\n");
+
+  unlink("$extrep/Release.gpg");
+  unlink("$extrep/Release.key");
 
   # re-sign changed Release file
   if ($BSConfig::sign && -e "$extrep/Release") {
@@ -1572,6 +1574,7 @@ sub publish {
     next if $arch =~ /^\./;
     next if $arch eq 'repodata' || $arch eq 'repocache' || $arch eq 'media.1' || $arch eq 'descr';
     next if $arch =~ /\.repo$/;
+    next if $arch eq 'Packages' || $arch eq 'Packages.gz' || $arch eq 'Sources' || $arch eq 'Sources.gz' || $arch eq 'Release' || $arch eq 'Release.gz' || $arch eq 'Release.key';
     my $r = "$extrep/$arch";
     if (-f $r) {
       $r = $extrep;
@@ -1580,7 +1583,7 @@ sub publish {
       my @s = lstat("$r/$bin");
       if (!exists($bins{$p})) {
 	print "      - $p\n";
-        #unlink("$r/$bin") || die("unlink $r/$bin: $!\n");
+        unlink("$r/$bin") || die("unlink $r/$bin: $!\n");
         push @db_deleted, $p if $p =~ /\.(?:$binsufsre)$/;
         $changed = 1;
 	next;
