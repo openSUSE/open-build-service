@@ -676,6 +676,45 @@ sub rpc_recv_file {
   BSEvents::add($wev);	# do this last
 }
 
+###########################################################################
+#
+#  string receiver methods
+#
+
+sub rpc_recv_string_data_handler {
+  my ($ev, $rev, $data) = @_;
+  $ev->{'string'} .= $data;
+  return 1;
+}
+
+sub rpc_recv_string_close_handler {
+  my ($ev) = @_;
+  #print "rpc_recv_string_close_handler\n";
+  my $rev = $ev->{'readev'};
+  my $trailer = $ev->{'chunktrailer'} || '';
+  rpc_result($rev, $ev->{'string'});
+  #print "string rpc $rev->{'rpcuri'} is finished!\n";
+  delete $rpcs{$rev->{'rpcuri'}};
+}
+
+sub rpc_recv_string {
+  my ($ev, $chunked, $data) = @_;
+  my $wev = BSEvents::new('always');
+  $wev->{'replbuf'} = $data;
+  $wev->{'readev'} = $ev;
+  $ev->{'writeev'} = $wev;
+  if ($chunked) {
+    $wev->{'handler'} = \&rpc_recv_stream_handler;
+  } else {
+    $wev->{'handler'} = \&rpc_recv_unchunked_stream_handler;
+  }
+  $wev->{'string'} = '';
+  $wev->{'datahandler'} = \&rpc_recv_string_data_handler;
+  $wev->{'closehandler'} = \&rpc_recv_string_close_handler;
+  $ev->{'handler'} = \&BSServerEvents::stream_read_handler;
+  BSEvents::add($ev);
+  BSEvents::add($wev);	# do this last
+}
 
 ###########################################################################
 #
@@ -808,7 +847,7 @@ sub rpc_recv_handler {
   }
 
   if ($chunked) {
-    rpc_error($ev, "chunked decoder not implemented yet for non-receiver requests\n");
+    rpc_recv_string($ev, $chunked, $ans);
     return;
   }
   if ($ev->{'rpceof'} && $cl && length($ans) < $cl) {
