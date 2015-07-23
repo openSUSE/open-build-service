@@ -1321,7 +1321,7 @@ sub publish {
 
   my %kiwireport;	# store collected report (under the original name)
   my %kiwimedium;	# maps published name to original name
-  my $kiwiindex;	# store collected index parts
+  my $kiwiindex = '';	# store collected index parts
 
   if ($archorder) {
     my %archorder = map {$_ => 1} @$archorder;
@@ -1448,10 +1448,10 @@ sub publish {
 	  # collect kiwi reports
 	  $kiwireport{$1} = readxml("$r/$rbin", $BSXML::report, 1);
 	  next;
-    } elsif ($bin =~ /^(.*)\.index$/) {
-      # collect virt-builder index parts
-      $kiwiindex .= readstr("$r/$bin", 1) . "\n";
-      next;
+	} elsif ($bin =~ /^(.*)\.index$/) {
+	  # collect virt-builder index parts
+	  $kiwiindex .= readstr("$r/$bin", 1) . "\n";
+	  next;
 	} elsif (-d "$r/$rbin") {
 	  $p = "repo/$bin";
 	  if ($repotype{'slepool'}) {
@@ -1691,10 +1691,13 @@ sub publish {
   }
 
   # Write the kiwi index file if we got it
-  if (length $kiwiindex) {
-    writestr("$extrep/index", undef, $kiwiindex);
-    push @changed, "$extrep/index";
-    $changed = 1;
+  if ($kiwiindex) {
+    my $oldkiwiindex = readstr("$extrep/index", 1) || '';
+    if ($oldkiwiindex ne $kiwiindex) {
+      writestr("$extrep/index", undef, $kiwiindex);
+      push @changed, "$extrep/index";
+      $changed = 1;
+    }
   }
 
   close F;     # release repository lock
