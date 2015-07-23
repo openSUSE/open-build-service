@@ -80,12 +80,12 @@ class Webui::PatchinfoController < Webui::WebuiController
       issueurl = IssueTracker.find_by_name(a.value(:tracker))
       issueurl = issueurl.show_url_for(issueid)
 
-      issue = []
-      issue << a.value(:tracker)
-      issue << issueid
-      issue << issueurl
-      issue << a.text
-      @issues << issue
+      @issues << [
+        a.value(:tracker),
+        issueid,
+        issueurl,
+        a.text
+      ]
     end
 
     if params[:issueid]
