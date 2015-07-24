@@ -132,16 +132,16 @@ class Channel < ActiveRecord::Base
     save
   end
 
-  def branch_channel_package_into_project(project)
+  def branch_channel_package_into_project(project, comment=nil)
     cp = self.package
 
     # create a package container
     tpkg = Package.new(:name => self.name, :title => cp.title, :description => cp.description)
     project.packages << tpkg
-    tpkg.store
+    tpkg.store({comment: comment})
 
     # branch sources
-    tpkg.branch_from(cp.project.name, cp.name)
+    tpkg.branch_from(cp.project.name, cp.name, nil, nil, comment)
     tpkg.sources_changed
 
     tpkg

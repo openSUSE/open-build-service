@@ -19,7 +19,7 @@ class ChannelBinary < ActiveRecord::Base
     ChannelBinary.find_by_sql(['SELECT channel_binaries.* FROM channel_binaries LEFT JOIN channel_binary_lists ON channel_binary_lists.id = channel_binaries.channel_binary_list_id LEFT JOIN channels ON channel_binary_lists.channel_id = channels.id LEFT JOIN packages ON channels.package_id = packages.id WHERE (channel_binary_lists.project_id = ? and package = ? and packages.project_id IN (?))', project.id, package, maintained_projects])
   end
 
-  def create_channel_package_into(project)
+  def create_channel_package_into(project, comment=nil)
 
     channel = self.channel_binary_list.channel
 
@@ -27,7 +27,7 @@ class ChannelBinary < ActiveRecord::Base
     return nil if Package.exists_by_project_and_name(project.name, channel.name, follow_project_links: false, allow_remote_packages: false)
 
     # create a channel package beside my package and return that
-    return channel.branch_channel_package_into_project(project)
+    return channel.branch_channel_package_into_project(project, comment)
   end
 
   def to_axml_id(opts={})
