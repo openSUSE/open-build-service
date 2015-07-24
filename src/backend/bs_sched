@@ -1383,12 +1383,14 @@ sub prpfinished {
   $filter ||= $default_publishfilter;
   $filter = compile_publishfilter($filter);
 
-  my $seen_pack;
-  my $xpackid;
+  my $seen_binary;
   my $singleexport;
   $singleexport = $bconf->{'singleexport'} if $bconf;
   $singleexport = 1 if $bconf && grep {$_ eq 'singleexport'} @{$bconf->{'repotype'} || []};
-  print "    prp $prp is singleexport\n" if $singleexport;
+  if ($singleexport) {
+    print "    prp $prp is singleexport\n";
+    $seen_binary = {};
+  }
 
   # sort like in the full tree
   for my $packid (orderpackids($projpacks->{$projid}, @$packs)) {
@@ -1412,13 +1414,6 @@ sub prpfinished {
       }
       next;
     }
-    if ($singleexport) {
-      $xpackid = "";
-      if ($packid =~ /^(.*)\.(imported_)?(\d+)$/) {
-        $xpackid = $1;
-      }
-      next if $xpackid && $seen_pack->{$xpackid};
-    }
     my $pdir = "$reporoot/$prp/$myarch/$packid";
     my @all = sort(ls($pdir));
     my %all = map {$_ => 1} @all;
@@ -1428,7 +1423,6 @@ sub prpfinished {
     @all = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'rpmlint.log' && $_ ne '_statistics' && $_ ne '_buildenv' && $_ ne '_channel' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && !/^\./} @all;
     for my $bin (@all) {
       next if $bin =~ /^::import::/;
-      $seen_pack->{$xpackid} = $packid if $singleexport;
       my $rbin = $bin;
       # XXX: should be source name instead?
       $rbin = "${packid}::$bin" if $debian || $bin eq 'updateinfo.xml';
@@ -1437,6 +1431,12 @@ sub prpfinished {
         next if $bin =~ /\.(?:no)?src\.rpm$/;
 	next if $bin =~ /-debug(:?info|source).*\.rpm$/;
         next if $debian && ($bin !~ /\.deb$/);
+      }
+      if ($seen_binary) {
+	if ($bin =~ /(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+	  next if $seen_binary->{"$1.$2"};
+	  $seen_binary->{"$1.$2"} = 1;
+	}
       }
       if ($filter) {
 	my $bad;
@@ -5248,20 +5248,15 @@ sub checkkiwiproduct {
       }
       @apackids = unify(@apackids, sort keys %$gbininfo) if $gbininfo;
 
-      # just for maintenance_release project handling
-      my $seen_pack;
+      # just for maintenance_release project handling, in that case we
+      # use the binary from the container with the highest number if
+      # some containers contain the same binary.
+      my $seen_binary;
+      $seen_binary = {} if ($aproj->{'kind'} || '') eq 'maintenance_release';
 
       for my $apackid (orderpackids($aproj, @apackids)) {
         next if $apackid eq '_volatile';
         next if ($pdatas->{$apackid} || {})->{'patchinfo'};
-        if (($aproj->{'kind'} || '') eq 'maintenance_release') {
-	  my $xpackid;
-	  $xpackid = $1 if $apackid =~ /^(.*)\.(imported_)?(\d+)$/;
-	  if ($xpackid) {
-	    next if $seen_pack->{$xpackid};
-	    $seen_pack->{$xpackid} = $apackid;
-	  }
-        }
 
         if (($allpacks && !$deps{"-$apackid"} && !$deps{'-'.($known{$apackid} || '')}) || $deps{$apackid} || $deps{$known{$apackid} || ''}) {
 	  # hey, we probably need this package! wait till it's finished
@@ -5299,6 +5294,10 @@ sub checkkiwiproduct {
 	    next if $rpms_meta{"$aprp/$arch/$apackid/$1"};
  	  }
 	  my $b = $bininfo->{$fn};
+	  if ($seen_binary) {
+	    next if $seen_binary->{"$b->{'name'}.$b->{'arch'}"};
+	    $seen_binary->{"$b->{'name'}.$b->{'arch'}"} = 1;
+	  }
 	  $needit = 1 if $deps{$b->{'name'}} || ($allpacks && !$deps{"-$b->{'name'}"});
 	  push @got, "$aprp/$arch/$apackid/$fn";
 	  $rpms_hdrmd5{$got[-1]} = $b->{'hdrmd5'} if $b->{'hdrmd5'};
