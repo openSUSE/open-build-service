@@ -3473,7 +3473,8 @@ sub getprojpack {
     for my $p (sort keys %$remotemap) {
       next unless $remotemap->{$p};
       my $r = {'project' => $p};
-      for (qw{remoteurl remoteproject remoteroot root config repository error proto partition}) {
+      # keep in sync with BSXML! (we only use access/publish from the flags)
+      for (qw{kind root remoteurl remoteproject remoteroot partition proto config publish access person group repository error}) {
         $r->{$_} = $remotemap->{$p}->{$_} if defined($remotemap->{$p}->{$_});
       }
       $r->{'error'} =~ s/\n$// if $r->{'error'};
