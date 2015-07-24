@@ -119,11 +119,6 @@ class Webui::PatchinfoController < Webui::WebuiController
       end
 
       if valid_params
-        packager = params[:packager]
-        binaries = params[:selected_binaries]
-        relogin = params[:relogin]
-        reboot = params[:reboot]
-        zypp_restart_needed = params[:zypp_restart_needed]
         if params[:issueid]
           issues = []
           params[:issueid].each_with_index do |new_issue, index|
@@ -134,19 +129,18 @@ class Webui::PatchinfoController < Webui::WebuiController
             issues << issue
           end
         end
-        rating = params[:rating]
         node = Builder::XmlMarkup.new(indent: 2)
         attrs = {}
         attrs[:incident] = @package.project.name.gsub(/.*:/, '')
         xml = node.patchinfo(attrs) do |n|
-          if binaries
-            binaries.each do |binary|
+          if params[:selected_binaries]
+            params[:selected_binaries].each do |binary|
               if !binary.blank?
                 node.binary(binary)
               end
             end
           end
-          node.packager packager
+          node.packager params[:packager]
           if issues
             issues.each do |issue|
               unless IssueTracker.find_by_name(issue[1])
@@ -157,16 +151,16 @@ class Webui::PatchinfoController < Webui::WebuiController
             end
           end
           node.category params[:category]
-          node.rating rating
+          node.rating params[:rating]
           node.summary params[:summary]
           node.description params[:description].gsub("\r\n", "\n")
-          if reboot
+          if params[:reboot]
             node.reboot_needed
           end
-          if relogin
+          if params[:relogin]
             node.relogin_needed
           end
-          if zypp_restart_needed
+          if params[:zypp_restart_needed]
             node.zypp_restart_needed
           end
           if params[:block] == 'true'
