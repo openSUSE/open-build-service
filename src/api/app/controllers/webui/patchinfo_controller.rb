@@ -139,14 +139,12 @@ class Webui::PatchinfoController < Webui::WebuiController
             end
           end
           node.packager params[:packager]
-          if issues
-            issues.each do |issue|
-              unless IssueTracker.find_by_name(issue[1])
-                flash[:error] = "Unknown Issue tracker #{issue[1]}"
-                return
-              end
-              node.issue(issue[2], tracker: issue[1], id: issue[0])
+          issues.to_a.each do |issue|
+            unless IssueTracker.find_by_name(issue[1])
+              flash[:error] = "Unknown Issue tracker #{issue[1]}"
+              return
             end
+            node.issue(issue[2], tracker: issue[1], id: issue[0])
           end
           node.category params[:category]
           node.rating params[:rating]
