@@ -5201,6 +5201,7 @@ sub checkkiwiproduct {
 
   my $maxblocked = 20;
   my %blockedarch;
+  my $delayed_errors = '';
   for my $aprp (@aprps) {
     my %known;
     my ($aprojid, $arepoid) = split('/', $aprp, 2);
@@ -5230,12 +5231,16 @@ sub checkkiwiproduct {
 	  $error .= " (delayed)" if defined $gbininfo;
 	  print "      - $packid (kiwi-product)\n";
 	  print "        $error\n";
-	  return ('delayed', $error) if defined $gbininfo;
+	  if (defined $gbininfo) {
+	    $delayed_errors .= ", $error";
+	    next;
+	  }
 	  return ('broken', $error);
 	}
       } else {
         $gbininfo = read_gbininfo("$reporoot/$aprp/$arch", $arch eq $myarch ? 0 : 1);
       }
+      next if $delayed_errors;
       if (!$gbininfo && $arch ne $myarch && -d "$eventdir/$arch") {
         # mis-use unblocked to tell other scheduler that it is missing
         print "    requesting :repoinfo for $aprp/$arch\n";
@@ -5314,6 +5319,7 @@ sub checkkiwiproduct {
     }
     last if @blocked > $maxblocked;
   }
+  return ('delayed', substr($delayed_errors, 2)) if $delayed_errors;
   if ($myarch eq $buildarch) {
     # update waiting_for markers
     for my $arch (grep {$_ ne $buildarch} @archs) {
