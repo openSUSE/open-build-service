@@ -62,7 +62,7 @@ class Webui::PackageEditTest < Webui::IntegrationTest
 
   end
 
-  test 'change_home_project_package_title' do
+  def test_change_home_project_package_title
     
     login_Iggy to: package_show_path(:project => @project, :package => @package)
 
@@ -71,7 +71,7 @@ class Webui::PackageEditTest < Webui::IntegrationTest
   end
 
   
-  test 'change_home_project_package_description' do
+  def test_change_home_project_package_description
 
     login_Iggy to: package_show_path(:project => @project, :package => @package)
 
@@ -80,7 +80,7 @@ class Webui::PackageEditTest < Webui::IntegrationTest
   end
 
   
-  test 'change_home_project_package_info' do
+  def test_change_home_project_package_info
     login_Iggy to: package_show_path(:project => @project, :package => @package)
 
     change_package_info(

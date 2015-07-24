@@ -36,20 +36,20 @@ class Webui::LoginTest < Webui::IntegrationTest
   end
 
 
-  test "login_as_user" do
+  def test_login_as_user
     
     # pretty useless actually :)
     login_Iggy
     logout
   end
 
-  test "login_as_second_user" do
+  def test_login_as_second_user
   
     login_tom
     logout
   end
 
-  test "login_invalid_entry" do
+  def test_login_invalid_entry
   
     visit root_path
     click_link 'login-trigger'
@@ -66,7 +66,7 @@ class Webui::LoginTest < Webui::IntegrationTest
   end
 
   
-  test "login_empty_entry" do
+  def test_login_empty_entry
   
     visit root_path
     click_link 'login-trigger'
@@ -80,7 +80,7 @@ class Webui::LoginTest < Webui::IntegrationTest
     
   end
 
-  test "change_real_name_for_user" do
+  def test_change_real_name_for_user
     use_js
 
     login_Iggy
@@ -88,7 +88,7 @@ class Webui::LoginTest < Webui::IntegrationTest
     change_user_real_name Faker::Name.name
   end
   
-  test "remove_user_real_name" do
+  def test_remove_user_real_name
     use_js
 
     login_Iggy
@@ -96,7 +96,7 @@ class Webui::LoginTest < Webui::IntegrationTest
     change_user_real_name ""
   end
   
-  test "real_name_stays_changed" do
+  def test_real_name_stays_changed
     use_js
 
     login_Iggy

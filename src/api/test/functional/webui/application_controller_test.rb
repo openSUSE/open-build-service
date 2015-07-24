@@ -44,7 +44,7 @@ class Webui::ApplicationControllerTest < Webui::IntegrationTest
     assert_equal("a_b", valid_xml_id("a.b"))
   end
 
-  test 'bento theme can be configured' do
+  def test_bento_theme_can_be_configured
     CONFIG['theme'] = 'bento'
     visit root_path
     # without javascript there is no menu but just links

@@ -2,7 +2,7 @@ require_relative '../../test_helper'
 
 class Webui::MessagesTest < Webui::IntegrationTest
 
-  test 'add and remove message' do
+  def test_add_and_remove_message
     use_js
 
     login_king to: root_path 

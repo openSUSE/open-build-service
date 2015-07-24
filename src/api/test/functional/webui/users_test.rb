@@ -71,7 +71,7 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
     flash_message.must_equal "Removed user #{user}"
   end
 
-  test 'add and edit package people' do
+  def test_add_and_edit_package_people
     use_js
 
     @project = 'kde4'
@@ -122,7 +122,7 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
     
   end
 
-  test 'add and edit project users' do
+  def test_add_and_edit_project_users
 
     @project = 'kde4'
     @userspath = project_users_path(project: @project)

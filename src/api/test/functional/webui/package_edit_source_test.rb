@@ -88,23 +88,23 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
   end
 
 
-  test 'erase_file_content' do
+  def test_erase_file_content
     open_file 'myfile'
     edit_file ''
   end
   
-  test 'edit_empty_file' do
+  def test_edit_empty_file
     open_file 'myfile'
     edit_file File.read( text_path('SourceFile.cc') )
   end
 
   
-  test 'add_new_source_file_to_home_project_package' do
+  def test_add_new_source_file_to_home_project_package
     open_add_file
     add_file :name => 'HomeSourceFile1'
   end
 
-  test 'chinese chars' do
+  def test_chinese_chars
     open_add_file
     fu = '学习总结' # you don't want to know what that means in chinese
     add_file name: fu, upload_path: text_path('chinese.txt')
@@ -113,7 +113,7 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
     page.must_have_button 'Save'
   end
 
-  test 'add_source_file_from_local_file' do
+  def test_add_source_file_from_local_file
     
     open_add_file
     add_file(upload_from: :local_file,
@@ -121,7 +121,7 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
   end
   
     
-  test 'add_source_file_from_local_file_override_name' do
+  def test_add_source_file_from_local_file_override_name
     
     open_add_file
     add_file(
@@ -131,7 +131,7 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
   end
   
   
-  test 'add_source_file_from_empty_local_file' do
+  def test_add_source_file_from_empty_local_file
     
     open_add_file
     add_file(
@@ -139,7 +139,7 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
       upload_path: text_path('EmptySource.c'))
   end
 
-  test 'add_source_file_from_remote_file' do
+  def test_add_source_file_from_remote_file
     open_add_file
     add_file(
       upload_from: :remote_url,
@@ -147,7 +147,7 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
       :expect => :service)
   end
   
-  test 'add_source_file_with_invalid_name' do
+  def test_add_source_file_with_invalid_name
   
     open_add_file
     add_file(
@@ -156,7 +156,7 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
       :expect => :invalid_upload_path)
   end
 
-  test 'add_source_file_all_fields_empty' do
+  def test_add_source_file_all_fields_empty
   
     open_add_file
     add_file(

@@ -2,7 +2,7 @@ require_relative '../../test_helper'
 
 class Webui::WatchlistTest < Webui::IntegrationTest
 
-  test 'watchlists' do
+  def test_watchlists
     use_js
     login_tom to: project_show_path(project: 'BaseDistro')
 

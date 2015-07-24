@@ -16,7 +16,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_selector '#delete-package'
   end
 
-  test 'show package binary as user' do
+  def test_show_package_binary_as_user
     login_user('fred', 'geröllheimer', to:
         package_binaries_path(package: 'TestPack', project: 'home:Iggy', repository: '10.2'))
 
@@ -26,20 +26,20 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_text 'Total build: 503 s'
   end
 
-  test 'show invalid package' do
+  def test_show_invalid_package
     visit package_show_path(package: 'TestPok', project: 'home:Iggy')
     page.status_code.must_equal 404
     flash_message.must_equal 'Package "TestPok" not found in project "home:Iggy"'
   end
 
-  test 'show invalid project' do
+  def test_show_invalid_project
     visit package_show_path(package: 'TestPok', project: 'home:Oggy')
     page.status_code.must_equal 404
     flash_message.must_equal 'Project not found: home:Oggy'
   end
 
   uses_transaction :test_delete_package_as_user
-  test 'delete package as user' do
+  def test_delete_package_as_user
     use_js
 
     login_user('fred', 'geröllheimer')
@@ -47,7 +47,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   end
 
   uses_transaction :test_delete_package_as_admin
-  test 'delete package as admin' do
+  def test_delete_package_as_admin
     use_js
 
     login_king
@@ -55,7 +55,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   end
 
 
-  test 'Iggy adds himself as reviewer' do
+  def test_Iggy_adds_himself_as_reviewer
     use_js
 
     login_Iggy to: package_users_path(package: 'TestPack', project: 'home:Iggy')
@@ -67,7 +67,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_text '<person userid="Iggy" role="reviewer"/>'
   end
 
-  test 'Iggy removes himself as bugowner' do
+  def test_Iggy_removes_himself_as_bugowner
     use_js
 
     login_Iggy to: package_meta_path(package: 'TestPack', project: 'home:Iggy')
@@ -89,7 +89,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     find('#flash-messages').must_have_text 'Comment was successfully created.'
   end
 
-  test 'succesful comment creation' do
+  def test_succesful_comment_creation
     use_js
     login_Iggy
     visit root_path + '/package/show/home:Iggy/TestPack'
@@ -109,7 +109,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     end
   end
 
-  test 'another succesful comment creation' do
+  def test_another_succesful_comment_creation
     use_js
     login_Iggy 
     visit root_path + '/package/show?project=home:Iggy&package=TestPack'
@@ -129,7 +129,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
 #   fill_comment
 # end
 
-  test 'succesful reply comment creation' do
+  def test_succesful_reply_comment_creation
     use_js
     login_Iggy 
     visit root_path + '/package/show/BaseDistro3/pack2'
@@ -140,18 +140,18 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     find('#flash-messages').must_have_text 'Comment was successfully created.'
   end
 
-  test 'diff is empty' do
+  def test_diff_is_empty
     visit '/package/rdiff/BaseDistro2.0/pack2.linked?opackage=pack2&oproject=BaseDistro2.0'
     find('#content').must_have_text 'No source changes!'
   end
 
-  test 'revision is empty' do
+  def test_revision_is_empty
     visit '/package/rdiff/BaseDistro2.0/pack2.linked?opackage=pack2&oproject=BaseDistro2.0&rev='
     flash_message_type.must_equal :alert
     flash_message.must_equal 'Error getting diff: revision is empty'
   end
 
-  test 'group can modify' do
+  def test_group_can_modify
     use_js
 
     # verify we do not test ghosts
@@ -176,7 +176,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_link 'Add group'
   end
 
-  test 'derived packages' do
+  def test_derived_packages
     use_js
 
     login_adrian to: package_show_path(package: 'pack2', project: 'BaseDistro')
@@ -187,7 +187,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_link 'BaseDistro:Update'
   end
 
-  test 'download logfile' do
+  def test_download_logfile
     use_js
 
     visit package_show_path(package: 'TestPack', project: 'home:Iggy')
@@ -207,7 +207,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     assert_match %r{this is my dummy}, page.source
   end
 
-  test 'delete request' do
+  def test_delete_request
     use_js
 
     login_tom to: package_show_path(package: 'TestPack', project: 'home:Iggy')
@@ -220,7 +220,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     click_button 'Revoke request'
   end
 
-  test 'change devel request' do
+  def test_change_devel_request
     use_js
 
     # we need a package with current devel package
@@ -239,7 +239,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
 
   uses_transaction :test_submit_package
 
-  test 'submit package' do
+  def test_submit_package
     use_js
 
     login_adrian to: project_show_path(project: 'home:adrian')
@@ -339,7 +339,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.wont_have_field('supersede_request_ids[]')
   end
 
-  test 'remove file' do
+  def test_remove_file
     use_js
 
     login_dmayr to: package_show_path(project: 'home:dmayr', package: 'x11vnc')
@@ -351,7 +351,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     Suse::Backend.put( '/source/home:dmayr/x11vnc/README?user=king', 'just to delete')
   end
 
-  test "revisions" do
+  def test_revisions
     visit package_view_revisions_path(project: 'BaseDistro2.0', package: 'pack2')
     click_link "Revisions"
     page.must_have_text "Revision Log of pack2 (3)"
@@ -370,7 +370,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     all(:css, 'div.commit_item').count.must_equal 23
   end
 
-  test 'access live build log' do
+  def test_access_live_build_log
     visit '/package/live_build_log/home:Iggy/TestPack/10.2/i586'
     page.status_code.must_equal 200
     login_Iggy to: '/package/live_build_log/SourceprotectedProject/pack/repo/i586'

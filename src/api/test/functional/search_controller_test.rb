@@ -33,7 +33,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
 
   # there are 4 different code paths
-  test "different parameters for search attribute" do
+  def test_different_parameters_for_search_attribute
     login_Iggy
     get "/search/attribute?namespace=OBS&name=Maintained&project=home:Iggy"
     assert_response :success
@@ -152,7 +152,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
 
   # do as the webui does
-  test "involved packages" do
+  def test_involved_packages
     login_Iggy
     get "/search/package/id", match: "(person/@userid='Iggy') or (group/@groupid='test_group')"
     assert_response :success
@@ -774,7 +774,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "xpath operators" do
+  def test_xpath_operators
     login_Iggy
 
     get '/search/request/id', match: '@id>1'
@@ -805,7 +805,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
   end
 
-  test "xpath with two relationships" do
+  def test_xpath_with_two_relationships
     login_Iggy
     get '/search/package/id', match: "person/@userid = 'adrian' and person/@role = 'maintainer'"
     assert_response :success

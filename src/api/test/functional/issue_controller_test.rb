@@ -310,7 +310,7 @@ Blubber bnc#15\n
     assert_response :success
   end
 
-  test "fate entries" do
+  def test_fate_entries
     changes = "-------------------------------------------------------------------\n
 Blah fate#13\n
 -------------------------------------------------------------------\n

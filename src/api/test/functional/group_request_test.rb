@@ -130,7 +130,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
 
   end
 
-  test "remove request" do
+  def test_remove_request
     login_king
     id = upload_request("group")
 
@@ -152,7 +152,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
 
   end
 
-  test "accept reviews in group" do
+  def test_accept_reviews_in_group
     login_king
     id = upload_request("group")
 
@@ -205,7 +205,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
 
   end
 
-  test "supersede replaces request" do
+  def test_supersede_replaces_request
     login_king
     id = upload_request("group")
 
@@ -245,7 +245,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
 
   end
 
-  test "accept sub request" do
+  def test_accept_sub_request
     login_king
     id = upload_request("group")
 
@@ -267,7 +267,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     assert_xml_tag(:tag => "state", :attributes => {:name => "new"})
   end
 
-  test "search groups" do
+  def test_search_groups
     login_king
     upload_request("group")
 

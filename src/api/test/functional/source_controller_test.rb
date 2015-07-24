@@ -251,7 +251,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test 'can branch package under two names' do
+  def test_can_branch_package_under_two_names
     login_king
     post '/source/home:Iggy/TestPack', :cmd => 'branch', :target_package => 'TestPack2'
     assert_response :success
@@ -3507,7 +3507,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     return Xmlhash.parse(@response.body)
   end
 
-  test 'have the same user role twice in package meta' do
+  def test_have_the_same_user_role_twice_in_package_meta
     login_tom
     get '/source/home:Iggy/_meta'
     assert_response :success
@@ -3562,7 +3562,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test 'store invalid package' do
+  def test_store_invalid_package
     login_tom
     name = Faker::Lorem.characters(255)
     url = url_for(controller: :source, action: :update_package_meta, project: 'home:tom', package: name)
@@ -3574,7 +3574,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_select 'status[code] > summary', %r{invalid package name}
   end
 
-  test 'store invalid project' do
+  def test_store_invalid_project
     login_tom
     name = "home:tom:#{Faker::Lorem.characters(255)}"
     url = url_for(controller: :source, action: :update_project_meta, project: name)
@@ -3587,14 +3587,14 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   # _attribute is a "file", but can only be written by API->backend not directly
-  test 'puting _attribute to backend' do
+  def test_puting__attribute_to_backend
     login_tom
     put "/source/home:tom/_project/_attribute?meta=1", ''
     assert_response 400
     assert_select 'status[code] > summary', "Attributes need to be changed through /source/home:tom/_attribute"
   end
 
-  test 'issue 441' do
+  def test_issue_441
     login_tom
     get '/source/Foo'
     assert_response 404
@@ -3610,7 +3610,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_equal({ 'code' => 'unknown_package', 'summary' => 'home:tom/bar' }, Xmlhash.parse(@response.body))
   end
 
-  test 'issue 328' do
+  def test_issue_328
     login_tom
     # create a new project with images repo referencing the other
     put('/source/home:tom:threeatatime/_meta',

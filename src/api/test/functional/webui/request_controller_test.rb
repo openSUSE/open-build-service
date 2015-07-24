@@ -30,7 +30,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     rs.find(:xpath, '//a[@title="kdelibs"]').must_have_text 'kdelibs'
   end
 
-  test 'can request role addition for projects' do
+  def test_can_request_role_addition_for_projects
     login_Iggy to: project_show_path(project: 'home:tom')
     click_link 'Request role addition'
     find(:id, 'role').select('Bugowner')
@@ -48,7 +48,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     click_button 'Accept'
   end
 
-  test 'can request role addition for packages' do
+  def test_can_request_role_addition_for_packages
     login_Iggy to: package_show_path(project: 'home:Iggy', package: 'TestPack')
     # no need for "request role"
     page.wont_have_link 'Request role addition'
@@ -82,7 +82,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
 
   end
 
-  test 'superseding is displayed when needed' do
+  def test_superseding_is_displayed_when_needed
     # create testing superseded submission first
     login_tom to: package_show_path(project: 'Apache', package: 'apache2')
     click_link 'Submit package'
@@ -121,14 +121,14 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.must_have_link(newrequest)
   end
 
-  test 'invalid id gives error' do
+  def test_invalid_id_gives_error
     login_Iggy
     visit request_show_path(20000)
     page.must_have_text("Can't find request 20000")
     page.must_have_text('Home of Iggy')
   end
 
-  test 'submit package and revoke' do
+  def test_submit_package_and_revoke
     login_Iggy to: package_show_path(project: 'home:Iggy', package: 'TestPack')
     click_link 'Submit package'
     fill_in 'targetproject', with: 'home:tom'
@@ -159,7 +159,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   end
 
   uses_transaction :test_tom_adds_reviewer_Iggy
-  test 'tom adds reviewer Iggy' do
+  def test_tom_adds_reviewer_Iggy
     login_tom to: user_show_path(user: 'tom')
 
     within('tr#tr_request_4') do
@@ -225,7 +225,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.must_have_text 'Request 4 (declined)'
   end
 
-  test 'request 4 can expand' do
+  def test_request_4_can_expand
     # no login required
     visit request_show_path(4)
     within '#diff_headline_myfile_diff_action_0_submit_0_0' do
@@ -240,7 +240,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   end
 
   uses_transaction :test_add_submitter_as_maintainer
-  test 'add_submitter_as_maintainer' do
+  def test_add_submitter_as_maintainer
     use_js
 
     # Accept the request adding submitter
@@ -264,23 +264,23 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.must_have_text 'Request 10'
   end
 
-  test 'requests display as nobody' do
+  def test_requests_display_as_nobody
     visit_requests
   end
 
-  test 'requests display as king' do
+  def test_requests_display_as_king
     login_king
     visit_requests
   end
 
-  test 'succesful comment creation' do
+  def test_succesful_comment_creation
     login_Iggy to: request_show_path(1)
     fill_in 'body', with: 'Comment Body'
     find_button('Add comment').click
     find('#flash-messages').must_have_text 'Comment was successfully created.'
   end
 
-  test 'can not accept own requests' do
+  def test_can_not_accept_own_requests
     login_tom to: package_show_path(project: 'Apache', package: 'apache2')
     click_link 'Submit package'
     fill_in 'targetproject', with: 'kde4'
@@ -297,7 +297,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.wont_have_selector 'input#accept_request_button'
   end
 
-  test 'succesful reply comment creation' do
+  def test_succesful_reply_comment_creation
     login_Iggy to: request_show_path(4)
     find(:id, 'reply_link_id_301').click
     fill_in 'reply_body_301', with: 'Comment Body'
@@ -313,7 +313,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     assert_equal should, lines.join("\n")
   end
 
-  test 'comment event' do
+  def test_comment_event
     login_tom to: request_show_path(4)
 
     # adrian is reviewer, Iggy creator, Admin (fixture) commenter

@@ -4,7 +4,7 @@ require_relative '../../test_helper'
 class Webui::ConfigurationTest < Webui::IntegrationTest
   uses_transaction :test_change_config
 
-  test 'configuration update' do
+  def test_configuration_update
     visit configuration_path
     flash_message_type.must_equal :alert
     flash_message.must_equal 'Requires admin privileges'
@@ -23,7 +23,7 @@ class Webui::ConfigurationTest < Webui::IntegrationTest
     first('#breadcrump a').text.must_equal title
   end
 
-  test 'architecture availability' do
+  def test_architecture_availability
     login_king to: architectures_path
 
     assert Architecture.find_by_name('i586').available
@@ -45,7 +45,7 @@ class Webui::ConfigurationTest < Webui::IntegrationTest
     assert_equal Architecture.find_by_name( "s390" ).available, false
   end
 
-  test 'notification defaults'  do
+  def test_notification_defaults
     # set some defaults as admin
     login_king to: notifications_path
 

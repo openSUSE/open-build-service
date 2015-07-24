@@ -143,7 +143,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
     wait_for_scheduler_start
   end
 
-  test 'spider anonymously' do
+  def test_spider_anonymously
     visit root_path
     @pages_to_visit = {page.current_url => [nil, nil]}
     @pages_visited = Hash.new
@@ -154,7 +154,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
     @pages_visited.keys.length.must_be :>, 700
   end
 
-  test 'spider as admin' do
+  def test_spider_as_admin
     login_king to: root_path
     @pages_to_visit = {page.current_url => [nil, nil]}
     @pages_visited = Hash.new

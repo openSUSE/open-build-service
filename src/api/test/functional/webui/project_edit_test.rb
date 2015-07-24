@@ -57,28 +57,28 @@ class Webui::ProjectEditTest < Webui::IntegrationTest
 
   end
 
-  test 'change_home_project_title' do
+  def test_change_home_project_title
     login_Iggy to: project_show_path(project: 'home:Iggy')
 
     change_project_info(
       :title => 'My Title hopefully got changed ' + Time.now.to_i.to_s)
   end
 
-  test 'change_home_project_description' do
+  def test_change_home_project_description
     login_Iggy to: project_show_path(project: 'home:Iggy')
     change_project_info(
       :description => 'New description. Not kidding.. Brand new! ' + Time.now.to_i.to_s)
   end
 
   
-  test 'change_home_project_info' do
+  def test_change_home_project_info
     login_Iggy to: project_show_path(project: 'home:Iggy')
     change_project_info(
       :title => 'My Title hopefully got changed ' + Time.now.to_i.to_s,
       :description => 'New description. Not kidding.. Brand new! ' + Time.now.to_i.to_s)
   end
 
-  test 'change_global_project_title' do
+  def test_change_global_project_title
     login_king to: project_show_path(project: 'LocalProject')
 
     change_project_info(
@@ -86,7 +86,7 @@ class Webui::ProjectEditTest < Webui::IntegrationTest
   end
 
   
-  test 'change_global_project_description' do
+  def test_change_global_project_description
     login_king to: project_show_path(project: 'LocalProject')
 
     change_project_info(
@@ -94,7 +94,7 @@ class Webui::ProjectEditTest < Webui::IntegrationTest
   end
 
   
-  test 'change_global_project_info' do
+  def test_change_global_project_info
     login_king to: project_show_path(project: 'LocalProject')
 
     change_project_info(

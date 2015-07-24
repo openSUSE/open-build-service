@@ -79,13 +79,13 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     end
   end
 
-  test 'find_search_link_in_footer' do
+  def test_find_search_link_in_footer
     visit root_path
     find(:css, 'div#footer a.search-link').click
     validate_search_page
   end
   
-  test 'basic_search_functionality' do
+  def test_basic_search_functionality
     visit search_path
     validate_search_page
 
@@ -99,7 +99,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     page.must_have_link 'kdebase'
   end
   
-  test 'header_search_functionality' do
+  def test_header_search_functionality
     visit root_path
     fill_in 'search', with: 'kdebase'
     page.evaluate_script("$('#global-search-form').get(0).submit()")
@@ -112,7 +112,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     page.must_have_text(/Base.* distro without update project/)
   end
 
-  test 'search_by_baseurl' do
+  def test_search_by_baseurl
     visit root_path + '/search?search_text=obs://build.opensuse.org/openSUSE:Factory/standard/fd6e76cd402226c76e65438a5e3df693-bash'
     find('#flash-messages').must_have_text 'Project not found: openSUSE:Factory'
 
@@ -120,7 +120,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     find('#flash-messages').must_have_text('This disturl does not compute!')
   end
 
-  test 'search_for_home_projects' do
+  def test_search_for_home_projects
   
     visit search_path
 
@@ -142,7 +142,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   end
 
 
-  test 'search_for_subprojects' do
+  def test_search_for_subprojects
 
     visit search_path
 
@@ -157,7 +157,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   end
 
 
-  test 'search_for_projects' do
+  def test_search_for_projects
 
     visit search_path
 
@@ -172,7 +172,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   end
 
 
-  test 'search_for_packages' do
+  def test_search_for_packages
 
     visit search_path
 
@@ -189,22 +189,22 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   end
   
 
-  test 'search_by_title' do
+  def test_search_by_title
     #TODO
   end
 
 
-  test 'search by description' do
+  def test_search_by_description
     #TODO
   end
 
 
-  test 'search by attributes' do
+  def test_search_by_attributes
     #TODO
   end
 
 
-  test 'search_non_existing_by_name' do
+  def test_search_non_existing_by_name
 
     visit search_path
   
@@ -216,7 +216,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   end
 
 
-  test 'search_non_existing_by_title' do
+  def test_search_non_existing_by_title
 
     visit search_path
 
@@ -228,7 +228,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   end
 
 
-  test 'search_non_existing_by_description' do
+  def test_search_non_existing_by_description
 
     visit search_path
 
@@ -240,7 +240,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   end
 
 
-  test 'search_non_existing_by_attributes' do
+  def test_search_non_existing_by_attributes
     visit search_path
 
     search(
@@ -251,7 +251,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
       :expect => :no_results)
   end
 
-  test 'search_for_nothing' do
+  def test_search_for_nothing
     visit search_path
 
     search(
@@ -261,7 +261,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
       :expect => :no_results)
   end
   
-  test 'search_russian' do
+  def test_search_russian
     visit search_path
 
 if $ENABLE_BROKEN_TEST
@@ -277,7 +277,7 @@ if $ENABLE_BROKEN_TEST
 end
   end
 
-  test 'search_in_nothing' do
+  def test_search_in_nothing
     visit search_path
 
     search(
@@ -288,7 +288,7 @@ end
   end
   
   
-  test 'search_with_empty_text' do
+  def test_search_with_empty_text
     visit search_path
     search(
       :text => '',
@@ -297,7 +297,7 @@ end
       :expect => :invalid_search_text)
   end
 
-  test 'search_hidden_as_anonymous' do
+  def test_search_hidden_as_anonymous
 
     visit search_path
   
@@ -308,7 +308,7 @@ end
       :expect => :no_results)
   end
 
-  test 'search_hidden_as_adrian' do
+  def test_search_hidden_as_adrian
 
     login_adrian to: search_path
 

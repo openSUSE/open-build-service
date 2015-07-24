@@ -5,14 +5,14 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   uses_transaction :test_admin_can_delete_every_project
   uses_transaction :test_create_project_publish_disabled
 
-  test 'project show' do
+  def test_project_show
     visit project_show_path(project: 'Apache')
     page.must_have_selector '#project_title'
     visit '/project/show?project=My:Maintenance'
     page.must_have_selector '#project_title'
   end
 
-  test 'kde4 has two packages' do
+  def test_kde4_has_two_packages
     use_js
 
     visit '/project/show?project=kde4'
@@ -23,7 +23,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     end
   end
 
-  test 'adrian can edit kde4' do
+  def test_adrian_can_edit_kde4
     # adrian is maintainer via group on kde4
     login_adrian to: project_show_path(project: 'kde4')
 
@@ -37,7 +37,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     find(:id, 'link-create-subproject').click
   end
 
-  test 'create project publish disabled' do
+  def test_create_project_publish_disabled
     create_subproject
     fill_in 'name', with: 'coolstuff'
     find(:id, 'disable_publishing').click
@@ -47,12 +47,12 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.must_have_selector 'div.icons-publish_disabled_blue'
   end
 
-  test 'create invalid ns' do
+  def test_create_invalid_ns
     login_tom to: project_new_path(ns: 'home:toM')
     flash_message.must_equal "Invalid namespace name 'home:toM'"
   end
 
-  test 'create hidden project' do
+  def test_create_hidden_project
     use_js
 
     create_subproject
@@ -74,7 +74,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.wont_have_text 'hiddenstuff'
   end
 
-  test 'delete subproject redirects to parent' do
+  def test_delete_subproject_redirects_to_parent
     use_js
 
     create_subproject
@@ -88,7 +88,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     assert page.current_url.end_with?(project_show_path(project: 'home:tom')), "#{page.current_url} does not end with #{project_show_path(project: 'home:tom')}"
   end
 
-  test 'delete home project' do
+  def test_delete_home_project
     use_js
 
     login_user('user1', '123456', to: project_show_path(project: 'home:user1'))
@@ -104,7 +104,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     assert page.current_url.end_with? project_list_public_path
   end
 
-  test 'admin can delete every project' do
+  def test_admin_can_delete_every_project
     use_js
 
     login_king to: project_show_path(project: 'LocalProject')
@@ -122,7 +122,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     find_button('Create Project').click
   end
 
-  test 'request project repository target removal' do
+  def test_request_project_repository_target_removal
     use_js
 
     # Let user1 create a project with a repo that others can request to delete
@@ -245,7 +245,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
                    :tag => "arch", :content => "x86_64"
   end
 
-  test 'list all' do
+  def test_list_all
     use_js
 
     visit project_list_public_path
@@ -267,7 +267,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     find(:id, 'project_list').must_have_link 'HiddenProject'
   end
 
-  test 'Iggy adds himself as reviewer' do
+  def test_Iggy_adds_himself_as_reviewer
     use_js
     login_Iggy to: project_users_path(project: 'home:Iggy')
     check('user_reviewer_Iggy')
@@ -278,7 +278,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.must_have_text '<person userid="Iggy" role="reviewer"/>'
   end
 
-  test 'Iggy removes homer as maintainer' do
+  def test_Iggy_removes_homer_as_maintainer
     login_Iggy to: project_users_path(project: 'home:Iggy')
     uncheck 'user_maintainer_hidden_homer'
     # wait for it to be clickable again before switching pages
@@ -288,7 +288,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.wont_have_text '<person userid="homer" role="maintainer"/>'
   end
 
-  test 'check status' do
+  def test_check_status
     visit project_status_path(project: 'LocalProject')
     page.must_have_text 'Include version updates' # just don't crash
   end
@@ -301,7 +301,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     assert_equal should, lines.join("\n")
   end
 
-  test 'successful comment creation' do
+  def test_successful_comment_creation
     login_tom to: '/project/show/home:Iggy'
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       fill_in 'body', with: 'Comment Body'
@@ -312,13 +312,13 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     verify_email('project_comment', email)
   end
 
-  test 'unsuccessful comment creation' do
+  def test_unsuccessful_comment_creation
     login_tom to: '/project/show/home:Iggy'
     find_button('Add comment').click
     find('#flash-messages').must_have_text "Comment can't be saved: Body can't be blank."
   end
 
-  test 'successful reply comment creation' do
+  def test_successful_reply_comment_creation
     use_js
 
     login_Iggy to: '/project/show/BaseDistro'
@@ -328,7 +328,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     find('#flash-messages').must_have_text 'Comment was successfully created.'
   end
 
-  test 'buildresults' do
+  def test_buildresults
     use_js
 
     visit project_show_path(project: 'home:Iggy')
@@ -352,14 +352,14 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.must_have_text 'There are no cycles for x86_64'
   end
 
-  test 'repository links' do
+  def test_repository_links
     visit project_repositories_path(project: 'home:Iggy')
     all(:link, '10.2').each do |l|
       l['href'].must_equal project_repository_state_path(project: 'home:Iggy', repository: '10.2')
     end
   end
 
-  test 'request deletion' do
+  def test_request_deletion
     use_js
 
     login_tom to: project_show_path(project: 'home:Iggy')
@@ -372,7 +372,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     click_button 'Revoke request'
   end
 
-  test 'add maintenance project' do
+  def test_add_maintenance_project
     use_js
 
     login_king to: project_show_path(project: 'My:Maintenance')
@@ -383,13 +383,13 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.must_have_link 'Apache'
   end
 
-  test 'zypper on webui' do
+  def test_zypper_on_webui
     # people do strange things
     visit '/project/repository_state/Apache/content?repository=SLE11'
     flash_message.must_equal "Repository 'content' not found"
   end
 
-  test 'do not cache hidden' do
+  def test_do_not_cache_hidden
     use_js
 
     login_king to: project_list_all_path
@@ -408,7 +408,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.must_have_link 'HiddenProject'
   end
   
-  test 'rebuild time on apache' do
+  def test_rebuild_time_on_apache
     login_tom to: project_rebuild_time_path(project: 'Apache', arch: 'i586', repository: 'SUSE_Linux_Factory')
 
     page.must_have_link 'Apache' 

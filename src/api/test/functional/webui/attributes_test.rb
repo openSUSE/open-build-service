@@ -113,17 +113,17 @@ class Webui::AttributesTest < Webui::IntegrationTest
   end
 
 
-  test 'attrib invalid package' do
+  def test_attrib_invalid_package
     visit index_attribs_path(project: 'home:Iggy', package: 'Pok')
     page.must_have_content "Package Pok not found"
   end
 
-  test 'attrib invalid project' do
+  def test_attrib_invalid_project
     visit index_attribs_path(project: 'Does:Not:Exist')
     page.must_have_content "Project not found: Does:Not:Exist"
   end
 
-  test 'project attribute' do
+  def test_project_attribute
     login_king
 
     add(project: 'home:Iggy',
@@ -133,7 +133,7 @@ class Webui::AttributesTest < Webui::IntegrationTest
            name: 'OBS:ScreenShots')
   end
 
-  test 'package attribute' do
+  def test_package_attribute
     login_king
 
     add(project: 'Apache',
@@ -145,7 +145,7 @@ class Webui::AttributesTest < Webui::IntegrationTest
            name: 'OBS:ScreenShots')
   end
 
-  test 'attrib with single value' do
+  def test_attrib_with_single_value
     login_king
 
     add(project: 'home:Iggy',
@@ -155,7 +155,7 @@ class Webui::AttributesTest < Webui::IntegrationTest
            name: 'OBS:ScreenShots')
   end
 
-  test 'attrib with multiple values' do
+  def test_attrib_with_multiple_values
     login_king
 
     add(project: 'home:Iggy',
@@ -165,7 +165,7 @@ class Webui::AttributesTest < Webui::IntegrationTest
            name: 'OBS:ScreenShots')
   end
 
-  test 'attrib with multiple values and multiple allowed values' do
+  def test_attrib_with_multiple_values_and_multiple_allowed_values
     login_king
 
     add(project: 'home:Iggy',
@@ -175,7 +175,7 @@ class Webui::AttributesTest < Webui::IntegrationTest
            name: 'OBS:OwnerRootProject')
   end
 
-  test 'attrib with default and allowed values' do
+  def test_attrib_with_default_and_allowed_values
     login_Iggy
 
     add(project: 'home:Iggy',

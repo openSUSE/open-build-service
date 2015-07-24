@@ -16,7 +16,7 @@ class Webui::MonitorControllerTest < Webui::IntegrationTest
     Timecop.return
   end
 
-  test 'reload monitor' do
+  def test_reload_monitor
     use_js
 
     # as soon as we have only one API process...

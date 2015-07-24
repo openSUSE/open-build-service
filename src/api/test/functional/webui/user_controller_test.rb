@@ -49,7 +49,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     page.status_code.must_equal 200
   end
 
-  test 'notification settings for group' do
+  def test_notification_settings_for_group
     login_adrian to: user_notifications_path
 
     page.must_have_text 'Get mails if in group'
@@ -61,7 +61,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     page.must_have_unchecked_field('test_group')
   end
 
-  test 'notification settings without group' do
+  def test_notification_settings_without_group
     login_tom to: user_notifications_path
 
     page.wont_have_text 'Get mails if in group'
@@ -70,7 +70,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     flash_message.must_equal 'Notifications settings updated'
   end
 
-  test 'notification settings for events' do
+  def test_notification_settings_for_events
     login_adrian to: user_notifications_path
 
     page.must_have_text 'Events to get email for'

@@ -128,7 +128,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     find('#flash-messages').must_have_text "'patchinfo' was removed successfully from project"
   end
   
-  test "create_patchinfo_with_desc_and_sum" do
+  def test_create_patchinfo_with_desc_and_sum
     login_Iggy
     visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
@@ -167,7 +167,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     delete_patchinfo('home:Iggy')
   end
 
-  test "create_patchinfo_with_desc_sum_changed_rating_and_category" do
+  def test_create_patchinfo_with_desc_sum_changed_rating_and_category
     login_Iggy
     visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
@@ -179,7 +179,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     delete_patchinfo('home:Iggy')
   end
 
-  test "create_patchinfo_and_edit_it" do
+  def test_create_patchinfo_and_edit_it
     login_Iggy
     visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
@@ -209,7 +209,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
   end
 
 
-  test "create_patchinfo_with_issues" do
+  def test_create_patchinfo_with_issues
     login_Iggy
     visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
@@ -239,7 +239,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     delete_patchinfo('home:Iggy')
   end
 
-  test "create_patchinfo_with_flags" do
+  def test_create_patchinfo_with_flags
     login_Iggy
     visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
@@ -255,7 +255,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     delete_patchinfo('home:Iggy')
   end
 
-  test "create_patchinfo_with_binaries" do
+  def test_create_patchinfo_with_binaries
     login_Iggy
     visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
@@ -277,7 +277,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     delete_patchinfo('home:Iggy')
   end
 
-  test "create_patchinfo_with_too_short_summary" do
+  def test_create_patchinfo_with_too_short_summary
     login_Iggy
     visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
@@ -289,7 +289,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
       :expect => :short_sum)
   end
 
-  test "create_patchinfo_with_too_short_desc" do
+  def test_create_patchinfo_with_too_short_desc
     login_Iggy
     visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
@@ -301,7 +301,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
       :expect => :short_desc)
   end
 
-  test "create_patchinfo_with_too_short_sum_and_desc" do
+  def test_create_patchinfo_with_too_short_sum_and_desc
     login_Iggy
     visit project_show_path(project: "home:Iggy")
     open_new_patchinfo

@@ -54,12 +54,12 @@ class Webui::OwnerSearchTest < Webui::IntegrationTest
     end
   end
 
-  test "empty_owner_search" do
+  def test_empty_owner_search
     visit_owner_search
     search text: "does_not_exist", expect: :no_results
   end
 
-  test "basic_owner_search" do
+  def test_basic_owner_search
     run_publisher
     visit_owner_search
     search text: "package", expect: "success"
@@ -73,7 +73,7 @@ class Webui::OwnerSearchTest < Webui::IntegrationTest
     assert_not result[:owners].include? "test_group_empty as maintainer"
   end
 
-  test "owner_search_with_devel" do
+  def test_owner_search_with_devel
     run_publisher
     use_js
 

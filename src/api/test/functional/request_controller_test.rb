@@ -99,7 +99,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test 'submit_request_of_new_package' do
+  def test_submit_request_of_new_package
     wait_for_scheduler_start
 
     prepare_request_with_user 'Iggy', 'asdfasdf'
@@ -888,7 +888,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
   end
 
-  test 'assign_from_group' do
+  def test_assign_from_group
 
     login_Iggy
     req = load_backend_file('request/works')
@@ -954,7 +954,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(:tag => 'review', :attributes => { state: 'accepted', by_group: 'test_group_b' })
   end
 
-  test 'change_review_state_after_leaving_review_phase' do
+  def test_change_review_state_after_leaving_review_phase
 
     login_Iggy
     req = load_backend_file('request/works')
@@ -2984,7 +2984,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test 'delete_request_id' do
+  def test_delete_request_id
 
     login_tom
     req = load_backend_file('request/1')
@@ -3010,7 +3010,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
   end
 
-  test 'reopen declined request' do
+  def test_reopen_declined_request
 
     login_Iggy
     req = load_backend_file('request/add_role')
@@ -3035,7 +3035,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   end
 
   # it was reported that requests can't be revoked - test cases verifie sthat
-  test 'revoke autodeclined submit requests' do
+  def test_revoke_autodeclined_submit_requests
     login_Iggy
 
     Timecop.freeze(2010, 07, 12)
@@ -3095,7 +3095,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
   end
 
-  test 'check target maintainer' do
+  def test_check_target_maintainer
     login_tom
     raw_post '/request?cmd=create', "<request><action type='submit'><source project='Apache' package='apache2'/><target project='kde4' package='apache2'/></action></request>"
     assert_response :success
@@ -3105,7 +3105,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert !infos['is_target_maintainer'], 'tom is target maintainer'
   end
 
-  test 'cleanup from home' do
+  def test_cleanup_from_home
     login_dmayr
     req = load_backend_file('request/cleanup_from_home')
     post '/request?cmd=create', req
@@ -3122,7 +3122,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'entry', attributes: { name: 'x11vnc' }
   end
 
-  test 'reviews in delete requests' do
+  def test_reviews_in_delete_requests
     # make Iggy maintainer for pack2 in this test
     packages(:Devel_BaseDistro_Update_pack2).relationships.create(role: roles(:maintainer), user: users(:Iggy))
 

@@ -2,7 +2,7 @@ require_relative '../../test_helper'
 
 class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
 
-  test 'full maintenance workflow' do
+  def test_full_maintenance_workflow
     use_js
 
     login_king to: project_show_path(project: 'BaseDistro')

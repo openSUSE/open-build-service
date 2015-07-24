@@ -51,7 +51,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
     super
   end
 
-  test 'branch_package_for_home_project' do
+  def test_branch_package_for_home_project
 
     login_Iggy to: project_show_path(:project => @project)
 
@@ -61,7 +61,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :original_project => 'home:Iggy')
   end
     
-  test 'branch_package_double_and_submit_back' do
+  def test_branch_package_double_and_submit_back
     use_js
 
     login_Iggy to: project_show_path(:project => @project)
@@ -98,7 +98,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
     delete_package("home:Iggy","TestPack_link")
   end
     
-  test 'branch_package_for_global_project' do
+  def test_branch_package_for_global_project
 
     login_Iggy to: project_show_path(:project => @project)
 
@@ -109,7 +109,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
   end
     
   
-  test 'branch_package_twice_duplicate_name' do
+  def test_branch_package_twice_duplicate_name
 
     login_Iggy to: project_show_path(:project => @project)
 
@@ -121,7 +121,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
   end
   
     
-  test 'branch_package_twice' do
+  def test_branch_package_twice
 
     login_Iggy to: project_show_path(:project => @project)
 
@@ -137,7 +137,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
   end
 
 
-  test 'branch_empty_package_name' do
+  def test_branch_empty_package_name
 
     login_Iggy to: project_show_path(:project => @project)
 
@@ -148,7 +148,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :expect => :invalid_package_name)
   end
   
-  test 'branch_empty_project_name' do
+  def test_branch_empty_project_name
 
     login_Iggy to: project_show_path(:project => @project)
 
@@ -159,7 +159,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :expect => :invalid_project_name)
   end
 
-  test 'branch_package_name_with_spaces' do
+  def test_branch_package_name_with_spaces
 
     login_Iggy to: project_show_path(:project => @project)
 
@@ -171,7 +171,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
   end
 
 
-  test 'branch_project_name_with_spaces' do
+  def test_branch_project_name_with_spaces
   
     login_Iggy to: project_show_path(:project => @project)
 
@@ -182,7 +182,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :expect => :invalid_project_name)
   end
   
-  test 'autocomplete packages' do
+  def test_autocomplete_packages
     use_js
   
     login_Iggy to: project_show_path(:project => @project)

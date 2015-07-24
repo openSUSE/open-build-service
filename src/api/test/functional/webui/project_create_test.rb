@@ -89,7 +89,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
   end
 
 
-  test 'create_home_project_for_user' do
+  def test_create_home_project_for_user
 
     login_user('user1', '123456')
     visit root_path
@@ -100,7 +100,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
   end
 
 
-  test 'create_home_project_for_second_user' do
+  def test_create_home_project_for_second_user
 
     login_user('user2', '123456')
     visit root_path
@@ -113,7 +113,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
   end
 
 
-  test 'create_subproject_for_user' do
+  def test_create_subproject_for_user
 
     login_Iggy
     open_create_subproject(project: 'home:Iggy')
@@ -134,7 +134,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
   end
 
 
-  test 'create_subproject_without_name' do
+  def test_create_subproject_without_name
 
     login_Iggy
     open_create_subproject(project: 'home:Iggy')
@@ -146,7 +146,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
   end
 
 
-  test 'create_subproject_name_with_spaces' do
+  def test_create_subproject_name_with_spaces
     login_Iggy
 
     open_create_subproject(project: 'home:Iggy')
@@ -158,7 +158,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
   end
 
 
-  test 'create_subproject_with_only_name' do
+  def test_create_subproject_with_only_name
 
     login_Iggy
 
@@ -171,7 +171,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
   end
 
 
-  test 'create_subproject_with_long_description' do
+  def test_create_subproject_with_long_description
 
     login_Iggy
 
@@ -184,7 +184,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
   end
 
 
-  test 'create_global_project' do
+  def test_create_global_project
 
     login_king to: project_list_all_path
 
@@ -196,7 +196,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
   end
 
 
-  test 'create_global_project_as_user' do
+  def test_create_global_project_as_user
 
     login_Iggy to: project_list_all_path
 
@@ -208,7 +208,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
         expect: :no_permission)
   end
 
-  test "first case of issue 204" do
+  def test_first_case_of_issue_204
     login_king to: project_new_path
 
     prjroot = Faker::Lorem.characters(20)
@@ -229,7 +229,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
     end
   end
 
-  test "second case of issue 204" do
+  def test_second_case_of_issue_204
     prjroot = Faker::Lorem.characters(20)
     subproject = prjroot + ':b'
 

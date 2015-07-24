@@ -18,7 +18,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     assert_equal should, email.encoded.lines.map(&:chomp).select { |l| l !~ %r{^Date:} }.join("\n")
   end
 
-  test 'request event' do
+  def test_request_event
     login_Iggy
 
     Timecop.travel(2013, 8, 20, 12, 0, 0)
@@ -36,7 +36,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     verify_email('request_event', myid, email)
   end
 
-  test 'very_large_request_event' do
+  def test_very_large_request_event
     login_Iggy
 
     Timecop.travel(2013, 8, 20, 12, 0, 0)
@@ -61,7 +61,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     assert_equal %w(tschmidt@example.com), email.to # tom is maintainer
   end
 
-  test 'set_bugowner event' do
+  def test_set_bugowner_event
     login_Iggy
 
     Timecop.travel(2013, 8, 20, 12, 0, 0)
@@ -96,7 +96,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     verify_email('tom_declined', myid, email)
   end
 
-  test 'devel package event' do
+  def test_devel_package_event
     login_Iggy
 
     # for this test, ignore reviewers
@@ -116,7 +116,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     verify_email('tom_gets_mail_too', myid, email)
   end
 
-  test 'repository delete request' do
+  def test_repository_delete_request
     login_Iggy
 
     Timecop.travel(2013, 8, 20, 12, 0, 0)

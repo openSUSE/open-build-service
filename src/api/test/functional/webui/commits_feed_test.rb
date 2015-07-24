@@ -2,7 +2,7 @@ require_relative '../../test_helper'
 
 class Webui::CommitsFeedTest < Webui::IntegrationTest
 
-  test 'default feed' do
+  def test_default_feed
     Timecop.freeze(2013, 8, 14, 12, 0, 0) do
       get '/project/latest_commits/BaseDistro'
       assert_response :success
@@ -13,7 +13,7 @@ class Webui::CommitsFeedTest < Webui::IntegrationTest
     end
   end
 
-  test 'feed with dates' do
+  def test_feed_with_dates
     Timecop.freeze(2013, 8, 14, 12, 0, 0) do
       #login_king to: project_show_path(project: 'home:king')
 
@@ -26,19 +26,19 @@ class Webui::CommitsFeedTest < Webui::IntegrationTest
     end
   end
 
-  test 'feed for unknown project' do
+  def test_feed_for_unknown_project
     get '/project/latest_commits/DoesNotExists'
     assert_response 404
   end
 
-  test 'feed for hidden project' do
+  def test_feed_for_hidden_project
     Timecop.travel(2013, 8, 20, 12, 0, 0) do
       visit '/project/latest_commits/HiddenProject'
       assert_equal 404, page.status_code
     end
   end
 
-  test 'feed for hidden project as maintainer' do
+  def test_feed_for_hidden_project_as_maintainer
     Timecop.travel(2013, 8, 20, 12, 0, 0) do
       login_adrian
       visit '/project/latest_commits/HiddenProject'
@@ -48,14 +48,14 @@ class Webui::CommitsFeedTest < Webui::IntegrationTest
     end
   end
 
-  test 'feed for source protected project' do
+  def test_feed_for_source_protected_project
     Timecop.travel(2013, 8, 14, 12, 0, 0) do
       visit '/project/latest_commits/SourceprotectedProject'
       assert_equal 403, page.status_code
     end
   end
 
-  test 'feed for source protected project as admin' do
+  def test_feed_for_source_protected_project_as_admin
     Timecop.travel(2013, 8, 14, 12, 0, 0) do
       login_king
       visit '/project/latest_commits/SourceprotectedProject'

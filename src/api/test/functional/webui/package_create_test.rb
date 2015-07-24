@@ -47,7 +47,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
     end
   end
   
-  test 'create_home_project_package_for_user' do
+  def test_create_home_project_package_for_user
     use_js
     login_Iggy to: project_show_path(project: 'home:Iggy')
     open_new_package
@@ -69,7 +69,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
     delete_package('home:Iggy', 'HomePackage1')
   end
 
-  test 'create_global_project_package' do
+  def test_create_global_project_package
     use_js
     login_king to: project_show_path(project: 'LocalProject')
 
@@ -82,7 +82,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
     delete_package('LocalProject', 'PublicPackage1')
   end
 
-  test 'create_package_without_name' do
+  def test_create_package_without_name
 
     login_Iggy to: project_show_path(project: 'home:Iggy')
 
@@ -95,7 +95,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
   end
   
   
-  test 'create_package_name_with_spaces' do
+  def test_create_package_name_with_spaces
   
     login_Iggy to: project_show_path(project: 'home:Iggy')
 
@@ -107,7 +107,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
   end
 
   
-  test 'create_package_with_only_name' do
+  def test_create_package_with_only_name
     use_js
     login_Iggy to: project_show_path(project: 'home:Iggy')
 
@@ -120,7 +120,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
   end
 
   
-  test 'create_package_with_long_description' do
+  def test_create_package_with_long_description
     use_js
 
     login_Iggy to: project_show_path(project: 'home:Iggy')
@@ -137,7 +137,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
   end
 
   
-  test 'create_package_strange_name' do
+  def test_create_package_strange_name
     use_js
     login_Iggy to: project_show_path(project: 'home:Iggy')
 

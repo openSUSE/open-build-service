@@ -19,7 +19,7 @@ class Webui::MainControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test 'sitemap' do
+  def test_sitemap
     @urls = []
     # verify we can fetch sitemaps and it contains useful stuff
     fetch_sitemap(main_sitemap_path)

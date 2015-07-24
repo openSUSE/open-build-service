@@ -3,7 +3,7 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 class DistributionsControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
   
-  test "should show distribution" do
+  def test_should_show_distribution
     get distribution_path(id: distributions(:two).to_param)
     assert_response :success
     # the default XML renderer just s***s
@@ -34,7 +34,7 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
                }, Xmlhash.parse(@response.body))
   end
 
-  test "should destroy distribution" do
+  def test_should_destroy_distribution
     login_king
     assert_difference('Distribution.count', -1) do
       delete distribution_path(id: distributions(:one).to_param)
@@ -42,7 +42,7 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "the old interface works" do
+  def test_the_old_interface_works
     data = '<distributions>
                <distribution vendor="openSUSE" version="Factory" id="opensuse-Factory">
                  <name>openSUSE Factory</name>
@@ -84,7 +84,7 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "architecture", :content => "i586"
   end
 
-  test "remotes work" do
+  def test_remotes_work
     login_tom
     
     fake_distribution_body = File.open(Rails.root.join("test/fixtures/backend/distributions.xml")).read
@@ -121,7 +121,7 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
   end
 
 
-  test "we survive remote instances timeouts" do
+  def test_we_survive_remote_instances_timeouts
     stub_request(:get, "http://localhost:3200/distributions.xml").to_timeout
     get "/distributions/include_remotes"
     assert_response :success
