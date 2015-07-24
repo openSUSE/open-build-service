@@ -133,11 +133,9 @@ class Webui::PatchinfoController < Webui::WebuiController
         attrs = {}
         attrs[:incident] = @package.project.name.gsub(/.*:/, '')
         xml = node.patchinfo(attrs) do |n|
-          if params[:selected_binaries]
-            params[:selected_binaries].each do |binary|
-              if !binary.blank?
-                node.binary(binary)
-              end
+          params[:selected_binaries].to_a.each do |binary|
+            if !binary.blank?
+              node.binary(binary)
             end
           end
           node.packager params[:packager]
