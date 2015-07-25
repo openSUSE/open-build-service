@@ -7,8 +7,7 @@ class Patchinfo < ActiveXML::Node
   include ValidationHelper
 
   # patchinfo has two roles
-  def initialize( data = nil )
-    data ||= '<patchinfo/>'
+  def initialize(data = "<patchinfo/>")
     super(data)
   end
 
