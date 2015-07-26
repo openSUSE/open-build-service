@@ -232,13 +232,12 @@ class Webui::PatchinfoController < Webui::WebuiController
   end
 
   def new_tracker
-    # new_issues = list of new issues to add
-    new_issues = params[:issues]
     # collection with all informations of the new issues
     issue_collection = []
     error = ''
     invalid_format = ''
-    new_issues.each do |new_issue|
+    # params[:issues] = list of new issues to add
+    params[:issues].each do |new_issue|
       # issue = collecting all informations of an new issue
       issue = []
       if new_issue.starts_with? 'CVE-'
