@@ -109,6 +109,8 @@ class Webui::PatchinfoController < Webui::WebuiController
       valid_params = true
       required_parameters :project, :package
       flash[:error] = nil
+      # Note: At this point a patchinfo already got created by
+      #       Patchinfo.new.create_patchinfo in the new_patchinfo action
       if !valid_summary? params[:summary]
         valid_params = false
         flash[:error] = "|| Summary is too short (should have more than 10 signs)"
