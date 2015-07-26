@@ -147,15 +147,9 @@ class Webui::PatchinfoController < Webui::WebuiController
           node.rating params[:rating]
           node.summary params[:summary]
           node.description params[:description].gsub("\r\n", "\n")
-          if params[:reboot]
-            node.reboot_needed
-          end
-          if params[:relogin]
-            node.relogin_needed
-          end
-          if params[:zypp_restart_needed]
-            node.zypp_restart_needed
-          end
+          node.reboot_needed if params[:reboot]
+          node.relogin_needed if params[:relogin]
+          node.zypp_restart_needed if params[:zypp_restart_needed]
           if params[:block] == 'true'
             node.stopped  params[:block_reason]
           end
