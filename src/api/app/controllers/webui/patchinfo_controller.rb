@@ -127,8 +127,9 @@ class Webui::PatchinfoController < Webui::WebuiController
           ]
         end
         node = Builder::XmlMarkup.new(indent: 2)
-        attrs = {}
-        attrs[:incident] = @package.project.name.gsub(/.*:/, '')
+        attrs = {
+          :incident => @package.project.name.gsub(/.*:/, '')
+        }
         xml = node.patchinfo(attrs) do |n|
           params[:selected_binaries].to_a.each do |binary|
             if !binary.blank?
