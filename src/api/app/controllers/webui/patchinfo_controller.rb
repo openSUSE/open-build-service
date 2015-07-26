@@ -238,7 +238,6 @@ class Webui::PatchinfoController < Webui::WebuiController
     issue_collection = []
     error = ''
     invalid_format = ''
-    invalid_tracker = ''
     new_issues.each do |new_issue|
       # issue = collecting all informations of an new issue
       issue = []
@@ -264,7 +263,7 @@ class Webui::PatchinfoController < Webui::WebuiController
             issue << issuesum
             issue_collection << issue
           else
-            invalid_tracker += "#{issue[0]} is not a valid tracker.\n"
+            error << "#{issue[0]} is not a valid tracker.\n"
           end
         rescue ActiveXML::Transport::NotFoundError
           invalid_format += "#{issue[0]} "
@@ -273,8 +272,10 @@ class Webui::PatchinfoController < Webui::WebuiController
         invalid_format += "#{issue[0]} "
       end
     end
-    error += "#{invalid_tracker}"
-    error += "#{invalid_format}has no valid format. (Correct formats are e.g. boo#123456, CVE-1234-5678 and the string has to be a comma-separated list)" if !invalid_format.empty?
+    if !invalid_format.empty?
+      error += "#{invalid_format} has no valid format. (Correct formats are e.g. " +
+               "boo#123456, CVE-1234-5678 and the string has to be a comma-separated list)"
+    end
     render nothing: true, json: { error: error, issues: issue_collection }
   end
 
