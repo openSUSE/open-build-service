@@ -311,12 +311,12 @@ class Webui::PatchinfoController < Webui::WebuiController
 
   def get_binaries
     @binarylist = []
-    @binary_list = Buildresult.find(project: params[:project], view: 'binarylist')
-    @binary_list.to_hash.elements('result') do |r|
-      r.elements('binarylist') do |l|
-        l.elements('binary') do |b|
-          next if ["rpmlint.log", "updateinfo.xml"].include?(b["filename"])
-          @binarylist << b['filename'].sub(/-[^-]*-[^-]*.rpm$/, '')
+    binary_list = Buildresult.find(project: params[:project], view: 'binarylist')
+    binary_list.to_hash.elements('result') do |result|
+      result.elements('binarylist') do |list|
+        list.elements('binary') do |bin|
+          next if ["rpmlint.log", "updateinfo.xml"].include?(bin["filename"])
+          @binarylist << bin['filename'].sub(/-[^-]*-[^-]*.rpm$/, '')
         end
       end
     end
