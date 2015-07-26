@@ -315,13 +315,12 @@ class Webui::PatchinfoController < Webui::WebuiController
     @binary_list.to_hash.elements('result') do |r|
       r.elements('binarylist') do |l|
         l.elements('binary') do |b|
+          next if ["rpmlint.log", "updateinfo.xml"].include?(b["filename"])
           @binarylist << b['filename'].sub(/-[^-]*-[^-]*.rpm$/, '')
         end
       end
     end
     @binarylist.uniq!
-    @binarylist.delete('rpmlint.log')
-    @binarylist.delete('updateinfo.xml')
   end
 
   def require_project
