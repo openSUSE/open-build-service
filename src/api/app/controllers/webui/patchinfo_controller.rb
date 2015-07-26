@@ -106,21 +106,18 @@ class Webui::PatchinfoController < Webui::WebuiController
   def save
     begin
       filename = '_patchinfo'
-      valid_params = true
       required_parameters :project, :package
       flash[:error] = nil
       # Note: At this point a patchinfo already got created by
       #       Patchinfo.new.create_patchinfo in the new_patchinfo action
       if !valid_summary? params[:summary]
-        valid_params = false
         flash[:error] = "|| Summary is too short (should have more than 10 signs)"
       end
       if !valid_description? params[:description]
-        valid_params = false
         flash[:error] = "#{flash[:error]} || Description is too short (should have more than 50 signs and longer than summary)"
       end
 
-      if valid_params
+      if flash[:error].nil?
         if params[:issueid]
           issues = []
           params[:issueid].each_with_index do |new_issue, index|
@@ -176,7 +173,7 @@ class Webui::PatchinfoController < Webui::WebuiController
         redirect_to controller: 'patchinfo', action: 'show',
                     project: @project.name, package: @package
       end
-      if valid_params == false
+      if flash[:error]
         @tracker = params[:tracker]
         @packager = params[:packager]
         @binaries = params[:selected_binaries]
