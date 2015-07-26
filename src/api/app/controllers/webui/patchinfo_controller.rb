@@ -118,15 +118,13 @@ class Webui::PatchinfoController < Webui::WebuiController
       end
 
       if flash[:error].nil?
-        if params[:issueid]
-          issues = []
-          params[:issueid].each_with_index do |new_issue, index|
-            issue = []
-            issue << new_issue
-            issue << params[:issuetracker][index]
-            issue << params[:issuesum][index]
-            issues << issue
-          end
+        issues = []
+        params[:issueid].to_a.each_with_index do |new_issue, index|
+          issues << [
+            new_issue,
+            params[:issuetracker][index],
+            params[:issuesum][index]
+          ]
         end
         node = Builder::XmlMarkup.new(indent: 2)
         attrs = {}
@@ -179,15 +177,13 @@ class Webui::PatchinfoController < Webui::WebuiController
         @binaries = params[:selected_binaries]
         @binarylist = params[:available_binaries]
         @issues = []
-        if params[:issueid]
-          params[:issueid].each_with_index do |new_issue, index|
-            issue = []
-            issue << new_issue
-            issue << params[:issuetracker][index]
-            issue << params[:issueurl][index]
-            issue << params[:issuesum][index]
-            @issues << issue
-          end
+        params[:issueid].to_a.each_with_index do |new_issue, index|
+          @issues << [
+            new_issue,
+            params[:issuetracker][index],
+            params[:issueurl][index],
+            params[:issuesum][index]
+          ]
         end
         @category = params[:category]
         @rating = params[:rating]
