@@ -223,12 +223,12 @@ class Webui::PatchinfoController < Webui::WebuiController
   end
 
   def valid_summary?(name)
-    name != nil and name =~ /^.{10,}$/m
+    name && name.length > 10
   end
 
-  def valid_description? name
-    name != nil and
-      name.length > params[:summary].length and name =~ /^.{50,}$/m
+  def valid_description?(name)
+    name &&
+      name.length > [params[:summary].length, 50].max
   end
 
   def new_tracker
