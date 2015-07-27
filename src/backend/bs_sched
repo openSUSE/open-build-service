@@ -5278,7 +5278,7 @@ sub checkkiwiproduct {
 	}
 	my @got;
 	my $needit;
-	my @bi = keys %$bininfo;
+	my @bi = sort(keys %$bininfo);
 	# put imports last
 	my @ibi = grep {/^::import::/} @bi;
 	if (@ibi) {
