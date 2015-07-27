@@ -46,9 +46,12 @@ use BSBuild;
 use BSVerify;
 use Build;
 use BSDB;
-use Meta;
 use BSSolv;
 use BSCando;
+
+if ($BSConfig::enable_download_on_demand) {
+  require BSDoD;
+}
 
 use strict;
 
@@ -328,20 +331,11 @@ sub addrepo_scan {
     my ($projid) = split('/', $prp, 2);
     my @doddata = grep {$_->{'arch'} && $_->{'arch'} eq $myarch} @{$projpacks->{$projid}->{'download'} || []};
     if (@doddata) {
-      my $doddata = $doddata[0];
-      eval {$cache = Meta::parse("$dir/$doddata->{'metafile'}", $doddata->{'mtype'}, { 'arch' => [ $myarch ] })};
-      if ($@) {
-	print "    download on demand: cannot read metadata: $@\n";
+      $cache = BSDoD::parse($doddata[0], $dir);
+      if (!ref($cache)) {
+	print "    download on demand: $cache\n";
 	return undef;
-      } elsif (!$cache) {
-        print "    download on demand: cannot read metadata: unknown mtype attribute\n";
-        return undef;
       }
-      for (values %$cache) {
-	$_->{'id'} = 'dod';
-	$_->{'hdrmd5'} = 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0';
-      }
-      $cache->{'/url'} = $doddata->{'baseurl'};
       $cache = $pool->repofromdata($prp, $cache);
       $dirty = 1;
     }
