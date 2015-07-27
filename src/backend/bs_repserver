@@ -2593,6 +2593,39 @@ sub expandkiwipath {
   return map {"$_->{'project'}/$_->{'repository'}"} expandkiwipath_hash(@_);
 }
 
+sub orderpackids {
+  my ($proj, @packids) = @_;
+  $proj ||= {};
+  my @s;
+  my @back;
+  my $kind = $proj->{'kind'} || '';
+  for (@packids) {
+    if ($_ eq '_volatile') {
+      push @back, $_;
+    } elsif (/^(.*)\.(\d+)$/) {
+      # we ignore the name for maintenance release projects and sort only
+      # by the incident number
+      if ($kind eq 'maintenance_release') {
+        push @s, [ $_, '', $2]; 
+      } else {
+        push @s, [ $_, $1, $2]; 
+      }    
+    } elsif (/^(.*)\.imported_.*?(\d+)$/) {
+      # code11 import hack...
+      if ($kind eq 'maintenance_release') {
+        push @s, [ $_, '', $2 - 1000000];
+      } else {
+        push @s, [ $_, $1, $2 - 1000000];
+      }    
+    } else {
+      push @s, [ $_, $_, 99999999 ];
+    }    
+  }
+  @packids = map {$_->[0]} sort { $a->[1] cmp $b->[1] || $b->[2] <=> $a->[2] || $a->[0] cmp $b->[0] } @s;
+  push @packids, @back;
+  return @packids;
+}
+
 sub getkiwiproductpackages {
   my ($proj, $repo, $pdata, $info, $deps, $remotemap) = @_;
 
@@ -2607,10 +2640,34 @@ sub getkiwiproductpackages {
   delete $deps{''};
   my @aprps = expandkiwipath($info, $repo);
   my $allpacks = $deps{'*'} ? 1 : 0; 
+
+  # sigh. Need to get the project kind...
+  # it would be much easier to have this in the repo...
+  my %prjkind;
+  for my $aprp (@aprps) {
+    my ($aprojid) = split('/', $aprp, 2);
+    next if $aprojid eq $proj->{'name'};
+    next if $remotemap->{$aprojid};
+    $prjkind{$aprojid} = undef;
+  }
+  if (%prjkind) {
+    print "fetching project kind for ".keys(%prjkind)." projects\n";
+    my $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'nopackages', 'noremote', 'ignoredisable', map {"project=$_"} sort(keys %prjkind));
+    for my $p (@{$projpack->{'project'} || []}) {
+      $prjkind{$p->{'name'}} = $p->{'kind'} if exists $prjkind{$p->{'name'}};
+    }
+  }
+  $prjkind{$proj->{'name'}} = $proj->{'kind'};
+
   for my $aprp (@aprps) {
     my %known;
     my ($aprojid, $arepoid) = split('/', $aprp, 2);
     for my $arch (@archs) {
+      my $aprojidkind = $prjkind{$aprojid};
+      $aprojidkind = $remotemap->{$aprojid}->{'kind'} if $remotemap->{$aprojid};
+      my $seen_binary;
+      $seen_binary = {} if ($aprojidkind || '') eq 'maintenance_release';
+
       my $gbininfo = read_gbininfo("$reporoot/$aprp/$arch");
       # support for remote projects
       if (!$gbininfo && $remotemap->{$aprojid}) {
@@ -2635,7 +2692,7 @@ sub getkiwiproductpackages {
 
       # fast if we have gbininfo
       if ($gbininfo) {
-        for my $apackid (sort keys %$gbininfo) {
+        for my $apackid (orderpackids({'kind' => $aprojidkind}, keys %$gbininfo)) {
 	  next if $apackid eq '_volatile';
 	  my $bininfo = $gbininfo->{$apackid} || {};
 	  my $needit;
@@ -2650,11 +2707,22 @@ sub getkiwiproductpackages {
 	  }
 	  next unless $needit;
 	  # need it
-	  for my $bf (sort keys %$bininfo) {
+	  my @bi = sort keys %$bininfo;
+	  # put imports last
+	  my @ibi = grep {/^::import::/} @bi;
+	  if (@ibi) {
+	    @bi = grep {!/^::import::/} @bi;
+	    push @bi, @ibi;
+	  }
+	  for my $bf (@bi) {
 	    my $b = $bininfo->{$bf};
             next unless $b->{'filename'};
 	    next if $nodbgpkgs && $b->{'filename'} =~ /-(?:debuginfo|debugsource)-/;
 	    next if $nosrcpkgs && $b->{'filename'} =~ /\.(?:nosrc|src)\.rpm$/;
+	    if ($seen_binary && defined($b->{'name'})) {
+	      next if $seen_binary->{"$b->{'name'}.$b->{'arch'}"};
+	      $seen_binary->{"$b->{'name'}.$b->{'arch'}"} = 1;
+	    }
 	    if ($b->{'filename'} =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/ || $b->{'filename'} =~ /^.*-appdata.xml$/) {
 	      push @got, "$aprp/$arch/$apackid/$b->{'filename'}";
 	    }
@@ -2666,13 +2734,17 @@ sub getkiwiproductpackages {
       my $depends = BSUtil::retrieve("$reporoot/$aprp/$arch/:depends", 1);
       next unless $depends && $depends->{'subpacks'};
       my %apackids = (%{$depends->{'subpacks'} || {}}, %{$depends->{'pkgdeps'}});
-      my @apackids = sort keys %apackids;
-      for my $apackid (@apackids) {
+      for my $apackid (orderpackids({'kind' => $aprojidkind}, keys %apackids)) {
         if (!$allpacks && $depends->{'subpacks'}->{$apackid}) {
 	  next unless grep {$deps{$_}} @{$depends->{'subpacks'}->{$apackid} || []};
         }
         # need package, scan content
 	my @bins = grep {/\.rpm$|\.xml$/} ls ("$reporoot/$aprp/$arch/$apackid");
+	my @ibins = grep {/^::import::/} @bins;
+	if (@ibins) {
+	  @bins = grep {!/^::import::/} @bins;
+	  push @bins, @ibins;
+	}
         my $needit;
 	for my $b (@bins) {
 	  next unless $b =~ /^(?:::import::.*::)?(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
@@ -2685,6 +2757,10 @@ sub getkiwiproductpackages {
         next unless $needit;
 	for my $b (@bins) {
 	  next unless $b =~ /^(?:::import::.*::)?(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+	  if ($seen_binary) {
+	    next if $seen_binary->{"$1.$2"};
+	    $seen_binary->{"$1.$2"} = 1;
+	  }
 	  next if $nodbgpkgs && $b =~ /-(?:debuginfo|debugsource)-/;
 	  next if $nosrcpkgs && $b =~ /\.(?:nosrc|src)\.rpm$/;
 	  push @got, "$aprp/$arch/$apackid/$b";
