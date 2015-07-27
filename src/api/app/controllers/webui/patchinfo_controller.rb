@@ -26,11 +26,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     end
 
     read_patchinfo
-    @binaries.each do |bin|
-      if @binarylist.match(bin)
-        @binarylist.delete(bin)
-      end
-    end
+    @binaries.each { |bin| @binarylist.delete(bin) }
   end
 
   def updatepatchinfo
@@ -42,11 +38,7 @@ class Webui::PatchinfoController < Webui::WebuiController
   def edit_patchinfo
     read_patchinfo
     @tracker = ::Configuration.default_tracker
-    @binaries.each do |bin|
-      if @binarylist.find(bin)
-        @binarylist.delete(bin)
-      end
-    end
+    @binaries.each { |bin| @binarylist.delete(bin) }
   end
 
   def show
