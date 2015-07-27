@@ -22,7 +22,7 @@
 
 package notify_rabbitmq;
 
-use Net::RabbitMQ;
+use Net::AMQP::RabbitMQ;
 use BSConfig;
 use JSON::XS;
 #use Data::UUID;
@@ -53,7 +53,7 @@ sub notify() {
   #my $uu = Data::UUID->new;
   $paramRef ||= {};
   $paramRef->{'eventtype'} = $type;
-  my $mq = Net::RabbitMQ->new();
+  my $mq = Net::AMQP::RabbitMQ->new();
   my %rabbitparam = %{$BSConfig::rabbitmqconfig || $BSConfig::rabbitmqconfig || $defaultconfig};
   my $rabbitserver = delete $rabbitparam{'server'};
   $mq->connect($rabbitserver, \%rabbitparam);
