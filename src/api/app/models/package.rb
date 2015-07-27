@@ -816,6 +816,9 @@ class Package < ActiveRecord::Base
     # Update projects are usually used in _channels
     project_name = opkg.project.update_instance.name
 
+    # not my link target, so it does not qualify for my code streastream
+    return unless self.linkinfo and project_name == self.linkinfo['project']
+
     # main package
     ChannelBinary.find_by_project_and_package(project_name, opkg.name).each do |cb|
       next if mode == :skip_disabled and not cb.channel_binary_list.channel.is_active?
