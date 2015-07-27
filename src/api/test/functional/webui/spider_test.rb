@@ -150,7 +150,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
 
     crawl
     ActiveRecord::Base.clear_active_connections!
-    
+
     @pages_visited.keys.length.must_be :>, 700
   end
 
