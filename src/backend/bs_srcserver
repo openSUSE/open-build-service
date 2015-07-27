@@ -356,44 +356,47 @@ sub addrev_service {
       writestr("$uploaddir/_service_error$$", undef, "$error\n");
       $files->{'_service_error'} = addfile($projid, $packid, "$uploaddir/_service_error$$", '_service_error');
     }
-    $cgi ||= {};
-    addrev({%$cgi, 'user' => '_service', 'comment' => 'generated via source service', 'noservice' => 1}, $projid, $packid, $files);
-  } else {
-    # new style services
-    if ($files->{'_service_error'} && !$error) {
-      $error = repreadstr($rev, '_service_error', $files->{'_service_error'});
-      chomp $error;
-      $error ||= 'unknown service error';
-    }
-    my $srcmd5 = $files->{'/SERVICE'};
-    my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
-    mkdir_p($treedir);
-    if ($error) {
-      writestr("$treedir/.$srcmd5-_serviceerror", "$treedir/$srcmd5-_serviceerror", "$error\n");
-
-      my $user = $cgi->{'user'};
-      my $comment = $cgi->{'comment'};
-      my $requestid = $cgi->{'requestid'};
-      $user = '' unless defined $user;
-      $user = 'unknown' if $user eq '';
-      $user = str2utf8xml($user);
-      $comment = '' unless defined $comment;
-      $comment = str2utf8xml($comment);
-      $error = str2utf8xml($error);
-      notify('SRCSRV_SERVICE_FAIL', {project => $projid, package => $packid,
-                                     error => $error, rev => $rev->{'rev'},
-                                     user => $user, comment => $comment,
-                                     'requestid' => $requestid});
-    } else {
-      return if -e "$treedir/$srcmd5-MD5SUMS";	# huh? why did we run twice?
-      my $meta = '';
-      $meta .= "$files->{$_}  $_\n" for grep {$_ ne '/SERVICE' && $_ ne '/LSERVICE'} sort keys %$files;
-      $meta .= "$rev->{'srcmd5'}  /LSERVICE\n";
-      mkdir_p($uploaddir);
-      writestr("$uploaddir/$$", "$treedir/$srcmd5-MD5SUMS", $meta);
-      unlink("$treedir/$srcmd5-_serviceerror");
-    }
+    addrev({%{$cgi || {}}, 'user' => '_service', 'comment' => 'generated via source service', 'noservice' => 1}, $projid, $packid, $files);
+    return;
   }
+  # new style services
+  if ($files->{'_service_error'} && !$error) {
+    $error = repreadstr($rev, '_service_error', $files->{'_service_error'});
+    chomp $error;
+    $error ||= 'unknown service error';
+  }
+  my $srcmd5 = $files->{'/SERVICE'};
+  if ($error) {
+    addmeta_serviceerror($projid, $packid, $srcmd5, "$error\n");
+    my $user = $cgi->{'user'};
+    my $comment = $cgi->{'comment'};
+    my $requestid = $cgi->{'requestid'};
+    $user = '' unless defined $user;
+    $user = 'unknown' if $user eq '';
+    $user = str2utf8xml($user);
+    $comment = '' unless defined $comment;
+    $comment = str2utf8xml($comment);
+    $error = str2utf8xml($error);
+    notify('SRCSRV_SERVICE_FAIL', {project => $projid, package => $packid,
+				   error => $error, rev => $rev->{'rev'},
+				   user => $user, comment => $comment,
+				   'requestid' => $requestid});
+  } else {
+    addmeta_service($projid, $packid, $files, $srcmd5, $rev->{'srcmd5'});
+  }
+}
+
+# store the faked result of a service run. Note that this is done before
+# the addrev call that stores the reference to the run.
+# only used for new style services.
+sub fake_service_run {
+  my ($projid, $packid, $files, $sfiles, $servicemark) = @_;
+  $files->{'/SERVICE'} = $servicemark;
+  $sfiles->{'/SERVICE'} = $servicemark;
+  my $nsrcmd5 = calcsrcmd5($files);
+  addrev_service({}, {'project' => $projid, 'package' => $packid, 'srcmd5' => $nsrcmd5}, $sfiles);
+  delete $files->{'/SERVICE'};
+  delete $sfiles->{'/SERVICE'};
 }
 
 # called *after* addrev to trigger service run
@@ -411,20 +414,7 @@ sub runservice {
   my $oldfiles = {};
   if ($files->{'/SERVICE'}) {
     # check serialization
-    my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$rev->{'project'}/$rev->{'package'}" : "$treesdir/$rev->{'package'}";
-    my $smd5 = $files->{'/SERVICE'};
-    local *FF;
-    BSUtil::lockopen(\*FF, '+>>', "$treedir/$smd5-_serviceerror");
-    my $error = readstr("$treedir/$smd5-_serviceerror");
-    chomp $error;
-    if ($error) {
-      # already running or failed!
-      close FF;	# free lock
-      return
-    }
-    writestr("$treedir/.$smd5-_serviceerror", "$treedir/$smd5-_serviceerror", "service in progress\n");
-    close FF;	# free lock
-
+    return unless addmeta_serialize_servicerun($rev->{'project'}, $rev->{'package'}, $files->{'/SERVICE'});
     # get last servicerun result into oldfiles hash
     my $revno = $rev->{'rev'};
     if (length($revno || '') >= 32) {
@@ -491,7 +481,7 @@ sub runservice {
       #addrev_service($cgi, $rev, $files, "services only work on branches\n");
       #notify_repservers('package', $projid, $packid);
       #return;
-      # uh oh!
+      # uh oh, not a branch!
       $linkfiles = { %$files };
       delete $files->{'/SERVICE'};
       eval {
@@ -500,9 +490,8 @@ sub runservice {
       };
       if ($@) {
 	if (($@ =~ /service in progress/) && $linkfiles->{'/SERVICE'}) {
-	  # delay, hope for an event
-	  my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$rev->{'project'}/$rev->{'package'}" : "$treesdir/$rev->{'package'}";
-	  unlink("$treedir/$linkfiles->{'/SERVICE'}-_serviceerror");	# remove lock
+	  # delay, hope for an event. remove lock for now to re-trigger the service run.
+	  addmeta_serviceerror($rev->{'project'}, $rev->{'package'}, $linkfiles->{'/SERVICE'}, undef);
 	  return;
 	}
         $files = $linkfiles;
@@ -1128,6 +1117,14 @@ sub addmeta {
   return $srcmd5;
 }
 
+# used only in fake_service_run. must match addmeta
+sub calcsrcmd5 {
+  my ($files) = @_;
+  my $meta = '';
+  $meta .= "$files->{$_}  $_\n" for sort keys %$files;
+  return Digest::MD5::md5_hex($meta);
+}
+
 # like addmeta, but adds link information. also stores
 # under the "wrong" md5sum.
 sub addmeta_link {
@@ -1145,6 +1142,50 @@ sub addmeta_link {
   }
 }
 
+
+# like addmeta, but adds service information after a source
+# service finished successfully. stores under the "wrong" md5sum.
+sub addmeta_service {
+  my ($projid, $packid, $files, $srcmd5, $lservicemd5) = @_;
+  my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+  return if -e "$treedir/$srcmd5-MD5SUMS";	# huh? why did we run twice?
+  my $meta = '';
+  $meta .= "$files->{$_}  $_\n" for grep {$_ ne '/SERVICE' && $_ ne '/LSERVICE'} sort keys %$files;
+  $meta .= "$lservicemd5  /LSERVICE\n";
+  mkdir_p($uploaddir);
+  mkdir_p($treedir);
+  writestr("$uploaddir/$$", "$treedir/$srcmd5-MD5SUMS", $meta);
+  unlink("$treedir/$srcmd5-_serviceerror");
+}
+
+sub addmeta_serviceerror {
+  my ($projid, $packid, $srcmd5, $error) = @_;
+  my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+  if (!defined($error)) {
+    unlink("$treedir/$srcmd5-_serviceerror");
+  } else {
+    mkdir_p($treedir);
+    writestr("$treedir/.$srcmd5-_serviceerror", "$treedir/$srcmd5-_serviceerror", $error);
+  }
+}
+
+sub addmeta_serialize_servicerun {
+  my ($projid, $packid, $srcmd5) = @_;
+  my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+  mkdir_p($treedir);
+  local *FF;
+  BSUtil::lockopen(\*FF, '+>>', "$treedir/$srcmd5-_serviceerror");
+  my $error = readstr("$treedir/$srcmd5-_serviceerror");
+  chomp $error;
+  if ($error) {
+    # already running or failed!
+    close FF;	# free lock
+    return undef;
+  }
+  writestr("$treedir/.$srcmd5-_serviceerror", "$treedir/$srcmd5-_serviceerror", "service in progress\n");
+  close FF;	# free lock
+  return 1;
+}
 
 sub updatelinkinfodb {
   my ($projid, $packid, $rev, $files) = @_;
@@ -1213,14 +1254,7 @@ sub servicemark_noservice {
   # ok, fake a service run
   my $nfiles = { %$files };
   delete $nfiles->{$_} for grep {/^_service[:_]/} keys %$nfiles;
-  $files->{'/SERVICE'} = $servicemark;
-  $nfiles->{'/SERVICE'} = $servicemark;
-  my $meta = '';
-  $meta .= "$nfiles->{$_}  $_\n" for sort keys %$nfiles;
-  my $nsrcmd5 = Digest::MD5::md5_hex($meta);	# hopefully matches addmeta()
-  addrev_service({}, {'project' => $projid, 'package' => $packid, 'srcmd5' => $nsrcmd5}, $files);
-  delete $files->{'/SERVICE'};
-  delete $nfiles->{'/SERVICE'};
+  fake_service_run($projid, $packid, $nfiles, $files, $servicemark);
   return ($servicemark, $nfiles);
 }
 
@@ -2119,19 +2153,19 @@ sub handlelinks {
 # - side effects:
 #   modifies $rev->{'srcmd5'}
 sub handleservice {
-  my ($rev, $files, $smd5) = @_;
+  my ($rev, $files, $servicemark) = @_;
 
   my $lsrcmd5 = $rev->{'srcmd5'};
-  $rev->{'srcmd5'} = $smd5;
+  $rev->{'srcmd5'} = $servicemark;
   my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$rev->{'project'}/$rev->{'package'}" : "$treesdir/$rev->{'package'}";
   my $sfiles;
-  if ($BSConfig::nosharedtrees && $BSConfig::nosharedtrees == 2 && ! -e "$treedir/$smd5-MD5SUMS" && -e "$srcrep/$rev->{'package'}/$smd5-MD5SUMS") {
+  if ($BSConfig::nosharedtrees && $BSConfig::nosharedtrees == 2 && ! -e "$treedir/$servicemark-MD5SUMS" && -e "$srcrep/$rev->{'package'}/$servicemark-MD5SUMS") {
     $sfiles = lsrev($rev);
-  } elsif (-e "$treedir/$smd5-MD5SUMS") {
+  } elsif (-e "$treedir/$servicemark-MD5SUMS") {
     $sfiles = lsrev($rev);
   } elsif (! -e "$projectsdir/$rev->{'project'}.pkg/$rev->{'package'}.xml") {
     # not our own package, don't run service. try getrev/lsrev instead.
-    my $rrev = getrev($rev->{'project'}, $rev->{'package'}, $smd5);
+    my $rrev = getrev($rev->{'project'}, $rev->{'package'}, $servicemark);
     $sfiles = lsrev($rrev);
   }
   if ($sfiles) {
@@ -2143,12 +2177,12 @@ sub handleservice {
     return $sfiles;
   }
   # don't have it yet
-  my $error = readstr("$treedir/$smd5-_serviceerror", 1);
+  my $error = readstr("$treedir/$servicemark-_serviceerror", 1);
   chomp $error if $error;
   die(str2utf8xml("$error\n")) if $error && $error ne '';
   my %nfiles = %$files;
-  $nfiles{'/SERVICE'} = $smd5;
-  $rev->{'srcmd5'} = $lsrcmd5;	# so that runservice can put it in /LSRCMD5
+  $nfiles{'/SERVICE'} = $servicemark;
+  $rev->{'srcmd5'} = $lsrcmd5;	# put it back so that runservice can put it in /LSRCMD5
   runservice({}, $rev, \%nfiles);
   die("service in progress\n");
 }
@@ -5865,21 +5899,12 @@ sub update_link_in_service {
   return undef unless $servicemark;
   # delete all non-service files unless it's a branch
   if (!$isbranch) {
-    for (keys %$sfiles) {
-      delete $sfiles->{$_} unless /^service[_:]/;
-    }
+    delete $sfiles->{$_} for grep {!/^_service[_:]/} keys %$sfiles;
   }
-  # copy link
+  # copy new link
   $sfiles->{'_link'} = $files->{'_link'};
-  # write back
-  $sfiles->{'/SERVICE'} = $servicemark;
-  $files->{'/SERVICE'} = $servicemark;
-  my $meta = '';
-  $meta .= "$files->{$_}  $_\n" for sort keys %$files;
-  my $nsrcmd5 = Digest::MD5::md5_hex($meta);    # hopefully matches addmeta()
-  addrev_service({}, {'project' => $rev->{'project'}, 'package' => $rev->{'package'}, 'srcmd5' => $nsrcmd5}, $sfiles);
-  delete $sfiles->{'/SERVICE'};
-  delete $files->{'/SERVICE'};
+  # write back new service result
+  fake_service_run($rev->{'project'}, $rev->{'package'}, $files, $sfiles, $servicemark);
   return $servicemark;
 }
 
