@@ -243,8 +243,7 @@ class Webui::PatchinfoController < Webui::WebuiController
           issueurl = IssueTracker.find_by_name(issue[0])
           if issueurl
             Rails.logger.debug "URL2 #{issueurl.inspect}"
-            issueurl = issueurl.show_url_for(issue[1])
-            issue << issueurl
+            issue << issueurl.show_url_for(issue[1])
             issuesum = get_issue_sum(issue[0], issue[1])
             if issuesum.nil?
               invalid_format += "#{issue[0]} "
