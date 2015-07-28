@@ -12,20 +12,27 @@ class Relationship < ActiveRecord::Base
   validates :role, presence: true
 
   validate :check_global_role
-  validates_uniqueness_of :project_id, scope: :role_id, allow_nil: true
 
-  validates_uniqueness_of :project_id, scope: [:role_id, :group_id, :user_id], allow_nil: true
-  validates_uniqueness_of :package_id, scope: [:role_id, :group_id, :user_id], allow_nil: true
+  validates_uniqueness_of :project_id, {scope: [:role_id, :group_id, :user_id], allow_nil: true,
+    message: "Project has non unique id"}
+  validates_uniqueness_of :package_id, {
+    scope: [:role_id, :group_id, :user_id], allow_nil: true,
+    message: "Package has non unique id"
+  }
 
-  validates :package, presence: true, unless: 'project_id.present?'
-  validates :package, absence: true, if: 'project_id.present?'
+  validates :package, presence: {
+    message: "Neither package nor project exists"
+  }, unless: 'project_id.present?'
+  validates :package, absence: {
+    message: "Package and project can not exist at the same time"
+  }, if: 'project_id.present?'
 
-  validates :project, presence: true, unless: 'package_id.present?'
-
-  validates :user, presence: true, unless: 'group_id.present?'
-  validates :user, absence: true, if: 'group_id.present?'
-
-  validates :group, presence: true, unless: 'user_id.present?'
+  validates :user, presence: {
+    message: "Neither user nor group exists"
+  }, unless: 'group_id.present?'
+  validates :user, absence: {
+    message: "User and group can not exist at the same time"
+  }, if: 'group_id.present?'
 
   def check_global_role
     return unless self.role && self.role.global
