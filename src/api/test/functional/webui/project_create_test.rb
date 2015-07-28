@@ -207,7 +207,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
   end
 
   def test_first_case_of_issue_204
-    login_king to: projects_path
+    login_king to: new_project_path
 
     prjroot = Faker::Lorem.characters(20)
     create_project(
@@ -231,13 +231,13 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
     prjroot = Faker::Lorem.characters(20)
     subproject = prjroot + ':b'
 
-    login_king to: projects_path
+    login_king to: new_project_path
 
     fill_in :project_name, with: subproject
     click_button 'Create Project'
 
     # now create the parent project
-    visit projects_path
+    visit new_project_path
     fill_in :project_name, with: prjroot
     click_button 'Create Project'
 

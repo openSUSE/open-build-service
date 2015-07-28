@@ -164,8 +164,8 @@ OBSApi::Application.routes.draw do
     end
 
     controller 'webui/project' do
-      get 'project/' => :index
-      get 'project/list_public' => :list_public
+      get 'project/' => :index, as: 'projects'
+      get 'project/list_public' => :index
       get 'project/list_all' => :list_all
       get 'project/list' => :list
       get 'project/autocomplete_projects' => :autocomplete_projects
@@ -175,7 +175,7 @@ OBSApi::Application.routes.draw do
       get 'project/users/:project' => :users, constraints: cons, as: 'project_users'
       get 'project/subprojects/:project' => :subprojects, constraints: cons, as: 'project_subprojects'
       get 'project/attributes/:project', to: redirect('/attribs/%{project}'), constraints: cons
-      get 'project/new' => :new, as: 'projects'
+      get 'project/new' => :new, as: 'new_project'
       post 'project/new_incident' => :new_incident
       get 'project/new_package/:project' => :new_package, constraints: cons
       get 'project/new_package_branch/:project' => :new_package_branch, constraints: cons

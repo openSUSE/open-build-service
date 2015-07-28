@@ -11,7 +11,7 @@ module Webui::RequiresProject
       render :text => "Project not found: #{params[:project]}", :status => 404 and return
     else
       flash[:error] = "Project not found: #{params[:project]}"
-      redirect_to :controller => 'project', :action => 'list_public', :nextstatus => 404 and return
+      redirect_to :controller => 'project', :nextstatus => 404 and return
     end
   end
 
@@ -32,7 +32,7 @@ module Webui::RequiresProject
         render :text => 'Not a valid project name', :status => 404 and return false
       else
         flash[:error] = "#{params[:project]} is not a valid project name"
-        redirect_to :controller => 'project', :action => 'list_public', :nextstatus => 404 and return false
+        redirect_to :controller => 'project', :nextstatus => 404 and return false
       end
     end
     return true

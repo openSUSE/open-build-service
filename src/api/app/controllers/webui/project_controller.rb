@@ -19,7 +19,7 @@ class Webui::ProjectController < Webui::WebuiController
                                           :subprojects,
                                           :clear_failed_comment, :edit_comment_form, :index,
                                           :list, :list_all,
-                                          :list_public, :new, :package_buildresult,
+                                          :new, :package_buildresult,
                                           :save_new, :save_prjconf,
                                           :rebuild_time_png, :new_incident]
   before_filter :load_project_info, :only => [:show, :packages_simple]
@@ -33,15 +33,11 @@ class Webui::ProjectController < Webui::WebuiController
   after_action :verify_authorized, :only => :save_new
 
   def index
-    redirect_to :action => 'list_public'
-  end
-
-  def list_all
+    params['excludefilter'] = 'home:'
     list
   end
 
-  def list_public
-    params['excludefilter'] = 'home:'
+  def list_all
     list
   end
 
@@ -132,7 +128,7 @@ class Webui::ProjectController < Webui::WebuiController
           @project_name = @namespace
         else
           flash[:error] = "Invalid namespace name '#{@namespace}'"
-          redirect_back_or_to :controller => 'project', :action => 'list_public' and return
+          redirect_back_or_to :controller => 'project' and return
         end
       end
     end
@@ -438,7 +434,7 @@ class Webui::ProjectController < Webui::WebuiController
       if parent_projects.present?
         redirect_to :action => 'show', :project => parent_projects[parent_projects.length - 1][0]
       else
-        redirect_to :action => 'list_public'
+        redirect_to :action => 'index'
       end
     end
   end
@@ -1026,7 +1022,7 @@ class Webui::ProjectController < Webui::WebuiController
       @config = @project.api_obj.source_file('_config')
     rescue ActiveXML::Transport::NotFoundError
       flash[:error] = "Project _config not found: #{params[:project]}"
-      redirect_to :controller => 'project', :action => 'list_public', :nextstatus => 404 and return
+      redirect_to :controller => 'project', :nextstatus => 404 and return
     end
   end
 

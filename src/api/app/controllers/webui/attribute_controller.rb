@@ -83,7 +83,7 @@ class Webui::AttributeController < Webui::WebuiController
       @project = Project.get_by_name(params[:project])
     rescue APIException
       flash[:error] = "Project not found: #{params[:project]}"
-      redirect_to :controller => 'project', :action => 'list_public' and return
+      redirect_to :controller => 'project' and return
     end
     if params[:package]
       begin

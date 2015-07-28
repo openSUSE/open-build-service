@@ -312,7 +312,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     @project = WebuiProject.find(params[:project])
     unless @project
       flash[:error] = "Project not found: #{params[:project]}"
-      redirect_to controller: 'project', action: 'list_public'
+      redirect_to controller: 'project'
       return false
     end
   end

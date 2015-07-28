@@ -11,11 +11,11 @@
     <ul id="proceed_list">
       <% if User.current.is_admin? %>
           <%= proceed_link 'configure', 'Configuration', :controller => 'configuration', :action => 'index' %>
-          <%= proceed_link 'list', 'All Projects', :controller => 'project', :action => 'list_public' %>
+          <%= proceed_link 'list', 'All Projects', :controller => 'project' %>
           <%= proceed_link 'system-search', 'Search', :controller => 'search', :action => 'index' %>
       <% else %>
           <%= proceed_link 'start-here', 'Your Home', user_show_path(User.current) unless User.current.is_nobody? %>
-          <%= proceed_link 'list', 'All Projects', :controller => 'project', :action => 'list_public' %>
+          <%= proceed_link 'list', 'All Projects', :controller => 'project' %>
           <%= proceed_link 'system-search', 'Search', :controller => 'search', :action => 'index' %>
           <%= proceed_link "document-new", 'New Project', :controller => 'project', :action => 'new', :ns => "home:#{User.current.login}" unless User.current.is_nobody? %>
       <% end %>

@@ -48,7 +48,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   end
 
   def test_create_invalid_ns
-    login_tom to: projects_path(ns: 'home:toM')
+    login_tom to: new_project_path(ns: 'home:toM')
     flash_message.must_equal "Invalid namespace name 'home:toM'"
   end
 
@@ -104,7 +104,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
     find('#flash-messages').must_have_text "Project 'home:user1' was removed successfully"
     # now the actual assertion :)
-    assert page.current_url.end_with? project_list_public_path
+    assert page.current_url.end_with? projects_path
   end
 
   def test_admin_can_delete_every_project
@@ -115,12 +115,12 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     find_button('Ok').click
 
     flash_message.must_equal "Project 'LocalProject' was removed successfully"
-    assert page.current_url.end_with? project_list_public_path
+    assert page.current_url.end_with? projects_path
     find('#project_list').wont_have_text 'LocalProject'
 
     # now that it worked out we better make sure to recreate it.
     # The API database is rolled back on test end, but the backend is not
-    visit projects_path
+    visit new_project_path
     fill_in 'project_name', with: 'LocalProject'
     find_button('Create Project').click
   end
