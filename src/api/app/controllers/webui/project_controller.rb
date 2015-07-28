@@ -18,7 +18,7 @@ class Webui::ProjectController < Webui::WebuiController
                                           :autocomplete_packages, :autocomplete_repositories,
                                           :subprojects,
                                           :clear_failed_comment, :edit_comment_form, :index,
-                                          :list, :list_all, :list_simple,
+                                          :list, :list_all,
                                           :list_public, :new, :package_buildresult,
                                           :save_new, :save_prjconf,
                                           :rebuild_time_png, :new_incident]
@@ -88,10 +88,6 @@ class Webui::ProjectController < Webui::WebuiController
     else
       render :list, status: params[:nextstatus]
     end
-  end
-
-  def list_simple
-    set_list_vars
   end
 
   def autocomplete_projects
