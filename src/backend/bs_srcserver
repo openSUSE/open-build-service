@@ -367,7 +367,7 @@ sub addrev_service {
   }
   my $srcmd5 = $files->{'/SERVICE'};
   if ($error) {
-    addmeta_serviceerror($projid, $packid, $srcmd5, "$error\n");
+    addmeta_serviceerror($projid, $packid, $srcmd5, $error);
     my $user = $cgi->{'user'};
     my $comment = $cgi->{'comment'};
     my $requestid = $cgi->{'requestid'};
@@ -376,6 +376,9 @@ sub addrev_service {
     $user = str2utf8xml($user);
     $comment = '' unless defined $comment;
     $comment = str2utf8xml($comment);
+    $error =~ s/[\r\n]+$//s;
+    $error =~ s/.*[\r\n]//s;
+    $error ||= 'unknown service error';
     $error = str2utf8xml($error);
     notify('SRCSRV_SERVICE_FAIL', {project => $projid, package => $packid,
 				   error => $error, rev => $rev->{'rev'},
@@ -832,25 +835,24 @@ sub repstat_git {
   return @s;
 }
 
-sub repstat {
-  my ($rev, $filename, $md5) = @_;
-  if (length($md5) == 40) {
-    return repstat_git($rev, $filename, $md5);
-  }
-  return stat("$srcrep/$rev->{'package'}/$md5-$filename");
-}
-
 sub repopen_git {
   my ($rev, $filename, $id, $fd) = @_;
   my $gitdir = repgitdir($rev);
   return open($fd, '-|', 'git', "--git-dir=$gitdir", 'cat-file', 'blob', $id);
 }
 
+
+sub repstat {
+  my ($rev, $filename, $md5) = @_;
+  return repstat_git($rev, $filename, $md5) if length($md5) == 40;
+  return stat(repfilename($rev, $filename, $md5)) if $filename eq '_serviceerror';
+  return stat("$srcrep/$rev->{'package'}/$md5-$filename");
+}
+
 sub repopen {
   my ($rev, $filename, $md5, $fd) = @_;
-  if (length($md5) == 40) {
-    return repopen_git($rev, $filename, $md5, $fd);
-  }
+  return repopen_git($rev, $filename, $md5, $fd) if length($md5) == 40;
+  return open($fd, '<', repfilename($rev, $filename, $md5)) if $filename eq '_serviceerror';
   return open($fd, '<', "$srcrep/$rev->{'package'}/$md5-$filename");
 }
 
@@ -864,6 +866,16 @@ sub repreadxml {
   my ($rev, $filename, $md5, $dtd, $nonfatal) = @_;
   my $packid = $rev->{'package'};
   return readxml("$srcrep/$packid/$md5-$filename", $dtd, $nonfatal);
+}
+
+sub repfilename {
+  my ($rev, $filename, $md5) = @_;
+  if ($filename eq '_serviceerror') {
+    # sigh, _serviceerror files live in the trees...
+    my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$rev->{'project'}/$rev->{'package'}" : "$treesdir/$rev->{'package'}";
+    return "$treedir/$md5-_serviceerror" if -e "$treedir/$md5-_serviceerror";
+  }
+  return "$srcrep/$rev->{'package'}/$md5-$filename";
 }
 
 #
@@ -1164,8 +1176,11 @@ sub addmeta_serviceerror {
   if (!defined($error)) {
     unlink("$treedir/$srcmd5-_serviceerror");
   } else {
+    # normalize the error
+    $error =~ s/[\r\n]+$//s;
+    $error ||= 'unknown service error';
     mkdir_p($treedir);
-    writestr("$treedir/.$srcmd5-_serviceerror", "$treedir/$srcmd5-_serviceerror", $error);
+    writestr("$treedir/.$srcmd5-_serviceerror", "$treedir/$srcmd5-_serviceerror", "$error\n");
   }
 }
 
@@ -1175,9 +1190,7 @@ sub addmeta_serialize_servicerun {
   mkdir_p($treedir);
   local *FF;
   BSUtil::lockopen(\*FF, '+>>', "$treedir/$srcmd5-_serviceerror");
-  my $error = readstr("$treedir/$srcmd5-_serviceerror");
-  chomp $error;
-  if ($error) {
+  if (-s FF) {
     # already running or failed!
     close FF;	# free lock
     return undef;
@@ -1534,9 +1547,7 @@ sub lsrev {
     }
     if (!open(F, '<', "$treedir/$srcmd5-MD5SUMS")) {
       return {'_linkerror' => $srcmd5} if -e "$srcrep/$packid/$srcmd5-_linkerror";
-      my $error = readstr("$treedir/$srcmd5-_serviceerror", 1);
-      chomp $error if $error;
-      die(str2utf8xml("$error\n")) if $error && $error ne '';
+      return {'_serviceerror' => $srcmd5} if -s "$treedir/$srcmd5-_serviceerror";
       die("$projid/$packid/$srcmd5: not in repository. Either not existing or misconfigured server setting for '\$nosharedtrees' setting in BSConfig.pm\n");
     }
   }
@@ -2169,21 +2180,36 @@ sub handleservice {
     $sfiles = lsrev($rrev);
   }
   if ($sfiles) {
+    # tree is available, i.e. the service has finished
     if ($sfiles->{'_service_error'}) {
+      # old style...
       my $error = repreadstr($rev, '_service_error', $sfiles->{'_service_error'});
-      chomp $error;
+      $error =~ s/[\r\n]+$//s;
+      $error =~ s/.*[\r\n]//s;
       die(str2utf8xml($error ? "$error\n" : "unknown service error\n"));
     }
     return $sfiles;
   }
-  # don't have it yet
-  my $error = readstr("$treedir/$servicemark-_serviceerror", 1);
-  chomp $error if $error;
-  die(str2utf8xml("$error\n")) if $error && $error ne '';
+  # don't have the tree yet
+  if (-s "$treedir/$servicemark-_serviceerror") {
+    local *SERROR;
+    if (open(SERROR, '<', "$treedir/$servicemark-_serviceerror")) {
+      my $size = -s SERROR;
+      sysseek(SERROR, $size - 1024, 0) if $size > 1024;
+      my $error = '';
+      1 while sysread(SERROR, $error, 1024, length($error));
+      close SERROR;
+      $error =~ s/[\r\n]+$//s;
+      $error =~ s/.*[\r\n]//s;
+      $error ||= 'unknown service error';
+      die(str2utf8xml("$error\n"));
+    }
+  }
   my %nfiles = %$files;
   $nfiles{'/SERVICE'} = $servicemark;
   $rev->{'srcmd5'} = $lsrcmd5;	# put it back so that runservice can put it in /LSRCMD5
   runservice({}, $rev, \%nfiles);
+  $rev->{'srcmd5'} = $servicemark;
   die("service in progress\n");
 }
 
@@ -4751,7 +4777,7 @@ sub getfilelist_ajax {
 sub getproductrepositories {
   my ($xml) = @_;
 
-  my $p;
+  my @res;
   for my $product (@{$xml->{'products'}->{'product'}}) {
     my @pr;
     for my $repo (@{$product->{'register'}->{'updates'}->{'repository'}}) {
@@ -4778,10 +4804,9 @@ sub getproductrepositories {
     }
     my $prod = { 'name' => $product->{'name'}, 'repository' => \@pr };
     $prod->{'distrotarget'} = $product->{'register'}->{'updates'}->{'distrotarget'} if $product->{'register'}->{'updates'}->{'distrotarget'};
-    push @$p, $prod;
+    push @res, $prod;
   }
-
-  return $p;
+  return @res;
 }
 
 sub getfilelist {
@@ -4905,6 +4930,8 @@ sub getfilelist {
       }
     }
     my @files = map {{'name' => $_, 'filename' => "$srcrep/$packid/$files->{$_}-$_"}} sort keys %$files;
+    # sigh
+    $files->[0]->{'filename'} = repfilename($rev, '_serviceerror', $files->{'_serviceerror'}) if @files == 1 && $files->{'_serviceerror'};
     BSServer::reply_cpio(\@files);
     return undef;
   }
@@ -4912,12 +4939,12 @@ sub getfilelist {
   if ($view && ($view eq 'products' || $view eq 'productrepositories') ) {
     my @res;
     for my $filename (sort keys %$files) {
-      next unless $filename =~ /.product$/;
-      next if $cgi->{'product'} and $filename ne "$cgi->{'product'}.product";
-      my $xml = BSProductXML::readproductxml( "$srcrep/$rev->{'package'}/$files->{$filename}-$filename", 0, undef, $files);
-      die("400 Unable to parse $filename: \n") unless defined($xml);
+      next unless $filename =~ /\.product$/;
+      next if $cgi->{'product'} && $filename ne "$cgi->{'product'}.product";
+      my $xml = BSProductXML::readproductxml("$srcrep/$rev->{'package'}/$files->{$filename}-$filename", 0, undef, $files);
+      die("400 Unable to parse $filename\n") unless $xml;
       if ($view eq 'productrepositories') {
-        @res = (@res, @{getproductrepositories($xml)});
+        push @res, getproductrepositories($xml);
       } else {
         push @res, $xml;
       }
@@ -6711,23 +6738,24 @@ sub getlogfile {
   if (!$cgi->{'start'}) {
     # check if the package is broken
     my $rev = getrev($projid, $packid, 'build');
-    my $files = lsrev($rev);
-    if (ref($files) && $files->{'_link'}) {
-      $files = handlelinks($rev, $files);
-      if (!ref $files) {
-	my $error = "$files\n";
-	if ($rev->{'srcmd5'}) {
-	  $files = lsrev($rev);
-	  if ($files->{'_linkerror'}) {
-	    $error = readstr("$srcrep/$packid/$files->{'_linkerror'}-_linkerror", 1);
-	  }
+    eval {
+      lsrev_expanded($rev);
+    };
+    if ($@) {
+      my $error = $@;
+      if ($rev->{'srcmd5'}) {
+        my $files = lsrev($rev);
+	if ($files->{'_serviceerror'}) {
+	  $error = repreadstr($rev, '_serviceerror', $files->{'_serviceerror'});
+	} elsif ($files->{'_linkerror'}) {
+	  $error = repreadstr($rev, '_linkerror', $files->{'_linkerror'});
 	}
-	if ($cgi->{'view'} && $cgi->{'view'} eq 'entry') {
-	  my $entry = {'name' => '_log', 'size' => length($error)};
-	  return ({'entry' => [ $entry ]}, $BSXML::dir);
-	}
-	return $error;
       }
+      if ($cgi->{'view'} && $cgi->{'view'} eq 'entry') {
+        my $entry = {'name' => '_log', 'size' => length($error)};
+        return ({'entry' => [ $entry ]}, $BSXML::dir);
+      }
+      return $error;
     }
   }
 
