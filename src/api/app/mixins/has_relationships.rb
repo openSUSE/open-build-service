@@ -181,8 +181,7 @@ module HasRelationships
     cache = Hash.new
     self.relationships.each do |purr|
       next if @updater.ignore?(purr)
-      h = cache[@updater.name_for_relationship(purr)] ||= Hash.new
-      h[purr.role.title] = purr
+      cache[@updater.name_for_relationship(purr)] ||= Hash.new
     end
 
     # in a second step we parse the XML and track in the hash if
