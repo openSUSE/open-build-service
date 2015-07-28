@@ -760,17 +760,12 @@ class Project < ActiveRecord::Base
   def self.find_parent_for(project_name)
     name_parts = project_name.split(/:/)
 
-    #project is not inside a namespace
-    return nil if name_parts.length <= 1
-
     while name_parts.length > 1
       name_parts.pop
-      if (p = Project.find_by_name name_parts.join(':'))
-        #parent project found
-        return p
-      end
+      project = Project.find_by_name(name_parts.join(':'))
+      break if project
     end
-    return nil
+    project
   end
 
   # convenience method for self.find_parent_for
