@@ -202,6 +202,7 @@ class PackageTest < ActiveSupport::TestCase
   test "names are case sensitive" do
     np = @package.project.packages.new(name: 'testpack')
     xh = Xmlhash.parse(@package.to_axml)
+    np.save!
     np.update_from_xml(xh)
     assert_equal np.name, 'testpack'
     assert np.id > 0
