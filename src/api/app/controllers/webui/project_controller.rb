@@ -18,7 +18,6 @@ class Webui::ProjectController < Webui::WebuiController
                                           :autocomplete_packages, :autocomplete_repositories,
                                           :subprojects,
                                           :clear_failed_comment, :edit_comment_form, :index,
-                                          :list, :list_all,
                                           :new, :package_buildresult,
                                           :save_new, :save_prjconf,
                                           :rebuild_time_png, :new_incident]
@@ -36,6 +35,7 @@ class Webui::ProjectController < Webui::WebuiController
     unless params[:show_all]
       params['excludefilter'] = 'home:'
     end
+
     @main_projects = []
     @excl_projects = []
     if params['excludefilter'] and params['excludefilter'] != 'undefined'
@@ -50,7 +50,13 @@ class Webui::ProjectController < Webui::WebuiController
         @main_projects << [name, title]
       end
     end
-    list
+    # excl and main are sorted by datatable, but important need to be in order
+    @important_projects.sort! {|a,b| a[0] <=> b[0] }
+    if @spider_bot
+      render :list_simple, status: params[:nextstatus]
+    else
+      render :list, status: params[:nextstatus]
+    end
   end
 
   def all_projects
@@ -68,16 +74,6 @@ class Webui::ProjectController < Webui::WebuiController
       ret[name] = title
     end
     ret
-  end
-
-  def list
-    # excl and main are sorted by datatable, but important need to be in order
-    @important_projects.sort! {|a,b| a[0] <=> b[0] }
-    if @spider_bot
-      render :list_simple, status: params[:nextstatus]
-    else
-      render :list, status: params[:nextstatus]
-    end
   end
 
   def autocomplete_projects

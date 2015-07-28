@@ -15,7 +15,7 @@
 
 <h3><%= @pagetitle %></h3>
 <div style="display: inline">
-  <%= form_tag({:controller => 'project', :action => 'list'}, {:method => :get, :id => 'filter_projects_form'}) do %>
+  <%= form_tag({:controller => 'project', :action => 'index'}, {:method => :get, :id => 'filter_projects_form'}) do %>
       <p>
         <%= check_box_tag 'excludefilter', 'home:', (@excludefilter.nil? ? false : true) -%>Exclude user home projects
 
