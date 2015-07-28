@@ -615,6 +615,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /usr/lib/obs/server/BSXPath.pm
 /usr/lib/obs/server/BSProductXML.pm
 /usr/lib/obs/server/BSKiwiXML.pm
+/usr/lib/obs/server/BSDuD.pm
 /usr/lib/obs/server/DESIGN
 /usr/lib/obs/server/License
 /usr/lib/obs/server/README
