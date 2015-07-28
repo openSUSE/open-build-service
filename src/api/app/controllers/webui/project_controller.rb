@@ -36,6 +36,20 @@ class Webui::ProjectController < Webui::WebuiController
     unless params[:show_all]
       params['excludefilter'] = 'home:'
     end
+    @main_projects = []
+    @excl_projects = []
+    if params['excludefilter'] and params['excludefilter'] != 'undefined'
+      @excludefilter = params['excludefilter']
+    else
+      @excludefilter = nil
+    end
+    all_projects.each do |name, title|
+      if @excludefilter && name.start_with?(@excludefilter)
+        @excl_projects << [name, title]
+      else
+        @main_projects << [name, title]
+      end
+    end
     list
   end
 
@@ -56,25 +70,7 @@ class Webui::ProjectController < Webui::WebuiController
     ret
   end
 
-  def set_list_vars
-    @main_projects = []
-    @excl_projects = []
-    if params['excludefilter'] and params['excludefilter'] != 'undefined'
-      @excludefilter = params['excludefilter']
-    else
-      @excludefilter = nil
-    end
-    all_projects.each do |name, title|
-      if @excludefilter && name.start_with?(@excludefilter)
-        @excl_projects << [name, title]
-      else
-        @main_projects << [name, title]
-      end
-    end
-  end
-
   def list
-    set_list_vars
     # excl and main are sorted by datatable, but important need to be in order
     @important_projects.sort! {|a,b| a[0] <=> b[0] }
     if @spider_bot
