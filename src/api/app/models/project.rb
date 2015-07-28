@@ -653,17 +653,12 @@ class Project < ActiveRecord::Base
     # cycle detection
     prj = self
     processed = {}
-    while (prj and prj.develproject)
-      prj_name = prj.name
-      # cycle detection
-      if processed[prj_name]
-        str = ''
-        processed.keys.each do |key|
-          str = str + ' -- ' + key
-        end
-        raise CycleError.new "There is a cycle in devel definition at #{str}"
+
+    while(prj && prj.develproject)
+      if processed[prj.name]
+        raise CycleError.new "There is a cycle in devel definition at #{processed.keys.join(' -- ')}"
       end
-      processed[prj_name] = 1
+      processed[prj.name] = 1
       prj = prj.develproject
       prj = self if prj && prj.id == self.id
     end
