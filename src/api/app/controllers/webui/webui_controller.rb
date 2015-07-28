@@ -244,7 +244,7 @@ class Webui::WebuiController < ActionController::Base
 
   def check_spiders
     @spider_bot = false
-    if defined? TREAT_USER_LIKE_BOT or request.env.has_key? 'HTTP_OBS_SPIDER'
+    if request.env.has_key? 'HTTP_OBS_SPIDER'
       @spider_bot = true
     end
   end
