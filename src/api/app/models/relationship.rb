@@ -12,12 +12,10 @@ class Relationship < ActiveRecord::Base
   validates :role, presence: true
 
   validate :check_global_role
-  validates_uniqueness_of :project_id, :scope => :role_id
+  validates_uniqueness_of :project_id, scope: :role_id, allow_nil: true
 
-  validates :project_id, uniqueness: { scope: [:role_id, :group_id] }
-  validates :project_id, uniqueness: { scope: [:role_id, :user_id] }
-  validates :package_id, uniqueness: { scope: [:role_id, :group_id] }
-  validates :package_id, uniqueness: { scope: [:role_id, :user_id] }
+  validates_uniqueness_of :project_id, scope: [:role_id, :group_id, :user_id], allow_nil: true
+  validates_uniqueness_of :package_id, scope: [:role_id, :group_id, :user_id], allow_nil: true
 
   validates :package, presence: true, unless: 'project_id.present?'
   validates :package, absence: true, if: 'project_id.present?'
