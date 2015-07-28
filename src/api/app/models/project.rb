@@ -508,15 +508,14 @@ class Project < ActiveRecord::Base
     position = 1
     repo.elements('path') do |path|
       link_repo = Repository.find_by_project_and_repo_name(path['project'], path['repository'])
-      if path['project'] == self.name
-        if path['repository'] == repo['name']
-          raise SaveError, 'Using same repository as path element is not allowed'
-        end
+      if path['project'] == self.name &&
+          path['repository'] == repo['name']
+        raise SaveError, 'Using same repository as path element is not allowed'
       end
-      if !link_repo
+      unless link_repo
         raise SaveError, "unable to walk on path '#{path['project']}/#{path['repository']}'"
       end
-      current_repo.path_elements.new :link => link_repo, :position => position
+      current_repo.path_elements.new(link: link_repo, position: position)
       position += 1
     end
 
