@@ -531,14 +531,12 @@ class Project < ActiveRecord::Base
   end
 
   def update_one_repository_without_path(repo)
-
     current_repo = @repocache[repo['name']]
-    if current_repo
-      logger.debug "modifying repository '#{repo['name']}'"
-    else
+    unless current_repo
       logger.debug "adding repository '#{repo['name']}'"
       current_repo = self.repositories.new(:name => repo['name'])
     end
+    logger.debug "modifying repository '#{repo['name']}'"
 
     update_repository_flags(current_repo, repo)
 
