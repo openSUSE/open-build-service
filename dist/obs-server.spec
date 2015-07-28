@@ -615,11 +615,6 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /usr/lib/obs/server/BSXPath.pm
 /usr/lib/obs/server/BSProductXML.pm
 /usr/lib/obs/server/BSKiwiXML.pm
-%dir /usr/lib/obs/server/Meta
-/usr/lib/obs/server/Meta.pm
-/usr/lib/obs/server/Meta/Debmd.pm
-/usr/lib/obs/server/Meta/Rpmmd.pm
-/usr/lib/obs/server/Meta/Susetagsmd.pm
 /usr/lib/obs/server/DESIGN
 /usr/lib/obs/server/License
 /usr/lib/obs/server/README
