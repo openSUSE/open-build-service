@@ -8236,7 +8236,12 @@ sub sourceinfo {
   }
   $r->{'filename'} = $file;
   return $r unless $cgi->{'parse'};
-  my $d = Build::parse($bconf, "$srcrep/$packid/$files->{$file}-$file");
+  my $buildtype = Build::recipe2buildtype($file);
+  if (!$buildtype) {
+    $r->{'error'} = "don't know how to build $file";
+    return $r;
+  }
+  my $d = Build::parse_typed($bconf, "$srcrep/$packid/$files->{$file}-$file", $buildtype);
   if (!$d) {
     $r->{'error'} = "parse error";
     return $r;
