@@ -2695,6 +2695,8 @@ sub getkiwiproductpackages {
         for my $apackid (orderpackids({'kind' => $aprojidkind}, keys %$gbininfo)) {
 	  next if $apackid eq '_volatile';
 	  my $bininfo = $gbininfo->{$apackid} || {};
+	  # skip channels/patchinfos
+	  next if $bininfo->{'.nouseforbuild'};
 	  my $needit;
 	  for my $b (values %$bininfo) {
 	    my $n = $b->{'name'};
@@ -2735,6 +2737,9 @@ sub getkiwiproductpackages {
       next unless $depends && $depends->{'subpacks'};
       my %apackids = (%{$depends->{'subpacks'} || {}}, %{$depends->{'pkgdeps'}});
       for my $apackid (orderpackids({'kind' => $aprojidkind}, keys %apackids)) {
+	next if $apackid eq '_volatile';
+	next if -e "$reporoot/$aprp/$arch/$apackid/updateinfo.xml";
+	next if -e "$reporoot/$aprp/$arch/$apackid/.channelinfo";
         if (!$allpacks && $depends->{'subpacks'}->{$apackid}) {
 	  next unless grep {$deps{$_}} @{$depends->{'subpacks'}->{$apackid} || []};
         }
