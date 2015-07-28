@@ -243,10 +243,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def check_spiders
-    @spider_bot = false
-    if request.env.has_key? 'HTTP_OBS_SPIDER'
-      @spider_bot = true
-    end
+    @spider_bot = request.env.has_key?('HTTP_OBS_SPIDER')
   end
   private :check_spiders
 
