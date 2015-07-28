@@ -6,7 +6,7 @@ use vars qw($VERSION @ISA @EXPORT);
 require Exporter;
 @ISA               = qw(Exporter);
 @EXPORT            = qw(XMLin XMLinfile XMLout);
-$VERSION           = '1.0';
+$VERSION           = '1.1';
 
 use XML::Parser;
 use Encode;
