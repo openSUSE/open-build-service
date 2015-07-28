@@ -540,35 +540,7 @@ class Project < ActiveRecord::Base
       current_repo = self.repositories.new(:name => repo['name'])
     end
 
-    #--- repository flags ---#
-    # check for rebuild configuration
-    if !repo.has_key? 'rebuild' and current_repo.rebuild
-      current_repo.rebuild = nil
-    end
-    if repo.has_key? 'rebuild'
-      if repo['rebuild'] != current_repo.rebuild
-        current_repo.rebuild = repo['rebuild']
-      end
-    end
-    # check for block configuration
-    if not repo.has_key? 'block' and current_repo.block
-      current_repo.block = nil
-    end
-    if repo.has_key? 'block'
-      if repo['block'] != current_repo.block
-        current_repo.block = repo['block']
-      end
-    end
-    # check for linkedbuild configuration
-    if not repo.has_key? 'linkedbuild' and current_repo.linkedbuild
-      current_repo.linkedbuild = nil
-    end
-    if repo.has_key? 'linkedbuild'
-      if repo['linkedbuild'] != current_repo.linkedbuild
-        current_repo.linkedbuild = repo['linkedbuild']
-      end
-    end
-    #--- end of repository flags ---#
+    update_repository_flags(current_repo, repo)
 
     #destroy all current releasetargets
     current_repo.release_targets.destroy_all
@@ -623,6 +595,26 @@ class Project < ActiveRecord::Base
     current_repo.save!
 
     @repocache.delete repo['name']
+  end
+
+  def update_repository_flags(current_repo, repo)
+    if repo.has_key?('rebuild')
+      current_repo.rebuild = repo['rebuild']
+    else
+      current_repo.rebuild = nil
+    end
+
+    if repo.has_key?('block')
+      current_repo.block = repo['block']
+    else
+      current_repo.block = nil
+    end
+
+    if repo.has_key?('linkedbuild')
+      current_repo.linkedbuild = repo['linkedbuild']
+    else
+      current_repo.linkedbuild = nil
+    end
   end
 
   def update_download_settings(xmlhash)
