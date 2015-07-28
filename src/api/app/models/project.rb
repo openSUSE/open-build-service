@@ -343,10 +343,7 @@ class Project < ActiveRecord::Base
   end
 
   def is_locked?
-    if @is_locked.nil?
-      @is_locked = flags.where(flag: 'lock', status: 'enable').exists?
-    end
-    @is_locked
+    @is_locked ||= flags.where(flag: 'lock', status: 'enable').exists?
   end
 
   def is_unreleased?
