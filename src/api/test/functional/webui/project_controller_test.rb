@@ -265,7 +265,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     uncheck('excludefilter')
     find(:id, 'project_list').must_have_link 'home:adrian'
 
-    login_king to: project_list_public_path
+    login_king to: projects_path
     find(:id, 'projects_table_length').select('100')
     find(:id, 'project_list').must_have_link 'HiddenProject'
   end
@@ -395,7 +395,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   def test_do_not_cache_hidden
     use_js
 
-    login_king to: project_list_all_path
+    login_king to: projects_path
     # king can see HiddenProject
     page.must_have_link 'HiddenProject'
 

@@ -166,7 +166,7 @@ OBSApi::Application.routes.draw do
     controller 'webui/project' do
       get 'project/' => :index, as: 'projects'
       get 'project/list_public' => :index
-      get 'project/list_all' => :list_all
+      get 'project/list_all' => :index, show_all: true
       get 'project/list' => :list
       get 'project/autocomplete_projects' => :autocomplete_projects
       get 'project/autocomplete_incidents' => :autocomplete_incidents

@@ -33,11 +33,9 @@ class Webui::ProjectController < Webui::WebuiController
   after_action :verify_authorized, :only => :save_new
 
   def index
-    params['excludefilter'] = 'home:'
-    list
-  end
-
-  def list_all
+    unless params[:show_all]
+      params['excludefilter'] = 'home:'
+    end
     list
   end
 
