@@ -50,11 +50,11 @@ class XpathEngine
            'LEFT JOIN issues AS issues2 ON issues2.id = attrib_issues.issue_id',
           ]},
         'issue/@tracker' => {:cpart => 'issue_trackers.name', :joins =>
-          ['LEFT JOIN package_issues ON packages.id = package_issues.package_id',
-           'LEFT JOIN issue_trackers ON issues.issue_tracker_id = issue_trackers.id',
-           'LEFT JOIN attribs ON attribs.package_id = packages.id',
-           'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
-           'LEFT JOIN issue_trackers AS issue_trackers2 ON issues.issue_tracker_id = issue_trackers2.id'
+          ['LEFT JOIN package_issues AS package_issuet ON packages.id = package_issuet.package_id',
+           'LEFT JOIN issues AS issuet ON issuet.id = package_issuet.issue_id',
+           'LEFT JOIN issue_trackers ON issuet.issue_tracker_id = issue_trackers.id',
+           'LEFT JOIN attribs AS attribt ON attribt.package_id = packages.id',
+           'LEFT JOIN attrib_issues AS attrib_issuet ON attrib_issuet.attrib_id = attribt.id',
           ]},
         'issue/@change' => {:cpart => 'package_issues.change',
                             joins: 'LEFT JOIN package_issues ON packages.id = package_issues.package_id'},

@@ -119,6 +119,9 @@ class IssueControllerTest < ActionDispatch::IntegrationTest
     get "/search/package/id", :match => '[issue/[@name="123456" and @tracker="bnc"]]'
     assert_response :success
     assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'BaseDistro', :name => 'patchinfo' }
+    get "/search/package/id", :match => '[issue/[@tracker="bnc" and @name="123456"]]' # SQL keeps working
+    assert_response :success
+    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'BaseDistro', :name => 'patchinfo' }
   end
 
   def test_get_issue_for_linked_packages
