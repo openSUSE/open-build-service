@@ -3118,15 +3118,19 @@ sub getbuildinfo {
   my %sysdeps = map {$_ => 1} @sysdeps;
 
   if ($pdata->{'buildenv'}) {
-    # crude way to get ids of all packages
-    my $npkgs = 0;
-    for my $r ($pool->repos()) {
-      my @pids = $r->getpathid();
-      $npkgs += @pids / 2;
+    my @allpackages;
+    if (defined &BSSolv::pool::allpackages) {
+      @allpackages = $pool->allpackages();
+    } else {
+      # crude way to get ids of all packages
+      my $npkgs = 0;
+      for my $r ($pool->repos()) {
+        my @pids = $r->getpathid();
+        $npkgs += @pids / 2;
+      }
+      @allpackages = 2 ... ($npkgs + 1) if $npkgs;
     }
     my %allpackages;
-    my @allpackages;
-    @allpackages = 2 ... ($npkgs + 1) if $npkgs;
     for my $p (@allpackages) {
       my $n = $pool->pkg2name($p);
       my $hdrmd5 = $pool->pkg2pkgid($p);
