@@ -2350,6 +2350,27 @@ sub fctx_integrate_package_into_full {
   fctx_rebuild_full($fctx, \%newfull, $gbininfo);
 }
 
+# the old way. $old is actually $oldrepo.
+sub fctx_integrate_package_into_full_old {
+  my ($fctx, $old, $new) = @_;
+  my $gdst = "$reporoot/$fctx->{'prp'}/$myarch";
+  my %fnew;
+  for my $rp (sort keys %$new) {
+    my $r = $new->{$rp};
+    next unless $r->{'suf'} && $r->{'id'};
+    fctx_add_binary_to_full($fctx, $rp, $r);
+    $fnew{$r->{'name'}} = 1;
+  }
+  for my $rp (sort keys %$old) {
+    my $r = $old->{$rp};
+    next unless $r->{'suf'} && $r->{'id'};
+    next if $fnew{$r->{'name'}};	# already overwritten with new version
+    my @s = stat("$gdst/:full/$r->{'name'}.$r->{'suf'}");
+    next unless @s && $r->{'id'} eq "$s[9]/$s[7]/$s[1]";	# don't delete package if not ours
+    fctx_del_binary_from_full($fctx, $r);
+  }
+}
+
 #
 # moves binary packages from jobrepo to dst and updates full repository
 #
@@ -2650,21 +2671,7 @@ sub move_into_full {
   if ($new_full_handling) {
     fctx_integrate_package_into_full($fctx, $old, $new);
   } else {
-    my %fnew;
-    for my $rp (sort keys %$new) {
-      my $r = $new->{$rp};
-      next unless $r->{'suf'} && $r->{'id'};
-      fctx_add_binary_to_full($fctx, $rp, $r);
-      $fnew{$r->{'name'}} = 1;
-    }
-    for my $rp (sort keys %$old) {
-      my $r = $old->{$rp};
-      next unless $r->{'suf'} && $r->{'id'};
-      next if $fnew{$r->{'name'}};	# already overwritten with new version
-      my @s = stat("$gdst/:full/$r->{'name'}.$r->{'suf'}");
-      next unless @s && $r->{'id'} eq "$s[9]/$s[7]/$s[1]";	# don't delete package if not ours
-      fctx_del_binary_from_full($fctx, $r);
-    }
+    fctx_integrate_package_into_full_old($fctx, $old, $new);
   }
 
   mkdir_p($gdst) unless -d $gdst;
