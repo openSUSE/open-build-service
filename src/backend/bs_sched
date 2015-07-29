@@ -2351,6 +2351,9 @@ sub fctx_integrate_package_into_full {
 }
 
 # the old way. $old is actually $oldrepo.
+# just overwrite the entries in the full tree
+# with the new packages, but be careful when
+# removing entries.
 sub fctx_integrate_package_into_full_old {
   my ($fctx, $old, $new) = @_;
   my $gdst = "$reporoot/$fctx->{'prp'}/$myarch";
