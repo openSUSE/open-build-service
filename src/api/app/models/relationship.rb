@@ -11,52 +11,40 @@ class Relationship < ActiveRecord::Base
 
   validates :role, presence: true
 
-  validate :check_sanity
+  validate :check_global_role
+
+  validates_uniqueness_of :project_id, {scope: [:role_id, :group_id, :user_id], allow_nil: true,
+    message: "Project has non unique id"}
+  validates_uniqueness_of :package_id, {
+    scope: [:role_id, :group_id, :user_id], allow_nil: true,
+    message: "Package has non unique id"
+  }
+
+  validates :package, presence: {
+    message: "Neither package nor project exists"
+  }, unless: 'project_id.present?'
+  validates :package, absence: {
+    message: "Package and project can not exist at the same time"
+  }, if: 'project_id.present?'
+
+  validates :user, presence: {
+    message: "Neither user nor group exists"
+  }, unless: 'group_id.present?'
+  validates :user, absence: {
+    message: "User and group can not exist at the same time"
+  }, if: 'group_id.present?'
+
+  def check_global_role
+    return unless self.role && self.role.global
+    errors.add(:base,
+               "global role #{self.role.title} is not allowed.")
+  end
 
   # don't use "is not null" - it won't be in index
   scope :projects, -> { where("project_id is not null") }
   scope :packages, -> { where("package_id is not null") }
   scope :groups, -> { where("group_id is not null") }
   scope :users, -> { where("user_id is not null") }
-
-  protected
-  def check_sanity
-    if self.package && self.project
-      errors.add(:package_id, "Relationships are either for project or package")
-    end
-    if self.group && self.user
-      errors.add(:user_id, "Relationships are either for groups or users")
-    end
-    if !self.package && !self.project
-      errors.add(:package_id, "Relationships need either a project or a package")
-    end
-    if !self.group && !self.user
-      errors.add(:user_id, "Relationships need either a group or a user")
-    end
-    check_duplicates if errors.empty?
-  end
-
-  def check_duplicates
-    relation=Relationship.where(role_id: self.role_id)
-    if self.group_id
-      relation=relation.where(group_id: self.group_id)
-    else
-      return unless self.user_id # nothing to check
-      relation=relation.where(user_id: self.user_id)
-    end
-    if self.project_id
-      relation=relation.where(project_id: self.project_id)
-    else
-      return unless self.package_id # nothing to check
-      relation=relation.where(package_id: self.package_id)
-    end
-    if self.id
-      relation = relation.where("id <> #{self.id}")
-    end
-    if relation.exists?
-      errors.add(:role, "Relationship already exists")
-    end
-  end
 
   class SaveError < APIException;
   end
