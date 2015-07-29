@@ -88,7 +88,7 @@ sub parse {
   }
   my $cache = {};
   eval {
-    Build::Repo::parse($mtype, "$dir/$doddata->{'metafile'}", sub { addpkg($cache, $_[0], $archfilter) }, 'addselfprovides' => 1, 'normalizedeps' => 1);
+    Build::Repo::parse($mtype, "$dir/$doddata->{'metafile'}", sub { addpkg($cache, $_[0], $archfilter) }, 'addselfprovides' => 1, 'normalizedeps' => 1, 'withchecksum' => 1);
   };
   if ($@) {
     my $error = $@;
