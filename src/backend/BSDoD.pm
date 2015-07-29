@@ -50,35 +50,45 @@ my %compatarch = (
     'x86_64'  => ['x86_64',                                                       'noarch'],
 );
 
+sub cmppkg {
+  my ($op, $p) = @_;
+  # reconstruct evr
+  my $evr = $p->{'epoch'} ? "$p->{'epoch'}:$p->{'version'}" : $p->{'version'};
+  $evr .= "-$p->{'release'}" if defined $p->{'release'};
+  my $oevr = $op->{'epoch'} ? "$op->{'epoch'}:$op->{'version'}" : $op->{'version'};
+  $oevr .= "-$op->{'release'}" if defined $op->{'release'};
+  if ($p->{'path'} =~ /\.deb$/) {
+    return Build::Deb::verscmp($oevr, $evr);
+  } else {
+    return Build::Rpm::verscmp($oevr, $evr);
+  }
+}
+
+sub addpkg {
+  my ($cache, $p, $archfilter) = @_;
+
+  return unless $p->{'location'} && $p->{'name'} && $p->{'arch'};
+  return if $archfilter && !$archfilter->{$p->{'arch'}};
+  $p->{'path'} = delete $p->{'location'};
+  my $key = "$p->{'name'}.$p->{'arch'}";
+  return if $cache->{$key} && cmppkg($cache->{$key}, $p) > 0;	# highest version only
+  $cache->{$key} = $p;
+}
+
 sub parse {
   my ($doddata, $dir, $arch) = @_;
-  my $cache;
   my $mtype = $doddata->{'mtype'} || 'mtype not set';
   $mtype = 'deb' if $mtype eq 'debmd';
   $mtype = 'susetags' if $mtype eq 'susetagsmd';
-  $cache = {};
-  my $handler;
+  my $archfilter;
   if ($mtype eq 'rpmmd' || $mtype eq 'susetags') {
     # do arch filtering for rpmmd/susetags hybrid repos
     $arch ||= 'noarch';
-    my %compat = map { $_ => 1} @{$compatarch{$arch} || [ $arch, 'noarch' ] };
-    $handler = sub {
-      my ($p) = @_;
-      return unless $p->{'location'} && $p->{'name'} && $p->{'arch'};
-      $p->{'path'} = delete $p->{'location'};
-      return unless $compat{$p->{'arch'}};
-      $cache->{"$p->{'name'}.$p->{'arch'}"} = $p;
-    };
-  } else {
-    $handler = sub {
-      my ($p) = @_;
-      return unless $p->{'location'} && $p->{'name'} && $p->{'arch'};
-      $p->{'path'} = delete $p->{'location'};
-      $cache->{"$p->{'name'}.$p->{'arch'}"} = $p;
-    };
+    $archfilter = { map { $_ => 1} @{$compatarch{$arch} || [ $arch, 'noarch' ] } };
   }
+  my $cache = {};
   eval {
-    Build::Repo::parse($mtype, "$dir/$doddata->{'metafile'}", $handler, 'addselfprovides' => 1, 'normalizedeps' => 1);
+    Build::Repo::parse($mtype, "$dir/$doddata->{'metafile'}", sub { addpkg($cache, $_[0], $archfilter) }, 'addselfprovides' => 1, 'normalizedeps' => 1);
   };
   if ($@) {
     my $error = $@;
