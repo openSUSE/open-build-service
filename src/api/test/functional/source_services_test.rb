@@ -94,12 +94,14 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
 
     raw_put '/source/home:tom/service/_service', '<services> <service name="not_existing" /> </services>'
     assert_response :success
+    assert_nil Package.find_by_project_and_name("home:tom", "service").backend_package.error
     post '/source/home:tom/service?cmd=runservice'
     assert_response :success
     wait_for_service( 'home:tom', 'service')
     get '/source/home:tom/service'
     assert_response :success
     assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'failed' }
+    UpdateNotificationEvents.new.perform
     get '/source/home:tom/service?expand=1'
     assert_response 400
     assert_match(/not_existing/, @response.body) # multiple line error shows up
@@ -146,9 +148,13 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     # branch and submit requsts
     post '/source/home:tom/service', :cmd => 'branch'
     assert_response :success
+    assert_nil Package.find_by_project_and_name("home:tom:branches:home:tom", "service").backend_package.error
     put '/source/home:tom:branches:home:tom/service/new_file', 'content'
     assert_response :success
+    assert_nil Package.find_by_project_and_name("home:tom:branches:home:tom", "service").backend_package.error
     wait_for_service( 'home:tom:branches:home:tom', 'service')
+    UpdateNotificationEvents.new.perform
+    assert_nil Package.find_by_project_and_name("home:tom:branches:home:tom", "service").backend_package.error
     get '/source/home:tom:branches:home:tom/service/_service:download_url:file?expand=1'
     assert_response :success
     post '/request?cmd=create', '<request>

@@ -368,24 +368,30 @@ sub addrev_service {
   my $srcmd5 = $files->{'/SERVICE'};
   if ($error) {
     addmeta_serviceerror($projid, $packid, $srcmd5, $error);
-    my $user = $cgi->{'user'};
-    my $comment = $cgi->{'comment'};
-    my $requestid = $cgi->{'requestid'};
-    $user = '' unless defined $user;
-    $user = 'unknown' if $user eq '';
-    $user = str2utf8xml($user);
-    $comment = '' unless defined $comment;
-    $comment = str2utf8xml($comment);
     $error =~ s/[\r\n]+$//s;
     $error =~ s/.*[\r\n]//s;
-    $error ||= 'unknown service error';
-    $error = str2utf8xml($error);
+    $error = str2utf8xml($error) || 'unknown service error';
+  } else {
+    addmeta_service($projid, $packid, $files, $srcmd5, $rev->{'srcmd5'});
+  }
+  my $user = $cgi->{'user'};
+  my $comment = $cgi->{'comment'};
+  my $requestid = $cgi->{'requestid'};
+  $user = '' unless defined $user;
+  $user = 'unknown' if $user eq '';
+  $user = str2utf8xml($user);
+  $comment = '' unless defined $comment;
+  $comment = str2utf8xml($comment);
+  if ($error) {
     notify('SRCSRV_SERVICE_FAIL', {project => $projid, package => $packid,
 				   error => $error, rev => $rev->{'rev'},
 				   user => $user, comment => $comment,
 				   'requestid' => $requestid});
   } else {
-    addmeta_service($projid, $packid, $files, $srcmd5, $rev->{'srcmd5'});
+    notify('SRCSRV_SERVICE_SUCCESS', {project => $projid, package => $packid,
+				      rev => $rev->{'rev'},
+				      user => $user, comment => $comment,
+				      'requestid' => $requestid});
   }
 }
 
