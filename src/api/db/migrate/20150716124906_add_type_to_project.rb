@@ -4,11 +4,15 @@ class AddTypeToProject < ActiveRecord::Migration
     self.table_name = 'projects'
   end
 
+  class TmpDbProjectType < ActiveRecord::Base
+    self.table_name = 'db_project_types'
+  end
+
   def up
     execute "ALTER TABLE projects add column kind enum('standard', 'maintenance', 'maintenance_incident', 'maintenance_release') DEFAULT 'standard'"
 
     TmpProject.all.each do |project|
-      project_type = DbProjectType.find(project.type_id)
+      project_type = TmpDbProjectType.find(project.type_id)
       project.kind = project_type.name
       project.save
     end
