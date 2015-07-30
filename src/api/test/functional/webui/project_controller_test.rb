@@ -39,7 +39,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
   def test_create_project_publish_disabled
     create_subproject
-    fill_in 'name', with: 'coolstuff'
+    fill_in 'project_name', with: 'coolstuff'
     find(:id, 'disable_publishing').click
     find_button('Create Project').click
     find(:link, 'Repositories').click
@@ -48,7 +48,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   end
 
   def test_create_invalid_ns
-    login_tom to: project_new_path(ns: 'home:toM')
+    login_tom to: projects_path(ns: 'home:toM')
     flash_message.must_equal "Invalid namespace name 'home:toM'"
   end
 
@@ -57,7 +57,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
     create_subproject
 
-    fill_in 'name', with: 'hiddenstuff'
+    fill_in 'project_name', with: 'hiddenstuff'
     find(:id, 'access_protection').click
     find_button('Create Project').click
 
@@ -78,7 +78,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     use_js
 
     create_subproject
-    fill_in 'name', with: 'toberemoved'
+    fill_in 'project_name', with: 'toberemoved'
     find_button('Create Project').click
 
     find(:id, 'delete-project').click
@@ -90,6 +90,8 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
   def test_delete_home_project
     use_js
+
+    Project.find_by_name('home:user1').try(:destroy)
 
     login_user('user1', '123456', to: project_show_path(project: 'home:user1'))
 
@@ -117,8 +119,8 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
     # now that it worked out we better make sure to recreate it.
     # The API database is rolled back on test end, but the backend is not
-    visit project_new_path
-    fill_in 'name', with: 'LocalProject'
+    visit projects_path
+    fill_in 'project_name', with: 'LocalProject'
     find_button('Create Project').click
   end
 
@@ -129,7 +131,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     login_adrian to: project_show_path(project: 'home:adrian')
     find(:link, 'Subprojects').click
     find(:link, 'Create subproject').click
-    fill_in 'name', with: 'hasrepotoremove'
+    fill_in 'project_name', with: 'hasrepotoremove'
     find_button('Create Project').click
     find(:link, 'Repositories').click
     find(:link, 'Add repositories').click
@@ -176,7 +178,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.wont_have_link 'Delete Repository'
 
     create_subproject
-    fill_in 'name', with: 'addrepo'
+    fill_in 'project_name', with: 'addrepo'
     find_button('Create Project').click
     find('#tab-repositories a').click
     find(:link, 'Add repositories').click

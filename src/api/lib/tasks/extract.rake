@@ -158,9 +158,6 @@ namespace :db do
           if %w(static_permissions packages).include? table_name
             key = classname.find(record.delete(primary)).fixtures_name
           end
-          if table_name == 'db_project_types'
-            defaultkey = record['name']
-          end
           if table_name == 'backend_packages'
             defaultkey = record['package']
           end

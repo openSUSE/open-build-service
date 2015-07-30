@@ -28,7 +28,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     # Automatically switch to update project
     releaseproject = releaseproject.update_instance
     unless releaseproject.is_maintenance_release?
-      raise NoMaintenanceReleaseTarget.new "Maintenance incident request contains release target project #{releaseproject.name} with invalid project kind \"#{releaseproject.project_type}\" for package #{pkg.name}"
+      raise NoMaintenanceReleaseTarget.new "Maintenance incident request contains release target project #{releaseproject.name} with invalid project kind \"#{releaseproject.kind}\" for package #{pkg.name}"
     end
     return releaseproject
   end

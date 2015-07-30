@@ -73,18 +73,24 @@ class Project < ActiveRecord::Base
 
   has_many :project_log_entries, :dependent => :delete_all
 
+
   default_scope { where('projects.id not in (?)', Relationship.forbidden_project_ids ) }
 
-  validates :name, presence: true, length: { maximum: 200 }
+  validates :name, presence: true, length: { maximum: 200 }, uniqueness: true
   validates :title, length: { maximum: 250 }
-  validates :type_id, presence: true
   validate :valid_name
- 
+  validates :kind, inclusion: { in: %w(standard maintenance maintenance_incident maintenance_release) }
+
+  def init
+    # We often use select in a query which would raise a MissingAttributeError
+    # if the kind attribute hasn't been included in the select clause.
+    # Therefore it's necessary to check self.has_attribute? :kind
+    self.kind ||= 'standard' if self.has_attribute? :kind
+  end
+
   def self.deleted_instance
-    prj = Project.find_by_name('deleted')
-    return unless prj.nil?
-    Project.create(name: 'deleted',
-                   title: 'Place holder for a deleted project instance')
+    Project.create_with(title: 'Place holder for a deleted project instance').
+        find_or_create_by(name: 'deleted')
   end
 
   def cleanup_before_destroy
@@ -325,14 +331,20 @@ class Project < ActiveRecord::Base
 
   end
 
-  def check_write_access!(ignoreLock=nil)
+  def check_write_access!(ignoreLock = nil)
     return if Rails.env.test? and User.current.nil? # for unit tests
 
     # the can_create_check is inconsistent with package class check_write_access! check
-    unless User.current.can_modify_project?(self, ignoreLock) || User.current.can_create_project?(self.name)
+    unless check_write_access(ignoreLock)
       raise WritePermissionError, "No permission to modify project '#{self.name}' for user '#{User.current.login}'"
     end
   end
+
+  def check_write_access(ignoreLock = nil)
+    User.current.can_modify_project?(self, ignoreLock) ||
+        User.current.can_create_project?(self.name)
+  end
+
 
   def find_linking_projects
       sql =<<-END_SQL
@@ -363,22 +375,20 @@ class Project < ActiveRecord::Base
     true
   end
 
-  # set defaults
-  def init
-    return unless new_record?
-    self.type_id ||= DbProjectType.find_by_name('standard').id
-  end
-
   def is_maintenance_release?
-    self.project_type == 'maintenance_release'
+    self.kind == 'maintenance_release'
   end
 
   def is_maintenance_incident?
-    self.project_type == 'maintenance_incident'
+    self.kind == 'maintenance_incident'
   end
 
   def is_maintenance?
-    self.project_type == 'maintenance'
+    self.kind == 'maintenance'
+  end
+
+  def is_standard?
+    self.kind == 'standard'
   end
 
   def is_remote?
@@ -401,7 +411,7 @@ class Project < ActiveRecord::Base
     end
 
     # do not allow to remove maintenance master projects if there are incident projects
-    if self.project_type == 'maintenance'
+    if is_maintenance?
       if MaintenanceIncident.find_by_maintenance_db_project_id self.id
         raise DeleteError.new 'This maintenance project has incident projects and can therefore not be deleted.'
       end
@@ -438,10 +448,7 @@ class Project < ActiveRecord::Base
     self.description = xmlhash.value('description')
     self.remoteurl = xmlhash.value('remoteurl')
     self.remoteproject = xmlhash.value('remoteproject')
-    kind = xmlhash['kind'] || 'standard'
-    project_type = DbProjectType.find_by_name(kind)
-    raise SaveError.new("unable to find project kind '#{kind}'") unless project_type
-    self.type_id = project_type.id
+    self.kind = xmlhash.value('kind') unless xmlhash.value('kind').blank?
 
     # give us an id
     @commit_opts = { no_backend_write: 1 }
@@ -765,7 +772,7 @@ class Project < ActiveRecord::Base
   end
 
   def reset_cache
-    Rails.cache.delete('xml_project_%d' % id)
+    Rails.cache.delete('xml_project_%d' % id) if id
   end
   private :reset_cache # whoever changes the project, needs to store it too
 
@@ -1046,20 +1053,6 @@ class Project < ActiveRecord::Base
     ret
   end
 
-  def project_type
-    @project_type ||= DbProjectType.find(type_id).name
-  end
-
-  def set_project_type(project_type_name)
-    check_write_access!
-
-    mytype = DbProjectType.find_by_name(project_type_name)
-    return false unless mytype
-    self.type_id = mytype.id
-    self.save!
-    return true
-  end
-
   def add_repository_with_targets(repoName, source_repo, add_target_repos = [])
     return if self.repositories.where(name: repoName).exists?
     trepo = self.repositories.create :name => repoName
@@ -1289,6 +1282,7 @@ class Project < ActiveRecord::Base
     return false if name.length > 200 || name.blank?
     return false if name =~ %r{^[_\.]} 
     return false if name =~ %r{::}
+    return false if name.end_with?(':')
     return true if name =~ /\A\w[-+\w\.:]*\z/
     return false
   end
@@ -1468,7 +1462,7 @@ class Project < ActiveRecord::Base
 
   # Returns maintenance incidents by type for current project (if any)
   def maintenance_incidents
-    all = Project.where('projects.name like ?', "#{self.name}:%").distinct.where(type_id: DbProjectType.find_by_name('maintenance_incident'))
+    all = Project.where('projects.name like ?', "#{self.name}:%").distinct.where(kind: 'maintenance_incident')
     all = all.joins(:repositories).joins('JOIN release_targets rt on rt.repository_id=repositories.id')
     all.where('rt.trigger = "maintenance"')
   end

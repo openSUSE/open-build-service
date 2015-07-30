@@ -121,7 +121,7 @@ class AttributeTest < ActiveSupport::TestCase
   end
 
   def test_attrib
-    User.current = users( :Iggy )
+    User.current = users(:king)
 
     #check precondition
     assert_equal "OBS", @attrib_ns.name

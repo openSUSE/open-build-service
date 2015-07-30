@@ -909,7 +909,7 @@ class SourceController < ApplicationController
     end
 
     # check for correct project kind
-    unless prj and prj.project_type == 'maintenance'
+    unless prj and prj.kind == 'maintenance'
       render_error :status => 400, :errorcode => 'incident_has_no_maintenance_project',
                    :message => 'incident projects shall only create below maintenance projects'
       return

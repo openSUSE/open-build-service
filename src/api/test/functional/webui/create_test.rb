@@ -21,7 +21,7 @@ class Webui::CreateProjectTest < Webui::IntegrationTest
 
     page.must_have_text 'This project has no subprojects'
     click_link 'Create subproject'
-    fill_in 'name', :with => 'coolstuff'
+    fill_in 'project_name', :with => 'coolstuff'
     click_button 'Create Project'
     flash_message.must_equal "Project 'home:tom:coolstuff' was created successfully"
 
