@@ -343,7 +343,7 @@ sub addrepo_scan {
   my @bins;
   local *D;
   if (opendir(D, $dir)) {
-    @bins = grep {/\.(?:$binsufsre)$/} readdir(D);
+    @bins = grep {/\.(?:$binsufsre)$/s && !/^\.dod\./s} readdir(D);
     closedir D;
     if (!@bins && -s "$dir.subdirs") {
       for my $subdir (split(' ', readstr("$dir.subdirs"))) {

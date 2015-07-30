@@ -126,7 +126,7 @@ sub addrepo_scan {
   my @bins;
   local *D;
   if (opendir(D, $dir)) {
-    @bins = grep {/\.(?:$binsufsre)$/} readdir(D);
+    @bins = grep {/\.(?:$binsufsre)$/s && !/^\.dod\./s} readdir(D);
     closedir D;
     if (!@bins && -s "$dir.subdirs") {
       for my $subdir (split(' ', readstr("$dir.subdirs"))) {
@@ -183,7 +183,10 @@ sub fetchdodbinary {
   my $path = $pool->pkg2path($p);
   die("$path has an unsupported suffix\n") unless $path =~ /\.($binsufsre)$/;
   my $suf = $1;
-  my $localname = "$reporoot/$reponame/$arch/:full/".$pool->pkg2name($p).".$suf";
+  my $pkgname = $pool->pkg2name($p);
+  BSVerify::verify_filename($pkgname);
+  BSVerify::verify_simple($pkgname);
+  my $localname = "$reporoot/$reponame/$arch/:full/$pkgname.$suf";
   return $localname if -e $localname;
   # we really need to download, handoff to ajax if not already done
   if ($handoff && !$BSStdServer::isajax) {
@@ -193,7 +196,7 @@ sub fetchdodbinary {
   my $url = $repo->dodurl();
   $url .= '/' unless $url =~ /\/$/;
   $url .= $pool->pkg2path($p);
-  my $tmp = "$localname.$$.$suf";
+  my $tmp = "$reporoot/$reponame/$arch/:full/.dod.$$.$pkgname.$suf";
   #print "fetching: $url\n";
   my $param = {'uri' => $url, 'filename' => $tmp, 'receiver' => \&BSHTTP::file_receiver, 'proxy' => $proxy};
   $param->{'maxredirects'} = $maxredirects if defined $maxredirects;
