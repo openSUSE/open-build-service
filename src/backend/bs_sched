@@ -308,6 +308,56 @@ sub addrepo {
   return addrepo_scan($pool, $prp);
 }
 
+sub put_doddata_in_cache {
+  my ($pool, $prp, $cache, $doddata, $dir) = @_;
+  if (!$doddata) {
+    return (0, $cache) if !$cache || !$cache->dodurl();
+    $cache->updatedoddata() if defined &BSSolv::repo::updatedoddata;
+    return(1, $cache);
+  }
+  if ($cache) {
+    my $dodcookie;
+    $dodcookie = $cache->dodcookie() if defined &BSSolv::repo::dodcookie;
+    return (0, $cache) if BSDoD::checkcookie($doddata, $dir, $dodcookie);
+  }
+  my $data = BSDoD::parse($doddata, $dir);
+  if (!ref($data)) {
+    print "    download on demand: $data\n";
+    return undef;
+  }
+  if ($cache) {
+    if (!defined &BSSolv::repo::updatedoddata) {
+      print "    download on demand: cannot update dod data, perl-BSSolv is too old\n";
+      return (0, $cache);
+    }
+    $cache->updatedoddata($data);
+  } else {
+    $cache = $pool->repofromdata($prp, $data);
+  }
+  return (1, $cache);
+}
+
+sub clean_obsolete_dodpackages {
+  my ($cache, $dir, @bins) = @_;
+
+  return @bins unless defined &BSSolv::repo::pkgpaths;
+  my %paths = $cache->pkgpaths();
+  my @nbins;
+  my $nbinsdirty;
+  while (@bins) {
+    my ($path, $id) = splice(@bins, 0, 2);
+    if ($paths{$path}) {
+      push @nbins, $path, $id;
+      next;
+    }
+    $nbinsdirty = 1;
+    print "      - $path [dod cleanup]\n";
+    unlink("$dir/$path");
+  }
+  $cache->updatefrombins($dir, @nbins) if $nbinsdirty;
+  return @nbins;
+}
+
 # add :full repo to pool, make sure repo is up-to-data by
 # scanning the directory
 sub addrepo_scan {
@@ -319,6 +369,7 @@ sub addrepo_scan {
   my $dir = "$reporoot/$prp/$myarch/:full";
   my $cache;
   my $dirty;
+
   if (-s "$dir.solv") {
     eval {$cache = $pool->repofromfile($prp, "$dir.solv");};
     warn($@) if $@;
@@ -327,19 +378,17 @@ sub addrepo_scan {
       $repodata->{'random'} = rand();
       return $cache;
     }
-  } elsif ($BSConfig::enable_download_on_demand) {
+  }
+
+  # update the doddata
+  my $doddata;
+  if ($BSConfig::enable_download_on_demand) {
     my ($projid) = split('/', $prp, 2);
     my @doddata = grep {$_->{'arch'} && $_->{'arch'} eq $myarch} @{$projpacks->{$projid}->{'download'} || []};
-    if (@doddata) {
-      $cache = BSDoD::parse($doddata[0], $dir);
-      if (!ref($cache)) {
-	print "    download on demand: $cache\n";
-	return undef;
-      }
-      $cache = $pool->repofromdata($prp, $cache);
-      $dirty = 1;
-    }
+    $doddata = $doddata[0];
+    ($dirty, $cache) = put_doddata_in_cache($pool, $prp, $cache, $doddata, $dir);
   }
+
   my @bins;
   local *D;
   if (opendir(D, $dir)) {
@@ -372,6 +421,9 @@ sub addrepo_scan {
   } else {
     $cache = $pool->repofrombins($prp, $dir, @bins);
     $dirty = 1;
+  }
+  if ($doddata && $dirty && $cache && !$repodata->{'dontwrite'}) {
+    @bins = clean_obsolete_dodpackages($cache, $dir, @bins);
   }
   if ($dirty) {
     return $cache if $repodata->{'dontwrite'};	# don't write and don't update lastscan
