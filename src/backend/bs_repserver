@@ -118,8 +118,6 @@ sub addrepo_scan {
   if (-s "$dir.solv") {
     eval {$cache = $pool->repofromfile($prp, "$dir.solv");};
     warn($@) if $@;
-    return $cache if $cache && $cache->isexternal();
-    ### speed up test...
     return $cache if $cache;
     print "local repo $prp\n";
   }
@@ -168,6 +166,8 @@ sub addrepo_remote {
       delete $_->{'path'};
       delete $_->{'id'};
     }
+    delete $cache->{'/external/'};
+    delete $cache->{'/url'};
     return $pool->repofromdata($prp, $cache);
   } else {
     # return empty repo
@@ -2953,6 +2953,8 @@ sub getbuildinfo {
     # have local deps, add them to pool
     my $data = {};
     Build::readdeps({ %$bconf }, $data, $pdata->{'ldepfile'});
+    delete $data->{'/url'};
+    delete $data->{'/external/'};
     my $r = $pool->repofromdata('', $data);
     die("ldepfile repo add failed\n") unless $r;
   }

@@ -4081,6 +4081,8 @@ sub addrepo_remote_unpackcpio {
       delete $_->{'path'};
       delete $_->{'id'};
     }
+    delete $cache->{'/url'};
+    delete $cache->{'/external/'};
     $r = $pool->repofromdata($prp, $cache);
   } else {
     # return empty repo
