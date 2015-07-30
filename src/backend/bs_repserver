@@ -205,20 +205,19 @@ sub fetchdodbinary {
   my $checksum;
   $checksum = $pool->pkg2checksum($p) if defined &BSSolv::pool::pkg2checksum;
   eval {
-    if ($checksum) {
-      die("checksum error for $tmp, expected $checksum\n") unless $pool->verifypkgchecksum($p, $tmp);
-    } else {
-      # no checksum, lets at least see if the evra matches what we want
-      my $q = Build::query($tmp, 'evra' => 1);
-      my $data = $pool->pkg2data($p);
-      $data->{'release'} = '__undef__' unless defined $data->{'release'};
-      $q->{'release'} = '__undef__' unless defined $q->{'release'};
-      die("downloaded not the package we want\n") if $data->{'name'} ne $q->{'name'} ||
-		($data->{'arch'} || '') ne ($q->{'arch'} || '') ||
-		($data->{'epoch'} || 0) != ($q->{'epoch'} || 0) ||
-		$data->{'version'} ne $q->{'version'} ||
-		$data->{'release'} ne $q->{'release'};
-    }
+    # verify the checksum if we know it
+    die("checksum error for $tmp, expected $checksum\n") if $checksum && !$pool->verifypkgchecksum($p, $tmp);
+    # also make sure that the evra matches what we want
+    my $q = Build::query($tmp, 'evra' => 1);
+    my $data = $pool->pkg2data($p);
+    $data->{'release'} = '__undef__' unless defined $data->{'release'};
+    $q->{'release'} = '__undef__' unless defined $q->{'release'};
+    die("downloaded package is not the one we want\n") if $data->{'name'} ne $q->{'name'} ||
+	      ($data->{'arch'} || '') ne ($q->{'arch'} || '') ||
+	      ($data->{'epoch'} || 0) != ($q->{'epoch'} || 0) ||
+	      $data->{'version'} ne $q->{'version'} ||
+	      $data->{'release'} ne $q->{'release'};
+    BSVerify::verify_nevraquery($q);	# just in case...
   };
   if ($@) {
     unlink($tmp);
