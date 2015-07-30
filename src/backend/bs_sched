@@ -5334,6 +5334,10 @@ sub checkkiwiproduct {
 	} else {
 	  $bininfo = read_bininfo_oldok("$reporoot/$aprp/$arch/$apackid");
 	}
+
+	# skip channels/patchinfos
+	next if $bininfo->{'.nouseforbuild'};
+
 	my @got;
 	my $needit;
 	my @bi = sort(keys %$bininfo);
