@@ -377,7 +377,7 @@ END
     )
     prj = Project.new(name: "Enterprise-SP0:Update")
     prj.update_from_xml( Xmlhash.parse(
-      "<project name='Enterprise-SP0:Update'>
+      "<project name='Enterprise-SP0:Update' kind='maintenance_release'>
         <title/>
         <description/>
         <repository name='sp0_update' >
@@ -399,12 +399,23 @@ END
     )
     prj = Project.new(name: "Enterprise-SP1:Update")
     prj.update_from_xml( Xmlhash.parse(
-      "<project name='Enterprise-SP1:Update'>
+      "<project name='Enterprise-SP1:Update' kind='maintenance_release'>
         <title/>
         <description/>
         <repository name='sp1_update' >
           <path project='Enterprise-SP1:GA' repository='sp1_ga' />
           <path project='Enterprise-SP0:Update' repository='sp0_update' />
+        </repository>
+      </project>"
+      )
+    )
+    prj = Project.new(name: "Enterprise-SP1:Channel:Server")
+    prj.update_from_xml( Xmlhash.parse(
+      "<project name='Enterprise-SP1:Channel:Server'>
+        <title/>
+        <description/>
+        <repository name='channel' >
+          <path project='Enterprise-SP1:Update' repository='sp1_update' />
         </repository>
       </project>"
       )
@@ -415,6 +426,9 @@ END
       "<project name='My:Branch'>
         <title/>
         <description/>
+        <repository name='Channel_Server' >
+          <path project='Enterprise-SP1:Channel:Server' repository='channel' />
+        </repository>
         <repository name='my_branch_sp0_update' >
           <path project='Enterprise-SP0:Update' repository='sp0_update' />
         </repository>
@@ -439,9 +453,12 @@ END
     xml = prj.to_axml
     assert_xml_tag xml, :tag => :repository, :attributes => {name: "my_branch_sp1_update"},
                         :children => { count: 2, :only => { :tag => :path } }
-    assert_xml_tag xml, :tag => :repository, :attributes => {name: "my_branch_sp0_update"},
-                        :children => { count: 1, :only => { :tag => :path } } # untouched
     assert_xml_tag xml, :tag => :path, :attributes => { project: "My:Branch", repository: "my_branch_sp0_update" }
+    # untouched
+    assert_xml_tag xml, :tag => :repository, :attributes => {name: "my_branch_sp0_update"},
+                        :children => { count: 1, :only => { :tag => :path } }
+    assert_xml_tag xml, :parent => { :tag => :repository, :attributes => {name: "Channel_Server"} },
+                        :tag => :path, :attributes => {project: "Enterprise-SP1:Channel:Server", repository: "channel"}
 
     # must not change again anything
     prj.sync_repository_pathes

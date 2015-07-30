@@ -1117,6 +1117,10 @@ class Project < ActiveRecord::Base
       repo.path_elements.each do |path|
         # go to all my path elements
         path.link.path_elements.each do |ipe|
+          # avoid mixing update code streams with channels
+          # FIXME: should be done via repository types instead, but we need to move
+          #        them from build config to project meta first
+          next unless path.link.project.kind == ipe.link.project.kind
           # is this path pointing to some repository which is used in another
           # of my repositories?
           self.repositories.joins(:path_elements).where("path_elements.repository_id = ?", ipe.link).each do |my_repo|
