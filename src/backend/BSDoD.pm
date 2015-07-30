@@ -75,6 +75,13 @@ sub addpkg {
   $cache->{$key} = $p;
 }
 
+sub gencookie {
+  my ($doddata, $dir) = @_;
+  my @s = stat("$dir/$doddata->{'metafile'}");
+  return undef unless @s;
+  return "1/$s[9]/$s[7]/$s[1]";
+}
+
 sub parse {
   my ($doddata, $dir, $arch) = @_;
   my $mtype = $doddata->{'mtype'} || 'mtype not set';
@@ -87,6 +94,8 @@ sub parse {
     $archfilter = { map { $_ => 1} @{$compatarch{$arch} || [ $arch, 'noarch' ] } };
   }
   my $cache = {};
+  my $cookie = gencookie($doddata, $dir);
+  return "$doddata->{'metafile'}: $!" unless $cookie;
   eval {
     Build::Repo::parse($mtype, "$dir/$doddata->{'metafile'}", sub { addpkg($cache, $_[0], $archfilter) }, 'addselfprovides' => 1, 'normalizedeps' => 1, 'withchecksum' => 1);
   };
@@ -100,7 +109,16 @@ sub parse {
     $_->{'hdrmd5'} = 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0';
   }    
   $cache->{'/url'} = $doddata->{'baseurl'};
+  $cache->{'/dodcookie'} = $cookie;
   return $cache;
+}
+
+sub checkcookie {
+  my ($doddata, $dir, $dodcookie) = @_;
+  return 0 unless $dodcookie;
+  my $cookie = gencookie($doddata, $dir);
+  return 0 unless $cookie;
+  return $dodcookie eq $cookie ? 1 : 0;
 }
 
 1;
