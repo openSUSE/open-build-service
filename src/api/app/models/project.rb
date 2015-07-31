@@ -196,139 +196,135 @@ class Project < ActiveRecord::Base
     end
   end
 
-  class << self
+  def self.is_remote_project?(name, skip_access=false)
+    lpro = find_remote_project(name, skip_access)
 
-    def is_remote_project?(name, skip_access=false)
-      lpro = find_remote_project(name, skip_access)
-      
-      lpro && lpro[0].is_remote?
-    end
+    lpro && lpro[0].is_remote?
+  end
 
-    def check_access?(dbp=self)
-      return false if dbp.nil?
-      # check for 'access' flag
+  def self.check_access?(dbp=self)
+    return false if dbp.nil?
+    # check for 'access' flag
 
-      return true unless Relationship.forbidden_project_ids.include? dbp.id
+    return true unless Relationship.forbidden_project_ids.include? dbp.id
 
-      # simple check for involvement --> involved users can access
-      # dbp.id, User.current
-      grouprels = dbp.relationships.groups.to_a
+    # simple check for involvement --> involved users can access
+    # dbp.id, User.current
+    grouprels = dbp.relationships.groups.to_a
 
-      if grouprels
-        ret = 0
-        grouprels.each do |grouprel|
-          # check if User.current belongs to group
-          if grouprel and grouprel.group_id
-            # LOCAL
-            # if user is in group -> return true
-            ret = ret + 1 if User.current.is_in_group?(grouprel.group_id)
-            # LDAP
-            # FIXME: please do not do special things here for ldap. please cover this in a generic group model.
-            if CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on
-              if UserLdapStrategy.user_in_group_ldap?(User.current, group.group_id)
-                ret = ret + 1
-              end
+    if grouprels
+      ret = 0
+      grouprels.each do |grouprel|
+        # check if User.current belongs to group
+        if grouprel and grouprel.group_id
+          # LOCAL
+          # if user is in group -> return true
+          ret = ret + 1 if User.current.is_in_group?(grouprel.group_id)
+          # LDAP
+          # FIXME: please do not do special things here for ldap. please cover this in a generic group model.
+          if CONFIG['ldap_mode'] == :on && CONFIG['ldap_group_support'] == :on
+            if UserLdapStrategy.user_in_group_ldap?(User.current, group.group_id)
+              ret = ret + 1
             end
-            #
           end
+          #
         end
-        # relationship to package -> access
-        return true if ret > 0
       end
-
-      return false
+      # relationship to package -> access
+      return true if ret > 0
     end
 
-    # returns an object of project(local or remote) or raises an exception
-    # should be always used when a project is required
-    # The return value is either a Project for local project or an xml 
-    # array for a remote project
-    def get_by_name(name, opts = {})
-      arel = where(name: name)
-      if opts[:select]
-         arel = arel.select(opts[:select])
-         opts.delete :select
-      end
-      dbp = arel.first
-      if dbp.nil?
-        dbp, remote_name = find_remote_project(name)
-        return dbp.name + ':' + remote_name if dbp
-        raise UnknownObjectError, name
-      end
-      if opts[:includeallpackages]
-         Package.joins(:flags).where(project_id: dbp.id).where("flags.flag='sourceaccess'").each do |pkg|
-           raise ReadAccessError, name unless Package.check_access? pkg
-         end
-         opts.delete :includeallpackages
-      end
-      raise "unsupport options #{opts.inspect}" if opts.size > 0
-      unless check_access?(dbp)
-        raise ReadAccessError, name
-      end
-      return dbp
-    end
+    return false
+  end
 
-    def get_maintenance_project(at=nil)
-      # hardcoded default. frontends can lookup themselfs a different target via attribute search
-      at ||= AttribType.find_by_namespace_and_name!('OBS','MaintenanceProject')
-      maintenanceProject = Project.find_by_attribute_type(at).first
-      unless maintenanceProject and check_access?(maintenanceProject)
-        raise UnknownProject.new 'There is no project flagged as maintenance project on server and no target in request defined.'
-      end
-      maintenanceProject
+  # returns an object of project(local or remote) or raises an exception
+  # should be always used when a project is required
+  # The return value is either a Project for local project or an xml
+  # array for a remote project
+  def self.get_by_name(name, opts = {})
+    arel = where(name: name)
+    if opts[:select]
+       arel = arel.select(opts[:select])
+       opts.delete :select
     end
+    dbp = arel.first
+    if dbp.nil?
+      dbp, remote_name = find_remote_project(name)
+      return dbp.name + ':' + remote_name if dbp
+      raise UnknownObjectError, name
+    end
+    if opts[:includeallpackages]
+       Package.joins(:flags).where(project_id: dbp.id).where("flags.flag='sourceaccess'").each do |pkg|
+         raise ReadAccessError, name unless Package.check_access? pkg
+       end
+       opts.delete :includeallpackages
+    end
+    raise "unsupport options #{opts.inspect}" if opts.size > 0
+    unless check_access?(dbp)
+      raise ReadAccessError, name
+    end
+    return dbp
+  end
 
-    # check existence of a project (local or remote)
-    def exists_by_name(name)
-      local_project = where(name: name).first
-      if local_project.nil?
-        !!find_remote_project(name)
+  def self.get_maintenance_project(at=nil)
+    # hardcoded default. frontends can lookup themselfs a different target via attribute search
+    at ||= AttribType.find_by_namespace_and_name!('OBS','MaintenanceProject')
+    maintenanceProject = Project.find_by_attribute_type(at).first
+    unless maintenanceProject and check_access?(maintenanceProject)
+      raise UnknownProject.new 'There is no project flagged as maintenance project on server and no target in request defined.'
+    end
+    maintenanceProject
+  end
+
+  # check existence of a project (local or remote)
+  def self.exists_by_name(name)
+    local_project = where(name: name).first
+    if local_project.nil?
+      !!find_remote_project(name)
+    else
+      check_access?(local_project)
+    end
+  end
+
+  # FIXME: to be obsoleted, this function is not throwing exceptions on problems
+  # use get_by_name or exists_by_name instead
+  def self.find_by_name(name, opts = {})
+    arel = where(name: name)
+    if opts[:select]
+      arel = arel.select(opts[:select])
+      opts.delete :select
+    end
+    raise "unsupport options #{opts.inspect}" if opts.size > 0
+    dbp = arel.first
+    return if dbp.nil?
+    return unless check_access?(dbp)
+    return dbp
+  end
+
+  def self.find_by_attribute_type( attrib_type )
+    Project.joins(:attribs).where(:attribs => { :attrib_type_id => attrib_type.id })
+  end
+
+  def self.find_remote_project(name, skip_access=false)
+    return nil unless name
+    fragments = name.split(/:/)
+    local_project = String.new
+    remote_project = nil
+
+    while !fragments.nil? && fragments.length > 1
+      remote_project = [fragments.pop, remote_project].compact.join ':'
+      local_project = fragments.join ':'
+      logger.debug "checking local project #{local_project}, remote_project #{remote_project}"
+      if skip_access
+        # hmm calling a private class method is not the best idea..
+        lpro = nil # FIXME2.4
       else
-        check_access?(local_project) 
+        lpro = Project.find_by_name(local_project, select: 'id,name,remoteurl')
+        logger.debug "Found local project #{local_project} with remoteurl #{lpro[:remoteurl]}" if lpro
       end
+      return lpro, remote_project unless lpro.nil? or !lpro.is_remote?
     end
-
-    # FIXME: to be obsoleted, this function is not throwing exceptions on problems
-    # use get_by_name or exists_by_name instead
-    def find_by_name(name, opts = {})
-      arel = where(name: name)
-      if opts[:select]
-        arel = arel.select(opts[:select])
-        opts.delete :select
-      end
-      raise "unsupport options #{opts.inspect}" if opts.size > 0
-      dbp = arel.first
-      return if dbp.nil?
-      return unless check_access?(dbp)
-      return dbp
-    end
-
-    def find_by_attribute_type( attrib_type )
-      Project.joins(:attribs).where(:attribs => { :attrib_type_id => attrib_type.id })
-    end
-
-    def find_remote_project(name, skip_access=false)
-      return nil unless name
-      fragments = name.split(/:/)
-      local_project = String.new
-      remote_project = nil
-
-      while !fragments.nil? && fragments.length > 1
-        remote_project = [fragments.pop, remote_project].compact.join ':'
-        local_project = fragments.join ':'
-        logger.debug "checking local project #{local_project}, remote_project #{remote_project}"
-        if skip_access
-          # hmm calling a private class method is not the best idea..
-          lpro = nil # FIXME2.4
-        else
-          lpro = Project.find_by_name(local_project, select: 'id,name,remoteurl')
-          logger.debug "Found local project #{local_project} with remoteurl #{lpro[:remoteurl]}" if lpro
-        end
-        return lpro, remote_project unless lpro.nil? or !lpro.is_remote?
-      end
-      return nil
-    end
-
+    return nil
   end
 
   def check_write_access!(ignoreLock = nil)
@@ -359,10 +355,7 @@ class Project < ActiveRecord::Base
   end
 
   def is_locked?
-    if @is_locked.nil?
-      @is_locked = flags.where(flag: 'lock', status: 'enable').exists?
-    end
-    @is_locked
+    @is_locked ||= flags.where(flag: 'lock', status: 'enable').exists?
   end
 
   def is_unreleased?
@@ -522,15 +515,14 @@ class Project < ActiveRecord::Base
     position = 1
     repo.elements('path') do |path|
       link_repo = Repository.find_by_project_and_repo_name(path['project'], path['repository'])
-      if path['project'] == self.name
-        if path['repository'] == repo['name']
-          raise SaveError, 'Using same repository as path element is not allowed'
-        end
+      if path['project'] == self.name &&
+          path['repository'] == repo['name']
+        raise SaveError, 'Using same repository as path element is not allowed'
       end
-      if !link_repo
+      unless link_repo
         raise SaveError, "unable to walk on path '#{path['project']}/#{path['repository']}'"
       end
-      current_repo.path_elements.new :link => link_repo, :position => position
+      current_repo.path_elements.new(link: link_repo, position: position)
       position += 1
     end
 
@@ -538,44 +530,14 @@ class Project < ActiveRecord::Base
   end
 
   def update_one_repository_without_path(repo)
-
     current_repo = @repocache[repo['name']]
-    if current_repo
-      logger.debug "modifying repository '#{repo['name']}'"
-    else
+    unless current_repo
       logger.debug "adding repository '#{repo['name']}'"
       current_repo = self.repositories.new(:name => repo['name'])
     end
+    logger.debug "modifying repository '#{repo['name']}'"
 
-    #--- repository flags ---#
-    # check for rebuild configuration
-    if !repo.has_key? 'rebuild' and current_repo.rebuild
-      current_repo.rebuild = nil
-    end
-    if repo.has_key? 'rebuild'
-      if repo['rebuild'] != current_repo.rebuild
-        current_repo.rebuild = repo['rebuild']
-      end
-    end
-    # check for block configuration
-    if not repo.has_key? 'block' and current_repo.block
-      current_repo.block = nil
-    end
-    if repo.has_key? 'block'
-      if repo['block'] != current_repo.block
-        current_repo.block = repo['block']
-      end
-    end
-    # check for linkedbuild configuration
-    if not repo.has_key? 'linkedbuild' and current_repo.linkedbuild
-      current_repo.linkedbuild = nil
-    end
-    if repo.has_key? 'linkedbuild'
-      if repo['linkedbuild'] != current_repo.linkedbuild
-        current_repo.linkedbuild = repo['linkedbuild']
-      end
-    end
-    #--- end of repository flags ---#
+    update_repository_flags(current_repo, repo)
 
     #destroy all current releasetargets
     current_repo.release_targets.destroy_all
@@ -632,6 +594,26 @@ class Project < ActiveRecord::Base
     @repocache.delete repo['name']
   end
 
+  def update_repository_flags(current_repo, repo)
+    if repo.has_key?('rebuild')
+      current_repo.rebuild = repo['rebuild']
+    else
+      current_repo.rebuild = nil
+    end
+
+    if repo.has_key?('block')
+      current_repo.block = repo['block']
+    else
+      current_repo.block = nil
+    end
+
+    if repo.has_key?('linkedbuild')
+      current_repo.linkedbuild = repo['linkedbuild']
+    else
+      current_repo.linkedbuild = nil
+    end
+  end
+
   def update_download_settings(xmlhash)
     dlcache = Hash.new
     self.downloads.each do |dl|
@@ -678,17 +660,12 @@ class Project < ActiveRecord::Base
     # cycle detection
     prj = self
     processed = {}
-    while (prj and prj.develproject)
-      prj_name = prj.name
-      # cycle detection
-      if processed[prj_name]
-        str = ''
-        processed.keys.each do |key|
-          str = str + ' -- ' + key
-        end
-        raise CycleError.new "There is a cycle in devel definition at #{str}"
+
+    while(prj && prj.develproject)
+      if processed[prj.name]
+        raise CycleError.new "There is a cycle in devel definition at #{processed.keys.join(' -- ')}"
       end
-      processed[prj_name] = 1
+      processed[prj.name] = 1
       prj = prj.develproject
       prj = self if prj && prj.id == self.id
     end
@@ -785,17 +762,12 @@ class Project < ActiveRecord::Base
   def self.find_parent_for(project_name)
     name_parts = project_name.split(/:/)
 
-    #project is not inside a namespace
-    return nil if name_parts.length <= 1
-
     while name_parts.length > 1
       name_parts.pop
-      if (p = Project.find_by_name name_parts.join(':'))
-        #parent project found
-        return p
-      end
+      project = Project.find_by_name(name_parts.join(':'))
+      break if project
     end
-    return nil
+    project
   end
 
   # convenience method for self.find_parent_for
