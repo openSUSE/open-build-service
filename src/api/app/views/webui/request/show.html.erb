@@ -224,7 +224,7 @@
       <div class="review_descision_display" style="<%= 'display: none;' if @can_add_reviews && @my_open_reviews.length > 0 %>" id="review_descision_display_-1">
         <% if @can_handle_request %>
             <%= form_tag({ :action => 'changerequest' }, { id: 'request_handle_form' }) do %>
-                <p><%= text_area_tag(:reason, 'Please add a comment', :size => '80x2', :style => 'width: 99%') %></p>
+                <p><%= text_area_tag(:reason, nil, :placeholder => 'Please add a comment', :size => '80x2', :style => 'width: 99%') %></p>
 
                 <p>
                   <%= hidden_field_tag(:id, @id) %>
