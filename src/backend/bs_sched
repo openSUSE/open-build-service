@@ -5672,7 +5672,7 @@ sub checkpatchinfo {
       if (!-e "$markerdir/.waiting_for_$myarch") {
 	sendunblockedevent("$projid/$repoid", $buildarch);
 	print "      - $packid (patchinfo)\n";
-	print "        unblocked\n";
+	print "        blocked\n";
       }
     }
     return ('excluded', "is built in architecture '$buildarch'");
