@@ -5667,6 +5667,14 @@ sub checkpatchinfo {
 	print "        unblocked\n";
       }
     }
+    if ($blocked && !$broken) {
+      # hmm, we should be blocked. trigger build arch check
+      if (!-e "$markerdir/.waiting_for_$myarch") {
+	sendunblockedevent("$projid/$repoid", $buildarch);
+	print "      - $packid (patchinfo)\n";
+	print "        unblocked\n";
+      }
+    }
     return ('excluded', "is built in architecture '$buildarch'");
   }
 
