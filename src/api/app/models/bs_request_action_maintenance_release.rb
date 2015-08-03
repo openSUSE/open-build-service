@@ -130,7 +130,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
         ai['oproject'] = opkg.project.name
         ai['opackage'] = opkg.name
         ai['osrcmd5'] = opkg.backend_package.srcmd5
-        ai['oxsrcmd5'] = opkg.backend_package.verifymd5 if opkg.backend_package.srcmd5 != opkg.backend_package.verifymd5
+        ai['oxsrcmd5'] = opkg.backend_package.expandedmd5 if opkg.backend_package.expandedmd5
       end
     end
     self.bs_request_action_accept_info = BsRequestActionAcceptInfo.create(ai)
