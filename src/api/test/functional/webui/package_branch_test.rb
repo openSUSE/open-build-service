@@ -60,7 +60,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :original_name => 'TestPack',
       :original_project => 'home:Iggy')
   end
-    
+
   def test_branch_package_double_and_submit_back
     use_js
 
@@ -97,7 +97,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
     # cleanup
     delete_package("home:Iggy","TestPack_link")
   end
-    
+
   def test_branch_package_for_global_project
 
     login_Iggy to: project_show_path(:project => @project)
@@ -107,8 +107,8 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :original_name => 'kdelibs',
       :original_project => 'kde4')
   end
-    
-  
+
+
   def test_branch_package_twice_duplicate_name
 
     login_Iggy to: project_show_path(:project => @project)
@@ -119,8 +119,8 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :original_name => 'TestPack',
       :original_project => 'home:Iggy')
   end
-  
-    
+
+
   def test_branch_package_twice
 
     login_Iggy to: project_show_path(:project => @project)
@@ -147,7 +147,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :original_project => 'home:Iggy',
       :expect => :invalid_package_name)
   end
-  
+
   def test_branch_empty_project_name
 
     login_Iggy to: project_show_path(:project => @project)
@@ -172,7 +172,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
 
 
   def test_branch_project_name_with_spaces
-  
+
     login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
@@ -181,14 +181,14 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :original_project => 'invalid project name',
       :expect => :invalid_project_name)
   end
-  
+
   def test_autocomplete_packages
     use_js
-  
+
     login_Iggy to: project_show_path(:project => @project)
     click_link 'Branch existing package'
-    
-    results = fill_autocomplete 'linked_project', with: 'home:', select: 'home:dmayr'
+
+    results = fill_autocomplete 'linked_project', with: 'home:d', select: 'home:dmayr'
     results.must_include 'home:dmayr'
     results.wont_include 'Apache'
     results = fill_autocomplete 'linked_package', with: 'x11', select: 'x11vnc'

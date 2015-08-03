@@ -558,10 +558,10 @@ class User < ActiveRecord::Base
     return true if /^home:#{self.login}:/.match( project_name ) and ::Configuration.allow_user_to_create_home_project
 
     return true if has_global_permission? 'create_project'
-    p = Project.find_parent_for(project_name)
-    return false if p.nil?
+    parent_project = Project.new(name: project_name).parent
+    return false if parent_project.nil?
     return true  if is_admin?
-    return has_local_permission?( 'create_project', p)
+    return has_local_permission?( 'create_project', parent_project)
   end
 
   def can_modify_attribute_definition?(object)
@@ -699,7 +699,7 @@ class User < ActiveRecord::Base
     when Project
       logger.debug "running local permission check: user #{self.login}, project #{object.name}, permission '#{perm_string}'"
       #check permission for given project
-      parent = object.find_parent
+      parent = object.parent
     when nil
       return has_global_permission?(perm_string)
     else

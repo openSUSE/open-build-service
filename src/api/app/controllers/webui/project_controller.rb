@@ -10,11 +10,13 @@ class Webui::ProjectController < Webui::WebuiController
 
   helper 'webui/comment'
 
-  before_filter :set_project, only: [:autocomplete_packages, :autocomplete_repositories]
+  before_filter :set_project, only: [:autocomplete_packages, :autocomplete_repositories,
+                                    :subprojects]
   # This is the deprecated way of loading WebuiProject
   # FIXME: Get rid of "except" clauses, use "only" instead
   before_filter :require_project, except: [:autocomplete_projects, :autocomplete_incidents,
                                           :autocomplete_packages, :autocomplete_repositories,
+                                          :subprojects,
                                           :clear_failed_comment, :edit_comment_form, :index,
                                           :list, :list_all, :list_simple,
                                           :list_public, :new, :package_buildresult,
@@ -115,23 +117,8 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def subprojects
-    @subprojects = Array.new
-
-    projects=Project.arel_table
-    Project.where(projects[:name].matches("#{@project.name}:%")).each do |sub|
-      @subprojects << sub
-    end
-    @subprojects.sort! { |x,y| x.name <=> y.name } # Sort by hash key for better display
-    @parentprojects = Hash.new
-    parent_names = @project.name.split ':'
-    parent_names.each_with_index do |parent, idx|
-      parent_name = parent_names.slice(0, idx+1).join(':')
-      unless [@project.name, 'home'].include?( parent_name )
-        parent_project = WebuiProject.find( parent_name )
-        @parentprojects[parent_name] = parent_project unless parent_project.blank?
-      end
-    end
-    @parentprojects = @parentprojects.sort # Sort by hash key for better display
+    @subprojects = @project.subprojects.order(:name)
+    @parentprojects = @project.ancestors.order(:name)
   end
 
   def new

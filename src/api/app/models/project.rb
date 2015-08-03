@@ -134,6 +134,10 @@ class Project < ActiveRecord::Base
     end
   end
 
+  def subprojects
+    Project.where("name like '#{name}:%'")
+  end
+
   def revoke_requests
     # Find open requests with 'pro' as source or target and decline/revoke them.
     # Revoke if source or decline if target went away, pick the first action that matches to decide...
@@ -778,21 +782,30 @@ class Project < ActiveRecord::Base
     "/source/#{CGI.escape(self.name)}/_project/_attribute"
   end
 
-  # step down through namespaces until a project is found, returns found project or nil
-  def self.find_parent_for(project_name)
-    name_parts = project_name.split(/:/)
-
-    while name_parts.length > 1
-      name_parts.pop
-      project = Project.find_by_name(name_parts.join(':'))
-      break if project
+  # Give me the first ancestor of that project
+  def parent
+    project = nil
+    possible_ancestor_names.find do |name|
+      project = Project.find_by(name: name)
     end
     project
   end
 
-  # convenience method for self.find_parent_for
-  def find_parent
-    self.class.find_parent_for self.name
+  # Give me all the projects that are ancestors of that project
+  def ancestors
+    Project.where(name: possible_ancestor_names)
+  end
+
+  # Calculate all possible ancestors names for a project
+  # Ex: home:foo:bar:purr => ["home:foo:bar", "home:foo", "home"]
+  def possible_ancestor_names
+    names = name.split(/:/)
+    possible_projects = []
+    while names.length > 1
+      names.pop
+      possible_projects << names.join(':')
+    end
+    possible_projects
   end
 
   def to_axml(opts={})
