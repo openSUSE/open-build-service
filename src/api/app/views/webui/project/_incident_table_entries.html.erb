@@ -37,7 +37,7 @@
                 <% end %>
               </td>
               <td rowspan="<%= release_targets_ng.length %>" class="nowrap">
-                <% rqs_in = BsRequestCollection.list_ids(roles: %w(target), states: %w(new review), project: incident.name) %>
+                <% rqs_in = BsRequest.list_ids(roles: %w(target), states: %w(new review), project: incident.name) %>
                 <% if rqs_in && rqs_in.length > 0 %>
                     <% text = "#{rqs_in.length} open request#{rqs_in.length == 1 ? '' : 's'}" %>
                     <% if rqs_in.length == 1 %>
@@ -48,7 +48,7 @@
                                     project: incident.name) %>
                     <% end %>
                 <% end %>
-                <% rqs_out = BsRequestCollection.list_ids(roles: %w(source), states: %w(new review declined),
+                <% rqs_out = BsRequest.list_ids(roles: %w(source), states: %w(new review declined),
                                                           types: %w(maintenance_release), project: incident.name) %>
                 <% if rqs_out.present? %>
                     <% BsRequest.where(id: rqs_out).order('bs_requests.id').each do |rq_out| %>

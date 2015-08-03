@@ -34,13 +34,10 @@ class RequestController < ApplicationController
     states = params[:states].split(',') if params[:states]
     review_states = params[:reviewstates].split(',') if params[:reviewstates]
     ids = params[:ids].split(',').map { |i| i.to_i } if params[:ids]
-
     params.merge!({states: states, types: types, review_states: review_states, roles: roles, ids: ids})
-
-    rel = BsRequestCollection.new(params).relation
-    rel = rel.includes([:reviews])
-    rel = rel.includes({bs_request_actions: :bs_request_action_accept_info})
-    rel = rel.order('bs_requests.id').references(:bs_requests)
+    rel = BsRequest.collection(params).includes([:reviews]).
+          includes({bs_request_actions: :bs_request_action_accept_info}).
+          order('bs_requests.id').references(:bs_requests)
 
     xml = ActiveXML::Node.new '<collection/>'
     matches=0

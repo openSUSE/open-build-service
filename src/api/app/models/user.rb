@@ -771,7 +771,7 @@ class User < ActiveRecord::Base
 
   # lists reviews involving this user
   def involved_reviews
-    open_reviews = BsRequestCollection.new(user: self.login, roles: %w(reviewer creator), reviewstates: %w(new), states: %w(review)).relation
+    open_reviews = BsRequest.collection(user: self.login, roles: %w(reviewer creator), reviewstates: %w(new), states: %w(review))
     reviews_in = []
     open_reviews.each do |review|
       reviews_in << review if review['creator'] != login
@@ -781,17 +781,17 @@ class User < ActiveRecord::Base
 
   # list requests involving this user
   def declined_requests
-    BsRequestCollection.new(user: self.login, states: %w(declined), roles: %w(creator)).relation
+    BsRequest.collection(user: self.login, states: %w(declined), roles: %w(creator))
   end
 
   # list incoming requests involving this user
   def incoming_requests
-    BsRequestCollection.new(user: self.login, states: %w(new), roles: %w(maintainer)).relation
+    BsRequest.collection(user: self.login, states: %w(new), roles: %w(maintainer))
   end
 
   # list outgoing requests involving this user
   def outgouing_requests
-    BsRequestCollection.new(user: login, states: %w(new review), roles: %w(creator)).relation
+    BsRequest.collection(user: login, states: %w(new review), roles: %w(creator))
   end
 
   # finds if the user have any request
@@ -801,7 +801,7 @@ class User < ActiveRecord::Base
 
   # list of all requests
   def requests(search = nil)
-    BsRequestCollection.new(user: login, states: VALID_REQUEST_STATES, roles: %w(creator maintainer reviewer), search: search).relation
+    BsRequest.collection(user: login, states: VALID_REQUEST_STATES, roles: %w(creator maintainer reviewer), search: search)
   end
 
   # lists running maintenance updates where this user is involved in
@@ -861,18 +861,11 @@ class User < ActiveRecord::Base
   end
 
   def nr_of_requests_that_need_work
-    Rails.cache.fetch("requests_for_#{login}", expires_in: 2.minutes) do
-      nr_requests_that_need_work = 0
-
-      rel = BsRequestCollection.new(user: login, states: %w(declined), roles: %w(creator))
-      nr_requests_that_need_work += rel.ids.size
-
-      rel = BsRequestCollection.new(user: login, states: %w(new), roles: %w(maintainer))
-      nr_requests_that_need_work += rel.ids.size
-
-      rel = BsRequestCollection.new(user: login, roles: %w(reviewer), reviewstates: %w(new), states: %w(review))
-      nr_requests_that_need_work += rel.ids.size
-    end
+    #Rails.cache.fetch("requests_for_#{login}", expires_in: 2.minutes) do
+      BsRequest.collection(user: login, states: %w(declined), roles: %w(creator)).count +
+      BsRequest.collection(user: login, states: %w(new), roles: %w(maintainer)).count +
+      BsRequest.collection(user: login, roles: %w(reviewer), reviewstates: %w(new), states: %w(review)).count
+    #end
   end
 
   def self.fetch_field(person, field)
