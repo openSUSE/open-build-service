@@ -5670,6 +5670,7 @@ sub checkpatchinfo {
     if ($blocked && !$broken) {
       # hmm, we should be blocked. trigger build arch check
       if (!-e "$markerdir/.waiting_for_$myarch") {
+	BSUtil::touch("$reporoot/$projid/$repoid/$buildarch/:schedulerstate.dirty") if -d "$reporoot/$projid/$repoid/$buildarch";
 	sendunblockedevent("$projid/$repoid", $buildarch);
 	print "      - $packid (patchinfo)\n";
 	print "        blocked\n";
