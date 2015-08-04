@@ -111,10 +111,10 @@ class Webui::PatchinfoController < Webui::WebuiController
       flash[:error] = nil
       # Note: At this point a patchinfo already got created by
       #       Patchinfo.new.create_patchinfo in the new_patchinfo action
-      if !valid_summary? params[:summary]
+      unless valid_summary? params[:summary]
         flash[:error] = "|| Summary is too short (should have more than 10 signs)"
       end
-      if !valid_description? params[:description]
+      unless valid_description? params[:description]
         flash[:error] = "#{flash[:error]} || Description is too short (should have more than 50 signs and longer than summary)"
       end
 
@@ -133,7 +133,7 @@ class Webui::PatchinfoController < Webui::WebuiController
         }
         xml = node.patchinfo(attrs) do |n|
           params[:selected_binaries].to_a.each do |binary|
-            if !binary.blank?
+            unless binary.blank?
               node.binary(binary)
             end
           end
