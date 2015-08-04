@@ -35,8 +35,14 @@
     %i This project has no subprojects
 
 - if User.current.can_modify_project?(@project.api_obj)
-  %p
-    = link_to sprited_text('brick_add', 'Create subproject'), { :controller => :project, :action => :new, :ns => @project.name }, id: "link-create-subproject"
+  = form_for Project.new, url: { action: 'save_new', ns: @project.name } do |f|
+    %p
+      %b
+        Subproject Name:
+      %br
+      = @project.name + ':'
+      = f.text_field :name, size: 30
+      = submit_tag "Create"
 
 - if @subprojects.present?
   - content_for :ready_function do
