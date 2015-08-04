@@ -90,7 +90,7 @@ group :test do
 end
 
 # Gems used only during development not required in production environments by default.
-group :development do
+group :development, :test do
   # as alternative to the standard IRB shell
   gem 'pry', '>= 0.9.12'
   # to make rack(and rails) use unicorn by default
