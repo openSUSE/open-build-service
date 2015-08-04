@@ -77,7 +77,7 @@ function use_codemirror(id, read_only, mode) {
   else {
     codeMirrorOptions['addToolBars'] = 0;
     if (mode.length)
-      codeMirrorOptions['fileType'] = mode;
+      codeMirrorOptions['mode'] = mode;
     codeMirrorOptions['extraKeys'] = {"Tab": "defaultTab", "Shift-Tab": "indentLess"};
   }
 
