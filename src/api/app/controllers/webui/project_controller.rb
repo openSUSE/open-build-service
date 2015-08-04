@@ -79,27 +79,6 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def new
-    @namespace = params[:ns]
-    @project_name = params[:project]
-    if @namespace
-      @project = Project.find_by_name(@namespace)
-      if !@project
-        if @namespace == "home:#{User.current.login}"
-          @pagetitle = "Your home project doesn't exist yet. You can create it now"
-          @project_name = @namespace
-        else
-          flash[:error] = "Invalid namespace name '#{@namespace}'"
-          redirect_back_or_to :controller => 'project' and return
-        end
-      end
-    end
-    # regexp named group prj_name
-    if @project_name =~ /home:(.+)/
-      @project_title = "#$1's Home Project"
-    else
-      @project_title = ''
-    end
-
     @project = Project.new
   end
 
