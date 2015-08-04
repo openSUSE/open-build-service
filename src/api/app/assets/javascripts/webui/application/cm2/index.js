@@ -62,7 +62,6 @@
 //= require codemirror/modes/xquery.js
 //= require codemirror/modes/yaml.js
 
-
 var editors = new Array();
 
 function use_codemirror(id, read_only, mode) {
@@ -114,7 +113,6 @@ function use_codemirror(id, read_only, mode) {
         },
         error: function (xhdr, textStatus, errorThrown) {
           $("#save_" + id).removeClass("inactive").removeClass("working");
-          /* alert("XHR" + xhdr.responseText + " TS " + textStatus); */
         },
       });
     });
@@ -122,9 +120,4 @@ function use_codemirror(id, read_only, mode) {
     $("#save_" + id).hide();
   }
   editors[id] = editor;
-
-  // $('#find_' + id).click(function() { editors[id].Find(this); });
-  //$('#line_' + id).keydown(function(event) { if(event.keyCode==13) { editors[id].gotoLine(this) }});
-  // $('#search_disable_' + id).click( function() { editors[id].Search(this) } );
-
 }
