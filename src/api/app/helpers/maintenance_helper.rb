@@ -11,7 +11,7 @@ module MaintenanceHelper
     mi = nil
     tprj = nil
     Project.transaction do
-      mi = MaintenanceIncident.new( :maintenance_db_project => maintenanceProject ) 
+      mi = MaintenanceIncident.new( :maintenance_db_project => maintenanceProject )
       tprj = Project.create :name => mi.project_name
       if baseProject
         # copy as much as possible from base project
@@ -30,7 +30,7 @@ module MaintenanceHelper
         tprj.flags.create( :flag => 'access', :status => 'disable')
       end
       # take over roles from maintenance project
-      maintenanceProject.relationships.each do |r| 
+      maintenanceProject.relationships.each do |r|
         tprj.relationships.create(user: r.user, role: r.role, group: r.group)
       end
       # set default bugowner if missing
@@ -259,7 +259,7 @@ module MaintenanceHelper
 
     # expand a possible defined update info template in release target of channel
     projectFilter = nil
-    if p = sourcePackage.project.find_parent and p.is_maintenance?
+    if p = sourcePackage.project.parent and p.is_maintenance?
       projectFilter = p.maintained_projects.map{|mp| mp.project}
     end
     # prefer a channel in the source project to avoid double hits exceptions
@@ -345,7 +345,7 @@ module MaintenanceHelper
     arguments="&noservice=1"
     arguments << "&requestid=" << opts[:requestid] if opts[:requestid]
     arguments << "&comment=" << CGI.escape(opts[:comment]) if opts[:comment]
-    if opts[:makeoriginolder] 
+    if opts[:makeoriginolder]
       # versioned copy
       path = pkg.source_path + "?cmd=copy&withvrev=1&oproject=#{CGI.escape(opkg.project.name)}&opackage=#{CGI.escape(opkg.name)}#{arguments}&user=#{CGI.escape(User.current.login)}&comment=initialize+package"
       if Package.exists_by_project_and_name(project.name, opkg.name, allow_remote_packages: true)

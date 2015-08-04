@@ -10,12 +10,18 @@ class Webui::ProjectController < Webui::WebuiController
 
   helper 'webui/comment'
 
-  before_filter :require_project, :except => [:autocomplete_projects, :autocomplete_incidents,
-                                              :clear_failed_comment, :edit_comment_form, :index,
-                                              :list, :list_all, :list_simple,
-                                              :list_public, :new, :package_buildresult,
-                                              :save_new, :save_prjconf,
-                                              :rebuild_time_png, :new_incident]
+  before_filter :set_project, only: [:autocomplete_packages, :autocomplete_repositories,
+                                    :subprojects]
+  # This is the deprecated way of loading WebuiProject
+  # FIXME: Get rid of "except" clauses, use "only" instead
+  before_filter :require_project, except: [:autocomplete_projects, :autocomplete_incidents,
+                                          :autocomplete_packages, :autocomplete_repositories,
+                                          :subprojects,
+                                          :clear_failed_comment, :edit_comment_form, :index,
+                                          :list, :list_all, :list_simple,
+                                          :list_public, :new, :package_buildresult,
+                                          :save_new, :save_prjconf,
+                                          :rebuild_time_png, :new_incident]
   before_filter :load_project_info, :only => [:show, :packages_simple]
   before_filter :require_login, :only => [:save_new, :toggle_watch, :delete, :new]
   before_filter :require_available_architectures, :only => [:add_repository, :add_repository_from_default_list,
@@ -89,64 +95,20 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def autocomplete_projects
-    required_parameters :term
-    get_filtered_projectlist params[:term], ''
-    render json: @projects
+    render json: Project.autocomplete(params[:term]).not_maintenance_incident.order(:name).pluck(:name)
   end
 
   def autocomplete_incidents
-    required_parameters :term
-    get_filtered_projectlist params[:term], '', :only_incidents => true
-    render json: @projects
+    render json: Project.autocomplete(params[:term]).maintenance_incident.order(:name).pluck(:name)
   end
 
   def autocomplete_packages
-    required_parameters :term
-    if Package.valid_name?( params[:term] ) or params[:term] == ''
-      packages=Package.arel_table
-      render json: @project.api_obj.packages.where(packages[:name].matches("#{params[:term]}%")).limit(100).pluck(:name)
-    else
-      render text: '[]'
-    end
+    render json: @project.packages.autocomplete(params[:term]).pluck(:name)
   end
 
   def autocomplete_repositories
-    render json: @project.repositories
+    render json: @project.repositories.pluck(:name)
   end
-
-  def project_key(a)
-    a = a.downcase
-
-    if a[0..4] == 'home:'
-      a = 'zz' + a
-    end
-    return a
-  end
-  private :project_key
-
-  def get_filtered_projectlist(filterstring, excludefilter='', opts={})
-    opts = {:only_incidents => false}.merge(opts)
-    # remove illegal xpath characters
-    filterstring.gsub!(/[\[\]\n]/, '')
-    filterstring.gsub!(/[']/, '&apos;')
-    filterstring.gsub!(/["]/, '&quot;')
-    rel = Project.all
-    projects=Project.arel_table
-    unless filterstring.blank?
-      rel = rel.where(projects[:name].matches("#{filterstring}%"))
-    end
-    unless excludefilter.blank?
-      rel = rel.where.not(projects[:name].matches("#{excludefilter}%"))
-    end
-    if opts[:only_incidents]
-      rel = rel.where(kind: 'maintenance_incident')
-    else
-      rel = rel.where.not(kind: 'maintenance_incident')
-    end
-    @projects = rel.pluck(:name)
-    @projects =  @projects.sort_by { |a| project_key a }
-  end
-  private :get_filtered_projectlist
 
   def users
     @users = @project.users
@@ -155,23 +117,8 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def subprojects
-    @subprojects = Array.new
-
-    projects=Project.arel_table
-    Project.where(projects[:name].matches("#{@project.name}:%")).each do |sub|
-      @subprojects << sub
-    end
-    @subprojects.sort! { |x,y| x.name <=> y.name } # Sort by hash key for better display
-    @parentprojects = Hash.new
-    parent_names = @project.name.split ':'
-    parent_names.each_with_index do |parent, idx|
-      parent_name = parent_names.slice(0, idx+1).join(':')
-      unless [@project.name, 'home'].include?( parent_name )
-        parent_project = WebuiProject.find( parent_name )
-        @parentprojects[parent_name] = parent_project unless parent_project.blank?
-      end
-    end
-    @parentprojects = @parentprojects.sort # Sort by hash key for better display
+    @subprojects = @project.subprojects.order(:name)
+    @parentprojects = @project.ancestors.order(:name)
   end
 
   def new
@@ -926,7 +873,7 @@ class Webui::ProjectController < Webui::WebuiController
     fill_status_cache
 
     load_local_packages
- 
+
     @packagenames = @packagenames.flatten.uniq.sort
 
     ## Filter for PackageNames ####
@@ -1518,5 +1465,9 @@ class Webui::ProjectController < Webui::WebuiController
     @project.save
     flash[:success] = "Path #{params['path_project']}/#{params['path_repository']} moved successfully"
     redirect_to :action => :repositories, :project => @project
+  end
+
+  def set_project
+    @project = Project.find_by(name: params[:project])
   end
 end

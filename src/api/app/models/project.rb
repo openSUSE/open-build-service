@@ -39,7 +39,11 @@ class Project < ActiveRecord::Base
   after_rollback 'Relationship.discard_cache'
   after_initialize :init
 
-  has_many :packages, :dependent => :destroy, inverse_of: :project
+  has_many :packages, :dependent => :destroy, inverse_of: :project do
+    def autocomplete(search)
+      where(['lower(packages.name) like lower(?)',"#{search}%"])
+    end
+  end
   has_many :attribs, :dependent => :destroy
   has_many :repositories, :dependent => :destroy, foreign_key: :db_project_id
   has_many :messages, :as => :db_object, :dependent => :delete_all
@@ -76,6 +80,13 @@ class Project < ActiveRecord::Base
 
   default_scope { where('projects.id not in (?)', Relationship.forbidden_project_ids ) }
 
+  scope :maintenance, -> { where("kind = 'maintenance'") }
+  scope :not_maintenance_incident, -> { where("kind <> 'maintenance_incident'") }
+  scope :maintenance_incident, -> { where("kind = 'maintenance_incident'") }
+  scope :maintenance_release, -> { where("kind = 'maintenance_release'") }
+  scope :home, -> { where("name like 'home:%'") }
+  scope :not_home, -> { where.not("name like 'home:%'") }
+
   validates :name, presence: true, length: { maximum: 200 }, uniqueness: true
   validates :title, length: { maximum: 250 }
   validate :valid_name
@@ -86,6 +97,15 @@ class Project < ActiveRecord::Base
     # if the kind attribute hasn't been included in the select clause.
     # Therefore it's necessary to check self.has_attribute? :kind
     self.kind ||= 'standard' if self.has_attribute? :kind
+  end
+
+  def self.autocomplete(search)
+    projects = Project.where(["lower(name) like lower(?)", "#{search}%"])
+    if search.to_s.match(/home:./)
+      projects.home
+    else
+      projects.not_home
+    end
   end
 
   def self.deleted_instance
@@ -112,6 +132,10 @@ class Project < ActiveRecord::Base
         pkg.save
       end
     end
+  end
+
+  def subprojects
+    Project.where("name like '#{name}:%'")
   end
 
   def revoke_requests
@@ -409,7 +433,7 @@ class Project < ActiveRecord::Base
         raise DeleteError.new 'This maintenance project has incident projects and can therefore not be deleted.'
       end
     end
-    
+
   end
 
   def update_from_xml(xmlhash, force=nil)
@@ -728,7 +752,7 @@ class Project < ActiveRecord::Base
     # expire cache
     reset_cache
     @commit_opts ||= {}
-    
+
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       login = @commit_opts[:login] || User.current.login
       query = { user: login }
@@ -758,21 +782,30 @@ class Project < ActiveRecord::Base
     "/source/#{CGI.escape(self.name)}/_project/_attribute"
   end
 
-  # step down through namespaces until a project is found, returns found project or nil
-  def self.find_parent_for(project_name)
-    name_parts = project_name.split(/:/)
-
-    while name_parts.length > 1
-      name_parts.pop
-      project = Project.find_by_name(name_parts.join(':'))
-      break if project
+  # Give me the first ancestor of that project
+  def parent
+    project = nil
+    possible_ancestor_names.find do |name|
+      project = Project.find_by(name: name)
     end
     project
   end
 
-  # convenience method for self.find_parent_for
-  def find_parent
-    self.class.find_parent_for self.name
+  # Give me all the projects that are ancestors of that project
+  def ancestors
+    Project.where(name: possible_ancestor_names)
+  end
+
+  # Calculate all possible ancestors names for a project
+  # Ex: home:foo:bar:purr => ["home:foo:bar", "home:foo", "home"]
+  def possible_ancestor_names
+    names = name.split(/:/)
+    possible_projects = []
+    while names.length > 1
+      names.pop
+      possible_projects << names.join(':')
+    end
+    possible_projects
   end
 
   def to_axml(opts={})
@@ -830,7 +863,7 @@ class Project < ActiveRecord::Base
   # give out the XML for all repos/arch combos
   def expand_flags(pkg = nil)
     ret = Hash.new
-   
+
     repos = repositories.not_remote
 
     FlagHelper.flag_types.each do |flag_name|
@@ -1256,7 +1289,7 @@ class Project < ActiveRecord::Base
     return false unless name.kind_of? String
     # this length check is duplicated but useful for other uses for this function
     return false if name.length > 200 || name.blank?
-    return false if name =~ %r{^[_\.]} 
+    return false if name =~ %r{^[_\.]}
     return false if name =~ %r{::}
     return false if name.end_with?(':')
     return true if name =~ /\A\w[-+\w\.:]*\z/

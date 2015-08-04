@@ -252,7 +252,7 @@ class Owner
       m.rootproject = ''
       if cont.is_a? Package
         m.project = cont.project.name
-        m.package = cont.name 
+        m.package = cont.name
       else
         m.project = cont.name
       end
@@ -268,7 +268,7 @@ class Owner
     # add maintainers from parent projects
     while not project.nil?
       add_owners.call(project)
-      project = project.find_parent
+      project = project.parent
     end
     maintainers
   end

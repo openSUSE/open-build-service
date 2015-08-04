@@ -12,9 +12,9 @@
         %th Parent project
         %th Description
     %tbody
-      - @parentprojects.each do |name, project|
+      - @parentprojects.each do |project|
         %tr
-          %td= link_to name, :action => 'show', :project => name
+          %td= link_to project.name, :action => 'show', :project => project.name
           %td= project.title
 
 %h3= @pagetitle
