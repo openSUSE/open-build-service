@@ -63,63 +63,41 @@ class Webui::PatchinfoController < Webui::WebuiController
     end
     @binary = []
     @packager = @file.value(:packager)
-    @issues = []
-    @file.each(:issue) do |a|
-      if a.text == ''
-        # old uploaded patchinfos could have broken tracker-names like "bnc "
-        # instead of "bnc". Catch these.
-        begin
-          get_issue_sum(a.value(:tracker), a.value(:id))
-          a.text = @issuesum
-        rescue ActiveXML::Transport::NotFoundError
-          a.text = 'PLEASE CHECK THE FORMAT OF THE ISSUE'
-        end
-      end
-      issue = []
-      issueid = a.value(:id)
-      issueurl = IssueTracker.find_by_name(a.value(:tracker))
-      if issueurl
-        issueurl = issueurl.show_url_for(issueid)
-      else
-        issueurl = ''
-      end
-      issue << a.value(:tracker)
-      issue << issueid
-      issue << issueurl
-      issue << a.text
-      @issues << issue
-    end
 
-    if params[:issue].nil?
-      params[:issue] = []
-      params[:issue] << params[:issueid]
+    if params[:issueid]
+      @issues = params[:issue].to_a << params[:issueid]
+    else
+      @issues = []
+      @file.each(:issue) do |a|
+        if a.text == ''
+          # old uploaded patchinfos could have broken tracker-names like "bnc "
+          # instead of "bnc". Catch these.
+          begin
+            a.text = get_issue_sum(a.value(:tracker), a.value(:id))
+          rescue ActiveXML::Transport::NotFoundError
+            a.text = 'PLEASE CHECK THE FORMAT OF THE ISSUE'
+          end
+        end
+
+        issueurl = IssueTracker.find_by_name(a.value(:tracker)).
+          try(:show_url_for, a.value(:id)).to_s
+
+        @issues << [
+          a.value(:tracker),
+          a.value(:id),
+          issueurl,
+          a.text
+        ]
+      end
     end
-    unless params[:issueid].nil?
-      params[:issue] << params[:issueid]
-      @issues = params[:issue]
-    end
-    @category = @file.value(:category)
-    @rating = @file.value(:rating)
     @category = @file.value(:category)
     @rating = @file.value(:rating)
     @summary = @file.value(:summary)
 
     @description = @file.value(:description)
-    if @file.has_element?('relogin_needed')
-      @relogin = true
-    else
-      @relogin = false
-    end
-    if @file.has_element?('reboot_needed')
-      @reboot = true
-    else
-      @reboot = false
-    end
-    if @file.has_element?('zypp_restart_needed')
-      @zypp_restart_needed = true
-    else
-      @zypp_restart_needed = false
-    end
+    @relogin = @file.has_element?('relogin_needed')
+    @reboot = @file.has_element?('reboot_needed')
+    @zypp_restart_needed = @file.has_element?('zypp_restart_needed')
     if @file.has_element?('stopped')
       @block = true
       @block_reason = @file.value(:stopped)
@@ -129,69 +107,51 @@ class Webui::PatchinfoController < Webui::WebuiController
   def save
     begin
       filename = '_patchinfo'
-      valid_params = true
       required_parameters :project, :package
       flash[:error] = nil
-      if !valid_summary? params[:summary]
-        valid_params = false
-        flash[:error] = "#{flash[:error]}" + ' || Summary is too short (should have more than 10 signs)'
+      # Note: At this point a patchinfo already got created by
+      #       Patchinfo.new.create_patchinfo in the new_patchinfo action
+      unless valid_summary? params[:summary]
+        flash[:error] = "|| Summary is too short (should have more than 10 signs)"
       end
-      if !valid_description? params[:description]
-        valid_params = false
-        flash[:error] = "#{flash[:error]}" + ' || Description is too short (should have more than 50 signs and longer than summary)'
+      unless valid_description? params[:description]
+        flash[:error] = "#{flash[:error]} || Description is too short (should have more than 50 signs and longer than summary)"
       end
 
-      if valid_params
-        packager = params[:packager]
-        binaries = params[:selected_binaries]
-        relogin = params[:relogin]
-        reboot = params[:reboot]
-        zypp_restart_needed = params[:zypp_restart_needed]
-        if params[:issueid]
-          issues = []
-          params[:issueid].each_with_index do |new_issue, index|
-            issue = []
-            issue << new_issue
-            issue << params[:issuetracker][index]
-            issue << params[:issuesum][index]
-            issues << issue
-          end
+      if flash[:error].nil?
+        issues = []
+        params[:issueid].to_a.each_with_index do |new_issue, index|
+          issues << [
+            new_issue,
+            params[:issuetracker][index],
+            params[:issuesum][index]
+          ]
         end
-        rating = params[:rating]
         node = Builder::XmlMarkup.new(indent: 2)
-        attrs = {}
-        attrs[:incident] = @package.project.name.gsub(/.*:/, '')
+        attrs = {
+          :incident => @package.project.name.gsub(/.*:/, '')
+        }
         xml = node.patchinfo(attrs) do |n|
-          if binaries
-            binaries.each do |binary|
-              if !binary.blank?
-                node.binary(binary)
-              end
+          params[:selected_binaries].to_a.each do |binary|
+            unless binary.blank?
+              node.binary(binary)
             end
           end
-          node.packager packager
-          if issues
-            issues.each do |issue|
-              unless IssueTracker.find_by_name(issue[1])
-                flash[:error] = "Unknown Issue tracker #{issue[1]}"
-                return
-              end
-              node.issue(issue[2], tracker: issue[1], id: issue[0])
+          node.packager params[:packager]
+          issues.to_a.each do |issue|
+            unless IssueTracker.find_by_name(issue[1])
+              flash[:error] = "Unknown Issue tracker #{issue[1]}"
+              return
             end
+            node.issue(issue[2], tracker: issue[1], id: issue[0])
           end
           node.category params[:category]
-          node.rating rating
+          node.rating params[:rating]
           node.summary params[:summary]
           node.description params[:description].gsub("\r\n", "\n")
-          if reboot
-            node.reboot_needed
-          end
-          if relogin
-            node.relogin_needed
-          end
-          if zypp_restart_needed
-            node.zypp_restart_needed
-          end
+          node.reboot_needed if params[:reboot]
+          node.relogin_needed if params[:relogin]
+          node.zypp_restart_needed if params[:zypp_restart_needed]
           if params[:block] == 'true'
             node.stopped  params[:block_reason]
           end
@@ -207,21 +167,19 @@ class Webui::PatchinfoController < Webui::WebuiController
         redirect_to controller: 'patchinfo', action: 'show',
                     project: @project.name, package: @package
       end
-      if valid_params == false
+      if flash[:error]
         @tracker = params[:tracker]
         @packager = params[:packager]
         @binaries = params[:selected_binaries]
         @binarylist = params[:available_binaries]
         @issues = []
-        if params[:issueid]
-          params[:issueid].each_with_index do |new_issue, index|
-            issue = []
-            issue << new_issue
-            issue << params[:issuetracker][index]
-            issue << params[:issueurl][index]
-            issue << params[:issuesum][index]
-            @issues << issue
-          end
+        params[:issueid].to_a.each_with_index do |new_issue, index|
+          @issues << [
+            new_issue,
+            params[:issuetracker][index],
+            params[:issueurl][index],
+            params[:issuesum][index]
+          ]
         end
         @category = params[:category]
         @rating = params[:rating]
@@ -257,23 +215,21 @@ class Webui::PatchinfoController < Webui::WebuiController
   end
 
   def valid_summary?(name)
-    name != nil and name =~ /^.{10,}$/m
+    name && name.length > 10
   end
 
-  def valid_description? name
-    name != nil and
-      name.length > params[:summary].length and name =~ /^.{50,}$/m
+  def valid_description?(name)
+    name &&
+      name.length > [params[:summary].length, 50].max
   end
 
   def new_tracker
-    # new_issues = list of new issues to add
-    new_issues = params[:issues]
     # collection with all informations of the new issues
     issue_collection = []
     error = ''
     invalid_format = ''
-    invalid_tracker = ''
-    new_issues.each do |new_issue|
+    # params[:issues] = list of new issues to add
+    params[:issues].each do |new_issue|
       # issue = collecting all informations of an new issue
       issue = []
       if new_issue.starts_with? 'CVE-'
@@ -288,17 +244,16 @@ class Webui::PatchinfoController < Webui::WebuiController
           issueurl = IssueTracker.find_by_name(issue[0])
           if issueurl
             Rails.logger.debug "URL2 #{issueurl.inspect}"
-            issueurl = issueurl.show_url_for(issue[1])
-            issue << issueurl
-            get_issue_sum(issue[0], issue[1])
-            if !@error.nil?
+            issue << issueurl.show_url_for(issue[1])
+            issuesum = get_issue_sum(issue[0], issue[1])
+            unless issuesum
               invalid_format += "#{issue[0]} "
               next
             end
-            issue << @issuesum
+            issue << issuesum
             issue_collection << issue
           else
-            invalid_tracker += "#{issue[0]} is not a valid tracker.\n"
+            error << "#{issue[0]} is not a valid tracker.\n"
           end
         rescue ActiveXML::Transport::NotFoundError
           invalid_format += "#{issue[0]} "
@@ -307,11 +262,16 @@ class Webui::PatchinfoController < Webui::WebuiController
         invalid_format += "#{issue[0]} "
       end
     end
-    error += "#{invalid_tracker}"
-    error += "#{invalid_format}has no valid format. (Correct formats are e.g. boo#123456, CVE-1234-5678 and the string has to be a comma-separated list)" if !invalid_format.empty?
+    if !invalid_format.empty?
+      error += "#{invalid_format} has no valid format. (Correct formats are e.g. " +
+               "boo#123456, CVE-1234-5678 and the string has to be a comma-separated list)"
+    end
     render nothing: true, json: { error: error, issues: issue_collection }
   end
 
+  # returns issue summary of an issue
+  # returns empty string in case of ActiveXML::Transport::Error exception
+  # returns nil in case of error (bug mismatches tracker result regex)
   def get_issue_sum(tracker, issueid)
     if !issueid.starts_with? 'CVE-'
       bug = tracker + '#' + issueid
@@ -320,26 +280,21 @@ class Webui::PatchinfoController < Webui::WebuiController
     end
     path = "/issue_trackers/#{CGI.escape(tracker)}"
     tracker_result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), method: 'GET'))
-    regexp = '^'
-    regexp += tracker_result.value(:regex)
-    regexp += '$'
-    regexp = Regexp.new(regexp)
-    if bug.match(regexp)
+    if bug.match(/^#{tracker_result.value(:regex)}$/)
       begin
-        path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}"
+        path << "/issues/#{CGI.escape(issueid)}"
         result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), method: 'GET'))
         unless result.value(:summary)
-          path = "/issue_trackers/#{CGI.escape(tracker)}/issues/#{CGI.escape(issueid)}?force_update=1"
+          path << "?force_update=1"
           result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), method: 'GET'))
         end
-        @issuesum = result.value(:summary) || ''
-        @issuesum.gsub!(/\\|'/) { |c| '' }
+        return (result.value(:summary) || '').gsub(/\\|'/) { |c| '' }
       # Add no summary if a connection to bugzilla doesn't work e.g. in the testsuite
       rescue ActiveXML::Transport::Error
-        @issuesum = ''
+        return ""
       end
     else
-      @error = "#{bug} has no valid format"
+      nil
     end
   end
 
@@ -347,17 +302,16 @@ class Webui::PatchinfoController < Webui::WebuiController
 
   def get_binaries
     @binarylist = []
-    @binary_list = Buildresult.find(project: params[:project], view: 'binarylist')
-    @binary_list.to_hash.elements('result') do |r|
-      r.elements('binarylist') do |l|
-        l.elements('binary') do |b|
-          @binarylist << b['filename'].sub(/-[^-]*-[^-]*.rpm$/, '')
+    binary_list = Buildresult.find(project: params[:project], view: 'binarylist')
+    binary_list.to_hash.elements('result') do |result|
+      result.elements('binarylist') do |list|
+        list.elements('binary') do |bin|
+          next if ["rpmlint.log", "updateinfo.xml"].include?(bin["filename"])
+          @binarylist << bin['filename'].sub(/-[^-]*-[^-]*.rpm$/, '')
         end
       end
     end
     @binarylist.uniq!
-    @binarylist.delete('rpmlint.log')
-    @binarylist.delete('updateinfo.xml')
   end
 
   def require_project
