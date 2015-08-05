@@ -23,6 +23,8 @@
 package BSDoD;
 
 use Build::Repo;
+use Build::Deb;
+use Build::Rpm;
 
 use strict;
 
