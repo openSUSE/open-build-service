@@ -350,64 +350,29 @@ sub getpackagebinaryversionlist {
     $code = ($ps || {})->{'packstatus'} || {};
   }
   
-  # new code
-  my $gbininfo = read_gbininfo("$reporoot/$prp/$arch");
-  if ($gbininfo) {
-    my %packids = map {$_ => 1} @{$packids || []};
-    if ($code) {
-      $gbininfo->{$_} ||= {} for %$code;
-    }
-    for my $packid (sort keys %$gbininfo) {
-      next if %packids && !$packids{$packid};
-      next if $packid eq '_volatile' && !$packids;
-      my $bininfo = $gbininfo->{$packid};
-      filtersources_bininfo($bininfo) if $bininfo->{'.nosourceaccess'};
-      my @pres;
-      for (sort keys %$bininfo) {
-	my $bin = $bininfo->{$_};
-	next unless exists $bin->{'filename'};
-	my $r = { 'name' => $bin->{'filename'} };
-	$r->{'hdrmd5'} = $bin->{'hdrmd5'} if $bin->{'hdrmd5'};
-	$r->{'leadsigmd5'} = $bin->{'leadsigmd5'} if $bin->{'leadsigmd5'};
-	my $size = (split('/', $bin->{'id'}))[1];
-	$r->{'sizek'} = ($size + 512) >> 10;
-	push @pres, $r;
-      }
-      push @res, {'package' => $packid, 'binary' => \@pres};
-      $res[-1]->{'code'} = $code->{$packid} || 'unknown' if $code;
-    }
-    return ({ 'binaryversionlist' => \@res }, $BSXML::packagebinaryversionlist);
+  my $gbininfo = read_gbininfo("$reporoot/$prp/$arch", 1);
+  my %packids = map {$_ => 1} @{$packids || []};
+  if ($code) {
+    $gbininfo->{$_} ||= {} for keys %$code;
   }
-
-  # old code
-  $packids ||= [];
-  if (!@$packids) {
-    for my $packid (grep {!/^[:\.]/} sort(ls("$reporoot/$prp/$arch"))) {
-      push @$packids, $packid if $packid ne '_deltas' && -d "$reporoot/$prp/$arch/$packid";
-    }
-    if ($code) {
-      push @$packids, keys %$code;
-      @$packids = unify(sort(@$packids));
-    }
-  }
-  for my $packid (@$packids) {
-    my @bins = grep {/(?:\.(?:$binsufsre)|-appdata\.xml)$/} ls("$reporoot/$prp/$arch/$packid");
-    @bins = filtersources(@bins) if -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
+  for my $packid (sort keys %$gbininfo) {
+    next if %packids && !$packids{$packid};
+    next if $packid eq '_volatile' && !$packids;
+    my $bininfo = $gbininfo->{$packid};
+    filtersources_bininfo($bininfo) if $bininfo->{'.nosourceaccess'};
     my @pres;
-    # should use bininfo instead, but we need the leadsigmd5
-    for my $bin (sort @bins) {
-      my @s = stat("$reporoot/$prp/$arch/$packid/$bin");
-      next unless @s;
-      my ($hdrmd5, $leadsigmd5);
-      if ($bin !~ /-appdata\.xml$/) {
-        $hdrmd5 = Build::queryhdrmd5("$reporoot/$prp/$arch/$packid/$bin", \$leadsigmd5);
-        next unless $hdrmd5;
-      }
-      my $r = {'name' => $bin, 'sizek' => ($s[7] + 512) >> 10};
-      $r->{'hdrmd5'} = $hdrmd5 if $hdrmd5;
-      $r->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
+    for (sort keys %$bininfo) {
+      my $bin = $bininfo->{$_};
+      next unless exists $bin->{'filename'};
+      my $r = { 'name' => $bin->{'filename'} };
+      $r->{'hdrmd5'} = $bin->{'hdrmd5'} if $bin->{'hdrmd5'};
+      $r->{'leadsigmd5'} = $bin->{'leadsigmd5'} if $bin->{'leadsigmd5'};
+      my $size = (split('/', $bin->{'id'}))[1];
+      $r->{'sizek'} = ($size + 512) >> 10;
       push @pres, $r;
     }
+    # add nouseforbuild marker for the scheduler
+    push @pres, { 'name' => '.nouseforbuild' } if $code && $bininfo->{'.nouseforbuild'};
     push @res, {'package' => $packid, 'binary' => \@pres};
     $res[-1]->{'code'} = $code->{$packid} || 'unknown' if $code;
   }
@@ -417,8 +382,9 @@ sub getpackagebinaryversionlist {
 sub getpackagelist_build {
   my ($cgi, $projid, $repoid, $arch) = @_;
   die "must specify view\n" unless $cgi->{'view'};
+  $cgi->{'withcode'} = 1 if $cgi->{'view'}  eq 'binaryversionscode' || $cgi->{'view'}  eq 'bininfoscode';
+  return getbininfos($cgi, $projid, $repoid, $arch) if $cgi->{'view'} eq 'bininfos' || $cgi->{'view'} eq 'bininfoscode';
   die("unknown view '$cgi->{'view'}'\n") unless $cgi->{'view'} eq 'binaryversions' || $cgi->{'view'} eq 'binaryversionscode';
-  $cgi->{'withcode'} = 1 if $cgi->{'view'}  eq 'binaryversionscode';
   return getpackagebinaryversionlist($cgi, $projid, $repoid, $arch, $cgi->{'package'});
 }
 
@@ -793,26 +759,36 @@ sub read_bininfo {
   return $bininfo if $bininfo;
   # .bininfo not present or old style, generate it
   $bininfo = {};
-  $bininfo->{'.nosourceaccess'} = {} if -e "$dir/.nosourceaccess";
-  my @bins = grep {/(?:\.(?:$binsufsre)|-appdata\.xml)$/} ls($dir);
-  for my $bin (@bins) {
-    my @s = stat("$dir/$bin");
-    next unless @s;
-    my ($hdrmd5, $leadsigmd5);
-    if ($bin !~ /-appdata\.xml$/) {
-      $hdrmd5 = Build::queryhdrmd5("$dir/$bin", \$leadsigmd5);
+  for my $file (ls($dir)) {
+    if ($file =~ /\.(?:$binsufsre)$/) {
+      my @s = stat("$dir/$file");
+      my ($hdrmd5, $leadsigmd5);
+      $hdrmd5 = Build::queryhdrmd5("$dir/$file", \$leadsigmd5);
       next unless $hdrmd5;
+      my $r = {'filename' => $file, 'id' => "$s[9]/$s[7]/$s[1]"};
+      $r->{'hdrmd5'} = $hdrmd5;
+      $r->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
+      $bininfo->{$file} = $r;
+    } elsif ($file =~ /-appdata\.xml$/) {
+      local *F;
+      open(F, '<', "$dir/$file") || next;
+      my @s = stat(F);
+      next unless @s;
+      my $ctx = Digest::MD5->new;
+      $ctx->addfile(*F);
+      close F;
+      $bininfo->{$file} = {'md5sum' => $ctx->hexdigest(), 'filename' => $file, 'id' => "$s[9]/$s[7]/$s[1]"};
+    } elsif ($file eq '.nosourceaccess') {
+      $bininfo->{'.nosourceaccess'} = {};
+    } elsif ($file eq '.channelinfo' || $file eq 'updateinfo.xml') {
+      $bininfo->{'.nouseforbuild'} = {};
     }
-    my $r = {'filename' => $bin, 'id' => "$s[9]/$s[7]/$s[1]"};
-    $r->{'hdrmd5'} = $hdrmd5 if $hdrmd5;
-    $r->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
-    $bininfo->{$bin} = $r;
   }
   return $bininfo;
 }
 
 sub read_gbininfo {
-  my ($dir) = @_;
+  my ($dir, $collect) = @_;
   my $gbininfo = BSUtil::retrieve("$dir/:bininfo", 1);
   if ($gbininfo) {
     my $gbininfo_m = BSUtil::retrieve("$dir/:bininfo.merge", 1);
@@ -824,6 +800,13 @@ sub read_gbininfo {
 	  delete $gbininfo->{$_};
 	}
       }
+    }
+  }
+  if (!$gbininfo && $collect) {
+    $gbininfo = {};
+    for my $packid (grep {!/^[:\.]/} sort(ls($dir))) {
+      next if $packid eq '_deltas' || $packid eq '_volatile' || ! -d "$dir/$packid";
+      $gbininfo->{$packid} = read_bininfo("$dir/$packid");
     }
   }
   return $gbininfo;
