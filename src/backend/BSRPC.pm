@@ -239,7 +239,14 @@ sub rpc {
       my $status = $1;
       die("proxy tunnel: CONNECT method failed: $status\n") unless $status =~ /^200[^\d]/;
     }
-    ($param->{'https'} || $tossl)->(\*S, $param->{'ssl_keyfile'}, $param->{'ssl_certfile'}, 1) if $proto eq 'https' || $proxytunnel;
+    if ($proto eq 'https' || $proxytunnel) {
+      ($param->{'https'} || $tossl)->(\*S, $param->{'ssl_keyfile'}, $param->{'ssl_certfile'}, 1);
+      if ($param->{'sslpeerfingerprint'}) {
+	die("bad sslpeerfingerprint '$param->{'sslpeerfingerprint'}'\n") unless $param->{'sslpeerfingerprint'} =~ /^(.*?):(.*)$/s;
+	my $pfp =  tied(*S)->peerfingerprint($1);
+	die("peer fingerprint does not match: $2 != $pfp\n") if $2 ne $pfp;
+      }
+    }
   }
   if (!$param->{'continuation'}) {
     if ($param->{'verbose'}) {

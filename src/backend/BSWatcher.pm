@@ -727,6 +727,11 @@ sub rpc_tossl {
   fcntl($ev->{'fd'}, F_SETFL, 0);     # in danger honor...
   eval {
     ($ev->{'param'}->{'https'} || $tossl)->($ev->{'fd'}, $ev->{'param'}->{'ssl_keyfile'}, $ev->{'param'}->{'ssl_certfile'}, 1);
+    if ($ev->{'param'}->{'sslpeerfingerprint'}) {
+      die("bad sslpeerfingerprint '$ev->{'param'}->{'sslpeerfingerprint'}'\n") unless $ev->{'param'}->{'sslpeerfingerprint'} =~ /^(.*?):(.*)$/s;
+      my $pfp =  tied($ev->{'fd'})->peerfingerprint($1);
+      die("peer fingerprint does not match: $2 != $pfp\n") if $2 ne $pfp;
+    }
   };
   fcntl($ev->{'fd'}, F_SETFL, O_NONBLOCK);
   if ($@) {
