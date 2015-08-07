@@ -5732,7 +5732,7 @@ sub checkpatchinfo {
         # last build failed
         if ($code ne 'disabled' || -e "$reporoot/$projid/$repoid/$arch/:logfiles.success/$apackid") {
 	  $blockedarch = 1;
-	  push @blocked, "$arch/$apackid";
+	  push @blocked, "$arch/$apackid (failed)";
 	  next;
 	}
       } elsif (! -e "$reporoot/$projid/$repoid/$arch/:logfiles.success/$apackid") {
@@ -5740,7 +5740,7 @@ sub checkpatchinfo {
 	if (! -e "$reporoot/$projid/$repoid/$arch/$apackid/.channelinfo") {
 	  next if $code eq 'disabled';
 	  $blockedarch = 1;
-	  push @blocked, "$arch/$apackid";
+	  push @blocked, "$arch/$apackid (no logfiles.success)";
 	  next;
 	}
       }
