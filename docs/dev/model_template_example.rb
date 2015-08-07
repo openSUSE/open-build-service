@@ -67,7 +67,7 @@ class Dog < ActiveRecord::Base
 
   end
 
-  ### private
+  #### private
 
   def self.say(string)
     puts "[Dog's Master] >> #{string}"

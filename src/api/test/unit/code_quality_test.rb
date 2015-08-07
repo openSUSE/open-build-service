@@ -9,7 +9,7 @@ class CodeQualityTest < ActiveSupport::TestCase
     @ruby_files = []
     RAILS_BASE_DIRS.each do |base_dir|
       Find.find(base_dir.to_s) do |path|
-        @ruby_files << path if FileTest.file?(path) and path.end_with?('.rb')
+        @ruby_files << path if FileTest.file?(path) && path.end_with?('.rb') && !path.match(/\/lib\/templates\//)
       end
     end
   end
