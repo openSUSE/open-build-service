@@ -20,11 +20,6 @@ xml.project(project_attributes) do
 
   my_model.render_relationships(xml)
 
-  my_model.downloads.each do |dl|
-    xml.download(baseurl: dl.baseurl, metafile: dl.metafile,
-                 mtype: dl.mtype, arch: dl.architecture.name)
-  end
-
   repos = my_model.repositories.not_remote.sort { |a, b| b.name <=> a.name }
   FlagHelper.flag_types.each do |flag_name|
     flaglist = my_model.type_flags(flag_name)
@@ -41,16 +36,28 @@ xml.project(project_attributes) do
     params[:rebuild] = repo.rebuild if repo.rebuild
     params[:block] = repo.block if repo.block
     params[:linkedbuild] = repo.linkedbuild if repo.linkedbuild
-    xml.repository(params) do |r|
+    xml.repository(params) do |xml_repository|
+      repo.download_repositories.each do |download_repository|
+        params = {arch: download_repository.arch, url: download_repository.url, repotype: download_repository.repotype}
+        xml_repository.download(params) do |xml_download|
+          xml_download.archfilter download_repository.archfilter if download_repository.archfilter
+          if download_repository.masterurl
+            params = {url: download_repository.masterurl}
+            params[:sslfingerprint] = download_repository.mastersslfingerprint if download_repository.mastersslfingerprint
+            xml_download.master(params)
+          end
+          xml_download.pubkey download_repository.pubkey if download_repository.pubkey
+        end
+      end
       repo.release_targets.each do |rt|
         params = {}
         params[:project] = rt.target_repository.project.name
         params[:repository] = rt.target_repository.name
         params[:trigger] = rt.trigger unless rt.trigger.blank?
-        r.releasetarget(params)
+        xml_repository.releasetarget(params)
       end
       if repo.hostsystem
-        r.hostsystem(:project => repo.hostsystem.project.name, :repository => repo.hostsystem.name)
+        xml_repository.hostsystem(:project => repo.hostsystem.project.name, :repository => repo.hostsystem.name)
       end
       repo.path_elements.includes(:link).each do |pe|
         if pe.link.remote_project_name
@@ -58,10 +65,10 @@ xml.project(project_attributes) do
         else
           project_name = pe.link.project.name
         end
-        r.path(:project => project_name, :repository => pe.link.name)
+        xml_repository.path(:project => project_name, :repository => pe.link.name)
       end
       repo.repository_architectures.joins(:architecture).pluck("architectures.name").each do |arch|
-        r.arch arch
+        xml_repository.arch arch
       end
     end
   end

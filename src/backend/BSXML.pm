@@ -43,12 +43,27 @@ use strict;
 #       [ $repo ],         refers to the repository construct and allows again any number of them (0-X)
 #];                        closes the <package> child with </package>
 
+our $download = [
+    'download' =>
+	'arch',
+	'repotype',
+	'url',
+	[],
+	'archfilter',
+      [ 'master' =>
+	    'url',
+	    'sslfingerprint',
+      ],
+	'pubkey',
+];
+
 our $repo = [
    'repository' => 
 	'name',
 	'rebuild',
 	'block',
 	'linkedbuild',
+      [ $download ],
      [[ 'releasetarget' =>
 	    'project',
 	    'repository',
@@ -58,14 +73,14 @@ our $repo = [
 	    'project',
 	    'repository',
      ]],
-     [ 'hostsystem' =>
+      [ 'hostsystem' =>
 	    'project',
 	    'repository',
-     ],
-     [ 'base' =>		# expanded repo only!
+      ],
+      [ 'base' =>		# expanded repo only!
 	    'project',
 	    'repository',
-     ],
+      ],
       [ 'arch' ],
 	'status',
 ];
@@ -103,14 +118,6 @@ our @roles = (
      ]],
 );
 
-our $download = [
-    'download' =>
-    'baseurl',
-    'metafile',
-    'mtype',
-    'arch',
-];
-
 our $maintenance = [
     'maintenance' =>
      [[ 'maintains' =>
@@ -135,7 +142,6 @@ our $proj = [
 	    'project',
       ],
 	@roles,
-      [ $download ],
 	$maintenance,
 	@flags,
       [ $repo ],
@@ -287,7 +293,6 @@ our $projpack = [
 	    @flags,
 	    @roles,
 	  [ $repo ],
-          [ $download ],
 	 [[ 'package' =>
 		'name',
 		'rev',

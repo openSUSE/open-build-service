@@ -442,17 +442,20 @@ CREATE TABLE `distributions` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-CREATE TABLE `downloads` (
+CREATE TABLE `download_repositories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `baseurl` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `metafile` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `mtype` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `architecture_id` int(11) DEFAULT NULL,
-  `db_project_id` int(11) DEFAULT NULL,
+  `repository_id` int(11) NOT NULL,
+  `arch` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `url` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `repotype` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `archfilter` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `masterurl` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `mastersslfingerprint` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `pubkey` text COLLATE utf8_unicode_ci,
   PRIMARY KEY (`id`),
-  KEY `index_downloads_on_db_project_id` (`db_project_id`),
-  KEY `index_downloads_on_architecture_id` (`architecture_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+  KEY `repository_id` (`repository_id`),
+  CONSTRAINT `download_repositories_ibfk_1` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `event_subscriptions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1650,6 +1653,8 @@ INSERT INTO schema_migrations (version) VALUES ('20150715112346');
 INSERT INTO schema_migrations (version) VALUES ('20150716112346');
 
 INSERT INTO schema_migrations (version) VALUES ('20150716124906');
+
+INSERT INTO schema_migrations (version) VALUES ('20150807105426');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

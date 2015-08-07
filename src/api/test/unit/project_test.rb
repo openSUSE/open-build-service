@@ -363,6 +363,33 @@ END
   end  
 
     
+  def test_repository_with_download_url
+    User.current = users( :king )
+
+    prj = Project.new(name: "DoD")
+    prj.update_from_xml( Xmlhash.parse(
+      "<project name='DoD'>
+        <title/>
+        <description/>
+        <repository name='standard'>
+          <download arch='i586' url='http://me.org' repotype='rpmmd'>
+           <archfilter>i686,i586,noarch</archfilter>
+           <master url='http://download.opensuse.org' sslfingerprint='0815' />
+           <pubkey>grfzl</pubkey>
+          </download>
+          <arch>i586</arch>
+        </repository>
+      </project>"
+      )
+    )
+
+    xml = prj.to_axml
+    assert_xml_tag xml, :tag => :download, :attributes => {arch: "i586", url: "http://me.org", repotype: "rpmmd"}
+    assert_xml_tag xml, :tag => :archfilter, :content => "i686,i586,noarch"
+    assert_xml_tag xml, :tag => :master, :attributes => {url: "http://download.opensuse.org", sslfingerprint: "0815"}
+    assert_xml_tag xml, :tag => :pubkey, :content => "grfzl"
+  end
+
   def test_repository_path_sync
     User.current = users( :king )
 
