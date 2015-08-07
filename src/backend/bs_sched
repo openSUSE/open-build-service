@@ -4246,8 +4246,10 @@ sub convertpackagebinarylist {
         $bins{$filename} = {'filename' => $filename, 'name' => $1, 'arch' => $2};
       } elsif ($filename =~ /^([^\/]+)-[^-]+-[^-]+-([a-zA-Z][^\/\.\-]*)\.pkg\.tar\..z$/) {
         $bins{$filename} = {'filename' => $filename, 'name' => $1, 'arch' => $2};
+      } elsif ($filename eq '.nouseforbuild') {
+        $bins{$filename} = {};
       } else {
-        $bins{$filename} = {'filename' => $filename};
+        $bins{$filename} = {'filename' => $filename};	# XXX: what about the md5sum for appdata?
       }
       $bins{$filename}->{'hdrmd5'} = $binary->{'hdrmd5'} if $binary->{'hdrmd5'};
       $bins{$filename}->{'leadsigmd5'} = $binary->{'leadsigmd5'} if $binary->{'leadsigmd5'};
