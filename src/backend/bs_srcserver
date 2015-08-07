@@ -6521,26 +6521,20 @@ sub getpackagelist_build {
     die("unknown view '$cgi->{'view'}'\n") unless $cgi->{'view'} eq 'binaryversions' || $cgi->{'view'} eq 'binaryversionscode';
     my $proj = checkprojrepoarch($projid, $repoid, $arch, 1);
     my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+    my @args = ("view=$cgi->{'view'}");
+    push @args, map {"package=$_"} @{$cgi->{'package'} || []};
     my $param = {
-      'uri' => "$reposerver/getpackagebinaryversionlist",
+      'uri' => "$reposerver/build/$projid/$repoid/$arch",
       'ignorestatus' => 1,
       'receiver' => \&BSServer::reply_receiver,
     };
-    my @args;
-    push @args, "project=$projid";
-    push @args, "repository=$repoid";
-    push @args, "arch=$arch";
-    push @args, "withcode=1" if $cgi->{'view'} eq 'binaryversionscode';
-    push @args, map {"package=$_"} @{$cgi->{'package'} || []};
     if ($proj->{'remoteurl'}) {
-      @args = ("view=$cgi->{'view'}");
-      push @args, map {"package=$_"} @{$cgi->{'package'} || []};
+      if (!$BSStdServer::isajax) {
+	BSHandoff::handoff($ajaxsocket, "/build/$projid/$repoid/$arch", undef, @args);
+	exit(0);
+      }
       $param->{'uri'} = "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch";
       $param->{'proxy'} = $proxy;
-      if (!$BSStdServer::isajax) {
-        BSHandoff::handoff($ajaxsocket, "/build/$projid/$repoid/$arch", undef, @args);
-        exit(0);
-      }
     }
     BSWatcher::rpc($param, undef, @args);
     return undef;
