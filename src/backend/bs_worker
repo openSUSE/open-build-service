@@ -1332,8 +1332,18 @@ sub getbinaries_kiwiproduct {
   if ($buildinfo->{'package'} =~ /-([^-]+)$/) {
     @prpaps = prpasort($1, @prpaps);
   }
+  my %binfilter;
+  my $binfilterprpa = '';
   for my $prpap (@prpaps) {
     my ($projid, $repoid, $arch, $packid) = split('/', $prpap, 4);
+    if ($binfilterprpa ne "$projid/$repoid/$arch") {
+      %binfilter = ();
+      for my $dep (@{$buildinfo->{'bdep'} || []}) {
+	next unless defined($dep->{'package'});
+	$binfilter{"$dep->{'package'}/$dep->{'name'}.$dep->{'arch'}"} = 1 if $dep->{'project'} eq $projid && $dep->{'repository'} eq $repoid && ($dep->{'repoarch'} || $dep->{'arch'}) eq $arch;
+      }
+      $binfilterprpa = "$projid/$repoid/$arch";
+    }
     my $prpdir = "$projid/$repoid";
     my $ddir = "$srcdir/repos/$prpdir";
     mkdir_p($ddir);
@@ -1344,8 +1354,8 @@ sub getbinaries_kiwiproduct {
       $res = [];
       for my $name (ls("$localkiwi/build/$projid/$repoid/$arch/$packid")) {
 	my $rarch;
-	if ($name =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
-	  $rarch = $1;
+	if ($name =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+	  $rarch = $2 if $binfilter{"$packid/$1.$2"};
 	} elsif ($name =~ /appdata\.xml$/) {
 	  $rarch = 'appdata'; 
 	}
@@ -1407,8 +1417,9 @@ sub getbinaries_kiwiproduct {
 	    $downloadsizek += $bv->{'sizek'};
 	    next;
 	  }
-	  next unless $bin =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
-	  my $rarch = $1;
+	  next unless $bin =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+	  my $rarch = $2;
+	  next unless $binfilter{"$packid/$1.$2"};
 	  next if $nodbgpkgs && $bin =~ /-(?:debuginfo|debugsource)-/;
 	  next if $nosrcpkgs && ($rarch eq 'src' || $rarch eq 'nosrc');
 	  my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}");
@@ -1454,8 +1465,8 @@ sub getbinaries_kiwiproduct {
 	    'map' => sub {
 	      my ($param, $name) = @_;
 	      my $rarch;
-	      if ($name =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
-		$rarch = $1;
+	      if ($name =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+		$rarch = $2 if $binfilter{"$packid/$1.$2"};
 	      } elsif ($name =~ /appdata\.xml$/) {
 	        $rarch = 'appdata'; 
 	      }
@@ -1480,8 +1491,8 @@ sub getbinaries_kiwiproduct {
         for my $bv (splice @bad) {
 	  my $bin = $bv->{'name'};
 	  my $rarch;
-	  if ($bin =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
-	    $rarch = $1;
+	  if ($bin =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+	    $rarch = $2 if $binfilter{"$packid/$1.$2"};
 	  } elsif ($bin =~ /appdata\.xml$/) {
 	    $rarch = 'appdata'; 
 	  }
@@ -1540,8 +1551,8 @@ sub getbinaries_kiwiproduct {
 	  'map' => sub {
 	    my ($param, $name) = @_;
 	    my $rarch;
-	    if ($name =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
-	      $rarch = $1;
+	    if ($name =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+	      $rarch = $2 if $binfilter{"$packid/$1.$2"};
 	    } elsif ($name =~ /appdata\.xml$/) {
 	      $rarch = 'appdata';
 	    }
