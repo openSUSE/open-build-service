@@ -839,6 +839,7 @@ class Package < ActiveRecord::Base
         next if mode == :skip_disabled and not cb.channel_binary_list.channel.is_active?
         cpkg = cb.create_channel_package_into(self.project)
         next unless cpkg
+        next if mode.nil? and not cb.channel_binary_list.channel.is_active?
         cpkg.channels.first.add_channel_repos_to_project(cpkg, mode)
       end
     end
