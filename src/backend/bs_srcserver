@@ -1612,10 +1612,28 @@ sub applylink {
       die("/usr/bin/patch: $!\n");
     }
     waitpid($pid, 0) == $pid || die("waitpid $pid: $!\n");
-    if ($?) {
-      $failed = "could not apply patch '$pn'";
-      last;
+    $failed = "could not apply patch '$pn'" if $?;
+    # clean up patch fallout...
+    for my $f (ls($tmpdir)) {
+      my @s = lstat("$tmpdir/$f");
+      die("$tmpdir/$f: $!\n") unless @s;
+      if (-l _ || ! -f _) {
+        unlink("$tmpdir/$f");
+	$failed = "patch created a non-file";
+	next;
+      }
+      eval {
+	die("cannot create a link from a patch") if $f eq '_link';
+	BSVerify::verify_filename($f) unless $f eq '.log';
+      };
+      if ($@) {
+        unlink("$tmpdir/$f");
+	$failed = "patch created an illegal file";
+	next;
+      }
+      chmod(($s[2] & 077) | 0600, "$tmpdir/$f") if ($s[2] & 07700) != 0600;
     }
+    last if $failed;
   }
   if ($failed) {
     local *F;
