@@ -4224,7 +4224,7 @@ sub addrepo_alien {
 ### remote project binary state handling 
 
 sub convertpackagebinarylist {
-  my ($prpa, $packagebinarylist, $error, $packstatususer) = @_;
+  my ($prpa, $packagebinarylist, $error, $packstatususer, $isgbininfo) = @_;
 
   if ($error) {
     chomp $error;
@@ -4235,28 +4235,36 @@ sub convertpackagebinarylist {
   }
   my $gbininfo = {};
   my $rpackstatus = {};
-  for my $binaryversionlist (@{$packagebinarylist->{'binaryversionlist'} || []}) {
-    my %bins;
-    for my $binary (@{$binaryversionlist->{'binary'} || []}) {
-      my $filename = $binary->{'name'};
-      # XXX: should not rely on the filename here!
-      if ($filename =~ /^(?:::import::.*::)?(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
-        $bins{$filename} = {'filename' => $filename, 'name' => $1, 'arch' => $2};
-      } elsif ($filename =~ /^([^\/]+)_[^\/]*_([^\/]*)\.deb$/) {
-        $bins{$filename} = {'filename' => $filename, 'name' => $1, 'arch' => $2};
-      } elsif ($filename =~ /^([^\/]+)-[^-]+-[^-]+-([a-zA-Z][^\/\.\-]*)\.pkg\.tar\..z$/) {
-        $bins{$filename} = {'filename' => $filename, 'name' => $1, 'arch' => $2};
-      } elsif ($filename eq '.nouseforbuild') {
-        $bins{$filename} = {};
-      } else {
-        $bins{$filename} = {'filename' => $filename};	# XXX: what about the md5sum for appdata?
-      }
-      $bins{$filename}->{'hdrmd5'} = $binary->{'hdrmd5'} if $binary->{'hdrmd5'};
-      $bins{$filename}->{'leadsigmd5'} = $binary->{'leadsigmd5'} if $binary->{'leadsigmd5'};
+  if ($isgbininfo) {
+    $gbininfo = $packagebinarylist || {};
+    for my $pkg (keys %$gbininfo) {
+      my $bi = $gbininfo->{$pkg};
+      $rpackstatus->{$pkg} = delete($bi->{'.code'}) if exists $bi->{'.code'};
     }
-    my $pkg = $binaryversionlist->{'package'};
-    $gbininfo->{$pkg} = \%bins;
-    $rpackstatus->{$pkg} = $binaryversionlist->{'code'} if $binaryversionlist->{'code'};
+  } else {
+    for my $binaryversionlist (@{$packagebinarylist->{'binaryversionlist'} || []}) {
+      my %bins;
+      for my $binary (@{$binaryversionlist->{'binary'} || []}) {
+	my $filename = $binary->{'name'};
+	# XXX: should not rely on the filename here!
+	if ($filename =~ /^(?:::import::.*::)?(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+	  $bins{$filename} = {'filename' => $filename, 'name' => $1, 'arch' => $2};
+	} elsif ($filename =~ /^([^\/]+)_[^\/]*_([^\/]*)\.deb$/) {
+	  $bins{$filename} = {'filename' => $filename, 'name' => $1, 'arch' => $2};
+	} elsif ($filename =~ /^([^\/]+)-[^-]+-[^-]+-([a-zA-Z][^\/\.\-]*)\.pkg\.tar\..z$/) {
+	  $bins{$filename} = {'filename' => $filename, 'name' => $1, 'arch' => $2};
+	} elsif ($filename eq '.nouseforbuild') {
+	  $bins{$filename} = {};
+	} else {
+	  $bins{$filename} = {'filename' => $filename};	# XXX: what about the md5sum for appdata?
+	}
+	$bins{$filename}->{'hdrmd5'} = $binary->{'hdrmd5'} if $binary->{'hdrmd5'};
+	$bins{$filename}->{'leadsigmd5'} = $binary->{'leadsigmd5'} if $binary->{'leadsigmd5'};
+      }
+      my $pkg = $binaryversionlist->{'package'};
+      $gbininfo->{$pkg} = \%bins;
+      $rpackstatus->{$pkg} = $binaryversionlist->{'code'} if $binaryversionlist->{'code'};
+    }
   }
   my $cachemd5 = Digest::MD5::md5_hex($prpa);
   substr($cachemd5, 2, 0, '/');
@@ -4293,7 +4301,7 @@ sub cleanup_remotepackstatus {
 
 sub read_gbininfo_remote_resume {
   my ($handle, $error, $packagebinarylist) = @_;
-  convertpackagebinarylist($handle->{'_prpa'}, $packagebinarylist, $error, $handle->{'_ctx'}->{'prp'});
+  convertpackagebinarylist($handle->{'_prpa'}, $packagebinarylist, $error, $handle->{'_ctx'}->{'prp'}, $handle->{'_isgbininfo'});
   xrpc_setchanged($handle);
 }
 
@@ -4345,7 +4353,12 @@ sub read_gbininfo_remote {
   }
   my $packagebinarylist;
   eval {
-    $packagebinarylist = xrpc($ctx, "bininfo/$prpa", $param, $BSXML::packagebinaryversionlist, "view=binaryversionscode");
+    if ($remoteproj->{'partition'}) {
+      $param->{'async'}->{'_isgbininfo'} = 1 if $asyncmode;
+      $packagebinarylist = xrpc($ctx, "bininfo/$prpa", $param, \&BSUtil::fromstorable, "view=gbininfocode");
+    } else {
+      $packagebinarylist = xrpc($ctx, "bininfo/$prpa", $param, $BSXML::packagebinaryversionlist, "view=binaryversionscode");
+    }
   };
   if ($@) {
     warn($@);
@@ -4357,7 +4370,7 @@ sub read_gbininfo_remote {
   }
   return 0 if $packagebinarylist && $param->{'async'};
   my $gbininfo;
-  ($gbininfo, $rpackstatus) = convertpackagebinarylist($prpa, $packagebinarylist);
+  ($gbininfo, $rpackstatus) = convertpackagebinarylist($prpa, $packagebinarylist, undef, undef, $remoteproj->{'partition'} ? 1 : undef);
   if ($packstatus && $rpackstatus) {
     $packstatus->{$_} = $rpackstatus->{$_} for keys %$rpackstatus;
     delete $packstatus->{'/users'};

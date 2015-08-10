@@ -379,11 +379,26 @@ sub getpackagebinaryversionlist {
   return ({ 'binaryversionlist' => \@res }, $BSXML::packagebinaryversionlist);
 }
 
+sub getgbininfo {
+  my ($cgi, $projid, $repoid, $arch) = @_;
+  my $prp = "$projid/$repoid";
+
+  die("getgbininfo: package filtering is not supported\n") if $cgi->{'package'};
+  my $gbininfo = read_gbininfo("$reporoot/$prp/$arch", 1);
+  if ($cgi->{'withcode'}) {
+    my $ps = readpackstatus("$projid/$repoid/$arch");
+    my $code = ($ps || {})->{'packstatus'} || {};
+    $gbininfo->{$_}->{'.code'} = $code->{$_} for keys %$code;
+  }
+  delete $_->{'.bininfo'} for values %$gbininfo;
+  return (BSUtil::tostorable($gbininfo), 'Content-Type: application/octet-stream');
+}
+
 sub getpackagelist_build {
   my ($cgi, $projid, $repoid, $arch) = @_;
   die "must specify view\n" unless $cgi->{'view'};
-  $cgi->{'withcode'} = 1 if $cgi->{'view'}  eq 'binaryversionscode' || $cgi->{'view'}  eq 'bininfoscode';
-  return getbininfos($cgi, $projid, $repoid, $arch) if $cgi->{'view'} eq 'bininfos' || $cgi->{'view'} eq 'bininfoscode';
+  $cgi->{'withcode'} = 1 if $cgi->{'view'}  eq 'binaryversionscode' || $cgi->{'view'}  eq 'gbininfocode';
+  return getgbininfo($cgi, $projid, $repoid, $arch) if $cgi->{'view'} eq 'gbininfo' || $cgi->{'view'} eq 'gbininfocode';
   die("unknown view '$cgi->{'view'}'\n") unless $cgi->{'view'} eq 'binaryversions' || $cgi->{'view'} eq 'binaryversionscode';
   return getpackagebinaryversionlist($cgi, $projid, $repoid, $arch, $cgi->{'package'});
 }
