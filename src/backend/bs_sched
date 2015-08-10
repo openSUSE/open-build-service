@@ -8798,6 +8798,20 @@ NEXTPRP:
 
     my $prpchecktime = time();
 
+    if ($bconf->{'expandflags:preinstallexpand'}) {
+      my $err;
+      if (!defined &Build::expandpreinstalls($bconf)) {
+	$err = "Build::expandpreinstalls does not exist";
+      } else {
+	$err = Build::expandpreinstalls($bconf);
+	$err = "unresolvable $err" if $err;
+      }
+      if ($err) {
+        print "    $err\n";
+        set_repo_state($prp, 'broken', $err);
+        next;
+      }
+    }
     # Step 2c: expand all dependencies, put them in %pdeps hash
     my %subpacks;
     push @{$subpacks{$dep2src{$_}}}, $_ for keys %dep2src;
