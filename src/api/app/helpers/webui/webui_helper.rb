@@ -77,13 +77,12 @@ module Webui::WebuiHelper
     splitted = prjname.split(':', 3)
     if splitted[0] == 'home'
       if login and splitted[1] == login
-        if splitted.length == 2
-          prjname = '~'
-        else
-          prjname = '~:' + splitted[-1]
-        end
+        prjname = '~'
       else
-        prjname = '~' + splitted[1] + ':' + splitted[-1]
+        prjname = '~' + splitted[1]
+      end
+      if splitted.length > 2
+        prjname += ':' + splitted[-1]
       end
     end
     prjname
