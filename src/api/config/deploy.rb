@@ -61,7 +61,7 @@ namespace :config do
     run "ln -s #{shared_path}/distributions.xml #{release_path}#{git_subdir}/files"
     run "rm #{release_path}#{git_subdir}/config/environments/production.rb"
     run "ln -s #{shared_path}/production.rb #{release_path}#{git_subdir}/config/environments/production.rb"
-    date=`date +%Y%m%d%H%M`
+    date=%x(date +%Y%m%d%H%M)
     run "sed -i 's,^API_DATE.*,API_DATE = \"#{date.chomp}\",' #{release_path}#{git_subdir}/config/environments/production.rb"
   end
 
@@ -103,8 +103,8 @@ namespace :deploy do
   desc "Send email notification of deployment"
   task :notify do
     #diff = `#{source.local.diff(current_revision)}`
-    diff_log = `#{source.local.log(source.next_revision(current_revision), branch)}`
-    user = `whoami`
+    diff_log = %x(#{source.local.log(source.next_revision(current_revision), branch)})
+    user = %x(whoami)
     body = %Q[From: obs-api-deploy@suse.de
 To: #{deploy_notification_to.join(", ")}
 Subject: obs-api deployed by #{user}

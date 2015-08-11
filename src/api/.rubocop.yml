@@ -10,3 +10,5 @@ Metrics/LineLength:
   Exclude:
     - 'db/**/*'
 
+Style/CommandLiteral:
+  EnforcedStyle: percent_x
