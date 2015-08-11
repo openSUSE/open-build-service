@@ -1376,7 +1376,8 @@ class Project < ActiveRecord::Base
       rel = rel.where(bs_request_actions: { type: 'maintenance_release', source_project: self.name})
       if rel.exists?
         incident_name = self.maintenance_incident.project.name
-        raise OpenReleaseRequest.new "Unlock of maintenance incident #{incident_name} is not possible, because there is a running release request: #{rel.first.id}"
+        raise OpenReleaseRequest.new "Unlock of maintenance incident #{incident_name} is not possible," +
+				     " because there is a running release request: #{rel.first.id}"
       end
     end
 
@@ -1483,7 +1484,9 @@ class Project < ActiveRecord::Base
     release_targets_ng = {}
     self.repositories.each do |repo|
       repo.release_targets.each do |rt|
-        release_targets_ng[rt.target_repository.project.name] = {:reponame => repo.name, :packages => [], :patchinfo => nil, :package_issues => {}, :package_issues_by_tracker => {}}
+        release_targets_ng[rt.target_repository.project.name] = {:reponame => repo.name,
+                                                                 :packages => [], :patchinfo => nil,
+                                                                 :package_issues => {}, :package_issues_by_tracker => {}}
       end
     end
 

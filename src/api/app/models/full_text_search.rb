@@ -6,8 +6,8 @@ class FullTextSearch
   include ActiveModel::Serializers::JSON
 
   cattr_accessor :ranker, :field_weights, :per_page, :star,
-      :linked_count_weight, :activity_index_weight, :links_to_other_weight,
-      :is_devel_weight, :max_matches
+                 :linked_count_weight, :activity_index_weight, :links_to_other_weight,
+                 :is_devel_weight, :max_matches
 
   self.linked_count_weight = 100
   self.activity_index_weight = 500

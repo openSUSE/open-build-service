@@ -1,9 +1,9 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'public_controller'
 
-class PublicControllerTest < ActionDispatch::IntegrationTest 
+class PublicControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
-  
+
   def setup
     super
     wait_for_scheduler_start
@@ -88,7 +88,7 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
     assert_match(/myfile2: no such file/, @response.body)
 
     get "/public/build/home:Iggy/10.2/i586/TestPack/doesnotexist"
-    assert_response 404 
+    assert_response 404
     # FIXME: do a working getbinary call
   end
 
@@ -101,7 +101,8 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'package'
     assert_xml_tag :tag => 'list', :attributes => { :distribution => "1" }
     assert_xml_tag :tag => 'repository', :attributes => { :url => "http://example.com/download/home:/Iggy/10.2/home:Iggy.repo" }
-    assert_xml_tag :tag => 'rpm', :attributes => { :arch => "i586", :url => "http://example.com/download/home:/Iggy/10.2/i586/package-1.0-1.i586.rpm" }
+    assert_xml_tag :tag => 'rpm', :attributes => { :arch => "i586",
+                                                   :url => "http://example.com/download/home:/Iggy/10.2/i586/package-1.0-1.i586.rpm" }
 
     # we can list the binaries, but not download to avoid direct links
     get "/public/build/home:Iggy/10.2/i586/TestPack"

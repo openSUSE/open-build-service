@@ -130,13 +130,16 @@ class BranchPackage
       tpkg.store
 
       if p[:local_link]
+        # rubocop:disable Metrics/LineLength
         # copy project local linked packages
         Suse::Backend.post "/source/#{tpkg.project.name}/#{tpkg.name}?cmd=copy&oproject=#{CGI.escape(p[:link_target_project].name)}&opackage=#{CGI.escape(p[:package].name)}&user=#{CGI.escape(User.current.login)}", nil
+        # rubocop:enable Metrics/LineLength
         # and fix the link
         ret = ActiveXML::Node.new(tpkg.source_file('_link'))
         ret.delete_attribute('project') # its a local link, project name not needed
         linked_package = p[:link_target_package]
-        linked_package = params[:target_package] if params[:target_package] and params[:package] == ret.value('package') # user enforce a rename of base package
+         # user enforce a rename of base package
+        linked_package = params[:target_package] if params[:target_package] and params[:package] == ret.value('package')
         linked_package += '.' + p[:link_target_project].name.gsub(':', '_') if @extend_names
         ret.set_attribute('package', linked_package)
         Suse::Backend.put tpkg.source_path('_link', user: User.current.login), ret.dump_xml
@@ -158,10 +161,15 @@ class BranchPackage
 
         # fetch newer sources from devel package, if defined
         if p[:copy_from_devel] and p[:copy_from_devel].project != tpkg.project and not p[:rev]
-          msg="fetch+updates+from+devel+package+#{CGI.escape(p[:copy_from_devel].project.name)}/#{CGI.escape(p[:copy_from_devel].name)}"
-          msg="fetch+updates+from+open+incident+project+#{CGI.escape(p[:copy_from_devel].project.name)}" if p[:copy_from_devel].project.is_maintenance_incident?
+          if p[:copy_from_devel].project.is_maintenance_incident?
+            msg="fetch+updates+from+open+incident+project+#{CGI.escape(p[:copy_from_devel].project.name)}"
+          else
+            msg="fetch+updates+from+devel+package+#{CGI.escape(p[:copy_from_devel].project.name)}/#{CGI.escape(p[:copy_from_devel].name)}"
+          end
           # TODO: make this a query hash
+          # rubocop:disable Metrics/LineLength
           Suse::Backend.post tpkg.source_path + "?cmd=copy&keeplink=1&expand=1&oproject=#{CGI.escape(p[:copy_from_devel].project.name)}&opackage=#{CGI.escape(p[:copy_from_devel].name)}&user=#{CGI.escape(User.current.login)}&comment=#{msg}", nil
+          # rubocop:enable Metrics/LineLength
         end
 
         tpkg.sources_changed
@@ -278,16 +286,19 @@ class BranchPackage
       # no defined devel area or no package inside, but we branch from a release are: check in open incidents
 
       # only approved maintenance projects
-      next unless @maintenanceProjects.include? mp.maintenance_project 
+      next unless @maintenanceProjects.include? mp.maintenance_project
 
+      # rubocop:disable Metrics/LineLength
       path = "/search/package/id?match=(linkinfo/@package=\"#{CGI.escape(p[:package].name)}\"+and+linkinfo/@project=\"#{CGI.escape(p[:link_target_project].name)}\""
+      # rubocop:enable Metrics/LineLength
       path += "+and+starts-with(@project,\"#{CGI.escape(mp.maintenance_project.name)}%3A\"))"
       answer = Suse::Backend.post path, nil
       data = REXML::Document.new(answer.body)
       data.elements.each('collection/package') do |e|
         ipkg = Package.find_by_project_and_name(e.attributes['project'], e.attributes['name'])
         if ipkg.nil?
-          logger.error "read permission or data inconsistency, backend delivered package as linked package where no database object exists: #{e.attributes['project']} / #{e.attributes['name']}"
+          logger.error "read permission or data inconsistency, backend delivered package " +
+                       "as linked package where no database object exists: #{e.attributes['project']} / #{e.attributes['name']}"
         else
           # is incident ?
           if ipkg.project.is_maintenance_incident? and ipkg.project.is_unreleased?
@@ -381,7 +392,7 @@ class BranchPackage
         logger.info "branch call found package in update project #{pa.project.name}"
       end
       if p[:link_target_project].find_package(pa.name) != pa
-        # our link target has no project link finding the package. 
+        # our link target has no project link finding the package.
         # It got found via update project for example, so we need to use it's source
         p[:copy_from_devel] = p[:package]
       end
@@ -458,8 +469,12 @@ class BranchPackage
         found = true if ep[:package] == ap
       end
       unless found
-        logger.debug "found local linked package in project #{p[:package].project.name}/#{ap.name}, adding it as well, pointing it to #{p[:package].name} for #{target_package}"
-        @packages.push({ base_project: p[:base_project], link_target_project: p[:link_target_project], link_target_package: p[:package].name, package: ap, target_package: target_package, local_link: 1 })
+        logger.debug "found local linked package in project #{p[:package].project.name}/#{ap.name}, " + 
+                     "adding it as well, pointing it to #{p[:package].name} for #{target_package}"
+        @packages.push({ base_project: p[:base_project],
+                         link_target_project: p[:link_target_project],
+                         link_target_package: p[:package].name,
+                         package: ap, target_package: target_package, local_link: 1 })
       end
     end
   end
@@ -516,7 +531,9 @@ class BranchPackage
         @packages.push({ base_project: prj, link_target_project: prj, package: pkg, rev: params[:rev], target_package: tpkg_name })
       else
         # remote or not existing package
-        @packages.push({ base_project: prj, link_target_project: (prj||params[:project]), package: params[:package], rev: params[:rev], target_package: tpkg_name })
+        @packages.push({ base_project: prj,
+                         link_target_project: (prj||params[:project]),
+                         package: params[:package], rev: params[:rev], target_package: tpkg_name })
       end
     else
       @extend_names = true
@@ -529,7 +546,8 @@ class BranchPackage
           logger.info "Found package instance #{p.project.name}/#{p.name} for attribute #{at.name} with value #{params[:value]}"
           @packages.push({ base_project: p.project, link_target_project: p.project, package: p, target_package: "#{p.name}.#{p.project.name}" })
         end
-        # FIXME: how to handle linked projects here ? shall we do at all or has the tagger (who creates the attribute) to create the package instance ?
+        # FIXME: how to handle linked projects here ? shall we do at all or has the tagger
+        # (who creates the attribute) to create the package instance ?
       else
         # Find all direct instances of a package
         Package.find_by_attribute_type(at, params[:package]).each do |p|
@@ -543,11 +561,13 @@ class BranchPackage
           ltprj = lprj
           pkg2 = lprj.find_package(params[:package])
           unless pkg2.nil? or @packages.map { |p| p[:package] }.include? pkg2 # avoid double instances
-            logger.info "Found package instance via project link in #{pkg2.project.name}/#{pkg2.name} for attribute #{at.name} and given package name #{params[:package]}"
+            logger.info "Found package instance via project link in #{pkg2.project.name}/#{pkg2.name}" +
+                        "for attribute #{at.name} and given package name #{params[:package]}"
             if ltprj.find_attribute('OBS', 'BranchTarget').nil?
               ltprj = pkg2.project
             end
-            @packages.push({ base_project: pkg2.project, link_target_project: ltprj, package: pkg2, target_package: "#{pkg2.name}.#{pkg2.project.name}" })
+            @packages.push({ base_project: pkg2.project, link_target_project: ltprj,
+                             package: pkg2, target_package: "#{pkg2.name}.#{pkg2.project.name}" })
           end
         end
       end
@@ -575,4 +595,3 @@ class BranchPackage
     end
   end
 end
-

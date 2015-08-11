@@ -26,7 +26,9 @@ module Webui::WebuiHelper
     if email_list.length > 1
       cc = ('&cc=' + email_list[1..-1].join('&cc=')) if email_list
     end
+    # rubocop:disable Metrics/LineLength
     URI.escape("#{@configuration['bugzilla_url']}/enter_bug.cgi?classification=7340&product=openSUSE.org&component=3rd party software&assigned_to=#{assignee}#{cc}&short_desc=#{desc}")
+    # rubocop:enable Metrics/LineLength
   end
 
   def image_url(source)
@@ -109,8 +111,10 @@ module Webui::WebuiHelper
     elsif %w(- excluded).include? code
       out += code
     elsif @localpackages and not @localpackages.has_key? packname
-      out += link_to( code.gsub(/\s/, '&nbsp;'), raw_logfile_path(package: packname, project: @project.to_s, arch: arch, repository: repo),
-                                                 title: link_title, rel: 'nofollow')
+      out += link_to( code.gsub(/\s/, '&nbsp;'), raw_logfile_path(package: packname,
+                                                                  project: @project.to_s,
+                                                                  arch: arch, repository: repo),
+                      title: link_title, rel: 'nofollow')
     else
       out += link_to code.gsub(/\s/, '&nbsp;'), { action: :live_build_log,
                                                   package: packname, project: @project.to_s, arch: arch,

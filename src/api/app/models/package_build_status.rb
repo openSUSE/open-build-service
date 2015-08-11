@@ -93,7 +93,9 @@ class PackageBuildStatus
   def gather_current_buildcode(srep, arch)
     @buildcode="unknown"
     begin
+      # rubocop:disable Metrics/LineLength
       uri = URI("/build/#{CGI.escape(@pkg.project.name)}/_result?package=#{CGI.escape(@pkg.name)}&repository=#{CGI.escape(srep['name'])}&arch=#{CGI.escape(arch)}")
+      # rubocop:enable Metrics/LineLength
       resultlist = Xmlhash.parse(ActiveXML.backend.direct_http(uri))
       currentcode = nil
       resultlist.elements('result') do |r|
@@ -126,7 +128,9 @@ class PackageBuildStatus
     missingdeps=[]
     # if
     if @eversucceeded
+      # rubocop:disable Metrics/LineLength
       uri = URI("/build/#{CGI.escape(@pkg.project.name)}/#{CGI.escape(srep['name'])}/#{CGI.escape(arch)}/_builddepinfo?package=#{CGI.escape(@pkg.name)}&view=pkgnames")
+      # rubocop:enable Metrics/LineLength
       begin
         buildinfo = Xmlhash.parse(ActiveXML.backend.direct_http(uri))
       rescue ActiveXML::Transport::Error => e

@@ -42,7 +42,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       failed = Integer(output.split(':')[1])
       failedfile = nil
       linenrs.each do |ruby_file, line|
-        break if line > failed 
+        break if line > failed
         failedfile = ruby_file
       end
       IO.popen("ruby -cv #{failedfile} 2>&1 > /dev/null | grep #{Rails.root}") do |io|
@@ -69,23 +69,24 @@ class CodeQualityTest < ActiveSupport::TestCase
       'ApplicationController#extract_ldap_user' => 119.9,
       'AttributeController#attribute_definition' => 87.7,
       'BinaryRelease::update_binary_releases_via_json' => 128.58,
-      'BranchPackage#find_packages_to_branch' => 234.73,
+      'BranchPackage#find_packages_to_branch' => 238.17,
       'BranchPackage#create_branch_packages' => 214.0,
       'BranchPackage#check_for_update_project' => 101.04,
       'BranchPackage#determine_details_about_package_to_branch' => 91.39,
-      'BranchPackage#lookup_incident_pkg' => 80.64,
+      'BranchPackage#lookup_incident_pkg' => 83.09,
+      'BranchPackage#extend_packages_to_link' => 80.23,
       'BsRequest#change_review_state' => 203.53,
       'BsRequest#changestate_accepted' => 80.21,
       'BsRequest#apply_default_reviewers' => 129.52,
       'BsRequest#webui_actions' => 130.13,
       'BsRequest::new_from_xml' => 113.77,
-      'BsRequestAction#check_action_permission!' => 247.43,
-      'BsRequestAction#create_expand_package' => 419.0,
+      'BsRequestAction#check_action_permission!' => 252.69,
+      'BsRequestAction#create_expand_package' => 434.19,
       'BsRequestAction#default_reviewers' => 141.02,
       'BsRequestAction#store_from_xml' => 88.01,
       'BsRequestActionMaintenanceIncident#_merge_pkg_into_maintenance_incident' => 134.86,
       'BsRequestActionSubmit#execute_accept' => 132.43,
-      'BsRequestPermissionCheck#cmd_changestate_permissions' => 114.87,
+      'BsRequestPermissionCheck#cmd_changestate_permissions' => 117.09,
       'BuildController#file' => 127.42,
       'BuildController#project_index' => 129.0,
       'ChannelBinary#to_axml' => 82.0,
@@ -99,7 +100,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Project#update_one_repository_without_path' => 118.34,
       'PublicController#binary_packages' => 126.16,
       'Repository#cleanup_before_destroy' => 82.98,
-      'BsRequest#assignreview' => 86.62, 
+      'BsRequest#assignreview' => 86.62,
       'SearchController#find_attribute' => 97.33,
       'SearchController#search' => 84.06,
       'SourceController#project_command_copy' => 140.04,
@@ -107,9 +108,10 @@ class CodeQualityTest < ActiveSupport::TestCase
       'UserLdapStrategy::find_with_ldap' => 119.04,
       'UserLdapStrategy::render_grouplist_ldap' => 100.3,
       'Webui::DriverUpdateController#save' => 97.16,
-      'Webui::PackageController#submit_request' => 140.91,
-      'Webui::PatchinfoController#save' => 246.65,
-      'Webui::ProjectController#check_devel_package_status' => 81.95, 
+      'Webui::PackageController#submit_request' => 149.9,
+      'Webui::PatchinfoController#save' => 252.95,
+      'Webui::ProjectController#check_devel_package_status' => 81.95,
+      'Webui::ProjectController#save_new' => 90,
       'Webui::ProjectController#save_targets' => 123.29,
       'Webui::SearchController#set_parameters' => 98.04,
       'Webui::WebuiHelper#flag_status' => 93.0,
@@ -119,7 +121,10 @@ class CodeQualityTest < ActiveSupport::TestCase
   test 'code complexity' do
     require 'flog_cli'
     flog = Flog.new :continue => true
-    dirs = %w(app/controllers app/views app/models app/mixins app/indices app/helpers app/jobs webui/app/controllers webui/app/models webui/app/helpers webui/app/mixins)
+    dirs = %w(app/controllers app/views app/models
+              app/mixins app/indices app/helpers
+              app/jobs webui/app/controllers webui/app/models
+              webui/app/helpers webui/app/mixins)
     files = FlogCLI.expand_dirs_to_files(*dirs)
     flog.flog(*files)
 

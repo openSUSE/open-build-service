@@ -1,9 +1,10 @@
+# rubocop:disable Metrics/LineLength
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'source_controller'
 
-class ChannelMaintenanceTests < ActionDispatch::IntegrationTest 
+class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
   fixtures :all
-  
+
   def setup
     super
     wait_for_scheduler_start
@@ -35,7 +36,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get '/search/package?match=%28%40name+%3D+%27pack2%27%29+and+%28project%2Fattribute%2F%40name%3D%27OBS%3AMaintained%27+or+attribute%2F%40name%3D%27OBS%3AMaintained%27%29'
     assert_response :success
     assert_xml_tag :tag => 'collection', :children => { count: 2 }
-   
+
     # do the real mbranch for default maintained packages
     login_tom
     post '/source', :cmd => 'branch', :package => 'pack2'
@@ -748,7 +749,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     #
     # A second update on top of a released one.
     # Additional channel using just a local linked package
-    # 
+    #
     # setup two channels for splitted product
     put '/source/Channel/BaseDistro2/_meta', '<package project="Channel" name="BaseDistro2"><title/><description/></package>'
     assert_response :success
@@ -882,3 +883,4 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
   end
 
 end
+# rubocop:enable Metrics/LineLength

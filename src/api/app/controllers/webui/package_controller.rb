@@ -91,7 +91,8 @@ class Webui::PackageController < Webui::WebuiController
       :filename => params[:dname], :view => 'fileinfo_ext')
     @durl = nil
     unless @fileinfo # avoid displaying an error for non-existing packages
-      redirect_back_or_to(:action => 'binary', :project => params[:project], :package => params[:package], :repository => @repository, :arch => @arch, :filename => @filename)
+      redirect_back_or_to(:action => 'binary', :project => params[:project], :package => params[:package],
+                          :repository => @repository, :arch => @arch, :filename => @filename)
     end
   end
 
@@ -231,7 +232,7 @@ class Webui::PackageController < Webui::WebuiController
                  source_package: params[:package],
                  target_project: params[:targetproject],
                  target_package: tpkg }
-        if params[:sourceupdate] 
+        if params[:sourceupdate]
           opts[:sourceupdate] = params[:sourceupdate]
         elsif params[:project].include?(':branches:')
           opts[:sourceupdate] = 'update' # Avoid auto-removal of branch
@@ -558,7 +559,9 @@ class Webui::PackageController < Webui::WebuiController
 
     logger.debug "link params doing branch: #{@linked_project}, #{@linked_package}"
     begin
-      path = Package.source_path(@linked_project, @linked_package, nil, { cmd: :branch, target_project: @project.name, target_package: @target_package})
+      path = Package.source_path(@linked_project, @linked_package, nil, { cmd: :branch,
+                                                                          target_project: @project.name,
+                                                                          target_package: @target_package})
       path += "&rev=#{CGI.escape(@revision)}" if @revision
       frontend.transport.direct_http( URI(path), :method => 'POST', :data => '')
       flash[:success] = "Branched package #{@project.name} / #{@target_package}"
@@ -1001,7 +1004,9 @@ class Webui::PackageController < Webui::WebuiController
   def change_flag
     check_ajax
     required_parameters :cmd, :flag
-    frontend.source_cmd params[:cmd], project: @project, package: @package, repository: params[:repository], arch: params[:arch], flag: params[:flag], status: params[:status]
+    frontend.source_cmd params[:cmd], project: @project, package: @package,
+                        repository: params[:repository], arch: params[:arch],
+                        flag: params[:flag], status: params[:status]
     @flags = @package.expand_flags[params[:flag]]
   end
 

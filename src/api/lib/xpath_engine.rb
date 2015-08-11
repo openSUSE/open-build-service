@@ -1,3 +1,4 @@
+# rubocop:disable Metrics/LineLength
 class XpathEngine
 
   require 'rexml/parsers/xpathparser'
@@ -8,7 +9,7 @@ class XpathEngine
 
   def initialize
     @lexer = REXML::Parsers::XPathParser.new
-    
+
     @tables = {
       'attribute' => 'attribs',
       'package' => 'packages',
@@ -20,7 +21,7 @@ class XpathEngine
       'channel_binary' => 'channel_binaries',
       'released_binary' => 'released_binaries'
     }
-    
+
     @attribs = {
       'packages' => {
         '@project' => {:cpart => 'projects.name',
@@ -30,12 +31,12 @@ class XpathEngine
         'description' => {:cpart => 'packages.description'},
         'kind' => {:cpart => 'package_kinds.kind', :joins =>
            ['LEFT JOIN package_kinds ON package_kinds.package_id = packages.id']},
-        'devel/@project' => {:cpart => 'projs.name', :joins => 
+        'devel/@project' => {:cpart => 'projs.name', :joins =>
           ['left join packages devels on packages.develpackage_id = devels.id',
            'left join projects projs on devels.project_id=projs.id']},
-        'devel/@package' => {:cpart => 'develpackage.name', :joins => 
+        'devel/@package' => {:cpart => 'develpackage.name', :joins =>
           ['LEFT JOIN packages develpackage ON develpackage.id = packages.develpackage_id']},
-        'issue/@state' => {:cpart => 'issues.state', :joins => 
+        'issue/@state' => {:cpart => 'issues.state', :joins =>
           ['LEFT JOIN package_issues ON packages.id = package_issues.package_id',
            'LEFT JOIN issues ON issues.id = package_issues.issue_id',
            'LEFT JOIN attribs ON attribs.package_id = packages.id',
@@ -58,7 +59,7 @@ class XpathEngine
           ]},
         'issue/@change' => {:cpart => 'package_issues.change',
                             joins: 'LEFT JOIN package_issues ON packages.id = package_issues.package_id'},
-        'issue/owner/@email' => {:cpart => 'users2.email = ? or users.email', :double => 1, :joins => 
+        'issue/owner/@email' => {:cpart => 'users2.email = ? or users.email', :double => 1, :joins =>
           ['LEFT JOIN package_issues ON packages.id = package_issues.package_id',
            'LEFT JOIN issues ON issues.id = package_issues.issue_id',
            'LEFT JOIN users ON users.id = issues.owner_id',
@@ -66,14 +67,14 @@ class XpathEngine
            'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
            'LEFT JOIN issues2 ON issues2.id = attrib_issues.issue_id',
            'LEFT JOIN users AS users2 ON users.id = issues2.owner_id']},
-        'issue/owner/@login' => {:cpart => 'users2.login = ? or users.login', :double => 1, :joins => 
+        'issue/owner/@login' => {:cpart => 'users2.login = ? or users.login', :double => 1, :joins =>
           ['LEFT JOIN package_issues ON packages.id = package_issues.package_id',
            'LEFT JOIN issues ON issues.id = package_issues.issue_id',
            'LEFT JOIN users ON users.id = issues.owner_id',
            'LEFT JOIN attribs ON attribs.package_id = packages.id',
            'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
            'LEFT JOIN users AS users2 ON users2.id = issues.owner_id']},
-        'person/@userid' => {:cpart => 'users.login', :joins => 
+        'person/@userid' => {:cpart => 'users.login', :joins =>
           ['LEFT JOIN relationships rpu ON packages.id = package_id',
            'LEFT JOIN users ON users.id = rpu.user_id']},
         'person/@role' => {:cpart => 'ppr.title', :joins =>
@@ -86,12 +87,12 @@ class XpathEngine
           ['LEFT JOIN relationships ON packages.id = relationships.package_id',
            'LEFT JOIN roles AS gpr ON relationships.role_id = gpr.id']},
         'attribute/@name' => {:cpart => 'attrib_namespaces.name = ? AND attrib_types.name',
-          :split => ':', :joins => 
+          :split => ':', :joins =>
           ['LEFT JOIN attribs ON attribs.package_id = packages.id',
            'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
            'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id',
            'LEFT JOIN attribs AS attribsprj ON attribsprj.project_id = packages.project_id',   # include also, when set in project
-           'LEFT JOIN attrib_types AS attrib_typesprj ON attribsprj.attrib_type_id = attrib_typesprj.id', 
+           'LEFT JOIN attrib_types AS attrib_typesprj ON attribsprj.attrib_type_id = attrib_typesprj.id',
            'LEFT JOIN attrib_namespaces AS attrib_namespacesprj ON attrib_typesprj.attrib_namespace_id = attrib_namespacesprj.id']},
         'project/attribute/@name' => {:cpart => 'attrib_namespaces_proj.name = ? AND attrib_types_proj.name', :split => ':', :joins =>
           ['LEFT JOIN attribs AS attribs_proj ON attribs_proj.project_id = packages.project_id',
@@ -127,9 +128,9 @@ class XpathEngine
         'repository/releasetarget/@trigger' => {:cpart => 'rt.trigger', :joins => [
           'join repositories r on r.db_project_id=projects.id',
           'join release_targets rt on rt.repository_id=r.id']},
-        'package/@name' => {:cpart => 'packs.name', :joins => 
+        'package/@name' => {:cpart => 'packs.name', :joins =>
           ['LEFT JOIN packages AS packs ON packs.project_id = projects.id']},
-        'attribute/@name' => {:cpart => 'attrib_namespaces.name = ? AND attrib_types.name', :split => ':', :joins => 
+        'attribute/@name' => {:cpart => 'attrib_namespaces.name = ? AND attrib_types.name', :split => ':', :joins =>
           ['LEFT JOIN attribs ON attribs.project_id = projects.id',
            'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
            'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id']},
@@ -283,9 +284,9 @@ class XpathEngine
         '@tracker' => {cpart: 'issue_trackers.name',
                        joins: 'LEFT JOIN issue_trackers ON issues.issue_tracker_id = issue_trackers.id'
         },
-        'owner/@email' => {:cpart => 'users.email', :joins => 
+        'owner/@email' => {:cpart => 'users.email', :joins =>
           ['LEFT JOIN users ON users.id = issues.owner_id']},
-        'owner/@login' => {:cpart => 'users.login', :joins => 
+        'owner/@login' => {:cpart => 'users.login', :joins =>
           ['LEFT JOIN users ON users.id = issues.owner_id']},
       },
       'requests' => {
@@ -641,7 +642,7 @@ class XpathEngine
     #logger.debug "-- condition: [#{condition}]"
 
     @conditions << condition
-  end 
+  end
 
   def xpath_func_contains(root, haystack, needle)
     #logger.debug "-- xpath_func_contains(#{haystack.inspect}, #{needle.inspect}) --"
@@ -681,7 +682,7 @@ class XpathEngine
     # occor twice, hence the @condition_values_needed counter. For our example, the resulting SQL will
     # look like:
     #
-    #   SELECT * FROM projects p LEFT JOIN db_project_types t ON p.type_id = t.id 
+    #   SELECT * FROM projects p LEFT JOIN db_project_types t ON p.type_id = t.id
     #            WHERE (NOT t.name = 'maintenance_incident' OR t.name IS NULL);
     #
     # Note that this can result in bloated SQL statements, so some trust in the query optimization
@@ -706,8 +707,8 @@ class XpathEngine
     condition = "#{s1} LIKE CONCAT(#{s2},'%')"
     #logger.debug "-- condition: [#{condition}]"
 
-    @conditions << condition 
-  end 
+    @conditions << condition
+  end
 
   def xpath_func_ends_with(root, x, y)
     #logger.debug "-- xpath_func_ends_with(#{x.inspect}, #{y.inspect}) --"
@@ -718,6 +719,7 @@ class XpathEngine
     condition = "#{s1} LIKE CONCAT('%',#{s2})"
     #logger.debug "-- condition: [#{condition}]"
 
-    @conditions << condition 
-  end 
+    @conditions << condition
+  end
 end
+# rubocop:enable Metrics/LineLength

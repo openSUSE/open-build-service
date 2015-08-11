@@ -26,7 +26,7 @@ class PersonController < ApplicationController
   # Returns a list of all users (that optionally start with a prefix)
   def command
     if params[:cmd] == "register"
-      internal_register 
+      internal_register
       return
     end
     raise UnknownCommandError.new "Allowed commands are 'change_password'"
@@ -73,7 +73,7 @@ class PersonController < ApplicationController
     login = params[:login]
     user = User.find_by_login(login) if login
 
-    if user 
+    if user
       unless user.login == User.current.login or User.current.is_admin?
         logger.debug "User has no permission to change userinfo"
         render_error :status => 403, :errorcode => 'change_userinfo_no_permission',
@@ -129,7 +129,7 @@ class PersonController < ApplicationController
 
   def internal_register
     xml = REXML::Document.new( request.raw_post )
-    
+
     logger.debug( "register XML: #{request.raw_post}" )
 
     login = xml.elements["/unregisteredperson/login"].text
@@ -159,7 +159,7 @@ class PersonController < ApplicationController
     request.env["RAW_POST_DATA"] = request.env["RAW_POST_DATA"].sub(/<password>(.*)<\/password>/, "<password>STRIPPED<password>")
     raise e
   end
-  
+
   def update_watchlist( user, xml )
     new_watchlist = []
     old_watchlist = []
@@ -191,7 +191,7 @@ class PersonController < ApplicationController
     xml.elements("globalrole") do |e|
       new_globalroles << e.to_s
     end
- 
+
     user.update_globalroles( new_globalroles )
   end
 
@@ -225,8 +225,8 @@ class PersonController < ApplicationController
       return
     end
     user = User.get_by_login(login)
-    
-    #change password to LDAP if LDAP is enabled    
+
+    #change password to LDAP if LDAP is enabled
     if CONFIG['ldap_mode'] == :on
       ldap_password = Base64.decode64(password)
       if CONFIG['ldap_ssl'] == :on
@@ -242,7 +242,8 @@ class PersonController < ApplicationController
           return
         end
       else
-        render_error :status => 404, :errorcode => 'change_passwd_no_security', :message => "LDAP mode enabled, the user password can only be changed with CONFIG['ldap_ssl'] enabling."
+        render_error :status => 404, :errorcode => 'change_passwd_no_security', :message => "LDAP mode enabled, the user password can only" +
+                                                                                            " be changed with CONFIG['ldap_ssl'] enabling."
         return
       end
     end
