@@ -37,7 +37,7 @@ class UnregisteredUser < User
   end
 
   def self.get_state
-    state = User.states.key(User.default_state) 
+    state = User.states.key(User.default_state)
     state = 'unconfirmed' if ::Configuration.registration == 'confirmation'
     state = 'confirmed' if ::Configuration.registration == 'allow'
     logger.debug "User state is: #{state}"
@@ -46,10 +46,10 @@ class UnregisteredUser < User
 
   def self.register(opts)
     can_register?
-    
+
     opts[:note] = nil unless User.current and User.current.is_admin?
     state = get_state
-    
+
     newuser = User.create(
         :login => opts[:login],
         :password => opts[:password],

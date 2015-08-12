@@ -1,7 +1,7 @@
 # encoding: UTF-8
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-class PersonControllerTest < ActionDispatch::IntegrationTest 
+class PersonControllerTest < ActionDispatch::IntegrationTest
 
   fixtures :all
 
@@ -19,7 +19,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     get "/person?prefix=s"
     assert_response :success
   end
- 
+
   def test_ichain
     login_adrian
     get "/person/tom", nil, { "username" => "fred" }
@@ -29,7 +29,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
   def test_userinfo_for_valid_http_user
     login_adrian
     get "/person/tom"
-    assert_response :success   
+    assert_response :success
     # This returns the xml content with the user info
   end
 
@@ -53,7 +53,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
   def test_userinfo_from_param_invalid
     login_adrian
     get "/person/notfred"
-    assert_response 404 
+    assert_response 404
   end
 
   def test_userinfo_with_empty_auth_header
@@ -80,7 +80,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
 
   def test_watchlist_privacy
     prepare_request_valid_user
-    
+
     get "/person/tom"
     # should see his watchlist
     assert_xml_tag :tag => 'person', :child => {:tag => 'watchlist'}
@@ -97,7 +97,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     # get original data
     get "/person/tom"
     assert_response :success
-    
+
     # change the xml data set that came as response body
     new_name = "Thommy Cool"
     userinfo_xml = @response.body

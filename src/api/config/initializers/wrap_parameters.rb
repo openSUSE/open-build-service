@@ -32,7 +32,7 @@ class MyParamsParser
   end
 
   def call(env)
-    
+
     if params = parse_parameters(env)
       env["action_dispatch.request.request_parameters"] = params
     end
@@ -43,11 +43,11 @@ class MyParamsParser
 
   def parse_parameters(env)
     request = ActionDispatch::Request.new(env)
-    
+
     if request.content_length.zero?
       return false
     end
-    
+
     case request.content_mime_type
     when Mime::JSON
       begin

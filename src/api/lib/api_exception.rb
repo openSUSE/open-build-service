@@ -28,11 +28,11 @@ class APIException < Exception
     # if the class name stops with Error, strip that
     err.gsub(%r{_error$}, '')
   end
-  
+
   def status
     self.class.instance_variable_get "@status"
   end
-  
+
   def default_message
     self.class.instance_variable_get "@default_message"
   end
@@ -78,7 +78,7 @@ class InvalidProjectNameError < APIException; end
 class UnknownCommandError < APIException; end
 class NotMissingError < APIException; end
 class PackageAlreadyExists < APIException; end
-class ExpandError < APIException; 
+class ExpandError < APIException;
   setup 'expand_error'
 end
 class ProjectNotLocked < APIException

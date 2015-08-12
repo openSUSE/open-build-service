@@ -12,7 +12,7 @@ class IchainNotifierTest < ActiveSupport::TestCase
     ActionMailer::Base.delivery_method = :test
     ActionMailer::Base.perform_deliveries = true
     ActionMailer::Base.deliveries = []
-    
+
     @user = User.find_by_login "tom"
     assert @user.valid?
 
@@ -30,15 +30,15 @@ class IchainNotifierTest < ActiveSupport::TestCase
 #    @expected.subject = 'Buildservice account request rejected'
 #    @expected.body    = read_fixture('reject')
 #    @expected.date    = Time.now
-# 
+#
 #    assert_equal @expected.encoded, IchainNotifier.create_reject(@user).encoded
 #  end
-# 
+#
 #  def test_approval
 #    @expected.subject = 'Your openSUSE buildservice account is active'
 #    @expected.body    = read_fixture('approval')
 #    @expected.date    = Time.now
-# 
+#
 #    assert_equal @expected.encoded, IchainNotifier.create_approval(@user).encoded
 #  end
 

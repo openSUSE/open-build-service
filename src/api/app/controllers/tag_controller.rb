@@ -1,5 +1,5 @@
 class TagController < ApplicationController
-  
+
   validate_action :tags_by_user_and_object => {:method => :get, :response => :tags}
   validate_action :project_tags => {:method => :get, :response => :tags}
   validate_action :package_tags => {:method => :get, :response => :tags}
@@ -7,16 +7,16 @@ class TagController < ApplicationController
   class TagNotFoundError < APIException
     setup 'tag_not_found', 404, "Tag not found"
   end
-  
+
   #list all available tags as xml list
   def list_xml
     @taglist = Tag.all
     render :partial => "listxml"
   end
-  
+
   def get_tagged_projects_by_user
     @user = User.find_by_login!(params[:user])
-      
+
     @taggings = Tagging.where("taggable_type = ? AND user_id = ?","Project",@user.id)
     @projects_tags = {}
     @taggings.each do |tagging|
@@ -31,8 +31,8 @@ class TagController < ApplicationController
     @my_type = "project"
     render :partial => "tagged_objects_with_tags"
   end
-  
-  
+
+
   def get_tagged_packages_by_user
     @user = User.find_by_login!(params[:user])
     @taggings = Tagging.where("taggable_type = ? AND user_id = ?","Package",@user.id)
@@ -48,18 +48,18 @@ class TagController < ApplicationController
     end
     @my_type = "package"
     render :partial => "tagged_objects_with_tags"
-      
+
   end
-  
-  
+
+
   def get_tags_by_user
     @user = @http_user
     @tags = @user.tags.group(:name)
     @tags
   end
-  
+
   def get_projects_by_tag ( do_render=true )
-    @tag = params[:tag]      
+    @tag = params[:tag]
     @projects = Array.new
 
      first_run = true
@@ -70,7 +70,7 @@ class TagController < ApplicationController
 
       if first_run
         @projects = tag.projects.group(:name).order(:name)
-        first_run = false 
+        first_run = false
       else
         @projects = @projects & tag.projects.group(:name).order(:name)
       end
@@ -82,18 +82,18 @@ class TagController < ApplicationController
     end
     return @projects
   end
-  
-  
+
+
   def get_packages_by_tag( do_render=true )
     @tag = params[:tag]
     @packages = Array.new
-    
+
     first_run = true
-    
+
     @tag.split('::').each do |t|
       tag = Tag.find_by_name(t)
       raise TagNotFoundError.new("Tag #{t} not found") unless tag
-      
+
       if first_run
         @packages = tag.packages.group(:name).order(:name)
         first_run = false
@@ -101,23 +101,23 @@ class TagController < ApplicationController
         @packages = @packages & tag.packages.group(:name).order(:name)
       end
     end
-    
+
     if do_render
       render :partial => "objects_by_tag"
       return
     end
     return @packages
   end
-  
-  
+
+
   def get_objects_by_tag
     @projects = get_projects_by_tag( false )
     @packages = get_packages_by_tag( false )
-    
-    render :partial => "objects_by_tag"     
+
+    render :partial => "objects_by_tag"
   end
-  
-  
+
+
   def tags_by_user_and_object
     if request.get?
       if params[:package]
@@ -129,14 +129,14 @@ class TagController < ApplicationController
       update_tags_by_object_and_user
     end
   end
-  
-  
+
+
   def get_tags_by_user_and_project( do_render=true )
     user = User.find_by_login!(params[:user])
     @type = "project"
     @name = params[:project]
     @project = Project.get_by_name(params[:project])
-    
+
     @tags = @project.tags.where("taggings.user_id = ?", user.id).order(:name)
     if do_render
       render :partial => "tags"
@@ -144,16 +144,16 @@ class TagController < ApplicationController
       return @tags
     end
   end
-  
-  
+
+
   def get_tags_by_user_and_package( do_render=true  )
     user = User.find_by_login!(params[:user])
-    @type = "package" 
+    @type = "package"
 
     @name = params[:package]
     @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: false)
     @project = @package.project
-    
+
     @tags = @package.tags.where("taggings.user_id = ?",user.id).order(:name)
     if do_render
       render :partial => "tags"
@@ -161,35 +161,35 @@ class TagController < ApplicationController
       return @tags
     end
   end
-  
-  
+
+
   def most_popular_tags()
   end
-  
-  
+
+
   def most_recent_tags()
-  end     
-  
-  
-  def tagcloud 
+  end
+
+
+  def tagcloud
     allowed_distribution_methods = %w(raw linear logarithmic)
     @limit = params[:limit] or @limit = 100
     @limit = @limit.to_i
-    
+
     @steps = (params[:steps] ||= 6).to_i
     if @steps < 1 or @steps > 100
       render_error :status => 404, :errorcode => 'invalid_value',
-        :message => "Invalid value for parameter steps.  (must be 1..100)" 
+        :message => "Invalid value for parameter steps.  (must be 1..100)"
       return
     end
-    
+
     @distribution_method = (params[:distribution] ||= "logarithmic")
     if not allowed_distribution_methods.include? @distribution_method
       render_error :status => 404, :errorcode => 'invalid_value',
-        :message => "Invalid value for parameter distribution.  (distribution=#{@distribution_method})" 
+        :message => "Invalid value for parameter distribution.  (distribution=#{@distribution_method})"
       return
     end
-    
+
     if request.get?
       if params[:user]
         user = User.find_by_login!(params[:user])
@@ -197,76 +197,76 @@ class TagController < ApplicationController
       else
         tagcloud = Tagcloud.new(:scope => "global", :limit => @limit)
       end
-      
+
       #get the list of tags
       @tags = tagcloud.get_tags(@distribution_method,@steps)
       raise ArgumentError.new( "tag-cloud generation failed." ) if @tags.nil?
-      
+
       render :partial => "tagcloud"
-      
+
     elsif request.post?
       #The request-data includes a collection of objects (projects and
       #packages atm.). Based on this objects the tagcloud will be calculated.
       request_data = request.raw_post
-      
+
       collection = ActiveXML::Node.new( request_data )
-      
+
       #get the projects
       projects =[]
       collection.each('project') do |project|
         proj = Project.get_by_name(project.value('name'))
-        
+
         projects << proj
       end
-      
+
       #get the packages
       packages = []
       collection.each('package') do |package|
         project = Project.get_by_name(package.value('project'))
-        
+
         pack = Package.get_by_project_and_name( project.name, package.value('name'), use_source: false, follow_project_links: false )
-        
+
         packages << pack
       end
-      
+
       objects = projects + packages
-      
+
       #creating the tagcloud
       tagcloud = Tagcloud.new(:scope => 'by_given_objects', :objects => objects, :limit => @limit)
-      
+
       #get the tags and the tag-sizes or counts
       @tags = tagcloud.get_tags(@distribution_method, @steps)
 
       render :partial => 'tagcloud'
     end
   end
-  
-  
+
+
   #TODO helper function, delete me
   def get_taglist
     tags = Tag.order(:name)
     return tags
   end
-  
-  def project_tags 
+
+  def project_tags
     #get project name from the URL
     project_name = params[:project]
     if request.get?
       @project = Project.get_by_name( project_name )
       logger.debug "GET REQUEST for project_tags. User: #{@user}"
-      @type = "project" 
+      @type = "project"
       @name = params[:project]
       @tags = @project.tags.group(:name).order(:name)
       render :partial => "tags"
-      
+
     elsif request.put?
-      
+
       @project = Project.get_by_name( project_name )
-      logger.debug "Put REQUEST for project_tags. User: #{@http_user.login}" 
-      
+      logger.debug "Put REQUEST for project_tags. User: #{@http_user.login}"
+
       #TODO Permission needed!
-      
-      if !@http_user 
+
+      if !@http_user
         logger.debug "No user logged in."
         render_error( :message => "No user logged in.", :status => 403 )
         return
@@ -277,41 +277,41 @@ class TagController < ApplicationController
       request_data = request.raw_post
       #taglistXML = "<the whole xml/>"
       @taglistXML = request_data
-      
+
       #update_tags_by_project_and_user(request_data)
-      
+
       @tags =  taglistXML_to_tags(request_data)
-      
+
       save_tags(@project, @tagCreator, @tags)
-      
-      logger.debug "PUT REQUEST for project_tags."     
+
+      logger.debug "PUT REQUEST for project_tags."
       render_ok
-    end 
+    end
   end
-  
-  
+
+
   def package_tags
-    
+
     project_name = params[:project]
     package_name = params[:package]
     if request.get?
       @project = Project.get_by_name( project_name )
       @package = @project.packages.find_by_name package_name
-      
+
       logger.debug "[TAG:] GET REQUEST for package_tags. User: #{@user}"
-      
-      @type = "package" 
+
+      @type = "package"
       @tags = @package.tags.group(:name)
       render :partial => "tags"
-      
+
     elsif request.put?
       logger.debug "[TAG:] PUT REQUEST for package_tags."
       @project = Project.get_by_name( project_name )
       @package = Package.find_by_db_project_id_and_name( @project.id, package_name )
-      
+
       #TODO Permission needed!
-      
-      if !@http_user 
+
+      if !@http_user
         logger.debug "No user logged in."
         render_error( :message => "No user logged in.", :status => 403 )
         return
@@ -322,17 +322,17 @@ class TagController < ApplicationController
       request_data = request.raw_post
       #taglistXML = "<the whole xml/>"
       @taglistXML = request_data
-      
+
       @tags =  taglistXML_to_tags(request_data)
-      
+
       save_tags(@package, @tagCreator, @tags)
-      
+
       render_ok
-      
+
     end
   end
-  
-  
+
+
   def update_tags_by_object_and_user
     @user = User.find_by_login!(params[:user])
     unless @user == @http_user
@@ -342,19 +342,19 @@ class TagController < ApplicationController
     end
 
     @project = Project.get_by_name(params[:project])
-    
+
     tags, unsaved_tags = taglistXML_to_tags(request.raw_post)
-    
+
     tag_hash = {}
     tags.each do |tag|
       tag_hash[tag.name] = ""
     end
     logger.debug "[TAG:] Hash of new tags: #{@tag_hash.inspect}"
-    
+
     if params[:package]
       logger.debug "[TAG:] Package selected"
       @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: false)
-      
+
       old_tags = get_tags_by_user_and_package( false )
       old_tags.each do |old_tag|
         unless tag_hash.has_key? old_tag.name
@@ -371,61 +371,61 @@ class TagController < ApplicationController
         end
       end
       save_tags(@project,@user,tags)
-    end    
-    
+    end
+
     if not unsaved_tags
       render_ok
-    else  
+    else
       error = "[TAG:] There are rejected Tags: #{unsaved_tags.inspect}"
       logger.debug "#{error}"
       #need exception handling in the tag client
       render_error :status => 400, :errorcode => 'tagcreation_error',
-      :message => error 
+      :message => error
     end
   end
-  
-  
+
+
   def taglistXML_to_tags(taglistXML)
-    
+
     taglist = []
-    
+
     xml = Xmlhash.parse(taglistXML)
-    
+
     xml.elements("tag") do  |tag|
       taglist << tag["name"]
     end
-    
+
     #make tag objects
     tags = []
     taglist.each do |tagname|
       begin
         tags << s_to_tag(tagname)
-      
+
       rescue RuntimeError => error
         @unsaved_tags ||= []
         @unsaved_tags << tagname
-        logger.debug "[TAG:] #{error}" 
-      end      
-    end 
-    
+        logger.debug "[TAG:] #{error}"
+      end
+    end
+
     return tags, @unsaved_tags
   end
-  
-  
+
+
   def save_tags(object, tagCreator, tags)
     if tags.kind_of? Tag then
       tags = [tags]
-    end  
+    end
     tags.each do |tag|
       begin
         create_relationship(object, tagCreator, tag)
       rescue ActiveRecord::StatementInvalid
         logger.debug "The relationship #{object.name} - #{tag.name} - #{tagCreator.login} already exist."
-      end  
-    end      
+      end
+    end
   end
-  
-  
+
+
   #create an entry in the join table (taggings) if necessary
   def create_relationship(object, tagCreator, tag)
     Tagging.transaction do
@@ -434,23 +434,23 @@ class TagController < ApplicationController
         tagCreator.taggings << @jointable
         tag.taggings << @jointable
         @jointable.save
-    end  
+    end
   end
-  
-  
+
+
   #get the tag as object
   def s_to_tag(tagname)
-    unless tag = Tag.find_by_name(tagname) 
+    unless tag = Tag.find_by_name(tagname)
       tag = Tag.create(name: tagname)
     end
     raise RuntimeError.new( "Tag #{tagname} could not be saved. ERROR: #{tag.errors[:name]}" ) if not tag.valid?
     return tag
   end
-  
-  
+
+
   def tag_error(params)
     render_error :status => 404, :errorcode => 'unknown_tag',
-    :message => "Unknown tag #{params[:tag]}" 
+    :message => "Unknown tag #{params[:tag]}"
   end
-  
+
 end

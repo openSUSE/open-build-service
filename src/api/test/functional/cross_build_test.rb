@@ -2,9 +2,9 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'source_controller'
 
-class CrossBuildTest < ActionDispatch::IntegrationTest 
+class CrossBuildTest < ActionDispatch::IntegrationTest
   fixtures :all
-  
+
   def test_setup_project
     login_tom
     put "/source/home:tom:CrossBuild/_meta", "<project name='home:tom:CrossBuild'> <title/> <description/>

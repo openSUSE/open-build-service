@@ -3,13 +3,13 @@ require 'api_exception'
 module ValidationHelper
 
   class InvalidProjectNameError < APIException
-  end 
+  end
 
   class InvalidPackageNameError < APIException
   end
 
   def valid_project_name? name
-    return Project.valid_name? name  
+    return Project.valid_name? name
   end
 
   def valid_project_name! project_name
@@ -19,7 +19,7 @@ module ValidationHelper
   end
 
   def valid_package_name? name
-    return Package.valid_name? name 
+    return Package.valid_name? name
   end
 
   def valid_package_name! package_name

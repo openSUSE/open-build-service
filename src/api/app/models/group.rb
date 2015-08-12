@@ -120,7 +120,7 @@ class Group < ActiveRecord::Base
     projects.uniq
   end
   protected :involved_projects_ids
-  
+
   def involved_projects
     # now filter the projects that are not visible
     return Project.where(id: involved_projects_ids)

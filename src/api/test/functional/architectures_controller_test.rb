@@ -11,21 +11,21 @@ class ArchitecturesControllerTest < ActionDispatch::IntegrationTest
     # Get all issue trackers
     get '/architectures'
     assert_response 401
-    
+
     prepare_request_valid_user
     get '/architectures'
     assert_response :success
-   
+
     assert_xml_tag tag: "entry", attributes: { name: "x86_64" }
     assert_xml_tag tag: "entry", attributes: { name: "ppc" }
- 
+
   end
 
   def test_show
     prepare_request_valid_user
     get "/architectures/i586"
     assert_response :success
-    
+
     assert_xml_tag tag: "architecture", attributes: { name: "i586" }
 
     get "/architectures/futurearch"

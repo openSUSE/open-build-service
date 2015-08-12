@@ -85,7 +85,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
       end
     end
   end
-    
+
   def check_permissions!
     sanity_check!
 

@@ -26,7 +26,7 @@ def resubmit_all_fixtures
     assert_response :success
     assert_not_nil r
     assert_equal r, @response.body
-  
+
     # packages
     get "/source/#{name}"
     assert_response :success

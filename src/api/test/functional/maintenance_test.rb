@@ -322,8 +322,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # attribute setup
     post '/source/BaseDistro/_attribute', "<attributes><attribute namespace='OBS' name='Maintained' /></attributes>"
     assert_response :success
-    post '/source/ServicePack/_attribute', "<attributes> 
-                                               <attribute namespace='OBS' name='Maintained' /> 
+    post '/source/ServicePack/_attribute', "<attributes>
+                                               <attribute namespace='OBS' name='Maintained' />
                                             </attributes>"
     assert_response :success
 
@@ -365,8 +365,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     put '/source/ServicePack:Update/_meta', "<project name='ServicePack:Update' kind='maintenance_release'><title/><description/><link project='ServicePack'/>
           <repository name='ServicePackUpdate_repo'><arch>i586</arch></repository></project>"
     assert_response :success
-    post '/source/ServicePack/_attribute', "<attributes> 
-                                               <attribute namespace='OBS' name='UpdateProject'> 
+    post '/source/ServicePack/_attribute', "<attributes>
+                                               <attribute namespace='OBS' name='UpdateProject'>
                                                  <value>ServicePack:Update</value>
                                                </attribute>
                                             </attributes>"

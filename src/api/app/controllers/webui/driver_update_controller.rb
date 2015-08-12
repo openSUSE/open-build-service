@@ -36,7 +36,7 @@ class Webui::DriverUpdateController < Webui::PackageController
     @name = service.find_first( 'param[@name="name"]' ).text if service.find_first( 'param[@name="name"]' )
     @distname = service.find_first( 'param[@name="distname"]' ).text if service.find_first( 'param[@name="distname"]' )
     @flavour = service.find_first( 'param[@name="flavour"]' ).text if service.find_first( 'param[@name="flavour"]' )
-    @architectures = service.each( 'param[@name="arch"]' ).map{|arch| arch.text} 
+    @architectures = service.each( 'param[@name="arch"]' ).map{|arch| arch.text}
 
     #parse packages, binary packages from dud_packlist.xml file
     packlist = @package.source_file('dud_packlist.xml')
@@ -62,7 +62,7 @@ class Webui::DriverUpdateController < Webui::PackageController
     @packages = params[:packages] || []
     @binary_packages = {}
     @packages.each do |package|
-      @binary_packages[package] = params[:binaries].select{|binary| 
+      @binary_packages[package] = params[:binaries].select{|binary|
         binary =~ /#{package}\//}.each{|binary| binary.gsub!(/^.*\//, '') } unless params[:binaries].blank?
     end
 

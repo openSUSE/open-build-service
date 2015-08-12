@@ -36,8 +36,8 @@ class MemoryDebugger
     GC.start
     before=%x(ps -orss= -p#{$$}).to_i
     file = File.new("/tmp/memprof-#{$$}.log", "w")
-    ret = Memprof.dump(file.path) do 
-      ret = @app.call(env) 
+    ret = Memprof.dump(file.path) do
+      ret = @app.call(env)
       GC.start
       ret
     end

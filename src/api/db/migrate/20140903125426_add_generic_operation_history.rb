@@ -8,7 +8,7 @@ class AddGenericOperationHistory < ActiveRecord::Migration
       t.string     :description_extension       # by code
       t.text       :comment                     # by user
     end
-  
+
     add_index :history_elements, :created_at
     add_index :history_elements, :type
     add_index :history_elements, :op_object_id

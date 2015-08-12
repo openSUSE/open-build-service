@@ -12,7 +12,7 @@ module FlagHelper
     return ret
   end
 
-  TYPES = { 
+  TYPES = {
     'lock' => :disable,
     'build' => :enable,
     'publish' => :enable,
@@ -20,17 +20,17 @@ module FlagHelper
     'useforbuild' => :enable,
     'binarydownload' => :enable,
     'sourceaccess' => :enable,
-    'access' => :enable 
+    'access' => :enable
   }
   def self.default_for(flag_type)
     return TYPES[flag_type.to_s].to_s
   end
-  
+
   def self.flag_types
     TYPES.keys
   end
 
-  def validate_type( flag ) 
+  def validate_type( flag )
     unless TYPES.has_key? flag.to_s
       raise InvalidFlag.new( "Error: unknown flag type '#{flag}' not found." )
     end
@@ -59,13 +59,13 @@ module FlagHelper
           fs << {}
         end
         fs.each do |xmlflag|
-          
+
           #get the selected architecture from data base
           arch = xmlflag['arch']
           arch = Architecture.find_by_name!(arch) if arch
-          
+
           repo = xmlflag['repository']
-            
+
           #instantiate new flag object
           self.flags.new(:status => status, :position => position, :flag => flagtype) do |flag|
             #set the flag attributes
@@ -76,7 +76,7 @@ module FlagHelper
         end
       end
     end
-    
+
     return position
   end
 
@@ -90,7 +90,7 @@ module FlagHelper
       next if !repository.blank? and f.repo != repository
       next if repository.blank? and !f.repo.blank?
       next if !arch.blank? and f.architecture != arch
-      next if arch.blank? and !f.architecture.nil? 
+      next if arch.blank? and !f.architecture.nil?
       flags_to_remove << f
     end
     self.flags.delete(flags_to_remove)
@@ -185,5 +185,5 @@ module FlagHelper
     end
     return disabled
   end
-  
+
 end

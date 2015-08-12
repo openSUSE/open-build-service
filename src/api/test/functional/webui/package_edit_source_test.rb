@@ -92,13 +92,13 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
     open_file 'myfile'
     edit_file ''
   end
-  
+
   def test_edit_empty_file
     open_file 'myfile'
     edit_file File.read( text_path('SourceFile.cc') )
   end
 
-  
+
   def test_add_new_source_file_to_home_project_package
     open_add_file
     add_file :name => 'HomeSourceFile1'
@@ -114,25 +114,25 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
   end
 
   def test_add_source_file_from_local_file
-    
+
     open_add_file
     add_file(upload_from: :local_file,
              upload_path: text_path('SourceFile.cc'))
   end
-  
-    
+
+
   def test_add_source_file_from_local_file_override_name
-    
+
     open_add_file
     add_file(
       name: 'HomeSourceFile3',
       upload_from: :local_file,
       upload_path: text_path( 'SourceFile.cc' ))
   end
-  
-  
+
+
   def test_add_source_file_from_empty_local_file
-    
+
     open_add_file
     add_file(
       upload_from: :local_file,
@@ -146,9 +146,9 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
       upload_path: 'https://raw.github.com/openSUSE/open-build-service/master/.gitignore',
       :expect => :service)
   end
-  
+
   def test_add_source_file_with_invalid_name
-  
+
     open_add_file
     add_file(
       :name => "\/\/ invalid name",
@@ -157,7 +157,7 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
   end
 
   def test_add_source_file_all_fields_empty
-  
+
     open_add_file
     add_file(
       :name => '',

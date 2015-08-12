@@ -8,15 +8,15 @@ class ProjectTest < ActiveSupport::TestCase
   def setup
     @project = projects( :home_Iggy )
   end
-    
+
   def test_flags_to_axml
     #check precondition
     assert_equal 2, @project.type_flags('build').size
     assert_equal 2, @project.type_flags('publish').size
-    
+
     xml_string = @project.to_axml
     #puts xml_string
-    
+
     #check the results
     assert_xml_tag xml_string, :tag => :project, :children => { :count => 1, :only => { :tag => :build } }
     assert_xml_tag xml_string, :parent => :project, :tag => :build, :children => { :count => 2 }
@@ -25,22 +25,22 @@ class ProjectTest < ActiveSupport::TestCase
     assert_xml_tag xml_string, :parent => :project, :tag => :publish, :children => { :count => 2 }
 
   end
-  
-  
+
+
   def test_add_new_flags_from_xml
     User.current = users( :Iggy )
-    
+
     #precondition check
     @project.flags.delete_all
     @project.reload
     assert_equal 0, @project.flags.size
-    
+
     #project is given as axml
     axml = Xmlhash.parse(
       "<project name='home:Iggy'>
         <title>Iggy's Home Project</title>
         <description>dummy</description>
-        <build> 
+        <build>
           <disable repository='10.2' arch='i586'/>
         </build>
         <publish>
@@ -51,64 +51,64 @@ class ProjectTest < ActiveSupport::TestCase
         </debuginfo>
       </project>"
       )
-    
+
     position = 1
     %w(build publish debuginfo).each do |flagtype|
       position = @project.update_flags(axml, flagtype, position)
     end
-    
+
     @project.save
     @project.reload
-    
+
     #check results
     assert_equal 1, @project.type_flags('build').size
     assert_equal 'disable', @project.type_flags('build')[0].status
     assert_equal '10.2', @project.type_flags('build')[0].repo
     assert_equal 'i586', @project.type_flags('build')[0].architecture.name
     assert_equal 1, @project.type_flags('build')[0].position
-    assert_nil @project.type_flags('build')[0].package    
+    assert_nil @project.type_flags('build')[0].package
     assert_equal 'home:Iggy', @project.type_flags('build')[0].project.name
-    
+
     assert_equal 1, @project.type_flags('publish').size
     assert_equal 'enable', @project.type_flags('publish')[0].status
     assert_equal '10.2', @project.type_flags('publish')[0].repo
     assert_equal 'x86_64', @project.type_flags('publish')[0].architecture.name
     assert_equal 2, @project.type_flags('publish')[0].position
-    assert_nil @project.type_flags('publish')[0].package    
-    assert_equal 'home:Iggy', @project.type_flags('publish')[0].project.name  
-    
+    assert_nil @project.type_flags('publish')[0].package
+    assert_equal 'home:Iggy', @project.type_flags('publish')[0].project.name
+
     assert_equal 1, @project.type_flags('debuginfo').size
     assert_equal 'disable', @project.type_flags('debuginfo')[0].status
     assert_equal '10.0', @project.type_flags('debuginfo')[0].repo
     assert_equal 'i586', @project.type_flags('debuginfo')[0].architecture.name
     assert_equal 3, @project.type_flags('debuginfo')[0].position
-    assert_nil @project.type_flags('debuginfo')[0].package    
-    assert_equal 'home:Iggy', @project.type_flags('debuginfo')[0].project.name      
-    
+    assert_nil @project.type_flags('debuginfo')[0].package
+    assert_equal 'home:Iggy', @project.type_flags('debuginfo')[0].project.name
+
   end
-  
-  
+
+
   def test_delete_flags_through_xml
     User.current = users( :Iggy )
 
     #check precondition
     assert_equal 2, @project.type_flags('build').size
     assert_equal 2, @project.type_flags('publish').size
-    
+
     #project is given as axml
     axml = Xmlhash.parse(
       "<project name='home:Iggy'>
         <title>Iggy's Home Project</title>
         <description>dummy</description>
       </project>"
-      )    
-    
+      )
+
     @project.update_all_flags(axml)
     assert_equal 0, @project.type_flags('build').size
     assert_equal 0, @project.type_flags('publish').size
   end
 
-    
+
   def test_store_axml
     User.current = users( :Iggy )
 
@@ -121,19 +121,19 @@ class ProjectTest < ActiveSupport::TestCase
         <description>dummy</description>
         <debuginfo>
           <disable repository='10.0' arch='i586'/>
-        </debuginfo>    
+        </debuginfo>
         <url></url>
         <disable/>
       </project>"
       )
-      
+
     @project.update_from_xml(axml)
-    
+
     assert_equal 0, @project.type_flags('build').size
-    assert_equal 1, @project.type_flags('debuginfo').size        
+    assert_equal 1, @project.type_flags('debuginfo').size
 
     @project.update_from_xml(Xmlhash.parse(original))
-  end  
+  end
 
   def test_ordering
     User.current = users( :Iggy )
@@ -152,13 +152,13 @@ class ProjectTest < ActiveSupport::TestCase
       )
     @project.update_from_xml(axml)
     @project.reload
-    
+
     xml = @project.render_xml
-    
+
     # validate i586 is in the middle
     assert_xml_tag xml, :tag => :arch, :content => 'i586', :after => { :tag => :arch, :content => 'local' }
     assert_xml_tag xml, :tag => :arch, :content => 'i586', :before => { :tag => :arch, :content => 'x86_64' }
-    
+
     # now verify it's not happening randomly
     #project is given as axml
     axml = Xmlhash.parse(
@@ -175,13 +175,13 @@ class ProjectTest < ActiveSupport::TestCase
     @project.update_from_xml(axml)
 
     xml = @project.render_xml
-    
+
     # validate x86_64 is in the middle
     assert_xml_tag xml, :tag => :arch, :content => 'x86_64', :after => { :tag => :arch, :content => 'i586' }
     assert_xml_tag xml, :tag => :arch, :content => 'x86_64', :before => { :tag => :arch, :content => 'local' }
-    
+
   end
-    
+
   def test_maintains
     User.current = users( :Iggy )
 
@@ -360,9 +360,9 @@ END
     projectB.reload
     xml_string = projectB.to_axml
     assert_no_xml_tag xml_string, :tag => :link
-  end  
+  end
 
-    
+
   def test_repository_with_download_url
     User.current = users( :king )
 
@@ -469,7 +469,7 @@ END
     # is providing in this situation often a package in SP0:Update which
     # must be used for building the package in sp1 repo.
     # Since the order of adding the repositories is not fixed or can even
-    # be extended with later calls, we need to sync this always after finishing a 
+    # be extended with later calls, we need to sync this always after finishing a
     # a setup of new branched packages with this sync function:
     xml = prj.to_axml
     assert_xml_tag xml, :tag => :repository, :attributes => {name: "my_branch_sp1_update"},
@@ -490,8 +490,8 @@ END
     # must not change again anything
     prj.sync_repository_pathes
     assert_equal xml, prj.to_axml
-  end  
-  
+  end
+
   #helper
   def put_flags(flags)
     flags.each do |flag|
@@ -501,8 +501,8 @@ END
         puts "#{flag} \t #{flag.id} \t #{flag.status} \t #{flag.architecture.name} \t #{flag.repo} \t #{flag.position}"
       end
     end
-  end  
-  
+  end
+
   test 'invalid names' do
     # no ::
     assert !Project.valid_name?('home:M0ses:raspi::qtdesktop')

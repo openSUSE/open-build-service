@@ -1,13 +1,13 @@
 # encoding: UTF-8
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-class WizardControllerTest < ActionDispatch::IntegrationTest 
+class WizardControllerTest < ActionDispatch::IntegrationTest
 
   fixtures :all
 
   def test_wizard
     prepare_request_valid_user
-  
+
     get "/source/kde4/kdelibs/_wizard"
     assert_response 403
     assert_match(/no permission to change package/, @response.body)
@@ -40,5 +40,5 @@ class WizardControllerTest < ActionDispatch::IntegrationTest
     assert_response 200
     assert_xml_tag :tag => 'wizard'
   end
- 
+
 end

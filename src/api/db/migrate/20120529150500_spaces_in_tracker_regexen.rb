@@ -1,7 +1,7 @@
 class SpacesInTrackerRegexen < ActiveRecord::Migration
   def self.up
     # Update Bugzilla and Fate issue tracker, i.e. allow spaces like in 'bnc #1234'
-    # which was considered ok in Autobuild and is unlikely to be fixed for old sources soon: 
+    # which was considered ok in Autobuild and is unlikely to be fixed for old sources soon:
     trackers_regexen = {
       :bnc => '(?:bnc|BNC)\s*[#:]\s*(\d+)',
       :fate => '[Ff]ate\s+#\s+(\d+)',

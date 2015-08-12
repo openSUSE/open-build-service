@@ -19,10 +19,10 @@ OBSApi::Application.configure do
   config.action_mailer.delivery_method = :sendmail
 
   config.active_support.deprecation = :log
- 
+
    # Enable serving of images, stylesheets, and javascripts from an asset server
    # config.action_controller.asset_host                  = "http://assets.example.com"
- 
+
   config.cache_store = :dalli_store, '127.0.0.1:11211', {namespace: 'obs-api', compress: true, expires_in: 1.day }
 
   # Full error reports are disabled and caching is turned on
@@ -30,7 +30,7 @@ OBSApi::Application.configure do
   config.action_controller.perform_caching = true
 
   # Disable Rails's static asset server (Apache or nginx will already do this)
-  config.serve_static_files = false 
+  config.serve_static_files = false
 
   # Compress JavaScripts and CSS
   config.assets.compress = true

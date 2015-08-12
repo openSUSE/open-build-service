@@ -112,7 +112,7 @@ class BinaryRelease < ActiveRecord::Base
       return
     end
     update_binary_releases_via_json(repository, pt, time)
-    # drop it 
+    # drop it
     Suse::Backend.delete("/notificationpayload/#{key}")
   end
 
@@ -137,7 +137,7 @@ class BinaryRelease < ActiveRecord::Base
         Rails.logger.info "ERROR: multiple matches, cleaning up: #{existing.inspect}" if existing.count > 1
         # double definition means broken DB entries
         existing.offset(1).destroy_all
-        
+
         # compare with existing entry
         if existing.count == 1
           entry = existing.first

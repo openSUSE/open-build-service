@@ -2,7 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class DistributionsControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
-  
+
   def test_should_show_distribution
     get distribution_path(id: distributions(:two).to_param)
     assert_response :success

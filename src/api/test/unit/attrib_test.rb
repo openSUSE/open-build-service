@@ -106,7 +106,7 @@ class AttribTest < ActiveSupport::TestCase
     attrib.values << AttribValue.new(value: 'Three')
     assert attrib.valid?, "attrib should be valid: #{attrib.errors.messages}"
   end
-  
+
 
   test 'sets values from default_values and validates allowed_values and value_count' do
     attrib_type = AttribType.new(attrib_namespace: @namespace, name: 'AttribValueCombi')
@@ -181,7 +181,7 @@ class AttribTest < ActiveSupport::TestCase
     attrib = Attrib.new(attrib_type: attrib_type, project: Project.first)
 
     # If unlimited values
-    assert attrib.values_addable? 
+    assert attrib.values_addable?
     # If value_count != values.length
     attrib_type.value_count = 1
     assert attrib.values_addable?

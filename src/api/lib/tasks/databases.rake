@@ -27,7 +27,7 @@ def redefine_task(args, &block)
 end
 
 namespace :db do
-  
+
   namespace :structure do
     desc "Dump the database structure to a SQL file"
     task :dump => :environment do
@@ -39,7 +39,7 @@ namespace :db do
         con = ActiveRecord::Base.connection
 
         sql = "SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'"
- 
+
         structure = con.select_all(sql, 'SCHEMA').map { |table|
           table.delete('Table_type')
           sql = "SHOW CREATE TABLE #{con.quote_table_name(table.to_a.first.last)}"
@@ -84,11 +84,11 @@ namespace :db do
       end
       File.open("#{Rails.root}/db/structure.sql", "w+") { |f| f << new_structure }
     end
-     
+
   end
 
  desc 'Create the database, load the structure, and initialize with the seed data'
- redefine_task :setup => :environment do 
+ redefine_task :setup => :environment do
     Rake::Task["db:structure:load"].invoke
     Rake::Task["db:seed"].invoke
  end

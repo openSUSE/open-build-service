@@ -22,8 +22,8 @@ class DistributionsController < ApplicationController
   # GET /distributions/include_remotes
   # GET /distributions/include_remotes.xml
   def include_remotes
-    @distributions = Distribution.all_including_remotes 
- 
+    @distributions = Distribution.all_including_remotes
+
     respond_to do |format|
       format.xml { render "index" }
       format.json { render :json => @distributions }
@@ -42,7 +42,7 @@ class DistributionsController < ApplicationController
   end
 
   # basically what the other parts of our API would look like
-  def upload 
+  def upload
     raise 'routes broken' unless request.put?
     req = Xmlhash.parse(request.body.read)
     unless req

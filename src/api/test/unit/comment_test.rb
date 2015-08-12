@@ -8,5 +8,5 @@ class CommentTest < ActiveSupport::TestCase
     assert_equal false, com.save
     assert_equal ["can't be blank"], com.errors[:package]
   end
-  
+
 end

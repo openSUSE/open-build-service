@@ -381,7 +381,7 @@ class BsRequest < ActiveRecord::Base
         if sprj.kind_of? Project
         at = AttribType.find_by_namespace_and_name!("OBS", "EmbargoDate")
         attrib = sprj.attribs.where(attrib_type_id: at.id).first
-        if attrib and v=attrib.values.first 
+        if attrib and v=attrib.values.first
           begin
             embargo = DateTime.parse(v.value)
             if v.value =~ /^\d{4}-\d\d?-\d\d?$/
@@ -493,7 +493,7 @@ class BsRequest < ActiveRecord::Base
   end
 
   def assignreview(opts = {})
- 
+
     unless self.state == :review || (self.state == :new && state == :new)
       raise InvalidStateError.new 'request is not in review state'
     end

@@ -22,25 +22,25 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
     edit_role cell[3], options[:reviewer]
     edit_role cell[4], options[:downloader]
     edit_role cell[5], options[:reader]
-    
+
   end
 
   # ============================================================================
   #
   def add_user user, role, options = {}
     find(:id, 'add-user').click
-    
+
     page.must_have_text %r{Add New User to}
     page.must_have_field 'userid'
     page.must_have_selector 'select#role'
 
     curl = page.current_url
     options[:expect] ||= :success
-    
+
     fill_in 'userid', with: user
     find('select#role').select(role)
     click_button('Add user')
-    
+
     if options[:expect] == :success
       flash_message_type.must_equal :info
       flash_message.must_equal "Added user #{user} with role #{role}"
@@ -91,10 +91,10 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
     add_user 'sadasxsacxsacsa', 'reader', :expect => :unknown_user
     add_user '', 'maintainer', :expect => :unknown_user
     add_user '~@$@#%#%@$0-=m,.,\/\/12`;.{{}}{}', 'maintainer', :expect => :unknown_user
-    
+
     # add_package_role_to_username_with_question_sign do
     add_user 'still-buggy?', 'maintainer', :expect => :unknown_user
-    
+
     edit_user :name => :user3,
     :reviewer   => true,
     :downloader => true
@@ -119,7 +119,7 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
 
     delete_user :user4
     page.wont_have_selector 'table#user_table tr#user-user4'
-    
+
   end
 
   def test_add_and_edit_project_users
@@ -166,6 +166,6 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
       :downloader => true,
       :reader     => true
   end
-  
+
 end
 

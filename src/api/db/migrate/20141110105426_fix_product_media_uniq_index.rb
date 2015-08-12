@@ -4,7 +4,7 @@ require File.join(Rails.root, 'app/jobs/update_package_meta_job.rb')
 #
 # NOTE: we do not modify, but entirely recreate the tables here, because there is
 #       an issue in (older?) MySQL version which corrupt the database when modifing
-#       these indexes. Since this is just indexed data based on sources we do not want 
+#       these indexes. Since this is just indexed data based on sources we do not want
 #       to go with any risk
 #
 

@@ -7,7 +7,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
 
     fill_in 'realname', with: 'Tom Thunder'
     click_button 'Update'
-    
+
     find('#flash-messages').must_have_text("User data for user 'tom' successfully updated.")
   end
 

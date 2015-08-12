@@ -6,7 +6,7 @@ class AddPackageTracking < ActiveRecord::Migration
       t.datetime   :obsolete_time            # set when binary gets deleted or modified later
 
       t.integer    :release_package_id
- 
+
       t.string     :binary_name,        null: false
       t.string     :binary_epoch,                    :limit => 64
       t.string     :binary_version,     null: false, :limit => 64
@@ -15,7 +15,7 @@ class AddPackageTracking < ActiveRecord::Migration
       t.string     :binary_disturl
       t.datetime   :binary_buildtime
       t.datetime   :binary_releasetime, null: false
- 
+
       t.string     :binary_supportstatus
       t.string     :binary_maintainer
     end

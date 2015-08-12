@@ -8,7 +8,7 @@ class AttribNamespace < ActiveRecord::Base
   validates_associated :attrib_types
 
   def to_s
-    self.name 
+    self.name
   end
 
   def create_one_rule(m)

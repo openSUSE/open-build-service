@@ -5,7 +5,7 @@ class Issue < ActiveRecord::Base
   class NotFoundError < APIException
     setup "issue_not_found", 404, "Issue not found"
   end
-  
+
   has_many :package_issues, :foreign_key => 'issue_id', dependent: :delete_all
 
   belongs_to :issue_tracker
@@ -87,7 +87,7 @@ class Issue < ActiveRecord::Base
 
     issue
   end
-  
+
   def url
     self.issue_tracker.show_url.gsub('@@@', self.name)
   end
@@ -121,7 +121,7 @@ class Issue < ActiveRecord::Base
     builder = Nokogiri::XML::Builder.new do |node|
       self.render_body node
     end
-    builder.to_xml :indent => 2, :encoding => 'UTF-8', 
+    builder.to_xml :indent => 2, :encoding => 'UTF-8',
                                :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                              Nokogiri::XML::Node::SaveOptions::FORMAT
   end

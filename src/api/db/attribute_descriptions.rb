@@ -1,8 +1,8 @@
 
 def update_all_attrib_type_descriptions
   ans = AttribNamespace.find_by_name "OBS"
-  
-  d = { 
+
+  d = {
     "VeryImportantProject" => "Mark this project as very important. For instance for the project list in the web interface.",
     "UpdateProject" => "Mark this project as frozen, updates are handled via the project defined in the value.",
     "RejectRequests" => "Request against this object get rejected. The first (optional) value will be given as reason to the requester. Adding more values limits the rejection to the given request types (like \"submit\" or \"delete\").",
@@ -10,7 +10,7 @@ def update_all_attrib_type_descriptions
     "Maintained" => "Marks this as object as maintained. For instance to find packages automatically when using the maintenance features like \"osc mbranch\".",
     "MaintenanceProject" => "Mark this project as central maintenance project, which is used to coordinate all official updates.",
     "MaintenanceIdTemplate" => "Released maintenance updates get an ID on first release. This attribute can be used to modify the default scheme.",
-#    "ScreenShots" => "", # to be dropped? 
+#    "ScreenShots" => "", # to be dropped?
     "OwnerRootProject" => "Mark this project as starting point for the package ownership search. Optional values: \"DisableDevel\": don't follow devel project links. \"BugownerOnly\": limit the result to bugowners (ignoring the maintainer role).",
     "RequestCloned" => "Use this attribute to reference a request which will get superseded when a new submit request from this project gets created.",
     "ProjectStatusPackageFailComment" => "Use this attribute to explain why this package is failing. This is displayed on the project status page for instance.",
@@ -25,7 +25,7 @@ def update_all_attrib_type_descriptions
     "EmbargoDate" => "A timestamp until outgoing requests can not get accepted.",
     "MakeOriginOlder" => "Initialize packages by making the build results newer then updated ones",
   }
-  
+
   for k in d.keys do
     at = ans.attrib_types.where(name: k).first
     next unless at # might be called in older migrations

@@ -24,7 +24,7 @@ class BsRequestActionSetBugowner < BsRequestAction
     object.add_group( self.group_name, bugowner, true ) if self.group_name  # runs with ignoreLock
     object.store(comment: "set_bugowner request #{self.bs_request.id}", requestid: self.bs_request.id)
   end
-  
+
   def render_xml_attributes(node)
     render_xml_target(node)
     node.person :name => self.person_name if self.person_name

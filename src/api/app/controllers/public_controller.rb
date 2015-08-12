@@ -51,7 +51,7 @@ class PublicController < ApplicationController
   def build
     required_parameters :project
 
-    # project visible/known ? 
+    # project visible/known ?
     Project.get_by_name(params[:project])
 
     path = unshift_public(request.path_info)
@@ -62,7 +62,7 @@ class PublicController < ApplicationController
 
   # GET /public/source/:project/_meta
   def project_meta
-    # project visible/known ? 
+    # project visible/known ?
     Project.get_by_name(params[:project])
 
     pass_to_backend unshift_public(request.path_info)
@@ -70,7 +70,7 @@ class PublicController < ApplicationController
 
   # GET /public/source/:project
   def project_index
-    # project visible/known ? 
+    # project visible/known ?
     Project.get_by_name(params[:project])
     path = unshift_public(request.path_info)
     if params[:view] == 'info'
@@ -91,7 +91,7 @@ class PublicController < ApplicationController
   # GET /public/source/:project/_config
   # GET /public/source/:project/_pubkey
   def project_file
-    # project visible/known ? 
+    # project visible/known ?
     Project.get_by_name(params[:project])
 
     path = unshift_public(request.path_info)
@@ -130,7 +130,7 @@ class PublicController < ApplicationController
   # GET /public/distributions
   def distributions
     @distributions = Distribution.all_as_hash
-    
+
     render 'distributions/index'
   end
 

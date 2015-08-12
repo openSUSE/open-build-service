@@ -129,7 +129,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     find_button("Ok").click
     find('#flash-messages').must_have_text "'patchinfo' was removed successfully from project"
   end
-  
+
   def test_create_patchinfo_with_desc_and_sum
 
     login_Iggy

@@ -1,13 +1,13 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-class StatusControllerTest < ActionDispatch::IntegrationTest 
+class StatusControllerTest < ActionDispatch::IntegrationTest
 
   fixtures :all
 
   def setup
     prepare_request_valid_user
   end
- 
+
   def test_messages
     get "/status/messages"
     assert_response :success
@@ -28,7 +28,7 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
 
     put "/status/messages", '<message severity="1">I have nothing to say</message>'
     assert_response :success
-  
+
     # delete it again
     get "/status/messages"
     assert_response :success
@@ -38,15 +38,15 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
     prepare_request_valid_user
     delete "/status/messages/#{msg_id}"
     assert_response 403
-   
-    login_king    
+
+    login_king
     delete "/status/messages/#{msg_id}"
     assert_response :success
 
     delete "/status/messages/17"
     assert_response 404
-   
-    get "/status/messages" 
+
+    get "/status/messages"
     messages = ActiveXML::Node.new @response.body
     assert_equal 0, messages.each.size
   end
@@ -73,7 +73,7 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
   def test_history
     get "/status/history"
     assert_response 400
-   
+
     get "/status/history?hours=24&key=idle_i586"
     assert_response :success
     # there is no history in fixtures so the result doesn't matter

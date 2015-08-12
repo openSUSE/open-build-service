@@ -11,7 +11,7 @@ class Webui::WatchlistTest < Webui::IntegrationTest
     all(:css, 'span.icons-project').count.must_equal 0
 
     page.execute_script("$('#menu-favorites').show();")
-    
+
     find(:css, '#menu-favorites').must_have_text %r{Add this project to Watchlist}
     find(:css, '#toggle_watch > span.desc').click
     Timecop.travel 1

@@ -73,7 +73,7 @@ class Channel < ActiveRecord::Base
       end
       arch = nil
       arch = Architecture.find_by_name!(p['arch']) if p['arch']
-      hasharray << { project: project, architecture: arch, 
+      hasharray << { project: project, architecture: arch,
                      repository: repository }
     }
     sync_hash_with_model(ChannelBinaryList, self.channel_binary_lists, hasharray)
@@ -169,7 +169,7 @@ class Channel < ActiveRecord::Base
       repo_name = ct.repository.extended_name
       # add repositories
       unless cp.project.repositories.find_by_name(repo_name)
-        tpkg.project.add_repository_with_targets(repo_name, ct.repository, [ct.repository]) 
+        tpkg.project.add_repository_with_targets(repo_name, ct.repository, [ct.repository])
       end
       # enable package
       tpkg.enable_for_repository repo_name if mode==:enable_all or not ct.disabled

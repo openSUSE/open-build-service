@@ -4,7 +4,7 @@ module Webui::IssueTrackerHelper
   # Example:
   #
   #   'bnc#100' is replaced with '<a href="https://bugzilla.novell.com/show_bug.cgi?id=100">bnc#100</a>'
-  # 
+  #
   def self.highlight_issues_in(text)
     # Cache the result, it takes some time to compute it. Use a MD5 sum of the first 100 characters as cache key
     return Rails.cache.fetch("highlighted_issues_#{Digest::MD5.hexdigest(text[0..100])}", :expires_in => 7.days) do

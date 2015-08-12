@@ -8,7 +8,7 @@ class RoleTest < ActiveSupport::TestCase
     norole.save
     norole.destroy
   end
-  
+
   def test_role
     r = Role.create :title => "maintainer"
     assert !r.valid?

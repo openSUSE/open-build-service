@@ -128,12 +128,12 @@ class PublishFlagTest < ActiveSupport::TestCase
 
 
   def test_position
-    # Because of each flag belongs_to architecture AND project|package for the 
+    # Because of each flag belongs_to architecture AND project|package for the
     # position calculation it is important in which order the assignments
     # flag -> architecture and flag -> project|package are done.
     # If flag -> architecture is be done first, no flag position (in the list of
     # flags assigned to a object) can be calculated. This is because of no reference
-    # (project_id or package_id) is set, which is needed for position calculation. 
+    # (project_id or package_id) is set, which is needed for position calculation.
     # The models should take this circumstances into consideration.
 
     #checking precondition
