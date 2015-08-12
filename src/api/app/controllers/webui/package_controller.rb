@@ -889,14 +889,14 @@ class Webui::PackageController < Webui::WebuiController
       action = 'monitor'
     end
 
-    unless request.xhr?
+    if request.xhr?
+      # ajax request - render default view: in this case 'trigger_rebuild.rjs'
+      return
+    else
       # non ajax request:
       flash[:notice] = @message
       redirect_to :controller => controller, :action => action,
         :project => @project, :package => @package
-    else
-      # ajax request - render default view: in this case 'trigger_rebuild.rjs'
-      return
     end
   end
   private :api_cmd
@@ -1045,11 +1045,11 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def render_missing_package
-    unless request.xhr?
+    if request.xhr?
+      render :text => "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\"", :status => 404 and return
+    else
       flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
       redirect_to :controller => 'project', :action => 'show', :project => @project, :nextstatus => 404
-    else
-      render :text => "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\"", :status => 404 and return
     end
   end
 

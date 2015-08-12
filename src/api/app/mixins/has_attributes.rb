@@ -131,15 +131,15 @@ module HasAttributes
   end
 
   def render_single_attribute(attr, with_default, builder)
-    unless attr.values.empty?
-      attr.values.each do |val|
-        builder.value(val.value)
-      end
-    else
+    if attr.values.empty?
       if with_default
         attr.attrib_type.default_values.each do |val|
           builder.value(val.value)
         end
+      end
+    else
+      attr.values.each do |val|
+        builder.value(val.value)
       end
     end
   end

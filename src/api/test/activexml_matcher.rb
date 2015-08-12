@@ -133,10 +133,11 @@ module NodeMatcher #:nodoc:
     end
     # check content of child nodes
     if conditions[:content]
-      unless node.has_elements?
-        return false unless match_condition(node.text, conditions[:content])
-      else
+      if node.has_elements?
+        # FIXME: This will always be falsy
         return false unless node.each { |child| match(child, conditions[:content]) }
+      else
+        return false unless match_condition(node.text, conditions[:content])
       end
     end
 

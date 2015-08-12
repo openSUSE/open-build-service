@@ -317,12 +317,12 @@ module Webui::WebuiHelper
   end
 
   def description_wrapper(description)
-    unless description.blank?
-      content_tag(:pre, description, id: 'description_text', class: 'plain')
-    else
+    if description.blank?
       content_tag(:p, id: 'description_text') do
         content_tag(:i, 'No description set')
       end
+    else
+      content_tag(:pre, description, id: 'description_text', class: 'plain')
     end
   end
 
@@ -402,7 +402,7 @@ module Webui::WebuiHelper
     output = ''
 
     output += user_icon(user) unless opt[:no_icon]
-    unless realname.empty? or opt[:short] == true
+    if !(realname.empty? || opt[:short] == true)
       printed_name = realname + ' (' + user + ')'
     else
       printed_name = user
@@ -410,10 +410,10 @@ module Webui::WebuiHelper
     if role
       printed_name += ' as ' + role
     end
-    unless User.current.is_nobody?
-      output += link_to_if(!opt[:no_link], printed_name, user_show_path(user))
-    else
+    if User.current.is_nobody?
       output += printed_name
+    else
+      output += link_to_if(!opt[:no_link], printed_name, user_show_path(user))
     end
     output.html_safe
   end

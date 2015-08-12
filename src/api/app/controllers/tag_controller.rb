@@ -68,11 +68,11 @@ class TagController < ApplicationController
       tag = Tag.find_by_name(t)
       raise TagNotFoundError.new("Tag #{t} not found") unless tag
 
-      unless first_run         
-        @projects = @projects & tag.projects.group(:name).order(:name)
-      else
+      if first_run
         @projects = tag.projects.group(:name).order(:name)
         first_run = false 
+      else
+        @projects = @projects & tag.projects.group(:name).order(:name)
       end
     end
 
@@ -94,11 +94,11 @@ class TagController < ApplicationController
       tag = Tag.find_by_name(t)
       raise TagNotFoundError.new("Tag #{t} not found") unless tag
       
-      unless first_run
-        @packages = @packages & tag.packages.group(:name).order(:name)
-      else
+      if first_run
         @packages = tag.packages.group(:name).order(:name)
         first_run = false
+      else
+        @packages = @packages & tag.packages.group(:name).order(:name)
       end
     end
     
