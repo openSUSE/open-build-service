@@ -16,3 +16,8 @@ Style/CommandLiteral:
 Lint/EndAlignment:
   AlignWith: variable
 
+# Someday we should add copyrights
+Style/Copyright:
+  Enabled: false
+  Notice: '^Copyright (\(c\) )?2[0-9]{3} .+'
+  AutocorrectNotice: ''
