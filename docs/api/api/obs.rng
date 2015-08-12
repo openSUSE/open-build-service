@@ -222,6 +222,44 @@
         </attribute>
       </optional>
       <interleave>
+        <zeroOrMore>
+          <element name="download">
+            <attribute name="arch">
+              <data type="string" />
+            </attribute>
+            <attribute name="url">
+              <data type="string" />
+            </attribute>
+            <attribute name="repotype">
+              <data type="string" />
+            </attribute>
+            <interleave>
+              <optional>
+                <element name="archfilter">
+                  <text/>
+                </element>
+              </optional>
+              <optional>
+                <element name="master">
+                  <attribute name="url">
+                    <data type="string" />
+                  </attribute>
+                  <optional>
+                    <attribute name="sslfingerprint">
+                      <data type="string" />
+                    </attribute>
+                  </optional>
+                </element>
+              </optional>
+              <optional>
+                <element name="pubkey">
+                  <text/>
+                </element>
+              </optional>
+            </interleave>
+          </element>
+        </zeroOrMore>
+
         <optional> <!-- limited to one currently. Could be extended later -->
             <element name="releasetarget">
               <attribute name="project">

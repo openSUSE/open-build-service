@@ -54,8 +54,6 @@ class Project < ActiveRecord::Base
   has_many :taggings, :as => :taggable, :dependent => :delete_all
   has_many :tags, :through => :taggings
 
-  has_many :downloads, :dependent => :delete_all, foreign_key: :db_project_id
-
   has_many :flags, dependent: :delete_all, inverse_of: :project
 
   # optional
@@ -486,9 +484,6 @@ class Project < ActiveRecord::Base
       end
     end
 
-    #--- update repository download settings ---#
-    update_download_settings(xmlhash)
-
     #--- update repositories ---#
     update_repositories(xmlhash, force)
 
@@ -531,6 +526,22 @@ class Project < ActiveRecord::Base
 
   def update_one_repository_add_pathes(repo)
     current_repo = self.repositories.find_by_name(repo['name'])
+
+    # sync download on demand config
+    download_repositories = []
+    repo.elements('download').each do |xml_download|
+      download_repository = DownloadRepository.new(arch: xml_download['arch'],
+    					       url: xml_download['url'],
+    					       repotype: xml_download['repotype'],
+    					       archfilter: xml_download['archfilter'],
+    					       pubkey: xml_download['pubkey'])
+      if xml_download['master']
+         download_repository.masterurl = xml_download['master']['url']
+         download_repository.mastersslfingerprint = xml_download['master']['sslfingerprint']
+      end
+      download_repositories << download_repository
+    end
+    current_repo.download_repositories.replace(download_repositories)
 
     #destroy all current pathelements
     current_repo.path_elements.destroy_all
@@ -635,35 +646,6 @@ class Project < ActiveRecord::Base
       current_repo.linkedbuild = repo['linkedbuild']
     else
       current_repo.linkedbuild = nil
-    end
-  end
-
-  def update_download_settings(xmlhash)
-    dlcache = Hash.new
-    self.downloads.each do |dl|
-      dlcache[dl.architecture.name] = dl
-    end
-
-    xmlhash.elements('download') do |dl|
-      if dlcache.has_key? dl['arch']
-        logger.debug "modifying download element, arch: #{dl['arch']}"
-        cur = dlcache[dl['arch']]
-      else
-        logger.debug "adding new download entry, arch #{dl['arch']}"
-        cur = self.downloads.create
-      end
-      cur.metafile = dl['metafile']
-      cur.mtype = dl['mtype']
-      cur.baseurl = dl['baseurl']
-      raise SaveError, 'unknown architecture' unless Architecture.archcache.has_key? dl['arch']
-      cur.architecture = Architecture.archcache[dl['arch']]
-      cur.save!
-      dlcache.delete dl['arch']
-    end
-
-    dlcache.each do |arch, object|
-      logger.debug "remove download entry #{arch}"
-      self.downloads.destroy object
     end
   end
 

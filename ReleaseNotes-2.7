@@ -34,6 +34,7 @@ Features
  * Added support for simple image creation
  * New option to avoid usage of defined repositories when branching a package
    via the OBS:BranchSkipRepositories attribute
+ * reworked download on demand support
 
 Changes on purpose:
 ===================
@@ -45,7 +46,7 @@ Changes on purpose:
 Incompatible changes:
 =====================
 
- * 
+ * "download" elements have been moved to "repository" elements and got a new syntax in project xml.
 
 Notes for systems using systemd:
 ================================
