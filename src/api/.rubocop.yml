@@ -12,3 +12,7 @@ Metrics/LineLength:
 
 Style/CommandLiteral:
   EnforcedStyle: percent_x
+
+Lint/EndAlignment:
+  AlignWith: variable
+
