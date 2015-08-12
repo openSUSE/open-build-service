@@ -342,6 +342,9 @@ touch $RPM_BUILD_ROOT/srv/www/obs/api/config/production.sphinx.conf
 # prepare for running sphinx daemon
 install -m 0755 -d $RPM_BUILD_ROOT/srv/www/obs/api/db/sphinx{,/production}
 
+# clean development files
+rm $RPM_BUILD_ROOT/srv/www/obs/api/.rubocop{,_todo}.yml
+
 #
 # install apidocs
 # 
