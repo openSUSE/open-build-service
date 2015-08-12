@@ -1,0 +1,32 @@
+#
+# openSUSE Build Service 2.4.8
+#
+
+Updaters from any OBS 2.4 release can just ugrade the packages
+and restart all services. Updaters from former releases should
+read the README.UPDATERS file.
+
+This release fixes a serious security leak tracked as CVE-2014-0594:
+ The CSRF protection got incorrectly disabled, this means any
+web site can inject actions as long a user has a running session. 
+
+All OBS 2.4 admins are requested to updated immediatly to close this
+hole.
+
+Feature backports:
+==================
+
+* None
+
+Changes:
+========
+
+* None
+
+Bugfixes:
+=========
+
+* backend: validate results of external patch command. could be used
+           to modify packages without sufficiant permissions (bnc#941099, CVE-2015-0796)
+
+
