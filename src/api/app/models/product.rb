@@ -92,7 +92,7 @@ class Product < ActiveRecord::Base
       end
       u.elements('repository') do |repo|
         next if repo['project'].blank? # it may be just a url= reference
-        poolRepo = Repository.find_by_project_and_repo_name(repo['project'], repo['name'])
+        poolRepo = Repository.find_by_project_and_name(repo['project'], repo['name'])
         unless poolRepo
           errors.add(:missing, "Pool repository #{repo['project']}/#{repo['name']} missing")
           next
@@ -130,7 +130,7 @@ class Product < ActiveRecord::Base
         update[key] = pu
       end
       u.elements('repository') do |repo|
-        updateRepo = Repository.find_by_project_and_repo_name(repo.get('project'), repo.get('name'))
+        updateRepo = Repository.find_by_project_and_name(repo.get('project'), repo.get('name'))
         next unless updateRepo # it might be a remote repo, which will not become indexed
         arch = repo.get('arch')
         key = updateRepo.id.to_s

@@ -34,7 +34,7 @@ class PackageBuildStatus
     archs = []
     srep.elements('path') do |p|
       if p['project'] != @pkg.project.name
-        r = Repository.find_by_project_and_repo_name(p['project'], p['repository'])
+        r = Repository.find_by_project_and_name(p['project'], p['repository'])
         r.architectures.each { |a| archs << a.name.to_s }
         trepo << [p['project'], p['repository']]
       end

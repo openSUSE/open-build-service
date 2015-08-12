@@ -47,11 +47,11 @@ class ChannelTest < ActiveSupport::TestCase
       assert_equal 2, @channel.channel_targets.size
       ct = @channel.channel_targets.first
       assert_equal "UpdateInfoTag-%Y-%C", ct.id_template
-      assert_equal Repository.find_by_project_and_repo_name("home:Iggy", "10.2"), ct.repository
+      assert_equal Repository.find_by_project_and_name("home:Iggy", "10.2"), ct.repository
       assert_equal false, ct.disabled
       ct = @channel.channel_targets.last
       assert_nil ct.id_template
-      assert_equal Repository.find_by_project_and_repo_name("BaseDistro", "BaseDistro_repo"), ct.repository
+      assert_equal Repository.find_by_project_and_name("BaseDistro", "BaseDistro_repo"), ct.repository
       assert_equal true, ct.disabled
 
       assert_equal 1, @channel.channel_binary_lists.size
@@ -80,7 +80,7 @@ class ChannelTest < ActiveSupport::TestCase
     assert_equal 1, @channel.channel_targets.size
     ct = @channel.channel_targets.first
     assert_equal "NEW-%Y-%C", ct.id_template
-    assert_equal Repository.find_by_project_and_repo_name("home:Iggy", "10.2"), ct.repository
+    assert_equal Repository.find_by_project_and_name("home:Iggy", "10.2"), ct.repository
     assert_equal 1, @channel.channel_binary_lists.size
     cbl = @channel.channel_binary_lists.first
     assert_equal 2, cbl.channel_binaries.size

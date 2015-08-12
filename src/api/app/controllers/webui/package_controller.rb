@@ -131,7 +131,7 @@ class Webui::PackageController < Webui::WebuiController
         :package => @package, :repository => @repository, :nextstatus => 404
       return
     end
-    repo = Repository.find_by_project_and_repo_name(@project.to_s, @repository.to_s)
+    repo = Repository.find_by_project_and_name(@project.to_s, @repository.to_s)
     @durl = repo.download_url_for_package(@package, @arch, @filename)
     if @durl and not file_available?( @durl )
       # ignore files not available

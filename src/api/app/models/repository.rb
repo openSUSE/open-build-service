@@ -63,7 +63,7 @@ class Repository < ActiveRecord::Base
   end
 
   class << self
-    def find_by_project_and_repo_name( project, repo )
+    def find_by_project_and_name( project, repo )
       result = not_remote.joins(:project).where(:projects => {:name => project}, :name => repo).first
       return result unless result.nil?
 
@@ -82,7 +82,7 @@ class Repository < ActiveRecord::Base
     end
 
     def deleted_instance
-      repo = Repository.find_by_project_and_repo_name( "deleted", "deleted" )
+      repo = Repository.find_by_project_and_name( "deleted", "deleted" )
       return repo unless repo.nil?
 
       # does not exist, so let's create it
