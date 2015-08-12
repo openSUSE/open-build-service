@@ -103,11 +103,15 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def autocomplete_packages
-    render json: @project.packages.autocomplete(params[:term]).pluck(:name)
+    packages = []
+    packages = @project.packages.autocomplete(params[:term]).pluck(:name) if @project
+    render json: packages
   end
 
   def autocomplete_repositories
-    render json: @project.repositories.pluck(:name)
+    repositories = []
+    repositories = @project.repositories.pluck(:name) if @project
+    render json: repositories
   end
 
   def users
