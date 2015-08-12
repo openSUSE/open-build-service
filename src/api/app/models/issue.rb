@@ -15,7 +15,7 @@ class Issue < ActiveRecord::Base
 
   def self.find_or_create_by_name_and_tracker( name, issue_tracker_name, force_update=nil )
     self.find_by_name_and_tracker(name, issue_tracker_name, {
-      :force_update => force_update,
+      :force_update   => force_update,
       :create_missing => true
     })
   end

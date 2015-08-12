@@ -772,8 +772,8 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag :parent => { tag: 'owner',
                                 :attributes => { :rootproject => "TEMPORARY:Update",
-                                                 :project => "TEMPORARY:GA",
-                                                 :package => "package" } },
+                                                 :project     => "TEMPORARY:GA",
+                                                 :package     => "package" } },
                    tag: "person", :attributes => { :name => "fred", :role => "bugowner" }
 
     # cleanup

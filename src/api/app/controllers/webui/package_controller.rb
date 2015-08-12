@@ -267,9 +267,11 @@ class Webui::PackageController < Webui::WebuiController
         r = BsRequest.find_by_id request_id
         next if r.nil? # unable to load
         begin
-          opts = { newstate: "superseded",
-                   reason: "Superseded by request #{req.id}",
-                   superseded_by: req.id }
+          opts = {
+            newstate:      "superseded",
+            reason:        "Superseded by request #{req.id}",
+            superseded_by: req.id
+          }
           r.change_state(opts)
         rescue APIException => e
           supersede_errors << "#{e.message}"
@@ -387,10 +389,12 @@ class Webui::PackageController < Webui::WebuiController
       if last_req.state != :declined
         return nil # ignore all !declined
       end
-      return { id: last_req.id,
-               decliner: last_req.commenter,
-               when: last_req.updated_at,
-               comment: last_req.comment }
+      return {
+        id:       last_req.id,
+        decliner: last_req.commenter,
+        when:     last_req.updated_at,
+        comment:  last_req.comment
+      }
     end
     return nil
   end

@@ -440,10 +440,12 @@ class Webui::RequestController < Webui::WebuiController
       flash[:error] = "Unable to load request"
     else
       # FIXME: make force optional, it hides warnings!
-      opts = { :newstate=>newstate,
-               :force => true,
-               :user => User.current.login,
-               :comment => params[:reason] }
+      opts = {
+        newstate: newstate,
+        force:    true,
+        user:     User.current.login,
+        comment:  params[:reason]
+      }
       begin
         req.change_state(opts)
         flash[:notice] = "Request #{newstate}!"

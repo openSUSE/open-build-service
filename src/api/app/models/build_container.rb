@@ -24,8 +24,10 @@ class BuildContainer < ActiveRecord::Base
     raise NotFoundError.new( "Error: Architecture not valid." ) unless architecture.kind_of? Architecture
     obj = self.joins(:repository_architecture).where(package: package,
                                                      remote_package: nil,
-                                                     repository_architectures: {repository_id: repository.id,
-                                                                                architecture_id: architecture.id})
+                                                     repository_architectures: {
+                                                       repository_id:   repository.id,
+                                                       architecture_id: architecture.id
+                                                     })
 
     return nil if obj.empty?
     return obj.load

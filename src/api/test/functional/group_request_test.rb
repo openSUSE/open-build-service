@@ -91,14 +91,17 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     get "/request/#{adi}"
     assert_response :success
     assert_equal({"id" => adi,
-                  "action" => {"type" => "add_role",
-                               "target" => {"project" => "Apache", "package" => "apache2"},
-                               "person" => {"name" => "Iggy", "role" => "bugowner"}},
-                  "state" =>
-                      {"name" => "review",
-                       "who" => "king",
-                       "when" => "2010-07-12T00:00:02",
-                       "comment" => {}},
+                  "action" => {
+                    "type"   => "add_role",
+                    "target" => {"project" => "Apache", "package" => "apache2"},
+                    "person" => {"name" => "Iggy", "role" => "bugowner"}
+                 },
+                  "state" => {
+                    "name"    => "review",
+                    "who"     => "king",
+                    "when"    => "2010-07-12T00:00:02",
+                    "comment" => {}
+                 },
                   "description" => {}
                  }, Xmlhash.parse(@response.body))
 
@@ -110,21 +113,24 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     get "/request/#{adi}?withhistory=1"
     assert_response :success
     assert_equal({"id" => adi,
-                  "action" => {"type" => "add_role",
-                               "target" => {"project" => "Apache", "package" => "apache2"},
-                               "person" => {"name" => "Iggy", "role" => "bugowner"}},
-                  "state" =>
-                      {"name" => "new",
-                       "who" => "king",
-                       "when" => "2010-07-12T00:00:03",
-                       "comment" => "removed from group #{id}"},
-                  "history" => [{"who"=>"king",
-                                 "when"=>"2010-07-12T00:00:01",
-                                 "description"=>"Request created"},
-                                {"who" => "king",
-                                "when" => "2010-07-12T00:00:03",
-                                "description"=>"Request got reopened",
-                                "comment"=>"Reopened by removing from group #{id}"}],
+                  "action" => {
+                    "type"   => "add_role",
+                    "target" => {"project" => "Apache", "package" => "apache2"},
+                    "person" => {"name" => "Iggy", "role" => "bugowner"}
+                 },
+                  "state" => {
+                     "name"    => "new",
+                     "who"     => "king",
+                     "when"    => "2010-07-12T00:00:03",
+                     "comment" => "removed from group #{id}"
+                 },
+                  "history" => [{"who"         => "king",
+                                 "when"        => "2010-07-12T00:00:01",
+                                 "description" => "Request created"},
+                                {"who"        => "king",
+                                "when"        => "2010-07-12T00:00:03",
+                                "description" => "Request got reopened",
+                                "comment"     => "Reopened by removing from group #{id}"}],
                   "description" => {}
                  }, Xmlhash.parse(@response.body))
 
@@ -216,12 +222,13 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     get "/request/#{id}"
     assert_response :success
     assert_equal({"id" => id,
-                  "action"=>{"type"=>"group", "grouped"=>[{"id"=>"2"}, {"id"=>withr}]},
-                  "state"=>
-                      {"name"=>"review",
-                       "who"=>"king",
-                       "when"=>"2010-07-12T00:00:00",
-                       "comment"=>{}},
+                  "action" => {"type"=>"group", "grouped"=>[{"id"=>"2"}, {"id"=>withr}]},
+                  "state" => {
+                    "name"    => "review",
+                    "who"     =>"king",
+                    "when"    => "2010-07-12T00:00:00",
+                    "comment" => {}
+                  },
                   "description"=>{} }, Xmlhash.parse(@response.body))
 
 
@@ -235,12 +242,13 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     get "/request/#{id}"
     assert_response :success
     assert_equal({"id" => id,
-                  "action"=>{"type"=>"group", "grouped"=>[{"id"=>"2"}, {"id"=>withr2}]},
-                  "state"=>
-                      {"name"=>"review",
-                       "who"=>"king",
-                       "when"=>"2010-07-12T00:00:00",
-                       "comment"=>{}},
+                  "action" => {"type"=>"group", "grouped"=>[{"id"=>"2"}, {"id"=>withr2}]},
+                  "state" => {
+                    "name"    => "review",
+                    "who"     => "king",
+                    "when"    => "2010-07-12T00:00:00",
+                    "comment" => {}
+                  },
                   "description"=>{} }, Xmlhash.parse(@response.body))
 
   end

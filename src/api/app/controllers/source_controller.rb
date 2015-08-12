@@ -1169,7 +1169,7 @@ class SourceController < ApplicationController
   def project_command_move
     project_name = params[:oproject]
 
-    commit = { :login => User.current.login,
+    commit = { :login   => User.current.login,
                :lowprio => 1,
                :comment => "Project move from #{params[:oproject]} to #{params[:project]}"
              }
