@@ -130,10 +130,10 @@ module MaintenanceHelper
     md5 = Digest::MD5.hexdigest(link_xml)
                                      # commit with noservice parameneter
     upload_params = {
-        :user => User.current.login,
-        :cmd => 'commitfilelist',
-        :noservice => '1',
-        :comment => "Set link to #{targetPackageName} via maintenance_release request",
+      user:      User.current.login,
+      cmd:       "commitfilelist",
+      noservice: "1",
+      comment:   "Set link to #{targetPackageName} via maintenance_release request",
     }
     upload_params[:requestid] = action.bs_request.id if action
     upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}"
@@ -155,9 +155,9 @@ module MaintenanceHelper
       lpkg.store
     end
     upload_params = {
-        :user => User.current.login,
-        :rev => 'repository',
-        :comment => "Set link to #{targetPackageName} via maintenance_release request",
+      user:    User.current.login,
+      rev:     "repository",
+      comment: "Set link to #{targetPackageName} via maintenance_release request",
     }
     upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(basePackageName)}/_link"
     upload_path << Suse::Backend.build_query_from_hash(upload_params, [:user, :rev])
@@ -178,15 +178,15 @@ module MaintenanceHelper
     # backend copy of current sources as full copy
     # that means the xsrcmd5 is different, but we keep the incident project anyway.
     cp_params = {
-        :cmd => 'copy',
-        :user => User.current.login,
-        :oproject => sourcePackage.project.name,
-        :opackage => sourcePackage.name,
-        :comment => "Release from #{sourcePackage.project.name} / #{sourcePackage.name}",
-        :expand => '1',
-        :withvrev => '1',
-        :noservice => '1',
-        :withacceptinfo => '1',
+      cmd:            "copy",
+      user:           User.current.login,
+      oproject:       sourcePackage.project.name,
+      opackage:       sourcePackage.name,
+      comment:        "Release from #{sourcePackage.project.name} / #{sourcePackage.name}",
+      expand:         "1",
+      withvrev:       "1",
+      noservice:      "1",
+      withacceptinfo: "1",
     }
     cp_params[:requestid] = action.bs_request.id if action
     cp_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetPackageName)}"
@@ -231,12 +231,12 @@ module MaintenanceHelper
 
   def copy_single_binary(arch, target_repository, sourcePackage, sourceRepo, targetPackageName, updateinfoId, setrelease)
     cp_params = {
-        :cmd => 'copy',
-        :oproject => sourcePackage.project.name,
-        :opackage => sourcePackage.name,
-        :orepository => sourceRepo.name,
-        :user => User.current.login,
-        :resign => "1",
+      cmd:         "copy",
+      oproject:    sourcePackage.project.name,
+      opackage:    sourcePackage.name,
+      orepository: sourceRepo.name,
+      user:        User.current.login,
+      resign:      "1",
     }
     cp_params[:setupdateinfoid] = updateinfoId if updateinfoId
     cp_params[:setrelease] = setrelease if setrelease

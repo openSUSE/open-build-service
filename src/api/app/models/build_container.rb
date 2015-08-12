@@ -48,8 +48,10 @@ class BuildContainer < ActiveRecord::Base
     obj = self.joins(:repository_architecture).where(package_id: nil,
                                                      local_project: project,
                                                      remote_package: package,
-                                                     repository_architectures: {repository_id: repository.id,
-                                                                                architecture_id: architecture.id})
+                                                     repository_architectures: {
+                                                       repository_id:   repository.id,
+                                                       architecture_id: architecture.id
+                                                     })
 
     return nil if obj.empty?
     return obj.load

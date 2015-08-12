@@ -41,9 +41,9 @@ class Issue < ActiveRecord::Base
 
   def self.states
     {
-        'OPEN' => 1,
-        'CLOSED' => 2,
-        'UNKNOWN' => 3
+      'OPEN'    => 1,
+      'CLOSED'  => 2,
+      'UNKNOWN' => 3
     }
   end
 

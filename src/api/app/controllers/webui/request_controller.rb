@@ -308,8 +308,9 @@ class Webui::RequestController < Webui::WebuiController
         req.state = "new"
         req.description = params[:description]
 
-        opts = {target_project: params[:project],
-                role: params[:role]}
+        opts = { target_project: params[:project],
+                 role:           params[:role]
+               }
         opts[:target_package] = params[:package] if params[:package]
         opts[:person_name] = params[:user] if params[:user]
         opts[:group_name] = params[:group] if params[:group]

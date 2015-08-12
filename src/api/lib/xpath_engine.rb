@@ -11,17 +11,18 @@ class XpathEngine
     @lexer = REXML::Parsers::XPathParser.new
 
     @tables = {
-      'attribute' => 'attribs',
-      'package' => 'packages',
-      'project' => 'projects',
-      'person' => 'users',
-      'repository' => 'repositories',
-      'issue' => 'issues',
-      'request' => 'requests',
-      'channel_binary' => 'channel_binaries',
+      'attribute'       => 'attribs',
+      'package'         => 'packages',
+      'project'         => 'projects',
+      'person'          => 'users',
+      'repository'      => 'repositories',
+      'issue'           => 'issues',
+      'request'         => 'requests',
+      'channel_binary'  => 'channel_binaries',
       'released_binary' => 'released_binaries'
     }
 
+    # rubocop:disable Style/AlignHash
     @attribs = {
       'packages' => {
         '@project' => {:cpart => 'projects.name',
@@ -322,6 +323,7 @@ class XpathEngine
         'submit/source/@package' => { empty: true },
       }
     }
+    # rubocop:enable Style/AlignHash
 
     @operators = [:eq, :and, :or, :neq, :gt, :lt, :gteq, :lteq]
 
@@ -432,7 +434,7 @@ class XpathEngine
     end
     cond_ary = [@conditions.flatten.uniq.join(" AND "), @condition_values].flatten
 
-    logger.debug("#{relation.to_sql}.find #{ { joins: @joins.flatten.uniq.join(' '),
+    logger.debug("#{relation.to_sql}.find #{ { joins:      @joins.flatten.uniq.join(' '),
                                                conditions: cond_ary}.inspect }")
     relation = relation.joins(@joins.flatten.uniq.join(" ")).where(cond_ary).order(order)
     # .distinct is critical for perfomance here...

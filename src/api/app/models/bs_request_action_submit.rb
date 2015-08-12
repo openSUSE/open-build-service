@@ -16,14 +16,14 @@ class BsRequestActionSubmit < BsRequestAction
     source_history_comment = self.bs_request.description
 
     cp_params = {
-      :cmd => "copy",
-      :user => User.current.login,
-      :oproject => self.source_project,
-      :opackage => self.source_package,
-      :noservice => 1,
-      :requestid => self.bs_request.id,
-      :comment => source_history_comment,
-      :withacceptinfo => 1
+      cmd:            "copy",
+      user:           User.current.login,
+      oproject:       self.source_project,
+      opackage:       self.source_package,
+      noservice:      1,
+      requestid:      self.bs_request.id,
+      comment:        source_history_comment,
+      withacceptinfo: 1
     }
     cp_params[:orev] = self.source_rev if self.source_rev
     cp_params[:dontupdatesource] = 1 if self.sourceupdate == "noupdate"

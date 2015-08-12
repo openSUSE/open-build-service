@@ -435,9 +435,9 @@ class BsRequestAction < ActiveRecord::Base
     delete_path = source_cleanup_delete_path
     return unless delete_path
     del_params = {
-        user: User.current.login,
-        requestid: self.bs_request.id,
-        comment: self.bs_request.description
+      user:      User.current.login,
+      requestid: self.bs_request.id,
+      comment:   self.bs_request.description
     }
     delete_path << Suse::Backend.build_query_from_hash(del_params, [:user, :comment, :requestid])
     Suse::Backend.delete delete_path

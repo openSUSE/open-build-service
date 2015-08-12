@@ -28,11 +28,11 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     # log release events once in target project
     opts[:projectCommit].each do |tprj, sprj|
       commit_params = {
-        :cmd => 'commit',
-        :user => User.current.login,
-        :requestid => self.bs_request.id,
-        :rev => 'latest',
-        :comment => 'Releasing from project ' + sprj
+        cmd:       "commit",
+        user:      User.current.login,
+        requestid: self.bs_request.id,
+        rev:       "latest",
+        comment:   "Releasing from project #{sprj}"
       }
       commit_params[:comment] << " the update " << opts[:updateinfoIDs].join(", ") if opts[:updateinfoIDs]
       commit_path = "/source/#{URI.escape(tprj)}/_project"

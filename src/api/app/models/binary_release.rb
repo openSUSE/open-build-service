@@ -124,13 +124,13 @@ class BinaryRelease < ActiveRecord::Base
     BinaryRelease.transaction do
       json.each do |binary|
         # identifier
-        hash={ :binary_name => binary["name"],
-               :binary_version => binary["version"],
-               :binary_release => binary["release"],
-               :binary_epoch => binary["epoch"],
-               :binary_arch => binary["binaryarch"],
-               :medium => binary["medium"],
-               :obsolete_time => nil
+        hash = { binary_name:    binary["name"],
+                 binary_version: binary["version"],
+                 binary_release: binary["release"],
+                 binary_epoch:   binary["epoch"],
+                 binary_arch:    binary["binaryarch"],
+                 medium:         binary["medium"],
+                 obsolete_time:  nil
              }
         # check for existing entry
         existing = oldlist.where(hash)

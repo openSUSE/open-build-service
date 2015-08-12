@@ -41,11 +41,11 @@ module ParsePackageDiff
     end
 
     {
-      'old' => sourcediff['old'],
-      'new' => sourcediff['new'],
+      'old'       => sourcediff['old'],
+      'new'       => sourcediff['new'],
       'filenames' => changes_file_keys.sort + spec_file_keys.sort + patch_file_keys.sort + other_file_keys.sort,
-      'files' => files_hash,
-      'issues' => issues_hash(sourcediff)
+      'files'     => files_hash,
+      'issues'    => issues_hash(sourcediff)
     }
   end
 
