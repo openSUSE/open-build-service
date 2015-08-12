@@ -1,0 +1,27 @@
+#
+# openSUSE Build Service 2.6.3
+#
+
+Updaters from any OBS 2.6 release can just ugrade the packages
+and restart all services. Updaters from former releases should
+read the README.UPDATERS file.
+
+Feature backports:
+==================
+
+* backend: support using docker as build environment (not secure)
+
+Changes:
+========
+
+* none
+
+Bugfixes:
+=========
+
+* backend: validate results of external patch command. could be used
+           to modify packages without sufficiant permissions (bnc#941099, CVE-2015-0796)
+* backend: fixing create pattern call in publisher
+* backend: fix handling of host specific bsconfig.* files
+
+
