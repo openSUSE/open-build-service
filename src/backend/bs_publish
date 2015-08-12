@@ -1449,6 +1449,8 @@ sub publish {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.(?:box|json|ovf|qcow2|qcow2\.xz|vmx|vmdk)(?:\.sha256)?$/) {
 	  $p = "$bin";
+        } elsif ($bin =~ /^(.*)\.packages$/) {
+	  $p = "$bin";
         } elsif ($bin =~ /^(.*)\.report$/) {
 	  # collect kiwi reports
 	  $kiwireport{$1} = readxml("$r/$rbin", $BSXML::report, 1);
