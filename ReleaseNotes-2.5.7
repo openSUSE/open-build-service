@@ -1,0 +1,24 @@
+#
+# openSUSE Build Service 2.5.7
+#
+
+Updaters from any OBS 2.5 release can just ugrade the packages
+and restart all services. Updaters from former releases should
+read the README.UPDATERS file.
+
+Feature backports:
+==================
+
+* backend: bs_worker compability with OBS 2.6
+
+Changes:
+========
+
+* none
+
+Bugfixes:
+=========
+
+* backend: validate results of external patch command. could be used
+           to modify packages without sufficiant permissions (bnc#941099, CVE-2015-0796)
+
