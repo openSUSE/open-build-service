@@ -80,8 +80,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
 
   def open_create_subproject(opts)
     visit project_subprojects_path(project: opts[:project])
-    click_link('link-create-subproject')
-    page.must_have_text 'Create New Subproject'
+    click_link('create_subproject_link')
   end
 
 
