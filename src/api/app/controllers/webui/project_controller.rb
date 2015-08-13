@@ -32,48 +32,19 @@ class Webui::ProjectController < Webui::WebuiController
   after_action :verify_authorized, :only => :save_new
 
   def index
-    unless params[:show_all]
-      params['excludefilter'] = 'home:'
-    end
+    @show_all = params[:show_all]
+    projects = Project.all
+    projects = projects.not_home unless @show_all
+    @projects = projects.pluck(:name, :title)
 
-    @main_projects = []
-    @excl_projects = []
-    if params['excludefilter'] and params['excludefilter'] != 'undefined'
-      @excludefilter = params['excludefilter']
-    else
-      @excludefilter = nil
-    end
-    all_projects.each do |name, title|
-      if @excludefilter && name.start_with?(@excludefilter)
-        @excl_projects << [name, title]
-      else
-        @main_projects << [name, title]
-      end
-    end
-    # excl and main are sorted by datatable, but important need to be in order
-    @important_projects.sort! {|a,b| a[0] <=> b[0] }
+    atype = AttribType.find_by_namespace_and_name!('OBS', 'VeryImportantProject')
+    @important_projects = Project.find_by_attribute_type(atype).where('name <> ?', 'deleted').pluck(:name, :title)
+
     if @spider_bot
       render :list_simple, status: params[:nextstatus]
     else
       render :list, status: params[:nextstatus]
     end
-  end
-
-  def all_projects
-    @important_projects = []
-    # return all projects and their title
-    ret = {}
-    atype = AttribType.find_by_namespace_and_name!('OBS', 'VeryImportantProject')
-    important = {}
-    Project.find_by_attribute_type(atype).pluck('projects.id').each do |p|
-      important[p] = true
-    end
-    projects = Project.where('name <> ?', 'deleted').pluck(:id, :name, :title)
-    projects.each do |id, name, title|
-      @important_projects << [name, title] if important[id]
-      ret[name] = title
-    end
-    ret
   end
 
   def autocomplete_projects

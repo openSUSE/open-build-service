@@ -262,7 +262,8 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     find(:id, 'project_list').must_have_link 'BaseDistro'
     find(:id, 'project_list').wont_have_link 'HiddenProject'
     find(:id, 'project_list').wont_have_link 'home:adrian'
-    uncheck('excludefilter')
+
+    click_link('Include home projects')
     find(:id, 'project_list').must_have_link 'home:adrian'
 
     login_king to: projects_path
