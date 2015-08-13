@@ -34,7 +34,7 @@
           <% architectures.each do |arch| %>
             <%= hidden_field_tag(reponame + '_arch[]', arch, :id => reponame + '_arch_' + arch) %>
           <% end %>
-          <%= name %>
+          <label for="<%= 'repo_' + reponame %>"><%= name %></label>
         </span>
           <% end -%>
         </p>
@@ -54,7 +54,10 @@
           <input id="images_arch_<%= arch.name %>" name="images_arch[]" value="<%= arch.name %>" type="hidden"/>
         <% end %>
       <% end %>
-      KIWI image build <i>(to be used for appliance and product builds with kiwi)</i>        </span>
+      <label for="repo_images">
+        KIWI image build <i>(to be used for appliance and product builds with kiwi)</i>
+      </label>
+    </span>
     </p>
 
     <p>
