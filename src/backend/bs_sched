@@ -383,9 +383,10 @@ sub addrepo_scan {
   # update the doddata
   my $doddata;
   if ($BSConfig::enable_download_on_demand) {
-    my ($projid) = split('/', $prp, 2);
-    my @doddata = grep {$_->{'arch'} && $_->{'arch'} eq $myarch} @{$projpacks->{$projid}->{'download'} || []};
-    $doddata = $doddata[0];
+    my ($projid, $repoid) = split('/', $prp, 2);
+    my $proj = $projpacks->{$projid} || {};
+    my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0] || {};
+    $doddata = (grep {($_->{'arch'} || '') eq $myarch} @{$repo->{'download'} || $proj->{'download'} || []})[0];
     ($dirty, $cache) = put_doddata_in_cache($pool, $prp, $cache, $doddata, $dir);
   }
 

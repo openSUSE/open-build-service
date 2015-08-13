@@ -25,6 +25,7 @@ package BSDoD;
 use Build::Repo;
 use Build::Deb;
 use Build::Rpm;
+use BSUtil;
 
 use strict;
 
@@ -79,27 +80,38 @@ sub addpkg {
 
 sub gencookie {
   my ($doddata, $dir) = @_;
-  my @s = stat("$dir/$doddata->{'metafile'}");
+  my $metafile = $doddata->{'metafile'} || 'doddata';
+  my @s = stat("$dir/$metafile");
   return undef unless @s;
   return "1/$s[9]/$s[7]/$s[1]";
 }
 
 sub parse {
-  my ($doddata, $dir, $arch) = @_;
-  my $mtype = $doddata->{'mtype'} || 'mtype not set';
+  my ($doddata, $dir) = @_;
+  my $mtype = $doddata->{'repotype'} || $doddata->{'mtype'} || 'mtype not set';
+  my $baseurl = $doddata->{'url'} || $doddata->{'baseurl'};
   $mtype = 'deb' if $mtype eq 'debmd';
   $mtype = 'susetags' if $mtype eq 'susetagsmd';
+  $mtype = 'parsed' if $doddata->{'repotype'};	# new format is always parsed
+  my $metafile = $doddata->{'metafile'} || 'doddata';
   my $archfilter;
   if ($mtype eq 'rpmmd' || $mtype eq 'susetags') {
     # do arch filtering for rpmmd/susetags hybrid repos
-    $arch ||= 'noarch';
+    my $arch = $doddata->{'arch'} || 'noarch';
     $archfilter = { map { $_ => 1} @{$compatarch{$arch} || [ $arch, 'noarch' ] } };
   }
   my $cache = {};
   my $cookie = gencookie($doddata, $dir);
-  return "$doddata->{'metafile'}: $!" unless $cookie;
+  return "$metafile: $!" unless $cookie;
+
   eval {
-    Build::Repo::parse($mtype, "$dir/$doddata->{'metafile'}", sub { addpkg($cache, $_[0], $archfilter) }, 'addselfprovides' => 1, 'normalizedeps' => 1, 'withchecksum' => 1);
+    if ($mtype eq 'parsed') {
+      $cache = BSUtil::retrieve("$dir/$metafile");
+      $baseurl = delete $cache->{'/url'};
+      die("baseurl missing in data\n") unless $baseurl;
+    } else {
+      Build::Repo::parse($mtype, "$dir/$metafile", sub { addpkg($cache, $_[0], $archfilter) }, 'addselfprovides' => 1, 'normalizedeps' => 1, 'withchecksum' => 1);
+    }
   };
   if ($@) {
     my $error = $@;
@@ -110,7 +122,7 @@ sub parse {
     $_->{'id'} = 'dod';
     $_->{'hdrmd5'} = 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0';
   }    
-  $cache->{'/url'} = $doddata->{'baseurl'};
+  $cache->{'/url'} = $baseurl;
   $cache->{'/dodcookie'} = $cookie;
   return $cache;
 }

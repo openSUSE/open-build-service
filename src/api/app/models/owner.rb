@@ -174,7 +174,6 @@ class Owner
     Project.joins(:relationships).where("projects.id in (?) AND role_id in (?) AND group_id IN (?)", projects, roles, maintained_groups).each do |prj|
       defined_packages += prj.packages.pluck(:name)
     end
-    # rubocop:disable Metrics/LineLength
     # accept all incident containers in release projects. the main package (link) is enough here
     defined_packages += Package.where(project_id: projects).
         joins("LEFT JOIN projects ON packages.project_id=projects.id LEFT JOIN package_kinds ON packages.id=package_kinds.package_id").
