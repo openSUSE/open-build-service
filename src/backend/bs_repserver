@@ -1835,6 +1835,13 @@ sub putjob {
   die("different jobid\n") if $oldjobstatus->{'jobid'} ne $jobid;
   die("job is not building\n") if $oldjobstatus->{'code'} ne 'building';
   die("job is building on a different worker: $cgi->{'workerid'} -- $oldjobstatus->{'workerid'}\n") if $cgi->{'workerid'} && $oldjobstatus->{'workerid'} && $cgi->{'workerid'} ne $oldjobstatus->{'workerid'};
+  if (defined($BSConfig::putjob_verify_peerip) && $BSConfig::putjob_verify_peerip) {
+    my $peerip = BSServer::getpeerdata();
+    my $uri = $oldjobstatus->{'uri'};
+    $uri =~ s/.*\///s;
+    $uri =~ s/:[\d]+$//s;
+    die("job was dispatched to a different peer\n") unless $peerip eq $uri;
+  }
 
   my $infoxml = readstr("$jobsdir/$arch/$job");
   my $infoxmlmd5 = Digest::MD5::md5_hex($infoxml);
