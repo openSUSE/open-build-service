@@ -128,6 +128,13 @@ sub verify_filename {
   die("filename '$filename' is illegal\n") if $filename =~ /^\./;
 }
 
+sub verify_url {
+  my $url = $_[0];
+  die("url is empty\n") unless defined($url) && $url ne '';
+  die("illegal characters in url\n") if $url =~ /[^\041-\176\200-\377]/s;
+  die("url does not start with a scheme\n") if $url !~ /^[a-zA-Z]+:/s;
+}
+
 sub verify_md5 {
   my $md5 = $_[0];
   die("not a md5 sum\n") unless $md5 && $md5 =~ /^[0-9a-f]{32}$/s;
@@ -210,6 +217,36 @@ sub verify_disableenable {
   }
 }
 
+sub verify_repo {
+  my ($repo) = @_;
+  verify_repoid($repo->{'name'});
+  for my $r (@{$repo->{'path'} || []}) {
+    verify_projid($r->{'project'});
+    verify_repoid($r->{'repository'});
+  }
+  for my $a (@{$repo->{'arch'} || []}) {
+    verify_arch($a);
+  }
+  for my $rt (@{$repo->{'releasetarget'} || []}) {
+    verify_projid($rt->{'project'});
+    verify_repoid($rt->{'repository'});
+  }
+  my %got;
+  for my $dod (@{$repo->{'download'} || []}) {
+    verify_dod($dod);
+    die("arch $dod->{'arch'} listed more than once\n") if $got{$dod->{'arch'}};
+    $got{$dod->{'arch'}} = 1;
+  }
+  if ($repo->{'base'}) {
+    die("repo contains a 'base' element\n");
+  }
+  # what is this?
+  if ($repo->{'hostsystem'}) {
+    verify_projid($repo->{'hostsystem'}->{'project'});
+    verify_repoid($repo->{'hostsystem'}->{'repository'});
+  }
+}
+
 sub verify_proj {
   my ($proj, $projid) = @_;
   if (defined($projid)) {
@@ -225,20 +262,9 @@ sub verify_proj {
   }
   my %got;
   for my $repo (@{$proj->{'repository'} || []}) {
-    verify_repoid($repo->{'name'});
+    verify_repo($repo);
     die("repository $repo->{'name'} listed more than once\n") if $got{$repo->{'name'}};
     $got{$repo->{'name'}} = 1;
-    for my $r (@{$repo->{'path'} || []}) {
-      verify_projid($r->{'project'});
-      verify_repoid($r->{'repository'});
-    }
-    for my $a (@{$repo->{'arch'} || []}) {
-      verify_arch($a);
-    }
-    for my $rt (@{$repo->{'releasetarget'} || []}) {
-      verify_projid($rt->{'project'});
-      verify_repoid($rt->{'repository'});
-    }
   }
   for my $link (@{$proj->{'link'} || []}) {
     verify_projid($link->{'project'});
@@ -466,6 +492,18 @@ sub verify_frozenlinks {
       verify_srcmd5($p->{'srcmd5'});
       verify_simple($p->{'vrev'}) if defined $p->{'vrev'};
     }
+  }
+}
+
+sub verify_dod {
+  my ($dod) = @_;
+  verify_arch($dod->{'arch'});
+  verify_simple($dod->{'repotype'});
+  verify_url($dod->{'url'});
+  my $master = $dod->{'master'};
+  if ($master) {
+    verify_url($master->{'url'}) if defined $master->{'url'};
+    verify_simple($master->{'sslfingerprint'}) if defined $master->{'sslfingerprint'};
   }
 }
 
