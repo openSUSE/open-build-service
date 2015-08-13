@@ -35,15 +35,13 @@
     %i This project has no subprojects
 
 - if User.current.can_modify_project?(@project.api_obj)
-  = form_for Project.new, url: { action: 'save_new', ns: @project.name } do |f|
-    %p
-      %b
-        Subproject Name:
-      %br
-      = @project.name + ':'
-      = f.text_field :name, size: 30
-      = submit_tag "Create"
+  %p
+    = link_to sprite_tag('brick_add', title: 'New subproject') + ' New subproject', '#', id: 'create_subproject_link'
+    #create_subproject.hidden
+      = render partial: 'form', locals: { project: Project.new, configuration: @configuration, ns: @project.name }
 
 - if @subprojects.present?
   - content_for :ready_function do
     setup_subprojects_tables();
+- content_for :ready_function do
+  $("#create_subproject_link").click(function() { $('#create_subproject').show(); $('#create_subproject_link').hide() });

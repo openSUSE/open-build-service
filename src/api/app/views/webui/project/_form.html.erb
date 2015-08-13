@@ -1,7 +1,11 @@
 <%= form_for project, url: { action: 'save_new' } do |f| %>
     <p>
-      <b>Project Name:</b>
+      <b><%= local_assigns.has_key?(:ns) ? 'Subproject' : 'Project'%> Name:</b>
       <br/>
+      <% if local_assigns.has_key?(:ns) %>
+            <%= hidden_field_tag :ns, ns %>
+            <%= ns + ':'%>
+      <% end %>
       <%= f.text_field :name, size: 50 %>
       <br/>
       <label for="title"><b>Title: </b></label>
