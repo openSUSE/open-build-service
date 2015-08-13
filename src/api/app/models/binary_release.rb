@@ -65,7 +65,7 @@ class BinaryRelease < ActiveRecord::Base
       b.obsolete(:time => self.obsolete_time) if self.obsolete_time
 
       b.supportstatus self.binary_supportstatus if self.binary_supportstatus
-      b.updateinfo({:id => self.binary_updateinfo,
+      b.updateinfo({:id      => self.binary_updateinfo,
                     :version => self.binary_updateinfo_version}) if self.binary_updateinfo
       b.maintainer self.binary_maintainer if self.binary_maintainer
       b.disturl self.binary_disturl if self.binary_disturl

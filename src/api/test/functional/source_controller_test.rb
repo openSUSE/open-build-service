@@ -3267,16 +3267,16 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal({ 'disable' => [{ 'arch' => 'i586', 'repository' => '10.2' },
                                  { 'arch' => 'x86_64', 'repository' => '10.2' }],
-                   'enable' => { 'arch' => 'i586', 'repository' => '10.7' } },
+                   'enable'  => { 'arch' => 'i586', 'repository' => '10.7' } },
                  Xmlhash.parse(@response.body)['build'])
 
     post '/source/home:Iggy?cmd=set_flag&flag=build&status=enable'
     assert_response :success
 
     get '/source/home:Iggy/_meta'
-    assert_equal({ 'disable' =>[{ 'arch' => 'i586', 'repository' => '10.2' },
+    assert_equal({ 'disable' => [{ 'arch' => 'i586', 'repository' => '10.2' },
                               { 'arch' => 'x86_64', 'repository' => '10.2' }],
-                  'enable' =>[{ 'arch' => 'i586', 'repository' => '10.7' }, {}]},
+                   'enable'  => [{ 'arch' => 'i586', 'repository' => '10.7' }, {}]},
                  Xmlhash.parse(@response.body)['build'])
 
     assert_equal([['enable', {:repository=> '10.2' }],

@@ -14,9 +14,9 @@ class UserLdapStrategyTest < ActiveSupport::TestCase
     require 'digest/md5'
     require 'base64'
     test_entry = {
-      'userPassword'=>[],
-      'CLR_userPassword'=>['test'],
-      'MD5_userPassword'=>["{MD5}"+Base64.encode64(Digest::MD5.digest("test"))]
+      'userPassword'     => [],
+      'CLR_userPassword' => ['test'],
+      'MD5_userPassword' => ["{MD5}"+Base64.encode64(Digest::MD5.digest("test"))]
     }
 
     CONFIG['ldap_auth_mech'] = :foobar

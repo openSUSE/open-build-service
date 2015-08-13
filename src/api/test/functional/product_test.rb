@@ -65,8 +65,8 @@ class ProductTests < ActionDispatch::IntegrationTest
       :tag => "cpe", :content => "cpe:/o:obs_fuzzies:simple:13.1"
     get "/source/home:tom:temporary?view=verboseproductlist&expand=1"
     assert_response :success
-    assert_xml_tag :parent => { :tag => "product",
-                          :attributes => { :name => "simple", :originproject => "home:tom:temporary" } },
+    assert_xml_tag :parent => { :tag        => "product",
+                                :attributes => { :name => "simple", :originproject => "home:tom:temporary" } },
                    :tag => "cpe", :content => "cpe:/o:obs_fuzzies:simple:13.1"
 
     # product views via project links

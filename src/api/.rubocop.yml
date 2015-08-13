@@ -22,9 +22,7 @@ Style/CommandLiteral:
 Lint/EndAlignment:
   AlignWith: variable
 
-# Björn
 Style/AlignHash:
-  Enabled: false
   EnforcedHashRocketStyle: table
   EnforcedColonStyle: table
   EnforcedLastArgumentHashStyle: ignore_implicit

@@ -563,7 +563,7 @@ class Webui::PackageController < Webui::WebuiController
 
     logger.debug "link params doing branch: #{@linked_project}, #{@linked_package}"
     begin
-      path = Package.source_path(@linked_project, @linked_package, nil, { cmd: :branch,
+      path = Package.source_path(@linked_project, @linked_package, nil, { cmd:            :branch,
                                                                           target_project: @project.name,
                                                                           target_package: @target_package})
       path += "&rev=#{CGI.escape(@revision)}" if @revision

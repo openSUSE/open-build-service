@@ -49,7 +49,7 @@ class Webui::OwnerSearchTest < Webui::IntegrationTest
       {
         :project => (row.find("a.project").text rescue nil),
         :package => (row.find("a.package").text rescue nil),
-        :owners =>  (row.find("p").text rescue nil)
+        :owners  => (row.find("p").text rescue nil)
       }
     end
   end
