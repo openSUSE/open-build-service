@@ -18,7 +18,7 @@ if File.exists?("#{Rails.root}/tmp/backend_config")
 end
 
 # memcached must be running ...
-memcached_pid = `ps -C memcached -o pid=`.strip
+memcached_pid = %x(ps -C memcached -o pid=).strip
 if memcached_pid.to_i > 0
   memcached_npid = 0
   puts "memcached already started (pid=#{memcached_pid})\."
@@ -30,7 +30,7 @@ else
     success = system('/usr/sbin/memcached', '-d')
   end
   if success
-    memcached_npid = `ps -C memcached -o pid=`.strip
+    memcached_npid = %x(ps -C memcached -o pid=).strip
     puts "memcached started (pid=#{memcached_npid})\."
   else
     puts "memcached couldn't become started. Abort."

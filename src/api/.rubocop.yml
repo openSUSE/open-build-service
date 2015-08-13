@@ -4,9 +4,43 @@ AllCops:
   Exclude:
     - 'tmp/**/*'
 
+# Someday we should add copyrights
+Style/Copyright:
+  Enabled: false
+  Notice: '^Copyright (\(c\) )?2[0-9]{3} .+'
+  AutocorrectNotice: ''# Configuration parameters: AllowURI, URISchemes.
+
 # Configuration parameters: AllowURI, URISchemes.
 Metrics/LineLength:
   Max: 150
   Exclude:
     - 'db/**/*'
+
+Style/CommandLiteral:
+  EnforcedStyle: percent_x
+
+Lint/EndAlignment:
+  AlignWith: variable
+
+# Björn
+Style/AlignHash:
+  Enabled: false
+  EnforcedHashRocketStyle: table
+  EnforcedColonStyle: table
+  EnforcedLastArgumentHashStyle: ignore_implicit
+
+# Moises
+Style/AlignParameters:
+  Enabled: false
+  EnforcedStyle: with_first_parameter
+
+# Henne
+Style/AndOr:
+  Enabled: false
+  EnforcedStyle: always
+
+# Moises
+Style/EmptyElse:
+  Enabled: false
+  EnforcedStyle: both
 
