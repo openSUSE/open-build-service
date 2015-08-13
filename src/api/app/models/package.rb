@@ -826,10 +826,7 @@ class Package < ActiveRecord::Base
 
     # main package
     ChannelBinary.find_by_project_and_package(project_name, opkg.name).each do |cb|
-      next if mode == :skip_disabled and not cb.channel_binary_list.channel.is_active?
-      cpkg = cb.create_channel_package_into(self.project, "Listed in #{project_name} #{opkg.name}")
-      next unless cpkg
-      cpkg.channels.first.add_channel_repos_to_project(cpkg, mode)
+      _add_channel(mode, cb, "Listed in #{project_name} #{opkg.name}")
     end
     # and all possible existing local links
     if opkg.project.is_maintenance_release? and opkg.is_link?
@@ -841,15 +838,20 @@ class Package < ActiveRecord::Base
       # strip incident suffix in update release projects
       name.gsub!(/\.[^\.]*$/,'') if opkg.project.is_maintenance_release?
       ChannelBinary.find_by_project_and_package(project_name, name).each do |cb|
-        next if mode == :skip_disabled and not cb.channel_binary_list.channel.is_active?
-        cpkg = cb.create_channel_package_into(self.project)
-        next unless cpkg
-        next if mode.nil? and not cb.channel_binary_list.channel.is_active?
-        cpkg.channels.first.add_channel_repos_to_project(cpkg, mode)
+        _add_channel(mode, cb, "Listed in #{project_name} #{name}")
       end
     end
     self.project.store
   end
+
+  def _add_channel(mode, channel_binary, message)
+    return if mode == :skip_disabled and not channel_binary.channel_binary_list.channel.is_active?
+    cpkg = channel_binary.create_channel_package_into(self.project, message)
+    return unless cpkg
+    return if mode.nil? and not channel_binary.channel_binary_list.channel.is_active?
+    cpkg.channels.first.add_channel_repos_to_project(cpkg, mode)
+  end
+  private :_add_channel
 
   def update_instance(namespace='OBS', name='UpdateProject')
     # check if a newer instance exists in a defined update project
