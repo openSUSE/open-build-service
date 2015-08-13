@@ -857,7 +857,7 @@ class SourceController < ApplicationController
     # update package timestamp and reindex sources
     unless params[:rev] == 'repository' or %w(_project _pattern).include? @package_name
       special_file = %w{_aggregate _constraints _link _service _patchinfo _channel}.include? params[:filename]
-      @pack.sources_changed(nil, special_file) # wait for indexing for special files
+      @pack.sources_changed(wait_for_update: special_file) # wait for indexing for special files
     end
   end
 
@@ -1489,7 +1489,7 @@ class SourceController < ApplicationController
     answer = pass_to_backend path
 
     if @package # except in case of _project package
-      @package.sources_changed(answer)
+      @package.sources_changed(dir_xml: answer)
     end
   end
 

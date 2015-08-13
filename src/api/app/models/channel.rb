@@ -142,7 +142,7 @@ class Channel < ActiveRecord::Base
 
     # branch sources
     tpkg.branch_from(cp.project.name, cp.name, nil, nil, comment)
-    tpkg.sources_changed
+    tpkg.sources_changed(wait_for_update: true)
 
     tpkg
   end

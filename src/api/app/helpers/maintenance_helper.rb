@@ -139,7 +139,7 @@ module MaintenanceHelper
     upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}"
     upload_path << Suse::Backend.build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
     answer = Suse::Backend.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
-    tpkg.sources_changed(answer)
+    tpkg.sources_changed(dir_xml: answer)
   end
 
   def release_package_create_main_package(request, sourcePackage, targetPackageName, targetProject)
@@ -171,7 +171,7 @@ module MaintenanceHelper
     upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(basePackageName)}"
     upload_path << Suse::Backend.build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
     answer = Suse::Backend.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
-    lpkg.sources_changed(answer)
+    lpkg.sources_changed(dir_xml: answer)
   end
 
   def release_package_copy_sources(action, sourcePackage, targetPackageName, targetProject)
