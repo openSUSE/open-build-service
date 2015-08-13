@@ -3351,7 +3351,7 @@ sub update_doddata {
   } else {
     for my $repo (@{$proj->{'repository'}}) {
       my $doddata = (grep {($_->{'arch'} || '') eq $myarch} @{$repo->{'download'} || []})[0];
-      $changed ||= update_doddata_prp($projid/"$repo->{'name'}", $doddata);
+      $changed ||= update_doddata_prp("$projid/$repo->{'name'}", $doddata);
     }
   }
   BSUtil::touch("$dodsdir/.changed") if $changed && -d $dodsdir;
