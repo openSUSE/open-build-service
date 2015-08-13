@@ -90,6 +90,7 @@ my $extrepodir = "$bsdir/repos";
 my $extrepodir_sync = "$bsdir/repos_sync";
 my $extrepodb = "$bsdir/db/published";
 my $uploaddir = "$bsdir/upload";
+my $dodsdir = "$bsdir/dods";
 my $rundir = $BSConfig::rundir || "$bsdir/run";
 my $infodir = "$bsdir/info";
 my $remotecache = "$BSConfig::bsdir/remotecache";
@@ -261,6 +262,7 @@ my %channeldata;	# global channel data unificator to save memory
 #  'solv'       solv data cache (for remote repos)
 my %repodatas;		# our repository knowledge
 my %repodatas_alien;	# repositories from other archs
+my %dodprps;
 
 my %remotegbininfos;
 my %remotepackstatus;
@@ -3322,6 +3324,39 @@ sub update_prpcheckuseforbuild {
   }
 }
 
+sub update_doddata_prp {
+  my ($prp, $doddata) = @_;
+  return 0 if identical($doddata, $dodprps{$prp});
+  my ($projid, $repoid) = split('/', $prp, 2);
+  my $f = "${projid}::${repoid}::$myarch";
+  if (!$doddata) {
+    unlink("$dodsdir/$f");
+    delete $dodprps{$prp};
+  } else {
+    mkdir_p($dodsdir);
+    BSUtil::store("$dodsdir/.$f", "$dodsdir/$f", $doddata);
+    $dodprps{$prp} = $doddata;
+  }
+  return 1;
+}
+
+sub update_doddata {
+  my ($projid, $proj) = @_;
+  my $changed;
+  if (!$proj) {
+    for my $prp (keys %dodprps) {
+      next unless (split('/', $prp, 2))[0] eq $projid;
+      $changed ||= update_doddata_prp($prp, undef);
+    }
+  } else {
+    for my $repo (@{$proj->{'repository'}}) {
+      my $doddata = (grep {($_->{'arch'} || '') eq $myarch} @{$repo->{'download'} || []})[0];
+      $changed ||= update_doddata_prp($projid/"$repo->{'name'}", $doddata);
+    }
+  }
+  BSUtil::touch("$dodsdir/.changed") if $changed && -d $dodsdir;
+}
+
 # incorporate all the new data from projpacksin into our projpacks data
 sub update_projpacks {
   my ($projpacksin, $projid, $packids) = @_;
@@ -3365,6 +3400,7 @@ sub update_projpacks {
     }
     undef $isgone if defined($projid) && $proj->{'name'} eq $projid;
     update_prpcheckuseforbuild($proj->{'name'}, $proj);
+    update_doddata($proj->{'name'}, $proj) if $BSConfig::enable_download_on_demand;
     $projpacks->{$proj->{'name'}} = $proj;
     delete $proj->{'name'};
     my $packages = {};
@@ -8114,6 +8150,32 @@ if (!$projpacks) {
   # look at everything
   @lookat_low = sort keys %$projpacks;
   push @lookat_low, @prps;
+}
+
+# bring dodprps and dodsdir in sync with projpacks
+if ($BSConfig::enable_download_on_demand) {
+  my $changed;
+  for my $projid (sort keys %$projpacks) {
+    for my $repo (@{($projpacks->{$projid} || {})->{'repository'} || []}) {
+      next unless $repo->{'download'};
+      my $doddata = (grep {($_->{'arch'} || '') eq $myarch} @{$repo->{'download'} || []})[0];
+      next unless $doddata;
+      $dodprps{"$projid/$repo->{'name'}"} = $doddata;
+      my $f = "${projid}::$repo->{'name'}::$myarch";
+      my $olddoddata = BSUtil::retrieve($f, 1);
+      next if identical($olddoddata, $doddata);
+      mkdir_p($dodsdir);
+      BSUtil::store("$dodsdir/.$f", "$dodsdir/$f", $doddata);
+      $changed = 1;
+    }
+  }
+  for my $f (grep {!/^\./} ls($dodsdir)) {
+    my ($projid, $repoid, $arch) = split('::', $f, 3);
+    next if $dodprps{"$projid/$repoid"};
+    unlink("$dodsdir/$f");
+    $changed = 1;
+  }
+  BSUtil::touch("$dodsdir/.changed") if $changed && -d $dodsdir;
 }
 
 unlink("$rundir/bs_sched.$myarch.dead");	# alive and kicking
