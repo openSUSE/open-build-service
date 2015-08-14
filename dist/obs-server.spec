@@ -625,6 +625,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /usr/lib/obs/server/XML
 /usr/lib/obs/server/bs_admin
 /usr/lib/obs/server/bs_archivereq
+/usr/lib/obs/server/bs_dodup
 /usr/lib/obs/server/bs_check_consistency
 /usr/lib/obs/server/bs_getbinariesproxy
 /usr/lib/obs/server/bs_mergechanges
