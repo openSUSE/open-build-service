@@ -328,23 +328,21 @@ class Project < ActiveRecord::Base
   end
 
   def self.find_remote_project(name, skip_access=false)
-    return nil unless name
-    fragments = name.split(/:/)
-    local_project = String.new
-    remote_project = nil
+    return if !name || skip_access
 
-    while !fragments.nil? && fragments.length > 1
+    fragments = name.split(/:/)
+
+    while fragments.length > 1
       remote_project = [fragments.pop, remote_project].compact.join ':'
       local_project = fragments.join ':'
-      logger.debug "checking local project #{local_project}, remote_project #{remote_project}"
-      if skip_access
-        # hmm calling a private class method is not the best idea..
-        lpro = nil # FIXME2.4
-      else
-        lpro = Project.find_by_name(local_project, select: 'id,name,remoteurl')
-        logger.debug "Found local project #{local_project} with remoteurl #{lpro[:remoteurl]}" if lpro
+
+      logger.debug "Trying to find local project #{local_project}, remote_project #{remote_project}"
+
+      project = Project.find_by(name: local_project)
+      if project && check_access?(project) && project.is_remote?
+        logger.debug "Found local project #{project.name} with remoteurl #{project.remoteurl}"
+        return project, remote_project
       end
-      return lpro, remote_project unless lpro.nil? or !lpro.is_remote?
     end
     return nil
   end
