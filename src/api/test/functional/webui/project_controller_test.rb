@@ -48,14 +48,6 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.must_have_selector 'div.icons-publish_disabled_blue'
   end
 
-<<<<<<< HEAD
-  def test_create_invalid_ns
-    login_tom to: new_project_path(ns: 'home:toM')
-    flash_message.must_equal "Invalid namespace name 'home:toM'"
-  end
-
-=======
->>>>>>> [webui] Modified some test to fit to the new way of creating subprojects
   def test_create_hidden_project
     use_js
 

@@ -240,7 +240,7 @@ home_tom:
   delta: 1
 home_king:
   name: home:king
-  title: test_delete_commented 
+  title: test_delete_commented
   description: ''
   created_at: 2014-02-14 01:00:01.000000000 Z
   updated_at: 2014-02-14 01:00:01.000000000 Z
@@ -260,5 +260,13 @@ kde4:
   description: bla
   created_at: 2008-04-28 07:05:05.000000000 Z
   updated_at: 2008-04-28 08:06:06.000000000 Z
+  kind: standard
+  delta: 1
+home_user5:
+  name: home:user5
+  title: 'mine'
+  description: ''
+  created_at: 2014-02-14 01:00:01.000000000 Z
+  updated_at: 2014-02-14 01:00:01.000000000 Z
   kind: standard
   delta: 1
