@@ -27,10 +27,6 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
     page.must_have_text 'Project Name:'
   end
 
-  def creating_home_project?
-    return page.has_text? "Your home project doesn't exist yet. You can create it now"
-  end
-
   def create_project new_project
     new_project[:expect] ||= :success
     new_project[:title] ||= ''
@@ -38,14 +34,9 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
     new_project[:maintenance] ||= false
     new_project[:hidden] ||= false
     new_project[:namespace] ||= ''
+    new_project[:name] ||= ''
 
-    if creating_home_project?
-      new_project[:name] ||= current_user
-      current_user.must_equal new_project[:name]
-    else
-      new_project[:name] ||= ''
-      fill_in 'project_name', with: new_project[:name]
-    end
+    fill_in 'project_name', with: new_project[:name]
 
     new_project[:description].squeeze!(' ')
     new_project[:description].gsub!(/ *\n +/, "\n")
@@ -82,31 +73,6 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
     visit project_subprojects_path(project: opts[:project])
     click_link('create_subproject_link')
   end
-
-
-  def test_create_home_project_for_user
-
-    login_user('user1', '123456')
-    visit root_path
-    open_new_project_from_main
-    assert creating_home_project?
-    create_project(title: 'HomeProject Title', namespace: 'home:',
-                   description: 'Test generated empty home project.')
-  end
-
-
-  def test_create_home_project_for_second_user
-
-    login_user('user2', '123456')
-    visit root_path
-
-    open_new_project_from_main
-    assert creating_home_project?
-    create_project(title: 'HomeProject Title',
-                   namespace: 'home:',
-                   description: 'Test generated empty home project for second user.')
-  end
-
 
   def test_create_subproject_for_user
 
@@ -215,7 +181,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
         description: 'none')
 
     visit project_subprojects_path project: prjroot
-    click_link 'Create subproject'
+    click_link 'create_subproject_link'
 
     fill_in :project_name, with: 'b'
     click_button 'Create Project'
