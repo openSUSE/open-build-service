@@ -1,0 +1,571 @@
+#!/usr/bin/perl -w
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
+}
+
+use POSIX;
+use Data::Dumper;
+use Digest;
+use Digest::MD5 ();
+use Encode;
+use Fcntl qw(:DEFAULT :flock);
+use XML::Structured ':bytes';
+
+use BSConfiguration;
+use BSRPC ':https';
+use BSHTTP;
+use BSXML;
+use BSUtil;
+use File::Temp ();
+
+use Build::Repo;
+use Build::Rpmmd;
+use Build::Deb;
+use Build::Rpm;
+
+use strict;
+
+my $bsdir = $BSConfig::bsdir || "/srv/obs";
+my $reporoot = "$bsdir/build";
+my $rundir = "$bsdir/run";
+my $eventdir = "$bsdir/events";
+my $dodsdir = "$bsdir/dods";
+
+my $timeout_small = 60;
+my $timeout_large = 300;
+
+my $checkinterval_ok = 60 * 60;
+my $checkinterval_error = 10 * 60;
+
+BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup) || die("unable to create $bsdir\n");
+BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
+
+
+sub fetch {
+  my ($url, $timeout, $filename, $withmd5, $peerfp) = @_;
+  my $param = {
+    'uri' => $url,
+    'maxredirects' => 5,
+  };
+  $param->{'withmd5'} = 1 if $withmd5;
+  $param->{'sslpeerfingerprint'} = $peerfp if $peerfp;
+  $param->{'timeout'} = $timeout if $timeout;
+  if ($filename) {
+    $param->{'receiver'} = \&BSHTTP::file_receiver;
+    $param->{'filename'} = $filename;
+  }
+  #print "-- $url\n";
+  return BSRPC::rpc($param);
+}
+
+sub chkverify {
+  my ($file, $sum) = @_;
+  die unless $sum =~ /^(.+?):(.+)$/;
+  my ($type, $res) = ($1, $2);
+  my %resmap = ('md5' => 'MD5', 'sha1' => 'SHA-1', 'sha256' => 'SHA-256', 'sha512' => 'SHA-512');
+  die("unknown checksum $type\n") unless $resmap{$type};
+  my $ctx = Digest->new($resmap{$type});
+  die("cannot create checksum object for type $type\n") unless $ctx;
+  local *F;
+  open(F, '<', $file) || die("$file: $!\n");
+  $ctx->addfile(\*F);
+  close F;
+  my $chk = $ctx->hexdigest();
+  die("checksum mismatch for $file: $chk != $res\n") unless lc($chk) eq lc($res);
+}
+
+sub gpgverify {
+  my ($data, $sig, $pubkey) = @_;
+  my $tempdir = File::Temp->newdir();
+  writestr("$tempdir/pubkey", undef, $pubkey);
+  system('gpg2', '-q', '--homedir', $tempdir, '--import', "$tempdir/pubkey") && die("gpg2 key import failed: $?\n");
+  writestr("$tempdir/data", undef, $data);
+  writestr("$tempdir/data.asc", undef, $sig);
+  system('gpgv', '-q', '--homedir', $tempdir, '--keyring', "$tempdir/pubring.gpg", "$tempdir/data.asc", "$tempdir/data") && die("signature verification failed: $?\n");
+}
+
+# uncompress file in-place
+sub uncompress {
+  my ($file, $reffile, $appendfile) = @_;
+  $reffile ||= $file;
+  if ($reffile =~ /\.cz$/) {
+    # can be gz or xz, need to probe
+    local *F;
+    open(F, '<', $file) || die("$file: $!\n");
+    my $probe;
+    sysread(F, $probe, 5);
+    close F;
+    $reffile = $probe && $probe eq "\xFD7zXZ" ? '.xz' : '.gz';
+  }
+  if ($reffile =~ /\.(gz|xz)$/) {
+    local *F;
+    my $decmp = $1 eq 'gz' ? 'gunzip' : 'xzdec';
+    my $nfile = $appendfile ? $appendfile : "$file.$$";
+    my $pid;
+    if (!($pid = BSUtil::xfork())) {
+      open(STDOUT, $appendfile ? '>>' : '>', $nfile) || die("$nfile: $!\n");
+      exec($decmp, '-dc', $file);
+      die("$decmp: $!\n");
+    }
+    waitpid($pid, 0) == $pid || die("waitpid: $!\n");
+    die("gunzip: $?\n") if $?;
+    if (!$appendfile) {
+      rename($nfile, $file) || die("rename $nfile, $file\n");
+    }
+  }
+  die("bzip2 in unimplemented\n") if $reffile =~ /\.bz2$/;
+}
+
+sub ping {
+  my ($arch) = @_;
+  local *F;
+  if (sysopen(F, "$eventdir/$arch/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
+    syswrite(F, 'x');
+    close(F);
+  }
+}
+
+sub mastercheck {
+  my ($doddata, $urlpath, $data) = @_;
+  my $master = $doddata->{'master'};
+  return unless $master && $master->{'url'};
+  my $masterurl = $master->{'url'};
+  $masterurl .= '/' unless $masterurl =~ /\/$/;
+  my $masterdata = fetch("$masterurl$urlpath", $timeout_small, undef, undef, $master->{'sslfingerprint'});
+  die("mirror is out of date\n") unless $data eq $masterdata;
+}
+
+sub signaturecheck {
+  my ($doddata, $url, $data, $strip) = @_;
+  return unless $doddata->{'pubkey'};
+  my $data_asc = fetch($url, $timeout_small);
+  if ($strip) {
+    # remove stable key sig
+    $data_asc =~ s/-----END PGP SIGNATURE-----\n.*$/-----END PGP SIGNATURE-----\n/s;
+  }
+  gpgverify($data , $data_asc, $doddata->{'pubkey'});
+}
+
+sub dod_susetags {
+  my ($doddata, $cookie, $file) = @_;
+  my $url = $doddata->{'url'};
+  my $descrdir = 'suse/setup/descr';
+  my $datadir = 'suse';
+  $url .= '/' unless $url =~ /\/$/;
+  my $content = fetch("${url}content", $timeout_small);
+  my $content_md5 = Digest::MD5::md5_hex($content);
+  return undef if ($cookie || '') eq $content_md5;
+  mastercheck($doddata, 'content', $content);
+  signaturecheck($doddata, "${url}content.asc", $content);
+  my ($packages, $packages_sum);
+  for (split("\n", $content)) {
+    next unless /^META (\S+) (\S+)  (packages(?:.gz)?)$/s;
+    next unless $1 eq 'MD5' || $1 eq 'SHA1' || $1 eq 'SHA256' || $1 eq 'SHA512';
+    $packages = $3;
+    $packages_sum = lc($1).":$2";
+  }
+  die("no packages file in META section of content file\n") unless $packages;
+  fetch("${url}$descrdir/$packages", $timeout_large, $file);
+  chkverify($file, $packages_sum);
+  uncompress($file, $packages);
+  return ($content_md5, $url);
+}
+
+sub dod_rpmmd {
+  my ($doddata, $cookie, $file) = @_;
+  my $url = $doddata->{'url'};
+  $url .= '/' unless $url =~ /\/$/;
+  my $repomd = fetch("${url}repodata/repomd.xml", $timeout_small);
+  my $repomd_md5 = Digest::MD5::md5_hex($repomd);
+  return undef if ($cookie || '') eq $repomd_md5;
+  mastercheck($doddata, 'repodata/repomd.xml', $repomd);
+  signaturecheck($doddata, "${url}repodata/repomd.xml.asc", $repomd);
+  writestr("$file.repomd", undef, $repomd);
+  my @files;
+  Build::Rpmmd::parse_repomd("$file.repomd", \@files);
+  unlink("$file.repomd");
+  my $primaryfile = (grep {$_->{'type'} eq 'primary' && defined($_->{'location'})} @files)[0];
+  die("no primary file in repomd.xml\n") unless $primaryfile;
+  die("primary file has no checksum\n") if $doddata->{'pubkey'}&& !$primaryfile->{'checksum'};
+  fetch("${url}$primaryfile->{'location'}", $timeout_large, $file);
+  chkverify($file, $primaryfile->{'checksum'}) if $primaryfile->{'checksum'};
+  uncompress($file, $primaryfile->{'location'});
+  return ($repomd_md5, $url);
+}
+
+# same parser as in build package:
+#   distribution:   <baseurl>/<dist>/[components]
+#   flat repo:      <baseurl>/.
+sub dod_deb {
+  my ($doddata, $cookie, $file) = @_;
+  my $url = $doddata->{'url'};
+  my @components;
+  my $baseurl = $url;
+  if ($url =~ /^(.*\/)\.(\/.*)?$/) {
+    # flat repo
+    $baseurl = $1;
+    @components = ('.');
+    $url = defined($2) ? "$1$2" : $1;
+    $url .= '/' unless $url =~ /\/$/;
+  } else {
+    if ($url =~ /([^\/]+)$/) {
+      @components = split(/[,+]/, $1);
+      $url =~ s/([^\/]+)$//;
+    }
+    push @components, 'main' unless @components;
+    $url .= '/' unless $url =~ /\/$/;
+    $baseurl = $url;
+    $url =~ s/([^\/]+\/)$/dists\/$1/;
+    $baseurl =~ s/([^\/]+\/)$//;
+  }
+  my $release = fetch("${url}Release", $timeout_small);
+  my $release_md5 = Digest::MD5::md5_hex(join(',',@components)."\n$release");
+  return undef if ($cookie || '') eq $release_md5;
+  mastercheck($doddata, 'Release', $release);
+  signaturecheck($doddata, "${url}Release.gpg", $release, 1);
+  my %files;
+  my %csums = ('md5sum' => 'md5', 'sha1' => 'sha1', 'sha256' => 'sha256', 'sha512' => 'sha512');
+  my $csum;
+  for (split("\n", $release)) {
+    $csum = $csums{lc($1)} if /^(\S+):/;
+    next unless $csum;
+    next unless /^ (\S+) +\d+ +(.*)$/s;
+    next if $files{$2} && length($files{$2}) > length("$csum:$1");	# bigger is better...
+    $files{$2} = "$csum:$1";
+  }
+  writestr($file, undef, '');
+  my $basearch = Build::Deb::basearch($doddata->{'arch'});
+  for my $component (@components) {
+    my $pfile = $component eq '.' ? 'Packages.gz' : "$component/binary-$basearch/Packages.gz";
+    die("$pfile not in Release\n") if $doddata->{'pubkey'} && !$files{$pfile};
+    my $tmp = "$file.tmp";
+    fetch("$url$pfile", $timeout_large, $tmp);
+    chkverify($tmp, $files{$pfile}) if $files{$pfile};
+    uncompress($tmp, "Packages.gz", $file);
+  }
+  return ($release_md5, $baseurl);
+}
+
+sub dod_arch {
+  my ($doddata, $cookie, $file) = @_;
+  my $url = $doddata->{'url'};
+  # argh, why don't they sign their repo metadata?
+  $url .= '/' unless $url =~ /\/$/;
+  die("cannot determine repo name\n") unless $url =~ /.*\/([^\/]+)\/os\//;
+  my $reponame = $1;
+  my $r = fetch("${url}$reponame.db", $timeout_large, $file, 1, ($doddata->{'master'} || {})->{'sslfingerprint'});
+  die unless $r->{'md5'};
+  return undef if $cookie && $r->{'md5'} eq $cookie;
+  return ($r->{'md5'}, $url);
+}
+
+sub dod_mdk {
+  my ($doddata, $cookie, $file) = @_;
+  my $url = $doddata->{'url'};
+  $url .= '/' unless $url =~ /\/$/;
+  my $r = fetch("${url}media_info/synthesis.hdlist.cz", $timeout_large, $file, 1, ($doddata->{'master'} || {})->{'sslfingerprint'});
+  die unless $r->{'md5'};
+  return undef if $cookie && $r->{'md5'} eq $cookie;
+  uncompress($file, 'synthesis.hdlist.cz');
+  return ($r->{'md5'}, $url);
+}
+
+my %handler = (
+  'arch'      => \&dod_arch,
+  'deb'       => \&dod_deb,
+  'susetags'  => \&dod_susetags,
+  'rpmmd'     => \&dod_rpmmd,
+  'mdk'       => \&dod_mdk,
+);
+
+sub cmppkg {
+  my ($op, $p) = @_; 
+  # reconstruct evr
+  my $evr = $p->{'epoch'} ? "$p->{'epoch'}:$p->{'version'}" : $p->{'version'};
+  $evr .= "-$p->{'release'}" if defined $p->{'release'};
+  my $oevr = $op->{'epoch'} ? "$op->{'epoch'}:$op->{'version'}" : $op->{'version'};
+  $oevr .= "-$op->{'release'}" if defined $op->{'release'};
+  if ($p->{'path'} =~ /\.deb$/) {
+    return Build::Deb::verscmp($oevr, $evr);
+  } else {
+    return Build::Rpm::verscmp($oevr, $evr);
+  }
+}
+
+sub addpkg {
+  my ($cache, $p, $archfilter) = @_; 
+
+  return unless $p->{'location'} && $p->{'name'} && $p->{'arch'};
+  return if $archfilter && !$archfilter->{$p->{'arch'}};
+  $p->{'path'} = delete $p->{'location'};
+  my $key = "$p->{'name'}.$p->{'arch'}";
+  return if $cache->{$key} && cmppkg($cache->{$key}, $p) > 0;   # highest version only
+  $cache->{$key} = $p; 
+}
+
+sub parsemetadata {
+  my ($doddata, $file, $baseurl) = @_;
+  my $cache = {};
+  my $archfilter;
+  if ($doddata->{'archfilter'}) {
+    $archfilter = { map {$_ => 1} split(',', $doddata->{'archfilter'}) };
+    for (qw{noarch all any}) {
+      $archfilter->{$_} = 1 unless delete $archfilter->{"-$_"};
+    }
+  }
+  Build::Repo::parse($doddata->{'repotype'}, $file, sub { addpkg($cache, $_[0], $archfilter) }, 'addselfprovides' => 1, 'normalizedeps' => 1, 'withchecksum' => 1);
+  $baseurl =~ s/\/$//;
+  $cache->{'/url'} = $baseurl;
+  BSUtil::store("$file.parsed", $file, $cache);
+}
+
+sub sendscanrepo {
+  my ($projid, $repoid, $arch) = @_;
+  my $ev= {
+    'type' => 'scanrepo',
+    'project' => $projid,
+    'repository' => $repoid,
+  };
+  my $evname = "scanrepo:${projid}::$repoid";
+  $evname = "scanrepo:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
+  writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
+  ping($arch);
+}
+
+sub updatedod {
+  my ($projid, $repoid, $doddata, $unparsed) = @_;
+
+  my $repotype = $doddata->{'repotype'};
+  die("unknown repotype '$repotype'\n") unless $handler{$repotype};
+  print "updating metadata for $repotype repo at $doddata->{'url'}\n";
+
+  my $arch = $doddata->{'arch'};
+  die("scheduler does not exist for arch '$arch'\n") unless -e "$eventdir/$arch/.ping";
+  my $repodir = "$reporoot/$projid/$repoid/$arch/:full";
+  mkdir_p($repodir) unless -d $repodir;
+
+  my $cookie = readstr("$repodir/doddata.cookie", 1);
+  $cookie =~ s/^(\d+ )//s;	# strip lastcheck time
+  my $newfile = "$repodir/doddata.new.$$";
+  unlink($newfile);
+  my $now = time();
+  my ($newcookie, $baseurl) = $handler{$repotype}->($doddata, $cookie, $newfile);
+  if ($newcookie) {
+    if (!$unparsed) {
+      eval { parsemetadata($doddata, $newfile, $baseurl) };
+      if ($@) {
+	unlink($newfile);
+	die($@);
+      }
+    }
+    rename($newfile, "$repodir/doddata") || die("rename $newfile $repodir/doddata: $!\n");
+    writestr("$repodir/.doddata.cookie", "$repodir/doddata.cookie", "$now $newcookie");
+    sendscanrepo($projid, $repoid, $arch);
+  } else {
+    print "repository is unchanged\n";
+    $cookie = '' unless defined $cookie;
+    writestr("$repodir/.doddata.cookie", "$repodir/doddata.cookie", "$now $cookie");
+    unlink($newfile);
+  }
+}
+
+sub identical {
+  my ($d1, $d2, $except) = @_;
+
+  if (!defined($d1)) {
+    return defined($d2) ? 0 : 1; 
+  }
+  return 0 unless defined($d2);
+  my $r = ref($d1);
+  return 0 if $r ne ref($d2);
+  if ($r eq '') {
+    return 0 if $d1 ne $d2; 
+  } elsif ($r eq 'HASH') {
+    my %k = (%$d1, %$d2);
+    for my $k (keys %k) {
+      next if $except && $except->{$k};
+      return 0 unless identical($d1->{$k}, $d2->{$k}, $except);
+    }    
+  } elsif ($r eq 'ARRAY') {
+    return 0 unless @$d1 == @$d2;
+    for (my $i = 0; $i < @$d1; $i++) {
+      return 0 unless identical($d1->[$i], $d2->[$i], $except);
+    }    
+  } else {
+    return 0;
+  }
+  return 1;
+}
+
+sub scan_dodsdir {
+  my ($startup, $olddoddatas) = @_;
+  print "scanning doddatas directory...\n";
+  my %newdoddatas;
+  for my $f (sort(grep {!/^\./s} ls($dodsdir))) {
+    next unless $f =~ /^(.+)::(.+)::(.+)$/s;
+    my ($projid, $repoid, $arch) = ($1, $2, $3);
+    my $prpa = "$projid/$repoid/$arch";
+    my $doddata = readxml("$dodsdir/$f", $BSXML::download, 1);
+    if ($doddata) {
+      next if ($doddata->{'arch'} || '') ne $arch;	# hmm
+      if (identical($doddata, $olddoddatas->{$prpa}, { 'lastcheck' => 1, 'haderror' => 1 })) {
+	$newdoddatas{$prpa} = $olddoddatas->{$prpa};
+	next;
+      }
+      if ($startup) {
+	# get lastcheck from old cookie
+	my $cookie = readstr("$reporoot/$prpa/:full/doddata.cookie", 1) || '';
+	$doddata->{'lastcheck'} = $1 if $cookie =~ /^(\d+) /;
+      }
+      $doddata->{'lastcheck'} ||= 0;
+      $newdoddatas{$prpa} = $doddata;
+    }
+  }
+  return %newdoddatas;
+}
+
+sub check_prpa {
+  my ($prpa, $doddata) = @_;
+  printlog("checking $prpa...\n");
+  my ($projid, $repoid, $arch) = split('/', $prpa, 3);
+  eval {
+    updatedod($projid, $repoid, $doddata);
+  };
+  my $now = time();
+  $doddata->{'lastcheck'} = $now;
+  if ($@) {
+    warn($@);
+    $doddata->{'haderror'} = 1;
+    # update lastcheck time in cookie
+    my $cookie = readstr("$reporoot/$prpa/:full/doddata.cookie", 1) || '';
+    mkdir_p("$reporoot/$prpa/:full");
+    writestr("$reporoot/$prpa/:full/.doddata.cookie", "$reporoot/$prpa/:full/doddata.cookie", "$now $cookie");
+  }
+}
+
+sub printlog {
+  my ($msg) = @_;
+  $msg =~ s/\n$//s;
+  my @ltim = localtime(time);
+  my $msgtm = sprintf "%04d-%02d-%02d %02d:%02d:%02d:", $ltim[5] + 1900, $ltim[4] + 1, @ltim[3,2,1,0];
+  print "$msgtm $msg\n";
+}
+
+sub check_exitrestart {
+  if (-e "$rundir/bs_dodup.exit") {
+    unlink("$rundir/bs_dodup.exit");
+    printlog("exiting...");
+    exit(0);
+  }
+  if (-e "$rundir/bs_dodup.restart") {
+    unlink("$rundir/bs_dodup.restart");
+    printlog("restarting...");
+    exec($0);
+    die("$0: $!\n");
+  }
+}
+
+sub daemon {
+  my $startup = 1;
+  my %doddatas;
+  
+  while (1) {
+    if ($startup || -e "$dodsdir/.changed") {
+      %doddatas = scan_dodsdir($startup, \%doddatas);
+      print "checking state of dod entries...\n";
+      $startup = 0;
+    }
+    # find next dods to check
+    my %nextcheck;
+    for my $prpa (keys %doddatas) {
+      my $doddata = $doddatas{$prpa};
+      $nextcheck{$prpa} = $doddata->{'lastcheck'} + ($doddata->{'haderror'} ? $checkinterval_error : $checkinterval_ok);
+    }
+    # check em
+    for my $prpa (sort {$nextcheck{$a} <=> $nextcheck{$b} || $a cmp $b} keys %doddatas) {
+      last if $nextcheck{$prpa} > time();
+      check_prpa($prpa, $doddatas{$prpa});
+      check_exitrestart();
+    }
+    # good work! now rest a bit
+    for (1 .. 10) {
+      sleep(1);
+      check_exitrestart();
+    }
+  }
+}
+
+if (!@ARGV || (@ARGV == 1 && ($ARGV[0] eq '--restart' || $ARGV[0] eq '--exit' || $ARGV[0] eq '--stop'))) {
+  $| = 1;
+  $SIG{'PIPE'} = 'IGNORE';
+  BSUtil::restartexit($ARGV[0], 'dodup', "$rundir/bs_dodup");
+  printlog("starting build service DoD updater");
+  mkdir_p($rundir);
+  open(RUNLOCK, '>>', "$rundir/bs_dodup.lock") || die("$rundir/bs_dodup.lock: $!\n");
+  flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("dodup is already running!\n");
+  utime undef, undef, "$rundir/bs_dodup.lock";
+  daemon();
+}
+
+if (@ARGV == 2 && $ARGV[0] eq '--dodfile') {
+  my $dodfile = $ARGV[1];
+  my $doddata = readxml($dodfile, $BSXML::download);
+  $dodfile =~ s/.*\///;
+  die("invalid dod file filename\n") unless $dodfile =~ /^(.+)::(.+)::(.+)$/s;
+  my ($projid, $repoid, $arch) = ($1, $2, $3);
+  die("arch mismatch\n") unless $arch eq $dodfile->{'arch'};
+  check_prpa("$projid/$repoid/$arch", $dodfile);
+  exit(0);
+}
+
+my $opt_pubkeyfile;
+my $opt_master;
+my $opt_masterfp;
+my $opt_unparsed;
+my $opt_archfilter;
+
+while (@ARGV) {
+  if (@ARGV > 1 && $ARGV[0] eq '--unparsed') {
+    shift @ARGV;
+    $opt_unparsed = 1;
+    next;
+  }
+  if (@ARGV > 2 && $ARGV[0] eq '--pubkey') {
+    (undef, $opt_pubkeyfile) = splice(@ARGV, 0, 2);
+    next;
+  }
+  if (@ARGV > 2 && $ARGV[0] eq '--master') {
+    (undef, $opt_master) = splice(@ARGV, 0, 2);
+    next;
+  }
+  if (@ARGV > 2 && $ARGV[0] eq '--masterfingerprint') {
+    (undef, $opt_masterfp) = splice(@ARGV, 0, 2);
+    next;
+  }
+  if (@ARGV > 2 && $ARGV[0] eq '--archfilter') {
+    (undef, $opt_archfilter) = splice(@ARGV, 0, 2);
+    next;
+  }
+  last;
+}
+
+my ($prpa, $repotype, $url) = @ARGV;
+my ($projid, $repoid, $arch) = split('/', ($prpa || ''), 3);
+die("Usage: bs_dudup [--stop|--restart]\n       bs_dodup --dodfile <dodfile>\n       bs_dodup [--pubkey <pubkeyfile>] <prpa> <repotype> <url>\n") unless @ARGV == 3 && defined($arch);
+
+my $doddata = {
+  'arch' => $arch,
+  'repotype' => $repotype,
+  'url' => $url,
+};
+$doddata->{'archfilter'} = $opt_archfilter if $opt_archfilter;
+$doddata->{'master'}->{'url'} = $opt_master if $opt_master;
+$doddata->{'master'}->{'sslfingerprint'} = $opt_masterfp if $opt_masterfp;
+$doddata->{'pubkey'} = readstr($opt_pubkeyfile) if defined $opt_pubkeyfile;
+
+updatedod($projid, $repoid, $doddata, $opt_unparsed);
+
