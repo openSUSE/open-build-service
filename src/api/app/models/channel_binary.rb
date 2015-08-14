@@ -63,18 +63,22 @@ class ChannelBinary < ActiveRecord::Base
 
       # report target repository and products using it.
       if options[:include_channel_targets]
-        channel.channel_targets.each do |ct|
-          c.target(project: ct.repository.project.name, repository: ct.repository.name) do |target|
-            target.disabled() if ct.disabled
-            ct.repository.product_update_repositories.each do |up|
-              target.updatefor(up.product.extend_id_hash({project: up.product.package.project.name, product: up.product.name}))
-            end
-          end
+        channel.channel_targets.each do |channel_target|
+          create_channel_node_element(c, channel_target)
         end
       end
     end
 
     builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                  Nokogiri::XML::Node::SaveOptions::FORMAT
+  end
+
+  def create_channel_node_element(channel_node, channel_target)
+    channel_node.target(project: channel_target.repository.project.name, repository: channel_target.repository.name) do |target|
+      target.disabled() if channel_target.disabled
+      channel_target.repository.product_update_repositories.each do |up|
+        target.updatefor(up.product.extend_id_hash({project: up.product.package.project.name, product: up.product.name}))
+      end
+    end
   end
 end
