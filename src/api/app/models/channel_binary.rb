@@ -51,8 +51,13 @@ class ChannelBinary < ActiveRecord::Base
   # Creates an xml builder object for all binaries
   def create_xml(options = {})
     channel = channel_binary_list.channel
+
     builder = Nokogiri::XML::Builder.new
-    builder.channel(project: channel.package.project.name, package: channel.package.name) do |c|
+    attributes = {
+      project: channel.package.project.name,
+      package: channel.package.name
+    }
+    builder.channel(attributes) do |c|
       p={}
       p[:package] = package if package
       p[:name] = name if name
@@ -74,10 +79,18 @@ class ChannelBinary < ActiveRecord::Base
   end
 
   def create_channel_node_element(channel_node, channel_target)
-    channel_node.target(project: channel_target.repository.project.name, repository: channel_target.repository.name) do |target|
-      target.disabled() if channel_target.disabled
+    attributes = {
+      project:    channel_target.repository.project.name,
+      repository: channel_target.repository.name
+    }
+    channel_node.target(attributes) do |target|
+      target.disabled if channel_target.disabled
       channel_target.repository.product_update_repositories.each do |up|
-        target.updatefor(up.product.extend_id_hash({project: up.product.package.project.name, product: up.product.name}))
+        attributes = {
+          project: up.product.package.project.name,
+          product: up.product.name
+        }
+        target.updatefor(up.product.extend_id_hash(attributes))
       end
     end
   end
