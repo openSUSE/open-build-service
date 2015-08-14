@@ -84,6 +84,18 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
            "#{page.current_url} does not end with #{project_show_path(project: 'home:tom')}"
   end
 
+  def test_delete_home_project
+    use_js
+
+    login_user('user5', '123456', to: project_show_path(project: 'home:user5'))
+
+    find(:id, 'delete-project').click
+    find_button('Ok').click
+
+    find('#flash-messages').must_have_text "Project 'home:user5' was removed successfully"
+    # now the actual assertion :)
+    assert page.current_url.end_with? project_list_public_path
+  end
 
   def test_admin_can_delete_every_project
     use_js
