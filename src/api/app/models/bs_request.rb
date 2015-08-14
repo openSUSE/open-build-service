@@ -38,7 +38,7 @@ class BsRequest < ActiveRecord::Base
   scope :from_source_project, ->(source_project) { where('bs_request_actions.source_project = ?', source_project).references(:bs_request_actions) }
   scope :in_ids, ->(ids) { where(id: ids) }
   # Searching capabilities using dataTable (1.9)
-  scope :do_search, ->(search) do
+  scope :do_search, lambda(search) do
     where([searchable_fields.map { |field| "#{field} like ?" }.join(' or '),
            ["%#{search}%"] * searchable_fields.length].flatten)
   end
@@ -1101,7 +1101,6 @@ class BsRequest < ActiveRecord::Base
     end
     ids.concat(rel.ids)
   end
-
 
   private
 
