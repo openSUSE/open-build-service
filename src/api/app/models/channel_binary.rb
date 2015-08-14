@@ -36,36 +36,33 @@ class ChannelBinary < ActiveRecord::Base
 
   def to_axml_id(opts={})
     Rails.cache.fetch('xml_channel_binary_id_%d' % id) do
-      channel = channel_binary_list.channel
-      builder = Nokogiri::XML::Builder.new
-      builder.channel(project: channel.package.project.name, package: channel.package.name) do |c|
-        p={}
-        p[:package] = package if package
-        p[:name] = name if name
-        p[:binaryarch] = binaryarch if binaryarch
-        p[:supportstatus] = supportstatus if supportstatus
-        next unless p.length > 0
-        c.binary(p)
-      end
-      builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                                   Nokogiri::XML::Node::SaveOptions::FORMAT
+      create_xml
     end
   end
 
   def to_axml(opts={})
     Rails.cache.fetch('xml_channel_binary_%d' % id) do
-      channel = channel_binary_list.channel
-      builder = Nokogiri::XML::Builder.new
-      builder.channel(project: channel.package.project.name, package: channel.package.name) do |c|
-        p={}
-        p[:package] = package if package
-        p[:name] = name if name
-        p[:binaryarch] = binaryarch if binaryarch
-        p[:supportstatus] = supportstatus if supportstatus
-        next unless p.length > 0
-        c.binary(p)
+      create_xml(include_channel_targets: true)
+    end
+  end
 
-        # report target repository and products using it.
+  private
+
+  # Creates an xml builder object for all binaries
+  def create_xml(options = {})
+    channel = channel_binary_list.channel
+    builder = Nokogiri::XML::Builder.new
+    builder.channel(project: channel.package.project.name, package: channel.package.name) do |c|
+      p={}
+      p[:package] = package if package
+      p[:name] = name if name
+      p[:binaryarch] = binaryarch if binaryarch
+      p[:supportstatus] = supportstatus if supportstatus
+      next unless p.length > 0
+      c.binary(p)
+
+      # report target repository and products using it.
+      if options[:include_channel_targets]
         channel.channel_targets.each do |ct|
           c.target(project: ct.repository.project.name, repository: ct.repository.name) do |target|
             target.disabled() if ct.disabled
@@ -74,11 +71,10 @@ class ChannelBinary < ActiveRecord::Base
             end
           end
         end
-
       end
-      builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                                   Nokogiri::XML::Node::SaveOptions::FORMAT
     end
-  end
 
+    builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                                 Nokogiri::XML::Node::SaveOptions::FORMAT
+  end
 end
