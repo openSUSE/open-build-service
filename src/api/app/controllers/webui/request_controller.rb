@@ -308,8 +308,9 @@ class Webui::RequestController < Webui::WebuiController
         req.state = "new"
         req.description = params[:description]
 
-        opts = {target_project: params[:project],
-                role: params[:role]}
+        opts = { target_project: params[:project],
+                 role:           params[:role]
+               }
         opts[:target_package] = params[:package] if params[:package]
         opts[:person_name] = params[:user] if params[:user]
         opts[:group_name] = params[:group] if params[:group]
@@ -439,10 +440,12 @@ class Webui::RequestController < Webui::WebuiController
       flash[:error] = "Unable to load request"
     else
       # FIXME: make force optional, it hides warnings!
-      opts = { :newstate=>newstate,
-               :force => true,
-               :user => User.current.login,
-               :comment => params[:reason] }
+      opts = {
+        newstate: newstate,
+        force:    true,
+        user:     User.current.login,
+        comment:  params[:reason]
+      }
       begin
         req.change_state(opts)
         flash[:notice] = "Request #{newstate}!"

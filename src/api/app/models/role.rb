@@ -23,7 +23,7 @@ class Role < ActiveRecord::Base
                       :allow_nil => false
 
   # We want to validate a role's title pretty thoroughly.
-  validates_uniqueness_of :title, 
+  validates_uniqueness_of :title,
                           :message => 'is the name of an already existing role.'
 
   belongs_to :groups_roles

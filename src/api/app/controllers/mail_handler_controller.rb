@@ -4,7 +4,7 @@ class MailHandlerController < ApplicationController
 
   respond_to :xml, :json
 
-  def upload 
+  def upload
     # UNIMPLEMENTED STUB JUST FOR TESTING
     render_ok
   end

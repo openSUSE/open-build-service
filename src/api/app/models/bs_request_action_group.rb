@@ -22,7 +22,7 @@ class BsRequestActionGroup < BsRequestAction
     creator = User.current
     if self.bs_request # bootstrap?
       creator = self.bs_request.creator
-    end 
+    end
     return if creator == req.creator
 
     # a single request is always fine

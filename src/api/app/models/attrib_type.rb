@@ -27,7 +27,7 @@ class AttribType < ActiveRecord::Base
       end
       find_by_namespace_and_name(name_parts[0], name_parts[1], or_fail)
     end
-  
+
     def find_by_namespace_and_name!(namespace, name)
        find_by_namespace_and_name(namespace, name, true)
     end

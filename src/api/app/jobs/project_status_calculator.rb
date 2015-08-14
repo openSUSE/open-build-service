@@ -42,13 +42,14 @@ class PackInfo
     # return packages not having sources
     return if srcmd5.blank?
     xml = options[:builder] ||= Builder::XmlMarkup.new(:indent => options[:indent])
-    opts = { :project => project,
-             :name => name,
-             :version => version,
-             :srcmd5 => srcmd5,
-             :changesmd5 => changesmd5,
-             :maxmtime => maxmtime,
-             :release => release }
+    opts = { project:    project,
+             name:       name,
+             version:    version,
+             srcmd5:     srcmd5,
+             changesmd5: changesmd5,
+             maxmtime:   maxmtime,
+             release:    release
+           }
     unless verifymd5.blank? or verifymd5 == srcmd5
       opts[:verifymd5] = verifymd5
     end
@@ -137,14 +138,16 @@ class ProjectStatusCalculator
     data = Xmlhash.parse(d)
 
     data.elements('jobhist') do |p|
-        line = {'name' => p['package'],
-                'code' => p['code'],
-                'versrel' => p['versrel'],
-                'verifymd5' => p['verifymd5']}
+        line = {
+          'name'      => p['package'],
+          'code'      => p['code'],
+          'versrel'   => p['versrel'],
+          'verifymd5' => p['verifymd5']
+        }
 
         if p.has_key?('readytime')
             if p['readytime'].respond_to?(:to_i)
-                line['readytime'] = p['readytime'].to_i 
+                line['readytime'] = p['readytime'].to_i
             else
                 line['readytime'] = 0
             end

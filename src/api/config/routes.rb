@@ -25,17 +25,17 @@ end
 OBSApi::Application.routes.draw do
 
   cons = {
-    arch:          %r{[^\/]*},
-    binary:        %r{[^\/]*},
-    filename:      %r{[^\/]*},
-    id:            %r{\d*},
-    login:         %r{[^\/]*},
-    package:       %r{[^\/]*},
-    project:       %r{[^\/]*},
-    repository:    %r{[^\/]*},
-    service:       %r{\w[^\/]*},
-    title:         %r{[^\/]*},
-    user:          %r{[^\/]*}
+    arch:       %r{[^\/]*},
+    binary:     %r{[^\/]*},
+    filename:   %r{[^\/]*},
+    id:         %r{\d*},
+    login:      %r{[^\/]*},
+    package:    %r{[^\/]*},
+    project:    %r{[^\/]*},
+    repository: %r{[^\/]*},
+    service:    %r{\w[^\/]*},
+    title:      %r{[^\/]*},
+    user:       %r{[^\/]*}
   }
 
   constraints(WebuiMatcher) do

@@ -22,7 +22,7 @@ class EventTest < ActionDispatch::IntegrationTest
     e = Event::Factory.new_from_type('SRCSRV_CREATE_PACKAGE',
                                      {'project' => 'kde4',
                                       'package' => 'kdelibs',
-                                      'sender' => 'tom'})
+                                      'sender'  => 'tom'})
     assert_equal 'Event::CreatePackage', e.class.name
     assert_equal 'kdelibs', e.payload['package']
     assert_equal [], e.receiver_roles
@@ -51,7 +51,7 @@ class EventTest < ActionDispatch::IntegrationTest
     e = Event::Factory.new_from_type('SRCSRV_CREATE_PACKAGE',
                                      {'project' => 'kde4',
                                       'package' => 'kdebase',
-                                      'sender' => 'tom'})
+                                      'sender'  => 'tom'})
 
     # fred, fredlibs and king are maintainer, adrian is in test_group
     assert_equal %w(fred fredlibs king), users_for_event(e)

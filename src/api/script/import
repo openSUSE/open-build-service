@@ -9,9 +9,9 @@ CREATE_MISSING_USERS = true
 
 # all users created in the above mentioned way will have those attributes
 DUMMY_USER_ATTR = {
-  :password => "asdfasdf",
-  :password_confirmation => "asdfasdf",
-  :email => "noone@localhost"
+  password:              "asdfasdf",
+  password_confirmation: "asdfasdf",
+  email:                 "noone@localhost"
 }
 
 require "activexml/activexml"
@@ -21,8 +21,8 @@ Rails::Initializer.run do |config|
   config.frameworks -= [ :action_web_service, :active_resource ]
 
   config.action_controller.session = {
-    :session_key => "_frontend_session",
-    :secret => "ad9712p8349zqmowiefzhiuzgfp9s8f7qp83947p98weap9866e7"
+    session_key: "_frontend_session",
+    secret:      "ad9712p8349zqmowiefzhiuzgfp9s8f7qp83947p98weap9866e7"
   }
 
 end

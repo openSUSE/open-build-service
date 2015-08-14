@@ -3,14 +3,14 @@ class Distribution < ActiveRecord::Base
 
   has_and_belongs_to_many :icons, -> { uniq() }, class_name: 'DistributionIcon'
   has_and_belongs_to_many :architectures, -> { uniq() }, class_name: 'Architecture'
-  
+
   def self.parse(xmlhash)
     Distribution.transaction do
       Distribution.destroy_all
       DistributionIcon.delete_all
       xmlhash.elements('distribution') do |d|
-	db = Distribution.create(vendor: d['vendor'], version: d['version'], name: d['name'], project: d['project'], 
-				 reponame: d['reponame'], repository: d['repository'], link: d['link']) 
+	db = Distribution.create(vendor: d['vendor'], version: d['version'], name: d['name'], project: d['project'],
+				 reponame: d['reponame'], repository: d['repository'], link: d['link'])
 	d.elements('architecture') do |a|
           dba = Architecture.find_by_name!(a.to_s)
 	  db.architectures << dba
@@ -35,7 +35,7 @@ class Distribution < ActiveRecord::Base
     end
     return res
   end
-  
+
   def self.all_as_hash
     res = []
     Distribution.includes(:icons).includes(:architectures).each { |d| res << d.to_hash }
@@ -45,7 +45,7 @@ class Distribution < ActiveRecord::Base
   def self.all_including_remotes
     list = Distribution.all_as_hash
     repositories = list.map{ |d| d['reponame'] }
-    
+
     remote_projects = Project.where("NOT ISNULL(projects.remoteurl)")
     remote_projects.each do |prj|
       body = Rails.cache.fetch("remote_distribution_#{prj.id}", expires_in: 1.hour) do

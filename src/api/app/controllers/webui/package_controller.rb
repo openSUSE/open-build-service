@@ -267,9 +267,11 @@ class Webui::PackageController < Webui::WebuiController
         r = BsRequest.find_by_id request_id
         next if r.nil? # unable to load
         begin
-          opts = { newstate: "superseded",
-                   reason: "Superseded by request #{req.id}",
-                   superseded_by: req.id }
+          opts = {
+            newstate:      "superseded",
+            reason:        "Superseded by request #{req.id}",
+            superseded_by: req.id
+          }
           r.change_state(opts)
         rescue APIException => e
           supersede_errors << "#{e.message}"
@@ -387,10 +389,12 @@ class Webui::PackageController < Webui::WebuiController
       if last_req.state != :declined
         return nil # ignore all !declined
       end
-      return { id: last_req.id,
-               decliner: last_req.commenter,
-               when: last_req.updated_at,
-               comment: last_req.comment }
+      return {
+        id:       last_req.id,
+        decliner: last_req.commenter,
+        when:     last_req.updated_at,
+        comment:  last_req.comment
+      }
     end
     return nil
   end
@@ -559,7 +563,7 @@ class Webui::PackageController < Webui::WebuiController
 
     logger.debug "link params doing branch: #{@linked_project}, #{@linked_package}"
     begin
-      path = Package.source_path(@linked_project, @linked_package, nil, { cmd: :branch,
+      path = Package.source_path(@linked_project, @linked_package, nil, { cmd:            :branch,
                                                                           target_project: @project.name,
                                                                           target_package: @target_package})
       path += "&rev=#{CGI.escape(@revision)}" if @revision
@@ -889,14 +893,14 @@ class Webui::PackageController < Webui::WebuiController
       action = 'monitor'
     end
 
-    unless request.xhr?
+    if request.xhr?
+      # ajax request - render default view: in this case 'trigger_rebuild.rjs'
+      return
+    else
       # non ajax request:
       flash[:notice] = @message
       redirect_to :controller => controller, :action => action,
         :project => @project, :package => @package
-    else
-      # ajax request - render default view: in this case 'trigger_rebuild.rjs'
-      return
     end
   end
   private :api_cmd
@@ -1045,11 +1049,11 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def render_missing_package
-    unless request.xhr?
+    if request.xhr?
+      render :text => "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\"", :status => 404 and return
+    else
       flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
       redirect_to :controller => 'project', :action => 'show', :project => @project, :nextstatus => 404
-    else
-      render :text => "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\"", :status => 404 and return
     end
   end
 

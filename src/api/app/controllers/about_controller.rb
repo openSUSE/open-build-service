@@ -10,5 +10,5 @@ class AboutController < ApplicationController
   def crash
     raise RuntimeError.new("Runtime error exception to test error handling")
   end
-  
+
 end

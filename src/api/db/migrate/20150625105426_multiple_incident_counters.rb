@@ -13,7 +13,7 @@ class MultipleIncidentCounters < ActiveRecord::Migration
     end
     add_index :incident_updateinfo_counter_values, [:updateinfo_counter_id, :project_id], :name => "uniq_id_index"
     execute("alter table incident_updateinfo_counter_values add foreign key (project_id) references projects(id)")
-  
+
     rename_table  :updateinfo_counter, :updateinfo_counters
 
     TempMI.all.each do |mi|

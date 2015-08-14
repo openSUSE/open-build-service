@@ -2,7 +2,7 @@
 
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-class BuildControllerTest < ActionDispatch::IntegrationTest 
+class BuildControllerTest < ActionDispatch::IntegrationTest
 
   fixtures :all
 
@@ -183,7 +183,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
 #   schedulerjob.elements.each do |jobnode|
 #     puts "test", jobnode.inspect
 #   end
-    
+
   end
 
   def test_builddepinfo
@@ -194,7 +194,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
 
     get "/build/HiddenProject/nada/i586/_builddepinfo"
     assert_response 404
-    assert_xml_tag( :tag => "status", :attributes => { :code => "unknown_project" } ) 
+    assert_xml_tag( :tag => "status", :attributes => { :code => "unknown_project" } )
 
     login_adrian
     get "/build/HiddenProject/nada/i586/_builddepinfo"
@@ -210,7 +210,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
   def test_package_index
     get "/build/home:Iggy/10.2/i586/TestPack"
     assert_response :success
-    assert_xml_tag( :tag => "binarylist" ) 
+    assert_xml_tag( :tag => "binarylist" )
   end
 
   def test_read_access_hidden_package_index
@@ -221,7 +221,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     login_adrian
     get "/build/HiddenProject/nada/i586/pack"
     assert_response :success
-    assert_xml_tag( :tag => "binarylist" ) 
+    assert_xml_tag( :tag => "binarylist" )
     prepare_request_valid_user
   end
 
@@ -237,7 +237,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     prepare_request_valid_user
     get "/build/SourceprotectedProject/repo/i586/pack/_log"
     assert_response 403
-    assert_xml_tag( :tag => "status", :attributes => { :code => "source_access_no_permission" } ) 
+    assert_xml_tag( :tag => "status", :attributes => { :code => "source_access_no_permission" } )
     # retry with maintainer
     prepare_request_with_user "sourceaccess_homer", "homer"
     get "/build/SourceprotectedProject/repo/i586/pack/_log"
@@ -311,7 +311,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     #FIXME validate xml content
   end
-  
+
   def test_read_access_hidden_binary_view
     # 404 on invalid
     get "/build/HiddenProject/nada/i586/pack/package?view=fileinfo"
@@ -396,7 +396,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response 400
     assert_match(/unsupported POST command/, @response.body)
 
-    login_Iggy 
+    login_Iggy
     post "/build/home:Iggy"
     assert_response 400
     post "/build/home:Iggy?cmd=say_hallo"
@@ -407,7 +407,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     post "/build/home:Iggy?cmd=wipe&package=DoesNotExist"
     assert_response 404
     assert_match(/unknown package: DoesNotExist/, @response.body)
-  
+
     post "/build/Apache?cmd=wipe"
     assert_response 403
     assert_match(/No permission to execute command on project/, @response.body)
@@ -422,7 +422,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response 403
     assert_match(/No permission to execute command on package/, @response.body)
 
-    login_fred 
+    login_fred
     post "/build/Apache?cmd=wipe"
     assert_response :success
     post "/build/Apache?cmd=wipe&package=apache2"
@@ -436,7 +436,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
 
   def test_read_access_hidden_project_index
     # Test if hidden projects appear for the right users
-    # testing build_controller project_index 
+    # testing build_controller project_index
     # currently this test shows that there's an information leak.
     get "/build"
     assert_response :success
@@ -471,7 +471,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
 
     #valid
     reset_auth
-    login_adrian 
+    login_adrian
     get "/build/HiddenProject"
     assert_response :success
     assert_xml_tag :tag => "directory", :children =>  { :count => 1 }

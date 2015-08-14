@@ -544,13 +544,13 @@ class SourceController < ApplicationController
 
     Project.transaction do
       # exec
-      unless prj
+      if prj
+        prj.update_from_xml(rdata)
+      else
         prj = Project.new(name: project_name)
         prj.update_from_xml(rdata)
         # failure is ok
         prj.add_user(User.current.login, 'maintainer')
-      else
-        prj.update_from_xml(rdata)
       end
       prj.store
     end
@@ -1169,7 +1169,7 @@ class SourceController < ApplicationController
   def project_command_move
     project_name = params[:oproject]
 
-    commit = { :login => User.current.login,
+    commit = { :login   => User.current.login,
                :lowprio => 1,
                :comment => "Project move from #{params[:oproject]} to #{params[:project]}"
              }

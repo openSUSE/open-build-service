@@ -21,7 +21,7 @@ User.current = User.find_by_login('_nobody_')
 
 packs = Package.find :all, :conditions => "(develpackage_id is not null)"
 projects = Hash.new
-  
+
 packs.each do |p|
   begin
     p.resolve_devel_package
@@ -30,7 +30,7 @@ packs.each do |p|
     projects[p.project.name] << e.message
   end
 end
-  
+
 projects.keys.sort.each do |p|
   projects[p].each do |m|
     puts " " + m

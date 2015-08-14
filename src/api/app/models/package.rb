@@ -886,11 +886,11 @@ class Package < ActiveRecord::Base
   end
 
   def branch_from(origin_project, origin_package, rev=nil, missingok=nil, comment=nil)
-    myparam = { :cmd => 'branch',
-                :noservice => '1',
-                :oproject => origin_project,
-                :opackage => origin_package,
-                :user => User.current.login,
+    myparam = { cmd:       "branch",
+                noservice: "1",
+                oproject:  origin_project,
+                opackage:  origin_package,
+                user:      User.current.login,
     }
     myparam[:orev] = rev if rev and not rev.empty?
     myparam[:missingok] = '1' if missingok

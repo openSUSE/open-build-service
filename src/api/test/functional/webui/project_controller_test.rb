@@ -410,7 +410,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     # adrian is in test group, which is maintainer so he should see it too
     page.must_have_link 'HiddenProject'
   end
-  
+
   def test_rebuild_time_on_apache
     login_tom to: project_rebuild_time_path(project: 'Apache', arch: 'i586', repository: 'SUSE_Linux_Factory')
 

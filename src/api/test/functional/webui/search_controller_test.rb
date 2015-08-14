@@ -6,7 +6,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
 
   setup do
     OBSApi::TestSphinx.ensure
-    use_js 
+    use_js
   end
 
   def validate_search_page
@@ -15,7 +15,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     page.must_have_text 'Advanced'
   end
 
-  def search options  
+  def search options
     validate_search_page
     # avoid the animation that happens when you press the button
     page.execute_script('$("#advanced_container").show()')
@@ -69,7 +69,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
         }
       when 'icons-package'
       when 'package'
-        { :type         => :package, 
+        { :type         => :package,
           :project_name => row.find('a.project').text,
           :package_name => row.find('a.package').text,
         }
@@ -84,7 +84,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     find(:css, 'div#footer a.search-link').click
     validate_search_page
   end
-  
+
   def test_basic_search_functionality
     visit search_path
     validate_search_page
@@ -98,7 +98,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     visit root_path + '/search?search_text=kdebase'
     page.must_have_link 'kdebase'
   end
-  
+
   def test_header_search_functionality
     visit root_path
     fill_in 'search', with: 'kdebase'
@@ -121,7 +121,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   end
 
   def test_search_for_home_projects
-  
+
     visit search_path
 
     search(
@@ -148,7 +148,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
 
     search(
       :text => 'branches',
-      :for  => [:projects], 
+      :for  => [:projects],
       :in   => [:name])
 
     results = search_results
@@ -163,7 +163,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
 
     search(
       :text => 'localproject',
-      :for  => [:projects], 
+      :for  => [:projects],
       :in   => [:name])
 
     results = search_results
@@ -178,16 +178,16 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
 
     search(
       :text => 'Test',
-      :for  => [:packages], 
+      :for  => [:packages],
       :in   => [:name])
-    
+
     results = search_results
     assert results.include? :type => :package, :project_name => 'CopyTest', :package_name => 'test'
     #assert results.include? :type => :package, :project_name => "home:Iggy", :package_name => "TestPack"
     #assert results.include? :type => :package, :project_name => "home:Iggy", :package_name => "ToBeDeletedTestPack"
     results.count.must_equal 1
   end
-  
+
 
   def test_search_by_title
     #TODO
@@ -207,10 +207,10 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   def test_search_non_existing_by_name
 
     visit search_path
-  
+
     search(
       :text => 'no such name, please!',
-      :for  => [:projects, :packages], 
+      :for  => [:projects, :packages],
       :in   => [:name],
       :expect => :no_results)
   end
@@ -222,7 +222,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
 
     search(
       :text => 'Perhaps a non-existing title.',
-      :for  => [:projects, :packages], 
+      :for  => [:projects, :packages],
       :in   => [:title],
       :expect => :no_results)
   end
@@ -234,7 +234,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
 
     search(
       :text => 'Some non-existing description I hope.',
-      :for  => [:projects, :packages], 
+      :for  => [:projects, :packages],
       :in   => [:description],
       :expect => :no_results)
   end
@@ -245,7 +245,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
 
     search(
       :text => '',
-      :for  => [:projects, :packages], 
+      :for  => [:projects, :packages],
       :in   => [],
       :attribute => 'OBS:RequestCloned',
       :expect => :no_results)
@@ -256,11 +256,11 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
 
     search(
       :text => 'Some empty search.',
-      :for  => [:projects, :packages], 
+      :for  => [:projects, :packages],
       :in   => [:name, :title, :description],
       :expect => :no_results)
   end
-  
+
   def test_search_russian
     visit search_path
 
@@ -269,7 +269,7 @@ if $ENABLE_BROKEN_TEST
       :text => 'вокябюч',
       :for  => [:projects, :packages],
       :in   => [:name, :title, :description])
-    
+
     results = search_results
     page.must_have_text '窞綆腤 埱娵徖 渮湸湤 殠 唲堔'
     results.include?(:type => :project, :project_name => 'home:tom')
@@ -282,17 +282,17 @@ end
 
     search(
       :text => 'Some empty search again.',
-      :for  => [:projects, :packages], 
+      :for  => [:projects, :packages],
       :in   => [],
       :expect => :invalid_search_options)
   end
-  
-  
+
+
   def test_search_with_empty_text
     visit search_path
     search(
       :text => '',
-      :for  => [:projects, :packages], 
+      :for  => [:projects, :packages],
       :in   => [:name],
       :expect => :invalid_search_text)
   end
@@ -300,7 +300,7 @@ end
   def test_search_hidden_as_anonymous
 
     visit search_path
-  
+
     search(
       :text => 'packcopy',
       :for  => [:projects, :packages],

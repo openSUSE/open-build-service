@@ -57,21 +57,21 @@ module OBSApi
     # Rails.root is not working directory when running under lighttpd, so it has
     # to be added to load path
     #config.load_paths << Rails.root unless config.load_paths.include? Rails.root
-    
-    # Force all environments to use the same logger level 
+
+    # Force all environments to use the same logger level
     # (by default production uses :info, the others :debug)
     # config.log_level = :debug
-    
+
     config.log_tags = [:uuid]
 
     # Use the database for sessions instead of the file system
     # (create the session table with 'rake create_sessions_table')
     # config.action_controller.session_store = :active_record_store
-    
+
     # put the rubygem requirements here for a clean handling
     # rake gems:install (installs the needed gems)
     # rake gems:unpack (this unpacks the gems to vendor/gems)
-    
+
     config.cache_store = :dalli_store, 'localhost:11211', {:namespace => 'obs-api', :compress => true }
 
     # will become default
@@ -82,12 +82,12 @@ module OBSApi
 
     # Activate observers that should always be running
     # config.active_record.observers = :cacher, :garbage_collector
-    
+
     # Make Active Record use UTC-base instead of local time
     # config.active_record.default_timezone = :utc
-    
+
     config.active_record.schema_format = :sql
-    
+
     config.action_controller.perform_caching = true
 
     config.assets.js_compressor = :uglifier

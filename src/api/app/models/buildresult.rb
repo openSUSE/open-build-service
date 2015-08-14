@@ -1,5 +1,6 @@
 class Buildresult < ActiveXML::Node
 
+  # rubocop:disable Style/AlignHash
   AVAIL_STATUS_VALUES = {
     succeeded:    0,
     failed:       1,
@@ -17,6 +18,7 @@ class Buildresult < ActiveXML::Node
     deleting:    13,
     unknown:     14
   }
+  # rubocop:enable Style/AlignHash
 
   def self.avail_status_values
     AVAIL_STATUS_VALUES.keys.map(&:to_s)

@@ -12,7 +12,7 @@ class MemoryDumper
      old_handler.call if old_handler
    }
   end
- 
+
   def call(env)
    ret = @app.call(env)
    if @toexit == 1

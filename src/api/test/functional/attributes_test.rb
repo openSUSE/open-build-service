@@ -2,8 +2,8 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'source_controller'
 
-class AttributeControllerTest < ActionDispatch::IntegrationTest 
-  
+class AttributeControllerTest < ActionDispatch::IntegrationTest
+
   fixtures :all
 
   def setup
@@ -15,7 +15,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     get "/attribute/"
     assert_response 401
 
-    login_Iggy 
+    login_Iggy
     get "/attribute/"
     assert_response :success
 
@@ -190,8 +190,8 @@ ription</description>
 
     # set issues
     data = "<attributes><attribute namespace='TEST' name='Dummy'>
-              <issue name='123' tracker='bnc'/> 
-              <issue name='456' tracker='bnc'/> 
+              <issue name='123' tracker='bnc'/>
+              <issue name='456' tracker='bnc'/>
             </attribute></attributes>"
     post "/source/home:adrian/_attribute", data
     assert_response :success
@@ -205,7 +205,7 @@ ription</description>
 
     # remove one
     data = "<attributes><attribute namespace='TEST' name='Dummy'>
-              <issue name='456' tracker='bnc'/> 
+              <issue name='456' tracker='bnc'/>
             </attribute></attributes>"
     post "/source/home:adrian/_attribute", data
     assert_response :success
@@ -254,7 +254,7 @@ ription</description>
     post "/source/home:tom/_attribute", data
     assert_response 400
     assert_select "status[code] > summary", /has 1 values, but only 0 are allowed/
-  
+
     data = "<attributes><attribute namespace='OBS' name='Maintained'></attribute></attributes>"
     post "/source/home:tom/_attribute", data
     assert_response :success
@@ -368,7 +368,7 @@ ription</description>
     assert_response :success
     get "/source/kde4/kdelibs/_attribute/OBS:Maintained"
     assert_response :success
-    assert_equal({"attribute"=>[{"name"=>"Maintained", "namespace"=>"OBS"}, 
+    assert_equal({"attribute"=>[{"name"=>"Maintained", "namespace"=>"OBS"},
                                 {"name"=>"Maintained", "namespace"=>"OBS", "binary"=>"kdelibs-devel"}]}, Xmlhash.parse(@response.body))
     get "/source/kde4/kdelibs/kdelibs-devel/_attribute"
     assert_response :success

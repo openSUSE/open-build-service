@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-class PublishedControllerTest < ActionDispatch::IntegrationTest 
+class PublishedControllerTest < ActionDispatch::IntegrationTest
 
   fixtures :all
 
@@ -118,7 +118,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
            # seems to be a SUSE system
            if p["format"]["rpm:suggests"].nil?
              print "createrepo seems not to create week dependencies, we need this at least on SUSE systems"
-           end 
+           end
            assert_equal "pure_optional", p["format"]["rpm:suggests"]['rpm:entry']['name']
            assert_equal "would_be_nice", p["format"]["rpm:recommends"]['rpm:entry']['name']
            assert_equal "other_package_likes_it", p["format"]["rpm:supplements"]['rpm:entry']['name']

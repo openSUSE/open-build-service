@@ -116,14 +116,14 @@ Git log:
       smtp.send_message body, 'obs-api-deploy@suse.de', deploy_notification_to
     end
   end
-  
+
   task :test_suite do
     Dir.glob('**/*.rb').each do |f|
       if !system("ruby -c -d #{f} > /dev/null")
          puts "syntax error in #{f} - will not deploy"
          exit 1
       end
-    end 
+    end
     if !system("rake test")
       puts "Error on rake test - will not deploy"
       exit 1

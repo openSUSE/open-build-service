@@ -5,7 +5,7 @@ class GroupUsersTest < ActiveSupport::TestCase
 
   def test_validation
     # empty == invalid
-    gu = GroupsUser.new 
+    gu = GroupsUser.new
     assert_equal true, gu.invalid?
     assert_equal false, gu.save
     # only user
@@ -26,5 +26,5 @@ class GroupUsersTest < ActiveSupport::TestCase
     assert_equal false, gu.invalid?
     assert_equal true, gu.save
   end
-  
+
 end

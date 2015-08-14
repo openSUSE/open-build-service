@@ -24,7 +24,7 @@ config.action_controller.perform_caching             = true
 CONFIG['ldap_servers'] = "ldap1.mycompany.com:ldap2.mycompany.com"
 # OVERRIDE with your company's ldap search base for the users who will use OBS
 CONFIG['ldap_search_base'] = "OU=Organizational Unit,DC=Domain Component"
-# Sam Account Name is the login name for LDAP 
+# Sam Account Name is the login name for LDAP
 CONFIG['ldap_search_attr'] = "sAMAccountName"
 # Max number of times to attempt to contact the LDAP servers
 CONFIG['max_ldap_attempts'] = 10

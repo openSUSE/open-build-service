@@ -1,5 +1,5 @@
 class CheckDeletedRepo < ActiveRecord::Migration
-  
+
   class Repository < ActiveRecord::Base; end
   class Project < ActiveRecord::Base; end
 

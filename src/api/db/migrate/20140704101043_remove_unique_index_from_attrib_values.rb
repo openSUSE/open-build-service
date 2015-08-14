@@ -1,6 +1,6 @@
 class RemoveUniqueIndexFromAttribValues < ActiveRecord::Migration
   def self.up
-    remove_index :attrib_values, [:attrib_id, :position] 
+    remove_index :attrib_values, [:attrib_id, :position]
   end
 
   def self.down

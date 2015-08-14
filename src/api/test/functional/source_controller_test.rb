@@ -3267,16 +3267,16 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     assert_equal({ 'disable' => [{ 'arch' => 'i586', 'repository' => '10.2' },
                                  { 'arch' => 'x86_64', 'repository' => '10.2' }],
-                   'enable' => { 'arch' => 'i586', 'repository' => '10.7' } },
+                   'enable'  => { 'arch' => 'i586', 'repository' => '10.7' } },
                  Xmlhash.parse(@response.body)['build'])
 
     post '/source/home:Iggy?cmd=set_flag&flag=build&status=enable'
     assert_response :success
 
     get '/source/home:Iggy/_meta'
-    assert_equal({ 'disable' =>[{ 'arch' => 'i586', 'repository' => '10.2' },
+    assert_equal({ 'disable' => [{ 'arch' => 'i586', 'repository' => '10.2' },
                               { 'arch' => 'x86_64', 'repository' => '10.2' }],
-                  'enable' =>[{ 'arch' => 'i586', 'repository' => '10.7' }, {}]},
+                   'enable'  => [{ 'arch' => 'i586', 'repository' => '10.7' }, {}]},
                  Xmlhash.parse(@response.body)['build'])
 
     assert_equal([['enable', {:repository=> '10.2' }],
@@ -3467,42 +3467,50 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     orig_pkg_meta = @response.body
 
     ret = duplicated_user_test('package', 'user', '/source/home:Iggy/TestPack/_meta')
-    assert_equal({ 'name' => 'TestPack',
-                   'project' => 'home:Iggy',
-                   'title' => 'Strange XML',
+    assert_equal({ 'name'        => 'TestPack',
+                   'project'     => 'home:Iggy',
+                   'title'       => 'Strange XML',
                    'description' => {},
-                   'person' =>
-                       [{ 'userid' => 'tom', 'role' => 'bugowner' },
-                        { 'userid' => 'Iggy', 'role' => 'maintainer' },
-                        { 'userid' => 'tom', 'role' => 'maintainer' }] }, ret)
+                   'person'      => [
+                     { 'userid' => 'tom', 'role' => 'bugowner' },
+                     { 'userid' => 'Iggy', 'role' => 'maintainer' },
+                     { 'userid' => 'tom', 'role' => 'maintainer' }
+                   ]
+                 }, ret)
 
     ret = duplicated_user_test('package', 'group', '/source/home:Iggy/TestPack/_meta')
-    assert_equal({ 'name' => 'TestPack',
-                   'project' => 'home:Iggy',
-                   'title' => 'Strange XML',
+    assert_equal({ 'name'        => 'TestPack',
+                   'project'     => 'home:Iggy',
+                   'title'       => 'Strange XML',
                    'description' => {},
-                   'person' => { 'userid' => 'Iggy', 'role' => 'maintainer' },
-                   'group' =>
-                       [{ 'groupid' => 'test_group', 'role' => 'bugowner' },
-                        { 'groupid' => 'test_group', 'role' => 'maintainer' }] }, ret)
+                   'person'      => { 'userid' => 'Iggy', 'role' => 'maintainer' },
+                   'group'       => [
+                     { 'groupid' => 'test_group', 'role' => 'bugowner' },
+                     { 'groupid' => 'test_group', 'role' => 'maintainer' }
+                   ]
+                 }, ret)
 
     ret = duplicated_user_test('project', 'user', '/source/home:Iggy/_meta')
-    assert_equal({ 'name' => 'home:Iggy',
-                   'title' => 'Strange XML',
+    assert_equal({ 'name'        => 'home:Iggy',
+                   'title'       => 'Strange XML',
                    'description' => {},
-                   'person' =>
-                       [{ 'userid' => 'tom', 'role' => 'bugowner' },
-                        { 'userid' => 'Iggy', 'role' => 'maintainer' },
-                        { 'userid' => 'tom', 'role' => 'maintainer' }] }, ret)
+                   'person'      => [
+                     { 'userid' => 'tom', 'role' => 'bugowner' },
+                     { 'userid' => 'Iggy', 'role' => 'maintainer' },
+                     { 'userid' => 'tom', 'role' => 'maintainer' }
+                   ]
+                 }, ret)
 
     ret = duplicated_user_test('project', 'group', '/source/home:Iggy/_meta')
-    assert_equal({ 'name' => 'home:Iggy',
-                   'title' => 'Strange XML',
+    assert_equal({ 'name'        => 'home:Iggy',
+                   'title'       => 'Strange XML',
                    'description' => {},
-                   'person' => { 'userid' => 'Iggy', 'role' => 'maintainer' },
-                   'group' =>
-                       [{ 'groupid' => 'test_group', 'role' => 'bugowner' },
-                        { 'groupid' => 'test_group', 'role' => 'maintainer' }] }, ret)
+                   'person'      => { 'userid' => 'Iggy', 'role' => 'maintainer' },
+                   'group'       => [
+                     { 'groupid' => 'test_group', 'role' => 'bugowner' },
+                     { 'groupid' => 'test_group', 'role' => 'maintainer' }
+                   ]
+                 }, ret)
 
     # restore (esp in backend)
     login_king

@@ -61,7 +61,7 @@ class IssueTracker < ActiveRecord::Base
       result = bugzilla_server.search(:last_change_time => self.issues_updated)
     rescue Net::ReadTimeout
       if (self.issues_updated + 2.days).past?
-         # failures since two days? 
+         # failures since two days?
          # => enforce a full update in small steps to avoid over load at bugzilla side
          enforced_update_all_issues
          return true
@@ -123,7 +123,7 @@ class IssueTracker < ActiveRecord::Base
 
   def update_issues
     # before asking remote to ensure that it is older then on remote, assuming ntp works ...
-    # to be sure, just reduce it by 5 seconds (would be nice to have a counter at bugzilla to 
+    # to be sure, just reduce it by 5 seconds (would be nice to have a counter at bugzilla to
     # guarantee a complete search)
     @update_time_stamp = Time.at(Time.now.to_f - 5)
 

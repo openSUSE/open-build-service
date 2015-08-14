@@ -20,7 +20,7 @@ module ActiveXML
     attr_accessor :port
 
     class Error < StandardError
-      
+
       def parse!
         return @xml if @xml
 
@@ -394,7 +394,7 @@ module ActiveXML
 
       return handle_response( http_response )
     end
-    
+
     def load_external_url(uri)
       uri = URI.parse(uri)
       http = nil
@@ -459,6 +459,6 @@ module ActiveXML
       message = http_response.to_s if message.blank?
       raise Error, message.force_encoding("UTF-8")
     end
-    
+
   end
 end

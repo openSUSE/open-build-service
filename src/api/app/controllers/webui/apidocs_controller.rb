@@ -3,7 +3,7 @@ class Webui::ApidocsController < Webui::WebuiController
   include Webui::WebuiHelper
   # Apidocs is insensitive static information, no login needed therefore
   skip_before_filter :extract_user
-  
+
   def index
     filename = File.expand_path(CONFIG['apidocs_location']) + "/index.html"
     if File.exist?(filename)

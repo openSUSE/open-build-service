@@ -10,7 +10,7 @@ class Webui::ProjectEditTest < Webui::IntegrationTest
   uses_transaction :test_change_global_project_title
 
   # ============================================================================
-  #  
+  #
   def project_title
     find(:id, 'project_title').text
   end
@@ -70,7 +70,7 @@ class Webui::ProjectEditTest < Webui::IntegrationTest
       :description => 'New description. Not kidding.. Brand new! ' + Time.now.to_i.to_s)
   end
 
-  
+
   def test_change_home_project_info
     login_Iggy to: project_show_path(project: 'home:Iggy')
     change_project_info(
@@ -85,7 +85,7 @@ class Webui::ProjectEditTest < Webui::IntegrationTest
       :title => 'My Title hopefully got changed ' + Time.now.to_i.to_s)
   end
 
-  
+
   def test_change_global_project_description
     login_king to: project_show_path(project: 'LocalProject')
 
@@ -93,7 +93,7 @@ class Webui::ProjectEditTest < Webui::IntegrationTest
       :description => 'New description. Not kidding.. Brand new! ' + Time.now.to_i.to_s)
   end
 
-  
+
   def test_change_global_project_info
     login_king to: project_show_path(project: 'LocalProject')
 
@@ -101,5 +101,5 @@ class Webui::ProjectEditTest < Webui::IntegrationTest
       :title => 'My Title hopefully got changed ' + Time.now.to_i.to_s,
       :description => 'New description. Not kidding.. Brand new! ' + Time.now.to_i.to_s)
   end
-  
+
 end

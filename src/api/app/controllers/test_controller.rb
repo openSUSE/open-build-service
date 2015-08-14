@@ -6,7 +6,7 @@ class TestController < ApplicationController
 
   before_action do
     if Rails.env.test? || Rails.env.development?
-      true 
+      true
     else
       render_error  message: "This is only accessible for testing environments", :status => 403
       false
@@ -21,7 +21,7 @@ class TestController < ApplicationController
     @@started = false
     render_ok
   end
-  
+
   # we need a way so the API uprises fully
   def startme
      if @@started
@@ -34,5 +34,5 @@ class TestController < ApplicationController
      backend.direct_http(URI("/"))
      render_ok
   end
-  
+
 end

@@ -469,7 +469,7 @@ class BranchPackage
         found = true if ep[:package] == ap
       end
       unless found
-        logger.debug "found local linked package in project #{p[:package].project.name}/#{ap.name}, " + 
+        logger.debug "found local linked package in project #{p[:package].project.name}/#{ap.name}, " +
                      "adding it as well, pointing it to #{p[:package].name} for #{target_package}"
         @packages.push({ base_project: p[:base_project],
                          link_target_project: p[:link_target_project],

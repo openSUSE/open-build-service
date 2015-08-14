@@ -41,7 +41,7 @@ class WebuiProject < ActiveXML::Node
   def self.is_remote?(pro_name)
     Project.where(name: pro_name).where('remoteurl is not null').exists?
   end
-  
+
   def to_s
     name
   end
@@ -173,7 +173,7 @@ class WebuiProject < ActiveXML::Node
     self.each(:repository) {|repo| repo_hash[repo.value(:name)] = repo}
     repo_hash
   end
-    
+
   def users(role = nil)
     rels = api_obj.relationships
     rels = rels.where(role: Role.rolecache[role]) if role

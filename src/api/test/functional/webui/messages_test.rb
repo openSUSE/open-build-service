@@ -5,7 +5,7 @@ class Webui::MessagesTest < Webui::IntegrationTest
   def test_add_and_remove_message
     use_js
 
-    login_king to: root_path 
+    login_king to: root_path
 
     message = 'This is just a test'
     page.wont_have_selector('#news-message')
@@ -14,7 +14,7 @@ class Webui::MessagesTest < Webui::IntegrationTest
     fill_in 'message', with: message
     find(:id, 'severity').select('Green')
     find_button('Ok').click
-    
+
     find(:id, 'messages').must_have_text message
 
     get '/main/news.rss'
@@ -31,7 +31,7 @@ class Webui::MessagesTest < Webui::IntegrationTest
 
     # check that it's gone
     page.wont_have_selector('#news-message')
-    
+
   end
 
 end

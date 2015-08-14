@@ -127,14 +127,14 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
 
     # backend copy of current sources, but keep link
     cp_params = {
-        :cmd => 'copy',
-        :user => User.current.login,
-        :oproject => source_project,
-        :opackage => source_package,
-        :keeplink => 1,
-        :expand => 1,
-        :withacceptinfo => 1,
-        :comment => 'Maintenance incident copy from project ' + source_project
+      cmd:            "copy",
+      user:           User.current.login,
+      oproject:       source_project,
+      opackage:       source_package,
+      keeplink:       1,
+      expand:         1,
+      withacceptinfo: 1,
+      comment:        "Maintenance incident copy from project #{source_project}"
     }
     cp_params[:requestid] = request.id if request
     cp_path = "/source/#{CGI.escape(incidentProject.name)}/#{CGI.escape(new_pkg.name)}"

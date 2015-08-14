@@ -65,7 +65,7 @@ class BinaryRelease < ActiveRecord::Base
       b.obsolete(:time => self.obsolete_time) if self.obsolete_time
 
       b.supportstatus self.binary_supportstatus if self.binary_supportstatus
-      b.updateinfo({:id => self.binary_updateinfo,
+      b.updateinfo({:id      => self.binary_updateinfo,
                     :version => self.binary_updateinfo_version}) if self.binary_updateinfo
       b.maintainer self.binary_maintainer if self.binary_maintainer
       b.disturl self.binary_disturl if self.binary_disturl
@@ -112,7 +112,7 @@ class BinaryRelease < ActiveRecord::Base
       return
     end
     update_binary_releases_via_json(repository, pt, time)
-    # drop it 
+    # drop it
     Suse::Backend.delete("/notificationpayload/#{key}")
   end
 
@@ -124,20 +124,20 @@ class BinaryRelease < ActiveRecord::Base
     BinaryRelease.transaction do
       json.each do |binary|
         # identifier
-        hash={ :binary_name => binary["name"],
-               :binary_version => binary["version"],
-               :binary_release => binary["release"],
-               :binary_epoch => binary["epoch"],
-               :binary_arch => binary["binaryarch"],
-               :medium => binary["medium"],
-               :obsolete_time => nil
+        hash = { binary_name:    binary["name"],
+                 binary_version: binary["version"],
+                 binary_release: binary["release"],
+                 binary_epoch:   binary["epoch"],
+                 binary_arch:    binary["binaryarch"],
+                 medium:         binary["medium"],
+                 obsolete_time:  nil
              }
         # check for existing entry
         existing = oldlist.where(hash)
         Rails.logger.info "ERROR: multiple matches, cleaning up: #{existing.inspect}" if existing.count > 1
         # double definition means broken DB entries
         existing.offset(1).destroy_all
-        
+
         # compare with existing entry
         if existing.count == 1
           entry = existing.first

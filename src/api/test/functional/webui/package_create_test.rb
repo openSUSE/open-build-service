@@ -4,7 +4,7 @@ require_relative '../../test_helper'
 class Webui::PackageCreateTest < Webui::IntegrationTest
 
   setup do
-    @project = 'home:Iggy' 
+    @project = 'home:Iggy'
   end
 
   def open_new_package
@@ -26,7 +26,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
     fill_in 'name', with: new_package[:name]
     fill_in 'title', with: new_package[:title]
     fill_in 'description', with: new_package[:description]
-    
+
     click_button('Save changes')
 
     if new_package[:expect] == :success
@@ -46,7 +46,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
       throw 'Invalid value for argument expect(must be :success, :invalid_name, :already_exists)'
     end
   end
-  
+
   def test_create_home_project_package_for_user
     use_js
     login_Iggy to: project_show_path(project: 'home:Iggy')
@@ -93,10 +93,10 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
       :description => 'Empty home project package without name. Must fail.',
       :expect => :invalid_name)
   end
-  
-  
+
+
   def test_create_package_name_with_spaces
-  
+
     login_Iggy to: project_show_path(project: 'home:Iggy')
 
     open_new_package
@@ -106,7 +106,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
       :expect => :invalid_name)
   end
 
-  
+
   def test_create_package_with_only_name
     use_js
     login_Iggy to: project_show_path(project: 'home:Iggy')
@@ -119,7 +119,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
     delete_package('home:Iggy', 'HomePackage-OnlyName')
   end
 
-  
+
   def test_create_package_with_long_description
     use_js
 
@@ -136,7 +136,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
 
   end
 
-  
+
   def test_create_package_strange_name
     use_js
     login_Iggy to: project_show_path(project: 'home:Iggy')
@@ -164,7 +164,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
 
   # RUBY CODE ENDS HERE.
   # BELOW ARE APPENDED ALL DATA STRUCTURES USED BY THE TESTS.
-  
+
 
 
 # -------------------------------------------------------------------------------------- #

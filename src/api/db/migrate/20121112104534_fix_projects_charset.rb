@@ -1,6 +1,6 @@
 
 class FixProjectsCharset < ActiveRecord::Migration
-  
+
   def self.fix_double_utf8(table, column)
     #execute("select count(*) from #{table} where LENGTH(#{column}) != CHAR_LENGTH(#{column});")
     execute("create table temptable (select * from #{table} where LENGTH(#{column}) != CHAR_LENGTH(#{column}));")
@@ -15,7 +15,7 @@ class FixProjectsCharset < ActiveRecord::Migration
 
   def up
     FixProjectsCharset.fix_double_utf8("projects", "title")
-    FixProjectsCharset.fix_double_utf8("projects", "description") 
+    FixProjectsCharset.fix_double_utf8("projects", "description")
   end
 
   def down

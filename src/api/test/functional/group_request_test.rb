@@ -3,8 +3,8 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'request_controller'
 
 #
-# This was available for some time during OBS 2.5 development, but got 
-# dropped again before release. Still there is build.opensuse.org which 
+# This was available for some time during OBS 2.5 development, but got
+# dropped again before release. Still there is build.opensuse.org which
 # contains some requests of group types
 #
 
@@ -38,10 +38,10 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # 2 is new, so the group is new too
-    assert_equal({"id" => id,
-                  "action" => {"type" => "group", "grouped" => {"id" => "2"}},
-                  "state" =>
-                      {"name" => "new", "who" => "king", "when" => "2010-07-12T00:00:00", "comment" => {}},
+    assert_equal({"id"          => id,
+                  "action"      => {"type" => "group", "grouped" => {"id" => "2"}},
+                  "state"       =>
+                                   {"name" => "new", "who" => "king", "when" => "2010-07-12T00:00:00", "comment" => {}},
                   "description" => {}
                  }, Xmlhash.parse(@response.body))
     Timecop.freeze(1)
@@ -64,10 +64,10 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # state didn't change, only history
-    assert_equal({"id" => id,
-                  "action" => {"type" => "group", "grouped" => [{"id" => "2"}, {"id" => adi}]},
-                  "state" =>
-                      {"name" => "new", "who" => "king", "when" => "2010-07-12T00:00:00", "comment" => {}},
+    assert_equal({"id"          => id,
+                  "action"      => {"type" => "group", "grouped" => [{"id" => "2"}, {"id" => adi}]},
+                  "state"       =>
+                                   {"name" => "new", "who" => "king", "when" => "2010-07-12T00:00:00", "comment" => {}},
                   "description" => {}
                  }, Xmlhash.parse(@response.body))
     Timecop.freeze(1)
@@ -80,25 +80,28 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # state changed to review
-    assert_equal({"id" => id,
-                  "action" => {"type" => "group", "grouped" => [{"id" => "2"}, {"id" => adi}, {"id" => withr}]},
-                  "state" =>
-                      {"name" => "review", "who" => "king", "when" => "2010-07-12T00:00:02", "comment" => {}},
+    assert_equal({"id"          => id,
+                  "action"      => {"type" => "group", "grouped" => [{"id" => "2"}, {"id" => adi}, {"id" => withr}]},
+                  "state"       =>
+                                   {"name" => "review", "who" => "king", "when" => "2010-07-12T00:00:02", "comment" => {}},
                   "description" => {}
                  }, Xmlhash.parse(@response.body))
     Timecop.freeze(1)
     # group_1 should be in review too now
     get "/request/#{adi}"
     assert_response :success
-    assert_equal({"id" => adi,
-                  "action" => {"type" => "add_role",
-                               "target" => {"project" => "Apache", "package" => "apache2"},
-                               "person" => {"name" => "Iggy", "role" => "bugowner"}},
-                  "state" =>
-                      {"name" => "review",
-                       "who" => "king",
-                       "when" => "2010-07-12T00:00:02",
-                       "comment" => {}},
+    assert_equal({"id"          => adi,
+                  "action"      => {
+                    "type"   => "add_role",
+                    "target" => {"project" => "Apache", "package" => "apache2"},
+                    "person" => {"name" => "Iggy", "role" => "bugowner"}
+                 },
+                  "state"       => {
+                    "name"    => "review",
+                    "who"     => "king",
+                    "when"    => "2010-07-12T00:00:02",
+                    "comment" => {}
+                 },
                   "description" => {}
                  }, Xmlhash.parse(@response.body))
 
@@ -109,22 +112,25 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     # group_1 should be in new again
     get "/request/#{adi}?withhistory=1"
     assert_response :success
-    assert_equal({"id" => adi,
-                  "action" => {"type" => "add_role",
-                               "target" => {"project" => "Apache", "package" => "apache2"},
-                               "person" => {"name" => "Iggy", "role" => "bugowner"}},
-                  "state" =>
-                      {"name" => "new",
-                       "who" => "king",
-                       "when" => "2010-07-12T00:00:03",
-                       "comment" => "removed from group #{id}"},
-                  "history" => [{"who"=>"king",
-                                 "when"=>"2010-07-12T00:00:01",
-                                 "description"=>"Request created"},
-                                {"who" => "king",
-                                "when" => "2010-07-12T00:00:03",
-                                "description"=>"Request got reopened",
-                                "comment"=>"Reopened by removing from group #{id}"}],
+    assert_equal({"id"          => adi,
+                  "action"      => {
+                    "type"   => "add_role",
+                    "target" => {"project" => "Apache", "package" => "apache2"},
+                    "person" => {"name" => "Iggy", "role" => "bugowner"}
+                 },
+                  "state"       => {
+                     "name"    => "new",
+                     "who"     => "king",
+                     "when"    => "2010-07-12T00:00:03",
+                     "comment" => "removed from group #{id}"
+                 },
+                  "history"     => [{"who"         => "king",
+                                     "when"        => "2010-07-12T00:00:01",
+                                     "description" => "Request created"},
+                                    {"who"         => "king",
+                                     "when"        => "2010-07-12T00:00:03",
+                                     "description" => "Request got reopened",
+                                     "comment"     => "Reopened by removing from group #{id}"}],
                   "description" => {}
                  }, Xmlhash.parse(@response.body))
 
@@ -215,14 +221,15 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
 
     get "/request/#{id}"
     assert_response :success
-    assert_equal({"id" => id,
-                  "action"=>{"type"=>"group", "grouped"=>[{"id"=>"2"}, {"id"=>withr}]},
-                  "state"=>
-                      {"name"=>"review",
-                       "who"=>"king",
-                       "when"=>"2010-07-12T00:00:00",
-                       "comment"=>{}},
-                  "description"=>{} }, Xmlhash.parse(@response.body))
+    assert_equal({"id"          => id,
+                  "action"      => {"type"=>"group", "grouped"=>[{"id"=>"2"}, {"id"=>withr}]},
+                  "state"       => {
+                    "name"    => "review",
+                    "who"     => "king",
+                    "when"    => "2010-07-12T00:00:00",
+                    "comment" => {}
+                  },
+                  "description" => {} }, Xmlhash.parse(@response.body))
 
 
     withr2 = upload_request("submit_with_review")
@@ -234,14 +241,15 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     # withr2 is in, withr out
     get "/request/#{id}"
     assert_response :success
-    assert_equal({"id" => id,
-                  "action"=>{"type"=>"group", "grouped"=>[{"id"=>"2"}, {"id"=>withr2}]},
-                  "state"=>
-                      {"name"=>"review",
-                       "who"=>"king",
-                       "when"=>"2010-07-12T00:00:00",
-                       "comment"=>{}},
-                  "description"=>{} }, Xmlhash.parse(@response.body))
+    assert_equal({"id"          => id,
+                  "action"      => {"type"=>"group", "grouped"=>[{"id"=>"2"}, {"id"=>withr2}]},
+                  "state"       => {
+                    "name"    => "review",
+                    "who"     => "king",
+                    "when"    => "2010-07-12T00:00:00",
+                    "comment" => {}
+                  },
+                  "description" => {} }, Xmlhash.parse(@response.body))
 
   end
 

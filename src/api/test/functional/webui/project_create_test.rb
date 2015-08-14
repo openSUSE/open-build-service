@@ -263,11 +263,11 @@ that
 will
 break
 into
-many 
+many
 many
 lines.
 
-Way / 
+Way /
 more
 than
 what

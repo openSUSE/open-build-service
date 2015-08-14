@@ -125,33 +125,33 @@ module Webui::WebuiHelper
   end
 
   REPO_STATUS_ICONS = {
-      'published' => 'lorry',
-      'publishing' => 'cog_go',
-      'outdated_published' => 'lorry_error',
-      'outdated_publishing' => 'cog_error',
-      'unpublished' => 'lorry_flatbed',
-      'outdated_unpublished' => 'lorry_error',
-      'building' => 'cog',
-      'outdated_building' => 'cog_error',
-      'finished' => 'time',
-      'outdated_finished' => 'time_error',
-      'blocked' => 'time',
-      'outdated_blocked' => 'time_error',
-      'broken' => 'exclamation',
-      'outdated_broken' => 'exclamation',
-      'scheduling' => 'cog',
-      'outdated_scheduling' => 'cog_error',
+    'published'            => 'lorry',
+    'publishing'           => 'cog_go',
+    'outdated_published'   => 'lorry_error',
+    'outdated_publishing'  => 'cog_error',
+    'unpublished'          => 'lorry_flatbed',
+    'outdated_unpublished' => 'lorry_error',
+    'building'             => 'cog',
+    'outdated_building'    => 'cog_error',
+    'finished'             => 'time',
+    'outdated_finished'    => 'time_error',
+    'blocked'              => 'time',
+    'outdated_blocked'     => 'time_error',
+    'broken'               => 'exclamation',
+    'outdated_broken'      => 'exclamation',
+    'scheduling'           => 'cog',
+    'outdated_scheduling'  => 'cog_error',
   }
 
   REPO_STATUS_DESCRIPTIONS = {
-      'published' => 'Repository has been published',
-      'publishing' => 'Repository is being created right now',
-      'unpublished' => 'Build finished, but repository publishing is disabled',
-      'building' => 'Build jobs exists',
-      'finished' => 'Build jobs have been processed, new repository is not yet created',
-      'blocked' => 'No build possible atm, waiting for jobs in other repositories',
-      'broken' => 'The repository setup is broken, build not possible',
-      'scheduling' => 'The repository state is being calculated right now',
+    'published'   => 'Repository has been published',
+    'publishing'  => 'Repository is being created right now',
+    'unpublished' => 'Build finished, but repository publishing is disabled',
+    'building'    => 'Build jobs exists',
+    'finished'    => 'Build jobs have been processed, new repository is not yet created',
+    'blocked'     => 'No build possible atm, waiting for jobs in other repositories',
+    'broken'      => 'The repository setup is broken, build not possible',
+    'scheduling'  => 'The repository state is being calculated right now',
   }
 
   def repo_status_icon(status)
@@ -317,12 +317,12 @@ module Webui::WebuiHelper
   end
 
   def description_wrapper(description)
-    unless description.blank?
-      content_tag(:pre, description, id: 'description_text', class: 'plain')
-    else
+    if description.blank?
       content_tag(:p, id: 'description_text') do
         content_tag(:i, 'No description set')
       end
+    else
+      content_tag(:pre, description, id: 'description_text', class: 'plain')
     end
   end
 
@@ -402,7 +402,7 @@ module Webui::WebuiHelper
     output = ''
 
     output += user_icon(user) unless opt[:no_icon]
-    unless realname.empty? or opt[:short] == true
+    if !(realname.empty? || opt[:short] == true)
       printed_name = realname + ' (' + user + ')'
     else
       printed_name = user
@@ -410,10 +410,10 @@ module Webui::WebuiHelper
     if role
       printed_name += ' as ' + role
     end
-    unless User.current.is_nobody?
-      output += link_to_if(!opt[:no_link], printed_name, user_show_path(user))
-    else
+    if User.current.is_nobody?
       output += printed_name
+    else
+      output += link_to_if(!opt[:no_link], printed_name, user_show_path(user))
     end
     output.html_safe
   end
