@@ -1,4 +1,5 @@
 language: ruby
+cache: bundler
 rvm:
   - 2.2
 before_script: 
@@ -14,9 +15,9 @@ env:
   #- SUBTEST=rake:test:webui
   # api and webui webrat with latest gems
   #- SUBTEST=rake:test REMOVEGEMLOCK=true
+  - TEST_SUITE=rubocop
   - TEST_SUITE=api
   - TEST_SUITE=webui
-  - TEST_SUITE=rubocop
 matrix:
   allow_failures:
     - env: SUBTEST=rake:test REMOVEGEMLOCK=true
