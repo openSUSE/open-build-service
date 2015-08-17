@@ -17,6 +17,9 @@ Metrics/LineLength:
   Exclude:
     - 'db/**/*'
 
+Metrics/ClassLength:
+  Severity: warning
+
 Style/CommandLiteral:
   EnforcedStyle: percent_x
 

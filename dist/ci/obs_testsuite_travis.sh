@@ -25,7 +25,7 @@ if test -z "$SUBTEST"; then
   export TESTOPTS="-v"
   bundle exec rake test:api
   bundle exec rake test:webui
-  bundle exec rubocop -Dc .rubocop.yml
+  bundle exec rake rubocop
   cat coverage/.last_run.json
   ruby -rcoveralls -e 'Coveralls.push!'
 fi
