@@ -242,19 +242,19 @@ class Webui::RequestController < Webui::WebuiController
 
   def list
     redirect_to user_show_path(User.current) and return unless request.xhr? # non ajax request
-    requests = BsRequestCollection.list_ids(params)
+    requests = BsRequest.list_ids(params)
     elide_len = 44
     elide_len = params[:elide_len].to_i if params[:elide_len]
     session[:requests] = requests
-    requests = BsRequestCollection.new(ids: session[:requests]).relation
+    requests = BsRequest.collection(ids: session[:requests])
     render :partial => 'shared/requests', :locals => {:requests => requests, :elide_len => elide_len, :no_target => params[:no_target]}
   end
 
   def list_small
     required_parameters :project # the minimum
     redirect_to user_show_path(User.current) and return unless request.xhr? # non ajax request
-    requests = BsRequestCollection.list_ids(params)
-    requests = BsRequestCollection.new(ids: requests).relation
+    requests = BsRequest.list_ids(params)
+    requests = BsRequest.collection(ids: requests)
     render partial: 'requests_small', locals: {requests: requests}
   end
 

@@ -261,11 +261,10 @@ class Webui::ProjectController < Webui::WebuiController
     end
     @is_incident_project = @project.api_obj.is_maintenance_incident?
     if @is_incident_project
-      rel = BsRequestCollection.new(project: @project.name,
+      @open_release_requests = BsRequest.collection(project: @project.name,
                                     states: %w(new review),
                                     types: %w(maintenance_release),
-                                    roles: %w(source))
-      @open_release_requests = rel.ids
+                                    roles: %w(source)).ids
     end
   end
 
