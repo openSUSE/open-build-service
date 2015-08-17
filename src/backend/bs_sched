@@ -3336,7 +3336,7 @@ sub update_doddata_prp {
   } else {
     mkdir_p($dodsdir);
     my $dd = { %$doddata, 'project' => $projid, 'repository' => $repoid };
-    writexml("$dodsdir/.$f", "$dodsdir/$f", $BSXML::doddata, $dd);
+    writexml("$dodsdir/.$f", "$dodsdir/$f", $dd, $BSXML::doddata);
     $dodprps{$prp} = $doddata;
   }
   return 1;
@@ -8172,7 +8172,7 @@ if ($BSConfig::enable_download_on_demand) {
       my $olddd = readxml($f, $BSXML::doddata, 1);
       next if identical($olddd, $dd);
       mkdir_p($dodsdir);
-      writexml("$dodsdir/.$f", "$dodsdir/$f", $BSXML::doddata, $dd);
+      writexml("$dodsdir/.$f", "$dodsdir/$f", $dd, $BSXML::doddata);
       $changed = 1;
     }
   }
