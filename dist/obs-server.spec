@@ -291,7 +291,7 @@ install -m 0755 obs_project_update $RPM_BUILD_ROOT/usr/sbin/
 install -d -m 755 $RPM_BUILD_ROOT/etc/init.d/
 for i in obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher \
          obssigner obswarden obsapidelayed obsapisetup obsstoragesetup \
-         obsservice; do
+         obsservice obsdodup ; do
   install -m 0755 $i \
            $RPM_BUILD_ROOT/etc/init.d/
   ln -sf /etc/init.d/$i $RPM_BUILD_ROOT/usr/sbin/rc$i
@@ -496,14 +496,14 @@ getent passwd obsrun >/dev/null || \
 exit 0
 
 %preun
-%stop_on_removal obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner
+%stop_on_removal obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsdodup
 
 %preun -n obs-worker
 %stop_on_removal obsworker
 
 %post
 %{fillup_and_insserv -n obs-server}
-%restart_on_update obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner
+%restart_on_update obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsdodup
 
 %preun -n obs-source_service
 %stop_on_removal obsservice
@@ -580,6 +580,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /etc/init.d/obsscheduler
 /etc/init.d/obssrcserver
 /etc/init.d/obswarden
+/etc/init.d/obsdodup
 /etc/init.d/obssigner
 /usr/sbin/obs_admin
 /usr/sbin/obs_serverstatus
@@ -589,6 +590,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /usr/sbin/rcobsscheduler
 /usr/sbin/rcobssrcserver
 /usr/sbin/rcobswarden
+/usr/sbin/rcobsdodup
 /usr/sbin/rcobssigner
 /usr/lib/obs/server/plugins
 /usr/lib/obs/server/BSAccess.pm
