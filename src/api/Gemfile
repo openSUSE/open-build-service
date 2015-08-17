@@ -90,10 +90,8 @@ group :test do
 end
 
 # Gems used only during development not required in production environments by default.
-group :development, :test do
+group :development do
   # as alternative to the standard IRB shell
-  gem 'pry', '>= 0.9.12'
-  # to make rack(and rails) use unicorn by default
   gem 'unicorn-rails' # webrick won't work
   # for client side, DB and server profiling
   gem 'rack-mini-profiler'
@@ -101,6 +99,11 @@ group :development, :test do
   gem 'single_test'
   # as debugging tool in the default error page
   gem 'web-console', '~> 2.0'
+end
+
+group :development, :test do
+  # as alternative to the standard IRB shell
+  gem 'pry', '>= 0.9.12'
   # for style checks
   gem 'rubocop', require: false
 end
