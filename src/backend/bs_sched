@@ -8181,6 +8181,8 @@ if ($BSConfig::enable_download_on_demand) {
     $changed = 1;
   }
   BSUtil::touch("$dodsdir/.changed") if $changed && -d $dodsdir;
+} else {
+  BSUtil::cleandir($dodsdir) if -d $dodsdir;
 }
 
 unlink("$rundir/bs_sched.$myarch.dead");	# alive and kicking
