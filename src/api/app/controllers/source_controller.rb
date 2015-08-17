@@ -498,10 +498,12 @@ class SourceController < ApplicationController
       prj = nil
     end
 
-    # remote url project must be edited by the admin
+    # projects using remote resources must be edited by the admin
     unless User.current.is_admin?
-      if rdata.has_key? 'remoteurl' or rdata.has_key? 'remoteproject'
-        raise ChangeProjectNoPermission.new 'admin rights are required to change remoteurl or remoteproject'
+      # either OBS interconnect or repository "download on demand" feature used
+      if rdata.has_key? 'remoteurl' or rdata.has_key? 'remoteproject' or
+         (rdata['repository'] and rdata['repository'].any?{|r| r.first == 'download'})
+        raise ChangeProjectNoPermission.new 'admin rights are required to change projects using remote resources'
       end
     end
 
@@ -857,7 +859,7 @@ class SourceController < ApplicationController
     # update package timestamp and reindex sources
     unless params[:rev] == 'repository' or %w(_project _pattern).include? @package_name
       special_file = %w{_aggregate _constraints _link _service _patchinfo _channel}.include? params[:filename]
-      @pack.sources_changed(nil, special_file) # wait for indexing for special files
+      @pack.sources_changed(wait_for_update: special_file) # wait for indexing for special files
     end
   end
 
@@ -1290,7 +1292,7 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=importchannel
   def package_command_importchannel
     repo=nil
-    repo=Repository.find_by_project_and_repo_name(params[:target_project], params[:target_repository]) if params[:target_project]
+    repo=Repository.find_by_project_and_name(params[:target_project], params[:target_repository]) if params[:target_project]
 
     import_channel(request.raw_post, @package, repo)
 
@@ -1489,7 +1491,7 @@ class SourceController < ApplicationController
     answer = pass_to_backend path
 
     if @package # except in case of _project package
-      @package.sources_changed(answer)
+      @package.sources_changed(dir_xml: answer)
     end
   end
 
@@ -1599,7 +1601,7 @@ class SourceController < ApplicationController
       if params[:target_repository].blank? or params[:repository].blank?
         raise MissingParameterError.new 'release action with specified target project needs also "repository" and "target_repository" parameter'
       end
-      targetrepo=Repository.find_by_project_and_repo_name(@target_project_name, params[:target_repository])
+      targetrepo=Repository.find_by_project_and_name(@target_project_name, params[:target_repository])
       raise UnknownRepository.new "Repository does not exist #{params[:target_repository]}" unless targetrepo
 
       repo=pkg.project.repositories.where(name: params[:repository])

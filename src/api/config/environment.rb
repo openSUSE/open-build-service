@@ -18,6 +18,14 @@ CONFIG['global_write_through'] ||= true
 CONFIG['proxy_auth_mode'] ||= :off
 CONFIG['frontend_ldap_mode'] ||= :off
 
+# use hardcoded source server port for test and development
+# used in start_test_backend script
+if ENV['RAILS_ENV'] == 'test'
+  CONFIG['source_port'] = 3200
+elsif ENV['RAILS_ENV'] == 'development'
+  CONFIG['source_port'] = 6200
+end
+
 # Initialize the rails application
 OBSApi::Application.initialize!
 

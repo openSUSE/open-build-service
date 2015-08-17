@@ -16,7 +16,7 @@ class BinaryReleaseTest < ActiveSupport::TestCase
   end
 
   def test_render_fixture
-    r = Repository.find_by_project_and_repo_name("BaseDistro3",
+    r = Repository.find_by_project_and_name("BaseDistro3",
                                                  "BaseDistro3_repo")
     br = BinaryRelease.where(repository: r).first
     xml = br.render_xml
@@ -73,7 +73,7 @@ class BinaryReleaseTest < ActiveSupport::TestCase
              "version"=>"1.0", "release"=>"1", "repository"=>"BaseDistro3_repo",
              "name"=>"package_newweaktags", "buildtime"=>"1409642056"}]
 
-    r = Repository.find_by_project_and_repo_name("BaseDistro3", "BaseDistro3_repo")
+    r = Repository.find_by_project_and_name("BaseDistro3", "BaseDistro3_repo")
 
     BinaryRelease.update_binary_releases_via_json(r, json)
     count = BinaryRelease.all.length

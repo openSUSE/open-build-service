@@ -94,7 +94,7 @@ class BsRequestPermissionCheck
       @target_package.can_be_deleted?
     else
       if action.target_repository
-        r=Repository.find_by_project_and_repo_name(@target_project.name, action.target_repository)
+        r=Repository.find_by_project_and_name(@target_project.name, action.target_repository)
         unless r
           raise RepositoryMissing.new "The repository #{@target_project} / #{action.target_repository} does not exist"
         end

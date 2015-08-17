@@ -547,7 +547,7 @@ class Project < ActiveRecord::Base
     #recreate pathelements from xml
     position = 1
     repo.elements('path') do |path|
-      link_repo = Repository.find_by_project_and_repo_name(path['project'], path['repository'])
+      link_repo = Repository.find_by_project_and_name(path['project'], path['repository'])
       if path['project'] == self.name &&
           path['repository'] == repo['name']
         raise SaveError, 'Using same repository as path element is not allowed'
@@ -577,7 +577,7 @@ class Project < ActiveRecord::Base
 
     #recreate release targets from xml
     repo.elements('releasetarget') do |rt|
-      target_repo = Repository.find_by_project_and_repo_name(rt['project'], rt['repository'])
+      target_repo = Repository.find_by_project_and_name(rt['project'], rt['repository'])
       unless target_repo
         raise SaveError.new("Unknown target repository '#{rt['project']}/#{rt['repository']}'")
       end
