@@ -2013,7 +2013,7 @@ sub applylink {
       my $err = "link $tmpdir/.log $srcrep/$llnk->{'package'}/$md5-_linkerror: $!\n";
       die($err) unless -e "$srcrep/$llnk->{'package'}/$md5-_linkerror";
     }
-    unlink("$tmpdir/$_") for ls($tmpdir);
+    BSUtil::cleandir($tmpdir);
     rmdir($tmpdir);
     return str2utf8xml($failed);
   }
@@ -2054,7 +2054,7 @@ sub applylink {
     addfile($llnk->{'project'}, $llnk->{'package'}, "$tmpdir/$f", $f, $newf->{$f});
   }
   # clean up tmpdir
-  unlink("$tmpdir/$_") for ls($tmpdir);
+  BSUtil::cleandir($tmpdir);
   rmdir($tmpdir);
   # store filelist
   my $linkinfo = {
