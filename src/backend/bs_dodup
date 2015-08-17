@@ -451,6 +451,7 @@ sub daemon {
   
   while (1) {
     if ($startup || -e "$dodsdir/.changed") {
+      unlink("$dodsdir/.changed");
       %doddatas = scan_dodsdir($startup, \%doddatas);
       print "checking state of dod entries...\n";
       $startup = 0;
