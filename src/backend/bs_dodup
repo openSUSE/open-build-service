@@ -366,12 +366,12 @@ sub update_dod {
       }
     }
     rename($newfile, "$repodir/doddata") || die("rename $newfile $repodir/doddata: $!\n");
-    writestr("$repodir/.doddata.cookie", "$repodir/doddata.cookie", "$now $newcookie");
+    writestr("$repodir/.doddata.cookie", "$repodir/doddata.cookie", "$now $newcookie\n");
     sendscanrepo($projid, $repoid, $arch);
   } else {
     print "repository is unchanged\n";
     $cookie = '' unless defined $cookie;
-    writestr("$repodir/.doddata.cookie", "$repodir/doddata.cookie", "$now $cookie");
+    writestr("$repodir/.doddata.cookie", "$repodir/doddata.cookie", "$now $cookie\n");
     unlink($newfile);
   }
 }
@@ -420,7 +420,7 @@ sub check_dod {
     my $cookie = readstr("$reporoot/$prpa/:full/doddata.cookie", 1) || '';
     $cookie =~ s/^(\d+ )//s if $cookie;	# strip lastcheck time
     mkdir_p("$reporoot/$prpa/:full");
-    writestr("$reporoot/$prpa/:full/.doddata.cookie", "$reporoot/$prpa/:full/doddata.cookie", "$now $cookie");
+    writestr("$reporoot/$prpa/:full/.doddata.cookie", "$reporoot/$prpa/:full/doddata.cookie", "$now $cookie\n");
   }
 }
 
