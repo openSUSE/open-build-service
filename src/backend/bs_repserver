@@ -1649,6 +1649,7 @@ sub workerstatus {
   push @daemonarchs, 'publisher' if -e "$rundir/bs_publish.lock";
   push @daemonarchs, 'signer' if -e "$rundir/bs_signer.lock";
   push @daemonarchs, 'warden' if -e "$rundir/bs_warden.lock";
+  push @daemonarchs, 'dodup' if -e "$rundir/bs_dodup.lock";
   @daemonarchs = (@{$cgi->{'arch'}}) if $cgi->{'arch'};
   for my $arch (@daemonarchs) {
     local *F;
@@ -1666,6 +1667,9 @@ sub workerstatus {
     } elsif ($arch eq 'warden') {
       $lock = 'bs_warden.lock';
       $daemondata->{'type'} = 'warden';
+    } elsif ($arch eq 'dodup') {
+      $lock = 'bs_dodup.lock';
+      $daemondata->{'type'} = 'dodup';
     } else {
       # scheduler
       $lock = "bs_sched.$arch.lock";
