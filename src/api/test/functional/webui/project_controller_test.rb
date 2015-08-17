@@ -34,7 +34,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
   def create_subproject
     login_tom to: project_subprojects_path(project: 'home:tom')
-    find(:id, 'link-create-subproject').click
+    find(:id, 'create_subproject_link').click
   end
 
   def test_create_project_publish_disabled
@@ -45,11 +45,6 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     find(:link, 'Repositories').click
     # publish disabled icon should appear
     page.must_have_selector 'div.icons-publish_disabled_blue'
-  end
-
-  def test_create_invalid_ns
-    login_tom to: projects_path(ns: 'home:toM')
-    flash_message.must_equal "Invalid namespace name 'home:toM'"
   end
 
   def test_create_hidden_project
@@ -92,17 +87,12 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   def test_delete_home_project
     use_js
 
-    Project.find_by_name('home:user1').try(:destroy)
-
-    login_user('user1', '123456', to: project_show_path(project: 'home:user1'))
-
-    # now on to a suprise - the project needs to be created on first login
-    find_button('Create Project').click
+    login_user('user5', '123456', to: project_show_path(project: 'home:user5'))
 
     find(:id, 'delete-project').click
     find_button('Ok').click
 
-    find('#flash-messages').must_have_text "Project 'home:user1' was removed successfully"
+    find('#flash-messages').must_have_text "Project 'home:user5' was removed successfully"
     # now the actual assertion :)
     assert page.current_url.end_with? project_list_public_path
   end
@@ -131,7 +121,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     # Let user1 create a project with a repo that others can request to delete
     login_adrian to: project_show_path(project: 'home:adrian')
     find(:link, 'Subprojects').click
-    find(:link, 'Create subproject').click
+    find(:link, 'create_subproject_link').click
     fill_in 'project_name', with: 'hasrepotoremove'
     find_button('Create Project').click
     find(:link, 'Repositories').click

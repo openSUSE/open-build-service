@@ -3,6 +3,7 @@ AllCops:
   RunRailsCops: true
   Exclude:
     - 'tmp/**/*'
+    - 'lib/templates/**/*'
 
 # Someday we should add copyrights
 Style/Copyright:
@@ -41,4 +42,3 @@ Style/AndOr:
 Style/EmptyElse:
   Enabled: false
   EnforcedStyle: both
-
