@@ -289,22 +289,29 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # Change description
     xml = @response.body
     new_desc = 'Changed description'
-    doc = REXML::Document.new(xml)
-    d = doc.elements['//description']
+    doc = ActiveXML::Node.new(xml)
+    d = doc.find_first('description')
     d.text = new_desc
 
     # Write changed data back
-    put url_for(:controller => :source, :action => :update_project_meta, :project => 'kde4'), doc.to_s
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'kde4'), doc.dump_xml
     assert_response 403
 
-    # admin only tag
-    d = doc.elements['/project']
-    d = d.add_element 'remoteurl'
-    d.text = 'http://localhost:5352'
+    ### admin only tag
+    # remote instance connection
     login_fred
-    put url_for(:controller => :source, :action => :update_project_meta, :project => 'kde4'), doc.to_s
+    d = doc.add_element 'remoteurl'
+    d.text = 'http://localhost:5352'
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'kde4'), doc.dump_xml
     assert_response 403
-    assert_match(/admin rights are required to change remoteurl/, @response.body)
+    assert_match(/admin rights are required to change projects using remote resources/, @response.body)
+    # DoD remote repository
+    doc = ActiveXML::Node.new(xml)
+    r = doc.add_element 'repository', { name: "download_on_demand" }
+    r.add_element 'download', { arch: "i586", url: "http://somewhere", repotype: "rpmmd" }
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'kde4'), doc.dump_xml
+    assert_response 403
+    assert_match(/admin rights are required to change projects using remote resources/, @response.body)
 
     # invalid xml
     raw_put url_for(:controller => :source, :action => :update_project_meta, :project => 'NewProject'), '<asd/>'

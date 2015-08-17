@@ -498,10 +498,12 @@ class SourceController < ApplicationController
       prj = nil
     end
 
-    # remote url project must be edited by the admin
+    # projects using remote resources must be edited by the admin
     unless User.current.is_admin?
-      if rdata.has_key? 'remoteurl' or rdata.has_key? 'remoteproject'
-        raise ChangeProjectNoPermission.new 'admin rights are required to change remoteurl or remoteproject'
+      # either OBS interconnect or repository "download on demand" feature used
+      if rdata.has_key? 'remoteurl' or rdata.has_key? 'remoteproject' or
+         (rdata['repository'] and rdata['repository'].any?{|r| r.first == 'download'})
+        raise ChangeProjectNoPermission.new 'admin rights are required to change projects using remote resources'
       end
     end
 
