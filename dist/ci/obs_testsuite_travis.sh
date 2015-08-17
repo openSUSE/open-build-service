@@ -9,7 +9,11 @@
 #
 # Either invoke as described above or copy into an 'Execute shell' 'Command'.
 #
-
+if [ -z $1 ]; then
+  TEST_SUITE="all"
+else
+  TEST_SUITE="$1"
+fi 
 set -xe
 
 . `dirname $0`/obs_testsuite_common.sh
@@ -23,9 +27,22 @@ cd src/api
 if test -z "$SUBTEST"; then
   export DO_COVERAGE=1
   export TESTOPTS="-v"
-  bundle exec rake test:api
-  bundle exec rake test:webui
-  bundle exec rake rubocop
+  case $TEST_SUITE in
+    api)
+      bundle exec rake test:api
+      ;;
+    webui)
+      bundle exec rake test:webui
+      ;;
+    rubocop)
+      bundle exec rake rubocop 
+      ;;
+    *)
+      bundle exec rake test:api
+      bundle exec rake test:webui
+      bundle exec rake rubocop
+      ;;
+  esac
   cat coverage/.last_run.json
   ruby -rcoveralls -e 'Coveralls.push!'
 fi
