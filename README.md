@@ -13,6 +13,9 @@ The Open Build Service is Free Software and is released under the terms of the G
 ## Community
 You can discuss with the OBS Team via IRC on the channel [#opensuse-buildservice](irc://freenode.net/opensuse-buildservice). Or you can use our mailing list [opensuse-buildservice@opensuse.org](mailto:opensuse-buildservice+subscribe@opensuse.org).
 
+### Contribution
+If you want to contribute to the OBS please checkout our [contribution readme](CONTRIBUTING.md):-)
+
 ## Source Code Repository Layout
 The OBS source code repository is hosted on [Github](http://github.com/opensuse/open-build-service) and organized like this:
 
