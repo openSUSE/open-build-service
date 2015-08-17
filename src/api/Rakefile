@@ -19,6 +19,12 @@ task(:writeconfiguration => :environment) { ::Configuration.first.write_to_backe
 require 'workers/import_requests.rb'
 task(:importrequests => :environment) { ImportRequestsDelayedJob.new.perform }
 
+require 'rubocop/rake_task'
+
+RuboCop::RakeTask.new(:rubocop) do |task|
+  task.options = [ '-D', '-F', '--fail-level', 'error' ]
+end
+
 if Rails.env.test?
   require 'single_test/tasks'
 
