@@ -231,11 +231,11 @@ sub verify_repo {
     verify_projid($rt->{'project'});
     verify_repoid($rt->{'repository'});
   }
-  my %got;
+  my %archs = map {$_ => 1} @{$repo->{'arch'} || []};
   for my $dod (@{$repo->{'download'} || []}) {
     verify_dod($dod);
-    die("arch $dod->{'arch'} listed more than once\n") if $got{$dod->{'arch'}};
-    $got{$dod->{'arch'}} = 1;
+    die("dod arch $dod->{'arch'} not in repo\n") unless $archs{$dod->{'arch'}};
+    die("dod arch $dod->{'arch'} listed more than once\n") if $archs{$dod->{'arch'}}++ > 1;
   }
   if ($repo->{'base'}) {
     die("repo contains a 'base' element\n");
