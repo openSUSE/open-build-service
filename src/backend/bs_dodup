@@ -301,6 +301,9 @@ sub addpkg {
 
   return unless $p->{'location'} && $p->{'name'} && $p->{'arch'};
   return if $archfilter && !$archfilter->{$p->{'arch'}};
+  if ($BSConfig::dodupblacklist) {
+    return if grep {$p->{'name'} =~ /^$_/s } @$BSConfig::dodupblacklist;
+  }
   $p->{'path'} = delete $p->{'location'};
   my $key = "$p->{'name'}.$p->{'arch'}";
   return if $cache->{$key} && cmppkg($cache->{$key}, $p) > 0;   # highest version only
