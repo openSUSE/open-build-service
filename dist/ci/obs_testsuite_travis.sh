@@ -1,28 +1,17 @@
-#!/bin/sh
-#
-# This script runs all build service test suites depending on $SUBTEST
-#
+#!/bin/bash
+# This script runs the test suites for the CI build
 
-###############################################################################
-# Script content for 'Build' step
-###############################################################################
-#
-# Either invoke as described above or copy into an 'Execute shell' 'Command'.
-#
+# Be verbose and fail script on the first error
+set -xe
+
+# Which test suite should run? By default: all
 if [ -z $1 ]; then
   TEST_SUITE="all"
 else
   TEST_SUITE="$1"
 fi 
-set -xe
 
-. `dirname $0`/obs_testsuite_common.sh
-
-ret=0
-export OBS_REPORT_DIR=results/
-export HEADLESS=forsure
-
-cd src/api
+pushd src/api
 
 if test -z "$SUBTEST"; then
   export DO_COVERAGE=1
@@ -30,9 +19,11 @@ if test -z "$SUBTEST"; then
   case $TEST_SUITE in
     api)
       bundle exec rake test:api
+      ruby -rcoveralls -e 'Coveralls.push!'
       ;;
     webui)
       bundle exec rake test:webui
+      ruby -rcoveralls -e 'Coveralls.push!'
       ;;
     rubocop)
       bundle exec rake rubocop 
@@ -43,25 +34,16 @@ if test -z "$SUBTEST"; then
       bundle exec rake rubocop
       ;;
   esac
-  cat coverage/.last_run.json
-  ruby -rcoveralls -e 'Coveralls.push!'
 fi
 
-case $SUBTEST in
-  rake:*)
-   SUBTEST=${SUBTEST/rake:/}
-   bundle exec rake $SUBTEST --trace
-   ;;
-  api:*)
-   SUBTEST=${SUBTEST/api:/}
-   thetest=${SUBTEST/:*/}
-   thename=${SUBTEST/*:/}
-   bundle exec ruby -Itest test/$thetest --name=$thename || ret=1
-   tail -n 6000 log/test.log
-   ;;
-esac
-
 cd ../..
-cleanup
-exit $ret
 
+echo "Killing backend processes"
+if fuser -v $PWD | egrep 'perl|ruby'; then
+  list=`fuser -v $PWD 2>&1 | egrep 'perl|ruby' | sed -e "s,^ *$USER *,,;"  | cut '-d ' -f1`
+  for p in $list; do
+    echo "Kill $p"
+    # the process might have gone away on its own, so use || true
+    kill $p || true
+  done
+fi

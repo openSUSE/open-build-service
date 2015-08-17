@@ -4,6 +4,7 @@ AllCops:
   Exclude:
     - 'tmp/**/*'
     - 'lib/templates/**/*'
+    - 'vendor/bundle/**/*'
 
 # Someday we should add copyrights
 Style/Copyright:

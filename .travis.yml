@@ -2,12 +2,10 @@ language: ruby
 cache: bundler
 rvm:
   - 2.2
-before_script: 
-  - mysql -e 'create database ci_api_test;'
-  - sed -e 's,password:.*,password:,' -i src/api/config/database.yml.example
-  - travis_retry bash -x dist/ci/obs_testsuite_travis_before.sh
-  - bash -x dist/ci/obs_testsuite_travis_setup.sh
-script: "bash -x dist/ci/obs_testsuite_travis.sh $TEST_SUITE"
+gemfile: src/api/Gemfile
+before_install: dist/ci/obs_testsuite_travis_install.sh
+before_script: dist/ci/obs_testsuite_travis_before.sh
+script: "dist/ci/obs_testsuite_travis.sh $TEST_SUITE"
 env:
   - TEST_SUITE=rubocop
   - TEST_SUITE=api
@@ -21,5 +19,5 @@ notifications:
      on_success: change
      on_failure: change  
 services:
-  - memcached # will start memcached
+  - memcached
 sudo: required
