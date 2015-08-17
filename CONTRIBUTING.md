@@ -38,3 +38,28 @@ owners](https://github.com/orgs/openSUSE/teams/owners) know!
 GitHub issues are the primary way for communicating about specific proposed
 changes to this project. If you have other problems please use one of the other
 [support channels])(http://openbuildservice.org/support/)
+
+# Rubocop
+We are currently in the process of adding rubocop rules to OBS. For that we
+frequently meet, decide on new rules to add and afterwards go through that list
+and fix those.
+
+Since we want to make sure that the number of merge conflicts stays as small as
+possible, we mark rubocop offenses with name tags (in .rubocop.yml). Developers are
+only supposed to work on a rubocop offense, if there is no name tag above theirs;-)
+
+If you want to take part of this please follow this process:
+
+* Make sure noone else is working on rubocop issues. (By Checking that your name
+  is on top of the .rubocop.yml file).
+
+* Pick one rubocop rule and enable it in .rubocop.yml. Make sure there are no
+  excludes for that offense in the .rubocop_todo.yml.
+
+* Run rubocop and fix reported offenses.
+
+* Run rubocop --auto-gen-config to update .rubocop_todo.yml.
+
+* Create a commit with all changes.
+
+* Go to the next rubocop offense.
