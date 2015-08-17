@@ -57,6 +57,14 @@ our $download = [
 	'pubkey',
 ];
 
+# same as download, but with project/repository
+our $doddata = [
+    'doddata' =>
+	'project',
+	'repository',
+	@$download[1 .. $#$download],
+];
+
 our $repo = [
    'repository' => 
 	'name',

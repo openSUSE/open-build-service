@@ -3329,12 +3329,14 @@ sub update_doddata_prp {
   return 0 if identical($doddata, $dodprps{$prp});
   my ($projid, $repoid) = split('/', $prp, 2);
   my $f = "${projid}::${repoid}::$myarch";
+  $f = ':'.Digest::MD5::md5_hex($f) if length($f) > 200;
   if (!$doddata) {
     unlink("$dodsdir/$f");
     delete $dodprps{$prp};
   } else {
     mkdir_p($dodsdir);
-    BSUtil::store("$dodsdir/.$f", "$dodsdir/$f", $doddata);
+    my $dd = { %$doddata, 'project' => $projid, 'repository' => $repoid };
+    writexml("$dodsdir/.$f", "$dodsdir/$f", $BSXML::doddata, $dd);
     $dodprps{$prp} = $doddata;
   }
   return 1;
@@ -8155,23 +8157,26 @@ if (!$projpacks) {
 # bring dodprps and dodsdir in sync with projpacks
 if ($BSConfig::enable_download_on_demand) {
   my $changed;
+  my %dodfiles;
   for my $projid (sort keys %$projpacks) {
     for my $repo (@{($projpacks->{$projid} || {})->{'repository'} || []}) {
       next unless $repo->{'download'};
       my $doddata = (grep {($_->{'arch'} || '') eq $myarch} @{$repo->{'download'} || []})[0];
       next unless $doddata;
-      $dodprps{"$projid/$repo->{'name'}"} = $doddata;
-      my $f = "${projid}::$repo->{'name'}::$myarch";
-      my $olddoddata = BSUtil::retrieve($f, 1);
-      next if identical($olddoddata, $doddata);
+      my $repoid = $repo->{'name'};
+      $dodprps{"$projid/$repoid"} = $doddata;
+      my $f = "${projid}::${repoid}::$myarch";
+      $f = ':'.Digest::MD5::md5_hex($f) if length($f) > 200;
+      $dodfiles{$f} = 1;
+      my $dd = { %$doddata, 'project' => $projid, 'repository' => $repoid };
+      my $olddd = readxml($f, $BSXML::doddata, 1);
+      next if identical($olddd, $dd);
       mkdir_p($dodsdir);
-      BSUtil::store("$dodsdir/.$f", "$dodsdir/$f", $doddata);
+      writexml("$dodsdir/.$f", "$dodsdir/$f", $BSXML::doddata, $dd);
       $changed = 1;
     }
   }
-  for my $f (grep {!/^\./} ls($dodsdir)) {
-    my ($projid, $repoid, $arch) = split('::', $f, 3);
-    next if $dodprps{"$projid/$repoid"};
+  for my $f (grep {!/^\./ && !$dodfiles{$_}} ls($dodsdir)) {
     unlink("$dodsdir/$f");
     $changed = 1;
   }
