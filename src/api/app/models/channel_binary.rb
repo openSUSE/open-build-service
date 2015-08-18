@@ -58,11 +58,11 @@ class ChannelBinary < ActiveRecord::Base
       package: channel.package.name
     }
     builder.channel(attributes) do |c|
-      p = { name: name }
-      p[:package] = package if package
-      p[:binaryarch] = binaryarch if binaryarch
-      p[:supportstatus] = supportstatus if supportstatus
-      c.binary(p)
+      binary_data = { name: name }
+      binary_data[:package]       = package       if package
+      binary_data[:binaryarch]    = binaryarch    if binaryarch
+      binary_data[:supportstatus] = supportstatus if supportstatus
+      c.binary(binary_data)
 
       # report target repository and products using it.
       if options[:include_channel_targets]
