@@ -675,8 +675,8 @@ sub path2buildinfopath {
 #         $reason        - what triggered the build
 #         $needed        - packages blocked by this job
 #
-# output: $job           - the job identifier
-#         $error         - in case we could not start the job
+# output: $state         - scheduled, broken
+#         $job/error     - the job or the error
 #
 # check if this job is already building, if yes, do nothing.
 # otherwise calculate and expand build dependencies, kill all
@@ -695,9 +695,9 @@ sub set_building {
   my $job = jobname($prp, $packid);
   if (-s "$myjobsdir/$job-$srcmd5") {
     add_crossmarker($bconf, "$job-$srcmd5") if $bconf->{'hostarch'};
-    return "$job-$srcmd5";
+    return ('scheduled', "$job-$srcmd5");
   }
-  return $job if -s "$myjobsdir/$job";	# obsolete
+  return ('scheduled', $job) if -s "$myjobsdir/$job";	# obsolete
   my @otherjobs = grep {/^\Q$job\E-[0-9a-f]{32}$/} ls($myjobsdir);
   $job = "$job-$srcmd5";
 
@@ -735,12 +735,12 @@ sub set_building {
   if (!shift(@bdeps)) {
     print "        unresolvable:\n";
     print "          $_\n" for @bdeps;
-    return (undef, "unresolvable: ".join(', ', @bdeps));
+    return ('unresolvable', join(', ', @bdeps));
   }
   if (@sysdeps && !shift(@sysdeps)) {
     print "        unresolvable:\n";
     print "          $_\n" for @sysdeps;
-    return (undef, "unresolvable: ".join(', ', @sysdeps));
+    return ('unresolvable', join(', ', @sysdeps));
   }
 
   # find the last build count we used for this version/release
@@ -857,7 +857,7 @@ sub set_building {
   # all done. the dispatcher will now pick up the job and send it
   # to a worker.
   $ourjobs{$job} = 1;
-  return $job;
+  return ('scheduled', $job);
 }
 
 
@@ -4167,13 +4167,13 @@ sub addrepo_remote_unpackcpio {
     delete $cpio{'repositorycache'};	# free mem
     warn($@) if $@;
     return undef unless $cache;
+    delete $cache->{'/url'};
+    delete $cache->{'/external/'};
     # free some unused entries to save mem
     for (values %$cache) {
       delete $_->{'path'};
       delete $_->{'id'};
     }
-    delete $cache->{'/url'};
-    delete $cache->{'/external/'};
     $r = $pool->repofromdata($prp, $cache);
   } else {
     # return empty repo
@@ -5060,7 +5060,6 @@ sub rebuildkiwiimage {
   my $repoid = $ctx->{'repository'};
   my $repo = $ctx->{'repo'};
 
-  my ($job, $joberror);
   if (!@{$repo->{'path'} || []}) {
     # repo has no path, use kiwi repositories also for kiwi system setup
     my $prp = "$projid/$repoid";
@@ -5089,17 +5088,12 @@ sub rebuildkiwiimage {
     no warnings 'redefine';
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
-    ($job, $joberror) = set_building({ %$ctx, 'conf' => $bconf, 'prpsearchpath' => [] }, $packid, $pdata, $info, [], $edeps, $reason, 0);
+    return set_building({ %$ctx, 'conf' => $bconf, 'prpsearchpath' => [], 'pool' => $pool }, $packid, $pdata, $info, [], $edeps, $reason, 0);
   } else {
     # repo has a configured path, expand kiwi system with it
     my $prp = "$projid/$repoid";
     return ('broken', 'no config') unless $bconf;	# should not happen
-    ($job, $joberror) = set_building($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
-  }
-  if ($job) {
-    return ('scheduled', $job);
-  } else {
-    return ('broken', $joberror);
+    return set_building($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
   }
 }
 
@@ -6807,9 +6801,7 @@ sub rebuildpreinstallimage {
   my ($ctx, $packid, $pdata, $info, $data) = @_;
   my $bdeps = $data->[0];
   my $reason = $data->[1];
-  my ($job, $joberror) = set_building($ctx, $packid, $pdata, $info, [], $bdeps, $reason, 0);
-  return ('broken', $joberror) unless $job;
-  return ('scheduled', $job);
+  return set_building($ctx, $packid, $pdata, $info, [], $bdeps, $reason, 0);
 }
 
 
@@ -7045,10 +7037,9 @@ sub rebuildpackage {
     }
   }
   $info->{'nounchanged'} = 1 if $ctx->{'cychash'}->{$packid};
-  my ($job, $joberror) = set_building($ctx, $packid, $pdata, $info, $ctx->{'subpacks'}->{$info->{'name'}} || [], $ctx->{'edeps'}->{$packid} || [], $reason, $needed->{$packid} || 0);
+  my ($state, $job) = set_building($ctx, $packid, $pdata, $info, $ctx->{'subpacks'}->{$info->{'name'}} || [], $ctx->{'edeps'}->{$packid} || [], $reason, $needed->{$packid} || 0);
   delete $info->{'nounchanged'};
-  return ('broken', $joberror) unless $job;	# could not start job
-  return ('scheduled', $job);
+  return ($state, $job);
 }
 
 ##########################################################################
@@ -9250,8 +9241,6 @@ NEXTPRP:
 	if ($astatus eq 'scheduled') {
 	  $building{$packid} = $aerror || 'job'; # aerror contains jobid in this case
 	  undef $aerror;
-	} elsif ($astatus eq 'broken' && $aerror =~ /^unresolvable: (.*)/) {
-	  ($astatus, $aerror) = ('unresolvable', $1);
 	} elsif ($astatus eq 'delayed') {
           $ctx->{'havedelayed'} = 1;
 	  ($astatus, $aerror) = ('blocked', defined($aerror) ? "delayed: $aerror" : 'delayed');
