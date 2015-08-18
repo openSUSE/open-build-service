@@ -22,61 +22,74 @@ class ChannelBinary < ActiveRecord::Base
   end
 
   def create_channel_package_into(project, comment=nil)
-
     channel = self.channel_binary_list.channel
-
+    package_exists = Package.exists_by_project_and_name(project.name, channel.name,
+                                                        follow_project_links: false,
+                                                        allow_remote_packages: false
+                                                       )
     # does it exist already? then just skip it
-    return nil if Package.exists_by_project_and_name(project.name, channel.name, follow_project_links: false, allow_remote_packages: false)
-
-    # create a channel package beside my package and return that
-    return channel.branch_channel_package_into_project(project, comment)
+    unless package_exists
+      # create a channel package beside my package and return that
+      channel.branch_channel_package_into_project(project, comment)
+    end
   end
 
   def to_axml_id(opts={})
     Rails.cache.fetch('xml_channel_binary_id_%d' % id) do
-      channel = channel_binary_list.channel
-      builder = Nokogiri::XML::Builder.new
-      builder.channel(project: channel.package.project.name, package: channel.package.name) do |c|
-        p={}
-        p[:package] = package if package
-        p[:name] = name if name
-        p[:binaryarch] = binaryarch if binaryarch
-        p[:supportstatus] = supportstatus if supportstatus
-        next unless p.length > 0
-        c.binary(p)
-      end
-      builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                                   Nokogiri::XML::Node::SaveOptions::FORMAT
+      create_xml
     end
   end
 
   def to_axml(opts={})
     Rails.cache.fetch('xml_channel_binary_%d' % id) do
-      channel = channel_binary_list.channel
-      builder = Nokogiri::XML::Builder.new
-      builder.channel(project: channel.package.project.name, package: channel.package.name) do |c|
-        p={}
-        p[:package] = package if package
-        p[:name] = name if name
-        p[:binaryarch] = binaryarch if binaryarch
-        p[:supportstatus] = supportstatus if supportstatus
-        next unless p.length > 0
-        c.binary(p)
-
-        # report target repository and products using it.
-        channel.channel_targets.each do |ct|
-          c.target(project: ct.repository.project.name, repository: ct.repository.name) do |target|
-            target.disabled() if ct.disabled
-            ct.repository.product_update_repositories.each do |up|
-              target.updatefor(up.product.extend_id_hash({project: up.product.package.project.name, product: up.product.name}))
-            end
-          end
-        end
-
-      end
-      builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
-                                   Nokogiri::XML::Node::SaveOptions::FORMAT
+      create_xml(include_channel_targets: true)
     end
   end
 
+  private
+
+  # Creates an xml builder object for all binaries
+  def create_xml(options = {})
+    channel = channel_binary_list.channel
+
+    builder = Nokogiri::XML::Builder.new
+    attributes = {
+      project: channel.package.project.name,
+      package: channel.package.name
+    }
+    builder.channel(attributes) do |c|
+      binary_data = { name: name }
+      binary_data[:package]       = package       if package
+      binary_data[:binaryarch]    = binaryarch    if binaryarch
+      binary_data[:supportstatus] = supportstatus if supportstatus
+      c.binary(binary_data)
+
+      # report target repository and products using it.
+      if options[:include_channel_targets]
+        channel.channel_targets.each do |channel_target|
+          create_channel_node_element(c, channel_target)
+        end
+      end
+    end
+
+    builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                                 Nokogiri::XML::Node::SaveOptions::FORMAT
+  end
+
+  def create_channel_node_element(channel_node, channel_target)
+    attributes = {
+      project:    channel_target.repository.project.name,
+      repository: channel_target.repository.name
+    }
+    channel_node.target(attributes) do |target|
+      target.disabled if channel_target.disabled
+      channel_target.repository.product_update_repositories.each do |up|
+        attributes = {
+          project: up.product.package.project.name,
+          product: up.product.name
+        }
+        target.updatefor(up.product.extend_id_hash(attributes))
+      end
+    end
+  end
 end
