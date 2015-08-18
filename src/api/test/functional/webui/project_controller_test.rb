@@ -48,7 +48,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   end
 
   def test_create_invalid_ns
-    login_tom to: projects_path(ns: 'home:toM')
+    login_tom to: new_project_path(ns: 'home:toM')
     flash_message.must_equal "Invalid namespace name 'home:toM'"
   end
 
@@ -104,7 +104,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
     find('#flash-messages').must_have_text "Project 'home:user1' was removed successfully"
     # now the actual assertion :)
-    assert page.current_url.end_with? project_list_public_path
+    assert page.current_url.end_with? projects_path
   end
 
   def test_admin_can_delete_every_project
@@ -115,12 +115,12 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     find_button('Ok').click
 
     flash_message.must_equal "Project 'LocalProject' was removed successfully"
-    assert page.current_url.end_with? project_list_public_path
+    assert page.current_url.end_with? projects_path
     find('#project_list').wont_have_text 'LocalProject'
 
     # now that it worked out we better make sure to recreate it.
     # The API database is rolled back on test end, but the backend is not
-    visit projects_path
+    visit new_project_path
     fill_in 'project_name', with: 'LocalProject'
     find_button('Create Project').click
   end
@@ -262,10 +262,11 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     find(:id, 'project_list').must_have_link 'BaseDistro'
     find(:id, 'project_list').wont_have_link 'HiddenProject'
     find(:id, 'project_list').wont_have_link 'home:adrian'
-    uncheck('excludefilter')
+
+    click_link('Include home projects')
     find(:id, 'project_list').must_have_link 'home:adrian'
 
-    login_king to: project_list_public_path
+    login_king to: projects_path
     find(:id, 'projects_table_length').select('100')
     find(:id, 'project_list').must_have_link 'HiddenProject'
   end
@@ -395,7 +396,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   def test_do_not_cache_hidden
     use_js
 
-    login_king to: project_list_all_path
+    login_king to: projects_path
     # king can see HiddenProject
     page.must_have_link 'HiddenProject'
 

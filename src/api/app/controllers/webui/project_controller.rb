@@ -18,8 +18,7 @@ class Webui::ProjectController < Webui::WebuiController
                                           :autocomplete_packages, :autocomplete_repositories,
                                           :subprojects,
                                           :clear_failed_comment, :edit_comment_form, :index,
-                                          :list, :list_all, :list_simple,
-                                          :list_public, :new, :package_buildresult,
+                                          :new, :package_buildresult,
                                           :save_new, :save_prjconf,
                                           :rebuild_time_png, :new_incident]
   before_filter :load_project_info, :only => [:show, :packages_simple]
@@ -33,65 +32,19 @@ class Webui::ProjectController < Webui::WebuiController
   after_action :verify_authorized, :only => :save_new
 
   def index
-    redirect_to :action => 'list_public'
-  end
+    @show_all = params[:show_all]
+    projects = Project.all
+    projects = projects.not_home unless @show_all
+    @projects = projects.pluck(:name, :title)
 
-  def list_all
-    list
-  end
-
-  def list_public
-    params['excludefilter'] = 'home:'
-    list
-  end
-
-  def all_projects
-    @important_projects = []
-    # return all projects and their title
-    ret = {}
     atype = AttribType.find_by_namespace_and_name!('OBS', 'VeryImportantProject')
-    important = {}
-    Project.find_by_attribute_type(atype).pluck('projects.id').each do |p|
-      important[p] = true
-    end
-    projects = Project.where('name <> ?', 'deleted').pluck(:id, :name, :title)
-    projects.each do |id, name, title|
-      @important_projects << [name, title] if important[id]
-      ret[name] = title
-    end
-    ret
-  end
+    @important_projects = Project.find_by_attribute_type(atype).where('name <> ?', 'deleted').pluck(:name, :title)
 
-  def set_list_vars
-    @main_projects = []
-    @excl_projects = []
-    if params['excludefilter'] and params['excludefilter'] != 'undefined'
-      @excludefilter = params['excludefilter']
-    else
-      @excludefilter = nil
-    end
-    all_projects.each do |name, title|
-      if @excludefilter && name.start_with?(@excludefilter)
-        @excl_projects << [name, title]
-      else
-        @main_projects << [name, title]
-      end
-    end
-  end
-
-  def list
-    set_list_vars
-    # excl and main are sorted by datatable, but important need to be in order
-    @important_projects.sort! {|a,b| a[0] <=> b[0] }
     if @spider_bot
       render :list_simple, status: params[:nextstatus]
     else
       render :list, status: params[:nextstatus]
     end
-  end
-
-  def list_simple
-    set_list_vars
   end
 
   def autocomplete_projects
@@ -136,7 +89,7 @@ class Webui::ProjectController < Webui::WebuiController
           @project_name = @namespace
         else
           flash[:error] = "Invalid namespace name '#{@namespace}'"
-          redirect_back_or_to :controller => 'project', :action => 'list_public' and return
+          redirect_back_or_to :controller => 'project' and return
         end
       end
     end
@@ -442,7 +395,7 @@ class Webui::ProjectController < Webui::WebuiController
       if parent_projects.present?
         redirect_to :action => 'show', :project => parent_projects[parent_projects.length - 1][0]
       else
-        redirect_to :action => 'list_public'
+        redirect_to :action => 'index'
       end
     end
   end
@@ -1030,7 +983,7 @@ class Webui::ProjectController < Webui::WebuiController
       @config = @project.api_obj.source_file('_config')
     rescue ActiveXML::Transport::NotFoundError
       flash[:error] = "Project _config not found: #{params[:project]}"
-      redirect_to :controller => 'project', :action => 'list_public', :nextstatus => 404 and return
+      redirect_to :controller => 'project', :nextstatus => 404 and return
     end
   end
 
