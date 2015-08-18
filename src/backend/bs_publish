@@ -798,7 +798,7 @@ sub createrepo_staticlinks {
       } elsif (/^(.*)-(\d+\.\d+\.\d+)-Build\d+\.\d+([-\.].*\.(gz|bz2|tbz|tgz|xz)?(?:\.sha256)?)$/s) {
         $link = "$1$3";
         $link = "$1-$2$3" if $versioned;
-      } elsif (/^(.*)-(\d+\.\d+\.\d+)-Build\d+\.\d+(\.(raw.install.raw.xz|raw.xz|box|json|install.iso|tbz|tgz|vmx|vmdk|iso|qcow2|qcow2.xz|ova)?(?:\.sha256)?)$/s) {
+      } elsif (/^(.*)-(\d+\.\d+\.\d+)-Build\d+\.\d+(\.(raw.install.raw.xz|raw.xz|box|json|install.iso|tbz|tgz|vmx|vmdk|vhdfixed.xz|iso|qcow2|qcow2.xz|ova)?(?:\.sha256)?)$/s) {
         $link = "$1$3";
         $link = "$1-$2$3" if $versioned;
       }
@@ -1447,7 +1447,7 @@ sub publish {
 	  $p = "$bin";
 	} elsif ($bin =~ /\.dsc(?:\.sha256)?$/) {
 	  $p = "$bin";
-	} elsif ($bin =~ /\.(?:box|json|ovf|qcow2|qcow2\.xz|vmx|vmdk)(?:\.sha256)?$/) {
+	} elsif ($bin =~ /\.(?:box|json|ovf|qcow2|qcow2\.xz|vhdfixed.xz|vmx|vmdk)(?:\.sha256)?$/) {
 	  $p = "$bin";
         } elsif ($bin =~ /^(.*)\.packages$/) {
 	  $p = "$bin";
