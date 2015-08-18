@@ -63,7 +63,7 @@ def inject_build_job(project, package, repo, arch, extrabinary=nil)
   data = REXML::Document.new(File.new(jobfile))
   verifymd5 = data.elements['/buildinfo/verifymd5'].text
   f = File.open("#{jobfile}:status", 'w')
-  f.write("<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> <workerid>simulated</workerid> <hostarch>#{arch}</hostarch> </jobstatus>")
+  f.write("<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> <starttime>0</starttime> <workerid>simulated</workerid> <hostarch>#{arch}</hostarch> </jobstatus>")
   f.close
   extrabinary=" -o -name #{extrabinary}" if extrabinary
   # rubocop:disable Metrics/LineLength
