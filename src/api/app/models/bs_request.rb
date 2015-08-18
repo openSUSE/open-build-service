@@ -39,8 +39,8 @@ class BsRequest < ActiveRecord::Base
   scope :in_ids, ->(ids) { where(id: ids) }
   # Searching capabilities using dataTable (1.9)
   scope :do_search, lambda {|search|
-    where([searchable_fields.map { |field| "#{field} like ?" }.join(' or '),
-           ["%#{search}%"] * searchable_fields.length].flatten)
+    where([SEARCHABLE_FIELDS.map { |field| "#{field} like ?" }.join(' or '),
+           ["%#{search}%"] * SEARCHABLE_FIELDS.length].flatten)
   }
 
   has_many :bs_request_actions, -> { includes([:bs_request_action_accept_info]) }, dependent: :destroy
