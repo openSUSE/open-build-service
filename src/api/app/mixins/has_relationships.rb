@@ -204,13 +204,14 @@ module HasRelationships
           pcache[role.title] = :keep
         else
           #new role
-          record = self.relationships.build(role: role)
+          record = self.relationships.new(role: role)
           @updater.set_item(record, item)
           pcache[role.title] = :new
         end
       else
-        record = self.relationships.build(role: role)
+        record = self.relationships.new(role: role)
         @updater.set_item(record, item)
+        record.save
         cache[id] = { role.title => :new }
       end
 
