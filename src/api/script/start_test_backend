@@ -151,7 +151,7 @@ end
 while !dienow
   puts 'Connecting to repserver...'
   begin
-    Net::HTTP.start(CONFIG['source_host'], port_src_server) { |http| http.get('/') }
+    Net::HTTP.start(CONFIG['source_host'], port_rep_server) { |http| http.get('/') }
   rescue Errno::ECONNREFUSED, Errno::ENETUNREACH
     sleep 0.5
     next
