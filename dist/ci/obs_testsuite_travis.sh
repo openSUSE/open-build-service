@@ -19,11 +19,9 @@ if test -z "$SUBTEST"; then
   case $TEST_SUITE in
     api)
       bundle exec rake test:api
-      ruby -rcoveralls -e 'Coveralls.push!'
       ;;
     webui)
       bundle exec rake test:webui
-      ruby -rcoveralls -e 'Coveralls.push!'
       ;;
     rubocop)
       bundle exec rake rubocop 

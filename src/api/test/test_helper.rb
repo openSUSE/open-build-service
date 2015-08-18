@@ -1,6 +1,9 @@
 ENV['RAILS_ENV'] = 'test'
-
 require 'simplecov'
+require 'coveralls'
+Coveralls.wear_merged!('rails')
+
+SimpleCov.formatter = Coveralls::SimpleCov::Formatter
 SimpleCov.start 'rails' do
   add_filter '/app/indices/'
   add_filter '/app/models/user_ldap_strategy.rb'
