@@ -1,4 +1,8 @@
 class Relationship < ActiveRecord::Base
+  class SaveError < APIException; end
+
+  FORBIDDEN_PROJECT_IDS_CACHE_KEY="forbidden_project_ids"
+
   belongs_to :role
 
   # only one is true
@@ -36,20 +40,18 @@ class Relationship < ActiveRecord::Base
     message: "User and group can not exist at the same time"
   }, if: 'group_id.present?'
 
-  def check_global_role
-    return unless self.role && self.role.global
-    errors.add(:base,
-               "global role #{self.role.title} is not allowed.")
-  end
-
   # don't use "is not null" - it won't be in index
   scope :projects, -> { where("project_id is not null") }
   scope :packages, -> { where("package_id is not null") }
   scope :groups, -> { where("group_id is not null") }
   scope :users, -> { where("user_id is not null") }
 
-  class SaveError < APIException;
-  end
+  # we only care for project<->user relationships, but the cache is not *that* expensive
+  # to recalculate
+  after_create 'Relationship.discard_cache'
+  after_rollback 'Relationship.discard_cache'
+  after_destroy 'Relationship.discard_cache'
+
 
   def self.add_user(obj, user, role, ignoreLock=nil, check=nil)
     obj.check_write_access!(ignoreLock)
@@ -107,8 +109,6 @@ class Relationship < ActiveRecord::Base
     r.delete if r.invalid?
   end
 
-  FORBIDDEN_PROJECT_IDS_CACHE_KEY="forbidden_project_ids"
-
   # this is to speed up secure Project.find
   def self.forbidden_project_ids
     if User.current
@@ -148,10 +148,11 @@ class Relationship < ActiveRecord::Base
     User.current.discard_cache if User.current
   end
 
-  # we only care for project<->user relationships, but the cache is not *that* expensive
-  # to recalculate
-  after_create 'Relationship.discard_cache'
-  after_rollback 'Relationship.discard_cache'
-  after_destroy 'Relationship.discard_cache'
+  private
 
+  def check_global_role
+    return unless self.role && self.role.global
+    errors.add(:base,
+               "global role #{self.role.title} is not allowed.")
+  end
 end
