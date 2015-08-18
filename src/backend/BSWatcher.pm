@@ -718,6 +718,30 @@ sub rpc_recv_string {
 
 ###########################################################################
 #
+#  null receiver methods
+#
+
+sub rpc_recv_null {
+  my ($ev, $chunked, $data) = @_;
+  my $wev = BSEvents::new('always');
+  $wev->{'replbuf'} = $data;
+  $wev->{'readev'} = $ev;
+  $ev->{'writeev'} = $wev;
+  if ($chunked) {
+    $wev->{'handler'} = \&rpc_recv_stream_handler;
+  } else {
+    $wev->{'handler'} = \&rpc_recv_unchunked_stream_handler;
+  }
+  $wev->{'string'} = '';
+  $wev->{'datahandler'} = sub {1};
+  $wev->{'closehandler'} = \&rpc_recv_string_close_handler;
+  $ev->{'handler'} = \&BSServerEvents::stream_read_handler;
+  BSEvents::add($ev);
+  BSEvents::add($wev);	# do this last
+}
+
+###########################################################################
+#
 #  rpc methods
 #
 
@@ -845,6 +869,8 @@ sub rpc_recv_handler {
       push @args, "Status: $headers{'status'}" if $headers{'status'};
       push @args, "Content-Type: $ct";
       rpc_recv_forward($ev, $chunked, $ans, @args);
+    } elsif ($param->{'receiver'} == \&BSHTTP::null_receiver) {
+      rpc_recv_null($ev, $chunked, $ans);
     } else {
       rpc_error($ev, "unsupported receiver\n");
     }
@@ -1108,6 +1134,18 @@ sub addhandler {
 sub compile_dispatches {
   my ($dispatches, $verifyers) = @_;
   return BSDispatch::compile_dispatches($dispatches, $verifyers, \&addhandler);
+}
+
+sub background {
+  my $jev = $BSServerEvents::gev;
+  return $jev unless $jev && exists $jev->{'fd'};
+  my $ev = BSEvents::new('never');
+  for (keys %$jev) {
+    $ev->{$_} = $jev->{$_} unless $_ eq 'id' || $_ eq 'handler' || $_ eq 'fd';
+  }
+  $jev->{'conf'}->{'stdreply'}->(@_) if @_ && $jev->{'conf'}->{'stdreply'};
+  $BSServerEvents::gev = $ev; 
+  return $ev; 
 }
 
 1;
