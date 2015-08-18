@@ -170,7 +170,7 @@ sub fd2hdr {
 sub null_receiver {
   my ($hdr, $param) = @_;
   1 while(read_data($hdr, 8192) ne '');
-  return undef;
+  return '';
 }
 
 sub file_receiver {
