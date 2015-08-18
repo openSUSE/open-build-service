@@ -355,6 +355,7 @@ sub update_dod {
   mkdir_p($repodir) unless -d $repodir;
 
   my $cookie = readstr("$repodir/doddata.cookie", 1);
+  chomp $cookie;
   $cookie =~ s/^(\d+ )//s if $cookie;	# strip lastcheck time
   my $newfile = "$repodir/doddata.new.$$";
   unlink($newfile);
@@ -401,7 +402,7 @@ sub scan_dodsdir {
     if ($startup) {
       # get lastcheck from old cookie
       my $cookie = readstr("$reporoot/$prpa/:full/doddata.cookie", 1) || '';
-      $doddata->{'lastcheck'} = $1 if $cookie =~ /^(\d+) /;
+      $doddata->{'lastcheck'} = $1 if $cookie =~ /^(\d+) /s;
     }
     $doddata->{'lastcheck'} ||= 0;
     $newdoddatas{$prpa} = $doddata;
@@ -421,6 +422,7 @@ sub check_dod {
     $doddata->{'haderror'} = 1;
     # update lastcheck time in cookie
     my $cookie = readstr("$reporoot/$prpa/:full/doddata.cookie", 1) || '';
+    chomp $cookie;
     $cookie =~ s/^(\d+ )//s if $cookie;	# strip lastcheck time
     mkdir_p("$reporoot/$prpa/:full");
     writestr("$reporoot/$prpa/:full/.doddata.cookie", "$reporoot/$prpa/:full/doddata.cookie", "$now $cookie\n");
