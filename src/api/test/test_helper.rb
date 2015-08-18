@@ -1,3 +1,4 @@
+ENV['origin_RAILS_ENV'] = ENV['RAILS_ENV']
 ENV['RAILS_ENV'] = 'test'
 
 require 'simplecov'
@@ -51,8 +52,24 @@ end
 # or the code has to be fixed
 #$ENABLE_BROKEN_TEST=true
 
+def backend_config
+  backend_dir_suffix = ""
+  if ENV['origin_RAILS_ENV'] == 'development'
+    backend_dir_suffix = "_development"
+  end
+  "#{Rails.root}/tmp/backend_config#{backend_dir_suffix}"
+end
+
+def backend_data
+  backend_dir_suffix = ""
+  if ENV['origin_RAILS_ENV'] == 'development'
+    backend_dir_suffix = "_development"
+  end
+  "#{Rails.root}/tmp/backend_data#{backend_dir_suffix}"
+end
+
 def inject_build_job(project, package, repo, arch, extrabinary=nil)
-  job=IO.popen("find #{Rails.root}/tmp/backend_data/jobs/#{arch}/ -name #{project}::#{repo}::#{package}-*")
+  job=IO.popen("find #{backend_data}/jobs/#{arch}/ -name #{project}::#{repo}::#{package}-*")
   jobfile=job.readlines.first
   return unless jobfile
   jobfile.chomp!
@@ -433,7 +450,7 @@ module ActionDispatch
     def run_dispatcher
       Rails.logger.debug 'run dispatcher'
       perlopts="-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
-      IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_dispatch --test-mode") do |io|
+      IO.popen("cd #{backend_config}; exec perl #{perlopts} ./bs_dispatch --test-mode") do |io|
         # just for waiting until dispatcher finishes
         io.each { |line| Rails.logger.debug("dispatcher: #{line.strip.chomp}") unless line.blank? }
       end
@@ -442,7 +459,7 @@ module ActionDispatch
     def run_publisher
       Rails.logger.debug 'run publisher'
       perlopts="-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
-      IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_publish --testmode") do |io|
+      IO.popen("cd #{backend_config}; exec perl #{perlopts} ./bs_publish --testmode") do |io|
         # just for waiting until publisher finishes
         io.each { |line| Rails.logger.debug("publisher: #{line.strip.chomp}") unless line.blank? }
       end
@@ -455,7 +472,7 @@ module ActionDispatch
     def run_scheduler(arch)
       Rails.logger.debug "RUN_SCHEDULER #{arch}"
       perlopts="-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
-      IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode #{arch}") do |io|
+      IO.popen("cd #{backend_config}; exec perl #{perlopts} ./bs_sched --testmode #{arch}") do |io|
         # just for waiting until scheduler finishes
         io.each { |line| Rails.logger.debug("scheduler(#{arch}): #{line.strip.chomp}") unless line.blank? }
       end
