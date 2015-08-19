@@ -355,7 +355,7 @@ sub update_dod {
   mkdir_p($repodir) unless -d $repodir;
 
   my $cookie = readstr("$repodir/doddata.cookie", 1);
-  chomp $cookie;
+  chomp $cookie if $cookie;
   $cookie =~ s/^(\d+ )//s if $cookie;	# strip lastcheck time
   my $newfile = "$repodir/doddata.new.$$";
   unlink($newfile);
