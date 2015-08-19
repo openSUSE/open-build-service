@@ -1,0 +1,4 @@
+if [ -f /srv/www/obs/overview/index.html ]; then
+   rm -f /srv/www/obs/overview/index.html
+fi
+

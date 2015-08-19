@@ -1,0 +1,207 @@
+Repotype: debian
+type: dsc
+
+Preinstall: bash perl-base sed grep coreutils debianutils findutils diffutils
+Preinstall: libncurses5 libacl1 libattr1 libgcc1 libc6 libbz2-1.0
+Preinstall: libreadline5 gawk dpkg lzma bzip2 gzip zlib1g tar
+Preinstall: sysv-rc base-files libselinux1 libsepol1 util-linux
+Preinstall: login base-passwd libc-bin user-setup debconf
+Preinstall: initscripts mawk bzip2 xz-utils devscripts
+
+Runscripts: user-setup base-files
+
+Order: user-setup:base-files
+
+Required: libacl1 libattr1 libgcc1 libc6
+Required: autoconf automake binutils gcc gettext
+Required: libtool libncurses5 perl zlib1g dpkg
+Required: lzma bzip2 gzip tar
+Required: build-essential
+Required: apt
+
+Support: fakeroot
+Support: bison cpio cracklib-runtime cvs login
+Support: file findutils flex
+Support: groff-base gzip info less
+Support: make man module-init-tools
+Support: net-tools util-linux
+Support: patch procps psmisc strace
+Support: texinfo unzip vim ncurses-base
+Support: mount initscripts
+# http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=493938
+# http://lists.opensuse.org/opensuse-buildservice/2009-03/msg00100.html
+# Support: mktemp
+
+# circular dependendencies in openjdk stack
+Order: openjdk-6-jre-lib:openjdk-6-jre-headless
+Order: openjdk-6-jre-headless:ca-certificates-java
+
+#Support: sysvinit
+
+Keep: binutils cpp cracklib file findutils gawk mawk gcc gcc-ada gcc-c++
+Keep: gzip libada libstdc++ libunwind
+Keep: libunwind-devel libzio make mktemp pam-devel pam-modules
+Keep: patch perl rcs timezone
+
+Prefer: cvs libesd0 libfam0 libfam-dev expect
+
+Prefer: gawk locales default-jdk
+Prefer: xorg-x11-libs libpng fam mozilla mozilla-nss xorg-x11-Mesa
+Prefer: unixODBC libsoup glitz java-1_4_2-sun gnome-panel
+Prefer: desktop-data-SuSE gnome2-SuSE mono-nunit gecko-sharp2
+Prefer: apache2-prefork openmotif-libs ghostscript-mini gtk-sharp
+Prefer: glib-sharp libzypp-zmd-backend mDNSResponder
+
+Prefer: -libgcc-mainline -libstdc++-mainline -gcc-mainline-c++
+Prefer: -libgcj-mainline -viewperf -compat -compat-openssl097g
+Prefer: -zmd -OpenOffice_org -pam-laus -libgcc-tree-ssa -busybox-links
+Prefer: -crossover-office -libgnutls11-dev
+
+Conflict: ghostscript-library:ghostscript-mini
+
+Ignore: sysvinit:initscripts
+
+Ignore: aaa_base:aaa_skel,suse-release,logrotate,ash,mingetty,distribution-release
+Ignore: gettext-devel:libgcj,libstdc++-devel
+Ignore: pwdutils:openslp
+Ignore: pam-modules:resmgr
+Ignore: rpm:suse-build-key,build-key
+Ignore: bind-utils:bind-libs
+Ignore: alsa:dialog,pciutils
+Ignore: portmap:syslogd
+Ignore: fontconfig:freetype2
+Ignore: fontconfig-devel:freetype2-devel
+Ignore: xorg-x11-libs:freetype2
+Ignore: xorg-x11:x11-tools,resmgr,xkeyboard-config,xorg-x11-Mesa,libusb,freetype2,libjpeg,libpng
+Ignore: apache2:logrotate
+Ignore: arts:alsa,audiofile,resmgr,libogg,libvorbis
+Ignore: kdelibs3:alsa,arts,pcre,OpenEXR,aspell,cups-libs,mDNSResponder,krb5,libjasper
+Ignore: kdelibs3-devel:libvorbis-devel
+Ignore: kdebase3:kdebase3-ksysguardd,OpenEXR,dbus-1,dbus-1-qt,hal,powersave,openslp,libusb
+Ignore: kdebase3-SuSE:release-notes
+Ignore: jack:alsa,libsndfile
+Ignore: libxml2-devel:readline-devel
+Ignore: gnome-vfs2:gnome-mime-data,desktop-file-utils,cdparanoia,dbus-1,dbus-1-glib,krb5,hal,libsmbclient,fam,file_alteration
+Ignore: libgda:file_alteration
+Ignore: gnutls:lzo,libopencdk
+Ignore: gnutls-devel:lzo-devel,libopencdk-devel
+Ignore: pango:cairo,glitz,libpixman,libpng
+Ignore: pango-devel:cairo-devel
+Ignore: cairo-devel:libpixman-devel
+Ignore: libgnomeprint:libgnomecups
+Ignore: libgnomeprintui:libgnomecups
+Ignore: orbit2:libidl
+Ignore: orbit2-devel:libidl,libidl-devel,indent
+Ignore: qt3:libmng
+Ignore: qt-sql:qt_database_plugin
+Ignore: gtk2:libpng,libtiff
+Ignore: libgnomecanvas-devel:glib-devel
+Ignore: libgnomeui:gnome-icon-theme,shared-mime-info
+Ignore: scrollkeeper:docbook_4,sgml-skel
+Ignore: gnome-desktop:libgnomesu,startup-notification
+Ignore: python-devel:python-tk
+Ignore: gnome-pilot:gnome-panel
+Ignore: gnome-panel:control-center2
+Ignore: gnome-menus:kdebase3
+Ignore: gnome-main-menu:rug
+Ignore: libbonoboui:gnome-desktop
+Ignore: postfix:pcre
+Ignore: docbook_4:iso_ent,sgml-skel,xmlcharent
+Ignore: control-center2:nautilus,evolution-data-server,gnome-menus,gstreamer-plugins,gstreamer,metacity,mozilla-nspr,mozilla,libxklavier,gnome-desktop,startup-notification
+Ignore: docbook-xsl-stylesheets:xmlcharent
+Ignore: liby2util-devel:libstdc++-devel,openssl-devel
+Ignore: yast2:yast2-ncurses,yast2-theme-SuSELinux,perl-Config-Crontab,yast2-xml,SuSEfirewall2
+Ignore: yast2-core:netcat,hwinfo,wireless-tools,sysfsutils
+Ignore: yast2-core-devel:libxcrypt-devel,hwinfo-devel,blocxx-devel,sysfsutils,libstdc++-devel
+Ignore: yast2-packagemanager-devel:rpm-devel,curl-devel,openssl-devel
+Ignore: yast2-devtools:perl-XML-Writer,libxslt,pkgconfig
+Ignore: yast2-installation:yast2-update,yast2-mouse,yast2-country,yast2-bootloader,yast2-packager,yast2-network,yast2-online-update,yast2-users,release-notes,autoyast2-installation
+Ignore: yast2-bootloader:bootloader-theme
+Ignore: yast2-packager:yast2-x11
+Ignore: yast2-x11:sax2-libsax-perl
+Ignore: openslp-devel:openssl-devel
+Ignore: java-1_4_2-sun:xorg-x11-libs
+Ignore: java-1_4_2-sun-devel:xorg-x11-libs
+Ignore: kernel-um:xorg-x11-libs
+Ignore: tetex:xorg-x11-libs,expat,fontconfig,freetype2,libjpeg,libpng,ghostscript-x11,xaw3d,gd,dialog,ed
+Ignore: yast2-country:yast2-trans-stats
+Ignore: susehelp:susehelp_lang,suse_help_viewer
+Ignore: mailx:smtp_daemon
+Ignore: cron:smtp_daemon
+Ignore: hotplug:syslog
+Ignore: pcmcia:syslog
+Ignore: avalon-logkit:servlet
+Ignore: jython:servlet
+Ignore: ispell:ispell_dictionary,ispell_english_dictionary
+Ignore: aspell:aspel_dictionary,aspell_dictionary
+Ignore: smartlink-softmodem:kernel,kernel-nongpl
+Ignore: OpenOffice_org-de:myspell-german-dictionary
+Ignore: mediawiki:php-session,php-gettext,php-zlib,php-mysql,mod_php_any
+Ignore: squirrelmail:mod_php_any,php-session,php-gettext,php-iconv,php-mbstring,php-openssl
+
+Ignore: simias:mono(log4net)
+Ignore: zmd:mono(log4net)
+Ignore: horde:mod_php_any,php-gettext,php-mcrypt,php-imap,php-pear-log,php-pear,php-session,php
+Ignore: xerces-j2:xml-commons-apis,xml-commons-resolver
+Ignore: xdg-menu:desktop-data
+Ignore: nessus-libraries:nessus-core
+Ignore: evolution:yelp
+Ignore: mono-tools:mono(gconf-sharp),mono(glade-sharp),mono(gnome-sharp),mono(gtkhtml-sharp),mono(atk-sharp),mono(gdk-sharp),mono(glib-sharp),mono(gtk-sharp),mono(pango-sharp)
+Ignore: gecko-sharp2:mono(glib-sharp),mono(gtk-sharp)
+Ignore: vcdimager:libcdio.so.6,libcdio.so.6(CDIO_6),libiso9660.so.4,libiso9660.so.4(ISO9660_4)
+Ignore: libcdio:libcddb.so.2
+Ignore: gnome-libs:libgnomeui
+Ignore: nautilus:gnome-themes
+Ignore: gnome-panel:gnome-themes
+Ignore: gnome-panel:tomboy
+
+Substitute: utempter
+
+%ifnarch s390 s390x ppc ia64
+Substitute: java2-devel-packages java-1_4_2-sun-devel
+%else
+ %ifnarch s390x
+Substitute: java2-devel-packages java-1_4_2-ibm-devel
+ %else
+Substitute: java2-devel-packages java-1_4_2-ibm-devel xorg-x11-libs-32bit
+ %endif
+%endif
+
+Substitute: yast2-devel-packages docbook-xsl-stylesheets doxygen libxslt perl-XML-Writer popt-devel sgml-skel update-desktop-files yast2 yast2-devtools yast2-packagemanager-devel yast2-perl-bindings yast2-testsuite
+
+#
+# SUSE compat mappings
+#
+Substitute: gcc-c++ gcc
+Substitute: libsigc++2-devel libsigc++-2.0-dev
+Substitute: glibc-devel-32bit
+Substitute: pkgconfig pkg-config
+
+
+
+%ifarch %ix86
+Substitute: kernel-binary-packages kernel-default kernel-smp kernel-bigsmp kernel-debug kernel-um kernel-xen kernel-kdump
+%endif
+%ifarch ia64
+Substitute: kernel-binary-packages kernel-default kernel-debug
+%endif
+%ifarch x86_64
+Substitute: kernel-binary-packages kernel-default kernel-smp kernel-xen kernel-kdump
+%endif
+%ifarch ppc
+Substitute: kernel-binary-packages kernel-default kernel-kdump kernel-ppc64 kernel-iseries64
+%endif
+%ifarch ppc64
+Substitute: kernel-binary-packages kernel-ppc64 kernel-iseries64
+%endif
+%ifarch s390
+Substitute: kernel-binary-packages kernel-s390
+%endif
+%ifarch s390x
+Substitute: kernel-binary-packages kernel-default
+%endif
+
+%define debian_version 700
+
+Macros:
+%debian_version 700

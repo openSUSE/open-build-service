@@ -1,0 +1,44 @@
+#!/bin/sh
+
+if ! getent group obsrun > /dev/null; then
+    addgroup --system --quiet obsrun
+fi
+
+if ! getent passwd obsrun > /dev/null; then
+    adduser --system --quiet \
+        --ingroup obsrun --shell /bin/false \
+        --home /usr/lib/obs --no-create-home \
+        --shell /bin/false obsrun
+    usermod -c "User for build service backend" obsrun
+fi
+
+mkdir -p /srv/obs/repos
+chown obsrun:obsrun /srv/obs/repos
+
+if [ ! -f /srv/www/obs/overview/index.html ] ; then
+  FQHOSTNAME=`hostname -f`
+
+  sed -e "s,___WEBUI_URL___,https://$FQHOSTNAME,g" \
+      -e "s,___API_URL___,https://$FQHOSTNAME:444,g" \
+      -e "s,___REPO_URL___,http://$FQHOSTNAME:82,g" \
+        /srv/www/obs/overview/overview.html.TEMPLATE > /srv/www/obs/overview/index.html
+fi
+
+reload_apache()
+{
+    if apache2ctl configtest 2>/dev/null; then
+        if [ -x /usr/sbin/invoke-rc.d ]; then
+            invoke-rc.d apache2 $1 3>/dev/null || true
+        else
+            /etc/init.d/apache2 $1 3>/dev/null || true
+        fi
+    else
+        echo "Your Apache 2 configuration is broken, so we're not restarting it for you."
+    fi
+}
+
+# Restart Apache to really enable the module and load obs.conf
+reload_apache restart
+
+#DEBHELPER#
+

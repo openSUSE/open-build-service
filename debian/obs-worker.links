@@ -1,0 +1,2 @@
+etc/init.d/obsworker                    /usr/sbin/rcobsworker
+

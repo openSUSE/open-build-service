@@ -1,0 +1,9 @@
+
+/srv/obs/log/*.log {
+    compress
+    dateext
+    rotate 2
+    daily
+    missingok
+    copytruncate
+}

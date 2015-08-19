@@ -1,0 +1,8 @@
+#!/bin/sh
+
+#DEBHELPER#
+
+if [ "$1" = "remove" ]; then
+    deluser --system --quiet obsrun
+fi
+

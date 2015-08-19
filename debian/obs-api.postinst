@@ -1,0 +1,79 @@
+#!/bin/sh
+
+. /usr/share/debconf/confmodule
+. /usr/share/dbconfig-common/dpkg/postinst.mysql
+dbc_generate_include=template:/etc/obs/api/config/database.yml
+dbc_generate_include_args="-o template_infile=/etc/obs/api/config/database.yml.example"
+dbc_generate_include_owner=www-data
+dbc_go obs-api $@
+
+fRailsDir=/usr/lib/ruby/vendor_ruby/rails
+if [ ! -e "$fRailsDir" ]; then
+    # keep rails package compatibility
+    fRailsDir="/usr/share/rails-ruby1.8"
+fi
+
+chown www-data:root /etc/obs/api/config/environment.rb
+cd /srv/www/obs/api
+if [ ! -L vendor/rails ]; then
+    ln -s "$fRailsDir" vendor/rails
+else
+    # rails 2.3 to ruby-rails-2.3 migration
+    fMigrateLink=$(readlink vendor/rails)
+    if [ "$fMigrateLink" != "$fRailsDir" ]; then
+        rm -f vendor/rails
+        ln -s "$fRailsDir" vendor/rails
+    fi
+fi
+
+  chown -R nobody:www-data /srv/www/obs/api/log /srv/www/obs/api/tmp
+# Generate log files
+  touch /srv/www/obs/api/log/access.log
+  touch /srv/www/obs/api/log/backend_access.log
+  touch /srv/www/obs/api/log/delayed_job.log
+  touch /srv/www/obs/api/log/error.log
+  touch /srv/www/obs/api/log/lastevents.access.log
+  touch /srv/www/obs/api/log/production.log
+  chown nobody /srv/www/obs/api/log/*.log
+  chown nobody /srv/www/obs/api/config/database.yml
+
+SECRET_KEY="/srv/www/obs/api/config/secret.key"
+if [ ! -e "$SECRET_KEY" ]; then
+	  ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >$SECRET_KEY )
+  fi
+  chmod 0640 $SECRET_KEY
+  chown nobody.www-data $SECRET_KEY
+
+if [ -z "$2" ]; then
+    RAILS_ENV=production rake -f /srv/www/obs/api/Rakefile db:create
+    RAILS_ENV=production rake -f /srv/www/obs/api/Rakefile db:setup
+else
+    RAILS_ENV=production rake -f /srv/www/obs/api/Rakefile db:migrate
+fi
+
+cd /srv/www/obs/api ; bundle exec rake assets:precompile RAILS_ENV=production RAILS_GROUPS=assets
+export BUNDLE_WITHOUT=test:assets:development
+export BUNDLE_FROZEN=1
+bundle config --local frozen 1
+bundle config --local without test:assets:development
+# reinstall
+#install config/database.yml.example config/database.yml
+#: > log/production.log
+#sed -i -e 's,^api_version.*,api_version = "%version",' config/initializers/02_apiversion.rb
+
+# Test whether a2enmod is available (and thus also apache2ctl).
+if [ -x /usr/sbin/a2enmod ]; then
+        # Enable the Apache2 modules if not already enabled
+        a2enmod ssl     > /dev/null || true
+        a2enmod rewrite > /dev/null || true
+        a2enmod proxy   > /dev/null || true
+        a2enmod proxy_http      > /dev/null || true
+        a2enmod xforward        > /dev/null || true
+        a2enmod headers > /dev/null || true
+        a2enmod expires > /dev/null || true
+        a2dissite 000-default   > /dev/null || true
+	a2ensite obs.conf	> /dev/null || true
+fi
+
+#DEBHELPER#
+

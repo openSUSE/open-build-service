@@ -1,0 +1,104 @@
+Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: build-service
+Source: http://en.opensuse.org/Build_Service
+
+Files: *
+Copyright: Adrian Schröter <adrian@suse.de>
+           Alexandr D. Kanevskiy <kad@kad.name>
+           Anas Nashif <anas.nashif@intel.com>
+           Andre Duffeck <andre@duffeck.de>
+           Andreas Bauer <abauer@suse.com>
+           Andreas Jaeger <aj@suse.de>
+           Benjamin Brunner <bbrunner@suse.de>
+           Berthold Gunreben <bg@suse.de>
+           Christoph Thiel <cthiel@suse.de>
+           Christopher Hofmann <cwh@suse.de>
+           Cornelius Schumacher <schumacher@kde.org>
+           Daniel Gollub <gollub@b1-systems.de>
+           David Greaves <david@dgreaves.com>
+           David Mayr <DMayr@suse.de>
+           Dirk Mueller <dmueller@suse.de>
+           Dirk Stoecker <opensuse@dstoecker.de>
+           Dominik Heidler <dheidler@suse.de>
+           Dr. Peter Poeml <poeml@cmdline.net>
+           Frank Sundermeyer <fs@suse.de>
+           Iain Arnell <iarnell@gmail.com>
+           Jan Engelhardt <jengelh@medozas.de>
+           Jan Loeser <jloeser@suse.de>
+           Jan Matejek <jmatejek@suse.cz>
+           Jan-Christoph Bornschlegel <trollfood@googlemail.com>
+           Jan-Simon Möller <jsmoeller@linuxfoundation.org>
+           Klaas Freitag <freitag@suse.de>
+           Lars Vogdt <lrupp@suse.de>
+           Ludwig Nussel <ludwig.nussel@suse.de>
+           Luke Imhoff <luke@cerberus.(none)>
+           Marcus Hüwe <suse-tux@gmx.de>
+           Marcus Rueckert <mrueckert@suse.de>
+           Marcus Schaeffer <ms@suse.de>
+           Martin Kudlvasr <mkudlvasr@suse.cz>
+           Martin Mohring <martin.mohring@5eecosystems.com>
+           Michael Schröder <mls@suse.de>
+           Michal Marek <mmarek@suse.cz>
+           Michal Seben <mseben@gmail.com>
+           Michal Čihař <mcihar@novell.com>
+           Pavol Rusnak <stick@gk2.sk>
+           Robert Lihm <rlihm@lihmedia.org>
+           Ruediger Oertel <ro@suse.de>
+           Sascha Peilicke <saschpe@gmx.de>
+           Srinidhi B <srinidhi@novell.com>
+           Stephan Binner <binner@kde.org>
+           Stephan Kleine <bitshuffler@opensuse.org>
+           Stephan Kulow <coolo@suse.de>
+           Susanne Oberhauser <froh@suse.de>
+           Thomas Schmidt <tschmidt@suse.de>
+           Thomas Scholz <th.sch@gmx.net>
+           Thomas Schraitle <thomas.schraitle@suse.de>
+           Tom Patzig <tom@tomstar.org>
+           Vincent Untz <vuntz@opensuse.org>
+           Vivian Zhang <vivian.zhang@intel.com>
+           tux <tux@einherjer.suse.de>
+License: GPL-2+
+
+Files: debian/*
+Copyright: 2012-2015 Andrew Lee (李健秋) <andrew.lee@collabora.co.uk>
+           2013-2014 Jeremy Whiting <jeremy.whiting@collabora.com>
+           2013-2014 Hector Oron <hector.oron@collabora.co.uk>
+           2013-2014 Sjoerd Simons <sjoerd.simons@collabora.co.uk>
+           2014      Simon McVittie <simon.mcvittie@collabora.co.uk>
+License: LGPL-2.1+
+
+License: GPL-2+
+ This package is free software; you can redistribute it and/or modify
+ it under the terms of the GNU General Public License as published by
+ the Free Software Foundation; either version 2 of the License, or
+ (at your option) any later version.
+ .
+ This package is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU General Public License for more details.
+ .
+ You should have received a copy of the GNU General Public License
+ along with this program. If not, see <http://www.gnu.org/licenses/>
+ .
+ On Debian systems, the complete text of the GNU General Public
+ License version 2 can be found in "/usr/share/common-licenses/GPL-2".
+
+License: LGPL-2.1+
+ This library is free software; you can redistribute it and/or
+ modify it under the terms of the GNU Lesser General Public
+ License as published by the Free Software Foundation; either
+ version 2.1 of the License, or (at your option) any later version.
+ .
+ This library is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ Lesser General Public License for more details.
+ .
+ You should have received a copy of the GNU Lesser General Public
+ License along with this library; if not, write to the Free Software
+ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ 02110-1301 USA.
+ .
+ The complete text of the GNU Lesser General Public License
+ can be found in /usr/share/common-licenses/LGPL-2.1 file.

@@ -1,0 +1,198 @@
+Repotype: debian
+
+Preinstall: apt base-files mawk base-passwd bash binutils bsdutils initscripts build-essential
+Preinstall: bzip2 coreutils cpp cpp-4.6 dash debconf debconf-i18n debianutils diffutils
+Preinstall: libc-bin libc-dev-bin libgcc1 libc6 libc6-dev e2fslibs e2fsprogs fakeroot findutils g++ g++-4.6 gcc
+Preinstall: gcc-4.6 gcc-4.6-base gnupg gpgv grep gzip hostname insserv
+Preinstall: libacl1 libattr1 libblkid1 libbz2-1.0
+Preinstall: dpkg dpkg-dev autotools-dev
+Preinstall: libclass-isa-perl libcomerr2 libselinux1 libdb5.1 libdpkg-perl libgc1c2 libgdbm3
+Preinstall: libgmp10 libgomp1 liblocale-gettext-perl liblzma5 libmount1 libmpc2 libmpfr4
+Preinstall: libncurses5 libpam-modules libpam-modules-bin libpam-runtime libpam0g
+Preinstall: libreadline6 libsepol1 libslang2 libss2 libstdc++6
+Preinstall: libswitch-perl libtext-charwidth-perl libtext-iconv-perl libtext-wrapi18n-perl
+Preinstall: libtimedate-perl libtinfo5 libusb-0.1-4 libuuid1 linux-libc-dev login lsb-base
+Preinstall: make mount multiarch-support ncurses-base ncurses-bin passwd patch perl
+Preinstall: perl-base perl-modules readline-common sed sensible-utils sudo sysv-rc 
+Preinstall: tar tzdata ucf util-linux xz-utils zlib1g libsigsegv2 libssl1.0.0
+Preinstall: dash bash perl perl-base sed grep coreutils debianutils
+Preinstall: libncurses5 libacl1 libattr1 libpcre3 libreadline5
+Preinstall: lzma liblzma5 libstdc++6 passwd libdbus-1-3 libdbus-1-dev
+Preinstall: sharutils gettext docutils-common
+Preinstall: zlib1g libbz2-1.0 libtinfo5 adduser
+Preinstall: g++-4.6-multilib g++-multilib
+Preinstall: upstart libffi6 libglib2.0-0 devscripts
+%ifarch armv7hl
+Preinstall: libc6-armel libc6-dev-armel
+Order: libc6-armel:libc6-dev-armel
+%endif
+%ifarch i586
+Preinstall: g++-4.6-multilib
+%endif
+Order: util-linux:upstart
+Order: libc6:libc-bin
+Order: libc6:libgcc1
+Order: xz-utils:libc6
+Order: xz-utils:liblzma5
+Order: base-files:glibc
+Order: dpkg:libc6
+
+Runscripts: base-files base-passwd passwd sysv-rc
+
+VMinstall: binutils libblkid1 libuuid1 mount
+
+Required: autoconf automake autotools-dev binutils bzip2 gcc libc6
+Required: libtool libncurses5 perl zlib1g pkg-config
+Required: build-essential
+Order: automake:autotools-dev
+Keep: bzip2 mawk
+
+Support: fakeroot
+Support: bison cpio cvs login
+Support: file findutils flex diffutils
+Support: groff-base gzip hostname info less
+Support: make man module-init-tools
+Support: net-tools autotools-dev
+Support: patch procps psmisc strace
+Support: texinfo unzip ncurses-base
+Support: locales upstart-compat-sysv
+Support: mount mime-support
+
+# circular dependendencies in openjdk stack
+Order: openjdk-6-jre-lib:openjdk-6-jre-headless
+Order: openjdk-6-jre-headless:ca-certificates-java
+
+# Workaround for missing prerequires:
+Preinstall: initramfs-tools initscripts
+Support: initramfs-tools initscripts
+
+Prefer: libdb-dev
+Prefer: xorg-x11-libs libpng fam mozilla mozilla-nss xorg-x11-Mesa
+Prefer: unixODBC libsoup glitz java-1_4_2-sun gnome-panel
+Prefer: desktop-data-SuSE gnome2-SuSE mono-nunit gecko-sharp2
+Prefer: apache2-prefork openmotif-libs ghostscript-mini gtk-sharp
+Prefer: glib-sharp libzypp-zmd-backend mDNSResponder
+Prefer: mawk
+
+Prefer: gnome-sharp2:art-sharp2 gnome-sharp:art-sharp
+Prefer: ifolder3:gnome-sharp2 ifolder3:gconf-sharp2
+Prefer: nautilus-ifolder3:gnome-sharp2
+Prefer: gconf-sharp2:glade-sharp2 gconf-sharp:glade-sharp
+Prefer: tomboy:gconf-sharp tomboy:gnome-sharp
+Prefer: zmd:libzypp-zmd-backend
+Prefer: yast2-packagemanager-devel:yast2-packagemanager
+Prefer: default-jdk
+
+Prefer: -libgcc-mainline -libstdc++-mainline -gcc-mainline-c++
+Prefer: -libgcj-mainline -viewperf -compat -compat-openssl097g
+Prefer: -zmd -OpenOffice_org -pam-laus -libgcc-tree-ssa -busybox-links
+Prefer: -crossover-office -libjack-dev
+
+
+Conflict: ghostscript-library:ghostscript-mini
+
+Ignore: aaa_base:aaa_skel,suse-release,logrotate,ash,mingetty,distribution-release
+Ignore: gettext-devel:libgcj,libstdc++-devel
+Ignore: pwdutils:openslp
+Ignore: pam-modules:resmgr
+Ignore: rpm:suse-build-key,build-key
+Ignore: bind-utils:bind-libs
+Ignore: alsa:dialog,pciutils
+Ignore: portmap:syslogd
+Ignore: fontconfig:freetype2
+Ignore: fontconfig-devel:freetype2-devel
+Ignore: xorg-x11-libs:freetype2
+Ignore: xorg-x11:x11-tools,resmgr,xkeyboard-config,xorg-x11-Mesa,libusb,freetype2,libjpeg,libpng
+Ignore: apache2:logrotate
+Ignore: arts:alsa,audiofile,resmgr,libogg,libvorbis
+Ignore: kdelibs3:alsa,arts,pcre,OpenEXR,aspell,cups-libs,mDNSResponder,krb5,libjasper
+Ignore: kdelibs3-devel:libvorbis-devel
+Ignore: kdebase3:kdebase3-ksysguardd,OpenEXR,dbus-1,dbus-1-qt,hal,powersave,openslp,libusb
+Ignore: kdebase3-SuSE:release-notes
+Ignore: jack:alsa,libsndfile
+Ignore: libxml2-devel:readline-devel
+Ignore: gnome-vfs2:gnome-mime-data,desktop-file-utils,cdparanoia,dbus-1,dbus-1-glib,krb5,hal,libsmbclient,fam,file_alteration
+Ignore: libgda:file_alteration
+Ignore: gnutls:lzo,libopencdk
+Ignore: gnutls-devel:lzo-devel,libopencdk-devel
+Ignore: pango:cairo,glitz,libpixman,libpng
+Ignore: pango-devel:cairo-devel
+Ignore: cairo-devel:libpixman-devel
+Ignore: libgnomeprint:libgnomecups
+Ignore: libgnomeprintui:libgnomecups
+Ignore: orbit2:libidl
+Ignore: orbit2-devel:libidl,libidl-devel,indent
+Ignore: qt3:libmng
+Ignore: qt-sql:qt_database_plugin
+Ignore: gtk2:libpng,libtiff
+Ignore: libgnomecanvas-devel:glib-devel
+Ignore: libgnomeui:gnome-icon-theme,shared-mime-info
+Ignore: scrollkeeper:docbook_4,sgml-skel
+Ignore: gnome-desktop:libgnomesu,startup-notification
+Ignore: python-devel:python-tk
+Ignore: gnome-pilot:gnome-panel
+Ignore: gnome-panel:control-center2
+Ignore: gnome-menus:kdebase3
+Ignore: gnome-main-menu:rug
+Ignore: libbonoboui:gnome-desktop
+Ignore: postfix:pcre
+Ignore: docbook_4:iso_ent,sgml-skel,xmlcharent
+Ignore: control-center2:nautilus,evolution-data-server,gnome-menus,gstreamer-plugins,gstreamer,metacity,mozilla-nspr,mozilla,libxklavier,gnome-desktop,startup-notification
+Ignore: docbook-xsl-stylesheets:xmlcharent
+Ignore: liby2util-devel:libstdc++-devel,openssl-devel
+Ignore: yast2:yast2-ncurses,yast2-theme-SuSELinux,perl-Config-Crontab,yast2-xml,SuSEfirewall2
+Ignore: yast2-core:netcat,hwinfo,wireless-tools,sysfsutils
+Ignore: yast2-core-devel:libxcrypt-devel,hwinfo-devel,blocxx-devel,sysfsutils,libstdc++-devel
+Ignore: yast2-packagemanager-devel:rpm-devel,curl-devel,openssl-devel
+Ignore: yast2-devtools:perl-XML-Writer,libxslt,pkgconfig
+Ignore: yast2-installation:yast2-update,yast2-mouse,yast2-country,yast2-bootloader,yast2-packager,yast2-network,yast2-online-update,yast2-users,release-notes,autoyast2-installation
+Ignore: yast2-bootloader:bootloader-theme
+Ignore: yast2-packager:yast2-x11
+Ignore: yast2-x11:sax2-libsax-perl
+Ignore: openslp-devel:openssl-devel
+Ignore: java-1_4_2-sun:xorg-x11-libs
+Ignore: java-1_4_2-sun-devel:xorg-x11-libs
+Ignore: kernel-um:xorg-x11-libs
+Ignore: tetex:xorg-x11-libs,expat,fontconfig,freetype2,libjpeg,libpng,ghostscript-x11,xaw3d,gd,dialog,ed
+Ignore: yast2-country:yast2-trans-stats
+Ignore: susehelp:susehelp_lang,suse_help_viewer
+Ignore: mailx:smtp_daemon
+Ignore: cron:smtp_daemon
+Ignore: hotplug:syslog
+Ignore: pcmcia:syslog
+Ignore: avalon-logkit:servlet
+Ignore: jython:servlet
+Ignore: ispell:ispell_dictionary,ispell_english_dictionary
+Ignore: aspell:aspel_dictionary,aspell_dictionary
+Ignore: smartlink-softmodem:kernel,kernel-nongpl
+Ignore: OpenOffice_org-de:myspell-german-dictionary
+Ignore: mediawiki:php-session,php-gettext,php-zlib,php-mysql,mod_php_any
+Ignore: squirrelmail:mod_php_any,php-session,php-gettext,php-iconv,php-mbstring,php-openssl
+
+Ignore: simias:mono(log4net)
+Ignore: zmd:mono(log4net)
+Ignore: horde:mod_php_any,php-gettext,php-mcrypt,php-imap,php-pear-log,php-pear,php-session,php
+Ignore: xerces-j2:xml-commons-apis,xml-commons-resolver
+Ignore: xdg-menu:desktop-data
+Ignore: nessus-libraries:nessus-core
+Ignore: evolution:yelp
+Ignore: mono-tools:mono(gconf-sharp),mono(glade-sharp),mono(gnome-sharp),mono(gtkhtml-sharp),mono(atk-sharp),mono(gdk-sharp),mono(glib-sharp),mono(gtk-sharp),mono(pango-sharp)
+Ignore: gecko-sharp2:mono(glib-sharp),mono(gtk-sharp)
+Ignore: vcdimager:libcdio.so.6,libcdio.so.6(CDIO_6),libiso9660.so.4,libiso9660.so.4(ISO9660_4)
+Ignore: libcdio:libcddb.so.2
+Ignore: gnome-libs:libgnomeui
+Ignore: nautilus:gnome-themes
+Ignore: gnome-panel:gnome-themes
+Ignore: gnome-panel:tomboy
+
+Substitute: utempter
+
+%ifarch %ix86
+Substitute: java2-devel-packages java-1_4_2-sun-devel
+%endif
+
+%ifarch %ix86
+Substitute: kernel-binary-packages kernel-default kernel-smp kernel-bigsmp kernel-debug kernel-um kernel-xen kernel-kdump
+%endif
+
+%define ubuntu_version 1204

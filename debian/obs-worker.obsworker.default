@@ -1,0 +1,140 @@
+ENABLED=1
+
+# Nice level
+# Nicenesses range from -20 (most favorable  scheduling) to 19 (least favorable).
+OBS_WORKER_NICE_LEVEL=0
+
+## Path:        Applications/OBS
+## Description: define source server host to be used
+## Type:        string
+## Config:      OBS
+#
+#
+
+OBS_SRC_SERVER="obs:5352"
+
+## Path:        Applications/OBS
+## Description: define repository server host to be used
+## Type:        string
+## Config:      OBS
+#
+#
+
+OBS_REPO_SERVERS="obs:5252"
+
+## Path:        Applications/OBS
+## Description: define number of build instances
+## Type:        integer
+## Default:     0
+## Config:      OBS
+#
+# 0 instances will automatically use the number of CPU's
+
+OBS_WORKER_INSTANCES="0"
+
+## Path:        Applications/OBS
+## Description: The base directory, where sub directories for each worker will get created
+## Type:        string
+## Default:     ""
+## Config:      OBS
+#
+#
+
+OBS_WORKER_DIRECTORY="/srv/obs/worker"
+
+## Path:        Applications/OBS
+## Description: The base for port numbers used by worker instances
+## Type:        integer
+## Default:     "0"
+## Config:      OBS
+#
+# 0 means let the operating system assign a port number
+
+OBS_WORKER_PORTBASE="0"
+
+## Path:        Applications/OBS
+## Description: Number of parallel compile jobs per worker
+## Type:        integer
+## Default:     "1"
+## Config:      OBS
+#
+# this maps usually to "make -j1" during build
+#
+OBS_WORKER_JOBS="1"
+
+## Path:        Applications/OBS
+## Description: Run in test mode (build results will be ignore, no job blocking)
+## Type:        ("yes" | "")
+## Default:     ""
+## Config:      OBS
+#
+OBS_WORKER_TEST_MODE=""
+
+## Path:        Applications/OBS
+## Description: The base for OBS communucation directory
+## Type:        string
+## Default:     ""
+## Config:      OBS
+#
+# This is /run by default
+#
+OBS_RUN_DIR="/run"
+
+## Path:        Applications/OBS
+## Description: The base for OBS logging directory
+## Type:        string
+## Default:     ""
+## Config:      OBS
+#
+# This is /srv/obs/log by default
+#
+OBS_LOG_DIR=""
+
+## Path:        Applications/OBS
+## Description: Register in SLP server
+## Type:        ("yes" | "no")
+## Default:     "yes"
+## Config:      OBS
+#
+#
+OBS_USE_SLP="no"
+
+## Path:        Applications/OBS
+## Description: Use a common cache directory for downloaded packages
+## Type:        string
+## Default:     ""
+## Config:      OBS
+#
+# Enable caching requires a given directory here. Be warned, content will be
+# removed there !
+#
+OBS_CACHE_DIR=""
+
+## Path:        Applications/OBS
+## Description: Defines the package cache size
+## Type:        size in MB
+## Default:     ""
+## Config:      OBS
+#
+# Set the size to 50% of the maximum usable size of this partition
+#
+OBS_CACHE_SIZE=""
+
+## Path:		Applications/OBS
+## Description:	Defines the VM type of worker
+## Type:		string
+## Default:		"none"
+## Config:		OBS
+#
+# It defaults to none, which will use chroot to create the builddirs
+# Can use kvm and xen as well, options are kvm and xen respectively
+#
+OBS_VM_TYPE="none"
+
+## Path:        Applications/OBS
+## Description: Make local worker use different arch instead of local native
+## Type:        string
+## Default:     ""
+## Config:      OBS
+#
+OBS_ARCH_TYPE=""

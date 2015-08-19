@@ -1,0 +1,16 @@
+#!/bin/sh
+
+if ! getent group obsworker > /dev/null; then
+    addgroup --system --quiet obsworker
+fi
+
+if ! getent passwd obsworker > /dev/null; then
+    adduser --system --quiet \
+        --ingroup obsworker --shell /bin/false \
+        --home /usr/lib/obs --no-create-home \
+        --shell /bin/false obsworker
+    usermod -c "User for OBS Worker node" obsworker
+fi
+
+#DEBHELPER#
+

@@ -1,0 +1,15 @@
+--- a/src/api/config/database.yml.example
++++ b/src/api/config/database.yml.example
+@@ -8,9 +8,9 @@
+ 
+ production:
+   adapter: mysql2
+-  database: api_production
+-  username: root
+-  password: opensuse
++  database: obsapi
++  username: obs-api
++  password: _DBC_DBPASS_
+   encoding: utf8
+   timeout: 15
+   pool: 30

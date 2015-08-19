@@ -1,0 +1,13 @@
+/srv/www/obs/api/log/*.log {
+  compress
+  dateext
+  maxage 365
+  rotate 50
+  size +8096k
+  notifempty
+  missingok
+  copytruncate
+  create 664 www-data www-data
+  sharedscripts
+}
+
