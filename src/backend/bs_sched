@@ -317,7 +317,7 @@ sub put_doddata_in_cache {
     $cache->updatedoddata() if defined &BSSolv::repo::updatedoddata;
     return(1, $cache);
   }
-  if ($cache) {
+  if ($cache && $cache->dodurl()) {
     my $dodcookie;
     $dodcookie = $cache->dodcookie() if defined &BSSolv::repo::dodcookie;
     return (0, $cache) if BSDoD::checkcookie($doddata, $dir, $dodcookie);
@@ -663,6 +663,58 @@ sub path2buildinfopath {
   return \@ret;
 }
 
+sub dodcheck {
+  my ($ctx, $pool, $arch, @pkgs) = @_;
+  my %names;
+  if (defined &BSSolv::repo::dodcookie) {
+    %names = (%names, $_->pkgnames()) for grep {$_->dodurl() || $_->dodcookie()} $pool->repos();
+  } else {
+    %names = (%names, $_->pkgnames()) for $pool->repos();
+  }
+  my %todownload;
+  for my $pkg (@pkgs) {
+    my $p = $names{$pkg};
+    next unless $p && ($pool->pkg2pkgid($p) || '') eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0';
+    # ohhh, we have to download
+    my $prp = $pool->pkg2reponame($p);
+    $ctx->{'doddownloads'}->{"$prp/$arch"}->{$pkg} = 1;
+    $todownload{$pkg} = 1;
+  }
+  return unless %todownload;
+  return "downloading ".keys(%todownload)." dod packages";
+}
+
+sub dodfetch_resume {
+  my ($handle, $error) = @_;
+  xrpc_setchanged($handle);
+}
+
+sub dodfetch {
+  my ($ctx) = @_;
+  my $doddownloads = delete $ctx->{'doddownloads'};
+  return unless $doddownloads;
+  for my $prpa (sort(keys %$doddownloads)) {
+    my @pkgs = sort(keys %{$doddownloads->{$prpa} || {}});
+    next unless @pkgs;
+    print "    requesting ".@pkgs." dod packages from $prpa\n";
+    my ($projid) = split('/', $prpa, 3);
+    my $server = $BSConfig::reposerver || $BSConfig::srcserver;
+    if ($remoteprojs{$projid}) {
+      $server = $BSConfig::srcserver;
+      $server = $remoteprojs{$projid}->{'remoteurl'} if $remoteprojs{$projid}->{'partition'};
+    }
+    my $param = {
+      'uri' => "$server/build/$prpa/_repository",
+      'receiver' => \&BSHTTP::null_receiver,
+      'async' => {
+	'_resume' => \&dodfetch_resume,
+	'_changetype' => 'med',
+      },
+    };
+    xrpc($ctx, "dodfetch/$prpa", $param, undef, "view=binaryversions", map {"binary=$_"} @pkgs);
+  }
+}
+
 #
 # set_building  - create a new build job
 #
@@ -741,6 +793,13 @@ sub set_building {
     print "        unresolvable:\n";
     print "          $_\n" for @sysdeps;
     return ('unresolvable', join(', ', @sysdeps));
+  }
+  if ($BSConfig::enable_download_on_demand) {
+    my $dods = dodcheck($ctx, $ctx->{'pool'}, $myarch, Build::get_preinstalls($bconf), Build::get_vminstalls($bconf), @bdeps, @sysdeps);
+    if ($dods) {
+      print "        blocked: $dods\n";
+      return ('blocked', $dods);
+    }
   }
 
   # find the last build count we used for this version/release
@@ -4159,6 +4218,7 @@ sub addrepo_remote_unpackcpio {
     warn($@) if $@;
   } elsif (exists $cpio{'repositorycache'}) {
     my $cache;
+    my $havedod;
     if (defined &BSSolv::thawcache) {
       eval { $cache = BSSolv::thawcache($cpio{'repositorycache'}); };
     } else {
@@ -4168,12 +4228,16 @@ sub addrepo_remote_unpackcpio {
     warn($@) if $@;
     return undef unless $cache;
     delete $cache->{'/url'};
+    delete $cache->{'/dodcookie'};
     delete $cache->{'/external/'};
     # free some unused entries to save mem
     for (values %$cache) {
+      $havedod = 1 if ($_->{'hdrmd5'} || '') eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0';
       delete $_->{'path'};
       delete $_->{'id'};
     }
+    # add special "havedod" marker
+    $cache->{'/dodcookie'} = 'remote repository with dod packages' if $havedod;
     $r = $pool->repofromdata($prp, $cache);
   } else {
     # return empty repo
@@ -5047,7 +5111,12 @@ sub checkkiwiimage {
   @new_meta = sort {substr($a, 34) cmp substr($b, 34)} @new_meta;
   unshift @new_meta, map {"$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}"} @{$info->{'extrasource'} || []};
   unshift @new_meta, ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
-  return metacheck($ctx, $packid, 'kiwi-image', \@new_meta, [ $bconf, \@edeps ]);
+  my ($state, $data) = metacheck($ctx, $packid, 'kiwi-image', \@new_meta, [ $bconf, \@edeps ]);
+  if ($BSConfig::enable_download_on_demand && $state eq 'scheduled') {
+    my $dods = dodcheck($ctx, $pool, $myarch, @edeps);
+    return ('blocked', $dods) if $dods;
+  }
+  return ($state, $data);
 }
 
 sub rebuildkiwiimage {
@@ -5299,6 +5368,10 @@ sub checkkiwiproduct {
       return ('blocked', join(', ', @blocked));
     }
     push @rpms, @kdeps;
+    if ($BSConfig::enable_download_on_demand && $myarch eq $buildarch) {
+      my $dods = dodcheck($ctx, $pool, $localbuildarch, @kdeps);
+      return ('blocked', $dods) if $dods;
+    }
   }
 
   my $allpacks = $deps{'*'} ? 1 : 0;
@@ -9339,6 +9412,11 @@ NEXTPRP:
     print "    looked harder: $ctx->{'nharder'}\n" if $ctx->{'nharder'};
     print "    building: ".scalar(keys %building).", notready: ".scalar(keys %notready).", unfinished: ".scalar(keys %unfinished)."\n";
     print "    took $prpchecktime seconds to check the packages\n";
+
+    # trigger dod package fetching
+    if ($BSConfig::enable_download_on_demand) {
+      dodfetch($ctx) if $ctx->{'doddownloads'};
+    }
 
     my $schedulerstate;
     my $schedulerdetails;
