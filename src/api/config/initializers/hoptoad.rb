@@ -19,6 +19,7 @@ HoptoadNotifier.configure do |config|
   Net::HTTPBadResponse
   WebuiMatcher::InvalidRequestFormat
   ActionController::UnknownFormat
+  ActivXML::Transport::NotFoundError
   }
 
   config.ignore_by_filter do |exception_data|
