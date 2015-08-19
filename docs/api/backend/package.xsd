@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	   elementFormDefault="qualified">
+  
+  <xs:annotation>
+    <xs:documentation>
+      This schema describes a format for describing an openSUSE package for the
+      build service.
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:element name="package">
+    <xs:annotation>
+      <xs:documentation>
+        Top level element for package data.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="title"/>
+        <xs:element ref="description"/>
+        <xs:element ref="person" maxOccurs="unbounded" />
+	<xs:element minOccurs="0" maxOccurs="unbounded" ref="disable"/>
+      </xs:sequence>
+      <xs:attribute name="name" type="xs:string"/>
+      <xs:attribute name="project" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="title" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Title of the package.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="description" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Description of the package.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="person">
+    <xs:annotation>
+      <xs:documentation>
+        A person which is associated with the package.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="role" type="xs:string"/>
+      <xs:attribute name="userid" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="disable">
+    <xs:annotation>
+      <xs:documentation>
+      disable package to be built for a specific repository or architecture 
+      (or both).
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="repository" type="xs:string" use="optional"/>
+      <xs:attribute name="arch" type="xs:string" use="optional"/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

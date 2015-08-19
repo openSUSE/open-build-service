@@ -1,0 +1,9 @@
+<request>
+  <action type="add_role">
+    <target project='home:Iggy' package='TestPack' />
+    <person name="Iggy" />
+  </action>
+  <description/>
+  <state who="Iggy" name="new" when="2011-12-02T17:20:42"/>
+</request>
+

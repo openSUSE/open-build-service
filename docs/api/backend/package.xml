@@ -1,0 +1,8 @@
+<package name="test1">
+  <title>Test 1</title>
+  <description>First test package.</description>
+  <person role="maintainer" userid="apitest" />
+  <disable repository="testing" arch="i586"/>
+  <disable repository="beta"/>
+  <disable arch="ppc64"/>
+</package>

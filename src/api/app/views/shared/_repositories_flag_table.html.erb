@@ -1,0 +1,35 @@
+<table class="flag_table" id="flag_table_<%= flag %>" data-flag="<%= flag %>">
+  <tr>
+    <th></th>
+    <th style="width: 6ex">All</th>
+    <% @project.architectures.each do |arch| %>
+      <th style="width: 6ex"><%= arch %></th>
+    <% end %>
+  </tr>
+
+  <tr>
+    <td class="reponame"><strong>All</strong></td>
+    <td class="allcow"><%= flag_status(flag, flags, nil, nil) %></td>
+    <% @project.architectures.each do |a| %>
+      <td class="allcow"><%= flag_status(flag, flags, nil, a) %></td>
+    <% end %>
+  </tr>
+  <!-- renders each line in flag table, excepting the 'all' row -->
+  <% @project.api_obj.repositories.each do |repo| %>
+    <tr>
+      <td class="reponame">
+        <strong title="<%= repo.name %>">
+          <% if @package %>
+            <%= link_to(elide(repo.name, 18), action: "binaries", project: @project, package: @package, repository: repo.name) %>
+          <% else %>
+            <%= link_to(elide(repo.name, 18), action: "repository_state", project: @project, repository: repo.name) %>
+          <% end %>
+        </strong>
+      </td>
+      <td class="allrow"><%= flag_status(flag, flags, repo.name, nil) -%></td>
+      <% @project.architectures.each do |a| %>
+        <td><%= flag_status(flag, flags, repo.name, a) -%></td>
+      <% end %>
+    </tr>
+  <% end %>
+</table>

@@ -1,0 +1,35 @@
+<group name="Minimal" version="10" release="215"
+       pattern:ordernumber="1099"
+       pattern:category="Base Technologies"
+       pattern:summary="Minimal System (Appliances)"
+       pattern:description="This is the minimal Novell SUSE Linux Enterprise runtime system. It is really a minimal system, you can login and a shell will be started, that's all. It is intended as base for Appliances. Support for this minimal pattern is only possible as part of an OEM agreement or after upgrading the system to the Server Base pattern"
+       pattern:visible="false"
+>
+    <pattern name="basesystem" relationship="provides" />
+    <group relationship="required">
+            <package name="aaa_base" />
+            <package name="bash" />
+            <package name="coreutils" />
+            <package name="filesystem" />
+            <package name="glibc" />
+            <package name="rpm" />
+            <package name="sles-release" />
+    </group>
+    <group relationship="recommended">
+            <package name="device-mapper" />
+            <package name="dhcpcd" />
+            <package name="initviocons" />
+            <package name="insserv" />
+            <package name="irqbalance" />
+            <package name="mkinitrd" />
+            <package name="module-init-tools" />
+            <package name="pam" />
+            <package name="pam-modules" />
+            <package name="procps" />
+            <package name="pwdutils" />
+            <package name="suse-build-key" />
+            <package name="sysconfig" />
+            <package name="sysvinit" />
+            <package name="yast2-installation" />
+    </group>
+</group>

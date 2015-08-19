@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  elementFormDefault="qualified">
+
+  <xs:element name="messages">
+    <xs:annotation>
+      <xs:documentation>
+        This schema describes the format for messages in the opensuse
+        build service. Messages can be appended to projects and packages,
+        to give other developers and users of the build service additional
+        information - for example that development of the package will be
+        continued later, because the packager has no time for it atm.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="message" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+      <xs:attribute name="count" type="xs:nonNegativeInteger" use="required">
+        <xs:annotation>
+          <xs:documentation>
+            Count of returned messages.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="project" type="xs:string" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            Name of the project, if messages are filtered by project or package.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="package" type="xs:string" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            Name of the package, if messages are filtered by package.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+
+  <xs:element name="message">
+    <xs:complexType mixed="true">
+      <xs:attribute name="msg_id" type="xs:nonNegativeInteger" use="required" />
+      <xs:attribute name="user" type="xs:string" use="optional"/>
+      <xs:attribute name="created_at" type="xs:dateTime" use="required"/>
+      <xs:attribute name="severity" type="xs:nonNegativeInteger" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            Severity of this message. Used to display in different colors.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="send_mail" type="xs:boolean" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            Additionally send message as email to all involved users.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="sent_at" type="xs:dateTime" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            Date when email was sent, if send_mail flag is true.
+            If email was not (yet) sent, this attribute does not exist.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="private" type="xs:boolean" use="optional">
+        <xs:annotation>
+          <xs:documentation>
+            Display message only to involved users.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
+

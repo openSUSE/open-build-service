@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<most_active>
+  <package name="x11vnc" activity="99.9981665489521" project="home:dmayr" update_count="6"/>
+  <package name="Mix" activity="93.8751152677702" project="home:sk13" update_count="14"/>
+  <package name="courier-imap" activity="93.8682378417507" project="server:mail" update_count="10"/>
+  <package name="mozilla-xulrunner181" activity="93.8531442799873" project="mozilla" update_count="12"/>
+  <package name="wormux" activity="93.8502663492392" project="games:action" update_count="5"/>
+  <package name="mksh" activity="93.839469853814" project="shells" update_count="4"/>
+  <package name="secondlife" activity="93.8302313924497" project="home:marvin24" update_count="44"/>
+  <package name="upstart" activity="93.7539610872821" project="home:darix" update_count="10"/>
+  <package name="php5" activity="93.7442336606888" project="server:php" update_count="9"/>
+  <package name="inspircd" activity="93.7421785416859" project="server:irc" update_count="6"/>
+</most_active>

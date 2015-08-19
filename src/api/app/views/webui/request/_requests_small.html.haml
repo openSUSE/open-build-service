@@ -1,0 +1,12 @@
+- if requests.blank?
+  %p No requests.
+- else
+  %table
+    %tbody
+      - requests.each do |req|
+        %tr
+          %td{style: "border: medium none; padding: 0px;"}
+            = link_to(req.id, controller: :request, action: :show, id: req.id)
+            by
+            = user_with_realname_and_icon(req.creator, short: true)
+            (#{fuzzy_time(req.created_at)})

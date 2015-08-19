@@ -1,0 +1,143 @@
+#!/bin/bash
+
+DATADIR=${0%/*}
+
+TEST_CASE="$1"
+
+FAILS=""
+
+#
+# test constraints
+#
+function td()
+{
+  testname=$1
+  expected=$2
+  package=$3
+  arch=$4
+  worker=$DATADIR/workerinfo/$5
+  srcconstraint=""
+  prjconfconstraint=""
+  [ -n "$6" ] && srcconstraint=$DATADIR/constraint/$6
+  [ -n "$7" ] && prjconfconstraint=$DATADIR/constraintprj/$7
+
+  [ -n "$TEST_CASE" -a "${testname#$TEST_CASE}" == "$testname" ] && return
+
+  if ./bs_dispatch --test-constraints "$package" "$arch" $worker "$srcconstraint" "$prjconfconstraint"; then
+    if [ $expected != "true" ]; then
+      echo "Failed $testname for $package $arch $worker $srcconstraint $prjconfconstraint"
+      FAILS="$FAILS $testname"
+    fi
+    echo -n .
+  else
+    if [ $? != "1" ]; then
+      echo "CODE ERROR for $package $arch $worker $srcconstraint $prjconfconstraint"
+      exit 2
+    fi
+    if [ $expected != "false" ]; then
+      echo "Failed $testname for $package $arch $worker $srcconstraint $prjconfconstraint"
+      FAILS="$FAILS $testname"
+    fi
+    echo -n .
+  fi
+}
+
+# simple source constraints for processor numbers and disk storage
+td simple01 true "kernel" i586 large kernel
+td simple02 false "kernel" i586 small kernel
+td simple03 false "kernel" armv7l small kernel
+td simple04 false "kernel-default" i586 small kernel
+td simple05 false "kernel-default" armv7l small kernel
+td simple06 false "kernel-default" aarch64 small kernel
+td simple07 true "kernel-default" aarch64 medium kernel
+td simple08 true "kernel-default" aarch64 large kernel
+
+# simple source constraints like used by suse kernel
+td sandbox31 false "kernel-obs-qa" i586 medium kernel
+td sandbox32 true  "kernel-obs-qa" i586 large  kernel
+td sandbox33 false "kernel-obs-qa" i586 medium kernel
+td sandbox34 true  "kernel-obs-qa" i586 large  kernel
+td sandbox35 true  "kernel-obs-qa-xen" i586 medium kernel
+td sandbox36 false "kernel-obs-qa-xen" i586 large  kernel
+td sandbox37 true  "kernel-obs-qa-xen" i586 medium kernel
+td sandbox38 false "kernel-obs-qa-xen" i586 large  kernel
+# overwrite works also for maintenance incidents
+td sandbox35 true  "kernel-obs-qa-xen.openSUSE_13.2" i586 medium kernel
+td sandbox36 false "kernel-obs-qa-xen.openSUSE_13.2" i586 large  kernel
+td sandbox37 true  "kernel-obs-qa-xen.openSUSE_13.2" i586 medium kernel
+td sandbox38 false "kernel-obs-qa-xen.openSUSE_13.2" i586 large  kernel
+
+# simple prjconf constraints for processor numbers and disk storage
+td simple11 true "kernel" i586 large "" kernel-default
+td simple12 false "kernel" i586 small "" kernel-default
+td simple13 false "kernel" armv7l small "" kernel-default
+td simple14 false "kernel-default" i586 small "" kernel-default
+td simple15 false "kernel-default" armv7l small "" kernel-default
+td simple16 false "kernel-default" aarch64 small "" kernel-default
+td simple17 false "kernel-default" aarch64 medium "" kernel-default
+td simple18 true "kernel-default" aarch64 large "" kernel-default
+# multiple definitions for disk size in kernel-source, last one wins
+td simple19 true "kernel" i586 small "" kernel-source
+
+# combined constraints for processor numbers and disk storage
+td simple21 true  "kernel" i586 large kernel kernel-default
+td simple22 false "kernel" i586 small kernel kernel-default
+td simple23 false "kernel" armv7l small kernel kernel-default
+td simple24 false "kernel-default" i586 small kernel kernel-default
+td simple25 false "kernel-default" armv7l small kernel kernel-default
+td simple26 false "kernel-default" aarch64 small kernel kernel-default
+td simple27 true  "kernel-default" aarch64 medium kernel kernel-default
+td simple28 true  "kernel-default" aarch64 large kernel kernel-default
+# package constraints win over prjconf constraints
+td simple29 false "kernel" i586 small kernel kernel-source
+
+# simple source constraints for hostlabels
+td hostlabel01 false "kernel" i586 small  hostlabel ""
+td hostlabel02 true  "kernel" i586 medium hostlabel ""
+td hostlabel03 false "kernel" i586 large  hostlabel ""
+
+# simple project constraints for hostlabels
+td hostlabel11 false "kernel" i586 small  "" hostlabel
+td hostlabel12 true  "kernel" i586 medium "" hostlabel
+td hostlabel13 true  "kernel" i586 large  "" hostlabel
+
+# combined hostlabel constraints
+td hostlabel21 false "kernel" i586 small  hostlabel hostlabel
+td hostlabel22 true  "kernel" i586 medium hostlabel hostlabel
+td hostlabel23 false "kernel" i586 large  hostlabel hostlabel
+
+# simple source constraints for sandbox
+td sandbox1 false "kernel" i586 small  sandbox
+td sandbox2 false "kernel" i586 small  sandbox_secure
+td sandbox3 true  "kernel" i586 medium sandbox
+td sandbox4 true  "kernel" i586 medium sandbox_secure
+td sandbox5 true  "kernel" i586 large  sandbox
+td sandbox6 true  "kernel" i586 large  sandbox_secure
+
+# prjconf constraints for sandbox
+td sandbox11 false "kernel" i586 small  ""  enforce_kvm
+td sandbox12 false "kernel" i586 small  ""  enforce_kvm
+td sandbox13 false "kernel" i586 medium ""  enforce_kvm
+td sandbox14 false "kernel" i586 medium ""  enforce_kvm
+td sandbox15 true  "kernel" i586 large  ""  enforce_kvm
+td sandbox16 true  "kernel" i586 large  ""  enforce_kvm
+
+# combined constraints for sandbox
+td sandbox21 false "kernel" i586 small  sandbox         enforce_kvm
+td sandbox22 false "kernel" i586 small  sandbox_secure  enforce_kvm
+# package constraints are more important here
+td sandbox23 true  "kernel" i586 medium sandbox         enforce_kvm
+td sandbox24 true  "kernel" i586 medium sandbox_secure  enforce_kvm
+td sandbox25 true  "kernel" i586 large  sandbox         enforce_kvm
+td sandbox26 true  "kernel" i586 large  sandbox_secure  enforce_kvm
+
+echo
+
+if [ -n "$FAILS" ]; then
+  echo "ERROR: Following test cases failed:"
+  echo "$FAILS"
+  exit 1
+fi
+
+exit 0
+

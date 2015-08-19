@@ -1,0 +1,67 @@
+<% @pagetitle = 'Add Repository'
+   @metarobots = 'noindex'
+   project_bread_crumb @pagetitle
+-%>
+
+<%= render :partial => 'tabs' %>
+
+<h2>Add Repositories to Project <%= @project %></h2>
+
+<p>Please choose the repositories that your packages will be built for by following default list. Or
+  <%= link_to 'pick one via advanced interface', :action => :add_repository, :project => @project %>.
+</p>
+
+<%= form_tag(:action => :save_targets, :project => @project) do %>
+    <% @distributions.each do |vendor, list| %>
+        <h3><%= sprite_tag("distributions-#{vendor.downcase}") %> <%= vendor -%> distributions</h3>
+        <p>
+          <% list.each do |dist|
+            name = dist['name']
+            project = dist['project']
+            repo = dist['repository']
+            reponame = dist['reponame']
+            architectures = dist['architectures'] || []
+            # in case remote instance is OBS 2.4:
+            @available_architectures.each do |a|
+              architectures << a.name if a.available
+            end unless architectures.length
+
+            selected = @project.has_element?("repository/path[@project='#{project}' and @repository='#{repo}']")
+          -%>
+
+        <span class="nowrap"><%= check_box_tag 'repo[]', reponame, selected, :disabled => selected, :id => 'repo_' + reponame, :class => 'repocheckbox' -%>
+          <%= hidden_field_tag reponame + '_repo', (project + '/' + repo) -%>
+          <% architectures.each do |arch| %>
+            <%= hidden_field_tag(reponame + '_arch[]', arch, :id => reponame + '_arch_' + arch) %>
+          <% end %>
+          <%= name %>
+        </span>
+          <% end -%>
+        </p>
+    <% end -%>
+
+    <h3><%= image_tag('distributions/kiwi.png', :width => 40) %> Kiwi image builds</h3>
+    <p>
+    <span class="nowrap">
+
+      <% selected = false
+         selected = true if @project.has_element?("repository[@name = 'images']") -%>
+
+      <%= check_box_tag 'repo[]', 'images', selected, :disabled => selected, :id => 'repo_images', :class => 'repocheckbox' -%>
+      <input id="images_repo" name="images_repo" value="" type="hidden"/>
+      <% @available_architectures.each do |arch| %>
+        <% if arch.available %>
+          <input id="images_arch_<%= arch.name %>" name="images_arch[]" value="<%= arch.name %>" type="hidden"/>
+        <% end %>
+      <% end %>
+      KIWI image build <i>(to be used for appliance and product builds with kiwi)</i>        </span>
+    </p>
+
+    <p>
+      <%= submit_tag 'Add selected repositories', :disabled => true, :id => 'submitrepos' -%>
+    </p>
+<% end %>
+
+<%= content_for :ready_function do %>
+    $('.repocheckbox').click(function() { $('#submitrepos').removeAttr('disabled'); } );
+<% end %>

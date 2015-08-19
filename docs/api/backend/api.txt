@@ -1,0 +1,214 @@
+= openSUSE Package Repository Interface
+
+Version: 0.1
+
+  Only authenticated users are allowed to acces the API. Authentication is done
+  by sending a Basic HTTP Authorisation header.
+
+<project>: Project name
+<package>: Package name
+<platform>: Platform name
+
+  All names aren't allowed to contain spaces, slashes or colons.
+
+== Table of Contents
+
+Contents:
+
+== Sources
+
+Host: backend-source.opensuse.org
+
+=== Project meta data
+
+
+GET /source/
+GET /project/
+
+  Read list of projects.
+  
+XmlResult: frontend/projects frontend/directory.xsd
+
+
+GET /source/<project>/_meta
+GET /project/<project>
+
+  Read project meta file.
+
+XmlResult: frontend/project
+
+
+PUT /source/<project>/_meta
+PUT /project/<project>
+
+  Write project meta file.
+
+XmlBody: frontend/project
+
+XmlResult: frontend/project
+
+
+=== Package meta data
+
+GET /source/<project>/<package>/_meta
+GET /package/<project>/<package>
+
+  Read project meta data.
+
+XmlResult: package
+
+
+PUT /source/<project>/<package>/_meta
+PUT /package/<project>/<package>
+
+  Write project meta data. Writing of the project meta data commits the packages
+  contained in the project to the build backend.
+
+XmlBody: package
+
+XmlResult: frontend/package
+
+
+GET /package/<project>/<package>/history
+
+  Read package change history
+
+XmlResult: revisionhistory
+
+
+=== Other source files
+
+<filename>: File name
+
+
+GET /source/<project>/<package>/<filename>
+
+  Read source file.
+
+Result: Content of file
+
+
+PUT /source/<project>/<package>/<filename>
+
+  Write source file.
+
+Body: Content of file
+
+XmlResult: fileputresult
+
+
+== Repository data
+
+Host: backend-source.opensuse.org
+
+GET /repository/
+  
+  List all projects.
+  
+XmlResult: frontend/directory
+
+
+GET /repository/<project>
+
+  List all repositories for a project.
+  
+XmlResult: frontend/directory
+
+
+GET /repository/<project>/<repository>
+
+  List a specific repository of a project.
+
+XmlResult: repository
+
+
+== RPMs
+
+Host: backend-repository.opensuse.org
+
+GET /rpm/<project>/<repository>/<arch>/<package>
+
+  Get list of RPMs.
+
+GET /rpm/<project>/<repository>/<package>/<rpmname>
+
+  Get RPM.
+
+Result: RPM
+
+
+== Build Status Summaries
+
+Host: backend-source.opensuse.org
+
+
+GET /status/<project>
+
+  Read project summary result.
+
+XmlResult: packstatuslistlist
+
+
+GET /status/<project>/<repository>/:all
+
+  Read repository summary result.
+
+XmlResult: statussumlist
+
+
+GET /status/<project>/<repository>/<package>
+
+  Read package result.
+
+XmlResult: statussumlist
+
+
+== Build Results Packages
+
+Host: backend-repository.opensuse.org
+
+GET /rpm/<project>/<repository>/<arch>/<package>/logfile
+
+  Read build log.
+  
+Result: Build log as text file.
+
+
+GET /rpm/<project>/<repository>/<arch>/<package>/status
+
+  Read package build status.
+  
+XmlResult: packagestatus
+
+
+GET /rpm/<project>/<repository>/<arch>/<package>/history
+
+  Read package build history.
+
+XmlResult: buildhistory
+
+
+== rebuild trigger
+
+Host: backend-repository.opensuse.org
+
+DELETE /rpm/<project>/<repository>/<arch>/<package>/status
+
+
+== build client status
+
+Host: backend-repository.opensuse.org
+
+GET /workerstatus
+
+XmlResult: workerstatus
+
+
+== build client job history
+
+Host: backend-repository.opensuse.org
+
+GET /info/<arch>/jobhistory
+
+XmlResult: jobhistlist
+

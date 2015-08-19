@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<constraints>
+  <hostlabel>reference_benchmark_host</hostlabel>
+  <sandbox exclude="true">chroot</sandbox>
+  <linux>
+    <version>
+      <max>3.42</max>
+      <min>1.0</min>
+    </version>
+    <flavor>default</flavor>
+  </linux>
+  <hardware>
+    <cpu>
+      <flag>fpu</flag>
+      <flag>mmx</flag>
+    </cpu>
+    <processors>2</processors>
+    <disk>
+      <size unit="T">1</size>
+    </disk>
+    <memory>
+      <size unit="G">1.5</size>
+    </memory>
+    <physicalmemory>
+      <size unit="M">512</size>
+    </physicalmemory>
+  </hardware>
+  <overwrite>
+    <conditions>
+      <arch>i586</arch>      <!-- applies only for either i586 or x86_64 packages -->
+      <arch>x86_64</arch>
+      <package>kernel-default</package> <!-- and they must be build either as kernel-default or kernel-smp package -->
+      <package>kernel-smp</package>
+    </conditions>
+    <hardware>
+      <processors>8</processors>
+      <disk>
+        <size unit="T">2</size>
+      </disk>
+    </hardware>
+  </overwrite>
+</constraints>

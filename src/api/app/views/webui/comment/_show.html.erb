@@ -1,0 +1,31 @@
+<div class="comments">
+  <% @comments.each_with_index do |comment, index| %>
+      <%= javascript_tag do %>
+          <%= render partial: 'webui/comment/expand_collapse.js.erb', locals: { comment_id: comment[:id] } %>
+      <% end %>
+      <div class="comment_thread">
+        <div class="comment comment_<%= index %>">
+          <%=  user_with_realname_and_icon(comment[:user], no_icon: true, short: true) %>
+          wrote <span class="comment_time"><%= fuzzy_time(comment[:created_at]) %></span>
+
+          <%= comment_body(comment) %>
+          <%= render :partial => 'webui/comment/links', :locals => { comment: comment } %>
+          <%= render :partial => 'webui/comment/reply', :locals => { comment: comment, level: 0 } %>
+        </div>
+        <% unless comment[:children].blank? %>
+            <div id="reply_of_comment_<%= comment[:id] %>">
+              <%= render partial: 'webui/comment/child', locals: { children: comment[:children] } %>
+            </div>
+        <% end %>
+      </div>
+  <% end %>
+
+  <div class="comment_new grid_16 alpha omega">
+    <%= render partial: 'webui/comment/new' %>
+  </div>
+
+</div>
+
+<% content_for :ready_function do %>
+    setup_comment_toggles();
+<% end %>

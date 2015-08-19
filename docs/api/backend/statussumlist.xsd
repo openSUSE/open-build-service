@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	   elementFormDefault="qualified">
+  
+  <xs:annotation>
+    <xs:documentation>
+      This schema describes build status summary lists.
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:element name="statussumlist">
+    <xs:annotation>
+      <xs:documentation>
+        Container for status sums.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="statussum" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="statussum">
+    <xs:annotation>
+      <xs:documentation>
+        Status summary.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="name" type="xs:string"/>
+      <xs:attribute name="status" type="xs:string"/>
+      <xs:attribute name="building" type="xs:string"/>
+      <xs:attribute name="delayed" type="xs:string"/>
+      <xs:attribute name="succeeded" type="xs:string"/>
+      <xs:attribute name="failed" type="xs:string"/>
+      <xs:attribute name="rpms" type="xs:string"/>
+      <xs:attribute name="packages" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

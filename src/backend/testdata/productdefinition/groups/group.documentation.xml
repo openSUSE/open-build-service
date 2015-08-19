@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<group name="documentation" version="10" release="235.2">
+    <pattern ordernumber="1090">
+        <category>Base Technologies</category>
+        <description>Help and Support Documentation</description>
+        <icon>yast-messages</icon>
+        <summary>Help and Support Documentation</summary>
+        <visible>true</visible>
+        <relationships>
+           <pattern name="Documentation" relationship="provides" />
+        </relationships>
+    </pattern>
+    <packagelist relationship="recommends" id="documentation.recommends">
+            <package name="man-pages-posix" />
+            <package name="nfs-doc" />
+            <package name="pam-doc" />
+            <package name="redbook" />
+            <package name="sles-admin_en" />
+            <package name="sles-heartbeat_en" />
+            <package name="sles-preparation-power_en" />
+            <package name="sles-preparation-x86+x86-64_en" />
+            <package name="sles-preparation-zseries_en" />
+            <package name="sles-startup_en" />
+    </packagelist>
+</group>

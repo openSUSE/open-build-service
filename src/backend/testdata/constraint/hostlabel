@@ -1,0 +1,4 @@
+<constraints>
+  <hostlabel>junk_label</hostlabel>
+  <hostlabel exclude="true">small_label</hostlabel>
+</constraints>

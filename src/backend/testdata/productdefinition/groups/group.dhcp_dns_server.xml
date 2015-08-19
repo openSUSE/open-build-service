@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<group name="dhcp_dns_server" version="10" release="235.2">
+    <pattern ordernumber="3060">
+        <category>Primary Functions</category>
+        <description>Software to set up a server for the Dynamic Host Configuration Protocol (DHCP) and the Domain Name System (DNS) services. DHCP provides configuration parameters to client computers to integrate them into a network, whereas DNS delivers information associated with domain names, in particular, the IP address.</description>
+        <icon>yast-dns-server</icon>
+        <summary>DHCP and DNS Server</summary>
+        <visible>true</visible>
+        <relationships>
+           <pattern name="basesystem" relationship="requires" />
+        </relationships>
+    </pattern>
+    <packagelist relationship="requires" id="dhcp_dns_server.requires">
+            <package name="bind" />
+            <package name="dhcp-server" />
+    </packagelist>
+    <packagelist relationship="recommends" id="dhcp_dns_server.recommends">
+            <package name="bind-chrootenv" />
+            <package name="bind-doc" />
+            <package name="dhcp" />
+            <package name="dhcp-relay" />
+            <package name="dhcp-tools" />
+            <package name="dhcp6" />
+    </packagelist>
+</group>

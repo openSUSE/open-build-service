@@ -1,0 +1,12 @@
+#############################################################################
+#
+# OpenSLP registration file
+#
+# register OBS source server
+#
+#############################################################################
+
+service:obs.source_server:http://$HOSTNAME:5352,en,65535
+watch-port-tcp=5352
+description=Open Build Service Source Server
+

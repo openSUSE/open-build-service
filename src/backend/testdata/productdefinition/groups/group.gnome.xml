@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<group name="gnome" version="10" release="235.2">
+    <pattern ordernumber="2010">
+        <category>Graphical Environments</category>
+        <description>The GNOME desktop environment is an intuitive and attractive desktop for users.</description>
+        <icon>gnome</icon>
+        <summary>GNOME Desktop Environment</summary>
+        <visible>true</visible>
+        <relationships>
+           <pattern name="x11" relationship="requires" />
+           <pattern name="basesystem" relationship="requires" />
+        </relationships>
+    </pattern>
+    <packagelist relationship="requires" id="gnome.requires">
+            <package name="gnome-main-menu" />
+            <package name="gnome-panel" />
+            <package name="gnome-session" />
+    </packagelist>
+    <packagelist relationship="recommends" id="gnome.recommends">
+            <package name="aspell" />
+            <package name="at-spi" />
+            <package name="dasher" />
+            <package name="desktop-file-utils" />
+            <package name="dirmngr" />
+            <package name="dvd+rw-tools" />
+            <package name="efont-unicode" />
+            <package name="eog" />
+            <package name="evince" />
+            <package name="file-roller" />
+            <package name="gcalctool" />
+            <package name="gconf-editor" />
+            <package name="gconf2" />
+            <package name="gdm" />
+            <package name="gedit" />
+            <package name="gmime" />
+            <package name="gnome-applets" />
+            <package name="gnome-audio" />
+            <package name="gnome-common" />
+            <package name="gnome-desktop" />
+            <package name="gnome-doc-utils" />
+            <package name="gnome-keyring" />
+            <package name="gnome-mag" />
+            <package name="gnome-media" />
+            <package name="gnome-menus" />
+            <package name="gnome-menus-editor" />
+            <package name="gnome-mime-data" />
+            <package name="gnome-nettool" />
+            <package name="gnome-power-manager" />
+            <package name="gnome-printer-add" />
+            <package name="gnome-screensaver" />
+            <package name="gnome-spell2" />
+            <package name="gnome-system-monitor" />
+            <package name="gnome-terminal" />
+            <package name="gnome-themes" />
+            <package name="gnome-utils" />
+            <package name="gnome-vfs2" />
+            <package name="gnome-volume-manager" />
+            <package name="gnome2-user-docs" />
+            <package name="gok" />
+            <package name="gpgme" />
+            <package name="gtk2-engines" />
+            <package name="gtk2-themes" />
+            <package name="gtkspell" />
+            <package name="gucharmap" />
+            <package name="guile" />
+            <package name="input-utils" />
+            <package name="libgsf-gnome" />
+            <package name="metacity" />
+            <package name="nautilus" />
+            <package name="nautilus-cd-burner" />
+            <package name="nautilus-open-terminal" />
+            <package name="nautilus-share" />
+            <package name="notification-daemon" />
+            <package name="pinentry" />
+            <package name="poppler" />
+            <package name="poppler-glib" />
+            <package name="python" />
+            <package name="python-gnome" />
+            <package name="shared-mime-info" />
+            <package name="startup-notification" />
+            <package name="susehelp" />
+            <package name="system-config-printer" />
+            <package name="tango-icon-theme" />
+            <package name="vino" />
+            <package name="vte" />
+            <package name="vte-doc" />
+            <package name="xkeyboard-config" />
+            <package name="xscreensaver" />
+            <package name="yast2-control-center-gnome" />
+            <package name="yast2-sound" />
+            <package name="yelp" />
+            <package name="zenity" />
+    </packagelist>
+</group>

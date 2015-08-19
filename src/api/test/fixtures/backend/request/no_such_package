@@ -1,0 +1,8 @@
+<request>
+  <action type='submit'>
+    <source project='home:Iggy' package='mypackage' rev='1' />
+    <target project='kde4' package='mypackage' />
+  </action>
+  <description/>
+</request>
+

@@ -1,0 +1,24 @@
+<distributions>
+  <distribution vendor="openSUSE" version="Factory" id="1">
+    <name>openSUSE Factory</name>
+    <project>openSUSE:Factory</project>
+    <reponame>openSUSE_Factory</reponame>
+    <repository>snapshot</repository>
+    <link>http://www.opensuse.org/</link>
+    <icon url="https://static.opensuse.org/distributions/logos/opensuse-Factory-8.png" width="8" height="8"/>
+    <icon url="https://static.opensuse.org/distributions/logos/opensuse-Factory-16.png" width="16" height="16"/>
+  </distribution>
+  <distribution vendor="openSUSE" version="12.2" id="2">
+    <name>openSUSE 12.2</name>
+    <project>openSUSE:12.2</project>
+    <reponame>openSUSE_12.2</reponame>
+    <repository>standard</repository>
+    <link>http://www.opensuse.org/</link>
+    <icon url="https://static.opensuse.org/distributions/logos/opensuse-12.2-8.png" width="8" height="8"/>
+    <icon url="https://static.opensuse.org/distributions/logos/opensuse-12.2-16.png" width="16" height="16"/>
+    <architecture>aarch64</architecture>
+    <architecture>i586</architecture>
+    <architecture>x86_64</architecture>
+  </distribution>
+</distributions>
+

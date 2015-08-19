@@ -1,0 +1,9 @@
+<% @pagetitle = "Requests for #{@project}" %>
+<% project_bread_crumb('Requests') %>
+
+<%= render :partial => 'tabs' %>
+
+<h3><%= @pagetitle %></h3>
+
+<%= render :partial => 'shared/select_requests', :locals => {:project => @project.value('name'), :subprojects => @is_maintenance_project, :no_target => true} %>
+

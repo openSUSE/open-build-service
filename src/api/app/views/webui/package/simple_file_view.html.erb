@@ -1,0 +1,9 @@
+<% @pagetitle = "View File #{@filename} of Package #{@package}"
+   package_bread_crumb(link_to('Files', :action => :show, :project => @project, :package => @package, :rev => @srcmd5), @filename)
+-%>
+
+<%= render :partial => 'tabs' %>
+
+<h3><%= @pagetitle %> (Project <%= @project %>)</h3>
+
+<pre><%= force_utf8_and_transform_nonprintables(@file) %></pre>

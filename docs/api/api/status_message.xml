@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<message severity="0">
+  a single sample message. contains some text ...
+  attributes are optional and ignored when sent (put) to the api.
+  the format of this example will be used as a convenient way to put a message.
+</message>
+

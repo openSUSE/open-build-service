@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  elementFormDefault="qualified">
+
+  <xs:element name="message">
+    <xs:annotation>
+      <xs:documentation>
+        This schema describes the format of a single message, that can be
+        sent to the build service via PUT request.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType mixed="true">
+      <xs:attribute name="private" type="xs:boolean" use="required">
+        <xs:annotation>
+          <xs:documentation>
+            Display message only to involved users.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="send_mail" type="xs:boolean" use="required">
+        <xs:annotation>
+          <xs:documentation>
+            Additionally send message as email to all involved users or not.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="severity" type="xs:nonNegativeInteger" use="required">
+        <xs:annotation>
+          <xs:documentation>
+            Severity of this message. Used to display in different colors.
+          </xs:documentation>
+        </xs:annotation>
+      </xs:attribute>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>
+

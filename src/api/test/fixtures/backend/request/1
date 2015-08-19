@@ -1,0 +1,8 @@
+<request>
+  <action type='submit'>
+    <source project='home:Iggy' package='TestPack' rev='2'/>
+    <target project='kde4' package='wpa_supplicant'/>
+  </action>
+  <description/>
+  <state name='new' who='tom' when='2011-12-02T17:20:42'/>
+</request>

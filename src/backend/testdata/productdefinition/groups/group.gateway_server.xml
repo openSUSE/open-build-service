@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<group name="gateway_server" version="10" release="235.2">
+    <pattern ordernumber="3050">
+        <category>Primary Functions</category>
+        <description>Software to set up a proxy, firewall, and gateway server, including a virtual private network (VPN) gateway.</description>
+        <icon>yast-dsl</icon>
+        <summary>Internet Gateway</summary>
+        <visible>true</visible>
+        <relationships>
+           <pattern name="basesystem" relationship="requires" />
+        </relationships>
+    </pattern>
+    <packagelist relationship="requires" id="gateway_server.requires">
+            <package name="wireshark" />
+    </packagelist>
+    <packagelist relationship="recommends" id="gateway_server.recommends">
+            <package name="arptables" />
+            <package name="calamaris" />
+            <package name="ddclient" />
+            <package name="fetchmail" />
+            <package name="fetchmailconf" />
+            <package name="ipsec-tools" />
+            <package name="quagga" />
+            <package name="radvd" />
+            <package name="rarpd" />
+            <package name="squid" />
+            <package name="whois" />
+            <package name="wondershaper" />
+    </packagelist>
+</group>

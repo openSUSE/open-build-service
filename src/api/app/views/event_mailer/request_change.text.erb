@@ -1,0 +1,13 @@
+@subject: <%= @e['type']%>-Request <%= @e['id']%> Changed
+
+<%= @e['type']%>-Request was changed, new state: <%= @e['state']%>
+<% if @e['sourceproject']-%>
+Source 
+  project:  <%= @e['sourceproject']%>
+  package:  <%= @e['sourcepackage']%>
+<% if @e['sourcerevision']-%>  revision: <%= @e['sourcerevision']%><%-end-%>>
+
+Target:
+  project: <%= @e['targetproject']%>
+  package: <%= @e['targetpackage']%>
+<%-end-%>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<group name="kde" version="10" release="235.2">
+    <pattern ordernumber="2020">
+        <category>Graphical Environments</category>
+        <description>KDE 4 is a powerful free software graphical desktop environment for Linux workstations. It combines ease of use, contemporary functionality, and outstanding graphical design with the technology of the Linux operating system.</description>
+        <icon>kde</icon>
+        <summary>KDE Desktop Environment</summary>
+        <visible>true</visible>
+        <relationships>
+           <pattern name="x11" relationship="requires" />
+           <pattern name="basesystem" relationship="requires" />
+        </relationships>
+    </pattern>
+    <packagelist relationship="suggests" id="kde.suggests">
+            <package name="kde4-kalarm" />
+            <package name="kde4-kcharselect" />
+            <package name="kde4-kcolorchooser" />
+            <package name="kde4-kdf" />
+            <package name="kde4-kdialog" />
+            <package name="kde4-kget" />
+            <package name="kde4-kinfocenter" />
+            <package name="kde4-kjots" />
+            <package name="kde4-knewsticker" />
+            <package name="kde4-knode" />
+            <package name="kde4-knotes" />
+            <package name="kde4-krdc" />
+            <package name="kde4-krfb" />
+            <package name="kde4-kruler" />
+            <package name="kde4-ktimer" />
+            <package name="kde4-ktimetracker" />
+            <package name="kde4-ktnef" />
+            <package name="kde4-webkitpart" />
+            <package name="kdeartwork4-screensaver" />
+            <package name="kdirstat" />
+            <package name="okteta" />
+    </packagelist>
+    <packagelist relationship="requires" id="kde.requires">
+            <package name="kde4-dolphin" />
+            <package name="kde4-kupdateapplet" />
+            <package name="kde4-kwin" />
+            <package name="kde4-kwrite" />
+            <package name="kdebase4" />
+            <package name="kdebase4-session" />
+            <package name="kdebase4-workspace" />
+    </packagelist>
+    <packagelist relationship="recommends" id="kde.recommends">
+            <package name="NetworkManager" />
+            <package name="NetworkManager-kde" />
+            <package name="PolicyKit-kde" />
+            <package name="k3b" />
+            <package name="kde4-akregator" />
+            <package name="kde4-ark" />
+            <package name="kde4-kaddressbook" />
+            <package name="kde4-kaddressbook" />
+            <package name="kde4-kalarm" />
+            <package name="kde4-kcalc" />
+            <package name="kde4-kcm_gtk" />
+            <package name="kde4-kdessh" />
+            <package name="kde4-kdm" />
+            <package name="kde4-keditbookmarks" />
+            <package name="kde4-kfloppy" />
+            <package name="kde4-kgpg" />
+            <package name="kde4-kio_iso" />
+            <package name="kde4-kmail" />
+            <package name="kde4-kmail" />
+            <package name="kde4-knotes" />
+            <package name="kde4-konqueror" />
+            <package name="kde4-konqueror-plugins" />
+            <package name="kde4-konsole" />
+            <package name="kde4-kontact" />
+            <package name="kde4-kontact" />
+            <package name="kde4-kopete" />
+            <package name="kde4-kopete" />
+            <package name="kde4-korganizer" />
+            <package name="kde4-korganizer" />
+            <package name="kde4-ksnapshot" />
+            <package name="kde4-ktimetracker" />
+            <package name="kde4-kupdateapplet-zypp" />
+            <package name="kde4-kwalletmanager" />
+            <package name="kde4-kwikdisk" />
+            <package name="kde4-okular" />
+            <package name="kdebase4-SLED" />
+            <package name="kdebase4-nsplugin" />
+            <package name="kdebase4-wallpapers" />
+            <package name="kdenetwork4-filesharing" />
+            <package name="kdepim4" />
+            <package name="kdepim4-wizards" />
+            <package name="kdepim4-wizards" />
+            <package name="kiosktool" />
+            <package name="kpowersave" />
+            <package name="pinentry-qt" />
+            <package name="qtcurve-gtk2" />
+    </packagelist>
+</group>

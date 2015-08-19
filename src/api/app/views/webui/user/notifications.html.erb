@@ -1,0 +1,21 @@
+<% @pagetitle = "#{User.current.to_s.capitalize}'s Notifications" %>
+<% @crumb_list = [@pagetitle] %>
+
+<h2><%= @pagetitle %></h2>
+
+<% gs = User.current.groups_users %>
+
+<%= form_tag({ :action => :update_notifications }, id: 'notification_form') do %>
+
+    <% unless gs.empty? %>
+        <h3>Get mails if in group ...</h3>
+        <ul style="list-style-type:none;">
+          <% gs.each do |gu| %>
+              <li><%= check_box_tag gu.group, '1', gu.email %><%= label_tag gu.group.title %></li>
+          <% end %>
+        </ul>
+    <% end %>
+
+    <%= render partial: 'webui/configuration/notification_roles' %>
+    <p><%= submit_tag 'Update' %></p>
+<% end %>

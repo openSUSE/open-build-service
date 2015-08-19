@@ -1,0 +1,24 @@
+
+<worker hostarch="i586" workerid="small">
+  <buildarch>i586</buildarch>
+  <hostlabel>small_label</hostlabel>
+  <hostlabel>junk_label</hostlabel>
+  <hostlabel>more_junk_label</hostlabel>
+  <sandbox>chroot</sandbox>
+
+  <linux>
+      <version>1.0</version>
+      <flavor>default</flavor>
+  </linux>
+
+  <hardware>
+    <cpu>
+      <flag>mmx</flag>
+    </cpu>
+    <processors>1</processors>
+    <memory>64</memory>
+    <swap>512</swap>
+    <disk>2048</disk>
+  </hardware>
+</worker>
+

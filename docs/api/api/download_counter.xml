@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<download_counter last="2007-03-21T15:31:35+01:00" first="2007-03-06T05:21:48+01:00" sum="1418775" all="6546546468">
+  <count project="X11:XGL"  repository="openSUSE_10.2" package="poppler"    architecture="i586" filetype="rpm" filename="poppler"           version="0.5.4" release="57.1">5753</count>
+  <count project="KDE:KDE3" repository="openSUSE_10.2" package="kdebase3"   architecture="i586" filetype="rpm" filename="kdebase3-nsplugin" version="3.5.6" release="52.1">4773</count>
+  <count project="KDE:KDE3" repository="openSUSE_10.2" package="kdelibs3"   architecture="i586" filetype="rpm" filename="kdelibs3"          version="3.5.6" release="41.4">4295</count>
+  <count project="KDE:KDE3" repository="openSUSE_10.2" package="kdebase3"   architecture="i586" filetype="rpm" filename="kdebase3"          version="3.5.6" release="52.1">4240</count>
+  <count project="X11:XGL"  repository="openSUSE_10.2" package="beryl-core" architecture="i586" filetype="rpm" filename="beryl-core"        version="0.2"   release="6.1">4195</count>
+  <count project="X11:XGL"  repository="openSUSE_10.2" package="poppler"    architecture="i586" filetype="rpm" filename="poppler"           version="0.5.4" release="55.1">4186</count>
+  <count project="KDE:KDE3" repository="openSUSE_10.2" package="qt3"        architecture="i586" filetype="rpm" filename="qt3"               version="3.3.8" release="52.1">4145</count>
+  <count project="X11:XGL"  repository="openSUSE_10.2" package="poppler"    architecture="i586" filetype="rpm" filename="poppler-qt"        version="0.5.4" release="57.1">4096</count>
+  <count project="X11:XGL"  repository="openSUSE_10.2" package="compiz"     architecture="i586" filetype="rpm" filename="compiz"            version="0.3.7" release="21.1">4064</count>
+  <count project="KDE:KDE3" repository="openSUSE_10.2" package="kdebase3"   architecture="i586" filetype="rpm" filename="kdebase3-nsplugin" version="3.5.6" release="42.3">4036</count>
+</download_counter>

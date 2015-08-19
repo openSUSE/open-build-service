@@ -1,0 +1,9 @@
+@subject: [obs del] Package <%= @e['package']%> from <%= @e['project']%> deleted
+Package <%= @e['package']%> from project <%= @e['project']%> was deleted 
+by user <%= @e['sender']%>.
+
+<%= @e['comment']%>
+
+<% if @e['requestid']-%>
+Check delete request: osc request log <%= @e['requestid']%>
+<%-end-%>

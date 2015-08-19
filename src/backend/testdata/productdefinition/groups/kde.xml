@@ -1,0 +1,50 @@
+<group name="kde" version="10" release="215"
+       pattern:ordernumber="2020"
+       pattern:category="Graphical Environments"
+       pattern:icon="kde"
+       pattern:summary="KDE Desktop Environment"
+       pattern:description="KDE 4 is a powerful free software graphical desktop environment for Linux workstations. It combines ease of use, contemporary functionality, and outstanding graphical design with the technology of the Linux operating system."
+       pattern:visible="true"
+>
+    <pattern name="x11" relationship="required" />
+    <pattern name="basesystem" relationship="required" />
+    <group relationship="required">
+            <package name="kdebase4" />
+            <package name="kdebase4-session" />
+            <package name="kdebase4-workspace" />
+            <package name="kde4-dolphin" />
+            <package name="kde4-kwin" />
+            <package name="kde4-kwrite" />
+            <package name="kde4-kupdateapplet" />
+    </group>
+    <group relationship="recommended">
+            <package name="kde4-keditbookmarks" />
+            <package name="kde4-konqueror" />
+            <package name="kde4-konsole" />
+            <package name="kdebase4-nsplugin" />
+            <package name="NetworkManager" />
+            <package name="NetworkManager-kde" />
+            <package name="kdepim4-wizards" />
+            <package name="kde4-akregator" />
+            <package name="kde4-kaddressbook" />
+            <package name="kde4-kmail" />
+            <package name="kde4-kontact" />
+            <package name="kde4-korganizer" />
+            <package name="kde4-knotes" />
+            <package name="pinentry-qt" />
+            <package name="kde4-kcm_gtk" />
+            <package name="qtcurve-gtk2" />
+            <package name="kde4-kdm" />
+            <package name="kde4-kio_iso" />
+            <package name="PolicyKit-kde" />
+            <package name="kde4-ark" />
+            <package name="kde4-kcalc" />
+            <package name="kde4-kgpg" />
+            <package name="kde4-ksnapshot" />
+            <package name="kde4-kwalletmanager" />
+            <package name="kiosktool" />
+            <package name="kde4-kfloppy" />
+            <package name="kde4-ktimetracker" />
+            <package name="kde4-kalarm" />
+    </group>
+</group>

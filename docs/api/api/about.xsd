@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	   elementFormDefault="qualified">
+  
+  <xs:annotation>
+    <xs:documentation>
+      This schema describes the format of the about information for the openSUSE
+      API.
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:element name="about">
+    <xs:annotation>
+      <xs:documentation>
+        Top level element for about data.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="title"/>
+        <xs:element ref="description"/>
+        <xs:element ref="revision"/>
+	<xs:element ref="documentation" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="title" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Title of the API.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="description" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Description of purpose of API.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="revision" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Revision of API. The revision is incremented when the API changes in an
+        incompatible way.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="documentation">
+    <xs:annotation>
+      <xs:documentation>
+        Link to documentation of API.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="type" type="xs:string"/>
+      <xs:attribute name="url" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

@@ -1,0 +1,42 @@
+<% @pagetitle = 'Changes' %>
+<% package_bread_crumb('Changes') %>
+
+<%= render partial: 'tabs' %>
+
+<% if @opackage %>
+    <h3>Difference Between Revision <%= @rev %>
+      and <%= project_or_package_link project: @oproject.name, package: @opackage.name, short: true %></h3>
+<% else %>
+    <h3>Changes of Revision <%= @rev %></h3>
+<% end %>
+
+<%= render(partial: 'shared/sourcediff', locals: { filenames: @filenames, files: @files, source: { project: @project, package: @package, rev: @rev }, editor_width: '915px' }) %>
+
+<% unless @last_req.blank? %>
+    <p class="error">
+      The previous request <%= link_to(@last_req['id'], controller: 'request', action: 'show', id: @last_req['id']) %>
+      was declined <%= fuzzy_time_string(@last_req['when']) %> by
+      <%= user_with_realname_and_icon(@last_req['decliner'], short: true) %>
+      with the following message: </p>
+    <pre><%= @last_req['comment'] %></pre>
+<% end %>
+
+<% if !User.current.is_nobody? && @filenames.present? %>
+    <% # TODO this obviously belongs in the controller
+       url_opts = { action: 'submit_request_dialog', project: @project, package: @package, revision: @rev }
+       if @oproject && @opackage && !@oproject.find_attribute('OBS', 'RejectRequests') &&
+               !@opackage.find_attribute('OBS', 'RejectRequests')
+         msg = "Submit to #{@oproject.name + ' / ' + @opackage.name}"
+         url_opts.merge!(target_project: @oproject.name, targetpackage: @opackage.name)
+       elsif @rev != @last_rev
+         msg = "Revert #{@project.name + ' / ' + @package.name} to revision #{@rev}"
+         url_opts[:target_project] = @project.name
+       else
+         msg = nil
+       end %>
+    <% if msg %>
+        <p>
+          <%= link_to(sprited_text('package_go', msg), url_opts, remote: true) %>
+        </p>
+    <% end %>
+<% end %>

@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<productdefinition xmlns:xi="http://www.w3.org/2001/XInclude">
+<products>
+ <product id="sle-11-server">
+    <!--
+    todo:
+    - pattern translations -> tool needs to create pot file from the xml
+    - solver:
+      + choose locales automatically
+      + conflicting patterns and packages
+      + group with "preferred" packages for the solver (postfix vs. sendmail)
+    - add on product handling:
+      + registration required even for add on products
+      + what about openSUSE add ons that don't need registration but an extra update channel?
+    -->
+        <vendor>Novell</vendor>
+        <name>SLES</name>
+        <version>11</version>
+        <release>0</release> <!-- needed for example if an ISO has to rebuild /* NEEDS TO BE DISCUSSED */ -->
+
+        <!-- Please have a look at the Products file definition (http://en.opensuse.org/Build_Service/Product_Definition/products_file).
+             for details about the ncc_target. -->
+        <register>
+            <target>openSUSE-11.1-%%{_target_cpu}</target>
+            <!-- release is optional and normally empty -->
+            <release></release>
+            <flavor>ftp</flavor>
+        </register>
+<!--
+          /* required for NCC registration */ 
+          Note: this Flag has to be discussed between PrjMgr and NCC-Team - 
+          and shouldn't change the whole lifetime of the product. 
+          Normally, just needed for Enterprise - here just for 
+          reference.
+          FYI: the distribution tag will be generated during media creation. 
+               * flavor will be replaced with the <media type="dvd5"/> definition in the mediaset.
+               * target will be replaced with the ncc_target - the %{_target_cpu} macro 
+                 will be replaced with the basearch of the product.
+               * release is reserved for special versions of a product 
+        -->
+
+        <updaterepokey>strings</updaterepokey> <!-- SPEAK WITH DUNCAN -->
+
+        <summary>A cool distribution</summary> <!-- one line only -->
+        <summary lang="de">Einfach genial</summary>
+
+        <description>This is the coolest distribution on the world.
+        Try it out and find it useful.</description> <!-- multiple lines allowed -->
+        <description lang="de">Was soll man da sagen?
+        Einfach toll!</description>
+
+        <!-- below is a list of Flags which perhaps need to be present in buildconfig, installconfig and runtimeconfig -->
+
+        <!-- Available languages for collecting packages and during installation and runtime -->
+        <linguas>
+            <lang>da</lang> 
+            <lang>de</lang>
+        </linguas>
+
+        <urls>
+            <url name="releasenotes">http://www.suse.com/relnotes/i386/SLE/11/release-notes-sles.rpm</url>
+            <url name="smolt">http://smolt.opensuse.org/register.pl</url>
+            <url name="register">http://register.novell.com/</url>
+        </urls>
+
+        <buildconfig>
+            <!-- This section is needed to generate the installation media -->
+            <producttheme>SLES</producttheme>
+            <betaversion>-Alpha3plus</betaversion>
+            <linguas>
+                <!-- and now a hidden feature: additional language on the media, but not available during install -->
+                <lang>af</lang>
+            </linguas>
+            <!-- should be false for sles -->
+            <allowresolving>false</allowresolving>
+            <!-- if above is true, which packagemanager to use? -->
+            <packagemanager>zypper</packagemanager>
+        </buildconfig>
+
+        <installconfig>
+            <!-- All flags needed during installation -->
+            <defaultlang>en_US</defaultlang>
+            <!-- needed for current content file -->
+            <datadir>suse</datadir>
+            <descrdir>suse/setup/descr</descrdir>
+            <references name="sles-release" version="11"/>
+            <distribution>SUSE_SLE</distribution>
+        </installconfig>
+
+        <runtimeconfig>
+            <!-- All Flags needed in the running system -->
+        </runtimeconfig>
+
+    </product>
+   </products>
+
+    <conditionals>
+        <conditional name="baselibs_only_x86_64">
+                <platform onlyarch="x86_64" />
+        </conditional>
+        <conditional name="baselibs_hammer_from_i686">
+                <platform arch="x86_64" baselibs_arch="i686" />
+        </conditional>
+        <conditional name="dvd9_media_1">
+           <media number="1" />
+        </conditional>
+        <conditional name="dvd5_media_1">
+           <media number="2" />
+        </conditional>
+    </conditionals>
+
+    <repositories>
+        <repository name="standard"  priority="1" path="obs://SUSE:SLE-11-SP0:GA"/>
+        <repository name="Education" priority="3" path="obs://Education:desktop"/>
+        <repository name="local_app" priority="4" path="file:///space/tree/suse"/>
+    </repositories>
+
+    <mediasets>
+        <media type="dvd5" 
+               product="sle-11-server" 
+               name="sle-11-server-dvd5" 
+               sourcemedia="false" 
+               create_pattern="true" 
+               use_required="true" 
+               use_recommended="true" 
+               use_suggested="false"> 
+
+          <mediaarchs>
+            <archset basearch="i586">
+                <arch>i586</arch>
+                <arch>i686</arch>
+                <arch>x86_64</arch>
+            </archset>
+            <archset basearch="ppc">
+                <arch>ppc</arch>
+                <arch>ppc64</arch>
+            </archset>
+          </mediaarchs>
+
+          <!-- we put all packages (even suggested) on the media for the two groups below -->
+          <use group="apparmor" use_suggested="true" />
+          <use group="base"     use_suggested="true" />
+          <!-- packages from the other groups will be included if defined as required or recommended only -->
+          <!-- can be overwritten in each section of the group for single pacakges -->
+          <use group="Basis-Devel" />
+          <use group="dhcp_dns_server" />
+          <use group="virtualisation">
+                <!-- mark a recommended package as required on this media -->
+                <package name="kernel-xen" relationship="required" />
+          </use>
+          <use group="basis_enhanced"/>
+          <use group="mozilla" create_pattern="false" />
+          <metadata>
+              <!-- if you like to add a metapackage to the real media, add it in a normal group.xml file -->
+              <package name="dosutils" />
+              <package name="installation-images" />
+              <package name="yast2-slide-show-SLES" />
+              <!-- needed ? -->
+              <file name="README.txt" />
+          </metadata>
+        </media>
+
+        <media type="dvd9" 
+               product="sle-11-server" 
+               name="sle-11-server-dvd9" 
+               create_pattern="true" 
+               use_required="true" 
+               use_recommended="true" 
+               use_suggested="false">
+          <mediaarchs>
+            <archset basearch="i586">
+                <arch>i586</arch>
+                <arch>x86_64</arch>
+            </archset>
+          </mediaarchs>
+          <!-- ... -->
+        </media>
+
+        <media type="ftp">
+          <!-- ... -->
+        </media>
+
+        <media type="livedvd5">
+            <use group="basis" />
+            <use group="basis_enhanced" create_pattern="true" use_required="true" />
+            <!-- /product/packages/group[@name='gnome' -->
+            <use group="gnome" create_pattern="true" use_required="true">
+                <!-- too big for this -->
+                <include group="banshee" relationship="suggested" />
+            </use>
+        </media>
+    </mediasets>
+
+    <xi:include href="basis.group" />
+    <xi:include href="enhanced_base.group" />
+</productdefinition>
+

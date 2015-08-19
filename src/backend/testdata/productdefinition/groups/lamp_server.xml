@@ -1,0 +1,23 @@
+<group name="lamp_server" version="10" release="215"
+       pattern:ordernumber="3040"
+       pattern:category="Primary Functions"
+       pattern:icon="yast-http-server"
+       pattern:summary="Web and LAMP Server"
+       pattern:description="Software to set up a Web server that is able to serve static, dynamic, and interactive content (like a Web shop). This includes Apache HTTP Server, the database management system MySQL, and scripting languages such as PHP, Python, Ruby on Rails, or Perl."
+       pattern:visible="true"
+>
+    <pattern name="basesystem" relationship="required" />
+    <group relationship="required">
+            <package name="apache2" />
+    </group>
+    <group relationship="recommended">
+            <package name="apache2-prefork" />
+            <package name="apache2-example-pages" />
+            <package name="apache2-doc" />
+            <package name="libapr1" />
+            <package name="libapr-util1" />
+            <package name="mysql" />
+            <package name="apache2-mod_python" />
+            <package name="apache2-mod_php5" />
+    </group>
+</group>

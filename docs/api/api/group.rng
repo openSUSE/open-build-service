@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<grammar ns="http://buildservice.org/api" xmlns="http://relaxng.org/ns/structure/1.0" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <start>
+    <ref name="group-element"/>
+  </start>
+
+  <define ns="" name="group-element">
+    <element name="group">
+      <element name="title"><text/></element>
+      <optional>
+        <element name="email"><text/></element>
+      </optional>
+      <zeroOrMore>
+        <element name="maintainer">
+          <attribute name="userid">
+            <data type="string" />
+          </attribute>
+          <empty/>
+        </element>
+      </zeroOrMore>
+      <element name="person"> <!-- FIXME3.0: should be plural -->
+        <zeroOrMore>
+          <element name="person">
+            <attribute name="userid">
+              <data type="string" />
+            </attribute>
+            <empty/>
+          </element>
+        </zeroOrMore>
+      </element>
+      <empty/>
+    </element>
+  </define>
+
+</grammar>
+

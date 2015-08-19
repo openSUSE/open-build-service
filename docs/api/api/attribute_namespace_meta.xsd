@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  elementFormDefault="qualified">
+
+  <xs:annotation>
+    <xs:documentation>
+      This schema describes the system wide attribute definitions for the OBS.
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:element name="modifiable_by">
+    <xs:annotation>
+      <xs:documentation>
+        To specify access lists of a namespace or attribute. 
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="user" type="xs:string"/>
+      <xs:attribute name="group" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="namespace">
+    <xs:annotation>
+      <xs:documentation>
+        Attribute namespace defintions
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element minOccurs="0" maxOccurs="unbounded" ref="modifiable_by"/>
+      </xs:sequence>
+      <xs:attribute name="name" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

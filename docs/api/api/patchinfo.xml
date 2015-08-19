@@ -1,0 +1,22 @@
+<patchinfo version="2">
+  <package>build</package>
+  <package>obs-server</package>
+  <binary>obs-api</binary>
+  <binary>build-initvm</binary>
+
+  <issue tracker="bnc" id="123456"/>
+  <issue tracker="bnc" id="123456">Add syntax check</issue>
+  <issue tracker="CVE" id="CVE-2011-1234">Fixes remote root hole</issue>
+  <issue tracker="CVE" id="CVE-2011-1234" documented="false">Fixes remote root hole</issue>
+
+  <category>security</category>
+  <rating>low</rating>
+  <summary>obs-api security update</summary>
+  <description>Just a description
+in multiline
+</description>
+  <packager>adrian@suse.de</packager>
+  <zypp_restart_needed/>
+  <reboot_needed/>
+  <relogin_needed/>
+</patchinfo>

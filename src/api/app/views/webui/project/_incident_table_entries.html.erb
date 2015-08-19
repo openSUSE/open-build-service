@@ -1,0 +1,85 @@
+<% incidents.each do |incident| %>
+    <% index = 0 %>
+    <% release_targets_ng = incident.release_targets_ng() %>
+    <% release_targets_ng.each do |rt_name, rt| %>
+        <tr>
+          <% if index == 0 %>
+              <td rowspan="<%= release_targets_ng.length %>">
+                <% title = incident.title || incident.name %>
+                <% if rt[:patchinfo] && rt[:patchinfo].value('summary').present?
+                     title = rt[:patchinfo].value('summary')
+                   end
+                   title = "#{short_incident_name(@project, incident)}: #{title}"
+                %>
+                <%= link_to(elide(title, 60, :right), { action: 'show', project: incident.name }, title: title) %>
+              </td>
+              <td rowspan="<%= release_targets_ng.length %>">
+                <% if rt[:patchinfo] %>
+                    <%= link_to(rt[:patchinfo].value(:category),
+                                { controller: 'patchinfo', action: 'show',
+                                  project: incident.name, package: 'patchinfo', file: '_patchinfo' },
+                                { style: "color: #{patchinfo_category_color(rt[:patchinfo].value(:category))};" }) %>
+                <% else %>
+                    <%= link_to(sprited_text('exclamation', 'Missing patchinfo'),
+                                { controller: 'patchinfo', action: 'new_patchinfo',
+                                  project: incident.name, package: 'patchinfo' },
+                                { style: 'color: red;', method: :post }) %>
+                <% end %>
+              </td>
+              <td rowspan="<%= release_targets_ng.length %>">
+                <% packages = rt[:packages]
+                   package = packages.shift
+                   if package %>
+                    <%= link_to(package.name.split('.', 2)[0], controller: 'package', action: 'show', project: incident.name, package: package.name) %>
+                    <% unless packages.empty? %>
+                        , ...
+                    <% end %>
+                <% end %>
+              </td>
+              <td rowspan="<%= release_targets_ng.length %>" class="nowrap">
+                <% rqs_in = BsRequestCollection.list_ids(roles: %w(target), states: %w(new review), project: incident.name) %>
+                <% if rqs_in && rqs_in.length > 0 %>
+                    <% text = "#{rqs_in.length} open request#{rqs_in.length == 1 ? '' : 's'}" %>
+                    <% if rqs_in.length == 1 %>
+                        <%= link_to(sprite_tag('exclamation', title: text), controller: 'request',
+                                    action: 'show', id: rqs_in[0]) %>
+                    <% else %>
+                        <%= link_to(sprite_tag('exclamation', title: text), action: 'requests',
+                                    project: incident.name) %>
+                    <% end %>
+                <% end %>
+                <% rqs_out = BsRequestCollection.list_ids(roles: %w(source), states: %w(new review declined),
+                                                          types: %w(maintenance_release), project: incident.name) %>
+                <% if rqs_out.present? %>
+                    <% BsRequest.where(id: rqs_out).order('bs_requests.id').each do |rq_out| %>
+                        <% text = "Release request in state '#{rq_out['state']}'" %>
+                        <%= link_to(sprite_tag(map_request_state_to_flag(rq_out['state'].to_s), title: text), controller: 'request', action: 'show', id: rq_out['id']) %>
+                    <% end %>
+                <% else %>
+                    <% if incident.is_locked? %>
+                        <%= sprite_tag('lock', title: 'Locked') %>
+                    <% end %>
+                <% end %>
+                <% if rt[:patchinfo] && rt[:patchinfo].value('stopped') && !rt[:patchinfo].value('stopped').empty? %>
+                    <% title = "Stopped: #{rt[:patchinfo].value('stopped')}" %>
+                    <%= sprite_tag('clock', title: title) %>
+                <% end %>
+              </td>
+          <% end %>
+          <td><b><%= rt_name %></b></td>
+          <td>
+            <% buildresult_css_id = "incident_#{valid_xml_id(incident.name)}_results_#{valid_xml_id(rt_name)}" %>
+            <% if incident.build_succeeded?(rt[:reponame]) %>
+                <%= link_to(sprite_tag('tick', title: 'Build results', id: buildresult_css_id), action: :show, project: incident.name) %>
+            <% else %>
+                <%= link_to(sprite_tag('exclamation', title: 'Build results', id: buildresult_css_id), action: :show, project: incident.name) %>
+            <% end %>
+            <%= javascript_tag do %>
+                setup_buildresult_tooltip('<%= buildresult_css_id %>',
+                '<%= url_for controller: 'project', action: 'buildresult', project: incident.name %>');
+            <% end %>
+          </td>
+          <% index += 1 %>
+        </tr>
+    <% end %>
+<% end %>

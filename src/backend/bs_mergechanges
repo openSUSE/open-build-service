@@ -1,0 +1,181 @@
+#!/usr/bin/perl -w
+#
+# Copyright (c) 2014 Adrian Schroeter, SUSE LLC
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 or 3 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+################################################################
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
+}
+
+use POSIX;
+use Data::Dumper;
+use Getopt::Long;
+use Date::Parse;
+
+sub echo_help {
+    print "\n
+The SUSE changes merge tool
+===========================
+
+openSUSE package sources contain a .changes file providing a full changelog.
+A stripped version of that gets attached to rpm %changes to avoid a too large rpm db.
+But the full version is kept with the package sources.
+
+The classic diff3 merge approach often fails on these files, so this
+merge tool is reading the entire files and sorts the entries according
+to it's date. If entries with same date do differ it fails. The classic
+diff3 merge and manual conflict resolution is the only way then.
+
+The tool takes any amount of files and is merging them into one
+
+";
+}
+
+#
+# Argument parsing
+#
+if ( @ARGV < 1 ){
+  echo_help();
+  exit(1);
+}
+
+my @files;
+my $force;
+my $verbose;
+
+while (@ARGV) {
+  my $arg = shift @ARGV;
+  if ($arg eq "--help") {
+    echo_help();
+    exit(0);
+  }
+
+  if ($arg eq "--verbose") {
+    $verbose = 1;
+  } elsif ($arg eq "--force") {
+    $force = 1;
+  } elsif ($arg =~ /^-/) {
+    die("Unknown switch $arg");
+  } else {
+    push @files, $arg;
+  }
+}
+
+die("Give at least one file") if ( @files < 1 );
+
+# init
+my $seperator = "-------------------------------------------------------------------";
+my %entries;
+
+# utils
+
+sub time2mystr {
+  my ($time) = @_;
+  my @lt = gmtime($time);
+  # ctime(3) format output
+  return strftime("%a %b %e %H:%M:%S UTC %Y", @lt);
+}
+
+sub setentry {
+  my ($time, $timestr, $email, $text) = @_;
+  if ($entries->{$time} && !$force) {
+    # entry exists already, is it the same?
+    if ($entries->{$time}->{text} ne $text) {
+      die("Two different entries for ".time2mystr($time));
+    }
+  } else {
+    $entries->{$time}->{time} = $timestr;
+    $entries->{$time}->{email} = $email;
+    $entries->{$time}->{text} = $text;
+  }
+}
+
+# read all files into a hash
+while (@files) {
+  my $file = shift @files;
+  local *F;
+  open(F, '<', $file) || die("Unable to open $file");
+  my @lines = <F>;
+  close F;
+  print "Read file $file\n" if $verbose;
+
+  my $init;
+  my $email;
+  my $time;
+  my $timestr;
+  my $text = ""; 
+  my $cycle = 0;
+  foreach my $line (@lines) {
+    chomp($line);
+    unless($init) {
+      if($line eq $seperator) {
+        $init = 1;
+      } else {
+        die("no ---- seperator in first line")
+      }
+      next;
+    }
+
+    $cycle = $cycle + 1;
+    # old and upstream new entries where identical. So let our new version win.
+    $force = 1 if $cycle > 2;
+
+    unless($time) {
+      ($timestr, $email) = split(' - ', $line, 2);
+      $time = str2time($timestr);
+      die("unable to parse time $line") unless $time;
+      die("unable to find email in time line") unless $email;
+      print "Read ".time2mystr($time)."($time) for $line\n" if $verbose;
+      next;
+    }
+    
+    if ($line eq $seperator) {
+      my @lt = gmtime($time);
+      # check for the special case, we had many entries at 00:00:00 on same day in the past ...
+      # ignoring the hour due to timezone issues, but do not accept it anymore for current entries
+      # we take this as one blob.
+      # Accept this only for entries in 2006 and before with 00 minutes and 00 seconds
+      if ( $lt[5] > 106 || $lt[1] != 0 || $lt[0] != 0) {
+        setentry($time, $timestr, $email, $text);
+        $text = ""; 
+        $time = undef;
+        $email = undef;
+        next;
+      }
+    }
+
+    # must be text
+    $text .= $line;
+    $text .= "\n";
+  };
+  # last entry
+  setentry($time, $timestr, $email, $text);
+}
+
+print "Merged ouput:\n===========\n" if $verbose;
+
+# output the hash
+for my $time (sort{$b <=> $a} keys %$entries) {
+  print $seperator."\n";
+  print $entries->{$time}->{time}." - ".$entries->{$time}->{email}."\n";
+  print $entries->{$time}->{text};
+}
+

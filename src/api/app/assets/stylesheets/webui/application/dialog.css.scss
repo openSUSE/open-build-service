@@ -1,0 +1,45 @@
+.dialog {
+  z-index: 90;
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  height: 10em;
+  width: 26em;
+  margin-left: -13em;
+  .dialog-content {
+    overflow: auto;
+    max-height: 400px;
+    input:not([type=submit]):not([type=file]) {
+      width: 95%;
+    }
+  }
+  .dialog-buttons {
+    text-align: center;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    a, input {
+      font-size: 1.2em;
+      padding: 3px 1ex;
+      background: #FFF;
+      background-color: #fff;
+      border-color: #EEE;
+      color: #999;
+      &:visited {
+        text-decoration: none;
+      }
+      &:hover {
+        text-decoration: none;
+        color: #666;
+      }
+    }
+    #remove_dialog {
+      border-radius: 5px;
+      border: 1px solid #eee;
+      padding: 8px;
+      /* Make it look like the default option*/
+      font-weight: bold;
+      font-size: 1.2em;
+    }
+  }
+}
+

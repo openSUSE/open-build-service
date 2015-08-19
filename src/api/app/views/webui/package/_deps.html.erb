@@ -1,0 +1,62 @@
+<div class="grid_8 alpha">
+  <h3>Provides</h3>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 40%">Symbol</th>
+        <th>Required by</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @fileinfo.each(:provides_ext) do |p|  %>
+        <tr>
+          <td><span title='<%= p.value(:dep) %>' class='nowrap'>
+            <%= truncate(p.value(:dep), :length => 30) %></span></td>
+          <td>
+            <% p.each(:requiredby) do |pby| %>
+                <%= link_to pby.value(:name), :action => :dependency,
+                            :project => @project,
+                            :package => @package,
+                            :repository => @repository, :arch => @arch,
+                            :dproject => pby.value(:project), :drepository => pby.value(:repository),
+                            :dname => pby.value(:name), :filename => @filename %>
+            <% end -%>
+          </td>
+        </tr>
+      <% end -%>
+      <% unless @fileinfo.has_element? 'provides_ext' %>
+        <tr><td colspan="2"><em>No provides</em></td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>
+
+<div class="grid_8 omega">
+  <h3>Requires</h3>
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 40%">Symbol</th>
+        <th>Provided by</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% @fileinfo.each(:requires_ext) do |p|  %>
+        <tr>
+          <td><span title='<%= p.value(:dep) %>' class='nowrap'><%= truncate(p.value(:dep), :length => 30) %></span></td>
+          <td>
+            <% p.each(:providedby) do |pby| %>
+                <%= link_to pby.value(:name), :action => :dependency, :project => @project,
+                            :package => @package, :repository => @repository, :arch => @arch,
+                            :dproject => pby.value(:project), :drepository => pby.value(:repository),
+                            :dname => pby.value(:name), :filename => @filename %>
+            <% end -%>
+          </td>
+        </tr>
+      <% end -%>
+      <% unless @fileinfo.has_element? 'requires_ext' %>
+        <tr><td colspan="2"><em>No requires</em></td></tr>
+      <% end %>
+    </tbody>
+  </table>
+</div>

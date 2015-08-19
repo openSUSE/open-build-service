@@ -1,0 +1,28 @@
+<group name="mail_server" version="10" release="215"
+       pattern:ordernumber="3030"
+       pattern:category="Primary Functions"
+       pattern:icon="yast-mail-server"
+       pattern:summary="Mail and News Server"
+       pattern:description="Software to set up electronic mail and message services to handle e-mail, mailing, and news lists, including a virus scanner to scan messages at the server level."
+       pattern:visible="true"
+>
+    <pattern name="basesystem" relationship="required" />
+    <group relationship="required">
+            <package name="yast2-mail-plugins" />
+    </group>
+    <group relationship="recommended">
+            <package name="avmailgate" />
+            <package name="amavisd-new" />
+            <package name="mailman" />
+            <package name="cyrus-imapd" />
+            <package name="clamav" />
+            <package name="lha" />
+            <package name="unace" />
+            <package name="unarj" />
+            <package name="unrar" />
+            <package name="zoo" />
+            <package name="spamassassin" />
+            <package name="inn" />
+            <package name="vacation" />
+    </group>
+</group>

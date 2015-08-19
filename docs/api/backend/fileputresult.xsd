@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	   elementFormDefault="qualified">
+  
+  <xs:annotation>
+    <xs:documentation>
+      This schema describes the response of a PUT request on a file which is
+      part of a package.
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:element name="revision">
+    <xs:annotation>
+      <xs:documentation>
+        Information about the written file.
+        
+        TODO: Unify this with status and package schemas.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="srcmd5"/>
+        <xs:element ref="version"/>
+        <xs:element ref="time"/>
+        <xs:element ref="user"/>
+        <xs:element ref="comment"/>
+      </xs:sequence>
+      <xs:attribute name="rev" type="xs:string"/>
+      <xs:attribute name="vrev" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="srcmd5" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        MD5 sum of all files of the package.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="time" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        ???
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="user" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        ???
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="version" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        Version of package.
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+  <xs:element name="comment" type="xs:string">
+    <xs:annotation>
+      <xs:documentation>
+        ???
+      </xs:documentation>
+    </xs:annotation>
+  </xs:element>
+
+</xs:schema>

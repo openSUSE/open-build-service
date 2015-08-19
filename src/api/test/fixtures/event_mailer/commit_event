@@ -1,0 +1,22 @@
+Committer: unknown
+New Revision: 1
+
+Log:
+
+
+Added:
+  my_file
+
+
+
+
+
+To compare against the previous version:
+   osc rdiff BaseDistro pack1
+
+Check out the package for editing:
+   osc checkout BaseDistro pack1
+
+-- 
+Configure notifications at http://localhost/user/notifications
+Open Build Service (http://localhost/)

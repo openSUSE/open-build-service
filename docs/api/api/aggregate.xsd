@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+
+  <xs:element name="aggregatelist">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="aggregate" minOccurs="1" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="aggregate">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="package"    type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+        <xs:element name="binary"     type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+        <xs:element name="nosources"  type="xs:string" minOccurs="0" maxOccurs="1" />
+        <xs:element ref="repository"                   minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attribute name="project" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="repository">
+    <xs:complexType>
+      <xs:attribute name="target" type="xs:string"/>
+      <xs:attribute name="source" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

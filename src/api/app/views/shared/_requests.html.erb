@@ -1,0 +1,46 @@
+<% request_table_id ||= 'request_table' %>
+<% hide_state ||= false %>
+<% no_target ||= false %>
+<% sort_columns = %w(null null null) %>
+
+<% if requests.blank? %>
+    <p>No requests.</p>
+<% else %>
+    <table id="<%= request_table_id %>">
+      <thead>
+      <tr>
+        <th>Modified</th>
+        <th>Source</th>
+        <% if !no_target
+             sort_columns << 'null' -%>
+            <th>Target</th>
+        <% end -%>
+        <th>Requester</th>
+        <th>Type</th>
+        <% sort_columns.concat %w(null null) %>
+        <% if !hide_state
+             sort_columns << 'null' -%>
+            <th>State</th>
+            <% sort_columns.concat %w(null) %>
+        <% end %>
+        <th>Priority</th>
+        <th>Actions</th>
+      </tr>
+      </thead>
+      <tbody>
+      <% requests.each do |req| -%>
+          <%= render partial: 'shared/single_request', locals: { req: req, no_target: no_target, hide_state: hide_state } %>
+      <% end %>
+      </tbody>
+    </table>
+    <% content_for :ready_function do %>
+        $('#<%= request_table_id %>').dataTable({
+        'aoColumns': [
+        <%= sort_columns.join(',') %>,
+        {'bSortable': false}
+        ],
+        'bInfo': false,
+        'bPaginate': false,
+        });
+    <% end %>
+<% end %>

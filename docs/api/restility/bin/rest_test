@@ -1,0 +1,151 @@
+#!/usr/bin/ruby
+
+require 'optparse'
+require 'rubygems'
+require_gem 'active_support'
+
+require 'erb'
+include ERB::Util
+
+require "ftools"
+
+$LOAD_PATH << File.dirname( $0 )
+
+require "rest.rb"
+require "rest_test.rb"
+
+class Options
+
+  attr_accessor :verbose, :filename, :html, :outline, :output_dir,
+    :create_template, :testfile, :force, :request, :show_all, :include_dir,
+    :output_html
+
+  def initialize
+    verbose = false
+    html = false
+  end
+
+  def self.parse( args )
+    options = Options.new
+
+    opt = OptionParser.new
+
+    opt.banner = "Usage: rest_test [options] filename"
+
+    opt.on( "-h", "--help", "Print this message" ) do
+      puts opt
+      exit
+    end
+
+    opt.on( "-v", "--verbose", "Verbose mode" ) do
+      options.verbose = true
+    end
+
+    opt.on( "--create-test", "Create test template" ) do
+      options.create_template = true
+    end
+
+    opt.on( "--test=testfile", "Select test file" ) do |val|
+      options.testfile = val
+    end
+
+    opt.on( "--force", "Force overwriting of test file" ) do
+      options.force = true
+    end
+
+    opt.on( "--request=name", "Select request to be tested" ) do |val|
+      options.request = val
+    end
+
+    opt.on( "--show-all", "Show all requests, not only non-passed." ) do
+      options.show_all = true
+    end
+
+    opt.on( "--output-html", "Put out results formatted as HTML." ) do
+      options.output_html = true
+    end
+
+    opt.on( "-I", "=DIRECTORY", "Include directory as search path for XML files") do |val|
+      options.include_dir = val
+    end
+
+    begin
+      opt.parse!( args )
+    rescue OptionParser::InvalidOption
+      STDERR.puts $!
+      STDERR.puts opt
+      exit 1
+    end
+
+    if ( ARGV.size > 1 )
+      STDERR.puts "Too many arguments"
+      STDERR.puts opt
+      exit 1
+    elsif ( ARGV.size < 1 )
+      STDERR.puts "Too few arguments"
+      STDERR.puts opt
+      exit 1
+    end
+
+    options.filename = ARGV[0]
+
+    options
+  end
+
+end
+
+options = Options.parse( ARGV )
+
+begin
+
+  XmlFile.include_dir = options.include_dir
+
+  if ( !options.testfile )
+    options.testfile = options.filename + ".test"
+  end
+
+  document = Document.new
+  document.parse_args
+
+  @requests = document.all_children Request
+
+  if ( !File.exists?( options.testfile ) || options.create_template )
+    if ( File.exists?( options.testfile ) )
+      if ( !options.force )
+        STDERR.puts "Test file '#{options.testfile} already exists." +
+          " Use '--force' to overwrite it. Exiting."
+        return
+      end
+      puts "Overwriting test file '#{options.testfile}'."
+    else
+      puts "Creating test file '#{options.testfile}'."
+    end
+    File.open( options.testfile, "w" ) do |file|
+      @requests.each do |r|
+        file.puts "request \"#{r}\""
+      end
+    end
+  end
+  puts "Working on testfile #{options.testfile}."
+
+  runner = TestRunner.new @requests
+
+  configfile = options.testfile + ".config"
+  if ( File.exists? configfile )
+    File.open configfile do |file|
+      eval file.read, runner.context.get_binding
+    end
+  end
+
+  if ( options.verbose )
+    runner.context.show_xmlbody = true
+  end
+  runner.context.show_passed = options.show_all
+  runner.context.request_filter = options.request
+  runner.context.output_html = options.output_html
+
+  runner.run options.testfile
+
+rescue Errno::ENOENT
+  puts $!
+end

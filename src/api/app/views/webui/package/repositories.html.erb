@@ -1,0 +1,12 @@
+<% @pagetitle = "Repositories of #{@package.name} (Project #{@project})"
+   package_bread_crumb 'Repositories'
+-%>
+
+<%= render :partial => 'tabs' %>
+
+<h3><%= @pagetitle %></h3>
+<p>You can configure individual flags for this package here. The repositories
+are inherited from the project <%= link_to @project, :controller => :project, :action => :repositories, :project => @project %>. </p>
+
+<%= render :partial => 'shared/repositories', :locals => { :obj => @package } %>
+

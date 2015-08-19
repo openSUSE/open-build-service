@@ -1,0 +1,25 @@
+<service name="download_url">
+  <summary>Download a file</summary>
+  <description>This service uses curl to download files from remote servers via supported protocols.</description>
+  <parameter name="protocol">
+    <description>Used Protocol</description>
+    <allowedvalue>ftp</allowedvalue>
+    <allowedvalue>http</allowedvalue>
+    <allowedvalue>https</allowedvalue>
+  </parameter>
+  <parameter name="host">
+    <description>Server Hostname</description>
+    <required/>
+  </parameter>
+  <parameter name="port">
+    <description>Used Port</description>
+  </parameter>
+  <parameter name="path">
+    <description>Path to the file</description>
+    <required/>
+  </parameter>
+  <parameter name="filename">
+    <description>Stored with this file name. Otherwise with the file name as reported by the server.</description>
+  </parameter>
+</service>
+

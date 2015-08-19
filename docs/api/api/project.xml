@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="superkde">
+  <title>SuperKDE</title>
+  <description>SuperKDE is a heavily tuned version of KDE.</description>
+  <link project="openSUSE:11.2:Update" />
+  <link project="openSUSE:11.2" />
+  <person role="maintainer" userid="ernie"/>
+  <group  role="reviewer"  groupid="release_team"/>
+  <build>
+    <disable />
+  </build>
+  <useforbuild>
+    <disable />
+  </useforbuild>
+  <repository name="kde4:factory" rebuild="transitive">
+    <path project="kde4" repository="factory"/>
+    <releasetarget project="kde4" repository="snapshot" trigger="manual" />
+    <arch>i386</arch>
+    <arch>x86_64</arch>
+  </repository>
+  <repository name="suselinux-9.3">
+    <path project="suselinux-9.3" repository="standard"/>
+    <arch>i386</arch>
+  </repository>
+  <repository name="gnomespecial" rebuild="local">
+    <path project="gnome3" repository="suselinux-9.3"/>
+    <path project="suselinux-9.3" repository="standard"/>
+    <arch>i386</arch>
+  </repository>
+</project>

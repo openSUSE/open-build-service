@@ -1,0 +1,19 @@
+<group name="file_server" version="10" release="215"
+       pattern:ordernumber="3010"
+       pattern:category="Primary Functions"
+       pattern:icon="yast-nfs_server"
+       pattern:summary="File Server"
+       pattern:description="File services to host files so that they may be accessed or retrieved by other computers on the same network. This includes the FTP, SMB, and NFS protocols."
+       pattern:visible="true"
+>
+    <pattern name="basesystem" relationship="required" />
+    <group relationship="recommended">
+            <package name="samba" />
+            <package name="samba-client" />
+            <package name="samba-pdb" />
+            <package name="samba-winbind" />
+            <package name="pure-ftpd" />
+            <package name="nfs-kernel-server" />
+            <package name="atftp" />
+    </group>
+</group>

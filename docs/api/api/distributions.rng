@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar xmlns="http://relaxng.org/ns/structure/1.0" ns="http://buildservice.org/api" datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+  <include href="obs.rng"/>
+  <start>
+    <ref name="distributions-element"/>
+  </start>
+  <define ns="" name="distributions-element">
+    <element name="distributions">
+      <zeroOrMore>
+        <ref name="distribution-element"/>
+      </zeroOrMore>
+    </element>
+  </define>
+  <define ns="" name="distribution-element">
+    <element name="distribution">
+      <attribute name="id">
+        <data type="string"/>
+      </attribute>
+      <attribute name="vendor">
+        <data type="string"/>
+      </attribute>
+      <attribute name="version">
+        <data type="string"/>
+      </attribute>
+      <interleave>
+        <element name="name">
+          <text/>
+        </element>
+        <element name="project">
+          <text/>
+        </element>
+        <element name="repository">
+          <text/>
+        </element>
+        <element name="reponame">
+          <text/>
+        </element>
+        <zeroOrMore>
+          <ref name="architecture-element"/>
+        </zeroOrMore>
+        <zeroOrMore>
+          <ref name="icon-element"/>
+        </zeroOrMore>
+        <element name="link">
+          <text/>
+        </element>
+      </interleave>
+    </element>
+  </define>
+  <define ns="" name="architecture-element">
+    <element name="architecture">
+      <ref name="build-arch" />
+    </element>
+  </define>
+  <define ns="" name="icon-element">
+    <element name="icon">
+      <optional>
+        <attribute name="width">
+          <data type="int"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="height">
+          <data type="int"/>
+        </attribute>
+      </optional>
+      <attribute name="url">
+        <data type="string"/>
+      </attribute>
+      <empty/>
+    </element>
+  </define>
+</grammar>

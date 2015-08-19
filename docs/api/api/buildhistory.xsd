@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="buildhistory">
+      <xs:complexType>
+          <xs:sequence>
+              <xs:element minOccurs="0" maxOccurs="unbounded" ref="entry"/>
+          </xs:sequence>
+      </xs:complexType>
+  </xs:element>
+
+  <xs:element name="entry">
+      <xs:annotation>
+          <xs:documentation>
+              This schema describes the response data of a succesful 
+              buildhistory request to the buildservice API
+          </xs:documentation>
+      </xs:annotation>
+
+      <xs:complexType>
+          <xs:attribute name="rev" type="xs:string" />
+          <xs:attribute name="srcmd5" type="xs:string" />
+          <xs:attribute name="versrel" type="xs:string" />
+          <xs:attribute name="bcnt" type="xs:string" />
+          <xs:attribute name="time" type="xs:string" />
+      </xs:complexType>
+  </xs:element>
+</xs:schema>

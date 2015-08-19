@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar 
+    ns="http://buildservice.org/api"
+    xmlns="http://relaxng.org/ns/structure/1.0" 
+    datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <include href="obs.rng" />
+
+  <start>
+    <ref name="architecture-element"/>
+  </start>
+
+  <define ns="" name="architecture-element">
+    <element name="architecture">
+      <attribute name="name">
+        <ref name="build-arch"/>
+      </attribute>
+      <empty/>
+    </element>
+  </define>
+</grammar>

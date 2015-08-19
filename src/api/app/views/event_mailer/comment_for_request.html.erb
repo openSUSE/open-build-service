@@ -1,0 +1,5 @@
+<p>Visit <%= link_to(*[url_for(controller: 'webui/request', action: :show, id: @e['id'], host: @host, only_path: false)]*2) %></p>
+
+<p><%= @e['commenter'].realname %> wrote in request <%= @e['id'] %>:</p>
+
+<div><%= comment_body(@e['comment_body']) %></div>

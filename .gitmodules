@@ -1,0 +1,3 @@
+[submodule "src/backend/build"]
+	path = src/backend/build
+	url = git://github.com/openSUSE/obs-build.git

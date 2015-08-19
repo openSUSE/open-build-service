@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  elementFormDefault="qualified">
+
+  <xs:annotation>
+    <xs:documentation>
+      This schema describes the format for status messages of the opensuse
+      build service status.
+      Status messages are used to give a hint to the users what's going on
+      on the build service, for example if build hosts are having problems.
+    </xs:documentation>
+  </xs:annotation>
+
+
+  <xs:complexType name="message" mixed="true">
+  <xs:annotation>
+    <xs:documentation>
+      This element contains the actual message with some attributes.
+      The value for the attribute 'severity' (0-3) has the following meaning:
+        0: informal message
+        1: status changed to good with this message (green traffic lights displayed)
+        2: status changed to mid critical (yellow traffic lights displayed)
+        3: status changed to critical (red traffic lights displayed)
+    </xs:documentation>
+  </xs:annotation>
+    <xs:attribute name="id" type="xs:nonNegativeInteger" />
+    <xs:attribute name="user" type="xs:string" />
+    <xs:attribute name="severity" type="xs:nonNegativeInteger" />
+    <xs:attribute name="created_at" type="xs:string" />
+    <xs:attribute name="deleted_at" type="xs:string" />
+  </xs:complexType>
+
+  <xs:complexType name="status_messages">
+    <xs:sequence>
+      <xs:element name="message" type="message" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:element name="status_messages" type="status_messages" />
+  <xs:element name="message" type="message" />
+
+</xs:schema>
+

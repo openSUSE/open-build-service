@@ -1,0 +1,49 @@
+<request>
+  <action type='submit'>
+    <source project='home:Iggy:branches:kde4' package='kdebase' />
+    <options><sourceupdate>cleanup</sourceupdate></options>
+  </action>
+  <action type='submit'>
+    <source project='home:Iggy:branches:kde4' package='BranchPack' />
+    <target project='kde4' package="Testing" />
+    <options><sourceupdate>cleanup</sourceupdate></options>
+  </action>
+  <action type="delete">
+    <target project="home:Iggy" package="ToBeDeletedTestPack" />
+  </action>
+  <action type="delete">
+    <target project="home:fred:DeleteProject"/>
+  </action>
+  <action type="add_role">
+    <target project="kde4" />
+    <person name="Iggy" role="maintainer" />
+  </action>
+  <action type="add_role">
+    <target project="kde4" />
+    <group name="test_group" role="reader" />
+  </action>
+  <action type="add_role">
+    <target project="kde4" package="kdelibs" />
+    <person name="Iggy" role="maintainer" />
+  </action>
+  <action type="add_role">
+    <target project="kde4" package="kdelibs" />
+    <group name="test_group" role="reader" />
+  </action>
+  <action type="set_bugowner">
+    <target project="kde4" />
+    <person name="Iggy"  />
+  </action>
+  <action type="set_bugowner">
+    <target project="kde4" package="kdelibs" />
+    <person name="Iggy"  />
+  </action>
+  <action type="change_devel">
+    <source project="home:Iggy" package="TestPack" />
+    <target project="kde4" package="kdelibs" />
+  </action>
+
+  <description/>
+  <state who="Iggy" name="new"/>
+</request>
+

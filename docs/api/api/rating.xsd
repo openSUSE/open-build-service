@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+  elementFormDefault="qualified">
+
+  <xs:annotation>
+    <xs:documentation>
+      This schema describes the format for ratings of objects
+      (packages/projects) of the opensuse build service.
+    </xs:documentation>
+  </xs:annotation>
+
+
+  <xs:complexType name="rating" mixed="true">
+    <xs:annotation>
+      <xs:documentation>
+        This element contains the rating score and some (optional) attributes
+        to identify the rated object.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:attribute name="project" type="xs:string" />
+    <xs:attribute name="package" type="xs:string" />
+    <xs:attribute name="count" type="xs:nonNegativeInteger" />
+    <xs:attribute name="user_score" type="scoreInteger">
+      <xs:annotation>
+        <xs:documentation>
+          This is the value which the currently logged in user gave
+          this project/package.
+        </xs:documentation>
+      </xs:annotation>
+    </xs:attribute>
+  </xs:complexType>
+
+  <xs:element name="rating" type="rating" />
+
+  <xs:simpleType name="scoreInteger">
+    <xs:restriction base="xs:integer">
+      <xs:minInclusive value="0"/>
+      <xs:maxInclusive value="5"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>
+

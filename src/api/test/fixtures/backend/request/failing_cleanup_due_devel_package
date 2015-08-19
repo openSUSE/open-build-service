@@ -1,0 +1,12 @@
+<request>
+  <action type='submit'>
+    <source project='home:coolo:test' package='kdelibs_DEVEL_package' />
+    <target project='kde4' package='kdelibs' />
+    <options>
+      <sourceupdate>cleanup</sourceupdate>
+    </options>
+  </action>
+  <description/>
+  <state who="Iggy" name="new"/>
+</request>
+

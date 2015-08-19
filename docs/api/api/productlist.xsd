@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+  elementFormDefault="qualified">
+
+  <xs:annotation>
+    <xs:documentation>
+      This schema specifies the format of product listing.
+    </xs:documentation>
+  </xs:annotation>
+
+  <xs:element name="productlist">
+    <xs:annotation>
+      <xs:documentation>
+        Product listing.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element ref="product" minOccurs="0" maxOccurs="unbounded"/>
+      </xs:sequence>
+      <xs:attribute name="count" type="xs:int"/>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:element name="product">
+    <xs:annotation>
+      <xs:documentation>
+        One entry in the listing.
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexType>
+      <xs:attribute name="name" type="xs:string"/>
+      <xs:attribute name="version" type="xs:string"/>
+      <xs:attribute name="baseversion" type="xs:string" use="optional"/>
+      <xs:attribute name="patchlevel" type="xs:string" use="optional"/>
+      <xs:attribute name="cpe" type="xs:string"/>
+      <xs:attribute name="originproject" type="xs:string"/>
+      <xs:attribute name="mtime" type="xs:string"/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

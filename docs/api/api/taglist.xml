@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taglist project="ExampleProj" package="ExamplePack">
+  <tag name="exampleTag" weight="10" />
+  <tag name="anotherExampleTag" weight="10" />  
+</taglist>

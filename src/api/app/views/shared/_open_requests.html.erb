@@ -1,0 +1,15 @@
+<% unless @requests.blank? %>
+  <li>
+  <%= sprite_tag('information') %>
+  <% if @requests.size == 1 %>
+    1 <%= link_to('open request', :action => "show", :controller => "request", :id => @requests[0]) %>
+  <% else %>
+    <%= @requests.size %>
+    <% if @package %>
+      <%= link_to("open requests", :action => "requests", :project => @project, :package => @package) %>
+    <% else %>
+      <%= link_to("open requests", :action => "requests", :project => @project) %>
+    <% end %>
+  <% end %>
+  </li>
+<% end %>

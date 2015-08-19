@@ -1,0 +1,46 @@
+<% @pagetitle = "Configuration" %>
+<% @crumb_list = [@pagetitle] -%>
+<% @layouttype = 'custom' %>
+
+<div class="grid_16 alpha omega box box-shadow">
+<%= render :partial => 'tabs' %>
+  <div class="grid_16 alpha">
+    <p>
+      Configure your Open Build Service instance.
+    </p>
+
+  <%= form_tag(:action => 'update_configuration') do %>
+    <h3>Frontpage Greeting</h3>
+    <p>
+      Change the text that is displayed as greeting on the frontpage
+    </p>
+    <p>
+     <%= label_tag :title, 'Title:' %><br/>
+     <%= text_field_tag :title, @configuration['title'] %>
+    </p>
+    <p>
+      <%= label_tag :description, 'Description:' %><br/>
+      <%= text_area_tag :description, @configuration['description'], :cols => 80, :rows => 20 %>
+    </p>
+    <h3>Base Configuration</h3>
+    <p>
+      Note: a backend restart is needed after a change here.
+    </p>
+    <p>
+     <%= label_tag :name, 'Name:' %><br/>
+     <%= text_field_tag :name, @configuration['name'] %>
+     The instance name which gets generated into each package. Short string only, no white spaces recommended.
+    </p>
+    <p>
+      <%= fields_for :archs do |arch_fields| %>
+        All architectures:
+        <% Architecture.all.sort_by{|x| x[:name]}.each do |arch| %>
+            <%= arch_fields.check_box(arch.name, {checked: arch.available}) %>
+              <%= arch.name %>
+        <% end %>
+      <% end %>
+    </p>
+    <p><%= submit_tag 'Update' %></p>
+  <% end %>
+  </div>
+</div>

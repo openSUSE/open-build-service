@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<group name="apparmor" version="10" release="235.2">
+    <pattern ordernumber="1030">
+        <category>Base Technologies</category>
+        <description>Novell AppArmor is an application security framework that provides mandatory access control for programs. It protects from exploitation of software flaws and compromised systems. It offers an advanced tool set that automates the development of per-program application security without requiring additional knowledge.</description>
+        <icon>apparmor/app_armor.png</icon>
+        <summary>Novell AppArmor</summary>
+        <visible>true</visible>
+        <relationships>
+           <pattern name="basesystem" relationship="requires" />
+        </relationships>
+    </pattern>
+    <packagelist relationship="requires" id="apparmor.requires">
+            <package name="apparmor-docs" />
+            <package name="apparmor-parser" />
+            <package name="apparmor-profiles" />
+            <package name="apparmor-utils" />
+            <package name="yast2-apparmor" />
+    </packagelist>
+    <packagelist relationship="recommends" id="apparmor.recommends">
+            <package name="apparmor-admin_en" />
+            <package name="apparmor-profile-editor" />
+            <package name="audit" />
+    </packagelist>
+</group>

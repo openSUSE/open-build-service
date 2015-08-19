@@ -1,0 +1,28 @@
+<buildstatistics>
+  <disk>
+    <usage>
+      <size unit="M">1005</size>
+      <io_requests>0</io_requests>
+      <io_sectors>0</io_sectors>
+    </usage>
+  </disk>
+  <memory>
+    <usage>
+      <size unit="M">288</size>
+    </usage>
+  </memory>
+  <times>
+    <total>
+      <time unit="s">503</time>
+    </total>
+    <preinstall>
+      <time unit="s">25</time>
+    </preinstall>
+    <install>
+      <time unit="s">134</time>
+    </install>
+    <main>
+      <time unit="s">293</time>
+    </main>
+  </times>
+</buildstatistics>

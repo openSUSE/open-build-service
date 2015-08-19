@@ -1,0 +1,58 @@
+<% require 'active_support/inflector' %>
+<% @pagetitle = 'Search Project' %>
+<% @crumb_list = [@pagetitle] -%>
+<% @layouttype = 'custom' %>
+
+<div class="grid_16 alpha omega box box-shadow">
+<%= render :partial => 'tabs' %>
+  <h3>Search for projects:</h3>
+  <div id="search_form">
+  <%= form_tag({:controller => 'search', :action => 'index'}, {:method => :get}) do -%>
+  <p>
+  <%= text_field_tag 'search_text', params[:search_text], :placeholder => 'Search', :id => 'search_input' -%>
+  <%= submit_tag(nil, :id => 'search_button', :title => 'Search') %>
+      <%= select_tag :issue_tracker, options_for_select(@issue_tracker_list, params[:issue_tracker] || @default_tracker) %>
+      <%= text_field_tag 'issue', params[:issue], :size => 10 -%>
+  <button type="button" id="advanced_link">Advanced</button>
+  </p>
+  <p>
+  <h4>Search in:</h4>
+  <p>
+  <% if params[:name].nil? or params[:name] == "1"%>
+    <input type="hidden" name="name" value="0" />
+    <input checked="checked" id="name" name="name" type="checkbox" value="1" />
+  <% elsif params[:name] == "0" %>
+    <input type="hidden" name="name" value="0" />
+    <input id="name" name="name" type="checkbox" value="1" />
+  <% end %>
+  <label for="name">Name</label>
+
+  <% if params[:title].nil? or params[:title] == "0"%>
+    <input type="hidden" name="title" value="0" />
+    <input id="title" name="title" type="checkbox" value="1" />
+  <% elsif params[:title] == "1" %>
+    <input type="hidden" name="title" value="0" />
+    <input checked="checked" id="title" name="title" type="checkbox" value="1" />
+  <% end %>
+  <label for="title">Title</label>
+
+  <% if params[:description].nil? or params[:description] == "0"%>
+    <input type="hidden" name="description" value="0" />
+    <input id="description" name="description" type="checkbox" value="1" />
+  <% elsif params[:description] == "1" %>
+    <input type="hidden" name="description" value="0" />
+    <input checked="checked" id="description" name="description" type="checkbox" value="1" />
+  <% end %>
+  <label for="description">Description</label>
+
+  </p>
+  <h4>Require attribute:</h4>
+  <p>
+    <%= select_tag :attrib_type_id, options_for_select(@attrib_type_list, params[:attrib_type_id]), :id => 'attribute_list' %>
+  </p>
+  </div> <!-- end search_form -->
+<% unless @results.nil? || @results.length < 1 %>
+  <%= render :partial => 'results' %>
+<% end %>
+</div>
+

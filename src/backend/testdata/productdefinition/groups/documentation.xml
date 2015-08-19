@@ -1,0 +1,20 @@
+<group name="documentation" version="10" release="215"
+       pattern:ordernumber="1090"
+       pattern:category="Base Technologies"
+       pattern:icon="yast-messages"
+       pattern:summary="Help and Support Documentation"
+       pattern:description="Help and Support Documentation"
+       pattern:visible="true"
+>
+    <pattern name="Documentation" relationship="provides" />
+    <group relationship="recommended">
+            <package name="sles-admin_en" />
+            <package name="sles-heartbeat_en" />
+            <package name="sles-preparation-power_en" />
+            <package name="sles-preparation-x86+x86-64_en" />
+            <package name="sles-preparation-zseries_en" />
+            <package name="sles-startup_en" />
+            <package name="nfs-doc" />
+            <package name="pam-doc" />
+    </group>
+</group>

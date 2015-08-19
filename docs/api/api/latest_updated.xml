@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<latest_updated>
+  <project name="test-project-123" updated="2007-03-26T15:57:49+02:00"/>
+  <package name="x11vnc" updated="2007-03-26T14:12:49+02:00" project="home:dmayr"/>
+  <package name="Mix" updated="2007-03-12T10:41:59+01:00" project="home:sk13"/>
+  <package name="courier-imap" updated="2007-03-12T10:27:09+01:00" project="server:mail"/>
+  <package name="mozilla-xulrunner181" updated="2007-03-12T09:54:37+01:00" project="mozilla"/>
+  <package name="wormux" updated="2007-03-12T09:48:25+01:00" project="games:action"/>
+  <project name="shells" updated="2007-03-12T09:32:10+01:00"/>
+  <package name="mksh" updated="2007-03-12T09:25:10+01:00" project="shells"/>
+  <package name="secondlife" updated="2007-03-12T09:05:17+01:00" project="home:marvin24"/>
+  <package name="upstart" updated="2007-03-12T06:21:32+01:00" project="home:darix"/>
+  <package name="php5" updated="2007-03-12T06:00:42+01:00" project="server:php"/>
+  <package name="inspircd" updated="2007-03-12T05:56:18+01:00" project="server:irc"/>
+  <package name="kernel-source" updated="2007-03-12T04:10:37+01:00" project="Kernel:SL102_BRANCH"/>
+  <package name="kernel-source" updated="2007-03-12T04:09:56+01:00" project="Kernel:SLES10_GA_BRANCH"/>
+  <package name="kernel-source" updated="2007-03-12T04:09:14+01:00" project="Kernel:HEAD"/>
+  <package name="kernel-source" updated="2007-03-12T04:08:32+01:00" project="Kernel:Vanilla"/>
+  <package name="ruby-mysql" updated="2007-03-12T01:56:02+01:00" project="ruby"/>
+  <package name="kpowersave" updated="2007-03-12T00:29:06+01:00" project="openSUSE:Factory"/>
+  <package name="httpd" updated="2007-03-12T00:18:55+01:00" project="server:httpd-trunk"/>
+  <package name="apr-util" updated="2007-03-12T00:17:47+01:00" project="server:httpd-trunk"/>
+  <package name="apr" updated="2007-03-12T00:17:30+01:00" project="server:httpd-trunk"/>
+  <package name="VirtualBox" updated="2007-03-11T21:31:49+01:00" project="virtualization"/>
+  <package name="funkload" updated="2007-03-11T19:26:26+01:00" project="home:jimfunk"/>
+  <package name="python-matplotlib" updated="2007-03-11T19:14:12+01:00" project="science"/>
+  <package name="libgpod" updated="2007-03-11T19:13:16+01:00" project="home:dmayr"/>
+</latest_updated>
