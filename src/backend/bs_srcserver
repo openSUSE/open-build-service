@@ -6562,6 +6562,13 @@ sub getbinarylist {
   if ($view && ($view eq 'cache' || $view eq 'cpio' || $view eq 'solv' || $view eq 'solvstate')) {
     # do not check arch in interconnect mode
     my $proj = checkprojrepoarch($projid, $repoid, undef, 1);
+    if ($view eq 'cpio' && $packid eq '_repository' && !@{$cgi->{'binary'} || []}) {
+      if (!$proj->{'remoteurl'} || $proj->{'partition'}) {
+        my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
+        my $doddata = (grep {($_->{'arch'} || '') eq $arch} @{($repo || {})->{'download'} || []})[0];
+	die("will not get all dod packages\n");
+      }
+    }
     if (!$BSStdServer::isajax) {
       if ($proj->{'remoteurl'} && $view eq 'cpio' && $packid eq '_repository' && !$nosource && @{$cgi->{'binary'} || []}) {
 	# hand over to worker_getbinaries to get the answer cached
@@ -6607,16 +6614,18 @@ sub getbinarylist {
       push @args, 'nometa=1' if $cgi->{'nometa'};
       push @args, "binaries=".join(',', @{$cgi->{'binary'} || []});
       BSHandoff::handoff($ajaxsocket, '/getbinaryversions', undef, @args);
+      exit(0);
     }
     if (!$BSStdServer::isajax && $packid eq '_repository') {
       # this can take a while if we have dod configured, in that case handoff
       my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
       if ($repo) {
-        my $doddata = (grep {($_->{'arch'} || '') eq $arch} @{$repo->{'download'} || []})[0];
-        if ($doddata) {
-          BSHandoff::handoff($ajaxsocket, "/build/$projid/$repoid/$arch/$packid", undef, @args);
-          exit(0);
-        }
+	my $doddata = (grep {($_->{'arch'} || '') eq $arch} @{$repo->{'download'} || []})[0];
+	if ($doddata) {
+	  die("will not get all dod packages\n") unless @{$cgi->{'binary'} || []};
+	  BSHandoff::handoff($ajaxsocket, "/build/$projid/$repoid/$arch/$packid", undef, @args);
+	  exit(0);
+	}
       }
     }
     my $bvl = BSWatcher::rpc($param, $BSXML::binaryversionlist, @args);
