@@ -4665,18 +4665,6 @@ sub getsources {
   return undef;
 }
 
-sub detach {
-  my $jev = $BSServerEvents::gev;
-  return unless exists $jev->{'fd'};
-  my $ev = BSEvents::new('never');
-  for (keys %$jev) {
-    $ev->{$_} = $jev->{$_} unless $_ eq 'id' || $_ eq 'handler' || $_ eq 'fd';
-  }
-  $jev->{'conf'}->{'stdreply'}->(@_) if $jev->{'conf'}->{'stdreply'};
-  $BSServerEvents::gev = $ev;
-  return $ev;
-}
-
 my %getfilelist_ajax_inprogress;
 
 sub getfilelist_ajax {
@@ -4714,7 +4702,7 @@ sub getfilelist_ajax {
       die($err);
     }
     return undef unless $jev->{'filelist'};
-    $jev = detach($BSStdServer::return_ok);
+    $jev = BSWatcher::background($BSStdServer::return_ok);
     $jev->{'idstring'} = "$projid/$packid/$rev";
     $getfilelist_ajax_inprogress{"$projid/$packid/$rev"} = $jev;
     $jev->{'handler'} = sub {delete $getfilelist_ajax_inprogress{"$projid/$packid/$rev"}};
@@ -6610,6 +6598,27 @@ sub getbinarylist {
   }
   if ($view && $view eq 'binaryversions') {
     push @args, 'nometa=1' if $cgi->{'nometa'};
+    if (!$BSStdServer::isajax && $packid eq '_repository' && $proj->{'remoteurl'} && !$proj->{'partition'}) {
+      # hand over to getbinaryversions for chunking
+      @args = ();
+      push @args, "project=$projid";
+      push @args, "repository=$repoid";
+      push @args, "arch=$arch";
+      push @args, 'nometa=1' if $cgi->{'nometa'};
+      push @args, "binaries=".join(',', @{$cgi->{'binary'} || []});
+      BSHandoff::handoff($ajaxsocket, '/getbinaryversions', undef, @args);
+    }
+    if (!$BSStdServer::isajax && $packid eq '_repository') {
+      # this can take a while if we have dod configured, in that case handoff
+      my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
+      if ($repo) {
+        my $doddata = (grep {($_->{'arch'} || '') eq $arch} @{$repo->{'download'} || []})[0];
+        if ($doddata) {
+          BSHandoff::handoff($ajaxsocket, "/build/$projid/$repoid/$arch/$packid", undef, @args);
+          exit(0);
+        }
+      }
+    }
     my $bvl = BSWatcher::rpc($param, $BSXML::binaryversionlist, @args);
     return ($bvl, $BSXML::binaryversionlist);
   }
@@ -7888,7 +7897,7 @@ sub worker_getbinaries {
 sub worker_getbinaryversions {
   my ($cgi, $projid, $repoid, $arch) = @_;
 
-  if (0 && !$BSStdServer::isajax) {
+  if (!$BSStdServer::isajax) {
     my @args;
     push @args, "project=$projid";
     push @args, "repository=$repoid";
