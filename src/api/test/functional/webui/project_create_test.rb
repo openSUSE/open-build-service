@@ -108,41 +108,6 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
                    description: 'Test generated empty home project for second user.')
   end
 
-
-  def test_create_subproject_for_user
-
-    login_Iggy
-    open_create_subproject(project: 'home:Iggy')
-    create_project(
-        name: 'SubProject1',
-        namespace: 'home:Iggy:',
-        title: 'SubProject1 Title',
-        description: 'Test generated empty subproject.')
-
-    open_create_subproject(project: 'home:Iggy')
-    create_project(
-        name: 'SubProject1',
-        namespace: 'home:Iggy:',
-        title: 'NewTitle' + Time.now.to_i.to_s,
-        description: 'Empty subproject with duplicated name. Should give error!',
-        expect: :already_exists)
-
-  end
-
-
-  def test_create_subproject_without_name
-
-    login_Iggy
-    open_create_subproject(project: 'home:Iggy')
-    create_project(
-        name: '',
-        namespace: 'home:Iggy:',
-        title: 'NewTitle' + Time.now.to_i.to_s,
-        description: 'Test generated empty project without name. Should give error!',
-        expect: :invalid_name)
-  end
-
-
   def test_create_subproject_name_with_spaces
     login_Iggy
 
