@@ -6566,7 +6566,7 @@ sub getbinarylist {
       if (!$proj->{'remoteurl'} || $proj->{'partition'}) {
         my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
         my $doddata = (grep {($_->{'arch'} || '') eq $arch} @{($repo || {})->{'download'} || []})[0];
-	die("will not get all dod packages\n");
+	die("will not get all dod packages\n") if $doddata;
       }
     }
     if (!$BSStdServer::isajax) {
