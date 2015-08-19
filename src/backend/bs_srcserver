@@ -7680,7 +7680,7 @@ sub worker_getbinaries {
 sub worker_getbinaryversions {
   my ($cgi, $projid, $repoid, $arch) = @_;
 
-  if (0 && !$BSStdServer::isajax) {
+  if (!$BSStdServer::isajax) {
     my @args;
     push @args, "project=$projid";
     push @args, "repository=$repoid";
