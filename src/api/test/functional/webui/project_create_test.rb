@@ -13,24 +13,6 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
   uses_transaction :test_first_case_of_issue_204
   uses_transaction :test_second_case_of_issue_204
 
-  # ============================================================================
-  # Returns the description of the viewed project as is displayed.
-  # Caller should keep in mind that multi-space / multi-line text
-  # will probably get trimmed and stripped when displayed.
-  #
-  def project_description
-    find(:id, 'description_text').text
-  end
-
-  def open_new_project_from_main
-    find(:css, '#proceed-document-new .proceed_text a').click
-    page.must_have_text 'Project Name:'
-  end
-
-  def creating_home_project?
-    return page.has_text? "Your home project doesn't exist yet. You can create it now"
-  end
-
   def create_project new_project
     new_project[:expect] ||= :success
     new_project[:title] ||= ''
@@ -39,7 +21,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
     new_project[:hidden] ||= false
     new_project[:namespace] ||= ''
 
-    if creating_home_project?
+    if page.has_text?("Your home project doesn't exist yet. You can create it now")
       new_project[:name] ||= current_user
       current_user.must_equal new_project[:name]
     else
@@ -62,7 +44,7 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
       flash_message_type.must_equal :info
 
       new_project[:description] = 'No description set' if new_project[:description].empty?
-      assert_equal new_project[:description].gsub(%r{\s+}, ' '), project_description
+      assert_equal new_project[:description].gsub(%r{\s+}, ' '), find(:id, 'description_text').text
     elsif new_project[:expect] == :invalid_name
       flash_message.must_equal "Failed to save project '#{new_project[:namespace] + new_project[:name]}'. Name is illegal."
       flash_message_type.must_equal :alert
@@ -84,25 +66,12 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
     page.must_have_text 'Create New Subproject'
   end
 
-
   def test_create_home_project_for_user
-
     login_user('user1', '123456')
     visit root_path
-    open_new_project_from_main
-    assert creating_home_project?
-    create_project(title: 'HomeProject Title', namespace: 'home:',
-                   description: 'Test generated empty home project.')
-  end
 
-
-  def test_create_home_project_for_second_user
-
-    login_user('user2', '123456')
-    visit root_path
-
-    open_new_project_from_main
-    assert creating_home_project?
+    find(:css, '#proceed-document-new .proceed_text a').click
+    page.must_have_text 'Project Name:'
     create_project(title: 'HomeProject Title',
                    namespace: 'home:',
                    description: 'Test generated empty home project for second user.')
