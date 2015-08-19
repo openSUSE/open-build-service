@@ -4,15 +4,6 @@ require_relative '../../test_helper'
 
 class Webui::ProjectCreateTest < Webui::IntegrationTest
 
-  uses_transaction :test_create_global_project
-  uses_transaction :test_create_home_project_for_second_user
-  uses_transaction :test_create_home_project_for_user
-  uses_transaction :test_create_subproject_for_user
-  uses_transaction :test_create_subproject_with_long_description
-  uses_transaction :test_create_subproject_with_only_name
-  uses_transaction :test_first_case_of_issue_204
-  uses_transaction :test_second_case_of_issue_204
-
   def test_create_home_project_for_user
     login_user('user1', '123456')
     count = Project.count
