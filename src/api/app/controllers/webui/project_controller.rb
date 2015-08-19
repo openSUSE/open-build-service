@@ -1432,5 +1432,6 @@ class Webui::ProjectController < Webui::WebuiController
 
   def set_project
     @project = Project.find_by(name: params[:project])
+    raise ActiveRecord::RecordNotFound unless @project
   end
 end
