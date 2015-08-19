@@ -51,10 +51,10 @@ class User < ActiveRecord::Base
     default_password_hash_types
   end
 
-  after_save :create_home_project
+  after_create :create_home_project
 
   def create_home_project
-    Project.find_or_create_by(name: "home:#{login}")
+    Project.find_or_create_by(name: "home:#{login}") if can_create_project?("home:#{login}")
   end
 
   # When a record object is initialized, we set the state, password
