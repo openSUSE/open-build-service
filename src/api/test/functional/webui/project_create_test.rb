@@ -108,45 +108,6 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
                    description: 'Test generated empty home project for second user.')
   end
 
-  def test_create_subproject_name_with_spaces
-    login_Iggy
-
-    open_create_subproject(project: 'home:Iggy')
-    create_project(
-        name: 'project name with spaces',
-        namespace: 'home:Iggy:',
-        title: 'NewTitle' + Time.now.to_i.to_s,
-        description: 'Test generated empty project without name. Should give error!',
-        expect: :invalid_name)
-  end
-
-
-  def test_create_subproject_with_only_name
-
-    login_Iggy
-
-    open_create_subproject(project: 'home:Iggy')
-    create_project(
-        name: 'SubProject2',
-        title: '',
-        namespace: 'home:Iggy:',
-        description: '')
-  end
-
-
-  def test_create_subproject_with_long_description
-
-    login_Iggy
-
-    open_create_subproject(project: 'home:Iggy')
-    create_project(
-        name: 'SubProject3',
-        title: 'Subproject with long text',
-        namespace: 'home:Iggy:',
-        description: LONG_DESCRIPTION)
-  end
-
-
   def test_create_global_project
 
     login_king to: project_list_all_path
@@ -212,42 +173,4 @@ class Webui::ProjectCreateTest < Webui::IntegrationTest
       find(:link, prjroot).text.must_equal prjroot
     end
   end
-
-  # RUBY CODE ENDS HERE.
-  # BELOW ARE APPENDED ALL DATA STRUCTURES USED BY THE TESTS.
-
-
-  # -------------------------------------------------------------------------------------- #
-  LONG_DESCRIPTION = <<LICENSE_END
-This
-is äüß
-a very
-long
-text
-that
-will
-break
-into
-many
-many
-lines.
-
-Way /
-more
-than
-what
-might
-be
-reasonable
-so
-the
-lines
-are folded
-away
-by
-default.
-LICENSE_END
-# -------------------------------------------------------------------------------------- #
-
-
 end
