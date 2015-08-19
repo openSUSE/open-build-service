@@ -75,7 +75,6 @@ Depends:
  , ruby-font-awesome-rails
  , ruby-haml
  , ruby-hike
- , ruby-hoptoad-notifier
  , ruby-innertube
  , ruby-i18n
  , ruby-joiner

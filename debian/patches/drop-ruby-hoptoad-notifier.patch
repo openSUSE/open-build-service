@@ -1,0 +1,11 @@
+Description: drop depends on ruby-hoptoad-notifier
+--- open-build-service-2.6.0.orig/src/api/app/jobs/create_job.rb
++++ open-build-service-2.6.0/src/api/app/jobs/create_job.rb
+@@ -20,7 +20,5 @@ class CreateJob
+       puts exception.inspect, exception.backtrace
+       return
+     end
+-    HoptoadNotifier.notify(exception, job.inspect)
+-    notify_hoptoad(ex)
+   end
+ end
