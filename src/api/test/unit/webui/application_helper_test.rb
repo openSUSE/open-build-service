@@ -1,5 +1,7 @@
 require 'test_helper'
 
+SimpleCov.command_name 'test:webui'
+
 class ApplicationHelperTest < ActiveSupport::TestCase
   include Webui::WebuiHelper
 

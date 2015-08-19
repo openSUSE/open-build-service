@@ -3,8 +3,6 @@
 require_relative '../../test_helper'
 require 'faker'
 
-SimpleCov.command_name 'test:webui'
-
 class Webui::LoginTest < Webui::IntegrationTest
 
   #

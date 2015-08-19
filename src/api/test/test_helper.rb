@@ -1,11 +1,23 @@
 ENV['origin_RAILS_ENV'] = ENV['RAILS_ENV']
 ENV['RAILS_ENV'] = 'test'
-
 require 'simplecov'
-SimpleCov.start 'rails' do
-  add_filter '/app/indices/'
-  add_filter '/app/models/user_ldap_strategy.rb'
-end if ENV['DO_COVERAGE']
+require 'coveralls'
+
+if ENV['DO_COVERAGE']
+  Coveralls.wear_merged!('rails')
+
+  SimpleCov.start 'rails' do
+    add_filter '/app/indices/'
+    add_filter '/app/models/user_ldap_strategy.rb'
+    merge_timeout 3600
+    formatter Coveralls::SimpleCov::Formatter
+  end
+
+  SimpleCov.at_exit do
+    puts "Coverage done"
+    SimpleCov.result.format!
+  end
+end
 
 require File.expand_path('../../config/environment', __FILE__)
 require 'rails/test_help'

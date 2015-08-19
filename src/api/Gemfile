@@ -70,6 +70,7 @@ group :test do
   gem 'ci_reporter'
   # for test coverage reports
   gem 'simplecov', require: false
+  gem 'coveralls', require: false
   # to colorize minitest output
   # gem 'minitest-colorize'
   # for rspec like matchers
