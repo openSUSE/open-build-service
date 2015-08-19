@@ -686,7 +686,16 @@ sub dodcheck {
 
 sub dodfetch_resume {
   my ($handle, $error) = @_;
+  return if $error;	# hmm
   xrpc_setchanged($handle);
+  # drop cache
+  my $prpa = $handle->{'_prpa'};
+  my ($projid, $repoid, $arch) = split('/', $handle->{'_prpa'}, 3);
+  if ($arch eq $myarch) {
+    delete $repodatas{"$projid/$repoid"};
+  } else {
+    delete $repodatas_alien{$prpa};
+  }
 }
 
 sub dodfetch {
@@ -709,6 +718,7 @@ sub dodfetch {
       'async' => {
 	'_resume' => \&dodfetch_resume,
 	'_changetype' => 'med',
+	'_prpa' => $prpa,
       },
     };
     xrpc($ctx, "dodfetch/$prpa", $param, undef, "view=binaryversions", map {"binary=$_"} @pkgs);
