@@ -751,6 +751,7 @@ sub set_building {
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $bconf = $ctx->{'conf'};
+  my $proj = $projpacks->{$projid};
   my $relsyncmax = $ctx->{'relsyncmax'};
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
@@ -901,8 +902,8 @@ sub set_building {
     $binfo->{'revtime'} = $pdata->{'revtime'};
     # use max of revtime for interproject links
     for (@{$pdata->{'linked'} || []}) {
-      last if $_->{'project'} ne $projid || !$projpacks->{$projid}->{'package'};
-      my $lpdata = $projpacks->{$projid}->{'package'}->{$_->{'package'}} || {};
+      last if $_->{'project'} ne $projid || !$proj->{'package'};
+      my $lpdata = $proj->{'package'}->{$_->{'package'}} || {};
       $binfo->{'revtime'} = $lpdata->{'revtime'} if ($lpdata->{'revtime'} || 0) > $binfo->{'revtime'};
     }
   }
@@ -917,7 +918,7 @@ sub set_building {
     $binfo->{'release'} =~ s/\<B_CNT\>/$bcnt/g;
   }
   my $debuginfo = $bconf->{'debuginfo'};
-  $debuginfo = enabled($repoid, $projpacks->{$projid}->{'debuginfo'}, $debuginfo);
+  $debuginfo = enabled($repoid, $proj->{'debuginfo'}, $debuginfo);
   $debuginfo = enabled($repoid, $pdata->{'debuginfo'}, $debuginfo);
   $binfo->{'debuginfo'} = 1 if $debuginfo;
 
@@ -2832,8 +2833,9 @@ sub checkuseforbuild {
   return unless $new_full_handling;
   my $gdst = "$reporoot/$prp/$myarch";
   my ($projid, $repoid) = split('/', $prp, 2);
-  my $pdatas = $projpacks->{$projid}->{'package'} || {};
-  if (enabled($repoid, $projpacks->{$projid}->{'locked'}, 0)) {
+  my $proj = $projpacks->{$projid};
+  my $pdatas = $proj->{'package'} || {};
+  if (enabled($repoid, $proj->{'locked'}, 0)) {
     my $unlocked;
     for my $packid (sort keys %$pdatas) {
       my $lockedflags = $pdatas->{$packid}->{'locked'};
@@ -2846,7 +2848,7 @@ sub checkuseforbuild {
   }
   my $newuseforbuild = [];
   my $prjuseforbuildenabled = 1;
-  $prjuseforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $prjuseforbuildenabled);
+  $prjuseforbuildenabled = enabled($repoid, $proj->{'useforbuild'}, $prjuseforbuildenabled);
   for my $packid (sort keys %$pdatas) {
     my $useforbuildflags = ($pdatas->{$packid} || {})->{'useforbuild'};
     my $useforbuildenabled = $prjuseforbuildenabled;
@@ -3791,8 +3793,9 @@ sub addretryevent {
 sub calc_projpacks_linked {
   @projpacks_linked = ();
   for my $projid (sort keys %$projpacks) {
+    my $proj = $projpacks->{$projid};
     my ($mypackid, $pack);
-    while (($mypackid, $pack) = each %{$projpacks->{$projid}->{'package'} || {}}) {
+    while (($mypackid, $pack) = each %{$proj->{'package'} || {}}) {
       next unless $pack->{'linked'};
       my @li = @{$pack->{'linked'}};
       for my $li (@li) {
@@ -3803,7 +3806,7 @@ sub calc_projpacks_linked {
       }
       push @projpacks_linked, @li;
     }
-    if ($projpacks->{$projid}->{'link'}) {
+    if ($proj->{'link'}) {
       my @li = expandprojlink($projid);
       for my $li (@li) {
 	addwatchremote('package', $li->{'project'}, '');	# watch all packages
@@ -3933,13 +3936,14 @@ sub calc_prps {
   %prpnoleaf = ();
   my %newchanneldata;
   for my $projid (sort keys %$projpacks) {
-    my $repos = $projpacks->{$projid}->{'repository'} || [];
+    my $proj = $projpacks->{$projid};
+    my $repos = $proj->{'repository'} || [];
     my @myrepos;	# repos which include my arch
     for my $repo (@$repos) {
       push @myrepos, $repo if grep {$_ eq $myarch} @{$repo->{'arch'} || []};
     }
     next unless @myrepos;	# not for us
-    my @pdatas = values(%{$projpacks->{$projid}->{'package'} || {}});
+    my @pdatas = values(%{$proj->{'package'} || {}});
     my @aggs = grep {$_->{'aggregatelist'}} @pdatas;
     my @channels = grep {$_->{'channel'}} @pdatas;
     my @kiwiinfos = grep {$_->{'path'}} map {@{$_->{'info'} || []}} @pdatas;
@@ -4008,10 +4012,10 @@ sub calc_prps {
         # found some repos, join extra deps with project deps
         for my $xsp (@xsp) {
 	  next if $xsp eq $prp;
-          my ($mprojid, $mrepoid) = split('/', $xsp, 2);
+          my ($aprojid, $arepoid) = split('/', $xsp, 2);
           # we just watch the repository as it costs too much to
           # watch every single package
-          addwatchremote('repository', $mprojid, "/$mrepoid/$myarch");
+          addwatchremote('repository', $aprojid, "/$arepoid/$myarch");
         }
         my %xsp = map {$_ => 1} (@sp, @xsp);
 	delete $xsp{$prp};
@@ -5718,6 +5722,7 @@ sub checkpatchinfo {
   my $buildarch = $archs[0];	# always build in first arch
   my $markerdir = "$reporoot/$projid/$repoid/$buildarch/$packid";
   my $patchinfo = $pdata->{'patchinfo'};
+  my $proj = $projpacks->{$projid} || {};
 
   if (@{$patchinfo->{'releasetarget'} || []}) {
     my $ok;
@@ -5732,14 +5737,14 @@ sub checkpatchinfo {
   return ('broken', 'patchinfo lacks category') unless $patchinfo->{'category'};
 
   my $ptype = 'local';
-  $ptype = 'binary' if ($projpacks->{$projid}->{'kind'} || '') eq 'maintenance_incident';
+  $ptype = 'binary' if ($proj->{'kind'} || '') eq 'maintenance_incident';
   
   my $broken;
   # find packages
   my @packages;
   if ($patchinfo->{'package'}) {
     @packages = @{$patchinfo->{'package'}};
-    my $pdatas = ($projpacks->{$projid} || {})->{'package'} || {};
+    my $pdatas = $proj->{'package'} || {};
     my @missing;
     for my $apackid (@packages) {
       if (!$pdatas->{$apackid}) {
@@ -5748,7 +5753,7 @@ sub checkpatchinfo {
     }
     $broken = 'missing packages: '.join(', ', @missing) if @missing;
   } else {
-    my $pdatas = ($projpacks->{$projid} || {})->{'package'} || {};
+    my $pdatas = $proj->{$projid}->{'package'} || {};
     @packages = grep {!$pdatas->{$_}->{'aggregatelist'} && !$pdatas->{$_}->{'patchinfo'}} sort keys %$pdatas;
   }
   if (!@packages && !$broken) {
@@ -6239,6 +6244,7 @@ sub checkchannel {
   my $repo = $ctx->{'repo'};
   my %repoarchs = map {$_ => 1} @{$repo->{'arch'} || []};
   my $channel = $pdata->{'channel'};
+  my $proj = $projpacks->{$projid} || {};
   # do the channel filtering, same project but different repositories
 
   # first build a releasetarget -> repo map
@@ -6305,7 +6311,7 @@ sub checkchannel {
   #print Dumper(\%filter);
 
   # find packages (same code as in checkpatchinfo)
-  my $pdatas = ($projpacks->{$projid} || {})->{'package'} || {};
+  my $pdatas = $proj->{'package'} || {};
   my @apackids = grep {!$pdatas->{$_}->{'aggregatelist'} && !$pdatas->{$_}->{'patchinfo'}} sort keys %$pdatas;
 
   # go through the repos and check the binaries
@@ -7618,9 +7624,10 @@ sub event_wipe {
   # delete repository done flag
   unlink("$gdst/:repodone");
   # delete full entries
-  my $pdata = (($projpacks->{$projid} || {})->{'package'} || {})->{$packid};
+  my $proj = $projpacks->{$projid};
+  my $pdata = (($proj || {})->{'package'} || {})->{$packid};
   my $useforbuildenabled = 1;
-  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled) if $projpacks->{$projid};
+  $useforbuildenabled = enabled($repoid, $proj->{'useforbuild'}, $useforbuildenabled) if $proj;
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
   my $importarch = '';	# keep those imports
   update_dst_full($prp, $packid, undef, undef, $useforbuildenabled, $prpsearchpath{$prp}, undef, $importarch);
@@ -7677,7 +7684,7 @@ sub event_useforbuild {
     next unless -d "$gdst/$packid";
     my $useforbuildenabled = 1;
     my $pdata = $packs->{$packid};
-    $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
+    $useforbuildenabled = enabled($repoid, $proj->{'useforbuild'}, $useforbuildenabled);
     $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
     next unless $useforbuildenabled;
     my $meta = "$gdst/:meta/$packid";
@@ -8651,7 +8658,7 @@ NEXTPRP:
 	  unlink("$reporoot/$prp/$myarch/:schedulerstate.dirty");
 	}
 	# XXX this should be rewritten if :repoinfo lives somewhere else
-	my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
+	my $repo = (grep {$_->{'name'} eq $repoid} @{($projpacks->{$projid} || {})->{'repository'} || []})[0];
 	if (!$repo) {
 	  # this repo doesn't exist any longer!
 	  my $others;
@@ -8697,7 +8704,7 @@ NEXTPRP:
       }
     }
 
-    if (!$prpsearchpath{$prp}) {
+    if (!$projpacks->{$projid} || !$prpsearchpath{$prp}) {
       next if $remoteprojs{$projid};
       print "  - $prp: no longer exists\n";
       next;
