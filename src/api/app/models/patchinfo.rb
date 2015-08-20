@@ -41,10 +41,6 @@ class Patchinfo < ActiveXML::Node
     super(data)
   end
 
-  def logger
-    Rails.logger
-  end
-
   def is_repository_matching?(repo, rt)
     return false if repo.project.name != rt['project']
     if rt['repository']
