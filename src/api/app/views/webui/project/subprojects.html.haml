@@ -36,8 +36,12 @@
 
 - if User.current.can_modify_project?(@project.api_obj)
   %p
-    = link_to sprited_text('brick_add', 'Create subproject'), { :controller => :project, :action => :new, :ns => @project.name }, id: "link-create-subproject"
+    = link_to sprite_tag('brick_add', title: 'New subproject') + ' New subproject', '#', id: 'create_subproject_link'
+    #create_subproject.hidden
+      = render partial: 'form', locals: { project: Project.new, configuration: @configuration, ns: @project.name }
 
 - if @subprojects.present?
   - content_for :ready_function do
     setup_subprojects_tables();
+- content_for :ready_function do
+  $("#create_subproject_link").click(function() { $('#create_subproject').show(); $('#create_subproject_link').hide() });
