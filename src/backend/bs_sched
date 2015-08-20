@@ -4851,6 +4851,10 @@ sub importevent {
   my $projid = $info->{'project'};
   my $repoid = $info->{'repository'};
   my $packid = $info->{'package'};
+  if (!$projpacks->{$projid}) {
+    print "  - $job belongs to an unknown project\n";
+    return;
+  }
   my $importarch = $info->{'arch'} || 'unknown';
   my $prp = "$projid/$repoid";
   my $gdst = "$reporoot/$prp/$myarch";
@@ -4858,10 +4862,10 @@ sub importevent {
   my %all = map {$_ => 1} @all;
   my $meta = $all{'meta'} ? "$jobdatadir/meta" : undef;
   @all = map {"$jobdatadir/$_"} @all;
-  my $pdata = (($projpacks->{$projid} || {})->{'package'} || {})->{$packid};
+  my $pdata = ($projpacks->{$projid}->{'package'} || {})->{$packid} || {};
   print "  - $prp: $packid imported from $importarch\n";
   my $useforbuildenabled = 1;
-  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled) if $projpacks->{$projid};
+  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
   update_dst_full($prp, $packid, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp}, undef, $importarch);
   $changed->{$prp} = 2 if $useforbuildenabled;
@@ -7626,7 +7630,7 @@ sub event_wipe {
   unlink("$gdst/:repodone");
   # delete full entries
   my $proj = $projpacks->{$projid};
-  my $pdata = (($proj || {})->{'package'} || {})->{$packid};
+  my $pdata = (($proj || {})->{'package'} || {})->{$packid} || {};
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $proj->{'useforbuild'}, $useforbuildenabled) if $proj;
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
@@ -7684,7 +7688,7 @@ sub event_useforbuild {
     my $gdst = "$reporoot/$prp/$myarch";
     next unless -d "$gdst/$packid";
     my $useforbuildenabled = 1;
-    my $pdata = $packs->{$packid};
+    my $pdata = $packs->{$packid} || {};
     $useforbuildenabled = enabled($repoid, $proj->{'useforbuild'}, $useforbuildenabled);
     $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
     next unless $useforbuildenabled;
