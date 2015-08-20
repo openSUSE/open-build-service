@@ -40,31 +40,29 @@ class Role < ActiveRecord::Base
 
   scope :global, -> { where(global: true) }
 
-  class << self
-    def discard_cache
-      @cache = nil
-    end
+  def self.discard_cache
+    @cache = nil
+  end
 
-    def rolecache
-      return @cache if @cache
-      @cache = Hash.new
-      all.each do |role|
-        @cache[role.title] = role
-      end
-      return @cache
+  def self.rolecache
+    return @cache if @cache
+    @cache = Hash.new
+    all.each do |role|
+      @cache[role.title] = role
     end
+    return @cache
+  end
 
-    def find_by_title!(title)
-      find_by_title(title) or raise NotFound.new("Couldn't find Role '#{title}'")
-    end
+  def self.find_by_title!(title)
+    find_by_title(title) or raise NotFound.new("Couldn't find Role '#{title}'")
+  end
 
-    def local_roles
-      %w(maintainer bugowner reviewer downloader reader).map { |r| Role.rolecache[r] }
-    end
+  def self.local_roles
+    %w(maintainer bugowner reviewer downloader reader).map { |r| Role.rolecache[r] }
+  end
 
-    def global_roles
-      %w(Admin User)
-    end
+  def self.global_roles
+    %w(Admin User)
   end
 
   def rolecache
