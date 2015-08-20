@@ -6,13 +6,6 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
   uses_transaction :test_create_patchinfo_with_too_short_summary
   uses_transaction :test_create_patchinfo_with_too_short_sum_and_desc
 
-  CATEGORIES = [ "",
-                 "recommended",
-                 "security",
-                 "optional",
-                 "feature"].sort
-  RATINGS = %w(low moderate important critical).sort
-
   setup do
     use_js
     @project = 'home:Iggy'
@@ -32,9 +25,9 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     new_patchinfo[:description].squeeze!(" ")
     new_patchinfo[:description].gsub!(/ *\n +/ , "\n")
     new_patchinfo[:description].strip!
-    assert CATEGORIES.include? new_patchinfo[:category]
+    assert Patchinfo::CATEGORIES.include? new_patchinfo[:category]
     find('select#category').select(new_patchinfo[:category])
-    assert RATINGS.include? new_patchinfo[:rating]
+    assert Patchinfo::RATINGS.include? new_patchinfo[:rating]
     find('select#rating').select(new_patchinfo[:rating])
     new_patchinfo[:issue] ||= ""
 
