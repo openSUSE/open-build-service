@@ -3,7 +3,6 @@
 
 # if you wonder it's not a module, read http://blog.codeclimate.com/blog/2012/11/14/why-ruby-class-methods-resist-refactoring
 class Patchinfo < ActiveXML::Node
-
   include ValidationHelper
 
   class PatchinfoFileExists < APIException; end
@@ -19,23 +18,23 @@ class Patchinfo < ActiveXML::Node
 
   # FIXME: Layout and colors belong to CSS
   RATING_COLORS = {
-      'low'       => 'green',
-      'moderate'  => 'olive',
-      'important' => 'red',
-      'critical'  => 'maroon',
+    'low'       => 'green',
+    'moderate'  => 'olive',
+    'important' => 'red',
+    'critical'  => 'maroon'
   }
 
   RATINGS = RATING_COLORS.keys
 
   CATEGORY_COLORS = {
-      'recommended' => 'green',
-      'security'    => 'maroon',
-      'optional'    => 'olive',
-      'feature'     => '',
+    'recommended' => 'green',
+    'security'    => 'maroon',
+    'optional'    => 'olive',
+    'feature'     => ''
   }
 
   # '' is a valid category
-  CATEGORIES = [''].concat(CATEGORY_COLORS.keys)
+  CATEGORIES = CATEGORY_COLORS.keys << ""
 
   # patchinfo has two roles
   def initialize(data = "<patchinfo/>")
