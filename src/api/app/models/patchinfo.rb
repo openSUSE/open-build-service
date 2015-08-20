@@ -242,7 +242,7 @@ class Patchinfo < ActiveXML::Node
     path = if self.init_options[:package]
       "/source/#{self.init_options[:project]}/#{self.init_options[:package]}/_patchinfo"
     else
-      "/source/#{self.init_options[:package]}/_patchinfo"
+      "/source/_patchinfo"
     end
 
     begin
