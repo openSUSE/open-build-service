@@ -8250,7 +8250,7 @@ if ($BSConfig::enable_download_on_demand) {
       $f = ':'.Digest::MD5::md5_hex($f) if length($f) > 200;
       $dodfiles{$f} = 1;
       my $dd = { %$doddata, 'project' => $projid, 'repository' => $repoid };
-      my $olddd = readxml($f, $BSXML::doddata, 1);
+      my $olddd = readxml("$dodsdir/$f", $BSXML::doddata, 1);
       next if identical($olddd, $dd);
       mkdir_p($dodsdir);
       writexml("$dodsdir/.$f", "$dodsdir/$f", $dd, $BSXML::doddata);
@@ -8258,6 +8258,8 @@ if ($BSConfig::enable_download_on_demand) {
     }
   }
   for my $f (grep {!/^\./ && !$dodfiles{$_}} ls($dodsdir)) {
+    my $olddd = readxml("$dodsdir/$f", $BSXML::doddata, 1);
+    next if $olddd && $olddd->{'arch'} ne $myarch;
     unlink("$dodsdir/$f");
     $changed = 1;
   }
