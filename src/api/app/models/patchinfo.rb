@@ -36,6 +36,10 @@ class Patchinfo < ActiveXML::Node
   # '' is a valid category
   CATEGORIES = CATEGORY_COLORS.keys << ""
 
+  def self.make_stub( opt )
+    '<patchinfo/>'
+  end
+
   # patchinfo has two roles
   def initialize(data = "<patchinfo/>")
     super(data)
@@ -232,10 +236,6 @@ class Patchinfo < ActiveXML::Node
     end
     # a patchinfo may limit the targets
     data.elements('releasetarget')
-  end
-
-  def self.make_stub( opt )
-    '<patchinfo/>'
   end
 
   def save
