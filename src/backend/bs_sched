@@ -5753,7 +5753,7 @@ sub checkpatchinfo {
     }
     $broken = 'missing packages: '.join(', ', @missing) if @missing;
   } else {
-    my $pdatas = $proj->{$projid}->{'package'} || {};
+    my $pdatas = $proj->{'package'} || {};
     @packages = grep {!$pdatas->{$_}->{'aggregatelist'} && !$pdatas->{$_}->{'patchinfo'}} sort keys %$pdatas;
   }
   if (!@packages && !$broken) {
