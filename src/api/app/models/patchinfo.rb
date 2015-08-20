@@ -239,9 +239,12 @@ class Patchinfo < ActiveXML::Node
   end
 
   def save
-    # rubocop:disable Metrics/LineLength
-    path = self.init_options[:package] ? "/source/#{self.init_options[:project]}/#{self.init_options[:package]}/_patchinfo" : "/source/#{self.init_options[:package]}/_patchinfo"
-    # rubocop:enable Metrics/LineLength
+    path = if self.init_options[:package]
+      "/source/#{self.init_options[:project]}/#{self.init_options[:package]}/_patchinfo"
+    else
+      "/source/#{self.init_options[:package]}/_patchinfo"
+    end
+
     begin
       frontend = ActiveXML::api
       frontend.direct_http URI("#{path}"), :method => 'POST', :data => self.dump_xml
