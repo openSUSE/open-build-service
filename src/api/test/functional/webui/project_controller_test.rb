@@ -444,7 +444,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     assert_equal count + 1, Project.count
 
     visit project_subprojects_path project: "my_project"
-    click_link('Create subproject')
+    click_link('create_subproject_link')
 
     fill_in :project_name, with: 'b'
     click_button('Create Project')
