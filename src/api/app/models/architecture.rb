@@ -41,5 +41,6 @@ class Architecture < ActiveRecord::Base
   def to_s
     name
   end
+  #### Alias of methods
 
 end

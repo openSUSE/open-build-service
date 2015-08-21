@@ -1,48 +1,8 @@
-class ValueLengthValidator < ActiveModel::Validator
-  def validate(record)
-    if record.attrib_type && record.attrib_type.value_count && record.attrib_type.value_count != record.values.length
-      record.errors[:values] << "has #{record.values.length} values, but only #{record.attrib_type.value_count} are allowed"
-    end
-  end
-end
-
-class IssueValidator < ActiveModel::Validator
-  def validate(record)
-    if record.attrib_type && !record.attrib_type.issue_list and record.issues.any?
-      record.errors[:issues] << "can't have issues"
-    end
-  end
-end
-
-class AllowedValuesValidator < ActiveModel::Validator
-  def validate(record)
-    if record.attrib_type && record.attrib_type.allowed_values.any?
-      record.values.each do |value|
-        found = false
-        record.attrib_type.allowed_values.each do |allowed|
-          if allowed.value == value.value
-            found = true
-            break
-          end
-        end
-        if !found
-          record.errors[:values] << "value \'#{value}\' is not allowed. Please use one of: " +
-                                    "#{record.attrib_type.allowed_values.map{|av| av.value }.join(', ')}"
-        end
-      end
-    end
-  end
-end
-
-# Attribute container inside package meta data
-# Attribute definitions are inside attrib_type
+# Attribute container inside package meta data. Attribute definitions are inside attrib_type
 class Attrib < ActiveRecord::Base
   #### Includes and extends
   #### Constants
   #### Self config
-  accepts_nested_attributes_for :values, allow_destroy: true
-  accepts_nested_attributes_for :issues, allow_destroy: true
-
   #### Attributes
   delegate :name, to: :attrib_type
   delegate :namespace, to: :attrib_type
@@ -54,6 +14,9 @@ class Attrib < ActiveRecord::Base
   has_many :attrib_issues
   has_many :issues, through: :attrib_issues, dependent: :destroy
   has_many :values, -> { order("position ASC") }, class_name: 'AttribValue', dependent: :delete_all
+
+  accepts_nested_attributes_for :values, allow_destroy: true
+  accepts_nested_attributes_for :issues, allow_destroy: true
 
   #### Callbacks macros: before_save, after_save, etc.
   #### Scopes (first the default_scope macro if is used)
@@ -68,9 +31,10 @@ class Attrib < ActiveRecord::Base
   validates :package_id, :absence => {:message => "can't also be present"}, if: "project_id.present?"
   validates :project, presence: true, if: "package_id.nil?"
 
-  validates_with ValueLengthValidator
-  validates_with IssueValidator
-  validates_with AllowedValuesValidator
+  # Validators in app/validators
+  validates_with AttribValueLengthValidator
+  validates_with AttribIssueValidator
+  validates_with AttribAllowedValuesValidator
 
   #### Class methods using self. (public and then private)
   def self.find_by_container_and_fullname( container, fullname )
