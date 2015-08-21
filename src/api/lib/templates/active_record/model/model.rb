@@ -32,10 +32,9 @@ class <%= class_name %> < <%= parent_class_name.classify %>
   #### private
 
 
-  #### Instance methods (public and then protected/private) 
+  #### Instance methods (public and then protected/private)
 
-  protected
-
-  private
+  #### Alias of methods
+  
 end
 <% end -%>
