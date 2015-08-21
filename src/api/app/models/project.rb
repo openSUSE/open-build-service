@@ -939,19 +939,20 @@ class Project < ActiveRecord::Base
     return nil
   end
 
-  def expand_all_projects(p_map={})
+  def expand_all_projects(project_map={})
+    # cycle check
+    return [] if project_map[self]
+    project_map[self] = 1
+
     projects = [self]
-    p_map[p] = 1
+
     # add all linked and indirect linked projects
     self.linkedprojects.each do |lp|
       if lp.linked_db_project.nil?
         projects << lp.linked_remote_project_name
       else
-        lp.linked_db_project.expand_all_projects(p_map).each do |p|
-          unless p_map[p]
-            projects << p
-            p_map[p] = 1
-          end
+        lp.linked_db_project.expand_all_projects(project_map).each do |p|
+          projects << p
         end
       end
     end
@@ -973,18 +974,22 @@ class Project < ActiveRecord::Base
 
 
   # return array of [:name, :project_id] tuples
-  def expand_all_packages(p_map={})
+  def expand_all_packages(project_map={}, package_map={})
+    # check for project link cycle
+    return [] if project_map[self]
+    project_map[self] = 1
+
     packages = self.packages.pluck(:name,:project_id)
+
     # second path, all packages from indirect linked projects
     self.linkedprojects.each do |lp|
       if lp.linked_db_project.nil?
         # FIXME: this is a remote project
       else
-        lp.linked_db_project.expand_all_packages(p_map).each do |name, prj_id|
-          unless p_map[name]
-            packages << [name, prj_id]
-            p_map[name] = 1
-          end
+        lp.linked_db_project.expand_all_packages(project_map, package_map).each do |name, prj_id|
+          next if package_map[name]
+          packages << [name, prj_id]
+          package_map[name] = 1
         end
       end
     end

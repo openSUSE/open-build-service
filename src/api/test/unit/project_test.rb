@@ -519,6 +519,36 @@ END
     assert Project.valid_name?("4" * 200)
   end
 
+  def test_cycle_handling
+    User.current = users( :king )
+
+    prj_a = Project.new(name: "Project:A")
+    prj_a.update_from_xml( Xmlhash.parse(
+      "<project name='Project:A'>
+        <title/>
+        <description/>
+       </project>") )
+    prj_a.save!
+    prj_b = Project.new(name: "Project:B")
+    prj_b.update_from_xml( Xmlhash.parse(
+      "<project name='Project:B'>
+        <title/>
+        <description/>
+        <link project='Project:A'/>
+       </project>") )
+    prj_b.save!
+    prj_a.update_from_xml( Xmlhash.parse(
+      "<project name='Project:A'>
+        <title/>
+        <description/>
+        <link project='Project:B'/>
+       </project>") )
+    prj_a.save!
+
+    assert_equal [], prj_a.expand_all_packages
+    assert_equal 2,  prj_a.expand_all_projects.length
+  end
+
   test 'exists_by_name' do
     User.current = users( :Iggy )
 
