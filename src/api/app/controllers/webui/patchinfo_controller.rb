@@ -85,6 +85,7 @@ class Webui::PatchinfoController < Webui::WebuiController
     @category = @file.value(:category)
     @rating = @file.value(:rating)
     @summary = @file.value(:summary)
+    @name = @file.value(:name)
 
     @description = @file.value(:description)
     @relogin = @file.has_element?('relogin_needed')
@@ -129,6 +130,7 @@ class Webui::PatchinfoController < Webui::WebuiController
               node.binary(binary)
             end
           end
+          node.name params[:name] unless params[:name].blank?
           node.packager params[:packager]
           issues.to_a.each do |issue|
             unless IssueTracker.find_by_name(issue[1])
