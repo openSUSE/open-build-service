@@ -5,19 +5,19 @@ require_dependency "<%= namespaced_file_path %>/application_controller"
 <% module_namespacing do -%>
 # TODO: Please overwrite this comment with something explaining the controller target
 class <%= controller_class_name %>Controller < ApplicationController
-  #### Includes and extends ###################################################
+  #### Includes and extends
 
-  #### Constants ##############################################################
+  #### Constants
 
-  #### Self config ############################################################
+  #### Self config
 
-  #### Callbacks macros: before_action, after_action, etc. ####################
+  #### Callbacks macros: before_action, after_action, etc.
   before_action :set_<%= singular_table_name %>, only: [:show, :edit, :update, :destroy]
   # Pundit authorization policies control
   after_action :verify_authorized, :except => :index
   after_action :verify_policy_scoped, :only => :index
 
-  #### CRUD actions ###########################################################
+  #### CRUD actions
 
   # GET <%= route_url %>
   def index
@@ -72,9 +72,9 @@ class <%= controller_class_name %>Controller < ApplicationController
     redirect_to <%= index_helper %>_url, notice: <%= "'#{human_name} was successfully destroyed.'" %>
   end
 
-  #### Non CRUD actions #######################################################
+  #### Non CRUD actions
 
-  #### Non actions methods ####################################################
+  #### Non actions methods
   # Use hide_action if they are not private
 
   private

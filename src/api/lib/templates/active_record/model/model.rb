@@ -1,13 +1,13 @@
 <% module_namespacing do -%>
 # TODO: Please overwrite this comment with something explaining the model target
 class <%= class_name %> < <%= parent_class_name.classify %>
-  #### Includes and extends ###################################################
+  #### Includes and extends
 
-  #### Constants ##############################################################
+  #### Constants
 
-  #### Self config ############################################################
+  #### Self config
 
-  #### Attributes #############################################################
+  #### Attributes
 <% attributes.select(&:token?).each do |attribute| -%>
   has_secure_token<% if attribute.name != "token" %> :<%= attribute.name %><% end %>
 <% end -%>
@@ -15,24 +15,24 @@ class <%= class_name %> < <%= parent_class_name.classify %>
   has_secure_password
 <% end -%>
 
-  #### Associations macros (Belongs to, Has one, Has many) ####################
+  #### Associations macros (Belongs to, Has one, Has many)
   <% attributes.select(&:reference?).each do |attribute| -%>
     belongs_to :<%= attribute.name %><%= ', polymorphic: true' if attribute.polymorphic? %><%= ', required: true' if attribute.required? %>
   <% end -%>
 
-  #### Callbacks macros: before_save, after_save, etc. ########################
+  #### Callbacks macros: before_save, after_save, etc.
 
-  #### Scopes (first the default_scope macro if is used) ######################
+  #### Scopes (first the default_scope macro if is used)
 
-  #### Validations macros #####################################################
+  #### Validations macros
 
-  #### Class methods using self. (public and then private) ####################
+  #### Class methods using self. (public and then private)
 
   #### To define class methods as private use private_class_method
   #### private
 
 
-  #### Instance methods (public and then protected/private) ###################
+  #### Instance methods (public and then protected/private) 
 
   protected
 

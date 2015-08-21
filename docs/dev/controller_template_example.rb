@@ -1,20 +1,20 @@
 # Controller to manage dogs
 class Webui::DogsController < ApplicationController
-  #### Includes and extends ###################################################
+  #### Includes and extends
   include AnimalControl
 
-  #### Constants ##############################################################
+  #### Constants
   BASIC_DOG_NAMES = %w(Tobby Thor Rambo Dog Blacky)
 
-  #### Self config ############################################################
+  #### Self config
 
-  #### Callbacks macros: before_action, after_action, etc. ####################
+  #### Callbacks macros: before_action, after_action, etc.
   before_action :set_dog, only: [:show, :edit, :update, :destroy]
   # Pundit authorization policies control
   after_action :verify_authorized, :except => [:index, :blacks]
   after_action :verify_policy_scoped, :only => [:index, :blacks]
 
-  #### CRUD actions ###########################################################
+  #### CRUD actions
 
   # GET /dogs
   def index
@@ -69,7 +69,7 @@ class Webui::DogsController < ApplicationController
     redirect_to dogs_url, notice: 'Dog was successfully destroyed.'
   end
 
-  #### Non CRUD actions #######################################################
+  #### Non CRUD actions
 
   # List all the black dogs
   # GET /dogs/blacks
@@ -79,7 +79,7 @@ class Webui::DogsController < ApplicationController
     render :index
   end
 
-  #### Non actions methods ####################################################
+  #### Non actions methods 
   # Use hide_action if they are not private
 
   def call_them(dogs = [])
