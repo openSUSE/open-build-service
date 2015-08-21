@@ -366,6 +366,7 @@ sub signjob {
     my $pubkey;
     if ($signkey) {
       ($signkey, $pubkey) = split("\n", $signkey, 2) if $needpubkey;
+      undef $pubkey unless $pubkey && length($pubkey) > 2;       # not a valid pubkey
       if ($needpubkey && !$pubkey) {
 	if ($BSConfig::sign_project && $BSConfig::sign) {
 	  local *S;
