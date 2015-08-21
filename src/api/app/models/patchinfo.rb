@@ -242,7 +242,7 @@ class Patchinfo < ActiveXML::Node
     path = if self.init_options[:package]
       "/source/#{self.init_options[:project]}/#{self.init_options[:package]}/_patchinfo"
     else
-      "/source/_patchinfo"
+      raise IncompletePatchinfo.new "The _patchinfo has no package name set."
     end
 
     begin
