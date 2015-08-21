@@ -366,7 +366,19 @@ sub signjob {
     my $pubkey;
     if ($signkey) {
       ($signkey, $pubkey) = split("\n", $signkey, 2) if $needpubkey;
-      die("returned pubkey is empty\n") if $needpubkey && !$pubkey && length($signkey) > 2;
+      if ($needpubkey && !$pubkey) {
+	if ($BSConfig::sign_project && $BSConfig::sign) {
+	  local *S;
+	  open(S, '-|', $BSConfig::sign, '--project', $projid, '-p') || die("$BSConfig::sign: $!\n");;
+	  $pubkey = ''; 
+	  1 while sysread(S, $pubkey, 4096, length($pubkey));
+	  if (!close(S)) {
+	    print "sign -p failed: $?\n";
+	    $pubkey = undef;
+	  }
+	}
+      }
+      die("returned pubkey is empty\n") if $needpubkey && length($pubkey || '') <= 2 && length($signkey) > 2;
       mkdir_p($uploaddir);
       writestr("$uploaddir/signer.$$", undef, $signkey);
       push @signargs, '-P', "$uploaddir/signer.$$";

@@ -1758,7 +1758,9 @@ sub publish {
     mkdir_p("$uploaddir");
     writestr("$uploaddir/publisher.$$", undef, $signkey);
     $signargs = [ '-P', "$uploaddir/publisher.$$" ];
-  } else {
+    undef $pubkey unless $pubkey && length($pubkey) > 2;	# not a valid pubkey
+  }
+  if (!$pubkey) {
     if ($BSConfig::sign_project && $BSConfig::sign) {
       local *S;
       open(S, '-|', $BSConfig::sign, '--project', $projid, '-p') || die("$BSConfig::sign: $!\n");;
