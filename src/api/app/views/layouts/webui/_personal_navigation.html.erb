@@ -13,7 +13,7 @@
         <%= User.current %>
        <% end %>
     <% end %> |
-    <%= link_to 'Home Project', project_show_path("home:#{User.current.login}") %> |
+    <%= link_to 'Home Project', project_show_path(User.current.home_project_name) %> |
     <%= link_to 'Logout', user_logout_path, method: :post, id: 'logout-link' %>
   <% else %>
     <% if CONFIG['proxy_auth_mode'] == :on %>

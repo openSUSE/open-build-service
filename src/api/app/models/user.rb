@@ -54,7 +54,7 @@ class User < ActiveRecord::Base
   after_create :create_home_project
 
   def create_home_project
-    Project.find_or_create_by(name: "home:#{login}") if can_create_project?("home:#{login}")
+    Project.find_or_create_by(name: self.home_project_name) if can_create_project?(self.home_project_name)
   end
 
   # When a record object is initialized, we set the state, password
@@ -438,6 +438,14 @@ class User < ActiveRecord::Base
     STATES.invert[state]
   end
 
+  def home_project_name
+    "home:#{self.login}"
+  end
+
+  def branch_project_name(branch)
+    home_project_name + ":branches:" + branch
+  end
+
   # updates users email address and real name using data transmitted by authentification proxy
   def update_user_info_from_proxy_env(env)
     proxy_email = env['HTTP_X_EMAIL']
@@ -510,7 +518,7 @@ class User < ActiveRecord::Base
     return true if is_admin?
     return true if has_global_permission? 'change_project'
     return true if has_local_permission? 'change_project', project
-    return true if project.name == "home:#{self.login}" # users tend to remove themself, allow to re-add them
+    return true if project.name == self.home_project_name # users tend to remove themself, allow to re-add them
     return false
   end
   private :can_modify_project_internal
@@ -560,8 +568,8 @@ class User < ActiveRecord::Base
   # project_name is name of the project
   def can_create_project?(project_name)
     ## special handling for home projects
-    return true if project_name == "home:#{self.login}" and ::Configuration.allow_user_to_create_home_project
-    return true if /^home:#{self.login}:/.match( project_name ) and ::Configuration.allow_user_to_create_home_project
+    return true if project_name == self.home_project_name and ::Configuration.allow_user_to_create_home_project
+    return true if /^#{self.home_project_name}:/.match( project_name ) and ::Configuration.allow_user_to_create_home_project
 
     return true if has_global_permission? 'create_project'
     parent_project = Project.new(name: project_name).parent

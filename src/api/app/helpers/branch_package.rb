@@ -70,7 +70,7 @@ class BranchPackage
     # Just requests should be nearly the same
     find_package_targets unless params[:request]
 
-    @target_project ||= "home:#{User.current.login}:branches:#{params[:project]}"
+    @target_project ||= User.current.branch_project_name(params[:project])
 
     #
     # Data collection complete at this stage
@@ -348,7 +348,7 @@ class BranchPackage
 
     # set default based on first found package location
     unless @target_project
-      @target_project = "home:#{User.current.login}:branches:#{p[:link_target_project].name}"
+      @target_project = User.current.branch_project_name(p[:link_target_project].name)
       @auto_cleanup = ::Configuration.cleanup_after_days
     end
 
@@ -581,11 +581,11 @@ class BranchPackage
       @target_project = params[:target_project]
     else
       if params[:request]
-        @target_project = "home:#{User.current.login}:branches:REQUEST_#{params[:request]}"
+        @target_project = User.current.branch_project_name("REQUEST_#{params[:request]}")
       elsif params[:project]
         @target_project = nil # to be set later after first source location lookup
       else
-        @target_project = "home:#{User.current.login}:branches:#{@attribute.gsub(':', '_')}"
+        @target_project = User.current.branch_project_name(@attribute.gsub(':', '_'))
         @target_project += ":#{params[:package]}" if params[:package]
       end
       @auto_cleanup = ::Configuration.cleanup_after_days

@@ -6,8 +6,8 @@
 <h3><%= @pagetitle %></h3>
 <% unless User.current.is_admin? %>
   <p>
-    All users have a homes project by default. Yours is <%= link_to "home:#{User.current.login}", { controller: :project, action: :show,
-    project: "home:#{User.current.login}" } %>, and you can also
+    All users have a homes project by default. Yours is <%= link_to User.current.home_project_name, { controller: :project, action: :show,
+    project: User.current.home_project_name } %>, and you can also
     create sub projects inside. New projects outside of your home project can get
     requested via <a href="mailto:<%= @configuration['admin_email'] %>">email</a>.
   </p>

@@ -827,7 +827,7 @@ class BsRequestAction < ActiveRecord::Base
       if [:submit, :maintenance_incident].include?(self.action_type)
         # cleanup implicit home branches. FIXME3.0: remove this, the clients should do this automatically meanwhile
         if self.sourceupdate.nil? and self.target_project
-          if "home:#{User.current.login}:branches:#{self.target_project}" == self.source_project
+          if User.current.branch_project_name(self.target_project) == self.source_project
             self.sourceupdate = 'cleanup'
           end
         end

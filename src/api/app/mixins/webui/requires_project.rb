@@ -1,11 +1,11 @@
 module Webui::RequiresProject
 
   def render_project_missing
-    if params[:project] == "home:#{User.current.login}"
+    if params[:project] == User.current.home_project_name
       # checks if the user is registered yet
       flash[:notice] = "Your home project doesn't exist yet. You can create it now by entering some" +
           " descriptive data and press the 'Create Project' button."
-      redirect_to :action => :new, :ns => 'home:' + User.current.login and return
+      redirect_to :action => :new, :ns => User.current.home_project_name and return
     end
     if request.xhr?
       render :text => "Project not found: #{params[:project]}", :status => 404 and return
