@@ -109,10 +109,10 @@ ldap_search_auth: ""
 # be met; eg group membership
 #
 # To allow only users in a specific group uncomment this line:
-#ldap_user_filter: memberof=CN=group,OU=Groups,DC=Domain Component)
+#ldap_user_filter: (memberof=CN=group,OU=Groups,DC=Domain Component)
 #
 # Note this is joined to the normal selection like so:
-# (&(#{dap_search_attr}=#{login})#{ldap_user_filter})
+# (&(#{ldap_search_attr}=#{login})#{ldap_user_filter})
 # giving an ldap search of:
 #  (&(sAMAccountName=#{login})(memberof=CN=group,OU=Groups,DC=Domain Component))
 #
