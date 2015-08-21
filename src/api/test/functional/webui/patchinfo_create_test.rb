@@ -6,13 +6,6 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
   uses_transaction :test_create_patchinfo_with_too_short_summary
   uses_transaction :test_create_patchinfo_with_too_short_sum_and_desc
 
-  CATEGORIES = [ "",
-                 "recommended",
-                 "security",
-                 "optional",
-                 "feature"].sort
-  RATINGS = %w(low moderate important critical).sort
-
   setup do
     use_js
     @project = 'home:Iggy'
@@ -23,7 +16,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     page.must_have_text "Patchinfo-Editor for "
   end
 
-  def create_patchinfo new_patchinfo
+  def create_patchinfo_for_test new_patchinfo
     new_patchinfo[:expect] ||= :success
     new_patchinfo[:packager] ||= current_user
     new_patchinfo[:summary] ||= ""
@@ -32,9 +25,9 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     new_patchinfo[:description].squeeze!(" ")
     new_patchinfo[:description].gsub!(/ *\n +/ , "\n")
     new_patchinfo[:description].strip!
-    assert CATEGORIES.include? new_patchinfo[:category]
+    assert Patchinfo::CATEGORIES.include? new_patchinfo[:category]
     find('select#category').select(new_patchinfo[:category])
-    assert RATINGS.include? new_patchinfo[:rating]
+    assert Patchinfo::RATINGS.include? new_patchinfo[:rating]
     find('select#rating').select(new_patchinfo[:rating])
     new_patchinfo[:issue] ||= ""
 
@@ -135,7 +128,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     login_Iggy
     visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
-    create_patchinfo(
+    create_patchinfo_for_test(
       :summary => "This is a test for the patchinfoeditor",
       :description => LONG_DESCRIPTION,
       :category => "recommended",
@@ -149,7 +142,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
     # check that the patchinfo is not editable per direct url for unauthorized users
     visit patchinfo_edit_patchinfo_path(project: "home:Iggy", package: "patchinfo")
-    create_patchinfo(
+    create_patchinfo_for_test(
       :summary => "This is a test for the patchinfoeditor",
       :description => LONG_DESCRIPTION,
       :category => "recommended",
@@ -174,7 +167,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     login_Iggy
     visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
-    create_patchinfo(
+    create_patchinfo_for_test(
       :summary => "This is a test for the patchinfoeditor",
       :description => LONG_DESCRIPTION,
       :category => "optional",
@@ -186,7 +179,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     login_Iggy
     visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
-    create_patchinfo(
+    create_patchinfo_for_test(
       :summary => "This is a test for the patchinfoeditor",
       :description => LONG_DESCRIPTION,
       :category => "optional",
@@ -194,7 +187,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
     #edit the summary of the created patchinfo
     click_link("Edit patchinfo")
-    create_patchinfo(
+    create_patchinfo_for_test(
       :summary => "New summary for the patchinfo",
       :description => find(:id, "description").text,
       :category => find_field('category').find('option[selected]').text,
@@ -202,7 +195,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
     # now add an issue
     click_link("Edit patchinfo")
-    create_patchinfo(
+    create_patchinfo_for_test(
       :summary => find(:id, "summary").text,
       :description => find(:id, "description").text,
       :category => find_field('category').find('option[selected]').text,
@@ -216,7 +209,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     login_Iggy
     visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
-    create_patchinfo(
+    create_patchinfo_for_test(
       :summary => "This is a test for the patchinfoeditor",
       :description => LONG_DESCRIPTION,
       :category => "optional",
@@ -246,7 +239,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     login_Iggy
     visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
-    create_patchinfo(
+    create_patchinfo_for_test(
       :summary => "This is a test for the patchinfo-editor",
       :description => LONG_DESCRIPTION,
       :category => "recommended",
@@ -262,7 +255,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     login_Iggy
     visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
-    create_patchinfo(
+    create_patchinfo_for_test(
       :summary => "This is a test for the patchinfo-editor",
       :description => LONG_DESCRIPTION,
       :category => "recommended",
@@ -284,7 +277,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     login_Iggy
     visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
-    create_patchinfo(
+    create_patchinfo_for_test(
       :summary => "Too short",
       :description => LONG_DESCRIPTION,
       :category => "recommended",
@@ -296,7 +289,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     login_Iggy
     visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
-    create_patchinfo(
+    create_patchinfo_for_test(
       :summary => "This is a test for the patchinfo-editor",
       :description => "This description is too short",
       :category => "recommended",
@@ -308,7 +301,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     login_Iggy
     visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
-    create_patchinfo(
+    create_patchinfo_for_test(
       :summary => "Too short",
       :description => "This description is too short",
       :category => "recommended",

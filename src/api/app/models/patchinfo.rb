@@ -3,17 +3,10 @@
 
 # if you wonder it's not a module, read http://blog.codeclimate.com/blog/2012/11/14/why-ruby-class-methods-resist-refactoring
 class Patchinfo < ActiveXML::Node
-
   include ValidationHelper
 
-  # patchinfo has two roles
-  def initialize(data = "<patchinfo/>")
-    super(data)
-  end
-
-  def logger
-    Rails.logger
-  end
+  class PatchinfoFileExists < APIException; end
+  class IncompletePatchinfo < APIException; end
 
   class ReleasetargetNotFound < APIException
     setup 404
@@ -23,6 +16,35 @@ class Patchinfo < ActiveXML::Node
     setup 404
   end
 
+  # FIXME: Layout and colors belong to CSS
+  RATING_COLORS = {
+    'low'       => 'green',
+    'moderate'  => 'olive',
+    'important' => 'red',
+    'critical'  => 'maroon'
+  }
+
+  RATINGS = RATING_COLORS.keys
+
+  CATEGORY_COLORS = {
+    'recommended' => 'green',
+    'security'    => 'maroon',
+    'optional'    => 'olive',
+    'feature'     => ''
+  }
+
+  # '' is a valid category
+  CATEGORIES = CATEGORY_COLORS.keys << ""
+
+  def self.make_stub( opt )
+    '<patchinfo/>'
+  end
+
+  # patchinfo has two roles
+  def initialize(data = "<patchinfo/>")
+    super(data)
+  end
+
   def is_repository_matching?(repo, rt)
     return false if repo.project.name != rt['project']
     if rt['repository']
@@ -30,7 +52,6 @@ class Patchinfo < ActiveXML::Node
     end
     true
   end
-
 
   # check if we can find the releasetarget (xmlhash) in the project
   def check_releasetarget!(rt)
@@ -127,8 +148,6 @@ class Patchinfo < ActiveXML::Node
     @pkg.sources_changed
   end
 
-  class PatchinfoFileExists < APIException;end
-
   def create_patchinfo_package(pkg_name)
     Package.transaction do
       @pkg = @prj.packages.new(name: pkg_name, title: 'Patchinfo', description: 'Collected packages for update')
@@ -204,8 +223,6 @@ class Patchinfo < ActiveXML::Node
     xml
   end
 
-  class IncompletePatchinfo < APIException;end
-
   def fetch_release_targets(pkg)
     data = read_patchinfo_xmlhash(pkg)
     # validate _patchinfo for completeness
@@ -221,34 +238,13 @@ class Patchinfo < ActiveXML::Node
     data.elements('releasetarget')
   end
 
-  def self.make_stub( opt )
-    '<patchinfo/>'
-  end
-
-  # FIXME: Layout and colors belong to CSS
-  RATING_COLORS = {
-      'low'       => 'green',
-      'moderate'  => 'olive',
-      'important' => 'red',
-      'critical'  => 'maroon',
-  }
-
-  RATINGS = RATING_COLORS.keys
-
-  CATEGORY_COLORS = {
-      'recommended' => 'green',
-      'security'    => 'maroon',
-      'optional'    => 'olive',
-      'feature'     => '',
-  }
-
-  # '' is a valid category
-  CATEGORIES = [''].concat(CATEGORY_COLORS.keys)
-
   def save
-    # rubocop:disable Metrics/LineLength
-    path = self.init_options[:package] ? "/source/#{self.init_options[:project]}/#{self.init_options[:package]}/_patchinfo" : "/source/#{self.init_options[:package]}/_patchinfo"
-    # rubocop:enable Metrics/LineLength
+    path = if self.init_options[:package]
+      "/source/#{self.init_options[:project]}/#{self.init_options[:package]}/_patchinfo"
+    else
+      "/source/_patchinfo"
+    end
+
     begin
       frontend = ActiveXML::api
       frontend.direct_http URI("#{path}"), :method => 'POST', :data => self.dump_xml
