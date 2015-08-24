@@ -15,6 +15,30 @@ end
   a.save
 end
 
+# set default configuration settings if no settings exist
+Configuration.first_or_create(name: "private", title: "Open Build Service") do |conf|
+conf.description = <<-EOT
+  <p class="description">
+    The <a href="http://openbuildservice.org">Open Build Service (OBS)</a>
+    is an open and complete distribution development platform that provides a transparent
+    infrastructure for development of Linux distributions, used by openSUSE, MeeGo and other distributions.
+    Supporting also Fedora, Debian, Ubuntu, RedHat and other Linux distributions.
+  </p>
+  <p class="description">
+    The OBS is developed under the umbrella of the <a href="http://www.opensuse.org">openSUSE project</a>.
+    Please find further informations on the
+    <a href="http://wiki.opensuse.org/openSUSE:Build_Service">openSUSE Project wiki pages</a>.
+  </p>
+
+  <p class="description">
+    The Open Build Service developer team is greeting you. In case you use your OBS productive in your facility,
+    please do us a favor and add yourself at
+    <a href="http://wiki.opensuse.org/openSUSE:Build_Service_installations">this wiki page</a>.
+    Have fun and fast build times!
+  </p>
+EOT
+end
+
 puts "Seeding roles table..."
 admin_role      = Role.where(title: "Admin").first_or_create global: true
 maintainer_role = Role.where(title: "maintainer").first_or_create
@@ -127,30 +151,6 @@ at.allowed_values << AttribAllowedValue.new( value: "DisableDevel" )
 at.allowed_values << AttribAllowedValue.new( value: "BugownerOnly" )
 
 update_all_attrib_type_descriptions
-
-# set default configuration settings if no settings exist
-Configuration.first_or_create(name: "private", title: "Open Build Service") do |conf|
-conf.description = <<-EOT
-  <p class="description">
-    The <a href="http://openbuildservice.org">Open Build Service (OBS)</a>
-    is an open and complete distribution development platform that provides a transparent
-    infrastructure for development of Linux distributions, used by openSUSE, MeeGo and other distributions.
-    Supporting also Fedora, Debian, Ubuntu, RedHat and other Linux distributions.
-  </p>
-  <p class="description">
-    The OBS is developed under the umbrella of the <a href="http://www.opensuse.org">openSUSE project</a>.
-    Please find further informations on the
-    <a href="http://wiki.opensuse.org/openSUSE:Build_Service">openSUSE Project wiki pages</a>.
-  </p>
-
-  <p class="description">
-    The Open Build Service developer team is greeting you. In case you use your OBS productive in your facility,
-    please do us a favor and add yourself at
-    <a href="http://wiki.opensuse.org/openSUSE:Build_Service_installations">this wiki page</a>.
-    Have fun and fast build times!
-  </p>
-EOT
-end
 
 puts "Seeding issue trackers ..."
 IssueTracker.where(name: 'boost').first_or_create(description: 'Boost Trac',

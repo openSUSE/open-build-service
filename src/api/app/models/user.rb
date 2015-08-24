@@ -54,7 +54,11 @@ class User < ActiveRecord::Base
   after_create :create_home_project
 
   def create_home_project
-    Project.find_or_create_by(name: self.home_project_name) if can_create_project?(self.home_project_name)
+    # avoid errors during seeding
+    return if [ "_nobody_", "Admin" ].include? self.login
+    # may be disabled via Configuration setting
+    return if can_create_project?(self.home_project_name)
+    Project.find_or_create_by(name: self.home_project_name)
   end
 
   # When a record object is initialized, we set the state, password
