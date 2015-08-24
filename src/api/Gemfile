@@ -11,20 +11,12 @@ gem 'mysql2'
 gem 'nokogiri', '~>1.6.3'
 # for delayed tasks
 gem 'delayed_job_active_record', '>= 4.0.0'
-# to have the delayed job daemon
-gem 'daemons'
 # to fill errbit
 gem 'hoptoad_notifier', "~> 2.3"
-# to document ruby code
-gem 'rdoc'
-# as memcache client
-gem 'dalli', require: false
 # as JSON library - the default json conflicts with activerecord (by means of vice-versa monkey patching)
 gem 'yajl-ruby'
 # to search the database
 gem 'thinking-sphinx', '> 3.1'
-# to not rely on cron+rake
-gem 'clockwork', '>= 0.7'
 # to paginate search results
 gem 'kaminari'
 # as abstract HTML of the bratwurst 'theme'
@@ -37,8 +29,6 @@ gem 'redcarpet'
 gem 'cocoon'
 # for activerecord lists. Used for AttribValues
 gem 'acts_as_list'
-# as interface to LDAP
-gem 'ruby-ldap', require: false
 # to parse a XML string into a ruby hash
 gem 'xmlhash', '>=1.3.6'
 # to escape HTML (FIXME: do we still use this?)
@@ -51,6 +41,19 @@ gem 'responders', '~> 2.0'
 gem 'bundler'
 # for threaded comments
 gem 'acts_as_tree'
+
+group :development, :production do
+  # to have the delayed job daemon
+  gem 'daemons'
+  # as memcache client
+  gem 'dalli', require: false
+  # to document ruby code
+  gem 'rdoc'
+  # to not rely on cron+rake
+  gem 'clockwork', '>= 0.7'
+  # as interface to LDAP
+  gem 'ruby-ldap', require: false
+end
 
 group :production do
   # if you have an account, it can be configured by
