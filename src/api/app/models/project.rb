@@ -939,10 +939,10 @@ class Project < ActiveRecord::Base
     return nil
   end
 
-  def expand_all_projects(project_map={})
+  def expand_all_projects(projects_list = [])
     # cycle check
-    return [] if project_map[self]
-    project_map[self] = 1
+    return [] if projects_list.include?(self.id)
+    projects_list << self.id
 
     projects = [self]
 
@@ -951,7 +951,7 @@ class Project < ActiveRecord::Base
       if lp.linked_db_project.nil?
         projects << lp.linked_remote_project_name
       else
-        lp.linked_db_project.expand_all_projects(project_map).each do |p|
+        lp.linked_db_project.expand_all_projects(projects_list).each do |p|
           projects << p
         end
       end
