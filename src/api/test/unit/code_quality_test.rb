@@ -97,7 +97,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'UserLdapStrategy::render_grouplist_ldap'                                 => 100.3,
       'Webui::DriverUpdateController#save'                                      => 97.16,
       'Webui::PackageController#submit_request'                                 => 140.91,
-      'Webui::PatchinfoController#save'                                         => 223.05,
+      'Webui::PatchinfoController#save'                                         => 232.16,
       'Webui::ProjectController#check_devel_package_status'                     => 81.95,
       'Webui::ProjectController#save_targets'                                   => 123.29,
       'Webui::SearchController#set_parameters'                                  => 98.04,

@@ -142,6 +142,7 @@
             <%= submit_tag 'Save Patchinfo' %>
           </div>
           <%= hidden_field_tag('project', @project.name) %>
+          <%= hidden_field_tag "name", @name %>
           <%= hidden_field_tag('package', @package) %>
         </div>
       </div>
