@@ -76,7 +76,8 @@ class Webui::PackageController < Webui::WebuiController
     @repository = params[:repository]
     @drepository = params[:drepository]
     @dproject = params[:dproject]
-    @filename = params[:filename]
+    # Ensure it really is just a file name, no '/..', etc.
+    @filename = File.basename(params[:filename])
     @fileinfo = Fileinfo.find(:project => params[:dproject], :package => '_repository', :repository => params[:drepository], :arch => @arch,
       :filename => params[:dname], :view => 'fileinfo_ext')
     @durl = nil
@@ -107,7 +108,9 @@ class Webui::PackageController < Webui::WebuiController
     required_parameters :arch, :repository, :filename
     @arch = params[:arch]
     @repository = params[:repository]
-    @filename = params[:filename]
+    # Ensure it really is just a file name, no '/..', etc.
+    @filename = File.basename(params[:filename])
+
     begin
       @fileinfo = Fileinfo.find(:project => @project, :package => @package, :repository => @repository, :arch => @arch,
         :filename => @filename, :view => 'fileinfo_ext')
