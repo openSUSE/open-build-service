@@ -680,7 +680,6 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /srv/www/obs/api/config/initializers
 %dir /srv/www/obs/api/config/environments
 %dir /srv/www/obs/api/files
-/srv/www/obs/api/.simplecov
 /srv/www/obs/api/Gemfile
 /srv/www/obs/api/Gemfile.lock
 /srv/www/obs/api/config.ru
