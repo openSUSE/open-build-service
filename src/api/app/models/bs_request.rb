@@ -116,31 +116,21 @@ class BsRequest < ActiveRecord::Base
   end
 
   def self.open_requests_for_source(obj)
-    if obj.kind_of? Project
-      return BsRequest.order(:id).in_states([:new, :review, :declined]).
-                where(bs_request_actions: {source_project: obj.name})
-    elsif obj.kind_of? Package
-      return BsRequest.order(:id).in_states([:new, :review, :declined]).
-                where(bs_request_actions: {source_project: obj.project.name, source_package: obj.name})
-    else
-      raise "Invalid object #{obj.class}"
-    end
+    BsRequest.order(:id).in_states([:new, :review, :declined]).
+              where(bs_request_actions: {source_project: obj.name})
   end
 
   def self.open_requests_for_target(obj)
-    if obj.kind_of? Project
-      return BsRequest.order(:id).in_states([:new, :review, :declined]).
-                where(bs_request_actions: {target_project: obj.name})
-    elsif obj.kind_of? Package
-      return BsRequest.order(:id).in_states([:new, :review, :declined]).
-                where(bs_request_actions: {target_project: obj.project.name, target_package: obj.name})
-    else
-      raise "Invalid object #{obj.class}"
-    end
+    BsRequest.order(:id).in_states([:new, :review, :declined]).
+              where(bs_request_actions: {target_project: obj.name})
   end
 
   def self.open_requests_for(obj)
-    self.open_requests_for_target(obj) + self.open_requests_for_source(obj)
+    if obj.kind_of?(Project)
+      self.open_requests_for_target(obj) + self.open_requests_for_source(obj)
+    else
+      raise "Invalid object #{obj.class}"
+    end
   end
 
   def self.new_from_xml(xml)
