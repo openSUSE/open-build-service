@@ -63,7 +63,8 @@ class Product < ActiveRecord::Base
             self.baseversion = p['baseversion']
             self.patchlevel = p['patchlevel']
             pversion = p['version']
-            pversion = "#{p['baseversion']}.#{p['patchlevel']}" if pversion.blank? and p['baseversion']
+            pversion = p['baseversion'] if p['baseversion']
+            pversion += ":sp#{p['patchlevel']}" if p['patchlevel'] and p['patchlevel'].to_i > 0
             self.set_CPE(swClass, p['vendor'], pversion)
             self.version = pversion
             # update update channel connections

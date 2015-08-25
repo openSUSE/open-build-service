@@ -236,11 +236,11 @@ class ProductTests < ActionDispatch::IntegrationTest
     get "/source/home:tom:temporary?view=productlist"
     assert_response :success
     assert_xml_tag :tag => "product",
-                   :attributes => { :name => "SUSE_SLES", :cpe => "cpe:/a:suse:suse_sles:11.2", :originproject => "home:tom:temporary" }
+                   :attributes => { :name => "SUSE_SLES", :cpe => "cpe:/a:suse:suse_sles:11:sp2", :originproject => "home:tom:temporary" }
     get "/source/home:tom:temporary?view=productlist&expand=1"
     assert_response :success
     assert_xml_tag :tag => "product",
-                   :attributes => { :name => "SUSE_SLES", :cpe => "cpe:/a:suse:suse_sles:11.2", :originproject => "home:tom:temporary" }
+                   :attributes => { :name => "SUSE_SLES", :cpe => "cpe:/a:suse:suse_sles:11:sp2", :originproject => "home:tom:temporary" }
 
     # product views via project links
     get "/source/home:tom:temporary:link?view=productlist"
@@ -249,7 +249,7 @@ class ProductTests < ActionDispatch::IntegrationTest
     get "/source/home:tom:temporary:link?view=productlist&expand=1"
     assert_response :success
     assert_xml_tag :tag => "product",
-                   :attributes => { :name => "SUSE_SLES", :cpe => "cpe:/a:suse:suse_sles:11.2", :originproject => "home:tom:temporary" }
+                   :attributes => { :name => "SUSE_SLES", :cpe => "cpe:/a:suse:suse_sles:11:sp2", :originproject => "home:tom:temporary" }
 
     # product views in a package
     get "/source/home:tom:temporary/_product?view=issues"
@@ -277,7 +277,7 @@ class ProductTests < ActionDispatch::IntegrationTest
 
     product = Package.find_by_project_and_name("home:tom:temporary","_product").products.first
     assert_equal "SUSE_SLES", product.name
-    assert_equal "cpe:/a:suse:suse_sles:11.2", product.cpe
+    assert_equal "cpe:/a:suse:suse_sles:11:sp2", product.cpe
     assert_equal product.product_update_repositories.first.repository.project.name, "BaseDistro2.0:LinkedUpdateProject"
     assert_equal product.product_update_repositories.first.repository.name, "BaseDistro2LinkedUpdateProject_repo"
 
