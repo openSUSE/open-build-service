@@ -57,7 +57,7 @@ class User < ActiveRecord::Base
     # avoid errors during seeding
     return if [ "_nobody_", "Admin" ].include? self.login
     # may be disabled via Configuration setting
-    return if can_create_project?(self.home_project_name)
+    return unless can_create_project?(self.home_project_name)
     Project.find_or_create_by(name: self.home_project_name)
   end
 
