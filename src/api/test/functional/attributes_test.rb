@@ -77,7 +77,6 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     # create test namespace
     login_king
     data = "<namespace name='TEST'><modifiable_by user='adrian'/></namespace>"
-    login_king
     post "/attribute/TEST/_meta", data
     assert_response :success
 
@@ -444,4 +443,3 @@ ription</description>
 # * value based test are missing
 
 end
-

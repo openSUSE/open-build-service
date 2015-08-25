@@ -81,35 +81,35 @@ class Attrib < ActiveRecord::Base
     key += "|#{binary}" if binary
   end
 
-  def update_with_associations(new_values = [], new_issues = [])
-    will_save = false
+  def update_with_associations(values = [], issues = [])
+    save = false
 
     #--- update issues ---#
-    if new_issues.map { |i| i.name }.sort != self.issues.map { |i| i.name }.sort
+    if issues.map { |i| i.name }.sort != self.issues.map { |i| i.name }.sort
       logger.debug "Attrib.update_with_associations: Issues for #{self.fullname} changed, updating."
-      will_save = true
+      save = true
       self.issues.delete_all
-      new_issues.each do |issue|
+      issues.each do |issue|
         self.issues << issue
       end
     end
 
     #--- update values ---#
-    if new_values.sort != self.values.map { |v| v.value}.sort
+    if values.sort != self.values.map { |v| v.value}.sort
       logger.debug "Attrib.update_with_associations: Values for #{self.fullname} changed, updating."
-      will_save = true
+      save = true
       self.values.delete_all
       position = 1
-      new_values.each do |val|
+      values.each do |val|
         self.values.create(value: val, position: position)
         position += 1
       end
     end
 
-    save! if will_save
-    will_save
+    self.save! if save
+    return save
   end
-
+  
   #### Alias of methods
   alias :values_addable? :values_removeable?
 
