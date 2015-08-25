@@ -102,7 +102,7 @@ class User < ActiveRecord::Base
   # Generate accessors for the password confirmation property.
   attr_accessor :password_confirmation
 
-  scope :all_without_nobody, -> { where("login != '#{nobody_login}'") }
+  scope :all_without_nobody, -> { where("login != '?'", nobody_login) }
 
   # Overriding the default accessor to update @new_password on setting this
   # property.
