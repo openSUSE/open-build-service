@@ -152,10 +152,13 @@ module Webui
     def login_user(user, password, opts = {})
       # no idea why calling it twice would help
       WebMock.disable_net_connect!(allow_localhost: true)
-      visit user_login_path(return_to_path: opts[:to])
+      visit user_login_path
       fill_in 'Username', with: user
       fill_in 'Password', with: password
       click_button 'Log In'
+
+      visit opts[:to] if opts[:to]
+
       @current_user = user
       if opts[:do_assert] != false
         assert_match %r{^#{user}( |$)}, find('#link-to-user-home').text
