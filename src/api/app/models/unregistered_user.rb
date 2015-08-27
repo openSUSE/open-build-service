@@ -6,6 +6,8 @@ class UnregisteredUser < User
   class ErrRegisterSave < APIException
   end
 
+  # Raises an exception if registration is disabled for a user
+  # Returns true if a user can register
   def self.can_register?
     # No registering if LDAP is on
     if CONFIG['ldap_mode'] == :on
@@ -26,14 +28,14 @@ class UnregisteredUser < User
 
     # Turn off registration if its disabled
     if ::Configuration.registration == 'deny'
-      return if User.current.try(:is_admin?)
+      return true if User.current.try(:is_admin?)
       logger.debug 'Someone tried to register but its disabled'
       raise ErrRegisterSave, 'Sorry, sign up is disabled'
     end
 
     # Turn on registration if it's enabled
     if ["allow", "confirmation"].include?(::Configuration.registration)
-      return
+      return true
     end
 
     # This shouldn't happen, but disable registration by default.
