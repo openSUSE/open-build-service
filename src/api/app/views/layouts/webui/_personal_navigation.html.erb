@@ -1,5 +1,5 @@
 <div class="grid_6 omega" style="text-align: right">
-  <% unless User.current.is_nobody? %>
+  <% if User.current && !User.current.is_nobody? %>
     <% nr_requests_that_need_work = User.current.nr_of_requests_that_need_work -%>
     <% if nr_requests_that_need_work > 0 -%>
       <%= link_to(user_show_path(User.current), :id  => 'link-to-user-home') do %>

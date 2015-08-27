@@ -1,4 +1,4 @@
-<% unless User.current.is_nobody? -%>
+<% if User.current && !User.current.is_nobody? -%>
     <ul class="global-navigation-menu global-navigation-menu-favorites" id="menu-favorites">
       <li>
         <span class="desc">List of projects you are watching</span>
