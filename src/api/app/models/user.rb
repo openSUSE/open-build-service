@@ -260,6 +260,7 @@ class User < ActiveRecord::Base
   def state_transition_allowed?(from, to)
     from = from.to_i
     to = to.to_i
+    desired_state = STATES.key(to)
 
     return true if from == to # allow keeping state
 
@@ -267,15 +268,15 @@ class User < ActiveRecord::Base
     when STATES['unconfirmed']
       true
     when STATES['confirmed']
-      %w(retrieved_password locked deleted deleted ichainrequest).map{ |x| STATES[x] }.include?(to)
+      ["retrieved_password", "locked", "deleted", "ichainrequest"].include?(desired_state)
     when STATES['locked']
-      %w(confirmed deleted).map{|x| STATES[x]}.include?(to)
+      ["confirmed", "deleted"].include?(desired_state)
     when STATES['deleted']
-      to == STATES['confirmed']
+      desired_state == "confirmed"
     when STATES['ichainrequest']
-      %w(locked confirmed deleted).map{|x| STATES[x]}.include?(to)
+      ["locked", "confirmed", "deleted"].include?(desired_state)
     when 0
-      STATES.value?(to)
+      desired_state.present?
     else
       false
     end
