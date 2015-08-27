@@ -23,6 +23,15 @@ class User < ActiveRecord::Base
 
   include CanRenderModel
 
+  STATES = {
+    'unconfirmed'        => 1,
+    'confirmed'          => 2,
+    'locked'             => 3,
+    'deleted'            => 4,
+    'ichainrequest'      => 5,
+    'retrieved_password' => 6,
+  }
+
   has_many :taggings, :dependent => :destroy
   has_many :tags, :through => :taggings
 
@@ -67,7 +76,7 @@ class User < ActiveRecord::Base
   # unconfirmed/false/0 when it has not been set yet.
   before_validation(:on => :create) do
 
-    self.state = User.states['unconfirmed'] if self.state.nil?
+    self.state = STATES['unconfirmed'] if self.state.nil?
     self.password_hash_type = 'md5' if self.password_hash_type.to_s == ''
 
     @new_password = false if @new_password.nil?
@@ -176,9 +185,9 @@ class User < ActiveRecord::Base
   def confirm_registration(token)
     return false if self.user_registration.nil?
     return false if user_registration.token != token
-    return false unless state_transition_allowed?(state, User.states['confirmed'])
+    return false unless state_transition_allowed?(state, STATES['confirmed'])
 
-    self.state = User.states['confirmed']
+    self.state = STATES['confirmed']
     self.save!
     user_registration.destroy
 
@@ -187,13 +196,13 @@ class User < ActiveRecord::Base
 
   # Returns the default state of new User objects.
   def self.default_state
-    User.states['unconfirmed']
+    STATES['unconfirmed']
   end
 
   # Returns true when users with the given state may log in. False otherwise.
   # The given parameter must be an integer.
   def self.state_allows_login?(state)
-    [ User.states['confirmed'], User.states['retrieved_password'] ].include?(state)
+    [ STATES['confirmed'], STATES['retrieved_password'] ].include?(state)
   end
 
   # Overwrite the state setting so it backs up the initial state from
@@ -243,7 +252,7 @@ class User < ActiveRecord::Base
 
   # Returns true if the the state transition from "from" state to "to" state
   # is valid. Returns false otherwise. +new_state+ must be the integer value
-  # of the state as returned by +User.states['state_name']+.
+  # of the state as returned by +User::STATES['state_name']+.
   #
   # Note that currently no permission checking is included here; It does not
   # matter what permissions the currently logged in user has, only that the
@@ -254,19 +263,19 @@ class User < ActiveRecord::Base
 
     return true if from == to # allow keeping state
 
-    return case from
-    when User.states['unconfirmed']
+    case from
+    when STATES['unconfirmed']
       true
-    when User.states['confirmed']
-      %w(retrieved_password locked deleted deleted ichainrequest).map{|x| User.states[x]}.include?(to)
-    when User.states['locked']
-      %w(confirmed deleted).map{|x| User.states[x]}.include?(to)
-    when User.states['deleted']
-      to == User.states['confirmed']
-    when User.states['ichainrequest']
-      %w(locked confirmed deleted).map{|x| User.states[x]}.include?(to)
+    when STATES['confirmed']
+      %w(retrieved_password locked deleted deleted ichainrequest).map{ |x| STATES[x] }.include?(to)
+    when STATES['locked']
+      %w(confirmed deleted).map{|x| STATES[x]}.include?(to)
+    when STATES['deleted']
+      to == STATES['confirmed']
+    when STATES['ichainrequest']
+      %w(locked confirmed deleted).map{|x| STATES[x]}.include?(to)
     when 0
-      User.states.value?(to)
+      STATES.value?(to)
     else
       false
     end
@@ -368,7 +377,7 @@ class User < ActiveRecord::Base
 
     def find_by_login!(login)
       user = find_by_login(login)
-      if user.nil? or user.state == User.states['deleted']
+      if user.nil? or user.state == STATES['deleted']
         raise NotFoundError.new("Couldn't find User with login = #{login}")
       end
       return user
@@ -425,19 +434,6 @@ class User < ActiveRecord::Base
     render_xml(watchlist: watchlist)
   end
 
-  STATES = {
-    'unconfirmed'        => 1,
-    'confirmed'          => 2,
-    'locked'             => 3,
-    'deleted'            => 4,
-    'ichainrequest'      => 5,
-    'retrieved_password' => 6,
-  }
-
-  def self.states
-    STATES
-  end
-
   def state_name
     STATES.invert[state]
   end
@@ -483,7 +479,7 @@ class User < ActiveRecord::Base
   end
 
   def is_active?
-    self.state == User.states['confirmed']
+    self.state == STATES['confirmed']
   end
 
   # used to avoid

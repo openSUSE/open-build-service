@@ -37,7 +37,7 @@ class UnregisteredUser < User
   end
 
   def self.get_state
-    state = User.states.key(User.default_state)
+    state = User::STATES.key(User.default_state)
     state = 'unconfirmed' if ::Configuration.registration == 'confirmation'
     state = 'confirmed' if ::Configuration.registration == 'allow'
     logger.debug "User state is: #{state}"
@@ -57,7 +57,7 @@ class UnregisteredUser < User
         :email => opts[:email] )
 
     newuser.realname = opts[:realname] || ""
-    newuser.state = User.states[state]
+    newuser.state = User::STATES[state]
     newuser.adminnote = opts[:note]
     logger.debug('Saving...')
     newuser.save
@@ -67,7 +67,7 @@ class UnregisteredUser < User
       raise ErrRegisterSave.new "Could not save the registration, details: #{details}"
     end
 
-    if newuser.state == User.states["unconfirmed"]
+    if newuser.state == User::STATES["unconfirmed"]
       raise ErrRegisterSave.new "Thank you for signing up! An admin has to confirm your account now. Please be patient."
     end
 

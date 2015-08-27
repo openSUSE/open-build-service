@@ -148,8 +148,8 @@ class ApplicationController < ActionController::Base
           raise AuthenticationRequiredError.new "Cannot create ldap userid: '#{login}' on OBS<br>#{errstr}"
         end
         newuser.realname = ldap_info[1]
-        newuser.state = User.states['confirmed']
-        newuser.state = User.states['unconfirmed'] if ::Configuration.registration == "confirmation"
+        newuser.state = User::STATES['confirmed']
+        newuser.state = User::STATES['unconfirmed'] if ::Configuration.registration == "confirmation"
         newuser.adminnote = "User created via LDAP"
 
         logger.debug( "saving new user..." )
@@ -185,8 +185,8 @@ class ApplicationController < ActionController::Base
           logger.debug("No user found in database, creation disabled")
           raise AuthenticationRequiredError.new "User '#{login}' does not exist<br>#{errstr}"
         end
-        state = User.states['confirmed']
-        state = User.states['unconfirmed'] if ::Configuration.registration == "confirmation"
+        state = User::STATES['confirmed']
+        state = User::STATES['unconfirmed'] if ::Configuration.registration == "confirmation"
         # Generate and store a fake pw in the OBS DB that no-one knows
         # FIXME: we should allow NULL passwords in DB, but that needs user management cleanup
         chars = ["A".."Z", "a".."z", "0".."9"].collect { |r| r.to_a }.join
@@ -280,14 +280,14 @@ class ApplicationController < ActionController::Base
       raise AuthenticationRequiredError.new "Unknown user '#{@login}' or invalid password"
     end
 
-    if @http_user.state == User.states['ichainrequest'] or @http_user.state == User.states['unconfirmed']
+    if @http_user.state == User::STATES['ichainrequest'] or @http_user.state == User::STATES['unconfirmed']
       raise UnconfirmedUserError.new "User is registered but not yet approved. " +
                                          "Your account is a registered account, but it is not yet approved for the OBS by admin."
     end
 
     User.current = @http_user
 
-    if @http_user.state == User.states['confirmed']
+    if @http_user.state == User::STATES['confirmed']
       logger.debug "USER found: #{@http_user.login}"
       @user_permissions = Suse::Permission.new(@http_user)
       return true
