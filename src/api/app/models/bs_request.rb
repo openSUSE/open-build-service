@@ -33,7 +33,7 @@ class BsRequest < ActiveRecord::Base
   scope :to_accept, -> { where(state: 'new').where('accept_at < ?', DateTime.now) }
   # Scopes for collections
   scope :with_actions, -> { joins(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
-  scope :in_states, ->(states) { where('bs_requests.state in (?)', states) }
+  scope :in_states, ->(states) { where(state: states) }
   scope :with_types, ->(types) { where('bs_request_actions.type in (?)', types).references(:bs_request_actions) }
   scope :from_source_project, ->(source_project) { where('bs_request_actions.source_project = ?', source_project).references(:bs_request_actions) }
   scope :in_ids, ->(ids) { where(id: ids) }
