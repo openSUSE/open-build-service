@@ -1,17 +1,31 @@
+#
 class BsRequestActionMaintenanceIncident < BsRequestAction
-
+  #### Includes and extends
   include RequestSourceDiff
 
-  def is_maintenance_incident?
-    true
+  #### Constants
+
+  #### Self config
+  class NoMaintenanceReleaseTarget < APIException
+    setup 'no_maintenance_release_target'
   end
 
+  #### Attributes
+  #### Associations macros (Belongs to, Has one, Has many)
+  #### Callbacks macros: before_save, after_save, etc.
+  #### Scopes (first the default_scope macro if is used)
+  #### Validations macros
+
+  #### Class methods using self. (public and then private)
   def self.sti_name
     return :maintenance_incident
   end
 
-  class NoMaintenanceReleaseTarget < APIException
-    setup 'no_maintenance_release_target'
+  #### To define class methods as private use private_class_method
+  #### private
+  #### Instance methods (public and then protected/private)
+  def is_maintenance_incident?
+    true
   end
 
   def get_releaseproject(pkg, tprj)
@@ -199,5 +213,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     raise IllegalRequest.new 'Target package must not be specified in maintenance_incident actions' if self.target_package
     super(ignore_build_state)
   end
+
+  #### Alias of methods
 
 end
