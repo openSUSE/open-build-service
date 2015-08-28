@@ -1,9 +1,22 @@
+#
 class BsRequestActionDelete < BsRequestAction
+  #### Includes and extends
+  #### Constants
+  #### Self config
+  #### Attributes
+  #### Associations macros (Belongs to, Has one, Has many)
+  #### Callbacks macros: before_save, after_save, etc.
+  #### Scopes (first the default_scope macro if is used)
+  #### Validations macros
 
+  #### Class methods using self. (public and then private)
   def self.sti_name
     return :delete
   end
 
+  #### To define class methods as private use private_class_method
+  #### private
+  #### Instance methods (public and then protected/private)
   def check_sanity
     super
     errors.add(:source_project, "source can not be used in delete action") if source_project
@@ -70,4 +83,7 @@ class BsRequestActionDelete < BsRequestAction
       return "/source/#{self.target_project}"
     end
   end
+
+  #### Alias of methods
+
 end
