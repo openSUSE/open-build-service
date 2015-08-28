@@ -28,7 +28,7 @@
     <p>
     <% @states.each do |s| %>
       <%= label_tag "state_#{s}", "#{s}" %>
-      <% if User.states[s.to_s] == @displayed_user.state %>
+      <% if User::STATES[s.to_s] == @displayed_user.state %>
         <% select = true %>
       <% end %>
       <%= radio_button_tag :state, s, select %>

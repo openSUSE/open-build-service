@@ -69,7 +69,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   def test_states
-    assert_not_nil User.states
+    assert_not_nil User::STATES
   end
 
   def test_deleted_user
