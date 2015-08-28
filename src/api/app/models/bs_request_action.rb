@@ -1,78 +1,63 @@
-# -*- coding: utf-8 -*-
 require 'api_exception'
 
 class BsRequestAction < ActiveRecord::Base
-
+  #### Includes and extends
   include ParsePackageDiff
 
-  # we want the XML attribute in the database
-  #  self.store_full_sti_class = false
+  #### Constants
+  VALID_SOURCEUPDATE_OPTIONS = ['update', 'noupdate', 'cleanup']
 
-  class DiffError < APIException
-    # a diff error can have many reasons, but most likely something within us
-    setup 404
+  #### Self config
+  class DiffError < APIException; setup 404; end  # a diff error can have many reasons, but most likely something within us
+  class RemoteSource < APIException; end
+  class RemoteTarget < APIException; end
+  class InvalidReleaseTarget < APIException; end
+  class LackingMaintainership < APIException
+    setup 'lacking_maintainership', 403, 'Creating a submit request action with options requires maintainership in source package'
   end
-  class RemoteSource < APIException
-  end
-  class RemoteTarget < APIException
-  end
-  class InvalidReleaseTarget < APIException
-  end
+  class NoMaintenanceProject < APIException; end
+  class UnknownAttribute < APIException; setup 404; end
+  class IncidentHasNoMaintenanceProject < APIException; end
+  class NotSupported < APIException; end
+  class SubmitRequestRejected < APIException; end
+  class RequestRejected < APIException; setup 403; end
+  class UnknownProject < APIException; setup 404; end
+  class UnknownRole < APIException; setup 404; end
+  class IllegalRequest < APIException; end
+  class BuildNotFinished < APIException; end
+  class UnknownTargetProject < APIException; end
+  class UnknownTargetPackage < APIException; end
+  class WrongLinkedPackageSource < APIException; end
+  class MissingPatchinfo < APIException; end
 
+  #### Attributes
+
+  #### Associations macros (Belongs to, Has one, Has many)
   belongs_to :bs_request
   has_one :bs_request_action_accept_info, :dependent => :delete
 
-  VALID_SOURCEUPDATE_OPTIONS = %w(update noupdate cleanup)
-  validates_inclusion_of :sourceupdate, :in => VALID_SOURCEUPDATE_OPTIONS, :allow_nil => true
+  #### Callbacks macros: before_save, after_save, etc.
+  #### Scopes (first the default_scope macro if is used)
 
+  #### Validations macros
+  validates_inclusion_of :sourceupdate, :in => VALID_SOURCEUPDATE_OPTIONS, :allow_nil => true
   validate :check_sanity
 
-  def minimum_priority
-    nil
-  end
+  #### Class methods using self. (public and then private)
+  protected
 
-  def check_sanity
-    if [:submit, :maintenance_incident, :maintenance_release, :change_devel].include? action_type
-      errors.add(:source_project, "should not be empty for #{action_type} requests") if source_project.blank?
-      if !is_maintenance_incident?
-        errors.add(:source_package, "should not be empty for #{action_type} requests") if source_package.blank?
-      end
-      errors.add(:target_project, "should not be empty for #{action_type} requests") if target_project.blank?
-      if source_package == target_package and source_project == target_project
-        if self.sourceupdate or self.updatelink
-          errors.add(:target_package, 'No source changes are allowed, if source and target is identical')
-        end
-      end
+  def self.get_package_diff(path, query)
+    path += "?#{query.to_query}"
+    begin
+      Suse::Backend.post(path, '', 'Timeout' => 30).body
+    rescue Timeout::Error
+      raise DiffError.new("Timeout while diffing #{path}")
+    rescue ActiveXML::Transport::Error => e
+      raise DiffError.new("The diff call for #{path} failed: #{e.summary}")
     end
-    errors.add(:target_package, 'is invalid package name') if target_package && !Package.valid_name?(target_package)
-    errors.add(:source_package, 'is invalid package name') if source_package && !Package.valid_name?(source_package)
-    errors.add(:target_project, 'is invalid project name') if target_project && !Project.valid_name?(target_project)
-    errors.add(:source_project, 'is invalid project name') if source_project && !Project.valid_name?(source_project)
-
-    # TODO to be continued
   end
 
-  def action_type
-    self.class.sti_name
-  end
-
-  # convenience functions to check types
-  def is_submit?
-    false
-  end
-
-  def is_maintenance_release?
-    false
-  end
-
-  def is_maintenance_incident?
-    false
-  end
-
-  def matches_package?(source_or_target, pkg)
-    (self.send("#{source_or_target}_project") == pkg.project.name) and
-        (self.send("#{source_or_target}_package") == pkg.name)
-  end
+  public
 
   def self.type_to_class_name(type_name)
     case type_name
@@ -124,6 +109,57 @@ class BsRequestAction < ActiveRecord::Base
     raise ArgumentError, "too much information #{hash.inspect}" unless hash.blank?
 
     a
+  end
+
+  #### To define class methods as private use private_class_method
+  #### private
+
+  #### Instance methods (public and then protected/private)
+  def minimum_priority
+    nil
+  end
+
+  def check_sanity
+    if [:submit, :maintenance_incident, :maintenance_release, :change_devel].include? action_type
+      errors.add(:source_project, "should not be empty for #{action_type} requests") if source_project.blank?
+      if !is_maintenance_incident?
+        errors.add(:source_package, "should not be empty for #{action_type} requests") if source_package.blank?
+      end
+      errors.add(:target_project, "should not be empty for #{action_type} requests") if target_project.blank?
+      if source_package == target_package and source_project == target_project
+        if self.sourceupdate or self.updatelink
+          errors.add(:target_package, 'No source changes are allowed, if source and target is identical')
+        end
+      end
+    end
+    errors.add(:target_package, 'is invalid package name') if target_package && !Package.valid_name?(target_package)
+    errors.add(:source_package, 'is invalid package name') if source_package && !Package.valid_name?(source_package)
+    errors.add(:target_project, 'is invalid project name') if target_project && !Project.valid_name?(target_project)
+    errors.add(:source_project, 'is invalid project name') if source_project && !Project.valid_name?(source_project)
+
+    # TODO to be continued
+  end
+
+  def action_type
+    self.class.sti_name
+  end
+
+  # convenience functions to check types
+  def is_submit?
+    false
+  end
+
+  def is_maintenance_release?
+    false
+  end
+
+  def is_maintenance_incident?
+    false
+  end
+
+  def matches_package?(source_or_target, pkg)
+    (self.send("#{source_or_target}_project") == pkg.project.name) and
+        (self.send("#{source_or_target}_package") == pkg.name)
   end
 
   def store_from_xml(hash)
@@ -285,10 +321,6 @@ class BsRequestAction < ActiveRecord::Base
     else
       diff
     end
-  end
-
-  class LackingMaintainership < APIException
-    setup 'lacking_maintainership', 403, 'Creating a submit request action with options requires maintainership in source package'
   end
 
   def default_reviewers
@@ -459,21 +491,6 @@ class BsRequestAction < ActiveRecord::Base
     source_package = source_project.packages.find_by_name!(self.source_package)
     source_package.destroy
     return Package.source_path(self.source_project, self.source_package)
-  end
-
-  class BuildNotFinished < APIException
-  end
-
-  class UnknownTargetProject < APIException
-  end
-
-  class UnknownTargetPackage < APIException
-  end
-
-  class WrongLinkedPackageSource < APIException
-  end
-
-  class MissingPatchinfo < APIException
   end
 
   def check_maintenance_release(pkg, repo, arch)
@@ -703,30 +720,6 @@ class BsRequestAction < ActiveRecord::Base
     return newactions
   end
 
-  class IncidentHasNoMaintenanceProject < APIException
-  end
-
-  class NotSupported < APIException
-  end
-
-  class SubmitRequestRejected < APIException
-  end
-
-  class RequestRejected < APIException
-    setup 403
-  end
-
-  class UnknownProject < APIException
-    setup 404
-  end
-
-  class UnknownRole < APIException
-    setup 404
-  end
-
-  class IllegalRequest < APIException
-  end
-
   def check_action_permission!
     # find objects if specified or report error
     role=nil
@@ -855,13 +848,6 @@ class BsRequestAction < ActiveRecord::Base
 
   end
 
-  class NoMaintenanceProject < APIException
-  end
-
-  class UnknownAttribute < APIException
-    setup 404
-  end
-
   def expand_targets(ignore_build_state)
     # expand target_package
 
@@ -952,17 +938,6 @@ class BsRequestAction < ActiveRecord::Base
     end
   end
 
-  protected
-
-  def self.get_package_diff(path, query)
-    path += "?#{query.to_query}"
-    begin
-      Suse::Backend.post(path, '', 'Timeout' => 30).body
-    rescue Timeout::Error
-      raise DiffError.new("Timeout while diffing #{path}")
-    rescue ActiveXML::Transport::Error => e
-      raise DiffError.new("The diff call for #{path} failed: #{e.summary}")
-    end
-  end
+  #### Alias of methods
 
 end
