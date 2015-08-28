@@ -7,7 +7,7 @@
 
     <ul id="global-navigation">
       <li></li>
-      <% unless User.current.is_nobody? -%>
+      <% if User.current && !User.current.is_nobody? -%>
           <li id="item-favorites" style="float: right;"><a href="#">Watchlist</a></li>
       <% end -%>
     </ul>

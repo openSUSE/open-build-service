@@ -524,7 +524,7 @@ module Webui::WebuiHelper
   end
 
   def can_register
-    return true if User.current and User.current.is_admin?
+    return true if User.current.try(:is_admin?)
 
     begin
       UnregisteredUser.can_register?

@@ -6,34 +6,41 @@ class UnregisteredUser < User
   class ErrRegisterSave < APIException
   end
 
+  # Raises an exception if registration is disabled for a user
+  # Returns true if a user can register
   def self.can_register?
     # No registering if LDAP is on
     if CONFIG['ldap_mode'] == :on
       logger.debug 'Someone tried to register with "ldap_mode" turned on'
-      raise ErrRegisterSave.new 'Sorry, new users can only sign up via LDAP'
+      raise ErrRegisterSave, 'Sorry, new users can only sign up via LDAP'
     end
+
     # No registering if we use an authentification proxy
-    if CONFIG['proxy_auth_mode'] == :on or CONFIG['ichain_mode'] == :on
+    if CONFIG['proxy_auth_mode'] == :on || CONFIG['ichain_mode'] == :on
       logger.debug 'Someone tried to register with "proxy_auth_mode" turned on'
       if CONFIG['proxy_auth_register_page'].blank?
-        raise ErrRegisterSave.new "Sorry, please sign up using the authentification proxy"
+        err_msg = "Sorry, please sign up using the authentification proxy"
       else
-        raise ErrRegisterSave.new "Sorry, please sign up using #{CONFIG['proxy_auth_register_page']}"
+        err_msg = "Sorry, please sign up using #{CONFIG['proxy_auth_register_page']}"
       end
+      raise ErrRegisterSave, err_msg
     end
+
     # Turn off registration if its disabled
     if ::Configuration.registration == 'deny'
-      return if User.current and User.current.is_admin?
+      return true if User.current.try(:is_admin?)
       logger.debug 'Someone tried to register but its disabled'
-      raise ErrRegisterSave.new 'Sorry, sign up is disabled'
+      raise ErrRegisterSave, 'Sorry, sign up is disabled'
     end
+
     # Turn on registration if it's enabled
-    if ::Configuration.registration == 'allow' or ::Configuration.registration == 'confirmation'
-      return
+    if ["allow", "confirmation"].include?(::Configuration.registration)
+      return true
     end
+
     # This shouldn't happen, but disable registration by default.
     logger.debug "Huh? This shouldn't happen. UnregisteredUser.can_register ran out of options"
-    raise ErrRegisterSave.new 'Sorry, sign up is disabled'
+    raise ErrRegisterSave, 'Sorry, sign up is disabled'
   end
 
   def self.get_state
