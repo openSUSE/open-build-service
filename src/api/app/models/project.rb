@@ -133,7 +133,7 @@ class Project < ActiveRecord::Base
   end
 
   def subprojects
-    Project.where("name like '#{name}:%'")
+    Project.where("name like ?", "#{name}:%")
   end
 
   def revoke_requests
