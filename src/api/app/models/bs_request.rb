@@ -33,7 +33,7 @@ class BsRequest < ActiveRecord::Base
   scope :to_accept, -> { where(state: 'new').where('accept_at < ?', DateTime.now) }
   # Scopes for collections
   scope :with_actions, -> { joins(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
-  scope :in_states, ->(states) { where('bs_requests.state in (?)', states).references(:bs_requests) }
+  scope :in_states, ->(states) { where(state: states) }
   scope :with_types, ->(types) { where('bs_request_actions.type in (?)', types).references(:bs_request_actions) }
   scope :from_source_project, ->(source_project) { where('bs_request_actions.source_project = ?', source_project).references(:bs_request_actions) }
   scope :in_ids, ->(ids) { where(id: ids) }
@@ -113,34 +113,6 @@ class BsRequest < ActiveRecord::Base
     Rails.cache.delete('xml_bs_request_fullhistory_%d' % id)
     Rails.cache.delete('xml_bs_request_history_%d' % id)
     Rails.cache.delete('xml_bs_request_%d' % id)
-  end
-
-  def self.open_requests_for_source(obj)
-   if obj.kind_of? Project
-     return BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
-               where(bs_request_actions: {source_project: obj.name})
-   elsif obj.kind_of? Package
-     return BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
-               where(bs_request_actions: {source_project: obj.project.name, source_package: obj.name})
-   else
-     raise "Invalid object #{obj.class}"
-   end
-  end
-
-  def self.open_requests_for_target(obj)
-   if obj.kind_of? Project
-     return BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
-               where(bs_request_actions: {target_project: obj.name})
-   elsif obj.kind_of? Package
-     return BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
-               where(bs_request_actions: {target_project: obj.project.name, target_package: obj.name})
-   else
-     raise "Invalid object #{obj.class}"
-   end
-  end
-
-  def self.open_requests_for(obj)
-    self.open_requests_for_target(obj) + self.open_requests_for_source(obj)
   end
 
   def self.new_from_xml(xml)
