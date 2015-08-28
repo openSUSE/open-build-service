@@ -1,13 +1,26 @@
 class BsRequestActionSubmit < BsRequestAction
-
+  #### Includes and extends
   include RequestSourceDiff
 
-  def is_submit?
-    true
-  end
+  #### Constants
 
+  #### Self config
   def self.sti_name
     return :submit
+  end
+
+  #### Attributes
+  #### Associations macros (Belongs to, Has one, Has many)
+  #### Callbacks macros: before_save, after_save, etc.
+  #### Scopes (first the default_scope macro if is used)
+  #### Validations macros
+  #### Class methods using self. (public and then private)
+  #### To define class methods as private use private_class_method
+  #### private
+
+  #### Instance methods (public and then protected/private)
+  def is_submit?
+    true
   end
 
   def execute_accept(opts)
@@ -105,7 +118,8 @@ class BsRequestActionSubmit < BsRequestAction
     if self.target_package == "_product"
       Project.find_by_name!(self.target_project).update_product_autopackages
     end
-
   end
+
+  #### Alias of methods
 
 end
