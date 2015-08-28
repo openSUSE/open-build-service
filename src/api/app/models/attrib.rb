@@ -67,13 +67,13 @@ class Attrib < ActiveRecord::Base
 
   def values_editable?
     !attrib_type.value_count ||  # If unlimited values
-    (attrib_type.value_count && attrib_type.value_count > 0) ||  # If value_count > 0
-    attrib_type.issue_list  # If issue_list true
+      (attrib_type.value_count && attrib_type.value_count > 0) ||  # If value_count > 0
+      attrib_type.issue_list  # If issue_list true
   end
 
   def values_removeable?
     !attrib_type.value_count ||  # If unlimited values
-    (attrib_type.value_count && (attrib_type.value_count != values.length))  # If value_count != values.length
+      (attrib_type.value_count && (attrib_type.value_count != values.length))  # If value_count != values.length
   end
 
   def cachekey
@@ -82,12 +82,12 @@ class Attrib < ActiveRecord::Base
   end
 
   def update_with_associations(values = [], issues = [])
-    save = false
+    will_save = false
 
     #--- update issues ---#
     if issues.map { |i| i.name }.sort != self.issues.map { |i| i.name }.sort
       logger.debug "Attrib.update_with_associations: Issues for #{self.fullname} changed, updating."
-      save = true
+      will_save = true
       self.issues.delete_all
       issues.each do |issue|
         self.issues << issue
@@ -97,7 +97,7 @@ class Attrib < ActiveRecord::Base
     #--- update values ---#
     if values.sort != self.values.map { |v| v.value}.sort
       logger.debug "Attrib.update_with_associations: Values for #{self.fullname} changed, updating."
-      save = true
+      will_save = true
       self.values.delete_all
       position = 1
       values.each do |val|
@@ -106,10 +106,10 @@ class Attrib < ActiveRecord::Base
       end
     end
 
-    self.save! if save
-    return save
+    self.save! if will_save
+    will_save
   end
-  
+
   #### Alias of methods
   alias :values_addable? :values_removeable?
 
