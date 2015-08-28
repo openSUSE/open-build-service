@@ -16,7 +16,9 @@ class Webui::ApidocsController < Webui::WebuiController
   end
 
   def file
-    file = File.expand_path( File.join(CONFIG['schema_location'], params[:filename]) )
+    # Ensure it really is just a file name, no '/..', etc.
+    filename = File.basename(params[:filename])
+    file = File.expand_path( File.join(CONFIG['schema_location'], filename) )
     if File.exist?( file )
       send_file( file, :type => "text/xml", :disposition => "inline" )
     else
