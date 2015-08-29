@@ -51,11 +51,12 @@ class Webui::WebuiController < ActionController::Base
   # HTTPPaymentRequired, UnauthorizedError or Forbidden
   # here so the exception handler catches it but what the heck...
   rescue_from ActiveXML::Transport::ForbiddenError do |exception|
-    if exception.code == 'unregistered_ichain_user'
-      render template: 'user/request_ichain' and return
-    elsif exception.code == 'unregistered_user'
-      render file: Rails.root.join('public/403'), formats: [:html], status: 402, layout: false and return
-    elsif exception.code == 'unconfirmed_user'
+    case exception.code
+    when "unregistered_ichain_user"
+      render template: "user/request_ichain"
+    when "unregistered_user"
+      render file: Rails.root.join('public/403'), formats: [:html], status: 402, layout: false
+    when "unconfirmed_user"
       render file: Rails.root.join('public/402'), formats: [:html], status: 402, layout: false
     else
       if User.current.is_nobody?
