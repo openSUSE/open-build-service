@@ -156,7 +156,7 @@ class BinaryRelease < ActiveRecord::Base
 
       binary.supportstatus self.binary_supportstatus if self.binary_supportstatus
       binary.updateinfo({:id      => self.binary_updateinfo,
-                    :version => self.binary_updateinfo_version}) if self.binary_updateinfo
+                         :version => self.binary_updateinfo_version}) if self.binary_updateinfo
       binary.maintainer self.binary_maintainer if self.binary_maintainer
       binary.disturl self.binary_disturl if self.binary_disturl
 
