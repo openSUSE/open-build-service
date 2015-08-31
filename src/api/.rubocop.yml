@@ -40,7 +40,5 @@ Style/AndOr:
   Enabled: false
   EnforcedStyle: always
 
-# Moises
 Style/EmptyElse:
-  Enabled: false
   EnforcedStyle: both

@@ -287,8 +287,6 @@ class Webui::PatchinfoController < Webui::WebuiController
       rescue ActiveXML::Transport::Error
         return ""
       end
-    else
-      nil
     end
   end
 
