@@ -32,9 +32,7 @@ Style/AlignHash:
   EnforcedColonStyle: table
   EnforcedLastArgumentHashStyle: ignore_implicit
 
-# Moises
 Style/AlignParameters:
-  Enabled: false
   EnforcedStyle: with_first_parameter
 
 # Henne

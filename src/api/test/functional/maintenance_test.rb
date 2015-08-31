@@ -19,10 +19,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     login_tom
     # add a new package with defined link target
     put '/source/home:tom:BaseDistro:SP1/_meta',
-          '<project name="home:tom:BaseDistro:SP1" kind="maintenance_release">
-            <title/> <description/>
-            <link project="BaseDistro:Update"/>
-          </project>'
+        '<project name="home:tom:BaseDistro:SP1" kind="maintenance_release">
+        <title/> <description/>
+        <link project="BaseDistro:Update"/>
+        </project>'
     assert_response :success
 
     post '/source/home:tom:BaseDistro:SP1/pack1', :cmd => 'branch', :target_project => 'home:tom:Branch', :missingok => 1

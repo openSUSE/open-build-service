@@ -15,7 +15,7 @@ class BinaryReleaseTest < ActiveSupport::TestCase
 
   def test_render_fixture
     r = Repository.find_by_project_and_name("BaseDistro3",
-                                                 "BaseDistro3_repo")
+                                            "BaseDistro3_repo")
     br = BinaryRelease.where(repository: r).first
     xml = br.render_xml
     assert_xml_tag xml, :tag => 'binary',
