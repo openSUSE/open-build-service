@@ -995,12 +995,17 @@ sub createpatterns_ymp {
         $r->{'description'} = $nprojpack{$sprojid}->{'description'};
       }
       my $sprp_ext = "$sprojid/$srepoid";
-      if ($BSConfig::prp_ext_map && $BSConfig::prp_ext_map->{$sprp_ext}) {
-	$r->{'url'} = $BSConfig::prp_ext_map->{$sprp_ext};
+      my $url;
+      if ($BSConfig::prp_ext_map && exists $BSConfig::prp_ext_map->{$sprp_ext}) {
+	$url = $BSConfig::prp_ext_map->{$sprp_ext};
       } else {
         $sprp_ext =~ s/:/:\//g;
-        $r->{'url'} = "$BSConfig::repodownload/$sprp_ext/";
+        $url = "$BSConfig::repodownload/$sprp_ext/";
+	my $extrep = map_to_extrep("$sprojid/$srepoid", $sprp_ext);
+	$url = $extrep->[2] if $extrep && $extrep->[2];
       }
+      next unless defined $url;
+      $r->{'url'} = $url;
       push @repos, $r;
     }
     $group->{'repositories'} = {'repository' => \@repos };

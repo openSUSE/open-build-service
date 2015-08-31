@@ -3832,6 +3832,25 @@ sub publisheddir {
   return ({'entry' => \@res}, $BSXML::dir);
 }
 
+sub map_to_extrep {
+  my ($prp, $prp_ext) = @_;
+  
+  my $extrep = "$extrepodir/$prp_ext";
+  return $extrep unless $BSConfig::publishredirect;
+  if ($BSConfig::publishedredirect_use_regex || $BSConfig::publishedredirect_use_regex) {
+    for my $key (sort {$b cmp $a} keys %{$BSConfig::publishredirect}) {
+      if ($prp =~ /^$key/) {
+        $extrep = $BSConfig::publishredirect->{$key};
+        last;
+      }    
+    }    
+  } elsif (exists($BSConfig::publishredirect->{$prp})) {
+    $extrep = $BSConfig::publishredirect->{$prp};
+  }
+  $extrep = $extrep->($prp, $prp_ext) if $extrep && ref($extrep) eq 'CODE';
+  return $extrep;
+}
+
 sub makeymp {
   my ($projid, $repoid, $binary, $projpackin) = @_;
 
@@ -3892,12 +3911,17 @@ sub makeymp {
       $r->{'description'} = $nprojpack{$pa->{'project'}}->{'description'};
     }
     my $prp_ext = "$pa->{'project'}/$pa->{'repository'}";
-    if ($BSConfig::prp_ext_map && $BSConfig::prp_ext_map->{$prp_ext}) {
-      $r->{'url'} = $BSConfig::prp_ext_map->{$prp_ext};
+    my $url;
+    if ($BSConfig::prp_ext_map && exists $BSConfig::prp_ext_map->{$prp_ext}) {
+      $url = $BSConfig::prp_ext_map->{$prp_ext};
     } else {
       $prp_ext =~ s/:/:\//g;
-      $r->{'url'} = "$BSConfig::repodownload/$prp_ext/";
+      $url = "$BSConfig::repodownload/$prp_ext/";
+      my $extrep = map_to_extrep("$pa->{'project'}/$pa->{'repository'}", $prp_ext);
+      $url = $extrep->[2] if $extrep && $extrep->[2];
     }
+    next unless defined $url;
+    $r->{'url'} = $url;
     push @repos, $r;
   }
   my $pkg = {};
