@@ -78,14 +78,14 @@ Here is an example on how to setup [memcached](http://www.memcached.org/) on the
 The OBS backend is not a monolithic server, it consists of [multiple daemons that fulfill different tasks](https://github.com/openSUSE/open-build-service/blob/master/src/backend/DESIGN) and is written mostly in [Perl](http://www.perl.org/).
 
 #### Setup an OBS backend for production use
-We maintain an [OBS package repository](https://build.opensuse.org/project/show/OBS:Server:2.5) which provides all the necessary packages and dependencies to run an OBS backend on the [SUSE Linux Enterprise](https://www.suse.com/products/server/) or [openSUSE](http://www.opensuse.org) operating systems. We highly recommend, and in fact only test these host systems, for OBS backend installations. Here is an example on how to setup the backend on the [openSUSE Linux Distribution](http://www.opensuse.org).
+We maintain an [OBS package repository](https://build.opensuse.org/project/show/OBS:Server:2.6) which provides all the necessary packages and dependencies to run an OBS backend on the [SUSE Linux Enterprise](https://www.suse.com/products/server/) or [openSUSE](http://www.opensuse.org) operating systems. We highly recommend, and in fact only test these host systems, for OBS backend installations. Here is an example on how to setup the backend on the [openSUSE Linux Distribution](http://www.opensuse.org).
 
 **WARNING**: The following commands start services which are accessible from the outside. Do not do this on a system connected to an untrusted network!
 
 1. Install the packages:
 
     ```
-    zypper ar -f http://download.opensuse.org/repositories/OBS:/Server:/2.5/openSUSE_13.1/OBS:Server:2.5.repo
+    zypper ar -f http://download.opensuse.org/repositories/OBS:/Server:/2.6/openSUSE_13.2/OBS:Server:2.6.repo
     zypper in obs-server
     ```
 
@@ -158,7 +158,7 @@ To not burden your OBS backend daemons with the unpredictable load package build
 1. Install the worker packages:
 
     ```
-    zypper ar -f http://download.opensuse.org/repositories/OBS:/Server:/2.5/openSUSE_13.1/OBS:Server:2.5.repo
+    zypper ar -f http://download.opensuse.org/repositories/OBS:/Server:/2.6/openSUSE_13.2/OBS:Server:2.6.repo
     zypper in obs-worker
     ```
 
@@ -183,12 +183,12 @@ Check [src/backend/README](https://github.com/openSUSE/open-build-service/blob/m
 The OBS frontend is a [Ruby on Rails](http://rubyonrails.org/) application that collects the OBS data and serves the HTML and XML views.
 
 #### Setup an OBS frontend for production use
-We maintain an [OBS package repository](https://build.opensuse.org/project/show/OBS:Server:2.5) which provides all the necessary packages and dependencies to run an OBS frontend on the [SUSE Linux Enterprise](https://www.suse.com/products/server/) or [openSUSE](http://www.opensuse.org) operating systems. We highly recommend, and in fact only test these host systems, for OBS frontend installations. Here is an example on how to setup the frontend on the [openSUSE Linux Distribution](http://www.opensuse.org).
+We maintain an [OBS package repository](https://build.opensuse.org/project/show/OBS:Server:2.6) which provides all the necessary packages and dependencies to run an OBS frontend on the [SUSE Linux Enterprise](https://www.suse.com/products/server/) or [openSUSE](http://www.opensuse.org) operating systems. We highly recommend, and in fact only test these host systems, for OBS frontend installations. Here is an example on how to setup the frontend on the [openSUSE Linux Distribution](http://www.opensuse.org).
 
 1. Install the packages:
 
     ```
-    zypper ar -f http://download.opensuse.org/repositories/OBS:/Server:/2.5/openSUSE_13.1/OBS:Server:2.5.repo
+    zypper ar -f http://download.opensuse.org/repositories/OBS:/Server:/2.6/openSUSE_13.2/OBS:Server:2.6.repo
     zypper in obs-api
     ```
 
