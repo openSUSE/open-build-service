@@ -116,11 +116,11 @@ class Attrib < ActiveRecord::Base
 
   def validate_value_count
     if self.attrib_type && self.attrib_type.allowed_values.any?
-      self.values.each do |value|
-        allowed_values = self.attrib_type.allowed_values
-        if allowed_values.none? { |allowed| allowed.value == value.value }
-          self.errors[:values] << "Value '#{value}' is not allowed. Please use one of: " +
-                                    "#{allowed_values.map(&:value).join(', ')}"
+      self.values.map(&:value).each do |value|
+        allowed_values = self.attrib_type.allowed_values.map(&:value)
+        unless allowed_values.include?(value)
+          self.errors[:values] <<
+            "Value '#{value}' is not allowed. Please use one of: #{allowed_values.join(', ')}"
         end
       end
     end
