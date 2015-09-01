@@ -92,8 +92,6 @@ class BsRequestAction < ActiveRecord::Base
       BsRequestActionMaintenanceRelease
     when :group then
       BsRequestActionGroup
-    else
-      nil
     end
   end
 

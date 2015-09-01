@@ -17,11 +17,11 @@ class Relationship < ActiveRecord::Base
 
   validate :check_global_role
 
-  validates_uniqueness_of :project_id, {
+  validates :project_id, uniqueness: {
     scope: [:role_id, :group_id, :user_id], allow_nil: true,
     message: "Project has non unique id"
   }
-  validates_uniqueness_of :package_id, {
+  validates :package_id, uniqueness: {
     scope: [:role_id, :group_id, :user_id], allow_nil: true,
     message: "Package has non unique id"
   }
