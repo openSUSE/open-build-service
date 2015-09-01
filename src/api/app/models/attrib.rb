@@ -117,30 +117,25 @@ class Attrib < ActiveRecord::Base
   def validate_value_count
     if self.attrib_type && self.attrib_type.allowed_values.any?
       self.values.each do |value|
-        found = false
-        self.attrib_type.allowed_values.each do |allowed|
-          if allowed.value == value.value
-            found = true
-            break
-          end
-        end
-        if !found
-          self.errors[:values] << "value \'#{value}\' is not allowed. Please use one of: " +
-                                    "#{self.attrib_type.allowed_values.map{|av| av.value }.join(', ')}"
+        allowed_values = self.attrib_type.allowed_values
+        if allowed_values.none? { |allowed| allowed.value == value.value }
+          self.errors[:values] << "Value '#{value}' is not allowed. Please use one of: " +
+                                    "#{allowed_values.map(&:value).join(', ')}"
         end
       end
     end
   end
 
   def validate_issues
-    if self.attrib_type && !self.attrib_type.issue_list and self.issues.any?
+    if self.attrib_type && !self.attrib_type.issue_list && self.issues.any?
       self.errors[:issues] << "can't have issues"
     end
   end
 
   def validate_allowed_values_for_attrib_type
-    if self.attrib_type && self.attrib_type.value_count && self.attrib_type.value_count != self.values.length
-      self.errors[:values] << "has #{self.values.length} values, but only #{self.attrib_type.value_count} are allowed"
+    value_count = self.attrib_type.try(:value_count)
+    if value_count && value_count != self.values.length
+      self.errors[:values] << "has #{self.values.length} values, but only #{value_count} are allowed"
     end
   end
 end
