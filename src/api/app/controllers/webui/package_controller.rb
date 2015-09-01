@@ -15,7 +15,8 @@ class Webui::PackageController < Webui::WebuiController
 
   helper 'webui/comment'
 
-  before_filter :require_project, :except => [:submit_request, :devel_project]
+  before_filter :require_project, :except => [:submit_request, :devel_project, :users]
+  before_filter :set_project, :only => [:repositories, :users]
   before_filter :require_package, :except => [:submit_request, :save_new_link, :save_new, :devel_project ]
   # make sure it's after the require_, it requires both
   before_filter :require_login, :except => [:show, :linking_packages, :show , :linking_packages , :dependency,
@@ -170,8 +171,8 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def users
-    @users = [@project.api_obj.users, @package.users].flatten.uniq
-    @groups = [@project.api_obj.groups, @package.groups].flatten.uniq
+    @users = [@project.users, @package.users].flatten.uniq
+    @groups = [@project.groups, @package.groups].flatten.uniq
     @roles = Role.local_roles
   end
 

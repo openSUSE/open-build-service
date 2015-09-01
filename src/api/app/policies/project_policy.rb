@@ -6,11 +6,15 @@ class ProjectPolicy < ApplicationPolicy
     @project = project
   end
 
-  def save_new?
-    create?
-  end
-
   def create?
     @project.check_write_access
+  end
+
+  def update?
+    @user.can_modify_project?(@project)
+  end
+
+  def destroy?
+    update?
   end
 end

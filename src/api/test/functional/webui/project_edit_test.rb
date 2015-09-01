@@ -36,17 +36,17 @@ class Webui::ProjectEditTest < Webui::IntegrationTest
     page.must_have_text 'Edit Project Information of '
 
     unless new_info[:title].nil?
-      fill_in 'title', with: new_info[:title]
+      fill_in 'project_title', with: new_info[:title]
     end
 
     unless new_info[:description].nil?
       new_info[:description].squeeze!(' ')
       new_info[:description].gsub!(/ *\n +/ , "\n")
       new_info[:description].strip!
-      fill_in 'description', with: new_info[:description]
+      fill_in 'project_description', with: new_info[:description]
     end
 
-    click_button 'Save changes'
+    click_button 'Update Project'
 
     unless new_info[:title].nil?
       project_title.must_equal new_info[:title]

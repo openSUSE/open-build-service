@@ -187,7 +187,6 @@ class SourceController < ApplicationController
       path = pro.source_path
       path << build_query_from_hash(params, [:user, :comment])
 
-      pro.revoke_requests
       pro.destroy
 
       Suse::Backend.delete path

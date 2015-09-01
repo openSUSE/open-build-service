@@ -63,11 +63,12 @@ class Repository < ActiveRecord::Base
   end
 
   class << self
+    # FIXME: Don't lie, it's find_or_create_by_project_and_name_if_project_is_remote
     def find_by_project_and_name( project, repo )
       result = not_remote.joins(:project).where(:projects => {:name => project}, :name => repo).first
       return result unless result.nil?
 
-      #no local repository found, check if remote repo possible
+      # no local repository found, check if remote repo possible
 
       local_project, remote_project = Project.find_remote_project(project)
       if local_project
@@ -89,6 +90,17 @@ class Repository < ActiveRecord::Base
       project = Project.deleted_instance
       project.repositories.find_or_create_by!(name: "deleted")
     end
+  end
+
+  def expand_all_repositories
+    repositories = [self]
+    # add all linked and indirect linked repositories
+    self.links.each do |path_element|
+      path_element.repository.expand_all_repositories.each do |repo|
+        repositories << repo
+      end
+    end
+    return repositories.uniq
   end
 
   #returns a list of repositories that include path_elements linking to this one

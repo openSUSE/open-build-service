@@ -175,7 +175,6 @@ OBSApi::Application.routes.draw do
       get 'project/users/:project' => :users, constraints: cons, as: 'project_users'
       get 'project/subprojects/:project' => :subprojects, constraints: cons, as: 'project_subprojects'
       get 'project/attributes/:project', to: redirect('/attribs/%{project}'), constraints: cons
-      get 'project/new' => :new, as: 'new_project'
       post 'project/new_incident' => :new_incident
       get 'project/new_package/:project' => :new_package, constraints: cons
       get 'project/new_package_branch/:project' => :new_package_branch, constraints: cons
@@ -192,7 +191,10 @@ OBSApi::Application.routes.draw do
       get 'project/add_group/:project' => :add_group, constraints: cons
       get 'project/buildresult' => :buildresult, constraints: cons
       get 'project/delete_dialog' => :delete_dialog
-      post 'project/delete' => :delete
+      get 'project/new' => :new, as: 'new_project'
+      post 'project/create' => :create, constraints: cons, as: 'projects_create'
+      patch 'project/update' => :update, constraints: cons
+      delete 'project/destroy' => :destroy
       get 'project/edit_repository/:project' => :edit_repository, constraints: cons
       post 'project/update_target/:project' => :update_target, constraints: cons
       get 'project/repositories/:project' => :repositories, constraints: cons, as: 'project_repositories'
@@ -201,9 +203,9 @@ OBSApi::Application.routes.draw do
       get 'project/rebuild_time_png/:project' => :rebuild_time_png, constraints: cons
       get 'project/packages/:project' => :packages, constraints: cons
       get 'project/requests/:project' => :requests, constraints: cons
-      post 'project/save_new' => :save_new, constraints: cons, as: 'projects_create'
-      post 'project/save' => :save, constraints: cons
-      post 'project/save_targets' => :save_targets
+      post 'project/save_distributions' => :save_distributions
+      post 'project/save_repository' => :save_repository
+      post 'project/save_path_element' => :save_path_element
       get 'project/remove_target_request_dialog' => :remove_target_request_dialog
       post 'project/remove_target_request' => :remove_target_request
       post 'project/remove_target' => :remove_target

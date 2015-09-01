@@ -1,4 +1,4 @@
-<%= form_for project, url: { action: 'save_new' } do |f| %>
+<%= form_for project, url: { action: 'create' } do |f| %>
     <p>
       <b><%= local_assigns.has_key?(:ns) ? 'Subproject' : 'Project'%> Name:</b>
       <br/>

@@ -12,7 +12,7 @@ class Webui::AddRepoTest < Webui::IntegrationTest
     page.must_have_text(/i586, x86_64/)
 
     click_link 'Add repositories'
-    page.must_have_text('Add Repositories to Project home:Iggy')
+    page.must_have_text('Add Repositories to home:Iggy')
 
     page.must_have_text('KIWI image build')
 

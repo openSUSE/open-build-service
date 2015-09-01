@@ -103,6 +103,15 @@ class Webui::WebuiController < ActionController::Base
     session[:return_path] = path
   end
 
+  def set_project
+    @project = Project.find_by(name: params[:project])
+    raise ActiveRecord::RecordNotFound unless @project
+  end
+
+  def set_project_by_id
+    @project = Project.find(params[:id])
+  end
+
   protected
 
   def set_return_to
@@ -326,7 +335,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def require_available_architectures
-    @available_architectures = Architecture.where(available: 1)
+    @available_architectures = Architecture.available
   end
 
   def setup_view_path

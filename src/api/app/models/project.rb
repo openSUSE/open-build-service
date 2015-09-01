@@ -5,7 +5,6 @@ class Project < ActiveRecord::Base
   include FlagHelper
   include CanRenderModel
   include HasRelationships
-  has_many :relationships, dependent: :destroy, inverse_of: :project
   include HasRatings
   include HasAttributes
 
@@ -39,13 +38,18 @@ class Project < ActiveRecord::Base
   after_rollback 'Relationship.discard_cache'
   after_initialize :init
 
+  has_many :relationships, dependent: :destroy, inverse_of: :project
   has_many :packages, :dependent => :destroy, inverse_of: :project do
     def autocomplete(search)
       where(['lower(packages.name) like lower(?)',"#{search}%"])
     end
   end
   has_many :attribs, :dependent => :destroy
+
   has_many :repositories, :dependent => :destroy, foreign_key: :db_project_id
+  has_many :repository_architectures, -> { order("position") }, :dependent => :destroy, through: :repositories
+  has_many :architectures, -> { order("position") }, :through => :repository_architectures
+
   has_many :messages, :as => :db_object, :dependent => :delete_all
   has_many :watched_projects, :dependent => :destroy, inverse_of: :project
 
@@ -130,10 +134,39 @@ class Project < ActiveRecord::Base
         pkg.save
       end
     end
+
+    # revoke all requests
+    revoke_requests
+  end
+
+  def delete_on_backend(comment = nil)
+    path = source_path
+    path << Suse::Backend.build_query_from_hash({user: User.current.login, comment: comment}, [:user, :comment])
+    Suse::Backend.delete path
   end
 
   def subprojects
     Project.where("name like ?", "#{name}:%")
+  end
+
+  # Check if the project has a path_element matching project and repository
+  def has_distribution(project_name, repository)
+    project = Project.find_by(name: project_name)
+    return false unless project
+    repositories.joins(path_elements: :link).where(links_path_elements: {name: repository, db_project_id: project.id  }).exists?
+  end
+
+  def number_of_build_problems
+    begin
+      result = ActiveXML.backend.direct_http("/build/#{URI.escape(name)}/_result?view=status&code=failed&code=broken&code=unresolvable")
+    rescue ActiveXML::Transport::NotFoundError
+      return 0
+    end
+    ret = {}
+    Xmlhash.parse(result).elements('result') do |r|
+      r.elements('status') { |p| ret[p['package']] = 1 }
+    end
+    ret.keys.size
   end
 
   def revoke_requests
@@ -408,6 +441,27 @@ class Project < ActiveRecord::Base
     !self.remoteurl.nil?
   end
 
+  def can_free_repositories?
+    expand_all_repositories.each do |repository|
+      if !User.current.can_modify_project?(repository.project)
+        errors.add(:base, "a repository in project #{repository.project.name} depends on this")
+        return false
+      end
+    end
+    return true
+  end
+
+  def can_be_really_deleted?
+    begin
+      can_be_deleted?
+    rescue DeleteError
+      false
+    end
+    # Get all my repositories and linking_repositories and check if I can modify the
+    # associated projects
+    can_free_repositories?
+  end
+
   # NOTE: this is no permission check, should it be added ?
   def can_be_deleted?
     # check all packages
@@ -429,7 +483,6 @@ class Project < ActiveRecord::Base
         raise DeleteError.new 'This maintenance project has incident projects and can therefore not be deleted.'
       end
     end
-
   end
 
   def update_from_xml(xmlhash, force=nil)
@@ -488,6 +541,8 @@ class Project < ActiveRecord::Base
     #--- end update repositories ---#
     self.updated_at = Time.now
   end
+
+
 
   def update_repositories(xmlhash, force)
     fill_repo_cache
@@ -939,7 +994,15 @@ class Project < ActiveRecord::Base
     return nil
   end
 
-  def expand_all_projects(project_map={})
+  def expand_all_repositories
+    all_repositories = self.repositories.to_a
+    repositories.each do |repository|
+      all_repositories.concat(repository.expand_all_repositories)
+    end
+    all_repositories.uniq
+  end
+
+  def expand_all_projects(project_map={}, allow_remote_projects=true)
     # cycle check
     return [] if project_map[self]
     project_map[self] = 1
@@ -949,7 +1012,9 @@ class Project < ActiveRecord::Base
     # add all linked and indirect linked projects
     self.linkedprojects.each do |lp|
       if lp.linked_db_project.nil?
-        projects << lp.linked_remote_project_name
+        if allow_remote_projects
+          projects << lp.linked_remote_project_name
+        end
       else
         lp.linked_db_project.expand_all_projects(project_map).each do |p|
           projects << p
@@ -972,6 +1037,21 @@ class Project < ActiveRecord::Base
     return projects
   end
 
+  def packages_from_linked_projects
+    linkedprojects.each do |project|
+      next if project.linked_db_project.nil?
+      project.linked_db_project.packages_from_linked_projects.each do |name, prj_id|
+        unless p_map[name]
+          packages << [name, prj_id]
+          p_map[name] = 1
+        end
+      end
+    end
+  end
+
+  def linked_packages
+    expand_all_projects({}, false).reject{|project| project == self}.map {|project| project.packages.to_a }.flatten
+  end
 
   # return array of [:name, :project_id] tuples
   def expand_all_packages(project_map={}, package_map={})
@@ -1542,11 +1622,24 @@ class Project < ActiveRecord::Base
     Suse::Backend.get(source_path(file, opts)).body
   end
 
+  # FIXME: will be cleaned up after implementing FATE #308899
+  def prepend_kiwi_config
+    prjconf = source_file('_config')
+    unless prjconf =~ /^Type:/
+      prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
+      Suse::Backend.put_source(self.source_path('_config'), prjconf)
+    end
+  end
+
   def api_obj
     self
   end
 
   def to_s
+    name
+  end
+
+  def to_param
     name
   end
 

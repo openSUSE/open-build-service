@@ -8,7 +8,7 @@
 <p>You can configure individual flags for this project here.</p>
 
 <!-- renders each line in flag table, excepting the 'all' row -->
-<% @project.api_obj.repositories.each do |repository| %>
+<% @project.repositories.each do |repository| %>
     <% repository_id = valid_xml_id(repository.name) %>
     <div style="margin-bottom: 1.2em" id="<%= valid_xml_id(repository.name) %>">
       <div style="margin-left: 15px">
@@ -27,13 +27,18 @@
         <% rescue; end %>
 
         <div style="margin-top: 1em">
-          <% if User.current.can_modify_project?(@project.api_obj) %>
-              <%= sprite_tag('drive_edit') %>
-              <%= link_to('Edit repository', {:action => :edit_repository, :project => @project, :repository => repository.name}, :id => "edit_repository_link_#{repository_id}", :remote => true) %>
+          <% if User.current.can_modify_project?(@project) %>
+	      <span id="<%= "edit_repository_link_container_#{repository_id}" %>">
+                <%= sprite_tag('drive_edit') %>
+                <%= link_to('Edit repository', '#', id: "edit_repository_link_#{repository_id}") %>
+              </span>
+	      <div class="hidden" id="<%= "edit_repository_form_#{repository_id}" %>">
+                <%= render partial: 'edit_repository', locals: { project: @project, repository: repository } %>
+              </div>
               <% content_for :ready_function do %>
-                  $('#edit_repository_link_<%= repository_id %>').bind('ajax:success', function (event, data, status,
-                  xhr) {
-                  $("#<%= repository_id %>").html(data);
+                  $("#<%= "edit_repository_link_#{repository_id}" %>").click(function() {
+                    $("#<%= "edit_repository_form_#{repository_id}" %>").show();
+		    $("#<%= "edit_repository_link_container_#{repository_id}" %>").hide();
                   });
               <% end %>
               <%= sprite_tag('drive_delete', title: 'Delete repository') %>
@@ -53,7 +58,7 @@
     </div>
 <% end %>
 
-<% if User.current.can_modify_project?(@project.api_obj) %>
+<% if User.current.can_modify_project?(@project) %>
     <p>
       <%= link_to(sprite_tag('drive_add', title: 'Add repository'), :action => 'add_repository_from_default_list', :project => @project) %>
       <%= link_to('Add repositories', :action => 'add_repository_from_default_list', :project => @project) %>
@@ -61,4 +66,3 @@
 <% end %>
 
 <%= render :partial => 'shared/repositories', :locals => {:obj => @project} %>
-
