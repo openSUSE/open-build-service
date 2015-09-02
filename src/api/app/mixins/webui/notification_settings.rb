@@ -4,7 +4,7 @@ module Webui::NotificationSettings
   EVENT_TYPES = [Event::RequestCreate, Event::RequestStatechange,
                  Event::CommentForProject, Event::CommentForPackage,
                  Event::CommentForRequest, Event::BuildFail,
-                 Event::ReviewWanted]
+                 Event::ReviewWanted, Event::ServiceFail]
 
   def notifications_for_user(user = nil)
     result = []
