@@ -1254,7 +1254,15 @@ sub createOsReleaseFile ($) {
     my $name = $product->{'name'};
     # shall we strip ^SUSE_ here or better modify the name in SLE 12?
     $os_release_file .= "NAME=\"".$name."\"\n";
-    $os_release_file .= "VERSION=\"%{version}%{?betaversion: }%{?betaversion}\"\n";
+
+    if (defined($product->{baseversion})) {
+      $os_release_file .= "VERSION=\"".$product->{baseversion};
+      $os_release_file .= "-SP".$product->{patchlevel} if (defined($product->{patchlevel}) && $product->{patchlevel} ne "0");
+    } else {
+      $os_release_file .= "VERSION=\"%{version}";
+    }
+    $os_release_file .= "%{?betaversion: }%{?betaversion}\"\n";
+
     $os_release_file .= "VERSION_ID=\"%{version}%{?betaversion?: }%{?betaversion}\"\n";
     $os_release_file .= "PRETTY_NAME=\"".$product->{'summary'}[0]->{_content}."\"\n" if $product->{'summary'};
     $os_release_file .= "BUG_REPORT_URL=\"".$bugtracker."\"\n" if $bugtracker;
