@@ -1,13 +1,34 @@
+#
 class BsRequestActionMaintenanceRelease < BsRequestAction
-
+  #### Includes and extends
   include RequestSourceDiff
 
+  #### Constants
+
+  #### Self config
+  class LackingReleaseMaintainership < APIException; setup 'lacking_maintainership', 403; end
+  class RepositoryWithoutReleaseTarget < APIException; setup 'repository_without_releasetarget'; end
+  class RepositoryWithoutArchitecture < APIException; setup 'repository_without_architecture'; end
+  class ArchitectureOrderMissmatch < APIException; setup 'architecture_order_missmatch'; end
+  class OpenReleaseRequests < APIException; setup 'open_release_requests'; end
+
+  #### Attributes
+
+  #### Associations macros (Belongs to, Has one, Has many)
   before_create :sanity_check!
 
+  #### Callbacks macros: before_save, after_save, etc.
+  #### Scopes (first the default_scope macro if is used)
+  #### Validations macros
+
+  #### Class methods using self. (public and then private)
   def self.sti_name
     return :maintenance_release
   end
 
+  #### To define class methods as private use private_class_method
+  #### private
+  #### Instance methods (public and then protected/private)
   def is_maintenance_release?
     true
   end
@@ -45,26 +66,6 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
       cleanedProjects[sprj] = 1
     end
     opts[:projectCommit] = {}
-  end
-
-  class LackingReleaseMaintainership < APIException
-    setup 'lacking_maintainership', 403
-  end
-
-  class RepositoryWithoutReleaseTarget < APIException
-    setup 'repository_without_releasetarget'
-  end
-
-  class RepositoryWithoutArchitecture < APIException
-    setup 'repository_without_architecture'
-  end
-
-  class ArchitectureOrderMissmatch < APIException
-    setup 'architecture_order_missmatch'
-  end
-
-  class OpenReleaseRequests < APIException
-    setup 'open_release_requests'
   end
 
   def sanity_check!
@@ -160,4 +161,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     pi = Xmlhash.parse(spkg.patchinfo.dump_xml)
     pi["rating"]
   end
+
+  #### Alias of methods
+
 end

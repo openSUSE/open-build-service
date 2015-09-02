@@ -1,9 +1,23 @@
+#
 class BsRequestActionAddRole < BsRequestAction
+  #### Includes and extends
+  #### Constants
+  #### Self config
+  #### Attributes
+  #### Associations macros (Belongs to, Has one, Has many)
+  #### Callbacks macros: before_save, after_save, etc.
+  #### Scopes (first the default_scope macro if is used)
+  #### Validations macros
 
+  #### Class methods using self. (public and then private)
   def self.sti_name
     return :add_role
   end
 
+  #### To define class methods as private use private_class_method
+  #### private
+
+  #### Instance methods (public and then protected/private)
   def check_sanity
     super
     errors.add(:role, "should not be empty for add_role") if role.blank?
@@ -37,4 +51,7 @@ class BsRequestActionAddRole < BsRequestAction
       node.group :name => self.group_name, :role => self.role
     end
   end
+
+  #### Alias of methods
+
 end

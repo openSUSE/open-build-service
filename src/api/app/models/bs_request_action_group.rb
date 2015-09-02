@@ -1,19 +1,32 @@
+#
 class BsRequestActionGroup < BsRequestAction
+  #### Includes and extends
+  #### Constants
 
+  #### Self config
+  class AlreadyGrouped < APIException; end
+  class CantGroupInGroups < APIException; end
+  class CantGroupRequest < APIException; 403; end
+  class GroupActionMustBeSingle < APIException; end
+  class NotInGroup < APIException; setup 404; end
+  class RequireId < APIException; end
+
+  #### Attributes
+  #### Associations macros (Belongs to, Has one, Has many)
   has_and_belongs_to_many :bs_requests, join_table: :group_request_requests
 
+  #### Callbacks macros: before_save, after_save, etc.
+  #### Scopes (first the default_scope macro if is used)
+  #### Validations macros
+
+  #### Class methods using self. (public and then private)
   def self.sti_name
     return :group
   end
 
-  class AlreadyGrouped < APIException
-  end
-  class CantGroupInGroups < APIException
-  end
-  class CantGroupRequest < APIException
-    403
-  end
-
+  #### To define class methods as private use private_class_method
+  #### private
+  #### Instance methods (public and then protected/private)
   def check_permissions_on(req)
     # root is always right
     return if User.current.is_admin?
@@ -53,9 +66,6 @@ class BsRequestActionGroup < BsRequestAction
     hash.delete('grouped')
   end
 
-  class GroupActionMustBeSingle < APIException;
-  end
-
   def check_permissions!
     # so we need an involvement in all requests
     self.bs_requests.each do |r|
@@ -76,10 +86,6 @@ class BsRequestActionGroup < BsRequestAction
   def execute_accept(opts)
     puts "changestate #{opts.inspect}"
     # TODO
-  end
-
-  class NotInGroup < APIException
-    setup 404
   end
 
   def remove_request(oldid)
@@ -111,9 +117,6 @@ class BsRequestActionGroup < BsRequestAction
 
   def create_post_permissions_hook(opts)
     check_for_group_in_review
-  end
-
-  class RequireId < APIException;
   end
 
   # this function is only called if all requests have no open reviews
@@ -180,5 +183,7 @@ class BsRequestActionGroup < BsRequestAction
     end
     return :new
   end
+
+  #### Alias of methods
 
 end
