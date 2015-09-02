@@ -11,7 +11,8 @@ class Webui::WebuiController < ActionController::Base
 
   before_filter :setup_view_path
   before_filter :instantiate_controller_and_action_names
-  before_filter :set_return_to, :reset_activexml, :authenticate
+  before_filter :set_return_to, except: [:do_login, :login]
+  before_filter :reset_activexml, :authenticate
   before_filter :check_user
   before_filter :check_anonymous
   before_filter :require_configuration
@@ -94,26 +95,19 @@ class Webui::WebuiController < ActionController::Base
     render file: Rails.root.join('public/404'), status: 404, layout: false, formats: [:html]
   end
 
+  def return_path
+    session[:return_path] || root_path
+  end
+
+  def set_return_path(path)
+    session[:return_path] = path
+  end
+
   protected
 
   def set_return_to
-    if params['return_to_host']
-      @return_to_host = params['return_to_host']
-    else
-      # we have a proxy in front of us
-      @return_to_host = ::Configuration.obs_url
-      unless @return_to_host
-        # fetch old config value and store in db
-        @return_to_host = CONFIG['external_webui_protocol'] || 'http'
-        @return_to_host += '://'
-        @return_to_host += CONFIG['external_webui_host'] || request.host
-        f = ::Configuration.first
-        f.obs_url = @return_to_host
-        f.save
-      end
-    end
-    @return_to_path = params['return_to_path'] || request.env['ORIGINAL_FULLPATH']
-    logger.debug "Setting return_to: \"#{@return_to_path}\""
+    set_return_path(request.env['ORIGINAL_FULLPATH'])
+    logger.debug "Setting return_to: '#{return_path}'"
   end
 
   # Same as redirect_to(:back) if there is a valid HTTP referer, otherwise redirect_to()
@@ -148,12 +142,13 @@ class Webui::WebuiController < ActionController::Base
   def require_login
     if User.current.is_nobody?
       render :text => 'Please login' and return false if request.xhr?
+
       flash[:error] = 'Please login to access the requested page.'
       mode = CONFIG['proxy_auth_mode'] || :off
       if mode == :off
-        redirect_to :controller => :user, :action => :login, :return_to_host => @return_to_host, :return_to_path => @return_to_path
+        redirect_to :controller => :user, :action => :login
       else
-        redirect_to :controller => :main, :return_to_host => @return_to_host, :return_to_path => @return_to_path
+        redirect_to :controller => :main
       end
       return false
     end
@@ -170,9 +165,9 @@ class Webui::WebuiController < ActionController::Base
       authenticate_form_auth
     end
     if session[:login]
-      logger.info "Authenticated request to \"#{@return_to_path}\" from #{session[:login]}"
+      logger.info "Authenticated request to '#{request.url}' from #{session[:login]}"
     else
-      logger.info "Anonymous request to #{@return_to_path}"
+      logger.info "Anonymous request to '#{request.url}'"
     end
   end
 
@@ -199,9 +194,9 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def authenticate_form_auth
-    if session[:login] and session[:password]
+    if session[:login] && session[:password]
       # pass credentials to transport plugin, TODO: is this thread safe?
-      ActiveXML::api.login session[:login], session[:password]
+      ActiveXML::api.login(session[:login], session[:password])
     end
   end
 

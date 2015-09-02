@@ -135,7 +135,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
       :rating => "low")
 
     # check that the patchinfo is not editable for unauthorized users per buttons
-    login_adrian
+    login_adrian(do_assert: false)
     visit patchinfo_show_path(project: "home:Iggy", package: "patchinfo")
     page.wont_have_content("Edit patchinfo")
     page.wont_have_content("Delete patchinfo")
