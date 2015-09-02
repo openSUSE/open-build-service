@@ -848,7 +848,7 @@ class BsRequestAction < ActiveRecord::Base
 
     tprj
   end
-  
+
   def check_permissions!
     # to be overloaded in action classes if needed
   end
