@@ -569,7 +569,7 @@ CREATE TABLE `history_elements` (
   `created_at` datetime NOT NULL,
   `user_id` int(11) NOT NULL,
   `description_extension` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `comment` text COLLATE utf8_unicode_ci DEFAULT NULL,
+  `comment` text COLLATE utf8_unicode_ci,
   PRIMARY KEY (`id`),
   KEY `index_history_elements_on_created_at` (`created_at`),
   KEY `index_history_elements_on_type` (`type`),
@@ -731,7 +731,6 @@ CREATE TABLE `path_elements` (
   `position` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `parent_repository_index` (`parent_id`,`repository_id`),
-  UNIQUE KEY `parent_repo_pos_index` (`parent_id`,`position`),
   KEY `repository_id` (`repository_id`),
   CONSTRAINT `path_elements_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `repositories` (`id`),
   CONSTRAINT `path_elements_ibfk_2` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`)
@@ -1655,6 +1654,8 @@ INSERT INTO schema_migrations (version) VALUES ('20150716112346');
 INSERT INTO schema_migrations (version) VALUES ('20150716124906');
 
 INSERT INTO schema_migrations (version) VALUES ('20150807105426');
+
+INSERT INTO schema_migrations (version) VALUES ('20150902130939');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

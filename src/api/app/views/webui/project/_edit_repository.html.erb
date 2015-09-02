@@ -21,11 +21,11 @@
 
               <% if repository.path_elements.size > 1 %>
                 <% if path != repository.path_elements.first %>
-                  <%= link_to(image_tag('arrow_up.png'), { :action => :move_path_up, :project => project, :repository => repository.name, :path_project => path.link.project.name, :path_repository => path.link.name }, { :class => 'x', :method => :post, :id => "move_path_up-#{valid_xml_id(path.link.project.name + "/" + path.link.name)}" }) -%>
+                  <%= link_to(image_tag('arrow_up.png'), { action: :move_path, project: project, repository: repository, path: path, direction: 'up' }, { class: 'x', method: :post, id: "move_path_up-#{path.link.project.name}_#{path.link.name}" }) -%>
                 <% end %>
 
                 <% if path != repository.path_elements.last %>
-                  <%= link_to(image_tag('arrow_down.png'), { :action => :move_path_down, :project => project, :repository => repository.name, :path_project => path.link.project.name, :path_repository => path.link.name }, { :class => 'x', :method => :post, :id => "move_path_down-#{valid_xml_id(path.link.project.name + "/" + path.link.name)}" }) -%>
+                  <%= link_to(image_tag('arrow_down.png'), { action: :move_path, project: project, repository: repository, path: path, direction: 'down'}, { class: 'x', method: :post, id: "move_path_down-#{path.link.project.name}_#{path.link.name}" }) -%>
                 <% end %>
               <% end %>
 
