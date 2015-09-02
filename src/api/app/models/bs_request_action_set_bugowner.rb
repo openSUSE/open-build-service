@@ -16,7 +16,7 @@ class BsRequestActionSetBugowner < BsRequestAction
   #### Class methods using self. (public and then private)
   #### To define class methods as private use private_class_method
   #### private
-  
+
   #### Instance methods (public and then protected/private)
   def check_sanity
     super
