@@ -1842,12 +1842,11 @@ sub publish {
     # argh, find patchinforef and put it in update
     if (@updateinfos) {
       for my $up (@updateinfos) {
-	next unless $up->{'patchinforef'};
 	for my $cl (@{($up->{'pkglist'} || {})->{'collection'} || []}) {
 	  for my $pkg (@{$cl->{'package'} || []}) {
 	    my $pn = ($subdir ? "$subdir/" : '') . "$pkg->{'arch'}/$pkg->{'filename'}";
 	    if ($packtrack->{$pn}) {
-	      $packtrack->{$pn}->{'patchinforef'} = $up->{'patchinforef'};
+	      $packtrack->{$pn}->{'patchinforef'} = $up->{'patchinforef'} if $up->{'patchinforef'};
 	      $packtrack->{$pn}->{'updateinfoid'} = $up->{'id'};
 	      $packtrack->{$pn}->{'updateinfoversion'} = $up->{'version'};
 	      # XXX: do this in hook?
