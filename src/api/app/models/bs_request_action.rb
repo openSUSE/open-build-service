@@ -44,6 +44,7 @@ class BsRequestAction < ActiveRecord::Base
   validate :check_sanity
 
   #### Class methods using self. (public and then private)
+
   protected
 
   def self.get_package_diff(path, query)
