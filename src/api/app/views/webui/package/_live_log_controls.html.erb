@@ -1,8 +1,7 @@
 <p>
   <%= link_to sprited_text('script_lightning', 'Start refresh'), '#', class: 'start_refresh hidden' %>
   <%= link_to sprited_text('script_link', 'Stop refresh'), '#', class: 'stop_refresh' %>
-  <%= link_to sprited_text('script', 'Download logfile'), Rails.application.routes.url_for(controller: :build, action: :logfile, package: @package,
-                                               project: @project, arch: @arch, repository: @repo, only_path: true) %>
+  <%= link_to sprited_text('script', 'Download logfile'), raw_logfile_path(package: @package, project: @project, arch: @arch, repository: @repo) %>
 </p>
 
 <% if User.current.can_modify_package? @package %>
