@@ -31,10 +31,9 @@ class Attrib < ActiveRecord::Base
   validates :package_id, :absence => {:message => "can't also be present"}, if: "project_id.present?"
   validates :project, presence: true, if: "package_id.nil?"
 
-  # Validators in app/validators
-  validates_with AttribValueLengthValidator
-  validates_with AttribIssueValidator
-  validates_with AttribAllowedValuesValidator
+  validate :validate_value_count,
+           :validate_issues,
+           :validate_allowed_values_for_attrib_type
 
   #### Class methods using self. (public and then private)
   def self.find_by_container_and_fullname( container, fullname )
@@ -113,4 +112,30 @@ class Attrib < ActiveRecord::Base
   #### Alias of methods
   alias :values_addable? :values_removeable?
 
+  private
+
+  def validate_value_count
+    if self.attrib_type && self.attrib_type.allowed_values.any?
+      self.values.map(&:value).each do |value|
+        allowed_values = self.attrib_type.allowed_values.map(&:value)
+        unless allowed_values.include?(value)
+          self.errors[:values] <<
+            "Value '#{value}' is not allowed. Please use one of: #{allowed_values.join(', ')}"
+        end
+      end
+    end
+  end
+
+  def validate_issues
+    if self.attrib_type && !self.attrib_type.issue_list && self.issues.any?
+      self.errors[:issues] << "can't have issues"
+    end
+  end
+
+  def validate_allowed_values_for_attrib_type
+    value_count = self.attrib_type.try(:value_count)
+    if value_count && value_count != self.values.length
+      self.errors[:values] << "has #{self.values.length} values, but only #{value_count} are allowed"
+    end
+  end
 end
