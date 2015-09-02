@@ -213,6 +213,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     inject_build_job( incidentProject, "kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}",
                       kernelIncidentProject.gsub( /:/, '_'), 'x86_64', "package_newweaktags-1.0-1.x86_64.rpm")
     inject_build_job( incidentProject, "kgraft-GA.BaseDistro2.0", "BaseDistro2.0", 'i586')
+    inject_build_job( incidentProject, "kgraft-GA.BaseDistro2.0", "BaseDistro2.0", 'x86_64')
 
     # lock kernelIncident to be sure that nothing can be released to
     get '/source/'+kernelIncidentProject+'/_meta'
@@ -280,8 +281,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/request/#{reqid}"
     assert_response :success
     assert_xml_tag( :parent => { tag: 'state' }, :tag => 'comment', :content => 'releasing')
-    run_scheduler('i586')
     run_scheduler('x86_64')
+    run_scheduler('i586')
     run_publisher
 
     # validate result

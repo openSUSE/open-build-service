@@ -79,9 +79,14 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
         raise RepositoryWithoutArchitecture.new "Repository has no architecture #{prj.name} / #{repo.name}"
       end
       repo.release_targets.each do |rt|
-        unless repo.architectures.first == rt.target_repository.architectures.first
-          raise ArchitectureOrderMissmatch.new "Repository and releasetarget have not the same architecture" +
-                                               "on first position: #{prj.name} / #{repo.name}"
+        unless repo.architectures.size == rt.target_repository.architectures.size
+          raise ArchitectureOrderMissmatch.new "Repository '#{repo.name}' and releasetarget '#{rt.target_repository.name}' have different architectures"
+        end
+        for i in 1..(repo.architectures.size)
+          unless repo.architectures[i-1] == rt.target_repository.architectures[i-1]
+            raise ArchitectureOrderMissmatch.new "Repository and releasetarget have not the same architecture" +
+                                                 "on position #{i}: #{prj.name} / #{repo.name}"
+          end
         end
       end
     end
@@ -107,9 +112,9 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     end
 
     # run search
-    open_ids = rel.select('bs_requests.id').map { |r| r.id }
-
-    unless open_ids.blank?
+    open_ids = rel.select('bs_requests').pluck(:id)
+    open_ids.delete(self.bs_request.id) if self.bs_request
+    if open_ids.count > 0
       msg = "The following open requests have the same target #{self.target_project} / #{tpkgprefix}: " + open_ids.join(', ')
       raise OpenReleaseRequests.new msg
     end

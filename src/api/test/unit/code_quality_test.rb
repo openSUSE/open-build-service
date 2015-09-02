@@ -56,7 +56,7 @@ class CodeQualityTest < ActiveSupport::TestCase
 
   # our current exceptions
   BlackList = {
-      'ApplicationController#extract_ldap_user'                                 => 119.9,
+      'ApplicationController#extract_ldap_user'                                 => 116.52,
       'AttributeController#attribute_definition'                                => 87.7,
       'BinaryRelease::update_binary_releases_via_json'                          => 128.58,
       'BranchPackage#find_packages_to_branch'                                   => 238.17,
@@ -70,7 +70,8 @@ class CodeQualityTest < ActiveSupport::TestCase
       'BsRequest#apply_default_reviewers'                                       => 129.52,
       'BsRequest#webui_actions'                                                 => 130.13,
       'BsRequest::new_from_xml'                                                 => 113.77,
-      'BsRequestAction#check_action_permission!'                                => 252.69,
+      'BsRequestAction#check_action_permission!'                                => 117.71,
+      'BsRequestAction#check_action_permission_target!'                         => 94.3,
       'BsRequestAction#create_expand_package'                                   => 434.19,
       'BsRequestAction#default_reviewers'                                       => 141.02,
       'BsRequestAction#store_from_xml'                                          => 88.01,
@@ -82,7 +83,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'ConfigurationsController#update'                                         => 85.63,
       'IssueTrackersController#update'                                          => 100.78,
       'MaintenanceHelper#instantiate_container'                                 => 160.21,
-      'Owner::_extract_from_container'                                          => 84.07,
+      'Owner::_extract_from_container'                                          => 80.11,
       'PersonController#internal_register'                                      => 112.01,
       'Package#find_changed_issues'                                             => 93.74,
       'Project#update_one_repository_without_path'                              => 118.34,

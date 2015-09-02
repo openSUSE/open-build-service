@@ -361,6 +361,15 @@ class BsRequest < ActiveRecord::Base
   def permission_check_change_state!(opts)
     checker = BsRequestPermissionCheck.new(self, opts)
     checker.cmd_changestate_permissions(opts)
+
+    # check target write permissions
+    if opts[:newstate] == 'accepted'
+      self.bs_request_actions.each do |action|
+        action.check_action_permission!(true)
+        action.check_for_expand_errors! !@addrevision.nil?
+        self.raisepriority(action.minimum_priority)
+      end
+    end
   end
 
   def changestate_accepted(opts)

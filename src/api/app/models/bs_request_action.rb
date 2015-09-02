@@ -719,13 +719,29 @@ class BsRequestAction < ActiveRecord::Base
     return newactions
   end
 
-  def check_action_permission!
+  def check_action_permission_source!
+    return nil unless self.source_project
+
+    sprj = Project.get_by_name self.source_project
+    unless sprj
+      raise UnknownProject.new "Unknown source project #{self.source_project}"
+    end
+    unless sprj.class == Project or [:submit, :maintenance_incident].include? self.action_type
+      raise NotSupported.new "Source project #{self.source_project} is not a local project. This is not supported yet."
+    end
+    if self.source_package
+      spkg = Package.get_by_project_and_name(self.source_project, self.source_package, use_source: true, follow_project_links: true)
+      spkg.can_be_deleted? if spkg && self.sourceupdate == 'cleanup'
+    end
+
+    sprj
+  end
+
+  def check_action_permission!(skip_source=nil)
     # find objects if specified or report error
     role=nil
     sprj=nil
-    spkg=nil
     tprj=nil
-    tpkg=nil
     if self.person_name
       # validate user object
       User.find_by_login!(self.person_name)
@@ -739,47 +755,8 @@ class BsRequestAction < ActiveRecord::Base
       role = Role.find_by_title!(self.role)
     end
 
-    if self.source_project
-      sprj = Project.get_by_name self.source_project
-      unless sprj
-        raise UnknownProject.new "Unknown source project #{self.source_project}"
-      end
-      unless sprj.class == Project or [:submit, :maintenance_incident].include? self.action_type
-        raise NotSupported.new "Source project #{self.source_project} is not a local project. This is not supported yet."
-      end
-      if self.source_package
-        spkg = Package.get_by_project_and_name(self.source_project, self.source_package, use_source: true, follow_project_links: true)
-      end
-    end
-
-    if self.target_project
-      tprj = Project.get_by_name self.target_project
-      if tprj.is_a? Project
-        if tprj.is_maintenance_release? and self.action_type == :submit
-          raise SubmitRequestRejected.new "The target project #{self.target_project} is a maintenance release project, " +
-                                          "a submit self is not possible, please use the maintenance workflow instead."
-        end
-        if a = tprj.find_attribute('OBS', 'RejectRequests') and a.values.first
-          if a.values.length < 2 or a.values.find_by_value(self.action_type)
-            raise RequestRejected.new "The target project #{self.target_project} is not accepting requests because: #{a.values.first.value.to_s}"
-          end
-        end
-      end
-      if self.target_package
-        # rubocop:disable Metrics/LineLength
-        if Package.exists_by_project_and_name(self.target_project, self.target_package) or [:delete, :change_devel, :add_role, :set_bugowner].include? self.action_type
-          tpkg = Package.get_by_project_and_name self.target_project, self.target_package
-        end
-        # rubocop:enable Metrics/LineLength
-
-        if tpkg && (a = tpkg.find_attribute('OBS', 'RejectRequests') and a.values.first)
-          if a.values.length < 2 or a.values.find_by_value(self.action_type)
-            raise RequestRejected.new "The target package #{self.target_project} / #{self.target_package} is not accepting " +
-                                      "requests because: #{a.values.first.value.to_s}"
-          end
-        end
-      end
-    end
+    sprj = check_action_permission_source! unless skip_source
+    tprj = check_action_permission_target!
 
     # Type specific checks
     if self.action_type == :delete or self.action_type == :add_role or self.action_type == :set_bugowner
@@ -794,7 +771,7 @@ class BsRequestAction < ActiveRecord::Base
       end
     elsif [:submit, :change_devel, :maintenance_release, :maintenance_incident].include?(self.action_type)
       #check existence of source
-      unless sprj
+      unless sprj || skip_source
         # no support for remote projects yet, it needs special support during accept as well
         raise UnknownProject.new 'No target project specified'
       end
@@ -811,10 +788,6 @@ class BsRequestAction < ActiveRecord::Base
         end
       end
 
-      if self.is_maintenance_release?
-        self.check_permissions!
-      end
-
       # source update checks
       if [:submit, :maintenance_incident].include?(self.action_type)
         # cleanup implicit home branches. FIXME3.0: remove this, the clients should do this automatically meanwhile
@@ -829,22 +802,55 @@ class BsRequestAction < ActiveRecord::Base
         self.makeoriginolder = true if tprj.attribs.where(attrib_type_id: at.id).first
       end
       # allow cleanup only, if no devel package reference
-      if self.sourceupdate == 'cleanup' and sprj.class != Project
+      if self.sourceupdate == 'cleanup' and sprj.class != Project and not skip_source
         raise NotSupported.new "Source project #{self.source_project} is not a local project. cleanup is not supported."
-      end
-      if self.sourceupdate == 'cleanup' && spkg
-        spkg.can_be_deleted?
       end
 
       if self.action_type == :change_devel
-        unless tpkg
+        unless self.target_package
           raise UnknownPackage.new 'No target package specified'
         end
       end
-    else
-      self.check_permissions!
     end
 
+    self.check_permissions!
+  end
+
+  def check_action_permission_target!
+    return nil unless self.target_project
+
+    tprj = Project.get_by_name self.target_project
+    if tprj.is_a? Project
+      if tprj.is_maintenance_release? and self.action_type == :submit
+        raise SubmitRequestRejected.new "The target project #{self.target_project} is a maintenance release project, " +
+                                        "a submit self is not possible, please use the maintenance workflow instead."
+      end
+      if a = tprj.find_attribute('OBS', 'RejectRequests') and a.values.first
+        if a.values.length < 2 or a.values.find_by_value(self.action_type)
+          raise RequestRejected.new "The target project #{self.target_project} is not accepting requests because: #{a.values.first.value.to_s}"
+        end
+      end
+    end
+    if self.target_package
+      # rubocop:disable Metrics/LineLength
+      if Package.exists_by_project_and_name(self.target_project, self.target_package) or [:delete, :change_devel, :add_role, :set_bugowner].include? self.action_type
+        tpkg = Package.get_by_project_and_name self.target_project, self.target_package
+      end
+      # rubocop:enable Metrics/LineLength
+
+      if tpkg && (a = tpkg.find_attribute('OBS', 'RejectRequests') and a.values.first)
+        if a.values.length < 2 or a.values.find_by_value(self.action_type)
+          raise RequestRejected.new "The target package #{self.target_project} / #{self.target_package} is not accepting " +
+                                    "requests because: #{a.values.first.value.to_s}"
+        end
+      end
+    end
+
+    tprj
+  end
+  
+  def check_permissions!
+    # to be overloaded in action classes if needed
   end
 
   def expand_targets(ignore_build_state)

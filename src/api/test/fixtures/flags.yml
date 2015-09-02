@@ -49,6 +49,16 @@ record_7:
   position: 1
   flag: publish
   project: BinaryprotectedProject
+BaseDistro2.0_build:
+  status: disable
+  position: 2
+  flag: build
+  project: BaseDistro2.0
+BaseDistro2.0_publish:
+  status: disable
+  position: 2
+  flag: publish
+  project: BaseDistro2.0
 record_8:
   status: disable
   position: 2
