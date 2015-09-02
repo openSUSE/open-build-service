@@ -15,19 +15,16 @@ class Webui::PackageController < Webui::WebuiController
 
   helper 'webui/comment'
 
-  # FIXME: This is the deprecated before_filter that loads a WebuiProject. Use set_project instead!
-  before_filter :require_project, :only => [:show, :linking_packages, :dependency, :binary, :binaries,
-                                            :requests, :statistics, :commit, :revisions, :submit_request_dialog,
-                                            :add_person, :add_group, :rdiff, :wizard_new, :wizard, :save_new,
-                                            :branch_dialog, :branch, :save_new_link, :save, :delete_dialog,
-                                            :remove, :add_file, :save_file, :remove_file, :save_person,
-                                            :save_group, :remove_role, :view_file, :save_modified_file,
-                                            :live_build_log, :update_build_log, :abort_build, :trigger_rebuild,
-                                            :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
-                                            :save_meta, :attributes, :edit, :change_flag,
-                                            :import_spec, :files, :comments]
-
-  before_filter :set_project, :only => [:repositories, :users]
+  before_filter :set_project, :only => [:show, :repositories, :users, :linking_packages, :dependency, :binary, :binaries,
+                                        :requests, :statistics, :commit, :revisions, :submit_request_dialog,
+                                        :add_person, :add_group, :rdiff, :wizard_new, :wizard, :save_new,
+                                        :branch_dialog, :branch, :save_new_link, :save, :delete_dialog,
+                                        :remove, :add_file, :save_file, :remove_file, :save_person,
+                                        :save_group, :remove_role, :view_file, :save_modified_file,
+                                        :live_build_log, :update_build_log, :abort_build, :trigger_rebuild,
+                                        :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
+                                        :save_meta, :attributes, :edit, :change_flag,
+                                        :import_spec, :files, :comments]
 
   before_filter :require_package, :only => [:show, :linking_packages, :dependency, :binary, :binaries,
                                             :requests, :statistics, :commit, :revisions, :submit_request_dialog,
