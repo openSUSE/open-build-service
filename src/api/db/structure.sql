@@ -654,7 +654,6 @@ CREATE TABLE `maintenance_incidents` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `db_project_id` int(11) DEFAULT NULL,
   `maintenance_db_project_id` int(11) DEFAULT NULL,
-  `request` int(11) DEFAULT NULL,
   `updateinfo_id` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `incident_id` int(11) DEFAULT NULL,
   `released_at` datetime DEFAULT NULL,
@@ -1656,6 +1655,8 @@ INSERT INTO schema_migrations (version) VALUES ('20150716124906');
 INSERT INTO schema_migrations (version) VALUES ('20150807105426');
 
 INSERT INTO schema_migrations (version) VALUES ('20150902130939');
+
+INSERT INTO schema_migrations (version) VALUES ('20150903084813');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

@@ -200,35 +200,36 @@ class SourceController < ApplicationController
   # POST /source/:project?cmd
   #-----------------
   def project_command
-
     # init and validation
     #--------------------
-    valid_commands=%w(undelete showlinked remove_flag set_flag createpatchinfo createkey extendkey copy
-                      createmaintenanceincident unlock release addchannels modifychannels move)
-    if params[:cmd]
-      raise IllegalRequest.new 'invalid_command' unless valid_commands.include?(params[:cmd])
-      command = params[:cmd]
-    end
-    project_name = params[:project]
-    #admin_user = User.current.is_admin?
+    valid_commands = %w(
+      undelete showlinked remove_flag set_flag createpatchinfo createkey extendkey copy
+      createmaintenanceincident unlock release addchannels modifychannels move
+    )
 
+    if params[:cmd] && !valid_commands.include?(params[:cmd])
+      raise IllegalRequest, 'invalid_command'
+    end
+
+    command = params[:cmd]
+    project_name = params[:project]
     params[:user] = User.current.login
 
-    if %w(undelete release copy move).include? command
+    if %w(undelete release copy move).include?(command)
       return dispatch_command(:project_command, command)
     end
 
-    @project = Project.get_by_name project_name
+    @project = Project.get_by_name(project_name)
+
     # unlock
-    if command == 'unlock' and User.current.can_modify_project?(@project, true)
+    if command == 'unlock' && User.current.can_modify_project?(@project, true)
       dispatch_command(:project_command, command)
-    elsif command == 'showlinked' or User.current.can_modify_project?(@project)
+    elsif command == 'showlinked' || User.current.can_modify_project?(@project)
       # command: showlinked, set_flag, remove_flag, ...?
       dispatch_command(:project_command, command)
     else
-      raise CmdExecutionNoPermission.new "no permission to execute command '#{command}'"
+      raise CmdExecutionNoPermission, "no permission to execute command '#{command}'"
     end
-
   end
 
   class NoLocalPackage < APIException; end
@@ -918,24 +919,19 @@ class SourceController < ApplicationController
     actually_create_incident(prj)
   end
 
-  def actually_create_incident(prj)
-    noaccess = false
-    noaccess = true if params[:noaccess]
-
-    unless User.current.can_modify_project?(prj)
-      raise ModifyProjectNoPermission.new "no permission to modify project '#{prj.name}'"
+  def actually_create_incident(project)
+    unless User.current.can_modify_project?(project)
+      raise ModifyProjectNoPermission, "no permission to modify project '#{project.name}'"
     end
 
-    # check for correct project kind
-    unless prj and prj.kind == 'maintenance'
-      render_error :status => 400, :errorcode => 'incident_has_no_maintenance_project',
-                   :message => 'incident projects shall only create below maintenance projects'
-      return
-    end
+    incident = MaintenanceIncident.build_maintenance_incident(project, params[:noaccess].present?)
 
-    # create incident project
-    incident = create_new_maintenance_incident(prj, nil, nil, noaccess)
-    render_ok :data => {:targetproject => incident.project.name}
+    if incident
+      render_ok data: { :targetproject => incident.project.name }
+    else
+      render_error status: 400, :errorcode => 'incident_has_no_maintenance_project',
+                   message: 'incident projects shall only create below maintenance projects'
+    end
   end
 
   class RepoDependency < APIException
