@@ -44,10 +44,21 @@ class Webui::SearchController < Webui::WebuiController
       return
     end
 
-    if @search_text.starts_with?('obs://')
     # The user entered an OBS-specific RPM disturl, redirect to package source files with respective revision
-      flash[:error] = 'This disturl does not compute!' unless handle_disturl(@search_text)
-      return
+    if @search_text.starts_with?('obs://')
+      disturl_project, _, disturl_pkgrev = @search_text.split('/')[3..5]
+      unless disturl_pkgrev.nil?
+        disturl_rev, disturl_package = disturl_pkgrev.split('-', 2)
+      end
+      unless disturl_package.nil? || disturl_rev.nil?
+        project = Project.find_by(name: disturl_project)
+        package = Package.find_by_project_and_name(disturl_project, disturl_package)
+      end
+      if project && package
+        redirect_to controller: 'package', action: 'show', project: disturl_project, package: disturl_package, rev: disturl_rev and return
+      else
+        redirect_to :back, notice: 'Sorry, this disturl does not compute...' and return
+      end
     end
 
     logger.debug "Searching for the string \"#{@search_text}\" in the #{@search_where}'s of #{@search_what}'s"
@@ -65,34 +76,6 @@ class Webui::SearchController < Webui::WebuiController
                                 issue_tracker_name: @search_tracker)
     @results = search.search(page: params[:page], per_page: @per_page)
     flash[:notice] = 'Your search did not return any results.' if @results.count < 1
-  end
-
-  # This method handles obs:// disturls
-  #
-  # * *Args* :
-  #   - +disturl+ -> A dist url string like obs://INSTANCE/PROJECT/REPO/REVISION-PACKAGE
-  #   obs://build.opensuse.org/openSUSE:Maintenance:1055/openSUSE_12.2_Update/255b363336b47a513d4df73a92bc2acc-aaa_base.openSUSE_12.2_Update
-  # * *Returns* :
-  #   -
-  # * *Redirects* :
-  #   - +package/show+ -> if the disturl is computeable
-  #   - +search/index+ -> if the disturl isn't computeable
-  # * *Raises* :
-  #   -
-  #
-  def handle_disturl(disturl)
-    disturl_project, _, disturl_pkgrev = disturl.split('/')[3..5]
-    unless disturl_pkgrev.nil?
-      disturl_rev, disturl_package = disturl_pkgrev.split('-', 2)
-    end
-    unless disturl_package.nil? || disturl_rev.nil?
-      redirect_to controller: 'package', action: 'show',
-                  project: disturl_project,
-                  package: disturl_package,
-                  rev: disturl_rev and return true
-    end
-    logger.debug "Computing disturl #{disturl} failed"
-    false
   end
 
   private
