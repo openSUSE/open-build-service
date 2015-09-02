@@ -1850,7 +1850,12 @@ sub publish {
 	      $packtrack->{$pn}->{'updateinfoid'} = $up->{'id'};
 	      $packtrack->{$pn}->{'updateinfoversion'} = $up->{'version'};
 	      # XXX: do this in hook?
-	      $packtrack->{$pn}->{'supportstatus'} = $pkg->{'supportstatus'} if $pkg->{'supportstatus'};
+	      my $supportstatus = $pkg->{'supportstatus'};
+	      # workaround for broken code11 imports
+	      if ($supportstatus) {
+	        $supportstatus =~ s/^support_//;
+	        $packtrack->{$pn}->{'supportstatus'} = $supportstatus;
+	      }
 	    }
 	  }
 	}
