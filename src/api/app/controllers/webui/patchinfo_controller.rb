@@ -1,24 +1,24 @@
 class Webui::PatchinfoController < Webui::WebuiController
   include Webui::WebuiHelper
   include Webui::PackageHelper
-  before_filter :require_project
+  before_filter :set_project
   before_filter :get_binaries, except: [:show, :delete]
   before_filter :require_exists, except: [:new_patchinfo]
   before_filter :require_login, except: [:show]
 
   def new_patchinfo
-    unless User.current.can_create_package_in? @project.api_obj
+    unless User.current.can_create_package_in? @project
       flash[:error] = 'No permission to create packages'
       redirect_to controller: 'project', action: 'show', project: @project and return
     end
 
-    unless @project.api_obj.exists_package? 'patchinfo'
+    unless @project.exists_package? 'patchinfo'
       unless Patchinfo.new.create_patchinfo(@project.name, nil)
         flash[:error] = 'Error creating patchinfo'
         redirect_to controller: 'project', action: 'show', project: @project and return
       end
     end
-    @package = @project.api_obj.packages.find_by_name('patchinfo')
+    @package = @project.packages.find_by_name('patchinfo')
     @file = @package.patchinfo
     unless @file
       flash[:error] = "Patchinfo not found for #{params[:project]}"
@@ -43,7 +43,7 @@ class Webui::PatchinfoController < Webui::WebuiController
 
   def show
     read_patchinfo
-    @pkg_names = @project.api_obj.packages.pluck(:name)
+    @pkg_names = @project.packages.pluck(:name)
     @pkg_names.delete('patchinfo')
     @packager = User.where(login: @packager).first
   end
@@ -304,17 +304,6 @@ class Webui::PatchinfoController < Webui::WebuiController
       end
     end
     @binarylist.uniq!
-  end
-
-  def require_project
-    required_parameters :project
-    Rails.logger.debug "require_project #{params[:project]}"
-    @project = WebuiProject.find(params[:project])
-    unless @project
-      flash[:error] = "Project not found: #{params[:project]}"
-      redirect_to controller: 'project'
-      return false
-    end
   end
 
   def require_exists
