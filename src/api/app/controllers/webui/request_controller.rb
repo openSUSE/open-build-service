@@ -13,6 +13,8 @@ class Webui::RequestController < Webui::WebuiController
 
   before_filter :require_request, only: [:changerequest]
 
+  before_filter :set_project, only: [:change_devel_request_dialog]
+
   def add_reviewer_dialog
     @request_id = params[:id]
     render_dialog 'requestAddReviewAutocomplete'
@@ -361,7 +363,6 @@ class Webui::RequestController < Webui::WebuiController
 
   def change_devel_request_dialog
     required_parameters :package, :project
-    @project = WebuiProject.find params[:project]
     @package = Package.find_by_project_and_name(params[:project], params[:package])
     if @package.develpackage
       @current_devel_package = @package.develpackage.name
