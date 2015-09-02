@@ -5,7 +5,6 @@ class Webui::ProjectController < Webui::WebuiController
   include Webui::RequestHelper
   include Webui::ProjectHelper
   include Webui::LoadBuildresults
-  include Webui::RequiresProject
   include Webui::ManageRelationships
 
   helper 'webui/comment'

@@ -9,7 +9,6 @@ class Webui::PackageController < Webui::WebuiController
   include Webui::PackageHelper
   include Escaper
   include Webui::LoadBuildresults
-  include Webui::RequiresProject
   include Webui::ManageRelationships
   include BuildLogSupport
 
