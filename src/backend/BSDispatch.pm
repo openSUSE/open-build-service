@@ -34,10 +34,14 @@ sub parse_cgi {
   # $req:
   #      the part of URI after ?
   # $multis:
-  #      hash of separators
-  #      key does not exist - multiple cgi values are not allowed
-  #      key is undef - multiple cgi values are put into array
-  #      key is - then value is used as separator between cgi values
+  #      hash of cgi names
+  #      * key does not exist - multiple cgi values are not allowed
+  #      * value is undef - multiple cgi values are put into array
+  #      * value is a string - used as separator to join multiple cgi values
+  # $singles:
+  #      hash of cgi names
+  #      * key exists and multis->key does not exist - multiple cgi values are not allowed
+ 
   my ($req, $multis, $singles) = @_;
 
   my $query_string = $req->{'query'};
@@ -55,6 +59,14 @@ sub parse_cgi {
       $value =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
     } else {
       $value = 1;	# assume boolean
+    }
+    if ($name =~ /^\?(.*)$/s) {
+      if ((!$singles || !exists($singles->{$name})) && (!$multies || !exists($multies->{$name}))) {
+        $name = $1;
+        if ((!$singles || !exists($singles->{$name})) && (!$multies || !exists($multies->{$name}))) {
+	  next unless $singles && $multis && exists($multis->{'*'});	# ignore unknown
+	}
+      }
     }
     if ($multis && exists($multis->{$name})) {
       if (defined($multis->{$name})) {
@@ -139,7 +151,7 @@ sub compile_dispatches {
     s/%([a-fA-F0-9]{2})/chr(hex($1))/ge for @cgis;
     $p = shift @cgis;
     my @p = split('/', $p, -1);
-    my $code = "my (\@args);\n";
+    my $code = '';
     my $code2 = '';
     my $num = 1;
     my @args;
@@ -176,8 +188,7 @@ sub compile_dispatches {
       if ($var =~ /^(.*)=(.*)$/) {
 	$cgisingles ||= {};
 	$cgisingles->{$1} = $2;
-	$singles .= ', ' if $singles ne '';
-	$singles .= "'$1' => undef";
+	$singles .= ", '$1' => undef";
 	$known .= ", '$1'";
 	next;
       }
@@ -187,22 +198,19 @@ sub compile_dispatches {
       $code2 .= "die(\"parameter '$var' is missing\\n\") unless exists \$cgi->{'$var'};\n" if $qual ne '*' && $qual ne '?';
       $hasstar = 1 if $var eq '*';
       if ($qual eq '+' || $qual eq '*') {
-	$multis .= ', ' if $multis ne '';
-	$multis .= "'$var' => undef";
+	$multis .= ", '$var' => undef";
         $code2 .= "\$verifyers->{'$vartype'}->(\$_) for \@{\$cgi->{'$var'} || []};\n" if $vartype ne '';
       } else {
-	$singles .= ', ' if $singles ne '';
-	$singles .= "'$var' => undef";
+	$singles .= ", '$var' => undef";
         $code2 .= "\$verifyers->{'$vartype'}->(\$cgi->{'$var'}) if exists \$cgi->{'$var'};\n" if $vartype ne '';
       }
       push @args, $var if $arg;
       $known .= ", '$var'";
     }
-    if ($hasstar) {
-      $code = "my \$cgi = parse_cgi(\$req, {$multis}, {$singles});\n$code";
-    } else {
-      $code = "my \$cgi = parse_cgi(\$req, {$multis});\n$code";
-    }
+    $multis = substr($multis, 2) if $multis;
+    $singles = substr($singles, 2) if $singles;
+    $code = "my \$cgi = parse_cgi(\$req, {$multis}, {$singles});\n$code";
+    $code2 .= "my \@args;\n";
     $code2 .= "push \@args, \$cgi->{'$_'};\n" for @args;
     $code2 .= "&dispatch_checkcgi(\$cgi$known);\n" unless $hasstar;
     if ($callfunction) {
