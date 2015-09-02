@@ -35,7 +35,8 @@ class Webui::PackageController < Webui::WebuiController
                                             :live_build_log, :update_build_log, :abort_build, :trigger_rebuild,
                                             :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
                                             :save_meta, :attributes, :edit, :change_flag,
-                                            :import_spec, :files, :comments, :repositories, :users]
+                                            :import_spec, :files, :comments, :repositories, :users,
+                                            :save_comment]
 
   # make sure it's after the require_, it requires both
   before_filter :require_login, :except => [:show, :linking_packages, :linking_packages, :dependency,
