@@ -3,6 +3,8 @@ class ChannelTarget < ActiveRecord::Base
   belongs_to :channel
   belongs_to :repository
 
+  class MultipleChannelTargets < APIException; end
+
   def self._sync_keys
     [ :repository ]
   end
@@ -20,7 +22,7 @@ class ChannelTarget < ActiveRecord::Base
       ct.each do |cti|
         msg << "#{cti.channel.package.project.name}/#{cti.channel.package.name}, "
       end
-      raise "Multiple channel targets found in #{msg} for repository #{repo.project.name}/#{repo.name}"
+      raise MultipleChannelTargets "Multiple channel targets found in #{msg} for repository #{repo.project.name}/#{repo.name}"
     end
     return ct.first
   end

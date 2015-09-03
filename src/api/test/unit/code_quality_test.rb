@@ -76,6 +76,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'BsRequestAction#default_reviewers'                                       => 141.02,
       'BsRequestAction#store_from_xml'                                          => 88.01,
       'BsRequestActionMaintenanceIncident#_merge_pkg_into_maintenance_incident' => 134.86,
+      'BsRequestActionMaintenanceRelease#sanity_check!'                         => 81.82,
       'BsRequestActionSubmit#execute_accept'                                    => 132.43,
       'BsRequestPermissionCheck#cmd_changestate_permissions'                    => 117.09,
       'BuildController#file'                                                    => 127.42,

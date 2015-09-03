@@ -89,6 +89,8 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
                                                  "on position #{i}: #{prj.name} / #{repo.name}"
           end
         end
+        # find broken channel targets
+        ChannelTarget.find_by_repo(rt.target_repository, [prj])
       end
     end
   end
