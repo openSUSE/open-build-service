@@ -351,7 +351,7 @@ class UserLdapStrategy
 
     case CONFIG['ldap_auth_mech']
     when :cleartext then
-      if ldap_password == password then
+      if ldap_password == password
         authenticated = true
       end
     when :md5 then
@@ -473,12 +473,12 @@ class UserLdapStrategy
 
     # Only collect the required user information *AFTER* we successfully
     # completed the authentication!
-    if user[CONFIG['ldap_mail_attr']] then
+    if user[CONFIG['ldap_mail_attr']]
       ldap_info[0] = String.new(user[CONFIG['ldap_mail_attr']][0])
     else
       ldap_info[0] = dn2user_principal_name(user['dn'])
     end
-    if user[CONFIG['ldap_name_attr']] then
+    if user[CONFIG['ldap_name_attr']]
       ldap_info[1] = String.new(user[CONFIG['ldap_name_attr']][0])
     else
       ldap_info[1] = login

@@ -124,7 +124,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
            assert_equal "other_package_likes_it", p["format"]["rpm:supplements"]['rpm:entry']['name']
            assert_equal "other_package", p["format"]["rpm:enhances"]['rpm:entry']['name']
          end
-      end
+       end
     end
     assert package_seen["package"]
     assert package_seen["package_newweaktags"]

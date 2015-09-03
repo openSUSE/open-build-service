@@ -63,7 +63,8 @@ class Webui::DriverUpdateController < Webui::PackageController
     @binary_packages = {}
     @packages.each do |package|
       @binary_packages[package] = params[:binaries].select{|binary|
-        binary =~ /#{package}\//}.each{|binary| binary.gsub!(/^.*\//, '') } unless params[:binaries].blank?
+        binary =~ /#{package}\//
+      }.each{|binary| binary.gsub!(/^.*\//, '') } unless params[:binaries].blank?
     end
 
     @architectures = params[:arch] || []

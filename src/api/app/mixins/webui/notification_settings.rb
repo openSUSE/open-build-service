@@ -19,7 +19,7 @@ module Webui::NotificationSettings
     result
   end
 
-  def update_notifications_for_user(user = nil, params)
+  def update_notifications_for_user(params, user = nil)
     EVENT_TYPES.each do |event_type|
       values = params[event_type.to_s] || {}
       display_roles = event_type.receiver_roles

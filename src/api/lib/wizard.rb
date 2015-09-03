@@ -2,7 +2,7 @@ require 'rexml/document'
 
 class Wizard
   def initialize(text = nil)
-    if ! text || text.empty?
+    if !text || text.empty?
       @data = DirtyHash.new
       @guess = DirtyHash.new
       @version = 1

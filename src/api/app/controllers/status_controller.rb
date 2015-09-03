@@ -110,7 +110,7 @@ class StatusController < ApplicationController
       if user_id
         package_hash[package_id].add_person(user_from_cache(user_id),
                                             role_from_cache(role_id))
-     else
+      else
         package_hash[package_id].add_group(group_from_cache(group_id),
                                            role_from_cache(role_id))
       end

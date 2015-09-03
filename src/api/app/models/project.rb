@@ -720,7 +720,7 @@ class Project < ActiveRecord::Base
     prj = self
     processed = {}
 
-    while(prj && prj.develproject)
+    while (prj && prj.develproject)
       if processed[prj.name]
         raise CycleError.new "There is a cycle in devel definition at #{processed.keys.join(' -- ')}"
       end

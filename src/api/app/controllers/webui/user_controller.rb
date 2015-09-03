@@ -269,7 +269,7 @@ class Webui::UserController < Webui::WebuiController
       gu.save
     end
 
-    update_notifications_for_user(User.current, params)
+    update_notifications_for_user(params, User.current)
 
     flash[:notice] = 'Notifications settings updated'
     redirect_to action: :notifications

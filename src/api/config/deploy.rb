@@ -105,7 +105,7 @@ namespace :deploy do
     #diff = `#{source.local.diff(current_revision)}`
     diff_log = %x(#{source.local.log(source.next_revision(current_revision), branch)})
     user = %x(whoami)
-    body = %Q[From: obs-api-deploy@suse.de
+    body = %[From: obs-api-deploy@suse.de
 To: #{deploy_notification_to.join(", ")}
 Subject: obs-api deployed by #{user}
 
