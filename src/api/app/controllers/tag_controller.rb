@@ -163,11 +163,11 @@ class TagController < ApplicationController
   end
 
 
-  def most_popular_tags()
+  def most_popular_tags
   end
 
 
-  def most_recent_tags()
+  def most_recent_tags
   end
 
 

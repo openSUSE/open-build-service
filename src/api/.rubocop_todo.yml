@@ -213,13 +213,6 @@ Performance/Detect:
   Exclude:
     - 'app/controllers/public_controller.rb'
 
-# Offense count: 3
-# Cop supports --auto-correct.
-Performance/ReverseEach:
-  Exclude:
-    - 'app/models/bs_request.rb'
-    - 'app/models/webui_project.rb'
-
 # Offense count: 15
 # Cop supports --auto-correct.
 Performance/StringReplacement:
@@ -356,36 +349,17 @@ Style/AsciiComments:
   Exclude:
     - 'test/functional/webui/package_controller_test.rb'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-Style/BarePercentLiterals:
-  Exclude:
-    - 'config/deploy.rb'
-    - 'test/test_helper.rb'
-
 # Offense count: 25
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles, ProceduralMethods, FunctionalMethods, IgnoredMethods.
 Style/BlockDelimiters:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Style/BlockEndNewline:
-  Exclude:
-    - 'app/controllers/webui/driver_update_controller.rb'
-
 # Offense count: 103
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
 Style/BracesAroundHashParameters:
   Enabled: false
-
-# Offense count: 2
-Style/CaseEquality:
-  Exclude:
-    - 'test/activexml_matcher.rb'
 
 # Offense count: 86
 # Cop supports --auto-correct.
@@ -464,12 +438,6 @@ Style/ConstantName:
     - 'app/models/event/request.rb'
     - 'test/unit/code_quality_test.rb'
     - 'test/unit/issue_test.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/DefWithParentheses:
-  Exclude:
-    - 'app/controllers/tag_controller.rb'
 
 # Offense count: 139
 # Cop supports --auto-correct.

@@ -501,7 +501,7 @@ class BsRequest < ActiveRecord::Base
     review_comment = nil
 
     self.with_lock do
-      self.reviews.reverse.each do |review|
+      self.reviews.reverse_each do |review|
         next if review.by_user
         next if review.by_group && review.by_group != opts[:by_group]
         next if review.by_project && review.by_project != opts[:by_project]
@@ -544,7 +544,7 @@ class BsRequest < ActiveRecord::Base
       found = false
 
       reviews_seen = Hash.new
-      self.reviews.reverse.each do |review|
+      self.reviews.reverse_each do |review|
         matching = true
         matching = false if review.by_user && review.by_user != opts[:by_user]
         matching = false if review.by_group && review.by_group != opts[:by_group]
