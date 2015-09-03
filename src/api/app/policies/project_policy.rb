@@ -11,7 +11,9 @@ class ProjectPolicy < ApplicationPolicy
   end
 
   def update?
-    @user.can_modify_project?(@project)
+    @user.can_modify_project?(@project) &&
+        !@project.is_remote? &&
+        !@project.has_remote_repositories?
   end
 
   def destroy?

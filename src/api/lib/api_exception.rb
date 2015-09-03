@@ -84,4 +84,10 @@ end
 class ProjectNotLocked < APIException
   setup 'not_locked'
 end
+class ModifyProjectNoPermission < APIException
+  setup 403
+end
+class ChangeProjectNoPermission < APIException
+  setup 403
+end
 

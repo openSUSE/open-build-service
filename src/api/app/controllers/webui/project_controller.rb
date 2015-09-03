@@ -22,7 +22,7 @@ class Webui::ProjectController < Webui::WebuiController
                                      :prjconf, :change_flag, :edit, :save_comment, :edit_comment, :status, :maintained_projects,
                                      :add_maintained_project_dialog, :add_maintained_project, :remove_maintained_project,
                                      :maintenance_incidents, :unlock_dialog, :save_person, :save_group, :remove_role, :save_repository,
-                                     :move_path, :save_meta]
+                                     :move_path]
 
   before_filter :set_project_by_id, only: [:update]
 
@@ -39,7 +39,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   before_filter :set_maintained_project, only: [:add_maintained_project, :remove_maintained_project]
 
-  after_action :verify_authorized, only: [:save_new, :new_incident]
+  after_action :verify_authorized, only: [:save_new, :new_incident, :save_meta]
 
   def index
     @show_all = params[:show_all]
@@ -665,15 +665,19 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def save_meta
-    authorize @project, :update?
-    begin
-      frontend.put_file(params[:meta], :project => params[:project], :filename => '_meta')
-    rescue ActiveXML::Transport::Error => e
-      render text: e.summary, :status => 400, :content_type => 'text/plain'
-      return
-    end
+    request_data = Xmlhash.parse(params[:meta])
+    params[:user] = User.current.login
 
-    render text: 'Config successfully saved', :content_type => 'text/plain'
+    @project = Project.get_by_name(params[:project])
+    authorize @project, :update?
+
+    result = @project.update_meta(request_data, params)
+
+    if result
+      render text: 'Config successfully saved', :content_type => 'text/plain' and return
+    else
+      render text: 'Sorry something went wrong while saving your meta data.', :status => 400, :content_type => 'text/plain' and return
+    end
   end
 
   def prjconf
