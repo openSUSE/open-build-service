@@ -251,13 +251,13 @@ class IssueTracker < ActiveRecord::Base
       return fetch_github_issues(ids)
     elsif kind == "fate"
       # Try with 'IssueTracker.find_by_name('fate').details('123')' on script/console
-      return fetch_fate_issues(ids)
+      return fetch_fate_issues
     end
     # everything succeeded
     return true
   end
 
-  def fetch_fate_issues(ids)
+  def fetch_fate_issues
     url = URI.parse("#{self.url}/#{self.name}?contenttype=text%2Fxml")
     begin # Need a loop to follow redirects...
       http = Net::HTTP.new(url.host, url.port)

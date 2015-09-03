@@ -6,11 +6,11 @@ class UserBasicStrategy
     user.groups_users.where(group_id: group.id).exists?
   end
 
-  def local_role_check(role, object)
+  def local_role_check(_role, _object)
     false # all is checked, nothing remote
   end
 
-  def local_permission_check(roles, object)
+  def local_permission_check(_roles, _object)
     false # all is checked, nothing remote
   end
 
@@ -426,7 +426,7 @@ class User < ActiveRecord::Base
     end
   end
 
-  def to_axml(opts={})
+  def to_axml(_opts={})
     render_axml
   end
 

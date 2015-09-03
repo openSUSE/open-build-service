@@ -103,7 +103,7 @@ class SearchController < ApplicationController
     pred
   end
 
-  def filter_items(items, offset, limit)
+  def filter_items(items)
     begin
       @offset = Integer(params[:offset])
     rescue
@@ -176,7 +176,7 @@ class SearchController < ApplicationController
 
     if params[:offset] || params[:limit]
       # Add some pagination. Limiting the ids we have
-      items = filter_items(items, params[:offset], params[:limit])
+      items = filter_items(items)
     end
 
     includes = nil

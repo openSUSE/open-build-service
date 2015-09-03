@@ -444,7 +444,7 @@ class BsRequest < ActiveRecord::Base
       state = opts[:newstate].to_sym
       bs_request_actions.each do |a|
         # "inform" the actions
-        a.request_changes_state(state, opts)
+        a.request_changes_state(state)
       end
       self.bs_request_action_groups.each do |g|
         g.remove_request(self.id)
@@ -1076,7 +1076,7 @@ class BsRequest < ActiveRecord::Base
       requests = extend_query_for_project(requests, roles, states, review_states, opts[:package], opts[:subprojects], opts[:project])
     end
     if opts[:user]
-      requests = extend_query_for_user(opts[:user], requests, roles, review_states, opts[:package], opts[:subprojects], opts[:project])
+      requests = extend_query_for_user(opts[:user], requests, roles, review_states)
     end
     if opts[:group]
       requests = extend_query_for_group(opts[:group], requests, roles, review_states)
@@ -1131,7 +1131,7 @@ class BsRequest < ActiveRecord::Base
     end
   end
 
-  def self.extend_query_for_user(user, requests, roles, review_states, package, subprojects, project)
+  def self.extend_query_for_user(user, requests, roles, review_states)
     inner_or = []
     user = User.find_by_login!(user)
 

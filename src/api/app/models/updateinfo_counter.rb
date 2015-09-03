@@ -1,6 +1,6 @@
 class UpdateinfoCounter < ActiveRecord::Base
 
-  def self.find_or_create(time, maintenance_project, template)
+  def self.find_or_create(time, template)
     year = month = day = nil
 
     year  = time.year  if template =~ /%Y/

@@ -25,7 +25,7 @@ class BsRequestActionSetBugowner < BsRequestAction
     end
   end
 
-  def execute_accept(opts)
+  def execute_accept(_opts)
     object = Project.find_by_name!(self.target_project)
     bugowner = Role.find_by_title!("bugowner")
     if self.target_package

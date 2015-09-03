@@ -63,9 +63,9 @@ class MaintenanceIncident < ActiveRecord::Base
       name
   end
 
-  def getUpdateinfoCounter(time, template = "%Y-%C", patch_name = nil)
+  def getUpdateinfoCounter(time, template = "%Y-%C")
 
-    uc = UpdateinfoCounter.find_or_create(time, self.maintenance_db_project, template)
+    uc = UpdateinfoCounter.find_or_create(time, template)
     IncidentUpdateinfoCounterValue.find_or_create(time, uc, self.project)
   end
 
@@ -74,7 +74,7 @@ class MaintenanceIncident < ActiveRecord::Base
     return self.updateinfo_id if self.updateinfo_id
 
     # initialize on first run
-    counter = getUpdateinfoCounter(Time.now.utc, id_template, patch_name)
+    counter = getUpdateinfoCounter(Time.now.utc, id_template)
 
     my_id = id_template
 

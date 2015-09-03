@@ -843,7 +843,7 @@ class Project < ActiveRecord::Base
     possible_projects
   end
 
-  def to_axml(opts={})
+  def to_axml(_opts={})
     Rails.cache.fetch('xml_project_%d' % id) do
       # CanRenderModel
       render_xml

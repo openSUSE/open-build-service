@@ -9,7 +9,7 @@
                 <% if rt[:patchinfo] && rt[:patchinfo].value('summary').present?
                      title = rt[:patchinfo].value('summary')
                    end
-                   title = "#{short_incident_name(@project, incident)}: #{title}"
+                   title = "#{short_incident_name(incident)}: #{title}"
                 %>
                 <%= link_to(elide(title, 60, :right), { action: 'show', project: incident.name }, title: title) %>
               </td>

@@ -70,7 +70,7 @@ module Suse
       return false
     end
 
-    def method_missing( perm, *args, &block)
+    def method_missing( perm, *_args, &_block)
 
       logger.debug "Dynamic Permission requested: <#{perm}>"
 

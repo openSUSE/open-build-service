@@ -120,7 +120,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_xml_tag( :tag => "directory" )
   end
 
-  def do_read_access_all_pathes(user, response, debug=false)
+  def do_read_access_all_pathes(user, response)
     prepare_request_with_user user, "so_alone" #adrian users have all the same password
     get "/source/HiddenProject/_meta"
     assert_response response
@@ -276,7 +276,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     get "/source/#{targetproject}"
   end
 
-  def do_read_access_package(user, pass, targetproject, package, response)
+  def do_read_access_package(_user, _pass, targetproject, _package, response)
     assert_response response
     get "/source/#{targetproject}/pack"
     assert_response response
@@ -288,7 +288,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
   protected :do_read_access_project
   protected :do_read_access_package
 
-  def do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+  def do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     get "/source/#{destprj}/#{destpkg}/_meta"
     orig=@response.body
     post "/source/#{destprj}/#{destpkg}", :cmd => "copy", :oproject => "#{srcprj}", :opackage => "#{srcpkg}"
@@ -313,23 +313,21 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     resp=401
     flag=nil
     delresp=401
-    debug=false
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # some user
     login_tom
     resp=404
     delresp=200
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # maintainer
     prepare_request_with_user "hidden_homer", "homer"
     # flag not inherited
     resp=:success
     delresp=:success
-    debug=false
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # admin has special permission
     login_king
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     #
     # reverse
     #
@@ -342,22 +340,21 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     resp=401
     flag=nil
     delresp=401
-    debug=false
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # some user
     login_tom
     resp=403       # not allowed to create project, which looks to be not existing
     delresp=404    # project does not exist, it seems ...
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # maintainer
     prepare_request_with_user "hidden_homer", "homer"
     # flag not inherited - should we inherit in any case to be on the safe side ?
     resp=:success
     delresp=:success
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # admin
     login_king
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
   end
 
   def test_copy_sourceaccess_protected_project
@@ -369,21 +366,20 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     resp=401
     flag=nil
     delresp=401
-    debug=false
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # some user
     login_tom
     resp=403
     delresp=200
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # maintainer
     prepare_request_with_user "sourceaccess_homer", "homer"
     resp=:success
     delresp=:success
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # admin
     login_king
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     #
     # reverse
     #
@@ -396,21 +392,20 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     resp=401
     flag=nil
     delresp=401
-    debug=false
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # some user
     login_tom
     resp=403
     delresp=403
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # maintainer
     prepare_request_with_user "sourceaccess_homer", "homer"
     resp=:success
     delresp=:success
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # maintainer
     login_king
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
   end
 
   def test_create_links_hidden_project
