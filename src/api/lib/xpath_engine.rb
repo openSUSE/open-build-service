@@ -158,27 +158,19 @@ class XpathEngine
         '@binaryarch' => {:cpart => 'channel_binaries.binaryarch'},
         '@package' => {:cpart => 'channel_binaries.package'},
         '@project' => {:cpart => 'cprj.name', :joins => [
-          'LEFT join channel_binary_lists cblp on cblp.id=channel_binaries.channel_binary_list_id',
-          'LEFT join channels cp on cp.id=cblp.channel_id',
-          'LEFT join packages cpkg on cpkg.id=cp.package_id',
+          'LEFT join packages cpkg on cpkg.id=channel.package_id',
           'LEFT join projects cprj on cprj.id=cpkg.project_id']},
         '@supportstatus' => {:cpart => 'supportstatus'},
         'target/disabled' => {:cpart => 'ufdct.disabled', :joins => [
-          'LEFT join channel_binary_lists ufdcbl on ufdcbl.id=channel_binaries.channel_binary_list_id',
-          'LEFT join channels ufdc on ufdc.id=ufdcbl.channel_id',
-          'LEFT join channel_targets ufdct on ufdct.channel_id=ufdc.id']},
+          'LEFT join channel_targets ufdct on ufdct.channel_id=channel.id']},
         'updatefor/@project' => {:cpart => 'puprj.name', :joins => [
-          'LEFT join channel_binary_lists ufcbl on ufcbl.id=channel_binaries.channel_binary_list_id',
-          'LEFT join channels ufc on ufc.id=ufcbl.channel_id',
-          'LEFT join channel_targets ufct on ufct.channel_id=ufc.id',
+          'LEFT join channel_targets ufct on ufct.channel_id=channel.id',
           'LEFT join product_update_repositories pur on pur.repository_id=ufct.repository_id',
           'LEFT join products pun on pun.id=pur.product_id ',
           'LEFT join packages pupkg on pupkg.id=pun.package_id ',
           'LEFT join projects puprj on puprj.id=pupkg.project_id ']},
         'updatefor/@product' => {:cpart => 'pupn.name', :joins => [
-          'LEFT join channel_binary_lists ufncbl on ufncbl.id=channel_binaries.channel_binary_list_id',
-          'LEFT join channels ufnc on ufnc.id=ufncbl.channel_id',
-          'LEFT join channel_targets ufnct on ufnct.channel_id=ufnc.id',
+          'LEFT join channel_targets ufnct on ufnct.channel_id=channel.id',
           'LEFT join product_update_repositories pnur on pnur.repository_id=ufnct.repository_id',
           'LEFT join products pupn on pupn.id=pnur.product_id ']},
       },
@@ -374,6 +366,9 @@ class XpathEngine
       relation = Issue.all
     when 'channel_binaries'
       relation = ChannelBinary.all
+      @joins = [ 'LEFT join channel_binary_lists channel_binary_list on channel_binary_list.id=channel_binaries.channel_binary_list_id',
+                 'LEFT join channels channel on channel.id=channel_binary_list.channel_id',
+               ] << @joins
     when 'released_binaries'
       relation = BinaryRelease.all
 
