@@ -7,13 +7,15 @@
 
 <h2><%= @pagetitle %></h2>
 
-<%= form_tag :action => :save do %>
+<%= form_for(@project, url: { action: :update }) do |f| %>
+  <%= hidden_field_tag "id", @project.id %>
   <p>
     <strong>Title:</strong><br/>
-    <%= text_field_tag 'title', @project.title, :size => 80 %><br/>
-    <strong>Description:</strong><br/>
-    <%= text_area_tag "description", @project.description, :rows => 20, :cols => 80 %><br/>
-    <%= hidden_field_tag "project", @project.name %>
+    <%= f.text_field :title, :size => 80 %>
   </p>
-  <p><%= submit_tag %></p>
+  <p>
+    <strong>Description:</strong><br/>
+    <%= f.text_area :description, :rows => 20, :cols => 80 %>
+  </p>
+  <p><%= f.submit %></p>
 <% end %>

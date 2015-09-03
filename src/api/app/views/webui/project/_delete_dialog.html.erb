@@ -5,7 +5,7 @@
       <div class="dialog-content">
         <p>Do you really want to delete <%= project_or_package_link project: @project.name %>?</p>
   
-        <%= form_tag({:controller => 'project', :action => 'delete'}, :method => 'post') do %>
+        <%= form_tag({:controller => 'project', :action => 'destroy'}, :method => 'delete') do %>
           <%= hidden_field_tag(:project, @project) %>
           <% if @linking_projects and @linking_projects.length > 0 %>
             <p>Other projects still have source links to this project:</p>
@@ -14,7 +14,6 @@
                 <li><%= link_to(elide(link, 40), :controller => 'project', :action => 'show', :project => link) %></li>
               <% end %>
             </ul>
-            <%= check_box_tag(:ignore_linking_projects)%> Ignore project source links
           <% end %>
   
           <div class="dialog-buttons">

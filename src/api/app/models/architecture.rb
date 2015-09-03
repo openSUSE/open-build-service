@@ -15,11 +15,13 @@ class Architecture < ActiveRecord::Base
   after_destroy 'Architecture.discard_cache'
 
   #### Scopes (first the default_scope macro if is used)
+  scope :available, -> { where(available: 1) }
 
   #### Validations macros
   validates_uniqueness_of :name
 
   #### Class methods using self. (public and then private)
+
   def self.discard_cache
     Rails.cache.delete("archcache")
   end

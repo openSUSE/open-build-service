@@ -3,11 +3,11 @@
     <div class="box box-shadow">
       <h2 class="box-header">Create Repository Delete Request</h2>
       <div class="dialog-content">
-        <p>Do you really want to request the deletion of repository <i><%= @repository %></i>?</p>
+        <p>Do you really want to request the deletion of repository <i><%= params[:repository] %></i>?</p>
   
         <%= form_tag({:controller => 'project', :action => 'remove_target_request'}, :method => 'post') do %>
-          <%= hidden_field_tag(:project, @project) %>
-          <%= hidden_field_tag(:repository, @repository) %>
+          <%= hidden_field_tag(:project, params[:project]) %>
+          <%= hidden_field_tag(:repository, params[:repository]) %>
           <p>
             <%= label_tag(:description, 'Description:') %><br/>
             <%= text_area_tag(:description, '', :size => '40x3') %>

@@ -9,9 +9,10 @@
   repositories_setup_autocomplete();
 <% end %>
 
-<h2>Advanced Search for Build Targets</h2>
+<h2>Add Repository to <%= @project %></h2>
 
-<%= form_tag({:action => :save_targets, :project => @project}) do -%>
+
+<%= form_tag({:action => :save_repository, :project => @project}) do -%>
   <p>
     <strong>Project: </strong>
     <br/>
@@ -23,20 +24,20 @@
     <%= select_tag "target_repo", options_for_select([""]), id: 'target_repo',
                       disabled: true, data: { 'ajaxurl' => url_for(:controller => :project, :action => :autocomplete_repositories) } %><br/>
     <!-- Do not offer new name if we add this repo to an existing one as path -->
-    <% if @torepository %>
-      <%= hidden_field_tag( "torepository", @torepository ) %><br/>
+    <% if params[:torepository] %>
+      <%= hidden_field_tag( "repository", params[:torepository] ) %><br/>
     <% else %>
       <strong>Name: </strong><br/>
-      <%= text_field_tag 'repo', '', size: 60, id: 'repo_name', disabled: true %><br/>
+      <%= text_field_tag 'repository', '', size: 60, id: 'repo_name', disabled: true %><br/>
       <strong>Architectures: </strong><br/>
-      <% @available_architectures.each do |arch| %>
-        <%= check_box_tag "arch[#{arch.name}]", "", arch.available == "true" %><%= arch.name %>
+      <% Architecture.available.each do |architecture| %>
+        <%= check_box_tag "architectures[]", architecture.name, true, id: "architecture_#{architecture.name}" %><%= architecture.name %>
       <% end %>
     <% end %>
   </p>
   <p>
-    <% if @torepository %>
-      <%= submit_tag "Add path to repository #{@torepository}", id: 'add_path_to_repository_button' %>
+    <% if params[:torepository] %>
+      <%= submit_tag "Add path to repository #{params[:torepository]}", id: 'add_path_to_repository_button' %>
     <% else %>
       <%= submit_tag "Add repository", disabled: true, id: 'add_repository_button' %>
     <% end %>

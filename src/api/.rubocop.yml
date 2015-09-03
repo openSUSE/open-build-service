@@ -19,7 +19,10 @@ Metrics/LineLength:
     - 'db/**/*'
 
 Metrics/ClassLength:
-  Severity: warning
+  Severity: refactor
+
+Metrics/ModuleLength:
+  Severity: refactor
 
 Style/CommandLiteral:
   EnforcedStyle: percent_x

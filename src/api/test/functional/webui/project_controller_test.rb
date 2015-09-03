@@ -79,7 +79,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
     find(:id, 'delete-project').click
     find_button('Ok').click
-    find('#flash-messages').must_have_text "Project 'home:tom:toberemoved' was removed successfully"
+    find('#flash-messages').must_have_text "Project was successfully removed."
     # now the actual assertion :)
     assert page.current_url.end_with?(project_show_path(project: 'home:tom')),
            "#{page.current_url} does not end with #{project_show_path(project: 'home:tom')}"
@@ -90,9 +90,9 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
     login_king to: project_show_path(project: 'LocalProject')
     find(:id, 'delete-project').click
-    find_button('Ok').click
+    click_button('Ok')
 
-    flash_message.must_equal "Project 'LocalProject' was removed successfully"
+    flash_message.must_equal "Project was successfully removed."
     assert page.current_url.end_with? projects_path
     find('#project_list').wont_have_text 'LocalProject'
 
@@ -179,7 +179,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.wont_have_selector '#add_repository_button[disabled]'
     # somehow the autocomplete logic creates a problem - and click_button refuses to click
     page.execute_script "$('#add_repository_button').click();"
-    find(:id, 'flash-messages').must_have_text 'Build targets were added successfully'
+    find(:id, 'flash-messages').must_have_text 'Successfully added repository'
 
     # add additional path to BaseDistro_BaseDistro_repo
     click_link 'edit_repository_link_BaseDistro_BaseDistro_repo'
@@ -190,16 +190,16 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.wont_have_selector '#add_path_to_repository_button[disabled]'
     # somehow the autocomplete logic creates a problem - and click_button refuses to click
     page.execute_script "$('#add_path_to_repository_button').click();"
-    find(:id, 'flash-messages').must_have_text 'Path BaseDistro:Update/BaseDistroUpdateProject_repo added successfully'
+    find(:id, 'flash-messages').must_have_text 'Successfully added repository'
 
     # move BaseDistro:Update path down
     click_link 'edit_repository_link_BaseDistro_BaseDistro_repo'
-    click_link 'move_path_down-BaseDistro_Update_BaseDistroUpdateProject_repo'
+    click_link 'move_path_up-BaseDistro_Update_BaseDistroUpdateProject_repo'
     find(:id, 'flash-messages').must_have_text 'Path BaseDistro:Update/BaseDistroUpdateProject_repo moved successfully'
 
     # move BaseDistro:Update path up again
     click_link 'edit_repository_link_BaseDistro_BaseDistro_repo'
-    click_link 'move_path_up-BaseDistro_Update_BaseDistroUpdateProject_repo'
+    click_link 'move_path_down-BaseDistro_Update_BaseDistroUpdateProject_repo'
     find(:id, 'flash-messages').must_have_text 'Path BaseDistro:Update/BaseDistroUpdateProject_repo moved successfully'
 
     # disable arch_i586 for images repository
@@ -208,16 +208,8 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     uncheck('arch_i586')
     click_button 'Update images'
 
-    # wait for the button to be disabled again before continue
-    page.must_have_xpath('.//input[@id="save_button-images"][@disabled="disabled"]')
-
     # now check again
-    visit project_repositories_path(project: 'home:tom:addrepo')
     page.must_have_text 'images (x86_64)'
-
-    # verify _meta
-    visit project_meta_path(project: 'home:tom:addrepo')
-    page.wont_have_text '<arch>i586</arch>'
 
     # check API too
     get '/source/home:tom:addrepo/_meta'
@@ -360,7 +352,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     login_king to: project_show_path(project: 'My:Maintenance')
     click_link 'maintained projects'
     click_link 'Add project to maintenance'
-    fill_autocomplete 'maintained_project', with: 'Apa', select: 'Apache'
+    fill_autocomplete 'maintained_project', with: 'Apache', select: 'Apache'
     click_button 'Ok'
     page.must_have_link 'Apache'
   end
