@@ -221,57 +221,25 @@ class XpathEngine
           'LEFT join packages ppkg on ppkg.id=release_package_id'
         ]},
         'updatefor/@project' => {:cpart => 'puprj.name', :joins => [
-          'LEFT join product_update_repositories pur on pur.repository_id=release_repositories.id',
-          'LEFT join products pun on pun.id=pur.product_id ',
-          'LEFT join packages pupkg on pupkg.id=pun.package_id ',
+          'LEFT join packages pupkg on pupkg.id=product_update.package_id ',
           'LEFT join projects puprj on puprj.id=pupkg.project_id ']},
         'updatefor/@arch' => {:cpart => 'pupa.name', :joins => [
-          'LEFT join product_update_repositories pnuar on pnuar.repository_id=release_repositories.id',
-          'LEFT join architectures pupa on pupa.id=pnuar.arch_filter_id ']},
-        'updatefor/@product' => {:cpart => 'pupn.name', :joins => [
-          'LEFT join product_update_repositories pnur on pnur.repository_id=release_repositories.id',
-          'LEFT join products pupn on pupn.id=pnur.product_id ']},
-        'updatefor/@baseversion' => {:cpart => 'pupnb.baseversion', :joins => [
-          'LEFT join product_update_repositories pnurb on pnurb.repository_id=release_repositories.id',
-          'LEFT join products pupnb on pupnb.id=pnurb.product_id ']},
-        'updatefor/@patchlevel' => {:cpart => 'pupnp.patchlevel', :joins => [
-          'LEFT join product_update_repositories pnurp on pnurp.repository_id=release_repositories.id',
-          'LEFT join products pupnp on pupnp.id=pnurp.product_id ']},
-        'updatefor/@version' => {:cpart => 'pupnv.version', :joins => [
-          'LEFT join product_update_repositories pnurv on pnurv.repository_id=release_repositories.id',
-          'LEFT join products pupnv on pupnv.id=pnurv.product_id ']},
+          'LEFT join architectures pupa on pupa.id=product_update_repository.arch_filter_id ']},
+        'updatefor/@product' => {:cpart => 'product_update.name'},
+        'updatefor/@baseversion' => {:cpart => 'product_update.baseversion'},
+        'updatefor/@patchlevel' => {:cpart => 'product_update.patchlevel'},
+        'updatefor/@version' => {:cpart => 'product_update.version'},
         'product/@project' => {:cpart => 'pprj.name', :joins => [
-          'LEFT join product_media pm on (pm.repository_id=release_repositories.id
-            AND pm.name=binary_releases.medium)',
-          'LEFT join products pn on pn.id=pm.product_id ',
-          'LEFT join packages ppkg on ppkg.id=pn.package_id ',
+          'LEFT join packages ppkg on ppkg.id=product_ga.package_id ',
           'LEFT join projects pprj on pprj.id=ppkg.project_id ']},
-        'product/@version' => {:cpart => 'pvv.version', :joins => [
-          'LEFT join product_media pmv on (pmv.repository_id=release_repositories.id
-            AND pmv.name=binary_releases.medium)',
-          'LEFT join products pvv on pvv.id=pmv.product_id ']},
-        'product/@release' => {:cpart => 'pvr.release', :joins => [
-          'LEFT join product_media pmr on (pmr.repository_id=release_repositories.id
-            AND pmr.name=binary_releases.medium)',
-          'LEFT join products pvr on pvr.id=pmr.product_id ']},
-        'product/@baseversion' => {:cpart => 'pvb.baseversion', :joins => [
-          'LEFT join product_media pmb on (pmb.repository_id=release_repositories.id
-            AND pmb.name=binary_releases.medium)',
-          'LEFT join products pvb on pvb.id=pmb.product_id ']},
-        'product/@patchlevel' => {:cpart => 'pvp.patchlevel', :joins => [
-          'LEFT join product_media pmp on (pmp.repository_id=release_repositories.id
-            AND pmp.name=binary_releases.medium)',
-          'LEFT join products pvp on pvp.id=pmp.product_id ']},
-        'product/@name' => {:cpart => 'ppn.name', :joins => [
-          'LEFT join product_media ppm on (ppm.repository_id=release_repositories.id
-            AND ppm.name=binary_releases.medium)',
-          'LEFT join products ppn on ppn.id=ppm.product_id ']},
+        'product/@version' => {:cpart => 'product_ga.version'},
+        'product/@release' => {:cpart => 'product_ga.release'},
+        'product/@baseversion' => {:cpart => 'product_ga.baseversion'},
+        'product/@patchlevel' => {:cpart => 'product_ga.patchlevel'},
+        'product/@name' => {:cpart => 'product_ga.name'},
         'product/@arch' => {:cpart => 'ppna.name', :joins => [
-          'LEFT join product_media ppma on (ppma.repository_id=release_repositories.id
-            AND ppma.name=binary_releases.medium)',
-          'LEFT join architectures ppna on ppna.id=ppm.arch_filter_id ']},
-        'product/@medium' => {:cpart => 'mpm.name', :joins => [
-          'LEFT join product_media mpm on mpm.repository_id=release_repositories.id']},
+          'LEFT join architectures ppna on ppna.id=product_media.arch_filter_id ']},
+        'product/@medium' => {:cpart => 'product_media.name'},
       },
       'users' => {
         '@login' => {:cpart => 'users.login'},
@@ -422,12 +390,15 @@ class XpathEngine
     when 'channel_binaries'
       relation = ChannelBinary.all
     when 'released_binaries'
-      relation = BinaryRelease.includes(
-                    :repository => [ {:product_medium => {:product => {:package => :project}}},
-                                     {:product_update_repositories => :product} ])
+      relation = BinaryRelease.all
 
       @joins = ['LEFT JOIN repositories AS release_repositories ON binary_releases.repository_id = release_repositories.id',
-                 'LEFT JOIN projects AS release_projects ON release_repositories.db_project_id = release_projects.id'] << @joins
+                'LEFT JOIN projects AS release_projects ON release_repositories.db_project_id = release_projects.id',
+                'LEFT join product_media on (product_media.repository_id=release_repositories.id AND product_media.name=binary_releases.medium)',
+                'LEFT join products product_ga on product_ga.id=product_media.product_id ',
+                'LEFT join product_update_repositories product_update_repository on product_update_repository.repository_id=release_repositories.id',
+                'LEFT join products product_update on product_update.id=product_update_repository.product_id ',
+               ] << @joins
       order = :binary_releasetime
     else
       logger.debug "strange base table: #{@base_table}"
