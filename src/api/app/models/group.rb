@@ -57,7 +57,7 @@ class Group < ActiveRecord::Base
         GroupMaintainer.create( user: user, group: self).save
       end
     end
-    cache.each do |login_id, gu|
+    cache.each do |login_id, _|
       GroupMaintainer.delete_all(['user_id = ? AND group_id = ?', login_id, self.id])
     end
 
@@ -82,7 +82,7 @@ class Group < ActiveRecord::Base
     end
 
     #delete all users which were not listed
-    cache.each do |login_id, gu|
+    cache.each do |login_id, _gu|
       GroupsUser.delete_all(['user_id = ? AND group_id = ?', login_id, self.id])
     end
   end

@@ -201,7 +201,7 @@ class BuildController < ApplicationController
         'Content-Length' => fsize
       )
 
-      render :status => 200, :text => Proc.new {|_request,output|
+      render :status => 200, :text => Proc.new {|_,output|
         backend_request = Net::HTTP::Get.new(path)
         Net::HTTP.start(CONFIG['source_host'],CONFIG['source_port']) do |http|
           http.request(backend_request) do |response|

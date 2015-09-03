@@ -244,7 +244,7 @@ class ProjectStatusCalculator
       projects[pid] = pname
     end
 
-    projects.each do |id, name|
+    projects.each do |id, _|
       if !opts[:pure_project] || id == @dbproj.id
         update_jobhistory(Project.find(id), mypackages)
       end

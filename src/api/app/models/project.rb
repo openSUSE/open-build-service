@@ -1248,7 +1248,7 @@ class Project < ActiveRecord::Base
 
     targets = bsrequest_repos_map(tproj.name)
     sources = bsrequest_repos_map(self.name)
-    sources.each do |key, value|
+    sources.each do |key, _|
       if targets.has_key?(key)
         tocheck_repos << sources[key]
       end
@@ -1504,12 +1504,12 @@ class Project < ActiveRecord::Base
     end
     if repository && repository_states.has_key?(repository)
       return false if repository_states[repository].empty? # No buildresult is bad
-      repository_states[repository].each do |state, count|
+      repository_states[repository].each do |state, _|
         return false if %w(broken failed unresolvable).include?(state)
       end
     else
       return false unless states.empty? # No buildresult is bad
-      states.each do |state, count|
+      states.each do |state, _|
         return false if %w(broken failed unresolvable).include?(state)
       end
     end
@@ -1600,7 +1600,7 @@ class Project < ActiveRecord::Base
     end
 
     if global_patchinfo
-      release_targets_ng.each do |rt_name, rt|
+      release_targets_ng.each do |_, rt|
         rt[:patchinfo] = global_patchinfo
       end
     end

@@ -124,7 +124,7 @@ class Webui::PatchinfoController < Webui::WebuiController
         attrs = {
           :incident => @package.project.name.gsub(/.*:/, '')
         }
-        xml = node.patchinfo(attrs) do |n|
+        xml = node.patchinfo(attrs) do
           params[:selected_binaries].to_a.each do |binary|
             unless binary.blank?
               node.binary(binary)
@@ -282,7 +282,7 @@ class Webui::PatchinfoController < Webui::WebuiController
           path << "?force_update=1"
           result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), method: 'GET'))
         end
-        return (result.value(:summary) || '').gsub(/\\|'/) { |c| '' }
+        return (result.value(:summary) || '').gsub(/\\|'/) { '' }
       # Add no summary if a connection to bugzilla doesn't work e.g. in the testsuite
       rescue ActiveXML::Transport::Error
         return ""

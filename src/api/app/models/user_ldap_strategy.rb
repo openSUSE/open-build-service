@@ -375,8 +375,8 @@ class UserLdapStrategy
     dn = [ dn ].flatten.join(',')
     begin
       dn_components = dn.split(',').map{ |n| n.strip().split('=') }
-      dn_uid = dn_components.select{ |x,y| x == 'uid' }.map{ |x,y| y }
-      dn_path = dn_components.select{ |x,y| x == 'dc' }.map{ |x,y| y }
+      dn_uid = dn_components.select{ |x,_| x == 'uid' }.map{ |_,y| y }
+      dn_path = dn_components.select{ |x,_| x == 'dc' }.map{ |_,y| y }
       upn = "#{dn_uid.fetch(0)}@#{dn_path.join('.')}"
     rescue
       # if we run into unexpected input just return an empty string

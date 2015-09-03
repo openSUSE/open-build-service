@@ -135,9 +135,9 @@ module Suse
 
             if hash[key].nil?
               # just a boolean argument ?
-              [hash[key]].flat_map { |x| "#{key}" }.join("&")
+              [hash[key]].flat_map { "#{key}" }.join("&")
             else
-              [hash[key]].flat_map { |x| "#{key}=#{CGI.escape(hash[key].to_s)}" }.join("&")
+              [hash[key]].flat_map { "#{key}=#{CGI.escape(hash[key].to_s)}" }.join("&")
             end
           end
         end

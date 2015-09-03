@@ -99,8 +99,8 @@ module HasRelationships
 
   def remove_all_old_relationships(cache)
     # delete all roles that weren't found in the uploaded xml
-    cache.each do |user, roles|
-      roles.each do |role, object|
+    cache.each do |_, roles|
+      roles.each do |_, object|
         next if [:keep, :new].include? object
         object.destroy
       end

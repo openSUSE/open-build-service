@@ -51,7 +51,7 @@ class IssueTracker < ActiveRecord::Base
 
   # expands all matches with defined urls
   def get_html(text)
-    text.gsub(Regexp.new(regex)) { |m| show_url_for($1, true) }
+    text.gsub(Regexp.new(regex)) { show_url_for($1, true) }
   end
 
   def update_issues_bugzilla

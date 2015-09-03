@@ -448,7 +448,7 @@ class ApplicationController < ActionController::Base
     render_error status: 408, errorcode: "timeout_error", message: exception.message
   end
 
-  rescue_from ActiveXML::ParseError do |exception|
+  rescue_from ActiveXML::ParseError do
     render_error status: 400, errorcode: 'invalid_xml', message: "Invalid XML"
   end
 

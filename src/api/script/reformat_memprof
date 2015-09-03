@@ -41,7 +41,7 @@ file.close
 File.delete(file.path)
 file = File.new(filename, "w")
 
-ids.each do |id, d|
+ids.each do |_, d|
   type = d.line['type'] || ''
   if d.line["data"]
     d.line["data"].each do |key,value|

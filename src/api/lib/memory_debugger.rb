@@ -53,7 +53,7 @@ class MemoryDebugger
     file.close
     File.delete(file.path)
 
-    ids.each do |id, d|
+    ids.each do |_, d|
       type = d.line['type'] || ''
       if d.line["data"]
 	d.line["data"].each do |key,value|

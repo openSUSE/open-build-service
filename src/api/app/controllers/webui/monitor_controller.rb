@@ -110,7 +110,7 @@ class Webui::MonitorController < Webui::WebuiController
       comb << [1000*time, clow + value]
     end
     data['squeue_low'] = comb
-    max = Webui::MonitorController.addarrays(data['squeue_high'], data['squeue_med']).map { |time, value| value }.max || 0
+    max = Webui::MonitorController.addarrays(data['squeue_high'], data['squeue_med']).map { |_, value| value }.max || 0
     data['events_max'] = max * 2
     data['jobs_max'] = maximumvalue(data['waiting']) * 2
     render :json => data
@@ -119,7 +119,7 @@ class Webui::MonitorController < Webui::WebuiController
   private
 
   def maximumvalue(arr)
-    arr.map { |time, value| value }.max || 0
+    arr.map { |_, value| value }.max || 0
   end
 
   def self.addarrays(arr1, arr2)

@@ -68,7 +68,7 @@ class Webui::WebuiController < ActionController::Base
     end
   end
 
-  rescue_from ActionController::RedirectBackError do |exception|
+  rescue_from ActionController::RedirectBackError do
     redirect_to root_path
   end
 

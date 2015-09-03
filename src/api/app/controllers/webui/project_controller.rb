@@ -602,7 +602,7 @@ class Webui::ProjectController < Webui::WebuiController
       hash.each do |arch, packages|
 
         has_packages = false
-        packages.each do |p, status|
+        packages.each do |p, _|
           if packagename_hash.has_key? p
             has_packages = true
             break
