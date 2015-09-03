@@ -492,38 +492,65 @@ class BsRequest < ActiveRecord::Base
     history.create(params)
   end
 
+  def _assignreview_update_reviews(reviewer, opts)
+    review_comment = nil
+    self.reviews.reverse_each do |review|
+      next if review.by_user
+      next if review.by_group && review.by_group != opts[:by_group]
+      next if review.by_project && review.by_project != opts[:by_project]
+      next if review.by_package && review.by_package != opts[:by_package]
+
+      # approve for this review
+      if opts[:revert]
+        review.state = :new
+        review_comment = "revert the "
+        history_class = HistoryElement::ReviewReopened
+      else
+        review.state = :accepted
+        review_comment = ""
+        history_class = HistoryElement::ReviewAccepted
+      end
+      review.save!
+
+      review_comment += "review for group #{opts[:by_group]}" if opts[:by_group]
+      review_comment += "review for project #{opts[:by_project]}" if opts[:by_project]
+      review_comment += "review for package #{opts[:by_project]} / #{opts[:by_package]}" if opts[:by_package]
+      history_class.create(review: review, comment: "review assigend to user #{reviewer.login}", user_id: User.current.id)
+    end
+    raise Review::NotFoundError.new unless review_comment
+    review_comment
+  end
+  private :_assignreview_update_reviews
+
   def assignreview(opts = {})
 
     unless self.state == :review || (self.state == :new && state == :new)
       raise InvalidStateError.new 'request is not in review state'
     end
-    user = User.find_by_login!(opts[:reviewer])
-    review_comment = nil
+    reviewer = User.find_by_login!(opts[:reviewer])
 
-    self.with_lock do
-      self.reviews.reverse_each do |review|
-        next if review.by_user
-        next if review.by_group && review.by_group != opts[:by_group]
-        next if review.by_project && review.by_project != opts[:by_project]
-        next if review.by_package && review.by_package != opts[:by_package]
-
-        # approve for this review
-        review.state = :accepted
-        review.save!
-
-        review_comment = "review for group #{opts[:by_group]}" if opts[:by_group]
-        review_comment = "review for project #{opts[:by_project]}" if opts[:by_project]
-        review_comment = "review for package #{opts[:by_project]} / #{opts[:by_package]}" if opts[:by_package]
-        HistoryElement::ReviewAccepted.create(review: review, comment: "review assigend to user #{user.login}", user_id: User.current.id)
-      end
-      raise Review::NotFoundError.new unless review_comment
+    Review.transaction do
+      review_comment = _assignreview_update_reviews(reviewer, opts)
 
       # check if user is a reviewer already
-      review = self.reviews.where(by_user: user.login).last
-      review = self.reviews.create(by_user: user.login, creator: User.current.login) unless review
-      review.state = :new
-      review.save!
-      HistoryElement::ReviewAssigned.create(review: review, comment: review_comment, user_id: User.current.id)
+      user_review = self.reviews.where(by_user: reviewer.login).last
+      if opts[:revert]
+        raise Review::NotFoundError.new unless user_review
+        raise InvalidStateError.new "review is not in new state" unless user_review.state == :new
+        raise Review::NotFoundError.new "Not an assigned review" unless HistoryElement::ReviewAssigned.where(op_object_id: user_review.id).last
+        user_review.destroy
+      else
+        if user_review
+          user_review.state = :new
+          user_review.save!
+          HistoryElement::ReviewReopened.create(review: user_review, comment: review_comment, user: User.current)
+        else
+          user_review = self.reviews.create(by_user: reviewer.login, creator: User.current.login)
+          user_review.state = :new
+          user_review.save!
+          HistoryElement::ReviewAssigned.create(review: user_review, comment: review_comment, user: User.current)
+        end
+      end
       self.save!
     end
   end
