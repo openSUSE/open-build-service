@@ -27,7 +27,7 @@ class DistributionsController < ApplicationController
     respond_to do |format|
       format.xml { render "index" }
       format.json { render :json => @distributions }
-     end
+    end
   end
 
   # GET /distributions/opensuse-11.4
