@@ -193,14 +193,45 @@ class Webui::PatchinfoController < Webui::WebuiController
   end
 
   def remove
-    begin
-      FrontendCompat.new.delete_package project: @project, package: @package
-      flash[:notice] = "'#{@package}' was removed successfully from project '#{@project}'"
-      Rails.cache.delete('%s_packages_mainpage' % @project)
-      Rails.cache.delete('%s_problem_packages' % @project)
-    rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary
+    # checks
+    if @package.name == '_project'
+      raise DeletePackageNoPermission.new '_project package can not be deleted.'
     end
+
+    unless User.current.can_modify_package?(@package)
+      raise DeletePackageNoPermission.new "no permission to delete package #{@package.name} in project #{@project.name}"
+    end
+
+    # deny deleting if other packages use this as develpackage
+    # Note: This might raise an exception
+    @package.can_be_deleted?
+
+    path = @package.source_path
+    parameters = {
+      user:    User.current,
+      project: @project.name,
+      package: @package.name,
+      timeout: 500
+    }
+    begin
+      Package.transaction do
+        # we need to keep this order to delete first the api model
+        @package.revoke_requests
+        @package.destroy
+
+        path << Suse::Backend.build_query_from_hash(parameters, [:user, :comment])
+        Suse::Backend.delete(path)
+      end
+    rescue ActiveXML::Transport::Error, ActiveXML::Transport::NotFoundError => e
+      flash[:error] = e.summary
+      redirect_to controller: 'project', action: 'show', project: @project
+      return
+    end
+
+    Rails.cache.delete('%s_packages_mainpage' % @project)
+    Rails.cache.delete('%s_problem_packages' % @project)
+
+    flash[:notice] = "'#{@package}' was removed successfully from project '#{@project}'"
     redirect_to controller: 'project', action: 'show', project: @project
   end
 
