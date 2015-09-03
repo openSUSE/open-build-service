@@ -82,9 +82,7 @@ trap("INT") do
   dienow = true
 end
 
-while !dienow do
-  sleep 1
-end
+sleep 1 while !dienow
 
 begin
   Net::HTTP.start(CONFIG['frontend_host'], CONFIG['frontend_port']) do |http|

@@ -385,9 +385,7 @@ class ApplicationController < ActionController::Base
     file = Tempfile.new 'volley', :encoding => 'ascii-8bit'
     b = request.body
     buffer = String.new
-    while b.read(40960, buffer)
-      file.write(buffer)
-    end
+    file.write(buffer) while b.read(40960, buffer)
     file.close
     file.open
     file

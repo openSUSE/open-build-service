@@ -331,8 +331,8 @@ module Webui
     def fill_autocomplete(field, options = {})
       fill_in field, with: options[:with]
 
-      page.execute_script %Q{ $('##{field}').trigger('focus') }
-      page.execute_script %Q{ $('##{field}').trigger('keydown') }
+      page.execute_script "$('##{field}').trigger('focus')"
+      page.execute_script "$('##{field}').trigger('keydown')"
 
       page.must_have_selector('ul.ui-autocomplete li.ui-menu-item a')
       ret = []
@@ -340,7 +340,7 @@ module Webui
         ret << l.text
       end
       ret.must_include options[:select]
-      page.execute_script %Q{ select_from_autocomplete('#{options[:select]}') }
+      page.execute_script "select_from_autocomplete('#{options[:select]}')"
       ret
     end
 

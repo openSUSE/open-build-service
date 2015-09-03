@@ -178,7 +178,7 @@ module ActiveXML
         raise RuntimeError.new("GET to %s returned no data" % url) if objdata.empty?
       else
         #use post-method
-        logger.debug"[REST] Transport.find using POST-method"
+        logger.debug "[REST] Transport.find using POST-method"
         #logger.debug"[REST] POST-data as xml: #{data.to_s}"
         objdata = http_do( 'post', url, :data => data.to_s, :content_type => own_mimetype)
         raise RuntimeError.new("POST to %s returned no data" % url) if objdata.empty?

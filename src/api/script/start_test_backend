@@ -383,6 +383,4 @@ $stdout.flush
 
 trap('INT') { dienow = true }
 
-while !dienow do
-  sleep 1
-end
+sleep 1 while !dienow
