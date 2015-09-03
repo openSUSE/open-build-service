@@ -1,6 +1,6 @@
 class Webui::DriverUpdateController < Webui::PackageController
 
-  before_filter :require_project
+  before_filter :set_project
   before_filter :require_package
   before_filter :require_available_architectures, :only => [:create, :edit]
   before_filter :check_images_repo, :only => [:create, :edit]
@@ -150,7 +150,7 @@ class Webui::DriverUpdateController < Webui::PackageController
   private
 
   def check_images_repo
-    unless @project.repositories.include? 'images'
+    unless @project.repositories.find_by(name: 'images')
       flash.now[:alert] = "You need to add an 'images' repository to your project " +
           'to be able to build a driver update disk image!'
     end

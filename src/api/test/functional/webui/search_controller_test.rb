@@ -113,11 +113,16 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   end
 
   def test_search_by_baseurl
-    visit root_path + '/search?search_text=obs://build.opensuse.org/openSUSE:Factory/standard/fd6e76cd402226c76e65438a5e3df693-bash'
-    find('#flash-messages').must_have_text 'Project not found: openSUSE:Factory'
+    visit root_path
+    fill_in 'search', with: 'obs://build.opensuse.org/openSUSE:Factory/standard/fd6e76cd402226c76e65438a5e3df693-bash'
+    page.evaluate_script("$('#global-search-form').get(0).submit()")
 
-    visit root_path + '/search?search_text=obs://foo'
-    find('#flash-messages').must_have_text('This disturl does not compute!')
+    find('#flash-messages').must_have_text 'Sorry, this disturl does not compute...'
+
+    fill_in 'search', with: 'obs://foo'
+    page.evaluate_script("$('#global-search-form').get(0).submit()")
+
+    find('#flash-messages').must_have_text('Sorry, this disturl does not compute...')
   end
 
   def test_search_for_home_projects

@@ -5,7 +5,6 @@ class Webui::ProjectController < Webui::WebuiController
   include Webui::RequestHelper
   include Webui::ProjectHelper
   include Webui::LoadBuildresults
-  include Webui::RequiresProject
   include Webui::ManageRelationships
 
   helper 'webui/comment'
@@ -14,27 +13,24 @@ class Webui::ProjectController < Webui::WebuiController
 
   before_filter :require_login, :only => [:create, :toggle_watch, :destroy, :new]
 
-  before_filter :set_project, only: [ :autocomplete_packages, :autocomplete_repositories, :users, :subprojects,
-                                      :new_package, :new_package_branch, :incident_request_dialog, :release_request_dialog,
-                                      :show, :linking_projects, :add_repository_from_default_list, :add_repository,
-                                      :add_person, :add_group, :buildresult, :delete_dialog, :destroy, :remove_path_from_target,
-                                      :update_target, :repositories, :repository_state, :rebuild_time, :packages_simple,
-                                      :requests, :save, :save_distributions, :remove_target, :monitor, :toggle_watch, :meta,
-                                      :prjconf, :change_flag, :edit, :save_comment, :edit_comment, :status, :maintained_projects,
-                                      :add_maintained_project_dialog, :add_maintained_project, :remove_maintained_project,
-                                      :maintenance_incidents, :unlock_dialog, :save_person, :save_group, :remove_role, :save_repository ]
+  before_filter :set_project, only: [:autocomplete_packages, :autocomplete_repositories, :users, :subprojects,
+                                     :new_package, :new_package_branch, :incident_request_dialog, :release_request_dialog,
+                                     :show, :linking_projects, :add_repository_from_default_list, :add_repository,
+                                     :add_person, :add_group, :buildresult, :delete_dialog, :destroy, :remove_path_from_target,
+                                     :update_target, :repositories, :repository_state, :rebuild_time, :packages_simple,
+                                     :requests, :save, :save_distributions, :remove_target, :monitor, :toggle_watch, :meta,
+                                     :prjconf, :change_flag, :edit, :save_comment, :edit_comment, :status, :maintained_projects,
+                                     :add_maintained_project_dialog, :add_maintained_project, :remove_maintained_project,
+                                     :maintenance_incidents, :unlock_dialog, :save_person, :save_group, :remove_role, :save_repository,
+                                     :move_path]
 
   before_filter :set_project_by_id, only: [:update]
-
-  # This is the deprecated way of loading WebuiProject
-  # FIXME: Get rid of "except" clauses, use "only" instead
-  before_filter :require_project, only: [:move_path_up, :move_path_down]
 
   before_filter :load_project_info, :only => [:show, :packages_simple, :rebuild_time,
                                               :maintained_projects, :add_maintained_project_dialog,
                                               :add_maintained_project, :remove_maintained_project]
 
-  before_filter :load_releasetargets, :only => [ :show, :incident_request_dialog ]
+  before_filter :load_releasetargets, :only => [:show, :incident_request_dialog]
 
   before_filter :require_maintenance_project, only: [:maintained_projects,
                                                      :add_maintained_project_dialog,
@@ -247,8 +243,6 @@ class Webui::ProjectController < Webui::WebuiController
     render_dialog
   end
 
-  # FIXME: There is no policy for Project.destroy. Needs to be the same as
-  # source_controller#delete_project
   def destroy
     authorize @project, :destroy?
     if @project.can_be_really_deleted?
@@ -537,14 +531,28 @@ class Webui::ProjectController < Webui::WebuiController
     end
   end
 
-  # FIXME: move_path_in_repository is not in Project
-  def move_path_up
-    move_path(:up)
-  end
+  def move_path
+    params.require(:direction)
+    repository = @project.repositories.find(params[:repository])
+    path_element = repository.path_elements.find(params[:path])
 
-  # FIXME: move_path_in_repository is not in Project
-  def move_path_down
-    move_path(:down)
+    if params[:direction] == 'up'
+      PathElement.transaction do
+        path_element.move_higher
+      end
+    end
+    if params[:direction] == 'down'
+      PathElement.transaction do
+        path_element.move_lower
+      end
+    end
+
+    if @project.valid?
+      @project.store
+      redirect_to({ :action => :repositories, :project => @project}, notice: "Path moved #{params[:direction]} successfully")
+    else
+      redirect_to({ :action => :repositories, :project => @project}, notice: "Path can't be moved: #{@project.errors.full_messages.to_sentence}")
+    end
   end
 
   def monitor
@@ -1050,14 +1058,6 @@ class Webui::ProjectController < Webui::WebuiController
 
   def valid_target_name? name
     name =~ /^\w[-\.\w&]*$/
-  end
-
-  def move_path(direction)
-    required_parameters :repository, :path_project, :path_repository
-    @project.move_path_in_repository(params[:repository], params[:path_project], params[:path_repository], direction)
-    @project.save
-    flash[:success] = "Path #{params['path_project']}/#{params['path_repository']} moved successfully"
-    redirect_to :action => :repositories, :project => @project
   end
 
   def monitor_set_filter(defaults)

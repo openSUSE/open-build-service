@@ -29,13 +29,11 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   def test_show_invalid_package
     visit package_show_path(package: 'TestPok', project: 'home:Iggy')
     page.status_code.must_equal 404
-    flash_message.must_equal 'Package "TestPok" not found in project "home:Iggy"'
   end
 
   def test_show_invalid_project
     visit package_show_path(package: 'TestPok', project: 'home:Oggy')
     page.status_code.must_equal 404
-    flash_message.must_equal 'Project not found: home:Oggy'
   end
 
   uses_transaction :test_delete_package_as_user
