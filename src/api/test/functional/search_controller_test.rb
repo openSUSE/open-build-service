@@ -362,7 +362,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: "collection", attributes: { "matches"=> "1" }
     assert_xml_tag tag: "request", children: { count: 3, only: { tag: "review"} }
 
-    get "/search/request", match: "[@id=#{1}]"
+    get "/search/request", match: "[@id=1]"
     assert_response :success
     # rubocop:enable Metrics/LineLength
   end

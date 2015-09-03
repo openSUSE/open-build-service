@@ -22,7 +22,7 @@ class TagController < ApplicationController
     @taggings.each do |tagging|
       project = Project.find(tagging.taggable_id)
       tag = Tag.find(tagging.tag_id)
-      @projects_tags[project] = [] if @projects_tags[project] == nil
+      @projects_tags[project] = [] if @projects_tags[project].nil?
       @projects_tags[project] <<  tag
     end
     @projects_tags.keys.each do |key|
@@ -40,7 +40,7 @@ class TagController < ApplicationController
     @taggings.each do |tagging|
       package = Package.find(tagging.taggable_id)
       tag = Tag.find(tagging.tag_id)
-      @packages_tags[package] = [] if @packages_tags[package] == nil
+      @packages_tags[package] = [] if @packages_tags[package].nil?
       @packages_tags[package] <<  tag
     end
     @packages_tags.keys.each do |key|
@@ -413,7 +413,7 @@ class TagController < ApplicationController
 
 
   def save_tags(object, tagCreator, tags)
-    if tags.kind_of? Tag then
+    if tags.kind_of? Tag
       tags = [tags]
     end
     tags.each do |tag|

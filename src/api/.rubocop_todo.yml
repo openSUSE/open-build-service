@@ -577,12 +577,6 @@ Style/EmptyLiteral:
 Style/ExtraSpacing:
   Enabled: false
 
-# Offense count: 1
-# Configuration parameters: Exclude.
-Style/FileName:
-  Exclude:
-    - 'config/initializers/nokogiri-builder.rb'
-
 # Offense count: 25
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
@@ -713,13 +707,6 @@ Style/MultilineBlockChain:
   Exclude:
     - 'app/controllers/webui/driver_update_controller.rb'
 
-# Offense count: 4
-# Cop supports --auto-correct.
-Style/MultilineIfThen:
-  Exclude:
-    - 'app/controllers/tag_controller.rb'
-    - 'app/models/user_ldap_strategy.rb'
-
 # Offense count: 90
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.
@@ -749,12 +736,6 @@ Style/NegatedWhile:
 Style/Next:
   Enabled: false
 
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/NilComparison:
-  Exclude:
-    - 'app/controllers/tag_controller.rb'
-
 # Offense count: 140
 # Cop supports --auto-correct.
 Style/Not:
@@ -764,11 +745,6 @@ Style/Not:
 # Cop supports --auto-correct.
 Style/NumericLiterals:
   MinDigits: 7
-
-# Offense count: 1
-Style/OptionalArguments:
-  Exclude:
-    - 'app/mixins/webui/notification_settings.rb'
 
 # Offense count: 13
 # Cop supports --auto-correct.
