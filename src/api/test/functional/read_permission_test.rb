@@ -269,25 +269,6 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response delresp if delresp
   end
 
-  def do_read_access_project(user, pass, targetproject, response)
-    prepare_request_with_user user, pass
-    get "/source/#{targetproject}/_meta"
-    assert_response response
-    get "/source/#{targetproject}"
-  end
-
-  def do_read_access_package(_user, _pass, targetproject, _package, response)
-    assert_response response
-    get "/source/#{targetproject}/pack"
-    assert_response response
-    get "/source/#{targetproject}/pack/_meta"
-    assert_response response
-    get "/source/#{targetproject}/pack/my_file"
-    assert_response response
-  end
-  protected :do_read_access_project
-  protected :do_read_access_package
-
   def do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     get "/source/#{destprj}/#{destpkg}/_meta"
     orig=@response.body
