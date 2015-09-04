@@ -5,6 +5,43 @@ class MaintenanceIncident < ActiveRecord::Base
   belongs_to :project, class_name: "Project", foreign_key: :db_project_id
   belongs_to :maintenance_db_project, :class_name => "Project"
 
+  def self.build_maintenance_incident(project, no_access = false, request = nil)
+    result = nil
+    return result unless project && project.kind == 'maintenance'
+
+    request = { request: request } if request
+
+    Project.transaction do
+      result = MaintenanceIncident.new(maintenance_db_project: project)
+      target_project = Project.create(name: result.project_name)
+      target_project.flags.create(position: 1, flag: 'build', status: 'disable')
+
+      # publish is disabled, just patchinfos get enabled
+      target_project.flags.create(flag: 'publish', status: 'disable')
+      if no_access
+        target_project.flags.create(flag: 'access', status: 'disable')
+      end
+
+      # take over roles from maintenance project
+      project.relationships.each do |r|
+        target_project.relationships.create(user: r.user, role: r.role, group: r.group)
+      end
+
+      # set default bugowner if missing
+      bugowner = Role.rolecache['bugowner']
+      unless target_project.relationships.users.where('role_id = ?', bugowner.id).exists?
+        target_project.add_user( User.current, bugowner )
+      end
+
+      # and write it
+      target_project.kind = 'maintenance_incident'
+      target_project.store(request)
+      result.db_project_id = target_project.id
+      result.save!
+    end
+    result
+  end
+
   def project_name
       unless self.incident_id
         r = MaintenanceIncident.exec_query(["SELECT counter FROM incident_counter WHERE maintenance_db_project_id = ? FOR UPDATE",

@@ -6,47 +6,6 @@ module MaintenanceHelper
     setup 400, 'The request contains no actions. Submit requests without source changes may have skipped!'
   end
 
-  # updates packages automatically generated in the backend after submitting a product file
-  def create_new_maintenance_incident( maintenanceProject, baseProject = nil, request = nil, noaccess = false )
-    mi = nil
-    tprj = nil
-    Project.transaction do
-      mi = MaintenanceIncident.new( :maintenance_db_project => maintenanceProject )
-      tprj = Project.create :name => mi.project_name
-      if baseProject
-        # copy as much as possible from base project
-        tprj.title = baseProject.title.dup if baseProject.title
-        tprj.description = baseProject.description.dup if baseProject.description
-        baseProject.flags.each do |f|
-          tprj.flags.create(:status => f.status, :flag => f.flag)
-        end
-      else
-        # mbranch call is enabling selected packages
-        tprj.flags.create( :position => 1, :flag => 'build', :status => 'disable')
-      end
-      # publish is disabled, just patchinfos get enabled
-      tprj.flags.create( :flag => 'publish', :status => 'disable')
-      if noaccess
-        tprj.flags.create( :flag => 'access', :status => 'disable')
-      end
-      # take over roles from maintenance project
-      maintenanceProject.relationships.each do |r|
-        tprj.relationships.create(user: r.user, role: r.role, group: r.group)
-      end
-      # set default bugowner if missing
-      bugowner = Role.rolecache['bugowner']
-      unless tprj.relationships.users.where('role_id = ?', bugowner.id).exists?
-        tprj.add_user( User.current, bugowner )
-      end
-      # and write it
-      tprj.kind = 'maintenance_incident'
-      tprj.store
-      mi.db_project_id = tprj.id
-      mi.save!
-    end
-    return mi
-  end
-
   def _release_product(sourcePackage, targetProject, action)
     productPackage = Package.find_by_project_and_name sourcePackage.project.name, "_product"
     # create package container, if missing
@@ -56,6 +15,7 @@ module MaintenanceHelper
     tpkg.project.update_product_autopackages
     tpkg.sources_changed
   end
+
   def _release_package(sourcePackage, targetProject, targetPackageName, action, relink)
     # create package container, if missing
     tpkg = create_package_container_if_missing(sourcePackage, targetPackageName, targetProject)

@@ -39,7 +39,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   before_filter :set_maintained_project, only: [:add_maintained_project, :remove_maintained_project]
 
-  after_action :verify_authorized, :only => :create
+  after_action :verify_authorized, only: [:save_new, :new_incident]
 
   def index
     @show_all = params[:show_all]
@@ -93,18 +93,17 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def new_incident
-    required_parameters :ns
-    target_project = ''
-    begin
-      path = "/source/#{CGI.escape(params[:ns])}/?cmd=createmaintenanceincident"
-      result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), :method => 'POST', :data => ''))
-      result.each("/status/data[@name='targetproject']") { |n| target_project = n.text }
-    rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary
-      redirect_to :action => 'show', :project => params[:ns] and return
+    project = Project.get_by_name(params[:ns])
+    authorize project, :update?
+    incident = MaintenanceIncident.build_maintenance_incident(project, params[:noaccess].present?)
+
+    if incident
+      flash[:success] = "Created maintenance incident project #{incident.project.name}"
+      redirect_to action: :show, project: incident.project.name and return
+    else
+      flash[:error] = 'Incident projects shall only create below maintenance projects.'
+      redirect_to action: 'show', project: params[:ns] and return
     end
-    flash[:success] = "Created maintenance incident project #{target_project}"
-    redirect_to :action => 'show', :project => target_project and return
   end
 
   def new_package

@@ -376,38 +376,38 @@ class BsRequest < ActiveRecord::Base
     # all maintenance_incident actions go into the same incident project
     incident_project = nil  # .where(type: 'maintenance_incident')
     self.bs_request_actions.each do |action|
-      sprj = Project.find_by_name action.source_project
-      if action.source_project and action.is_maintenance_release?
-        if sprj.kind_of? Project
-        at = AttribType.find_by_namespace_and_name!("OBS", "EmbargoDate")
-        attrib = sprj.attribs.where(attrib_type_id: at.id).first
-        if attrib and v=attrib.values.first
-          begin
-            embargo = DateTime.parse(v.value)
-            if v.value =~ /^\d{4}-\d\d?-\d\d?$/
-              # no time specified, allow it next day
-              embargo = embargo.tomorrow
+      source_project = Project.find_by_name(action.source_project)
+      if action.source_project && action.is_maintenance_release?
+        if source_project.kind_of?(Project)
+          at = AttribType.find_by_namespace_and_name!('OBS', 'EmbargoDate')
+          attrib = source_project.attribs.where(attrib_type_id: at.id).first
+          if attrib && v=attrib.values.first
+            begin
+              embargo = DateTime.parse(v.value)
+              if v.value =~ /^\d{4}-\d\d?-\d\d?$/
+                # no time specified, allow it next day
+                embargo = embargo.tomorrow
+              end
+            rescue ArgumentError
+              raise InvalidDate, "Unable to parse the date in OBS:EmbargoDate of project #{source_project.name}: #{v}"
             end
-          rescue ArgumentError
-            raise InvalidDate.new "Unable to parse the date in OBS:EmbargoDate of project #{sprj.name}: #{v}"
+            if embargo > DateTime.now
+              raise UnderEmbargo, "The project #{source_project.name} is under embargo until #{v}"
+            end
           end
-          if embargo > DateTime.now
-            raise UnderEmbargo.new "The project #{sprj.name} is under embargo until #{v}"
-          end
-        end
         end
       end
 
       next unless action.is_maintenance_incident?
 
-      tprj = Project.get_by_name action.target_project
+      target_project = Project.get_by_name action.target_project
       # create a new incident if needed
-      if tprj.is_maintenance?
+      if target_project.is_maintenance?
         # create incident if it is a maintenance project
-        incident_project ||= create_new_maintenance_incident(tprj, nil, self, sprj.nil?).project
+        incident_project ||= MaintenanceIncident.build_maintenance_incident(target_project, source_project.nil?, self).project
         opts[:check_for_patchinfo] = true
 
-        unless incident_project.name.start_with?(tprj.name)
+        unless incident_project.name.start_with?(target_project.name)
           raise MultipleMaintenanceIncidents.new 'This request handles different maintenance incidents, this is not allowed !'
         end
         action.target_project = incident_project.name
