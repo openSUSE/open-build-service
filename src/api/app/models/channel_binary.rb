@@ -40,13 +40,13 @@ class ChannelBinary < ActiveRecord::Base
     end
   end
 
-  def to_axml_id(opts={})
+  def to_axml_id(_opts={})
     Rails.cache.fetch('xml_channel_binary_id_%d' % id) do
       create_xml
     end
   end
 
-  def to_axml(opts={})
+  def to_axml(_opts={})
     Rails.cache.fetch('xml_channel_binary_%d' % id) do
       create_xml(include_channel_targets: true)
     end

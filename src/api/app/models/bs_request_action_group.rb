@@ -96,7 +96,7 @@ class BsRequestActionGroup < BsRequestAction
     req.remove_from_group(self)
   end
 
-  def request_changes_state(state, opts)
+  def request_changes_state(state)
     if [:revoked, :declined, :superseded].include? state
       # now comes the heavy lifting. we need to make sure all requests
       # get their right state
@@ -115,7 +115,7 @@ class BsRequestActionGroup < BsRequestAction
     end
   end
 
-  def create_post_permissions_hook(opts)
+  def create_post_permissions_hook(_opts)
     check_for_group_in_review
   end
 

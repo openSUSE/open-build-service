@@ -126,7 +126,7 @@ class Issue < ActiveRecord::Base
                                              Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
-  def to_axml(opts={})
+  def to_axml(_opts={})
     Rails.cache.fetch('issue_%d' % self.id) do
       render_axml
     end

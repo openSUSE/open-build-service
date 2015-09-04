@@ -12,7 +12,7 @@ module LoginSystem
   #  def authorize?(user)
   #    user.login != "bob"
   #  end
-  def authorize?(user)
+  def authorize?(_user)
      true
   end
 
@@ -27,7 +27,7 @@ module LoginSystem
   #       return true
   #    end
   #  end
-  def protect?(action)
+  def protect?(_action)
     true
   end
 

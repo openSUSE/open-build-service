@@ -85,7 +85,7 @@ module Webui::ProjectHelper
     link_to(h(package), :controller => :package, :action => :show, :project => @project, :package => package) + ' ' + format_seconds(btime)
   end
 
-  def short_incident_name(maintenance_project, incident)
+  def short_incident_name(incident)
     re = Regexp.new("#{@project.name}\:(.*)")
     match = incident.name.match(re)
     return match[1] if match.length > 1

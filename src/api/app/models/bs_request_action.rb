@@ -304,7 +304,7 @@ class BsRequestAction < ActiveRecord::Base
     end
   end
 
-  def sourcediff(opts = {})
+  def sourcediff(_opts = {})
     ''
   end
 
@@ -435,28 +435,28 @@ class BsRequestAction < ActiveRecord::Base
     return reviewers
   end
 
-  def request_changes_state(state, opts)
+  def request_changes_state(_state)
     # only groups care for now
   end
 
-  def get_releaseproject(pkg, tprj)
+  def get_releaseproject(_pkg, _tprj)
     # only needed for maintenance incidents
     nil
   end
 
-  def execute_accept(opts)
+  def execute_accept(_opts)
     raise 'Needs to be reimplemented in subclass'
   end
 
   # after all actions are executed, the controller calls into every action a cleanup
   # the actions can "cache" in the opts their state to avoid duplicated work
-  def per_request_cleanup(opts)
+  def per_request_cleanup(_opts)
     # does nothing by default
   end
 
   # this is called per action once it's verified that all actions in a request are
   # permitted.
-  def create_post_permissions_hook(opts)
+  def create_post_permissions_hook(_opts)
     # does nothing by default
   end
 

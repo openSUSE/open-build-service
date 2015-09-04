@@ -26,7 +26,7 @@ class BsRequestActionAddRole < BsRequestAction
     end
   end
 
-  def execute_accept(opts)
+  def execute_accept(_opts)
     object = Project.find_by_name(self.target_project)
     if self.target_package
       object = object.packages.find_by_name(self.target_package)

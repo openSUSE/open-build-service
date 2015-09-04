@@ -19,7 +19,7 @@ class Product < ActiveRecord::Base
     return self.where(name: name, package: package).load
   end
 
-  def to_axml(opts={})
+  def to_axml(_opts={})
     Rails.cache.fetch('xml_product_%d' % self.id) do
       # CanRenderModel
       render_xml

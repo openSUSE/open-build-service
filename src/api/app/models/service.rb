@@ -1,6 +1,6 @@
 class Service < ActiveXML::Node
 
-  def self.make_stub(opt)
+  def self.make_stub(_opt)
     "<services/>"
   end
 
