@@ -918,6 +918,33 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(:tag => 'review', :attributes => { by_group: 'test_group' })
 
+    # adrian assigns to Iggy and reverts
+    login_adrian
+    get "/request/#{id}"
+    assert_response :success
+    assert_no_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'Iggy' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'king' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_group: 'test_group' })
+    post "/request/#{id}?by_group=test_group&cmd=assignreview&reviewer=Iggy", 'Iggy, please have a look'
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'Iggy' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'king' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'accepted', by_group: 'test_group' })
+    # stealing the review of king is not working
+    post "/request/#{id}?by_group=test_group&cmd=assignreview&reviewer=king&revert=1", 'try to kill it'
+    assert_response 404
+    assert_xml_tag :tag => 'summary', :content => "Not an assigned review"
+    # Iggy went home without telling....
+    post "/request/#{id}?by_group=test_group&cmd=assignreview&reviewer=Iggy&revert=1", 'ups, drop it again'
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_no_xml_tag(:tag => 'review', :attributes => { by_user: 'Iggy' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'king' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_group: 'test_group' })
+
     # adrian assigns to adrian_downloader
     login_adrian
     get "/request/#{id}"

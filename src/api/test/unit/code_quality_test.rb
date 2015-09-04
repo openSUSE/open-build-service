@@ -90,7 +90,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Project#update_one_repository_without_path'                              => 118.34,
       'PublicController#binary_packages'                                        => 126.16,
       'Repository#cleanup_before_destroy'                                       => 82.98,
-      'BsRequest#assignreview'                                                  => 86.62,
       'SearchController#find_attribute'                                         => 97.33,
       'SearchController#search'                                                 => 84.06,
       'SourceController#project_command_copy'                                   => 140.04,
