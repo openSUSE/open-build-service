@@ -120,7 +120,17 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     find(:id, 'delete-patchinfo').click
     find(:id, 'del_dialog').must_have_text 'Delete Confirmation'
     find_button("Ok").click
+
+    assert_equal page.current_path, project_show_path(project)
     find('#flash-messages').must_have_text "'patchinfo' was removed successfully from project"
+
+    # FIXME: There must be a better way to test this
+    begin
+      Package.get_by_project_and_name(project.to_param, "patchinfo")
+      assert false
+    rescue Package::UnknownObjectError => e
+      assert_equal "home:Iggy/patchinfo", e.message
+    end
   end
 
   def test_create_patchinfo_with_desc_and_sum
