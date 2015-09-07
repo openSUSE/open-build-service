@@ -3,12 +3,27 @@ require_relative '../../test_helper'
 
 class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
-  uses_transaction :test_create_patchinfo_with_too_short_summary
   uses_transaction :test_create_patchinfo_with_too_short_sum_and_desc
 
   setup do
     use_js
     @project = 'home:Iggy'
+  end
+
+  def test_create_patchinfo_with_too_short_summary
+    login_Iggy
+    visit project_show_path(project: "home:Iggy")
+
+    click_link("Create patchinfo")
+    page.must_have_text("Patchinfo-Editor for")
+    fill_in "summary", with: "Too short"
+    fill_in "description", with: "long text" * 20
+    click_button("Save Patchinfo")
+
+    flash_message.must_equal "|| Summary is too short (should have more than 10 signs)"
+    flash_message_type.must_equal :alert
+
+    delete_patchinfo('home:Iggy')
   end
 
   def open_new_patchinfo
@@ -97,9 +112,6 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
       else
         page.must_have_selector("#relogin_false")
       end
-    elsif new_patchinfo[:expect] == :short_sum
-      flash_message.must_equal "|| Summary is too short (should have more than 10 signs)"
-      flash_message_type.must_equal :alert
     elsif new_patchinfo[:expect] == :short_desc
       flash_message.must_equal "|| Description is too short (should have more than 50 signs and longer than summary)"
       flash_message_type.must_equal :alert
@@ -134,7 +146,6 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
   end
 
   def test_create_patchinfo_with_desc_and_sum
-
     login_Iggy
     visit project_show_path(project: "home:Iggy")
     open_new_patchinfo
@@ -281,18 +292,6 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     page.wont_have_text('delete_me')
 
     delete_patchinfo('home:Iggy')
-  end
-
-  def test_create_patchinfo_with_too_short_summary
-    login_Iggy
-    visit project_show_path(project: "home:Iggy")
-    open_new_patchinfo
-    create_patchinfo_for_test(
-      :summary => "Too short",
-      :description => LONG_DESCRIPTION,
-      :category => "recommended",
-      :rating => "low",
-      :expect => :short_sum)
   end
 
   def test_create_patchinfo_with_too_short_desc
