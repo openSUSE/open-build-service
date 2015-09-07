@@ -25,10 +25,8 @@ class StatusHistoryRescaler
 
   private
 
-  def find_items_for_maxtime(key, offset, maxtimeoffset)
-    maxtime = StatusHistory.maximum(:time)
-    maxtime -= maxtimeoffset
-    maxtime = (maxtime / offset) * offset
+  def find_items_for_maxtime(key, maxtimeoffset)
+    maxtime = StatusHistory.maximum(:time) - maxtimeoffset
 
     StatusHistory.where('`key` = ? and `time` < ?', key, maxtime).order(:time).to_a
   end
@@ -44,11 +42,10 @@ class StatusHistoryRescaler
 
   def cleanup(key, offset, maxtimeoffset)
     # we try to make sure all keys are in the same time slots, so start with the overall time
-    allitems = find_items_for_maxtime(key, offset, maxtimeoffset)
+    allitems = find_items_for_maxtime(key, maxtimeoffset)
     return if allitems.empty?
 
-    mintime = StatusHistory.minimum(:time)
-    curmintime = (mintime / offset) * offset
+    curmintime = StatusHistory.minimum(:time)
 
     while !allitems.empty?
       items = find_start_items(allitems, curmintime + offset)
