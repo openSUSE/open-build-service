@@ -3,8 +3,6 @@ require_relative '../../test_helper'
 
 class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
-  uses_transaction :test_create_patchinfo_with_too_short_sum_and_desc
-
   setup do
     use_js
     @project = 'home:Iggy'
@@ -36,6 +34,22 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     click_button("Save Patchinfo")
 
     flash_message.must_equal "|| Description is too short (should have more than 50 signs and longer than summary)"
+    flash_message_type.must_equal :alert
+
+    delete_patchinfo('home:Iggy')
+  end
+
+  def test_create_patchinfo_with_too_short_sum_and_desc
+    login_Iggy
+    visit project_show_path(project: "home:Iggy")
+
+    click_link("Create patchinfo")
+    fill_in "summary", with: "Too short"
+    fill_in "description", with: "This description is too short"
+    click_button("Save Patchinfo")
+
+    flash_message.must_equal "|| Summary is too short (should have more than 10 signs) " +
+      "|| Description is too short (should have more than 50 signs and longer than summary)"
     flash_message_type.must_equal :alert
 
     delete_patchinfo('home:Iggy')
@@ -127,11 +141,6 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
       else
         page.must_have_selector("#relogin_false")
       end
-    elsif new_patchinfo[:expect] == :short_desc_and_sum
-      # rubocop:disable Metrics/LineLength
-      flash_message.must_equal "|| Summary is too short (should have more than 10 signs) || Description is too short (should have more than 50 signs and longer than summary)"
-      # rubocop:enable Metrics/LineLength
-      flash_message_type.must_equal :alert
     elsif new_patchinfo[:expect] == :no_permission
       flash_message.must_equal "No permission to edit the patchinfo-file."
       flash_message_type.must_equal :alert
@@ -304,18 +313,6 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     page.wont_have_text('delete_me')
 
     delete_patchinfo('home:Iggy')
-  end
-
-  def test_create_patchinfo_with_too_short_sum_and_desc
-    login_Iggy
-    visit project_show_path(project: "home:Iggy")
-    open_new_patchinfo
-    create_patchinfo_for_test(
-      :summary => "Too short",
-      :description => "This description is too short",
-      :category => "recommended",
-      :rating => "low",
-      :expect => :short_desc_and_sum)
   end
 
   # RUBY CODE ENDS HERE.
