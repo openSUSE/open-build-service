@@ -622,13 +622,14 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def remove
-    begin
-      FrontendCompat.new.delete_package :project => @project, :package => @package
-      flash[:notice] = "Package '#{@package}' was removed successfully from project '#{@project}'"
-    rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary
+    authorize @package, :destroy?
+
+    if @package.destroy
+      redirect_to(project_show_path(@project), notice: "Package was successfully removed.")
+    else
+      redirect_to(package_show_path(project: @project, package: @package),
+                  notice: "Package can't be removed: #{@package.errors.full_messages.to_sentence}")
     end
-    redirect_to :controller => 'project', :action => 'show', :project => @project
   end
 
   def add_file
