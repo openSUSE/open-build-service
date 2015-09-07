@@ -183,7 +183,7 @@ module Webui
       @@frontend = IO.popen(Rails.root.join('script', 'start_test_api').to_s)
       puts "Starting test API with pid: #{@@frontend.pid}"
       lines = []
-      while true do
+      while true
         line = @@frontend.gets
         unless line
           puts lines.join()

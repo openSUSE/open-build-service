@@ -1006,14 +1006,6 @@ Style/TrivialAccessors:
 Style/VariableName:
   Enabled: false
 
-# Offense count: 3
-# Cop supports --auto-correct.
-Style/WhileUntilDo:
-  Exclude:
-    - 'app/jobs/update_package_meta_job.rb'
-    - 'lib/opensuse/backend.rb'
-    - 'test/test_helper.rb'
-
 # Offense count: 13
 # Cop supports --auto-correct.
 # Configuration parameters: WordRegex.
