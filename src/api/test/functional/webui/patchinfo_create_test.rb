@@ -108,13 +108,34 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     flash_message.must_equal "Successfully edited patchinfo"
     page.must_have_text "recommended update for"
     page.must_have_text "This is a test for the patchinfo-editor"
-    page.must_have_text "This update was submitted from #{current_user} " +
-      " and rated as low"
+    page.must_have_text "This update was submitted from #{current_user}"
+    page.must_have_text "and rated as low"
 
     assert_equal find(:id, "description_text").text, description
     page.must_have_selector("#zypp_false")
     page.must_have_selector("#reboot_false")
     page.must_have_selector("#relogin_false")
+
+    delete_patchinfo('home:Iggy')
+  end
+
+  def test_create_patchinfo_with_changed_rating_and_category
+    login_Iggy
+    visit project_show_path(project: "home:Iggy")
+
+    click_link("Create patchinfo")
+    page.must_have_text("Patchinfo-Editor for")
+
+    fill_in "summary", with: "This is a test for the patchinfo-editor"
+    fill_in "description", with: LONG_DESCRIPTION
+    find('select#category').select("optional")
+    find('select#rating').select("critical")
+    click_button("Save Patchinfo")
+
+    flash_message.must_equal "Successfully edited patchinfo"
+    page.must_have_text "optional update for"
+    page.must_have_text "This update was submitted from #{current_user}"
+    page.must_have_text "and rated as critical"
 
     delete_patchinfo('home:Iggy')
   end
@@ -224,18 +245,6 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     rescue Package::UnknownObjectError => e
       assert_equal "home:Iggy/patchinfo", e.message
     end
-  end
-
-  def test_create_patchinfo_with_desc_sum_changed_rating_and_category
-    login_Iggy
-    visit project_show_path(project: "home:Iggy")
-    open_new_patchinfo
-    create_patchinfo_for_test(
-      :summary => "This is a test for the patchinfoeditor",
-      :description => LONG_DESCRIPTION,
-      :category => "optional",
-      :rating => "critical")
-    delete_patchinfo('home:Iggy')
   end
 
   def test_create_patchinfo_and_edit_it
