@@ -140,6 +140,28 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     delete_patchinfo('home:Iggy')
   end
 
+  def test_create_patchinfo_with_flags
+    login_Iggy
+    visit project_show_path(project: "home:Iggy")
+
+    click_link("Create patchinfo")
+    fill_in "summary", with: "This is a test for the patchinfo-editor"
+    fill_in "description", with: LONG_DESCRIPTION
+
+    find(:id, "zypp_restart_needed").click
+    find(:id, "relogin").click
+    find(:id, "reboot").click
+
+    click_button("Save Patchinfo")
+
+    flash_message.must_equal "Successfully edited patchinfo"
+    page.must_have_selector("#zypp_true")
+    page.must_have_selector("#relogin_true")
+    page.must_have_selector("#reboot_true")
+
+    delete_patchinfo('home:Iggy')
+  end
+
   def open_new_patchinfo
     click_link("Create patchinfo")
     page.must_have_text "Patchinfo-Editor for "
@@ -160,9 +182,6 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     find('select#rating').select(new_patchinfo[:rating])
     new_patchinfo[:issue] ||= ""
 
-    new_patchinfo[:zypp_restart_needed] ||= false
-    new_patchinfo[:relogin] ||= false
-    new_patchinfo[:reboot] ||= false
     new_patchinfo[:block] ||= false
     new_patchinfo[:block_reason] ||= ""
 
@@ -182,9 +201,6 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
       end
     end
 
-    find(:id, "zypp_restart_needed").click if new_patchinfo[:zypp_restart_needed]
-    find(:id, "relogin").click if new_patchinfo[:relogin]
-    find(:id, "reboot").click if new_patchinfo[:reboot]
     find(:id, "block").click if new_patchinfo[:block]
     fill_in new_patchinfo[:block_reason], with: new_patchinfo[:block_reason] if new_patchinfo[:block] and new_patchinfo[:block_reason]
 
@@ -211,21 +227,9 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
           page.must_have_text bin
         end
       end
-      if new_patchinfo[:zypp_restart_needed]
-        page.must_have_selector("#zypp_true")
-      else
-        page.must_have_selector("#zypp_false")
-      end
-      if new_patchinfo[:reboot]
-        page.must_have_selector("#reboot_true")
-      else
-        page.must_have_selector("#reboot_false")
-      end
-      if new_patchinfo[:relogin]
-        page.must_have_selector("#relogin_true")
-      else
-        page.must_have_selector("#relogin_false")
-      end
+      page.must_have_selector("#zypp_false")
+      page.must_have_selector("#reboot_false")
+      page.must_have_selector("#relogin_false")
     end
   end
 
@@ -304,22 +308,6 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     find_link(issues.last)
     click_button("Save Patchinfo")
 
-    delete_patchinfo('home:Iggy')
-  end
-
-  def test_create_patchinfo_with_flags
-    login_Iggy
-    visit project_show_path(project: "home:Iggy")
-    open_new_patchinfo
-    create_patchinfo_for_test(
-      :summary => "This is a test for the patchinfo-editor",
-      :description => LONG_DESCRIPTION,
-      :category => "recommended",
-      :rating => "low",
-      :zypp_restart_needed => true,
-      :relogin => true,
-      :reboot => true,
-      :expect => :success)
     delete_patchinfo('home:Iggy')
   end
 
