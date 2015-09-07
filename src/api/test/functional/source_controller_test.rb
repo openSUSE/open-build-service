@@ -3047,15 +3047,15 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     Timecop.return
     #validate request
     br = BsRequest.all.last
-    assert_equal  br.state, :new
-    assert_equal  br.bs_request_actions.first.type, "delete"
-    assert_equal  br.bs_request_actions.first.target_project, "home:fredlibs:branches:home:Iggy"
-    assert_not_nil  br.accept_at
+    assert_equal br.state, :new
+    assert_equal br.bs_request_actions.first.type, "delete"
+    assert_equal br.bs_request_actions.first.target_project, "home:fredlibs:branches:home:Iggy"
+    assert_not_nil br.accept_at
     # second run shall not open another request
     Timecop.freeze(12.days) # in future
     ProjectCreateAutoCleanupRequests.new.perform
     Timecop.return
-    assert_equal  br, BsRequest.all.last
+    assert_equal br, BsRequest.all.last
 
     # cleanup and try again with defaults
     c.allow_user_to_create_home_project = true

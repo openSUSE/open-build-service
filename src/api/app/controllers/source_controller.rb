@@ -1605,7 +1605,7 @@ class SourceController < ApplicationController
 
       release_package(pkg, targetrepo, pkg.name, repo, nil, params[:setrelease], true,)
   end
-  private  :_package_command_release_manual_target
+  private :_package_command_release_manual_target
 
   # POST /source/<project>/<package>?cmd=runservice
   def package_command_runservice

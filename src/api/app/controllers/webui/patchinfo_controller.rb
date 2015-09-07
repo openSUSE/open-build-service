@@ -147,7 +147,7 @@ class Webui::PatchinfoController < Webui::WebuiController
           node.relogin_needed if params[:relogin]
           node.zypp_restart_needed if params[:zypp_restart_needed]
           if params[:block] == 'true'
-            node.stopped  params[:block_reason]
+            node.stopped params[:block_reason]
           end
         end
         begin

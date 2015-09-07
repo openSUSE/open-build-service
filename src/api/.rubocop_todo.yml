@@ -865,11 +865,6 @@ Style/SingleLineBlockParams:
     - 'app/models/project.rb'
     - 'app/models/status_history_rescaler.rb'
 
-# Offense count: 87
-# Cop supports --auto-correct.
-Style/SingleSpaceBeforeFirstArg:
-  Enabled: false
-
 # Offense count: 34
 # Cop supports --auto-correct.
 Style/SpaceAfterColon:

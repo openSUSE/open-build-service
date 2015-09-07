@@ -284,8 +284,8 @@ class User < ActiveRecord::Base
 
   # Model Validation
 
-  validates_presence_of   :login, :email, :password, :password_hash_type, :state,
-                          :message => 'must be given'
+  validates_presence_of :login, :email, :password, :password_hash_type, :state,
+                        :message => 'must be given'
 
   validates_uniqueness_of :login,
                           :message => 'is the name of an already existing user.'
@@ -311,13 +311,13 @@ class User < ActiveRecord::Base
     end
   end
 
-  validates_format_of    :login,
-                         :with => %r{\A[\w \$\^\-\.#\*\+&'"]*\z},
-                         :message => 'must not contain invalid characters.'
-  validates_length_of    :login,
-                         :in => 2..100, :allow_nil => true,
-                         :too_long => 'must have less than 100 characters.',
-                         :too_short => 'must have more than two characters.'
+  validates_format_of :login,
+                      :with => %r{\A[\w \$\^\-\.#\*\+&'"]*\z},
+                      :message => 'must not contain invalid characters.'
+  validates_length_of :login,
+                      :in => 2..100, :allow_nil => true,
+                      :too_long => 'must have less than 100 characters.',
+                      :too_short => 'must have more than two characters.'
 
   # We want a valid email address. Note that the checking done here is very
   # rough. Email adresses are hard to validate now domain names may include

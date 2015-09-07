@@ -8,7 +8,7 @@ class ProjectMaintains  < ActiveRecord::Migration
 
     create_table :maintained_projects do |t|
       t.references :project, null: false
-      t.integer    :maintenance_project_id, null: false
+      t.integer :maintenance_project_id, null: false
     end
     execute("alter table maintained_projects add foreign key (project_id) references projects(id)")
     execute("alter table maintained_projects add foreign key (maintenance_project_id) references projects(id)")

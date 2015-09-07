@@ -72,7 +72,7 @@ class Project < ActiveRecord::Base
   has_many :maintenance_incidents, foreign_key: :maintenance_db_project_id, :dependent => :delete_all
 
   # develproject is history, use develpackage instead. FIXME3.0: clean this up
-  has_many  :develprojects, :class_name => 'Project', :foreign_key => 'develproject_id'
+  has_many :develprojects, :class_name => 'Project', :foreign_key => 'develproject_id'
   belongs_to :develproject, :class_name => 'Project'
 
   has_many :comments, :dependent => :destroy, inverse_of: :project, class_name: 'CommentProject'

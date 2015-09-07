@@ -8,7 +8,7 @@ class FlagTest < ActiveSupport::TestCase
       f = Flag.new(project: projects( :home_Iggy ), package: packages( :home_Iggy_TestPack ), flag: 'build', status: 'enable')
 
       #the flag shouldn't be saved
-      assert_equal  false, f.save
+      assert_equal false, f.save
 
       #expected error message
       assert_equal "Please set either project or package.", f.errors[:name].join

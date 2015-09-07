@@ -3,8 +3,8 @@ class AddUpdateinfoTracking < ActiveRecord::Migration
     create_table :updateinfos do |t|
       t.references :repository, null: false
       t.references :package,    null: false
-      t.datetime   :created_at, null: false
-      t.string     :identifier, null: false
+      t.datetime :created_at, null: false
+      t.string :identifier, null: false
     end
 
     add_index :updateinfos, :identifier
