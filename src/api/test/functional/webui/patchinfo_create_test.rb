@@ -162,6 +162,35 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     delete_patchinfo('home:Iggy')
   end
 
+  def test_create_patchinfo_with_binaries
+    login_Iggy
+    visit project_show_path(project: "home:Iggy")
+
+    click_link("Create patchinfo")
+    fill_in "summary", with: "This is a test for the patchinfo-editor"
+    fill_in "description", with: LONG_DESCRIPTION
+
+    ["package", "delete_me"].each do |bin|
+      find('select#available_binaries').select(bin)
+      click_button("add")
+    end
+    click_button("Save Patchinfo")
+
+    page.must_have_text "Selected binaries:"
+    ["package", "delete_me"].each do |bin|
+      page.must_have_text bin
+    end
+
+    click_link("Edit patchinfo")
+    #remove 'delete_me' from selected binaries
+    find('select#selected_binaries').select('delete_me')
+    click_button("remove")
+    click_button("Save Patchinfo")
+    page.wont_have_text('delete_me')
+
+    delete_patchinfo('home:Iggy')
+  end
+
   def open_new_patchinfo
     click_link("Create patchinfo")
     page.must_have_text "Patchinfo-Editor for "
@@ -194,13 +223,6 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
       find_link(issues.last)
     end
 
-    if !new_patchinfo[:select_binaries].blank?
-      for bin in new_patchinfo[:select_binaries]
-        find('select#available_binaries').select(bin)
-        click_button("add")
-      end
-    end
-
     find(:id, "block").click if new_patchinfo[:block]
     fill_in new_patchinfo[:block_reason], with: new_patchinfo[:block_reason] if new_patchinfo[:block] and new_patchinfo[:block_reason]
 
@@ -221,12 +243,6 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
         end
       end
       assert_equal new_patchinfo[:description].gsub(%r{\s+}, ' '), find(:id, "description_text").text
-      if !new_patchinfo[:select_binaries].blank?
-        page.must_have_text "Selected binaries:"
-        for bin in new_patchinfo[:select_binaries]
-          page.must_have_text bin
-        end
-      end
       page.must_have_selector("#zypp_false")
       page.must_have_selector("#reboot_false")
       page.must_have_selector("#relogin_false")
@@ -307,28 +323,6 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     issues = "123456,bnc#700501".gsub(/\s+/, "").split(",")
     find_link(issues.last)
     click_button("Save Patchinfo")
-
-    delete_patchinfo('home:Iggy')
-  end
-
-  def test_create_patchinfo_with_binaries
-    login_Iggy
-    visit project_show_path(project: "home:Iggy")
-    open_new_patchinfo
-    create_patchinfo_for_test(
-      :summary => "This is a test for the patchinfo-editor",
-      :description => LONG_DESCRIPTION,
-      :category => "recommended",
-      :rating => "low",
-      :select_binaries => %w(package delete_me),
-      :expect => :success)
-    click_link("Edit patchinfo")
-
-    #remove 'delete_me' from selected binaries
-    find('select#selected_binaries').select('delete_me')
-    click_button("remove")
-    click_button("Save Patchinfo")
-    page.wont_have_text('delete_me')
 
     delete_patchinfo('home:Iggy')
   end
