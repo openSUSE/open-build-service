@@ -191,6 +191,41 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     delete_patchinfo('home:Iggy')
   end
 
+  def test_create_patchinfo_with_issues
+    login_Iggy
+    visit project_show_path(project: "home:Iggy")
+
+    click_link("Create patchinfo")
+    fill_in "summary", with: "This is a test for the patchinfo-editor"
+    fill_in "description", with: LONG_DESCRIPTION
+
+    issues = ["bnc#770555", "bnc#700500"]
+    fill_in "issue", with: issues.join(",")
+    find(:css, "img[alt=\"Add Bug\"]").click
+    find_link(issues.last)
+    click_button("Save Patchinfo")
+
+    issues.each do |issue|
+      page.must_have_text issue
+    end
+
+    # now add issues with wrong formats
+    click_link("Edit patchinfo")
+    # no issue should be added
+    fill_in "issue", with: "bgo#123456.bnc#700501"
+    find(:css, "img[alt=\"Add Bug\"]").click
+    page.evaluate_script('window.confirm = function() { return true; }')
+    # the last issue should be added
+    fill_in "issue", with: "121212,bnc#700501"
+    find(:css, "img[alt=\"Add Bug\"]").click
+    page.evaluate_script('window.confirm = function() { return true; }')
+    page.wont_have_content("121212")
+    find_link("bnc#700501")
+    click_button("Save Patchinfo") # FIXME: This doesn't have any effect here
+
+    delete_patchinfo('home:Iggy')
+  end
+
   def open_new_patchinfo
     click_link("Create patchinfo")
     page.must_have_text "Patchinfo-Editor for "
@@ -293,37 +328,6 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
       :category => find_field('category').find('option[selected]').text,
       :rating => find_field('rating').find('option[selected]').text,
       :issue => "bnc#700500")
-    delete_patchinfo('home:Iggy')
-  end
-
-
-  def test_create_patchinfo_with_issues
-    login_Iggy
-    visit project_show_path(project: "home:Iggy")
-    open_new_patchinfo
-    create_patchinfo_for_test(
-      :summary => "This is a test for the patchinfoeditor",
-      :description => LONG_DESCRIPTION,
-      :category => "optional",
-      :rating => "critical",
-      :issue => "bnc#770555,bnc#700500")
-
-    # now add issues with wrong formats
-    click_link("Edit patchinfo")
-    # no issue should be added
-    fill_in "issue", with: "bgo#123456.bnc#700501"
-    find(:css, "img[alt=\"Add Bug\"]").click
-    page.evaluate_script('window.confirm = function() { return true; }')
-    # the last issue should be added
-    fill_in "issue", with: "121212,bnc#700501"
-    find(:css, "img[alt=\"Add Bug\"]").click
-    page.evaluate_script('window.confirm = function() { return true; }')
-    page.wont_have_content("121212")
-    find_link("bnc#700501")
-    issues = "123456,bnc#700501".gsub(/\s+/, "").split(",")
-    find_link(issues.last)
-    click_button("Save Patchinfo")
-
     delete_patchinfo('home:Iggy')
   end
 end
