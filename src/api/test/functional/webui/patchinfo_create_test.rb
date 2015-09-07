@@ -226,59 +226,6 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     delete_patchinfo('home:Iggy')
   end
 
-  def create_patchinfo_for_test new_patchinfo
-    new_patchinfo[:expect] ||= :success
-    new_patchinfo[:packager] ||= current_user
-    new_patchinfo[:summary] ||= ""
-    new_patchinfo[:description] ||= ""
-
-    new_patchinfo[:description].squeeze!(" ")
-    new_patchinfo[:description].gsub!(/ *\n +/, "\n")
-    new_patchinfo[:description].strip!
-    assert Patchinfo::CATEGORIES.include? new_patchinfo[:category]
-    find('select#category').select(new_patchinfo[:category])
-    assert Patchinfo::RATINGS.include? new_patchinfo[:rating]
-    find('select#rating').select(new_patchinfo[:rating])
-    new_patchinfo[:issue] ||= ""
-
-    new_patchinfo[:block] ||= false
-    new_patchinfo[:block_reason] ||= ""
-
-    fill_in "summary", with: new_patchinfo[:summary]
-    fill_in "description", with: new_patchinfo[:description]
-    if !new_patchinfo[:issue].blank?
-      fill_in "issue", with: new_patchinfo[:issue]
-      find(:css, "img[alt=\"Add Bug\"]").click
-      issues = new_patchinfo[:issue].gsub(/\s+/, "").split(",")
-      find_link(issues.last)
-    end
-
-    find(:id, "block").click if new_patchinfo[:block]
-    fill_in new_patchinfo[:block_reason], with: new_patchinfo[:block_reason] if new_patchinfo[:block] and new_patchinfo[:block_reason]
-
-    click_button("Save Patchinfo")
-
-    if new_patchinfo[:expect] == :success
-      flash_message.must_equal "Successfully edited patchinfo"
-      new_patchinfo[:description] = "No description set" if new_patchinfo[:description].empty?
-      page.must_have_text "#{new_patchinfo[:category]} update for"
-      page.must_have_text "#{new_patchinfo[:summary]}"
-      page.must_have_text "This update was submitted from "
-      page.must_have_text "#{new_patchinfo[:packager]}"
-      page.must_have_text " and rated as #{new_patchinfo[:rating]}"
-      if !new_patchinfo[:issue].blank?
-        issues = new_patchinfo[:issue].gsub(/\s+/, "").split(",")
-        issues.each do |issue|
-          page.must_have_text issue
-        end
-      end
-      assert_equal new_patchinfo[:description].gsub(%r{\s+}, ' '), find(:id, "description_text").text
-      page.must_have_selector("#zypp_false")
-      page.must_have_selector("#reboot_false")
-      page.must_have_selector("#relogin_false")
-    end
-  end
-
   def delete_patchinfo project
     visit patchinfo_show_path(package: 'patchinfo', project: project)
     find(:id, 'delete-patchinfo').click
@@ -319,6 +266,24 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     page.must_have_text "optional update for"
     page.must_have_text "This update was submitted from #{current_user}"
     page.must_have_text "and rated as critical"
+
+    delete_patchinfo('home:Iggy')
+  end
+
+  def test_create_patchinfo_that_is_blocked
+    login_Iggy
+    visit project_show_path(project: "home:Iggy")
+
+    click_link("Create patchinfo")
+    fill_in "summary", with: "This is a test for the patchinfo-editor"
+    fill_in "description", with: LONG_DESCRIPTION
+
+    find(:id, "block").click
+    fill_in "block_reason", with: "I don't like it"
+    click_button("Save Patchinfo")
+
+    page.must_have_text "This update is currently blocked:"
+    page.must_have_text "I don't like it"
 
     delete_patchinfo('home:Iggy')
   end
