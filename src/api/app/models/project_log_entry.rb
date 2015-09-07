@@ -60,8 +60,6 @@ class ProjectLogEntry < ActiveRecord::Base
     end
   end
 
-  private
-
   # Extract the username from the payload of an event, since different names are
   # used for storing it in different situations
   def self.username_from(payload)

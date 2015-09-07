@@ -45,8 +45,6 @@ class BsRequestAction < ActiveRecord::Base
 
   #### Class methods using self. (public and then private)
 
-  protected
-
   def self.get_package_diff(path, query)
     path += "?#{query.to_query}"
     begin
@@ -57,8 +55,6 @@ class BsRequestAction < ActiveRecord::Base
       raise DiffError.new("The diff call for #{path} failed: #{e.summary}")
     end
   end
-
-  public
 
   def self.type_to_class_name(type_name)
     case type_name
