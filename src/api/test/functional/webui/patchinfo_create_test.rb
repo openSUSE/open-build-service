@@ -26,6 +26,21 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     delete_patchinfo('home:Iggy')
   end
 
+  def test_create_patchinfo_with_too_short_desc
+    login_Iggy
+    visit project_show_path(project: "home:Iggy")
+
+    click_link("Create patchinfo")
+    fill_in "summary", with: "This is a test for the patchinfo-editor"
+    fill_in "description", with: "This description is too short"
+    click_button("Save Patchinfo")
+
+    flash_message.must_equal "|| Description is too short (should have more than 50 signs and longer than summary)"
+    flash_message_type.must_equal :alert
+
+    delete_patchinfo('home:Iggy')
+  end
+
   def open_new_patchinfo
     click_link("Create patchinfo")
     page.must_have_text "Patchinfo-Editor for "
@@ -112,9 +127,6 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
       else
         page.must_have_selector("#relogin_false")
       end
-    elsif new_patchinfo[:expect] == :short_desc
-      flash_message.must_equal "|| Description is too short (should have more than 50 signs and longer than summary)"
-      flash_message_type.must_equal :alert
     elsif new_patchinfo[:expect] == :short_desc_and_sum
       # rubocop:disable Metrics/LineLength
       flash_message.must_equal "|| Summary is too short (should have more than 10 signs) || Description is too short (should have more than 50 signs and longer than summary)"
@@ -292,18 +304,6 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     page.wont_have_text('delete_me')
 
     delete_patchinfo('home:Iggy')
-  end
-
-  def test_create_patchinfo_with_too_short_desc
-    login_Iggy
-    visit project_show_path(project: "home:Iggy")
-    open_new_patchinfo
-    create_patchinfo_for_test(
-      :summary => "This is a test for the patchinfo-editor",
-      :description => "This description is too short",
-      :category => "recommended",
-      :rating => "low",
-      :expect => :short_desc)
   end
 
   def test_create_patchinfo_with_too_short_sum_and_desc
