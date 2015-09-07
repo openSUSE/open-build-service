@@ -2,74 +2,6 @@
 require_relative '../../test_helper'
 
 class Webui::EditPackageUsersTest < Webui::IntegrationTest
-  # ============================================================================
-  #
-  def edit_role cell, new_value
-    unless new_value.nil?
-      input = cell.first(:css, 'input')
-      input.click unless input.selected? == new_value
-    end
-  end
-
-  def edit_user options
-    assert !options[:name].blank?
-
-    row = find(:css, "tr#user-#{options[:name]}")
-    cell = row.all(:css, 'td')
-
-    edit_role cell[1], options[:maintainer]
-    edit_role cell[2], options[:bugowner]
-    edit_role cell[3], options[:reviewer]
-    edit_role cell[4], options[:downloader]
-    edit_role cell[5], options[:reader]
-  end
-
-  # ============================================================================
-  #
-  def add_user user, role, options = {}
-    find(:id, 'add-user').click
-
-    page.must_have_text %r{Add New User to}
-    page.must_have_field 'userid'
-    page.must_have_selector 'select#role'
-
-    curl = page.current_url
-    options[:expect] ||= :success
-
-    fill_in 'userid', with: user
-    find('select#role').select(role)
-    click_button('Add user')
-
-    if options[:expect] == :success
-      flash_message_type.must_equal :info
-      flash_message.must_equal "Added user #{user} with role #{role}"
-      assert page.current_url.end_with? @userspath
-    elsif options[:expect] == :unknown_user
-      flash_message_type.must_equal :alert
-      flash_message.must_equal "Couldn't find User with login = #{user}".strip
-      assert curl, page.current_url
-      # go back manually
-      visit @userspath
-    elsif options[:expect] == :already_exists
-      flash_message_type.must_equal :alert
-      flash_message.must_equal 'Relationship already exists'
-      visit @userspath
-    else
-      raise ArgumentError
-    end
-  end
-
-
-  # ============================================================================
-  #
-  def delete_user user
-    # overwrite confirm function to avoid the dialog - they are very racy with selenium
-    page.evaluate_script('window.confirm = function() { return true; }')
-    find(:css, "table#user_table tr#user-#{user} a.remove-user").click
-    flash_message_type.must_equal :info
-    flash_message.must_equal "Removed user #{user}"
-  end
-
   def test_add_and_edit_package_people
     use_js
 
@@ -162,5 +94,68 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
       :reviewer   => true,
       :downloader => true,
       :reader     => true
+  end
+
+  # Test Helpers
+
+  def edit_role cell, new_value
+    unless new_value.nil?
+      input = cell.first(:css, 'input')
+      input.click unless input.selected? == new_value
+    end
+  end
+
+  def edit_user options
+    assert !options[:name].blank?
+
+    row = find(:css, "tr#user-#{options[:name]}")
+    cell = row.all(:css, 'td')
+
+    edit_role cell[1], options[:maintainer]
+    edit_role cell[2], options[:bugowner]
+    edit_role cell[3], options[:reviewer]
+    edit_role cell[4], options[:downloader]
+    edit_role cell[5], options[:reader]
+  end
+
+  def add_user user, role, options = {}
+    find(:id, 'add-user').click
+
+    page.must_have_text %r{Add New User to}
+    page.must_have_field 'userid'
+    page.must_have_selector 'select#role'
+
+    curl = page.current_url
+    options[:expect] ||= :success
+
+    fill_in 'userid', with: user
+    find('select#role').select(role)
+    click_button('Add user')
+
+    if options[:expect] == :success
+      flash_message_type.must_equal :info
+      flash_message.must_equal "Added user #{user} with role #{role}"
+      assert page.current_url.end_with? @userspath
+    elsif options[:expect] == :unknown_user
+      flash_message_type.must_equal :alert
+      flash_message.must_equal "Couldn't find User with login = #{user}".strip
+      assert curl, page.current_url
+      # go back manually
+      visit @userspath
+    elsif options[:expect] == :already_exists
+      flash_message_type.must_equal :alert
+      flash_message.must_equal 'Relationship already exists'
+      visit @userspath
+    else
+      raise ArgumentError
+    end
+  end
+
+  def delete_user user
+    # overwrite confirm function to avoid the dialog - they are very racy with selenium
+    page.evaluate_script('window.confirm = function() { return true; }')
+    find(:css, "table#user_table tr#user-#{user} a.remove-user").click
+    flash_message_type.must_equal :info
+    flash_message.must_equal "Removed user #{user}"
   end
 end
