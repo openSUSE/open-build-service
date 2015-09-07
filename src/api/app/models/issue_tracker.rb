@@ -138,7 +138,7 @@ class IssueTracker < ActiveRecord::Base
     @update_time_stamp = Time.at(Time.now.to_f - 5)
 
     ids = issues.map { |x| x.name.to_s }
-    ids.sort! { |x,y| y <=> x } # backward
+    ids.sort! { |x, y| y <=> x } # backward
 
     if private_fetch_issues(ids)
       self.issues_updated = @update_time_stamp

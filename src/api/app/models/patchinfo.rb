@@ -218,7 +218,7 @@ class Patchinfo < ActiveXML::Node
     xml = Xmlhash.parse(pkg.source_file('_patchinfo'))
     # patch old data to stay compatible
     xml.elements('issue') do |i|
-      i['id'].gsub!(/^(CVE|cve)-/,'') if i['tracker'] == "cve"
+      i['id'].gsub!(/^(CVE|cve)-/, '') if i['tracker'] == "cve"
     end
     xml
   end

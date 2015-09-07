@@ -217,7 +217,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
 
     # set incident to merge into existing one
     prepare_request_with_user 'maintenance_coord', 'power'
-    post "/request/#{id2}?cmd=setincident&incident=#{incidentProject.gsub(/.*:/,'')}"
+    post "/request/#{id2}?cmd=setincident&incident=#{incidentProject.gsub(/.*:/, '')}"
     assert_response :success
 
     get "/request/#{id2}"
@@ -228,7 +228,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
 
     # try to do it again
     prepare_request_with_user 'maintenance_coord', 'power'
-    post "/request/#{id2}?cmd=setincident&incident=#{incidentProject.gsub(/.*:/,'')}"
+    post "/request/#{id2}?cmd=setincident&incident=#{incidentProject.gsub(/.*:/, '')}"
     assert_response 404
     assert_xml_tag :tag => 'status', :attributes => { code: 'target_not_maintenance' }
 
@@ -637,7 +637,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro3Channel', arch: 'i586', state: 'published' } }, :tag => 'status', :attributes => { package: 'patchinfo', code: 'locked' }
 
     # validate update info channel tag
-    incidentID=incidentProject.gsub(/.*:/,'')
+    incidentID=incidentProject.gsub(/.*:/, '')
     get "/build/BaseDistro3Channel/channel_repo/i586/patchinfo.#{incidentID}/updateinfo.xml"
     assert_response :success
     # check for changed updateinfoid.

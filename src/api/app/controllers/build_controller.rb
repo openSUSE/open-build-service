@@ -175,7 +175,7 @@ class BuildController < ApplicationController
     # if there is a query, we can't assume it's a simple download, so better leave out the logic (e.g. view=fileinfo)
     unless request.query_string
       #check if binary exists and for size
-      fpath = "/build/"+[:project,:repository,:arch,:package].map {|x| params[x]}.join("/")
+      fpath = "/build/"+[:project, :repository, :arch, :package].map {|x| params[x]}.join("/")
       file_list = Suse::Backend.get(fpath)
       regexp = file_list.body.match(/name=["']#{Regexp.quote params[:filename]}["'].*size=["']([^"']*)["']/)
     end
@@ -201,9 +201,9 @@ class BuildController < ApplicationController
         'Content-Length' => fsize
       )
 
-      render :status => 200, :text => Proc.new {|_,output|
+      render :status => 200, :text => Proc.new {|_, output|
         backend_request = Net::HTTP::Get.new(path)
-        Net::HTTP.start(CONFIG['source_host'],CONFIG['source_port']) do |http|
+        Net::HTTP.start(CONFIG['source_host'], CONFIG['source_port']) do |http|
           http.request(backend_request) do |response|
             response.read_body do |chunk|
               output.write(chunk)

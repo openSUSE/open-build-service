@@ -41,7 +41,7 @@ class Channel < ActiveRecord::Base
   def name
     name = package.name
     name += "."
-    name += package.project.name.gsub(/:/,'_')
+    name += package.project.name.gsub(/:/, '_')
     return name
   end
 

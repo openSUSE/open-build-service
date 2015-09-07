@@ -2073,7 +2073,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # use repos from other project
-    post "/source/home:adrian:TEMP/_attribute","
+    post "/source/home:adrian:TEMP/_attribute", "
         <attributes><attribute namespace='OBS' name='BranchRepositoriesFromProject'>
           <value>BaseDistro</value>
         </attribute></attributes>"
@@ -2092,7 +2092,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # use just some repositories
-    post "/source/home:adrian:TEMP/_attribute","
+    post "/source/home:adrian:TEMP/_attribute", "
         <attributes><attribute namespace='OBS' name='BranchSkipRepositories'>
           <value>repo1</value><value>repo3</value>
         </attribute></attributes>"

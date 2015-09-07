@@ -592,7 +592,7 @@ class Webui::ProjectController < Webui::WebuiController
     @packagenames = @packagenames.flatten.uniq.sort
 
     ## Filter for PackageNames ####
-    @packagenames.reject! {|name| not filter_matches?(name,@name_filter) } if not @name_filter.blank?
+    @packagenames.reject! {|name| not filter_matches?(name, @name_filter) } if not @name_filter.blank?
 
     packagename_hash = Hash.new
     @packagenames.each { |p| packagename_hash[p.to_s] = 1 }
@@ -779,7 +779,7 @@ class Webui::ProjectController < Webui::WebuiController
     ps = calc_status(params[:project])
 
     @packages = ps[:packages]
-    @develprojects = ps[:projects].sort { |x,y| x.downcase <=> y.downcase }
+    @develprojects = ps[:projects].sort { |x, y| x.downcase <=> y.downcase }
     @develprojects.insert(0, all_packages)
     @develprojects.insert(1, no_project)
 
@@ -1101,9 +1101,9 @@ class Webui::ProjectController < Webui::WebuiController
     }
   end
 
-  def filter_matches?(input,filter_string)
+  def filter_matches?(input, filter_string)
     result = false
-    filter_string.gsub!(/\s*/,'')
+    filter_string.gsub!(/\s*/, '')
     filter_string.split(',').each { |filter|
       no_invert = filter.match(/(^!?)(.+)/)
       if no_invert[1] == '!'

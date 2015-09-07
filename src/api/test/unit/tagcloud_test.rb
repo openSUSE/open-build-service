@@ -22,7 +22,7 @@ class TagcloudTest < ActiveSupport::TestCase
 
     steps = 6
 
-    delta = cloud.delta(steps,cloud.max,cloud.min)
+    delta = cloud.delta(steps, cloud.max, cloud.min)
     #delta = (delta * 1000).round.to_f / 1000
 
     assert_equal 0.5, delta, "Wrong delta."

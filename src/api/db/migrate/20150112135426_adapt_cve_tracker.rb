@@ -11,8 +11,8 @@ class AdaptCveTracker < ActiveRecord::Migration
       IssueTracker.write_to_backend
 
       t.issues.each do |i|
-        i.name.gsub!(/^CVE-/,'')
-        i.name.gsub!(/^cve-/,'')
+        i.name.gsub!(/^CVE-/, '')
+        i.name.gsub!(/^cve-/, '')
         i.save
       end
     end

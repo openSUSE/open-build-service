@@ -41,7 +41,7 @@ class Project < ActiveRecord::Base
   has_many :relationships, dependent: :destroy, inverse_of: :project
   has_many :packages, :dependent => :destroy, inverse_of: :project do
     def autocomplete(search)
-      where(['lower(packages.name) like lower(?)',"#{search}%"])
+      where(['lower(packages.name) like lower(?)', "#{search}%"])
     end
   end
   has_many :attribs, :dependent => :destroy
@@ -323,7 +323,7 @@ class Project < ActiveRecord::Base
 
   def self.get_maintenance_project(at=nil)
     # hardcoded default. frontends can lookup themselfs a different target via attribute search
-    at ||= AttribType.find_by_namespace_and_name!('OBS','MaintenanceProject')
+    at ||= AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject')
     maintenanceProject = Project.find_by_attribute_type(at).first
     unless maintenanceProject and check_access?(maintenanceProject)
       raise UnknownProject.new 'There is no project flagged as maintenance project on server and no target in request defined.'
@@ -864,7 +864,7 @@ class Project < ActiveRecord::Base
       flags << f if f.is_relevant_for?(repo, arch)
     end if prj_flags
 
-    flags.sort! { |a,b| a.specifics <=> b.specifics }
+    flags.sort! { |a, b| a.specifics <=> b.specifics }
 
     flags.each do |f|
       ret = f.status
@@ -879,7 +879,7 @@ class Project < ActiveRecord::Base
       # in case we look at a package, the project flags are not explicit
       expl = false
     end
-    flags.sort! { |a,b| a.specifics <=> b.specifics }
+    flags.sort! { |a, b| a.specifics <=> b.specifics }
     flags.each do |f|
       ret = f.status
       expl = f.is_explicit_for?(repo, arch)
@@ -1059,7 +1059,7 @@ class Project < ActiveRecord::Base
     return [] if project_map[self]
     project_map[self] = 1
 
-    packages = self.packages.pluck(:name,:project_id)
+    packages = self.packages.pluck(:name, :project_id)
 
     # second path, all packages from indirect linked projects
     self.linkedprojects.each do |lp|
@@ -1365,9 +1365,9 @@ class Project < ActiveRecord::Base
   # updates packages automatically generated in the backend after submitting a product file
   def update_product_autopackages
     backend_pkgs = Collection.find :id, :what => 'package', :match => "@project='#{self.name}' and starts-with(@name,'_product:')"
-    b_pkg_index = backend_pkgs.each(:package).inject(Hash.new) {|hash,elem| hash[elem.value(:name)] = elem; hash}
+    b_pkg_index = backend_pkgs.each(:package).inject(Hash.new) {|hash, elem| hash[elem.value(:name)] = elem; hash}
     frontend_pkgs = self.packages.where("`packages`.name LIKE '_product:%'")
-    f_pkg_index = frontend_pkgs.inject(Hash.new) {|hash,elem| hash[elem.name] = elem; hash}
+    f_pkg_index = frontend_pkgs.inject(Hash.new) {|hash, elem| hash[elem.name] = elem; hash}
 
     all_pkgs = [b_pkg_index.keys, f_pkg_index.keys].flatten.uniq
 

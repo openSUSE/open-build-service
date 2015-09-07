@@ -1496,8 +1496,8 @@ class SourceController < ApplicationController
     #opackage_name = params[:opackage]
 
     path = request.path_info
-    path += build_query_from_hash(params, [:cmd, :rev, :orev, :oproject, :opackage, :expand ,:linkrev, :olinkrev,
-                                           :unified ,:missingok, :meta, :file, :filelimit, :tarlimit,
+    path += build_query_from_hash(params, [:cmd, :rev, :orev, :oproject, :opackage, :expand , :linkrev, :olinkrev,
+                                           :unified , :missingok, :meta, :file, :filelimit, :tarlimit,
                                            :view, :withissues, :onlyissues])
     pass_to_backend path
   end

@@ -172,7 +172,7 @@ class Webui::UserController < Webui::WebuiController
 
   def user_icon
     required_parameters :icon
-    params[:user] = params[:icon].gsub(/.png$/,'')
+    params[:user] = params[:icon].gsub(/.png$/, '')
     icon
   end
 

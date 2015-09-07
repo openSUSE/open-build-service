@@ -873,11 +873,6 @@ Style/SpaceAfterColon:
     - 'test/functional/product_test.rb'
     - 'test/functional/source_controller_test.rb'
 
-# Offense count: 102
-# Cop supports --auto-correct.
-Style/SpaceAfterComma:
-  Enabled: false
-
 # Offense count: 12
 # Cop supports --auto-correct.
 Style/SpaceAfterMethodName:

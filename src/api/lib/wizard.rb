@@ -159,10 +159,10 @@ class Wizard
       replace(h)
     end
 
-    def []=(key,value)
+    def []=(key, value)
       if self[key] != value
         @dirty = true
-        super(key,value)
+        super(key, value)
       end
     end
   end

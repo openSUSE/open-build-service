@@ -60,11 +60,11 @@ class Tagcloud
   def sort_tags( opt={} )
     if opt[:scope] == "count"
       #descending order by count
-      sorted = @tags.sort { |a,b| b.count<=>a.count }
+      sorted = @tags.sort { |a, b| b.count<=>a.count }
       @tags = sorted
     else
       #alphabetical order (ascending order)
-      sorted = @tags.sort { |a,b| a.name<=>b.name }
+      sorted = @tags.sort { |a, b| a.name<=>b.name }
       @tags = sorted
     end
   end
@@ -92,7 +92,7 @@ class Tagcloud
   end
 
 
-  def delta(steps,max,min)
+  def delta(steps, max, min)
     delta = 0
     if max != min
       delta = (max - min) / steps.to_f
@@ -103,8 +103,8 @@ class Tagcloud
   end
 
 
-  def get_tags(distribution_method,steps)
-    delta = delta(steps,@max,@min)
+  def get_tags(distribution_method, steps)
+    delta = delta(steps, @max, @min)
     tagcloud = {}
 
     case distribution_method
@@ -119,7 +119,7 @@ class Tagcloud
       raise ArgumentError.new("unknown distribution method '#{distribution_method}'")
     end
 
-    taglist = tagcloud.sort {|a,b| a[0].downcase <=> b[0].downcase}
+    taglist = tagcloud.sort {|a, b| a[0].downcase <=> b[0].downcase}
 
     return taglist
   end

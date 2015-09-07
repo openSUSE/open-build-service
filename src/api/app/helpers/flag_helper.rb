@@ -157,7 +157,7 @@ module FlagHelper
     self.type_flags(flag_type).each do |flag|
       flags << flag if flag.is_relevant_for?(repo, arch)
     end
-    flags.sort! { |a,b| a.specifics <=> b.specifics }
+    flags.sort! { |a, b| a.specifics <=> b.specifics }
     flags.each do |flag|
       state = flag.status
     end
