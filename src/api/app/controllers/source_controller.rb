@@ -6,8 +6,49 @@ require 'event'
 
 class SourceController < ApplicationController
 
+  class NoLocalPackage < APIException; end
+  class ProjectExists < APIException; end
+  class PackageExists < APIException; end
+  class ProjectNameMismatch < APIException; end
+  class WrongRouteForAttribute < APIException; end
+  class NotLocked < APIException; end
+  class InvalidFlag < APIException; end
+
   class IllegalRequest < APIException
     setup 404, 'Illegal request'
+  end
+  class NoPermissionForDeleted < APIException
+    setup 403, 'only admins can see deleted projects'
+  end
+  class CmdExecutionNoPermission < APIException
+    setup 403
+  end
+  class DeletePackageNoPermission < APIException
+    setup 403
+  end
+  class NoMatchingReleaseTarget < APIException
+    setup 404, 'No defined or matching release target'
+  end
+  class InvalidProjectParameters < APIException
+    setup 404
+  end
+  class PutProjectConfigNoPermission < APIException
+    setup 403
+  end
+  class DeleteProjectPubkeyNoPermission < APIException
+    setup 403
+  end
+  class PutFileNoPermission < APIException
+    setup 403
+  end
+  class AttributeNotFound < APIException
+    setup 'not_found', 404
+  end
+  class RemoteProjectError < APIException
+    setup 'remote_project', 404
+  end
+  class ProjectCopyNoPermission < APIException
+    setup 403
   end
 
   validate_action :index => {:method => :get, :response => :directory}
@@ -24,10 +65,8 @@ class SourceController < ApplicationController
   skip_before_action :require_login, only: [:lastevents_public]
 
   before_action :require_valid_project_name, except: [:index, :lastevents, :lastevents_public, :global_command]
+  before_filter :require_package, only: [:show_package, :delete_package, :package_command]
 
-  class NoPermissionForDeleted < APIException
-    setup 403, 'only admins can see deleted projects'
-  end
 
   # GET /source
   #########
@@ -167,27 +206,27 @@ class SourceController < ApplicationController
   # DELETE /source/:project
   def delete_project
     project_name = params[:project]
-    pro = Project.get_by_name project_name
+    project = Project.get_by_name project_name
 
     # checks
-    unless User.current.can_modify_project?(pro)
+    unless User.current.can_modify_project?(project)
       logger.debug "No permission to delete project #{project_name}"
       render_error :status => 403, :errorcode => 'delete_project_no_permission',
                    :message => "Permission denied (delete project #{project_name})"
       return
     end
-    pro.can_be_deleted?
+    project.can_be_deleted?
 
     # find linking repos
-    private_check_and_remove_repositories(params, pro.repositories) or return
+    project.check_and_remove_repositories(params, project.repositories) or return
 
     Project.transaction do
-      logger.info "destroying project object #{pro.name}"
+      logger.info "destroying project object #{project.name}"
       params[:user] = User.current.login
-      path = pro.source_path
+      path = project.source_path
       path << build_query_from_hash(params, [:user, :comment])
 
-      pro.destroy
+      project.destroy
 
       Suse::Backend.delete path
       logger.debug "delete request to backend: #{path}"
@@ -232,11 +271,6 @@ class SourceController < ApplicationController
     end
   end
 
-  class NoLocalPackage < APIException; end
-  class CmdExecutionNoPermission < APIException
-    setup 403
-  end
-
   def show_package_issues
     unless @tpkg
       raise NoLocalPackage.new 'Issues can only be shown for local packages'
@@ -245,8 +279,6 @@ class SourceController < ApplicationController
     @tpkg.update_if_dirty
     render partial: 'package_issues'
   end
-
-  before_filter :require_package, only: [:show_package, :delete_package, :package_command]
 
   # GET /source/:project/:package
   def show_package
@@ -277,16 +309,6 @@ class SourceController < ApplicationController
                                            :deleted, :parse, :arch,
                                            :repository, :product, :nofilename])
     pass_to_backend path
-  end
-
-  class DeletePackageNoPermission < APIException
-    setup 403
-  end
-
-  class ProjectExists < APIException
-  end
-
-  class PackageExists < APIException
   end
 
   def delete_package
@@ -345,10 +367,6 @@ class SourceController < ApplicationController
       @target_package_name = params[:package]
     end
 
-  end
-
-  class NoMatchingReleaseTarget < APIException
-    setup 404, 'No defined or matching release target'
   end
 
   def verify_can_modify_target_package!
@@ -440,14 +458,6 @@ class SourceController < ApplicationController
     end
   end
 
-  class ChangeProjectNoPermission < APIException
-    setup 403
-  end
-
-  class InvalidProjectParameters < APIException
-    setup 404
-  end
-
   # GET /source/:project/_meta
   #---------------------------
   def show_project_meta
@@ -462,154 +472,63 @@ class SourceController < ApplicationController
     end
   end
 
-  class ProjectNameMismatch < APIException
-  end
-
-  class RepositoryAccessFailure < APIException
-    setup 404
-  end
-
-  class ProjectReadAccessFailure < APIException
-    setup 404
-  end
-
   # PUT /source/:project/_meta
   def update_project_meta
-    # init
-    #--------------------
     project_name = params[:project]
     params[:user] = User.current.login
+    request_data = Xmlhash.parse(request.raw_post)
 
-    # init
-    # assemble path for backend
-    path = request.path_info
-    path += build_query_from_hash(params, [:user, :comment, :rev])
-    #allowed = false
-    request_data = request.raw_post
-
-    # permission check
-    rdata = Xmlhash.parse(request_data)
-    if rdata['name'] != project_name
-      raise ProjectNameMismatch.new "project name in xml data ('#{rdata['name']}) does not match resource path component ('#{project_name}')"
+    # Permission checks
+    #FIXME3.0 update_from_xml already checks this
+    if request_data['name'] != project_name
+      raise ProjectNameMismatch, "project name in xml data ('#{request_data['name']}) does not match resource path component ('#{project_name}')"
     end
+
     begin
-      prj = Project.get_by_name rdata['name']
+      project = Project.get_by_name(request_data['name'])
     rescue Project::UnknownObjectError
-      prj = nil
+      project = nil
     end
 
     # projects using remote resources must be edited by the admin
     unless User.current.is_admin?
       # either OBS interconnect or repository "download on demand" feature used
-      if rdata.has_key? 'remoteurl' or rdata.has_key? 'remoteproject' or
-         (rdata['repository'] and rdata['repository'].any?{|r| r.first == 'download'})
-        raise ChangeProjectNoPermission.new 'admin rights are required to change projects using remote resources'
+      if request_data.has_key?('remoteurl') || request_data.has_key?('remoteproject') ||
+         (request_data['repository'] && request_data['repository'].any?{|r| r.first == 'download'})
+        raise ChangeProjectNoPermission, 'admin rights are required to change projects using remote resources'
       end
     end
 
     # Need permission
     logger.debug 'Checking permission for the put'
-    if prj
+    if project
       # project exists, change it
-      unless User.current.can_modify_project?(prj)
-        if prj.is_locked?
-          logger.debug "no permission to modify LOCKED project #{prj.name}"
-          raise ChangeProjectNoPermission.new "The project #{prj.name} is locked"
+      unless User.current.can_modify_project?(project)
+        if project.is_locked?
+          logger.debug "no permission to modify LOCKED project #{project.name}"
+          raise ChangeProjectNoPermission, "The project #{project.name} is locked"
         end
-        logger.debug "user #{user.login} has no permission to modify project #{prj.name}"
-        raise ChangeProjectNoPermission.new 'no permission to change project'
+        logger.debug "user #{user.login} has no permission to modify project #{project.name}"
+        raise ChangeProjectNoPermission, 'no permission to change project'
       end
-
     else
       # project is new
-      unless User.current.can_create_project? project_name
+      unless User.current.can_create_project?(project_name)
         logger.debug 'Not allowed to create new project'
-        raise CreateProjectNoPermission.new "no permission to create project #{project_name}"
+        raise CreateProjectNoPermission, "no permission to create project #{project_name}"
       end
     end
 
-    check_target_of_link(project_name, rdata)
-    _update_project_meta_maintains(rdata)
-    new_repo_names = _update_project_meta_repos(project_name, rdata)
-
-    # permission check passed, write meta
-    if prj
-      removedRepositories = Array.new
-      prj.repositories.each do |repo|
-        if !new_repo_names[repo.name] and not repo.remote_project_name
-          # collect repositories to remove
-          removedRepositories << repo
-        end
-      end
-      private_check_and_remove_repositories(params, removedRepositories) or return
+    if project
+      result = project.update_meta(request_data, params)
+    else
+      result = Project.create_project_from_meta(project_name, request_data)
     end
 
-    Project.transaction do
-      # exec
-      if prj
-        prj.update_from_xml(rdata)
-      else
-        prj = Project.new(name: project_name)
-        prj.update_from_xml(rdata)
-        # failure is ok
-        prj.add_user(User.current.login, 'maintainer')
-      end
-      prj.store
-    end
-    render_ok
-  end
-  def _update_project_meta_repos(project_name, rdata)
-    new_repo_names = {}
-    # Check used repo pathes for existens and read access permissions
-    rdata.elements('repository') do |r|
-      new_repo_names[r['name']] = 1
-      r.elements('path') do |e|
-        # permissions check
-        tproject_name = e.value('project')
-        if tproject_name != project_name
-          tprj = Project.get_by_name(tproject_name)
-          # user can access tprj, but backend would refuse to take binaries from there
-          if tprj.class == Project and tprj.disabled_for?('access', nil, nil)
-            raise RepositoryAccessFailure.new "The current backend implementation is not using binaries " +
-                                              "from read access protected projects #{tproject_name}"
-          end
-        end
-        logger.debug "project #{project_name} repository path checked against #{tproject_name} projects permission"
-      end
-    end
-    new_repo_names
-  end
-  private :_update_project_meta_repos
-  def _update_project_meta_maintains(rdata)
-    # Check if used maintains statements point only to projects with write access
-    rdata.elements('maintenance') do |m|
-      m.elements('maintains') do |r|
-        tproject_name = r.value('project')
-        tprj = Project.get_by_name(tproject_name)
-        unless tprj.class == Project and User.current.can_modify_project?(tprj)
-          raise ModifyProjectNoPermission.new "No write access to maintained project #{tproject_name}"
-        end
-      end
-    end
-  end
-  private :_update_project_meta_maintains
-
-  # the following code checks if the target project of a linked project exists or is not readable by user
-  def check_target_of_link(project_name, rdata)
-    rdata.elements('link') do |e|
-      # permissions check
-      tproject_name = e.value('project')
-      tprj = Project.get_by_name(tproject_name)
-
-      # The read access protection for own and linked project must be the same.
-      # ignore this for remote targets
-      if tprj.class == Project and tprj.disabled_for?('access', nil, nil) and
-          !FlagHelper.xml_disabled_for?(rdata, 'access')
-        raise ProjectReadAccessFailure.new "project links work only when both projects have same read access " +
-                                           "protection level: #{project_name} -> #{tproject_name}"
-      end
-
-      logger.debug "project #{project_name} link checked against #{tproject_name} projects permission"
+    if result
+      render_ok
+    else
+      render_error status: 404
     end
   end
 
@@ -618,10 +537,6 @@ class SourceController < ApplicationController
     path = request.path_info
     path += build_query_from_hash(params, [:rev])
     pass_to_backend path
-  end
-
-  class PutProjectConfigNoPermission < APIException
-    setup 403
   end
 
   # PUT /source/:project/_config
@@ -656,10 +571,6 @@ class SourceController < ApplicationController
 
     # GET /source/:project/_pubkey
     pass_to_backend path
-  end
-
-  class DeleteProjectPubkeyNoPermission < APIException
-    setup 403
   end
 
   # DELETE /source/:project/_pubkey
@@ -802,12 +713,6 @@ class SourceController < ApplicationController
     pass_to_backend path
   end
 
-  class PutFileNoPermission < APIException
-    setup 403
-  end
-
-  class WrongRouteForAttribute < APIException; end
-
   def check_permissions_for_file
     @project_name = params[:project]
     @package_name = params[:package]
@@ -897,14 +802,6 @@ class SourceController < ApplicationController
 
   private
 
-  class AttributeNotFound < APIException
-    setup 'not_found', 404
-  end
-
-  class ModifyProjectNoPermission < APIException
-    setup 403
-  end
-
   # POST /source?cmd=createmaintenanceincident
   def global_command_createmaintenanceincident
     # set defaults
@@ -931,70 +828,6 @@ class SourceController < ApplicationController
     else
       render_error status: 400, :errorcode => 'incident_has_no_maintenance_project',
                    message: 'incident projects shall only create below maintenance projects'
-    end
-  end
-
-  class RepoDependency < APIException
-
-  end
-
-  def check_dependent_repositories!(repos, error_prefix)
-    return if repos.empty?
-    lrepstr = repos.map { |l| l.project.name+'/'+l.name }.join "\n"
-    raise RepoDependency.new "#{error_prefix}\n#{lrepstr}"
-  end
-
-  def private_check_and_remove_repositories( params, removeRepositories )
-    # find linking repos which get deleted
-    linkingRepositories = Array.new
-    linkingTargetRepositories = Array.new
-    removeRepositories.each do |repo|
-      linkingRepositories += repo.linking_repositories
-      linkingTargetRepositories += repo.linking_target_repositories
-    end
-    unless params[:force] and not params[:force].empty?
-      check_dependent_repositories!(linkingRepositories,
-                                    'Unable to delete repository; following repositories depend on this project:')
-      check_dependent_repositories!(linkingTargetRepositories,
-                                    'Unable to delete repository; following target repositories depend on this project:')
-    end
-    unless removeRepositories.empty?
-      # do remove
-      private_remove_repositories( removeRepositories, (params[:remove_linking_repositories] and not params[:remove_linking_repositories].empty?) )
-    end
-    return true
-  end
-
-  def private_remove_repositories( repositories, full_remove = false )
-    del_repo = Repository.deleted_instance
-
-    repositories.each do |repo|
-      linking_repos = repo.linking_repositories
-      prj = repo.project
-
-      # full remove, otherwise the model will take care of the cleanup
-      if full_remove == true
-        # recursive for INDIRECT linked repositories
-        unless linking_repos.length < 1
-          private_remove_repositories( linking_repos, true )
-        end
-
-        # try to remove the repository
-        # but never remove the special repository named "deleted"
-        unless repo == del_repo
-          # permission check
-          unless User.current.can_modify_project?(prj)
-            raise ChangeProjectNoPermission.new "No permission to remove a repository in project '#{prj.name}'"
-          end
-        end
-      end
-
-      # remove this repository, but be careful, because we may have done it already.
-      if Repository.exists?(repo) and r=prj.repositories.find(repo)
-        logger.info "destroy repo #{r.name} in '#{prj.name}'"
-        r.destroy
-        prj.store({:lowprio => true}) # low prio storage
-      end
     end
   end
 
@@ -1155,13 +988,6 @@ class SourceController < ApplicationController
     end
   end
 
-  class RemoteProjectError < APIException
-    setup 'remote_project', 404
-  end
-  class ProjectCopyNoPermission < APIException
-    setup 403
-  end
-
   # POST /source/<project>?cmd=move&oproject=<project>
   def project_command_move
     project_name = params[:oproject]
@@ -1293,8 +1119,6 @@ class SourceController < ApplicationController
 
     render_ok
   end
-
-  class NotLocked < APIException; end
 
   # unlock a package
   # POST /source/<project>/<package>?cmd=unlock
@@ -1605,7 +1429,6 @@ class SourceController < ApplicationController
 
       release_package(pkg, targetrepo, pkg.name, repo, nil, params[:setrelease], true,)
   end
-  private  :_package_command_release_manual_target
 
   # POST /source/<project>/<package>?cmd=runservice
   def package_command_runservice
@@ -1712,8 +1535,6 @@ class SourceController < ApplicationController
     obj_set_flag(@project)
   end
 
-  class InvalidFlag < APIException; end
-
   def obj_set_flag(obj)
     obj.transaction do
       begin
@@ -1752,5 +1573,4 @@ class SourceController < ApplicationController
     end
     render_ok
   end
-
 end
