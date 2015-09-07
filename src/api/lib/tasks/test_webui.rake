@@ -20,4 +20,3 @@ Rake::TestTask.new do |t|
   t.test_files = filelist
   t.name = 'test:webui'
 end
-

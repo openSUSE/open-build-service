@@ -29,4 +29,3 @@ class UpdatePackageMetaJob < ActiveJob::Base
   end
 
 end
-

@@ -30,4 +30,3 @@ class SpacesInTrackerRegexen < ActiveRecord::Migration
     end
   end
 end
-

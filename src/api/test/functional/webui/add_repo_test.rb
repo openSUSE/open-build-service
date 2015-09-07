@@ -33,4 +33,3 @@ class Webui::AddRepoTest < Webui::IntegrationTest
   end
 
 end
-

@@ -34,4 +34,3 @@ class Webui::SignupTest < Webui::IntegrationTest
     page.must_have_content "Sign Up for an Open Build Service account"
   end
 end
-

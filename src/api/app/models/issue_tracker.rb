@@ -342,4 +342,3 @@ class CVEparser < Nokogiri::XML::SAX::Document
     @@myIssue = nil
   end
 end
-

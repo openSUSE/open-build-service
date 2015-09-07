@@ -67,4 +67,3 @@ class Event::CommentForRequest < ::Event::Request
     super(attribs, keys)
   end
 end
-

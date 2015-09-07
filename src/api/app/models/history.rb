@@ -21,4 +21,3 @@ class History
   end
 
 end
-

@@ -86,4 +86,3 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
     assert_not_nil assigns(@samples)
   end
 end
-

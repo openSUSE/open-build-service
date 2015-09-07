@@ -84,4 +84,3 @@ end
 class ProjectNotLocked < APIException
   setup 'not_locked'
 end
-

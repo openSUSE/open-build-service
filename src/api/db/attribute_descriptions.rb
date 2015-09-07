@@ -33,4 +33,3 @@ def update_all_attrib_type_descriptions
     at.save
   end
 end
-

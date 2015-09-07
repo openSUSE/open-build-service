@@ -88,4 +88,3 @@ class BranchPublishFlagTest < ActionDispatch::IntegrationTest
     branch_helper(false, false)
   end
 end
-

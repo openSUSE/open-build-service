@@ -131,5 +131,3 @@ Git log:
   end
 
 end
-
-

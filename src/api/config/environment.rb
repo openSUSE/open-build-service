@@ -28,4 +28,3 @@ end
 
 # Initialize the rails application
 OBSApi::Application.initialize!
-

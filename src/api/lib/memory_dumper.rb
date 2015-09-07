@@ -29,6 +29,3 @@ class MemoryDumper
    ret
   end
 end
-
-
-

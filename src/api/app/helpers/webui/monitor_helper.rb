@@ -7,5 +7,3 @@ module Webui::MonitorHelper
   end
 
 end
-
-

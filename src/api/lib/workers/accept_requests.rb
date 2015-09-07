@@ -20,5 +20,3 @@ class AcceptRequestsJob
   end
 
 end
-
-

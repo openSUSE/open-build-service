@@ -30,4 +30,3 @@ class CrossBuildTest < ActionDispatch::IntegrationTest
   end
 
 end
-

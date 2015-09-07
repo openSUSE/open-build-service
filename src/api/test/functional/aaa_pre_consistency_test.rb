@@ -7,4 +7,3 @@ class AAAPreConsistency < ActionDispatch::IntegrationTest
     resubmit_all_fixtures
   end
 end
-

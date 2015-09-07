@@ -45,4 +45,3 @@ module Webui::LoadBuildresults
     end
   end
 end
-

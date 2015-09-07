@@ -560,4 +560,3 @@ class ActiveSupport::TestCase
     Rails.cache.clear
   end
 end
-

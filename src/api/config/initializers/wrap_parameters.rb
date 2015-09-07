@@ -74,4 +74,3 @@ class MyParamsParser
 end
 
 OBSApi::Application.config.middleware.use MyParamsParser
-
