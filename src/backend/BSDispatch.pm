@@ -25,11 +25,6 @@
 
 package BSDispatch;
 
-use Data::Dumper;
-
-# FIXME: we should not set the request
-$BSServer::request if 0;
-
 sub parse_cgi {
   # $req:
   #      the part of URI after ?
@@ -47,6 +42,7 @@ sub parse_cgi {
   my $query_string = $req->{'query'};
   my %cgi;
   my @query_string = split('&', $query_string);
+  my %unknown;
   while (@query_string) {
     my ($name, $value) = split('=', shift(@query_string), 2);
     next unless defined $name && $name ne '';
@@ -60,39 +56,29 @@ sub parse_cgi {
     } else {
       $value = 1;	# assume boolean
     }
-    if ($name =~ /^\?(.*)$/s) {
-      if ((!$singles || !exists($singles->{$name})) && (!$multies || !exists($multies->{$name}))) {
-        $name = $1;
-        if ((!$singles || !exists($singles->{$name})) && (!$multies || !exists($multies->{$name}))) {
-	  next unless $singles && $multis && exists($multis->{'*'});	# ignore unknown
-	}
-      }
-    }
-    if ($multis && exists($multis->{$name})) {
+    if ($singles && exists($singles->{$name})) {
+      die("parameter '$name' set multiple times\n") if exists $cgi{$name};
+      $cgi{$name} = $value;
+    } elsif ($multis && exists($multis->{$name})) {
       if (defined($multis->{$name})) {
-        if (exists($cgi{$name})) {
-	  $cgi{$name} .= "$multis->{$name}$value";
-        } else {
-          $cgi{$name} = $value;
-        }
+        $cgi{$name} = exists($cgi{$name}) ? "$cgi{$name}$multis->{$name}$value" : $value;
       } else {
         push @{$cgi{$name}}, $value;
       }
-    } elsif ($singles && $multis && !exists($singles->{$name}) && exists($multis->{'*'})) {
+    } elsif ($singles && $multis && exists($multis->{'*'})) {
       if (defined($multis->{'*'})) {
-        if (exists($cgi{$name})) {
-	  $cgi{$name} .= "$multis->{'*'}$value";
-        } else {
-          $cgi{$name} = $value;
-        }
+        $cgi{$name} = exists($cgi{$name}) ? "$cgi{$name}$multis->{'*'}$value" : $value;
       } else {
         push @{$cgi{$name}}, $value;
       }
+    } elsif ($singles) {
+      $unknown{$name} = 1;
     } else {
       die("parameter '$name' set multiple times\n") if exists $cgi{$name};
       $cgi{$name} = $value;
     }
   }
+  die("unknown parameter '".join("', '", sort keys %unknown)."'\n") if %unknown;
   return \%cgi;
 }
 
@@ -118,13 +104,6 @@ sub parse_cgi_singles {
     delete $cgi{$_} unless defined $cgi{$_};
   }
   return \%cgi;
-}
-
-sub dispatch_checkcgi {
-  my ($cgi, @known) = @_;
-  my %known = map {$_ => 1} @known;
-  my @bad = grep {!$known{$_}} keys %$cgi;
-  die("unknown parameter '".join("', '", @bad)."'\n") if @bad;
 }
 
 sub compile_dispatches {
@@ -212,7 +191,6 @@ sub compile_dispatches {
     $code = "my \$cgi = parse_cgi(\$req, {$multis}, {$singles});\n$code";
     $code2 .= "my \@args;\n";
     $code2 .= "push \@args, \$cgi->{'$_'};\n" for @args;
-    $code2 .= "&dispatch_checkcgi(\$cgi$known);\n" unless $hasstar;
     if ($callfunction) {
       $code .= "$code2\$callfunction->(\$f, \$cgi, \@args);\n";
     } else {
