@@ -226,11 +226,6 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     delete_patchinfo('home:Iggy')
   end
 
-  def open_new_patchinfo
-    click_link("Create patchinfo")
-    page.must_have_text "Patchinfo-Editor for "
-  end
-
   def create_patchinfo_for_test new_patchinfo
     new_patchinfo[:expect] ||= :success
     new_patchinfo[:packager] ||= current_user
@@ -305,29 +300,26 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
   def test_create_patchinfo_and_edit_it
     login_Iggy
     visit project_show_path(project: "home:Iggy")
-    open_new_patchinfo
-    create_patchinfo_for_test(
-      :summary => "This is a test for the patchinfoeditor",
-      :description => LONG_DESCRIPTION,
-      :category => "optional",
-      :rating => "critical")
+
+    click_link("Create patchinfo")
+    fill_in "summary", with: "This is a test for the patchinfo-editor"
+    fill_in "description", with: LONG_DESCRIPTION
+    click_button("Save Patchinfo")
 
     #edit the summary of the created patchinfo
     click_link("Edit patchinfo")
-    create_patchinfo_for_test(
-      :summary => "New summary for the patchinfo",
-      :description => find(:id, "description").text,
-      :category => find_field('category').find('option[selected]').text,
-      :rating => find_field('rating').find('option[selected]').text)
+    fill_in "summary", with: "This is a test for the patchinfo-editor"
+    fill_in "description", with: LONG_DESCRIPTION
+    find('select#category').select("optional")
+    find('select#rating').select("critical")
+    fill_in "issue", with: "bnc#90001"
+    click_button("Save Patchinfo")
 
-    # now add an issue
-    click_link("Edit patchinfo")
-    create_patchinfo_for_test(
-      :summary => find(:id, "summary").text,
-      :description => find(:id, "description").text,
-      :category => find_field('category').find('option[selected]').text,
-      :rating => find_field('rating').find('option[selected]').text,
-      :issue => "bnc#700500")
+    flash_message.must_equal "Successfully edited patchinfo"
+    page.must_have_text "optional update for"
+    page.must_have_text "This update was submitted from #{current_user}"
+    page.must_have_text "and rated as critical"
+
     delete_patchinfo('home:Iggy')
   end
 end
