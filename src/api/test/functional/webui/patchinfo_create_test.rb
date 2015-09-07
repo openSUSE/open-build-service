@@ -13,9 +13,8 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     visit project_show_path(project: "home:Iggy")
 
     click_link("Create patchinfo")
-    page.must_have_text("Patchinfo-Editor for")
     fill_in "summary", with: "Too short"
-    fill_in "description", with: "long text" * 20
+    fill_in "description", with: "long description" * 15
     click_button("Save Patchinfo")
 
     flash_message.must_equal "|| Summary is too short (should have more than 10 signs)"
@@ -51,6 +50,69 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     flash_message.must_equal "|| Summary is too short (should have more than 10 signs) " +
       "|| Description is too short (should have more than 50 signs and longer than summary)"
     flash_message_type.must_equal :alert
+
+    delete_patchinfo('home:Iggy')
+  end
+
+  # FIXME: Split this up into separate tests and user setup, etc
+  def test_accessability
+    login_Iggy
+    visit project_show_path(project: "home:Iggy")
+
+    click_link("Create patchinfo")
+    fill_in "summary", with: "This is a test for the patchinfo-editor"
+    fill_in "description", with: "long description" * 15
+    click_button("Save Patchinfo")
+
+    # check that the patchinfo is not editable for unauthorized users per buttons
+    login_adrian(do_assert: false)
+    visit patchinfo_show_path(project: "home:Iggy", package: "patchinfo")
+    page.wont_have_content("Edit patchinfo")
+    page.wont_have_content("Delete patchinfo")
+
+    # check that the patchinfo is not editable per direct url for unauthorized users
+    visit patchinfo_edit_patchinfo_path(project: "home:Iggy", package: "patchinfo")
+    click_button("Save Patchinfo")
+    flash_message.must_equal "No permission to edit the patchinfo-file."
+    flash_message_type.must_equal :alert
+
+    # check that the patchinfo is not editable for anonymous user per buttons
+    logout
+    visit patchinfo_show_path(project: "home:Iggy", package: "patchinfo")
+    page.wont_have_content("Edit patchinfo")
+    page.wont_have_content("Delete patchinfo")
+
+    # check that the patchinfo is not editable per direct url for unauthorized users
+    visit patchinfo_edit_patchinfo_path(project: "home:Iggy", package: "patchinfo")
+    page.must_have_text('Please Log In')
+
+    # Cleanup
+    login_Iggy
+    delete_patchinfo('home:Iggy')
+  end
+
+  def test_create_patchinfo_with_desc_and_sum
+    login_Iggy
+    visit project_show_path(project: "home:Iggy")
+
+    click_link("Create patchinfo")
+    page.must_have_text("Patchinfo-Editor for")
+
+    fill_in "summary", with: "This is a test for the patchinfo-editor"
+    description = "long description" * 15
+    fill_in "description", with: description
+    click_button("Save Patchinfo")
+
+    flash_message.must_equal "Successfully edited patchinfo"
+    page.must_have_text "recommended update for"
+    page.must_have_text "This is a test for the patchinfo-editor"
+    page.must_have_text "This update was submitted from #{current_user} " +
+      " and rated as low"
+
+    assert_equal find(:id, "description_text").text, description
+    page.must_have_selector("#zypp_false")
+    page.must_have_selector("#reboot_false")
+    page.must_have_selector("#relogin_false")
 
     delete_patchinfo('home:Iggy')
   end
@@ -141,11 +203,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
       else
         page.must_have_selector("#relogin_false")
       end
-    elsif new_patchinfo[:expect] == :no_permission
-      flash_message.must_equal "No permission to edit the patchinfo-file."
-      flash_message_type.must_equal :alert
     end
-
   end
 
   def delete_patchinfo project
@@ -164,45 +222,6 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     rescue Package::UnknownObjectError => e
       assert_equal "home:Iggy/patchinfo", e.message
     end
-  end
-
-  def test_create_patchinfo_with_desc_and_sum
-    login_Iggy
-    visit project_show_path(project: "home:Iggy")
-    open_new_patchinfo
-    create_patchinfo_for_test(
-      :summary => "This is a test for the patchinfoeditor",
-      :description => LONG_DESCRIPTION,
-      :category => "recommended",
-      :rating => "low")
-
-    # check that the patchinfo is not editable for unauthorized users per buttons
-    login_adrian(do_assert: false)
-    visit patchinfo_show_path(project: "home:Iggy", package: "patchinfo")
-    page.wont_have_content("Edit patchinfo")
-    page.wont_have_content("Delete patchinfo")
-
-    # check that the patchinfo is not editable per direct url for unauthorized users
-    visit patchinfo_edit_patchinfo_path(project: "home:Iggy", package: "patchinfo")
-    create_patchinfo_for_test(
-      :summary => "This is a test for the patchinfoeditor",
-      :description => LONG_DESCRIPTION,
-      :category => "recommended",
-      :rating => "low",
-      :expect => :no_permission)
-
-    # check that the patchinfo is not editable for anonymous user per buttons
-    logout
-    visit patchinfo_show_path(project: "home:Iggy", package: "patchinfo")
-    page.wont_have_content("Edit patchinfo")
-    page.wont_have_content("Delete patchinfo")
-
-    # check that the patchinfo is not editable per direct url for unauthorized users
-    visit patchinfo_edit_patchinfo_path(project: "home:Iggy", package: "patchinfo")
-    page.must_have_text('Please Log In')
-
-    login_Iggy
-    delete_patchinfo('home:Iggy')
   end
 
   def test_create_patchinfo_with_desc_sum_changed_rating_and_category
