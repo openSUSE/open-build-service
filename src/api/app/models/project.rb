@@ -960,8 +960,7 @@ class Project < ActiveRecord::Base
       processed.keys.each do |key|
         str = str + ' -- ' + key.name
       end
-      raise CycleError.new "There is a cycle in project link defintion at #{str}"
-      return nil
+      raise CycleError, "There is a cycle in project link defintion at #{str}"
     end
     processed[self]=1
 
@@ -974,8 +973,7 @@ class Project < ActiveRecord::Base
     # search via all linked projects
     self.linkedprojects.each do |lp|
       if self == lp.linked_db_project
-        raise CycleError.new 'project links against itself, this is not allowed'
-        return nil
+        raise CycleError, 'project links against itself, this is not allowed'
       end
 
       if lp.linked_db_project.nil?

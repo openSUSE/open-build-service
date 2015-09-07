@@ -24,7 +24,7 @@ Suse::Backend.do_not_start_test_backend
 
 perlopts="-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
 
-if File.exists?(backend_config)
+if File.exist?(backend_config)
   puts 'Old backend data is there. checking if we can stop it'
   %w{bs_srcserver bs_repserver bs_service bs_sched bs_publish bs_mergechanges}.each do |srv|
     system("cd #{backend_config} && exec perl #{perlopts} ./#{srv} --stop 2>&1 && sleep 2")
@@ -65,7 +65,7 @@ end
 end
 
 schedulerdone_file = Rails.root.join('tmp', 'scheduler.done')
-File.delete(schedulerdone_file) if File.exists?(schedulerdone_file)
+File.delete(schedulerdone_file) if File.exist?(schedulerdone_file)
 Thread.abort_on_exception = true
 srcsrv_out = nil
 reposrv_out = nil
@@ -322,7 +322,7 @@ at_exit do
   servicesrv.join
 #  FileUtils.rm_rf("#{backend_data}")
 #  FileUtils.rm_rf("#{backend_config}")
-  File.delete(schedulerdone_file) if File.exists?(schedulerdone_file)
+  File.delete(schedulerdone_file) if File.exist?(schedulerdone_file)
 end
 
 scheduler_thread = Thread.new do
