@@ -43,7 +43,7 @@ class Webui::PackageEditTest < Webui::IntegrationTest
 
     unless new_info[:description].nil?
       new_info[:description].squeeze!(' ')
-      new_info[:description].gsub!(/ *\n +/ , "\n")
+      new_info[:description].gsub!(/ *\n +/, "\n")
       new_info[:description].strip!
       fill_in 'description', with: new_info[:description]
     end

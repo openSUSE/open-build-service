@@ -42,7 +42,7 @@ class TagcloudTest < ActiveSupport::TestCase
 
     predecessor = cloud.tags[0]
     cloud.tags.each do |tag|
-      assert predecessor.name <= tag.name , "Error in sort_tags (by name), tags are not in alphabetical order"
+      assert predecessor.name <= tag.name, "Error in sort_tags (by name), tags are not in alphabetical order"
       predecessor = tag
     end
 
@@ -54,7 +54,7 @@ class TagcloudTest < ActiveSupport::TestCase
 
     predecessor = cloud.tags[0]
     cloud.tags.each do |tag|
-      assert predecessor.count >= tag.count , "Error in sort_tags (by count), tags are not in descending order"
+      assert predecessor.count >= tag.count, "Error in sort_tags (by count), tags are not in descending order"
       predecessor = tag
     end
   end

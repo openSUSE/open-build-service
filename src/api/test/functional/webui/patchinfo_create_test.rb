@@ -23,7 +23,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     new_patchinfo[:description] ||= ""
 
     new_patchinfo[:description].squeeze!(" ")
-    new_patchinfo[:description].gsub!(/ *\n +/ , "\n")
+    new_patchinfo[:description].gsub!(/ *\n +/, "\n")
     new_patchinfo[:description].strip!
     assert Patchinfo::CATEGORIES.include? new_patchinfo[:category]
     find('select#category').select(new_patchinfo[:category])

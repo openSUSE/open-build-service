@@ -19,7 +19,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
     new_package[:description] ||= ''
 
     new_package[:description].squeeze!(' ')
-    new_package[:description].gsub!(/ *\n +/ , "\n")
+    new_package[:description].gsub!(/ *\n +/, "\n")
     new_package[:description].strip!
     message_prefix = "Package '#{new_package[:name]}' "
 

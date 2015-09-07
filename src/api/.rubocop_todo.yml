@@ -904,19 +904,6 @@ Style/SpaceAroundOperators:
 Style/SpaceBeforeBlockBraces:
   Enabled: false
 
-# Offense count: 20
-# Cop supports --auto-correct.
-Style/SpaceBeforeComma:
-  Exclude:
-    - 'app/controllers/source_controller.rb'
-    - 'app/mixins/webui/has_comments.rb'
-    - 'test/functional/statistics_controller_test.rb'
-    - 'test/functional/webui/package_create_test.rb'
-    - 'test/functional/webui/package_edit_test.rb'
-    - 'test/functional/webui/patchinfo_create_test.rb'
-    - 'test/functional/webui/project_edit_test.rb'
-    - 'test/unit/tagcloud_test.rb'
-
 # Offense count: 109
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles, EnforcedStyleForEmptyBraces, SpaceBeforeBlockParameters.

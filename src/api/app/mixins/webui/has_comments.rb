@@ -9,7 +9,7 @@ module Webui::HasComments
 
     respond_to do |format|
       if comment.save
-        format.html { redirect_to :back , notice: 'Comment was successfully created.' }
+        format.html { redirect_to :back, notice: 'Comment was successfully created.' }
         format.json { render json: 'ok' }
       else
         format.html { redirect_to :back, error: "Comment can't be saved: #{comment.errors.full_messages.to_sentence}." }

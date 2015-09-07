@@ -85,7 +85,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
    get url_for(:controller => :statistics, :action => :added_timestamp, :project => "HiddenProject", :package => "pack")
    assert_response 200
 
-   get url_for(:controller => :statistics, :action => :updated_timestamp , :project => "HiddenProject", :package => "pack")
+   get url_for(:controller => :statistics, :action => :updated_timestamp, :project => "HiddenProject", :package => "pack")
    assert_response 200
 
    get url_for(:controller => :statistics, :action => :added_timestamp, :project => "kde4", :package => "kdelibs")
@@ -101,16 +101,16 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
    get url_for(:controller => :statistics, :action => :updated_timestamp, :project => "kde4", :package => "kdelibs")
    assert_response 200
 
-   get url_for(:controller => :statistics, :action => :added_timestamp , :project => "HiddenProject", :package => "not_existing")
+   get url_for(:controller => :statistics, :action => :added_timestamp, :project => "HiddenProject", :package => "not_existing")
    assert_response 404
 
-   get url_for(:controller => :statistics, :action => :updated_timestamp , :project => "HiddenProject", :package => "not_existing")
+   get url_for(:controller => :statistics, :action => :updated_timestamp, :project => "HiddenProject", :package => "not_existing")
    assert_response 404
 
-   get url_for(:controller => :statistics, :action => :added_timestamp , :project => "HiddenProject")
+   get url_for(:controller => :statistics, :action => :added_timestamp, :project => "HiddenProject")
    assert_response 404
 
-   get url_for(:controller => :statistics, :action => :updated_timestamp , :project => "HiddenProject")
+   get url_for(:controller => :statistics, :action => :updated_timestamp, :project => "HiddenProject")
    assert_response 404
 
  end
@@ -123,10 +123,10 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
    get url_for(:controller => :statistics, :action => :rating, :project => "kde4")
    assert_response :success
 
-   get url_for(:controller => :statistics, :action => :rating , :project => "HiddenProject", :package => "NOT_EXISTING")
+   get url_for(:controller => :statistics, :action => :rating, :project => "HiddenProject", :package => "NOT_EXISTING")
    assert_response 404
 
-   get url_for(:controller => :statistics, :action => :rating , :project => "HiddenProject", :package => nil)
+   get url_for(:controller => :statistics, :action => :rating, :project => "HiddenProject", :package => nil)
    assert_response :success
 
    get url_for(:controller => :statistics, :action => :activity, :project => "kde4", :package => "kdelibs")
@@ -135,10 +135,10 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
    get url_for(:controller => :statistics, :action => :activity, :project => "kde4", :package => nil)
    assert_response :success
 
-   get url_for(:controller => :statistics, :action => :activity , :project => "HiddenProject", :package => "pack")
+   get url_for(:controller => :statistics, :action => :activity, :project => "HiddenProject", :package => "pack")
    assert_response :success
 
-   get url_for(:controller => :statistics, :action => :activity , :project => "HiddenProject", :package => nil)
+   get url_for(:controller => :statistics, :action => :activity, :project => "HiddenProject", :package => nil)
    assert_response :success
 
    # no access to HiddenProject
@@ -146,10 +146,10 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
    get url_for(:controller => :statistics, :action => :rating, :project => "kde4", :package => "kdelibs")
    assert_response :success
 
-   get url_for(:controller => :statistics, :action => :rating , :project => "HiddenProject", :package => nil)
+   get url_for(:controller => :statistics, :action => :rating, :project => "HiddenProject", :package => nil)
    assert_response 404
 
-   get url_for(:controller => :statistics, :action => :rating , :project => "HiddenProject", :package => "NOT_EXISTING")
+   get url_for(:controller => :statistics, :action => :rating, :project => "HiddenProject", :package => "NOT_EXISTING")
    assert_response 404
 
    get url_for(:controller => :statistics, :action => :activity, :project => "kde4", :package => "kdelibs")
