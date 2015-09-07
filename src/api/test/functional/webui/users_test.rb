@@ -4,25 +4,24 @@ require_relative '../../test_helper'
 class Webui::EditPackageUsersTest < Webui::IntegrationTest
   # ============================================================================
   #
+  def edit_role cell, new_value
+    unless new_value.nil?
+      input = cell.first(:css, 'input')
+      input.click unless input.selected? == new_value
+    end
+  end
+
   def edit_user options
     assert !options[:name].blank?
 
     row = find(:css, "tr#user-#{options[:name]}")
     cell = row.all(:css, 'td')
 
-    def edit_role cell, new_value
-      unless new_value.nil?
-        input = cell.first(:css, 'input')
-        input.click unless input.selected? == new_value
-      end
-    end
-
     edit_role cell[1], options[:maintainer]
     edit_role cell[2], options[:bugowner]
     edit_role cell[3], options[:reviewer]
     edit_role cell[4], options[:downloader]
     edit_role cell[5], options[:reader]
-
   end
 
   # ============================================================================
@@ -119,11 +118,9 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
 
     delete_user :user4
     page.wont_have_selector 'table#user_table tr#user-user4'
-
   end
 
   def test_add_and_edit_project_users
-
     @project = 'kde4'
     @userspath = project_users_path(project: @project)
 
@@ -166,5 +163,4 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
       :downloader => true,
       :reader     => true
   end
-
 end
