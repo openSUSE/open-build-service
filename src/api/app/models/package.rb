@@ -891,7 +891,7 @@ class Package < ActiveRecord::Base
                 noservice: "1",
                 oproject:  origin_project,
                 opackage:  origin_package,
-                user:      User.current.login,
+                user:      User.current.login
     }
     myparam[:orev] = rev if rev and not rev.empty?
     myparam[:missingok] = '1' if missingok

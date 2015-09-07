@@ -93,7 +93,7 @@ module MaintenanceHelper
       user:      User.current.login,
       cmd:       "commitfilelist",
       noservice: "1",
-      comment:   "Set link to #{targetPackageName} via maintenance_release request",
+      comment:   "Set link to #{targetPackageName} via maintenance_release request"
     }
     upload_params[:requestid] = action.bs_request.id if action
     upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}"
@@ -117,7 +117,7 @@ module MaintenanceHelper
     upload_params = {
       user:    User.current.login,
       rev:     "repository",
-      comment: "Set link to #{targetPackageName} via maintenance_release request",
+      comment: "Set link to #{targetPackageName} via maintenance_release request"
     }
     upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(basePackageName)}/_link"
     upload_path << Suse::Backend.build_query_from_hash(upload_params, [:user, :rev])
@@ -146,7 +146,7 @@ module MaintenanceHelper
       expand:         "1",
       withvrev:       "1",
       noservice:      "1",
-      withacceptinfo: "1",
+      withacceptinfo: "1"
     }
     cp_params[:requestid] = action.bs_request.id if action
     cp_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetPackageName)}"
@@ -196,7 +196,7 @@ module MaintenanceHelper
       opackage:    sourcePackage.name,
       orepository: sourceRepo.name,
       user:        User.current.login,
-      resign:      "1",
+      resign:      "1"
     }
     cp_params[:setupdateinfoid] = updateinfoId if updateinfoId
     cp_params[:setrelease] = setrelease if setrelease

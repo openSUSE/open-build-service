@@ -29,7 +29,7 @@ class User < ActiveRecord::Base
     'locked'             => 3,
     'deleted'            => 4,
     'ichainrequest'      => 5,
-    'retrieved_password' => 6,
+    'retrieved_password' => 6
   }
 
   has_many :taggings, :dependent => :destroy

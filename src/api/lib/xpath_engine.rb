@@ -42,21 +42,21 @@ class XpathEngine
            'LEFT JOIN issues ON issues.id = package_issues.issue_id',
            'LEFT JOIN attribs ON attribs.package_id = packages.id',
            'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
-           'LEFT JOIN issues AS issues2 ON issues2.id = attrib_issues.issue_id',
+           'LEFT JOIN issues AS issues2 ON issues2.id = attrib_issues.issue_id'
           ]},
         'issue/@name' => {:cpart => 'issues.name = ? or issues2.name', :double => true, :joins =>
           ['LEFT JOIN package_issues ON packages.id = package_issues.package_id',
            'LEFT JOIN issues ON issues.id = package_issues.issue_id',
            'LEFT JOIN attribs ON attribs.package_id = packages.id',
            'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
-           'LEFT JOIN issues AS issues2 ON issues2.id = attrib_issues.issue_id',
+           'LEFT JOIN issues AS issues2 ON issues2.id = attrib_issues.issue_id'
           ]},
         'issue/@tracker' => {:cpart => 'issue_trackers.name', :joins =>
           ['LEFT JOIN package_issues AS package_issuet ON packages.id = package_issuet.package_id',
            'LEFT JOIN issues AS issuet ON issuet.id = package_issuet.issue_id',
            'LEFT JOIN issue_trackers ON issuet.issue_tracker_id = issue_trackers.id',
            'LEFT JOIN attribs AS attribt ON attribt.package_id = packages.id',
-           'LEFT JOIN attrib_issues AS attrib_issuet ON attrib_issuet.attrib_id = attribt.id',
+           'LEFT JOIN attrib_issues AS attrib_issuet ON attrib_issuet.attrib_id = attribt.id'
           ]},
         'issue/@change' => {:cpart => 'package_issues.change',
                             joins: 'LEFT JOIN package_issues ON packages.id = package_issues.package_id'},
@@ -98,7 +98,7 @@ class XpathEngine
         'project/attribute/@name' => {:cpart => 'attrib_namespaces_proj.name = ? AND attrib_types_proj.name', :split => ':', :joins =>
           ['LEFT JOIN attribs AS attribs_proj ON attribs_proj.project_id = packages.project_id',
            'LEFT JOIN attrib_types AS attrib_types_proj ON attribs_proj.attrib_type_id = attrib_types_proj.id',
-           'LEFT JOIN attrib_namespaces AS attrib_namespaces_proj ON attrib_types_proj.attrib_namespace_id = attrib_namespaces_proj.id']},
+           'LEFT JOIN attrib_namespaces AS attrib_namespaces_proj ON attrib_types_proj.attrib_namespace_id = attrib_namespaces_proj.id']}
       },
       'projects' => {
         '@name' => {:cpart => 'projects.name'},
@@ -134,7 +134,7 @@ class XpathEngine
         'attribute/@name' => {:cpart => 'attrib_namespaces.name = ? AND attrib_types.name', :split => ':', :joins =>
           ['LEFT JOIN attribs ON attribs.project_id = projects.id',
            'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
-           'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id']},
+           'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id']}
       },
       'repositories' => {
         '@project' => {cpart: 'pr.name',
@@ -151,7 +151,7 @@ class XpathEngine
         'targetproduct/@name' => {:cpart => 'product.name'},
         'targetproduct/@baseversion' => {:cpart => 'product.baseversion'},
         'targetproduct/@patchlevel' => {:cpart => 'product.patchlevel'},
-        'targetproduct/@version' => {:cpart => 'product.version'},
+        'targetproduct/@version' => {:cpart => 'product.version'}
       },
       'channel_binaries' => {
         '@name' => {:cpart => 'channel_binaries.name'},
@@ -172,7 +172,7 @@ class XpathEngine
         'updatefor/@product' => {:cpart => 'pupn.name', :joins => [
           'LEFT join channel_targets ufnct on ufnct.channel_id=channel.id',
           'LEFT join product_update_repositories pnur on pnur.repository_id=ufnct.repository_id',
-          'LEFT join products pupn on pupn.id=pnur.product_id ']},
+          'LEFT join products pupn on pupn.id=pnur.product_id ']}
       },
       'released_binaries' => {
         '@name' => {:cpart => 'binary_name'},
@@ -210,13 +210,13 @@ class XpathEngine
         'product/@name' => {:cpart => 'product_ga.name'},
         'product/@arch' => {:cpart => 'ppna.name', :joins => [
           'LEFT join architectures ppna on ppna.id=product_media.arch_filter_id ']},
-        'product/@medium' => {:cpart => 'product_media.name'},
+        'product/@medium' => {:cpart => 'product_media.name'}
       },
       'users' => {
         '@login' => {:cpart => 'users.login'},
         '@email' => {:cpart => 'users.email'},
         '@realname' => {:cpart => 'users.realname'},
-        '@state' => {:cpart => 'users.state'},
+        '@state' => {:cpart => 'users.state'}
        },
       'issues' => {
         '@name' => {:cpart => 'issues.name'},
@@ -227,7 +227,7 @@ class XpathEngine
         'owner/@email' => {:cpart => 'users.email', :joins =>
           ['LEFT JOIN users ON users.id = issues.owner_id']},
         'owner/@login' => {:cpart => 'users.login', :joins =>
-          ['LEFT JOIN users ON users.id = issues.owner_id']},
+          ['LEFT JOIN users ON users.id = issues.owner_id']}
       },
       'requests' => {
         '@id' => { :cpart => 'bs_requests.id' },
@@ -259,7 +259,7 @@ class XpathEngine
         'submit/target/@project' => { empty: true },
         'submit/target/@package' => { empty: true },
         'submit/source/@project' => { empty: true },
-        'submit/source/@package' => { empty: true },
+        'submit/source/@package' => { empty: true }
       }
     }
     # rubocop:enable Style/AlignHash
@@ -349,7 +349,7 @@ class XpathEngine
                 'LEFT join repositories path_repo on path_element.repository_id=path_repo.id',
                 'LEFT join release_targets release_target on release_target.repository_id=repositories.id',
                 'LEFT join product_update_repositories product_update_repository on product_update_repository.repository_id=release_target.target_repository_id',
-                'LEFT join products product on product.id=product_update_repository.product_id ',
+                'LEFT join products product on product.id=product_update_repository.product_id '
                ] << @joins
     when 'requests'
       relation = BsRequest.all
@@ -367,7 +367,7 @@ class XpathEngine
     when 'channel_binaries'
       relation = ChannelBinary.all
       @joins = [ 'LEFT join channel_binary_lists channel_binary_list on channel_binary_list.id=channel_binaries.channel_binary_list_id',
-                 'LEFT join channels channel on channel.id=channel_binary_list.channel_id',
+                 'LEFT join channels channel on channel.id=channel_binary_list.channel_id'
                ] << @joins
     when 'released_binaries'
       relation = BinaryRelease.all
@@ -377,7 +377,7 @@ class XpathEngine
                 'LEFT join product_media on (product_media.repository_id=release_repositories.id AND product_media.name=binary_releases.medium)',
                 'LEFT join products product_ga on product_ga.id=product_media.product_id ',
                 'LEFT join product_update_repositories product_update_repository on product_update_repository.repository_id=release_repositories.id',
-                'LEFT join products product_update on product_update.id=product_update_repository.product_id ',
+                'LEFT join products product_update on product_update.id=product_update_repository.product_id '
                ] << @joins
       order = :binary_releasetime
     else

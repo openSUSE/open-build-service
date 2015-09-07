@@ -65,13 +65,13 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
       when 'icons-project'
       when 'project'
         { :type         => :project,
-          :project_name => row.find('a.project').text,
+          :project_name => row.find('a.project').text
         }
       when 'icons-package'
       when 'package'
         { :type         => :package,
           :project_name => row.find('a.project').text,
-          :package_name => row.find('a.package').text,
+          :package_name => row.find('a.package').text
         }
       else
         fail "Unrecognized result icon. #{theclass}"

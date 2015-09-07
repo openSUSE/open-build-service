@@ -146,7 +146,7 @@ module Webui::WebuiHelper
     'broken'               => 'exclamation',
     'outdated_broken'      => 'exclamation',
     'scheduling'           => 'cog',
-    'outdated_scheduling'  => 'cog_error',
+    'outdated_scheduling'  => 'cog_error'
   }
 
   REPO_STATUS_DESCRIPTIONS = {
@@ -157,7 +157,7 @@ module Webui::WebuiHelper
     'finished'    => 'Build jobs have been processed, new repository is not yet created',
     'blocked'     => 'No build possible atm, waiting for jobs in other repositories',
     'broken'      => 'The repository setup is broken, build not possible',
-    'scheduling'  => 'The repository state is being calculated right now',
+    'scheduling'  => 'The repository state is being calculated right now'
   }
 
   def repo_status_icon(status)

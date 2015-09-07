@@ -106,11 +106,11 @@ class Wizard
     # note that the name is already known when running in the buildservice
     "name"        => {
       'type'  => "text",
-      'label' => "Name of the package",
+      'label' => "Name of the package"
     },
     "sourcefile"  => {
       'type'  => "url",
-      'label' => "Source file to download",
+      'label' => "Source file to download"
     },
     "generator"   => {
       'type'    => "select",
@@ -118,26 +118,26 @@ class Wizard
       'options' => [
 # shall be requested from backend
         { "-" => { 'label' => "skip"} },
-        { "qmake" => { 'label' => "qmake based code generator"} },
-      ],
+        { "qmake" => { 'label' => "qmake based code generator"} }
+      ]
     },
     "summary"     => {
       'type'  => "text",
-      'label' => "Short summary of the package",
+      'label' => "Short summary of the package"
     },
     "description" => {
       'type'  => "longtext",
-      'label' => "Describe your package",
+      'label' => "Describe your package"
     },
     "license"     => {
       'type'  => "text",
-      'label' => "License of the package",
+      'label' => "License of the package"
     },
     "group"       => {
       'type'   => "text",
       'label'  => "Package group",
-      'legend' => "See http://en.opensuse.org/SUSE_Package_Conventions/RPM_Groups",
-    },
+      'legend' => "See http://en.opensuse.org/SUSE_Package_Conventions/RPM_Groups"
+    }
   }
 
   public

@@ -922,7 +922,7 @@ class BsRequest < ActiveRecord::Base
       reviewers += action.default_reviewers
 
       action.create_post_permissions_hook({
-         per_package_locking: @per_package_locking,
+         per_package_locking: @per_package_locking
       })
     end
 

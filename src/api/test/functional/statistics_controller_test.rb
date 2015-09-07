@@ -25,7 +25,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag :tag => 'latest_added', :child => { :tag => 'project' }
     assert_xml_tag :tag => 'project', :attributes => {
-      :name => "home:adrian",
+      :name => "home:adrian"
     }
 
     login_fred
@@ -62,7 +62,7 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
    assert_response :success
    assert_xml_tag :tag => 'latest_updated', :child => { :tag => 'package' }
    assert_xml_tag :tag => 'package', :attributes => {
-     :name => "pack3",
+     :name => "pack3"
    }
 
    login_fred
