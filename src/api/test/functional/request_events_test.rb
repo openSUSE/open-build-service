@@ -45,7 +45,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       body = "<request>\n"
       actions=1000
-      actions.times do |t|
+      actions.times do
         body += "<action type='add_role'><target project='home:tom'/><person name='Iggy' role='reviewer'/></action>\n"
       end
       body += "</request>"

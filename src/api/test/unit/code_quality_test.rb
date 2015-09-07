@@ -119,7 +119,7 @@ class CodeQualityTest < ActiveSupport::TestCase
     flog.calculate
     mismatches = []
 
-    flog.each_by_score do |class_method, score, call_list|
+    flog.each_by_score do |class_method, score, _|
       break if score < 80 # they are sorted. 80 means the function still fits on a standard screen
       next if class_method.end_with? '#none'
       score = Integer(score * 100)

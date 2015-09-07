@@ -14,7 +14,7 @@ module OBSApi
         out = t.get_html(out)
       end
       # users
-      out.gsub!(/([^\w]|^)@([-\w]+)([^\w]|$)/) do |s|
+      out.gsub!(/([^\w]|^)@([-\w]+)([^\w]|$)/) do
         # We need to save $1,$2 and $3 since we are calling gsub again inside the block
         s1, s2, s3 = $1, $2, $3
         "#{s1}<a href=\"#{user_show_url(s2)}\">@#{s2.gsub('_','\_')}</a>#{s3}"

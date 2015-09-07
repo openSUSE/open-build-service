@@ -25,7 +25,7 @@ class Webui::AttributeController < Webui::WebuiController
   def edit
     authorize @attribute
     if @attribute.attrib_type.value_count and ( @attribute.attrib_type.value_count > @attribute.values.length )
-      ( @attribute.attrib_type.value_count - @attribute.values.length ).times do |i|
+      ( @attribute.attrib_type.value_count - @attribute.values.length ).times do
         @attribute.values.build(attrib: @attribute)
       end
     end

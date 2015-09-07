@@ -250,7 +250,7 @@ module ActiveXML
 
     def each(symbol = nil)
       result = Array.new
-      each_with_index(symbol) do |node, index|
+      each_with_index(symbol) do |node, _|
         result << node
         yield node if block_given?
       end

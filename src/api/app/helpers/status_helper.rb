@@ -15,7 +15,7 @@ module StatusHelper
 
     index = 0
 
-    1.upto(samples) do |i|
+    1.upto(samples) do
       value = 0.0
       count = 0
       while index < values.length && values[index][0] <= now + samplerate
