@@ -43,7 +43,7 @@ module Suse
         Rails.logger
       end
 
-      def get(path, in_headers={})
+      def get(path, in_headers = {})
         start_test_backend
         @start_of_last = Time.now
         logger.debug "[backend] GET: #{path}"
@@ -92,18 +92,18 @@ module Suse
         handle_response response
       end
 
-      def put(path, data, in_headers={})
+      def put(path, data, in_headers = {})
         put_or_post("PUT", path, data, in_headers)
       end
 
-      def post(path, data, in_headers={})
+      def post(path, data, in_headers = {})
         in_headers = {
             'Content-Type' => 'application/octet-stream'
         }.merge in_headers
         put_or_post("POST", path, data, in_headers)
       end
 
-      def delete(path, in_headers={})
+      def delete(path, in_headers = {})
         start_test_backend
         @start_of_last = Time.now
         logger.debug "[backend] DELETE: #{path}"
@@ -123,7 +123,7 @@ module Suse
       alias_method :post_source, :post
       alias_method :delete_source, :delete
 
-      def build_query_from_hash(hash, key_list=nil)
+      def build_query_from_hash(hash, key_list = nil)
         key_list ||= hash.keys
         query = key_list.map do |key|
           if hash.has_key?(key)

@@ -107,7 +107,7 @@ module FlagHelper
     end
   end
 
-  def set_repository_by_product(flag, status, product_name, patchlevel=nil)
+  def set_repository_by_product(flag, status, product_name, patchlevel = nil)
     validate_type flag
 
     prj = self

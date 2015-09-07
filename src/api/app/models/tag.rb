@@ -8,7 +8,7 @@ class Tag < ActiveRecord::Base
 
   attr_accessor :cached_count
 
-  def count(opt={})
+  def count(opt = {})
     if @cached_count
       #logger.debug "[TAG:] tag usage count is already calculated. count: #{@cached_count}"
       return @cached_count

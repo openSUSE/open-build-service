@@ -23,7 +23,7 @@ class Line
   end
 end
 
-def log_line(file, d, prefix='')
+def log_line(file, d, prefix = '')
   file.write prefix + d.line.inspect
   d.lines.each do |l|
     log_line(file, l, prefix + '  ')

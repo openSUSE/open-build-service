@@ -255,7 +255,7 @@ module MaintenanceHelper
     tpkg
   end
 
-  def import_channel(channel, pkg, targetRepo=nil)
+  def import_channel(channel, pkg, targetRepo = nil)
     channel = REXML::Document.new(channel)
 
     if targetRepo
@@ -285,7 +285,7 @@ module MaintenanceHelper
     pkg.update_backendinfo
   end
 
-  def instantiate_container(project, opackage, opts={})
+  def instantiate_container(project, opackage, opts = {})
     opkg = opackage.local_origin_container
     pkg_name = opkg.name
     if opkg.is_a? Package and opkg.project.is_maintenance_release?

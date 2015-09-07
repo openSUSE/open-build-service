@@ -201,7 +201,7 @@ class Project < ActiveRecord::Base
     end
   end
 
-  def update_instance(namespace='OBS', name='UpdateProject')
+  def update_instance(namespace = 'OBS', name = 'UpdateProject')
     # check if a newer instance exists in a defined update project
     if a = self.find_attribute(namespace, name) and a.values[0]
       return Project.find_by_name(a.values[0].value)
@@ -251,13 +251,13 @@ class Project < ActiveRecord::Base
     end
   end
 
-  def self.is_remote_project?(name, skip_access=false)
+  def self.is_remote_project?(name, skip_access = false)
     lpro = find_remote_project(name, skip_access)
 
     lpro && lpro[0].is_remote?
   end
 
-  def self.check_access?(dbp=self)
+  def self.check_access?(dbp = self)
     return false if dbp.nil?
     # check for 'access' flag
 
@@ -321,7 +321,7 @@ class Project < ActiveRecord::Base
     return dbp
   end
 
-  def self.get_maintenance_project(at=nil)
+  def self.get_maintenance_project(at = nil)
     # hardcoded default. frontends can lookup themselfs a different target via attribute search
     at ||= AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject')
     maintenanceProject = Project.find_by_attribute_type(at).first
@@ -360,7 +360,7 @@ class Project < ActiveRecord::Base
     Project.joins(:attribs).where(:attribs => { :attrib_type_id => attrib_type.id })
   end
 
-  def self.find_remote_project(name, skip_access=false)
+  def self.find_remote_project(name, skip_access = false)
     return if !name || skip_access
 
     fragments = name.split(/:/)
@@ -485,7 +485,7 @@ class Project < ActiveRecord::Base
     end
   end
 
-  def update_from_xml(xmlhash, force=nil)
+  def update_from_xml(xmlhash, force = nil)
     check_write_access!
 
     # check for raising read access permissions, which can't get ensured atm
@@ -843,7 +843,7 @@ class Project < ActiveRecord::Base
     possible_projects
   end
 
-  def to_axml(_opts={})
+  def to_axml(_opts = {})
     Rails.cache.fetch('xml_project_%d' % id) do
       # CanRenderModel
       render_xml
@@ -936,7 +936,7 @@ class Project < ActiveRecord::Base
     false
   end
 
-  def exists_package?(name, opts={})
+  def exists_package?(name, opts = {})
     CacheLine.fetch([self, 'exists_package', name, opts], project: self.name, package: name) do
       if opts[:follow_project_links]
         pkg = self.find_package(name)
@@ -953,7 +953,7 @@ class Project < ActiveRecord::Base
   end
 
   # find a package in a project and its linked projects
-  def find_package(package_name, check_update_project=nil, processed={})
+  def find_package(package_name, check_update_project = nil, processed = {})
     # cycle check in linked projects
     if processed[self]
       str = self.name
@@ -1002,7 +1002,7 @@ class Project < ActiveRecord::Base
     all_repositories.uniq
   end
 
-  def expand_all_projects(project_map={}, allow_remote_projects=true)
+  def expand_all_projects(project_map = {}, allow_remote_projects = true)
     # cycle check
     return [] if project_map[self]
     project_map[self] = 1
@@ -1054,7 +1054,7 @@ class Project < ActiveRecord::Base
   end
 
   # return array of [:name, :project_id] tuples
-  def expand_all_packages(project_map={}, package_map={})
+  def expand_all_packages(project_map = {}, package_map = {})
     # check for project link cycle
     return [] if project_map[self]
     project_map[self] = 1
@@ -1136,7 +1136,7 @@ class Project < ActiveRecord::Base
     end
   end
 
-  def branch_to_repositories_from(project, pkg_to_enable, extend_names=nil)
+  def branch_to_repositories_from(project, pkg_to_enable, extend_names = nil)
     # shall we use the repositories from a different project?
     project = project.update_instance('OBS', 'BranchRepositoriesFromProject')
     skip_repos=[]
@@ -1384,7 +1384,7 @@ class Project < ActiveRecord::Base
     end
   end
 
-  def request_ids_by_class(useroles=true)
+  def request_ids_by_class(useroles = true)
     roles = %w(reviewer) if useroles
     reviews = BsRequest.collection(project: name, states: %w(review), roles: roles ).ids
 
@@ -1428,7 +1428,7 @@ class Project < ActiveRecord::Base
     projects
   end
 
-  def unlock(comment=nil)
+  def unlock(comment = nil)
     if self.is_maintenance_incident?
       rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
       rel = rel.where(bs_request_actions: { type: 'maintenance_release', source_project: self.name})

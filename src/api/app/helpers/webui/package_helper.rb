@@ -1,6 +1,6 @@
 module Webui::PackageHelper
 
-  def file_url( project, package, filename, revision=nil )
+  def file_url( project, package, filename, revision = nil )
     opts = {}
     if revision
       opts[:rev] = revision

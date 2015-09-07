@@ -426,7 +426,7 @@ class User < ActiveRecord::Base
     end
   end
 
-  def to_axml(_opts={})
+  def to_axml(_opts = {})
     render_axml
   end
 
@@ -525,7 +525,7 @@ class User < ActiveRecord::Base
   private :can_modify_project_internal
 
   # project is instance of Project
-  def can_modify_project?(project, ignoreLock=nil)
+  def can_modify_project?(project, ignoreLock = nil)
     unless project.kind_of? Project
       raise ArgumentError, "illegal parameter type to User#can_modify_project?: #{project.class.name}"
     end
@@ -541,7 +541,7 @@ class User < ActiveRecord::Base
   end
 
   # package is instance of Package
-  def can_modify_package?(package, ignoreLock=nil)
+  def can_modify_package?(package, ignoreLock = nil)
     return false if package.nil? # happens with remote packages easily
     unless package.kind_of? Package
       raise ArgumentError, "illegal parameter type to User#can_modify_package?: #{package.class.name}"
@@ -554,7 +554,7 @@ class User < ActiveRecord::Base
   end
 
   # project is instance of Project
-  def can_create_package_in?(project, ignoreLock=nil)
+  def can_create_package_in?(project, ignoreLock = nil)
     unless project.kind_of? Project
       raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
     end

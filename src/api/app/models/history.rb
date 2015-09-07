@@ -2,7 +2,7 @@
 
 class History
 
-  def self.find_by_request(request, opts={})
+  def self.find_by_request(request, opts = {})
      if opts[:withreviews]
        req_history = HistoryElement::Request.where(op_object_id: request.id)
 

@@ -445,7 +445,7 @@ class XpathEngine
     #logger.debug "-------------- predicate finished ----------"
   end
 
-  def evaluate_expr(expr, root, escape=false)
+  def evaluate_expr(expr, root, escape = false)
     table = @base_table
     a = Array.new
     while !expr.empty?

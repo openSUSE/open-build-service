@@ -45,7 +45,7 @@ module Suse
     # the second arg can be omitted if the first one is a Package object. second
     # arg is needed if first arg is a string
 
-    def package_change?( package, project=nil )
+    def package_change?( package, project = nil )
       logger.debug "User #{@user.login} wants to change the package"
 
       # Get DbPackage object

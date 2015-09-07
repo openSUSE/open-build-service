@@ -3,7 +3,7 @@ module ActiveXML
     @@transport_api
   end
 
-  def self.setup_transport_api(schema, host, port, prefix='')
+  def self.setup_transport_api(schema, host, port, prefix = '')
     @@transport_api = Transport.new(schema, host, port, prefix)
   end
 
@@ -80,8 +80,8 @@ module ActiveXML
       Rails.logger
     end
 
-    def connect( model, target, opt={} )
-      opt.each do |key, _|
+    def connect(model, target, opt = {})
+      opt.each do |key, value|
         opt[key] = URI(opt[key])
         replace_server_if_needed( opt[key] )
       end
@@ -110,7 +110,7 @@ module ActiveXML
       @mapping[model][:opt]
     end
 
-    def initialize( schema, host, port, prefix='' )
+    def initialize( schema, host, port, prefix = '' )
       @schema = schema
       @host = host
       @port = port
@@ -187,19 +187,19 @@ module ActiveXML
       return [objdata, params]
     end
 
-    def create(object, opt={})
+    def create(object, opt = {})
       logger.debug "creating object #{object.class} (#{object.init_options.inspect}) to api:\n #{object.dump_xml}"
       url = substituted_uri_for( object, :create, opt )
       http_do 'post', url, :data => object.dump_xml
     end
 
-    def save(object, opt={})
+    def save(object, opt = {})
       logger.debug "saving object #{object.class} (#{object.init_options.inspect}) to api:\n #{object.dump_xml}"
       url = substituted_uri_for( object, nil, opt )
       http_do 'put', url, :data => object.dump_xml
     end
 
-    def delete(object, opt={})
+    def delete(object, opt = {})
       logger.debug "delete object #{object.class} (#{object.init_options.inspect}) to api:\n #{object.dump_xml}"
       url = substituted_uri_for( object, :delete, opt )
       http_do 'delete', url
@@ -223,7 +223,7 @@ module ActiveXML
     end
 
     # TODO: get rid of this very thin wrapper
-    def direct_http( url, opt={} )
+    def direct_http( url, opt = {} )
       defaults = {:method => "GET"}
       opt = defaults.merge opt
 
@@ -282,7 +282,7 @@ module ActiveXML
       return u
     end
 
-    def substituted_uri_for( object, path_id=nil, opt={} )
+    def substituted_uri_for( object, path_id = nil, opt = {} )
       symbolified_model = object.class.name.downcase.split('::').last.to_sym
       options = options_for(symbolified_model)
       if path_id and options.has_key? path_id
@@ -293,7 +293,7 @@ module ActiveXML
       substitute_uri( uri, object.instance_variable_get("@init_options").merge(opt) )
     end
 
-    def http_do( method, url, opt={} )
+    def http_do( method, url, opt = {} )
       defaults = {:timeout => 60}
       opt = defaults.merge opt
 

@@ -38,7 +38,7 @@ class IssueTracker < ActiveRecord::Base
   #  end
 
   # Generates a URL to display a given issue in the upstream issue tracker
-  def show_url_for(issue, html=nil)
+  def show_url_for(issue, html = nil)
     return nil unless issue
     url = show_url.gsub('@@@', issue)
     return "<a href=\"#{url}\">#{CGI::escapeHTML(show_label_for(issue))}</a>" if html
@@ -148,7 +148,7 @@ class IssueTracker < ActiveRecord::Base
     return false
   end
 
-  def fetch_issues(issues=nil)
+  def fetch_issues(issues = nil)
     unless issues
       # find all new issues for myself
       issues = self.issues.stateless
@@ -219,7 +219,7 @@ class IssueTracker < ActiveRecord::Base
     end
   end
 
-  def parse_github_issue(js, create=nil)
+  def parse_github_issue(js, create = nil)
       issue = nil
       if create
         issue = Issue.find_or_create_by_name_and_tracker(js["number"].to_s, self.name)
@@ -307,7 +307,7 @@ class CVEparser < Nokogiri::XML::SAX::Document
     @@myTracker = tracker
   end
 
-  def start_element(name, attrs=[])
+  def start_element(name, attrs = [])
     if name == "item"
       cve=nil
       attrs.each_index do |i|

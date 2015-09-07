@@ -58,7 +58,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     super(opts)
   end
 
-  def _merge_pkg_into_maintenance_incident(incidentProject, source_project, source_package, releaseproject=nil, request=nil)
+  def _merge_pkg_into_maintenance_incident(incidentProject, source_project, source_package, releaseproject = nil, request = nil)
     # recreate package based on link target and throw everything away, except source changes
     # silently as maintenance teams requests ...
     new_pkg = nil
@@ -163,7 +163,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     new_pkg
   end
 
-  def merge_into_maintenance_incident(incidentProject, source_project, source_package, releaseproject=nil, request=nil)
+  def merge_into_maintenance_incident(incidentProject, source_project, source_package, releaseproject = nil, request = nil)
 
     # copy all or selected packages and project source files from base project
     # we don't branch from it to keep the link target.

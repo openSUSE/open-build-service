@@ -343,7 +343,7 @@ module ActiveXML
       Node.new(xmlnode)
     end
 
-    def add_element ( element, attrs=nil )
+    def add_element ( element, attrs = nil )
       raise 'First argument must be an element name' if element.nil?
       el = _data.document.create_element(element)
       _data.add_child(el)
@@ -501,7 +501,7 @@ module ActiveXML
       Rails.logger
     end
 
-    def save(opt={})
+    def save(opt = {})
       if opt[:create]
         @raw_data = self.class.transport.create self, opt
         @data = nil
@@ -513,7 +513,7 @@ module ActiveXML
       return true
     end
 
-    def delete(opt={})
+    def delete(opt = {})
       #Rails.logger.debug "Delete #{self.class}, opt: #{opt.inspect}"
       self.class.transport.delete self, opt
       free_cache

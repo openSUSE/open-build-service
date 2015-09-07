@@ -4,7 +4,7 @@ class WizardForm
   attr_reader(:label, :legend, :entries)
   attr_accessor(:last)
 
-  def initialize(label, legend="")
+  def initialize(label, legend = "")
     @label = label
     @legend = legend
     @entries = []

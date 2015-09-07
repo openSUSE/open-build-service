@@ -21,7 +21,7 @@ class PublicController < ApplicationController
     redirect_to controller: 'about', action: 'index'
   end
 
-  def check_package_access(project, package, use_source=true)
+  def check_package_access(project, package, use_source = true)
 
     # don't use the cache for use_source
     if use_source

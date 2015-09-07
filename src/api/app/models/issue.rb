@@ -13,7 +13,7 @@ class Issue < ActiveRecord::Base
 
   scope :stateless, -> { where(:state => nil) }
 
-  def self.find_or_create_by_name_and_tracker( name, issue_tracker_name, force_update=nil )
+  def self.find_or_create_by_name_and_tracker( name, issue_tracker_name, force_update = nil )
     self.find_by_name_and_tracker(name, issue_tracker_name, {
       :force_update   => force_update,
       :create_missing => true
@@ -92,7 +92,7 @@ class Issue < ActiveRecord::Base
     self.issue_tracker.show_url.gsub('@@@', self.name)
   end
 
-  def render_body(node, change=nil)
+  def render_body(node, change = nil)
     p={}
     p[:change] = change if change
     node.issue(p) do |issue|
@@ -126,7 +126,7 @@ class Issue < ActiveRecord::Base
                                              Nokogiri::XML::Node::SaveOptions::FORMAT
   end
 
-  def to_axml(_opts={})
+  def to_axml(_opts = {})
     Rails.cache.fetch('issue_%d' % self.id) do
       render_axml
     end

@@ -7,7 +7,7 @@ module Webui::WebuiHelper
   include ActionView::Helpers::JavaScriptHelper
   include ActionView::Helpers::AssetTagHelper
 
-  def get_frontend_url_for(opt={})
+  def get_frontend_url_for(opt = {})
     opt[:host] ||= CONFIG['external_frontend_host'] || CONFIG['frontend_host']
     opt[:port] ||= CONFIG['external_frontend_port'] || CONFIG['frontend_port']
     opt[:protocol] ||= CONFIG['external_frontend_protocol'] || CONFIG['frontend_protocol']
@@ -20,7 +20,7 @@ module Webui::WebuiHelper
     return "#{opt[:protocol]}://#{opt[:host]}:#{opt[:port]}/#{opt[:controller]}"
   end
 
-  def bugzilla_url(email_list='', desc='')
+  def bugzilla_url(email_list = '', desc = '')
     return '' if @configuration['bugzilla_url'].blank?
     assignee = email_list.first if email_list
     if email_list.length > 1
@@ -39,7 +39,7 @@ module Webui::WebuiHelper
     abs_path
   end
 
-  def user_icon(user, size=20, css_class=nil, alt=nil)
+  def user_icon(user, size = 20, css_class = nil, alt = nil)
     user = User.find_by_login!(user) unless user.is_a? User
     alt ||= user.realname
     alt = user.login if alt.empty?
@@ -402,7 +402,7 @@ module Webui::WebuiHelper
   # @param [String] user login of the user
   # @param [String] role title of the login
   # @param [Hash]   options boolean flags :short, :no_icon and :no_link
-  def user_and_role(user, role=nil, options = {})
+  def user_and_role(user, role = nil, options = {})
     opt = { short: false, no_icon: false, no_link: false }.merge(options)
     realname = User.realname_for_login(user)
     output = ''

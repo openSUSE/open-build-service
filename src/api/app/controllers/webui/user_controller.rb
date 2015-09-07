@@ -277,7 +277,7 @@ class Webui::UserController < Webui::WebuiController
 
   protected
 
-  def list_users(prefix=nil, hash=nil)
+  def list_users(prefix = nil, hash = nil)
     names = []
     users = User.arel_table
     User.where(users[:login].matches("#{prefix}%")).pluck(:login).each do |user|

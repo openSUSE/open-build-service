@@ -7,7 +7,7 @@ class Service < ActiveXML::Node
   class InvalidParameter < APIException
   end
 
-  def addDownloadURL(url, filename=nil)
+  def addDownloadURL(url, filename = nil)
     begin
       uri = URI.parse(url)
     rescue
@@ -65,7 +65,7 @@ class Service < ActiveXML::Node
   end
 
   # parameters need to be given as an array with hash pairs :name and :value
-  def addService(name, position=-1, parameters=[])
+  def addService(name, position = -1, parameters = [])
     element = add_element 'service', 'name' => name
     if position >= 0
       service_elements = each("/services/service")
