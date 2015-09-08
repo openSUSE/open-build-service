@@ -2938,7 +2938,8 @@ my $rekillcnt = 0;
 my $conf = {
   'timeout' => 10,
 };
-while (!BSServer::server($conf)) {
+my $req;
+while (!($req = BSServer::server($conf))) {
   # timeout handler, called every 10 seconds
   my $state = readxml("$statedir/state", $BSXML::workerstate, 1);
   next unless $state;
@@ -3070,7 +3071,7 @@ while (!BSServer::server($conf)) {
 }
 close RUNLOCK;
 
-my $req = BSServer::readrequest();
+BSServer::readrequest($req);
 my $path = $req->{'path'};
 my $multies;
 $multies = {'file' => undef} if $path eq '/kiwitree';

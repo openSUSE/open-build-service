@@ -288,7 +288,7 @@ sub server {
       }
     }
     # timeout was set in the $conf and select timeouted on this value. There was no new connection -> exit.
-    return 0 if !$r && defined $timeout;
+    return undef if !$r && defined $timeout;
   }
   # from now on, this is only the child process
   close MS;
@@ -340,7 +340,7 @@ sub server {
     exit(0);
   }
   $SIG{'__DIE__'} = sub { die(@_) if $^S; reply_error($conf, $_[0]); };
-  return 1;
+  return $req;
 }
 
 sub msg {
