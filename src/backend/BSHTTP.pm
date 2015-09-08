@@ -296,8 +296,10 @@ sub cpio_receiver {
 }
 
 sub swrite {
-  my ($sock, $data) = @_;
+  my ($sock, $data, $chunked) = @_;
   local *S = $sock;
+  return if $chunked && $data eq '';	# can't write that
+  $data = sprintf("%X\r\n", length($data)).$data."\r\n" if $chunked;
   while (length($data)) {
     my $l = syswrite(S, $data, length($data));
     die("socket write: $!\n") unless $l;
@@ -354,8 +356,7 @@ sub cpio_sender {
       while(1) {
         $r = sysread(F, $data, $l > 8192 ? 8192 : $l, length($data)) if $l;
         $data .= substr("\0\0\0\0", ($s[7] % 4)) if $r == $l && ($s[7] % 4) != 0;
-	$data = sprintf("%X\r\n", length($data)).$data."\r\n" if $param->{'chunked'};
-	swrite($sock, $data);
+	swrite($sock, $data, $param->{'chunked'});
         $data = '';
         $l -= $r;
         last unless $l;
@@ -365,13 +366,11 @@ sub cpio_sender {
     } else {
       $data .= $file->{'data'};
       $data .= substr("\0\0\0\0", (length($data) & 3)) if length($data) & 3;
-      $data = sprintf("%X\r\n", length($data)).$data."\r\n" if $param->{'chunked'};
-      swrite($sock, $data);
+      swrite($sock, $data, $param->{'chunked'});
     }
   }
   $data = "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000b00000000TRAILER!!!\0\0\0\0";
-  $data = sprintf("%X\r\n", length($data)).$data."\r\n" if $param->{'chunked'};
-  swrite($sock, $data);
+  swrite($sock, $data, $param->{'chunked'});
   return '';
 }
 
@@ -394,8 +393,7 @@ sub file_sender {
       $data = substr($data, 0, $bytes) if length($data) > $bytes;
       $bytes -= length($data);
     }
-    $data = sprintf("%X\r\n", length($data)).$data."\r\n" if $param->{'chunked'};
-    swrite($sock, $data);
+    swrite($sock, $data, $param->{'chunked'});
   }
   close F unless ref $param->{'filename'};
   return '';
