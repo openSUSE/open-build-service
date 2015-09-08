@@ -529,7 +529,7 @@ sub readrequest {
 }
 
 sub swrite {
-  BSHTTP::swrite(\*CLNT, $_[0]);
+  BSHTTP::swrite(\*CLNT, @_);
 }
 
 sub get_content_type {
@@ -589,7 +589,7 @@ sub reply_cpio {
   reply(undef, 'Content-Type: application/x-cpio', 'Transfer-Encoding: chunked', @args);
   $req->{'replying'} = 2;
   BSHTTP::cpio_sender({'cpiofiles' => $files, 'chunked' => 1}, \*CLNT);
-  BSHTTP::swrite(\*CLNT, "0\r\n\r\n");
+  swrite("0\r\n\r\n");
 }
 
 sub reply_file {
@@ -621,7 +621,7 @@ sub reply_file {
   $param->{'bytes'} = $1 if @cl && $cl[0] =~ /(\d+)/;
   $param->{'chunked'} = 1 if $chunked;
   BSHTTP::file_sender($param, \*CLNT);
-  BSHTTP::swrite(\*CLNT, "0\r\n\r\n") if $chunked;
+  swrite("0\r\n\r\n") if $chunked;
 }
 
 sub reply_receiver {
@@ -645,8 +645,7 @@ sub reply_receiver {
   while(1) {
     my $data = BSHTTP::read_data($req, 8192);
     last unless defined($data) && $data ne '';
-    $data = sprintf("%X\r\n", length($data)).$data."\r\n" if $chunked;
-    swrite($data);
+    swrite($data, $chunked);
   }
   swrite("0\r\n\r\n") if $chunked;
 }
@@ -656,7 +655,12 @@ sub reply_receiver {
 # sender (like file_sender in BSHTTP) that forwards received data
 
 sub forward_sender {
-  return read_data(8192);
+  my ($param, $sock) = @_;
+  my $data;
+  while (($data = read_data(8192)) ne '') {
+    BSHTTP::swrite($sock, $data, $param->{'chunked'});
+  }
+  return '';
 }
 
 1;
