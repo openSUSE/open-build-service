@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 require_relative '../../test_helper'
 
-class Webui::PatchinfoCreateTest < Webui::IntegrationTest
+class Webui::PatchinfoControllerTest < Webui::IntegrationTest
 
   LONG_DESCRIPTION = "long description" * 15
 
