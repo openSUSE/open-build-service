@@ -127,12 +127,12 @@ class ProjectTest < ActiveSupport::TestCase
       </project>"
       )
 
-    @project.update_from_xml(axml)
+    @project.update_from_xml!(axml)
 
     assert_equal 0, @project.type_flags('build').size
     assert_equal 1, @project.type_flags('debuginfo').size
 
-    @project.update_from_xml(Xmlhash.parse(original))
+    @project.update_from_xml!(Xmlhash.parse(original))
   end
 
   def test_ordering
@@ -150,7 +150,7 @@ class ProjectTest < ActiveSupport::TestCase
         </repository>
       </project>"
       )
-    @project.update_from_xml(axml)
+    @project.update_from_xml!(axml)
     @project.reload
 
     xml = @project.render_xml
@@ -172,7 +172,7 @@ class ProjectTest < ActiveSupport::TestCase
         </repository>
       </project>"
       )
-    @project.update_from_xml(axml)
+    @project.update_from_xml!(axml)
 
     xml = @project.render_xml
 
@@ -195,7 +195,7 @@ class ProjectTest < ActiveSupport::TestCase
         </maintenance>
       </project>"
       )
-    @project.update_from_xml(axml)
+    @project.update_from_xml!(axml)
     @project.reload
     xml = @project.render_xml
     assert_xml_tag xml, :tag => :maintains, :attributes => { :project => "BaseDistro" }
@@ -211,7 +211,7 @@ class ProjectTest < ActiveSupport::TestCase
         </maintenance>
       </project>"
       )
-    @project.update_from_xml(axml)
+    @project.update_from_xml!(axml)
     @project.reload
     xml = @project.render_xml
     assert_xml_tag xml, :tag => :maintains, :attributes => { :project => "BaseDistro" }
@@ -227,7 +227,7 @@ class ProjectTest < ActiveSupport::TestCase
         </maintenance>
       </project>"
       )
-    @project.update_from_xml(axml)
+    @project.update_from_xml!(axml)
     @project.reload
     xml = @project.render_xml
     assert_no_xml_tag xml, :tag => :maintains, :attributes => { :project => "BaseDistro" }
@@ -241,7 +241,7 @@ class ProjectTest < ActiveSupport::TestCase
         <description>dummy</description>
       </project>"
       )
-    @project.update_from_xml(axml)
+    @project.update_from_xml!(axml)
     @project.reload
     xml = @project.render_xml
     assert_no_xml_tag xml, :tag => :maintenance
@@ -265,7 +265,7 @@ class ProjectTest < ActiveSupport::TestCase
       )
      assert_raise(ActiveRecord::RecordInvalid) do
        Project.transaction do
-         @project.update_from_xml(axml)
+         @project.update_from_xml!(axml)
        end
      end
      @project.reload
@@ -293,7 +293,7 @@ END
      axml = Xmlhash.parse(xml)
      assert_raise(ActiveRecord::RecordInvalid) do
        Project.transaction do
-         @project.update_from_xml(axml)
+         @project.update_from_xml!(axml)
        end
      end
      @project.reload
@@ -320,7 +320,7 @@ END
 END
      axml = Xmlhash.parse(xml)
      Project.transaction do
-       @project.update_from_xml(axml)
+       @project.update_from_xml!(axml)
      end
      @project.reload
      assert_equal xml, @project.render_xml
@@ -338,7 +338,7 @@ END
       </project>"
       )
     projectA = Project.create( :name => "home:Iggy:A" )
-    projectA.update_from_xml(axml)
+    projectA.update_from_xml!(axml)
     # project B
     axml = Xmlhash.parse(
       "<project name='home:Iggy:B'>
@@ -348,7 +348,7 @@ END
       </project>"
       )
     projectB = Project.create( :name => "home:Iggy:B" )
-    projectB.update_from_xml(axml)
+    projectB.update_from_xml!(axml)
 
     # validate xml
     xml_string = projectA.to_axml
@@ -367,7 +367,7 @@ END
     User.current = users( :king )
 
     prj = Project.new(name: "DoD")
-    prj.update_from_xml( Xmlhash.parse(
+    prj.update_from_xml!( Xmlhash.parse(
       "<project name='DoD'>
         <title/>
         <description/>
@@ -394,7 +394,7 @@ END
     User.current = users( :king )
 
     prj = Project.new(name: "Enterprise-SP0:GA")
-    prj.update_from_xml( Xmlhash.parse(
+    prj.update_from_xml!( Xmlhash.parse(
       "<project name='Enterprise-SP0:GA'>
         <title/>
         <description/>
@@ -403,7 +403,7 @@ END
       )
     )
     prj = Project.new(name: "Enterprise-SP0:Update")
-    prj.update_from_xml( Xmlhash.parse(
+    prj.update_from_xml!( Xmlhash.parse(
       "<project name='Enterprise-SP0:Update' kind='maintenance_release'>
         <title/>
         <description/>
@@ -414,7 +414,7 @@ END
       )
     )
     prj = Project.new(name: "Enterprise-SP1:GA")
-    prj.update_from_xml( Xmlhash.parse(
+    prj.update_from_xml!( Xmlhash.parse(
       "<project name='Enterprise-SP1:GA'>
         <title/>
         <description/>
@@ -425,7 +425,7 @@ END
       )
     )
     prj = Project.new(name: "Enterprise-SP1:Update")
-    prj.update_from_xml( Xmlhash.parse(
+    prj.update_from_xml!( Xmlhash.parse(
       "<project name='Enterprise-SP1:Update' kind='maintenance_release'>
         <title/>
         <description/>
@@ -437,7 +437,7 @@ END
       )
     )
     prj = Project.new(name: "Enterprise-SP1:Channel:Server")
-    prj.update_from_xml( Xmlhash.parse(
+    prj.update_from_xml!( Xmlhash.parse(
       "<project name='Enterprise-SP1:Channel:Server'>
         <title/>
         <description/>
@@ -449,7 +449,7 @@ END
     )
     # this is what the classic add_repository call is producing:
     prj = Project.new(name: "My:Branch")
-    prj.update_from_xml( Xmlhash.parse(
+    prj.update_from_xml!( Xmlhash.parse(
       "<project name='My:Branch'>
         <title/>
         <description/>
@@ -523,21 +523,21 @@ END
     User.current = users( :king )
 
     prj_a = Project.new(name: "Project:A")
-    prj_a.update_from_xml( Xmlhash.parse(
+    prj_a.update_from_xml!( Xmlhash.parse(
       "<project name='Project:A'>
         <title/>
         <description/>
        </project>") )
     prj_a.save!
     prj_b = Project.new(name: "Project:B")
-    prj_b.update_from_xml( Xmlhash.parse(
+    prj_b.update_from_xml!( Xmlhash.parse(
       "<project name='Project:B'>
         <title/>
         <description/>
         <link project='Project:A'/>
        </project>") )
     prj_b.save!
-    prj_a.update_from_xml( Xmlhash.parse(
+    prj_a.update_from_xml!( Xmlhash.parse(
       "<project name='Project:A'>
         <title/>
         <description/>

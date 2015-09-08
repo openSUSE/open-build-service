@@ -485,7 +485,7 @@ class Project < ActiveRecord::Base
     end
   end
 
-  def update_from_xml(xmlhash, force = nil)
+  def update_from_xml!(xmlhash, force = nil)
     check_write_access!
 
     # check for raising read access permissions, which can't get ensured atm
@@ -542,7 +542,12 @@ class Project < ActiveRecord::Base
     self.updated_at = Time.now
   end
 
-
+  def update_from_xml(xmlhash, force = nil)
+    update_from_xml(xmlhash, force)
+    { }
+  rescue APIException => e
+    { error: e.message }
+  end
 
   def update_repositories(xmlhash, force)
     fill_repo_cache
