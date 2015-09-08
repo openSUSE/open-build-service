@@ -380,6 +380,11 @@ class Package < ActiveRecord::Base
     Suse::Backend.get(source_path(file, opts)).body
   end
 
+  # Reads the source file and converts it into an ActiveXML::Node
+  def source_file_to_axml(file, opts = {})
+    ActiveXML::Node.new(self.source_file(file, opts))
+  end
+
   def self.dir_hash(project, package, opts = {})
     begin
       directory = Suse::Backend.get(source_path(project, package, nil, opts)).body
@@ -750,6 +755,16 @@ class Package < ActiveRecord::Base
   def channels
     update_if_dirty
     super
+  end
+
+  def services
+    the_services = Service.find(project: self.project.name, package: self.name)
+    the_services ||= Service.new(project: self.project.name, package: self.name)
+    the_services
+  end
+
+  def build_result(repository, view = [])
+    Buildresult.find(project: self.project, package: self, repository: repository, view: view)
   end
 
   # first package in link chain outside of my project
