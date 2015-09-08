@@ -41,7 +41,7 @@ class Channel < ActiveRecord::Base
   def name
     name = package.name
     name += "."
-    name += package.project.name.gsub(/:/,'_')
+    name += package.project.name.gsub(/:/, '_')
     return name
   end
 
@@ -132,7 +132,7 @@ class Channel < ActiveRecord::Base
     save
   end
 
-  def branch_channel_package_into_project(project, comment=nil)
+  def branch_channel_package_into_project(project, comment = nil)
     cp = self.package
 
     # create a package container
@@ -154,7 +154,7 @@ class Channel < ActiveRecord::Base
     self.channel_targets.where(disabled: false).size > 0
   end
 
-  def add_channel_repos_to_project(tpkg, mode=nil)
+  def add_channel_repos_to_project(tpkg, mode = nil)
     cp = self.package
 
     if self.channel_targets.empty?

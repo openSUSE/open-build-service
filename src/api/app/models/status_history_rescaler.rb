@@ -63,4 +63,3 @@ class StatusHistoryRescaler
     end
   end
 end
-

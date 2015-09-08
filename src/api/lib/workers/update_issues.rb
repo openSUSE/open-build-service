@@ -15,5 +15,3 @@ class UpdateIssuesJob
   end
 
 end
-
-

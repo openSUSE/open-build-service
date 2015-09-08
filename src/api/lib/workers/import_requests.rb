@@ -24,5 +24,3 @@ class ImportRequestsDelayedJob
   end
 
 end
-
-

@@ -187,4 +187,3 @@ class PublishFlagTest < ActiveSupport::TestCase
 
 
 end
-

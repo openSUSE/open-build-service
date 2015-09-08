@@ -7,4 +7,3 @@ ActionController::Renderers.add :json do |json, _|
     self.content_type ||= Mime::JSON
     json
 end
-

@@ -14,8 +14,8 @@ class FixProductMediaUniqIndex < ActiveRecord::Migration
     create_table :product_media do |t|
       t.references :product
       t.references :repository
-      t.integer    :arch_filter_id
-      t.string     :name
+      t.integer :arch_filter_id
+      t.string :name
     end
     add_index :product_media, :product_id
     add_index :product_media, :arch_filter_id
@@ -29,7 +29,7 @@ class FixProductMediaUniqIndex < ActiveRecord::Migration
     create_table :product_update_repositories do |t|
       t.references :product
       t.references :repository
-      t.integer    :arch_filter_id
+      t.integer :arch_filter_id
     end
     add_index :product_update_repositories, :product_id
     add_index :product_update_repositories, :arch_filter_id
@@ -46,8 +46,8 @@ class FixProductMediaUniqIndex < ActiveRecord::Migration
     create_table :product_media do |t|
       t.references :product
       t.references :repository
-      t.integer    :arch_filter_id
-      t.string     :name
+      t.integer :arch_filter_id
+      t.string :name
     end
     add_index :product_media, :arch_filter_id
     add_index :product_media, [:product_id, :repository_id, :name], unique: true, :name => "index_unique"
@@ -59,7 +59,7 @@ class FixProductMediaUniqIndex < ActiveRecord::Migration
     create_table :product_update_repositories do |t|
       t.references :product
       t.references :repository
-      t.integer    :arch_filter_id
+      t.integer :arch_filter_id
     end
     add_index :product_update_repositories, :arch_filter_id
     add_index :product_update_repositories, [:product_id, :repository_id], unique: true, :name => "index_unique"

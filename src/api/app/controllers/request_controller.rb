@@ -26,7 +26,7 @@ class RequestController < ApplicationController
 
   def render_request_collection
     # if all params areblank, something is wrong
-    raise RequireFilter.new if [:project,:user,:states,:types,:reviewstates,:ids].all? { |f| params[f].blank? }
+    raise RequireFilter.new if [:project, :user, :states, :types, :reviewstates, :ids].all? { |f| params[f].blank? }
 
     # convert comma seperated values into arrays
     roles = params[:roles].split(',') if params[:roles]
@@ -88,12 +88,12 @@ class RequestController < ApplicationController
     # FIXME: this should be moved into the model functions, doing
     #        these actions
     case params[:cmd]
-    when 'create','changestate','addreview','setpriority','setincident'
+    when 'create', 'changestate', 'addreview', 'setpriority', 'setincident'
       # create -> noop
       # changestate,addressview,setpriority,setincident -> the model is checking already
-    when 'changereviewstate','assignreview'
+    when 'changereviewstate', 'assignreview'
       @req.permission_check_change_review!(params)
-    when 'addrequest','removerequest'
+    when 'addrequest', 'removerequest'
       # FIXME3.0: to be dropped
       @req.permission_check_change_groups!
     else

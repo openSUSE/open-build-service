@@ -26,7 +26,7 @@ class AttribType < ActiveRecord::Base
      find_by_name(name, true)
   end
 
-  def self.find_by_name(name, or_fail=false)
+  def self.find_by_name(name, or_fail = false)
     name_parts = name.split(/:/)
     if name_parts.length != 2
       raise ArgumentError, "attribute '#{name}' must be in the $NAMESPACE:$NAME style"
@@ -38,7 +38,7 @@ class AttribType < ActiveRecord::Base
      find_by_namespace_and_name(namespace, name, true)
   end
 
-  def self.find_by_namespace_and_name(namespace, name, or_fail=false)
+  def self.find_by_namespace_and_name(namespace, name, or_fail = false)
     unless namespace and name
       raise ArgumentError, "Need namespace and name as parameters"
     end

@@ -9,5 +9,3 @@ class WriteConfigurationJob
   end
 
 end
-
-

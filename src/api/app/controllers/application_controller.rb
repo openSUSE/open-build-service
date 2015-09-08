@@ -130,7 +130,7 @@ class ApplicationController < ActionController::Base
         logger.debug( "Email: #{ldap_info[0]}" )
         logger.debug( "Name : #{ldap_info[1]}" )
         # Generate and store a fake pw in the OBS DB that no-one knows
-        chars = ["A".."Z","a".."z","0".."9"].collect { |r| r.to_a }.join
+        chars = ["A".."Z", "a".."z", "0".."9"].collect { |r| r.to_a }.join
         fakepw = (1..24).collect { chars[rand(chars.size)] }.pack('a'*24)
         newuser = User.create(
             :login => @login,
@@ -571,7 +571,7 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def render_ok(opt={})
+  def render_ok(opt = {})
     # keep compatible to old call style
     @errorcode = "ok"
     @summary = "Ok"
@@ -579,7 +579,7 @@ class ApplicationController < ActionController::Base
     render :template => 'status', :status => 200
   end
 
-  def render_invoked(opt={})
+  def render_invoked(opt = {})
     @errorcode = "invoked"
     @summary = "Job invoked"
     @data = opt[:data] if opt[:data]
@@ -611,7 +611,7 @@ class ApplicationController < ActionController::Base
     __send__ cmd_handler
   end
 
-  def build_query_from_hash(hash, key_list=nil)
+  def build_query_from_hash(hash, key_list = nil)
     Suse::Backend.build_query_from_hash(hash, key_list)
   end
 

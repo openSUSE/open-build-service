@@ -6,7 +6,7 @@ module NodeMatcher #:nodoc:
       super()
       hash = { :content => hash } unless hash.kind_of?(Hash)
       hash = keys_to_symbols(hash)
-      hash.each do |k,v|
+      hash.each do |k, v|
         case k
         when :tag, :content then
           # keys are valid, and require no further processing
@@ -17,7 +17,7 @@ module NodeMatcher #:nodoc:
           hash[k] = Conditions.new(v)
         when :children
           hash[k] = v = keys_to_symbols(v)
-          v.each do |key,value|
+          v.each do |key, value|
             case key
             when :count, :greater_than, :less_than
               # keys are valid, and require no further processing
@@ -245,7 +245,7 @@ module NodeMatcher #:nodoc:
       end
 
       if conditions[:after]
-        return false unless siblings[0,self_index].detect do |s|
+        return false unless siblings[0, self_index].detect do |s|
           s != node && match(s, conditions[:after])
         end
       end

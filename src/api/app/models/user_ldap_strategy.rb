@@ -59,7 +59,7 @@ class UserLdapStrategy
 
     # Update mail/password info
     entry = [
-        LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_mail_attr'], [newemail]),
+        LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_mail_attr'], [newemail])
     ]
     if newpassword
       case CONFIG['ldap_auth_mech']
@@ -116,7 +116,7 @@ class UserLdapStrategy
         LDAP.mod(LDAP::LDAP_MOD_ADD, 'objectclass', CONFIG['ldap_object_class']),
         LDAP.mod(LDAP::LDAP_MOD_ADD, CONFIG['ldap_name_attr'], [login]),
         LDAP.mod(LDAP::LDAP_MOD_ADD, CONFIG['ldap_auth_attr'], [ldap_password]),
-        LDAP.mod(LDAP::LDAP_MOD_ADD, CONFIG['ldap_mail_attr'], [mail]),
+        LDAP.mod(LDAP::LDAP_MOD_ADD, CONFIG['ldap_mail_attr'], [mail])
     ]
     # Added required sn attr
     if CONFIG.has_key('ldap_sn_attr_required') && CONFIG['ldap_sn_attr_required'] == :on
@@ -328,7 +328,7 @@ class UserLdapStrategy
         ldap_password = "{MD5}"+Base64.b64encode(Digest::MD5.digest(password)).chomp
     end
     entry = [
-        LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_auth_attr'], [ldap_password]),
+        LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_auth_attr'], [ldap_password])
     ]
     begin
       ldap_con.modify(dn, entry)
@@ -375,8 +375,8 @@ class UserLdapStrategy
     dn = [ dn ].flatten.join(',')
     begin
       dn_components = dn.split(',').map{ |n| n.strip().split('=') }
-      dn_uid = dn_components.select{ |x,_| x == 'uid' }.map{ |_,y| y }
-      dn_path = dn_components.select{ |x,_| x == 'dc' }.map{ |_,y| y }
+      dn_uid = dn_components.select { |x, _| x == 'uid' }.map { |_, y| y }
+      dn_path = dn_components.select { |x, _| x == 'dc' }.map { |_, y| y }
       upn = "#{dn_uid.fetch(0)}@#{dn_path.join('.')}"
     rescue
       # if we run into unexpected input just return an empty string

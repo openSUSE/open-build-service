@@ -737,7 +737,7 @@ class BsRequestAction < ActiveRecord::Base
     sprj
   end
 
-  def check_action_permission!(skip_source=nil)
+  def check_action_permission!(skip_source = nil)
     # find objects if specified or report error
     role=nil
     sprj=nil

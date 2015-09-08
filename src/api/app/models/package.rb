@@ -86,7 +86,7 @@ class Package < ActiveRecord::Base
 
   class << self
 
-    def check_access?(dbpkg=self)
+    def check_access?(dbpkg = self)
       return false if dbpkg.nil?
       return false unless dbpkg.class == Package
       return Project.check_access?(dbpkg.project)
@@ -195,7 +195,7 @@ class Package < ActiveRecord::Base
       Package.where(name: package.to_s, projects: { name: project }).includes(:project).first
     end
 
-    def find_by_attribute_type(attrib_type, package=nil)
+    def find_by_attribute_type(attrib_type, package = nil)
       # One sql statement is faster than a ruby loop
       # attribute match in package or project
       sql =<<-END_SQL
@@ -222,7 +222,7 @@ class Package < ActiveRecord::Base
       ret
     end
 
-    def find_by_attribute_type_and_value(attrib_type, value, package=nil)
+    def find_by_attribute_type_and_value(attrib_type, value, package = nil)
       # One sql statement is faster than a ruby loop
       sql =<<-END_SQL
       SELECT pack.*
@@ -271,7 +271,7 @@ class Package < ActiveRecord::Base
     return self.project.is_locked?
   end
 
-  def check_write_access!(ignoreLock=nil)
+  def check_write_access!(ignoreLock = nil)
     return if Rails.env.test? and User.current.nil? # for unit tests
     # test _product permissions if any other _product: subcontainer is used
     obj = self
@@ -297,7 +297,7 @@ class Package < ActiveRecord::Base
     find_linking_packages(1)
   end
 
-  def find_linking_packages(project_local=nil)
+  def find_linking_packages(project_local = nil)
     path = "/search/package/id?match=(linkinfo/@package=\"#{CGI.escape(self.name)}\"+and+linkinfo/@project=\"#{CGI.escape(self.project.name)}\""
     path += "+and+@project=\"#{CGI.escape(self.project.name)}\"" if project_local
     path += ')'
@@ -435,7 +435,7 @@ class Package < ActiveRecord::Base
     PackageIssue.sync_relations(self, current_issues)
   end
 
-  def parse_issues_xml(query, force_state=nil)
+  def parse_issues_xml(query, force_state = nil)
     begin
       answer = Suse::Backend.post(self.source_path(nil, query), nil)
     rescue ActiveXML::Transport::Error => e
@@ -679,7 +679,7 @@ class Package < ActiveRecord::Base
     return "<package project='#{::Builder::XChar.encode(project.name)}' name='#{::Builder::XChar.encode(name)}'/>\n"
   end
 
-  def to_axml(_opts={})
+  def to_axml(_opts = {})
     Rails.cache.fetch('xml_package_%d' % self.id) do
       # CanRenderModel
       render_xml
@@ -804,14 +804,14 @@ class Package < ActiveRecord::Base
     return li['project'] == self.project.name
   end
 
-  def modify_channel(mode=nil)
+  def modify_channel(mode = nil)
     raise InvalidParameterError unless [:add_disabled, :enable_all].include? mode
     channel = self.channels.first
     return unless channel
     channel.add_channel_repos_to_project(self, mode)
   end
 
-  def add_channels(mode=nil)
+  def add_channels(mode = nil)
     raise InvalidParameterError unless [nil, :add_disabled, :skip_disabled, :enable_all].include? mode
     return if self.is_channel?
 
@@ -837,7 +837,7 @@ class Package < ActiveRecord::Base
     opkg.find_project_local_linking_packages.each do |p|
       name = p.name
       # strip incident suffix in update release projects
-      name.gsub!(/\.[^\.]*$/,'') if opkg.project.is_maintenance_release?
+      name.gsub!(/\.[^\.]*$/, '') if opkg.project.is_maintenance_release?
       ChannelBinary.find_by_project_and_package(project_name, name).each do |cb|
         _add_channel(mode, cb, "Listed in #{project_name} #{name}")
       end
@@ -854,7 +854,7 @@ class Package < ActiveRecord::Base
   end
   private :_add_channel
 
-  def update_instance(namespace='OBS', name='UpdateProject')
+  def update_instance(namespace = 'OBS', name = 'UpdateProject')
     # check if a newer instance exists in a defined update project
     self.project.update_instance(namespace, name).find_package(self.name)
   end
@@ -886,12 +886,12 @@ class Package < ActiveRecord::Base
     errors.add(:name, 'is illegal') unless Package.valid_name?(self.name)
   end
 
-  def branch_from(origin_project, origin_package, rev=nil, missingok=nil, comment=nil)
+  def branch_from(origin_project, origin_package, rev = nil, missingok = nil, comment = nil)
     myparam = { cmd:       "branch",
                 noservice: "1",
                 oproject:  origin_project,
                 opackage:  origin_package,
-                user:      User.current.login,
+                user:      User.current.login
     }
     myparam[:orev] = rev if rev and not rev.empty?
     myparam[:missingok] = '1' if missingok

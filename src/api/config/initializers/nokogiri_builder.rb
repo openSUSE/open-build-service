@@ -20,4 +20,3 @@ module ActionView
 end
 
 ActionView::Template.register_template_handler :builder, ActionView::Template::Handlers::NokogiriBuilder.new
-

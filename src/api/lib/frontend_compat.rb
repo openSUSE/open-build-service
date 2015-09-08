@@ -6,7 +6,7 @@ class FrontendCompat
     Rails.logger
   end
 
-  def source_cmd( cmd, opt={} )
+  def source_cmd( cmd, opt = {} )
     extraparams = ''
     extraparams << "&repository=#{esc opt[:repository]}" if opt[:repository]
     extraparams << "&arch=#{esc opt[:arch]}" if opt[:arch]
@@ -24,7 +24,7 @@ class FrontendCompat
 
   #  opt takes keys: project(needed), repository, arch
   #  missing project raises RuntimeError
-  def cmd( command, opt={} )
+  def cmd( command, opt = {} )
     raise RuntimeError, 'project name missing' unless opt.has_key? :project
     logger.debug "--> #{command}: #{opt.inspect}"
     path = "/build/#{opt[:project]}?cmd=#{command}"
@@ -38,7 +38,7 @@ class FrontendCompat
     transport.direct_http URI("#{path}"), :method => 'POST', :data => ''
   end
 
-  def put_file( data, opt={} )
+  def put_file( data, opt = {} )
     path = '/source'
     path += "/#{pesc opt[:project]}" if opt[:project]
     path += "/#{pesc opt[:package]}" if opt[:project] && opt[:package]
@@ -47,7 +47,7 @@ class FrontendCompat
     transport.http_do :put, URI("#{path}"), data: data, timeout: 500
   end
 
-  def do_post( data, opt={} )
+  def do_post( data, opt = {} )
     path = '/source'
     path += "/#{pesc opt[:project]}" if opt[:project]
     path += "/#{pesc opt[:package]}" if opt[:project] && opt[:package]
@@ -60,7 +60,7 @@ class FrontendCompat
     transport.http_do :post, URI("#{path}"), data: data, timeout: 500
   end
 
-  def delete_package( opt={} )
+  def delete_package( opt = {} )
     logger.debug "deleting: #{opt.inspect}"
     transport.direct_http URI("/source/#{pesc opt[:project]}/#{pesc opt[:package]}"),
                           :method => 'DELETE', :timeout => 500

@@ -95,7 +95,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
     flash_message.must_have_text "accepted and forwarded"
 
     # cleanup
-    delete_package("home:Iggy","TestPack_link")
+    delete_package("home:Iggy", "TestPack_link")
   end
 
   def test_branch_package_for_global_project

@@ -16,4 +16,3 @@ class IncidentUpdateinfoCounterValue < ActiveRecord::Base
   end
 
 end
-

@@ -80,7 +80,7 @@ def backend_data
   "#{Rails.root}/tmp/backend_data#{backend_dir_suffix}"
 end
 
-def inject_build_job(project, package, repo, arch, extrabinary=nil)
+def inject_build_job(project, package, repo, arch, extrabinary = nil)
   job=IO.popen("find #{backend_data}/jobs/#{arch}/ -name #{project}::#{repo}::#{package}-*")
   jobfile=job.readlines.first
   return unless jobfile
@@ -560,4 +560,3 @@ class ActiveSupport::TestCase
     Rails.cache.clear
   end
 end
-

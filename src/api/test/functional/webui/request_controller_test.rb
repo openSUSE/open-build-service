@@ -346,4 +346,3 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   end
 
 end
-

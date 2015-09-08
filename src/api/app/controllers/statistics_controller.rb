@@ -174,7 +174,7 @@ class StatisticsController < ApplicationController
       @limit = nil if params[:limit].nil?
     end
 
-    @list = get_latest_updated(@limit,@timelimit,prj_filter,pkg_filter)
+    @list = get_latest_updated(@limit, @timelimit, prj_filter, pkg_filter)
   end
 
   def updated_timestamp

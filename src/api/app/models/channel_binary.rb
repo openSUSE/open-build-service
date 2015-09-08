@@ -27,7 +27,7 @@ class ChannelBinary < ActiveRecord::Base
     ChannelBinary.find_by_sql([query, project.id, package, maintained_projects])
   end
 
-  def create_channel_package_into(project, comment=nil)
+  def create_channel_package_into(project, comment = nil)
     channel = self.channel_binary_list.channel
     package_exists = Package.exists_by_project_and_name(project.name, channel.name,
                                                         follow_project_links: false,
@@ -40,13 +40,13 @@ class ChannelBinary < ActiveRecord::Base
     end
   end
 
-  def to_axml_id(_opts={})
+  def to_axml_id(_opts = {})
     Rails.cache.fetch('xml_channel_binary_id_%d' % id) do
       create_xml
     end
   end
 
-  def to_axml(_opts={})
+  def to_axml(_opts = {})
     Rails.cache.fetch('xml_channel_binary_%d' % id) do
       create_xml(include_channel_targets: true)
     end

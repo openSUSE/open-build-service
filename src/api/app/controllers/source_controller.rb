@@ -1496,8 +1496,8 @@ class SourceController < ApplicationController
     #opackage_name = params[:opackage]
 
     path = request.path_info
-    path += build_query_from_hash(params, [:cmd, :rev, :orev, :oproject, :opackage, :expand ,:linkrev, :olinkrev,
-                                           :unified ,:missingok, :meta, :file, :filelimit, :tarlimit,
+    path += build_query_from_hash(params, [:cmd, :rev, :orev, :oproject, :opackage, :expand, :linkrev, :olinkrev,
+                                           :unified, :missingok, :meta, :file, :filelimit, :tarlimit,
                                            :view, :withissues, :onlyissues])
     pass_to_backend path
   end
@@ -1603,9 +1603,9 @@ class SourceController < ApplicationController
       raise UnknownRepository.new "Repository does not exist #{params[:repository]}" unless repo.count > 0
       repo=repo.first
 
-      release_package(pkg, targetrepo, pkg.name, repo, nil, params[:setrelease], true,)
+      release_package(pkg, targetrepo, pkg.name, repo, nil, params[:setrelease], true)
   end
-  private  :_package_command_release_manual_target
+  private :_package_command_release_manual_target
 
   # POST /source/<project>/<package>?cmd=runservice
   def package_command_runservice

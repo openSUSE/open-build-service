@@ -29,7 +29,7 @@ class User < ActiveRecord::Base
     'locked'             => 3,
     'deleted'            => 4,
     'ichainrequest'      => 5,
-    'retrieved_password' => 6,
+    'retrieved_password' => 6
   }
 
   has_many :taggings, :dependent => :destroy
@@ -284,8 +284,8 @@ class User < ActiveRecord::Base
 
   # Model Validation
 
-  validates_presence_of   :login, :email, :password, :password_hash_type, :state,
-                          :message => 'must be given'
+  validates_presence_of :login, :email, :password, :password_hash_type, :state,
+                        :message => 'must be given'
 
   validates_uniqueness_of :login,
                           :message => 'is the name of an already existing user.'
@@ -311,13 +311,13 @@ class User < ActiveRecord::Base
     end
   end
 
-  validates_format_of    :login,
-                         :with => %r{\A[\w \$\^\-\.#\*\+&'"]*\z},
-                         :message => 'must not contain invalid characters.'
-  validates_length_of    :login,
-                         :in => 2..100, :allow_nil => true,
-                         :too_long => 'must have less than 100 characters.',
-                         :too_short => 'must have more than two characters.'
+  validates_format_of :login,
+                      :with => %r{\A[\w \$\^\-\.#\*\+&'"]*\z},
+                      :message => 'must not contain invalid characters.'
+  validates_length_of :login,
+                      :in => 2..100, :allow_nil => true,
+                      :too_long => 'must have less than 100 characters.',
+                      :too_short => 'must have more than two characters.'
 
   # We want a valid email address. Note that the checking done here is very
   # rough. Email adresses are hard to validate now domain names may include
@@ -426,7 +426,7 @@ class User < ActiveRecord::Base
     end
   end
 
-  def to_axml(_opts={})
+  def to_axml(_opts = {})
     render_axml
   end
 
@@ -525,7 +525,7 @@ class User < ActiveRecord::Base
   private :can_modify_project_internal
 
   # project is instance of Project
-  def can_modify_project?(project, ignoreLock=nil)
+  def can_modify_project?(project, ignoreLock = nil)
     unless project.kind_of? Project
       raise ArgumentError, "illegal parameter type to User#can_modify_project?: #{project.class.name}"
     end
@@ -541,7 +541,7 @@ class User < ActiveRecord::Base
   end
 
   # package is instance of Package
-  def can_modify_package?(package, ignoreLock=nil)
+  def can_modify_package?(package, ignoreLock = nil)
     return false if package.nil? # happens with remote packages easily
     unless package.kind_of? Package
       raise ArgumentError, "illegal parameter type to User#can_modify_package?: #{package.class.name}"
@@ -554,7 +554,7 @@ class User < ActiveRecord::Base
   end
 
   # project is instance of Project
-  def can_create_package_in?(project, ignoreLock=nil)
+  def can_create_package_in?(project, ignoreLock = nil)
     unless project.kind_of? Project
       raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
     end

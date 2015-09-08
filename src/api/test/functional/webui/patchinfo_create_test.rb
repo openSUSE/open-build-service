@@ -23,7 +23,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     new_patchinfo[:description] ||= ""
 
     new_patchinfo[:description].squeeze!(" ")
-    new_patchinfo[:description].gsub!(/ *\n +/ , "\n")
+    new_patchinfo[:description].gsub!(/ *\n +/, "\n")
     new_patchinfo[:description].strip!
     assert Patchinfo::CATEGORIES.include? new_patchinfo[:category]
     find('select#category').select(new_patchinfo[:category])
@@ -42,7 +42,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     if !new_patchinfo[:issue].blank?
       fill_in "issue", with: new_patchinfo[:issue]
       find(:css, "img[alt=\"Add Bug\"]").click
-      issues = new_patchinfo[:issue].gsub(/\s+/,"").split(",")
+      issues = new_patchinfo[:issue].gsub(/\s+/, "").split(",")
       find_link(issues.last)
     end
 
@@ -70,7 +70,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
       page.must_have_text "#{new_patchinfo[:packager]}"
       page.must_have_text " and rated as #{new_patchinfo[:rating]}"
       if !new_patchinfo[:issue].blank?
-        issues = new_patchinfo[:issue].gsub(/\s+/,"").split(",")
+        issues = new_patchinfo[:issue].gsub(/\s+/, "").split(",")
         issues.each do |issue|
           page.must_have_text issue
         end
@@ -228,7 +228,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     page.evaluate_script('window.confirm = function() { return true; }')
     page.wont_have_content("121212")
     find_link("bnc#700501")
-    issues = "123456,bnc#700501".gsub(/\s+/,"").split(",")
+    issues = "123456,bnc#700501".gsub(/\s+/, "").split(",")
     find_link(issues.last)
     click_button("Save Patchinfo")
 

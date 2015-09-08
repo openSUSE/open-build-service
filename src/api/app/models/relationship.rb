@@ -53,7 +53,7 @@ class Relationship < ActiveRecord::Base
   after_destroy 'Relationship.discard_cache'
 
 
-  def self.add_user(obj, user, role, ignoreLock=nil, check=nil)
+  def self.add_user(obj, user, role, ignoreLock = nil, check = nil)
     obj.check_write_access!(ignoreLock)
     unless role.kind_of? Role
       role = Role.find_by_title!(role)
@@ -81,7 +81,7 @@ class Relationship < ActiveRecord::Base
     end
   end
 
-  def self.add_group(obj, group, role, ignoreLock=nil, check=nil)
+  def self.add_group(obj, group, role, ignoreLock = nil, check = nil)
     obj.check_write_access!(ignoreLock)
 
     unless role.kind_of? Role

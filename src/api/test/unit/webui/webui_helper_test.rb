@@ -39,7 +39,7 @@ class Webui::WebuiHelperTest < ActiveSupport::TestCase
   end
 
   def test_elide_two
-    assert_equal ["aaa","bbb"], elide_two('aaa', 'bbb')
+    assert_equal ["aaa", "bbb"], elide_two('aaa', 'bbb')
   end
 
   def test_next_codemirror_uid

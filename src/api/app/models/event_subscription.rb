@@ -66,4 +66,3 @@ class EventSubscription < ActiveRecord::Base
   end
 
 end
-

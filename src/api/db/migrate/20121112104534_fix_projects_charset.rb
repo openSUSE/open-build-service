@@ -22,4 +22,3 @@ class FixProjectsCharset < ActiveRecord::Migration
     raise ActiveRecord::IrreversibleMigration
   end
 end
-

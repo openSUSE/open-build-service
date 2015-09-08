@@ -9,7 +9,7 @@ class ChannelTarget < ActiveRecord::Base
     [ :repository ]
   end
 
-  def self.find_by_repo(repo, projectFilter=nil)
+  def self.find_by_repo(repo, projectFilter = nil)
     ct = []
 
     ChannelTarget.distinct.where(repository: repo).each do |c|

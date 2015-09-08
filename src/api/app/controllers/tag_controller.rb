@@ -17,7 +17,7 @@ class TagController < ApplicationController
   def get_tagged_projects_by_user
     @user = User.find_by_login!(params[:user])
 
-    @taggings = Tagging.where("taggable_type = ? AND user_id = ?","Project",@user.id)
+    @taggings = Tagging.where("taggable_type = ? AND user_id = ?", "Project", @user.id)
     @projects_tags = {}
     @taggings.each do |tagging|
       project = Project.find(tagging.taggable_id)
@@ -26,7 +26,7 @@ class TagController < ApplicationController
       @projects_tags[project] <<  tag
     end
     @projects_tags.keys.each do |key|
-      @projects_tags[key].sort!{ |a,b| a.name.downcase <=> b.name.downcase }
+      @projects_tags[key].sort!{ |a, b| a.name.downcase <=> b.name.downcase }
     end
     @my_type = "project"
     render :partial => "tagged_objects_with_tags"
@@ -35,7 +35,7 @@ class TagController < ApplicationController
 
   def get_tagged_packages_by_user
     @user = User.find_by_login!(params[:user])
-    @taggings = Tagging.where("taggable_type = ? AND user_id = ?","Package",@user.id)
+    @taggings = Tagging.where("taggable_type = ? AND user_id = ?", "Package", @user.id)
     @packages_tags = {}
     @taggings.each do |tagging|
       package = Package.find(tagging.taggable_id)
@@ -44,7 +44,7 @@ class TagController < ApplicationController
       @packages_tags[package] <<  tag
     end
     @packages_tags.keys.each do |key|
-      @packages_tags[key].sort!{ |a,b| a.name.downcase <=> b.name.downcase }
+      @packages_tags[key].sort!{ |a, b| a.name.downcase <=> b.name.downcase }
     end
     @my_type = "package"
     render :partial => "tagged_objects_with_tags"
@@ -58,7 +58,7 @@ class TagController < ApplicationController
     @tags
   end
 
-  def get_projects_by_tag ( do_render=true )
+  def get_projects_by_tag ( do_render = true )
     @tag = params[:tag]
     @projects = Array.new
 
@@ -84,7 +84,7 @@ class TagController < ApplicationController
   end
 
 
-  def get_packages_by_tag( do_render=true )
+  def get_packages_by_tag( do_render = true )
     @tag = params[:tag]
     @packages = Array.new
 
@@ -131,7 +131,7 @@ class TagController < ApplicationController
   end
 
 
-  def get_tags_by_user_and_project( do_render=true )
+  def get_tags_by_user_and_project( do_render = true )
     user = User.find_by_login!(params[:user])
     @type = "project"
     @name = params[:project]
@@ -146,7 +146,7 @@ class TagController < ApplicationController
   end
 
 
-  def get_tags_by_user_and_package( do_render=true  )
+  def get_tags_by_user_and_package( do_render = true  )
     user = User.find_by_login!(params[:user])
     @type = "package"
 
@@ -154,7 +154,7 @@ class TagController < ApplicationController
     @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: false)
     @project = @package.project
 
-    @tags = @package.tags.where("taggings.user_id = ?",user.id).order(:name)
+    @tags = @package.tags.where("taggings.user_id = ?", user.id).order(:name)
     if do_render
       render :partial => "tags"
     else
@@ -199,7 +199,7 @@ class TagController < ApplicationController
       end
 
       #get the list of tags
-      @tags = tagcloud.get_tags(@distribution_method,@steps)
+      @tags = tagcloud.get_tags(@distribution_method, @steps)
       raise ArgumentError.new( "tag-cloud generation failed." ) if @tags.nil?
 
       render :partial => "tagcloud"
@@ -361,7 +361,7 @@ class TagController < ApplicationController
           Tagging.delete_all("user_id = #{@user.id} AND taggable_id = #{@package.id} AND taggable_type = 'Package' AND tag_id = #{old_tag.id}")
         end
       end
-      save_tags(@package,@user,tags)
+      save_tags(@package, @user, tags)
     else
       logger.debug "[TAG:] Project selected"
       old_tags = get_tags_by_user_and_project( false )
@@ -370,7 +370,7 @@ class TagController < ApplicationController
           Tagging.delete_all("user_id = #{@user.id} AND taggable_id = #{@project.id} AND taggable_type = 'Project' AND tag_id = #{old_tag.id}")
         end
       end
-      save_tags(@project,@user,tags)
+      save_tags(@project, @user, tags)
     end
 
     if not unsaved_tags

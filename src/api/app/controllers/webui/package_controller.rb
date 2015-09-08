@@ -698,7 +698,7 @@ class Webui::PackageController < Webui::WebuiController
     true
   end
 
-  def add_file_url(file_url, filename=nil)
+  def add_file_url(file_url, filename = nil)
     @services = Service.find(project: @project, package: @package.name)
     unless @services
       @services = Service.new(project: @project, package: @package.name)
@@ -1041,7 +1041,7 @@ class Webui::PackageController < Webui::WebuiController
 
   private
 
-  def file_available? url, max_redirects=5
+  def file_available? url, max_redirects = 5
     begin
       logger.debug "Checking url: #{url}"
       uri = URI.parse( url )
@@ -1091,7 +1091,7 @@ class Webui::PackageController < Webui::WebuiController
     fill_status_cache
 
     newr = Hash.new
-    @buildresult.elements('result').sort {|a,b| a['repository'] <=> b['repository']}.each do |result|
+    @buildresult.elements('result').sort {|a, b| a['repository'] <=> b['repository']}.each do |result|
       repo = result['repository']
       if result.has_key? 'status'
         newr[repo] ||= Array.new

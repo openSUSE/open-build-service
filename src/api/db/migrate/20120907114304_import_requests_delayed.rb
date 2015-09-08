@@ -11,4 +11,3 @@ class ImportRequestsDelayed < ActiveRecord::Migration
   end
 
 end
-

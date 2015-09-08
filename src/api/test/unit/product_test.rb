@@ -19,4 +19,3 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
 end
-

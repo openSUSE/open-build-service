@@ -30,13 +30,13 @@ class ProductAndChannelSetup < ActiveRecord::Migration
     end
 
     create_table :channel_binaries do |t|
-      t.string     :name, null: false
+      t.string :name, null: false
       t.belongs_to :channel_binary_list, null: false
       t.belongs_to :project
       t.belongs_to :repository
       t.belongs_to :architecture
-      t.string     :package # may not exist yet due to project links
-      t.string     :binaryarch
+      t.string :package # may not exist yet due to project links
+      t.string :binaryarch
     end
 
     add_index :products, [:name, :package_id], unique: true

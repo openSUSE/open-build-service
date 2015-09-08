@@ -89,7 +89,7 @@ class Owner
 
   protected
 
-  def self.find_assignees(rootproject, binary_name, limit=1, devel=true, filter=%w(maintainer bugowner), webui_mode=false)
+  def self.find_assignees(rootproject, binary_name, limit = 1, devel = true, filter = %w(maintainer bugowner), webui_mode = false)
     projects=rootproject.expand_all_projects
     instances_without_definition=[]
     maintainers=[]
@@ -148,7 +148,7 @@ class Owner
     return maintainers
   end
 
-  def self.find_containers_without_definition(rootproject, devel=true, filter=%w(maintainer bugowner))
+  def self.find_containers_without_definition(rootproject, devel = true, filter = %w(maintainer bugowner))
     projects=rootproject.expand_all_projects
     roles=[]
     filter.each do |f|
@@ -205,7 +205,7 @@ class Owner
     return maintainers
   end
 
-  def self.find_containers(rootproject, owner, devel=true, filter=%w(maintainer bugowner))
+  def self.find_containers(rootproject, owner, devel = true, filter = %w(maintainer bugowner))
     projects=rootproject.expand_all_projects
 
     roles=[]
@@ -276,7 +276,7 @@ class Owner
     maintainers
   end
 
-  def self.lookup_package_owner(rootproject, pkg, owner, limit, devel, filter, deepest, already_checked={})
+  def self.lookup_package_owner(rootproject, pkg, owner, limit, devel, filter, deepest, already_checked = {})
     return nil, limit, already_checked if already_checked[pkg.id]
 
     # optional check for devel package instance first
@@ -306,7 +306,7 @@ class Owner
     return m, (limit-1), already_checked
   end
 
-  def self.extract_maintainer(rootproject, pkg, rolefilter, objfilter=nil)
+  def self.extract_maintainer(rootproject, pkg, rolefilter, objfilter = nil)
     return nil unless pkg
     return nil unless Package.check_access?(pkg)
     m = Owner.new

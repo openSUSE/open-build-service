@@ -37,4 +37,3 @@ class LastEventsTest < ActionDispatch::IntegrationTest
   end
 
 end
-

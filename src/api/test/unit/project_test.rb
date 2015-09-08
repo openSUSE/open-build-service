@@ -562,4 +562,3 @@ END
     assert_not Project.exists_by_name('HiddenRemoteInstance')
   end
 end
-

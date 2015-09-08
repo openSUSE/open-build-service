@@ -4,4 +4,3 @@ class Updateinfo < ActiveRecord::Base
   belongs_to :repository, foreign_key: :repository_id
 
 end
-

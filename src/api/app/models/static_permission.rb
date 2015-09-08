@@ -12,9 +12,9 @@ class StaticPermission < ActiveRecord::Base
   # We want to validate a static permission's title pretty thoroughly.
   validates_uniqueness_of :title,
                           :message => 'is the name of an already existing static permission.'
-  validates_presence_of   :title, :message => 'must be given.'
+  validates_presence_of :title, :message => 'must be given.'
 
-  validates_format_of     :title, :with => %r{\A[\w\-]*\z},
+  validates_format_of :title, :with => %r{\A[\w\-]*\z},
                           :message => 'must not contain invalid characters.'
 
   alias_attribute :fixtures_name, :title

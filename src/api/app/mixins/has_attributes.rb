@@ -10,7 +10,7 @@ module HasAttributes
   class AttributeSaveError < APIException
   end
 
-  def write_attributes(comment=nil)
+  def write_attributes(comment = nil)
     login = User.current.login
     path = self.attribute_url + "?meta=1&user=#{CGI.escape(login)}"
     path += "&comment=#{CGI.escape(comment)}" if comment
@@ -21,7 +21,7 @@ module HasAttributes
     end
   end
 
-  def store_attribute_axml(attrib, binary=nil)
+  def store_attribute_axml(attrib, binary = nil)
     values = []
     attrib.each('value') do |val|
       values << val.text
@@ -66,7 +66,7 @@ module HasAttributes
     a.update_with_associations(values, issues) || changed
   end
 
-  def find_attribute(namespace, name, binary=nil)
+  def find_attribute(namespace, name, binary = nil)
     logger.debug "find_attribute for #{namespace}:#{name}"
     if namespace.nil?
       raise AttributeFindError, "Namespace must be given"
@@ -90,7 +90,7 @@ module HasAttributes
     return a
   end
 
-  def render_attribute_axml(params={})
+  def render_attribute_axml(params = {})
     builder = Nokogiri::XML::Builder.new
 
     builder.attributes do |xml|

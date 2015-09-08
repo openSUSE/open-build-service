@@ -101,7 +101,7 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_no_xml_tag :tag => "name", :content => "simple"
 
-    product = Package.find_by_project_and_name("home:tom:temporary","_product").products.first
+    product = Package.find_by_project_and_name("home:tom:temporary", "_product").products.first
     assert_equal "simple", product.name
     assert_equal "cpe:/o:obs_fuzzies:simple:13.1", product.cpe
     assert_equal product.product_update_repositories.first.repository.project.name, "BaseDistro2.0:LinkedUpdateProject"
@@ -275,7 +275,7 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "distrotarget", :attributes => { :arch => "x86_64" }, :content => "DiStroTarGet_x86"
     assert_xml_tag :tag => "distrotarget", :content => "DiStroTarGet"
 
-    product = Package.find_by_project_and_name("home:tom:temporary","_product").products.first
+    product = Package.find_by_project_and_name("home:tom:temporary", "_product").products.first
     assert_equal "SUSE_SLES", product.name
     assert_equal "cpe:/a:suse:suse_sles:11:sp2", product.cpe
     assert_equal product.product_update_repositories.first.repository.project.name, "BaseDistro2.0:LinkedUpdateProject"

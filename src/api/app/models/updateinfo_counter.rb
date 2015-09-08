@@ -26,4 +26,3 @@ class UpdateinfoCounter < ActiveRecord::Base
   end
 
 end
-

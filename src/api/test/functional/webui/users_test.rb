@@ -168,4 +168,3 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
   end
 
 end
-

@@ -11,14 +11,14 @@ class Group < ActiveRecord::Base
   has_many :relationships, dependent: :destroy, inverse_of: :group
   has_many :event_subscriptions, dependent: :destroy, inverse_of: :group
 
-  validates_format_of  :title,
-                       :with => %r{\A[\w\.\-]*\z},
-                       :message => 'must not contain invalid characters.'
-  validates_length_of  :title,
-                       :in => 2..100,
-                       :too_long => 'must have less than 100 characters.',
-                       :too_short => 'must have more than two characters.',
-                       :allow_nil => false
+  validates_format_of :title,
+                      :with => %r{\A[\w\.\-]*\z},
+                      :message => 'must not contain invalid characters.'
+  validates_length_of :title,
+                      :in => 2..100,
+                      :too_long => 'must have less than 100 characters.',
+                      :too_short => 'must have more than two characters.',
+                      :allow_nil => false
   # We want to validate a group's title pretty thoroughly.
   validates_uniqueness_of :title,
                           :message => 'is the name of an already existing group.'

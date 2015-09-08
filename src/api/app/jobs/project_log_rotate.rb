@@ -27,4 +27,3 @@ class ProjectLogRotate
     true
   end
 end
-

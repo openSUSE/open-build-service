@@ -60,4 +60,3 @@ end
 #require 'memory_dumper'
 # dumps the full heap after next request on SIGURG
 #config.middleware.insert(0, MemoryDumper)
-

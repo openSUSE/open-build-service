@@ -19,14 +19,14 @@ class Product < ActiveRecord::Base
     return self.where(name: name, package: package).load
   end
 
-  def to_axml(_opts={})
+  def to_axml(_opts = {})
     Rails.cache.fetch('xml_product_%d' % self.id) do
       # CanRenderModel
       render_xml
     end
   end
 
-  def set_CPE(swClass, vendor, pversion=nil)
+  def set_CPE(swClass, vendor, pversion = nil)
     # hack for old SLE 11 definitions
     vendor="suse" if vendor.start_with?("SUSE LINUX")
     self.cpe = "cpe:/#{swClass}:#{vendor.downcase}:#{self.name.downcase}"

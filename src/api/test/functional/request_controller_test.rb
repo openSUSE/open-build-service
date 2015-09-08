@@ -858,7 +858,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                        "when"        => "2010-07-12T00:00:02",
                        "description" => "Review got accepted",
                        "comment"     => "review1"
-                     },
+                     }
                    }, {
                      'state'   => 'new',
                      'when'    => '2010-07-12T00:00:03',
@@ -870,7 +870,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                                     "comment"=>"review2"},
                                    {"who"=>"tom", "when"=>"2010-07-12T00:00:05",
                                     "description"=>"Review got reopened",
-                                    "comment"=>"reopen2"}],
+                                    "comment"=>"reopen2"}]
                    }],
                    'history' => [
                      { "who"         => "Iggy",

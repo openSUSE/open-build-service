@@ -11,4 +11,3 @@ class WriteConfiguration < ActiveRecord::Migration
   end
 
 end
-

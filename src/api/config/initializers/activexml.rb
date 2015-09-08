@@ -24,7 +24,7 @@ map.connect :statistic, 'rest:///build/:project/:repository/:arch/:package/_stat
 map.connect :service, 'rest:///source/:project/:package/_service?:user'
 
 if defined?(Rack::MiniProfiler)
-  ::Rack::MiniProfiler.profile_method(ActiveXML::Transport, :http_do) do |method,url|
+  ::Rack::MiniProfiler.profile_method(ActiveXML::Transport, :http_do) do |method, url|
     if url.kind_of? String
       "#{method.to_s.upcase} #{url}"
     else

@@ -1,8 +1,8 @@
 class AddAuthorizationTokenToPackages < ActiveRecord::Migration
   def self.up
       create_table :tokens do |t|
-        t.string     :string
-        t.integer    :user_id, null: false
+        t.string :string
+        t.integer :user_id, null: false
         t.belongs_to :package
       end
       add_index :tokens, [:string], unique: true

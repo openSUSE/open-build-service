@@ -7,7 +7,7 @@ module HasRatings
     end
   end
 
-  def rating(user_id=nil)
+  def rating(user_id = nil)
     score = 0
     self.ratings.each do |rating|
       score += rating.score

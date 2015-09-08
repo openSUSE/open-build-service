@@ -205,7 +205,7 @@ class BsRequest < ActiveRecord::Base
     request
   end
 
-  def to_axml(opts={})
+  def to_axml(opts = {})
     if opts[:withfullhistory]
       Rails.cache.fetch('xml_bs_request_fullhistory_%d' % id) do
         render_xml({withfullhistory: 1})
@@ -226,7 +226,7 @@ class BsRequest < ActiveRecord::Base
     "<request id='#{self.id}'/>\n"
   end
 
-  def render_xml(opts={})
+  def render_xml(opts = {})
     builder = Nokogiri::XML::Builder.new
     builder.request(id: self.id) do |r|
       self.bs_request_actions.each do |action|
@@ -922,7 +922,7 @@ class BsRequest < ActiveRecord::Base
       reviewers += action.default_reviewers
 
       action.create_post_permissions_hook({
-         per_package_locking: @per_package_locking,
+         per_package_locking: @per_package_locking
       })
     end
 

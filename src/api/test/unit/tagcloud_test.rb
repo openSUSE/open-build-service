@@ -22,7 +22,7 @@ class TagcloudTest < ActiveSupport::TestCase
 
     steps = 6
 
-    delta = cloud.delta(steps,cloud.max,cloud.min)
+    delta = cloud.delta(steps, cloud.max, cloud.min)
     #delta = (delta * 1000).round.to_f / 1000
 
     assert_equal 0.5, delta, "Wrong delta."
@@ -42,7 +42,7 @@ class TagcloudTest < ActiveSupport::TestCase
 
     predecessor = cloud.tags[0]
     cloud.tags.each do |tag|
-      assert predecessor.name <= tag.name , "Error in sort_tags (by name), tags are not in alphabetical order"
+      assert predecessor.name <= tag.name, "Error in sort_tags (by name), tags are not in alphabetical order"
       predecessor = tag
     end
 
@@ -54,7 +54,7 @@ class TagcloudTest < ActiveSupport::TestCase
 
     predecessor = cloud.tags[0]
     cloud.tags.each do |tag|
-      assert predecessor.count >= tag.count , "Error in sort_tags (by count), tags are not in descending order"
+      assert predecessor.count >= tag.count, "Error in sort_tags (by count), tags are not in descending order"
       predecessor = tag
     end
   end
