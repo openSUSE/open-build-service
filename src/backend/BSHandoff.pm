@@ -53,10 +53,11 @@ sub handoff {
     'sender' => \&handoffsender,
   };
   my @headers;
-  if ($BSServer::forwardedfor) {
-    push @headers, "X-Peer: $BSServer::forwardedfor";
-  } elsif ($BSServer::peer) {
-    push @headers, "X-Peer: $BSServer::peer";
+  my $req = $BSServer::request;
+  if ($req->{'headers'}->{'x-forwarded-for'}) {
+    push @headers, "X-Peer: $req->{'headers'}->{'x-forwarded-for'}";
+  } elsif ($req->{'headers'}->{'peer'}) {
+    push @headers, "X-Peer: $req->{'headers'}->{'peer'}";
   }
   $param->{'headers'} = \@headers if @headers;
   return BSRPC::rpc($param, @args);

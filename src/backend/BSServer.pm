@@ -48,11 +48,11 @@ my $MS2;	# secondary server port
 
 # FIXME: should not be global
 our $request;
-# FIXME: store in request and make request available
+
 our $peer;
 our $peerport;
+
 our $slot;
-our $forwardedfor;
 our $replying;	# we're sending the answer (2 == in chunked mode)
 
 sub deamonize {
@@ -492,7 +492,6 @@ sub readrequest {
     die("501 Bad method, must be GET\n") if $act ne 'GET';
     $qu = '';
   }
-  $forwardedfor = $headers{'x-forwarded-for'};
   my $query_string = '';
   if ($path =~ /^(.*?)\?(.*)$/) {
     $path = $1;
@@ -505,6 +504,8 @@ sub readrequest {
   $res->{'path'} = $path;
   $res->{'query'} = $query_string;
   $res->{'headers'} = \%headers;
+  $res->{'peer'} = $peer;
+  $res->{'peerport'} = $peerport;
   if ($act eq 'POST' || $act eq 'PUT') {
     # send HTTP 1.1's 100-continue answer if requested by the client
     if ($headers{'expect'}) {
@@ -517,19 +518,19 @@ sub readrequest {
       }
     }
     
-    if ($act eq 'PUT' || !$headers{'content-type'} || lc($headers{'content-type'}) ne 'application/x-www-form-urlencoded') {
+    if ($act eq 'POST' && $headers{'content-type'} && lc($headers{'content-type'}) eq 'application/x-www-form-urlencoded') {
+      # form-urlencoded, append body to query string
+      my $cl = $headers{'content-length'} || 0;
+      while (length($qu) < $cl) {
+        sysread(CLNT, $qu, $cl - length($qu), length($qu)) || die("400 Truncated body\n");
+      }
+      $query_string .= '&' if $cl && $query_string ne '';
+      $query_string .= substr($qu, 0, $cl);
+      $res->{'query'} = $query_string;
+    } else {
       $headers{'__data'} = $qu;
       $post_hdrs = \%headers; # $post_hdrs is global (module local) variable
-      return $res;
     }
-    my $cl = $headers{'content-length'} || 0;
-    while (length($qu) < $cl) {
-      sysread(CLNT, $qu, $cl - length($qu), length($qu)) || die("400 Truncated body\n");
-    }
-    $query_string .= '&' if $query_string ne '';
-    $query_string .= substr($qu, 0, $cl);
-    $res->{'query'} = $query_string;
-    $qu = substr($qu, $cl);
   }
   return $res;
 }

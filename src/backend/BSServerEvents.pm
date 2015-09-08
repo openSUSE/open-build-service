@@ -355,7 +355,8 @@ sub getrequest {
     }
     $path =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
     die("501 invalid path\n") unless $path =~ /^\//;
-    my $req = {'action' => $act, 'path' => $path, 'query' => $query_string, 'headers' => $headers};
+    my $req = {'action' => $act, 'path' => $path, 'query' => $query_string, 'headers' => $headers, 'peer' => $ev->{'peer'}};
+    $req->{'peerport'} = $ev->{'peerport'} if $ev->{'peerport'};
     $ev->{'request'} = $req;
     # FIXME: should not use global
     $BSServer::request = $req;
@@ -403,14 +404,17 @@ sub cloneconnect {
   $nev->{'conf'} = $ev->{'conf'};
   $nev->{'request'} = $ev->{'request'};
   my $peer = 'unknown';
+  my $peerport;
   eval {
-    my $peername = getpeername($nev->{'fd'});
-    if ($peername) {
-      my ($peerport, $peera) = sockaddr_in($peername);
+    my $peeraddr = getpeername($nev->{'fd'});
+    if ($peeraddr) {
+      my $peera;
+      ($peerport, $peera) = sockaddr_in($peeraddr);
       $peer = inet_ntoa($peera);
     }
   };
   $nev->{'peer'} = $peer;
+  $nev->{'peerport'} = $peerport if $peerport;
   BSServerEvents::reply(@reply) if @reply;
   $gev = $nev;	# switch to new event
   if ($nev->{'conf'}->{'setkeepalive'}) {
