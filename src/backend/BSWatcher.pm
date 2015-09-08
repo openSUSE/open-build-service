@@ -959,6 +959,24 @@ sub rpc_connect_handler {
 
 my $tcpproto = getprotobyname('tcp');
 
+#
+# This implements a subset of the BSRPC::rpc functionality with
+# the async ServerEvents mechansim.
+#
+# not supported are:
+#  * data
+#  * sender
+#  * timeout (its timeouts are fixed)
+#  * generic receivers, supported are only:
+#    - BSHTTP::file_receiver
+#    - BSHTTP::cpio_receiver (with tmpcpiofile set)
+#    - BSHTTP::null_receiver
+#    - BSServer::reply_receiver
+#
+# the following extra functionality is available:
+#  * joinable   - try to join with already running requests
+#  * background - run the request detached, no result will be reported
+#
 sub rpc {
   my ($uri, $xmlargs, @args) = @_;
 
