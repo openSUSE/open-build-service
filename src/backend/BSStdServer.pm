@@ -74,7 +74,7 @@ sub authenticate {
   my ($conf, $req, $auth) = @_;
   return () unless $BSConfig::ipaccess;
   my %auths;
-  my $peer = $BSServer::peer;
+  my $peer = $req->{'peer'};
   for my $ipre (sort keys %$BSConfig::ipaccess) {
     next unless $peer =~ /^$ipre$/s;
     $auths{$_} = 1 for split(',', $BSConfig::ipaccess->{$ipre});

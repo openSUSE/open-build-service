@@ -3173,7 +3173,7 @@ my $state = lockstate();
 die("I am not idle!\n") unless $state->{'state'} eq 'idle';
 
 if ($cgi->{'workercode'} && $cgi->{'port'} && $cgi->{'workercode'} ne $workercode && !$noworkercheck) {
-  my $peer = "${BSServer::peer}:$cgi->{'port'}";
+  my $peer = "$req->{'peer'}:$cgi->{'port'}";
   $workercode = getcode('worker', "http://$peer/getworkercode");
   die("could not update worker code\n") unless $workercode;
   $state->{'state'} = 'rebooting';
@@ -3209,7 +3209,7 @@ if ($localkiwi) {
 $buildcode = codemd5('build');
 if (!$nobuildcodecheck && $cgi->{'buildcode'} && $cgi->{'port'} && $cgi->{'buildcode'} ne $buildcode) {
   print "fetching new buildcode $cgi->{'buildcode'}, mine was $buildcode\n";
-  my $peer = "${BSServer::peer}:$cgi->{'port'}";
+  my $peer = "$req->{'peer'}:$cgi->{'port'}";
   $buildcode = getcode('build', "http://$peer/getbuildcode");
   die("could not update build code\n") unless $buildcode;
 }
