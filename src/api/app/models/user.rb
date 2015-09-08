@@ -515,12 +515,14 @@ class User < ActiveRecord::Base
   end
 
   def can_modify_project_internal(project, ignoreLock)
-    return false if not ignoreLock and project.is_locked?
+    # The ordering is important because of the lock status check
+    return false if !ignoreLock && project.is_locked?
     return true if is_admin?
+
     return true if has_global_permission? 'change_project'
     return true if has_local_permission? 'change_project', project
     return true if project.name == self.home_project_name # users tend to remove themself, allow to re-add them
-    return false
+    false
   end
   private :can_modify_project_internal
 
