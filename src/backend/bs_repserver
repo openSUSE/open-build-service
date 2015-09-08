@@ -3369,7 +3369,7 @@ sub getbuildinfo_post {
     sysseek(F, 0, 0);
     my $dir = "$uploaddir/$$.dir";
     mkdir_p($dir);
-    my $uploaded = BSHTTP::cpio_receiver(BSHTTP::fd2hdr(\*F), {'directory' => $dir});
+    my $uploaded = BSHTTP::cpio_receiver(BSHTTP::fd2req(\*F), {'directory' => $dir});
     close(F);
     # should we check if the cpio archive contains <= 2 files?
     $depfile = (grep { $_->{'name'} eq 'deps' } @$uploaded)[0];

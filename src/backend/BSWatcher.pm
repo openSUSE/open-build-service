@@ -999,7 +999,7 @@ sub rpc {
       local *CPIOFILE;
       open(CPIOFILE, '<', $param->{'tmpcpiofile'}) || die("open tmpcpiofile: $!\n");
       unlink($param->{'tmpcpiofile'});
-      $ans = BSHTTP::cpio_receiver(BSHTTP::fd2hdr(\*CPIOFILE), $param);
+      $ans = BSHTTP::cpio_receiver(BSHTTP::fd2req(\*CPIOFILE), $param);
       close CPIOFILE;
     }
     return $ans;

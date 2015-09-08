@@ -27,8 +27,6 @@
 #   *CLNT - client socket
 #   *LCK  - lock for exclusive access to *MS
 
-#   $peer - address:port of connected client
-
 package BSServer;
 
 use Data::Dumper;
@@ -46,14 +44,9 @@ use strict;
 
 my $MS2;	# secondary server port
 
-# FIXME: should not be global
-our $request;
+our $request;		# FIXME: should not be global
 
-our $peer;
-our $peerport;
-
-our $slot;
-our $replying;	# we're sending the answer (2 == in chunked mode)
+our $slot;		# put in request?
 
 sub deamonize {
   my (@args) = @_;
@@ -159,7 +152,9 @@ sub getsocket {
 sub setsocket {
   # with argument    - set current client socket
   # without argument - close it
-  $peer = 'unknown';
+  my $req = $BSServer::request || {};
+  $req->{'peer'} = 'unknown';
+  delete $req->{'peerport'};
   if (defined($_[0])) {
     (*CLNT) = @_;
   } else {
@@ -169,9 +164,10 @@ sub setsocket {
   eval {
     my $peername = getpeername(CLNT);
     if ($peername) {
-      my $peera;
+      my ($peerport, $peera);
       ($peerport, $peera) = sockaddr_in($peername);
-      $peer = inet_ntoa($peera);
+      $req->{'peerport'} = $peerport;
+      $req->{'peer'} = inet_ntoa($peera);
     }
   }
 }
@@ -311,27 +307,29 @@ sub server {
       undef $BSServer::slot;
     }
   }
-  $peer = 'unknown';
+  my $req = {
+    'peer' => 'unknown',
+  };
+  $BSServer::request = $req;
   eval {
-    my $peera;
-    ($peerport, $peera) = sockaddr_in($peeraddr);
-    $peer = inet_ntoa($peera);
+    my ($peerport, $peera) = sockaddr_in($peeraddr);
+    $req->{'peerport'} = $peerport;
+    $req->{'peer'} = inet_ntoa($peera);
   };
 
   setsockopt(CLNT, SOL_SOCKET, SO_KEEPALIVE, pack("l",1)) if $conf->{'setkeepalive'};
   if ($conf->{'accept'}) {
     eval {
-      $conf->{'accept'}->($conf, $peer);
+      $conf->{'accept'}->($conf, $req->{'peer'});
     };
     reply_error($conf, $@) if $@;
   }
   if ($conf->{'dispatch'}) {
     eval {
-      my $req;
       do {
         local $SIG{'ALRM'} = sub {POSIX::_exit(0);};
         alarm(60);	# should be enough to read the request
-        $req = readrequest();
+        readrequest($req);
         alarm(0);
       };
       $BSServer::request = $req;
@@ -347,6 +345,7 @@ sub server {
 
 sub msg {
   my @lt = localtime(time);
+  my $peer = ($BSServer::request || {})->{'peer'};
   if (defined($peer)) {
     printf "%04d-%02d-%02d %02d:%02d:%02d: %s: %s\n", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0], $peer, $_[0];
   } else {
@@ -360,6 +359,7 @@ sub msg {
 sub reply {
   my ($str, @hi) = @_;
 
+  my $req = $BSServer::request || {};
   if (@hi && $hi[0] =~ /^status: (\d+.*)/i) {
     my $msg = $1;
     $msg =~ s/:/ /g;
@@ -392,7 +392,7 @@ sub reply {
   while (length($data)) {
     $l = syswrite(CLNT, $data, length($data));
     die("write error: $!\n") unless $l;
-    $replying = 1;
+    $req->{'replying'} = 1;
     $data = substr($data, $l);
   }
 }
@@ -419,10 +419,9 @@ sub reply_error  {
     reply("$err\n", "Status: $code $tag", 'Content-Type: text/plain');
   }
   close CLNT;
+  my $peer = ($BSServer::request || {})->{'peer'};
   die("$peer: $err\n");
 }
-
-my $post_hdrs;
 
 sub done {
   close CLNT;
@@ -463,19 +462,18 @@ sub gethead {
 }
 
 sub readrequest {
-  my ($qu) = @_;
-  $qu = '' unless defined $qu;
-  undef $post_hdrs;
-  my $req;
+  my ($req) = @_;
+  my $qu = '';
+  my $request;
   # read first query line
   while (1) {
     if ($qu =~ /^(.*?)\r?\n/s) {
-      $req = $1;
+      $request = $1;
       last;
     }
     die($qu eq '' ? "empty query\n" : "received truncated query\n") if !sysread(CLNT, $qu, 1024, length($qu));
   }
-  my ($act, $path, $vers, undef) = split(' ', $req, 4);
+  my ($act, $path, $vers, undef) = split(' ', $request, 4);
   my %headers;
   die("400 No method name\n") if !$act;
   if ($vers) {
@@ -499,13 +497,10 @@ sub readrequest {
   }
   $path =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;	# unescape path
   die("501 invalid path\n") unless $path =~ /^\//s; # forbid relative paths
-  my $res = {};
-  $res->{'action'} = $act;
-  $res->{'path'} = $path;
-  $res->{'query'} = $query_string;
-  $res->{'headers'} = \%headers;
-  $res->{'peer'} = $peer;
-  $res->{'peerport'} = $peerport;
+  $req->{'action'} = $act;
+  $req->{'path'} = $path;
+  $req->{'query'} = $query_string;
+  $req->{'headers'} = \%headers;
   if ($act eq 'POST' || $act eq 'PUT') {
     # send HTTP 1.1's 100-continue answer if requested by the client
     if ($headers{'expect'}) {
@@ -526,13 +521,11 @@ sub readrequest {
       }
       $query_string .= '&' if $cl && $query_string ne '';
       $query_string .= substr($qu, 0, $cl);
-      $res->{'query'} = $query_string;
+      $req->{'query'} = $query_string;
     } else {
-      $headers{'__data'} = $qu;
-      $post_hdrs = \%headers; # $post_hdrs is global (module local) variable
+      $req->{'__data'} = $qu;
     }
   }
-  return $res;
 }
 
 sub swrite {
@@ -540,45 +533,51 @@ sub swrite {
 }
 
 sub get_content_type {
-  die("get_content_type: invalid request\n") unless $post_hdrs;
-  return $post_hdrs->{'content-type'};
+  my $req = $BSServer::request || {};
+  die("get_content_type: invalid request\n") unless exists $req->{'__data'};
+  return $req->{'headers'}->{'content-type'};
 }
 
 sub header {
-  die("header: invalid request\n") unless $post_hdrs;
-  return $post_hdrs->{$_[0]};
+  my $req = $BSServer::request || {};
+  die("header: invalid request\n") unless exists $req->{'__data'};
+  return $req->{'headers'}->{lc($_[0])};
 }
 
 sub have_content {
-  return $post_hdrs ? 1 : 0;
+  my $req = $BSServer::request || {};
+  return exists($req->{'__data'}) ? 1 : 0;
 }
 
 ###########################################################################
 
 sub read_file {
   my ($fn, @args) = @_;
-  die("read_file: invalid request\n") unless $post_hdrs;
-  $post_hdrs->{'__socket'} = \*CLNT;
-  my $res = BSHTTP::file_receiver($post_hdrs, {'filename' => $fn, @args});
-  delete $post_hdrs->{'__socket'};
+  my $req = $BSServer::request || {};
+  die("read_file: invalid request\n") unless exists $req->{'__data'};
+  $req->{'__socket'} = \*CLNT;
+  my $res = BSHTTP::file_receiver($req, {'filename' => $fn, @args});
+  delete $req->{'__socket'};
   return $res;
 }
 
 sub read_cpio {
   my ($dn, @args) = @_;
-  die("read_cpio: invalid request\n") unless $post_hdrs;
-  $post_hdrs->{'__socket'} = \*CLNT;
-  my $res = BSHTTP::cpio_receiver($post_hdrs, {'directory' => $dn, @args});
-  delete $post_hdrs->{'__socket'};
+  my $req = $BSServer::request || {};
+  die("read_cpio: invalid request\n") unless exists $req->{'__data'};
+  $req->{'__socket'} = \*CLNT;
+  my $res = BSHTTP::cpio_receiver($req, {'directory' => $dn, @args});
+  delete $req->{'__socket'};
   return $res;
 }
 
 sub read_data {
   my ($maxl, $exact) = @_;
-  die("read_data: invalid request\n") unless $post_hdrs;
-  $post_hdrs->{'__socket'} = \*CLNT;
-  my $res = BSHTTP::read_data($post_hdrs, $maxl, $exact);
-  delete $post_hdrs->{'__socket'};
+  my $req = $BSServer::request || {};
+  die("read_data: invalid request\n") unless exists $req->{'__data'};
+  $req->{'__socket'} = \*CLNT;
+  my $res = BSHTTP::read_data($req, $maxl, $exact);
+  delete $req->{'__socket'};
   return $res;
 }
 
@@ -586,14 +585,16 @@ sub read_data {
 
 sub reply_cpio {
   my ($files, @args) = @_;
+  my $req = $BSServer::request || {};
   reply(undef, 'Content-Type: application/x-cpio', 'Transfer-Encoding: chunked', @args);
-  $replying = 2;
+  $req->{'replying'} = 2;
   BSHTTP::cpio_sender({'cpiofiles' => $files, 'chunked' => 1}, \*CLNT);
   BSHTTP::swrite(\*CLNT, "0\r\n\r\n");
 }
 
 sub reply_file {
   my ($file, @args) = @_;
+  my $req = $BSServer::request || {};
   my $chunked;
   $chunked = 1 if grep {/^transfer-encoding:\s*chunked/i} @args;
   my @cl = grep {/^content-length:/i} @args;
@@ -615,7 +616,7 @@ sub reply_file {
   }
   unshift @args, 'Content-Type: application/octet-stream' unless grep {/^content-type:/i} @args;
   reply(undef, @args);
-  $replying = 2 if $chunked;
+  $req->{'replying'} = 2 if $chunked;
   my $param = {'filename' => $file};
   $param->{'bytes'} = $1 if @cl && $cl[0] =~ /(\d+)/;
   $param->{'chunked'} = 1 if $chunked;
@@ -624,8 +625,10 @@ sub reply_file {
 }
 
 sub reply_receiver {
-  my ($hdr, $param) = @_;
+  my ($req, $param) = @_;
 
+  my $replyreq = $BSServer::request || {};
+  my $hdr = $req->{'headers'};
   $param->{'reply_receiver_called'} = 1;
   my @args;
   my $st = $hdr->{'status'};
@@ -638,9 +641,9 @@ sub reply_receiver {
   push @args, "Content-Length: $cl" if defined($cl) && !$chunked;
   push @args, 'Transfer-Encoding: chunked' if $chunked;
   reply(undef, @args); 
-  $replying = 2 if $chunked;
+  $replyreq->{'replying'} = 2 if $chunked;
   while(1) {
-    my $data = BSHTTP::read_data($hdr, 8192);
+    my $data = BSHTTP::read_data($req, 8192);
     last unless defined($data) && $data ne '';
     $data = sprintf("%X\r\n", length($data)).$data."\r\n" if $chunked;
     swrite($data);

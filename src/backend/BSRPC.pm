@@ -332,26 +332,25 @@ sub rpc {
       $cookiestore{$1} = \@cookie;
     }
   }
+  ${$param->{'replyheaders'}} = \%headers if $param->{'replyheaders'};
   if (($param->{'request'} || '') eq 'HEAD') {
     close S;
-    ${$param->{'replyheaders'}} = \%headers if $param->{'replyheaders'};
     return \%headers;
   }
-  $headers{'__socket'} = \*S;
-  $headers{'__data'} = $ans;
-  my $receiver;
-  $receiver = $param->{'receiver'};
+  my $ansreq = {
+    'headers' => \%headers,
+    '__socket' => \*S,
+    '__data' => $ans,
+  };
+  my $receiver = $param->{'receiver'};
   $xmlargs ||= $param->{'receiverarg'};
   if ($receiver) {
-    $ans = $receiver->(\%headers, $param, $xmlargs);
+    $ans = $receiver->($ansreq, $param, $xmlargs);
     $xmlargs = undef;
   } else {
-    $ans = BSHTTP::read_data(\%headers, undef, 1);
+    $ans = BSHTTP::read_data($ansreq, undef, 1);
   }
   close S;
-  delete $headers{'__socket'};
-  delete $headers{'__data'};
-  ${$param->{'replyheaders'}} = \%headers if $param->{'replyheaders'};
   #if ($param->{'verbose'}) {
   #  print "< $ans\n";
   #}
