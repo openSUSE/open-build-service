@@ -43,7 +43,7 @@ module Clockwork
   end
 
   # Ensure that sphinx's searchd is running and reindex
-  every(1.hour, 'reindex sphinx', thread: true) do
+  every(1.hour, 'reindex sphinx') do
     FullTextSearch.new.delay.index_and_start
   end
 
