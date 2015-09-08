@@ -28,11 +28,11 @@ class Webui::DriverUpdateController < Webui::PackageController
     end
 
     #parse name, archs, repos from services file
-    @repositories = dud_service.each( 'param[@name="instrepo"]' ).map{|repo| repo.text}
-    @name = dud_service.find_first( 'param[@name="name"]' ).text if dud_service.find_first( 'param[@name="name"]' )
-    @distname = dud_service.find_first( 'param[@name="distname"]' ).text if dud_service.find_first( 'param[@name="distname"]' )
-    @flavour = dud_service.find_first( 'param[@name="flavour"]' ).text if dud_service.find_first( 'param[@name="flavour"]' )
-    @architectures = dud_service.each( 'param[@name="arch"]' ).map{|arch| arch.text}
+    @repositories = dud_service.each('param[@name="instrepo"]').map{|repo| repo.text}
+    @name = dud_service.find_first('param[@name="name"]').text if dud_service.find_first( 'param[@name="name"]' )
+    @distname = dud_service.find_first('param[@name="distname"]').text if dud_service.find_first( 'param[@name="distname"]' )
+    @flavour = dud_service.find_first('param[@name="flavour"]').text if dud_service.find_first( 'param[@name="flavour"]' )
+    @architectures = dud_service.each('param[@name="arch"]').map{|arch| arch.text}
 
     #parse packages, binary packages from dud_packlist.xml file
     @packages = []
@@ -61,14 +61,14 @@ class Webui::DriverUpdateController < Webui::PackageController
     end
 
     # Validations
-    errors = ''
-    errors += "Please select at least one architecture. \n" if params[:arch].blank?
-    errors += "Please enter a name. \n" if params[:name].blank?
-    errors += "Please select at least one repository. \n" if params[:projects].blank?
-    errors += "Please select at least one package. \n" if params[:packages].blank?
-    errors += "Please select at least one binary package. \n" if params[:binaries].blank?
+    errors = []
+    errors << "Please select at least one architecture." if params[:arch].blank?
+    errors << "Please enter a name." if params[:name].blank?
+    errors << "Please select at least one repository." if params[:projects].blank?
+    errors << "Please select at least one package." if params[:packages].blank?
+    errors << "Please select at least one binary package." if params[:binaries].blank?
     unless errors.blank?
-      flash.now[:error] = errors
+      flash.now[:error] = errors.join("\n")
       require_available_architectures
       render :create
       return
