@@ -281,7 +281,6 @@ sub rpc {
       $ret->{'verbose'} = $param->{'verbose'} if $param->{'verbose'};
       $ret->{'replyheaders'} = $param->{'replyheaders'} if $param->{'replyheaders'};
       $ret->{'receiver'} = $param->{'receiver'} if $param->{'receiver'};
-      $ret->{$_} = $param->{$_} for grep {/^receiver:/} keys %$param;
       $ret->{'receiverarg'} = $xmlargs if $xmlargs;
       return $ret;
     }
@@ -341,8 +340,7 @@ sub rpc {
   $headers{'__socket'} = \*S;
   $headers{'__data'} = $ans;
   my $receiver;
-  $receiver = $param->{'receiver:'.lc($headers{'content-type'} || '')};
-  $receiver ||= $param->{'receiver'};
+  $receiver = $param->{'receiver'};
   $xmlargs ||= $param->{'receiverarg'};
   if ($receiver) {
     $ans = $receiver->(\%headers, $param, $xmlargs);
