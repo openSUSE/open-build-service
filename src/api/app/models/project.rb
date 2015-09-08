@@ -539,7 +539,6 @@ class Project < ActiveRecord::Base
     update_repositories(xmlhash, force)
 
     #--- end update repositories ---#
-    self.updated_at = Time.now
   end
 
 
