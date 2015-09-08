@@ -7,13 +7,16 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
   setup do
     use_js
-    @project = 'home:Iggy'
+    login_Iggy
+    visit project_show_path(project: "home:Iggy")
+  end
+
+  teardown do
+    login_Iggy
+    delete_patchinfo('home:Iggy')
   end
 
   def test_create_patchinfo_with_too_short_summary
-    login_Iggy
-    visit project_show_path(project: "home:Iggy")
-
     click_link("Create patchinfo")
     fill_in "summary", with: "Too short"
     fill_in "description", with: LONG_DESCRIPTION
@@ -21,14 +24,9 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
     flash_message.must_equal "|| Summary is too short (should have more than 10 signs)"
     flash_message_type.must_equal :alert
-
-    delete_patchinfo('home:Iggy')
   end
 
   def test_create_patchinfo_with_too_short_desc
-    login_Iggy
-    visit project_show_path(project: "home:Iggy")
-
     click_link("Create patchinfo")
     fill_in "summary", with: "This is a test for the patchinfo-editor"
     fill_in "description", with: "This description is too short"
@@ -36,14 +34,9 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
     flash_message.must_equal "|| Description is too short (should have more than 50 signs and longer than summary)"
     flash_message_type.must_equal :alert
-
-    delete_patchinfo('home:Iggy')
   end
 
   def test_create_patchinfo_with_too_short_sum_and_desc
-    login_Iggy
-    visit project_show_path(project: "home:Iggy")
-
     click_link("Create patchinfo")
     fill_in "summary", with: "Too short"
     fill_in "description", with: "This description is too short"
@@ -52,15 +45,10 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     flash_message.must_equal "|| Summary is too short (should have more than 10 signs) " +
       "|| Description is too short (should have more than 50 signs and longer than summary)"
     flash_message_type.must_equal :alert
-
-    delete_patchinfo('home:Iggy')
   end
 
   # FIXME: Split this up into separate tests and user setup, etc
   def test_accessability
-    login_Iggy
-    visit project_show_path(project: "home:Iggy")
-
     click_link("Create patchinfo")
     fill_in "summary", with: "This is a test for the patchinfo-editor"
     fill_in "description", with: LONG_DESCRIPTION
@@ -87,16 +75,9 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     # check that the patchinfo is not editable per direct url for unauthorized users
     visit patchinfo_edit_patchinfo_path(project: "home:Iggy", package: "patchinfo")
     page.must_have_text('Please Log In')
-
-    # Cleanup
-    login_Iggy
-    delete_patchinfo('home:Iggy')
   end
 
   def test_create_patchinfo_with_desc_and_sum
-    login_Iggy
-    visit project_show_path(project: "home:Iggy")
-
     click_link("Create patchinfo")
     page.must_have_text("Patchinfo-Editor for")
 
@@ -115,14 +96,9 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     page.must_have_selector("#zypp_false")
     page.must_have_selector("#reboot_false")
     page.must_have_selector("#relogin_false")
-
-    delete_patchinfo('home:Iggy')
   end
 
   def test_create_patchinfo_with_changed_rating_and_category
-    login_Iggy
-    visit project_show_path(project: "home:Iggy")
-
     click_link("Create patchinfo")
     page.must_have_text("Patchinfo-Editor for")
 
@@ -136,14 +112,9 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     page.must_have_text "optional update for"
     page.must_have_text "This update was submitted from #{current_user}"
     page.must_have_text "and rated as critical"
-
-    delete_patchinfo('home:Iggy')
   end
 
   def test_create_patchinfo_with_flags
-    login_Iggy
-    visit project_show_path(project: "home:Iggy")
-
     click_link("Create patchinfo")
     fill_in "summary", with: "This is a test for the patchinfo-editor"
     fill_in "description", with: LONG_DESCRIPTION
@@ -158,14 +129,9 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     page.must_have_selector("#zypp_true")
     page.must_have_selector("#relogin_true")
     page.must_have_selector("#reboot_true")
-
-    delete_patchinfo('home:Iggy')
   end
 
   def test_create_patchinfo_with_binaries
-    login_Iggy
-    visit project_show_path(project: "home:Iggy")
-
     click_link("Create patchinfo")
     fill_in "summary", with: "This is a test for the patchinfo-editor"
     fill_in "description", with: LONG_DESCRIPTION
@@ -187,14 +153,9 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     click_button("remove")
     click_button("Save Patchinfo")
     page.wont_have_text('delete_me')
-
-    delete_patchinfo('home:Iggy')
   end
 
   def test_create_patchinfo_with_issues
-    login_Iggy
-    visit project_show_path(project: "home:Iggy")
-
     click_link("Create patchinfo")
     fill_in "summary", with: "This is a test for the patchinfo-editor"
     fill_in "description", with: LONG_DESCRIPTION
@@ -222,8 +183,6 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     page.wont_have_content("121212")
     find_link("bnc#700501")
     click_button("Save Patchinfo") # FIXME: This doesn't have any effect here
-
-    delete_patchinfo('home:Iggy')
   end
 
   def delete_patchinfo project
@@ -245,9 +204,6 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
   end
 
   def test_create_patchinfo_and_edit_it
-    login_Iggy
-    visit project_show_path(project: "home:Iggy")
-
     click_link("Create patchinfo")
     fill_in "summary", with: "This is a test for the patchinfo-editor"
     fill_in "description", with: LONG_DESCRIPTION
@@ -266,14 +222,9 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     page.must_have_text "optional update for"
     page.must_have_text "This update was submitted from #{current_user}"
     page.must_have_text "and rated as critical"
-
-    delete_patchinfo('home:Iggy')
   end
 
   def test_create_patchinfo_that_is_blocked
-    login_Iggy
-    visit project_show_path(project: "home:Iggy")
-
     click_link("Create patchinfo")
     fill_in "summary", with: "This is a test for the patchinfo-editor"
     fill_in "description", with: LONG_DESCRIPTION
@@ -284,7 +235,5 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
     page.must_have_text "This update is currently blocked:"
     page.must_have_text "I don't like it"
-
-    delete_patchinfo('home:Iggy')
   end
 end
