@@ -203,7 +203,7 @@ module Suse
         print "Starting test backend..."
         @@backend = IO.popen("#{Rails.root}/script/start_test_backend")
         logger.debug "Test backend started with pid: #{@@backend.pid}"
-        while true do
+        while true
           line = @@backend.gets
           raise RuntimeError.new('Backend died') unless line
           break if line =~ /DONE NOW/
