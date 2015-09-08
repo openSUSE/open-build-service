@@ -253,21 +253,26 @@ sub rpc {
       print "> $_\n" for split("\r\n", $req);
       #print "> $data\n" unless ref($data);
     }
-    $req .= "$data" unless ref($data);
+    if (!ref($data)) {
+      # append body to request (chunk encoded if requested)
+      if ($chunked) {
+	$data = sprintf("%X\r\n", length($data)).$data."\r\n" if $data ne '';
+	$data .= "0\r\n\r\n";
+      }
+      $req .= $data;
+    }
     if ($param->{'sender'}) {
       $param->{'sender'}->($param, \*S, $req);
+    } elsif (!ref($data)) {
+      BSHTTP::swrite(\*S, $req);
     } else {
+      BSHTTP::swrite(\*S, $req);
       while(1) {
-	BSHTTP::swrite(\*S, $req);
-	last unless ref $data;
 	$req = &$data($param, \*S);
-	if (!defined($req) || !length($req)) {
-	  $req = $data = '';
-	  $req = "0\r\n\r\n" if $chunked;
-	  next;
-	}
-	$req = sprintf("%X\r\n", length($req)).$req."\r\n" if $chunked;
+	last if !defined($req) || !length($req);
+        BSHTTP::swrite(\*S, $req, $chunked);
       }
+      BSHTTP::swrite(\*S, "0\r\n\r\n") if $chunked;
     }
     if ($param->{'async'}) {
       my $ret = {};
