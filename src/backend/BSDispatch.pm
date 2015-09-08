@@ -27,7 +27,7 @@ package BSDispatch;
 
 sub parse_cgi {
   # $req:
-  #      the part of URI after ?
+  #      the request data
   # $multis:
   #      hash of cgi names
   #      * key does not exist - multiple cgi values are not allowed
@@ -39,10 +39,11 @@ sub parse_cgi {
  
   my ($req, $multis, $singles) = @_;
 
-  my $query_string = $req->{'query'};
+  $multis ||= {};
+  $singles ||= {'*' => undef};
   my %cgi;
-  my @query_string = split('&', $query_string);
   my %unknown;
+  my @query_string = split('&', $req->{'query'});
   while (@query_string) {
     my ($name, $value) = split('=', shift(@query_string), 2);
     next unless defined $name && $name ne '';
@@ -56,26 +57,26 @@ sub parse_cgi {
     } else {
       $value = 1;	# assume boolean
     }
-    if ($singles && exists($singles->{$name})) {
-      die("parameter '$name' set multiple times\n") if exists $cgi{$name};
-      $cgi{$name} = $value;
-    } elsif ($multis && exists($multis->{$name})) {
+    if (exists($multis->{$name})) {
       if (defined($multis->{$name})) {
         $cgi{$name} = exists($cgi{$name}) ? "$cgi{$name}$multis->{$name}$value" : $value;
       } else {
         push @{$cgi{$name}}, $value;
       }
-    } elsif ($singles && $multis && exists($multis->{'*'})) {
+    } elsif (exists($singles->{$name})) {
+      die("parameter '$name' set multiple times\n") if exists $cgi{$name};
+      $cgi{$name} = $value;
+    } elsif (exists($multis->{'*'})) {
       if (defined($multis->{'*'})) {
         $cgi{$name} = exists($cgi{$name}) ? "$cgi{$name}$multis->{'*'}$value" : $value;
       } else {
         push @{$cgi{$name}}, $value;
       }
-    } elsif ($singles) {
-      $unknown{$name} = 1;
-    } else {
+    } elsif (exists($singles->{'*'})) {
       die("parameter '$name' set multiple times\n") if exists $cgi{$name};
       $cgi{$name} = $value;
+    } else {
+      $unknown{$name} = 1;
     }
   }
   die("unknown parameter '".join("', '", sort keys %unknown)."'\n") if %unknown;
@@ -85,9 +86,8 @@ sub parse_cgi {
 # return only the singles from a query
 sub parse_cgi_singles {
   my ($req) = @_;
-  my $query_string = $req->{'query'};
   my %cgi;
-  for my $qu (split('&', $query_string)) {
+  for my $qu (split('&', $req->{'query'})) {
     my ($name, $value) = split('=', $qu, 2);
     $name  =~ tr/+/ /;
     $name  =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
@@ -100,9 +100,7 @@ sub parse_cgi_singles {
     $value =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
     $cgi{$name} = $value;
   }
-  for (keys %cgi) {
-    delete $cgi{$_} unless defined $cgi{$_};
-  }
+  delete $cgi{$_} for grep {!defined($cgi{$_})} keys %cgi;
   return \%cgi;
 }
 
@@ -134,7 +132,6 @@ sub compile_dispatches {
     my $code2 = '';
     my $num = 1;
     my @args;
-    my $known = '';
     for my $pp (@p) {
       if ($pp =~ /^\$(.*)$/) {
         my $var = $1;
@@ -145,7 +142,6 @@ sub compile_dispatches {
         $code .= "\$cgi->{'$var'} = \$$num;\n";
         $code2 .= "\$verifyers->{'$vartype'}->(\$cgi->{'$var'});\n" if $vartype ne '';
 	push @args, $var;
-	$known .= ", '$var'";
         $num++;
       } else {
         $pp = "\Q$pp\E";
@@ -168,7 +164,6 @@ sub compile_dispatches {
 	$cgisingles ||= {};
 	$cgisingles->{$1} = $2;
 	$singles .= ", '$1' => undef";
-	$known .= ", '$1'";
 	next;
       }
       my $vartype = $var;
@@ -184,7 +179,6 @@ sub compile_dispatches {
         $code2 .= "\$verifyers->{'$vartype'}->(\$cgi->{'$var'}) if exists \$cgi->{'$var'};\n" if $vartype ne '';
       }
       push @args, $var if $arg;
-      $known .= ", '$var'";
     }
     $multis = substr($multis, 2) if $multis;
     $singles = substr($singles, 2) if $singles;
