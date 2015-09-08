@@ -154,7 +154,6 @@ sub compile_dispatches {
     $p[-1] = '(.*)' if $p[-1] eq "([^\\/]*)" && $args[-1] eq '...';
     my $multis = '';
     my $singles = '';
-    my $hasstar;
     for my $pp (@cgis) {
       my ($arg, $qual) = (0, '{1}');
       $arg = 1 if $pp =~ s/^\$//;
@@ -170,7 +169,6 @@ sub compile_dispatches {
       ($var, $vartype) = ($1, $2) if $var =~ /^(.*):(.*)/;
       die("no verifyer for $vartype\n") unless $vartype eq '' || $verifyers->{$vartype};
       $code2 .= "die(\"parameter '$var' is missing\\n\") unless exists \$cgi->{'$var'};\n" if $qual ne '*' && $qual ne '?';
-      $hasstar = 1 if $var eq '*';
       if ($qual eq '+' || $qual eq '*') {
 	$multis .= ", '$var' => undef";
         $code2 .= "\$verifyers->{'$vartype'}->(\$_) for \@{\$cgi->{'$var'} || []};\n" if $vartype ne '';
