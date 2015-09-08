@@ -41,7 +41,6 @@ class BuildController < ApplicationController
       #check for cmd parameter
       if params[:cmd].nil?
         raise MissingParameterError.new "Missing parameter 'cmd'"
-        return
       end
 
       unless %w(wipe restartbuild killbuild abortbuild rebuild).include? params[:cmd]

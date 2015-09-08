@@ -408,7 +408,6 @@ module ActiveXML
         elem.internal_data.remove
       elsif elem.kind_of? Nokogiri::XML::Node
         raise 'this should be obsolete!!!'
-        elem.remove
       else
         s = _data.xpath(elem.to_s)
         raise 'this was supposed to return sets' unless s.kind_of? Nokogiri::XML::NodeSet

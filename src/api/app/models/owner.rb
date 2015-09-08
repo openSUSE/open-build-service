@@ -87,8 +87,6 @@ class Owner
     return owners
   end
 
-  protected
-
   def self.find_assignees(rootproject, binary_name, limit = 1, devel = true, filter = %w(maintainer bugowner), webui_mode = false)
     projects=rootproject.expand_all_projects
     instances_without_definition=[]
@@ -333,7 +331,6 @@ class Owner
     return m
   end
 
-  private
   def self._extract_from_container(m, r, sql, objfilter)
     usersql = groupsql = sql
     usersql  = sql << " AND user_id = " << objfilter.id.to_s  if objfilter.class == User
@@ -374,5 +371,4 @@ class Owner
     end
     sql << " )"
   end
-
 end

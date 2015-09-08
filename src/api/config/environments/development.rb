@@ -53,7 +53,7 @@ CONFIG['source_port'] = 6200
 
 require 'socket'
 fname = "#{Rails.root}/config/environments/development.#{Socket.gethostname}.rb"
-if File.exists? fname
+if File.exist? fname
   STDERR.puts "Using local environment #{fname}"
   eval File.read(fname)
 else

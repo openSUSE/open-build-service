@@ -266,7 +266,6 @@ class PersonController < ApplicationController
 
     unless params[:cmd] == "create"
       raise UnknownCommandError.new "Allowed commands are 'create'"
-      return
     end
     pkg = nil
     if params[:project] or params[:package]

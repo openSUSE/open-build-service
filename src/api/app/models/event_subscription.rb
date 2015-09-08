@@ -52,7 +52,6 @@ class EventSubscription < ActiveRecord::Base
     rule.save
   end
 
-  private
   def self.filter_relationships(rel, obj)
     if obj.kind_of? User
       return rel.where(user: obj)
@@ -64,5 +63,4 @@ class EventSubscription < ActiveRecord::Base
 
     raise "Unable to filter by #{obj.class}"
   end
-
 end

@@ -140,7 +140,6 @@ class Wizard
     }
   }
 
-  public
   def self.guess_version(name, tarball)
       if tarball =~ /^#{name}-(.*)\.tar\.(gz|bz2)$/i
         return $1
@@ -150,7 +149,6 @@ class Wizard
       return nil
   end
 
-  private
   # hash that sets a dirty flag on write
   class DirtyHash < Hash
     attr_reader :dirty
@@ -183,5 +181,3 @@ class Wizard
     end
   end
 end
-
-# vim:et:ts=2:sw=2

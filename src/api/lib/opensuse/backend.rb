@@ -227,7 +227,7 @@ module Suse
         counter = 0
         marker = Rails.root.join('tmp', 'scheduler.done')
         while counter < 100
-          return if File.exists?(marker)
+          return if File.exist?(marker)
           sleep 0.5
           counter = counter + 1
         end

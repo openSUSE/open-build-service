@@ -25,7 +25,7 @@ dienow = false
 lines = []
 outputlines = true
 apiroot=Rails.root.join('..', 'api').to_s
-unless File.exists? apiroot + "/config/thinking_sphinx.yml"
+unless File.exist? apiroot + "/config/thinking_sphinx.yml"
   $stderr.puts "copying config/thinking_sphinx.yml.example in the API"
   FileUtils.copy apiroot + "/config/thinking_sphinx.yml.example", apiroot + "/config/thinking_sphinx.yml"
 end

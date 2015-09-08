@@ -959,7 +959,6 @@ class User < ActiveRecord::Base
     address.format
   end
 
-  protected
   # This method allows to execute a block while deactivating timestamp
   # updating.
   def self.execute_without_timestamps
@@ -971,12 +970,12 @@ class User < ActiveRecord::Base
     ActiveRecord::Base.record_timestamps = old_state
   end
 
-  private
-
   # This method returns an array which contains all valid hash types.
   def self.default_password_hash_types
     %w(md5)
   end
+
+  private
 
   # Hashes the given parameter by the selected hashing method. It uses the
   # "password_salt" property's value to make the hashing more secure.
@@ -993,5 +992,4 @@ class User < ActiveRecord::Base
       @@lstrategy = UserBasicStrategy.new
     end
   end
-
 end

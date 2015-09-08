@@ -51,11 +51,11 @@ Capybara.javascript_driver = :poltergeist
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
-unless File.exists? '/proc'
+unless File.exist? '/proc'
   print 'ERROR: proc file system not mounted, aborting'
   exit 1
 end
-unless File.exists? '/dev/fd'
+unless File.exist? '/dev/fd'
   print 'ERROR: /dev/fd does not exist, aborting'
   exit 1
 end
@@ -310,9 +310,9 @@ module Webui
       dirpath = Rails.root.join('tmp', 'capybara')
       htmlpath = dirpath.join(self.name + '.html')
       if !passed?
-        Dir.mkdir(dirpath) unless Dir.exists? dirpath
+        Dir.mkdir(dirpath) unless Dir.exist? dirpath
         save_page(htmlpath)
-      elsif File.exists?(htmlpath)
+      elsif File.exist?(htmlpath)
         File.unlink(htmlpath)
       end
 
