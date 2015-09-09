@@ -542,7 +542,7 @@ class Project < ActiveRecord::Base
   end
 
   def update_from_xml(xmlhash, force = nil)
-    update_from_xml(xmlhash, force)
+    update_from_xml!(xmlhash, force)
     { }
   rescue APIException => e
     { error: e.message }
