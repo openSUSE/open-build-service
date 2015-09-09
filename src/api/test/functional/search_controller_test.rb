@@ -816,13 +816,14 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
   def test_xpath_with_two_relationships
     login_Iggy
-    get '/search/package/id', match: "person/@userid = 'adrian' and person/@role = 'maintainer'"
+    get '/search/package/id', match: "person/@userid = 'adrian' and person/@role = 'reviewer'"
     assert_response :success
     assert_xml_tag tag: 'package', attributes: { project: 'kde4', name: 'kdelibs' }
+    assert_xml_tag tag: 'collection', children: { count: 1 }
 
     get '/search/project', match: "person/@userid = 'adrian' and person/@role = 'maintainer'"
     assert_response :success
-    assert_xml_tag tag: 'project', attributes: { name: 'kde4' }
     assert_xml_tag tag: 'project', attributes: { name: 'home:adrian' }
+    assert_xml_tag tag: 'collection', children: { count: 1 }
   end
 end

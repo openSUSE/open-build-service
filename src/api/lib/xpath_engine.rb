@@ -53,17 +53,13 @@ class XpathEngine
         'attribute_issue/owner/@login' => {:cpart => 'users.login', :joins =>
           [ 'LEFT JOIN users ON users.id = attribissues.owner_id' ]},
         'person/@userid' => {:cpart => 'users.login', :joins =>
-          ['LEFT JOIN relationships rpu ON packages.id = rpu.package_id',
-           'LEFT JOIN users ON users.id = rpu.user_id']},
+          [ 'LEFT JOIN users ON users.id = user_relation.user_id']},
         'person/@role' => {:cpart => 'ppr.title', :joins =>
-          ['LEFT JOIN relationships rpr ON packages.id = rpr.package_id',
-           'LEFT JOIN roles AS ppr ON rpr.role_id = ppr.id']},
+          [ 'LEFT JOIN roles AS ppr ON user_relation.role_id = ppr.id']},
         'group/@groupid' => {:cpart => 'groups.title', :joins =>
-          ['LEFT JOIN relationships AS pgr ON packages.id = pgr.package_id',
-           'LEFT JOIN groups ON groups.id = pgr.group_id']},
+          [ 'LEFT JOIN groups ON groups.id = group_relation.group_id']},
         'group/@role' => {:cpart => 'gpr.title', :joins =>
-          ['LEFT JOIN relationships ON packages.id = relationships.package_id',
-           'LEFT JOIN roles AS gpr ON relationships.role_id = gpr.id']},
+          [ 'LEFT JOIN roles AS gpr ON group_relation.role_id = gpr.id']},
         'attribute/@name' => {:cpart => 'attrib_namespaces.name = ? AND attrib_types.name',
           :split => ':', :joins =>
           ['LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
@@ -85,17 +81,13 @@ class XpathEngine
           'LEFT JOIN maintained_projects AS maintained_prj ON projects.id = maintained_prj.maintenance_project_id',
           'LEFT JOIN projects AS maintains_prj ON maintained_prj.project_id = maintains_prj.id']},
         'person/@userid' => {:cpart => 'users.login', :joins => [
-          'LEFT JOIN relationships AS rpr ON projects.id = rpr.project_id',
-          'LEFT JOIN users ON users.id = rpr.user_id']},
+          'LEFT JOIN users ON users.id = user_relation.user_id']},
         'person/@role' => {:cpart => 'ppr.title', :joins => [
-          'LEFT JOIN relationships ON projects.id = relationships.project_id',
-          'LEFT JOIN roles AS ppr ON relationships.role_id = ppr.id']},
+          'LEFT JOIN roles AS ppr ON user_relation.role_id = ppr.id']},
         'group/@groupid' => {:cpart => 'groups.title', :joins =>
-          ['LEFT JOIN relationships gprs ON projects.id = gprs.project_id',
-           'LEFT JOIN groups ON groups.id = gprs.group_id']},
+          [ 'LEFT JOIN groups ON groups.id = group_relation.group_id']},
         'group/@role' => {:cpart => 'gpr.title', :joins =>
-          ['LEFT JOIN relationships AS gprrs ON projects.id = gprrs.project_id',
-           'LEFT JOIN roles AS gpr ON gprrs.role_id = gpr.id']},
+          [ 'LEFT JOIN roles AS gpr ON group_relation.role_id = gpr.id']},
         'repository/@name' => {:cpart => 'repositories.name'},
         'repository/path/@project' => {:cpart => 'childs.name', :joins => [
           'join repositories r on r.db_project_id=projects.id',
@@ -318,15 +310,20 @@ class XpathEngine
     when 'packages'
       relation = Package.all
       @joins = ['LEFT JOIN package_issues ON packages.id = package_issues.package_id',
-                 'LEFT JOIN issues ON issues.id = package_issues.issue_id',
-                 'LEFT JOIN issue_trackers ON issues.issue_tracker_id = issue_trackers.id',
-                 'LEFT JOIN attribs ON attribs.package_id = packages.id',
-                 'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
-                 'LEFT JOIN issues AS attribissues ON attribissues.id = attrib_issues.issue_id',
-                 'LEFT JOIN issue_trackers AS attribissue_trackers ON attribissues.issue_tracker_id = attribissue_trackers.id',
-                ] << @joins
+                'LEFT JOIN issues ON issues.id = package_issues.issue_id',
+                'LEFT JOIN issue_trackers ON issues.issue_tracker_id = issue_trackers.id',
+                'LEFT JOIN attribs ON attribs.package_id = packages.id',
+                'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
+                'LEFT JOIN issues AS attribissues ON attribissues.id = attrib_issues.issue_id',
+                'LEFT JOIN issue_trackers AS attribissue_trackers ON attribissues.issue_tracker_id = attribissue_trackers.id',
+                'LEFT JOIN relationships user_relation ON packages.id = user_relation.package_id',
+                'LEFT JOIN relationships group_relation ON packages.id = group_relation.package_id',
+               ] << @joins
     when 'projects'
       relation = Project.all
+      @joins = ['LEFT JOIN relationships user_relation ON projects.id = user_relation.project_id',
+                'LEFT JOIN relationships group_relation ON projects.id = group_relation.project_id',
+               ] << @joins
     when 'repositories'
       relation = Repository.where("repositories.db_project_id not in (?)", Relationship.forbidden_project_ids)
       @joins = ['LEFT join path_elements path_element on path_element.parent_id=repositories.id',
