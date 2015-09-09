@@ -317,12 +317,12 @@ class XpathEngine
                 'LEFT JOIN issues AS attribissues ON attribissues.id = attrib_issues.issue_id',
                 'LEFT JOIN issue_trackers AS attribissue_trackers ON attribissues.issue_tracker_id = attribissue_trackers.id',
                 'LEFT JOIN relationships user_relation ON packages.id = user_relation.package_id',
-                'LEFT JOIN relationships group_relation ON packages.id = group_relation.package_id',
+                'LEFT JOIN relationships group_relation ON packages.id = group_relation.package_id'
                ] << @joins
     when 'projects'
       relation = Project.all
       @joins = ['LEFT JOIN relationships user_relation ON projects.id = user_relation.project_id',
-                'LEFT JOIN relationships group_relation ON projects.id = group_relation.project_id',
+                'LEFT JOIN relationships group_relation ON projects.id = group_relation.project_id'
                ] << @joins
     when 'repositories'
       relation = Repository.where("repositories.db_project_id not in (?)", Relationship.forbidden_project_ids)
