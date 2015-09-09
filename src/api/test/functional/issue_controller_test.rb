@@ -239,7 +239,8 @@ Aha bnc#123456\n
     assert_no_xml_tag :parent => { :tag => "collection" }, :tag => "package",
                       :attributes => { :project => 'home:Iggy:branches:BaseDistro', :name => 'pack_new' }
 
-    get "/search/package/id", :match => '[issue/[@name="987" and @tracker="bnc"]]'
+    # search for attribute issues
+    get "/search/package/id", :match => '[attribute_issue/[@name="987" and @tracker="bnc"]]'
     assert_response :success
     assert_xml_tag :parent => { :tag => "collection" }, :tag => "package",
                    :attributes => { :project => 'home:Iggy:branches:BaseDistro', :name => 'pack_new' }

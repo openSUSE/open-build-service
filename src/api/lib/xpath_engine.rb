@@ -37,46 +37,23 @@ class XpathEngine
            'left join projects projs on devels.project_id=projs.id']},
         'devel/@package' => {:cpart => 'develpackage.name', :joins =>
           ['LEFT JOIN packages develpackage ON develpackage.id = packages.develpackage_id']},
-        'issue/@state' => {:cpart => 'issues.state', :joins =>
-          ['LEFT JOIN package_issues ON packages.id = package_issues.package_id',
-           'LEFT JOIN issues ON issues.id = package_issues.issue_id',
-           'LEFT JOIN attribs ON attribs.package_id = packages.id',
-           'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
-           'LEFT JOIN issues AS issues2 ON issues2.id = attrib_issues.issue_id'
-          ]},
-        'issue/@name' => {:cpart => 'issues.name = ? or issues2.name', :double => true, :joins =>
-          ['LEFT JOIN package_issues ON packages.id = package_issues.package_id',
-           'LEFT JOIN issues ON issues.id = package_issues.issue_id',
-           'LEFT JOIN attribs ON attribs.package_id = packages.id',
-           'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
-           'LEFT JOIN issues AS issues2 ON issues2.id = attrib_issues.issue_id'
-          ]},
-        'issue/@tracker' => {:cpart => 'issue_trackers.name', :joins =>
-          ['LEFT JOIN package_issues AS package_issuet ON packages.id = package_issuet.package_id',
-           'LEFT JOIN issues AS issuet ON issuet.id = package_issuet.issue_id',
-           'LEFT JOIN issue_trackers ON issuet.issue_tracker_id = issue_trackers.id',
-           'LEFT JOIN attribs AS attribt ON attribt.package_id = packages.id',
-           'LEFT JOIN attrib_issues AS attrib_issuet ON attrib_issuet.attrib_id = attribt.id'
-          ]},
-        'issue/@change' => {:cpart => 'package_issues.change',
-                            joins: 'LEFT JOIN package_issues ON packages.id = package_issues.package_id'},
-        'issue/owner/@email' => {:cpart => 'users2.email = ? or users.email', :double => 1, :joins =>
-          ['LEFT JOIN package_issues ON packages.id = package_issues.package_id',
-           'LEFT JOIN issues ON issues.id = package_issues.issue_id',
-           'LEFT JOIN users ON users.id = issues.owner_id',
-           'LEFT JOIN attribs ON attribs.package_id = packages.id',
-           'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
-           'LEFT JOIN issues2 ON issues2.id = attrib_issues.issue_id',
-           'LEFT JOIN users AS users2 ON users.id = issues2.owner_id']},
-        'issue/owner/@login' => {:cpart => 'users2.login = ? or users.login', :double => 1, :joins =>
-          ['LEFT JOIN package_issues ON packages.id = package_issues.package_id',
-           'LEFT JOIN issues ON issues.id = package_issues.issue_id',
-           'LEFT JOIN users ON users.id = issues.owner_id',
-           'LEFT JOIN attribs ON attribs.package_id = packages.id',
-           'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
-           'LEFT JOIN users AS users2 ON users2.id = issues.owner_id']},
+        'issue/@state' => {:cpart => 'issues.state'},
+        'issue/@name' => {:cpart => 'issues.name'},
+        'issue/@tracker' => {:cpart => 'issue_trackers.name'},
+        'issue/@change' => {:cpart => 'package_issues.change'},
+        'issue/owner/@email' => {:cpart => 'users.email', :joins =>
+          [ 'LEFT JOIN users ON users.id = issues.owner_id' ]},
+        'issue/owner/@login' => {:cpart => 'users.login', :joins =>
+          [ 'LEFT JOIN users ON users.id = issues.owner_id' ]},
+        'attribute_issue/@state' => {:cpart => 'attribissues.state'},
+        'attribute_issue/@name' => {:cpart => 'attribissues.name'},
+        'attribute_issue/@tracker' => {:cpart => 'attribissue_trackers.name'},
+        'attribute_issue/owner/@email' => {:cpart => 'users.email', :joins =>
+          [ 'LEFT JOIN users ON users.id = attribissues.owner_id' ]},
+        'attribute_issue/owner/@login' => {:cpart => 'users.login', :joins =>
+          [ 'LEFT JOIN users ON users.id = attribissues.owner_id' ]},
         'person/@userid' => {:cpart => 'users.login', :joins =>
-          ['LEFT JOIN relationships rpu ON packages.id = package_id',
+          ['LEFT JOIN relationships rpu ON packages.id = rpu.package_id',
            'LEFT JOIN users ON users.id = rpu.user_id']},
         'person/@role' => {:cpart => 'ppr.title', :joins =>
           ['LEFT JOIN relationships rpr ON packages.id = rpr.package_id',
@@ -89,8 +66,7 @@ class XpathEngine
            'LEFT JOIN roles AS gpr ON relationships.role_id = gpr.id']},
         'attribute/@name' => {:cpart => 'attrib_namespaces.name = ? AND attrib_types.name',
           :split => ':', :joins =>
-          ['LEFT JOIN attribs ON attribs.package_id = packages.id',
-           'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
+          ['LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
            'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id',
            'LEFT JOIN attribs AS attribsprj ON attribsprj.project_id = packages.project_id',   # include also, when set in project
            'LEFT JOIN attrib_types AS attrib_typesprj ON attribsprj.attrib_type_id = attrib_typesprj.id',
@@ -341,6 +317,14 @@ class XpathEngine
     case @base_table
     when 'packages'
       relation = Package.all
+      @joins = ['LEFT JOIN package_issues ON packages.id = package_issues.package_id',
+                 'LEFT JOIN issues ON issues.id = package_issues.issue_id',
+                 'LEFT JOIN issue_trackers ON issues.issue_tracker_id = issue_trackers.id',
+                 'LEFT JOIN attribs ON attribs.package_id = packages.id',
+                 'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
+                 'LEFT JOIN issues AS attribissues ON attribissues.id = attrib_issues.issue_id',
+                 'LEFT JOIN issue_trackers AS attribissue_trackers ON attribissues.issue_tracker_id = attribissue_trackers.id',
+                ] << @joins
     when 'projects'
       relation = Project.all
     when 'repositories'
