@@ -547,10 +547,10 @@ class SourceController < ApplicationController
     Project.transaction do
       # exec
       if prj
-        prj.update_from_xml(rdata)
+        prj.update_from_xml!(rdata)
       else
         prj = Project.new(name: project_name)
-        prj.update_from_xml(rdata)
+        prj.update_from_xml!(rdata)
         # failure is ok
         prj.add_user(User.current.login, 'maintainer')
       end
@@ -1095,7 +1095,7 @@ class SourceController < ApplicationController
     path = request.path_info + '/_meta'
     prj = Project.new(name: params[:project])
     Project.transaction do
-      prj.update_from_xml(Xmlhash.parse(backend_get(path)))
+      prj.update_from_xml!(Xmlhash.parse(backend_get(path)))
       prj.store
     end
 
