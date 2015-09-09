@@ -70,4 +70,15 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     page.must_have_checked_field('CommentForProject_maintainer')
     page.must_have_checked_field('CommentForProject_commenter')
   end
+
+  def test_that_redirect_after_login_works
+    visit search_path
+    visit user_login_path
+    fill_in 'Username', with: "tom"
+    fill_in 'Password', with: "thunder"
+    click_button 'Log In'
+
+    assert_equal "tom", User.current.try(:login)
+    assert_equal search_path, current_path
+  end
 end

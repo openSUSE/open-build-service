@@ -22,7 +22,8 @@ class Webui::SignupTest < Webui::IntegrationTest
 
     def test_signup_allow
       signup_user root_path
-      flash_message.must_equal 'The account "eisendieter" is now active.'
+      flash_message.must_equal "The account 'eisendieter' is now active."
+      assert User.find_by(login: "eisendieter").is_active?
     end
 
     def test_signup_confirmation
@@ -42,6 +43,5 @@ class Webui::SignupTest < Webui::IntegrationTest
       visit user_register_user_path
       page.must_have_content "Sign Up for an Open Build Service account"
     end
-
 end
 

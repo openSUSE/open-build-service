@@ -18,7 +18,6 @@ class Webui::UserController < Webui::WebuiController
     logger.info "Logging out: #{session[:login]}"
     reset_session
     User.current = nil
-    @return_to_path = root_path
     if CONFIG['proxy_auth_mode'] == :on
       redirect_to CONFIG['proxy_auth_logout_page']
     else
@@ -27,13 +26,12 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def login
-    @return_to_path = params['return_to_path'] || root_path
   end
 
   def do_login
-    @return_to_path = params['return_to_path'] || root_path
-    if params[:username].present? and params[:password]
+    if params[:username].present? && params[:password]
       logger.debug "Doing form authorization to login user #{params[:username]}"
+
       session[:login] = params[:username]
       session[:password] = params[:password]
       authenticate_form_auth
@@ -45,16 +43,20 @@ class Webui::UserController < Webui::WebuiController
       rescue ActiveXML::Transport::UnauthorizedError
         User.current = nil
       end
+
       unless User.current
+        return_to = return_path
         reset_session
+        set_return_path(return_to)
         flash.now[:error] = 'Authentication failed'
         User.current = User.find_by_login('_nobody_')
-        render :template => 'webui/user/login', :locals => { :return_to_path => @return_to_path }
+        render :template => 'webui/user/login'
         return
       end
+
       flash[:success] = 'You are logged in now'
       session[:login] = User.current.login
-      redirect_to params[:return_to_path] and return
+      return redirect_to(return_path)
     end
     flash[:error] = 'Authentication failed'
     redirect_to :action => 'login'
@@ -212,8 +214,8 @@ class Webui::UserController < Webui::WebuiController
       redirect_back_or_to :controller => 'main', :action => 'index' and return
     end
 
-    flash[:success] = "The account \"#{params[:login]}\" is now active."
- 
+    flash[:success] = "The account '#{params[:login]}' is now active."
+
     if User.current.is_admin?
       redirect_to :controller => :configuration, :action => :users
     else
