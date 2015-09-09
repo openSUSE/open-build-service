@@ -309,6 +309,7 @@ sub server {
   }
   my $req = {
     'peer' => 'unknown',
+    'conf' => $conf,
   };
   $BSServer::request = $req;
   eval {
@@ -320,7 +321,7 @@ sub server {
   setsockopt(CLNT, SOL_SOCKET, SO_KEEPALIVE, pack("l",1)) if $conf->{'setkeepalive'};
   if ($conf->{'accept'}) {
     eval {
-      $conf->{'accept'}->($conf, $req->{'peer'});
+      $conf->{'accept'}->($conf, $req);
     };
     reply_error($conf, $@) if $@;
   }
@@ -332,8 +333,14 @@ sub server {
         readrequest($req);
         alarm(0);
       };
-      $BSServer::request = $req;
-      $conf->{'dispatch'}->($conf, $req);
+      my @r = $conf->{'dispatch'}->($conf, $req);
+      if (!$req->{'replying'}) {
+        if ($conf->{'stdreply'}) {
+          $conf->{'stdreply'}->(@r);
+        } else {
+	  reply(@r);
+        }
+      }
     };
     reply_error($conf, $@) if $@;
     close CLNT;
@@ -597,8 +604,8 @@ sub reply_file {
   my $req = $BSServer::request || {};
   my $chunked;
   $chunked = 1 if grep {/^transfer-encoding:\s*chunked/i} @args;
-  my @cl = grep {/^content-length:/i} @args;
-  if (!@cl && !$chunked) {
+  my $cl = (grep {/^content-length:/i} @args)[0];
+  if (!$cl && !$chunked) {
     # detect file size
     if (!ref($file)) {
       my $fd = gensym;
@@ -607,8 +614,8 @@ sub reply_file {
     }
     if (-f $file) {
       my $size = -s $file;
-      @cl = ("Content-Length: $size");
-      push @args, $cl[0];
+      $cl = "Content-Length: $size";
+      push @args, $cl;
     } else {
       push @args, 'Transfer-Encoding: chunked';
       $chunked = 1;
@@ -618,7 +625,7 @@ sub reply_file {
   reply(undef, @args);
   $req->{'replying'} = 2 if $chunked;
   my $param = {'filename' => $file};
-  $param->{'bytes'} = $1 if @cl && $cl[0] =~ /(\d+)/;
+  $param->{'bytes'} = $1 if $cl && $cl =~ /(\d+)/;	# limit to content length
   $param->{'chunked'} = 1 if $chunked;
   BSHTTP::file_sender($param, \*CLNT);
   swrite("0\r\n\r\n") if $chunked;

@@ -205,7 +205,6 @@ sub compile_dispatches {
 sub dispatch {
   my ($conf, $req) = @_;
   my $disps = $conf->{'dispatches'};
-  my $stdreply = $conf->{'stdreply'};
   die("500 no dispatches configured\n") unless $disps;
   my @disps = @$disps;
   my $path = "$req->{'action'}:$req->{'path'}";
@@ -231,14 +230,10 @@ sub dispatch {
     $auth = $p->[2] if @$p > 2;	# optional auth overwrite
     next unless $f;
     if ($auth) {
-      die("500 no authenticate method defined\n") unless $conf->{'authenticate'};
-      my @r = $conf->{'authenticate'}->($conf, $req, $auth);
-      if (@r) {
-        return $stdreply->(@r) if $stdreply;
-	return @r;
-      }
+      die("500 authorize method is not defined\n") unless $conf->{'authorize'};
+      my @r = $conf->{'authorize'}->($conf, $req, $auth);
+      return @r if @r;
     }
-    return $stdreply->($f->($conf, $req)) if $stdreply;
     return $f->($conf, $req);
   }
   die("400 unknown request: $path\n");

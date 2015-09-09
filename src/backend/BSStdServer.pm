@@ -70,7 +70,7 @@ sub errreply {
   BSWatcher::reply($opresultxml, "Status: $code $tag", 'Content-Type: text/xml', @hdrs);
 }
 
-sub authenticate {
+sub authorize {
   my ($conf, $req, $auth) = @_;
   return () unless $BSConfig::ipaccess;
   my %auths;
@@ -202,7 +202,7 @@ sub server {
     $conf->{'dispatch'} ||= \&dispatch;
     $conf->{'stdreply'} ||= \&stdreply;
     $conf->{'errorreply'} ||= \&errreply;
-    $conf->{'authenticate'} ||= \&authenticate;
+    $conf->{'authorize'} ||= \&authorize;
     $conf->{'periodic'} ||= \&periodic;
     $conf->{'periodic_interval'} ||= 1;
     $conf->{'serverstatus'} ||= "$rundir/$name.status";

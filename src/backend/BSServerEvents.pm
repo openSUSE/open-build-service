@@ -355,13 +355,18 @@ sub getrequest {
     }
     $path =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
     die("501 invalid path\n") unless $path =~ /^\//;
-    my $req = {'action' => $act, 'path' => $path, 'query' => $query_string, 'headers' => $headers, 'peer' => $ev->{'peer'}};
+    my $conf = $ev->{'conf'};
+    my $req = {'action' => $act, 'path' => $path, 'query' => $query_string, 'headers' => $headers, 'peer' => $ev->{'peer'}, 'conf' => $conf};
     $req->{'peerport'} = $ev->{'peerport'} if $ev->{'peerport'};
     $ev->{'request'} = $req;
     # FIXME: should not use global
     $BSServer::request = $req;
-    my $conf = $ev->{'conf'};
-    $conf->{'dispatch'}->($conf, $req);
+    my @r = $conf->{'dispatch'}->($conf, $req);
+    if ($conf->{'stdreply'}) {
+      $conf->{'stdreply'}->(@r);
+    } elsif (@r && (@r != 1 || defined($r[0]))) {
+      reply(@r);
+    }
   };
   reply_error($ev->{'conf'}, $@) if $@;
 }
@@ -402,7 +407,7 @@ sub cloneconnect {
   $nev->{'fd'} = $ev->{'nfd'};
   delete $ev->{'nfd'};
   $nev->{'conf'} = $ev->{'conf'};
-  $nev->{'request'} = $ev->{'request'};
+  $nev->{'request'} = { %{$ev->{'request'}} } if $ev->{'request'};
   my $peer = 'unknown';
   my $peerport;
   eval {
