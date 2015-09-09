@@ -4031,8 +4031,12 @@ sub undelete_rev {
   $nrev->{'vrev'} = $rev->{'vrev'} if $rev && defined $rev->{'vrev'};
   $nrev->{'rev'} = $rev->{'rev'} + 1;
   if ($cgi->{'time'}) {
-    die("specified time is less than time in last commit\n") if $rev && $rev->{'time'} > $cgi->{'time'};
-    $nrev->{'time'} = $cgi->{'time'};
+    if ($cgi->{'time'} == 1) {
+      $nrev->{'time'} = $rev->{'time'} if $rev && $rev->{'time'};
+    } else {
+      die("specified time is less than time in last commit\n") if $rev && $rev->{'time'} > $cgi->{'time'};
+      $nrev->{'time'} = $cgi->{'time'};
+    }
   }
   push @rev, $nrev;
   BSFileDB::fdb_add_multiple($revfileto, $srcrevlay, @rev);
