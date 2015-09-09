@@ -6369,6 +6369,7 @@ sub getresult {
   my %repoidfilter = map {$_ => 1} @{$cgi->{'repository'} || []};
   my %archfilter = map {$_ => 1} @{$cgi->{'arch'} || []};
   my %view = map {$_ => 1} @{$cgi->{'view'} || ['status']};
+  $view{'status'} = 1 if $view{'versrel'};
   my %code = map {$_ => 1} @{$cgi->{'code'} || []};
 
   if ($cgi->{'repository'}) {
@@ -6409,6 +6410,7 @@ sub getresult {
   push @args, map {"code=$_"} @{$cgi->{'code'} || []};
   push @args, 'withbinarylist' if $view{'binarylist'};
   push @args, 'withstats' if $view{'stats'};
+  push @args, 'withversrel' if $view{'versrel'};
   push @args, 'summary' if $view{'summary'} && !$view{'status'};
   eval {
     $ps = BSWatcher::rpc("$reposerver/_result", $BSXML::resultlist, @args);

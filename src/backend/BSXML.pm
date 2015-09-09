@@ -591,6 +591,7 @@ our $buildstatus = [
 	'code',
 	'status',	# obsolete, now code
 	'error',	# obsolete, now details
+	'versrel',	# for withversrel result call
 	[],
 	'details',
 

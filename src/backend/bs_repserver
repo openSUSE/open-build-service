@@ -1004,12 +1004,12 @@ sub getjobstatus {
 
   my $jobstatus = readxml("$jobsdir/$arch/$status->{'job'}:status", $BSXML::jobstatus, 1);
   # not yet building
-  return ({}, $BSXML::jobstatus) unless $status && $status->{'status'} eq 'scheduled';
+  return ({}, $BSXML::jobstatus) unless $jobstatus;
 
   # find last successful build
-  my @history = BSFileDB::fdb_getlast("$reporoot/$projid/$repoid/$arch/$packid/history", $historylay);
+  my $history = BSFileDB::fdb_getlast("$reporoot/$projid/$repoid/$arch/$packid/history", $historylay);
   my $lastduration;
-  $lastduration = $history[0]->{duration} if @history > 0;
+  $lastduration = $history->{'duration'} if $history;
   $jobstatus->{'lastduration'} = $lastduration if $lastduration;
 
   return ($jobstatus, $BSXML::jobstatus);
@@ -2375,6 +2375,10 @@ sub getresult {
       } else {
         my $s = {'package' => $packid, 'code' => $code};
         $s->{'details'} = $ps->{'packerror'}->{$packid} if !$cgi->{'lastbuild'} && $ps->{'packerror'}->{$packid};
+        if ($cgi->{'withversrel'}) {
+	  my $history = BSFileDB::fdb_getlast("$reporoot/$prpa/$packid/history", $historylay) || {};
+	  $s->{'versrel'} = $history->{'versrel'} if $history->{'versrel'};
+        }
         push @{$sl->{'status'}}, $s;
       }
       if ($cgi->{'withbinarylist'}) {
@@ -4321,7 +4325,7 @@ my $dispatches = [
   'PUT:/configuration' => \&putconfiguration,
   '/configuration' => \&getconfiguration,
 
-  '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool? withstats:bool? summary:bool?' => \&getresult,
+  '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool? withstats:bool? summary:bool? withversrel:bool?' => \&getresult,
   'POST:/_command $cmd: $prpa+ package* code:* wipe:*' => \&docommand,
 
   '/serverstatus' => \&BSStdServer::serverstatus,
@@ -4334,7 +4338,7 @@ my $dispatches_ajax = [
   '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? start:intnum? end:num? view:?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nosource:bool?' => \&getbinarylist,
   '/build/$project/$repository/$arch/$package:package_repository/$filename view:?' => \&getbinary,
-  '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool? withstats:bool? summary:bool?' => \&getresult,
+  '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool? withstats:bool? summary:bool? withversrel:bool?' => \&getresult,
   '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool?' => \&getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&getbinaryversions,
 ];
