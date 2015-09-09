@@ -23,7 +23,7 @@ class Webui::SignupTest < Webui::IntegrationTest
     def test_signup_allow
       signup_user root_path
       flash_message.must_equal "The account 'eisendieter' is now active."
-      assert User.find_by(login: "eisendieter").is_active?
+      assert User.find_by(login: "eisendieter").state == User.states['confirmed']
     end
 
     def test_signup_confirmation
