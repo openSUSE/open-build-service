@@ -2741,12 +2741,13 @@ sub getprojectservices {
 
   # find further projects via package link
   my $packagerev;
+  my $packagefiles;
   eval {
      $packagerev = getrev($projid, $packid, $cgi->{'rev'});
+     $packagefiles = lsrev($packagerev);
   };
-  return ($services, $BSXML::services) unless $packagerev;
+  return ($services, $BSXML::services) unless $packagefiles;
 
-  my $packagefiles = lsrev($packagerev);
   my $l;
   $l = repreadxml($packagerev, '_link', $packagefiles->{'_link'}, $BSXML::link, 1) if $packagefiles->{'_link'};
   if ($l) {
