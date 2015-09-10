@@ -29,6 +29,7 @@ class BsRequestAction < ActiveRecord::Base
   class UnknownTargetPackage < APIException; end
   class WrongLinkedPackageSource < APIException; end
   class MissingPatchinfo < APIException; end
+  class VersionReleaseDiffers < APIException; end
 
   #### Attributes
 
@@ -559,25 +560,41 @@ class BsRequestAction < ActiveRecord::Base
       # do not allow release requests without binaries
       if self.is_maintenance_release? and pkg.is_patchinfo? and data and !opts[:ignore_build_state]
         # check for build state and binaries
-        state = REXML::Document.new(Suse::Backend.get("/build/#{URI.escape(pkg.project.name)}/_result").body)
-        repos = state.get_elements("/resultlist/result[@project='#{pkg.project.name}'')]")
-        unless repos
+        state = REXML::Document.new(Suse::Backend.get("/build/#{URI.escape(pkg.project.name)}/_result?view=versrel").body)
+        results = state.get_elements("/resultlist/result[@project='#{pkg.project.name}'')]")
+        unless results
           raise BuildNotFinished.new "The project'#{pkg.project.name}' has no building repositories"
         end
-        repos.each do |repo|
-          if repo.attributes['dirty']
-            raise BuildNotFinished.new "The repository '#{pkg.project.name}' / '#{repo.attributes['repository']}' / #{repo.attributes['arch']} " +
+        versrel={}
+        results.each do |result|
+          repo = result.attributes['repository']
+          arch = result.attributes['arch']
+          if result.attributes['dirty']
+            raise BuildNotFinished.new "The repository '#{pkg.project.name}' / '#{repo}' / #{arch} " +
                                        "needs recalculation by the schedulers"
           end
-          if %w(finished publishing).include? repo.attributes['state']
-            raise BuildNotFinished.new "The repository '#{pkg.project.name}' / '#{repo.attributes['repository']}' / #{repo.attributes['arch']}" +
+          if %w(finished publishing).include? result.attributes['state']
+            raise BuildNotFinished.new "The repository '#{pkg.project.name}' / '#{repo}' / #{arch}" +
                                        "did not finish the publish yet"
           end
-          unless %w(published unpublished).include? repo.attributes['state']
-            raise BuildNotFinished.new "The repository '#{pkg.project.name}' / '#{repo.attributes['repository']}' / #{repo.attributes['arch']} " +
+          unless %w(published unpublished).include? result.attributes['state']
+            raise BuildNotFinished.new "The repository '#{pkg.project.name}' / '#{repo}' / #{arch} " +
                                        "did not finish the build yet"
           end
+
+          # all versrel are the same
+          versrel[repo] ||= {}
+          result.get_elements("status").each do |status|
+            package = status.attributes['package']
+            vrel = status.attributes['versrel']
+            next unless vrel
+            if versrel[repo][package] and versrel[repo][package] != vrel
+              raise VersionReleaseDiffers.new "#{package} has a different version release in same repository"
+            end
+            versrel[repo][package] ||= vrel
+          end
         end
+
         pkg.project.repositories.each do |repo|
           next unless repo
           firstarch=repo.architectures.first
@@ -592,6 +609,7 @@ class BsRequestAction < ActiveRecord::Base
 
           found_patchinfo = true
         end
+
       end
 
       # re-route (for the kgraft case building against GM or former incident)
