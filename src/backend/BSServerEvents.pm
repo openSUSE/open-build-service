@@ -148,21 +148,8 @@ sub reply {
 }
 
 sub reply_error  {
-  my ($conf, $err) = @_;
-  $err ||= "unspecified error";
-  $err =~ s/\n$//s;
-  my $code = 400;
-  my $tag = ''; 
-  if ($err =~ /^(\d+)\s*([^\r\n]*)/) {
-    $code = $1; 
-    $tag = $2; 
-  } elsif ($err =~ /^([^\r\n]+)/) {
-    $tag = $1; 
-  } else {
-    $tag = 'Error';
-  }
-  my @hdrs;
-  push @hdrs, "WWW-Authenticate: $conf->{'wwwauthenticate'}" if $code == 401 && $conf && $conf->{'wwwauthenticate'};
+  my ($conf, $errstr) = @_;
+  my ($err, $code, $tag, @hdrs) = BSServer::parse_error_string($conf, $errstr);
   if ($conf && $conf->{'errorreply'}) {
     $conf->{'errorreply'}->($err, $code, $tag, @hdrs);
   } else {
