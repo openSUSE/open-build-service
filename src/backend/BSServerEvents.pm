@@ -161,10 +161,12 @@ sub reply_error  {
   } else {
     $tag = 'Error';
   }
+  my @hdrs;
+  push @hdrs, "WWW-Authenticate: $conf->{'wwwauthenticate'}" if $code == 401 && $conf && $conf->{'wwwauthenticate'};
   if ($conf && $conf->{'errorreply'}) {
-    $conf->{'errorreply'}->($err, $code, $tag);
+    $conf->{'errorreply'}->($err, $code, $tag, @hdrs);
   } else {
-    reply("$err\n", "Status: $code $tag", 'Content-Type: text/plain');
+    reply("$err\n", "Status: $code $tag", 'Content-Type: text/plain', @hdrs);
   }
 }
 

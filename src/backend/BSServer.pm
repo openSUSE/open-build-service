@@ -426,7 +426,7 @@ sub reply_error  {
     $tag = 'Error';
   }
   my @hdrs;
-  push @hdrs, "WWW-Authenticate: $conf->{'wwwauthenticate'}" if $code == 401 && $conf->{'wwwauthenticate'};
+  push @hdrs, "WWW-Authenticate: $conf->{'wwwauthenticate'}" if $code == 401 && $conf && $conf->{'wwwauthenticate'};
   # send reply through custom function or standard reply
   if ($conf && $conf->{'errorreply'}) {
     $conf->{'errorreply'}->($err, $code, $tag, @hdrs);
