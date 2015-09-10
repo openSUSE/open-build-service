@@ -389,9 +389,9 @@ sub reply {
 
   # discard the body so that the client gets our answer instead
   # of a sigpipe.
-  eval {
-    discard_body() if exists($req->{'__data'}) && !$req->{'__eof'} && !$req->{'need_continue'};
-  };
+  if (exists($req->{'__data'}) && !$req->{'__eof'} && !$req->{'need_continue'}) {
+    eval { discard_body() };
+  }
 
   # work around linux tcp implementation problem, the read side
   # must be empty otherwise a tcp-reset is done when we close
@@ -575,6 +575,9 @@ sub send_continue {
 sub discard_body {
   my $req = $BSServer::request;
   return unless exists($req->{'__data'}) && !$req->{'__eof'};
+  # only discard if we know the length or are chunked
+  my $hdr = $req->{'headers'} || {};
+  return unless $hdr->{'content-length'} || lc($hdr->{'transfer-encoding'} || '') eq 'chunked';
   1 while read_data(8192) ne '';
 }
 
