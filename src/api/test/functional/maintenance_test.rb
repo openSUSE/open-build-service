@@ -374,13 +374,22 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     post '/source/ServicePack/pack2', :cmd => 'branch'
     assert_response :success
+    get '/source/ServicePack/pack2/package.spec'
+    assert_response :success
+    get '/source/ServicePack/pack2/myfile'
+    assert_response :success
 
     # new instance of a package wanted. so we need to link to ServicePack and copy sources from devel
+    post '/source', :cmd => 'createmaintenanceincident', :noaccess => 1
+    assert_response :success
+    # use a fixed count using multiple chars to test regexp stripping the counter number from package names
+    MaintenanceIncident.exec_query ["UPDATE incident_counter SET counter = 100 WHERE maintenance_db_project_id = ?", Project.find_by_name("My:Maintenance").id]
     post '/source', :cmd => 'createmaintenanceincident', :noaccess => 1
     assert_response :success
     assert_xml_tag( :tag => 'data', :attributes => { name: 'targetproject' } )
     data = REXML::Document.new(@response.body)
     incidentProject=data.elements['/status/data'].text
+    assert_equal "My:Maintenance:100", incidentProject
 
     post '/source/ServicePack:Update/pack2', :cmd => 'branch', :maintenance => 1, :newinstance => 1, :target_project => incidentProject
     assert_response :success
@@ -393,6 +402,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'link', :attributes => { project: nil, package: "pack2.ServicePack_Update" }
     put "/source/#{incidentProject}/pack2.ServicePack_Update/some_new_file", "content change"
     assert_response :success
+    put "/source/#{incidentProject}/pack2.ServicePack_Update/myfile", "modify existing file"
+    assert_response :success
 
     raw_post '/request?cmd=create&ignore_build_state=1', "<request>
                                    <action type='maintenance_release'>
@@ -401,11 +412,21 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    <state name='new' />
                                  </request>"
     assert_response :success
-    assert_xml_tag tag: "target", attributes: {project: "ServicePack:Update", package: "pack2.0"}
-    assert_xml_tag tag: "target", attributes: {project: "ServicePack:Update", package: "pack2.linked.0"}
+    assert_xml_tag tag: "target", attributes: {project: "ServicePack:Update", package: "pack2.100"}
+    assert_xml_tag tag: "target", attributes: {project: "ServicePack:Update", package: "pack2.linked.100"}
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     reqid = node.value(:id)
+    # the local linked package delivers not full content
+    post "/request/#{reqid}?cmd=diff&view=xml", nil
+    assert_response :success
+    assert_match( /-DummyContent/, @response.body )
+    assert_match( /\+modify existing file/, @response.body )
+    # verfiy that unchanged file gets not reported
+    assert_no_xml_tag tag: "new", attributes: { name: "package.spec" }
+    assert_xml_tag parent: { tag: "file", attributes: { state: "added" } },
+                   tag: "new", attributes:  { name: "some_new_file" }
+
     # revoke to unlock the source
     post "/request/#{reqid}?cmd=changestate&newstate=revoked"
     assert_response :success

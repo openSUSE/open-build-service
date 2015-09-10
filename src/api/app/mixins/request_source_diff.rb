@@ -38,6 +38,7 @@ module RequestSourceDiff
       @target_package ||= action.source_package
       query = {'cmd' => 'diff'}
       ai = action.bs_request_action_accept_info
+
       if ai
         # OBS 2.1 adds acceptinfo on request accept
         path = Package.source_path(@target_project, @target_package)
@@ -55,9 +56,8 @@ module RequestSourceDiff
 
         # maintenance release targets will have a base link
         if Project.get_by_name(@target_project).is_maintenance_release?
-          @target_package.gsub!(/\.[^\.]$/, '')
+          @target_package.gsub!(/\.[^\.]*$/, '')
         end
-
         # for requests not yet accepted or accepted with OBS 2.0 and before
         if Package.exists_by_project_and_name(@target_project, @target_package, follow_project_links: true)
           tpkg = Package.get_by_project_and_name(@target_project, @target_package)
