@@ -54,7 +54,7 @@
               <div id="ipackages_wrapper" data-url="<%= packageurl %>">
                 <%= javascript_tag do %>
                     var ipackages = [ <%= @ipackages.map { |p| "#{p}" }.join(',').html_safe %>
-                    ]; renderPackagesProjectsTable({packages: ipackages, length: '25', name: 'ipackages_wrapper'});
+                    ]; renderPackagesProjectsTable({packages: ipackages, name: 'ipackages_wrapper'});
                 <% end %>
               </div>
           <% end %>
