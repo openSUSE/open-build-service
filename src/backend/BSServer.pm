@@ -387,6 +387,12 @@ sub reply {
 #    $data = "0\r\n$hi[0]\r\n\r\n";
 #  }
 
+  # discard the body so that the client gets our answer instead
+  # of a sigpipe.
+  eval {
+    discard_body() if exists($req->{'__data'}) && !$req->{'__eof'} && !$req->{'need_continue'};
+  };
+
   # work around linux tcp implementation problem, the read side
   # must be empty otherwise a tcp-reset is done when we close
   # the socket, leading to data loss
@@ -514,16 +520,12 @@ sub readrequest {
     # send HTTP 1.1's 100-continue answer if requested by the client
     if ($headers{'expect'}) {
       die("417 unknown expect\n") unless lc($headers{'expect'}) eq '100-continue';
-      my $data = "HTTP/1.1 100 continue\r\n\r\n";
-      while (length($data)) {
-        my $l = syswrite(CLNT, $data, length($data));
-        die("write error: $!\n") unless $l;
-        $data = substr($data, $l);
-      }
+      $req->{'need_continue'} = 1;
     }
     
     if ($act eq 'POST' && $headers{'content-type'} && lc($headers{'content-type'}) eq 'application/x-www-form-urlencoded') {
-      # form-urlencoded, append body to query string
+      # form-urlencoded, read body and append to query string
+      send_continue() if $req->{'need_continue'};
       my $cl = $headers{'content-length'} || 0;
       while (length($qu) < $cl) {
         sysread(CLNT, $qu, $cl - length($qu), length($qu)) || die("400 Truncated body\n");
@@ -541,16 +543,9 @@ sub swrite {
   BSHTTP::swrite(\*CLNT, @_);
 }
 
-sub get_content_type {
-  my $req = $BSServer::request || {};
-  die("get_content_type: invalid request\n") unless exists $req->{'__data'};
-  return $req->{'headers'}->{'content-type'};
-}
-
 sub header {
   my $req = $BSServer::request || {};
-  die("header: invalid request\n") unless exists $req->{'__data'};
-  return $req->{'headers'}->{lc($_[0])};
+  return ($req->{'headers'} || {})->{lc($_[0])};
 }
 
 sub have_content {
@@ -558,12 +553,38 @@ sub have_content {
   return exists($req->{'__data'}) ? 1 : 0;
 }
 
+sub get_content_type {
+  die("get_content_type: no content attached\n") unless have_content();
+  return header('content-type');
+}
+
+
+###########################################################################
+
+sub send_continue {
+  my $req = $BSServer::request;
+  return unless delete $req->{'need_continue'};
+  my $data = "HTTP/1.1 100 continue\r\n\r\n";
+  while (length($data)) {
+    my $l = syswrite(CLNT, $data, length($data));
+    die("write error: $!\n") unless $l;
+    $data = substr($data, $l);
+  }
+}
+
+sub discard_body {
+  my $req = $BSServer::request;
+  return unless exists($req->{'__data'}) && !$req->{'__eof'};
+  1 while read_data(8192) ne '';
+}
+
 ###########################################################################
 
 sub read_file {
   my ($fn, @args) = @_;
-  my $req = $BSServer::request || {};
-  die("read_file: invalid request\n") unless exists $req->{'__data'};
+  die("read_file: no content attached\n") unless have_content();
+  my $req = $BSServer::request;
+  send_continue() if $req->{'need_continue'};
   $req->{'__socket'} = \*CLNT;
   my $res = BSHTTP::file_receiver($req, {'filename' => $fn, @args});
   delete $req->{'__socket'};
@@ -572,8 +593,9 @@ sub read_file {
 
 sub read_cpio {
   my ($dn, @args) = @_;
-  my $req = $BSServer::request || {};
-  die("read_cpio: invalid request\n") unless exists $req->{'__data'};
+  die("read_cpio: no content attached\n") unless have_content();
+  my $req = $BSServer::request;
+  send_continue() if $req->{'need_continue'};
   $req->{'__socket'} = \*CLNT;
   my $res = BSHTTP::cpio_receiver($req, {'directory' => $dn, @args});
   delete $req->{'__socket'};
@@ -582,8 +604,9 @@ sub read_cpio {
 
 sub read_data {
   my ($maxl, $exact) = @_;
-  my $req = $BSServer::request || {};
-  die("read_data: invalid request\n") unless exists $req->{'__data'};
+  die("read_data: no content attached\n") unless have_content();
+  my $req = $BSServer::request;
+  send_continue() if $req->{'need_continue'};
   $req->{'__socket'} = \*CLNT;
   my $res = BSHTTP::read_data($req, $maxl, $exact);
   delete $req->{'__socket'};

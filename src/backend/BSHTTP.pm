@@ -43,6 +43,12 @@ sub gethead {
   }
 }
 
+sub unexpected_eof {
+  my ($req) = @_;
+  $req->{'__eof'} = 1 if $req;
+  die("unexpected EOF\n");
+}
+
 #
 # read data from socket, do chunk decoding if needed
 # req: request data
@@ -65,40 +71,41 @@ sub read_data {
     while (1) {
       if (defined($maxl) && $maxl <= $cl) {
 	while(length($qu) < $maxl) {
-          my $r = sysread(S, $qu, 8192, length($qu));
-          die("unexpected EOF\n") unless $r;
+	  my $r = sysread(S, $qu, 8192, length($qu));
+	  unexpected_eof($req) unless $r;
 	}
 	$ret .= substr($qu, 0, $maxl);
-        $req->{'__cl'} = $cl - $maxl;
-        $req->{'__data'} = substr($qu, $maxl);
+	$req->{'__cl'} = $cl - $maxl;
+	$req->{'__data'} = substr($qu, $maxl);
 	return $ret;
       }
       if ($cl) {
 	# no maxl or maxl > cl, read full cl
 	while(length($qu) < $cl) {
-          my $r = sysread(S, $qu, 8192, length($qu));
-          die("unexpected EOF\n") unless $r;
+	  my $r = sysread(S, $qu, 8192, length($qu));
+	  unexpected_eof($req) unless $r;
 	}
 	$ret .= substr($qu, 0, $cl);
 	$qu = substr($qu, $cl);
 	$maxl -= $cl if defined $maxl;
-        $cl = 0;
+	$cl = 0;
 	if (!defined($maxl) && !$exact) { # no maxl, return every chunk
 	  $req->{'__cl'} = $cl;
 	  $req->{'__data'} = $qu;
 	  return $ret;
 	}
       }
+      # reached end of chunk, prepare for next one
       while ($qu !~ /\r?\n/s) {
-        my $r = sysread(S, $qu, 8192, length($qu));
-        die("unexpected EOF\n") unless $r;
+	my $r = sysread(S, $qu, 8192, length($qu));
+	unexpected_eof($req) unless $r;
       }
       if (substr($qu, 0, 1) eq "\n") {
-        $qu = substr($qu, 1);
+	$qu = substr($qu, 1);
 	next;
       }
       if (substr($qu, 0, 2) eq "\r\n") {
-        $qu = substr($qu, 2);
+	$qu = substr($qu, 2);
 	next;
       }
       die("bad CHUNK data: $qu\n") unless $qu =~ /^([0-9a-fA-F]+)/;
@@ -106,13 +113,14 @@ sub read_data {
       die if $cl < 0;
       $qu =~ s/^.*?\r?\n//s;
       if ($cl == 0) {
-        $req->{'__cl'} = -1;	# mark EOF
-        die("unexpected EOF\n") if $exact && defined($maxl) && length($ret) < $maxl;
+	$req->{'__cl'} = -1;	# mark EOF
+	$req->{'__eof'} = 1;
+	die("unexpected EOF\n") if $exact && defined($maxl) && length($ret) < $maxl;
 	# read trailer
 	$qu = "\r\n$qu";
 	while ($qu !~ /\n\r?\n/s) {
-          my $r = sysread(S, $qu, 8192, length($qu));
-          die("unexpected EOF\n") unless $r;
+	  my $r = sysread(S, $qu, 8192, length($qu));
+	  unexpected_eof($req) unless $r;
 	}
 	$qu =~ /^(.*?)\n\r?\n/;
 	# get trailing header
@@ -133,14 +141,16 @@ sub read_data {
       $m = 8192 if $m < 8192;
       my $r = sysread(S, $qu, $m, length($qu));
       if (!$r) {
-        die("unexpected EOF\n") if defined($cl) || ($exact && defined($maxl));
-        $cl = $maxl = length($qu);
+	$req->{'__eof'} = 1;
+	die("unexpected EOF\n") if defined($cl) || ($exact && defined($maxl));
+	$cl = $maxl = length($qu);
       }
     }
     $cl -= $maxl if defined($cl);
     $ret = substr($qu, 0, $maxl);
     $req->{'__cl'} = $cl;
     $req->{'__data'} = substr($qu, $maxl);
+    $req->{'__eof'} = 1 if defined($cl) && $cl == 0;
     return $ret;
   }
 }
