@@ -12,6 +12,7 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
   end
 
   teardown do
+    login_Iggy
     delete_patchinfo('home:Iggy')
   end
 
@@ -74,9 +75,6 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
     # check that the patchinfo is not editable per direct url for unauthorized users
     visit patchinfo_edit_patchinfo_path(project: "home:Iggy", package: "patchinfo")
     page.must_have_text('Please Log In')
-  ensure
-    # We need to make sure that we are logged in during teardown
-    login_Iggy
   end
 
   def test_create_patchinfo_with_desc_and_sum
