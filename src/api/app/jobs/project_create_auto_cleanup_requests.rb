@@ -2,7 +2,7 @@ require 'opensuse/backend'
 
 class ProjectCreateAutoCleanupRequests < ActiveJob::Base
 
-  Description="This is a kind request to remove this project.
+  Description="This is a humble request to remove this project.
 Accepting this request will free resources on our always crowded server.
 Please decline this request if you want to keep this repository nevertheless. Otherwise this request
 will get accepted automatically in near future.
