@@ -163,7 +163,7 @@ sub predicate {
     while (1) {
       my $r = shift @ncwd;
       my $b = shift @$v2;
-      $b = @$_ ? 'true' : '' if ref($b) eq 'ARRAY';
+      $b = @$b ? 'true' : '' if ref($b) eq 'ARRAY';
       if ($b =~ /^-?\d+$/) { 
         push @nvv, $r->[1] if $r->[2] == $b;
       } else {
