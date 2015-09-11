@@ -530,7 +530,9 @@ sub readrequest {
       $req->{'need_continue'} = 1;
     }
     
+    my $transfer_encoding = lc($headers{'transfer-encoding'} || '');
     if ($act eq 'POST' && $headers{'content-type'} && lc($headers{'content-type'}) eq 'application/x-www-form-urlencoded') {
+      die("cannot do x-www-form-urlencoded with chunks\n") if $transfer_encoding eq 'chunked';
       # form-urlencoded, read body and append to query string
       send_continue() if $req->{'need_continue'};
       my $cl = $headers{'content-length'} || 0;
@@ -540,7 +542,7 @@ sub readrequest {
       $query_string .= '&' if $cl && $query_string ne '';
       $query_string .= substr($qu, 0, $cl);
       $req->{'query'} = $query_string;
-    } else {
+    } elsif (defined($headers{'content-length'}) || $transfer_encoding eq 'chunked') {
       $req->{'__data'} = $qu;
     }
   }
@@ -582,9 +584,6 @@ sub send_continue {
 sub discard_body {
   my $req = $BSServer::request;
   return unless exists($req->{'__data'}) && !$req->{'__eof'};
-  # only discard if we know the length or are chunked
-  my $hdr = $req->{'headers'} || {};
-  return unless $hdr->{'content-length'} || lc($hdr->{'transfer-encoding'} || '') eq 'chunked';
   1 while read_data(8192) ne '';
 }
 
