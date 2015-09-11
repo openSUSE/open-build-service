@@ -317,7 +317,7 @@ sub genservicemark {
   # check if we really need to run the service
   if (!$files->{'_service'} && !$force) {
     # XXX: getprojectservices may die!
-    my ($projectservices, undef) = getprojectservices({}, $projid, $packid);
+    my ($projectservices, undef) = getprojectservices({}, $projid, $packid, $files);
     return undef unless $projectservices && $projectservices->{'service'} && @{$projectservices->{'service'}};
   }
 
@@ -2709,7 +2709,7 @@ sub readpack {
 
 # collect all global source services via all package and project links
 sub getprojectservices {
-  my ($cgi, $projid, $packid, $projectloop) = @_;
+  my ($cgi, $projid, $packid, $packagefiles, $projectloop) = @_;
   my $services = {};
 
   # protection against loops and double matches
@@ -2732,7 +2732,7 @@ sub getprojectservices {
       ($lpack, undef) = getpackage($cgi, $lprojid, $packid);
     };
     if ($lpack) {
-      my ($as, undef) = getprojectservices($cgi, $lprojid, $packid, $projectloop);
+      my ($as, undef) = getprojectservices($cgi, $lprojid, $packid, undef, $projectloop);
       if (defined($as) && defined($as->{'service'})) {
         push @{$services->{'service'}}, @{$as->{'service'}};
       }
@@ -2741,12 +2741,16 @@ sub getprojectservices {
 
   # find further projects via package link
   my $packagerev;
-  my $packagefiles;
-  eval {
-     $packagerev = getrev($projid, $packid, $cgi->{'rev'});
-     $packagefiles = lsrev($packagerev);
-  };
-  return ($services, $BSXML::services) unless $packagefiles;
+  if ($packagefiles) {
+    # fake rev so that repreadxml works. packagefiles is set when called from addrev/genservicemark
+    $packagerev = {'project' => $projid, 'package' => $packid};
+  } else {
+    eval {
+       $packagerev = getrev($projid, $packid, $cgi->{'rev'});
+       $packagefiles = lsrev($packagerev);
+    };
+  }
+  return ($services, $BSXML::services) unless $packagerev && $packagefiles;
 
   my $l;
   $l = repreadxml($packagerev, '_link', $packagefiles->{'_link'}, $BSXML::link, 1) if $packagefiles->{'_link'};
@@ -2761,7 +2765,7 @@ sub getprojectservices {
       ($lpack, undef) = getpackage($cgi, $lprojid, $lpackid);
     };
     if ($lpack) {
-      my ($as, undef) = getprojectservices({%$cgi, 'rev' => $l->{'rev'}}, $lprojid, $lpackid, $projectloop);
+      my ($as, undef) = getprojectservices({%$cgi, 'rev' => $l->{'rev'}}, $lprojid, $lpackid, undef, $projectloop);
       if (defined($as) && defined($as->{'service'})) {
         push @{$services->{'service'}}, @{$as->{'service'}};
       }
