@@ -1,9 +1,9 @@
 <% @pagetitle = "Driver Update Disk Wizard" %>
 
 <% project_bread_crumb @package.name -%>
-<%= render :partial => 'package/tabs' %>
+<%= render :partial => 'webui/package/tabs' %>
 
-<%= content_for :ready_function do %> 
+<%= content_for :ready_function do %>
   $("#target_project").autocomplete({source: '<%= url_for :controller => 'project', :action => 'autocomplete_projects' %>', minLength: 2});
 
   $('#target_project').result(function(event, data, formatted) {
@@ -39,12 +39,12 @@
   $("#target_package").autocomplete({
     source: function (request, response) {
       $.ajax({
-        url: '<%= url_for :controller => 'project', :action => 'autocomplete_packages' %>', 
-        data: { 
+        url: '<%= url_for :controller => 'project', :action => 'autocomplete_packages' %>',
+        data: {
           project: get_package_project,
           term: request.term,
         },
-        success: function(data) { 
+        success: function(data) {
           response($.map(data, function(item) { return { label: item, value: item } }));
         },
       });
@@ -251,6 +251,3 @@
     <%= hidden_field_tag 'package', @package.name %>
   </p>
 <% end %>
-
-
-
