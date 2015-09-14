@@ -138,7 +138,7 @@ Metrics/ClassLength:
 
 # Offense count: 244
 Metrics/CyclomaticComplexity:
-  Max: 61
+  Max: 64
 
 # Offense count: 1040
 # Configuration parameters: CountComments.
@@ -157,7 +157,7 @@ Metrics/ParameterLists:
 
 # Offense count: 211
 Metrics/PerceivedComplexity:
-  Max: 66
+  Max: 69
 
 # Offense count: 5
 # Cop supports --auto-correct.
