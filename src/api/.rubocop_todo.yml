@@ -6,10 +6,21 @@
 # Note that changes in the inspected code, or installation of new
 # versions of RuboCop, may require this file to be generated again.
 
-# Offense count: 36
-# Configuration parameters: AllowSafeAssignment.
-Lint/AssignmentInCondition:
-  Enabled: false
+# Offense count: 18
+# Cop supports --auto-correct.
+Lint/DeprecatedClassMethods:
+  Exclude:
+    - 'config/boot.rb'
+    - 'config/environments/development.rb'
+    - 'config/initializers/create_runtime_directories.rb'
+    - 'config/initializers/secret_token.rb'
+    - 'db/migrate/20121216151549_create_distributions.rb'
+    - 'lib/opensuse/backend.rb'
+    - 'lib/opensuse/validator.rb'
+    - 'script/start_test_api'
+    - 'script/start_test_backend'
+    - 'test/test_helper.rb'
+    - 'test/unit/schema_test.rb'
 
 # Offense count: 1
 Lint/Eval:

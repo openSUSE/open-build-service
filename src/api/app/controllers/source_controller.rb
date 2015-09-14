@@ -742,7 +742,8 @@ class SourceController < ApplicationController
     if package_name == '_project'
       Project.get_by_name(project_name)
     else
-      if pack = Package.get_by_project_and_name(project_name, package_name, use_source: true)
+      pack = Package.get_by_project_and_name(project_name, package_name, use_source: true)
+      if pack
         # in case of project links, we need to rewrite the target
         project_name = pack.project.name
         package_name = pack.name
@@ -889,7 +890,6 @@ class SourceController < ApplicationController
   class RepoDependency < APIException
 
   end
-
 
   # POST /source?cmd=branch (aka osc mbranch)
   def global_command_branch
