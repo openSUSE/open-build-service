@@ -381,7 +381,8 @@ class BsRequest < ActiveRecord::Base
         if source_project.kind_of?(Project)
           at = AttribType.find_by_namespace_and_name!('OBS', 'EmbargoDate')
           attrib = source_project.attribs.where(attrib_type_id: at.id).first
-          if attrib && v=attrib.values.first
+          v = attrib.values.first if attrib
+          if attrib && v
             begin
               embargo = DateTime.parse(v.value)
               if v.value =~ /^\d{4}-\d\d?-\d\d?$/

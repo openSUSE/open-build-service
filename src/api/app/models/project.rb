@@ -203,9 +203,8 @@ class Project < ActiveRecord::Base
 
   def update_instance(namespace = 'OBS', name = 'UpdateProject')
     # check if a newer instance exists in a defined update project
-    if a = self.find_attribute(namespace, name) and a.values[0]
-      return Project.find_by_name(a.values[0].value)
-    end
+    a = self.find_attribute(namespace, name)
+    return Project.find_by_name(a.values[0].value) if a && a.values[0]
     self
   end
 
@@ -707,9 +706,12 @@ class Project < ActiveRecord::Base
 
   def parse_develproject(xmlhash)
     self.develproject = nil
-    if devel = xmlhash['devel']
-      if prj_name = devel['project']
-        unless develprj = Project.get_by_name(prj_name)
+    devel = xmlhash['devel']
+    if devel
+      prj_name = devel['project']
+      if prj_name
+        develprj = Project.get_by_name(prj_name)
+        unless develprj
           raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)"
         end
         if develprj == self

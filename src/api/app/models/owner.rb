@@ -57,17 +57,19 @@ class Owner
       filter = %w(maintainer bugowner)
       devel  = true
       if params[:filter]
-        filter=params[:filter].split(",")
+        filter = params[:filter].split(",")
       else
-        if attrib and v=attrib.values.where(value: "BugownerOnly").exists?
-          filter=%w(bugowner)
+        v = attrib.values.where(value: "BugownerOnly").exists?
+        if attrib && v
+          filter = %w(bugowner)
         end
       end
       if params[:devel]
-        devel=false if %w(0 false).include? params[:devel]
+        devel = false if %w(0 false).include? params[:devel]
       else
-        if attrib and v=attrib.values.where(value: "DisableDevel").exists?
-          devel=false
+        v = attrib.values.where(value: "DisableDevel").exists?
+        if attrib && v
+          devel = false
         end
       end
 

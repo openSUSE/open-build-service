@@ -839,20 +839,20 @@ class BsRequestAction < ActiveRecord::Base
         raise SubmitRequestRejected.new "The target project #{self.target_project} is a maintenance release project, " +
                                         "a submit self is not possible, please use the maintenance workflow instead."
       end
-      if a = tprj.find_attribute('OBS', 'RejectRequests') and a.values.first
+      a = tprj.find_attribute('OBS', 'RejectRequests')
+      if a && a.values.first
         if a.values.length < 2 or a.values.find_by_value(self.action_type)
           raise RequestRejected.new "The target project #{self.target_project} is not accepting requests because: #{a.values.first.value.to_s}"
         end
       end
     end
     if self.target_package
-      # rubocop:disable Metrics/LineLength
-      if Package.exists_by_project_and_name(self.target_project, self.target_package) or [:delete, :change_devel, :add_role, :set_bugowner].include? self.action_type
+      if Package.exists_by_project_and_name(self.target_project, self.target_package) ||
+        [:delete, :change_devel, :add_role, :set_bugowner].include?(self.action_type)
         tpkg = Package.get_by_project_and_name self.target_project, self.target_package
       end
-      # rubocop:enable Metrics/LineLength
-
-      if tpkg && (a = tpkg.find_attribute('OBS', 'RejectRequests') and a.values.first)
+      a = tpkg.find_attribute('OBS', 'RejectRequests') if tpkg
+      if tpkg && a && a.values.first
         if a.values.length < 2 or a.values.find_by_value(self.action_type)
           raise RequestRejected.new "The target package #{self.target_project} / #{self.target_package} is not accepting " +
                                     "requests because: #{a.values.first.value.to_s}"

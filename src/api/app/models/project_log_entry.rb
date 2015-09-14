@@ -53,11 +53,8 @@ class ProjectLogEntry < ActiveRecord::Base
 
   # Almost equivalent to the ActiveRecord::Base.serialize mechanism
   def additional_info
-    if a = read_attribute(:additional_info)
-      YAML.load(a)
-    else
-      {}
-    end
+    a = read_attribute(:additional_info)
+    (a) ? YAML.load(a) : {}
   end
 
   # Extract the username from the payload of an event, since different names are

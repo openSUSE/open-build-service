@@ -626,13 +626,16 @@ class Package < ActiveRecord::Base
 
       #--- devel project ---#
       self.develpackage = nil
-      if devel = xmlhash['devel']
+      devel = xmlhash['devel']
+      if devel
         prj_name = devel['project'] || xmlhash['project']
         pkg_name = devel['package'] || xmlhash['name']
-        unless develprj = Project.find_by_name(prj_name)
+        develprj = Project.find_by_name(prj_name)
+        unless develprj
           raise SaveError, "value of develproject has to be a existing project (project '#{prj_name}' does not exist)"
         end
-        unless develpkg = develprj.packages.find_by_name(pkg_name)
+        develpkg = develprj.packages.find_by_name(pkg_name)
+        unless develpkg
           raise SaveError, "value of develpackage has to be a existing package (package '#{pkg_name}' does not exist)"
         end
         self.develpackage = develpkg
