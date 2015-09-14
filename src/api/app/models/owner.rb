@@ -59,7 +59,7 @@ class Owner
       if params[:filter]
         filter = params[:filter].split(",")
       else
-        v = attrib.values.where(value: "BugownerOnly").exists?
+        v = attrib.values.where(value: "BugownerOnly").exists? if attrib 
         if attrib && v
           filter = %w(bugowner)
         end
@@ -67,7 +67,7 @@ class Owner
       if params[:devel]
         devel = false if %w(0 false).include? params[:devel]
       else
-        v = attrib.values.where(value: "DisableDevel").exists?
+        v = attrib.values.where(value: "DisableDevel").exists? if attrib
         if attrib && v
           devel = false
         end
