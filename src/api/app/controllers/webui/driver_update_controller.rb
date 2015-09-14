@@ -7,7 +7,7 @@ class Webui::DriverUpdateController < Webui::PackageController
   before_filter :require_login
 
   def create
-    if @package.services.find_first( "service[@name='generator_driver_update_disk']" )
+    if @package.services.find_first("service[@name='generator_driver_update_disk']")
       flash[:alert] = 'Existing Driver update disk section found in _services, editing that one'
       redirect_to action: :edit, project: @project, package: @package
       return

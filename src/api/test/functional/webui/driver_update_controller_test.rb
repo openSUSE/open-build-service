@@ -6,6 +6,7 @@ class Webui::DriverUpdateControllerTest < Webui::IntegrationTest
 
   setup do
     login_Iggy
+    skip("This test case is incomplete until the UI of DriverUpdateController starts to be used again")
   end
 
   teardown do
