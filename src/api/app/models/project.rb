@@ -537,7 +537,6 @@ class Project < ActiveRecord::Base
 
     #--- update repositories ---#
     update_repositories(xmlhash, force)
-
     #--- end update repositories ---#
   end
 
@@ -1627,6 +1626,142 @@ class Project < ActiveRecord::Base
       prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
       Suse::Backend.put_source(self.source_path('_config'), prjconf)
     end
+  end
+
+  def self.validate_maintenance_xml_attribute(request_data)
+    request_data.elements('maintenance') do |maintenance|
+      maintenance.elements('maintains') do |maintains|
+        target_project_name = maintains.value('project')
+        target_project = Project.get_by_name(target_project_name)
+        unless target_project.class == Project && User.current.can_modify_project?(target_project)
+          return { error: "No write access to maintained project #{target_project_name}" }
+        end
+      end
+    end
+    {}
+  end
+
+  def self.validate_link_xml_attribute(request_data, project_name)
+    request_data.elements('link') do |e|
+      # permissions check
+      target_project_name = e.value('project')
+      target_project = Project.get_by_name(target_project_name)
+
+      # The read access protection for own and linked project must be the same.
+      # ignore this for remote targets
+      if target_project.class == Project &&
+          target_project.disabled_for?('access', nil, nil) &&
+          !FlagHelper.xml_disabled_for?(request_data, 'access')
+        return {
+            error: "Project links work only when both projects have same read access protection level: #{project_name} -> #{target_project_name}"
+        }
+      end
+      logger.debug "Project #{project_name} link checked against #{target_project_name} projects permission"
+    end
+    {}
+  end
+
+  def self.validate_repository_xml_attribute(request_data, project_name)
+    # Check used repo pathes for existens and read access permissions
+    request_data.elements('repository') do |repository|
+      repository.elements('path') do |element|
+        # permissions check
+        target_project_name = element.value('project')
+        if target_project_name != project_name
+          target_project = Project.get_by_name(target_project_name)
+          # user can access tprj, but backend would refuse to take binaries from there
+          if target_project.class == Project && target_project.disabled_for?('access', nil, nil)
+            return { error: "The current backend implementation is not using binaries from read access protected projects #{target_project_name}"}
+          end
+        end
+        logger.debug "Project #{project_name} repository path checked against #{target_project_name} projects permission"
+      end
+    end
+    {}
+  end
+
+  def check_and_remove_repositories(request_data, full_remove = false)
+    remove_repositories = get_removed_repositories(request_data)
+    error = Project.check_repositories(remove_repositories)
+
+    return error if error[:error]
+
+    error = Project.remove_repositories(remove_repositories, full_remove)
+    error[:error] ? error : {}
+  end
+
+  def get_removed_repositories(request_data)
+    new_repositories = request_data.elements('repository').map(&:values).flatten
+    old_repositories = repositories.all.map(&:name)
+
+    removed = old_repositories - new_repositories
+
+    result = []
+    removed.each do |name|
+      repository = repositories.find_by(name: name)
+      result << repository unless repository.remote_project_name
+    end
+    result
+  end
+
+  def self.check_repositories(repositories)
+    linking_repositories = []
+    linking_target_repositories = []
+
+    repositories.each do |repository|
+      linking_repositories += repository.linking_repositories
+      linking_target_repositories += repository.linking_target_repositories
+    end
+
+    unless linking_repositories.empty?
+      str = linking_repositories.map { |l| l.project.name+'/'+l.name }.join "\n"
+      return { error: "Unable to delete repository; following repositories depend on this project:\n#{str}"}
+    end
+
+    unless linking_target_repositories.empty?
+      str = linking_target_repositories.map { |l| l.project.name+'/'+l.name }.join "\n"
+      return { error: "Unable to delete repository; following target repositories depend on this project:\n#{str}"}
+    end
+    {}
+  end
+
+  def self.remove_repositories(repositories, full_remove = false)
+    deleted_repository = Repository.deleted_instance
+
+    repositories.each do |repo|
+      linking_repositories = repo.linking_repositories
+      project = repo.project
+
+      # full remove, otherwise the model will take care of the cleanup
+      if full_remove
+        # recursive for INDIRECT linked repositories
+        unless linking_repositories.length < 1
+          Project.remove_repositories(linking_repositories, true)
+        end
+
+        # try to remove the repository
+        # but never remove the special repository named "deleted"
+        unless repo == deleted_repository
+          # permission check
+          unless User.current.can_modify_project?(project)
+            return { error: "No permission to remove a repository in project '#{project.name}'" }
+          end
+        end
+      end
+
+      # remove this repository, but be careful, because we may have done it already.
+      repository = project.repositories.find(repo)
+      if Repository.exists?(repo) && repository
+        logger.info "destroy repo #{repository.name} in '#{project.name}'"
+        repository.destroy
+        project.store({ lowprio: true }) # low prio storage
+      end
+    end
+    {}
+  end
+
+  def has_remote_repositories?
+    self.repositories.any? { |r| r.download_repositories.any? }
   end
 
   def api_obj

@@ -101,6 +101,7 @@ function use_codemirror(id, read_only, mode) {
 
   if (textarea.data('save-url')) {
     $('#save_' + id).click(function () {
+      $('#flash-messages').remove();
       data = textarea.data('data');
       data[data['submit']] = editors[id].getValue();
       $("#save_" + id).addClass("inactive").addClass("working");
@@ -110,10 +111,14 @@ function use_codemirror(id, read_only, mode) {
         data: data,
         success: function (data, textStatus, xhdr) {
           $("#save_" + id).removeClass("working");
+          // The filter is necessary because we don't return a flash everywhere atm
+          $(data).filter('#flash-messages').insertAfter('#subheader').fadeIn('slow');
         },
         error: function (xhdr, textStatus, errorThrown) {
           $("#save_" + id).removeClass("inactive").removeClass("working");
-        },
+          // The filter is necessary because we don't return a flash everywhere atm
+          $(xhdr.responseText).filter('#flash-messages').insertAfter('#subheader').fadeIn('slow');
+        }
       });
     });
   } else {

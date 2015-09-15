@@ -561,4 +561,269 @@ END
     assert_not Project.exists_by_name('HiddenProject')
     assert_not Project.exists_by_name('HiddenRemoteInstance')
   end
+
+  test 'validate_maintenance_xml_attribute returns an error if User can not modify target project' do
+    User.current = users(:tom)
+    xml = <<-XML.strip_heredoc
+      <project name="the_project">
+        <title>Up-to-date project</title>
+        <description>the description</description>
+        <maintenance><maintains project="Apache"></maintains></maintenance>
+      </project>
+    XML
+
+    actual = Project.validate_maintenance_xml_attribute(Xmlhash.parse(xml))
+    expected = { error: "No write access to maintained project Apache" }
+    assert_equal actual, expected
+  end
+
+  test 'validate_maintenance_xml_attribute returns no error if User can modify target project' do
+    User.current = users(:king)
+
+    xml = <<-XML.strip_heredoc
+      <project name="the_project">
+        <title>Up-to-date project</title>
+        <description>the description</description>
+        <maintenance><maintains project="Apache"></maintains></maintenance>
+      </project>
+    XML
+
+    actual = Project.validate_maintenance_xml_attribute(Xmlhash.parse(xml))
+    assert_equal actual, {}
+  end
+
+  test 'validate_link_xml_attribute returns no error if target project is not disabled' do
+    User.current = users(:Iggy)
+    project = projects(:home_Iggy)
+
+    xml = <<-XML.strip_heredoc
+      <project name="the_project">
+        <title>Up-to-date project</title>
+        <description>the description</description>
+        <link project="Apache"></link>
+      </project>
+    XML
+
+    actual = Project.validate_link_xml_attribute(Xmlhash.parse(xml), project.name)
+    assert_equal actual, {}
+  end
+
+  test 'validate_link_xml_attribute returns an error if target project access is disabled' do
+    User.current = users(:Iggy)
+    project = projects(:home_Iggy)
+
+    xml = <<-XML.strip_heredoc
+      <project name="the_project">
+        <title>Up-to-date project</title>
+        <description>the description</description>
+        <link project="home:Iggy"></link>
+      </project>
+    XML
+
+    flag = project.add_flag('access', 'disable')
+    flag.save
+
+    actual = Project.validate_link_xml_attribute(Xmlhash.parse(xml), 'the_project')
+    expected = { error: "Project links work only when both projects have same read access protection level: the_project -> home:Iggy" }
+    assert_equal actual, expected
+  end
+
+  test 'validate_repository_xml_attribute returns no error if project access is not disabled' do
+    User.current = users(:Iggy)
+
+    xml = <<-XML.strip_heredoc
+      <project name='other_project'>
+        <title>Up-to-date project</title>
+        <description>the description</description>
+        <repository><path project='home:Iggy'></path></repository>
+      </project>
+    XML
+
+    actual = Project.validate_repository_xml_attribute(Xmlhash.parse(xml), 'other_project')
+    expected = {}
+    assert_equal actual, expected
+  end
+
+  test 'returns an error if repository access is disabled' do
+    User.current = users(:Iggy)
+    project = projects(:home_Iggy)
+    flag = project.add_flag('access', 'disable')
+    flag.save
+
+    xml = <<-XML.strip_heredoc
+      <project name='other_project'>
+        <title>Up-to-date project</title>
+        <description>the description</description>
+        <repository><path project='home:Iggy'></path></repository>
+      </project>
+    XML
+
+    actual = Project.validate_repository_xml_attribute(Xmlhash.parse(xml), 'other_project')
+    expected = { error: "The current backend implementation is not using binaries from read access protected projects home:Iggy" }
+    assert_equal actual, expected
+  end
+
+  test 'returns no error if target project equals project' do
+    User.current = users(:Iggy)
+    project = projects(:home_Iggy)
+    flag = project.add_flag('access', 'disable')
+    flag.save
+
+    xml = <<-XML.strip_heredoc
+      <project name='home:Iggy'>
+        <title>Up-to-date project</title>
+        <description>the description</description>
+        <repository><path project='home:Iggy'></path></repository>
+      </project>
+    XML
+
+    actual = Project.validate_repository_xml_attribute(Xmlhash.parse(xml), 'home:Iggy')
+    expected = { }
+    assert_equal actual, expected
+  end
+
+  test 'get_removed_repositories returns all repositories if new_repositories does not contain the old repositories' do
+    User.current = users(:Iggy)
+    project = projects(:home_Iggy)
+    project.repositories << repositories(:repositories_96)
+
+    xml = <<-XML.strip_heredoc
+      <project name='#{@project.name}'>
+        <title>Up-to-date project</title>
+        <description>the description</description>
+        <repository><name>First</name></repository>
+        <repository><name>Second</name></repository>
+      </project>
+    XML
+
+    actual = project.get_removed_repositories(Xmlhash.parse(xml))
+    assert_equal actual, project.repositories.to_a
+  end
+
+  test 'get_removed_repositories returns the repository if new_repositories does not include it' do
+    User.current = users(:Iggy)
+    project = projects(:home_Iggy)
+    project.repositories << repositories(:repositories_96)
+
+    xml = <<-XML.strip_heredoc
+      <project name='#{@project.name}'>
+          <title>Up-to-date project</title>
+          <description>the description</description>
+          <repository><name>10.2</name></repository>
+          <repository><name>First</name></repository>
+        </project>
+    XML
+
+    actual = project.get_removed_repositories(Xmlhash.parse(xml))
+    assert_equal actual, [repositories(:repositories_96)]
+  end
+
+  test 'get_removed_repositories returns no repository if new_repositories matches old_repositories' do
+    User.current = users(:Iggy)
+    project = projects(:home_Iggy)
+    project.repositories << repositories(:repositories_96)
+
+    xml = <<-XML.strip_heredoc
+      <project name='#{@project.name}'>
+        <title>Up-to-date project</title>
+        <description>the description</description>
+        <repository><name>10.2</name></repository>
+        <repository><name>repo</name></repository>
+      </project>
+    XML
+
+    actual = project.get_removed_repositories(Xmlhash.parse(xml))
+    assert_equal actual, []
+  end
+
+  test 'get_removed_repositories returns all repositories if new_repositories is empty' do
+    User.current = users(:Iggy)
+    project = projects(:home_Iggy)
+    project.repositories << repositories(:repositories_96)
+
+    xml = <<-XML.strip_heredoc
+      <project name='#{@project.name}'>
+        <title>Up-to-date project</title>
+        <description>the description</description>
+      </project>
+    XML
+
+    actual = project.get_removed_repositories(Xmlhash.parse(xml))
+    assert_equal actual, project.repositories.to_a
+  end
+
+  test 'get_removed_repositories returns nothing if repositories is empty' do
+    User.current = users(:Iggy)
+    project = projects(:home_Iggy)
+    project.repositories.destroy_all
+
+    xml = <<-XML.strip_heredoc
+      <project name='#{@project.name}'>
+        <title>Up-to-date project</title>
+        <description>the description</description>
+        <repository><name>First</name></repository>
+        <repository><name>Second</name></repository>
+      </project>
+    XML
+
+    actual = project.get_removed_repositories(Xmlhash.parse(xml))
+    assert_equal actual, []
+  end
+
+  test 'get_removed_repositories does not include repositories which belong to a remote project' do
+    User.current = users(:Iggy)
+    project = projects(:home_Iggy)
+    first_repository = project.repositories.first
+
+    repository = repositories(:repositories_96)
+    repository.remote_project_name = "my_remote_repository"
+    repository.save
+    project.repositories << repository
+
+    xml = <<-XML.strip_heredoc
+      <project name='#{@project.name}'>
+        <title>Up-to-date project</title>
+        <description>the description</description>
+        </project>
+    XML
+
+    actual = project.get_removed_repositories(Xmlhash.parse(xml))
+    assert_equal actual, [first_repository]
+  end
+
+  test 'check repositories returns no error if no linking and no linking taget repository exists' do
+    User.current = users(:Iggy)
+    actual = Project.check_repositories(@project.repositories)
+    assert_equal actual, {}
+  end
+
+  test 'check repositories returns an error if a linking repository exists' do
+    User.current = users(:Iggy)
+
+    path = path_elements(:record_0)
+    repository = @project.repositories.first
+    repository.links << path
+
+    actual = Project.check_repositories(@project.repositories)
+    expected = {
+        error: "Unable to delete repository; following repositories depend on this project:\nhome:tom/home_coolo_standard"
+    }
+
+    assert_equal actual, expected
+  end
+
+  test 'check repositories returns an error if a linking target repository exists' do
+    User.current = users(:Iggy)
+
+    release_target = release_targets(:release_targets_913785863)
+    repository = @project.repositories.first
+    repository.targetlinks << release_target
+
+    actual = Project.check_repositories(@project.repositories)
+    expected = {
+        error: "Unable to delete repository; following target repositories depend on this project:\nhome:Iggy/10.2"
+    }
+
+    assert_equal actual, expected
+  end
 end

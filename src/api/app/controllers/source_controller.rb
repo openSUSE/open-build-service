@@ -167,27 +167,25 @@ class SourceController < ApplicationController
   # DELETE /source/:project
   def delete_project
     project_name = params[:project]
-    pro = Project.get_by_name project_name
+    project = Project.get_by_name(project_name)
 
     # checks
-    unless User.current.can_modify_project?(pro)
+    unless User.current.can_modify_project?(project)
       logger.debug "No permission to delete project #{project_name}"
       render_error :status => 403, :errorcode => 'delete_project_no_permission',
                    :message => "Permission denied (delete project #{project_name})"
       return
     end
-    pro.can_be_deleted?
-
-    # find linking repos
-    private_check_and_remove_repositories(params, pro.repositories) or return
+    project.can_be_deleted?
+    check_and_remove_repositories!(project.repositories, !params[:remove_linking_repositories].blank?, !params[:force].blank?)
 
     Project.transaction do
-      logger.info "destroying project object #{pro.name}"
+      logger.info "destroying project object #{project.name}"
       params[:user] = User.current.login
-      path = pro.source_path
+      path = project.source_path
       path << build_query_from_hash(params, [:user, :comment])
 
-      pro.destroy
+      project.destroy
 
       Suse::Backend.delete path
       logger.debug "delete request to backend: #{path}"
@@ -475,141 +473,95 @@ class SourceController < ApplicationController
 
   # PUT /source/:project/_meta
   def update_project_meta
-    # init
-    #--------------------
     project_name = params[:project]
     params[:user] = User.current.login
 
-    # init
-    # assemble path for backend
-    path = request.path_info
-    path += build_query_from_hash(params, [:user, :comment, :rev])
-    #allowed = false
-    request_data = request.raw_post
+    request_data = Xmlhash.parse(request.raw_post)
+
+    begin
+      project = Project.get_by_name(request_data['name'])
+    rescue Project::UnknownObjectError
+      project = nil
+    end
 
     # permission check
-    rdata = Xmlhash.parse(request_data)
-    if rdata['name'] != project_name
-      raise ProjectNameMismatch.new "project name in xml data ('#{rdata['name']}) does not match resource path component ('#{project_name}')"
-    end
-    begin
-      prj = Project.get_by_name rdata['name']
-    rescue Project::UnknownObjectError
-      prj = nil
+    if request_data['name'] != project_name
+      raise ProjectNameMismatch, "project name in xml data ('#{request_data['name']}) does not match resource path component ('#{project_name}')"
     end
 
     # projects using remote resources must be edited by the admin
     unless User.current.is_admin?
       # either OBS interconnect or repository "download on demand" feature used
-      if rdata.has_key? 'remoteurl' or rdata.has_key? 'remoteproject' or
-         (rdata['repository'] and rdata['repository'].any?{|r| r.first == 'download'})
-        raise ChangeProjectNoPermission.new 'admin rights are required to change projects using remote resources'
+      if request_data.has_key?('remoteurl') || request_data.has_key?('remoteproject') ||
+         (request_data['repository'] && request_data['repository'].any?{|r| r.first == 'download'})
+        raise ChangeProjectNoPermission, 'admin rights are required to change projects using remote resources'
       end
     end
 
     # Need permission
     logger.debug 'Checking permission for the put'
-    if prj
+    if project
       # project exists, change it
-      unless User.current.can_modify_project?(prj)
-        if prj.is_locked?
-          logger.debug "no permission to modify LOCKED project #{prj.name}"
-          raise ChangeProjectNoPermission.new "The project #{prj.name} is locked"
+      unless User.current.can_modify_project?(project)
+        if project.is_locked?
+          logger.debug "no permission to modify LOCKED project #{project.name}"
+          raise ChangeProjectNoPermission, "The project #{project.name} is locked"
         end
-        logger.debug "user #{user.login} has no permission to modify project #{prj.name}"
-        raise ChangeProjectNoPermission.new 'no permission to change project'
+        logger.debug "user #{user.login} has no permission to modify project #{project.name}"
+        raise ChangeProjectNoPermission, 'no permission to change project'
       end
-
     else
       # project is new
-      unless User.current.can_create_project? project_name
+      unless User.current.can_create_project?(project_name)
         logger.debug 'Not allowed to create new project'
-        raise CreateProjectNoPermission.new "no permission to create project #{project_name}"
+        raise CreateProjectNoPermission, "no permission to create project #{project_name}"
       end
     end
 
-    check_target_of_link(project_name, rdata)
-    _update_project_meta_maintains(rdata)
-    new_repo_names = _update_project_meta_repos(project_name, rdata)
+    error = Project.validate_link_xml_attribute(request_data, project_name)
+    if error[:error]
+      raise ProjectReadAccessFailure, error[:error]
+    end
 
-    # permission check passed, write meta
-    if prj
-      removedRepositories = Array.new
-      prj.repositories.each do |repo|
-        if !new_repo_names[repo.name] and not repo.remote_project_name
-          # collect repositories to remove
-          removedRepositories << repo
-        end
-      end
-      private_check_and_remove_repositories(params, removedRepositories) or return
+    error = Project.validate_maintenance_xml_attribute(request_data)
+    if error[:error]
+      raise ModifyProjectNoPermission, error[:error]
+    end
+
+    error = Project.validate_repository_xml_attribute(request_data, project_name)
+    if error[:error]
+      raise RepositoryAccessFailure, error[:error]
+    end
+
+    if project
+      remove_repositories = project.get_removed_repositories(request_data)
+      check_and_remove_repositories!(remove_repositories, !params[:remove_linking_repositories].blank?, !params[:force].blank?)
     end
 
     Project.transaction do
       # exec
-      if prj
-        prj.update_from_xml!(rdata)
+      if project
+        project.update_from_xml!(request_data)
       else
-        prj = Project.new(name: project_name)
-        prj.update_from_xml!(rdata)
+        project = Project.new(name: project_name)
+        project.update_from_xml!(request_data)
         # failure is ok
-        prj.add_user(User.current.login, 'maintainer')
+        project.add_user(User.current.login, 'maintainer')
       end
-      prj.store
+      project.store
     end
     render_ok
   end
-  def _update_project_meta_repos(project_name, rdata)
-    new_repo_names = {}
-    # Check used repo pathes for existens and read access permissions
-    rdata.elements('repository') do |r|
-      new_repo_names[r['name']] = 1
-      r.elements('path') do |e|
-        # permissions check
-        tproject_name = e.value('project')
-        if tproject_name != project_name
-          tprj = Project.get_by_name(tproject_name)
-          # user can access tprj, but backend would refuse to take binaries from there
-          if tprj.class == Project and tprj.disabled_for?('access', nil, nil)
-            raise RepositoryAccessFailure.new "The current backend implementation is not using binaries " +
-                                              "from read access protected projects #{tproject_name}"
-          end
-        end
-        logger.debug "project #{project_name} repository path checked against #{tproject_name} projects permission"
-      end
-    end
-    new_repo_names
-  end
-  private :_update_project_meta_repos
-  def _update_project_meta_maintains(rdata)
-    # Check if used maintains statements point only to projects with write access
-    rdata.elements('maintenance') do |m|
-      m.elements('maintains') do |r|
-        tproject_name = r.value('project')
-        tprj = Project.get_by_name(tproject_name)
-        unless tprj.class == Project and User.current.can_modify_project?(tprj)
-          raise ModifyProjectNoPermission.new "No write access to maintained project #{tproject_name}"
-        end
-      end
-    end
-  end
-  private :_update_project_meta_maintains
 
-  # the following code checks if the target project of a linked project exists or is not readable by user
-  def check_target_of_link(project_name, rdata)
-    rdata.elements('link') do |e|
-      # permissions check
-      tproject_name = e.value('project')
-      tprj = Project.get_by_name(tproject_name)
-
-      # The read access protection for own and linked project must be the same.
-      # ignore this for remote targets
-      if tprj.class == Project and tprj.disabled_for?('access', nil, nil) and
-          !FlagHelper.xml_disabled_for?(rdata, 'access')
-        raise ProjectReadAccessFailure.new "project links work only when both projects have same read access " +
-                                           "protection level: #{project_name} -> #{tproject_name}"
+  def check_and_remove_repositories!(repositories, full_remove, force = false)
+    error = Project.check_repositories(repositories) unless force
+    if !force && error[:error]
+      raise RepoDependency, error[:error]
+    else
+      error = Project.remove_repositories(repositories, full_remove)
+      if !force && error[:error]
+        raise ChangeProjectNoPermission, error[:error]
       end
-
-      logger.debug "project #{project_name} link checked against #{tproject_name} projects permission"
     end
   end
 
@@ -938,65 +890,6 @@ class SourceController < ApplicationController
 
   end
 
-  def check_dependent_repositories!(repos, error_prefix)
-    return if repos.empty?
-    lrepstr = repos.map { |l| l.project.name+'/'+l.name }.join "\n"
-    raise RepoDependency.new "#{error_prefix}\n#{lrepstr}"
-  end
-
-  def private_check_and_remove_repositories( params, removeRepositories )
-    # find linking repos which get deleted
-    linkingRepositories = Array.new
-    linkingTargetRepositories = Array.new
-    removeRepositories.each do |repo|
-      linkingRepositories += repo.linking_repositories
-      linkingTargetRepositories += repo.linking_target_repositories
-    end
-    unless params[:force] and not params[:force].empty?
-      check_dependent_repositories!(linkingRepositories,
-                                    'Unable to delete repository; following repositories depend on this project:')
-      check_dependent_repositories!(linkingTargetRepositories,
-                                    'Unable to delete repository; following target repositories depend on this project:')
-    end
-    unless removeRepositories.empty?
-      # do remove
-      private_remove_repositories( removeRepositories, (params[:remove_linking_repositories] and not params[:remove_linking_repositories].empty?) )
-    end
-    return true
-  end
-
-  def private_remove_repositories( repositories, full_remove = false )
-    del_repo = Repository.deleted_instance
-
-    repositories.each do |repo|
-      linking_repos = repo.linking_repositories
-      prj = repo.project
-
-      # full remove, otherwise the model will take care of the cleanup
-      if full_remove == true
-        # recursive for INDIRECT linked repositories
-        unless linking_repos.length < 1
-          private_remove_repositories( linking_repos, true )
-        end
-
-        # try to remove the repository
-        # but never remove the special repository named "deleted"
-        unless repo == del_repo
-          # permission check
-          unless User.current.can_modify_project?(prj)
-            raise ChangeProjectNoPermission.new "No permission to remove a repository in project '#{prj.name}'"
-          end
-        end
-      end
-
-      # remove this repository, but be careful, because we may have done it already.
-      if Repository.exists?(repo) and r=prj.repositories.find(repo)
-        logger.info "destroy repo #{r.name} in '#{prj.name}'"
-        r.destroy
-        prj.store({:lowprio => true}) # low prio storage
-      end
-    end
-  end
 
   # POST /source?cmd=branch (aka osc mbranch)
   def global_command_branch
@@ -1752,5 +1645,4 @@ class SourceController < ApplicationController
     end
     render_ok
   end
-
 end

@@ -11,7 +11,12 @@ class ProjectPolicy < ApplicationPolicy
   end
 
   def update?
-    @user.can_modify_project?(@project)
+    # The ordering is important because of the lock status check
+    return false unless @user.can_modify_project?(@project)
+    return true if @user.is_admin?
+
+    # Regular users are not allowed to modify projects with remote references
+    !@project.is_remote? && !@project.has_remote_repositories?
   end
 
   def destroy?
