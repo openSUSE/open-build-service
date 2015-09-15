@@ -36,6 +36,9 @@ class Package < ActiveRecord::Base
   class ReadSourceAccessError < APIException
     setup 'source_access_no_permission', 403, 'Source Access not allowed'
   end
+  class IllegalFileName < APIException; setup 'invalid_file_name_error'; end
+  class PutFileNoPermission < APIException; setup 403; end
+
   belongs_to :project, inverse_of: :packages
   delegate :name, to: :project, prefix: true
 
@@ -378,6 +381,11 @@ class Package < ActiveRecord::Base
 
   def source_file(file, opts = {})
     Suse::Backend.get(source_path(file, opts)).body
+  end
+
+  # Reads the source file and converts it into an ActiveXML::Node
+  def source_file_to_axml(file, opts = {})
+    ActiveXML::Node.new(self.source_file(file, opts))
   end
 
   def self.dir_hash(project, package, opts = {})
@@ -750,6 +758,16 @@ class Package < ActiveRecord::Base
   def channels
     update_if_dirty
     super
+  end
+
+  def services
+    the_services = Service.find(project: self.project.name, package: self.name)
+    the_services ||= Service.new(project: self.project.name, package: self.name)
+    the_services
+  end
+
+  def build_result(repository, view = [])
+    Buildresult.find(project: self.project, package: self, repository: repository, view: view)
   end
 
   # first package in link chain outside of my project
@@ -1127,6 +1145,9 @@ class Package < ActiveRecord::Base
     if name == '_patchinfo'
       Patchinfo.new.verify_data(pkg.project, content)
     end
+    if name == '_attribute'
+      raise IllegalFileName
+    end
   end
 
   def save_file(opt = {})
@@ -1134,10 +1155,14 @@ class Package < ActiveRecord::Base
     content = opt[:file] if opt[:file]
     logger.debug "storing file: filename: #{opt[:filename]}, comment: #{opt[:comment]}"
 
+    Package.verify_file!(self, opt[:filename], opt[:file])
+    unless User.current.can_modify_package?(self)
+      raise PutFileNoPermission, "Insufficient permissions to store file in package #{self.name}, project #{self.project.name}"
+    end
+
     put_opt = {}
     put_opt[:comment] = opt[:comment] if opt[:comment]
     put_opt[:user] = User.current.login
-
     path = self.source_path(opt[:filename], put_opt)
     ActiveXML::backend.http_do :put, path, data: content, timeout: 500
   end
