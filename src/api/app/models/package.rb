@@ -72,7 +72,18 @@ class Package < ActiveRecord::Base
   before_update :update_activity
   after_rollback :reset_cache
 
-  default_scope { where('packages.project_id not in (?)', Relationship.forbidden_project_ids) }
+  # The default scope is necessary to exclude the forbidden projects.
+  # It's necessary to write it as a nested Active Record query for performance reasons
+  # which will produce a query like:
+  # WHERE (`packages`.`id` NOT IN (SELECT `packages`.`id` FROM `packages` WHERE packages.project_id in (0))
+  # This is faster than
+  # default_scope { where('packages.project_id not in (?)', Relationship.forbidden_project_ids) }
+  # which would produce a query like
+  # WHERE (packages.project_id not in (0))
+  # because we assumes that there are more allowed projects than forbidden ones.
+  default_scope {
+    where.not(id: Package.where(project_id: Relationship.forbidden_project_ids))
+  }
 
   # rubocop:disable Metrics/LineLength
   scope :dirty_backend_package, -> { joins('left outer join backend_packages on backend_packages.package_id = packages.id').where('backend_packages.package_id is null') }
