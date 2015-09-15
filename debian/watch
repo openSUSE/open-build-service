@@ -1,0 +1,2 @@
+version=3
+https://github.com/openSUSE/open-build-service/releases .*/(.*).tar.gz
