@@ -367,4 +367,11 @@ class PackageTest < ActiveSupport::TestCase
     suffixes_out.concat(suffixes_in.collect { |i| i.capitalize.swapcase })
   end
 
+  test 'default scope does not include forbidden projects' do
+    # assert that unscoped the forbidden projects are included
+    assert Package.unscoped.all.where(project_id: Relationship.forbidden_project_ids).any?
+
+    # assert that with default scope the forbidden projects are not included
+    assert_not Package.all.where(project_id: Relationship.forbidden_project_ids).any?
+  end
 end
