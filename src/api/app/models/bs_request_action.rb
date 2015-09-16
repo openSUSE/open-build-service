@@ -851,8 +851,8 @@ class BsRequestAction < ActiveRecord::Base
         [:delete, :change_devel, :add_role, :set_bugowner].include?(self.action_type)
         tpkg = Package.get_by_project_and_name self.target_project, self.target_package
       end
-      a = tpkg.find_attribute('OBS', 'RejectRequests') if tpkg
-      if tpkg && a && a.values.first
+      a = tpkg.find_attribute('OBS', 'RejectRequests') if defined?(tpkg) && tpkg
+      if defined?(a) && a && a.values.first
         if a.values.length < 2 or a.values.find_by_value(self.action_type)
           raise RequestRejected.new "The target package #{self.target_project} / #{self.target_package} is not accepting " +
                                     "requests because: #{a.values.first.value.to_s}"

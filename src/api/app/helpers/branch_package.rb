@@ -410,7 +410,7 @@ class BranchPackage
       if update_pkg
         # We have no package in the update project yet, but sources are reachable via project link
         up = update_project.develproject.find_package(pkg_name) if update_project.develproject
-        if update_project.develproject && up
+        if defined?(up) && up
           # nevertheless, check if update project has a devel project which contains an instance
           p[:package] = up
           unless p[:link_target_project].is_a? Project and p[:link_target_project].find_attribute('OBS', 'BranchTarget')

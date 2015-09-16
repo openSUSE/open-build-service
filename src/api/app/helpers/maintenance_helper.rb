@@ -273,7 +273,7 @@ module MaintenanceHelper
       channel.get_elements(bin).each do |b|
         attrib = b.attributes.get_attribute('project')
         prj = Project.get_by_name(attrib.to_s) if attrib
-        if attrib && prj
+        if defined?(prj) && prj
           a = prj.find_attribute('OBS', 'UpdateProject')
           if a && a.values[0]
             b.attributes["project"] = a.values[0]

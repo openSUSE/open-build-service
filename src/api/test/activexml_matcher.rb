@@ -174,9 +174,9 @@ module NodeMatcher #:nodoc:
     # test ancestors
     if conditions[:ancestor]
       return false unless catch :found do
-        p = node
+        p = node.parent
         while p
-          throw :found, true if p && match(p, conditions[:ancestor])
+          throw :found, true if match(p, conditions[:ancestor])
           p = p.parent
         end
       end

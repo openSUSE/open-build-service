@@ -98,7 +98,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       branch_params[:requestid] = request.id if request
       # accept branching from former update incidents or GM (for kgraft case)
       linkprj = Project.find_by_name(linkinfo['project']) if linkinfo
-      if linkinfo && linkprj
+      if defined?(linkprj) && linkprj
         if linkprj.is_maintenance_incident? or linkprj != linkprj.update_instance or kinds.include? 'channel'
           branch_params[:project] = linkinfo['project']
           branch_params[:ignoredevel] = "1"
