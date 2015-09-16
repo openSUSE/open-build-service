@@ -198,7 +198,7 @@ sub server {
   BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup) || die("unable to create $bsdir\n");
 
   if ($conf) {
-    $conf->{'dispatches'} = BSDispatch::compile_dispatches($conf->{'dispatches'}, $BSVerify::verifyers) if $conf->{'dispatches'};
+    $conf->{'dispatches'} = BSDispatch::compile_dispatches($conf->{'dispatches'}, $BSVerify::verifiers) if $conf->{'dispatches'};
     $conf->{'dispatch'} ||= \&dispatch;
     $conf->{'stdreply'} ||= \&stdreply;
     $conf->{'errorreply'} ||= \&errreply;
@@ -209,7 +209,7 @@ sub server {
     $conf->{'name'} = $name;
   }
   if ($aconf) {
-    $aconf->{'dispatches'} = BSWatcher::compile_dispatches($aconf->{'dispatches'}, $BSVerify::verifyers) if $aconf->{'dispatches'};
+    $aconf->{'dispatches'} = BSWatcher::compile_dispatches($aconf->{'dispatches'}, $BSVerify::verifiers) if $aconf->{'dispatches'};
     $aconf->{'dispatch'} ||= \&dispatch;
     $aconf->{'stdreply'} ||= \&stdreply;
     $aconf->{'errorreply'} ||= \&errreply;

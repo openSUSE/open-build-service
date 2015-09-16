@@ -1150,8 +1150,8 @@ sub addhandler {
 }
 
 sub compile_dispatches {
-  my ($dispatches, $verifyers) = @_;
-  return BSDispatch::compile_dispatches($dispatches, $verifyers, \&addhandler);
+  my ($dispatches, $verifiers) = @_;
+  return BSDispatch::compile_dispatches($dispatches, $verifiers, \&addhandler);
 }
 
 sub background {

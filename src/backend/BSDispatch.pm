@@ -105,9 +105,9 @@ sub parse_cgi_singles {
 }
 
 sub compile_dispatches {
-  my ($disps, $verifyers, $callfunction) = @_;
+  my ($disps, $verifiers, $callfunction) = @_;
   my @disps = @$disps;
-  $verifyers ||= {};
+  $verifiers ||= {};
   my @out;
   while (@disps) {
     my $p = shift @disps;
@@ -137,10 +137,10 @@ sub compile_dispatches {
         my $var = $1;
         my $vartype = $var;
 	($var, $vartype) = ($1, $2) if $var =~ /^(.*):(.*)/;
-        die("no verifyer for $vartype\n") unless $vartype eq '' || $verifyers->{$vartype};
+        die("no verifier for $vartype\n") unless $vartype eq '' || $verifiers->{$vartype};
         $pp = "([^\\/]*)";
         $code .= "\$cgi->{'$var'} = \$$num;\n";
-        $code2 .= "\$verifyers->{'$vartype'}->(\$cgi->{'$var'});\n" if $vartype ne '';
+        $code2 .= "\$verifiers->{'$vartype'}->(\$cgi->{'$var'});\n" if $vartype ne '';
 	push @args, $var;
         $num++;
       } else {
@@ -167,14 +167,14 @@ sub compile_dispatches {
       }
       my $vartype = $var;
       ($var, $vartype) = ($1, $2) if $var =~ /^(.*):(.*)/;
-      die("no verifyer for $vartype\n") unless $vartype eq '' || $verifyers->{$vartype};
+      die("no verifier for $vartype\n") unless $vartype eq '' || $verifiers->{$vartype};
       $code2 .= "die(\"parameter '$var' is missing\\n\") unless exists \$cgi->{'$var'};\n" if $qual ne '*' && $qual ne '?';
       if ($qual eq '+' || $qual eq '*') {
 	$multis .= ", '$var' => undef";
-        $code2 .= "\$verifyers->{'$vartype'}->(\$_) for \@{\$cgi->{'$var'} || []};\n" if $vartype ne '';
+        $code2 .= "\$verifiers->{'$vartype'}->(\$_) for \@{\$cgi->{'$var'} || []};\n" if $vartype ne '';
       } else {
 	$singles .= ", '$var' => undef";
-        $code2 .= "\$verifyers->{'$vartype'}->(\$cgi->{'$var'}) if exists \$cgi->{'$var'};\n" if $vartype ne '';
+        $code2 .= "\$verifiers->{'$vartype'}->(\$cgi->{'$var'}) if exists \$cgi->{'$var'};\n" if $vartype ne '';
       }
       push @args, $var if $arg;
     }

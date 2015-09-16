@@ -507,7 +507,7 @@ sub verify_dod {
   }
 }
 
-our $verifyers = {
+our $verifiers = {
   'project' => \&verify_projid,
   'package' => \&verify_packid,
   'repository' => \&verify_repoid,
