@@ -152,6 +152,7 @@ class XpathEngine
         'updateinfo/@id' => {:cpart => 'binary_updateinfo'},
         'updateinfo/@version' => {:cpart => 'binary_updateinfo_version'},
         'operation' => {:cpart => 'operation'},
+        'modify/@time' => {:cpart => 'modify_time'},
         'obsolete/@time' => {:cpart => 'obsolete_time'},
         'repository/@project' => {:cpart => 'release_projects.name'},
         'repository/@name' => {:cpart => 'release_repositories.name'},

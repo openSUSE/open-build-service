@@ -74,8 +74,12 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_no_xml_tag :tag => "obsolete"
 
+    # without modified rpms
+    get '/search/released/binary', match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo'] and modify[not(@time)]"
+    assert_response :success
+    assert_no_xml_tag :tag => "modify"
+
     # by product
-    get '/search/released/binary', match: "product/[@project = 'BaseDistro' and @name = 'fixed' and (@arch = 'x86_64' or not(@arch))]"
     get '/search/released/binary', match: "product/[@project = 'BaseDistro' and @name = 'fixed' and (@arch = 'i586' or not(@arch))]"
     assert_response :success
     assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :name => "package", :version => "1.0", :release => "1", :arch => "i586", :medium => "DVD"}

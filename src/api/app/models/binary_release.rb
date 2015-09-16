@@ -33,7 +33,7 @@ class BinaryRelease < ActiveRecord::Base
   end
 
   def self.update_binary_releases_via_json(repository, json, time = Time.now)
-    oldlist = where(repository: repository, obsolete_time: nil)
+    oldlist = where(repository: repository, obsolete_time: nil, modify_time: nil)
     processed_item = {} # we can not just remove it from relation
                         # delete would affect the object
 
@@ -46,7 +46,8 @@ class BinaryRelease < ActiveRecord::Base
                  binary_epoch:   binary["epoch"],
                  binary_arch:    binary["binaryarch"],
                  medium:         binary["medium"],
-                 obsolete_time:  nil
+                 obsolete_time:  nil,
+                 modify_time:    nil
              }
         # check for existing entry
         existing = oldlist.where(hash)
@@ -64,8 +65,8 @@ class BinaryRelease < ActiveRecord::Base
              processed_item[entry.id] = true
              next
           end
-          # same binary name and location, but different content
-          entry.obsolete_time = time
+          # same binary name and location, but updated content or meta data
+          entry.modify_time = time
           entry.save!
           processed_item[entry.id] = true
           hash[:operation] = "modified" # new entry will get "modified" instead of "added"
@@ -151,7 +152,7 @@ class BinaryRelease < ActiveRecord::Base
       binary.publish(node) if node.length > 0
 
       binary.build(:time => self.binary_buildtime) if self.binary_buildtime
-
+      binary.modify(:time => self.modify_time) if self.modify_time
       binary.obsolete(:time => self.obsolete_time) if self.obsolete_time
 
       binary.supportstatus self.binary_supportstatus if self.binary_supportstatus
