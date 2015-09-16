@@ -69,7 +69,8 @@ module MaintenanceHelper
     end
 
     # publish incident if source is read protect, but release target is not. assuming it got public now.
-    if f=sourcePackage.project.flags.find_by_flag_and_status( 'access', 'disable' )
+    f = sourcePackage.project.flags.find_by_flag_and_status( 'access', 'disable' )
+    if f
       unless targetProject.flags.find_by_flag_and_status( 'access', 'disable' )
         sourcePackage.project.flags.delete(f)
         sourcePackage.project.store({:comment => 'project becomes public on release action'})
@@ -222,14 +223,16 @@ module MaintenanceHelper
 
     id_template = "%Y-%C"
     # check for a definition in maintenance project
-    if a = mi.maintenance_db_project.find_attribute('OBS', 'MaintenanceIdTemplate')
+    a = mi.maintenance_db_project.find_attribute('OBS', 'MaintenanceIdTemplate')
+    if a
       id_template = a.values[0].value
     end
 
     # expand a possible defined update info template in release target of channel
     projectFilter = nil
-    if p = sourcePackage.project.parent and p.is_maintenance?
-      projectFilter = p.maintained_projects.map{|mp| mp.project}
+    prj = sourcePackage.project.parent
+    if prj && prj.is_maintenance?
+      projectFilter = prj.maintained_projects.map{|mp| mp.project}
     end
     # prefer a channel in the source project to avoid double hits exceptions
     ct = ChannelTarget.find_by_repo(targetRepo, [sourcePackage.project]) || ChannelTarget.find_by_repo(targetRepo, projectFilter)
@@ -268,8 +271,11 @@ module MaintenanceHelper
     # replace all project definitions with update projects, if they are defined
     [ '//binaries', '//binary' ].each do |bin|
       channel.get_elements(bin).each do |b|
-        if attrib = b.attributes.get_attribute('project') and prj = Project.get_by_name(attrib.to_s)
-          if a = prj.find_attribute('OBS', 'UpdateProject') and a.values[0]
+        attrib = b.attributes.get_attribute('project')
+        prj = Project.get_by_name(attrib.to_s) if attrib
+        if defined?(prj) && prj
+          a = prj.find_attribute('OBS', 'UpdateProject')
+          if a && a.values[0]
             b.attributes["project"] = a.values[0]
           end
         end

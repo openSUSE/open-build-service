@@ -1,13 +1,11 @@
 module Webui::ManageRelationships
 
   def load_obj
-    if login = params[:userid]
-      return User.find_by_login!(login)
-    elsif title = params[:groupid]
-      return ::Group.find_by_title!(title)
-    else
-      raise MissingParameterError, 'Neither user nor group given'
-    end
+    login = params[:userid]
+    return User.find_by_login!(login) if login
+    title = params[:groupid]
+    return ::Group.find_by_title!(title) if title
+    raise MissingParameterError, 'Neither user nor group given'
   end
 
   def save_person

@@ -32,10 +32,8 @@ class MyParamsParser
   end
 
   def call(env)
-
-    if params = parse_parameters(env)
-      env["action_dispatch.request.request_parameters"] = params
-    end
+    params = parse_parameters(env)
+    env["action_dispatch.request.request_parameters"] = params if params
 
     env['HTTP_ACCEPT'] ||= 'application/xml'
     @app.call(env)

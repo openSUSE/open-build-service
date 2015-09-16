@@ -335,17 +335,20 @@ class BranchPackage
       if @copy_from_devel and devel_package
         p[:copy_from_devel] = devel_package
         logger.info "sources will get copied from devel package #{devel_package.project.name}/#{devel_package.name}"
-      elsif incident_pkg = lookup_incident_pkg(p)
-        p[:copy_from_devel] = incident_pkg
-        logger.info "sources will get copied from incident package #{incident_pkg.project.name}/#{incident_pkg.name}"
-      elsif not @copy_from_devel and devel_package
-        p[:package] = devel_package
-        p[:link_target_project] = p[:package].project unless params[:newinstance]
-        p[:target_package] = p[:package].name
-        p[:target_package] += ".#{p[:link_target_project].name}" if @extend_names
-        # user specified target name
-        p[:target_package] = params[:target_package] if params[:target_package]
-        logger.info "devel project is #{p[:link_target_project].name} #{p[:package].name}"
+      else
+        incident_pkg = lookup_incident_pkg(p)
+        if incident_pkg
+          p[:copy_from_devel] = incident_pkg
+          logger.info "sources will get copied from incident package #{incident_pkg.project.name}/#{incident_pkg.name}"
+        elsif not @copy_from_devel and devel_package
+          p[:package] = devel_package
+          p[:link_target_project] = p[:package].project unless params[:newinstance]
+          p[:target_package] = p[:package].name
+          p[:target_package] += ".#{p[:link_target_project].name}" if @extend_names
+          # user specified target name
+          p[:target_package] = params[:target_package] if params[:target_package]
+          logger.info "devel project is #{p[:link_target_project].name} #{p[:package].name}"
+        end
       end
     end
 
@@ -406,7 +409,8 @@ class BranchPackage
       update_pkg = update_project.find_package(pkg_name, true) # true for check_update_package in older service pack projects
       if update_pkg
         # We have no package in the update project yet, but sources are reachable via project link
-        if update_project.develproject and up = update_project.develproject.find_package(pkg_name)
+        up = update_project.develproject.find_package(pkg_name) if update_project.develproject
+        if defined?(up) && up
           # nevertheless, check if update project has a devel project which contains an instance
           p[:package] = up
           unless p[:link_target_project].is_a? Project and p[:link_target_project].find_attribute('OBS', 'BranchTarget')

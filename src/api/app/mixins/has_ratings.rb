@@ -17,7 +17,8 @@ module HasRatings
     score /= (count.nonzero? || 1)
     score = -1 if score.nan?
     score = (score * 100).round.to_f / 100
-    if user_rating = self.ratings.find_by_user_id(user_id)
+    user_rating = self.ratings.find_by_user_id(user_id)
+    if user_rating
       user_score = user_rating.score
     else
       user_score = 0

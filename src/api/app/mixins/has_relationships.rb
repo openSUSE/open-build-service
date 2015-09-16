@@ -188,10 +188,8 @@ module HasRelationships
     # in a second step we parse the XML and track in the hash if
     # we keep the relationships
     xmlhash.elements(@updater.xml_element) do |node|
-
-      unless role = Role.rolecache[node['role']]
-        raise SaveError, "illegal role name '#{node['role']}'"
-      end
+      role = Role.rolecache[node['role']]
+      raise SaveError, "illegal role name '#{node['role']}'" unless role
 
       id = @updater.id(node)
       item = @updater.find!(id)

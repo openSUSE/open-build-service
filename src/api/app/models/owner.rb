@@ -57,17 +57,19 @@ class Owner
       filter = %w(maintainer bugowner)
       devel  = true
       if params[:filter]
-        filter=params[:filter].split(",")
+        filter = params[:filter].split(",")
       else
-        if attrib and v=attrib.values.where(value: "BugownerOnly").exists?
-          filter=%w(bugowner)
+        v = attrib.values.where(value: "BugownerOnly").exists? if attrib
+        if attrib && v
+          filter = %w(bugowner)
         end
       end
       if params[:devel]
-        devel=false if %w(0 false).include? params[:devel]
+        devel = false if %w(0 false).include? params[:devel]
       else
-        if attrib and v=attrib.values.where(value: "DisableDevel").exists?
-          devel=false
+        v = attrib.values.where(value: "DisableDevel").exists? if attrib
+        if attrib && v
+          devel = false
         end
       end
 
@@ -159,10 +161,10 @@ class Owner
     # fast find packages with defintions
     # relationship in package object by user
     defined_packages = Package.where(project_id: projects).joins(:relationships => :user).where(["relationships.role_id IN (?) AND users.state = ?",
-                       roles, User::STATES['confirmed']]).pluck(:name)
+                                                                                                 roles, User::STATES['confirmed']]).pluck(:name)
     # relationship in package object by group
     defined_packages += Package.where(project_id: projects).joins(:relationships).where(["relationships.role_id IN (?) AND group_id IN (?)",
-                        roles, maintained_groups]).pluck(:name)
+                                                                                         roles, maintained_groups]).pluck(:name)
     # relationship in project object by user
     Project.joins(:relationships => :user).where("projects.id in (?) AND role_id in (?) AND users.state = ?",
                                                  projects, roles, User::STATES['confirmed']).each do |prj|
@@ -267,7 +269,7 @@ class Owner
       project = container.project
     end
     # add maintainers from parent projects
-    while not project.nil?
+    until project.nil?
       add_owners.call(project)
       project = project.parent
     end

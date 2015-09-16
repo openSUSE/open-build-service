@@ -228,7 +228,8 @@ class Webui::PackageController < Webui::WebuiController
     end
     @cleanup_source = @project.name.include?(':branches:') # Rather ugly decision finding...
     @tprj = ''
-    if lt = @package.backend_package.links_to
+    lt = @package.backend_package.links_to
+    if lt
       @tprj = lt.project.name # fill in from link
       @tpkg = lt.name
     end

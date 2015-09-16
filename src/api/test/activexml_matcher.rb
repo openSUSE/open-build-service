@@ -174,8 +174,11 @@ module NodeMatcher #:nodoc:
     # test ancestors
     if conditions[:ancestor]
       return false unless catch :found do
-        p = node
-        throw :found, true if match(p, conditions[:ancestor]) while p = p.parent
+        p = node.parent
+        while p
+          throw :found, true if match(p, conditions[:ancestor])
+          p = p.parent
+        end
       end
     end
 
@@ -193,7 +196,8 @@ module NodeMatcher #:nodoc:
     end
 
     # count children
-    if opts = conditions[:children]
+    opts = conditions[:children]
+    if opts
       matches = Array.new
       node.each do |child|
         if opts[:only]
@@ -223,7 +227,6 @@ module NodeMatcher #:nodoc:
 
     # test siblings
     if conditions[:sibling] || conditions[:before] || conditions[:after]
-
       siblings = []
       self_index = -1
       node.parent.each_with_index do |child, index|
@@ -255,6 +258,7 @@ module NodeMatcher #:nodoc:
   end
 
   private
+
   # Match the given value to the given condition.
   def self.match_condition(value, condition)
     case condition

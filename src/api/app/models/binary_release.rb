@@ -82,7 +82,8 @@ class BinaryRelease < ActiveRecord::Base
           hash[:binary_updateinfo] = binary["updateinfoid"]
           hash[:binary_updateinfo_version] = binary["updateinfoversion"]
         end
-        if binary["project"] and rp = Package.find_by_project_and_name(binary["project"], binary["package"])
+        rp = Package.find_by_project_and_name(binary["project"], binary["package"])
+        if binary["project"] && rp
           hash[:release_package_id] = rp.id
         end
         if binary["patchinforef"]
