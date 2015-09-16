@@ -273,7 +273,7 @@ sub rsasign {
 	push @res, { 'name' => "$ent->{'name'}.sig", 'data' => $sig };
       },
     };
-    BSHTTP::cpio_receiver(BSHTTP::fd2hdr(\*CPIOFILE), $param);
+    BSHTTP::cpio_receiver(BSHTTP::fd2req(\*CPIOFILE), $param);
     close CPIOFILE;
     $retrysign = 1;
     open(CPIOFILE, '>', "$signfile.sig") || die("open $signfile.sig: $!\n");
