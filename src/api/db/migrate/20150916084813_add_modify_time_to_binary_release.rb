@@ -14,7 +14,7 @@ class AddModifyTimeToBinaryRelease < ActiveRecord::Migration
                                   medium: br.medium
                                  )
       unless added.length == 1
-        puts "ERROR: Unique added entry belonging to modified entry not found: #{br.id}"
+        Rails.logger.error "ERROR: Unique added entry belonging to modified entry not found: #{br.id}"
         next
       end
       added.first.modify_time = added.first.obsolete_time
@@ -35,7 +35,7 @@ class AddModifyTimeToBinaryRelease < ActiveRecord::Migration
                                   medium: br.medium
                                  )
       unless added.length == 1
-        puts "ERROR: Unique added entry belonging to modified entry not found: #{br.id}"
+        Rails.logger.error "ERROR: Unique added entry belonging to modified entry not found: #{br.id}"
         next
       end
       added.first.obsolete_time = added.first.modify_time
