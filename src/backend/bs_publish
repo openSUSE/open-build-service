@@ -457,15 +457,14 @@ sub createrepo_rpmmd {
       unlink($_) if @s && $s[9] < $now - 7*86400;
     }
   }
+
   my $title = $data->{'repoinfo'}->{'title'};
+  my $downloadurl = get_downloadurl("$projid/$repoid", $prp_ext);
   if (-x "/usr/bin/repoview") {
-    if ($BSConfig::repodownload) {
-      print "    running repoview\n";
-      qsystem('repoview', '-f', "-u$BSConfig::repodownload/$prp_ext", "-t$title", $extrep) && print("    repoview failed: $?\n");
-    } else {
-      print "    running repoview\n";
-      qsystem('repoview', '-f', "-t$title", $extrep) && print("    repoview failed: $?\n");
-    }
+    my @downloadurlarg;
+    @downloadurlarg = ("-u$downloadurl") if $downloadurl;
+    print "    running repoview\n";
+    qsystem('repoview', '-f', @downloadurlarg, "-t$title", $extrep) && print("    repoview failed: $?\n");
   }
   if ($BSConfig::createrepo_rpmmd_hook) {
     $BSConfig::createrepo_rpmmd_hook->($projid, $repoid, $extrep, \%options, $data);
@@ -485,7 +484,7 @@ sub createrepo_rpmmd {
     qsystem($BSConfig::sign, @signargs, '-d', "$extrep/repodata/repomd.xml") && die("    sign failed: $?\n");
     writestr("$extrep/repodata/repomd.xml.key", undef, $data->{'pubkey'}) if $data->{'pubkey'};
   }
-  if ($BSConfig::repodownload) {
+  if ($downloadurl) {
     local *FILE;
     open(FILE, '>', "$extrep/$projid.repo$$") || die("$extrep/$projid.repo$$: $!\n");
     my $projidHeader = $projid;
@@ -493,11 +492,11 @@ sub createrepo_rpmmd {
     print FILE "[$projidHeader]\n";
     print FILE "name=$title\n";
     print FILE "type=rpm-md\n";
-    print FILE "baseurl=$BSConfig::repodownload/$prp_ext/\n";
+    print FILE "baseurl=$downloadurl\n";
     if ($BSConfig::sign) {
       print FILE "gpgcheck=1\n";
       if (-e "$extrep/repodata/repomd.xml.key") {
-        print FILE "gpgkey=$BSConfig::repodownload/$prp_ext/repodata/repomd.xml.key\n";
+        print FILE "gpgkey=$downloadurl/repodata/repomd.xml.key\n";
       } else {
         die("neither a project key is available nor gpg_standard_key is set\n") unless defined($BSConfig::gpg_standard_key);
         print FILE "gpgkey=$BSConfig::gpg_standard_key\n";
@@ -995,15 +994,8 @@ sub createpatterns_ymp {
         $r->{'description'} = $nprojpack{$sprojid}->{'description'};
       }
       my $sprp_ext = "$sprojid/$srepoid";
-      my $url;
-      if ($BSConfig::prp_ext_map && exists $BSConfig::prp_ext_map->{$sprp_ext}) {
-	$url = $BSConfig::prp_ext_map->{$sprp_ext};
-      } else {
-        $sprp_ext =~ s/:/:\//g;
-        $url = "$BSConfig::repodownload/$sprp_ext/";
-	my $extrep = map_to_extrep("$sprojid/$srepoid", $sprp_ext);
-	$url = $extrep->[2] if $extrep && $extrep->[2];
-      }
+      $sprp_ext =~ s/:/:\//g;
+      my $url = get_downloadurl("$sprojid/$srepoid", $sprp_ext);
       next unless defined $url;
       $r->{'url'} = $url;
       push @repos, $r;
@@ -1127,6 +1119,23 @@ sub map_to_extrep {
   }
   $extrep = $extrep->($prp, $prp_ext) if $extrep && ref($extrep) eq 'CODE';
   return $extrep;
+}
+
+sub get_downloadurl {
+  my ($prp, $prp_ext) = @_;
+  if ($BSConfig::prp_ext_map && exists $BSConfig::prp_ext_map->{$prp}) {
+    return $BSConfig::prp_ext_map->{$prp};
+  }
+  my $extrep = map_to_extrep($prp, $prp_ext);
+  $extrep = [ $extrep ] unless ref $extrep;
+  return $extrep->[2] if $extrep->[2];
+  return undef unless $BSConfig::repodownload;
+  if ($extrep->[0] =~ /^\Q$BSConfig::bsdir\E\/repos\/(.*)$/) {
+    my $url = "$BSConfig::repodownload/$1/";
+    $url =~ s!//$!/!;
+    return $url;
+  }
+  return "$BSConfig::repodownload/$prp_ext/";
 }
 
 sub deleterepo {
