@@ -1,13 +1,12 @@
 class PackagePolicy < ApplicationPolicy
   attr_reader :user, :package
 
-  def initialize(user, project)
+  def initialize(user, package)
     @user = user
-    @package = project
+    @package = package
   end
 
-  def destroy?
-    @user.can_modify_package?(@package) &&
-      @package.can_be_deleted?
+  def delete?
+    @user.can_modify_package?(@package)
   end
 end

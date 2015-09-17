@@ -193,14 +193,12 @@ class Webui::PatchinfoController < Webui::WebuiController
   end
 
   def remove
+    authorize @package, :delete?
+
     # checks
     error_message = nil
     if @package.name == '_project'
       error_message = "_project package can not be deleted."
-    end
-
-    unless User.current.can_modify_package?(@package) # policy
-      error_message = "no permission to delete package #{@package.name} in project #{@project.name}"
     end
 
     # deny deleting if other packages use this as develpackage
