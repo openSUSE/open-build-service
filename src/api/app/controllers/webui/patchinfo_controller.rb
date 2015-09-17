@@ -204,17 +204,11 @@ class Webui::PatchinfoController < Webui::WebuiController
     # deny deleting if other packages use this as develpackage
     unless error_message
       begin
-        @package.can_be_deleted?
-      # FIXME: This should be handled differently
-      rescue APIException => e
+        @package.can_be_deleted? # FIXME: This should be handled differently
+        Package.delete_patchinfo_of_project!(@project, @package, User.current) unless error_message
+      rescue APIException, Package::PackageError => e
         error_message = e.message
       end
-    end
-
-    unless error_message
-      Package.delete_patchinfo_of_project!(@project, @package, User.current)
-    rescue Package::PackageError => e
-      error_message = e.message
     end
 
     if error_message
