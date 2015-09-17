@@ -198,7 +198,7 @@ sub server {
   BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup) || die("unable to create $bsdir\n");
 
   if ($conf) {
-    $conf->{'dispatches'} = BSDispatch::compile_dispatches($conf->{'dispatches'}, $BSVerify::verifiers) if $conf->{'dispatches'};
+    $conf->{'verifiers'} ||= $BSVerify::verifiers;
     $conf->{'dispatch'} ||= \&dispatch;
     $conf->{'stdreply'} ||= \&stdreply;
     $conf->{'errorreply'} ||= \&errreply;
@@ -207,15 +207,18 @@ sub server {
     $conf->{'periodic_interval'} ||= 1;
     $conf->{'serverstatus'} ||= "$rundir/$name.status";
     $conf->{'name'} = $name;
+    BSDispatch::compile($conf);
   }
   if ($aconf) {
-    $aconf->{'dispatches'} = BSWatcher::compile_dispatches($aconf->{'dispatches'}, $BSVerify::verifiers) if $aconf->{'dispatches'};
+    $aconf->{'verifiers'} ||= $BSVerify::verifiers;
     $aconf->{'dispatch'} ||= \&dispatch;
     $aconf->{'stdreply'} ||= \&stdreply;
     $aconf->{'errorreply'} ||= \&errreply;
     $aconf->{'periodic'} ||= \&periodic_ajax;
     $aconf->{'periodic_interval'} ||= 1;
     $aconf->{'name'} = $name;
+    $aconf->{'dispatch_call'} ||= \&BSWatcher::addhandler;
+    BSDispatch::compile($aconf);
   }
   BSServer::deamonize(@{$args || []});
   if ($conf) {

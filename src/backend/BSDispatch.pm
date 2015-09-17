@@ -104,10 +104,12 @@ sub parse_cgi_singles {
   return \%cgi;
 }
 
-sub compile_dispatches {
-  my ($disps, $verifiers, $callfunction) = @_;
-  my @disps = @$disps;
-  $verifiers ||= {};
+sub compile {
+  my ($conf) = @_;
+  die("no dispatches configured\n") unless $conf->{'dispatches'};
+  my @disps = @{$conf->{'dispatches'}};
+  my $verifiers = $conf->{'verifiers'} || {};
+  my $callfunction = $conf->{'dispatches_call'};
   my @out;
   while (@disps) {
     my $p = shift @disps;
@@ -199,13 +201,16 @@ sub compile_dispatches {
     }
     push @out, $cpld, $fnew;
   }
-  return \@out;
+  $conf->{'compiled_dispatches'} = \@out;
 }
 
 sub dispatch {
   my ($conf, $req) = @_;
-  my $disps = $conf->{'dispatches'};
-  die("500 no dispatches configured\n") unless $disps;
+  my $disps = $conf->{'compiled_dispatches'};
+  if (!$disps) {
+    die("500 no dispatches configured\n") unless $conf->{'dispatches'};
+    die("500 dispatches are not compiled\n");
+  }
   my @disps = @$disps;
   my $path = "$req->{'action'}:$req->{'path'}";
   if (1) {

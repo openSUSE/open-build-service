@@ -1149,11 +1149,6 @@ sub addhandler {
   return $f->(@args);
 }
 
-sub compile_dispatches {
-  my ($dispatches, $verifiers) = @_;
-  return BSDispatch::compile_dispatches($dispatches, $verifiers, \&addhandler);
-}
-
 sub background {
   my $jev = $BSServerEvents::gev;
   return $jev unless $jev && exists $jev->{'fd'};
