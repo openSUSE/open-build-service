@@ -217,7 +217,7 @@ sub server {
     $aconf->{'periodic'} ||= \&periodic_ajax;
     $aconf->{'periodic_interval'} ||= 1;
     $aconf->{'name'} = $name;
-    $aconf->{'dispatch_call'} ||= \&BSWatcher::addhandler;
+    $aconf->{'dispatches_call'} ||= \&BSWatcher::addhandler;
     BSDispatch::compile($aconf);
   }
   BSServer::deamonize(@{$args || []});
