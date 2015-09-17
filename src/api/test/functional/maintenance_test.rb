@@ -434,6 +434,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_no_xml_tag tag: "new", attributes: { name: "package.spec" }
     assert_xml_tag parent: { tag: "file", attributes: { state: "added" } },
                    tag: "new", attributes:  { name: "some_new_file" }
+    # local link got diffed unexpanded
+    assert_xml_tag tag: "old", attributes:  { package: "pack2.linked" }
+    assert_match( /-&lt;link package="pack2"/, @response.body )
+    assert_match( /\+&lt;link package="pack2.ServicePack_Update"/, @response.body )
 
     # revoke to unlock the source
     post "/request/#{reqid}?cmd=changestate&newstate=revoked"

@@ -106,6 +106,7 @@ class BinaryRelease < ActiveRecord::Base
         next if processed_item[e.id]
         e.obsolete_time = time
         e.save!
+        # create an additional "removed" entry here? No one asked for it yet ....
       end
     end
   end

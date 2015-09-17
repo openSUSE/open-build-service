@@ -33,9 +33,6 @@ module RequestSourceDiff
     def diff_for_source(spkg, options = {})
       @target_project = action.target_project
       @target_package = action.target_package
-
-      # fallback name as last resort
-      @target_package ||= action.source_package
       query = {'cmd' => 'diff'}
       ai = action.bs_request_action_accept_info
 
@@ -47,18 +44,33 @@ module RequestSourceDiff
         query[:oproject] = ai.oproject if ai.oproject
         query[:opackage] = ai.opackage if ai.opackage
       else
+        # for requests not yet accepted or accepted with OBS 2.0 and before
+
         # the target is by default the _link target
         # maintenance_release creates new packages instance, but are changing the source only according to the link
-        provided_in_other_action = overwrite_target_by_link(spkg)
+        provided_in_other_action = check_for_local_linked_packages(spkg)
+        # fallback name as last resort
+        @target_package ||= action.source_package
 
         # maintenance incidents shall show the final result after release
         @target_project = action.target_releaseproject if action.target_releaseproject
 
         # maintenance release targets will have a base link
-        if Project.get_by_name(@target_project).is_maintenance_release?
+        tprj = Project.get_by_name(@target_project)
+        if tprj && tprj.is_maintenance_release?
           @target_package.gsub!(/\.[^\.]*$/, '')
+          tpkg = tprj.find_package(@target_package)
+          if tpkg
+            if tpkg.project.is_maintenance_release? && tpkg.is_local_link?
+              # use package container from former incident update
+              @target_package = tpkg.linkinfo['package']
+            else
+              @target_project = tprj.name
+              @target_package = tpkg.name
+            end
+          end
         end
-        # for requests not yet accepted or accepted with OBS 2.0 and before
+
         if Package.exists_by_project_and_name(@target_project, @target_package, follow_project_links: true)
           tpkg = Package.get_by_project_and_name(@target_project, @target_package)
         end
@@ -76,7 +88,7 @@ module RequestSourceDiff
           query[:oproject] = @target_project
           query[:opackage] = @target_package
           query[:rev] = action.source_rev if action.source_rev
-        else # No target package means diffing the source package against itaction.
+        else # No target package means diffing the source package against itself.
           if action.source_rev # Use source rev for diffing (if available)
             query[:orev] = 0
             query[:rev] = action.source_rev
@@ -94,26 +106,26 @@ module RequestSourceDiff
       BsRequestAction.get_package_diff(path, query)
     end
 
-    def overwrite_target_by_link(spkg)
+    def check_for_local_linked_packages(spkg)
       # the target is by default the _link target
       # maintenance_release creates new packages instance, but are changing the source only according to the link
-      return unless !action.target_package or [:maintenance_incident].include? action.action_type
+      return if action.target_package && :maintenance_incident == action.action_type
       data = Xmlhash.parse(ActiveXML.backend.direct_http(URI("/source/#{URI.escape(action.source_project)}/#{URI.escape(spkg)}")))
       linkinfo = data['linkinfo']
       return unless linkinfo
-      @target_project = linkinfo["project"]
-      @target_package = linkinfo["package"]
-      return unless @target_project == action.source_project
+      @target_project ||= linkinfo["project"]
+      @target_package ||= linkinfo["package"]
+      return unless linkinfo["project"] == action.source_project
       # a local link, check if the real source change gets also transported in a seperate action
       if action.bs_request
-        action.bs_request.bs_request_actions.any? { |a| check_action_target(a) }
+        action.bs_request.bs_request_actions.any? { |a| check_action_target(a, linkinfo["package"]) }
       end
     end
 
     # check if the action is the same target
-    def check_action_target(other)
+    def check_action_target(other, linked_package_name)
       action.source_project == other.source_project &&
-        @target_package == other.source_package &&
+        linked_package_name == other.source_package &&
         action.target_project == other.target_project
     end
   end

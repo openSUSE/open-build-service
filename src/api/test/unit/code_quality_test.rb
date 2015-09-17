@@ -78,6 +78,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'BsRequestActionMaintenanceRelease#sanity_check!'                         => 81.82,
       'BsRequestActionSubmit#execute_accept'                                    => 132.43,
       'BsRequestPermissionCheck#cmd_changestate_permissions'                    => 117.09,
+      'RequestSourceDiff::ActionSourceDiffer#diff_for_source'                   => 94.62,
       'BuildController#file'                                                    => 127.42,
       'BuildController#project_index'                                           => 129.0,
       'ConfigurationsController#update'                                         => 85.63,
