@@ -136,7 +136,9 @@ class Project < ActiveRecord::Base
     end
 
     # revoke all requests
-    revoke_requests
+    # FIXME: this is breaking request accepting with cleanup, if the project
+    #        will be removed during that
+#    revoke_requests
   end
 
   def delete_on_backend(comment = nil)

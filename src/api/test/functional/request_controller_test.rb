@@ -196,7 +196,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                      {"who"=>"Iggy", "when"=>"2010-07-12T00:00:01", "description"=>"Request got a new priority: critical => low", "comment"=>"dontcare"},
                      {"who"=>"Iggy", "when"=>"2010-07-12T00:00:02", "description"=>"Request got declined", "comment"=>"notgood"},
                      {"who"=>"Iggy", "when"=>"2010-07-12T00:00:03", "description"=>"Request got reopened", "comment"=>"oops"},
-                     {"who"=>"Iggy", "when"=>"2010-07-12T00:00:04", "description"=>"Request got revoked", "comment"=>"The source project 'home:Iggy:branches:home:Iggy' was removed"},
                      {"who"=>"Iggy", "when"=>"2010-07-12T00:00:04", "description"=>"Request got accepted", "comment"=>"approved"}
                    ],
                    'description' => 'DESCRIPTION IS HERE'

@@ -225,6 +225,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                                    <action type="maintenance_incident">
                                      <source project="home:tom:branches:kde4" package="kdelibs" />
                                      <target project="My:Maintenance" releaseproject="BaseDistro2.0" />
+                                     <options>
+                                       <sourceupdate>cleanup</sourceupdate>
+                                     </options>
                                    </action>
                                    <description>To fix my bug</description>
                                    <state name="new" />
@@ -252,6 +255,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # accept request
     prepare_request_with_user 'maintenance_coord', 'power'
 
+    # not allowed to remove project
+    delete "/source/home:tom:branches:kde4"
+    assert_response 403
+
     post "/request/#{id2}?cmd=changestate&newstate=accepted&force=1"
     assert_response :success
     get "/request/#{id2}"
@@ -261,6 +268,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag( :tag => 'acceptinfo' )
     post "/request/#{id2}?cmd=diff&view=xml", nil
     assert_response :success
+    # project got cleaned up
+    get "/source/home:tom:branches:kde4"
+    assert_response 404
 
     get "/request/#{id2}"
     assert_response :success
@@ -288,8 +298,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     delete "/source/#{incidentProject}"
     assert_response :success
     delete '/source/BaseDistro2.0:LinkedUpdateProject/kdelibs'
-    assert_response :success
-    delete '/source/home:tom:branches:kde4'
     assert_response :success
   end
 
