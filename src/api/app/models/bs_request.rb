@@ -689,6 +689,10 @@ class BsRequest < ActiveRecord::Base
   def setpriority(opts)
     self.permission_check_setpriority!
 
+    unless [ 'low', 'moderate', 'important', 'critical' ].include? opts[:priority]
+      raise SaveError, "Illegal priority '#{opts[:priority]}'"
+    end
+
     p={request: self, user_id: User.current.id, description_extension: "#{self.priority} => #{opts[:priority]}"}
     p[:comment] = opts[:comment] if opts[:comment]
 

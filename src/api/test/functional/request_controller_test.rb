@@ -150,6 +150,10 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                                                 { 'arch' => 'x86_64', 'result' => 'unknown' }] } }, node)
 
     # create more history entries prio change, decline, reopen and finally accept it
+    post "/request/#{id}?cmd=setpriority&priority=ILLEGAL&comment=dontcare"
+    assert_response 400
+    assert_xml_tag(:tag => 'status', :attributes => { code: 'request_save_error' })
+    assert_xml_tag(:tag => 'summary', :content => "Illegal priority 'ILLEGAL'")
     post "/request/#{id}?cmd=setpriority&priority=low&comment=dontcare"
     assert_response :success
     Timecop.freeze(1)
