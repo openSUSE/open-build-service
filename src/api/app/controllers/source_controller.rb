@@ -946,6 +946,7 @@ class SourceController < ApplicationController
     @project.packages.each do |pkg|
       pkg.modify_channel(mode)
     end
+    @project.store({user: User.current.login})
 
     render_ok
   end
@@ -1209,7 +1210,7 @@ class SourceController < ApplicationController
   # POST /source/<project>/<package>?cmd=enablechannel
   def package_command_enablechannel
     @package.modify_channel(:enable_all)
-    @package.store({user: User.current.login})
+    @package.project.store({user: User.current.login})
 
     render_ok
   end
