@@ -213,34 +213,15 @@ class Webui::PatchinfoController < Webui::WebuiController
       end
     end
 
-    # patchinfo deletion happens here
     unless error_message
-      parameters = {
-        user:    User.current,
-        project: @project.name,
-        package: @package.name,
-        timeout: 500
-      }
-      begin
-        Package.transaction do
-          # we need to keep this order to delete first the api model
-          @package.revoke_requests
-          @package.destroy
-
-          path = "#{@package.source_path}#{Suse::Backend.build_query_from_hash(parameters, [:user, :comment])}"
-          Suse::Backend.delete(path)
-        end
-      rescue ActiveXML::Transport::Error, ActiveXML::Transport::NotFoundError => e
-        error_message = e.summary
-      end
+      Package.delete_patchinfo_of_project!(@project, @package, User.current)
+    rescue Package::PackageError => e
+      error_message = e.message
     end
 
     if error_message
       flash[:error] = error_message
     else
-      Rails.cache.delete('%s_packages_mainpage' % @project)
-      Rails.cache.delete('%s_problem_packages' % @project)
-
       flash[:notice] = "'#{@package}' was removed successfully from project '#{@project}'"
     end
 

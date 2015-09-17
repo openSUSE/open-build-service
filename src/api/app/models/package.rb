@@ -14,6 +14,8 @@ class Package < ActiveRecord::Base
   include HasRatings
   include HasAttributes
 
+  class PackageError < StandardError; end
+
   class CycleError < APIException
     setup 'cycle_error'
   end
@@ -260,6 +262,31 @@ class Package < ActiveRecord::Base
       ret.delete(dbpkg) unless Package.check_access?(dbpkg)
     end
     ret
+  end
+
+  def self.delete_patchinfo_of_project!(project, package, user)
+    parameters = {
+      user:    user,
+      project: project.name,
+      package: package.name,
+      timeout: 500
+    }
+
+    begin
+      Package.transaction do
+        # we need to keep this order to delete first the api model
+        package.revoke_requests
+        package.destroy
+
+        path = "#{package.source_path}#{Suse::Backend.build_query_from_hash(parameters, [:user, :comment])}"
+        Suse::Backend.delete(path)
+      end
+    rescue ActiveXML::Transport::Error, ActiveXML::Transport::NotFoundError => e
+      raise PackageError, e.summary
+    end
+
+    Rails.cache.delete('%s_packages_mainpage' % project)
+    Rails.cache.delete('%s_problem_packages' % project)
   end
 
   def check_source_access?
