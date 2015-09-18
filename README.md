@@ -212,12 +212,11 @@ We maintain an [OBS package repository](https://build.opensuse.org/project/show/
     read_only_hosts: [ "127.0.0.1", 'localhost' ]
     ```
 
-4. Setup the production databases and log permissions:
+4. Setup the production databases:
 
     ```
     RAILS_ENV=production rake -f /srv/www/obs/api/Rakefile db:create
     RAILS_ENV=production rake -f /srv/www/obs/api/Rakefile db:setup
-    chown -R wwwrun.www /srv/www/obs/api/{log,tmp}
     ```
 
 5. Setup the Apache webserver:
