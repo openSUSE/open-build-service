@@ -23,7 +23,7 @@ class Webui::ProjectController < Webui::WebuiController
                                      :prjconf, :change_flag, :edit, :save_comment, :edit_comment, :status, :maintained_projects,
                                      :add_maintained_project_dialog, :add_maintained_project, :remove_maintained_project,
                                      :maintenance_incidents, :unlock_dialog, :save_person, :save_group, :remove_role, :save_repository,
-                                     :move_path]
+                                     :move_path, :save_prjconf]
 
   before_filter :set_project_by_name, only: [:save_meta]
 
