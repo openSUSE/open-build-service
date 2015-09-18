@@ -581,6 +581,7 @@ class SourceController < ApplicationController
   def show_project_config
     forward_from_backend(BackendFile.query_from_list(params, [:rev]))
 
+<<<<<<< HEAD
     begin
       # 'project' can be a local Project in database or a String that's the name of a remote project, or even raise exceptions
       project = Project.get_by_name(params[:project])
@@ -596,6 +597,17 @@ class SourceController < ApplicationController
     end
 
     send_data(content, type: config.response[:type], disposition: 'inline')
+=======
+    project = Project.get_by_name(params[:project])
+    content = project.config.to_s
+
+    unless content
+      render_error status: 404, message: project.config.errors.full_messages.to_sentence
+      return
+    end
+
+    send_data(content, type: project.config.response[:type], disposition: 'inline')
+>>>>>>> 3809cf4... [api][webui] Implement BackendFile class
   end
 
   class PutProjectConfigNoPermission < APIException
@@ -604,21 +616,26 @@ class SourceController < ApplicationController
 
   # PUT /source/:project/_config
   def update_project_config
-    # check for project
-    prj = Project.get_by_name(params[:project])
+    project = Project.get_by_name(params[:project])
 
-    # assemble path for backend
-    params[:user] = User.current.login
-
-    unless User.current.can_modify_project?(prj)
-      raise PutProjectConfigNoPermission.new "No permission to write build configuration for project '#{params[:project]}'"
+    unless User.current.can_modify_project?(project)
+      raise PutProjectConfigNoPermission, "No permission to write build configuration for project '#{params[:project]}'"
     end
 
-    # assemble path for backend
-    path = request.path_info
-    path += build_query_from_hash(params, [:user, :comment])
+    params[:user] = User.current.login
+    query = params.slice(:user, :comment)
 
-    pass_to_backend path
+    project.config.file = request.body
+    response = project.config.save(query)
+
+    unless response
+      render_error status: 404, message: project.config.errors.full_messages.to_sentence
+      return
+    end
+
+    send_data(response.body,
+              type: response.fetch('content-type'),
+              disposition: 'inline')
   end
 
   def pubkey_path
@@ -871,7 +888,7 @@ class SourceController < ApplicationController
     path = get_request_path
 
     # map to a GET, so we can X-forward it
-    forward_from_backend path
+    volley_backend_path(path) unless forward_from_backend(path)
   end
 
   private
