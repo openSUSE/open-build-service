@@ -165,20 +165,20 @@ sub compile {
     my $singles = '';
     my $cgisingles;
     for my $var (@cgis) {
-      my ($arg, $qual) = (0, '{1}');
+      my ($arg, $quant) = (0, '');
       $arg = 1 if $var =~ s/^\$//;
-      $qual = $1 if $var =~ s/([+*?])$//;
+      $quant = $1 if $var =~ s/([+*?])$//;
       if ($var =~ /^(.*)=(.*)$/) {
 	$cgisingles ||= {};
 	$cgisingles->{$1} = $2;
-	$singles .= ", '$1' => undef";
-	next;
+	die("fixed parameter '$1' must not have a quantifier\n") if $quant;
+	($var, $quant) = ("$1:", '?');
       }
       my $vartype = $var;
       ($var, $vartype) = ($1, $2) if $var =~ /^(.*):(.*)/;
       die("no verifier for $vartype\n") unless $vartype eq '' || $verifiers->{$vartype};
-      $code2 .= "die(\"parameter '$var' is missing\\n\") unless exists \$cgi->{'$var'};\n" if $qual ne '*' && $qual ne '?';
-      if ($qual eq '+' || $qual eq '*') {
+      $code2 .= "die(\"parameter '$var' is missing\\n\") unless exists \$cgi->{'$var'};\n" if $quant ne '*' && $quant ne '?';
+      if ($quant eq '+' || $quant eq '*') {
 	$multis .= ", '$var' => undef";
         $code2 .= "\$verifiers->{'$vartype'}->(\$_) for \@{\$cgi->{'$var'} || []};\n" if $vartype ne '';
       } else {
