@@ -268,8 +268,7 @@ class Package < ActiveRecord::Base
     parameters = {
       user:    user,
       project: project.name,
-      package: package.name,
-      timeout: 500
+      package: package.name
     }
 
     begin
@@ -278,7 +277,7 @@ class Package < ActiveRecord::Base
         package.revoke_requests
         package.destroy
 
-        path = "#{package.source_path}#{Suse::Backend.build_query_from_hash(parameters, [:user, :comment])}"
+        path = "#{package.source_path}#{Suse::Backend.build_query_from_hash(parameters, [:user])}"
         Suse::Backend.delete(path)
       end
     rescue ActiveXML::Transport::Error, ActiveXML::Transport::NotFoundError => e
