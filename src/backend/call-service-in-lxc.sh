@@ -90,6 +90,8 @@ echo "lxc.cgroup.devices.allow = c 1:3 rw" >> $LXC_CONF
 
 lxc-info -n obs.service.jail.$$ >& /dev/null && lxc-destroy -n obs.service.jail.$$ >& /dev/null
 RETURN="0"
+
+# add -t none for lxc 1.1
 lxc-create -n obs.service.jail.$$ -f $LXC_CONF >& /dev/null || RETURN="2"
 
 # run jailed process
