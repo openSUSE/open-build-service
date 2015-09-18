@@ -99,6 +99,11 @@ class Project < ActiveRecord::Base
     # if the kind attribute hasn't been included in the select clause.
     # Therefore it's necessary to check self.has_attribute? :kind
     self.kind ||= 'standard' if self.has_attribute? :kind
+    @config = nil
+  end
+
+  def config
+    @config ||= ProjectConfigFile.new(project_name: name)
   end
 
   def self.autocomplete(search)
