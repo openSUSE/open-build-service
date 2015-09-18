@@ -98,12 +98,17 @@ sub redo_request {
   local $BSServerEvents::gev = $jev;
   my $conf = $jev->{'conf'};
   eval {
-    my @res = $jev->{'redohandler'}->(@{$jev->{'args'} || []});
-    $conf->{'stdreply'}->(@res) if $conf->{'stdreply'};
-    return;
+    my @r = $jev->{'redohandler'}->(@{$jev->{'args'} || []});
+    if ($conf->{'stdreply'}) {
+      $conf->{'stdreply'}->(@r);
+    } elsif (@r && (@r != 1 || defined($r[0]))) {
+      BSServerEvents::reply(@r);
+    }
   };
-  print $@ if $@;
-  BSServerEvents::reply_error($conf, $@) if $@;
+  if ($@) {
+    print $@;
+    BSServerEvents::reply_error($conf, $@);
+  }
 }
 
 sub deljob {
@@ -1141,7 +1146,8 @@ sub getstatus {
   return $ret;
 }
 
-sub addhandler {
+# put our call data into the job event so that we can redo the request
+sub dispatches_call {
   my ($f, @args) = @_;
   my $jev = $BSServerEvents::gev;
   $jev->{'redohandler'} = $f;
