@@ -112,35 +112,33 @@ sub compile {
   my $callfunction = $conf->{'dispatches_call'};
   my @out;
   while (@disps) {
-    my $p = shift @disps;
-    my $f = shift @disps;
+    my ($p, $f) = splice(@disps, 0, 2);
+
+    # split authorization part from path
     my $needsauth;
-    my $cgisingles;
     if ($p =~ /^!([^\/\s]*)\s*(.*?)$/) {
       $needsauth = $1 || 'auth';
       $p = $2;
     }
-    if ($p eq '/') {
-      my $cpld = [ qr/^(?:GET|HEAD|POST):\/$/ ];
-      $cpld->[2] = $needsauth eq '-' ? undef : $needsauth if $needsauth;
-      push @out, $cpld, $f;
-      next;
-    }
+
+    # split cgis from path
     my @cgis = split(' ', $p);
     s/%([a-fA-F0-9]{2})/chr(hex($1))/ge for @cgis;
     $p = shift @cgis;
-    my @p = split('/', $p, -1);
+
+    # create the path regexp
     my $code = '';
     my $code2 = '';
     my $num = 1;
     my @args;
+    my @p = split('/', $p, -1);
     for my $pp (@p) {
       if ($pp =~ /^\$(.*)$/) {
         my $var = $1;
         my $vartype = $var;
 	($var, $vartype) = ($1, $2) if $var =~ /^(.*):(.*)/;
         die("no verifier for $vartype\n") unless $vartype eq '' || $verifiers->{$vartype};
-        $pp = "([^\\/]*)";
+        $pp = '([^\/]*)';
         $code .= "\$cgi->{'$var'} = \$$num;\n";
         $code2 .= "\$verifiers->{'$vartype'}->(\$cgi->{'$var'});\n" if $vartype ne '';
 	push @args, $var;
@@ -149,18 +147,27 @@ sub compile {
         $pp = "\Q$pp\E";
       }
     }
-    $p[0] .= ".*" if @p == 1 && $p[0] =~ /^[A-Z]*\\:$/;
-    $p[0] = '[^:]*:.*' if $p[0] eq '\\:.*';
-    $p[0] = "(?:GET|HEAD|POST):$p[0]" if $p[0] !~ /:/;
+    # fixup method matching
+    $p[0] .= ".*" if @p == 1 && $p[0] =~ /^(.*?)\\:$/s;	# just the method, no path
+    if ($p[0] =~ /^(.*?)\\:/s) {
+      my $m = $1;
+      $p[0] =~ s/^.*?\\:/(?:$m):/s if $m =~ s/\\\|/|/g;
+      $p[0] = "[^:]*$p[0]" if $m eq '';		# any method
+    } else {
+      $p[0] = "(?:GET|HEAD|POST):$p[0]";	# our default
+    }
+    # implement ... and $... hack
     $p[-1] = '.*' if $p[-1] eq '\.\.\.';
-    $p[-1] = '(.*)' if $p[-1] eq "([^\\/]*)" && $args[-1] eq '...';
+    $p[-1] = '(.*)' if $p[-1] eq '([^\/]*)' && $args[-1] eq '...';
+    my $pathre = '^'.join('/', @p).'$';	# anchor
+
     my $multis = '';
     my $singles = '';
-    for my $pp (@cgis) {
+    my $cgisingles;
+    for my $var (@cgis) {
       my ($arg, $qual) = (0, '{1}');
-      $arg = 1 if $pp =~ s/^\$//;
-      $qual = $1 if $pp =~ s/([+*?])$//;
-      my $var = $pp;
+      $arg = 1 if $var =~ s/^\$//;
+      $qual = $1 if $var =~ s/([+*?])$//;
       if ($var =~ /^(.*)=(.*)$/) {
 	$cgisingles ||= {};
 	$cgisingles->{$1} = $2;
@@ -190,16 +197,14 @@ sub compile {
     } else {
       $code .= "$code2\$f->(\$cgi, \@args);\n";
     }
-    my $np = join('/', @p);
-    my $cpld = [ qr/^$np$/ ];
-    $cpld->[1] = $cgisingles if $cgisingles;
-    $cpld->[2] = $needsauth eq '-' ? undef : $needsauth if $needsauth;
-    my $fnew;
+    my $cpld = [ qr/$pathre/ ];
     if ($f) {
-      eval "\$fnew = sub {my (\$conf, \$req) = \@_;\n$code};";
+      eval "\$cpld->[1] = sub {my (\$conf, \$req) = \@_;\n$code};";
       die("compile_dispatches: $@\n") if $@;
     }
-    push @out, $cpld, $fnew;
+    $cpld->[2] = $cgisingles if $cgisingles;
+    $cpld->[3] = $needsauth eq '-' ? undef : $needsauth if $needsauth;
+    push @out, $cpld;
   }
   $conf->{'compiled_dispatches'} = \@out;
 }
@@ -225,21 +230,20 @@ sub dispatch {
   $ppath =~ s/\/+$// if substr($ppath, -1, 1) eq '/' && $ppath !~ /^[A-Z]*:\/$/s;
   my $auth;
   my $cgisingles;
-  while (@disps) {
-    my ($p, $f) = splice(@disps, 0, 2);
+  for my $p (@disps) {
     next unless $ppath =~ /$p->[0]/;
-    if ($p->[1]) {
+    if ($p->[2]) {
       $cgisingles ||= parse_cgi_singles($req);
-      next if grep {($cgisingles->{$_} || '') ne $p->[1]->{$_}} keys %{$p->[1]};
+      next if grep {($cgisingles->{$_} || '') ne $p->[2]->{$_}} keys %{$p->[2]};
     }
-    $auth = $p->[2] if @$p > 2;	# optional auth overwrite
-    next unless $f;
+    $auth = $p->[3] if @$p > 3;
+    next unless $p->[1];
     if ($auth) {
       die("500 authorize method is not defined\n") unless $conf->{'authorize'};
       my @r = $conf->{'authorize'}->($conf, $req, $auth);
       return @r if @r;
     }
-    return $f->($conf, $req);
+    return $p->[1]->($conf, $req);
   }
   die("400 unknown request: $path\n");
 }
