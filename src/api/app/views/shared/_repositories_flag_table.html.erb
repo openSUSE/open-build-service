@@ -2,7 +2,7 @@
   <tr>
     <th></th>
     <th style="width: 6ex">All</th>
-    <% @project.architectures.each do |architecture| %>
+    <% @project.architectures.uniq.each do |architecture| %>
       <th style="width: 6ex"><%= architecture.name %></th>
     <% end %>
   </tr>
@@ -10,7 +10,7 @@
   <tr>
     <td class="reponame"><strong>All</strong></td>
     <td class="allcow"><%= flag_status(flag, flags, nil, nil) %></td>
-    <% @project.architectures.each do |architecture| %>
+    <% @project.architectures.uniq.each do |architecture| %>
       <td class="allcow"><%= flag_status(flag, flags, nil, architecture.name) %></td>
     <% end %>
   </tr>
@@ -27,7 +27,7 @@
         </strong>
       </td>
       <td class="allrow"><%= flag_status(flag, flags, repo.name, nil) -%></td>
-      <% @project.architectures.each do |architecture| %>
+      <% @project.architectures.uniq.each do |architecture| %>
         <td><%= flag_status(flag, flags, repo.name, architecture.name) -%></td>
       <% end %>
     </tr>
