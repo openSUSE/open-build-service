@@ -110,7 +110,11 @@ module RequestSourceDiff
       # the target is by default the _link target
       # maintenance_release creates new packages instance, but are changing the source only according to the link
       return if action.target_package && :maintenance_incident == action.action_type
-      data = Xmlhash.parse(ActiveXML.backend.direct_http(URI("/source/#{URI.escape(action.source_project)}/#{URI.escape(spkg)}")))
+      begin
+        data = Xmlhash.parse(ActiveXML.backend.direct_http(URI("/source/#{URI.escape(action.source_project)}/#{URI.escape(spkg)}")))
+      rescue ActiveXML::Transport::Error
+        return
+      end
       linkinfo = data['linkinfo']
       return unless linkinfo
       @target_project ||= linkinfo["project"]
