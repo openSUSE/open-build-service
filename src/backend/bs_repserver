@@ -3855,6 +3855,23 @@ sub map_to_extrep {
   return $extrep;
 }
 
+sub get_downloadurl {
+  my ($prp, $prp_ext) = @_;
+  if ($BSConfig::prp_ext_map && exists $BSConfig::prp_ext_map->{$prp}) {
+    return $BSConfig::prp_ext_map->{$prp};
+  }
+  my $extrep = map_to_extrep($prp, $prp_ext);
+  $extrep = [ $extrep ] unless ref $extrep;
+  return $extrep->[2] if $extrep->[2];
+  return undef unless $BSConfig::repodownload;
+  if ($extrep->[0] =~ /^\Q$BSConfig::bsdir\E\/repos\/(.*)$/) {
+    my $url = "$BSConfig::repodownload/$1/";
+    $url =~ s!//$!/!;
+    return $url;
+  }
+  return "$BSConfig::repodownload/$prp_ext/";
+}
+
 sub makeymp {
   my ($projid, $repoid, $binary, $projpackin) = @_;
 
@@ -3915,15 +3932,8 @@ sub makeymp {
       $r->{'description'} = $nprojpack{$pa->{'project'}}->{'description'};
     }
     my $prp_ext = "$pa->{'project'}/$pa->{'repository'}";
-    my $url;
-    if ($BSConfig::prp_ext_map && exists $BSConfig::prp_ext_map->{$prp_ext}) {
-      $url = $BSConfig::prp_ext_map->{$prp_ext};
-    } else {
-      $prp_ext =~ s/:/:\//g;
-      $url = "$BSConfig::repodownload/$prp_ext/";
-      my $extrep = map_to_extrep("$pa->{'project'}/$pa->{'repository'}", $prp_ext);
-      $url = $extrep->[2] if ref($extrep) && $extrep->[2];
-    }
+    $prp_ext =~ s/:/:\//g;
+    my $url = get_downloadurl("$pa->{'project'}/$pa->{'repository'}", $prp_ext);
     next unless defined $url;
     $r->{'url'} = $url;
     push @repos, $r;
