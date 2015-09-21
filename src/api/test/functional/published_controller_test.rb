@@ -54,6 +54,21 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
 #    assert_response 404
   end
 
+  def test_ymp_as_used_on_software_o_o
+    login_adrian
+    get "/published/home:Iggy/10.2/TestPack?view=ymp"
+    assert_response :success
+    assert_xml_tag :parent => {:tag => 'repository', :attributes => { :recommended => "true" }},
+                   tag: "url", content: "/home:/Iggy/10.2/"
+    assert_xml_tag :parent => {:tag => 'repository', :attributes => { :recommended => "false" }},
+                   tag: "url", content: "/BaseDistro/BaseDistro_repo/"
+
+    # software description
+    assert_xml_tag :tag => 'name', :content => "TestPack"
+    assert_xml_tag :tag => 'summary', :content => "The TestPack package"
+    assert_xml_tag :tag => 'description', :content => "The TestPack package"
+  end
+
   def test_binary_view
     get "/published/kde4/openSUSE_11.3/i586/kdelibs-3.2.1-1.5.i586.rpm"
     assert_response 401

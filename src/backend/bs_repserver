@@ -3922,7 +3922,7 @@ sub makeymp {
       $prp_ext =~ s/:/:\//g;
       $url = "$BSConfig::repodownload/$prp_ext/";
       my $extrep = map_to_extrep("$pa->{'project'}/$pa->{'repository'}", $prp_ext);
-      $url = $extrep->[2] if $extrep && $extrep->[2];
+      $url = $extrep->[2] if ref($extrep) && $extrep->[2];
     }
     next unless defined $url;
     $r->{'url'} = $url;
