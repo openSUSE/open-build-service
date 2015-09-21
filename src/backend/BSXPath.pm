@@ -43,6 +43,8 @@ sub boolop {
   while (@v1) {
     my $e1 = shift @v1;
     my $e2 = shift @v2;
+    $e1 = '' if ref($e1) eq 'ARRAY' && !@$e1;
+    $e2 = '' if ref($e2) eq 'ARRAY' && !@$e2;
     my $r = shift @cwd;
     if ($r->[4]) {
       push @vr, $r->[4]->boolop($e1, $e2, $op, $negpol);
