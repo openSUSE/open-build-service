@@ -162,6 +162,60 @@ end
 
 # ensure that backend is in sync with api fixtures
 Suse::Backend.put('/configuration', Configuration.first.render_xml)
+# restart, --restart is not working due to extra perlopts with search path
+# FIXME: rep and src server parent should reload config on update instead
+system("cd #{backend_config}; exec perl #{perlopts} ./bs_srcserver --stop")
+system("cd #{backend_config}; exec perl #{perlopts} ./bs_repserver --stop")
+puts 'Starting backend srcserver...'
+srcsrv = Thread.new do
+  srcsrv_out = IO.popen("cd #{backend_config}; exec perl #{perlopts} ./bs_srcserver 2>&1")
+  puts "Started backend srcserver with pid: #{srcsrv_out.pid}"
+  while srcsrv_out && !dienow
+    begin
+      line = srcsrv_out.gets
+      break if line.nil?
+      logger.debug line.strip unless line.empty?
+    rescue IOError
+      break
+    end
+  end
+end
+puts 'Starting backend repserver...'
+reposrv = Thread.new do
+  reposrv_out = IO.popen("cd #{backend_config}; exec perl #{perlopts} ./bs_repserver 2>&1")
+  puts "Started backend repserver with pid #{reposrv_out.pid}"
+  while reposrv_out && !dienow
+    begin
+      line = reposrv_out.gets
+      break if line.nil?
+      logger.debug line.strip unless line.empty?
+    rescue IOError
+      break
+    end
+  end
+end
+while !dienow
+  puts 'Connecting to srcserver...'
+  begin
+    Net::HTTP.start(CONFIG['source_host'], port_src_server) { |http| http.get('/') }
+  rescue Errno::ECONNREFUSED, Errno::ENETUNREACH
+    sleep 0.5
+    next
+  end
+  break
+end
+
+while !dienow
+  puts 'Connecting to repserver...'
+  begin
+    Net::HTTP.start(CONFIG['source_host'], port_rep_server) { |http| http.get('/') }
+  rescue Errno::ECONNREFUSED, Errno::ENETUNREACH
+    sleep 0.5
+    next
+  end
+  break
+end
+
 
 puts 'Starting backend serviceserver...'
 servicesrv = Thread.new do

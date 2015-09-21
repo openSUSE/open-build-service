@@ -59,9 +59,9 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
     get "/published/home:Iggy/10.2/TestPack?view=ymp"
     assert_response :success
     assert_xml_tag :parent => {:tag => 'repository', :attributes => { :recommended => "true" }},
-                   tag: "url", content: "/home:/Iggy/10.2/"
+                   tag: "url", content: "http://example.com/download/home:/Iggy/10.2/"
     assert_xml_tag :parent => {:tag => 'repository', :attributes => { :recommended => "false" }},
-                   tag: "url", content: "/BaseDistro/BaseDistro_repo/"
+                   tag: "url", content: "http://example.com/download/BaseDistro/BaseDistro_repo/"
 
     # software description
     assert_xml_tag :tag => 'name', :content => "TestPack"
