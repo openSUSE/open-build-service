@@ -7483,7 +7483,7 @@ sub published_path {
   $extrep = [ $extrep ] unless ref $extrep;
   my ($path, $url) = ($extrep->[1], $extrep->[2]);
   # update to get fresh version of repodownload
-  BSConfiguration::update_from_configuration();
+  BSConfiguration::check_configuration_once();
   if ($BSConfig::prp_ext_map && $BSConfig::prp_ext_map->{$prp}) {
     $url = $BSConfig::prp_ext_map->{$prp} unless defined $url;
   }

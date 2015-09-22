@@ -38,9 +38,13 @@ $bsconfigvalues{'enable_download_on_demand'} = 1 if defined $BSConfig::enable_do
 $bsconfigvalues{'forceprojectkeys'} = 1 if defined $BSConfig::forceprojectkeys;
 
 
+my $configurationid = '';
 my $configuration_file = "$BSConfig::bsdir/configuration.xml";
+my $confiuration_checked_once;
 
 sub update_from_configuration {
+  my @s = stat($configuration_file);
+  $configurationid = @s ? "$s[9]/$s[7]/$s[1]" : '';
   my $xml = readxml($configuration_file, $BSXML::configuration, 1) || {};
   $BSConfig::obsname = $xml->{'name'} unless $bsconfigvalues{'obsname'};
   $BSConfig::proxy = $xml->{'http_proxy'} unless $bsconfigvalues{'proxy'};
@@ -53,6 +57,19 @@ sub update_from_configuration {
     $BSConfig::forceprojectkeys = ($xml->{'enforce_project_keys'} || '') eq 'on' ? 1 : 0;
   }
   $BSConfig::obsname = "build.some.where" unless defined $BSConfig::obsname;
+}
+
+sub check_configuration {
+  my @s = stat($configuration_file);
+  my $id = @s ? "$s[9]/$s[7]/$s[1]" : '';
+  update_from_configuration() if $configurationid ne $id;
+}
+
+# useful for BSServer where we fork for every request
+sub check_configuration_once {
+  return if $confiuration_checked_once;
+  $confiuration_checked_once = 1;
+  check_configuration();
 }
 
 update_from_configuration();

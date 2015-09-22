@@ -3863,6 +3863,7 @@ sub get_downloadurl {
   my $extrep = map_to_extrep($prp, $prp_ext);
   $extrep = [ $extrep ] unless ref $extrep;
   return $extrep->[2] if $extrep->[2];
+  BSConfiguration::check_configuration_once();
   return undef unless $BSConfig::repodownload;
   if ($extrep->[0] =~ /^\Q$BSConfig::bsdir\E\/repos\/(.*)$/) {
     my $url = "$BSConfig::repodownload/$1/";
