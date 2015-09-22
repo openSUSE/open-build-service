@@ -260,9 +260,10 @@ sub rpc {
 	$data .= "0\r\n\r\n";
       }
       $req .= $data;
+      undef $data;
     }
     if ($param->{'sender'}) {
-      $param->{'sender'}->($param, \*S, $req);
+      $param->{'sender'}->($param, \*S, $req, $data);
     } elsif (!ref($data)) {
       BSHTTP::swrite(\*S, $req);
     } else {

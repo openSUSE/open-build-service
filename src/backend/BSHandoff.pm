@@ -29,7 +29,7 @@ use BSRPC;
 use BSServer;
 
 sub handoffsender {
-  my ($param, $s, $req) = @_;
+  my ($param, $s, $req, $data) = @_;
   local *FD;
   if (!$param->{'nullhandoff'}) {
     *FD = BSServer::getsocket();
