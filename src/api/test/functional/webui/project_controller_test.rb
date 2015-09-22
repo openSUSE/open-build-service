@@ -185,6 +185,47 @@ Ignore: package:cups'
     page.wont_have_selector '#images' # The repo "images" should be gone by now
   end
 
+  def test_maintenance_incidents_pagination
+    login_king
+
+    30.times do |i|
+      project = Project.create(name: "My:Maintenance:#{i}")
+      xml = <<-XML
+<project name="My:Maintenance:#{i}" kind="maintenance_incident">
+  <title/>
+  <description/>
+  <person userid="king" role="bugowner"/>
+  <person userid="maintenance_coord" role="maintainer"/>
+  <group groupid="maint_coord" role="maintainer"/>
+  <build>
+    <disable/>
+  </build>
+  <publish>
+    <disable/>
+  </publish>
+  <repository name="standard">
+    <releasetarget project="BaseDistro3" repository="BaseDistro3_repo" trigger="maintenance"/>
+    <path project="BaseDistro3" repository="BaseDistro3_repo"/>
+    <arch>i586</arch>
+  </repository>
+</project>
+XML
+      project.update_from_xml(Xmlhash.parse(xml))
+    end
+
+    visit maintenance_incidents_path("My:Maintenance")
+    page.must_have_text "Maintenance incidents (30)"
+    within("table tbody") do
+      assert_equal 25, all("tr").count, "Should show the first 25 pages"
+    end
+
+    click_link("Last")
+    page.must_have_text "Maintenance incidents (30)"
+    within("table tbody") do
+      assert_equal 5, all("tr").count, "Should show the second page"
+    end
+  end
+
   uses_transaction :test_add_and_modify_repo
   def test_add_and_modify_repo
     use_js
