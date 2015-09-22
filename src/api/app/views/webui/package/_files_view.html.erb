@@ -16,7 +16,7 @@
                  unless @is_current_rev
                    link_opts[:rev] = file[:srcmd5]
                  end %>
-              <%= link_to_if(file[:viewable], nbsp(file[:name]), link_opts) %>
+              <%= link_to_if(file[:viewable], nbsp(file[:name]).scan(/.{1,50}/).join("<wbr>"), link_opts) %>
             </td>
             <td><span class="hidden"><%= file[:size].rjust(10, '0') %></span><%= human_readable_fsize(file[:size]) %>
             </td>
