@@ -362,29 +362,29 @@ sub msg {
 
 # write reply to CLNT
 # $str: reply string
-# @hi: http header lines, 1st line can contain status
+# @hdrs: http header lines, 1st line can contain status
 sub reply {
-  my ($str, @hi) = @_;
+  my ($str, @hdrs) = @_;
 
   my $req = $BSServer::request || {};
-  if (@hi && $hi[0] =~ /^status: (\d+.*)/i) {
+  if (@hdrs && $hdrs[0] =~ /^status: (\d+.*)/i) {
     my $msg = $1;
     $msg =~ s/:/ /g;
-    $hi[0] = "HTTP/1.1 $msg";
+    $hdrs[0] = "HTTP/1.1 $msg";
   } else {
-    unshift @hi, "HTTP/1.1 200 OK";
+    unshift @hdrs, "HTTP/1.1 200 OK";
   }
-  push @hi, "Cache-Control: no-cache";
-  push @hi, "Connection: close";
-  push @hi, "Content-Length: ".length($str) if defined($str);
-  my $data = join("\r\n", @hi)."\r\n\r\n";
+  push @hdrs, "Cache-Control: no-cache";
+  push @hdrs, "Connection: close";
+  push @hdrs, "Content-Length: ".length($str) if defined($str);
+  my $data = join("\r\n", @hdrs)."\r\n\r\n";
   $data .= $str if defined $str;
 
 #  if ($replying && $replying == 2) {
 #    # Already replying. As we're in chunked mode, we can attach
 #    # the error as chunk header.
-#    $hi[0] =~ s/^.*? /Status: /;
-#    $data = "0\r\n$hi[0]\r\n\r\n";
+#    $hdrs[0] =~ s/^.*? /Status: /;
+#    $data = "0\r\n$hdrs[0]\r\n\r\n";
 #  }
 
   # discard the body so that the client gets our answer instead
@@ -590,23 +590,23 @@ sub discard_body {
 ###########################################################################
 
 sub read_file {
-  my ($fn, @args) = @_;
+  my ($filename, @args) = @_;
   die("read_file: no content attached\n") unless have_content();
   my $req = $BSServer::request;
   send_continue() if $req->{'need_continue'};
   $req->{'__socket'} = \*CLNT;
-  my $res = BSHTTP::file_receiver($req, {'filename' => $fn, @args});
+  my $res = BSHTTP::file_receiver($req, {'filename' => $filename, @args});
   delete $req->{'__socket'};
   return $res;
 }
 
 sub read_cpio {
-  my ($dn, @args) = @_;
+  my ($dirname, @args) = @_;
   die("read_cpio: no content attached\n") unless have_content();
   my $req = $BSServer::request;
   send_continue() if $req->{'need_continue'};
   $req->{'__socket'} = \*CLNT;
-  my $res = BSHTTP::cpio_receiver($req, {'directory' => $dn, @args});
+  my $res = BSHTTP::cpio_receiver($req, {'directory' => $dirname, @args});
   delete $req->{'__socket'};
   return $res;
 }
@@ -625,20 +625,20 @@ sub read_data {
 ###########################################################################
 
 sub reply_cpio {
-  my ($files, @args) = @_;
+  my ($files, @hdrs) = @_;
   my $req = $BSServer::request || {};
-  reply(undef, 'Content-Type: application/x-cpio', 'Transfer-Encoding: chunked', @args);
+  reply(undef, 'Content-Type: application/x-cpio', 'Transfer-Encoding: chunked', @hdrs);
   $req->{'replying'} = 2;
   BSHTTP::cpio_sender({'cpiofiles' => $files, 'chunked' => 1}, \*CLNT);
   swrite("0\r\n\r\n");
 }
 
 sub reply_file {
-  my ($file, @args) = @_;
+  my ($file, @hdrs) = @_;
   my $req = $BSServer::request || {};
   my $chunked;
-  $chunked = 1 if grep {/^transfer-encoding:\s*chunked/i} @args;
-  my $cl = (grep {/^content-length:/i} @args)[0];
+  $chunked = 1 if grep {/^transfer-encoding:\s*chunked/i} @hdrs;
+  my $cl = (grep {/^content-length:/i} @hdrs)[0];
   if (!$cl && !$chunked) {
     # detect file size
     if (!ref($file)) {
@@ -649,14 +649,14 @@ sub reply_file {
     if (-f $file) {
       my $size = -s $file;
       $cl = "Content-Length: $size";
-      push @args, $cl;
+      push @hdrs, $cl;
     } else {
-      push @args, 'Transfer-Encoding: chunked';
+      push @hdrs, 'Transfer-Encoding: chunked';
       $chunked = 1;
     }
   }
-  unshift @args, 'Content-Type: application/octet-stream' unless grep {/^content-type:/i} @args;
-  reply(undef, @args);
+  unshift @hdrs, 'Content-Type: application/octet-stream' unless grep {/^content-type:/i} @hdrs;
+  reply(undef, @hdrs);
   $req->{'replying'} = 2 if $chunked;
   my $param = {'filename' => $file};
   $param->{'bytes'} = $1 if $cl && $cl =~ /(\d+)/;	# limit to content length
@@ -671,17 +671,17 @@ sub reply_receiver {
   my $replyreq = $BSServer::request || {};
   my $hdr = $req->{'headers'};
   $param->{'reply_receiver_called'} = 1;
-  my @args;
   my $st = $hdr->{'status'};
   my $ct = $hdr->{'content-type'} || 'text/plain';
   my $cl = $hdr->{'content-length'};
   my $chunked;
   $chunked = 1 if $hdr->{'transfer-encoding'} && lc($hdr->{'transfer-encoding'}) eq 'chunked';
-  push @args, "Status: $st" if $st; 
-  push @args, "Content-Type: $ct";
-  push @args, "Content-Length: $cl" if defined($cl) && !$chunked;
-  push @args, 'Transfer-Encoding: chunked' if $chunked;
-  reply(undef, @args); 
+  my @hdrs;
+  push @hdrs, "Status: $st" if $st; 
+  push @hdrs, "Content-Type: $ct";
+  push @hdrs, "Content-Length: $cl" if defined($cl) && !$chunked;
+  push @hdrs, 'Transfer-Encoding: chunked' if $chunked;
+  reply(undef, @hdrs); 
   $replyreq->{'replying'} = 2 if $chunked;
   while(1) {
     my $data = BSHTTP::read_data($req, 8192);
