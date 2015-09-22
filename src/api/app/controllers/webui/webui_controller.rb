@@ -95,7 +95,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def set_return_path(path)
-    session[:return_path] = path
+    session[:return_path] = path unless request.xhr?
   end
 
   protected
