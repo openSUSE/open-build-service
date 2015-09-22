@@ -808,15 +808,15 @@ our $workerstatus = [
 	    'arch',
 	    'starttime',
      ]],
-     [[ 'waiting', =>
+     [[ 'waiting' =>
 	    'arch',
 	    'jobs',
      ]],
-     [[ 'blocked', =>
+     [[ 'blocked' =>
 	    'arch',
 	    'jobs',
      ]],
-     [[ 'buildavg', =>
+     [[ 'buildavg' =>
             'arch',
 	    'buildavg',
      ]],
