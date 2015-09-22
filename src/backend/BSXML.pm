@@ -1272,33 +1272,33 @@ our $person = [
 	'email',
 	'realname',
 	'state',
-	[ 'globalrole' ],
-	[ 'watchlist' =>
-		[[ 'project' =>
-			'name',
-		]],
-	],
+      [ 'globalrole' ],
+      [ 'watchlist' =>
+	 [[ 'project' =>
+		'name',
+	 ]],
+      ],
 ];
 
 our $comps = [
     'comps' =>
-    [[ 'group' =>
+     [[ 'group' =>
 	[],
 	'id',
-	[[ 'description' =>
+	 [[ 'description' =>
 	    'xml:lang',
 	    '_content',
-	]],
-	[[ 'name' =>
+	 ]],
+	 [[ 'name' =>
 	    'xml:lang',
 	    '_content',
-	]],
-	[ 'packagelist' =>
-	    [[ 'packagereq' =>
+	 ]],
+	  [ 'packagelist' =>
+	     [[ 'packagereq' =>
 		'type',
 		'_content',
-	    ]],
-	],
+	     ]],
+	  ],
     ]],
 ];
 
@@ -1349,64 +1349,64 @@ our $servicelist = [
 ];
 
 our $updateinfoitem = [
-     'update' =>
-	    'from',
-	    'status',
-	    'type',
-	    'version',
-	    [],
-	    'id',
-	    'title',
-	    'severity',
-	    'release',
-	  [ 'issued' =>
-		'date',
-	  ],
-	  [ 'updated' =>
-		'date',
-	  ],
-	    'reboot_suggested',
-	  [ 'references' =>
-	     [[ 'reference' =>
-		    'href',
-		    'id',
-		    'title',
-		    'type',
-	     ]],
-	  ],
-	    'description',
-	    'message',     #optional popup message
-	  [ 'pkglist',
-	     [[	'collection' =>
-		    'short',
-		    [],
+    'update' =>
+	'from',
+	'status',
+	'type',
+	'version',
+	[],
+	'id',
+	'title',
+	'severity',
+	'release',
+      [ 'issued' =>
+	    'date',
+      ],
+      [ 'updated' =>
+	    'date',
+      ],
+	'reboot_suggested',
+      [ 'references' =>
+	 [[ 'reference' =>
+		'href',
+		'id',
+		'title',
+		'type',
+	 ]],
+      ],
+	'description',
+	'message',     #optional popup message
+      [ 'pkglist',
+	 [[ 'collection' =>
+		'short',
+		[],
+		'name',
+	     [[ 'package' =>
 		    'name',
-		 [[ 'package' =>
-			'name',
-			'epoch',
-			'version',
-			'release',
-			'arch',
-			'src',
-			'supportstatus',	# extension
-			[],
-			'filename',
-		      [ 'sum' =>	# obsolete?
-			    'type',
-			    '_content',
-		      ],
-			'reboot_suggested',
-			'restart_suggested',
-			'relogin_suggested',
-		 ]],
+		    'epoch',
+		    'version',
+		    'release',
+		    'arch',
+		    'src',
+		    'supportstatus',	# extension
+		    [],
+		    'filename',
+		  [ 'sum' =>	# obsolete?
+			'type',
+			'_content',
+		  ],
+		    'reboot_suggested',
+		    'restart_suggested',
+		    'relogin_suggested',
 	     ]],
-	  ],
-	    'patchinforef',			# extension, "project/package"
+	 ]],
+      ],
+	'patchinforef',			# extension, "project/package"
 ];
 
 our $updateinfo = [
     'updates' =>
-      'xmlns',
+	'xmlns',
       [ $updateinfoitem ],
 ];
 
@@ -1644,16 +1644,17 @@ our @constraint = (
 	  [ 'physicalmemory' => $size ],
       ]
 );
+
 our $constraints = [
     'constraints' => 
         @constraint,
-        [[ 'overwrite' =>
-             [ 'conditions' =>
-               [ 'arch' ],
-               [ 'package' ],
-             ],
-             @constraint,
-        ]]
+     [[ 'overwrite' =>
+	  [ 'conditions' =>
+              [ 'arch' ],
+              [ 'package' ],
+          ],
+          @constraint,
+     ]]
 ];
 
 our $buildstatistics = [
