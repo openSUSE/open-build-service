@@ -146,7 +146,7 @@ our $proj = [
 	'remoteurl',
 	'remoteproject',
 	'mountproject',
-      [ 'devel', =>
+      [ 'devel' =>
 	    'project',
       ],
 	@roles,
@@ -162,7 +162,7 @@ our $pack = [
 	[],
         'title',
         'description',
-      [ 'devel', =>
+      [ 'devel' =>
 	    'project',
 	    'package',
       ],
