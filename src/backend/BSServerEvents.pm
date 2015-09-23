@@ -334,7 +334,7 @@ sub getrequest {
 	return;
       }
       gethead($headers, "Request: $1");
-    } elsif ($act ne 'get') {
+    } else {
       die("501 Bad method, must be GET\n") if $act ne 'GET';
     }
     my $query_string = '';
