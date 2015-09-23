@@ -66,7 +66,7 @@ $startupmode = $BSConfig::sched_startupmode if $BSConfig::sched_startupmode;
 
 my $bsdir = $BSConfig::bsdir || "/srv/obs";
 
-my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz tar.gz squashfs};
+my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup);
