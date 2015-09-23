@@ -7,7 +7,7 @@ class Webui::WebuiController < ActionController::Base
   Rails.cache.set_domain if Rails.cache.respond_to?('set_domain')
 
   include Pundit
-  protect_from_forgery
+  protect_from_forgery except: [:login, :logout]
 
   before_filter :setup_view_path
   before_filter :instantiate_controller_and_action_names
