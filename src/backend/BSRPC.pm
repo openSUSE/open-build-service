@@ -145,6 +145,19 @@ sub createreq {
   return ($proto, $host, $port, $req, $proxytunnel);
 }
 
+sub updatecookies {
+  my ($cookiestore, $uri, $setcookie) = @_;
+  return unless $cookiestore && $uri && $setcookie;
+  my @cookie = split(',', $setcookie);
+  s/;.*// for @cookie;
+  if ($uri =~ /((:?https?):\/\/(?:([^\/]*)\@)?(?:[^\/:]+)(?::\d+)?)(?:\/.*)$/) {
+    my %cookie = map {$_ => 1} @cookie;
+    push @cookie, grep {!$cookie{$_}} @{$cookiestore->{$1} || []};
+    splice(@cookie, 10) if @cookie > 10;
+    $cookiestore->{$1} = \@cookie;
+  }
+}
+
 #
 # handled paramters:
 # timeout
@@ -328,16 +341,7 @@ sub rpc {
       die("remote error: $status\n") unless $param->{'ignorestatus'};
     }
   }
-  if ($headers{'set-cookie'} && $param->{'uri'}) {
-    my @cookie = split(',', $headers{'set-cookie'});
-    s/;.*// for @cookie;
-    if ($param->{'uri'} =~ /((:?https?):\/\/(?:([^\/]*)\@)?(?:[^\/:]+)(?::\d+)?)(?:\/.*)$/) {
-      my %cookie = map {$_ => 1} @cookie;
-      push @cookie, grep {!$cookie{$_}} @{$cookiestore{$1} || []};
-      splice(@cookie, 10) if @cookie > 10;
-      $cookiestore{$1} = \@cookie;
-    }
-  }
+  updatecookies(\%cookiestore, $param->{'uri'}, $headers{'set-cookie'}) if $headers{'set-cookie'};
   ${$param->{'replyheaders'}} = \%headers if $param->{'replyheaders'};
   if (($param->{'request'} || '') eq 'HEAD') {
     close S;
