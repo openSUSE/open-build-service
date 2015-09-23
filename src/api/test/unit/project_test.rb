@@ -826,4 +826,85 @@ END
 
     assert_equal actual, expected
   end
+
+  test 'linked_packages returns all packages from projects inherited by one level' do
+    projects('BaseDistro2.0')
+    child = projects('BaseDistro2.0_LinkedUpdateProject')
+
+    assert_equal child.packages_from_linked_projects, [['pack2', 'BaseDistro2.0'], ['pack2.linked', 'BaseDistro2.0']]
+  end
+
+  test 'linked_packages returns all packages from projects inherited by two levels' do
+    parent2 = projects('BaseDistro2.0')
+    parent1 = projects('BaseDistro2.0_LinkedUpdateProject')
+    child = projects('Apache')
+
+    child.linkedprojects.create(project: child,
+                               linked_db_project_id: parent1.id,
+                               position: 1)
+
+    child.linkedprojects.create(project: child,
+                                linked_db_project_id: parent2.id,
+                                position: 2)
+
+    result =  parent1.packages + parent2.packages
+    result.sort! { |a, b| a.name.downcase <=> b.name.downcase  }.map! { |package| [package.name, package.project.name] }
+
+    assert_equal child.packages_from_linked_projects, result
+  end
+
+  test 'linked_packages does not return packages overwritten by the actual project' do
+    parent = projects('BaseDistro2.0')
+    child = projects('BaseDistro2.0_LinkedUpdateProject')
+
+    pack2 = parent.packages.where(name: 'pack2').first
+    child.packages << pack2.dup
+
+    assert_equal child.packages_from_linked_projects,  [['pack2.linked', 'BaseDistro2.0']]
+  end
+
+  test 'linked_packages does not return packages overwritten by the actual project inherited from two levels' do
+    parent2 = projects('BaseDistro2.0')
+    parent1 = projects('BaseDistro2.0_LinkedUpdateProject')
+    child = projects('Apache')
+
+    child.linkedprojects.create(project: child,
+                                linked_db_project_id: parent1.id,
+                                position: 1)
+
+    child.linkedprojects.create(project: child,
+                                linked_db_project_id: parent2.id,
+                                position: 2)
+
+    pack2 = parent2.packages.where(name: 'pack2').first
+    child.packages << pack2.dup
+
+    result = parent1.packages + parent2.packages.where(name: 'pack2.linked')
+    result.sort! { |a, b| a.name.downcase <=> b.name.downcase  }.map! { |package| [package.name, package.project.name] }
+
+    assert_equal child.packages_from_linked_projects,  result
+  end
+
+  test 'linked_packages returns overwritten packages from the project with the highest position' do
+    base_distro = projects('BaseDistro2.0')
+    base_distro_update = projects('BaseDistro2.0_LinkedUpdateProject')
+
+    child = projects('Apache')
+
+    child.linkedprojects.create(project: child,
+                                linked_db_project_id: base_distro_update.id,
+                                position: 1)
+
+    child.linkedprojects.create(project: child,
+                                linked_db_project_id: base_distro.id,
+                                position: 2)
+
+    pack2 = base_distro.packages.where(name: 'pack2').first
+    base_distro_update.packages << pack2.dup
+
+    result = base_distro_update.packages + base_distro.packages.where(name: 'pack2.linked')
+    result.sort! { |a, b| a.name.downcase <=> b.name.downcase  }.map! { |package| [package.name, package.project.name] }
+
+    assert_equal child.packages_from_linked_projects, result
+  end
 end
