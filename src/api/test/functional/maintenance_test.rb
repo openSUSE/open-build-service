@@ -456,6 +456,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     put '/source/ServicePack/_meta', "<project name='ServicePack'><title/><description/><link project='kde4'/></project>"
     assert_response :success
 
+    # test right branching from ServicePack layer
+    login_tom
+    post '/source/ServicePack/kdelibs', :cmd => 'branch', :maintenance => 1
+    assert_response :success
+    delete '/source/home:tom:branches:kde4/kdelibs.kde4' # .kde4 suffix, not .ServicePack
+    assert_response :success
+
     # setup maintained attributes
     prepare_request_with_user 'maintenance_coord', 'power'
     # an entire project
