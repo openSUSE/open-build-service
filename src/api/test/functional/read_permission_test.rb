@@ -7,8 +7,8 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
   fixtures :all
 
   def setup
-    super
     wait_for_scheduler_start
+    reset_auth
   end
 
   def test_basic_read_tests_public
@@ -249,6 +249,8 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     # admin
     login_king
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
+    delete "/source/home:sourceaccess_homer"
+    assert_response :success
   end
 
   def do_branch_package_test (sprj, spkg, tprj, resp, match, testflag, delresp, debug)
@@ -468,7 +470,15 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response 404
 
     # cleanup
-    delete url
+    login_king
+    delete "/source/kde4/temporary2"
+    assert_response 200
+    delete "/source/kde4/temporary3"
+    assert_response 200
+    delete "/source/HiddenProject/temporary"
+    assert_response 200
+    delete "/source/HiddenProject/temporary4"
+    assert_response 200
   end
 
   def test_alter_source_access_flags
@@ -627,6 +637,8 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response 403
 
     # cleanup
+    delete "/source/home:tom:temp"
+    assert_response :success
     login_adrian
     delete "/source/home:adrian:ProtectedProject"
     assert_response :success
@@ -699,6 +711,8 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
 
     # cleanup
     login_king
+    delete "/source/home:adrian:ProtectedProject1"
+    assert_response :success
     delete "/source/home:adrian:ProtectedProject2"
     assert_response :success
     delete "/source/home:adrian:ProtectedProject3"
@@ -780,6 +794,13 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:binary_homer:ProtectedProject2"),
         '<project name="home:binary_homer:ProtectedProject2"> <title/> <description/> </project>'
     assert_response 200
+
+    #cleanup
+    login_king
+    delete "/source/home:binary_homer:ProtectedProject1"
+    assert_response 200
+    delete "/source/home:binary_homer:ProtectedProject2"
+    assert_response 200
   end
 
   def test_project_paths_to_access_protected_projects
@@ -838,6 +859,14 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     # rubocop:enable Metrics/LineLength
     assert_response 200
 
+    # cleanup
+    login_king
+    delete "/source/home:adrian:ProtectedProject1"
+    assert_response 200
+    delete "/source/home:adrian:ProtectedProject2"
+    assert_response 200
+    delete "/source/home:binary_homer:ProtectedProject3"
+    assert_response 200
   end
 
   def test_copy_project_of_hidden_project
@@ -909,6 +938,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     get "/source/home:tom:branches:home:Iggy/_meta"
     assert_response :success
     assert_xml_tag( :tag => "disable", :parent => { :tag => "access" } )
+
     delete "/source/home:tom:branches:home:Iggy"
     assert_response :success
   end

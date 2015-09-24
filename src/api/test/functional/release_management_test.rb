@@ -4,6 +4,10 @@ require 'source_controller'
 class ReleaseManagementTests < ActionDispatch::IntegrationTest
   fixtures :all
 
+  def setup
+    reset_auth
+  end
+
   def test_move_entire_project
     wait_for_scheduler_start
 

@@ -20,6 +20,8 @@ if ENV['DO_COVERAGE']
 end
 
 require File.expand_path('../../config/environment', __FILE__)
+require_relative 'test_consistency_helper'
+
 require 'rails/test_help'
 
 require 'minitest/unit'
@@ -117,13 +119,39 @@ module Minitest
     serial.map { |suite| suite.run reporter, options } +
       parallel.map { |suite| suite.run reporter, options }
   end
+
   # we should fix this first ... unfortunatly there seems to be no way to repeat the last order
   # to find out what went wrong and to validate it :(
   def self.sort_order
     :sorted
   end
+
 end
 
+class ActionDispatch::IntegrationTest
+  # usually we do only test at the end of all tests to not slow down too much.
+  # but for debugging or for deep testing the check can be run after each test case
+  def after_teardown
+    super
+    if false
+      begin
+        # something else is going wrong in some random test and you do not know where?
+        # add the specific test for it here:
+        #login_king
+        #get "/source/home:Iggy/TestPack/_link"
+        #assert_response 404
+
+        # simple test that the objects itself or the same in backend and api.
+        # it does not check the content (eg. repository list in project meta)
+        compare_project_and_package_lists
+      rescue MiniTest::Assertion => e
+        puts "Backend became out of sync in #{self.name}"
+        puts e.inspect
+        exit
+      end
+    end
+  end
+end
 
 module ActionDispatch
   module Integration

@@ -7,8 +7,8 @@ class BranchPublishFlagTest < ActionDispatch::IntegrationTest
   fixtures :all
 
   def setup
-    super
     wait_for_scheduler_start
+    reset_auth
   end
 
   @@verbose = false

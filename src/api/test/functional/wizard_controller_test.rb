@@ -5,6 +5,10 @@ class WizardControllerTest < ActionDispatch::IntegrationTest
 
   fixtures :all
 
+  def setup
+    reset_auth
+  end
+
   def test_wizard
     prepare_request_valid_user
 

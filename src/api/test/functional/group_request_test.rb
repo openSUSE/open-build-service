@@ -13,9 +13,9 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
   fixtures :all
 
   def setup
-    super
     Timecop.freeze(2010, 7, 12)
     wait_for_scheduler_start
+    reset_auth
   end
 
   teardown do

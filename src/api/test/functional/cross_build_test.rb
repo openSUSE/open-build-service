@@ -5,6 +5,10 @@ require 'source_controller'
 class CrossBuildTest < ActionDispatch::IntegrationTest
   fixtures :all
 
+  def setup
+    reset_auth
+  end
+
   def test_setup_project
     skip("hostsystem cleanup is currently broken, but neither supported")
     # best fix would be to drop the support again most likely

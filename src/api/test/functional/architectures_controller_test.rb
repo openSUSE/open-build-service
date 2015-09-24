@@ -3,8 +3,8 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 class ArchitecturesControllerTest < ActionDispatch::IntegrationTest
 
   def setup
-    super
     wait_for_scheduler_start
+    reset_auth
   end
 
   def test_index

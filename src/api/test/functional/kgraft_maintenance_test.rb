@@ -5,7 +5,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   fixtures :all
 
   def setup
-    super
     wait_for_scheduler_start
     stub_request(:post, 'http://bugzilla.novell.com/xmlrpc.cgi').to_timeout
   end
@@ -310,9 +309,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     delete "/source/#{kernelIncidentProject}"
     assert_response :success
-    delete "/source/My:Maintenance"
-    assert_response :success
     delete "/source/BaseDistro2Channel"
+    assert_response :success
+    delete "/source/Channel"
     assert_response :success
   end
 

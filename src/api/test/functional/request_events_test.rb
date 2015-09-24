@@ -11,6 +11,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
 
   setup do
     ActionMailer::Base.deliveries.clear
+    reset_auth
   end
 
   def verify_email(fixture_name, myid, email)

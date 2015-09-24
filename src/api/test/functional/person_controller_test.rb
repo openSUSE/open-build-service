@@ -5,6 +5,10 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
 
   fixtures :all
 
+  def setup
+    reset_auth
+  end
+
   def test_index
     get "/person/"
     assert_response 401

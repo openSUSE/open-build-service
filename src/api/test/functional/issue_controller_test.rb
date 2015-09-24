@@ -5,11 +5,7 @@ class IssueControllerTest < ActionDispatch::IntegrationTest
 
   def setup
     stub_request(:post, "http://bugzilla.novell.com/xmlrpc.cgi").to_timeout
-    super
-  end
-
-  def teardown
-    super
+    reset_auth
   end
 
   def test_get_issues

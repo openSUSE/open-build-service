@@ -223,7 +223,8 @@ class PackageTest < ActiveSupport::TestCase
     assert_equal orig, @package.render_xml
   end
 
-  test "names are case sensitive" do
+  def test_names_are_case_sensitive
+    CONFIG['global_write_through'] = false
     np = @package.project.packages.new(name: 'testpack')
     xh = Xmlhash.parse(@package.to_axml)
     np.save!
@@ -231,9 +232,7 @@ class PackageTest < ActiveSupport::TestCase
     assert_equal np.name, 'testpack'
     assert np.id > 0
     assert np.id != @package.id
-
-    # cleanup backend
-    np.destroy
+    CONFIG['global_write_through'] = true
   end
 
   test "invalid names are catched" do
@@ -275,6 +274,8 @@ class PackageTest < ActiveSupport::TestCase
   end
 
   def test_activity
+    CONFIG['global_write_through'] = false
+
     Timecop.freeze(2010, 1, 1)
     project = projects(:home_Iggy)
     newyear = project.packages.create!(name: 'newyear')
@@ -343,6 +344,7 @@ class PackageTest < ActiveSupport::TestCase
     newyear.save
     assert_in_delta(73.4, newyear.activity, 0.2)
 
+    CONFIG['global_write_through'] = true
   end
 
   test 'is_binary_file?' do

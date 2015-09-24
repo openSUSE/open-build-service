@@ -4,6 +4,10 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
 
   fixtures :all
 
+  def setup
+    reset_auth
+  end
+
   def test_list_groups
     get "/group"
     assert_response 401

@@ -291,6 +291,8 @@ ActiveRecord::Base.transaction(requires_new: true) do
   Package.all.each{ |pkg| pkg.sources_changed }
   UpdatePackageMetaJob.new.perform
 end
+Project.find_by_name('BaseDistro').update_product_autopackages
+
 
 @http_user = nil
 User.current = nil

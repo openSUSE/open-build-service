@@ -834,6 +834,7 @@ END
   end
 
   test 'linked_packages returns all packages from projects inherited by two levels' do
+    CONFIG['global_write_through'] = false
     parent2 = projects('BaseDistro2.0')
     parent1 = projects('BaseDistro2.0_LinkedUpdateProject')
     child = projects('Apache')
@@ -850,9 +851,11 @@ END
     result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
 
     assert_equal child.packages_from_linked_projects, result
+    CONFIG['global_write_through'] = true
   end
 
   test 'linked_packages does not return packages overwritten by the actual project' do
+    CONFIG['global_write_through'] = false
     parent = projects('BaseDistro2.0')
     child = projects('BaseDistro2.0_LinkedUpdateProject')
 
@@ -860,9 +863,11 @@ END
     child.packages << pack2.dup
 
     assert_equal child.packages_from_linked_projects, [['pack2.linked', 'BaseDistro2.0']]
+    CONFIG['global_write_through'] = true
   end
 
   test 'linked_packages does not return packages overwritten by the actual project inherited from two levels' do
+    CONFIG['global_write_through'] = false
     parent2 = projects('BaseDistro2.0')
     parent1 = projects('BaseDistro2.0_LinkedUpdateProject')
     child = projects('Apache')
@@ -882,9 +887,11 @@ END
     result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
 
     assert_equal child.packages_from_linked_projects, result
+    CONFIG['global_write_through'] = true
   end
 
   test 'linked_packages returns overwritten packages from the project with the highest position' do
+    CONFIG['global_write_through'] = false
     base_distro = projects('BaseDistro2.0')
     base_distro_update = projects('BaseDistro2.0_LinkedUpdateProject')
 
@@ -905,5 +912,6 @@ END
     result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
 
     assert_equal child.packages_from_linked_projects, result
+    CONFIG['global_write_through'] = true
   end
 end

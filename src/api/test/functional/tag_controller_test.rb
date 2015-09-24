@@ -33,6 +33,8 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     def @controller.private_taglistXML_to_tags(taglistXML)
       taglistXML_to_tags(taglistXML)
     end
+
+    reset_auth
   end
 
 
