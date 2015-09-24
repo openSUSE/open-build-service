@@ -715,13 +715,13 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "pack1" }
     assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "pack2" }
-    assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "pack3" }
+    assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "Pack3" }
 
     get "/search/missing_owner?project=BaseDistro&filter=reviewer"
     assert_response :success
     assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "pack1" }
     assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "pack2" }
-    assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "pack3" }
+    assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "Pack3" }
   end
 
   def test_find_owner_when_binary_exist_in_Update_but_definition_is_in_GA_project

@@ -115,10 +115,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_project 'Devel:BaseDistro:Update'
 
     # branch a package which does exist in update project and a stage project is defined via project wide devel project
-    post '/source/BaseDistro/pack3', :cmd => :branch
+    post '/source/BaseDistro/Pack3', :cmd => :branch
     assert_response :success
     # check source link
-    get '/source/home:tom:branches:Devel:BaseDistro:Update/pack3/_link'
+    get '/source/home:tom:branches:Devel:BaseDistro:Update/Pack3/_link'
     assert_response :success
     assert_project 'Devel:BaseDistro:Update'
 
@@ -525,9 +525,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # test branching another package set into same project from same project
-    post '/source', :cmd => 'branch', :package => 'pack3', :target_project => 'home:tom:branches:OBS_Maintained:pack2'
+    post '/source', :cmd => 'branch', :package => 'Pack3', :target_project => 'home:tom:branches:OBS_Maintained:pack2'
     assert_response :success
-    get '/source/home:tom:branches:OBS_Maintained:pack2/pack3.BaseDistro_Update'
+    get '/source/home:tom:branches:OBS_Maintained:pack2/Pack3.BaseDistro_Update'
     assert_response :success
     # test branching another package only reachable via project link into same project
     post '/source', :cmd => 'branch', :package => 'kdelibs', :target_project => 'home:tom:branches:OBS_Maintained:pack2', :noaccess => 1
@@ -558,7 +558,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # do some file changes
     put '/source/home:tom:branches:OBS_Maintained:pack2/kdelibs.kde4/new_file', 'new_content_0815'
     assert_response :success
-    put '/source/home:tom:branches:OBS_Maintained:pack2/pack3.BaseDistro_Update/new_file', 'new_content_2137'
+    put '/source/home:tom:branches:OBS_Maintained:pack2/Pack3.BaseDistro_Update/new_file', 'new_content_2137'
     assert_response :success
 
     # validate created project meta
@@ -2133,7 +2133,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'disable', :parent => { tag: 'useforbuild' }
     get '/source/BaseDistro/pack2/_meta'
     assert_response :success
-    get '/source/BaseDistro/pack3/_meta'
+    get '/source/BaseDistro/Pack3/_meta'
     assert_response :success
     assert_xml_tag :tag => 'bcntsynctag', :content => 'pack1'
     post '/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro'
@@ -2159,7 +2159,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag(:tag => 'entry', :attributes => { name: 'patchinfo' })
     assert_xml_tag(:tag => 'entry', :attributes => { name: 'pack1' })
     assert_xml_tag(:tag => 'entry', :attributes => { name: 'pack2' })
-    assert_xml_tag(:tag => 'entry', :attributes => { name: 'pack3' })
+    assert_xml_tag(:tag => 'entry', :attributes => { name: 'Pack3' })
     # do not crasah on second copy
     post '/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&nodelay=1'
     assert_response :success
@@ -2182,7 +2182,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/CopyOfBaseDistro/pack1/_meta'
     assert_response :success
     assert_xml_tag(:parent => { tag: 'useforbuild' }, :tag => 'disable')
-    get '/source/CopyOfBaseDistro/pack3/_meta'
+    get '/source/CopyOfBaseDistro/Pack3/_meta'
     assert_response :success
     assert_xml_tag(:tag => 'bcntsynctag', :content => 'pack1')
     # compare revisions

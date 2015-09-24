@@ -901,7 +901,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   def load_project_info
     find_maintenance_infos
-    @ipackages = @project.linked_packages.map { |package| [ package.name, package.project.name ] }.sort
+    @ipackages = @project.linked_packages.map { |package| [ package.name, package.project.name ] }
     @packages = @project.packages.order_by_name.pluck(:name)
 
     @linking_projects = @project.find_linking_projects.map { |p| p.name }

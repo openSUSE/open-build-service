@@ -22,6 +22,20 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.must_have_selector '#project_title'
   end
 
+  def test_project_show_inherited_packages
+    use_js
+    visit project_show_path(project: 'BaseDistro:Update')
+    page.must_have_selector '#project_title'
+    click_link("Inherited Packages")
+    within "table#ipackages_wrapper_table" do
+      assert_equal "_product", find(:xpath, '(.//td/a)[1]').text
+      assert_equal "pack1", find(:xpath, '(.//td/a)[2]').text
+      assert_equal "pack2", find(:xpath, '(.//td/a)[3]').text
+      assert_equal "Pack3", find(:xpath, '(.//td/a)[4]').text
+      assert_equal "patchinfo", find(:xpath, '(.//td/a)[5]').text
+    end
+  end
+
   def test_kde4_has_two_packages
     use_js
 

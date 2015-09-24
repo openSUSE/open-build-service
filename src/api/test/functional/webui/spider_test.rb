@@ -62,7 +62,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
     return if url.end_with? '/package/users/SourceprotectedProject/pack'
     return if url.end_with? '/package/view_file/BaseDistro:Update/pack2?file=my_file&rev=1'
     return if url.end_with? '/package/view_file/Devel:BaseDistro:Update/pack2?file=my_file&rev=1'
-    return if url.end_with? '/package/view_file/Devel:BaseDistro:Update/pack3?file=my_file&rev=1'
+    return if url.end_with? '/package/view_file/Devel:BaseDistro:Update/Pack3?file=my_file&rev=1'
     return if url.end_with? '/package/view_file/LocalProject/remotepackage?file=my_file&rev=1'
     return if url.end_with? '/package/view_file/BaseDistro2.0:LinkedUpdateProject/pack2.linked?file=myfile&rev=1'
     return if url.end_with? '/package/view_file/BaseDistro2.0/pack2.linked?file=myfile&rev=1'
