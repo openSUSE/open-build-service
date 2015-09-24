@@ -170,7 +170,7 @@ sub reply_stream {
   $ev->{'timeouthandler'} = \&replstream_timeout;
   $ev->{'streaming'} = 1;
   $rev->{'writeev'} = $ev;
-  $rev->{'handler'} = \&stream_read_handler unless $rev->{'handler'};
+  $rev->{'handler'} ||= \&stream_read_handler;
   BSEvents::add($ev, 0);
   BSEvents::add($rev);	# do this last (because of "always" type)
 }
@@ -537,7 +537,7 @@ sub stream_write_handler {
     }
     print "stream_write_handler: $!\n";
     $ev->{'paused'} = 1;
-    # support multiple writers
+    # support multiple writers ($ev will be a $jev in that case)
     if ($rev->{'writeev'} != $ev) {
       # leave reader open
       print "reader stays open\n";
@@ -548,6 +548,7 @@ sub stream_write_handler {
     return;
   }
   $ev->{'replbuf'} = substr($ev->{'replbuf'}, $r) if $r;
+  # flow control: have we reached the low water mark?
   if ($rev->{'paused'} && length($ev->{'replbuf'}) <= 8192) {
     delete $rev->{'paused'};
     BSEvents::add($rev);

@@ -400,7 +400,6 @@ sub rpc_recv_unchunked_stream_handler {
   }
   if ($rev->{'eof'} || (defined($cl) && !$cl)) {
     #print "rpc_recv_unchunked_stream_handler: EOF\n";
-    $ev->{'chunktrailer'} = '';
     BSServerEvents::stream_close($rev, $ev);
   }
 }
@@ -483,7 +482,7 @@ sub rpc_recv_forward_data_handler {
 
   #print "stay=".@stay.", leave=".@leave.", newpos=$newpos\n";
 
-  if ($rpcs{$newuri}) {
+  if (@leave && $rpcs{$newuri}) {
     my $nev = $rpcs{$newuri};
     print "joining ".@leave." jobs with $newuri!\n";
     for my $jev (@leave) {
@@ -494,10 +493,16 @@ sub rpc_recv_forward_data_handler {
     for my $jev (@leave) {
       rpc_adddata($jev, $data);
     }
+    @leave = ();
+  }
+
+  if (!@leave) {
     if (!@stay) {
       BSServerEvents::stream_close($rev, $ev);
+      return 0;
     }
     # too full! wait till there is more room
+    $rev->{'paused'} = 1;
     return 0;
   }
 
