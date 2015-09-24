@@ -7,8 +7,17 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   uses_transaction :test_create_project_publish_disabled
 
   def test_project_show
+    use_js
     visit project_show_path(project: 'Apache')
     page.must_have_selector '#project_title'
+
+    within "table#packages_table_wrapper_table" do
+      assert_equal "apache2", find(:xpath, '(.//td/a)[1]').text
+      assert_equal "libapr-util1", find(:xpath, '(.//td/a)[2]').text
+      assert_equal "Taskjuggler", find(:xpath, '(.//td/a)[3]').text
+      assert_equal "Tidy", find(:xpath, '(.//td/a)[4]').text
+    end
+
     visit '/project/show?project=My:Maintenance'
     page.must_have_selector '#project_title'
   end
