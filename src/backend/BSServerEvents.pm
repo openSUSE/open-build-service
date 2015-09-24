@@ -108,7 +108,7 @@ sub replrequest_write {
 }
 
 sub reply {
-  my ($str, @hi) = @_;
+  my ($str, @hdrs) = @_;
   my $ev = $gev;
   # print "reply to event #$ev->{'id'}\n";
   if (!exists($ev->{'fd'})) {
@@ -126,17 +126,17 @@ sub reply {
     BSEvents::add($ev, $ev->{'conf'}->{'replrequest_timeout'});
     return;
   }
-  if (@hi && $hi[0] =~ /^status: (\d+.*)/i) {
+  if (@hdrs && $hdrs[0] =~ /^status: (\d+.*)/i) {
     my $msg = $1;
     $msg =~ s/:/ /g;
-    $hi[0] = "HTTP/1.1 $msg";
+    $hdrs[0] = "HTTP/1.1 $msg";
   } else {
-    unshift @hi, "HTTP/1.1 200 OK";
+    unshift @hdrs, "HTTP/1.1 200 OK";
   }
-  push @hi, "Cache-Control: no-cache";
-  push @hi, "Connection: close";
-  push @hi, "Content-Length: ".length($str) if defined $str;
-  my $data = join("\r\n", @hi)."\r\n\r\n";
+  push @hdrs, "Cache-Control: no-cache";
+  push @hdrs, "Connection: close";
+  push @hdrs, "Content-Length: ".length($str) if defined $str;
+  my $data = join("\r\n", @hdrs)."\r\n\r\n";
   $data .= $str if defined $str;
   my $dummy = '';
   sysread($ev->{'fd'}, $dummy, 1024, 0);	# clear extra input
@@ -158,10 +158,10 @@ sub reply_error  {
 }
 
 sub reply_stream {
-  my ($rev, @args) = @_;
-  push @args, 'Transfer-Encoding: chunked';
-  unshift @args, 'Content-Type: application/octet-stream' unless grep {/^content-type:/i} @args;
-  reply(undef, @args);
+  my ($rev, @hdrs) = @_;
+  push @hdrs, 'Transfer-Encoding: chunked';
+  unshift @hdrs, 'Content-Type: application/octet-stream' unless grep {/^content-type:/i} @hdrs;
+  reply(undef, @hdrs);
   my $ev = $gev;
   BSEvents::rem($ev);
   #print "reply_stream $rev -> $ev\n";
@@ -176,7 +176,7 @@ sub reply_stream {
 }
 
 sub reply_file {
-  my ($filename, @args) = @_;
+  my ($filename, @hdrs) = @_;
   my $fd = $filename;
   if (!ref($fd)) {
     $fd = gensym;
@@ -185,20 +185,26 @@ sub reply_file {
   my $rev = BSEvents::new('always');
   $rev->{'fd'} = $fd;
   $rev->{'makechunks'} = 1;
-  reply_stream($rev, @args);
+  reply_stream($rev, @hdrs);
 }
 
 sub makecpiohead {
-  my ($name, $s) = @_;
-  return "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000b00000000TRAILER!!!\0\0\0\0" if !$s;
-  my $h = "07070100000000000081a4000000000000000000000001";
-  $h .= sprintf("%08x%08x", $s->[9], $s->[7]);
+  my ($file, $s) = @_;
+  return "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000b00000000TRAILER!!!\0\0\0\0" if !$file;
+  my $name = $file->{'name'};
+  my $mode = $file->{'mode'} || 0x81a4;
+  my $h = sprintf("07070100000000%08x000000000000000000000001", $mode);
+  if ($s->[7] > 0xffffffff) {
+    my $top = int($s->[7] / 4294967296.);
+    $h .= sprintf("%08xffffffff%08x%08x", $s->[9], $top, $s->[7] - $top * 4294967296.);
+  } else {
+    $h .= sprintf("%08x%08x", $s->[9], $s->[7]);
+  }
   $h .= "00000000000000000000000000000000";
   $h .= sprintf("%08x", length($name) + 1);
   $h .= "00000000$name\0";
   $h .= substr("\0\0\0\0", (length($h) & 3)) if length($h) & 3;
-  my $pad = '';
-  $pad = substr("\0\0\0\0", ($s->[7] & 3)) if $s->[7] & 3;
+  my $pad = $s->[7] % 4 ? substr("\0\0\0\0", $s->[7] % 4) : '';
   return ($h, $pad);
 }
 
@@ -249,7 +255,7 @@ sub cpio_nextfile {
       $s[7] = length($file->{'data'});
       $s[9] = time();
     }
-    my ($header, $pad) = makecpiohead($file->{'name'}, \@s);
+    my ($header, $pad) = makecpiohead($file, \@s);
     $data .= $header;
     $ev->{'filespad'} = $pad;
     if (!exists $file->{'filename'}) {
@@ -261,14 +267,14 @@ sub cpio_nextfile {
 }
 
 sub reply_cpio {
-  my ($files, @args) = @_;
+  my ($files, @hdrs) = @_;
   my $rev = BSEvents::new('always');
   $rev->{'files'} = $files;
   $rev->{'cpioerrors'} = '';
   $rev->{'makechunks'} = 1;
   $rev->{'eofhandler'} = \&cpio_nextfile;
-  unshift @args, 'Content-Type: application/x-cpio';
-  reply_stream($rev, @args);
+  unshift @hdrs, 'Content-Type: application/x-cpio';
+  reply_stream($rev, @hdrs);
 }
 
 sub getrequest_timeout {

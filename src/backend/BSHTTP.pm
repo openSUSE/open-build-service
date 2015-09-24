@@ -317,55 +317,53 @@ sub swrite {
   }
 }
 
+sub makecpiohead {
+  my ($file, $s) = @_; 
+  return "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000b00000000TRAILER!!!\0\0\0\0" if !$file;
+  my $name = $file->{'name'};
+  my $mode = $file->{'mode'} || 0x81a4;
+  my $h = sprintf("07070100000000%08x000000000000000000000001", $mode);
+  if ($s->[7] > 0xffffffff) {
+    # build service length extension
+    my $top = int($s->[7] / 4294967296.);
+    $h .= sprintf("%08xffffffff%08x%08x", $s->[9], $top, $s->[7] - $top * 4294967296.);
+  } else {
+    $h .= sprintf("%08x%08x", $s->[9], $s->[7]);
+  }
+  $h .= "00000000000000000000000000000000";
+  $h .= sprintf("%08x", length($name) + 1); 
+  $h .= "00000000$name\0";
+  $h .= substr("\0\0\0\0", (length($h) & 3)) if length($h) & 3;
+  my $pad = $s->[7] % 4 ? substr("\0\0\0\0", $s->[7] % 4) : ''; 
+  return ($h, $pad);
+}
+
 sub cpio_sender {
   my ($param, $sock) = @_;
 
-  my $errors = '';
   local *F;
-  my $data;
-  for my $file (@{$param->{'cpiofiles'} || []}, {'__errors' => 1}) {
+  my ($data, $pad);
+  my $errors = {'__errors' => 1, 'name' => '.errors', 'data' => ''};
+  for my $file (@{$param->{'cpiofiles'} || []}, $errors) {
     my @s;
     if ($file->{'error'}) {
-	$errors .= "$file->{'name'}: $file->{'error'}\n";
+	$errors->{'data'} .= "$file->{'name'}: $file->{'error'}\n";
 	next;
     }
     if (exists $file->{'filename'}) {
       if (ref($file->{'filename'})) {
 	*F = $file->{'filename'};
       } elsif (!open(F, '<', $file->{'filename'})) {
-	$errors .= "$file->{'name'}: $file->{'filename'}: $!\n";
+	$errors->{'data'} .= "$file->{'name'}: $file->{'filename'}: $!\n";
 	next;
       }
       @s = stat(F);
-    } else {
-      if ($file->{'__errors'}) {
-	next if $errors eq '';
-        $file->{'data'} = $errors;
-        $file->{'name'} = ".errors";
-      }
-      $s[7] = length($file->{'data'});
-      $s[9] = time;
-    }
-    my $mode = $file->{'mode'} || 0x81a4;
-    $data = sprintf("07070100000000%08x000000000000000000000001", $mode);
-    if ($s[7] > 0xffffffff) {
-      # build service length extension
-      my $top = int($s[7] / 4294967296.);
-      $data .= sprintf("%08xffffffff%08x%08x", $s[9], $top, $s[7] - $top * 4294967296.);
-    } else {
-      $data .= sprintf("%08x%08x", $s[9], $s[7]);
-    }
-    $data .= "00000000000000000000000000000000";
-    $data .= sprintf("%08x", length($file->{'name'}) + 1);
-    $data .= "00000000";
-    $data .= "$file->{'name'}\0";
-    $data .= substr("\0\0\0\0", (length($data) & 3)) if length($data) & 3;
-    if (exists $file->{'filename'}) {
+      ($data, $pad) = makecpiohead($file, \@s);
       my $l = $s[7];
       my $r = 0;
       while(1) {
         $r = sysread(F, $data, $l > 8192 ? 8192 : $l, length($data)) if $l;
-        $data .= substr("\0\0\0\0", ($s[7] % 4)) if $r == $l && ($s[7] % 4) != 0;
+        $data .= $pad if $r == $l;
 	swrite($sock, $data, $param->{'chunked'});
         $data = '';
         $l -= $r;
@@ -374,12 +372,20 @@ sub cpio_sender {
       die("internal error\n") if $l;
       close F unless ref $file->{'filename'};
     } else {
-      $data .= $file->{'data'};
-      $data .= substr("\0\0\0\0", (length($data) & 3)) if length($data) & 3;
+      next if $file->{'__errors'} && $file->{'data'} eq '';
+      $s[7] = length($file->{'data'});
+      $s[9] = time;
+      ($data, $pad) = makecpiohead($file, \@s);
+      $data .= "$file->{'data'}$pad";
+      while ($param->{'chunked'} && length($data) > 8192) {
+	# keep chunks small
+        swrite($sock, substr($data, 0, 4096), $param->{'chunked'});
+	$data = substr($data, 4096);
+      }
       swrite($sock, $data, $param->{'chunked'});
     }
   }
-  $data = "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000b00000000TRAILER!!!\0\0\0\0";
+  $data = makecpiohead();
   swrite($sock, $data, $param->{'chunked'});
   return '';
 }
