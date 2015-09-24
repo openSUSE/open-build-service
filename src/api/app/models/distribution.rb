@@ -31,9 +31,7 @@ class Distribution < ActiveRecord::Base
   end
 
   def self.all_as_hash
-    res = []
-    Distribution.includes(:icons).includes(:architectures).each { |d| res << d.to_hash }
-    return res
+    Distribution.includes(:icons, :architectures).map { |d| d.to_hash }
   end
 
   def self.all_including_remotes
