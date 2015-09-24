@@ -241,12 +241,17 @@ sub cpio_nextfile {
       if (!ref($fd)) {
 	$fd = gensym;
 	if (!open($fd, '<', $file->{'filename'})) {
-	  $ev->{'cpioerrors'} .= "$file->{'name'}: $!\n";
+	  $ev->{'cpioerrors'} .= "$file->{'name'}: $file->{'filename'}: $!\n";
 	  next;
 	}
-	@s = stat($fd);
-      } else {
-	@s = stat($fd);
+      }
+      @s = stat($fd);
+      if (!@s) {
+	$ev->{'cpioerrors'} .= "$file->{'name'}: stat: $!\n";
+	close($fd) if !ref($file->{'filename'});
+	next;
+      }
+      if (ref($file->{'filename'})) {
 	my $off = sysseek($fd, 0, Fcntl::SEEK_CUR) || 0;
 	$s[7] -= $off if $off > 0;
       }

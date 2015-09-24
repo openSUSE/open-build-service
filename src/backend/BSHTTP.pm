@@ -23,6 +23,7 @@
 package BSHTTP;
 
 use Digest::MD5 ();
+use Fcntl qw(:DEFAULT);
 
 use strict;
 
@@ -351,26 +352,36 @@ sub cpio_sender {
 	next;
     }
     if (exists $file->{'filename'}) {
-      if (ref($file->{'filename'})) {
-	*F = $file->{'filename'};
-      } elsif (!open(F, '<', $file->{'filename'})) {
-	$errors->{'data'} .= "$file->{'name'}: $file->{'filename'}: $!\n";
+      my $filename = $file->{'filename'};
+      if (ref($filename)) {
+	*F = $filename;
+      } elsif (!open(F, '<', $filename)) {
+	$errors->{'data'} .= "$file->{'name'}: $filename: $!\n";
 	next;
       }
       @s = stat(F);
+      if (!@s) {
+	$errors->{'data'} .= "$file->{'name'}: stat: $!\n";
+	close F unless ref $filename;
+	next;
+      }
+      if (ref($filename)) {
+	my $off = sysseek(F, 0, Fcntl::SEEK_CUR) || 0;
+	$s[7] -= $off if $off > 0;
+      }
       ($data, $pad) = makecpiohead($file, \@s);
       my $l = $s[7];
       my $r = 0;
       while(1) {
-        $r = sysread(F, $data, $l > 8192 ? 8192 : $l, length($data)) if $l;
-        $data .= $pad if $r == $l;
+	$r = sysread(F, $data, $l > 8192 ? 8192 : $l, length($data)) if $l;
+	$data .= $pad if $r == $l;
 	swrite($sock, $data, $param->{'chunked'});
-        $data = '';
-        $l -= $r;
-        last unless $l;
+	$data = '';
+	$l -= $r;
+	last unless $l;
       }
       die("internal error\n") if $l;
-      close F unless ref $file->{'filename'};
+      close F unless ref $filename;
     } else {
       next if $file->{'__errors'} && $file->{'data'} eq '';
       $s[7] = length($file->{'data'});
@@ -379,7 +390,7 @@ sub cpio_sender {
       $data .= "$file->{'data'}$pad";
       while ($param->{'chunked'} && length($data) > 8192) {
 	# keep chunks small
-        swrite($sock, substr($data, 0, 4096), $param->{'chunked'});
+	swrite($sock, substr($data, 0, 4096), $param->{'chunked'});
 	$data = substr($data, 4096);
       }
       swrite($sock, $data, $param->{'chunked'});
