@@ -3702,6 +3702,7 @@ sub extendkey {
 sub deletekey {
   my ($cgi, $projid) = @_;
   $cgi->{'comment'} ||= 'delete sign key';
+  BSConfiguration::check_configuration_once();
   if ($BSConfig::forceprojectkeys) {
     my $pprojid = $projid;
     $pprojid =~ s/:[^:]*$//;
@@ -3756,6 +3757,7 @@ sub putproject {
   notify($oldproj ? "SRCSRV_UPDATE_PROJECT" : "SRCSRV_CREATE_PROJECT", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
   mkdir_p("$projectsdir") || die("creating $projectsdir: $!\n");
   addrev_meta($cgi, $projid, undef, "$uploaddir/$$.2", "$projectsdir/$projid.xml", '_meta');
+  BSConfiguration::check_configuration_once();
   if ($BSConfig::forceprojectkeys) {
     my ($sk) = getsignkey({}, $projid);
     createkey({ %$cgi, 'comment' => 'autocreate key' }, $projid) if $sk eq '';
