@@ -32,7 +32,7 @@ use BSVerify;
 use BSServerEvents;
 use BSXML;
 use BSUtil;
-use BSConfig;
+use BSConfiguration;
 use XML::Structured;
 
 use strict;
@@ -98,6 +98,8 @@ sub dispatch {
   BSDispatch::dispatch($conf, $req);
 }
 
+my $configurationcheck = 0;
+
 sub periodic {
   my ($conf) = @_;
   if (-e "$rundir/$conf->{'name'}.exit") {
@@ -125,6 +127,10 @@ sub periodic {
     }
     exec($0, '--restart', $arg);
     die("$0: $!\n");
+  }
+  if ($configurationcheck++ > 10) {
+    BSConfiguration::check_configuration();
+    $configurationcheck = 0;
   }
 }
 
