@@ -87,6 +87,8 @@ class Package < ActiveRecord::Base
     where.not(id: Package.where(project_id: Relationship.forbidden_project_ids))
   }
 
+  scope :order_by_name, -> { order('LOWER(name)') }
+
   # rubocop:disable Metrics/LineLength
   scope :dirty_backend_package, -> { joins('left outer join backend_packages on backend_packages.package_id = packages.id').where('backend_packages.package_id is null') }
   # rubocop:enable Metrics/LineLength
