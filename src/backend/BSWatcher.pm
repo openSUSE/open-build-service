@@ -47,6 +47,7 @@ sub import {
   if (grep {$_ eq ':https'} @_) {
     require BSSSL;
     $tossl = \&BSSSL::tossl;
+    BSRPC::import(':https');
   }
 }
 
