@@ -298,46 +298,42 @@ sub serialize_end {
 
 ###########################################################################
 #
-# rpc_recv_stream_handler
+# rpc_recv_chunked_stream_handler
 #
 # do chunk decoding and forward to next handler
 # (should probably do this in BSServerEvents::stream_read_handler)
 #
-sub rpc_recv_stream_handler {
+sub rpc_recv_chunked_stream_handler {
   my ($ev) = @_;
   my $rev = $ev->{'readev'};
 
-  #print "rpc_recv_stream_handler\n";
+  #print "rpc_recv_chunked_stream_handler\n";
   $ev->{'paused'} = 1;	# always need more bytes!
 nextchunk:
   $ev->{'replbuf'} =~ s/^\r?\n//s;
   if ($ev->{'replbuf'} !~ /\r?\n/s) {
     return unless $rev->{'eof'};
-    print "rpc_recv_stream_handler: premature EOF\n";
-    BSServerEvents::stream_close($rev, $ev);
+    BSServerEvents::stream_close($rev, $ev, undef, "rpc_recv_chunked_stream_handler: premature EOF");
     return;
   }
   if ($ev->{'replbuf'} !~ /^([0-9a-fA-F]+)/) {
-    print "rpc_recv_stream_handler: bad chunked data\n";
-    BSServerEvents::stream_close($rev, $ev);
+    BSServerEvents::stream_close($rev, $ev, undef, "rpc_recv_chunked_stream_handler: bad chunked data");
     return;
   }
   my $cl = hex($1);
-  # print "rpc_recv_stream_handler: chunk len $cl\n";
+  # print "rpc_recv_chunked_stream_handler: chunk len $cl\n";
   if ($cl < 0 || $cl >= 1000000) {
-    print "rpc_recv_stream_handler: illegal chunk size: $cl\n";
-    BSServerEvents::stream_close($rev, $ev);
+    BSServerEvents::stream_close($rev, $ev, undef, "rpc_recv_chunked_stream_handler: illegal chunk size: $cl");
     return;
   }
   if ($cl == 0) {
     # wait till trailer is complete
     if ($ev->{'replbuf'} !~ /\n\r?\n/s) {
       return unless $rev->{'eof'};
-      print "rpc_recv_stream_handler: premature EOF\n";
-      BSServerEvents::stream_close($rev, $ev);
+      BSServerEvents::stream_close($rev, $ev, undef, "rpc_recv_chunked_stream_handler: premature EOF");
       return;
     }
-    #print "rpc_recv_stream_handler: chunk EOF\n";
+    #print "rpc_recv_chunked_stream_handler: chunk EOF\n";
     my $trailer = $ev->{'replbuf'};
     $trailer =~ s/^(.*?\r?\n)/\r\n/s;	# delete chunk header
     $trailer =~ s/\n\r?\n.*//s;		# delete stuff after trailer
@@ -353,8 +349,7 @@ nextchunk:
   $ev->{'replbuf'} =~ /^(.*?\r?\n)/s;
   if (length($1) + $lcl > length($ev->{'replbuf'})) {
     return unless $rev->{'eof'};
-    print "rpc_recv_stream_handler: premature EOF\n";
-    BSServerEvents::stream_close($rev, $ev);
+    BSServerEvents::stream_close($rev, $ev, undef, "rpc_recv_chunked_stream_handler: premature EOF");
     return;
   }
 
@@ -373,7 +368,7 @@ nextchunk:
   goto nextchunk if length($ev->{'replbuf'});
 
   if ($rev->{'eof'}) {
-    #print "rpc_recv_stream_handler: EOF\n";
+    #print "rpc_recv_chunked_stream_handler: EOF\n";
     BSServerEvents::stream_close($rev, $ev);
   }
 }
@@ -398,6 +393,10 @@ sub rpc_recv_unchunked_stream_handler {
     $rev->{'contentlength'} = $cl;
     $ev->{'replbuf'} = '';
   }
+  if ($rev->{'eof'} && $cl) {
+    BSServerEvents::stream_close($rev, $ev, undef, "rpc_recv_unchunked_stream_handler: premature EOF");
+    return;
+  }
   if ($rev->{'eof'} || (defined($cl) && !$cl)) {
     #print "rpc_recv_unchunked_stream_handler: EOF\n";
     BSServerEvents::stream_close($rev, $ev);
@@ -421,7 +420,7 @@ sub rpc_adddata {
 }
 
 sub rpc_recv_forward_close_handler {
-  my ($ev) = @_;
+  my ($ev, $err) = @_;
   #print "rpc_recv_forward_close_handler\n";
   my $rev = $ev->{'readev'};
   my $trailer = $ev->{'chunktrailer'} || '';
@@ -544,6 +543,7 @@ sub rpc_recv_forward_data_handler {
       for my $jev (@stay) {
 	if ($jev->{'streaming'}) {
 	  # can't do much here, sorry
+	  local $BSServerEvents::gev = $jev;
 	  BSServerEvents::reply_error($jev->{'conf'}, $err);
 	  next;
 	}
@@ -612,7 +612,7 @@ sub rpc_recv_forward {
   $wev->{'readev'} = $ev;
   $ev->{'writeev'} = $wev;
   if ($chunked) {
-    $wev->{'handler'} = \&rpc_recv_stream_handler;
+    $wev->{'handler'} = \&rpc_recv_chunked_stream_handler;
   } else {
     $wev->{'handler'} = \&rpc_recv_unchunked_stream_handler;
   }
@@ -631,8 +631,7 @@ sub rpc_recv_forward {
 sub rpc_recv_file_data_handler {
   my ($ev, $rev, $data) = @_;
   if ((syswrite($ev->{'fd'}, $data) || 0) != length($data)) {
-    print "rpc_recv_file_data_handler: write error\n";
-    BSServerEvents::stream_close($rev, $ev);
+    BSServerEvents::stream_close($rev, $ev, undef, "rpc_recv_file_data_handler: write error");
     return 0;
   }
   $ev->{'ctx'}->add($data) if $ev->{'ctx'};
@@ -640,7 +639,7 @@ sub rpc_recv_file_data_handler {
 }
 
 sub rpc_recv_file_close_handler {
-  my ($ev) = @_;
+  my ($ev, $err) = @_;
   #print "rpc_recv_file_close_handler\n";
   my $rev = $ev->{'readev'};
   my $res = {};
@@ -655,7 +654,11 @@ sub rpc_recv_file_close_handler {
   }
   delete $ev->{'fd'};
   my $trailer = $ev->{'chunktrailer'} || '';
-  rpc_result($rev, $res);
+  if ($err) {
+    rpc_error($rev, $err);
+  } else {
+    rpc_result($rev, $res);
+  }
   #print "file rpc $rev->{'rpcuri'} is finished!\n";
   delete $rpcs{$rev->{'rpcuri'}};
 }
@@ -675,7 +678,7 @@ sub rpc_recv_file {
   $wev->{'fd'} = $fd;
   $wev->{'ctx'} = Digest::MD5->new if $withmd5;
   if ($chunked) {
-    $wev->{'handler'} = \&rpc_recv_stream_handler;
+    $wev->{'handler'} = \&rpc_recv_chunked_stream_handler;
   } else {
     $wev->{'handler'} = \&rpc_recv_unchunked_stream_handler;
   }
@@ -698,11 +701,15 @@ sub rpc_recv_string_data_handler {
 }
 
 sub rpc_recv_string_close_handler {
-  my ($ev) = @_;
+  my ($ev, $err) = @_;
   #print "rpc_recv_string_close_handler\n";
   my $rev = $ev->{'readev'};
   my $trailer = $ev->{'chunktrailer'} || '';
-  rpc_result($rev, $ev->{'string'});
+  if ($err) {
+    rpc_error($rev, $err);
+  } else {
+    rpc_result($rev, $ev->{'string'});
+  }
   #print "string rpc $rev->{'rpcuri'} is finished!\n";
   delete $rpcs{$rev->{'rpcuri'}};
 }
@@ -714,7 +721,7 @@ sub rpc_recv_string {
   $wev->{'readev'} = $ev;
   $ev->{'writeev'} = $wev;
   if ($chunked) {
-    $wev->{'handler'} = \&rpc_recv_stream_handler;
+    $wev->{'handler'} = \&rpc_recv_chunked_stream_handler;
   } else {
     $wev->{'handler'} = \&rpc_recv_unchunked_stream_handler;
   }
@@ -738,7 +745,7 @@ sub rpc_recv_null {
   $wev->{'readev'} = $ev;
   $ev->{'writeev'} = $wev;
   if ($chunked) {
-    $wev->{'handler'} = \&rpc_recv_stream_handler;
+    $wev->{'handler'} = \&rpc_recv_chunked_stream_handler;
   } else {
     $wev->{'handler'} = \&rpc_recv_unchunked_stream_handler;
   }

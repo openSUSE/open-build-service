@@ -418,17 +418,19 @@ sub cloneconnect {
 }
 
 sub stream_close {
-  my ($ev, $wev) = @_;
+  my ($ev, $wev, $err, $werr) = @_;
   if ($ev) {
+    print "$err\n" if $err;
     BSEvents::rem($ev) if $ev->{'fd'} && !$ev->{'paused'};
-    $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
+    $ev->{'closehandler'}->($ev, $err) if $ev->{'closehandler'};
     close $ev->{'fd'} if $ev->{'fd'};
     delete $ev->{'fd'};
     delete $ev->{'writeev'};
   }
   if ($wev) {
+    print "$werr\n" if $werr;
     BSEvents::rem($wev) if $wev->{'fd'} && !$wev->{'paused'};
-    $wev->{'closehandler'}->($wev) if $wev->{'closehandler'};
+    $wev->{'closehandler'}->($wev, $werr) if $wev->{'closehandler'};
     close $wev->{'fd'} if $wev->{'fd'};
     delete $wev->{'fd'};
     delete $wev->{'readev'};
