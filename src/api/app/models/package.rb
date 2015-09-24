@@ -14,6 +14,8 @@ class Package < ActiveRecord::Base
   include HasRatings
   include HasAttributes
 
+  class PackageError < StandardError; end
+
   class CycleError < APIException
     setup 'cycle_error'
   end
@@ -98,171 +100,193 @@ class Package < ActiveRecord::Base
 
   has_many :tokens, dependent: :destroy, inverse_of: :package
 
-  class << self
 
-    def check_access?(dbpkg = self)
-      return false if dbpkg.nil?
-      return false unless dbpkg.class == Package
-      return Project.check_access?(dbpkg.project)
+
+  def self.check_access?(dbpkg = self)
+    return false if dbpkg.nil?
+    return false unless dbpkg.class == Package
+    return Project.check_access?(dbpkg.project)
+  end
+
+  def self.check_cache(project, package, opts)
+    @key = { 'get_by_project_and_name' => 1, package: package, opts: opts }
+
+    @key[:user] = User.current.cache_key if User.current
+
+    # the cache is only valid if the user, prj and pkg didn't change
+    if project.is_a? Project
+      @key[:project] = project.id
+    else
+      @key[:project] = project
+    end
+    pid, old_pkg_time, old_prj_time = Rails.cache.read(@key)
+    if pid
+      pkg=Package.where(id: pid).includes(:project).first
+      return pkg if pkg && pkg.updated_at == old_pkg_time && pkg.project.updated_at == old_prj_time
+      Rails.cache.delete(@key) # outdated anyway
+    end
+    return nil
+  end
+
+  def self.internal_get_project(project)
+    if project.is_a? Project
+      prj = project
+    else
+      return nil if Project.is_remote_project?(project)
+      prj = Project.get_by_name(project)
+    end
+    raise UnknownObjectError, "#{project}/#{package}" unless prj
+    prj
+  end
+
+  # returns an object of package or raises an exception
+  # should be always used when a project is required
+  # in case you don't access sources or build logs in any way use
+  # use_source: false to skip check for sourceaccess permissions
+  # function returns a nil object in case the package is on remote instance
+  def self.get_by_project_and_name(project, package, opts = {})
+    opts = { use_source: true, follow_project_links: true, check_update_project: false }.merge(opts)
+
+    pkg = check_cache(project, package, opts)
+    return pkg if pkg
+
+    prj = internal_get_project(project)
+    return nil unless prj # remote prjs
+
+    if pkg.nil? and opts[:follow_project_links]
+      pkg = prj.find_package(package, opts[:check_update_project])
+    elsif pkg.nil?
+      pkg = prj.update_instance.packages.find_by_name(package) if opts[:check_update_project]
+      pkg = prj.packages.find_by_name(package) if pkg.nil?
     end
 
-    def check_cache(project, package, opts)
-      @key = { 'get_by_project_and_name' => 1, package: package, opts: opts }
-
-      @key[:user] = User.current.cache_key if User.current
-
-      # the cache is only valid if the user, prj and pkg didn't change
-      if project.is_a? Project
-        @key[:project] = project.id
-      else
-        @key[:project] = project
+    if pkg.nil? and opts[:follow_project_links]
+      # in case we link to a remote project we need to assume that the
+      # backend may be able to find it even when we don't have the package local
+      prj.expand_all_projects.each do |p|
+        return nil unless p.is_a? Project
       end
-      pid, old_pkg_time, old_prj_time = Rails.cache.read(@key)
-      if pid
-        pkg=Package.where(id: pid).includes(:project).first
-        return pkg if pkg && pkg.updated_at == old_pkg_time && pkg.project.updated_at == old_prj_time
-        Rails.cache.delete(@key) # outdated anyway
-      end
-      return nil
     end
 
-    def internal_get_project(project)
-      if project.is_a? Project
-        prj = project
-      else
-        return nil if Project.is_remote_project?(project)
-        prj = Project.get_by_name(project)
-      end
-      raise UnknownObjectError, "#{project}/#{package}" unless prj
-      prj
+    raise UnknownObjectError, "#{project}/#{package}" unless pkg
+    raise ReadAccessError, "#{project}/#{package}" unless check_access?(pkg)
+
+    pkg.check_source_access! if opts[:use_source]
+
+    Rails.cache.write(@key, [pkg.id, pkg.updated_at, prj.updated_at])
+    pkg
+  end
+
+  def self.get_by_project_and_name!(project, package, opts = {})
+    pkg = get_by_project_and_name(project, package, opts)
+    raise UnknownObjectError, "#{project}/#{package}" unless pkg
+    pkg
+  end
+
+  # to check existens of a project (local or remote)
+  def self.exists_by_project_and_name(project, package, opts = {})
+    opts = { follow_project_links: true, allow_remote_packages: false }.merge(opts)
+    begin
+      prj = Project.get_by_name(project)
+    rescue Project::UnknownObjectError
+      return false
     end
-
-    # returns an object of package or raises an exception
-    # should be always used when a project is required
-    # in case you don't access sources or build logs in any way use
-    # use_source: false to skip check for sourceaccess permissions
-    # function returns a nil object in case the package is on remote instance
-    def get_by_project_and_name(project, package, opts = {})
-      opts = { use_source: true, follow_project_links: true, check_update_project: false }.merge(opts)
-
-      pkg = check_cache(project, package, opts)
-      return pkg if pkg
-
-      prj = internal_get_project(project)
-      return nil unless prj # remote prjs
-
-      if pkg.nil? and opts[:follow_project_links]
-        pkg = prj.find_package(package, opts[:check_update_project])
-      elsif pkg.nil?
-        pkg = prj.update_instance.packages.find_by_name(package) if opts[:check_update_project]
-        pkg = prj.packages.find_by_name(package) if pkg.nil?
-      end
-
-      if pkg.nil? and opts[:follow_project_links]
-        # in case we link to a remote project we need to assume that the
-        # backend may be able to find it even when we don't have the package local
-        prj.expand_all_projects.each do |p|
-          return nil unless p.is_a? Project
-        end
-      end
-
-      raise UnknownObjectError, "#{project}/#{package}" unless pkg
-      raise ReadAccessError, "#{project}/#{package}" unless check_access?(pkg)
-
-      pkg.check_source_access! if opts[:use_source]
-
-      Rails.cache.write(@key, [pkg.id, pkg.updated_at, prj.updated_at])
-      pkg
+    unless prj.is_a? Project
+      return opts[:allow_remote_packages] && self.exists_on_backend?(package, project)
     end
+    prj.exists_package?(package, opts)
+  end
 
-    def get_by_project_and_name!(project, package, opts = {})
-      pkg = get_by_project_and_name(project, package, opts)
-      raise UnknownObjectError, "#{project}/#{package}" unless pkg
-      pkg
+  def self.exists_on_backend?(package, project)
+    begin
+      answer = Suse::Backend.get(Package.source_path(project, package))
+      return true if answer
+    rescue ActiveXML::Transport::Error
+      # ignored
     end
+    false
+  end
 
-    # to check existens of a project (local or remote)
-    def exists_by_project_and_name(project, package, opts = {})
-      opts = { follow_project_links: true, allow_remote_packages: false }.merge(opts)
-      begin
-        prj = Project.get_by_name(project)
-      rescue Project::UnknownObjectError
-        return false
-      end
-      unless prj.is_a? Project
-        return opts[:allow_remote_packages] && self.exists_on_backend?(package, project)
-      end
-      prj.exists_package?(package, opts)
-    end
+  def self.find_by_project_and_name(project, package)
+    Package.where(name: package.to_s, projects: { name: project }).includes(:project).first
+  end
 
-    def exists_on_backend?(package, project)
-      begin
-        answer = Suse::Backend.get(Package.source_path(project, package))
-        return true if answer
-      rescue ActiveXML::Transport::Error
-        # ignored
-      end
-      false
-    end
+  def self.find_by_attribute_type(attrib_type, package = nil)
+    # One sql statement is faster than a ruby loop
+    # attribute match in package or project
+    sql =<<-END_SQL
+    SELECT pack.*
+    FROM packages pack
+    LEFT OUTER JOIN attribs attr ON pack.id = attr.package_id
+    LEFT OUTER JOIN attribs attrprj ON pack.project_id = attrprj.project_id
+    WHERE ( attr.attrib_type_id = ? or attrprj.attrib_type_id = ? )
+    END_SQL
 
-    def find_by_project_and_name(project, package)
-      Package.where(name: package.to_s, projects: { name: project }).includes(:project).first
-    end
-
-    def find_by_attribute_type(attrib_type, package = nil)
-      # One sql statement is faster than a ruby loop
-      # attribute match in package or project
-      sql =<<-END_SQL
-      SELECT pack.*
-      FROM packages pack
-      LEFT OUTER JOIN attribs attr ON pack.id = attr.package_id
-      LEFT OUTER JOIN attribs attrprj ON pack.project_id = attrprj.project_id
-      WHERE ( attr.attrib_type_id = ? or attrprj.attrib_type_id = ? )
-      END_SQL
-
-      if package
-        sql += ' AND pack.name = ? GROUP by pack.id'
-        ret = Package.find_by_sql [sql, attrib_type.id.to_s, attrib_type.id.to_s, package]
-        ret.each do |dbpkg|
-          ret.delete(dbpkg) unless Package.check_access?(dbpkg)
-        end
-        return ret
-      end
-      sql += ' GROUP by pack.id'
-      ret = Package.find_by_sql [sql, attrib_type.id.to_s, attrib_type.id.to_s]
+    if package
+      sql += ' AND pack.name = ? GROUP by pack.id'
+      ret = Package.find_by_sql [sql, attrib_type.id.to_s, attrib_type.id.to_s, package]
       ret.each do |dbpkg|
         ret.delete(dbpkg) unless Package.check_access?(dbpkg)
       end
-      ret
+      return ret
     end
+    sql += ' GROUP by pack.id'
+    ret = Package.find_by_sql [sql, attrib_type.id.to_s, attrib_type.id.to_s]
+    ret.each do |dbpkg|
+      ret.delete(dbpkg) unless Package.check_access?(dbpkg)
+    end
+    ret
+  end
 
-    def find_by_attribute_type_and_value(attrib_type, value, package = nil)
-      # One sql statement is faster than a ruby loop
-      sql =<<-END_SQL
-      SELECT pack.*
-      FROM packages pack
-      LEFT OUTER JOIN attribs attr ON pack.id = attr.package_id
-      LEFT OUTER JOIN attrib_values val ON attr.id = val.attrib_id
-      WHERE attr.attrib_type_id = ? AND val.value = ?
-      END_SQL
+  def self.find_by_attribute_type_and_value(attrib_type, value, package = nil)
+    # One sql statement is faster than a ruby loop
+    sql =<<-END_SQL
+    SELECT pack.*
+    FROM packages pack
+    LEFT OUTER JOIN attribs attr ON pack.id = attr.package_id
+    LEFT OUTER JOIN attrib_values val ON attr.id = val.attrib_id
+    WHERE attr.attrib_type_id = ? AND val.value = ?
+    END_SQL
 
-      if package
-        sql += ' AND pack.name = ?'
-        ret = Package.find_by_sql [sql, attrib_type.id.to_s, value.to_s, package]
-        ret.each do |dbpkg|
-          ret.delete(dbpkg) unless Package.check_access?(dbpkg)
-        end
-        return ret
-      end
-      sql += ' GROUP by pack.id'
-      ret = Package.find_by_sql [sql, attrib_type.id.to_s, value.to_s]
+    if package
+      sql += ' AND pack.name = ?'
+      ret = Package.find_by_sql [sql, attrib_type.id.to_s, value.to_s, package]
       ret.each do |dbpkg|
         ret.delete(dbpkg) unless Package.check_access?(dbpkg)
       end
-      ret
+      return ret
+    end
+    sql += ' GROUP by pack.id'
+    ret = Package.find_by_sql [sql, attrib_type.id.to_s, value.to_s]
+    ret.each do |dbpkg|
+      ret.delete(dbpkg) unless Package.check_access?(dbpkg)
+    end
+    ret
+  end
+
+  def self.delete_patchinfo_of_project!(project, package, user)
+    parameters = {
+      user:    user,
+      project: project.name,
+      package: package.name
+    }
+
+    begin
+      Package.transaction do
+        # we need to keep this order to delete first the api model
+        package.revoke_requests
+        package.destroy
+
+        path = "#{package.source_path}#{Suse::Backend.build_query_from_hash(parameters, [:user])}"
+        Suse::Backend.delete(path)
+      end
+    rescue ActiveXML::Transport::Error, ActiveXML::Transport::NotFoundError => e
+      raise PackageError, e.summary
     end
 
-  end # self
+    Rails.cache.delete('%s_packages_mainpage' % project)
+    Rails.cache.delete('%s_problem_packages' % project)
+  end
 
   def check_source_access?
     if self.disabled_for?('sourceaccess', nil, nil) or self.project.disabled_for?('sourceaccess', nil, nil)

@@ -193,14 +193,30 @@ class Webui::PatchinfoController < Webui::WebuiController
   end
 
   def remove
-    begin
-      FrontendCompat.new.delete_package project: @project, package: @package
-      flash[:notice] = "'#{@package}' was removed successfully from project '#{@project}'"
-      Rails.cache.delete('%s_packages_mainpage' % @project)
-      Rails.cache.delete('%s_problem_packages' % @project)
-    rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary
+    authorize @package, :delete?
+
+    # checks
+    error_message = nil
+    if @package.name == '_project'
+      error_message = "_project package can not be deleted."
     end
+
+    # deny deleting if other packages use this as develpackage
+    unless error_message
+      begin
+        @package.can_be_deleted? # FIXME: This should be handled differently
+        Package.delete_patchinfo_of_project!(@project, @package, User.current) unless error_message
+      rescue APIException, Package::PackageError => e
+        error_message = e.message
+      end
+    end
+
+    if error_message
+      flash[:error] = error_message
+    else
+      flash[:notice] = "'#{@package}' was removed successfully from project '#{@project}'"
+    end
+
     redirect_to controller: 'project', action: 'show', project: @project
   end
 

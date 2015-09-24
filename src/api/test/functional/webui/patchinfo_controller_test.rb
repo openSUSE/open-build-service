@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 require_relative '../../test_helper'
 
-class Webui::PatchinfoCreateTest < Webui::IntegrationTest
+class Webui::PatchinfoControllerTest < Webui::IntegrationTest
 
   LONG_DESCRIPTION = "long description" * 15
 
@@ -187,19 +187,21 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
   def delete_patchinfo project
     visit patchinfo_show_path(package: 'patchinfo', project: project)
-    find(:id, 'delete-patchinfo').click
-    find(:id, 'del_dialog').must_have_text 'Delete Confirmation'
-    find_button("Ok").click
+    if page.has_link?('delete-patchinfo')
+      find(:id, 'delete-patchinfo').click
+      find(:id, 'del_dialog').must_have_text 'Delete Confirmation'
+      find_button("Ok").click
 
-    assert_equal page.current_path, project_show_path(project)
-    find('#flash-messages').must_have_text "'patchinfo' was removed successfully from project"
+      assert_equal page.current_path, project_show_path(project)
+      find('#flash-messages').must_have_text "'patchinfo' was removed successfully from project"
 
-    # FIXME: There must be a better way to test this
-    begin
-      Package.get_by_project_and_name(project.to_param, "patchinfo")
-      assert false
-    rescue Package::UnknownObjectError => e
-      assert_equal "home:Iggy/patchinfo", e.message
+      # FIXME: There must be a better way to test this
+      begin
+        Package.get_by_project_and_name(project.to_param, "patchinfo")
+        assert false
+      rescue Package::UnknownObjectError => e
+        assert_equal "home:Iggy/patchinfo", e.message
+      end
     end
   end
 
@@ -235,5 +237,54 @@ class Webui::PatchinfoCreateTest < Webui::IntegrationTest
 
     page.must_have_text "This update is currently blocked:"
     page.must_have_text "I don't like it"
+  end
+
+  def test_remove
+    login_tom
+    visit project_show_path(project: "home:tom")
+    # Workaround until we have nice fixtures / factory girl
+    click_link("Create patchinfo")
+    fill_in "summary", with: "This is a test for the patchinfo-editor"
+    fill_in "description", with: LONG_DESCRIPTION
+    click_button("Save Patchinfo")
+
+    visit patchinfo_show_path(package: 'patchinfo', project: "home:tom")
+    find(:id, "delete-patchinfo").click
+    find(:id, "del_dialog").must_have_text "Delete Confirmation"
+    find_button("Ok").click
+
+    assert_equal page.current_path, project_show_path("home:tom")
+    find('#flash-messages').must_have_text "'patchinfo' was removed successfully from project"
+
+    visit patchinfo_show_path(package: 'patchinfo', project: "home:tom")
+    assert !page.has_link?('delete-patchinfo')
+  end
+
+  def test_remove_that_fails
+    login_tom
+    visit project_show_path(project: "home:tom")
+    # Workaround until we have nice fixtures / factory girl
+    click_link("Create patchinfo")
+    fill_in "summary", with: "This is a test for the patchinfo-editor"
+    fill_in "description", with: LONG_DESCRIPTION
+    click_button("Save Patchinfo")
+
+    project = Project.find_by(name: "home:tom")
+    package = project.packages.find_by(name: "patchinfo")
+    Package.stubs(:delete_patchinfo_of_project!).
+      with(project, package, User.find_by(login: "tom")).
+      raises(Package::PackageError, "Couldn't remove patchinfo!")
+
+    # the actual test...
+    visit patchinfo_show_path(package: 'patchinfo', project: project.name)
+    find(:id, "delete-patchinfo").click
+    find(:id, "del_dialog").must_have_text "Delete Confirmation"
+    find_button("Ok").click
+
+    assert_equal page.current_path, project_show_path(project)
+    find('#flash-messages').must_have_text "Couldn't remove patchinfo!"
+
+    visit patchinfo_show_path(package: 'patchinfo', project: project.name)
+    assert page.has_link?('delete-patchinfo')
   end
 end
