@@ -25,15 +25,9 @@ class Distribution < ActiveRecord::Base
 
   def to_hash
     res = self.attributes
-    res["architectures"] = []
-    res["icons"] = []
-    self.architectures.each do |a|
-      res["architectures"] << a.name
-    end
-    self.icons.each do |i|
-      res["icons"] << i.attributes
-    end
-    return res
+    res["architectures"] = architectures.map { |a| a.name }
+    res["icons"] = icons.map { |i| i.attributes }
+    res
   end
 
   def self.all_as_hash
