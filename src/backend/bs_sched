@@ -4065,7 +4065,11 @@ sub remoteprojid {
   my $proj = $projpacks->{$projid};
   if ($proj) {
     return undef unless $proj->{'remoteurl'};
-    return undef unless $proj->{'remoteproject'};
+    if (!$proj->{'remoteproject'}) {
+      $proj = { %$proj };
+      delete $proj->{'remoteurl'};
+      return $proj;
+    }
     return {
       'name' => $projid,
       'root' => $projid,

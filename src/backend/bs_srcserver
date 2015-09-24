@@ -3593,9 +3593,9 @@ sub getproject {
   my ($cgi, $projid) = @_;
   # Read the project xml file
   my $proj = readproj($projid, 1, $cgi->{'rev'});
-  $proj = remoteprojid($projid) if !$proj || $proj->{'remoteurl'};
+  $proj = remoteprojid($projid) if !$proj || ($proj->{'remoteurl'} && $proj->{'remoteproject'});
   die("404 project '$projid' does not exist\n") unless $proj;
-  if ($proj->{'remoteurl'}) {
+  if ($proj->{'remoteurl'} && $proj->{'remoteproject'}) {
     my $p = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_meta", 'proxy' => $proxy}, $BSXML::proj);
     # map remote names to local names
     $p->{'name'} = $projid;
@@ -4139,7 +4139,10 @@ sub remoteprojid {
   my $proj = readproj($projid, 1);
   if ($proj) {
     return undef unless $proj->{'remoteurl'};
-    return undef unless $proj->{'remoteproject'};
+    if (!$proj->{'remoteproject'}) {
+      delete $proj->{'remoteurl'};
+      return $proj;
+    }
     return {
       'name' => $projid,
       'root' => $projid,
