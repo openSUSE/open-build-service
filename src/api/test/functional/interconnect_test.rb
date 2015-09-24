@@ -369,6 +369,19 @@ end
     assert_response :success
   end
 
+  def test_invalid_operation_to_remote
+    login_king
+    delete '/source/RemoteInstance:BaseDistro2.0'
+    assert_response 403
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'delete_project_no_permission' }
+    delete '/source/RemoteInstance:BaseDistro2.0/pack2'
+    assert_response 403
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'delete_package_no_permission' }
+    post '/source/RemoteInstance:BaseDistro2.0/package', :cmd => :copy, :oproject => 'BaseDistro2.0', :opackage => 'pack2'
+    assert_response 403
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'cmd_execution_no_permission' }
+  end
+
   def test_invalid_submit_to_remote_instance
     login_king
     post '/request?cmd=create', '<request>

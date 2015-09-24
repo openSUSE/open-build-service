@@ -170,7 +170,7 @@ class SourceController < ApplicationController
     project = Project.get_by_name(project_name)
 
     # checks
-    unless User.current.can_modify_project?(project)
+    unless project.kind_of?(Project) && User.current.can_modify_project?(project)
       logger.debug "No permission to delete project #{project_name}"
       render_error :status => 403, :errorcode => 'delete_project_no_permission',
                    :message => "Permission denied (delete project #{project_name})"
@@ -299,7 +299,7 @@ class SourceController < ApplicationController
                                            use_source: false, follow_project_links: false)
 
     unless User.current.can_modify_package?(tpkg)
-      raise DeletePackageNoPermission.new "no permission to delete package #{tpkg.name} in project #{tpkg.project.name}"
+      raise DeletePackageNoPermission.new "no permission to delete package #{@target_package_name} in project #{@target_project_name}"
     end
 
     # deny deleting if other packages use this as develpackage
@@ -1551,7 +1551,7 @@ class SourceController < ApplicationController
 
     if Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: false)
       verify_can_modify_target_package!
-    elsif !User.current.can_create_package_in?(@project)
+    elsif (not @project.kind_of?(Project)) || !User.current.can_create_package_in?(@project)
       raise CmdExecutionNoPermission.new "no permission to create package in project #{@target_project_name}"
     end
   end
