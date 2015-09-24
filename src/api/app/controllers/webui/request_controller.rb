@@ -415,7 +415,6 @@ class Webui::RequestController < Webui::WebuiController
       flash[:error] = "Unknown incident project to set"
     else
       begin
-        req.permission_check_setincident!(params[:incident_project])
         req.setincident(params[:incident_project])
         flash[:notice] = "Set target of request #{req.id} to incident #{params[:incident_project]}"
       rescue Project::UnknownObjectError => e
