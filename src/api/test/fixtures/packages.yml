@@ -117,7 +117,7 @@ BaseDistro_pack2:
   delta: 1
   project: BaseDistro
 BaseDistro_pack3:
-  name: pack3
+  name: Pack3
   title: For maintenance tests
   description: ''
   created_at: 2007-05-16 16:19:18.000000000 Z
@@ -195,7 +195,7 @@ Devel_BaseDistro_Update_pack2:
   delta: 1
   project: Devel_BaseDistro_Update
 Devel_BaseDistro_Update_pack3:
-  name: pack3
+  name: Pack3
   title: Devel package for maintenance tests
   description: ''
   created_at: 2007-05-16 16:19:18.000000000 Z

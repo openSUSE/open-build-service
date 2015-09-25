@@ -138,7 +138,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag( :tag => 'sourceinfo', :attributes => { :package => 'pack1' } )
     assert_xml_tag( :tag => 'sourceinfo', :attributes => { :package => 'pack2' } )
-    assert_no_xml_tag( :tag => 'sourceinfo', :attributes => { :package => 'pack3' } )
+    assert_no_xml_tag( :tag => 'sourceinfo', :attributes => { :package => 'Pack3' } )
 
     # with credentials
     login_tom
@@ -146,7 +146,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag( :tag => 'sourceinfo', :attributes => { :package => 'pack1' } )
     assert_xml_tag( :tag => 'sourceinfo', :attributes => { :package => 'pack2' } )
-    assert_no_xml_tag( :tag => 'sourceinfo', :attributes => { :package => 'pack3' } )
+    assert_no_xml_tag( :tag => 'sourceinfo', :attributes => { :package => 'Pack3' } )
   end
 
   def test_backend_post_with_forms
