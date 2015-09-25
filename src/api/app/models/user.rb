@@ -571,14 +571,14 @@ class User < ActiveRecord::Base
   # project_name is name of the project
   def can_create_project?(project_name)
     ## special handling for home projects
-    return true if project_name == self.home_project_name and ::Configuration.allow_user_to_create_home_project
-    return true if /^#{self.home_project_name}:/.match( project_name ) and ::Configuration.allow_user_to_create_home_project
+    return true if project_name == self.home_project_name && Configuration.allow_user_to_create_home_project
+    return true if /^#{self.home_project_name}:/.match(project_name) && Configuration.allow_user_to_create_home_project
 
-    return true if has_global_permission? 'create_project'
+    return true if has_global_permission?('create_project')
     parent_project = Project.new(name: project_name).parent
     return false if parent_project.nil?
     return true  if is_admin?
-    return has_local_permission?( 'create_project', parent_project)
+    return has_local_permission?('create_project', parent_project)
   end
 
   def can_modify_attribute_definition?(object)

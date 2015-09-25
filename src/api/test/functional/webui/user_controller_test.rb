@@ -100,4 +100,38 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     assert_equal "tom", User.current.try(:login)
     assert_equal search_path, current_path
   end
+
+  def test_redirect_after_register_user_action_works
+    visit user_register_user_path
+    within ".sign-up" do
+      fill_in "Username", with: "bob"
+      fill_in "Email address", with: "bob@suse.de"
+      fill_in "Enter a password", with: "linux123"
+    end
+    click_button "Sign Up"
+
+    new_user = User.find_by(login: "bob")
+    assert new_user, "Should create a new user account"
+    assert_equal "bob", User.current.try(:login), "Should log the user in"
+    assert_equal project_show_path(new_user.home_project_name), current_path,
+                 "Should redirect properly"
+  end
+
+  def test_redirect_after_register_user_action_works_no_homes
+    Configuration.stubs(:allow_user_to_create_home_project).returns(false)
+
+    visit user_register_user_path
+    within ".sign-up" do
+      fill_in "Username", with: "bob"
+      fill_in "Email address", with: "bob@suse.de"
+      fill_in "Enter a password", with: "linux123"
+    end
+    click_button "Sign Up"
+
+    assert User.find_by(login: "bob"), "Should create a new user account"
+    assert !Project.where(name: User.current.home_project_name).exists?,
+           "Should not create a home projec when Configuration option is disabled"
+    assert_equal "bob", User.current.try(:login), "Should log the user in"
+    assert_equal root_path, current_path, "Should redirect properly"
+  end
 end

@@ -212,7 +212,13 @@ class Webui::UserController < Webui::WebuiController
       session[:login] = opts[:login]
       session[:password] = opts[:password]
       authenticate_form_auth
-      redirect_back_or_to :controller => :main, :action => :index
+      # set User.current
+      check_user
+      if Project.where(name: User.current.home_project_name).exists?
+        redirect_to project_show_path(User.current.home_project_name)
+      else
+        redirect_to :controller => :main, :action => :index
+      end
     end
   end
 

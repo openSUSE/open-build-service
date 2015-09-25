@@ -11,7 +11,7 @@ class Webui::WebuiController < ActionController::Base
 
   before_filter :setup_view_path
   before_filter :instantiate_controller_and_action_names
-  before_filter :set_return_to, except: [:do_login, :login]
+  before_filter :set_return_to, except: [:do_login, :login, :register_user]
   before_filter :reset_activexml, :authenticate
   before_filter :check_user
   before_filter :check_anonymous
