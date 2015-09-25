@@ -6,6 +6,17 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   uses_transaction :test_admin_can_delete_every_project
   uses_transaction :test_create_project_publish_disabled
 
+  CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT = 'Type: spec
+Substitute: kiwi package
+Substitute: kiwi-packagemanager:instsource package
+Ignore: package:bash'
+
+  NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT = 'Type: spec
+Substitute: kiwi package
+Substitute: kiwi-packagemanager:instsource package
+Ignore: package:bash
+Ignore: package:cups'
+
   def test_project_show
     use_js
     visit project_show_path(project: 'Apache')
@@ -87,8 +98,10 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     find(:id, 'advanced_tabs_trigger').click
     find(:link, 'Meta').click
 
-    # TODO: find a more reliable way to retrieve the text - having the line numbers in here sounds dangerous
-    find(:css, 'div.CodeMirror-lines').must_have_text %r{<access> 6 <disable/> 7 </access>}
+    editor_lines = page.evaluate_script("editors[0].getValue()").lines.map(&:strip)
+    assert_equal editor_lines[4], "<access>"
+    assert_equal editor_lines[5], "<disable/>"
+    assert_equal editor_lines[6], "</access>"
 
     # now check that adrian can't see it
     logout
@@ -568,4 +581,31 @@ XML
       find(:link, "my_other_project").text.must_equal "my_other_project"
     end
   end
+
+  def test_config_file
+    use_js
+
+    login_Iggy to: project_users_path(project: 'home:Iggy')
+    click_link 'advanced_tabs_trigger'
+    click_link 'Project Config'
+    config_value = page.evaluate_script("editors[0].getValue()")
+    assert_equal config_value, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+  end
+
+  def test_updating_config_file
+    use_js
+
+    login_Iggy to: project_users_path(project: 'home:Iggy')
+    click_link 'advanced_tabs_trigger'
+    click_link 'Project Config'
+    page.execute_script("editors[0].setValue(\"#{NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT.gsub("\n", '\n')}\")")
+    click_button 'Save'
+
+    visit project_show_path project: "home:Iggy"
+    click_link 'advanced_tabs_trigger'
+    click_link 'Project Config'
+    config_value = page.evaluate_script("editors[0].getValue()")
+    assert_equal config_value, NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+  end
+
 end
