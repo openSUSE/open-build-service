@@ -241,6 +241,28 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
                    :tag => "arch", :content => "x86_64"
   end
 
+  def test_project_repositories_uniq_archs
+    use_js
+    login_tom
+
+    visit project_repositories_path(project: 'home:tom')
+
+    assert_equal 1, all(:xpath, "//table[@id='flag_table_build']/tbody/tr/th[text()='All']").count
+    assert_equal 1, all(:xpath, "//table[@id='flag_table_publish']/tbody/tr/th[text()='All']").count
+    assert_equal 1, all(:xpath, "//table[@id='flag_table_debuginfo']/tbody/tr/th[text()='All']").count
+    assert_equal 1, all(:xpath, "//table[@id='flag_table_useforbuild']/tbody/tr/th[text()='All']").count
+
+    assert_equal 1, all(:xpath, "//table[@id='flag_table_build']/tbody/tr/th[text()='i586']").count
+    assert_equal 1, all(:xpath, "//table[@id='flag_table_publish']/tbody/tr/th[text()='i586']").count
+    assert_equal 1, all(:xpath, "//table[@id='flag_table_debuginfo']/tbody/tr/th[text()='i586']").count
+    assert_equal 1, all(:xpath, "//table[@id='flag_table_useforbuild']/tbody/tr/th[text()='i586']").count
+
+    assert_equal 1, all(:xpath, "//table[@id='flag_table_build']/tbody/tr/th[text()='x86_64']").count
+    assert_equal 1, all(:xpath, "//table[@id='flag_table_publish']/tbody/tr/th[text()='x86_64']").count
+    assert_equal 1, all(:xpath, "//table[@id='flag_table_debuginfo']/tbody/tr/th[text()='x86_64']").count
+    assert_equal 1, all(:xpath, "//table[@id='flag_table_useforbuild']/tbody/tr/th[text()='x86_64']").count
+  end
+
   def test_list_all
     use_js
 
