@@ -1021,7 +1021,7 @@ class Project < ActiveRecord::Base
           projects << lp.linked_remote_project_name
         end
       else
-        lp.linked_db_project.expand_all_projects(project_map).each do |p|
+        lp.linked_db_project.expand_all_projects(project_map, allow_remote_projects).each do |p|
           projects << p
         end
       end
