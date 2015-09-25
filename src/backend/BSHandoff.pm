@@ -48,7 +48,7 @@ sub handoff {
   socket(SOCK, PF_UNIX, SOCK_STREAM, 0) || die("socket: $!\n");
   connect(SOCK, sockaddr_un($sockname)) || die("connect: $!\n");
   my $param = {
-    'uri' => $path,
+    'uri' => ref($path) ? $path->{'uri'} : $path,
     'socket' => *SOCK,
     'sender' => \&handoffsender,
   };
