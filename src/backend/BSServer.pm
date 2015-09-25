@@ -458,31 +458,6 @@ sub getpeerdata {
   return ($port, $addr);
 }
 
-sub gethead {
-  # parses http header and fills hash
-  # $h: reference to the hash to be filled
-  # $t: http header as string
-  my ($h, $t) = @_;
-
-  my ($field, $data);
-  for (split(/[\r\n]+/, $t)) {
-    next if $_ eq '';
-    if (/^[ \t]/) {
-      next unless defined $field;
-      s/^\s*/ /;
-      $h->{$field} .= $_;
-    } else {
-      ($field, $data) = split(/\s*:\s*/, $_, 2);
-      $field =~ tr/A-Z/a-z/;
-      if ($h->{$field} && $h->{$field} ne '') {
-        $h->{$field} = $h->{$field}.','.$data;
-      } else {
-        $h->{$field} = $data;
-      }
-    }
-  }
-}
-
 sub readrequest {
   my ($req) = @_;
   my $qu = '';
@@ -506,7 +481,7 @@ sub readrequest {
     }
     $qu =~ /^(.*?)\r?\n\r?\n(.*)$/s;	# redo regexp to work around perl bug
     $qu = $2;
-    gethead(\%headers, "Request: $1");	# put 1st line of http request into $headers{'request'}
+    BSHTTP::gethead(\%headers, "Request: $1");	# put 1st line of http request into $headers{'request'}
   } else {
     # no version -> HTTP 0.9 request
     die("501 Bad method, must be GET\n") if $act ne 'GET';

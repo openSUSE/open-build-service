@@ -27,6 +27,7 @@ use Socket;
 use Fcntl qw(:DEFAULT);
 use Symbol;
 use BSEvents;
+use BSHTTP;
 use Data::Dumper;
 
 use strict;
@@ -35,32 +36,6 @@ our $gev;	# our event
 
 # FIXME: should not set global
 $BSServer::request if 0;	# get rid of used only once warning
-
-sub gethead {
-  # parses http header and fills hash
-  # $h: reference to the hash to be filled
-  # $t: http header as string
-  my ($h, $t) = @_; 
-
-  my ($field, $data);
-  for (split(/[\r\n]+/, $t)) {
-    next if $_ eq ''; 
-    if (/^[ \t]/) {
-      next unless defined $field;
-      s/^\s*/ /;
-      $h->{$field} .= $_; 
-    } else {
-      ($field, $data) = split(/\s*:\s*/, $_, 2); 
-      $field =~ tr/A-Z/a-z/;
-      if ($h->{$field} && $h->{$field} ne '') {
-        $h->{$field} = $h->{$field}.','.$data;
-      } else {
-        $h->{$field} = $data;
-      }   
-    }   
-  }
-}
-
 
 sub replstream_timeout {
   my ($ev) = @_;
@@ -188,26 +163,6 @@ sub reply_file {
   reply_stream($rev, @hdrs);
 }
 
-sub makecpiohead {
-  my ($file, $s) = @_;
-  return "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000b00000000TRAILER!!!\0\0\0\0" if !$file;
-  my $name = $file->{'name'};
-  my $mode = $file->{'mode'} || 0x81a4;
-  my $h = sprintf("07070100000000%08x000000000000000000000001", $mode);
-  if ($s->[7] > 0xffffffff) {
-    my $top = int($s->[7] / 4294967296.);
-    $h .= sprintf("%08xffffffff%08x%08x", $s->[9], $top, $s->[7] - $top * 4294967296.);
-  } else {
-    $h .= sprintf("%08x%08x", $s->[9], $s->[7]);
-  }
-  $h .= "00000000000000000000000000000000";
-  $h .= sprintf("%08x", length($name) + 1);
-  $h .= "00000000$name\0";
-  $h .= substr("\0\0\0\0", (length($h) & 3)) if length($h) & 3;
-  my $pad = $s->[7] % 4 ? substr("\0\0\0\0", $s->[7] % 4) : '';
-  return ($h, $pad);
-}
-
 sub cpio_nextfile {
   my ($ev) = @_;
 
@@ -224,7 +179,7 @@ sub cpio_nextfile {
 	$file = {'data' => $ev->{'cpioerrors'}, 'name' => '.errors'};
 	$ev->{'cpioerrors'} = '';
       } else {
-	$data .= makecpiohead();
+	$data .= BSHTTP::makecpiohead();
 	return $data;
       }
     } else {
@@ -260,7 +215,7 @@ sub cpio_nextfile {
       $s[7] = length($file->{'data'});
       $s[9] = time();
     }
-    my ($header, $pad) = makecpiohead($file, \@s);
+    my ($header, $pad) = BSHTTP::makecpiohead($file, \@s);
     $data .= $header;
     $ev->{'filespad'} = $pad;
     if (!exists $file->{'filename'}) {
@@ -344,7 +299,7 @@ sub getrequest {
 	BSEvents::add($ev);
 	return;
       }
-      gethead($headers, "Request: $1");
+      BSHTTP::gethead($headers, "Request: $1");
     } else {
       die("501 Bad method, must be GET\n") if $act ne 'GET';
     }
