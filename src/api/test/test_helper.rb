@@ -36,8 +36,7 @@ require 'mocha/setup'
 require 'capybara/poltergeist'
 
 require 'capybara/rails'
-## this is the build service! 2 seconds - HAHAHA
-Capybara.default_wait_time = 30
+Capybara.default_wait_time = 2
 
 Capybara.register_driver :poltergeist do |app|
   Capybara::Poltergeist::Driver.new(app, debug: false, timeout: 30)
