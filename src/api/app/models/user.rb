@@ -789,11 +789,9 @@ class User < ActiveRecord::Base
   # lists reviews involving this user
   def involved_reviews
     open_reviews = BsRequest.collection(user: self.login, roles: %w(reviewer creator), reviewstates: %w(new), states: %w(review))
-    reviews_in = []
-    open_reviews.each do |review|
-      reviews_in << review if review['creator'] != login
+    open_reviews.select do |review|
+      review['creator'] != login
     end
-    reviews_in
   end
 
   # list requests involving this user
