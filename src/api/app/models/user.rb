@@ -924,12 +924,8 @@ class User < ActiveRecord::Base
     remove_from_globalroles = old_globalroles - new_globalroles
     remove_globalroles(remove_from_globalroles)
 
-    # Add missing globalroles
     add_to_globalroles = new_globalroles - old_globalroles
-    roles_to_add = Role.where(title: add_to_globalroles)
-    roles_to_add.each do |role|
-      roles_users.new(role: role)
-    end
+    add_globalroles(add_to_globalroles)
   end
 
   def remove_globalroles(role_titles)
@@ -937,6 +933,14 @@ class User < ActiveRecord::Base
     roles_users.where(role_id: role_ids).delete_all
   end
   private :remove_globalroles
+
+  def add_globalroles(role_titles)
+    roles_to_add = Role.where(title: role_titles)
+    roles_to_add.each do |role|
+      roles_users.new(role: role)
+    end
+  end
+  private :add_globalroles
 
   # returns the gravatar image as string or :none
   def gravatar_image(size)
