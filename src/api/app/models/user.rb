@@ -921,12 +921,13 @@ class User < ActiveRecord::Base
   def update_globalroles( new_globalroles )
     old_globalroles = roles.where(global: true).pluck(:title)
 
-    add_to_globalroles = new_globalroles - old_globalroles
+    # Remove outdated globalroles
     remove_from_globalroles = old_globalroles - new_globalroles
-
     role_ids_to_remove = Role.where(title: remove_from_globalroles).ids
     roles_users.where(role_id: role_ids_to_remove).delete_all
 
+    # Add missing globalroles
+    add_to_globalroles = new_globalroles - old_globalroles
     roles_to_add = Role.where(title: add_to_globalroles)
     roles_to_add.each do |role|
       roles_users.new(role: role)
