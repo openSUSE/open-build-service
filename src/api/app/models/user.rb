@@ -921,11 +921,9 @@ class User < ActiveRecord::Base
   def update_globalroles( new_globalroles )
     old_globalroles = roles.where(global: true).pluck(:title)
 
-    remove_from_globalroles = old_globalroles - new_globalroles
-    remove_globalroles(remove_from_globalroles)
+    remove_globalroles(old_globalroles - new_globalroles)
 
-    add_to_globalroles = new_globalroles - old_globalroles
-    add_globalroles(add_to_globalroles)
+    add_globalroles(new_globalroles - old_globalroles)
   end
 
   def remove_globalroles(role_titles)
