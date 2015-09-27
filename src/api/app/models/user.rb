@@ -919,11 +919,7 @@ class User < ActiveRecord::Base
   end
 
   def update_globalroles( new_globalroles )
-    old_globalroles = []
-
-    self.roles.where(global: true).each do |ugr|
-      old_globalroles << ugr.title
-    end
+    old_globalroles = roles.where(global: true).pluck(:title)
 
     add_to_globalroles = new_globalroles.collect {|i| old_globalroles.include?(i) ? nil : i}.compact
     remove_from_globalroles = old_globalroles.collect {|i| new_globalroles.include?(i) ? nil : i}.compact
