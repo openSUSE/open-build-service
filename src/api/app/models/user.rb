@@ -921,8 +921,8 @@ class User < ActiveRecord::Base
   def update_globalroles( new_globalroles )
     old_globalroles = roles.where(global: true).pluck(:title)
 
-    add_to_globalroles = new_globalroles.collect {|i| old_globalroles.include?(i) ? nil : i}.compact
-    remove_from_globalroles = old_globalroles.collect {|i| new_globalroles.include?(i) ? nil : i}.compact
+    add_to_globalroles = new_globalroles - old_globalroles
+    remove_from_globalroles = old_globalroles - new_globalroles
 
     remove_from_globalroles.each do |title|
       self.roles_users.where(role_id: Role.find_by_title!(title).id).delete_all
