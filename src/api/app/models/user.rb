@@ -927,8 +927,9 @@ class User < ActiveRecord::Base
     role_ids_to_remove = Role.where(title: remove_from_globalroles).ids
     roles_users.where(role_id: role_ids_to_remove).delete_all
 
-    add_to_globalroles.each do |title|
-      self.roles_users.new(role: Role.find_by_title!(title))
+    roles_to_add = Role.where(title: add_to_globalroles)
+    roles_to_add.each do |role|
+      roles_users.new(role: role)
     end
   end
 
