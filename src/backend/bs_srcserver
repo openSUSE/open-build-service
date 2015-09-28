@@ -8618,7 +8618,6 @@ my $dispatches_ajax = [
 my $conf = {
   'port' => $port,
   'dispatches' => $dispatches,
-  'setkeepalive' => 1,
   'maxchild' => 20,
   'maxchild2' => 20,
 };
@@ -8626,9 +8625,6 @@ my $conf = {
 my $aconf = {
   'socketpath' => $ajaxsocket,
   'dispatches' => $dispatches_ajax,
-  'getrequest_timeout' => 10,
-  'replrequest_timeout' => 10,
-  'setkeepalive' => 1,
 };
 
 if ($BSConfig::workersrcserver) {

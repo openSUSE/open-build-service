@@ -227,6 +227,8 @@ sub server {
     $aconf->{'dispatches_call'} ||= \&BSWatcher::dispatches_call;
     $aconf->{'getrequest_recvfd'} ||= \&BSHandoff::receivefd;
     $aconf->{'setkeepalive'} = 1 unless defined $aconf->{'setkeepalive'};
+    $aconf->{'getrequest_timeout'} = 10 unless exists $aconf->{'getrequest_timeout'};
+    $aconf->{'replrequest_timeout'} = 10 unless exists $aconf->{'replrequest_timeout'};
     $aconf->{'name'} = $name;
     BSDispatch::compile($aconf);
   }
