@@ -5,14 +5,14 @@
     <h2 class="box-header">Edit your account</h2>
     <div class="dialog-content">
       <%= form_tag(:action => 'save') do %>
-        <input id="user" name="user" type="hidden" value="<%= User.current.login %>" />
+        <input id="user" name="user" type="hidden" value="<%= User.find_by_login!(params['user']).login %>" />
         <p>
           <%= label_tag :realname, 'Name:' %><br/>
-          <%= text_field_tag :realname, User.current.realname %>
+          <%= text_field_tag :realname, User.find_by_login!(params['user']).realname %>
         </p>
         <p>
           <%= label_tag :email, 'e-Mail:' %><br/>
-          <%= email_field_tag :email, User.current.email %>
+          <%= email_field_tag :email, User.find_by_login!(params['user']).email %>
         </p>
         <div class="dialog-buttons">
           <%= submit_tag("Ok") %>
