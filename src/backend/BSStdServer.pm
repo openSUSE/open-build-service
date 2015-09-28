@@ -212,18 +212,22 @@ sub server {
     $conf->{'periodic'} ||= \&periodic;
     $conf->{'periodic_interval'} ||= 1;
     $conf->{'serverstatus'} ||= "$rundir/$name.status";
+    $conf->{'setkeepalive'} = 1 unless defined $conf->{'setkeepalive'};
     $conf->{'name'} = $name;
     BSDispatch::compile($conf);
   }
   if ($aconf) {
+    require BSHandoff;
     $aconf->{'verifiers'} ||= $BSVerify::verifiers;
     $aconf->{'dispatch'} ||= \&dispatch;
     $aconf->{'stdreply'} ||= \&stdreply;
     $aconf->{'errorreply'} ||= \&errreply;
     $aconf->{'periodic'} ||= \&periodic_ajax;
     $aconf->{'periodic_interval'} ||= 1;
-    $aconf->{'name'} = $name;
     $aconf->{'dispatches_call'} ||= \&BSWatcher::dispatches_call;
+    $aconf->{'getrequest_recvfd'} ||= \&BSHandoff::receivefd;
+    $aconf->{'setkeepalive'} = 1 unless defined $aconf->{'setkeepalive'};
+    $aconf->{'name'} = $name;
     BSDispatch::compile($aconf);
   }
   BSServer::deamonize(@{$args || []});
@@ -238,6 +242,7 @@ sub server {
     }
     BSServer::serveropen($port2 ? "$port,$port2" : $port, $BSConfig::bsuser, $BSConfig::bsgroup);
     $conf->{'ajaxsocketpath'} = $aconf->{'socketpath'} if $aconf;
+    $conf->{'handoffpath'} = $aconf->{'socketpath'} if $aconf;
     unlink("$aconf->{'socketpath'}.lock") if $aconf;
   }
   if ($aconf) {

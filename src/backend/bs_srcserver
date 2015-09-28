@@ -184,8 +184,7 @@ sub lastnotifications {
       my @args;
       push @args, "start=$cgi->{'start'}";
       push @args, "block=1";
-      BSHandoff::handoff($ajaxsocket, '/lastnotifications', undef, @args);
-      exit(0);
+      BSHandoff::handoff('/lastnotifications', undef, @args);
     }
     # wait untill we have a winner
     BSWatcher::addfilewatcher("$eventdir/lastnotifications");
@@ -4411,7 +4410,7 @@ sub remote_getrev {
     next if -e "$srcrep/$packid/$entry->{'md5'}-$entry->{'name'}";
     if ($linked && $entry->{'size'} > 8192) {
       # getprojpack request, hand over to AJAX
-      BSHandoff::rpc($ajaxsocket, "/source/$projid/$packid", undef, "rev=$dir->{'srcmd5'}", 'view=notify');
+      BSHandoff::rpc("/source/$projid/$packid", undef, "rev=$dir->{'srcmd5'}", 'view=notify');
       die("download in progress\n");
     }
     mkdir_p($uploaddir);
@@ -4951,8 +4950,7 @@ sub getfilelist {
       # hack: we identify remote source downloads by looking at the user agent
       my $useragent = $BSServer::request->{'headers'}->{'user-agent'} || '';
       if ($useragent =~ /BSRPC/) {
-	BSHandoff::handoff($ajaxsocket, "/source/$projid/$packid", undef, "rev=$rev->{'srcmd5'}", 'view=cpio');
-	exit(0);
+	BSHandoff::handoff("/source/$projid/$packid", undef, "rev=$rev->{'srcmd5'}", 'view=cpio');
       }
     }
     my @files = map {{'name' => $_, 'filename' => "$srcrep/$packid/$files->{$_}-$_"}} sort keys %$files;
@@ -5031,8 +5029,7 @@ sub getfile {
     # hack: we identify remote source downloads by looking at the user agent
     my $useragent = $BSServer::request->{'headers'}->{'user-agent'} || '';
     if ($useragent =~ /BSRPC/) {
-      BSHandoff::handoff($ajaxsocket, "/source/$projid/$packid/$filename", undef, "rev=$rev->{'srcmd5'}");
-      exit(0);
+      BSHandoff::handoff("/source/$projid/$packid/$filename", undef, "rev=$rev->{'srcmd5'}");
     }
   }
   my $fd = gensym;
@@ -5235,8 +5232,7 @@ sub sourcediff {
   if (!BSUtil::lockcheck('>>', "$cn.run")) {
     my @args;
     push @args, "view=$view" if $view;
-    BSHandoff::handoff($ajaxsocket, "/sourcediffcache/$cacheid", undef, @args);
-    exit(0);
+    BSHandoff::handoff("/sourcediffcache/$cacheid", undef, @args);
   }
   BSUtil::lockopen(\*LF, '>>', "$cn.run");
   # retry open, maybe somebody else has created the diff meanwhile
@@ -6372,8 +6368,7 @@ sub getresult {
     push @args, map {"arch=$_"} @{$cgi->{'arch'} || []};
     push @args, map {"package=$_"} @{$cgi->{'package'} || []};
     push @args, map {"code=$_"} @{$cgi->{'code'} || []};
-    BSHandoff::handoff($ajaxsocket, "/build/$projid/_result", undef, @args);
-    exit(0);
+    BSHandoff::handoff("/build/$projid/_result", undef, @args);
   }
 
   my %repoidfilter = map {$_ => 1} @{$cgi->{'repository'} || []};
@@ -6552,8 +6547,7 @@ sub getpackagelist_build {
     };
     if ($proj->{'remoteurl'}) {
       if (!$BSStdServer::isajax) {
-	BSHandoff::handoff($ajaxsocket, "/build/$projid/$repoid/$arch", undef, @args);
-	exit(0);
+	BSHandoff::handoff("/build/$projid/$repoid/$arch", undef, @args);
       }
       $param->{'uri'} = "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch";
       $param->{'proxy'} = $proxy;
@@ -6593,11 +6587,9 @@ sub getbinarylist {
 	push @args, "repository=$repoid";
 	push @args, "arch=$arch";
 	push @args, "binaries=".join(',', @{$cgi->{'binary'} || []});
-	BSHandoff::handoff($ajaxsocket, '/getbinaries', undef, @args);
-	exit(0);
+	BSHandoff::handoff('/getbinaries', undef, @args);
       }
-      BSHandoff::handoff($ajaxsocket, "/build/$projid/$repoid/$arch/$packid", undef, @args);
-      exit(0);
+      BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid", undef, @args);
     }
     my $param = {
       'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid",
@@ -6629,8 +6621,7 @@ sub getbinarylist {
       push @args, "arch=$arch";
       push @args, 'nometa=1' if $cgi->{'nometa'};
       push @args, "binaries=".join(',', @{$cgi->{'binary'} || []});
-      BSHandoff::handoff($ajaxsocket, '/getbinaryversions', undef, @args);
-      exit(0);
+      BSHandoff::handoff('/getbinaryversions', undef, @args);
     }
     if (!$BSStdServer::isajax && $packid eq '_repository') {
       # this can take a while if we have dod configured, in that case handoff
@@ -6639,8 +6630,7 @@ sub getbinarylist {
 	my $doddata = (grep {($_->{'arch'} || '') eq $arch} @{$repo->{'download'} || []})[0];
 	if ($doddata) {
 	  die("will not get all dod packages\n") unless @{$cgi->{'binary'} || []};
-	  BSHandoff::handoff($ajaxsocket, "/build/$projid/$repoid/$arch/$packid", undef, @args);
-	  exit(0);
+	  BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid", undef, @args);
 	}
       }
     }
@@ -6670,8 +6660,7 @@ sub getbinary {
     push @args, "arch=$arch";
     push @args, "binaries=$filename";
     push @args, "raw=1";
-    BSHandoff::handoff($ajaxsocket, '/getbinaries', undef, @args);
-    exit(0);
+    BSHandoff::handoff('/getbinaries', undef, @args);
   }
   if ($view eq 'publishedpath') {
     die("publishedpath does not work for _repository\n") if $packid eq '_repository';
@@ -6819,8 +6808,7 @@ sub getlogfile {
   push @args, "view=$cgi->{'view'}" if $cgi->{'view'};
   if (!$BSStdServer::isajax && !$cgi->{'view'}) {
     my $url = "/build/$projid/$repoid/$arch/$packid/_log";
-    BSHandoff::handoff($ajaxsocket, $url, undef, @args);
-    exit(0);
+    BSHandoff::handoff($url, undef, @args);
   }
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
   my $param = {
@@ -6984,10 +6972,7 @@ sub getworkerstatus {
 
 sub getajaxstatus {
   my ($cgi) = @_;
-  if (!$BSStdServer::isajax) {
-    BSHandoff::handoff($ajaxsocket, '/ajaxstatus');
-    exit(0);
-  }
+  BSHandoff::handoff('/ajaxstatus') if !$BSStdServer::isajax;
   my $r = BSWatcher::getstatus();
   return ($r, $BSXML::ajaxstatus);
 }
@@ -7781,8 +7766,7 @@ sub worker_getbinaries {
     push @args, "repository=$repoid";
     push @args, "arch=$arch";
     push @args, "binaries=$cgi->{'binaries'}";
-    BSHandoff::handoff($ajaxsocket, '/getbinaries', undef, @args);
-    exit(0);
+    BSHandoff::handoff('/getbinaries', undef, @args);
   }
   my @binaries = split(',', $cgi->{'binaries'});
   my ($remoteurl, $remoteprojid, $remoteproxy) = findremote($projid);
@@ -7929,8 +7913,7 @@ sub worker_getbinaryversions {
     push @args, "arch=$arch";
     push @args, "binaries=$cgi->{'binaries'}";
     push @args, "nometa=1" if $cgi->{'nometa'};
-    BSHandoff::handoff($ajaxsocket, '/getbinaryversions', undef, @args);
-    exit(0);
+    BSHandoff::handoff('/getbinaryversions', undef, @args);
   }
   my @binaries = split(',', $cgi->{'binaries'});
   my ($remoteurl, $remoteprojid, $remoteproxy) = findremote($projid);
@@ -7991,8 +7974,7 @@ sub lastevents {
     push @args, "obsname=$cgi->{'obsname'}" if $cgi->{'obsname'};
     push @args, map {"filter=$_"} @{$filter || []};
     push @args, "start=$cgi->{'start'}";
-    BSHandoff::handoff($ajaxsocket, '/lastevents', undef, @args);
-    exit(0);
+    BSHandoff::handoff('/lastevents', undef, @args);
   }
   BSWatcher::addfilewatcher("$eventdir/lastevents");
 
@@ -8646,7 +8628,6 @@ my $aconf = {
   'dispatches' => $dispatches_ajax,
   'getrequest_timeout' => 10,
   'replrequest_timeout' => 10,
-  'getrequest_recvfd' => \&BSHandoff::receive,
   'setkeepalive' => 1,
 };
 

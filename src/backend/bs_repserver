@@ -189,10 +189,7 @@ sub fetchdodbinary {
   my $localname = "$reporoot/$reponame/$arch/:full/$pkgname.$suf";
   return $localname if -e $localname;
   # we really need to download, handoff to ajax if not already done
-  if ($handoff && !$BSStdServer::isajax) {
-    BSHandoff::handoff($ajaxsocket, @$handoff);
-    exit(0);
-  }
+  BSHandoff::handoff(@$handoff) if $handoff && !$BSStdServer::isajax;
   my $url = $repo->dodurl();
   $url .= '/' unless $url =~ /\/$/;
   $url .= $pool->pkg2path($p);
@@ -519,8 +516,7 @@ sub getbinarylist_repository {
     my @args;
     push @args, "view=$view";
     push @args, map {"binary=$_"} @{$cgi->{'binary'} || []};
-    BSHandoff::handoff($ajaxsocket, "/build/$projid/$repoid/$arch/_repository", undef, @args);
-    exit(0);
+    BSHandoff::handoff("/build/$projid/$repoid/$arch/_repository", undef, @args);
   }
 
   if ($view eq 'solv') {
@@ -837,8 +833,7 @@ sub getbinarylist {
     push @args, "view=$view";
     push @args, map {"binary=$_"} @{$cgi->{'binary'} || []};
     push @args, "nosource=1" if $cgi->{'nosource'};
-    BSHandoff::handoff($ajaxsocket, "/build/$projid/$repoid/$arch/$packid", undef, @args);
-    exit(0);
+    BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid", undef, @args);
   }
   my %binaries = map {$_ => 1} @{$cgi->{'binary'} || []};
   if ($view eq 'cpio') {
@@ -1026,8 +1021,7 @@ sub getlogfile {
     push @args, "end=$cgi->{'end'}" if defined $cgi->{'end'};
     push @args, "view=$cgi->{'view'}" if $cgi->{'view'};
     my $url = "/build/$projid/$repoid/$arch/$packid/_log";
-    BSHandoff::handoff($ajaxsocket, $url, undef, @args);
-    exit(0);
+    BSHandoff::handoff($url, undef, @args);
   }
   my $status = readxml("$reporoot/$projid/$repoid/$arch/$packid/status", $BSXML::buildstatus, 1);
   my $jobstatus;
@@ -1048,8 +1042,7 @@ sub getlogfile {
     push @args, "view=$cgi->{'view'}" if $cgi->{'view'};
     if (!$BSStdServer::isajax && !$cgi->{'view'}) {
       my $url = "/build/$projid/$repoid/$arch/$packid/_log";
-      BSHandoff::handoff($ajaxsocket, $url, undef, @args);
-      exit(0);
+      BSHandoff::handoff($url, undef, @args);
     }
     my $param = {
       'uri' => "$jobstatus->{'uri'}/logfile",
@@ -2430,8 +2423,7 @@ sub getresult {
     push @args, map {"package=$_"} @{$cgi->{'package'} || []};
     push @args, map {"code=$_"} @{$cgi->{'code'} || []};
     push @args, "withbinarylist=1" if $cgi->{'withbinarylist'};
-    BSHandoff::handoff($ajaxsocket, '/_result', undef, @args);
-    exit(0);
+    BSHandoff::handoff('/_result', undef, @args);
   }
   return ({'result' => $r, 'state' => $state}, $BSXML::resultlist);
 }
@@ -4250,10 +4242,7 @@ sub getconfiguration {
 
 sub getajaxstatus {
   my ($cgi) = @_;
-  if (!$BSStdServer::isajax) {
-    BSHandoff::handoff($ajaxsocket, '/ajaxstatus');
-    exit(0);
-  }
+  BSHandoff::handoff('/ajaxstatus') if !$BSStdServer::isajax;
   my $r = BSWatcher::getstatus();
   return ($r, $BSXML::ajaxstatus);
 }
@@ -4367,7 +4356,6 @@ my $aconf = {
   'dispatches' => $dispatches_ajax,
   'getrequest_timeout' => 10,
   'replrequest_timeout' => 10, 
-  'getrequest_recvfd' => \&BSHandoff::receive,
   'setkeepalive' => 1,
 };
 
