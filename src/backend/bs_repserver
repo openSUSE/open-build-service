@@ -513,9 +513,7 @@ sub getbinarylist_repository {
   my $view = $cgi->{'view'} || '';
 
   if (($view eq 'cache' || $view eq 'cpio' || $view eq 'solvstate') && !$BSStdServer::isajax) {
-    my @args;
-    push @args, "view=$view";
-    push @args, map {"binary=$_"} @{$cgi->{'binary'} || []};
+    my @args = BSRPC::args($cgi, 'view', 'binary');
     BSHandoff::handoff("/build/$projid/$repoid/$arch/_repository", undef, @args);
   }
 
@@ -829,10 +827,7 @@ sub getbinarylist {
   my $prp = "$projid/$repoid";
   my $view = $cgi->{'view'} || '';
   if ($view eq 'cpio' && !$BSStdServer::isajax && !$cgi->{'noajax'}) {
-    my @args;
-    push @args, "view=$view";
-    push @args, map {"binary=$_"} @{$cgi->{'binary'} || []};
-    push @args, "nosource=1" if $cgi->{'nosource'};
+    my @args = BSRPC::args($cgi, 'view', 'binary', 'nosource');
     BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid", undef, @args);
   }
   my %binaries = map {$_ => 1} @{$cgi->{'binary'} || []};
@@ -1015,13 +1010,8 @@ sub getlogfile {
 
   die("unknown view '$cgi->{'view'}'\n") if $cgi->{'view'} && $cgi->{'view'} ne 'entry';
   if ($cgi->{'handoff'} && !$BSStdServer::isajax) {
-    my @args = ();
-    push @args, 'nostream' if $cgi->{'nostream'};
-    push @args, "start=$cgi->{'start'}" if defined $cgi->{'start'};
-    push @args, "end=$cgi->{'end'}" if defined $cgi->{'end'};
-    push @args, "view=$cgi->{'view'}" if $cgi->{'view'};
-    my $url = "/build/$projid/$repoid/$arch/$packid/_log";
-    BSHandoff::handoff($url, undef, @args);
+    my @args = BSRPC::args($cgi, 'nostream', 'start', 'end', 'view');
+    BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid/_log", undef, @args);
   }
   my $status = readxml("$reporoot/$projid/$repoid/$arch/$packid/status", $BSXML::buildstatus, 1);
   my $jobstatus;
@@ -1030,19 +1020,10 @@ sub getlogfile {
     $jobstatus = readxml("$jobsdir/$arch/$status->{'job'}:status", $BSXML::jobstatus, 1);
   }
 
-  #if ($BSStdServer::isajax) {
-  #  $status->{'status'} = 'building';
-  #  $status->{'uri'} = 'http://192.168.1.102:4711';
-  #}
   if (!$cgi->{'last'} && $jobstatus && $jobstatus->{'code'} && $jobstatus->{'code'} eq 'building' && $jobstatus->{'uri'}) {
-    my @args;
-    push @args, 'nostream' if $cgi->{'nostream'};
-    push @args, "start=$cgi->{'start'}" if defined $cgi->{'start'};
-    push @args, "end=$cgi->{'end'}" if defined $cgi->{'end'};
-    push @args, "view=$cgi->{'view'}" if $cgi->{'view'};
+    my @args = BSRPC::args($cgi, 'nostream', 'start', 'end', 'view');;
     if (!$BSStdServer::isajax && !$cgi->{'view'}) {
-      my $url = "/build/$projid/$repoid/$arch/$packid/_log";
-      BSHandoff::handoff($url, undef, @args);
+      BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid/_log", undef, @args);
     }
     my $param = {
       'uri' => "$jobstatus->{'uri'}/logfile",
@@ -1076,10 +1057,11 @@ sub getlogfile {
   die("start out of range: $start\n") if $start > $s[7];
   $end = $s[7] if !defined($end) || $end > $s[7];
   $end = $start if defined($end) && $end < $start;
+  my $len = $end - $start;
   my $fd = gensym;
   open($fd, '<', $logfile) || die("$logfile: $!\n");
   defined(sysseek($fd, $start, Fcntl::SEEK_SET)) || die("sysseek: $!\n");
-  BSWatcher::reply_file($fd, 'Content-Type: text/plain', 'Content-Length: '.($end - $start));
+  BSWatcher::reply_file($fd, 'Content-Type: text/plain', "Content-Length: $len");
   close $fd unless $BSStdServer::isajax;
   return undef;
 }
@@ -2419,10 +2401,7 @@ sub getresult {
   if ($cgi->{'oldstate'} && $state eq $cgi->{'oldstate'}) {
     return if $BSStdServer::isajax;	# watcher will call us back...
     my @args = map {"prpa=$_"} @{$prpas || []};
-    push @args, "oldstate=$cgi->{'oldstate'}";
-    push @args, map {"package=$_"} @{$cgi->{'package'} || []};
-    push @args, map {"code=$_"} @{$cgi->{'code'} || []};
-    push @args, "withbinarylist=1" if $cgi->{'withbinarylist'};
+    push @args, BSRPC::args($cgi, 'olstate', 'package', 'code', 'withbinarylist');
     BSHandoff::handoff('/_result', undef, @args);
   }
   return ({'result' => $r, 'state' => $state}, $BSXML::resultlist);

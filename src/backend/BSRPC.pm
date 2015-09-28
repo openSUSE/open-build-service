@@ -158,6 +158,14 @@ sub updatecookies {
   }
 }
 
+sub args {
+  my ($h, @k) = @_;
+  return map {
+    my ($v, $k) = ($h->{$_}, $_);
+    !defined($v) ? () : ref($v) eq 'ARRAY' ? map {"$k=$_"} @$v : "$k=$v";
+  } @k;
+}
+
 #
 # handled paramters:
 # timeout

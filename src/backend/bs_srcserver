@@ -181,10 +181,7 @@ sub lastnotifications {
   if ($cgi->{'block'} && !@l) {
     # pass on to AJAX
     if (!$BSStdServer::isajax) {
-      my @args;
-      push @args, "start=$cgi->{'start'}";
-      push @args, "block=1";
-      BSHandoff::handoff('/lastnotifications', undef, @args);
+      BSHandoff::handoff('/lastnotifications', undef, "start=$cgi->{'start'}", 'block=1');
     }
     # wait untill we have a winner
     BSWatcher::addfilewatcher("$eventdir/lastnotifications");
@@ -3889,8 +3886,7 @@ sub getpackage {
   my $proj;
   $proj = checkprojrepoarch($projid, undef, undef, 1) unless $cgi->{'deleted'};
   if ($proj && $proj->{'remoteurl'}) {
-    my @args;
-    push @args, "rev=$cgi->{'rev'}" if $cgi->{'rev'};
+    my @args = BSRPC::args($cgi, 'rev');
     my $pack = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid/_meta", 'proxy' => $proxy}, $BSXML::pack, @args);
     $pack->{'project'} = $projid;	# local name
     if ($pack->{'devel'} && exists($pack->{'devel'}->{'project'})) {
@@ -4080,8 +4076,7 @@ sub getpackagehistory {
   if (!$cgi->{'deleted'}) {
     my $proj = checkprojrepoarch($projid, undef, undef, 1);
     if ($proj->{'remoteurl'}) {
-      my @args;
-      push @args, "rev=$cgi->{'rev'}" if $cgi->{'rev'};
+      my @args = BSRPC::args($cgi, 'rev');
       my $h = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid/_history", 'proxy' => $proxy}, $BSXML::revisionlist, @args);
       return ($h, $BSXML::revisionlist);
     }
@@ -6351,23 +6346,11 @@ sub getresult {
   my $proj = checkprojrepoarch($projid, undef, undef, 1);
   if ($proj->{'remoteurl'}) {
     die("oldstate not supported for remote projects\n") if $cgi->{'oldstate'};
-    my @args;
-    push @args, "lastbuild" if $cgi->{'lastbuild'};
-    push @args, map {"view=$_"} @{$cgi->{'view'} || []};
-    push @args, map {"repository=$_"} @{$cgi->{'repository'} || []};
-    push @args, map {"arch=$_"} @{$cgi->{'arch'} || []};
-    push @args, map {"package=$_"} @{$cgi->{'package'} || []};
-    push @args, map {"code=$_"} @{$cgi->{'code'} || []};
+    my @args = BSRPC::args($cgi, 'lastbuild', 'view', 'repository', 'arch', 'package', 'code');
     return (BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/_result", 'proxy' => $proxy}, $BSXML::resultlist, @args), $BSXML::resultlist);
   }
   if ($cgi->{'oldstate'} && !$BSStdServer::isajax) {
-    my @args = "oldstate=$cgi->{'oldstate'}";
-    push @args, "lastbuild" if $cgi->{'lastbuild'};
-    push @args, map {"view=$_"} @{$cgi->{'view'} || []};
-    push @args, map {"repository=$_"} @{$cgi->{'repository'} || []};
-    push @args, map {"arch=$_"} @{$cgi->{'arch'} || []};
-    push @args, map {"package=$_"} @{$cgi->{'package'} || []};
-    push @args, map {"code=$_"} @{$cgi->{'code'} || []};
+    my @args = BSRPC::args($cgi, 'oldstate', 'lastbuild', 'view', 'repository', 'arch', 'package', 'code');
     BSHandoff::handoff("/build/$projid/_result", undef, @args);
   }
 
@@ -6512,9 +6495,7 @@ sub getbuilddepinfo {
 
   checkprojrepoarch($projid, $repoid, $arch);
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
-  my @args;
-  push @args, map {"package=$_"} @{$cgi->{'package'} || []};
-  push @args, "view=$cgi->{'view'}" if $cgi->{'view'};
+  my @args = BSRPC::args($cgi, 'package', 'view');;
   my $res = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/_builddepinfo", $BSXML::builddepinfo, @args);
   return ($res, $BSXML::builddepinfo);
 }
@@ -6524,10 +6505,7 @@ sub getjobhistory {
 
   checkprojrepoarch($projid, $repoid, $arch);
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
-  my @args;
-  push @args, "limit=$cgi->{'limit'}" if $cgi->{'limit'};
-  push @args, map {"package=$_"} @{$cgi->{'package'} || []};
-  push @args, map {"code=$_"} @{$cgi->{'code'} || []};
+  my @args = BSRPC::args($cgi, 'limit', 'package', 'code');
   my $res = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/_jobhistory", $BSXML::jobhistlist, @args);
   return ($res, $BSXML::jobhistlist);
 }
@@ -6538,8 +6516,7 @@ sub getpackagelist_build {
     die("unknown view '$cgi->{'view'}'\n") unless $cgi->{'view'} eq 'binaryversions' || $cgi->{'view'} eq 'binaryversionscode';
     my $proj = checkprojrepoarch($projid, $repoid, $arch, 1);
     my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
-    my @args = ("view=$cgi->{'view'}");
-    push @args, map {"package=$_"} @{$cgi->{'package'} || []};
+    my @args = BSRPC::args($cgi, 'view', 'package');
     my $param = {
       'uri' => "$reposerver/build/$projid/$repoid/$arch",
       'ignorestatus' => 1,
@@ -6564,11 +6541,7 @@ sub getbinarylist {
   my $view = $cgi->{'view'};
   my $nosource = $cgi->{'nosource'};
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
-  my @args;
-  push @args, "view=$view" if $view;
-  push @args, "nosource=1" if $nosource;
-  push @args, "withmd5=1" if $cgi->{'withmd5'};
-  push @args, map {"binary=$_"} @{$cgi->{'binary'} || []};
+  my @args = BSRPC::args($cgi, 'view', 'nosource', 'withmd5', 'binary');
   if ($view && ($view eq 'cache' || $view eq 'cpio' || $view eq 'solv' || $view eq 'solvstate')) {
     # do not check arch in interconnect mode
     my $proj = checkprojrepoarch($projid, $repoid, undef, 1);
@@ -6699,9 +6672,7 @@ sub putbinary {
   my ($cgi, $projid, $repoid, $arch, $filename) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
-  my @args;
-  push @args, 'ignoreolder=1' if $cgi->{'ignoreolder'};
-  push @args, 'wipe=1' if $cgi->{'wipe'};
+  my @args = BSRPC::args($cgi, 'ignoreolder', 'wipe');
   my $param = {
     'uri' => "$reposerver/build/$projid/$repoid/$arch/_repository/$filename",
     'request' => 'PUT',
@@ -6800,15 +6771,9 @@ sub getlogfile {
     }
   }
 
-  my @args;
-  push @args, 'last' if $cgi->{'last'};
-  push @args, 'nostream' if $cgi->{'nostream'};
-  push @args, "start=$cgi->{'start'}" if defined $cgi->{'start'};
-  push @args, "end=$cgi->{'end'}" if defined $cgi->{'end'};
-  push @args, "view=$cgi->{'view'}" if $cgi->{'view'};
+  my @args = BSRPC::args($cgi, 'last', 'nostream', 'start', 'end', 'view');
   if (!$BSStdServer::isajax && !$cgi->{'view'}) {
-    my $url = "/build/$projid/$repoid/$arch/$packid/_log";
-    BSHandoff::handoff($url, undef, @args);
+    BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid/_log", undef, @args);
   }
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
   my $param = {
@@ -6833,8 +6798,7 @@ sub getbuildhistory {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
-  my @args;
-  push @args, "limit=$cgi->{'limit'}" if $cgi->{'limit'};
+  my @args = BSRPC::rpc($cgi, 'limit');
   my $buildhist = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/$packid/_history", $BSXML::buildhist, @args);
   return ($buildhist, $BSXML::buildhist);
 }
@@ -6844,10 +6808,7 @@ sub getbuildinfo {
   $arch = $BSConfig::localarch if $arch eq 'local' && defined($BSConfig::localarch);
   checkprojrepoarch($projid, $repoid, $arch);
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
-  my @args;
-  push @args, 'internal=1' if $cgi->{'internal'};
-  push @args, 'debug=1' if $cgi->{'debug'};
-  push @args, map {"add=$_"} @{$cgi->{'add'} || []};
+  my @args = BSRPC::rpc($cgi, 'internal', 'debug', 'add');
   my $buildinfo = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/$packid/_buildinfo", $BSXML::buildinfo, @args);
   return ($buildinfo, $BSXML::buildinfo);
 }
@@ -6857,9 +6818,7 @@ sub getbuildinfo_post {
   $arch = $BSConfig::localarch if $arch eq 'local' && defined($BSConfig::localarch);
   checkprojrepoarch($projid, $repoid, $arch);
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
-  my @args;
-  push @args, 'debug=1' if $cgi->{'debug'};
-  push @args, map {"add=$_"} @{$cgi->{'add'} || []};
+  my @args = BSRPC::rpc($cgi, 'debug', 'add');;
   my $param = {
     'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid/_buildinfo",
     'request' => 'POST',
@@ -6892,9 +6851,7 @@ sub getworkerstatus {
   if ($cgi->{'scheduleronly'} && !$cgi->{'daemonsonly'}) {
     $cgi->{'daemonsonly'} = delete $cgi->{'scheduleronly'};
   }
-  my @args;
-  push @args, 'daemonsonly' if $cgi->{'daemonsonly'};
-  push @args, map {"arch=$_"} @{$cgi->{'arch'} || []};
+  my @args = BSRPC::args($cgi, 'daemonsonly', 'arch');
 
   if (!$BSConfig::partitioning || !$BSConfig::partitionservers) {
     my $reposerver = $BSConfig::reposerver;
@@ -7379,7 +7336,6 @@ sub listservices {
 
 sub published {
   my ($cgi, $projid, $repoid, $arch, $filename, $subfilename) = @_;
-  my @args;
   my $projpack;
   die("unknown view '$cgi->{'view'}'\n") if $cgi->{'view'} && $cgi->{'view'} ne 'ymp' && $cgi->{'view'} ne 'fileinfo';
   if (defined($projid) && defined($repoid) && $cgi->{'view'} && $cgi->{'view'} eq 'ymp') {
@@ -7402,6 +7358,7 @@ sub published {
       };
     }
   }
+  my @args;
   push @args, "view=$cgi->{'view'}" if $cgi->{'view'};
   my $p = "/published";
   $p .= "/$projid" if defined $projid;
