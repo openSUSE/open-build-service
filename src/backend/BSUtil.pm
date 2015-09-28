@@ -508,7 +508,7 @@ sub enabled {
     $score += 2 if defined($_->{'arch'});
     $score += 4 if defined($_->{'repository'});
     if ($score > $enascore) {
-      return 1 if $enascore == 6;		# can't max this!
+      return 1 if $score > $disscore;
       $enascore = $score;
     }
   }
