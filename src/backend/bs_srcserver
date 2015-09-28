@@ -6798,7 +6798,7 @@ sub getbuildhistory {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
-  my @args = BSRPC::rpc($cgi, 'limit');
+  my @args = BSRPC::args($cgi, 'limit');
   my $buildhist = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/$packid/_history", $BSXML::buildhist, @args);
   return ($buildhist, $BSXML::buildhist);
 }
@@ -6808,7 +6808,7 @@ sub getbuildinfo {
   $arch = $BSConfig::localarch if $arch eq 'local' && defined($BSConfig::localarch);
   checkprojrepoarch($projid, $repoid, $arch);
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
-  my @args = BSRPC::rpc($cgi, 'internal', 'debug', 'add');
+  my @args = BSRPC::args($cgi, 'internal', 'debug', 'add');
   my $buildinfo = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/$packid/_buildinfo", $BSXML::buildinfo, @args);
   return ($buildinfo, $BSXML::buildinfo);
 }
@@ -6818,7 +6818,7 @@ sub getbuildinfo_post {
   $arch = $BSConfig::localarch if $arch eq 'local' && defined($BSConfig::localarch);
   checkprojrepoarch($projid, $repoid, $arch);
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
-  my @args = BSRPC::rpc($cgi, 'debug', 'add');;
+  my @args = BSRPC::args($cgi, 'debug', 'add');
   my $param = {
     'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid/_buildinfo",
     'request' => 'POST',

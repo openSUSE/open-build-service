@@ -227,7 +227,7 @@ sub fetchdodbinary {
 sub readpackstatus {
   my ($prpa) = @_;
   my $psf = readstr("$reporoot/$prpa/:packstatus.finished", 1);
-  my $ps = BSUtil::retrieve("$reporoot/$prpa/:packstatus", 1);;
+  my $ps = BSUtil::retrieve("$reporoot/$prpa/:packstatus", 1);
   if (!$ps) {
     # backward compat: try old xml format
     return undef unless -e "$reporoot/$prpa/:packstatus";
@@ -1021,7 +1021,7 @@ sub getlogfile {
   }
 
   if (!$cgi->{'last'} && $jobstatus && $jobstatus->{'code'} && $jobstatus->{'code'} eq 'building' && $jobstatus->{'uri'}) {
-    my @args = BSRPC::args($cgi, 'nostream', 'start', 'end', 'view');;
+    my @args = BSRPC::args($cgi, 'nostream', 'start', 'end', 'view');
     if (!$BSStdServer::isajax && !$cgi->{'view'}) {
       BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid/_log", undef, @args);
     }
