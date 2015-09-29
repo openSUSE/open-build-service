@@ -7825,6 +7825,8 @@ sub do_fetchprojpacks {
 	$foundit = 1;
       }
     }
+    # don't delay if a getprojpack is in progress (which may create the project)
+    next if !$foundit && $iswaiting{$projid};
     push @{$delayedfetchprojpacks->{$projid}}, @{$fetchprojpacks->{$projid}};
     my $linked = find_linked_sources($projid, $fetchprojpacks->{$projid});
     if (%$linked) {
