@@ -6,6 +6,17 @@ require 'source_controller'
 class SourceControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
 
+  CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT = 'Type: spec
+Substitute: kiwi package
+Substitute: kiwi-packagemanager:instsource package
+Ignore: package:bash'
+
+  NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT = 'Type: spec
+Substitute: kiwi package
+Substitute: kiwi-packagemanager:instsource package
+Ignore: package:bash
+Ignore: package:cups'
+
   def setup
     super
     wait_for_scheduler_start
@@ -3593,5 +3604,28 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                    :parent => { :tag => "repository", :attributes => { :name => "standard" } }
     assert_xml_tag :tag => "repository", :attributes => {:name => "standard2"}
   end
+
+  def test_config_file
+    login_Iggy
+
+    get '/source/home:Iggy/_config'
+    assert_response :success
+    assert_equal @response.body, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+  end
+
+  def test_updating_config_file
+    login_Iggy
+
+    put '/source/home:Iggy/_config?' + {
+        project: 'home:Iggy',
+        comment: 'Updated by test'
+      }.to_query, NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+    assert_response :success
+
+    get '/source/home:Iggy/_config'
+    assert_response :success
+    assert_equal @response.body, NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+  end
+
 end
 # rubocop:enable Metrics/LineLength
