@@ -3720,3 +3720,4 @@ Ignore: package:cups'
 
 end
 # rubocop:enable Metrics/LineLength
+# rubocop:enable Metrics/ClassLength
