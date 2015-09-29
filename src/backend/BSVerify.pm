@@ -269,10 +269,10 @@ sub verify_proj {
   for my $link (@{$proj->{'link'} || []}) {
     verify_projid($link->{'project'});
   }
-  for my $f ('build', 'publish', 'debuginfo', 'useforbuild') {
+  for my $f ('build', 'publish', 'debuginfo', 'useforbuild', 'lock', 'binarydownload', 'sourceaccess', 'access') {
     verify_disableenable($proj->{$f}) if $proj->{$f};
   }
-  die('project must not have mountproject\n') if exists $proj->{'mountproject'};
+  die('project must not have a mountproject\n') if exists $proj->{'mountproject'};
   if ($proj->{'maintenance'}) {
     for my $m (@{$proj->{'maintenance'}->{'maintains'} || []}) {
       verify_projid($m->{'project'});
@@ -285,9 +285,10 @@ sub verify_pack {
   if (defined($packid)) {
     die("name does not match data\n") unless $packid eq $pack->{'name'};
   }
+  verify_projid($pack->{'project'}) if exists $pack->{'project'};
   verify_packid($pack->{'name'});
   verify_disableenable($pack);	# obsolete
-  for my $f ('build', 'debuginfo', 'useforbuild', 'publish') {
+  for my $f ('build', 'publish', 'debuginfo', 'useforbuild', 'lock', 'binarydownload', 'sourceaccess', 'access') {
     verify_disableenable($pack->{$f}) if $pack->{$f};
   }
   if ($pack->{'devel'}) {
