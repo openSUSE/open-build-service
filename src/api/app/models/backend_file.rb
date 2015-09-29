@@ -30,8 +30,11 @@ class BackendFile
   # Sets the content File object from a path
   def file_from_path(path)
     @file = File.open(path)
-    @response = { type: MIME::Types.type_for(@file.basename).first.content_type, status: 200, length: @file.length }
+    mime = MIME::Types.type_for(@file.path)
+    mime = mime.empty? ? nil : mime.first.content_type
+    @response = { type: mime, status: 200, length: @file.size }
     @file.close
+    @file
   end
 
   # Returns a File object (closed) that have the content of the Backend file
@@ -76,10 +79,10 @@ class BackendFile
     if content
       backend_response = Suse::Backend.put(full_path(query), content)
     else
-      @file.open
-      backend_response = Suse::Backend.put(full_path(query), @file)
+      file = File.open(@file)
+      backend_response = Suse::Backend.put(full_path(query), file)
       @response = { type: backend_response['Content-Type'], status: backend_response.code, length: backend_response.content_length }
-      @file.close
+      file.close
     end
     backend_response
   end
