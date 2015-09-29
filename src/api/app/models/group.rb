@@ -43,10 +43,8 @@ class Group < ActiveRecord::Base
     self.save!
 
     # update maintainer list
-    cache = Hash.new
-    self.group_maintainers.each do |gu|
-      cache[gu.user.id] = gu
-    end
+    cache = group_maintainers.index_by(&:user_id)
+
     xmlhash.elements('maintainer') do |maintainer|
       next unless maintainer['userid']
       user = User.find_by_login!(maintainer['userid'])
@@ -62,10 +60,7 @@ class Group < ActiveRecord::Base
     end
 
     # update user list
-    cache = Hash.new
-    self.groups_users.each do |gu|
-      cache[gu.user.id] = gu
-    end
+    cache = groups_users.index_by(&:user_id)
 
     persons = xmlhash.elements('person').first
     if persons
