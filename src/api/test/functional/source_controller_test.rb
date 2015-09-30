@@ -3617,15 +3617,17 @@ Ignore: package:cups'
   def test_updating_config_file
     login_Iggy
 
-    put '/source/home:Iggy/_config?' + {
-        project: 'home:Iggy',
-        comment: 'Updated by test'
-      }.to_query, NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+    updating_url = url_for(controller: :source, action: :update_project_config, project: 'home:Iggy', comment: 'Updated by test')
+    put updating_url, NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
     assert_response :success
 
     get '/source/home:Iggy/_config'
     assert_response :success
     assert_equal @response.body, NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+
+    # Leave the backend file as it was
+    put updating_url, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+    assert_response :success
   end
 
 end

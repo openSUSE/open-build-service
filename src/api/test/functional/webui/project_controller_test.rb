@@ -556,6 +556,13 @@ Ignore: package:cups'
     click_link 'Project Config'
     config_value = page.evaluate_script("editors[0].getValue()")
     assert_equal config_value, NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+
+    # Leave backend file as it was
+    visit project_show_path project: "home:Iggy"
+    click_link 'advanced_tabs_trigger'
+    click_link 'Project Config'
+    page.execute_script("editors[0].setValue(\"#{CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT.gsub("\n", '\n')}\")")
+    click_button 'Save'
   end
 
 end
