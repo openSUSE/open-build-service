@@ -6355,6 +6355,10 @@ sub checkchannel {
       my $linked = ($pdatas->{$apackid} || {})->{'linked'};
       if (!@{$linked || []}) {
 	$lapackid = $apackid;
+	if (($proj->{'kind'} || '') eq 'maintenance_incident' && (($pdatas->{$apackid} || {})->{'error'} || '') eq 'disabled') {
+	  # workaround for src server not sending linked data for disabled packages
+	  $lapackid =~ s/\.[^\.]+$//;
+	}
       } elsif ($linked->[0]->{'project'} ne $projid) {
 	$lapackid = $linked->[0]->{'package'};
       } else {
