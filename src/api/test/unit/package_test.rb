@@ -17,18 +17,18 @@ class PackageTest < ActiveSupport::TestCase
     super
   end
 
-  test "delete_patchinfo_of_project!" do
+  test "delete_patchinfo!" do
     user = User.find_by(login: "tom")
     project = Project.find_by(name: "BaseDistro")
     package = project.packages.find_by(name: "patchinfo")
 
     Suse::Backend.expects(:delete).with("/source/BaseDistro/patchinfo?user=tom")
 
-    Package.delete_patchinfo_of_project!(project, package, user)
+    package.delete_patchinfo!(user)
     assert_nil project.packages.find_by(name: "patchinfo")
   end
 
-  test "delete_patchinfo_of_project! with invalid request" do
+  test "delete_patchinfo! with invalid request" do
     user = User.find_by(login: "tom")
     project = Project.find_by(name: "BaseDistro")
     package = project.packages.find_by(name: "patchinfo")
@@ -36,18 +36,18 @@ class PackageTest < ActiveSupport::TestCase
     Suse::Backend.expects(:delete).raises(ActiveXML::Transport::Error)
 
     assert_raise Package::PackageError do
-      Package.delete_patchinfo_of_project!(project, package, user)
+      package.delete_patchinfo!(user)
     end
     assert project.packages.find_by(name: "patchinfo")
   end
 
-  test "delete_patchinfo_of_project! called for non patchinfo package" do
+  test "delete_patchinfo! called for non patchinfo package" do
     user = User.find_by(login: "tom")
     project = Project.find_by(name: "BaseDistro:Update")
     package = project.packages.find_by(name: "pack2")
 
     assert_raise Package::PackageError do
-      Package.delete_patchinfo_of_project!(project, package, user)
+      package.delete_patchinfo!(user)
     end
     assert project.packages.find_by(name: "pack2")
   end
