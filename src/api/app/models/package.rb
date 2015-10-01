@@ -267,6 +267,10 @@ class Package < ActiveRecord::Base
   end
 
   def self.delete_patchinfo_of_project!(project, package, user)
+    unless package.is_patchinfo?
+      raise PackageError, "delete_patchinfo_of_project! can only be called for patchinfos."
+    end
+
     parameters = {
       user:    user,
       project: project.name,

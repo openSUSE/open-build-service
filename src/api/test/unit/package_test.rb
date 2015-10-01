@@ -41,6 +41,17 @@ class PackageTest < ActiveSupport::TestCase
     assert project.packages.find_by(name: "patchinfo")
   end
 
+  test "delete_patchinfo_of_project! called for non patchinfo package" do
+    user = User.find_by(login: "tom")
+    project = Project.find_by(name: "BaseDistro:Update")
+    package = project.packages.find_by(name: "pack2")
+
+    assert_raise Package::PackageError do
+      Package.delete_patchinfo_of_project!(project, package, user)
+    end
+    assert project.packages.find_by(name: "pack2")
+  end
+
   def test_flags_to_axml
     #check precondition
     assert_equal 2, @package.type_flags('build').size
