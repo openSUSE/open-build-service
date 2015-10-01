@@ -290,9 +290,6 @@ class Package < ActiveRecord::Base
     rescue ActiveXML::Transport::Error, ActiveXML::Transport::NotFoundError => e
       raise PackageError, e.summary
     end
-
-    Rails.cache.delete('%s_packages_mainpage' % self.project)
-    Rails.cache.delete('%s_problem_packages' % self.project)
   end
 
   def check_source_access?
