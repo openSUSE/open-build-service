@@ -195,19 +195,13 @@ class Webui::PatchinfoController < Webui::WebuiController
   def remove
     authorize @package, :delete?
 
-    error_message = nil
     # deny deleting if other packages use this as develpackage
     begin
       @package.can_be_deleted? # FIXME: This should be handled differently
       @package.delete_patchinfo!(User.current)
-    rescue APIException, Package::PackageError => e
-      error_message = e.message
-    end
-
-    if error_message
-      flash[:error] = error_message
-    else
       flash[:notice] = "'#{@package}' was removed successfully from project '#{@project}'"
+    rescue APIException, Package::PackageError => e
+      flash[:error] = e.message
     end
 
     redirect_to controller: 'project', action: 'show', project: @project
