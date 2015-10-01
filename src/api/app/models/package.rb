@@ -266,28 +266,30 @@ class Package < ActiveRecord::Base
     ret
   end
 
-  def self.delete_patchinfo_of_project!(project, package, user)
+  # FIXME: This should be part of a normal package deletion method
+  def delete_patchinfo!(user)
+    unless self.is_patchinfo?
+      raise PackageError, "delete_patchinfo_of_project! can only be called for patchinfos."
+    end
+
     parameters = {
       user:    user,
-      project: project.name,
-      package: package.name
+      project: self.project.name,
+      package: self.name
     }
 
     begin
       Package.transaction do
         # we need to keep this order to delete first the api model
-        package.revoke_requests
-        package.destroy
+        self.revoke_requests
+        self.destroy
 
-        path = "#{package.source_path}#{Suse::Backend.build_query_from_hash(parameters, [:user])}"
+        path = "#{self.source_path}#{Suse::Backend.build_query_from_hash(parameters, [:user])}"
         Suse::Backend.delete(path)
       end
     rescue ActiveXML::Transport::Error, ActiveXML::Transport::NotFoundError => e
       raise PackageError, e.summary
     end
-
-    Rails.cache.delete('%s_packages_mainpage' % project)
-    Rails.cache.delete('%s_problem_packages' % project)
   end
 
   def check_source_access?

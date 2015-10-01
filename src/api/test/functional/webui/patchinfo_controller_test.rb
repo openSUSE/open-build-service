@@ -270,9 +270,8 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     click_button("Save Patchinfo")
 
     project = Project.find_by(name: "home:tom")
-    package = project.packages.find_by(name: "patchinfo")
-    Package.stubs(:delete_patchinfo_of_project!).
-      with(project, package, User.find_by(login: "tom")).
+    Package.any_instance.stubs(:delete_patchinfo!).
+      with(User.find_by(login: "tom")).
       raises(Package::PackageError, "Couldn't remove patchinfo!")
 
     # the actual test...
