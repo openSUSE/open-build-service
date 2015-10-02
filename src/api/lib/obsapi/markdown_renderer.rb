@@ -7,19 +7,20 @@ module OBSApi
     end
 
     def preprocess(fulldoc)
-      # OBS requests
-      out = fulldoc.gsub(/(sr|req|request)#(\d+)/i) {|s| "<a href=\"#{request_show_url(id: $2)}\">#{s}</a>" }
-      # issues
+      # request#12345 links
+      fulldoc.gsub!(/(sr|req|request)#(\d+)/i) {|s| "[#{s}](#{request_show_url(id: Regexp.last_match(2))})" }
+      # @user links
+      fulldoc.gsub!(/([^\w]|^)@([-\w]+)([^\w]|$)/) \
+                   {"#{Regexp.last_match(1)}[@#{Regexp.last_match(2)}](#{user_show_url(Regexp.last_match(2))})#{Regexp.last_match(3)}" }
+      # bnc#12345 links
       IssueTracker.all.each do |t|
-        out = t.get_html(out)
+        fulldoc = t.get_markdown(fulldoc)
       end
-      # users
-      out.gsub!(/([^\w]|^)@([-\w]+)([^\w]|$)/) do
-        # We need to save $1,$2 and $3 since we are calling gsub again inside the block
-        s1, s2, s3 = $1, $2, $3
-        "#{s1}<a href=\"#{user_show_url(s2)}\">@#{s2.gsub('_', '\_')}</a>#{s3}"
-      end
-      out
+      # sanitize the HTML we get
+      Sanitize.fragment(fulldoc, Sanitize::Config.merge(Sanitize::Config::RESTRICTED,
+                                                        elements: Sanitize::Config::RESTRICTED[:elements] + ['pre'],
+                                                        remove_contents: true
+                                                       ))
     end
   end
 end

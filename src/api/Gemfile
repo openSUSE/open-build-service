@@ -33,6 +33,8 @@ gem 'acts_as_list'
 gem 'xmlhash', '>=1.3.6'
 # to escape HTML (FIXME: do we still use this?)
 gem 'escape_utils'
+# to sanitize HTML/CSS
+gem 'sanitize'
 # as authorization system
 gem "pundit"
 #
