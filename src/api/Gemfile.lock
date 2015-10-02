@@ -54,6 +54,7 @@ GEM
     coderay (1.1.0)
     crack (0.4.2)
       safe_yaml (~> 1.0.0)
+    crass (1.0.2)
     cssmin (1.0.3)
     daemons (1.1.9)
     dalli (2.7.2)
@@ -110,6 +111,8 @@ GEM
     mysql2 (0.3.16)
     nokogiri (1.6.3.1)
       mini_portile (= 0.6.0)
+    nokogumbo (1.4.1)
+      nokogiri
     pkg-config (1.1.5)
     poltergeist (1.5.1)
       capybara (~> 2.1)
@@ -148,12 +151,15 @@ GEM
     rake (10.3.2)
     rdoc (4.1.2)
       json (~> 1.4)
-    redcarpet (3.2.3)
+    redcarpet (3.3.3)
     riddle (1.5.11)
     ruby-ldap (0.9.16)
     ruby_parser (3.6.3)
       sexp_processor (~> 4.1)
     safe_yaml (1.0.4)
+    sanitize (4.0.0)
+      crass (~> 1.0.2)
+      nokogumbo (= 1.4.1)
     sass (3.2.19)
     sass-rails (4.0.3)
       railties (>= 4.0.0, < 5.0)
@@ -252,6 +258,7 @@ DEPENDENCIES
   rdoc
   redcarpet
   ruby-ldap
+  sanitize
   sass-rails (~> 4.0.3)
   simplecov
   single_test

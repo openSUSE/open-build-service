@@ -99,9 +99,10 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
       page.must_have_xpath '//a[contains(@href, "/request/show/23") and text()="sr#23"]'
       page.must_have_xpath '//a[@href="http://bugzilla.clutter-project.org/show_bug.cgi?id=24" and text()="bco#24"]'
       page.must_have_xpath '//a[@href="https://features.opensuse.org/25" and text()="fate#25"]'
-      page.must_have_xpath '//a[contains(@href, "user/show/_nobody_") and text()="@_nobody_"]'
-      page.must_have_xpath '//a[contains(@href, "user/show/a-dashed-user") and text()="@a-dashed-user"]'
-      page.must_have_xpath '//a[contains(@href, "user/show/Iggy") and text()="@Iggy"]'
+      page.must_have_link '@nobody'
+      page.must_have_link '@a-dashed-user'
+      page.must_have_link '@Iggy'
+      page.must_have_xpath '//a[@href="http://link.com"]'
     end
   end
 
@@ -114,7 +115,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     within('div.comment_0') do
       page.must_have_xpath '//a[contains(@href, "/request/show/23") and text()="request#23"]'
       page.must_have_xpath '//a[contains(@href, "/request/show/23") and text()="Request#23"]'
-      page.must_have_xpath '//a[contains(@href, "user/show/Iggy") and text()="@Iggy"]'
+      page.must_have_link '@Iggy'
     end
   end
 
