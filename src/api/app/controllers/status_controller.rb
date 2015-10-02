@@ -67,18 +67,9 @@ class StatusController < ApplicationController
 
   def history
     required_parameters :hours, :key
-    samples = begin
-      Integer(params[:samples] || '100') rescue 0
-    end
-    @samples = [samples, 1].max
 
-    hours = begin
-      Integer(params[:hours] || '24') rescue 24
-    end
-    starttime = Time.now.to_i - hours.to_i * 3600
-    # rubocop:disable Metrics/LineLength
-    @values = StatusHistory.where("time >= ? AND \`key\` = ?", starttime, params[:key]).pluck(:time, :value).collect { |time, value| [time.to_i, value.to_f] }
-    # rubocop:enable Metrics/LineLength
+    @samples = [params[:samples].to_i, 1].max
+    @values = StatusHistory.history_by_key_and_hours(params[:key], params[:hours])
   end
 
   # move to models?
