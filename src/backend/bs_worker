@@ -3169,6 +3169,9 @@ if ($vm =~ /xen/ && $xenstore_maxsize && 0 + (-s '/var/lib/xenstored/tdb') > $xe
   die("xenstore too big:".(-s '/var/lib/xenstored/tdb')."\n");
 }
 
+unlink("job.new.$$");
+BSServer::read_file("job.new.$$");
+
 my $state = lockstate();
 die("I am not idle!\n") unless $state->{'state'} eq 'idle';
 
@@ -3183,8 +3186,7 @@ if ($cgi->{'workercode'} && $cgi->{'port'} && $cgi->{'workercode'} ne $workercod
   die("rebooting...\n");
 }
 
-BSServer::read_file('job.new');
-my $infoxml = readstr('job.new');
+my $infoxml = readstr("job.new.$$");
 die("bad job xml data\n") unless $infoxml =~ /<.*?>/s;
 my $buildinfo = XMLin($BSXML::buildinfo, $infoxml);
 my $jobid = $cgi->{'jobid'};
@@ -3214,7 +3216,7 @@ if (!$nobuildcodecheck && $cgi->{'buildcode'} && $cgi->{'port'} && $cgi->{'build
   die("could not update build code\n") unless $buildcode;
 }
 
-rename('job.new', 'job') || die("rename job.new job: $!\n");
+rename("job.new.$$", 'job') || die("rename job.new.$$ job: $!\n");
 
 if ($hostcheck) {
   my $server = $buildinfo->{'srcserver'} || $srcserver;
