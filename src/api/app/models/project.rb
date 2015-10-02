@@ -1043,19 +1043,12 @@ class Project < ActiveRecord::Base
   end
 
   def packages_from_linked_projects
-    linkedprojects.each do |project|
-      next if project.linked_db_project.nil?
-      project.linked_db_project.packages_from_linked_projects.each do |name, prj_id|
-        unless p_map[name]
-          packages << [name, prj_id]
-          p_map[name] = 1
-        end
-      end
-    end
-  end
+    all_packages = Package.
+        joins('LEFT OUTER JOIN linked_projects ON packages.project_id = linked_projects.linked_db_project_id').
+        where('linked_projects.db_project_id = ? AND name NOT IN (?)', id, packages.pluck(:name)).
+        order('LOWER(packages.name) ASC, linked_projects.position ASC')
 
-  def linked_packages
-    expand_all_projects({}, false).reject{|project| project == self}.map {|project| project.packages.to_a }.flatten
+    all_packages.to_a.uniq { |p| p.name }.map { |package| [package.name, package.project.name] }
   end
 
   # return array of [:name, :project_id] tuples

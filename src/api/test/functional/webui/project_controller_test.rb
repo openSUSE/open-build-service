@@ -30,9 +30,8 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     within "table#ipackages_wrapper_table" do
       assert_equal "_product", find(:xpath, '(.//td/a)[1]').text
       assert_equal "pack1", find(:xpath, '(.//td/a)[2]').text
-      assert_equal "pack2", find(:xpath, '(.//td/a)[3]').text
-      assert_equal "Pack3", find(:xpath, '(.//td/a)[4]').text
-      assert_equal "patchinfo", find(:xpath, '(.//td/a)[5]').text
+      assert_equal "Pack3", find(:xpath, '(.//td/a)[3]').text
+      assert_equal "patchinfo", find(:xpath, '(.//td/a)[4]').text
     end
   end
 
