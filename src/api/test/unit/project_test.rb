@@ -136,7 +136,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_ordering
-    User.current = users( :Iggy )
+    User.current = users(:Iggy)
 
     #project is given as axml
     axml = Xmlhash.parse(
@@ -183,7 +183,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_maintains
-    User.current = users( :Iggy )
+    User.current = users(:Iggy)
 
     #project is given as axml
     axml = Xmlhash.parse(
@@ -828,7 +828,6 @@ END
   end
 
   test 'linked_packages returns all packages from projects inherited by one level' do
-    projects('BaseDistro2.0')
     child = projects('BaseDistro2.0_LinkedUpdateProject')
 
     assert_equal child.packages_from_linked_projects, [['pack2', 'BaseDistro2.0'], ['pack2.linked', 'BaseDistro2.0']]
@@ -848,7 +847,7 @@ END
                                 position: 2)
 
     result =  parent1.packages + parent2.packages
-    result.sort! { |a, b| a.name.downcase <=> b.name.downcase  }.map! { |package| [package.name, package.project.name] }
+    result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
 
     assert_equal child.packages_from_linked_projects, result
   end
@@ -860,7 +859,7 @@ END
     pack2 = parent.packages.where(name: 'pack2').first
     child.packages << pack2.dup
 
-    assert_equal child.packages_from_linked_projects,  [['pack2.linked', 'BaseDistro2.0']]
+    assert_equal child.packages_from_linked_projects, [['pack2.linked', 'BaseDistro2.0']]
   end
 
   test 'linked_packages does not return packages overwritten by the actual project inherited from two levels' do
@@ -880,9 +879,9 @@ END
     child.packages << pack2.dup
 
     result = parent1.packages + parent2.packages.where(name: 'pack2.linked')
-    result.sort! { |a, b| a.name.downcase <=> b.name.downcase  }.map! { |package| [package.name, package.project.name] }
+    result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
 
-    assert_equal child.packages_from_linked_projects,  result
+    assert_equal child.packages_from_linked_projects, result
   end
 
   test 'linked_packages returns overwritten packages from the project with the highest position' do
@@ -903,7 +902,7 @@ END
     base_distro_update.packages << pack2.dup
 
     result = base_distro_update.packages + base_distro.packages.where(name: 'pack2.linked')
-    result.sort! { |a, b| a.name.downcase <=> b.name.downcase  }.map! { |package| [package.name, package.project.name] }
+    result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
 
     assert_equal child.packages_from_linked_projects, result
   end
