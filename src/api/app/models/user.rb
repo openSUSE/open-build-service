@@ -240,7 +240,7 @@ class User < ActiveRecord::Base
   # This method checks whether the given value equals the password when
   # hashed with this user's password hash type. Returns a boolean.
   def password_equals?(value)
-    return hash_string(value) == self.password
+    hash_string(value) == self.password
   end
 
   # Sets the last login time and saves the object. Note: Must currently be
@@ -980,9 +980,9 @@ class User < ActiveRecord::Base
   # Hashes the given parameter by the selected hashing method. It uses the
   # "password_salt" property's value to make the hashing more secure.
   def hash_string(value)
-    return case password_hash_type
-           when 'md5' then Digest::MD5.hexdigest(value + self.password_salt)
-           end
+    if password_hash_type == "md5"
+      Digest::MD5.hexdigest(value + self.password_salt)
+    end
   end
 
   cattr_accessor :lookup_strategy do
