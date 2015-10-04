@@ -917,23 +917,26 @@ class User < ActiveRecord::Base
   end
 
   def update_globalroles( new_globalroles )
-    old_globalroles = []
+    old_globalroles = roles.where(global: true).pluck(:title)
 
-    self.roles.where(global: true).each do |ugr|
-      old_globalroles << ugr.title
-    end
+    remove_globalroles(old_globalroles - new_globalroles)
 
-    add_to_globalroles = new_globalroles.collect {|i| old_globalroles.include?(i) ? nil : i}.compact
-    remove_from_globalroles = old_globalroles.collect {|i| new_globalroles.include?(i) ? nil : i}.compact
+    add_globalroles(new_globalroles - old_globalroles)
+  end
 
-    remove_from_globalroles.each do |title|
-      self.roles_users.where(role_id: Role.find_by_title!(title).id).delete_all
-    end
+  def remove_globalroles(role_titles)
+    role_ids = Role.where(title: role_titles).ids
+    roles_users.where(role_id: role_ids).delete_all
+  end
+  private :remove_globalroles
 
-    add_to_globalroles.each do |title|
-      self.roles_users.new(role: Role.find_by_title!(title))
+  def add_globalroles(role_titles)
+    roles_to_add = Role.where(title: role_titles)
+    roles_to_add.each do |role|
+      roles_users.new(role: role)
     end
   end
+  private :add_globalroles
 
   # returns the gravatar image as string or :none
   def gravatar_image(size)
