@@ -904,12 +904,10 @@ class User < ActiveRecord::Base
     watched_project_names.include? name
   end
 
-  def update_globalroles( new_globalroles )
-    old_globalroles = roles.where(global: true).pluck(:title)
-
-    remove_globalroles(old_globalroles - new_globalroles)
-
-    add_globalroles(new_globalroles - old_globalroles)
+  def update_globalroles(global_role_titles)
+    self.roles.replace(
+      Role.where(title: global_role_titles) + roles.where(global: false)
+    )
   end
 
   # returns the gravatar image as string or :none
@@ -963,18 +961,6 @@ class User < ActiveRecord::Base
     return true if has_local_permission? 'change_project', project
     return true if project.name == self.home_project_name # users tend to remove themself, allow to re-add them
     false
-  end
-
-  def remove_globalroles(role_titles)
-    role_ids = Role.where(title: role_titles).ids
-    roles_users.where(role_id: role_ids).delete_all
-  end
-
-  def add_globalroles(role_titles)
-    roles_to_add = Role.where(title: role_titles)
-    roles_to_add.each do |role|
-      roles_users.new(role: role)
-    end
   end
 
   # Hashes the given parameter by the selected hashing method. It uses the
