@@ -162,20 +162,14 @@ class PersonController < ApplicationController
 
   def update_watchlist( user, xml )
     new_watchlist = []
-    old_watchlist = []
-
     xml.get('watchlist').elements("project") do |e|
       new_watchlist << e['name']
     end
 
-    user.watched_projects.each do |wp|
-      old_watchlist << wp.project.name
+    new_watchlist.map! do |name|
+      WatchedProject.find_or_create_by(project: Project.find_by_name!(name), user: user)
     end
-    add_to_watchlist = new_watchlist.collect {|i| old_watchlist.include?(i) ? nil : i}.compact
-    remove_from_watchlist = old_watchlist.collect {|i| new_watchlist.include?(i) ? nil : i}.compact
-
-    remove_from_watchlist.each { |name| user.remove_watched_project(name) }
-    add_to_watchlist.each { |name| user.add_watched_project(name) }
+    user.watched_projects.replace(new_watchlist)
 
     return true
   end
