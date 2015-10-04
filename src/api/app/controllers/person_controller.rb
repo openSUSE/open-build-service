@@ -174,13 +174,8 @@ class PersonController < ApplicationController
     add_to_watchlist = new_watchlist.collect {|i| old_watchlist.include?(i) ? nil : i}.compact
     remove_from_watchlist = old_watchlist.collect {|i| new_watchlist.include?(i) ? nil : i}.compact
 
-    remove_from_watchlist.each do |name|
-      user.watched_projects.where(project_id: Project.find_by_name(name).id).delete_all
-    end
-
-    add_to_watchlist.each do |name|
-      user.watched_projects.new(project_id: Project.find_by_name(name).id)
-    end
+    remove_from_watchlist.each { |name| user.remove_watched_project(name) }
+    add_to_watchlist.each { |name| user.add_watched_project(name) }
 
     return true
   end
