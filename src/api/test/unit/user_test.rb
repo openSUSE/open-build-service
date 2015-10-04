@@ -98,6 +98,24 @@ class UserTest < ActiveSupport::TestCase
     assert_equal 3, users(:fred).nr_of_requests_that_need_work
   end
 
+  def test_update_globalroles
+    user = User.find_by(login: "tom")
+    local_role = Role.create(title: "local_role", global: false)
+    user.roles << Role.create(title: "global_role_1", global: true)
+    user.roles << Role.create(title: "global_role_2", global: true)
+    user.roles << local_role
+    user.save!
+
+    user.update_globalroles(["global_role_2", "Admin"])
+    user.save!
+    updated_roles = user.reload.roles.map(&:title)
+    assert updated_roles.include?("global_role_2")
+    assert updated_roles.include?("Admin")
+    assert updated_roles.include?("local_role"), "Should keep local roles"
+    assert_equal 3, user.roles.count, "Should remove all additional global roles"
+    assert_equal 3, user.roles_users.count
+  end
+
   test 'gravatar image' do
     f = Configuration.first
     f.gravatar = true
