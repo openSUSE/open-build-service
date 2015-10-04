@@ -219,7 +219,7 @@ class User < ActiveRecord::Base
     user = User.where(login: login).first
 
     # If the user could be found and the passwords equal then return the user
-    if not user.nil? and user.password_equals? password
+    if user && user.password_equals?(password)
       if user.login_failure_count > 0
         user.login_failure_count = 0
         self.execute_without_timestamps { user.save! }
@@ -229,7 +229,7 @@ class User < ActiveRecord::Base
     end
 
     # Otherwise increase the login count - if the user could be found - and return nil
-    if not user.nil?
+    if user
       user.login_failure_count = user.login_failure_count + 1
       self.execute_without_timestamps { user.save! }
     end
