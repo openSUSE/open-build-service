@@ -179,6 +179,7 @@ our $product = [
              [],
              [[ 'url' => 
                 'name',
+                'arch',
                 [],
                 '_content',
              ]],

@@ -179,10 +179,18 @@ sub getUrl( $$$ ){
     my $url="";
     foreach my $url ( @{$product->{'urls'}->{'url'}} ){
         if ( "$url->{'name'}" eq "$searchstring" ){
-            my $url = $url->{'_content'};
-            $url =~ s/%{_target_cpu}/$arch/g;
-            return $url;
-	}
+            if ( exists $url->{'arch'} && "$url->{'arch'}" eq "$arch" ) {
+                my $url = $url->{'_content'};
+                $url =~ s/%{_target_cpu}/$arch/g;
+                return $url;
+            } elsif (exists $url->{'arch'}) {
+                next;
+            } else {
+                my $url = $url->{'_content'};
+                $url =~ s/%{_target_cpu}/$arch/g;
+                return $url;
+            }
+        }
     }
     return $url;
 }
