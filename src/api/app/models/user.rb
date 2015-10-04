@@ -514,18 +514,6 @@ class User < ActiveRecord::Base
     end
   end
 
-  def can_modify_project_internal(project, ignoreLock)
-    # The ordering is important because of the lock status check
-    return false if !ignoreLock && project.is_locked?
-    return true if is_admin?
-
-    return true if has_global_permission? 'change_project'
-    return true if has_local_permission? 'change_project', project
-    return true if project.name == self.home_project_name # users tend to remove themself, allow to re-add them
-    false
-  end
-  private :can_modify_project_internal
-
   # project is instance of Project
   def can_modify_project?(project, ignoreLock = nil)
     unless project.kind_of? Project
@@ -924,20 +912,6 @@ class User < ActiveRecord::Base
     add_globalroles(new_globalroles - old_globalroles)
   end
 
-  def remove_globalroles(role_titles)
-    role_ids = Role.where(title: role_titles).ids
-    roles_users.where(role_id: role_ids).delete_all
-  end
-  private :remove_globalroles
-
-  def add_globalroles(role_titles)
-    roles_to_add = Role.where(title: role_titles)
-    roles_to_add.each do |role|
-      roles_users.new(role: role)
-    end
-  end
-  private :add_globalroles
-
   # returns the gravatar image as string or :none
   def gravatar_image(size)
     Rails.cache.fetch([self, 'home_face', size, Configuration.first]) do
@@ -979,6 +953,29 @@ class User < ActiveRecord::Base
   end
 
   private
+
+  def can_modify_project_internal(project, ignoreLock)
+    # The ordering is important because of the lock status check
+    return false if !ignoreLock && project.is_locked?
+    return true if is_admin?
+
+    return true if has_global_permission? 'change_project'
+    return true if has_local_permission? 'change_project', project
+    return true if project.name == self.home_project_name # users tend to remove themself, allow to re-add them
+    false
+  end
+
+  def remove_globalroles(role_titles)
+    role_ids = Role.where(title: role_titles).ids
+    roles_users.where(role_id: role_ids).delete_all
+  end
+
+  def add_globalroles(role_titles)
+    roles_to_add = Role.where(title: role_titles)
+    roles_to_add.each do |role|
+      roles_users.new(role: role)
+    end
+  end
 
   # Hashes the given parameter by the selected hashing method. It uses the
   # "password_salt" property's value to make the hashing more secure.
