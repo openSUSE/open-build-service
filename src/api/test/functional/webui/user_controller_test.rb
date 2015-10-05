@@ -51,6 +51,19 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     find('#flash-messages').must_have_text("User not found INVALID")
   end
 
+  def test_index
+    login_tom
+    visit users_path
+    flash_message_type.must_equal :alert
+    flash_message.must_equal "Requires admin privileges"
+    assert_equal root_path, page.current_path
+
+    login_king
+    visit users_path
+    assert_equal users_path, page.current_path
+    page.must_have_text "Manage users."
+  end
+
   def test_show_icons
     visit '/user/icon/Iggy.png'
     page.status_code.must_equal 200
