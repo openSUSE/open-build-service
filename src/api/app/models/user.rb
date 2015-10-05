@@ -219,7 +219,7 @@ class User < ActiveRecord::Base
     user = User.where(login: login).first
 
     # If the user could be found and the passwords equal then return the user
-    if not user.nil? and user.password_equals? password
+    if user && user.password_equals?(password)
       if user.login_failure_count > 0
         user.login_failure_count = 0
         self.execute_without_timestamps { user.save! }
@@ -229,7 +229,7 @@ class User < ActiveRecord::Base
     end
 
     # Otherwise increase the login count - if the user could be found - and return nil
-    if not user.nil?
+    if user
       user.login_failure_count = user.login_failure_count + 1
       self.execute_without_timestamps { user.save! }
     end
@@ -240,7 +240,7 @@ class User < ActiveRecord::Base
   # This method checks whether the given value equals the password when
   # hashed with this user's password hash type. Returns a boolean.
   def password_equals?(value)
-    return hash_string(value) == self.password
+    hash_string(value) == self.password
   end
 
   # Sets the last login time and saves the object. Note: Must currently be
@@ -513,18 +513,6 @@ class User < ActiveRecord::Base
       return true if role.static_permissions.where('static_permissions.title = ?', perm_string).first
     end
   end
-
-  def can_modify_project_internal(project, ignoreLock)
-    # The ordering is important because of the lock status check
-    return false if !ignoreLock && project.is_locked?
-    return true if is_admin?
-
-    return true if has_global_permission? 'change_project'
-    return true if has_local_permission? 'change_project', project
-    return true if project.name == self.home_project_name # users tend to remove themself, allow to re-add them
-    false
-  end
-  private :can_modify_project_internal
 
   # project is instance of Project
   def can_modify_project?(project, ignoreLock = nil)
@@ -916,27 +904,11 @@ class User < ActiveRecord::Base
     watched_project_names.include? name
   end
 
-  def update_globalroles( new_globalroles )
-    old_globalroles = roles.where(global: true).pluck(:title)
-
-    remove_globalroles(old_globalroles - new_globalroles)
-
-    add_globalroles(new_globalroles - old_globalroles)
+  def update_globalroles(global_role_titles)
+    self.roles.replace(
+      Role.where(title: global_role_titles) + roles.where(global: false)
+    )
   end
-
-  def remove_globalroles(role_titles)
-    role_ids = Role.where(title: role_titles).ids
-    roles_users.where(role_id: role_ids).delete_all
-  end
-  private :remove_globalroles
-
-  def add_globalroles(role_titles)
-    roles_to_add = Role.where(title: role_titles)
-    roles_to_add.each do |role|
-      roles_users.new(role: role)
-    end
-  end
-  private :add_globalroles
 
   # returns the gravatar image as string or :none
   def gravatar_image(size)
@@ -980,12 +952,23 @@ class User < ActiveRecord::Base
 
   private
 
+  def can_modify_project_internal(project, ignoreLock)
+    # The ordering is important because of the lock status check
+    return false if !ignoreLock && project.is_locked?
+    return true if is_admin?
+
+    return true if has_global_permission? 'change_project'
+    return true if has_local_permission? 'change_project', project
+    return true if project.name == self.home_project_name # users tend to remove themself, allow to re-add them
+    false
+  end
+
   # Hashes the given parameter by the selected hashing method. It uses the
   # "password_salt" property's value to make the hashing more secure.
   def hash_string(value)
-    return case password_hash_type
-           when 'md5' then Digest::MD5.hexdigest(value + self.password_salt)
-           end
+    if password_hash_type == "md5"
+      Digest::MD5.hexdigest(value + self.password_salt)
+    end
   end
 
   cattr_accessor :lookup_strategy do
