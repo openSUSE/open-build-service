@@ -35,6 +35,11 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     end
   end
 
+  def test_project_show_remote_instances
+    visit project_show_path(project: 'RemoteInstance')
+    page.must_have_text "Links against the remote OBS instance at: http://localhost:3200"
+  end
+
   def test_kde4_has_two_packages
     use_js
 
