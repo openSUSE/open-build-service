@@ -11,6 +11,19 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     find('#flash-messages').must_have_text("User data for user 'tom' successfully updated.")
   end
 
+  def test_creation_of_home_projects
+    Project.find_by(name: "home:Iggy").destroy
+    login_Iggy
+
+    page.must_have_text "Iggy | Create Home | Logout"
+    click_link("Create Home")
+    assert_equal "home:Iggy", find("#project_name").value
+    click_button("Create Project")
+
+    page.must_have_text "Iggy | Home Project | Logout"
+    assert Project.where(name: User.current.home_project_name).exists?
+  end
+
   def test_show_user_page
     # email hidden to public
     visit user_show_path(user: 'tom')

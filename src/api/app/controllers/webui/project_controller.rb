@@ -93,6 +93,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   def new
     @project = Project.new
+    @project.name = params[:name] if params[:name]
   end
 
   def new_incident
