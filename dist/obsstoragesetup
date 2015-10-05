@@ -329,7 +329,7 @@ EOF
 			fi
 		fi
 
-		if [ ! "0$NUM" -gt 0 ]; then
+		if [ ! "0$NUM" -gt 0 -a -z "$OBS_WORKER_SCRIPT_URL" ]; then
 			exit 0
 		fi
 
@@ -441,6 +441,7 @@ EOF
 			echo "Running special script for this worker from $OBS_WORKER_SCRIPT_URL"
 			curl $OBS_WORKER_SCRIPT_URL > /tmp/osbworkerscript.$$
 			chmod 0755 /tmp/osbworkerscript.$$
+			export OBS_WORKER_DIRECTORY
 			/tmp/osbworkerscript.$$
 			rm /tmp/osbworkerscript.$$
 		fi
