@@ -100,10 +100,9 @@ class UserTest < ActiveSupport::TestCase
 
   def test_update_globalroles
     user = User.find_by(login: "tom")
-    local_role = Role.create(title: "local_role", global: false)
+    user.roles << Role.create(title: "local_role", global: false)
     user.roles << Role.create(title: "global_role_1", global: true)
     user.roles << Role.create(title: "global_role_2", global: true)
-    user.roles << local_role
     user.save!
 
     user.update_globalroles(["global_role_2", "Admin"])
