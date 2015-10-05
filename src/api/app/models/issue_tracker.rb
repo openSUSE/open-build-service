@@ -54,6 +54,10 @@ class IssueTracker < ActiveRecord::Base
     text.gsub(Regexp.new(regex)) { show_url_for($1, true) }
   end
 
+  def get_markdown(text)
+    text.gsub(Regexp.new(regex)) { "[#{$&}](#{show_url_for($1, false)})" }
+  end
+
   def update_issues_bugzilla
     return unless self.enable_fetch
 
