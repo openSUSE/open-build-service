@@ -23,7 +23,6 @@ class UpdateNotificationEvents
         retries = retries - 1
         retry if retries > 0
         HoptoadNotifier.notify(e, {failed_job: "RETRYED 10 times: #{type.inspect}"})
-        notify_hoptoad(e)
       rescue => e
         if Rails.env.test?
           # make debug output useful in test suite, not just showing backtrace to HoptoaddNotifier
@@ -32,7 +31,6 @@ class UpdateNotificationEvents
           return
         end
         HoptoadNotifier.notify(e, {failed_job: type.inspect})
-        notify_hoptoad(e)
       end
     end
     BackendInfo.lastnotification_nr = Integer(@last['next'])

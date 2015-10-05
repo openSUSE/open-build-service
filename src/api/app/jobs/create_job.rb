@@ -21,6 +21,5 @@ class CreateJob
       return
     end
     HoptoadNotifier.notify(exception, {failed_job: job.inspect})
-    notify_hoptoad(exception)
   end
 end
