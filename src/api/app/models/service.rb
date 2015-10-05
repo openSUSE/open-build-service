@@ -1,4 +1,4 @@
-# Class to access and/or write the "_services" file on the Backend
+# Class to read and write the "_services" file on the Backend
 class Service < ActiveXML::Node
   class InvalidParameter < APIException; end
 
@@ -38,7 +38,7 @@ class Service < ActiveXML::Node
       {:name => "host", :value => uri.host},
       {:name => "protocol", :value => uri.scheme},
       {:name => "path", :value => uri.path}
-      ]
+    ]
     unless (uri.scheme == "http" && uri.port == 80) ||
            (uri.scheme == "https" && uri.port == 443) ||
            (uri.scheme == "ftp" && uri.port == 21)
@@ -89,38 +89,6 @@ class Service < ActiveXML::Node
     fill_params(element, parameters)
   end
 
-  def error
-    opt = {
-      project: self.init_options[:project],
-      package: self.init_options[:package],
-      expand: self.init_options[:expand],
-      rev: self.init_options[:revision]
-    }
-    begin
-      fc = FrontendCompat.new
-      answer = fc.get_source opt
-      doc = ActiveXML::Node.new(answer)
-      doc.each('/directory/serviceinfo/error') do |e|
-        return e.text
-      end
-    rescue
-      nil
-    end
-  end
-
-  def execute
-    opt = {
-      project: self.init_options[:project],
-      package: self.init_options[:package],
-      expand: self.init_options[:expand],
-      cmd: 'runservice'
-    }
-    logger.debug 'execute services'
-    fc = FrontendCompat.new
-    fc.do_post nil, opt
-  end
-
-
   def save
     if !has_element?('/services/service')
       begin
@@ -130,8 +98,11 @@ class Service < ActiveXML::Node
       end
     else
       super(comment: 'Modified via webui', user: User.current.login)
-      fc = FrontendCompat.new
-      fc.do_post nil, self.init_options.merge(:cmd => 'runservice')
+      package = Package.get_by_project_and_name(self.init_options[:project], self.init_options[:package],
+                                                use_source: true, follow_project_links: false)
+      return false unless User.current.can_modify_package?(package)
+      Suse::Backend.post("/source/#{self.init_options[:project]}/#{self.init_options[:package]}?cmd=runservice&user=#{User.current.login}", '')
+      package.sources_changed
     end
     true
   end
