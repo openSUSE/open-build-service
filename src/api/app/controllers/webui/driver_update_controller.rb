@@ -98,7 +98,11 @@ class Webui::DriverUpdateController < Webui::PackageController
     services = @package.services
     services.removeService('generator_driver_update_disk')
     services.addService('generator_driver_update_disk', -1, dud_params)
-    services.save
+    unless services.save
+      flash.now[:error] = 'Error saving services file'
+      render :create
+      return
+    end
 
     flash[:success] = 'Saved Driver update disk service.'
     redirect_to controller: :package, action: :show, project: @project, package: @package

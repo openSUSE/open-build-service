@@ -706,7 +706,7 @@ class Webui::PackageController < Webui::WebuiController
     end
     @services.addDownloadURL(file_url, filename) # detects automatically git://, src.rpm formats
     unless @services.save
-      flash[:error] = "Failed to add file from URL '#{file_url}'. -> #{e.class}"
+      flash[:error] = "Failed to add file from URL '#{file_url}'"
       redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package]
       return false
     end
