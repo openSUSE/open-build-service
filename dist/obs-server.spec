@@ -151,7 +151,7 @@ PreReq:         %fillup_prereq %insserv_prereq
 %endif
 
 #For apache
-Requires:     apache2 apache2-mod_xforward rubygem(passenger-apache2)
+Requires:     apache2 apache2-mod_xforward rubygem-passenger-apache2
 
 # memcache is required for session data
 Requires:       memcached
