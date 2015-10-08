@@ -149,7 +149,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def require_login
-    if User.current.is_nobody?
+    if User.current.nil? || User.current.is_nobody?
       render :text => 'Please login' and return false if request.xhr?
 
       flash[:error] = 'Please login to access the requested page.'
@@ -312,9 +312,10 @@ class Webui::WebuiController < ActionController::Base
 
   # Before filter to check if current user is administrator
   def require_admin
-    unless User.current.is_admin?
+    if User.current.nil? || !User.current.is_admin?
       flash[:error] = 'Requires admin privileges'
-      redirect_back_or_to :controller => 'main', :action => 'index' and return
+      redirect_back_or_to :controller => 'main', :action => 'index'
+      return
     end
   end
 

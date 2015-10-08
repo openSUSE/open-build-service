@@ -116,6 +116,20 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     page.must_have_checked_field('Event::CommentForProject_commenter')
   end
 
+  def test_that_require_login_works
+    logout
+    visit users_path
+    assert_equal user_login_path, page.current_path
+    flash_message.must_equal "Please login to access the requested page."
+  end
+
+  def test_that_require_admin_works
+    login_tom
+    visit users_path
+    assert_equal root_path, page.current_path
+    flash_message.must_equal "Requires admin privileges"
+  end
+
   def test_that_redirect_after_login_works
     visit search_path
     visit user_login_path
