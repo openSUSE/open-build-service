@@ -54,7 +54,7 @@ sub import {
 sub reply {
   my $jev = $BSServerEvents::gev;
   return BSServer::reply(@_) unless $jev;
-  deljob($jev) if @_ && defined($_[0]);
+  deljob($jev);
   return BSServerEvents::reply(@_);
 }
 
@@ -96,6 +96,7 @@ my %serializations_waiting;
 
 sub redo_request {
   my ($jev) = @_;
+  return if $jev->{'deljob_done'};	# job is already deleted
   local $BSServerEvents::gev = $jev;
   my $conf = $jev->{'conf'};
   eval {
@@ -115,34 +116,10 @@ sub redo_request {
 sub deljob {
   my ($jev) = @_;
   #print "deljob #$jev->{'id'}\n";
-  for my $file (keys %filewatchers) {
-    next unless grep {$_ == $jev} @{$filewatchers{$file}};
-    @{$filewatchers{$file}} = grep {$_ != $jev} @{$filewatchers{$file}};
-    if (!@{$filewatchers{$file}}) {
-      delete $filewatchers{$file};
-      delete $filewatchers_s{$file};
-    }
-  }
-  if (!%filewatchers && $filewatchers_ev_active) {
-    BSEvents::rem($filewatchers_ev);
-    $filewatchers_ev_active = 0;
-  }
-  for my $uri (keys %rpcs) {
-    my $ev = $rpcs{$uri};
-    next unless $ev;
-    next unless grep {$_ == $jev} @{$ev->{'joblist'}};
-    @{$ev->{'joblist'}} = grep {$_ != $jev} @{$ev->{'joblist'}};
-    if (!@{$ev->{'joblist'}}) {
-      print "deljob: rpc $uri no longer needed\n";
-      BSServerEvents::stream_close($ev, $ev->{'writeev'});
-      delete $rpcs{$uri};
-    }
-  }
-  for my $file (keys %serializations) {
-    @{$serializations_waiting{$file}} = grep {$_ != $jev} @{$serializations_waiting{$file}};
-    delete $serializations_waiting{$file} if $serializations_waiting{$file} && !@{$serializations_waiting{$file}};
-    serialize_end({'file' => $file}) if $jev == $serializations{$file};
-  }
+  $jev->{'deljob_done'} = 1;
+  filewatcher_deljob($jev);
+  serialize_deljob($jev);
+  rpc_deljob($jev);
 }
 
 sub rpc_error {
@@ -257,6 +234,22 @@ sub addfilewatcher {
   $filewatchers_s{$file} = $s;
 }
 
+sub filewatcher_deljob {
+  my ($jev) = @_;
+  for my $file (keys %filewatchers) {
+    next unless grep {$_ == $jev} @{$filewatchers{$file}};
+    @{$filewatchers{$file}} = grep {$_ != $jev} @{$filewatchers{$file}};
+    if (!@{$filewatchers{$file}}) {
+      delete $filewatchers{$file};
+      delete $filewatchers_s{$file};
+    }    
+  }
+  if (!%filewatchers && $filewatchers_ev_active) {
+    BSEvents::rem($filewatchers_ev);
+    $filewatchers_ev_active = 0; 
+  }
+}
+
 ###########################################################################
 #
 # serialization
@@ -294,6 +287,15 @@ sub serialize_end {
       push @{$serializations_waiting{$file}}, @waiting;
       last;
     }
+  }
+}
+
+sub serialize_deljob {
+  my ($jev) = @_;
+  for my $file (keys %serializations) {
+    @{$serializations_waiting{$file}} = grep {$_ != $jev} @{$serializations_waiting{$file}};
+    delete $serializations_waiting{$file} unless @{$serializations_waiting{$file} || []};
+    serialize_end({'file' => $file}) if $jev == $serializations{$file};
   }
 }
 
@@ -1092,6 +1094,21 @@ sub rpc {
   $ev->{'rpcstate'} = 'sending';
   BSEvents::add($ev);
   return undef;
+}
+
+sub rpc_deljob {
+  my ($jev) = @_;
+  for my $uri (keys %rpcs) {
+    my $ev = $rpcs{$uri};
+    next unless $ev; 
+    next unless grep {$_ == $jev} @{$ev->{'joblist'}};
+    @{$ev->{'joblist'}} = grep {$_ != $jev} @{$ev->{'joblist'}};
+    if (!@{$ev->{'joblist'}}) {
+      print "deljob: rpc $uri no longer needed\n";
+      BSServerEvents::stream_close($ev, $ev->{'writeev'});
+      delete $rpcs{$uri};
+    }    
+  }
 }
 
 
