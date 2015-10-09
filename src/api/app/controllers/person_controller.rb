@@ -170,8 +170,7 @@ class PersonController < ApplicationController
       WatchedProject.find_or_create_by(project: Project.find_by_name!(name), user: user)
     end
     user.watched_projects.replace(new_watchlist)
-
-    return true
+    Rails.cache.delete(["watched_project_names", user])
   end
   private :update_watchlist
 

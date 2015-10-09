@@ -91,6 +91,55 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
 
   end
 
+  def test_update_watchlist
+    xml = <<-XML
+<person>
+<login>tom</login>
+<email>tschmidt@example.com</email>
+<realname>Thommy Cool</realname>
+<state>confirmed</state>
+<watchlist>
+<project name="home:tom"/>
+<project name="BaseDistro3"/>
+<project name="Apache"/>
+</watchlist>
+</person>
+XML
+
+    prepare_request_valid_user
+    put "/person/tom", xml
+    assert_response :success
+    assert_select "status", code: "ok" do
+      assert_select "summary", "Ok"
+    end
+    assert_equal ["Apache", "BaseDistro3", "home:tom"],
+                 User.find_by(login: "tom").watched_project_names.sort
+
+    xml = <<-XML
+<person>
+<login>tom</login>
+<email>tschmidt@example.com</email>
+<realname>Thommy Cool</realname>
+<state>confirmed</state>
+<watchlist>
+<project name="BaseDistro3"/>
+<project name="home:Iggy"/>
+<project name="Apache"/>
+<project name="Devel:BaseDistro:Update"/>
+</watchlist>
+</person>
+XML
+
+    prepare_request_valid_user
+    put "/person/tom", xml
+    assert_response :success
+    assert_select "status", code: "ok" do
+      assert_select "summary", "Ok"
+    end
+    assert_equal ["Apache", "BaseDistro3", "Devel:BaseDistro:Update", "home:Iggy"],
+                 User.find_by(login: "tom").watched_project_names.sort
+  end
+
   def test_update_user_info
     prepare_request_valid_user
 
