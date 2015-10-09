@@ -570,8 +570,19 @@ class SourceController < ApplicationController
   def show_project_config
     forward_from_backend(BackendFile.query_from_list(params, [:rev]))
 
-    project = Project.get_by_name(params[:project])
-    content = project.config.to_s
+    begin
+      # 'project' can be a local Project in database or a String that's the name of a remote project, or even raise exceptions
+      project = Project.get_by_name(params[:project])
+    rescue Project::ReadAccessError, Project::UnknownObjectError => e
+      render_error status: 404, message: e.message
+      return
+    end
+
+    if project.is_a?(String)
+      content = ProjectConfigFile.new(project_name: project).to_s
+    else
+      content = project.config.to_s
+    end
 
     unless content
       render_error status: 404, message: project.config.errors.full_messages.to_sentence
@@ -588,6 +599,10 @@ class SourceController < ApplicationController
   # PUT /source/:project/_config
   def update_project_config
     project = Project.get_by_name(params[:project])
+
+    if project.is_a?(String)
+      raise PutProjectConfigNoPermission, 'Can\'t write on an remote instance'
+    end
 
     unless User.current.can_modify_project?(project)
       raise PutProjectConfigNoPermission, "No permission to write build configuration for project '#{params[:project]}'"
