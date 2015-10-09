@@ -26,6 +26,7 @@ Url:            http://en.opensuse.org/Build_Service
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Source0:        open-build-service-%version.tar.xz
 Source1:        find-requires.sh
+BuildRequires:  ruby
 BuildRequires:  rubygem(bundler)
 %if 0%{?suse_version} < 1210
 BuildRequires:  xz
