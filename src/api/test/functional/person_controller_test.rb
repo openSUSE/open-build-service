@@ -138,6 +138,29 @@ XML
     end
     assert_equal ["Apache", "BaseDistro3", "Devel:BaseDistro:Update", "home:Iggy"],
                  User.find_by(login: "tom").watched_project_names.sort
+
+    xml = <<-XML
+<person>
+<login>tom</login>
+<email>tschmidt@example.com</email>
+<realname>Thommy Cool</realname>
+<state>confirmed</state>
+<watchlist>
+<project name="BaseDistro3"/>
+<project name="NonExistingProject"/>
+</watchlist>
+</person>
+XML
+
+    prepare_request_valid_user
+    put "/person/tom", xml
+    assert_response 404
+    assert_select "status", code: "not_found" do
+      assert_select "summary", "Couldn't find Project"
+    end
+    assert_equal ["Apache", "BaseDistro3", "Devel:BaseDistro:Update", "home:Iggy"],
+                 User.find_by(login: "tom").watched_project_names.sort,
+                 "Should not change watched projects in case of failing API request"
   end
 
   def test_update_user_info
