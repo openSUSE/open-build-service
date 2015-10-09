@@ -398,7 +398,7 @@ class Webui::ProjectController < Webui::WebuiController
 
     if @distributions.empty?
       if User.current.is_admin?
-        flash.now[:notice] = "There are no distributions configured! Check out <a href=\"/configuration/connect_instance\">Configuration > Interconnect</a>"
+        flash.now[:alert] = "There are no distributions configured! Check out <a href=\"/configuration/connect_instance\">Configuration > Interconnect</a>"
       else
         redirect_to :controller => 'project', :action => 'add_repository', :project => @project
       end
