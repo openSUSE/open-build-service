@@ -1911,10 +1911,17 @@ Ignore: package:cups'
     assert_response 404
     get url_for(:controller => :source, :action => :show_project_config, :project => 'kde4')
     assert_response :success
+<<<<<<< HEAD
     get url_for(:controller => :source, :action => :show_project_config, :project => 'RemoteInstance:BaseDistro')
     assert_response :success
 
     put url_for(:controller => :source, :action => :update_project_config, :project => 'RemoteInstance:BaseDistro'), 'Substitute: nix da'
+=======
+    get url_for(:controller => :source, :action => :show_project_config, :project => 'RemoteInstance')
+    assert_response :success
+
+    put url_for(:controller => :source, :action => :update_project_config, :project => 'RemoteInstance'), 'Substitute: nix da'
+>>>>>>> 5fc651c... [webui][api] Some changes to take care about remote projects
     assert_response 403
 
     prepare_request_with_user 'adrian_nobody', 'so_alone'
