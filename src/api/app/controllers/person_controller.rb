@@ -37,7 +37,7 @@ class PersonController < ApplicationController
 
     if user.login != @http_user.login
       logger.debug "Generating for user from parameter #{user.login}"
-      render :text => user.render_axml(false), :content_type => "text/xml"
+      render :text => user.render_axml(@http_user.is_admin?), :content_type => "text/xml"
     else
       logger.debug "Generating user info for logged in user #{@http_user.login}"
       render :text => @http_user.render_axml(true), :content_type => "text/xml"
@@ -170,8 +170,7 @@ class PersonController < ApplicationController
       WatchedProject.find_or_create_by(project: Project.find_by_name!(name), user: user)
     end
     user.watched_projects.replace(new_watchlist)
-
-    return true
+    Rails.cache.delete(["watched_project_names", user])
   end
   private :update_watchlist
 

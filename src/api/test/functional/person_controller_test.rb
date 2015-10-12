@@ -88,7 +88,98 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     get "/person/fred"
     # should not see that watchlist
     assert_no_xml_tag :tag => 'person', :child => {:tag => 'watchlist'}
+  end
 
+  def test_watchlist_with_admin_user
+    project_names = ["Apache", "BaseDistro3", "Devel:BaseDistro:Update", "home:Iggy"]
+    user = User.find_by(login: "tom")
+    project_names.each do |name|
+      user.watched_projects << WatchedProject.create(project: Project.find_by_name!(name), user: user)
+    end
+    user.save!
+
+    prepare_request_with_user("king", "sunflower")
+    get "/person/tom"
+    assert_response :success
+    assert_select "person" do
+      assert_select "watchlist" do
+        assert_select "project", name: "Apache"
+        assert_select "project", name: "BaseDistro3"
+        assert_select "project", name: "home:Iggy"
+      end
+    end
+  end
+
+  def test_update_watchlist
+    xml = <<-XML
+<person>
+<login>tom</login>
+<email>tschmidt@example.com</email>
+<realname>Thommy Cool</realname>
+<state>confirmed</state>
+<watchlist>
+<project name="home:tom"/>
+<project name="BaseDistro3"/>
+<project name="Apache"/>
+</watchlist>
+</person>
+XML
+
+    prepare_request_valid_user
+    put "/person/tom", xml
+    assert_response :success
+    assert_select "status", code: "ok" do
+      assert_select "summary", "Ok"
+    end
+    assert_equal ["Apache", "BaseDistro3", "home:tom"],
+                 User.find_by(login: "tom").watched_project_names.sort
+
+    xml = <<-XML
+<person>
+<login>tom</login>
+<email>tschmidt@example.com</email>
+<realname>Thommy Cool</realname>
+<state>confirmed</state>
+<watchlist>
+<project name="BaseDistro3"/>
+<project name="home:Iggy"/>
+<project name="Apache"/>
+<project name="Devel:BaseDistro:Update"/>
+</watchlist>
+</person>
+XML
+
+    prepare_request_valid_user
+    put "/person/tom", xml
+    assert_response :success
+    assert_select "status", code: "ok" do
+      assert_select "summary", "Ok"
+    end
+    assert_equal ["Apache", "BaseDistro3", "Devel:BaseDistro:Update", "home:Iggy"],
+                 User.find_by(login: "tom").watched_project_names.sort
+
+    xml = <<-XML
+<person>
+<login>tom</login>
+<email>tschmidt@example.com</email>
+<realname>Thommy Cool</realname>
+<state>confirmed</state>
+<watchlist>
+<project name="BaseDistro3"/>
+<project name="NonExistingProject"/>
+</watchlist>
+</person>
+XML
+
+    prepare_request_valid_user
+    put "/person/tom", xml
+    assert_response 404
+    assert_select "status", code: "not_found" do
+      assert_select "summary", "Couldn't find Project"
+    end
+    assert_equal ["Apache", "BaseDistro3", "Devel:BaseDistro:Update", "home:Iggy"],
+                 User.find_by(login: "tom").watched_project_names.sort,
+                 "Should not change watched projects in case of failing API request"
   end
 
   def test_update_user_info
