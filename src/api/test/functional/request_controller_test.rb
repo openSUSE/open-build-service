@@ -31,15 +31,27 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 XML
     post '/request?cmd=create', xml
     assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    id = node.value :id
+    new_request_id = BsRequest.last.id
+    assert_select "request", id: new_request_id do
+      assert_select "action", type: "submit" do
+        assert_select "source", project: "home:Iggy", package: "TestPack", rev: "2"
+        assert_select "target", project: "kde4", package: "wpa_supplicant"
+      end
+      assert_select "state", name: "review", who: "tom" do
+        assert_select "comment"
+      end
+      assert_select "review", state: "new", by_user: "adrian"
+      assert_select "review", state: "new", by_group: "test_group"
+      assert_select "description"
+    end
 
-    put("/request/#{id}", xml)
+    put("/request/#{new_request_id}", xml)
     assert_response :success
-    get "/request/#{id}"
+    get "/request/#{new_request_id}"
     assert_response :success
-    assert_xml_tag(:tag => 'request', :attributes => { id: id })
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'new' })
+    assert_select "request", id: new_request_id do
+      assert_select "state", name: "new"
+    end
   end
 
   def test_get_invalid_1
