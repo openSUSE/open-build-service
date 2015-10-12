@@ -18,14 +18,23 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
   def test_set_and_get_1
     login_king
-    # make sure there is at least one
-    req = load_backend_file('request/1')
-    post '/request?cmd=create', req
+
+    xml = <<-XML
+<request>
+  <action type='submit'>
+    <source project='home:Iggy' package='TestPack' rev='2'/>
+    <target project='kde4' package='wpa_supplicant'/>
+  </action>
+  <description/>
+  <state name='new' who='tom' when='2011-12-02T17:20:42'/>
+</request>
+XML
+    post '/request?cmd=create', xml
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
     id = node.value :id
 
-    put("/request/#{id}", load_backend_file('request/1'))
+    put("/request/#{id}", xml)
     assert_response :success
     get "/request/#{id}"
     assert_response :success
