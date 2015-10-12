@@ -107,6 +107,14 @@ XML
     post "/request/#{id}?cmd=changestate&newstate=accepted&comment=approved&force=1"
     assert_response :success
     assert_equal :accepted, BsRequest.find(id).state
+
+    # Ensure that requests can't be accepted twice
+    post "/request/#{id}?cmd=changestate&newstate=accepted&comment=approved&force=1"
+    assert_response 403
+    assert_select "status", code: "post_request_no_permission" do
+      assert_select "summary", "change state from an accepted state is not allowed."
+    end
+
     post "/request/#{id2}?cmd=changestate&newstate=accepted&comment=approved&force=1"
     assert_response :success
     assert_equal :accepted, BsRequest.find(id2).state
