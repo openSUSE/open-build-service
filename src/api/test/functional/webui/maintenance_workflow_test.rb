@@ -73,33 +73,14 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     page.must_have_text('Patchinfo-Editor for')
 
     find(:id, 'summary').text.must_equal 'I want the update'
-    fill_in 'summary', with: 'pack2: Fixes nothing'
 
-    fill_in 'summary', with: 'Nada'
-    fill_in 'description', with: 'Fixes nothing'
-    find(:id, 'rating').select('critical')
-    check('relogin')
-    check('reboot')
-    find(:id, 'zypp_restart_needed').click
-    page.must_have_selector 'input[id=block_reason][disabled]'
-
+    fill_in 'summary', with: 'pack2 is much better than the old one'
+    fill_in 'description', with: 'Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing'
     check('block')
     fill_in 'block_reason', with: 'locked!'
     find_button('Save Patchinfo').click
 
-    find(:css, 'span.ui-icon.ui-icon-alert').must_have_text %r{Summary is too short}
-    fill_in 'summary', with: 'pack2 is much better than the old one'
-    find_button('Save Patchinfo').click
-
-    find(:css, 'span.ui-icon.ui-icon-alert').must_have_text %r{Description is too short}
-    fill_in 'description', with: 'Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing'
-    fill_in 'issue', with: 'bnc#272722'
-    find(:css, "img[alt=\"Add Bug\"]").click
-    # wait till issue is added
-    find_link('bnc#272722')
-    find_button('Save Patchinfo').click
-
-    # summary and description are ok now
+    # summary and description are ok
     page.wont_have_selector 'span.ui-icon.ui-icon-alert'
 
     find(:css, 'span.ui-icon.ui-icon-info').text.must_equal 'Successfully edited patchinfo'

@@ -18,19 +18,40 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
   def test_set_and_get_1
     login_king
-    # make sure there is at least one
-    req = load_backend_file('request/1')
-    post '/request?cmd=create', req
-    assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    id = node.value :id
 
-    put("/request/#{id}", load_backend_file('request/1'))
+    xml = <<-XML
+<request>
+  <action type='submit'>
+    <source project='home:Iggy' package='TestPack' rev='2'/>
+    <target project='kde4' package='wpa_supplicant'/>
+  </action>
+  <description/>
+  <state name='new' who='tom' when='2011-12-02T17:20:42'/>
+</request>
+XML
+    post '/request?cmd=create', xml
     assert_response :success
-    get "/request/#{id}"
+    new_request_id = BsRequest.last.id
+    assert_select "request", id: new_request_id do
+      assert_select "action", type: "submit" do
+        assert_select "source", project: "home:Iggy", package: "TestPack", rev: "2"
+        assert_select "target", project: "kde4", package: "wpa_supplicant"
+      end
+      assert_select "state", name: "review", who: "tom" do
+        assert_select "comment"
+      end
+      assert_select "review", state: "new", by_user: "adrian"
+      assert_select "review", state: "new", by_group: "test_group"
+      assert_select "description"
+    end
+
+    put("/request/#{new_request_id}", xml)
     assert_response :success
-    assert_xml_tag(:tag => 'request', :attributes => { id: id })
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'new' })
+    get "/request/#{new_request_id}"
+    assert_response :success
+    assert_select "request", id: new_request_id do
+      assert_select "state", name: "new"
+    end
   end
 
   def test_get_invalid_1
@@ -85,8 +106,18 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     post "/request/#{id}?cmd=changestate&newstate=accepted&comment=approved&force=1"
     assert_response :success
+    assert_equal :accepted, BsRequest.find(id).state
+
+    # Ensure that requests can't be accepted twice
+    post "/request/#{id}?cmd=changestate&newstate=accepted&comment=approved&force=1"
+    assert_response 403
+    assert_select "status", code: "post_request_no_permission" do
+      assert_select "summary", "change state from an accepted state is not allowed."
+    end
+
     post "/request/#{id2}?cmd=changestate&newstate=accepted&comment=approved&force=1"
     assert_response :success
+    assert_equal :accepted, BsRequest.find(id2).state
 
     get "/source/home:Iggy/NEW_PACKAGE/_meta"
     assert_response :success
@@ -165,6 +196,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     Timecop.freeze(1)
     post "/request/#{id}?cmd=changestate&newstate=accepted&comment=approved"
     assert_response :success
+    assert_equal :accepted, BsRequest.find(id).state
+    assert_equal "approved", BsRequest.find(id).comment
 
     # package got created
     get '/source/home:Iggy/NEW_PACKAGE/new_file'
