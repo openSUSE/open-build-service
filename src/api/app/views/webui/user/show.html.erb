@@ -93,8 +93,7 @@
     <% else %>
     <div id="projects_table_wrapper" data-url="<%= url_for(controller: 'project', action: 'show', project: 'REPLACEIT') %>">
     <% content_for :head_javascript do %>
-      var main_projects = [ <%= @iprojects.map {|p|
-                           "['#{p[0]}','#{escape_javascript(p[1])}']" }.join(",\n").html_safe %> ];
+      var main_projects = [ <%= escape_project_list(@iprojects) %> ];
       var excl_projects = [];
       <% end %>
       <% content_for :ready_function do %>
