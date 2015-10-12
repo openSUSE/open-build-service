@@ -51,6 +51,19 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     find('#flash-messages').must_have_text("User not found INVALID")
   end
 
+  def test_index
+    login_tom
+    visit users_path
+    flash_message_type.must_equal :alert
+    flash_message.must_equal "Requires admin privileges"
+    assert_equal root_path, page.current_path
+
+    login_king
+    visit users_path
+    assert_equal users_path, page.current_path
+    page.must_have_text "Manage users."
+  end
+
   def test_show_icons
     visit '/user/icon/Iggy.png'
     page.status_code.must_equal 200
@@ -101,6 +114,20 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     page.must_have_checked_field('Event::CommentForPackage_commenter')
     page.must_have_checked_field('Event::CommentForProject_maintainer')
     page.must_have_checked_field('Event::CommentForProject_commenter')
+  end
+
+  def test_that_require_login_works
+    logout
+    visit users_path
+    assert_equal user_login_path, page.current_path
+    flash_message.must_equal "Please login to access the requested page."
+  end
+
+  def test_that_require_admin_works
+    login_tom
+    visit users_path
+    assert_equal root_path, page.current_path
+    flash_message.must_equal "Requires admin privileges"
   end
 
   def test_that_redirect_after_login_works
