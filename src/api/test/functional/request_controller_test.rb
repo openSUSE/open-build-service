@@ -85,8 +85,10 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     post "/request/#{id}?cmd=changestate&newstate=accepted&comment=approved&force=1"
     assert_response :success
+    assert_equal :accepted, BsRequest.find(id).state
     post "/request/#{id2}?cmd=changestate&newstate=accepted&comment=approved&force=1"
     assert_response :success
+    assert_equal :accepted, BsRequest.find(id2).state
 
     get "/source/home:Iggy/NEW_PACKAGE/_meta"
     assert_response :success
@@ -165,6 +167,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     Timecop.freeze(1)
     post "/request/#{id}?cmd=changestate&newstate=accepted&comment=approved"
     assert_response :success
+    assert_equal :accepted, BsRequest.find(id).state
+    assert_equal "approved", BsRequest.find(id).comment
 
     # package got created
     get '/source/home:Iggy/NEW_PACKAGE/new_file'
