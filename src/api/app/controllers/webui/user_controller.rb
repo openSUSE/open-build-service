@@ -70,7 +70,7 @@ class Webui::UserController < Webui::WebuiController
         redirect_to :back, error: "User not found #{params['user']}"
       end
     end
-    @iprojects = @displayed_user.involved_projects.pluck(:name, :title)
+    @iprojects = @displayed_user.involved_projects.select(:name, :title)
     @ipackages = @displayed_user.involved_packages.joins(:project).pluck(:name, 'projects.name as pname')
     @owned = @displayed_user.owned_packages
 
