@@ -238,7 +238,7 @@ IssueTracker.where(name: 'bmo').first_or_create(description: 'Mozilla Bugzilla',
                                                 label: 'bmo#@@@',
                                                 show_url: 'https://bugzilla.mozilla.org/show_bug.cgi?id=@@@')
 IssueTracker.where(name: 'bnc').first_or_create(description: 'openSUSE Bugzilla',
-                                                enable_fetch: true,
+                                                enable_fetch: false,
                                                 kind: 'bugzilla',
                                                 regex: '(?:bnc|BNC|bsc|BSC|boo|BOO)\s*[#:]\s*(\d+)',
                                                 url: 'https://bugzilla.opensuse.org/',
