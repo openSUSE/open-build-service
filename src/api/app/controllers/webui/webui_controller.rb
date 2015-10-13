@@ -12,7 +12,6 @@ class Webui::WebuiController < ActionController::Base
   before_filter :setup_view_path
   before_filter :instantiate_controller_and_action_names
   before_filter :set_return_to, except: [:do_login, :login, :register_user]
-  before_filter :reset_activexml, :authenticate
   before_filter :check_user
   before_filter :check_anonymous
   before_filter :require_configuration
@@ -191,6 +190,7 @@ class Webui::WebuiController < ActionController::Base
     if proxy_user
       session[:login] = proxy_user
       session[:email] = proxy_email
+      reset_activexml
       # Set the headers for direct connection to the api, TODO: is this thread safe?
       ActiveXML::api.set_additional_header( 'X-Username', proxy_user )
       ActiveXML::api.set_additional_header( 'X-Email', proxy_email ) if proxy_email
@@ -204,6 +204,7 @@ class Webui::WebuiController < ActionController::Base
 
   def authenticate_form_auth
     if session[:login] && session[:password]
+      reset_activexml
       # pass credentials to transport plugin, TODO: is this thread safe?
       ActiveXML::api.login(session[:login], session[:password])
     end

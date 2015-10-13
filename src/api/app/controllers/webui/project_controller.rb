@@ -742,6 +742,8 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def clear_failed_comment
+    authenticate
+
     # TODO(Jan): put this logic in the Attribute model
     transport ||= ActiveXML::api
     params['package'].to_a.each do |p|
