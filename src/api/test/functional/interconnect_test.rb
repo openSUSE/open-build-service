@@ -191,6 +191,8 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/RemoteInstance:BaseDistro/_meta'
     assert_response :success
+    get '/source/RemoteInstance:BaseDistro/_config'
+    assert_response :success
     get '/source/RemoteInstance:BaseDistro/_pubkey'
     assert_response :success
     get '/source/RemoteInstance:BaseDistro/pack1'
@@ -260,6 +262,8 @@ class InterConnectTests < ActionDispatch::IntegrationTest
 
     # direct access to remote instance, not existing project/package
     login_tom
+    get '/source/RemoteInstance:NotExisting/_config'
+    assert_response 404
     get '/source/RemoteInstance:NotExisting/_meta'
     assert_response 404
     get '/source/RemoteInstance:NotExisting/pack1'
