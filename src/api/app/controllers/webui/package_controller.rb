@@ -1071,13 +1071,7 @@ class Webui::PackageController < Webui::WebuiController
       end
     end
 
-    render_missing_package unless @package
-  end
-
-  def render_missing_package
-    if request.xhr?
-      render :text => "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\"", :status => 404 and return
-    else
+    unless @package
       flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
       redirect_to :controller => 'project', :action => 'show', :project => @project, :nextstatus => 404
     end
