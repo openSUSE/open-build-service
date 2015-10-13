@@ -2,6 +2,8 @@ ENV['origin_RAILS_ENV'] = ENV['RAILS_ENV']
 ENV['RAILS_ENV'] = 'test'
 require 'simplecov'
 require 'coveralls'
+require "minitest/reporters"
+Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
 
 if ENV['DO_COVERAGE']
   Coveralls.wear_merged!('rails')
