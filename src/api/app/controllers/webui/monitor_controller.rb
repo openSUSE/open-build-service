@@ -74,6 +74,8 @@ class Webui::MonitorController < Webui::WebuiController
   end
 
   def gethistory(key, range, cache = 1)
+    authenticate
+
     cachekey = key + "-#{range}"
     Rails.cache.delete(cachekey, :shared => true) if !cache
     return Rails.cache.fetch(cachekey, :expires_in => (range.to_i * 3600) / 150, :shared => true) do
