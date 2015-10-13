@@ -170,6 +170,11 @@ class Webui::ProjectController < Webui::WebuiController
       rescue Patchinfo::IncompletePatchinfo,
              BsRequestAction::UnknownProject,
              BsRequestAction::BuildNotFinished,
+             BsRequestAction::RepositoryWithoutReleaseTarget,
+             BsRequestAction::RepositoryWithoutArchitecture,
+             BsRequestAction::ArchitectureOrderMissmatch,
+             BsRequestAction::VersionReleaseDiffers,
+             BsRequestAction::UnknownTargetProject,
              BsRequestAction::UnknownTargetPackage => e
         flash[:error] = e.message
         redirect_back_or_to :action => 'show', :project => params[:project] and return
