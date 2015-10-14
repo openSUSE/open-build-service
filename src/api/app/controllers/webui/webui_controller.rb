@@ -168,9 +168,36 @@ class Webui::WebuiController < ActionController::Base
     mode = CONFIG['proxy_auth_mode'] || :off
     logger.debug "Authenticating with iChain mode: #{mode}"
     if mode == :on || mode == :simulate
-      authenticate_proxy
+      mode = CONFIG['proxy_auth_mode'] || :off
+      proxy_user = request.env['HTTP_X_USERNAME']
+      proxy_email = request.env['HTTP_X_EMAIL']
+      if mode == :simulate
+        proxy_user ||= CONFIG['proxy_auth_test_user'] || CONFIG['proxy_test_user']
+        proxy_email ||= CONFIG['proxy_auth_test_email']
+      end
+      if proxy_user
+        session[:login] = proxy_user
+        session[:email] = proxy_email
+        ActiveXML.api.delete_additional_header 'X-Username'
+        ActiveXML.api.delete_additional_header 'X-Email'
+        ActiveXML.api.delete_additional_header 'Authorization'
+        # Set the headers for direct connection to the api, TODO: is this thread safe?
+        ActiveXML.api.set_additional_header( 'X-Username', proxy_user )
+        ActiveXML.api.set_additional_header( 'X-Email', proxy_email ) if proxy_email
+        # FIXME: hot fix to allow new users to login at all again
+        frontend.transport.direct_http(URI("/person/#{URI.escape(proxy_user)}"), :method => 'GET')
+      else
+        session[:login] = nil
+        session[:email] = nil
+      end
     else
-      authenticate_form_auth
+      if session[:login] && session[:password]
+        ActiveXML.api.delete_additional_header 'X-Username'
+        ActiveXML.api.delete_additional_header 'X-Email'
+        ActiveXML.api.delete_additional_header 'Authorization'
+        # pass credentials to transport plugin, TODO: is this thread safe?
+        ActiveXML.api.login(session[:login], session[:password])
+      end
     end
     if session[:login]
       logger.info "Authenticated request to '#{request.url}' from #{session[:login]}"
@@ -179,46 +206,8 @@ class Webui::WebuiController < ActionController::Base
     end
   end
 
-  def authenticate_proxy
-    mode = CONFIG['proxy_auth_mode'] || :off
-    proxy_user = request.env['HTTP_X_USERNAME']
-    proxy_email = request.env['HTTP_X_EMAIL']
-    if mode == :simulate
-      proxy_user ||= CONFIG['proxy_auth_test_user'] || CONFIG['proxy_test_user']
-      proxy_email ||= CONFIG['proxy_auth_test_email']
-    end
-    if proxy_user
-      session[:login] = proxy_user
-      session[:email] = proxy_email
-      reset_activexml
-      # Set the headers for direct connection to the api, TODO: is this thread safe?
-      ActiveXML::api.set_additional_header( 'X-Username', proxy_user )
-      ActiveXML::api.set_additional_header( 'X-Email', proxy_email ) if proxy_email
-      # FIXME: hot fix to allow new users to login at all again
-      frontend.transport.direct_http(URI("/person/#{URI.escape(proxy_user)}"), :method => 'GET')
-    else
-      session[:login] = nil
-      session[:email] = nil
-    end
-  end
-
-  def authenticate_form_auth
-    if session[:login] && session[:password]
-      reset_activexml
-      # pass credentials to transport plugin, TODO: is this thread safe?
-      ActiveXML::api.login(session[:login], session[:password])
-    end
-  end
-
   def frontend
     FrontendCompat.new
-  end
-
-  def reset_activexml
-    transport = ActiveXML::api
-    transport.delete_additional_header 'X-Username'
-    transport.delete_additional_header 'X-Email'
-    transport.delete_additional_header 'Authorization'
   end
 
   def required_parameters(*parameters)
