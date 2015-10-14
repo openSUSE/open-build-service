@@ -40,19 +40,8 @@ module Webui::WebuiHelper
     user = User.find_by_login!(user) unless user.is_a? User
     alt ||= user.realname
     alt = user.login if alt.empty?
-    if size < 3 # TODO: needs more work, if the icon appears often on the page, it's cheaper to fetch it
-      content = user.gravatar_image(size)
-      if content == :none
-        content = Rails.cache.fetch('default_face') do
-          File.open(Rails.root.join('app', 'assets', 'images',
-                                    'default_face.png'), 'r').read
-        end
-      end
-      "<img src='data:image/jpeg;base64,#{Base64.encode64(content)}' width='#{size}' height='#{size}' alt='#{alt}' class='#{css_class}'/>".html_safe
-    else
-      image_tag(url_for(controller: :user, action: :icon, user: user.login, size: size),
-                width: size, height: size, alt: alt, class: css_class)
-    end
+    image_tag(url_for(controller: :user, action: :icon, icon: user.login, size: size),
+              width: size, height: size, alt: alt, class: css_class)
   end
 
   def fuzzy_time(time)
