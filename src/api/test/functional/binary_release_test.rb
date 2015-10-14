@@ -7,8 +7,8 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
   fixtures :all
 
   def setup
-    super
     wait_for_scheduler_start
+    reset_auth
   end
 
   def test_search_binary_release_in_fixtures

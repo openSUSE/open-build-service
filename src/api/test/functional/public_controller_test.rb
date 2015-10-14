@@ -5,8 +5,8 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
 
   def setup
-    super
     wait_for_scheduler_start
+    reset_auth
   end
 
   def test_index

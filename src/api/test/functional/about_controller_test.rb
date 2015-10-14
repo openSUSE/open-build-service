@@ -10,6 +10,7 @@ class AboutControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_about_anonymous
+    reset_auth
     get "/about"
     assert_response :success
     assert_xml_tag( :tag => "about", :descendant => { :tag => "revision" } )

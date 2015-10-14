@@ -5,11 +5,16 @@ class ZZZPostConsistency < ActionDispatch::IntegrationTest
   fixtures :all
 
   def setup
-    super
     wait_for_scheduler_start
+    reset_auth
   end
 
   def test_resubmit_fixtures
+    login_king
+    wait_for_scheduler_start
+
+    compare_project_and_package_lists
+
     resubmit_all_fixtures
   end
 

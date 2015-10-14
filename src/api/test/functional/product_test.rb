@@ -6,8 +6,8 @@ class ProductTests < ActionDispatch::IntegrationTest
   fixtures :all
 
   def setup
-    super
     wait_for_scheduler_start
+    reset_auth
   end
 
   def test_simple_product_file
@@ -356,6 +356,7 @@ class ProductTests < ActionDispatch::IntegrationTest
     req = "<request>
             <action type='submit'>
               <source project='home:adrian:branches:home:tom:temporary' package='_product' />
+              <options><sourceupdate>cleanup</sourceupdate></options>
             </action>
             <description>SUBMIT</description>
           </request>"
@@ -378,6 +379,9 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     # cleanup
+    login_king
+    delete "/source/home:adrian:branches:home:tom:temporary"
+    assert_response :success
     delete "/source/home:tom:temporary"
     assert_response :success
   end

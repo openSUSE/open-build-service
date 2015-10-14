@@ -376,12 +376,21 @@ class SourceController < ApplicationController
     @command = params[:cmd]
     raise IllegalRequest.new 'invalid_command' unless valid_commands.include?(@command)
 
-    origin_project_name = params[:oproject] if params[:oproject]
-    origin_package_name = params[:opackage] if params[:opackage]
+    if params[:oproject]
+      origin_project_name = params[:oproject]
+      valid_project_name! origin_project_name
+    end
+    if params[:opackage]
+      origin_package_name = params[:opackage]
+      valid_package_name! origin_package_name
+    end
 
     if origin_package_name
       required_parameters :oproject
     end
+
+    valid_project_name! params[:target_project] if params[:target_project]
+    valid_package_name! params[:target_package] if params[:target_package]
 
     # Check for existens/access of origin package when specified
     @spkg = nil
@@ -392,6 +401,8 @@ class SourceController < ApplicationController
     end
     # rubocop:enable Metrics/LineLength
     unless Package_creating_commands.include? @command and not Project.exists_by_name(@target_project_name)
+      valid_project_name! params[:project]
+      valid_package_name! params[:package]
       # even when we can create the package, an existing instance must be checked if permissions are right
       @project = Project.get_by_name @target_project_name
       # rubocop:disable Metrics/LineLength
@@ -479,15 +490,15 @@ class SourceController < ApplicationController
 
     request_data = Xmlhash.parse(request.raw_post)
 
+    # permission check
+    if request_data['name'] != project_name
+      raise ProjectNameMismatch, "project name in xml data ('#{request_data['name']}) does not match resource path component ('#{project_name}')"
+    end
+
     begin
       project = Project.get_by_name(request_data['name'])
     rescue Project::UnknownObjectError
       project = nil
-    end
-
-    # permission check
-    if request_data['name'] != project_name
-      raise ProjectNameMismatch, "project name in xml data ('#{request_data['name']}) does not match resource path component ('#{project_name}')"
     end
 
     # projects using remote resources must be edited by the admin

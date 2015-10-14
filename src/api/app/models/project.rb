@@ -656,9 +656,7 @@ class Project < ActiveRecord::Base
       unless target_repo
         raise SaveError, "Unknown target repository '#{repo['hostsystem']['project']}/#{repo['hostsystem']['repository']}'"
       end
-      if target_repo != current_repo.hostsystem
-        current_repo.hostsystem = target_repo
-      end
+      current_repo.hostsystem = target_repo
     elsif current_repo.hostsystem
       current_repo.hostsystem = nil
     end

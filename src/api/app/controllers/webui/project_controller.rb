@@ -170,6 +170,11 @@ class Webui::ProjectController < Webui::WebuiController
       rescue Patchinfo::IncompletePatchinfo,
              BsRequestAction::UnknownProject,
              BsRequestAction::BuildNotFinished,
+             BsRequestAction::RepositoryWithoutReleaseTarget,
+             BsRequestAction::RepositoryWithoutArchitecture,
+             BsRequestAction::ArchitectureOrderMissmatch,
+             BsRequestAction::VersionReleaseDiffers,
+             BsRequestAction::UnknownTargetProject,
              BsRequestAction::UnknownTargetPackage => e
         flash[:error] = e.message
         redirect_back_or_to :action => 'show', :project => params[:project] and return
@@ -213,7 +218,7 @@ class Webui::ProjectController < Webui::WebuiController
     if @distributions.empty?
       if User.current.is_admin?
         redirect_to({ controller: 'configuration', action: 'interconnect' },
-                    notice: 'There are no distributions configured. Maybe you want to connect to one of the public OBS instances?')
+                    alert: 'There are no distributions configured. Maybe you want to connect to one of the public OBS instances?')
       else
         redirect_to :controller => 'project', :action => 'add_repository', :project => @project
       end

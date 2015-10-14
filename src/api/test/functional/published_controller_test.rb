@@ -5,9 +5,9 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
 
   def setup
-    super
     wait_for_scheduler_start
     run_publisher()
+    reset_auth
   end
 
   def test_index

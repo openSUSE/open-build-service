@@ -8,8 +8,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
 
   def setup
-    super
     wait_for_scheduler_start
+    reset_auth
   end
 
   teardown do
@@ -125,6 +125,8 @@ XML
     get "/source/home:Iggy/NEW_PACKAGE2/_meta"
     assert_response :success
     assert_no_xml_tag(:tag => 'devel')
+
+    login_king
     delete "/source/home:Iggy/NEW_PACKAGE"
     assert_response :success
     delete "/source/home:Iggy/NEW_PACKAGE2"
@@ -257,7 +259,10 @@ XML
     assert_no_xml_tag(:tag => 'link', :attributes => { missingok: 'true' })
 
     # cleanup
+    login_king
     delete '/source/home:Iggy:branches:home:Iggy'
+    assert_response :success
+    delete "/source/home:Iggy/NEW_PACKAGE"
     assert_response :success
 
     Timecop.return
@@ -662,6 +667,9 @@ XML
     assert_response :success
     assert_xml_tag(:tag => 'attribute', :attributes => { namespace: 'OBS', name: 'RequestCloned' },
                    :child => { tag: 'value', content: id })
+    # cleanup
+    delete "/source/home:tom:branches:REQUEST_#{id}"
+    assert_response :success
   end
 
   def test_create_request_review_and_supersede
@@ -1866,6 +1874,11 @@ XML
     get "/request/#{id}"
     assert_response :success
     assert_xml_tag(:tag => 'state', :attributes => { name: 'new' })
+
+    # cleanup
+    login_Iggy
+    delete '/source/home:Iggy:branches:Apache'
+    assert_response :success
   end
 
   def test_all_action_types
@@ -1986,7 +1999,12 @@ XML
     assert_xml_tag(:tag => 'group', :attributes => { groupid: 'test_group', role: 'reader' })
 
     # cleanup
+    login_king
     delete '/source/kde4/Testing'
+    assert_response :success
+    post '/source/home:fred:DeleteProject', :cmd => "undelete"
+    assert_response :success
+    post '/source/home:Iggy/ToBeDeletedTestPack', :cmd => "undelete"
     assert_response :success
   end
 
@@ -2055,6 +2073,13 @@ XML
     get '/source/kde4/Testing/_meta'
     assert_response :success
     assert_xml_tag(:tag => 'devel', :attributes => { project: 'home:Iggy', package: 'TestPack' })
+
+    # cleanup
+    login_king
+    delete '/source/home:Iggy/TestPack/_link'
+    assert_response :success
+    delete '/source/kde4/Testing'
+    assert_response :success
   end
 
   def test_reviewer_added_when_source_maintainer_is_missing
@@ -2252,6 +2277,8 @@ XML
 
     #cleanup
     login_king
+    delete '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject'
+    assert_response :success
     delete '/source/DummY'
     assert_response :success
   end
@@ -2484,7 +2511,10 @@ XML
     assert_xml_tag(:tag => 'state', :attributes => { name: 'revoked' })
 
     #cleanup
+    login_king
     delete '/source/DummY'
+    assert_response :success
+    delete '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject'
     assert_response :success
   end
 
@@ -3190,6 +3220,9 @@ XML
     get '/source/home:dmayr'
     assert_response :success
     assert_xml_tag tag: 'entry', attributes: { name: 'x11vnc' }
+
+    delete '/source/home:Iggy/x11vnc'
+    assert_response :success
   end
 
   def test_reviews_in_delete_requests

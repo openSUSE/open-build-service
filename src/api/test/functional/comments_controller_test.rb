@@ -2,6 +2,10 @@ require_relative '../test_helper'
 
 class CommentsControllerTest < ActionDispatch::IntegrationTest
 
+  def setup
+    reset_auth
+  end
+
   def test_package_comments
     get comments_package_path(project: 'BaseDistro3', package: 'pack2')
     assert_response 401

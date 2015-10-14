@@ -1,5 +1,6 @@
 # encoding: UTF-8
 # rubocop:disable Metrics/LineLength
+# rubocop:disable Metrics/ClassLength
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'source_controller'
 
@@ -7,8 +8,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
 
   def setup
-    super
     wait_for_scheduler_start
+    reset_auth
   end
 
   def test_get_projectlist
@@ -27,7 +28,6 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_no_match(/entry name="HiddenProject"/, @response.body)
 
     #retry with maintainer
-    reset_auth
     login_adrian
     get '/source'
     assert_response :success
@@ -40,7 +40,6 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match(/entry name="SourceprotectedProject"/, @response.body)
     #retry with maintainer
-    reset_auth
     login_adrian
     get '/source'
     assert_response :success
@@ -235,20 +234,30 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_invalid_project_and_package_name
     login_king
-    %w(_blah).each do |n|
+    %w(_invalid ..).each do |n|
       raw_put url_for(:controller => :source, :action => :update_project_meta, :project => n), "<project name='#{n}'> <title /> <description /> </project>"
       assert_response 400
-      put "/source/kde4/#{n}/_meta", "<package project='kde4' name='#{n}'> <title /> <description /> </project>"
+      assert_xml_tag :tag => 'status', :attributes => { :code => 'invalid_project_name' }
+
+      put "/source/kde4/#{n}/_meta", "<package project='kde4' name='#{n}'> <title /> <description /> </package>"
       assert_response 400
+      assert_xml_tag :tag => 'status', :attributes => { :code => 'invalid_package_name' }
+
       post '/source/kde4/kdebase', :cmd => 'branch', :target_package => n
       assert_response 400
+      assert_xml_tag :tag => 'status', :attributes => { :code => 'invalid_package_name' }
+
+      post '/source/kde4/kdebase', :cmd => 'branch', :target_project => n
+      assert_response 400
+      assert_xml_tag :tag => 'status', :attributes => { :code => 'invalid_project_name' }
+
       post "/source/kde4/#{n}", :cmd => 'copy', :opackage => 'kdebase', :oproject => 'kde4'
-      if n == '..'
-        # this is failing already at routing
-        assert_response 403
-      else
-        assert_response 400
-      end
+      assert_response 400
+      assert_xml_tag :tag => 'status', :attributes => { :code => 'invalid_package_name' }
+
+      post "/source/#{n}", :cmd => 'copy', :oproject => 'kde4'
+      assert_response 400
+      assert_xml_tag :tag => 'status', :attributes => { :code => 'invalid_project_name' }
     end
   end
 
@@ -262,6 +271,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
       post '/source/home:Iggy/TestPack', :cmd => 'branch', :target_package => 'TestPack3'
       assert_response :success
     end
+    # cleanup
+    delete '/source/home:king:branches:home:Iggy'
+    assert_response :success
   end
 
   # project_meta does not require auth
@@ -359,6 +371,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     # nobody
     put url_for(:controller => :source, :action => :update_project_meta, :project => 'kde4:subproject'), subprojectmeta
     assert_response 401
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'authentication_required' }
     login_tom
     put url_for(:controller => :source, :action => :update_project_meta, :project => 'kde4:subproject'), subprojectmeta
     assert_response 403
@@ -387,6 +400,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     put url_for(:controller => :source, :action => :update_project_meta, :project => 'kde4:subproject'), subprojectmeta
     assert_response 400
     assert_xml_tag :tag => 'status', :attributes => { :code => 'project_name_mismatch' }
+
+    # and it does not exist indeed ...
+    get "/source/kde4_subproject"
+    assert_response 404
+    get "/source/kde4:subproject"
+    assert_response 404
   end
 
   def test_put_project_meta_hidden_project
@@ -943,6 +962,11 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     put url_for(:controller => :source, :action => :update_package_meta, :project => 'kde4', :package => 'kdelibs3'), newdoc.to_s
     assert_response 403
     assert_xml_tag(:tag => 'status', :attributes => { :code => 'create_package_no_permission' })
+
+    # cleanup
+    login_king
+    delete "/source/kde4/kdelibs2"
+    assert_response :success
   end
 
   def test_captial_letter_change
@@ -1139,6 +1163,13 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     put '/source/home:tom:A/_meta', "<project name='home:tom:A'> <title/> <description/> <devel project='home:tom:C'/> </project>"
     assert_response 400
     assert_xml_tag(:tag => 'status', :attributes => { :code => 'project_cycle' })
+
+    delete '/source/home:tom:C'
+    assert_response :success
+    delete '/source/home:tom:B'
+    assert_response :success
+    delete '/source/home:tom:A'
+    assert_response :success
   end
 
   def test_devel_package_cycle
@@ -1160,6 +1191,14 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     raw_put '/source/home:tom/packageA/_meta', "<package project='home:tom' name='packageA'> <title/> <description/> <devel package='packageB' /> </package>"
     assert_response 400
     assert_xml_tag(:tag => 'status', :attributes => { :code => 'cycle_error' })
+
+    # cleanup
+    delete '/source/home:tom/packageC'
+    assert_response :success
+    delete '/source/home:tom/packageB'
+    assert_response :success
+    delete '/source/home:tom/packageA'
+    assert_response :success
   end
 
   def do_test_change_package_meta (project, package, response1, response2, tag2, response3, select3)
@@ -1684,6 +1723,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_remove_project_and_verify_repositories
     login_tom
+    get '/source/home:coolo:test/_meta'
+    assert_response :success
+
     delete '/source/home:coolo'
     assert_response 400
     assert_select 'status[code] > summary', /following repositories depend on this project:/
@@ -1693,10 +1735,16 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
     # verify the repo is updated
     get '/source/home:coolo:test/_meta'
+    assert_response :success
     node = Xmlhash.parse(@response.body)['repository']
     assert_equal 'home_coolo', node['name']
     assert_equal 'deleted', node['path']['project']
     assert_equal 'deleted', node['path']['repository']
+
+    # restore
+    login_king
+    post '/source/home:coolo', :cmd => :undelete
+    assert_response :success
   end
 
   def test_diff_package
@@ -1990,6 +2038,14 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     post '/source/BaseDistro2.0:LinkedUpdateProject/pack2', :cmd => 'undelete'
     assert_response :success
+    get '/source/BaseDistro2.0:LinkedUpdateProject/pack2'
+    assert_response :success
+
+    # cleanup
+    delete '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject'
+    assert_response :success
+    delete '/source/BaseDistro2.0:LinkedUpdateProject/pack2'
+    assert_response :success
   end
 
   def test_linktobranch
@@ -2040,6 +2096,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match(/Type: kiwi/, @response.body)
 
+    # cleanup
+    delete '/source/home:adrian:branches:home:adrian:IMAGES'
+    assert_response :success
     delete '/source/home:adrian:IMAGES'
     assert_response :success
   end
@@ -2149,6 +2208,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_match(/Type: kiwi/, @response.body)
 
+    delete '/source/home:adrian:branches:home:adrian:IMAGES'
+    assert_response :success
     delete '/source/home:adrian:IMAGES'
     assert_response :success
   end
@@ -2497,6 +2558,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # cleanup
+    delete '/source/home:fred:COPY'
+    assert_response :success
     delete '/source/TEMPCOPY'
     assert_response :success
   end
@@ -2617,6 +2680,18 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     put '/source/home:Iggy/_project/filename2', 'CONTENT'
     assert_response :success
     get '/source/home:Iggy/_project/filename2'
+    assert_response :success
+
+    # restore
+    delete '/source/home:Iggy/_product'
+    assert_response :success
+    delete '/source/home:Iggy/_pattern'
+    assert_response :success
+    raw_put '/source/home:Iggy/TestPack/TestPack.spec', load_backend_file('source/home:Iggy/TestPack/TestPack.spec')
+    assert_response :success
+    raw_put('/source/home:Iggy/TestPack/myfile', 'DummyContent')
+    assert_response :success
+    delete '/source/home:Iggy/TestPack/filename'
     assert_response :success
   end
 
@@ -3003,12 +3078,14 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_branch_creating_project
-    post '/source/home:Iggy/TestPack'
+    post '/source/home:Iggy/TestPack', :cmd => :branch
     assert_response 401
+    assert_xml_tag tag: "status", attributes: { code: "authentication_required" }
     Configuration.stubs(:anonymous).returns(false)
     # still 401 and not 403 (or it breaks osc login)
-    post '/source/home:Iggy/TestPack'
+    post '/source/home:Iggy/TestPack', :cmd => :branch
     assert_response 401
+    assert_xml_tag tag: "status", attributes: { code: "authentication_required" }
 
     prepare_request_with_user 'fredlibs', 'geröllheimer'
     # ensure he has no home project
@@ -3057,19 +3134,20 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     Configuration.stubs(:allow_user_to_create_home_project).returns(true)
     delete '/source/home:fredlibs:branches:home:Iggy'
     assert_response :success
-    delete '/source/home:fredlibs'
-    assert_response :success
     post '/source/home:Iggy/TestPack', :cmd => :branch
     assert_response :success
 
-    # final cleanup
+    # cleanup
     delete '/source/home:fredlibs:branches:home:Iggy'
+    assert_response :success
+    delete '/source/home:fredlibs'
     assert_response :success
   end
 
   def test_branch_package_delete_and_undelete
     post '/source/home:Iggy/TestPack', :cmd => :branch, :target_project => 'home:coolo:test'
     assert_response 401
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'authentication_required' }
     prepare_request_with_user 'fredlibs', 'geröllheimer'
     post '/source/home:Iggy/TestPack', :cmd => :branch, :target_project => 'NotExisting'
     assert_response 403
@@ -3169,6 +3247,16 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     post '/source/home:tom:branches:home:Iggy/TestPack', :cmd => :undelete
     assert_response 400 # already exists
 
+    # cleanup
+    login_king
+    delete '/source/home:tom:branches:home:Iggy'
+    assert_response :success
+    delete '/source/home:tom:branches:home:coolo:test'
+    assert_response :success
+    delete '/source/home:coolo:test/TestPack'
+    assert_response :success
+    delete '/source/deleted'
+    assert_response :success
   end
 
   def test_package_set_flag
@@ -3592,6 +3680,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "path", :attributes => { :project => "home:tom:threeatatime", :repository => "standard2"},
                    :parent => { :tag => "repository", :attributes => { :name => "standard" } }
     assert_xml_tag :tag => "repository", :attributes => {:name => "standard2"}
+
+    delete "/source/home:tom:threeatatime?force=1"
+    assert_response :success
   end
 end
 # rubocop:enable Metrics/LineLength

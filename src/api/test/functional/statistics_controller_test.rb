@@ -6,6 +6,10 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
 
   fixtures :all
 
+  def setup
+    reset_auth
+  end
+
   def test_latest_added
     login_adrian
     get url_for(:controller => :source, :action => :show_package_meta, :project => "HiddenProject", :package => "test_latest_added")
@@ -40,6 +44,12 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag :tag => 'latest_added', :child => { :tag => 'package' }
     assert_xml_tag :tag => 'package', :attributes => { :name => "test_latest_added1" }
+
+    login_king
+    delete "/source/kde4/test_latest_added1"
+    assert_response :success
+    delete "/source/HiddenProject/test_latest_added"
+    assert_response :success
   end
 
 
@@ -77,6 +87,12 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
    assert_response :success
    assert_xml_tag :tag => 'latest_updated', :child => { :tag => 'package' }
    assert_xml_tag :tag => 'package', :attributes => { :name => "test_latest_added1" }
+
+   login_king
+   delete "/source/kde4/test_latest_added1"
+   assert_response :success
+   delete "/source/HiddenProject/test_latest_added"
+   assert_response :success
  end
 
 

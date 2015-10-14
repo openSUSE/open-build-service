@@ -6,7 +6,6 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
   fixtures :all
 
   def setup
-    super
     wait_for_scheduler_start
     stub_request(:post, 'http://bugzilla.novell.com/xmlrpc.cgi').to_timeout
   end
@@ -867,6 +866,8 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
 
     #cleanup
     login_king
+    delete '/source/home:tom:branches:OBS_Maintained:pack2'
+    assert_response :success
     delete '/source/BaseDistro3Channel'
     assert_response 400 # incident still refers to it
     delete "/source/#{incidentProject}"

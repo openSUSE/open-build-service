@@ -7,6 +7,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
 
   def setup
     wait_for_scheduler_start
+    reset_auth
   end
 
   def test_anonymous_access
@@ -190,6 +191,8 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/RemoteInstance:BaseDistro/_meta'
     assert_response :success
+    get '/source/RemoteInstance:BaseDistro/_config'
+    assert_response :success
     get '/source/RemoteInstance:BaseDistro/_pubkey'
     assert_response :success
     get '/source/RemoteInstance:BaseDistro/pack1'
@@ -259,6 +262,8 @@ class InterConnectTests < ActionDispatch::IntegrationTest
 
     # direct access to remote instance, not existing project/package
     login_tom
+    get '/source/RemoteInstance:NotExisting/_config'
+    assert_response 404
     get '/source/RemoteInstance:NotExisting/_meta'
     assert_response 404
     get '/source/RemoteInstance:NotExisting/pack1'
@@ -367,6 +372,16 @@ end
     assert_response :success
     post '/build/LocalProject', :cmd => 'rebuild'
     assert_response :success
+
+    #cleanup
+    delete '/source/home:tom:branches:UseRemoteInstanceIndirect'
+    assert_response :success
+    delete '/source/home:tom:branches:UseRemoteInstance'
+    assert_response :success
+    delete '/source/home:tom:branches:RemoteInstance:BaseDistro'
+    assert_response :success
+    delete '/source/home:tom:branches:LocalProject'
+    assert_response :success
   end
 
   def test_invalid_operation_to_remote
@@ -446,6 +461,10 @@ end
     post '/source/LocalProject/temporary', :cmd => :diff, :oproject => 'LocalProject', :opackage => 'remotepackage'
     assert_response :success
     post '/source/LocalProject/temporary', :cmd => :diff, :oproject => 'UseRemoteInstance', :opackage => 'pack1'
+    assert_response :success
+
+    login_king
+    delete '/source/LocalProject/temporary'
     assert_response :success
   end
 

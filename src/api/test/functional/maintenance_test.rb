@@ -1,4 +1,6 @@
 # rubocop:disable Metrics/LineLength
+# rubocop:disable Metrics/AbcSize
+# rubocop:disable Metrics/MethodLength
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'source_controller'
 
@@ -6,7 +8,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   fixtures :all
 
   def setup
-    super
     wait_for_scheduler_start
     stub_request(:post, 'http://bugzilla.novell.com/xmlrpc.cgi').to_timeout
   end
@@ -136,8 +137,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     put '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/_link', @response.body
     assert_response :success
 
-    #cleanup
+    # cleanup
+    login_king
     delete '/source/home:tom:branches:Devel:BaseDistro:Update'
+    assert_response :success
+    delete '/source/home:tom:branches:BaseDistro:Update'
+    assert_response :success
+    delete '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject'
     assert_response :success
   end
 
@@ -295,6 +301,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # cleanup
     login_king
+    delete "/source/My:Maintenance:0"
+    assert_response :success
     delete "/source/#{incidentProject}"
     assert_response :success
     delete '/source/BaseDistro2.0:LinkedUpdateProject/kdelibs'
@@ -319,6 +327,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'data', :attributes => { name: 'sourcepackage' }, :content => 'kdelibs'
 
     #cleanup
+    login_king
+    delete '/source/ServicePack'
+    assert_response :success
     delete '/source/home:tom:branches:OBS_Maintained:kdelibs'
     assert_response :success
   end
@@ -362,7 +373,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # and the update package even has a devel area defined here
     assert_xml_tag :tag => "comment", :content => "fetch updates from devel package Devel:BaseDistro:Update/pack2"
 
+    login_king
     delete '/source/ServicePack'
+    assert_response :success
+    delete '/source/home:king:branches:Devel:BaseDistro:Update'
+    assert_response :success
+    delete '/source/home:king:branches:ServicePack'
     assert_response :success
   end
 
@@ -443,11 +459,17 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post "/request/#{reqid}?cmd=changestate&newstate=revoked"
     assert_response :success
 
+    # cleanup
+    login_king
+    delete "/source/My:Maintenance:0"
+    assert_response :success
     delete "/source/#{incidentProject}"
     assert_response :success
     delete '/source/ServicePack:Update'
     assert_response :success
     delete '/source/ServicePack'
+    assert_response :success
+    delete '/source/home:king:branches:BaseDistro2.0:LinkedUpdateProject'
     assert_response :success
   end
 
@@ -708,6 +730,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # cleanup
     login_king
+    delete "/source/home:tom:branches:kde4"
+    assert_response :success
+    delete "/source/home:tom:branches:OBS_Maintained:pack2"
+    assert_response :success
     delete "/source/#{incidentProject}"
     assert_response :success
     delete '/source/ServicePack'
@@ -1692,9 +1718,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+1).to_s}.2.1" # untouched
 
     # cleanup
+    delete '/source/home:king:branches:BaseDistro2.0:LinkedUpdateProject'
+    assert_response :success
     delete '/source/BaseDistro2.0:ServicePack1'
     assert_response :success
     delete "/source/#{incidentProject}"
+    assert_response :success
+    delete '/source/BaseDistro3/patchinfo.0'
     assert_response :success
     delete '/source/BaseDistro3/pack2.0'
     assert_response :success
