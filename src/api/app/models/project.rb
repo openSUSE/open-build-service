@@ -15,12 +15,10 @@ class Project < ActiveRecord::Base
     setup 'delete_error'
   end
   # unknown objects and no read access permission are handled in the same way by default
-  class ReadAccessError < APIException
-    setup 'unknown_project', 404, 'Unknown project'
-  end
   class UnknownObjectError < APIException
     setup 'unknown_project', 404, 'Unknown project'
   end
+  class ReadAccessError < UnknownObjectError; end
   class SaveError < APIException
     setup 'project_save_error'
   end

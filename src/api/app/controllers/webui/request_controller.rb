@@ -392,7 +392,6 @@ class Webui::RequestController < Webui::WebuiController
       end
     rescue BsRequestAction::UnknownProject,
            Package::UnknownObjectError,
-           Package::ReadAccessError,
            BsRequestAction::UnknownTargetPackage => e
       flash[:error] = "No such package: #{e.message}"
       redirect_to :controller => 'package', :action => 'show', :project => params[:project], :package => params[:package] and return

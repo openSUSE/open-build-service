@@ -29,12 +29,10 @@ class Package < ActiveRecord::Base
   class WritePermissionError < APIException
     setup 'package_write_permission_error'
   end
-  class ReadAccessError < APIException
-    setup 'unknown_package', 404, 'Unknown package'
-  end
   class UnknownObjectError < APIException
     setup 'unknown_package', 404, 'Unknown package'
   end
+  class ReadAccessError < UnknownObjectError; end
   class ReadSourceAccessError < APIException
     setup 'source_access_no_permission', 403, 'Source Access not allowed'
   end
