@@ -81,41 +81,49 @@ module Webui::WebuiHelper
     valid_xml_id("id-#{package}_#{repo}_#{arch}")
   end
 
-  def arch_repo_table_cell(repo, arch, packname)
-    status = status_for(repo, arch, packname)
-    status_id = status_id_for(repo, arch, packname)
+  def arch_repo_table_cell(repo, arch, package_name)
+    status = status_for(repo, arch, package_name)
+    status_id = status_id_for(repo, arch, package_name)
     link_title = status['details']
     if status['code']
       code = status['code']
-      theclass='status_' + code.gsub(/[- ]/, '_')
+      theclass = 'status_' + code.gsub(/[- ]/, '_')
     else
       code = ''
-      theclass=''
+      theclass = ' '
     end
 
-    out = "<td class='#{theclass} buildstatus'>"
-    if %w(unresolvable blocked).include? code
-      out += link_to code, '#', title: link_title, id: status_id, class: code
-    elsif %w(- excluded).include? code
-      out += code
-    elsif @localpackages and not @localpackages.has_key? packname
+    result = "<td class='".html_safe
+    result += "#{theclass}"
+    result +=" buildstatus'>".html_safe
+
+    if %w(unresolvable blocked).include?(code)
+      result += link_to(code, '#', title: link_title, id: status_id, class: code)
+    elsif %w(- excluded).include?(code)
+      result += code
+    elsif @localpackages && !@localpackages.has_key?(package_name)
       # Scheduled packages have no raw log file...
       if 'scheduled' == code
-        out += code
+        result += code
       else
-        out += link_to( code.gsub(/\s/, '&nbsp;'),
-                        raw_logfile_path(package: packname,
+        result += link_to(code.gsub(/\s/, '&nbsp;'),
+                        raw_logfile_path(package: package_name,
                                          project: @project.to_s,
                                          arch: arch, repository: repo),
                         title: link_title, rel: 'nofollow')
       end
     else
-      out += link_to code.gsub(/\s/, '&nbsp;'), { action: :live_build_log,
-                                                  package: packname, project: @project.to_s, arch: arch,
-                                                  controller: 'package', repository: repo }, { title: link_title, rel: 'nofollow' }
+      result += link_to(code.gsub(/\s/, '&nbsp;'),
+                     { action: :live_build_log,
+                       package: package_name, project: @project.to_s,
+                       arch: arch, controller: 'package', repository: repo
+                     },
+                     {
+                         title: link_title, rel: 'nofollow'
+                     })
     end
-    out += '</td>'
-    return out.html_safe
+    result += '</td>'.html_safe
+    result
   end
 
   REPO_STATUS_ICONS = {
