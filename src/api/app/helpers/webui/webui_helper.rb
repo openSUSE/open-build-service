@@ -549,4 +549,12 @@ module Webui::WebuiHelper
       "']".html_safe
     }.join(",\n").html_safe
   end
+
+  def escape_list(list)
+    list.map { |p|
+      "['".html_safe +
+      escape_javascript(p) +
+      "']".html_safe
+    }.join(',').html_safe
+  end
 end
