@@ -52,7 +52,13 @@ module Suse
 
         response = Net::HTTP.start(host, port) do |http|
           http.read_timeout = timeout
-          http.request backend_request
+          if block_given?
+            http.request(backend_request) do |backend_response|
+              yield(backend_response)
+            end
+          else
+            http.request(backend_request)
+          end
         end
 
         write_backend_log "GET", host, port, path, response

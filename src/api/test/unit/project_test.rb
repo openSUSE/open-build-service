@@ -5,6 +5,17 @@ require 'json'
 class ProjectTest < ActiveSupport::TestCase
   fixtures :all
 
+  CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT = 'Type: spec
+Substitute: kiwi package
+Substitute: kiwi-packagemanager:instsource package
+Ignore: package:bash'
+
+  NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT = 'Type: spec
+Substitute: kiwi package
+Substitute: kiwi-packagemanager:instsource package
+Ignore: package:bash
+Ignore: package:cups'
+
   def setup
     @project = projects( :home_Iggy )
   end
@@ -914,4 +925,21 @@ END
     assert_equal child.packages_from_linked_projects, result
     CONFIG['global_write_through'] = true
   end
+
+  test 'config file exists and have the right content' do
+    assert @project.config
+    assert_equal @project.config.to_s, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+  end
+
+  test 'update config file and reload it, it also should have the right content' do
+    User.current = users(:Iggy)
+    query_params = {user: User.current.login, comment: "Updated by test"}
+    assert @project.config.save(query_params, NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT)
+    assert @project.config.reload
+    assert_equal @project.config.to_s, NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+
+    #Leave the backend file as it was
+    @project.config.save(query_params, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT)
+  end
+
 end
