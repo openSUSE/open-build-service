@@ -44,6 +44,12 @@ class Webui::SearchController < Webui::WebuiController
       return
     end
 
+    # request number when string starts with a #
+    if @search_text.starts_with?('#') && @search_text[1..-1].to_i > 0
+      redirect_to controller: 'request', action: 'show', id: @search_text[1..-1]
+      return
+    end
+
     # The user entered an OBS-specific RPM disturl, redirect to package source files with respective revision
     if @search_text.starts_with?('obs://')
       disturl_project, _, disturl_pkgrev = @search_text.split('/')[3..5]

@@ -112,13 +112,22 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     page.must_have_text(/Base.* distro without update project/)
   end
 
-  def test_search_by_baseurl
+  def test_search_by_request_number
     visit root_path
-    fill_in 'search', with: 'obs://build.opensuse.org/openSUSE:Factory/standard/fd6e76cd402226c76e65438a5e3df693-bash'
+    fill_in 'search', with: '#1'
     page.evaluate_script("$('#global-search-form').get(0).submit()")
 
-    find('#flash-messages').must_have_text 'Sorry, this disturl does not compute...'
+    page.must_have_text(/Request 1/)
+  end
 
+  def test_search_by_baseurl
+    visit root_path
+    fill_in 'search', with: 'obs://myhost/BaseDistro/BaseDistro_repo/d430c2f61e4d8999f9ca6ed6667a104e-pack2'
+    page.evaluate_script("$('#global-search-form').get(0).submit()")
+
+    page.must_have_text(/Source Files/)
+
+    visit root_path
     fill_in 'search', with: 'obs://foo'
     page.evaluate_script("$('#global-search-form').get(0).submit()")
 
