@@ -245,6 +245,56 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
                    :tag => "arch", :content => "x86_64"
   end
 
+  def test_save_meta
+    use_js
+
+    login_adrian
+    visit(project_show_path(project: "home:adrian"))
+
+    # Test reading meta data
+    click_link("Advanced")
+    click_link("Meta")
+    # Note that textarea#editor_0 is a hidden element.
+    # This isn't ideal for a test, but best we can do to test this part of the ui
+    assert find(:css, "textarea#editor_0", visible: false).
+      text(:all).include?("<title>adrian's Home Project</title>")
+
+    # Test writing valid meta data
+    xml = <<-XML.gsub(/(?:\s*\n|^\s*)/, '') # evaluate_script fails otherwise
+<project name='home:adrian'>
+  <title>My Home Project</title>
+  <description/>
+  <person userid='adrian' role='maintainer'/>
+</project>
+XML
+    # Workaround. There doesn't seem to be a way to change stored meta content via the textarea.
+    page.evaluate_script("editors[0].setValue(\"#{xml}\");")
+    click_button("Save")
+    find(:id, 'flash-messages').must_have_text("Config successfully saved!")
+    click_link("Meta")
+    assert_equal "<project name=\"home:adrian\"> <title>My Home Project</title> " +
+                   "<description/> <person userid=\"adrian\" role=\"maintainer\"/> </project>",
+                 find(:css, "textarea#editor_0", visible: false).text(:all)
+
+    # test writing invalid meta data
+    xml = "<project name='home:adrian'> <title>My Home Project</title </project>"
+    page.evaluate_script("editors[0].setValue(\"#{xml}\");")
+    click_button("Save")
+    find(:id, 'flash-messages').must_have_text("project validation error: expected '>'")
+
+    xml = "<project name='home:adrian'><title>My Home Project</title></project>"
+    page.evaluate_script("editors[0].setValue(\"#{xml}\");")
+    click_button("Save")
+    find(:id, 'flash-messages').
+      must_have_text("project validation error: Expecting an element description, got nothing")
+
+    # Trigger data reload and verify that nothing was saved
+    click_link("Meta")
+    assert_equal "<project name=\"home:adrian\"> <title>My Home Project</title> " +
+                   "<description/> <person userid=\"adrian\" role=\"maintainer\"/> </project>",
+                 find(:css, "textarea#editor_0", visible: false).text(:all)
+  end
+
   def test_project_repositories_uniq_archs
     use_js
     login_tom
