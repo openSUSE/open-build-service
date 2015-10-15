@@ -25,8 +25,7 @@ class Webui::ProjectController < Webui::WebuiController
                                      :maintenance_incidents, :unlock_dialog, :save_person, :save_group, :remove_role, :save_repository,
                                      :move_path, :save_prjconf]
 
-  # TODO: check if get_by_name or set_by_name is used for save_prjconf
-  before_filter :set_project_by_name, only: [:save_meta, :save_prjconf]
+  before_filter :set_project_by_name, only: [:save_meta]
 
   before_filter :set_project_by_id, only: [:update]
 
@@ -713,29 +712,21 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def prjconf
-    @content = @project.config.to_s
-    unless @content
-      flash[:error] =  @project.config.errors.full_messages.to_sentence
-      redirect_to controller: 'project', nextstatus: 404
-      return
+    begin
+      @config = @project.source_file('_config')
+    rescue ActiveXML::Transport::NotFoundError
+      flash[:error] = "Project _config not found: #{params[:project]}"
+      redirect_to :controller => 'project', :nextstatus => 404 and return
     end
   end
 
   def save_prjconf
     authorize @project, :update?
 
-    params[:user] = User.current.login
-    query = params.slice(:user, :comment)
-
-    content = @project.config.save(query, params[:config])
-
-    if content
-      flash.now[:success] = 'Config successfully saved!'
-      render layout: false, partial: 'layouts/webui/flash', object: flash
-    else
-      flash.now[:error] = @project.config.errors.full_messages.to_sentence
-      render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
-    end
+    check_ajax
+    frontend.put_file(params[:config], :project => params[:project], :filename => '_config')
+    flash[:notice] = 'Project Config successfully saved'
+    render text: 'Config successfully saved', content_type: 'text/plain'
   end
 
   def change_flag

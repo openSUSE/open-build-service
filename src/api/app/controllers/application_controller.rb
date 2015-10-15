@@ -324,7 +324,7 @@ class ApplicationController < ActionController::Base
       headers['Cache-Control'] = 'no-transform' # avoid compression
       head(200)
       @skip_validation = true
-      return true
+      return
     end
 
     # lighttpd 1.5 case
@@ -335,7 +335,7 @@ class ApplicationController < ActionController::Base
       headers['Cache-Control'] = 'no-transform' # avoid compression
       head(200)
       @skip_validation = true
-      return true
+      return
     end
 
     # nginx case
@@ -345,10 +345,10 @@ class ApplicationController < ActionController::Base
       headers['Cache-Control'] = 'no-transform' # avoid compression
       head(200)
       @skip_validation = true
-      return true
+      return
     end
 
-    false
+    volley_backend_path path
   end
 
   def volley_backend_path(path)
@@ -408,7 +408,7 @@ class ApplicationController < ActionController::Base
     path ||= get_request_path
 
     if request.get? || request.head?
-      volley_backend_path(path) unless forward_from_backend(path)
+      forward_from_backend( path )
       return
     end
     case request.method_symbol
