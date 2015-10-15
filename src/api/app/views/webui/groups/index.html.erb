@@ -22,8 +22,9 @@
             <tr id="group-<%= valid_xml_id(group.title) %>">
               <td><%= link_to(group.title, {:controller => 'groups', :action => 'show', id: group.title}, {id: group.title}) %></td>
               <td class='users'>
-                <%= group.groups_users.map { |member|
-                  link_to(member.user, user_show_path(member.user)) }.join(', ').html_safe %>
+                <% group.groups_users.each_with_index do |member, index| %>
+                  <%= link_to(member.user, user_show_path(member.user)) %><%= ', ' if index < group.groups_users.size - 1 %>
+                <% end %>
               </td>
               <td class="nowrap">
                 <%= link_to(sprited_text('accessories-text-editor', 'Edit Group'), :controller => 'groups', :action => 'edit', :group => group.title) %>
