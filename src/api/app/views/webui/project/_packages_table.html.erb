@@ -24,7 +24,7 @@
           <% cache [packageurl, array_cachekey(@packages)] do %>
               <div id="packages_table_wrapper" data-url="<%= packageurl %>">
                 <%= javascript_tag do %>
-                    var packages = [ <%= @packages.map { |p| "['#{p}']" }.join(',').html_safe %> ];
+                    var packages = [ <%= escape_list(@packages) %> ];
                     renderPackagesTable("packages_table_wrapper", packages);
                 <% end %>
               </div>
@@ -53,8 +53,8 @@
           <% cache [packageurl, array_cachekey(@ipackages)] do %>
               <div id="ipackages_wrapper" data-url="<%= packageurl %>">
                 <%= javascript_tag do %>
-                    var ipackages = [ <%= @ipackages.map { |p| "#{p}" }.join(',').html_safe %>
-                    ]; renderPackagesProjectsTable({packages: ipackages, name: 'ipackages_wrapper'});
+                    var ipackages = [ <%= escape_nested_list(@ipackages) %> ];
+                    renderPackagesProjectsTable({packages: ipackages, name: 'ipackages_wrapper'});
                 <% end %>
               </div>
           <% end %>
