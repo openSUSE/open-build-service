@@ -19,11 +19,10 @@
     <p>
     <%= label_tag :globalrole, 'Admin:' %>
     <% if @displayed_user.is_admin? %>
-      <% checked = 'checked="checked"' %>
+      <input type="checkbox" name="globalrole" value="Admin" checked="checked" />
     <% else %>
-      <% checked = "" %>
+      <input type="checkbox" name="globalrole" value="Admin"/>
     <% end %>
-      <input type="checkbox" name="globalrole" value="Admin" <%= checked.html_safe if checked %> />
     </p>
     <p>
     <% @states.each do |s| %>
