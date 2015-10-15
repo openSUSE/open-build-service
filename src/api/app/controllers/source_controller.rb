@@ -579,9 +579,23 @@ class SourceController < ApplicationController
 
   # GET /source/:project/_config
   def show_project_config
-    path = request.path_info
-    path += build_query_from_hash(params, [:rev])
-    pass_to_backend path
+    forward_from_backend(BackendFile.query_from_list(params, [:rev]))
+
+    begin
+      # 'project' can be a local Project in database or a String that's the name of a remote project, or even raise exceptions
+      project = Project.get_by_name(params[:project])
+    rescue Project::ReadAccessError, Project::UnknownObjectError => e
+      render_error status: 404, message: e.message
+      return
+    end
+    config = project.is_a?(String) ? ProjectConfigFile.new(project_name: project) : project.config
+    content = config.to_s
+    unless content
+      render_error status: 404, message: config.errors.full_messages.to_sentence
+      return
+    end
+
+    send_data(content, type: config.response[:type], disposition: 'inline')
   end
 
   class PutProjectConfigNoPermission < APIException
