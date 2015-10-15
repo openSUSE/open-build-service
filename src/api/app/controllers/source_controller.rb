@@ -579,28 +579,9 @@ class SourceController < ApplicationController
 
   # GET /source/:project/_config
   def show_project_config
-    forward_from_backend(BackendFile.query_from_list(params, [:rev]))
-
-    begin
-      # 'project' can be a local Project in database or a String that's the name of a remote project, or even raise exceptions
-      project = Project.get_by_name(params[:project])
-    rescue Project::ReadAccessError, Project::UnknownObjectError => e
-      render_error status: 404, message: e.message
-      return
-    end
-
-    if project.is_a?(String)
-      content = ProjectConfigFile.new(project_name: project).to_s
-    else
-      content = project.config.to_s
-    end
-
-    unless content
-      render_error status: 404, message: project.config.errors.full_messages.to_sentence
-      return
-    end
-
-    send_data(content, type: project.config.response[:type], disposition: 'inline')
+    path = request.path_info
+    path += build_query_from_hash(params, [:rev])
+    pass_to_backend path
   end
 
   class PutProjectConfigNoPermission < APIException
@@ -609,30 +590,21 @@ class SourceController < ApplicationController
 
   # PUT /source/:project/_config
   def update_project_config
-    project = Project.get_by_name(params[:project])
+    # check for project
+    prj = Project.get_by_name(params[:project])
 
-    if project.is_a?(String)
-      raise PutProjectConfigNoPermission, 'Can\'t write on an remote instance'
-    end
-
-    unless User.current.can_modify_project?(project)
-      raise PutProjectConfigNoPermission, "No permission to write build configuration for project '#{params[:project]}'"
-    end
-
+    # assemble path for backend
     params[:user] = User.current.login
-    query = params.slice(:user, :comment)
 
-    project.config.file = request.body
-    response = project.config.save(query)
-
-    unless response
-      render_error status: 404, message: project.config.errors.full_messages.to_sentence
-      return
+    unless User.current.can_modify_project?(prj)
+      raise PutProjectConfigNoPermission.new "No permission to write build configuration for project '#{params[:project]}'"
     end
 
-    send_data(response.body,
-              type: response.fetch('content-type'),
-              disposition: 'inline')
+    # assemble path for backend
+    path = request.path_info
+    path += build_query_from_hash(params, [:user, :comment])
+
+    pass_to_backend path
   end
 
   def pubkey_path
@@ -885,7 +857,7 @@ class SourceController < ApplicationController
     path = get_request_path
 
     # map to a GET, so we can X-forward it
-    volley_backend_path(path) unless forward_from_backend(path)
+    forward_from_backend path
   end
 
   private
