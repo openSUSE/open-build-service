@@ -17,6 +17,30 @@ class PackageTest < ActiveSupport::TestCase
     super
   end
 
+  test "delete_patchinfo_of_project!" do
+    user = User.find_by(login: "tom")
+    project = Project.find_by(name: "BaseDistro")
+    package = project.packages.find_by(name: "patchinfo")
+
+    Suse::Backend.expects(:delete).with("/source/BaseDistro/patchinfo?user=tom")
+
+    Package.delete_patchinfo_of_project!(project, package, user)
+    assert_nil project.packages.find_by(name: "patchinfo")
+  end
+
+  test "delete_patchinfo_of_project! with invalid request" do
+    user = User.find_by(login: "tom")
+    project = Project.find_by(name: "BaseDistro")
+    package = project.packages.find_by(name: "patchinfo")
+
+    Suse::Backend.expects(:delete).raises(ActiveXML::Transport::Error)
+
+    assert_raise Package::PackageError do
+      Package.delete_patchinfo_of_project!(project, package, user)
+    end
+    assert project.packages.find_by(name: "patchinfo")
+  end
+
   def test_flags_to_axml
     #check precondition
     assert_equal 2, @package.type_flags('build').size

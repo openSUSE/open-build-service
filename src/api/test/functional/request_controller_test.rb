@@ -235,7 +235,6 @@ XML
                      {"who"=>"Iggy", "when"=>"2010-07-12T00:00:01", "description"=>"Request got a new priority: critical => low", "comment"=>"dontcare"},
                      {"who"=>"Iggy", "when"=>"2010-07-12T00:00:02", "description"=>"Request got declined", "comment"=>"notgood"},
                      {"who"=>"Iggy", "when"=>"2010-07-12T00:00:03", "description"=>"Request got reopened", "comment"=>"oops"},
-                     {"who"=>"Iggy", "when"=>"2010-07-12T00:00:04", "description"=>"Request got revoked", "comment"=>"The source project 'home:Iggy:branches:home:Iggy' was removed"},
                      {"who"=>"Iggy", "when"=>"2010-07-12T00:00:04", "description"=>"Request got accepted", "comment"=>"approved"}
                    ],
                    'description' => 'DESCRIPTION IS HERE'
@@ -2480,8 +2479,8 @@ XML
     # accept the other request, what will fail
     login_king
     post "/request/#{id2}?cmd=changestate&newstate=accepted&force=1"
-    assert_response 403
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'post_request_no_permission' })
+    assert_response 404
+    assert_xml_tag(:tag => 'status', :attributes => { code: 'not_existing_target' })
 
     # decline the request
     post "/request/#{id2}?cmd=changestate&newstate=declined"
@@ -2592,7 +2591,7 @@ XML
     get "/request/#{id2}"
     assert_response :success
     assert_xml_tag(tag: 'state', attributes: { name: 'revoked', when: '2010-07-14T00:00:00', who: 'Iggy' })
-    assert_xml_tag(:tag => 'comment', :content => 'Permission problem')
+    assert_xml_tag(:tag => 'comment', :content => 'Target disappeared')
 
     # good, now revive to fix the state of the union
     post '/source/home:Iggy/TestPack?cmd=undelete'

@@ -6,11 +6,7 @@ class PackagePolicy < ApplicationPolicy
     @package = package
   end
 
-  def update?
-    @user.can_modify_package?(@package)
-  end
-
-  def destroy?
+  def delete?
     @user.can_modify_package?(@package)
   end
 end

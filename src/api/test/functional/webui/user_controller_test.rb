@@ -12,7 +12,6 @@ class Webui::UserControllerTest < Webui::IntegrationTest
   end
 
   def test_creation_of_home_projects
-    User.current = users(:Iggy)
     Project.find_by(name: "home:Iggy").destroy
     login_Iggy
 

@@ -327,7 +327,6 @@ END
   end
 
   def test_handle_project_links
-    Suse::Backend.start_test_backend
     User.current = users( :Iggy )
 
     # project A
@@ -340,8 +339,6 @@ END
       )
     projectA = Project.create( :name => "home:Iggy:A" )
     projectA.update_from_xml!(axml)
-    projectA.store
-
     # project B
     axml = Xmlhash.parse(
       "<project name='home:Iggy:B'>
@@ -352,7 +349,6 @@ END
       )
     projectB = Project.create( :name => "home:Iggy:B" )
     projectB.update_from_xml!(axml)
-    projectB.store
 
     # validate xml
     xml_string = projectA.to_axml
@@ -364,7 +360,6 @@ END
     projectB.reload
     xml_string = projectB.to_axml
     assert_no_xml_tag xml_string, :tag => :link
-    projectB.destroy
   end
 
 
