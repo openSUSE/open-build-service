@@ -427,7 +427,7 @@ module Webui
       find(:id, 'delete-package').click
       find(:id, 'del_dialog').must_have_text 'Delete Confirmation'
       find_button('Ok').click
-      find('#flash-messages').must_have_text "Package '#{package}' was removed successfully"
+      find('#flash-messages').must_have_text "Package was successfully removed."
     end
 
   end

@@ -60,26 +60,18 @@ class BsRequestActionDelete < BsRequestAction
       return
     end
 
-    delete_path = destroy_object
-    # use the request description as comments for history
-    source_history_comment = self.bs_request.description
-    h = {:user => User.current.login, :comment => source_history_comment, :requestid => self.bs_request.id}
-    delete_path << Suse::Backend.build_query_from_hash(h, [:user, :comment, :requestid])
-    Suse::Backend.delete delete_path
-
-    if self.target_package == "_product"
-      Project.find_by_name!(self.target_project).update_product_autopackages
-    end
-
-  end
-
-  def destroy_object
     if self.target_package
-      Package.get_by_project_and_name(self.target_project, self.target_package,
-                                      use_source: true, follow_project_links: false).destroy
+      package = Package.get_by_project_and_name(self.target_project, self.target_package,
+                                                use_source: true, follow_project_links: false)
+      package.commit_opts[:comment] = self.bs_request.description
+      package.commit_opts[:request] = self.bs_request.id
+      package.destroy
       return Package.source_path self.target_project, self.target_package
     else
-      Project.get_by_name(self.target_project).destroy
+      project = Project.get_by_name(self.target_project)
+      project.commit_opts[:comment] = self.bs_request.description
+      project.commit_opts[:request] = self.bs_request.id
+      project.destroy
       return "/source/#{self.target_project}"
     end
   end

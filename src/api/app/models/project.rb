@@ -31,13 +31,16 @@ class Project < ActiveRecord::Base
   end
 
   before_destroy :cleanup_before_destroy
+  before_destroy :cleanup_packages
+  before_destroy :delete_on_backend
+
   after_save 'Relationship.discard_cache'
   after_rollback :reset_cache
   after_rollback 'Relationship.discard_cache'
   after_initialize :init
 
   has_many :relationships, dependent: :destroy, inverse_of: :project
-  has_many :packages, :dependent => :destroy, inverse_of: :project do
+  has_many :packages, inverse_of: :project do
     def autocomplete(search)
       where(['lower(packages.name) like lower(?)', "#{search}%"])
     end
@@ -77,6 +80,7 @@ class Project < ActiveRecord::Base
 
   has_many :project_log_entries, :dependent => :delete_all
 
+  serialize(:commit_opts, Hash)
 
   default_scope { where('projects.id not in (?)', Relationship.forbidden_project_ids ) }
 
@@ -133,16 +137,8 @@ class Project < ActiveRecord::Base
       end
     end
 
-    # revoke all requests
-    # FIXME: this is breaking request accepting with cleanup, if the project
-    #        will be removed during that
-#    revoke_requests
-  end
-
-  def delete_on_backend(comment = nil)
-    path = source_path
-    path << Suse::Backend.build_query_from_hash({user: User.current.login, comment: comment}, [:user, :comment])
-    Suse::Backend.delete path
+    # revoke all requests that have this project as source/target
+    revoke_requests
   end
 
   def subprojects
@@ -176,11 +172,19 @@ class Project < ActiveRecord::Base
     self.open_requests_with_project_as_source_or_target.each do |request|
       request.bs_request_actions.each do |action|
         if action.source_project == self.name
-          request.change_state({:newstate => 'revoked', :comment => "The source project '#{self.name}' was removed"})
+          begin
+            request.change_state({:newstate => 'revoked', :comment => "The source project '#{self.name}' was removed"})
+          rescue PostRequestNoPermission
+            logger.debug "#{User.current.login} tried to revoke request #{self.id} but had no permissions"
+          end
           break
         end
         if action.target_project == self.name
-          request.change_state({:newstate => 'declined', :comment => "The target project '#{self.name}' was removed"})
+          begin
+            request.change_state({:newstate => 'declined', :comment => "The target project '#{self.name}' was removed"})
+          rescue PostRequestNoPermission
+            logger.debug "#{User.current.login} tried to decline request #{self.id} but had no permissions"
+          end
           break
         end
       end
@@ -786,7 +790,6 @@ class Project < ActiveRecord::Base
   end
 
   def write_to_backend
-    logger.debug 'write_to_backend'
     # expire cache
     reset_cache
     @commit_opts ||= {}
@@ -797,9 +800,25 @@ class Project < ActiveRecord::Base
       query[:comment] = @commit_opts[:comment] unless @commit_opts[:comment].blank?
       query[:requestid] = @commit_opts[:requestid] unless @commit_opts[:requestid].blank?
       query[:lowprio] = '1' if @commit_opts[:lowprio]
+      logger.debug "Writing #{self.name} to backend"
       Suse::Backend.put_source(self.source_path('_meta', query), to_axml)
+      logger.tagged('backend_sync') { logger.debug "Saved Project #{self.name}" }
+    else
+      logger.tagged('backend_sync') { logger.warn "Not saving Project #{self.name}, global_write_through is off" }
     end
     @commit_opts = {}
+  end
+
+  def delete_on_backend
+    if CONFIG['global_write_through']
+      path = source_path
+      path << Suse::Backend.build_query_from_hash({user: User.current.login, comment: commit_opts[:comment]}, [:user, :comment])
+      Suse::Backend.delete path
+      logger.tagged('backend_sync') { logger.debug "Deleted Project #{self.name}" }
+    else
+      logger.tagged('backend_sync') { logger.warn "Not deleting Project #{self.name}, global_write_through is off" }
+    end
+    return true
   end
 
   def store(opts = {})
@@ -807,6 +826,15 @@ class Project < ActiveRecord::Base
     self.transaction do
       save!
       write_to_backend
+    end
+  end
+
+  # The backend takes care of deleting the packages,
+  # when we delete ourself. No need to delete packages
+  # individually
+  def cleanup_packages
+    packages.each do |package|
+      package.destroy_without_backend_write
     end
   end
 
@@ -1743,8 +1771,8 @@ class Project < ActiveRecord::Base
       end
 
       # remove this repository, but be careful, because we may have done it already.
-      repository = project.repositories.find(repo)
-      if Repository.exists?(repo) && repository
+      repository = project.repositories.find(repo.id)
+      if Repository.exists?(repo.id) && repository
         logger.info "destroy repo #{repository.name} in '#{project.name}'"
         repository.destroy
         project.store({ lowprio: true }) # low prio storage

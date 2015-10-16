@@ -193,7 +193,7 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
       find_button("Ok").click
 
       assert_equal page.current_path, project_show_path(project)
-      find('#flash-messages').must_have_text "'patchinfo' was removed successfully from project"
+      find('#flash-messages').must_have_text "Patchinfo was successfully removed."
 
       # FIXME: There must be a better way to test this
       begin
@@ -254,7 +254,7 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     find_button("Ok").click
 
     assert_equal page.current_path, project_show_path("home:tom")
-    find('#flash-messages').must_have_text "'patchinfo' was removed successfully from project"
+    find('#flash-messages').must_have_text "Patchinfo was successfully removed."
 
     visit patchinfo_show_path(package: 'patchinfo', project: "home:tom")
     assert !page.has_link?('delete-patchinfo')
@@ -270,10 +270,7 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     click_button("Save Patchinfo")
 
     project = Project.find_by(name: "home:tom")
-    package = project.packages.find_by(name: "patchinfo")
-    Package.stubs(:delete_patchinfo_of_project!).
-      with(project, package, User.find_by(login: "tom")).
-      raises(Package::PackageError, "Couldn't remove patchinfo!")
+    Package.any_instance.stubs(:check_devel_packages).returns(false)
 
     # the actual test...
     visit patchinfo_show_path(package: 'patchinfo', project: project.name)
@@ -281,10 +278,11 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     find(:id, "del_dialog").must_have_text "Delete Confirmation"
     find_button("Ok").click
 
-    assert_equal page.current_path, project_show_path(project)
-    find('#flash-messages').must_have_text "Couldn't remove patchinfo!"
+    assert_equal page.current_path, patchinfo_show_path(package: 'patchinfo', project: project.name)
+    find('#flash-messages').must_have_text "Patchinfo can't be removed"
 
     visit patchinfo_show_path(package: 'patchinfo', project: project.name)
     assert page.has_link?('delete-patchinfo')
   end
+
 end

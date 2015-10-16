@@ -126,7 +126,7 @@ class AttributeTest < ActiveSupport::TestCase
     #check precondition
     assert_equal "OBS", @attrib_ns.name
 
-    @at = AttribType.find_by_namespace_and_name( "OBS", "Maintained" )
+    @at = AttribType.find_by_namespace_and_name("OBS", "Maintained")
     assert_not_nil @at
     assert_equal 58, @at.id
     assert_equal "Maintained", @at.name
@@ -134,30 +134,30 @@ class AttributeTest < ActiveSupport::TestCase
     assert_equal "OBS", @at.attrib_namespace.name
 
     axml = " <attribute namespace='OBS' name='Maintained' /> "
-    xml = ActiveXML::Node.new( axml )
+    xml = ActiveXML::Node.new(axml)
 
     # store in a project
-    @project = Project.find_by_name( "kde4" )
+    @project = Project.create(name: "GNOME18")
     assert_not_nil @project
     @project.store_attribute_axml(xml)
     @project.store
 
-    @p = Project.find_by_name( "kde4" )
+    @p = Project.find_by_name("GNOME18")
     assert_not_nil @p
-    @a = @p.find_attribute( "OBS", "Maintained" )
+    @a = @p.find_attribute("OBS", "Maintained")
     assert_not_nil @a
     assert_equal "Maintained", @a.attrib_type.name
 
 
     # store in a package
-    @package = Package.find_by_project_and_name( "kde4", "kdebase" )
+    @package = @project.packages.create(name: "kdebase")
     assert_not_nil @package
     @package.store_attribute_axml(xml)
     @package.store
 
-    @p = Package.find_by_project_and_name( "kde4", "kdebase" )
+    @p = Package.find_by_project_and_name("GNOME18", "kdebase")
     assert_not_nil @p
-    @a = @p.find_attribute( "OBS", "Maintained" )
+    @a = @p.find_attribute("OBS", "Maintained")
     assert_not_nil @a
     assert_equal "Maintained", @a.attrib_type.name
 
@@ -166,16 +166,16 @@ class AttributeTest < ActiveSupport::TestCase
     axml = "<attribute namespace='OBS' name='Maintained' >
               <value>blah</value>
             </attribute> "
-    xml = ActiveXML::Node.new( axml )
+    xml = ActiveXML::Node.new(axml)
 
     # store in a project
-    @project = Project.find_by_name( "kde4" )
+    @project = Project.find_by_name( "GNOME18" )
     assert_not_nil @project
     assert_raise ActiveRecord::RecordInvalid do
       @project.store_attribute_axml(xml)
     end
     # store in a package
-    @package = Package.find_by_project_and_name( "kde4", "kdebase" )
+    @package = Package.find_by_project_and_name( "GNOME18", "kdebase" )
     assert_not_nil @package
     e = assert_raise(ActiveRecord::RecordInvalid) do
       @package.store_attribute_axml(xml)

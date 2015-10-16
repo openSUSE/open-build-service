@@ -166,34 +166,29 @@ class SourceController < ApplicationController
 
   # DELETE /source/:project
   def delete_project
-    project_name = params[:project]
-    project = Project.get_by_name(project_name)
+    project = Project.get_by_name(params[:project])
 
     # checks
     unless project.kind_of?(Project) && User.current.can_modify_project?(project)
-      logger.debug "No permission to delete project #{project_name}"
+      logger.debug "No permission to delete project #{project}"
       render_error :status => 403, :errorcode => 'delete_project_no_permission',
-                   :message => "Permission denied (delete project #{project_name})"
+                   :message => "Permission denied (delete project #{project})"
       return
     end
     project.can_be_deleted?
     check_and_remove_repositories!(project.repositories, !params[:remove_linking_repositories].blank?, !params[:force].blank?)
 
-    Project.transaction do
-      logger.info "destroying project object #{project.name}"
-      params[:user] = User.current.login
-      path = project.source_path
-      path << build_query_from_hash(params, [:user, :comment])
-
-      project.revoke_requests
+    logger.info "destroying project object #{project.name}"
+    project.commit_opts[:comment] = params[:comment]
+    begin
       project.destroy
-
-      Suse::Backend.delete path
-      logger.debug "delete request to backend: #{path}"
+    rescue ActiveRecord::RecordNotDestroyed => invalid
+      exception_message = "Destroying Project #{project.name} failed: #{invalid.record.errors.full_messages.to_sentence}"
+      logger.debug exception_message
+      raise ActiveRecord::RecordNotDestroyed, exception_message
     end
 
     render_ok
-
   end
 
   # POST /source/:project?cmd
@@ -307,23 +302,17 @@ class SourceController < ApplicationController
     # Shall we ask the other package owner accepting to be a devel package ?
     tpkg.can_be_deleted?
 
-    # exec
-    Package.transaction do
+    logger.info "destroying package object #{tpkg.name}"
+    tpkg.commit_opts[:comment] = params[:comment]
 
-      project = nil
-      project = tpkg.project if tpkg and tpkg.name == "_product"
-      path = tpkg.source_path
-
-      # we need to keep this order to delete first the api model
-      tpkg.revoke_requests
+    begin
       tpkg.destroy
-
-      params[:user] = User.current
-      path << build_query_from_hash(params, [:user, :comment])
-      Suse::Backend.delete path
-
-      project.update_product_autopackages if project
+    rescue ActiveRecord::RecordNotDestroyed => invalid
+      exception_message = "Destroying Package #{tpkg.project.name}/#{tpkg.name} failed: #{invalid.record.errors.full_messages.to_sentence}"
+      logger.debug exception_message
+      raise ActiveRecord::RecordNotDestroyed, exception_message
     end
+
     render_ok
   end
 
