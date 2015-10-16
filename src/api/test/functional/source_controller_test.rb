@@ -1911,17 +1911,10 @@ Ignore: package:cups'
     assert_response 404
     get url_for(:controller => :source, :action => :show_project_config, :project => 'kde4')
     assert_response :success
-<<<<<<< HEAD
     get url_for(:controller => :source, :action => :show_project_config, :project => 'RemoteInstance:BaseDistro')
     assert_response :success
 
     put url_for(:controller => :source, :action => :update_project_config, :project => 'RemoteInstance:BaseDistro'), 'Substitute: nix da'
-=======
-    get url_for(:controller => :source, :action => :show_project_config, :project => 'RemoteInstance')
-    assert_response :success
-
-    put url_for(:controller => :source, :action => :update_project_config, :project => 'RemoteInstance'), 'Substitute: nix da'
->>>>>>> 5fc651c... [webui][api] Some changes to take care about remote projects
     assert_response 403
 
     prepare_request_with_user 'adrian_nobody', 'so_alone'
@@ -3728,6 +3721,13 @@ Ignore: package:cups'
     get '/source/home:Iggy/_config'
     assert_response :success
     assert_equal @response.body, NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+
+    # Leave the backend file as it was
+    put '/source/home:Iggy/_config?' + {
+        project: 'home:Iggy',
+        comment: 'Updated by test'
+      }.to_query, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+    assert_response :success
   end
 
 end

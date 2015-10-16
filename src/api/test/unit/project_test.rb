@@ -937,6 +937,9 @@ END
     assert @project.config.save(query_params, NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT)
     assert @project.config.reload
     assert_equal @project.config.to_s, NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+
+    # Leave the backend file as it was
+    assert @project.config.save(query_params, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT)
   end
 
 end

@@ -606,6 +606,13 @@ XML
     click_link 'Project Config'
     config_value = page.evaluate_script("editors[0].getValue()")
     assert_equal config_value, NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+
+    # Leave the backend file as it was
+    put '/source/home:Iggy/_config?' + {
+        project: 'home:Iggy',
+        comment: 'Updated by test'
+      }.to_query, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+    assert_response :success
   end
 
 end
