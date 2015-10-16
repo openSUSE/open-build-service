@@ -9225,6 +9225,18 @@ NEXTPRP:
       }
 
       my $pdata = $packs->{$packid};
+      if ($pdata->{'lock'}) {
+	if (enabled($repoid, $pdata->{'lock'}, $projlocked)) {
+	  $packstatus{$packid} = 'locked';
+	  next;
+	}
+      } else {
+	if ($projlocked) {
+	  $packstatus{$packid} = 'locked';
+	  next;
+	}
+      }
+
       if ($pdata->{'error'}) {
 	if ($pdata->{'error'} eq 'disabled' || $pdata->{'error'} eq 'excluded') {
 	  $packstatus{$packid} = $pdata->{'error'};
@@ -9270,18 +9282,6 @@ NEXTPRP:
       } else {
 	if (!$projbuildenabled) {
 	  $packstatus{$packid} = 'disabled';
-	  next;
-	}
-      }
-
-      if ($pdata->{'lock'}) {
-	if (enabled($repoid, $pdata->{'lock'}, $projlocked)) {
-	  $packstatus{$packid} = 'locked';
-	  next;
-	}
-      } else {
-	if ($projlocked) {
-	  $packstatus{$packid} = 'locked';
 	  next;
 	}
       }
