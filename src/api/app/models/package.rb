@@ -65,14 +65,8 @@ class Package < ActiveRecord::Base
 
   has_many :binary_releases, dependent: :delete_all, :foreign_key => 'release_package_id'
 
-  serialize(:commit_opts, Hash)
-
-  before_destroy :check_devel_packages, prepend: true
-  before_destroy :delete_on_backend
-  before_destroy :revoke_requests
-  before_destroy :update_project_for_product
-  before_destroy :remove_linked_packages
   before_destroy :delete_cache_lines
+  before_destroy :remove_linked_packages
 
   after_save :write_to_backend
   before_update :update_activity
@@ -270,6 +264,30 @@ class Package < ActiveRecord::Base
     ret
   end
 
+  def self.delete_patchinfo_of_project!(project, package, user)
+    parameters = {
+      user:    user,
+      project: project.name,
+      package: package.name
+    }
+
+    begin
+      Package.transaction do
+        # we need to keep this order to delete first the api model
+        package.revoke_requests
+        package.destroy
+
+        path = "#{package.source_path}#{Suse::Backend.build_query_from_hash(parameters, [:user])}"
+        Suse::Backend.delete(path)
+      end
+    rescue ActiveXML::Transport::Error, ActiveXML::Transport::NotFoundError => e
+      raise PackageError, e.summary
+    end
+
+    Rails.cache.delete('%s_packages_mainpage' % project)
+    Rails.cache.delete('%s_problem_packages' % project)
+  end
+
   def check_source_access?
     if self.disabled_for?('sourceaccess', nil, nil) or self.project.disabled_for?('sourceaccess', nil, nil)
       unless User.current && User.current.can_source_access?(self)
@@ -299,19 +317,6 @@ class Package < ActiveRecord::Base
     unless User.current.can_modify_package? obj, ignoreLock
       raise WritePermissionError, "No permission to modify package '#{self.name}' for user '#{User.current.login}'"
     end
-  end
-
-  def check_devel_packages
-    if develpackages.any?
-      develpackages.each do |package|
-        # We only care about packages in foreign projects
-        if package.project.name != self.project.name
-          self.errors.add(:base, "used as devel package by #{package.project.name}/#{package.name}")
-        end
-      end
-      return false if self.errors.any?
-    end
-    true
   end
 
   # NOTE: this is no permission check, should it be added ?
@@ -349,11 +354,13 @@ class Package < ActiveRecord::Base
     result
   end
 
-  def update_project_for_product
+  def check_for_product
     if name == '_product'
       project.update_product_autopackages
     end
   end
+
+  before_destroy :check_for_product
 
   def private_set_package_kind(dir)
     kinds = Package.detect_package_kinds(dir)
@@ -381,7 +388,7 @@ class Package < ActiveRecord::Base
       dir_xml = source_file(nil)
     end
     private_set_package_kind Xmlhash.parse(dir_xml)
-    update_project_for_product
+    check_for_product
     if opts[:wait_for_update]
       self.update_if_dirty
     else
@@ -697,11 +704,6 @@ class Package < ActiveRecord::Base
     save!
   end
 
-  def destroy_without_backend_write
-    @no_backend_write =  true
-    destroy
-  end
-
   def reset_cache
     Rails.cache.delete('xml_package_%d' % id) if id
   end
@@ -715,35 +717,8 @@ class Package < ActiveRecord::Base
       query[:comment] = @commit_opts[:comment] unless @commit_opts[:comment].blank?
       query[:requestid] = @commit_opts[:requestid] unless @commit_opts[:requestid].blank?
       Suse::Backend.put_source(self.source_path('_meta', query), to_axml)
-      logger.tagged('backend_sync') { logger.debug "Saved Package #{self.project.name}/#{self.name}" }
-    else
-      logger.tagged('backend_sync') { logger.warn "Not saving Package #{self.project.name}/#{self.name}, global_write_through is off" }
     end
     @commit_opts = {}
-  end
-
-  def delete_on_backend
-    # not really packages...
-    # everything below _product:
-    return true if name =~ /\A_product:\w[-+\w\.]*\z/
-    return true if is_product?
-    return true if is_channel?
-    return true if is_patchinfo?
-    return true if name == '_project'
-
-    if CONFIG['global_write_through'] && !@no_backend_write
-      path = source_path
-      path << Suse::Backend.build_query_from_hash({ user: User.current.login, comment: commit_opts[:comment], requestid: commit_opts[:request]},
-                                                  [:user, :comment, :requestid])
-      Suse::Backend.delete path
-      logger.tagged('backend_sync') { logger.debug "Deleted Package #{self.project.name}/#{self.name}" }
-    else
-      if @no_backend_write
-        logger.tagged('backend_sync') { logger.warn "Not deleting Package #{self.project.name}/#{self.name}, backend_write is off " }
-      else
-        logger.tagged('backend_sync') { logger.warn "Not deleting Package #{self.project.name}/#{self.name}, global_write_through is off" }
-      end
-    end
   end
 
   def to_axml_id
@@ -1064,22 +1039,14 @@ class Package < ActiveRecord::Base
     rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
     rel = rel.where('bs_request_actions.source_project = ? and bs_request_actions.source_package = ?', self.project.name, self.name)
     BsRequest.where(id: rel.pluck('bs_requests.id')).each do |request|
-      begin
-        request.change_state({:newstate => 'revoked', :comment => "The source package '#{self.project.name}' '#{self.name}' was removed"})
-      rescue PostRequestNoPermission
-        logger.debug "#{User.current.login} tried to revoke request #{self.id} but had no permissions"
-      end
+      request.change_state({:newstate => 'revoked', :comment => "The source package '#{self.project.name}' '#{self.name}' was removed"})
     end
 
     # Find open requests with this package as target and decline them.
     rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
     rel = rel.where('bs_request_actions.target_project = ? and bs_request_actions.target_package = ?', self.project.name, self.name)
     BsRequest.where(id: rel.pluck('bs_requests.id')).each do |request|
-      begin
-        request.change_state({:newstate => 'declined', :comment => "The target package '#{self.project.name}' '#{self.name}' was removed"})
-      rescue PostRequestNoPermission
-        logger.debug "#{User.current.login} tried to decline request #{self.id} but had no permissions"
-      end
+      request.change_state({:newstate => 'declined', :comment => "The target package '#{self.project.name}' '#{self.name}' was removed"})
     end
 
     # Find open requests which have a review involving this project (or it's packages) and remove those reviews
@@ -1087,11 +1054,7 @@ class Package < ActiveRecord::Base
     rel = BsRequest.where(state: [:new, :review])
     rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? and reviews.by_package = ? ", self.project.name, self.name)
     BsRequest.where(id: rel.pluck('bs_requests.id')).each do |request|
-      begin
-        request.remove_reviews(:by_project => self.project.name, :by_package => self.name)
-      rescue PostRequestNoPermission
-        logger.debug "#{User.current.login} tried to remove review from request #{self.id} but had no permissions"
-      end
+      request.remove_reviews(:by_project => self.project.name, :by_package => self.name)
     end
   end
 

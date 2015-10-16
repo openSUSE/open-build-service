@@ -255,7 +255,10 @@ class Webui::ProjectController < Webui::WebuiController
     authorize @project, :destroy?
     if @project.can_be_really_deleted?
       parent = @project.parent
-      @project.destroy
+      Project.transaction do
+        @project.delete_on_backend
+        @project.destroy
+      end
       if parent
         redirect_to project_show_path(parent), notice: "Project was successfully removed."
       else
