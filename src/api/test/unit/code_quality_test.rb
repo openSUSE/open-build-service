@@ -102,6 +102,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Webui::ProjectController#check_devel_package_status'                     => 81.95,
       'Webui::SearchController#set_parameters'                                  => 98.04,
       'Webui::WebuiHelper#flag_status'                                          => 93.0,
+      'Webui::WebuiController#authenticate'                                     => 96.31,
       'WizardController#package_wizard'                                         => 97.46
   }
 
