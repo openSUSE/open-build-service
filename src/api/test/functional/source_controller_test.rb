@@ -7,6 +7,17 @@ require 'source_controller'
 class SourceControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
 
+  CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT = 'Type: spec
+Substitute: kiwi package
+Substitute: kiwi-packagemanager:instsource package
+Ignore: package:bash'
+
+  NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT = 'Type: spec
+Substitute: kiwi package
+Substitute: kiwi-packagemanager:instsource package
+Ignore: package:bash
+Ignore: package:cups'
+
   def setup
     wait_for_scheduler_start
     reset_auth
@@ -1900,6 +1911,11 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     get url_for(:controller => :source, :action => :show_project_config, :project => 'kde4')
     assert_response :success
+    get url_for(:controller => :source, :action => :show_project_config, :project => 'RemoteInstance:BaseDistro')
+    assert_response :success
+
+    put url_for(:controller => :source, :action => :update_project_config, :project => 'RemoteInstance:BaseDistro'), 'Substitute: nix da'
+    assert_response 403
 
     prepare_request_with_user 'adrian_nobody', 'so_alone'
     put url_for(:controller => :source, :action => :update_project_config, :project => 'kde4'), 'Substitute: nix da'
@@ -3684,5 +3700,36 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     delete "/source/home:tom:threeatatime?force=1"
     assert_response :success
   end
+
+  def test_config_file
+    login_Iggy
+
+    get '/source/home:Iggy/_config'
+    assert_response :success
+    assert_equal @response.body, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+  end
+
+  def test_updating_config_file
+    login_Iggy
+
+    put '/source/home:Iggy/_config?' + {
+        project: 'home:Iggy',
+        comment: 'Updated by test'
+      }.to_query, NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+    assert_response :success
+
+    get '/source/home:Iggy/_config'
+    assert_response :success
+    assert_equal @response.body, NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+
+    # Leave the backend file as it was
+    put '/source/home:Iggy/_config?' + {
+        project: 'home:Iggy',
+        comment: 'Updated by test'
+      }.to_query, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+    assert_response :success
+  end
+
 end
 # rubocop:enable Metrics/LineLength
+# rubocop:enable Metrics/ClassLength
