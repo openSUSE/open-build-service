@@ -298,9 +298,7 @@ class SourceController < ApplicationController
     end
 
     # deny deleting if other packages use this as develpackage
-    # Shall we offer a --force option here as well ?
-    # Shall we ask the other package owner accepting to be a devel package ?
-    tpkg.can_be_deleted?
+    tpkg.can_be_deleted? unless params[:force]
 
     logger.info "destroying package object #{tpkg.name}"
     tpkg.commit_opts = { comment: params[:comment] }

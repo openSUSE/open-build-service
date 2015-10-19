@@ -76,6 +76,7 @@ class Package < ActiveRecord::Base
   before_destroy :revoke_requests
   before_destroy :update_project_for_product
   before_destroy :remove_linked_packages
+  before_destroy :remove_devel_packages
   before_destroy :delete_cache_lines
 
   after_save :write_to_backend
@@ -1064,6 +1065,14 @@ class Package < ActiveRecord::Base
 
   def remove_linked_packages
     BackendPackage.where(links_to_id: self.id).delete_all
+  end
+
+  def remove_devel_packages
+    Package.where(develpackage: self).each do |devel_package|
+      devel_package.develpackage = nil
+      devel_package.store
+      devel_package.reset_cache
+    end
   end
 
   def revoke_requests
