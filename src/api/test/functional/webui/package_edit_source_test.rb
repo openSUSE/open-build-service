@@ -18,11 +18,6 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
     File.expand_path( Rails.root.join("test/texts/#{name}") )
   end
 
-  def open_file file
-    super(file)
-    page.must_have_text "File #{file} of Package #{@package}"
-  end
-
   def open_add_file
     click_link('Add file')
     page.must_have_text 'Add File to'

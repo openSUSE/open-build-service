@@ -286,7 +286,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
 
     login_adrian to: package_show_path(project: 'home:adrian', package: 'x11vnc')
     # now change something more for a second request
-    open_file 'README'
+    find(:css, "tr##{valid_xml_id('file-README')} td:first-child a").click
     page.must_have_text 'just to delete'
     # codemirror is not really test friendly, so just brute force it - we basically
     # want to test the load and save work flow not the codemirror library

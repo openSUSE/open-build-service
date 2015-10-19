@@ -283,10 +283,6 @@ module Webui
       ll.click if ll
     end
 
-    def open_file(file)
-      find(:css, "tr##{valid_xml_id('file-' + file)} td:first-child a").click
-    end
-
     def current_user
       @current_user
     end
