@@ -44,6 +44,9 @@ class Webui::PackageController < Webui::WebuiController
                                             :update_build_log, :devel_project, :buildresult, :rpmlint_result,
                                             :rpmlint_log, :meta, :attributes, :repositories, :files]
 
+  before_filter :authenticate, only: [:branch, :save_new_link, :save_modified_file, :save_meta, :change_flag,
+                                      :abort_build, :trigger_rebuild, :wipe_binaries, :remove]
+
   prepend_before_filter :lockout_spiders, :only => [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
 
   def show

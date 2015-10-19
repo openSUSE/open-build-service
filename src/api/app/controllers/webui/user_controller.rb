@@ -56,6 +56,7 @@ class Webui::UserController < Webui::WebuiController
 
     session[:login] = User.current.login
     session[:password] = params[:password]
+
     redirect_to(return_path)
   end
 

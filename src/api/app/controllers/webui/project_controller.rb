@@ -25,6 +25,8 @@ class Webui::ProjectController < Webui::WebuiController
                                      :maintenance_incidents, :unlock_dialog, :save_person, :save_group, :remove_role, :save_repository,
                                      :move_path, :save_prjconf]
 
+  before_filter :authenticate, only: [:clear_failed_comment]
+
   # TODO: check if get_by_name or set_by_name is used for save_prjconf
   before_filter :set_project_by_name, only: [:save_meta, :save_prjconf]
 
@@ -42,6 +44,8 @@ class Webui::ProjectController < Webui::WebuiController
                                                      :remove_maintained_project]
 
   before_filter :set_maintained_project, only: [:add_maintained_project, :remove_maintained_project]
+
+  before_filter :authenticate, only: [:change_flag, :unlock]
 
   after_action :verify_authorized, only: [:save_new, :new_incident, :save_meta]
 
@@ -748,8 +752,6 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def clear_failed_comment
-    authenticate
-
     # TODO(Jan): put this logic in the Attribute model
     transport ||= ActiveXML::api
     params['package'].to_a.each do |p|
