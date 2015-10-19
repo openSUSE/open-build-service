@@ -2477,11 +2477,18 @@ XML
     assert_xml_tag(:parent => { tag: 'revision' }, :tag => 'comment', :content => 'DELETE REQUEST')
     assert_xml_tag(:parent => { tag: 'revision' }, :tag => 'requestid', :content => id)
 
-    # accept the other request, what will fail
     login_king
+    # you can only accept request in state new
     post "/request/#{id2}?cmd=changestate&newstate=accepted&force=1"
     assert_response 403
     assert_xml_tag(:tag => 'status', :attributes => { code: 'post_request_no_permission' })
+
+    # you can only accept request in state new and with an existing target
+    post "/request/#{id2}?cmd=changestate&newstate=new&force=1"
+    assert_response :success
+    post "/request/#{id2}?cmd=changestate&newstate=accepted&force=1"
+    assert_response 404
+    assert_xml_tag(:tag => 'status', :attributes => { code: 'not_existing_target' })
 
     # decline the request
     post "/request/#{id2}?cmd=changestate&newstate=declined"
