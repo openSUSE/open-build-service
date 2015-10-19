@@ -459,19 +459,6 @@ class BsRequestAction < ActiveRecord::Base
 
   # general source cleanup, used in submit and maintenance_incident actions
   def source_cleanup
-    # cleanup source project
-    delete_path = source_cleanup_delete_path
-    return unless delete_path
-    del_params = {
-      user:      User.current.login,
-      requestid: self.bs_request.id,
-      comment:   self.bs_request.description
-    }
-    delete_path << Suse::Backend.build_query_from_hash(del_params, [:user, :comment, :requestid])
-    Suse::Backend.delete delete_path
-  end
-
-  def source_cleanup_delete_path
     source_project = Project.find_by_name(self.source_project)
     return unless source_project
     if (source_project.packages.count == 1 and ::Configuration.cleanup_empty_projects) or !self.source_package
@@ -480,11 +467,13 @@ class BsRequestAction < ActiveRecord::Base
       splits = self.source_project.split(':')
       return nil if splits.count == 2 && splits[0] == 'home'
 
+      source_project.commit_opts = { comment: self.bs_request.description, request: self.bs_request.id }
       source_project.destroy
       return "/source/#{self.source_project}"
     end
     # just remove one package
     source_package = source_project.packages.find_by_name!(self.source_package)
+    source_package.commit_opts = { comment: self.bs_request.description, request: self.bs_request.id }
     source_package.destroy
     return Package.source_path(self.source_project, self.source_package)
   end
