@@ -71,6 +71,8 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_history
+    Timecop.freeze(2010, 7, 12)
+
     get "/status/history"
     assert_response 400
 
