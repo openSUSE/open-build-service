@@ -163,8 +163,7 @@ class Webui::WebuiController < ActionController::Base
     return true
   end
 
-  # sets session[:login] if the user is authenticated
-  def authenticate
+  def do_backend_login
     mode = CONFIG['proxy_auth_mode'] || :off
     logger.debug "Authenticating with iChain mode: #{mode}"
     if mode == :on || mode == :simulate
