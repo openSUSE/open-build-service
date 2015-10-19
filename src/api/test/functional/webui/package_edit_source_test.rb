@@ -18,11 +18,6 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
     File.expand_path( Rails.root.join("test/texts/#{name}") )
   end
 
-  def open_file file
-    super(file)
-    page.must_have_text "File #{file} of Package #{@package}"
-  end
-
   def open_add_file
     click_link('Add file')
     page.must_have_text 'Add File to'
@@ -89,13 +84,33 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
 
 
   def test_erase_file_content
-    open_file 'myfile'
-    edit_file ''
+    find(:css, "tr##{valid_xml_id('file-myfile')} td:first-child a").click
+    page.must_have_text "File myfile of Package #{@package}"
+    # is it all rendered?
+    page.must_have_selector('.CodeMirror-lines')
+
+    # codemirror is not really test friendly, so just brute force it - we basically
+    # want to test the load and save work flow not the codemirror library
+    page.execute_script("editors[0].setValue('');")
+    assert !find(:css, '.buttons.save')['class'].split(' ').include?('inactive')
+    find(:css, '.buttons.save').click
+    page.must_have_selector('.buttons.save.inactive')
   end
 
   def test_edit_empty_file
-    open_file 'myfile'
-    edit_file File.read( text_path('SourceFile.cc') )
+    find(:css, "tr##{valid_xml_id('file-myfile')} td:first-child a").click
+    page.must_have_text "File myfile of Package #{@package}"
+    # is it all rendered?
+    page.must_have_selector('.CodeMirror-lines')
+
+    edit_text = File.read(text_path('SourceFile.cc'))
+
+    # codemirror is not really test friendly, so just brute force it - we basically
+    # want to test the load and save work flow not the codemirror library
+    page.execute_script("editors[0].setValue('#{escape_javascript(edit_text)}');")
+    assert !find(:css, '.buttons.save')['class'].split(' ').include?('inactive')
+    find(:css, '.buttons.save').click
+    page.must_have_selector('.buttons.save.inactive')
   end
 
 

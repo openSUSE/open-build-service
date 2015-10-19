@@ -286,10 +286,14 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
 
     login_adrian to: package_show_path(project: 'home:adrian', package: 'x11vnc')
     # now change something more for a second request
-    open_file 'README'
+    find(:css, "tr##{valid_xml_id('file-README')} td:first-child a").click
     page.must_have_text 'just to delete'
-    edit_file 'My new cool text'
-
+    # codemirror is not really test friendly, so just brute force it - we basically
+    # want to test the load and save work flow not the codemirror library
+    page.execute_script("editors[0].setValue('My new cool text');")
+    assert !find(:css, '.buttons.save')['class'].split(' ').include?('inactive')
+    find(:css, '.buttons.save').click
+    page.must_have_selector('.buttons.save.inactive')
     click_link 'Overview'
 
     click_link 'link diff'
