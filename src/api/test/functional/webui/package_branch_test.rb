@@ -29,17 +29,17 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
     click_button 'Create Branch'
 
     if new_branch[:expect] == :success
-      flash_message.must_equal "Branched package #{@project} / #{new_branch[:name]}"
+      flash_message.must_equal "Successfully branched package"
       flash_message_type.must_equal :info
       assert page.current_url.end_with? package_show_path(project: @project, package: new_branch[:name])
     elsif new_branch[:expect] == :invalid_package_name
-      flash_message.must_equal "Invalid package name: '#{new_branch[:original_name]}'"
+      flash_message.must_equal "Unable to find source project/package"
       flash_message_type.must_equal :alert
     elsif new_branch[:expect] == :invalid_project_name
-      flash_message.must_equal "Invalid project name: '#{new_branch[:original_project]}'"
+      flash_message.must_equal "Unable to find source project/package"
       flash_message_type.must_equal :alert
     elsif new_branch[:expect] == :already_exists
-      flash_message.must_equal "Package '#{new_branch[:name]}' already exists in project '#{@project}'"
+      flash_message.must_equal "You have already branched this package"
       flash_message_type.must_equal :alert
     else
       throw 'Invalid value for argument <expect>.'
@@ -195,7 +195,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
     results.must_equal %w(x11vnc)
 
     click_button 'Create Branch'
-    page.must_have_text "Branched package home:Iggy / x11vnc"
+    page.must_have_text "Successfully branched package"
     page.must_have_text "Links to home:dmayr / x11vnc"
   end
 

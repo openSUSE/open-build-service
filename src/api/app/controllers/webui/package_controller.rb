@@ -547,8 +547,13 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def save_new_link
-    source_package = Package.find_by_project_and_name(params[:linked_project], params[:linked_package])
+    required_parameters :linked_project, :linked_package
 
+    source_package = Package.find_by_project_and_name(params[:linked_project], params[:linked_package])
+    unless source_package
+      redirect_to :back, error: "Unable to find source project/package"
+      return
+    end
     revision = nil
     unless params[:current_revision].blank?
       dirhash = Package.dir_hash(source_package.project.name, source_package.name)

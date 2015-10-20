@@ -31,7 +31,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     find(:css, '#branch_dialog').must_have_text %r{Do you really want to branch package}
     find_button('Ok').click
 
-    find(:css, '#flash-messages').must_have_text %r{Branched package BaseDistro2\.0:LinkedUpdateProject.*pack2}
+    find(:css, '#flash-messages').must_have_text %r{Successfully branched package}
 
     # do not die with unchanged package
     Suse::Backend.put("/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/DUMMY_FILE", "dummy")
