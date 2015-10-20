@@ -3131,9 +3131,10 @@ Ignore: package:cups'
     assert_xml_tag :tag => "value", :parent =>
                  { :tag => "attribute", :attributes =>{ :name=>"AutoCleanup", :namespace=>"OBS"} }
 
-    Timecop.freeze(10.days) # in future
-    ProjectCreateAutoCleanupRequests.new.perform
-    Timecop.return
+    # in future
+    Timecop.freeze(10.days) do
+      ProjectCreateAutoCleanupRequests.new.perform
+    end
     #validate request
     br = BsRequest.all.last
     assert_equal br.state, :new
@@ -3141,9 +3142,10 @@ Ignore: package:cups'
     assert_equal br.bs_request_actions.first.target_project, "home:fredlibs:branches:home:Iggy"
     assert_not_nil br.accept_at
     # second run shall not open another request
-    Timecop.freeze(12.days) # in future
-    ProjectCreateAutoCleanupRequests.new.perform
-    Timecop.return
+    # in future
+    Timecop.freeze(12.days) do
+      ProjectCreateAutoCleanupRequests.new.perform
+    end
     assert_equal br, BsRequest.all.last
 
     # cleanup and try again with defaults
