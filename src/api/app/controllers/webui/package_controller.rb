@@ -533,29 +533,18 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def branch
-    begin
-      path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=branch"
-      result = ActiveXML::Node.new(frontend.transport.direct_http( URI(path), :method => 'POST', :data => ''))
-      result_project = result.find_first( "/status/data[@name='targetproject']" ).text
-      result_package = result.find_first( "/status/data[@name='targetpackage']" ).text
-    rescue ActiveXML::Transport::Error => e
-      message = e.summary
-      if e.code == 'double_branch_package'
-        flash[:notice] = 'You already branched the package and got redirected to it instead'
-        bprj, bpkg = message.split('exists: ')[1].split('/', 2) # Hack to find out branch project / package
-        redirect_to controller: :package, action: :show, project: bprj, package: bpkg
-        return
-      else
-        flash[:error] = message
-        redirect_to controller: :package, action: :show, project: params[:project], package: params[:package]
-        return
-      end
-    end
-    flash[:success] = "Branched package #{@project} / #{@package}"
-    redirect_to controller: :package, action: :show,
-                project: result_project, package: result_package
+    BranchPackage.new(project: @project.name, package: @package.name).branch
+    Event::BranchCommand.create(project: @project.name, package: @package.name,
+                                targetproject: User.current.branch_project_name(@project.name), targetpackage: @package.name,
+                                user: User.current.login)
+    redirect_to(package_show_path(project: User.current.branch_project_name(@project.name), package: @package),
+                notice: "Successfully branched package")
+  rescue BranchPackage::DoubleBranchPackageError => e
+      redirect_to(package_show_path(project: User.current.branch_project_name(@project.name), package: @package),
+                  notice: 'You have already branched this package')
+  rescue => e
+      redirect_to :back, error: e.message
   end
-
 
   def save_new_link
     @linked_project = params[:linked_project].strip
