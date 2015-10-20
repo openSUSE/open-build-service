@@ -9503,7 +9503,10 @@ NEXTPRP:
 	  print "    publishing is disabled\n";
 	}
 	writestr("$reporoot/$prp/$myarch/:repodone", undef, $repodonestate) unless $publisherror || %unfinished;
-	$schedulerdetails = $publisherror if $publisherror;
+        if ($publisherror) {
+  	  $schedulerstate = "broken";
+  	  $schedulerdetails = $publisherror;
+        }
       }
       if (!%unfinished && !$publisherror) {
 	$prpfinished{$prp} = 1;
