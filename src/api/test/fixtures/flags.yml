@@ -133,3 +133,8 @@ record_19:
   flag: publish
   architecture: x86_64
   project: home_Iggy
+record_20:
+  status: enable
+  position: 1
+  flag: lock
+  project: home_user6

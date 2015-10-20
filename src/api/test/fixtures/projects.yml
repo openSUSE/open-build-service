@@ -270,3 +270,9 @@ home_user5:
   updated_at: 2014-02-14 01:00:01.000000000 Z
   kind: standard
   delta: 1
+home_user6:
+  name: home:user6
+  created_at: 2014-02-14 01:00:01.000000000 Z
+  updated_at: 2014-02-14 01:00:01.000000000 Z
+  kind: standard
+  delta: 1
