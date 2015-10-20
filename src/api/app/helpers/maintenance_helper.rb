@@ -150,12 +150,13 @@ module MaintenanceHelper
       withacceptinfo: "1"
     }
     cp_params[:requestid] = action.bs_request.id if action
+    cp_params[:freezelink] = 1 if sourcePackage.is_link? # no permission check here on purpose
     cp_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetPackageName)}"
     cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :user, :oproject,
                                                                :opackage, :comment, :requestid,
                                                                :expand, :withvrev, :noservice,
-                                                               :withacceptinfo])
-    result = Suse::Backend.post cp_path, nil
+                                                               :freezelink, :withacceptinfo])
+    result = Suse::Backend.post(cp_path, nil)
     result = Xmlhash.parse(result.body)
     action.set_acceptinfo(result["acceptinfo"]) if action
   end

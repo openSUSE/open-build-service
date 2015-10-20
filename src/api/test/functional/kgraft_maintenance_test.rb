@@ -79,19 +79,19 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # add channel
     put '/source/BaseDistro2Channel/_meta', '<project name="BaseDistro2Channel"><title/><description/>
-                                         <build><disable/></build>
-                                         <publish><enable/></publish>
-                                         <repository name="channel_repo">
-                                           <arch>i586</arch>
-                                           <arch>x86_64</arch>
-                                         </repository>
-                                   </project>'
+                                               <build><disable/></build>
+                                               <publish><enable/></publish>
+                                               <repository name="channel_repo">
+                                                 <arch>i586</arch>
+                                                 <arch>x86_64</arch>
+                                               </repository>
+                                             </project>'
     assert_response :success
     put '/source/BaseDistro2Channel/_config', "Repotype: rpm-md-legacy\nType: spec"
     assert_response :success
     # channel def
     put '/source/Channel/_meta', '<project name="Channel"><title/><description/>
-                                   </project>'
+                                  </project>'
     assert_response :success
     put '/source/Channel/BaseDistro2/_meta', '<package project="Channel" name="BaseDistro2"><title/><description/></package>'
     assert_response :success
@@ -274,6 +274,16 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post "/request/#{reqid}?cmd=diff"
     assert_response :success
 
+    # link is still unfrozen
+    get "/source/#{incidentProject}/kgraft-GA.BaseDistro2.0/_link"
+    assert_response :success
+    node = ActiveXML::Node.new(@response.body)
+    assert_not node.has_attribute?(:rev)
+    get "/source/#{incidentProject}/kgraft-incident-0.My_Maintenance_0/_link"
+    assert_response :success
+    node = ActiveXML::Node.new(@response.body)
+    assert_not node.has_attribute?(:rev)
+
     #### release packages
     post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
     assert_response :success
@@ -286,6 +296,22 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # validate result
     get '/source/BaseDistro2Channel/patchinfo.1'
+    assert_response :success
+
+    # links are frozen now
+    get "/source/#{incidentProject}/kgraft-GA.BaseDistro2.0/_link"
+    assert_response :success
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:rev)
+    get "/source/#{incidentProject}/kgraft-incident-0.My_Maintenance_0/_link"
+    assert_response :success
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:rev)
+
+    # old one still branchable even though conflicting change has been released?
+    post '/source', :cmd => 'branch', :package => 'pack2', :add_repositories => 1
+    assert_response :success
+    delete "/source/home:king:branches:OBS_Maintained:pack2"
     assert_response :success
 
     # cleanup

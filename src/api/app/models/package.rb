@@ -968,7 +968,7 @@ class Package < ActiveRecord::Base
     errors.add(:name, 'is illegal') unless Package.valid_name?(self.name)
   end
 
-  def branch_from(origin_project, origin_package, rev = nil, missingok = nil, comment = nil)
+  def branch_from(origin_project, origin_package, rev = nil, missingok = nil, comment = nil, linkrev = nil)
     myparam = { cmd:       "branch",
                 noservice: "1",
                 oproject:  origin_project,
@@ -976,6 +976,7 @@ class Package < ActiveRecord::Base
                 user:      User.current.login
     }
     myparam[:orev] = rev if rev and not rev.empty?
+    myparam[:olinkrev] = linkrev if linkrev and not linkrev.empty?
     myparam[:missingok] = '1' if missingok
     myparam[:comment] = comment if comment
     path = self.source_path + Suse::Backend.build_query_from_hash(myparam, [:cmd, :oproject, :opackage, :user, :comment, :orev, :missingok])
