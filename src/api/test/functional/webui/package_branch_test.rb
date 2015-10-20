@@ -41,6 +41,9 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
     elsif new_branch[:expect] == :already_exists
       flash_message.must_equal "You have already branched this package"
       flash_message_type.must_equal :alert
+    elsif new_branch[:expect] == :invalid_target
+      flash_message.must_equal "Validation failed: Name is illegal"
+      flash_message_type.must_equal :alert
     else
       throw 'Invalid value for argument <expect>.'
     end
@@ -181,6 +184,18 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :original_project => 'invalid project name',
       :expect => :invalid_project_name)
   end
+
+  def test_branch_project_invalid_target
+
+    login_Iggy to: project_show_path(:project => @project)
+
+    create_package_branch(
+      :name => 'something/illegal',
+      :original_name => 'apache2',
+      :original_project => 'Apache',
+      :expect => :invalid_target)
+  end
+
 
   def test_autocomplete_packages
     use_js
