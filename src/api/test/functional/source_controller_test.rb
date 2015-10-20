@@ -710,6 +710,21 @@ Ignore: package:cups'
     assert_response :success
     assert_no_xml_tag :tag => 'lock'
 
+    # unlock will fail on unlocked project
+    post '/source/home:Iggy:branches:home:Iggy', { cmd: "unlock", comment: "dummy" }
+    assert_response 400
+    assert_select "status", code: "not_locked"
+    # lock via command
+    post '/source/home:Iggy:branches:home:Iggy?cmd=lock'
+    assert_response :success
+    get '/source/home:Iggy:branches:home:Iggy/_meta'
+    assert_response :success
+    assert_select "project" do
+      assert_select 'lock' do
+        assert_select 'enable'
+      end
+    end
+
     # try to unlock without comment
     post '/source/home:Iggy', { :cmd => 'unlock' }
     assert_response 400
@@ -727,6 +742,8 @@ Ignore: package:cups'
     assert_response 403
     login_Iggy
     post '/source/home:Iggy', { :cmd => 'unlock', :comment => 'cleanup' }
+    assert_response :success
+    post '/source/home:Iggy:branches:home:Iggy', { :cmd => 'unlock', :comment => 'cleanup' }
     assert_response :success
 
     # cleanup works now again

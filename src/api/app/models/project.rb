@@ -1455,6 +1455,15 @@ class Project < ActiveRecord::Base
     projects
   end
 
+  def lock(comment = nil)
+    self.transaction do
+      f = self.flags.find_by_flag_and_status('lock', 'disable')
+      self.flags.delete(f) if f
+      self.flags.create(status: 'enable', flag: 'lock')
+      self.store({comment: comment})
+    end
+  end
+
   def unlock(comment = nil)
     if self.is_maintenance_incident?
       rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
@@ -1469,7 +1478,7 @@ class Project < ActiveRecord::Base
     p = { :comment => comment }
 
     f = self.flags.find_by_flag_and_status('lock', 'enable')
-    raise ProjectNotLocked.new "project '#{@project.name}' is not locked" unless f
+    raise ProjectNotLocked.new "project '#{self.name}' is not locked" unless f
 
     self.transaction do
       self.flags.delete(f)
