@@ -22,4 +22,8 @@ class ProjectPolicy < ApplicationPolicy
   def destroy?
     update?
   end
+
+  def unlock?
+    @user.can_modify_project?(@project, true)
+  end
 end
