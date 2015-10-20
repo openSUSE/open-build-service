@@ -33,36 +33,31 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def do_login
-    if params[:username].present? && params[:password]
-      logger.debug "Doing form authorization to login user #{params[:username]}"
+    mode = CONFIG['proxy_auth_mode'] || CONFIG['ichain_mode'] || :basic
+    logger.debug "do_login: with #{mode}"
 
-      session[:login] = params[:username]
-      session[:password] = params[:password]
-      authenticate_form_auth
-
-      begin
-        ActiveXML.api.direct_http "/person/#{session[:login]}/login", method: 'POST'
-        User.current = User.find_by_login!(session[:login])
-      rescue ActiveXML::Transport::UnauthorizedError
-        User.current = nil
-      end
-
-      unless User.current
-        return_to = return_path
-        reset_session
-        set_return_path(return_to)
-        flash.now[:error] = 'Authentication failed'
-        User.current = User.find_nobody!
-        render :template => 'webui/user/login'
-        return
-      end
-
-      flash[:success] = 'You are logged in now'
-      session[:login] = User.current.login
-      return redirect_to(return_path)
+    case mode
+    when :on
+      user = User.find_by(login: request.env['HTTP_X_USERNAME'])
+    when :simulate
+      user = User.find_by(login: CONFIG['proxy_auth_test_user'])
+    when :basic, :off
+      user = User.find_with_credentials(params[:username], params[:password])
     end
-    flash[:error] = 'Authentication failed'
-    redirect_to :action => 'login'
+
+    if user.nil? || (user.state == User::STATES['ichainrequest'] || user.state == User::STATES['unconfirmed'])
+      set_return_path(return_path)
+      redirect_to(user_login_path, error: 'Authentication failed')
+      return
+    end
+
+    logger.debug "USER found: #{user.login}"
+    User.current = user
+
+    session[:login] = User.current.login
+    session[:password] = params[:password]
+
+    redirect_to(return_path)
   end
 
   def show
@@ -210,10 +205,7 @@ class Webui::UserController < Webui::WebuiController
       redirect_to :controller => :user, :action => :index
     else
       session[:login] = opts[:login]
-      session[:password] = opts[:password]
-      authenticate_form_auth
-      # set User.current
-      check_user
+      User.current = User.find_by_login(session[:login])
       if Project.where(name: User.current.home_project_name).exists?
         redirect_to project_show_path(User.current.home_project_name)
       else
@@ -231,7 +223,7 @@ class Webui::UserController < Webui::WebuiController
 
   def change_password
     # check the valid of the params
-    if not params[:password] == session[:password]
+    unless User.current.password_equals?(params[:password])
       errmsg = 'The value of current password does not match your current password. Please enter the password and try again.'
     end
     if not params[:new_password] == params[:repeat_password]
@@ -250,7 +242,6 @@ class Webui::UserController < Webui::WebuiController
     user.update_password params[:new_password]
     user.save!
 
-    session[:password] = params[:new_password]
     flash[:success] = 'Your password has been changed successfully.'
     redirect_to :action => :show, user: User.current
   end

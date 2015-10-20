@@ -238,6 +238,7 @@ class Patchinfo < ActiveXML::Node
     data.elements('releasetarget')
   end
 
+  # TODO: This method is unused, should be replace with a BackendFile subclass
   def save
     path = if self.init_options[:package]
       "/source/#{self.init_options[:project]}/#{self.init_options[:package]}/_patchinfo"

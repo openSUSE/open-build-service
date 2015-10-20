@@ -25,6 +25,8 @@ class Webui::ProjectController < Webui::WebuiController
                                      :maintenance_incidents, :unlock_dialog, :save_person, :save_group, :remove_role, :save_repository,
                                      :move_path, :save_prjconf]
 
+  before_filter :do_backend_login, only: [:clear_failed_comment, :change_flag, :unlock]
+
   # TODO: check if get_by_name or set_by_name is used for save_prjconf
   before_filter :set_project_by_name, only: [:save_meta, :save_prjconf]
 
