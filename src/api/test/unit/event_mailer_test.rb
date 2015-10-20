@@ -3,6 +3,10 @@ require_relative '../test_helper'
 class EventMailerTest < ActionMailer::TestCase
   fixtures :all
 
+  teardown do
+    Timecop.return
+  end
+
   def verify_email(fixture_name, email)
     should = load_fixture("event_mailer/#{fixture_name}").chomp
     assert_equal should, email.encoded.lines.map(&:chomp).select { |l| l !~ %r{^Date:} }.join("\n")
