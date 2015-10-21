@@ -5973,16 +5973,17 @@ sub sourcecopy {
 
   my $autosimplifylink;
   my $autosimplifylink_lrev;
+  my $olink;
 
   if ($files->{'_link'} && !$cgi->{'dontupdatesource'} && !$cgi->{'rev'}) {
     # fix me: do this in a more generic way
-    my $ol = repreadxml($orev, '_link', $files->{'_link'}, $BSXML::link, 1);
-    if ($ol) {
+    $olink = repreadxml($orev, '_link', $files->{'_link'}, $BSXML::link, 1);
+    if ($olink) {
       my $lprojid = $oprojid;
       my $lpackid = $opackid;
-      my $lrev = $ol->{'rev'};
-      $lprojid = $ol->{'project'} if exists $ol->{'project'};
-      $lpackid = $ol->{'package'} if exists $ol->{'package'};
+      my $lrev = $olink->{'rev'};
+      $lprojid = $olink->{'project'} if exists $olink->{'project'};
+      $lpackid = $olink->{'package'} if exists $olink->{'package'};
       if ($lprojid eq $projid && $lpackid eq $packid) {
 	# copy destination is target of link
 	# we're integrating this link
@@ -5991,12 +5992,12 @@ sub sourcecopy {
 	my $lfiles = $cgi->{'noservice'} && !$cgi->{'expand'} ? lsrev_service({ %$lrev }) : lsrev($lrev);
 	if ($lfiles->{'_link'} && !$cgi->{'expand'}) {
 	  # link to a link, join
-	  $files = integratelink($lfiles, $lprojid, $lpackid, $lrev, $files, $oprojid, $opackid, $ol, $orev);
+	  $files = integratelink($lfiles, $lprojid, $lpackid, $lrev, $files, $oprojid, $opackid, $olink, $orev);
 	} else {
 	  # auto expand
 	  $cgi->{'expand'} = 1;
 	}
-	$autosimplifylink = $ol;
+	$autosimplifylink = $olink;
       }
     }
   }
@@ -6039,7 +6040,16 @@ sub sourcecopy {
     notify_repservers('package', $oprojid, $opackid);
   }
 
-  if ($autosimplifylink && !defined($autosimplifylink->{'rev'})) {
+  if ($cgi->{'freezelink'}) {
+    die("400 freezelink: origin provides no link") unless $olink;
+    die("400 freezelink: link points to a revision already") if $olink->{'rev'};
+    die("400 freezelink: link has no baserev") unless $olink->{'baserev'};
+    $olink->{'rev'} = $olink->{'baserev'};
+    mkdir_p($uploaddir);
+    writexml("$uploaddir/$$", undef, $olink, $BSXML::link);
+    $files->{'_link'} = addfile($oprojid, $opackid, "$uploaddir/$$", '_link');
+    addrev({ %$cgi, 'user' => 'buildservice-autocommit', 'comment' => 'freeze link'}, $oprojid, $opackid, $files);
+  } elsif ($autosimplifylink && !defined($autosimplifylink->{'rev'})) {
     $orev->{'srcmd5'} = $orev_srcmd5;	# back to unexpanded
 
     # make sure that vrev doesn't decrease when copying to the
@@ -8436,7 +8446,7 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=servicediff rev? unified:bool? file:filename* filelimit:num? tarlimit:num? view:? withissues:bool? onlyissues:bool?' => \&servicediff,
   'POST:/source/$project/$package cmd=commit rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? noservice:bool?' => \&sourcecommit,
   'POST:/source/$project/$package cmd=commitfilelist rev? user:? comment:? keeplink:bool? repairlink:bool? linkrev? setrev:bool? requestid:num? time:num? version:? vrev:? noservice:bool? servicemark:?' => \&sourcecommitfilelist,
-  'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool? noservice:bool? withvrev:bool? withacceptinfo:bool? makeoriginolder:bool?' => \&sourcecopy,
+  'POST:/source/$project/$package cmd=copy rev? user:? comment:? orev:rev? oproject:project? opackage:package? expand:bool? keeplink:bool? repairlink:bool? linkrev? setrev:linkrev? olinkrev:linkrev? requestid:num? dontupdatesource:bool? noservice:bool? withvrev:bool? withacceptinfo:bool? makeoriginolder:bool? freezelink:bool?' => \&sourcecopy,
   'POST:/source/$project/$package cmd=collectbuildenv user:? comment:? orev:rev? oproject:project? opackage:package?' => \&sourcecollectbuildenv,
   'POST:/source/$project/$package cmd=branch rev? user:? comment:? orev:rev? oproject:project? opackage:package? olinkrev:linkrev? requestid:num? force:bool? keepcontent:bool? missingok:bool? noservice:bool? withacceptinfo:bool?' => \&sourcebranch,
   'POST:/source/$project/$package cmd=linktobranch rev? user:? comment:? linkrev?' => \&linktobranch,
