@@ -856,7 +856,12 @@ class User < ApplicationRecord
 
   # list of all requests
   def requests(search = nil)
-    BsRequest.collection(user: login, states: VALID_REQUEST_STATES, roles: %w(creator maintainer reviewer), search: search)
+    BsRequest.collection(
+      user: login,
+      states: VALID_REQUEST_STATES,
+      roles: %w(creator maintainer reviewer),
+      search: search
+    ).includes(:bs_request_actions)
   end
 
   # lists running maintenance updates where this user is involved in
