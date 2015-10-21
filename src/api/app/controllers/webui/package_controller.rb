@@ -576,10 +576,7 @@ class Webui::PackageController < Webui::WebuiController
       return
     end
 
-    begin
-      # just as existence check
-      Package.get_by_project_and_name(@linked_project, @linked_package)
-    rescue APIException
+    unless Package.exists_by_project_and_name(@linked_project, @linked_package)
       flash[:error] = "Unable to find package '#{@linked_package}' in project '#{@linked_project}'."
       redirect_to :controller => :project, :action => 'new_package_branch', :project => @project
       return
