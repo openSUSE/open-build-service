@@ -92,7 +92,7 @@ class Webui::UserController < Webui::WebuiController
       }
     sorting_field = sortable_fields[params[:iSortCol_0].to_i]
     sorting_field ||= :created_at
-    sorting_dir = params[:sSortDir_0].to_sym
+    sorting_dir = params[:sSortDir_0].try(:to_sym)
     sorting_dir = :asc unless ["asc", "desc"].include?(params[:sSortDir_0])
     @requests = @displayed_user.requests(params[:sSearch])
     @requests_count = @requests.clone.count

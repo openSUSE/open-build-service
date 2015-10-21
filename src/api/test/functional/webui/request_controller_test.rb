@@ -273,6 +273,15 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     visit_requests
   end
 
+  def test_requests
+    get "/home/requests.json"
+    assert_response :success
+    result = ActiveSupport::JSON.decode(@response.body)
+    assert_equal 2, result["sEcho"]
+    assert_equal 0, result["iTotalRecords"]
+    assert_equal [], result["aaData"]
+  end
+
   def test_succesful_comment_creation
     login_Iggy to: request_show_path(1)
     fill_in 'body', with: 'Comment Body'
