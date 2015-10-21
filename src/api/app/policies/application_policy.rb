@@ -3,6 +3,7 @@ class ApplicationPolicy
 
   def initialize(user, record)
     raise Pundit::NotAuthorizedError, "must be logged in" unless user
+    raise Pundit::NotAuthorizedError, "record does not exist" unless record
     @user = user
     @record = record
   end
