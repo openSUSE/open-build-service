@@ -169,10 +169,14 @@ class Webui::RequestController < Webui::WebuiController
           if tpkg
             target = Package.find_by_project_and_name(tprj, tpkg)
           else
-            target = Project.Project.find_by_name tprj
+            target = Project.find_by_name tprj
           end
-          target.add_user(@req.creator, 'maintainer')
-          target.save
+          if target.check_write_access
+            # the request action type might be permitted in future, but that doesn't mean we
+            # are allowed to modify the object
+            target.add_user(@req.creator, 'maintainer')
+            target.save
+          end
         end
       end
     end
