@@ -56,14 +56,12 @@ class Webui::SearchController < Webui::WebuiController
       unless disturl_pkgrev.nil?
         disturl_rev, disturl_package = disturl_pkgrev.split('-', 2)
       end
-      unless disturl_package.nil? || disturl_rev.nil?
-        project = Project.find_by(name: disturl_project)
-        package = Package.find_by_project_and_name(disturl_project, disturl_package)
-      end
-      if project && package
-        redirect_to controller: 'package', action: 'show', project: disturl_project, package: disturl_package, rev: disturl_rev and return
+      if Package.exists_by_project_and_name(disturl_project, disturl_package)
+        redirect_to controller: 'package', action: 'show', project: disturl_project, package: disturl_package, rev: disturl_rev
+        return
       else
-        redirect_to :back, notice: 'Sorry, this disturl does not compute...' and return
+        redirect_to :back, notice: 'Sorry, this disturl does not compute...'
+        return
       end
     end
 
