@@ -550,39 +550,54 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def save_new_link
-    source_package = Package.find_by_project_and_name(params[:linked_project], params[:linked_package])
-    unless source_package
-      redirect_to :back, error: "Unable to find source project/package"
-      return
+    # Are we linking a package from a remote instance?
+    # Then just try, the remote instance will handle checking for existence
+    # authorization etc.
+    if Project.find_remote_project(params[:linked_project])
+      source_project_name = params[:linked_project]
+      source_package_name = params[:linked_package]
+    # If we are linking a local package we have to do it ourselves
+    else
+      source_package = Package.find_by_project_and_name(params[:linked_project], params[:linked_package])
+      unless source_package
+        redirect_to :back, error: "Failed to branch: Package does not exist."
+        return
+      end
+      authorize source_package, :branch?
+      source_project_name = source_package.project.name
+      source_package_name = source_package.name
     end
-    authorize source_package, :branch?
     revision = nil
     unless params[:current_revision].blank?
-      dirhash = Package.dir_hash(source_package.project.name, source_package.name)
+      dirhash = Package.dir_hash(source_project_name, source_package_name)
+      if dirhash['error']
+        redirect_to :back, error: dirhash['error']
+      end
       revision = dirhash['xsrcmd5'] || dirhash['rev']
       unless revision
-        redirect_to :back, error: "Unable to branch package, it has no source revision yet"
+        redirect_to :back, error: "Failed to branch: Package has no source revision yet"
         return
       end
     end
 
-    params[:target_package] = source_package.name if params[:target_package].blank?
+    params[:target_package] = source_package_name if params[:target_package].blank?
 
     begin
-      BranchPackage.new(project: source_package.project.name,
-                        package: source_package.name,
+      BranchPackage.new(project: source_project_name,
+                        package: source_package_name,
                         target_project: @project.name,
                         target_package: params[:target_package],
                         rev: revision).branch
-      Event::BranchCommand.create(project: source_package.project.name, package: source_package.name,
+      Event::BranchCommand.create(project: source_project_name, package: source_package_name,
                                   targetproject: @project.name, targetpackage: params[:target_package],
                                   user: User.current.login)
       redirect_to(package_show_path(project: @project, package: params[:target_package]),
                   notice: "Successfully branched package")
     rescue BranchPackage::DoubleBranchPackageError => e
-        redirect_to :back, error: 'You have already branched this package'
+      redirect_to(package_show_path(project: @project, package: params[:target_package]),
+                  notice: 'You have already branched this package')
     rescue => e
-        redirect_to :back, error: e.message
+      redirect_to :back, error: "Failed to branch: #{e.message}"
     end
   end
 
