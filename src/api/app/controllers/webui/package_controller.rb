@@ -584,7 +584,7 @@ class Webui::PackageController < Webui::WebuiController
     dirhash = Package.dir_hash(@linked_project, @linked_package)
     revision = dirhash['xsrcmd5'] || dirhash['rev']
     unless revision
-      flash[:error] = "Unable to branch package '#{@target_package}', it has no source revision yet"
+      flash[:error] = "Unable to branch package '#{@linked_package}', it has no source revision yet"
       redirect_to :controller => :project, :action => 'new_package_branch', :project => @project and return
     end
 
