@@ -1,9 +1,7 @@
 # vim: sw=2 et
-
 require 'digest/md5'
 
 module Webui::WebuiHelper
-
   include ActionView::Helpers::JavaScriptHelper
   include ActionView::Helpers::AssetTagHelper
 
@@ -107,20 +105,17 @@ module Webui::WebuiHelper
         result += code
       else
         result += link_to(code.gsub(/\s/, '&nbsp;'),
-                        raw_logfile_path(package: package_name,
-                                         project: @project.to_s,
-                                         arch: arch, repository: repo),
-                        title: link_title, rel: 'nofollow')
+                          raw_logfile_path(package: package_name, project: @project.to_s, arch: arch, repository: repo),
+                          title: link_title, rel: 'nofollow')
       end
     else
       result += link_to(code.gsub(/\s/, '&nbsp;'),
-                     { action: :live_build_log,
-                       package: package_name, project: @project.to_s,
-                       arch: arch, controller: 'package', repository: repo
-                     },
-                     {
-                         title: link_title, rel: 'nofollow'
-                     })
+                        {
+                          action: :live_build_log, package: package_name, project: @project.to_s,
+                          arch: arch, controller: 'package', repository: repo
+                        },
+                        { title: link_title, rel: 'nofollow' }
+                       )
     end
     result += '</td>'.html_safe
     result
@@ -418,12 +413,13 @@ module Webui::WebuiHelper
 
     printed_name << " as #{role}" if role
 
-    # It's necessary to concat icon and $variable and don't use
-    # string interpolation! Otherwise we get a new string and
-    # not an ActiveSupport::SafeBuffer
-    User.current.is_nobody? ?
-      icon + printed_name :
+    # It's necessary to concat icon and $variable and don't use string interpolation!
+    # Otherwise we get a new string and not an ActiveSupport::SafeBuffer
+    if User.current.is_nobody?
+      icon + printed_name
+    else
       icon + link_to_if(!opt[:no_link], printed_name, user_show_path(user))
+    end
   end
 
   def package_link(pack, opts = {})
@@ -543,9 +539,8 @@ module Webui::WebuiHelper
   end
 
   def escape_nested_list(list)
-    # The input list is not html_safe
-    # because it's user input which we
-    # should never trust!!!
+    # The input list is not html_safe because it's
+    # user input which we should never trust!!!
     list.map { |item|
       "['".html_safe +
       escape_javascript(item[0]) +
@@ -553,13 +548,5 @@ module Webui::WebuiHelper
       escape_javascript(item[1]) +
       "']".html_safe
     }.join(",\n").html_safe
-  end
-
-  def escape_list(list)
-    list.map { |p|
-      "['".html_safe +
-      escape_javascript(p) +
-      "']".html_safe
-    }.join(',').html_safe
   end
 end

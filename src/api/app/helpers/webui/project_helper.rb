@@ -118,4 +118,13 @@ module Webui::ProjectHelper
     STATE_ICONS[state.to_s] || ''
   end
 
+  def escape_list(list)
+    # The input list is not html_safe because it's
+    # user input which we should never trust!!!
+    list.map { |p|
+      "['".html_safe +
+          escape_javascript(p) +
+          "']".html_safe
+    }.join(',').html_safe
+  end
 end
