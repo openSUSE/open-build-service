@@ -152,11 +152,11 @@ module Webui::WebuiHelper
     'building'    => 'Build jobs exists',
     'finished'    => 'Build jobs have been processed, new repository is not yet created',
     'blocked'     => 'No build possible atm, waiting for jobs in other repositories',
-    'broken'      => 'The repository setup is broken, build not possible',
+    'broken'      => 'The repository setup is broken, build or publish not possible',
     'scheduling'  => 'The repository state is being calculated right now'
   }
 
-  def repo_status_icon(status)
+  def repo_status_icon(status, details = nil)
     icon = REPO_STATUS_ICONS[status] || 'eye'
 
     outdated = nil
@@ -167,6 +167,7 @@ module Webui::WebuiHelper
 
     description = REPO_STATUS_DESCRIPTIONS[status] || 'Unknown state of repository'
     description = 'State needs recalculations, former state was: ' + description if outdated
+    description += " (" + details + ")" if details
 
     sprite_tag icon, title: description
   end
