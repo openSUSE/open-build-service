@@ -198,7 +198,7 @@ class SourceController < ApplicationController
     #--------------------
     valid_commands = %w(
       undelete showlinked remove_flag set_flag createpatchinfo createkey extendkey copy
-      createmaintenanceincident unlock release addchannels modifychannels move
+      createmaintenanceincident lock unlock release addchannels modifychannels move
     )
 
     if params[:cmd] && !valid_commands.include?(params[:cmd])
@@ -932,6 +932,16 @@ class SourceController < ApplicationController
       end
     end
     render :text => xml, :content_type => 'text/xml'
+  end
+
+  # lock a project
+  # POST /source/<project>?cmd=lock
+  def project_command_lock
+    # comment is optional
+
+    @project.lock(params[:comment])
+
+    render_ok
   end
 
   # unlock a project

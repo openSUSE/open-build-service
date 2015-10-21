@@ -407,6 +407,7 @@ POST /source/<project>
   modifychannels: modify existing channels by specified mode
   set_flag: change a defined flag, requires at least flag and status parameters
   remove_flag: remove a defined flag, requires at least flag and status parameters
+  lock: lock a project
   unlock: unlock a locked project
   release: release sources and binaries according to release target specification
 
