@@ -1168,6 +1168,20 @@ Ignore: package:cups'
     assert_response :success
     put '/source/home:tom:project/C/_meta', "<package name='C' project='home:tom:project'> <title/> <description/> <devel package='B'/> </package>"
     assert_response :success
+    # delete a package which is used as devel package
+    get '/source/home:tom:project/B/_meta'
+    assert_response :success
+    assert_xml_tag tag: "devel"
+    delete '/source/home:tom:project/A'
+    assert_response 400
+    assert_select "status", code: "delete_error" do
+      assert_select "summary", "Package is used by following packages as devel package: home:tom:project/B"
+    end
+    delete '/source/home:tom:project/A?force=1'
+    assert_response :success
+    get '/source/home:tom:project/B/_meta'
+    assert_response :success
+    assert_no_xml_tag tag: "devel"
     # delete the project including the packages
     delete '/source/home:tom:project'
     assert_response :success
