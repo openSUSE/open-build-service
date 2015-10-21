@@ -835,7 +835,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def maintained_projects
-    @maintained_projects = @project.maintained_projects.includes(:project).pluck('projects.name')
+    @maintained_projects = @project.maintained_project_names
   end
 
   def add_maintained_project_dialog
@@ -962,7 +962,7 @@ class Webui::ProjectController < Webui::WebuiController
           where("release_targets.trigger = 'maintenance'")
       @open_maintenance_incidents = subprojects.pluck('projects.name').sort.uniq
 
-      @maintained_projects = @project.maintained_projects.includes(:project).pluck('projects.name')
+      @maintained_projects = @project.maintained_project_names
     end
     @is_incident_project = @project.is_maintenance_incident?
     if @is_incident_project

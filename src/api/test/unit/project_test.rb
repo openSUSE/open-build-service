@@ -20,6 +20,15 @@ Ignore: package:cups'
     @project = projects( :home_Iggy )
   end
 
+  def test_maintained_project_names
+    project = Project.create(name: "Z")
+    ["A", "B", "C"].each do |project_name|
+      project.maintained_projects.create(project: Project.create(name: project_name))
+    end
+
+    assert_equal ["A", "B", "C"], project.maintained_project_names
+  end
+
   def test_flags_to_axml
     #check precondition
     assert_equal 2, @project.type_flags('build').size
