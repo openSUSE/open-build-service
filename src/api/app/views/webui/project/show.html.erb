@@ -54,12 +54,12 @@
                 <% if @open_release_requests.length > 0 %>
                     <li>
                       <%= sprite_tag 'flag_green' %>
-                      <%= @open_release_requests.length %>
                       <% if @open_release_requests.length == 1 %>
-                          <%= link_to('release request', controller: 'request', action: 'show', id: @open_release_requests[0]) %>
+                          <% path = request_show_path(@open_release_requests[0]) %>
                       <% else %>
-                          <%= link_to('release requests', action: 'requests', project: @project.name, type: 'maintenance_release') %>
+                          <% path = project_requests_path(@project.name, type: "maintenance_release") %>
                       <% end %>
+                      <%= link_to(pluralize(@open_release_requests.length, "release request"), path) %>
                     </li>
                 <% end %>
             <% end %>

@@ -202,7 +202,7 @@ OBSApi::Application.routes.draw do
       get 'project/rebuild_time/:project' => :rebuild_time, constraints: cons, as: 'project_rebuild_time'
       get 'project/rebuild_time_png/:project' => :rebuild_time_png, constraints: cons
       get 'project/packages/:project' => :packages, constraints: cons
-      get 'project/requests/:project' => :requests, constraints: cons
+      get 'project/requests/:project' => :requests, constraints: cons, as: 'project_requests'
       post 'project/save_distributions' => :save_distributions
       post 'project/save_repository' => :save_repository
       post 'project/save_path_element' => :save_path_element
