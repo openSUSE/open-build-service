@@ -252,12 +252,20 @@ class Webui::WebuiController < ActionController::Base
 
   def check_user
     check_spiders
-    User.current = nil # reset old users hanging around
-    if session[:login]
-      User.current = User.find_by_login(session[:login])
+    user_login = nil # reset old users hanging around
+    mode = CONFIG['proxy_auth_mode'] || :off
+    if mode == :on
+      logger.debug "Authenticating with iChain mode: #{mode}"
+      user_login = request.env['HTTP_X_USERNAME']
+    elsif mode == :simulate
+      user_login = CONFIG['proxy_auth_test_user'] || CONFIG['proxy_test_user']
+    else
+      if session[:login]
+        user_login = session[:login]
+      end
     end
     # TODO: rebase on application_controller and use load_nobdy
-    User.current ||= User.find_nobody!
+    User.current = user_login ? User.find_by_login(user_login) : User.find_nobody!
   end
 
   def check_display_user
