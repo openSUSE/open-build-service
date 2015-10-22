@@ -36,6 +36,7 @@ class Webui::WebuiController < ActionController::Base
        when "update?" then "update"
        when "edit?" then "edit"
        when "destroy?" then "delete"
+       when "branch?" then "branch"
        else exception.query
     end
     if exception.message

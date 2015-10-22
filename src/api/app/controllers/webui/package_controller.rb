@@ -545,7 +545,7 @@ class Webui::PackageController < Webui::WebuiController
   rescue BranchPackage::DoubleBranchPackageError => e
       redirect_to(package_show_path(project: User.current.branch_project_name(@project.name), package: @package),
                   notice: 'You have already branched this package')
-  rescue => e
+  rescue APIException => e
       redirect_to :back, error: e.message
   end
 
