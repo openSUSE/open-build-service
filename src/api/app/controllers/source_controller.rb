@@ -566,7 +566,8 @@ class SourceController < ApplicationController
 
   # GET /source/:project/_config
   def show_project_config
-    forward_from_backend(BackendFile.query_from_list(params, [:rev]))
+    ## temporary HOTFIX, better solution is discussed alread
+    return if forward_from_backend(request.path_info + BackendFile.query_from_list(params, [:rev]))
 
     begin
       # 'project' can be a local Project in database or a String that's the name of a remote project, or even raise exceptions
