@@ -45,7 +45,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       flash_message.must_equal "Failed to branch: Validation failed: Name is illegal"
       flash_message_type.must_equal :alert
     elsif new_branch[:expect] == :no_permission
-      flash_message.must_equal "Sorry you're not allowed to branch this Package"
+      flash_message.must_equal "Sorry, you are not authorized to branch this Package."
       flash_message_type.must_equal :alert
     else
       throw 'Invalid value for argument <expect>.'
@@ -216,7 +216,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
 
     click_link('Branch package')
     click_button('Ok')
-    flash_message.must_equal "Sorry you're not allowed to create this Project"
+    flash_message.must_equal "Sorry, you are not authorized to create this Project."
     flash_message_type.must_equal :alert
   end
 

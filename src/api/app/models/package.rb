@@ -1256,7 +1256,12 @@ class Package < ActiveRecord::Base
     put_opt[:comment] = opt[:comment] if opt[:comment]
     put_opt[:user] = User.current.login
     path = self.source_path(opt[:filename], put_opt)
-    ActiveXML::backend.http_do :put, path, data: content, timeout: 500
+    ActiveXML.backend.http_do :put, path, data: content, timeout: 500
+
+    # update package timestamp and reindex sources
+    unless opt[:rev] == 'repository' || %w(_project _pattern).include?(self.name)
+      self.sources_changed(wait_for_update: ['_aggregate', '_constraints', '_link', '_service', '_patchinfo', '_channel'].include?(opt[:filename]))
+    end
   end
 
   def to_param

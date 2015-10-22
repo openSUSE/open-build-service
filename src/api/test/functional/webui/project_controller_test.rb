@@ -536,7 +536,7 @@ XML
     click_button('Create Project')
 
     assert_equal count, Project.count
-    flash_message.must_equal "Sorry you're not allowed to create this Project"
+    flash_message.must_equal "Sorry, you are not authorized to create this Project."
     flash_message_type.must_equal :alert
   end
 
@@ -560,7 +560,7 @@ XML
     click_button('Create Project')
 
     assert_equal count, Project.count
-    flash_message.must_equal "Sorry you're not allowed to create this Project"
+    flash_message.must_equal "Sorry, you are not authorized to create this Project."
     flash_message_type.must_equal :alert
   end
 
