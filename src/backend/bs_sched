@@ -6512,7 +6512,7 @@ sub rebuildchannel {
     $bininfo->{$tfilename} = $bi;
     my $ci = { 'repository' => $arepoid, 'package' => $apackid };
     $ci->{'supportstatus'} = $supportstatus if defined $supportstatus;
-    $channelinfo{$bi->{'filename'}} = $ci;
+    $channelinfo{$tfilename} = $ci;
   }
   BSUtil::store("$jobdatadir/.channelinfo", undef, \%channelinfo);
   writestr("$jobdatadir/.checksums", undef, $checksums) if $checksums;
