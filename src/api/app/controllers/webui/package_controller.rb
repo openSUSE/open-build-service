@@ -81,7 +81,8 @@ class Webui::PackageController < Webui::WebuiController
       end
     elsif @revision_parameter
       flash[:error] = "No such revision: #{@revision_parameter}"
-      redirect_back_or_to :controller => 'package', :action => 'show', :project => @project, :package => @package and return
+      redirect_back_or_to controller: :package, action: :show, project: @project, package: @package
+      return
     end
 
 
@@ -116,8 +117,8 @@ class Webui::PackageController < Webui::WebuiController
       :filename => params[:dname], :view => 'fileinfo_ext')
     @durl = nil
     unless @fileinfo # avoid displaying an error for non-existing packages
-      redirect_back_or_to(:action => 'binary', :project => params[:project], :package => params[:package],
-                          :repository => @repository, :arch => @arch, :filename => @filename)
+      redirect_back_or_to(action: :binary, project: params[:project], package: params[:package],
+                          repository: @repository, arch: @arch, filename: @filename)
     end
   end
 
@@ -134,7 +135,7 @@ class Webui::PackageController < Webui::WebuiController
     unless @statistics
       flash[:error] = "No statistics of a successful build could be found in #{@repository}/#{@arch}"
       redirect_to controller: 'package', action: :binaries, project: @project,
-        package: @package, repository: @repository, nextstatus: 404
+                  package: @package, repository: @repository, nextstatus: 404
       return
     end
   end
@@ -154,8 +155,8 @@ class Webui::PackageController < Webui::WebuiController
     end
     unless @fileinfo
       flash[:error] = "File \"#{@filename}\" could not be found in #{@repository}/#{@arch}"
-      redirect_to :controller => 'package', :action => :binaries, :project => @project,
-        :package => @package, :repository => @repository, :nextstatus => 404
+      redirect_to controller: :package, action: :binaries, project: @project,
+                  package: @package, repository: @repository, nextstatus: 404
       return
     end
 
@@ -185,11 +186,13 @@ class Webui::PackageController < Webui::WebuiController
       :repository => @repository, :view => %w(binarylist status))
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.message
-      redirect_back_or_to :controller => 'package', :action => 'show', :project => @project, :package => @package and return
+      redirect_back_or_to controller: :package, action: :show, project: @project, package: @package
+      return
     end
     unless @buildresult
       flash[:error] = "Package \"#{@package}\" has no build result for repository #{@repository}"
-      redirect_to :controller => 'package', :action => :show, :project => @project, :package => @package, :nextstatus => 404 and return
+      redirect_to controller: :package, action: :show, project: @project, package: @package, nextstatus: 404
+      return
     end
   end
 
@@ -212,7 +215,8 @@ class Webui::PackageController < Webui::WebuiController
   def revisions
     unless @package.check_source_access?
       flash[:error] = 'Could not access revisions'
-      redirect_to :action => :show, :project => @project.name, :package => @package.name and return
+      redirect_to action: :show, project: @project.name, package: @package.name
+      return
     end
     @lastrev = params[:rev].try(:to_i) || @package.rev.to_i
     if params[:showall] || @lastrev < 21
@@ -246,7 +250,8 @@ class Webui::PackageController < Webui::WebuiController
     required_parameters :project, :package
     if params[:targetproject].blank?
       flash[:error] = 'Please provide a target for the submit request'
-      redirect_to :action => :show, :project => params[:project], :package => params[:package] and return
+      redirect_to action: :show, project: params[:project], package: params[:package]
+      return
     end
 
     req = nil
@@ -275,18 +280,22 @@ class Webui::PackageController < Webui::WebuiController
       end
     rescue BsRequestAction::DiffError => e
       flash[:error] = "Unable to diff sources: #{e.message}"
-      redirect_to(:action => 'show', :project => params[:project], :package => params[:package]) and return
+      redirect_to(action: :show, project: params[:project], package: params[:package])
+      return
     rescue BsRequestAction::MissingAction => e
       flash[:error] = "Unable to submit, sources are unchanged"
-      redirect_to(:action => 'show', :project => params[:project], :package => params[:package]) and return
+      redirect_to(action: 'show', project: params[:project], package: params[:package])
+      return
     rescue Project::UnknownObjectError,
            BsRequestAction::UnknownProject,
            BsRequestAction::UnknownTargetPackage => e
       flash[:error] = "Unable to submit (missing target): #{e.message}"
-      redirect_to(:action => 'show', :project => params[:project], :package => params[:package]) and return
+      redirect_to(action: :show, project: params[:project], package: params[:package])
+      return
     rescue APIException
       flash[:error] = "Unable to submit"
-      redirect_to(:action => 'show', :project => params[:project], :package => params[:package]) and return
+      redirect_to(action: :show, project: params[:project], package: params[:package])
+      return
     end
 
     # Supersede logic has to be below addition as we need the new request id
@@ -315,7 +324,7 @@ class Webui::PackageController < Webui::WebuiController
     flash[:notice] = "Created <a href='#{request_show_path(req.id)}'>submit request #{req.id}</a>\
                       to <a href='#{project_show_path(params[:targetproject])}'>#{params[:targetproject]}</a>
                       #{supersede_notice}"
-    redirect_to(:action => 'show', :project => params[:project], :package => params[:package])
+    redirect_to(action: 'show', project: params[:project], package: params[:package])
   end
 
   def set_linkinfo
@@ -492,22 +501,22 @@ class Webui::PackageController < Webui::WebuiController
     end
     if @package.save
       flash[:notice] = "Package '#{@package.name}' was created successfully"
-      redirect_to :action => 'show', :project => params[:project], :package => @package_name
+      redirect_to action: :show, project: params[:project], package: @package_name
     else
       flash[:notice] = "Failed to create package '#{@package}'"
-      redirect_to :controller => 'project', :action => 'show', :project => params[:project]
+      redirect_to controller: :project, action: :show, project: params[:project]
     end
   end
 
   def check_package_name_for_new
     unless Package.valid_name? @package_name
       flash[:error] = "Invalid package name: '#{@package_name}'"
-      redirect_to :controller => :project, :action => 'new_package', :project => @project
+      redirect_to controller: :project, action: :new_package, project: @project
       return false
     end
     if Package.exists_by_project_and_name @project.name, @package_name
       flash[:error] = "Package '#{@package_name}' already exists in project '#{@project}'"
-      redirect_to :controller => :project, :action => 'new_package', :project => @project
+      redirect_to controller: :project, action: :new_package, project: @project
       return false
     end
     @project = @project.api_obj
@@ -534,15 +543,17 @@ class Webui::PackageController < Webui::WebuiController
       if e.code == 'double_branch_package'
         flash[:notice] = 'You already branched the package and got redirected to it instead'
         bprj, bpkg = message.split('exists: ')[1].split('/', 2) # Hack to find out branch project / package
-        redirect_to :controller => 'package', :action => 'show', :project => bprj, :package => bpkg and return
+        redirect_to controller: :package, action: :show, project: bprj, package: bpkg
+        return
       else
         flash[:error] = message
-        redirect_to :controller => 'package', :action => 'show', :project => params[:project], :package => params[:package] and return
+        redirect_to controller: :package, action: :show, project: params[:project], package: params[:package]
+        return
       end
     end
     flash[:success] = "Branched package #{@project} / #{@package}"
-    redirect_to :controller => 'package', :action => 'show',
-      :project => result_project, :package => result_package and return
+    redirect_to controller: :package, action: :show,
+                project: result_project, package: result_package
   end
 
 
@@ -555,37 +566,40 @@ class Webui::PackageController < Webui::WebuiController
 
     unless Package.valid_name? @linked_package
       flash[:error] = "Invalid package name: '#{@linked_package}'"
-      redirect_to :controller => :project, :action => 'new_package_branch', :project => params[:project] and return
+      redirect_to controller: :project, action: :new_package_branch, project: params[:project]
+      return
     end
 
     unless Project.valid_name? @linked_project
       flash[:error] = "Invalid project name: '#{@linked_project}'"
-      redirect_to :controller => :project, :action => 'new_package_branch', :project => params[:project] and return
+      redirect_to controller: :project, action: :new_package_branch, project: params[:project]
+      return
     end
 
-    begin
-      # just as existence check
-      Package.get_by_project_and_name(@linked_project, @linked_package)
-    rescue APIException
+    unless Package.exists_by_project_and_name(@linked_project, @linked_package)
       flash[:error] = "Unable to find package '#{@linked_package}' in project '#{@linked_project}'."
-      redirect_to :controller => :project, :action => 'new_package_branch', :project => @project and return
+      redirect_to controller: :project, action: :new_package_branch, project: @project
+      return
     end
 
     @target_package = @linked_package if @target_package.blank?
     unless Package.valid_name? @target_package
       flash[:error] = "Invalid target package name: '#{@target_package}'"
-      redirect_to :controller => :project, :action => 'new_package_branch', :project => @project and return
+      redirect_to controller: :project, action: :new_package_branch, project: @project
+      return
     end
     if Package.exists_by_project_and_name @project.name, @target_package
       flash[:error] = "Package '#{@target_package}' already exists in project '#{@project}'"
-      redirect_to :controller => :project, :action => 'new_package_branch', :project => @project and return
+      redirect_to controller: :project, action: :new_package_branch, project: @project
+      return
     end
 
     dirhash = Package.dir_hash(@linked_project, @linked_package)
     revision = dirhash['xsrcmd5'] || dirhash['rev']
     unless revision
-      flash[:error] = "Unable to branch package '#{@target_package}', it has no source revision yet"
-      redirect_to :controller => :project, :action => 'new_package_branch', :project => @project and return
+      flash[:error] = "Unable to branch package '#{@linked_package}', it has no source revision yet"
+      redirect_to controller: :project, action: :new_package_branch, project: @project
+      return
     end
 
     @revision = revision if @current_revision
@@ -602,12 +616,12 @@ class Webui::PackageController < Webui::WebuiController
       flash[:error] = e.summary
     end
 
-    redirect_to :controller => 'package', :action => 'show', :project => @project, :package => @target_package
+    redirect_to controller: :package, action: :show, project: @project, package: @target_package
   end
 
   def save
     unless User.current.can_modify_package? @package
-      redirect_to :action => 'show', :project => params[:project], :package => params[:package], error: 'No permission to save'
+      redirect_to action: :show, project: params[:project], package: params[:package], error: 'No permission to save'
       return
     end
     @package.title = params[:title]
@@ -617,7 +631,7 @@ class Webui::PackageController < Webui::WebuiController
     else
       flash[:notice] = "Failed to save package '#{@package.name}'"
     end
-    redirect_to :action => 'show', :project => params[:project], :package => params[:package]
+    redirect_to action: :show, project: params[:project], package: params[:package]
   end
 
   def delete_dialog
@@ -659,7 +673,7 @@ class Webui::PackageController < Webui::WebuiController
 
       unless valid_file_name?(filename)
         flash[:error] = "'#{filename}' is not a valid filename."
-        redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package]
+        redirect_back_or_to action: :add_file, project: params[:project], package: params[:package]
         return
       end
 
@@ -667,7 +681,7 @@ class Webui::PackageController < Webui::WebuiController
         @package.save_file file: file, filename: filename
       rescue ActiveXML::Transport::Error => e
         flash[:error] = e.summary
-        redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package]
+        redirect_back_or_to action: :add_file, project: params[:project], package: params[:package]
         return
       end
     elsif file_url.present?
@@ -678,25 +692,25 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     flash[:success] = "The file #{filename} has been added."
-    redirect_to :action => :show, :project => @project, :package => @package
+    redirect_to action: :show, project: @project, package: @package
   end
 
   def add_file_filename(filename)
     if filename.blank?
       flash[:error] = 'No file or URI given.'
-      redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package]
+      redirect_back_or_to action: :add_file, project: params[:project], package: params[:package]
       return false
     else
       unless valid_file_name?(filename)
         flash[:error] = "'#{filename}' is not a valid filename."
-        redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package]
+        redirect_back_or_to action: :add_file, project: params[:project], package: params[:package]
         return false
       end
       begin
         @package.save_file filename: filename
       rescue ActiveXML::Transport::Error => e
         flash[:error] = e.summary
-        redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package]
+        redirect_back_or_to action: :add_file, project: params[:project], package: params[:package]
         return false
       end
     end
@@ -711,7 +725,7 @@ class Webui::PackageController < Webui::WebuiController
     @services.addDownloadURL(file_url, filename) # detects automatically git://, src.rpm formats
     unless @services.save
       flash[:error] = "Failed to add file from URL '#{file_url}'"
-      redirect_back_or_to :action => 'add_file', :project => params[:project], :package => params[:package]
+      redirect_back_or_to action: :add_file, project: params[:project], package: params[:package]
       return false
     end
     true
@@ -726,14 +740,15 @@ class Webui::PackageController < Webui::WebuiController
     rescue ActiveXML::Transport::NotFoundError
       flash[:notice] = "Failed to remove file '#{filename}'"
     end
-    redirect_to :action => :show, :project => @project, :package => @package
+    redirect_to action: :show, project: @project, package: @package
   end
 
   def view_file
     @filename = params[:filename] || params[:file] || ''
     if Package.is_binary_file?(@filename) # We don't want to display binary files
       flash[:error] = "Unable to display binary file #{@filename}"
-      redirect_back_or_to :action => :show, :project => @project, :package => @package and return
+      redirect_back_or_to action: :show, project: @project, package: @package
+      return
     end
     @rev = params[:rev]
     @expand = params[:expand]
@@ -755,13 +770,16 @@ class Webui::PackageController < Webui::WebuiController
       @file = @package.source_file(@filename, fetch_from_params(:rev, :expand))
     rescue ActiveXML::Transport::NotFoundError => e
       flash[:error] = "File not found: #{@filename}"
-      redirect_to :action => :show, :package => @package, :project => @project and return
+      redirect_to action: :show, package: @package, project: @project
+      return
     rescue ActiveXML::Transport::Error => e
       flash[:error] = "Error: #{e}"
-      redirect_back_or_to :action => :show, :project => @project, :package => @package and return
+      redirect_back_or_to action: :show, project: @project, package: @package
+      return
     end
     if @spider_bot
-      render :template => 'webui/package/simple_file_view' and return
+      render :template => 'webui/package/simple_file_view'
+      return
     end
   end
 
@@ -783,8 +801,8 @@ class Webui::PackageController < Webui::WebuiController
     begin
       frontend.put_file(params[:file], :project => project, :package => package, :filename => filename, :comment => params[:comment])
     rescue Timeout::Error => e
-      render json: { error: 'Timeout when saving file. Please try again.'
-      }, status: 400
+      render json: { error: 'Timeout when saving file. Please try again.' },
+             status: 400
       return
     rescue ActiveXML::Transport::Error => e
       render json: { error: e.summary }, status: 400
@@ -815,7 +833,8 @@ class Webui::PackageController < Webui::WebuiController
     required_parameters :arch, :repository
     if @package and not @package.check_source_access?
       flash[:error] = 'Could not access build log'
-      redirect_to :action => :show, :project => @project.name, :package => @package.name and return
+      redirect_to action: :show, project: @project.name, package: @package.name
+      return
     end
     @arch = params[:arch]
     @repo = params[:repository]
@@ -911,7 +930,8 @@ class Webui::PackageController < Webui::WebuiController
       frontend.cmd cmd, options
     rescue ActiveXML::Transport::Error => e
       flash[:error] = e.summary
-      redirect_to :action => :show, :project => @project, :package => @package and return
+      redirect_to action: :show, project: @project, package: @package
+      return
     end
 
     logger.debug( "Triggered #{cmd} for #{@project}/#{@package}, options=#{options.inspect}" )
@@ -929,8 +949,7 @@ class Webui::PackageController < Webui::WebuiController
     else
       # non ajax request:
       flash[:notice] = @message
-      redirect_to :controller => controller, :action => action,
-        :project => @project, :package => @package
+      redirect_to controller: controller, action: action, project: @project, package: @package
     end
   end
   private :api_cmd
@@ -941,7 +960,8 @@ class Webui::PackageController < Webui::WebuiController
       @specfile_name = file[:name] if file[:name].end_with?('.spec')
     end
     if @specfile_name.blank?
-      render json: {} and return
+      render json: {}
+      return
     end
     specfile_content = @package.source_file(@specfile_name)
 
@@ -1077,7 +1097,7 @@ class Webui::PackageController < Webui::WebuiController
 
     unless @package
       flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
-      redirect_to :controller => 'project', :action => 'show', :project => @project, :nextstatus => 404
+      redirect_to controller: :project, action: :show, project: @project, nextstatus: 404
     end
   end
 
