@@ -404,6 +404,8 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get "/source/#{incidentProject}/BaseDistro3.Channel/_meta"
     assert_response :success
 
+    post "/source/#{incidentProject}/pack2.BaseDistro3?cmd=addchannels", nil
+    assert_response :success
     post "/source/#{incidentProject}?cmd=addchannels&mode=add_disabled", nil
     assert_response :success # now it appeared
     get "/source/#{incidentProject}/BaseDistro2.0.Channel/_meta"

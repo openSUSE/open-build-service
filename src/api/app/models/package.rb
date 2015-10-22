@@ -892,15 +892,15 @@ class Package < ActiveRecord::Base
     return li['project'] == self.project.name
   end
 
-  def modify_channel(mode = nil)
+  def modify_channel(mode = :add_disabled)
     raise InvalidParameterError unless [:add_disabled, :enable_all].include? mode
     channel = self.channels.first
     return unless channel
     channel.add_channel_repos_to_project(self, mode)
   end
 
-  def add_channels(mode = nil)
-    raise InvalidParameterError unless [nil, :add_disabled, :skip_disabled, :enable_all].include? mode
+  def add_channels(mode = :add_disabled)
+    raise InvalidParameterError unless [:add_disabled, :skip_disabled, :enable_all].include? mode
     return if self.is_channel?
 
     opkg = self.origin_container

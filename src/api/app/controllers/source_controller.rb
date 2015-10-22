@@ -358,7 +358,7 @@ class SourceController < ApplicationController
     valid_commands=%w(diff branch servicediff linkdiff showlinked copy remove_flag set_flag rebuild undelete
                       wipe runservice commit commitfilelist createSpecFileTemplate deleteuploadrev
                       linktobranch updatepatchinfo getprojectservices unlock release importchannel
-                      collectbuildenv instantiate enablechannel)
+                      collectbuildenv instantiate addchannels enablechannel)
 
     @command = params[:cmd]
     raise IllegalRequest.new 'invalid_command' unless valid_commands.include?(@command)
@@ -955,8 +955,7 @@ class SourceController < ApplicationController
   # add channel packages and extend repository list
   # POST /source/<project>?cmd=addchannels
   def project_command_addchannels
-    mode=nil
-    mode=:add_disabled  if params[:mode] == "add_disabled"
+    mode=:add_disabled
     mode=:skip_disabled if params[:mode] == "skip_disabled"
     mode=:enable_all    if params[:mode] == "enable_all"
 
@@ -1233,6 +1232,18 @@ class SourceController < ApplicationController
     raise NotLocked.new("package '#{@package.project.name}/#{@package.name}' is not locked") unless f
     @package.flags.delete(f)
     @package.store(p)
+
+    render_ok
+  end
+
+  # add channel packages and extend repository list
+  # POST /source/<project>?cmd=addchannels
+  def package_command_addchannels
+    mode=:add_disabled
+    mode=:skip_disabled if params[:mode] == "skip_disabled"
+    mode=:enable_all    if params[:mode] == "enable_all"
+
+    @package.add_channels(mode)
 
     render_ok
   end
