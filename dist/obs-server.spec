@@ -63,6 +63,7 @@ BuildRequires:  procps
 BuildRequires:  xorg-x11-server
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
 BuildArch:      noarch
+Requires:       obs-common
 Requires:       build >= 20141219
 Requires:       obs-productconverter >= %version
 Requires:       perl-BSSolv >= 0.19.0
@@ -78,7 +79,7 @@ BuildRequires:  xz
 
 %if 0%{?suse_version:1}
 BuildRequires:  fdupes
-PreReq:         %fillup_prereq %insserv_prereq permissions pwdutils
+PreReq:         %insserv_prereq permissions pwdutils
 %endif
 
 %if 0%{?suse_version:1}
@@ -106,6 +107,7 @@ The Open Build Service (OBS) backend is used to store all sources and binaries. 
 calculates the need for new build jobs and distributes it.
 
 %package -n obs-worker
+Requires:       obs-common
 Requires:       cpio
 Requires:       curl
 Requires:       perl-Compress-Zlib
@@ -125,7 +127,7 @@ Summary:        The Open Build Service -- Build Host Component
 %if 0%{?suse_version} < 1210
 Group:          Productivity/Networking/Web/Utilities
 %endif
-PreReq:         %fillup_prereq %insserv_prereq
+PreReq:         %insserv_prereq
 %endif
 %if 0%{?suse_version} <= 1030
 Requires:       lzma
@@ -139,14 +141,26 @@ This is the obs build host, to be installed on each machine building
 packages in this obs installation.  Install it alongside obs-server to
 run a local playground test installation.
 
+%package -n obs-common
+Summary:        The Open Build Service -- base configuration files
+%if 0%{?suse_version}
+%if 0%{?suse_version} < 1210
+Group:          Productivity/Networking/Web/Utilities
+%endif
+PreReq:         %fillup_prereq
+%endif
+
+%description -n obs-common
+This is a package providing basic configuration files.
+
 %package -n obs-api
 Summary:        The Open Build Service -- The API and WEBUI
 %if 0%{?suse_version}
 %if 0%{?suse_version} < 1210
 Group:          Productivity/Networking/Web/Utilities
 %endif
-Obsoletes:      obs-common <= 2.2.90
-PreReq:         %fillup_prereq %insserv_prereq
+PreReq:         %insserv_prereq
+Requires:       obs-common
 %endif
 
 #For apache
@@ -501,7 +515,6 @@ exit 0
 %stop_on_removal obsworker
 
 %post
-%{fillup_and_insserv -n obs-server}
 %restart_on_update obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsdodup
 
 %preun -n obs-source_service
@@ -528,7 +541,6 @@ fi
 rmdir /srv/obs 2> /dev/null || :
 
 %post -n obs-worker
-%{fillup_and_insserv -n obs-server}
 # NOT used on purpose: restart_on_update obsworker
 # This can cause problems when building chroot
 # and bs_worker is anyway updating itself at runtime based on server code
@@ -537,8 +549,10 @@ rmdir /srv/obs 2> /dev/null || :
 getent passwd obsapidelayed >/dev/null || \
   /usr/sbin/useradd -r -s /bin/bash -c "User for build service api delayed jobs" -d /srv/www/obs/api -g www obsapidelayed
 
-%post -n obs-api
+%post -n obs-common
 %{fillup_and_insserv -n obs-server}
+
+%post -n obs-api
 if [ -e /srv/www/obs/frontend/config/database.yml ] && [ ! -e /srv/www/obs/api/config/database.yml ]; then
   cp /srv/www/obs/frontend/config/database.yml /srv/www/obs/api/config/database.yml
 fi
@@ -643,8 +657,6 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /usr/lib/obs/server/bs_warden
 /usr/lib/obs/server/worker
 /usr/lib/obs/server/worker-deltagen.spec
-# packaged multiple times to avoid dependency to obs-worker
-/var/adm/fillup-templates/sysconfig.obs-server
 %config(noreplace) /usr/lib/obs/server/BSConfig.pm
 %config(noreplace) /etc/slp.reg.d/*
 # created via %%post, since rpm fails otherwise while switching from 
@@ -660,7 +672,6 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 
 %files -n obs-worker
 %defattr(-,root,root)
-/var/adm/fillup-templates/sysconfig.obs-server
 /etc/init.d/obsworker
 /etc/init.d/obsstoragesetup
 /usr/sbin/rcobsworker
@@ -742,7 +753,8 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 %ghost /srv/www/obs/api/log/lastevents.access.log
 %ghost /srv/www/obs/api/log/production.log
 
-# packaged multiple times to avoid dependency to obs-worker
+%files -n obs-common
+%defattr(-,root,root)
 /var/adm/fillup-templates/sysconfig.obs-server
 
 %files -n obs-utils
