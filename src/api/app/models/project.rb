@@ -154,6 +154,10 @@ class Project < ActiveRecord::Base
     Project.where("name like ?", "#{name}:%")
   end
 
+  def maintained_project_names
+    self.maintained_projects.includes(:project).pluck("projects.name")
+  end
+
   # Check if the project has a path_element matching project and repository
   def has_distribution(project_name, repository)
     project = Project.find_by(name: project_name)
