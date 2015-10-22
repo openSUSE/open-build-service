@@ -65,7 +65,6 @@ PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
 BuildArch:      noarch
 Requires:       build >= 20141219
 Requires:       obs-productconverter >= %version
-Requires:       obs-worker
 Requires:       perl-BSSolv >= 0.19.0
 # Required by source server
 Requires:       diffutils
@@ -644,6 +643,8 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /usr/lib/obs/server/bs_warden
 /usr/lib/obs/server/worker
 /usr/lib/obs/server/worker-deltagen.spec
+# packaged multiple times to avoid dependency to obs-worker
+/var/adm/fillup-templates/sysconfig.obs-server
 %config(noreplace) /usr/lib/obs/server/BSConfig.pm
 %config(noreplace) /etc/slp.reg.d/*
 # created via %%post, since rpm fails otherwise while switching from 
@@ -740,6 +741,9 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 %ghost /srv/www/obs/api/log/error.log
 %ghost /srv/www/obs/api/log/lastevents.access.log
 %ghost /srv/www/obs/api/log/production.log
+
+# packaged multiple times to avoid dependency to obs-worker
+/var/adm/fillup-templates/sysconfig.obs-server
 
 %files -n obs-utils
 %defattr(-,root,root)
