@@ -9505,6 +9505,7 @@ NEXTPRP:
 	writestr("$reporoot/$prp/$myarch/:repodone", undef, $repodonestate) unless $publisherror || %unfinished;
         if ($publisherror) {
   	  $schedulerstate = "broken";
+  	  $schedulerstate = "building" if $publisherror eq 'delta generation: building';
   	  $schedulerdetails = $publisherror;
         }
       }
