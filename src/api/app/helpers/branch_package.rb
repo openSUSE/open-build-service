@@ -220,7 +220,7 @@ class BranchPackage
       @add_repositories = true # new projects shall get repositories
       Project.transaction do
         tprj = Project.create :name => @target_project, :title => title, :description => description
-        tprj.add_user User.current, 'maintainer'
+        tprj.relationships.build(user: User.current, role: Role.find_by_title!('maintainer'))
         tprj.flags.create(:flag => 'build', :status => 'disable') if @extend_names
         tprj.flags.create(:flag => 'access', :status => 'disable') if @noaccess
         tprj.store

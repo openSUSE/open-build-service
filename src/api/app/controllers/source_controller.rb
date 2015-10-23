@@ -544,8 +544,8 @@ class SourceController < ApplicationController
       else
         project = Project.new(name: project_name)
         project.update_from_xml!(request_data)
-        # failure is ok
-        project.add_user(User.current.login, 'maintainer')
+        # FIXME3.0: don't modify send data
+        project.relationships.build(user: User.current, role: Role.find_by_title!('maintainer'))
       end
       project.store
     end
