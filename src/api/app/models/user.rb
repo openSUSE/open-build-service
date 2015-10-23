@@ -109,6 +109,10 @@ class User < ActiveRecord::Base
     @projects_to_modify = {}
   end
 
+  def home_project_name
+    "home:#{self.login}"
+  end
+
   after_initialize :init
   def init
     @projects_to_modify = {}
