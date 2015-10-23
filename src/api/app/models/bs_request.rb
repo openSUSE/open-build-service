@@ -436,9 +436,8 @@ class BsRequest < ActiveRecord::Base
   end
 
   def change_state(opts)
-    self.permission_check_change_state!(opts)
-
     self.with_lock do
+      self.permission_check_change_state!(opts)
       changestate_revoked if opts[:newstate] == 'revoked'
       changestate_accepted(opts) if opts[:newstate] == 'accepted'
 
@@ -470,27 +469,27 @@ class BsRequest < ActiveRecord::Base
         end
       end
       self.save!
-    end
 
-    params={request: self, comment: opts[:comment], user_id: User.current.id}
-    case opts[:newstate]
-      when "accepted" then
-        history = HistoryElement::RequestAccepted
-      when "declined" then
-        history = HistoryElement::RequestDeclined
-      when "revoked" then
-        history = HistoryElement::RequestRevoked
-      when "superseded" then
-        history = HistoryElement::RequestSuperseded
-        params[:description_extension] = self.superseded_by.to_s
-      when "review" then
-        history = HistoryElement::RequestReopened
-      when "new" then
-        history = HistoryElement::RequestReopened
-      else
-        raise RuntimeError, "Unhandled state #{opts[:newstate]} for history"
+      params={request: self, comment: opts[:comment], user_id: User.current.id}
+      case opts[:newstate]
+        when "accepted" then
+          history = HistoryElement::RequestAccepted
+        when "declined" then
+          history = HistoryElement::RequestDeclined
+        when "revoked" then
+          history = HistoryElement::RequestRevoked
+        when "superseded" then
+          history = HistoryElement::RequestSuperseded
+          params[:description_extension] = self.superseded_by.to_s
+        when "review" then
+          history = HistoryElement::RequestReopened
+        when "new" then
+          history = HistoryElement::RequestReopened
+        else
+          raise RuntimeError, "Unhandled state #{opts[:newstate]} for history"
+      end
+      history.create(params)
     end
-    history.create(params)
   end
 
   def _assignreview_update_reviews(reviewer, opts)
