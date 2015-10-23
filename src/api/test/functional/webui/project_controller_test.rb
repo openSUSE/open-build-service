@@ -285,9 +285,14 @@ XML
     click_button("Save")
     find(:id, 'flash-messages').must_have_text("Config successfully saved!")
     click_link("Meta")
-    assert_equal "<project name=\"home:adrian\"> <title>My Home Project</title> " +
-                   "<description/> <person userid=\"adrian\" role=\"maintainer\"/> </project>",
-                 find(:css, "textarea#editor_0", visible: false).text(:all)
+    meta_xml = find(:css, "textarea#editor_0", visible: false).text(:all)
+    result = Nokogiri::XML(meta_xml)
+    assert_select result, "project", name: "home:adrian" do
+      assert_select "title", "My Home Project", 1
+      assert_select "description[not(text())]", 1, "Should have an empty description"
+      assert_select "person", userid: "adrian", role: "maintainer"
+    end
+    assert_equal 3, result.xpath("/project/child::*").count, "Should not have additional nodes."
 
     # test writing invalid meta data
     xml = "<project name='home:adrian'> <title>My Home Project</title </project>"
@@ -303,9 +308,14 @@ XML
 
     # Trigger data reload and verify that nothing was saved
     click_link("Meta")
-    assert_equal "<project name=\"home:adrian\"> <title>My Home Project</title> " +
-                   "<description/> <person userid=\"adrian\" role=\"maintainer\"/> </project>",
-                 find(:css, "textarea#editor_0", visible: false).text(:all)
+    meta_xml = find(:css, "textarea#editor_0", visible: false).text(:all)
+    result = Nokogiri::XML(meta_xml)
+    assert_select result, "project", name: "home:adrian" do
+      assert_select "title", "My Home Project", 1
+      assert_select "description[not(text())]", 1, "Should have an empty description"
+      assert_select "person", userid: "adrian", role: "maintainer"
+    end
+    assert_equal 3, result.xpath("/project/child::*").count, "Should not have additional nodes."
   end
 
   def test_project_repositories_uniq_archs
