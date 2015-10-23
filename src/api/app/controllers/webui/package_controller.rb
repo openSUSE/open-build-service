@@ -44,7 +44,7 @@ class Webui::PackageController < Webui::WebuiController
                                             :update_build_log, :devel_project, :buildresult, :rpmlint_result,
                                             :rpmlint_log, :meta, :attributes, :repositories, :files]
 
-  before_filter :do_backend_login, only: [:branch, :save_new_link, :save_modified_file, :save_meta, :change_flag,
+  before_filter :do_backend_login, only: [:save_modified_file, :save_meta, :change_flag,
                                           :abort_build, :trigger_rebuild, :wipe_binaries, :remove]
 
   prepend_before_filter :lockout_spiders, :only => [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
@@ -533,90 +533,72 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def branch
-    begin
-      path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=branch"
-      result = ActiveXML::Node.new(frontend.transport.direct_http( URI(path), :method => 'POST', :data => ''))
-      result_project = result.find_first( "/status/data[@name='targetproject']" ).text
-      result_package = result.find_first( "/status/data[@name='targetpackage']" ).text
-    rescue ActiveXML::Transport::Error => e
-      message = e.summary
-      if e.code == 'double_branch_package'
-        flash[:notice] = 'You already branched the package and got redirected to it instead'
-        bprj, bpkg = message.split('exists: ')[1].split('/', 2) # Hack to find out branch project / package
-        redirect_to controller: :package, action: :show, project: bprj, package: bpkg
+    authorize @package, :branch?
+    authorize Project.new(name: User.current.branch_project_name(@project.name)), :create?
+
+    BranchPackage.new(project: @project.name, package: @package.name).branch
+    Event::BranchCommand.create(project: @project.name, package: @package.name,
+                                targetproject: User.current.branch_project_name(@project.name), targetpackage: @package.name,
+                                user: User.current.login)
+    redirect_to(package_show_path(project: User.current.branch_project_name(@project.name), package: @package),
+                notice: "Successfully branched package")
+  rescue BranchPackage::DoubleBranchPackageError => e
+      redirect_to(package_show_path(project: User.current.branch_project_name(@project.name), package: @package),
+                  notice: 'You have already branched this package')
+  rescue APIException => e
+      redirect_to :back, error: e.message
+  end
+
+  def save_new_link
+    # Are we linking a package from a remote instance?
+    # Then just try, the remote instance will handle checking for existence
+    # authorization etc.
+    if Project.find_remote_project(params[:linked_project])
+      source_project_name = params[:linked_project]
+      source_package_name = params[:linked_package]
+    # If we are linking a local package we have to do it ourselves
+    else
+      source_package = Package.find_by_project_and_name(params[:linked_project], params[:linked_package])
+      unless source_package
+        redirect_to :back, error: "Failed to branch: Package does not exist."
         return
-      else
-        flash[:error] = message
-        redirect_to controller: :package, action: :show, project: params[:project], package: params[:package]
+      end
+      authorize source_package, :branch?
+      source_project_name = source_package.project.name
+      source_package_name = source_package.name
+    end
+    revision = nil
+    unless params[:current_revision].blank?
+      dirhash = Package.dir_hash(source_project_name, source_package_name)
+      if dirhash['error']
+        redirect_to :back, error: dirhash['error']
+      end
+      revision = dirhash['xsrcmd5'] || dirhash['rev']
+      unless revision
+        redirect_to :back, error: "Failed to branch: Package has no source revision yet"
         return
       end
     end
-    flash[:success] = "Branched package #{@project} / #{@package}"
-    redirect_to controller: :package, action: :show,
-                project: result_project, package: result_package
-  end
 
+    params[:target_package] = source_package_name if params[:target_package].blank?
 
-  def save_new_link
-    @linked_project = params[:linked_project].strip
-    @linked_package = params[:linked_package].strip
-    @target_package = params[:target_package].strip
-    @revision       = nil
-    @current_revision = true if params[:current_revision]
-
-    unless Package.valid_name? @linked_package
-      flash[:error] = "Invalid package name: '#{@linked_package}'"
-      redirect_to controller: :project, action: :new_package_branch, project: params[:project]
-      return
-    end
-
-    unless Project.valid_name? @linked_project
-      flash[:error] = "Invalid project name: '#{@linked_project}'"
-      redirect_to controller: :project, action: :new_package_branch, project: params[:project]
-      return
-    end
-
-    unless Package.exists_by_project_and_name(@linked_project, @linked_package)
-      flash[:error] = "Unable to find package '#{@linked_package}' in project '#{@linked_project}'."
-      redirect_to controller: :project, action: :new_package_branch, project: @project
-      return
-    end
-
-    @target_package = @linked_package if @target_package.blank?
-    unless Package.valid_name? @target_package
-      flash[:error] = "Invalid target package name: '#{@target_package}'"
-      redirect_to controller: :project, action: :new_package_branch, project: @project
-      return
-    end
-    if Package.exists_by_project_and_name @project.name, @target_package
-      flash[:error] = "Package '#{@target_package}' already exists in project '#{@project}'"
-      redirect_to controller: :project, action: :new_package_branch, project: @project
-      return
-    end
-
-    dirhash = Package.dir_hash(@linked_project, @linked_package)
-    revision = dirhash['xsrcmd5'] || dirhash['rev']
-    unless revision
-      flash[:error] = "Unable to branch package '#{@linked_package}', it has no source revision yet"
-      redirect_to controller: :project, action: :new_package_branch, project: @project
-      return
-    end
-
-    @revision = revision if @current_revision
-
-    logger.debug "link params doing branch: #{@linked_project}, #{@linked_package}"
     begin
-      path = Package.source_path(@linked_project, @linked_package, nil, { cmd:            :branch,
-                                                                          target_project: @project.name,
-                                                                          target_package: @target_package})
-      path += "&rev=#{CGI.escape(@revision)}" if @revision
-      frontend.transport.direct_http( URI(path), :method => 'POST', :data => '')
-      flash[:success] = "Branched package #{@project.name} / #{@target_package}"
-    rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary
+      BranchPackage.new(project: source_project_name,
+                        package: source_package_name,
+                        target_project: @project.name,
+                        target_package: params[:target_package],
+                        rev: revision).branch
+      Event::BranchCommand.create(project: source_project_name, package: source_package_name,
+                                  targetproject: @project.name, targetpackage: params[:target_package],
+                                  user: User.current.login)
+      redirect_to(package_show_path(project: @project, package: params[:target_package]),
+                  notice: "Successfully branched package")
+    rescue BranchPackage::DoubleBranchPackageError => e
+      redirect_to(package_show_path(project: @project, package: params[:target_package]),
+                  notice: 'You have already branched this package')
+    rescue => e
+      redirect_to :back, error: "Failed to branch: #{e.message}"
     end
-
-    redirect_to controller: :package, action: :show, project: @project, package: @target_package
   end
 
   def save
