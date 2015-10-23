@@ -515,12 +515,29 @@ XML
   def test_create_home_project_for_user
     login_user('user1', '123456')
     count = Project.count
+
     visit new_project_path
 
     fill_in 'project_name', with: 'home:user1'
     click_button('Create Project')
 
     assert_equal count + 1, Project.count
+  end
+
+  def test_create_home_project_for_user_not_allowed
+    login_user('user1', '123456')
+    count = Project.count
+
+    # try to create it, but server config is not permitting it
+    Configuration.stubs(:allow_user_to_create_home_project).returns(false)
+
+    visit new_project_path
+    fill_in 'project_name', with: 'home:user1'
+    click_button('Create Project')
+
+    assert_equal count, Project.count
+    flash_message.must_equal "Sorry you're not allowed to create this Project"
+    flash_message_type.must_equal :alert
   end
 
   def test_create_global_project
