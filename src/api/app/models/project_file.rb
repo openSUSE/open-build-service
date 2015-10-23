@@ -11,9 +11,8 @@ class ProjectFile < BackendFile
   validates :project_name, presence: true
 
   # calculates the real url on the backend to search the file
-  def full_path(params = {})
-    query = params.blank? ? '' : "?#{params.to_query}"
-    URI.encode("/source/#{project_name}/_project/#{name}") + query
+  def full_path(query = {})
+    URI.encode("/source/#{project_name}/_project/#{name}") + "?#{query.to_query}"
   end
 
 end

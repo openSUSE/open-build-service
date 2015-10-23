@@ -566,9 +566,6 @@ class SourceController < ApplicationController
 
   # GET /source/:project/_config
   def show_project_config
-    ## temporary HOTFIX, better solution is discussed alread
-    return if forward_from_backend(request.path_info + BackendFile.query_from_list(params, [:rev]))
-
     begin
       # 'project' can be a local Project in database or a String that's the name of a remote project, or even raise exceptions
       project = Project.get_by_name(params[:project])
@@ -577,7 +574,10 @@ class SourceController < ApplicationController
       return
     end
     config = project.is_a?(String) ? ProjectConfigFile.new(project_name: project) : project.config
-    content = config.to_s
+
+    return if forward_from_backend(config.full_path(params.slice(:rev)))
+
+    content = config.to_s(params.slice(:rev))
     unless content
       render_error status: 404, message: config.errors.full_messages.to_sentence
       return
@@ -603,10 +603,8 @@ class SourceController < ApplicationController
     end
 
     params[:user] = User.current.login
-    query = params.slice(:user, :comment)
-
     project.config.file = request.body
-    response = project.config.save(query)
+    response = project.config.save(params.slice(:user, :comment))
 
     unless response
       render_error status: 404, message: project.config.errors.full_messages.to_sentence

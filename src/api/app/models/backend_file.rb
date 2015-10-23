@@ -15,7 +15,7 @@ class BackendFile
     super
     @file ||= nil
     @response ||= {}
-    @last_read_query = ''
+    @last_read_query = {}
   end
 
   # Sets the content File object for that model instance, calculates the right response data

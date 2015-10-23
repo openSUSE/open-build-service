@@ -6,9 +6,8 @@ class ProjectConfigFile < ProjectFile
   end
 
   # calculates the real url on the backend to search the file
-  def full_path(params = {})
-    query = params.blank? ? '' : "?#{params.to_query}"
-    URI.encode("/source/#{project_name}/#{name}") + query
+  def full_path(query = {})
+    URI.encode("/source/#{project_name}/#{name}") + "?#{query.to_query}"
   end
 
   # You dont want to change name of _config
