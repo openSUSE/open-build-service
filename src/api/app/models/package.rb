@@ -985,7 +985,8 @@ class Package < ActiveRecord::Base
     myparam[:olinkrev] = olinkrev if olinkrev and not olinkrev.empty?
     myparam[:missingok] = '1' if missingok
     myparam[:comment] = comment if comment
-    path = self.source_path + Suse::Backend.build_query_from_hash(myparam, [:cmd, :oproject, :opackage, :user, :comment, :orev, :missingok, :olinkrev])
+    path = self.source_path
+    path += Suse::Backend.build_query_from_hash(myparam, [:cmd, :oproject, :opackage, :user, :comment, :orev, :missingok, :olinkrev])
     # branch sources in backend
     Suse::Backend.post path, nil
   end
