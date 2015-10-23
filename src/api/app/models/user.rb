@@ -519,6 +519,7 @@ class User < ActiveRecord::Base
     unless project.kind_of? Project
       raise ArgumentError, "illegal parameter type to User#can_modify_project?: #{project.class.name}"
     end
+
     if ignoreLock # we ignore the cache in this case
       can_modify_project_internal(project, ignoreLock)
     else
