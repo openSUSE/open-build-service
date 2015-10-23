@@ -18,6 +18,6 @@ class ProjectPolicy < ApplicationPolicy
   end
 
   def unlock?
-    @user.can_modify_project?(@project, true)
+    @user.can_modify_project?(@record, true)
   end
 end
