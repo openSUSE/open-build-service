@@ -712,7 +712,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def prjconf
-    @content = @project.config.to_s
+    @content = @project.config.to_s(params.slice(:rev))
     unless @content
       flash[:error] =  @project.config.errors.full_messages.to_sentence
       redirect_to controller: 'project', nextstatus: 404
@@ -724,9 +724,7 @@ class Webui::ProjectController < Webui::WebuiController
     authorize @project, :update?
 
     params[:user] = User.current.login
-    query = params.slice(:user, :comment)
-
-    content = @project.config.save(query, params[:config])
+    content = @project.config.save(params.slice(:user, :comment), params[:config])
 
     if content
       flash.now[:success] = 'Config successfully saved!'
