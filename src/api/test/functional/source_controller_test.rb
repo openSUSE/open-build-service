@@ -272,6 +272,10 @@ Ignore: package:cups'
     end
   end
 
+  def test_branch_using_olinkrev_parameter
+    skip("IMPLEMENT ME: test that branching from a package with merge conflicts is working using olinkrev=base")
+  end
+
   def test_can_branch_package_under_two_names
     login_king
     post '/source/home:Iggy/TestPack', :cmd => 'branch', :target_package => 'TestPack2'
