@@ -1,15 +1,13 @@
 <% unless @requests.blank? %>
   <li>
-  <%= sprite_tag('information') %>
-  <% if @requests.size == 1 %>
-    1 <%= link_to('open request', :action => "show", :controller => "request", :id => @requests[0]) %>
-  <% else %>
-    <%= @requests.size %>
-    <% if @package %>
-      <%= link_to("open requests", :action => "requests", :project => @project, :package => @package) %>
+    <% if @requests.size == 1 %>
+      <% path = request_show_path(@requests[0]) %>
+    <% elsif @package %>
+      <% path = package_requests_path(@project, @package) %>
     <% else %>
-      <%= link_to("open requests", :action => "requests", :project => @project) %>
+      <% path = project_requests_path(@project) %>
     <% end %>
-  <% end %>
+    <%= sprite_tag('information') %>
+    <%= link_to(pluralize(@requests.size, "open request"), path) %>
   </li>
 <% end %>

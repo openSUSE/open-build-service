@@ -48,7 +48,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     find_button('Ok').click
 
     find(:css, 'span.ui-icon.ui-icon-info').text.must_equal 'Created maintenance incident request'
-    find(:link, 'open request').text.must_equal 'open request'
+    find(:link, '1 open request').text.must_equal '1 open request'
     find(:link, '1 Release Target').text.must_equal '1 Release Target'
 
     logout

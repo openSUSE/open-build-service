@@ -21,7 +21,7 @@
               <% else %>
                   <%= sprite_tag 'exclamation' %>
               <% end %>
-              <%= @open_maintenance_incidents.length %> <%= link_to "open incident#{@open_maintenance_incidents.length == 1 ? '' : 's'}", action: 'maintenance_incidents', project: @project %>
+              <%= link_to(pluralize(@open_maintenance_incidents.count, "open incident"), action: 'maintenance_incidents', project: @project) %>
             </li>
             <li>
               <% if @maintained_projects.empty? %>
@@ -29,14 +29,13 @@
               <% else %>
                   <%= sprite_tag 'accept' %>
               <% end %>
-              <%= @maintained_projects.length %> <%= link_to("maintained project#{@maintained_projects.length == 1 ? '' : 's'}", action: 'maintained_projects', project: @project) %>
+              <%= link_to(pluralize(@maintained_projects.count, "maintained project"), action: 'maintained_projects', project: @project) %>
             </li>
         <% else # also for incident project                                    %>
             <% if @nr_of_problem_packages and @nr_of_problem_packages > 0 %>
                 <li>
                   <%= sprite_tag 'exclamation' %>
-                  <%= @nr_of_problem_packages %>
-                  <%= link_to "build error#{@nr_of_problem_packages == 1 ? '' : 's'}", action: 'monitor', project: @project, succeeded: 0, blocked: 0, finished: 0, signing: 0, dispatching: 0, scheduled: 0, building: 0 %>
+                  <%= link_to(pluralize(@nr_of_problem_packages, "build error"), action: 'monitor', project: @project, succeeded: 0, blocked: 0, finished: 0, signing: 0, dispatching: 0, scheduled: 0, building: 0) %>
                 </li>
             <% end %>
             <% if @has_patchinfo %>
@@ -55,12 +54,12 @@
                 <% if @open_release_requests.length > 0 %>
                     <li>
                       <%= sprite_tag 'flag_green' %>
-                      <%= @open_release_requests.length %>
                       <% if @open_release_requests.length == 1 %>
-                          <%= link_to('release request', controller: 'request', action: 'show', id: @open_release_requests[0]) %>
+                          <% path = request_show_path(@open_release_requests[0]) %>
                       <% else %>
-                          <%= link_to('release requests', action: 'requests', project: @project.name, type: 'maintenance_release') %>
+                          <% path = project_requests_path(@project.name, type: "maintenance_release") %>
                       <% end %>
+                      <%= link_to(pluralize(@open_release_requests.length, "release request"), path) %>
                     </li>
                 <% end %>
             <% end %>
@@ -84,7 +83,7 @@
         <% if @linking_projects.size > 0 %>
             <li>
               <%= sprite_tag 'information' %>
-              <%= @linking_projects.size %> <%= link_to("linking project#{@linking_projects.size == 1 ? '' : 's'}", { action: 'linking_projects', project: @project }, remote: true) %>
+              <%= link_to(pluralize(@linking_projects.size, "linking project"), { action: 'linking_projects', project: @project }, remote: true) %>
             </li>
         <% end %>
         <% if @project_maintenance_project %>
