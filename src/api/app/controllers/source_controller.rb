@@ -946,7 +946,7 @@ class SourceController < ApplicationController
   def project_command_unlock
     required_parameters :comment
 
-    @project.unlock(params[:comment])
+    @project.unlock!(params[:comment])
 
     render_ok
   end

@@ -39,6 +39,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
       next if link.end_with? '/project/show/RemoteInstance'
       next if link.end_with? '/package/show/BaseDistro3/pack2'
       next if link.end_with? '/package/show/home:Iggy/TestPack'
+      next if link.end_with? '/project/show/home:user6'
       next if link =~ %r{/live_build_log/BinaryprotectedProject}
       next if link =~ %r{/live_build_log/SourceprotectedProject}
       next if link =~ %r{/live_build_log/home:Iggy/ToBeDeletedTestPack}

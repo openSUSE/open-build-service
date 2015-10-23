@@ -22,10 +22,10 @@ class Webui::ProjectController < Webui::WebuiController
                                      :requests, :save, :save_distributions, :remove_target, :monitor, :toggle_watch, :meta,
                                      :prjconf, :change_flag, :edit, :save_comment, :edit_comment, :status, :maintained_projects,
                                      :add_maintained_project_dialog, :add_maintained_project, :remove_maintained_project,
-                                     :maintenance_incidents, :unlock_dialog, :save_person, :save_group, :remove_role, :save_repository,
+                                     :maintenance_incidents, :unlock_dialog, :unlock, :save_person, :save_group, :remove_role, :save_repository,
                                      :move_path, :save_prjconf]
 
-  before_filter :do_backend_login, only: [:clear_failed_comment, :change_flag, :unlock]
+  before_filter :do_backend_login, only: [:clear_failed_comment, :change_flag]
 
   # TODO: check if get_by_name or set_by_name is used for save_prjconf
   before_filter :set_project_by_name, only: [:save_meta, :save_prjconf]
@@ -872,14 +872,12 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def unlock
-    begin
-      path = "/source/#{CGI.escape(params[:project])}/?cmd=unlock&comment=#{CGI.escape(params[:comment])}"
-      frontend.transport.direct_http(URI(path), :method => 'POST', :data => '')
-      flash[:success] = "Unlocked project #{params[:project]}"
-    rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary
+    authorize @project, :unlock?
+    if @project.unlock(params[:comment])
+      redirect_to project_show_path(@project), notice: 'Successfully unlocked project'
+    else
+      redirect_to project_show_path(@project), notice: "Project can't be unlocked: #{@project.errors.full_messages.to_sentence}"
     end
-    redirect_to :action => 'show', :project => params[:project] and return
   end
 
   private

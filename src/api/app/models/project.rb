@@ -501,6 +501,33 @@ class Project < ActiveRecord::Base
     end
   end
 
+  def can_be_unlocked?(with_exception = true)
+    if self.is_maintenance_incident?
+      requests = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
+      maintenance_release_requests = requests.where(bs_request_actions: { type: 'maintenance_release', source_project: self.name})
+      if maintenance_release_requests.exists?
+        if with_exception
+          raise OpenReleaseRequest.new "Unlock of maintenance incident #{self.maintenance_incident.project.name} is not possible," +
+                                       " because there is a running release request: #{maintenance_release_requests.first.id}"
+        else
+          errors.add(:base, "Unlock of maintenance incident #{self.maintenance_incident.project.name} is not possible," +
+                            " because there is a running release request: #{maintenance_release_requests.first.id}")
+        end
+      end
+    end
+    unless self.flags.find_by_flag_and_status('lock', 'enable')
+      if with_exception
+        raise ProjectNotLocked.new "project '#{name}' is not locked"
+      else
+        errors.add(:base, 'is not locked')
+      end
+    end
+    if errors.any?
+      return false
+    end
+    true
+  end
+
   def update_from_xml!(xmlhash, force = nil)
     check_write_access!
 
@@ -1468,43 +1495,31 @@ class Project < ActiveRecord::Base
     end
   end
 
-  def unlock(comment = nil)
-    if self.is_maintenance_incident?
-      rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
-      rel = rel.where(bs_request_actions: { type: 'maintenance_release', source_project: self.name})
-      if rel.exists?
-        incident_name = self.maintenance_incident.project.name
-        raise OpenReleaseRequest.new "Unlock of maintenance incident #{incident_name} is not possible," +
-				     " because there is a running release request: #{rel.first.id}"
-      end
-    end
-
-    p = { :comment => comment }
-
-    f = self.flags.find_by_flag_and_status('lock', 'enable')
-    raise ProjectNotLocked.new "project '#{self.name}' is not locked" unless f
-
+  def do_unlock(comment = nil)
     self.transaction do
-      self.flags.delete(f)
-      self.store(p)
+      delete_flag = self.flags.find_by_flag_and_status('lock', 'enable')
+      self.flags.delete(delete_flag)
+      self.store({ :comment => comment })
 
-      # maintenance incidents need special treatment
+      # maintenance incidents need special treatment when unlocking
       if self.is_maintenance_incident?
-        # reopen all release targets
-        self.repositories.each do |repo|
-          repo.release_targets.each do |releasetarget|
-            releasetarget.trigger = 'maintenance'
-            releasetarget.save!
-          end
-        end
-        self.store(p)
-
-        # ensure higher build numbers for re-release
-        Suse::Backend.post "/build/#{URI.escape(self.name)}?cmd=wipe", nil
+        self.reopen_release_targets
       end
     end
-
     update_packages_if_dirty
+  end
+
+  def unlock!(comment = nil)
+    can_be_unlocked?
+    do_unlock(comment)
+  end
+
+  def unlock(comment = nil)
+    if can_be_unlocked?(false)
+      do_unlock(comment)
+    else
+      false
+    end
   end
 
   def unlock_by_request(id)
@@ -1513,6 +1528,18 @@ class Project < ActiveRecord::Base
       self.flags.delete(f)
       self.store(comment: "Request got revoked", request: id, lowprio: 1)
     end
+  end
+
+  def reopen_release_targets
+    self.repositories.each do |repo|
+      repo.release_targets.each do |releasetarget|
+        releasetarget.trigger = 'maintenance'
+        releasetarget.save!
+      end
+    end
+    self.store(p)
+    # ensure higher build numbers for re-release
+    Suse::Backend.post "/build/#{URI.escape(self.name)}?cmd=wipe", nil
   end
 
   def build_succeeded?(repository = nil)

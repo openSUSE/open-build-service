@@ -49,6 +49,7 @@ def resubmit_all_fixtures
     get "/source/#{name}/_meta"
     assert_response :success
     r = @response.body
+    next if Project.find_by_name(name).is_locked?
     # FIXME: add some more validation checks here
     put "/source/#{name}/_meta", r.dup
     assert_response :success
