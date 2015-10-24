@@ -520,15 +520,15 @@ class User < ActiveRecord::Base
       raise ArgumentError, "illegal parameter type to User#can_modify_project?: #{project.class.name}"
     end
 
-    if ignoreLock # we ignore the cache in this case
-      can_modify_project_internal(project, ignoreLock)
-    else
-      if @projects_to_modify.has_key? project.id
-        @projects_to_modify[project.id]
-      else
-        @projects_to_modify[project.id] = can_modify_project_internal(project, nil)
-      end
+    # we don't touch the cache for ignoreLock
+    return can_modify_project_internal(project, ignoreLock) if ignoreLock
+
+    unless @projects_to_modify.has_key? project.id
+      # build cache
+      @projects_to_modify[project.id] = can_modify_project_internal(project, nil)
     end
+
+    @projects_to_modify[project.id]
   end
 
   # package is instance of Package

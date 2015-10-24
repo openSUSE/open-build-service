@@ -1,7 +1,7 @@
 class ProjectPolicy < ApplicationPolicy
 
   def create?
-    @record.check_write_access
+    @user.can_create_project?(@record.name)
   end
 
   def update?

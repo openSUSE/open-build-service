@@ -406,8 +406,9 @@ class Project < ActiveRecord::Base
   end
 
   def check_write_access(ignoreLock = nil)
-    User.current.can_modify_project?(self, ignoreLock) ||
-        User.current.can_create_project?(self.name)
+    return User.current.can_create_project?(self.name) if self.new_record?
+
+    User.current.can_modify_project?(self, ignoreLock)
   end
 
 
