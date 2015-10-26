@@ -167,14 +167,9 @@ class Webui::WebuiController < ActionController::Base
   def do_backend_login
     mode = CONFIG['proxy_auth_mode'] || :off
     logger.debug "Authenticating with iChain mode: #{mode}"
-    if mode == :on || mode == :simulate
-      mode = CONFIG['proxy_auth_mode'] || :off
+    if mode == :on
       proxy_user = request.env['HTTP_X_USERNAME']
       proxy_email = request.env['HTTP_X_EMAIL']
-      if mode == :simulate
-        proxy_user ||= CONFIG['proxy_auth_test_user'] || CONFIG['proxy_test_user']
-        proxy_email ||= CONFIG['proxy_auth_test_email']
-      end
       if proxy_user
         session[:login] = proxy_user
         session[:email] = proxy_email
@@ -268,16 +263,6 @@ class Webui::WebuiController < ActionController::Base
                      realname: "#{request.env['HTTP_X_FIRSTNAME']} #{request.env['HTTP_X_LASTNAME']}".strip,
                      password: fakepw,
                      password_confirmation: fakepw)
-      end
-    elsif mode == :simulate
-      logger.debug "Authenticating with iChain mode: #{mode}"
-      user_login = CONFIG['proxy_auth_test_user'] || CONFIG['proxy_test_user']
-      if user_login
-        User.find_or_create_by!(login: user_login,
-                               email: CONFIG['proxy_auth_test_email'],
-                               realname: "Cool Guy",
-                               password: 'password',
-                               password_confirmation: 'password')
       end
     else
       if session[:login]
