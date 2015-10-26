@@ -285,6 +285,11 @@ class Webui::WebuiController < ActionController::Base
       end
     end
     User.current = user_login ? User.find_by_login(user_login) : User.find_nobody!
+
+    # Always update user data from login proxy headers
+    if mode == :on && !User.current.is_nobody?
+      User.current.update_user_info_from_proxy_env(request.env)
+    end
   end
 
   def check_display_user
