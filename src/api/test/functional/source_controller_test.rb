@@ -2851,7 +2851,7 @@ Ignore: package:cups'
     put url, '<link project="RemoteInstance:BaseDistro2.0:LinkedUpdateProject" package="pack2" />'
     assert_response :success
     # working link to remote project link
-    put url, '<link project="UseRemoteInstance" package="pack1" />'
+    put url, '<link project="UseRemoteInstance" package="pack2" />'
     assert_response :success
 
     # check backend functionality
@@ -2860,17 +2860,17 @@ Ignore: package:cups'
     assert_no_xml_tag(:tag => 'entry', :attributes => { :name => 'my_file' })
     assert_xml_tag(:tag => 'entry', :attributes => { :name => 'file_in_linked_package' })
     assert_xml_tag(:tag => 'entry', :attributes => { :name => '_link' })
-    assert_xml_tag(:tag => 'linkinfo', :attributes => { :project => 'UseRemoteInstance', :package => 'pack1',
-                                                        :srcmd5 => '96c3955b419fec1a637698e52b6a7d37', :xsrcmd5 => '6660e7c304ba16c50a415617bacb8b2f', :lsrcmd5 => 'eabf686413b92c976ea073b11d797a2e' })
+    assert_xml_tag(:tag => 'linkinfo', :attributes => { :project => 'UseRemoteInstance', :package => 'pack2',
+                                                        :srcmd5 => 'd3e3fafcc29140ff418220a649df8070', :xsrcmd5 => '3481fc5f1445a65a2d463b8adf26d3a9', :lsrcmd5 => 'e6a8595663acb2095c62824bf457142c' })
     get '/source/kde4/temporary2?expand=1'
     assert_response :success
-    assert_xml_tag(:tag => 'entry', :attributes => { :name => 'my_file' })
+    assert_xml_tag(:tag => 'entry', :attributes => { :name => 'package.spec' })
     assert_xml_tag(:tag => 'entry', :attributes => { :name => 'file_in_linked_package' })
     assert_xml_tag(:tag => 'linkinfo', :attributes => { :project => 'kde4', :package => 'temporary' })
     assert_no_xml_tag(:tag => 'entry', :attributes => { :name => '_link' })
     get '/source/TEMPORARY/temporary2?expand=1'
     assert_response :success
-    assert_xml_tag(:tag => 'entry', :attributes => { :name => 'my_file' })
+    assert_xml_tag(:tag => 'entry', :attributes => { :name => 'package.spec' })
     assert_xml_tag(:tag => 'entry', :attributes => { :name => 'file_in_linked_package' })
     assert_xml_tag(:tag => 'linkinfo', :attributes => { :project => 'kde4', :package => 'temporary2' })
     assert_no_xml_tag(:tag => 'entry', :attributes => { :name => '_link' })

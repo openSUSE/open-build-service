@@ -116,21 +116,21 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/public/source/UseRemoteInstance/_meta'
     assert_response :success
-    get '/public/source/UseRemoteInstance/pack1'
+    get '/public/source/UseRemoteInstance/pack2.linked'
     assert_response :success
-    get '/public/source/UseRemoteInstance/pack1?expand'
+    get '/public/source/UseRemoteInstance/pack2.linked?expand'
     assert_response :success
-    get '/public/source/UseRemoteInstance/pack1?expand=1'
+    get '/public/source/UseRemoteInstance/pack2.linked?expand=1'
     assert_response :success
-    get '/public/source/UseRemoteInstance/pack1/_meta'
+    get '/public/source/UseRemoteInstance/pack2.linked/_meta'
     assert_response :success
-    get '/public/source/UseRemoteInstance/pack1/my_file'
+    get '/public/source/UseRemoteInstance/pack2.linked/package.spec'
     assert_response :success
     get '/public/source/UseRemoteInstance/NotExisting'
     assert_response 404
     get '/public/source/UseRemoteInstance/NotExisting/_meta'
     assert_response 404
-    get '/public/source/UseRemoteInstance/NotExisting/my_file'
+    get '/public/source/UseRemoteInstance/NotExisting/package.spec'
     assert_response 404
   end
 
@@ -288,15 +288,15 @@ class InterConnectTests < ActionDispatch::IntegrationTest
       assert_response :success
       get "/source/#{project}/_meta"
       assert_response :success
-      get "/source/#{project}/pack1"
+      get "/source/#{project}/pack2.linked"
       assert_response :success
-      get "/source/#{project}/pack1/_meta"
+      get "/source/#{project}/pack2.linked/_meta"
       assert_response :success
-      get "/source/#{project}/pack1/my_file"
+      get "/source/#{project}/pack2.linked/package.spec"
       assert_response :success
-      post "/source/#{project}/pack1", :cmd => 'showlinked'
+      post "/source/#{project}/pack2", :cmd => 'showlinked'
       assert_response :success
-      post "/source/#{project}/pack1", :cmd => 'branch'
+      post "/source/#{project}/pack2", :cmd => 'branch'
       assert_response :success
       get "/source/#{project}"
       assert_response :success
@@ -311,13 +311,12 @@ end
     end
 
     # check access to binaries of remote instance
-    get '/build/UseRemoteInstance/pop/i586/pack1/_log'
-    assert_response 400
-    assert_match(/remote error: pack1  no logfile/, @response.body) # we had no build, but request reached backend
+    get '/build/UseRemoteInstance/pop/i586/pack2.linked/_log'
+    assert_response :success
     # test source modifications
-    post '/build/UseRemoteInstance/pack1', :cmd => 'set_flag'
+    post '/build/UseRemoteInstance/pack2', :cmd => 'set_flag'
     assert_response 403
-    post '/build/UseRemoteInstance/pack1', :cmd => 'unlock'
+    post '/build/UseRemoteInstance/pack2', :cmd => 'unlock'
     assert_response 403
     get '/source/UseRemoteInstance/NotExisting'
     assert_response 404
@@ -327,9 +326,9 @@ end
     assert_response 404
     # test binary operations
     login_king
-    post '/build/UseRemoteInstance', :cmd => 'wipe', :package => 'pack1'
+    post '/build/UseRemoteInstance', :cmd => 'wipe', :package => 'pack2.linked'
     assert_response :success
-    post '/build/UseRemoteInstance', :cmd => 'rebuild', :package => 'pack1'
+    post '/build/UseRemoteInstance', :cmd => 'rebuild', :package => 'pack2.linked'
     assert_response :success
     post '/build/UseRemoteInstance', :cmd => 'wipe'
     assert_response :success
@@ -413,15 +412,15 @@ end
   def test_submit_requests_from_remote
 
     login_king
-    post '/source/LocalProject/pack1', :cmd => :copy, :oproject => 'LocalProject', :opackage => 'remotepackage'
+    post '/source/LocalProject/pack2.linked', :cmd => :copy, :oproject => 'LocalProject', :opackage => 'remotepackage'
     assert_response :success
 
     login_tom
-    # FIXME: submission from a remote project is not yet supported "RemoteInstance:BaseDistro"
+    # FIXME: submission from a remote project is not yet supported "RemoteInstance:BaseDistro2.0"
     %w(LocalProject UseRemoteInstance).each do |prj|
       post '/request?cmd=create', '<request>
                                    <action type="submit">
-                                     <source project="' + prj + '" package="pack1" rev="1"/>
+                                     <source project="' + prj + '" package="pack2.linked" rev="1"/>
                                      <target project="home:tom" package="pack1"/>
                                    </action>
                                    <state name="new" />
@@ -440,7 +439,7 @@ end
     end
 
     login_king
-    delete '/source/LocalProject/pack1'
+    delete '/source/LocalProject/pack2.linked'
     assert_response :success
   end
 
@@ -453,14 +452,14 @@ end
     assert_response :success
     delete '/source/LocalProject/temporary'
     assert_response :success
-    post '/source/LocalProject/temporary', :cmd => :copy, :oproject => 'UseRemoteInstance', :opackage => 'pack1'
+    post '/source/LocalProject/temporary', :cmd => :copy, :oproject => 'UseRemoteInstance', :opackage => 'pack2.linked'
     assert_response :success
     post '/source/LocalProject/temporary', :cmd => :copy, :oproject => 'RemoteInstance:BaseDistro', :opackage => 'pack1'
     assert_response :success
 
     post '/source/LocalProject/temporary', :cmd => :diff, :oproject => 'LocalProject', :opackage => 'remotepackage'
     assert_response :success
-    post '/source/LocalProject/temporary', :cmd => :diff, :oproject => 'UseRemoteInstance', :opackage => 'pack1'
+    post '/source/LocalProject/temporary', :cmd => :diff, :oproject => 'UseRemoteInstance', :opackage => 'pack2.linked'
     assert_response :success
 
     login_king
