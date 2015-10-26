@@ -39,6 +39,10 @@ OBSApi::Application.configure do
   # rubocop:enable Metrics/LineLength
 
   config.action_dispatch.rescue_responses.merge!('ActionController::InvalidAuthenticityToken' => 950 )
+  if CONFIG['proxy_auth_mode'] == :on
+    CONFIG['proxy_auth_logout_page'] = '/'
+    config.middleware.use ProxyModeFaker
+  end
 end
 
 CONFIG['source_host'] = "localhost"
