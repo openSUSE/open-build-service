@@ -194,7 +194,12 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     # test reload and wait for the build to finish
     starttime=Time.now
     while Time.now - starttime < 10
-      first('.icons-reload').click
+      reload_button = first('.icons-reload')
+      if !reload_button
+        sleep 0.1
+        next
+      end
+      reload_button.click
       if page.has_selector? '.buildstatus'
         break if first('.buildstatus').text == 'succeeded'
       end
