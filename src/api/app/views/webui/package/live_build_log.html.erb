@@ -3,7 +3,9 @@
    package_bread_crumb 'Build Log' 
 -%>
 
-<%= render :partial => "tabs" %>
+<% if !@project.is_remote? && @package.kind_of?(Package)%>
+  <%= render :partial => "tabs" %>
+<% end %>
 
 <%= content_for :ready_function do %>
   live_build_log_ready();
@@ -25,7 +27,7 @@
   <pre id="log_space"></pre>
 </div>
 
-<% if not @workerid %>
+<% unless @workerid %>
   <%= render :partial => "live_log_controls" %>
 <% end %>
 

@@ -97,17 +97,8 @@ module Webui::WebuiHelper
 
     if %w(unresolvable blocked).include?(code)
       result += link_to(code, '#', title: link_title, id: status_id, class: code)
-    elsif %w(- excluded).include?(code)
+    elsif %w(- excluded scheduled).include?(code)
       result += code
-    elsif @localpackages && !@localpackages.has_key?(package_name)
-      # Scheduled packages have no raw log file...
-      if 'scheduled' == code
-        result += code
-      else
-        result += link_to(code.gsub(/\s/, '&nbsp;'),
-                          raw_logfile_path(package: package_name, project: @project.to_s, arch: arch, repository: repo),
-                          title: link_title, rel: 'nofollow')
-      end
     else
       result += link_to(code.gsub(/\s/, '&nbsp;'),
                         {
