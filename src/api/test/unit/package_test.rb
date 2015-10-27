@@ -137,7 +137,7 @@ class PackageTest < ActiveSupport::TestCase
   end
 
   def test_can_be_deleted
-    assert !packages(:kde4_kdelibs).can_be_deleted?
+    assert !packages(:kde4_kdelibs).check_weak_dependencies!
   end
 
   def test_store
