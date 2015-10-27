@@ -19,7 +19,7 @@ class Webui::PackageController < Webui::WebuiController
                                         :add_person, :add_group, :rdiff, :wizard_new, :wizard, :save_new,
                                         :branch_dialog, :branch, :save_new_link, :save, :delete_dialog,
                                         :remove, :add_file, :save_file, :remove_file, :save_person,
-                                        :save_group, :remove_role, :view_file, :save_modified_file,
+                                        :save_group, :remove_role, :view_file,
                                         :live_build_log, :update_build_log, :abort_build, :trigger_rebuild,
                                         :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
                                         :save_meta, :attributes, :edit, :change_flag,
@@ -30,7 +30,7 @@ class Webui::PackageController < Webui::WebuiController
                                             :add_person, :add_group, :rdiff, :wizard_new, :wizard,
                                             :branch_dialog, :branch, :save, :delete_dialog,
                                             :remove, :add_file, :save_file, :remove_file, :save_person,
-                                            :save_group, :remove_role, :view_file, :save_modified_file,
+                                            :save_group, :remove_role, :view_file,
                                             :live_build_log, :update_build_log, :abort_build, :trigger_rebuild,
                                             :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
                                             :save_meta, :attributes, :edit, :change_flag,
@@ -44,8 +44,7 @@ class Webui::PackageController < Webui::WebuiController
                                             :update_build_log, :devel_project, :buildresult, :rpmlint_result,
                                             :rpmlint_log, :meta, :attributes, :repositories, :files]
 
-  before_filter :do_backend_login, only: [:save_modified_file, :save_meta, :change_flag,
-                                          :abort_build, :trigger_rebuild, :wipe_binaries, :remove]
+  before_filter :do_backend_login, only: [:save_meta, :change_flag, :abort_build, :trigger_rebuild, :wipe_binaries, :remove]
 
   prepend_before_filter :lockout_spiders, :only => [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
 
@@ -640,41 +639,52 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def save_file
-    unless User.current.can_modify_package? @package
-      redirect_to :back, error: "You're not allowed to modify #{@package.name}"
-      return
-    end
+    authorize @package, :update?
 
     file = params[:file]
     file_url = params[:file_url]
     filename = params[:filename]
 
-    if file.present?
-      # we are getting an uploaded file
+    if file.present? # we are getting an uploaded file
       filename = file.original_filename if filename.blank?
 
       unless valid_file_name?(filename)
-        flash[:error] = "'#{filename}' is not a valid filename."
-        redirect_back_or_to action: :add_file, project: params[:project], package: params[:package]
+        if request.xhr?
+          render(json: { error: "'#{filename}' is not a valid filename." }, status: 400)
+        else
+          redirect_to(:back, :error => "'#{filename}' is not a valid filename.")
+        end
         return
       end
 
       begin
-        @package.save_file file: file, filename: filename
+        @package.save_file(file: file, filename: filename, :comment => params[:comment])
+      rescue Timeout::Error => e
+        if request.xhr?
+          render(json: { error: 'Timeout when saving file. Please try again.'}, status: 400)
+        else
+          redirect_to(:back, :error => 'Timeout when saving file. Please try again.')
+        end
+        return
       rescue ActiveXML::Transport::Error => e
-        flash[:error] = e.summary
-        redirect_back_or_to action: :add_file, project: params[:project], package: params[:package]
+        if request.xhr?
+          render(json: { error: e.summary }, status: 400)
+        else
+          redirect_to(:back, :error => e.summary)
+        end
         return
       end
-    elsif file_url.present?
-      # we have a remote file uri
+    # update package timestamp and reindex sources
+    elsif file_url.present? # we have a remote file uri
       return unless add_file_url(file_url, filename)
     else
       return unless add_file_filename(filename)
     end
-
-    flash[:success] = "The file #{filename} has been added."
-    redirect_to action: :show, project: @project, package: @package
+    if request.xhr?
+      render(json: { status: 'ok' })
+    else
+      redirect_to({:action => :show, :project => @project, :package => @package}, :success => "The file #{filename} has been added.")
+    end
   end
 
   def add_file_filename(filename)
@@ -771,26 +781,6 @@ class Webui::PackageController < Webui::WebuiController
       opts[k] = params[k] if params[k].present?
     end
     opts
-  end
-
-  def save_modified_file
-    check_ajax
-    required_parameters :project, :package, :filename, :file
-    project = params[:project]
-    package = params[:package]
-    filename = params[:filename]
-    params[:file].gsub!( /\r\n/, "\n" )
-    begin
-      frontend.put_file(params[:file], :project => project, :package => package, :filename => filename, :comment => params[:comment])
-    rescue Timeout::Error => e
-      render json: { error: 'Timeout when saving file. Please try again.' },
-             status: 400
-      return
-    rescue ActiveXML::Transport::Error => e
-      render json: { error: e.summary }, status: 400
-      return
-    end
-    render json: { status: 'ok' }
   end
 
   def set_job_status

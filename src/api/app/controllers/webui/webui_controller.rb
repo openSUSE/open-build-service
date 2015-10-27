@@ -39,12 +39,14 @@ class Webui::WebuiController < ActionController::Base
        when "branch?" then "branch"
        else exception.query
     end
-    if exception.message
-      flash[:error] = "Sorry you're not allowed to #{pundit_action} this #{exception.record.class}"
+    message = "Sorry, you are not authorized to " +
+              (exception.message ? "#{pundit_action} this #{exception.record.class}." : "perform this action.")
+    if request.xhr?
+      render json: { error: message }, status: 400
     else
-      flash[:error] = "Sorry, you are not authorized to perform this action."
+      flash[:error] = message
+      redirect_back_or_to root_path
     end
-    redirect_back_or_to root_path
   end
 
   # FIXME: This belongs into the user controller my dear.
