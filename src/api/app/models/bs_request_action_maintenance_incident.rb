@@ -91,6 +91,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       package_name = linkinfo['package'] if linkinfo
 
       branch_params = {:target_project => incidentProject.name,
+                       :olinkrev => 'base',
                        :maintenance => 1,
                        :force => 1,
                        :comment => 'Initial new branch',
@@ -118,6 +119,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
       linked_package = linkinfo['package']
 
       branch_params = {:target_project => incidentProject.name,
+                       :olinkrev => 'base',
                        :maintenance => 1,
                        :force => 1,
                        :project => linked_project, :package => linked_package}
