@@ -6045,6 +6045,7 @@ sub sourcecopy {
     die("400 freezelink: link points to a revision already") if $olink->{'rev'};
     die("400 freezelink: link has no baserev") unless $olink->{'baserev'};
     $olink->{'rev'} = $olink->{'baserev'};
+    delete $olink->{'missingok'} if $autosimplifylink;
     mkdir_p($uploaddir);
     writexml("$uploaddir/$$", undef, $olink, $BSXML::link);
     $files->{'_link'} = addfile($oprojid, $opackid, "$uploaddir/$$", '_link');
