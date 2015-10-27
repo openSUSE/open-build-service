@@ -276,6 +276,34 @@ Ignore: package:cups'
     skip("IMPLEMENT ME: test that branching from a package with merge conflicts is working using olinkrev=base")
   end
 
+  def test_branch_use_missingok_to_existing_package_fails
+    login_king
+    # package exists
+    get '/source/BaseDistro2.0/pack2/_meta'
+    assert_response :success
+    assert_xml_tag tag: 'package', attributes: {project: 'BaseDistro2.0'}
+    # ... via project link only
+    get '/source/BaseDistro2.0:LinkedUpdateProject/pack2/_meta'
+    assert_response :success
+    assert_xml_tag tag: 'package', attributes: {project: 'BaseDistro2.0'}
+
+    # so branching fails
+    post '/source/BaseDistro2.0/pack2', cmd: :branch, missingok: 'true'
+    assert_response 400
+    assert_xml_tag tag: 'status', attributes: { code: 'not_missing' }
+    post '/source/BaseDistro2.0/pack2', cmd: :branch, missingok: 'true', maintenance: 1
+    assert_response 400
+    assert_xml_tag tag: 'status', attributes: { code: 'not_missing' }
+    # also indirect
+    post '/source/BaseDistro2.0:LinkedUpdateProject/pack2', :cmd => :branch, :missingok => 'true'
+    assert_response 400
+    assert_xml_tag tag: 'status', attributes: { code: 'not_missing' }
+    # and from remote
+    post '/source/UseRemoteInstance/pack2', cmd: :branch, missingok: 'true'
+    assert_response 400
+    assert_xml_tag tag: 'status', attributes: { code: 'not_missing' }
+  end
+
   def test_can_branch_package_under_two_names
     login_king
     post '/source/home:Iggy/TestPack', :cmd => 'branch', :target_package => 'TestPack2'
