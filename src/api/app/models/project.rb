@@ -470,7 +470,7 @@ class Project < ActiveRecord::Base
 
   def check_weak_dependencies?
     begin
-      check_weak_dependencies! (true) # ignore project local devel packages
+      check_weak_dependencies!
     rescue DeleteError
       false
     end

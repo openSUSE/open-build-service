@@ -125,6 +125,14 @@ Ignore: package:cups'
            "#{page.current_url} does not end with #{project_show_path(project: 'home:tom')}"
   end
 
+  def test_delete_project_with_local_devel_package_defintions
+    skip("project deletion must work without force")
+  end
+
+  def test_delete_project_with_external_devel_package_defintions
+    skip("project deletion must fail. we should offer a force option to ignore it and remove anyway.")
+  end
+
   def test_admin_can_delete_every_project
     use_js
 

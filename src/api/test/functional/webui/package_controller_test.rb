@@ -52,6 +52,9 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     delete_and_recreate_kdelibs
   end
 
+  def test_delete_package_with_devel_defintion
+    skip("delete must fail (without force option), no matter if the package is in local project or another one")
+  end
 
   def test_Iggy_adds_himself_as_reviewer
     use_js

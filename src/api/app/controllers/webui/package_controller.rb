@@ -622,7 +622,7 @@ class Webui::PackageController < Webui::WebuiController
   def remove
     authorize @package, :destroy?
 
-    if @package.destroy
+    if @package.check_weak_dependencies? && @package.destroy
       redirect_to(project_show_path(@project), notice: "Package was successfully removed.")
     else
       redirect_to(package_show_path(project: @project, package: @package),
