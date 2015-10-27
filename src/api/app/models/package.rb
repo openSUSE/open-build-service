@@ -71,7 +71,6 @@ class Package < ActiveRecord::Base
 
   has_many :binary_releases, dependent: :delete_all, :foreign_key => 'release_package_id'
 
-  before_destroy :check_devel_packages, prepend: true
   before_destroy :delete_on_backend
   before_destroy :revoke_requests
   before_destroy :update_project_for_product
@@ -309,16 +308,13 @@ class Package < ActiveRecord::Base
     end
   end
 
-  def check_devel_packages
-    if develpackages.any?
-      develpackages.each do |package|
-        # We only care about packages in foreign projects
-        if package.project.name != self.project.name
-          self.errors.add(:base, "used as devel package by #{package.project.name}/#{package.name}")
-        end
+  def check_devel_packages(ignore_local = false)
+    develpackages.each do |package|
+      if !ignore_local && package.project.name != self.project.name
+        self.errors.add(:base, "used as devel package by #{package.project.name}/#{package.name}")
       end
-      return false if self.errors.any?
     end
+    return false if self.errors.any?
     true
   end
 
