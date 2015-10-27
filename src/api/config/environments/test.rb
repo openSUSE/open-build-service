@@ -39,12 +39,14 @@ OBSApi::Application.configure do
   # rubocop:enable Metrics/LineLength
 
   config.action_dispatch.rescue_responses.merge!('ActionController::InvalidAuthenticityToken' => 950 )
+  if CONFIG['proxy_auth_mode'] == :on
+    CONFIG['proxy_auth_logout_page'] = '/'
+    config.middleware.use ProxyModeFaker
+  end
 end
 
 CONFIG['source_host'] = "localhost"
 CONFIG['source_port'] = 3200
-
-CONFIG['proxy_auth_mode']=:off
 
 CONFIG['response_schema_validation'] = true
 
@@ -59,11 +61,6 @@ CONFIG['frontend_host'] = "localhost"
 CONFIG['frontend_port'] = 3203
 CONFIG['frontend_protocol'] = 'http'
 CONFIG['frontend_ldap_mode'] = :off
-
-CONFIG['proxy_auth_host'] = "https://build.opensuse.org"
-CONFIG['proxy_auth_login_page'] = "https://build.opensuse.org/ICSLogin"
-CONFIG['proxy_auth_logout_page'] = "/cmd/ICSLogout"
-CONFIG['proxy_auth_mode'] = :off
 
 # some defaults enforced
 CONFIG['use_static'] = nil

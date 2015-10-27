@@ -10,6 +10,7 @@ env:
   - TEST_SUITE=rubocop
   - TEST_SUITE=api
   - TEST_SUITE=webui
+  - TEST_SUITE=proxy_mode
 matrix:
   fast_finish: true
 notifications:

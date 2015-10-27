@@ -163,14 +163,11 @@ class ApplicationController < ActionController::Base
 
   end
 
-  def extract_proxy_user(mode)
+  def extract_proxy_user
     @auth_method = :proxy
     proxy_user = request.env['HTTP_X_USERNAME']
     if proxy_user
       logger.info "iChain user extracted from header: #{proxy_user}"
-    elsif mode == :simulate
-      proxy_user = CONFIG['proxy_auth_test_user']
-      logger.debug "iChain user extracted from config: #{proxy_user}"
     end
 
     # we're using a login proxy, there is no need to authenticate the user from the credentials
@@ -236,8 +233,8 @@ class ApplicationController < ActionController::Base
 
   def extract_user
     mode = CONFIG['proxy_auth_mode'] || CONFIG['ichain_mode'] || :basic
-    if mode == :on || mode == :simulate # configured in the the environment file
-      extract_proxy_user mode
+    if mode == :on
+      extract_proxy_user
     else
       @auth_method = :basic
 

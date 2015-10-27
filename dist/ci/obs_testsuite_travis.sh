@@ -25,6 +25,12 @@ if test -z "$SUBTEST"; then
     webui)
       bundle exec rake test:webui
       ;;
+    proxy_mode)
+      grep -v proxy_auth_mode config/options.yml > config/options.yml.tmp
+      echo "proxy_auth_mode: :on" >> config/options.yml.tmp
+      mv config/options.yml.tmp config/options.yml
+      bundle exec rake test:proxy_mode
+      ;;
     rubocop)
       bundle exec rake rubocop 
       ;;

@@ -37,8 +37,6 @@ class Webui::UserController < Webui::WebuiController
     case mode
     when :on
       user = User.find_by(login: request.env['HTTP_X_USERNAME'])
-    when :simulate
-      user = User.find_by(login: CONFIG['proxy_auth_test_user'])
     when :basic, :off
       user = User.find_with_credentials(params[:username], params[:password])
     end
