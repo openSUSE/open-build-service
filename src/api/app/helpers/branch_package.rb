@@ -521,7 +521,7 @@ class BranchPackage
       prj = Project.get_by_name params[:project]
       if params[:missingok]
         if Package.exists_by_project_and_name(params[:project], params[:package], follow_project_links: true, allow_remote_packages: true)
-          raise NotMissingError.new "Branch call with missingok paramater but branch source (#{params[:project]}/#{params[:package]}) exists."
+          raise NotMissingError.new "Branch call with missingok parameter but branched source (#{params[:project]}/#{params[:package]}) exists."
         end
       else
         pkg = Package.get_by_project_and_name params[:project], params[:package], {check_update_project: true}
