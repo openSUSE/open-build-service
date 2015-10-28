@@ -1200,6 +1200,10 @@ Ignore: package:cups'
     assert_response :success
     put '/source/home:tom:project/C/_meta', "<package name='C' project='home:tom:project'> <title/> <description/> <devel package='B'/> </package>"
     assert_response :success
+    login_king
+    put '/source/BaseDistro/pack2/_meta', "<package name='pack2' project='BaseDistro'> <title/> <description/> <devel package='A' project='home:tom:project'/> </package>"
+    assert_response :success
+    login_tom
     # delete a package which is used as devel package
     get '/source/home:tom:project/B/_meta'
     assert_response :success
@@ -1207,10 +1211,12 @@ Ignore: package:cups'
     delete '/source/home:tom:project/A'
     assert_response 400
     assert_select "status", code: "delete_error" do
-      assert_select "summary", "Package is used by following packages as devel package: home:tom:project/B"
+      assert_select "summary", "Package is used by following packages as devel package: BaseDistro/pack2, home:tom:project/B"
     end
     delete '/source/home:tom:project/A?force=1'
     assert_response :success
+    get '/source/home:tom:project/A/_meta'
+    assert_response 404
     get '/source/home:tom:project/B/_meta'
     assert_response :success
     assert_no_xml_tag tag: "devel"

@@ -71,7 +71,6 @@ class Package < ActiveRecord::Base
 
   has_many :binary_releases, dependent: :delete_all, :foreign_key => 'release_package_id'
 
-  before_destroy :check_devel_packages, prepend: true
   before_destroy :delete_on_backend
   before_destroy :revoke_requests
   before_destroy :update_project_for_product
@@ -309,23 +308,19 @@ class Package < ActiveRecord::Base
     end
   end
 
-  def check_devel_packages
-    if develpackages.any?
-      develpackages.each do |package|
-        # We only care about packages in foreign projects
-        if package.project.name != self.project.name
-          self.errors.add(:base, "used as devel package by #{package.project.name}/#{package.name}")
-        end
-      end
-      return false if self.errors.any?
+  def check_weak_dependencies?
+    develpackages.each do |package|
+      self.errors.add(:base, "used as devel package by #{package.project.name}/#{package.name}")
     end
+    return false if self.errors.any?
     true
   end
 
-  # NOTE: this is no permission check, should it be added ?
-  def can_be_deleted?
+  def check_weak_dependencies!(ignore_local = false)
     # check if other packages have me as devel package
-    packs = self.develpackages.to_a
+    packs = self.develpackages
+    packs = packs.where.not(project: self.project) if ignore_local
+    packs = packs.to_a
     unless packs.empty?
       msg = packs.map { |p| p.project.name + '/' + p.name }.join(', ')
       de = DeleteError.new "Package is used by following packages as devel package: #{msg}"

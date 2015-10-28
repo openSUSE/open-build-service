@@ -468,9 +468,9 @@ class Project < ActiveRecord::Base
     return true
   end
 
-  def can_be_really_deleted?
+  def check_weak_dependencies?
     begin
-      can_be_deleted?
+      check_weak_dependencies!
     rescue DeleteError
       false
     end
@@ -479,19 +479,10 @@ class Project < ActiveRecord::Base
     can_free_repositories?
   end
 
-  # NOTE: this is no permission check, should it be added ?
-  def can_be_deleted?
+  def check_weak_dependencies!
     # check all packages
     self.packages.each do |pkg|
-      begin
-        pkg.can_be_deleted? # throws
-      rescue Package::DeleteError => e
-        e.packages.each do |p|
-          if p.project != self
-            raise DeleteError.new "Package #{self.name}/#{pkg.name} can not be deleted as it's the devel package of #{p.project.name}/#{p.name}"
-          end
-        end
-      end
+      pkg.check_weak_dependencies! (true) # ignore project local devel packages
     end
 
     # do not allow to remove maintenance master projects if there are incident projects

@@ -270,7 +270,7 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     click_button("Save Patchinfo")
 
     project = Project.find_by(name: "home:tom")
-    Package.any_instance.stubs(:check_devel_packages).returns(false)
+    Package.any_instance.stubs(:check_weak_dependencies?).returns(false)
 
     # the actual test...
     visit patchinfo_show_path(package: 'patchinfo', project: project.name)

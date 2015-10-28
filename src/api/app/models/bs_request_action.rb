@@ -734,7 +734,7 @@ class BsRequestAction < ActiveRecord::Base
     end
     if self.source_package
       spkg = Package.get_by_project_and_name(self.source_project, self.source_package, use_source: true, follow_project_links: true)
-      spkg.can_be_deleted? if spkg && self.sourceupdate == 'cleanup'
+      spkg.check_weak_dependencies! if spkg && self.sourceupdate == 'cleanup'
     end
 
     sprj

@@ -197,7 +197,7 @@ class Webui::PatchinfoController < Webui::WebuiController
   def remove
     authorize @package, :destroy?
 
-    if @package.destroy
+    if @package.check_weak_dependencies? && @package.destroy
       redirect_to(project_show_path(@project), notice: "Patchinfo was successfully removed.")
     else
       redirect_to(patchinfo_show_path(package: @package, project: @project),

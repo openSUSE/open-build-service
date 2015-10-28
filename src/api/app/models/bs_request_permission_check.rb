@@ -91,7 +91,7 @@ class BsRequestPermissionCheck
 
   def check_delete_accept(action)
     if @target_package
-      @target_package.can_be_deleted?
+      @target_package.check_weak_dependencies!
     else
       if action.target_repository
         r=Repository.find_by_project_and_name(@target_project.name, action.target_repository)
@@ -100,7 +100,7 @@ class BsRequestPermissionCheck
         end
       else
         # remove entire project
-        @target_project.can_be_deleted?
+        @target_project.check_weak_dependencies!
       end
     end
   end

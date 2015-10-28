@@ -175,7 +175,7 @@ class SourceController < ApplicationController
                    :message => "Permission denied (delete project #{project})"
       return
     end
-    project.can_be_deleted?
+    project.check_weak_dependencies!
     check_and_remove_repositories!(project.repositories, !params[:remove_linking_repositories].blank?, !params[:force].blank?)
 
     logger.info "destroying project object #{project.name}"
@@ -298,7 +298,7 @@ class SourceController < ApplicationController
     end
 
     # deny deleting if other packages use this as develpackage
-    tpkg.can_be_deleted? unless params[:force]
+    tpkg.check_weak_dependencies! unless params[:force]
 
     logger.info "destroying package object #{tpkg.name}"
     tpkg.commit_opts = { comment: params[:comment] }

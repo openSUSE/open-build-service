@@ -256,7 +256,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   def destroy
     authorize @project, :destroy?
-    if @project.can_be_really_deleted?
+    if @project.check_weak_dependencies?
       parent = @project.parent
       @project.destroy
       if parent
