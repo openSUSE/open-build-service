@@ -4,6 +4,28 @@ class Flag < ActiveRecord::Base
 
   belongs_to :architecture
 
+  validates :flag, :presence => true
+  validates :position, :presence => true
+  validates_numericality_of :position, :only_integer => true
+
+  before_validation(:on => :create) do
+    if self.project
+      self.position = (self.project.flags.maximum(:position) || 0 ) + 1
+    elsif self.package
+      self.position = (self.package.flags.maximum(:position) || 0 ) + 1
+    end
+  end
+
+  validate :validate_custom_save
+  def validate_custom_save
+    errors.add(:name, 'Please set either project or package.') if self.project.nil? and self.package.nil?
+    errors.add(:name, 'Please set either project or package.') unless self.project.nil? or self.package.nil?
+    errors.add(:flag, 'There needs to be a valid flag.') unless FlagHelper::TYPES.has_key?(self.flag.to_s)
+    # rubocop:disable Metrics/LineLength
+    errors.add(:status, 'Status needs to be enable or disable') unless (self.status && (self.status.to_sym == :enable or self.status.to_sym == :disable))
+    # rubocop:enable Metrics/LineLength
+  end
+
   validate :validate_duplicates, :on => :create
   def validate_duplicates
     # rubocop:disable Metrics/LineLength
@@ -12,6 +34,11 @@ class Flag < ActiveRecord::Base
     end
     # rubocop:enable Metrics/LineLength
   end
+
+  scope :dobuild, -> { where(flag: 'build') }
+  scope :publish, -> { where(flag: 'publish') }
+  scope :debuginfo, -> { where(flag: 'debuginfo') }
+  scope :useforbuild, -> { where(flag: 'useforbuild') }
 
   def to_xml(builder)
     raise RuntimeError.new( "FlagError: No flag-status set. \n #{self.inspect}" ) if self.status.nil?
@@ -67,26 +94,6 @@ class Flag < ActiveRecord::Base
     ret
   end
 
-  validates :flag, :presence => true
-  validates :position, :presence => true
-  validates_numericality_of :position, :only_integer => true
 
-  before_validation(:on => :create) do
-    if self.project
-      self.position = (self.project.flags.maximum(:position) || 0 ) + 1
-    elsif self.package
-      self.position = (self.package.flags.maximum(:position) || 0 ) + 1
-    end
-  end
-
-  validate :validate_custom_save
-  def validate_custom_save
-    errors.add(:name, 'Please set either project or package.') if self.project.nil? and self.package.nil?
-    errors.add(:name, 'Please set either project or package.') unless self.project.nil? or self.package.nil?
-    errors.add(:flag, 'There needs to be a valid flag.') unless FlagHelper::TYPES.has_key?(self.flag.to_s)
-    # rubocop:disable Metrics/LineLength
-    errors.add(:status, 'Status needs to be enable or disable') unless (self.status && (self.status.to_sym == :enable or self.status.to_sym == :disable))
-    # rubocop:enable Metrics/LineLength
-  end
 
 end
