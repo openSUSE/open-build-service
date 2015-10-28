@@ -1194,6 +1194,12 @@ class Package < ActiveRecord::Base
   end
 
   def self.verify_file!(pkg, name, content)
+    raise IllegalFileName, "'#{name}' is not a valid filename" if (!name.present? || !(name =~ %r{^[^\/]+$}))
+
+    # file is an ActionDispatch::Http::UploadedFile and Suse::Validator.validate
+    # will call to_s therefore we have to read the content first
+    content = File.open(content.path).read if content.kind_of?(ActionDispatch::Http::UploadedFile)
+
     # schema validation, if possible
     %w{aggregate constraints link service patchinfo channel}.each do |schema|
       if name == '_' + schema
@@ -1242,9 +1248,10 @@ class Package < ActiveRecord::Base
   def save_file(opt = {})
     content = '' # touch an empty file first
     content = opt[:file] if opt[:file]
+
     logger.debug "storing file: filename: #{opt[:filename]}, comment: #{opt[:comment]}"
 
-    Package.verify_file!(self, opt[:filename], opt[:file])
+    Package.verify_file!(self, opt[:filename], content)
     unless User.current.can_modify_package?(self)
       raise PutFileNoPermission, "Insufficient permissions to store file in package #{self.name}, project #{self.project.name}"
     end

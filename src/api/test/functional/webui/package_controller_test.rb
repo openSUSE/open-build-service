@@ -346,10 +346,6 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.wont_have_field('supersede_request_ids[]')
   end
 
-  def test_save_file
-    skip("modify some file, store and check for errors. Esp. validation errors on special files like _link or .product files")
-  end
-
   def test_remove_file
     use_js
 
