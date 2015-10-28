@@ -785,6 +785,29 @@ Ignore: package:cups'
     assert_response :success
   end
 
+  def test_check_lock_and_unlock_of_empty_project
+    login_Iggy
+    put '/source/home:Iggy:TEST/_meta', "<project name='home:Iggy:TEST'> <title/> <description/> </project>"
+    assert_response :success
+
+    # lock command
+    post '/source/home:Iggy:TEST?cmd=lock'
+    assert_response :success
+    get '/source/home:Iggy:TEST/_meta'
+    assert_response :success
+    assert_xml_tag tag: "lock"
+
+    # unlock command
+    post '/source/home:Iggy:TEST?cmd=unlock&comment=doit'
+    assert_response :success
+    get '/source/home:Iggy:TEST/_meta'
+    assert_response :success
+    assert_no_xml_tag tag: "lock"
+
+    delete '/source/home:Iggy:TEST'
+    assert_response :success
+  end
+
   def test_lock_package
     login_Iggy
     put '/source/home:Iggy/TestLinkPack/_meta', "<package project='home:Iggy' name='TestLinkPack'> <title/> <description/> </package>"

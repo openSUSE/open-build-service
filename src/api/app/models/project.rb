@@ -1494,9 +1494,7 @@ class Project < ActiveRecord::Base
       self.store({ :comment => comment })
 
       # maintenance incidents need special treatment when unlocking
-      if self.is_maintenance_incident?
-        self.reopen_release_targets
-      end
+      self.reopen_release_targets if self.is_maintenance_incident?
     end
     update_packages_if_dirty
   end
@@ -1530,6 +1528,8 @@ class Project < ActiveRecord::Base
       end
     end
     self.store(p)
+
+    return unless self.repositories.count > 0
     # ensure higher build numbers for re-release
     Suse::Backend.post "/build/#{URI.escape(self.name)}?cmd=wipe", nil
   end
