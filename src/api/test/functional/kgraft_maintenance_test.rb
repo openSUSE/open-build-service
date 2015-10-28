@@ -96,8 +96,11 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     put '/source/Channel/BaseDistro2/_meta', '<package project="Channel" name="BaseDistro2"><title/><description/></package>'
     assert_response :success
     # rubocop:disable Metrics/LineLength
-    post '/source/Channel/BaseDistro2?cmd=importchannel&target_project=BaseDistro2Channel&target_repository=channel_repo', '<?xml version="1.0" encoding="UTF-8"?>
+    post '/source/Channel/BaseDistro2?cmd=importchannel', '<?xml version="1.0" encoding="UTF-8"?>
         <channel>
+          <target project="BaseDistro2Channel" repository="channel_repo">
+            <disabled/>
+          </target>
           <binaries project="BaseDistro:Update" repository="BaseDistroUpdateProject_repo" arch="i586">
             <binary name="package" package="pack2" project="BaseDistro2.0:LinkedUpdateProject" repository="BaseDistro2LinkedUpdateProject_repo" />
           </binaries>
@@ -107,7 +110,9 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     raw_put "/source/home:king:branches:BaseDistro2.0/BaseDistro2.Channel/_channel", "<?xml version='1.0' encoding='UTF-8'?>
         <channel>
-          <target project='BaseDistro2Channel' repository='channel_repo'/>
+          <target project='BaseDistro2Channel' repository='channel_repo'>
+            <disabled/>
+          </target>
           <binaries arch='i586' project='BaseDistro2.0:LinkedUpdateProject' repository='BaseDistro2LinkedUpdateProject_repo'>
             <binary name='package' package='kgraft-GA' />
           </binaries>
@@ -159,6 +164,13 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                    :tag => "path", :attributes => { :project => kernelIncidentProject, :repository => "BaseDistro2.0_LinkedUpdateProject" }
     assert_xml_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro2.0" } },
                    :tag => "path", :attributes => { :project => "BaseDistro2.0", :repository => "BaseDistro2_repo" }
+    assert_no_xml_tag tag: "repository", attributes: { name: "BaseDistro2Channel" }
+
+    # add disabled target repo
+    post "/source/#{incidentProject}?cmd=modifychannels&mode=enable_all", nil
+    assert_response :success
+    get "/source/"+incidentProject+"/_meta"
+    assert_response :success
     assert_xml_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro2Channel" } },
                    :tag => "path", :attributes => { :project => "BaseDistro2Channel", :repository => "channel_repo" }
     assert_xml_tag :parent => { :tag => "repository", :attributes => { :name => "BaseDistro2Channel" } },

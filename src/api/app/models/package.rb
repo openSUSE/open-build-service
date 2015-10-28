@@ -929,10 +929,12 @@ class Package < ActiveRecord::Base
   end
 
   def _add_channel(mode, channel_binary, message)
+    # add source container
     return if mode == :skip_disabled and not channel_binary.channel_binary_list.channel.is_active?
     cpkg = channel_binary.create_channel_package_into(self.project, message)
     return unless cpkg
-    return if mode.nil? and not channel_binary.channel_binary_list.channel.is_active?
+    # add and enable repos
+    return if mode == :add_disabled and not channel_binary.channel_binary_list.channel.is_active?
     cpkg.channels.first.add_channel_repos_to_project(cpkg, mode)
   end
   private :_add_channel
