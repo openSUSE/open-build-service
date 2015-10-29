@@ -718,7 +718,7 @@ sub expandproduct {
 	if ($pidpack) {
 	  eval {
 	    $pidpack->{'name'} = $pid unless defined $pidpack->{'name'};
-	    verify_pack($pidpack, $pid);
+	    BSVerify::verify_pack($pidpack, $pid);
 	  };
 	  if ($@) {
 	    warn($@);
