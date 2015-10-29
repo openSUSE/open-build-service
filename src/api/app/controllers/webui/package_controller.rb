@@ -666,7 +666,8 @@ class Webui::PackageController < Webui::WebuiController
           redirect_to(:back, :error => 'Timeout when saving file. Please try again.')
         end
         return
-      rescue ActiveXML::Transport::Error => e
+      rescue Suse::ValidationError,
+             ActiveXML::Transport::Error => e
         if request.xhr?
           render(json: { error: e.summary }, status: 400)
         else
