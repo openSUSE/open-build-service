@@ -70,6 +70,12 @@ class User < ActiveRecord::Base
     Project.find_or_create_by(name: self.home_project_name)
   end
 
+  # the default state of a user based on the api configuration
+  def self.default_user_state
+    return STATES['unconfirmed'] if ::Configuration.registration == "confirmation"
+    STATES['confirmed']
+  end
+
   # When a record object is initialized, we set the state, password
   # hash type, indicator whether the password has freshly been set
   # (@new_password) and the login failure count to

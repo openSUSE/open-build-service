@@ -12,8 +12,12 @@ class Webui::ProxyModeTest < Webui::IntegrationTest
     user.destroy if user
     visit '/home'
     assert_equal '/user/show/pico', page.current_path
-    assert User.where(login: 'pico').exists?
-    User.find_by(login: 'pico').destroy
+    u=User.find_by(login: 'pico')
+    assert_not_nil u
+    assert_equal u.state, User::STATES['confirmed']
+    assert_equal u.realname, "Arnold Pico Schütz"
+    assert_equal u.email, "pico@werder.de"
+    u.destroy
   end
 
   def test_access_as_existing_user

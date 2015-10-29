@@ -250,33 +250,36 @@ class Webui::WebuiController < ActionController::Base
 
   def check_user
     check_spiders
-    user_login = nil # reset old users hanging around
-    mode = CONFIG['proxy_auth_mode'] || :off
-    if mode == :on
-      logger.debug "Authenticating with iChain mode: #{mode}"
+    User.current = nil # reset old users hanging around
+
+    if CONFIG['proxy_auth_mode'] == :on
+      logger.debug "Authenticating with proxy auth mode"
       user_login = request.env['HTTP_X_USERNAME']
+      if user_login.blank?
+        User.current = User.find_nobody!
+        return
+      end
+
       # If the user logs in for the first time (before we have a User with that login)
-      if user_login && !User.where(login: user_login).exists?
+      unless User.where(login: user_login).exists?
         logger.debug "Creating user #{user_login}"
         chars = ["A".."Z", "a".."z", "0".."9"].collect { |r| r.to_a }.join
         fakepw = (1..24).collect { chars[rand(chars.size)] }.pack("a"*24)
         User.create!(login: user_login,
                      email: request.env['HTTP_X_EMAIL'],
+                     state: User.default_user_state,
                      realname: "#{request.env['HTTP_X_FIRSTNAME']} #{request.env['HTTP_X_LASTNAME']}".strip,
                      password: fakepw,
                      password_confirmation: fakepw)
       end
-    else
-      if session[:login]
-        user_login = session[:login]
-      end
-    end
-    User.current = user_login ? User.find_by_login(user_login) : User.find_nobody!
 
-    # Always update user data from login proxy headers
-    if mode == :on && !User.current.is_nobody?
+      User.current = User.find_by_login(user_login)
       User.current.update_user_info_from_proxy_env(request.env)
+      return
     end
+
+    User.current = User.find_by_login(session[:login]) if session[:login]
+    User.current ||= User.find_nobody!
   end
 
   def check_display_user
