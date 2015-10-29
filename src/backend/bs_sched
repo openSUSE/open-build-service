@@ -9541,6 +9541,19 @@ NEXTPRP:
 	  }
 	}
       }
+      # special handling for incidents, we need to guarantee that dirty flag of channel
+      # are set in channel repos early enough or a release may be possible
+      my $proj = $projpacks->{$projid} || {};
+      if (($proj->{'kind'} || '') eq 'maintenance_incident') {
+	for my $my_repo (@{$proj->{'repository'} ||[]}) {
+          my $my_prp = "$projid/$my_repo->{'name'}";
+	  next if $prpfinished{$my_prp};
+	  for (@{$prpdeps{$my_prp}}) {
+	    next if $prpfinished{$_};
+	    BSUtil::touch("$reporoot/$my_prp/$myarch/:schedulerstate.dirty") if -d "$reporoot/$my_prp/$myarch";
+          }
+        }
+      }
     } else {
       delete $prpfinished{$prp};
       unlink("$reporoot/$prp/$myarch/:repodone");
