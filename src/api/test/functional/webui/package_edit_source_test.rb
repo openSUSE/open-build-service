@@ -188,6 +188,11 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
 
   def test_add_source_file_all_fields_empty
     open_add_file
+
+    # The button is disabled when all fields are empty.
+    # However, we want to test that the controller returns an error message
+    # if the user enables the button.
+    page.execute_script("$('#submit_button').attr('disabled', false);")
     add_file(
       name: '',
       upload_path: '',
