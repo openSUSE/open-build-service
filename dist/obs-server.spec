@@ -487,6 +487,16 @@ if ! bundle exec rake test:api test:webui ; then
   kill $(cat memcached.pid)
   exit 1
 fi
+# modify config to simulate login proxy
+grep -v proxy_auth_mode config/options.yml > config/options.yml.tmp
+echo "proxy_auth_mode: :on" >> config/options.yml.tmp
+mv config/options.yml.tmp config/options.yml
+mv log/test.log{,.old}
+if ! bundle exec rake test:proxy_mode ; then
+  cat log/test.log
+  kill $(cat memcached.pid)
+  exit 1
+fi
 kill $(cat memcached.pid) || :
 popd
 
