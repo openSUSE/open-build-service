@@ -20,7 +20,7 @@ class Webui::PackageController < Webui::WebuiController
                                         :branch_dialog, :branch, :save_new_link, :save, :delete_dialog,
                                         :remove, :add_file, :save_file, :remove_file, :save_person,
                                         :save_group, :remove_role, :view_file,
-                                        :live_build_log, :update_build_log, :abort_build, :trigger_rebuild,
+                                        :abort_build, :trigger_rebuild,
                                         :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
                                         :save_meta, :attributes, :edit, :change_flag,
                                         :import_spec, :files, :comments]
@@ -31,7 +31,7 @@ class Webui::PackageController < Webui::WebuiController
                                             :branch_dialog, :branch, :save, :delete_dialog,
                                             :remove, :add_file, :save_file, :remove_file, :save_person,
                                             :save_group, :remove_role, :view_file,
-                                            :live_build_log, :update_build_log, :abort_build, :trigger_rebuild,
+                                            :abort_build, :trigger_rebuild,
                                             :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
                                             :save_meta, :attributes, :edit, :change_flag,
                                             :import_spec, :files, :comments, :repositories, :users,
@@ -803,11 +803,17 @@ class Webui::PackageController < Webui::WebuiController
 
   def live_build_log
     required_parameters :arch, :repository
-    if @package and not @package.check_source_access?
+
+    @project = Project.get_by_name(params[:project])
+    @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: true)
+
+    if @package && !@package.check_source_access?
       flash[:error] = 'Could not access build log'
       redirect_to action: :show, project: @project.name, package: @package.name
       return
     end
+
+    @package = params[:package] unless @package
     @arch = params[:arch]
     @repo = params[:repository]
     @offset = 0

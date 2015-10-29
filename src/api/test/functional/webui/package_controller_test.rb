@@ -378,10 +378,17 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   end
 
   def test_access_live_build_log
+    use_js
     visit '/package/live_build_log/home:Iggy/TestPack/10.2/i586'
     page.status_code.must_equal 200
+    page.must_have_text "Build finished"
+    page.must_have_text "[1] this is my dummy logfile -&gt; ümlaut"
     login_Iggy to: '/package/live_build_log/SourceprotectedProject/pack/repo/i586'
     page.status_code.must_equal 200
     flash_message.must_equal 'Could not access build log'
+    visit '/package/live_build_log/UseRemoteInstance/pack2.linked/pop/i586/'
+    page.status_code.must_equal 200
+    page.must_have_text "Build finished"
+    page.must_have_text "[1] this is my dummy logfile -&gt; ümlaut"
   end
 end

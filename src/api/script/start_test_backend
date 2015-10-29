@@ -270,6 +270,7 @@ Suse::Backend.put('/source/kde4/kdebase/myfile2?user=king', 'DummyContent')
 Suse::Backend.put('/source/kde4/kdelibs/my_patch.diff?user=king', 'argl')
 Suse::Backend.put('/source/home:dmayr/x11vnc/README?user=king', 'just to delete')
 Suse::Backend.put('/source/home:king/_config?user=king', 'Type: spec')
+Suse::Backend.put('/source/UseRemoteInstance/_config?user=king', 'Type: spec')
 
 # manual placing of files
 FileUtils.cp("#{Rails.root}/test/fixtures/backend/source/_pubkey", "#{backend_data}/projects/BaseDistro.pkg/_pubkey")
@@ -347,6 +348,7 @@ scheduler_thread = Thread.new do
   inject_build_job('home:Iggy', 'TestPack', '10.2', 'i586')
   inject_build_job('home:Iggy', 'TestPack', '10.2', 'x86_64')
   inject_build_job('HiddenProject', 'pack', 'nada', 'i586')
+  inject_build_job('UseRemoteInstance', 'pack2.linked', 'pop', 'i586')
   inject_build_job('BinaryprotectedProject', 'bdpack', 'nada', 'i586')
   inject_build_job('SourceprotectedProject', 'pack', 'repo', 'i586')
   inject_build_job('BaseDistro3', 'pack2', 'BaseDistro3_repo', 'i586', "package_newweaktags-1.0-1.x86_64.rpm")
