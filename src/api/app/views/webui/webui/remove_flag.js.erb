@@ -1,0 +1,3 @@
+<% arch = @flag.architecture ? @flag.architecture.name : nil %>
+$( "#<%= @flag.fullname %>".replace(/\./g, '\\.') ).replaceWith("<%= escape_javascript(render partial: 'shared/repositories_flag_table_column', :locals => { flag: nil, type: @flag.flag, repo: @flag.repo, architecture: arch }) %>");
+$( ".spinner").hide();

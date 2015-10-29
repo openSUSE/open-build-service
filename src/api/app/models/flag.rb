@@ -35,10 +35,32 @@ class Flag < ActiveRecord::Base
     # rubocop:enable Metrics/LineLength
   end
 
-  scope :dobuild, -> { where(flag: 'build') }
-  scope :publish, -> { where(flag: 'publish') }
-  scope :debuginfo, -> { where(flag: 'debuginfo') }
-  scope :useforbuild, -> { where(flag: 'useforbuild') }
+  scope :with_types, ->(type) { where(flag: type) }
+  scope :with_repositories, ->(repo_name) { where(repo: repo_name) }
+  scope :with_architectures, ->(architecture_id) { where(architecture_id: architecture_id) }
+
+  def self.default_state(flag_name)
+    case flag_name
+    when 'lock'
+      'disable'
+    when 'build'
+      'enable'
+    when 'publish'
+      'enable'
+    when 'debuginfo'
+      'disable'
+    when 'useforbuild'
+      'enable'
+    when 'binarydownload'
+      'enable'
+    when 'binarydownload'
+      'enable'
+    when 'access'
+      'enable'
+    else
+      'disable'
+    end
+  end
 
   def to_xml(builder)
     raise RuntimeError.new( "FlagError: No flag-status set. \n #{self.inspect}" ) if self.status.nil?
@@ -91,6 +113,13 @@ class Flag < ActiveRecord::Base
     ret = status
     ret += " arch=#{self.architecture.name}" unless self.architecture.nil?
     ret += " repo=#{self.repo}" unless self.repo.nil?
+    ret
+  end
+
+  def fullname
+    ret = self.flag
+    ret += "_#{repo}" unless repo.blank?
+    ret += "_#{architecture.name}" unless architecture_id.blank?
     ret
   end
 
