@@ -34,7 +34,7 @@ class Webui::PackageController < Webui::WebuiController
                                             :save_group, :remove_role, :view_file,
                                             :abort_build, :trigger_rebuild,
                                             :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
-                                            :save_meta, :attributes, :edit, :change_flag,
+                                            :attributes, :edit, :change_flag,
                                             :import_spec, :files, :comments, :repositories, :users,
                                             :save_comment]
 
@@ -984,18 +984,44 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def save_meta
+    errors = []
+
     begin
-      frontend.put_file(params[:meta], :project => @project, :package => @package, :filename => '_meta')
-    rescue ActiveXML::Transport::Error => e
-      message = e.summary
-      flash[:error] = message
-      @meta = params[:meta]
-      render :text => message, :status => 400, :content_type => 'text/plain'
-      return
+      Suse::Validator.validate('package', params[:meta])
+      meta_xml = Xmlhash.parse(params[:meta])
+
+      # That's a valid XML file
+      if Package.exists_by_project_and_name(@project.name, params[:package], follow_project_links: false)
+        @package = Package.get_by_project_and_name(@project.name, params[:package], use_source: false, follow_project_links: false)
+        authorize @package, :update?
+
+        if @package && !@package.disabled_for?('sourceaccess', nil, nil) && FlagHelper.xml_disabled_for?(meta_xml, 'sourceaccess')
+          errors << 'admin rights are required to raise the protection level of a package'
+        end
+
+        if meta_xml['project'] && meta_xml['project'] != @project.name
+          errors << "project name in xml data does not match resource path component"
+        end
+
+        if meta_xml['name'] && meta_xml['name'] != @package.name
+          errors << 'package name in xml data does not match resource path component'
+        end
+      else
+        errors << "Package doesn't exists in that project."
+      end
+
+    rescue Suse::ValidationError => e
+      errors << e.message
     end
 
-    flash[:notice] = 'Config successfully saved'
-    render :text => 'Config successfully saved', :content_type => 'text/plain'
+    if errors.empty?
+      @package.update_from_xml(meta_xml)
+      flash.now[:success] = "The Meta file has been successfully saved."
+      render layout: false, partial: 'layouts/webui/flash', object: flash
+    else
+      flash.now[:error] = "Error while saving the Meta file: #{errors.compact.join("\n")}."
+      render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
+    end
   end
 
   def edit
