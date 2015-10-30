@@ -40,8 +40,8 @@
 
         <% content_for :head_javascript do %>
             <% cache ['list_public_arrays', cachekey] do %>
-                var main_projects = [ <%= escape_project_list(@main_projects) %> ];
-                var excl_projects = [ <%= escape_project_list(@excl_projects) %> ];
+                var main_projects = [ <%= escape_nested_list(@main_projects) %> ];
+                var excl_projects = [ <%= escape_nested_list(@excl_projects) %> ];
             <% end %>
         <% end %>
         <% content_for :ready_function do %>

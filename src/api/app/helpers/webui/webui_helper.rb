@@ -530,15 +530,15 @@ module Webui::WebuiHelper
     return true
   end
 
-  def escape_project_list(projects)
-    # name and title are not html_safe
+  def escape_nested_list(list)
+    # The input list is not html_safe
     # because it's user input which we
     # should never trust!!!
-    projects.map { |project|
+    list.map { |item|
       "['".html_safe +
-      project[0] +
+      escape_javascript(item[0]) +
       "', '".html_safe +
-      escape_javascript(project[1]) +
+      escape_javascript(item[1]) +
       "']".html_safe
     }.join(",\n").html_safe
   end
