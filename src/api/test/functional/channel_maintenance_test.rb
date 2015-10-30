@@ -505,6 +505,9 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     run_publisher
     get "/build/#{incidentProject}/BaseDistro3Channel/i586/patchinfo/updateinfo.xml"
     assert_response :success
+    node = Xmlhash.parse(@response.body)
+    old_release_date = node['update']['issued']['date']
+    assert_equal old_release_date, old_release_date.to_i.to_s # this is the backend time, not handled by Timecop
     assert_xml_tag :parent => { tag: 'update', attributes: { from: 'tom', status: 'stable', type: 'recommended', version: '1' } }, :tag => 'id', :content => "UpdateInfoTag-#{Time.now.utc.year.to_s}-My_Maintenance_0"
 
     # check published search db
@@ -662,9 +665,11 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'entry', :attributes => { name: 'repomd.xml' }
     assert_xml_tag :tag => 'entry', :attributes => { name: 'updateinfo.xml.gz' } # by modifyrepo
     IO.popen("gunzip -cd #{Rails.root}/tmp/backend_data/repos/BaseDistro3Channel/channel_repo/repodata/updateinfo.xml.gz") do |io|
-       node = REXML::Document.new( io.read )
+      node = Xmlhash.parse(io.read)
     end
-    assert_equal "UpdateInfoTagNew-patch_name-#{Time.now.year}-1", node.elements['/updates/update/id'].first.to_s
+    assert_equal "UpdateInfoTagNew-patch_name-#{Time.now.year}-1", node['update']['id']
+    # our operations take way more then 1 second so far
+    assert old_release_date < node['update']['issued']['date']
 
     # channel search tests
     get '/search/channel/binary?match=@name="package"'

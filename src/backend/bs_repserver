@@ -2073,6 +2073,7 @@ sub copybuild {
       my $updateinfo = readxml("$odir/$bin", $BSXML::updateinfo);
       for (@{$updateinfo->{'update'} || []}) {
         $_->{'id'} = $cgi->{'setupdateinfoid'};
+        $_->{'issued'} = { 'date' => time() } if $_->{'issued'};
       }
       writexml("$dir/$bin", undef, $updateinfo, $BSXML::updateinfo);
     } else {
