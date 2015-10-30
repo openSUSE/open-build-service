@@ -737,7 +737,12 @@ class Package < ActiveRecord::Base
       path = source_path
       path << Suse::Backend.build_query_from_hash({ user: User.current.login, comment: commit_opts[:comment], requestid: commit_opts[:request]},
                                                   [:user, :comment, :requestid])
-      Suse::Backend.delete path
+      begin
+        Suse::Backend.delete path
+      rescue ActiveXML::Transport::NotFoundError
+        # ignore this error, backend was out of sync
+        logger.warn("Package #{self.project.name}/#{self.name} was already missing on backend on removal")
+      end
       logger.tagged('backend_sync') { logger.debug "Deleted Package #{self.project.name}/#{self.name}" }
     else
       if @commit_opts[:no_backend_write]
