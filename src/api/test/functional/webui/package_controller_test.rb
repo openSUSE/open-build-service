@@ -198,7 +198,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     end
     find('.buildstatus').must_have_text 'succeeded'
     click_link 'succeeded'
-    find(:id, 'log_space').must_have_text '[1] this is my dummy logfile -> ümlaut'
+    find(:id, 'log_space').must_have_text '[1] this is my dummy logfile -&gt; ümlaut'
     first(:link, 'Download logfile').click
     # don't bother with the ümlaut
     assert_match %r{this is my dummy}, page.source

@@ -50,8 +50,20 @@ module Webui::PackageHelper
   end
 
   def nbsp(text)
-    return text.gsub(' ', '&nbsp;')
-  end
+    result = "".html_safe
+    text.split(" ").each do |text_chunk|
+      result << text_chunk
+      result << "&nbsp;".html_safe
+    end
+    result.chomp!("&nbsp;")
 
+    if result.length >= 50
+      # Allow break line for very long file names
+      result = result.scan(/.{1,50}/).join("<wbr>")
+    end
+    # We just need to make it a SafeBuffer object again, after calling chomp and join.
+    # But at this point we know it truly is html safe
+    result.html_safe
+  end
 end
 

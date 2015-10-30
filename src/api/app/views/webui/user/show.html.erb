@@ -77,8 +77,7 @@
                                                              :project => 'REPLACEPRJ',
                                                              :package => 'REPLACEPKG') %> ">
       <% content_for :ready_function do %>
-        var ipackages = [ <%= @ipackages.map {|p|
-                           "['#{p[0]}','#{escape_javascript(p[1])}']" }.join(",\n").html_safe %> ];
+            var ipackages = [  <%= escape_nested_list(@ipackages) %>];
         renderPackagesProjectsTable({packages: ipackages, length: '15', name: 'ipackages_wrapper'});
       <% end %>
     </div>
@@ -93,7 +92,7 @@
     <% else %>
     <div id="projects_table_wrapper" data-url="<%= url_for(controller: 'project', action: 'show', project: 'REPLACEIT') %>">
     <% content_for :head_javascript do %>
-      var main_projects = [ <%= escape_project_list(@iprojects) %> ];
+      var main_projects = [ <%= escape_nested_list(@iprojects) %> ];
       var excl_projects = [];
       <% end %>
       <% content_for :ready_function do %>
@@ -113,8 +112,7 @@
                                                              :project => 'REPLACEPRJ',
                                                              :package => 'REPLACEPKG') %> ">
           <% content_for :ready_function do %>
-            var iowned = [ <%= @owned.map {|p|
-                                "['#{p[1]}','#{escape_javascript(p[0])}']" }.join(",\n").html_safe %> ];
+            var iowned = [ <%= escape_nested_list(@owned) %> ];
             renderPackagesProjectsTable({packages: iowned, length: '15', name: 'iowned_wrapper'});
           <% end %>
         </div>

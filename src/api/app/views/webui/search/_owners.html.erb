@@ -10,6 +10,14 @@
     <p>
     <%= search_owners_list(result.users) %>
     <%= search_owners_list(result.groups, :group) %>
+    <% search_owners_list(result.groups, :group).each do |result| %>
+      <%= result %>
+      <br/>
+    <% end %>
+    <% search_owners_list(result.users).each do |result| %>
+      <%= result %>
+      <br/>
+     <% end %>
     </p>
   </div>
 <% end %>

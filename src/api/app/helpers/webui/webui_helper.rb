@@ -40,19 +40,8 @@ module Webui::WebuiHelper
     user = User.find_by_login!(user) unless user.is_a? User
     alt ||= user.realname
     alt = user.login if alt.empty?
-    if size < 3 # TODO: needs more work, if the icon appears often on the page, it's cheaper to fetch it
-      content = user.gravatar_image(size)
-      if content == :none
-        content = Rails.cache.fetch('default_face') do
-          File.open(Rails.root.join('app', 'assets', 'images',
-                                    'default_face.png'), 'r').read
-        end
-      end
-      "<img src='data:image/jpeg;base64,#{Base64.encode64(content)}' width='#{size}' height='#{size}' alt='#{alt}' class='#{css_class}'/>".html_safe
-    else
-      image_tag(url_for(controller: :user, action: :icon, user: user.login, size: size),
-                width: size, height: size, alt: alt, class: css_class)
-    end
+    image_tag(url_for(controller: :user, action: :icon, icon: user.login, size: size),
+              width: size, height: size, alt: alt, class: css_class)
   end
 
   def fuzzy_time(time)
@@ -90,36 +79,49 @@ module Webui::WebuiHelper
     valid_xml_id("id-#{package}_#{repo}_#{arch}")
   end
 
-  def arch_repo_table_cell(repo, arch, packname)
-    status = status_for(repo, arch, packname)
-    status_id = status_id_for(repo, arch, packname)
+  def arch_repo_table_cell(repo, arch, package_name)
+    status = status_for(repo, arch, package_name)
+    status_id = status_id_for(repo, arch, package_name)
     link_title = status['details']
     if status['code']
       code = status['code']
-      theclass='status_' + code.gsub(/[- ]/, '_')
+      theclass = 'status_' + code.gsub(/[- ]/, '_')
     else
       code = ''
-      theclass=''
+      theclass = ' '
     end
 
-    out = "<td class='#{theclass} buildstatus'>"
-    if %w(unresolvable blocked).include? code
-      out += link_to code, '#', title: link_title, id: status_id
-      content_for :ready_function do
-        "$('a##{status_id}').click(function() { alert('#{link_title.gsub(/'/, '\\\\\'')}'); return false; });\n".html_safe
+    result = "<td class='".html_safe
+    result += "#{theclass}"
+    result +=" buildstatus'>".html_safe
+
+    if %w(unresolvable blocked).include?(code)
+      result += link_to(code, '#', title: link_title, id: status_id, class: code)
+    elsif %w(- excluded).include?(code)
+      result += code
+    elsif @localpackages && !@localpackages.has_key?(package_name)
+      # Scheduled packages have no raw log file...
+      if 'scheduled' == code
+        result += code
+      else
+        result += link_to(code.gsub(/\s/, '&nbsp;'),
+                          raw_logfile_path(package: package_name,
+                                           project: @project.to_s,
+                                           arch: arch, repository: repo),
+                          title: link_title, rel: 'nofollow')
       end
-    elsif %w(- excluded).include? code
-      out += code
-    elsif @localpackages and not @localpackages.has_key? packname
-      out += link_to( code.gsub(/\s/, '&nbsp;'), raw_logfile_path(package: packname, project: @project.to_s, arch: arch, repository: repo),
-                                                 title: link_title, rel: 'nofollow')
     else
-      out += link_to code.gsub(/\s/, '&nbsp;'), { action: :live_build_log,
-                                                  package: packname, project: @project.to_s, arch: arch,
-                                                  controller: 'package', repository: repo }, { title: link_title, rel: 'nofollow' }
+      result += link_to(code.gsub(/\s/, '&nbsp;'),
+                        { action: :live_build_log,
+                          package: package_name, project: @project.to_s,
+                          arch: arch, controller: 'package', repository: repo
+                        },
+                        {
+                            title: link_title, rel: 'nofollow'
+                        })
     end
-    out += '</td>'
-    return out.html_safe
+    result += '</td>'.html_safe
+    result
   end
 
   REPO_STATUS_ICONS = {
@@ -394,26 +396,31 @@ module Webui::WebuiHelper
   # @param [String] user login of the user
   # @param [String] role title of the login
   # @param [Hash]   options boolean flags :short, :no_icon and :no_link
-  def user_and_role(user, role=nil, options = {})
+  def user_and_role(user, role = nil, options = {})
     opt = { short: false, no_icon: false, no_link: false }.merge(options)
-    realname = User.realname_for_login(user)
-    output = ''
+    real_name = User.realname_for_login(user)
 
-    output += user_icon(user) unless opt[:no_icon]
-    unless realname.empty? or opt[:short] == true
-      printed_name = realname + ' (' + user + ')'
+    if opt[:no_icon]
+      icon = ''
+    else
+      # user_icon returns an ActiveSupport::SafeBuffer and not a String
+      icon = user_icon(user)
+    end
+
+    if !(real_name.empty? || opt[:short])
+      printed_name = "#{real_name} (#{user})"
     else
       printed_name = user
     end
-    if role
-      printed_name += ' as ' + role
-    end
-    unless User.current.is_nobody?
-      output += link_to_if(!opt[:no_link], printed_name, user_show_path(user))
-    else
-      output += printed_name
-    end
-    output.html_safe
+
+    printed_name << " as #{role}" if role
+
+    # It's necessary to concat icon and $variable and don't use
+    # string interpolation! Otherwise we get a new string and
+    # not an ActiveSupport::SafeBuffer
+    User.current.is_nobody? ?
+        icon + printed_name :
+        icon + link_to_if(!opt[:no_link], printed_name, user_show_path(user))
   end
 
   def package_link(pack, opts = {})
@@ -530,16 +537,24 @@ module Webui::WebuiHelper
     return true
   end
 
-  def escape_project_list(projects)
-    # name and title are not html_safe
+  def escape_nested_list(list)
+    # The input list is not html_safe
     # because it's user input which we
     # should never trust!!!
-    projects.map { |project|
+    list.map { |item|
       "['".html_safe +
-      project[0] +
+      escape_javascript(item[0]) +
       "', '".html_safe +
-      escape_javascript(project[1]) +
+      escape_javascript(item[1]) +
       "']".html_safe
     }.join(",\n").html_safe
+  end
+
+  def escape_list(list)
+    list.map { |p|
+      "['".html_safe +
+      escape_javascript(p) +
+      "']".html_safe
+    }.join(',').html_safe
   end
 end
