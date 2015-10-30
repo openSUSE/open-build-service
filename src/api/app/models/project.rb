@@ -845,7 +845,12 @@ class Project < ActiveRecord::Base
     if CONFIG['global_write_through']
       path = source_path
       path << Suse::Backend.build_query_from_hash({user: User.current.login, comment: @commit_opts[:comment]}, [:user, :comment])
-      Suse::Backend.delete path
+      begin
+        Suse::Backend.delete path
+      rescue ActiveXML::Transport::NotFoundError
+        # ignore this error, backend was out of sync
+        ogger.warn("Project #{self.name} was already missing on backend on removal")
+      end
       logger.tagged('backend_sync') { logger.debug "Deleted Project #{self.name}" }
     else
       logger.tagged('backend_sync') { logger.warn "Not deleting Project #{self.name}, global_write_through is off" }
