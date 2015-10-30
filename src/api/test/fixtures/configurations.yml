@@ -19,19 +19,19 @@ seed:
   name: obstest
   registration: allow
   anonymous: 1
-  default_tracker: bnc
   default_access_disabled: 0
   allow_user_to_create_home_project: 1
   disallow_group_creation: 0
   change_password: 1
   hide_private_options: 0
-  cleanup_after_days: 3
   gravatar: 0
   enforce_project_keys: 0
   download_on_demand: 1
-  admin_email: obs-email@opensuse.org
   download_url: http://example.com/download
   ymp_url: http://example.com/ymp
   obs_url: http://localhost
+  cleanup_after_days: 3
   cleanup_empty_projects: 1
   disable_publish_for_branches: 1
+  admin_email: obs-email@opensuse.org
+  default_tracker: bnc

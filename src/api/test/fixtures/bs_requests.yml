@@ -6,6 +6,7 @@ bs_requests_1000:
   commenter: tom
   created_at: 2013-09-09 19:15:16.000000000 Z
   updated_at: 2013-09-09 19:15:16.000000000 Z
+  priority: moderate
 missing_projects:
   id: 2
   description: ''
@@ -14,6 +15,7 @@ missing_projects:
   commenter: tom
   created_at: 2012-09-02 13:08:02.000000000 Z
   updated_at: 2012-09-02 13:08:02.000000000 Z
+  priority: moderate
 missing_source_project:
   id: 1
   description: ''
@@ -22,6 +24,7 @@ missing_source_project:
   commenter: tom
   created_at: 2012-09-01 13:08:02.000000000 Z
   updated_at: 2012-09-01 13:08:02.000000000 Z
+  priority: moderate
 missing_target_project:
   id: 3
   description: ''
@@ -30,6 +33,7 @@ missing_target_project:
   commenter: tom
   created_at: 2012-09-03 13:08:02.000000000 Z
   updated_at: 2012-09-03 13:08:02.000000000 Z
+  priority: moderate
 multiple_test:
   id: 10
   description: multiple test
@@ -38,6 +42,7 @@ multiple_test:
   commenter: tom
   created_at: 2013-09-09 19:20:44.000000000 Z
   updated_at: 2013-09-09 19:20:44.000000000 Z
+  priority: moderate
 submit_from_home_project:
   id: 4
   description: test home project shortening
@@ -47,3 +52,4 @@ submit_from_home_project:
   commenter: king
   created_at: 2012-09-04 13:08:02.000000000 Z
   updated_at: 2012-09-28 11:56:53.000000000 Z
+  priority: moderate

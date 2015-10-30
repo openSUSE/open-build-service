@@ -58,7 +58,11 @@ namespace :db do
         classname = Event::Base
       end
 
-      next if table_name == 'architectures_distributions'
+      if table_name == 'history_elements'
+        classname = HistoryElement::Base
+      end
+
+      next if %(architectures_distributions roles_static_permissions).include? table_name
 
       begin
         classname = table_name.classify.constantize unless classname
