@@ -140,7 +140,6 @@ module Event
       Xmlhash.parse(ret.body)['code'] == 'ok'
     end
 
-    create_jobs :send_event_emails
     after_create :perform_create_jobs
 
     def perform_create_jobs
