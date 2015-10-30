@@ -125,12 +125,11 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     end
   end
 
-# broken test: issue 408
-# test "check comments on remote projects" do
-#   login_Iggy
-#   visit package_show_path(project: "UseRemoteInstanceIndirect", package: "patchinfo")
-#   fill_comment
-# end
+  def test_check_comments_on_remote_projects
+    login_Iggy
+    visit package_show_path(project: 'UseRemoteInstanceIndirect', package: 'patchinfo')
+    fill_comment
+  end
 
   def test_succesful_reply_comment_creation
     use_js
