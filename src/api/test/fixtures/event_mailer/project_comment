@@ -1,8 +1,8 @@
 Return-Path: <obs-email@opensuse.org>
 From: Thor <tschmidt@example.com>
 Sender: OBS Notification <obs-email@opensuse.org>
-To: user is maintainer in hidden project <homer@nospam.net>, 
- Iggy Pop <Iggy@pop.org>
+To: Iggy Pop <Iggy@pop.org>, 
+ user is maintainer in hidden project <homer@nospam.net>
 Message-ID: <notrandom@localhost>
 Subject: New comment in project home:Iggy by tom
 Mime-Version: 1.0
