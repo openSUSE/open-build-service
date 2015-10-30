@@ -1,14 +1,16 @@
 Admin_can_change_obs:
-  id: 624394844
+  id: 1
   attrib_namespace_id: 9
   user: Admin
-king_can_change_obs:
-  id: 624394835
-  attrib_namespace_id: 9
-  user: king
 fred_can_change_obs:
+  id: 3
   attrib_namespace_id: 9
   user: fred
 honks_can_change_obs:
+  id: 4
   attrib_namespace_id: 9
   group: honks
+king_can_change_obs:
+  id: 2
+  attrib_namespace_id: 9
+  user: king
