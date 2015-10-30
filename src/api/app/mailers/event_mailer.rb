@@ -49,6 +49,7 @@ class EventMailer < ActionMailer::Base
     mail(to: tos,
          subject: e.subject,
          from: orig,
+         date: e.created_at,
          template_name: template_name)
   end
 
