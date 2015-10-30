@@ -429,10 +429,12 @@ XML
 
   def test_successful_comment_creation
     login_tom to: '/project/show/home:Iggy'
+    SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       fill_in 'body', with: 'Comment Body'
       find_button('Add comment').click
       find('#flash-messages').must_have_text 'Comment was successfully created.'
+      SendEventEmails.new.perform
     end
     email = ActionMailer::Base.deliveries.last
     verify_email('project_comment', email)
