@@ -383,26 +383,31 @@ module Webui::WebuiHelper
   # @param [String] user login of the user
   # @param [String] role title of the login
   # @param [Hash]   options boolean flags :short, :no_icon and :no_link
-  def user_and_role(user, role=nil, options = {})
+  def user_and_role(user, role = nil, options = {})
     opt = { short: false, no_icon: false, no_link: false }.merge(options)
-    realname = User.realname_for_login(user)
-    output = ''
+    real_name = User.realname_for_login(user)
 
-    output += user_icon(user) unless opt[:no_icon]
-    unless realname.empty? or opt[:short] == true
-      printed_name = realname + ' (' + user + ')'
+    if opt[:no_icon]
+      icon = ''
+    else
+      # user_icon returns an ActiveSupport::SafeBuffer and not a String
+      icon = user_icon(user)
+    end
+
+    if !(real_name.empty? || opt[:short])
+      printed_name = "#{real_name} (#{user})"
     else
       printed_name = user
     end
-    if role
-      printed_name += ' as ' + role
-    end
-    unless User.current.is_nobody?
-      output += link_to_if(!opt[:no_link], printed_name, user_show_path(user))
-    else
-      output += printed_name
-    end
-    output.html_safe
+
+    printed_name << " as #{role}" if role
+
+    # It's necessary to concat icon and $variable and don't use
+    # string interpolation! Otherwise we get a new string and
+    # not an ActiveSupport::SafeBuffer
+    User.current.is_nobody? ?
+        icon + printed_name :
+        icon + link_to_if(!opt[:no_link], printed_name, user_show_path(user))
   end
 
   def package_link(pack, opts = {})
