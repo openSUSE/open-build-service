@@ -3,6 +3,7 @@ require 'project'
 
 class Webui::PackageController < Webui::WebuiController
 
+  require_dependency 'opensuse/validator'
   include Webui::HasComments
   include ParsePackageDiff
   include Webui::WebuiHelper
@@ -634,10 +635,6 @@ class Webui::PackageController < Webui::WebuiController
     set_file_details
   end
 
-  def valid_file_name? name
-    name.present? && name =~ %r{^[^\/]+$}
-  end
-
   def save_file
     authorize @package, :update?
 
@@ -645,83 +642,57 @@ class Webui::PackageController < Webui::WebuiController
     file_url = params[:file_url]
     filename = params[:filename]
 
-    if file.present? # we are getting an uploaded file
-      filename = file.original_filename if filename.blank?
+    errors = []
 
-      unless valid_file_name?(filename)
-        if request.xhr?
-          render(json: { error: "'#{filename}' is not a valid filename." }, status: 400)
-        else
-          redirect_to(:back, :error => "'#{filename}' is not a valid filename.")
-        end
-        return
-      end
-
-      begin
+    begin
+      if file.present?
+        # We are getting an uploaded file
+        filename = file.original_filename if filename.blank?
         @package.save_file(file: file, filename: filename, :comment => params[:comment])
-      rescue Timeout::Error => e
-        if request.xhr?
-          render(json: { error: 'Timeout when saving file. Please try again.'}, status: 400)
-        else
-          redirect_to(:back, :error => 'Timeout when saving file. Please try again.')
-        end
-        return
-      rescue Suse::ValidationError,
-             ActiveXML::Transport::Error => e
-        if request.xhr?
-          render(json: { error: e.summary }, status: 400)
-        else
-          redirect_to(:back, :error => e.summary)
-        end
-        return
-      end
-    # update package timestamp and reindex sources
-    elsif file_url.present? # we have a remote file uri
-      return unless add_file_url(file_url, filename)
-    else
-      return unless add_file_filename(filename)
-    end
-    if request.xhr?
-      render(json: { status: 'ok' })
-    else
-      redirect_to({:action => :show, :project => @project, :package => @package}, :success => "The file #{filename} has been added.")
-    end
-  end
+      elsif file_url.present?
+        # we have a remote file URI, so we have to download and save it
+        services = @package.services
 
-  def add_file_filename(filename)
-    if filename.blank?
-      flash[:error] = 'No file or URI given.'
-      redirect_back_or_to action: :add_file, project: params[:project], package: params[:package]
-      return false
-    else
-      unless valid_file_name?(filename)
-        flash[:error] = "'#{filename}' is not a valid filename."
-        redirect_back_or_to action: :add_file, project: params[:project], package: params[:package]
-        return false
-      end
-      begin
-        @package.save_file filename: filename
-      rescue ActiveXML::Transport::Error => e
-        flash[:error] = e.summary
-        redirect_back_or_to action: :add_file, project: params[:project], package: params[:package]
-        return false
-      end
-    end
-    true
-  end
+        # detects automatically git://, src.rpm formats
+        services.addDownloadURL(file_url, filename)
 
-  def add_file_url(file_url, filename = nil)
-    @services = Service.find(project: @project, package: @package.name)
-    unless @services
-      @services = Service.new(project: @project, package: @package.name)
+        unless services.save
+          errors << "Failed to add file from URL '#{file_url}'"
+        end
+      else
+        # No file is provided so we just create an empty new file (touch)
+        if filename.present?
+          @package.save_file(filename: filename)
+        else
+          errors << 'No file or URI given'
+        end
+      end
+
+    rescue APIException, StandardError => exception
+      errors << exception.message
     end
-    @services.addDownloadURL(file_url, filename) # detects automatically git://, src.rpm formats
-    unless @services.save
-      flash[:error] = "Failed to add file from URL '#{file_url}'"
-      redirect_back_or_to action: :add_file, project: params[:project], package: params[:package]
-      return false
+
+    if errors.empty?
+      message = "The file '#{filename}' has been successfully saved."
+      # We have to check if it's an AJAX request or not
+      if request.xhr?
+        flash.now[:success] = message
+        render layout: false, partial: 'layouts/webui/flash', object: flash
+      else
+        redirect_to({ action: :show, project: @project, package: @package }, success: message)
+      end
+      return
+    else
+      message = "Error while creating '#{filename}' file: #{errors.compact.join("\n")}."
+      # We have to check if it's an AJAX request or not
+      if request.xhr?
+        flash.now[:error] = message
+        render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
+      else
+        redirect_to(:back, error: message)
+      end
+      return
     end
-    true
   end
 
   def remove_file
