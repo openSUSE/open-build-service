@@ -40,7 +40,7 @@ module Webui::WebuiHelper
     user = User.find_by_login!(user) unless user.is_a? User
     alt ||= user.realname
     alt = user.login if alt.empty?
-    image_tag(url_for(controller: :user, action: :icon, icon: user.login, size: size),
+    image_tag(url_for(controller: :user, action: :user_icon, icon: user.login, size: size),
               width: size, height: size, alt: alt, class: css_class)
   end
 
