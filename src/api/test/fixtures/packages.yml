@@ -56,6 +56,7 @@ BaseDistro2.0_pack2.linked:
   name: pack2.linked
   title: For maintenance tests
   description: ''
+  bcntsynctag: pack2
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   update_counter: 1
