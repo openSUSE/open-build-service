@@ -310,15 +310,15 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/BaseDistro2Channel/patchinfo.1'
     assert_response :success
 
-    # links are frozen now
+    # link target is unmodfied, so link must stay unfrozen
     get "/source/#{incidentProject}/kgraft-GA.BaseDistro2.0/_link"
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:rev)
+    assert_equal false, node.has_attribute?(:rev)
     get "/source/#{incidentProject}/kgraft-incident-0.My_Maintenance_0/_link"
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
-    assert node.has_attribute?(:rev)
+    assert_equal false, node.has_attribute?(:rev)
 
     # old one still branchable even though conflicting change has been released?
     post '/source', :cmd => 'branch', :package => 'pack2', :add_repositories => 1

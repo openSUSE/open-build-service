@@ -1386,6 +1386,17 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/published/#{incidentProject}/BaseDistro2.0_LinkedUpdateProject/x86_64/package-1.0-1.x86_64.rpm"
     assert_response 404
 
+    # vaidate freezing of source
+    get "/source/#{incidentProject}/pack2.BaseDistro2.0_LinkedUpdateProject/_link"
+    assert_response :success
+    node = ActiveXML::Node.new(@response.body)
+    assert_equal true, node.has_attribute?(:rev)
+    # but local link is not frozen
+    get "/source/#{incidentProject}/pack2.linked.BaseDistro2.0_LinkedUpdateProject/_link"
+    assert_response :success
+    node = ActiveXML::Node.new(@response.body)
+    assert_equal false, node.has_attribute?(:rev)
+
     # validate result
     get "/source/#{incidentProject}/_meta"
     assert_response :success

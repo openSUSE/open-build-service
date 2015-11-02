@@ -150,7 +150,14 @@ module MaintenanceHelper
       withacceptinfo: "1"
     }
     cp_params[:requestid] = action.bs_request.id if action
-    cp_params[:freezelink] = 1 if sourcePackage.is_link? # no permission check here on purpose
+    if targetProject.is_maintenance_release? && sourcePackage.is_link?
+      # no permission check here on purpose
+      if sourcePackage.linkinfo['project'] == targetProject.name &&
+         sourcePackage.linkinfo['package'] == targetPackageName.gsub(/\.[^\.]*$/, '')
+        # link target is equal to release target. So we freeze our link.
+        cp_params[:freezelink] = 1
+      end
+    end
     cp_path = "/source/#{CGI.escape(targetProject.name)}/#{CGI.escape(targetPackageName)}"
     cp_path << Suse::Backend.build_query_from_hash(cp_params, [:cmd, :user, :oproject,
                                                                :opackage, :comment, :requestid,
