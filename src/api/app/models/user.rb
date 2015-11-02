@@ -526,6 +526,11 @@ class User < ActiveRecord::Base
       raise ArgumentError, "illegal parameter type to User#can_modify_project?: #{project.class.name}"
     end
 
+    if project.new_record?
+      # Project.check_write_access(!) should have been used?
+      raise NotFoundError, "Project is not stored yet"
+    end
+
     # we don't touch the cache for ignoreLock
     return can_modify_project_internal(project, ignoreLock) if ignoreLock
 
