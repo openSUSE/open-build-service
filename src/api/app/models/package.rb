@@ -728,9 +728,6 @@ class Package < ActiveRecord::Base
     # not really packages...
     # everything below _product:
     return true if name =~ /\A_product:\w[-+\w\.]*\z/
-    return true if is_product?
-    return true if is_channel?
-    return true if is_patchinfo?
     return true if name == '_project'
 
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
