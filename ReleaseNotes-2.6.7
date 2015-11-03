@@ -20,18 +20,5 @@ Bugfixes:
 =========
 
 * [webui] drop hardcoded opensuse email adress and link
-* [webui] Make escape_project_list helper more generic
-* [webui] Remove default size from user_icon call
-* [webui] Remove unused user_icon code
-* [ci] Merge webui_helper_test files together
-* [ci][webui] Fix presentation of package file names in webui
-* [webui] Refactor owner search helpers
-* [webui] Refactoring arch_repo_table_cell
-* [webui] Replace ugly map with generic escape_nested_list helper
-* [webui] Refactor packages_table partial
-* [webui] Refactor project status page
-* [webui] Simplify user edit view
-* [webui] Refactor group index view
-* [ci] Improve webui_helper test#escape_nested_list
-* [webui] Remove unused html_safe call from build_logs view
-* [dist] Add 2.6.7 release notes
+* [webui] fix XSS attack vector via User.realname (bnc#950932)
+* [webui] fix XSS attack vector via Projec.title (bnc#950932)
