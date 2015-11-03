@@ -5,6 +5,26 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
 
   include Webui::WebuiHelper
 
+  NEW_META_XML_FOR_TEST_PACK = '<package name="TestPack" project="home:Iggy">
+  <title>My Test package Updated via Webui</title>
+  <description/>
+</package>'
+
+  INVALID_META_XML_BECAUSE_PACKAGE_NAME = '<package name="TestPackOOO" project="home:Iggy">
+  <title>Invalid meta PACKAGE NAME</title>
+  <description/>
+</package>'
+
+  INVALID_META_XML_BECAUSE_PROJECT_NAME = '<package name="TestPack" project="home:IggyOOO">
+  <title>Invalid meta PROJECT NAME</title>
+  <description/>
+</package>'
+
+  INVALID_META_XML_BECAUSE_XML = '<package name="TestPack" project="home:Iggy">
+  <title>Invalid meta WRONG XML</title>
+  <description/>
+</paaaaackage>'
+
   def delete_and_recreate_kdelibs
     delete_package 'kde4', 'kdelibs'
 
@@ -390,4 +410,46 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_text "Build finished"
     page.must_have_text "[1] this is my dummy logfile -&gt; ümlaut"
   end
+
+  def test_save_meta
+    use_js
+
+    login_Iggy to: package_users_path(package: 'TestPack', project: 'home:Iggy')
+    click_link("Advanced")
+    click_link("Meta")
+    original_meta_file = page.evaluate_script("editors[0].getValue()")
+
+    page.evaluate_script("editors[0].setValue('#{NEW_META_XML_FOR_TEST_PACK.delete("\n")}');")
+    click_button("Save")
+    find('#flash-messages').must_have_text("The Meta file has been successfully saved.")
+    click_link("Meta")
+    meta_file = page.evaluate_script("editors[0].getValue()")
+    assert_equal meta_file.strip, NEW_META_XML_FOR_TEST_PACK
+
+    page.evaluate_script("editors[0].setValue('#{INVALID_META_XML_BECAUSE_PACKAGE_NAME.delete("\n")}');")
+    click_button("Save")
+    find('#flash-messages').must_have_text('package name in xml data does not match resource path component')
+    click_link("Meta")
+    meta_file = page.evaluate_script("editors[0].getValue()")
+    assert_equal meta_file.strip, NEW_META_XML_FOR_TEST_PACK
+
+    page.evaluate_script("editors[0].setValue('#{INVALID_META_XML_BECAUSE_PROJECT_NAME.delete("\n")}');")
+    click_button("Save")
+    find('#flash-messages').must_have_text("project name in xml data does not match resource path component")
+    click_link("Meta")
+    meta_file = page.evaluate_script("editors[0].getValue()")
+    assert_equal meta_file.strip, NEW_META_XML_FOR_TEST_PACK
+
+    page.evaluate_script("editors[0].setValue('#{INVALID_META_XML_BECAUSE_XML.delete("\n")}');")
+    click_button("Save")
+    find('#flash-messages').must_have_text('Opening and ending tag mismatch: package line 1 and paaaaackage.')
+    click_link("Meta")
+    meta_file = page.evaluate_script("editors[0].getValue()")
+    assert_equal meta_file.strip, NEW_META_XML_FOR_TEST_PACK
+
+    page.evaluate_script("editors[0].setValue('#{original_meta_file.delete("\n")}');")
+    click_button("Save")
+    find('#flash-messages').must_have_text("The Meta file has been successfully saved.")
+  end
+
 end
