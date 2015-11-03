@@ -23,9 +23,9 @@ class Webui::ProjectController < Webui::WebuiController
                                      :prjconf, :change_flag, :edit, :save_comment, :edit_comment, :status, :maintained_projects,
                                      :add_maintained_project_dialog, :add_maintained_project, :remove_maintained_project,
                                      :maintenance_incidents, :unlock_dialog, :unlock, :save_person, :save_group, :remove_role, :save_repository,
-                                     :move_path, :save_prjconf]
+                                     :move_path, :save_prjconf, :clear_failed_comment]
 
-  before_filter :do_backend_login, only: [:clear_failed_comment, :change_flag]
+  before_filter :do_backend_login, only: [:change_flag]
 
   # TODO: check if get_by_name or set_by_name is used for save_prjconf
   before_filter :set_project_by_name, only: [:save_meta, :save_prjconf]
@@ -748,27 +748,17 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def clear_failed_comment
-    # TODO(Jan): put this logic in the Attribute model
-    transport ||= ActiveXML::api
-    params['package'].to_a.each do |p|
-      begin
-        transport.direct_http URI("/source/#{params[:project]}/#{p}/_attribute/OBS:ProjectStatusPackageFailComment"), :method => 'DELETE'
-      rescue ActiveXML::Transport::ForbiddenError => e
-        flash[:error] = e.summary
-        redirect_to :action => :status, :project => params[:project]
-        return
-      end
+    authorize @project, :update?
+
+    packages = Package.where(project: @project, name: params[:package])
+    packages.each do |package|
+      package.attribs.where(attrib_type: AttribType.find_by_namespace_and_name('OBS', 'ProjectStatusPackageFailComment')).destroy_all
     end
-    if request.xhr?
-      render text: '<em>Cleared comment</em>'
-      return
+
+    respond_to do |format|
+      format.html { redirect_to({ :action => :status, project: @project }, notice: 'Cleared comments for packages.') }
+      format.js { render text: '<em>Cleared comments for packages</em>' }
     end
-    if params['package'].to_a.length > 1
-      flash[:notice] = 'Cleared comment for packages %s' % params[:package].to_a.join(',')
-    else
-      flash[:notice] = "Cleared comment for package #{params[:package]}"
-    end
-    redirect_to :action => :status, :project => params[:project]
   end
 
   def edit
