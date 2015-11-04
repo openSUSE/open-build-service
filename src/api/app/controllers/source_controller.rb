@@ -1386,7 +1386,7 @@ class SourceController < ApplicationController
 
     path = "/build/#{@project.name}?cmd=rebuild&package=#{@package.name}"
     if repo_name
-      if p.repositories.find_by_name(repo_name).nil?
+      if @package && @package.repositories.find_by_name(repo_name).nil?
         render_error :status => 400, :errorcode => 'unknown_repository',
           :message=> "Unknown repository '#{repo_name}'"
         return

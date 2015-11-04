@@ -46,8 +46,6 @@ class Webui::PackageController < Webui::WebuiController
                                             :update_build_log, :devel_project, :buildresult, :rpmlint_result,
                                             :rpmlint_log, :meta, :attributes, :repositories, :files]
 
-  before_filter :do_backend_login, only: [:save_meta, :abort_build, :trigger_rebuild, :wipe_binaries, :remove]
-
   prepend_before_filter :lockout_spiders, :only => [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
 
   def show
@@ -846,17 +844,40 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def abort_build
-    params[:redirect] = 'live_build_log'
-    api_cmd('abortbuild', params)
+    authorize @package, :update?
+
+    if @package.abort_build(params)
+      flash[:notice] = "Triggered abort build for #{@project.name}/#{@package.name} successfully."
+      redirect_to controller: :package, action: :show, project: @project, package: @package
+    else
+      flash[:error] = "Error while triggering abort build for #{@project.name}/#{@package.name}: #{@package.errors.full_messages.to_sentence}."
+      redirect_to controller: :package, action: :live_build_log, project: @project, package: @package, repository: params[:repository]
+    end
+
   end
 
-
   def trigger_rebuild
-    api_cmd('rebuild', params)
+    authorize @package, :update?
+
+    if @package.rebuild(params)
+      flash[:notice] = "Triggered rebuild for #{@project.name}/#{@package.name} successfully."
+      redirect_to controller: :package, action: :show, project: @project, package: @package
+    else
+      flash[:error] = "Error while triggering rebuild for #{@project.name}/#{@package.name}: #{@package.errors.full_messages.to_sentence}."
+      redirect_to controller: :package, action: :binaries, project: @project, package: @package, repository: params[:repository]
+    end
   end
 
   def wipe_binaries
-    api_cmd('wipe', params)
+    authorize @package, :update?
+
+    if @package.wipe_binaries(params)
+      flash[:notice] = "Triggered wipe binaries for #{@project.name}/#{@package.name} successfully."
+      redirect_to controller: :package, action: :show, project: @project, package: @package
+    else
+      flash[:error] = "Error while triggering wipe binaries for #{@project.name}/#{@package.name}: #{@package.errors.full_messages.to_sentence}."
+      redirect_to controller: :package, action: :binaries, project: @project, package: @package, repository: params[:repository]
+    end
   end
 
   def devel_project
@@ -869,41 +890,6 @@ class Webui::PackageController < Webui::WebuiController
       render text: ''
     end
   end
-
-  def api_cmd(cmd, params)
-    options = {}
-    options[:arch] = params[:arch] if params[:arch]
-    options[:repository] = params[:repo] if params[:repo]
-    options[:project] = @project.to_s
-    options[:package] = @package.to_s
-
-    begin
-      frontend.cmd cmd, options
-    rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary
-      redirect_to action: :show, project: @project, package: @package
-      return
-    end
-
-    logger.debug( "Triggered #{cmd} for #{@project}/#{@package}, options=#{options.inspect}" )
-    @message = "Triggered #{cmd} for #{@project}/#{@package}."
-    controller = 'package'
-    action = 'show'
-    if  params[:redirect] == 'monitor'
-      controller = 'project'
-      action = 'monitor'
-    end
-
-    if request.xhr?
-      # ajax request - render default view: in this case 'trigger_rebuild.rjs'
-      return
-    else
-      # non ajax request:
-      flash[:notice] = @message
-      redirect_to controller: controller, action: action, project: @project, package: @package
-    end
-  end
-  private :api_cmd
 
   def import_spec
     all_files = package_files

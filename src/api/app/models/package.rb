@@ -1285,4 +1285,26 @@ class Package < ActiveRecord::Base
   def api_obj
     self
   end
+
+  def rebuild(params)
+    backend_build_command(:rebuild, params.slice!(:package, :arch, :repository))
+  end
+
+  def wipe_binaries(params)
+    backend_build_command(:wipe, params.slice!(:package, :arch, :repository))
+  end
+
+  def abort_build(params)
+    backend_build_command(:abortbuild, params.slice!(:package, :arch, :repository))
+  end
+
+  def backend_build_command(command, params)
+    begin
+      Suse::Backend.post("/build/#{URI.escape(project.name)}?cmd=#{command}&#{params.to_query}", '')
+    rescue ActiveXML::Transport::Error, Timeout::Error => e
+      errors.add(:base, e.message)
+      return false
+    end
+    true
+  end
 end
