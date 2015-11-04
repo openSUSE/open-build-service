@@ -498,6 +498,10 @@ XML
     click_button('Create Project')
 
     assert_equal count + 1, Project.count
+
+    assert Relationship.where(project: Project.find_by_name("home:user1"), 
+                              user: User.find_by_login("user1"),
+                              role: Role.find_by_title("maintainer")).count > 0
   end
 
   def test_create_home_project_for_user_not_allowed
