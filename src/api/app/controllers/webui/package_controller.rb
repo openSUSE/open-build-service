@@ -46,7 +46,7 @@ class Webui::PackageController < Webui::WebuiController
                                             :update_build_log, :devel_project, :buildresult, :rpmlint_result,
                                             :rpmlint_log, :meta, :attributes, :repositories, :files]
 
-  before_filter :do_backend_login, only: [:save_meta, :abort_build, :remove]
+  before_filter :do_backend_login, only: [:save_meta, :remove]
 
   prepend_before_filter :lockout_spiders, :only => [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
 
@@ -846,8 +846,16 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def abort_build
-    params[:redirect] = 'live_build_log'
-    api_cmd('abortbuild', params)
+    authorize @package, :update?
+
+    if @package.abort_build(params)
+      flash[:notice] = "Triggered abort build for #{@project.name}/#{@package.name} successfully."
+      redirect_to controller: :package, action: :show, project: @project, package: @package
+    else
+      flash[:error] = "Error while triggering abort build for #{@project.name}/#{@package.name}: #{@package.errors.full_messages.to_sentence}."
+      redirect_to controller: :package, action: :live_build_log, project: @project, package: @package, repository: params[:repository]
+    end
+
   end
 
   def trigger_rebuild

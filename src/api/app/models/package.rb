@@ -1294,6 +1294,10 @@ class Package < ActiveRecord::Base
     backend_build_command(:wipe, params.slice!(:package, :arch, :repository))
   end
 
+  def abort_build(params)
+    backend_build_command(:abortbuild, params.slice!(:package, :arch, :repository))
+  end
+
   def backend_build_command(command, params)
     begin
       Suse::Backend.post("/build/#{URI.escape(project.name)}?cmd=#{command}&#{params.to_query}", '')

@@ -10,6 +10,6 @@
       <%= link_to sprited_text('rebuild', 'Trigger Rebuild'), {action: 'trigger_rebuild', project: @project, package: @package, arch: @arch, repo: @repo}, method: :delete %>
     </span>
   <span class="link_abort_build hidden">
-      <%= link_to "[Abort build]", action: 'abort_build', project: @project, package: @package, arch: @arch, repo: @repo %>
+      <%= link_to "[Abort build]", action: 'abort_build', project: @project, package: @package, arch: @arch, repository: @repo %>
     </span></p>
 <% end %>
