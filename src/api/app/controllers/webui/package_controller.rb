@@ -893,41 +893,6 @@ class Webui::PackageController < Webui::WebuiController
     end
   end
 
-  def api_cmd(cmd, params)
-    options = {}
-    options[:arch] = params[:arch] if params[:arch]
-    options[:repository] = params[:repo] if params[:repo]
-    options[:project] = @project.to_s
-    options[:package] = @package.to_s
-
-    begin
-      frontend.cmd cmd, options
-    rescue ActiveXML::Transport::Error => e
-      flash[:error] = e.summary
-      redirect_to action: :show, project: @project, package: @package
-      return
-    end
-
-    logger.debug( "Triggered #{cmd} for #{@project}/#{@package}, options=#{options.inspect}" )
-    @message = "Triggered #{cmd} for #{@project}/#{@package}."
-    controller = 'package'
-    action = 'show'
-    if  params[:redirect] == 'monitor'
-      controller = 'project'
-      action = 'monitor'
-    end
-
-    if request.xhr?
-      # ajax request - render default view: in this case 'trigger_rebuild.rjs'
-      return
-    else
-      # non ajax request:
-      flash[:notice] = @message
-      redirect_to controller: controller, action: action, project: @project, package: @package
-    end
-  end
-  private :api_cmd
-
   def import_spec
     all_files = package_files
     all_files.each do |file|
