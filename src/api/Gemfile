@@ -101,8 +101,6 @@ end
 group :development do
   # as alternative to the standard IRB shell
   gem 'unicorn-rails' # webrick won't work
-  # for client side, DB and server profiling
-  gem 'rack-mini-profiler'
   # for calling single testd
   gem 'single_test'
   # as debugging tool in the default error page
