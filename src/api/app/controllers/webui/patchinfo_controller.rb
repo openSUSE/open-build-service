@@ -32,8 +32,9 @@ class Webui::PatchinfoController < Webui::WebuiController
   end
 
   def updatepatchinfo
-    path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=updatepatchinfo"
-    frontend.transport.direct_http(URI(path), method: 'POST')
+    authorize @project, :update?
+
+    Patchinfo.new.cmd_update_patchinfo(params[:project], params[:package])
     redirect_to action: 'edit_patchinfo', project: @project, package: @package
   end
 
