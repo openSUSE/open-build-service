@@ -4,6 +4,28 @@ class Flag < ActiveRecord::Base
 
   belongs_to :architecture
 
+  validates :flag, :presence => true
+  validates :position, :presence => true
+  validates_numericality_of :position, :only_integer => true
+
+  before_validation(:on => :create) do
+    if self.project
+      self.position = (self.project.flags.maximum(:position) || 0 ) + 1
+    elsif self.package
+      self.position = (self.package.flags.maximum(:position) || 0 ) + 1
+    end
+  end
+
+  validate :validate_custom_save
+  def validate_custom_save
+    errors.add(:name, 'Please set either project or package.') if self.project.nil? and self.package.nil?
+    errors.add(:name, 'Please set either project or package.') unless self.project.nil? or self.package.nil?
+    errors.add(:flag, 'There needs to be a valid flag.') unless FlagHelper::TYPES.has_key?(self.flag.to_s)
+    # rubocop:disable Metrics/LineLength
+    errors.add(:status, 'Status needs to be enable or disable') unless (self.status && (self.status.to_sym == :enable or self.status.to_sym == :disable))
+    # rubocop:enable Metrics/LineLength
+  end
+
   validate :validate_duplicates, :on => :create
   def validate_duplicates
     # rubocop:disable Metrics/LineLength
@@ -11,6 +33,33 @@ class Flag < ActiveRecord::Base
       errors.add(:flag, "Flag already exists")
     end
     # rubocop:enable Metrics/LineLength
+  end
+
+  scope :with_types, ->(type) { where(flag: type) }
+  scope :with_repositories, ->(repo_name) { where(repo: repo_name) }
+  scope :with_architectures, ->(architecture_id) { where(architecture_id: architecture_id) }
+
+  def self.default_state(flag_name)
+    case flag_name
+    when 'lock'
+      'disable'
+    when 'build'
+      'enable'
+    when 'publish'
+      'enable'
+    when 'debuginfo'
+      'disable'
+    when 'useforbuild'
+      'enable'
+    when 'binarydownload'
+      'enable'
+    when 'binarydownload'
+      'enable'
+    when 'access'
+      'enable'
+    else
+      'disable'
+    end
   end
 
   def to_xml(builder)
@@ -67,26 +116,13 @@ class Flag < ActiveRecord::Base
     ret
   end
 
-  validates :flag, :presence => true
-  validates :position, :presence => true
-  validates_numericality_of :position, :only_integer => true
-
-  before_validation(:on => :create) do
-    if self.project
-      self.position = (self.project.flags.maximum(:position) || 0 ) + 1
-    elsif self.package
-      self.position = (self.package.flags.maximum(:position) || 0 ) + 1
-    end
+  def fullname
+    ret = self.flag
+    ret += "_#{repo}" unless repo.blank?
+    ret += "_#{architecture.name}" unless architecture_id.blank?
+    ret
   end
 
-  validate :validate_custom_save
-  def validate_custom_save
-    errors.add(:name, 'Please set either project or package.') if self.project.nil? and self.package.nil?
-    errors.add(:name, 'Please set either project or package.') unless self.project.nil? or self.package.nil?
-    errors.add(:flag, 'There needs to be a valid flag.') unless FlagHelper::TYPES.has_key?(self.flag.to_s)
-    # rubocop:disable Metrics/LineLength
-    errors.add(:status, 'Status needs to be enable or disable') unless (self.status && (self.status.to_sym == :enable or self.status.to_sym == :disable))
-    # rubocop:enable Metrics/LineLength
-  end
+
 
 end

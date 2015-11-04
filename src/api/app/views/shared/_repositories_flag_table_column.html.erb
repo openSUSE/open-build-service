@@ -1,0 +1,49 @@
+<% if local_assigns[:flag] %>
+  <% flag_id = "#{flag.fullname}" %>
+<% else %>
+  <% flag_id = "#{type}" %>
+  <% flag_id += "_#{repository}" unless local_assigns[:repository].blank? %>
+  <% flag_id += "_#{architecture}" unless local_assigns[:architecture].blank? %>
+<% end %>
+<div id="<%= flag_id %>">
+<div class="flagimage">
+  <% if flag %>
+    <div class="<%= "current_flag_state icons-#{type}_#{flag.status}_blue" %> icon_24"></div>
+  <% else %>
+    <div class="<%= "current_flag_state icons-#{type}_#{Flag.default_state(type)}_grey" %> icon_24"></div>
+  <% end %>
+    <div class="hidden flagtoggle">
+      <% if flag %>
+        <% if flag.status == 'enable' %>
+          <div class="iconwrapper"><div class="icons-<%= flag.flag %>_disable_blue icon_24"></div></div>
+          <%= link_to('Disable', { action: :toggle_flag, project: @project, package: @package, flag: flag }, id: "#{flag_id}_disable", class: "flag_spinner_trigger_#{type}", method: :post, remote: true) %>
+        <% else %>
+          <div class="iconwrapper"><div class="icons-<%= flag.flag %>_enable_blue icon_24"></div></div>
+            <%= link_to 'Enable', { action: :toggle_flag, project: @project, package: @package, flag: flag }, id: "#{flag_id}_enable", class: "flag_spinner_trigger_#{type}", method: :post, remote: true %>
+        <% end %>
+        <div class="iconwrapper"><div class="icons-<%= type %>_<%= Flag.default_state(type) %>_blue icon_24"></div></div>
+        <%= link_to "Take default (#{Flag.default_state(type)})", { action: :remove_flag, project: @project, package: @package, flag: flag }, id: "#{flag_id}_remove", class: "flag_spinner_trigger_#{type}", method: :delete, remote: true %>
+      <% else %>
+        <% if Flag.default_state(type) == 'enable' %>
+          <div class="iconwrapper"><div class="icons-<%= type %>_disable_grey icon_24"></div></div>
+          <%= link_to 'Disable', { action: :create_flag,
+                                   project: @project,
+                                   package: @package,
+                                   flag: type,
+                                   status: 'disable',
+                                   repository: local_assigns[:repository],
+                                   architecture: local_assigns[:architecture] }, id: "#{flag_id}_disable", class: "flag_spinner_trigger_#{type}", method: :post, remote: true %>
+        <% else %>
+          <div class="iconwrapper"><div class="icons-<%= type %>_enable_grey icon_24"></div></div>
+          <%= link_to 'Enable', { action: :create_flag,
+                                  project: @project,
+                                  package: @package,
+                                  flag: type,
+                                  status: 'enable',
+                                  repository: local_assigns[:repository],
+                                  architecture: local_assigns[:architecture] }, id: "#{flag_id}_enable", class: "flag_spinner_trigger_#{type}", method: :post, remote: true %>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</div>

@@ -2,6 +2,7 @@ class Webui::ProjectController < Webui::WebuiController
 
   require_dependency 'opensuse/validator'
   include Webui::HasComments
+  include Webui::HasFlags
   include Webui::WebuiHelper
   include Webui::RequestHelper
   include Webui::ProjectHelper
@@ -20,12 +21,11 @@ class Webui::ProjectController < Webui::WebuiController
                                      :add_person, :add_group, :buildresult, :delete_dialog, :destroy, :remove_path_from_target,
                                      :update_target, :repositories, :repository_state, :rebuild_time, :packages_simple,
                                      :requests, :save, :save_distributions, :remove_target, :monitor, :toggle_watch, :meta,
-                                     :prjconf, :change_flag, :edit, :save_comment, :edit_comment, :status, :maintained_projects,
+                                     :prjconf, :create_flag, :toggle_flag, :remove_flag, :edit, :save_comment, :edit_comment,
+                                     :status, :maintained_projects,
                                      :add_maintained_project_dialog, :add_maintained_project, :remove_maintained_project,
                                      :maintenance_incidents, :unlock_dialog, :unlock, :save_person, :save_group, :remove_role, :save_repository,
                                      :move_path, :save_prjconf, :clear_failed_comment]
-
-  before_filter :do_backend_login, only: [:change_flag]
 
   # TODO: check if get_by_name or set_by_name is used for save_prjconf
   before_filter :set_project_by_name, only: [:save_meta, :save_prjconf]
@@ -294,7 +294,11 @@ class Webui::ProjectController < Webui::WebuiController
       redirect_to :action => :show, :project => params[:project]
       return
     end
-    @flags = @project.expand_flags
+    @build = @project.flags.with_types('build')
+    @debuginfo = @project.flags.with_types('debuginfo')
+    @publish = @project.flags.with_types('publish')
+    @useforbuild = @project.flags.with_types('useforbuild')
+    @architectures = @project.architectures.uniq
   end
 
   def repository_state
@@ -733,18 +737,6 @@ class Webui::ProjectController < Webui::WebuiController
       flash.now[:error] = @project.config.errors.full_messages.to_sentence
       render layout: false, status: 400, partial: 'layouts/webui/flash', object: flash
     end
-  end
-
-  def change_flag
-    authorize @project, :update?
-
-    check_ajax
-    required_parameters :cmd, :flag
-    frontend.source_cmd params[:cmd], :project => @project,
-                        :repository => params[:repository],
-                        :arch => params[:arch], :flag => params[:flag],
-                        :status => params[:status]
-    @flags = @project.expand_flags[params[:flag]]
   end
 
   def clear_failed_comment

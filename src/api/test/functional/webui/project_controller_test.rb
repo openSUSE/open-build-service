@@ -76,16 +76,6 @@ Ignore: package:cups'
     find(:id, 'create_subproject_link').click
   end
 
-  def test_create_project_publish_disabled
-    create_subproject
-    fill_in 'project_name', with: 'coolstuff'
-    find(:id, 'disable_publishing').click
-    find_button('Create Project').click
-    find(:link, 'Repositories').click
-    # publish disabled icon should appear
-    page.must_have_selector 'div.icons-publish_disabled_blue'
-  end
-
   def test_create_hidden_project
     use_js
 
@@ -324,28 +314,6 @@ XML
       assert_select "person", userid: "adrian", role: "maintainer"
     end
     assert_equal 3, result.xpath("/project/child::*").count, "Should not have additional nodes."
-  end
-
-  def test_project_repositories_uniq_archs
-    use_js
-    login_tom
-
-    visit project_repositories_path(project: 'home:tom')
-
-    assert_equal 1, all(:xpath, "//table[@id='flag_table_build']/tbody/tr/th[text()='All']").count
-    assert_equal 1, all(:xpath, "//table[@id='flag_table_publish']/tbody/tr/th[text()='All']").count
-    assert_equal 1, all(:xpath, "//table[@id='flag_table_debuginfo']/tbody/tr/th[text()='All']").count
-    assert_equal 1, all(:xpath, "//table[@id='flag_table_useforbuild']/tbody/tr/th[text()='All']").count
-
-    assert_equal 1, all(:xpath, "//table[@id='flag_table_build']/tbody/tr/th[text()='i586']").count
-    assert_equal 1, all(:xpath, "//table[@id='flag_table_publish']/tbody/tr/th[text()='i586']").count
-    assert_equal 1, all(:xpath, "//table[@id='flag_table_debuginfo']/tbody/tr/th[text()='i586']").count
-    assert_equal 1, all(:xpath, "//table[@id='flag_table_useforbuild']/tbody/tr/th[text()='i586']").count
-
-    assert_equal 1, all(:xpath, "//table[@id='flag_table_build']/tbody/tr/th[text()='x86_64']").count
-    assert_equal 1, all(:xpath, "//table[@id='flag_table_publish']/tbody/tr/th[text()='x86_64']").count
-    assert_equal 1, all(:xpath, "//table[@id='flag_table_debuginfo']/tbody/tr/th[text()='x86_64']").count
-    assert_equal 1, all(:xpath, "//table[@id='flag_table_useforbuild']/tbody/tr/th[text()='x86_64']").count
   end
 
   def test_list_all

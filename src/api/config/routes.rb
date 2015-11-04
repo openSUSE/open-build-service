@@ -142,7 +142,10 @@ OBSApi::Application.routes.draw do
       get 'package/attributes/:project/:package', to: redirect('/attribs/%{project}/%{package}'), constraints: cons
       get 'package/edit/:project/:package' => :edit, constraints: cons
       get 'package/repositories/:project/:package' => :repositories, constraints: cons
-      post 'package/change_flag/:project/:package' => :change_flag, constraints: cons
+      post 'package/flag/:project/:package' => :create_flag, constraints: cons
+      post 'project/flag/:project/:package/:flag' => :toggle_flag, constraints: cons
+      delete 'project/flag/:project/:package/:flag' => :remove_flag, constraints: cons
+
       get 'package/import_spec/:project/:package' => :import_spec, constraints: cons
       # compat route
       get 'package/files/:project/:package' => :show, constraints: cons
@@ -225,7 +228,9 @@ OBSApi::Application.routes.draw do
       post 'project/save_meta/:project' => :save_meta, constraints: cons
       get 'project/prjconf/:project' => :prjconf, constraints: cons
       post 'project/save_prjconf/:project' => :save_prjconf, constraints: cons
-      post 'project/change_flag/:project' => :change_flag, constraints: cons
+      post 'project/flag/:project' => :create_flag, constraints: cons
+      post 'project/flag/:project/:flag' => :toggle_flag, constraints: cons
+      delete 'project/flag/:project/:flag' => :remove_flag, constraints: cons
       get 'project/clear_failed_comment/:project' => :clear_failed_comment, constraints: cons
       get 'project/edit/:project' => :edit, constraints: cons
       get 'project/edit_comment_form/:project' => :edit_comment_form, constraints: cons
