@@ -46,7 +46,7 @@ class Webui::PackageController < Webui::WebuiController
                                             :update_build_log, :devel_project, :buildresult, :rpmlint_result,
                                             :rpmlint_log, :meta, :attributes, :repositories, :files]
 
-  before_filter :do_backend_login, only: [:save_meta, :abort_build, :wipe_binaries, :remove]
+  before_filter :do_backend_login, only: [:save_meta, :abort_build, :remove]
 
   prepend_before_filter :lockout_spiders, :only => [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
 
@@ -863,7 +863,15 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def wipe_binaries
-    api_cmd('wipe', params)
+    authorize @package, :update?
+
+    if @package.wipe_binaries(params)
+      flash[:notice] = "Triggered wipe binaries for #{@project.name}/#{@package.name} successfully."
+      redirect_to controller: :package, action: :show, project: @project, package: @package
+    else
+      flash[:error] = "Error while triggering wipe binaries for #{@project.name}/#{@package.name}: #{@package.errors.full_messages.to_sentence}."
+      redirect_to controller: :package, action: :binaries, project: @project, package: @package, repository: params[:repository]
+    end
   end
 
   def devel_project
