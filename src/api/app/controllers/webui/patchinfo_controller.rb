@@ -5,7 +5,7 @@ class Webui::PatchinfoController < Webui::WebuiController
   before_filter :get_binaries, except: [:show, :delete]
   before_filter :require_exists, except: [:new_patchinfo]
   before_filter :require_login, except: [:show]
-  before_filter :do_backend_login, only: [:save, :updatepatchinfo, :get_issue_sum]
+  before_filter :do_backend_login, only: [:save]
 
 
   def new_patchinfo
@@ -32,8 +32,9 @@ class Webui::PatchinfoController < Webui::WebuiController
   end
 
   def updatepatchinfo
-    path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}?cmd=updatepatchinfo"
-    frontend.transport.direct_http(URI(path), method: 'POST')
+    authorize @project, :update?
+
+    Patchinfo.new.cmd_update_patchinfo(params[:project], params[:package])
     redirect_to action: 'edit_patchinfo', project: @project, package: @package
   end
 
@@ -273,22 +274,22 @@ class Webui::PatchinfoController < Webui::WebuiController
     else
       bug = issueid
     end
-    path = "/issue_trackers/#{CGI.escape(tracker)}"
-    tracker_result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), method: 'GET'))
-    if bug.match(/^#{tracker_result.value(:regex)}$/)
-      begin
-        path << "/issues/#{CGI.escape(issueid)}"
-        result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), method: 'GET'))
-        unless result.value(:summary)
-          path << "?force_update=1"
-          result = ActiveXML::Node.new(frontend.transport.direct_http(URI(path), method: 'GET'))
-        end
-        return (result.value(:summary) || '').gsub(/\\|'/) { '' }
-      # Add no summary if a connection to bugzilla doesn't work e.g. in the testsuite
-      rescue ActiveXML::Transport::Error
-        return ""
+
+    issue_tracker = IssueTracker.find_by(name: tracker)
+    return nil unless issue_tracker
+
+    if bug.match(/^#{issue_tracker.regex}$/)
+      issue = Issue.find_or_create_by_name_and_tracker( issueid, issue_tracker.name )
+      if issue && issue.summary.blank?
+        issue.fetch_updates
       end
+      if issue.summary
+        return issue.summary.gsub(/\\|'/) { '' }
+      end
+    else
+      return nil
     end
+    return ''
   end
 
   private
