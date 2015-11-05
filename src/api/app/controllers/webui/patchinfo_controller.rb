@@ -285,8 +285,6 @@ class Webui::PatchinfoController < Webui::WebuiController
       end
       if issue.summary
         return issue.summary.gsub(/\\|'/) { '' }
-      else
-        return ''
       end
     else
       return nil

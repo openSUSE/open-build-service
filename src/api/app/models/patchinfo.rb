@@ -238,24 +238,6 @@ class Patchinfo < ActiveXML::Node
     data.elements('releasetarget')
   end
 
-  # TODO: This method is unused, should be replace with a BackendFile subclass
-  def save
-    path = if self.init_options[:package]
-      "/source/#{self.init_options[:project]}/#{self.init_options[:package]}/_patchinfo"
-    else
-      raise IncompletePatchinfo.new "The _patchinfo has no package name set."
-    end
-
-    begin
-      frontend = ActiveXML::api
-      frontend.direct_http URI("#{path}"), :method => 'POST', :data => self.dump_xml
-      result = {:type => :notice, :msg => 'Patchinfo sucessfully updated!'}
-    rescue ActiveXML::Transport::Error => e
-      result = {:type => :error, :msg => "Saving Patchinfo failed: #{e.summary}"}
-    end
-    result
-  end
-
   def issues
     #TODO
     []
