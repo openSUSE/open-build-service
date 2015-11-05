@@ -63,7 +63,7 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     # check that the patchinfo is not editable per direct url for unauthorized users
     visit patchinfo_edit_patchinfo_path(project: "home:Iggy", package: "patchinfo")
     click_button("Save Patchinfo")
-    flash_message.must_equal "No permission to edit the patchinfo-file."
+    flash_message.must_equal "Sorry, you are not authorized to update this Package."
     flash_message_type.must_equal :alert
 
     # check that the patchinfo is not editable for anonymous user per buttons

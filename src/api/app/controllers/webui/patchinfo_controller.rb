@@ -5,8 +5,6 @@ class Webui::PatchinfoController < Webui::WebuiController
   before_filter :get_binaries, except: [:show, :delete]
   before_filter :require_exists, except: [:new_patchinfo]
   before_filter :require_login, except: [:show]
-  before_filter :do_backend_login, only: [:save]
-
 
   def new_patchinfo
     unless User.current.can_create_package_in? @project
@@ -102,7 +100,6 @@ class Webui::PatchinfoController < Webui::WebuiController
 
   def save
     begin
-      filename = '_patchinfo'
       required_parameters :project, :package
       flash[:error] = nil
       # Note: At this point a patchinfo already got created by
@@ -154,8 +151,14 @@ class Webui::PatchinfoController < Webui::WebuiController
           end
         end
         begin
-          frontend.put_file(xml, project: @project,
-                                 package: @package, filename: filename)
+          authorize @package, :update?
+
+          Package.verify_file!(@package, '_patchinfo', xml)
+
+          Suse::Backend.put @package.source_path('_patchinfo', user: User.current.login), xml
+
+          @package.sources_changed(wait_for_update: true) # wait for indexing for special files
+
           flash[:notice] = "Successfully edited #{@package}"
         rescue Timeout::Error
           flash[:error] = 'Timeout when saving file. Please try again.'
@@ -163,8 +166,7 @@ class Webui::PatchinfoController < Webui::WebuiController
 
         redirect_to controller: 'patchinfo', action: 'show',
                     project: @project.name, package: @package
-      end
-      if flash[:error]
+      else
         @tracker = params[:tracker]
         @packager = params[:packager]
         @binaries = params[:selected_binaries]
