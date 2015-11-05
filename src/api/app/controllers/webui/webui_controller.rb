@@ -1,8 +1,6 @@
 # Filters added to this controller will be run for all controllers in the application.
 # Likewise, all the methods added will be available for all controllers.
 
-require 'frontend_compat'
-
 class Webui::WebuiController < ActionController::Base
   Rails.cache.set_domain if Rails.cache.respond_to?('set_domain')
 
@@ -164,10 +162,6 @@ class Webui::WebuiController < ActionController::Base
       return false
     end
     return true
-  end
-
-  def frontend
-    FrontendCompat.new
   end
 
   def required_parameters(*parameters)
