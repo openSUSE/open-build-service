@@ -20,7 +20,6 @@ sed -i "s|database: api|database: ci_api|" config/database.yml
 echo "Configuring frontend"
 cp config/options.yml.example config/options.yml
 cp config/thinking_sphinx.yml.example config/thinking_sphinx.yml
-chmod a+x script/start_test_api
 
 echo "Initialize database"
 bundle exec rake db:drop db:create db:setup --trace

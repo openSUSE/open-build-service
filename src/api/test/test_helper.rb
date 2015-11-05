@@ -199,41 +199,6 @@ module Webui
     # Make the Capybara DSL available
     include Capybara::DSL
 
-    @@frontend = nil
-
-    def self.start_test_api
-      return if @@frontend
-      if ENV['API_STARTED']
-        @@frontend = :dont
-        return
-      end
-      # avoid a race
-      Suse::Backend.start_test_backend
-      @@frontend = IO.popen(Rails.root.join('script', 'start_test_api').to_s)
-      puts "Starting test API with pid: #{@@frontend.pid}"
-      lines = []
-      while true
-        line = @@frontend.gets
-        unless line
-          puts lines.join()
-          raise RuntimeError.new('Frontend died')
-        end
-        break if line =~ /Test API ready/
-        lines << line
-      end
-      puts "Test API up and running with pid: #{@@frontend.pid}"
-      at_exit do
-        puts "Killing test API with pid: #{@@frontend.pid}"
-        Process.kill 'INT', @@frontend.pid
-        begin
-          Process.wait @@frontend.pid
-        rescue Errno::ECHILD
-          # already gone
-        end
-        @@frontend = nil
-      end
-    end
-
     def login_user(user, password, opts = {})
       # no idea why calling it twice would help
       WebMock.disable_net_connect!(allow_localhost: true)
@@ -294,7 +259,7 @@ module Webui
       Capybara.current_driver = :rack_test
 # crude work around - one day I will dig into why this is necessary
       Minitest::Spec.new('MINE') unless Minitest::Spec.current
-      self.class.start_test_api
+      Suse::Backend.start_test_backend
       #Capybara.current_driver = Capybara.javascript_driver
       @starttime = Time.now
       WebMock.disable_net_connect!(allow_localhost: true)

@@ -1,8 +1,6 @@
 # Filters added to this controller will be run for all controllers in the application.
 # Likewise, all the methods added will be available for all controllers.
 
-require 'frontend_compat'
-
 class Webui::WebuiController < ActionController::Base
   Rails.cache.set_domain if Rails.cache.respond_to?('set_domain')
 
@@ -164,47 +162,6 @@ class Webui::WebuiController < ActionController::Base
       return false
     end
     return true
-  end
-
-  def do_backend_login
-    mode = CONFIG['proxy_auth_mode'] || :off
-    logger.debug "Authenticating with iChain mode: #{mode}"
-    if mode == :on
-      proxy_user = request.env['HTTP_X_USERNAME']
-      proxy_email = request.env['HTTP_X_EMAIL']
-      if proxy_user
-        session[:login] = proxy_user
-        session[:email] = proxy_email
-        ActiveXML.api.delete_additional_header 'X-Username'
-        ActiveXML.api.delete_additional_header 'X-Email'
-        ActiveXML.api.delete_additional_header 'Authorization'
-        # Set the headers for direct connection to the api, TODO: is this thread safe?
-        ActiveXML.api.set_additional_header( 'X-Username', proxy_user )
-        ActiveXML.api.set_additional_header( 'X-Email', proxy_email ) if proxy_email
-        # FIXME: hot fix to allow new users to login at all again
-        frontend.transport.direct_http(URI("/person/#{URI.escape(proxy_user)}"), :method => 'GET')
-      else
-        session[:login] = nil
-        session[:email] = nil
-      end
-    else
-      if session[:login] && session[:password]
-        ActiveXML.api.delete_additional_header 'X-Username'
-        ActiveXML.api.delete_additional_header 'X-Email'
-        ActiveXML.api.delete_additional_header 'Authorization'
-        # pass credentials to transport plugin, TODO: is this thread safe?
-        ActiveXML.api.login(session[:login], session[:password])
-      end
-    end
-    if session[:login]
-      logger.info "Authenticated request to '#{request.url}' from #{session[:login]}"
-    else
-      logger.info "Anonymous request to '#{request.url}'"
-    end
-  end
-
-  def frontend
-    FrontendCompat.new
   end
 
   def required_parameters(*parameters)
