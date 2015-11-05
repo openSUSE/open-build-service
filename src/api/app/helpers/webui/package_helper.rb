@@ -36,9 +36,11 @@ module Webui::PackageHelper
       when '.tex' then return 'latex'
       when '.js' then return 'javascript'
       when '.sh' then return 'shell'
+      when '.spec' then return 'rpm-spec'
+      when '.changes' then return 'rpm-changes'
     end
     ext = ext[1..-1]
-    return ext if %w(changes spec diff php html xml css perl).include? ext
+    return ext if %w(diff php html xml css perl).include? ext
     return ''
   end
 
