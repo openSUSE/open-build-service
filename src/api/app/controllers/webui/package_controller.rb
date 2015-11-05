@@ -1022,15 +1022,6 @@ class Webui::PackageController < Webui::WebuiController
     @architectures = @package.project.architectures.uniq
   end
 
-  def change_flag
-    check_ajax
-    required_parameters :cmd, :flag
-    frontend.source_cmd params[:cmd], project: @project, package: @package,
-                        repository: params[:repository], arch: params[:arch],
-                        flag: params[:flag], status: params[:status]
-    @flags = @package.expand_flags[params[:flag]]
-  end
-
   private
 
   def file_available? url, max_redirects = 5
