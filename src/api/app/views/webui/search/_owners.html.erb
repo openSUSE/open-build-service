@@ -8,8 +8,6 @@
     <%= project_or_package_link project: result.project, package: result.package, short: false %>
     </h6>
     <p>
-    <%= search_owners_list(result.users) %>
-    <%= search_owners_list(result.groups, :group) %>
     <% search_owners_list(result.groups, :group).each do |result| %>
       <%= result %>
       <br/>
