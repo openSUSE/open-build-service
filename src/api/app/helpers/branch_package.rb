@@ -122,8 +122,12 @@ class BranchPackage
       else
         if pac.is_a? Package
           tpkg = tprj.packages.new(:name => pack_name, :title => pac.title, :description => pac.description)
+          tpkg.bcntsynctag = pac.bcntsynctag
         else
           tpkg = tprj.packages.new(:name => pack_name)
+        end
+        if tpkg.bcntsynctag && @extend_names
+          tpkg.bcntsynctag << '.' + p[:link_target_project].name.gsub(':', '_')
         end
         tprj.packages << tpkg
       end

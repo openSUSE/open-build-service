@@ -147,6 +147,37 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_branch_package_with_local_link
+    login_tom
+
+    post '/source/BaseDistro2.0/pack2', cmd: :branch, ignoredevel: 1
+    assert_response :success
+
+    get '/source/home:tom:branches:BaseDistro2.0/pack2/_meta'
+    assert_response :success
+    # local linked package got branched as well
+    get '/source/home:tom:branches:BaseDistro2.0/pack2.linked/_meta'
+    assert_response :success
+    assert_xml_tag tag: "bcntsynctag", content: "pack2"
+
+    # and trying with extended package names
+    delete '/source/home:tom:branches:BaseDistro2.0'
+    assert_response :success
+    post '/source/BaseDistro2.0/pack2', cmd: :branch, ignoredevel: 1, maintenance: 1
+    assert_response :success
+
+    get '/source/home:tom:branches:BaseDistro2.0/pack2.BaseDistro2.0/_meta'
+    assert_response :success
+    # local linked package got branched as well
+    get '/source/home:tom:branches:BaseDistro2.0/pack2.linked.BaseDistro2.0/_meta'
+    assert_response :success
+    assert_xml_tag tag: "bcntsynctag", content: "pack2.BaseDistro2.0"
+
+    # cleanup
+    delete '/source/home:tom:branches:BaseDistro2.0'
+    assert_response :success
+  end
+
   def test_maintenance_request_from_foreign_and_remote_project
     login_king
     # special kdelibs
