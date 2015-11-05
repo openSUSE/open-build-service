@@ -5,7 +5,7 @@ class Webui::PatchinfoController < Webui::WebuiController
   before_filter :get_binaries, except: [:show, :delete]
   before_filter :require_exists, except: [:new_patchinfo]
   before_filter :require_login, except: [:show]
-  before_filter :do_backend_login, only: [:save, :updatepatchinfo, :get_issue_sum]
+  before_filter :do_backend_login, only: [:save]
 
 
   def new_patchinfo
