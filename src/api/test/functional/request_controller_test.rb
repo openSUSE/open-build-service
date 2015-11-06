@@ -235,7 +235,6 @@ XML
                      {"who"=>"Iggy", "when"=>"2010-07-12T00:00:01", "description"=>"Request got a new priority: critical => low", "comment"=>"dontcare"},
                      {"who"=>"Iggy", "when"=>"2010-07-12T00:00:02", "description"=>"Request got declined", "comment"=>"notgood"},
                      {"who"=>"Iggy", "when"=>"2010-07-12T00:00:03", "description"=>"Request got reopened", "comment"=>"oops"},
-                     {"who"=>"Iggy", "when"=>"2010-07-12T00:00:04", "description"=>"Request got revoked", "comment"=>"The source project 'home:Iggy:branches:home:Iggy' was removed"},
                      {"who"=>"Iggy", "when"=>"2010-07-12T00:00:04", "description"=>"Request got accepted", "comment"=>"approved"}
                    ],
                    'description' => 'DESCRIPTION IS HERE'
@@ -3169,13 +3168,13 @@ XML
                                 { 'name'    => 'declined',
                                   'who'     => 'Iggy',
                                   'when'    => '2010-07-12T00:00:01',
-                                  'comment' => "The target project 'home:Iggy:fordecline' was removed" },
+                                  'comment' => "The target project 'home:Iggy:fordecline' has been removed" },
                    'history' => [{"who"         => "Iggy",
                                   "when"        => "2010-07-12T00:00:00",
                                   "description" => "Request created"},
                                  { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:01',
                                    "description" => "Request got declined",
-                                   'comment' => "The target project 'home:Iggy:fordecline' was removed"}] }, node)
+                                   'comment' => "The target project 'home:Iggy:fordecline' has been removed"}] }, node)
 
     Timecop.freeze(1)
     post "/request/#{id}?cmd=changestate&newstate=revoked"
@@ -3197,7 +3196,7 @@ XML
                          "description"=>"Request created"},
                                  {"who"=>"Iggy", "when"=>"2010-07-12T00:00:01",
                                   "description"=>"Request got declined",
-                                  "comment"=>"The target project 'home:Iggy:fordecline' was removed"},
+                                  "comment"=>"The target project 'home:Iggy:fordecline' has been removed"},
                                  {"who"=>"Iggy", "when"=>"2010-07-12T00:00:02",
                                   "description"=>"Request got revoked"}] }, node)
 

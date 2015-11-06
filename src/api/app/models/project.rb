@@ -179,14 +179,19 @@ class Project < ActiveRecord::Base
   end
 
   def revoke_requests
-    # Find open requests with 'pro' as source or target and decline/revoke them.
-    # Revoke if source or decline if target went away, pick the first action that matches to decide...
+    # Find open requests involving self and:
+    # - revoke them if self is source
+    # - decline if self is target
     # Note: As requests are a backend matter, it's pointless to include them into the transaction below
     self.open_requests_with_project_as_source_or_target.each do |request|
+      logger.debug "#{self.class} #{self.name} doing revoke_requests with #{@commit_opts.inspect}"
+      # Don't alter the request that is the trigger of this revoke_requests run
+      next if request.id == @commit_opts[:request]
+
       request.bs_request_actions.each do |action|
         if action.source_project == self.name
           begin
-            request.change_state({:newstate => 'revoked', :comment => "The source project '#{self.name}' was removed"})
+            request.change_state({:newstate => 'revoked', :comment => "The source project '#{self.name}' has been removed"})
           rescue PostRequestNoPermission
             logger.debug "#{User.current.login} tried to revoke request #{self.id} but had no permissions"
           end
@@ -194,7 +199,7 @@ class Project < ActiveRecord::Base
         end
         if action.target_project == self.name
           begin
-            request.change_state({:newstate => 'declined', :comment => "The target project '#{self.name}' was removed"})
+            request.change_state({:newstate => 'declined', :comment => "The target project '#{self.name}' has been removed"})
           rescue PostRequestNoPermission
             logger.debug "#{User.current.login} tried to decline request #{self.id} but had no permissions"
           end
@@ -206,6 +211,9 @@ class Project < ActiveRecord::Base
     # Find open requests which have a review involving this project (or it's packages) and remove those reviews
     # but leave the requests otherwise untouched.
     self.open_requests_with_by_project_review.each do |request|
+      # Don't alter the request that is the trigger of this revoke_requests run
+      next if request.id == @commit_opts[:request]
+
       request.remove_reviews(:by_project => self.name)
     end
   end
