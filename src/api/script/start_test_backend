@@ -4,6 +4,8 @@ ENV['origin_RAILS_ENV'] ||= ENV['RAILS_ENV']
 ENV['LC_ALL'] = 'C'
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
 
+include TestBackendTasks
+
 port_src_server = 3200
 port_rep_server = 3201
 port_service_server = 3202
@@ -333,16 +335,9 @@ scheduler_thread = Thread.new do
   # Prepare backend meta and binary data
   #
 
-  # run scheduler once
-  IO.popen("cd #{backend_config}; exec ./bs_sched --testmode i586") do |io|
-    # just for waiting until scheduler finishes
-    io.each { |line| logger.debug line.strip unless line.blank? }
-  end
-  # run scheduler once
-  IO.popen("cd #{backend_config}; exec ./bs_sched --testmode x86_64") do |io|
-    # just for waiting until scheduler finishes
-    io.each { |line| logger.debug line.strip unless line.blank? }
-  end
+  # run scheduler for i586 and x86_64 once
+  TestBackendTasks.run_scheduler('i586')
+  TestBackendTasks.run_scheduler('x86_64')
 
   # Inject build job results
   inject_build_job('home:Iggy', 'TestPack', '10.2', 'i586')
@@ -358,20 +353,14 @@ scheduler_thread = Thread.new do
                     File.open("#{Rails.root}/test/fixtures/backend/binary/delete_me-1.0-1.i586.rpm").read())
 
   # run scheduler again to handle the build result
-  IO.popen("cd #{backend_config}; exec ./bs_sched --testmode i586") do |io|
-    # just for waiting until scheduler finishes
-    io.each { |line| logger.debug line.strip unless line.blank? }
-  end
+  TestBackendTasks.run_scheduler('i586')
 
   # copy build result
   Suse::Backend.post('/build/HiddenProject/nada/i586/packCopy?cmd=copy&opackage=pack', nil)
   Suse::Backend.post('/build/BaseDistro/BaseDistro_repo/i586/pack2?cmd=copy&oproject=home:Iggy&orepository=10.2&opackage=TestPack', nil)
 
   # run scheduler again to handle the copy build event
-  IO.popen("cd #{backend_config}; exec ./bs_sched --testmode i586") do |io|
-    # just for waiting until scheduler finishes
-    io.each { |line| logger.debug line.strip unless line.blank? }
-  end
+  TestBackendTasks.run_scheduler('i586')
 
   # update event database, esp. binary_release table
   BinaryRelease.transaction(requires_new: true) do
