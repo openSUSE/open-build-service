@@ -91,7 +91,7 @@ class Webui::UserController < Webui::WebuiController
     sorting_dir = params[:sSortDir_0].try(:to_sym)
     sorting_dir = :asc unless ["asc", "desc"].include?(params[:sSortDir_0])
     @requests = @displayed_user.requests(params[:sSearch])
-    @requests_count = @requests.clone.count
+    @requests_count = @requests.count
     @requests = @requests.offset(params[:iDisplayStart].to_i).limit(params[:iDisplayLength].to_i).reorder(sorting_field => sorting_dir)
     respond_to do |format|
       # For jquery dataTable
