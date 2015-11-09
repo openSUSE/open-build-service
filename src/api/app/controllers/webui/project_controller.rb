@@ -173,9 +173,9 @@ class Webui::ProjectController < Webui::WebuiController
       rescue Patchinfo::IncompletePatchinfo,
              BsRequestAction::UnknownProject,
              BsRequestAction::BuildNotFinished,
-             BsRequestAction::RepositoryWithoutReleaseTarget,
-             BsRequestAction::RepositoryWithoutArchitecture,
-             BsRequestAction::ArchitectureOrderMissmatch,
+             BsRequestActionMaintenanceRelease::RepositoryWithoutReleaseTarget,
+             BsRequestActionMaintenanceRelease::RepositoryWithoutArchitecture,
+             BsRequestActionMaintenanceRelease::ArchitectureOrderMissmatch,
              BsRequestAction::VersionReleaseDiffers,
              BsRequestAction::UnknownTargetProject,
              BsRequestAction::UnknownTargetPackage => e
