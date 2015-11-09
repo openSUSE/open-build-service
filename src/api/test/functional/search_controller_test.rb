@@ -411,7 +411,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 
     get "/search/owner?binary='package'"
     assert_response 400
-    assert_xml_tag tag: 'status', :attributes => { :code => "attribute_not_set" }
+    assert_xml_tag tag: 'status', :attributes => { :code => "400", origin: "backend" }
 
     get "/search/owner?binary='package'&attribute='OBS:does_not_exist'"
     assert_response 404

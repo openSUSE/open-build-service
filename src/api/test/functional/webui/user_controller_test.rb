@@ -52,6 +52,44 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     find('#flash-messages').must_have_text("User not found INVALID")
   end
 
+  def test_show_user_tables
+    use_js
+    visit user_show_path(user: 'fred')
+
+    within "table#ipackages_wrapper_table" do
+      assert_equal "TestPack", find(:xpath, './/tr[1]/td[1]').text
+      assert_equal "home:Iggy", find(:xpath, './/tr[1]/td[2]').text
+
+      assert_equal "ToBeDeletedTestPack", find(:xpath, './/tr[2]/td[1]').text
+      assert_equal "home:Iggy", find(:xpath, './/tr[2]/td[2]').text
+    end
+
+    click_link("Involved Projects")
+
+    within "table#projects_table" do
+      assert_equal "Apache", find(:xpath, './/tr[1]/td[1]').text
+      assert_equal "Up-to-date Apache packages", find(:xpath, './/tr[1]/td[2]').text
+
+      assert_equal "home:fred", find(:xpath, './/tr[2]/td[1]').text
+      assert_equal "can be used for operations, to be cleaned up afterwards", find(:xpath, './/tr[2]/td[2]').text
+
+      assert_equal "home:fred:DeleteProject", find(:xpath, './/tr[3]/td[1]').text
+      assert_equal "This project gets deleted by request test", find(:xpath, './/tr[3]/td[2]').text
+
+      assert_equal "kde4", find(:xpath, './/tr[4]/td[1]').text
+      assert_equal "blub", find(:xpath, './/tr[4]/td[2]').text
+    end
+
+    click_link("Owned Project/Packages")
+
+    within "table#iowned_wrapper_table" do
+      assert_equal "Apache", find(:xpath, './/tr[1]/td[2]').text
+
+      assert_equal "apache2", find(:xpath, './/tr[2]/td[1]').text
+      assert_equal "Apache", find(:xpath, './/tr[2]/td[2]').text
+    end
+  end
+
   def test_index
     login_tom
     visit users_path
