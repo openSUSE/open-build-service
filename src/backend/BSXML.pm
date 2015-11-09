@@ -43,12 +43,28 @@ use strict;
 #       [ $repo ],         refers to the repository construct and allows again any number of them (0-X)
 #];                        closes the <package> child with </package>
 
+
+our $obs27download = [
+    'download' =>
+        'arch',
+        'repotype',
+        'url',
+        [],
+        'archfilter',
+      [ 'master' =>
+            'url',
+            'sslfingerprint',
+      ],
+        'pubkey',
+];
+
 our $repo = [
    'repository' => 
 	'name',
 	'rebuild',
 	'block',
 	'linkedbuild',
+      [ $obs27download ],   # OBS 2.7 DoD support. We do not support it, but accept it from interconnect
      [[ 'releasetarget' =>
 	    'project',
 	    'repository',
