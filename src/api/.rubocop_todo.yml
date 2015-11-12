@@ -714,6 +714,7 @@ Style/PredicateName:
     - 'app/models/user.rb'
     - 'app/models/user_ldap_strategy.rb'
     - 'lib/activexml/node.rb'
+    - 'test/**/*'
 
 # Offense count: 4
 # Cop supports --auto-correct.

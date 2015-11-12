@@ -30,7 +30,7 @@ class Project < ActiveRecord::Base
           "admin rights are required to raise the protection level of a project (it won't be safe anyway)")
   end
 
-  before_destroy :cleanup_before_destroy
+  before_destroy :cleanup_before_destroy, prepend: true
   before_destroy :cleanup_packages
   before_destroy :delete_on_backend
 

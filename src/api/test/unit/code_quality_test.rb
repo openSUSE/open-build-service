@@ -89,6 +89,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Owner::search'                                                           => 80.51,
       'PersonController#internal_register'                                      => 112.01,
       'Package#find_changed_issues'                                             => 93.74,
+      'Package#revoke_requests'                                                 => 81.68,
       'Project#update_one_repository_without_path'                              => 115.39,
       'PublicController#binary_packages'                                        => 126.16,
       'Repository#cleanup_before_destroy'                                       => 82.98,
@@ -102,9 +103,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Webui::PatchinfoController#save'                                         => 240.1,
       'Webui::ProjectController#check_devel_package_status'                     => 81.95,
       'Webui::SearchController#set_parameters'                                  => 98.04,
-      'Webui::WebuiHelper#flag_status'                                          => 93.0,
-      'Webui::WebuiController#do_backend_login'                                 => 96.31,
-      'Webui::WebuiController#check_user'                                       => 88.41,
       'WizardController#package_wizard'                                         => 97.46
   }
 
