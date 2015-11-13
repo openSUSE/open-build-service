@@ -32,3 +32,6 @@ quality_category_apache2_package:
 apache_issues:
   attrib_type_id: 67
   project: Apache
+apache_OBS_OwnerRootProject:
+  attrib_type_id: 77
+  project: Apache

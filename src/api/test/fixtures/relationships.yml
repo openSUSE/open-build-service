@@ -182,3 +182,7 @@ record_45:
   user: user5
   role: maintainer
   project: home_user5
+record_46:
+  user: fred
+  role: maintainer
+  package: Apache_apache2
