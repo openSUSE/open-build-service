@@ -1287,15 +1287,15 @@ class Package < ActiveRecord::Base
   end
 
   def rebuild(params)
-    backend_build_command(:rebuild, params.slice!(:package, :arch, :repository))
+    backend_build_command(:rebuild, params.slice(:package, :arch, :repository))
   end
 
   def wipe_binaries(params)
-    backend_build_command(:wipe, params.slice!(:package, :arch, :repository))
+    backend_build_command(:wipe, params.slice(:package, :arch, :repository))
   end
 
   def abort_build(params)
-    backend_build_command(:abortbuild, params.slice!(:package, :arch, :repository))
+    backend_build_command(:abortbuild, params.slice(:package, :arch, :repository))
   end
 
   def backend_build_command(command, params)
