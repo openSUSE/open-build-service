@@ -805,8 +805,10 @@ sub createRepository
 sub createFlavorReadme( $$ ){
     my($prodRef,$product)=@_;
     my $reame_file="";
+    my @seen;
     foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
-      next if ((!defined ($flavor->{'flavor'}) || ("$flavor->{'flavor'}" eq "")));
+      next if ((!defined ($flavor->{'flavor'}) || (grep(/^$flavor->{flavor}$/,@seen)) || ("$flavor->{'flavor'}" eq "")));
+      push @seen, "$flavor->{flavor}";
       my $readmedir = "\$RPM_BUILD_ROOT/%{_defaultdocdir}/$product->{releasepkgname}-$flavor->{flavor}";
       $reame_file .= "mkdir -p $readmedir\n";
       $reame_file .= "cat >$readmedir/README << EOF\n";
@@ -1130,8 +1132,10 @@ sub createProductDependencyLines ( $ ) {
 sub createSPECfileFlavors ( $$ ) {
     my ( $prodRef,$product ) = @_;
     my $product_flavors="";
+    my @seen;
     foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
-      next if ((!defined ($flavor->{'flavor'}) || ("$flavor->{'flavor'}" eq "")));
+      next if ((!defined ($flavor->{'flavor'}) || (grep(/^$flavor->{'flavor'}$/, @seen)) || ("$flavor->{'flavor'}" eq "")));
+      push @seen, "$flavor->{flavor}";
       $product_flavors.="%package $flavor->{flavor}\n";
       $product_flavors.="License:        BSD-3-Clause\n";
       $product_flavors.="Group:          System/Fhs\n";
