@@ -40,8 +40,11 @@ class EventMailerTest < ActionMailer::TestCase
     req = bs_requests(:submit_from_home_project)
     Timecop.travel(2013, 8, 20, 12, 0, 0)
     myid = req.id
+    SendEventEmails.new.perform # empty queue
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       req.addreview(by_group: 'test_group', comment: 'does it look ok?')
+      # trigger the send job
+      SendEventEmails.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last

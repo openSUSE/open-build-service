@@ -482,6 +482,7 @@ CREATE TABLE `events` (
   `updated_at` datetime DEFAULT NULL,
   `project_logged` tinyint(1) DEFAULT '0',
   `undone_jobs` int(11) DEFAULT '0',
+  `mails_sent` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `index_events_on_queued` (`queued`),
   KEY `index_events_on_project_logged` (`project_logged`),
@@ -1660,6 +1661,8 @@ INSERT INTO schema_migrations (version) VALUES ('20150902130939');
 INSERT INTO schema_migrations (version) VALUES ('20150903084813');
 
 INSERT INTO schema_migrations (version) VALUES ('20150916084813');
+
+INSERT INTO schema_migrations (version) VALUES ('20151030130011');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

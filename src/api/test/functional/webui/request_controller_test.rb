@@ -327,10 +327,12 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
 
     # adrian is reviewer, Iggy creator, Admin (fixture) commenter
     # tom is commenter *and* author, so doesn't get mail
+    SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       fill_in 'body', with: 'Comment Body'
       find_button('Add comment').click
       page.must_have_text 'Comment Body'
+      SendEventEmails.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
@@ -347,6 +349,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
       fill_in 'body', with: 'Another Body'
       find_button('Add comment').click
       page.must_have_text 'Another Body'
+      SendEventEmails.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
