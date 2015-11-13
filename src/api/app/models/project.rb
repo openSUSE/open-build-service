@@ -1594,9 +1594,9 @@ class Project < ActiveRecord::Base
 
   # Returns maintenance incidents by type for current project (if any)
   def maintenance_incidents
-    all = Project.where('projects.name like ?', "#{self.name}:%").distinct.where(kind: 'maintenance_incident')
-    all = all.joins(:repositories).joins('JOIN release_targets rt on rt.repository_id=repositories.id')
-    all.where('rt.trigger = "maintenance"')
+    Project.where('projects.name like ?', "#{self.name}:%").distinct.where(kind: 'maintenance_incident').
+      joins(:repositories).joins('JOIN release_targets rt on rt.repository_id=repositories.id').
+      where('rt.trigger = "maintenance"')
   end
 
   def release_targets_ng

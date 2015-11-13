@@ -846,7 +846,9 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def maintenance_incidents
-    @incidents = @project.maintenance_incidents
+    incidents = @project.maintenance_incidents
+    @incidents_count = incidents.count
+    @incidents = incidents.page(params[:page])
   end
 
   def unlock_dialog
