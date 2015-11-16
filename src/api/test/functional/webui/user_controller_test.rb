@@ -72,13 +72,15 @@ class Webui::UserControllerTest < Webui::IntegrationTest
   end
 
   def test_that_redirect_after_login_works
+    use_js
+
     visit search_path
-    visit user_login_path
+    click_link("Log In")
     fill_in 'Username', with: "tom"
     fill_in 'Password', with: "thunder"
     click_button 'Log In'
 
-    assert_equal "tom", User.current.try(:login)
+    assert_equal "tom", find('#link-to-user-home').text
     assert_equal search_path, current_path
   end
 end

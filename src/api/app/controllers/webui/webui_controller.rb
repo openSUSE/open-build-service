@@ -11,7 +11,6 @@ class Webui::WebuiController < ActionController::Base
 
   before_filter :setup_view_path
   before_filter :instantiate_controller_and_action_names
-  before_filter :set_return_to, except: [:do_login, :login]
   before_filter :reset_activexml, :authenticate
   before_filter :check_user
   before_filter :check_anonymous
@@ -90,20 +89,7 @@ class Webui::WebuiController < ActionController::Base
     render file: Rails.root.join('public/404'), status: 404, layout: false, formats: [:html]
   end
 
-  def return_path
-    session[:return_path] || root_path
-  end
-
-  def set_return_path(path)
-    session[:return_path] = path unless request.xhr?
-  end
-
   protected
-
-  def set_return_to
-    set_return_path(request.env['ORIGINAL_FULLPATH'])
-    logger.debug "Setting return_to: '#{return_path}'"
-  end
 
   # Same as redirect_to(:back) if there is a valid HTTP referer, otherwise redirect_to()
   def redirect_back_or_to(options = {}, response_status = {})

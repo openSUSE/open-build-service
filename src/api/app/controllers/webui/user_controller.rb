@@ -45,9 +45,6 @@ class Webui::UserController < Webui::WebuiController
       end
 
       unless User.current
-        return_to = return_path
-        reset_session
-        set_return_path(return_to)
         flash.now[:error] = 'Authentication failed'
         User.current = User.find_by_login('_nobody_')
         render :template => 'webui/user/login'
@@ -56,7 +53,8 @@ class Webui::UserController < Webui::WebuiController
 
       flash[:success] = 'You are logged in now'
       session[:login] = User.current.login
-      return redirect_to(return_path)
+      redirect_back_or_to root_path
+      return
     end
     flash[:error] = 'Authentication failed'
     redirect_to :action => 'login'
