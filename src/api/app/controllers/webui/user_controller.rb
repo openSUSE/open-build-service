@@ -43,15 +43,14 @@ class Webui::UserController < Webui::WebuiController
 
     if user.nil? || (user.state == User::STATES['ichainrequest'] || user.state == User::STATES['unconfirmed'])
       redirect_to(user_login_path, error: 'Authentication failed')
-      return
+    else
+      logger.debug "USER found: #{user.login}"
+
+      session[:login] = User.current.login
+      session[:password] = params[:password]
+
+      redirect_back_or_to root_path
     end
-
-    logger.debug "USER found: #{user.login}"
-
-    session[:login] = User.current.login
-    session[:password] = params[:password]
-
-    redirect_back_or_to root_path
   end
 
   def show
