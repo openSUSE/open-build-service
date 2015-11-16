@@ -36,24 +36,21 @@ class Webui::UserController < Webui::WebuiController
 
     case mode
     when :on
-      user = User.find_by(login: request.env['HTTP_X_USERNAME'])
+      user = User.login(request.env['HTTP_X_USERNAME'])
     when :basic, :off
-      user = User.find_with_credentials(params[:username], params[:password])
+      user = User.login(params[:username], params[:password])
     end
 
     if user.nil? || (user.state == User::STATES['ichainrequest'] || user.state == User::STATES['unconfirmed'])
-      set_return_path(return_path)
       redirect_to(user_login_path, error: 'Authentication failed')
-      return
+    else
+      logger.debug "USER found: #{user.login}"
+
+      session[:login] = User.current.login
+      session[:password] = params[:password]
+
+      redirect_back_or_to root_path
     end
-
-    logger.debug "USER found: #{user.login}"
-    User.current = user
-
-    session[:login] = User.current.login
-    session[:password] = params[:password]
-
-    redirect_to(return_path)
   end
 
   def show
