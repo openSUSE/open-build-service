@@ -36,9 +36,9 @@ class Webui::UserController < Webui::WebuiController
 
     case mode
     when :on
-      user = User.find_by(login: request.env['HTTP_X_USERNAME'])
+      user = User.authenticate(request.env['HTTP_X_USERNAME'])
     when :basic, :off
-      user = User.find_with_credentials(params[:username], params[:password])
+      user = User.authenticate(params[:username], params[:password])
     end
 
     if user.nil? || (user.state == User::STATES['ichainrequest'] || user.state == User::STATES['unconfirmed'])
@@ -47,7 +47,6 @@ class Webui::UserController < Webui::WebuiController
     end
 
     logger.debug "USER found: #{user.login}"
-    User.current = user
 
     session[:login] = User.current.login
     session[:password] = params[:password]
