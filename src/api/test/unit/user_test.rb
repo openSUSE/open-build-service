@@ -9,6 +9,24 @@ class UserTest < ActiveSupport::TestCase
     @user = User.find_by_login('Iggy')
   end
 
+  def test_login
+    user = User.authenticate("tom")
+    assert_equal User.find_by(login: "tom"), user
+    assert_equal User.find_by(login: "tom"), User.current
+
+    user = User.authenticate("tom", "thunder")
+    assert_equal User.find_by(login: "tom"), user
+    assert_equal User.find_by(login: "tom"), User.current
+
+    user = User.authenticate("tom", "wrong_pw")
+    assert_equal nil, user
+    assert_equal nil, User.current
+
+    user = User.authenticate("nonexistant")
+    assert_equal nil, user
+    assert_equal nil, User.current
+  end
+
   def test_create_home_project
     User.create(login: 'moises', email: 'moises@home.com', password: '123456')
     assert Project.find_by(name: 'home:moises')
