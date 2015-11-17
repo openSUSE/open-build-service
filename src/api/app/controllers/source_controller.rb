@@ -488,15 +488,6 @@ class SourceController < ApplicationController
       project = nil
     end
 
-    # projects using remote resources must be edited by the admin
-    unless User.current.is_admin?
-      # either OBS interconnect or repository "download on demand" feature used
-      if request_data.has_key?('remoteurl') || request_data.has_key?('remoteproject') ||
-         (request_data['repository'] && request_data['repository'].any?{|r| r.first == 'download'})
-        raise ChangeProjectNoPermission, 'admin rights are required to change projects using remote resources'
-      end
-    end
-
     # Need permission
     logger.debug 'Checking permission for the put'
     if project
@@ -515,6 +506,12 @@ class SourceController < ApplicationController
         logger.debug 'Not allowed to create new project'
         raise CreateProjectNoPermission, "no permission to create project #{project_name}"
       end
+    end
+
+    # projects using remote resources must be edited by the admin
+    error = Project.validate_remote_permissions(request_data)
+    if error[:error]
+      raise ChangeProjectNoPermission, 'admin rights are required to change projects using remote resources'
     end
 
     error = Project.validate_link_xml_attribute(request_data, project_name)
