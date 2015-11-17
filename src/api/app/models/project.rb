@@ -849,7 +849,7 @@ class Project < ActiveRecord::Base
         Suse::Backend.delete path
       rescue ActiveXML::Transport::NotFoundError
         # ignore this error, backend was out of sync
-        ogger.warn("Project #{self.name} was already missing on backend on removal")
+        logger.warn("Project #{self.name} was already missing on backend on removal")
       end
       logger.tagged('backend_sync') { logger.debug "Deleted Project #{self.name}" }
     else
