@@ -25,6 +25,10 @@ class UserTest < ActiveSupport::TestCase
     user = User.authenticate("nonexistant")
     assert_equal nil, user
     assert_equal nil, User.current
+
+    user = User.authenticate("unconfirmed_user")
+    assert_equal nil, user
+    assert_equal nil, User.current
   end
 
   def test_create_home_project

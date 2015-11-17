@@ -41,7 +41,7 @@ class Webui::UserController < Webui::WebuiController
       user = User.authenticate(params[:username], params[:password])
     end
 
-    if user.nil? || (user.state == User::STATES['ichainrequest'] || user.state == User::STATES['unconfirmed'])
+    unless user
       redirect_to(user_login_path, error: 'Authentication failed')
       return
     end

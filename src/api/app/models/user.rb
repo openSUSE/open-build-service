@@ -375,6 +375,12 @@ class User < ActiveRecord::Base
       else
         user = User.find_with_credentials(user_login, password)
       end
+
+      # User account is not confirmed yet
+      if [STATES['ichainrequest'], STATES['unconfirmed']].include?(user.try(:state))
+        return
+      end
+
       User.current = user
     end
 
