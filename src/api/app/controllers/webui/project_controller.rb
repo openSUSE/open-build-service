@@ -685,6 +685,7 @@ class Webui::ProjectController < Webui::WebuiController
       Suse::Validator.validate('project', params[:meta])
       request_data = Xmlhash.parse(params[:meta])
 
+      errors << Project.validate_remote_permissions(request_data)[:error]
       errors << Project.validate_link_xml_attribute(request_data, @project.name)[:error]
       errors << Project.validate_maintenance_xml_attribute(request_data)[:error]
       errors << Project.validate_repository_xml_attribute(request_data, @project.name)[:error]

@@ -316,6 +316,38 @@ XML
     assert_equal 3, result.xpath("/project/child::*").count, "Should not have additional nodes."
   end
 
+  def test_save_meta_permission_check
+    use_js
+
+    login_adrian
+    visit(project_show_path(project: "home:adrian"))
+
+    # Test reading meta data
+    click_link("Advanced")
+    click_link("Meta")
+    # Note that textarea#editor_0 is a hidden element.
+    # This isn't ideal for a test, but best we can do to test this part of the ui
+    assert find(:css, "textarea#editor_0", visible: false).
+      text(:all).include?("<title>adrian's Home Project</title>")
+
+    # Test writing valid meta data
+    xml = <<-XML.gsub(/(?:\s*\n|^\s*)/, '') # evaluate_script fails otherwise
+<project name='home:adrian'>
+  <title>My Home Project</title>
+  <description/>
+  <remoteurl>http://remote.instance.org/</remoteurl>
+  <person userid='adrian' role='maintainer'/>
+</project>
+XML
+    # Workaround. There doesn't seem to be a way to change stored meta content via the textarea.
+    page.evaluate_script("editors[0].setValue(\"#{xml}\");")
+    click_button("Save")
+    find(:id, 'flash-messages').must_have_text("Admin rights are required to change projects using remote resources")
+
+    # not saved
+    assert_nil Project.find_by_name("home:adrian").remoteurl
+  end
+
   def test_list_all
     use_js
 
