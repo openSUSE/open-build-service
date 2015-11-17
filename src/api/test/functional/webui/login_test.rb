@@ -32,14 +32,30 @@ class Webui::LoginTest < Webui::IntegrationTest
   end
 
   def test_login_as_user
-    # pretty useless actually :)
-    login_Iggy
-    logout
-  end
+    use_js
 
-  def test_login_as_second_user
-    login_tom
-    logout
+    # Login via login page
+    visit user_login_path
+    fill_in "Username", with: "tom"
+    fill_in "Password", with: "buildservice"
+    click_button("Log In")
+
+    assert_equal "tom", find('#link-to-user-home').text
+
+    within("div#subheader") do
+      click_link("Logout")
+    end
+    assert_not page.has_css?("a#link-to-user-home")
+
+    # Login via widget, and different user
+    click_link("Log In")
+    within("div#login-form") do
+      fill_in "Username", with: "king"
+      fill_in "Password", with: "sunflower"
+      click_button("Log In")
+    end
+
+    assert_equal "king", find('#link-to-user-home').text
   end
 
   def test_login_invalid_entry
