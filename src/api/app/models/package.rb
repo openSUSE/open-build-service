@@ -76,7 +76,8 @@ class Package < ActiveRecord::Base
   before_destroy :update_project_for_product
   before_destroy :remove_linked_packages
   before_destroy :remove_devel_packages
-  before_destroy :delete_cache_lines
+
+  after_destroy :delete_cache_lines
 
   after_save :write_to_backend
   before_update :update_activity
