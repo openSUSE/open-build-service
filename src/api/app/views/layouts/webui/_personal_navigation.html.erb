@@ -27,6 +27,7 @@
             <%= hidden_field_tag(:context, 'default') %>
             <%= hidden_field_tag(:proxypath, 'reserve') %>
             <%= hidden_field_tag(:message, 'Please log in') %>
+            <%= hidden_field_tag(:url, request.fullpath) %>
             <%= label_tag(:username, 'Username') %>
             <%= text_field_tag(:username, '') %>
           </p>
