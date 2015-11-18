@@ -369,6 +369,21 @@ class User < ActiveRecord::Base
       '_nobody_'
     end
 
+    def authenticate(user_login, password = nil)
+      if password.nil?
+        user = User.find_by(login: user_login)
+      else
+        user = User.find_with_credentials(user_login, password)
+      end
+
+      # User account is not confirmed yet
+      if [STATES['ichainrequest'], STATES['unconfirmed']].include?(user.try(:state))
+        return
+      end
+
+      User.current = user
+    end
+
     def get_default_admin
       admin = CONFIG['default_admin'] || 'Admin'
       user = find_by_login(admin)

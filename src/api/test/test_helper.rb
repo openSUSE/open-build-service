@@ -396,8 +396,7 @@ module ActionDispatch
     end
 
     def prepare_request_with_user(user, passwd)
-      re = 'Basic ' + Base64.encode64(user + ':' + passwd)
-      @@auth = re
+      @@auth = 'Basic ' + Base64.encode64(user + ':' + passwd)
     end
 
     # will provide a user without special permissions
