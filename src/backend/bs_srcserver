@@ -6042,7 +6042,7 @@ sub sourcecopy {
 
   if ($cgi->{'freezelink'}) {
     die("400 freezelink: origin provides no link") unless $olink;
-    die("400 freezelink: link points to a revision already") if $olink->{'rev'};
+    die("400 freezelink: link points to a revision already") if $olink->{'rev'} && $olink->{'rev'} ne $olink->{'baserev'};
     die("400 freezelink: link has no baserev") unless $olink->{'baserev'};
     $olink->{'rev'} = $olink->{'baserev'};
     delete $olink->{'missingok'} if $autosimplifylink;
