@@ -289,7 +289,7 @@ unconfirmed_user:
   login: unconfirmed_user
   email: test@example.com
   realname: ''
-  password: df9a257e5a7c1af44987f695369adc44
+  password: 5c7686c0284e0875b26de99c1008e998
   password_hash_type: md5
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY

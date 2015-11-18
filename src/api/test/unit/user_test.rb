@@ -10,10 +10,6 @@ class UserTest < ActiveSupport::TestCase
   end
 
   def test_login
-    user = User.authenticate("tom")
-    assert_equal User.find_by(login: "tom"), user
-    assert_equal User.find_by(login: "tom"), User.current
-
     user = User.authenticate("tom", "thunder")
     assert_equal User.find_by(login: "tom"), user
     assert_equal User.find_by(login: "tom"), User.current
@@ -22,12 +18,12 @@ class UserTest < ActiveSupport::TestCase
     assert_equal nil, user
     assert_equal nil, User.current
 
-    user = User.authenticate("nonexistant")
+    user = User.authenticate("nonexistant", "foobar")
     assert_equal nil, user
     assert_equal nil, User.current
 
-    user = User.authenticate("unconfirmed_user")
-    assert_equal nil, user
+    user = User.authenticate("unconfirmed_user", "thunder")
+    assert_equal nil, user, "Should not authenticate users with state 'unconfirmed'"
     assert_equal nil, User.current
   end
 
