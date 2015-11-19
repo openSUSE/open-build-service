@@ -46,7 +46,7 @@ class EventMailer < ActionMailer::Base
       orig = mail_sender
     end
 
-    mail(to: tos,
+    mail(to: tos.sort,
          subject: e.subject,
          from: orig,
          date: e.created_at,
