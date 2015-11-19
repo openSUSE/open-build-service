@@ -701,10 +701,11 @@ class Package < ActiveRecord::Base
     save!
   end
 
-  def destroy_without_backend_write
+  def destroy_without_backend_write_and_revoking_requests
     self.commit_opts = { no_backend_write: 1 }
-    self.commit_opts[:request] = self.project.commit_opts[:request]
+    Package.skip_callback(:destroy, :before, :revoke_requests)
     destroy
+    Package.set_callback(:destroy, :before, :revoke_requests)
   end
 
   def reset_cache
@@ -714,16 +715,21 @@ class Package < ActiveRecord::Base
   def write_to_backend
     reset_cache
     #--- write through to backend ---#
-    if CONFIG['global_write_through']
+    if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       query = { user: User.current ? User.current.login : User.nobody_login }
       query[:comment] = @commit_opts[:comment] unless @commit_opts[:comment].blank?
       query[:requestid] = @commit_opts[:requestid] unless @commit_opts[:requestid].blank?
       Suse::Backend.put_source(self.source_path('_meta', query), to_axml)
       logger.tagged('backend_sync') { logger.debug "Saved Package #{self.project.name}/#{self.name}" }
     else
-      logger.tagged('backend_sync') { logger.warn "Not saving Package #{self.project.name}/#{self.name}, global_write_through is off" }
+      if @commit_opts[:no_backend_write]
+        logger.tagged('backend_sync') { logger.warn "Not saving Package #{self.project.name}/#{self.name}, backend_write is off " }
+      else
+        logger.tagged('backend_sync') { logger.warn "Not saving Package #{self.project.name}/#{self.name}, global_write_through is off" }
+      end
     end
     @commit_opts = {}
+    true
   end
 
   def delete_on_backend
@@ -750,6 +756,8 @@ class Package < ActiveRecord::Base
         logger.tagged('backend_sync') { logger.warn "Not deleting Package #{self.project.name}/#{self.name}, global_write_through is off" }
       end
     end
+    @commit_opts = {}
+    true
   end
 
   def to_axml_id
