@@ -5,6 +5,14 @@ class ProjectRemoveTest < ActiveSupport::TestCase
 
   fixtures :all
 
+  def setup
+    CONFIG['global_write_through'] = true
+  end
+
+  def teardown
+    CONFIG['global_write_through'] = false
+  end
+
   def test_delete_cache_lines
     skip "No idea what CacheLine.cleanup_project is there for, Adrian?"
   end
@@ -47,11 +55,10 @@ class ProjectRemoveTest < ActiveSupport::TestCase
     User.current = users(:Iggy)
     branch_package('test_destroy_target_declines_request', 'pack')
     create_request('test_destroy_target_declines_request', 'pack')
-
     User.current = users(:king)
     Project.find_by(name: "test_destroy_target_declines_request").destroy
-
     @request.reload
+
     assert_equal :declined, @request.state
     assert_equal "The target project 'test_destroy_target_declines_request' has been removed", @request.comment
     assert_equal 1, HistoryElement::RequestDeclined.where(op_object_id: @request.id).count
