@@ -272,6 +272,7 @@ my %remotepackstatus_cleanup;
 sub addrepo {
   my ($ctx, $pool, $prp) = @_;
 
+  my $arch = $myarch;
   my $now = time();
   my $repodata = $repodatas{$prp};
   if ($repodata && $repodata->{'lastscan'} && $repodata->{'lastscan'} + 24 * 3600 + ($repodata->{'random'} || 0) * 1800 > $now) {
@@ -281,7 +282,7 @@ sub addrepo {
       return $r if $r;
       delete $repodata->{'solv'};
     }
-    my $solvfile = $repodata->{'solvfile'} || "$ctx->{'gctx'}->{'reporoot'}/$prp/$myarch/:full.solv";
+    my $solvfile = $repodata->{'solvfile'} || "$ctx->{'gctx'}->{'reporoot'}/$prp/$arch/:full.solv";
     if (-s $solvfile) {
       my $r;
       if ($repodata->{'solvfile'}) {
@@ -305,7 +306,7 @@ sub addrepo {
   }
   my ($projid, $repoid) = split('/', $prp, 2);
   if ($remoteprojs{$projid}) {
-    return addrepo_remote($ctx, $pool, $prp, $myarch, $remoteprojs{$projid});
+    return addrepo_remote($ctx, $pool, $prp, $arch, $remoteprojs{$projid});
   }
   return addrepo_scan($ctx, $pool, $prp);
 }
@@ -814,11 +815,12 @@ sub set_building {
     }
   }
 
+  my $dst = "$reporoot/$prp/$myarch/$packid";
   # find the last build count we used for this version/release
-  mkdir_p("$reporoot/$prp/$myarch/$packid");
+  mkdir_p($dst);
   my $h;
-  if (-e "$reporoot/$prp/$myarch/$packid/history") {
-    $h = BSFileDB::fdb_getmatch("$reporoot/$prp/$myarch/$packid/history", $historylay, 'versrel', $pdata->{'versrel'}, 1);
+  if (-e "$dst/history") {
+    $h = BSFileDB::fdb_getmatch("$dst/history", $historylay, 'versrel', $pdata->{'versrel'}, 1);
   }
   $h = {'bcnt' => 0} unless $h;
 
@@ -838,10 +840,10 @@ sub set_building {
 
   # jay! ready for building, write status and job info
   my $now = time();
-  writexml("$reporoot/$prp/$myarch/$packid/.status", "$reporoot/$prp/$myarch/$packid/status", { 'status' => 'scheduled', 'readytime' => $now, 'job' => $job}, $BSXML::buildstatus);
+  writexml("$dst/.status", "$dst/status", { 'status' => 'scheduled', 'readytime' => $now, 'job' => $job}, $BSXML::buildstatus);
   # And store reason and time
   $reason->{'time'} = $now;
-  writexml("$reporoot/$prp/$myarch/$packid/.reason", "$reporoot/$prp/$myarch/$packid/reason", $reason, $BSXML::buildreason);
+  writexml("$dst/.reason", "$dst/reason", $reason, $BSXML::buildreason);
 
   my @pdeps = Build::get_preinstalls($bconf);
   my @vmdeps = Build::get_vminstalls($bconf);
@@ -1080,10 +1082,11 @@ sub set_repo_state {
   my ($gctx, $prp, $state, $details) = @_;
 
   my $reporoot = $gctx->{'reporoot'};
-  unlink("$reporoot/$prp/$myarch/:schedulerstate.dirty") if $state eq 'scheduling' || $state eq 'broken' || $state eq 'disabled';
+  my $gdst = "$reporoot/$prp/$myarch";
+  unlink("$gdst/:schedulerstate.dirty") if $state eq 'scheduling' || $state eq 'broken' || $state eq 'disabled';
   $state .= " $details" if $details;
-  mkdir_p("$reporoot/$prp/$myarch");
-  writestr("$reporoot/$prp/$myarch/.:schedulerstate", "$reporoot/$prp/$myarch/:schedulerstate", $state);
+  mkdir_p($gdst);
+  writestr("$gdst/.:schedulerstate", "$gdst/:schedulerstate", $state);
 }
 
 
@@ -1426,9 +1429,10 @@ sub publishdelta {
 
   my $reporoot = $ctx->{'gctx'}->{'reporoot'};
   my $prp = $ctx->{'prp'};
-  my @s = stat("$reporoot/$prp/$myarch/_deltas/$delta->[0]");
+  my $dst = "$reporoot/$prp/$myarch/_deltas";
+  my @s = stat("$dst/$delta->[0]");
   return 0 unless @s && $s[7];		# zero size means skip it
-  return 0 unless -s "$reporoot/$prp/$myarch/_deltas/$delta->[0].dseq";	# need dseq file
+  return 0 unless -s "$dst/$delta->[0].dseq";	# need dseq file
   my $deltaname = mkdeltaname($delta->[1], $bin);
   my $deltaseqname = $deltaname;
   $deltaseqname =~ s/\.drpm$//;
@@ -1439,8 +1443,8 @@ sub publishdelta {
     print @sr ? "      ! :repo/${rbin}::$deltaname\n" : "      + :repo/${rbin}::$deltaname\n";
     unlink("$rdir/${rbin}::$deltaname");
     unlink("$rdir/${rbin}::$deltaseqname");
-    link("$reporoot/$prp/$myarch/_deltas/$delta->[0]", "$rdir/${rbin}::$deltaname") || die("link $reporoot/$prp/$myarch/_deltas/$delta->[0] $rdir/${rbin}::$deltaname: $!");
-    link("$reporoot/$prp/$myarch/_deltas/$delta->[0].dseq", "$rdir/${rbin}::$deltaseqname") || die("link $reporoot/$prp/$myarch/_deltas/$delta->[0].dseq $rdir/${rbin}::$deltaseqname: $!");
+    link("$dst/$delta->[0]", "$rdir/${rbin}::$deltaname") || die("link $dst/$delta->[0] $rdir/${rbin}::$deltaname: $!");
+    link("$dst/$delta->[0].dseq", "$rdir/${rbin}::$deltaseqname") || die("link $dst/$delta->[0].dseq $rdir/${rbin}::$deltaseqname: $!");
     $changed = 1;
   }
   $origin->{"${rbin}::$deltaname"} = $packid;
@@ -1453,6 +1457,7 @@ sub prpfinished {
 
   my $reporoot = $ctx->{'gctx'}->{'reporoot'};
   my $prp = $ctx->{'prp'};
+  my $rdir = "$reporoot/$prp/$myarch/:repo";
   print "    prp $prp is finished...\n";
 
   my ($projid, $repoid) = split('/', $prp, 2);
@@ -1465,11 +1470,10 @@ sub prpfinished {
   }
   if (!$packs) {
     # delete all in :repo
-    my $r = "$reporoot/$prp/$myarch/:repo";
-    unlink("${r}info");
-    if (-d $r) {
-      BSUtil::cleandir($r);
-      rmdir($r) || die("rmdir $r: $!\n");
+    unlink("${rdir}info");
+    if (-d $rdir) {
+      BSUtil::cleandir($rdir);
+      rmdir($rdir) || die("rmdir $rdir: $!\n");
     } elsif (! -e "$reporoot/$prp/:repoinfo") {
       print "    nothing to delete...\n";
       close(F);
@@ -1494,7 +1498,6 @@ sub prpfinished {
       return $err;
   }
 
-  my $rdir = "$reporoot/$prp/$myarch/:repo";
 
   my $rinfo;
   my $rinfo_packid2bins;
@@ -2996,9 +2999,9 @@ sub addjobhist {
   $jobhist->{$_} = $info->{$_} for qw{package rev srcmd5 versrel bcnt reason};
   $jobhist->{'verifymd5'} = $info->{'verifymd5'} if $info->{'verifymd5'};
   $jobhist->{'readytime'} ||= $status->{'readytime'};	# backward compat
-  my $reporoot = $gctx->{'reporoot'};
-  mkdir_p("$reporoot/$prp/$myarch");
-  BSFileDB::fdb_add("$reporoot/$prp/$myarch/:jobhistory", $BSXML::jobhistlay, $jobhist);
+  my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
+  mkdir_p($gdst);
+  BSFileDB::fdb_add("$gdst/:jobhistory", $BSXML::jobhistlay, $jobhist);
 }
 
 
@@ -4529,10 +4532,11 @@ sub patchpackstatus {
   my ($gctx, $prp, $packid, $code) = @_;
 
   my $reporoot = $gctx->{'reporoot'};
+  my $gdst = "$reporoot/$prp/$myarch";
   $code ||= 'unknown';
-  BSUtil::appendstr("$reporoot/$prp/$myarch/:packstatus.finished", "$code $packid\n");
+  BSUtil::appendstr("$gdst/:packstatus.finished", "$code $packid\n");
   # touch mtime to make watchers see a change
-  utime(time, time, "$reporoot/$prp/$myarch/:packstatus");
+  utime(time, time, "$gdst/:packstatus");
 }
 
 #
@@ -4620,7 +4624,7 @@ sub jobfinished {
   mkdir_p("$gdst/:meta");
   mkdir_p("$gdst/:logfiles.fail");
   mkdir_p("$gdst/:logfiles.success");
-  unlink("$reporoot/$prp/$myarch/:repodone");
+  unlink("$gdst/:repodone");
   if (!$all{'meta'}) {
     if ($code eq 'succeeded') {
       print "  - $job claims success but there is no meta\n";
@@ -4701,17 +4705,17 @@ sub jobfinished {
   my $duration = 0;
   $duration = $js->{'endtime'} - $js->{'starttime'} if $js->{'endtime'} && $js->{'starttime'};;
   my $h = {'versrel' => $info->{'versrel'}, 'bcnt' => $info->{'bcnt'}, 'time' => $now, 'srcmd5' => $info->{'srcmd5'}, 'rev' => $info->{'rev'}, 'reason' => $info->{'reason'}, 'duration' => $duration};
-  BSFileDB::fdb_add("$reporoot/$prp/$myarch/$packid/history", $historylay, $h);
+  BSFileDB::fdb_add("$dst/history", $historylay, $h);
 
   # update relsync file (use relsync.merge if relsync is too big)
-  if (((-s "$reporoot/$prp/$myarch/:relsync") || 0) < 8192 && ! -e "$reporoot/$prp/$myarch/:relsync.merge") {
-    my $relsync = BSUtil::retrieve("$reporoot/$prp/$myarch/:relsync", 1) || {};
+  if (((-s "$gdst/:relsync") || 0) < 8192 && ! -e "$gdst/:relsync.merge") {
+    my $relsync = BSUtil::retrieve("$gdst/:relsync", 1) || {};
     $relsync->{$packid} = "$info->{'versrel'}.$info->{'bcnt'}";
-    BSUtil::store("$reporoot/$prp/$myarch/.:relsync", "$reporoot/$prp/$myarch/:relsync", $relsync);
+    BSUtil::store("$gdst/.:relsync", "$gdst/:relsync", $relsync);
   } else {
-    my $relsync = BSUtil::retrieve("$reporoot/$prp/$myarch/:relsync.merge", 1) || {};
+    my $relsync = BSUtil::retrieve("$gdst/:relsync.merge", 1) || {};
     $relsync->{$packid} = "$info->{'versrel'}.$info->{'bcnt'}";
-    BSUtil::store("$reporoot/$prp/$myarch/.:relsync.merge", "$reporoot/$prp/$myarch/:relsync.merge", $relsync);
+    BSUtil::store("$gdst/.:relsync.merge", "$gdst/:relsync.merge", $relsync);
   }
   
   # save logfile
@@ -5616,7 +5620,6 @@ sub rebuildkiwiproduct {
   my $reason = $data->[2];
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
-  my $reporoot = $gctx->{'reporoot'};
   my $job = jobname($prp, $packid);
   return ('scheduled', "$job-$srcmd5") if -s "$myjobsdir/$job-$srcmd5";
   my @otherjobs = grep {/^\Q$job\E-[0-9a-f]{32}$/} ls($myjobsdir);
@@ -5701,9 +5704,11 @@ sub rebuildkiwiproduct {
     }} @{$info->{'extrasource'}};
   }
 
+  my $dst = "$gctx->{'reporoot'}/$prp/$myarch/$packid";
+
   # find the last build count we used for this version/release
-  mkdir_p("$reporoot/$prp/$myarch/$packid");
-  my $h = BSFileDB::fdb_getmatch("$reporoot/$prp/$myarch/$packid/history", $historylay, 'versrel', defined($pdata->{'versrel'}) ? $pdata->{'versrel'} : '', 1);
+  mkdir_p($dst);
+  my $h = BSFileDB::fdb_getmatch("$dst/history", $historylay, 'versrel', defined($pdata->{'versrel'}) ? $pdata->{'versrel'} : '', 1);
   $h = {'bcnt' => 0} unless $h;
 
   # max with sync data
@@ -5742,10 +5747,10 @@ sub rebuildkiwiproduct {
   $binfo->{'nosrcpkgs'} = $info->{'nosrcpkgs'} if $info->{'nosrcpkgs'};
   $binfo->{'constraintsmd5'} = $pdata->{'constraintsmd5'} if $pdata->{'constraintsmd5'};
   $binfo->{'prjconfconstraint'} = $bconf->{'constraint'} if @{$bconf->{'constraint'} || []};
-  mkdir_p("$reporoot/$prp/$myarch/$packid");
-  writexml("$reporoot/$prp/$myarch/$packid/.status", "$reporoot/$prp/$myarch/$packid/status", { 'status' => 'scheduled', 'readytime' => $now, 'job' => $job}, $BSXML::buildstatus);
+  mkdir_p($dst);
+  writexml("$dst/.status", "$dst/status", { 'status' => 'scheduled', 'readytime' => $now, 'job' => $job}, $BSXML::buildstatus);
   $reason->{'time'} = $now;
-  writexml("$reporoot/$prp/$myarch/$packid/.reason", "$reporoot/$prp/$myarch/$packid/reason", $reason, $BSXML::buildreason);
+  writexml("$dst/.reason", "$dst/reason", $reason, $BSXML::buildreason);
   writexml("$myjobsdir/.$job", "$myjobsdir/$job", $binfo, $BSXML::buildinfo);
   $ourjobs{$job} = 1;
   return ('scheduled', $job);
