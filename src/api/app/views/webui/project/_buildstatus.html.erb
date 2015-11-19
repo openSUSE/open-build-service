@@ -21,13 +21,17 @@
                       </td>
                       <% index += 1 %>
                   <% end %>
-                  <td class="nowrap">
+                  <td class="arch">
+                    <div class="nowrap" style="margin: 0 0.5ex">
                     <%= repo_status_icon(@repostatushash[repository][arch], @repostatusdetailshash[repository][arch])%> <%= arch %>
+                    </div>
                   </td>
                   <td style="width: 1%" class="nowrap">
                     <% counts.each do |code, count| %>
+                      <span class="status_<%= code.to_s.gsub(/[- ]/, '_') %>">
                         <%= link_to("#{code}: #{count}", {:action => :monitor, valid_xml_id('repo_' + repository) => 1,
                                                           'arch_' + arch => 1, :project => params[:project], code => 1, :defaults => 0}, :rel => 'nofollow', :class => 'nowrap') %>
+                      </span>
                         <%= sprite_tag('help', title: Buildresult.status_description(code)) %><br />
                     <% end %>
                   </td>
