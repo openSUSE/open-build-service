@@ -46,13 +46,6 @@ BaseDistro3_pack2:
   expandedmd5: 4f379b8e116209d2146b349280ba0440
   maxmtime: 2013-09-30 15:50:31.000000000 Z
   package: BaseDistro3_pack2
-BaseDistro_Pack3:
-  updated_at: 2013-09-30 15:50:42.000000000 Z
-  srcmd5: 96c3955b419fec1a637698e52b6a7d37
-  verifymd5: 96c3955b419fec1a637698e52b6a7d37
-  expandedmd5: 96c3955b419fec1a637698e52b6a7d37
-  maxmtime: 2013-09-30 15:50:30.000000000 Z
-  package: BaseDistro_Pack3
 BaseDistro_Update_pack2:
   updated_at: 2013-09-16 19:24:58.000000000 Z
   srcmd5: eac312ffacd1f577056eafc9101b7ce9
@@ -75,6 +68,13 @@ BaseDistro_pack2:
   expandedmd5: d430c2f61e4d8999f9ca6ed6667a104e
   maxmtime: 2013-09-30 15:50:30.000000000 Z
   package: BaseDistro_pack2
+BaseDistro_pack3:
+  updated_at: 2013-09-30 15:50:42.000000000 Z
+  srcmd5: 96c3955b419fec1a637698e52b6a7d37
+  verifymd5: 96c3955b419fec1a637698e52b6a7d37
+  expandedmd5: 96c3955b419fec1a637698e52b6a7d37
+  maxmtime: 2013-09-30 15:50:30.000000000 Z
+  package: BaseDistro_pack3
 BaseDistro_patchinfo:
   updated_at: 2013-09-30 15:50:42.000000000 Z
   srcmd5: a4ff2cef044a88ad8b8315690d351765
@@ -102,13 +102,6 @@ CopyTest_test:
   expandedmd5: 4e5c79d6293a88aa9650504d5be5b157
   maxmtime: 2013-09-30 15:50:34.000000000 Z
   package: CopyTest_test
-Devel_BaseDistro_Update_Pack3:
-  updated_at: 2013-09-30 15:50:44.000000000 Z
-  srcmd5: 65ea42833ec36a572cf1e06d5dc9d98f
-  verifymd5: 40932d5b533a34cf5394079ed5923338
-  expandedmd5: b3daf35d3a364c521fa8cd9fcc201131
-  maxmtime: 2013-09-30 15:50:32.000000000 Z
-  package: Devel_BaseDistro_Update_Pack3
 Devel_BaseDistro_Update_pack2:
   updated_at: 2013-09-16 19:24:59.000000000 Z
   srcmd5: 2798a1588d6ab6ce6843f39956ffe04c
@@ -117,6 +110,13 @@ Devel_BaseDistro_Update_pack2:
   maxmtime: 2013-09-16 19:24:54.000000000 Z
   package: Devel_BaseDistro_Update_pack2
   links_to: BaseDistro_Update_pack2
+Devel_BaseDistro_Update_pack3:
+  updated_at: 2013-09-30 15:50:44.000000000 Z
+  srcmd5: 65ea42833ec36a572cf1e06d5dc9d98f
+  verifymd5: 40932d5b533a34cf5394079ed5923338
+  expandedmd5: b3daf35d3a364c521fa8cd9fcc201131
+  maxmtime: 2013-09-30 15:50:32.000000000 Z
+  package: Devel_BaseDistro_Update_pack3
 LocalProject_newpackage:
   updated_at: 2013-09-30 15:50:44.000000000 Z
   srcmd5: d41d8cd98f00b204e9800998ecf8427e
@@ -184,13 +184,6 @@ home_dmayr_x11vnc:
   expandedmd5: 5444d110509157dbac7f14e23c88cba5
   maxmtime: 2013-09-30 15:50:37.000000000 Z
   package: home_dmayr_x11vnc
-home_king_commentpack:
-  updated_at: 2013-09-30 15:50:41.000000000 Z
-  srcmd5: d41d8cd98f00b204e9800998ecf8427e
-  verifymd5: d41d8cd98f00b204e9800998ecf8427e
-  expandedmd5: d41d8cd98f00b204e9800998ecf8427e
-  maxmtime: 2013-09-30 15:50:37.000000000 Z
-  package: home_king_commentpack
 kde4_kdebase:
   updated_at: 2013-09-30 15:50:40.000000000 Z
   srcmd5: 472e3c79db1d15a4db15ff37ca5f4ca9
@@ -205,3 +198,10 @@ kde4_kdelibs:
   expandedmd5: 1636661d96a88cd985d82dc611ebd723
   maxmtime: 2013-09-30 15:50:37.000000000 Z
   package: kde4_kdelibs
+home_king_commentpack:
+  updated_at: 2013-09-30 15:50:41.000000000 Z
+  srcmd5: d41d8cd98f00b204e9800998ecf8427e
+  verifymd5: d41d8cd98f00b204e9800998ecf8427e
+  expandedmd5: d41d8cd98f00b204e9800998ecf8427e
+  maxmtime: 2013-09-30 15:50:37.000000000 Z
+  package: home_king_commentpack

@@ -1,7 +1,3 @@
-User_VeryImportantProject:
-  id: 1003545546
-  attrib_type_id: 56
-  user: fred
 attrib_type_modifiable_bies_179501368:
   id: 179501368
   attrib_type_id: 58
@@ -87,3 +83,6 @@ attrib_type_modifiable_bies_973674882:
   id: 973674882
   attrib_type_id: 77
   role: Admin
+User_VeryImportantProject:
+  attrib_type_id: 56
+  user: fred

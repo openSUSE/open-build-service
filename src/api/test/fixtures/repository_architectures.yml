@@ -37,7 +37,6 @@ BaseDistro2.0_repo_x86_64:
   repository_id: 92
   position: 1
   architecture: x86_64
-  id: 931509422
 BaseDistro3_BaseDistro3_repo:
   repository_id: 93
   position: 0

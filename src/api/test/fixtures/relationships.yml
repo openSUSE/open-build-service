@@ -159,29 +159,29 @@ record_39:
   role: maintainer
   project: HiddenProject
 record_40:
-  user: user5
-  role: maintainer
-  project: home_user5
-record_41:
   role: maintainer
   group: test_group_b
   package: home_Iggy_TestPack
-record_42:
+record_41:
   user: king
   role: maintainer
   project: kde4
-record_43:
+record_42:
   user: adrian_reader
   role: reader
   project: BinaryprotectedProject
-record_44:
+record_43:
   user: tom
   role: maintainer
   project: home_tom
-record_45:
+record_44:
   user: Iggy
   role: maintainer
   project: home_Iggy
+record_45:
+  user: user5
+  role: maintainer
+  project: home_user5
 record_46:
   user: fred
   role: maintainer
