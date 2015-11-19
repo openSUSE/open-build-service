@@ -83,7 +83,7 @@ $new_full_handling = $BSConfig::new_full_handling if defined($BSConfig::new_full
 
 BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BSConfig::disable_data_sync;
 
-my $reporoot = "$bsdir/build";
+my $_reporoot = "$bsdir/build";
 my $jobsdir = "$bsdir/jobs";
 my $eventdir = "$bsdir/events";
 my $extrepodir = "$bsdir/repos";
@@ -281,7 +281,7 @@ sub addrepo {
       return $r if $r;
       delete $repodata->{'solv'};
     }
-    my $solvfile = $repodata->{'solvfile'} || "$reporoot/$prp/$myarch/:full.solv";
+    my $solvfile = $repodata->{'solvfile'} || "$ctx->{'gctx'}->{'reporoot'}/$prp/$myarch/:full.solv";
     if (-s $solvfile) {
       my $r;
       if ($repodata->{'solvfile'}) {
@@ -368,7 +368,7 @@ sub addrepo_scan {
   print "    scanning repo $prp...\n";
   my $repodata = $repodatas{$prp};
   $repodatas{$prp} = $repodata = {} unless $repodata;
-  my $dir = "$reporoot/$prp/$myarch/:full";
+  my $dir = "$ctx->{'gctx'}->{'reporoot'}/$prp/$myarch/:full";
   my $cache;
   my $dirty;
 
@@ -748,6 +748,7 @@ sub dodfetch {
 sub set_building {
   my ($ctx, $packid, $pdata, $info, $subpacks, $edeps, $reason, $needed) = @_;
 
+  my $reporoot = $ctx->{'gctx'}->{'reporoot'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $bconf = $ctx->{'conf'};
@@ -1076,8 +1077,9 @@ sub sendunblockedevent {
 }
 
 sub set_repo_state {
-  my ($prp, $state, $details) = @_;
+  my ($gctx, $prp, $state, $details) = @_;
 
+  my $reporoot = $gctx->{'reporoot'};
   unlink("$reporoot/$prp/$myarch/:schedulerstate.dirty") if $state eq 'scheduling' || $state eq 'broken' || $state eq 'disabled';
   $state .= " $details" if $details;
   mkdir_p("$reporoot/$prp/$myarch");
@@ -1179,6 +1181,7 @@ sub makedeltas {
 
   my $prp = $ctx->{'prp'};
   my ($projid, $repoid) = split('/', $prp, 2);
+  my $reporoot = $ctx->{'gctx'}->{'reporoot'};
   my $rdir = "$reporoot/$prp/$myarch/:repo";
   my $ddir = "$reporoot/$prp/$myarch/_deltas";
 
@@ -1421,6 +1424,7 @@ my $default_publishfilter;
 sub publishdelta {
   my ($ctx, $delta, $bin, $rdir, $rbin, $origin, $packid) = @_;
 
+  my $reporoot = $ctx->{'gctx'}->{'reporoot'};
   my $prp = $ctx->{'prp'};
   my @s = stat("$reporoot/$prp/$myarch/_deltas/$delta->[0]");
   return 0 unless @s && $s[7];		# zero size means skip it
@@ -1447,6 +1451,7 @@ sub publishdelta {
 sub prpfinished {
   my ($ctx, $packs, $pubenabled) = @_;
 
+  my $reporoot = $ctx->{'gctx'}->{'reporoot'};
   my $prp = $ctx->{'prp'};
   print "    prp $prp is finished...\n";
 
@@ -1972,7 +1977,7 @@ sub fctx_add_binary_to_full {
   my ($fctx, $fn, $r, $packid, $meta) = @_;
   my $n = $r->{'name'};
   my $suf = $r->{'suf'};
-  my $gdst = "$reporoot/$fctx->{'prp'}/$myarch";
+  my $gdst = $fctx->{'gdst'};
   if (!defined($packid)) {
     print "      + :full/$n.$suf ($fn)\n";
     $packid = $fctx->{'packid'};
@@ -2024,7 +2029,7 @@ sub fctx_del_binary_from_full {
   my $n = $r->{'name'};
   my $suf = $r->{'suf'};
   print "      - :full/$n.$suf\n";
-  my $gdst = "$reporoot/$fctx->{'prp'}/$myarch";
+  my $gdst = $fctx->{'gdst'};
   for my $osuf (@binsufs) {
     unlink("$gdst/:full/$n.$osuf");
     delete $fctx->{'oldids'}->{"$n.$osuf"};
@@ -2164,8 +2169,7 @@ sub findmeta {
 
 sub fctx_remove_from_volatile {
   my ($fctx, $del) = @_;
-  my $prp = $fctx->{'prp'};
-  my $gdst = "$reporoot/$prp/$myarch";
+  my $gdst = $fctx->{'gdst'};
   for my $r (@$del) {
     my $bin = $r->{'filename'};
     next unless $bin =~ /^(.*)\.($binsufsre)$/;	# hmm?
@@ -2183,7 +2187,7 @@ sub fctx_remove_from_volatile {
 sub fctx_rebuild_full {
   my ($fctx, $newfull, $gbininfo) = @_;
   my $prp = $fctx->{'prp'};
-  my $gdst = "$reporoot/$prp/$myarch";
+  my $gdst = $fctx->{'gdst'};
 
   if (-d "$gdst/:full" && ! -e "$gdst/:full.useforbuild") {
     fctx_migrate_full($fctx, $gbininfo);
@@ -2262,8 +2266,8 @@ sub fctx_migrate_full {
   my ($fctx, $gbininfo) = @_;
 
   my $prp = $fctx->{'prp'};
+  my $gdst = $fctx->{'gdst'};
   print "migrating full tree for $prp\n";
-  my $gdst = "$reporoot/$prp/$myarch";
   my %knownids;
   for my $packid (keys %$gbininfo) {
     for (values %{$gbininfo->{$packid}}) {
@@ -2354,8 +2358,7 @@ sub fctx_migrate_full {
 sub fctx_integrate_package_into_full {
   my ($fctx, $old, $new) = @_;
   my $packid = $fctx->{'packid'};
-  my $prp = $fctx->{'prp'};
-  my $gdst = "$reporoot/$prp/$myarch";
+  my $gdst = $fctx->{'gdst'};
 
   my %oldfull;
   my %newfull;
@@ -2482,7 +2485,7 @@ sub fctx_integrate_package_into_full {
 # removing entries.
 sub fctx_integrate_package_into_full_old {
   my ($fctx, $old, $new) = @_;
-  my $gdst = "$reporoot/$fctx->{'prp'}/$myarch";
+  my $gdst = $fctx->{'gdst'};
   my %fnew;
   for my $rp (sort keys %$new) {
     my $r = $new->{$rp};
@@ -2546,7 +2549,7 @@ sub update_bininfo_merge {
 sub update_dst_full {
   my ($gctx, $prp, $packid, $jobdir, $meta, $useforbuildenabled, $prpsearchpath, $fullcache, $importarch) = @_;
 
-  my $gdst = "$reporoot/$prp/$myarch";
+  my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
   my $dst = "$gdst/$packid";
 
   my ($projid, $repoid) = split('/', $prp, 2);
@@ -2748,6 +2751,8 @@ sub update_dst_full {
   }
 
   my $fctx = {
+    'gctx' => $gctx,
+    'gdst' => $gdst,
     'prp' => $prp,
     'packid' => $packid,
     'meta' => $meta,
@@ -2767,7 +2772,7 @@ sub move_into_full {
   my ($fctx, $old, $new, $fullcache) = @_;
 
   my $prp = $fctx->{'prp'};
-  my $gdst = "$reporoot/$prp/$myarch";
+  my $gdst = $fctx->{'gdst'};
   my $pool;
   my $satrepo;
   my %oldids;	# maps path => id
@@ -2832,7 +2837,7 @@ sub move_into_full {
 sub checkuseforbuild {
   my ($gctx, $prp, $prpsearchpath, $fullcache, $forcerebuild) = @_;
   return unless $new_full_handling;
-  my $gdst = "$reporoot/$prp/$myarch";
+  my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
   my ($projid, $repoid) = split('/', $prp, 2);
   my $proj = $projpacks->{$projid};
   my $pdatas = $proj->{'package'} || {};
@@ -2880,6 +2885,8 @@ sub checkuseforbuild {
   }
   my $filter = calculate_exportfilter($prp, $prpsearchpath, $fullcache);
   my $fctx = {
+    'gctx' => $gctx,
+    'gdst' => $gdst,
     'prp' => $prp,
     'filter' => $filter,
   };
@@ -2894,7 +2901,7 @@ sub checkuseforbuild {
 
 sub update_preinstallimage {
   my ($gctx, $prp, $packid, $dst, $jobdir) = @_;
-  my $gdst = "$reporoot/$prp/$myarch";
+  my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
   my $dirty;
   # wipe old
   my $imagedata = BSUtil::retrieve("$gdst/:preinstallimages", 1) || [];
@@ -2959,7 +2966,7 @@ sub sync_fullcache {
     return;
   }
   my $prp = $fullcache->{'prp'};
-  my $gdst = "$reporoot/$prp/$myarch";
+  my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
   mkdir_p($gdst) unless -d $gdst;
   my $pool = $fullcache->{'pool'};
   my $satrepo = $fullcache->{'satrepo'};
@@ -2989,6 +2996,7 @@ sub addjobhist {
   $jobhist->{$_} = $info->{$_} for qw{package rev srcmd5 versrel bcnt reason};
   $jobhist->{'verifymd5'} = $info->{'verifymd5'} if $info->{'verifymd5'};
   $jobhist->{'readytime'} ||= $status->{'readytime'};	# backward compat
+  my $reporoot = $gctx->{'reporoot'};
   mkdir_p("$reporoot/$prp/$myarch");
   BSFileDB::fdb_add("$reporoot/$prp/$myarch/:jobhistory", $BSXML::jobhistlay, $jobhist);
 }
@@ -3208,6 +3216,7 @@ sub xrpc_setchanged {
 sub checkbuildrepoid {
   my ($gctx, $projpacksin) = @_;
   die("ERROR: source server did not report a repoid") unless $projpacksin->{'repoid'};
+  my $reporoot = $gctx->{'reporoot'};
   my $buildrepoid = readstr("$reporoot/_repoid", 1);
   if (!$buildrepoid) {
     # set the repoid on first run
@@ -4517,8 +4526,9 @@ sub read_gbininfo_remote {
 # and does not revert back to scheduled
 #
 sub patchpackstatus {
-  my ($prp, $packid, $code) = @_;
+  my ($gctx, $prp, $packid, $code) = @_;
 
+  my $reporoot = $gctx->{'reporoot'};
   $code ||= 'unknown';
   BSUtil::appendstr("$reporoot/$prp/$myarch/:packstatus.finished", "$code $packid\n");
   # touch mtime to make watchers see a change
@@ -4579,6 +4589,7 @@ sub jobfinished {
     print "  - $job belongs to an unknown package, discard\n";
     return;
   }
+  my $reporoot = $gctx->{'reporoot'};
   my $statusdir = "$reporoot/$prp/$myarch/$packid";
   my $status = readxml("$statusdir/status", $BSXML::buildstatus, 1);
   if ($status && (!$status->{'job'} || $status->{'job'} ne $job)) {
@@ -4623,7 +4634,7 @@ sub jobfinished {
   }
 
   # update packstatus so that it doesn't fall back to scheduled
-  patchpackstatus($prp, $packid, $code);
+  patchpackstatus($gctx, $prp, $packid, $code);
 
   my $meta = $all{'meta'} ? "$jobdatadir/meta" : undef;
   if ($code eq 'unchanged') {
@@ -4740,7 +4751,7 @@ sub aggregatefinished {
     return;
   }
   my $prp = "$projid/$repoid";
-  my $gdst = "$reporoot/$prp/$myarch";
+  my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
   my $dst = "$gdst/$packid";
   mkdir_p($dst);
   print "  - $prp: $packid aggregate built\n";
@@ -4752,14 +4763,14 @@ sub aggregatefinished {
   delete $repounchanged{$prp} if $useforbuildenabled;
   $repounchanged{$prp} = 2 if $repounchanged{$prp};
   $changed->{$prp} ||= 1;
-  unlink("$reporoot/$prp/$myarch/:repodone");
+  unlink("$gdst/:repodone");
   unlink("$gdst/:logfiles.fail/$packid");
   unlink("$gdst/:logfiles.success/$packid");
   unlink("$dst/logfile");
   unlink("$dst/status");
   mkdir_p("$gdst/:meta");
   rename("$jobdatadir/meta", "$gdst/:meta/$packid") || die("rename $jobdatadir/meta $gdst/:meta/$packid: $!\n");
-  patchpackstatus($prp, $packid, 'succeeded');
+  patchpackstatus($gctx, $prp, $packid, 'succeeded');
 }
 
 sub deltafinished {
@@ -4785,7 +4796,7 @@ sub deltafinished {
     return;
   }
   my $prp = "$projid/$repoid";
-  my $gdst = "$reporoot/$prp/$myarch";
+  my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
   my $dst = "$gdst/$packid";
   mkdir_p($dst);
   my $code = $js->{'result'} || 'failed';
@@ -4795,7 +4806,7 @@ sub deltafinished {
     print "  - $job: build failed\n";
     unlink("$dst/logfile");
     rename("$jobdatadir/logfile", "$dst/logfile");
-    unlink("$reporoot/$prp/$myarch/:repodone");
+    unlink("$gdst/:repodone");
     return;
   }
   my @all = sort(ls($jobdatadir));
@@ -4810,7 +4821,7 @@ sub deltafinished {
     }
   }
   $changed->{$prp} ||= 1;
-  unlink("$reporoot/$prp/$myarch/:repodone");
+  unlink("$gdst/:repodone");
   unlink("$dst/logfile");
   rename("$jobdatadir/logfile", "$dst/logfile");
 }
@@ -4843,7 +4854,7 @@ sub uploadbuildevent {
     return;
   }
   my $prp = "$projid/$repoid";
-  my $gdst = "$reporoot/$prp/$myarch";
+  my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
   my $dst = "$gdst/$packid";
   mkdir_p($dst);
   print "  - $prp: $packid uploaded\n";
@@ -4855,7 +4866,7 @@ sub uploadbuildevent {
   delete $repounchanged{$prp} if $useforbuildenabled;
   $repounchanged{$prp} = 2 if $repounchanged{$prp};
   $changed->{$prp} ||= 1;
-  unlink("$reporoot/$prp/$myarch/:repodone");
+  unlink("$gdst/:repodone");
 }
 
 sub importevent {
@@ -4878,7 +4889,7 @@ sub importevent {
   }
   my $importarch = $info->{'arch'} || 'unknown';
   my $prp = "$projid/$repoid";
-  my $gdst = "$reporoot/$prp/$myarch";
+  my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
   my @all = ls($jobdatadir);
   my %all = map {$_ => 1} @all;
   my $meta = $all{'meta'} ? "$jobdatadir/meta" : undef;
@@ -4930,17 +4941,18 @@ sub fakejobfinished {
 sub fakejobfinished_nouseforbuild {
   my ($ctx, $packid, $job, $code, $bininfo, $pdata) = @_;
 
+  my $gctx = $ctx->{'gctx'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $prp = "$projid/$repoid";
-  my $gdst = "$reporoot/$prp/$myarch";
+  my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
   my $dst = "$gdst/$packid";
   my $jobdatadir = "$myjobsdir/$job:dir";
   mkdir_p($dst);
   mkdir_p("$gdst/:meta");
   mkdir_p("$gdst/:logfiles.fail");
   mkdir_p("$gdst/:logfiles.success");
-  unlink("$reporoot/$prp/$myarch/:repodone");
+  unlink("$gdst/:repodone");
   if (-e "$jobdatadir/logfile") {
     link("$jobdatadir/logfile", "$jobdatadir/logfile.dup");
     if ($code eq 'failed') {
@@ -4999,8 +5011,9 @@ sub fakejobfinished_nouseforbuild {
 sub metacheck {
   my ($ctx, $packid, $buildtype, $new_meta, $data) = @_;
   
+  my $gctx = $ctx->{'gctx'};
   my $prp = $ctx->{'prp'};
-  my @meta = split("\n", (readstr("$reporoot/$prp/$myarch/:meta/$packid", 1) || ''));
+  my @meta = split("\n", (readstr("$gctx->{'reporoot'}/$prp/$myarch/:meta/$packid", 1) || ''));
   if (!@meta) {
     print "      - $packid ($buildtype)\n";
     print "        no former build, start build\n";
@@ -5012,7 +5025,7 @@ sub metacheck {
     return ('scheduled', [ @$data, {'explain' => 'source change', 'oldsource' => substr($meta[0], 0, 32)} ]);
   }
   if (@meta == 2 && $meta[1] =~ /^fake/) {
-    my @s = stat("$reporoot/$prp/$myarch/:meta/$packid");
+    my @s = stat("$gctx->{'reporoot'}/$prp/$myarch/:meta/$packid");
     if (!@s || $s[9] + 14400 > time()) {
       print "      - $packid ($buildtype)\n";
       print "        buildsystem setup failure\n";
@@ -5264,6 +5277,7 @@ sub checkkiwiproduct {
   my $repoid = $ctx->{'repository'};
   my $repo = $ctx->{'repo'};
   my $prp = "$projid/$repoid";
+  my $reporoot = $gctx->{'reporoot'};
 
   # hmm, should get the arch from the kiwi info
   # but how can we map it to the buildarchs?
@@ -5591,6 +5605,7 @@ sub checkkiwiproduct {
 sub rebuildkiwiproduct {
   my ($ctx, $packid, $pdata, $info, $data) = @_;
 
+  my $gctx = $ctx->{'gctx'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $repo = $ctx->{'repo'};
@@ -5601,6 +5616,7 @@ sub rebuildkiwiproduct {
   my $reason = $data->[2];
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
+  my $reporoot = $gctx->{'reporoot'};
   my $job = jobname($prp, $packid);
   return ('scheduled', "$job-$srcmd5") if -s "$myjobsdir/$job-$srcmd5";
   my @otherjobs = grep {/^\Q$job\E-[0-9a-f]{32}$/} ls($myjobsdir);
@@ -5746,9 +5762,11 @@ sub checkpatchinfo {
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $repo = $ctx->{'repo'};
+  my $gctx = $ctx->{'gctx'};
   my @archs = @{$repo->{'arch'}};
   return ('broken', 'missing archs') unless @archs;	# can't happen
   my $buildarch = $archs[0];	# always build in first arch
+  my $reporoot = $gctx->{'reporoot'};
   my $markerdir = "$reporoot/$projid/$repoid/$buildarch/$packid";
   my $patchinfo = $pdata->{'patchinfo'};
   my $proj = $projpacks->{$projid} || {};
@@ -5984,11 +6002,13 @@ sub checkpatchinfo {
 sub rebuildpatchinfo {
   my ($ctx, $packid, $pdata, $info, $data) = @_;
 
+  my $gctx = $ctx->{'gctx'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my @tocopy = @{$data->[0]};
   my $ckmetas = $data->[1];
   my $ptype = $data->[2];
+  my $reporoot = $gctx->{'reporoot'};
   
   print "      - $packid (patchinfo)\n";
   print "        rebuilding\n";
@@ -6268,12 +6288,14 @@ sub rebuildpatchinfo {
 ##
 sub checkchannel {
   my ($ctx, $packid, $pdata, $info) = @_;
+  my $gctx = $ctx->{'gctx'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $repo = $ctx->{'repo'};
   my %repoarchs = map {$_ => 1} @{$repo->{'arch'} || []};
   my $channel = $pdata->{'channel'};
   my $proj = $projpacks->{$projid} || {};
+  my $reporoot = $gctx->{'reporoot'};
   # do the channel filtering, same project but different repositories
 
   # first build a releasetarget -> repo map
@@ -6494,11 +6516,13 @@ sub rebuildchannel {
   my $new_meta = $data->[0];
   my $channelbins = $data->[1];
   my $forme = $data->[2];
+  my $gctx = $ctx->{'gctx'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $prp = "$projid/$repoid";
   my $job = jobname($prp, $packid);
   return ('scheduled', $job) if -s "$myjobsdir/$job";
+  my $reporoot = $gctx->{'reporoot'};
   my $jobdatadir = "$myjobsdir/$job:dir";
   unlink "$jobdatadir/$_" for ls($jobdatadir);
   mkdir_p($jobdatadir);
@@ -6565,6 +6589,7 @@ sub checkaggregate {
   my $gctx = $ctx->{'gctx'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
+  my $reporoot = $gctx->{'reporoot'};
   # clone it as we may patch the 'packages' array below
   my $aggregates = Storable::dclone($pdata->{'aggregatelist'}->{'aggregate'} || []);
   my @broken;
@@ -6747,11 +6772,13 @@ sub rebuildaggregate {
 
   my $new_meta = $data->[0];
   my $aggregates = $data->[1];
+  my $gctx = $ctx->{'gctx'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $prp = "$projid/$repoid";
   my $job = jobname($prp, $packid);
   return ('scheduled', $job) if -s "$myjobsdir/$job";
+  my $reporoot = $gctx->{'reporoot'};
   my $jobdatadir = "$myjobsdir/$job:dir";
   unlink "$jobdatadir/$_" for ls($jobdatadir);
   mkdir_p($jobdatadir);
@@ -6944,6 +6971,8 @@ sub checkpackage {
   my $dep2src = $ctx->{'dep2src'};
   my $edeps = $ctx->{'edeps'}->{$packid} || [];
   my $depislocal = $ctx->{'depislocal'};
+  my $gctx = $ctx->{'gctx'};
+  my $reporoot = $gctx->{'reporoot'};
 
   # check for localdep repos
   if (exists($pdata->{'originproject'})) {
@@ -7223,7 +7252,8 @@ sub changed2lookat {
 }
 
 sub updaterelsyncmax {
-  my ($prp, $arch, $new, $cleanup) = @_;
+  my ($gctx, $prp, $arch, $new, $cleanup) = @_;
+  my $reporoot = $gctx->{'reporoot'};
   local *F;
   BSUtil::lockopen(\*F, '+>>', "$reporoot/$prp/$arch/:relsync.max");
   my $relsyncmax;
@@ -7622,6 +7652,7 @@ sub event_scanprjbinaries {
         unlink("$prp/$myarch/$packid/.bininfo");
       }
     }
+    my $reporoot = $gctx->{'reporoot'};
     unlink("$reporoot/$prp/$myarch/:bininfo");
     unlink("$reporoot/$prp/$myarch/:bininfo.merge");
     print "reading project binary state of repository $projid/$repoid\n";
@@ -7663,6 +7694,7 @@ sub event_wipe {
   my $packid = $ev->{'package'};
   return unless defined($projid) && defined($repoid) && defined($packid);
   my $prp = "$projid/$repoid";
+  my $reporoot = $gctx->{'reporoot'};
   my $gdst = "$reporoot/$prp/$myarch";
   print "wiping $prp $packid\n";
   return unless -d "$gdst/$packid";
@@ -7706,6 +7738,7 @@ sub event_useforbuild {
   my $gctx = $ectx->{'gctx'};
   my $changed_high = $gctx->{'changed_high'};
   my $changed_dirty = $gctx->{'changed_dirty'};
+  my $reporoot = $gctx->{'reporoot'};
 
   my $projid = $ev->{'project'};
   my $repoid = $ev->{'repository'};
@@ -8100,7 +8133,7 @@ my %nextmed;
 # create global context
 my $gctx = {
   'arch' => $myarch,
-  'reporoot' => $reporoot,
+  'reporoot' => $_reporoot,
 
   'changed_low' => \%changed_low,
   'changed_med' => \%changed_med,
@@ -8369,6 +8402,8 @@ my $initialstartup = 1;
 ## Here comes the big loop...
 ##
 
+my $reporoot = $gctx->{'reporoot'};
+
 eval {
 
   while(1) {
@@ -8560,6 +8595,7 @@ NEXTPRP:
 
     # mark all indirect affected repos dirty
     for my $prp (keys %changed_dirty) {
+      my $reporoot = $gctx->{'reporoot'};
       next if ! -d "$reporoot/$prp/$myarch";
       next if   -e "$reporoot/$prp/$myarch/:schedulerstate.dirty";
       BSUtil::touch("$reporoot/$prp/$myarch/:schedulerstate.dirty");
@@ -8818,7 +8854,7 @@ NEXTPRP:
       next if $error;
       my $lastprojid = (split('/', $prpsearchpath{$prp}->[-1]))[0];
       print "  - $prp: no config ($lastprojid)\n";
-      set_repo_state($prp, 'broken', "no config ($lastprojid)");
+      set_repo_state($gctx, $prp, 'broken', "no config ($lastprojid)");
       $prpfinished{$prp} = 1;
       next;
     }
@@ -8832,20 +8868,20 @@ NEXTPRP:
       # could still do channels/aggregates/patchinfos
       my $lastprojid = (split('/', $prpsearchpath{$prp}->[-1]))[0];
       print "  - $prp: bad config ($lastprojid)\n";
-      set_repo_state($prp, 'broken', "bad config ($lastprojid)");
+      set_repo_state($gctx, $prp, 'broken', "bad config ($lastprojid)");
       $prpfinished{$prp} = 1;
       next;
     }
     if ($bconf->{'hostarch'} && !$BSCando::knownarch{$bconf->{'hostarch'}}) {
       print "  - $prp: bad hostarch ($bconf->{'hostarch'})\n";
-      set_repo_state($prp, 'broken', "bad hostarch ($bconf->{'hostarch'})");
+      set_repo_state($gctx, $prp, 'broken', "bad hostarch ($bconf->{'hostarch'})");
       $prpfinished{$prp} = 1;
       next;
     }
     my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
     if (!$repo) {
       print " - $prp: no repo?\n";
-      set_repo_state($prp, 'broken', 'no repo');
+      set_repo_state($gctx, $prp, 'broken', 'no repo');
       $prpfinished{$prp} = 1;
       next;
     }
@@ -8879,13 +8915,13 @@ NEXTPRP:
 
     if ($repo->{'status'} && $repo->{'status'} eq 'disabled') {
       print "      disabled\n";
-      set_repo_state($prp, 'disabled');
+      set_repo_state($gctx, $prp, 'disabled');
       $prpfinished{$prp} = 1;
       next;
     }
 
     mkdir_p("$reporoot/$prp/$myarch");
-    set_repo_state($prp, 'scheduling');
+    set_repo_state($gctx, $prp, 'scheduling');
 
     my $packs = $projpacks->{$projid}->{'package'} || {};
     my @packs = sort keys %$packs;
@@ -8979,7 +9015,7 @@ NEXTPRP:
       print "    $error\n";
       print "    (delayed)\n" if $delayed;
       $ctx->{'havedelayed'} = 1 if $delayed;
-      set_repo_state($prp, 'broken', $error) unless $delayed;
+      set_repo_state($gctx, $prp, 'broken', $error) unless $delayed;
       next;
     }
     
@@ -9025,7 +9061,7 @@ NEXTPRP:
       }
       if ($err) {
         print "    $err\n";
-        set_repo_state($prp, 'broken', $err);
+        set_repo_state($gctx, $prp, 'broken', $err);
         next;
       }
     }
@@ -9595,7 +9631,7 @@ NEXTPRP:
       unlink("$reporoot/$prp/$myarch/:repodone");
     }
 
-    set_repo_state($prp, $schedulerstate, $schedulerdetails);
+    set_repo_state($gctx, $prp, $schedulerstate, $schedulerdetails);
 
     if (%unfinished) {
       $prpunfinished{$prp} = scalar(keys %unfinished);
@@ -9617,7 +9653,7 @@ NEXTPRP:
 	next if defined($relsyncmax->{"$tag/$1"}) && $relsyncmax->{"$tag/$1"} >= $2;
 	$relsyncmax->{"$tag/$1"} = $2;
       }
-      updaterelsyncmax($prp, $myarch, $relsyncmax, %unfinished ? 0 : 1);
+      updaterelsyncmax($gctx, $prp, $myarch, $relsyncmax, %unfinished ? 0 : 1);
       my $relsyncdata = BSUtil::tostorable($relsyncmax);
       # sent new data!
       my $param = {
