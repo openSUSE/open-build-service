@@ -84,7 +84,7 @@ $new_full_handling = $BSConfig::new_full_handling if defined($BSConfig::new_full
 BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BSConfig::disable_data_sync;
 
 my $_reporoot = "$bsdir/build";
-my $jobsdir = "$bsdir/jobs";
+my $_jobsdir = "$bsdir/jobs";
 my $eventdir = "$bsdir/events";
 my $extrepodir = "$bsdir/repos";
 my $extrepodir_sync = "$bsdir/repos_sync";
@@ -115,7 +115,6 @@ if (!$BSCando::knownarch{$myarch}) {
   die("Architecture '$myarch' is unknown, please adapt BSCando.pm\n");
 }
 
-my $myjobsdir = "$jobsdir/$myarch";
 my $myeventdir = "$eventdir/$myarch";
 
 my $historylay = [qw{versrel bcnt srcmd5 rev time duration}];
@@ -499,7 +498,13 @@ sub getconfig {
 ##
 
 # scheduled jobs (does not need to be exact)
-my %ourjobs = map {$_ => 1} grep {!/(?::dir|:status)$/} ls($myjobsdir);
+my %ourjobs;
+
+sub init_ourjobs {
+  my ($gctx) = @_;
+  my $myjobsdir = $gctx->{'myjobsdir'};
+  %ourjobs = map {$_ => 1} grep {!/(?::dir|:status)$/} ls($myjobsdir);
+}
 
 #
 # killjob - kill a single build job
@@ -509,6 +514,7 @@ my %ourjobs = map {$_ => 1} grep {!/(?::dir|:status)$/} ls($myjobsdir);
 sub killjob {
   my ($gctx, $job) = @_;
 
+  my $myjobsdir = $gctx->{'myjobsdir'};
   local *F;
   if (! -e "$myjobsdir/$job:status") {
     # create locked status
@@ -563,6 +569,7 @@ sub killjob {
 sub killscheduled {
   my ($gctx, $job) = @_;
 
+  my $myjobsdir = $gctx->{'myjobsdir'};
   return if -e "$myjobsdir/$job:status";
   local *F;
   my $js = {'code' => 'deleting'};
@@ -606,6 +613,7 @@ sub jobname {
 #           
 sub killbuilding {
   my ($gctx, $prp, $packid) = @_;
+  my $myjobsdir = $gctx->{'myjobsdir'};
   my @jobs;
   if (defined $packid) {
     my $f = jobname($prp, $packid);
@@ -626,9 +634,10 @@ sub add_crossmarker {
   my $hostarch = $bconf->{'hostarch'};
   return if $hostarch eq $myarch;
   return unless $BSCando::knownarch{$hostarch};
-  my $marker = "$jobsdir/$hostarch/$job:$myarch:cross";
+  my $markerdir = "$gctx->{'jobsdir'}/$hostarch";
+  my $marker = "$markerdir/$job:$myarch:cross";
   return if -e $marker;
-  mkdir_p("$jobsdir/$hostarch");
+  mkdir_p($markerdir);
   BSUtil::touch($marker);
 }
 
@@ -749,7 +758,8 @@ sub dodfetch {
 sub set_building {
   my ($ctx, $packid, $pdata, $info, $subpacks, $edeps, $reason, $needed) = @_;
 
-  my $reporoot = $ctx->{'gctx'}->{'reporoot'};
+  my $gctx = $ctx->{'gctx'};
+  my $reporoot = $gctx->{'reporoot'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $bconf = $ctx->{'conf'};
@@ -758,8 +768,9 @@ sub set_building {
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
   my $job = jobname($prp, $packid);
+  my $myjobsdir = $gctx->{'myjobsdir'};
   if (-s "$myjobsdir/$job-$srcmd5") {
-    add_crossmarker($ctx->{'gctx'}, $bconf, "$job-$srcmd5") if $bconf->{'hostarch'};
+    add_crossmarker($gctx, $bconf, "$job-$srcmd5") if $bconf->{'hostarch'};
     return ('scheduled', "$job-$srcmd5");
   }
   return ('scheduled', $job) if -s "$myjobsdir/$job";	# obsolete
@@ -770,11 +781,11 @@ sub set_building {
   my $buildtype = Build::recipe2buildtype($info->{'file'});
 
   my $syspath;
-  my $searchpath = path2buildinfopath($ctx->{'gctx'}, $ctx->{'prpsearchpath'});
+  my $searchpath = path2buildinfopath($gctx, $ctx->{'prpsearchpath'});
   if ($buildtype eq 'kiwi') {
     # switch searchpath to kiwi info path
     $syspath = $searchpath if @$searchpath;
-    $searchpath = path2buildinfopath($ctx->{'gctx'}, [ expandkiwipath($info, $ctx->{'prpsearchpath'}) ]);
+    $searchpath = path2buildinfopath($gctx, [ expandkiwipath($info, $ctx->{'prpsearchpath'}) ]);
   }
 
   # calculate sysdeps (cannot cache in the kiwi case)
@@ -835,7 +846,7 @@ sub set_building {
   # kill those ancient other jobs
   for my $otherjob (@otherjobs) {
     print "        killing old job $otherjob\n";
-    killjob($ctx->{'gctx'}, $otherjob);
+    killjob($gctx, $otherjob);
   }
 
   # jay! ready for building, write status and job info
@@ -926,7 +937,7 @@ sub set_building {
   $binfo->{'debuginfo'} = 1 if $debuginfo;
 
   writexml("$myjobsdir/.$job", "$myjobsdir/$job", $binfo, $BSXML::buildinfo);
-  add_crossmarker($ctx->{'gctx'}, $bconf, $job) if $bconf->{'hostarch'};
+  add_crossmarker($gctx, $bconf, $job) if $bconf->{'hostarch'};
   # all done. the dispatcher will now pick up the job and send it
   # to a worker.
   $ourjobs{$job} = 1;
@@ -1097,10 +1108,12 @@ sub set_repo_state {
 sub createdeltajob {
   my ($ctx, $packid, $suffix, $needdelta) = @_;
 
+  my $gctx = $ctx->{'gctx'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $job = jobname("$projid/$repoid", $packid);
   $job .= "-$suffix" if defined $suffix;
+  my $myjobsdir = $gctx->{'myjobsdir'};
   if (-e "$myjobsdir/$job") {
     return undef, 'building'; # delta creation already in progress
   }
@@ -1150,7 +1163,7 @@ sub createdeltajob {
     $_->{'runscripts'} = 1 if $runscripts{$_->{'name'}};
     $_->{'notmeta'} = 1;
   }
-  my $searchpath = path2buildinfopath($ctx->{'gctx'}, $ctx->{'prpsearchpath'});
+  my $searchpath = path2buildinfopath($gctx, $ctx->{'prpsearchpath'});
   my $binfo = {
     'project' => $projid,
     'repository' => $repoid,
@@ -1171,7 +1184,7 @@ sub createdeltajob {
   $binfo->{'hostarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'};
 
   writexml("$myjobsdir/.$job", "$myjobsdir/$job", $binfo, $BSXML::buildinfo);
-  add_crossmarker($ctx->{'gctx'}, $bconf, $job) if $bconf->{'hostarch'};
+  add_crossmarker($gctx, $bconf, $job) if $bconf->{'hostarch'};
   print "    created deltajob...\n";
   return $job;
 }
@@ -1182,6 +1195,7 @@ sub createdeltajob {
 sub makedeltas {
   my ($ctx, $packs, $pubenabled) = @_;
 
+  my $gctx = $ctx->{'gctx'};
   my $prp = $ctx->{'prp'};
   my ($projid, $repoid) = split('/', $prp, 2);
   my $reporoot = $ctx->{'gctx'}->{'reporoot'};
@@ -1206,6 +1220,7 @@ sub makedeltas {
   if ($maxjobs > 1) {
     $suffix = 0;
     my $jobprefix = jobname($prp, '_deltas');
+    my $myjobsdir = $gctx->{'myjobsdir'};
     for my $job (grep {$_ eq $jobprefix || /^\Q$jobprefix-\E\d+$/} ls($myjobsdir)) {
       $running_jobs++;
       if ($job =~ /(\d+)$/) {
@@ -1664,8 +1679,9 @@ sub createexportjob {
     'code' => 'finished',
     'result' => 'succeeded',
   };
-  mkdir_p("$jobsdir/$arch") unless -d "$jobsdir/$arch";
-  if (!BSUtil::lockcreatexml(\*F, "$jobsdir/$arch/.$job", "$jobsdir/$arch/$job:status", $jobstatus, $BSXML::jobstatus)) {
+  my $ajobsdir = "$gctx->{'jobsdir'}/$arch";
+  mkdir_p($ajobsdir) unless -d $ajobsdir;
+  if (!BSUtil::lockcreatexml(\*F, "$ajobsdir/.$job", "$ajobsdir/$job:status", $jobstatus, $BSXML::jobstatus)) {
     print "job lock failed!\n";
     return;
   }
@@ -1678,8 +1694,8 @@ sub createexportjob {
     'arch' => $myarch,	# use hostarch instead?
     'job' => $job,
   };
-  writexml("$jobsdir/$arch/.$job", "$jobsdir/$arch/$job", $info, $BSXML::buildinfo);
-  my $dir = "$jobsdir/$arch/$job:dir";
+  writexml("$ajobsdir/.$job", "$ajobsdir/$job", $info, $BSXML::buildinfo);
+  my $dir = "$ajobsdir/$job:dir";
   mkdir_p($dir);
   if ($meta) {
     link($meta, "$meta.dup");
@@ -4554,6 +4570,7 @@ sub patchpackstatus {
 sub jobfinished {
   my ($ectx, $job, $js) = @_;
 
+  my $myjobsdir = $ectx->{'gctx'}->{'myjobsdir'};
   my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
   my $jobdatadir = "$myjobsdir/$job:dir";
   if (!$info || ! -d $jobdatadir) {
@@ -4732,6 +4749,7 @@ sub aggregatefinished {
 
   my $gctx = $ectx->{'gctx'};
   my $changed = $gctx->{'changed_med'};
+  my $myjobsdir = $gctx->{'myjobsdir'};
   my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
   my $jobdatadir = "$myjobsdir/$job:dir";
   if (!$info || ! -d $jobdatadir) {
@@ -4782,6 +4800,7 @@ sub deltafinished {
 
   my $gctx = $ectx->{'gctx'};
   my $changed = $gctx->{'changed_med'};
+  my $myjobsdir = $gctx->{'myjobsdir'};
   my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
   my $jobdatadir = "$myjobsdir/$job:dir";
   if (!$info || ! -d $jobdatadir) {
@@ -4835,6 +4854,7 @@ sub uploadbuildevent {
 
   my $gctx = $ectx->{'gctx'};
   my $changed = $gctx->{'changed_med'};
+  my $myjobsdir = $gctx->{'myjobsdir'};
   my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
   my $jobdatadir = "$myjobsdir/$job:dir";
   if (!$info || ! -d $jobdatadir) {
@@ -4878,6 +4898,7 @@ sub importevent {
 
   my $gctx = $ectx->{'gctx'};
   my $changed = $gctx->{'changed_med'};
+  my $myjobsdir = $gctx->{'myjobsdir'};
   my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
   my $jobdatadir = "$myjobsdir/$job:dir";
   if (!$info || ! -d $jobdatadir) {
@@ -4914,11 +4935,13 @@ sub importevent {
 sub fakejobfinished {
   my ($ctx, $packid, $job, $code, $buildinfoskel, $needsign) = @_;
 
+  my $gctx = $ctx->{'gctx'};
   local *F;
   my $jobstatus = {
     'code' => 'finished',
     'result' => $code,
   };
+  my $myjobsdir = $gctx->{'myjobsdir'};
   if (!BSUtil::lockcreatexml(\*F, "$myjobsdir/.$job", "$myjobsdir/$job:status", $jobstatus, $BSXML::jobstatus)) {
     die("job lock failed\n");
   }
@@ -4951,6 +4974,7 @@ sub fakejobfinished_nouseforbuild {
   my $prp = "$projid/$repoid";
   my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
   my $dst = "$gdst/$packid";
+  my $myjobsdir = $gctx->{'myjobsdir'};
   my $jobdatadir = "$myjobsdir/$job:dir";
   mkdir_p($dst);
   mkdir_p("$gdst/:meta");
@@ -5621,6 +5645,7 @@ sub rebuildkiwiproduct {
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
   my $job = jobname($prp, $packid);
+  my $myjobsdir = $gctx->{'myjobsdir'};
   return ('scheduled', "$job-$srcmd5") if -s "$myjobsdir/$job-$srcmd5";
   my @otherjobs = grep {/^\Q$job\E-[0-9a-f]{32}$/} ls($myjobsdir);
   $job = "$job-$srcmd5";
@@ -6020,6 +6045,7 @@ sub rebuildpatchinfo {
   my $now = time();
   my $prp = "$projid/$repoid";
   my $job = jobname($prp, $packid);
+  my $myjobsdir = $gctx->{'myjobsdir'};
   return ('scheduled', $job) if -s "$myjobsdir/$job";
 
   my $patchinfo = $pdata->{'patchinfo'};
@@ -6526,6 +6552,7 @@ sub rebuildchannel {
   my $repoid = $ctx->{'repository'};
   my $prp = "$projid/$repoid";
   my $job = jobname($prp, $packid);
+  my $myjobsdir = $gctx->{'myjobsdir'};
   return ('scheduled', $job) if -s "$myjobsdir/$job";
   my $reporoot = $gctx->{'reporoot'};
   my $jobdatadir = "$myjobsdir/$job:dir";
@@ -6782,6 +6809,7 @@ sub rebuildaggregate {
   my $repoid = $ctx->{'repository'};
   my $prp = "$projid/$repoid";
   my $job = jobname($prp, $packid);
+  my $myjobsdir = $gctx->{'myjobsdir'};
   return ('scheduled', $job) if -s "$myjobsdir/$job";
   my $reporoot = $gctx->{'reporoot'};
   my $jobdatadir = "$myjobsdir/$job:dir";
@@ -7460,8 +7488,10 @@ my $defaulthandler = {
 sub event_built {
   my ($ectx, $ev) = @_;
 
+  my $gctx = $ectx->{'gctx'};
   my $job = $ev->{'job'};
   local *F;
+  my $myjobsdir = $gctx->{'myjobsdir'};
   my $js = BSUtil::lockopenxml(\*F, '<', "$myjobsdir/$job:status", $BSXML::jobstatus, 1);
   if (!$js) {
     print "  - $job is gone\n";
@@ -7502,6 +7532,7 @@ sub event_uploadbuildimport_delay {
   my $delayedfetchprojpacks = $gctx->{'delayedfetchprojpacks'};
 
   return 0 unless $ev->{'job'};
+  my $myjobsdir = $gctx->{'myjobsdir'};
   my $info = readxml("$myjobsdir/$ev->{'job'}", $BSXML::buildinfo, 1) || {};
   my $projid = $info->{'project'};
   my $packid = $info->{'package'};
@@ -8105,7 +8136,7 @@ if (!$testprojid) {
 }
 
 # setup event mechanism
-for my $d ($eventdir, $myeventdir, $jobsdir, $myjobsdir, $infodir) {
+for my $d ($eventdir, $myeventdir, "$_jobsdir/$myarch", $infodir) {
   next if -d $d;
   mkdir($d) || die("$d: $!\n");
 }
@@ -8139,6 +8170,8 @@ my %nextmed;
 my $gctx = {
   'arch' => $myarch,
   'reporoot' => $_reporoot,
+  'jobsdir' => $_jobsdir,
+  'myjobsdir' => "$_jobsdir/$myarch",
 
   'changed_low' => \%changed_low,
   'changed_med' => \%changed_med,
@@ -8374,6 +8407,8 @@ if ($BSConfig::enable_download_on_demand) {
 } else {
   BSUtil::cleandir($dodsdir) if -d $dodsdir;
 }
+
+init_ourjobs($gctx);
 
 unlink("$rundir/bs_sched.$myarch.dead");	# alive and kicking
 
@@ -9394,6 +9429,7 @@ NEXTPRP:
       if (!$incycle) {
 	# hmm, this might be a bad idea...
 	my $job = jobname($prp, $packid)."-$pdata->{'srcmd5'}";
+	my $myjobsdir = $gctx->{'myjobsdir'};
 	if (-s "$myjobsdir/$job") {
 	  # print "      - $packid ($buildtype)\n";
 	  # print "        already scheduled\n";
@@ -9477,6 +9513,7 @@ NEXTPRP:
       if ($job =~ /^\Q$prpjobs\E(.*)-[0-9a-f]{32}$/) {
 	my $status = $packstatus{$1} || '';
 	next if $status eq 'scheduled';
+	my $myjobsdir = $gctx->{'myjobsdir'};
 	if (! -e "$myjobsdir/$job") {
 	  delete $ourjobs{$job};
 	  next;
