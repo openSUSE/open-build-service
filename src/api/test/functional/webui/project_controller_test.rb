@@ -17,6 +17,34 @@ Substitute: kiwi-packagemanager:instsource package
 Ignore: package:bash
 Ignore: package:cups'
 
+  def test_save_distributions
+    login_tom
+    visit "/project/add_repository_from_default_list/home:tom"
+    check("OBS Base 2.0")
+    find("#submitrepos").click
+    page.must_have_text "Successfully added repositories"
+    assert_equal "/project/repositories/home:tom", page.current_path
+  end
+
+  def test_save_distributions_with_existing_repository
+    login_tom
+
+    visit "/project/add_repository_from_default_list/home:tom"
+    check("OBS Base 2.0")
+
+    # Fake that the project got added meanwhile, eg. when a user has a second screen open
+    project = Project.find_by(name: "home:tom")
+    repository = Repository.create(db_project_id: project.id, name: "Base_repo")
+    repository.path_elements.create(link: repository, position: 1)
+
+    check("OBS Base 2.0")
+    find("#submitrepos").click
+    page.must_have_text "Can't add repositories: Validation failed: Project already has repository with name Base_repo"
+    assert_equal "/project/add_repository_from_default_list/home:tom", page.current_path
+  ensure
+    repository.destroy if defined?(:repository)
+  end
+
   def test_project_show
     use_js
     visit project_show_path(project: 'Apache')
