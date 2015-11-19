@@ -8334,6 +8334,9 @@ my $initialstartup = 1;
 
 # create global context
 my $gctx = {
+  'arch' => $myarch,
+  'reporoot' => $reporoot,
+
   'changed_low' => \%changed_low,
   'changed_med' => \%changed_med,
   'changed_high' => \%changed_high,
