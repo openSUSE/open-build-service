@@ -153,7 +153,7 @@ class EventTest < ActionDispatch::IntegrationTest
 
     assert_equal "Request #{myid} requires review (submit Apache/BranchPack)", email.subject
     # fred is maintainer of the package, hidden_homer of the project, Iggy triggers the event, so doesn't get email
-    assert_equal %w(homer@nospam.net fred@feuerstein.de), email.to
+    assert_equal %w(fred@feuerstein.de homer@nospam.net), email.to.sort
 
     # now verify another review sends other emails
     ActionMailer::Base.deliveries.clear

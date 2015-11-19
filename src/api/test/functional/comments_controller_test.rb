@@ -114,7 +114,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     end
 
     email = ActionMailer::Base.deliveries.last
-    assert_equal %w(adrian@example.com tschmidt@example.com), email.to
+    assert_equal %w(adrian@example.com tschmidt@example.com), email.to.sort
 
     # now to something fancy
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
@@ -124,7 +124,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     end
 
     email = ActionMailer::Base.deliveries.last
-    assert_equal %w(adrian@example.com fred@feuerstein.de tschmidt@example.com), email.to
+    assert_equal %w(adrian@example.com fred@feuerstein.de tschmidt@example.com), email.to.sort
 
     # and check if @fred becomes a 'commenter' for ever
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
@@ -134,7 +134,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     end
 
     email = ActionMailer::Base.deliveries.last
-    assert_equal %w(adrian@example.com fred@feuerstein.de tschmidt@example.com), email.to
+    assert_equal %w(adrian@example.com fred@feuerstein.de tschmidt@example.com), email.to.sort
   end
 
   def test_create_project_comment
@@ -157,7 +157,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     email = ActionMailer::Base.deliveries.last
     assert_equal 'New comment in project Apache by adrian', email.subject
     # Fred have two users and both are maintainers of the project
-    assert_equal ['fred@feuerstein.de', 'fred@feuerstein.de'], email.to
+    assert_equal ['fred@feuerstein.de', 'fred@feuerstein.de'], email.to.sort
 
     get comments_project_path(project: 'Apache')
     assert_xml_tag tag: 'comment', attributes: { who: 'adrian' }, content: 'Beautiful project'
