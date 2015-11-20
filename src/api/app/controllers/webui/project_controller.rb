@@ -210,8 +210,8 @@ class Webui::ProjectController < Webui::WebuiController
     render_dialog
   end
 
+  # NOTE: This is a GET action, no data will be written
   def add_repository_from_default_list
-    authorize @project, :update?
     @distributions = {}
     Distribution.all_including_remotes.each do |dis|
       @distributions[dis['vendor']] ||= []
