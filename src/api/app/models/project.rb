@@ -329,11 +329,7 @@ class Project < ActiveRecord::Base
       raise "unsupport options in '#{opts.inspect}'. Allowed options: :select, :includeallpackages"
     end
 
-    arel = where(name: name)
-    if opts[:select]
-       arel = arel.select(opts[:select])
-    end
-    dbp = arel.first
+    dbp = self.find_by_name(name, opts.merge(skip_check_access: true))
     if dbp.nil?
       dbp, remote_name = find_remote_project(name)
       return dbp.name + ':' + remote_name if dbp
@@ -363,10 +359,7 @@ class Project < ActiveRecord::Base
 
   # check existence of a project (local or remote)
   def self.exists_by_name(name, opts = {})
-    query = where(name: name)
-    query = query.select(opts[:select]) if opts[:select]
-
-    local_project = query.first
+    local_project = self.find_by_name(name, opts.merge(skip_check_access: true))
     if local_project.nil?
       !!find_remote_project(name)
     else
@@ -377,8 +370,8 @@ class Project < ActiveRecord::Base
   # FIXME: to be obsoleted, this function is not throwing exceptions on problems
   # use get_by_name or exists_by_name instead
   def self.find_by_name(name, opts = {})
-    if !(opts.keys - [:select]).empty?
-      raise "unsupport options in '#{opts.inspect}'. Allowed options: :select"
+    if !(opts.keys - [:select, :skip_check_access]).empty?
+      raise "unsupport options in '#{opts.inspect}'. Allowed options: :select, :skip_check_access"
     end
 
     query = where(name: name)
@@ -388,7 +381,7 @@ class Project < ActiveRecord::Base
 
     dbp = query.first
     return if dbp.nil?
-    return unless check_access?(dbp)
+    return if !opts[:skip_check_access] && !check_access?(dbp)
     return dbp
   end
 
