@@ -258,9 +258,9 @@ my %_repodatas;		# our repository knowledge
 my %_repodatas_alien;	# repositories from other archs
 my %_dodprps;
 
-my %remotegbininfos;
-my %remotepackstatus;
-my %remotepackstatus_cleanup;
+my %_remotegbininfos;
+my %_remotepackstatus;
+my %_remotepackstatus_cleanup;
 
 # add :full repo to pool
 sub addrepo {
@@ -3066,9 +3066,9 @@ sub addjobhist {
 my %_watchremote;	# remote_url => { eventdescr => projid }
 my %_watchremote_start;	# remote_url => lasteventno
 
-my %repounchanged;
-my %prpfinished;
-my %prpnotready;	# maps prp => { packid => 1, ... }
+my %_repounchanged;
+my %_prpfinished;
+my %_prpnotready;	# maps prp => { packid => 1, ... }
 
 my @retryevents;
 my %iswaiting;		# waiting for some RPC to return
@@ -4334,9 +4334,10 @@ sub addrepo_remote_unpackcpio {
   my $repostate = $cpio{'repositorystate'};
   $repostate = XMLin($BSXML::repositorystate, $repostate) if $repostate;
   if ($arch eq $myarch) {
-    delete $prpnotready{$prp};
+    my $prpnotready = $gctx->{'prpnotready'};
+    delete $prpnotready->{$prp};
     if ($repostate && $repostate->{'blocked'}) {
-      $prpnotready{$prp} = { map {$_ => 1} @{$repostate->{'blocked'}} };
+      $prpnotready->{$prp} = { map {$_ => 1} @{$repostate->{'blocked'}} };
     }
   }
   my $r;
@@ -4439,10 +4440,11 @@ sub addrepo_alien {
   my $gctx = $ctx->{'gctx'};
   my $repodatas = $gctx->{'repodatas'};
   my $repodatas_alien = $gctx->{'repodatas_alien'};
+  my $prpnotready = $gctx->{'prpnotready'};
   $repodatas_alien->{"$prp/$arch"}->{'dontwrite'} = 1;
   my $oldrepodata = $repodatas->{$prp};
-  my $oldprpnotready = $prpnotready{$prp};
-  delete $prpnotready{$prp};
+  my $oldprpnotready = $prpnotready->{$prp};
+  delete $prpnotready->{$prp};
   $repodatas->{$prp} = $repodatas_alien->{"$prp/$arch"};
   my $savemyarch = $myarch;
   $myarch = $arch;
@@ -4451,8 +4453,8 @@ sub addrepo_alien {
   $repodatas_alien->{"$prp/$arch"} = $repodatas->{$prp};
   delete $repodatas->{$prp};
   $repodatas->{$prp} = $oldrepodata if $oldrepodata;
-  delete $prpnotready{$prp};
-  $prpnotready{$prp} = $oldprpnotready if $oldprpnotready;
+  delete $prpnotready->{$prp};
+  $prpnotready->{$prp} = $oldprpnotready if $oldprpnotready;
   return $r;
 }
 
@@ -4461,11 +4463,12 @@ sub addrepo_alien {
 sub convertpackagebinarylist {
   my ($gctx, $prpa, $packagebinarylist, $error, $packstatususer, $isgbininfo) = @_;
 
+  my $remotegbininfos = $gctx->{'remotegbininfos'};
   if ($error) {
     chomp $error;
     warn("$error\n");
     $error ||= 'internal error';
-    $remotegbininfos{$prpa} = { 'lastfetch' => time(), 'error' => $error };
+    $remotegbininfos->{$prpa} = { 'lastfetch' => time(), 'error' => $error };
     return (undef, undef);
   }
   my $gbininfo = {};
@@ -4507,32 +4510,36 @@ sub convertpackagebinarylist {
   mkdir_p("$remotecache/".substr($cachemd5, 0, 2));
   BSUtil::store("$remotecache/$cachemd5.bininfo.new$$", "$remotecache/$cachemd5.bininfo", $gbininfo);
 
-  $remotegbininfos{$prpa} = { 'lastfetch' => time() };
+  $remotegbininfos->{$prpa} = { 'lastfetch' => time() };
 
   if ($packstatususer) {
+    my $remotepackstatus = $gctx->{'remotepackstatus'};
+    my $remotepackstatus_cleanup = $gctx->{'remotepackstatus_cleanup'};
     $rpackstatus->{'/users'} = [];
-    $rpackstatus->{'/users'} = [ @{$remotepackstatus{$prpa}->{'/users'} || []} ] if $remotepackstatus{$prpa};
+    $rpackstatus->{'/users'} = [ @{$remotepackstatus->{$prpa}->{'/users'} || []} ] if $remotepackstatus->{$prpa};
     push @{$rpackstatus->{'/users'}}, $packstatususer unless grep {$_ eq $packstatususer} @{$rpackstatus->{'/users'}};
-    push @{$remotepackstatus_cleanup{$packstatususer}}, $prpa;
-    $remotepackstatus{$prpa} = $rpackstatus;
+    push @{$remotepackstatus_cleanup->{$packstatususer}}, $prpa;
+    $remotepackstatus->{$prpa} = $rpackstatus;
   }
 
   return ($gbininfo, $rpackstatus);
 }
 
 sub cleanup_remotepackstatus {
-  my ($prp) = @_;
+  my ($gctx, $prp) = @_;
 
-  return unless $remotepackstatus_cleanup{$prp};
+  my $remotepackstatus = $gctx->{'remotepackstatus'};
+  my $remotepackstatus_cleanup = $gctx->{'remotepackstatus_cleanup'};
+  return unless $remotepackstatus_cleanup->{$prp};
   print "    cleaning up remote packstatus\n";
-  for my $prpa (@{$remotepackstatus_cleanup{$prp}}) {
-    my $rpackstatus = $remotepackstatus{$prpa};
+  for my $prpa (@{$remotepackstatus_cleanup->{$prp}}) {
+    my $rpackstatus = $remotepackstatus->{$prpa};
     my @users = grep {$_ ne $prp} @{$rpackstatus->{'/users'} || []};
     $rpackstatus->{'/users'} = \@users;
     print "      - $prpa: ".@users." users\n";
-    delete $remotepackstatus{$prpa} unless @users;
+    delete $remotepackstatus->{$prpa} unless @users;
   }
-  delete $remotepackstatus_cleanup{$prp};
+  delete $remotepackstatus_cleanup->{$prp};
 }
 
 sub read_gbininfo_remote_resume {
@@ -4549,23 +4556,27 @@ sub read_gbininfo_remote {
   return undef if $remoteproj->{'error'};
 
   my $gctx = $ctx->{'gctx'};
+  my $remotegbininfos = $gctx->{'remotegbininfos'};
   my $cachemd5 = Digest::MD5::md5_hex($prpa);
   substr($cachemd5, 2, 0, '/');
 
   my $now = time();
 
   # first check error case
-  if ($remotegbininfos{$prpa} && $remotegbininfos{$prpa}->{'error'} && ($remotegbininfos{$prpa}->{'lastfetch'} || 0) > $now - 3600) {
+  if ($remotegbininfos->{$prpa} && $remotegbininfos->{$prpa}->{'error'} && ($remotegbininfos->{$prpa}->{'lastfetch'} || 0) > $now - 3600) {
     return undef;
   }
 
   # check if we can use the cache
   my $rpackstatus;
-  if ($packstatus && $remotepackstatus{$prpa} && $asyncmode) {
-    my $prp = $ctx->{'prp'};
-    $rpackstatus = $remotepackstatus{$prpa} if grep {$_ eq $prp} @{$remotepackstatus{$prpa}->{'/users'} || []};
+  if ($packstatus) {
+    my $remotepackstatus = $gctx->{'remotepackstatus'};
+    if ($remotepackstatus->{$prpa} && $asyncmode) {
+      my $prp = $ctx->{'prp'};
+      $rpackstatus = $remotepackstatus->{$prpa} if grep {$_ eq $prp} @{$remotepackstatus->{$prpa}->{'/users'} || []};
+    }
   }
-  if ((!$packstatus || $rpackstatus) && $remotegbininfos{$prpa} && ($remotegbininfos{$prpa}->{'lastfetch'} || 0) > $now - 3600) {
+  if ((!$packstatus || $rpackstatus) && $remotegbininfos->{$prpa} && ($remotegbininfos->{$prpa}->{'lastfetch'} || 0) > $now - 3600) {
     my $remotecache = $gctx->{'remotecache'};
     if (-s "$remotecache/$cachemd5.bininfo") {
       my $gbininfo = BSUtil::retrieve("$remotecache/$cachemd5.bininfo", 1);
@@ -4786,8 +4797,9 @@ sub jobfinished {
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   update_dst_full($gctx, $prp, $packid, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath, $fullcache);
   $changed->{$prp} = 2 if $useforbuildenabled;
-  delete $repounchanged{$prp} if $useforbuildenabled;
-  $repounchanged{$prp} = 2 if $repounchanged{$prp};
+  my $repounchanged = $gctx->{'repounchanged'};
+  delete $repounchanged->{$prp} if $useforbuildenabled;
+  $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
   $changed->{$prp} ||= 1;
 
   # save meta file
@@ -4864,8 +4876,9 @@ sub aggregatefinished {
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   update_dst_full($gctx, $prp, $packid, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath);
   $changed->{$prp} = 2 if $useforbuildenabled;
-  delete $repounchanged{$prp} if $useforbuildenabled;
-  $repounchanged{$prp} = 2 if $repounchanged{$prp};
+  my $repounchanged = $gctx->{'repounchanged'};
+  delete $repounchanged->{$prp} if $useforbuildenabled;
+  $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
   $changed->{$prp} ||= 1;
   unlink("$gdst/:repodone");
   unlink("$gdst/:logfiles.fail/$packid");
@@ -4972,8 +4985,9 @@ sub uploadbuildevent {
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   update_dst_full($gctx, $prp, $packid, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath);
   $changed->{$prp} = 2 if $useforbuildenabled;
-  delete $repounchanged{$prp} if $useforbuildenabled;
-  $repounchanged{$prp} = 2 if $repounchanged{$prp};
+  my $repounchanged = $gctx->{'repounchanged'};
+  delete $repounchanged->{$prp} if $useforbuildenabled;
+  $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
   $changed->{$prp} ||= 1;
   unlink("$gdst/:repodone");
 }
@@ -5013,7 +5027,8 @@ sub importevent {
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   update_dst_full($gctx, $prp, $packid, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath, undef, $importarch);
   $changed->{$prp} = 2 if $useforbuildenabled;
-  delete $repounchanged{$prp} if $useforbuildenabled;
+  my $repounchanged = $gctx->{'repounchanged'};
+  delete $repounchanged->{$prp} if $useforbuildenabled;
   unlink($_) for @all;
   rmdir($jobdatadir);
 }
@@ -5253,7 +5268,7 @@ sub checkkiwiimage {
   }
 
   my $notready = $ctx->{'notready'};
-  my $prpnotready = $ctx->{'prpnotready'};
+  my $prpnotready = $gctx->{'prpnotready'};
   my %nrs;
   for my $arepo ($pool->repos()) {
     my $aprp = $arepo->name();
@@ -5525,7 +5540,7 @@ sub checkkiwiproduct {
       }
     } else {
       my $notready = $ctx->{'notready'};
-      my $prpnotready = $ctx->{'prpnotready'};
+      my $prpnotready = $gctx->{'prpnotready'};
       for my $bin (@kdeps) {
         my $p = $dep2pkg{$bin};
         my $aprp = $pool->pkg2reponame($p);
@@ -6719,7 +6734,7 @@ sub checkaggregate {
   my $aggregates = Storable::dclone($pdata->{'aggregatelist'}->{'aggregate'} || []);
   my @broken;
   my @blocked;
-  my $prpfinished = $ctx->{'prpfinished'};
+  my $prpfinished = $gctx->{'prpfinished'};
   my $delayed;
   my %gbininfos;
   my $projpacks = $gctx->{'projpacks'};
@@ -7680,11 +7695,12 @@ sub event_repository {
   my $repoid = $ev->{'repository'};
   my $prp = "$projid/$repoid";
   $changed_med->{$prp} = 2;
+  my $repounchanged = $gctx->{'repounchanged'};
   if ($ev->{'type'} eq 'repository') {
     delete $gctx->{'repodatas'}->{$prp};
-    delete $repounchanged{$prp};
+    delete $repounchanged->{$prp};
   } elsif ($ev->{'type'} eq 'repoinfo') {
-    $repounchanged{$prp} = 2 if $repounchanged{$prp};
+    $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
   }
 }
 
@@ -7762,7 +7778,7 @@ sub event_scanrepo {
     addrepo({'gctx' => $gctx, 'prp' => $prp}, $pool, $prp);
     undef $pool;
     $changed_high->{$prp} = 2;
-    delete $repounchanged{$prp};
+    delete $gctx->{'repounchanged'}->{$prp};
   }
 }
 
@@ -7777,7 +7793,7 @@ sub event_scanprjbinaries {
   my $remoteprojs = $gctx->{'remoteprojs'};
   if (defined($projid) && defined($repoid)) {
     my $prp = "$projid/$repoid";
-    delete $remotegbininfos{"$prp/$myarch"};
+    delete $gctx->{'remotegbininfos'}->{"$prp/$myarch"};
     return if $remoteprojs->{$projid};
     if (defined($packid)) {
       unlink("$prp/$myarch/$packid/.bininfo");
@@ -7847,7 +7863,7 @@ sub event_wipe {
   my $importarch = '';	# keep those imports
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $prpsearchpath, undef, $importarch);
-  delete $repounchanged{$prp};
+  delete $gctx->{'repounchanged'}->{$prp};
   # delete other files
   unlink("$gdst/:logfiles.success/$packid");
   unlink("$gdst/:logfiles.fail/$packid");
@@ -7948,9 +7964,9 @@ sub event_exit {
   $schedstate->{'lookat'} = \@new_lookat;
   $schedstate->{'lookat_oob'} = $gctx->{'lookat_med'};
   $schedstate->{'lookat_oobhigh'} = $gctx->{'lookat_high'};
-  $schedstate->{'prpfinished'} = \%prpfinished;
-  $schedstate->{'globalnotready'} = \%prpnotready;
-  $schedstate->{'repounchanged'} = \%repounchanged;
+  $schedstate->{'prpfinished'} = $gctx->{'prpfinished'};
+  $schedstate->{'globalnotready'} = $gctx->{'prpnotready'};
+  $schedstate->{'repounchanged'} = $gctx->{'repounchanged'};
   $schedstate->{'delayedfetchprojpacks'} = $gctx->{'delayedfetchprojpacks'};
   $schedstate->{'watchremote_start'} = $gctx->{'watchremote_start'};
   $schedstate->{'fetchprojpacks'} = $ectx->{'fetchprojpacks'} if %{$ectx->{'fetchprojpacks'} || {}};
@@ -8294,6 +8310,11 @@ my $gctx = {
   'repodatas' => \%_repodatas,
   'repodatas_alien' => \%_repodatas_alien,
 
+  # remote bininfo cache
+  'remotegbininfos' => \%_remotegbininfos,
+  'remotepackstatus' => \%_remotepackstatus,
+  'remotepackstatus_cleanup' => \%_remotepackstatus_cleanup,
+
   # dod data cache
   'dodprps' => \%_dodprps,
 
@@ -8311,6 +8332,9 @@ my $gctx = {
 
   # triggers
   'prpcheckuseforbuild' => \%_prpcheckuseforbuild,
+  'prpfinished' => \%_prpfinished,
+  'repounchanged' => \%_repounchanged,
+  'prpnotready' => \%_prpnotready,
 
   # remote watchers
   'watchremote' => \%_watchremote,
@@ -8397,20 +8421,23 @@ if (!$testprojid && -s "$_rundir/bs_sched.$myarch.state") {
 
     # update prpfinished hash
     my $oldprpfinished = $schedstate->{'prpfinished'} || {};
+    my $prpfinished = $gctx->{'prpfinished'};
     for my $prp (@$prps) {
-      $prpfinished{$prp} = $oldprpfinished->{$prp} if exists $oldprpfinished->{$prp};
+      $prpfinished->{$prp} = $oldprpfinished->{$prp} if exists $oldprpfinished->{$prp};
     }
 
     # update prpnotready hash
     my $oldprpnotready = $schedstate->{'globalnotready'} || {};
+    my $prpnotready = $gctx->{'prpnotready'};
     for my $prp (@$prps) {
-      $prpnotready{$prp} = $oldprpnotready->{$prp} if %{$oldprpnotready->{$prp} || {}};
+      $prpnotready->{$prp} = $oldprpnotready->{$prp} if %{$oldprpnotready->{$prp} || {}};
     }
 
     # update repounchanged hash
     my $oldrepounchanged = $schedstate->{'repounchanged'} || {};
+    my $repounchanged = $gctx->{'repounchanged'};
     for my $prp (@$prps) {
-      $repounchanged{$prp} = $oldrepounchanged->{$prp} if exists $oldrepounchanged->{$prp};
+      $repounchanged->{$prp} = $oldrepounchanged->{$prp} if exists $oldrepounchanged->{$prp};
     }
 
     # update delayedfetchprojpacks hash
@@ -8913,8 +8940,8 @@ NEXTPRP:
 	next unless -d "$reporoot/$prp/$myarch";
 	# we no longer build this repoid
 	print "  - deleting repository $prp\n";
-	delete $prpfinished{$prp};
-	delete $prpnotready{$prp};
+	delete $gctx->{'prpfinished'}->{$prp};
+	delete $gctx->{'prpnotready'}->{$prp};
 	delete $prpunfinished{$prp};
 	delete $prpchecktimes{$prp};
 	delete $gctx->{'repodatas'}->{$prp};
@@ -9000,7 +9027,8 @@ NEXTPRP:
     # merge bininfo
     if (-e "$reporoot/$prp/$myarch/:bininfo.merge" || ! -e "$reporoot/$prp/$myarch/:bininfo") {
       read_gbininfo("$reporoot/$prp/$myarch");
-      $repounchanged{$prp} = 2 if $repounchanged{$prp};
+      my $repounchanged = $gctx->{'repounchanged'};
+      $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
     }
 
     # merge relsync
@@ -9054,7 +9082,7 @@ NEXTPRP:
       my $lastprojid = (split('/', $prpsearchpath->[-1]))[0];
       print "  - $prp: no config ($lastprojid)\n";
       set_repo_state($gctx, $prp, 'broken', "no config ($lastprojid)");
-      $prpfinished{$prp} = 1;
+      $gctx->{'prpfinished'}->{$prp} = 1;
       next;
     }
 
@@ -9068,20 +9096,20 @@ NEXTPRP:
       my $lastprojid = (split('/', $prpsearchpath->[-1]))[0];
       print "  - $prp: bad config ($lastprojid)\n";
       set_repo_state($gctx, $prp, 'broken', "bad config ($lastprojid)");
-      $prpfinished{$prp} = 1;
+      $gctx->{'prpfinished'}->{$prp} = 1;
       next;
     }
     if ($bconf->{'hostarch'} && !$BSCando::knownarch{$bconf->{'hostarch'}}) {
       print "  - $prp: bad hostarch ($bconf->{'hostarch'})\n";
       set_repo_state($gctx, $prp, 'broken', "bad hostarch ($bconf->{'hostarch'})");
-      $prpfinished{$prp} = 1;
+      $gctx->{'prpfinished'}->{$prp} = 1;
       next;
     }
     my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
     if (!$repo) {
       print " - $prp: no repo?\n";
       set_repo_state($gctx, $prp, 'broken', 'no repo');
-      $prpfinished{$prp} = 1;
+      $gctx->{'prpfinished'}->{$prp} = 1;
       next;
     }
 
@@ -9109,13 +9137,12 @@ NEXTPRP:
     my $ctx = { 'project' => $projid, 'repository' => $repoid, 'prp' => $prp,
 		'repo' => $repo, 'gctx' => $gctx, 'changetype' => $lookattype,
 		'prpsearchpath' => $prpsearchpath || [], 'conf' => $bconf,
-		'prpfinished' => \%prpfinished, 'prpnotready' => \%prpnotready,
 		'lastcheck' => $lastcheck{$prp} };
 
     if ($repo->{'status'} && $repo->{'status'} eq 'disabled') {
       print "      disabled\n";
       set_repo_state($gctx, $prp, 'disabled');
-      $prpfinished{$prp} = 1;
+      $gctx->{'prpfinished'}->{$prp} = 1;
       next;
     }
 
@@ -9196,6 +9223,7 @@ NEXTPRP:
     my $error;
     my %unfinished;	# is blocked or needs rebuild
     my %notready;		# unfinished and will modify :full
+    my $prpnotready = $gctx->{'prpnotready'};
 
     my $delayed;
     for my $rprp (@$prpsearchpath) {
@@ -9228,7 +9256,7 @@ NEXTPRP:
       if ($rprp eq $prp) {
 	$depislocal{$n} = 1;
       } else {
-	$notready{$sn} = 2 if $prpnotready{$rprp} && $prpnotready{$rprp}->{$sn};
+	$notready{$sn} = 2 if $prpnotready->{$rprp} && $prpnotready->{$rprp}->{$sn};
       }
     }
     $ctx->{'building'} = \%building;
@@ -9652,9 +9680,9 @@ NEXTPRP:
     }
     # put local notready into prpnotready if not a leaf
     if (%notready && $gctx->{'prpnoleaf'}->{$prp}) {
-      $prpnotready{$prp} = \%notready;
+      $prpnotready->{$prp} = \%notready;
     } else {
-      delete $prpnotready{$prp};
+      delete $prpnotready->{$prp};
     }
 
     # write blocked data into a file so that remote servers can fetch it
@@ -9692,12 +9720,13 @@ NEXTPRP:
     # changes
     # we alse send it if we finish a prp to give linked aggregates a
     # chance to work
-    if (!$repounchanged{$prp} || (!%unfinished && !$prpfinished{$prp})) {
+    my $repounchanged = $gctx->{'repounchanged'};
+    if (!$repounchanged->{$prp} || (!%unfinished && !$gctx->{'prpfinished'}->{$prp})) {
       sendrepochangeevent($gctx, $prp);
-      $repounchanged{$prp} = 1;
-    } elsif ($repounchanged{$prp} == 2) {
+      $repounchanged->{$prp} = 1;
+    } elsif ($repounchanged->{$prp} == 2) {
       sendrepochangeevent($gctx, $prp, 'repoinfo');
-      $repounchanged{$prp} = 1;
+      $repounchanged->{$prp} = 1;
     }
 
     # free memory
@@ -9783,7 +9812,7 @@ NEXTPRP:
         }
       }
       if (!%unfinished && !$publisherror) {
-	$prpfinished{$prp} = 1;
+	$gctx->{'prpfinished'}->{$prp} = 1;
 	# write out lastcheck cache and delete it
 	if ($lastcheck{$prp} && %{$lastcheck{$prp}}) {
 	  BSUtil::store("$reporoot/$prp/$myarch/.:lastcheck", "$reporoot/$prp/$myarch/:lastcheck", $lastcheck{$prp}) if $lastcheck{$prp};
@@ -9799,10 +9828,11 @@ NEXTPRP:
 	  # (we always have to do the expansion if something changes)
 	  my @unfinishedprps;
 	  my $remoteprojs = $gctx->{'remoteprojs'};
+	  my $prpfinished = $gctx->{'prpfinished'};
 	  for (@{$gctx->{'prpdeps'}->{$prp}}) {
-	    next if $prpfinished{$_};
+	    next if $prpfinished->{$_};
 	    # if this is a remote repo, check prpnotready
-	    if (!%{$prpnotready{$_} || {}}) {
+	    if (!%{$prpnotready->{$_} || {}}) {
 	      my ($p) = split('/', $_, 2);
 	      next if $remoteprojs->{$p};
 	    }
@@ -9820,17 +9850,18 @@ NEXTPRP:
       # are set in channel repos early enough or a release may be possible
       my $proj = $projpacks->{$projid} || {};
       if (($proj->{'kind'} || '') eq 'maintenance_incident') {
+        my $prpfinished = $gctx->{'prpfinished'};
 	for my $my_repo (@{$proj->{'repository'} ||[]}) {
           my $my_prp = "$projid/$my_repo->{'name'}";
-	  next if $prpfinished{$my_prp};
+	  next if $prpfinished->{$my_prp};
 	  for (@{$gctx->{'prpdeps'}->{$my_prp}}) {
-	    next if $prpfinished{$_};
+	    next if $prpfinished->{$_};
 	    BSUtil::touch("$reporoot/$my_prp/$myarch/:schedulerstate.dirty") if -d "$reporoot/$my_prp/$myarch";
           }
         }
       }
     } else {
-      delete $prpfinished{$prp};
+      delete $gctx->{'prpfinished'}->{$prp};
       unlink("$reporoot/$prp/$myarch/:repodone");
     }
 
@@ -9876,7 +9907,7 @@ NEXTPRP:
       }
     }
 
-    cleanup_remotepackstatus($prp) if $remotepackstatus_cleanup{$prp} && !$ctx->{'havedelayed'};
+    cleanup_remotepackstatus($gctx, $prp) if $gctx->{'remotepackstatus_cleanup'}->{$prp} && !$ctx->{'havedelayed'};
 
     my $now = time();
     if ($prpchecktime) {
