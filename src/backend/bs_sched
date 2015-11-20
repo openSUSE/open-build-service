@@ -3054,14 +3054,14 @@ sub addjobhist {
 ##  project/package data collection functions
 ##
 
-my @prps;		# all prps(project-repositories-sorted) we have to schedule, sorted
-my %prpsearchpath;	# maps prp => [ prp, prp, ...]
+#my @prps;		# all prps(project-repositories-sorted) we have to schedule, sorted
+#my %prpsearchpath;	# maps prp => [ prp, prp, ...]
                         # build packages with the packages of the prps
-my %prpdeps;		# searchpath plus aggregate deps plus kiwi deps
+#my %prpdeps;		# searchpath plus aggregate deps plus kiwi deps
 			# maps prp => [ prp, prp ... ]
 			# used for sorting
-my %prpnoleaf;		# is this prp referenced by another prp?
-my @_projpacks_linked;	# data of all linked sources
+#my %prpnoleaf;		# is this prp referenced by another prp?
+#my @projpacks_linked;	# data of all linked sources
 
 my %_watchremote;	# remote_url => { eventdescr => projid }
 my %_watchremote_start;	# remote_url => lasteventno
@@ -3213,6 +3213,7 @@ sub xrpc_setchanged {
   my $changed = $gctx->{"changed_$changetype"};
   my $changed_dirty = $gctx->{'changed_dirty'};
   my $lookat = $gctx->{"lookat_$changetype"};
+  my $prps = $gctx->{'prps'};
   my ($projid, $repoid) = split('/', $what, 2);
   if (defined($repoid)) {
     my $prp = $what;
@@ -3220,9 +3221,10 @@ sub xrpc_setchanged {
     unshift @$lookat, $prp;
     if ($changetype eq 'low') {
       # we don't use changed2lookat to prevent infinite looping
-      for my $dprp (@prps) {
+      my $prpdeps = $gctx->{'prpdeps'};
+      for my $dprp (@$prps) {
 	next if $dprp eq $prp;
-	$changed->{$dprp} = 1 if grep {$_ eq $prp} @{$prpdeps{$dprp}};
+	$changed->{$dprp} = 1 if grep {$_ eq $prp} @{$prpdeps->{$dprp}};
       }
     } else {
       if ($changelevel == 2) {
@@ -3235,7 +3237,7 @@ sub xrpc_setchanged {
     return;
   }
   my @cprps;
-  for my $prp (@prps) {
+  for my $prp (@$prps) {
     push @cprps, $prp if (split('/', $prp, 2))[0] eq $projid;
   }
   my %cprps = map {$_ => 1} @cprps;
@@ -3334,7 +3336,7 @@ sub get_projpacks_resume {
 	# we don't use xrpc_setchanged because it unshifts the prps onto lookat
 	my $changed = $gctx->{$xpackids ? 'changed_med' : 'changed_low'};
 	my $changed_dirty = $gctx->{'changed_dirty'};
-	for my $prp (@prps) {
+	for my $prp (@{$gctx->{'prps'}}) {
 	  next unless (split('/', $prp, 2))[0] eq $lprojid;
 	  $changed->{$prp} ||= 1;
 	  $changed_dirty->{$prp} = 1;
@@ -4015,10 +4017,15 @@ sub calc_prps {
 
   print "calculating project dependencies...\n";
   # calculate prpdeps dependency hash
-  @prps = ();
-  %prpsearchpath = ();
-  %prpdeps = ();
-  %prpnoleaf = ();
+  delete $gctx->{'prps'};
+  delete $gctx->{'prpsearchpath'};
+  delete $gctx->{'prpdeps'};
+  delete $gctx->{'prpnoleaf'};
+  my @prps;
+  my %prpsearchpath;
+  my %prpdeps;
+  my %prpnoleaf;
+
   my %newchanneldata;
   my $projpacks = $gctx->{'projpacks'};
   for my $projid (sort keys %$projpacks) {
@@ -4121,6 +4128,11 @@ sub calc_prps {
   # do the real sorting
   print "sorting projects and repositories...\n";
   @prps = sortpacks(\%prpdeps, undef, undef, @prps);
+
+  $gctx->{'prps'} = \@prps;
+  $gctx->{'prpsearchpath'} = \%prpsearchpath;
+  $gctx->{'prpdeps'} = \%prpdeps;
+  $gctx->{'prpnoleaf'} = \%prpnoleaf;
 }
 
 ####################################################################
@@ -4771,7 +4783,8 @@ sub jobfinished {
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-  update_dst_full($gctx, $prp, $packid, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp}, $fullcache);
+  my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
+  update_dst_full($gctx, $prp, $packid, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath, $fullcache);
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
   $repounchanged{$prp} = 2 if $repounchanged{$prp};
@@ -4848,7 +4861,8 @@ sub aggregatefinished {
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-  update_dst_full($gctx, $prp, $packid, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath{$prp});
+  my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
+  update_dst_full($gctx, $prp, $packid, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath);
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
   $repounchanged{$prp} = 2 if $repounchanged{$prp};
@@ -4955,7 +4969,8 @@ sub uploadbuildevent {
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-  update_dst_full($gctx, $prp, $packid, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath{$prp});
+  my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
+  update_dst_full($gctx, $prp, $packid, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath);
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
   $repounchanged{$prp} = 2 if $repounchanged{$prp};
@@ -4995,7 +5010,8 @@ sub importevent {
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-  update_dst_full($gctx, $prp, $packid, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp}, undef, $importarch);
+  my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
+  update_dst_full($gctx, $prp, $packid, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath, undef, $importarch);
   $changed->{$prp} = 2 if $useforbuildenabled;
   delete $repounchanged{$prp} if $useforbuildenabled;
   unlink($_) for @all;
@@ -5737,7 +5753,8 @@ sub rebuildkiwiproduct {
   if (@{$repo->{'path'} || []}) {
     # images repo has a configured path, use it to set up the kiwi system
     $syspath = [];
-    for (@{$prpsearchpath{$prp}}) {
+    my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
+    for (@$prpsearchpath) {
       my @pr = split('/', $_, 2);
       my $server = $workerreposerver;
       if ($remoteprojs->{$pr[0]}) {
@@ -7345,7 +7362,7 @@ sub select_read {
 }
 
 sub changed2lookat {
-  my ($changed_low, $changed_med, $changed_high, $lookat_high, $lookat_med, $lookat_next) = @_;
+  my ($gctx, $changed_low, $changed_med, $changed_high, $lookat_high, $lookat_med, $lookat_next) = @_;
 
   push @$lookat_high, grep {$changed_high->{$_}} sort keys %$changed_med;
   push @$lookat_med, grep {!$changed_high->{$_}} sort keys %$changed_med;
@@ -7353,9 +7370,10 @@ sub changed2lookat {
   @$lookat_med = unify(@$lookat_med);
   my %lookat_high = map {$_ => 1} @$lookat_high;
   @$lookat_med = grep {!$lookat_high{$_}} @$lookat_med;
-  for my $prp (@prps) {
+  my $prpdeps = $gctx->{'prpdeps'};
+  for my $prp (@{$gctx->{'prps'}}) {
     if (!$changed_low->{$prp} && !$changed_med->{$prp}) {
-      next unless grep {$changed_med->{$_}} @{$prpdeps{$prp}};
+      next unless grep {$changed_med->{$_}} @{$prpdeps->{$prp}};
     }
     $lookat_next->{$prp} = 1;
   }
@@ -7676,12 +7694,13 @@ sub event_check {
   my $gctx = $ectx->{'gctx'};
   my $changed_high = $gctx->{'changed_high'};
   my $changed_dirty = $gctx->{'changed_dirty'};
+  my $prps = $gctx->{'prps'};
   my $projid = $ev->{'project'};
   my $repoid = $ev->{'repository'};
   my %admincheck;
   if (!defined($projid)) {
     my $changed_low = $gctx->{'changed_low'};
-    for my $prp (@prps) {
+    for my $prp (@$prps) {
       $changed_low->{$prp} ||= 1;
     }
     return;
@@ -7692,7 +7711,7 @@ sub event_check {
     $changed_dirty->{$prp} = 1;
     $admincheck{$prp} = 1 if $ev->{'type'} eq 'admincheck';
   } else {
-    for my $prp (@prps) {
+    for my $prp (@$prps) {
       if ((split('/', $prp, 2))[0] eq $projid) {
         $changed_high->{$prp} ||= 1;
         $changed_dirty->{$prp} = 1;
@@ -7826,7 +7845,8 @@ sub event_wipe {
   $useforbuildenabled = enabled($repoid, $proj->{'useforbuild'}, $useforbuildenabled) if $proj;
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
   my $importarch = '';	# keep those imports
-  update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $prpsearchpath{$prp}, undef, $importarch);
+  my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
+  update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $prpsearchpath, undef, $importarch);
   delete $repounchanged{$prp};
   # delete other files
   unlink("$gdst/:logfiles.success/$packid");
@@ -7842,7 +7862,7 @@ sub event_wipe {
     }
   }
   rmdir("$gdst/$packid");	# in case there is no history
-  for $prp (@prps) {
+  for $prp (@{$gctx->{'prps'}}) {
     if ((split('/', $prp, 2))[0] eq $projid) {
       $changed_high->{$prp} = 2;
       $changed_dirty->{$prp} = 1;
@@ -7874,7 +7894,8 @@ sub event_useforbuild {
     @packs = reverse(orderpackids($proj, @packs));
     if ($new_full_handling) {
       # force a rebuild of the full tree
-      checkuseforbuild($gctx, $prp, $prpsearchpath{$prp}, undef, 1);
+      my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
+      checkuseforbuild($gctx, $prp, $prpsearchpath, undef, 1);
       @packs = ();
     }
   }
@@ -7888,9 +7909,10 @@ sub event_useforbuild {
     next unless $useforbuildenabled;
     my $meta = "$gdst/:meta/$packid";
     undef $meta unless -s $meta;
-    update_dst_full($gctx, $prp, $packid, "$gdst/$packid", $meta, $useforbuildenabled, $prpsearchpath{$prp});
+    my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
+    update_dst_full($gctx, $prp, $packid, "$gdst/$packid", $meta, $useforbuildenabled, $prpsearchpath);
   }
-  for $prp (@prps) {
+  for $prp (@{$gctx->{'prps'}}) {
     if ((split('/', $prp, 2))[0] eq $projid) {
       if ((split('/', $prp, 2))[0] eq $projid) {
 	$changed_high->{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
@@ -7912,14 +7934,14 @@ sub event_exit {
   print "dumping emergency state...\n" if $ev->{'type'} eq 'emergencydump';
   my $lookat_next = $gctx->{'lookat_next'} || {};
   my @new_lookat = @{$gctx->{'lookat_low'} || []};
-  push @new_lookat, grep {$lookat_next->{$_}} @prps;
+  push @new_lookat, grep {$lookat_next->{$_}} @{$gctx->{'prps'}};
   # here comes our scheduler state
   my $schedstate = {};
   if ($ev->{'type'} eq 'exitcomplete' || $ev->{'type'} eq 'restart' || $ev->{'type'} eq 'emergencydump' || $ev->{'type'} eq 'dumpstate') {
     $schedstate->{'projpacks'} = $gctx->{'projpacks'};
     $schedstate->{'remoteprojs'} = $gctx->{'remoteprojs'};
   }
-  $schedstate->{'prps'} = \@prps;
+  $schedstate->{'prps'} = $gctx->{'prps'};
   $schedstate->{'changed_low'} = $gctx->{'changed_low'};
   $schedstate->{'changed_med'} = $gctx->{'changed_med'};
   $schedstate->{'changed_high'} = $gctx->{'changed_high'};
@@ -8012,7 +8034,7 @@ sub do_fetchprojpacks {
     next if grep {!defined($_)} @{$fetchprojpacks->{$projid}};
     # only source updates, delay them
     my $foundit;
-    for my $prp (@prps) {
+    for my $prp (@{$gctx->{'prps'}}) {
       if ((split('/', $prp, 2))[0] eq $projid) {
 	$changed_high->{$prp} ||= 1;
 	$changed_dirty->{$prp} = 1;
@@ -8027,7 +8049,7 @@ sub do_fetchprojpacks {
       for my $lprojid (keys %$linked) {
 	push @{$delayedfetchprojpacks->{$lprojid}}, @{$linked->{$lprojid}};
       }
-      for my $lprp (@prps) {
+      for my $lprp (@{$gctx->{'prps'}}) {
 	if ($linked->{(split('/', $lprp, 2))[0]}) {
 	  $changed_med->{$lprp} ||= 1;
 	  $changed_dirty->{$lprp} = 1; 
@@ -8108,7 +8130,7 @@ sub do_fetchprojpacks {
   for my $projid (sort keys %$fetchprojpacks) {
     my $changed = $lowprioproject->{$projid} && $projpacks->{$projid} && !$deepcheck->{$projid} ? $changed_low : $changed_high;
     if (grep {!defined($_)} @{$fetchprojpacks->{$projid}}) {
-      for my $prp (@prps) {
+      for my $prp (@{$gctx->{'prps'}}) {
 	if ((split('/', $prp, 2))[0] eq $projid) {
 	  $changed->{$prp} = 2;
 	  $changed_dirty->{$prp} = 1;
@@ -8122,7 +8144,7 @@ sub do_fetchprojpacks {
 	push @{$fetchlinkedprojpacks{$_}}, @{$linked->{$_}} for keys %$linked;
       }
     } else {
-      for my $prp (@prps) {
+      for my $prp (@{$gctx->{'prps'}}) {
 	if ((split('/', $prp, 2))[0] eq $projid) {
 	  $changed_high->{$prp} ||= 1;
 	  $changed_dirty->{$prp} = 1;
@@ -8154,7 +8176,7 @@ sub do_fetchprojpacks {
       # we assign source changed through links med prio,
       # everything else is low prio
       if ($fetchlinkedprojpacks_srcchange{$projid}) {
-	for my $prp (@prps) {
+	for my $prp (@{$gctx->{'prps'}}) {
 	  if ((split('/', $prp, 2))[0] eq $projid) {
 	    $changed_med->{$prp} ||= 1;
 	    $changed_dirty->{$prp} = 1;
@@ -8162,7 +8184,7 @@ sub do_fetchprojpacks {
 	}
 	$changed_med->{$projid} ||= 1;
       } else {
-	for my $prp (@prps) {
+	for my $prp (@{$gctx->{'prps'}}) {
 	  if ((split('/', $prp, 2))[0] eq $projid) {
 	    $changed_low->{$prp} ||= 1;
 	    $changed_dirty->{$prp} = 1;
@@ -8282,6 +8304,10 @@ my $gctx = {
 
   # postprocessed project data
   'projpacks_linked' => [],
+  'prps' => [],
+  'prpdeps' => {},
+  'prpnoleaf' => {},
+  'prpsearchpath' => {},
 
   # triggers
   'prpcheckuseforbuild' => \%_prpcheckuseforbuild,
@@ -8330,9 +8356,10 @@ if (!$testprojid && -s "$_rundir/bs_sched.$myarch.state") {
     }
     get_projpacks_postprocess($gctx);
     my $projpacks = $gctx->{'projpacks'};
+    my $prps = $gctx->{'prps'};
 
     my %oldprps = map {$_ => 1} @{$schedstate->{'prps'} || []};
-    my @newprps = grep {!$oldprps{$_}} @prps;
+    my @newprps = grep {!$oldprps{$_}} @$prps;
 
     # update lookat arrays
     @lookat_low = @{$schedstate->{'lookat'} || []};
@@ -8356,7 +8383,7 @@ if (!$testprojid && -s "$_rundir/bs_sched.$myarch.state") {
       $changed_med{$projid} = $oldchanged_med->{$projid} if exists $oldchanged_med->{$projid};
       $changed_high{$projid} = $oldchanged_high->{$projid} if exists $oldchanged_high->{$projid};
     }
-    for my $prp (@prps) {
+    for my $prp (@$prps) {
       $changed_low{$prp} = $oldchanged_low->{$prp} if exists $oldchanged_low->{$prp};
       $changed_med{$prp} = $oldchanged_med->{$prp} if exists $oldchanged_med->{$prp};
       $changed_high{$prp} = $oldchanged_high->{$prp} if exists $oldchanged_high->{$prp};
@@ -8364,25 +8391,25 @@ if (!$testprojid && -s "$_rundir/bs_sched.$myarch.state") {
 
     ## update repodata hash
     #my $oldrepodata = $schedstate->{'repodata'} || {};
-    #for my $prp (@prps) {
+    #for my $prp (@$prps) {
     #  $repodata{$prp} = $oldrepodata->{$prp} if exists $oldrepodata->{$prp};
     #}
 
     # update prpfinished hash
     my $oldprpfinished = $schedstate->{'prpfinished'} || {};
-    for my $prp (@prps) {
+    for my $prp (@$prps) {
       $prpfinished{$prp} = $oldprpfinished->{$prp} if exists $oldprpfinished->{$prp};
     }
 
     # update prpnotready hash
     my $oldprpnotready = $schedstate->{'globalnotready'} || {};
-    for my $prp (@prps) {
+    for my $prp (@$prps) {
       $prpnotready{$prp} = $oldprpnotready->{$prp} if %{$oldprpnotready->{$prp} || {}};
     }
 
     # update repounchanged hash
     my $oldrepounchanged = $schedstate->{'repounchanged'} || {};
-    for my $prp (@prps) {
+    for my $prp (@$prps) {
       $repounchanged{$prp} = $oldrepounchanged->{$prp} if exists $oldrepounchanged->{$prp};
     }
 
@@ -8478,9 +8505,9 @@ if (!$gctx->{'projpacks'} && $startupmode) {
     }
   }
   @lookat_low = sort keys %$projpacks;
-  push @lookat_low, @prps;
+  push @lookat_low, @{$gctx->{'prps'}};
   my $prpcheckuseforbuild = $gctx->{'prpcheckuseforbuild'};
-  $prpcheckuseforbuild->{$_} = 1 for @prps;
+  $prpcheckuseforbuild->{$_} = 1 for @{$gctx->{'prps'}};
 }
 
 if (!$gctx->{'projpacks'}) {
@@ -8492,7 +8519,7 @@ if (!$gctx->{'projpacks'}) {
   get_projpacks_postprocess($gctx);
   # look at everything
   @lookat_low = sort keys %{$gctx->{'projpacks'}};
-  push @lookat_low, @prps;
+  push @lookat_low, @{$gctx->{'prps'}};
 }
 
 # bring dodprps and dodsdir in sync with projpacks
@@ -8573,7 +8600,7 @@ eval {
   while(1) {
 NEXTPRP:
     if (%changed_low || %changed_med || %changed_high) {
-      changed2lookat(\%changed_low, \%changed_med, \%changed_high, \@lookat_high, \@lookat_med, \%lookat_next);
+      changed2lookat($gctx, \%changed_low, \%changed_med, \%changed_high, \@lookat_high, \@lookat_med, \%lookat_next);
       next;
     }
 
@@ -8792,7 +8819,7 @@ NEXTPRP:
 
     # if lookat_low array is empty, start new series with lookat_next
     if (!@lookat_low && %lookat_next) {
-      @lookat_low = grep {$lookat_next{$_}} @prps;
+      @lookat_low = grep {$lookat_next{$_}} @{$gctx->{'prps'}};
       %lookat_next = ();
     }
 
@@ -8865,7 +8892,7 @@ NEXTPRP:
       @lookat_med = grep {$_ ne $prp} @lookat_med;
     }
     print "$msgtm looking at $lookattype prio $prp";
-    print " (".@lookat_high."/".@lookat_med."/".@lookat_low."/".(keys %lookat_next)."/".@prps.")\n";
+    print " (".@lookat_high."/".@lookat_med."/".@lookat_low."/".(keys %lookat_next)."/".@{$gctx->{'prps'}}.")\n";
     delete $nextmed{$prp};
 
     my ($projid, $repoid) = split('/', $prp, 2);
@@ -8962,8 +8989,9 @@ NEXTPRP:
     }
 
     my $projpacks = $gctx->{'projpacks'};
+    my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
 
-    if (!$projpacks->{$projid} || !$prpsearchpath{$prp}) {
+    if (!$projpacks->{$projid} || !$prpsearchpath) {
       next if $gctx->{'remoteprojs'}->{$projid};
       print "  - $prp: no longer exists\n";
       next;
@@ -9006,12 +9034,12 @@ NEXTPRP:
       unlink("$reporoot/$prp/$myarch/:full.metacache.merge");
     }
 
-    my $bconf = getconfig($gctx, $myarch, $prpsearchpath{$prp});
+    my $bconf = getconfig($gctx, $myarch, $prpsearchpath);
     if (!$bconf) {
       # see if it is caused by a remote error
       my $error;
       my $remoteprojs = $gctx->{'remoteprojs'};
-      for my $pprp (@{$prpsearchpath{$prp} || []}) {
+      for my $pprp (@$prpsearchpath) {
 	my ($pprojid, $prepoid) = split('/', $pprp, 2);
 	$error = $remoteprojs->{$pprojid}->{'error'} if $remoteprojs->{$pprojid} && $remoteprojs->{$pprojid}->{'error'};
 	if ($error) {
@@ -9023,7 +9051,7 @@ NEXTPRP:
 	}
       }
       next if $error;
-      my $lastprojid = (split('/', $prpsearchpath{$prp}->[-1]))[0];
+      my $lastprojid = (split('/', $prpsearchpath->[-1]))[0];
       print "  - $prp: no config ($lastprojid)\n";
       set_repo_state($gctx, $prp, 'broken', "no config ($lastprojid)");
       $prpfinished{$prp} = 1;
@@ -9037,7 +9065,7 @@ NEXTPRP:
     }
     if (!$prptype || $prptype eq 'UNDEFINED') {
       # could still do channels/aggregates/patchinfos
-      my $lastprojid = (split('/', $prpsearchpath{$prp}->[-1]))[0];
+      my $lastprojid = (split('/', $prpsearchpath->[-1]))[0];
       print "  - $prp: bad config ($lastprojid)\n";
       set_repo_state($gctx, $prp, 'broken', "bad config ($lastprojid)");
       $prpfinished{$prp} = 1;
@@ -9065,7 +9093,7 @@ NEXTPRP:
       # for manually created "base" repos
       if (!$new_full_handling || %$packs || ! -d "$reporoot/$prp/$myarch/:full" ||
           -e "$reporoot/$prp/$myarch/:full.useforbuild") {
-        checkuseforbuild($gctx, $prp, $prpsearchpath{$prp}, undef);
+        checkuseforbuild($gctx, $prp, $prpsearchpath, undef);
         delete $gctx->{'prpcheckuseforbuild'}->{$prp};
       }
     }
@@ -9080,7 +9108,7 @@ NEXTPRP:
     }
     my $ctx = { 'project' => $projid, 'repository' => $repoid, 'prp' => $prp,
 		'repo' => $repo, 'gctx' => $gctx, 'changetype' => $lookattype,
-		'prpsearchpath' => $prpsearchpath{$prp} || [], 'conf' => $bconf,
+		'prpsearchpath' => $prpsearchpath || [], 'conf' => $bconf,
 		'prpfinished' => \%prpfinished, 'prpnotready' => \%prpnotready,
 		'lastcheck' => $lastcheck{$prp} };
 
@@ -9134,7 +9162,7 @@ NEXTPRP:
       $useforbuildenabled = 0 if -s "$gdst/$packid/.updateinfodata";
       # don't wipe imports if we're excluded
       my $importarch = $packs->{$packid} && @ifiles ? '' : undef;
-      update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $prpsearchpath{$prp}, undef, $importarch);
+      update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $prpsearchpath, undef, $importarch);
       $changed_med{$prp} = 2;
       sendrepochangeevent($gctx, $prp);
       # delete other files
@@ -9170,7 +9198,7 @@ NEXTPRP:
     my %notready;		# unfinished and will modify :full
 
     my $delayed;
-    for my $rprp (@{$prpsearchpath{$prp}}) {
+    for my $rprp (@$prpsearchpath) {
       if (!checkprpaccess($gctx, $rprp, $prp)) {
 	$error = "repository '$rprp' is unavailable";
 	last;
@@ -9623,7 +9651,7 @@ NEXTPRP:
       delete $notready{$_} if $notready{$_} == 2;
     }
     # put local notready into prpnotready if not a leaf
-    if (%notready && $prpnoleaf{$prp}) {
+    if (%notready && $gctx->{'prpnoleaf'}->{$prp}) {
       $prpnotready{$prp} = \%notready;
     } else {
       delete $prpnotready{$prp};
@@ -9766,12 +9794,12 @@ NEXTPRP:
 	# delete pkg meta cache
 	my $repodatas = $gctx->{'repodatas'};
 	delete $repodatas->{$prp}->{'meta'} if $repodatas->{$prp};
-	if (!$prpnoleaf{$prp}) {
+	if (!$gctx->{'prpnoleaf'}->{$prp}) {
 	  # only free repo data if all projects we depend on are finished, too.
 	  # (we always have to do the expansion if something changes)
 	  my @unfinishedprps;
 	  my $remoteprojs = $gctx->{'remoteprojs'};
-	  for (@{$prpdeps{$prp}}) {
+	  for (@{$gctx->{'prpdeps'}->{$prp}}) {
 	    next if $prpfinished{$_};
 	    # if this is a remote repo, check prpnotready
 	    if (!%{$prpnotready{$_} || {}}) {
@@ -9795,7 +9823,7 @@ NEXTPRP:
 	for my $my_repo (@{$proj->{'repository'} ||[]}) {
           my $my_prp = "$projid/$my_repo->{'name'}";
 	  next if $prpfinished{$my_prp};
-	  for (@{$prpdeps{$my_prp}}) {
+	  for (@{$gctx->{'prpdeps'}->{$my_prp}}) {
 	    next if $prpfinished{$_};
 	    BSUtil::touch("$reporoot/$my_prp/$myarch/:schedulerstate.dirty") if -d "$reporoot/$my_prp/$myarch";
           }
@@ -9862,7 +9890,7 @@ NEXTPRP:
       # update scheduler stats
       my $sinfo = {'arch' => $myarch, 'started' => $schedulerstart, 'time' => $now, 'slept' => $slept};
       $sinfo->{'projects'} = keys %$projpacks;
-      $sinfo->{'repositories'} = @prps;
+      $sinfo->{'repositories'} = @{$gctx->{'prps'}};
       my $unfinishedsum = 0;
       $unfinishedsum += $_ for values %prpunfinished;
       $sinfo->{'notready'} = $unfinishedsum;
