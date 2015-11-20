@@ -3063,14 +3063,12 @@ my %prpdeps;		# searchpath plus aggregate deps plus kiwi deps
 my %prpnoleaf;		# is this prp referenced by another prp?
 my @projpacks_linked;	# data of all linked sources
 
-my %watchremote;	# remote_url => { eventdescr => projid }
-my %watchremote_start;	# remote_url => lasteventno
+my %_watchremote;	# remote_url => { eventdescr => projid }
+my %_watchremote_start;	# remote_url => lasteventno
 
 my %repounchanged;
 my %prpfinished;
 my %prpnotready;	# maps prp => { packid => 1, ... }
-
-my %watchremoteprojs;	# tmp, only set in addwatchremote
 
 my @retryevents;
 my %iswaiting;		# waiting for some RPC to return
@@ -3810,15 +3808,15 @@ sub postprocess_needed_check {
 # 
 sub get_projpacks_postprocess {
   my ($gctx) = @_;
-  %watchremote = ();
-  %watchremoteprojs = ();
+  %{$gctx->{'watchremote'}} = ();
+  $gctx->{'watchremoteprojs'} = {};	# tmp
 
   #print Dumper($projpacks);
   calc_projpacks_linked($gctx);	# modifies watchremote/watchremoteprojs
   calc_prps($gctx);		# modifies watchremote/watchremoteprojs
 
   updateremoteprojs($gctx);
-  %watchremoteprojs = ();
+  delete $gctx->{'watchremoteprojs'};	# clean up
 }
 
 #
@@ -3834,12 +3832,14 @@ sub addwatchremote {
   my $projpacks = $gctx->{'projpacks'};
   return undef if $projpacks->{$projid} && !$projpacks->{$projid}->{'remoteurl'};
   my $proj = remoteprojid($gctx, $projid);
-  $watchremoteprojs{$projid} = $proj;
+  my $watchremoteprojs = $gctx->{'watchremoteprojs'} || {};
+  $watchremoteprojs->{$projid} = $proj;
   return undef unless $proj;
+  my $watchremote = $gctx->{'watchremote'};
   if ($proj->{'partition'}) {
-    $watchremote{$BSConfig::srcserver}->{"$type/$proj->{'remoteproject'}$watch"} = $projid;
+    $watchremote->{$BSConfig::srcserver}->{"$type/$proj->{'remoteproject'}$watch"} = $projid;
   } else {
-    $watchremote{$proj->{'remoteurl'}}->{"$type/$proj->{'remoteproject'}$watch"} = $projid;
+    $watchremote->{$proj->{'remoteurl'}}->{"$type/$proj->{'remoteproject'}$watch"} = $projid;
   }
   return $proj;
 }
@@ -4126,8 +4126,9 @@ sub updateremoteprojs {
   my ($gctx) = @_;
 
   my $remoteprojs = $gctx->{'remoteprojs'};
+  my $watchremoteprojs = $gctx->{'watchremoteprojs'};
   for my $projid (keys %$remoteprojs) {
-    my $r = $watchremoteprojs{$projid};
+    my $r = $watchremoteprojs->{$projid};
     if (!$r) {
       delete $remoteprojs->{$projid};
       next;
@@ -4137,8 +4138,9 @@ sub updateremoteprojs {
     next if $or && $or->{'remoteurl'} eq $r->{'remoteurl'} && $or->{'remoteproject'} eq $r->{'remoteproject'};
     delete $remoteprojs->{$projid};
   }
-  for my $projid (sort keys %watchremoteprojs) {
-    fetchremoteproj($gctx, $watchremoteprojs{$projid}, $projid);
+  for my $projid (sort keys %$watchremoteprojs) {
+    my $r = $watchremoteprojs->{$projid};
+    fetchremoteproj($gctx, $r, $projid) if $r;
   }
 }
 
@@ -7925,7 +7927,7 @@ sub event_exit {
   $schedstate->{'globalnotready'} = \%prpnotready;
   $schedstate->{'repounchanged'} = \%repounchanged;
   $schedstate->{'delayedfetchprojpacks'} = $gctx->{'delayedfetchprojpacks'};
-  $schedstate->{'watchremote_start'} = \%watchremote_start;
+  $schedstate->{'watchremote_start'} = $gctx->{'watchremote_start'};
   $schedstate->{'fetchprojpacks'} = $ectx->{'fetchprojpacks'} if %{$ectx->{'fetchprojpacks'} || {}};
   my $rundir = $gctx->{'rundir'};
   unlink("$rundir/bs_sched.$myarch.state");
@@ -8277,6 +8279,10 @@ my $gctx = {
 
   'prpcheckuseforbuild' => \%_prpcheckuseforbuild,
 
+  # remote watchers
+  'watchremote' => \%_watchremote,
+  'watchremote_start' => \%_watchremote_start,
+
   'changed_low' => \%changed_low,
   'changed_med' => \%changed_med,
   'changed_high' => \%changed_high,
@@ -8381,7 +8387,7 @@ if (!$testprojid && -s "$_rundir/bs_sched.$myarch.state") {
 
     # use old start values
     if ($schedstate->{'watchremote_start'}) {
-      %watchremote_start = %{$schedstate->{'watchremote_start'}};
+      $gctx->{'watchremote_start'} = $schedstate->{'watchremote_start'};
     }
 
     # start project data fetch for delayed startup projects
@@ -8564,10 +8570,13 @@ NEXTPRP:
       next;
     }
 
+    my $watchremote = $gctx->{'watchremote'};
+    my $watchremote_start = $gctx->{'watchremote_start'};
+
     # delete no longer needed or outdated remotewatchers
     for my $remoteurl (sort keys %remotewatchers) {
       my $watcher = $remotewatchers{$remoteurl};
-      if (!$watchremote{$remoteurl} || join("\0", sort keys %{$watchremote{$remoteurl}}) ne $watcher->{'watchlist'}) {
+      if (!$watchremote->{$remoteurl} || join("\0", sort keys %{$watchremote->{$remoteurl}}) ne $watcher->{'watchlist'}) {
 	close $watcher->{'socket'} if defined $watcher->{'socket'};
 	delete $remotewatchers{$remoteurl};
 	next;
@@ -8575,10 +8584,10 @@ NEXTPRP:
     }
 
     # create watchers
-    for my $remoteurl (sort keys %watchremote) {
+    for my $remoteurl (sort keys %$watchremote) {
       if (!$remotewatchers{$remoteurl}) {
-	my $watcher = setupremotewatcher($remoteurl, $watchremote{$remoteurl}, $watchremote_start{$remoteurl});
-	$watcher->{'watchlist'} = join("\0", sort keys %{$watchremote{$remoteurl}});
+	my $watcher = setupremotewatcher($remoteurl, $watchremote->{$remoteurl}, $watchremote_start->{$remoteurl});
+	$watcher->{'watchlist'} = join("\0", sort keys %{$watchremote->{$remoteurl}});
 	$remotewatchers{$remoteurl} = $watcher;
       }
     }
@@ -8616,7 +8625,7 @@ NEXTPRP:
 	  delete $remotewatchers{$remoteurl};
 	  next;
 	}
-	push @remoteevents, getremoteevents($watcher, $watchremote{$remoteurl}, \%watchremote_start);
+	push @remoteevents, getremoteevents($watcher, $watchremote->{$remoteurl}, $watchremote_start);
 	delete $remotewatchers{$remoteurl} unless $watcher->{'retry'};
       }
     } else {
