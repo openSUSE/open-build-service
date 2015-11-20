@@ -2131,15 +2131,16 @@ sub getbinaries {
   $imagebins ||= {};
 
   for my $repo (@{$buildinfo->{'path'} || []}) {
-    last if !@todo;
     my @args;
     my $ddir = $dir;
     if ($kiwimode) {
       my $prpdir = "$repo->{'project'}/$repo->{'repository'}";
       $ddir = "$srcdir/repos/$prpdir";
+      mkdir_p($ddir);
     } else {
       $ddir = $dir;
     }
+    last if !@todo;
     my $nometa = 0;
     $nometa = 1 if $kiwimode || $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid;
     $nometa = 1 if $buildinfo->{'file'} eq '_preinstallimage';
