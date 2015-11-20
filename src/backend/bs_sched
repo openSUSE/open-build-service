@@ -86,11 +86,11 @@ BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BS
 my $_reporoot = "$bsdir/build";
 my $_jobsdir = "$bsdir/jobs";
 my $_eventdir = "$bsdir/events";
-my $extrepodir = "$bsdir/repos";
-my $dodsdir = "$bsdir/dods";
-my $rundir = $BSConfig::rundir || "$bsdir/run";
+my $_extrepodir = "$bsdir/repos";
+my $_dodsdir = "$bsdir/dods";
+my $_rundir = $BSConfig::rundir || "$bsdir/run";
 my $infodir = "$bsdir/info";
-my $remotecache = "$BSConfig::bsdir/remotecache";
+my $_remotecache = "$BSConfig::bsdir/remotecache";
 my $workersrcserver = $BSConfig::workersrcserver ? $BSConfig::workersrcserver : $BSConfig::srcserver;
 my $workerreposerver = $BSConfig::workerreposerver ? $BSConfig::workerreposerver : $BSConfig::reposerver;
 
@@ -1270,7 +1270,7 @@ sub makedeltas {
 	if (!$oldbins{"$aprp/$binarch"}) {
 	  my $aextrep = $aprp;
 	  $aextrep =~ s/:/:\//g;
-	  $aextrep = "$extrepodir/$aextrep";
+	  $aextrep = "$gctx->{'extrepodir'}/$aextrep";
 	  $aextrep = $BSConfig::publishredirect->{$aprp} if $BSConfig::publishredirect && defined($BSConfig::publishredirect->{$aprp});
 	  $aextrep = $BSConfig::extradeltarepos->{$aprp} if $BSConfig::extradeltarepos && defined($BSConfig::extradeltarepos->{$aprp});
 	  $oldbins{$aprp} = $aextrep;
@@ -3428,6 +3428,7 @@ sub update_doddata_prp {
   my ($projid, $repoid) = split('/', $prp, 2);
   my $f = "${projid}::${repoid}::$myarch";
   $f = ':'.Digest::MD5::md5_hex($f) if length($f) > 200;
+  my $dodsdir = $gctx->{'dodsdir'};
   if (!$doddata) {
     unlink("$dodsdir/$f");
     delete $dodprps{$prp};
@@ -3454,6 +3455,7 @@ sub update_doddata {
       $changed ||= update_doddata_prp($gctx, "$projid/$repo->{'name'}", $doddata);
     }
   }
+  my $dodsdir = $gctx->{'dodsdir'};
   BSUtil::touch("$dodsdir/.changed") if $changed && -d $dodsdir;
 }
 
@@ -4228,6 +4230,7 @@ sub addrepo_remote_unpackcpio {
     $repodatas_alien{"$prp/$arch"} ||= {};
     $repodata = $repodatas_alien{"$prp/$arch"};
   }
+  my $remotecache = $gctx->{'remotecache'};
   my $cachemd5 = Digest::MD5::md5_hex("$prp/$arch");
   substr($cachemd5, 2, 0, '/');
 
@@ -4381,7 +4384,7 @@ sub addrepo_alien {
 ### remote project binary state handling 
 
 sub convertpackagebinarylist {
-  my ($prpa, $packagebinarylist, $error, $packstatususer, $isgbininfo) = @_;
+  my ($gctx, $prpa, $packagebinarylist, $error, $packstatususer, $isgbininfo) = @_;
 
   if ($error) {
     chomp $error;
@@ -4423,6 +4426,7 @@ sub convertpackagebinarylist {
       $rpackstatus->{$pkg} = $binaryversionlist->{'code'} if $binaryversionlist->{'code'};
     }
   }
+  my $remotecache = $gctx->{'remotecache'};
   my $cachemd5 = Digest::MD5::md5_hex($prpa);
   substr($cachemd5, 2, 0, '/');
   mkdir_p("$remotecache/".substr($cachemd5, 0, 2));
@@ -4458,7 +4462,8 @@ sub cleanup_remotepackstatus {
 
 sub read_gbininfo_remote_resume {
   my ($handle, $error, $packagebinarylist) = @_;
-  convertpackagebinarylist($handle->{'_prpa'}, $packagebinarylist, $error, $handle->{'_ctx'}->{'prp'}, $handle->{'_isgbininfo'});
+  my $gctx = $handle->{'_ctx'}->{'gctx'};
+  convertpackagebinarylist($gctx, $handle->{'_prpa'}, $packagebinarylist, $error, $handle->{'_ctx'}->{'prp'}, $handle->{'_isgbininfo'});
   xrpc_setchanged($handle);
 }
 
@@ -4468,6 +4473,7 @@ sub read_gbininfo_remote {
   return undef unless $remoteproj;
   return undef if $remoteproj->{'error'};
 
+  my $gctx = $ctx->{'gctx'};
   my $cachemd5 = Digest::MD5::md5_hex($prpa);
   substr($cachemd5, 2, 0, '/');
 
@@ -4485,6 +4491,7 @@ sub read_gbininfo_remote {
     $rpackstatus = $remotepackstatus{$prpa} if grep {$_ eq $prp} @{$remotepackstatus{$prpa}->{'/users'} || []};
   }
   if ((!$packstatus || $rpackstatus) && $remotegbininfos{$prpa} && ($remotegbininfos{$prpa}->{'lastfetch'} || 0) > $now - 3600) {
+    my $remotecache = $gctx->{'remotecache'};
     if (-s "$remotecache/$cachemd5.bininfo") {
       my $gbininfo = BSUtil::retrieve("$remotecache/$cachemd5.bininfo", 1);
       if ($gbininfo) {
@@ -4527,7 +4534,7 @@ sub read_gbininfo_remote {
   }
   return 0 if $packagebinarylist && $param->{'async'};
   my $gbininfo;
-  ($gbininfo, $rpackstatus) = convertpackagebinarylist($prpa, $packagebinarylist, undef, undef, $remoteproj->{'partition'} ? 1 : undef);
+  ($gbininfo, $rpackstatus) = convertpackagebinarylist($gctx, $prpa, $packagebinarylist, undef, undef, $remoteproj->{'partition'} ? 1 : undef);
   if ($packstatus && $rpackstatus) {
     $packstatus->{$_} = $rpackstatus->{$_} for keys %$rpackstatus;
     delete $packstatus->{'/users'};
@@ -7844,6 +7851,7 @@ sub event_exit {
   $schedstate->{'delayedfetchprojpacks'} = $gctx->{'delayedfetchprojpacks'};
   $schedstate->{'watchremote_start'} = \%watchremote_start;
   $schedstate->{'fetchprojpacks'} = $ectx->{'fetchprojpacks'} if %{$ectx->{'fetchprojpacks'} || {}};
+  my $rundir = $gctx->{'rundir'};
   unlink("$rundir/bs_sched.$myarch.state");
   my $statefile = "$rundir/bs_sched.$myarch.state";
   $statefile = "$rundir/bs_sched.$myarch.dead" if $ev->{'type'} eq 'emergencydump';
@@ -8097,7 +8105,7 @@ sub do_fetchprojpacks {
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
 if ($testmode && ($testmode eq 'exit' || $testmode eq 'restart')) {
-  if (!(-e "$rundir/bs_sched.$myarch.lock") || BSUtil::lockcheck('>>', "$rundir/bs_sched.$myarch.lock")) {
+  if (!(-e "$_rundir/bs_sched.$myarch.lock") || BSUtil::lockcheck('>>', "$_rundir/bs_sched.$myarch.lock")) {
     die("scheduler is not running for $myarch.\n") if $testmode eq 'restart';
     print("scheduler is not running for $myarch.\n");
     exit(0);
@@ -8116,7 +8124,7 @@ if ($testmode && ($testmode eq 'exit' || $testmode eq 'restart')) {
   if ($testmode eq 'exit') {
     # scheduler saw the event, wait until the process is gone
     local *F;
-    BSUtil::lockopen(\*F, '>>', "$rundir/bs_sched.$myarch.lock", 1);
+    BSUtil::lockopen(\*F, '>>', "$_rundir/bs_sched.$myarch.lock", 1);
     close F;
   }
   exit(0);
@@ -8124,11 +8132,11 @@ if ($testmode && ($testmode eq 'exit' || $testmode eq 'restart')) {
 print "starting build service scheduler\n";
 
 # get lock
-mkdir_p($rundir);
+mkdir_p($_rundir);
 if (!$testprojid) {
-  open(RUNLOCK, '>>', "$rundir/bs_sched.$myarch.lock") || die("$rundir/bs_sched.$myarch.lock: $!\n");
+  open(RUNLOCK, '>>', "$_rundir/bs_sched.$myarch.lock") || die("$_rundir/bs_sched.$myarch.lock: $!\n");
   flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("scheduler is already running for $myarch!\n");
-  utime undef, undef, "$rundir/bs_sched.$myarch.lock";
+  utime undef, undef, "$_rundir/bs_sched.$myarch.lock";
 }
 
 for my $d ("$_eventdir/$myarch", "$_jobsdir/$myarch", $infodir) {
@@ -8171,7 +8179,11 @@ my $gctx = {
   'jobsdir' => $_jobsdir,
   'myjobsdir' => "$_jobsdir/$myarch",
   'eventdir' => $_eventdir,
-  'myeventdir' => "$_myeventdir",
+  'myeventdir' => $_myeventdir,
+  'extrepodir' => $_extrepodir,
+  'dodsdir' => $_dodsdir,
+  'rundir' => $_rundir,
+  'remotecache' => $_remotecache,
 
   'changed_low' => \%changed_low,
   'changed_med' => \%changed_med,
@@ -8190,10 +8202,10 @@ my $gctx = {
 };
 
 # read old state if present
-if (!$testprojid && -s "$rundir/bs_sched.$myarch.state") {
+if (!$testprojid && -s "$_rundir/bs_sched.$myarch.state") {
   print "reading old state...\n";
-  my $schedstate = BSUtil::retrieve("$rundir/bs_sched.$myarch.state", 2);
-  unlink("$rundir/bs_sched.$myarch.state");
+  my $schedstate = BSUtil::retrieve("$_rundir/bs_sched.$myarch.state", 2);
+  unlink("$_rundir/bs_sched.$myarch.state");
   if ($schedstate) {
     # just for testing...
     print "  - $_\n" for sort keys %$schedstate;
@@ -8379,6 +8391,7 @@ if (!$projpacks) {
 if ($BSConfig::enable_download_on_demand) {
   my $changed;
   my %dodfiles;
+  my $dodsdir = $gctx->{'dodsdir'};
   for my $projid (sort keys %$projpacks) {
     for my $repo (@{($projpacks->{$projid} || {})->{'repository'} || []}) {
       next unless $repo->{'download'};
@@ -8405,12 +8418,13 @@ if ($BSConfig::enable_download_on_demand) {
   }
   BSUtil::touch("$dodsdir/.changed") if $changed && -d $dodsdir;
 } else {
+  my $dodsdir = $gctx->{'dodsdir'};
   BSUtil::cleandir($dodsdir) if -d $dodsdir;
 }
 
 init_ourjobs($gctx);
 
-unlink("$rundir/bs_sched.$myarch.dead");	# alive and kicking
+unlink("$_rundir/bs_sched.$myarch.dead");	# alive and kicking
 
 #XXX
 #@lookat_low = sort keys %$projpacks;
