@@ -257,7 +257,7 @@ my %channeldata;	# global channel data unificator to save memory
 #  'solv'       solv data cache (for remote repos)
 my %_repodatas;		# our repository knowledge
 my %_repodatas_alien;	# repositories from other archs
-my %dodprps;
+my %_dodprps;
 
 my %remotegbininfos;
 my %remotepackstatus;
@@ -3431,19 +3431,20 @@ sub update_prpcheckuseforbuild {
 
 sub update_doddata_prp {
   my ($gctx, $prp, $doddata) = @_;
-  return 0 if identical($doddata, $dodprps{$prp});
+  my $dodprps = $gctx->{'dodprps'};
+  return 0 if identical($doddata, $dodprps->{$prp});
   my ($projid, $repoid) = split('/', $prp, 2);
   my $f = "${projid}::${repoid}::$myarch";
   $f = ':'.Digest::MD5::md5_hex($f) if length($f) > 200;
   my $dodsdir = $gctx->{'dodsdir'};
   if (!$doddata) {
     unlink("$dodsdir/$f");
-    delete $dodprps{$prp};
+    delete $dodprps->{$prp};
   } else {
     mkdir_p($dodsdir);
     my $dd = { %$doddata, 'project' => $projid, 'repository' => $repoid };
     writexml("$dodsdir/.$f", "$dodsdir/$f", $dd, $BSXML::doddata);
-    $dodprps{$prp} = $doddata;
+    $dodprps->{$prp} = $doddata;
   }
   return 1;
 }
@@ -3451,8 +3452,9 @@ sub update_doddata_prp {
 sub update_doddata {
   my ($gctx, $projid, $proj) = @_;
   my $changed;
+  my $dodprps = $gctx->{'dodprps'};
   if (!$proj) {
-    for my $prp (keys %dodprps) {
+    for my $prp (keys %$dodprps) {
       next unless (split('/', $prp, 2))[0] eq $projid;
       $changed ||= update_doddata_prp($gctx, $prp, undef);
     }
@@ -8200,9 +8202,12 @@ my $gctx = {
   'rundir' => $_rundir,
   'remotecache' => $_remotecache,
 
-  # state
+  # repository state cache
   'repodatas' => \%_repodatas,
   'repodatas_alien' => \%_repodatas_alien,
+
+  # dod data cache
+  'dodprps' => \%_dodprps,
 
   'changed_low' => \%changed_low,
   'changed_med' => \%changed_med,
@@ -8411,13 +8416,14 @@ if ($BSConfig::enable_download_on_demand) {
   my $changed;
   my %dodfiles;
   my $dodsdir = $gctx->{'dodsdir'};
+  my $dodprps = $gctx->{'dodprps'};
   for my $projid (sort keys %$projpacks) {
     for my $repo (@{($projpacks->{$projid} || {})->{'repository'} || []}) {
       next unless $repo->{'download'};
       my $doddata = (grep {($_->{'arch'} || '') eq $myarch} @{$repo->{'download'} || []})[0];
       next unless $doddata;
       my $repoid = $repo->{'name'};
-      $dodprps{"$projid/$repoid"} = $doddata;
+      $dodprps->{"$projid/$repoid"} = $doddata;
       my $f = "${projid}::${repoid}::$myarch";
       $f = ':'.Digest::MD5::md5_hex($f) if length($f) > 200;
       $dodfiles{$f} = 1;
