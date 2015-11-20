@@ -33,6 +33,7 @@ Ignore: package:cups'
     page.must_have_selector '#project_title'
   end
 
+  uses_transaction :test_project_show_inherited_packages
   def test_project_show_inherited_packages
     use_js
     visit project_show_path(project: 'BaseDistro:Update')
@@ -40,9 +41,11 @@ Ignore: package:cups'
     click_link("Inherited Packages")
     within "table#ipackages_wrapper_table" do
       assert_equal "_product", find(:xpath, '(.//td/a)[1]').text
-      assert_equal "pack1", find(:xpath, '(.//td/a)[2]').text
-      assert_equal "Pack3", find(:xpath, '(.//td/a)[3]').text
-      assert_equal "patchinfo", find(:xpath, '(.//td/a)[4]').text
+      assert_equal "_product:fixed-release", find(:xpath, '(.//td/a)[2]').text
+      assert_equal "pack1", find(:xpath, '(.//td/a)[3]').text
+      # "pack2" is filtered since it exists in :Update project
+      assert_equal "Pack3", find(:xpath, '(.//td/a)[4]').text
+      assert_equal "patchinfo", find(:xpath, '(.//td/a)[5]').text
     end
   end
 

@@ -1104,7 +1104,7 @@ class Project < ActiveRecord::Base
   end
 
   # return array of [:name, :project_id] tuples
-  def expand_all_packages(packages=[], project_map = {}, package_map = {})
+  def expand_all_packages(packages = [], project_map = {}, package_map = {})
     # check for project link cycle
     return [] if project_map[self]
     project_map[self] = 1

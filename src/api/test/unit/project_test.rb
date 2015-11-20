@@ -855,7 +855,9 @@ END
   test 'linked_packages returns all packages from projects inherited by one level' do
     child = projects('BaseDistro2.0_LinkedUpdateProject')
 
-    assert_equal [["pack2", "BaseDistro2.0"], ["pack2.linked", "BaseDistro2.0"], ["pack_local", "BaseDistro2.0:LinkedUpdateProject"]], child.expand_all_packages
+    assert_equal [["pack2", "BaseDistro2.0"], ["pack2.linked", "BaseDistro2.0"],
+                  ["pack_local", "BaseDistro2.0:LinkedUpdateProject"]],
+                 child.expand_all_packages
   end
 
   def test_all_packages_from_projects_inherited_by_two_levels_and_two_links_in_project
@@ -891,7 +893,10 @@ END
     pack2 = parent.packages.where(name: 'pack2').first
     child.packages << pack2.dup
 
-    assert_equal [["pack2", "BaseDistro2.0:LinkedUpdateProject"], ["pack2.linked", "BaseDistro2.0"], ["pack_local", "BaseDistro2.0:LinkedUpdateProject"]], child.expand_all_packages
+    assert_equal [["pack2", "BaseDistro2.0:LinkedUpdateProject"],
+                  ["pack2.linked", "BaseDistro2.0"],
+                  ["pack_local", "BaseDistro2.0:LinkedUpdateProject"]],
+                 child.expand_all_packages
     CONFIG['global_write_through'] = true
   end
 
