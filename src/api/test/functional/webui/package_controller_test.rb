@@ -57,6 +57,28 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
                  "Should create project 'home:Iggy:branches:BaseDistro:Update' and redirect to that project"
   end
 
+  def test_live_build_log_doesnt_cause_500_error
+    visit(package_live_build_log_path(
+            project: "home:tom",
+            package: "nonexistant",
+            repository: "BaseRepo",
+            arch: "x86_64"
+    ))
+
+    assert_equal page.current_path, project_show_path("home:tom")
+    page.must_have_text "Couldn't find package 'nonexistant' in project 'home:tom'. Are you sure it exists?"
+
+    visit(package_live_build_log_path(
+            project: "home:foo",
+            package: "nonexistant",
+            repository: "BaseRepo",
+            arch: "x86_64"
+    ))
+
+    assert_equal page.current_path, root_path
+    page.must_have_text "Couldn't find project 'home:foo'. Are you sure it still exists?"
+  end
+
   def test_show_package_binary_as_user
     login_user('fred', 'geröllheimer', to:
         package_binaries_path(package: 'TestPack', project: 'home:Iggy', repository: '10.2'))
