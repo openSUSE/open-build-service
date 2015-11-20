@@ -24,6 +24,11 @@ Ignore: package:cups'
     find("#submitrepos").click
     page.must_have_text "Successfully added repositories"
     assert_equal "/project/repositories/home:tom", page.current_path
+
+    # Test that repository checkbox get's disabled
+    visit "/project/add_repository_from_default_list/home:tom"
+    assert find("input#repo_Base_repo").disabled?,
+           "Checkbox for 'OBS Base 2.0' should be disabled"
   end
 
   def test_save_distributions_with_existing_repository

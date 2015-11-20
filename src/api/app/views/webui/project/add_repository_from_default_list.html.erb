@@ -16,7 +16,7 @@
         <h3><%= sprite_tag("distributions-#{vendor.downcase}") %> <%= vendor -%> distributions</h3>
         <p>
           <% list.each do |distribution| %>
-            <% selected = @project.has_distribution(distribution['project'], distribution['repo']) %>
+            <% selected = @project.has_distribution(distribution['project'], distribution['repository']) %>
             <span class="nowrap">
               <%= check_box_tag 'distributions[]', distribution['reponame'], selected, :disabled => selected, :id => 'repo_' + distribution['reponame'], :class => 'repocheckbox' -%>
               <label for="<%= "repo_#{distribution['reponame']}" %>"><%= distribution['name'] %></label>
