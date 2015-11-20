@@ -1103,37 +1103,28 @@ class Project < ActiveRecord::Base
     return projects
   end
 
-  def packages_from_linked_projects
-    Package.
-      joins('LEFT OUTER JOIN linked_projects ON packages.project_id = linked_projects.linked_db_project_id').
-      where('linked_projects.db_project_id = ? AND packages.name NOT IN (?)', id, packages.pluck(:name)).
-      order('LOWER(packages.name) ASC, linked_projects.position ASC').
-      includes(:project).
-      pluck("packages.name", "projects.name").to_a.uniq(&:first)
-  end
-
   # return array of [:name, :project_id] tuples
-  def expand_all_packages(project_map = {}, package_map = {})
+  def expand_all_packages(packages=[], project_map = {}, package_map = {})
     # check for project link cycle
     return [] if project_map[self]
     project_map[self] = 1
 
-    packages = self.packages.pluck(:name, :project_id)
+    self.packages.joins(:project).pluck(:name, "projects.name").each do |name, prj_name|
+      next if package_map[name]
+      packages << [name, prj_name]
+      package_map[name] = 1
+    end
 
     # second path, all packages from indirect linked projects
     self.linkedprojects.each do |lp|
       if lp.linked_db_project.nil?
         # FIXME: this is a remote project
       else
-        lp.linked_db_project.expand_all_packages(project_map, package_map).each do |name, prj_id|
-          next if package_map[name]
-          packages << [name, prj_id]
-          package_map[name] = 1
-        end
+        lp.linked_db_project.expand_all_packages(packages, project_map, package_map)
       end
     end
 
-    return packages
+    packages.sort!{ |a, b| a.first.downcase <=> b.first.downcase }
   end
 
   # return array of [:name, :package_id] tuples for all products
@@ -1157,26 +1148,6 @@ class Project < ActiveRecord::Base
     end
 
     return products
-  end
-
-  # this is needed to displaying package and project names
-  # packages is an array of :name, :db_project_id
-  # return [package_name, project_name] where project_name is nil
-  # if the project is local
-  def map_packages_to_projects(packages)
-    prj_names = Hash.new
-    Project.where(id: packages.map { |a| a[1] }.uniq).pluck(:id, :name).each do |id, name|
-      prj_names[id] = name
-    end
-    ret = []
-    packages.each do |name, prj_id|
-      if prj_id==self.id
-        ret << [name, nil]
-      else
-        ret << [name, prj_names[prj_id]]
-      end
-    end
-    ret
   end
 
   def add_repository_with_targets(repoName, source_repo, add_target_repos = [])

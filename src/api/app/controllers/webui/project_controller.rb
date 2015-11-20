@@ -891,10 +891,10 @@ class Webui::ProjectController < Webui::WebuiController
 
   def load_project_info
     find_maintenance_infos
-    @ipackages = @project.packages_from_linked_projects
     @packages = @project.packages.order_by_name.pluck(:name)
-
+    @ipackages = @project.expand_all_packages.find_all{ |p| not @packages.include?(p[0]) }
     @linking_projects = @project.find_linking_projects.map { |p| p.name }
+
     reqs = @project.request_ids_by_class
     @requests = (reqs['reviews'] + reqs['targets'] + reqs['incidents'] + reqs['maintenance_release']).sort.uniq
 
