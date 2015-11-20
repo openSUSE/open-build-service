@@ -30,6 +30,8 @@
 %global apache_group www
 %endif
 
+%define obs_api_pkg_name obs-api
+
 Name:           obs-server
 Summary:        The Open Build Service -- Server Component
 License:        GPL-2.0 and GPL-3.0
@@ -342,6 +344,10 @@ exec /usr/lib/obs/server/bs_serverstatus "\$@"
 EOF
 chmod 0755 $RPM_BUILD_ROOT/usr/sbin/obs_serverstatus
 
+# install setup-appliance.sh
+DESTDIR=%{buildroot} make install
+
+
 #
 # Install all web and api parts.
 #
@@ -442,7 +448,19 @@ pushd src/backend/
 rm -rf build
 ln -sf /usr/lib/build build
 popd
+
+#### 
+# start api testing
+#
+# disable_api_tests is needed to make roundtrip shorter
+# while developing and testing init scripts, package deployment
+# etc. Simply define a macro in your prjconf in obs and set
+# 
+# %disable_api_tests 1
+#
+#
 # setup mysqld
+%if 0%{?disable_api_tests} < 1
 rm -rf /tmp/obs.mysql.db /tmp/obs.test.mysql.socket
 mysql_install_db --user=`whoami` --datadir="/tmp/obs.mysql.db"
 /usr/sbin/mysqld --datadir=/tmp/obs.mysql.db --skip-networking --socket=/tmp/obs.test.mysql.socket &
@@ -497,12 +515,30 @@ if ! bundle exec rake test:proxy_mode ; then
   kill $(cat memcached.pid)
   exit 1
 fi
+# modify config to simulate login proxy
+grep -v proxy_auth_mode config/options.yml > config/options.yml.tmp
+echo "proxy_auth_mode: :on" >> config/options.yml.tmp
+mv config/options.yml.tmp config/options.yml
+mv log/test.log{,.old}
+if ! bundle exec rake test:proxy_mode ; then
+  cat log/test.log
+  kill $(cat memcached.pid)
+  exit 1
+fi
 kill $(cat memcached.pid) || :
 popd
 
 #cleanup
 /usr/bin/mysqladmin -u root --socket=/tmp/obs.test.mysql.socket shutdown || true
 rm -rf /tmp/obs.mysql.db /tmp/obs.test.mysql.socket
+
+%endif
+# end api testing
+#### 
+
+pushd dist
+make test
+popd
 
 %pre
 getent group obsrun >/dev/null || groupadd -r obsrun
@@ -702,6 +738,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /srv/www/obs/api/config/initializers
 %dir /srv/www/obs/api/config/environments
 %dir /srv/www/obs/api/files
+%dir %{_docdir}/%{obs_api_pkg_name}/contrib
 /srv/www/obs/api/Gemfile
 /srv/www/obs/api/Gemfile.lock
 /srv/www/obs/api/config.ru
@@ -722,6 +759,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /srv/www/obs/api/bin
 /srv/www/obs/api/test
 /srv/www/obs/docs
+%{_docdir}/%{obs_api_pkg_name}/contrib/setup-appliance.sh
 
 %dir /srv/www/obs/api/config
 /srv/www/obs/api/config/locales

@@ -1,0 +1,369 @@
+#!/bin/bash
+
+bash_tap_version='1.0.2'
+
+# Our state.
+
+_bt_plan=''
+_bt_expected_tests=0
+_bt_plan_output=0
+_bt_current_test=0
+_bt_tap_output=''
+_bt_has_output_plan=0
+_bt_done_testing=0
+_bt_output_capture=0
+
+# Our test results so far
+unset _bt_test_ok
+unset _bt_test_actual_ok
+unset _bt_test_name
+unset _bt_test_type
+unset _bt_test_reason
+
+# Cleanup stuff.
+declare -a _bt_on_exit_cmds
+trap "_bt_on_exit" EXIT
+
+# Planning functions.
+
+function _bt_output_plan() {
+    local num_tests="$1"
+    local directive="$2"
+    local reason="$3"
+
+    if [ "$_bt_has_output_plan" = 1 ]; then
+        _caller_error "The plan was already output"
+    fi
+
+    _bt_clear_out
+    _bt_out "1..$num_tests"
+    if [ -n "$directive" ]; then
+        _bt_out " # $directive"
+    fi
+    if [ -n "$reason" ]; then
+        _bt_out " $reason"
+    fi
+    _bt_print_out
+    _bt_has_output_plan=1
+}
+
+function plan() {
+    local plan="$1"
+
+    case "$plan" in
+        no_plan)  no_plan             ;;
+        skip_all) skip_all "$2"       ;;
+        tests)    expected_tests "$2" ;;
+        *)        _bt_die "Unknown or missing plan: '$plan'" ;;
+    esac
+}
+
+function expected_tests() {
+    local num="$1"
+
+    if [ -z "$num" ]; then
+        echo $_bt_expected_tests
+    else
+        if [ -n "$_bt_plan" ]; then
+            _bt_caller_error "Plan is already defined"
+        fi
+        # TODO: validate
+        _bt_plan="$num"
+        _bt_expected_tests="$num"
+        _bt_output_plan "$_bt_expected_tests"
+    fi
+}
+
+function no_plan() {
+    if [ -n "$_bt_plan" ]; then
+        _bt_caller_error "Plan is already defined"
+    fi
+    _bt_plan="no plan"
+}
+
+function done_testing() {
+    local num_tests="$1"
+
+    if [ -z "$num_tests" ]; then
+        num_tests="$_bt_current_test"
+    fi
+
+    if [ "$_bt_done_testing" = 1 ]; then
+        _bt_caller_error "done_testing was already called"
+    fi
+
+    if [ "$_bt_expected_tests" != 0 -a "$num_tests" != "$_bt_expected_tests" ]; then
+        ok 0 "planned to run $_bt_expected_tests but done_testing expects $num_tests"
+    else
+        _bt_expected_tests="$num_tests"
+    fi
+
+    if [ "$_bt_has_output_plan" = 0 ]; then
+        _bt_plan="done testing"
+        _bt_output_plan "$num_tests"
+    fi
+}
+
+function has_plan() {
+    test -n "$_bt_plan"
+}
+
+function skip_all() {
+    local reason="${*:?}"
+
+    _bt_output_plan 0 SKIP "$reason"
+}
+
+# Test functions.
+
+function ok() {
+    local result="$1"
+    local name="$2"
+
+    _bt_current_test=$((_bt_current_test + 1))
+
+    # TODO: validate $name
+    if [ -z "$name" ]; then
+        name='unnamed test'
+    fi
+    name="${name//#/\\#}"
+
+    _bt_clear_out
+    if [ "$result" = 0 ]; then
+        _bt_out "not ok"
+        if [ -n "$TODO" ]; then
+            _bt_test_ok[$_bt_current_test]=1
+        else
+            _bt_test_ok[$_bt_current_test]=0
+        fi
+        _bt_test_actual_ok[$_bt_current_test]=0
+    else
+        _bt_out "ok"
+        _bt_test_ok[$_bt_current_test]=1
+        _bt_test_actual_ok[$_bt_current_test]="$result"
+    fi
+
+    _bt_out " $_bt_current_test - $name"
+    _bt_test_name[$_bt_current_test]="$name"
+
+    if [ -n "$TODO" ]; then
+        _bt_out " # TODO $TODO"
+        _bt_test_reason[$_bt_current_test]="$TODO"
+        _bt_test_type[$_bt_current_test]="todo"
+    else
+        _bt_test_reason[$_bt_current_test]=''
+        _bt_test_type[$_bt_current_test]=''
+    fi
+
+    _bt_print_out
+}
+
+function _is_diag() {
+    local result="$1"
+    local expected="$2"
+
+    diag "         got: '$result'"
+    diag "    expected: '$expected'"
+}
+
+function is() {
+    local result="$1"
+    local expected="$2"
+    local name="$3"
+
+    if [ "$result" = "$expected" ]; then
+        ok 1 "$name"
+    else
+        ok 0 "$name"
+        _is_diag "$result" "$expected"
+    fi
+}
+
+function _isnt_diag() {
+    local result="$1"
+    local expected="$2"
+
+    diag "         got: '$result'"
+    diag "    expected: anything else"
+}
+
+function isnt() {
+    local result="$1"
+    local expected="$2"
+    local name="$3"
+
+    if [ "$result" != "$expected" ]; then
+        ok 1 "$name"
+    else
+        ok 0 "$name"
+        _isnt_diag "$result" "$expected"
+    fi
+}
+
+function like() {
+    local result="$1"
+    local pattern="$2"
+    local name="$3"
+
+    # NOTE: leave $pattern unquoted, see http://stackoverflow.com/a/218217/870000
+    if [[ "$result" =~ $pattern ]]; then
+        ok 1 "$name"
+    else
+        ok 0 "$name"
+        diag "         got: '$result'"
+        diag "    expected: match for '$pattern'"
+    fi
+}
+
+function unlike() {
+    local result="$1"
+    local pattern="$2"
+    local name="$3"
+
+    # NOTE: leave $pattern unquoted, see http://stackoverflow.com/a/218217/870000
+    if [[ ! "$result" =~ $pattern ]]; then
+        ok 1 "$name"
+    else
+        ok 0 "$name"
+        diag "         got: '$result'"
+        diag "    expected: no match for '$pattern'"
+    fi
+}
+
+function cmp_ok() {
+    echo TODO
+}
+
+# Other helper functions
+
+function BAIL_OUT() {
+    echo TODO
+}
+
+function skip() {
+    echo TODO
+}
+
+function todo_skip() {
+    echo TODO
+}
+
+function todo_start() {
+    echo TODO
+}
+
+function todo_end() {
+    echo TODO
+}
+
+# Output
+
+function diag() {
+    local message="$1"
+
+    if [ -n "$message" ]; then
+        _bt_escaped_echo "# $message"
+    fi
+}
+
+# Util functions for output capture within current shell
+
+function start_output_capture() {
+    if [ $_bt_output_capture = 1 ]; then
+        finish_output_capture
+        _bt_caller_error "Can't start output capture while already active"
+    fi
+    local stdout_tmpfile="/tmp/bash-itunes-test-out.$$"
+    local stderr_tmpfile="/tmp/bash-itunes-test-err.$$"
+    _bt_add_on_exit_cmd "rm -f '$stdout_tmpfile' '$stderr_tmpfile'"
+    _bt_output_capture=1
+    exec 3>&1 >$stdout_tmpfile 4>&2 2>$stderr_tmpfile
+}
+
+function finish_output_capture() {
+    local capture_stdout_varname="$1"
+    local capture_stderr_varname="$2"
+    if [ $_bt_output_capture != 1 ]; then
+        _bt_caller_error "Can't finish output capture when it wasn't started"
+    fi
+    exec 1>&3 3>&- 2>&4 4>&-
+    _bt_output_capture=0
+    if [ -n "$capture_stdout_varname" ]; then
+        local stdout_tmpfile="/tmp/bash-itunes-test-out.$$"
+        eval "$capture_stdout_varname=\$(< $stdout_tmpfile)"
+    fi
+    if [ -n "$capture_stderr_varname" ]; then
+        local stderr_tmpfile="/tmp/bash-itunes-test-err.$$"
+        eval "$capture_stderr_varname=\$(< $stderr_tmpfile)"
+    fi
+}
+
+# Internals
+
+function _bt_stdout() {
+    echo "$@"
+}
+
+function _bt_stderr() {
+    echo "$@" >&2
+}
+
+function _bt_die() {
+    _bt_stderr "$@"
+    exit 255
+}
+
+#  Report an error from the POV of the first calling point outside this file
+function _bt_caller_error() {
+    local message="$*"
+
+    local thisfile="${BASH_SOURCE[0]}"
+    local file="$thisfile"
+    local frame_num=2
+    until [ "$file" != "$thisfile" ]; do
+        frame=$(caller "$frame_num")
+        IFS=' ' read line func file <<<"$frame"
+    done
+
+    _bt_die "Error: $message, on line $line of $file"
+}
+
+#  Echo the supplied message with lines after the
+#  first escaped as TAP comments.
+function _bt_escaped_echo() {
+    local message="$*"
+
+    local output=''
+    while IFS= read -r line; do
+        output="$output\n# $line"
+    done <<<"$message"
+    echo -e "${output:4}"
+}
+
+function _bt_clear_out() {
+    _bt_tap_output=""
+}
+
+function _bt_out() {
+    _bt_tap_output="$_bt_tap_output$*"
+}
+
+function _bt_print_out() {
+    _bt_escaped_echo "$_bt_tap_output"
+}
+
+#  Cleanup stuff
+function _bt_add_on_exit_cmd() {
+    _bt_on_exit_cmds[${#_bt_on_exit_cmds[*]}]="$*"
+}
+
+function _bt_on_exit() {
+    if [ $_bt_output_capture = 1 ]; then
+        finish_output_capture
+    fi
+    for exit_cmd in "${_bt_on_exit_cmds[@]}"; do
+        diag "cleanup: $exit_cmd"
+        eval "$exit_cmd"
+    done
+    # TODO: check that we've output a plan/results
+}
