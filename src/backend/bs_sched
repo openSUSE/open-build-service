@@ -114,7 +114,7 @@ if (!$BSCando::knownarch{$myarch}) {
 
 my $historylay = [qw{versrel bcnt srcmd5 rev time duration}];
 
-my %remoteprojs;	# remote project cache
+my %_remoteprojs;	# remote project cache
 
 # Create directory on first start
 mkdir_p($infodir) || die ("Failed to create ".$infodir);
@@ -300,8 +300,9 @@ sub addrepo {
     delete $repodata->{'error'};
   }
   my ($projid, $repoid) = split('/', $prp, 2);
-  if ($remoteprojs{$projid}) {
-    return addrepo_remote($ctx, $pool, $prp, $arch, $remoteprojs{$projid});
+  my $remoteprojs = $gctx->{'remoteprojs'};
+  if ($remoteprojs->{$projid}) {
+    return addrepo_remote($ctx, $pool, $prp, $arch, $remoteprojs->{$projid});
   }
   return addrepo_scan($ctx, $pool, $prp);
 }
@@ -460,10 +461,11 @@ sub getconfig {
     }
   }
   my $projpacks = $gctx->{'projpacks'};
+  my $remoteprojs = $gctx->{'remoteprojs'};
   for my $prp (reverse @$path) {
     my ($p, $r) = split('/', $prp, 2);
     my $c;
-    if ($remoteprojs{$p}) {
+    if ($remoteprojs->{$p}) {
       $c = fetchremoteconfig($gctx, $p); 
       return undef unless defined $c;
     } elsif ($projpacks->{$p}) {
@@ -656,16 +658,17 @@ sub expandkiwipath {
 
 sub path2buildinfopath {
   my ($gctx, $path) = @_;
+  my $remoteprojs = $gctx->{'remoteprojs'};
   my @ret;
   for (@{$path || []}) {
     my @pr = split('/', $_, 2);
     my $server = $workerreposerver;
-    if ($remoteprojs{$pr[0]}) {
+    if ($remoteprojs->{$pr[0]}) {
       $server = $workersrcserver;
-      my $par = $remoteprojs{$pr[0]}->{'partition'};
+      my $par = $remoteprojs->{$pr[0]}->{'partition'};
       if ($par) {
 	# XXX: should also come from src server
-	$server = ($BSConfig::workerpartitionservers || {})->{$par} || $remoteprojs{$pr[0]}->{'remoteurl'};
+	$server = ($BSConfig::workerpartitionservers || {})->{$par} || $remoteprojs->{$pr[0]}->{'remoteurl'};
       }
     }
     push @ret, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $server};
@@ -714,15 +717,17 @@ sub dodfetch {
   my ($ctx) = @_;
   my $doddownloads = delete $ctx->{'doddownloads'};
   return unless $doddownloads;
+  my $gctx = $ctx->{'gctx'};
+  my $remoteprojs = $gctx->{'remoteprojs'};
   for my $prpa (sort(keys %$doddownloads)) {
     my @pkgs = sort(keys %{$doddownloads->{$prpa} || {}});
     next unless @pkgs;
     print "    requesting ".@pkgs." dod packages from $prpa\n";
     my ($projid) = split('/', $prpa, 3);
     my $server = $BSConfig::reposerver || $BSConfig::srcserver;
-    if ($remoteprojs{$projid}) {
+    if ($remoteprojs->{$projid}) {
       $server = $BSConfig::srcserver;
-      $server = $remoteprojs{$projid}->{'remoteurl'} if $remoteprojs{$projid}->{'partition'};
+      $server = $remoteprojs->{$projid}->{'remoteurl'} if $remoteprojs->{$projid}->{'partition'};
     }
     my $param = {
       'uri' => "$server/build/$prpa/_repository",
@@ -958,8 +963,9 @@ sub checkaccess {
   my ($gctx, $type, $projid, $packid, $repoid) = @_;
   my $access = 1;
   my $projpacks = $gctx->{'projpacks'};
+  my $remoteprojs = $gctx->{'remoteprojs'};
   my $proj = $projpacks->{$projid};
-  $proj = $remoteprojs{$projid} if !$proj && ($remoteprojs{$projid} || {})->{'partition'};
+  $proj = $remoteprojs->{$projid} if !$proj && ($remoteprojs->{$projid} || {})->{'partition'};
   if ($proj) {
     my $pdata;
     $pdata = ($proj->{'package'} || {})->{$packid} if defined $packid;
@@ -967,7 +973,7 @@ sub checkaccess {
     $access = enabled($repoid, $pdata->{$type}, $access) if $pdata;
   } else {
     # remote project access checks are handled by the remote server
-    $access = 0 unless $remoteprojs{$projid} && !$remoteprojs{$projid}->{'partition'};
+    $access = 0 unless $remoteprojs->{$projid} && !$remoteprojs->{$projid}->{'partition'};
   }
   return $access;
 }
@@ -976,10 +982,11 @@ sub checkaccess {
 sub checkroles {
   my ($gctx, $type, $projid, $packid, $oprojid, $opackid) = @_;
   my $projpacks = $gctx->{'projpacks'};
+  my $remoteprojs = $gctx->{'remoteprojs'};
   my $proj = $projpacks->{$projid};
   my $oproj = $projpacks->{$oprojid};
-  $proj = $remoteprojs{$projid} if !$proj && ($remoteprojs{$projid} || {})->{'partition'};
-  $oproj = $remoteprojs{$oprojid} if !$oproj && ($remoteprojs{$oprojid} || {})->{'partition'};
+  $proj = $remoteprojs->{$projid} if !$proj && ($remoteprojs->{$projid} || {})->{'partition'};
+  $oproj = $remoteprojs->{$oprojid} if !$oproj && ($remoteprojs->{$oprojid} || {})->{'partition'};
   return 0 unless $proj && $oproj;
   if ($projid eq $oprojid) {
     return 1 if !defined $opackid;
@@ -1035,7 +1042,8 @@ sub checkprpaccess {
   # both prp and aprp are proteced.
   return 1 if $aprojid eq $projid;	# they hopefully know what they are doing
   # check if publishing flags match unless aprojid is remote
-  if ((!$remoteprojs{$aprojid} || $remoteprojs{$aprojid}->{'partition'}) && !checkaccess($gctx, 'publish', $aprojid, undef, $arepoid)) {
+  my $remoteprojs = $gctx->{'remoteprojs'};
+  if ((!$remoteprojs->{$aprojid} || $remoteprojs->{$aprojid}->{'partition'}) && !checkaccess($gctx, 'publish', $aprojid, undef, $arepoid)) {
     return 0 if checkaccess($gctx, 'publish', $projid, undef, $repoid);
   }
   # check if the roles match
@@ -3283,7 +3291,8 @@ sub get_projpacks_resume {
     return;
   }
   my $projpacks = $gctx->{'projpacks'};
-  my $wasremote = !$projpacks->{$projid} && $remoteprojs{$projid} ? 1 : undef;
+  my $remoteprojs = $gctx->{'remoteprojs'};
+  my $wasremote = !$projpacks->{$projid} && $remoteprojs->{$projid} ? 1 : undef;
   my $packids = $handle->{'_packids'};	# we only requested those
   my $oldprojdata = $packids ? clone_projpacks_part($gctx, $projid, $packids) : undef;
 
@@ -3302,7 +3311,7 @@ sub get_projpacks_resume {
 
   # do some upgrades if the project is gone and we fetched all packages
   # (i.e. project event case as someone deleted a project)
-  if (!$packids && !$projpacks->{$projid} && !($wasremote && $remoteprojs{$projid})) {
+  if (!$packids && !$projpacks->{$projid} && !($wasremote && $remoteprojs->{$projid})) {
     print "get_projpacks_resume: upgrading project event\n";
     $handle->{'_dolink'} ||= 2;
     $handle->{'_changetype'} = 'high';
@@ -3556,13 +3565,14 @@ sub update_projpacks {
       delete $proj->{'package'};
     }
   }
+  my $remoteprojs = $gctx->{'remoteprojs'};
   if (!defined($projid)) {
-    %remoteprojs = ();
+    %$remoteprojs = ();
   } elsif (!($packids && @$packids)) {
     update_prpcheckuseforbuild($gctx, $projid) if $isgone;
     # delete project from remoteprojs if it is not in the remotemap
     if (!grep {$_->{'project'} eq $projid} @{$projpacksin->{'remotemap'} || []}) {
-      delete $remoteprojs{$projid};
+      delete $remoteprojs->{$projid};
     }
   }
   remotemap2remoteprojs($gctx, $projpacksin->{'remotemap'});
@@ -3573,6 +3583,7 @@ sub update_projpacks_meta {
   my ($gctx, $projpacksin, $projid) = @_;
   my $proj = $projpacksin->{'project'}->[0];
   my $projpacks = $gctx->{'projpacks'};
+  my $remoteprojs = $gctx->{'remoteprojs'};
   if (!$proj) {
     delete $projpacks->{$projid};
     update_prpcheckuseforbuild($gctx, $projid);
@@ -3586,7 +3597,7 @@ sub update_projpacks_meta {
   }
   # delete project from remoteprojs if it is not in the remotemap
   if (!grep {$_->{'project'} eq $projid} @{$projpacksin->{'remotemap'} || []}) {
-    delete $remoteprojs{$projid};
+    delete $remoteprojs->{$projid};
   }
   remotemap2remoteprojs($gctx, $projpacksin->{'remotemap'});
 }
@@ -3595,14 +3606,15 @@ sub update_projpacks_meta {
 sub remotemap2remoteprojs {
   my ($gctx, $remotemap) = @_;
 
+  my $remoteprojs = $gctx->{'remoteprojs'};
   for my $proj (@{$remotemap || []}) {
     my $projid = delete $proj->{'project'};
     if (!$proj->{'remoteurl'} && !$proj->{'error'}) {
       # remote project is gone (partition case)
-      delete $remoteprojs{$projid};
+      delete $remoteprojs->{$projid};
       next;
     }
-    my $oproj = $remoteprojs{$projid};
+    my $oproj = $remoteprojs->{$projid};
     undef $oproj if $oproj && ($oproj->{'remoteurl'} ne $proj->{'remoteurl'} || $oproj->{'remoteproject'} ne $proj->{'remoteproject'});
     my $c = $proj->{'config'};
     $c = $oproj->{'config'} if !defined($c) && $oproj;
@@ -3615,7 +3627,7 @@ sub remotemap2remoteprojs {
       $proj->{'error'} = $error;
       addretryevent($gctx, {'type' => 'project', 'project' => $projid}) if $error =~ /interconnect error:/;
     }
-    $remoteprojs{$projid} = $proj;
+    $remoteprojs->{$projid} = $proj;
   }
 }
 
@@ -4113,16 +4125,17 @@ sub calc_prps {
 sub updateremoteprojs {
   my ($gctx) = @_;
 
-  for my $projid (keys %remoteprojs) {
+  my $remoteprojs = $gctx->{'remoteprojs'};
+  for my $projid (keys %$remoteprojs) {
     my $r = $watchremoteprojs{$projid};
     if (!$r) {
-      delete $remoteprojs{$projid};
+      delete $remoteprojs->{$projid};
       next;
     }
-    my $or = $remoteprojs{$projid};
+    my $or = $remoteprojs->{$projid};
     next if $or && $or->{'partition'};	# XXX how do we update them?
     next if $or && $or->{'remoteurl'} eq $r->{'remoteurl'} && $or->{'remoteproject'} eq $r->{'remoteproject'};
-    delete $remoteprojs{$projid};
+    delete $remoteprojs->{$projid};
   }
   for my $projid (sort keys %watchremoteprojs) {
     fetchremoteproj($gctx, $watchremoteprojs{$projid}, $projid);
@@ -4135,7 +4148,8 @@ sub remoteprojid {
   my $origprojid = $projid;
 
   my $projpacks = $gctx->{'projpacks'};
-  return $remoteprojs{$projid} if $remoteprojs{$projid} && $remoteprojs{$projid}->{'partition'};
+  my $remoteprojs = $gctx->{'remoteprojs'};
+  return $remoteprojs->{$projid} if $remoteprojs->{$projid} && $remoteprojs->{$projid}->{'partition'};
   my $proj = $projpacks->{$projid};
   if ($proj) {
     return undef unless $proj->{'remoteurl'};
@@ -4188,7 +4202,8 @@ sub fetchremoteproj {
   my ($gctx, $proj, $projid) = @_;
   return undef unless $proj && $proj->{'remoteurl'} && $proj->{'remoteproject'};
   $projid ||= $proj->{'name'};
-  return $remoteprojs{$projid} if exists $remoteprojs{$projid};
+  my $remoteprojs = $gctx->{'remoteprojs'};
+  return $remoteprojs->{$projid} if exists $remoteprojs->{$projid};
   print "fetching remote project data for $projid\n";
   my $rproj;
   my $param = {
@@ -4222,14 +4237,15 @@ sub fetchremoteproj {
   for my $link (@{$rproj->{'link'} || []}) {
     $link->{'project'} = maptoremote($proj, $link->{'project'});
   }
-  $remoteprojs{$projid} = $rproj;
+  $remoteprojs->{$projid} = $rproj;
   return $rproj;
 }
 
 sub fetchremoteconfig {
   my ($gctx, $projid) = @_;
 
-  my $proj = $remoteprojs{$projid};
+  my $remoteprojs = $gctx->{'remoteprojs'};
+  my $proj = $remoteprojs->{$projid};
   return undef if !$proj || $proj->{'error'};
   return $proj->{'config'} if exists $proj->{'config'};
   return '' if $proj->{'partition'};
@@ -5517,11 +5533,12 @@ sub checkkiwiproduct {
   my %blockedarch;
   my $delayed_errors = '';
   my $projpacks = $gctx->{'projpacks'};
+  my $remoteprojs = $gctx->{'remoteprojs'};
   for my $aprp (@aprps) {
     my %known;
     my ($aprojid, $arepoid) = split('/', $aprp, 2);
     my $aproj = $projpacks->{$aprojid} || {};
-    $aproj = $remoteprojs{$aprojid} if $remoteprojs{$aprojid};
+    $aproj = $remoteprojs->{$aprojid} if $remoteprojs->{$aprojid};
     my $pdatas = $aproj->{'package'} || {};
     my @apackids = sort keys %$pdatas;
     for my $apackid (@apackids) {
@@ -5539,8 +5556,8 @@ sub checkkiwiproduct {
       $ps = ($ps || {})->{'packstatus'} || {};
 
       my $gbininfo;
-      if ($remoteprojs{$aprojid}) {
-        $gbininfo = read_gbininfo_remote($ctx, "$aprp/$arch", $remoteprojs{$aprojid}, $ps);
+      if ($remoteprojs->{$aprojid}) {
+        $gbininfo = read_gbininfo_remote($ctx, "$aprp/$arch", $remoteprojs->{$aprojid}, $ps);
 	if (!$gbininfo) {
 	  my $error = "project binary state of $aprp/$arch is unavailable";
 	  $error .= " (delayed)" if defined $gbininfo;
@@ -5689,6 +5706,7 @@ sub rebuildkiwiproduct {
   my $repoid = $ctx->{'repository'};
   my $repo = $ctx->{'repo'};
   my $relsyncmax = $ctx->{'relsyncmax'};
+  my $remoteprojs = $gctx->{'remoteprojs'};
 
   my $bconf = $data->[0];
   my $rpms = $data->[1];
@@ -5717,12 +5735,12 @@ sub rebuildkiwiproduct {
     for (@{$prpsearchpath{$prp}}) {
       my @pr = split('/', $_, 2);
       my $server = $workerreposerver;
-      if ($remoteprojs{$pr[0]}) {
+      if ($remoteprojs->{$pr[0]}) {
 	$server = $workersrcserver;
-	my $par = $remoteprojs{$pr[0]}->{'partition'};
+	my $par = $remoteprojs->{$pr[0]}->{'partition'};
 	if ($par) {
 	  # XXX: should also come from src server
-	  $server = ($BSConfig::workerpartitionservers || {})->{$par} || $remoteprojs{$pr[0]}->{'remoteurl'};
+	  $server = ($BSConfig::workerpartitionservers || {})->{$par} || $remoteprojs->{$pr[0]}->{'remoteurl'};
 	}
       }
       push @$syspath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $server};
@@ -5733,12 +5751,12 @@ sub rebuildkiwiproduct {
   for (@aprps) {
     my @pr = split('/', $_, 2);
     my $server = $workerreposerver;
-    if ($remoteprojs{$pr[0]}) {
+    if ($remoteprojs->{$pr[0]}) {
       $server = $workersrcserver;
-      my $par = $remoteprojs{$pr[0]}->{'partition'};
+      my $par = $remoteprojs->{$pr[0]}->{'partition'};
       if ($par) {
 	# XXX: should also come from src server
-	$server = ($BSConfig::workerpartitionservers || {})->{$par} || $remoteprojs{$pr[0]}->{'remoteurl'};
+	$server = ($BSConfig::workerpartitionservers || {})->{$par} || $remoteprojs->{$pr[0]}->{'remoteurl'};
       }
     }
     push @$searchpath, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $server};
@@ -6683,9 +6701,10 @@ sub checkaggregate {
   my $delayed;
   my %gbininfos;
   my $projpacks = $gctx->{'projpacks'};
+  my $remoteprojs = $gctx->{'remoteprojs'};
   for my $aggregate (@$aggregates) {
     my $aprojid = $aggregate->{'project'};
-    my $proj = $remoteprojs{$aprojid} || $projpacks->{$aprojid};
+    my $proj = $remoteprojs->{$aprojid} || $projpacks->{$aprojid};
     if (!$proj) {
       push @broken, $aprojid;
       next;
@@ -6719,7 +6738,7 @@ sub checkaggregate {
 	push @broken, $aprp;
 	next;
       }
-      next if !$remoteprojs{$aprojid} && $prpfinished->{$aprp} && $aggregate->{'package'};	# no need to check blocked state
+      next if !$remoteprojs->{$aprojid} && $prpfinished->{$aprp} && $aggregate->{'package'};	# no need to check blocked state
       # notready/prpnotready is indexed with source binary names, so we cannot use it here...
       my $ps = BSUtil::retrieve("$reporoot/$aprp/$myarch/:packstatus", 1);
       if (!$ps) {
@@ -6729,8 +6748,8 @@ sub checkaggregate {
       $ps = ($ps || {})->{'packstatus'} || {};
 
       # for remote projects we always need the gbininfo
-      if ($remoteprojs{$aprojid}) {
-	my $gbininfo = read_gbininfo_remote($ctx, "$aprp/$myarch", $remoteprojs{$aprojid}, $ps);
+      if ($remoteprojs->{$aprojid}) {
+	my $gbininfo = read_gbininfo_remote($ctx, "$aprp/$myarch", $remoteprojs->{$aprojid}, $ps);
 	$gbininfos{"$aprp/$myarch"} = $gbininfo;
 	if (!$gbininfo) {
 	  $delayed = 1 if defined $gbininfo;
@@ -6742,7 +6761,7 @@ sub checkaggregate {
       if (!$aggregate->{'package'}) {
         # calculate apackids using the gbininfo file
         my $gbininfo;
-        if ($remoteprojs{$aprojid}) {
+        if ($remoteprojs->{$aprojid}) {
           $gbininfo = $gbininfos{"$aprp/$myarch"};
         } else {
           $gbininfo = read_gbininfo("$reporoot/$aprp/$myarch");
@@ -6799,7 +6818,7 @@ sub checkaggregate {
     for my $arepoid (@arepoids) {
       for my $apackid (@apackids) {
 	my $m = '';
-        if ($remoteprojs{$aprojid}) {
+        if ($remoteprojs->{$aprojid}) {
 	  my $bininfo = ($gbininfos{"$aprojid/$arepoid/$myarch"} || {})->{$apackid} || {};
 	  for my $b (sort {$a->{'filename'} cmp $b->{'filename'}} values %$bininfo) {
 	    next unless $b->{'filename'} && ($b->{'filename'} eq 'updateinfo.xml' || $b->{'filename'} =~ /\.(?:$binsufsre)$/);
@@ -6866,6 +6885,7 @@ sub rebuildaggregate {
   my $myjobsdir = $gctx->{'myjobsdir'};
   return ('scheduled', $job) if -s "$myjobsdir/$job";
   my $reporoot = $gctx->{'reporoot'};
+  my $remoteprojs = $gctx->{'remoteprojs'};
   my $jobdatadir = "$myjobsdir/$job:dir";
   unlink "$jobdatadir/$_" for ls($jobdatadir);
   mkdir_p($jobdatadir);
@@ -6889,9 +6909,9 @@ sub rebuildaggregate {
 	my $cpio;
         my $nosource = exists($aggregate->{'nosources'}) ? 1 : 0;
         my $updateinfo;
-        if ($remoteprojs{$aprojid}) {
+        if ($remoteprojs->{$aprojid}) {
 	  my $param = {
-	    'uri' => "$remoteprojs{$aprojid}->{'remoteurl'}/build/$remoteprojs{$aprojid}->{'remoteproject'}/$arepoid/$myarch/$apackid",
+	    'uri' => "$remoteprojs->{$aprojid}->{'remoteurl'}/build/$remoteprojs->{$aprojid}->{'remoteproject'}/$arepoid/$myarch/$apackid",
 	    'receiver' => \&BSHTTP::cpio_receiver,
 	    'directory' => $jobdatadir,
 	    'map' => "upload:",
@@ -7730,10 +7750,11 @@ sub event_scanprjbinaries {
   my $projid = $ev->{'project'};
   my $repoid = $ev->{'repository'};
   my $packid = $ev->{'package'};
+  my $remoteprojs = $gctx->{'remoteprojs'};
   if (defined($projid) && defined($repoid)) {
     my $prp = "$projid/$repoid";
     delete $remotegbininfos{"$prp/$myarch"};
-    return if $remoteprojs{$projid};
+    return if $remoteprojs->{$projid};
     if (defined($packid)) {
       unlink("$prp/$myarch/$packid/.bininfo");
     } else {
@@ -7891,7 +7912,7 @@ sub event_exit {
   my $schedstate = {};
   if ($ev->{'type'} eq 'exitcomplete' || $ev->{'type'} eq 'restart' || $ev->{'type'} eq 'emergencydump' || $ev->{'type'} eq 'dumpstate') {
     $schedstate->{'projpacks'} = $gctx->{'projpacks'};
-    $schedstate->{'remoteprojs'} = \%remoteprojs;
+    $schedstate->{'remoteprojs'} = $gctx->{'remoteprojs'};
   }
   $schedstate->{'prps'} = \@prps;
   $schedstate->{'changed_low'} = $gctx->{'changed_low'};
@@ -8252,6 +8273,7 @@ my $gctx = {
   # project data
   'projpacks' => undef,
   'channeldata' => \%_channeldata,
+  'remoteprojs' => \%_remoteprojs,
 
   'prpcheckuseforbuild' => \%_prpcheckuseforbuild,
 
@@ -8282,8 +8304,8 @@ if (!$testprojid && -s "$_rundir/bs_sched.$myarch.state") {
     if ($schedstate->{'projpacks'}) {
       $gctx->{'projpacks'} = $schedstate->{'projpacks'};
       if ($schedstate->{'remoteprojs'}) {
-	%remoteprojs = %{$schedstate->{'remoteprojs'}};
-	for (values %remoteprojs) {
+	$gctx->{'remoteprojs'} = $schedstate->{'remoteprojs'};
+	for (values %{$gctx->{'remoteprojs'}}) {
 	  next unless $_->{'sibling'};
 	  $_->{'partition'} ||= $_->{'sibling'};
 	  delete $_->{'sibling'};
@@ -8926,7 +8948,7 @@ NEXTPRP:
     my $projpacks = $gctx->{'projpacks'};
 
     if (!$projpacks->{$projid} || !$prpsearchpath{$prp}) {
-      next if $remoteprojs{$projid};
+      next if $gctx->{'remoteprojs'}->{$projid};
       print "  - $prp: no longer exists\n";
       next;
     }
@@ -8972,9 +8994,10 @@ NEXTPRP:
     if (!$bconf) {
       # see if it is caused by a remote error
       my $error;
+      my $remoteprojs = $gctx->{'remoteprojs'};
       for my $pprp (@{$prpsearchpath{$prp} || []}) {
 	my ($pprojid, $prepoid) = split('/', $pprp, 2);
-	$error = $remoteprojs{$pprojid}->{'error'} if $remoteprojs{$pprojid} && $remoteprojs{$pprojid}->{'error'};
+	$error = $remoteprojs->{$pprojid}->{'error'} if $remoteprojs->{$pprojid} && $remoteprojs->{$pprojid}->{'error'};
 	if ($error) {
 	  if ($error =~ /interconnect error:/) {
 	    addretryevent($gctx, {'type' => 'project', 'project' => $pprojid});
@@ -9731,12 +9754,13 @@ NEXTPRP:
 	  # only free repo data if all projects we depend on are finished, too.
 	  # (we always have to do the expansion if something changes)
 	  my @unfinishedprps;
+	  my $remoteprojs = $gctx->{'remoteprojs'};
 	  for (@{$prpdeps{$prp}}) {
 	    next if $prpfinished{$_};
 	    # if this is a remote repo, check prpnotready
 	    if (!%{$prpnotready{$_} || {}}) {
 	      my ($p) = split('/', $_, 2);
-	      next if $remoteprojs{$p};
+	      next if $remoteprojs->{$p};
 	    }
 	    push @unfinishedprps, $_;
 	  }
