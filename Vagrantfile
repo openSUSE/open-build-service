@@ -46,11 +46,16 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vb.destroy_unused_network_interfaces = true
   end
 
+  config.vm.provider :libvirt do |vb|
+      vb.memory = 2048
+  end
+
   # Provision the box with a simple shell script
   config.vm.provision :shell, path: 'bootstrap.sh'
-  config.vm.provision :shell, inline: 'mount /vagrant/src/api/tmp', run: "always"
+
+  # reboot vm to run obsapisetup
+  config.vm.provision :reload
+
+  config.vm.provision :shell, path: 'finalize-bootstrap.sh'
   
-  # Execute commands in the frontend directory
-  config.exec.commands '*', directory: '/vagrant/src/api'
-  config.exec.commands '*', env: {'DATABASE_URL' => 'mysql2://root:opensuse@localhost/api_development'}
 end

@@ -287,6 +287,7 @@ We are using [Vagrant](https://www.vagrantup.com/) to create our development env
 
     ```
     vagrant plugin install vagrant-exec
+    vagrant plugin install vagrant-reload
     ```
 
 3. Clone this code repository:
@@ -308,28 +309,7 @@ We are using [Vagrant](https://www.vagrantup.com/) to create our development env
     vagrant up
     ```
 
-6. Start your development backend with:
-
-    ```
-    vagrant exec RAILS_ENV=development ./script/start_test_backend
-    ```
-
-7. Start your development OBS frontend:
-
-    ```
-    vagrant exec rails s
-    ```
-
-8. Check out your OBS frontend:
-You can access the frontend at [localhost:3000](http://localhost:3000). Whatever you change in your cloned repository will have effect in the development environment. 
-
-9. Changed something? Test your changes!:
-
-    ```
-    vagrant exec rake test
-    ```
-
-10. Explore the development environment:
+6. Explore the development environment:
 
     ```
     vagrant ssh
