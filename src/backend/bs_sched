@@ -255,8 +255,8 @@ my %channeldata;	# global channel data unificator to save memory
 #  'lastscan'   last time we scanned
 #  'meta'       meta cache
 #  'solv'       solv data cache (for remote repos)
-my %repodatas;		# our repository knowledge
-my %repodatas_alien;	# repositories from other archs
+my %_repodatas;		# our repository knowledge
+my %_repodatas_alien;	# repositories from other archs
 my %dodprps;
 
 my %remotegbininfos;
@@ -267,9 +267,10 @@ my %remotepackstatus_cleanup;
 sub addrepo {
   my ($ctx, $pool, $prp) = @_;
 
+  my $gctx = $ctx->{'gctx'};
   my $arch = $myarch;
   my $now = time();
-  my $repodata = $repodatas{$prp};
+  my $repodata = $gctx->{'repodatas'}->{$prp};
   if ($repodata && $repodata->{'lastscan'} && $repodata->{'lastscan'} + 24 * 3600 + ($repodata->{'random'} || 0) * 1800 > $now) {
     if (exists $repodata->{'solv'}) {
       my $r;
@@ -362,9 +363,11 @@ sub addrepo_scan {
   my ($ctx, $pool, $prp) = @_;
 
   print "    scanning repo $prp...\n";
-  my $repodata = $repodatas{$prp};
-  $repodatas{$prp} = $repodata = {} unless $repodata;
-  my $dir = "$ctx->{'gctx'}->{'reporoot'}/$prp/$myarch/:full";
+  my $gctx = $ctx->{'gctx'};
+  my $repodatas = $gctx->{'repodatas'};
+  my $repodata = $repodatas->{$prp};
+  $repodatas->{$prp} = $repodata = {} unless $repodata;
+  my $dir = "$gctx->{'reporoot'}/$prp/$myarch/:full";
   my $cache;
   my $dirty;
 
@@ -695,12 +698,14 @@ sub dodfetch_resume {
   return if $error;	# hmm
   xrpc_setchanged($handle);
   # drop cache
+  my $ctx = $handle->{'_ctx'};
+  my $gctx = $ctx->{'gctx'};
   my $prpa = $handle->{'_prpa'};
   my ($projid, $repoid, $arch) = split('/', $handle->{'_prpa'}, 3);
   if ($arch eq $myarch) {
-    delete $repodatas{"$projid/$repoid"};
+    delete $gctx->{'repodatas'}->{"$projid/$repoid"};
   } else {
-    delete $repodatas_alien{$prpa};
+    delete $gctx->{'repodatas_alien'}->{$prpa};
   }
 }
 
@@ -2788,6 +2793,8 @@ sub move_into_full {
 
   my $prp = $fctx->{'prp'};
   my $gdst = $fctx->{'gdst'};
+  my $gctx = $fctx->{'gctx'};
+  my $repodatas = $gctx->{'repodatas'};
   my $pool;
   my $satrepo;
   my %oldids;	# maps path => id
@@ -2814,7 +2821,7 @@ sub move_into_full {
   $fctx->{'oldids'} = \%oldids;
   $fctx->{'metacache'} = $metacache;
   $fctx->{'metacache__ismerge'} = $metacache_ismerge;
-  $fctx->{'dep2meta'} = $repodatas{$prp}->{'meta'} if $repodatas{$prp} && $repodatas{$prp}->{'meta'};
+  $fctx->{'dep2meta'} = $repodatas->{$prp}->{'meta'} if $repodatas->{$prp} && $repodatas->{$prp}->{'meta'};
   mkdir_p("$gdst/:full") if $new && %$new && ! -d "$gdst/:full";
 
   if ($new_full_handling) {
@@ -2845,7 +2852,7 @@ sub move_into_full {
       BSUtil::store("$gdst/.:full.metacache", "$gdst/:full.metacache", $metacache);
     }
   }
-  delete $repodatas{$prp}->{'solv'};
+  delete $repodatas->{$prp}->{'solv'};
 }
 
 # check if the useforbuild settings have changed. If yes, update the :full tree
@@ -2992,7 +2999,7 @@ sub sync_fullcache {
     $satrepo = $pool->repofrombins($prp, "$gdst/:full", %oldids);
   }
   writesolv("$gdst/:full.solv.new", "$gdst/:full.solv", $satrepo);
-  delete $repodatas{$prp}->{'solv'};
+  delete $gctx->{'repodatas'}->{$prp}->{'solv'};
   if ($fullcache->{'metacache'}) {
     if ($fullcache->{'metacache_ismerge'}) {
       BSUtil::store("$gdst/.:full.metacache.merge", "$gdst/:full.metacache.merge", $fullcache->{'metacache'});
@@ -4224,11 +4231,13 @@ sub addrepo_remote_unpackcpio {
 
   my $repodata;
   if ($arch eq $myarch) {
-    $repodatas{$prp} ||= {};
-    $repodata = $repodatas{$prp};
+    my $repodatas = $gctx->{'repodatas'};
+    $repodatas->{$prp} ||= {};
+    $repodata = $repodatas->{$prp};
   } else {
-    $repodatas_alien{"$prp/$arch"} ||= {};
-    $repodata = $repodatas_alien{"$prp/$arch"};
+    my $repodatas_alien = $gctx->{'repodatas_alien'};
+    $repodatas_alien->{"$prp/$arch"} ||= {};
+    $repodata = $repodatas_alien->{"$prp/$arch"};
   }
   my $remotecache = $gctx->{'remotecache'};
   my $cachemd5 = Digest::MD5::md5_hex("$prp/$arch");
@@ -4364,18 +4373,21 @@ sub addrepo_remote {
 sub addrepo_alien {
   my ($ctx, $pool, $prp, $arch) = @_;
 
-  $repodatas_alien{"$prp/$arch"}->{'dontwrite'} = 1;
-  my $oldrepodata = $repodatas{$prp};
+  my $gctx = $ctx->{'gctx'};
+  my $repodatas = $gctx->{'repodatas'};
+  my $repodatas_alien = $gctx->{'repodatas_alien'};
+  $repodatas_alien->{"$prp/$arch"}->{'dontwrite'} = 1;
+  my $oldrepodata = $repodatas->{$prp};
   my $oldprpnotready = $prpnotready{$prp};
   delete $prpnotready{$prp};
-  $repodatas{$prp} = $repodatas_alien{"$prp/$arch"};
+  $repodatas->{$prp} = $repodatas_alien->{"$prp/$arch"};
   my $savemyarch = $myarch;
   $myarch = $arch;
   my $r = addrepo($ctx, $pool, $prp);
   $myarch = $savemyarch;
-  $repodatas_alien{"$prp/$arch"} = $repodatas{$prp};
-  delete $repodatas{$prp};
-  $repodatas{$prp} = $oldrepodata if $oldrepodata;
+  $repodatas_alien->{"$prp/$arch"} = $repodatas->{$prp};
+  delete $repodatas->{$prp};
+  $repodatas->{$prp} = $oldrepodata if $oldrepodata;
   delete $prpnotready{$prp};
   $prpnotready{$prp} = $oldprpnotready if $oldprpnotready;
   return $r;
@@ -7119,8 +7131,9 @@ sub checkpackage {
     substr($mylastcheck, 64, 32) = $check;
     # even more work, generate new meta, check if it changed
     my @new_meta;
-    my $dep2meta = $repodatas{$prp}->{'meta'};
-    $repodatas{$prp}->{'meta'} = $dep2meta = {} unless $dep2meta;
+    my $repodatas = $gctx->{'repodatas'};
+    my $dep2meta = $repodatas->{$prp}->{'meta'};
+    $repodatas->{$prp}->{'meta'} = $dep2meta = {} unless $dep2meta;
     for my $bpack (@$edeps) {
       my $pkg = $dep2pkg->{$bpack};
       my $path = $pool->pkg2fullpath($pkg, $myarch);
@@ -7586,7 +7599,7 @@ sub event_repository {
   my $prp = "$projid/$repoid";
   $changed_med->{$prp} = 2;
   if ($ev->{'type'} eq 'repository') {
-    delete $repodatas{$prp};
+    delete $gctx->{'repodatas'}->{$prp};
     delete $repounchanged{$prp};
   } elsif ($ev->{'type'} eq 'repoinfo') {
     $repounchanged{$prp} = 2 if $repounchanged{$prp};
@@ -7655,13 +7668,13 @@ sub event_scanrepo {
   my $repoid = $ev->{'repository'};
   if (!defined($projid) && !defined($repoid)) {
     print "flushing all repository data\n";
-    %repodatas = ();
+    %{$gctx->{'repodatas'}} = ();
     return;
   }
   if (defined($projid) && defined($repoid)) {
     my $prp = "$projid/$repoid";
     print "reading packages of repository $projid/$repoid\n";
-    delete $repodatas{$prp};
+    delete $gctx->{'repodatas'}->{$prp};
     my $pool = BSSolv::pool->new();
     addrepo({'gctx' => $gctx, 'prp' => $prp}, $pool, $prp);
     undef $pool;
@@ -7703,8 +7716,9 @@ sub event_scanprjbinaries {
 sub event_dumprepo {
   my ($ectx, $ev) = @_;
 
+  my $gctx = $ectx->{'gctx'};
   my $prp = "$ev->{'project'}/$ev->{'repository'}";
-  my $repodata = $repodatas{$prp} || {};
+  my $repodata = $gctx->{'repodatas'}->{$prp} || {};
   local *F;
   open(F, '>', "/tmp/repodump");
   print F "# repodump for $prp\n\n";
@@ -8176,6 +8190,7 @@ my $gctx = {
   'arch' => $myarch,
   'reporoot' => $_reporoot,
 
+  # config
   'jobsdir' => $_jobsdir,
   'myjobsdir' => "$_jobsdir/$myarch",
   'eventdir' => $_eventdir,
@@ -8184,6 +8199,10 @@ my $gctx = {
   'dodsdir' => $_dodsdir,
   'rundir' => $_rundir,
   'remotecache' => $_remotecache,
+
+  # state
+  'repodatas' => \%_repodatas,
+  'repodatas_alien' => \%_repodatas_alien,
 
   'changed_low' => \%changed_low,
   'changed_med' => \%changed_med,
@@ -8776,7 +8795,7 @@ NEXTPRP:
 	delete $prpnotready{$prp};
 	delete $prpunfinished{$prp};
 	delete $prpchecktimes{$prp};
-	delete $repodatas{$prp};
+	delete $gctx->{'repodatas'}->{$prp};
 	delete $lastcheck{$prp};
 	delete $prpcheckuseforbuild{$prp};
 	for my $dir (ls("$reporoot/$prp/$myarch")) {
@@ -9647,7 +9666,8 @@ NEXTPRP:
 	}
 	delete $lastcheck{$prp};
 	# delete pkg meta cache
-	delete $repodatas{$prp}->{'meta'} if $repodatas{$prp};
+	my $repodatas = $gctx->{'repodatas'};
+	delete $repodatas->{$prp}->{'meta'} if $repodatas->{$prp};
 	if (!$prpnoleaf{$prp}) {
 	  # only free repo data if all projects we depend on are finished, too.
 	  # (we always have to do the expansion if something changes)
@@ -9663,7 +9683,7 @@ NEXTPRP:
 	  }
 	  if (!@unfinishedprps) {
 	    print "    leaf prp, freeing data\n";
-	    delete $repodatas{$prp};
+	    delete $repodatas->{$prp};
 	  } else {
 	    print "    leaf prp, unfinished prps: @unfinishedprps\n";
 	  }
