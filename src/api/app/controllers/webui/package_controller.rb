@@ -786,10 +786,9 @@ class Webui::PackageController < Webui::WebuiController
   def live_build_log
     required_parameters :arch, :repository
 
-    # FIXME: User exists_by_name instead and let get_by_name use the same method
-    begin
+    if Project.exists_by_name(params[:project])
       @project = Project.get_by_name(params[:project])
-    rescue Project::UnknownObjectError
+    else
       flash[:error] = "Couldn't find project '#{params[:project]}'. Are you sure it still exists?"
       redirect_to :back
       return
