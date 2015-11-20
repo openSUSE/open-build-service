@@ -305,7 +305,7 @@ class BsRequest < ActiveRecord::Base
           review.by_package and review.by_package == opts[:by_package]
         logger.debug "Removing review #{review.id}"
         self.reviews.delete(review)
-        unless self.reviews.any?
+        if self.reviews.none?
           self.state = :new
           HistoryElement::RequestReviewAdded.where(description_extension: review.id).delete_all
         end

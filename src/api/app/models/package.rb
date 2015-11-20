@@ -72,7 +72,7 @@ class Package < ActiveRecord::Base
   has_many :binary_releases, dependent: :delete_all, :foreign_key => 'release_package_id'
 
   before_destroy :delete_on_backend
-  before_destroy :revoke_requests
+  before_destroy :close_requests
   before_destroy :update_project_for_product
   before_destroy :remove_linked_packages
   before_destroy :remove_devel_packages
@@ -703,9 +703,9 @@ class Package < ActiveRecord::Base
 
   def destroy_without_backend_write_and_revoking_requests
     self.commit_opts = { no_backend_write: 1 }
-    Package.skip_callback(:destroy, :before, :revoke_requests)
+    Package.skip_callback(:destroy, :before, :close_requests)
     destroy
-    Package.set_callback(:destroy, :before, :revoke_requests)
+    Package.set_callback(:destroy, :before, :close_requests)
   end
 
   def reset_cache
@@ -1085,13 +1085,13 @@ class Package < ActiveRecord::Base
     end
   end
 
-  def revoke_requests
+  def close_requests
     # Find open requests involving self and:
     # - revoke them if self is source
     # - decline if self is target
     self.open_requests_with_package_as_source_or_target.each do |request|
-      logger.debug "#{self.class} #{self.name} doing revoke_requests on request #{request.id} with #{@commit_opts.inspect}"
-      # Don't alter the request that is the trigger of this revoke_requests run
+      logger.debug "#{self.class} #{self.name} doing close_requests on request #{request.id} with #{@commit_opts.inspect}"
+      # Don't alter the request that is the trigger of this close_requests run
       next if request.id == @commit_opts[:request]
 
       request.bs_request_actions.each do |action|
@@ -1116,7 +1116,7 @@ class Package < ActiveRecord::Base
     # Find open requests which have a review involving this package and remove those reviews
     # but leave the requests otherwise untouched.
     self.open_requests_with_by_package_review.each do |request|
-      # Don't alter the request that is the trigger of this revoke_requests run
+      # Don't alter the request that is the trigger of this close_requests run
       next if request.id == @commit_opts[:request]
 
       request.remove_reviews(:by_package => self.name)

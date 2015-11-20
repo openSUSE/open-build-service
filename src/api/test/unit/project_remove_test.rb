@@ -6,11 +6,7 @@ class ProjectRemoveTest < ActiveSupport::TestCase
   fixtures :all
 
   def setup
-    CONFIG['global_write_through'] = true
-  end
-
-  def teardown
-    CONFIG['global_write_through'] = false
+    Suse::Backend.start_test_backend
   end
 
   def test_delete_cache_lines
@@ -56,12 +52,14 @@ class ProjectRemoveTest < ActiveSupport::TestCase
     branch_package('test_destroy_target_declines_request', 'pack')
     create_request('test_destroy_target_declines_request', 'pack')
     User.current = users(:king)
-    Project.find_by(name: "test_destroy_target_declines_request").destroy
+    project.destroy
     @request.reload
 
     assert_equal :declined, @request.state
     assert_equal "The target project 'test_destroy_target_declines_request' has been removed", @request.comment
     assert_equal 1, HistoryElement::RequestDeclined.where(op_object_id: @request.id).count
+
+    @package.project.destroy
   end
 
   def test_accept_request_does_not_revoke_request
@@ -76,6 +74,8 @@ class ProjectRemoveTest < ActiveSupport::TestCase
 
     assert_equal :accepted, @request.reload.state
     assert_equal 0, HistoryElement::RequestRevoked.where(op_object_id: @request.id).count
+
+    @package.project.destroy
   end
 
   def test_review_gets_removed
@@ -93,6 +93,8 @@ class ProjectRemoveTest < ActiveSupport::TestCase
 
     assert_equal 0, @request.reviews.count
     assert_equal 0, HistoryElement::RequestReviewAdded.where(op_object_id: @request.id).count
+
+    @package.project.destroy
   end
 
   def test_cleanup_packages
