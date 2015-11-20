@@ -248,8 +248,8 @@ sub writesolv {
   rename($fn, $fnf) || die("rename $fn $fnf: $!\n");
 }
 
-my %prpcheckuseforbuild;	# project/package meta has changed
-my %channeldata;	# global channel data unificator to save memory
+my %_prpcheckuseforbuild;	# project/package meta has changed
+my %_channeldata;	# global channel data unificator to save memory
 
 #  'lastscan'   last time we scanned
 #  'meta'       meta cache
@@ -2608,9 +2608,10 @@ sub update_dst_full {
 
   # further down we assume that the useforbuild setting of the full tree
   # matches the current setting, so make sure they are in sync.
-  if ($prpcheckuseforbuild{$prp}) {
+  my $prpcheckuseforbuild = $gctx->{'prpcheckuseforbuild'};
+  if ($prpcheckuseforbuild->{$prp}) {
     checkuseforbuild($gctx, $prp, $prpsearchpath, undef);
-    delete $prpcheckuseforbuild{$prp};
+    delete $prpcheckuseforbuild->{$prp};
   }
 
   my $jobrepo;
@@ -3435,14 +3436,15 @@ sub get_projpacks {
 
 sub update_prpcheckuseforbuild {
   my ($gctx, $projid, $proj) = @_;
+  my $prpcheckuseforbuild = $gctx->{'prpcheckuseforbuild'};
   if (!$proj) {
-    for my $prp (keys %prpcheckuseforbuild) {
-      delete $prpcheckuseforbuild{$prp} if (split('/', $prp, 2))[0] eq $projid;
+    for my $prp (keys %$prpcheckuseforbuild) {
+      delete $prpcheckuseforbuild->{$prp} if (split('/', $prp, 2))[0] eq $projid;
     }
   } else {
     for my $repo (@{$proj->{'repository'}}) {
       next unless grep {$_ eq $myarch} @{$repo->{'arch'} || []};
-      $prpcheckuseforbuild{"$projid/$repo->{'name'}"} = 1;
+      $prpcheckuseforbuild->{"$projid/$repo->{'name'}"} = 1;
     }
   }
 }
@@ -3493,6 +3495,7 @@ sub update_projpacks {
   checkbuildrepoid($gctx, $projpacksin);
   my $isgone;
   my $projpacks = $gctx->{'projpacks'};
+  my $channeldata = $gctx->{'channeldata'};
   $gctx->{'projpacks'} = $projpacks = {} unless $projpacks;
   # free old data
   if (!defined($projid)) {
@@ -3508,9 +3511,9 @@ sub update_projpacks {
   # incorporate new channel data
   for my $cd (@{$projpacksin->{'channeldata'} || []}) {
     my ($md5, $channel) = ($cd->{'md5'}, $cd->{'channel'});
-    next if $channeldata{$md5};
+    next if $channeldata->{$md5};
     $channel->{'_md5'} = $md5;
-    $channeldata{$md5} = $channel;
+    $channeldata->{$md5} = $channel;
   }
   for my $proj (@{$projpacksin->{'project'} || []}) {
     if ($packids && @$packids) {
@@ -3540,8 +3543,8 @@ sub update_projpacks {
       delete $pack->{'name'};
       my $channelmd5 = delete($pack->{'channelmd5'});
       if ($channelmd5) {
-	if ($channeldata{$channelmd5}) {
-	  $pack->{'channel'} = $channeldata{$channelmd5};
+	if ($channeldata->{$channelmd5}) {
+	  $pack->{'channel'} = $channeldata->{$channelmd5};
 	} else {
 	  $pack->{'error'} = 'missing channeldata in projpack';
 	}
@@ -4097,7 +4100,7 @@ sub calc_prps {
   }
   # good bye no longer used entries!
   delete $newchanneldata{''};
-  %channeldata = %newchanneldata;
+  %{$gctx->{'channeldata'}} = %newchanneldata;
   print "have ".scalar(keys %newchanneldata)." unique channel configs\n" if %newchanneldata;
 
   # do the real sorting
@@ -8246,6 +8249,12 @@ my $gctx = {
   # dod data cache
   'dodprps' => \%_dodprps,
 
+  # project data
+  'projpacks' => undef,
+  'channeldata' => \%_channeldata,
+
+  'prpcheckuseforbuild' => \%_prpcheckuseforbuild,
+
   'changed_low' => \%changed_low,
   'changed_med' => \%changed_med,
   'changed_high' => \%changed_high,
@@ -8435,7 +8444,8 @@ if (!$gctx->{'projpacks'} && $startupmode) {
   }
   @lookat_low = sort keys %$projpacks;
   push @lookat_low, @prps;
-  $prpcheckuseforbuild{$_} = 1 for @prps;
+  my $prpcheckuseforbuild = $gctx->{'prpcheckuseforbuild'};
+  $prpcheckuseforbuild->{$_} = 1 for @prps;
 }
 
 if (!$gctx->{'projpacks'}) {
@@ -8844,7 +8854,7 @@ NEXTPRP:
 	delete $prpchecktimes{$prp};
 	delete $gctx->{'repodatas'}->{$prp};
 	delete $lastcheck{$prp};
-	delete $prpcheckuseforbuild{$prp};
+	delete $gctx->{'prpcheckuseforbuild'}->{$prp};
 	for my $dir (ls("$reporoot/$prp/$myarch")) {
 	  # need lock for deleting publish area
 	  next if $dir eq ':repo' || $dir eq ':repoinfo';
@@ -9010,14 +9020,14 @@ NEXTPRP:
 
     print "  - $prp\n";
 
-    if ($prpcheckuseforbuild{$prp}) {
+    if ($gctx->{'prpcheckuseforbuild'}->{$prp}) {
       my $packs = $projpacks->{$projid}->{'package'} || {};
       # the if statement below is to ease transition to the new full handling
       # for manually created "base" repos
       if (!$new_full_handling || %$packs || ! -d "$reporoot/$prp/$myarch/:full" ||
           -e "$reporoot/$prp/$myarch/:full.useforbuild") {
         checkuseforbuild($gctx, $prp, $prpsearchpath{$prp}, undef);
-        delete $prpcheckuseforbuild{$prp};
+        delete $gctx->{'prpcheckuseforbuild'}->{$prp};
       }
     }
     if (!$lastcheck{$prp}) {
