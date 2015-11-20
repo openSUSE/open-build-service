@@ -3061,7 +3061,7 @@ my %prpdeps;		# searchpath plus aggregate deps plus kiwi deps
 			# maps prp => [ prp, prp ... ]
 			# used for sorting
 my %prpnoleaf;		# is this prp referenced by another prp?
-my @projpacks_linked;	# data of all linked sources
+my @_projpacks_linked;	# data of all linked sources
 
 my %_watchremote;	# remote_url => { eventdescr => projid }
 my %_watchremote_start;	# remote_url => lasteventno
@@ -3867,7 +3867,8 @@ sub addretryevent {
 #
 sub calc_projpacks_linked {
   my ($gctx) = @_;
-  @projpacks_linked = ();
+  delete $gctx->{'projpacks_linked'};
+  my @projpacks_linked;
   my $projpacks = $gctx->{'projpacks'};
   for my $projid (sort keys %$projpacks) {
     my $proj = $projpacks->{$projid};
@@ -3894,6 +3895,7 @@ sub calc_projpacks_linked {
     }
   }
   print "projpacks_linked contains ".@projpacks_linked." entries\n";
+  $gctx->{'projpacks_linked'} = \@projpacks_linked;
   #print Dumper(\@projpacks_linked);
 }
 
@@ -3904,12 +3906,13 @@ sub calc_projpacks_linked {
 #
 sub find_linked_sources {
   my ($gctx, $projid, $packids) = @_;
+  my $projpacks_linked = $gctx->{'projpacks_linked'};
   my %linked;
   if ($packids) {
     my %packids = map {$_ => 1} @$packids;
     my @packids = sort(keys %packids);
     $packids{':*'} = 1;
-    for my $linfo (grep {$_->{'project'} eq $projid} @projpacks_linked) {
+    for my $linfo (grep {$_->{'project'} eq $projid} @$projpacks_linked) {
       next unless $packids{$linfo->{'package'}};
       if (defined($linfo->{'mypackage'})) {
         push @{$linked{$linfo->{'myproject'}}}, $linfo->{'mypackage'};
@@ -3918,7 +3921,7 @@ sub find_linked_sources {
       }
     }
   } else {
-    for my $linfo (grep {$_->{'project'} eq $projid} @projpacks_linked) {
+    for my $linfo (grep {$_->{'project'} eq $projid} @$projpacks_linked) {
       next unless exists $linfo->{'mypackage'};
       push @{$linked{$linfo->{'myproject'}}}, $linfo->{'mypackage'};
     }
@@ -8277,6 +8280,10 @@ my $gctx = {
   'channeldata' => \%_channeldata,
   'remoteprojs' => \%_remoteprojs,
 
+  # postprocessed project data
+  'projpacks_linked' => [],
+
+  # triggers
   'prpcheckuseforbuild' => \%_prpcheckuseforbuild,
 
   # remote watchers
