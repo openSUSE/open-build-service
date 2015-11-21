@@ -336,9 +336,9 @@ class Project < ActiveRecord::Base
       raise UnknownObjectError, name
     end
     if include_all_packages
-       Package.joins(:flags).where(project_id: dbp.id).where("flags.flag='sourceaccess'").each do |pkg|
-         raise ReadAccessError, name unless Package.check_access? pkg
-       end
+      Package.joins(:flags).where(project_id: dbp.id).where("flags.flag='sourceaccess'").each do |pkg|
+        raise ReadAccessError, name unless Package.check_access? pkg
+      end
     end
 
     unless check_access?(dbp)
