@@ -150,7 +150,7 @@ module Event
         eclass = job.to_s.camelize.safe_constantize
         raise "#{job.to_s.camelize} does not map to a constant" if eclass.nil?
         djob = eclass.new(self)
-        raise "#{job.to_s.camelize} is not a CreateJob" unless djob.is_a? CreateJob
+        raise("#{job.to_s.camelize} is not a CreateJob") unless djob.is_a?(CreateJob)
         opts = {}
         opts = { queue: eclass.job_queue } if eclass.methods.include? :job_queue
         Delayed::Job.enqueue djob, opts
