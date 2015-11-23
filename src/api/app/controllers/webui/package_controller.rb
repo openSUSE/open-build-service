@@ -247,9 +247,20 @@ class Webui::PackageController < Webui::WebuiController
 
   def submit_request
     required_parameters :project, :package
-    if params[:targetproject].blank?
+
+    target_project_name = params[:targetproject].strip
+    package_name = params[:package].strip
+    project_name = params[:project].strip
+
+    if params[:targetpackage].blank?
+      target_package_name = package_name
+    else
+      target_package_name = params[:targetpackage].try(:strip)
+    end
+
+    if target_project_name.blank?
       flash[:error] = 'Please provide a target for the submit request'
-      redirect_to action: :show, project: params[:project], package: params[:package]
+      redirect_to action: :show, project: project_name, package: package_name
       return
     end
 
@@ -259,12 +270,10 @@ class Webui::PackageController < Webui::WebuiController
         req = BsRequest.new(state: "new")
         req.description = params[:description]
 
-        tpkg = params[:package]
-        tpkg = params[:targetpackage] unless params[:targetpackage].blank?
-        opts = { source_project: params[:project],
-                 source_package: params[:package],
-                 target_project: params[:targetproject],
-                 target_package: tpkg }
+        opts = { source_project: project_name,
+                 source_package: package_name,
+                 target_project: target_project_name,
+                 target_package: target_package_name }
         if params[:sourceupdate]
           opts[:sourceupdate] = params[:sourceupdate]
         elsif params[:project].include?(':branches:')
@@ -279,21 +288,18 @@ class Webui::PackageController < Webui::WebuiController
       end
     rescue BsRequestAction::DiffError => e
       flash[:error] = "Unable to diff sources: #{e.message}"
-      redirect_to(action: :show, project: params[:project], package: params[:package])
-      return
     rescue BsRequestAction::MissingAction => e
       flash[:error] = "Unable to submit, sources are unchanged"
-      redirect_to(action: 'show', project: params[:project], package: params[:package])
-      return
     rescue Project::UnknownObjectError,
            BsRequestAction::UnknownProject,
            BsRequestAction::UnknownTargetPackage => e
       flash[:error] = "Unable to submit (missing target): #{e.message}"
-      redirect_to(action: :show, project: params[:project], package: params[:package])
-      return
     rescue APIException
       flash[:error] = "Unable to submit"
-      redirect_to(action: :show, project: params[:project], package: params[:package])
+    end
+
+    if flash[:error]
+      redirect_to(action: :show, project: project_name, package: package_name)
       return
     end
 
@@ -321,9 +327,9 @@ class Webui::PackageController < Webui::WebuiController
       supersede_notice += supersede_errors.join('. ')
     end
     flash[:notice] = "Created <a href='#{request_show_path(req.id)}'>submit request #{req.id}</a>\
-                      to <a href='#{project_show_path(params[:targetproject])}'>#{params[:targetproject]}</a>
+                      to <a href='#{project_show_path(target_project_name)}'>#{target_project_name}</a>
                       #{supersede_notice}"
-    redirect_to(action: 'show', project: params[:project], package: params[:package])
+    redirect_to(action: 'show', project: project_name, package: package_name)
   end
 
   def set_linkinfo

@@ -365,6 +365,41 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.wont_have_field('supersede_request_ids[]')
   end
 
+  def test_submit_request
+    use_js
+    login_Iggy
+
+    visit(package_show_path(project: "home:Iggy", package: "TestPack"))
+    click_link("Submit package")
+    click_button("Ok")
+    page.must_have_text "Please provide a target for the submit request"
+    assert_equal package_show_path(project: "home:Iggy", package: "TestPack"),
+                 page.current_path
+
+    click_link("Submit package")
+    fill_in "To target project", with: "nonexistant:project"
+    click_button("Ok")
+    page.must_have_text "Unable to submit (missing target): nonexistant:project"
+    assert_equal package_show_path(project: "home:Iggy", package: "TestPack"),
+                 page.current_path
+
+    click_link("Submit package")
+    fill_in "To target project", with: "home:Iggy"
+    click_button("Ok")
+    page.must_have_text "Unable to submit, sources are unchanged"
+    assert_equal package_show_path(project: "home:Iggy", package: "TestPack"),
+                 page.current_path
+
+    click_link("Submit package")
+    # Note: The whitespaces are part of the test, see issue#1248 for details
+    fill_in "To target project", with: " home:Iggy "
+    fill_in "To target package", with: " ToBeDeletedTestPack "
+    click_button("Ok")
+    page.must_have_text "Created submit request #{BsRequest.last.id} to home:Iggy"
+    assert_equal package_show_path(project: "home:Iggy", package: "TestPack"),
+                 page.current_path
+  end
+
   def test_remove_file
     use_js
 
