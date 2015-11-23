@@ -392,7 +392,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
 
     click_link("Submit package")
     # Note: The whitespaces are part of the test, see issue#1248 for details
-    fill_in "To target project", with: "home:Iggy"
+    fill_in "To target project", with: " home:Iggy "
     fill_in "To target package", with: " ToBeDeletedTestPack "
     click_button("Ok")
     page.must_have_text "Created submit request #{BsRequest.last.id} to home:Iggy"

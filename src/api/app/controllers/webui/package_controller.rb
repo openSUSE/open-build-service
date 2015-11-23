@@ -248,6 +248,7 @@ class Webui::PackageController < Webui::WebuiController
   def submit_request
     required_parameters :project, :package
 
+    target_project_name = params[:targetproject].strip
     package_name = params[:package].strip
     project_name = params[:project].strip
 
@@ -257,7 +258,7 @@ class Webui::PackageController < Webui::WebuiController
       target_package_name = params[:targetpackage].try(:strip)
     end
 
-    if params[:targetproject].blank?
+    if target_project_name.blank?
       flash[:error] = 'Please provide a target for the submit request'
       redirect_to action: :show, project: project_name, package: package_name
       return
@@ -271,7 +272,7 @@ class Webui::PackageController < Webui::WebuiController
 
         opts = { source_project: project_name,
                  source_package: package_name,
-                 target_project: params[:targetproject],
+                 target_project: target_project_name,
                  target_package: target_package_name }
         if params[:sourceupdate]
           opts[:sourceupdate] = params[:sourceupdate]
@@ -326,7 +327,7 @@ class Webui::PackageController < Webui::WebuiController
       supersede_notice += supersede_errors.join('. ')
     end
     flash[:notice] = "Created <a href='#{request_show_path(req.id)}'>submit request #{req.id}</a>\
-                      to <a href='#{project_show_path(params[:targetproject])}'>#{params[:targetproject]}</a>
+                      to <a href='#{project_show_path(target_project_name)}'>#{target_project_name}</a>
                       #{supersede_notice}"
     redirect_to(action: 'show', project: project_name, package: package_name)
   end
