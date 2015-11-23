@@ -248,9 +248,18 @@ class Webui::PackageController < Webui::WebuiController
   def submit_request
     required_parameters :project, :package
 
+    package_name = params[:package].strip
+    project_name = params[:project].strip
+
+    if params[:targetpackage].blank?
+      target_package_name = package_name
+    else
+      target_package_name = params[:targetpackage].try(:strip)
+    end
+
     if params[:targetproject].blank?
       flash[:error] = 'Please provide a target for the submit request'
-      redirect_to action: :show, project: params[:project], package: params[:package]
+      redirect_to action: :show, project: project_name, package: package_name
       return
     end
 
@@ -260,12 +269,10 @@ class Webui::PackageController < Webui::WebuiController
         req = BsRequest.new(state: "new")
         req.description = params[:description]
 
-        tpkg = params[:package]
-        tpkg = params[:targetpackage] unless params[:targetpackage].blank?
-        opts = { source_project: params[:project],
-                 source_package: params[:package],
+        opts = { source_project: project_name,
+                 source_package: package_name,
                  target_project: params[:targetproject],
-                 target_package: tpkg }
+                 target_package: target_package_name }
         if params[:sourceupdate]
           opts[:sourceupdate] = params[:sourceupdate]
         elsif params[:project].include?(':branches:')
@@ -291,7 +298,7 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     if flash[:error]
-      redirect_to(action: :show, project: params[:project], package: params[:package])
+      redirect_to(action: :show, project: project_name, package: package_name)
       return
     end
 
@@ -321,7 +328,7 @@ class Webui::PackageController < Webui::WebuiController
     flash[:notice] = "Created <a href='#{request_show_path(req.id)}'>submit request #{req.id}</a>\
                       to <a href='#{project_show_path(params[:targetproject])}'>#{params[:targetproject]}</a>
                       #{supersede_notice}"
-    redirect_to(action: 'show', project: params[:project], package: params[:package])
+    redirect_to(action: 'show', project: project_name, package: package_name)
   end
 
   def set_linkinfo
