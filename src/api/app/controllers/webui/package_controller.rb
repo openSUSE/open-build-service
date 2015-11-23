@@ -247,6 +247,7 @@ class Webui::PackageController < Webui::WebuiController
 
   def submit_request
     required_parameters :project, :package
+
     if params[:targetproject].blank?
       flash[:error] = 'Please provide a target for the submit request'
       redirect_to action: :show, project: params[:project], package: params[:package]
@@ -279,20 +280,17 @@ class Webui::PackageController < Webui::WebuiController
       end
     rescue BsRequestAction::DiffError => e
       flash[:error] = "Unable to diff sources: #{e.message}"
-      redirect_to(action: :show, project: params[:project], package: params[:package])
-      return
     rescue BsRequestAction::MissingAction => e
       flash[:error] = "Unable to submit, sources are unchanged"
-      redirect_to(action: 'show', project: params[:project], package: params[:package])
-      return
     rescue Project::UnknownObjectError,
            BsRequestAction::UnknownProject,
            BsRequestAction::UnknownTargetPackage => e
       flash[:error] = "Unable to submit (missing target): #{e.message}"
-      redirect_to(action: :show, project: params[:project], package: params[:package])
-      return
     rescue APIException
       flash[:error] = "Unable to submit"
+    end
+
+    if flash[:error]
       redirect_to(action: :show, project: params[:project], package: params[:package])
       return
     end
