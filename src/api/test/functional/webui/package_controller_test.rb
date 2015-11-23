@@ -377,6 +377,13 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
                  page.current_path
 
     click_link("Submit package")
+    fill_in "To target project", with: "nonexistant:project"
+    click_button("Ok")
+    page.must_have_text "Unable to submit (missing target): nonexistant:project"
+    assert_equal package_show_path(project: "home:Iggy", package: "TestPack"),
+                 page.current_path
+
+    click_link("Submit package")
     fill_in "To target project", with: "home:Iggy"
     click_button("Ok")
     page.must_have_text "Unable to submit, sources are unchanged"
