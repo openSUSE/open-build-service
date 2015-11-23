@@ -1,0 +1,646 @@
+#!/usr/bin/perl -w
+#
+# Copyright (c) 2015 Ericsson AB
+#
+# Admin tool for finding and removing old source files in one or more pacakges.
+#
+
+use strict;
+use File::Find;
+use Data::Dumper;
+use File::Basename;
+use Getopt::Long;
+use File::Path qw(make_path);
+use File::Copy;
+use XML::Simple;
+
+our $OBS_SRC_DIR = "/srv/obs/sources";
+our $OBS_TREES_DIR = "/srv/obs/trees";
+our $OBS_PROJ_DIR = "/srv/obs/projects";
+our $MD5_PATTERN = "[0-9a-fA-F]{32}";
+
+our @include_pkgs = ();
+our @exclude_pkgs = ();
+our @remove_old_sources = ();
+our $service_cleanup = 0;
+our @full_cleanup = ();
+our $debug = 0;
+our $search = 0;
+our $move_dst = 0;
+our $help = 0;
+our $remove = 0;
+our $total_size = 0;
+
+sub print_help {
+    my $help = <<"END_HELP";
+
+Admin tool for finding and/or removing old source files in one or more pacakges.
+
+usage:
+  $0 |MODE| |OPTIONS|
+
+MODE (mandatory)
+  --remove-old-sources <days> <revisions>
+      Find and remove sources older than <days> days, but keep <revisions> number of revisions.
+      Functionality is based on bs_admin script. Service generated files are not removed.
+  --service-cleanup
+      Find and remove unrevisioned service files.
+  --full-cleanup <days> <revisions>
+      Combines both commands above.
+      NOTE when using search-option with full-cleanup: service file cleanup search checks
+      only against current revisions. It doesn't take into account what revisions will be
+      deleted.
+
+OPTIONS (optional)
+  --help|-h
+       Shows this help menu and exit.
+  --debug|-d
+       Debug output prints enabled.
+  --search|-s
+       Search old source files to be removed. Default mode unless otherwise specified.
+  --remove|-rm
+       Remove old source files.
+  --move|-mv <dst>
+       Move old source files to <dst> folder.
+  --exclude-packages <pkg_1> <pkg_2> ... <pkg_n>
+       Excludes one or more packages from source file search.
+       Otherwise all packages are included to search.
+  --exclude-packages <file>
+       Reads list of packages from <file> which will be excluded from the search.
+       Packages must be separated by whitespace in the file.
+  --include-packages <pkg_1> <pkg_2> .. <pkg_n>
+       Includes one or more packages to source file search.
+       Otherwise all packages are included to search.
+  --include-packages <file>
+       Reads list of packages from <file> which will be included to the search.
+       Packages must be separated by whitespace in the file.
+END_HELP
+     print $help;
+}
+
+sub read_pkg_file {
+    my $pkg_list = shift;
+    my $pkg_file = pop @$pkg_list;
+
+    open my $fh, '<', "$pkg_file" || die "unable to read $pkg_file!\n";
+    while (my $line = <$fh>) {
+        push @$pkg_list, split(/\s+/, $line);
+    }
+    close $fh;
+}
+
+sub format_size {
+    my $size = shift;
+    my $exp = 0;
+    my $units = [qw(B KB MB GB TB PB)];
+    for (@$units) {
+        last if $size < 1024;
+        $size /= 1024;
+        $exp++;
+    }
+    return wantarray ? ($size, $units->[$exp]) : sprintf("%.2f %s", $size, $units->[$exp]);
+}
+
+sub is_rev_in_proj {
+    my $proj = shift;
+    my $pkg = shift;
+    my $revs = shift;
+    my $rev_file = "$OBS_PROJ_DIR/$proj.pkg/$pkg.rev";
+    return 0 unless -e $rev_file;
+    open my $fh, '<', "$rev_file" || die "unable to read $rev_file!\n";
+    my $rev_found = 0;
+    while (my $line = <$fh>) {
+        my @fields = split('\|', $line);
+        my $rev =  $fields[2];
+        if (grep {$_ eq $rev} @$revs) {
+            print "  Revision $rev found in $rev_file\n" if $debug;
+            $rev_found = 1;
+            last;
+        }
+    }
+    close $fh;
+    return $rev_found;
+}
+
+sub find_link {
+    my $revs = shift;
+    my $md5 = shift;
+    my $found = 0;
+    foreach my $rev (@$revs) {
+        my @rev_files = ();
+        eval {
+            find(sub {
+                if ($File::Find::name =~ /$rev-MD5SUMS/) {
+                    push @rev_files, $File::Find::name;
+                }
+            }, $OBS_TREES_DIR);
+        };
+        foreach my $rev_file (@rev_files) {
+            if (-e $rev_file) {
+                my $rev_path = dirname($rev_file);
+                print "  revision link $rev is linked to $rev_file\n" if $debug;
+                my @f = split('/', $rev_path);
+                my $pkg_link = $f[@f - 1];
+                my $proj_link = $f[@f - 2];
+                my $revs_link = get_trees_rev($rev_path, $md5);
+                if (exists $revs_link->{"LSERVICE"}) {
+                    $found += is_rev_in_proj($proj_link, $pkg_link, $revs_link->{"LSERVICE"});
+                }
+                if (exists $revs_link->{"LINK"}) {
+                    print "  link to link detected in $rev_file\n" if $debug;
+                    next;
+                }
+                last if $found != 0
+            }
+        }
+    }
+
+    return $found;
+}
+
+sub get_trees_rev {
+    my $tree = shift;
+    my $md5 = shift;
+    my $revs;
+    opendir(TREE, $tree) or die $!;
+    while (my $md5file = readdir(TREE)) {
+        if ($md5file =~ /$MD5_PATTERN-MD5SUMS/) {
+            open my $fh, '<', "$tree/$md5file" || die "unable to read $tree/$md5file!\n";
+            my $rev;
+            my $md5_match = 0;
+            my $is_link = 0;
+            while (my $line = <$fh>) {
+                if ($line =~ /$md5/) {
+                    $md5_match = 1;
+                } elsif ($line =~ /($MD5_PATTERN)\s+\/LSERVICE/) {
+                    $rev = $1;
+                    last;
+                } elsif ($line =~ /($MD5_PATTERN)\s+\/LINK/) {
+                    $rev = $1;
+                    $is_link = 1;
+                    last;
+                }
+            }
+            close $fh;
+            if ($md5_match == 1 && defined $rev) {
+                if ($is_link == 1) {
+                    push @{$revs->{"LINK"}}, $rev;
+                    print "  found revision link: $rev from $md5file\n" if $debug;
+                } else {
+                    push @{$revs->{"LSERVICE"}}, $rev;
+                    print "  found revision: $rev from $md5file\n" if $debug;
+                }
+            }
+        }
+
+    }
+    closedir(TREE);
+    return $revs;
+}
+
+sub search_revisions {
+    my $service_file = shift;
+    my $pkg = shift;
+    (my $md5) = ($service_file =~ /($MD5_PATTERN).*/);
+    opendir(TREES_DIR, $OBS_TREES_DIR) or die $!;
+    my $found = 0;
+    while (my $project = readdir(TREES_DIR)) {
+        next unless -d "$OBS_TREES_DIR/$project/$pkg";
+        print "  search revisions: $OBS_TREES_DIR/$project/$pkg\n" if $debug;
+        my $revs = get_trees_rev("$OBS_TREES_DIR/$project/$pkg", $md5);
+        if (exists $revs->{"LSERVICE"}) {
+            $found += is_rev_in_proj($project, $pkg, $revs->{"LSERVICE"});
+        }
+        if (exists $revs->{"LINK"}) {
+            $found += find_link($revs->{"LINK"}, $md5);
+        }
+        last if ($found != 0)
+    }
+    closedir(TREES_DIR);
+
+    if ($found == 0) {
+        my $size = -s "$OBS_SRC_DIR/$pkg/$service_file" || 0;
+        $total_size += $size;
+        if ($remove) {
+            printf "  delete unrevisioned file: $OBS_SRC_DIR/$pkg/$service_file size: %.2f %s\n", format_size($size);
+            unlink "$OBS_SRC_DIR/$pkg/$service_file" or die "error deleting file $OBS_SRC_DIR/$pkg/$service_file!\n";
+        } elsif ($move_dst) {
+            unless (-d "$move_dst/$pkg") {
+                make_path("$move_dst/$pkg", {error => \my $err});
+                if (@$err) {
+                    die "error creating directory $move_dst/$pkg!\n";
+                }
+            }
+            print "  move unrevisioned file: $OBS_SRC_DIR/$pkg/$service_file to $move_dst/$pkg/$service_file\n";
+            move("$OBS_SRC_DIR/$pkg/$service_file", "$move_dst/$pkg/$service_file") or die "move failed! $!\n";
+        } else {
+            printf "  found unrevisioned file: $OBS_SRC_DIR/$pkg/$service_file size: %.2f %s\n", format_size($size);
+        }
+    }
+}
+
+sub check_pkg {
+    my $pkg = shift;
+    print "\ncheck package: $OBS_SRC_DIR/$pkg\n" if $debug;
+    opendir(SRC_PKG_DIR, "$OBS_SRC_DIR/$pkg") or die $!;
+    while (my $src_file = readdir(SRC_PKG_DIR)) {
+        next if ($src_file =~ m/^\./);
+        if ($src_file =~ /$MD5_PATTERN-_service/) {
+            print " service file: $OBS_SRC_DIR/$pkg/$src_file\n" if $debug;
+            search_revisions($src_file, $pkg);
+        }
+    }
+    closedir(SRC_PKG_DIR);
+}
+
+sub search_srcs {
+    opendir(SRC_DIR, $OBS_SRC_DIR) or die $!;
+    while (my $pkg = readdir(SRC_DIR)) {
+        next if ($pkg =~ m/^\./);
+        if (@exclude_pkgs) {
+            if (grep {$_ eq $pkg} @exclude_pkgs) {
+                print "\nskip package: $OBS_SRC_DIR/$pkg\n" if $debug;
+                next;
+            }
+        }
+        if (@include_pkgs) {
+            unless (grep {$_ eq $pkg} @include_pkgs) {
+                print "\nskip package: $OBS_SRC_DIR/$pkg\n" if $debug;
+                next;
+            }
+        }
+        if (-d "$OBS_SRC_DIR/$pkg") {
+            check_pkg($pkg);
+        }
+    }
+    closedir(SRC_DIR);
+}
+
+# functionality based on bs_admin script
+sub remove_old_srcs {
+    my $days = shift;
+    my $min_revs = shift;
+    die("ERROR: second argument must be >=1!\n") if $min_revs <1;
+
+    my $mastertimestamp = time - $days*60*60*24;
+    my %deletehashes;
+    my %keephashes;
+    my @revfiles;
+    my %treesfiles;
+
+    my $deletedbytes = 0;
+
+    # get all .rev and .mrev files and fill hashes with files to delete or not do delete
+    my @projectdirs;
+    opendir(D, $OBS_PROJ_DIR) || die ($!);
+    foreach my $prjdir (readdir(D)) {
+        next if $prjdir =~ /^\.{1,2}$/;
+        if ( -d $OBS_PROJ_DIR.'/'.$prjdir ) {
+            opendir(E, $OBS_PROJ_DIR.'/'.$prjdir) || die($!);
+            foreach my $file (readdir(E)) {
+                if ( $file =~ /\.(rev)(\.del){0,1}$/ ) {
+                    push @revfiles, "$OBS_PROJ_DIR/$prjdir/$file";
+                    open(F, '<', $OBS_PROJ_DIR.'/'.$prjdir.'/'.$file) || die($!);
+                    my @lines = <F>;
+                    close(F);
+
+                    my @keeplines;
+                    if (scalar(@lines) < $min_revs) {
+                        @keeplines = splice(@lines, -scalar(@lines));
+                    } else {
+                        @keeplines = splice(@lines, -$min_revs);
+                    }
+                    # remove lines to keep from normal timestamp checking and put them directly into hash
+                    foreach my $line (@keeplines) {
+                        my ($hash, $time) = ( split(/\|/, $line))[2,4];
+                        push @{$keephashes{$hash}}, { project => $prjdir, file => $OBS_PROJ_DIR.'/'.$prjdir.'/'.$file };
+                    }
+
+                    foreach my $line (@lines) {
+                        my ($hash, $time) = ( split(/\|/, $line) )[2,4];
+                        if ( $time < $mastertimestamp) {
+                            push @{$deletehashes{$hash}},  { project => $prjdir, file => $OBS_PROJ_DIR.'/'.$prjdir.'/'.$file };
+                        } else {
+                            push @{$keephashes{$hash}}, { project => $prjdir, file => $OBS_PROJ_DIR.'/'.$prjdir.'/'.$file };
+                        }
+                    }
+                }
+            }
+            closedir(E);
+        }
+    }
+    closedir(D);
+
+    if ($debug) {
+        print "all hashes to keep (must be at least one per project):\n";
+        foreach my $hash (keys %keephashes) {
+            foreach my $entry (@{$keephashes{$hash}}) {
+                print "project: ", $entry->{project}, ", file: ", $entry->{file}, " hash: ", $hash, "\n";
+            }
+        }
+        print "\n";
+        print "all hashes to remove:\n";
+        foreach my $hash (keys %deletehashes) {
+            foreach my $entry (@{$deletehashes{$hash}}) {
+                print "project: ", $entry->{project}, ", file: ", $entry->{file}, " hash: ", $hash, "\n";
+            }
+        }
+        print "\n";
+    }
+
+    # get all files from OBS_TREES_DIR
+    my @treesdirs;
+    opendir(D, $OBS_TREES_DIR) || die($!);
+    push @treesdirs,  map { $OBS_TREES_DIR."/".$_ } readdir(D);
+    closedir(D);
+    opendir(D, $OBS_SRC_DIR) || die($!);
+    push @treesdirs,  map { $OBS_SRC_DIR."/".$_ } readdir(D);
+    closedir(D);
+    @treesdirs = grep { $_ !~ /\.{1,2}$/  } @treesdirs;
+
+    if ($debug) {
+        print "all treesdirs:\n", join("\n", @treesdirs);
+        print "\n\n";
+    }
+
+    foreach my $dir (@treesdirs) {
+        if ( -d $dir ) {
+            if ( $dir =~ /$OBS_SRC_DIR/ ) {
+                opendir(F, $dir) || die($!);
+                foreach my $file (readdir(F)) {
+                    if ( $file =~ /(.+)-MD5SUMS$/ ) {
+                        my $MD5SUM = $1;
+                        $treesfiles{$MD5SUM} = $dir.'/'.$file if $file =~ /-MD5SUMS$/;
+                    }
+                }
+                closedir(F);
+            } else {
+                opendir(E, $dir) || die($!);
+                foreach my $package (readdir(E)) {
+                    if ( -d $dir.'/'.$package ) {
+                        opendir(F, $dir.'/'.$package) || die($!);
+                        foreach my $file (readdir(F)) {
+                            if ( $file =~ /(.+)-MD5SUMS$/ ) {
+                                my $MD5SUM = $1;
+                                $treesfiles{$MD5SUM} = $dir.'/'.$package.'/'.$file if $file =~ /-MD5SUMS$/;
+                            }
+                        }
+                        closedir(F);
+                    } # if
+                } # foreach
+                closedir(E);
+            } # else
+        } # if -d $dir
+    } #foreach
+
+    if ($debug) {
+        print "all treesfiles:\n";
+        foreach my $key (keys %treesfiles) {
+            print $treesfiles{$key}, "\n";
+        }
+        print "\n";
+    }
+
+    my %deletefiles;
+    # create array with files to delete from OBS_SRC_DIR
+    foreach my $rev (keys %deletehashes) {
+        next if !defined $treesfiles{$rev};
+        my $package_path = dirname($treesfiles{$rev});
+        my $project = basename(dirname($package_path));
+        my $package = basename($package_path);
+        if (@exclude_pkgs) {
+            if (grep {$_ eq $package} @exclude_pkgs) {
+                print "revision $rev is skipped for package $package\n" if $debug;
+                next;
+            }
+        }
+        if (@include_pkgs) {
+            unless (grep {$_ eq $package} @include_pkgs) {
+                print "revision $rev is skipped for package $package\n" if $debug;
+                next;
+            }
+        }
+        open(F, '<', $treesfiles{$rev}) || die($!);
+        while (<F>) {
+            my ($hash, $desc) = split(/\s+/, $_);
+            my $key = (scalar keys %deletefiles) + 1;
+            $deletefiles{$key} = { "project"  => $project,
+                "package"  => $package,
+                "hash"     => $hash,
+                "desc"     => $desc,
+                "revision" => $rev };
+        }
+        close(F);
+    }
+
+    if ($debug) {
+        print "files to delete:\n";
+        foreach my $key (keys %deletefiles) {
+            print "file: ".$deletefiles{$key}->{"hash"}."-".$deletefiles{$key}->{"desc"}."\n".
+                "  project: ".$deletefiles{$key}->{"project"}."\n".
+                "  package: ".$deletefiles{$key}->{"package"}."\n".
+                "  revision: ".$deletefiles{$key}->{"revision"}."\n";
+        }
+        print "\n";
+    }
+
+    my %keepfiles;
+    # look if keephashes contains links to revision that would get deleted
+    print "check kept revisions are not linked to deleted ones:\n" if $debug;
+    foreach my $file (keys %keephashes) {
+        print "check files ".$treesfiles{$file}."\n" if $debug;
+        #my $package = basename(dirname($treesfiles{$file}));
+        my $package_path = dirname($treesfiles{$file});
+        my $project = basename(dirname($package_path));
+        my $package = basename($package_path);
+        open(F, '<', $treesfiles{$file}) || die($!);
+        while (<F>) {
+            my ($hash, $desc) = split(/\s+/, $_);
+            #$keepfiles{$hash} = $hash."-".$desc;
+            my $key = (scalar keys %keepfiles) + 1;
+            $keepfiles{$key} = { "project"  => $project,
+                "package"  => $package,
+                "hash"     => $hash,
+                "desc"     => $desc,
+                "revision" => $file };
+            if ($desc eq "_link") {
+                my ($hash, $desc) = split(/\s+/, $_);
+                # search link files from sources
+                my $link_file = "$OBS_SRC_DIR/$package/$hash-$desc";
+                next unless -e $link_file;
+                print "read link file: $link_file\n";
+                # open link file to look if it links to a file that will be deleted
+                my $link;
+                eval {
+                    $link =  XMLin($link_file);
+                } ;
+                if ($@) { warn "$@ whilst processing $treesfiles{$file}"; next; }
+                next if !defined $link->{"package"} || !defined $link->{"project"} || !defined $link->{"rev"};
+                if (exists $deletehashes{$link->{"rev"}}) {
+                    print "keep revision ".$link->{"rev"}." from ".$link->{"project"}."/".
+                        $link->{"package"}." which is linked from $link_file\n" if $debug;
+                    delete ($deletehashes{$link->{"rev"}});
+                    foreach my $k (keys %deletefiles) {
+                        if ($deletefiles{$k}->{"package"} eq $link->{"package"} and
+                                $deletefiles{$k}->{"project"} eq $link->{"project"} and
+                                $deletefiles{$k}->{"revision"} eq $link->{"rev"}) {
+                            my $fname = $deletefiles{$k}."-".$deletefiles{$k};
+                            print "keep file $fname linked to revision ".$link->{"rev"}."\n" if $debug;
+                            delete $deletefiles{$k};
+                        }
+                    }
+                }
+            }
+        }
+        close(F);
+    }
+
+    if ($debug) {
+        print "\nfiles to keep:\n";
+
+        foreach my $key (keys %keepfiles) {
+            print "file: ".$keepfiles{$key}->{"hash"}."-".$keepfiles{$key}->{"desc"}."\n".
+                "  project: ".$keepfiles{$key}->{"project"}."\n".
+                "  package: ".$keepfiles{$key}->{"package"}."\n".
+                "  revision: ".$keepfiles{$key}->{"revision"}."\n";
+        }
+        print "\n";
+    }
+
+
+    # keep files which are used in kept revisions
+    foreach my $del_key (keys %deletefiles) {
+        foreach my $keep_key (keys %keepfiles) {
+            if ($deletefiles{$del_key}->{"package"} eq $keepfiles{$keep_key}->{"package"} and
+                $deletefiles{$del_key}->{"hash"} eq $keepfiles{$keep_key}->{"hash"}) {
+                delete $deletefiles{$del_key};
+                last;
+            }
+        }
+    }
+
+    if ($debug) {
+        print "files to delete without kept ones:\n";
+        foreach my $k (keys %deletefiles) {
+            print "file: ".$deletefiles{$k}->{"hash"}."-".$deletefiles{$k}->{"desc"}."\n".
+                "  project: ".$deletefiles{$k}->{"project"}."\n".
+                "  package: ".$deletefiles{$k}->{"package"}."\n".
+                "  revision: ".$deletefiles{$k}->{"revision"}."\n";
+        }
+    }
+
+    if (scalar(keys %deletefiles) == 0) {
+        print "\ndidn't find any files to remove!\n";
+        return;
+    }
+
+    print "\nstarting cleanup process: \n";
+    foreach my $key (keys %deletefiles) {
+        my $path = "$OBS_SRC_DIR/".$deletefiles{$key}->{"package"}."/".
+            $deletefiles{$key}->{"hash"}."-".$deletefiles{$key}->{"desc"};
+        next unless -e $path;
+        my $size = -s $path || 0;
+        $total_size += $size;
+        if ($remove) {
+            printf "deleted file: $path size: %.2f %s\n", format_size($size);
+            unlink $path or die "error deleting file $path!\n";
+        } elsif ($move_dst) {
+            my $dst = $move_dst."/".$deletefiles{$key}->{"package"};
+            unless (-d $dst) {
+                make_path($dst, {error => \my $err});
+                if (@$err) {
+                    die "error creating directory $dst!\n";
+                }
+            }
+            print "move $path to $dst\n";
+            move($path, $dst) or die "move failed! $!\n";
+        } else {
+            printf "found file $path  size: %.2f %s\n", format_size($size);
+        }
+    }
+
+    # rewrite rev files
+    if ($remove || $move_dst) {
+        print "\nupdate revision files:\n" if $debug;
+        foreach my $key (keys %deletefiles) {
+            my $path = "$OBS_SRC_DIR/".$deletefiles{$key}->{"package"}."/"
+                .$deletefiles{$key}->{"hash"}."-".$deletefiles{$key}->{"desc"};
+            unless (-e $path) {
+                my $revfile = "$OBS_PROJ_DIR/".$deletefiles{$key}->{"project"}.".pkg/".
+                    $deletefiles{$key}->{"package"}.".rev";
+                my $del_hash = $deletefiles{$key}->{"revision"};
+                open(F, '<', $revfile) or die($!);
+                my @revisions = ();
+                foreach my $line (<F>) {
+                    my ($hash) = ( split(/\|/, $line) )[2];
+                    if ($hash =~ $del_hash) {
+                        print "remove $hash from $revfile\n" if $debug;
+                    } else {
+                        push @revisions, $line;
+                    }
+                }
+                close(F);
+                open(F, '>', $revfile) or die($!);
+                print F @revisions;
+                close(F);
+            }
+        }
+    }
+}
+
+my $no_args = @ARGV;
+
+my $res = GetOptions(
+    'remove-old-sources=i{2,2}'   => \@remove_old_sources,
+    'service-cleanup'             => \$service_cleanup,
+    'full-cleanup=i{2,2}'         => \@full_cleanup,
+    'include-packages=s{1,}'      => \@include_pkgs,
+    'exclude-packages=s{1,}'      => \@exclude_pkgs,
+    'debug|d'                     => \$debug,
+    'search|s'                    => \$search,
+    'remove|rm'                   => \$remove,
+    'move|mv=s'                   => \$move_dst,
+    'help|h'                      => \$help
+);
+
+if ($help || $no_args == 0 || $res != 1) {
+    print_help;
+    exit 0;
+}
+
+unless ($move_dst && $remove) {
+    $search = 1;
+}
+
+if ($move_dst) {
+    unless (-d $move_dst) {
+        make_path($move_dst, {error => \my $err});
+        if (@$err) {
+            die "error creating directory $move_dst!\n";
+        }
+    }
+}
+
+if (@include_pkgs == 1 && -e $include_pkgs[0]) {
+    read_pkg_file(\@include_pkgs);
+}
+
+if (@exclude_pkgs == 1 && -e $exclude_pkgs[0]) {
+    read_pkg_file(\@exclude_pkgs);
+}
+
+if (@remove_old_sources == 2) {
+    remove_old_srcs($remove_old_sources[0], $remove_old_sources[1]);
+} elsif ($service_cleanup) {
+    search_srcs;
+} elsif (@full_cleanup == 2) {
+    remove_old_srcs($full_cleanup[0], $full_cleanup[1]);
+    search_srcs;
+} else {
+    die "mode missing!\n";
+}
+
+if ($total_size != 0 && !$move_dst) {
+    printf "cleanup files total size: %.2f %s\n", format_size($total_size);
+}
+
