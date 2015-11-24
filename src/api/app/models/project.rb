@@ -162,7 +162,9 @@ class Project < ActiveRecord::Base
   def has_distribution(project_name, repository)
     project = Project.find_by(name: project_name)
     return false unless project
-    repositories.joins(path_elements: :link).where(links_path_elements: {name: repository, db_project_id: project.id  }).exists?
+
+    link_id = project.repositories.find_by(name: repository).try(:id)
+    repositories.joins(path_elements: :link).where(links_path_elements: { id: link_id }).exists?
   end
 
   def number_of_build_problems
