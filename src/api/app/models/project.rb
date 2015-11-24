@@ -31,8 +31,6 @@ class Project < ActiveRecord::Base
   end
 
   before_destroy :cleanup_before_destroy
-  before_destroy :cleanup_packages
-  before_destroy :delete_on_backend
 
   after_save 'Relationship.discard_cache'
   after_rollback :reset_cache
@@ -146,9 +144,11 @@ class Project < ActiveRecord::Base
       end
     end
 
-    # revoke all requests that have this project as source/target
-    revoke_requests
+    revoke_requests # Revoke all requests that have this project as source/target
+    cleanup_packages # Deletes packages (only in DB)
+    delete_on_backend # Deletes the project in the backend
   end
+  private :cleanup_before_destroy
 
   def subprojects
     Project.where("name like ?", "#{name}:%")
@@ -181,14 +181,19 @@ class Project < ActiveRecord::Base
   end
 
   def revoke_requests
-    # Find open requests with 'pro' as source or target and decline/revoke them.
-    # Revoke if source or decline if target went away, pick the first action that matches to decide...
+    # Find open requests involving self and:
+    # - revoke them if self is source
+    # - decline if self is target
     # Note: As requests are a backend matter, it's pointless to include them into the transaction below
     self.open_requests_with_project_as_source_or_target.each do |request|
+      logger.debug "#{self.class} #{self.name} doing revoke_requests with #{@commit_opts.inspect}"
+      # Don't alter the request that is the trigger of this revoke_requests run
+      next if request.id == @commit_opts[:request]
+
       request.bs_request_actions.each do |action|
         if action.source_project == self.name
           begin
-            request.change_state({:newstate => 'revoked', :comment => "The source project '#{self.name}' was removed"})
+            request.change_state({:newstate => 'revoked', :comment => "The source project '#{self.name}' has been removed"})
           rescue PostRequestNoPermission
             logger.debug "#{User.current.login} tried to revoke request #{self.id} but had no permissions"
           end
@@ -196,7 +201,7 @@ class Project < ActiveRecord::Base
         end
         if action.target_project == self.name
           begin
-            request.change_state({:newstate => 'declined', :comment => "The target project '#{self.name}' was removed"})
+            request.change_state({:newstate => 'declined', :comment => "The target project '#{self.name}' has been removed"})
           rescue PostRequestNoPermission
             logger.debug "#{User.current.login} tried to decline request #{self.id} but had no permissions"
           end
@@ -208,6 +213,9 @@ class Project < ActiveRecord::Base
     # Find open requests which have a review involving this project (or it's packages) and remove those reviews
     # but leave the requests otherwise untouched.
     self.open_requests_with_by_project_review.each do |request|
+      # Don't alter the request that is the trigger of this revoke_requests run
+      next if request.id == @commit_opts[:request]
+
       request.remove_reviews(:by_project => self.name)
     end
   end
@@ -624,10 +632,10 @@ class Project < ActiveRecord::Base
     download_repositories = []
     repo.elements('download').each do |xml_download|
       download_repository = DownloadRepository.new(arch: xml_download['arch'],
-    					       url: xml_download['url'],
-    					       repotype: xml_download['repotype'],
-    					       archfilter: xml_download['archfilter'],
-    					       pubkey: xml_download['pubkey'])
+                    url: xml_download['url'],
+                    repotype: xml_download['repotype'],
+                    archfilter: xml_download['archfilter'],
+                    pubkey: xml_download['pubkey'])
       if xml_download['master']
          download_repository.masterurl = xml_download['master']['url']
          download_repository.mastersslfingerprint = xml_download['master']['sslfingerprint']
@@ -837,14 +845,18 @@ class Project < ActiveRecord::Base
       Suse::Backend.put_source(self.source_path('_meta', query), to_axml)
       logger.tagged('backend_sync') { logger.debug "Saved Project #{self.name}" }
     else
-      logger.tagged('backend_sync') { logger.warn "Not saving Project #{self.name}, global_write_through is off" }
+      if @commit_opts[:no_backend_write]
+        logger.tagged('backend_sync') { logger.warn "Not saving Project #{self.name}, backend_write is off " }
+      else
+        logger.tagged('backend_sync') { logger.warn "Not saving Project #{self.name}, global_write_through is off" }
+      end
     end
     self.commit_opts = {}
-    return true
+    true
   end
 
   def delete_on_backend
-    if CONFIG['global_write_through']
+    if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       path = source_path
       path << Suse::Backend.build_query_from_hash({user: User.current.login, comment: @commit_opts[:comment]}, [:user, :comment])
       begin
@@ -855,9 +867,15 @@ class Project < ActiveRecord::Base
       end
       logger.tagged('backend_sync') { logger.debug "Deleted Project #{self.name}" }
     else
-      logger.tagged('backend_sync') { logger.warn "Not deleting Project #{self.name}, global_write_through is off" }
+      if @commit_opts[:no_backend_write]
+        logger.tagged('backend_sync') { logger.warn "Not deleting Project #{self.name}, backend_write is off " }
+      else
+        logger.tagged('backend_sync') { logger.warn "Not deleting Project #{self.name}, global_write_through is off" }
+      end
+
     end
-    return true
+    self.commit_opts = {}
+    true
   end
 
   def store(opts = {})
@@ -870,10 +888,10 @@ class Project < ActiveRecord::Base
 
   # The backend takes care of deleting the packages,
   # when we delete ourself. No need to delete packages
-  # individually
+  # individually on backend
   def cleanup_packages
     packages.each do |package|
-      package.destroy_without_backend_write
+      package.destroy_without_backend_write_and_revoking_requests
     end
   end
 

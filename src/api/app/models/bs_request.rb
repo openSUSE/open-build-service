@@ -298,13 +298,17 @@ class BsRequest < ActiveRecord::Base
 
   def remove_reviews(opts)
     return false unless opts[:by_user] or opts[:by_group] or opts[:by_project] or opts[:by_package]
-    each_review do |review|
+    reviews.each do |review|
       if review.by_user and review.by_user == opts[:by_user] or
           review.by_group and review.by_group == opts[:by_group] or
           review.by_project and review.by_project == opts[:by_project] or
           review.by_package and review.by_package == opts[:by_package]
-        logger.debug "Removing review #{review.dump_xml}"
-        self.delete_element(review)
+        logger.debug "Removing review #{review.id}"
+        self.reviews.delete(review)
+        if self.reviews.none?
+          self.state = :new
+          HistoryElement::RequestReviewAdded.where(description_extension: review.id).delete_all
+        end
       end
     end
     self.save

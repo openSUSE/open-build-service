@@ -72,7 +72,7 @@ class Package < ActiveRecord::Base
   has_many :binary_releases, dependent: :delete_all, :foreign_key => 'release_package_id'
 
   before_destroy :delete_on_backend
-  before_destroy :revoke_requests
+  before_destroy :close_requests
   before_destroy :update_project_for_product
   before_destroy :remove_linked_packages
   before_destroy :remove_devel_packages
@@ -701,9 +701,11 @@ class Package < ActiveRecord::Base
     save!
   end
 
-  def destroy_without_backend_write
+  def destroy_without_backend_write_and_revoking_requests
     self.commit_opts = { no_backend_write: 1 }
+    Package.skip_callback(:destroy, :before, :close_requests)
     destroy
+    Package.set_callback(:destroy, :before, :close_requests)
   end
 
   def reset_cache
@@ -713,16 +715,21 @@ class Package < ActiveRecord::Base
   def write_to_backend
     reset_cache
     #--- write through to backend ---#
-    if CONFIG['global_write_through']
+    if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       query = { user: User.current ? User.current.login : User.nobody_login }
       query[:comment] = @commit_opts[:comment] unless @commit_opts[:comment].blank?
       query[:requestid] = @commit_opts[:requestid] unless @commit_opts[:requestid].blank?
       Suse::Backend.put_source(self.source_path('_meta', query), to_axml)
       logger.tagged('backend_sync') { logger.debug "Saved Package #{self.project.name}/#{self.name}" }
     else
-      logger.tagged('backend_sync') { logger.warn "Not saving Package #{self.project.name}/#{self.name}, global_write_through is off" }
+      if @commit_opts[:no_backend_write]
+        logger.tagged('backend_sync') { logger.warn "Not saving Package #{self.project.name}/#{self.name}, backend_write is off " }
+      else
+        logger.tagged('backend_sync') { logger.warn "Not saving Package #{self.project.name}/#{self.name}, global_write_through is off" }
+      end
     end
     @commit_opts = {}
+    true
   end
 
   def delete_on_backend
@@ -749,6 +756,8 @@ class Package < ActiveRecord::Base
         logger.tagged('backend_sync') { logger.warn "Not deleting Package #{self.project.name}/#{self.name}, global_write_through is off" }
       end
     end
+    @commit_opts = {}
+    true
   end
 
   def to_axml_id
@@ -806,13 +815,13 @@ class Package < ActiveRecord::Base
     # rubocop:disable Metrics/LineLength
     rel = rel.where('(bs_request_actions.source_project = ? and bs_request_actions.source_package = ?) or (bs_request_actions.target_project = ? and bs_request_actions.target_package = ?)', self.project.name, self.name, self.project.name, self.name)
     # rubocop:enable Metrics/LineLength
-    return BsRequest.where(id: rel.select('bs_requests.id').map { |r| r.id })
+    return BsRequest.where(id: rel.pluck('bs_requests.id'))
   end
 
   def open_requests_with_by_package_review
     rel = BsRequest.where(state: [:new, :review])
     rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? and reviews.by_package = ? ", self.project.name, self.name)
-    return BsRequest.where(id: rel.select('bs_requests.id').map { |r| r.id })
+    return BsRequest.where(id: rel.pluck('bs_requests.id'))
   end
 
   def linkinfo
@@ -1076,39 +1085,41 @@ class Package < ActiveRecord::Base
     end
   end
 
-  def revoke_requests
-    # Find open requests with this package as source and revoke them.
-    rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
-    rel = rel.where('bs_request_actions.source_project = ? and bs_request_actions.source_package = ?', self.project.name, self.name)
-    BsRequest.where(id: rel.pluck('bs_requests.id')).each do |request|
-      begin
-        request.change_state({:newstate => 'revoked', :comment => "The source package '#{self.project.name}' '#{self.name}' was removed"})
-      rescue PostRequestNoPermission
-        logger.debug "#{User.current.login} tried to revoke request #{self.id} but had no permissions"
+  def close_requests
+    # Find open requests involving self and:
+    # - revoke them if self is source
+    # - decline if self is target
+    self.open_requests_with_package_as_source_or_target.each do |request|
+      logger.debug "#{self.class} #{self.name} doing close_requests on request #{request.id} with #{@commit_opts.inspect}"
+      # Don't alter the request that is the trigger of this close_requests run
+      next if request.id == @commit_opts[:request]
+
+      request.bs_request_actions.each do |action|
+        if action.source_project == self.project.name && action.source_package == self.name
+          begin
+            request.change_state({:newstate => 'revoked', :comment => "The source package '#{self.name}' has been removed"})
+          rescue PostRequestNoPermission
+            logger.debug "#{User.current.login} tried to revoke request #{self.id} but had no permissions"
+          end
+          break
+        end
+        if action.target_project == self.project.name && action.target_package == self.name
+          begin
+            request.change_state({:newstate => 'declined', :comment => "The target package '#{self.name}' has been removed"})
+          rescue PostRequestNoPermission
+            logger.debug "#{User.current.login} tried to decline request #{self.id} but had no permissions"
+          end
+          break
+        end
       end
     end
-
-    # Find open requests with this package as target and decline them.
-    rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
-    rel = rel.where('bs_request_actions.target_project = ? and bs_request_actions.target_package = ?', self.project.name, self.name)
-    BsRequest.where(id: rel.pluck('bs_requests.id')).each do |request|
-      begin
-        request.change_state({:newstate => 'declined', :comment => "The target package '#{self.project.name}' '#{self.name}' was removed"})
-      rescue PostRequestNoPermission
-        logger.debug "#{User.current.login} tried to decline request #{self.id} but had no permissions"
-      end
-    end
-
-    # Find open requests which have a review involving this project (or it's packages) and remove those reviews
+    # Find open requests which have a review involving this package and remove those reviews
     # but leave the requests otherwise untouched.
-    rel = BsRequest.where(state: [:new, :review])
-    rel = rel.joins(:reviews).where("reviews.state = 'new' and reviews.by_project = ? and reviews.by_package = ? ", self.project.name, self.name)
-    BsRequest.where(id: rel.pluck('bs_requests.id')).each do |request|
-      begin
-        request.remove_reviews(:by_project => self.project.name, :by_package => self.name)
-      rescue PostRequestNoPermission
-        logger.debug "#{User.current.login} tried to remove review from request #{self.id} but had no permissions"
-      end
+    self.open_requests_with_by_package_review.each do |request|
+      # Don't alter the request that is the trigger of this close_requests run
+      next if request.id == @commit_opts[:request]
+
+      request.remove_reviews(:by_package => self.name)
     end
   end
 
