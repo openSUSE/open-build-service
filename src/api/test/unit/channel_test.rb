@@ -31,6 +31,10 @@ class ChannelTest < ActiveSupport::TestCase
             <binary name="package" package="pack2" supportstatus="l3" />
             <binary name="does_not_exist" />
           </binaries>
+          <binaries project="BaseDistro2.0:LinkedUpdateProject" repository="BaseDistro2LinkedUpdateProject_repo" arch="i586">
+            <binary name="package" package="pack2" supportstatus="l3" />
+            <binary name="another_package_in_same_list" />
+          </binaries>
         </channel>'
     )
 
@@ -51,10 +55,9 @@ class ChannelTest < ActiveSupport::TestCase
       assert_nil ct.id_template
       assert_equal Repository.find_by_project_and_name("BaseDistro", "BaseDistro_repo"), ct.repository
       assert_equal true, ct.disabled
-
-      assert_equal 1, @channel.channel_binary_lists.size
+      assert_equal 1, @channel.channel_binary_lists.size # two identical xml lists became one in db
       cbl = @channel.channel_binary_lists.first
-      assert_equal 2, cbl.channel_binaries.size
+      assert_equal 3, cbl.channel_binaries.size
       assert_equal "package", cbl.channel_binaries.first.name
       assert_equal "l3", cbl.channel_binaries.first.supportstatus
       assert_equal nil, cbl.channel_binaries.first.binaryarch

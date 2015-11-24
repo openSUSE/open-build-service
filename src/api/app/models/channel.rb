@@ -81,19 +81,18 @@ class Channel < ActiveRecord::Base
 
   def _update_from_xml_binaries(cbl, xmlhash)
     hasharray=[]
-    xmlhash.elements('binary') { |b|
+    xmlhash.each do |b|
       arch = nil
       arch = Architecture.find_by_name!(b['arch']) if b['arch']
       hash = { name: b['name'], binaryarch: b['binaryarch'], supportstatus: b['supportstatus'],
                project: nil, architecture: arch,
-               package: b['package'], repository: nil
-             }
+               package: b['package'], repository: nil }
       if b['project']
         hash[:project] = Project.get_by_name(b['project'])
         hash[:repository] = hash[:project].repositories.find_by_name(b['repository']) if b['repository']
       end
       hasharray << hash
-    }
+    end
     sync_hash_with_model(ChannelBinary, cbl.channel_binaries, hasharray)
   end
 
@@ -111,7 +110,7 @@ class Channel < ActiveRecord::Base
 
     # sync binaries for all lists
     self.channel_binary_lists.each { |cbl|
-      p = nil
+      hasharray = Array.new
       # search the right xml binaries group for this cbl
       xmlhash.elements('binaries') do |b|
         next if cbl.project      and b['project'] != cbl.project.name
@@ -120,14 +119,13 @@ class Channel < ActiveRecord::Base
         next if cbl.project.nil?      and b['project']
         next if cbl.repository.nil?   and b['repository']
         next if cbl.architecture.nil? and b['arch']
-        # match, but only once
-        raise "Illegal double match of binary list" if p
-        p=b
+        hasharray << b['binary']
       end
+      hasharray.flatten!
       # no match? either not created or searched in the right way
-      raise "Unable to find binary list #{cbl.project.name} #{cbl.repository.name} #{cbl.architecture.name}" unless p
+      raise "Unable to find binary list #{cbl.project.name} #{cbl.repository.name} #{cbl.architecture.name}" if hasharray.size < 1
       # update...
-      _update_from_xml_binaries(cbl, p)
+      _update_from_xml_binaries(cbl, hasharray)
     }
     save
   end
