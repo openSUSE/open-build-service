@@ -855,14 +855,20 @@ END
   test 'linked_packages returns all packages from projects inherited by one level' do
     child = projects('BaseDistro2.0_LinkedUpdateProject')
 
-    assert_equal child.packages_from_linked_projects, [['pack2', 'BaseDistro2.0'], ['pack2.linked', 'BaseDistro2.0']]
+    assert_equal [["pack2", "BaseDistro2.0"], ["pack2.linked", "BaseDistro2.0"],
+                  ["pack_local", "BaseDistro2.0:LinkedUpdateProject"]],
+                 child.expand_all_packages
   end
 
-  test 'linked_packages returns all packages from projects inherited by two levels' do
+  def test_all_packages_from_projects_inherited_by_two_levels_and_two_links_in_project
     CONFIG['global_write_through'] = false
     parent2 = projects('BaseDistro2.0')
     parent1 = projects('BaseDistro2.0_LinkedUpdateProject')
     child = projects('Apache')
+
+    parent2.linkedprojects.create(project: parent2,
+                               linked_db_project_id: projects('home_Iggy').id,
+                               position: 1)
 
     child.linkedprojects.create(project: child,
                                linked_db_project_id: parent1.id,
@@ -872,10 +878,10 @@ END
                                 linked_db_project_id: parent2.id,
                                 position: 2)
 
-    result =  parent1.packages + parent2.packages
+    result = projects('home_Iggy').packages + child.packages + parent1.packages + parent2.packages
     result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
 
-    assert_equal child.packages_from_linked_projects, result
+    assert_equal result, child.expand_all_packages
     CONFIG['global_write_through'] = true
   end
 
@@ -887,7 +893,10 @@ END
     pack2 = parent.packages.where(name: 'pack2').first
     child.packages << pack2.dup
 
-    assert_equal child.packages_from_linked_projects, [['pack2.linked', 'BaseDistro2.0']]
+    assert_equal [["pack2", "BaseDistro2.0:LinkedUpdateProject"],
+                  ["pack2.linked", "BaseDistro2.0"],
+                  ["pack_local", "BaseDistro2.0:LinkedUpdateProject"]],
+                 child.expand_all_packages
     CONFIG['global_write_through'] = true
   end
 
@@ -908,10 +917,10 @@ END
     pack2 = parent2.packages.where(name: 'pack2').first
     child.packages << pack2.dup
 
-    result = parent1.packages + parent2.packages.where(name: 'pack2.linked')
+    result = child.packages + parent1.packages + parent2.packages.where(name: 'pack2.linked')
     result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
 
-    assert_equal child.packages_from_linked_projects, result
+    assert_equal result, child.expand_all_packages
     CONFIG['global_write_through'] = true
   end
 
@@ -933,10 +942,10 @@ END
     pack2 = base_distro.packages.where(name: 'pack2').first
     base_distro_update.packages << pack2.dup
 
-    result = base_distro_update.packages + base_distro.packages.where(name: 'pack2.linked')
+    result = child.packages + base_distro_update.packages + base_distro.packages.where(name: 'pack2.linked')
     result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
 
-    assert_equal child.packages_from_linked_projects, result
+    assert_equal result, child.expand_all_packages
     CONFIG['global_write_through'] = true
   end
 
