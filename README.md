@@ -287,6 +287,9 @@ We are using [Vagrant](https://www.vagrantup.com/) to create our development env
 
     ```
     vagrant plugin install vagrant-exec
+    vagrant plugin install vagrant-reload
+    # optional if you are running vagrant with libvirt (e.g. kvm)
+    vagrant plugin install vagrant-libvirt
     ```
 
 3. Clone this code repository:

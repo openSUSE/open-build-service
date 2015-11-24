@@ -29,6 +29,15 @@ echo -e "\nsetting up memcached...\n"
 systemctl start memcached
 systemctl enable memcached
 
+# Configure the app if it isn't
+if [ ! -f /vagrant/src/api/config/options.yml ] && [ -f /vagrant/src/api/config/options.yml.example ]; then
+  echo "Configuring your app in config/options.yml..." 
+  sed 's/source_port: 5352/source_port: 3200/' /vagrant/src/api/config/options.yml.example > /vagrant/src/api/config/options.yml
+else
+  echo -e "\n\nWARNING: You have already configured your app in config/options.yml." 
+  echo -e "WARNING: Please make sure this configuration works in this vagrant box!\n\n" 
+fi 
+
 # Configure the database if it isn't
 if [ ! -f /vagrant/src/api/config/database.yml ] && [ -f /vagrant/src/api/config/database.yml.example ]; then
   echo -e "\nSetting up your database from config/database.yml...\n"
@@ -43,22 +52,15 @@ else
   echo -e "WARNING: Please make sure this configuration works in this vagrant box!\n\n" 
 fi
 
-# Configure the app if it isn't
-if [ ! -f /vagrant/src/api/config/options.yml ] && [ -f /vagrant/src/api/config/options.yml.example ]; then
-  echo "Configuring your app in config/options.yml..." 
-  sed 's/source_port: 5352/source_port: 3200/' /vagrant/src/api/config/options.yml.example > /vagrant/src/api/config/options.yml
-else
-  echo -e "\n\nWARNING: You have already configured your app in config/options.yml." 
-  echo -e "WARNING: Please make sure this configuration works in this vagrant box!\n\n" 
-fi 
 
 echo "Setting up your OBS test backend..."
 # Put the backend data dir outside the shared folder so it can use hardlinks
 # which isn't possible with VirtualBox shared folders...
 mkdir /tmp/vagrant_tmp
 chown vagrant:users /tmp/vagrant_tmp
+chown vagrant:users -R /vagrant/src/api/log/*
 echo -e "/tmp/vagrant_tmp /vagrant/src/api/tmp none bind 0 0" >> /etc/fstab
 
 echo -e "\nProvisioning of your OBS API rails app done!"
-echo -e "To start your development OBS backend run: vagrant exec ./script/start_test_backend\n"
+echo -e "To start your development OBS backend run: vagrant exec RAILS_ENV=development ./script/start_test_backend\n"
 echo -e "To start your development OBS frontend run: vagrant exec rails s\n"
