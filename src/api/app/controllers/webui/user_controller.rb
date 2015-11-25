@@ -31,22 +31,10 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def do_login
-    mode = CONFIG['proxy_auth_mode'] || CONFIG['ichain_mode'] || :basic
-    logger.debug "do_login: with #{mode}"
-
-    case mode
-    when :on
-      user = User.authenticate(request.env['HTTP_X_USERNAME'])
-    when :basic, :off
-      user = User.authenticate(params[:username], params[:password])
-    end
-
-    unless user
+    unless User.authenticate(params[:username], params[:password])
       redirect_to(user_login_path, error: 'Authentication failed')
       return
     end
-
-    logger.debug "USER found: #{user.login}"
 
     session[:login] = User.current.login
     session[:password] = params[:password]

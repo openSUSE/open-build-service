@@ -369,17 +369,13 @@ class User < ActiveRecord::Base
       '_nobody_'
     end
 
-    def authenticate(user_login, password = nil)
-      if password.nil?
-        user = User.find_by(login: user_login)
-      else
-        user = User.find_with_credentials(user_login, password)
-      end
+    def authenticate(user_login, password)
+      user = User.find_with_credentials(user_login, password)
 
       # User account is not confirmed yet
-      if [STATES['ichainrequest'], STATES['unconfirmed']].include?(user.try(:state))
-        return
-      end
+      return if user.try(:state) == STATES['unconfirmed']
+
+      Rails.logger.debug "Authentificated user '#{user.try(:login)}'"
 
       User.current = user
     end
