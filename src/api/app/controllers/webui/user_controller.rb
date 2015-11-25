@@ -49,7 +49,6 @@ class Webui::UserController < Webui::WebuiController
     logger.debug "USER found: #{user.login}"
 
     session[:login] = User.current.login
-    session[:password] = params[:password]
 
     redirect_back_or_to root_path
   end
