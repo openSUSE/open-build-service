@@ -602,8 +602,8 @@ class BranchPackage
       end
       @auto_cleanup = ::Configuration.cleanup_after_days
     end
-    if @target_project
-      raise InvalidProjectNameError, "invalid project name '#{@target_project}'" if !Project.valid_name?(@target_project)
+    if @target_project && !Project.valid_name?(@target_project)
+      raise InvalidProjectNameError, "invalid project name '#{@target_project}'"
     end
   end
 end
