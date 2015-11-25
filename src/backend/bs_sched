@@ -106,10 +106,10 @@ if (@ARGV && ($ARGV[0] eq '--exit' || $ARGV[0] eq '--stop')) {
   shift @ARGV;
 }
 
-my $myarch = $ARGV[0] || 'i586';
+my $_myarch = $ARGV[0] || 'i586';
 
-if (!$BSCando::knownarch{$myarch}) {
-  die("Architecture '$myarch' is unknown, please adapt BSCando.pm\n");
+if (!$BSCando::knownarch{$_myarch}) {
+  die("Architecture '$_myarch' is unknown, please adapt BSCando.pm\n");
 }
 
 my $historylay = [qw{versrel bcnt srcmd5 rev time duration}];
@@ -267,7 +267,7 @@ sub addrepo {
   my ($ctx, $pool, $prp) = @_;
 
   my $gctx = $ctx->{'gctx'};
-  my $arch = $myarch;
+  my $arch = $gctx->{'arch'};
   my $now = time();
   my $repodata = $gctx->{'repodatas'}->{$prp};
   if ($repodata && $repodata->{'lastscan'} && $repodata->{'lastscan'} + 24 * 3600 + ($repodata->{'random'} || 0) * 1800 > $now) {
@@ -364,10 +364,11 @@ sub addrepo_scan {
 
   print "    scanning repo $prp...\n";
   my $gctx = $ctx->{'gctx'};
+  my $arch = $gctx->{'arch'};
   my $repodatas = $gctx->{'repodatas'};
   my $repodata = $repodatas->{$prp};
   $repodatas->{$prp} = $repodata = {} unless $repodata;
-  my $dir = "$gctx->{'reporoot'}/$prp/$myarch/:full";
+  my $dir = "$gctx->{'reporoot'}/$prp/$arch/:full";
   my $cache;
   my $dirty;
 
@@ -388,7 +389,7 @@ sub addrepo_scan {
     my $projpacks = $gctx->{'projpacks'};
     my $proj = $projpacks->{$projid} || {};
     my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0] || {};
-    $doddata = (grep {($_->{'arch'} || '') eq $myarch} @{$repo->{'download'} || $proj->{'download'} || []})[0];
+    $doddata = (grep {($_->{'arch'} || '') eq $arch} @{$repo->{'download'} || $proj->{'download'} || []})[0];
     ($dirty, $cache) = put_doddata_in_cache($pool, $prp, $cache, $doddata, $dir);
   }
 
@@ -436,13 +437,6 @@ sub addrepo_scan {
   $repodata->{'random'} = rand();
   return $cache;
 }
-
-
-sub enabled {
-  my ($repoid, $disen, $default) = @_;
-  return BSUtil::enabled($repoid, $disen, $default, $myarch);
-}
-
 
 
 # this is basically getconfig from the source server
@@ -633,6 +627,7 @@ sub killbuilding {
 
 sub add_crossmarker {
   my ($gctx, $bconf, $job) = @_;
+  my $myarch = $gctx->{'arch'};
   my $hostarch = $bconf->{'hostarch'};
   return if $hostarch eq $myarch;
   return unless $BSCando::knownarch{$hostarch};
@@ -704,6 +699,7 @@ sub dodfetch_resume {
   # drop cache
   my $ctx = $handle->{'_ctx'};
   my $gctx = $ctx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   my $prpa = $handle->{'_prpa'};
   my ($projid, $repoid, $arch) = split('/', $handle->{'_prpa'}, 3);
   if ($arch eq $myarch) {
@@ -766,10 +762,11 @@ sub set_building {
   my ($ctx, $packid, $pdata, $info, $subpacks, $edeps, $reason, $needed) = @_;
 
   my $gctx = $ctx->{'gctx'};
-  my $reporoot = $gctx->{'reporoot'};
+  my $myarch = $gctx->{'arch'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $bconf = $ctx->{'conf'};
+  my $gdst = $ctx->{'gdst'};
   my $projpacks = $gctx->{'projpacks'};
   my $proj = $projpacks->{$projid};
   my $relsyncmax = $ctx->{'relsyncmax'};
@@ -834,7 +831,7 @@ sub set_building {
     }
   }
 
-  my $dst = "$reporoot/$prp/$myarch/$packid";
+  my $dst = "$gdst/$packid";
   # find the last build count we used for this version/release
   mkdir_p($dst);
   my $h;
@@ -940,8 +937,8 @@ sub set_building {
     $binfo->{'release'} =~ s/\<B_CNT\>/$bcnt/g;
   }
   my $debuginfo = $bconf->{'debuginfo'};
-  $debuginfo = enabled($repoid, $proj->{'debuginfo'}, $debuginfo);
-  $debuginfo = enabled($repoid, $pdata->{'debuginfo'}, $debuginfo);
+  $debuginfo = BSUtil::enabled($repoid, $proj->{'debuginfo'}, $debuginfo, $myarch);
+  $debuginfo = BSUtil::enabled($repoid, $pdata->{'debuginfo'}, $debuginfo, $myarch);
   $binfo->{'debuginfo'} = 1 if $debuginfo;
 
   writexml("$myjobsdir/.$job", "$myjobsdir/$job", $binfo, $BSXML::buildinfo);
@@ -964,13 +961,14 @@ sub checkaccess {
   my $access = 1;
   my $projpacks = $gctx->{'projpacks'};
   my $remoteprojs = $gctx->{'remoteprojs'};
+  my $myarch = $gctx->{'arch'};
   my $proj = $projpacks->{$projid};
   $proj = $remoteprojs->{$projid} if !$proj && ($remoteprojs->{$projid} || {})->{'partition'};
   if ($proj) {
     my $pdata;
     $pdata = ($proj->{'package'} || {})->{$packid} if defined $packid;
-    $access = enabled($repoid, $proj->{$type}, $access);
-    $access = enabled($repoid, $pdata->{$type}, $access) if $pdata;
+    $access = BSUtil::enabled($repoid, $proj->{$type}, $access, $myarch);
+    $access = BSUtil::enabled($repoid, $pdata->{$type}, $access, $myarch) if $pdata;
   } else {
     # remote project access checks are handled by the remote server
     $access = 0 unless $remoteprojs->{$projid} && !$remoteprojs->{$projid}->{'partition'};
@@ -1077,6 +1075,7 @@ sub sendpublishevent {
 sub sendrepochangeevent {
   my ($gctx, $prp, $type) = @_;
 
+  my $myarch = $gctx->{'arch'};
   my ($projid, $repoid) = split('/', $prp, 2);
   my $ev = {
     'type' => ($type || 'repository'),
@@ -1105,6 +1104,7 @@ sub sendunblockedevent {
 sub set_repo_state {
   my ($gctx, $prp, $state, $details) = @_;
 
+  my $myarch = $gctx->{'arch'};
   my $reporoot = $gctx->{'reporoot'};
   my $gdst = "$reporoot/$prp/$myarch";
   unlink("$gdst/:schedulerstate.dirty") if $state eq 'scheduling' || $state eq 'broken' || $state eq 'disabled';
@@ -1124,6 +1124,7 @@ sub createdeltajob {
   my $gctx = $ctx->{'gctx'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
+  my $myarch = $gctx->{'arch'};
   my $job = jobname("$projid/$repoid", $packid);
   $job .= "-$suffix" if defined $suffix;
   my $myjobsdir = $gctx->{'myjobsdir'};
@@ -1209,11 +1210,12 @@ sub makedeltas {
   my ($ctx, $packs, $pubenabled) = @_;
 
   my $gctx = $ctx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   my $prp = $ctx->{'prp'};
+  my $gdst = $ctx->{'gdst'};
   my ($projid, $repoid) = split('/', $prp, 2);
-  my $reporoot = $ctx->{'gctx'}->{'reporoot'};
-  my $rdir = "$reporoot/$prp/$myarch/:repo";
-  my $ddir = "$reporoot/$prp/$myarch/_deltas";
+  my $rdir = "$gdst/:repo";
+  my $ddir = "$gdst/_deltas";
 
   my %oldbins;
 
@@ -1249,7 +1251,7 @@ sub makedeltas {
   my %binarchnames;
   for my $packid (@{$packs || []}) {
     next if $pubenabled && !$pubenabled->{$packid};
-    my $pdir = "$reporoot/$prp/$myarch/$packid";
+    my $pdir = "$gdst/$packid";
     my @all = sort(ls($pdir));
     my $nosourceaccess = grep {$_ eq '.nosourceaccess'} @all;
     @all = grep {/\.rpm$/} @all;
@@ -1272,7 +1274,7 @@ sub makedeltas {
     for my $binx (@binxs) {
       my ($bin, $packid) = @$binx;
       last if $didbin && Build::Rpm::verscmp($didbin, $bin) > 0;
-      my $pdir = "$reporoot/$prp/$myarch/$packid";
+      my $pdir = "$gdst/$packid";
       my @binstat = stat("$pdir/$bin");
       next unless @binstat;
       $didbin = $bin;
@@ -1455,9 +1457,11 @@ my $default_publishfilter;
 sub publishdelta {
   my ($ctx, $delta, $bin, $rdir, $rbin, $origin, $packid) = @_;
 
-  my $reporoot = $ctx->{'gctx'}->{'reporoot'};
+  my $gctx = $ctx->{'gctx'};
+  my $gdst = $ctx->{'gdst'};
+  my $myarch = $gctx->{'arch'};
   my $prp = $ctx->{'prp'};
-  my $dst = "$reporoot/$prp/$myarch/_deltas";
+  my $dst = "$gdst/_deltas";
   my @s = stat("$dst/$delta->[0]");
   return 0 unless @s && $s[7];		# zero size means skip it
   return 0 unless -s "$dst/$delta->[0].dseq";	# need dseq file
@@ -1484,10 +1488,12 @@ sub prpfinished {
   my ($ctx, $packs, $pubenabled) = @_;
 
   my $gctx = $ctx->{'gctx'};
+  my $gdst = $ctx->{'gdst'};
+  my $myarch = $gctx->{'arch'};
   my $reporoot = $gctx->{'reporoot'};
   my $projpacks = $gctx->{'projpacks'};
   my $prp = $ctx->{'prp'};
-  my $rdir = "$reporoot/$prp/$myarch/:repo";
+  my $rdir = "$gdst/:repo";
   print "    prp $prp is finished...\n";
 
   my ($projid, $repoid) = split('/', $prp, 2);
@@ -1572,7 +1578,7 @@ sub prpfinished {
       }
       next;
     }
-    my $pdir = "$reporoot/$prp/$myarch/$packid";
+    my $pdir = "$gdst/$packid";
     my @all = sort(ls($pdir));
     my %all = map {$_ => 1} @all;
     next if $all{'.preinstallimage'};
@@ -1682,6 +1688,7 @@ my $exportcnt = 0;
 sub createexportjob {
   my ($gctx, $prp, $arch, $packid, $jobrepo, $dst, $oldrepo, $meta, @exports) = @_;
 
+  my $myarch = $gctx->{'arch'};
   # create unique id
   my $now = time();
   # create prefix so that sorting by jobname creates the correct ordering
@@ -1818,6 +1825,8 @@ sub compile_exportfilter {
 sub set_suf_and_filter_exports {
   my ($gctx, $repo, $filter, $exports) = @_;
   my %n;
+  my $myarch = $gctx->{'arch'};
+
   for my $rp (sort keys %$repo) {
     my $r = $repo->{$rp};
     delete $r->{'suf'};
@@ -2140,11 +2149,12 @@ sub fctx_gbininfo2full {
     $gbininfo->{$oldpackid} ||= {};	# make sure oldpackid is included
   }
   my $gctx = $fctx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   my $projpacks = $gctx->{'projpacks'};
   my ($projid, $repoid) = split('/', $fctx->{'prp'}, 2);
   my $proj = $projpacks->{$projid} || {},
   my $prjuseforbuildenabled = 1;
-  $prjuseforbuildenabled = enabled($repoid, $proj->{'useforbuild'}, $prjuseforbuildenabled);
+  $prjuseforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $prjuseforbuildenabled, $myarch);
   my $pdatas = $proj->{'package'} || {};
   my @packids = orderpackids($proj, keys %$gbininfo);
   # construct new full
@@ -2156,7 +2166,7 @@ sub fctx_gbininfo2full {
       } else {
 	my $useforbuildflags = ($pdatas->{$packid} || {})->{'useforbuild'};
 	my $useforbuildenabled = $prjuseforbuildenabled;
-	$useforbuildenabled = enabled($repoid, $useforbuildflags, $useforbuildenabled) if $useforbuildflags;
+	$useforbuildenabled = BSUtil::enabled($repoid, $useforbuildflags, $useforbuildenabled, $myarch) if $useforbuildflags;
 	$useforbuildenabled = 1 if $packid eq '_volatile';
 	next unless $useforbuildenabled;
       }
@@ -2374,15 +2384,16 @@ sub fctx_migrate_full {
   # create newuseforbuild
   my ($projid, $repoid) = split('/', $prp, 2);
   my $gctx = $fctx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   my $projpacks = $gctx->{'projpacks'};
   my $pdatas = $projpacks->{$projid}->{'package'} || {};
   my $newuseforbuild = [];
   my $prjuseforbuildenabled = 1;
-  $prjuseforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $prjuseforbuildenabled);
+  $prjuseforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $prjuseforbuildenabled, $myarch);
   for my $packid (sort keys %$pdatas) {
     my $useforbuildflags = ($pdatas->{$packid} || {})->{'useforbuild'};
     my $useforbuildenabled = $prjuseforbuildenabled;
-    $useforbuildenabled = enabled($repoid, $useforbuildflags, $useforbuildenabled) if $useforbuildflags;
+    $useforbuildenabled = BSUtil::enabled($repoid, $useforbuildflags, $useforbuildenabled, $myarch) if $useforbuildflags;
     push @$newuseforbuild, $packid if $useforbuildenabled;
   }
   BSUtil::store("$gdst/.:full.useforbuild", "$gdst/:full.useforbuild", $newuseforbuild);
@@ -2551,6 +2562,7 @@ sub fctx_integrate_package_into_full_old {
 sub calculate_exportfilter {
   my ($gctx, $prp, $prpsearchpath, $fullcache) = @_;
 
+  my $myarch = $gctx->{'arch'};
   my $filter;
   # argh, need a bconf, this slows us down a bit
   my $bconf;
@@ -2590,6 +2602,7 @@ sub update_bininfo_merge {
 sub update_dst_full {
   my ($gctx, $prp, $packid, $jobdir, $meta, $useforbuildenabled, $prpsearchpath, $fullcache, $importarch) = @_;
 
+  my $myarch = $gctx->{'arch'};
   my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
   my $dst = "$gdst/$packid";
 
@@ -2603,10 +2616,10 @@ sub update_dst_full {
   # check for lock and patchinfo
   my $projpacks = $gctx->{'projpacks'};
   if ($projpacks->{$projid} && $projpacks->{$projid}->{'package'} && $projpacks->{$projid}->{'package'}->{$packid}) {
-    my $locked = 0;
-    $locked = enabled($repoid, $projpacks->{$projid}->{'lock'}, $locked) if $projpacks->{$projid}->{'lock'};
     my $pdata = $projpacks->{$projid}->{'package'}->{$packid};
-    $locked = enabled($repoid, $pdata->{'lock'}, $locked) if $pdata->{'lock'};
+    my $locked = 0;
+    $locked = BSUtil::enabled($repoid, $projpacks->{$projid}->{'lock'}, $locked, $myarch) if $projpacks->{$projid}->{'lock'};
+    $locked = BSUtil::enabled($repoid, $pdata->{'lock'}, $locked, $myarch) if $pdata->{'lock'};
     if ($locked) {
       print "    package is locked\n";
       return;
@@ -2882,16 +2895,17 @@ sub move_into_full {
 sub checkuseforbuild {
   my ($gctx, $prp, $prpsearchpath, $fullcache, $forcerebuild) = @_;
   return unless $new_full_handling;
+  my $myarch = $gctx->{'arch'};
   my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
   my $projpacks = $gctx->{'projpacks'};
   my ($projid, $repoid) = split('/', $prp, 2);
   my $proj = $projpacks->{$projid};
   my $pdatas = $proj->{'package'} || {};
-  if (enabled($repoid, $proj->{'locked'}, 0)) {
+  if (BSUtil::enabled($repoid, $proj->{'locked'}, 0, $myarch)) {
     my $unlocked;
     for my $packid (sort keys %$pdatas) {
       my $lockedflags = $pdatas->{$packid}->{'locked'};
-      if ($lockedflags && !enabled($repoid, $lockedflags, 1)) {
+      if ($lockedflags && !BSUtil::enabled($repoid, $lockedflags, 1, $myarch)) {
 	$unlocked = 1;
 	last;
       }
@@ -2900,11 +2914,11 @@ sub checkuseforbuild {
   }
   my $newuseforbuild = [];
   my $prjuseforbuildenabled = 1;
-  $prjuseforbuildenabled = enabled($repoid, $proj->{'useforbuild'}, $prjuseforbuildenabled);
+  $prjuseforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $prjuseforbuildenabled, $myarch);
   for my $packid (sort keys %$pdatas) {
     my $useforbuildflags = ($pdatas->{$packid} || {})->{'useforbuild'};
     my $useforbuildenabled = $prjuseforbuildenabled;
-    $useforbuildenabled = enabled($repoid, $useforbuildflags, $useforbuildenabled) if $useforbuildflags;
+    $useforbuildenabled = BSUtil::enabled($repoid, $useforbuildflags, $useforbuildenabled, $myarch) if $useforbuildflags;
     push @$newuseforbuild, $packid if $useforbuildenabled;
   }
   my %olduseforbuild;
@@ -2929,7 +2943,7 @@ sub checkuseforbuild {
     sync_fullcache($gctx, $fullcache) if $fullcache->{'prp'} && $fullcache->{'prp'} ne $prp;
     $fullcache->{'prp'} = $prp;
   }
-  my $filter = calculate_exportfilter($prp, $prpsearchpath, $fullcache);
+  my $filter = calculate_exportfilter($gctx, $prp, $prpsearchpath, $fullcache);
   my $fctx = {
     'gctx' => $gctx,
     'gdst' => $gdst,
@@ -2947,6 +2961,7 @@ sub checkuseforbuild {
 
 sub update_preinstallimage {
   my ($gctx, $prp, $packid, $dst, $jobdir) = @_;
+  my $myarch = $gctx->{'arch'};
   my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
   my $dirty;
   # wipe old
@@ -3011,6 +3026,7 @@ sub sync_fullcache {
     %$fullcache = ();
     return;
   }
+  my $myarch = $gctx->{'arch'};
   my $prp = $fullcache->{'prp'};
   my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
   mkdir_p($gdst) unless -d $gdst;
@@ -3042,6 +3058,7 @@ sub addjobhist {
   $jobhist->{$_} = $info->{$_} for qw{package rev srcmd5 versrel bcnt reason};
   $jobhist->{'verifymd5'} = $info->{'verifymd5'} if $info->{'verifymd5'};
   $jobhist->{'readytime'} ||= $status->{'readytime'};	# backward compat
+  my $myarch = $gctx->{'arch'};
   my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
   mkdir_p($gdst);
   BSFileDB::fdb_add("$gdst/:jobhistory", $BSXML::jobhistlay, $jobhist);
@@ -3403,6 +3420,7 @@ sub get_projpacks {
   my ($ctx, $doasync, $projid, @packids) = @_;
 
   my $gctx = $ctx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   my $projpacks = $gctx->{'projpacks'};
   undef $projid unless $projpacks;
   @packids = () unless defined $projid;
@@ -3482,6 +3500,7 @@ sub get_projpacks {
 
 sub update_prpcheckuseforbuild {
   my ($gctx, $projid, $proj) = @_;
+  my $myarch = $gctx->{'arch'};
   my $prpcheckuseforbuild = $gctx->{'prpcheckuseforbuild'};
   if (!$proj) {
     for my $prp (keys %$prpcheckuseforbuild) {
@@ -3497,6 +3516,7 @@ sub update_prpcheckuseforbuild {
 
 sub update_doddata_prp {
   my ($gctx, $prp, $doddata) = @_;
+  my $myarch = $gctx->{'arch'};
   my $dodprps = $gctx->{'dodprps'};
   return 0 if identical($doddata, $dodprps->{$prp});
   my ($projid, $repoid) = split('/', $prp, 2);
@@ -3517,8 +3537,9 @@ sub update_doddata_prp {
 
 sub update_doddata {
   my ($gctx, $projid, $proj) = @_;
-  my $changed;
+  my $myarch = $gctx->{'arch'};
   my $dodprps = $gctx->{'dodprps'};
+  my $changed;
   if (!$proj) {
     for my $prp (keys %$dodprps) {
       next unless (split('/', $prp, 2))[0] eq $projid;
@@ -3744,6 +3765,7 @@ sub update_project_meta {
   print "updating meta for project '$projid' from $BSConfig::srcserver\n";
 
   my $gctx = $ctx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   my $projpacksin;
   my $param = {
     'uri' => "$BSConfig::srcserver/getprojpack",
@@ -3787,6 +3809,7 @@ sub update_project_meta_check {
   return 0 unless identical($proj->{'repository'}, $oldproj->{'repository'});
   if (($proj->{'config'} || '') ne ($oldproj->{'config'} || '')) {
     # check macro definitions and build type for all repositories
+    my $myarch = $gctx->{'arch'};
     for my $repoid (map {$_->{'name'}} @{$proj->{'repository'} || []}) {
       my @mprefix = ("%define _project $projid", "%define _repository $repoid");
       my $cold = Build::read_config($myarch, [ @mprefix, split("\n", $oldproj->{'config'} || '') ]);
@@ -3991,6 +4014,7 @@ sub find_linked_sources {
 sub expandsearchpath {
   my ($gctx, $projid, $repository) = @_;
 
+  my $myarch = $gctx->{'arch'};
   my $projpacks = $gctx->{'projpacks'};
   my %done;
   my @ret;
@@ -4065,6 +4089,7 @@ sub calc_prps {
   my ($gctx) = @_;
 
   print "calculating project dependencies...\n";
+  my $myarch = $gctx->{'arch'};
   # calculate prpdeps dependency hash
   delete $gctx->{'prps'};
   delete $gctx->{'prpsearchpath'};
@@ -4342,6 +4367,7 @@ sub addrepo_remote_unpackcpio {
   my ($gctx, $pool, $prp, $arch, $cpio, $solvok, $error) = @_;
 
   my $repodata;
+  my $myarch = $gctx->{'arch'};
   if ($arch eq $myarch) {
     my $repodatas = $gctx->{'repodatas'};
     $repodatas->{$prp} ||= {};
@@ -4496,10 +4522,10 @@ sub addrepo_alien {
   my $oldprpnotready = $prpnotready->{$prp};
   delete $prpnotready->{$prp};
   $repodatas->{$prp} = $repodatas_alien->{"$prp/$arch"};
-  my $savemyarch = $myarch;
-  $myarch = $arch;
+  my $savemyarch = $gctx->{'arch'};
+  $gctx->{'arch'} = $arch;
   my $r = addrepo($ctx, $pool, $prp);
-  $myarch = $savemyarch;
+  $gctx->{'arch'} = $savemyarch;
   $repodatas_alien->{"$prp/$arch"} = $repodatas->{$prp};
   delete $repodatas->{$prp};
   $repodatas->{$prp} = $oldrepodata if $oldrepodata;
@@ -4687,6 +4713,7 @@ sub patchpackstatus {
   my ($gctx, $prp, $packid, $code) = @_;
 
   my $reporoot = $gctx->{'reporoot'};
+  my $myarch = $gctx->{'arch'};
   my $gdst = "$reporoot/$prp/$myarch";
   $code ||= 'unknown';
   BSUtil::appendstr("$gdst/:packstatus.finished", "$code $packid\n");
@@ -4732,6 +4759,7 @@ sub jobfinished {
   my $repoid = $info->{'repository'};
   my $packid = $info->{'package'};
   my $prp = "$projid/$repoid";
+  my $myarch = $gctx->{'arch'};
 
   sync_fullcache($gctx, $fullcache) if $fullcache && $fullcache->{'prp'} && $fullcache->{'prp'} ne $prp;	# hey!
   
@@ -4751,8 +4779,9 @@ sub jobfinished {
     return;
   }
   my $reporoot = $gctx->{'reporoot'};
-  my $statusdir = "$reporoot/$prp/$myarch/$packid";
-  my $status = readxml("$statusdir/status", $BSXML::buildstatus, 1);
+  my $gdst = "$reporoot/$prp/$myarch";
+  my $dst = "$gdst/$packid";
+  my $status = readxml("$dst/status", $BSXML::buildstatus, 1);
   if ($status && (!$status->{'job'} || $status->{'job'} ne $job)) {
     print "  - $job is outdated\n";
     return;
@@ -4775,8 +4804,6 @@ sub jobfinished {
   my %all = map {$_ => 1} @all;
   @all = map {"$jobdatadir/$_"} @all;
 
-  my $gdst = "$reporoot/$prp/$myarch";
-  my $dst = "$gdst/$packid";
   mkdir_p($dst);
   mkdir_p("$gdst/:meta");
   mkdir_p("$gdst/:logfiles.fail");
@@ -4817,7 +4844,7 @@ sub jobfinished {
     rmdir($jobdatadir);
     addjobhist($gctx, $prp, $info, $status, $js, 'unchanged');
     $status->{'status'} = 'succeeded';
-    writexml("$statusdir/.status", "$statusdir/status", $status, $BSXML::buildstatus);
+    writexml("$dst/.status", "$dst/status", $status, $BSXML::buildstatus);
     $changed->{$prp} ||= 1;	# package is no longer blocking
     return;
   }
@@ -4831,7 +4858,7 @@ sub jobfinished {
     rmdir($jobdatadir);
     $status->{'status'} = 'failed';
     addjobhist($gctx, $prp, $info, $status, $js, 'failed');
-    writexml("$statusdir/.status", "$statusdir/status", $status, $BSXML::buildstatus);
+    writexml("$dst/.status", "$dst/status", $status, $BSXML::buildstatus);
     $changed->{$prp} ||= 1;	# package is no longer blocking
     return;
   }
@@ -4842,8 +4869,8 @@ sub jobfinished {
   unlink("$jobdatadir/.preinstallimage");
   BSUtil::touch("$jobdatadir/.preinstallimage") if $info->{'file'} eq '_preinstallimage';
   my $useforbuildenabled = 1;
-  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
-  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
+  $useforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
+  $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   update_dst_full($gctx, $prp, $packid, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath, $fullcache);
   $changed->{$prp} = 2 if $useforbuildenabled;
@@ -4858,7 +4885,7 @@ sub jobfinished {
   # write new status
   $status->{'status'} = 'succeeded';
   addjobhist($gctx, $prp, $info, $status, $js, 'succeeded');
-  writexml("$statusdir/.status", "$statusdir/status", $status, $BSXML::buildstatus);
+  writexml("$dst/.status", "$dst/status", $status, $BSXML::buildstatus);
 
   # write history file
   my $duration = 0;
@@ -4892,6 +4919,7 @@ sub aggregatefinished {
   my $gctx = $ectx->{'gctx'};
   my $changed = $gctx->{'changed_med'};
   my $myjobsdir = $gctx->{'myjobsdir'};
+  my $myarch = $gctx->{'arch'};
   my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
   my $jobdatadir = "$myjobsdir/$job:dir";
   if (!$info || ! -d $jobdatadir) {
@@ -4921,8 +4949,8 @@ sub aggregatefinished {
   mkdir_p($dst);
   print "  - $prp: $packid aggregate built\n";
   my $useforbuildenabled = 1;
-  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
-  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
+  $useforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
+  $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   update_dst_full($gctx, $prp, $packid, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath);
   $changed->{$prp} = 2 if $useforbuildenabled;
@@ -4946,6 +4974,7 @@ sub deltafinished {
   my $gctx = $ectx->{'gctx'};
   my $changed = $gctx->{'changed_med'};
   my $myjobsdir = $gctx->{'myjobsdir'};
+  my $myarch = $gctx->{'arch'};
   my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
   my $jobdatadir = "$myjobsdir/$job:dir";
   if (!$info || ! -d $jobdatadir) {
@@ -4999,6 +5028,7 @@ sub uploadbuildevent {
   my ($ectx, $job, $js) = @_;
 
   my $gctx = $ectx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   my $changed = $gctx->{'changed_med'};
   my $myjobsdir = $gctx->{'myjobsdir'};
   my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
@@ -5030,8 +5060,8 @@ sub uploadbuildevent {
   mkdir_p($dst);
   print "  - $prp: $packid uploaded\n";
   my $useforbuildenabled = 1;
-  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
-  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
+  $useforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
+  $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   update_dst_full($gctx, $prp, $packid, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath);
   $changed->{$prp} = 2 if $useforbuildenabled;
@@ -5048,6 +5078,7 @@ sub importevent {
   my $gctx = $ectx->{'gctx'};
   my $changed = $gctx->{'changed_med'};
   my $myjobsdir = $gctx->{'myjobsdir'};
+  my $myarch = $gctx->{'arch'};
   my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
   my $jobdatadir = "$myjobsdir/$job:dir";
   if (!$info || ! -d $jobdatadir) {
@@ -5072,8 +5103,8 @@ sub importevent {
   my $pdata = ($projpacks->{$projid}->{'package'} || {})->{$packid} || {};
   print "  - $prp: $packid imported from $importarch\n";
   my $useforbuildenabled = 1;
-  $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
-  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
+  $useforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
+  $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   update_dst_full($gctx, $prp, $packid, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath, undef, $importarch);
   $changed->{$prp} = 2 if $useforbuildenabled;
@@ -5088,6 +5119,7 @@ sub fakejobfinished {
   my ($ctx, $packid, $job, $code, $buildinfoskel, $needsign) = @_;
 
   my $gctx = $ctx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   local *F;
   my $jobstatus = {
     'code' => 'finished',
@@ -5121,6 +5153,7 @@ sub fakejobfinished_nouseforbuild {
   my ($ctx, $packid, $job, $code, $bininfo, $pdata) = @_;
 
   my $gctx = $ctx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $prp = "$projid/$repoid";
@@ -5193,7 +5226,8 @@ sub metacheck {
   
   my $gctx = $ctx->{'gctx'};
   my $prp = $ctx->{'prp'};
-  my @meta = split("\n", (readstr("$gctx->{'reporoot'}/$prp/$myarch/:meta/$packid", 1) || ''));
+  my $gdst = $ctx->{'gdst'};
+  my @meta = split("\n", (readstr("$gdst/:meta/$packid", 1) || ''));
   if (!@meta) {
     print "      - $packid ($buildtype)\n";
     print "        no former build, start build\n";
@@ -5205,7 +5239,7 @@ sub metacheck {
     return ('scheduled', [ @$data, {'explain' => 'source change', 'oldsource' => substr($meta[0], 0, 32)} ]);
   }
   if (@meta == 2 && $meta[1] =~ /^fake/) {
-    my @s = stat("$gctx->{'reporoot'}/$prp/$myarch/:meta/$packid");
+    my @s = stat("$gdst/:meta/$packid");
     if (!@s || $s[9] + 14400 > time()) {
       print "      - $packid ($buildtype)\n";
       print "        buildsystem setup failure\n";
@@ -5251,6 +5285,7 @@ sub checkkiwiimage {
   my ($ctx, $packid, $pdata, $info) = @_;
 
   my $gctx = $ctx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $prp = $ctx->{'prp'};
@@ -5453,6 +5488,7 @@ sub checkkiwiproduct {
   my ($ctx, $packid, $pdata, $info) = @_;
 
   my $gctx = $ctx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $repo = $ctx->{'repo'};
@@ -5788,6 +5824,7 @@ sub rebuildkiwiproduct {
   my ($ctx, $packid, $pdata, $info, $data) = @_;
 
   my $gctx = $ctx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $repo = $ctx->{'repo'};
@@ -5949,6 +5986,7 @@ sub checkpatchinfo {
   my $repoid = $ctx->{'repository'};
   my $repo = $ctx->{'repo'};
   my $gctx = $ctx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   my @archs = @{$repo->{'arch'}};
   return ('broken', 'missing archs') unless @archs;	# can't happen
   my $buildarch = $archs[0];	# always build in first arch
@@ -6190,6 +6228,7 @@ sub rebuildpatchinfo {
   my ($ctx, $packid, $pdata, $info, $data) = @_;
 
   my $gctx = $ctx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my @tocopy = @{$data->[0]};
@@ -6477,6 +6516,7 @@ sub rebuildpatchinfo {
 sub checkchannel {
   my ($ctx, $packid, $pdata, $info) = @_;
   my $gctx = $ctx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $repo = $ctx->{'repo'};
@@ -6706,6 +6746,7 @@ sub rebuildchannel {
   my $channelbins = $data->[1];
   my $forme = $data->[2];
   my $gctx = $ctx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $prp = "$projid/$repoid";
@@ -6777,6 +6818,7 @@ sub checkaggregate {
   my ($ctx, $packid, $pdata, $info) = @_;
 
   my $gctx = $ctx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $reporoot = $gctx->{'reporoot'};
@@ -6965,6 +7007,7 @@ sub rebuildaggregate {
   my $new_meta = $data->[0];
   my $aggregates = $data->[1];
   my $gctx = $ctx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
   my $prp = "$projid/$repoid";
@@ -7165,8 +7208,10 @@ sub checkpackage {
   my $dep2src = $ctx->{'dep2src'};
   my $edeps = $ctx->{'edeps'}->{$packid} || [];
   my $depislocal = $ctx->{'depislocal'};
+  my $gdst = $ctx->{'gdst'};
   my $gctx = $ctx->{'gctx'};
   my $reporoot = $gctx->{'reporoot'};
+  my $myarch = $gctx->{'arch'};
 
   # check for localdep repos
   if (exists($pdata->{'originproject'})) {
@@ -7206,7 +7251,7 @@ sub checkpackage {
   }
 
   my $reason;
-  my @meta_s = stat("$reporoot/$prp/$myarch/:meta/$packid");
+  my @meta_s = stat("$gdst/:meta/$packid");
   # we store the lastcheck data in one string instead of an array
   # with 4 elements to save precious memory
   # srcmd5.metamd5.hdrmetamd5.statdata (32+32+32+x)
@@ -7214,7 +7259,7 @@ sub checkpackage {
   my $mylastcheck = $lastcheck->{$packid};
   my @meta;
   if (!@meta_s || !$mylastcheck || substr($mylastcheck, 96) ne "$meta_s[9]/$meta_s[7]/$meta_s[1]") {
-    if (open(F, '<', "$reporoot/$prp/$myarch/:meta/$packid")) {
+    if (open(F, '<', "$gdst/:meta/$packid")) {
       @meta_s = stat F;
       @meta = <F>;
       close F;
@@ -7242,7 +7287,7 @@ sub checkpackage {
     print "        src change, start build\n";
     return ('scheduled', [ { 'explain' => 'source change', 'oldsource' => substr($mylastcheck, 0, 32) } ]);
   } elsif (substr($mylastcheck, 32, 32) eq 'fakefakefakefakefakefakefakefake') {
-    my @s = stat("$reporoot/$prp/$myarch/:meta/$packid");
+    my @s = stat("$gdst/:meta/$packid");
     if (!@s || $s[9] + 14400 > time()) {
       print "      - $packid ($buildtype)\n";
       print "        buildsystem setup failure\n";
@@ -7334,7 +7379,7 @@ sub checkpackage {
       goto relsynccheck;
     }
     # something changed, read in old meta (if not already done)
-    if (!@meta && open(F, '<', "$reporoot/$prp/$myarch/:meta/$packid")) {
+    if (!@meta && open(F, '<', "$gdst/:meta/$packid")) {
       @meta = <F>;
       close F;
       chomp @meta;
@@ -7476,7 +7521,8 @@ sub updaterelsyncmax {
 
 
 sub setupremotewatcher {
-  my ($remoteurl, $watchremote, $start) = @_;
+  my ($gctx, $remoteurl, $watchremote, $start) = @_;
+  my $myarch = $gctx->{'arch'};
   if ($start) {
     print "setting up watcher for $remoteurl, start=$start\n";
   } else {
@@ -7530,8 +7576,9 @@ sub setupremotewatcher {
 }
 
 sub getremoteevents {
-  my ($watcher, $watchremote, $starthash) = @_;
+  my ($gctx, $watcher, $watchremote, $starthash) = @_;
 
+  my $myarch = $gctx->{'arch'};
   my $remoteurl = $watcher->{'remoteurl'};
   my $start = $starthash->{$remoteurl};
   print "response from watcher for $remoteurl\n";
@@ -7836,6 +7883,7 @@ sub event_scanprjbinaries {
   my ($ectx, $ev) = @_;
 
   my $gctx = $ectx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   my $changed_high = $gctx->{'changed_high'};
   my $projid = $ev->{'project'};
   my $repoid = $ev->{'repository'};
@@ -7889,6 +7937,7 @@ sub event_wipe {
   my ($ectx, $ev) = @_;
 
   my $gctx = $ectx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   my $changed_high = $gctx->{'changed_high'};
   my $changed_dirty = $gctx->{'changed_dirty'};
 
@@ -7908,8 +7957,8 @@ sub event_wipe {
   my $proj = $projpacks->{$projid};
   my $pdata = (($proj || {})->{'package'} || {})->{$packid} || {};
   my $useforbuildenabled = 1;
-  $useforbuildenabled = enabled($repoid, $proj->{'useforbuild'}, $useforbuildenabled) if $proj;
-  $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
+  $useforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $useforbuildenabled, $myarch) if $proj;
+  $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
   my $importarch = '';	# keep those imports
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $prpsearchpath, undef, $importarch);
@@ -7941,6 +7990,7 @@ sub event_useforbuild {
   my ($ectx, $ev) = @_;
 
   my $gctx = $ectx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   my $changed_high = $gctx->{'changed_high'};
   my $changed_dirty = $gctx->{'changed_dirty'};
   my $reporoot = $gctx->{'reporoot'};
@@ -7970,8 +8020,8 @@ sub event_useforbuild {
     next unless -d "$gdst/$packid";
     my $useforbuildenabled = 1;
     my $pdata = $packs->{$packid} || {};
-    $useforbuildenabled = enabled($repoid, $proj->{'useforbuild'}, $useforbuildenabled);
-    $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
+    $useforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $useforbuildenabled, $myarch);
+    $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
     next unless $useforbuildenabled;
     my $meta = "$gdst/:meta/$packid";
     undef $meta unless -s $meta;
@@ -7993,6 +8043,7 @@ sub event_exit {
   my ($ectx, $ev) = @_;
 
   my $gctx = $ectx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   print "exiting...\n" if $ev->{'type'} eq 'exit';
   print "exiting (with complete info)...\n" if $ev->{'type'} eq 'exitcomplete';
   print "restarting...\n" if $ev->{'type'} eq 'restart';
@@ -8275,26 +8326,26 @@ sub do_fetchprojpacks {
 $| = 1;
 $SIG{'PIPE'} = 'IGNORE';
 if ($testmode && ($testmode eq 'exit' || $testmode eq 'restart')) {
-  if (!(-e "$_rundir/bs_sched.$myarch.lock") || BSUtil::lockcheck('>>', "$_rundir/bs_sched.$myarch.lock")) {
-    die("scheduler is not running for $myarch.\n") if $testmode eq 'restart';
-    print("scheduler is not running for $myarch.\n");
+  if (!(-e "$_rundir/bs_sched.$_myarch.lock") || BSUtil::lockcheck('>>', "$_rundir/bs_sched.$_myarch.lock")) {
+    die("scheduler is not running for $_myarch.\n") if $testmode eq 'restart';
+    print("scheduler is not running for $_myarch.\n");
     exit(0);
   }
   if ($testmode eq 'restart') {
-    print "restarting scheduler for $myarch...\n";
+    print "restarting scheduler for $_myarch...\n";
   } else {
-    print "shutting down scheduler for $myarch...\n";
+    print "shutting down scheduler for $_myarch...\n";
   }
   my $ev = {
     'type' => $testmode eq 'restart' ? 'restart' : 'exitcomplete',
   };
   my $evname = "$ev->{'type'}::";
-  sendevent({'eventdir' => $_eventdir}, $ev, $myarch, $evname);
-  BSUtil::waituntilgone("$_eventdir/$myarch/$evname");
+  sendevent({'eventdir' => $_eventdir}, $ev, $_myarch, $evname);
+  BSUtil::waituntilgone("$_eventdir/$_myarch/$evname");
   if ($testmode eq 'exit') {
     # scheduler saw the event, wait until the process is gone
     local *F;
-    BSUtil::lockopen(\*F, '>>', "$_rundir/bs_sched.$myarch.lock", 1);
+    BSUtil::lockopen(\*F, '>>', "$_rundir/bs_sched.$_myarch.lock", 1);
     close F;
   }
   exit(0);
@@ -8304,17 +8355,17 @@ print "starting build service scheduler\n";
 # get lock
 mkdir_p($_rundir);
 if (!$testprojid) {
-  open(RUNLOCK, '>>', "$_rundir/bs_sched.$myarch.lock") || die("$_rundir/bs_sched.$myarch.lock: $!\n");
-  flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("scheduler is already running for $myarch!\n");
-  utime undef, undef, "$_rundir/bs_sched.$myarch.lock";
+  open(RUNLOCK, '>>', "$_rundir/bs_sched.$_myarch.lock") || die("$_rundir/bs_sched.$_myarch.lock: $!\n");
+  flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("scheduler is already running for $_myarch!\n");
+  utime undef, undef, "$_rundir/bs_sched.$_myarch.lock";
 }
 
-for my $d ("$_eventdir/$myarch", "$_jobsdir/$myarch", $infodir) {
+for my $d ("$_eventdir/$_myarch", "$_jobsdir/$_myarch", $infodir) {
   next if -d $d;
   mkdir($d) || die("$d: $!\n");
 }
 # setup event mechanism
-my $_myeventdir = "$_eventdir/$myarch";
+my $_myeventdir = "$_eventdir/$_myarch";
 if (!-p "$_myeventdir/.ping") {
   POSIX::mkfifo("$_myeventdir/.ping", 0666) || die("$_myeventdir/.ping: $!");
   chmod(0666, "$_myeventdir/.ping");
@@ -8343,12 +8394,12 @@ my %nextmed;
 
 # create global context
 my $gctx = {
-  'arch' => $myarch,
+  'arch' => $_myarch,
   'reporoot' => $_reporoot,
 
   # config
   'jobsdir' => $_jobsdir,
-  'myjobsdir' => "$_jobsdir/$myarch",
+  'myjobsdir' => "$_jobsdir/$_myarch",
   'eventdir' => $_eventdir,
   'myeventdir' => $_myeventdir,
   'extrepodir' => $_extrepodir,
@@ -8418,10 +8469,10 @@ my $rctx = {
 $gctx->{'rctx'} = $rctx;
 
 # read old state if present
-if (!$testprojid && -s "$_rundir/bs_sched.$myarch.state") {
+if (!$testprojid && -s "$_rundir/bs_sched.$_myarch.state") {
   print "reading old state...\n";
-  my $schedstate = BSUtil::retrieve("$_rundir/bs_sched.$myarch.state", 2);
-  unlink("$_rundir/bs_sched.$myarch.state");
+  my $schedstate = BSUtil::retrieve("$_rundir/bs_sched.$_myarch.state", 2);
+  unlink("$_rundir/bs_sched.$_myarch.state");
   if ($schedstate) {
     # just for testing...
     print "  - $_\n" for sort keys %$schedstate;
@@ -8540,7 +8591,7 @@ if (!$gctx->{'projpacks'} && $startupmode) {
   my $param = {
     'uri' => "$BSConfig::srcserver/getprojpack",
   };
-  my @args = ('withrepos', 'withconfig', "arch=$myarch", 'withremotemap=1', 'noremote=1');
+  my @args = ('withrepos', 'withconfig', "arch=$_myarch", 'withremotemap=1', 'noremote=1');
   push @args, 'withsrcmd5', 'withdeps' if $startupmode == 1;
   push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
   my $projpacksin;
@@ -8620,11 +8671,11 @@ if ($BSConfig::enable_download_on_demand) {
   for my $projid (sort keys %$projpacks) {
     for my $repo (@{($projpacks->{$projid} || {})->{'repository'} || []}) {
       next unless $repo->{'download'};
-      my $doddata = (grep {($_->{'arch'} || '') eq $myarch} @{$repo->{'download'} || []})[0];
+      my $doddata = (grep {($_->{'arch'} || '') eq $_myarch} @{$repo->{'download'} || []})[0];
       next unless $doddata;
       my $repoid = $repo->{'name'};
       $dodprps->{"$projid/$repoid"} = $doddata;
-      my $f = "${projid}::${repoid}::$myarch";
+      my $f = "${projid}::${repoid}::$_myarch";
       $f = ':'.Digest::MD5::md5_hex($f) if length($f) > 200;
       $dodfiles{$f} = 1;
       my $dd = { %$doddata, 'project' => $projid, 'repository' => $repoid };
@@ -8637,7 +8688,7 @@ if ($BSConfig::enable_download_on_demand) {
   }
   for my $f (grep {!/^\./ && !$dodfiles{$_}} ls($dodsdir)) {
     my $olddd = readxml("$dodsdir/$f", $BSXML::doddata, 1);
-    next if $olddd && $olddd->{'arch'} ne $myarch;
+    next if $olddd && $olddd->{'arch'} ne $_myarch;
     unlink("$dodsdir/$f");
     $changed = 1;
   }
@@ -8649,7 +8700,7 @@ if ($BSConfig::enable_download_on_demand) {
 
 init_ourjobs($gctx);
 
-unlink("$_rundir/bs_sched.$myarch.dead");	# alive and kicking
+unlink("$_rundir/bs_sched.$_myarch.dead");	# alive and kicking
 
 #XXX
 #@lookat_low = sort keys %$projpacks;
@@ -8682,6 +8733,7 @@ my $initialstartup = 1;
 ##
 
 my $reporoot = $gctx->{'reporoot'};
+my $myarch = $gctx->{'arch'};
 
 eval {
 
@@ -8708,7 +8760,7 @@ NEXTPRP:
     # create watchers
     for my $remoteurl (sort keys %$watchremote) {
       if (!$remotewatchers{$remoteurl}) {
-	my $watcher = setupremotewatcher($remoteurl, $watchremote->{$remoteurl}, $watchremote_start->{$remoteurl});
+	my $watcher = setupremotewatcher($gctx, $remoteurl, $watchremote->{$remoteurl}, $watchremote_start->{$remoteurl});
 	$watcher->{'watchlist'} = join("\0", sort keys %{$watchremote->{$remoteurl}});
 	$remotewatchers{$remoteurl} = $watcher;
       }
@@ -8748,7 +8800,7 @@ NEXTPRP:
 	    print "retrying watcher for $remoteurl\n";
 	    delete $remotewatchers{$remoteurl};
 	  } else {
-	    push @events, getremoteevents($watcher, $watchremote->{$remoteurl}, $watchremote_start);
+	    push @events, getremoteevents($gctx, $watcher, $watchremote->{$remoteurl}, $watchremote_start);
 	    delete $remotewatchers{$remoteurl} unless $watcher->{'retry'};
 	  }
 	}
@@ -9193,7 +9245,7 @@ NEXTPRP:
     my $ctx = { 'project' => $projid, 'repository' => $repoid, 'prp' => $prp,
 		'repo' => $repo, 'gctx' => $gctx, 'changetype' => $lookattype,
 		'prpsearchpath' => $prpsearchpath || [], 'conf' => $bconf,
-		'lastcheck' => $lastcheck{$prp} };
+		'lastcheck' => $lastcheck{$prp}, 'gdst' => "$gctx->{'reporoot'}/$prp/$myarch"};
 
     if ($repo->{'status'} && $repo->{'status'} eq 'disabled') {
       print "      disabled\n";
@@ -9240,7 +9292,7 @@ NEXTPRP:
       delete $lastcheck{$prp}->{$packid};
       # delete full entries
       my $useforbuildenabled = 1;
-      $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
+      $useforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
       # hmm, need to exclude patchinfos here. cheating.
       $useforbuildenabled = 0 if -s "$gdst/$packid/.updateinfodata";
       # don't wipe imports if we're excluded
@@ -9486,9 +9538,9 @@ NEXTPRP:
     }
 
     my $projbuildenabled = 1;
-    $projbuildenabled = enabled($repoid, $projpacks->{$projid}->{'build'}, 1) if $projpacks->{$projid}->{'build'};
+    $projbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'build'}, 1, $myarch) if $projpacks->{$projid}->{'build'};
     my $projlocked = 0;
-    $projlocked = enabled($repoid, $projpacks->{$projid}->{'lock'}, 0) if $projpacks->{$projid}->{'lock'};
+    $projlocked = BSUtil::enabled($repoid, $projpacks->{$projid}->{'lock'}, 0, $myarch) if $projpacks->{$projid}->{'lock'};
 
     # fetch relsync data
     my $relsyncmax;
@@ -9528,7 +9580,7 @@ NEXTPRP:
     $ctx->{'nharder'} = 0;
 
     my $prjuseforbuildenabled = 1;
-    $prjuseforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $prjuseforbuildenabled);
+    $prjuseforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $prjuseforbuildenabled, $myarch);
 
     # copy old data over if we have missing packages
     if ($projpacks->{$projid}->{'missingpackages'}) {
@@ -9581,7 +9633,7 @@ NEXTPRP:
 
       my $pdata = $packs->{$packid};
       if ($pdata->{'lock'}) {
-	if (enabled($repoid, $pdata->{'lock'}, $projlocked)) {
+	if (BSUtil::enabled($repoid, $pdata->{'lock'}, $projlocked, $myarch)) {
 	  $packstatus{$packid} = 'locked';
 	  next;
 	}
@@ -9630,7 +9682,7 @@ NEXTPRP:
       }
 
       if ($pdata->{'build'}) {
-	if (!enabled($repoid, $pdata->{'build'}, $projbuildenabled)) {
+	if (!BSUtil::enabled($repoid, $pdata->{'build'}, $projbuildenabled, $myarch)) {
 	  $packstatus{$packid} = 'disabled';
 	  next;
 	}
@@ -9677,7 +9729,7 @@ NEXTPRP:
 	  # print "      - $packid ($buildtype)\n";
 	  # print "        already scheduled\n";
 	  add_crossmarker($gctx, $bconf, $job) if $bconf->{'hostarch'};
-	  my $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $prjuseforbuildenabled);
+	  my $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $prjuseforbuildenabled, $myarch);
 	  $building{$packid} = $job;
 	  $notready{$pname} = 1 if $useforbuildenabled;
 	  $unfinished{$pname} = 1;
@@ -9724,7 +9776,7 @@ NEXTPRP:
       $packstatus{$packid} = $astatus;
       $packerror{$packid} = $aerror if defined $aerror;
       if ($astatus eq 'blocked' || $astatus eq 'scheduled') {
-	my $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $prjuseforbuildenabled);
+	my $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $prjuseforbuildenabled, $myarch);
 	$notready{$pname} = 1 if $useforbuildenabled;
 	$unfinished{$pname} = 1;
       }
@@ -9823,15 +9875,15 @@ NEXTPRP:
     # we always publish kiwi...
     if ((!%unfinished && !$ctx->{'havedelayed'}) || $prptype eq 'kiwi') {
       my $locked = 0;
-      $locked = enabled($repoid, $projpacks->{$projid}->{'lock'}, $locked) if $projpacks->{$projid}->{'lock'};
-      my $pubenabled = enabled($repoid, $projpacks->{$projid}->{'publish'}, 1);
+      $locked = BSUtil::enabled($repoid, $projpacks->{$projid}->{'lock'}, $locked, $myarch) if $projpacks->{$projid}->{'lock'};
+      my $pubenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'publish'}, 1, $myarch);
       my %pubenabled;
       for my $packid (@packs) {
 	my $pdata = $packs->{$packid};
-        next if defined($pdata->{'lock'}) && enabled($repoid, $pdata->{'lock'}, $locked);
+        next if defined($pdata->{'lock'}) && BSUtil::enabled($repoid, $pdata->{'lock'}, $locked, $myarch);
         next if !defined($pdata->{'lock'}) && $locked;
 	if ($pdata->{'publish'}) {
-	  $pubenabled{$packid} = enabled($repoid, $pdata->{'publish'}, $pubenabled);
+	  $pubenabled{$packid} = BSUtil::enabled($repoid, $pdata->{'publish'}, $pubenabled, $myarch);
 	} else {
 	  $pubenabled{$packid} = $pubenabled;
 	}
