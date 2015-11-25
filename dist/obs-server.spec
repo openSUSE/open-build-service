@@ -756,7 +756,6 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /srv/www/obs/api/db/data
 /srv/www/obs/api/db/migrate
 /srv/www/obs/api/db/seeds.rb
-/srv/www/obs/api/db/sphinx
 /srv/www/obs/api/files/wizardtemplate.spec
 /srv/www/obs/api/lib
 /srv/www/obs/api/public
@@ -767,7 +766,6 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /srv/www/obs/docs
 %{_docdir}/%{obs_api_pkg_name}/contrib/setup-appliance.sh
 
-%dir /srv/www/obs/api/config
 /srv/www/obs/api/config/locales
 %dir /srv/www/obs/api/vendor
 /srv/www/obs/api/vendor/diststats
