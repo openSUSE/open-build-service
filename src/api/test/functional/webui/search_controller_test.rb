@@ -204,17 +204,17 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
 
 
   def test_search_by_title
-    #TODO
+    skip("not yet implemented")
   end
 
 
   def test_search_by_description
-    #TODO
+    skip("not yet implemented")
   end
 
 
   def test_search_by_attributes
-    #TODO
+    skip("not yet implemented")
   end
 
 
