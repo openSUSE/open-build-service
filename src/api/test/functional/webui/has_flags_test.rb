@@ -8,7 +8,7 @@ class Webui::HasFlagsTest < Webui::IntegrationTest
     # and replacing the buttons (unobstrusive javascript). Hence whenever
     # you run into resource constraints this will fail miserably on some
     # random point.
-    skip('The interface in its current form untestable...')
+    skip('The interface in its current form is untestable...')
 
     use_js
     login_tom
@@ -26,7 +26,7 @@ class Webui::HasFlagsTest < Webui::IntegrationTest
 
   def test_project_flag_toggle
     # FIXME: See above
-    skip('The interface in its current form untestable...')
+    skip('The interface in its current form is untestable...')
 
     use_js
     login_tom
@@ -49,7 +49,7 @@ class Webui::HasFlagsTest < Webui::IntegrationTest
 
   def test_project_flag_remove
     # FIXME: See above
-    skip('The interface in its current form untestable...')
+    skip('The interface in its current form is untestable...')
 
     use_js
     login_tom

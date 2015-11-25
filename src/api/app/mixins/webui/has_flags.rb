@@ -1,4 +1,5 @@
 module Webui::HasFlags
+
   def create_flag
     authorize main_object, :update?
 
@@ -8,6 +9,8 @@ module Webui::HasFlags
 
     respond_to do |format|
       if @flag.save
+        # FIXME: This should happen in Flag or even better in Project/Package
+        main_object.store
         format.js
       else
         format.json { render json: @flag.errors, status: :unprocessable_entity }
@@ -23,6 +26,8 @@ module Webui::HasFlags
 
     respond_to do |format|
       if @flag.save
+        # FIXME: This should happen in Flag or even better in Project/Package
+        main_object.store
         format.js
       else
         format.json { render json: @flag.errors, status: :unprocessable_entity }
@@ -34,10 +39,13 @@ module Webui::HasFlags
     authorize main_object, :update?
 
     @flag = Flag.find(params[:flag])
-    @project.flags.destroy(@flag)
+    main_object.flags.destroy(@flag)
 
     respond_to do |format|
+      # FIXME: This should happen in Flag or even better in Project/Package
+      main_object.store
       format.js
     end
   end
+
 end
