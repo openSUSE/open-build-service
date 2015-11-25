@@ -545,11 +545,12 @@ class Webui::PackageController < Webui::WebuiController
 
     branched_package = BranchPackage.new(project: @project.name, package: @package.name).branch
     created_project_name = branched_package[:data][:targetproject]
+    created_package_name = branched_package[:data][:targetpackage]
 
     Event::BranchCommand.create(project: @project.name, package: @package.name,
-                                targetproject: created_project_name, targetpackage: @package.name,
+                                targetproject: created_project_name, targetpackage: created_package_name,
                                 user: User.current.login)
-    redirect_to(package_show_path(project: created_project_name, package: @package),
+    redirect_to(package_show_path(project: created_project_name, package: created_package_name),
                 notice: "Successfully branched package")
   rescue BranchPackage::DoubleBranchPackageError => e
       redirect_to(package_show_path(project: User.current.branch_project_name(@project.name), package: @package),
