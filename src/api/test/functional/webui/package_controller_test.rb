@@ -36,6 +36,19 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_selector '#delete-package'
   end
 
+  def test_branch_package
+    use_js
+
+    login_Iggy
+    visit package_show_path(project: "BaseDistro3", package: "pack2")
+    click_link("Branch package")
+    click_button("Ok")
+
+    assert Project.where(name: "home:Iggy:branches:BaseDistro3").exists?
+    assert_equal package_show_path(project: "home:Iggy:branches:BaseDistro3", package: "pack2"),
+                 page.current_path
+  end
+
   def test_show_package_binary_as_user
     login_user('fred', 'geröllheimer', to:
         package_binaries_path(package: 'TestPack', project: 'home:Iggy', repository: '10.2'))
