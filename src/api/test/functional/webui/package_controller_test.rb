@@ -38,8 +38,8 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
 
   def test_branch_package
     use_js
-
     login_Iggy
+
     visit package_show_path(project: "BaseDistro3", package: "pack2")
     click_link("Branch package")
     click_button("Ok")
@@ -47,6 +47,14 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     assert Project.where(name: "home:Iggy:branches:BaseDistro3").exists?
     assert_equal package_show_path(project: "home:Iggy:branches:BaseDistro3", package: "pack2"),
                  page.current_path
+
+    # Branch from project with Update project configured
+    visit package_show_path(project: "BaseDistro", package: "pack1")
+    click_link("Branch package")
+    click_button("Ok")
+    assert_equal package_show_path(project: "home:Iggy:branches:BaseDistro:Update", package: "pack1"),
+                 page.current_path,
+                 "Should create project 'home:Iggy:branches:BaseDistro:Update' and redirect to that project"
   end
 
   def test_show_package_binary_as_user
