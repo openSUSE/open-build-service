@@ -8,9 +8,9 @@ module Webui::HasFlags
 
     respond_to do |format|
       if @flag.save
-        # FIXME: This should happen in Flag or even better in Project/Package
+        # FIXME: This should happen in Flag or even better in Project
         main_object.store
-        format.js
+        format.js { render 'change_flag' }
       else
         format.json { render json: @flag.errors, status: :unprocessable_entity }
       end
@@ -25,9 +25,9 @@ module Webui::HasFlags
 
     respond_to do |format|
       if @flag.save
-        # FIXME: This should happen in Flag or even better in Project/Package
+        # FIXME: This should happen in Flag or even better in Project
         main_object.store
-        format.js
+        format.js { render 'change_flag' }
       else
         format.json { render json: @flag.errors, status: :unprocessable_entity }
       end
@@ -39,11 +39,13 @@ module Webui::HasFlags
 
     @flag = Flag.find(params[:flag])
     main_object.flags.destroy(@flag)
+    @flag = @flag.dup
+    @flag.status = @flag.default_status
 
     respond_to do |format|
-      # FIXME: This should happen in Flag or even better in Project/Package
+      # FIXME: This should happen in Flag or even better in Project
       main_object.store
-      format.js
+      format.js { render 'change_flag' }
     end
   end
 end

@@ -37,9 +37,9 @@ class Flag < ActiveRecord::Base
 
   scope :with_types, ->(type) { where(flag: type) }
   scope :with_repositories, ->(repo_name) { where(repo: repo_name) }
-  scope :with_architectures, ->(architecture_id) { where(architecture_id: architecture_id) }
+  scope :with_architectures, ->(architecture_name) { where(architecture: Architecture.find_by(name: architecture_name)) }
 
-  def self.default_state(flag_name)
+  def self.default_status(flag_name)
     case flag_name
     when 'lock'
       'disable'
@@ -60,6 +60,15 @@ class Flag < ActiveRecord::Base
     else
       'disable'
     end
+  end
+
+  def default_status
+    all_flag = main_object.flags.with_types(self.flag).with_repositories(nil).with_architectures(nil).first
+    repo_flag = main_object.flags.with_types(self.flag).with_repositories(self.repo).with_architectures(nil).first
+
+    return repo_flag.status if repo_flag
+    return all_flag.status if all_flag
+    return Flag.default_status(self.flag) if !repo_flag && !all_flag
   end
 
   def to_xml(builder)
@@ -122,4 +131,13 @@ class Flag < ActiveRecord::Base
     ret += "_#{architecture.name}" unless architecture_id.blank?
     ret
   end
+
+  def arch
+    architecture_id.blank? ? '' : architecture.name
+  end
+
+  def main_object
+    self.package ? self.package : self.project
+  end
+
 end

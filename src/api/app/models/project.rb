@@ -1005,6 +1005,8 @@ class Project < ActiveRecord::Base
     ret
   end
 
+  define_method :get_flags, GetFlags.instance_method(:get_flags)
+
   def can_be_released_to_project?(target_project)
     # is this package source going to a project which is specified as release target ?
     self.repositories.includes(:release_targets).each do |repo|

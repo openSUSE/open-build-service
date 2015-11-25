@@ -41,6 +41,8 @@ class Package < ActiveRecord::Base
 
   belongs_to :project, inverse_of: :packages
   delegate :name, to: :project, prefix: true
+  delegate :repositories, to: :project
+  delegate :architectures, to: :project
 
   attr_reader :commit_opts
   attr_writer :commit_opts
@@ -810,6 +812,8 @@ class Package < ActiveRecord::Base
   def expand_flags
     return project.expand_flags(self)
   end
+
+  define_method :get_flags, GetFlags.instance_method(:get_flags)
 
   def open_requests_with_package_as_source_or_target
     rel = BsRequest.where(state: [:new, :review, :declined]).joins(:bs_request_actions)
