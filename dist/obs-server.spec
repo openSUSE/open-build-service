@@ -739,6 +739,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 %dir /srv/www/obs/api/config/environments
 %dir /srv/www/obs/api/files
 %dir %{_docdir}/%{obs_api_pkg_name}/contrib
+%dir /srv/www/obs/api/db
 /srv/www/obs/api/Gemfile
 /srv/www/obs/api/Gemfile.lock
 /srv/www/obs/api/config.ru
@@ -750,7 +751,12 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /usr/sbin/rcobsapisetup
 /usr/sbin/rcobsapidelayed
 /srv/www/obs/api/app
-/srv/www/obs/api/db
+%attr(-,%{apache_user},%{apache_group})  /srv/www/obs/api/db/structure.sql
+/srv/www/obs/api/db/attribute_descriptions.rb
+/srv/www/obs/api/db/data
+/srv/www/obs/api/db/migrate
+/srv/www/obs/api/db/seeds.rb
+/srv/www/obs/api/db/sphinx
 /srv/www/obs/api/files/wizardtemplate.spec
 /srv/www/obs/api/lib
 /srv/www/obs/api/public
