@@ -50,7 +50,7 @@ class BsRequest < ActiveRecord::Base
   validates_inclusion_of :state, :in => VALID_REQUEST_STATES
   validates :creator, :presence => true
   validate :check_supersede_state
-  validate :check_creator, :on => :create
+  validate :check_creator, :on => [ :create, :save! ]
   validates_length_of :comment, :maximum => 300000
   validates_length_of :description, :maximum => 300000
 
