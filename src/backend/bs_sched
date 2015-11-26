@@ -3138,6 +3138,7 @@ sub xrpc {
   # resource is busy. Enqueue.
   my $rhandle = $iswaiting->{$resource};
   if ($ctx->{'prp'}) {
+    # xrpc resulted from looking at a prp. Just do that again.
     my $handle = { '_changetype' => $ctx->{'changetype'} };
     $handle->{$_} = $param->{'async'}->{$_} for keys %{$param->{'async'}};
     push @{$rhandle->{'_wakeup'}}, [ $ctx->{'prp'}, $handle ];
@@ -3156,10 +3157,11 @@ sub xrpc_handles {
 }
 
 sub xrpc_addwakeup {
-  my ($rctx, $resource, $ctx, $handle) = @_;
+  my ($rctx, $resource, $ctx) = @_;
   my $iswaiting = $rctx->{'iswaiting'};
   my $rhandle = $iswaiting->{$resource};
   die("addwakeup to not busy resource '$resource'\n") unless $rhandle;
+  my $handle = { '_changetype' => $ctx->{'changetype'} };
   push @{$rhandle->{'_wakeup'}}, [ $ctx->{'prp'}, $handle];
 }
 
@@ -3249,7 +3251,7 @@ sub xrpc_resume {
       my $changelevel = $wakeup->[1]->{'_changelevel'} || 1;
       next if $did{"$wakeup->[0]/$changetype/$changelevel"};
       $did{"$wakeup->[0]/$changetype/$changelevel"} = 1;
-      xrpc_setchanged($handle, $wakeup->[0], $changetype, $changelevel);
+      $rctx->{'wakeupfunction'}->($handle, $wakeup->[0], $changetype, $changelevel);
     }
   }
 }
@@ -8464,6 +8466,7 @@ my $rctx = {
   'iswaiting_serverload' => {},
   'iswaiting_serverload_low' => {},
   'resumed_highload' => 0,
+  'wakeupfunction' => \&xrpc_setchanged,
 };
 
 $gctx->{'rctx'} = $rctx;
@@ -8989,8 +8992,8 @@ NEXTPRP:
     if (defined($prp)) {
       my ($projid) = split('/', $prp, 2);
       if (xrpc_busy($gctx->{'rctx'}, $projid)) {
-	my $ctx = {'prp' => $prp};
-	xrpc_addwakeup($gctx->{'rctx'}, $projid, $ctx, {'changetype' => $lookattype});
+	my $ctx = {'prp' => $prp, 'changetype' => $lookattype};
+	xrpc_addwakeup($gctx->{'rctx'}, $projid, $ctx);
 	next;
       }
     }
