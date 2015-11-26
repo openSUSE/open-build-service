@@ -11,13 +11,15 @@ module ModelHelper
   def sync_hash_with_model(entry_class, dblist, inhasharray)
 
     keys = entry_class._sync_keys
-    oldentries = {}
+    entries = {}
+    to_delete = {}
 
     dblist.each do |e|
       key = ""
       keys.each{|k| key << "#{e.send(k).to_s}::"}
-      oldentries[key]=e
+      entries[key]=e
     end
+    to_delete=entries.clone
 
     entry_class.transaction do
       inhasharray.each do |hash|
@@ -26,25 +28,26 @@ module ModelHelper
           raise 'MissingKey', k unless hash.has_key? k
           key << "#{hash[k].to_s}::"
         end
-        if oldentries[key]
+        if entries[key]
           # exists, do we need to update it?
           modified=nil
           hash.each do |entry|
             next if keys.include? entry.first
-            if entry.last != oldentries[key][entry.first]
-              oldentries[key][entry.first] = entry.last
+            if entry.last != entries[key][entry.first]
+              entries[key][entry.first] = entry.last
               modified=true
             end
           end
-          oldentries[key].save if modified
-          oldentries.delete(key)
+          entries[key].save if modified
+          to_delete.delete(key)
         else
           # not existing yet, creating
-          dblist.create(hash)
+          entries[key] = dblist.create(hash)
         end
       end
+
       # delete obsolete entries
-      dblist.delete(oldentries.values)
+      dblist.delete(to_delete.values)
     end
   end
 
