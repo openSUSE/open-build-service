@@ -9,14 +9,6 @@ class IssueControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_get_issues
-    # bugs are public atm. Secret stuff should not get imported.
-    get '/issue_trackers'
-    assert_response :success
-    get '/issue_trackers/bnc'
-    assert_response :success
-    get '/issue_trackers/bnc/issues/123456'
-    assert_response :success
-
     # as user
     login_Iggy
     get '/issue_trackers'
