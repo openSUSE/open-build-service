@@ -9,7 +9,7 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
     @package = 'kdelibs'
     @userspath = package_users_path(project: @project, package: @package)
 
-    login_user 'fred', 'geröllheimer', to: @userspath
+    login_user 'fred', 'buildservice', to: @userspath
 
     add_user 'user2', 'maintainer'
     add_user 'user3', 'bugowner'
@@ -56,7 +56,7 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
     @project = 'kde4'
     @userspath = project_users_path(project: @project)
 
-    login_user 'fred', 'geröllheimer', to: @userspath
+    login_user 'fred', 'buildservice', to: @userspath
 
     add_user 'user2', 'maintainer'
     add_user 'user3', 'bugowner'

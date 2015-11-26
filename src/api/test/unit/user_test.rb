@@ -10,7 +10,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   def test_login
-    user = User.authenticate("tom", "thunder")
+    user = User.authenticate("tom", "buildservice")
     assert_equal User.find_by(login: "tom"), user
     assert_equal User.find_by(login: "tom"), User.current
 
