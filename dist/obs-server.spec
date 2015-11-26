@@ -498,7 +498,7 @@ xzcat test/dump_2.5.sql.xz | mysql  -u root --socket=/tmp/obs.test.mysql.socket
 bundle exec rake db:migrate db:drop || exit 1
 # entire test suite
 export RAILS_ENV=test
-bundle exec rake db:create db:setup || exit 1
+bundle exec rake db:create db:setup ts:index ts:start || exit 1
 mv log/test.log{,.old}
 if ! bundle exec rake test:api test:webui ; then
   cat log/test.log
