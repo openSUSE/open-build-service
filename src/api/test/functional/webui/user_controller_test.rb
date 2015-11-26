@@ -175,7 +175,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     visit search_path
     click_link("Log In")
     fill_in 'Username', with: "tom"
-    fill_in 'Password', with: "thunder"
+    fill_in 'Password', with: "buildservice"
     click_button 'Log In'
 
     assert_equal "tom", find('#link-to-user-home').text

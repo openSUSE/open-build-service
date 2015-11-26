@@ -54,7 +54,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     logout
 
     # now let the coordinator act
-    login_user('maintenance_coord', 'power', to: project_show_path(project: 'My:Maintenance'))
+    login_user('maintenance_coord', 'buildservice', to: project_show_path(project: 'My:Maintenance'))
 
     find(:link, 'open request').click
     find(:id, 'description_text').text.must_equal 'I want the update'
@@ -108,7 +108,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     logout
 
     # let the maint-coordinator add the new submit to the running incident and cont
-    login_user('maintenance_coord', 'power', to: project_show_path(project: 'My:Maintenance'))
+    login_user('maintenance_coord', 'buildservice', to: project_show_path(project: 'My:Maintenance'))
 
     find(:link, 'open request').click
     find(:id, 'description_text').text.must_equal 'I have a additional fix'

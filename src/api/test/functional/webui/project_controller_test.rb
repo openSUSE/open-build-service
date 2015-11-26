@@ -581,7 +581,7 @@ XML
   end
 
   def test_create_home_project_for_user
-    login_user('user1', '123456')
+    login_user('user1', 'buildservice')
     count = Project.count
 
     visit new_project_path
@@ -597,7 +597,7 @@ XML
   end
 
   def test_create_home_project_for_user_not_allowed
-    login_user('user1', '123456')
+    login_user('user1', 'buildservice')
     count = Project.count
 
     # try to create it, but server config is not permitting it
