@@ -56,6 +56,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     login_user('maintenance_coord', 'buildservice', to: project_show_path(project: 'My:Maintenance'))
 
     find(:link, 'open request').click
+    first('.request_link').click
     find(:id, 'description_text').text.must_equal 'I want the update'
     find(:id, 'action_display_0').must_have_text ('Release in BaseDistro2.0:LinkedUpdateProject')
     fill_in 'reason', with: 'really? ok'
@@ -110,6 +111,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     login_user('maintenance_coord', 'buildservice', to: project_show_path(project: 'My:Maintenance'))
 
     find(:link, 'open request').click
+    first('.request_link').click
     find(:id, 'description_text').text.must_equal 'I have a additional fix'
     find(:link, 'Merge with existing incident').click
     # set to not existing incident

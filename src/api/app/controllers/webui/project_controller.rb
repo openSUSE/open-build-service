@@ -364,7 +364,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def requests
-    @requests = @project.request_ids_by_class(false)
+    @requests = @project.open_requests
     @default_request_type = params[:type] if params[:type]
     @default_request_state = params[:state] if params[:state]
   end
@@ -901,8 +901,8 @@ class Webui::ProjectController < Webui::WebuiController
     @ipackages = @project.expand_all_packages.find_all{ |p| not @packages.include?(p[0]) }
     @linking_projects = @project.find_linking_projects.map { |p| p.name }
 
-    reqs = @project.request_ids_by_class
-    @requests = (reqs['reviews'] + reqs['targets'] + reqs['incidents'] + reqs['maintenance_release']).sort.uniq
+    reqs = @project.open_requests
+    @requests = (reqs[:reviews] + reqs[:targets] + reqs[:incidents] + reqs[:maintenance_release]).sort.uniq
 
     @nr_of_problem_packages = @project.number_of_build_problems
   end

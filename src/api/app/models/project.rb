@@ -1416,24 +1416,18 @@ class Project < ActiveRecord::Base
     end
   end
 
-  def request_ids_by_class(useroles = true)
-    roles = %w(reviewer) if useroles
-    reviews = BsRequest.collection(project: name, states: %w(review), roles: roles ).ids
-
-    roles = %w(target) if useroles
-    targets = BsRequest.collection(project: name, states: %w(new), roles: roles ).ids
-
-    roles = %w(source) if useroles
-    incidents = BsRequest.collection(project: name, states: %w(new), roles: roles, types: %w(maintenance_incident)).ids
+  def open_requests
+    reviews = BsRequest.collection(project: name, states: %w(review)).ids
+    targets = BsRequest.collection(project: name, states: %w(new)).ids
+    incidents = BsRequest.collection(project: name, states: %w(new), types: %w(maintenance_incident)).ids
 
     if is_maintenance?
-      roles = %w(source) if useroles
-      maintenance_release = BsRequest.collection(project: name, states: %w(new), roles: roles, types: %w(maintenance_release), subprojects: true).ids
+      maintenance_release = BsRequest.collection(project: name, states: %w(new), types: %w(maintenance_release), subprojects: true).ids
     else
       maintenance_release = []
     end
 
-    { 'reviews' => reviews, 'targets' => targets, 'incidents' => incidents, 'maintenance_release' => maintenance_release }
+    { reviews: reviews, targets: targets, incidents: incidents, maintenance_release: maintenance_release }
   end
 
   # for the clockworkd - called delayed

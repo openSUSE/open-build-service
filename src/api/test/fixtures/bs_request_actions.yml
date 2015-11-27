@@ -85,3 +85,33 @@ record_8:
   source_rev: '1'
   updatelink: 0
   created_at: 2012-09-03 13:08:02.000000000 Z
+record_9:
+  bs_request_id: 5
+  type: submit
+  target_project: Apache
+  target_package: BranchPack
+  source_project: home:Iggy:branches:kde4
+  source_package: BranchPack
+  source_rev: '1'
+  updatelink: 0
+  created_at: 2012-09-03 13:08:02.000000000 Z
+record_10:
+  bs_request_id: 6
+  type: maintenance_incident
+  target_project: My:Maintenance
+  target_package: pack2
+  source_project: BaseDistro2.0
+  source_package: pack2
+  source_rev: '1'
+  updatelink: 0
+  created_at: 2012-09-03 13:08:02.000000000 Z
+record_11:
+  bs_request_id: 7
+  type: maintenance_release
+  target_project: My:Maintenance:Temporary
+  target_package: pack2
+  source_project: BaseDistro2.0
+  source_package: pack2
+  source_rev: '1'
+  updatelink: 0
+  created_at: 2012-09-03 13:08:02.000000000 Z
