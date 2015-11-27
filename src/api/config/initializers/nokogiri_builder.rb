@@ -4,7 +4,6 @@ require 'nokogiri'
 module ActionView
   module Template::Handlers
     class NokogiriBuilder
-
       class_attribute :default_format
       self.default_format = Mime::XML
 
@@ -14,7 +13,6 @@ module ActionView
           "}.to_xml :indent => 2, :encoding => 'UTF-8',
             :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION | Nokogiri::XML::Node::SaveOptions::FORMAT;"
       end
-
     end
   end
 end

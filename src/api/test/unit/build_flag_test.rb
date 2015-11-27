@@ -14,7 +14,6 @@ class BuildFlagTest < ActiveSupport::TestCase
 
   # Replace this with your real tests.
   def test_add_build_flag_to_project
-
     #checking precondition
     assert_equal 2, @project.type_flags('build').size
 
@@ -47,11 +46,9 @@ class BuildFlagTest < ActiveSupport::TestCase
     assert_equal @project.id, f.project_id
     assert_nil f.package_id
     assert_equal 4, f.position
-
   end
 
   def test_add_build_flag_to_package
-
     #checking precondition
     assert_equal 2, @package.type_flags('build').size
 
@@ -84,11 +81,9 @@ class BuildFlagTest < ActiveSupport::TestCase
     assert_equal @package.id, f.package_id
     assert_nil f.project_id
     assert_equal 3, f.position
-
   end
 
   def test_delete_type_flags_build__from_project
-
     #checking precondition
     assert_equal 2, @project.type_flags('build').size
     #checking total number of flags stored in the database
@@ -109,7 +104,6 @@ class BuildFlagTest < ActiveSupport::TestCase
   end
 
   def test_delete_type_build_flags_from_package
-
     #checking precondition
     assert_equal 2, @package.type_flags('build').size
     #checking total number of flags stored in the database
@@ -121,7 +115,6 @@ class BuildFlagTest < ActiveSupport::TestCase
     @package.reload
     assert_equal 1, @package.type_flags('build').size
     assert_equal 1, count - Flag.all.size
-
   end
 
   def test_position
@@ -177,7 +170,5 @@ class BuildFlagTest < ActiveSupport::TestCase
     f.reload
     assert_equal '10.1', f.repo
     assert_equal 4, f.position
-
   end
-
 end

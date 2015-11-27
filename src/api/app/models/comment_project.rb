@@ -1,5 +1,4 @@
 class CommentProject < Comment
-
   validates :project, presence: true
 
   def check_delete_permissions

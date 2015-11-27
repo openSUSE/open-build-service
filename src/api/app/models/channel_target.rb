@@ -1,5 +1,4 @@
 class ChannelTarget < ActiveRecord::Base
-
   belongs_to :channel
   belongs_to :repository
 
@@ -28,5 +27,4 @@ class ChannelTarget < ActiveRecord::Base
     end
     return ct.first
   end
-
 end

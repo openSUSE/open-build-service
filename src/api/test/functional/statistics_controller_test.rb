@@ -3,7 +3,6 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'time'
 
 class StatisticsControllerTest < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   def setup
@@ -126,7 +125,6 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
 
    get url_for(:controller => :statistics, :action => :updated_timestamp, :project => "HiddenProject")
    assert_response 404
-
  end
 
  def test_rating_and_activity
@@ -234,6 +232,5 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
 
     get url_for(action: :active_request_creators, controller: :statistics, project: 'HiddenProject')
     assert_response 404
-
   end
 end

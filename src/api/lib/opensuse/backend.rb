@@ -4,7 +4,6 @@ require 'api_exception'
 
 module Suse
   class Backend
-
     class IllegalEncodingError < APIException
       setup 'invalid_text_encoding'
     end
@@ -20,7 +19,6 @@ module Suse
     end
 
     class << self
-
       attr_accessor :source_host, :source_port
 
       def host

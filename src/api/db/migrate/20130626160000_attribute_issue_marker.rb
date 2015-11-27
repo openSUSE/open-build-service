@@ -1,7 +1,5 @@
 class AttributeIssueMarker  < ActiveRecord::Migration
-
   def self.up
-
     ans = AttribNamespace.find_by_name "OBS"
 
     at=AttribType.create( :attrib_namespace => ans, :name => "Issues",  :value_count => 0 )
@@ -18,5 +16,4 @@ class AttributeIssueMarker  < ActiveRecord::Migration
     a = AttribType.find_by_namespace_and_name("OBS", "Issues")
     a.delete unless a.nil?
   end
-
 end

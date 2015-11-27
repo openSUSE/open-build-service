@@ -1,6 +1,5 @@
 # a model that has relationships - e.g. a project and a package
 module HasRelationships
-
   class SaveError < APIException
   end
 
@@ -176,7 +175,6 @@ module HasRelationships
   end
 
   def update_generic_relationships(xmlhash)
-
     # we remember the current relationships in a hash
     cache = Hash.new
     self.relationships.each do |purr|

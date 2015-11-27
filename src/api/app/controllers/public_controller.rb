@@ -22,7 +22,6 @@ class PublicController < ApplicationController
   end
 
   def check_package_access(project, package, use_source = true)
-
     # don't use the cache for use_source
     if use_source
       begin
@@ -136,7 +135,6 @@ class PublicController < ApplicationController
 
   # GET /public/binary_packages/:project/:package
   def binary_packages
-
     check_package_access(params[:project], params[:package], false)
     @pkg = Package.find_by_project_and_name(params[:project], params[:package])
 
@@ -203,5 +201,4 @@ class PublicController < ApplicationController
       return path
     end
   end
-
 end

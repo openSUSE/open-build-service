@@ -3,7 +3,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class BuildControllerTest < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   def setup
@@ -187,7 +186,6 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
 #   schedulerjob.elements.each do |jobnode|
 #     puts "test", jobnode.inspect
 #   end
-
   end
 
   def test_builddepinfo
@@ -303,7 +301,6 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag :tag => "resultlist"
     prepare_request_valid_user
-
   end
 
   def test_binary_view

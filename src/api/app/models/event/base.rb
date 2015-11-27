@@ -58,7 +58,6 @@ module Event
         subclass.create_jobs(*self.create_jobs)
         subclass.receiver_roles(*self.receiver_roles)
       end
-
     end
 
     # just for convenience

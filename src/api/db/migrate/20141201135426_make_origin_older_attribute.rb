@@ -2,7 +2,6 @@
 require_relative '../attribute_descriptions'
 
 class MakeOriginOlderAttribute  < ActiveRecord::Migration
-
   class AttribTypeModifiableBy < ActiveRecord::Base; end
 
   def self.up
@@ -21,5 +20,4 @@ class MakeOriginOlderAttribute  < ActiveRecord::Migration
   def self.down
     AttribType.find_by_namespace_and_name("OBS", "MakeOriginOlder").delete()
   end
-
 end

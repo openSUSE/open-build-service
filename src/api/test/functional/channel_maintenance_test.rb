@@ -886,6 +886,5 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     delete '/source/BaseDistro3Channel'
     assert_response :success
   end
-
 end
 # rubocop:enable Metrics/LineLength

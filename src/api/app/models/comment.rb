@@ -2,7 +2,6 @@ require 'event'
 require 'set'
 
 class Comment < ActiveRecord::Base
-
   belongs_to :bs_request, inverse_of: :comments
   belongs_to :project, inverse_of: :comments
   belongs_to :package, inverse_of: :comments
@@ -46,7 +45,6 @@ class Comment < ActiveRecord::Base
   end
 
   def check_delete_permissions
-
     # Admins can always delete all comments
     return true if User.current.is_admin?
 

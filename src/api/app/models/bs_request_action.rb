@@ -925,7 +925,6 @@ class BsRequestAction < ActiveRecord::Base
   end
 
   def check_for_expand_errors!(add_revision)
-
     return unless [:submit, :maintenance_incident, :maintenance_release].include? self.action_type
 
     # validate that the sources are not broken
@@ -947,5 +946,4 @@ class BsRequestAction < ActiveRecord::Base
   end
 
   #### Alias of methods
-
 end

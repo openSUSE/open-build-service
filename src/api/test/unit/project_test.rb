@@ -43,7 +43,6 @@ Ignore: package:cups'
 
     assert_xml_tag xml_string, :tag => :project, :children => { :count => 1, :only => { :tag => :publish } }
     assert_xml_tag xml_string, :parent => :project, :tag => :publish, :children => { :count => 2 }
-
   end
 
   def test_add_new_flags_from_xml
@@ -103,7 +102,6 @@ Ignore: package:cups'
     assert_equal 3, @project.type_flags('debuginfo')[0].position
     assert_nil @project.type_flags('debuginfo')[0].package
     assert_equal 'home:Iggy', @project.type_flags('debuginfo')[0].project.name
-
   end
 
   def test_delete_flags_through_xml
@@ -196,7 +194,6 @@ Ignore: package:cups'
     # validate x86_64 is in the middle
     assert_xml_tag xml, :tag => :arch, :content => 'x86_64', :after => { :tag => :arch, :content => 'i586' }
     assert_xml_tag xml, :tag => :arch, :content => 'x86_64', :before => { :tag => :arch, :content => 'local' }
-
   end
 
   def test_maintains
@@ -960,5 +957,4 @@ END
     # Leave the backend file as it was
     assert @project.config.save(query_params, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT)
   end
-
 end

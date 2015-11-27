@@ -2,7 +2,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class PackageRemoveTest < ActiveSupport::TestCase
-
   fixtures :all
 
   def setup
@@ -111,5 +110,4 @@ class PackageRemoveTest < ActiveSupport::TestCase
     # The request should be new
     assert_equal :new, @request.reload.state
   end
-
 end

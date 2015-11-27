@@ -5,7 +5,6 @@ require 'opensuse/backend'
 include MaintenanceHelper
 
 class BsRequest < ActiveRecord::Base
-
   class InvalidStateError < APIException
     setup 'request_not_modifiable', 404
   end
@@ -526,7 +525,6 @@ class BsRequest < ActiveRecord::Base
   private :_assignreview_update_reviews
 
   def assignreview(opts = {})
-
     unless self.state == :review || (self.state == :new && state == :new)
       raise InvalidStateError.new 'request is not in review state'
     end
@@ -1047,7 +1045,6 @@ class BsRequest < ActiveRecord::Base
   end
 
   def expand_targets
-
     newactions = []
     oldactions = []
 
@@ -1239,5 +1236,4 @@ class BsRequest < ActiveRecord::Base
   def self.quote(str)
     connection.quote(str)
   end
-
 end

@@ -3,7 +3,6 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'tag_controller'
 
 class TagControllerTest < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   def setup
@@ -53,7 +52,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     assert_raise RuntimeError do
       @controller.private_s_to_tag("NotAllowedSymbol:?")
     end
-
   end
 
   def test_create_relationship_rollback
@@ -1032,7 +1030,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
 
     get "/tag/tagcloud", :distribution => 'linear'
     assert_response :success
-
   end
 
   def test_tagcloud_raw
@@ -1190,7 +1187,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_tags_by_user_and_object_put_for_a_project
-
     #Precondition check: Get all tags for Iggy and the home:project.
     login_Iggy
     get "/tag/get_tags_by_user_and_project", :project => 'home:Iggy',
@@ -1257,7 +1253,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_tags_by_user_and_object_put_for_a_package
-
     #Precondition check: Get all tags for Iggy and a package.
     login_Iggy
     get "/tag/get_tags_by_user_and_package", :project => 'home:Iggy',
@@ -1559,5 +1554,4 @@ class TagControllerTest < ActionDispatch::IntegrationTest
   #def test_tagcloud_by_objects_and_user
     #really needed?
   #end
-
 end

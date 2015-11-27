@@ -4,7 +4,6 @@ require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'request_controller'
 
 class RequestControllerTest < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   def setup
@@ -752,7 +751,6 @@ XML
   end
 
   def test_create_request_and_supersede_as_creator
-
     login_Iggy
     req = load_backend_file('request/works')
     post '/request?cmd=create', req
@@ -767,7 +765,6 @@ XML
   end
 
   def test_create_request_and_decline_review
-
     login_Iggy
     req = load_backend_file('request/works')
     post '/request?cmd=create', req
@@ -938,7 +935,6 @@ XML
   end
 
   def test_assign_from_group
-
     login_Iggy
     req = load_backend_file('request/works')
     post '/request?cmd=create', req
@@ -1031,7 +1027,6 @@ XML
   end
 
   def test_change_review_state_after_leaving_review_phase
-
     login_Iggy
     req = load_backend_file('request/works')
     post '/request?cmd=create', req
@@ -1087,7 +1082,6 @@ XML
     assert_xml_tag(:tag => 'review', :attributes => { by_user: 'adrian' })
     assert_xml_tag(:tag => 'review', :attributes => { by_user: 'tom' })
     assert_xml_tag(:tag => 'review', :attributes => { by_group: 'test_group' })
-
   end
 
   def test_search_and_involved_requests
@@ -1190,7 +1184,6 @@ XML
       assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
       assert_xml_tag(:tag => 'target', :attributes => { project: 'HiddenProject' })
     end
-
   end
 
   def test_process_devel_request
@@ -1262,7 +1255,6 @@ XML
     # cleanup
     put '/source/home:Iggy/TestPack/_meta', oldmeta.dup
     assert_response :success
-
   end
 
   def test_reject_request_creation
@@ -2939,7 +2931,6 @@ XML
     assert_response :success
     assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
     assert_xml_tag(:tag => 'target', :attributes => { project: 'c++', package: 'TestPack' })
-
   end
 
   def test_project_delete_request_with_pending
@@ -3089,7 +3080,6 @@ XML
   end
 
   def test_delete_request_id
-
     login_tom
     req = load_backend_file('request/1')
     post '/request?cmd=create', req
@@ -3111,11 +3101,9 @@ XML
 
     get "/request/#{id}"
     assert_response 404
-
   end
 
   def test_reopen_declined_request
-
     login_Iggy
     req = load_backend_file('request/add_role')
     post '/request?cmd=create', req
@@ -3135,7 +3123,6 @@ XML
     post "/request/#{id}?cmd=changestate&newstate=new&comment=oh"
     get "/request/#{id}"
     assert_xml_tag(tag: 'state', attributes: { name: 'review' })
-
   end
 
   # it was reported that requests can't be revoked - test cases verifie sthat
@@ -3196,7 +3183,6 @@ XML
                                   "comment"=>"The target project 'home:Iggy:fordecline' has been removed"},
                                  {"who"=>"Iggy", "when"=>"2010-07-12T00:00:02",
                                   "description"=>"Request got revoked"}] }, node)
-
   end
 
   def test_check_target_maintainer

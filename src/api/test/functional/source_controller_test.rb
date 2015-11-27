@@ -175,7 +175,6 @@ Ignore: package:cups'
     assert_xml_tag :tag => 'directory', :child => { :tag => 'entry' }
     assert_xml_tag :tag => 'directory',
                    :children => { :count => 1, :only => { :tag => 'entry', :attributes => { :name => 'my_patch.diff' } } }
-
   end
 
   def test_get_package_filelist_from_hidden_project
@@ -3807,7 +3806,6 @@ Ignore: package:cups'
       }.to_query, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
     assert_response :success
   end
-
 end
 # rubocop:enable Metrics/LineLength
 # rubocop:enable Metrics/ClassLength

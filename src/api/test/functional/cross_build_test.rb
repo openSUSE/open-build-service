@@ -40,5 +40,4 @@ class CrossBuildTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_no_xml_tag tag: "path", :attributes => { project: "deleted" }
   end
-
 end

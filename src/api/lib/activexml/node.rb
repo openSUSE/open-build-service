@@ -2,14 +2,12 @@ require 'nokogiri'
 require 'xmlhash'
 
 module ActiveXML
-
   class GeneralError < StandardError; end
   class NotFoundError < GeneralError; end
   class CreationError < GeneralError; end
   class ParseError < GeneralError; end
 
   class Node
-
     @@elements = {}
     @@xml_time = 0
 
@@ -17,7 +15,6 @@ module ActiveXML
     attr_reader :cache_key
 
     class << self
-
       def logger
         Rails.logger
       end
@@ -161,7 +158,6 @@ module ActiveXML
 	logger.debug "free_cache #{free_args.inspect} #{key}"
         Rails.cache.delete( key )
       end
-
     end
 
     #instance methods
@@ -523,7 +519,5 @@ module ActiveXML
       Rails.logger.debug "Free_cache -#{@cache_key}-"
       Rails.cache.delete @cache_key if @cache_key
     end
-
   end
-
 end

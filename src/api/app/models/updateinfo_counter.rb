@@ -1,5 +1,4 @@
 class UpdateinfoCounter < ActiveRecord::Base
-
   def self.find_or_create(time, template)
     year = month = day = nil
 
@@ -24,5 +23,4 @@ class UpdateinfoCounter < ActiveRecord::Base
     end
     return counter
   end
-
 end

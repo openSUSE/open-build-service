@@ -1,7 +1,6 @@
 require 'api_exception'
 
 module ValidationHelper
-
   class InvalidProjectNameError < APIException
   end
 
@@ -77,5 +76,4 @@ module ValidationHelper
       raise Project::UnknownObjectError, "#{project}"
     end
   end
-
 end

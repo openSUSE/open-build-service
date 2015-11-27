@@ -1,7 +1,6 @@
 require_relative '../../test_helper'
 
 class Webui::CommitsFeedTest < Webui::IntegrationTest
-
   def test_default_feed
     Timecop.freeze(2013, 8, 14, 12, 0, 0) do
       get '/project/latest_commits/BaseDistro'

@@ -1,7 +1,6 @@
 require_relative '../../test_helper'
 
 class Webui::WatchlistTest < Webui::IntegrationTest
-
   teardown do
     Timecop.return
   end
@@ -57,5 +56,4 @@ class Webui::WatchlistTest < Webui::IntegrationTest
     find(:css, '#toggle_watch > span.desc').click
     all(:css, 'span.icons-project').count.must_equal 0
   end
-
 end

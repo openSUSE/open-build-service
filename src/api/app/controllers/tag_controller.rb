@@ -1,5 +1,4 @@
 class TagController < ApplicationController
-
   validate_action :tags_by_user_and_object => {:method => :get, :response => :tags}
   validate_action :project_tags => {:method => :get, :response => :tags}
   validate_action :package_tags => {:method => :get, :response => :tags}
@@ -47,7 +46,6 @@ class TagController < ApplicationController
     end
     @my_type = "package"
     render :partial => "tagged_objects_with_tags"
-
   end
 
   def get_tags_by_user
@@ -279,7 +277,6 @@ class TagController < ApplicationController
   end
 
   def package_tags
-
     project_name = params[:project]
     package_name = params[:package]
     if request.get?
@@ -372,7 +369,6 @@ class TagController < ApplicationController
   end
 
   def taglistXML_to_tags(taglistXML)
-
     taglist = []
 
     xml = Xmlhash.parse(taglistXML)
@@ -435,5 +431,4 @@ class TagController < ApplicationController
     render_error :status => 404, :errorcode => 'unknown_tag',
     :message => "Unknown tag #{params[:tag]}"
   end
-
 end

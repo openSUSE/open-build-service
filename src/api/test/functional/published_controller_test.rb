@@ -1,7 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class PublishedControllerTest < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   def setup

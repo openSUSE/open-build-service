@@ -1,5 +1,4 @@
 class Webui::ApidocsController < Webui::WebuiController
-
   include Webui::WebuiHelper
   # Apidocs is insensitive static information, no login needed therefore
   skip_before_filter :extract_user
@@ -27,5 +26,4 @@ class Webui::ApidocsController < Webui::WebuiController
     end
     return
   end
-
 end

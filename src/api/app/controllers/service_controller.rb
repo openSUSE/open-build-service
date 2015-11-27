@@ -1,5 +1,4 @@
 class ServiceController < ApplicationController
-
   def index
     pass_to_backend
   end
@@ -7,5 +6,4 @@ class ServiceController < ApplicationController
   def index_service
     pass_to_backend
   end
-
 end

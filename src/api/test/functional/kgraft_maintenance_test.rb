@@ -14,7 +14,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   end
 
   def test_kgraft_update_setup
-
     Timecop.freeze(2010, 7, 12)
 
     # setup 'My:Maintenance' as a maintenance project by fetching it's meta and set a type
@@ -350,5 +349,4 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     delete "/source/Channel"
     assert_response :success
   end
-
 end

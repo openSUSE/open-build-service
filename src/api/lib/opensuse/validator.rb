@@ -113,6 +113,5 @@ module Suse
         return true
       end
     end
-
   end
 end

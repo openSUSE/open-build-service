@@ -2,7 +2,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class PersonControllerTest < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   def setup
@@ -391,7 +390,5 @@ XML
     assert_equal u.realname, "Adrian Schroeter"
     assert_equal nil, u.adminnote
     u.destroy
-
   end
-
 end

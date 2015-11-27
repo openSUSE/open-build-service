@@ -20,7 +20,6 @@ class UserBasicStrategy
 end
 
 class User < ActiveRecord::Base
-
   include CanRenderModel
 
   STATES = {
@@ -415,7 +414,6 @@ class User < ActiveRecord::Base
     def realname_for_login(login)
       User.find_by_login(login).realname
     end
-
   end
 
   # After validation, the password should be encrypted
@@ -692,7 +690,6 @@ class User < ActiveRecord::Base
   end
 
   def has_local_role?( role, object )
-
     if object.is_a?(Package) || object.is_a?(Project)
       logger.debug "running local role package check: user #{self.login}, package #{object.name}, role '#{role.title}'"
       rels = object.relationships.where(:role_id => role.id, :user_id => self.id)

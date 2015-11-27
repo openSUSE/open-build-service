@@ -1,7 +1,6 @@
 require_relative '../attribute_descriptions'
 
 class AddObsBranchSkipRepositoriesAttribute  < ActiveRecord::Migration
-
   class AttribTypeModifiableBy < ActiveRecord::Base; end
 
   def self.up
@@ -17,5 +16,4 @@ class AddObsBranchSkipRepositoriesAttribute  < ActiveRecord::Migration
   def self.down
     AttribType.find_by_namespace_and_name("OBS", "BranchSkipRepositories").destroy()
   end
-
 end

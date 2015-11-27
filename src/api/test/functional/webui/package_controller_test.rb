@@ -2,7 +2,6 @@
 require_relative '../../test_helper'
 
 class Webui::PackageControllerTest < Webui::IntegrationTest
-
   include Webui::WebuiHelper
 
   NEW_META_XML_FOR_TEST_PACK = '<package name="TestPack" project="home:Iggy">
@@ -548,5 +547,4 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.all(:link, 'Trigger Rebuild')[0].click
     find('#flash-messages').must_have_text('Triggered rebuild for BaseDistro2.0/pack2.linked successfully.')
   end
-
 end

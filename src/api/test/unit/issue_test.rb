@@ -18,7 +18,6 @@ class IssueTest < ActiveSupport::TestCase
   end
 
   def test_create_and_destroy
-
     stub_request(:post, "http://bugzilla.novell.com/xmlrpc.cgi").
         with(body: BugGet0815).
         to_return(:status => 200,

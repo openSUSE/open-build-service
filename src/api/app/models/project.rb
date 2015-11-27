@@ -765,7 +765,6 @@ class Project < ActiveRecord::Base
       prj = prj.develproject
       prj = self if prj && prj.id == self.id
     end
-
   end
 
   def update_linked_projects(xmlhash)
@@ -1830,5 +1829,4 @@ class Project < ActiveRecord::Base
   def to_param
     name
   end
-
 end

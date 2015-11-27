@@ -12,7 +12,6 @@ class AddGenericOperationHistory < ActiveRecord::Migration
     add_index :history_elements, :created_at
     add_index :history_elements, :type
     add_index :history_elements, :op_object_id
-
   end
 
   def down

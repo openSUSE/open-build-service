@@ -27,11 +27,9 @@ class TagTest < ActiveSupport::TestCase
 
     #expected error message
     assert_equal "no ? and : allowed!", t.errors[:name].join(';')
-
   end
 
   def test_count
-
     #non-user context
     t = Tag.find_by_name("TagA")
     assert_kind_of Tag, t
@@ -54,11 +52,9 @@ class TagTest < ActiveSupport::TestCase
     t = Tag.find_by_name("TagB")
     assert_kind_of Tag, t
     assert_equal 2, t.count(opt), "Wrong user-dependant tag-count for TagB."
-
   end
 
   def test_count_by_given_tags
-
     #by-given-tags context
     tags = Array.new
 
@@ -97,7 +93,5 @@ class TagTest < ActiveSupport::TestCase
 
     assert_equal "TagC", tags[2].name
     assert_equal 4, tags[2].cached_count
-
   end
-
 end

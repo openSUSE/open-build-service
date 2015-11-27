@@ -1,10 +1,8 @@
 class IncidentUpdateinfoCounterValue < ActiveRecord::Base
-
   belongs_to :updateinfo_counter
   belongs_to :project
 
   def self.find_or_create(time, updateinfo_counter, project)
-
     icv = IncidentUpdateinfoCounterValue.where(updateinfo_counter:updateinfo_counter, project: project).first
     return icv if icv
 
@@ -14,5 +12,4 @@ class IncidentUpdateinfoCounterValue < ActiveRecord::Base
                                           project: project,
                                           value: updateinfo_counter.increase)
   end
-
 end

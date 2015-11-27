@@ -2,7 +2,6 @@ require 'open-uri'
 require 'project'
 
 class Webui::PackageController < Webui::WebuiController
-
   require_dependency 'opensuse/validator'
   include Webui::HasComments
   include Webui::HasFlags
@@ -483,7 +482,6 @@ class Webui::PackageController < Webui::WebuiController
     filenames = sorted_filenames_from_sourcediff(@rdiff)[0]
     @files = filenames['files']
     @filenames = filenames['filenames']
-
   end
 
   def save_new
@@ -863,7 +861,6 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     logger.debug 'finished ' + @finished.to_s
-
   end
 
   def abort_build
@@ -876,7 +873,6 @@ class Webui::PackageController < Webui::WebuiController
       flash[:error] = "Error while triggering abort build for #{@project.name}/#{@package.name}: #{@package.errors.full_messages.to_sentence}."
       redirect_to controller: :package, action: :live_build_log, project: @project, package: @package, repository: params[:repository]
     end
-
   end
 
   def trigger_rebuild
@@ -1112,5 +1108,4 @@ class Webui::PackageController < Webui::WebuiController
   def add_path(action)
     url_for(action: action, project: @project, role: params[:role], userid: params[:userid], package: @package)
   end
-
 end

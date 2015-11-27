@@ -1,5 +1,4 @@
 class Buildresult < ActiveXML::Node
-
   # rubocop:disable Style/AlignHash
   AVAIL_STATUS_VALUES = {
     succeeded:    0,

@@ -1,8 +1,6 @@
 # this overwrites the sourcediff function for submit requests and maintenance
 module RequestSourceDiff
-
   class ActionSourceDiffer
-
     attr_accessor :action
 
     def perform(opts)
@@ -139,5 +137,4 @@ module RequestSourceDiff
     d.action = self
     d.perform(opts)
   end
-
 end

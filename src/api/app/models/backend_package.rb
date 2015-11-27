@@ -28,5 +28,4 @@ class BackendPackage < ActiveRecord::Base
   #### private
   #### Instance methods (public and then protected/private)
   #### Alias of methods
-
 end

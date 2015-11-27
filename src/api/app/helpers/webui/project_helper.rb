@@ -1,5 +1,4 @@
 module Webui::ProjectHelper
-
   include Webui::WebuiHelper
 
   protected

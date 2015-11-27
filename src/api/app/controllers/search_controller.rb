@@ -1,5 +1,4 @@
 class SearchController < ApplicationController
-
   require_dependency 'xpath_engine'
 
   def project
@@ -66,11 +65,9 @@ class SearchController < ApplicationController
     params[:limit] ||= "0" #unlimited by default
 
     @owners = Owner.search(params, nil).map(&:to_hash)
-
   end
 
   def owner
-
     Suse::Backend.start_test_backend if Rails.env.test?
 
     obj = nil
@@ -90,7 +87,6 @@ class SearchController < ApplicationController
   end
 
   def predicate_from_match_parameter(p)
-
     pred = case p
       when  /^\(\[(.*)\]\)$/
            $1
@@ -315,5 +311,4 @@ class SearchController < ApplicationController
     end
     render :text => xml, :content_type => "text/xml"
   end
-
 end

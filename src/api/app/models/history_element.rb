@@ -1,7 +1,6 @@
 module HistoryElement
 # This class represents some kind of history element within the build service
   class Base < ActiveRecord::Base
-
     belongs_to :user
 
     self.table_name = 'history_elements'
@@ -16,7 +15,6 @@ module HistoryElement
       nil
     end
   end
-
 end
 
 class HistoryElement::Request < ::HistoryElement::Base

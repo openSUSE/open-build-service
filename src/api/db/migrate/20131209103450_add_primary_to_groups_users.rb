@@ -1,5 +1,4 @@
 class AddPrimaryToGroupsUsers < ActiveRecord::Migration
-
   class GroupsUser < ActiveRecord::Base
   end
 

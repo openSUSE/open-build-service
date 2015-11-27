@@ -1,5 +1,4 @@
 class ChannelBinaryList < ActiveRecord::Base
-
   belongs_to :channel
   belongs_to :project
   belongs_to :repository
@@ -9,5 +8,4 @@ class ChannelBinaryList < ActiveRecord::Base
   def self._sync_keys
     [ :project, :repository, :architecture ]
   end
-
 end

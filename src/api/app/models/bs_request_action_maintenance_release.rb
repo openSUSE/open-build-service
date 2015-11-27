@@ -161,7 +161,6 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
       object.flags.create(:status => 'enable', :flag => 'lock')
       object.store(comment: "maintenance_release request")
     end
-
   end
 
   def minimum_priority
@@ -172,5 +171,4 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
   end
 
   #### Alias of methods
-
 end

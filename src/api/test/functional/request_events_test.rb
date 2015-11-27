@@ -2,7 +2,6 @@
 require_relative '../test_helper'
 
 class RequestEventsTest < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   teardown do

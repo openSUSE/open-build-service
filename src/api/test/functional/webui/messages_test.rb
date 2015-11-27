@@ -1,7 +1,6 @@
 require_relative '../../test_helper'
 
 class Webui::MessagesTest < Webui::IntegrationTest
-
   def test_add_and_remove_message
     use_js
 
@@ -31,7 +30,5 @@ class Webui::MessagesTest < Webui::IntegrationTest
 
     # check that it's gone
     page.wont_have_selector('#news-message')
-
   end
-
 end

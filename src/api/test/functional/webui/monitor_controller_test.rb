@@ -1,7 +1,6 @@
 require_relative '../../test_helper'
 
 class Webui::MonitorControllerTest < Webui::IntegrationTest
-
   uses_transaction :test_reload_monitor
 
   def test_monitor
@@ -43,6 +42,5 @@ class Webui::MonitorControllerTest < Webui::IntegrationTest
     page.must_have_selector(:xpath, '//div[text()="May" or text()="Mar" or text()="Jun"]')
     tickLabels = all('.tickLabel').each.map { |n| n.text }
     assert (tickLabels.include?('Mar') or tickLabels.include?('May') or tickLabels.include?('Jun'))
-
   end
 end

@@ -1,5 +1,4 @@
 class AddModifyTimeToBinaryRelease < ActiveRecord::Migration
-
   def self.up
     add_column :binary_releases, :modify_time, :datetime
 

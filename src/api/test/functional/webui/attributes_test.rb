@@ -1,7 +1,6 @@
 require_relative '../../test_helper'
 
 class Webui::AttributesTest < Webui::IntegrationTest
-
   ATTRIBUTES = %w(NSTEST:status OBS:VeryImportantProject OBS:UpdateProject
                   OBS:OwnerRootProject OBS:Maintained OBS:RequestCloned
                   OBS:InitializeDevelPackage OBS:MaintenanceProject OBS:MaintenanceIdTemplate
@@ -187,5 +186,4 @@ class Webui::AttributesTest < Webui::IntegrationTest
     delete(project: 'home:Iggy',
            name: 'OBS:QualityCategory')
   end
-
 end

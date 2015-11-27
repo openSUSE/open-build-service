@@ -113,7 +113,6 @@ class TagcloudTest < ActiveSupport::TestCase
   end
 
   def test_user_tagcloud
-
     #tag-cloud test for user 'Iggy'
     opt = Hash.new
     opt = {:scope => 'user', :user => User.find_by_login('Iggy')}
@@ -174,5 +173,4 @@ class TagcloudTest < ActiveSupport::TestCase
       end
     end
   end
-
 end

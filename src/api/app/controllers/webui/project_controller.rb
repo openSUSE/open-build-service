@@ -1,5 +1,4 @@
 class Webui::ProjectController < Webui::WebuiController
-
   require_dependency 'opensuse/validator'
   include Webui::HasComments
   include Webui::HasFlags
@@ -850,7 +849,6 @@ class Webui::ProjectController < Webui::WebuiController
     else
       redirect_to :back, error: "Failed to remove #{@maintained_project} from maintenance"
     end
-
   end
 
   def maintenance_incidents

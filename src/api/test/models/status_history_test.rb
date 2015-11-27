@@ -1,7 +1,6 @@
 require 'test_helper'
 
 class StatusHistoryTest < ActiveSupport::TestCase
-
   def setup
     StatusHistory.delete_all
   end

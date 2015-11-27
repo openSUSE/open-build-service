@@ -1,6 +1,5 @@
 
 class Tagcloud
-
   attr_reader :tags
   attr_reader :max
   attr_reader :min
@@ -72,7 +71,6 @@ class Tagcloud
   end
 
   def max_min(taglist)
-
     if taglist.empty?
     max, min = 1, 1
     else
@@ -154,5 +152,4 @@ class Tagcloud
     end
     return tagcloud
   end
-
 end

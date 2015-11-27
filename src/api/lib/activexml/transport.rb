@@ -16,11 +16,9 @@ module ActiveXML
   end
 
   class Transport
-
     attr_accessor :port
 
     class Error < StandardError
-
       def parse!
         return @xml if @xml
 
@@ -130,7 +128,6 @@ module ActiveXML
 
     # returns object
     def find( model, *args )
-
       logger.debug "[REST] find( #{model.inspect}, #{args.inspect} )"
       params = Hash.new
       data = nil
@@ -234,7 +231,6 @@ module ActiveXML
 
     #replaces the parameter parts in the uri from the config file with the correct values
     def substitute_uri( uri, params )
-
       #logger.debug "[REST] reducing args: #{params.inspect}"
       params.delete(:conditions)
       #logger.debug "[REST] args is now: #{params.inspect}"
@@ -459,6 +455,5 @@ module ActiveXML
       message = http_response.to_s if message.blank?
       raise Error, message.force_encoding("UTF-8")
     end
-
   end
 end

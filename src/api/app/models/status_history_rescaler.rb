@@ -1,5 +1,4 @@
 class StatusHistoryRescaler
-
   # this is called from a delayed job triggered by clockwork
   def rescale
     maxtime = StatusHistory.maximum(:time)

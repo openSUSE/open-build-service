@@ -8,7 +8,6 @@ require 'api_exception'
 # you can easily provide your own model files without having to all lines
 # from the engine's directory
 class Role < ActiveRecord::Base
-
   class NotFound < APIException
     setup 404
   end
@@ -90,5 +89,4 @@ class Role < ActiveRecord::Base
   def self.ids_with_permission(perm_string)
     RolesStaticPermission.joins(:static_permission).where(:static_permissions => { :title => perm_string } ).select('role_id').map { |rs| rs.role_id }
   end
-
 end

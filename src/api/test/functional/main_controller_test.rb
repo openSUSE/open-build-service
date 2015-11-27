@@ -1,7 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class MainTests < ActionDispatch::IntegrationTest
-
   def setup
     reset_auth
   end
@@ -17,5 +16,4 @@ class MainTests < ActionDispatch::IntegrationTest
 
     assert_xml_tag parent: { tag: "about" }, tag: "title"
   end
-
 end

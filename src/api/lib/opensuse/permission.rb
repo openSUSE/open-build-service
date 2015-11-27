@@ -6,9 +6,7 @@
 #
 
 module Suse
-
   class Permission
-
     def to_s
       return "OpenSUSE Permissions for user #{@user.login}"
     end
@@ -70,7 +68,6 @@ module Suse
     end
 
     def method_missing( perm, *_args, &_block)
-
       logger.debug "Dynamic Permission requested: <#{perm}>"
 
       if @user

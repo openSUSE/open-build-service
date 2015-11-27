@@ -18,5 +18,4 @@ class StatusMessageTest < ActiveSupport::TestCase
     assert_equal tbd.id, findit.id
     assert_equal true, findit.deleted_at > Time.now - 1.day
   end
-
 end

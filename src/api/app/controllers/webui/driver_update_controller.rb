@@ -1,5 +1,4 @@
 class Webui::DriverUpdateController < Webui::PackageController
-
   before_filter :set_project
   before_filter :require_package
   before_filter :require_available_architectures, only: [:create, :edit]
@@ -123,5 +122,4 @@ class Webui::DriverUpdateController < Webui::PackageController
           'to be able to build a driver update disk image!'
     end
   end
-
 end

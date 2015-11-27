@@ -1,5 +1,4 @@
 class MessageController < ApplicationController
-
   validate_action show: {response: :messages}
   validate_action list: {response: :messages}
   validate_action update: {request: :message, response: :status}
@@ -73,5 +72,4 @@ class MessageController < ApplicationController
     end
     return true
   end
-
 end

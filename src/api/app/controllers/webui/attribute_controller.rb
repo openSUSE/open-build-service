@@ -117,5 +117,4 @@ class Webui::AttributeController < Webui::WebuiController
                                    values_attributes: [:id, :value, :position, :_destroy],
                                    issues_attributes: [:id, :name, :issue_tracker_id, :_destroy])
   end
-
 end

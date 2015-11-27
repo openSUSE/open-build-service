@@ -4,7 +4,6 @@ require 'benchmark'
 require 'nokogiri'
 
 class Webui::SpiderTest < Webui::IntegrationTest
-
   def getlinks(baseuri, body)
     # skip some uninteresting projects
     return if baseuri =~ %r{project=home%3Afred}
@@ -165,5 +164,4 @@ class Webui::SpiderTest < Webui::IntegrationTest
 
     @pages_visited.keys.length.must_be :>, 900
   end
-
 end

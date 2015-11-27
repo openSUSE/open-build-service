@@ -1,7 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class GroupControllerTest < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   def setup
@@ -192,5 +191,4 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'entry', :attributes => {:name => 'test_group'}
     assert_no_xml_tag :tag => 'entry', :attributes => {:name => 'test_group_b'}
   end
-
 end

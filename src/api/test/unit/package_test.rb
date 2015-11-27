@@ -38,7 +38,6 @@ class PackageTest < ActiveSupport::TestCase
   end
 
   def test_add_new_flags_from_xml
-
     #precondition check
     @package.flags.destroy_all
     @package.reload
@@ -96,7 +95,6 @@ class PackageTest < ActiveSupport::TestCase
     assert_equal 3, @package.type_flags('debuginfo')[0].position
     assert_nil @package.type_flags('debuginfo')[0].project
     assert_equal 'TestPack', @package.type_flags('debuginfo')[0].package.name
-
   end
 
   def test_delete_flags_through_xml
@@ -116,7 +114,6 @@ class PackageTest < ActiveSupport::TestCase
     @package.update_all_flags(axml)
     assert_equal 0, @package.type_flags('build').size
     assert_equal 0, @package.type_flags('publish').size
-
   end
 
   def test_rating

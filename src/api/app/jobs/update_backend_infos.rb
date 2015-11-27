@@ -1,5 +1,4 @@
 class UpdateBackendInfos < CreateJob
-
   attr_accessor :event
   attr_accessor :checked_pkgs
 

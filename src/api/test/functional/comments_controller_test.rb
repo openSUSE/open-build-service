@@ -1,7 +1,6 @@
 require_relative '../test_helper'
 
 class CommentsControllerTest < ActionDispatch::IntegrationTest
-
   def setup
     reset_auth
   end
@@ -15,7 +14,6 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     assert_xml_tag tag: 'comment', attributes: { who: 'tom' }
-
   end
 
   def test_hidden_project_comments
@@ -54,7 +52,6 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_no_xml_tag tag: 'comment', attributes: { who: 'tom', parent: '300' }
     assert_xml_tag tag: 'comment', attributes: { who: '_nobody_', id: '301' }, content: 'This comment has been deleted'
-
   end
 
   def test_delete_commented_package

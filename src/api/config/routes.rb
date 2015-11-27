@@ -1,6 +1,5 @@
 # we take everything here that is not XML - the default mimetype is xml though
 class WebuiMatcher
-
   class InvalidRequestFormat < APIException
   end
 

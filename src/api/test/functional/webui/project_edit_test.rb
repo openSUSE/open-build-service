@@ -1,7 +1,6 @@
 require_relative '../../test_helper'
 
 class Webui::ProjectEditTest < Webui::IntegrationTest
-
   uses_transaction :test_change_global_project_description
   uses_transaction :test_change_global_project_info
   uses_transaction :test_change_home_project_description
@@ -53,7 +52,6 @@ class Webui::ProjectEditTest < Webui::IntegrationTest
     unless new_info[:description].nil?
       project_description.must_equal new_info[:description]
     end
-
   end
 
   def test_change_home_project_title
@@ -97,5 +95,4 @@ class Webui::ProjectEditTest < Webui::IntegrationTest
       :title => 'My Title hopefully got changed ' + Time.now.to_i.to_s,
       :description => 'New description. Not kidding.. Brand new! ' + Time.now.to_i.to_s)
   end
-
 end

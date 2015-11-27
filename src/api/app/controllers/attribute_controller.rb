@@ -1,5 +1,4 @@
 class AttributeController < ApplicationController
-
   include ValidationHelper
 
   validate_action :index => {:method => :get, :response => :directory}
@@ -35,7 +34,6 @@ class AttributeController < ApplicationController
 
   # /attribute/:namespace/_meta
   def namespace_definition
-
     if params[:namespace].nil?
       raise MissingParameterError.new "parameter 'namespace' is missing"
     end
@@ -304,5 +302,4 @@ class AttributeController < ApplicationController
     params[:namespace] = name_parts[0]
     params[:name] = name_parts[1]
   end
-
 end

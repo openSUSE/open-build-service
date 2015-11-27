@@ -1,5 +1,4 @@
 class CacheLine < ActiveRecord::Base
-
   # this function is a wrapper around Rails.cache that makes sure the cache key
   # is written in the cache_lines table so a event hook can wipe the cache
   def self.fetch(key, opts = {})

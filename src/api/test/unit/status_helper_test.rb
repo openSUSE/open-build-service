@@ -1,7 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class StatusHelperTest < ActiveSupport::TestCase
-
   test 'resample' do
     # it can't do magic
     assert_equal([], StatusHelper.resample([], 1000))

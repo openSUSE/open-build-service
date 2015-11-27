@@ -1,5 +1,4 @@
 module BuildLogSupport
-
   include Escaper
 
   def raw_log_chunk( project, package, repo, arch, start, theend )
@@ -44,5 +43,4 @@ module BuildLogSupport
     path = "/build/#{pesc project}/#{pesc repo}/#{pesc arch}/#{pesc package}/_jobstatus"
     ActiveXML::backend.direct_http URI("#{path}"), :timeout => 500
   end
-
 end

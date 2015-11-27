@@ -1,5 +1,4 @@
 class GroupController < ApplicationController
-
   include ValidationHelper
 
   validate_action :groupinfo => { :method => :get, :response => :group }
@@ -86,5 +85,4 @@ class GroupController < ApplicationController
 
     render_ok
   end
-
 end

@@ -27,6 +27,5 @@ class NewDodTable < ActiveRecord::Migration
       t.string :metafile
       t.string :mtype
     end
-
   end
 end

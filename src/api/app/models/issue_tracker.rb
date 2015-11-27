@@ -297,7 +297,6 @@ class IssueTracker < ActiveRecord::Base
     server.password=self.password if self.password
     return server.proxy('Bug')
   end
-
 end
 
 # internal CVE parser class

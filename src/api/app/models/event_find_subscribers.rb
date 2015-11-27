@@ -1,6 +1,5 @@
 # strategy class for the event model
 class EventFindSubscribers
-
   def initialize(event)
     @event = event
   end
@@ -88,7 +87,6 @@ class EventFindSubscribers
   end
 
   def filter_toconsider
-
     receivers = Hash.new
 
     @toconsider.each do |r|
@@ -144,5 +142,4 @@ class EventFindSubscribers
     expand_toconsider
     filter_toconsider
   end
-
 end

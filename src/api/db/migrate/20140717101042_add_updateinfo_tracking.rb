@@ -16,5 +16,4 @@ class AddUpdateinfoTracking < ActiveRecord::Migration
   def down
     drop_table :updateinfos
   end
-
 end

@@ -17,7 +17,6 @@ class ChannelTest < ActiveSupport::TestCase
   end
 
   def test_parse_xml
-
     # pre condition check
     assert_equal 0, @channel.channel_binary_lists.size
 
@@ -93,5 +92,4 @@ class ChannelTest < ActiveSupport::TestCase
     assert_equal nil, cbl.channel_binaries.where(name: "does_not_exist").first.package
     assert_equal "l2", cbl.channel_binaries.where(name: "does_not_exist").first.supportstatus
   end
-
 end

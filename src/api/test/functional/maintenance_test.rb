@@ -860,7 +860,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   end
 
   def test_create_maintenance_project_and_release_packages
-
     # the birthday of J.K.
     Timecop.freeze(2010, 7, 12)
 
@@ -2414,6 +2413,5 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     delete '/source/CopyOfBaseDistro'
     assert_response :success
   end
-
 end
 # rubocop:enable Metrics/LineLength

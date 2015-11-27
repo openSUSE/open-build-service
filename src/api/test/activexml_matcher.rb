@@ -1,6 +1,5 @@
 
 module NodeMatcher #:nodoc:
-
   class Conditions < Hash #:nodoc:
     def initialize(hash)
       super()
@@ -119,7 +118,6 @@ module NodeMatcher #:nodoc:
   #              :descendant => { :tag => "span",
   #                               :child => /hello world/ }
   def self.match(node, conditions)
-
     return false unless node
 
     case conditions
@@ -278,5 +276,4 @@ module NodeMatcher #:nodoc:
       false
     end
   end
-
 end

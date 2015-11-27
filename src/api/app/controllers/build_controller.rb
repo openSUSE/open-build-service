@@ -1,5 +1,4 @@
 class BuildController < ApplicationController
-
   def index
     # for read access and visibility permission check
     if params[:package] and not %w(_repository _jobhistory).include?(params[:package])
@@ -275,5 +274,4 @@ class BuildController < ApplicationController
     end
     render xml: render_to_string(partial: "lastsuccess")
   end
-
 end

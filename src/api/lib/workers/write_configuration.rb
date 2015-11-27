@@ -1,5 +1,4 @@
 class WriteConfigurationJob
-
   def initialize
   end
 
@@ -7,5 +6,4 @@ class WriteConfigurationJob
       @configuration = ::Configuration.first
       @configuration.save!
   end
-
 end

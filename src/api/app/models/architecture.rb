@@ -44,5 +44,4 @@ class Architecture < ActiveRecord::Base
     name
   end
   #### Alias of methods
-
 end

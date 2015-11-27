@@ -1,7 +1,6 @@
 include ValidationHelper
 
 module MaintenanceHelper
-
   class MissingAction < APIException
     setup 400, 'The request contains no actions. Submit requests without source changes may have skipped!'
   end
@@ -372,7 +371,5 @@ module MaintenanceHelper
       Suse::Backend.put lpkg.source_path('_link', user: User.current.login), ret.dump_xml
       lpkg.sources_changed
     end
-
   end
-
 end

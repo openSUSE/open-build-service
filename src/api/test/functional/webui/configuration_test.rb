@@ -89,6 +89,5 @@ class Webui::ConfigurationTest < Webui::IntegrationTest
     user_checks.each do |chk|
       page.must_have_checked_field(chk)
     end
-
   end
 end

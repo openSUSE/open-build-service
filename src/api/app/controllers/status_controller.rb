@@ -1,7 +1,6 @@
 require_dependency 'status_helper'
 
 class StatusController < ApplicationController
-
   class PermissionDeniedError < APIException
     setup 403
   end
@@ -146,5 +145,4 @@ class StatusController < ApplicationController
 
   class NotSubmitRequest < APIException
   end
-
 end

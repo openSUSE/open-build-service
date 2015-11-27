@@ -1,6 +1,5 @@
 
 class ReindexSphinxDb < ActiveRecord::Migration
-
   def self.up
     rake = "rake"
     rake = "rake.ruby2.2" if File.exist?("/usr/bin/rake.ruby2.2")
@@ -10,5 +9,4 @@ class ReindexSphinxDb < ActiveRecord::Migration
 
   def self.down
   end
-
 end

@@ -36,7 +36,6 @@ class APIException < Exception
   def default_message
     self.class.instance_variable_get "@default_message"
   end
-
 end
 
 # 403 errors (how about a subclass?)

@@ -103,11 +103,9 @@ class PackInfo
       [repo, tuple[1], tuple[0], tuple[2]]
     end
   end
-
 end
 
 class ProjectStatusCalculator
-
   def check_md5(packages)
     # remap
     ph = {}
@@ -127,7 +125,6 @@ class ProjectStatusCalculator
 
   # parse the jobhistory and put the result in a format we can cache
   def parse_jobhistory(dname, repo, arch)
-
     uri = '/build/%s/%s/%s/_jobhistory?code=lastfailures' % [CGI.escape(dname), CGI.escape(repo), arch]
 
     ret = []
@@ -260,5 +257,4 @@ class ProjectStatusCalculator
   def logger
     Rails.logger
   end
-
 end

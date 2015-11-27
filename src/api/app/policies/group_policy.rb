@@ -1,5 +1,4 @@
 class GroupPolicy < ApplicationPolicy
-
   def create?
     # Only admins can create new groups atm
     @user.is_admin?

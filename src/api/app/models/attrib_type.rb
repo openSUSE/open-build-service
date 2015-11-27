@@ -141,5 +141,4 @@ class AttribType < ActiveRecord::Base
   end
 
   #### Alias of methods
-
 end

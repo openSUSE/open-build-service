@@ -1,5 +1,4 @@
 class WorkerStatus
-
   def self.hidden
     mydata = Rails.cache.read('workerstatus')
     ws = ActiveXML::Node.new(mydata || ActiveXML.backend.direct_http('/build/_workerstatus'))
@@ -107,5 +106,4 @@ class WorkerStatus
     line.value = e['jobs']
     line.save
   end
-
 end

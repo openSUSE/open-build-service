@@ -2,7 +2,6 @@ require 'rexml/document'
 require "rexml/streamlistener"
 
 class StatisticsController < ApplicationController
-
   include StatisticsCalculations
 
   validate_action :redirect_stats => {:method => :get, :response => :redirect_stats}
@@ -125,7 +124,6 @@ class StatisticsController < ApplicationController
   end
 
   def latest_added
-
     packages = Package.limit(@limit).order('created_at DESC, name').to_a
     projects = Project.limit(@limit).order('created_at DESC, name').to_a
 
@@ -141,7 +139,6 @@ class StatisticsController < ApplicationController
   end
 
   def added_timestamp
-
     @project = Project.get_by_name(params[:project])
     @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: true)
 
@@ -178,7 +175,6 @@ class StatisticsController < ApplicationController
   end
 
   def global_counters
-
     @users = User.count
     @repos = Repository.count
     @projects = Project.count

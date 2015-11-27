@@ -4,7 +4,6 @@ require_relative '../../test_helper'
 require 'faker'
 
 class Webui::LoginTest < Webui::IntegrationTest
-
   #
   def open_home
     find(:id, "link-to-user-home").click
@@ -33,20 +32,17 @@ class Webui::LoginTest < Webui::IntegrationTest
   end
 
   def test_login_as_user
-
     # pretty useless actually :)
     login_Iggy
     logout
   end
 
   def test_login_as_second_user
-
     login_tom
     logout
   end
 
   def test_login_invalid_entry
-
     visit root_path
     click_link 'login-trigger'
     within('#login-form') do
@@ -62,7 +58,6 @@ class Webui::LoginTest < Webui::IntegrationTest
   end
 
   def test_login_empty_entry
-
     visit root_path
     click_link 'login-trigger'
     within('#login-form') do
@@ -72,7 +67,6 @@ class Webui::LoginTest < Webui::IntegrationTest
     end
     flash_message.must_equal "Authentication failed"
     flash_message_type.must_equal :alert
-
   end
 
   def test_change_real_name_for_user
@@ -103,5 +97,4 @@ class Webui::LoginTest < Webui::IntegrationTest
     open_home
     user_real_name.must_equal new_name
   end
-
 end

@@ -1,5 +1,4 @@
 class Webui::MainController < Webui::WebuiController
-
   include Webui::WebuiHelper
   include StatisticsCalculations
 
@@ -106,5 +105,4 @@ class Webui::MainController < Webui::WebuiController
     StatusMessage.find(params[:message_id]).delete
     redirect_to(:action => 'index')
   end
-
 end

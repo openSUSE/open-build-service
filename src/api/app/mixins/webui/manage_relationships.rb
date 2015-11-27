@@ -1,5 +1,4 @@
 module Webui::ManageRelationships
-
   def load_obj
     login = params[:userid]
     return User.find_by_login!(login) if login

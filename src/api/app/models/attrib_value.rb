@@ -43,5 +43,4 @@ class AttribValue < ActiveRecord::Base
   end
 
   #### Alias of methods
-
 end

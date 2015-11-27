@@ -1,5 +1,4 @@
 module TestBackendTasks
-
   def run_scheduler(arch)
     Rails.logger.debug "RUN_SCHEDULER #{arch}"
     perlopts="-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
@@ -26,5 +25,4 @@ module TestBackendTasks
       io.each { |line| Rails.logger.debug("publisher: #{line.strip.chomp}") unless line.blank? }
     end
   end
-
 end

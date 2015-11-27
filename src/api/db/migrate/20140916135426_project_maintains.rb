@@ -1,11 +1,9 @@
 class ProjectMaintains  < ActiveRecord::Migration
-
   class OldProject < ActiveRecord::Base
      self.table_name = 'projects'
   end
 
   def self.up
-
     create_table :maintained_projects do |t|
       t.references :project, null: false
       t.integer :maintenance_project_id, null: false
@@ -34,5 +32,4 @@ class ProjectMaintains  < ActiveRecord::Migration
 
     drop_table :maintained_projects
   end
-
 end

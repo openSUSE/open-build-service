@@ -1,7 +1,6 @@
 require 'memprof'
 
 class MemoryDumper
-
   def initialize(app)
    @app = app
    @toexit = 0

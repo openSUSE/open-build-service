@@ -128,7 +128,6 @@ module Minitest
   def self.sort_order
     :sorted
   end
-
 end
 
 class ActionDispatch::IntegrationTest
@@ -190,7 +189,6 @@ module ActionDispatch
         rack_env['RAW_POST_DATA'] = data
         process(:put, path, parameters, add_auth(rack_env))
       end
-
     end
   end
 end
@@ -365,13 +363,11 @@ module Webui
       find_button('Ok').click
       find('#flash-messages').must_have_text "Package was successfully removed."
     end
-
   end
 end
 
 module ActionDispatch
   class IntegrationTest
-
     include TestBackendTasks
 
     def teardown
@@ -467,7 +463,6 @@ module ActionDispatch
     def login_dmayr
       prepare_request_with_user 'dmayr', 'buildservice'
     end
-
   end
 end
 

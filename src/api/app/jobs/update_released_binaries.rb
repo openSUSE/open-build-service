@@ -1,5 +1,4 @@
 class UpdateReleasedBinaries < CreateJob
-
   attr_accessor :event
 
   def self.job_queue

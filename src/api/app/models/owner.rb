@@ -2,7 +2,6 @@
 require 'api_exception'
 
 class Owner
-
   class AttributeNotSetError < APIException
     setup 'attribute_not_set', 400
   end

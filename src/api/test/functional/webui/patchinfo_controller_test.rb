@@ -2,7 +2,6 @@
 require_relative '../../test_helper'
 
 class Webui::PatchinfoControllerTest < Webui::IntegrationTest
-
   LONG_DESCRIPTION = "long description" * 15
 
   setup do
@@ -284,5 +283,4 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     visit patchinfo_show_path(package: 'patchinfo', project: project.name)
     assert page.has_link?('delete-patchinfo')
   end
-
 end

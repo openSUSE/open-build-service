@@ -17,5 +17,4 @@ class ProjectTest < ActiveSupport::TestCase
     m = ProductMedium.where(product: p).first
     assert_equal "DVD", m.name
   end
-
 end

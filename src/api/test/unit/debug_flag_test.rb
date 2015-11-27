@@ -14,7 +14,6 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
 
   # Replace this with your real tests.
   def test_add_debug_flag_to_project
-
     #checking precondition
     assert_equal 2, @project.type_flags('debuginfo').size
 
@@ -49,11 +48,9 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     assert_equal @project.id, f.project_id
     assert_nil f.package_id
     assert_equal 4, f.position
-
   end
 
   def test_add_debug_flag_to_package
-
     #checking precondition
     assert_equal 1, @package.type_flags('debuginfo').size
 
@@ -88,11 +85,9 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     assert_equal @package.id, f.package_id
     assert_nil f.project_id
     assert_equal 3, f.position
-
   end
 
   def test_delete_debuginfo_flags_from_project
-
     #checking precondition
     assert_equal 2, @project.type_flags('debuginfo').size
     #checking total number of flags stored in the database
@@ -113,7 +108,6 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
   end
 
   def test_delete_debuginfo_flags_from_package
-
     #checking precondition
     assert_equal 1, @package.type_flags('debuginfo').size
     #checking total number of flags stored in the database
@@ -125,7 +119,6 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     @package.reload
     assert_equal 0, @package.type_flags('debuginfo').size
     assert_equal 1, count - Flag.all.size
-
   end
 
   def test_position
@@ -182,7 +175,5 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     f.reload
     assert_equal '10.1', f.repo
     assert_equal 4, f.position
-
   end
-
 end

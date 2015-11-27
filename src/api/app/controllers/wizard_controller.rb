@@ -1,7 +1,6 @@
 require 'wizard'
 
 class WizardController < ApplicationController
-
   class ChangePackageNoPermission < APIException
     setup 403
   end

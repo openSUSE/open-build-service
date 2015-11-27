@@ -24,7 +24,6 @@ class BsRequestActionSubmit < BsRequestAction
   end
 
   def execute_accept(opts)
-
     # use the request description as comments for history
     source_history_comment = self.bs_request.description
 
@@ -121,5 +120,4 @@ class BsRequestActionSubmit < BsRequestAction
   end
 
   #### Alias of methods
-
 end

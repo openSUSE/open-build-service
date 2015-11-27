@@ -1,6 +1,5 @@
 # a model that has ratings - e.g. a project and a package
 module HasRatings
-
   def self.included(base)
     base.class_eval do
       has_many :ratings, :as => :db_object, :dependent => :delete_all
@@ -25,5 +24,4 @@ module HasRatings
     end
     return {:score => score, :count => count, :user_score => user_score}
   end
-
 end

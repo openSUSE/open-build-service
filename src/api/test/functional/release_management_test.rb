@@ -152,5 +152,4 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     delete "/source/TEST:BaseDistro"
     assert_response :success
   end
-
 end

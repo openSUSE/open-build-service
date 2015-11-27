@@ -2,7 +2,6 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'xmlhash'
 
 class SearchControllerTest < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   def setup
@@ -183,7 +182,6 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 #    get "/search/person", match: "(@state='confirmed')"
 #    assert_response :success
 #    assert_xml_tag tag: 'collection', :attributes => { :matches => "1" }
-
   end
 
   def test_xpath_old_osc
@@ -374,7 +372,6 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get "/search/request",  match: 'action/@type="submit" and (action/target/@project="Apache" or submit/target/@project="Apache") and (action/target/@package="apache2" or submit/target/@package="apache2")'
     # rubocop:enable Metrics/LineLength
     assert_response :success
-
   end
 
   def get_package_count
@@ -811,7 +808,6 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'request', attributes: { id: '2'}
     assert_no_xml_tag tag: 'request', attributes: { id: '1'}
-
   end
 
   def test_xpath_with_two_relationships

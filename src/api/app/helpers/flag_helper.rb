@@ -1,5 +1,4 @@
 module FlagHelper
-
   class InvalidFlag < APIException
     setup 'invalid_flag'
   end
@@ -47,7 +46,6 @@ module FlagHelper
   end
 
   def update_flags( xmlhash, flagtype, position )
-
     #translate the flag types as used in the xml to model name + s
     validate_type flagtype
 
@@ -184,5 +182,4 @@ module FlagHelper
     end
     return disabled
   end
-
 end

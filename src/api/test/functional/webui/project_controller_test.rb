@@ -2,7 +2,6 @@
 require_relative '../../test_helper'
 
 class Webui::ProjectControllerTest < Webui::IntegrationTest
-
   uses_transaction :test_admin_can_delete_every_project
   uses_transaction :test_create_project_publish_disabled
 
@@ -713,5 +712,4 @@ XML
       }.to_query, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
     assert_response :success
   end
-
 end

@@ -1,5 +1,4 @@
 class PublishedController < ApplicationController
-
   def index
     prj = Project.find_by_name! params[:project]
 
@@ -11,5 +10,4 @@ class PublishedController < ApplicationController
     end
     pass_to_backend
   end
-
 end

@@ -31,5 +31,4 @@ class FlagTest < ActiveSupport::TestCase
     f.to_xml(builder)
     assert_xml_tag builder.to_xml, tag: "enable", attributes: { repository: "999.999", arch: "i586" }
   end
-
 end

@@ -1,7 +1,6 @@
 require 'xmlhash'
 
 class PersonController < ApplicationController
-
   validate_action :userinfo => {:method => :get, :response => :user}
   validate_action :userinfo => {:method => :put, :request => :user, :response => :status}
   validate_action :grouplist => {:method => :get, :response => :directory}
@@ -275,5 +274,4 @@ class PersonController < ApplicationController
     token.destroy
     render_ok
   end
-
 end

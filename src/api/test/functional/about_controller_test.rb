@@ -1,7 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class AboutControllerTest < ActionDispatch::IntegrationTest
-
   def test_about
     prepare_request_valid_user
     get "/about"
@@ -22,5 +21,4 @@ class AboutControllerTest < ActionDispatch::IntegrationTest
     assert_response 400
     assert_xml_tag( :tag => "status", :attributes => { :code => "invalid_parameter" } )
   end
-
 end

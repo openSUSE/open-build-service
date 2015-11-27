@@ -113,7 +113,6 @@ class Event::Request < ::Event::Base
   def source_maintainers
     action_maintainers('sourceproject', 'sourcepackage')
   end
-
 end
 
 class Event::RequestChange < Event::Request

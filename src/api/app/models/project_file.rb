@@ -5,7 +5,6 @@
 #   _history (readonly),
 #   _config
 class ProjectFile < BackendFile
-
   attr_accessor :project_name
 
   validates :project_name, presence: true
@@ -14,5 +13,4 @@ class ProjectFile < BackendFile
   def full_path(query = {})
     URI.encode("/source/#{project_name}/_project/#{name}") + "?#{query.to_query}"
   end
-
 end

@@ -63,5 +63,4 @@ class EventMailerTest < ActionMailer::TestCase
       req.addreview(by_group: 'maint_coord', comment: 'does it still look ok?')
     end
   end
-
 end

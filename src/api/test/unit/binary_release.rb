@@ -91,7 +91,5 @@ class BinaryReleaseTest < ActiveSupport::TestCase
              "name"=>"package_newweaktags", "buildtime"=>"1409642057"}]
     BinaryRelease.update_binary_releases_via_json(r, json)
     assert_equal count, BinaryRelease.all.length-1 # one entry added
-
   end
-
 end

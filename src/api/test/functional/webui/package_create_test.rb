@@ -2,7 +2,6 @@
 require_relative '../../test_helper'
 
 class Webui::PackageCreateTest < Webui::IntegrationTest
-
   setup do
     @project = 'home:Iggy'
   end
@@ -83,7 +82,6 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
   end
 
   def test_create_package_without_name
-
     login_Iggy to: project_show_path(project: 'home:Iggy')
 
     open_new_package
@@ -95,7 +93,6 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
   end
 
   def test_create_package_name_with_spaces
-
     login_Iggy to: project_show_path(project: 'home:Iggy')
 
     open_new_package
@@ -130,7 +127,6 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
 
     # tear down
     delete_package('home:Iggy', 'HomePackage-LongDesc')
-
   end
 
   def test_create_package_strange_name
@@ -250,5 +246,4 @@ and give any other recipients of the Program a copy of this License
 along with the Program.
 LICENSE_END
 # -------------------------------------------------------------------------------------- #
-
 end

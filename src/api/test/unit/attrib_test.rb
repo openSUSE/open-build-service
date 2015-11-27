@@ -187,5 +187,4 @@ class AttribTest < ActiveSupport::TestCase
     attrib_type.value_count = 1
     assert attrib.values_addable?
   end
-
 end

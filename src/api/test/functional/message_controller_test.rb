@@ -1,7 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 
 class MessageControllerTest < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   def setup
@@ -72,7 +71,5 @@ class MessageControllerTest < ActionDispatch::IntegrationTest
       delete "/message/#{m.value('msg_id')}"
       assert_response :success
     end
-
   end
-
 end

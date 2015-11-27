@@ -1,7 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class ArchitecturesControllerTest < ActionDispatch::IntegrationTest
-
   def setup
     wait_for_scheduler_start
     reset_auth
@@ -18,7 +17,6 @@ class ArchitecturesControllerTest < ActionDispatch::IntegrationTest
 
     assert_xml_tag tag: "entry", attributes: { name: "x86_64" }
     assert_xml_tag tag: "entry", attributes: { name: "ppc" }
-
   end
 
   def test_show
@@ -31,7 +29,5 @@ class ArchitecturesControllerTest < ActionDispatch::IntegrationTest
     get "/architectures/futurearch"
     assert_response 400
     assert_xml_tag tag: "status", attributes: { code: "unknown_architecture" }
-
   end
-
 end

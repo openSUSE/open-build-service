@@ -1,5 +1,4 @@
 class AddTypeToProject < ActiveRecord::Migration
-
   class TmpProject < ActiveRecord::Base
     self.table_name = 'projects'
   end
@@ -20,5 +19,4 @@ class AddTypeToProject < ActiveRecord::Migration
     remove_column :projects, :type_id
     drop_table :db_project_types
   end
-
 end

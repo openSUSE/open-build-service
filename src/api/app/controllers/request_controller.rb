@@ -58,7 +58,6 @@ class RequestController < ApplicationController
 
   # POST /request?cmd=create
   def global_command
-
     unless %w(create).include? params[:cmd]
       raise UnknownCommandError.new "Unknown command '#{params[opt[:cmd_param]]}' for path #{request.path}"
     end
@@ -245,5 +244,4 @@ class RequestController < ApplicationController
     @req.change_state(params)
     render_ok
   end
-
 end

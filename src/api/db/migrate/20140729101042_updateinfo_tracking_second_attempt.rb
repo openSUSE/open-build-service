@@ -23,5 +23,4 @@ class UpdateinfoTrackingSecondAttempt < ActiveRecord::Migration
     remove_column :binary_releases, :binary_updateinfo
     remove_column :binary_releases, :binary_updateinfo_version
   end
-
 end

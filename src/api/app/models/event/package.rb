@@ -1,5 +1,4 @@
 module Event
-
   class Package < Base
     self.description = 'Package was touched'
     payload_keys :project, :package, :sender
@@ -124,5 +123,4 @@ module Event
       super(attribs, keys)
     end
   end
-
 end

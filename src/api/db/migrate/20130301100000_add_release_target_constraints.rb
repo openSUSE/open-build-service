@@ -1,7 +1,5 @@
 class AddReleaseTargetConstraints  < ActiveRecord::Migration
-
   def self.up
-
     sql =<<-END_SQL
 alter table release_targets add FOREIGN KEY (repository_id) references repositories (id);
 alter table release_targets add FOREIGN KEY (target_repository_id) references repositories (id);
@@ -30,5 +28,4 @@ END_SQL
   def self.down
     drop_constraint("release_targets", 2)
   end
-
 end

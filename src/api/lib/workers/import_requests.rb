@@ -1,5 +1,4 @@
 class ImportRequestsDelayedJob
-
   def initialize
   end
 
@@ -20,7 +19,5 @@ class ImportRequestsDelayedJob
       end
       lastrq -= 1
     end
-
   end
-
 end

@@ -1,5 +1,4 @@
 class BranchPackage
-
   class InvalidFilelistError < APIException;
   end
   class DoubleBranchPackageError < APIException;
@@ -32,7 +31,6 @@ class BranchPackage
       @add_repositories = true
       @update_path_elements = true
     end
-
   end
 
   def branch

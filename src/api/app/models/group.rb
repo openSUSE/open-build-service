@@ -5,7 +5,6 @@ require_dependency 'api_exception'
 # Groups have an arbitrary number of roles and users assigned to them.
 #
 class Group < ActiveRecord::Base
-
   has_many :groups_users, inverse_of: :group, dependent: :destroy
   has_many :group_maintainers, inverse_of: :group, dependent: :destroy
   has_many :relationships, dependent: :destroy, inverse_of: :group

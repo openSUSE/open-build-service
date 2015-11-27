@@ -2,7 +2,6 @@ require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'source_controller'
 
 class InterConnectTests < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   def setup
@@ -410,7 +409,6 @@ end
   end
 
   def test_submit_requests_from_remote
-
     login_king
     post '/source/LocalProject/pack2.linked', :cmd => :copy, :oproject => 'LocalProject', :opackage => 'remotepackage'
     assert_response :success

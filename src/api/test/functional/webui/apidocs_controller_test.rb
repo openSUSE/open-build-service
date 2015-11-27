@@ -1,7 +1,6 @@
 require_relative '../../test_helper'
 
 class Webui::ApidocsControllerTest < Webui::IntegrationTest
-
   def test_index
     # test relative links
     visit apidocs_path

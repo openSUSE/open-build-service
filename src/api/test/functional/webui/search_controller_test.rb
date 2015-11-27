@@ -3,7 +3,6 @@
 require_relative '../../test_helper'
 
 class Webui::SearchControllerTest < Webui::IntegrationTest
-
   setup do
     OBSApi::TestSphinx.ensure
     use_js
@@ -135,7 +134,6 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   end
 
   def test_search_for_home_projects
-
     visit search_path
 
     search(
@@ -156,7 +154,6 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   end
 
   def test_search_for_subprojects
-
     visit search_path
 
     search(
@@ -170,7 +167,6 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   end
 
   def test_search_for_projects
-
     visit search_path
 
     search(
@@ -184,7 +180,6 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   end
 
   def test_search_for_packages
-
     visit search_path
 
     search(
@@ -212,7 +207,6 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   end
 
   def test_search_non_existing_by_name
-
     visit search_path
 
     search(
@@ -223,7 +217,6 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   end
 
   def test_search_non_existing_by_title
-
     visit search_path
 
     search(
@@ -234,7 +227,6 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   end
 
   def test_search_non_existing_by_description
-
     visit search_path
 
     search(
@@ -301,7 +293,6 @@ end
   end
 
   def test_search_hidden_as_anonymous
-
     visit search_path
 
     search(
@@ -312,7 +303,6 @@ end
   end
 
   def test_search_hidden_as_adrian
-
     login_adrian to: search_path
 
     search(
@@ -324,5 +314,4 @@ end
     assert results.include? :type => :package, :package_name => 'packCopy', :project_name=> 'HiddenProject'
     results.count.must_equal 1
   end
-
 end

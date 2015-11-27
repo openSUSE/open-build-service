@@ -1,5 +1,4 @@
 class ProjectConfigFile < ProjectFile
-
   def initialize(attributes = {})
     super
     @name = '_config'
@@ -12,5 +11,4 @@ class ProjectConfigFile < ProjectFile
 
   # You dont want to change name of _config
   private :name=
-
 end

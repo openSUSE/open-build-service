@@ -181,5 +181,4 @@ class AttributeTest < ActiveSupport::TestCase
 
     User.current = nil
   end
-
 end

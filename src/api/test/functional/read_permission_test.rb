@@ -3,7 +3,6 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'source_controller'
 
 class ReadPermissionTest < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   def setup
@@ -985,5 +984,4 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     delete "/source/home:adrian:Project"
     assert_response :success
   end
-
 end

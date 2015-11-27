@@ -30,5 +30,4 @@ class WatchedProjectTest < ActiveSupport::TestCase
     tmp_user.destroy
     assert_equal WatchedProject.where(user_id: tmp_uid).count, 0
   end
-
 end

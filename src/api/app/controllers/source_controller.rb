@@ -5,7 +5,6 @@ require 'builder/xchar'
 require 'event'
 
 class SourceController < ApplicationController
-
   class IllegalRequest < APIException
     setup 404, 'Illegal request'
   end
@@ -287,7 +286,6 @@ class SourceController < ApplicationController
   end
 
   def delete_package
-
     # checks
     if @target_package_name == '_project'
       raise DeletePackageNoPermission.new '_project package can not be deleted.'
@@ -333,7 +331,6 @@ class SourceController < ApplicationController
       @target_project_name = params[:project]
       @target_package_name = params[:package]
     end
-
   end
 
   class NoMatchingReleaseTarget < APIException
@@ -741,7 +738,6 @@ class SourceController < ApplicationController
 
   # GET /source/:project/:package/:filename
   def get_file
-
     project_name = params[:project]
     package_name = params[:package]
     file = params[:filename]
@@ -908,7 +904,6 @@ class SourceController < ApplicationController
   end
 
   class RepoDependency < APIException
-
   end
 
   # POST /source?cmd=branch (aka osc mbranch)
@@ -1005,7 +1000,6 @@ class SourceController < ApplicationController
 
   # POST /source/<project>?cmd=undelete
   def project_command_undelete
-
     unless User.current.can_create_project?(params[:project])
       raise CmdExecutionNoPermission.new "no permission to execute command 'undelete'"
     end
@@ -1266,7 +1260,6 @@ class SourceController < ApplicationController
   # create a id collection of all packages doing a package source link to this one
   # POST /source/<project>/<package>?cmd=showlinked
   def package_command_showlinked
-
     unless @package
       # package comes from remote instance or is hidden
 
@@ -1301,7 +1294,6 @@ class SourceController < ApplicationController
     path = request.path_info
     path << build_query_from_hash(params, [:cmd, :user, :comment, :orev, :oproject, :opackage])
     pass_to_backend path
-
   end
 
   # POST /source/<project>/<package>?cmd=instantiate
@@ -1329,7 +1321,6 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=undelete
   def package_command_undelete
-
     if Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: false)
       raise PackageExists.new "the package exists already #{@target_project_name} #{@target_package_name}"
     end
@@ -1403,7 +1394,6 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=commit
   def package_command_commit
-
     path = request.path_info
     path += build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
     pass_to_backend path
@@ -1415,7 +1405,6 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=commitfilelist
   def package_command_commitfilelist
-
     path = request.path_info
     path += build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
     answer = pass_to_backend path
@@ -1454,7 +1443,6 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=copy
   def package_command_copy
-
     verify_can_modify_target!
 
     if @spkg
@@ -1500,7 +1488,6 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=release
   def package_command_release
-
     pkg = Package.get_by_project_and_name params[:project], params[:package], use_source: true, follow_project_links: false
 
     # specified target
@@ -1544,7 +1531,6 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=runservice
   def package_command_runservice
-
     path = request.path_info
     path += build_query_from_hash(params, [:cmd, :comment, :user])
     pass_to_backend path
@@ -1554,7 +1540,6 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=deleteuploadrev
   def package_command_deleteuploadrev
-
     path = request.path_info
     path += build_query_from_hash(params, [:cmd])
     pass_to_backend path
