@@ -10,6 +10,7 @@ module Webui::HasFlags
       if @flag.save
         # FIXME: This should happen in Flag or even better in Project
         main_object.store
+        format.html { redirect_to({ action: :repositories }) }
         format.js { render 'change_flag' }
       else
         format.json { render json: @flag.errors, status: :unprocessable_entity }
@@ -27,6 +28,7 @@ module Webui::HasFlags
       if @flag.save
         # FIXME: This should happen in Flag or even better in Project
         main_object.store
+        format.html { redirect_to({ action: :repositories }) }
         format.js { render 'change_flag' }
       else
         format.json { render json: @flag.errors, status: :unprocessable_entity }
@@ -45,6 +47,7 @@ module Webui::HasFlags
     respond_to do |format|
       # FIXME: This should happen in Flag or even better in Project
       main_object.store
+      format.html { redirect_to({ action: :repositories }) }
       format.js { render 'change_flag' }
     end
   end

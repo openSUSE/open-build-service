@@ -71,6 +71,12 @@ class Flag < ActiveRecord::Base
     return Flag.default_status(self.flag) if !repo_flag && !all_flag
   end
 
+  def has_children
+    return true if repo.blank? && architecture.blank?
+    return true if !repo.blank? && architecture.blank?
+    return false
+  end
+
   def to_xml(builder)
     raise RuntimeError.new( "FlagError: No flag-status set. \n #{self.inspect}" ) if self.status.nil?
     options = Hash.new
