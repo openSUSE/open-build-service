@@ -642,6 +642,7 @@ class ApplicationController < ActionController::Base
     def initialize(req)
       @req = req
     end
+
     def to_s
       @req.raw_post
     end

@@ -389,19 +389,6 @@ Style/EachWithObject:
   Exclude:
     - 'app/models/project.rb'
 
-# Offense count: 14
-# Cop supports --auto-correct.
-# Configuration parameters: AllowAdjacentOneLineDefs.
-Style/EmptyLineBetweenDefs:
-  Exclude:
-    - 'app/controllers/application_controller.rb'
-    - 'app/models/product.rb'
-    - 'app/models/role.rb'
-    - 'lib/memory_debugger.rb'
-    - 'script/reformat_memprof'
-    - 'test/functional/read_permission_test.rb'
-    - 'test/functional/search_controller_test.rb'
-
 # Offense count: 256
 # Cop supports --auto-correct.
 Style/EmptyLines:

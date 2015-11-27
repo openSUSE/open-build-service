@@ -58,6 +58,7 @@ class Role < ActiveRecord::Base
     def find_by_title!(title)
       find_by_title(title) or raise NotFound.new("Couldn't find Role '#{title}'")
     end
+
     def local_roles
       %w(maintainer bugowner reviewer downloader reader).map { |r| Role.rolecache[r] }
     end

@@ -7,6 +7,7 @@ class MemoryDebugger
       self.line = line
       self.lines = Array.new
     end
+
     def add(line)
       return if line.nil?
       return unless line.parent.nil?
@@ -14,6 +15,7 @@ class MemoryDebugger
       line.parent = self
       self.lines << line
     end
+
     def check_up(line)
       return false if self == line
       return true unless self.parent
@@ -31,6 +33,7 @@ class MemoryDebugger
   def initialize(app)
     @app=app
   end
+
   def call(env)
     logger = Rails.logger
     GC.start

@@ -139,14 +139,17 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     # Access as a maintainer to a hidden project
     do_read_access_all_pathes( "adrian", :success )
   end
+
   def test_read_hidden_prj_reader
     # Hidden project is visible to all involved users
     do_read_access_all_pathes( "adrian_reader", :success )
   end
+
   def test_read_hidden_prj_downloader
     # Visible to all involved users
     do_read_access_all_pathes( "adrian_downloader", :success )
   end
+
   def test_read_hidden_prj_nobody
     # Hidden project not visible to external user
     do_read_access_all_pathes( "adrian_nobody", 404 )

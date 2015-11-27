@@ -212,6 +212,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     #<project name="HiddenProject">
     assert_xml_tag :child => { tag: 'project', :attributes => { :name => 'HiddenProject'} }
   end
+
   def test_search_hidden_project_with_invalid_user
     # user is not maintainer - project has to be invisible
     login_Iggy
@@ -230,6 +231,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'collection', :children => { :count => 1 }
     assert_xml_tag :child => { tag: 'package', :attributes => { :name => 'pack', :project => "HiddenProject"} }
   end
+
   def test_search_package_in_hidden_project_as_non_maintainer
     # user is not maintainer - package has to be invisible
     login_Iggy

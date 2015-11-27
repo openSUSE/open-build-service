@@ -121,6 +121,7 @@ class Product < ActiveRecord::Base
       self.product_media.delete(medium.values)
     end
   end
+
   def _update_from_xml_register_update(rxml)
     rxml.elements('updates') do |u|
       update = {}
@@ -151,6 +152,7 @@ class Product < ActiveRecord::Base
       self.product_update_repositories.delete(update.values)
     end
   end
+
   def _update_from_xml_register(rxml)
     _update_from_xml_register_update(rxml)
     _update_from_xml_register_pool(rxml)
