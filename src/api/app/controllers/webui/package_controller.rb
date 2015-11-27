@@ -62,12 +62,12 @@ class Webui::PackageController < Webui::WebuiController
     load_buildresults
     set_linking_packages
 
-    @expand = if @spider_bot
-      0
+    if @spider_bot
+      @expand = 0
     elsif params[:expand]
-      params[:expand].to_i
+      @expand = params[:expand].to_i
     else
-      1
+      @expand = 1
     end
 
     @is_current_rev = false
