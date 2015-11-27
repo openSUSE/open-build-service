@@ -65,4 +65,9 @@ module Clockwork
     User.current = User.get_default_admin
     ProjectCreateAutoCleanupRequests.perform_later
   end
+
+  # check for new breakages between api and backend due to dull code
+  every(1.week, 'consistency check') do
+    delay.consistency_check
+  end
 end
