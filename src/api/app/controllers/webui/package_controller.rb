@@ -786,8 +786,22 @@ class Webui::PackageController < Webui::WebuiController
   def live_build_log
     required_parameters :arch, :repository
 
-    @project = Project.get_by_name(params[:project])
-    @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: true)
+    if Project.exists_by_name(params[:project])
+      @project = Project.get_by_name(params[:project])
+    else
+      flash[:error] = "Couldn't find project '#{params[:project]}'. Are you sure it still exists?"
+      redirect_to :back
+      return
+    end
+
+    begin
+      @package = Package.get_by_project_and_name(params[:project], params[:package],
+                                                 use_source: false, follow_project_links: true)
+    rescue Package::UnknownObjectError
+      flash[:error] = "Couldn't find package '#{params[:package]}' in project '#{params[:project]}'. Are you sure it exists?"
+      redirect_to project_show_path(@project.name)
+      return
+    end
 
     if @package && !@package.check_source_access?
       flash[:error] = 'Could not access build log'
