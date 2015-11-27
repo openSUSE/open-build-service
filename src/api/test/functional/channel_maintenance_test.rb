@@ -508,7 +508,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     node = Xmlhash.parse(@response.body)
     old_release_date = node['update']['issued']['date']
     assert_equal old_release_date, old_release_date.to_i.to_s # this is the backend time, not handled by Timecop
-    assert_xml_tag :parent => { tag: 'update', attributes: { from: 'tom', status: 'stable', type: 'recommended', version: '1' } }, :tag => 'id', :content => "UpdateInfoTag-#{Time.now.utc.year.to_s}-My_Maintenance_0"
+    assert_xml_tag :parent => { tag: 'update', attributes: { from: 'tom', status: 'stable', type: 'recommended', version: '1' } }, :tag => 'id', :content => "UpdateInfoTag-#{Time.now.utc.year}-My_Maintenance_0"
 
     # check published search db
     get "/search/published/binary/id?match=project='"+incidentProject+"'"
@@ -645,7 +645,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get "/build/BaseDistro3Channel/channel_repo/i586/patchinfo.#{incidentID}/updateinfo.xml"
     assert_response :success
     # check for changed updateinfoid.
-    assert_xml_tag :parent => { tag: 'update', attributes: { from: 'tom', status: 'stable', type: 'recommended', version: '1' } }, :tag => 'id', :content => "UpdateInfoTagNew-patch_name-#{Time.now.utc.year.to_s}-1"
+    assert_xml_tag :parent => { tag: 'update', attributes: { from: 'tom', status: 'stable', type: 'recommended', version: '1' } }, :tag => 'id', :content => "UpdateInfoTagNew-patch_name-#{Time.now.utc.year}-1"
 
     # repo is configured as legacy rpm-md, so we require short meta data file names
     get '/build/BaseDistro3Channel/_result'
@@ -740,17 +740,17 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
                    :tag => 'supportstatus', :content => "l3"
     assert_xml_tag :parent => { :tag => 'binary', :attributes =>
            { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "i586" } },
-                   :tag => 'updateinfo', :attributes => { :id => "UpdateInfoTagNew-patch_name-#{Time.now.utc.year.to_s}-1", :version => "1" }
+                   :tag => 'updateinfo', :attributes => { :id => "UpdateInfoTagNew-patch_name-#{Time.now.utc.year}-1", :version => "1" }
 
     # search via official updateinfo id tag
-    get '/search/released/binary', match: "updateinfo/@id = 'UpdateInfoTagNew-patch_name-#{Time.now.utc.year.to_s}-1'"
+    get '/search/released/binary', match: "updateinfo/@id = 'UpdateInfoTagNew-patch_name-#{Time.now.utc.year}-1'"
     assert_response :success
     assert_xml_tag :tag => 'binary', :attributes =>
            { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "i586" }
     assert_xml_tag :tag => 'binary', :attributes =>
            { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "src" }
     assert_xml_tag :tag => 'updateinfo', :attributes =>
-           { id: "UpdateInfoTagNew-patch_name-#{Time.now.utc.year.to_s}-1", version: "1" }
+           { id: "UpdateInfoTagNew-patch_name-#{Time.now.utc.year}-1", version: "1" }
 
 
     #

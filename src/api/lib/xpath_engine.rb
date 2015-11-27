@@ -390,14 +390,6 @@ class XpathEngine
           raise IllegalXpathError, "unknown xpath function '#{fname}'"
         end
         __send__ fname_int, root, *(stack.shift)
-      when *@operators
-        opname = token.to_s
-        opname_int = "xpath_op_"+opname
-        if not respond_to? opname_int
-          raise IllegalXpathError, "unhandled xpath operator '#{opname}'"
-        end
-        __send__ opname_int, root, *(stack)
-        stack = []
       when :child
         t = stack.shift
         if t == :qname
@@ -419,6 +411,14 @@ class XpathEngine
         else
           raise IllegalXpathError, "unhandled token '#{t.inspect}'"
         end
+      when *@operators
+        opname = token.to_s
+        opname_int = "xpath_op_"+opname
+        if not respond_to? opname_int
+          raise IllegalXpathError, "unhandled xpath operator '#{opname}'"
+        end
+        __send__ opname_int, root, *(stack)
+        stack = []
       else
         raise IllegalXpathError, "illegal token X '#{token.inspect}'"
       end

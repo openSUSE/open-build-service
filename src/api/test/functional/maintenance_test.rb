@@ -1385,7 +1385,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
     assert_response 400
     assert_xml_tag(:tag => 'status', :attributes => { :code => "invalid_date" })
-    post "/source/#{incidentProject}/_attribute", "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{(DateTime.now+1.day).to_s}</value></attribute></attributes>"
+    post "/source/#{incidentProject}/_attribute", "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{(DateTime.now+1.day)}</value></attribute></attributes>"
     assert_response :success
     post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
     assert_response 400
@@ -1469,7 +1469,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/build/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/patchinfo.#{incidentID}/updateinfo.xml"
     assert_response :success
     # check for changed updateinfoid
-    assert_xml_tag :parent => { tag: 'update', attributes: { from: 'maintenance_coord', status: 'stable', type: 'security', version: '1' } }, :tag => 'id', :content => "My-oldname-#{Time.now.utc.year.to_s}-1"
+    assert_xml_tag :parent => { tag: 'update', attributes: { from: 'maintenance_coord', status: 'stable', type: 'security', version: '1' } }, :tag => 'id', :content => "My-oldname-#{Time.now.utc.year}-1"
     # check :full tree
     get '/build/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/_repository'
     assert_response :success
@@ -1665,14 +1665,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:vrev)
-    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+1).to_s}.1" # got increased and extended by .1
+    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+1)}.1" # got increased and extended by .1
     get '/source/BaseDistro2.0:ServicePack1/pack2?view=info'
     assert_response :success
     get '/source/BaseDistro2.0:ServicePack1/pack2.linked?view=info'
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:vrev)
-    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+2).to_s}" # got increased by 2
+    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+2)}" # got increased by 2
 
     # new packages in Update project found, even we just project-link only to GA
     post '/source/BaseDistro2.0:LinkedUpdateProject/packNEW?cmd=copy&oproject=BaseDistro2.0&opackage=pack2'
@@ -1719,12 +1719,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:vrev)
-    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+1).to_s}.4" # is higher
+    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+1)}.4" # is higher
     get '/source/BaseDistro2.0:LinkedUpdateProject/pack2?view=info'
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:vrev)
-    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+1).to_s}.2.1" # got extended again
+    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+1)}.2.1" # got extended again
     delete '/source/BaseDistro2.0:ServicePack1/pack2.linked'
     assert_response :success
     delete '/source/BaseDistro2.0:ServicePack1/pack2'
@@ -1760,7 +1760,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:vrev)
-    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+1).to_s}.2.1" # untouched
+    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+1)}.2.1" # untouched
 
     # cleanup
     delete '/source/home:king:branches:BaseDistro2.0:LinkedUpdateProject'
@@ -2407,7 +2407,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     #copyrev = last_revision(copyhistory).rev
     copyvrev = last_revision(copyhistory).value(:vrev)
     assert_equal originsrcmd5, copysrcmd5
-    expectedvrev="#{(originvrev.to_i+1).to_s}.1" # the copy gets incremented by one, but also extended to avoid that it can become
+    expectedvrev="#{(originvrev.to_i+1)}.1" # the copy gets incremented by one, but also extended to avoid that it can become
     assert_equal expectedvrev, copyvrev    # newer than the origin project at any time later.
     assert_equal originversion, copyversion
     assert_not_equal origintime, copytime

@@ -182,7 +182,7 @@ class SearchController < ApplicationController
     includes = nil
     opts = {}
 
-    output = "<collection matches=\"#{matches.to_s}\">\n"
+    output = "<collection matches=\"#{matches}\">\n"
 
     xml = Hash.new # filled by filter
     if render_all

@@ -831,7 +831,7 @@ class BsRequestAction < ActiveRecord::Base
       a = tprj.find_attribute('OBS', 'RejectRequests')
       if a && a.values.first
         if a.values.length < 2 or a.values.find_by_value(self.action_type)
-          raise RequestRejected.new "The target project #{self.target_project} is not accepting requests because: #{a.values.first.value.to_s}"
+          raise RequestRejected.new "The target project #{self.target_project} is not accepting requests because: #{a.values.first.value}"
         end
       end
     end
@@ -844,7 +844,7 @@ class BsRequestAction < ActiveRecord::Base
       if defined?(a) && a && a.values.first
         if a.values.length < 2 or a.values.find_by_value(self.action_type)
           raise RequestRejected.new "The target package #{self.target_project} / #{self.target_package} is not accepting " +
-                                    "requests because: #{a.values.first.value.to_s}"
+                                    "requests because: #{a.values.first.value}"
         end
       end
     end

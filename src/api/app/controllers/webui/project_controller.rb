@@ -1047,7 +1047,7 @@ class Webui::ProjectController < Webui::WebuiController
     f.close
     outdir = Dir.mktmpdir
 
-    logger.debug "cd #{Rails.root.join('vendor', 'diststats').to_s} && perl ./mkdiststats --srcdir=#{indir} --destdir=#{outdir}
+    logger.debug "cd #{Rails.root.join('vendor', 'diststats')} && perl ./mkdiststats --srcdir=#{indir} --destdir=#{outdir}
              --outfmt=xml #{@project.name}/#{@repository}/#{@arch} --width=910
              --buildhosts=#{@hosts} --scheduler=#{@scheduler}"
     oldpwd = Dir.pwd
@@ -1147,7 +1147,7 @@ class Webui::ProjectController < Webui::WebuiController
     # needed to map requests to package id
     @name2id = Hash.new
 
-    @prj_status = Rails.cache.fetch("prj_status-#{@api_obj.to_s}", expires_in: 5.minutes) do
+    @prj_status = Rails.cache.fetch("prj_status-#{@api_obj}", expires_in: 5.minutes) do
       ProjectStatusCalculator.new(@api_obj).calc_status(pure_project: true)
     end
 

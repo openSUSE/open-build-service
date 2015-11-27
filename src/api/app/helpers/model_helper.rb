@@ -16,7 +16,7 @@ module ModelHelper
 
     dblist.each do |e|
       key = ""
-      keys.each{|k| key << "#{e.send(k).to_s}::"}
+      keys.each{|k| key << "#{e.send(k)}::"}
       entries[key]=e
     end
     to_delete=entries.clone
@@ -26,7 +26,7 @@ module ModelHelper
         key = ""
         keys.each do |k|
           raise 'MissingKey', k unless hash.has_key? k
-          key << "#{hash[k].to_s}::"
+          key << "#{hash[k]}::"
         end
         if entries[key]
           # exists, do we need to update it?
