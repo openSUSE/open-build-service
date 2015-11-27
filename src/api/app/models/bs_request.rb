@@ -606,8 +606,8 @@ class BsRequest < ActiveRecord::Base
             go_new_state = nil
           end
         else
-          # don't touch the request state if a review is still open, except the
-          # review got declined or superseded or reopened.
+          # don't touch the request state if a review is still open, except the review
+          # got declined or superseded or reopened.
           go_new_state = nil if review.state == :new && go_new_state != :declined && go_new_state != :superseded
         end
       end
