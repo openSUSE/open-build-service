@@ -18,7 +18,7 @@ Iggy:
   login: Iggy
   email: Iggy@pop.org
   realname: Iggy Pop
-  password: 6a204bd89f3c8348afd5c77c717a097a
+  password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
   state: 2
@@ -29,7 +29,7 @@ _nobody_:
   login: _nobody_
   email: nobody@localhost
   realname: Anonymous User
-  password: e10adc3949ba59abbe56e057f20f883e
+  password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
   state: 3
@@ -40,7 +40,7 @@ adrian:
   login: adrian
   email: adrian@example.com
   realname: Johnny Thunders
-  password: 65e53e3c6c7e3eb0935a1f7900e3cd13
+  password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
   state: 2
@@ -51,7 +51,7 @@ adrian_downloader:
   login: adrian_downloader
   email: adrian@example.com
   realname: user has access to binary files only
-  password: 65e53e3c6c7e3eb0935a1f7900e3cd13
+  password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
   state: 2
@@ -62,7 +62,7 @@ adrian_nobody:
   login: adrian_nobody
   email: adrian@example.com
   realname: user exists, but has no permissions
-  password: 65e53e3c6c7e3eb0935a1f7900e3cd13
+  password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
   state: 2
@@ -73,7 +73,7 @@ adrian_reader:
   login: adrian_reader
   email: adrian@example.com
   realname: user has access to sources (and binaries ?)
-  password: 65e53e3c6c7e3eb0935a1f7900e3cd13
+  password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
   state: 2
@@ -84,7 +84,7 @@ binary_homer:
   login: binary_homer
   email: homer@nospam.net
   realname: user is maintainer in binary protected project (binarydownload)
-  password: dfa8327f5bfa4c672a04f9b38e348a70
+  password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
   state: 2
@@ -96,7 +96,7 @@ deleted:
   login: deleted
   email: test@example.com
   realname: ''
-  password: df9a257e5a7c1af44987f695369adc44
+  password: 8e7a61bc50e5b38543cbb890ce0c0c06
   password_hash_type: md5
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
@@ -109,7 +109,7 @@ dmayr:
   login: dmayr
   email: test@example.com
   realname: ''
-  password: df9a257e5a7c1af44987f695369adc44
+  password: 8e7a61bc50e5b38543cbb890ce0c0c06
   password_hash_type: md5
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
@@ -121,7 +121,7 @@ fred:
   login: fred
   email: fred@feuerstein.de
   realname: Frederic Feuerstone
-  password: 2dc36b2b9ccf93751ec0db81f4c7bc79
+  password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
   state: 2
@@ -132,7 +132,7 @@ fredlibs:
   login: fredlibs
   email: fred@feuerstein.de
   realname: Frederic Feuerstone
-  password: 2dc36b2b9ccf93751ec0db81f4c7bc79
+  password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
   state: 2
@@ -143,7 +143,7 @@ hidden_homer:
   login: hidden_homer
   email: homer@nospam.net
   realname: user is maintainer in hidden project
-  password: dfa8327f5bfa4c672a04f9b38e348a70
+  password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
   state: 2
@@ -165,7 +165,7 @@ maintenance_assi:
   login: maintenance_assi
   email: homer@nospam.net
   realname: Maintenance Slave
-  password: 1f50dadac54490aed0c3d5beb454a9fc
+  password: f021ce8ca85a51a5eb08d8b6e7cf82b1
   password_hash_type: md5
   password_salt: 0hY2gWMfcb
   password_crypted: osAB47949pfHo
@@ -177,7 +177,7 @@ maintenance_coord:
   login: maintenance_coord
   email: dirkmueller@example.com
   realname: our hero
-  password: 62cd275989e78ee56a81f0265a87562e
+  password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
   state: 2
@@ -188,7 +188,7 @@ sourceaccess_homer:
   login: sourceaccess_homer
   email: homer@nospam.net
   realname: user is maintainer in sourceaccess protected project (sourceaccess)
-  password: dfa8327f5bfa4c672a04f9b38e348a70
+  password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
   state: 2
@@ -199,7 +199,7 @@ tom:
   login: tom
   email: tschmidt@example.com
   realname: Thor
-  password: 5c7686c0284e0875b26de99c1008e998
+  password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
   state: 2
@@ -211,7 +211,7 @@ user1:
   login: user1
   email: user1@example.com
   realname: ''
-  password: df9a257e5a7c1af44987f695369adc44
+  password: 8e7a61bc50e5b38543cbb890ce0c0c06
   password_hash_type: md5
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
@@ -224,7 +224,7 @@ user2:
   login: user2
   email: user2@example.com
   realname: ''
-  password: df9a257e5a7c1af44987f695369adc44
+  password: 8e7a61bc50e5b38543cbb890ce0c0c06
   password_hash_type: md5
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
@@ -237,7 +237,7 @@ user3:
   login: user3
   email: test@example.com
   realname: ''
-  password: df9a257e5a7c1af44987f695369adc44
+  password: 8e7a61bc50e5b38543cbb890ce0c0c06
   password_hash_type: md5
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
@@ -250,7 +250,7 @@ user4:
   login: user4
   email: user4@example.com
   realname: ''
-  password: df9a257e5a7c1af44987f695369adc44
+  password: 8e7a61bc50e5b38543cbb890ce0c0c06
   password_hash_type: md5
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
@@ -263,7 +263,7 @@ user5:
   login: user5
   email: user5@example.com
   realname: ''
-  password: df9a257e5a7c1af44987f695369adc44
+  password: 8e7a61bc50e5b38543cbb890ce0c0c06
   password_hash_type: md5
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
@@ -276,7 +276,7 @@ user6:
   login: user6
   email: test@example.com
   realname: ''
-  password: df9a257e5a7c1af44987f695369adc44
+  password: 8e7a61bc50e5b38543cbb890ce0c0c06
   password_hash_type: md5
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
@@ -289,7 +289,7 @@ unconfirmed_user:
   login: unconfirmed_user
   email: test@example.com
   realname: ''
-  password: 5c7686c0284e0875b26de99c1008e998
+  password: 8e7a61bc50e5b38543cbb890ce0c0c06
   password_hash_type: md5
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY

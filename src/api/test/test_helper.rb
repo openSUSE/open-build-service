@@ -220,15 +220,15 @@ module Webui
 
     # will provide a user without special permissions
     def login_tom(opts = {})
-      login_user('tom', 'thunder', opts)
+      login_user('tom', 'buildservice', opts)
     end
 
     def login_Iggy(opts = {})
-      login_user('Iggy', 'asdfasdf', opts)
+      login_user('Iggy', 'buildservice', opts)
     end
 
     def login_adrian(opts = {})
-      login_user('adrian', 'so_alone', opts)
+      login_user('adrian', 'buildservice', opts)
     end
 
     def login_king(opts = {})
@@ -236,11 +236,11 @@ module Webui
     end
 
     def login_fred(opts = {})
-      login_user('fred', 'geröllheimer', opts)
+      login_user('fred', 'buildservice', opts)
     end
 
     def login_dmayr(opts = {})
-      login_user 'dmayr', '123456', opts
+      login_user 'dmayr', 'buildservice', opts
     end
 
     def logout
@@ -401,7 +401,7 @@ module ActionDispatch
 
     # will provide a user without special permissions
     def prepare_request_valid_user
-      prepare_request_with_user 'tom', 'thunder'
+      prepare_request_with_user 'tom', 'buildservice'
     end
 
     def prepare_request_invalid_user
@@ -445,27 +445,27 @@ module ActionDispatch
     end
 
     def login_Iggy
-      prepare_request_with_user 'Iggy', 'asdfasdf'
+      prepare_request_with_user 'Iggy', 'buildservice'
     end
 
     def login_adrian
-      prepare_request_with_user 'adrian', 'so_alone'
+      prepare_request_with_user 'adrian', 'buildservice'
     end
 
     def login_adrian_downloader
-      prepare_request_with_user 'adrian_downloader', 'so_alone'
+      prepare_request_with_user 'adrian_downloader', 'buildservice'
     end
 
     def login_fred
-      prepare_request_with_user 'fred', 'geröllheimer'
+      prepare_request_with_user 'fred', 'buildservice'
     end
 
     def login_tom
-      prepare_request_with_user 'tom', 'thunder'
+      prepare_request_with_user 'tom', 'buildservice'
     end
 
     def login_dmayr
-      prepare_request_with_user 'dmayr', '123456'
+      prepare_request_with_user 'dmayr', 'buildservice'
     end
 
   end

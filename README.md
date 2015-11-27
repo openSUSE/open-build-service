@@ -335,4 +335,7 @@ You can access the frontend at [localhost:3000](http://localhost:3000). Whatever
     vagrant ssh
     ```
 
+**Note**: The vagrant instances are configured to use the test fixtures in development mode. That includes users. Default user password is 'buildservice'. The admin user is king with password 'sunflower'.
+
+
 :heart: Your Open Build Service Team

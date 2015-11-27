@@ -212,7 +212,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
   def test_branch_without_target_access
     use_js
     Configuration.stubs(:allow_user_to_create_home_project).returns(false)
-    login_user('user2', '123456', to: package_show_path(package: 'apache2', project: 'Apache'))
+    login_user('user2', 'buildservice', to: package_show_path(package: 'apache2', project: 'Apache'))
 
     click_link('Branch package')
     click_button('Ok')

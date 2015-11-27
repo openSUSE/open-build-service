@@ -58,7 +58,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   end
 
   def test_show_package_binary_as_user
-    login_user('fred', 'geröllheimer', to:
+    login_user('fred', 'buildservice', to:
         package_binaries_path(package: 'TestPack', project: 'home:Iggy', repository: '10.2'))
 
     find(:link, 'Show').click
@@ -81,7 +81,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   def test_delete_package_as_user
     use_js
 
-    login_user('fred', 'geröllheimer')
+    login_user('fred', 'buildservice')
     delete_and_recreate_kdelibs
   end
 

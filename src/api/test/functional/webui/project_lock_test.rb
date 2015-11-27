@@ -8,7 +8,7 @@ class Webui::ProjectLockTest < Webui::IntegrationTest
 
   def test_project_unlock
     use_js
-    login_user('user6', '123456')
+    login_user('user6', 'buildservice')
     visit project_show_path(project: 'home:user6')
     click_link('Unlock project')
     fill_in 'comment', with: 'Freedom at last!'
@@ -19,7 +19,7 @@ class Webui::ProjectLockTest < Webui::IntegrationTest
   def test_project_unlock_fails
     Project.any_instance.stubs(:can_be_unlocked?).returns(false)
     use_js
-    login_user('user6', '123456')
+    login_user('user6', 'buildservice')
     visit project_show_path(project: 'home:user6')
     click_link('Unlock project')
     click_button('Ok')
