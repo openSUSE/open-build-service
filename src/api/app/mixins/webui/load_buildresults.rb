@@ -8,7 +8,6 @@ module Webui::LoadBuildresults
     @failures = 0
 
     @buildresult.elements('result') do |result|
-
       @resultvalue = result
       repo = result['repository']
       arch = result['arch']

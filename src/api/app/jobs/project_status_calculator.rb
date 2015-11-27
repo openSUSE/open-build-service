@@ -171,7 +171,6 @@ class ProjectStatusCalculator
     proj.repositories_linking_project(@dbproj).each do |r|
       repo = r['name']
       r.elements('arch') do |arch|
-
         cachekey = "history2#{proj.cache_key}#{repo}#{arch}"
         jobhistory = Rails.cache.fetch(cachekey, expires_in: 30.minutes) do
           parse_jobhistory(dname, repo, arch)

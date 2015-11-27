@@ -77,6 +77,7 @@ class Product < ActiveRecord::Base
   end
 
   private
+
   def _update_from_xml_register_pool(rxml)
     rxml.elements('pool') do |u|
       medium = {}

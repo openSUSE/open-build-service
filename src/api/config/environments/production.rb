@@ -1,7 +1,6 @@
 # Settings specified here will take precedence over those in config/environment.rb
 
 OBSApi::Application.configure do
-
   # The production environment is meant for finished, "live" apps.
   # Code is not reloaded between requests
   config.cache_classes = true
@@ -47,7 +46,6 @@ OBSApi::Application.configure do
 
   # compress our HTML
   config.middleware.use Rack::Deflater
-
 end
 
 # disabled on production for performance reasons

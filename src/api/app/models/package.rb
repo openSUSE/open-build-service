@@ -651,7 +651,6 @@ class Package < ActiveRecord::Base
     check_write_access!
 
     Package.transaction do
-
       self.title = xmlhash.value('title')
       self.description = xmlhash.value('description')
       self.bcntsynctag = xmlhash.value('bcntsynctag')

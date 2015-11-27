@@ -211,7 +211,6 @@ module HasRelationships
         @updater.set_item(record, item)
         cache[id] = { role.title => :new }
       end
-
     end
 
     # all relationships left in cache are to be deleted

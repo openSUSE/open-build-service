@@ -137,7 +137,6 @@ class BsRequest < ActiveRecord::Base
     request = nil
 
     BsRequest.transaction do
-
       request = BsRequest.new
       request.id = theid if theid
 

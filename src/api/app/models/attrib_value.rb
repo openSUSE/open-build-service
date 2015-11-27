@@ -26,6 +26,7 @@ class AttribValue < ActiveRecord::Base
   end
 
   private
+
   # This defines the default for AttribValue.value to ""...
   def get_default_value
     value = ""

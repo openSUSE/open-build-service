@@ -169,7 +169,6 @@ class BinaryRelease < ActiveRecord::Base
       if self.product_medium
         binary.product( product_medium.product.extend_id_hash({name: self.product_medium.product.name}) )
       end
-
     end
     builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                  Nokogiri::XML::Node::SaveOptions::FORMAT

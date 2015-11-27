@@ -87,6 +87,7 @@ class WizardController < ApplicationController
   end
 
   private
+
   def render_wizard
     if @wizard.dirty
       Suse::Backend.put(@wizard_xml + '?user=king', @wizard.serialize)

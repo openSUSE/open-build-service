@@ -36,6 +36,7 @@ class Tag < ActiveRecord::Base
   validate :not_blacklisted
 
   protected
+
   def not_blacklisted
     blacklist = BlacklistTag.where("name = ?", name).first
     errors.add(:name, "The tag is blacklisted!") if blacklist

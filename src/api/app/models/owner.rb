@@ -52,7 +52,6 @@ class Owner
     # search in each marked project
     owners = []
     projects.each do |project|
-
       attrib = project.attribs.where(attrib_type_id: at.id).first
       filter = %w(maintainer bugowner)
       devel  = true
@@ -83,7 +82,6 @@ class Owner
       else
         owners += self.find_containers(project, obj, devel, filter)
       end
-
     end
 
     return owners

@@ -124,7 +124,6 @@ class StatusController < ApplicationController
 
     @result = Hash.new
     actions.each do |action|
-
       #raise NotSubmitRequest.new 'Not submit' unless action.action_type == :submit
       sproj = Project.find_by_name!(action.source_project)
       tproj = Project.find_by_name!(action.target_project)

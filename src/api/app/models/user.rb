@@ -81,7 +81,6 @@ class User < ActiveRecord::Base
   # (@new_password) and the login failure count to
   # unconfirmed/false/0 when it has not been set yet.
   before_validation(:on => :create) do
-
     self.state = STATES['unconfirmed'] if self.state.nil?
     self.password_hash_type = 'md5' if self.password_hash_type.to_s == ''
 
@@ -936,7 +935,6 @@ class User < ActiveRecord::Base
   # returns the gravatar image as string or :none
   def gravatar_image(size)
     Rails.cache.fetch([self, 'home_face', size, Configuration.first]) do
-
       if ::Configuration.gravatar
         hash = Digest::MD5.hexdigest(self.email.downcase)
         begin

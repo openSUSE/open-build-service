@@ -26,7 +26,6 @@ task :stage do
   set :deploy_to, "/srv/www/vhosts/opensuse.org/stage/#{application}"
 end
 task :ibs do
-
 end
 
 ssh_options[:forward_agent] = true
@@ -51,7 +50,6 @@ after "deploy:finalize_update", "deploy:notify"
 after :deploy, 'deploy:cleanup' # only keep 5 releases
 
 namespace :config do
-
   desc "Install saved configs from /shared/ dir"
   task :symlink_shared_config do
     run "ln -s #{shared_path}/options.yml #{release_path}#{git_subdir}/config/"
@@ -128,5 +126,4 @@ Git log:
       exit 1
     end
   end
-
 end

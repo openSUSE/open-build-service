@@ -389,27 +389,6 @@ Style/EachWithObject:
   Exclude:
     - 'app/models/project.rb'
 
-# Offense count: 10
-# Cop supports --auto-correct.
-Style/EmptyLinesAroundAccessModifier:
-  Exclude:
-    - 'app/controllers/application_controller.rb'
-    - 'app/controllers/message_controller.rb'
-    - 'app/controllers/wizard_controller.rb'
-    - 'app/models/attrib_value.rb'
-    - 'app/models/group_maintainer.rb'
-    - 'app/models/groups_user.rb'
-    - 'app/models/linked_project.rb'
-    - 'app/models/product.rb'
-    - 'app/models/tag.rb'
-    - 'test/unit/ichain_notifier_test.rb'
-
-# Offense count: 58
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, SupportedStyles.
-Style/EmptyLinesAroundBlockBody:
-  Enabled: false
-
 # Offense count: 416
 # Cop supports --auto-correct.
 # Configuration parameters: EnforcedStyle, SupportedStyles.

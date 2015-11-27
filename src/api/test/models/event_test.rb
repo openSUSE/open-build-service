@@ -75,7 +75,6 @@ class EventTest < ActionDispatch::IntegrationTest
                              receiver_role: :all, receive: true
 
     assert_equal %w(fredlibs), users_for_event(e)
-
   end
 
   test 'create request' do

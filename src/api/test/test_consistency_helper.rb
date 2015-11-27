@@ -26,7 +26,6 @@ def compare_project_and_package_lists
   assert_equal project_list_api, project_list_backend
 
   project_list_api.each do |name|
-
     get "/source/#{name}"
     assert_response :success
     package_list_api = dir_to_array(ActiveXML::Node.new(@response.body))

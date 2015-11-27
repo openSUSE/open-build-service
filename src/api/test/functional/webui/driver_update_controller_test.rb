@@ -10,7 +10,6 @@ class Webui::DriverUpdateControllerTest < Webui::IntegrationTest
   end
 
   teardown do
-
   end
 
   # TODO: End this test cases if they should. We saw that the DriverUpdateController is unused.

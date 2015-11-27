@@ -59,7 +59,6 @@ module FlagHelper
           fs << {}
         end
         fs.each do |xmlflag|
-
           #get the selected architecture from data base
           arch = xmlflag['arch']
           arch = Architecture.find_by_name!(arch) if arch

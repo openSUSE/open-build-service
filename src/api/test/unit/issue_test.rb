@@ -48,7 +48,6 @@ class IssueTest < ActiveSupport::TestCase
             </struct></value></param></params></methodCall>\n"
 
   test "fetch issues" do
-
     stub_request(:post, "http://bugzilla.novell.com/xmlrpc.cgi").
         with(body: BugSearch).
         to_return(:status => 200,

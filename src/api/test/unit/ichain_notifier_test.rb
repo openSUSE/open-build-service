@@ -43,6 +43,7 @@ class IchainNotifierTest < ActiveSupport::TestCase
 #  end
 
   private
+
     def read_fixture(action)
       IO.readlines("#{ActionController::TestCase.fixture_path}/ichain_notifier/#{action}")
     end

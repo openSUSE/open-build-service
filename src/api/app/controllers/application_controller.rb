@@ -679,6 +679,7 @@ class ApplicationController < ActionController::Base
   end
 
   private
+
   def shutup_rails
     Rails.cache.silence! unless Rails.env.development?
   end

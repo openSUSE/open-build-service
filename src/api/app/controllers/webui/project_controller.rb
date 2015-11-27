@@ -621,7 +621,6 @@ class Webui::ProjectController < Webui::WebuiController
     # filter out repos without current packages
     @statushash.each do |repo, hash|
       hash.each do |arch, packages|
-
         has_packages = false
         packages.each do |p, _|
           if packagename_hash.has_key? p

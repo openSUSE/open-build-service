@@ -80,7 +80,6 @@ class Tagcloud
     end
 
     taglist.each do |tag|
-
       max = tag.count if tag.count > max
       min = tag.count if tag.count < min
     end

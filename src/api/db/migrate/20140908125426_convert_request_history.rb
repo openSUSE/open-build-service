@@ -9,7 +9,6 @@ class ConvertRequestHistory < ActiveRecord::Migration
 
     # one big transaction to improve speed
     ActiveRecord::Base.transaction do
-
     puts "Creating some history elements based on #{BsRequest.count} request states..."
     puts "This can take some time..." if BsRequest.count > 1000
     BsRequest.all.each do |request|
@@ -103,7 +102,6 @@ class ConvertRequestHistory < ActiveRecord::Migration
       puts "         bs_request_histories SQL table still contains not transfered entries"
       puts "         a typical reason are entries of not anymore existing users"
     end
-
     end
   end
 

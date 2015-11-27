@@ -1526,7 +1526,6 @@ class Project < ActiveRecord::Base
     return false unless br
 
     br.each('result') do |result|
-
       if repository && result.value(:repository) == repository
         repository_states[repository] ||= {}
         result.each('summary') do |summary|
