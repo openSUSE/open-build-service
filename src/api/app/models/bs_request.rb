@@ -109,9 +109,9 @@ class BsRequest < ActiveRecord::Base
 
   def reset_cache
     return unless id
-    Rails.cache.delete('xml_bs_request_fullhistory_%d' % id)
-    Rails.cache.delete('xml_bs_request_history_%d' % id)
-    Rails.cache.delete('xml_bs_request_%d' % id)
+    Rails.cache.delete("xml_bs_request_fullhistory_#{id}")
+    Rails.cache.delete("xml_bs_request_history_#{id}")
+    Rails.cache.delete("xml_bs_request_#{id}")
   end
 
   def self.new_from_xml(xml)
@@ -205,15 +205,15 @@ class BsRequest < ActiveRecord::Base
 
   def to_axml(opts = {})
     if opts[:withfullhistory]
-      Rails.cache.fetch('xml_bs_request_fullhistory_%d' % id) do
+      Rails.cache.fetch("xml_bs_request_fullhistory_#{id}") do
         render_xml({withfullhistory: 1})
       end
     elsif opts[:withhistory]
-      Rails.cache.fetch('xml_bs_request_history_%d' % id) do
+      Rails.cache.fetch("xml_bs_request_history_#{id}") do
         render_xml({withhistory: 1})
       end
     else
-      Rails.cache.fetch('xml_bs_request_%d' % id) do
+      Rails.cache.fetch("xml_bs_request_#{id}") do
         render_xml
       end
     end

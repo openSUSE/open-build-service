@@ -241,7 +241,7 @@ class Project < ActiveRecord::Base
       LinkedProject.where(linked_db_project: self).each do |lp|
         id = lp.db_project_id
         lp.destroy
-        Rails.cache.delete('xml_project_%d' % id)
+        Rails.cache.delete("xml_project_#{id}")
       end
     end
   end
@@ -883,7 +883,7 @@ class Project < ActiveRecord::Base
   end
 
   def reset_cache
-    Rails.cache.delete('xml_project_%d' % id) if id
+    Rails.cache.delete("xml_project_#{id}") if id
   end
   private :reset_cache # whoever changes the project, needs to store it too
 
@@ -919,7 +919,7 @@ class Project < ActiveRecord::Base
   end
 
   def to_axml(_opts = {})
-    Rails.cache.fetch('xml_project_%d' % id) do
+    Rails.cache.fetch("xml_project_#{id}") do
       # CanRenderModel
       render_xml
     end

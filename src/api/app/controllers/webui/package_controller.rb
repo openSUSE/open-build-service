@@ -817,7 +817,7 @@ class Webui::PackageController < Webui::WebuiController
     # Do not start at the beginning long time ago
     begin
       size = get_size_of_log(@project, @package, @repo, @arch)
-      logger.debug('log size is %d' % size)
+      logger.debug("log size is #{size}")
       @offset = size - 32 * 1024
       @offset = 0 if @offset < 0
     rescue => e

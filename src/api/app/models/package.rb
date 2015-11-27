@@ -708,7 +708,7 @@ class Package < ActiveRecord::Base
   end
 
   def reset_cache
-    Rails.cache.delete('xml_package_%d' % id) if id
+    Rails.cache.delete("xml_package_#{id}") if id
   end
 
   def write_to_backend

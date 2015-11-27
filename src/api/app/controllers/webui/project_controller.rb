@@ -1064,7 +1064,7 @@ class Webui::ProjectController < Webui::WebuiController
       return nil
     end
 
-    Rails.cache.write('rebuild-%s.png' % @pngkey, png)
+    Rails.cache.write("rebuild-#{@pngkey}.png", png)
     f=File.open(outdir + '/longest.xml')
     longest = Xmlhash.parse(f.read)
     longest['timings'].elements('package') do |p|
