@@ -23,7 +23,6 @@ class ProjectMaintains  < ActiveRecord::Migration
     remove_column :projects, :maintenance_project_id
   end
 
-
   def self.down
     add_column :projects, :maintenance_project_id, :integer
 

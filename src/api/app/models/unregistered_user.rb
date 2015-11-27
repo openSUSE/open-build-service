@@ -1,6 +1,5 @@
 require_dependency 'api_exception'
 
-
 class UnregisteredUser < User
 
   class ErrRegisterSave < APIException

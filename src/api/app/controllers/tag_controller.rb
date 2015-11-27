@@ -32,7 +32,6 @@ class TagController < ApplicationController
     render :partial => "tagged_objects_with_tags"
   end
 
-
   def get_tagged_packages_by_user
     @user = User.find_by_login!(params[:user])
     @taggings = Tagging.where("taggable_type = ? AND user_id = ?", "Package", @user.id)
@@ -50,7 +49,6 @@ class TagController < ApplicationController
     render :partial => "tagged_objects_with_tags"
 
   end
-
 
   def get_tags_by_user
     @user = @http_user
@@ -83,7 +81,6 @@ class TagController < ApplicationController
     return @projects
   end
 
-
   def get_packages_by_tag( do_render = true )
     @tag = params[:tag]
     @packages = Array.new
@@ -109,14 +106,12 @@ class TagController < ApplicationController
     return @packages
   end
 
-
   def get_objects_by_tag
     @projects = get_projects_by_tag( false )
     @packages = get_packages_by_tag( false )
 
     render :partial => "objects_by_tag"
   end
-
 
   def tags_by_user_and_object
     if request.get?
@@ -129,7 +124,6 @@ class TagController < ApplicationController
       update_tags_by_object_and_user
     end
   end
-
 
   def get_tags_by_user_and_project( do_render = true )
     user = User.find_by_login!(params[:user])
@@ -144,7 +138,6 @@ class TagController < ApplicationController
       return @tags
     end
   end
-
 
   def get_tags_by_user_and_package( do_render = true  )
     user = User.find_by_login!(params[:user])
@@ -162,14 +155,11 @@ class TagController < ApplicationController
     end
   end
 
-
   def most_popular_tags
   end
 
-
   def most_recent_tags
   end
-
 
   def tagcloud
     allowed_distribution_methods = %w(raw linear logarithmic)
@@ -241,7 +231,6 @@ class TagController < ApplicationController
     end
   end
 
-
   #TODO helper function, delete me
   def get_taglist
     tags = Tag.order(:name)
@@ -289,7 +278,6 @@ class TagController < ApplicationController
     end
   end
 
-
   def package_tags
 
     project_name = params[:project]
@@ -331,7 +319,6 @@ class TagController < ApplicationController
 
     end
   end
-
 
   def update_tags_by_object_and_user
     @user = User.find_by_login!(params[:user])
@@ -384,7 +371,6 @@ class TagController < ApplicationController
     end
   end
 
-
   def taglistXML_to_tags(taglistXML)
 
     taglist = []
@@ -411,7 +397,6 @@ class TagController < ApplicationController
     return tags, @unsaved_tags
   end
 
-
   def save_tags(object, tagCreator, tags)
     if tags.kind_of? Tag
       tags = [tags]
@@ -425,7 +410,6 @@ class TagController < ApplicationController
     end
   end
 
-
   #create an entry in the join table (taggings) if necessary
   def create_relationship(object, tagCreator, tag)
     Tagging.transaction do
@@ -437,7 +421,6 @@ class TagController < ApplicationController
     end
   end
 
-
   #get the tag as object
   def s_to_tag(tagname)
     tag = Tag.find_by_name(tagname)
@@ -447,7 +430,6 @@ class TagController < ApplicationController
     raise RuntimeError.new( "Tag #{tagname} could not be saved. ERROR: #{tag.errors[:name]}" ) if not tag.valid?
     return tag
   end
-
 
   def tag_error(params)
     render_error :status => 404, :errorcode => 'unknown_tag',

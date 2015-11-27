@@ -295,7 +295,6 @@ ActiveRecord::Base.transaction(requires_new: true) do
   UpdatePackageMetaJob.new.perform
 end
 
-
 @http_user = nil
 User.current = nil
 

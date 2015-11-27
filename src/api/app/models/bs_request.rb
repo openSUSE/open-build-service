@@ -742,7 +742,6 @@ class BsRequest < ActiveRecord::Base
     end
   end
 
-
   IntermediateStates = %w(new review)
 
   def send_state_change

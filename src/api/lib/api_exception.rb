@@ -56,7 +56,6 @@ class OpenReleaseRequest < APIException
   setup 403
 end
 
-
 # 404 errors
 class NotFoundError < APIException
   setup 404

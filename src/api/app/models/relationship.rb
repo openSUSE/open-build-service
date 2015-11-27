@@ -52,7 +52,6 @@ class Relationship < ActiveRecord::Base
   after_rollback 'Relationship.discard_cache'
   after_destroy 'Relationship.discard_cache'
 
-
   def self.add_user(obj, user, role, ignoreLock = nil, check = nil)
     obj.check_write_access!(ignoreLock)
     unless role.kind_of? Role

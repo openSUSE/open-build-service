@@ -84,7 +84,6 @@ class Webui::PackageController < Webui::WebuiController
       return
     end
 
-
     @comments = @package.comments
     @requests = []
     # TODO!!!
@@ -460,7 +459,6 @@ class Webui::PackageController < Webui::WebuiController
     end
     return true
   end
-
 
   def rdiff
     @last_rev = @package.dir_hash['rev']

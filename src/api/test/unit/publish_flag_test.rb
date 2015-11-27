@@ -49,7 +49,6 @@ class PublishFlagTest < ActiveSupport::TestCase
 
   end
 
-
   def test_add_publish_flag_to_package
 
     #checking precondition
@@ -87,7 +86,6 @@ class PublishFlagTest < ActiveSupport::TestCase
 
   end
 
-
   def test_delete_type_publish_flags_from_project
 
     #checking precondition
@@ -109,7 +107,6 @@ class PublishFlagTest < ActiveSupport::TestCase
     assert_equal 2, count - Flag.all.size
   end
 
-
   def test_delete_type_publish_from_package
 
     #checking precondition
@@ -125,7 +122,6 @@ class PublishFlagTest < ActiveSupport::TestCase
     assert_equal 1, count - Flag.all.size
 
   end
-
 
   def test_position
     # Because of each flag belongs_to architecture AND project|package for the
@@ -184,6 +180,5 @@ class PublishFlagTest < ActiveSupport::TestCase
     assert_equal 4, f.position
 
   end
-
 
 end

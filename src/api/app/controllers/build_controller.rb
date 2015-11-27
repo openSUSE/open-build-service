@@ -237,7 +237,6 @@ class BuildController < ApplicationController
     pass_to_backend
   end
 
-
   def result
     required_parameters :project
 

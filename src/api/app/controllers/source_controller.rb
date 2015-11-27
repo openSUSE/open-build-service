@@ -407,7 +407,6 @@ class SourceController < ApplicationController
     dispatch_command(:package_command, @command)
   end
 
-
   Source_untouched_commands = %w(branch diff linkdiff servicediff showlinked rebuild wipe remove_flag set_flag getprojectservices)
   # list of cammands which create the target package
   Package_creating_commands = %w(branch release copy undelete instantiate)

@@ -71,7 +71,6 @@ class AttribType < ActiveRecord::Base
     self.attrib_type_modifiable_bies << AttribTypeModifiableBy.new(new_rule)
   end
 
-
   def update_default_values(default_elements)
     default_values.delete_all
     position = 1

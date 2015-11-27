@@ -116,7 +116,6 @@ class Webui::AttributesTest < Webui::IntegrationTest
     end
   end
 
-
   def test_attrib_invalid_package
     visit index_attribs_path(project: 'home:Iggy', package: 'Pok')
     page.must_have_content "Package Pok not found"

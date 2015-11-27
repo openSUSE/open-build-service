@@ -8,7 +8,6 @@ class ReindexSphinxDb < ActiveRecord::Migration
     system("cd #{Rails.root}; rm -rf tmp/binlog; exec #{rake} ts:index")
   end
 
-
   def self.down
   end
 

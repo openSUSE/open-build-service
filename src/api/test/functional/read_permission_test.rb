@@ -659,7 +659,6 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
         '<project name="home:tom:ProtectedProject2"> <title/> <description/> <link project="HiddenProject"/> </project>'
     assert_response 404
 
-
     login_adrian
     # try to link to an access protected hidden project from sourceaccess project
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject2"),
@@ -986,6 +985,5 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     delete "/source/home:adrian:Project"
     assert_response :success
   end
-
 
 end

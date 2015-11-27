@@ -57,7 +57,6 @@ Ignore: package:cups'
     assert_match(/entry name="SourceprotectedProject"/, @response.body)
   end
 
-
   def test_get_packagelist
     login_tom
     get '/source/kde4'
@@ -110,7 +109,6 @@ Ignore: package:cups'
     get '/source/kde2000/_meta'
     assert_response 404
   end
-
 
   # non-existing project-package should return 404
   def test_get_illegal_projectfile
@@ -332,7 +330,6 @@ Ignore: package:cups'
     assert_response :success
   end
 
-
   def test_put_project_meta_with_invalid_permissions
     login_tom
     # The user is valid, but has weak permissions
@@ -383,7 +380,6 @@ Ignore: package:cups'
     assert_response 400
     assert_match(/invalid project name/, @response.body)
   end
-
 
   def test_put_project_meta
     prj='kde4' # project
@@ -612,7 +608,6 @@ Ignore: package:cups'
 
   private :do_change_project_meta_test
 
-
   def test_create_and_delete_project
     prepare_request_with_user('king', 'sunflower')
     # Get meta file
@@ -643,7 +638,6 @@ Ignore: package:cups'
     assert_response :success
   end
 
-
   def test_put_invalid_project_meta
     login_fred
 
@@ -671,13 +665,11 @@ Ignore: package:cups'
     assert_xml_tag :tag => 'status', :attributes => { :code => 'project_name_mismatch' }
     #TODO: referenced repository names must exist
 
-
     #verify data is unchanged:
     get url_for(:controller => :source, :action => :show_project_meta, :project => 'kde4')
     assert_response :success
     assert_equal(olddoc.to_s, REXML::Document.new((@response.body)).to_s)
   end
-
 
   def test_remove_myself_from_home_project_and_readd
     login_fred
@@ -702,7 +694,6 @@ Ignore: package:cups'
     put url_for(:controller => :source, :action => :update_project_meta, :project => 'home:fred'), xml
     assert_response :success
   end
-
 
   def test_lock_project
     login_Iggy
@@ -940,7 +931,6 @@ Ignore: package:cups'
   end
 
   private :do_change_package_meta_test
-
 
   # admins, project-maintainer and package maintainer can edit package data
   def test_put_package_meta
@@ -1414,7 +1404,6 @@ Ignore: package:cups'
     assert_response :success
     assert_equal(olddoc.to_s, REXML::Document.new((@response.body)).to_s)
   end
-
 
   def test_read_file
     login_tom
@@ -2322,7 +2311,6 @@ Ignore: package:cups'
     assert_response :success
   end
 
-
   def test_release_project
     # create manual release target
     login_adrian
@@ -2733,7 +2721,6 @@ Ignore: package:cups'
     assert_xml_tag(:parent => { :tag => 'revision', :attributes => { :rev => revision.to_s }, :content => nil }, :tag => 'user', :content => 'fred')
     assert_xml_tag(:parent => { :tag => 'revision', :attributes => { :rev => revision.to_s }, :content => nil }, :tag => 'srcmd5')
 
-
     # test deleteuploadrev
     put '/source/home:Iggy/TestPack/anotherfilename?rev=upload', 'CONTENT'
     assert_response :success
@@ -2802,7 +2789,6 @@ Ignore: package:cups'
     delete '/source/home:Iggy/TestPack/filename'
     assert_response :success
   end
-
 
   def test_branch_and_merge_changes
     login_Iggy
@@ -2960,7 +2946,6 @@ Ignore: package:cups'
 	</channel>'
     assert_response 404
     assert_xml_tag :tag => 'status', :attributes => { :code => 'unknown_repository' }
-
 
     put '/source/home:Iggy/TestChannel/_channel', '<?xml version="1.0" encoding="UTF-8"?>
 	<channel>
@@ -3411,7 +3396,6 @@ Ignore: package:cups'
     get '/source/home:Iggy/TestPack/_meta'
     assert_not_equal original, @response.body
   end
-
 
   def test_project_set_flag
     login_Iggy

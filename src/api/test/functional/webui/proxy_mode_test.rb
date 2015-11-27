@@ -36,5 +36,4 @@ class Webui::ProxyModeTest < Webui::IntegrationTest
     User.find_by(login: 'pico').destroy
   end
 
-
 end

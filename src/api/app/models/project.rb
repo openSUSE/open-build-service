@@ -410,7 +410,6 @@ class Project < ActiveRecord::Base
     User.current.can_modify_project?(self, ignoreLock)
   end
 
-
   def find_linking_projects
       sql =<<-END_SQL
       SELECT prj.*
@@ -1380,7 +1379,6 @@ class Project < ActiveRecord::Base
   end
 
   private :bsrequest_repos_map
-
 
   def self.valid_name?(name)
     return false unless name.kind_of? String

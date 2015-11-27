@@ -9,7 +9,6 @@ class Webui::CommentsController < Webui::WebuiController
     end
     comment.blank_or_destroy
 
-
     respond_to do |format|
       format.js { render json: 'ok' }
       format.html do

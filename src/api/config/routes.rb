@@ -366,7 +366,6 @@ OBSApi::Application.routes.draw do
   get 'published/:project' => 'published#index', constraints: cons
   get 'published/' => 'source#index', via: :get
 
-
   constraints(APIMatcher) do
 
     get '/' => 'main#index'
@@ -476,7 +475,6 @@ OBSApi::Application.routes.draw do
 
     end
 
-
     ### /user
 
     #Get objects tagged by user. (objects with tags)
@@ -563,7 +561,6 @@ OBSApi::Application.routes.draw do
       get 'message/:id' => :show
       delete 'message/:id' => :delete
     end
-
 
     ### /search
 

@@ -90,6 +90,5 @@ class Webui::ConfigurationTest < Webui::IntegrationTest
       page.must_have_checked_field(chk)
     end
 
-
   end
 end

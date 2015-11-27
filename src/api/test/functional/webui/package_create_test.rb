@@ -94,7 +94,6 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
       :expect => :invalid_name)
   end
 
-
   def test_create_package_name_with_spaces
 
     login_Iggy to: project_show_path(project: 'home:Iggy')
@@ -105,7 +104,6 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
       :description => 'Empty home project package with invalid name. Must fail.',
       :expect => :invalid_name)
   end
-
 
   def test_create_package_with_only_name
     use_js
@@ -118,7 +116,6 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
     # tear down
     delete_package('home:Iggy', 'HomePackage-OnlyName')
   end
-
 
   def test_create_package_with_long_description
     use_js
@@ -135,7 +132,6 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
     delete_package('home:Iggy', 'HomePackage-LongDesc')
 
   end
-
 
   def test_create_package_strange_name
     use_js
@@ -164,8 +160,6 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
 
   # RUBY CODE ENDS HERE.
   # BELOW ARE APPENDED ALL DATA STRUCTURES USED BY THE TESTS.
-
-
 
 # -------------------------------------------------------------------------------------- #
 LONG_DESCRIPTION = <<LICENSE_END
@@ -256,6 +250,5 @@ and give any other recipients of the Program a copy of this License
 along with the Program.
 LICENSE_END
 # -------------------------------------------------------------------------------------- #
-
 
 end

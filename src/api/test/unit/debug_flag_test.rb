@@ -52,7 +52,6 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
 
   end
 
-
   def test_add_debug_flag_to_package
 
     #checking precondition
@@ -92,7 +91,6 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
 
   end
 
-
   def test_delete_debuginfo_flags_from_project
 
     #checking precondition
@@ -113,7 +111,6 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     assert_equal 0, @project.type_flags('debuginfo').size
     assert_equal 2, count - Flag.all.size
   end
-
 
   def test_delete_debuginfo_flags_from_package
 
@@ -187,6 +184,5 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     assert_equal 4, f.position
 
   end
-
 
 end

@@ -231,7 +231,6 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
                   },
                   "description" => {} }, Xmlhash.parse(@response.body))
 
-
     withr2 = upload_request("submit_with_review")
     assert_response :success
 

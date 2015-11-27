@@ -13,7 +13,6 @@ class TagcloudTest < ActiveSupport::TestCase
     assert_equal 1, cloud.min, "Wrong minimum."
   end
 
-
   def test_delta
     opt = Hash.new
 
@@ -27,7 +26,6 @@ class TagcloudTest < ActiveSupport::TestCase
 
     assert_equal 0.5, delta, "Wrong delta."
   end
-
 
   def test_sort_tags
     opt = Hash.new
@@ -59,7 +57,6 @@ class TagcloudTest < ActiveSupport::TestCase
     end
   end
 
-
   def test_raw
     opt = Hash.new
 
@@ -76,7 +73,6 @@ class TagcloudTest < ActiveSupport::TestCase
     assert_equal 1, rcloud['TagE'], "Wrong tag-count for TagE."
     assert_equal 1, rcloud['TagF'], "Wrong tag-count for TagF."
   end
-
 
   def test_logarithmic
     opt = Hash.new
@@ -97,7 +93,6 @@ class TagcloudTest < ActiveSupport::TestCase
     assert_equal 0, lcloud['TagF'], "Wrong font size for TagF."
   end
 
-
   def test_linear
     opt = Hash.new
 
@@ -116,7 +111,6 @@ class TagcloudTest < ActiveSupport::TestCase
     assert_equal 0, lcloud['TagE'], "Wrong font size for TagE."
     assert_equal 0, lcloud['TagF'], "Wrong font size for TagF."
   end
-
 
   def test_user_tagcloud
 
@@ -154,7 +148,6 @@ class TagcloudTest < ActiveSupport::TestCase
       end
     end
 
-
     #same test for user 'fred'
     #tags = ['TagB','TagC']
     opt = {:scope => 'user', :user => User.find_by_login('fred')}
@@ -181,6 +174,5 @@ class TagcloudTest < ActiveSupport::TestCase
       end
     end
   end
-
 
 end

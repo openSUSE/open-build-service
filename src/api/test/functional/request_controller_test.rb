@@ -301,7 +301,6 @@ XML
     assert node.has_attribute?(:id)
     id2 = node.value('id')
 
-
     delete '/source/home:Iggy/TestPack.DELETE2'
     assert_response :success
     get "/request/#{id1}"
@@ -860,7 +859,6 @@ XML
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=tom&comment=review2"
     assert_response :success
 
-
     # check review comments are the same
     get "/request/#{id}"
     assert_response :success
@@ -1299,7 +1297,6 @@ XML
     assert_response :success
     post '/request?cmd=create', rq
     assert_response :success
-
 
     # block request creation in package
     post '/source/home:Iggy/TestPack/_attribute', "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>Package blocked</value> </attribute> </attributes>"

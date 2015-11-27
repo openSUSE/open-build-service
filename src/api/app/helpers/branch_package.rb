@@ -59,7 +59,6 @@ class BranchPackage
     # name of 1) may get used in package or repo names when using :extend_name
     #
 
-
     set_target_project
 
     set_update_project_attribute

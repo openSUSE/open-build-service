@@ -155,7 +155,6 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     assert results.count >= 4
   end
 
-
   def test_search_for_subprojects
 
     visit search_path
@@ -170,7 +169,6 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     results.count.must_equal 1
   end
 
-
   def test_search_for_projects
 
     visit search_path
@@ -184,7 +182,6 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     assert results.include? :type => :project, :project_name => 'LocalProject'
     results.count.must_equal 1
   end
-
 
   def test_search_for_packages
 
@@ -202,21 +199,17 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     results.count.must_equal 1
   end
 
-
   def test_search_by_title
     skip("not yet implemented")
   end
-
 
   def test_search_by_description
     skip("not yet implemented")
   end
 
-
   def test_search_by_attributes
     skip("not yet implemented")
   end
-
 
   def test_search_non_existing_by_name
 
@@ -229,7 +222,6 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
       :expect => :no_results)
   end
 
-
   def test_search_non_existing_by_title
 
     visit search_path
@@ -241,7 +233,6 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
       :expect => :no_results)
   end
 
-
   def test_search_non_existing_by_description
 
     visit search_path
@@ -252,7 +243,6 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
       :in   => [:description],
       :expect => :no_results)
   end
-
 
   def test_search_non_existing_by_attributes
     visit search_path
@@ -300,7 +290,6 @@ end
       :in   => [],
       :expect => :invalid_search_options)
   end
-
 
   def test_search_with_empty_text
     visit search_path

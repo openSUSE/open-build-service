@@ -230,7 +230,6 @@ class Webui::RequestController < Webui::WebuiController
       redirect_to(:action => 'show', :project => params[:project], :package => params[:package]) and return
     end
 
-
     # link_to isn't available here, so we have to write some HTML. Uses url_for to not hardcode URLs.
     flash[:notice] += " and forwarded to
                        <a href='#{url_for(:controller => 'package',

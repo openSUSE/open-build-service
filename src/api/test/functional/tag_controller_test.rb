@@ -14,21 +14,17 @@ class TagControllerTest < ActionDispatch::IntegrationTest
       s_to_tag(tag)
     end
 
-
     def @controller.private_taglistXML_to_tags(taglistXML)
       taglistXML_to_tags(taglistXML)
     end
-
 
     def @controller.private_create_relationship(object, tagCreator, tag)
       create_relationship(object, tagCreator, tag)
     end
 
-
     def @controller.private_save_tags(object, tagCreator, tags)
       save_tags(object, tagCreator, tags)
     end
-
 
     def @controller.private_taglistXML_to_tags(taglistXML)
       taglistXML_to_tags(taglistXML)
@@ -36,7 +32,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
 
     reset_auth
   end
-
 
   def test_s_to_tag
     t = Tag.find_by_name("TagX")
@@ -61,7 +56,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
 
   end
 
-
   def test_create_relationship_rollback
     u = User.find_by_login("Iggy")
     assert_kind_of User, u
@@ -77,7 +71,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-
   def test_create_relationship
     u = User.find_by_login("Iggy")
     assert_kind_of User, u
@@ -86,7 +79,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
 
     p = Project.find_by_name("home:Iggy")
     assert_kind_of Project, p
-
 
     #Precondition check: Tag "TagX" should not exist.
     t = Tag.find_by_name("TagX")
@@ -113,7 +105,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     #testing the relationship.
     assert_equal "TagX", (u.tags.to_a - initial_user_tags)[0].name
   end
-
 
   def test_save_tags
     u = User.find_by_login("Iggy")
@@ -159,7 +150,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     assert_kind_of Tag, u.tags.find_by_name("TagX")
     assert_kind_of Tag, u.tags.find_by_name("TagY")
   end
-
 
   def test_taglist_xml_to_tags
     u = User.find_by_login("Iggy")
@@ -209,7 +199,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     assert_equal "IamNotAllowed", unsaved_tags[0]
   end
 
-
   def test_get_project_tags
     login_Iggy
 
@@ -256,7 +245,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
                    }
   end
 
-
   def test_get_package_tags
     login_Iggy
 
@@ -288,7 +276,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "tags",
                     :child => {:tag => "tag", :attributes => {:name => "TagE"} }
   end
-
 
   #  def test_put_project_tags
   #    login_Iggy
@@ -332,7 +319,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     assert_equal 'TagF', tags[3].name
   end
 
-
   #This test is for testing the function get_tags_by_user_and_package
   #in the case of controller-internal usage of this function.
   def test_get_tags_by_user_and_package_internal_use
@@ -348,7 +334,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     assert_equal 'TagD', tags[2].name
     assert_equal 'TagE', tags[3].name
   end
-
 
   def test_get_tags_by_user_and_project
     login_Iggy
@@ -387,7 +372,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "tags",
                    :child => {:tag => "tag", :attributes => {:name => "TagF"} }
 
-
     #request tags for another user than the logged on user
     get url_for(:controller => :tag, :action => :get_tags_by_user_and_project, :project => "home:Iggy",
     :user => "fred" )
@@ -409,7 +393,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "tags",
     :child =>  {:tag => "tag", :attributes => {:name => "TagC"} }
   end
-
 
   def test_get_tags_by_user_and_package
     login_Iggy
@@ -512,7 +495,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     }
   end
 
-
   #This test gets all projects with tags by another user than the the logged on
   #user Iggy
   def test_get_tagged_projects_by_user_2
@@ -540,7 +522,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     }
   end
 
-
   #This test gets all packages with tags by the logged on user Iggy
   def test_get_tagged_packages_by_user_1
     login_Iggy
@@ -548,7 +529,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     #request tags for an unknown user
     get url_for(:controller => :tag, :action => :get_tagged_packages_by_user, :user => "IamAnAlienToo" )
     assert_response 404
-
 
     get url_for(:controller => :tag, :action => :get_tagged_packages_by_user, :user => "Iggy")
     assert_response :success
@@ -595,7 +575,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     }
   end
 
-
   #This test gets all packages with tags by another user than the the logged on
   #user Iggy
   def test_get_tagged_packages_by_user_2
@@ -621,7 +600,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
                 :child      => {:tag => "tag", :attributes => {:name => "TagB"} }
     }
   end
-
 
   def test_get_projects_by_tag
     login_Iggy
@@ -665,7 +643,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     }
   end
 
-
   #This test gets all projects tagged by the tree tags TagA, TagB, TagC
   #Result: only one project (home:Iggy)
   def test_get_projects_by_three_tags
@@ -702,7 +679,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
                 :child      => {:tag => "tag", :attributes => {:name => "TagF"} }
     }
   end
-
 
   #This test gets all projects tagged by the tree tags TagA, TagB, TagC,
   #but tags are in different order
@@ -741,7 +717,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
                 :child      => {:tag => "tag", :attributes => {:name => "TagF"} }
     }
   end
-
 
   #This test gets all projects tagged by the two tags TagA and TagC
   #Result: two projects (home:Iggy, kde)
@@ -792,7 +767,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
                 :child      => {:tag => "tag", :attributes => {:name => "TagC"} }
     }
   end
-
 
   def test_get_packages_by_tag
     login_Iggy
@@ -895,7 +869,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
                 :child      => {:tag => "tag", :attributes => {:name => "TagE"} }
     }
   end
-
 
   #This test gets all packages tagged by the two tags TagA and TagB
   #Result: no package can be found
@@ -1034,7 +1007,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
                    }
   end
 
-
   def test_tagcloud_wrong_parameter
     login_Iggy
 
@@ -1047,7 +1019,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
 
     get "/tag/tagcloud", :steps => 6
     assert_response :success
-
 
     #parameter distribution(_method)
     get "/tag/tagcloud", :distribution => 'Alien'
@@ -1063,7 +1034,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
   end
-
 
   def test_tagcloud_raw
     login_Iggy
@@ -1089,7 +1059,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     :child => { :tag => "tag", :attributes => {:name => "TagF", :count => 1} }
   end
 
-
   def test_tagcloud_linear
     login_Iggy
 
@@ -1113,7 +1082,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagF", :size => 0} }
   end
-
 
   def test_tagcloud_logarithmic
     login_Iggy
@@ -1143,7 +1111,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
       :child => { :tag => "tag", :attributes => {:name => "TagF", :size => 0} }
   end
 
-
   def test_tagcloud_by_user
     login_Iggy
 
@@ -1172,7 +1139,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "tagcloud",
       :child => { :tag => "tag", :attributes => {:name => "TagF", :size => 0} }
 
-
     login_fred
 
     get "/tag/tagcloud", :distribution => 'logarithmic', :steps => 12, :user => 'fred'
@@ -1191,7 +1157,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
       :child => { :tag => "tag", :attributes => {:name => "TagB", :size => 12} }
     assert_xml_tag :tag => "tagcloud",
       :child => { :tag => "tag", :attributes => {:name => "TagC", :size => 0} }
-
 
     #get the tag-cloud from another user
     get "/tag/tagcloud", :distribution => 'logarithmic', :steps => 12, :user => 'Iggy'
@@ -1219,12 +1184,10 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "tagcloud",
       :child => { :tag => "tag", :attributes => {:name => "TagF", :size => 0} }
 
-
     #unknown user
     get "/tag/tagcloud", :distribution => 'logarithmic', :steps => 12, :user => 'Alien'
     assert_response 404
   end
-
 
   def test_tags_by_user_and_object_put_for_a_project
 
@@ -1252,7 +1215,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "tags",
                    :child => {:tag => "tag", :attributes => {:name => "TagF"} }
 
-
     #tags to create
     tags = %w(TagX TagY TagZ TagA)
     #prepare the xml document (request data)
@@ -1269,7 +1231,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     #add tags
     put url_for(:controller => :tag, :action => :tags_by_user_and_object, :project => 'home:Iggy', :user => 'Iggy'), xml.to_s
     assert_response :success
-
 
     # Get data again and check that tags where added or removed
     get url_for(:controller => :tag, :action => :get_tags_by_user_and_project, :project => 'home:Iggy',
@@ -1294,7 +1255,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: "tags",
     child: { tag: "tag", attributes: { name: "TagA" } }
   end
-
 
   def test_tags_by_user_and_object_put_for_a_package
 
@@ -1323,7 +1283,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "tags",
     :child => {:tag => "tag", :attributes => {:name => "TagE"} }
 
-
     #tags to create
     tags = %w(TagX TagY TagZ TagB)
     #prepare the xml document (request data)
@@ -1342,7 +1301,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     :package => "TestPack",
     :user => 'Iggy'), xml.to_s
     assert_response :success
-
 
     # Get data again and check that tags where added or removed
     get url_for(:controller => :tag, :action => :get_tags_by_user_and_package, :project => 'home:Iggy',
@@ -1369,7 +1327,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "tags",
     :child => {:tag => "tag", :attributes => {:name => "TagB"} }
   end
-
 
   #test for writing tags for another user than the logged in user <- forbidden
   def test_tags_by_user_and_object_put_as_invalid_user
@@ -1401,7 +1358,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     assert_response 403
   end
 
-
   def test_tags_by_user_and_object_put_for_invalid_objects
     login_Iggy
 
@@ -1415,7 +1371,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
       :user => 'Iggy'
     assert_response 404
   end
-
 
   def test_tagcloud_by_projects_unknown_project
     login_Iggy
@@ -1431,7 +1386,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     post url_for(:controller => :tag, :action => :tagcloud, :distribution => 'raw'), xml.to_s
     assert_response 404
   end
-
 
   def test_tagcloud_by_projects
     login_Iggy
@@ -1466,7 +1420,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     child: { tag: "tag", attributes: { name: "TagF", count: 1 } }
   end
 
-
   def test_tagcloud_by_packages_unknown_package
     login_Iggy
 
@@ -1482,7 +1435,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     post url_for(:controller => :tag, :action => :tagcloud, :distribution => 'raw'), xml.to_s
     assert_response 404
   end
-
 
   def test_tagcloud_by_packages
     login_Iggy
@@ -1516,7 +1468,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "tagcloud",
     :child => { :tag => "tag", :attributes => {:name => "TagE", :count => 1} }
   end
-
 
   def test_tagcloud_by_objects
     login_Iggy
@@ -1560,7 +1511,6 @@ class TagControllerTest < ActionDispatch::IntegrationTest
     :child => { :tag => "tag", :attributes => {:name => "TagF", :count => 1} }
   end
 
-
   def test_tagcloud_by_objects_linear_with_steps_and_limit
     login_Iggy
 
@@ -1598,16 +1548,13 @@ class TagControllerTest < ActionDispatch::IntegrationTest
                    :child => { :tag => "tag", :attributes => {:name => "TagF", :size => 0} }
   end
 
-
   #def test_tagcloud_by_projects_and_user
     #really needed?
   #end
 
-
   #def test_tagcloud_by_packages_and_user
     #really needed?
   #end
-
 
   #def test_tagcloud_by_objects_and_user
     #really needed?

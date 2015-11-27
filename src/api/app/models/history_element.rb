@@ -19,7 +19,6 @@ module HistoryElement
 
 end
 
-
 class HistoryElement::Request < ::HistoryElement::Base
   self.description = 'Request was updated'
   self.abstract_class = true

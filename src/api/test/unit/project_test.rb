@@ -46,7 +46,6 @@ Ignore: package:cups'
 
   end
 
-
   def test_add_new_flags_from_xml
     User.current = users( :Iggy )
 
@@ -107,7 +106,6 @@ Ignore: package:cups'
 
   end
 
-
   def test_delete_flags_through_xml
     User.current = users( :Iggy )
 
@@ -127,7 +125,6 @@ Ignore: package:cups'
     assert_equal 0, @project.type_flags('build').size
     assert_equal 0, @project.type_flags('publish').size
   end
-
 
   def test_store_axml
     User.current = users( :Iggy )
@@ -386,7 +383,6 @@ END
     assert_no_xml_tag xml_string, :tag => :link
     projectB.destroy
   end
-
 
   def test_repository_with_download_url
     User.current = users( :king )

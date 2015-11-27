@@ -14,7 +14,6 @@ class AttributeIssueMarker  < ActiveRecord::Migration
     at.attrib_type_modifiable_bies.create(p)
   end
 
-
   def self.down
     a = AttribType.find_by_namespace_and_name("OBS", "Issues")
     a.delete unless a.nil?

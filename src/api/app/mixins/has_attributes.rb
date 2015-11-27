@@ -144,5 +144,4 @@ module HasAttributes
     end
   end
 
-
 end

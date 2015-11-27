@@ -41,13 +41,11 @@ ActiveXML::Node.config do |conf|
   end
 end
 
-
 class Xproject < ActiveXML::Node
 end
 
 class Xpackage < ActiveXML::Node
 end
-
 
 def store_project( p )
   STDERR.print "  #{p.name} => "

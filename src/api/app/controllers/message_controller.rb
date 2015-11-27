@@ -62,7 +62,6 @@ class MessageController < ApplicationController
     end
   end
 
-
   private
   def check_permissions
     if (@package and not permissions.package_change? @package.name, @project.name) or

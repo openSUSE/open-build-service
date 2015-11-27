@@ -14,7 +14,6 @@ class AddObsBranchSkipRepositoriesAttribute  < ActiveRecord::Migration
     update_all_attrib_type_descriptions
   end
 
-
   def self.down
     AttribType.find_by_namespace_and_name("OBS", "BranchSkipRepositories").destroy()
   end

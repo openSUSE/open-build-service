@@ -50,7 +50,6 @@ after "deploy:finalize_update", "deploy:notify"
 
 after :deploy, 'deploy:cleanup' # only keep 5 releases
 
-
 namespace :config do
 
   desc "Install saved configs from /shared/ dir"

@@ -30,7 +30,6 @@ class TagTest < ActiveSupport::TestCase
 
   end
 
-
   def test_count
 
     #non-user context
@@ -58,7 +57,6 @@ class TagTest < ActiveSupport::TestCase
 
   end
 
-
   def test_count_by_given_tags
 
     #by-given-tags context
@@ -82,7 +80,6 @@ class TagTest < ActiveSupport::TestCase
       assert_kind_of Tag, t
       tags << t
     end
-
 
     #calculate tag count
     tags.each do |tag|

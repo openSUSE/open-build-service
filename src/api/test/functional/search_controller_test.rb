@@ -51,7 +51,6 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'attribute', children: { count: 1 }
 
-
     get "/search/attribute?namespace=OBS&name=Maintained"
     assert_response :success
     assert_xml_tag tag: 'attribute', children: { count: 1 }
@@ -133,7 +132,6 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     # fun part
     assert_xml_tag content: "#&lt;NoMethodError: undefined method `[]' for nil:NilClass&gt;"
   end
-
 
   def test_xpath_search_for_person_or_group
     # used by maintenance people

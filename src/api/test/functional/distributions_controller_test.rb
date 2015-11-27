@@ -125,7 +125,6 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
                    :tag => 'architecture', :content => "aarch64"
   end
 
-
   def test_we_survive_remote_instances_timeouts
     stub_request(:get, "http://localhost:#{CONFIG['source_port']}/distributions.xml").to_timeout
     get "/distributions/include_remotes"

@@ -50,7 +50,6 @@ class BuildFlagTest < ActiveSupport::TestCase
 
   end
 
-
   def test_add_build_flag_to_package
 
     #checking precondition
@@ -88,7 +87,6 @@ class BuildFlagTest < ActiveSupport::TestCase
 
   end
 
-
   def test_delete_type_flags_build__from_project
 
     #checking precondition
@@ -109,7 +107,6 @@ class BuildFlagTest < ActiveSupport::TestCase
     assert_equal 0, @project.type_flags('build').size
     assert_equal 2, count - Flag.all.size
   end
-
 
   def test_delete_type_build_flags_from_package
 
@@ -182,6 +179,5 @@ class BuildFlagTest < ActiveSupport::TestCase
     assert_equal 4, f.position
 
   end
-
 
 end

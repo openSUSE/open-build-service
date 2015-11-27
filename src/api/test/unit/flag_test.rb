@@ -14,7 +14,6 @@ class FlagTest < ActiveSupport::TestCase
       assert_equal "Please set either project or package.", f.errors[:name].join
   end
 
-
   def test_to_xml_error
     #if no flagstatus set, an error should be raised!
     f = Flag.new(project: projects( :home_Iggy ), architecture: architectures( :i586 ), :repo => '999.999')

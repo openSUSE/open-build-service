@@ -32,7 +32,6 @@ class EventMailerTest < ActionMailer::TestCase
     verify_email('build_fail', mail)
   end
 
-
   test 'group emails' do
     User.current = users(:Iggy)
 

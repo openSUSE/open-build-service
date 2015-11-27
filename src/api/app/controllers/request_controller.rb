@@ -69,7 +69,6 @@ class RequestController < ApplicationController
     request_create
   end
 
-
   # POST /request/:id?cmd=$CMD
   def request_command
     return request_command_diff if params[:cmd] == 'diff'

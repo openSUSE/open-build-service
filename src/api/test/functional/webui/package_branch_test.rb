@@ -114,7 +114,6 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :original_project => 'kde4')
   end
 
-
   def test_branch_package_twice_duplicate_name
 
     login_Iggy to: project_show_path(:project => @project)
@@ -125,7 +124,6 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :original_name => 'TestPack',
       :original_project => 'home:Iggy')
   end
-
 
   def test_branch_package_twice
 
@@ -141,7 +139,6 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :original_name => 'kdelibs',
       :original_project => 'kde4')
   end
-
 
   def test_branch_empty_package_name
 
@@ -175,7 +172,6 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :original_project => 'home:Iggy',
       :expect => :invalid_package_name)
   end
-
 
   def test_branch_project_name_with_spaces
 

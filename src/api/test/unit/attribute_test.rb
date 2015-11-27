@@ -7,7 +7,6 @@ class AttributeTest < ActiveSupport::TestCase
     @attrib_ns = AttribNamespace.find_by_name( "OBS" )
   end
 
-
   def test_namespace
     #check precondition
     assert_equal "OBS", @attrib_ns.name
@@ -148,7 +147,6 @@ class AttributeTest < ActiveSupport::TestCase
     assert_not_nil @a
     assert_equal "Maintained", @a.attrib_type.name
 
-
     # store in a package
     @package = @project.packages.create(name: "kdebase")
     assert_not_nil @package
@@ -160,7 +158,6 @@ class AttributeTest < ActiveSupport::TestCase
     @a = @p.find_attribute("OBS", "Maintained")
     assert_not_nil @a
     assert_equal "Maintained", @a.attrib_type.name
-
 
     # Check count validation
     axml = "<attribute namespace='OBS' name='Maintained' >
@@ -181,7 +178,6 @@ class AttributeTest < ActiveSupport::TestCase
       @package.store_attribute_axml(xml)
     end
     assert_match %r{Values has 1 values, but only 0 are allowed}, e.message
-
 
     User.current = nil
   end

@@ -383,7 +383,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag :tag => 'package', :attributes => { project: 'BaseDistro:Update', name: 'pack2' }
 
-
     post '/source/ServicePack/pack2', :cmd => 'branch'
     assert_response :success
 
@@ -1101,7 +1100,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                :tag => 'status', :attributes => { package: 'packNew.BaseDistro2.0_LinkedUpdateProject', code: 'disabled' }
     assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro3', arch: 'i586' } },
                :tag => 'status', :attributes => { package: 'pack2.BaseDistro3', code: 'scheduled' }
-
 
     # try to create release request too early
     post '/request?cmd=create', '<request>
@@ -1883,7 +1881,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post '/request?cmd=create', rq
     assert_response 400
     assert_xml_tag :tag => 'status', :attributes => { code: 'repository_without_releasetarget' }
-
 
     # try with server side request expansion
     rq = '<request>

@@ -20,7 +20,6 @@ class Webui::LoginTest < Webui::IntegrationTest
     end
   end
 
-
   #
   def change_user_real_name new_name
     find(:id, 'save_dialog').click
@@ -32,7 +31,6 @@ class Webui::LoginTest < Webui::IntegrationTest
     flash_message_type.must_equal :info
     user_real_name.must_equal new_name
   end
-
 
   def test_login_as_user
 
@@ -62,7 +60,6 @@ class Webui::LoginTest < Webui::IntegrationTest
     login_Iggy
     logout
   end
-
 
   def test_login_empty_entry
 

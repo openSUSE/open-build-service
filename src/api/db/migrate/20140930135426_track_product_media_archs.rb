@@ -12,7 +12,6 @@ class TrackProductMediaArchs  < ActiveRecord::Migration
 
   end
 
-
   def self.down
     execute("alter table product_media drop FOREIGN KEY product_media_ibfk_3")
     execute("alter table product_update_repositories drop FOREIGN KEY product_update_repositories_ibfk_3")

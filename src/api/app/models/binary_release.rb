@@ -16,7 +16,6 @@ class BinaryRelease < ActiveRecord::Base
 
   #### Scopes (first the default_scope macro if is used)
 
-
   #### Validations macros
   #### Class methods using self. (public and then private)
   def self.update_binary_releases(repository, key, time = Time.now)

@@ -45,7 +45,6 @@ class Product < ActiveRecord::Base
     h
   end
 
-
   def update_from_xml(xml)
     self.transaction do
       xml.elements('productdefinition') do |pd|

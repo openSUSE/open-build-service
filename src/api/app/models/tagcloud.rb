@@ -46,7 +46,6 @@ class Tagcloud
     @max, @min = max_min(@tags)
   end
 
-
   def limit_tags
     if @limit == 0
       return
@@ -55,7 +54,6 @@ class Tagcloud
       @tags = @tags[0..@limit-1]
     end
   end
-
 
   def sort_tags( opt = {} )
     if opt[:scope] == "count"
@@ -69,11 +67,9 @@ class Tagcloud
     end
   end
 
-
   def top50
     #...dummy
   end
-
 
   def max_min(taglist)
 
@@ -91,7 +87,6 @@ class Tagcloud
     return max, min
   end
 
-
   def delta(steps, max, min)
     delta = 0
     if max != min
@@ -101,7 +96,6 @@ class Tagcloud
     end
     return delta
   end
-
 
   def get_tags(distribution_method, steps)
     delta = delta(steps, @max, @min)
@@ -124,7 +118,6 @@ class Tagcloud
     return taglist
   end
 
-
   def raw
     tagcloud = Hash.new
 
@@ -134,7 +127,6 @@ class Tagcloud
 
     return tagcloud
   end
-
 
   #new logarithmic distribution method
   def logarithmic_distribution_method(steps)
@@ -150,7 +142,6 @@ class Tagcloud
     end
     return tagcloud
   end
-
 
   #new linear distribution method
   def linear_distribution_method(steps)

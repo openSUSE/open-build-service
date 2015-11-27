@@ -5,7 +5,6 @@ class GroupSubscriptions  < ActiveRecord::Migration
     add_index :event_subscriptions, :group_id
   end
 
-
   def self.down
     remove_index :event_subscriptions, :group_id
     remove_column :event_subscriptions, :group_id

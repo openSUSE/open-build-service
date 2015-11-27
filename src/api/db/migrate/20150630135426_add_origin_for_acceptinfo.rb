@@ -5,7 +5,6 @@ class AddOriginForAcceptinfo < ActiveRecord::Migration
     add_column :bs_request_action_accept_infos, :opackage, :string
   end
 
-
   def self.down
     remove_column :bs_request_action_accept_infos, :oproject
     remove_column :bs_request_action_accept_infos, :opackage

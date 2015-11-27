@@ -52,7 +52,6 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-
  def test_latest_updated
    login_adrian
    get url_for(:controller => :source, :action => :show_package_meta, :project => "HiddenProject", :package => "test_latest_added")
@@ -94,7 +93,6 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
    delete "/source/HiddenProject/test_latest_added"
    assert_response :success
  end
-
 
  def test_timestamp_calls
    login_adrian
@@ -212,7 +210,6 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'project', :attributes => { :name => "HiddenProject" }
   end
 
-
   # FIXME: works, but does not do anything usefull since 2.0 anymore
   #        we need a working rating mechanism, but this one is too simple.
   def test_highest_rated
@@ -225,7 +222,6 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     #  :xxx => "xxx",
     #}
   end
-
 
   def test_active_request_creators
     get url_for(action: :active_request_creators, controller: :statistics, project: 'kde4')

@@ -7,7 +7,6 @@ class CommentProject < Comment
     User.current.has_local_permission?('change_project', project) || super
   end
 
-
   def create_notification(params = {})
     super
     params[:project] = self.project.name

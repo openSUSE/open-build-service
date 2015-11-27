@@ -19,7 +19,6 @@ class Webui::PackageEditTest < Webui::IntegrationTest
     find(:id, 'package_title').text
   end
 
-
   # ============================================================================
   #
   def package_description
@@ -70,7 +69,6 @@ class Webui::PackageEditTest < Webui::IntegrationTest
       :title => 'My Title hopefully got changed ' + Time.now.to_i.to_s)
   end
 
-
   def test_change_home_project_package_description
 
     login_Iggy to: package_show_path(:project => @project, :package => @package)
@@ -78,7 +76,6 @@ class Webui::PackageEditTest < Webui::IntegrationTest
     change_package_info(
       :description => 'New description. Not kidding.. Brand new! ' + Time.now.to_i.to_s)
   end
-
 
   def test_change_home_project_package_info
     login_Iggy to: package_show_path(:project => @project, :package => @package)

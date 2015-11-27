@@ -15,7 +15,6 @@ class Webui::ProjectEditTest < Webui::IntegrationTest
     find(:id, 'project_title').text
   end
 
-
   # ============================================================================
   # Returns the description of the viewed project as is displayed.
   # Caller should keep in mind that multi-space / multi-line text
@@ -70,7 +69,6 @@ class Webui::ProjectEditTest < Webui::IntegrationTest
       :description => 'New description. Not kidding.. Brand new! ' + Time.now.to_i.to_s)
   end
 
-
   def test_change_home_project_info
     login_Iggy to: project_show_path(project: 'home:Iggy')
     change_project_info(
@@ -85,14 +83,12 @@ class Webui::ProjectEditTest < Webui::IntegrationTest
       :title => 'My Title hopefully got changed ' + Time.now.to_i.to_s)
   end
 
-
   def test_change_global_project_description
     login_king to: project_show_path(project: 'LocalProject')
 
     change_project_info(
       :description => 'New description. Not kidding.. Brand new! ' + Time.now.to_i.to_s)
   end
-
 
   def test_change_global_project_info
     login_king to: project_show_path(project: 'LocalProject')

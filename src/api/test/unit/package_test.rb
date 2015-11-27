@@ -37,7 +37,6 @@ class PackageTest < ActiveSupport::TestCase
     assert_equal 1, xml.root.get_elements("/package/debuginfo/*").size
   end
 
-
   def test_add_new_flags_from_xml
 
     #precondition check
@@ -99,7 +98,6 @@ class PackageTest < ActiveSupport::TestCase
     assert_equal 'TestPack', @package.type_flags('debuginfo')[0].package.name
 
   end
-
 
   def test_delete_flags_through_xml
     #check precondition

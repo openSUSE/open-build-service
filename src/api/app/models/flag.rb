@@ -123,6 +123,4 @@ class Flag < ActiveRecord::Base
     ret
   end
 
-
-
 end

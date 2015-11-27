@@ -80,7 +80,6 @@ class StatisticsController < ApplicationController
                  :message => "only GET or PUT method allowed for this action"
   end
 
-
   def download_counter
     # FIXME: download stats are currently not supported and needs a re-implementation
     render_error :status => 400, :errorcode => "not_supported", :message => "download stats need a re-implementation"
@@ -89,7 +88,6 @@ class StatisticsController < ApplicationController
   def newest_stats
     render_error :status => 400, :errorcode => "not_supported", :message => "download stats need a re-implementation"
   end
-
 
   def most_active_projects
     # get all packages including activity values
@@ -135,14 +133,12 @@ class StatisticsController < ApplicationController
     list.concat packages
     list.sort! { |a, b| b.created_at <=> a.created_at }
 
-
     if @limit
       @list = list[0..@limit-1]
     else
       @list = list
     end
   end
-
 
   def added_timestamp
 
@@ -151,7 +147,6 @@ class StatisticsController < ApplicationController
 
     # is it used at all ?
   end
-
 
   def latest_updated
     if params[:prjfilter].nil?
@@ -181,7 +176,6 @@ class StatisticsController < ApplicationController
     @project = Project.get_by_name(params[:project])
     @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: true)
   end
-
 
   def global_counters
 

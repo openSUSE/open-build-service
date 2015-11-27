@@ -41,5 +41,4 @@ class Tag < ActiveRecord::Base
     errors.add(:name, "The tag is blacklisted!") if blacklist
   end
 
-
 end

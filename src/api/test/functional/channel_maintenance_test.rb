@@ -338,7 +338,6 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     delete "/source/home:maintenance_coord:branches:My:Maintenance:0"
     assert_response :success
 
-
     # accept another request to check that addchannel is working automatically
     prepare_request_with_user 'maintenance_coord', 'buildservice'
     post "/request/#{id3}?cmd=changestate&newstate=accepted&force=1" # ignore reviews and accept
@@ -524,7 +523,6 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
                                                       filepath: "My:/Maintenance:/0/BaseDistro3Channel/rpm/i586/package-1.0-1.i586.rpm",
                                                       baseproject: "BaseDistro3Channel", type: "rpm" }
 
-
     # create release request
     post '/request?cmd=create', '<request>
                                    <action type="maintenance_release">
@@ -579,7 +577,6 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'entry', :attributes => { name: 'primary.xml.gz' }
     assert_xml_tag :tag => 'entry', :attributes => { name: 'repomd.xml' }
     assert_xml_tag :tag => 'entry', :attributes => { name: 'updateinfo.xml.gz' }
-
 
     post '/request?cmd=create', '<request>
                                    <action type="maintenance_release">
@@ -751,7 +748,6 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
            { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "src" }
     assert_xml_tag :tag => 'updateinfo', :attributes =>
            { id: "UpdateInfoTagNew-patch_name-#{Time.now.utc.year}-1", version: "1" }
-
 
     #
     # A second update on top of a released one.

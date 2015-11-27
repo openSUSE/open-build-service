@@ -16,7 +16,6 @@ class ChannelTest < ActiveSupport::TestCase
     super
   end
 
-
   def test_parse_xml
 
     # pre condition check

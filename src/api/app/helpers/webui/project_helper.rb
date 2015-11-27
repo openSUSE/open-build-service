@@ -107,7 +107,6 @@ module Webui::ProjectHelper
     end
   end
 
-
   STATE_ICONS = {
       'new'      => 'flag_green',
       'review'   => 'flag_yellow',
