@@ -99,7 +99,7 @@ namespace :deploy do
 
   desc "Send email notification of deployment"
   task :notify do
-    #diff = `#{source.local.diff(current_revision)}`
+    # diff = `#{source.local.diff(current_revision)}`
     diff_log = %x(#{source.local.log(source.next_revision(current_revision), branch)})
     user = %x(whoami)
     body = %[From: obs-api-deploy@suse.de

@@ -1150,7 +1150,7 @@ XML
     assert_response :success
     assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
     if $ENABLE_BROKEN_TEST
-      #FIXME there is no code in this test creating request from HiddenProject
+      # FIXME there is no code in this test creating request from HiddenProject
 
       assert_xml_tag(:tag => 'source', :attributes => { project: 'HiddenProject', package: 'pack' })
     end
@@ -1320,9 +1320,9 @@ XML
     post '/request?cmd=create', rq
     assert_response :success
 
-#FIXME: test with request without target
+# FIXME: test with request without target
 
-#cleanup
+# cleanup
     delete '/source/home:Iggy/TestPack/_attribute/OBS:RejectRequests'
     assert_response :success
   end
@@ -1465,7 +1465,7 @@ XML
     assert_xml_tag(:tag => 'target', :attributes => { project: 'home:tom:branches:kde4', package: 'kdebase' })
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
-    #id2 = node.value(:id)
+    # id2 = node.value(:id)
 
     # delete projects
     delete '/source/home:tom:branches:kde4'
@@ -1612,8 +1612,8 @@ XML
     assert_response 403
     post '/request/ILLEGAL_CONTENT?cmd=changestate&newstate=revoked'
     assert_response 404
-    #Rails does not allow /request/:id to match non-integers, so there is no XML generated for 404
-    #assert_xml_tag tag: 'status', attributes: {code: 'not_found'}
+    # Rails does not allow /request/:id to match non-integers, so there is no XML generated for 404
+    # assert_xml_tag tag: 'status', attributes: {code: 'not_found'}
 
     login_Iggy
     post "/request/#{id}?cmd=changestate&newstate=revoked"
@@ -2047,14 +2047,14 @@ XML
     get "/request/#{id}"
     assert_response :success
     assert_xml_tag(:tag => 'state', :attributes => { name: 'review' },
-                   :parent => { tag: 'request' }) #remains in review state
+                   :parent => { tag: 'request' }) # remains in review state
 
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
     assert_xml_tag(:tag => 'state', :attributes => { name: 'review' },
-                   :parent => { tag: 'request' }) #switch to new after last review
+                   :parent => { tag: 'request' }) # switch to new after last review
 
     # approve accepted and check initialized devel package
     post "/request/#{id}?cmd=changestate&newstate=accepted&force=1"
@@ -2264,7 +2264,7 @@ XML
     post '/request?cmd=create', req
     assert_response :success
 
-    #cleanup
+    # cleanup
     login_king
     delete '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject'
     assert_response :success
@@ -2506,7 +2506,7 @@ XML
     assert_response :success
     assert_xml_tag(:tag => 'state', :attributes => { name: 'revoked' })
 
-    #cleanup
+    # cleanup
     login_king
     delete '/source/DummY'
     assert_response :success
@@ -2664,7 +2664,7 @@ XML
     vrev_after_accept = node.value(:vrev)
     assert vrev <= vrev_after_accept
 
-    #cleanup
+    # cleanup
     delete '/source/home:tom:branches:home:Iggy'
     assert_response :success
     # restore original spec file
@@ -2713,7 +2713,7 @@ XML
   def test_create_request_to_hidden_package_from_open_place_valid_user
     request_hidden('adrian', 'buildservice', 'request/to_hidden_from_open_valid')
     assert_response :success
-    #assert_xml_tag( :tag => "state", :attributes => { :name => 'new' } )
+    # assert_xml_tag( :tag => "state", :attributes => { :name => 'new' } )
   end
 
   ## create request to hidden package from open place - invalid user - fail

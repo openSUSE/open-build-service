@@ -22,7 +22,7 @@ module ActiveXML
       def parse!
         return @xml if @xml
 
-        #Rails.logger.debug "extract #{exception.class} #{exception.message}"
+        # Rails.logger.debug "extract #{exception.class} #{exception.message}"
         begin
           @xml = Xmlhash.parse( exception.message )
         rescue TypeError
@@ -65,7 +65,7 @@ module ActiveXML
     class NotFoundError < Error; end
     class NotImplementedError < Error; end
 
-    #TODO: put lots of stuff into base class
+    # TODO: put lots of stuff into base class
 
     require 'base64'
     require 'net/https'
@@ -86,7 +86,7 @@ module ActiveXML
 
       uri = URI( target )
       replace_server_if_needed( uri )
-      #logger.debug "setting up transport for model #{model}: #{uri} opts: #{opt}"
+      # logger.debug "setting up transport for model #{model}: #{uri} opts: #{opt}"
       raise "overwriting #{model}" if @mapping.has_key? model
       @mapping[model] = {:target_uri => uri, :opt => opt}
     end
@@ -98,13 +98,13 @@ module ActiveXML
     end
 
     def target_for( model )
-      #logger.debug "retrieving target_uri for model '#{model.inspect}' #{@mapping.inspect}"
+      # logger.debug "retrieving target_uri for model '#{model.inspect}' #{@mapping.inspect}"
       raise "Model #{model.inspect} is not configured" unless @mapping.has_key? model
       @mapping[model][:target_uri]
     end
 
     def options_for( model )
-      #logger.debug "retrieving option hash for model '#{model.inspect}' #{@mapping.inspect}"
+      # logger.debug "retrieving option hash for model '#{model.inspect}' #{@mapping.inspect}"
       @mapping[model][:opt]
     end
 
@@ -137,8 +137,8 @@ module ActiveXML
       options = options_for( symbolified_model )
       case args[0]
       when Symbol
-        #logger.debug "Transport.find: using symbol"
-        #raise ArgumentError, "Illegal symbol, must be :all (or String/Hash)" unless args[0] == :all
+        # logger.debug "Transport.find: using symbol"
+        # raise ArgumentError, "Illegal symbol, must be :all (or String/Hash)" unless args[0] == :all
         uri = options[args[0]]
         if args.length > 1
           #:conditions triggers atm. always a post request, the conditions are
@@ -151,7 +151,7 @@ module ActiveXML
       when String
         raise ArgumentError.new "find with string is no longer allowed #{args.inspect}"
       when Hash
-        #logger.debug "Transport.find: using hash"
+        # logger.debug "Transport.find: using hash"
         if args[0].has_key? :predicate and args[0].has_key? :what
           own_mimetype = "application/x-www-form-urlencoded"
         end
@@ -168,15 +168,15 @@ module ActiveXML
         data = url.query
         url.query = nil
       end
-      #use get-method if no conditions defined <- no post-data is set.
+      # use get-method if no conditions defined <- no post-data is set.
       if data.nil?
-        #logger.debug"[REST] Transport.find using GET-method"
+        # logger.debug"[REST] Transport.find using GET-method"
         objdata = http_do( 'get', url, :timeout => 300 )
         raise RuntimeError.new("GET to %s returned no data" % url) if objdata.empty?
       else
-        #use post-method
+        # use post-method
         logger.debug "[REST] Transport.find using POST-method"
-        #logger.debug"[REST] POST-data as xml: #{data.to_s}"
+        # logger.debug"[REST] POST-data as xml: #{data.to_s}"
         objdata = http_do( 'post', url, :data => data.to_s, :content_type => own_mimetype)
         raise RuntimeError.new("POST to %s returned no data" % url) if objdata.empty?
       end
@@ -229,11 +229,11 @@ module ActiveXML
       http_do opt[:method], url, opt
     end
 
-    #replaces the parameter parts in the uri from the config file with the correct values
+    # replaces the parameter parts in the uri from the config file with the correct values
     def substitute_uri( uri, params )
-      #logger.debug "[REST] reducing args: #{params.inspect}"
+      # logger.debug "[REST] reducing args: #{params.inspect}"
       params.delete(:conditions)
-      #logger.debug "[REST] args is now: #{params.inspect}"
+      # logger.debug "[REST] args is now: #{params.inspect}"
 
       u = uri.clone
       u.scheme = uri.scheme
@@ -250,11 +250,11 @@ module ActiveXML
             new_pairs << pair.join("=")
           elsif pair.length == 1
             pair[0] =~ /:(\w+)/
-            #new substitution rules:
-            #when param is not there, don't put anything in url
-            #when param is array, put multiple params in url
-            #when param is a hash, put key=value params in url
-            #any other case, stringify param and put it in url
+            # new substitution rules:
+            # when param is not there, don't put anything in url
+            # when param is array, put multiple params in url
+            # when param is a hash, put key=value params in url
+            # any other case, stringify param and put it in url
             next if not params.has_key? $1.to_sym or params[$1.to_sym].nil?
             sub_val = params[$1.to_sym]
             if sub_val.kind_of? Array
@@ -297,7 +297,7 @@ module ActiveXML
         url = URI(url)
       end
 
-      #set default host if not set in uri
+      # set default host if not set in uri
       if not url.host
         url.scheme, url.host = @schema, @host
       end

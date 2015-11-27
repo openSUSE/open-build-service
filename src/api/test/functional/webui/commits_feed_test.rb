@@ -14,7 +14,7 @@ class Webui::CommitsFeedTest < Webui::IntegrationTest
 
   def test_feed_with_dates
     Timecop.freeze(2013, 8, 14, 12, 0, 0) do
-      #login_king to: project_show_path(project: 'home:king')
+      # login_king to: project_show_path(project: 'home:king')
 
       get '/project/latest_commits/BaseDistro', {starting_at: "2013-08-10", ending_at: "2013-08-13"}
       assert_response :success

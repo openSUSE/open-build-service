@@ -1,7 +1,7 @@
 
 class FixProjectsCharset < ActiveRecord::Migration
   def self.fix_double_utf8(table, column)
-    #execute("select count(*) from #{table} where LENGTH(#{column}) != CHAR_LENGTH(#{column});")
+    # execute("select count(*) from #{table} where LENGTH(#{column}) != CHAR_LENGTH(#{column});")
     execute("create table temptable (select * from #{table} where LENGTH(#{column}) != CHAR_LENGTH(#{column}));")
     execute("alter table temptable modify temptable.#{column} text character set latin1;")
     execute("alter table temptable modify temptable.#{column} blob;")

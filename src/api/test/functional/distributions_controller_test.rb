@@ -94,7 +94,7 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
     fake_distribution_body = File.open(Rails.root.join("test/fixtures/backend/distributions.xml")).read
 
     # using mocha has the disadvantage of not testing the complete function
-    #Distribution.stubs(:load_distributions_from_remote).returns(fake_distribution_body)
+    # Distribution.stubs(:load_distributions_from_remote).returns(fake_distribution_body)
 
     stub_request(:get, "http://localhost:#{CONFIG['source_port']}/distributions.xml").
       with(:headers => {'Accept'=>'*/*', 'Accept-Encoding'=>'gzip;q=1.0,deflate;q=0.6,identity;q=0.3', 'User-Agent'=>'Ruby'}).

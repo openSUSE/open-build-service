@@ -7,7 +7,7 @@ module Rake
       deps = deps.collect {|d| d.to_s }
       task = @tasks[task_name.to_s] = task_class.new(task_name, self)
       task.application = self
-      #task.add_comment(@last_comment)
+      # task.add_comment(@last_comment)
       @last_comment = nil
       task.enhance(deps, &block)
       task

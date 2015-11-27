@@ -1,6 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'json'
-#require '/usr/lib64/ruby/gems/1.9.1/gems/perftools.rb-2.0.0/lib/perftools.so'
+# require '/usr/lib64/ruby/gems/1.9.1/gems/perftools.rb-2.0.0/lib/perftools.so'
 
 class ProjectTest < ActiveSupport::TestCase
   fixtures :all
@@ -30,14 +30,14 @@ Ignore: package:cups'
   end
 
   def test_flags_to_axml
-    #check precondition
+    # check precondition
     assert_equal 2, @project.type_flags('build').size
     assert_equal 2, @project.type_flags('publish').size
 
     xml_string = @project.to_axml
-    #puts xml_string
+    # puts xml_string
 
-    #check the results
+    # check the results
     assert_xml_tag xml_string, :tag => :project, :children => { :count => 1, :only => { :tag => :build } }
     assert_xml_tag xml_string, :parent => :project, :tag => :build, :children => { :count => 2 }
 
@@ -48,12 +48,12 @@ Ignore: package:cups'
   def test_add_new_flags_from_xml
     User.current = users( :Iggy )
 
-    #precondition check
+    # precondition check
     @project.flags.delete_all
     @project.reload
     assert_equal 0, @project.flags.size
 
-    #project is given as axml
+    # project is given as axml
     axml = Xmlhash.parse(
       "<project name='home:Iggy'>
         <title>Iggy's Home Project</title>
@@ -78,7 +78,7 @@ Ignore: package:cups'
     @project.save
     @project.reload
 
-    #check results
+    # check results
     assert_equal 1, @project.type_flags('build').size
     assert_equal 'disable', @project.type_flags('build')[0].status
     assert_equal '10.2', @project.type_flags('build')[0].repo
@@ -107,11 +107,11 @@ Ignore: package:cups'
   def test_delete_flags_through_xml
     User.current = users( :Iggy )
 
-    #check precondition
+    # check precondition
     assert_equal 2, @project.type_flags('build').size
     assert_equal 2, @project.type_flags('publish').size
 
-    #project is given as axml
+    # project is given as axml
     axml = Xmlhash.parse(
       "<project name='home:Iggy'>
         <title>Iggy's Home Project</title>
@@ -129,7 +129,7 @@ Ignore: package:cups'
 
     original = @project.to_axml
 
-    #project is given as axml
+    # project is given as axml
     axml = Xmlhash.parse(
       "<project name='home:Iggy'>
         <title>Iggy's Home Project</title>
@@ -153,7 +153,7 @@ Ignore: package:cups'
   def test_ordering
     User.current = users(:Iggy)
 
-    #project is given as axml
+    # project is given as axml
     axml = Xmlhash.parse(
       "<project name='home:Iggy'>
         <title>Iggy's Home Project</title>
@@ -175,7 +175,7 @@ Ignore: package:cups'
     assert_xml_tag xml, :tag => :arch, :content => 'i586', :before => { :tag => :arch, :content => 'x86_64' }
 
     # now verify it's not happening randomly
-    #project is given as axml
+    # project is given as axml
     axml = Xmlhash.parse(
       "<project name='home:Iggy'>
         <title>Iggy's Home Project</title>
@@ -199,7 +199,7 @@ Ignore: package:cups'
   def test_maintains
     User.current = users(:Iggy)
 
-    #project is given as axml
+    # project is given as axml
     axml = Xmlhash.parse(
       "<project name='home:Iggy'>
         <title>Iggy's Home Project</title>
@@ -510,7 +510,7 @@ END
     assert_equal xml, prj.to_axml
   end
 
-  #helper
+  # helper
   def put_flags(flags)
     flags.each do |flag|
       if flag.architecture.nil?

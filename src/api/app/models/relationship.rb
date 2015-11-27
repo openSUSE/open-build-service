@@ -58,7 +58,7 @@ class Relationship < ActiveRecord::Base
       role = Role.find_by_title!(role)
     end
     if role.global
-      #only nonglobal roles may be set in an object
+      # only nonglobal roles may be set in an object
       raise SaveError, "tried to set global role '#{role.title}' for user '#{user}' in #{obj.class} '#{self.name}'"
     end
 
@@ -88,7 +88,7 @@ class Relationship < ActiveRecord::Base
     end
 
     if role.global
-      #only nonglobal roles may be set in an object
+      # only nonglobal roles may be set in an object
       raise SaveError, "tried to set global role '#{role_title}' for group '#{group}' in #{obj.class} '#{self.name}'"
     end
 

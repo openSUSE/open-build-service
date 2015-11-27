@@ -39,12 +39,12 @@ class Webui::AttributesTest < Webui::IntegrationTest
       values = attribute[:value].split(',')
       # For the case that the AttribType has unlimited value_count
       # or that there are less values then
-      #puts "BEFORE #{attribute[:name]}: VALUES: #{values.length} | INPUTS: #{inputs.count}"
+      # puts "BEFORE #{attribute[:name]}: VALUES: #{values.length} | INPUTS: #{inputs.count}"
       (values.length - inputs.count).times do
         click_link 'add value'
       end
       inputs = page.all('div.nested-fields')
-      #puts "AFTER #{attribute[:name]}: VALUES: #{values.length} | INPUTS: #{inputs.count}"
+      # puts "AFTER #{attribute[:name]}: VALUES: #{values.length} | INPUTS: #{inputs.count}"
       inputs.count.must_equal values.count
 
       values.each_index do |i|

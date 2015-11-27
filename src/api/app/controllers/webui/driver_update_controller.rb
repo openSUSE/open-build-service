@@ -26,14 +26,14 @@ class Webui::DriverUpdateController < Webui::PackageController
       return
     end
 
-    #parse name, archs, repos from services file
+    # parse name, archs, repos from services file
     @repositories = dud_service.each('param[@name="instrepo"]').map{|repo| repo.text}
     @name = dud_service.find_first('param[@name="name"]').text if dud_service.find_first( 'param[@name="name"]' )
     @distname = dud_service.find_first('param[@name="distname"]').text if dud_service.find_first( 'param[@name="distname"]' )
     @flavour = dud_service.find_first('param[@name="flavour"]').text if dud_service.find_first( 'param[@name="flavour"]' )
     @architectures = dud_service.each('param[@name="arch"]').map{|arch| arch.text}
 
-    #parse packages, binary packages from dud_packlist.xml file
+    # parse packages, binary packages from dud_packlist.xml file
     @packages = []
     @binary_packages = {}
     @package.source_file_to_axml('dud_packlist.xml').each('//binarylist') do |binarylist|
@@ -107,7 +107,7 @@ class Webui::DriverUpdateController < Webui::PackageController
     redirect_to controller: :package, action: :show, project: @project, package: @package
   end
 
-  #TODO: select architecture of binary packages
+  # TODO: select architecture of binary packages
   def binaries
     required_parameters :repository
     @binaries = @package.build_result(params[:repository], ['binarylist', 'status']).each('//binary').map{|binary| binary['filename']}

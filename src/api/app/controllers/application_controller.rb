@@ -41,7 +41,7 @@ class ApplicationController < ActionController::Base
   before_action :validate_params
   before_action :require_login
 
-  #contains current authentification method, one of (:proxy, :basic)
+  # contains current authentification method, one of (:proxy, :basic)
   attr_accessor :auth_method
 
   def pundit_user
@@ -219,7 +219,7 @@ class ApplicationController < ActionController::Base
       # logger.debug( "AUTH2: #{authorization}" )
       @login, @passwd = Base64.decode64(authorization[1]).split(':', 2)[0..1]
 
-      #set password to the empty string in case no password is transmitted in the auth string
+      # set password to the empty string in case no password is transmitted in the auth string
       @passwd ||= ""
     else
       logger.debug "no authentication string was sent"

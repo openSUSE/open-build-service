@@ -7,7 +7,7 @@ class TagController < ApplicationController
     setup 'tag_not_found', 404, "Tag not found"
   end
 
-  #list all available tags as xml list
+  # list all available tags as xml list
   def list_xml
     @taglist = Tag.all
     render :partial => "listxml"
@@ -186,20 +186,20 @@ class TagController < ApplicationController
         tagcloud = Tagcloud.new(:scope => "global", :limit => @limit)
       end
 
-      #get the list of tags
+      # get the list of tags
       @tags = tagcloud.get_tags(@distribution_method, @steps)
       raise ArgumentError.new( "tag-cloud generation failed." ) if @tags.nil?
 
       render :partial => "tagcloud"
 
     elsif request.post?
-      #The request-data includes a collection of objects (projects and
-      #packages atm.). Based on this objects the tagcloud will be calculated.
+      # The request-data includes a collection of objects (projects and
+      # packages atm.). Based on this objects the tagcloud will be calculated.
       request_data = request.raw_post
 
       collection = ActiveXML::Node.new( request_data )
 
-      #get the projects
+      # get the projects
       projects =[]
       collection.each('project') do |project|
         proj = Project.get_by_name(project.value('name'))
@@ -207,7 +207,7 @@ class TagController < ApplicationController
         projects << proj
       end
 
-      #get the packages
+      # get the packages
       packages = []
       collection.each('package') do |package|
         project = Project.get_by_name(package.value('project'))
@@ -219,24 +219,24 @@ class TagController < ApplicationController
 
       objects = projects + packages
 
-      #creating the tagcloud
+      # creating the tagcloud
       tagcloud = Tagcloud.new(:scope => 'by_given_objects', :objects => objects, :limit => @limit)
 
-      #get the tags and the tag-sizes or counts
+      # get the tags and the tag-sizes or counts
       @tags = tagcloud.get_tags(@distribution_method, @steps)
 
       render :partial => 'tagcloud'
     end
   end
 
-  #TODO helper function, delete me
+  # TODO helper function, delete me
   def get_taglist
     tags = Tag.order(:name)
     return tags
   end
 
   def project_tags
-    #get project name from the URL
+    # get project name from the URL
     project_name = params[:project]
     if request.get?
       @project = Project.get_by_name( project_name )
@@ -251,7 +251,7 @@ class TagController < ApplicationController
       @project = Project.get_by_name( project_name )
       logger.debug "Put REQUEST for project_tags. User: #{@http_user.login}"
 
-      #TODO Permission needed!
+      # TODO Permission needed!
 
       if !@http_user
         logger.debug "No user logged in."
@@ -260,12 +260,12 @@ class TagController < ApplicationController
       else
         @tagCreator = @http_user
       end
-      #get the taglist xml from the put request
+      # get the taglist xml from the put request
       request_data = request.raw_post
-      #taglistXML = "<the whole xml/>"
+      # taglistXML = "<the whole xml/>"
       @taglistXML = request_data
 
-      #update_tags_by_project_and_user(request_data)
+      # update_tags_by_project_and_user(request_data)
 
       @tags =  taglistXML_to_tags(request_data)
 
@@ -294,7 +294,7 @@ class TagController < ApplicationController
       @project = Project.get_by_name( project_name )
       @package = Package.find_by_db_project_id_and_name( @project.id, package_name )
 
-      #TODO Permission needed!
+      # TODO Permission needed!
 
       if !@http_user
         logger.debug "No user logged in."
@@ -303,9 +303,9 @@ class TagController < ApplicationController
       else
         @tagCreator = @http_user
       end
-      #get the taglist xml from the put request
+      # get the taglist xml from the put request
       request_data = request.raw_post
-      #taglistXML = "<the whole xml/>"
+      # taglistXML = "<the whole xml/>"
       @taglistXML = request_data
 
       @tags =  taglistXML_to_tags(request_data)
@@ -362,7 +362,7 @@ class TagController < ApplicationController
     else
       error = "[TAG:] There are rejected Tags: #{unsaved_tags.inspect}"
       logger.debug "#{error}"
-      #need exception handling in the tag client
+      # need exception handling in the tag client
       render_error :status => 400, :errorcode => 'tagcreation_error',
       :message => error
     end
@@ -377,7 +377,7 @@ class TagController < ApplicationController
       taglist << tag["name"]
     end
 
-    #make tag objects
+    # make tag objects
     tags = []
     taglist.each do |tagname|
       begin
@@ -406,7 +406,7 @@ class TagController < ApplicationController
     end
   end
 
-  #create an entry in the join table (taggings) if necessary
+  # create an entry in the join table (taggings) if necessary
   def create_relationship(object, tagCreator, tag)
     Tagging.transaction do
         @jointable = Tagging.new()
@@ -417,7 +417,7 @@ class TagController < ApplicationController
     end
   end
 
-  #get the tag as object
+  # get the tag as object
   def s_to_tag(tagname)
     tag = Tag.find_by_name(tagname)
     unless tag

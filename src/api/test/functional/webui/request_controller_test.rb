@@ -169,7 +169,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
 
     click_link 'Add a review'
     page.must_have_text 'Add Reviewer'
-    #test switching reviewer type
+    # test switching reviewer type
     find(:id, 'review_type').select('Group')
     page.must_have_text 'Group:'
     fill_in 'review_group', with: 'test_group_b'

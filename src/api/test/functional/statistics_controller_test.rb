@@ -214,11 +214,11 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     login_tom
     get url_for(:controller => :statistics, :action => :highest_rated)
     assert_response :success
-    #assert_xml_tag :tag => 'collection', :child => { :tag => 'xxxxx' }
-    #assert_xml_tag :tag => 'package', :attributes => {
+    # assert_xml_tag :tag => 'collection', :child => { :tag => 'xxxxx' }
+    # assert_xml_tag :tag => 'package', :attributes => {
     #  :name => "kdelibs",
     #  :xxx => "xxx",
-    #}
+    # }
   end
 
   def test_active_request_creators

@@ -319,7 +319,7 @@ class SourceController < ApplicationController
   def require_package
     # init and validation
     #--------------------
-    #admin_user = User.current.is_admin?
+    # admin_user = User.current.is_admin?
     @deleted_package = params.has_key? :deleted
 
     # FIXME: for OBS 3, api of branch and copy calls have target and source in the opossite place
@@ -636,7 +636,7 @@ class SourceController < ApplicationController
     params[:user] = User.current.login
     path = pubkey_path
 
-    #check for permissions
+    # check for permissions
     upperProject = @prj.name.gsub(/:[^:]*$/, '')
     while upperProject != @prj.name and not upperProject.blank?
       if Project.exists_by_name(upperProject) and User.current.can_modify_project?(Project.get_by_name(upperProject))
@@ -783,7 +783,7 @@ class SourceController < ApplicationController
     @file = params[:filename]
     @path = Package.source_path @project_name, @package_name, @file
 
-    #authenticate
+    # authenticate
     params[:user] = User.current.login
 
     @prj = Project.get_by_name(@project_name)
@@ -1187,7 +1187,7 @@ class SourceController < ApplicationController
 
   # POST /source/<project>?cmd=createpatchinfo
   def project_command_createpatchinfo
-    #project_name = params[:project]
+    # project_name = params[:project]
     # a new_format argument may be given but we don't support the old (and experimental marked) format
     # anymore
 
@@ -1307,7 +1307,7 @@ class SourceController < ApplicationController
     unless User.current.can_modify_project?(project)
       raise CmdExecutionNoPermission.new "no permission to execute command 'copy'"
     end
-    unless User.current.can_modify_package?(opackage, true) #ignoreLock option
+    unless User.current.can_modify_package?(opackage, true) # ignoreLock option
       raise CmdExecutionNoPermission.new "no permission to modify source package"
     end
 
@@ -1416,8 +1416,8 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=diff
   def package_command_diff
-    #oproject_name = params[:oproject]
-    #opackage_name = params[:opackage]
+    # oproject_name = params[:oproject]
+    # opackage_name = params[:opackage]
 
     path = request.path_info
     path += build_query_from_hash(params, [:cmd, :rev, :orev, :oproject, :opackage, :expand, :linkrev, :olinkrev,
@@ -1550,7 +1550,7 @@ class SourceController < ApplicationController
     pkg_rev = params[:rev]
     pkg_linkrev = params[:linkrev]
 
-    #convert link to branch
+    # convert link to branch
     rev = ''
     if not pkg_rev.nil? and not pkg_rev.empty?
       rev = "&orev=#{pkg_rev}"

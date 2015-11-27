@@ -614,7 +614,7 @@ class Package < ActiveRecord::Base
       raise CycleError.new 'Package defines itself as devel package'
     end
     while (pkg.develpackage or pkg.project.develproject)
-      #logger.debug "resolve_devel_package #{pkg.inspect}"
+      # logger.debug "resolve_devel_package #{pkg.inspect}"
 
       # cycle detection
       str = prj_name+'/'+pkg.name
@@ -643,7 +643,7 @@ class Package < ActiveRecord::Base
         pkg = self
       end
     end
-    #logger.debug "WORKED - #{pkg.inspect}"
+    # logger.debug "WORKED - #{pkg.inspect}"
     return pkg
   end
 

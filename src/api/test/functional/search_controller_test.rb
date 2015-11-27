@@ -205,7 +205,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get "/search/project", match: '[@name="HiddenProject"]'
     assert_response :success
     assert_xml_tag tag: 'collection', :children => { :count => 1 }
-    #<project name="HiddenProject">
+    # <project name="HiddenProject">
     assert_xml_tag :child => { tag: 'project', :attributes => { :name => 'HiddenProject'} }
   end
 

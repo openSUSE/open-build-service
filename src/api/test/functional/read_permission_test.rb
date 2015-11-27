@@ -796,7 +796,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
         '<project name="home:binary_homer:ProtectedProject2"> <title/> <description/> </project>'
     assert_response 200
 
-    #cleanup
+    # cleanup
     login_king
     delete "/source/home:binary_homer:ProtectedProject1"
     assert_response 200
@@ -820,7 +820,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
 
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject1"),
         '<project name="home:adrian:ProtectedProject1"> <title/> <description/> <access><disable/></access> </project>'
-    #STDERR.puts(@response.body)
+    # STDERR.puts(@response.body)
     assert_response 200
 
     # rubocop:disable Metrics/LineLength
@@ -851,7 +851,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     prepare_request_with_user "binary_homer", "buildservice"
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:binary_homer:ProtectedProject3"),
         '<project name="home:binary_homer:ProtectedProject3"> <title/> <description/> <access><disable/></access> </project>'
-    #STDERR.puts(@response.body)
+    # STDERR.puts(@response.body)
     assert_response 200
 
     # rubocop:disable Metrics/LineLength

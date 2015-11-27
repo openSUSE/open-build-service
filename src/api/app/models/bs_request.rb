@@ -961,7 +961,7 @@ class BsRequest < ActiveRecord::Base
   end
 
   def webui_actions(with_diff = true)
-    #TODO: Fix!
+    # TODO: Fix!
     actions = []
     self.bs_request_actions.each do |xml|
       action = {type: xml.action_type}

@@ -15,7 +15,7 @@ class Tagcloud
       ActiveRecord::Base.logger.debug "[TAG:] Building tag-cloud by given objects."
       objects = opt[:objects]
       @tags = []
-      #get tags for each object and put them in a list.
+      # get tags for each object and put them in a list.
       objects.each do |object|
         @tags = @tags + object.tags
       end
@@ -27,7 +27,7 @@ class Tagcloud
     elsif opt[:scope] == "user"
       user = opt[:user]
       @tags = user.tags.group(:name)
-      #initialize the tag count in the user context
+      # initialize the tag count in the user context
       @tags.each do |tag|
         tag.count(:scope => "user", :user => user)
       end
@@ -38,7 +38,7 @@ class Tagcloud
         tag.cached_count = tag.taggings.count
       end
 
-      #initialize the tag count and remove unused tags from the list
+      # initialize the tag count and remove unused tags from the list
       @tags.delete_if {|tag| tag.count(:scope => "global") == 0 }
     end
     limit_tags
@@ -56,18 +56,18 @@ class Tagcloud
 
   def sort_tags( opt = {} )
     if opt[:scope] == "count"
-      #descending order by count
+      # descending order by count
       sorted = @tags.sort { |a, b| b.count<=>a.count }
       @tags = sorted
     else
-      #alphabetical order (ascending order)
+      # alphabetical order (ascending order)
       sorted = @tags.sort { |a, b| a.name<=>b.name }
       @tags = sorted
     end
   end
 
   def top50
-    #...dummy
+    # ...dummy
   end
 
   def max_min(taglist)
@@ -125,7 +125,7 @@ class Tagcloud
     return tagcloud
   end
 
-  #new logarithmic distribution method
+  # new logarithmic distribution method
   def logarithmic_distribution_method(steps)
     minlog = Math.log(@min)
     maxlog = Math.log(@max)
@@ -140,7 +140,7 @@ class Tagcloud
     return tagcloud
   end
 
-  #new linear distribution method
+  # new linear distribution method
   def linear_distribution_method(steps)
     range = @max.to_f - @min.to_f
     range = 1 if @max == @min

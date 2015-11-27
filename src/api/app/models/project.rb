@@ -236,7 +236,7 @@ class Project < ActiveRecord::Base
   end
 
   def cleanup_linking_projects
-    #replace links to this project with links to the "deleted" project
+    # replace links to this project with links to the "deleted" project
     LinkedProject.transaction do
       LinkedProject.where(linked_db_project: self).each do |lp|
         id = lp.db_project_id
@@ -247,7 +247,7 @@ class Project < ActiveRecord::Base
   end
 
   def cleanup_linking_repos
-    #replace links to this project repositories with links to the "deleted" repository
+    # replace links to this project repositories with links to the "deleted" repository
     find_repos(:linking_repositories) do |link_rep|
       link_rep.path_elements.includes(:link).each do |pe|
         next unless Repository.find(pe.repository_id).db_project_id == self.id
@@ -258,20 +258,20 @@ class Project < ActiveRecord::Base
           pe.link = Repository.deleted_instance
           pe.save
         end
-        #update backend
+        # update backend
         link_rep.project.write_to_backend
       end
     end
   end
 
   def cleanup_linking_targets
-    #replace links to this projects with links to the "deleted" project
+    # replace links to this projects with links to the "deleted" project
     find_repos(:linking_target_repositories) do |link_rep|
       link_rep.release_targets.includes(:target_repository).each do |rt|
         next unless Repository.find(rt.repository_id).db_project_id == self.id
         rt.target_repository = Repository.deleted_instance
         rt.save
-        #update backend
+        # update backend
         link_rep.project.write_to_backend
       end
     end
@@ -593,7 +593,7 @@ class Project < ActiveRecord::Base
     @repocache.each do |name, object|
       logger.debug "offending repo: #{object.inspect}"
       unless force
-        #find repositories that link against this one and issue warning if found
+        # find repositories that link against this one and issue warning if found
         list = PathElement.where(repository_id: object.id)
         check_for_empty_repo_list(list, "Repository #{self.name}/#{name} cannot be deleted because following repos link against it:")
         list = ReleaseTarget.where(target_repository_id: object.id)
@@ -632,10 +632,10 @@ class Project < ActiveRecord::Base
     end
     current_repo.download_repositories.replace(download_repositories)
 
-    #destroy all current pathelements
+    # destroy all current pathelements
     current_repo.path_elements.destroy_all
 
-    #recreate pathelements from xml
+    # recreate pathelements from xml
     position = 1
     repo.elements('path') do |path|
       link_repo = Repository.find_by_project_and_name(path['project'], path['repository'])
@@ -663,10 +663,10 @@ class Project < ActiveRecord::Base
 
     update_repository_flags(current_repo, repo)
 
-    #destroy all current releasetargets
+    # destroy all current releasetargets
     current_repo.release_targets.destroy_all
 
-    #recreate release targets from xml
+    # recreate release targets from xml
     repo.elements('releasetarget') do |rt|
       target_repo = Repository.find_by_project_and_name(rt['project'], rt['repository'])
       unless target_repo
@@ -678,7 +678,7 @@ class Project < ActiveRecord::Base
       current_repo.release_targets.new :target_repository => target_repo, :trigger => rt['trigger']
     end
 
-    #set host hostsystem
+    # set host hostsystem
     if repo.has_key? 'hostsystem'
       hostsystem = Project.get_by_name repo['hostsystem']['project']
       target_repo = hostsystem.repositories.find_by_name repo['hostsystem']['repository']
@@ -695,7 +695,7 @@ class Project < ActiveRecord::Base
 
     current_repo.save! if current_repo.changed?
 
-    #destroy architecture references
+    # destroy architecture references
     logger.debug "delete all of #{current_repo.id}"
     RepositoryArchitecture.delete_all(['repository_id = ?', current_repo.id])
 
@@ -769,10 +769,10 @@ class Project < ActiveRecord::Base
 
   def update_linked_projects(xmlhash)
     position = 1
-    #destroy all current linked projects
+    # destroy all current linked projects
     self.linkedprojects.destroy_all
 
-    #recreate linked projects from xml
+    # recreate linked projects from xml
     xmlhash.elements('link') do |l|
       link = Project.find_by_name(l['project'])
       if link.nil?
@@ -1606,7 +1606,7 @@ class Project < ActiveRecord::Base
         begin
           release_targets_ng[rt_name][:patchinfo] = pi
         rescue
-          #TODO FIXME ARGH: API/backend need some work to support this better.
+          # TODO FIXME ARGH: API/backend need some work to support this better.
           # Until then, multiple patchinfos are problematic
         end
       else

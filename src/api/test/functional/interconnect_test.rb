@@ -303,7 +303,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
       get "/source/#{project}?expand=1"
       assert_response :success
 if $ENABLE_BROKEN_TEST
-#FIXME2.4: remote packages get not added yet.
+# FIXME2.4: remote packages get not added yet.
       assert_xml_tag( :tag => 'directory', :attributes => { :count => '1' } )
       assert_xml_tag( :tag => 'entry', :attributes => { :name => 'pack1', :originproject => 'BaseDistro2.0' } )
 end
@@ -371,7 +371,7 @@ end
     post '/build/LocalProject', :cmd => 'rebuild'
     assert_response :success
 
-    #cleanup
+    # cleanup
     delete '/source/home:tom:branches:UseRemoteInstanceIndirect'
     assert_response :success
     delete '/source/home:tom:branches:UseRemoteInstance'
@@ -551,7 +551,7 @@ end
     put '/source/home:tom:remote/_meta', p
     assert_response :success
 
-    #cleanup
+    # cleanup
     delete '/source/home:tom:remote'
     assert_response :success
   end

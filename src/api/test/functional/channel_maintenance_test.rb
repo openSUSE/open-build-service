@@ -816,7 +816,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag( :tag => 'entry', :attributes => { name: 'patchinfo' } )
     assert_xml_tag( :tag => 'directory', :attributes => { count: '5' } ) # and nothing else
 
-    #validate cleanup
+    # validate cleanup
     get '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject'
     assert_response 404
 
@@ -867,7 +867,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
 
     # FIXME: re-run schedulers and check that updates got removed
 
-    #cleanup
+    # cleanup
     login_king
     delete '/source/home:tom:branches:OBS_Maintained:pack2'
     assert_response :success

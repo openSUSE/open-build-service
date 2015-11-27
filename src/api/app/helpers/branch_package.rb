@@ -79,7 +79,7 @@ class BranchPackage
       return { text: report_dryrun, content_type: 'text/xml' }
     end
 
-    #create branch project
+    # create branch project
     tprj = create_branch_project
 
     unless User.current.can_modify_project?(tprj)

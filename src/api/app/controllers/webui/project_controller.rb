@@ -120,7 +120,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def incident_request_dialog
-    #TODO: Currently no way to find out where to send until the project 'maintained' relationship
+    # TODO: Currently no way to find out where to send until the project 'maintained' relationship
     #      is really used. The API will find out magically here though.
     render_dialog
   end

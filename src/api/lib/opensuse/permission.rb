@@ -1,5 +1,5 @@
-#require "project"
-#require "package"
+# require "project"
+# require "package"
 
 #
 # This is basically only a helper class around permission checking for user model

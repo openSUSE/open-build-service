@@ -763,7 +763,7 @@ class BsRequestAction < ActiveRecord::Base
 
     # Type specific checks
     if self.action_type == :delete or self.action_type == :add_role or self.action_type == :set_bugowner
-      #check existence of target
+      # check existence of target
       unless tprj
         raise UnknownProject.new 'No target project specified'
       end
@@ -773,7 +773,7 @@ class BsRequestAction < ActiveRecord::Base
         end
       end
     elsif [:submit, :change_devel, :maintenance_release, :maintenance_incident].include?(self.action_type)
-      #check existence of source
+      # check existence of source
       unless sprj || skip_source
         # no support for remote projects yet, it needs special support during accept as well
         raise UnknownProject.new 'No target project specified'

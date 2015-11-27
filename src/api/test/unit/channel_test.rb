@@ -43,7 +43,7 @@ class ChannelTest < ActiveSupport::TestCase
       @channel.save
       @channel.reload
 
-      #check results
+      # check results
       assert_equal 2, @channel.channel_targets.size
       ct = @channel.channel_targets.first
       assert_equal "UpdateInfoTag-%Y-%C", ct.id_template

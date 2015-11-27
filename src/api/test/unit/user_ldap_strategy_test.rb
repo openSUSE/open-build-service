@@ -2,7 +2,7 @@ require_relative '../test_helper'
 
 class UserLdapStrategyTest < ActiveSupport::TestCase
   def setup
-    #Rails.logger = Logger.new(STDOUT)
+    # Rails.logger = Logger.new(STDOUT)
   end
 
   def test_authenticate_with_local

@@ -24,7 +24,7 @@ class IssueTest < ActiveSupport::TestCase
                   body: load_backend_file("bugzilla_get_0815.xml"),
                   headers: {})
 
-    #pkg = Package.find( 10095 )
+    # pkg = Package.find( 10095 )
     iggy = User.find_by_email("Iggy@pop.org")
     bnc = IssueTracker.find_by_name("bnc")
     issue = Issue.create :name => '0815', :issue_tracker => bnc

@@ -111,7 +111,7 @@ class ProjectRemoveTest < ActiveSupport::TestCase
     # Branch a package and change it's contents
     BranchPackage.new(project: project, package: package).branch
     @package = Package.find_by_project_and_name("home:#{User.current.login}:branches:#{project}", package)
-    @package.save_file(file: 'whatever', filename: "testfile#{Time.now.sec}") #always new file to have changes in the package
+    @package.save_file(file: 'whatever', filename: "testfile#{Time.now.sec}") # always new file to have changes in the package
   end
 
   def create_request(project = 'Apache', package = 'apache2')

@@ -5,7 +5,7 @@ class ProjectTest < ActiveSupport::TestCase
   fixtures :all
 
   def test_indexed_fixture
-    #check that fixtures got indexed
+    # check that fixtures got indexed
     Suse::Backend.start_test_backend
 
     assert_equal 1, Product.all.count

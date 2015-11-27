@@ -221,7 +221,7 @@ XML
     assert_response :success
     assert_xml_tag :tag => "globalrole", :content => "Admin" # written as Admin
 
-    #revert
+    # revert
     doc.elements["/person"].delete_element "globalrole"
     put "/person/tom", doc.to_s
     assert_response :success
@@ -365,7 +365,7 @@ XML
     get "/person/adrianSuSE"
     assert_response :success
 
-    #cleanup
+    # cleanup
     u.destroy
   end
 

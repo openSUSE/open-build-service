@@ -177,7 +177,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "versrel", :content => "1.0-#{ci_cnt}"
     assert_xml_tag :tag => "rev", :content => rev
     assert_xml_tag :tag => "path", :attributes => { :project => "home:Iggy", :repository => "10.2" }
-    #buildinfo = ActiveXML::Node.new(@response.body)
+    # buildinfo = ActiveXML::Node.new(@response.body)
 
     # find scheduler job and compare it with buildinfo
 # FIXME: to be implemented, compare scheduler job with rep server job
@@ -310,7 +310,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
 
     get "/build/home:Iggy/10.2/i586/TestPack/package-1.0-1.i586.rpm?view=fileinfo"
     assert_response :success
-    #FIXME validate xml content
+    # FIXME validate xml content
   end
 
   def test_read_access_hidden_binary_view
@@ -449,7 +449,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_match(/entry name="HiddenProject"/, @response.body)
     prepare_request_valid_user
 
-    #invalid
+    # invalid
     get "/build/HiddenProject"
     assert_response 404
     assert_match(/unknown_project/, @response.body)
@@ -470,7 +470,7 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     assert_match(/unknown_project/, @response.body)
 
-    #valid
+    # valid
     reset_auth
     login_adrian
     get "/build/HiddenProject"

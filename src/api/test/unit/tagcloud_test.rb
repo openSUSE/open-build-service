@@ -22,7 +22,7 @@ class TagcloudTest < ActiveSupport::TestCase
     steps = 6
 
     delta = cloud.delta(steps, cloud.max, cloud.min)
-    #delta = (delta * 1000).round.to_f / 1000
+    # delta = (delta * 1000).round.to_f / 1000
 
     assert_equal 0.5, delta, "Wrong delta."
   end
@@ -33,7 +33,7 @@ class TagcloudTest < ActiveSupport::TestCase
     cloud = Tagcloud.new(opt)
     assert_kind_of Tagcloud, cloud
 
-    #sort by name (default)
+    # sort by name (default)
     cloud.sort_tags
     assert_kind_of Array, cloud.tags
     assert_not_nil cloud.tags
@@ -44,7 +44,7 @@ class TagcloudTest < ActiveSupport::TestCase
       predecessor = tag
     end
 
-    #sort by count
+    # sort by count
     opt = {:scope=>"count"}
     cloud.sort_tags(opt)
     assert_kind_of Array, cloud.tags
@@ -113,7 +113,7 @@ class TagcloudTest < ActiveSupport::TestCase
   end
 
   def test_user_tagcloud
-    #tag-cloud test for user 'Iggy'
+    # tag-cloud test for user 'Iggy'
     opt = Hash.new
     opt = {:scope => 'user', :user => User.find_by_login('Iggy')}
 
@@ -121,11 +121,11 @@ class TagcloudTest < ActiveSupport::TestCase
     assert_kind_of Tagcloud, cloud
     assert_not_nil cloud.tags
 
-    #max_min check
+    # max_min check
     assert_equal 3, cloud.max
     assert_equal 1, cloud.min
 
-    #total number of tags in this cloud
+    # total number of tags in this cloud
     assert_equal 6, cloud.tags.size, "Unexpected number of tags."
 
     cloud.tags.each do |tag|
@@ -147,19 +147,19 @@ class TagcloudTest < ActiveSupport::TestCase
       end
     end
 
-    #same test for user 'fred'
-    #tags = ['TagB','TagC']
+    # same test for user 'fred'
+    # tags = ['TagB','TagC']
     opt = {:scope => 'user', :user => User.find_by_login('fred')}
 
     cloud = Tagcloud.new(opt)
     assert_kind_of Tagcloud, cloud
     assert_not_nil cloud.tags
 
-    #max_min check
+    # max_min check
     assert_equal 2, cloud.max
     assert_equal 1, cloud.min
 
-    #total number of tags in this cloud
+    # total number of tags in this cloud
     assert_equal 2, cloud.tags.size, "Unexpected number of tags."
 
     cloud.tags.each do |tag|

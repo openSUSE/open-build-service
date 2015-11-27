@@ -14,10 +14,10 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
 
   # Replace this with your real tests.
   def test_add_debug_flag_to_project
-    #checking precondition
+    # checking precondition
     assert_equal 2, @project.type_flags('debuginfo').size
 
-    #create two new flags and save it.
+    # create two new flags and save it.
     for i in 1..2 do
       f = Flag.new(:repo => "10.#{i}", :status => "enable", :position => i + 2, :flag => 'debuginfo')
       f.architecture = @arch
@@ -26,7 +26,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
 
     @project.reload
 
-    #check the result
+    # check the result
     assert_equal 4, @project.type_flags('debuginfo').size
 
     f = @project.type_flags('debuginfo')[2]
@@ -51,10 +51,10 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
   end
 
   def test_add_debug_flag_to_package
-    #checking precondition
+    # checking precondition
     assert_equal 1, @package.type_flags('debuginfo').size
 
-    #create two new flags and save it.
+    # create two new flags and save it.
     for i in 1..2 do
       f = Flag.new(:repo => "10.#{i}", :status => "disable", :position => i+1, :flag => 'debuginfo')
       f.architecture = @arch
@@ -63,7 +63,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
 
     @package.reload
 
-    #check the result
+    # check the result
     assert_equal 3, @package.type_flags('debuginfo').size
 
     f = @package.type_flags('debuginfo')[1]
@@ -88,34 +88,34 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
   end
 
   def test_delete_debuginfo_flags_from_project
-    #checking precondition
+    # checking precondition
     assert_equal 2, @project.type_flags('debuginfo').size
-    #checking total number of flags stored in the database
+    # checking total number of flags stored in the database
     count = Flag.all.size
 
-    #destroy flags
+    # destroy flags
     @project.type_flags('debuginfo')[1].destroy
-    #reload required!
+    # reload required!
     @project.reload
     assert_equal 1, @project.type_flags('debuginfo').size
     assert_equal 1, count - Flag.all.size
 
     @project.type_flags('debuginfo')[0].destroy
-    #reload required
+    # reload required
     @project.reload
     assert_equal 0, @project.type_flags('debuginfo').size
     assert_equal 2, count - Flag.all.size
   end
 
   def test_delete_debuginfo_flags_from_package
-    #checking precondition
+    # checking precondition
     assert_equal 1, @package.type_flags('debuginfo').size
-    #checking total number of flags stored in the database
+    # checking total number of flags stored in the database
     count = Flag.all.size
 
-    #destroy flags
+    # destroy flags
     @package.type_flags('debuginfo')[0].destroy
-    #reload required!
+    # reload required!
     @package.reload
     assert_equal 0, @package.type_flags('debuginfo').size
     assert_equal 1, count - Flag.all.size
@@ -130,12 +130,12 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     # (project_id or package_id) is set, which is needed for position calculation.
     # The models should take this circumstances into consideration.
 
-    #checking precondition
+    # checking precondition
     assert_equal 2, @project.type_flags('debuginfo').size
-    #checking total number of flags stored in the database
+    # checking total number of flags stored in the database
     count = Flag.all.size
 
-    #create new flag and save it.
+    # create new flag and save it.
     f = Flag.new(:repo => "10.3", :status => "enable", :position => 3, :flag => 'debuginfo')
     f.architecture = @arch
     @project.flags << f
@@ -147,7 +147,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     f.reload
     assert_equal 3, f.position
 
-    #a flag update should not alter the flag position
+    # a flag update should not alter the flag position
     f.repo = '10.0'
     f.save
 
@@ -155,8 +155,8 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     assert_equal '10.0', f.repo
     assert_equal 3, f.position
 
-    #create new flag and save it, but set the references in different order as above.
-    #The result should be the same.
+    # create new flag and save it, but set the references in different order as above.
+    # The result should be the same.
     f = Flag.new(:repo => "10.2", :status => "enable", :position => 4, :flag => 'debuginfo')
     f.architecture = @arch
     @project.flags << f
@@ -168,7 +168,7 @@ class DebuginfoFlagTest < ActiveSupport::TestCase
     f.reload
     assert_equal 4, f.position
 
-    #a flag update should not alter the flag position
+    # a flag update should not alter the flag position
     f.repo = '10.1'
     f.save
 

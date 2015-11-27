@@ -19,7 +19,7 @@ class Webui::MonitorControllerTest < Webui::IntegrationTest
     use_js
 
     # as soon as we have only one API process...
-    #Timecop.travel(2010, 7, 12)
+    # Timecop.travel(2010, 7, 12)
 
     StatusHistory.transaction do
       time = Time.now.to_i

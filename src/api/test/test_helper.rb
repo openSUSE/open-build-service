@@ -66,7 +66,7 @@ end
 
 # uncomment to enable tests which currently are known to fail, but where either the test
 # or the code has to be fixed
-#$ENABLE_BROKEN_TEST=true
+# $ENABLE_BROKEN_TEST=true
 
 def backend_config
   backend_dir_suffix = ""
@@ -116,7 +116,7 @@ end
 module Minitest
   def self.__run reporter, options
     # there is no way to avoid the randomization of used suites, so we overload this method.
-    suites = Runnable.runnables #.shuffle <- disabled here
+    suites = Runnable.runnables # .shuffle <- disabled here
     parallel, serial = suites.partition { |s| s.test_order == :parallel }
 
     serial.map { |suite| suite.run reporter, options } +
@@ -139,9 +139,9 @@ class ActionDispatch::IntegrationTest
       begin
         # something else is going wrong in some random test and you do not know where?
         # add the specific test for it here:
-        #login_king
-        #get "/source/home:Iggy/TestPack/_link"
-        #assert_response 404
+        # login_king
+        # get "/source/home:Iggy/TestPack/_link"
+        # assert_response 404
 
         # simple test that the objects itself or the same in backend and api.
         # it does not check the content (eg. repository list in project meta)
@@ -259,7 +259,7 @@ module Webui
 # crude work around - one day I will dig into why this is necessary
       Minitest::Spec.new('MINE') unless Minitest::Spec.current
       Suse::Backend.start_test_backend
-      #Capybara.current_driver = Capybara.javascript_driver
+      # Capybara.current_driver = Capybara.javascript_driver
       @starttime = Time.now
       WebMock.disable_net_connect!(allow_localhost: true)
       CONFIG['global_write_through'] = true
@@ -288,7 +288,7 @@ module Webui
         DatabaseCleaner.clean_with :deletion
       end
 
-      #puts "#{self.__name__} took #{Time.now - @starttime}"
+      # puts "#{self.__name__} took #{Time.now - @starttime}"
     end
 
     def fill_autocomplete(field, options = {})

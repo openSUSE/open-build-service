@@ -172,7 +172,7 @@ module MaintenanceHelper
     sourcePackage.project.repositories.each do |sourceRepo|
       next if filterSourceRepository and filterSourceRepository != sourceRepo
       sourceRepo.release_targets.each do |releasetarget|
-        #FIXME: filter given release and/or target repos here
+        # FIXME: filter given release and/or target repos here
         if releasetarget.target_repository.project == targetProject
           uID = copy_binaries_to_repository(sourceRepo, sourcePackage, releasetarget.target_repository, targetPackageName, setrelease)
 	  updateIDs << uID if uID

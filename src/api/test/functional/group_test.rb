@@ -52,7 +52,7 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_response 403
     delete "/group/new_group"
     assert_response 404
-    delete "/group/test_group" #exists
+    delete "/group/test_group" # exists
     assert_response 403
 
     login_king

@@ -196,10 +196,10 @@ module HasRelationships
         # item has already a role in this model
         pcache = cache[id]
         if pcache.has_key? role.title
-          #role already defined, only remove from cache
+          # role already defined, only remove from cache
           pcache[role.title] = :keep
         else
-          #new role
+          # new role
           record = self.relationships.new(role: role)
           @updater.set_item(record, item)
           pcache[role.title] = :new

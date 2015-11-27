@@ -129,7 +129,7 @@ eos
     Suse::Backend.start_test_backend
     User.current = User.find_by_login(user)
     BsRequest.all.each do |r|
-      #puts r.render_xml
+      # puts r.render_xml
       expect = trues.include?(r.id)
       assert_equal expect, r.webui_infos(diffs: false)['is_target_maintainer'],
                    "Request #{r.id} should have #{expect} in target_maintainer for #{user}"

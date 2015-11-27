@@ -16,7 +16,7 @@ end
 class APIMatcher
   def self.matches?(request)
     format = request.format.to_sym || :xml
-    #Rails.logger.debug "MATCHES #{format}"
+    # Rails.logger.debug "MATCHES #{format}"
     format == :xml || format == :json
   end
 end
@@ -439,20 +439,20 @@ OBSApi::Application.routes.draw do
 
     ### /tag
 
-    #routes for tagging support
+    # routes for tagging support
     #
     # get 'tag/_all' => 'tag',
     #  action: 'list_xml'
-    #Get/put tags by object
+    # Get/put tags by object
     ### moved to source section
 
-    #Get objects by tag.
+    # Get objects by tag.
     controller :tag do
       get 'tag/:tag/_projects' => :get_projects_by_tag
       get 'tag/:tag/_packages' => :get_packages_by_tag
       get 'tag/:tag/_all' => :get_objects_by_tag
 
-      #Get a tagcloud including all tags.
+      # Get a tagcloud including all tags.
       match 'tag/tagcloud' => :tagcloud, via: [:get, :post]
 
       get 'tag/get_tagged_projects_by_user' => :get_tagged_projects_by_user
@@ -470,14 +470,14 @@ OBSApi::Application.routes.draw do
 
     ### /user
 
-    #Get objects tagged by user. (objects with tags)
+    # Get objects tagged by user. (objects with tags)
     get 'user/:user/tags/_projects' => 'tag#get_tagged_projects_by_user', constraints: cons
     get 'user/:user/tags/_packages' => 'tag#get_tagged_packages_by_user', constraints: cons
 
-    #Get tags by user.
+    # Get tags by user.
     get 'user/:user/tags/_tagcloud' => 'tag#tagcloud', constraints: cons
 
-    #Get tags for a certain object by user.
+    # Get tags for a certain object by user.
     match 'user/:user/tags/:project' => 'tag#tags_by_user_and_object', constraints: cons, via: [:get, :post, :put, :delete]
     match 'user/:user/tags/:project/:package' => 'tag#tags_by_user_and_object', constraints: cons, via: [:get, :post, :put, :delete]
 
@@ -565,8 +565,8 @@ OBSApi::Application.routes.draw do
       match 'search/released/binary' => :released_binary, via: [:get, :post]
       match 'search/project/id' => :project_id, via: [:get, :post]
       match 'search/package/id' => :package_id, via: [:get, :post]
-      match 'search/project_id' => :project_id, via: [:get, :post] #FIXME3.0: to be removed
-      match 'search/package_id' => :package_id, via: [:get, :post] #FIXME3.0: to be removed
+      match 'search/project_id' => :project_id, via: [:get, :post] # FIXME3.0: to be removed
+      match 'search/package_id' => :package_id, via: [:get, :post] # FIXME3.0: to be removed
       match 'search/project' => :project, via: [:get, :post]
       match 'search/package' => :package, via: [:get, :post]
       match 'search/person' => :person, via: [:get, :post]

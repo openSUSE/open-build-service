@@ -46,10 +46,10 @@ module FlagHelper
   end
 
   def update_flags( xmlhash, flagtype, position )
-    #translate the flag types as used in the xml to model name + s
+    # translate the flag types as used in the xml to model name + s
     validate_type flagtype
 
-    #select each build flag from xml
+    # select each build flag from xml
     xmlhash.elements(flagtype.to_s) do |xmlflags|
       xmlflags.keys.each do |status|
         fs = xmlflags.elements(status)
@@ -57,15 +57,15 @@ module FlagHelper
           fs << {}
         end
         fs.each do |xmlflag|
-          #get the selected architecture from data base
+          # get the selected architecture from data base
           arch = xmlflag['arch']
           arch = Architecture.find_by_name!(arch) if arch
 
           repo = xmlflag['repository']
 
-          #instantiate new flag object
+          # instantiate new flag object
           self.flags.new(:status => status, :position => position, :flag => flagtype) do |flag|
-            #set the flag attributes
+            # set the flag attributes
             flag.repo = repo
             flag.architecture = arch
           end

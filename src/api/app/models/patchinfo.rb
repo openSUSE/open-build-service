@@ -238,7 +238,7 @@ class Patchinfo < ActiveXML::Node
   end
 
   def issues
-    #TODO
+    # TODO
     []
   end
 

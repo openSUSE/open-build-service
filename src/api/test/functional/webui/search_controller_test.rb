@@ -18,7 +18,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     validate_search_page
     # avoid the animation that happens when you press the button
     page.execute_script('$("#advanced_container").show()')
-    #click_button("advanced_link") # yes, that's the id of the button :)
+    # click_button("advanced_link") # yes, that's the id of the button :)
 
     options[:for]    ||= [:projects, :packages]
     options[:in]     ||= [:name]
@@ -189,8 +189,8 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
 
     results = search_results
     assert results.include? :type => :package, :project_name => 'CopyTest', :package_name => 'test'
-    #assert results.include? :type => :package, :project_name => "home:Iggy", :package_name => "TestPack"
-    #assert results.include? :type => :package, :project_name => "home:Iggy", :package_name => "ToBeDeletedTestPack"
+    # assert results.include? :type => :package, :project_name => "home:Iggy", :package_name => "TestPack"
+    # assert results.include? :type => :package, :project_name => "home:Iggy", :package_name => "ToBeDeletedTestPack"
     results.count.must_equal 1
   end
 

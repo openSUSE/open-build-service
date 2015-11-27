@@ -718,11 +718,11 @@ class User < ActiveRecord::Base
     case object
     when Package
       logger.debug "running local permission check: user #{self.login}, package #{object.name}, permission '#{perm_string}'"
-      #check permission for given package
+      # check permission for given package
       parent = object.project
     when Project
       logger.debug "running local permission check: user #{self.login}, project #{object.name}, permission '#{perm_string}'"
-      #check permission for given project
+      # check permission for given project
       parent = object.parent
     when nil
       return has_global_permission?(perm_string)
@@ -737,7 +737,7 @@ class User < ActiveRecord::Base
     return true if lookup_strategy.local_permission_check(roles, object)
 
     if parent
-      #check permission of parent project
+      # check permission of parent project
       logger.debug "permission not found, trying parent project '#{parent.name}'"
       return has_local_permission?(perm_string, parent)
     end

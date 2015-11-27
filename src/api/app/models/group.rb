@@ -48,7 +48,7 @@ class Group < ActiveRecord::Base
       next unless maintainer['userid']
       user = User.find_by_login!(maintainer['userid'])
       if cache.has_key? user.id
-        #user has already a role in this package
+        # user has already a role in this package
         cache.delete(user.id)
       else
         GroupMaintainer.create( user: user, group: self).save
@@ -67,7 +67,7 @@ class Group < ActiveRecord::Base
         next unless person['userid']
         user = User.find_by_login!(person['userid'])
         if cache.has_key? user.id
-          #user has already a role in this package
+          # user has already a role in this package
           cache.delete(user.id)
         else
           GroupsUser.create( user: user, group: self).save
@@ -75,7 +75,7 @@ class Group < ActiveRecord::Base
       end
     end
 
-    #delete all users which were not listed
+    # delete all users which were not listed
     cache.each do |login_id, _gu|
       GroupsUser.delete_all(['user_id = ? AND group_id = ?', login_id, self.id])
     end

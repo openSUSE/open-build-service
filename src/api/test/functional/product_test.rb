@@ -321,7 +321,7 @@ class ProductTests < ActionDispatch::IntegrationTest
     get "/source/home:tom:temporary/_product:SUSE_SLES-release"       # source server
     assert_response 404
 
-    #cleanup
+    # cleanup
     delete "/source/home:tom:temporary:link?force=1"
     assert_response :success
     delete "/source/home:tom:temporary"
