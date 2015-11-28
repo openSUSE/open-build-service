@@ -57,9 +57,12 @@ echo "Setting up your OBS test backend..."
 # Put the backend data dir outside the shared folder so it can use hardlinks
 # which isn't possible with VirtualBox shared folders...
 mkdir /tmp/vagrant_tmp
+mkdir /tmp/vagrant_log/
 chown vagrant:users /tmp/vagrant_tmp
-chown vagrant:users -R /vagrant/src/api/log/*
+chown vagrant:users -R /tmp/vagrant_log/
 echo -e "/tmp/vagrant_tmp /vagrant/src/api/tmp none bind 0 0" >> /etc/fstab
+echo -e "/tmp/vagrant_log /vagrant/src/api/log none bind 0 0" >> /etc/fstab
+mount -a
 
 echo -e "\nProvisioning of your OBS API rails app done!"
 echo -e "To start your development OBS backend run: vagrant exec RAILS_ENV=development ./script/start_test_backend\n"
