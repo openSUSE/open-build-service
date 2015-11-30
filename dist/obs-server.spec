@@ -432,11 +432,15 @@ git development - look at http://github.com/opensuse/open-build-service
 EOF
 
 %check
+
 # check installed backend
 pushd $RPM_BUILD_ROOT/usr/lib/obs/server/
 file build
 rm build
 ln -sf /usr/lib/build build # just for %%check, it is a %%ghost
+
+# TODO: integrate this perl test into new test suite and change to TAP
+
 for i in bs_*; do
   perl -wc "$i"
 done
@@ -461,64 +465,14 @@ popd
 #
 # setup mysqld
 %if 0%{?disable_api_tests} < 1
-rm -rf /tmp/obs.mysql.db /tmp/obs.test.mysql.socket
-mysql_install_db --user=`whoami` --datadir="/tmp/obs.mysql.db"
-/usr/sbin/mysqld --datadir=/tmp/obs.mysql.db --skip-networking --socket=/tmp/obs.test.mysql.socket &
-sleep 2
-##################### api
-pushd src/api/
-# setup files
-cp config/options.yml{.example,}
-cp config/thinking_sphinx.yml{.example,}
-touch config/test.sphinx.conf
-cat > config/database.yml <<EOF
-migrate:
-  adapter: mysql2
-  host:    localhost
-  database: api_25
-  username: root
-  encoding: utf8
-  socket:   /tmp/obs.test.mysql.socket
-test:
-  adapter: mysql2
-  host:    localhost
-  database: api_test
-  username: root
-  encoding: utf8
-  socket:   /tmp/obs.test.mysql.socket
-  # disable timeout, required on SLES 11 SP3 at least
-  connect_timeout:
 
-EOF
-/usr/sbin/memcached -l 127.0.0.1 -d -P $PWD/memcached.pid
-# migration test
-export RAILS_ENV=migrate
-bundle exec rake db:create || exit 1
-xzcat test/dump_2.5.sql.xz | mysql  -u root --socket=/tmp/obs.test.mysql.socket
-bundle exec rake db:migrate db:drop || exit 1
-# entire test suite
-export RAILS_ENV=test
-bundle exec rake db:create db:setup ts:index ts:start || exit 1
-mv log/test.log{,.old}
-if ! bundle exec rake test:api test:webui ; then
-  cat log/test.log
-  kill $(cat memcached.pid)
-  exit 1
-fi
-kill $(cat memcached.pid) || :
-popd
-
-#cleanup
-/usr/bin/mysqladmin -u root --socket=/tmp/obs.test.mysql.socket shutdown || true
-rm -rf /tmp/obs.mysql.db /tmp/obs.test.mysql.socket
+make -C src/api test
 
 %endif
 # end api testing
 #### 
 
-pushd dist
-make test
-popd
+make -C dist test
 
 %pre
 getent group obsrun >/dev/null || groupadd -r obsrun
