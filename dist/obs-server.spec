@@ -738,7 +738,6 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /srv/www/obs/api/config/initializers
 %dir /srv/www/obs/api/config/environments
 %dir /srv/www/obs/api/files
-%dir %{_docdir}/%{obs_api_pkg_name}/contrib
 %dir /srv/www/obs/api/db
 /srv/www/obs/api/Gemfile
 /srv/www/obs/api/Gemfile.lock
@@ -764,7 +763,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /srv/www/obs/api/bin
 /srv/www/obs/api/test
 /srv/www/obs/docs
-%{_docdir}/%{obs_api_pkg_name}/contrib/setup-appliance.sh
+/usr/lib/obs/server/setup-appliance.sh
 
 /srv/www/obs/api/config/locales
 %dir /srv/www/obs/api/vendor

@@ -38,7 +38,7 @@ rc_reset
 case "$1" in
 	start)
 		[[ $HOME == '' ]] && export HOME=/root
-		/usr/share/doc/packages/obs-api/contrib/setup-appliance.sh --non-interactive --setup-only
+		/usr/lib/obs/server/setup-appliance.sh --non-interactive --setup-only
 		rc_status -v
 	;;
 	stop)

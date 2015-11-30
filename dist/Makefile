@@ -1,13 +1,13 @@
-CONTRIB_DIR=$(DESTDIR)/usr/share/doc/packages/obs-api/contrib
+SERVER_DIR=/usr/lib/obs/server
 
 all: install
 
 install: install_obsapisetup
 
 install_obsapisetup:
-	install -m 755 ./obsapisetup $(DESTDIR)/etc/init.d/obsapisetup
-	[ -d $(CONTRIB_DIR) ] || mkdir -p $(CONTRIB_DIR)
-	install -m 755 ./setup-appliance.sh $(CONTRIB_DIR)/setup-appliance.sh
+	install -m 755 obsapisetup $(DESTDIR)/etc/init.d/obsapisetup
+	[ -d $(DESTDIR)$(SERVER_DIR) ] || mkdir -p $(DESTDIR)$(SERVER_DIR)
+	install -m 755 setup-appliance.sh $(DESTDIR)$(SERVER_DIR)/setup-appliance.sh
 
 ta: test_all
 
