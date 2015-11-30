@@ -290,90 +290,21 @@ cd dist
   find -type f | xargs sed -i '1,$s/group www/group apache/g'
 %endif
 # configure apache web service
+export DESTDIR=$RPM_BUILD_ROOT
 mkdir -p $RPM_BUILD_ROOT/etc/apache2/vhosts.d/
 %if 0%{?suse_version} < 1300
-install -m 0644 obs-apache2.conf $RPM_BUILD_ROOT/etc/apache2/vhosts.d/obs.conf
-%else
-install -m 0644 obs-apache24.conf $RPM_BUILD_ROOT/etc/apache2/vhosts.d/obs.conf
+perl -p -i -e 's/^APACHE_VHOST_CONF=.*/APACHE_VHOST_CONF=obs-apache2.conf/' Makefile.include
 %endif
+
 # install overview page template
 mkdir -p $RPM_BUILD_ROOT/srv/www/obs/overview
 install -m 0644 overview.html.TEMPLATE $RPM_BUILD_ROOT/srv/www/obs/overview/
-# install obs mirror script and obs copy script
-install -d -m 755 $RPM_BUILD_ROOT/usr/sbin/
-install -m 0755 obs_project_update $RPM_BUILD_ROOT/usr/sbin/
-# install  runlevel scripts
-install -d -m 755 $RPM_BUILD_ROOT/etc/init.d/
-for i in obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher \
-         obssigner obswarden obsapidelayed obsapisetup obsstoragesetup \
-         obsservice obsdodup ; do
-  install -m 0755 $i \
-           $RPM_BUILD_ROOT/etc/init.d/
-  ln -sf /etc/init.d/$i $RPM_BUILD_ROOT/usr/sbin/rc$i
-done
-# install logrotate
-install -d -m 755 $RPM_BUILD_ROOT/etc/logrotate.d/
-for i in obs-api obs-server ; do
-  install -m 0644 ${i}.logrotate \
-           $RPM_BUILD_ROOT/etc/logrotate.d/$i
-done
-# install fillups
-FILLUP_DIR=$RPM_BUILD_ROOT/var/adm/fillup-templates
-install -d -m 755 $FILLUP_DIR
-install -m 0644 sysconfig.obs-server $FILLUP_DIR/
-# install SLP registration files
-SLP_DIR=$RPM_BUILD_ROOT/etc/slp.reg.d/
-install -d -m 755  $SLP_DIR
-install -m 644 obs.source_server.reg $SLP_DIR/
-install -m 644 obs.repo_server.reg $SLP_DIR/
-# create symlink for product converter
-mkdir -p $RPM_BUILD_ROOT/usr/bin
-cat > $RPM_BUILD_ROOT/usr/bin/obs_productconvert <<EOF
-#!/bin/bash
-exec /usr/lib/obs/server/bs_productconvert "\$@"
-EOF
-chmod 0755 $RPM_BUILD_ROOT/usr/bin/obs_productconvert
-cat > $RPM_BUILD_ROOT/usr/sbin/obs_admin <<EOF
-#!/bin/bash
-exec /usr/lib/obs/server/bs_admin "\$@"
-EOF
-chmod 0755 $RPM_BUILD_ROOT/usr/sbin/obs_admin
-cat > $RPM_BUILD_ROOT/usr/sbin/obs_serverstatus <<EOF
-#!/bin/bash
-exec /usr/lib/obs/server/bs_serverstatus "\$@"
-EOF
-chmod 0755 $RPM_BUILD_ROOT/usr/sbin/obs_serverstatus
 
 # install setup-appliance.sh
 DESTDIR=%{buildroot} make install
 
-
-#
-# Install all web and api parts.
-#
-cd ../src
-mkdir -p $RPM_BUILD_ROOT/srv/www/obs/
-cp -a api $RPM_BUILD_ROOT/srv/www/obs/api
-mkdir -p $RPM_BUILD_ROOT/srv/www/obs/api/log
-mkdir -p $RPM_BUILD_ROOT/srv/www/obs/api/tmp
-touch $RPM_BUILD_ROOT/srv/www/obs/api/log/production.log
-touch $RPM_BUILD_ROOT/srv/www/obs/api/config/production.sphinx.conf
-# prepare for running sphinx daemon
-install -m 0755 -d $RPM_BUILD_ROOT/srv/www/obs/api/db/sphinx{,/production}
-
 # clean development files
 rm $RPM_BUILD_ROOT/srv/www/obs/api/.rubocop{,_todo}.yml
-
-#
-# install apidocs
-# 
-mkdir -p $RPM_BUILD_ROOT/srv/www/obs/docs
-cp -a ../docs/api/api    $RPM_BUILD_ROOT/srv/www/obs/docs/
-cp -a ../docs/api/html   $RPM_BUILD_ROOT/srv/www/obs/docs/api/
-ln -sf /srv/www/obs/docs/api $RPM_BUILD_ROOT/srv/www/obs/api/public/schema
-
-echo 'CONFIG["apidocs_location"] ||= File.expand_path("../docs/api/html/")' >> $RPM_BUILD_ROOT/srv/www/obs/api/config/environment.rb
-echo 'CONFIG["schema_location"] ||= File.expand_path("../docs/api/")' >> $RPM_BUILD_ROOT/srv/www/obs/api/config/environment.rb
 
 #
 # Install all backend parts.
@@ -401,35 +332,10 @@ cd ..
 %fdupes $RPM_BUILD_ROOT/srv/www/obs
 %endif
 
-# these config files must not be hard linked
-install api/config/database.yml.example $RPM_BUILD_ROOT/srv/www/obs/api/config/database.yml
-install api/config/options.yml.example $RPM_BUILD_ROOT/srv/www/obs/api/config/options.yml
-install api/config/thinking_sphinx.yml.example $RPM_BUILD_ROOT/srv/www/obs/api/config/thinking_sphinx.yml
-
 for file in api/log/access.log api/log/backend_access.log api/log/delayed_job.log api/log/error.log api/log/lastevents.access.log; do
   touch $RPM_BUILD_ROOT/srv/www/obs/$file
 done
 
-pushd $RPM_BUILD_ROOT/srv/www/obs/api
-# we need to have *something* as secret key
-echo "" | sha256sum| cut -d\  -f 1 > config/secret.key
-bundle exec rake assets:precompile RAILS_ENV=production RAILS_GROUPS=assets
-rm -rf tmp/cache/sass tmp/cache/assets config/secret.key
-export BUNDLE_WITHOUT=test:assets:development
-export BUNDLE_FROZEN=1
-bundle config --local frozen 1
-bundle config --local without test:assets:development 
-# reinstall
-install config/database.yml.example config/database.yml
-: > log/production.log
-sed -i -e 's,^api_version.*,api_version = "%version",' config/initializers/02_apiversion.rb
-popd
-
-mkdir -p %{buildroot}%{_docdir}
-cat > %{buildroot}%{_docdir}/README.devel <<EOF
-This package does not contain any development files. But it helps you start with 
-git development - look at http://github.com/opensuse/open-build-service
-EOF
 
 %check
 
@@ -753,6 +659,6 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 
 %files -n obs-devel
 %defattr(-,root,root)
-%_docdir/README.devel
+%_docdir/obs-devel/README.devel
 
 %changelog

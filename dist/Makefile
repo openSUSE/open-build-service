@@ -1,11 +1,29 @@
-all: install
+include ../Makefile.include
 
-install: install_obsapisetup
+INIT_SCRIPTS 			:= obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher obssigner obswarden obsapidelayed obsapisetup obsstoragesetup obsservice obsdodup
+LOGROTATE_CONFIGS := obs-api obs-server
+OBS_BIN_SCRIPTS 	:= obs_productconvert
+OBS_SBIN_SCRIPTS 	:= obs_admin obs_serverstatus
 
+install: install_obsapisetup install_apache install_initscripts install_project_update install_logrotate install_fillups install_slp install_obs_bin
 
-install_obsapisetup:
-	install -m 755 obsapisetup $(DESTDIR)/etc/init.d/obsapisetup
-	install -m 755 setup-appliance.sh $(DESTDIR)$(OBS_BACKEND_DIR)/setup-appliance.sh
+#install_overview
+
+install_obsapisetup: system_dirs
+	$(INSTALL) -m 755 obsapisetup $(DESTDIR)/etc/init.d/obsapisetup
+	$(INSTALL) -m 755 setup-appliance.sh $(DESTDIR)$(OBS_BACKEND_PREFIX)/setup-appliance.sh
+
+install_apache:
+	$(INSTALL) -d -m 755  $(DESTDIR)$(APACHE_CONIFGDIR_VHOST)
+	$(INSTALL) -m 644 $(APACHE_VHOST_CONF) $(DESTDIR)$(APACHE_CONIFGDIR_VHOST)/obs.conf
+
+install_initscripts: system_dirs
+	$(foreach script,$(INIT_SCRIPTS),$(shell $(INSTALL) -m 755 $(script) $(DESTDIR)/etc/init.d/$(script)) )
+	$(foreach script,$(INIT_SCRIPTS),$(shell ln -sf /etc/init.d/$(script) $(DESTDIR)/usr/sbin/rc$(script)) )
+
+install_project_update: system_dirs
+	$(INSTALL) -m 0755 obs_project_update $(DESTDIR)/usr/sbin/obs_project_update
+
 
 install_logrotate: system_dirs
 	$(foreach config,$(LOGROTATE_CONFIGS),$(shell $(INSTALL) -m 755 $(config).logrotate $(DESTDIR)/etc/logrotate.d/$(config)) )
@@ -18,11 +36,11 @@ install_slp: system_dirs
 	$(INSTALL) -m 644 obs.repo_server.reg $(DESTDIR)/etc/slp.reg.d/
 
 install_obs_bin: system_dirs
-	$(foreach script,$(OBS_SCRIPTS),$(shell $(INSTALL) -m 755 $(script) $(DESTDIR)/usr/bin/$(script)) )
+	$(foreach script,$(OBS_BIN_SCRIPTS),$(shell $(INSTALL) -m 755 $(script) $(DESTDIR)/usr/bin/$(script)) )
+	$(foreach script,$(OBS_SBIN_SCRIPTS),$(shell $(INSTALL) -m 755 $(script) $(DESTDIR)/usr/bin/$(script)) )
 
 system_dirs:
-	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_BACKEND_DIR)
-	$(INSTALL) -d -m 755 $(DESTDIR)/$(CONTRIB_DIR)
+	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_BACKEND_PREFIX)
 	$(INSTALL) -d -m 755 $(DESTDIR)/etc/init.d/
 	$(INSTALL) -d -m 755 $(DESTDIR)/etc/logrotate.d/
 	$(INSTALL) -d -m 755 $(DESTDIR)/etc/slp.reg.d/
@@ -31,18 +49,8 @@ system_dirs:
 	$(INSTALL) -d -m 755 $(DESTDIR)/var/adm/fillup-templates
 
 
-ta: test_all
-
-test_all: test_unit test_system
-
-t: test
-
-test: test_unit
-
 test_unit:
 	prove t/*.t
 
-ts: test_system
-	
 test_system:
 	prove t/*.ts
