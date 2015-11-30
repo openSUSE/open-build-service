@@ -133,5 +133,3 @@ module AdminHelper
     end
   end
 end
-
-
