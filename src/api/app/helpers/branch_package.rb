@@ -1,5 +1,4 @@
 class BranchPackage
-
   class InvalidFilelistError < APIException;
   end
   class DoubleBranchPackageError < APIException;
@@ -32,7 +31,6 @@ class BranchPackage
       @add_repositories = true
       @update_path_elements = true
     end
-
   end
 
   def branch
@@ -59,7 +57,6 @@ class BranchPackage
     # name of 1) may get used in package or repo names when using :extend_name
     #
 
-
     set_target_project
 
     set_update_project_attribute
@@ -82,7 +79,7 @@ class BranchPackage
       return { text: report_dryrun, content_type: 'text/xml' }
     end
 
-    #create branch project
+    # create branch project
     tprj = create_branch_project
 
     unless User.current.can_modify_project?(tprj)

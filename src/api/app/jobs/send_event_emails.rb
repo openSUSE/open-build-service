@@ -1,5 +1,4 @@
 class SendEventEmails
-
   # we don't need this outside of the migration - but we need to be able
   # to load old jobs from the database (and mark their events) before deleting
   # (see 20151030130011_mark_events)

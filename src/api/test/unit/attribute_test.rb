@@ -7,12 +7,11 @@ class AttributeTest < ActiveSupport::TestCase
     @attrib_ns = AttribNamespace.find_by_name( "OBS" )
   end
 
-
   def test_namespace
-    #check precondition
+    # check precondition
     assert_equal "OBS", @attrib_ns.name
 
-    #definition is given as axml
+    # definition is given as axml
     axml = "<namespace name='NewNamespace'>
                <modifiable_by user='fred' group='test_group' />
             </namespace>"
@@ -21,7 +20,7 @@ class AttributeTest < ActiveSupport::TestCase
     assert_equal true, AttribNamespace.create(:name => "NewNamespace").update_from_xml(xml)
     @ans = AttribNamespace.find_by_name( "NewNamespace" )
 
-    #check results
+    # check results
     assert_not_nil @ans
     assert_equal "NewNamespace", @ans.name
 
@@ -44,10 +43,10 @@ class AttributeTest < ActiveSupport::TestCase
   end
 
   def test_attrib_type
-    #check precondition
+    # check precondition
     assert_equal "OBS", @attrib_ns.name
 
-    #definition is given as axml
+    # definition is given as axml
     axml = "<attribute name='NewAttribute'>
                <modifiable_by user='fred' group='test_group' role='maintainer' />
             </attribute>"
@@ -59,7 +58,7 @@ class AttributeTest < ActiveSupport::TestCase
     assert_not_nil @atro
     @at = AttribType.find_by_id( @atro.id ) # make readwritable
 
-    #check results
+    # check results
     assert_not_nil @at
     assert_equal "NewAttribute", @at.name
 
@@ -123,7 +122,7 @@ class AttributeTest < ActiveSupport::TestCase
   def test_attrib
     User.current = users(:king)
 
-    #check precondition
+    # check precondition
     assert_equal "OBS", @attrib_ns.name
 
     @at = AttribType.find_by_namespace_and_name("OBS", "Maintained")
@@ -148,7 +147,6 @@ class AttributeTest < ActiveSupport::TestCase
     assert_not_nil @a
     assert_equal "Maintained", @a.attrib_type.name
 
-
     # store in a package
     @package = @project.packages.create(name: "kdebase")
     assert_not_nil @package
@@ -160,7 +158,6 @@ class AttributeTest < ActiveSupport::TestCase
     @a = @p.find_attribute("OBS", "Maintained")
     assert_not_nil @a
     assert_equal "Maintained", @a.attrib_type.name
-
 
     # Check count validation
     axml = "<attribute namespace='OBS' name='Maintained' >
@@ -182,8 +179,6 @@ class AttributeTest < ActiveSupport::TestCase
     end
     assert_match %r{Values has 1 values, but only 0 are allowed}, e.message
 
-
     User.current = nil
   end
-
 end

@@ -16,9 +16,7 @@ class ChannelTest < ActiveSupport::TestCase
     super
   end
 
-
   def test_parse_xml
-
     # pre condition check
     assert_equal 0, @channel.channel_binary_lists.size
 
@@ -45,7 +43,7 @@ class ChannelTest < ActiveSupport::TestCase
       @channel.save
       @channel.reload
 
-      #check results
+      # check results
       assert_equal 2, @channel.channel_targets.size
       ct = @channel.channel_targets.first
       assert_equal "UpdateInfoTag-%Y-%C", ct.id_template
@@ -94,5 +92,4 @@ class ChannelTest < ActiveSupport::TestCase
     assert_equal nil, cbl.channel_binaries.where(name: "does_not_exist").first.package
     assert_equal "l2", cbl.channel_binaries.where(name: "does_not_exist").first.supportstatus
   end
-
 end

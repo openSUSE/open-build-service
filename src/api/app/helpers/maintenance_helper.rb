@@ -1,7 +1,6 @@
 include ValidationHelper
 
 module MaintenanceHelper
-
   class MissingAction < APIException
     setup 400, 'The request contains no actions. Submit requests without source changes may have skipped!'
   end
@@ -173,7 +172,7 @@ module MaintenanceHelper
     sourcePackage.project.repositories.each do |sourceRepo|
       next if filterSourceRepository and filterSourceRepository != sourceRepo
       sourceRepo.release_targets.each do |releasetarget|
-        #FIXME: filter given release and/or target repos here
+        # FIXME: filter given release and/or target repos here
         if releasetarget.target_repository.project == targetProject
           uID = copy_binaries_to_repository(sourceRepo, sourcePackage, releasetarget.target_repository, targetPackageName, setrelease)
 	  updateIDs << uID if uID
@@ -372,7 +371,5 @@ module MaintenanceHelper
       Suse::Backend.put lpkg.source_path('_link', user: User.current.login), ret.dump_xml
       lpkg.sources_changed
     end
-
   end
-
 end

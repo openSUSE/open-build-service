@@ -1,7 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class GroupControllerTest < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   def setup
@@ -53,7 +52,7 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_response 403
     delete "/group/new_group"
     assert_response 404
-    delete "/group/test_group" #exists
+    delete "/group/test_group" # exists
     assert_response 403
 
     login_king
@@ -192,5 +191,4 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'entry', :attributes => {:name => 'test_group'}
     assert_no_xml_tag :tag => 'entry', :attributes => {:name => 'test_group_b'}
   end
-
 end

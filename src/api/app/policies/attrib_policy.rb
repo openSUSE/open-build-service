@@ -1,5 +1,4 @@
 class AttribPolicy < ApplicationPolicy
-
   def create?
     # Admins can write everything
     return true if @user.is_admin?

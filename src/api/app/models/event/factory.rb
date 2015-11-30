@@ -1,7 +1,6 @@
 # those contain tons of others
 
 module Event
-
   # generate an Event class
   class Factory
     def self.new_from_type(type, params)

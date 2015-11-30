@@ -1,7 +1,6 @@
 require_relative '../../test_helper'
 
 class Webui::CreateProjectTest < Webui::IntegrationTest
-
   uses_transaction :test_create_subproject
 
   def test_create_package

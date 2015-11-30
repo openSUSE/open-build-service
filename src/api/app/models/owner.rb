@@ -2,7 +2,6 @@
 require 'api_exception'
 
 class Owner
-
   class AttributeNotSetError < APIException
     setup 'attribute_not_set', 400
   end
@@ -52,7 +51,6 @@ class Owner
     # search in each marked project
     owners = []
     projects.each do |project|
-
       attrib = project.attribs.where(attrib_type_id: at.id).first
       filter = %w(maintainer bugowner)
       devel  = true
@@ -83,7 +81,6 @@ class Owner
       else
         owners += self.find_containers(project, obj, devel, filter)
       end
-
     end
 
     return owners
@@ -180,7 +177,7 @@ class Owner
         distinct.where("projects.kind='maintenance_release' AND (ISNULL(package_kinds.kind) OR package_kinds.kind='patchinfo')").pluck(:name)
 
     if devel == true
-      #FIXME add devel packages, but how do recursive lookup fast in SQL?
+      # FIXME add devel packages, but how do recursive lookup fast in SQL?
     end
     defined_packages.uniq!
 
@@ -230,7 +227,7 @@ class Owner
       raise "illegal object handed to find_containers"
     end
     if devel == true
-      #FIXME add devel packages, but how do recursive lookup fast in SQL?
+      # FIXME add devel packages, but how do recursive lookup fast in SQL?
     end
     found_packages = found_packages.pluck(:package_id).uniq
     found_projects = found_projects.pluck(:project_id).uniq

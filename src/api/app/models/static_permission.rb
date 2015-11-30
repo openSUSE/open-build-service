@@ -4,7 +4,6 @@
 # code.
 #
 class StaticPermission < ActiveRecord::Base
-
   has_many :roles_static_permissions
 
   has_and_belongs_to_many :roles, -> { uniq() }

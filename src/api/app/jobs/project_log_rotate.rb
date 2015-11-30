@@ -1,5 +1,4 @@
 class ProjectLogRotate
-
   def perform
     event_classes = [Event::Package, Event::Project]
     oldest_date = 10.days.ago

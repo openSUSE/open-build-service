@@ -1,5 +1,4 @@
 class Webui::FeedsController < Webui::WebuiController
-
   include Webui::WebuiHelper
   include StatisticsCalculations
 

@@ -1,7 +1,6 @@
 require_relative '../test_helper'
 
 class RoleTest < ActiveSupport::TestCase
-
   def test_something
     norole = Role.create :title => 'norole'
     norole.title = 'thisrole'

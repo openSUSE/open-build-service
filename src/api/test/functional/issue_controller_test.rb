@@ -241,7 +241,7 @@ Aha bnc#123456\n
     assert_xml_tag :parent => { :tag => "collection" }, :tag => "package",
                    :attributes => { :project => 'home:Iggy:branches:BaseDistro', :name => 'pack_new' }
 
-    #cleanup
+    # cleanup
     delete "/source/home:Iggy:branches:BaseDistro"
     assert_response :success
   end
@@ -283,7 +283,7 @@ Aha bnc#123456\n
     assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'changed'}}, :tag => 'name', :content => "15"
     assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "123456"
 
-    #cleanup
+    # cleanup
     delete "/source/home:Iggy:branches:BaseDistro"
     assert_response :success
   end
@@ -314,7 +314,7 @@ Blubber bnc#15\n
     assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "14"
     assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "15"
 
-    #cleanup
+    # cleanup
     delete "/source/home:Iggy:branches:BaseDistro"
     assert_response :success
   end

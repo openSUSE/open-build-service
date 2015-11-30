@@ -1,8 +1,6 @@
 require_dependency 'api_exception'
 
-
 class UnregisteredUser < User
-
   class ErrRegisterSave < APIException
   end
 
@@ -77,7 +75,5 @@ class UnregisteredUser < User
     if newuser.state == User::STATES["unconfirmed"]
       raise ErrRegisterSave.new "Thank you for signing up! An admin has to confirm your account now. Please be patient."
     end
-
   end
-
 end

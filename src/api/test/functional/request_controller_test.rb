@@ -4,7 +4,6 @@ require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'request_controller'
 
 class RequestControllerTest < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   def setup
@@ -300,7 +299,6 @@ XML
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id2 = node.value('id')
-
 
     delete '/source/home:Iggy/TestPack.DELETE2'
     assert_response :success
@@ -753,7 +751,6 @@ XML
   end
 
   def test_create_request_and_supersede_as_creator
-
     login_Iggy
     req = load_backend_file('request/works')
     post '/request?cmd=create', req
@@ -768,7 +765,6 @@ XML
   end
 
   def test_create_request_and_decline_review
-
     login_Iggy
     req = load_backend_file('request/works')
     post '/request?cmd=create', req
@@ -860,7 +856,6 @@ XML
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=tom&comment=review2"
     assert_response :success
 
-
     # check review comments are the same
     get "/request/#{id}"
     assert_response :success
@@ -940,7 +935,6 @@ XML
   end
 
   def test_assign_from_group
-
     login_Iggy
     req = load_backend_file('request/works')
     post '/request?cmd=create', req
@@ -1033,7 +1027,6 @@ XML
   end
 
   def test_change_review_state_after_leaving_review_phase
-
     login_Iggy
     req = load_backend_file('request/works')
     post '/request?cmd=create', req
@@ -1089,7 +1082,6 @@ XML
     assert_xml_tag(:tag => 'review', :attributes => { by_user: 'adrian' })
     assert_xml_tag(:tag => 'review', :attributes => { by_user: 'tom' })
     assert_xml_tag(:tag => 'review', :attributes => { by_group: 'test_group' })
-
   end
 
   def test_search_and_involved_requests
@@ -1158,7 +1150,7 @@ XML
     assert_response :success
     assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
     if $ENABLE_BROKEN_TEST
-      #FIXME there is no code in this test creating request from HiddenProject
+      # FIXME there is no code in this test creating request from HiddenProject
 
       assert_xml_tag(:tag => 'source', :attributes => { project: 'HiddenProject', package: 'pack' })
     end
@@ -1192,7 +1184,6 @@ XML
       assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
       assert_xml_tag(:tag => 'target', :attributes => { project: 'HiddenProject' })
     end
-
   end
 
   def test_process_devel_request
@@ -1264,7 +1255,6 @@ XML
     # cleanup
     put '/source/home:Iggy/TestPack/_meta', oldmeta.dup
     assert_response :success
-
   end
 
   def test_reject_request_creation
@@ -1300,7 +1290,6 @@ XML
     post '/request?cmd=create', rq
     assert_response :success
 
-
     # block request creation in package
     post '/source/home:Iggy/TestPack/_attribute', "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>Package blocked</value> </attribute> </attributes>"
     assert_response :success
@@ -1331,9 +1320,9 @@ XML
     post '/request?cmd=create', rq
     assert_response :success
 
-#FIXME: test with request without target
+# FIXME: test with request without target
 
-#cleanup
+# cleanup
     delete '/source/home:Iggy/TestPack/_attribute/OBS:RejectRequests'
     assert_response :success
   end
@@ -1476,7 +1465,7 @@ XML
     assert_xml_tag(:tag => 'target', :attributes => { project: 'home:tom:branches:kde4', package: 'kdebase' })
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
-    #id2 = node.value(:id)
+    # id2 = node.value(:id)
 
     # delete projects
     delete '/source/home:tom:branches:kde4'
@@ -1623,8 +1612,8 @@ XML
     assert_response 403
     post '/request/ILLEGAL_CONTENT?cmd=changestate&newstate=revoked'
     assert_response 404
-    #Rails does not allow /request/:id to match non-integers, so there is no XML generated for 404
-    #assert_xml_tag tag: 'status', attributes: {code: 'not_found'}
+    # Rails does not allow /request/:id to match non-integers, so there is no XML generated for 404
+    # assert_xml_tag tag: 'status', attributes: {code: 'not_found'}
 
     login_Iggy
     post "/request/#{id}?cmd=changestate&newstate=revoked"
@@ -2058,14 +2047,14 @@ XML
     get "/request/#{id}"
     assert_response :success
     assert_xml_tag(:tag => 'state', :attributes => { name: 'review' },
-                   :parent => { tag: 'request' }) #remains in review state
+                   :parent => { tag: 'request' }) # remains in review state
 
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
     assert_xml_tag(:tag => 'state', :attributes => { name: 'review' },
-                   :parent => { tag: 'request' }) #switch to new after last review
+                   :parent => { tag: 'request' }) # switch to new after last review
 
     # approve accepted and check initialized devel package
     post "/request/#{id}?cmd=changestate&newstate=accepted&force=1"
@@ -2275,7 +2264,7 @@ XML
     post '/request?cmd=create', req
     assert_response :success
 
-    #cleanup
+    # cleanup
     login_king
     delete '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject'
     assert_response :success
@@ -2517,7 +2506,7 @@ XML
     assert_response :success
     assert_xml_tag(:tag => 'state', :attributes => { name: 'revoked' })
 
-    #cleanup
+    # cleanup
     login_king
     delete '/source/DummY'
     assert_response :success
@@ -2675,7 +2664,7 @@ XML
     vrev_after_accept = node.value(:vrev)
     assert vrev <= vrev_after_accept
 
-    #cleanup
+    # cleanup
     delete '/source/home:tom:branches:home:Iggy'
     assert_response :success
     # restore original spec file
@@ -2724,7 +2713,7 @@ XML
   def test_create_request_to_hidden_package_from_open_place_valid_user
     request_hidden('adrian', 'buildservice', 'request/to_hidden_from_open_valid')
     assert_response :success
-    #assert_xml_tag( :tag => "state", :attributes => { :name => 'new' } )
+    # assert_xml_tag( :tag => "state", :attributes => { :name => 'new' } )
   end
 
   ## create request to hidden package from open place - invalid user - fail
@@ -2942,7 +2931,6 @@ XML
     assert_response :success
     assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
     assert_xml_tag(:tag => 'target', :attributes => { project: 'c++', package: 'TestPack' })
-
   end
 
   def test_project_delete_request_with_pending
@@ -3092,7 +3080,6 @@ XML
   end
 
   def test_delete_request_id
-
     login_tom
     req = load_backend_file('request/1')
     post '/request?cmd=create', req
@@ -3114,11 +3101,9 @@ XML
 
     get "/request/#{id}"
     assert_response 404
-
   end
 
   def test_reopen_declined_request
-
     login_Iggy
     req = load_backend_file('request/add_role')
     post '/request?cmd=create', req
@@ -3138,7 +3123,6 @@ XML
     post "/request/#{id}?cmd=changestate&newstate=new&comment=oh"
     get "/request/#{id}"
     assert_xml_tag(tag: 'state', attributes: { name: 'review' })
-
   end
 
   # it was reported that requests can't be revoked - test cases verifie sthat
@@ -3199,7 +3183,6 @@ XML
                                   "comment"=>"The target project 'home:Iggy:fordecline' has been removed"},
                                  {"who"=>"Iggy", "when"=>"2010-07-12T00:00:02",
                                   "description"=>"Request got revoked"}] }, node)
-
   end
 
   def test_check_target_maintainer

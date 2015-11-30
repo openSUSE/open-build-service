@@ -1,7 +1,6 @@
 require 'event'
 
 class UpdateNotificationEvents
-
   cattr_accessor :semaphore
 
   def initialize
@@ -70,6 +69,5 @@ class UpdateNotificationEvents
       end
     end
     end while limit_reached
-
   end
 end

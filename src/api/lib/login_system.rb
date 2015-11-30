@@ -1,7 +1,6 @@
 require_dependency "user"
 
 module LoginSystem
-
   protected
 
   # overwrite this if you want to restrict access to only a few actions
@@ -41,7 +40,6 @@ module LoginSystem
   #   def authorize?(user)
   #
   def login_required
-
     if not protect?(action_name)
       return true
     end
@@ -84,5 +82,4 @@ module LoginSystem
       @session[:return_to] = nil
     end
   end
-
 end

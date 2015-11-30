@@ -18,14 +18,14 @@ class PackageTest < ActiveSupport::TestCase
   end
 
   def test_flags_to_axml
-    #check precondition
+    # check precondition
     assert_equal 2, @package.type_flags('build').size
     assert_equal 1, @package.type_flags('publish').size
     assert_equal 1, @package.type_flags('debuginfo').size
 
     xml_string = @package.to_axml
 
-    #check the results
+    # check the results
     xml = REXML::Document.new(xml_string)
     assert_equal 1, xml.root.get_elements("/package/build").size
     assert_equal 2, xml.root.get_elements("/package/build/*").size
@@ -37,15 +37,13 @@ class PackageTest < ActiveSupport::TestCase
     assert_equal 1, xml.root.get_elements("/package/debuginfo/*").size
   end
 
-
   def test_add_new_flags_from_xml
-
-    #precondition check
+    # precondition check
     @package.flags.destroy_all
     @package.reload
     assert_equal 0, @package.flags.size
 
-    #package is given as axml
+    # package is given as axml
     axml = Xmlhash.parse(
         "<package name='TestPack' project='home:Iggy'>
         <title>My Test package</title>
@@ -71,7 +69,7 @@ class PackageTest < ActiveSupport::TestCase
     @package.save
     @package.reload
 
-    #check results
+    # check results
     assert_equal 1, @package.type_flags('build').size
     assert_equal 'enable', @package.type_flags('build')[0].status
     assert_equal '10.2', @package.type_flags('build')[0].repo
@@ -97,16 +95,14 @@ class PackageTest < ActiveSupport::TestCase
     assert_equal 3, @package.type_flags('debuginfo')[0].position
     assert_nil @package.type_flags('debuginfo')[0].project
     assert_equal 'TestPack', @package.type_flags('debuginfo')[0].package.name
-
   end
 
-
   def test_delete_flags_through_xml
-    #check precondition
+    # check precondition
     assert_equal 2, @package.type_flags('build').size
     assert_equal 1, @package.type_flags('publish').size
 
-    #package is given as axml
+    # package is given as axml
     axml = Xmlhash.parse(
         "<package name='TestPack' project='home:Iggy'>
         <title>My Test package</title>
@@ -114,11 +110,10 @@ class PackageTest < ActiveSupport::TestCase
       </package>"
     )
 
-    #first update build-flags, should only delete build-flags
+    # first update build-flags, should only delete build-flags
     @package.update_all_flags(axml)
     assert_equal 0, @package.type_flags('build').size
     assert_equal 0, @package.type_flags('publish').size
-
   end
 
   def test_rating

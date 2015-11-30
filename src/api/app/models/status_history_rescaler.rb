@@ -1,5 +1,4 @@
 class StatusHistoryRescaler
-
   # this is called from a delayed job triggered by clockwork
   def rescale
     maxtime = StatusHistory.maximum(:time)
@@ -10,7 +9,6 @@ class StatusHistoryRescaler
     keys = StatusHistory.pluck('DISTINCT `key`')
     keys.each do |key|
       StatusHistory.transaction do
-
         # first rescale a month old
         cleanup(key, 3600 * 12, 24 * 3600 * 30)
         # now a week old

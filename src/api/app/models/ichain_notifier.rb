@@ -1,5 +1,4 @@
 class IchainNotifier < ActionMailer::Base
-
   def reject(recipient)
     subject 'Buildservice account request rejected'
     recipients recipient.email

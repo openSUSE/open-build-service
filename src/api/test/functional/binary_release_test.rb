@@ -3,7 +3,6 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'xmlhash'
 
 class BinaryReleaseTest < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   def setup
@@ -142,6 +141,5 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "updatefor", :attributes => { project: "BaseDistro", product: "fixed" }
     assert_xml_tag :tag => "product", :attributes => { name: "fixed", version: "1.2" }
   end
-
 end
 # rubocop:enable Metrics/LineLength

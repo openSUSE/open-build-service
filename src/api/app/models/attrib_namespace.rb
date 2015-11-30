@@ -42,5 +42,4 @@ class AttribNamespace < ActiveRecord::Base
   end
 
   #### Alias of methods
-
 end

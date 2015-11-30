@@ -1,7 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class PublishedControllerTest < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   def setup
@@ -75,7 +74,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
 
     login_tom
     get "/published/kde4/openSUSE_11.3/i586/kdelibs-3.2.1-1.5.i586.rpm"
-    assert_response 404 #does not exist
+    assert_response 404 # does not exist
   end
   # FIXME: this needs to be extended, when we have added binaries and bs_publisher to the test suite
 

@@ -109,7 +109,6 @@ class AttribTest < ActiveSupport::TestCase
     assert attrib.valid?, "attrib should be valid: #{attrib.errors.messages}"
   end
 
-
   test 'sets values from default_values and validates allowed_values and value_count' do
     attrib_type = AttribType.new(attrib_namespace: @namespace, name: 'AttribValueCombi')
     attrib_type.allowed_values << AttribAllowedValue.new(value: 'One')
@@ -188,5 +187,4 @@ class AttribTest < ActiveSupport::TestCase
     attrib_type.value_count = 1
     assert attrib.values_addable?
   end
-
 end

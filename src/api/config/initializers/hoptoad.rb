@@ -32,5 +32,4 @@ HoptoadNotifier.configure do |config|
     end
     ret
   end
-
 end

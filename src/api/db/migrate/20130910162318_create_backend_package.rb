@@ -1,7 +1,6 @@
 require 'backend_package'
 
 class CreateBackendPackage < ActiveRecord::Migration
-
   def change
     create_table :backend_packages, id: false do |t|
       t.belongs_to :package, null: false

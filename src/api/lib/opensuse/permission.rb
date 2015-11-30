@@ -1,14 +1,12 @@
-#require "project"
-#require "package"
+# require "project"
+# require "package"
 
 #
 # This is basically only a helper class around permission checking for user model
 #
 
 module Suse
-
   class Permission
-
     def to_s
       return "OpenSUSE Permissions for user #{@user.login}"
     end
@@ -70,7 +68,6 @@ module Suse
     end
 
     def method_missing( perm, *_args, &_block)
-
       logger.debug "Dynamic Permission requested: <#{perm}>"
 
       if @user

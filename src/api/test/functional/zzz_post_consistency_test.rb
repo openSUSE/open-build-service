@@ -30,7 +30,6 @@ class ZZZPostConsistency < ActionDispatch::IntegrationTest
   end
 
   def test_fsck_backend
-
     perlopts="-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
 
     progress=nil

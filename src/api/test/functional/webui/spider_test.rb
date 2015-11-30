@@ -4,7 +4,6 @@ require 'benchmark'
 require 'nokogiri'
 
 class Webui::SpiderTest < Webui::IntegrationTest
-
   def getlinks(baseuri, body)
     # skip some uninteresting projects
     return if baseuri =~ %r{project=home%3Afred}
@@ -95,14 +94,14 @@ class Webui::SpiderTest < Webui::IntegrationTest
       @pages_to_visit.delete theone
 
       begin
-        #puts "V #{theone} #{@pages_to_visit.length}/#{@pages_visited.keys.length+@pages_to_visit.length}"
+        # puts "V #{theone} #{@pages_to_visit.length}/#{@pages_visited.keys.length+@pages_to_visit.length}"
         page.visit(theone)
         if page.status_code != 200
           raiseit("Status code #{page.status_code}", theone)
           return
         end
         if page.response_headers['Content-Type'] !~ %r{text/html}
-          #puts "ignoring #{page.response_headers.inspect}"
+          # puts "ignoring #{page.response_headers.inspect}"
           next
         end
         page.first(:id, 'header-logo')
@@ -116,7 +115,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
       begin
         body = Nokogiri::HTML::Document.parse(page.source).root
       rescue Nokogiri::XML::SyntaxError
-        #puts "HARDCORE!! #{theone}"
+        # puts "HARDCORE!! #{theone}"
       end
       next unless body
       flashes = body.css('div#flash-messages div.ui-state-error')
@@ -165,5 +164,4 @@ class Webui::SpiderTest < Webui::IntegrationTest
 
     @pages_visited.keys.length.must_be :>, 900
   end
-
 end

@@ -2,14 +2,12 @@ require 'nokogiri'
 require 'xmlhash'
 
 module ActiveXML
-
   class GeneralError < StandardError; end
   class NotFoundError < GeneralError; end
   class CreationError < GeneralError; end
   class ParseError < GeneralError; end
 
   class Node
-
     @@elements = {}
     @@xml_time = 0
 
@@ -17,7 +15,6 @@ module ActiveXML
     attr_reader :cache_key
 
     class << self
-
       def logger
         Rails.logger
       end
@@ -43,12 +40,12 @@ module ActiveXML
         @@xml_time = 0
       end
 
-      #transport object, gets defined according to configuration when Base is subclassed
+      # transport object, gets defined according to configuration when Base is subclassed
       attr_reader :transport
 
       def inherited( subclass )
         # called when a subclass is defined
-        #Rails.logger.debug "Initializing ActiveXML model #{subclass}"
+        # Rails.logger.debug "Initializing ActiveXML model #{subclass}"
         subclass.instance_variable_set '@default_find_parameter', @default_find_parameter
       end
       private :inherited
@@ -62,7 +59,7 @@ module ActiveXML
       def setup(transport_object)
         super()
         @@transport = transport_object
-        #Rails.logger.debug "--> ActiveXML successfully set up"
+        # Rails.logger.debug "--> ActiveXML successfully set up"
         true
       end
 
@@ -94,7 +91,7 @@ module ActiveXML
           args[0] = hash
         end
 
-        #Rails.logger.debug "prepared find args: #{args.inspect}"
+        # Rails.logger.debug "prepared find args: #{args.inspect}"
         return args
       end
 
@@ -103,7 +100,7 @@ module ActiveXML
       end
 
       def calc_key( args )
-        #Rails.logger.debug "Cache key for #{args.inspect}"
+        # Rails.logger.debug "Cache key for #{args.inspect}"
         self.name + '_' + Digest::MD5.hexdigest( '2' + args.to_s )
       end
 
@@ -161,10 +158,9 @@ module ActiveXML
 	logger.debug "free_cache #{free_args.inspect} #{key}"
         Rails.cache.delete( key )
       end
-
     end
 
-    #instance methods
+    # instance methods
 
     def initialize( data )
       @init_options = {}
@@ -173,7 +169,7 @@ module ActiveXML
       elsif data.kind_of? String
         self.raw_data = data.clone
       elsif data.kind_of? Hash
-        #create new
+        # create new
         @init_options = data
         stub = self.class.make_stub(data)
         if stub.kind_of? String
@@ -195,7 +191,7 @@ module ActiveXML
     def parse(data)
       raise ParseError.new('Empty XML passed!') if data.empty?
       begin
-        #puts "parse #{self.class}"
+        # puts "parse #{self.class}"
         t0 = Time.now
         @data = Nokogiri::XML::Document.parse(data.to_str.strip, nil, nil, Nokogiri::XML::ParseOptions::STRICT).root
         @@xml_time += Time.now - t0
@@ -225,7 +221,7 @@ module ActiveXML
     end
 
     # remember: this function does not exist!
-    def _data #nodoc
+    def _data # nodoc
       if !@data && @raw_data
         parse(@raw_data)
         # save memory
@@ -240,7 +236,7 @@ module ActiveXML
     end
 
     def text
-      #puts 'text -%s- -%s-' % [data.inner_xml, data.content]
+      # puts 'text -%s- -%s-' % [data.inner_xml, data.content]
       _data.content
     end
 
@@ -293,11 +289,11 @@ module ActiveXML
     # this function is a simplified version of XML::Simple of cpan fame
     def to_hash
       return @hash_cache if @hash_cache
-      #Rails.logger.debug "to_hash #{options.inspect} #{dump_xml}"
+      # Rails.logger.debug "to_hash #{options.inspect} #{dump_xml}"
       t0 = Time.now
       @hash_cache  = Xmlhash.parse(dump_xml)
       @@xml_time += Time.now - t0
-      #Rails.logger.debug "after to_hash #{JSON.pretty_generate(@hash_cache)}"
+      # Rails.logger.debug "after to_hash #{JSON.pretty_generate(@hash_cache)}"
       @hash_cache
     end
 
@@ -310,7 +306,7 @@ module ActiveXML
     end
 
     def to_s
-      #raise "to_s is obsolete #{self.inspect}"
+      # raise "to_s is obsolete #{self.inspect}"
       ret = ''
       _data.children.each do |node|
         if node.text?
@@ -372,9 +368,9 @@ module ActiveXML
       Node.new(_data.parent)
     end
 
-    #tests if a child element exists matching the given query.
-    #query can either be an element name, an xpath, or any object
-    #whose to_s method evaluates to an element name or xpath
+    # tests if a child element exists matching the given query.
+    # query can either be an element name, an xpath, or any object
+    # whose to_s method evaluates to an element name or xpath
     def has_element?( query )
       if @hash_cache && query.kind_of?(Symbol)
         return @hash_cache.has_key? query.to_s
@@ -424,12 +420,12 @@ module ActiveXML
     end
 
     def create_node_with_relations( element )
-      #FIXME: relation stuff should be taken into an extra module
-      #puts element.name
+      # FIXME: relation stuff should be taken into an extra module
+      # puts element.name
       klass = self.class.get_class(element.name)
       node = nil
       node ||= klass.new(element)
-      #Rails.logger.debug "created node: #{node.inspect}"
+      # Rails.logger.debug "created node: #{node.inspect}"
       return node
     end
 
@@ -488,7 +484,7 @@ module ActiveXML
     end
 
     # stay away from this
-    def internal_data #nodoc
+    def internal_data # nodoc
       _data
     end
 
@@ -513,7 +509,7 @@ module ActiveXML
     end
 
     def delete(opt = {})
-      #Rails.logger.debug "Delete #{self.class}, opt: #{opt.inspect}"
+      # Rails.logger.debug "Delete #{self.class}, opt: #{opt.inspect}"
       self.class.transport.delete self, opt
       free_cache
       return true
@@ -523,7 +519,5 @@ module ActiveXML
       Rails.logger.debug "Free_cache -#{@cache_key}-"
       Rails.cache.delete @cache_key if @cache_key
     end
-
   end
-
 end

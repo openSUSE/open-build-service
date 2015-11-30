@@ -1,5 +1,4 @@
 module Webui::ProjectHelper
-
   include Webui::WebuiHelper
 
   protected
@@ -52,7 +51,7 @@ module Webui::ProjectHelper
       if @namespace # corner case where no project object is available
         prj_parents = Project.parent_projects(@namespace)
       else
-        #FIXME: Some controller's @project is a Project object whereas other's @project is a String object.
+        # FIXME: Some controller's @project is a Project object whereas other's @project is a String object.
         prj_parents = Project.parent_projects(@project.to_s)
       end
       project_list = []
@@ -106,7 +105,6 @@ module Webui::ProjectHelper
       return 'red'
     end
   end
-
 
   STATE_ICONS = {
       'new'      => 'flag_green',

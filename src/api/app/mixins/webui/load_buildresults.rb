@@ -1,5 +1,4 @@
 module Webui::LoadBuildresults
-
   def fill_status_cache
     @repohash = Hash.new
     @statushash = Hash.new
@@ -8,7 +7,6 @@ module Webui::LoadBuildresults
     @failures = 0
 
     @buildresult.elements('result') do |result|
-
       @resultvalue = result
       repo = result['repository']
       arch = result['arch']

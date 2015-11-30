@@ -614,7 +614,7 @@ class Package < ActiveRecord::Base
       raise CycleError.new 'Package defines itself as devel package'
     end
     while (pkg.develpackage or pkg.project.develproject)
-      #logger.debug "resolve_devel_package #{pkg.inspect}"
+      # logger.debug "resolve_devel_package #{pkg.inspect}"
 
       # cycle detection
       str = prj_name+'/'+pkg.name
@@ -643,7 +643,7 @@ class Package < ActiveRecord::Base
         pkg = self
       end
     end
-    #logger.debug "WORKED - #{pkg.inspect}"
+    # logger.debug "WORKED - #{pkg.inspect}"
     return pkg
   end
 
@@ -651,7 +651,6 @@ class Package < ActiveRecord::Base
     check_write_access!
 
     Package.transaction do
-
       self.title = xmlhash.value('title')
       self.description = xmlhash.value('description')
       self.bcntsynctag = xmlhash.value('bcntsynctag')
@@ -709,7 +708,7 @@ class Package < ActiveRecord::Base
   end
 
   def reset_cache
-    Rails.cache.delete('xml_package_%d' % id) if id
+    Rails.cache.delete("xml_package_#{id}") if id
   end
 
   def write_to_backend

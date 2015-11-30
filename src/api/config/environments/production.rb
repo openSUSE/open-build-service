@@ -1,7 +1,6 @@
 # Settings specified here will take precedence over those in config/environment.rb
 
 OBSApi::Application.configure do
-
   # The production environment is meant for finished, "live" apps.
   # Code is not reloaded between requests
   config.cache_classes = true
@@ -47,16 +46,15 @@ OBSApi::Application.configure do
 
   # compress our HTML
   config.middleware.use Rack::Deflater
-
 end
 
 # disabled on production for performance reasons
 # CONFIG['response_schema_validation'] = true
 
-#require 'memory_debugger'
+# require 'memory_debugger'
 # dumps the objects after every request
-#config.middleware.insert(0, MemoryDebugger)
+# config.middleware.insert(0, MemoryDebugger)
 
-#require 'memory_dumper'
+# require 'memory_dumper'
 # dumps the full heap after next request on SIGURG
-#config.middleware.insert(0, MemoryDumper)
+# config.middleware.insert(0, MemoryDumper)

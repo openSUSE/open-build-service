@@ -1,7 +1,6 @@
 require 'xmlhash'
 
 class PersonController < ApplicationController
-
   validate_action :userinfo => {:method => :get, :response => :user}
   validate_action :userinfo => {:method => :put, :request => :user, :response => :status}
   validate_action :grouplist => {:method => :get, :response => :directory}
@@ -186,7 +185,7 @@ class PersonController < ApplicationController
   private :update_globalroles
 
   def change_my_password
-    #FIXME3.0: remove this function
+    # FIXME3.0: remove this function
     xml = REXML::Document.new( request.raw_post )
 
     logger.debug( "changepasswd XML: #{request.raw_post}" )
@@ -214,7 +213,7 @@ class PersonController < ApplicationController
     end
     user = User.get_by_login(login)
 
-    #change password to LDAP if LDAP is enabled
+    # change password to LDAP if LDAP is enabled
     if CONFIG['ldap_mode'] == :on
       ldap_password = Base64.decode64(password)
       if CONFIG['ldap_ssl'] == :on
@@ -236,7 +235,7 @@ class PersonController < ApplicationController
       end
     end
 
-    #update password in users db
+    # update password in users db
     user.update_password( password )
     user.save!
   end
@@ -275,5 +274,4 @@ class PersonController < ApplicationController
     token.destroy
     render_ok
   end
-
 end

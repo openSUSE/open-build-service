@@ -167,7 +167,6 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
   end
 
   def merge_into_maintenance_incident(incidentProject, source_project, source_package, releaseproject = nil, request = nil)
-
     # copy all or selected packages and project source files from base project
     # we don't branch from it to keep the link target.
     pkg = _merge_pkg_into_maintenance_incident(incidentProject, source_project, source_package, releaseproject, request)
@@ -218,5 +217,4 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
   end
 
   #### Alias of methods
-
 end

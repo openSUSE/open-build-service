@@ -1,13 +1,11 @@
 require_relative '../test_helper'
 
 class UserLdapStrategyTest < ActiveSupport::TestCase
-
   def setup
-    #Rails.logger = Logger.new(STDOUT)
+    # Rails.logger = Logger.new(STDOUT)
   end
 
   def test_authenticate_with_local
-
     a = UserLdapStrategy.authenticate_with_local("", {})
     assert a == false
 
@@ -59,5 +57,4 @@ class UserLdapStrategyTest < ActiveSupport::TestCase
     a = UserLdapStrategy.dn2user_principal_name([" dc=opensuse,dc=org"])
     assert a.empty?
   end
-
 end

@@ -9,7 +9,7 @@ class TagTest < ActiveSupport::TestCase
     t.created_at = "2007-03-09 14:57:54"
     assert t.save == false
 
-    #expected error message
+    # expected error message
     assert_equal "The tag is blacklisted!", t.errors[:name].join(';')
 
     t = Tag.new
@@ -17,7 +17,7 @@ class TagTest < ActiveSupport::TestCase
     t.created_at = "2007-03-09 14:57:54"
     assert t.save == false
 
-    #expected error message
+    # expected error message
     assert_equal "no ? and : allowed!", t.errors[:name].join(';')
 
     t = Tag.new
@@ -25,15 +25,12 @@ class TagTest < ActiveSupport::TestCase
     t.created_at = "2007-03-09 14:57:54"
     assert t.save == false
 
-    #expected error message
+    # expected error message
     assert_equal "no ? and : allowed!", t.errors[:name].join(';')
-
   end
 
-
   def test_count
-
-    #non-user context
+    # non-user context
     t = Tag.find_by_name("TagA")
     assert_kind_of Tag, t
     assert_equal 3, t.count, "Wrong tag-count for TagA."
@@ -42,7 +39,7 @@ class TagTest < ActiveSupport::TestCase
     assert_kind_of Tag, t
     assert_equal 4, t.count, "Wrong tag-count for TagB."
 
-    #user-context
+    # user-context
     u = User.find_by_login('Iggy')
     assert_kind_of User, u
 
@@ -55,16 +52,13 @@ class TagTest < ActiveSupport::TestCase
     t = Tag.find_by_name("TagB")
     assert_kind_of Tag, t
     assert_equal 2, t.count(opt), "Wrong user-dependant tag-count for TagB."
-
   end
 
-
   def test_count_by_given_tags
-
-    #by-given-tags context
+    # by-given-tags context
     tags = Array.new
 
-    #prepare the array of tags
+    # prepare the array of tags
     2.times do
       t = Tag.find_by_name("TagA")
       assert_kind_of Tag, t
@@ -83,15 +77,14 @@ class TagTest < ActiveSupport::TestCase
       tags << t
     end
 
-
-    #calculate tag count
+    # calculate tag count
     tags.each do |tag|
       tag.count(:scope => "by_given_tags", :tags => tags)
     end
 
     tags.uniq!
 
-    #check the results
+    # check the results
     assert_equal "TagA", tags[0].name
     assert_equal 2, tags[0].cached_count
 
@@ -100,7 +93,5 @@ class TagTest < ActiveSupport::TestCase
 
     assert_equal "TagC", tags[2].name
     assert_equal 4, tags[2].cached_count
-
   end
-
 end

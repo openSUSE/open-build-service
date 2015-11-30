@@ -69,7 +69,6 @@ class Event::BuildFail < Event::Build
     h['X-OBS-Rebuild-Reason'] = payload['reason']
     h
   end
-
 end
 
 class Event::BuildUnchanged < Event::Build

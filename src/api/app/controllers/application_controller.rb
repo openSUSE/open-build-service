@@ -7,7 +7,6 @@ require_dependency 'opensuse/validator'
 require_dependency 'api_exception'
 
 class ApplicationController < ActionController::Base
-
   include Pundit
   protect_from_forgery
 
@@ -42,7 +41,7 @@ class ApplicationController < ActionController::Base
   before_action :validate_params
   before_action :require_login
 
-  #contains current authentification method, one of (:proxy, :basic)
+  # contains current authentification method, one of (:proxy, :basic)
   attr_accessor :auth_method
 
   def pundit_user
@@ -160,7 +159,6 @@ class ApplicationController < ActionController::Base
     else
       logger.debug( "User not found with LDAP, falling back to database" )
     end
-
   end
 
   def extract_proxy_user
@@ -198,7 +196,6 @@ class ApplicationController < ActionController::Base
     else
       logger.error "No X-username header from login proxy! Are we really using an authentification proxy?"
     end
-
   end
 
   def authorization_infos
@@ -222,7 +219,7 @@ class ApplicationController < ActionController::Base
       # logger.debug( "AUTH2: #{authorization}" )
       @login, @passwd = Base64.decode64(authorization[1]).split(':', 2)[0..1]
 
-      #set password to the empty string in case no password is transmitted in the auth string
+      # set password to the empty string in case no password is transmitted in the auth string
       @passwd ||= ""
     else
       logger.debug "no authentication string was sent"
@@ -311,7 +308,6 @@ class ApplicationController < ActionController::Base
 
   hide_action :forward_from_backend
   def forward_from_backend(path)
-
     # apache & mod_xforward case
     if CONFIG['use_xforward'] and CONFIG['use_xforward'] != "false"
       logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
@@ -399,7 +395,6 @@ class ApplicationController < ActionController::Base
   end
 
   def pass_to_backend( path = nil )
-
     path ||= get_request_path
 
     if request.get? || request.head?
@@ -537,7 +532,6 @@ class ApplicationController < ActionController::Base
     else
       @errorcode ||= 'unknown'
     end
-
   end
 
   def render_error( opt = {} )
@@ -642,6 +636,7 @@ class ApplicationController < ActionController::Base
     def initialize(req)
       @req = req
     end
+
     def to_s
       @req.raw_post
     end
@@ -678,8 +673,8 @@ class ApplicationController < ActionController::Base
   end
 
   private
+
   def shutup_rails
     Rails.cache.silence! unless Rails.env.development?
   end
-
 end

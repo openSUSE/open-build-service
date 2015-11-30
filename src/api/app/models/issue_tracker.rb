@@ -205,7 +205,7 @@ class IssueTracker < ActiveRecord::Base
         issue.state = Issue.bugzilla_state(r["status"])
       end
       u = User.find_by_email(r["assigned_to"].to_s)
-      logger.info "Bugzilla user #{r["assigned_to"].to_s} is not found in OBS user database" unless u
+      logger.info "Bugzilla user #{r["assigned_to"]} is not found in OBS user database" unless u
       issue.owner_id = u.id if u
       issue.updated_at = @update_time_stamp
       if r["is_private"]
@@ -297,7 +297,6 @@ class IssueTracker < ActiveRecord::Base
     server.password=self.password if self.password
     return server.proxy('Bug')
   end
-
 end
 
 # internal CVE parser class

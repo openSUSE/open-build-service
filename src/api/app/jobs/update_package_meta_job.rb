@@ -1,5 +1,4 @@
 class UpdatePackageMetaJob < ActiveJob::Base
-
   def scan_links
     names = Package.distinct(:name).order(:name).pluck(:name)
     while !names.empty?
@@ -27,5 +26,4 @@ class UpdatePackageMetaJob < ActiveJob::Base
 
     BackendPackage.refresh_dirty
   end
-
 end

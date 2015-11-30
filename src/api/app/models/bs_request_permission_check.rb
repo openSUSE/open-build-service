@@ -1,5 +1,4 @@
 class BsRequestPermissionCheck
-
   class AddReviewNotPermitted < APIException
     setup 403
   end
@@ -39,7 +38,6 @@ class BsRequestPermissionCheck
   end
 
   def check_accepted_action(action)
-
     if not @target_project
       raise NotExistingTarget.new "Unable to process project #{action.target_project}; it does not exist."
     end
@@ -130,7 +128,6 @@ class BsRequestPermissionCheck
 
   # check if the action can change state - or throw an APIException if not
   def check_newstate_action!(action, opts)
-
     # relaxed checks for final exit states
     return if %w(declined revoked superseded).include? opts[:newstate]
 
@@ -175,7 +172,6 @@ class BsRequestPermissionCheck
   end
 
   def set_permissions_for_action(action)
-
     # general write permission check on the target on accept
     @write_permission_in_this_action = false
 
@@ -419,5 +415,4 @@ class BsRequestPermissionCheck
         end
     raise PostRequestNoPermission.new err if err
   end
-
 end

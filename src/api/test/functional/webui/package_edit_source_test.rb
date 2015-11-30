@@ -86,7 +86,6 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
     end
   end
 
-
   def test_erase_file_content
     find(:css, "tr##{valid_xml_id('file-myfile')} td:first-child a").click
     page.must_have_text "File myfile of Package #{@package}"
@@ -130,7 +129,6 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
     content = @package_object.source_file('myfile')
     assert_equal edit_text.inspect, content.inspect
   end
-
 
   def test_add_new_source_file_to_home_project_package
     open_add_file

@@ -67,5 +67,4 @@ class BuildContainer < ActiveRecord::Base
   def status
     return self.state
   end
-
 end

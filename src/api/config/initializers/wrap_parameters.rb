@@ -23,7 +23,6 @@ OBSApi::Application.config.middleware.delete "ActionDispatch::ParamsParser"
 # custom params parser (modified form of ActionDispatch::ParamsParser)
 
 class MyParamsParser
-
   class ParseError < APIException
   end
 

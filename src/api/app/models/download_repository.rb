@@ -9,5 +9,4 @@ class DownloadRepository < ActiveRecord::Base
 # def self._sync_keys
 #   [ :arch, :url ]
 # end
-
 end

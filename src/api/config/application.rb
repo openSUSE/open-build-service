@@ -49,14 +49,14 @@ module OBSApi
     config.assets.version = '1.0'
 
     # Skip frameworks you're not going to use
-    #config.frameworks -= [ :action_web_service, :active_resource ]
+    # config.frameworks -= [ :action_web_service, :active_resource ]
 
     # Add additional load paths for your own custom dirs
     # config.load_paths += %W( #{Rails.root}/extras )
 
     # Rails.root is not working directory when running under lighttpd, so it has
     # to be added to load path
-    #config.load_paths << Rails.root unless config.load_paths.include? Rails.root
+    # config.load_paths << Rails.root unless config.load_paths.include? Rails.root
 
     # Force all environments to use the same logger level
     # (by default production uses :info, the others :debug)

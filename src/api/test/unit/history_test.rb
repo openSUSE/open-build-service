@@ -20,5 +20,4 @@ class HistoryTest < ActionMailer::TestCase
     list = History.find_by_request(req)
     assert_equal list.length, 2
   end
-
 end

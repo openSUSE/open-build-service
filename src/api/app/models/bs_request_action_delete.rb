@@ -75,5 +75,4 @@ class BsRequestActionDelete < BsRequestAction
   end
 
   #### Alias of methods
-
 end

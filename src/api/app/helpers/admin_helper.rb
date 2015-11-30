@@ -1,9 +1,7 @@
-
 require 'api_exception'
 require 'xmlhash'
 
 module AdminHelper
-
   def consistency_check(fix = nil)
     errors = ""
     errors = project_existens_consistency_check(fix)

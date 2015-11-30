@@ -1,5 +1,4 @@
 module Webui::HasComments
-
   # This is a nice but useless reimplementation of nested objects. Good work but nahhhhh
   def save_comment
     require_login || return
@@ -17,5 +16,4 @@ module Webui::HasComments
       end
     end
   end
-
 end

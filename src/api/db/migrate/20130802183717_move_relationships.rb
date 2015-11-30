@@ -1,5 +1,4 @@
 class MoveRelationships < ActiveRecord::Migration
-
   class PackageUserRoleRelationship < ActiveRecord::Base; end
   class PackageGroupRoleRelationship < ActiveRecord::Base; end
   class ProjectUserRoleRelationship < ActiveRecord::Base; end

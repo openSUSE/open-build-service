@@ -18,14 +18,13 @@ class IssueTest < ActiveSupport::TestCase
   end
 
   def test_create_and_destroy
-
     stub_request(:post, "http://bugzilla.novell.com/xmlrpc.cgi").
         with(body: BugGet0815).
         to_return(:status => 200,
                   body: load_backend_file("bugzilla_get_0815.xml"),
                   headers: {})
 
-    #pkg = Package.find( 10095 )
+    # pkg = Package.find( 10095 )
     iggy = User.find_by_email("Iggy@pop.org")
     bnc = IssueTracker.find_by_name("bnc")
     issue = Issue.create :name => '0815', :issue_tracker => bnc
@@ -48,7 +47,6 @@ class IssueTest < ActiveSupport::TestCase
             </struct></value></param></params></methodCall>\n"
 
   test "fetch issues" do
-
     stub_request(:post, "http://bugzilla.novell.com/xmlrpc.cgi").
         with(body: BugSearch).
         to_return(:status => 200,

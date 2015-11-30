@@ -1,9 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class BackendTests < ActionDispatch::IntegrationTest
-
   def test_validate_bsxml
-
     perlopts="-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
     dir = "#{Rails.root}/../../docs/api/api/"
 
@@ -45,7 +43,6 @@ class BackendTests < ActionDispatch::IntegrationTest
       r = system("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} -mXML::Structured -mBSXML -mBSUtil -e \"use XML::Structured ':bytes'; BSUtil::readxml('#{dir}#{f}', \\\$BSXML::#{schema}, 0);\" 2>&1")
       # rubocop:enable Metrics/LineLength
       assert_equal true, r
-
     end
   end
 end

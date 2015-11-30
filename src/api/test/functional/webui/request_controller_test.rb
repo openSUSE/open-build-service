@@ -1,7 +1,6 @@
 require_relative '../../test_helper'
 
 class Webui::RequestControllerTest < Webui::IntegrationTest
-
   uses_transaction :test_can_request_role_addition_for_packages
   uses_transaction :test_can_request_role_addition_for_projects
   uses_transaction :test_submit_package_and_revoke
@@ -79,7 +78,6 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     logout
     login_Iggy to: package_show_path(project: 'Apache', package: 'apache2')
     page.wont_have_link 'Request role addition'
-
   end
 
   def test_superseding_is_displayed_when_needed
@@ -171,7 +169,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
 
     click_link 'Add a review'
     page.must_have_text 'Add Reviewer'
-    #test switching reviewer type
+    # test switching reviewer type
     find(:id, 'review_type').select('Group')
     page.must_have_text 'Group:'
     fill_in 'review_group', with: 'test_group_b'
@@ -356,5 +354,4 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     assert_equal 'Request 4 commented by tom (submit Apache/BranchPack)', email.subject
     verify_email('another_comment_event', '4', email)
   end
-
 end

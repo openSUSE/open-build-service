@@ -1,5 +1,4 @@
 module CommentEvent
-
   def self.included(base)
     base.class_eval do
       payload_keys :commenters, :commenter, :comment_body, :comment_title
@@ -32,7 +31,6 @@ class Event::CommentForProject < ::Event::Project
   def subject
     "New comment in project #{payload['project']} by #{User.find(payload['commenter']).login}"
   end
-
 end
 
 class Event::CommentForPackage < ::Event::Package
@@ -44,11 +42,9 @@ class Event::CommentForPackage < ::Event::Package
   def subject
     "New comment in package #{payload['project']}/#{payload['package']} by #{User.find(payload['commenter']).login}"
   end
-
 end
 
 class Event::CommentForRequest < ::Event::Request
-
   include CommentEvent
   self.description = 'New comment for request created'
   payload_keys :request_id

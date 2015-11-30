@@ -1,5 +1,4 @@
 class AddPrimaryToRepositoryArchitectures < ActiveRecord::Migration
-
   class RepositoryArchitecture < ActiveRecord::Base
   end
 

@@ -1,5 +1,4 @@
 module Webui::CommentHelper
-
   # This could also be solved with
   # http://apidock.com/rails/ActiveRecord/NestedAttributes/ClassMethods/accepts_nested_attributes_for
   def save_comment_form

@@ -1,7 +1,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
-
   def setup
     reset_auth
   end
@@ -53,7 +52,7 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
     get '/issue_trackers/test.json'
     assert_response :success
 
-#FIXME: check backend data
+# FIXME: check backend data
 
     # Update that issue tracker
     issue_tracker_xml = <<-EOF

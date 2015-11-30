@@ -1,7 +1,6 @@
 require_relative '../../test_helper'
 
 class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
-
   def test_full_maintenance_workflow
     use_js
 
@@ -125,7 +124,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     find(:css, 'span.ui-icon.ui-icon-info').must_have_text %r{Set target of request.*to incident 0}
     find(:id, 'accept_request_button').click
 
-    #TODO: make it unique find(:link, "0").click
+    # TODO: make it unique find(:link, "0").click
     visit project_show_path 'My:Maintenance:0'
     find(:link, 'Request to release').click
 
@@ -137,5 +136,4 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     find(:css, 'span.ui-icon.ui-icon-alert').must_have_text "The repository 'My:Maintenance:0' / 'BaseDistro2.0_LinkedUpdateProject' / i586 did not finish the build yet"
     # rubocop:enable Metrics/LineLength
   end
-
 end

@@ -5,7 +5,6 @@ require 'builder/xchar'
 require 'event'
 
 class SourceController < ApplicationController
-
   class IllegalRequest < APIException
     setup 404, 'Illegal request'
   end
@@ -287,7 +286,6 @@ class SourceController < ApplicationController
   end
 
   def delete_package
-
     # checks
     if @target_package_name == '_project'
       raise DeletePackageNoPermission.new '_project package can not be deleted.'
@@ -321,7 +319,7 @@ class SourceController < ApplicationController
   def require_package
     # init and validation
     #--------------------
-    #admin_user = User.current.is_admin?
+    # admin_user = User.current.is_admin?
     @deleted_package = params.has_key? :deleted
 
     # FIXME: for OBS 3, api of branch and copy calls have target and source in the opossite place
@@ -333,7 +331,6 @@ class SourceController < ApplicationController
       @target_project_name = params[:project]
       @target_package_name = params[:package]
     end
-
   end
 
   class NoMatchingReleaseTarget < APIException
@@ -406,7 +403,6 @@ class SourceController < ApplicationController
 
     dispatch_command(:package_command, @command)
   end
-
 
   Source_untouched_commands = %w(branch diff linkdiff servicediff showlinked rebuild wipe remove_flag set_flag getprojectservices)
   # list of cammands which create the target package
@@ -640,7 +636,7 @@ class SourceController < ApplicationController
     params[:user] = User.current.login
     path = pubkey_path
 
-    #check for permissions
+    # check for permissions
     upperProject = @prj.name.gsub(/:[^:]*$/, '')
     while upperProject != @prj.name and not upperProject.blank?
       if Project.exists_by_name(upperProject) and User.current.can_modify_project?(Project.get_by_name(upperProject))
@@ -742,7 +738,6 @@ class SourceController < ApplicationController
 
   # GET /source/:project/:package/:filename
   def get_file
-
     project_name = params[:project]
     package_name = params[:package]
     file = params[:filename]
@@ -788,7 +783,7 @@ class SourceController < ApplicationController
     @file = params[:filename]
     @path = Package.source_path @project_name, @package_name, @file
 
-    #authenticate
+    # authenticate
     params[:user] = User.current.login
 
     @prj = Project.get_by_name(@project_name)
@@ -909,7 +904,6 @@ class SourceController < ApplicationController
   end
 
   class RepoDependency < APIException
-
   end
 
   # POST /source?cmd=branch (aka osc mbranch)
@@ -1006,7 +1000,6 @@ class SourceController < ApplicationController
 
   # POST /source/<project>?cmd=undelete
   def project_command_undelete
-
     unless User.current.can_create_project?(params[:project])
       raise CmdExecutionNoPermission.new "no permission to execute command 'undelete'"
     end
@@ -1194,7 +1187,7 @@ class SourceController < ApplicationController
 
   # POST /source/<project>?cmd=createpatchinfo
   def project_command_createpatchinfo
-    #project_name = params[:project]
+    # project_name = params[:project]
     # a new_format argument may be given but we don't support the old (and experimental marked) format
     # anymore
 
@@ -1267,7 +1260,6 @@ class SourceController < ApplicationController
   # create a id collection of all packages doing a package source link to this one
   # POST /source/<project>/<package>?cmd=showlinked
   def package_command_showlinked
-
     unless @package
       # package comes from remote instance or is hidden
 
@@ -1302,7 +1294,6 @@ class SourceController < ApplicationController
     path = request.path_info
     path << build_query_from_hash(params, [:cmd, :user, :comment, :orev, :oproject, :opackage])
     pass_to_backend path
-
   end
 
   # POST /source/<project>/<package>?cmd=instantiate
@@ -1316,7 +1307,7 @@ class SourceController < ApplicationController
     unless User.current.can_modify_project?(project)
       raise CmdExecutionNoPermission.new "no permission to execute command 'copy'"
     end
-    unless User.current.can_modify_package?(opackage, true) #ignoreLock option
+    unless User.current.can_modify_package?(opackage, true) # ignoreLock option
       raise CmdExecutionNoPermission.new "no permission to modify source package"
     end
 
@@ -1330,7 +1321,6 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=undelete
   def package_command_undelete
-
     if Package.exists_by_project_and_name(@target_project_name, @target_package_name, follow_project_links: false)
       raise PackageExists.new "the package exists already #{@target_project_name} #{@target_package_name}"
     end
@@ -1404,7 +1394,6 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=commit
   def package_command_commit
-
     path = request.path_info
     path += build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
     pass_to_backend path
@@ -1416,7 +1405,6 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=commitfilelist
   def package_command_commitfilelist
-
     path = request.path_info
     path += build_query_from_hash(params, [:cmd, :user, :comment, :rev, :linkrev, :keeplink, :repairlink])
     answer = pass_to_backend path
@@ -1428,8 +1416,8 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=diff
   def package_command_diff
-    #oproject_name = params[:oproject]
-    #opackage_name = params[:opackage]
+    # oproject_name = params[:oproject]
+    # opackage_name = params[:opackage]
 
     path = request.path_info
     path += build_query_from_hash(params, [:cmd, :rev, :orev, :oproject, :opackage, :expand, :linkrev, :olinkrev,
@@ -1455,7 +1443,6 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=copy
   def package_command_copy
-
     verify_can_modify_target!
 
     if @spkg
@@ -1501,7 +1488,6 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=release
   def package_command_release
-
     pkg = Package.get_by_project_and_name params[:project], params[:package], use_source: true, follow_project_links: false
 
     # specified target
@@ -1545,7 +1531,6 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=runservice
   def package_command_runservice
-
     path = request.path_info
     path += build_query_from_hash(params, [:cmd, :comment, :user])
     pass_to_backend path
@@ -1555,7 +1540,6 @@ class SourceController < ApplicationController
 
   # POST /source/<project>/<package>?cmd=deleteuploadrev
   def package_command_deleteuploadrev
-
     path = request.path_info
     path += build_query_from_hash(params, [:cmd])
     pass_to_backend path
@@ -1566,7 +1550,7 @@ class SourceController < ApplicationController
     pkg_rev = params[:rev]
     pkg_linkrev = params[:linkrev]
 
-    #convert link to branch
+    # convert link to branch
     rev = ''
     if not pkg_rev.nil? and not pkg_rev.empty?
       rev = "&orev=#{pkg_rev}"

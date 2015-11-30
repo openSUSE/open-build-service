@@ -14,7 +14,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
   end
 
   def test_kgraft_update_setup
-
     Timecop.freeze(2010, 7, 12)
 
     # setup 'My:Maintenance' as a maintenance project by fetching it's meta and set a type
@@ -177,7 +176,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                    :tag => "releasetarget",
                    :attributes => { :project => "BaseDistro2Channel", :repository => "channel_repo", :trigger => "maintenance" }
 
-
     # Create patchinfo informations
     Timecop.freeze(1)
     post "/source/#{incidentProject}?cmd=createpatchinfo&force=1"
@@ -216,7 +214,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                :tag => 'status', :attributes => { package: 'kgraft-GA.BaseDistro2.0', code: 'scheduled' }
     assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro2.0', arch: 'i586', code: 'building' } },
                :tag => 'status', :attributes => { package: 'patchinfo', code: 'blocked' }
-
 
     # upload build result as a worker would do
     inject_build_job( incidentProject, "kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}",
@@ -352,5 +349,4 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     delete "/source/Channel"
     assert_response :success
   end
-
 end

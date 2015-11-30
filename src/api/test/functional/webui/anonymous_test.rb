@@ -1,7 +1,6 @@
 require_relative '../../test_helper'
 
 class Webui::AnonymousTest < Webui::IntegrationTest
-
   def test_Disable_anonymous_access
     # Check general access
     visit root_path
@@ -26,5 +25,4 @@ class Webui::AnonymousTest < Webui::IntegrationTest
     config.anonymous = true
     config.save!
   end
-
 end

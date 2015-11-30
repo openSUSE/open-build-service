@@ -1,7 +1,6 @@
 require_relative '../../test_helper'
 
 class Webui::HasFlagsTest < Webui::IntegrationTest
-
   def test_project_flag_create
     # FIXME: All of this is highly dependent on javascript execution.
     # Unhiding the flagtoggles, posting the link (unobstrusive javascript)
@@ -107,5 +106,4 @@ class Webui::HasFlagsTest < Webui::IntegrationTest
     assert_equal 1, all(:xpath, "//table[@id='flag_table_debuginfo']/tbody/tr/th[text()='x86_64']").count
     assert_equal 1, all(:xpath, "//table[@id='flag_table_useforbuild']/tbody/tr/th[text()='x86_64']").count
   end
-
 end

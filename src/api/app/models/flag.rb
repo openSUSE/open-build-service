@@ -122,7 +122,4 @@ class Flag < ActiveRecord::Base
     ret += "_#{architecture.name}" unless architecture_id.blank?
     ret
   end
-
-
-
 end

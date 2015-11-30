@@ -357,7 +357,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'data', :attributes => { name: 'sourceproject' }, :content => 'ServicePack'
     assert_xml_tag :tag => 'data', :attributes => { name: 'sourcepackage' }, :content => 'kdelibs'
 
-    #cleanup
+    # cleanup
     login_king
     delete '/source/ServicePack'
     assert_response :success
@@ -382,7 +382,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/source/BaseDistro:Update/pack2/_meta"
     assert_response :success
     assert_xml_tag :tag => 'package', :attributes => { project: 'BaseDistro:Update', name: 'pack2' }
-
 
     post '/source/ServicePack/pack2', :cmd => 'branch'
     assert_response :success
@@ -587,7 +586,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response 403
     assert_xml_tag :tag => 'status', :attributes => { code: 'create_project_no_permission' }
 
-#FIXME: backend has a bug that it destroys the link even with keeplink if opackage has no rev
+# FIXME: backend has a bug that it destroys the link even with keeplink if opackage has no rev
     put '/source/home:coolo:test/kdelibs_DEVEL_package/DUMMY', 'CONTENT'
     assert_response :success
 
@@ -714,7 +713,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     incidentProject=data.elements['/request/action/target'].attributes.get_attribute('project').to_s
     assert_not_equal incidentProject, 'My:Maintenance'
 
-    #validate cleanup
+    # validate cleanup
     get '/source/home:tom:branches:OBS_Maintained:pack2'
     assert_response 404
 
@@ -797,7 +796,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag( :tag => 'data', :attributes => { name: 'targetproject' } )
     data = REXML::Document.new(@response.body)
     incidentProject=data.elements['/status/data'].text
-    #incidentID=incidentProject.gsub( /^Temp:Maintenance:/, "" )
+    # incidentID=incidentProject.gsub( /^Temp:Maintenance:/, "" )
     get "/source/#{incidentProject}/_meta"
     assert_xml_tag( :tag => 'project', :attributes => { kind: 'maintenance_incident' } )
     assert_xml_tag( :parent => { tag: 'build' }, :tag => 'disable', :content => nil )
@@ -811,7 +810,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag( :tag => 'data', :attributes => { name: 'targetproject' } )
     data = REXML::Document.new(@response.body)
     incidentProject2=data.elements['/status/data'].text
-    #incidentID2=incidentProject2.gsub( /^Temp:Maintenance:/, "" )
+    # incidentID2=incidentProject2.gsub( /^Temp:Maintenance:/, "" )
     get "/source/#{incidentProject2}/_meta"
     assert_xml_tag( :parent => { tag: 'build' }, :tag => 'disable', :content => nil )
     assert_xml_tag( :parent => { tag: 'access' }, :tag => 'disable', :content => nil )
@@ -855,13 +854,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag( :tag => 'link', :attributes => { project: nil })
     assert_xml_tag( :tag => 'link', :attributes => { package: 'DUMMY_package.BaseDistro2.0_LinkedUpdateProject' })
 
-    #cleanup
+    # cleanup
     delete '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject'
     assert_response :success
   end
 
   def test_create_maintenance_project_and_release_packages
-
     # the birthday of J.K.
     Timecop.freeze(2010, 7, 12)
 
@@ -995,7 +993,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/source/#{incidentProject}/patchinfo/_patchinfo"
     assert_response :success
     assert_xml_tag( :tag => 'patchinfo', :attributes => { incident: incidentID } )
-    #FIXME: add another patchinfo pointing to a third place
+    # FIXME: add another patchinfo pointing to a third place
     # add required informations about the update
     pi = ActiveXML::Node.new( @response.body )
     pi.find_first('summary').text = 'if you are bored'
@@ -1101,7 +1099,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                :tag => 'status', :attributes => { package: 'packNew.BaseDistro2.0_LinkedUpdateProject', code: 'disabled' }
     assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro3', arch: 'i586' } },
                :tag => 'status', :attributes => { package: 'pack2.BaseDistro3', code: 'scheduled' }
-
 
     # try to create release request too early
     post '/request?cmd=create', '<request>
@@ -1385,7 +1382,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
     assert_response 400
     assert_xml_tag(:tag => 'status', :attributes => { :code => "invalid_date" })
-    post "/source/#{incidentProject}/_attribute", "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{(DateTime.now+1.day).to_s}</value></attribute></attributes>"
+    post "/source/#{incidentProject}/_attribute", "<attributes><attribute namespace='OBS' name='EmbargoDate'><value>#{(DateTime.now+1.day)}</value></attribute></attributes>"
     assert_response :success
     post "/request/#{reqid}?cmd=changestate&newstate=accepted&comment=releasing"
     assert_response 400
@@ -1469,7 +1466,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/build/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/patchinfo.#{incidentID}/updateinfo.xml"
     assert_response :success
     # check for changed updateinfoid
-    assert_xml_tag :parent => { tag: 'update', attributes: { from: 'maintenance_coord', status: 'stable', type: 'security', version: '1' } }, :tag => 'id', :content => "My-oldname-#{Time.now.utc.year.to_s}-1"
+    assert_xml_tag :parent => { tag: 'update', attributes: { from: 'maintenance_coord', status: 'stable', type: 'security', version: '1' } }, :tag => 'id', :content => "My-oldname-#{Time.now.utc.year}-1"
     # check :full tree
     get '/build/BaseDistro2.0:LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/i586/_repository'
     assert_response :success
@@ -1564,7 +1561,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     IO.popen("gunzip -cd #{Rails.root}/tmp/backend_data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/*-filelists.xml.gz") do |io|
        hashed = Xmlhash.parse(io.read)
     end
-    #STDERR.puts JSON.pretty_generate(hashed)
+    # STDERR.puts JSON.pretty_generate(hashed)
     assert hashed['package'].map{|f| f['file']}.include? '/my_packaged_file'
     # master tags
     IO.popen("cat #{Rails.root}/tmp/backend_data/repos/BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo/repodata/repomd.xml") do |io|
@@ -1665,14 +1662,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:vrev)
-    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+1).to_s}.1" # got increased and extended by .1
+    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+1)}.1" # got increased and extended by .1
     get '/source/BaseDistro2.0:ServicePack1/pack2?view=info'
     assert_response :success
     get '/source/BaseDistro2.0:ServicePack1/pack2.linked?view=info'
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:vrev)
-    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+2).to_s}" # got increased by 2
+    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+2)}" # got increased by 2
 
     # new packages in Update project found, even we just project-link only to GA
     post '/source/BaseDistro2.0:LinkedUpdateProject/packNEW?cmd=copy&oproject=BaseDistro2.0&opackage=pack2'
@@ -1719,12 +1716,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:vrev)
-    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+1).to_s}.4" # is higher
+    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+1)}.4" # is higher
     get '/source/BaseDistro2.0:LinkedUpdateProject/pack2?view=info'
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:vrev)
-    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+1).to_s}.2.1" # got extended again
+    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+1)}.2.1" # got extended again
     delete '/source/BaseDistro2.0:ServicePack1/pack2.linked'
     assert_response :success
     delete '/source/BaseDistro2.0:ServicePack1/pack2'
@@ -1760,7 +1757,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:vrev)
-    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+1).to_s}.2.1" # untouched
+    assert_equal node.value(:vrev), "#{vrev1}.#{(vrev2.to_i+1)}.2.1" # untouched
 
     # cleanup
     delete '/source/home:king:branches:BaseDistro2.0:LinkedUpdateProject'
@@ -1884,7 +1881,6 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response 400
     assert_xml_tag :tag => 'status', :attributes => { code: 'repository_without_releasetarget' }
 
-
     # try with server side request expansion
     rq = '<request>
            <action type="maintenance_release">
@@ -1897,7 +1893,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'status', :attributes => { code: 'missing_patchinfo' }
     post '/request?cmd=create&ignore_build_state=1', rq
     assert_response 400
-    #assert_xml_tag :tag => 'status', :attributes => { code: 'wrong_linked_package_source' }
+    # assert_xml_tag :tag => 'status', :attributes => { code: 'wrong_linked_package_source' }
     assert_xml_tag :tag => 'status', :attributes => { code: 'missing_action' }
 
     # add a release target
@@ -2074,7 +2070,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     post "/request/#{reqid}?cmd=changestate&newstate=revoked"
     assert_response :success
 
-    #cleanup
+    # cleanup
     login_king
     put '/source/BaseDistro:Update/_meta', originmeta.dump_xml
     assert_response :success
@@ -2275,10 +2271,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     copysrcmd5 = last_revision(copyhistory).value(:srcmd5)
     copyversion = last_revision(copyhistory).value(:version)
     copytime = last_revision(copyhistory).value(:time)
-    #copyrev = last_revision(copyhistory).rev
+    # copyrev = last_revision(copyhistory).rev
     copyvrev = last_revision(copyhistory).value(:vrev)
     assert_equal srcmd5, copysrcmd5
-    assert_equal vrev.to_i, copyvrev.to_i - 1  #the copy gets always an additional commit
+    assert_equal vrev.to_i, copyvrev.to_i - 1  # the copy gets always an additional commit
     assert_equal version, copyversion
     assert_not_equal time, copytime
     assert_equal last_revision(copyhistory).value(:user), 'king'
@@ -2326,10 +2322,10 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     copysrcmd5 = last_revision(copyhistory).value(:srcmd5)
     copyversion = last_revision(copyhistory).value(:version)
     copytime = last_revision(copyhistory).value(:time)
-    #copyrev = last_revision(copyhistory).rev
+    # copyrev = last_revision(copyhistory).rev
     copyvrev = last_revision(copyhistory).value(:vrev)
     assert_equal srcmd5, copysrcmd5
-    assert_equal vrev.to_i + 1, copyvrev.to_i  #the copy gets always a higher vrev
+    assert_equal vrev.to_i + 1, copyvrev.to_i  # the copy gets always a higher vrev
     assert_equal version, copyversion
     assert_not_equal time, copytime # the timestamp got not copied
     assert_equal last_revision(copyhistory).value(:user), 'king'
@@ -2388,7 +2384,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     srcmd5 = last_revision(history).value(:srcmd5)
     version = last_revision(history).value(:version)
     time = last_revision(history).value(:time)
-    #rev = last_revision(history).rev
+    # rev = last_revision(history).rev
     vrev = last_revision(history).value(:vrev)
     assert_not_nil srcmd5
     assert_equal originsrcmd5, srcmd5
@@ -2404,19 +2400,18 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     copysrcmd5 = last_revision(copyhistory).value(:srcmd5)
     copyversion = last_revision(copyhistory).value(:version)
     copytime = last_revision(copyhistory).value(:time)
-    #copyrev = last_revision(copyhistory).rev
+    # copyrev = last_revision(copyhistory).rev
     copyvrev = last_revision(copyhistory).value(:vrev)
     assert_equal originsrcmd5, copysrcmd5
-    expectedvrev="#{(originvrev.to_i+1).to_s}.1" # the copy gets incremented by one, but also extended to avoid that it can become
+    expectedvrev="#{(originvrev.to_i+1)}.1" # the copy gets incremented by one, but also extended to avoid that it can become
     assert_equal expectedvrev, copyvrev    # newer than the origin project at any time later.
     assert_equal originversion, copyversion
     assert_not_equal origintime, copytime
     assert_equal 'king', last_revision(copyhistory).value(:user)
 
-    #cleanup
+    # cleanup
     delete '/source/CopyOfBaseDistro'
     assert_response :success
   end
-
 end
 # rubocop:enable Metrics/LineLength

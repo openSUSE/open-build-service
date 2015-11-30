@@ -71,7 +71,7 @@ namespace :db do
         classname = nil
       end
 
-      #next unless table_name == 'taggings'
+      # next unless table_name == 'taggings'
 
       File.open("#{Rails.root}/test/fixtures/#{table_name}.yml", 'w') do |file|
         data = ActiveRecord::Base.connection.select_all(sql % table_name)

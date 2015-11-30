@@ -7,6 +7,7 @@ class GroupMaintainer < ActiveRecord::Base
   validate :validate_duplicates
 
   protected
+
   validate :validate_duplicates, :on => :create
   def validate_duplicates
     if GroupMaintainer.where("user_id = ? AND group_id = ?", self.user, self.group).first

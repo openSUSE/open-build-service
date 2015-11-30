@@ -2,7 +2,6 @@
 require_relative '../../test_helper'
 
 class Webui::PackageBranchTest < Webui::IntegrationTest
-
   uses_transaction :test_branch_package_for_global_project
   uses_transaction :test_branch_package_double_and_submit_back
   uses_transaction :test_branch_package_for_home_project
@@ -58,7 +57,6 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
   end
 
   def test_branch_package_for_home_project
-
     login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
@@ -105,7 +103,6 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
   end
 
   def test_branch_package_for_global_project
-
     login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
@@ -114,9 +111,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :original_project => 'kde4')
   end
 
-
   def test_branch_package_twice_duplicate_name
-
     login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
@@ -126,9 +121,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :original_project => 'home:Iggy')
   end
 
-
   def test_branch_package_twice
-
     login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
@@ -142,9 +135,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :original_project => 'kde4')
   end
 
-
   def test_branch_empty_package_name
-
     login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
@@ -155,7 +146,6 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
   end
 
   def test_branch_empty_project_name
-
     login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
@@ -166,7 +156,6 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
   end
 
   def test_branch_package_name_with_spaces
-
     login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
@@ -176,9 +165,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :expect => :invalid_package_name)
   end
 
-
   def test_branch_project_name_with_spaces
-
     login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
@@ -189,7 +176,6 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
   end
 
   def test_branch_project_invalid_target
-
     login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
@@ -236,5 +222,4 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
     page.must_have_text "Successfully branched package"
     page.must_have_text "Links to home:dmayr / x11vnc"
   end
-
 end

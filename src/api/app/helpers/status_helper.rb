@@ -1,5 +1,4 @@
 module StatusHelper
-
   def self.resample(values, samples = 400)
     values.sort! { |a, b| a[0] <=> b[0] }
 
@@ -35,5 +34,4 @@ module StatusHelper
 
     return result
   end
-
 end

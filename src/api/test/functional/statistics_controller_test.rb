@@ -3,7 +3,6 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'time'
 
 class StatisticsControllerTest < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   def setup
@@ -52,7 +51,6 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-
  def test_latest_updated
    login_adrian
    get url_for(:controller => :source, :action => :show_package_meta, :project => "HiddenProject", :package => "test_latest_added")
@@ -95,7 +93,6 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
    assert_response :success
  end
 
-
  def test_timestamp_calls
    login_adrian
    get url_for(:controller => :statistics, :action => :added_timestamp, :project => "HiddenProject", :package => "pack")
@@ -128,7 +125,6 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
 
    get url_for(:controller => :statistics, :action => :updated_timestamp, :project => "HiddenProject")
    assert_response 404
-
  end
 
  def test_rating_and_activity
@@ -212,20 +208,18 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'project', :attributes => { :name => "HiddenProject" }
   end
 
-
   # FIXME: works, but does not do anything usefull since 2.0 anymore
   #        we need a working rating mechanism, but this one is too simple.
   def test_highest_rated
     login_tom
     get url_for(:controller => :statistics, :action => :highest_rated)
     assert_response :success
-    #assert_xml_tag :tag => 'collection', :child => { :tag => 'xxxxx' }
-    #assert_xml_tag :tag => 'package', :attributes => {
+    # assert_xml_tag :tag => 'collection', :child => { :tag => 'xxxxx' }
+    # assert_xml_tag :tag => 'package', :attributes => {
     #  :name => "kdelibs",
     #  :xxx => "xxx",
-    #}
+    # }
   end
-
 
   def test_active_request_creators
     get url_for(action: :active_request_creators, controller: :statistics, project: 'kde4')
@@ -238,6 +232,5 @@ class StatisticsControllerTest < ActionDispatch::IntegrationTest
 
     get url_for(action: :active_request_creators, controller: :statistics, project: 'HiddenProject')
     assert_response 404
-
   end
 end

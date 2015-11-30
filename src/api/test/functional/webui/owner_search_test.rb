@@ -3,7 +3,6 @@
 require_relative '../../test_helper'
 
 class Webui::OwnerSearchTest < Webui::IntegrationTest
-
   uses_transaction :test_basic_owner_search
   uses_transaction :test_owner_search_with_devel
 

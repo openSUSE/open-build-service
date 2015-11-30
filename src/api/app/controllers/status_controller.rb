@@ -1,7 +1,6 @@
 require_dependency 'status_helper'
 
 class StatusController < ApplicationController
-
   class PermissionDeniedError < APIException
     setup 403
   end
@@ -124,8 +123,7 @@ class StatusController < ApplicationController
 
     @result = Hash.new
     actions.each do |action|
-
-      #raise NotSubmitRequest.new 'Not submit' unless action.action_type == :submit
+      # raise NotSubmitRequest.new 'Not submit' unless action.action_type == :submit
       sproj = Project.find_by_name!(action.source_project)
       tproj = Project.find_by_name!(action.target_project)
       spkg = sproj.packages.find_by_name!(action.source_package)
@@ -147,5 +145,4 @@ class StatusController < ApplicationController
 
   class NotSubmitRequest < APIException
   end
-
 end

@@ -1,5 +1,4 @@
 class CommentRequest < Comment
-
   validates :bs_request, presence: true
 
   def check_delete_permissions

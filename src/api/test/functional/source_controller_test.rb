@@ -38,7 +38,7 @@ Ignore: package:cups'
     assert_response :success
     assert_no_match(/entry name="HiddenProject"/, @response.body)
 
-    #retry with maintainer
+    # retry with maintainer
     login_adrian
     get '/source'
     assert_response :success
@@ -50,13 +50,12 @@ Ignore: package:cups'
     get '/source'
     assert_response :success
     assert_match(/entry name="SourceprotectedProject"/, @response.body)
-    #retry with maintainer
+    # retry with maintainer
     login_adrian
     get '/source'
     assert_response :success
     assert_match(/entry name="SourceprotectedProject"/, @response.body)
   end
-
 
   def test_get_packagelist
     login_tom
@@ -72,7 +71,7 @@ Ignore: package:cups'
     get '/source/HiddenProject'
     assert_response 404
     assert_match(/unknown_project/, @response.body)
-    #retry with maintainer
+    # retry with maintainer
     reset_auth
     login_adrian
     get '/source/HiddenProject'
@@ -92,7 +91,7 @@ Ignore: package:cups'
     assert_xml_tag :tag => 'directory',
                    :children => { :count => 2 }
     assert_match(/entry name="target"/, @response.body)
-    #retry with maintainer
+    # retry with maintainer
     reset_auth
     login_adrian
     get '/source/SourceprotectedProject'
@@ -110,7 +109,6 @@ Ignore: package:cups'
     get '/source/kde2000/_meta'
     assert_response 404
   end
-
 
   # non-existing project-package should return 404
   def test_get_illegal_projectfile
@@ -142,7 +140,7 @@ Ignore: package:cups'
     get '/source/HiddenProject/_meta'
     assert_response 404
     assert_match(/unknown_project/, @response.body)
-    #retry with maintainer
+    # retry with maintainer
     reset_auth
     login_adrian
     get '/source/HiddenProject/_meta'
@@ -155,7 +153,7 @@ Ignore: package:cups'
     get '/source/SourceprotectedProject/_meta'
     assert_response :success
     assert_xml_tag :tag => 'project', :attributes => { :name => 'SourceprotectedProject' }
-    #retry with maintainer
+    # retry with maintainer
     reset_auth
     prepare_request_with_user 'sourceaccess_homer', 'buildservice'
     get '/source/SourceprotectedProject/_meta'
@@ -177,7 +175,6 @@ Ignore: package:cups'
     assert_xml_tag :tag => 'directory', :child => { :tag => 'entry' }
     assert_xml_tag :tag => 'directory',
                    :children => { :count => 1, :only => { :tag => 'entry', :attributes => { :name => 'my_patch.diff' } } }
-
   end
 
   def test_get_package_filelist_from_hidden_project
@@ -185,7 +182,7 @@ Ignore: package:cups'
     get '/source/HiddenProject/pack'
     assert_response 404
     assert_xml_tag :tag => 'status', :attributes => { :code => 'unknown_project' }
-    #retry with maintainer
+    # retry with maintainer
     reset_auth
     login_adrian
     get '/source/HiddenProject/pack'
@@ -199,7 +196,7 @@ Ignore: package:cups'
     login_tom
     get '/source/SourceprotectedProject/pack'
     assert_response 403
-    #retry with maintainer
+    # retry with maintainer
     reset_auth
     prepare_request_with_user 'sourceaccess_homer', 'buildservice'
     get '/source/SourceprotectedProject/pack'
@@ -221,7 +218,7 @@ Ignore: package:cups'
     get '/source/HiddenProject/pack/_meta'
     assert_response 404
     assert_xml_tag :tag => 'status', :attributes => { :code => 'unknown_project' }
-    #retry with maintainer
+    # retry with maintainer
     reset_auth
     login_adrian
     get '/source/HiddenProject/pack/_meta'
@@ -332,7 +329,6 @@ Ignore: package:cups'
     assert_response :success
   end
 
-
   def test_put_project_meta_with_invalid_permissions
     login_tom
     # The user is valid, but has weak permissions
@@ -383,7 +379,6 @@ Ignore: package:cups'
     assert_response 400
     assert_match(/invalid project name/, @response.body)
   end
-
 
   def test_put_project_meta
     prj='kde4' # project
@@ -584,9 +579,9 @@ Ignore: package:cups'
     get url_for(:controller => :source, :action => :show_project_meta, :project => project)
     assert_response response1
     if !(response2 && tag2)
-      #dummy write to check blocking
+      # dummy write to check blocking
       put url_for(:controller => :source, :action => :update_project_meta, :project => project), "<project name=\"#{project}\"><title></title><description></description></project>"
-      assert_response 403 #4
+      assert_response 403 # 4
                           #      assert_match(/unknown_project/, @response.body)
       assert_match(/create_project_no_permission/, @response.body)
       return
@@ -611,7 +606,6 @@ Ignore: package:cups'
   end
 
   private :do_change_project_meta_test
-
 
   def test_create_and_delete_project
     prepare_request_with_user('king', 'sunflower')
@@ -643,7 +637,6 @@ Ignore: package:cups'
     assert_response :success
   end
 
-
   def test_put_invalid_project_meta
     login_fred
 
@@ -665,19 +658,17 @@ Ignore: package:cups'
     assert_response 400
     assert_xml_tag :tag => 'status', :attributes => { :code => 'invalid_project_name' }
 
-    #must not create a project with different pathname and name in _meta.xml:
+    # must not create a project with different pathname and name in _meta.xml:
     put url_for(:controller => :source, :action => :update_project_meta, :project => 'kde5'), doc.to_s
     assert_response 400
     assert_xml_tag :tag => 'status', :attributes => { :code => 'project_name_mismatch' }
-    #TODO: referenced repository names must exist
+    # TODO: referenced repository names must exist
 
-
-    #verify data is unchanged:
+    # verify data is unchanged:
     get url_for(:controller => :source, :action => :show_project_meta, :project => 'kde4')
     assert_response :success
     assert_equal(olddoc.to_s, REXML::Document.new((@response.body)).to_s)
   end
-
 
   def test_remove_myself_from_home_project_and_readd
     login_fred
@@ -702,7 +693,6 @@ Ignore: package:cups'
     put url_for(:controller => :source, :action => :update_project_meta, :project => 'home:fred'), xml
     assert_response :success
   end
-
 
   def test_lock_project
     login_Iggy
@@ -876,7 +866,7 @@ Ignore: package:cups'
     put url_for(:controller => :source, :action => :update_package_meta, :project => 'kde4', :package => 'kdelibs'), doc.to_s
     assert_response 403
 
-    #verify data is unchanged:
+    # verify data is unchanged:
     get url_for(:controller => :source, :action => :show_package_meta, :project => 'kde4', :package => 'kdelibs')
     assert_response :success
     assert_equal(olddoc.to_s, REXML::Document.new((@response.body)).to_s)
@@ -910,7 +900,7 @@ Ignore: package:cups'
     assert_response response1
 
     if !(response2 && tag2)
-      #dummy write to check blocking
+      # dummy write to check blocking
       put url_for(:controller => :source, :action => :update_package_meta, :project => project, :package => package), '<package><title></title><description></description></package>'
       assert_response 404
 #      assert_match(/unknown_package/, @response.body)
@@ -926,21 +916,20 @@ Ignore: package:cups'
 
     # Write changed data back
     put url_for(:controller => :source, :action => :update_package_meta, :project => project, :package => package), doc.to_s
-    assert_response response2 #(:success, "--> Was not able to update kdelibs _meta")
-    assert_xml_tag tag2 #( :tag => "status", :attributes => { :code => "ok"} )
+    assert_response response2 # (:success, "--> Was not able to update kdelibs _meta")
+    assert_xml_tag tag2 # ( :tag => "status", :attributes => { :code => "ok"} )
 
     # Get data again and check that it is the changed data
     get url_for(:controller => :source, :action => :show_package_meta, :project => project, :package => package)
     newdoc = REXML::Document.new(@response.body)
     d = newdoc.elements['//description']
-    #ignore updated change
+    # ignore updated change
     newdoc.root.attributes['updated'] = doc.root.attributes['updated']
     assert_equal new_desc, d.text if match
     assert_equal doc.to_s, newdoc.to_s if match
   end
 
   private :do_change_package_meta_test
-
 
   # admins, project-maintainer and package maintainer can edit package data
   def test_put_package_meta
@@ -1018,7 +1007,7 @@ Ignore: package:cups'
     login_fred
     get url_for(:controller => :source, :action => :show_package_meta, :project => 'kde4', :package => 'kdelibs')
     assert_response :success
-    #change name to kdelibs2
+    # change name to kdelibs2
     xml = @response.body
     doc = REXML::Document.new(xml)
     d = doc.elements['/package']
@@ -1308,7 +1297,7 @@ Ignore: package:cups'
     get url_for(:controller => :source, :action => :show_package_meta, :project => project, :package => package)
     assert_response response1
     if !(response2 || tag2 || response3 || select3)
-      #dummy write to check blocking
+      # dummy write to check blocking
       raw_put url_for(:controller => :source, :action => :update_package_meta, :project => project, :package => package),
               "<package name=\"#{package}\"><title></title><description></description></package>"
       assert_response 404
@@ -1405,16 +1394,15 @@ Ignore: package:cups'
     assert_response 400
     assert_xml_tag :tag => 'status', :attributes => { :code => "invalid_package_name" }
 
-    #must not create a package with different pathname and name in _meta.xml:
+    # must not create a package with different pathname and name in _meta.xml:
     put url_for(:controller => :source, :action => :update_package_meta, :project => 'kde4', :package => 'kdelibs2000'), doc.to_s
     assert_response 400
     assert_xml_tag :tag => 'status', :attributes => { :code => 'package_name_mismatch' }
-    #verify data is unchanged:
+    # verify data is unchanged:
     get url_for(:controller => :source, :action => :show_package_meta, :project => 'kde4', :package => 'kdelibs')
     assert_response :success
     assert_equal(olddoc.to_s, REXML::Document.new((@response.body)).to_s)
   end
-
 
   def test_read_file
     login_tom
@@ -1423,7 +1411,7 @@ Ignore: package:cups'
     assert_equal(@response.body.to_s, 'argl')
 
     get '/source/kde4/kdelibs/BLUB'
-    #STDERR.puts(@response.body)
+    # STDERR.puts(@response.body)
     assert_response 404
     assert_xml_tag(:tag => 'status')
   end
@@ -1872,7 +1860,7 @@ Ignore: package:cups'
     post '/source/HiddenProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff'
     assert_response 404
     assert_xml_tag :tag => 'status', :attributes => { :code => 'unknown_project' }
-    #reverse
+    # reverse
     post '/source/kde4/kdelibs?oproject=HiddenProject&opackage=pack&cmd=diff'
     assert_response 404
     assert_xml_tag :tag => 'status', :attributes => { :code => 'unknown_project' } # was package
@@ -1902,7 +1890,7 @@ Ignore: package:cups'
     post '/source/SourceprotectedProject/pack?oproject=kde4&opackage=kdelibs&cmd=diff'
     assert_response 403
     assert_xml_tag :tag => 'status', :attributes => { :code => 'source_access_no_permission' }
-    #reverse
+    # reverse
     post '/source/kde4/kdelibs?oproject=SourceprotectedProject&opackage=pack&cmd=diff'
     assert_response 403
     assert_xml_tag :tag => 'status', :attributes => { :code => 'source_access_no_permission' }
@@ -2284,7 +2272,7 @@ Ignore: package:cups'
     delete '/source/home:adrian:branches:home:adrian:TEMP'
     assert_response :success
 
-    #cleanup
+    # cleanup
     delete "/source/home:adrian:TEMP/_attribute/OBS:BranchSkipRepositories"
     assert_response :success
     delete '/source/home:adrian:TEMP'
@@ -2321,7 +2309,6 @@ Ignore: package:cups'
     delete '/source/home:adrian:IMAGES'
     assert_response :success
   end
-
 
   def test_release_project
     # create manual release target
@@ -2626,7 +2613,7 @@ Ignore: package:cups'
     assert_response :success
     assert_xml_tag :tag => 'error', :content => "_buildenv missing in BaseDistro/BaseDistro_repo"
 
-    #cleanup
+    # cleanup
     delete '/source/home:Iggy/TestPackBranch'
     assert_response :success
   end
@@ -2733,7 +2720,6 @@ Ignore: package:cups'
     assert_xml_tag(:parent => { :tag => 'revision', :attributes => { :rev => revision.to_s }, :content => nil }, :tag => 'user', :content => 'fred')
     assert_xml_tag(:parent => { :tag => 'revision', :attributes => { :rev => revision.to_s }, :content => nil }, :tag => 'srcmd5')
 
-
     # test deleteuploadrev
     put '/source/home:Iggy/TestPack/anotherfilename?rev=upload', 'CONTENT'
     assert_response :success
@@ -2803,7 +2789,6 @@ Ignore: package:cups'
     assert_response :success
   end
 
-
   def test_branch_and_merge_changes
     login_Iggy
     post '/source/kde4/kdelibs?cmd=branch&target_project=home:Iggy&target_package=kdelibs_upstream', nil
@@ -2822,7 +2807,7 @@ Ignore: package:cups'
     assert_response :success
     assert_equal File.open("#{Rails.root}/test/fixtures/backend/source/kde4/kdelibs/kdelibs.changes.merged").read, @response.body
 
-    #cleanup
+    # cleanup
     delete '/source/home:Iggy/kdelibs_branch'
     assert_response :success
     delete '/source/home:Iggy/kdelibs_upstream'
@@ -2960,7 +2945,6 @@ Ignore: package:cups'
 	</channel>'
     assert_response 404
     assert_xml_tag :tag => 'status', :attributes => { :code => 'unknown_repository' }
-
 
     put '/source/home:Iggy/TestChannel/_channel', '<?xml version="1.0" encoding="UTF-8"?>
 	<channel>
@@ -3227,7 +3211,7 @@ Ignore: package:cups'
     Timecop.freeze(10.days) do
       ProjectCreateAutoCleanupRequests.new.perform
     end
-    #validate request
+    # validate request
     br = BsRequest.all.last
     assert_equal br.state, :new
     assert_equal br.bs_request_actions.first.type, "delete"
@@ -3411,7 +3395,6 @@ Ignore: package:cups'
     get '/source/home:Iggy/TestPack/_meta'
     assert_not_equal original, @response.body
   end
-
 
   def test_project_set_flag
     login_Iggy
@@ -3604,7 +3587,7 @@ Ignore: package:cups'
     get '/source/home:Iggy/TestPack/bnc%23620675.diff'
     assert_response :success
 
-    #cleanup
+    # cleanup
     delete '/source/home:Iggy/TestPack/bnc%23620675.diff'
     assert_response :success
   end
@@ -3823,7 +3806,6 @@ Ignore: package:cups'
       }.to_query, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
     assert_response :success
   end
-
 end
 # rubocop:enable Metrics/LineLength
 # rubocop:enable Metrics/ClassLength

@@ -1,6 +1,5 @@
 # a model that has relationships - e.g. a project and a package
 module HasRelationships
-
   class SaveError < APIException
   end
 
@@ -176,7 +175,6 @@ module HasRelationships
   end
 
   def update_generic_relationships(xmlhash)
-
     # we remember the current relationships in a hash
     cache = Hash.new
     self.relationships.each do |purr|
@@ -198,10 +196,10 @@ module HasRelationships
         # item has already a role in this model
         pcache = cache[id]
         if pcache.has_key? role.title
-          #role already defined, only remove from cache
+          # role already defined, only remove from cache
           pcache[role.title] = :keep
         else
-          #new role
+          # new role
           record = self.relationships.new(role: role)
           @updater.set_item(record, item)
           pcache[role.title] = :new
@@ -211,7 +209,6 @@ module HasRelationships
         @updater.set_item(record, item)
         cache[id] = { role.title => :new }
       end
-
     end
 
     # all relationships left in cache are to be deleted

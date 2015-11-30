@@ -24,14 +24,12 @@ Rails::Initializer.run do |config|
     session_key: "_frontend_session",
     secret:      "ad9712p8349zqmowiefzhiuzgfp9s8f7qp83947p98weap9866e7"
   }
-
 end
 
 ActiveXML::Node.config do |conf|
   conf.lazy_evaluation = true
 
   conf.setup_transport do |map|
-
     map.default_server :rest, "#{CONFIG['source_protocol']}://#{CONFIG['source_host']}:#{CONFIG['source_port']}"
 
     map.connect :xproject, "rest:///source/:name/_meta",
@@ -41,13 +39,11 @@ ActiveXML::Node.config do |conf|
   end
 end
 
-
 class Xproject < ActiveXML::Node
 end
 
 class Xpackage < ActiveXML::Node
 end
-
 
 def store_project( p )
   STDERR.print "  #{p.name} => "
@@ -117,11 +113,11 @@ def create_missing_users_for( meta )
 end
 
 filter = Array.new
-#filter = ["Fedora:Core6", "Fedory:Extras6"];
-#filter = ['Apache:Modules', 'Apache', 'Fedora:Core5', 'Mandriva:2006', 'openSUSE:10.2', 'SUSE:SLES-9', 'SUSE:SLE-10:SDK',
+# filter = ["Fedora:Core6", "Fedory:Extras6"];
+# filter = ['Apache:Modules', 'Apache', 'Fedora:Core5', 'Mandriva:2006', 'openSUSE:10.2', 'SUSE:SLES-9', 'SUSE:SLE-10:SDK',
 #  'Java:Sun-Java-1.5', 'SUSE:SL-10.1', 'SUSE:SL-10.0', 'SUSE:SL-9.3', 'SUSE:SLE-10', 'openSUSE:Factory'
-#];
-#filter = %w(devel:tools:building SUSE:SLE-10:SP2:SDK home:dirkmueller:playground:kde4)
+# ];
+# filter = %w(devel:tools:building SUSE:SLE-10:SP2:SDK home:dirkmueller:playground:kde4)
 
 projects = Xproject.find(:all)
 
@@ -131,8 +127,7 @@ restart = false
 
 STDERR.puts "--> storing projects"
 projects.each_entry do |entry|
-
-  #if filter is set, only fetch the projects in the array
+  # if filter is set, only fetch the projects in the array
   if not filter.empty?
     next unless filter.include? entry.name
   end

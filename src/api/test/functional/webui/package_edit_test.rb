@@ -2,7 +2,6 @@
 require_relative '../../test_helper'
 
 class Webui::PackageEditTest < Webui::IntegrationTest
-
   uses_transaction :test_change_home_project_package_description
   uses_transaction :test_change_home_project_package_info
   uses_transaction :test_change_home_project_package_title
@@ -18,7 +17,6 @@ class Webui::PackageEditTest < Webui::IntegrationTest
   def package_title
     find(:id, 'package_title').text
   end
-
 
   # ============================================================================
   #
@@ -59,26 +57,21 @@ class Webui::PackageEditTest < Webui::IntegrationTest
     unless new_info[:description].nil?
       assert_equal package_description, new_info[:description]
     end
-
   end
 
   def test_change_home_project_package_title
-
     login_Iggy to: package_show_path(:project => @project, :package => @package)
 
     change_package_info(
       :title => 'My Title hopefully got changed ' + Time.now.to_i.to_s)
   end
 
-
   def test_change_home_project_package_description
-
     login_Iggy to: package_show_path(:project => @project, :package => @package)
 
     change_package_info(
       :description => 'New description. Not kidding.. Brand new! ' + Time.now.to_i.to_s)
   end
-
 
   def test_change_home_project_package_info
     login_Iggy to: package_show_path(:project => @project, :package => @package)
@@ -87,5 +80,4 @@ class Webui::PackageEditTest < Webui::IntegrationTest
       :title => 'My Title hopefully got changed ' + Time.now.to_i.to_s,
       :description => 'New description. Not kidding.. Brand new! ' + Time.now.to_i.to_s)
   end
-
 end

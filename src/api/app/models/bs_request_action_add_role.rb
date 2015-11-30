@@ -53,5 +53,4 @@ class BsRequestActionAddRole < BsRequestAction
   end
 
   #### Alias of methods
-
 end

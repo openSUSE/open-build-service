@@ -16,7 +16,6 @@ class BinaryRelease < ActiveRecord::Base
 
   #### Scopes (first the default_scope macro if is used)
 
-
   #### Validations macros
   #### Class methods using self. (public and then private)
   def self.update_binary_releases(repository, key, time = Time.now)
@@ -170,7 +169,6 @@ class BinaryRelease < ActiveRecord::Base
       if self.product_medium
         binary.product( product_medium.product.extend_id_hash({name: self.product_medium.product.name}) )
       end
-
     end
     builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
                                  Nokogiri::XML::Node::SaveOptions::FORMAT
@@ -184,13 +182,12 @@ class BinaryRelease < ActiveRecord::Base
   end
 
   def to_axml(_opts = {})
-    Rails.cache.fetch('xml_binary_release_%d' % id) { render_xml }
+    Rails.cache.fetch("xml_binary_release_#{id}") { render_xml }
   end
 
   def reset_cache
-    Rails.cache.delete('xml_binary_release_%d' % id)
+    Rails.cache.delete("xml_binary_release_#{id}")
   end
 
   #### Alias of methods
-
 end

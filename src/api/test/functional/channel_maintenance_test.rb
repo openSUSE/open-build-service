@@ -338,7 +338,6 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     delete "/source/home:maintenance_coord:branches:My:Maintenance:0"
     assert_response :success
 
-
     # accept another request to check that addchannel is working automatically
     prepare_request_with_user 'maintenance_coord', 'buildservice'
     post "/request/#{id3}?cmd=changestate&newstate=accepted&force=1" # ignore reviews and accept
@@ -508,7 +507,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     node = Xmlhash.parse(@response.body)
     old_release_date = node['update']['issued']['date']
     assert_equal old_release_date, old_release_date.to_i.to_s # this is the backend time, not handled by Timecop
-    assert_xml_tag :parent => { tag: 'update', attributes: { from: 'tom', status: 'stable', type: 'recommended', version: '1' } }, :tag => 'id', :content => "UpdateInfoTag-#{Time.now.utc.year.to_s}-My_Maintenance_0"
+    assert_xml_tag :parent => { tag: 'update', attributes: { from: 'tom', status: 'stable', type: 'recommended', version: '1' } }, :tag => 'id', :content => "UpdateInfoTag-#{Time.now.utc.year}-My_Maintenance_0"
 
     # check published search db
     get "/search/published/binary/id?match=project='"+incidentProject+"'"
@@ -523,7 +522,6 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
                                                       filename: "package-1.0-1.i586.rpm",
                                                       filepath: "My:/Maintenance:/0/BaseDistro3Channel/rpm/i586/package-1.0-1.i586.rpm",
                                                       baseproject: "BaseDistro3Channel", type: "rpm" }
-
 
     # create release request
     post '/request?cmd=create', '<request>
@@ -579,7 +577,6 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'entry', :attributes => { name: 'primary.xml.gz' }
     assert_xml_tag :tag => 'entry', :attributes => { name: 'repomd.xml' }
     assert_xml_tag :tag => 'entry', :attributes => { name: 'updateinfo.xml.gz' }
-
 
     post '/request?cmd=create', '<request>
                                    <action type="maintenance_release">
@@ -645,7 +642,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get "/build/BaseDistro3Channel/channel_repo/i586/patchinfo.#{incidentID}/updateinfo.xml"
     assert_response :success
     # check for changed updateinfoid.
-    assert_xml_tag :parent => { tag: 'update', attributes: { from: 'tom', status: 'stable', type: 'recommended', version: '1' } }, :tag => 'id', :content => "UpdateInfoTagNew-patch_name-#{Time.now.utc.year.to_s}-1"
+    assert_xml_tag :parent => { tag: 'update', attributes: { from: 'tom', status: 'stable', type: 'recommended', version: '1' } }, :tag => 'id', :content => "UpdateInfoTagNew-patch_name-#{Time.now.utc.year}-1"
 
     # repo is configured as legacy rpm-md, so we require short meta data file names
     get '/build/BaseDistro3Channel/_result'
@@ -740,18 +737,17 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
                    :tag => 'supportstatus', :content => "l3"
     assert_xml_tag :parent => { :tag => 'binary', :attributes =>
            { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "i586" } },
-                   :tag => 'updateinfo', :attributes => { :id => "UpdateInfoTagNew-patch_name-#{Time.now.utc.year.to_s}-1", :version => "1" }
+                   :tag => 'updateinfo', :attributes => { :id => "UpdateInfoTagNew-patch_name-#{Time.now.utc.year}-1", :version => "1" }
 
     # search via official updateinfo id tag
-    get '/search/released/binary', match: "updateinfo/@id = 'UpdateInfoTagNew-patch_name-#{Time.now.utc.year.to_s}-1'"
+    get '/search/released/binary', match: "updateinfo/@id = 'UpdateInfoTagNew-patch_name-#{Time.now.utc.year}-1'"
     assert_response :success
     assert_xml_tag :tag => 'binary', :attributes =>
            { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "i586" }
     assert_xml_tag :tag => 'binary', :attributes =>
            { name: 'package', project: "BaseDistro3Channel", repository: "channel_repo", arch: "src" }
     assert_xml_tag :tag => 'updateinfo', :attributes =>
-           { id: "UpdateInfoTagNew-patch_name-#{Time.now.utc.year.to_s}-1", version: "1" }
-
+           { id: "UpdateInfoTagNew-patch_name-#{Time.now.utc.year}-1", version: "1" }
 
     #
     # A second update on top of a released one.
@@ -820,7 +816,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag( :tag => 'entry', :attributes => { name: 'patchinfo' } )
     assert_xml_tag( :tag => 'directory', :attributes => { count: '5' } ) # and nothing else
 
-    #validate cleanup
+    # validate cleanup
     get '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject'
     assert_response 404
 
@@ -871,7 +867,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
 
     # FIXME: re-run schedulers and check that updates got removed
 
-    #cleanup
+    # cleanup
     login_king
     delete '/source/home:tom:branches:OBS_Maintained:pack2'
     assert_response :success
@@ -890,6 +886,5 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     delete '/source/BaseDistro3Channel'
     assert_response :success
   end
-
 end
 # rubocop:enable Metrics/LineLength

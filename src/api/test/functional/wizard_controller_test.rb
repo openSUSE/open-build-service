@@ -2,7 +2,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class WizardControllerTest < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   def setup
@@ -44,5 +43,4 @@ class WizardControllerTest < ActionDispatch::IntegrationTest
     assert_response 200
     assert_xml_tag :tag => 'wizard'
   end
-
 end

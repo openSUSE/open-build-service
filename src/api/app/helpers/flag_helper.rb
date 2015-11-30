@@ -1,5 +1,4 @@
 module FlagHelper
-
   class InvalidFlag < APIException
     setup 'invalid_flag'
   end
@@ -47,11 +46,10 @@ module FlagHelper
   end
 
   def update_flags( xmlhash, flagtype, position )
-
-    #translate the flag types as used in the xml to model name + s
+    # translate the flag types as used in the xml to model name + s
     validate_type flagtype
 
-    #select each build flag from xml
+    # select each build flag from xml
     xmlhash.elements(flagtype.to_s) do |xmlflags|
       xmlflags.keys.each do |status|
         fs = xmlflags.elements(status)
@@ -59,16 +57,15 @@ module FlagHelper
           fs << {}
         end
         fs.each do |xmlflag|
-
-          #get the selected architecture from data base
+          # get the selected architecture from data base
           arch = xmlflag['arch']
           arch = Architecture.find_by_name!(arch) if arch
 
           repo = xmlflag['repository']
 
-          #instantiate new flag object
+          # instantiate new flag object
           self.flags.new(:status => status, :position => position, :flag => flagtype) do |flag|
-            #set the flag attributes
+            # set the flag attributes
             flag.repo = repo
             flag.architecture = arch
           end
@@ -140,13 +137,13 @@ module FlagHelper
 
   def enabled_for?(flag_type, repo, arch)
     state = find_flag_state(flag_type, repo, arch)
-    logger.debug "enabled_for #{flag_type} repo:#{repo} arch:#{arch} state:#{state.to_s}"
+    logger.debug "enabled_for #{flag_type} repo:#{repo} arch:#{arch} state:#{state}"
     return state.to_sym == :enable ? true : false
   end
 
   def disabled_for?(flag_type, repo, arch)
     state = find_flag_state(flag_type, repo, arch)
-    logger.debug "disabled_for #{flag_type} repo:#{repo} arch:#{arch} state:#{state.to_s}"
+    logger.debug "disabled_for #{flag_type} repo:#{repo} arch:#{arch} state:#{state}"
     return state.to_sym == :disable ? true : false
   end
 
@@ -185,5 +182,4 @@ module FlagHelper
     end
     return disabled
   end
-
 end

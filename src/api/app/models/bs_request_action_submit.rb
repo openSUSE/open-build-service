@@ -24,7 +24,6 @@ class BsRequestActionSubmit < BsRequestAction
   end
 
   def execute_accept(opts)
-
     # use the request description as comments for history
     source_history_comment = self.bs_request.description
 
@@ -45,7 +44,7 @@ class BsRequestActionSubmit < BsRequestAction
       cp_params[:keeplink] = 1
     end
 
-    #create package unless it exists already
+    # create package unless it exists already
     target_project = Project.get_by_name(self.target_project)
     if self.target_package
       target_package = target_project.packages.find_by_name(self.target_package)
@@ -121,5 +120,4 @@ class BsRequestActionSubmit < BsRequestAction
   end
 
   #### Alias of methods
-
 end

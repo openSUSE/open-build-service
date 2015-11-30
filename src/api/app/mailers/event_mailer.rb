@@ -52,5 +52,4 @@ class EventMailer < ActionMailer::Base
          date: e.created_at,
          template_name: template_name)
   end
-
 end

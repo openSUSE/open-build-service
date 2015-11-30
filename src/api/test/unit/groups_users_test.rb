@@ -26,5 +26,4 @@ class GroupUsersTest < ActiveSupport::TestCase
     assert_equal false, gu.invalid?
     assert_equal true, gu.save
   end
-
 end

@@ -1,6 +1,5 @@
 # the purpose of this mixin is to get the user functions having to do with ldap into one file
 class UserLdapStrategy
-
   @@ldap_search_con = nil
 
   def is_in_group?(user, group)
@@ -524,7 +523,7 @@ class UserLdapStrategy
   def local_permission_check_with_ldap (group_relationships)
     group_relationships.each do |r|
       return false if r.group.nil?
-      #check whether current user is in this group
+      # check whether current user is in this group
       return true if user_in_group_ldap?(self.login, r.group)
     end
     Rails.logger.debug "Failed with local_permission_check_with_ldap"
@@ -536,7 +535,7 @@ class UserLdapStrategy
     rels = object.relationships.groups.where(:role_id => role.id).includes(:group)
     for rel in rels
       return false if rel.group.nil?
-      #check whether current user is in this group
+      # check whether current user is in this group
       return true if user_in_group_ldap?(self.login, rel.group)
     end
     Rails.logger.debug "Failed with local_role_check_with_ldap"
@@ -599,5 +598,4 @@ class UserLdapStrategy
     Rails.logger.debug("Bound as #{user_name}")
     return conn
   end
-
 end

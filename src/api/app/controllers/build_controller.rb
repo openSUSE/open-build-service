@@ -1,5 +1,4 @@
 class BuildController < ApplicationController
-
   def index
     # for read access and visibility permission check
     if params[:package] and not %w(_repository _jobhistory).include?(params[:package])
@@ -33,12 +32,12 @@ class BuildController < ApplicationController
       pass_to_backend
       return
     elsif request.post?
-      #check if user has project modify rights
+      # check if user has project modify rights
       allowed = false
       allowed = true if permissions.global_project_change
       allowed = true if permissions.project_change? prj
 
-      #check for cmd parameter
+      # check for cmd parameter
       if params[:cmd].nil?
         raise MissingParameterError.new "Missing parameter 'cmd'"
       end
@@ -173,7 +172,7 @@ class BuildController < ApplicationController
     regexp = nil
     # if there is a query, we can't assume it's a simple download, so better leave out the logic (e.g. view=fileinfo)
     unless request.query_string
-      #check if binary exists and for size
+      # check if binary exists and for size
       fpath = "/build/"+[:project, :repository, :arch, :package].map {|x| params[x]}.join("/")
       file_list = Suse::Backend.get(fpath)
       regexp = file_list.body.match(/name=["']#{Regexp.quote params[:filename]}["'].*size=["']([^"']*)["']/)
@@ -237,7 +236,6 @@ class BuildController < ApplicationController
     pass_to_backend
   end
 
-
   def result
     required_parameters :project
 
@@ -276,5 +274,4 @@ class BuildController < ApplicationController
     end
     render xml: render_to_string(partial: "lastsuccess")
   end
-
 end

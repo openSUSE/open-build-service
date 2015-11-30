@@ -1,5 +1,4 @@
 class CommentPackage < Comment
-
   validates :package, presence: true
 
   def create_notification(params = {})
@@ -13,7 +12,6 @@ class CommentPackage < Comment
   end
 
   def check_delete_permissions
-
     # If you can change the package, you can delete the comment
     User.current.has_local_permission?('change_package', package) || super
   end

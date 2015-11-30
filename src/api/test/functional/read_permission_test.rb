@@ -3,7 +3,6 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'source_controller'
 
 class ReadPermissionTest < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   def setup
@@ -139,14 +138,17 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     # Access as a maintainer to a hidden project
     do_read_access_all_pathes( "adrian", :success )
   end
+
   def test_read_hidden_prj_reader
     # Hidden project is visible to all involved users
     do_read_access_all_pathes( "adrian_reader", :success )
   end
+
   def test_read_hidden_prj_downloader
     # Visible to all involved users
     do_read_access_all_pathes( "adrian_downloader", :success )
   end
+
   def test_read_hidden_prj_nobody
     # Hidden project not visible to external user
     do_read_access_all_pathes( "adrian_nobody", 404 )
@@ -656,7 +658,6 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
         '<project name="home:tom:ProtectedProject2"> <title/> <description/> <link project="HiddenProject"/> </project>'
     assert_response 404
 
-
     login_adrian
     # try to link to an access protected hidden project from sourceaccess project
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject2"),
@@ -795,7 +796,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
         '<project name="home:binary_homer:ProtectedProject2"> <title/> <description/> </project>'
     assert_response 200
 
-    #cleanup
+    # cleanup
     login_king
     delete "/source/home:binary_homer:ProtectedProject1"
     assert_response 200
@@ -819,7 +820,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
 
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject1"),
         '<project name="home:adrian:ProtectedProject1"> <title/> <description/> <access><disable/></access> </project>'
-    #STDERR.puts(@response.body)
+    # STDERR.puts(@response.body)
     assert_response 200
 
     # rubocop:disable Metrics/LineLength
@@ -850,7 +851,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     prepare_request_with_user "binary_homer", "buildservice"
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:binary_homer:ProtectedProject3"),
         '<project name="home:binary_homer:ProtectedProject3"> <title/> <description/> <access><disable/></access> </project>'
-    #STDERR.puts(@response.body)
+    # STDERR.puts(@response.body)
     assert_response 200
 
     # rubocop:disable Metrics/LineLength
@@ -983,6 +984,4 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     delete "/source/home:adrian:Project"
     assert_response :success
   end
-
-
 end

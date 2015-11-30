@@ -1,6 +1,5 @@
 # wizard input form with entries
 class WizardForm
-
   attr_reader(:label, :legend, :entries)
   attr_accessor(:last)
 

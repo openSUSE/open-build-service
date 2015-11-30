@@ -763,7 +763,7 @@ class BsRequestAction < ActiveRecord::Base
 
     # Type specific checks
     if self.action_type == :delete or self.action_type == :add_role or self.action_type == :set_bugowner
-      #check existence of target
+      # check existence of target
       unless tprj
         raise UnknownProject.new 'No target project specified'
       end
@@ -773,7 +773,7 @@ class BsRequestAction < ActiveRecord::Base
         end
       end
     elsif [:submit, :change_devel, :maintenance_release, :maintenance_incident].include?(self.action_type)
-      #check existence of source
+      # check existence of source
       unless sprj || skip_source
         # no support for remote projects yet, it needs special support during accept as well
         raise UnknownProject.new 'No target project specified'
@@ -831,7 +831,7 @@ class BsRequestAction < ActiveRecord::Base
       a = tprj.find_attribute('OBS', 'RejectRequests')
       if a && a.values.first
         if a.values.length < 2 or a.values.find_by_value(self.action_type)
-          raise RequestRejected.new "The target project #{self.target_project} is not accepting requests because: #{a.values.first.value.to_s}"
+          raise RequestRejected.new "The target project #{self.target_project} is not accepting requests because: #{a.values.first.value}"
         end
       end
     end
@@ -844,7 +844,7 @@ class BsRequestAction < ActiveRecord::Base
       if defined?(a) && a && a.values.first
         if a.values.length < 2 or a.values.find_by_value(self.action_type)
           raise RequestRejected.new "The target package #{self.target_project} / #{self.target_package} is not accepting " +
-                                    "requests because: #{a.values.first.value.to_s}"
+                                    "requests because: #{a.values.first.value}"
         end
       end
     end
@@ -925,7 +925,6 @@ class BsRequestAction < ActiveRecord::Base
   end
 
   def check_for_expand_errors!(add_revision)
-
     return unless [:submit, :maintenance_incident, :maintenance_release].include? self.action_type
 
     # validate that the sources are not broken
@@ -947,5 +946,4 @@ class BsRequestAction < ActiveRecord::Base
   end
 
   #### Alias of methods
-
 end

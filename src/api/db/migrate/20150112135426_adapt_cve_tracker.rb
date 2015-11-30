@@ -1,5 +1,4 @@
 class AdaptCveTracker < ActiveRecord::Migration
-
   def up
     ActiveRecord::Base.transaction do
       t=IssueTracker.find_by_name('cve')
@@ -34,5 +33,4 @@ class AdaptCveTracker < ActiveRecord::Migration
       end
     end
   end
-
 end

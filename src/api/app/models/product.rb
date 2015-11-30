@@ -1,5 +1,4 @@
 class Product < ActiveRecord::Base
-
   belongs_to :package, foreign_key: :package_id
   has_many :product_update_repositories, dependent: :destroy
   has_many :product_media, dependent: :destroy
@@ -45,7 +44,6 @@ class Product < ActiveRecord::Base
     h
   end
 
-
   def update_from_xml(xml)
     self.transaction do
       xml.elements('productdefinition') do |pd|
@@ -78,6 +76,7 @@ class Product < ActiveRecord::Base
   end
 
   private
+
   def _update_from_xml_register_pool(rxml)
     rxml.elements('pool') do |u|
       medium = {}
@@ -121,6 +120,7 @@ class Product < ActiveRecord::Base
       self.product_media.delete(medium.values)
     end
   end
+
   def _update_from_xml_register_update(rxml)
     rxml.elements('updates') do |u|
       update = {}
@@ -151,6 +151,7 @@ class Product < ActiveRecord::Base
       self.product_update_repositories.delete(update.values)
     end
   end
+
   def _update_from_xml_register(rxml)
     _update_from_xml_register_update(rxml)
     _update_from_xml_register_pool(rxml)

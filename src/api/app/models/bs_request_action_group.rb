@@ -185,5 +185,4 @@ class BsRequestActionGroup < BsRequestAction
   end
 
   #### Alias of methods
-
 end

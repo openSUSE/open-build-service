@@ -1,5 +1,4 @@
 module Webui::HasFlags
-
   def create_flag
     authorize main_object, :update?
 
@@ -47,5 +46,4 @@ module Webui::HasFlags
       format.js
     end
   end
-
 end

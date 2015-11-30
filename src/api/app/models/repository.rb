@@ -1,5 +1,4 @@
 class Repository < ActiveRecord::Base
-
   belongs_to :project, foreign_key: :db_project_id, inverse_of: :repositories
 
   before_destroy :cleanup_before_destroy
@@ -103,8 +102,8 @@ class Repository < ActiveRecord::Base
     return repositories.uniq
   end
 
-  #returns a list of repositories that include path_elements linking to this one
-  #or empty list
+  # returns a list of repositories that include path_elements linking to this one
+  # or empty list
   def linking_repositories
     return [] if links.size == 0
     links.map {|l| l.repository}

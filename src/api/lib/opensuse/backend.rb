@@ -4,7 +4,6 @@ require 'api_exception'
 
 module Suse
   class Backend
-
     class IllegalEncodingError < APIException
       setup 'invalid_text_encoding'
     end
@@ -20,7 +19,6 @@ module Suse
     end
 
     class << self
-
       attr_accessor :source_host, :source_port
 
       def host
@@ -121,7 +119,7 @@ module Suse
         end
         write_backend_log "DELETE", host, port, path, response
         handle_response response
-        #do_delete(source_host, source_port, path)
+        # do_delete(source_host, source_port, path)
       end
 
       alias_method :get_source, :get
@@ -202,7 +200,7 @@ module Suse
       end
 
       def start_test_backend
-        #do_not_start_test_backend
+        # do_not_start_test_backend
         return unless Rails.env.test?
         return if @@backend
         return if ENV['BACKEND_STARTED']

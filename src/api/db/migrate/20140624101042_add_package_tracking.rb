@@ -32,5 +32,4 @@ class AddPackageTracking < ActiveRecord::Migration
   def down
     drop_table :binary_releases
   end
-
 end

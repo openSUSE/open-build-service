@@ -1,7 +1,6 @@
 require_relative '../../test_helper'
 
 class Webui::AddRepoTest < Webui::IntegrationTest
-
   def test_add_default
     use_js
     login_Iggy to: project_show_path(project: 'home:Iggy')
@@ -31,5 +30,4 @@ class Webui::AddRepoTest < Webui::IntegrationTest
                   {"name"=>"10.2", "path"=>{"project"=>"BaseDistro", "repository"=>"BaseDistro_repo"},
                    "arch"=> %w(i586 x86_64) }], xml['repository'])
   end
-
 end

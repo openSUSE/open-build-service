@@ -1,5 +1,4 @@
 class SearchController < ApplicationController
-
   require_dependency 'xpath_engine'
 
   def project
@@ -63,14 +62,12 @@ class SearchController < ApplicationController
   end
 
   def missing_owner
-    params[:limit] ||= "0" #unlimited by default
+    params[:limit] ||= "0" # unlimited by default
 
     @owners = Owner.search(params, nil).map(&:to_hash)
-
   end
 
   def owner
-
     Suse::Backend.start_test_backend if Rails.env.test?
 
     obj = nil
@@ -90,7 +87,6 @@ class SearchController < ApplicationController
   end
 
   def predicate_from_match_parameter(p)
-
     pred = case p
       when  /^\(\[(.*)\]\)$/
            $1
@@ -182,7 +178,7 @@ class SearchController < ApplicationController
     includes = nil
     opts = {}
 
-    output = "<collection matches=\"#{matches.to_s}\">\n"
+    output = "<collection matches=\"#{matches}\">\n"
 
     xml = Hash.new # filled by filter
     if render_all
@@ -315,5 +311,4 @@ class SearchController < ApplicationController
     end
     render :text => xml, :content_type => "text/xml"
   end
-
 end

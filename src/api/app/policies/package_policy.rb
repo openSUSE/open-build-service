@@ -1,5 +1,4 @@
 class PackagePolicy < ApplicationPolicy
-
   def branch?
     # same as Package.check_source_access!
     if @record.disabled_for?('sourceaccess', nil, nil) or record.project.disabled_for?('sourceaccess', nil, nil)

@@ -1,6 +1,5 @@
 # we take everything here that is not XML - the default mimetype is xml though
 class WebuiMatcher
-
   class InvalidRequestFormat < APIException
   end
 
@@ -17,13 +16,12 @@ end
 class APIMatcher
   def self.matches?(request)
     format = request.format.to_sym || :xml
-    #Rails.logger.debug "MATCHES #{format}"
+    # Rails.logger.debug "MATCHES #{format}"
     format == :xml || format == :json
   end
 end
 
 OBSApi::Application.routes.draw do
-
   cons = {
     arch:       %r{[^\/]*},
     binary:     %r{[^\/]*},
@@ -39,7 +37,6 @@ OBSApi::Application.routes.draw do
   }
 
   constraints(WebuiMatcher) do
-
     root 'webui/main#index'
 
     controller 'webui/main' do
@@ -276,7 +273,6 @@ OBSApi::Application.routes.draw do
     end
 
     controller 'webui/user' do
-
       get 'users' => :index
 
       post 'user/register' => :register
@@ -335,7 +331,6 @@ OBSApi::Application.routes.draw do
     ### /apidocs
     get 'apidocs' => 'webui/apidocs#index'
     get 'apidocs/index' => 'webui/apidocs#index'
-
   end
 
   # first the routes where the mime type does not matter
@@ -366,9 +361,7 @@ OBSApi::Application.routes.draw do
   get 'published/:project' => 'published#index', constraints: cons
   get 'published/' => 'source#index', via: :get
 
-
   constraints(APIMatcher) do
-
     get '/' => 'main#index'
 
     resource :configuration, only: [:show, :update, :schedulers]
@@ -446,20 +439,20 @@ OBSApi::Application.routes.draw do
 
     ### /tag
 
-    #routes for tagging support
+    # routes for tagging support
     #
     # get 'tag/_all' => 'tag',
     #  action: 'list_xml'
-    #Get/put tags by object
+    # Get/put tags by object
     ### moved to source section
 
-    #Get objects by tag.
+    # Get objects by tag.
     controller :tag do
       get 'tag/:tag/_projects' => :get_projects_by_tag
       get 'tag/:tag/_packages' => :get_packages_by_tag
       get 'tag/:tag/_all' => :get_objects_by_tag
 
-      #Get a tagcloud including all tags.
+      # Get a tagcloud including all tags.
       match 'tag/tagcloud' => :tagcloud, via: [:get, :post]
 
       get 'tag/get_tagged_projects_by_user' => :get_tagged_projects_by_user
@@ -473,20 +466,18 @@ OBSApi::Application.routes.draw do
       get 'tag/get_taglist' => :get_taglist
       get 'tag/project_tags' => :project_tags
       get 'tag/package_tags' => :package_tags
-
     end
-
 
     ### /user
 
-    #Get objects tagged by user. (objects with tags)
+    # Get objects tagged by user. (objects with tags)
     get 'user/:user/tags/_projects' => 'tag#get_tagged_projects_by_user', constraints: cons
     get 'user/:user/tags/_packages' => 'tag#get_tagged_packages_by_user', constraints: cons
 
-    #Get tags by user.
+    # Get tags by user.
     get 'user/:user/tags/_tagcloud' => 'tag#tagcloud', constraints: cons
 
-    #Get tags for a certain object by user.
+    # Get tags for a certain object by user.
     match 'user/:user/tags/:project' => 'tag#tags_by_user_and_object', constraints: cons, via: [:get, :post, :put, :delete]
     match 'user/:user/tags/:project/:package' => 'tag#tags_by_user_and_object', constraints: cons, via: [:get, :post, :put, :delete]
 
@@ -494,7 +485,6 @@ OBSApi::Application.routes.draw do
     # Routes for statistics
     # ---------------------
     controller :statistics do
-
       # Download statistics
       #
       get 'statistics/download_counter' => :download_counter
@@ -537,7 +527,6 @@ OBSApi::Application.routes.draw do
     ### /status_message
 
     controller :status do
-
       # Routes for status_messages
       # --------------------------
       get 'status_message' => 'status#messages'
@@ -550,7 +539,6 @@ OBSApi::Application.routes.draw do
       get 'status/history' => :history
       get 'status/project/:project' => :project, constraints: cons
       get 'status/bsrequest' => :bsrequest
-
     end
 
     ### /message
@@ -564,11 +552,9 @@ OBSApi::Application.routes.draw do
       delete 'message/:id' => :delete
     end
 
-
     ### /search
 
     controller :search do
-
       # ACL(/search/published/binary/id) TODO: direct passed call to  "pass_to_backend'
       match 'search/published/binary/id' => :pass_to_backend, via: [:get, :post]
       # ACL(/search/published/pattern/id) TODO: direct passed call to  'pass_to_backend'
@@ -579,8 +565,8 @@ OBSApi::Application.routes.draw do
       match 'search/released/binary' => :released_binary, via: [:get, :post]
       match 'search/project/id' => :project_id, via: [:get, :post]
       match 'search/package/id' => :package_id, via: [:get, :post]
-      match 'search/project_id' => :project_id, via: [:get, :post] #FIXME3.0: to be removed
-      match 'search/package_id' => :package_id, via: [:get, :post] #FIXME3.0: to be removed
+      match 'search/project_id' => :project_id, via: [:get, :post] # FIXME3.0: to be removed
+      match 'search/package_id' => :package_id, via: [:get, :post] # FIXME3.0: to be removed
       match 'search/project' => :project, via: [:get, :post]
       match 'search/package' => :package, via: [:get, :post]
       match 'search/person' => :person, via: [:get, :post]
@@ -594,7 +580,6 @@ OBSApi::Application.routes.draw do
       match 'search/repository/id' => :repository_id, via: [:get, :post]
       match 'search/issue' => :issue, via: [:get, :post]
       match 'search/attribute' => :attribute, via: [:get, :post]
-
     end
 
     ### /request
@@ -646,11 +631,9 @@ OBSApi::Application.routes.draw do
     get 'public/status/:action' => 'status#index'
 
     get '/404' => 'main#notfound'
-
   end
 
   controller :source do
-
     get 'source' => :index
     post 'source' => :global_command
 
@@ -680,7 +663,6 @@ OBSApi::Application.routes.draw do
   end
 
   controller :comments do
-
     get 'comments/request/:id' => :show_comments, constraints: cons, as: :comments_request
     post 'comments/request/:id' => :create, constraints: cons, as: :create_request_comment
     get 'comments/package/:project/:package' => :show_comments, constraints: cons, as: :comments_package
@@ -689,7 +671,6 @@ OBSApi::Application.routes.draw do
     post 'comments/project/:project' => :create, constraints: cons, as: :create_project_comment
 
     delete 'comment/:id' => :destroy, constraints: cons, as: :comment_delete
-
   end
 
   # this can be requested by non browsers (like HA proxies :)
@@ -701,7 +682,6 @@ OBSApi::Application.routes.draw do
   get 'main/sitemap_projects' => 'webui/main#sitemap_projects'
   get 'main/sitemap_projects_packages' => 'webui/main#sitemap_projects_packages'
   get 'main/sitemap_packages/:listaction' => 'webui/main#sitemap_packages'
-
 end
 
 OBSEngine::Base.subclasses.each do |engine|

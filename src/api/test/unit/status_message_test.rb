@@ -11,12 +11,11 @@ class StatusMessageTest < ActiveSupport::TestCase
 
   def test_delete
     tbd = StatusMessage.create! message: 'to be deleted', user: User.find_by_login('tom'), severity: 1
-    #tbd.user = User.find_by_login 'tom'
+    # tbd.user = User.find_by_login 'tom'
     tbd.delete
 
     findit = StatusMessage.find_by_id tbd.id
     assert_equal tbd.id, findit.id
     assert_equal true, findit.deleted_at > Time.now - 1.day
   end
-
 end

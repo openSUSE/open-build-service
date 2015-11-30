@@ -1,5 +1,4 @@
 class Webui::CommentsController < Webui::WebuiController
-
   def destroy
     comment = Comment.find(params[:id])
     unless comment.check_delete_permissions
@@ -9,7 +8,6 @@ class Webui::CommentsController < Webui::WebuiController
     end
     comment.blank_or_destroy
 
-
     respond_to do |format|
       format.js { render json: 'ok' }
       format.html do
@@ -18,5 +16,4 @@ class Webui::CommentsController < Webui::WebuiController
     end
     redirect_to :back
   end
-
 end

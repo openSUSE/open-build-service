@@ -1,5 +1,4 @@
 class Webui::ProjectController < Webui::WebuiController
-
   require_dependency 'opensuse/validator'
   include Webui::HasComments
   include Webui::HasFlags
@@ -13,7 +12,8 @@ class Webui::ProjectController < Webui::WebuiController
 
   before_filter :lockout_spiders, :only => [:requests, :rebuild_time, :buildresults, :maintenance_incidents]
 
-  before_filter :require_login, :only => [:create, :toggle_watch, :destroy, :new, :new_incident_request, :new_release_request, :new_package_branch, :new_package]
+  before_filter :require_login, :only => [:create, :toggle_watch, :destroy, :new, :new_incident_request,
+                                          :new_release_request, :new_package_branch, :new_package]
 
   before_filter :set_project, only: [:autocomplete_packages, :autocomplete_repositories, :users, :subprojects,
                                      :new_package, :new_package_branch, :incident_request_dialog, :release_request_dialog,
@@ -121,7 +121,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def incident_request_dialog
-    #TODO: Currently no way to find out where to send until the project 'maintained' relationship
+    # TODO: Currently no way to find out where to send until the project 'maintained' relationship
     #      is really used. The API will find out magically here though.
     render_dialog
   end
@@ -621,7 +621,6 @@ class Webui::ProjectController < Webui::WebuiController
     # filter out repos without current packages
     @statushash.each do |repo, hash|
       hash.each do |arch, packages|
-
         has_packages = false
         packages.each do |p, _|
           if packagename_hash.has_key? p
@@ -851,7 +850,6 @@ class Webui::ProjectController < Webui::WebuiController
     else
       redirect_to :back, error: "Failed to remove #{@maintained_project} from maintenance"
     end
-
   end
 
   def maintenance_incidents
@@ -1047,7 +1045,7 @@ class Webui::ProjectController < Webui::WebuiController
     f.close
     outdir = Dir.mktmpdir
 
-    logger.debug "cd #{Rails.root.join('vendor', 'diststats').to_s} && perl ./mkdiststats --srcdir=#{indir} --destdir=#{outdir}
+    logger.debug "cd #{Rails.root.join('vendor', 'diststats')} && perl ./mkdiststats --srcdir=#{indir} --destdir=#{outdir}
              --outfmt=xml #{@project.name}/#{@repository}/#{@arch} --width=910
              --buildhosts=#{@hosts} --scheduler=#{@scheduler}"
     oldpwd = Dir.pwd
@@ -1067,7 +1065,7 @@ class Webui::ProjectController < Webui::WebuiController
       return nil
     end
 
-    Rails.cache.write('rebuild-%s.png' % @pngkey, png)
+    Rails.cache.write("rebuild-#{@pngkey}.png", png)
     f=File.open(outdir + '/longest.xml')
     longest = Xmlhash.parse(f.read)
     longest['timings'].elements('package') do |p|
@@ -1147,7 +1145,7 @@ class Webui::ProjectController < Webui::WebuiController
     # needed to map requests to package id
     @name2id = Hash.new
 
-    @prj_status = Rails.cache.fetch("prj_status-#{@api_obj.to_s}", expires_in: 5.minutes) do
+    @prj_status = Rails.cache.fetch("prj_status-#{@api_obj}", expires_in: 5.minutes) do
       ProjectStatusCalculator.new(@api_obj).calc_status(pure_project: true)
     end
 

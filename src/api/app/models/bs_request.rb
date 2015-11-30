@@ -5,7 +5,6 @@ require 'opensuse/backend'
 include MaintenanceHelper
 
 class BsRequest < ActiveRecord::Base
-
   class InvalidStateError < APIException
     setup 'request_not_modifiable', 404
   end
@@ -110,9 +109,9 @@ class BsRequest < ActiveRecord::Base
 
   def reset_cache
     return unless id
-    Rails.cache.delete('xml_bs_request_fullhistory_%d' % id)
-    Rails.cache.delete('xml_bs_request_history_%d' % id)
-    Rails.cache.delete('xml_bs_request_%d' % id)
+    Rails.cache.delete("xml_bs_request_fullhistory_#{id}")
+    Rails.cache.delete("xml_bs_request_history_#{id}")
+    Rails.cache.delete("xml_bs_request_#{id}")
   end
 
   def self.new_from_xml(xml)
@@ -137,7 +136,6 @@ class BsRequest < ActiveRecord::Base
     request = nil
 
     BsRequest.transaction do
-
       request = BsRequest.new
       request.id = theid if theid
 
@@ -207,15 +205,15 @@ class BsRequest < ActiveRecord::Base
 
   def to_axml(opts = {})
     if opts[:withfullhistory]
-      Rails.cache.fetch('xml_bs_request_fullhistory_%d' % id) do
+      Rails.cache.fetch("xml_bs_request_fullhistory_#{id}") do
         render_xml({withfullhistory: 1})
       end
     elsif opts[:withhistory]
-      Rails.cache.fetch('xml_bs_request_history_%d' % id) do
+      Rails.cache.fetch("xml_bs_request_history_#{id}") do
         render_xml({withhistory: 1})
       end
     else
-      Rails.cache.fetch('xml_bs_request_%d' % id) do
+      Rails.cache.fetch("xml_bs_request_#{id}") do
         render_xml
       end
     end
@@ -527,7 +525,6 @@ class BsRequest < ActiveRecord::Base
   private :_assignreview_update_reviews
 
   def assignreview(opts = {})
-
     unless self.state == :review || (self.state == :new && state == :new)
       raise InvalidStateError.new 'request is not in review state'
     end
@@ -609,8 +606,8 @@ class BsRequest < ActiveRecord::Base
             go_new_state = nil
           end
         else
-          # don't touch the request state if a review is still open, except the
-          # review got declined or superseded or reopened.
+          # don't touch the request state if a review is still open, except the review
+          # got declined or superseded or reopened.
           go_new_state = nil if review.state == :new && go_new_state != :declined && go_new_state != :superseded
         end
       end
@@ -741,7 +738,6 @@ class BsRequest < ActiveRecord::Base
       HistoryElement::RequestSetIncident.create(p)
     end
   end
-
 
   IntermediateStates = %w(new review)
 
@@ -965,7 +961,7 @@ class BsRequest < ActiveRecord::Base
   end
 
   def webui_actions(with_diff = true)
-    #TODO: Fix!
+    # TODO: Fix!
     actions = []
     self.bs_request_actions.each do |xml|
       action = {type: xml.action_type}
@@ -1049,7 +1045,6 @@ class BsRequest < ActiveRecord::Base
   end
 
   def expand_targets
-
     newactions = []
     oldactions = []
 
@@ -1241,5 +1236,4 @@ class BsRequest < ActiveRecord::Base
   def self.quote(str)
     connection.quote(str)
   end
-
 end

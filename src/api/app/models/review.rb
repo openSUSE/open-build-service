@@ -1,7 +1,6 @@
 require 'api_exception'
 
 class Review < ActiveRecord::Base
-
   class NotFoundError < APIException
     setup 'review_not_found', 404, 'Review not found'
   end

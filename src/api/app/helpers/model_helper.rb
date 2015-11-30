@@ -1,5 +1,4 @@
 module ModelHelper
-
   # this method is used in models to sync xml hash lists with the database entries
   # the class needs to define the keys which identifies an entry in the list via an
   # array delivered by the self._sync_keys method
@@ -9,14 +8,13 @@ module ModelHelper
   # further key/values in the hash will be updated in matching entries
   #
   def sync_hash_with_model(entry_class, dblist, inhasharray)
-
     keys = entry_class._sync_keys
     entries = {}
     to_delete = {}
 
     dblist.each do |e|
       key = ""
-      keys.each{|k| key << "#{e.send(k).to_s}::"}
+      keys.each{|k| key << "#{e.send(k)}::"}
       entries[key]=e
     end
     to_delete=entries.clone
@@ -26,7 +24,7 @@ module ModelHelper
         key = ""
         keys.each do |k|
           raise 'MissingKey', k unless hash.has_key? k
-          key << "#{hash[k].to_s}::"
+          key << "#{hash[k]}::"
         end
         if entries[key]
           # exists, do we need to update it?
@@ -50,5 +48,4 @@ module ModelHelper
       dblist.delete(to_delete.values)
     end
   end
-
 end

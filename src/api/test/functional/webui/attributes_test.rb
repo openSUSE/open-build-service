@@ -1,7 +1,6 @@
 require_relative '../../test_helper'
 
 class Webui::AttributesTest < Webui::IntegrationTest
-
   ATTRIBUTES = %w(NSTEST:status OBS:VeryImportantProject OBS:UpdateProject
                   OBS:OwnerRootProject OBS:Maintained OBS:RequestCloned
                   OBS:InitializeDevelPackage OBS:MaintenanceProject OBS:MaintenanceIdTemplate
@@ -40,12 +39,12 @@ class Webui::AttributesTest < Webui::IntegrationTest
       values = attribute[:value].split(',')
       # For the case that the AttribType has unlimited value_count
       # or that there are less values then
-      #puts "BEFORE #{attribute[:name]}: VALUES: #{values.length} | INPUTS: #{inputs.count}"
+      # puts "BEFORE #{attribute[:name]}: VALUES: #{values.length} | INPUTS: #{inputs.count}"
       (values.length - inputs.count).times do
         click_link 'add value'
       end
       inputs = page.all('div.nested-fields')
-      #puts "AFTER #{attribute[:name]}: VALUES: #{values.length} | INPUTS: #{inputs.count}"
+      # puts "AFTER #{attribute[:name]}: VALUES: #{values.length} | INPUTS: #{inputs.count}"
       inputs.count.must_equal values.count
 
       values.each_index do |i|
@@ -115,7 +114,6 @@ class Webui::AttributesTest < Webui::IntegrationTest
       flash_message_type.must_equal :alert
     end
   end
-
 
   def test_attrib_invalid_package
     visit index_attribs_path(project: 'home:Iggy', package: 'Pok')
@@ -188,5 +186,4 @@ class Webui::AttributesTest < Webui::IntegrationTest
     delete(project: 'home:Iggy',
            name: 'OBS:QualityCategory')
   end
-
 end

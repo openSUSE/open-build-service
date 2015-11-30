@@ -46,5 +46,4 @@ class BsRequestActionSetBugowner < BsRequestAction
   end
 
   #### Alias of methods
-
 end

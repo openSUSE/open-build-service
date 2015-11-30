@@ -178,7 +178,6 @@ class Patchinfo < ActiveXML::Node
       raise PackageAlreadyExists.new "createpatchinfo command: the package #{pkg_name} exists already, " +
                                          'but is  no patchinfo. Please create a new package instead.'
     end
-
   end
 
   def create_patchinfo(project, pkg_name, opts = {})
@@ -239,7 +238,7 @@ class Patchinfo < ActiveXML::Node
   end
 
   def issues
-    #TODO
+    # TODO
     []
   end
 
@@ -251,5 +250,4 @@ class Patchinfo < ActiveXML::Node
     end
     issues_by_tracker
   end
-
 end

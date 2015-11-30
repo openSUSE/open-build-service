@@ -3,7 +3,6 @@
 require_relative '../../test_helper'
 
 class Webui::SearchControllerTest < Webui::IntegrationTest
-
   setup do
     OBSApi::TestSphinx.ensure
     use_js
@@ -19,7 +18,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     validate_search_page
     # avoid the animation that happens when you press the button
     page.execute_script('$("#advanced_container").show()')
-    #click_button("advanced_link") # yes, that's the id of the button :)
+    # click_button("advanced_link") # yes, that's the id of the button :)
 
     options[:for]    ||= [:projects, :packages]
     options[:in]     ||= [:name]
@@ -135,7 +134,6 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   end
 
   def test_search_for_home_projects
-
     visit search_path
 
     search(
@@ -155,9 +153,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     assert results.count >= 4
   end
 
-
   def test_search_for_subprojects
-
     visit search_path
 
     search(
@@ -170,9 +166,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     results.count.must_equal 1
   end
 
-
   def test_search_for_projects
-
     visit search_path
 
     search(
@@ -185,9 +179,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     results.count.must_equal 1
   end
 
-
   def test_search_for_packages
-
     visit search_path
 
     search(
@@ -197,29 +189,24 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
 
     results = search_results
     assert results.include? :type => :package, :project_name => 'CopyTest', :package_name => 'test'
-    #assert results.include? :type => :package, :project_name => "home:Iggy", :package_name => "TestPack"
-    #assert results.include? :type => :package, :project_name => "home:Iggy", :package_name => "ToBeDeletedTestPack"
+    # assert results.include? :type => :package, :project_name => "home:Iggy", :package_name => "TestPack"
+    # assert results.include? :type => :package, :project_name => "home:Iggy", :package_name => "ToBeDeletedTestPack"
     results.count.must_equal 1
   end
-
 
   def test_search_by_title
     skip("not yet implemented")
   end
 
-
   def test_search_by_description
     skip("not yet implemented")
   end
-
 
   def test_search_by_attributes
     skip("not yet implemented")
   end
 
-
   def test_search_non_existing_by_name
-
     visit search_path
 
     search(
@@ -229,9 +216,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
       :expect => :no_results)
   end
 
-
   def test_search_non_existing_by_title
-
     visit search_path
 
     search(
@@ -241,9 +226,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
       :expect => :no_results)
   end
 
-
   def test_search_non_existing_by_description
-
     visit search_path
 
     search(
@@ -252,7 +235,6 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
       :in   => [:description],
       :expect => :no_results)
   end
-
 
   def test_search_non_existing_by_attributes
     visit search_path
@@ -301,7 +283,6 @@ end
       :expect => :invalid_search_options)
   end
 
-
   def test_search_with_empty_text
     visit search_path
     search(
@@ -312,7 +293,6 @@ end
   end
 
   def test_search_hidden_as_anonymous
-
     visit search_path
 
     search(
@@ -323,7 +303,6 @@ end
   end
 
   def test_search_hidden_as_adrian
-
     login_adrian to: search_path
 
     search(
@@ -335,5 +314,4 @@ end
     assert results.include? :type => :package, :package_name => 'packCopy', :project_name=> 'HiddenProject'
     results.count.must_equal 1
   end
-
 end

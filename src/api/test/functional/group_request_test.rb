@@ -9,7 +9,6 @@ require 'request_controller'
 #
 
 class GroupRequestTest < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   def setup
@@ -133,7 +132,6 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
                                      "comment"     => "Reopened by removing from group #{id}"}],
                   "description" => {}
                  }, Xmlhash.parse(@response.body))
-
   end
 
   def test_remove_request
@@ -155,7 +153,6 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     get "/request/#{id}"
     assert_response :success
     assert_xml_tag(:tag => "state", :attributes => {:name => "new"})
-
   end
 
   def test_accept_reviews_in_group
@@ -208,7 +205,6 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     # but also withhr2
     get "/request/#{withr2}"
     assert_xml_tag(:tag => "state", :attributes => {:name => "review"})
-
   end
 
   def test_supersede_replaces_request
@@ -231,7 +227,6 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
                   },
                   "description" => {} }, Xmlhash.parse(@response.body))
 
-
     withr2 = upload_request("submit_with_review")
     assert_response :success
 
@@ -250,7 +245,6 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
                     "comment" => {}
                   },
                   "description" => {} }, Xmlhash.parse(@response.body))
-
   end
 
   def test_accept_sub_request

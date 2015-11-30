@@ -87,7 +87,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     post "/source/home:tom:BaseDistro", :cmd => :copy, :oproject => "BaseDistro", :makeolder => 1
     assert_response 403
 
-    #cleanup
+    # cleanup
     delete "/source/home:tom:BaseDistro"
     assert_response :success
 
@@ -124,7 +124,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
       assert_equal "#{vrevs[k].to_i+1}.1", files.value(:vrev)
     end
 
-    #cleanup
+    # cleanup
     delete "/source/TEST:BaseDistro"
     assert_response :success
 
@@ -148,9 +148,8 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
       assert_equal "#{vrevs[k].to_i+3}.1", files.value(:vrev)
     end
 
-    #cleanup
+    # cleanup
     delete "/source/TEST:BaseDistro"
     assert_response :success
   end
-
 end

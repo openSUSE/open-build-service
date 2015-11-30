@@ -2,7 +2,6 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'xmlhash'
 
 class SearchControllerTest < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   def setup
@@ -50,7 +49,6 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get "/search/attribute?namespace=OBS&name=Maintained&package=apache2"
     assert_response :success
     assert_xml_tag tag: 'attribute', children: { count: 1 }
-
 
     get "/search/attribute?namespace=OBS&name=Maintained"
     assert_response :success
@@ -134,7 +132,6 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag content: "#&lt;NoMethodError: undefined method `[]' for nil:NilClass&gt;"
   end
 
-
   def test_xpath_search_for_person_or_group
     # used by maintenance people
     login_Iggy
@@ -185,7 +182,6 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 #    get "/search/person", match: "(@state='confirmed')"
 #    assert_response :success
 #    assert_xml_tag tag: 'collection', :attributes => { :matches => "1" }
-
   end
 
   def test_xpath_old_osc
@@ -209,9 +205,10 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get "/search/project", match: '[@name="HiddenProject"]'
     assert_response :success
     assert_xml_tag tag: 'collection', :children => { :count => 1 }
-    #<project name="HiddenProject">
+    # <project name="HiddenProject">
     assert_xml_tag :child => { tag: 'project', :attributes => { :name => 'HiddenProject'} }
   end
+
   def test_search_hidden_project_with_invalid_user
     # user is not maintainer - project has to be invisible
     login_Iggy
@@ -230,6 +227,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'collection', :children => { :count => 1 }
     assert_xml_tag :child => { tag: 'package', :attributes => { :name => 'pack', :project => "HiddenProject"} }
   end
+
   def test_search_package_in_hidden_project_as_non_maintainer
     # user is not maintainer - package has to be invisible
     login_Iggy
@@ -374,7 +372,6 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get "/search/request",  match: 'action/@type="submit" and (action/target/@project="Apache" or submit/target/@project="Apache") and (action/target/@package="apache2" or submit/target/@package="apache2")'
     # rubocop:enable Metrics/LineLength
     assert_response :success
-
   end
 
   def get_package_count
@@ -811,7 +808,6 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'request', attributes: { id: '2'}
     assert_no_xml_tag tag: 'request', attributes: { id: '1'}
-
   end
 
   def test_xpath_with_two_relationships

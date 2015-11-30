@@ -9,5 +9,4 @@ class RemoveBsPrefixFromUser < ActiveRecord::Migration
     rename_column :attrib_type_modifiable_bies, :bs_user_id, :user_id
     execute "alter table attrib_type_modifiable_bies add FOREIGN KEY (user_id) references users (id);"
   end
-
 end

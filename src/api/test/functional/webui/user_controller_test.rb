@@ -1,7 +1,6 @@
 require_relative '../../test_helper'
 
 class Webui::UserControllerTest < Webui::IntegrationTest
-
   def test_edit
     login_king to: user_edit_path(user: 'tom')
 

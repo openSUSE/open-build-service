@@ -8,5 +8,4 @@ class MailHandlerController < ApplicationController
     # UNIMPLEMENTED STUB JUST FOR TESTING
     render_ok
   end
-
 end

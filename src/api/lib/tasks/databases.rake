@@ -7,7 +7,7 @@ module Rake
       deps = deps.collect {|d| d.to_s }
       task = @tasks[task_name.to_s] = task_class.new(task_name, self)
       task.application = self
-      #task.add_comment(@last_comment)
+      # task.add_comment(@last_comment)
       @last_comment = nil
       task.enhance(deps, &block)
       task
@@ -27,7 +27,6 @@ def redefine_task(args, &block)
 end
 
 namespace :db do
-
   namespace :structure do
     desc "Dump the database structure to a SQL file"
     task :dump => :environment do
@@ -84,7 +83,6 @@ namespace :db do
       end
       File.open("#{Rails.root}/db/structure.sql", "w+") { |f| f << new_structure }
     end
-
   end
 
  desc 'Create the database, load the structure, and initialize with the seed data'
@@ -92,5 +90,4 @@ namespace :db do
     Rake::Task["db:structure:load"].invoke
     Rake::Task["db:seed"].invoke
  end
-
 end

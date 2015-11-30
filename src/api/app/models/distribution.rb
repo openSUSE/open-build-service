@@ -69,5 +69,4 @@ class Distribution < ActiveRecord::Base
     end
     return list
   end
-
 end

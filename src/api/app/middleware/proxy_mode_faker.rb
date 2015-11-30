@@ -1,5 +1,4 @@
 class ProxyModeFaker
-
   def initialize(app)
     @app = app
   end
@@ -11,5 +10,4 @@ class ProxyModeFaker
     env['HTTP_X_LASTNAME'] = 'Schütz'
     @app.call env
   end
-
 end

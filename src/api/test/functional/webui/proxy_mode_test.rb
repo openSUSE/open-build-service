@@ -3,7 +3,6 @@ require_relative '../../test_helper'
 SimpleCov.command_name 'test:proxy_mode'
 
 class Webui::ProxyModeTest < Webui::IntegrationTest
-
   def test_access_as_new_user
     if CONFIG['proxy_auth_mode'] != :on
       skip("This test depends on proxy_auth_mode being :on which is isn't...")
@@ -35,6 +34,4 @@ class Webui::ProxyModeTest < Webui::IntegrationTest
     assert_equal '/user/show/pico', page.current_path
     User.find_by(login: 'pico').destroy
   end
-
-
 end

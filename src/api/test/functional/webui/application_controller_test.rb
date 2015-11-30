@@ -1,7 +1,6 @@
 require_relative '../../test_helper'
 
 class Webui::ApplicationControllerTest < Webui::IntegrationTest
-
   include Webui::WebuiHelper
 
   def setup

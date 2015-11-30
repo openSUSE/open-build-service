@@ -1,7 +1,6 @@
 require 'api_exception'
 
 module ValidationHelper
-
   class InvalidProjectNameError < APIException
   end
 
@@ -73,9 +72,8 @@ module ValidationHelper
     raise Project::UnknownObjectError unless r
     return true if @http_user.is_admin?
     if FlagHelper.xml_disabled_for?(Xmlhash.parse(r.body), 'access')
-      #FIXME: actually a per user checking would be more accurate here
+      # FIXME: actually a per user checking would be more accurate here
       raise Project::UnknownObjectError, "#{project}"
     end
   end
-
 end

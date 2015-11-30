@@ -1,7 +1,6 @@
 require_relative '../../test_helper'
 
 class Webui::MainControllerTest < ActionDispatch::IntegrationTest
-
   def fetch_sitemap(url)
     get url
     assert_response :success
@@ -30,5 +29,4 @@ class Webui::MainControllerTest < ActionDispatch::IntegrationTest
     assert @urls.include? '/package/show/home:Iggy/TestPack'
     assert @urls.include? '/package/show/Apache/apache2'
   end
-
 end

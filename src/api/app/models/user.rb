@@ -20,7 +20,6 @@ class UserBasicStrategy
 end
 
 class User < ActiveRecord::Base
-
   include CanRenderModel
 
   STATES = {
@@ -81,7 +80,6 @@ class User < ActiveRecord::Base
   # (@new_password) and the login failure count to
   # unconfirmed/false/0 when it has not been set yet.
   before_validation(:on => :create) do
-
     self.state = STATES['unconfirmed'] if self.state.nil?
     self.password_hash_type = 'md5' if self.password_hash_type.to_s == ''
 
@@ -416,7 +414,6 @@ class User < ActiveRecord::Base
     def realname_for_login(login)
       User.find_by_login(login).realname
     end
-
   end
 
   # After validation, the password should be encrypted
@@ -693,7 +690,6 @@ class User < ActiveRecord::Base
   end
 
   def has_local_role?( role, object )
-
     if object.is_a?(Package) || object.is_a?(Project)
       logger.debug "running local role package check: user #{self.login}, package #{object.name}, role '#{role.title}'"
       rels = object.relationships.where(:role_id => role.id, :user_id => self.id)
@@ -722,11 +718,11 @@ class User < ActiveRecord::Base
     case object
     when Package
       logger.debug "running local permission check: user #{self.login}, package #{object.name}, permission '#{perm_string}'"
-      #check permission for given package
+      # check permission for given package
       parent = object.project
     when Project
       logger.debug "running local permission check: user #{self.login}, project #{object.name}, permission '#{perm_string}'"
-      #check permission for given project
+      # check permission for given project
       parent = object.parent
     when nil
       return has_global_permission?(perm_string)
@@ -741,7 +737,7 @@ class User < ActiveRecord::Base
     return true if lookup_strategy.local_permission_check(roles, object)
 
     if parent
-      #check permission of parent project
+      # check permission of parent project
       logger.debug "permission not found, trying parent project '#{parent.name}'"
       return has_local_permission?(perm_string, parent)
     end
@@ -936,7 +932,6 @@ class User < ActiveRecord::Base
   # returns the gravatar image as string or :none
   def gravatar_image(size)
     Rails.cache.fetch([self, 'home_face', size, Configuration.first]) do
-
       if ::Configuration.gravatar
         hash = Digest::MD5.hexdigest(self.email.downcase)
         begin

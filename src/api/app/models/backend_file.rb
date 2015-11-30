@@ -1,6 +1,5 @@
 # ActiveModel for representing the backend files (special ones and source files too)
 class BackendFile
-
   include ActiveModel::Model
 
   BUFFER_SIZE = 40960

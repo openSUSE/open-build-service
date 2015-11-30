@@ -1,5 +1,4 @@
 class GetRidOfDbPrefix < ActiveRecord::Migration
-
   def change
     execute "alter table attribs drop FOREIGN KEY attribs_ibfk_2"
     execute "alter table attribs drop FOREIGN KEY attribs_ibfk_3"

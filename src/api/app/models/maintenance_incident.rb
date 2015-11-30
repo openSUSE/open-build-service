@@ -1,7 +1,6 @@
 # The maintenance incident class represents the entry in the database.
 #
 class MaintenanceIncident < ActiveRecord::Base
-
   belongs_to :project, class_name: "Project", foreign_key: :db_project_id
   belongs_to :maintenance_db_project, :class_name => "Project"
 
@@ -64,7 +63,6 @@ class MaintenanceIncident < ActiveRecord::Base
   end
 
   def getUpdateinfoCounter(time, template = "%Y-%C")
-
     uc = UpdateinfoCounter.find_or_create(time, template)
     IncidentUpdateinfoCounterValue.find_or_create(time, uc, self.project)
   end

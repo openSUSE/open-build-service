@@ -1,5 +1,4 @@
 class CreateJob
-
   def initialize(event)
     self.event = event
   end

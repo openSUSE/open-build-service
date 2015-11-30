@@ -34,5 +34,4 @@ class TestController < ApplicationController
      backend.direct_http(URI("/"))
      render_ok
   end
-
 end

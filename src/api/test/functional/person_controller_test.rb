@@ -2,7 +2,6 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class PersonControllerTest < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   def setup
@@ -222,7 +221,7 @@ XML
     assert_response :success
     assert_xml_tag :tag => "globalrole", :content => "Admin" # written as Admin
 
-    #revert
+    # revert
     doc.elements["/person"].delete_element "globalrole"
     put "/person/tom", doc.to_s
     assert_response :success
@@ -366,7 +365,7 @@ XML
     get "/person/adrianSuSE"
     assert_response :success
 
-    #cleanup
+    # cleanup
     u.destroy
   end
 
@@ -391,7 +390,5 @@ XML
     assert_equal u.realname, "Adrian Schroeter"
     assert_equal nil, u.adminnote
     u.destroy
-
   end
-
 end

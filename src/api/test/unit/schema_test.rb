@@ -2,7 +2,6 @@ require_relative '../test_helper'
 require 'find'
 
 class SchemaTest < ActiveSupport::TestCase
-
   test 'schemas' do
     Find.find(CONFIG['schema_location']).each do |f|
       io = nil

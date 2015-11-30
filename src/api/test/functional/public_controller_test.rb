@@ -54,7 +54,6 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     get "/public/source/HiddenProject/pack/my_file"
     assert_response 404
-
   end
 
   def test_lastevents

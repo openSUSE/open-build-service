@@ -1,7 +1,6 @@
 require 'opensuse/backend'
 
 class ProjectCreateAutoCleanupRequests < ActiveJob::Base
-
   Description="This is a humble request to remove this project.
 Accepting this request will free resources on our always crowded server.
 Please decline this request if you want to keep this repository nevertheless. Otherwise this request
@@ -62,5 +61,4 @@ Such requests get not created for projects with open requests or if you remove t
     req.save!
     Event::RequestCreate.create(req.notify_parameters)
   end
-
 end

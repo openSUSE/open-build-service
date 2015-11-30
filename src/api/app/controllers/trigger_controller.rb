@@ -1,5 +1,4 @@
 class TriggerController < ApplicationController
-
   validate_action :runservice => {:method => :post, :response => :status}
 
   #
@@ -43,7 +42,5 @@ class TriggerController < ApplicationController
     pass_to_backend path
 
     pkg.sources_changed
-
   end
-
 end

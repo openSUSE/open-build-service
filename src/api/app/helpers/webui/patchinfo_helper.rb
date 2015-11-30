@@ -6,7 +6,6 @@ module Webui::PatchinfoHelper
   end
 
   def issue_link( issue )
-
     # list issue-names with urls and summary from the patchinfo-file
     # issue[0] = tracker-name
     # issue[1] = issueid

@@ -3,7 +3,6 @@ require 'event'
 require 'event_subscription'
 
 class EventTest < ActionDispatch::IntegrationTest
-
   fixtures :all
   set_fixture_class events: Event::Base
 
@@ -75,7 +74,6 @@ class EventTest < ActionDispatch::IntegrationTest
                              receiver_role: :all, receive: true
 
     assert_equal %w(fredlibs), users_for_event(e)
-
   end
 
   test 'create request' do
@@ -167,5 +165,4 @@ class EventTest < ActionDispatch::IntegrationTest
     # fred and fredlibs are project maintainers, apache2 has no package maintainer - and they share the email address (DUDE!)
     assert_equal %w(fred@feuerstein.de fred@feuerstein.de), email.to
   end
-
 end

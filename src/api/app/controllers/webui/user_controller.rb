@@ -2,7 +2,6 @@ require 'base64'
 require 'event'
 
 class Webui::UserController < Webui::WebuiController
-
   include Webui::WebuiHelper
   include Webui::NotificationSettings
 

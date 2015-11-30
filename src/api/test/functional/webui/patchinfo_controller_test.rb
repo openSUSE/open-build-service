@@ -2,7 +2,6 @@
 require_relative '../../test_helper'
 
 class Webui::PatchinfoControllerTest < Webui::IntegrationTest
-
   LONG_DESCRIPTION = "long description" * 15
 
   setup do
@@ -148,7 +147,7 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     end
 
     click_link("Edit patchinfo")
-    #remove 'delete_me' from selected binaries
+    # remove 'delete_me' from selected binaries
     find('select#selected_binaries').select('delete_me')
     click_button("remove")
     click_button("Save Patchinfo")
@@ -211,7 +210,7 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     fill_in "description", with: LONG_DESCRIPTION
     click_button("Save Patchinfo")
 
-    #edit the summary of the created patchinfo
+    # edit the summary of the created patchinfo
     click_link("Edit patchinfo")
     fill_in "summary", with: "This is a test for the patchinfo-editor"
     fill_in "description", with: LONG_DESCRIPTION
@@ -284,5 +283,4 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     visit patchinfo_show_path(package: 'patchinfo', project: project.name)
     assert page.has_link?('delete-patchinfo')
   end
-
 end

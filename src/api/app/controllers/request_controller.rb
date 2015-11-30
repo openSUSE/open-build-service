@@ -7,7 +7,7 @@ class RequestController < ApplicationController
   validate_action :show => { method: :get, response: :request }
   validate_action :request_create => { method: :post, response: :request }
 
-  #TODO: allow PUT for non-admins
+  # TODO: allow PUT for non-admins
   before_filter :require_admin, :only => [:update, :destroy]
 
   # GET /request
@@ -58,7 +58,6 @@ class RequestController < ApplicationController
 
   # POST /request?cmd=create
   def global_command
-
     unless %w(create).include? params[:cmd]
       raise UnknownCommandError.new "Unknown command '#{params[opt[:cmd_param]]}' for path #{request.path}"
     end
@@ -68,7 +67,6 @@ class RequestController < ApplicationController
     # no need for dispatch_command, there is only one command
     request_create
   end
-
 
   # POST /request/:id?cmd=$CMD
   def request_command
@@ -246,5 +244,4 @@ class RequestController < ApplicationController
     @req.change_state(params)
     render_ok
   end
-
 end
