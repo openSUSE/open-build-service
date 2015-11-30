@@ -37,7 +37,7 @@ owners](https://github.com/orgs/openSUSE/teams/owners) know!
 # Communication
 GitHub issues are the primary way for communicating about specific proposed
 changes to this project. If you have other problems please use one of the other
-[support channels])(http://openbuildservice.org/support/)
+[support channels](http://openbuildservice.org/support/)
 
 # Rubocop
 We are currently in the process of adding rubocop rules to OBS. For that we
