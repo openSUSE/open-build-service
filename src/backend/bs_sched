@@ -49,6 +49,8 @@ use BSDB;
 use BSSolv;
 use BSCando;
 
+use BSSched::RPC;
+
 if ($BSConfig::enable_download_on_demand) {
   require BSDoD;
 }
@@ -733,7 +735,7 @@ sub dodfetch {
 	'_prpa' => $prpa,
       },
     };
-    xrpc($gctx->{'rctx'}, $ctx, "dodfetch/$prpa", $param, undef, "view=binaryversions", map {"binary=$_"} @pkgs);
+    $gctx->{'rctx'}->xrpc($ctx, "dodfetch/$prpa", $param, undef, "view=binaryversions", map {"binary=$_"} @pkgs);
   }
 }
 
@@ -3091,174 +3093,6 @@ my @_retryevents;
 my $_maxserverload = 1;
 $_maxserverload = $BSConfig::sched_maxserverload if $BSConfig::sched_maxserverload;
 
-sub is_transient_error {
-  my ($error) = @_;
-  return 1 if $error =~ /^5\d\d/;
-  return 0 if $error =~ /remote error:/;
-  return 1;
-}
-
-sub xrpc {
-  my ($rctx, $ctx, $resource, $param, @args) = @_;
-
-  my $async = $param->{'async'};
-  return BSRPC::rpc($param, @args) unless $async;
-
-  my $iswaiting = $rctx->{'iswaiting'};
-  my $rhandle = $iswaiting->{$resource};
-  if ($rhandle) {
-    # resource is busy. Enqueue.
-    if (!$ctx->{'_orderedrpcs'} && $ctx->{'changeprp'}) {
-      # xrpc resulted from looking at a prp. Just do that again. Order does not matter.
-      my $handle = { '_ctx' => $ctx};
-      $handle->{$_} = $async->{$_} for keys %$async;
-      push @{$rhandle->{'_wakeup'}}, $handle;
-      return $handle;
-    }
-    # project rpcs, we need to run them in order
-    my $handle = { '_xrpc_data' => [$ctx, $resource, $param, @args] };
-    push @{$rhandle->{'_nextxrpc'}}, $handle;
-    return $handle;
-  }
-
-  # free to get resource from server
-  my $server = $param->{'uri'};
-  $server =~ s/.*?\/\///;
-  $server =~ s/\/.*//;
-  my $maxserverload = $rctx->{'maxserverload'};
-  my $iswaiting_server = $rctx->{'iswaiting_server'};
-  my $serverload = scalar(keys %{$iswaiting_server->{$server} || {}});
-  if ($serverload >= $maxserverload) {
-    # load too high. postpone.
-    my $handle = { '_xrpc_data' => [$ctx, $resource, $param, @args] };
-    if (($async->{'_changetype'} || $ctx->{'changetype'} || '') ne 'low') {
-      push @{$rctx->{'iswaiting_serverload'}->{$server}}, $handle;
-    } else {
-      push @{$rctx->{'iswaiting_serverload_low'}->{$server}}, $handle;
-    }
-    $handle->{'_iswaiting'} = $resource;
-    $handle->{'_server'} = $server;
-    $iswaiting->{$resource} = $handle;
-    return $handle;
-  }
-  my $handle = BSRPC::rpc($param, @args);
-  $handle->{'_ctx'} = $ctx;
-  $handle->{'_iswaiting'} = $resource;
-  $handle->{'_server'} = $server;
-
-  $handle->{$_} = $async->{$_} for keys %$async;
-  $iswaiting->{$resource} = $handle;
-  $iswaiting_server->{$server}->{$resource} = 1;
-  return $handle;
-}
-
-sub xrpc_addwakeup {
-  my ($rctx, $ctx, $resource) = @_;
-  my $iswaiting = $rctx->{'iswaiting'};
-  my $rhandle = $iswaiting->{$resource};
-  die("addwakeup to not busy resource '$resource'\n") unless $rhandle;
-  push @{$rhandle->{'_wakeup'}}, { '_ctx' => $ctx };
-}
-
-sub xrpc_handles {
-  my ($rctx) = @_;
-  my $iswaiting = $rctx->{'iswaiting'};
-  return values(%$iswaiting);
-}
-
-sub xrpc_busy {
-  my ($rctx, $resource) = @_;
-  return %{$rctx->{'iswaiting'}} ? 1 : 0 unless defined $resource;
-  return $rctx->{'iswaiting'}->{$resource} ? 1 : 0;
-}
-
-sub xrpc_printstats {
-  my ($rctx) = @_;
-  my $iswaiting = $rctx->{'iswaiting'};
-  return unless %$iswaiting;
-  my $iswaiting_server = $rctx->{'iswaiting_server'};
-  my $iswaiting_serverload = $rctx->{'iswaiting_serverload'};
-  my $iswaiting_serverload_low = $rctx->{'iswaiting_serverload_low'};
-  print "running async RPC requests:\n";
-  for my $server (sort keys %$iswaiting_server) {
-    next unless %{$iswaiting_server->{$server} || {}};
-    print "  - $server: ".scalar(keys %{$iswaiting_server->{$server}})." running, ".@{$iswaiting_serverload->{$server} || []}."/".@{$iswaiting_serverload_low->{$server} || []}." waiting\n";
-  }
-}
-
-sub xrpc_resume {
-  my ($rctx, $handle) = @_;
-
-  # iswaiting rpc, finish...
-  my $iswaiting = $rctx->{'iswaiting'};
-  my $iswaiting_server = $rctx->{'iswaiting_server'};
-  my $iswaiting_serverload = $rctx->{'iswaiting_serverload'};
-  my $iswaiting_serverload_low = $rctx->{'iswaiting_serverload_low'};
-  my $iw = $handle->{'_iswaiting'};
-  my $server = $handle->{'_server'};
-  print "response from RPC $iw ($handle->{'uri'})\n";
-  delete $iswaiting->{$iw};
-  delete $iswaiting_server->{$server}->{$iw};
-
-  # fire up rpcs delayed because of server load
-  if ($iswaiting_serverload->{$server} || $iswaiting_serverload_low->{$server}) {
-    my @loadrpcs;
-    my @loadrpcs_low;
-    @loadrpcs = @{delete $iswaiting_serverload->{$server}} if $iswaiting_serverload->{$server};
-    @loadrpcs_low = @{delete $iswaiting_serverload_low->{$server}} if $iswaiting_serverload_low->{$server};
-    while (@loadrpcs || @loadrpcs_low) {
-      my $nextrpc;
-      if ((@loadrpcs && $rctx->{'resumed_highload'}++ < 2) || !@loadrpcs_low) {
-	$nextrpc = shift @loadrpcs;
-      } else {
-	$rctx->{'resumed_highload'} = 0;
-	$nextrpc = shift @loadrpcs_low;
-      }
-      my $resource = $nextrpc->{'_iswaiting'};
-      delete $iswaiting->{$resource};
-      my $nhandle = xrpc($rctx, @{$nextrpc->{'_xrpc_data'}});
-      for (keys %$nextrpc) {
-        $nhandle->{$_} = $nextrpc->{$_} if $_ ne '_xrpc_data';
-      }
-      last if $iswaiting_serverload->{$server} || $iswaiting_serverload_low->{$server};
-    }
-    push @{$iswaiting_serverload->{$server}}, @loadrpcs;
-    push @{$iswaiting_serverload_low->{$server}}, @loadrpcs_low;
-  }
-
-  my $ret;
-  eval { $ret = BSRPC::rpc($handle) };
-  my $error;
-  if ($@) {
-    warn $@;
-    $error = $@;
-    chomp $error;
-  }
-  # run result handler
-  die("no _resume set in handler $handle\n") unless $handle->{'_resume'};
-  $handle->{'_resume'}->($handle->{'_ctx'}, $handle, $error, $ret);
-
-  # fire up waiting rpcs
-  for my $nextrpc (@{$handle->{'_nextxrpc'} || []}) {
-    my $nhandle = xrpc($rctx, @{$nextrpc->{'_xrpc_data'}});
-    for (keys %$nextrpc) {
-      $nhandle->{$_} = $nextrpc->{$_} if $_ ne '_xrpc_data';
-    }
-  }
-  if (@{$handle->{'_wakeup'} || []}) {
-    my %did;
-    for my $whandle (unify(@{$handle->{'_wakeup'} || []})) {
-      my $wctx = $whandle->{'ctx'};
-      my $changeprp = $whandle->{'_changeprp'} || $wctx->{'changeprp'};
-      my $changetype = $whandle->{'_changetype'} || $wctx->{'changetype'} || 'high';
-      my $changelevel = $whandle->{'_changelevel'} || $wctx->{'changelevel'} || 1;
-      next if !$changeprp || $did{"$changeprp/$changetype/$changelevel"};
-      $did{"$changeprp/$changetype/$changelevel"} = 1;
-      $rctx->{'wakeupfunction'}->($whandle->{'_ctx'}, $whandle);
-    }
-  }
-}
-
 sub xrpc_setchanged {
   my ($ctx, $handle) = @_;
 
@@ -3460,9 +3294,9 @@ sub get_projpacks {
       }
       eval {
 	if ($usestorableforprojpack) {
-	  $projpacksin = xrpc($gctx->{'rctx'}, $ctx, $projid, $param, \&BSUtil::fromstorable, 'view=storable', 'withsrcmd5', 'withdeps', 'withrepos', 'withconfig', 'withremotemap', "arch=$myarch", @args);
+	  $projpacksin = $gctx->{'rctx'}->xrpc($ctx, $projid, $param, \&BSUtil::fromstorable, 'view=storable', 'withsrcmd5', 'withdeps', 'withrepos', 'withconfig', 'withremotemap', "arch=$myarch", @args);
 	} else {
-	  $projpacksin = xrpc($gctx->{'rctx'}, $ctx, $projid, $param, $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'withconfig', 'withremotemap', "arch=$myarch", @args);
+	  $projpacksin = $gctx->{'rctx'}->xrpc($ctx, $projid, $param, $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'withconfig', 'withremotemap', "arch=$myarch", @args);
 	}
       };
       return 0 if !$@ && $projpacksin && $param->{'async'};
@@ -3782,7 +3616,7 @@ sub update_project_meta {
   push @args, "project=$projid";
   eval {
     # withsrcmd5 is needed for the patterns md5sum
-    $projpacksin = xrpc($gctx->{'rctx'}, $ctx, $projid, $param, $BSXML::projpack, 'nopackages', 'withrepos', 'withconfig', 'withsrcmd5', "arch=$myarch", @args);
+    $projpacksin = $gctx->{'rctx'}->xrpc($ctx, $projid, $param, $BSXML::projpack, 'nopackages', 'withrepos', 'withconfig', 'withsrcmd5', "arch=$myarch", @args);
   };
   if ($@ || !$projpacksin) {
     print $@ if $@;
@@ -4314,7 +4148,7 @@ sub fetchremoteproj {
     my $error = $@;
     $error =~ s/\n$//s;
     $rproj = {'error' => $error};
-    addretryevent($gctx, {'type' => 'project', 'project' => $projid}) if is_transient_error($error);
+    addretryevent($gctx, {'type' => 'project', 'project' => $projid}) if BSSched::RPC::is_transient_error($error);
   }
   return undef unless $rproj;
   for (qw{name root remoteroot remoteurl remoteproject}) {
@@ -4358,7 +4192,7 @@ sub fetchremoteconfig {
     warn($@);
     $proj->{'error'} = $@;
     $proj->{'error'} =~ s/\n$//s;
-    addretryevent($gctx, {'type' => 'project', 'project' => $projid}) if is_transient_error($proj->{'error'});
+    addretryevent($gctx, {'type' => 'project', 'project' => $projid}) if BSSched::RPC::is_transient_error($proj->{'error'});
     return undef;
   }
   $proj->{'config'} = $c;
@@ -4388,7 +4222,7 @@ sub addrepo_remote_unpackcpio {
   if ($error) {
     chomp $error;
     warn("$error\n");
-    if (is_transient_error($error)) {
+    if (BSSched::RPC::is_transient_error($error)) {
       my ($projid, $repoid) = split('/', $prp, 2);
       addretryevent($gctx, {'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $arch});
       if (-s "$remotecache/$cachemd5.solv") {
@@ -4467,7 +4301,7 @@ sub addrepo_remote_resume {
   my $gctx = $ctx->{'gctx'};
   my $pool = BSSolv::pool->new();
   my $r = addrepo_remote_unpackcpio($gctx, $pool, $handle->{'_prp'}, $handle->{'_arch'}, $cpio, $handle->{'_solvok'}, $error);
-  xrpc_setchanged($ctx, $handle) unless !$r && $error && is_transient_error($error);
+  xrpc_setchanged($ctx, $handle) unless !$r && $error && BSSched::RPC::is_transient_error($error);
 }
 
 sub addrepo_remote {
@@ -4495,14 +4329,14 @@ sub addrepo_remote {
   eval {
     die('unsupported view\n') unless $remoteproj->{'partition'} || defined($BSConfig::usesolvstate) && $BSConfig::usesolvstate;
     $param->{'async'}->{'_solvok'} = 1 if $param->{'async'};
-    $cpio = xrpc($gctx->{'rctx'}, $ctx, "repository/$prp/$arch", $param, undef, 'view=solvstate');
+    $cpio = $gctx->{'rctx'}->xrpc($ctx, "repository/$prp/$arch", $param, undef, 'view=solvstate');
     $solvok = 1 if $cpio;
   };
   if ($@ && $@ =~ /unsupported view/) {
     $solvok = undef;
     delete $param->{'async'}->{'_solvok'} if $param->{'async'};
     eval {
-      $cpio = xrpc($gctx->{'rctx'}, $ctx, "repository/$prp/$arch", $param, undef, 'view=cache');
+      $cpio = $gctx->{'rctx'}->xrpc($ctx, "repository/$prp/$arch", $param, undef, 'view=cache');
     };
   }
   if ($@) {
@@ -4685,9 +4519,9 @@ sub read_gbininfo_remote {
   eval {
     if ($remoteproj->{'partition'}) {
       $param->{'async'}->{'_isgbininfo'} = 1 if $asyncmode;
-      $packagebinarylist = xrpc($gctx->{'rctx'}, $ctx, "bininfo/$prpa", $param, \&BSUtil::fromstorable, "view=gbininfocode");
+      $packagebinarylist = $gctx->{'rctx'}->xrpc($ctx, "bininfo/$prpa", $param, \&BSUtil::fromstorable, "view=gbininfocode");
     } else {
-      $packagebinarylist = xrpc($gctx->{'rctx'}, $ctx, "bininfo/$prpa", $param, $BSXML::packagebinaryversionlist, "view=binaryversionscode");
+      $packagebinarylist = $gctx->{'rctx'}->xrpc($ctx, "bininfo/$prpa", $param, $BSXML::packagebinaryversionlist, "view=binaryversionscode");
     }
   };
   if ($@) {
@@ -4695,7 +4529,7 @@ sub read_gbininfo_remote {
     my $error = $@;
     $error =~ s/\n$//s;
     ($projid, $repoid) = split('/', $ctx->{'prp'}, 2);
-    addretryevent($ctx->{'gctx'}, {'type' => 'recheck', 'project' => $projid, 'repository' => $repoid}) if is_transient_error($error);
+    addretryevent($ctx->{'gctx'}, {'type' => 'recheck', 'project' => $projid, 'repository' => $repoid}) if BSSched::RPC::is_transient_error($error);
     return undef;
   }
   return 0 if $packagebinarylist && $param->{'async'};
@@ -6843,9 +6677,9 @@ sub checkaggregate {
       next;
     }
     if ($proj->{'error'}) {
-      if (is_transient_error($proj->{'error'})) {
+      if (BSSched::RPC::is_transient_error($proj->{'error'})) {
         # XXX: hmm, there's already a project retryevent on $aprojid
-        addretryevent($gctx, {'type' => 'package', 'project' => $projid, 'package' => $packid}) if is_transient_error($proj->{'error'});
+        addretryevent($gctx, {'type' => 'package', 'project' => $projid, 'package' => $packid});
         $delayed = 1;
       }
       push @broken, $aprojid;
@@ -7066,7 +6900,7 @@ sub rebuildaggregate {
 	    warn($@);
 	    $error = $@;
 	    $error =~ s/\n$//s;
-	    addretryevent($ctx->{'gctx'}, {'type' => 'repository', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $myarch}) if is_transient_error($error);
+	    addretryevent($ctx->{'gctx'}, {'type' => 'repository', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $myarch}) if BSSched::RPC::is_transient_error($error);
 	    last;
 	  }
 	  for my $bin (@{$cpio || []}) {
@@ -7751,7 +7585,7 @@ sub event_uploadbuildimport_delay {
   my $projid = $info->{'project'};
   my $packid = $info->{'package'};
   return 0 unless defined($projid);
-  return 1 if xrpc_busy($gctx->{'rctx'}, $projid);	# delay if getprojpack in progress
+  return 1 if $gctx->{'rctx'}->xrpc_busy($projid);	# delay if getprojpack in progress
   return 0 unless defined($packid);
   if (grep {!defined($_) || $_ eq $packid} (@{$fetchprojpacks->{$projid} || []}, @{$delayedfetchprojpacks->{$projid} || []})) {
     push @{$fetchprojpacks->{$projid}}, $packid;
@@ -8163,7 +7997,7 @@ sub do_fetchprojpacks {
       }
     }
     # don't delay if a getprojpack is in progress (which may create the project)
-    next if !$foundit && xrpc_busy($gctx->{'rctx'}, $projid);
+    next if !$foundit && $gctx->{'rctx'}->xrpc_busy($projid);
     push @{$delayedfetchprojpacks->{$projid}}, @{$fetchprojpacks->{$projid}};
     my $linked = find_linked_sources($gctx, $projid, $fetchprojpacks->{$projid});
     if (%$linked) {
@@ -8461,15 +8295,10 @@ my $gctx = {
   'retryevents' => [],
 };
 
-my $rctx = {
-  'iswaiting' => {},
-  'iswaiting_server' => {},
+my $rctx = BSSched::RPC->new(
   'maxserverload' => $_maxserverload,
-  'iswaiting_serverload' => {},
-  'iswaiting_serverload_low' => {},
-  'resumed_highload' => 0,
   'wakeupfunction' => \&xrpc_setchanged,
-};
+);
 
 $gctx->{'rctx'} = $rctx;
 
@@ -8791,13 +8620,13 @@ NEXTPRP:
     if ($testprojid) {
       print "ignoring events due to test mode\n";
     } else {
-      my @watchers = (values(%remotewatchers), xrpc_handles($gctx->{'rctx'}));
+      my @watchers = (values(%remotewatchers), $gctx->{'rctx'}->xrpc_handles());
       if (@watchers) {
         @watchers = select_read(0, $pingwatcher, @watchers);
 	for my $watcher (@watchers) {
 	  my $remoteurl = $watcher->{'remoteurl'};
 	  if (!defined($remoteurl)) {
-	    xrpc_resume($gctx->{'rctx'}, $watcher);
+	    $gctx->{'rctx'}->xrpc_resume($watcher);
 	  } elsif ($remoteurl eq 'ping') {
             $gotevent = 1;
 	  } elsif ($watcher->{'retry'}) {
@@ -8992,18 +8821,18 @@ NEXTPRP:
     # postpone if we got source change RPCs running
     if (defined($prp)) {
       my ($projid) = split('/', $prp, 2);
-      if (xrpc_busy($gctx->{'rctx'}, $projid)) {
+      if ($gctx->{'rctx'}->xrpc_busy($projid)) {
 	my $ctx = {'changeprp' => $prp, 'changetype' => $lookattype, 'gctx' => $gctx};
-	xrpc_addwakeup($gctx->{'rctx'}, $ctx, $projid);
+	$gctx->{'rctx'}->xrpc_addwakeup($ctx, $projid);
 	next;
       }
     }
 
-    xrpc_printstats($gctx->{'rctx'});
+    $gctx->{'rctx'}->xrpc_printstats();
 
     if (!defined($prp)) {
       # nothing to do. good night, sleep tight...
-      if ($testmode && !xrpc_busy($gctx->{'rctx'})) {
+      if ($testmode && !$gctx->{'rctx'}->xrpc_busy()) {
 	print "Test mode, all sources and events processed, exiting...\n";
         event_exit({ 'gctx' => $gctx }, { 'type' => 'exitcomplete' });
       }
@@ -9012,7 +8841,7 @@ NEXTPRP:
       print "$msgtm waiting for an event...\n";
       exit 0 if $testprojid;
       my $sleepstart = time();
-      my @watchers = (values(%remotewatchers), @{$gctx->{'retryevents'}}, xrpc_handles($gctx->{'rctx'}));
+      my @watchers = (values(%remotewatchers), @{$gctx->{'retryevents'}}, $gctx->{'rctx'}->xrpc_handles());
       select_read(undef, $pingwatcher, @watchers);
       $slept += time() - $sleepstart;
       next;
