@@ -10,7 +10,32 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # please see the online documentation at vagrantup.com.
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = 'webhippie/opensuse-13.2'
+  config.vm.define "frontend" , primary: true do |fe|
+    fe.vm.box = 'webhippie/opensuse-13.2'
+    # Provision the box with a simple shell script
+    fe.vm.provision :shell, path: 'bootstrap.sh'
+    fe.vm.provision :shell, inline: 'mount /vagrant/src/api/tmp', run: "always"
+    
+    # Execute commands in the frontend directory
+    fe.exec.commands '*', directory: '/vagrant/src/api'
+    fe.exec.commands '*', env: {'DATABASE_URL' => 'mysql2://root:opensuse@localhost/api_development'}
+    fe.vm.network :forwarded_port, guest: 3000, host: 3000
+  end
+
+
+  config.vm.define "appliance" , primary: true do |app|
+    app.vm.box = 'webhippie/opensuse-13.2'
+    # app.exec.commands '*', env: {'RAILS_ENV' => 'production'}
+    # app.exec.commands '*', env: {'DATABASE_URL' => 'mysql2://root:opensuse@localhost/api_development'}
+    # Provision the box with a simple shell script
+    app.vm.provision :shell, path: 'bootstrap-appliance.sh'
+
+    # reboot vm to run obsapisetup
+    app.vm.provision :reload
+
+
+    app.vm.provision :shell, path: 'bootstrap-appliance-finalize.sh'
+  end
 
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
@@ -19,7 +44,8 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # Create a forwarded port mapping which allows access to a specific port
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
-  config.vm.network :forwarded_port, guest: 3000, host: 3000
+
+  config.vm.define "appliance", autostart: false
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.
@@ -46,11 +72,11 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     vb.destroy_unused_network_interfaces = true
   end
 
-  # Provision the box with a simple shell script
-  config.vm.provision :shell, path: 'bootstrap.sh'
-  config.vm.provision :shell, inline: 'mount /vagrant/src/api/tmp', run: "always"
-  
-  # Execute commands in the frontend directory
-  config.exec.commands '*', directory: '/vagrant/src/api'
-  config.exec.commands '*', env: {'DATABASE_URL' => 'mysql2://root:opensuse@localhost/api_development'}
+  config.vm.provider :libvirt do |lv|
+      lv.memory = 2048
+      # Still having permissions problems with synced_folder 9p but keeping this
+      # for documentation purpose
+      # config.vm.synced_folder './', '/vagrant', type: '9p', disabled: false
+  end
+
 end
