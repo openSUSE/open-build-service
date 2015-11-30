@@ -12,7 +12,8 @@ class Webui::ProjectController < Webui::WebuiController
 
   before_filter :lockout_spiders, :only => [:requests, :rebuild_time, :buildresults, :maintenance_incidents]
 
-  before_filter :require_login, :only => [:create, :toggle_watch, :destroy, :new, :new_incident_request, :new_release_request, :new_package_branch, :new_package]
+  before_filter :require_login, :only => [:create, :toggle_watch, :destroy, :new, :new_incident_request,
+                                          :new_release_request, :new_package_branch, :new_package]
 
   before_filter :set_project, only: [:autocomplete_packages, :autocomplete_repositories, :users, :subprojects,
                                      :new_package, :new_package_branch, :incident_request_dialog, :release_request_dialog,
