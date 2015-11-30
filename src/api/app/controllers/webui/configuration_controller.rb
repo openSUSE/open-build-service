@@ -11,7 +11,7 @@ class Webui::ConfigurationController < Webui::WebuiController
   def interconnect; end
 
   def create_interconnect
-    @project = RemoteProject.new(project_params)
+    @project = RemoteInstance.new(project_params)
 
     if @project.valid? && @project.store
       flash[:notice] = "Project '#{@project.name}' was created successfully"

@@ -1,5 +1,5 @@
 # A project that has a remote url set
-class RemoteProject < Project
+class RemoteInstance < Project
   validates :title, :description, :remoteurl, presence: true
   validate :exists_by_name_validation
 

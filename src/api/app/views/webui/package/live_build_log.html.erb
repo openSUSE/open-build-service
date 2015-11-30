@@ -3,7 +3,7 @@
    package_bread_crumb 'Build Log' 
 -%>
 
-<% if !@project.is_remote? && @package.kind_of?(Package)%>
+<% if !@project.defines_remote_instance? && @package.kind_of?(Package)%>
   <%= render :partial => "tabs" %>
 <% end %>
 

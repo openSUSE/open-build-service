@@ -47,7 +47,7 @@ module Webui::ProjectHelper
     # We need to check this before calling new_record?
     unless @project.nil? ||
         (@project.kind_of?(Project) && @project.new_record?) ||
-        @project.is_remote?
+        @project.defines_remote_instance?
       prj_parents = nil
       if @namespace # corner case where no project object is available
         prj_parents = Project.parent_projects(@namespace)
