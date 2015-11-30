@@ -23,20 +23,19 @@ module Suse
       # is the owner of the project
       logger.debug "User #{@user.login} wants to change the project"
 
-      return true if @user.has_global_permission?( "global_project_change" )
-
       if project.kind_of? Project
         prj = project
       elsif project.kind_of? String
         prj = Project.find_by_name( project )
+        # avoid remote projects
+        return false unless prj.kind_of? Project
       end
 
-      if prj.nil?
-        raise ArgumentError, "unable to find project object for #{project}"
-      end
+      raise ArgumentError, "unable to find project object for #{project}" if prj.nil?
 
-      return true if @user.can_modify_project?( prj )
-      return false
+      return true if @user.has_global_permission?( "global_project_change" )
+
+      @user.can_modify_project?( prj )
     end
 
     # args can either be an instance of the respective class (Package, Project),
