@@ -323,19 +323,13 @@ class Project < ActiveRecord::Base
   # The return value is either a Project for local project or an xml
   # array for a remote project
   def self.get_by_name(name, opts = {})
-    # Invalid parameter for find_by_name
-    include_all_packages = opts.delete(:includeallpackages)
-    if opts.size > 1 && !opts.has_key?(:select)
-      raise "unsupport options in '#{opts.inspect}'. Allowed options: :select, :includeallpackages"
-    end
-
-    dbp = self.find_by_name(name, opts.merge(skip_check_access: true))
+    dbp = self.find_by_name(name, skip_check_access: true)
     if dbp.nil?
       dbp, remote_name = find_remote_project(name)
       return dbp.name + ':' + remote_name if dbp
       raise UnknownObjectError, name
     end
-    if include_all_packages
+    if opts[:includeallpackages]
       Package.joins(:flags).where(project_id: dbp.id).where("flags.flag='sourceaccess'").each do |pkg|
         raise ReadAccessError, name unless Package.check_access? pkg
       end
@@ -358,8 +352,8 @@ class Project < ActiveRecord::Base
   end
 
   # check existence of a project (local or remote)
-  def self.exists_by_name(name, opts = {})
-    local_project = self.find_by_name(name, opts.merge(skip_check_access: true))
+  def self.exists_by_name(name)
+    local_project = self.find_by_name(name, skip_check_access: true)
     if local_project.nil?
       !!find_remote_project(name)
     else
@@ -370,16 +364,8 @@ class Project < ActiveRecord::Base
   # FIXME: to be obsoleted, this function is not throwing exceptions on problems
   # use get_by_name or exists_by_name instead
   def self.find_by_name(name, opts = {})
-    if !(opts.keys - [:select, :skip_check_access]).empty?
-      raise "unsupport options in '#{opts.inspect}'. Allowed options: :select, :skip_check_access"
-    end
+    dbp = where(name: name).first
 
-    query = where(name: name)
-    if opts[:select]
-      query = query.select(opts[:select])
-    end
-
-    dbp = query.first
     return if dbp.nil?
     return if !opts[:skip_check_access] && !check_access?(dbp)
     return dbp
