@@ -37,7 +37,6 @@ class Webui::UserController < Webui::WebuiController
     end
 
     session[:login] = User.current.login
-    session[:password] = params[:password]
 
     redirect_back_or_to root_path
   end
