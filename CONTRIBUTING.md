@@ -28,6 +28,10 @@ We are using priority labels from **P0** to **P4** for our issues. So if you are
 * P3: Medium - Fix this when you have time.
 * P4: Low  - Fix this when you don't see any issues with the other priorities.
 
+# Contribute to the OBS documentation
+
+The Open Build Service documentation is hosted in a separated repository available on [GitHub](https://github.com/openSUSE/obs-docu). How you can contribute to our documentation is described on our [project page](http://openbuildservice.org/help/manuals/obs-reference-guide/appendix.work_on_obs_book.html). Needless to say that contributions are highly welcome, right?;-)
+
 # Conduct
 The Open Build Service is part of the openSUSE project. We follow all the [openSUSE Guiding
 Principles!](http://en.opensuse.org/openSUSE:Guiding_principles) If you think
@@ -37,7 +41,7 @@ owners](https://github.com/orgs/openSUSE/teams/owners) know!
 # Communication
 GitHub issues are the primary way for communicating about specific proposed
 changes to this project. If you have other problems please use one of the other
-[support channels])(http://openbuildservice.org/support/)
+[support channels](http://openbuildservice.org/support/)
 
 # Rubocop
 We are currently in the process of adding rubocop rules to OBS. For that we
