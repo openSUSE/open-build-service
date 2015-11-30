@@ -10,6 +10,7 @@ env:
   - TEST_SUITE=rubocop
   - TEST_SUITE=api
   - TEST_SUITE=webui
+  - TEST_SUITE=spider
 matrix:
   fast_finish: true
 notifications:

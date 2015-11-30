@@ -25,6 +25,10 @@ if test -z "$SUBTEST"; then
     webui)
       bundle exec rake test:webui
       ;;
+    spider)
+      unset DO_COVERAGE
+      bundle exec rake test:spider
+      ;;
     rubocop)
       bundle exec rake rubocop 
       ;;
