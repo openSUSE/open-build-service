@@ -10,7 +10,7 @@ class ProjectPolicy < ApplicationPolicy
     return true if @user.is_admin?
 
     # Regular users are not allowed to modify projects with remote references
-    !@record.is_remote? && !@record.has_remote_repositories?
+    !@record.defines_remote_instance? && !@record.has_remote_repositories?
   end
 
   def destroy?
