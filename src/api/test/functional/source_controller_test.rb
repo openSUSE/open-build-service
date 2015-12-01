@@ -3349,8 +3349,6 @@ Ignore: package:cups'
     assert_response :success
     delete '/source/home:coolo:test/TestPack'
     assert_response :success
-    delete '/source/deleted'
-    assert_response :success
   end
 
   def test_package_set_flag

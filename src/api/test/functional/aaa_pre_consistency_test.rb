@@ -7,8 +7,10 @@ class AAAPreConsistency < ActionDispatch::IntegrationTest
     login_king
     wait_for_scheduler_start
 
-    compare_project_and_package_lists
+    consistency_check
 
     resubmit_all_fixtures
+
+    consistency_check
   end
 end

@@ -1,3 +1,7 @@
+deleted:
+  id: 1
+  name: deleted
+  project: deleted
 BaseDistro2LinkedUpdateProject_repo:
   id: 86
   name: BaseDistro2LinkedUpdateProject_repo

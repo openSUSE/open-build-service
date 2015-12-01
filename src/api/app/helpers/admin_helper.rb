@@ -28,11 +28,14 @@ module AdminHelper
 #      Suse::Backend.delete("/source/#{prj.name}") if fix
       return "Project meta is missing or has invalid xml data on backend for project #{prj.name}"
     end
-    # ignore whitespace instead of nil object due to former broken rendering
-    backend_meta.gsub!("<title></title>", "<title/>")
-    backend_meta.gsub!("<description></description>", "<description/>")
 
-    diff = hash_diff(Xmlhash.parse(api_meta), Xmlhash.parse(backend_meta))
+    backend_hash = Xmlhash.parse(backend_meta)
+    api_hash = Xmlhash.parse(api_meta)
+    # ignore description and title
+    backend_hash['title'] = api_hash['title'] = nil
+    backend_hash['description'] = api_hash['description'] = nil
+
+    diff = hash_diff(api_hash, backend_hash)
     if diff.size > 0
       errors << "Project meta is different in backend for #{prj.name}\n#{diff}\n"
       if fix
