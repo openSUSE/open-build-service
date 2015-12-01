@@ -641,6 +641,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 
 %files -n obs-devel
 %defattr(-,root,root)
+%dir %_docdir/obs-devel
 %_docdir/obs-devel/README.devel
 
 %changelog
