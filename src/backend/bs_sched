@@ -77,8 +77,8 @@ BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 my $sign;
 $sign = $BSConfig::sign if defined($BSConfig::sign);
 
-my $proxy;
-$proxy = $BSConfig::proxy if defined($BSConfig::proxy);
+my $_proxy;
+$_proxy = $BSConfig::proxy if defined($BSConfig::proxy);
 
 my $new_full_handling = 1;
 $new_full_handling = $BSConfig::new_full_handling if defined($BSConfig::new_full_handling);
@@ -4138,7 +4138,7 @@ sub fetchremoteproj {
   my $param = {
     'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_meta",
     'timeout' => 30,
-    'proxy' => $proxy,
+    'proxy' => $gctx->{'remoteproxy'},
   };
   eval {
     $rproj = BSRPC::rpc($param, $BSXML::proj);
@@ -4183,7 +4183,7 @@ sub fetchremoteconfig {
   my $param = {
     'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_config",
     'timeout' => 30,
-    'proxy' => $proxy,
+    'proxy' => $gctx->{'remoteproxy'},
   };
   eval {
     $c = BSRPC::rpc($param);
@@ -4319,7 +4319,7 @@ sub addrepo_remote {
     'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$arch/_repository",
     'timeout' => 200,
     'receiver' => \&BSHTTP::cpio_receiver,
-    'proxy' => $proxy,
+    'proxy' => $gctx->{'remoteproxy'},
   };
   if ($asyncmode) {
     $param->{'async'} = { '_resume' => \&addrepo_remote_resume, '_prp' => $prp, '_arch' => $arch };
@@ -4510,7 +4510,7 @@ sub read_gbininfo_remote {
   my $param = {
     'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$arch",
     'timeout' => 200,
-    'proxy' => $proxy,
+    'proxy' => $gctx->{'remoteproxy'},
   };
   if ($asyncmode) {
     $param->{'async'} = { '_resume' => \&read_gbininfo_remote_resume, '_prpa' => $prpa };
@@ -6285,7 +6285,6 @@ sub rebuildpatchinfo {
   my $param = {
     'uri' => "$BSConfig::srcserver/issue_trackers",
     'timeout' => 30,
-    'proxy' => $proxy,
   };
   eval {
     $issue_trackers = BSRPC::rpc($param, $BSXML::issue_trackers);
@@ -6884,7 +6883,7 @@ sub rebuildaggregate {
 	    'directory' => $jobdatadir,
 	    'map' => "upload:",
 	    'timeout' => 300,
-	    'proxy' => $proxy,
+	    'proxy' => $gctx->{'remoteproxy'},
 	  };
 	  my $done;
 	  if ($nosource) {
@@ -7393,7 +7392,7 @@ sub setupremotewatcher {
     'async' => 1,
     'request' => 'POST',
     'headers' => [ 'Content-Type: application/x-www-form-urlencoded' ],
-    'proxy' => $proxy,
+    'proxy' => $gctx->{'remoteproxy'},
   };
   my @args;
   my $obsname=$BSConfig::obsname;
@@ -8244,6 +8243,7 @@ my $gctx = {
   'dodsdir' => $_dodsdir,
   'rundir' => $_rundir,
   'remotecache' => $_remotecache,
+  'remoteproxy' => $_proxy,
 
   # repository state cache
   'repodatas' => \%_repodatas,
