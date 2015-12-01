@@ -3,6 +3,7 @@ require 'xmlhash'
 
 module AdminHelper
   def consistency_check(fix = nil)
+    User.current ||= User.get_default_admin
     errors = ""
     errors = project_existens_consistency_check(fix)
     Project.all.each do |prj|
@@ -21,7 +22,12 @@ module AdminHelper
     errors=""
     # WARNING: this is using the memcache content. should maybe dropped before
     api_meta = prj.to_axml
-    backend_meta = Suse::Backend.get("/source/#{prj.name}/_meta").body
+    begin
+      backend_meta = Suse::Backend.get("/source/#{prj.name}/_meta").body
+    rescue
+#      Suse::Backend.delete("/source/#{prj.name}") if fix
+      return "Project meta is missing or has invalid xml data on backend for project #{prj.name}"
+    end
     # ignore whitespace instead of nil object due to former broken rendering
     backend_meta.gsub!("<title></title>", "<title/>")
     backend_meta.gsub!("<description></description>", "<description/>")
@@ -51,7 +57,7 @@ module AdminHelper
         # just delete ... if it exists in backend it can be undeleted
         diff.each do |project|
           prj = Project.find_by_name project
-          prj.delete if prj
+          prj.destroy if prj
         end
       end
     end
@@ -63,10 +69,16 @@ module AdminHelper
       if fix
         # restore from backend
         diff.each do |project|
-        meta = Suse::Backend.get("/source/#{project}/_meta").body
-        prj = Project.new(name: project)
-        prj.update_from_xml(Xmlhash.parse(meta))
-        prj.save!
+          begin
+            meta = Suse::Backend.get("/source/#{project}/_meta").body
+            prj = Project.new(name: project)
+            prj.update_from_xml(Xmlhash.parse(meta))
+            prj.save!
+          rescue ActiveRecord::RecordInvalid,
+                 ActiveXML::Transport::NotFoundError
+            Suse::Backend.delete("/source/#{project}")
+            errors << "DELETED in backend due to invalid data #{project}\n"
+          end
         end
       end
     end
@@ -75,6 +87,7 @@ module AdminHelper
   end
 
   def package_existens_consistency_check(prj, fix = nil)
+    errors=""
     # compare all packages
     package_list_api = prj.packages.pluck(:name)
 
@@ -86,8 +99,8 @@ module AdminHelper
       if fix
         # delete database object, can be undeleted
         diff.each do |package|
-        pkg = prj.packages.where(name: package).first
-        pkg.delete if pkg
+          pkg = prj.packages.where(name: package).first
+          pkg.destroy if pkg
         end
       end
     end
@@ -99,10 +112,16 @@ module AdminHelper
       if fix
         # restore from backend
         diff.each do |package|
-        meta = Suse::Backend.get("/source/#{prj.name}/#{package}/_meta").body
-        pkg = prj.packages.new(name: package)
-        pkg.update_from_xml(Xmlhash.parse(meta))
-        pkg.save!
+          begin
+            meta = Suse::Backend.get("/source/#{prj.name}/#{package}/_meta").body
+            pkg = prj.packages.new(name: package)
+            pkg.update_from_xml(Xmlhash.parse(meta))
+            pkg.save!
+          rescue ActiveRecord::RecordInvalid,
+                 ActiveXML::Transport::NotFoundError
+            Suse::Backend.delete("/source/#{prj.name}/#{package}")
+            errors << "DELETED in backend due to invalid data #{prj.name}/#{package}\n"
+          end
         end
       end
     end
@@ -120,7 +139,20 @@ module AdminHelper
   def hash_diff(a, b)
     # ignore the order inside of the hash
     (a.keys.sort | b.keys.sort).each_with_object({}) do |diff, k|
-      if a[k] != b[k]
+      a_ = a[k]
+      b_ = b[k]
+      # we need to ignore the ordering in some cases
+      # old xml generator wrote them in a different order
+      # but in other cases the order of elements matters
+      if k == "person" and a_.kind_of? Array
+        a_ = a_.map{ |i| "#{i['userid']}/#{i['role']}" }.sort
+        b_ = b_.map{ |i| "#{i['userid']}/#{i['role']}" }.sort
+      end
+      if k == "group" and a_.kind_of? Array
+        a_ = a_.map{ |i| "#{i['groupid']}/#{i['role']}" }.sort
+        b_ = b_.map{ |i| "#{i['groupid']}/#{i['role']}" }.sort
+      end
+      if a_ != b_
         if a[k].class == Hash && b[k].class == Hash
           diff[k] = hash_diff(a[k], b[k])
         else
