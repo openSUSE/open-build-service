@@ -25,7 +25,7 @@ docs:
 	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_APIDOCS_PREFIX)/api
 	cp -a ../../docs/api/api $(DESTDIR)$(OBS_APIDOCS_PREFIX)
 	cp -a ../../docs/api/html/* $(DESTDIR)$(OBS_APIDOCS_PREFIX)/api/
-	ln -sf $(DESTDIR)$(OBS_APIDOCS_PREFIX)/api/ $(DESTDIR)$(OBS_API_PREFIX)/public/schema
+	ln -sf $(OBS_APIDOCS_PREFIX)/api/ $(DESTDIR)$(OBS_API_PREFIX)/public/schema
 	echo 'CONFIG["apidocs_location"] ||= File.expand_path("../docs/api/html/")' >> $(DESTDIR)$(OBS_API_PREFIX)/config/environment.rb
 	echo 'CONFIG["schema_location"] ||= File.expand_path("../docs/api/")' >> $(DESTDIR)$(OBS_API_PREFIX)/config/environment.rb
 
