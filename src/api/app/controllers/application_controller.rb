@@ -263,6 +263,14 @@ class ApplicationController < ActionController::Base
     false
   end
 
+  def require_login
+    # we allow anonymous user only for rare special operations (if configured) but we require
+    # a valid account for all other operations.
+    # For this rare special operations we simply skip the require login before filter!
+    # At the moment these operations are the /public, /trigger and /about controller actions.
+    be_not_nobody!
+  end
+
   def check_extracted_user
     unless @http_user
       if @login.blank?

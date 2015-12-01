@@ -5,7 +5,6 @@ class GroupController < ApplicationController
   validate_action :groupinfo => { :method => :put, :request => :group, :response => :status }
   validate_action :groupinfo => { :method => :delete, :response => :status }
 
-  before_action :require_login, except: [:index, :show]
   # raise an exception if authorize has not yet been called.
   after_action :verify_authorized, :except => [:index, :show]
 

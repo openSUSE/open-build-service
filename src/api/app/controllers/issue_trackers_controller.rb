@@ -1,5 +1,4 @@
 class IssueTrackersController < ApplicationController
-  skip_before_filter :extract_user, :only => [:index, :show]
   before_filter :require_admin, :only => [:create, :update, :destroy]
 
   validate_action :index => {:method => :get, :response => :issue_trackers}

@@ -7,6 +7,7 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
 
   def test_should_get_index
     # Get all issue trackers
+    login_king
     get '/issue_trackers'
     assert_response :success
     assert_not_nil assigns(:issue_trackers)

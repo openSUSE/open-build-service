@@ -8,6 +8,7 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_should_show_distribution
+    login_tom
     get distribution_path(id: distributions(:two).to_param)
     assert_response :success
     # the default XML renderer just s***s
@@ -72,10 +73,6 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
     put "/distributions", data
     assert_response 200
 
-    reset_auth
-    get "/distributions"
-    assert_response :success
-
     login_tom
     get "/distributions"
     assert_response :success
@@ -126,6 +123,7 @@ class DistributionsControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_we_survive_remote_instances_timeouts
+    login_tom
     stub_request(:get, "http://localhost:#{CONFIG['source_port']}/distributions.xml").to_timeout
     get "/distributions/include_remotes"
     assert_response :success

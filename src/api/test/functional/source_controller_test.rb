@@ -23,6 +23,11 @@ Ignore: package:cups'
     reset_auth
   end
 
+  def test_get_projectlist_requires_login
+    get '/source'
+    assert_response 401
+  end
+
   def test_get_projectlist
     login_tom
     get '/source'

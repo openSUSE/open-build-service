@@ -1,6 +1,5 @@
 class DistributionsController < ApplicationController
   # Distribution list is insensitive information, no login needed therefore
-  skip_before_filter :extract_user, :only => [:index, :show, :include_remotes]
   before_filter :require_admin, :except => [:index, :show, :include_remotes]
 
   validate_action :index => {:method => :get, :response => :distributions}
