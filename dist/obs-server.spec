@@ -307,24 +307,6 @@ DESTDIR=%{buildroot} make install
 rm $RPM_BUILD_ROOT/srv/www/obs/api/.rubocop{,_todo}.yml
 
 #
-# Install all backend parts.
-#
-cd backend/
-# we use external build script code
-rm -rf build
-cp BSConfig.pm.template BSConfig.pm
-
-install -d -m 755 $RPM_BUILD_ROOT/usr/lib/obs/server/
-ln -sf /usr/lib/build $RPM_BUILD_ROOT/usr/lib/obs/server/build # just for check section, it is a %%ghost
-#for i in build events info jobs log projects repos run sources trees workers; do
-#  install -d -m 755 $RPM_BUILD_ROOT/srv/obs/$i
-#done
-# install executables and code
-cp -a * $RPM_BUILD_ROOT/usr/lib/obs/server/
-rm -r   $RPM_BUILD_ROOT/usr/lib/obs/server/testdata
-cd ..
-
-#
 # turn duplicates into hard links
 #
 # There's dupes between webui and api:

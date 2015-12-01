@@ -18,6 +18,7 @@ prepare_dirs:
 
 prepare_rake: prepare_dirs
 	cp -a * $(DESTDIR)$(OBS_API_PREFIX)
+	rm -rf $(DESTDIR)$(OBS_API_PREFIX)/Makefile
 	touch $(DESTDIR)$(OBS_API_PREFIX)/log/production.log
 	touch $(DESTDIR)$(OBS_API_PREFIX)/config/production.sphinx.conf
 
