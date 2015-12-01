@@ -17,14 +17,6 @@ end
 
 Rake::TestTask.new do |t|
   t.libs << "test"
-  filelist = filelist.exclude("/proxy_mode/")
   t.test_files = filelist
   t.name = 'test:webui'
-end
-
-Rake::TestTask.new do |t|
-  t.libs << "test"
-  proxy_mode_files = FileList.new
-  t.test_files = proxy_mode_files.include("test/functional/**/*proxy_mode*")
-  t.name = 'test:proxy_mode'
 end
