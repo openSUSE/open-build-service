@@ -108,6 +108,12 @@ group :development do
 end
 
 group :development, :test do
+  # as testing framework
+  gem 'rspec-rails', '~> 3.4.0'
+  # for fixtures
+  gem 'factory_girl_rails'
+  # for mocking the backend
+  gem 'vcr'
   # as alternative to the standard IRB shell
   gem 'pry', '>= 0.9.12'
   # for style checks
