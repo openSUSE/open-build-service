@@ -46,20 +46,18 @@ log_files:
 	$(foreach logfile,$(OBS_API_LOGS),$(shell touch $(DESTDIR)$(OBS_API_PREFIX)/log/$(logfile) ))
 
 build: config
+	$(shell [ -d $(DESTDIR)/srv/www/obs/api/.bundle ] && rm -rf $(DESTDIR)/srv/www/obs/api/.bundle)
 	# we need to have *something* as secret key
-	echo "" | sha256sum| cut -d\  -f 1 > config/secret.key
-	bundle exec rake assets:precompile RAILS_ENV=production RAILS_GROUPS=assets
-	rm -rf tmp/cache/sass tmp/cache/assets config/secret.key
-	$(OBS_API_BUNDLER_OPTS) bundle config --local frozen 1
+	echo "" | sha256sum| cut -d\  -f 1 > $(DESTDIR)/srv/www/obs/api/config/secret.key
+	cd $(DESTDIR)/srv/www/obs/api ;\
+	bundle exec rake assets:precompile RAILS_ENV=production RAILS_GROUPS=assets ;\
+	rm -rf tmp/cache/sass tmp/cache/assets config/secret.key ;\
+	$(OBS_API_BUNDLER_OPTS) bundle config --local frozen 1 ;\
 	$(OBS_API_BUNDLER_OPTS) bundle config --local without test:assets:development
 	# reinstall
-	$(INSTALL) config/database.yml.example config/database.yml
-	: > log/production.log
-	# TODO:
-	# This makes no sense to me, but I took it as it was in spec file
-	# Maybe this should be done in installed application or it is for testing
-	#
-	sed -i -e 's,^api_version.*,api_version = "%version",' config/initializers/02_apiversion.rb
+	$(INSTALL) config/database.yml.example $(DESTDIR)/srv/www/obs/api/config/database.yml
+	: >  $(DESTDIR)/srv/www/obs/api/log/production.log
+	sed -i -e 's,^api_version.*,api_version = "%version",'  $(DESTDIR)/srv/www/obs/api/config/initializers/02_apiversion.rb
 
 test:
 	./script/api_test_in_spec.sh
