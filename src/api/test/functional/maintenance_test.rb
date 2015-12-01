@@ -1290,7 +1290,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/request?view=collection&types=maintenance_release&project=My:Maintenance&subprojects=true'
     assert_response :success
     assert_xml_tag( :tag => 'collection', :child => { tag: 'request' } )
-    assert_xml_tag( :tag => 'collection', :attributes => { matches: '1' } )
+    assert_xml_tag( :tag => 'collection', :attributes => { matches: '2' } )
 
     # validate that request is diffable (not broken)
     post "/request/#{reqid}?cmd=diff"

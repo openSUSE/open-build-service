@@ -957,4 +957,12 @@ END
     # Leave the backend file as it was
     assert @project.config.save(query_params, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT)
   end
+
+  def test_open_requests
+    apache = projects(:Apache)
+    assert_equal apache.open_requests, { reviews: [1000, 10, 4], targets: [5], incidents: [], maintenance_release: [] }
+
+    maintenance = projects(:My_Maintenance)
+    assert_equal maintenance.open_requests, { reviews: [], targets: [6], incidents: [6], maintenance_release: [7] }
+  end
 end

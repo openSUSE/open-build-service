@@ -115,15 +115,10 @@ class UserTest < ActiveSupport::TestCase
   end
 
   def test_user_requests
-    # no projects, no requests
-    # assert_equal({:declined=>[], :new=>[], :reviews=>[]}, users(:user4).request_ids_by_class)
     assert_equal 0, users(:user4).nr_of_requests_that_need_work
-    # assert_equal({declined: [], new: [], reviews: [4]}, users(:tom).request_ids_by_class)
     assert_equal 1, users(:tom).nr_of_requests_that_need_work
-    # assert_equal({declined: [], new: [1], reviews: [4, 1000]}, users(:adrian).request_ids_by_class)
     assert_equal 3, users(:adrian).nr_of_requests_that_need_work
-    # assert_equal({declined: [], new: [1], reviews: [10, 1000]}, users(:fred).request_ids_by_class)
-    assert_equal 3, users(:fred).nr_of_requests_that_need_work
+    assert_equal 4, users(:fred).nr_of_requests_that_need_work
   end
 
   def test_update_globalroles
