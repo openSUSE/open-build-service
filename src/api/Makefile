@@ -62,3 +62,5 @@ build: config
 
 test:
 	./script/api_test_in_spec.sh
+
+.PHONY: test
