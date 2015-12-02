@@ -66,7 +66,11 @@ class User < ActiveRecord::Base
     return if [ "_nobody_", "Admin" ].include? self.login
     # may be disabled via Configuration setting
     return unless can_create_project?(self.home_project_name)
-    Project.find_or_create_by(name: self.home_project_name)
+    project = Project.find_by(name: self.home_project_name)
+    unless project
+      project = Project.create(name: self.home_project_name)
+      project.store
+    end
   end
 
   # the default state of a user based on the api configuration
