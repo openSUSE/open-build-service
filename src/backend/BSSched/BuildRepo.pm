@@ -33,7 +33,7 @@ use warnings;
 use BSUtil;
 use BSConfiguration;
 use Build::Rpm;
-use BSSched::BuildResult;
+#use BSSched::BuildResult;	# circular dep
 
 my $exportcnt = 0;
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};

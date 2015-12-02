@@ -56,6 +56,7 @@ use BSSched::ProjPacks;
 use BSSched::BuildRepo;
 use BSSched::BuildResult;
 use BSSched::PublishRepo;
+use BSSched::Events;
 
 if ($BSConfig::enable_download_on_demand) {
   require BSDoD;
@@ -387,6 +388,23 @@ sub init_ourjobs {
 }
 
 #
+# purgejob - wipe a job from the jobs directory
+# must hold the lock
+#
+sub purgejob {
+  my ($gctx, $job) = @_;
+  my $myjobsdir = $gctx->{'myjobsdir'};
+  if (-d "$myjobsdir/$job:dir") {
+    unlink("$myjobsdir/$job:dir/$_") for ls("$myjobsdir/$job:dir");
+    rmdir("$myjobsdir/$job:dir");
+  }
+  unlink("$myjobsdir/$job");
+  unlink("$myjobsdir/$job:status");
+  delete $ourjobs{$job};
+}
+
+
+#
 # killjob - kill a single build job
 #
 # input: $job - job identificator
@@ -401,14 +419,8 @@ sub killjob {
     my $js = {'code' => 'deleting'};
     if (BSUtil::lockcreatexml(\*F, "$myjobsdir/.sched.$$", "$myjobsdir/$job:status", $js, $BSXML::jobstatus)) {
       print "        (job was not building)\n";
-      if (-d "$myjobsdir/$job:dir") {
-	unlink("$myjobsdir/$job:dir/$_") for ls("$myjobsdir/$job:dir");
-	rmdir("$myjobsdir/$job:dir");
-      }
-      unlink("$myjobsdir/$job");
-      unlink("$myjobsdir/$job:status");
+      purgejob($gctx, $job);
       close F;
-      delete $ourjobs{$job};
       return;
     }
   }
@@ -416,8 +428,7 @@ sub killjob {
   if (!$js) {
     # can't happen actually
     print "        (job was not building)\n";
-    unlink("$myjobsdir/$job");
-    delete $ourjobs{$job};
+    purgejob($gctx, $job);
     return;
   }
   if ($js->{'code'} eq 'building') {
@@ -431,14 +442,8 @@ sub killjob {
     };
     warn("kill $job: $@") if $@;
   }
-  if (-d "$myjobsdir/$job:dir") {
-    unlink("$myjobsdir/$job:dir/$_") for ls("$myjobsdir/$job:dir");
-    rmdir("$myjobsdir/$job:dir");
-  }
-  unlink("$myjobsdir/$job");
-  unlink("$myjobsdir/$job:status");
+  purgejob($gctx, $job);
   close(F);
-  delete $ourjobs{$job};
 }
 
 #
@@ -454,14 +459,8 @@ sub killscheduled {
   local *F;
   my $js = {'code' => 'deleting'};
   if (BSUtil::lockcreatexml(\*F, "$myjobsdir/.sched.$$", "$myjobsdir/$job:status", $js, $BSXML::jobstatus)) {
-    if (-d "$myjobsdir/$job:dir") {
-      unlink("$myjobsdir/$job:dir/$_") for ls("$myjobsdir/$job:dir");
-      rmdir("$myjobsdir/$job:dir");
-    }
-    unlink("$myjobsdir/$job");
-    unlink("$myjobsdir/$job:status");
+    purgejob($gctx, $job);
     close F;
-    delete $ourjobs{$job};
   }
 }
 
@@ -4551,442 +4550,6 @@ my $defaulthandler = {
 };
 
 
-##########################################################################
-##########################################################################
-##
-## Event handlers
-##
-
-sub event_built {
-  my ($ectx, $ev) = @_;
-
-  my $gctx = $ectx->{'gctx'};
-  my $job = $ev->{'job'};
-  local *F;
-  my $myjobsdir = $gctx->{'myjobsdir'};
-  my $js = BSUtil::lockopenxml(\*F, '<', "$myjobsdir/$job:status", $BSXML::jobstatus, 1);
-  if (!$js) {
-    print "  - $job is gone\n";
-    close F;
-    return;
-  }
-  if ($js->{'code'} ne 'finished') {
-    print "  - $job is not finished: $js->{'code'}\n";
-    close F;
-    return;
-  }
-  if ($ev->{'type'} eq 'built') {
-    jobfinished($ectx, $job, $js);
-  } elsif ($ev->{'type'} eq 'uploadbuild') {
-    uploadbuildevent($ectx, $job, $js);
-  } elsif ($ev->{'type'} eq 'import') {
-    importevent($ectx, $job, $js);
-  }
-  if (-d "$myjobsdir/$job:dir") {
-    unlink("$myjobsdir/$job:dir/$_") for ls("$myjobsdir/$job:dir");
-    rmdir("$myjobsdir/$job:dir");
-  }
-  unlink("$myjobsdir/$job");
-  unlink("$myjobsdir/$job:status");
-  close F;
-  delete $ourjobs{$job};
-}
-
-sub event_uploadbuildimport_delay {
-  my ($ectx, $ev) = @_;
-
-  my $gctx = $ectx->{'gctx'};
-  # have to be extra careful with those. if the package is in
-  # (delayed)fetchprojpacks, delay event processing until we
-  # updated the projpack data.
-  my $fetchprojpacks = $ectx->{'fetchprojpacks'};
-  my $fetchprojpacks_nodelay = $ectx->{'fetchprojpacks_nodelay'};
-  my $delayedfetchprojpacks = $gctx->{'delayedfetchprojpacks'};
-
-  return 0 unless $ev->{'job'};
-  my $myjobsdir = $gctx->{'myjobsdir'};
-  my $info = readxml("$myjobsdir/$ev->{'job'}", $BSXML::buildinfo, 1) || {};
-  my $projid = $info->{'project'};
-  my $packid = $info->{'package'};
-  return 0 unless defined($projid);
-  return 1 if $gctx->{'rctx'}->xrpc_busy($projid);	# delay if getprojpack in progress
-  return 0 unless defined($packid);
-  if (grep {!defined($_) || $_ eq $packid} (@{$fetchprojpacks->{$projid} || []}, @{$delayedfetchprojpacks->{$projid} || []})) {
-    push @{$fetchprojpacks->{$projid}}, $packid;
-    # remove package from delayedfetchprojpacks to prevent looping
-    $delayedfetchprojpacks->{$projid} = [ grep {$_ ne $packid} @{$delayedfetchprojpacks->{$projid} || []} ];
-    delete $delayedfetchprojpacks->{$projid} unless @{$delayedfetchprojpacks->{$projid}};
-    $fetchprojpacks_nodelay->{$projid} = 1;
-    return 1;
-  }
-  return 0;
-}
-
-sub event_package {
-  my ($ectx, $ev) = @_;
-
-  my $fetchprojpacks = $ectx->{'fetchprojpacks'};
-  my $deepcheck = $ectx->{'deepcheck'};
-  my $projid = $ev->{'project'};
-  return unless defined $projid;
-  my $packid = $ev->{'package'};
-  push @{$fetchprojpacks->{$projid}}, $packid;
-  $deepcheck->{$projid} = 1 if !defined $packid;
-}
-
-sub event_project {
-  my ($ectx, $ev) = @_;
-
-  my $fetchprojpacks = $ectx->{'fetchprojpacks'};
-  my $lowprioproject = $ectx->{'lowprioproject'};
-  my $projid = $ev->{'project'};
-  return unless defined $projid;
-  push @{$fetchprojpacks->{$projid}}, undef;
-  $lowprioproject->{$projid} = 1 if $ev->{'type'} eq 'lowprioproject';
-}
-
-sub event_repository {
-  my ($ectx, $ev) = @_;
-
-  my $gctx = $ectx->{'gctx'};
-  my $changed_med = $gctx->{'changed_med'};
-  my $projid = $ev->{'project'};
-  my $repoid = $ev->{'repository'};
-  my $prp = "$projid/$repoid";
-  $changed_med->{$prp} = 2;
-  my $repounchanged = $gctx->{'repounchanged'};
-  if ($ev->{'type'} eq 'repository') {
-    delete $gctx->{'repodatas'}->{$prp};
-    delete $repounchanged->{$prp};
-  } elsif ($ev->{'type'} eq 'repoinfo') {
-    $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
-  }
-}
-
-sub event_check {
-  my ($ectx, $ev) = @_;
-
-  my $gctx = $ectx->{'gctx'};
-  my $changed_high = $gctx->{'changed_high'};
-  my $changed_dirty = $gctx->{'changed_dirty'};
-  my $prps = $gctx->{'prps'};
-  my $projid = $ev->{'project'};
-  my $repoid = $ev->{'repository'};
-  my %admincheck;
-  if (!defined($projid)) {
-    my $changed_low = $gctx->{'changed_low'};
-    for my $prp (@$prps) {
-      $changed_low->{$prp} ||= 1;
-    }
-    return;
-  }
-  if (defined($repoid)) {
-    my $prp = "$projid/$repoid";
-    $changed_high->{$prp} ||= 1;
-    $changed_dirty->{$prp} = 1;
-    $admincheck{$prp} = 1 if $ev->{'type'} eq 'admincheck';
-  } else {
-    for my $prp (@$prps) {
-      if ((split('/', $prp, 2))[0] eq $projid) {
-        $changed_high->{$prp} ||= 1;
-        $changed_dirty->{$prp} = 1;
-	$admincheck{$prp} = 1 if $ev->{'type'} eq 'admincheck';
-      }
-    }
-    $changed_high->{$projid} ||= 1;
-  }
-  if (%admincheck) {
-    my $lookat_high = $gctx->{'lookat_high'};
-    my $nextmed = $gctx->{'nextmed'};
-    @$lookat_high = grep {!$admincheck{$_}} @$lookat_high;
-    unshift @$lookat_high, sort keys %admincheck;
-    delete $nextmed->{$_} for keys %admincheck;
-  }
-}
-
-sub event_check_med {
-  my ($ectx, $ev) = @_;
-
-  my $gctx = $ectx->{'gctx'};
-  my $changed_med = $gctx->{'changed_med'};
-  my $projid = $ev->{'project'};
-  my $repoid = $ev->{'repository'};
-  return unless defined($projid) && defined($repoid);
-  my $prp = "$projid/$repoid";
-  print "$prp is $ev->{'type'}\n";
-  $changed_med->{$prp} ||= 1;
-}
-
-sub event_scanrepo {
-  my ($ectx, $ev) = @_;
-
-  my $gctx = $ectx->{'gctx'};
-  my $changed_high = $gctx->{'changed_high'};
-  my $projid = $ev->{'project'};
-  my $repoid = $ev->{'repository'};
-  if (!defined($projid) && !defined($repoid)) {
-    print "flushing all repository data\n";
-    %{$gctx->{'repodatas'}} = ();
-    return;
-  }
-  if (defined($projid) && defined($repoid)) {
-    my $prp = "$projid/$repoid";
-    print "reading packages of repository $projid/$repoid\n";
-    delete $gctx->{'repodatas'}->{$prp};
-    my $pool = BSSolv::pool->new();
-    addrepo({'gctx' => $gctx, 'prp' => $prp}, $pool, $prp);
-    undef $pool;
-    $changed_high->{$prp} = 2;
-    delete $gctx->{'repounchanged'}->{$prp};
-  }
-}
-
-sub event_scanprjbinaries {
-  my ($ectx, $ev) = @_;
-
-  my $gctx = $ectx->{'gctx'};
-  my $myarch = $gctx->{'arch'};
-  my $changed_high = $gctx->{'changed_high'};
-  my $projid = $ev->{'project'};
-  my $repoid = $ev->{'repository'};
-  my $packid = $ev->{'package'};
-  my $remoteprojs = $gctx->{'remoteprojs'};
-  if (defined($projid) && defined($repoid)) {
-    my $prp = "$projid/$repoid";
-    delete $gctx->{'remotegbininfos'}->{"$prp/$myarch"};
-    return if $remoteprojs->{$projid};
-    if (defined($packid)) {
-      unlink("$prp/$myarch/$packid/.bininfo");
-    } else {
-      for my $packid (grep {!/^[:\.]/} ls("$prp/$myarch")) {
-        next if $packid eq '_deltas';
-        next unless -d "$prp/$myarch/$packid";
-        unlink("$prp/$myarch/$packid/.bininfo");
-      }
-    }
-    my $reporoot = $gctx->{'reporoot'};
-    unlink("$reporoot/$prp/$myarch/:bininfo");
-    unlink("$reporoot/$prp/$myarch/:bininfo.merge");
-    print "reading project binary state of repository $projid/$repoid\n";
-    BSSched::BuildResult::read_gbininfo("$reporoot/$prp/$myarch");
-    $changed_high->{$prp} = 1;
-  }
-}
-
-sub event_dumprepo {
-  my ($ectx, $ev) = @_;
-
-  my $gctx = $ectx->{'gctx'};
-  my $prp = "$ev->{'project'}/$ev->{'repository'}";
-  my $repodata = $gctx->{'repodatas'}->{$prp} || {};
-  local *F;
-  open(F, '>', "/tmp/repodump");
-  print F "# repodump for $prp\n\n";
-  print F Dumper($repodata);
-  close F;
-}
-
-sub event_wipenotyet {
-  my ($ectx, $ev) = @_;
-
-  my $gctx = $ectx->{'gctx'};
-  my $prp = "$ev->{'project'}/$ev->{'repository'}";
-  my $nextmed = $gctx->{'nextmed'} || {};
-  delete $nextmed->{$prp};
-}
-
-sub event_wipe {
-  my ($ectx, $ev) = @_;
-
-  my $gctx = $ectx->{'gctx'};
-  my $myarch = $gctx->{'arch'};
-  my $changed_high = $gctx->{'changed_high'};
-  my $changed_dirty = $gctx->{'changed_dirty'};
-
-  my $projid = $ev->{'project'};
-  my $repoid = $ev->{'repository'};
-  my $packid = $ev->{'package'};
-  return unless defined($projid) && defined($repoid) && defined($packid);
-  my $prp = "$projid/$repoid";
-  my $reporoot = $gctx->{'reporoot'};
-  my $gdst = "$reporoot/$prp/$myarch";
-  print "wiping $prp $packid\n";
-  return unless -d "$gdst/$packid";
-  # delete repository done flag
-  unlink("$gdst/:repodone");
-  # delete full entries
-  my $projpacks = $gctx->{'projpacks'};
-  my $proj = $projpacks->{$projid};
-  my $pdata = (($proj || {})->{'package'} || {})->{$packid} || {};
-  my $useforbuildenabled = 1;
-  $useforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $useforbuildenabled, $myarch) if $proj;
-  $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
-  my $importarch = '';	# keep those imports
-  my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
-  BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $prpsearchpath, undef, $importarch);
-  delete $gctx->{'repounchanged'}->{$prp};
-  # delete other files
-  unlink("$gdst/:logfiles.success/$packid");
-  unlink("$gdst/:logfiles.fail/$packid");
-  unlink("$gdst/:meta/$packid");
-  for my $f (ls("$gdst/$packid")) {
-    next if $f eq 'history';
-    if (-d "$gdst/$packid/$f") {
-      BSUtil::cleandir("$gdst/$packid/$f");
-      rmdir("$gdst/$packid/$f");
-    } else {
-      unlink("$gdst/$packid/$f");
-    }
-  }
-  rmdir("$gdst/$packid");	# in case there is no history
-  for $prp (@{$gctx->{'prps'}}) {
-    if ((split('/', $prp, 2))[0] eq $projid) {
-      $changed_high->{$prp} = 2;
-      $changed_dirty->{$prp} = 1;
-    }
-  }
-  $changed_high->{$projid} = 2;
-}
-
-sub event_useforbuild {
-  my ($ectx, $ev) = @_;
-
-  my $gctx = $ectx->{'gctx'};
-  my $myarch = $gctx->{'arch'};
-  my $changed_high = $gctx->{'changed_high'};
-  my $changed_dirty = $gctx->{'changed_dirty'};
-  my $reporoot = $gctx->{'reporoot'};
-
-  my $projid = $ev->{'project'};
-  my $repoid = $ev->{'repository'};
-  return unless defined($projid) && defined($repoid);
-  my $projpacks = $gctx->{'projpacks'};
-  my $prp = "$projid/$repoid";
-  my $proj = $projpacks->{$projid} || {};
-  my $packs = $proj->{'package'} || {};
-  my @packs;
-  if ($ev->{'package'}) {
-    @packs = ($ev->{'package'});
-  } else {
-    @packs = sort keys %$packs;
-    @packs = reverse(orderpackids($proj, @packs));
-    if ($BSSched::BuildResult::new_full_handling) {
-      # force a rebuild of the full tree
-      my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
-      BSSched::BuildRepo::checkuseforbuild($gctx, $prp, $prpsearchpath, undef, 1);
-      @packs = ();
-    }
-  }
-  for my $packid (@packs) {
-    my $gdst = "$reporoot/$prp/$myarch";
-    next unless -d "$gdst/$packid";
-    my $useforbuildenabled = 1;
-    my $pdata = $packs->{$packid} || {};
-    $useforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $useforbuildenabled, $myarch);
-    $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
-    next unless $useforbuildenabled;
-    my $meta = "$gdst/:meta/$packid";
-    undef $meta unless -s $meta;
-    my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
-    BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, "$gdst/$packid", $meta, $useforbuildenabled, $prpsearchpath);
-  }
-  for $prp (@{$gctx->{'prps'}}) {
-    if ((split('/', $prp, 2))[0] eq $projid) {
-      if ((split('/', $prp, 2))[0] eq $projid) {
-	$changed_high->{$prp} = 2 if (split('/', $prp, 2))[0] eq $projid;
-	$changed_dirty->{$prp} = 1;
-      }
-    }
-  }
-  $changed_high->{$projid} = 2;
-}
-
-sub event_exit {
-  my ($ectx, $ev) = @_;
-
-  my $gctx = $ectx->{'gctx'};
-  my $myarch = $gctx->{'arch'};
-  print "exiting...\n" if $ev->{'type'} eq 'exit';
-  print "exiting (with complete info)...\n" if $ev->{'type'} eq 'exitcomplete';
-  print "restarting...\n" if $ev->{'type'} eq 'restart';
-  print "dumping scheduler state...\n" if $ev->{'type'} eq 'dumpstate';
-  print "dumping emergency state...\n" if $ev->{'type'} eq 'emergencydump';
-  my $lookat_next = $gctx->{'lookat_next'} || {};
-  my @new_lookat = @{$gctx->{'lookat_low'} || []};
-  push @new_lookat, grep {$lookat_next->{$_}} @{$gctx->{'prps'}};
-  # here comes our scheduler state
-  my $schedstate = {};
-  if ($ev->{'type'} eq 'exitcomplete' || $ev->{'type'} eq 'restart' || $ev->{'type'} eq 'emergencydump' || $ev->{'type'} eq 'dumpstate') {
-    $schedstate->{'projpacks'} = $gctx->{'projpacks'};
-    $schedstate->{'remoteprojs'} = $gctx->{'remoteprojs'};
-  }
-  $schedstate->{'prps'} = $gctx->{'prps'};
-  $schedstate->{'changed_low'} = $gctx->{'changed_low'};
-  $schedstate->{'changed_med'} = $gctx->{'changed_med'};
-  $schedstate->{'changed_high'} = $gctx->{'changed_high'};
-  $schedstate->{'lookat'} = \@new_lookat;
-  $schedstate->{'lookat_oob'} = $gctx->{'lookat_med'};
-  $schedstate->{'lookat_oobhigh'} = $gctx->{'lookat_high'};
-  $schedstate->{'prpfinished'} = $gctx->{'prpfinished'};
-  $schedstate->{'globalnotready'} = $gctx->{'prpnotready'};
-  $schedstate->{'repounchanged'} = $gctx->{'repounchanged'};
-  $schedstate->{'delayedfetchprojpacks'} = $gctx->{'delayedfetchprojpacks'};
-  $schedstate->{'watchremote_start'} = $gctx->{'watchremote_start'};
-  $schedstate->{'fetchprojpacks'} = $ectx->{'fetchprojpacks'} if %{$ectx->{'fetchprojpacks'} || {}};
-  my $rundir = $gctx->{'rundir'};
-  unlink("$rundir/bs_sched.$myarch.state");
-  my $statefile = "$rundir/bs_sched.$myarch.state";
-  $statefile = "$rundir/bs_sched.$myarch.dead" if $ev->{'type'} eq 'emergencydump';
-  BSUtil::store("$statefile.new", $statefile, $schedstate);
-  if ($ev->{'type'} eq 'exit' || $ev->{'type'} eq 'exitcomplete') {
-    print "bye.\n";
-    exit(0);
-  }
-  if ($ev->{'type'} eq 'restart') {
-    exec $0, $myarch;
-    warn("$0: $!\n");
-  }
-}
-
-sub event_configuration {
-  my ($ectx, $ev) = @_;
-  my $gctx = $ectx->{'gctx'};
-  print "updating configuration\n";
-  BSConfiguration::update_from_configuration();
-  $gctx->{'obsname'} = $BSConfig::obsname;
-  $gctx->{'remoteproxy'} = $BSConfig::proxy;
-}
-
-my %event_handlers = (
-  'built' => \&event_built,
-  'uploadbuild' => \&event_built,
-  'import' => \&event_built,
-  'srcevent' => \&event_package,
-  'package' => \&event_package,
-  'project' => \&event_project,
-  'projevent' => \&event_project,
-  'lowprioproject' => \&event_project,
-  'repository' => \&event_repository,
-  'repoinfo' => \&event_repository,
-  'rebuild' => \&event_check,
-  'recheck' => \&event_check,
-  'admincheck' => \&event_check,
-  'unblocked' => \&event_check_med,
-  'relsync' => \&event_check_med,
-  'scanrepo' => \&event_scanrepo,
-  'scanprjbinaries' => \&event_scanprjbinaries,
-  'dumprepo' => \&event_dumprepo,
-  'wipenotyet' => \&event_wipenotyet,
-  'wipe' => \&event_wipe,
-  'exit' => \&event_exit,
-  'exitcomplete' => \&event_exit,
-  'restart' => \&event_exit,
-  'dumpstate' => \&event_exit,
-  'useforbuild' => \&event_useforbuild,
-  'configuration' => \&event_configuration,
-);
-
-
 
 ##########################################################################
 ##########################################################################
@@ -5466,6 +5029,7 @@ NEXTPRP:
 	    next;
 	  }
 	}
+	$ev->{'type'} ||= 'unknown';
 	$ev->{'evfilename'} = "$_myeventdir/$evfilename";
 	push @events, $ev;
       }
@@ -5475,86 +5039,17 @@ NEXTPRP:
     if (@events) {
       die if $testprojid;
 
-      # create event context
-      my $ectx = {
+      # create event processor
+      my $ectx = BSSched::Events->new(
 	'gctx' => $gctx,
-	'fetchprojpacks' => {},
-	'fetchprojpacks_nodelay' => {},
-	'deepcheck' => {},
-	'lowprioproject' => {},
-	'fullcache' => undef,
-      };
+	'initialstartup' => $initialstartup,
+      );
 
-      if (@events > 1) {
-	# sort events a bit, exit events go first ;-)
-	# uploadbuild/import events must go last
-	my %evprio = ('exit' => -1, 'exitcomplete' => -1, 'restart' => -1, 'uploadbuild' => 1, 'import' => 1);
-	@events = sort {($evprio{$a->{'type'}} || 0) <=> ($evprio{$b->{'type'}} || 0) || 
-			$a->{'type'} cmp $b->{'type'} ||
-			($a->{'project'} || '') cmp ($b->{'project'} || '') ||
-			($a->{'job'} || '') cmp ($b->{'job'} || '')
-		       } @events;
-      }
+      $notlow = $notmed = 0 if grep {$_->{'type'} eq 'admincheck'} @events;	# HACK
 
       eval {
-	# the event processing loop
-	while (@events) {
-	  my $ev = shift @events;
-	  $ev->{'type'} ||= 'unknown';
-
-	  # have to be extra careful with uploadbuild/import events. if the package is in
-	  # (delayed)fetchprojpacks, delay event processing until we updated the projpack data.
-	  if ($ev->{'type'} eq 'uploadbuild' || $ev->{'type'} eq 'import') {
-	    if (event_uploadbuildimport_delay($ectx, $ev)) {
-	      $gotevent = 1;	# still have an event to process
-	      next;
-	    }
-	  }
-
-	  # log event info
-	  if ($ev->{'type'} ne 'built') {
-	    my $estr = $ev->{'evfilename'} ? 'event' : 'remote event';
-	    for (qw{type project repository arch package}) {
-	      $estr .= " $ev->{$_}" if $ev->{$_};
-	    }
-	    print "$estr\n";
-	  }
-
-	  unlink($ev->{'evfilename'}) if $ev->{'evfilename'};
-	  delete $ev->{'evfilename'};
-
-	  if ($ev->{'type'} ne 'built' && $ectx->{'fullcache'}) {
-	    BSSched::BuildRepo::sync_fullcache($gctx, $ectx->{'fullcache'});
-	    $ectx->{'fullcache'} = undef;
-	  }
-	  if ($ev->{'type'} eq 'built' && !$ectx->{'fullcache'}) {
-	    # turn on fullcache if the next event is also of type built
-	    $ectx->{'fullcache'} = {} if $events[0] && $events[0]->{'type'} eq 'built';
-	  }
-
-          # ignore exit events on initial startup, they are most likely left overs...
-          if ($initialstartup && ($ev->{'type'} eq 'exit' || $ev->{'type'} eq 'exitcomplete')) {
-	    print "WARNING: there was an exit event, but we ignore it directly after starting the scheduler.\n";
-            next;
-          }
-
-	  my $evhandler = $event_handlers{$ev->{'type'}};
-	  if ($evhandler) {
-	    $evhandler->($ectx, $ev);
-	    $notlow = $notmed = 0 if $ev->{'type'} eq 'admincheck';	# HACK
-	  } else {
-	    print "unknown event type '$ev->{'type'}'\n";
-	  }
-	}
-
-	BSSched::BuildRepo::sync_fullcache($gctx, $ectx->{'fullcache'}) if $ectx->{'fullcache'} && $ectx->{'fullcache'}->{'prp'};
-
-	# postprocess
-	if (%{$ectx->{'fetchprojpacks'}}) {
-	  BSSched::ProjPacks::do_fetchprojpacks($gctx, $asyncmode,
-						$ectx->{'fetchprojpacks'}, $ectx->{'fetchprojpacks_nodelay'},
-						$ectx->{'deepcheck'}, $ectx->{'lowprioproject'});
-	}
+        @events = $ectx->order(@events);
+	$gotevent = 1 if $ectx->process_events(@events);
       };
       if ($@) {
         warn($@);

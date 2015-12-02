@@ -608,4 +608,40 @@ sub remove_from_volatile {
   update_bininfo_merge($gdst, '_volatile', $bininfo);
 }
 
+sub wipe {
+  my ($gctx, $prp, $packid) = @_;
+
+  my ($projid, $repoid) = split('/', $prp, 2);
+  my $myarch = $gctx->{'arch'};
+  my $reporoot = $gctx->{'reporoot'};
+  my $gdst = "$reporoot/$prp/$myarch";
+  # delete repository done flag
+  unlink("$gdst/:repodone");
+  # delete full entries
+  my $projpacks = $gctx->{'projpacks'};
+  my $proj = $projpacks->{$projid};
+  my $pdata = (($proj || {})->{'package'} || {})->{$packid} || {}; 
+  my $useforbuildenabled = 1;
+  $useforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $useforbuildenabled, $myarch) if $proj;
+  $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
+  my $importarch = '';  # keep those imports
+  my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
+  update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $prpsearchpath, undef, $importarch);
+  delete $gctx->{'repounchanged'}->{$prp};
+  # delete other files
+  unlink("$gdst/:logfiles.success/$packid");
+  unlink("$gdst/:logfiles.fail/$packid");
+  unlink("$gdst/:meta/$packid");
+  for my $f (ls("$gdst/$packid")) {
+    next if $f eq 'history';
+    if (-d "$gdst/$packid/$f") {
+      BSUtil::cleandir("$gdst/$packid/$f");
+      rmdir("$gdst/$packid/$f");
+    } else {
+      unlink("$gdst/$packid/$f");
+    }   
+  }
+  rmdir("$gdst/$packid");       # in case there is no history
+}
+
 1;
