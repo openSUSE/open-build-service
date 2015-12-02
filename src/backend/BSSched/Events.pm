@@ -24,6 +24,11 @@ use Data::Dumper;
 
 use BSUtil;
 use BSXML;
+use BSConfiguration;
+use BSSolv;
+use BSSched::BuildResult;
+use BSSched::BuildRepo;
+use BSSched::ProjPacks;
 
 =head1 NAME 
 
