@@ -72,6 +72,7 @@ make -C /vagrant/src/api test
 SCRIPT
 
   end
+
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
   # config.vm.box_url = "http://domain.com/path/to/above.box"
@@ -81,6 +82,7 @@ SCRIPT
   # accessing "localhost:8080" will access port 80 on the guest machine.
 
   config.vm.define "appliance", autostart: false
+  config.vm.define "rpm-test", autostart: false
 
   # Create a private network, which allows host-only access to the machine
   # using a specific IP.

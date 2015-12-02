@@ -1,5 +1,6 @@
 #!/bin/bash -e
 
+### define some variables
 BASE_DIR=$PWD
 TEMP_DIR=$BASE_DIR/tmp
 MYSQL_BASEDIR=$TEMP_DIR/mysql/
@@ -12,6 +13,18 @@ if [[ $EUID == 0 ]];then
   MYSQLD_USER=mysql
   MEMCACHED_USER="-u memcached"
 fi
+
+### define some function
+kill_memcached() {
+  if [[ -f  $MEMCACHED_PID_FILE ]];then
+    MEMCACHED_PID=$(cat $MEMCACHED_PID_FILE)
+    if [[ $MEMCACHED_PID ]];then
+      kill  $MEMCACHED_PID;
+    fi
+  fi
+}
+
+### do testing now
 
 rm -rf $MYSQL_DATADIR $MYSQL_SOCKET
 mkdir -p $MYSQL_BASEDIR
@@ -62,11 +75,11 @@ if ! bundle exec rake test:api test:webui ; then
   # NO_CAT_LOG is used in vagrant to avoid tons of useless
   # lines transfered to host. cat is usefull in debugging in obs
   [[ ! $NO_CAT_LOG ]] && cat log/test.log
-  kill $( cat $MEMCACHED_PID_FILE )
+  kill_memcached
   exit 1
 fi
 
-kill $(cat $MEMCACHED_PID_FILE) || :
+kill_memcached
 
 #cleanup
 /usr/bin/mysqladmin -u root --socket=$MYSQL_SOCKET shutdown || true
