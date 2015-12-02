@@ -176,6 +176,7 @@ class Webui::RequestController < Webui::WebuiController
             # are allowed to modify the object
             target.add_user(@req.creator, 'maintainer')
             target.save
+            target.store if target.kind_of? Project
           end
         end
       end
