@@ -37,5 +37,8 @@ class Webui::WebuiControllerTest < Webui::IntegrationTest
     assert_equal "Bob Geldof", user.realname
     assert_equal "new_user@obs.com", user.email
     assert_equal "new_user", find('#link-to-user-home').text, "Should log in new user"
+    # cleanup
+    User.current = user
+    Project.find_by(name: 'home:new_user').destroy
   end
 end

@@ -268,6 +268,9 @@ XML
     assert_response :success
     put "/person/new_user", doc.to_s
     assert_response :success
+    # cleanup
+    User.current = User.find_by(login: 'new_user')
+    Project.find_by(name: 'home:new_user').destroy
 
     # check global role
     get "/person/king"
@@ -389,6 +392,8 @@ XML
     assert_equal u.email, "adrian@example.com"
     assert_equal u.realname, "Adrian Schroeter"
     assert_equal nil, u.adminnote
+    User.current = u
+    Project.find_by(name: 'home:adrianSuSE').destroy
     u.destroy
   end
 end

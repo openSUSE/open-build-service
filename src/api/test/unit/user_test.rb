@@ -29,6 +29,8 @@ class UserTest < ActiveSupport::TestCase
   def test_create_home_project
     User.create(login: 'moises', email: 'moises@home.com', password: '123456')
     assert Project.find_by(name: 'home:moises')
+    # cleanup
+    Project.find_by(name: 'home:moises').destroy
 
     Configuration.stubs(:allow_user_to_create_home_project).returns(false)
     User.create(login: 'bob', email: 'bob@home.com', password: '123456')

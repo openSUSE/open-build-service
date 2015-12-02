@@ -29,5 +29,6 @@ class WatchedProjectTest < ActiveSupport::TestCase
     assert_equal WatchedProject.where(user_id: tmp_uid).count, project_ids.length
     tmp_user.destroy
     assert_equal WatchedProject.where(user_id: tmp_uid).count, 0
+    Project.find_by(name: 'home:watcher').destroy
   end
 end
