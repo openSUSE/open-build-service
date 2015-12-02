@@ -640,7 +640,7 @@ sub set_building {
     return ('unresolvable', join(', ', @sysdeps));
   }
   if ($BSConfig::enable_download_on_demand) {
-    my $dods = BSSched::dod::dodcheck($ctx, $ctx->{'pool'}, $myarch, Build::get_preinstalls($bconf), Build::get_vminstalls($bconf), @bdeps, @sysdeps);
+    my $dods = BSSched::DoD::dodcheck($ctx, $ctx->{'pool'}, $myarch, Build::get_preinstalls($bconf), Build::get_vminstalls($bconf), @bdeps, @sysdeps);
     if ($dods) {
       print "        blocked: $dods\n";
       return ('blocked', $dods);
@@ -5053,7 +5053,7 @@ NEXTPRP:
       };
       if ($@) {
         warn($@);
-        event_exit($ectx, {'type' => 'emergencydump'});
+        BSSched::Events::event_exit($ectx, {'type' => 'emergencydump'});
         exit(1);
       }
 
@@ -5135,7 +5135,7 @@ NEXTPRP:
       # nothing to do. good night, sleep tight...
       if ($testmode && !$gctx->{'rctx'}->xrpc_busy()) {
 	print "Test mode, all sources and events processed, exiting...\n";
-        event_exit({ 'gctx' => $gctx }, { 'type' => 'exitcomplete' });
+        BSSched::Events::event_exit({ 'gctx' => $gctx }, { 'type' => 'exitcomplete' });
       }
       my @ltim = localtime(time);
       my $msgtm = sprintf "%04d-%02d-%02d %02d:%02d:%02d:", $ltim[5] + 1900, $ltim[4] + 1, @ltim[3,2,1,0];
@@ -6187,7 +6187,7 @@ NEXTPRP:
 
 if ($@) {
   warn($@);
-  event_exit({ 'gctx' => $gctx }, {'type' => 'emergencydump'});
+  BSSched::Events::event_exit({ 'gctx' => $gctx }, {'type' => 'emergencydump'});
   exit(1);
 }
 
