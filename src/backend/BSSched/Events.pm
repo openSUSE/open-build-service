@@ -104,7 +104,7 @@ sub event_built {
   } elsif ($ev->{'type'} eq 'import') {
     main::importevent($ectx, $job, $js);
   }
-  ::purgejob($gctx, $job);
+  main::purgejob($gctx, $job);
   close F;
 }
 
@@ -256,7 +256,7 @@ sub event_scanrepo {
     print "reading packages of repository $projid/$repoid\n";
     delete $gctx->{'repodatas'}->{$prp};
     my $pool = BSSolv::pool->new();
-    addrepo({'gctx' => $gctx, 'prp' => $prp}, $pool, $prp);
+    main::addrepo({'gctx' => $gctx, 'prp' => $prp}, $pool, $prp);
     undef $pool;
     $changed_high->{$prp} = 2;
     delete $gctx->{'repounchanged'}->{$prp};
