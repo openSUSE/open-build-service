@@ -415,7 +415,7 @@ sub update_dst_full {
       my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
       if ($repo && grep {$_ eq $exportarch} @{$repo->{'arch'} || []}) {
         print "    sending filtered packages to $exportarch\n";
-        createexportjob($gctx, $prp, $exportarch, $packid, $jobrepo, $dst, $oldrepo, $meta, @{$newexports{$exportarch}});
+        main::createexportjob($gctx, $prp, $exportarch, $packid, $jobrepo, $dst, $oldrepo, $meta, @{$newexports{$exportarch}});
       }
     }
   }
