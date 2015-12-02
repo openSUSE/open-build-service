@@ -64,7 +64,7 @@ class UnregisteredUser < User
     newuser.realname = opts[:realname] || ""
     newuser.state = User::STATES[state]
     newuser.adminnote = opts[:note]
-    logger.debug('Saving...')
+    logger.debug("Saving new user #{newuser.login}")
     newuser.save
 
     if !newuser.errors.empty?

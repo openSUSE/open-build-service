@@ -69,7 +69,7 @@ class User < ActiveRecord::Base
     project = Project.find_by(name: self.home_project_name)
     unless project
       project = Project.create(name: self.home_project_name)
-      project.store
+      project.store({login: self.login})
     end
   end
 
