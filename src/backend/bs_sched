@@ -6908,6 +6908,7 @@ my $rctx = BSSched::RPC->new(
 $gctx->{'rctx'} = $rctx;
 
 $gctx->{'testmode'} = 1 if $testmode;
+$BSSched::ProjPacks::testprojid = $testprojid if $testprojid;
 
 # read old state if present
 if (!$testprojid && -s "$_rundir/bs_sched.$_myarch.state") {
