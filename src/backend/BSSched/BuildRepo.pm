@@ -33,9 +33,7 @@ use warnings;
 use BSUtil;
 use BSConfiguration;
 use Build::Rpm;
-
-our $new_full_handling = 1;
-$new_full_handling = $BSConfig::new_full_handling if defined $BSConfig::new_full_handling;
+use BSSched::BuildResult;
 
 my $exportcnt = 0;
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
@@ -227,7 +225,7 @@ sub fctx_gbininfo2full {
     my $bininfo = $gbininfo->{$packid};
     next if $bininfo->{'.nouseforbuild'};               # channels/patchinfos don't go into the full tree
     $bininfo = $old if defined($oldpackid) && $oldpackid eq $packid;
-    my %f = main::set_suf_and_filter_exports($gctx, $bininfo, $fctx->{'filter'});
+    my %f = BSSched::BuildResult::set_suf_and_filter_exports($gctx, $bininfo, $fctx->{'filter'});
     for my $fn (sort { ($f{$a}->{'imported'} || 0) <=> ($f{$b}->{'imported'} || 0) || $a cmp $b} keys %f) {
       my $r = $f{$fn};
       $r->{'packid'} = $packid;
@@ -242,49 +240,6 @@ sub fctx_gbininfo2full {
   }
   delete $gbininfo->{$oldpackid} if defined($oldpackid) && !$hadoldpackid;
   return %full;
-}
-
-=head2 findmeta - find the correct meta for a binary in a package directory
-
-=cut
-
-sub findmeta {
-  my ($gdst, $packid, $r, $zerook) = @_;
-  if ($r->{'imported'}) {
-    my $fn = $r->{'filename'};
-    if ($fn =~ s/^::import::/.meta.success.import./s) {
-      $fn =~ s/::.*//;
-      return "$gdst/$packid/$fn" if -s "$gdst/$packid/$fn";
-    }
-  } else {
-    return "$gdst/$packid/.meta.success" if -s "$gdst/$packid/.meta.success";
-  }
-  my $fn = $r->{'filename'};
-  $fn = substr($fn, 0, length($fn) - length($r->{'suf'}) - 1) . '.meta';
-  if ($zerook) {
-    return "$gdst/$packid/$fn" if -e "$gdst/$packid/$fn";
-  } else {
-    return "$gdst/$packid/$fn" if -s "$gdst/$packid/$fn";
-  }
-  return undef;
-}
-
-=head2 remove_from_volatile - TODO
-
-=cut
-
-sub remove_from_volatile {
-  my ($gdst, $del) = @_;
-  for my $r (@$del) {
-    my $bin = $r->{'filename'};
-    next unless $bin =~ /^(.*)\.($binsufsre)$/; # hmm?
-    print "      - _volatile/$bin\n";
-    unlink("$gdst/_volatile/$1.meta");
-    unlink("$gdst/_volatile/$bin");
-  }
-  unlink("$gdst/_volatile/.bininfo");
-  my $bininfo = main::read_bininfo("$gdst/_volatile", 1);
-  main::update_bininfo_merge($gdst, '_volatile', $bininfo);
 }
 
 =head2 fctx_rebuild_full - completely rebuild the full tree.
@@ -344,7 +299,7 @@ sub fctx_rebuild_full {
     if (defined($fctx->{'packid'}) && $packid eq $fctx->{'packid'}) {
       fctx_add_binary_to_full($fctx, $r->{'filename'}, $r);
     } else {
-      my $meta = findmeta($gdst, $packid, $r);
+      my $meta = BSSched::BuildResult::findmeta($gdst, $packid, $r);
       fctx_add_binary_to_full($fctx, $r->{'filename'}, $r, $packid, $meta);
     }
   }
@@ -353,7 +308,7 @@ sub fctx_rebuild_full {
     print "detected out-of-sync condition for $out_of_sync, rebuilding bad bininfos\n";
     unlink("$gdst/:bininfo");
     unlink("$gdst/:bininfo.merge");
-    $gbininfo = main::read_gbininfo($gdst);
+    $gbininfo = BSSched::BuildResult::read_gbininfo($gdst);
     my %newfull = fctx_gbininfo2full($fctx, $gbininfo, undef, undef, $fctx->{'newuseforbuild'});
     fctx_rebuild_full($fctx, \%newfull, $gbininfo);
     return;
@@ -367,7 +322,7 @@ sub fctx_rebuild_full {
       my $r = $bininfo->{$_};
       push @del, $r if $r->{'name'} && $newfull->{$r->{'name'}} != $r;
     }
-    remove_from_volatile($fctx->{'gdst'}, \@del) if @del;
+    BSSched::BuildResult::remove_from_volatile($fctx->{'gdst'}, \@del) if @del;
   }
 }
 
@@ -444,8 +399,8 @@ sub fctx_migrate_full {
   }
   if ($dirty) {
     unlink("$gdst/_volatile/.bininfo");
-    my $bininfo = main::read_bininfo("$gdst/_volatile", 1);
-    main::update_bininfo_merge($gdst, '_volatile', $bininfo);
+    my $bininfo = BSSched::BuildResult::read_bininfo("$gdst/_volatile", 1);
+    BSSched::BuildResult::update_bininfo_merge($gdst, '_volatile', $bininfo);
     delete $bininfo->{'.bininfo'};
     $gbininfo->{'_volatile'} = $bininfo;
   }
@@ -526,7 +481,7 @@ sub fctx_integrate_package_into_full {
   }
 
   # could not do easy integration, read gbininfo
-  my $gbininfo = main::read_gbininfo($gdst, undef, 1);
+  my $gbininfo = BSSched::BuildResult::read_gbininfo($gdst, undef, 1);
   my $olduseforbuild = $fctx->{'olduseforbuild'};
   my $newuseforbuild = $fctx->{'newuseforbuild'};
   %oldfull = fctx_gbininfo2full($fctx, $gbininfo, $packid, $old, $olduseforbuild);
@@ -567,7 +522,7 @@ sub fctx_integrate_package_into_full {
         last;
       }
       # check if we have the meta
-      my $meta = findmeta($gdst, $nr->{'packid'}, $nr, 1);
+      my $meta = BSSched::BuildResult::findmeta($gdst, $nr->{'packid'}, $nr, 1);
       if (!$meta) {
         $bad = 1;               # too bad, no meta available. probably not migrated. better rebuild...
         last;
@@ -582,7 +537,7 @@ sub fctx_integrate_package_into_full {
       next unless $nr;
       next if $or && $or == $nr;
       if ($nr->{'packid'} ne ($packid || '')) {
-        my $meta = findmeta($gdst, $nr->{'packid'}, $nr);
+        my $meta = BSSched::BuildResult::findmeta($gdst, $nr->{'packid'}, $nr);
         fctx_add_binary_to_full($fctx, $nr->{'filename'}, $nr, $nr->{'packid'}, $meta);
       } else {
         fctx_add_binary_to_full($fctx, $nr->{'filename'}, $nr);
@@ -597,7 +552,7 @@ sub fctx_integrate_package_into_full {
       fctx_del_binary_from_full($fctx, $or) unless $nr;
       push @volrm, $or if $or->{'packid'} eq '_volatile' && !($nr && $nr == $or);
     }
-    remove_from_volatile($fctx->{'fdst'}, \@volrm) if @volrm;
+    BSSched::BuildResult::remove_from_volatile($fctx->{'gdst'}, \@volrm) if @volrm;
     return;
   }
 
@@ -674,7 +629,7 @@ sub move_into_full {
   $fctx->{'dep2meta'} = $repodatas->{$prp}->{'meta'} if $repodatas->{$prp} && $repodatas->{$prp}->{'meta'};
   mkdir_p("$gdst/:full") if $new && %$new && ! -d "$gdst/:full";
 
-  if ($new_full_handling) {
+  if ($BSSched::BuildResult::new_full_handling) {
     fctx_integrate_package_into_full($fctx, $old, $new);
   } else {
     fctx_integrate_package_into_full_old($fctx, $old, $new);
@@ -771,7 +726,7 @@ sub writesolv {
 
 sub checkuseforbuild {
   my ($gctx, $prp, $prpsearchpath, $fullcache, $forcerebuild) = @_;
-  return unless $new_full_handling;
+  return unless $BSSched::BuildResult::new_full_handling;
   my $myarch = $gctx->{'arch'};
   my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
   my $projpacks = $gctx->{'projpacks'};
@@ -820,7 +775,7 @@ sub checkuseforbuild {
     sync_fullcache($gctx, $fullcache) if $fullcache->{'prp'} && $fullcache->{'prp'} ne $prp;
     $fullcache->{'prp'} = $prp;
   }
-  my $filter = main::calculate_exportfilter($gctx, $prp, $prpsearchpath, $fullcache);
+  my $filter = BSSched::BuildResult::calculate_exportfilter($gctx, $prp, $prpsearchpath, $fullcache);
   my $fctx = {
     'gctx' => $gctx,
     'gdst' => $gdst,
