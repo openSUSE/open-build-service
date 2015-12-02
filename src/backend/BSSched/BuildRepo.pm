@@ -625,7 +625,7 @@ sub move_into_full {
   # move em over into :full
   $fctx->{'oldids'} = \%oldids;
   $fctx->{'metacache'} = $metacache;
-  $fctx->{'metacache__ismerge'} = $metacache_ismerge;
+  $fctx->{'metacache_ismerge'} = $metacache_ismerge;
   $fctx->{'dep2meta'} = $repodatas->{$prp}->{'meta'} if $repodatas->{$prp} && $repodatas->{$prp}->{'meta'};
   mkdir_p("$gdst/:full") if $new && %$new && ! -d "$gdst/:full";
 
