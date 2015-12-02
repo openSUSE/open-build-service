@@ -21,6 +21,7 @@ use warnings;
 
 use BSRPC;
 use BSSched::RPC;
+use BSConfiguration;
 
 =head2 beginwatchcollection - TODO: add summary
 
@@ -60,7 +61,8 @@ sub addwatchremote {
   return undef if $projpacks->{$projid} && !$projpacks->{$projid}->{'remoteurl'};
   my $proj = remoteprojid($gctx, $projid);
   my $watchremoteprojs = $gctx->{'watchremoteprojs'} || {};
-  $watchremoteprojs->{$projid} = $proj;
+  # we don't need the project data for package watches
+  $watchremoteprojs->{$projid} = $proj if $type ne 'package';
   return undef unless $proj;
   my $watchremote = $gctx->{'watchremote'};
   if ($proj->{'partition'}) {
@@ -71,9 +73,11 @@ sub addwatchremote {
   return $proj;
 }
 
-=head2 updateremoteprojs - TODO: add summary
+=head2 updateremoteprojs - sync remoteprojs with watches data
 
- TODO: add description
+This function deletes all no longer needed elements from the
+remoteprojs hash. It also calls fetchremoteproj for missing
+entries, which should actually not happen.
 
 =cut
 
@@ -152,21 +156,6 @@ sub remoteprojid {
   return undef;
 }
 
-=head2 maptoremote - TODO: add summary
-
- TODO: add description
-
-=cut
-
-sub maptoremote {
-  my ($proj, $projid) = @_;
-  return $projid if $proj->{'partition'};
-  return "$proj->{'root'}:$projid" unless $proj->{'remoteroot'};
-  return $proj->{'root'} if $projid eq $proj->{'remoteroot'};
-  return '_unavailable' if $projid !~ /^\Q$proj->{'remoteroot'}\E:(.*)$/;
-  return "$proj->{'root'}:$1";
-}
-
 =head2 fetchremoteproj - TODO: add summary
 
  TODO: add description
@@ -179,12 +168,11 @@ sub fetchremoteproj {
   $projid ||= $proj->{'name'};
   my $remoteprojs = $gctx->{'remoteprojs'};
   return $remoteprojs->{$projid} if exists $remoteprojs->{$projid};
-  print "fetching remote project data for $projid\n";
+  print "WARNING: fetching remote project data for $projid\n";
   my $rproj;
   my $param = {
-    'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_meta",
-    'timeout' => 30,
-    'proxy' => $gctx->{'proxy'},
+    'uri' => "$BSConfig::srcserver/source/$projid/_meta",
+    'timeout' => 60,
   };
   eval {
     $rproj = BSRPC::rpc($param, $BSXML::proj);
@@ -197,20 +185,9 @@ sub fetchremoteproj {
     main::addretryevent($gctx, {'type' => 'project', 'project' => $projid}) if BSSched::RPC::is_transient_error($error);
   }
   return undef unless $rproj;
+  delete $rproj->{'mountproject'};
   for (qw{name root remoteroot remoteurl remoteproject}) {
     $rproj->{$_} = $proj->{$_};
-  }
-  # map remote project names to local names
-  for my $repo (@{$rproj->{'repository'} || []}) {
-    for my $pathel (@{$repo->{'path'} || []}) {
-      $pathel->{'project'} = maptoremote($proj, $pathel->{'project'});
-    }
-    for my $pathel (@{$repo->{'releasetarget'} || []}) {
-      $pathel->{'project'} = maptoremote($proj, $pathel->{'project'});
-    }
-  }
-  for my $link (@{$rproj->{'link'} || []}) {
-    $link->{'project'} = maptoremote($proj, $link->{'project'});
   }
   $remoteprojs->{$projid} = $rproj;
   return $rproj;
@@ -230,12 +207,11 @@ sub fetchremoteconfig {
   return undef if !$proj || $proj->{'error'};
   return $proj->{'config'} if exists $proj->{'config'};
   return '' if $proj->{'partition'};
-  print "    fetching remote project config for $projid\n";
+  print "WARNING: fetching remote project config for $projid\n";
   my $c;
   my $param = {
-    'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_config",
-    'timeout' => 30,
-    'proxy' => $gctx->{'proxy'},
+    'uri' => "$BSConfig::srcserver/source/$projid/_config",
+    'timeout' => 60,
   };
   eval {
     $c = BSRPC::rpc($param);
