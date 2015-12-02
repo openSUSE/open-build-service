@@ -59,7 +59,9 @@ export RAILS_ENV=test
 bundle exec rake db:create db:setup || exit 1
 mv log/test.log{,.old}
 if ! bundle exec rake test:api test:webui ; then
-  cat log/test.log
+  # NO_CAT_LOG is used in vagrant to avoid tons of useless
+  # lines transfered to host. cat is usefull in debugging in obs
+  [[ ! $NO_CAT_LOG ]] && cat log/test.log
   kill $( cat $MEMCACHED_PID_FILE )
   exit 1
 fi

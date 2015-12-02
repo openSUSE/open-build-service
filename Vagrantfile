@@ -25,18 +25,53 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   config.vm.define "appliance" , primary: true do |app|
     app.vm.box = 'webhippie/opensuse-13.2'
-    # app.exec.commands '*', env: {'RAILS_ENV' => 'production'}
-    # app.exec.commands '*', env: {'DATABASE_URL' => 'mysql2://root:opensuse@localhost/api_development'}
+
     # Provision the box with a simple shell script
     app.vm.provision :shell, path: 'bootstrap-appliance.sh'
 
     # reboot vm to run obsapisetup
     app.vm.provision :reload
 
-
+    # finalize installation
     app.vm.provision :shell, path: 'bootstrap-appliance-finalize.sh'
+
   end
 
+  config.vm.define "rpm-test" , primary: true do |rpmt|
+    rpmt.vm.box = 'webhippie/opensuse-13.2'
+    # Provision the box with a simple shell script
+    rpmt.vm.provision :shell, inline: <<SCRIPT
+export NO_CAT_LOG=1
+echo -e "\ninstalling required software packages...\n"
+echo 'solver.allowVendorChange = true' >> /etc/zypp/zypp.conf
+
+zypper -q ar -f http://download.opensuse.org/repositories/OBS:/Server:/Unstable/openSUSE_13.2/OBS:Server:Unstable.repo
+zypper -q --gpg-auto-import-keys refresh
+zypper -q -n install --no-recommends update-alternatives ruby-devel make gcc gcc-c++ patch cyrus-sasl-devel openldap2-devel libmysqld-devel libxml2-devel zlib-devel libxslt-devel nodejs mariadb memcached sphinx screen sphinx phantomjs obs-api-testsuite-deps inst-source-utils ruby2.2-rubygem-sqlite3
+
+# The newer version creates false positives in test:api
+zypper -q -n install --force createrepo-0.9.9-10.35.1
+
+echo -e "\nsetup ruby binaries...\n"
+for bin in rake rdoc ri; do
+   /usr/sbin/update-alternatives --set $bin /usr/bin/$bin.ruby.ruby2.2
+done
+
+echo -e "\ndisabling versioned gem binary names...\n"
+echo 'install: --no-format-executable' >> /etc/gemrc
+
+gem install bundle
+BUNDLE_GEMFILE=/vagrant/src/api/Gemfile bundle install
+
+
+make -C /vagrant
+make -C /vagrant install
+
+make -C /vagrant/src/api test
+#chown -R vagrant /vagrant
+SCRIPT
+
+  end
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
   # config.vm.box_url = "http://domain.com/path/to/above.box"
