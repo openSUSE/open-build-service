@@ -701,7 +701,7 @@ class Package < ActiveRecord::Base
   end
 
   def destroy_without_backend_write_and_revoking_requests
-    self.commit_opts = { no_backend_write: 1 }
+    self.commit_opts = { no_backend_write: 1, project_destroy_transaction: 1 }
     Package.skip_callback(:destroy, :before, :close_requests)
     destroy
     Package.set_callback(:destroy, :before, :close_requests)
@@ -745,12 +745,14 @@ class Package < ActiveRecord::Base
         Suse::Backend.delete path
       rescue ActiveXML::Transport::NotFoundError
         # ignore this error, backend was out of sync
-        logger.warn("Package #{self.project.name}/#{self.name} was already missing on backend on removal")
+        logger.tagged('backend_sync') { logger.warn("Package #{self.project.name}/#{self.name} was already missing on backend on removal") }
       end
-      logger.tagged('backend_sync') { logger.debug "Deleted Package #{self.project.name}/#{self.name}" }
+      logger.tagged('backend_sync') { logger.warn("Deleted Package #{self.project.name}/#{self.name}") }
     else
       if @commit_opts[:no_backend_write]
-        logger.tagged('backend_sync') { logger.warn "Not deleting Package #{self.project.name}/#{self.name}, backend_write is off " }
+        unless @commit_opts[:project_destroy_transaction]
+          logger.tagged('backend_sync') { logger.warn "Not deleting Package #{self.project.name}/#{self.name}, backend_write is off " }
+        end
       else
         logger.tagged('backend_sync') { logger.warn "Not deleting Package #{self.project.name}/#{self.name}, global_write_through is off" }
       end
