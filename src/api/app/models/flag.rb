@@ -35,10 +35,6 @@ class Flag < ActiveRecord::Base
     # rubocop:enable Metrics/LineLength
   end
 
-  scope :with_types, ->(type) { where(flag: type) }
-  scope :with_repositories, ->(repo_name) { where(repo: repo_name) }
-  scope :with_architectures, ->(architecture_name) { where(architecture: Architecture.find_by(name: architecture_name)) }
-
   def self.default_status(flag_name)
     case flag_name
     when 'lock'
@@ -63,8 +59,8 @@ class Flag < ActiveRecord::Base
   end
 
   def default_status
-    all_flag = main_object.flags.with_types(self.flag).with_repositories(nil).with_architectures(nil).first
-    repo_flag = main_object.flags.with_types(self.flag).with_repositories(self.repo).with_architectures(nil).first
+    all_flag = main_object.flags.where("flag = ? AND repo IS NULL AND architecture_id IS NULL", self.flag).first
+    repo_flag = main_object.flags.where("flag = ? AND repo = ? AND architecture_id IS NULL", self.flag, self.repo).first
 
     return repo_flag.status if repo_flag
     return all_flag.status if all_flag
@@ -145,5 +141,4 @@ class Flag < ActiveRecord::Base
   def main_object
     self.package ? self.package : self.project
   end
-
 end
