@@ -4479,7 +4479,8 @@ NEXTPRP:
 	next if $repoids{$repoid};
 	my $prp = "$projid/$repoid";
 	next if -l "$reporoot/$prp";	# XXX
-	next unless -d "$reporoot/$prp/$myarch";
+	my $gdst = "$reporoot/$prp/$myarch";
+	next unless -d $gdst;
 	# we no longer build this repoid
 	print "  - deleting repository $prp\n";
 	delete $gctx->{'prpfinished'}->{$prp};
@@ -4489,26 +4490,26 @@ NEXTPRP:
 	delete $gctx->{'repodatas'}->{$prp};
 	delete $lastcheck{$prp};
 	delete $gctx->{'prpcheckuseforbuild'}->{$prp};
-	for my $dir (ls("$reporoot/$prp/$myarch")) {
+	for my $dir (ls($gdst)) {
 	  # need lock for deleting publish area
 	  next if $dir eq ':repo' || $dir eq ':repoinfo';
-	  if (-d "$reporoot/$prp/$myarch/$dir") {
-	    BSUtil::cleandir("$reporoot/$prp/$myarch/$dir");
-	    rmdir("$reporoot/$prp/$myarch/$dir") || die("$reporoot/$prp/$myarch/$dir: $!\n");
+	  if (-d "$gdst/$dir") {
+	    BSUtil::cleandir("$gdst/$dir");
+	    rmdir("$gdst/$dir") || die("$gdst/$dir: $!\n");
 	  } else {
-	    unlink("$reporoot/$prp/$myarch/$dir") || die("$reporoot/$prp/$myarch/$dir: $!\n");
+	    unlink("$gdst/$dir") || die("$gdst/$dir: $!\n");
 	  }
 	}
 	$changed_med{$prp} = 2;
 	sendrepochangeevent($gctx, $prp);
 	BSSched::BuildJob::killbuilding($gctx, $prp);
-	my $ctx = {'gctx' => $gctx, 'prp' => $prp};
+	my $ctx = {'gctx' => $gctx, 'prp' => $prp, 'gdst' => $gdst };
 	BSSched::PublishRepo::prpfinished($ctx);
 	# now that :repo is gone we can remove the directory
-	while (!rmdir("$reporoot/$prp/$myarch")) {
-	  die("$reporoot/$prp/$myarch: $!\n") unless -e "$reporoot/$prp/$myarch/:schedulerstate.dirty";
-	  print "rep server created dirty file $reporoot/$prp/$myarch/:schedulerstate.dirty, retry ...\n";
-	  unlink("$reporoot/$prp/$myarch/:schedulerstate.dirty");
+	while (!rmdir($gdst)) {
+	  die("$gdst: $!\n") unless -e "$gdst/:schedulerstate.dirty";
+	  print "rep server created dirty file $gdst/:schedulerstate.dirty, retry ...\n";
+	  unlink("$gdst/:schedulerstate.dirty");
 	}
 	# XXX this should be rewritten if :repoinfo lives somewhere else
 	my $repo = (grep {$_->{'name'} eq $repoid} @{($projpacks->{$projid} || {})->{'repository'} || []})[0];
