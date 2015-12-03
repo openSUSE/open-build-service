@@ -61,6 +61,17 @@ my $workersrcserver = $BSConfig::workersrcserver ? $BSConfig::workersrcserver : 
 my $workerreposerver = $BSConfig::workerreposerver ? $BSConfig::workerreposerver : $BSConfig::reposerver;
 
 
+=head2 unify - unify an array
+
+ TODO
+
+=cut
+
+sub unify {
+  my %h = map {$_ => 1} @_; 
+  return grep(delete($h{$_}), @_); 
+}
+
 =head2 init_ourjobs - intialize ourjobs hash on startup
 
  This function is used to initialize the ourjobs hash on scheduler startup.

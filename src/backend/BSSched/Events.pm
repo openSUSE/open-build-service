@@ -104,7 +104,7 @@ sub event_built {
   } elsif ($ev->{'type'} eq 'import') {
     main::importevent($ectx, $job, $js);
   }
-  main::purgejob($gctx, $job);
+  BSSched::BuildJob::purgejob($gctx, $job);
   close F;
 }
 
