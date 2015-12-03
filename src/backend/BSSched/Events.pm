@@ -98,7 +98,7 @@ sub event_built {
     return;
   }
   if ($ev->{'type'} eq 'built') {
-    main::jobfinished($ectx, $job, $js);
+    BSSched::BuildJob::jobfinished($ectx, $job, $js);
   } elsif ($ev->{'type'} eq 'uploadbuild') {
     main::uploadbuildevent($ectx, $job, $js);
   } elsif ($ev->{'type'} eq 'import') {

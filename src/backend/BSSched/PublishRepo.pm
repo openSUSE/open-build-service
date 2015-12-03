@@ -317,7 +317,7 @@ sub makedeltas {
   my %running_ids;
   if ($maxjobs > 1) {
     $suffix = 0;
-    my $jobprefix = main::jobname($prp, '_deltas');
+    my $jobprefix = BSSched::BuildJob::jobname($prp, '_deltas');
     my $myjobsdir = $gctx->{'myjobsdir'};
     for my $job (grep {$_ eq $jobprefix || /^\Q$jobprefix-\E\d+$/} ls($myjobsdir)) {
       $running_jobs++;
