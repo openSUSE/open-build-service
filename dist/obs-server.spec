@@ -50,9 +50,9 @@ BuildRequires:  python-devel
 # config/environment.rb of the various applications.
 # atm the obs rails version patch above unifies that setting among the applications
 # also see requires in the obs-server-api sub package
-BuildRequires:  build >= 20141219
+BuildRequires:  build >= 20151130
 BuildRequires:  inst-source-utils
-BuildRequires:  perl-BSSolv
+BuildRequires:  perl-BSSolv >= 0.25.1
 BuildRequires:  perl-Compress-Zlib
 BuildRequires:  perl-File-Sync >= 0.10
 BuildRequires:  perl-JSON-XS
@@ -66,7 +66,7 @@ BuildRequires:  xorg-x11-server
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
 BuildArch:      noarch
 Requires:       obs-common
-Requires:       build >= 20141219
+Requires:       build >= 20151130
 Requires:       obs-productconverter >= %version
 Requires:       perl-BSSolv >= 0.19.0
 # Required by source server
