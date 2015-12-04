@@ -60,7 +60,7 @@ build: config
 	: >  $(DESTDIR)/srv/www/obs/api/log/production.log
 	sed -i -e 's,^api_version.*,api_version = "%version",'  $(DESTDIR)/srv/www/obs/api/config/initializers/02_apiversion.rb
 
-test:
+test_unit:
 	./script/api_test_in_spec.sh
 
 .PHONY: test
