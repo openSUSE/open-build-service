@@ -5,7 +5,7 @@ LOGROTATE_CONFIGS := obs-api obs-server
 OBS_BIN_SCRIPTS 	:= obs_productconvert
 OBS_SBIN_SCRIPTS 	:= obs_admin obs_serverstatus
 
-install: install_obsapisetup install_apache install_initscripts install_project_update install_logrotate install_fillups install_slp install_obs_bin
+install: install_obsapisetup install_apache install_initscripts install_project_update install_logrotate install_fillups install_slp install_obs_bin install_devel_docs
 
 #install_overview
 
@@ -47,6 +47,12 @@ system_dirs:
 	$(INSTALL) -d -m 755 $(DESTDIR)/usr/bin/
 	$(INSTALL) -d -m 755 $(DESTDIR)/usr/sbin/
 	$(INSTALL) -d -m 755 $(DESTDIR)/var/adm/fillup-templates
+	$(INSTALL) -d -m 755 $(DESTDIR)/usr/share/doc/packages/obs-devel
+
+install_devel_docs:
+	$(INSTALL) -m 644 README.devel $(DESTDIR)/usr/share/doc/packages/obs-devel/README.devel
+
+
 
 
 test_unit:
