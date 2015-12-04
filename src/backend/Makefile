@@ -7,7 +7,7 @@ prepare_dirs:
 	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_BACKEND_PREFIX)
 	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_BACKEND_DATA_DIR)
 
-install: prepare_dirs
+install: prepare_dirs install_data_dirs
 	# prevent error while copy if there is an previous installation
 	rm -rf $(DESTDIR)$(OBS_BACKEND_PREFIX)/build
 	cp -a ./* $(DESTDIR)$(OBS_BACKEND_PREFIX)

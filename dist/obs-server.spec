@@ -263,48 +263,44 @@ obs_project_update is a tool to copy a packages of a project from one obs to ano
 
 #--------------------------------------------------------------------------------
 %prep
+export DESTDIR=$RPM_BUILD_ROOT
 %setup -q -n open-build-service-%version
 # drop build script, we require the installed one from own package
 rm -rf src/build
 find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf
 
 %build
+export DESTDIR=$RPM_BUILD_ROOT
 # we need it for the test suite or it may silently succeed 
 test -x /usr/bin/Xvfb 
+
 #
 # generate apidocs
 #
-pushd docs/api/api
-make apidocs
-popd
+make
 
 %install
-#
-# First install all dist files
-#
-cd dist
+export DESTDIR=$RPM_BUILD_ROOT
+
+%if 0%{?suse_version} < 1300
+  perl -p -i -e 's/^APACHE_VHOST_CONF=.*/APACHE_VHOST_CONF=obs-apache2.conf/' Makefile.include
+%endif
+
 %if 0%{?fedora} || 0%{?rhel}
   # Fedora use different user:group for apache
-  find -type f | xargs sed -i '1,$s/wwwrun\(.*\)www/apache\1apache/g'
-  find -type f | xargs sed -i '1,$s/user wwwrun/user apache/g'
-  find -type f | xargs sed -i '1,$s/group www/group apache/g'
-%endif
-# configure apache web service
-export DESTDIR=$RPM_BUILD_ROOT
-mkdir -p $RPM_BUILD_ROOT/etc/apache2/vhosts.d/
-%if 0%{?suse_version} < 1300
-perl -p -i -e 's/^APACHE_VHOST_CONF=.*/APACHE_VHOST_CONF=obs-apache2.conf/' Makefile.include
+  perl -p -i -e 's/^APACHE_USER=.*/APACHE_USER=apache/' Makefile.include
+  perl -p -i -e 's/^APACHE_GROUP=.*/APACHE_GROUP=apache/' Makefile.include
 %endif
 
-# install overview page template
-mkdir -p $RPM_BUILD_ROOT/srv/www/obs/overview
-install -m 0644 overview.html.TEMPLATE $RPM_BUILD_ROOT/srv/www/obs/overview/
+# TODO: implement a clean way for fedora/rh
+#%if 0%{?fedora} || 0%{?rhel}
+#  # Fedora use different user:group for apache
+#  find -type f | xargs sed -i '1,$s/wwwrun\(.*\)www/apache\1apache/g'
+#  find -type f | xargs sed -i '1,$s/user wwwrun/user apache/g'
+#  find -type f | xargs sed -i '1,$s/group www/group apache/g'
+#%endif
 
-# install setup-appliance.sh
 DESTDIR=%{buildroot} make install
-
-# clean development files
-rm $RPM_BUILD_ROOT/srv/www/obs/api/.rubocop{,_todo}.yml
 
 #
 # turn duplicates into hard links
@@ -314,17 +310,11 @@ rm $RPM_BUILD_ROOT/srv/www/obs/api/.rubocop{,_todo}.yml
 %fdupes $RPM_BUILD_ROOT/srv/www/obs
 %endif
 
-for file in api/log/access.log api/log/backend_access.log api/log/delayed_job.log api/log/error.log api/log/lastevents.access.log; do
-  touch $RPM_BUILD_ROOT/srv/www/obs/$file
-done
-
-
 %check
-
+export DESTDIR=$RPM_BUILD_ROOT
 # check installed backend
 pushd $RPM_BUILD_ROOT/usr/lib/obs/server/
-file build
-rm build
+rm -rf build
 ln -sf /usr/lib/build build # just for %%check, it is a %%ghost
 
 # TODO: integrate this perl test into new test suite and change to TAP
@@ -586,6 +576,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /srv/www/obs/api/test
 /srv/www/obs/docs
 /usr/lib/obs/server/setup-appliance.sh
+
 
 /srv/www/obs/api/config/locales
 %dir /srv/www/obs/api/vendor
