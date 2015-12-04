@@ -9,9 +9,6 @@ module GetFlags
   def get_flags(flag_type)
     the_flags = {}
 
-    # FIXME: A helper called in a model...
-    return the_flags unless FlagHelper::TYPES.has_key?(flag_type.to_s)
-
     # [nil] is a placeholder for "all" repositories
     [nil].concat(self.repositories.map{|repo| repo.name}).each do |repository|
       the_flags[repository] = []
