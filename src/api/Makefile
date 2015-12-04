@@ -56,9 +56,11 @@ build: config
 	$(OBS_API_BUNDLER_OPTS) bundle config --local frozen 1 ;\
 	$(OBS_API_BUNDLER_OPTS) bundle config --local without test:assets:development
 	# reinstall
-	$(INSTALL) config/database.yml.example $(DESTDIR)/srv/www/obs/api/config/database.yml
+	$(INSTALL) config/database.yml.example $(DESTDIR)$(OBS_API_PREFIX)/config/database.yml
+	# fixed hardlinking problem in SLE 11
+	echo "# This is to prevent fdupes from hardlinking" >> $(DESTDIR)$(OBS_API_PREFIX)/config/database.yml
 	: >  $(DESTDIR)/srv/www/obs/api/log/production.log
-	sed -i -e 's,^api_version.*,api_version = "%version",'  $(DESTDIR)/srv/www/obs/api/config/initializers/02_apiversion.rb
+	sed -i -e 's,^api_version.*,api_version = "%version",'  $(DESTDIR)$(OBS_API_PREFIX)/config/initializers/02_apiversion.rb
 
 test_unit:
 	./script/api_test_in_spec.sh

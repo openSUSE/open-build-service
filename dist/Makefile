@@ -26,7 +26,7 @@ install_project_update: system_dirs
 
 
 install_logrotate: system_dirs
-	$(foreach config,$(LOGROTATE_CONFIGS),$(shell $(INSTALL) -m 755 $(config).logrotate $(DESTDIR)/etc/logrotate.d/$(config)) )
+	$(foreach config,$(LOGROTATE_CONFIGS),$(shell $(INSTALL) -m 644 $(config).logrotate $(DESTDIR)/etc/logrotate.d/$(config)) )
 
 install_fillups: system_dirs
 	$(INSTALL) -m 0644 sysconfig.obs-server $(DESTDIR)/var/adm/fillup-templates/
