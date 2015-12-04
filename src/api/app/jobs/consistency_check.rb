@@ -1,8 +1,14 @@
 require 'api_exception'
 require 'xmlhash'
 
-module AdminHelper
-  def consistency_check(fix = nil)
+class InconsistentData < APIException; end
+
+class ConsistencyCheckJob < ActiveJob::Base
+  def fix
+    perform(true)
+  end
+
+  def perform(fix = nil)
     User.current ||= User.get_default_admin
     errors = ""
     errors = project_existens_consistency_check(fix)
@@ -11,9 +17,9 @@ module AdminHelper
       errors << project_meta_check(prj, fix)
     end
     unless errors.blank?
-      Rails.logger.warn("Detected problems during consistency check")
-      Rails.logger.warn(errors)
-      raise APIException.new(errors)
+      Rails.logger.error("Detected problems during consistency check")
+      Rails.logger.error(errors)
+      raise InconsistentData.new(errors)
     end
     nil
   end

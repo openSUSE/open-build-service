@@ -2,11 +2,8 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test/test_helper"
 require 'source_controller'
 
 #
-# Add all kind of data consistency checks here. It runs before and after all functional tests
-# to detect any kind of data corruption due to some other code
+# code which is supposed to be run at multiple stages during the test suite run
 #
-
-include AdminHelper
 
 def resubmit_all_fixtures
   # this just reads and writes again the meta data. 1st run the fixtures and on 2nd all left

@@ -68,6 +68,6 @@ module Clockwork
 
   # check for new breakages between api and backend due to dull code
   every(1.week, 'consistency check') do
-    delay.consistency_check
+    ConsistencyCheckJob.new.delay.perform
   end
 end
