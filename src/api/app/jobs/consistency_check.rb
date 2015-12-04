@@ -30,9 +30,9 @@ class ConsistencyCheckJob < ActiveJob::Base
     api_meta = prj.to_axml
     begin
       backend_meta = Suse::Backend.get("/source/#{prj.name}/_meta").body
-    rescue
-#      Suse::Backend.delete("/source/#{prj.name}") if fix
-      return "Project meta is missing or has invalid xml data on backend for project #{prj.name}"
+    rescue ActiveXML::Transport::NotFoundError
+      # project disappeared ... may happen in running system
+      return ""
     end
 
     backend_hash = Xmlhash.parse(backend_meta)
@@ -57,7 +57,12 @@ class ConsistencyCheckJob < ActiveJob::Base
     errors=""
     # compare projects
     project_list_api = Project.all.pluck(:name).sort
-    project_list_backend = dir_to_array(Xmlhash.parse(Suse::Backend.get("/source").body))
+    begin
+      project_list_backend = dir_to_array(Xmlhash.parse(Suse::Backend.get("/source").body))
+    rescue ActiveXML::Transport::NotFoundError
+      # project disappeared ... may happen in running system
+      return ""
+    end
 
     diff = project_list_api - project_list_backend
     unless diff.empty?
