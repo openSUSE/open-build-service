@@ -236,6 +236,13 @@ module Event
       ret
     end
 
+    def readers
+      Rails.logger.debug "Readers #{payload.inspect}"
+      ret = _roles('reader', payload['project'])
+      Rails.logger.debug "Readers ret #{ret.inspect}"
+      ret
+    end
+
     def _roles(role, project, package = nil)
       return [] unless project
       p = nil
