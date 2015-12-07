@@ -263,135 +263,44 @@ obs_project_update is a tool to copy a packages of a project from one obs to ano
 
 #--------------------------------------------------------------------------------
 %prep
+export DESTDIR=$RPM_BUILD_ROOT
 %setup -q -n open-build-service-%version
 # drop build script, we require the installed one from own package
 rm -rf src/build
 find . -name .git\* -o -name Capfile -o -name deploy.rb | xargs rm -rf
 
 %build
+export DESTDIR=$RPM_BUILD_ROOT
 # we need it for the test suite or it may silently succeed 
 test -x /usr/bin/Xvfb 
+
 #
 # generate apidocs
 #
-pushd docs/api/api
-make apidocs
-popd
+make
 
 %install
-#
-# First install all dist files
-#
-cd dist
+export DESTDIR=$RPM_BUILD_ROOT
+
+%if 0%{?suse_version} < 1300
+  perl -p -i -e 's/^APACHE_VHOST_CONF=.*/APACHE_VHOST_CONF=obs-apache2.conf/' Makefile.include
+%endif
+
 %if 0%{?fedora} || 0%{?rhel}
   # Fedora use different user:group for apache
-  find -type f | xargs sed -i '1,$s/wwwrun\(.*\)www/apache\1apache/g'
-  find -type f | xargs sed -i '1,$s/user wwwrun/user apache/g'
-  find -type f | xargs sed -i '1,$s/group www/group apache/g'
+  perl -p -i -e 's/^APACHE_USER=.*/APACHE_USER=apache/' Makefile.include
+  perl -p -i -e 's/^APACHE_GROUP=.*/APACHE_GROUP=apache/' Makefile.include
 %endif
-# configure apache web service
-mkdir -p $RPM_BUILD_ROOT/etc/apache2/vhosts.d/
-%if 0%{?suse_version} < 1300
-install -m 0644 obs-apache2.conf $RPM_BUILD_ROOT/etc/apache2/vhosts.d/obs.conf
-%else
-install -m 0644 obs-apache24.conf $RPM_BUILD_ROOT/etc/apache2/vhosts.d/obs.conf
-%endif
-# install overview page template
-mkdir -p $RPM_BUILD_ROOT/srv/www/obs/overview
-install -m 0644 overview.html.TEMPLATE $RPM_BUILD_ROOT/srv/www/obs/overview/
-# install obs mirror script and obs copy script
-install -d -m 755 $RPM_BUILD_ROOT/usr/sbin/
-install -m 0755 obs_project_update $RPM_BUILD_ROOT/usr/sbin/
-# install  runlevel scripts
-install -d -m 755 $RPM_BUILD_ROOT/etc/init.d/
-for i in obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher \
-         obssigner obswarden obsapidelayed obsapisetup obsstoragesetup \
-         obsservice obsdodup ; do
-  install -m 0755 $i \
-           $RPM_BUILD_ROOT/etc/init.d/
-  ln -sf /etc/init.d/$i $RPM_BUILD_ROOT/usr/sbin/rc$i
-done
-# install logrotate
-install -d -m 755 $RPM_BUILD_ROOT/etc/logrotate.d/
-for i in obs-api obs-server ; do
-  install -m 0644 ${i}.logrotate \
-           $RPM_BUILD_ROOT/etc/logrotate.d/$i
-done
-# install fillups
-FILLUP_DIR=$RPM_BUILD_ROOT/var/adm/fillup-templates
-install -d -m 755 $FILLUP_DIR
-install -m 0644 sysconfig.obs-server $FILLUP_DIR/
-# install SLP registration files
-SLP_DIR=$RPM_BUILD_ROOT/etc/slp.reg.d/
-install -d -m 755  $SLP_DIR
-install -m 644 obs.source_server.reg $SLP_DIR/
-install -m 644 obs.repo_server.reg $SLP_DIR/
-# create symlink for product converter
-mkdir -p $RPM_BUILD_ROOT/usr/bin
-cat > $RPM_BUILD_ROOT/usr/bin/obs_productconvert <<EOF
-#!/bin/bash
-exec /usr/lib/obs/server/bs_productconvert "\$@"
-EOF
-chmod 0755 $RPM_BUILD_ROOT/usr/bin/obs_productconvert
-cat > $RPM_BUILD_ROOT/usr/sbin/obs_admin <<EOF
-#!/bin/bash
-exec /usr/lib/obs/server/bs_admin "\$@"
-EOF
-chmod 0755 $RPM_BUILD_ROOT/usr/sbin/obs_admin
-cat > $RPM_BUILD_ROOT/usr/sbin/obs_serverstatus <<EOF
-#!/bin/bash
-exec /usr/lib/obs/server/bs_serverstatus "\$@"
-EOF
-chmod 0755 $RPM_BUILD_ROOT/usr/sbin/obs_serverstatus
 
-# install setup-appliance.sh
+# TODO: implement a clean way for fedora/rh
+#%if 0%{?fedora} || 0%{?rhel}
+#  # Fedora use different user:group for apache
+#  find -type f | xargs sed -i '1,$s/wwwrun\(.*\)www/apache\1apache/g'
+#  find -type f | xargs sed -i '1,$s/user wwwrun/user apache/g'
+#  find -type f | xargs sed -i '1,$s/group www/group apache/g'
+#%endif
+
 DESTDIR=%{buildroot} make install
-
-
-#
-# Install all web and api parts.
-#
-cd ../src
-mkdir -p $RPM_BUILD_ROOT/srv/www/obs/
-cp -a api $RPM_BUILD_ROOT/srv/www/obs/api
-mkdir -p $RPM_BUILD_ROOT/srv/www/obs/api/log
-mkdir -p $RPM_BUILD_ROOT/srv/www/obs/api/tmp
-touch $RPM_BUILD_ROOT/srv/www/obs/api/log/production.log
-touch $RPM_BUILD_ROOT/srv/www/obs/api/config/production.sphinx.conf
-# prepare for running sphinx daemon
-install -m 0755 -d $RPM_BUILD_ROOT/srv/www/obs/api/db/sphinx{,/production}
-
-# clean development files
-rm $RPM_BUILD_ROOT/srv/www/obs/api/.rubocop{,_todo}.yml
-
-#
-# install apidocs
-# 
-mkdir -p $RPM_BUILD_ROOT/srv/www/obs/docs
-cp -a ../docs/api/api    $RPM_BUILD_ROOT/srv/www/obs/docs/
-cp -a ../docs/api/html   $RPM_BUILD_ROOT/srv/www/obs/docs/api/
-ln -sf /srv/www/obs/docs/api $RPM_BUILD_ROOT/srv/www/obs/api/public/schema
-
-echo 'CONFIG["apidocs_location"] ||= File.expand_path("../docs/api/html/")' >> $RPM_BUILD_ROOT/srv/www/obs/api/config/environment.rb
-echo 'CONFIG["schema_location"] ||= File.expand_path("../docs/api/")' >> $RPM_BUILD_ROOT/srv/www/obs/api/config/environment.rb
-
-#
-# Install all backend parts.
-#
-cd backend/
-# we use external build script code
-rm -rf build
-cp BSConfig.pm.template BSConfig.pm
-
-install -d -m 755 $RPM_BUILD_ROOT/usr/lib/obs/server/
-ln -sf /usr/lib/build $RPM_BUILD_ROOT/usr/lib/obs/server/build # just for check section, it is a %%ghost
-#for i in build events info jobs log projects repos run sources trees workers; do
-#  install -d -m 755 $RPM_BUILD_ROOT/srv/obs/$i
-#done
-# install executables and code
-cp -a * $RPM_BUILD_ROOT/usr/lib/obs/server/
-rm -r   $RPM_BUILD_ROOT/usr/lib/obs/server/testdata
-cd ..
 
 #
 # turn duplicates into hard links
@@ -401,42 +310,15 @@ cd ..
 %fdupes $RPM_BUILD_ROOT/srv/www/obs
 %endif
 
-# these config files must not be hard linked
-install api/config/database.yml.example $RPM_BUILD_ROOT/srv/www/obs/api/config/database.yml
-install api/config/options.yml.example $RPM_BUILD_ROOT/srv/www/obs/api/config/options.yml
-install api/config/thinking_sphinx.yml.example $RPM_BUILD_ROOT/srv/www/obs/api/config/thinking_sphinx.yml
-
-for file in api/log/access.log api/log/backend_access.log api/log/delayed_job.log api/log/error.log api/log/lastevents.access.log; do
-  touch $RPM_BUILD_ROOT/srv/www/obs/$file
-done
-
-pushd $RPM_BUILD_ROOT/srv/www/obs/api
-# we need to have *something* as secret key
-echo "" | sha256sum| cut -d\  -f 1 > config/secret.key
-bundle exec rake assets:precompile RAILS_ENV=production RAILS_GROUPS=assets
-rm -rf tmp/cache/sass tmp/cache/assets config/secret.key
-export BUNDLE_WITHOUT=test:assets:development
-export BUNDLE_FROZEN=1
-bundle config --local frozen 1
-bundle config --local without test:assets:development 
-# reinstall
-install config/database.yml.example config/database.yml
-: > log/production.log
-sed -i -e 's,^api_version.*,api_version = "%version",' config/initializers/02_apiversion.rb
-popd
-
-mkdir -p %{buildroot}%{_docdir}
-cat > %{buildroot}%{_docdir}/README.devel <<EOF
-This package does not contain any development files. But it helps you start with 
-git development - look at http://github.com/opensuse/open-build-service
-EOF
-
 %check
+export DESTDIR=$RPM_BUILD_ROOT
 # check installed backend
 pushd $RPM_BUILD_ROOT/usr/lib/obs/server/
-file build
-rm build
+rm -rf build
 ln -sf /usr/lib/build build # just for %%check, it is a %%ghost
+
+# TODO: integrate this perl test into new test suite and change to TAP
+
 for i in bs_*; do
   perl -wc "$i"
 done
@@ -461,64 +343,14 @@ popd
 #
 # setup mysqld
 %if 0%{?disable_api_tests} < 1
-rm -rf /tmp/obs.mysql.db /tmp/obs.test.mysql.socket
-mysql_install_db --user=`whoami` --datadir="/tmp/obs.mysql.db"
-/usr/sbin/mysqld --datadir=/tmp/obs.mysql.db --skip-networking --socket=/tmp/obs.test.mysql.socket &
-sleep 2
-##################### api
-pushd src/api/
-# setup files
-cp config/options.yml{.example,}
-cp config/thinking_sphinx.yml{.example,}
-touch config/test.sphinx.conf
-cat > config/database.yml <<EOF
-migrate:
-  adapter: mysql2
-  host:    localhost
-  database: api_25
-  username: root
-  encoding: utf8
-  socket:   /tmp/obs.test.mysql.socket
-test:
-  adapter: mysql2
-  host:    localhost
-  database: api_test
-  username: root
-  encoding: utf8
-  socket:   /tmp/obs.test.mysql.socket
-  # disable timeout, required on SLES 11 SP3 at least
-  connect_timeout:
 
-EOF
-/usr/sbin/memcached -l 127.0.0.1 -d -P $PWD/memcached.pid
-# migration test
-export RAILS_ENV=migrate
-bundle exec rake db:create || exit 1
-xzcat test/dump_2.5.sql.xz | mysql  -u root --socket=/tmp/obs.test.mysql.socket
-bundle exec rake db:migrate db:drop || exit 1
-# entire test suite
-export RAILS_ENV=test
-bundle exec rake db:create db:setup ts:index ts:start || exit 1
-mv log/test.log{,.old}
-if ! bundle exec rake test:api test:webui ; then
-  cat log/test.log
-  kill $(cat memcached.pid)
-  exit 1
-fi
-kill $(cat memcached.pid) || :
-popd
-
-#cleanup
-/usr/bin/mysqladmin -u root --socket=/tmp/obs.test.mysql.socket shutdown || true
-rm -rf /tmp/obs.mysql.db /tmp/obs.test.mysql.socket
+make -C src/api test
 
 %endif
 # end api testing
 #### 
 
-pushd dist
-make test
-popd
+make -C dist test
 
 %pre
 getent group obsrun >/dev/null || groupadd -r obsrun
@@ -745,6 +577,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /srv/www/obs/docs
 /usr/lib/obs/server/setup-appliance.sh
 
+
 /srv/www/obs/api/config/locales
 %dir /srv/www/obs/api/vendor
 /srv/www/obs/api/vendor/diststats
@@ -799,6 +632,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 
 %files -n obs-devel
 %defattr(-,root,root)
-%_docdir/README.devel
+%dir %_docdir/obs-devel
+%_docdir/obs-devel/README.devel
 
 %changelog

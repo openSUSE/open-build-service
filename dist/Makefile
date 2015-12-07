@@ -1,26 +1,65 @@
-SERVER_DIR=/usr/lib/obs/server
+include ../Makefile.include
 
-all: install
+INIT_SCRIPTS 			:= obssrcserver obsrepserver obsscheduler obsworker obspublisher obsdispatcher obssigner obswarden obsapidelayed obsapisetup obsstoragesetup obsservice obsdodup
+LOGROTATE_CONFIGS := obs-api obs-server
+OBS_BIN_SCRIPTS 	:= obs_productconvert
+OBS_SBIN_SCRIPTS 	:= obs_admin obs_serverstatus
 
-install: install_obsapisetup
+install: install_obsapisetup install_apache install_initscripts install_project_update install_logrotate install_fillups install_slp install_obs_bin install_devel_docs install_overview
 
-install_obsapisetup:
-	install -m 755 obsapisetup $(DESTDIR)/etc/init.d/obsapisetup
-	[ -d $(DESTDIR)$(SERVER_DIR) ] || mkdir -p $(DESTDIR)$(SERVER_DIR)
-	install -m 755 setup-appliance.sh $(DESTDIR)$(SERVER_DIR)/setup-appliance.sh
+#install_overview
 
-ta: test_all
+install_obsapisetup: system_dirs
+	$(INSTALL) -m 755 obsapisetup $(DESTDIR)/etc/init.d/obsapisetup
+	$(INSTALL) -m 755 setup-appliance.sh $(DESTDIR)$(OBS_BACKEND_PREFIX)/setup-appliance.sh
 
-test_all: test_unit test_system
+install_apache:
+	$(INSTALL) -d -m 755  $(DESTDIR)$(APACHE_CONIFGDIR_VHOST)
+	$(INSTALL) -m 644 $(APACHE_VHOST_CONF) $(DESTDIR)$(APACHE_CONIFGDIR_VHOST)/obs.conf
 
-t: test
+install_initscripts: system_dirs
+	$(foreach script,$(INIT_SCRIPTS),$(shell $(INSTALL) -m 755 $(script) $(DESTDIR)/etc/init.d/$(script)) )
+	$(foreach script,$(INIT_SCRIPTS),$(shell ln -sf /etc/init.d/$(script) $(DESTDIR)/usr/sbin/rc$(script)) )
 
-test: test_unit
+install_project_update: system_dirs
+	$(INSTALL) -m 0755 obs_project_update $(DESTDIR)/usr/sbin/obs_project_update
+
+
+install_logrotate: system_dirs
+	$(foreach config,$(LOGROTATE_CONFIGS),$(shell $(INSTALL) -m 644 $(config).logrotate $(DESTDIR)/etc/logrotate.d/$(config)) )
+
+install_fillups: system_dirs
+	$(INSTALL) -m 0644 sysconfig.obs-server $(DESTDIR)/var/adm/fillup-templates/
+
+install_slp: system_dirs
+	$(INSTALL) -m 644 obs.source_server.reg $(DESTDIR)/etc/slp.reg.d/
+	$(INSTALL) -m 644 obs.repo_server.reg $(DESTDIR)/etc/slp.reg.d/
+
+install_obs_bin: system_dirs
+	$(foreach script,$(OBS_BIN_SCRIPTS),$(shell $(INSTALL) -m 755 $(script) $(DESTDIR)/usr/bin/$(script)) )
+	$(foreach script,$(OBS_SBIN_SCRIPTS),$(shell $(INSTALL) -m 755 $(script) $(DESTDIR)/usr/sbin/$(script)) )
+
+system_dirs:
+	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_BACKEND_PREFIX)
+	$(INSTALL) -d -m 755 $(DESTDIR)/etc/init.d/
+	$(INSTALL) -d -m 755 $(DESTDIR)/etc/logrotate.d/
+	$(INSTALL) -d -m 755 $(DESTDIR)/etc/slp.reg.d/
+	$(INSTALL) -d -m 755 $(DESTDIR)/usr/bin/
+	$(INSTALL) -d -m 755 $(DESTDIR)/usr/sbin/
+	$(INSTALL) -d -m 755 $(DESTDIR)/var/adm/fillup-templates
+	$(INSTALL) -d -m 755 $(DESTDIR)/usr/share/doc/packages/obs-devel
+
+install_devel_docs:
+	$(INSTALL) -m 644 README.devel $(DESTDIR)/usr/share/doc/packages/obs-devel/README.devel
+
+install_overview:
+	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_DOCUMENT_ROOT)/overview
+	$(INSTALL) -m 644 overview.html.TEMPLATE $(DESTDIR)$(OBS_DOCUMENT_ROOT)/overview
 
 test_unit:
 	prove t/*.t
 
-ts: test_system
-	
 test_system:
 	prove t/*.ts
+
+.PHONY: test_unit test_system
