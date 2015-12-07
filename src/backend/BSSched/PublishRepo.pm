@@ -24,6 +24,7 @@ use Digest::MD5 ();
 
 use BSUtil;
 use Build::Rpm;
+use BSSched::BuildJob::DeltaRpm;
 
 my $default_publishfilter;
 
@@ -314,6 +315,8 @@ sub makedeltas {
   my $running_jobs = 0;
   my $maxjobs = 100;
 
+  my $deltabuilder = BSSched::BuildJob::DeltaRpm->new();
+
   my %running_ids;
   if ($maxjobs > 1) {
     $suffix = 0;
@@ -433,7 +436,7 @@ sub makedeltas {
               last;
             }
             $suffix++ if defined $suffix;
-            my ($job, $joberror) = main::createdeltajob($ctx, '_deltas', $suffix, \@needdelta);
+            my ($job, $joberror) = $deltabuilder->build($ctx, '_deltas', undef, undef, [ $suffix, \@needdelta ]);
             return (undef, $joberror) if $joberror;
             $running_jobs++ if $job;
             @needdelta = ();
@@ -449,7 +452,7 @@ sub makedeltas {
 
   if (@needdelta && $running_jobs < $maxjobs) {
     $suffix++ if defined $suffix;
-    my ($job, $joberror) = main::createdeltajob($ctx, '_deltas', $suffix, \@needdelta);
+    my ($job, $joberror) = $deltabuilder->build($ctx, '_deltas', undef, undef, [ $suffix, \@needdelta ]);
     return (undef, $joberror) if $joberror;
   }
 

@@ -61,17 +61,6 @@ my $workersrcserver = $BSConfig::workersrcserver ? $BSConfig::workersrcserver : 
 my $workerreposerver = $BSConfig::workerreposerver ? $BSConfig::workerreposerver : $BSConfig::reposerver;
 
 
-=head2 unify - unify an array
-
- TODO
-
-=cut
-
-sub unify {
-  my %h = map {$_ => 1} @_; 
-  return grep(delete($h{$_}), @_); 
-}
-
 =head2 init_ourjobs - intialize ourjobs hash on startup
 
  This function is used to initialize the ourjobs hash on scheduler startup.
@@ -235,6 +224,8 @@ to a free worker.
 sub writejob {
   my ($gctx, $job, $binfo) = @_;
 
+  $binfo->{'srcserver'} ||= $workersrcserver;
+  $binfo->{'reposerver'} ||= $workerreposerver;
   my $myjobsdir = $gctx->{'myjobsdir'};
   writexml("$myjobsdir/.$job", "$myjobsdir/$job", $binfo, $BSXML::buildinfo);
   add_crossmarker($gctx, $binfo->{'hostarch'}, $job) if $binfo->{'hostarch'};
@@ -465,9 +456,8 @@ sub jobfinished {
   rename("$jobdatadir/logfile", "$dst/logfile");
   rename("$jobdatadir/logfile.dup", "$gdst/:logfiles.success/$packid");
   unlink("$gdst/:logfiles.fail/$packid");
-  unlink($_) for @all;
-  rmdir($jobdatadir);
 }
+
 
 =head2 fakejobfinished - fake a built job
 
@@ -629,6 +619,36 @@ sub addjobhist {
 }
 
 
+=head2 nextbcnt - calculate the build counter for the next build
+
+ TODO: add description
+
+=cut
+
+sub nextbcnt {
+  my ($ctx, $packid, $pdata) = @_;
+
+  my $h;
+  my $gdst = $ctx->{'gdst'};
+  my $relsyncmax = $ctx->{'relsyncmax'};
+  my $dst = "$gdst/$packid";
+  if (-e "$dst/history") {
+    $h = BSFileDB::fdb_getmatch("$dst/history", $historylay, 'versrel', $pdata->{'versrel'}, 1);
+  }
+  $h = {'bcnt' => 0} unless $h;
+
+  # max with sync data
+  my $tag = $pdata->{'bcntsynctag'} || $packid;
+  if ($relsyncmax && $relsyncmax->{"$tag/$pdata->{'versrel'}"}) {
+    if ($h->{'bcnt'} + 1 < $relsyncmax->{"$tag/$pdata->{'versrel'}"}) {
+      $h->{'bcnt'} = $relsyncmax->{"$tag/$pdata->{'versrel'}"} - 1;
+    }
+  }
+  return $h->{'bcnt'} + 1;
+}
+
+=cut
+
 =head2 create - create a new build job
 
  input:  $ctx           - prp context
@@ -662,7 +682,6 @@ sub create {
   my $gdst = $ctx->{'gdst'};
   my $projpacks = $gctx->{'projpacks'};
   my $proj = $projpacks->{$projid};
-  my $relsyncmax = $ctx->{'relsyncmax'};
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
   my $job = jobname($prp, $packid);
@@ -683,7 +702,7 @@ sub create {
   if ($buildtype eq 'kiwi') {
     # switch searchpath to kiwi info path
     $syspath = $searchpath if @$searchpath;
-    $searchpath = path2buildinfopath($gctx, [ main::expandkiwipath($info, $ctx->{'prpsearchpath'}) ]);
+    $searchpath = path2buildinfopath($gctx, [ BSSched::BuildJob::KiwiImage::expandkiwipath($info, $ctx->{'prpsearchpath'}) ]);
   }
 
   # calculate sysdeps (cannot cache in the kiwi case)
@@ -727,19 +746,7 @@ sub create {
   my $dst = "$gdst/$packid";
   # find the last build count we used for this version/release
   mkdir_p($dst);
-  my $h;
-  if (-e "$dst/history") {
-    $h = BSFileDB::fdb_getmatch("$dst/history", $historylay, 'versrel', $pdata->{'versrel'}, 1);
-  }
-  $h = {'bcnt' => 0} unless $h;
-
-  # max with sync data
-  my $tag = $pdata->{'bcntsynctag'} || $packid;
-  if ($relsyncmax && $relsyncmax->{"$tag/$pdata->{'versrel'}"}) {
-    if ($h->{'bcnt'} + 1 < $relsyncmax->{"$tag/$pdata->{'versrel'}"}) {
-      $h->{'bcnt'} = $relsyncmax->{"$tag/$pdata->{'versrel'}"} - 1;
-    }
-  }
+  my $bcnt = nextbcnt($ctx, $packid, $pdata);
 
   # kill those ancient other jobs
   for my $otherjob (@otherjobs) {
@@ -762,7 +769,7 @@ sub create {
   my %vmdeps = map {$_ => 1} @vmdeps;
   my %edeps = map {$_ => 1} @$edeps;
   my %sysdeps = map {$_ => 1} @sysdeps;
-  @bdeps = unify(@pdeps, @vmdeps, @$edeps, @bdeps, @sysdeps);
+  @bdeps = BSUtil::unify(@pdeps, @vmdeps, @$edeps, @bdeps, @sysdeps);
   for (@bdeps) {
     my $n = $_;
     $_ = {'name' => $_};
@@ -798,7 +805,7 @@ sub create {
     'rev' => $pdata->{'rev'},
     'file' => $info->{'file'},
     'versrel' => $pdata->{'versrel'},
-    'bcnt' => $h->{'bcnt'} + 1,
+    'bcnt' => $bcnt,
     'subpack' => ($subpacks || []),
     'bdep' => \@bdeps,
     'path' => $searchpath,
@@ -824,7 +831,6 @@ sub create {
   my $release = $pdata->{'versrel'};
   $release = '0' unless defined $release;
   $release =~ s/.*-//;
-  my $bcnt = $h->{'bcnt'} + 1;
   if (defined($bconf->{'release'})) {
     $binfo->{'release'} = $bconf->{'release'};
     $binfo->{'release'} =~ s/\<CI_CNT\>/$release/g;
@@ -889,6 +895,120 @@ sub path2buildinfopath {
     push @ret, {'project' => $pr[0], 'repository' => $pr[1], 'server' => $server};
   }
   return \@ret;
+}
+
+
+=head2 metacheck - check if the old meta is different to the new meta
+
+ TODO: add description
+
+=cut
+
+sub metacheck {
+  my ($ctx, $packid, $buildtype, $new_meta, $data) = @_;
+  
+  my $gctx = $ctx->{'gctx'};
+  my $prp = $ctx->{'prp'};
+  my $gdst = $ctx->{'gdst'};
+  my @meta = split("\n", (readstr("$gdst/:meta/$packid", 1) || ''));
+  if (!@meta) {
+    print "      - $packid ($buildtype)\n";
+    print "        no former build, start build\n";
+    return ('scheduled', [ @$data, {'explain' => 'new build'} ]);
+  }
+  if ($meta[0] ne $new_meta->[0]) {
+    print "      - $packid ($buildtype)\n";
+    print "        src change, start build\n";
+    return ('scheduled', [ @$data, {'explain' => 'source change', 'oldsource' => substr($meta[0], 0, 32)} ]);
+  }
+  if (@meta == 2 && $meta[1] =~ /^fake/) {
+    my @s = stat("$gdst/:meta/$packid");
+    if (!@s || $s[9] + 14400 > time()) {
+      print "      - $packid ($buildtype)\n";
+      print "        buildsystem setup failure\n";
+      return ('failed')
+    }
+    print "      - $packid ($buildtype)\n";
+    print "        retrying bad build\n";
+    return ('scheduled', [ @$data, { 'explain' => 'retrying bad build' } ]);
+  }
+  if (join('\n', @meta) eq join('\n', @$new_meta)) {
+    if (($buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product') && $ctx->{'relsynctrigger'}->{$packid}) {
+      print "      - $packid ($buildtype)\n";
+      print "        rebuild counter sync\n";
+      return ('scheduled', [ @$data, {'explain' => 'rebuild counter sync'} ]);
+    }
+    #print "      - $packid ($buildtype)\n";
+    #print "        nothing changed\n";
+    return ('done');
+  }
+  my $repo = $ctx->{'repo'}; 
+  if ($buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product') {
+    my $rebuildmethod = $repo->{'rebuild'} || 'transitive';
+    if ($rebuildmethod eq 'local') {
+      #print "      - $packid ($buildtype)\n";
+      #print "        nothing changed\n";
+      return ('done');
+    }
+  }
+  my @diff = diffsortedmd5(\@meta, $new_meta);
+  print "      - $packid ($buildtype)\n";
+  print "        $_\n" for @diff;
+  print "        meta change, start build\n";
+  return ('scheduled', [ @$data, {'explain' => 'meta change', 'packagechange' => sortedmd5toreason(@diff)} ]);
+}
+
+=head2 sortedmd5toreason - convert the diffsortedmd5 output to a reason string
+
+ TODO: add description
+
+=cut
+
+sub sortedmd5toreason {
+  my @res;
+  for my $line (@_) {
+    my $tag = substr($line, 0, 1); # just the first char
+    $tag = 'md5sum' if $tag eq '!'; 
+    $tag = 'added' if $tag eq '+'; 
+    $tag = 'removed' if $tag eq '-'; 
+    push @res, { 'change' => $tag, 'key' => substr($line, 1) };
+  }
+  return \@res;
+}
+
+=head2 diffsortedmd5 - diff two meta arrays
+
+ TODO: add description
+
+=cut
+
+sub diffsortedmd5 {
+  my ($fromp, $top) = @_;
+
+  my @ret;
+  my @from = map {[$_, substr($_, 34)]} @$fromp;
+  my @to   = map {[$_, substr($_, 34)]} @$top;
+  @from = sort {$a->[1] cmp $b->[1] || $a->[0] cmp $b->[0]} @from;
+  @to   = sort {$a->[1] cmp $b->[1] || $a->[0] cmp $b->[0]} @to; 
+
+  for my $f (@from) {
+    if (@to && $f->[1] eq $to[0]->[1]) {
+      push @ret, "!$f->[1]" if $f->[0] ne $to[0]->[0];
+      shift @to; 
+      next;   
+    }    
+    if (!@to || $f->[1] lt $to[0]->[1]) {
+      push @ret, "-$f->[1]";
+      next;   
+    }    
+    while (@to && $f->[1] gt $to[0]->[1]) {
+      push @ret, "+$to[0]->[1]";
+      shift @to; 
+    }    
+    redo;   
+  }
+  push @ret, "+$_->[1]" for @to; 
+  return @ret;
 }
 
 1;

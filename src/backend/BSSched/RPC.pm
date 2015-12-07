@@ -58,17 +58,6 @@ sub new {
   return bless $rctx, $class;
 }
 
-=head2 unify - TODO: add summary
-
- TODO: add description
-
-=cut
-
-sub unify {
-  my %h = map {$_ => 1} @_;
-  return grep(delete($h{$_}), @_); 
-}
-
 =head2 is_transient_error - TODO: add summary
 
  TODO: add description
@@ -269,7 +258,7 @@ sub xrpc_resume {
   }
   if (@{$handle->{'_wakeup'} || []}) {
     my %did;
-    for my $whandle (unify(@{$handle->{'_wakeup'} || []})) {
+    for my $whandle (BSUtil::unify(@{$handle->{'_wakeup'} || []})) {
       my $wctx = $whandle->{'ctx'};
       my $changeprp = $whandle->{'_changeprp'} || $wctx->{'changeprp'};
       my $changetype = $whandle->{'_changetype'} || $wctx->{'changetype'} || 'high';

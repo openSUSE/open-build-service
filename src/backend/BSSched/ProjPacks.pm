@@ -203,7 +203,7 @@ sub get_projpacks_resume {
       # delay package source changes if possible
       if ($handle->{'_dolink'} == 2 && $lprojid ne $projid && $delayedfetchprojpacks && %lpackids) {
         push @{$delayedfetchprojpacks->{$lprojid}}, sort keys %lpackids;
-        # we don't use xrpc_setchanged because it unshifts the prps onto lookat
+        # we don't use setchanged because it unshifts the prps onto lookat
         my $changed = $gctx->{$xpackids ? 'changed_med' : 'changed_low'};
         my $changed_dirty = $gctx->{'changed_dirty'};
         for my $prp (@{$gctx->{'prps'}}) {
@@ -221,7 +221,7 @@ sub get_projpacks_resume {
   # no need to call setchanged if this is a package source change event
   # and the project does not exist (i.e. lives on another partition)
   return if $packids && !$projpacks->{$projid};
-  main::xrpc_setchanged($ctx, $handle);
+  main::setchanged($ctx, $handle);
 }
 
 =head2 update_projpacks - incorporate all the new data from projpacksin into our projpacks data
@@ -366,10 +366,10 @@ sub update_project_meta_check {
   my $projpacks = $gctx->{'projpacks'};
   my $oldproj = $projpacks->{$projid};
   # check if the project meta has critical change
-  return 0 unless main::identical($proj->{'build'}, $oldproj->{'build'});
-  return 0 unless main::identical($proj->{'link'}, $oldproj->{'link'});
+  return 0 unless BSUtil::identical($proj->{'build'}, $oldproj->{'build'});
+  return 0 unless BSUtil::identical($proj->{'link'}, $oldproj->{'link'});
   # XXX: could be more clever here
-  return 0 unless main::identical($proj->{'repository'}, $oldproj->{'repository'});
+  return 0 unless BSUtil::identical($proj->{'repository'}, $oldproj->{'repository'});
   if (($proj->{'config'} || '') ne ($oldproj->{'config'} || '')) {
     # check macro definitions and build type for all repositories
     my $myarch = $gctx->{'arch'};
@@ -377,8 +377,8 @@ sub update_project_meta_check {
       my @mprefix = ("%define _project $projid", "%define _repository $repoid");
       my $cold = Build::read_config($myarch, [ @mprefix, split("\n", $oldproj->{'config'} || '') ]);
       my $cnew = Build::read_config($myarch, [ @mprefix, split("\n", $proj->{'config'} || '') ]);
-      return 0 unless main::identical($cold->{'macros'}, $cnew->{'macros'});
-      return 0 unless main::identical($cold->{'type'}, $cnew->{'type'});
+      return 0 unless BSUtil::identical($cold->{'macros'}, $cnew->{'macros'});
+      return 0 unless BSUtil::identical($cold->{'type'}, $cnew->{'type'});
     }
   }
   # not a critical change
@@ -419,7 +419,7 @@ sub update_project_meta_resume {
       my $async = {'_dolink' => 2, '_changetype' => 'high', '_changelevel' => 1};
       get_projpacks($gctx, $async, $projid, @$packids);
     } else {
-      main::xrpc_setchanged($ctx, $handle);
+      main::setchanged($ctx, $handle);
     }
   } else {
     # project is gone!
@@ -494,14 +494,14 @@ sub postprocess_needed_check {
   return 0 if !defined($oldprojdata) && !$projpacks->{$projid};
   return 1 unless $oldprojdata && $oldprojdata->{'package'};            # sanity
   # if we just had a srcmd5 change in some packages there's no need to postprocess
-  if (!main::identical($projpacks->{$projid}, $oldprojdata, {'package' => 1})) {
+  if (!BSUtil::identical($projpacks->{$projid}, $oldprojdata, {'package' => 1})) {
     return 1;
   }
   my $packs = ($projpacks->{$projid} || {})->{'package'} || {};
   my %except = map {$_ => 1} qw{rev srcmd5 versrel verifymd5 revtime dep prereq file name error build publish useforbuild};
   my $oldpackdata = $oldprojdata->{'package'};
   for my $packid (keys %$oldpackdata) {
-    if (!main::identical($oldpackdata->{$packid}, $packs->{$packid}, \%except)) {
+    if (!BSUtil::identical($oldpackdata->{$packid}, $packs->{$packid}, \%except)) {
       return 1;
     }
   }

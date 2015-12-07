@@ -138,7 +138,7 @@ sub dodcheck {
 sub dodfetch_resume {
   my ($ctx, $handle, $error) = @_;
   return if $error;     # hmm
-  xrpc_setchanged($ctx, $handle);
+  main::setchanged($ctx, $handle);
   # drop cache
   my $gctx = $ctx->{'gctx'};
   my $myarch = $gctx->{'arch'};
@@ -196,7 +196,7 @@ sub update_doddata_prp {
   my ($gctx, $prp, $doddata) = @_;
   my $myarch = $gctx->{'arch'};
   my $dodprps = $gctx->{'dodprps'};
-  return 0 if main::identical($doddata, $dodprps->{$prp});
+  return 0 if BSUtil::identical($doddata, $dodprps->{$prp});
   my ($projid, $repoid) = split('/', $prp, 2);
   my $f = "${projid}::${repoid}::$myarch";
   $f = ':'.Digest::MD5::md5_hex($f) if length($f) > 200; 
@@ -265,7 +265,7 @@ sub init_doddata {
       $dodfiles{$f} = 1;
       my $dd = { %$doddata, 'project' => $projid, 'repository' => $repoid };
       my $olddd = readxml("$dodsdir/$f", $BSXML::doddata, 1);
-      next if main::identical($olddd, $dd);
+      next if BSUtil::identical($olddd, $dd);
       mkdir_p($dodsdir);
       writexml("$dodsdir/.$f", "$dodsdir/$f", $dd, $BSXML::doddata);
       $changed = 1;

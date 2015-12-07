@@ -20,8 +20,11 @@ package BSSched::BuildResult;
 use strict;
 use warnings;
 
+use Build;
+
 use BSUtil;
 use BSXML;
+use BSVerify;
 use BSConfiguration;
 use BSSched::BuildRepo;
 
@@ -212,6 +215,38 @@ sub update_bininfo_merge {
   }
 }
 
+=head2 repofromfiles - create repo from a file list
+
+ TODO
+
+=cut
+
+sub repofromfiles {
+  my ($files, $cache) = @_;
+  my @bins =  grep {/\.(?:$binsufsre)$/} @$files;
+  my $repobins = {};
+  for my $bin (@bins) {
+    my @s = stat($bin);
+    next unless @s;
+    my $id = "$s[9]/$s[7]/$s[1]";
+    my $data;
+    if ($cache && $cache->{$id}) {
+      $data = { %{$cache->{$id}} };
+    } else {
+      $data = Build::query($bin, 'evra' => 1);  # need arch
+      next unless $data;
+    }
+    eval {
+      BSVerify::verify_nevraquery($data);
+    };
+    next if $@;
+    delete $data->{'disttag'};
+    $data->{'id'} = $id;
+    $repobins->{$bin} = $data;
+  }
+  return $repobins;
+}
+
 =head2 update_dst_full - move binary packages from jobrepo to dst and update the full repository
 
  TODO: add description
@@ -269,7 +304,7 @@ sub update_dst_full {
     $jobbininfo ||= read_bininfo($jobdir);
     delete $jobbininfo->{'.bininfo'};   # delete new version marker
     my $cache = { map {$_->{'id'} => $_} grep {$_->{'id'}} values %$jobbininfo };
-    $jobrepo = main::findbins_dir([ map {"$jobdir/$_"} grep {/\.(?:$binsufsre)$/ && !/\.delta\.rpm$/} @jobfiles ], $cache);
+    $jobrepo = repofromfiles([ map {"$jobdir/$_"} grep {/\.(?:$binsufsre)$/ && !/\.delta\.rpm$/} @jobfiles ], $cache);
     $useforbuildenabled = 0 if -e "$jobdir/.channelinfo" || -e "$jobdir/updateinfo.xml";        # just in case
   } else {
     $jobrepo = {};
@@ -295,7 +330,7 @@ sub update_dst_full {
     my $oldbininfo = read_bininfo($dst);
     delete $oldbininfo->{'.bininfo'};   # delete new version marker
     my $oldcache = { map {$_->{'id'} => $_} grep {$_->{'id'}} values %$oldbininfo };
-    $oldrepo = main::findbins_dir([ map {"$dst/$_"} grep {/\.(?:$binsufsre)$/ && !/\.delta\.rpm$/} @oldfiles ], $oldcache);
+    $oldrepo = repofromfiles([ map {"$dst/$_"} grep {/\.(?:$binsufsre)$/ && !/\.delta\.rpm$/} @oldfiles ], $oldcache);
 
     # move files over (and rename in import case)
     my %new;
