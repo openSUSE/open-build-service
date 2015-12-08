@@ -261,7 +261,7 @@ sub event_scanrepo {
     print "reading packages of repository $projid/$repoid\n";
     delete $gctx->{'repodatas'}->{$prp};
     my $pool = BSSolv::pool->new();
-    main::addrepo({'gctx' => $gctx, 'prp' => $prp}, $pool, $prp);
+    BSSched::BuildRepo::addrepo({'gctx' => $gctx, 'prp' => $prp}, $pool, $prp);
     undef $pool;
     $changed_high->{$prp} = 2;
     delete $gctx->{'repounchanged'}->{$prp};

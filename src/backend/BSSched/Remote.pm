@@ -485,6 +485,8 @@ sub addrepo_remote_unpackcpio {
 
   my $repodata;
   my $myarch = $gctx->{'arch'};
+
+  # support gross hack from addrepo_alien...
   if ($arch eq $myarch) {
     my $repodatas = $gctx->{'repodatas'};
     $repodatas->{$prp} ||= {};
@@ -494,6 +496,7 @@ sub addrepo_remote_unpackcpio {
     $repodatas_alien->{"$prp/$arch"} ||= {};
     $repodata = $repodatas_alien->{"$prp/$arch"};
   }
+
   my $remotecache = $gctx->{'remotecache'};
   my $cachemd5 = Digest::MD5::md5_hex("$prp/$arch");
   substr($cachemd5, 2, 0, '/');

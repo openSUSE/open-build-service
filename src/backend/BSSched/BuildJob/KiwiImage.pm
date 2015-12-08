@@ -102,7 +102,7 @@ sub check {
       print "        repository $aprp is unavailable";
       return ('broken', "repository $aprp is unavailable");
     }
-    my $r = main::addrepo($ctx, $pool, $aprp);
+    my $r = BSSched::BuildRepo::addrepo($ctx, $pool, $aprp);
     if (!$r) {
       my $error = "repository '$aprp' is unavailable";
       if (defined $r) {
@@ -211,7 +211,7 @@ sub build {
         print "        repository $aprp is unavailable";
         return ('broken', "repository $aprp is unavailable");
       }
-      my $r = main::addrepo($ctx, $pool, $aprp);
+      my $r = BSSched::BuildRepo::addrepo($ctx, $pool, $aprp);
       if (!$r) {
         my $error = "repository '$aprp' is unavailable";
         $error .= " (delayed)" if defined $r;

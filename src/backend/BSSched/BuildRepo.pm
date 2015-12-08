@@ -33,6 +33,7 @@ use warnings;
 use BSUtil;
 use BSConfiguration;
 use Build::Rpm;
+use BSSched::Remote;
 #use BSSched::BuildResult;	# circular dep
 
 my $exportcnt = 0;
@@ -790,6 +791,94 @@ sub checkuseforbuild {
   move_into_full($fctx, undef, undef, $fullcache);
   BSUtil::store("$gdst/.:full.useforbuild", "$gdst/:full.useforbuild", $newuseforbuild);
 }
+
+
+=head2 addrepo - add :full repo to pool, scan every 24 hours
+
+ TODO: add description
+
+=cut
+
+sub addrepo {
+  my ($ctx, $pool, $prp) = @_;
+
+  my $gctx = $ctx->{'gctx'};
+  my $arch = $gctx->{'arch'};
+  my $now = time();
+  my $repodata = $gctx->{'repodatas'}->{$prp};
+  if ($repodata && $repodata->{'lastscan'} && $repodata->{'lastscan'} + 24 * 3600 + ($repodata->{'random'} || 0) * 1800 > $now) {
+    if (exists $repodata->{'solv'}) {
+      my $r;
+      eval {$r = $pool->repofromstr($prp, $repodata->{'solv'});};
+      return $r if $r;
+      delete $repodata->{'solv'};
+    }    
+    my $solvfile = $repodata->{'solvfile'} || "$ctx->{'gctx'}->{'reporoot'}/$prp/$arch/:full.solv";
+    if (-s $solvfile) {
+      my $r;
+      if ($repodata->{'solvfile'}) {
+        my @s = stat _;
+        utime time(), $s[9], $solvfile; # update atime
+      }    
+      eval {$r = $pool->repofromfile($prp, $solvfile);};
+      return $r if $r;
+    }    
+    if ($repodata->{'error'}) {
+      print "    repo $prp: $repodata->{'error'}\n";
+      return undef;
+    }    
+  }
+  if ($repodata) {
+    delete $repodata->{'solv'};
+    delete $repodata->{'lastscan'};
+    delete $repodata->{'random'};
+    delete $repodata->{'solvfile'};
+    delete $repodata->{'error'};
+  }
+  my ($projid, $repoid) = split('/', $prp, 2);
+  my $remoteprojs = $gctx->{'remoteprojs'};
+  if ($remoteprojs->{$projid}) {
+    return BSSched::Remote::addrepo_remote($ctx, $pool, $prp, $arch, $remoteprojs->{$projid});
+  }
+  $gctx->{'repodatas'}->{$prp} = $repodata = {} unless $repodata;
+  my $r = addrepo_scan($ctx, $pool, $prp, $arch, $repodata);
+  if ($r && !$repodata->{'dontwrite'}) {
+    $repodata->{'lastscan'} = time();
+    $repodata->{'random'} = rand();
+  }
+  return $r;
+}
+
+=head2 addrepo_alien - add :full repo from a different architecture to pool
+
+ TODO: this is a gross hack
+
+=cut
+
+sub addrepo_alien {
+  my ($ctx, $pool, $prp, $arch) = @_;
+
+  my $gctx = $ctx->{'gctx'};
+  my $repodatas = $gctx->{'repodatas'};
+  my $repodatas_alien = $gctx->{'repodatas_alien'};
+  my $prpnotready = $gctx->{'prpnotready'};
+  $repodatas_alien->{"$prp/$arch"}->{'dontwrite'} = 1; 
+  my $oldrepodata = $repodatas->{$prp};
+  my $oldprpnotready = $prpnotready->{$prp};
+  delete $prpnotready->{$prp};
+  $repodatas->{$prp} = $repodatas_alien->{"$prp/$arch"};
+  my $savemyarch = $gctx->{'arch'};
+  $gctx->{'arch'} = $arch;
+  my $r = addrepo($ctx, $pool, $prp);
+  $gctx->{'arch'} = $savemyarch;
+  $repodatas_alien->{"$prp/$arch"} = $repodatas->{$prp};
+  delete $repodatas->{$prp};
+  $repodatas->{$prp} = $oldrepodata if $oldrepodata;
+  delete $prpnotready->{$prp};
+  $prpnotready->{$prp} = $oldprpnotready if $oldprpnotready;
+  return $r;
+}
+
 
 =head2 addrepo_scan - add :full repo to pool, make sure repo is up-to-data by scanning the directory
 
