@@ -157,7 +157,7 @@ sub get_projpacks_resume {
   if ($error) {
     chomp $error;
     warn("$error\n");
-    main::addretryevent($gctx, {'type' => 'package', 'project' => $projid});
+    BSSched::Remote::addretryevent($gctx, {'type' => 'package', 'project' => $projid});
     return;
   }
   my $projpacks = $gctx->{'projpacks'};

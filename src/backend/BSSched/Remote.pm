@@ -19,6 +19,10 @@ package BSSched::Remote;
 use strict;
 use warnings;
 
+use Digest::MD5 ();
+
+use BSUtil;
+use BSSolv;
 use BSRPC;
 use BSSched::RPC;
 use BSConfiguration;
@@ -182,7 +186,7 @@ sub fetchremoteproj {
     my $error = $@;
     $error =~ s/\n$//s;
     $rproj = {'error' => $error};
-    main::addretryevent($gctx, {'type' => 'project', 'project' => $projid}) if BSSched::RPC::is_transient_error($error);
+    addretryevent($gctx, {'type' => 'project', 'project' => $projid}) if BSSched::RPC::is_transient_error($error);
   }
   return undef unless $rproj;
   delete $rproj->{'mountproject'};
@@ -220,7 +224,7 @@ sub fetchremoteconfig {
     warn($@);
     $proj->{'error'} = $@;
     $proj->{'error'} =~ s/\n$//s;
-    main::addretryevent($gctx, {'type' => 'project', 'project' => $projid}) if BSSched::RPC::is_transient_error($proj->{'error'});
+    addretryevent($gctx, {'type' => 'project', 'project' => $projid}) if BSSched::RPC::is_transient_error($proj->{'error'});
     return undef;
   }
   $proj->{'config'} = $c;
@@ -255,7 +259,7 @@ sub remotemap2remoteprojs {
     $proj->{'config'} = $c if defined $c;
     if ($error) {
       $proj->{'error'} = $error;
-      main::addretryevent($gctx, {'type' => 'project', 'project' => $projid}) if $error =~ /interconnect error:/;
+      addretryevent($gctx, {'type' => 'project', 'project' => $projid}) if $error =~ /interconnect error:/;
     }    
     $remoteprojs->{$projid} = $proj;
   }
@@ -387,6 +391,362 @@ sub getremoteevents {
   }
   $starthash->{$remoteurl} = $ret->{'next'} if $ret->{'next'};
   return @remoteevents;
+}
+
+
+###########################################################################
+###
+### retry event handling
+###
+
+sub addretryevent {
+  my ($gctx, $ev) = @_;
+  for my $oev (@{$gctx->{'retryevents'}}) {
+    next if $ev->{'type'} ne $oev->{'type'} || $ev->{'project'} ne $oev->{'project'};
+    if ($ev->{'type'} eq 'repository' || $ev->{'type'} eq 'recheck') {
+      next if $ev->{'repository'} ne $oev->{'repository'};
+    } elsif ($ev->{'type'} eq 'package') {
+      next if ($ev->{'package'} || '') ne ($oev->{'package'} || ''); 
+    }    
+    return;
+  }
+  $ev->{'retry'} = time() + 60;
+  push @{$gctx->{'retryevents'}}, $ev; 
+}
+
+sub getretryevents {
+  my ($gctx) = @_;
+  my $retryevents = $gctx->{'retryevents'};
+  my $now = time();
+  my @due = grep {$_->{'retry'} <= $now} @$retryevents;
+  return () unless @due;
+  @$retryevents = grep {$_->{'retry'} > $now} @$retryevents;
+  delete $_->{'retry'} for @due;
+  return @due;
+}
+
+###########################################################################
+###
+### remote BuildRepo (aka full tree) support
+###
+
+sub addrepo_remote {
+  my ($ctx, $pool, $prp, $arch, $remoteproj) = @_;
+
+  my ($projid, $repoid) = split('/', $prp, 2);
+  return undef if !$remoteproj || $remoteproj->{'error'};
+
+  my $cachemd5 = Digest::MD5::md5_hex("$prp/$arch");
+  substr($cachemd5, 2, 0, '/');
+
+  my $gctx = $ctx->{'gctx'};
+  print "    fetching remote repository state for $prp\n";
+  my $param = {
+    'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$arch/_repository",
+    'timeout' => 200,
+    'receiver' => \&BSHTTP::cpio_receiver,
+    'proxy' => $gctx->{'remoteproxy'},
+  };
+  if ($gctx->{'asyncmode'}) {
+    $param->{'async'} = { '_resume' => \&addrepo_remote_resume, '_prp' => $prp, '_arch' => $arch };
+  }
+  my $cpio;
+  my $solvok;
+  eval {
+    die('unsupported view\n') unless $remoteproj->{'partition'} || defined($BSConfig::usesolvstate) && $BSConfig::usesolvstate;
+    $param->{'async'}->{'_solvok'} = 1 if $param->{'async'};
+    $cpio = $gctx->{'rctx'}->xrpc($ctx, "repository/$prp/$arch", $param, undef, 'view=solvstate');
+    $solvok = 1 if $cpio;
+  };
+  if ($@ && $@ =~ /unsupported view/) {
+    $solvok = undef;
+    delete $param->{'async'}->{'_solvok'} if $param->{'async'};
+    eval {
+      $cpio = $gctx->{'rctx'}->xrpc($ctx, "repository/$prp/$arch", $param, undef, 'view=cache');
+    };
+  }
+  if ($@) {
+    return addrepo_remote_unpackcpio($ctx->{'gctx'}, $pool, $prp, $arch, $cpio, undef, $@);
+  }
+  return 0 if $param->{'async'} && $cpio;       # hack: false but not undef
+  return addrepo_remote_unpackcpio($ctx->{'gctx'}, $pool, $prp, $arch, $cpio, $solvok);
+}
+
+sub addrepo_remote_resume {
+  my ($ctx, $handle, $error, $cpio) = @_;
+  my $gctx = $ctx->{'gctx'};
+  my $pool = BSSolv::pool->new();
+  my $r = addrepo_remote_unpackcpio($gctx, $pool, $handle->{'_prp'}, $handle->{'_arch'}, $cpio, $handle->{'_solvok'}, $error);
+  BSSched::Lookat::setchanged($ctx, $handle) unless !$r && $error && BSSched::RPC::is_transient_error($error);
+}
+
+sub addrepo_remote_unpackcpio {
+  my ($gctx, $pool, $prp, $arch, $cpio, $solvok, $error) = @_;
+
+  my $repodata;
+  my $myarch = $gctx->{'arch'};
+  if ($arch eq $myarch) {
+    my $repodatas = $gctx->{'repodatas'};
+    $repodatas->{$prp} ||= {};
+    $repodata = $repodatas->{$prp};
+  } else {
+    my $repodatas_alien = $gctx->{'repodatas_alien'};
+    $repodatas_alien->{"$prp/$arch"} ||= {};
+    $repodata = $repodatas_alien->{"$prp/$arch"};
+  }
+  my $remotecache = $gctx->{'remotecache'};
+  my $cachemd5 = Digest::MD5::md5_hex("$prp/$arch");
+  substr($cachemd5, 2, 0, '/');
+
+  if ($error) {
+    chomp $error;
+    warn("$error\n");
+    if (BSSched::RPC::is_transient_error($error)) {
+      my ($projid, $repoid) = split('/', $prp, 2);
+      addretryevent($gctx, {'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $arch});
+      if (-s "$remotecache/$cachemd5.solv") {
+        # try last solv file
+        my $r;
+        eval {$r = $pool->repofromfile($prp, "$remotecache/$cachemd5.solv");};
+        if ($r) {
+          $repodata->{'lastscan'} = time();
+          $repodata->{'random'} = rand();
+          $repodata->{'solvfile'} = "$remotecache/$cachemd5.solv";
+          return $r;
+        }
+      }
+    }
+    $repodata->{'lastscan'} = time();
+    $repodata->{'random'} = rand();
+    $repodata->{'error'} = $error;
+    return undef;
+  }
+
+  my %cpio = map {$_->{'name'} => $_->{'data'}} @{$cpio || []};
+  my $repostate = $cpio{'repositorystate'};
+  $repostate = BSUtil::fromxml($repostate, $BSXML::repositorystate, 2) if $repostate;
+  if ($arch eq $myarch) {
+    my $prpnotready = $gctx->{'prpnotready'};
+    delete $prpnotready->{$prp};
+    if ($repostate && $repostate->{'blocked'}) {
+      $prpnotready->{$prp} = { map {$_ => 1} @{$repostate->{'blocked'}} };
+    }
+  }
+  my $r;
+  my $solv;
+  if (exists $cpio{'repositorysolv'} && $solvok) {
+    eval {$r = $pool->repofromstr($prp, $cpio{'repositorysolv'}); };
+    warn($@) if $@;
+  } elsif (exists $cpio{'repositorycache'}) {
+    my $cache;
+    my $havedod;
+    if (defined &BSSolv::thawcache) {
+      eval { $cache = BSSolv::thawcache($cpio{'repositorycache'}); };
+    } else {
+      eval { $cache = BSUtil::fromstorable($cpio{'repositorycache'}); };
+    }
+    delete $cpio{'repositorycache'};    # free mem
+    warn($@) if $@;
+    return undef unless $cache;
+    delete $cache->{'/url'};
+    delete $cache->{'/dodcookie'};
+    delete $cache->{'/external/'};
+    # free some unused entries to save mem
+    for (values %$cache) {
+      $havedod = 1 if ($_->{'hdrmd5'} || '') eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0';
+      delete $_->{'path'};
+      delete $_->{'id'};
+    }
+    # add special "havedod" marker
+    $cache->{'/dodcookie'} = 'remote repository with dod packages' if $havedod;
+    $r = $pool->repofromdata($prp, $cache);
+  } else {
+    # return empty repo
+    $r = $pool->repofrombins($prp, '');
+    $repodata->{'solv'} = $r->tostr();  # small enough to keep it incore
+  }
+  return undef unless $r;
+  # write solv file
+  $repodata->{'solvfile'} = "$remotecache/$cachemd5.solv";
+  mkdir_p("$remotecache/".substr($cachemd5, 0, 2));
+  BSSched::BuildRepo::writesolv("$remotecache/$cachemd5.solv.new$$", "$remotecache/$cachemd5.solv", $r);
+  $repodata->{'lastscan'} = time();
+  $repodata->{'random'} = rand();
+  return $r;
+}
+
+
+###########################################################################
+###
+### remote BuildResult (aka gbininfo) support
+###
+
+sub read_gbininfo_remote {
+  my ($ctx, $prpa, $remoteproj, $packstatus) = @_;
+
+  return undef unless $remoteproj;
+  return undef if $remoteproj->{'error'};
+
+  my $gctx = $ctx->{'gctx'};
+  my $remotegbininfos = $gctx->{'remotegbininfos'};
+  my $cachemd5 = Digest::MD5::md5_hex($prpa);
+  substr($cachemd5, 2, 0, '/');
+
+  my $now = time();
+
+  # first check error case
+  if ($remotegbininfos->{$prpa} && $remotegbininfos->{$prpa}->{'error'} && ($remotegbininfos->{$prpa}->{'lastfetch'} || 0) > $now - 3600) {
+    return undef;
+  }
+
+  # check if we can use the cache
+  my $rpackstatus;
+  if ($packstatus) {
+    my $remotepackstatus = $gctx->{'remotepackstatus'};
+    if ($remotepackstatus->{$prpa} && $gctx->{'asyncmode'}) {
+      my $prp = $ctx->{'prp'};
+      $rpackstatus = $remotepackstatus->{$prpa} if grep {$_ eq $prp} @{$remotepackstatus->{$prpa}->{'/users'} || []};
+    }
+  }
+  if ((!$packstatus || $rpackstatus) && $remotegbininfos->{$prpa} && ($remotegbininfos->{$prpa}->{'lastfetch'} || 0) > $now - 3600) {
+    my $remotecache = $gctx->{'remotecache'};
+    if (-s "$remotecache/$cachemd5.bininfo") {
+      my $gbininfo = BSUtil::retrieve("$remotecache/$cachemd5.bininfo", 1);
+      if ($gbininfo) {
+        if ($packstatus) {
+          for my $pkg (keys %$gbininfo) {
+            $packstatus->{$pkg} = $rpackstatus->{$pkg} if $rpackstatus->{$pkg};
+          }
+        }
+        return $gbininfo;
+      }
+    }
+  }
+
+  print "    fetching remote project binary state for $prpa\n";
+  my ($projid, $repoid, $arch) = split('/', $prpa, 3);
+  my $param = {
+    'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$arch",
+    'timeout' => 200,
+    'proxy' => $gctx->{'remoteproxy'},
+  };
+  if ($gctx->{'asyncmode'}) {
+    $param->{'async'} = { '_resume' => \&read_gbininfo_remote_resume, '_prpa' => $prpa };
+  }
+  my $packagebinarylist;
+  eval {
+    if ($remoteproj->{'partition'}) {
+      $param->{'async'}->{'_isgbininfo'} = 1 if $param->{'async'};
+      $packagebinarylist = $gctx->{'rctx'}->xrpc($ctx, "bininfo/$prpa", $param, \&BSUtil::fromstorable, "view=gbininfocode");
+    } else {
+      $packagebinarylist = $gctx->{'rctx'}->xrpc($ctx, "bininfo/$prpa", $param, $BSXML::packagebinaryversionlist, "view=binaryversionscode");
+    }
+  };
+  if ($@) {
+    warn($@);
+    my $error = $@;
+    $error =~ s/\n$//s;
+    ($projid, $repoid) = split('/', $ctx->{'prp'}, 2);
+    addretryevent($ctx->{'gctx'}, {'type' => 'recheck', 'project' => $projid, 'repository' => $repoid}) if BSSched::RPC::is_transient_error($error);
+    return undef;
+  }
+  return 0 if $packagebinarylist && $param->{'async'};
+  my $gbininfo;
+  ($gbininfo, $rpackstatus) = convertpackagebinarylist($gctx, $prpa, $packagebinarylist, undef, undef, $remoteproj->{'partition'} ? 1 : undef);
+  if ($packstatus && $rpackstatus) {
+    $packstatus->{$_} = $rpackstatus->{$_} for keys %$rpackstatus;
+    delete $packstatus->{'/users'};
+  }
+  return $gbininfo;
+}
+
+sub read_gbininfo_remote_resume {
+  my ($ctx, $handle, $error, $packagebinarylist) = @_;
+  my $gctx = $ctx->{'gctx'};
+  convertpackagebinarylist($gctx, $handle->{'_prpa'}, $packagebinarylist, $error, $ctx->{'prp'}, $handle->{'_isgbininfo'});
+  BSSched::Lookat::setchanged($ctx, $handle);
+}
+
+sub convertpackagebinarylist {
+  my ($gctx, $prpa, $packagebinarylist, $error, $packstatususer, $isgbininfo) = @_;
+
+  my $remotegbininfos = $gctx->{'remotegbininfos'};
+  if ($error) {
+    chomp $error;
+    warn("$error\n");
+    $error ||= 'internal error';
+    $remotegbininfos->{$prpa} = { 'lastfetch' => time(), 'error' => $error };
+    return (undef, undef);
+  }
+  my $gbininfo = {};
+  my $rpackstatus = {};
+  if ($isgbininfo) {
+    $gbininfo = $packagebinarylist || {};
+    for my $pkg (keys %$gbininfo) {
+      my $bi = $gbininfo->{$pkg};
+      $rpackstatus->{$pkg} = delete($bi->{'.code'}) if exists $bi->{'.code'};
+    }
+  } else {
+    for my $binaryversionlist (@{$packagebinarylist->{'binaryversionlist'} || []}) {
+      my %bins;
+      for my $binary (@{$binaryversionlist->{'binary'} || []}) {
+        my $filename = $binary->{'name'};
+        # XXX: should not rely on the filename here!
+        if ($filename =~ /^(?:::import::.*::)?(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+          $bins{$filename} = {'filename' => $filename, 'name' => $1, 'arch' => $2};
+        } elsif ($filename =~ /^([^\/]+)_[^\/]*_([^\/]*)\.deb$/) {
+          $bins{$filename} = {'filename' => $filename, 'name' => $1, 'arch' => $2};
+        } elsif ($filename =~ /^([^\/]+)-[^-]+-[^-]+-([a-zA-Z][^\/\.\-]*)\.pkg\.tar\..z$/) {
+          $bins{$filename} = {'filename' => $filename, 'name' => $1, 'arch' => $2};
+        } elsif ($filename eq '.nouseforbuild') {
+          $bins{$filename} = {};
+        } else {
+          $bins{$filename} = {'filename' => $filename}; # XXX: what about the md5sum for appdata?
+        }
+        $bins{$filename}->{'hdrmd5'} = $binary->{'hdrmd5'} if $binary->{'hdrmd5'};
+        $bins{$filename}->{'leadsigmd5'} = $binary->{'leadsigmd5'} if $binary->{'leadsigmd5'};
+      }
+      my $pkg = $binaryversionlist->{'package'};
+      $gbininfo->{$pkg} = \%bins;
+      $rpackstatus->{$pkg} = $binaryversionlist->{'code'} if $binaryversionlist->{'code'};
+    }
+  }
+  my $remotecache = $gctx->{'remotecache'};
+  my $cachemd5 = Digest::MD5::md5_hex($prpa);
+  substr($cachemd5, 2, 0, '/');
+  mkdir_p("$remotecache/".substr($cachemd5, 0, 2));
+  BSUtil::store("$remotecache/$cachemd5.bininfo.new$$", "$remotecache/$cachemd5.bininfo", $gbininfo);
+
+  $remotegbininfos->{$prpa} = { 'lastfetch' => time() };
+
+  if ($packstatususer) {
+    my $remotepackstatus = $gctx->{'remotepackstatus'};
+    my $remotepackstatus_cleanup = $gctx->{'remotepackstatus_cleanup'};
+    $rpackstatus->{'/users'} = [];
+    $rpackstatus->{'/users'} = [ @{$remotepackstatus->{$prpa}->{'/users'} || []} ] if $remotepackstatus->{$prpa};
+    push @{$rpackstatus->{'/users'}}, $packstatususer unless grep {$_ eq $packstatususer} @{$rpackstatus->{'/users'}};
+    push @{$remotepackstatus_cleanup->{$packstatususer}}, $prpa;
+    $remotepackstatus->{$prpa} = $rpackstatus;
+  }
+
+  return ($gbininfo, $rpackstatus);
+}
+
+sub cleanup_remotepackstatus {
+  my ($gctx, $prp) = @_;
+
+  my $remotepackstatus = $gctx->{'remotepackstatus'};
+  my $remotepackstatus_cleanup = $gctx->{'remotepackstatus_cleanup'};
+  return unless $remotepackstatus_cleanup->{$prp};
+  print "    cleaning up remote packstatus\n";
+  for my $prpa (@{$remotepackstatus_cleanup->{$prp}}) {
+    my $rpackstatus = $remotepackstatus->{$prpa};
+    my @users = grep {$_ ne $prp} @{$rpackstatus->{'/users'} || []};
+    $rpackstatus->{'/users'} = \@users;
+    print "      - $prpa: ".@users." users\n";
+    delete $remotepackstatus->{$prpa} unless @users;
+  }
+  delete $remotepackstatus_cleanup->{$prp};
 }
 
 1;

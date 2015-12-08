@@ -271,7 +271,7 @@ sub check {
 
       my $gbininfo;
       if ($remoteprojs->{$aprojid}) {
-	$gbininfo = main::read_gbininfo_remote($ctx, "$aprp/$arch", $remoteprojs->{$aprojid}, $ps);
+	$gbininfo = BSSched::Remote::read_gbininfo_remote($ctx, "$aprp/$arch", $remoteprojs->{$aprojid}, $ps);
 	if (!$gbininfo) {
 	  my $error = "project binary state of $aprp/$arch is unavailable";
 	  $error .= " (delayed)" if defined $gbininfo;

@@ -107,7 +107,7 @@ sub check {
     if ($proj->{'error'}) {
       if (BSSched::RPC::is_transient_error($proj->{'error'})) {
 	# XXX: hmm, there's already a project retryevent on $aprojid
-	addretryevent($gctx, {'type' => 'package', 'project' => $projid, 'package' => $packid});
+	BSSched::Remote::addretryevent($gctx, {'type' => 'package', 'project' => $projid, 'package' => $packid});
 	$delayed = 1;
       }
       push @broken, $aprojid;
@@ -144,7 +144,7 @@ sub check {
 
       # for remote projects we always need the gbininfo
       if ($remoteprojs->{$aprojid}) {
-	my $gbininfo = main::read_gbininfo_remote($ctx, "$aprp/$myarch", $remoteprojs->{$aprojid}, $ps);
+	my $gbininfo = BSSched::Remote::read_gbininfo_remote($ctx, "$aprp/$myarch", $remoteprojs->{$aprojid}, $ps);
 	$gbininfos{"$aprp/$myarch"} = $gbininfo;
 	if (!$gbininfo) {
 	  $delayed = 1 if defined $gbininfo;
@@ -319,7 +319,7 @@ sub build {
 	    warn($@);
 	    $error = $@;
 	    $error =~ s/\n$//s;
-	    main::addretryevent($ctx->{'gctx'}, {'type' => 'repository', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $myarch}) if BSSched::RPC::is_transient_error($error);
+	    BSSched::Remote::addretryevent($ctx->{'gctx'}, {'type' => 'repository', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $myarch}) if BSSched::RPC::is_transient_error($error);
 	    last;
 	  }
 	  for my $bin (@{$cpio || []}) {
