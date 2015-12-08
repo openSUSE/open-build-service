@@ -122,4 +122,70 @@ sub build {
   return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $bdeps, $reason, 0);
 }
 
+
+=head2 update_preinstallimage - extract preinstallimage info from a built job
+
+ TODO: add description
+
+=cut
+
+sub update_preinstallimage {
+  my ($gctx, $prp, $packid, $dst, $jobdir) = @_;
+  my $myarch = $gctx->{'arch'};
+  my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
+  my $dirty;
+  # wipe old
+  my $imagedata = BSUtil::retrieve("$gdst/:preinstallimages", 1) || [];
+  my $newimagedata = [ grep {$_->{'package'} ne $packid} @$imagedata ];
+  if (@$newimagedata != @$imagedata) {
+    $dirty = 1;
+    $imagedata = $newimagedata;
+  }
+  my @all;
+  @all = grep {/(?:\.tar\.xz|\.tar\.gz|\.info)$/} grep {!/^\./} sort(ls($jobdir)) if $jobdir;
+  my %all = map {$_ => 1} @all;
+  my @imgs = grep {s/\.info$//} @all;
+  for my $img (@imgs) {
+    my $tar;
+    next if (-s "$jobdir/$img.info") > 100000;
+    if (-f "$jobdir/$img.tar.xz") {
+      $tar = "$img.tar.xz";
+    } elsif (-f "$jobdir/$img.tar.gz") {
+      $tar = "$img.tar.gz";
+    }
+    next unless $tar;
+    my @s = stat("$jobdir/$tar");
+    next unless @s;
+    my $info = readstr("$jobdir/$img.info", 1);
+    next unless $info;
+    my $id = Digest::MD5::md5_hex("$info/$s[9]/$s[7]/$s[1]");
+    # calculate bitstring
+    my $b = "\0" x 512;
+    my @hdrmd5s;
+    my @bins;
+    for (split("\n", readstr("$jobdir/$img.info", 1))) {
+      next unless /^([0-9a-f]{32})  ([^ ]+)$/s;
+      vec($b, hex(substr($1, 0, 3)), 1) = 1;
+      push @hdrmd5s, $1;
+      push @bins, $2;
+    }
+    unlink("$jobdir/.preinstallimage.$id");
+    link("$jobdir/$tar", "$jobdir/.preinstallimage.$id") || die("link $jobdir/$tar $jobdir/.preinstallimage.$id");
+    if ($dst && $dst ne $jobdir) {
+      unlink("$dst/.preinstallimage.$id");
+      link("$jobdir/.preinstallimage.$id", "$dst/.preinstallimage.$id") || die("link $jobdir/.$id $dst/.preinstallimage.$id");
+    }
+    my $sizek = int(($s[7] + 1023) / 1024);
+    push @$imagedata, {'package' => $packid, 'hdrmd5' => $id, 'file' => $tar, 'sizek' => $sizek, 'bitstring' => $b, 'hdrmd5s' => \@hdrmd5s, 'bins' => \@bins};
+    $dirty = 1;
+  }
+  if ($dirty) {
+    if (@$imagedata) {
+      BSUtil::store("$gdst/.:preinstallimages", "$gdst/:preinstallimages", $imagedata);
+    } else {
+      unlink("$gdst/:preinstallimages");
+    }
+  }
+}
+
 1;

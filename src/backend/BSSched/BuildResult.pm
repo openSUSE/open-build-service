@@ -27,8 +27,9 @@ use BSXML;
 use BSVerify;
 use BSConfiguration;
 use BSSched::BuildRepo;
-use BSSched::BuildJob::Import;	# for createexportjob
-use BSSched::Access;		# for checkaccess
+use BSSched::BuildJob::Import;		# for createexportjob
+use BSSched::BuildJob::PreInstallImage;	# for update_preinstallimage
+use BSSched::Access;			# for checkaccess
 
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
@@ -264,9 +265,9 @@ sub update_dst_full {
 
   my ($projid, $repoid) = split('/', $prp, 2);
 
-  # do extra preinstallimage processing
+  # do extra preinstallimage processing if this is/was a preinstall image
   if ((-e "$dst/.preinstallimage") || (defined($jobdir) && -e "$jobdir/.preinstallimage")) {
-    main::update_preinstallimage($gctx, $prp, $packid, $dst, $jobdir);
+    BSSched::BuildJob::PreInstallImage::update_preinstallimage($gctx, $prp, $packid, $dst, $jobdir);
   }
 
   # check for lock and patchinfo
