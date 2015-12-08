@@ -802,53 +802,6 @@ sub select_read {
   }
 }
 
-sub changed2lookat {
-  my ($gctx, $changed_low, $changed_med, $changed_high, $lookat_high, $lookat_med, $lookat_next) = @_;
-
-  push @$lookat_high, grep {$changed_high->{$_}} sort keys %$changed_med;
-  push @$lookat_med, grep {!$changed_high->{$_}} sort keys %$changed_med;
-  @$lookat_high = BSUtil::unify(@$lookat_high);
-  @$lookat_med = BSUtil::unify(@$lookat_med);
-  my %lookat_high = map {$_ => 1} @$lookat_high;
-  @$lookat_med = grep {!$lookat_high{$_}} @$lookat_med;
-  my $prpdeps = $gctx->{'prpdeps'};
-  for my $prp (@{$gctx->{'prps'}}) {
-    if (!$changed_low->{$prp} && !$changed_med->{$prp}) {
-      next unless grep {$changed_med->{$_}} @{$prpdeps->{$prp}};
-    }
-    $lookat_next->{$prp} = 1;
-  }
-  %$changed_low = ();
-  %$changed_med = ();
-  %$changed_high = ();
-}
-
-sub updaterelsyncmax {
-  my ($gctx, $prp, $arch, $new, $cleanup) = @_;
-  my $reporoot = $gctx->{'reporoot'};
-  local *F;
-  BSUtil::lockopen(\*F, '+>>', "$reporoot/$prp/$arch/:relsync.max");
-  my $relsyncmax;
-  if (-s "$reporoot/$prp/$arch/:relsync.max") {
-    $relsyncmax = BSUtil::retrieve("$reporoot/$prp/$arch/:relsync.max", 2);
-  }
-  $relsyncmax ||= {};
-  my $changed;
-  for my $tag (keys %$new) {
-    next if defined($relsyncmax->{$tag}) && $relsyncmax->{$tag} >= $new->{$tag};   
-    $relsyncmax->{$tag} = $new->{$tag};
-    $changed = 1;
-  }
-  if ($cleanup) {
-    for (grep {!$new->{$_}} keys %$relsyncmax) {
-      delete $relsyncmax->{$_};
-      $changed = 1;
-    }
-  }
-  BSUtil::store("$reporoot/$prp/$arch/.:relsync.max", "$reporoot/$prp/$arch/:relsync.max", $relsyncmax) if $changed;
-  close(F);
-  return $changed;
-}
 
 sub writeschedulerinfo {
   my ($gctx) = @_;
@@ -891,20 +844,32 @@ sub writeschedulerinfo {
   writexml("$infodir/.schedulerinfo.$myarch", "$infodir/schedulerinfo.$myarch", $sinfo, $BSXML::schedulerinfo);
 }
 
-sub mergerelsyncfile {
-  my ($gctx, $prp) = @_;
 
-  print "    merging relsync data\n";
-  my $myarch = $gctx->{'myarch'};
+sub updaterelsyncmax {
+  my ($gctx, $prp, $arch, $new, $cleanup) = @_;
   my $reporoot = $gctx->{'reporoot'};
-  my $relsync_merge = BSUtil::retrieve("$reporoot/$prp/$myarch/:relsync.merge", 2);
-  if ($relsync_merge) {
-    my $relsync;
-    $relsync = BSUtil::retrieve("$reporoot/$prp/$myarch/:relsync", 2) if -e "$reporoot/$prp/$myarch/:relsync";
-    $relsync = { %{$relsync || {}}, %$relsync_merge };
-    BSUtil::store("$reporoot/$prp/$myarch/.:relsync", "$reporoot/$prp/$myarch/:relsync", $relsync);
+  local *F;
+  BSUtil::lockopen(\*F, '+>>', "$reporoot/$prp/$arch/:relsync.max");
+  my $relsyncmax;
+  if (-s "$reporoot/$prp/$arch/:relsync.max") {
+    $relsyncmax = BSUtil::retrieve("$reporoot/$prp/$arch/:relsync.max", 2);
   }
-  unlink("$reporoot/$prp/$myarch/:relsync.merge");
+  $relsyncmax ||= {};
+  my $changed;
+  for my $tag (keys %$new) {
+    next if defined($relsyncmax->{$tag}) && $relsyncmax->{$tag} >= $new->{$tag};   
+    $relsyncmax->{$tag} = $new->{$tag};
+    $changed = 1;
+  }
+  if ($cleanup) {
+    for (grep {!$new->{$_}} keys %$relsyncmax) {
+      delete $relsyncmax->{$_};
+      $changed = 1;
+    }
+  }
+  BSUtil::store("$reporoot/$prp/$arch/.:relsync.max", "$reporoot/$prp/$arch/:relsync.max", $relsyncmax) if $changed;
+  close(F);
+  return $changed;
 }
 
 sub sendrelsyncupdate {
@@ -942,6 +907,22 @@ sub sendrelsyncupdate {
   } else {
     warn($@);
   }
+}
+
+sub mergerelsyncfile {
+  my ($gctx, $prp) = @_;
+
+  print "    merging relsync data\n";
+  my $myarch = $gctx->{'myarch'};
+  my $reporoot = $gctx->{'reporoot'};
+  my $relsync_merge = BSUtil::retrieve("$reporoot/$prp/$myarch/:relsync.merge", 2);
+  if ($relsync_merge) {
+    my $relsync;
+    $relsync = BSUtil::retrieve("$reporoot/$prp/$myarch/:relsync", 2) if -e "$reporoot/$prp/$myarch/:relsync";
+    $relsync = { %{$relsync || {}}, %$relsync_merge };
+    BSUtil::store("$reporoot/$prp/$myarch/.:relsync", "$reporoot/$prp/$myarch/:relsync", $relsync);
+  }
+  unlink("$reporoot/$prp/$myarch/:relsync.merge");
 }
 
 sub mergemetacachefile {
