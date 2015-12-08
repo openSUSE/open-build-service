@@ -117,12 +117,12 @@ our @flags = (
 
 our @roles = (
      [[ 'person' =>
-            'role',
             'userid',
+            'role',
      ]],
      [[ 'group' =>
-            'role',
             'groupid',
+            'role',
      ]],
 );
 

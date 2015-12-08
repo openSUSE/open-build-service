@@ -1,3 +1,9 @@
+deleted:
+  name: deleted
+  created_at: 2014-02-14 01:00:01.000000000 Z
+  updated_at: 2014-02-14 01:00:01.000000000 Z
+  kind: standard
+  delta: 1
 Apache:
   name: Apache
   title: Up-to-date Apache packages
