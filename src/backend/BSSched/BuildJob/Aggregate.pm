@@ -26,6 +26,7 @@ use BSXML;
 use BSRPC;		# FIXME: only async calls, please
 use BSSched::BuildJob;
 use BSSched::RPC;
+use BSSched::Access;	# for checkprpaccess
 use BSConfiguration;	# for $BSConfig::sign
 use BSVerify;		# for verify_nevraquery
 use Build;		# for query
@@ -112,7 +113,7 @@ sub check {
       push @broken, $aprojid;
       next;
     }
-    if (!main::checkprpaccess($gctx, $aprojid, $projid)) {
+    if (!BSSched::Access::checkprpaccess($gctx, $aprojid, $projid)) {
       push @broken, $aprojid;
       next;
     }

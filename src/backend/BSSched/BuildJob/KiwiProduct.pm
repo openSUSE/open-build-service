@@ -26,6 +26,7 @@ use BSSolv;
 use BSSched::BuildResult;
 use BSSched::BuildJob;
 use BSSched::BuildJob::KiwiImage;	# for expandkiwipath
+use BSSched::Access;			# for checkprpaccess
 use BSConfiguration;
 
 my %bininfo_oldok_cache;
@@ -142,7 +143,7 @@ sub check {
     $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
     my $delayed_errors = '';
     for my $aprp (@bprps) {
-      if (!main::checkprpaccess($gctx, $aprp, $prp)) {
+      if (!BSSched::Access::checkprpaccess($gctx, $aprp, $prp)) {
 	print "      - $packid (kiwi-product)\n";
 	print "        repository $aprp is unavailable";
 	return ('broken', "repository $aprp is unavailable");
@@ -179,7 +180,7 @@ sub check {
     }
     # check access
     for my $aprp (@aprps) {
-      if (!main::checkprpaccess($gctx, $aprp, $prp)) {
+      if (!BSSched::Access::checkprpaccess($gctx, $aprp, $prp)) {
 	print "      - $packid (kiwi-product)\n";
 	print "        repository $aprp is unavailable for sysbuild";
 	return ('broken', "repository $aprp is unavailable");

@@ -24,6 +24,7 @@ use Build;
 use BSSolv;
 use BSSched::BuildJob;
 use BSSched::DoD;		# for dodcheck
+use BSSched::Access;		# for checkprpaccess
 use BSConfiguration;
 
 
@@ -96,7 +97,7 @@ sub check {
 
   my $delayed_errors = '';
   for my $aprp (@aprps) {
-    if (!main::checkprpaccess($gctx, $aprp, $prp)) {
+    if (!BSSched::Access::checkprpaccess($gctx, $aprp, $prp)) {
       print "      - $packid (kiwi-image)\n";
       print "        repository $aprp is unavailable";
       return ('broken', "repository $aprp is unavailable");
@@ -205,7 +206,7 @@ sub build {
     my $pool = BSSolv::pool->new();
     $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
     for my $aprp (@aprps) {
-      if (!main::checkprpaccess($gctx, $aprp, $prp)) {
+      if (!BSSched::Access::checkprpaccess($gctx, $aprp, $prp)) {
         print "      - $packid (kiwi-image)\n";
         print "        repository $aprp is unavailable";
         return ('broken', "repository $aprp is unavailable");

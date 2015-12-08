@@ -28,6 +28,7 @@ use BSXML;
 use BSFileDB;
 use BSConfiguration;
 use BSSched::DoD;	# for dodcheck
+use BSSched::Access;	# for checkaccess
 use Build;
 use BSRPC;
 use BSCando;
@@ -550,7 +551,7 @@ sub fakejobfinished_nouseforbuild {
     for my $f (ls($jobdatadir)) {
       rename("$jobdatadir/$f", "$dst/$f") || die("rename $jobdatadir/$f $dst/$f: $!\n");
     }
-    if (!main::checkaccess($ctx->{'gctx'}, 'sourceaccess', $projid, $packid, $repoid)) {
+    if (!BSSched::Access::checkaccess($ctx->{'gctx'}, 'sourceaccess', $projid, $packid, $repoid)) {
       BSUtil::touch("$dst/.nosourceaccess");
       $bininfo->{'.nosourceaccess'} = {};
     }

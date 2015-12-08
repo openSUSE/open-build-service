@@ -28,6 +28,7 @@ use BSVerify;
 use BSConfiguration;
 use BSSched::BuildRepo;
 use BSSched::BuildJob::Import;	# for createexportjob
+use BSSched::Access;		# for checkaccess
 
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
@@ -387,7 +388,7 @@ sub update_dst_full {
     # we only check 'sourceaccess', not 'access' here. 'access' has
     # to be handled anyway, so we don't gain anything by limiting
     # source access.
-    if (!main::checkaccess($gctx, 'sourceaccess', $projid, $packid, $repoid)) {
+    if (!BSSched::Access::checkaccess($gctx, 'sourceaccess', $projid, $packid, $repoid)) {
       BSUtil::touch("$dst/.nosourceaccess");
       $bininfo->{'.nosourceaccess'} = {};
     }
