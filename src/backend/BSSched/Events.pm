@@ -29,6 +29,9 @@ use BSSolv;
 use BSSched::BuildResult;
 use BSSched::BuildRepo;
 use BSSched::ProjPacks;
+use BSSched::BuildJob;
+use BSSched::BuildJob::Upload;
+use BSSched::BuildJob::Import;
 
 =head1 NAME 
 
@@ -100,9 +103,9 @@ sub event_built {
   if ($ev->{'type'} eq 'built') {
     BSSched::BuildJob::jobfinished($ectx, $job, $js);
   } elsif ($ev->{'type'} eq 'uploadbuild') {
-    main::uploadbuildevent($ectx, $job, $js);
+    BSSched::BuildJob::Upload::jobfinished($ectx, $job, $js);
   } elsif ($ev->{'type'} eq 'import') {
-    main::importevent($ectx, $job, $js);
+    BSSched::BuildJob::Import::jobfinished($ectx, $job, $js);
   }
   BSSched::BuildJob::purgejob($gctx, $job);
   close F;

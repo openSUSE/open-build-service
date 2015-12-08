@@ -48,6 +48,13 @@ sub new {
   return bless({}, $_[0]);
 }
 
+=head2 build - create a deltarpm job
+
+ $data->[0] - jobsuffix to use
+ $data->[1] - list of needed deltas, each delta is [ oldfile, newfile, deltaid ]
+
+=cut
+
 sub build {
   my ($self, $ctx, $packid, $pdata, $info, $data) = @_;
 
@@ -62,8 +69,9 @@ sub build {
   $job .= "-$suffix" if defined $suffix;
   my $myjobsdir = $gctx->{'myjobsdir'};
   if (-e "$myjobsdir/$job") {
-    return undef, 'building'; # delta creation already in progress
+    return (undef, 'building'); # delta creation already in progress
   }
+  # invent some srcmd5
   my $srcmd5 = '';
   $srcmd5 .= $_->[2] for @$needdelta;
   $srcmd5 = Digest::MD5::md5_hex($srcmd5);
@@ -131,6 +139,71 @@ sub build {
   BSSched::BuildJob::writejob($gctx, $job, $binfo);
   print "    created deltajob...\n";
   return $job;
+}
+
+
+=head2 jobfinished - delta job finished event handler
+
+ TODO
+
+=cut
+
+sub jobfinished {
+  my ($ectx, $job, $js) = @_;
+
+  my $gctx = $ectx->{'gctx'};
+
+  my $changed = $gctx->{'changed_med'};
+  my $myjobsdir = $gctx->{'myjobsdir'};
+  my $myarch = $gctx->{'arch'};
+  my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
+  my $jobdatadir = "$myjobsdir/$job:dir";
+  if (!$info || ! -d $jobdatadir) {
+    print "  - $job is bad\n";
+    return;
+  }
+  if ($info->{'arch'} ne $myarch) {
+    print "  - $job has bad arch\n";
+    return;
+  }
+  my $projid = $info->{'project'};
+  my $repoid = $info->{'repository'};
+  my $packid = $info->{'package'};
+  my $projpacks = $gctx->{'projpacks'};
+  if (!$projpacks->{$projid}) {
+    print "  - $job belongs to an unknown project\n";
+    return;
+  }
+  my $prp = "$projid/$repoid";
+  my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
+  my $dst = "$gdst/$packid";
+  mkdir_p($dst);
+  my $code = $js->{'result'} || 'failed';
+  my $status = {'readytime' => $info->{'readytime'} || $info->{'starttime'}};
+  BSSched::BuildJob::addjobhist($gctx, $prp, $info, $status, $js, $code);
+  if ($code ne 'succeeded') {
+    print "  - $job: build failed\n";
+    unlink("$dst/logfile");
+    # keep the logfile so that users can see the errors
+    rename("$jobdatadir/logfile", "$dst/logfile");
+    unlink("$gdst/:repodone");
+    return;
+  }
+  my @all = sort(ls($jobdatadir));
+  print "  - $prp: $packid built: ".(@all). " files\n";
+  for my $f (@all) {
+    next unless $f =~ /^(.*)\.(drpm|out|dseq)$/s;
+    my $deltaid = $1;
+    if ($2 ne 'dseq') {
+      rename("$jobdatadir/$f", "$dst/$deltaid");
+    } else {
+      rename("$jobdatadir/$f", "$dst/$deltaid.dseq");
+    }
+  }
+  $changed->{$prp} ||= 1;
+  unlink("$gdst/:repodone");
+  unlink("$dst/logfile");
+  rename("$jobdatadir/logfile", "$dst/logfile");
 }
 
 1;

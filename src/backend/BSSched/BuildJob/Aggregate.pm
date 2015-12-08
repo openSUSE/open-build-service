@@ -387,6 +387,12 @@ sub build {
   return ('scheduled', $job);
 }
 
+=head2 bins2repo - query a list of binaries
+
+ TODO: add description
+
+=cut
+
 sub bins2repo {
   my (@bins) = @_;
 
@@ -407,6 +413,73 @@ sub bins2repo {
     $repobins->{$bin} = $data;
   }
   return $repobins;
+}
+
+
+=head2 jobfinished - job finished event handler for aggregates
+
+ TODO: add description
+
+=cut
+
+sub jobfinished {
+  my ($ectx, $job, $js) = @_;
+
+  my $gctx = $ectx->{'gctx'};
+  my $fullcache = $ectx->{'fullcache'};
+
+  my $changed = $gctx->{'changed_med'};
+  my $myjobsdir = $gctx->{'myjobsdir'};
+  my $myarch = $gctx->{'arch'};
+  my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
+  my $jobdatadir = "$myjobsdir/$job:dir";
+  if (!$info || ! -d $jobdatadir) {
+    print "  - $job is bad\n";
+    return;
+  }
+  if ($info->{'arch'} ne $myarch) {
+    print "  - $job has bad arch\n";
+    return;
+  }
+  my $projid = $info->{'project'};
+  my $repoid = $info->{'repository'};
+  my $packid = $info->{'package'};
+  my $projpacks = $gctx->{'projpacks'};
+  if (!$projpacks->{$projid}) {
+    print "  - $job belongs to an unknown project\n";
+    return;
+  }
+  my $pdata = ($projpacks->{$projid}->{'package'} || {})->{$packid};
+  if (!$pdata) {
+    print "  - $job belongs to an unknown package, discard\n";
+    return;
+  }
+
+  my $prp = "$projid/$repoid";
+  my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
+  my $dst = "$gdst/$packid";
+  mkdir_p($dst);
+  print "  - $prp: $packid aggregate built\n";
+  my $useforbuildenabled = 1;
+  $useforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
+  $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
+  my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
+  BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath, $fullcache);
+  $changed->{$prp} = 2 if $useforbuildenabled;
+  my $repounchanged = $gctx->{'repounchanged'};
+  delete $repounchanged->{$prp} if $useforbuildenabled;
+  $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
+  $changed->{$prp} ||= 1;
+  unlink("$gdst/:repodone");
+  # no logfile/status for aggregates
+  unlink("$gdst/:logfiles.fail/$packid");
+  unlink("$gdst/:logfiles.success/$packid");
+  unlink("$dst/logfile");
+  unlink("$dst/status");
+  # update meta
+  mkdir_p("$gdst/:meta");
+  rename("$jobdatadir/meta", "$gdst/:meta/$packid") || die("rename $jobdatadir/meta $gdst/:meta/$packid: $!\n");
+  BSSched::BuildJob::patchpackstatus($gctx, $prp, $packid, 'succeeded');
 }
 
 1;

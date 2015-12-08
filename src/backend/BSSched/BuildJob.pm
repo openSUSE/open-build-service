@@ -290,15 +290,16 @@ sub jobfinished {
     print "  - $job is bad\n";
     return;
   }
-  # specialized versiosn for aggregates and deltas
+  # dispatch to specialized versions for aggregates and deltas
   if ($info->{'file'} eq '_aggregate') {
-    main::aggregatefinished($ectx, $job, $js);
+    BSSched::BuildJob::Aggregate::jobfinished($ectx, $job, $js);
     return ;
   }
   if ($info->{'file'} eq '_delta') {
-    main::deltafinished($ectx, $job, $js);
+    BSSched::BuildJob::DeltaRpm::jobfinished($ectx, $job, $js);
     return ;
   }
+
   my $fullcache = $ectx->{'fullcache'};
   my $gctx = $ectx->{'gctx'};
   my $changed = $gctx->{'changed_med'};
@@ -308,8 +309,6 @@ sub jobfinished {
   my $packid = $info->{'package'};
   my $prp = "$projid/$repoid";
   my $myarch = $gctx->{'arch'};
-
-  BSSched::BuildRepo::sync_fullcache($gctx, $fullcache) if $fullcache && $fullcache->{'prp'} && $fullcache->{'prp'} ne $prp;    # hey!
 
   my $now = time(); # ensure that we use the same time in all logs
   if ($info->{'arch'} ne $myarch) {

@@ -27,6 +27,7 @@ use BSXML;
 use BSVerify;
 use BSConfiguration;
 use BSSched::BuildRepo;
+use BSSched::BuildJob::Import;	# for createexportjob
 
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
@@ -285,7 +286,7 @@ sub update_dst_full {
   # matches the current setting, so make sure they are in sync.
   my $prpcheckuseforbuild = $gctx->{'prpcheckuseforbuild'};
   if ($prpcheckuseforbuild->{$prp}) {
-    BSSched::BuildRepo::checkuseforbuild($gctx, $prp, $prpsearchpath, undef);
+    BSSched::BuildRepo::checkuseforbuild($gctx, $prp, $prpsearchpath, $fullcache);
     delete $prpcheckuseforbuild->{$prp};
   }
 
@@ -450,7 +451,7 @@ sub update_dst_full {
       my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
       if ($repo && grep {$_ eq $exportarch} @{$repo->{'arch'} || []}) {
         print "    sending filtered packages to $exportarch\n";
-        main::createexportjob($gctx, $prp, $exportarch, $packid, $jobrepo, $dst, $oldrepo, $meta, @{$newexports{$exportarch}});
+        BSSched::BuildJob::Import::createexportjob($gctx, $prp, $exportarch, $packid, $jobrepo, $dst, $oldrepo, $meta, @{$newexports{$exportarch}});
       }
     }
   }
