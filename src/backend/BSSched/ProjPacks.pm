@@ -221,7 +221,7 @@ sub get_projpacks_resume {
   # no need to call setchanged if this is a package source change event
   # and the project does not exist (i.e. lives on another partition)
   return if $packids && !$projpacks->{$projid};
-  main::setchanged($ctx, $handle);
+  BSSched::Lookat::setchanged($ctx, $handle);
 }
 
 =head2 update_projpacks - incorporate all the new data from projpacksin into our projpacks data
@@ -419,7 +419,7 @@ sub update_project_meta_resume {
       my $async = {'_dolink' => 2, '_changetype' => 'high', '_changelevel' => 1};
       get_projpacks($gctx, $async, $projid, @$packids);
     } else {
-      main::setchanged($ctx, $handle);
+      BSSched::Lookat::setchanged($ctx, $handle);
     }
   } else {
     # project is gone!

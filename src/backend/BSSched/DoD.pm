@@ -138,7 +138,7 @@ sub dodcheck {
 sub dodfetch_resume {
   my ($ctx, $handle, $error) = @_;
   return if $error;     # hmm
-  main::setchanged($ctx, $handle);
+  BSSched::Lookat::setchanged($ctx, $handle);
   # drop cache
   my $gctx = $ctx->{'gctx'};
   my $myarch = $gctx->{'arch'};

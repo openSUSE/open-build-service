@@ -214,6 +214,8 @@ sub event_check {
     @$lookat_high = grep {!$admincheck{$_}} @$lookat_high;
     unshift @$lookat_high, sort keys %admincheck;
     delete $nextmed->{$_} for keys %admincheck;
+    $gctx->{'notlow'} = 0;
+    $gctx->{'notmed'} = 0;
   }
 }
 
