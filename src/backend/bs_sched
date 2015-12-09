@@ -86,6 +86,9 @@ my $startupmode;
 $asyncmode = $BSConfig::sched_asyncmode if $BSConfig::sched_asyncmode;
 $startupmode = $BSConfig::sched_startupmode if $BSConfig::sched_startupmode;
 
+my $maxserverload = 1;
+$maxserverload = $BSConfig::sched_maxserverload if $BSConfig::sched_maxserverload;
+
 my $bsdir = $BSConfig::bsdir || "/srv/obs";
 
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
@@ -96,15 +99,17 @@ BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
 BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BSConfig::disable_data_sync;
 
+# directries we use
 my $_reporoot = "$bsdir/build";
 my $_jobsdir = "$bsdir/jobs";
 my $_eventdir = "$bsdir/events";
 my $_extrepodir = "$bsdir/repos";
 my $_dodsdir = "$bsdir/dods";
 my $_rundir = $BSConfig::rundir || "$bsdir/run";
-my $infodir = "$bsdir/info";
+my $_infodir = "$bsdir/info";
 my $_remotecache = "$BSConfig::bsdir/remotecache";
 
+# parse arguments
 if (@ARGV && $ARGV[0] eq '--testmode') {
   $testmode = 1;
   shift @ARGV;
@@ -123,30 +128,7 @@ if (!$BSCando::knownarch{$_myarch}) {
   die("Architecture '$_myarch' is unknown, please adapt BSCando.pm\n");
 }
 
-my %_remoteprojs;	# remote project cache
-
-# Create directory on first start
-mkdir_p($infodir) || die ("failed to create $infodir\n");
-
-my %_prpcheckuseforbuild;	# project/package meta has changed
-my %_channeldata;	# global channel data unificator to save memory
-
-#  'lastscan'   last time we scanned
-#  'meta'       meta cache
-#  'solv'       solv data cache (for remote repos)
-my %_repodatas;		# our repository knowledge
-my %_repodatas_alien;	# repositories from other archs
-
-my %_remotegbininfos;
-my %_remotepackstatus;
-my %_remotepackstatus_cleanup;
-
-
-#######################################################################
-#######################################################################
-##
-## Repository management functions
-##
+##########################################################################
 
 
 sub set_repo_state {
@@ -161,32 +143,6 @@ sub set_repo_state {
   writestr("$gdst/.:schedulerstate", "$gdst/:schedulerstate", $state);
 }
 
-
-####################################################################
-####################################################################
-##
-##  project/package data collection functions
-##
-
-#my @prps;		# all prps(project-repositories-sorted) we have to schedule, sorted
-#my %prpsearchpath;	# maps prp => [ prp, prp, ...]
-                        # build packages with the packages of the prps
-#my %prpdeps;		# searchpath plus aggregate deps plus kiwi deps
-			# maps prp => [ prp, prp ... ]
-			# used for sorting
-#my %prpnoleaf;		# is this prp referenced by another prp?
-#my @projpacks_linked;	# data of all linked sources
-
-my %_repounchanged;
-my %_prpfinished;
-my %_prpnotready;	# maps prp => { packid => 1, ... }
-
-my $_maxserverload = 1;
-$_maxserverload = $BSConfig::sched_maxserverload if $BSConfig::sched_maxserverload;
-
-
-##########################################################################
-##########################################################################
 
 sub select_read {
   my ($timeout, @watchers) = @_;
@@ -261,6 +217,7 @@ sub writeschedulerinfo {
     push @{$sinfo->{'worst'}}, $worst;
   }
   $sinfo->{'buildavg'} = $gctx->{'buildavg'};
+  my $infodir = $gctx->{'infodir'};
   writexml("$infodir/.schedulerinfo.$myarch", "$infodir/schedulerinfo.$myarch", $sinfo, $BSXML::schedulerinfo);
 }
 
@@ -434,7 +391,7 @@ if (!$testprojid) {
   utime undef, undef, "$_rundir/bs_sched.$_myarch.lock";
 }
 
-for my $d ("$_eventdir/$_myarch", "$_jobsdir/$_myarch", $infodir) {
+for my $d ("$_eventdir/$_myarch", "$_jobsdir/$_myarch", $_infodir) {
   next if -d $d;
   mkdir_p($d) || die("$d: $!\n");
 }
@@ -449,20 +406,6 @@ sysopen(PING, "$_myeventdir/.ping", POSIX::O_RDWR) || die("$_myeventdir/.ping: $
 fcntl(PING, F_SETFL, POSIX::O_NONBLOCK);
 
 
-# changed: 1: something "local" changed, :full unchanged,
-#          2: the :full repo is changed
-# set all projects and prps to :full repo changed
-my %changed_low;
-my %changed_med;
-my %changed_high;
-my %changed_dirty;
-my %lastcheck;
-my %delayedfetchprojpacks;
-
-my %lookat_next;	# not so important, next series
-my @lookat_low;         # not so important
-my @lookat_med;         # do those first (out of band), triggered through direct build results
-my @lookat_high;        # do those really first so that our users are happy, triggered through user interaction
 
 # create global context
 my $gctx = {
@@ -478,54 +421,67 @@ my $gctx = {
   'extrepodir' => $_extrepodir,
   'dodsdir' => $_dodsdir,
   'rundir' => $_rundir,
+  'infodir' => $_infodir,
   'remotecache' => $_remotecache,
   'remoteproxy' => $BSConfig::proxy,
   'asyncmode' => $asyncmode,
 
   # repository state cache
-  'repodatas' => \%_repodatas,
-  'repodatas_alien' => \%_repodatas_alien,
+  #  'lastscan'   last time we scanned
+  #  'meta'       meta cache
+  #  'solv'       solv data cache (for remote repos)
+  'repodatas' => {},
+  'repodatas_alien' => {},		# repodatas for other architectures
 
   # remote bininfo cache
-  'remotegbininfos' => \%_remotegbininfos,
-  'remotepackstatus' => \%_remotepackstatus,
-  'remotepackstatus_cleanup' => \%_remotepackstatus_cleanup,
+  'remotegbininfos' => {},
+  'remotepackstatus' => {},
+  'remotepackstatus_cleanup' => {},
 
   # project data
-  'projpacks' => undef,
-  'channeldata' => \%_channeldata,
-  'remoteprojs' => \%_remoteprojs,
+  'projpacks' => undef,			# data of all local projects
+  'channeldata' => {},			# global channel data unificator to save memory
+  'remoteprojs' => {},			# remote project cache
+
+  # lastcheck cache
+  'lastcheck' => {},			# package check data of last check
+					# maps prp => { packid => checkdata }
 
   # postprocessed project data
-  'projpacks_linked' => [],
-  'prps' => [],
-  'prpdeps' => {},
-  'prpnoleaf' => {},
-  'prpsearchpath' => {},
+  'projpacks_linked' => [],		# data of all linked sources
+  'prps' => [],				# sorted list of all local prps (project repos)
+  'prpdeps' => {},			# searchpath plus aggregate deps plus kiwi deps
+					# maps prp => [ prp, prp ... ], used for sorting
+  'prpnoleaf' => {},			# is this prp referenced by another prp?
+  'prpsearchpath' => {},		# which prps to use for building
+					# maps prp => [ prp, prp ... ]
 
   # triggers
-  'prpcheckuseforbuild' => \%_prpcheckuseforbuild,
-  'prpfinished' => \%_prpfinished,
-  'repounchanged' => \%_repounchanged,
-  'prpnotready' => \%_prpnotready,
+  'prpcheckuseforbuild' => {},		# project/package meta has changed
+  'prpfinished' => {},			# which prps are finished
+  'repounchanged' => {},		# which prps are unchanged
+  'prpnotready' => {},			# which packages are not ready in a prp
+					# maps prp => { packid => 1, ... }
 
   # remote watchers
   'watchremote' => {},			# remote_url => { eventdescr => projid }
   'watchremote_start' => {},		# remote_url => lasteventno
 
-  'changed_low' => \%changed_low,
-  'changed_med' => \%changed_med,
-  'changed_high' => \%changed_high,
-  'changed_dirty' => \%changed_dirty,
+  # changed: 1: something "local" changed, :full unchanged,
+  #          2: the :full repo is changed as well
+  'changed_low'   => {},		# something changed, put this in lookup_low
+  'changed_med'   => {},		# something changed, put this in lookup_med
+  'changed_high'  => {},		# something changed, put this in lookup_high
+  'changed_dirty' => {},		# set the dirty flag for those
 
-  'lookat_low' => \@lookat_low,
-  'lookat_med' => \@lookat_med,
-  'lookat_high' => \@lookat_high,
-  'lookat_next' => \%lookat_next,
+  'lookat_low'  => [],		# not so important
+  'lookat_med'  => [],		# builds are finished here
+  'lookat_high' => [],		# user interaction, do those ASAP
+  'lookat_next' => {},		# not so important, next series
   'notlow'	=> 0,
   'notmed'	=> 0,
 
-  'delayedfetchprojpacks' => \%delayedfetchprojpacks,
+  'delayedfetchprojpacks' => {},	# projpacks fetches we have delayed till prp check time
 
   'nextmed' => {},
   'retryevents' => [],
@@ -540,7 +496,7 @@ my $gctx = {
 };
 
 my $rctx = BSSched::RPC->new(
-  'maxserverload' => $_maxserverload,
+  'maxserverload' => $maxserverload,
   'wakeupfunction' => \&BSSched::Lookat::setchanged,
 );
 
@@ -579,31 +535,31 @@ if (!$testprojid && -s "$_rundir/bs_sched.$_myarch.state") {
     my @newprps = grep {!$oldprps{$_}} @$prps;
 
     # update lookat arrays
-    @lookat_low = @{$schedstate->{'lookat'} || []};
-    @lookat_med = @{$schedstate->{'lookat_oob'} || []};
-    @lookat_high = @{$schedstate->{'lookat_oobhigh'} || []};
+    $gctx->{'lookat_low'} = $schedstate->{'lookat'} || [];
+    $gctx->{'lookat_med'} = $schedstate->{'lookat_oob'} || [];
+    $gctx->{'lookat_high'} = $schedstate->{'lookat_oobhigh'} || [];
 
     # update changed hash
-    %changed_low = ();
-    %changed_med = ();
-    %changed_high = ();
+    my $changed_low = $gctx->{'changed_low'};
+    my $changed_med = $gctx->{'changed_med'};
+    my $changed_high = $gctx->{'changed_high'};
     for my $prp (@newprps) {
-      $changed_med{$prp} = 2;
-      $changed_med{(split('/', $prp, 2))[0]} = 2;
+      $changed_med->{$prp} = 2;
+      $changed_med->{(split('/', $prp, 2))[0]} = 2;
     }
 
     my $oldchanged_low = $schedstate->{'changed_low'} || {};
     my $oldchanged_med = $schedstate->{'changed_med'} || {};
     my $oldchanged_high = $schedstate->{'changed_high'} || {};
     for my $projid (keys %$projpacks) {
-      $changed_low{$projid} = $oldchanged_low->{$projid} if exists $oldchanged_low->{$projid};
-      $changed_med{$projid} = $oldchanged_med->{$projid} if exists $oldchanged_med->{$projid};
-      $changed_high{$projid} = $oldchanged_high->{$projid} if exists $oldchanged_high->{$projid};
+      $changed_low->{$projid} = $oldchanged_low->{$projid} if exists $oldchanged_low->{$projid};
+      $changed_med->{$projid} = $oldchanged_med->{$projid} if exists $oldchanged_med->{$projid};
+      $changed_high->{$projid} = $oldchanged_high->{$projid} if exists $oldchanged_high->{$projid};
     }
     for my $prp (@$prps) {
-      $changed_low{$prp} = $oldchanged_low->{$prp} if exists $oldchanged_low->{$prp};
-      $changed_med{$prp} = $oldchanged_med->{$prp} if exists $oldchanged_med->{$prp};
-      $changed_high{$prp} = $oldchanged_high->{$prp} if exists $oldchanged_high->{$prp};
+      $changed_low->{$prp} = $oldchanged_low->{$prp} if exists $oldchanged_low->{$prp};
+      $changed_med->{$prp} = $oldchanged_med->{$prp} if exists $oldchanged_med->{$prp};
+      $changed_high->{$prp} = $oldchanged_high->{$prp} if exists $oldchanged_high->{$prp};
     }
 
     ## update repodata hash
@@ -634,9 +590,10 @@ if (!$testprojid && -s "$_rundir/bs_sched.$_myarch.state") {
     }
 
     # update delayedfetchprojpacks hash
+    my $delayedfetchprojpacks = $gctx->{'delayedfetchprojpacks'};
     my $olddelayedfetchprojpacks = $schedstate->{'delayedfetchprojpacks'} || {};
     for my $projid (keys %$projpacks) {
-      $delayedfetchprojpacks{$projid} = $olddelayedfetchprojpacks->{$projid} if $olddelayedfetchprojpacks->{$projid};
+      $delayedfetchprojpacks->{$projid} = $olddelayedfetchprojpacks->{$projid} if $olddelayedfetchprojpacks->{$projid};
     }
 
     # use old start values
@@ -648,7 +605,7 @@ if (!$testprojid && -s "$_rundir/bs_sched.$_myarch.state") {
     for my $projid (sort keys %$projpacks) {
       my $packs = $projpacks->{$projid}->{'package'} || {};
       for my $packid (sort keys %$packs) {
-        $delayedfetchprojpacks{$projid} = [ '/all' ] if ($packs->{$packid}->{'error'} || '') eq 'delayed startup';
+        $delayedfetchprojpacks->{$projid} = [ '/all' ] if ($packs->{$packid}->{'error'} || '') eq 'delayed startup';
       }
     }
 
@@ -684,6 +641,7 @@ if (!$gctx->{'projpacks'} && $startupmode) {
   BSSched::ProjPacks::update_projpacks($gctx, $projpacksin);
   BSSched::ProjPacks::get_projpacks_postprocess($gctx);
   my $projpacks = $gctx->{'projpacks'};
+  my $delayedfetchprojpacks = $gctx->{'delayedfetchprojpacks'};
   for my $projid (sort keys %$projpacks) {
     my $packs = $projpacks->{$projid}->{'package'} || {};
     next unless %$packs;
@@ -709,19 +667,19 @@ if (!$gctx->{'projpacks'} && $startupmode) {
 	}
       }
       if (!$ok) {
-        $delayedfetchprojpacks{$projid} = [ '/all' ];	# hack
+        $delayedfetchprojpacks->{$projid} = [ '/all' ];	# hack
       } else {
-        $delayedfetchprojpacks{$projid} = [ @delayed ];
+        $delayedfetchprojpacks->{$projid} = [ @delayed ];
       }
     } else {
-      $delayedfetchprojpacks{$projid} = [ '/all' ];	# hack
+      $delayedfetchprojpacks->{$projid} = [ '/all' ];	# hack
       for my $packid (sort keys %$packs) {
         $packs->{$packid}->{'error'} = 'delayed startup';
       }
     }
   }
-  @lookat_low = sort keys %$projpacks;
-  push @lookat_low, @{$gctx->{'prps'}};
+  @{$gctx->{'lookat_low'}} = sort keys %$projpacks;
+  push @{$gctx->{'lookat_low'}}, @{$gctx->{'prps'}};
   my $prpcheckuseforbuild = $gctx->{'prpcheckuseforbuild'};
   $prpcheckuseforbuild->{$_} = 1 for @{$gctx->{'prps'}};
 }
@@ -733,8 +691,8 @@ if (!$gctx->{'projpacks'}) {
   BSSched::ProjPacks::get_projpacks($gctx, undef, 'opensuse_org') if $testprojid;
   BSSched::ProjPacks::get_projpacks_postprocess($gctx);
   # look at everything
-  @lookat_low = sort keys %{$gctx->{'projpacks'}};
-  push @lookat_low, @{$gctx->{'prps'}};
+  @{$gctx->{'lookat_low'}} = sort keys %{$gctx->{'projpacks'}};
+  push @{$gctx->{'lookat_low'}}, @{$gctx->{'prps'}};
 }
 
 # bring dods in sync with projpacks
@@ -749,15 +707,9 @@ BSSched::BuildJob::init_ourjobs($gctx);
 
 unlink("$_rundir/bs_sched.$_myarch.dead");	# alive and kicking
 
-#XXX
-#@lookat_low = sort keys %$projpacks;
-#push @lookat_low, @prps;
-
-my %remotewatchers;
-
-if (@lookat_low) {
-  %lookat_next = map {$_ => 1} @lookat_low;
-  @lookat_low = ();
+if (@{$gctx->{'lookat_low'}}) {
+  %{$gctx->{'lookat_next'}} = map {$_ => 1} @{$gctx->{'lookat_low'}};
+  @{$gctx->{'lookat_low'}} = ();
 }
 
 my $gotevent = 1;
@@ -765,6 +717,7 @@ $gotevent = 0 if $testprojid;
 
 my $lastschedinfo = 0;
 my $initialstartup = 1;
+my %remotewatchers;	# XXX: put in gctx?
 
 
 ##
@@ -778,7 +731,7 @@ eval {
 
   while(1) {
 NEXTPRP:
-    if (%changed_low || %changed_med || %changed_high) {
+    if (%{$gctx->{'changed_low'}} || %{$gctx->{'changed_med'}} || %{$gctx->{'changed_high'}}) {
       BSSched::Lookat::changed2lookat($gctx);
       next;
     }
@@ -887,13 +840,15 @@ NEXTPRP:
     $initialstartup = undef;
 
     # mark all indirect affected repos dirty
-    for my $prp (keys %changed_dirty) {
-      my $reporoot = $gctx->{'reporoot'};
-      next if ! -d "$reporoot/$prp/$myarch";
-      next if   -e "$reporoot/$prp/$myarch/:schedulerstate.dirty";
-      BSUtil::touch("$reporoot/$prp/$myarch/:schedulerstate.dirty");
+    if (%{$gctx->{'changed_dirty'}}) {
+      for my $prp (keys %{$gctx->{'changed_dirty'}}) {
+        my $reporoot = $gctx->{'reporoot'};
+        next if ! -d "$reporoot/$prp/$myarch";
+        next if   -e "$reporoot/$prp/$myarch/:schedulerstate.dirty";
+        BSUtil::touch("$reporoot/$prp/$myarch/:schedulerstate.dirty");
+      }
+      %{$gctx->{'changed_dirty'}} = ();
     }
-    %changed_dirty = ();
 
     my ($lookattype, $prp) = BSSched::Lookat::nextlookat($gctx);
 
@@ -952,7 +907,7 @@ NEXTPRP:
 	delete $gctx->{'prpunfinished'}->{$prp};
 	delete $gctx->{'prpchecktimes'}->{$prp};
 	delete $gctx->{'repodatas'}->{$prp};
-	delete $lastcheck{$prp};
+	delete $gctx->{'lastcheck'}->{$prp};
 	delete $gctx->{'prpcheckuseforbuild'}->{$prp};
 	for my $dir (ls($gdst)) {
 	  # need lock for deleting publish area
@@ -964,7 +919,7 @@ NEXTPRP:
 	    unlink("$gdst/$dir") || die("$gdst/$dir: $!\n");
 	  }
 	}
-	$changed_med{$prp} = 2;
+	$gctx->{'changed_med'}->{$prp} = 2;
 	BSSched::Events::sendrepochangeevent($gctx, $prp);
 	BSSched::BuildJob::killbuilding($gctx, $prp);
 	my $ctx = {'gctx' => $gctx, 'prp' => $prp, 'gdst' => $gdst };
@@ -997,10 +952,10 @@ NEXTPRP:
     }
 
     # do delayed projpack fetches
-    while ($delayedfetchprojpacks{$projid}) {
+    while ($gctx->{'delayedfetchprojpacks'}->{$projid}) {
       my $async;
       $async = {'_changeprp' => $prp, '_changetype' => $lookattype} if $asyncmode;
-      my $delayed = delete $delayedfetchprojpacks{$projid};
+      my $delayed = delete $gctx->{'delayedfetchprojpacks'}->{$projid};
       if ($delayed) {
 	if (!BSSched::ProjPacks::do_delayedprojpackfetches($gctx, $async, $projid, @$delayed)) {
 	  # async request in progress...
@@ -1096,14 +1051,14 @@ NEXTPRP:
         delete $gctx->{'prpcheckuseforbuild'}->{$prp};
       }
     }
-    if (!$lastcheck{$prp}) {
+    if (!$gctx->{'lastcheck'}->{$prp}) {
       my $oldlastcheck = BSUtil::retrieve("$reporoot/$prp/$myarch/:lastcheck", 1) || {};
       my $packs = $projpacks->{$projid}->{'package'} || {};
       for (keys %$oldlastcheck) {
 	# delete old cruft
 	delete $oldlastcheck->{$_} unless $packs->{$_};
       }
-      $lastcheck{$prp} = $oldlastcheck;
+      $gctx->{'lastcheck'}->{$prp} = $oldlastcheck;
     }
 
     # create check context
@@ -1111,7 +1066,7 @@ NEXTPRP:
 		'repo' => $repo, 'gctx' => $gctx,
 		'changetype' => $lookattype, 'changeprp' => $prp, 
 		'prpsearchpath' => $prpsearchpath || [], 'conf' => $bconf,
-		'lastcheck' => $lastcheck{$prp}, 'gdst' => "$gctx->{'reporoot'}/$prp/$myarch"};
+		'lastcheck' => $gctx->{'lastcheck'}->{$prp}, 'gdst' => "$gctx->{'reporoot'}/$prp/$myarch"};
 
     if ($repo->{'status'} && $repo->{'status'} eq 'disabled') {
       print "      disabled\n";
@@ -1155,7 +1110,7 @@ NEXTPRP:
         next unless grep {$_ ne '.bininfo' && !(/^::import::/ || /^\.meta\.success\.import\./)} @files;
       }
       print "      - $packid: is $reason\n";
-      delete $lastcheck{$prp}->{$packid};
+      delete $ctx->{'lastcheck'}->{$packid};
       # delete full entries
       my $useforbuildenabled = 1;
       $useforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
@@ -1164,7 +1119,7 @@ NEXTPRP:
       # don't wipe imports if we're excluded
       my $importarch = $packs->{$packid} && @ifiles ? '' : undef;
       BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $prpsearchpath, undef, $importarch);
-      $changed_med{$prp} = 2;
+      $gctx->{'changed_med'}->{$prp} = 2;
       BSSched::Events::sendrepochangeevent($gctx, $prp);
       # delete other files
       unlink("$gdst/:logfiles.success/$packid");
@@ -1775,12 +1730,13 @@ NEXTPRP:
       if (!%unfinished && !$publisherror) {
 	$gctx->{'prpfinished'}->{$prp} = 1;
 	# write out lastcheck cache and delete it
-	if ($lastcheck{$prp} && %{$lastcheck{$prp}}) {
-	  BSUtil::store("$reporoot/$prp/$myarch/.:lastcheck", "$reporoot/$prp/$myarch/:lastcheck", $lastcheck{$prp}) if $lastcheck{$prp};
+	my $lastcheck = $gctx->{'lastcheck'}->{$prp};
+	if ($lastcheck && %$lastcheck) {
+	  BSUtil::store("$reporoot/$prp/$myarch/.:lastcheck", "$reporoot/$prp/$myarch/:lastcheck", $lastcheck);
 	} else {
 	  unlink("$reporoot/$prp/$myarch/:lastcheck");
 	}
-	delete $lastcheck{$prp};
+	delete $gctx->{'lastcheck'}->{$prp};
 	# delete pkg meta cache
 	my $repodatas = $gctx->{'repodatas'};
 	delete $repodatas->{$prp}->{'meta'} if $repodatas->{$prp};
