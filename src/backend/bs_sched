@@ -954,7 +954,7 @@ NEXTPRP:
     # do delayed projpack fetches
     while ($gctx->{'delayedfetchprojpacks'}->{$projid}) {
       my $async;
-      $async = {'_changeprp' => $prp, '_changetype' => $lookattype} if $asyncmode;
+      $async = {'_changeprp' => $prp, '_changetype' => $lookattype} if $gctx->{'asyncmode'};
       my $delayed = delete $gctx->{'delayedfetchprojpacks'}->{$projid};
       if ($delayed) {
 	if (!BSSched::ProjPacks::do_delayedprojpackfetches($gctx, $async, $projid, @$delayed)) {
