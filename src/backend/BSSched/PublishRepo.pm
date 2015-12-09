@@ -24,6 +24,7 @@ use Digest::MD5 ();
 
 use BSUtil;
 use Build::Rpm;
+use BSSched::ProjPacks;		# for orderpackids
 use BSSched::BuildJob::DeltaRpm;
 
 my $default_publishfilter;
@@ -137,7 +138,7 @@ sub prpfinished {
   }
 
   # sort like in the full tree
-  for my $packid (main::orderpackids($projpacks->{$projid}, @$packs)) {
+  for my $packid (BSSched::ProjPacks::orderpackids($projpacks->{$projid}, @$packs)) {
     if ($pubenabled && !$pubenabled->{$packid}) {
       # publishing of this package is disabled, copy binary list from old info
       if (!$rinfo) {

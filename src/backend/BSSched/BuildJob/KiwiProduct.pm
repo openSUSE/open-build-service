@@ -28,7 +28,7 @@ use BSSched::BuildResult;
 use BSSched::BuildJob;
 use BSSched::BuildJob::KiwiImage;	# for expandkiwipath
 use BSSched::Access;			# for checkprpaccess
-use BSSched::ProjPacks;			# for getconfig
+use BSSched::ProjPacks;			# for getconfig, orderpackids
 
 my %bininfo_oldok_cache;
 
@@ -301,7 +301,7 @@ sub check {
       my $seen_binary;
       $seen_binary = {} if ($aproj->{'kind'} || '') eq 'maintenance_release';
 
-      for my $apackid (main::orderpackids($aproj, @apackids)) {
+      for my $apackid (BSSched::ProjPacks::orderpackids($aproj, @apackids)) {
 	next if $apackid eq '_volatile';
 	next if ($pdatas->{$apackid} || {})->{'patchinfo'};
 

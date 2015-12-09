@@ -34,6 +34,7 @@ use BSUtil;
 use BSConfiguration;
 use Build::Rpm;
 use BSSched::Remote;
+use BSSched::ProjPacks;		# for orderpackids
 #use BSSched::BuildResult;	# circular dep
 
 my $exportcnt = 0;
@@ -208,7 +209,7 @@ sub fctx_gbininfo2full {
   my $prjuseforbuildenabled = 1;
   $prjuseforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $prjuseforbuildenabled, $myarch);
   my $pdatas = $proj->{'package'} || {};
-  my @packids = main::orderpackids($proj, keys %$gbininfo);
+  my @packids = BSSched::ProjPacks::orderpackids($proj, keys %$gbininfo);
   # construct new full
   my %full;
   for my $packid (@packids) {

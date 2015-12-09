@@ -1105,4 +1105,46 @@ sub getconfig {
   return $c;
 }
 
+
+=head2 orderpackids - sort package containers
+
+ we simply sort by container name, except that _volatile
+ goes to the back and maintenance issues are ordered by
+ just their incident number.
+
+=cut
+
+sub orderpackids {
+  my ($proj, @packids) = @_;
+  $proj ||= {};
+  my @s;
+  my @back;
+  my $kind = $proj->{'kind'} || '';
+  for (@packids) {
+    if ($_ eq '_volatile') {
+      push @back, $_;
+    } elsif (/^(.*)\.(\d+)$/) {
+      # we ignore the name for maintenance release projects and sort only
+      # by the incident number
+      if ($kind eq 'maintenance_release') {
+        push @s, [ $_, '', $2]; 
+      } else {
+        push @s, [ $_, $1, $2]; 
+      }    
+    } elsif (/^(.*)\.imported_.*?(\d+)$/) {
+      # code11 import hack...
+      if ($kind eq 'maintenance_release') {
+        push @s, [ $_, '', $2 - 1000000];
+      } else {
+        push @s, [ $_, $1, $2 - 1000000];
+      }    
+    } else {
+      push @s, [ $_, $_, 99999999 ];
+    }    
+  }
+  @packids = map {$_->[0]} sort { $a->[1] cmp $b->[1] || $b->[2] <=> $a->[2] || $a->[0] cmp $b->[0] } @s;
+  push @packids, @back;
+  return @packids;
+}
+
 1;
