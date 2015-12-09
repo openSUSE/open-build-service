@@ -459,7 +459,7 @@ my $gctx = {
   # triggers
   'prpcheckuseforbuild' => {},		# project/package meta has changed
   'prpfinished' => {},			# which prps are finished
-  'repounchanged' => {},		# which prps are unchanged
+  'repounchanged' => {},		# which prps are changed: deleted = full tree changed, 1 = unchanged, 2 = just package changes
   'prpnotready' => {},			# which packages are not ready in a prp
 					# maps prp => { packid => 1, ... }
 
