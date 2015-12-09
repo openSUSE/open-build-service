@@ -647,6 +647,10 @@ sub remove_from_volatile {
   update_bininfo_merge($gdst, '_volatile', $bininfo);
 }
 
+=head2 wipe - remove a built result
+
+=cut
+
 sub wipe {
   my ($gctx, $prp, $packid) = @_;
 

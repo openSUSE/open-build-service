@@ -184,22 +184,6 @@ my %_prpnotready;	# maps prp => { packid => 1, ... }
 my $_maxserverload = 1;
 $_maxserverload = $BSConfig::sched_maxserverload if $BSConfig::sched_maxserverload;
 
-sub update_prpcheckuseforbuild {
-  my ($gctx, $projid, $proj) = @_;
-  my $myarch = $gctx->{'arch'};
-  my $prpcheckuseforbuild = $gctx->{'prpcheckuseforbuild'};
-  if (!$proj) {
-    for my $prp (keys %$prpcheckuseforbuild) {
-      delete $prpcheckuseforbuild->{$prp} if (split('/', $prp, 2))[0] eq $projid;
-    }
-  } else {
-    for my $repo (@{$proj->{'repository'}}) {
-      next unless grep {$_ eq $myarch} @{$repo->{'arch'} || []};
-      $prpcheckuseforbuild->{"$projid/$repo->{'name'}"} = 1;
-    }
-  }
-}
-
 
 ##########################################################################
 ##########################################################################

@@ -278,7 +278,7 @@ sub update_projpacks {
       }
     }
     undef $isgone if defined($projid) && $proj->{'name'} eq $projid;
-    main::update_prpcheckuseforbuild($gctx, $proj->{'name'}, $proj);
+    update_prpcheckuseforbuild($gctx, $proj->{'name'}, $proj);
     BSSched::DoD::update_doddata($gctx, $proj->{'name'}, $proj) if $BSConfig::enable_download_on_demand;
     $projpacks->{$proj->{'name'}} = $proj;
     delete $proj->{'name'};
@@ -305,7 +305,7 @@ sub update_projpacks {
   if (!defined($projid)) {
     %$remoteprojs = ();
   } elsif (!($packids && @$packids)) {
-    main::update_prpcheckuseforbuild($gctx, $projid) if $isgone;
+    update_prpcheckuseforbuild($gctx, $projid) if $isgone;
     # delete project from remoteprojs if it is not in the remotemap
     if (!grep {$_->{'project'} eq $projid} @{$projpacksin->{'remotemap'} || []}) {
       delete $remoteprojs->{$projid};
@@ -445,14 +445,14 @@ sub update_projpacks_meta {
   my $remoteprojs = $gctx->{'remoteprojs'};
   if (!$proj) {
     delete $projpacks->{$projid};
-    main::update_prpcheckuseforbuild($gctx, $projid);
+    update_prpcheckuseforbuild($gctx, $projid);
   } else {
     delete $proj->{'name'};
     delete $proj->{'package'};
     my $oldproj = $projpacks->{$projid};
     $proj->{'package'} = $oldproj->{'package'} if $oldproj->{'package'};
     $projpacks->{$projid} = $proj;
-    main::update_prpcheckuseforbuild($gctx, $projid, $proj);
+    update_prpcheckuseforbuild($gctx, $projid, $proj);
   }
   # delete project from remoteprojs if it is not in the remotemap
   if (!grep {$_->{'project'} eq $projid} @{$projpacksin->{'remotemap'} || []}) {
@@ -1145,6 +1145,29 @@ sub orderpackids {
   @packids = map {$_->[0]} sort { $a->[1] cmp $b->[1] || $b->[2] <=> $a->[2] || $a->[0] cmp $b->[0] } @s;
   push @packids, @back;
   return @packids;
+}
+
+=head2 update_prpcheckuseforbuild - update the prpcheckuseforbuild hash if a project is changed
+
+ input: $projid - project name
+        $proj   - project data, can be undef if deleted
+
+=cut
+
+sub update_prpcheckuseforbuild {
+  my ($gctx, $projid, $proj) = @_;
+  my $myarch = $gctx->{'arch'};
+  my $prpcheckuseforbuild = $gctx->{'prpcheckuseforbuild'};
+  if (!$proj) {
+    for my $prp (keys %$prpcheckuseforbuild) {
+      delete $prpcheckuseforbuild->{$prp} if (split('/', $prp, 2))[0] eq $projid;
+    }    
+  } else {
+    for my $repo (@{$proj->{'repository'}}) {
+      next unless grep {$_ eq $myarch} @{$repo->{'arch'} || []}; 
+      $prpcheckuseforbuild->{"$projid/$repo->{'name'}"} = 1; 
+    }    
+  }
 }
 
 1;
