@@ -22,10 +22,11 @@ use warnings;
 
 use Build;
 use BSSolv;
+use BSConfiguration;
 use BSSched::BuildJob;
 use BSSched::DoD;		# for dodcheck
 use BSSched::Access;		# for checkprpaccess
-use BSConfiguration;
+use BSSched::ProjPacks;		# for getconfig
 
 
 =head1 NAME
@@ -84,8 +85,8 @@ sub check {
   my $repo = $ctx->{'repo'};
 
   my @aprps = expandkiwipath($info, $ctx->{'prpsearchpath'});
-  # get config from path
-  my $bconf = main::getconfig($gctx, $myarch, \@aprps);
+  # get config from kiwi path
+  my $bconf = BSSched::ProjPacks::getconfig($gctx, $myarch, \@aprps);
   if (!$bconf) {
     print "      - $packid (kiwi-image)\n";
     print "        no config\n";

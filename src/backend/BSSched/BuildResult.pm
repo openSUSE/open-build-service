@@ -30,6 +30,7 @@ use BSSched::BuildRepo;
 use BSSched::BuildJob::Import;		# for createexportjob
 use BSSched::BuildJob::PreInstallImage;	# for update_preinstallimage
 use BSSched::Access;			# for checkaccess
+use BSSched::ProjPacks;			# for getconfig
 
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
@@ -127,7 +128,7 @@ sub calculate_exportfilter {
   my $bconf;
   if ($prpsearchpath) {
     $bconf = $fullcache->{'config'} if $fullcache && $fullcache->{'config'};
-    $bconf ||= main::getconfig($gctx, $myarch, $prpsearchpath);
+    $bconf ||= BSSched::ProjPacks::getconfig($gctx, $myarch, $prpsearchpath);
     $fullcache->{'config'} = $bconf if $fullcache;
   }
   $filter = $bconf->{'exportfilter'} if $bconf;

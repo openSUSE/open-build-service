@@ -23,11 +23,12 @@ use warnings;
 use BSUtil;
 use Build;
 use BSSolv;
+use BSConfiguration;
 use BSSched::BuildResult;
 use BSSched::BuildJob;
 use BSSched::BuildJob::KiwiImage;	# for expandkiwipath
 use BSSched::Access;			# for checkprpaccess
-use BSConfiguration;
+use BSSched::ProjPacks;			# for getconfig
 
 my %bininfo_oldok_cache;
 
@@ -121,7 +122,7 @@ sub check {
   if (!@{$repo->{'path'} || []}) {
     # have no configured path, use repos from kiwi file instead
     @bprps = @aprps;
-    $bconf = main::getconfig($gctx, $myarch, \@bprps);
+    $bconf = BSSched::ProjPacks::getconfig($gctx, $myarch, \@bprps);
     if (!$bconf) {
       print "      - $packid (kiwi-product)\n";
       print "        no config\n";

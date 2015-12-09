@@ -23,10 +23,13 @@ use warnings;
 our $usestorableforprojpack = 1;
 our $testprojid;
 
+use Build;	# for read_config
+
 use BSUtil;
 use BSSolv;	# for depsort
 use Storable;
 use BSConfiguration;
+use BSSched::Remote;
 
 =head2 checkbuildrepoid - TODO: add summary
 
@@ -1038,6 +1041,68 @@ sub do_fetchprojpacks {
   }
 
   %$fetchprojpacks = ();
+}
+
+
+=head2 getconfig - concatenate and fixup the build config
+
+ this is basically getconfig from the source server
+
+ we do not need any macros, just the config
+
+=cut
+
+sub getconfig {
+  my ($gctx, $arch, $path) = @_;
+  my $config = '';
+  my $extraconfig = '';
+  if (@$path) {
+    my ($p, $r) = split('/', $path->[0], 2);
+    $config .= "%define _project $p\n";
+    if ($BSConfig::extraconfig) {
+      for (sort keys %{$BSConfig::extraconfig}) {
+        $extraconfig .= $BSConfig::extraconfig->{$_} if $p =~ /$_/;
+      }
+    }
+  }
+  my $projpacks = $gctx->{'projpacks'};
+  my $remoteprojs = $gctx->{'remoteprojs'};
+  for my $prp (reverse @$path) {
+    my ($p, $r) = split('/', $prp, 2);
+    my $c;
+    my $rproj = $remoteprojs->{$p};
+    if ($rproj) {
+      return undef if $rproj->{'error'};
+      if (exists($rproj->{'config'})) {
+        $c = $rproj->{'config'};
+      } elsif ($rproj->{'partition'}) {
+        $c = '';
+      } else {
+        $c = BSSched::Remote::fetchremoteconfig($gctx, $p);
+        return undef unless defined $c;
+      }
+    } elsif ($projpacks->{$p}) {
+      $c = $projpacks->{$p}->{'config'};
+    }
+    next unless defined $c;
+    $config .= "\n### from $p\n";
+    $config .= "%define _repository $r\n";
+    # get rid of the Macros sections
+    my $s1 = '^\s*macros:\s*$.*?^\s*:macros\s*$';
+    my $s2 = '^\s*macros:\s*$.*\Z';
+    $c =~ s/$s1//gmsi;
+    $c =~ s/$s2//gmsi;
+    $config .= $c;
+  }
+  # it's an error if we have no config at all
+  return undef unless $config ne '';
+  # now we got the combined config, parse it
+  $config .= "\n$extraconfig" if $extraconfig;
+  my @c = split("\n", $config);
+  my $c = Build::read_config($arch, \@c);
+  $c->{'repotype'} = [ 'rpm-md' ] unless @{$c->{'repotype'}};
+  $c->{'binarytype'} ||= 'UNDEFINED';
+  return $c;
 }
 
 1;
