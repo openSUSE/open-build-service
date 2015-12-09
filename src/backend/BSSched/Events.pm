@@ -651,7 +651,7 @@ sub process_events {
 
   # postprocess
   if (%{$ectx->{'fetchprojpacks'}}) {
-    BSSched::ProjPacks::do_fetchprojpacks($gctx, $ectx->{'asyncmode'},
+    BSSched::ProjPacks::do_fetchprojpacks($gctx,
 					  $ectx->{'fetchprojpacks'}, $ectx->{'fetchprojpacks_nodelay'},
 					  $ectx->{'deepcheck'}, $ectx->{'lowprioproject'});
   }

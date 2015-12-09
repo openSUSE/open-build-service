@@ -823,7 +823,9 @@ sub calc_prps {
 
 =head2 do_delayedprojpackfetches - TODO
 
- TODO: add description
+ Do all the delayed projpack fetches caused by source changes
+
+ See do_fetchprojpacks
 
 =cut
 
@@ -860,8 +862,9 @@ Do all the cummulated projpacks fetching. Done after all events are processed.
 =cut
 
 sub do_fetchprojpacks {
-  my ($gctx, $doasync, $fetchprojpacks, $fetchprojpacks_nodelay, $deepcheck, $lowprioproject) = @_;
+  my ($gctx, $fetchprojpacks, $fetchprojpacks_nodelay, $deepcheck, $lowprioproject) = @_;
 
+  my $asyncmode = $gctx->{'asyncmode'};
   my $delayedfetchprojpacks = $gctx->{'delayedfetchprojpacks'};
   my $projpacks = $gctx->{'projpacks'};
 
@@ -918,7 +921,7 @@ sub do_fetchprojpacks {
       # a change in _config
       # a change in _pattern
       # deletion of a project
-      if ($doasync) {
+      if ($asyncmode) {
         my %packids = map {$_ => 1} grep {defined($_)} @{$fetchprojpacks->{$projid}};
         my $async = { '_changetype' => 'high', '_changelevel' => 2 };
         $async->{'_changetype'} = 'low' if $lowprioproject->{$projid} && !$deepcheck->{$projid};
@@ -951,7 +954,7 @@ sub do_fetchprojpacks {
 	$delayedfetchprojpacks->{$projid} = [ grep {!$packids{$_}} @{$delayedfetchprojpacks->{$projid} || []} ];
 	delete $delayedfetchprojpacks->{$projid} unless @{$delayedfetchprojpacks->{$projid}};
       }
-      if ($doasync && %packids) {
+      if ($asyncmode && %packids) {
 	# _dolink = 2: try to delay linked packages fetches
 	my $async = { '_dolink' => 2, '_changetype' => 'high', '_changelevel' => 1 };
 	get_projpacks($gctx, $async, $projid, sort keys %packids);
@@ -1009,7 +1012,7 @@ sub do_fetchprojpacks {
     my $projpackchanged;
     for my $projid (sort keys %fetchlinkedprojpacks) {
       my %packids = map {$_ => 1} @{$fetchlinkedprojpacks{$projid}};
-      if ($doasync) {
+      if ($asyncmode) {
 	my $async = { '_changelevel' => 1, '_changetype' => 'low' };
 	$async->{'_changetype'} = 'med' if $fetchlinkedprojpacks_srcchange{$projid};
 	get_projpacks($gctx, $async, $projid, sort keys %packids);

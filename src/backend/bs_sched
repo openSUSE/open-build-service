@@ -611,7 +611,7 @@ if (!$testprojid && -s "$_rundir/bs_sched.$_myarch.state") {
 
     if ($schedstate->{'fetchprojpacks'} && $schedstate->{'projpacks'}) {
       my %fetchprojpacks_nodelay = map {$_ => 1} keys %{$schedstate->{'fetchprojpacks'}};
-      BSSched::ProjPacks::do_fetchprojpacks($gctx, $asyncmode, $schedstate->{'fetchprojpacks'}, \%fetchprojpacks_nodelay, {}, {});
+      BSSched::ProjPacks::do_fetchprojpacks($gctx, $schedstate->{'fetchprojpacks'}, \%fetchprojpacks_nodelay, {}, {});
     }
   }
 }
