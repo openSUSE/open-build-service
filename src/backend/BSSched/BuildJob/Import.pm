@@ -104,12 +104,7 @@ sub createexportjob {
   # free the lock
   close F;
   # send event
-  my $ev = {
-    'type' => 'import',
-    'job' => $job,
-  };
-  # prefix with "import." so that there's no name conflict
-  main::sendevent($gctx, $ev, $arch, "import.$job");
+  BSSched::Events::sendimportevent($gctx, $job, $arch);
 }
 
 

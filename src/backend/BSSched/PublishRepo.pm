@@ -95,9 +95,9 @@ sub prpfinished {
       close(F);
       return '';
     }
-    # release lock
+    # release lock and ping publisher
     close(F);
-    sendpublishevent($ctx->{'gctx'}, $prp);
+    BSSched::Events::sendpublishevent($ctx->{'gctx'}, $prp);
     return '';
   }
 
@@ -259,26 +259,8 @@ sub prpfinished {
 
   # release lock and ping publisher
   close(F);
-  sendpublishevent($ctx->{'gctx'}, $prp);
+  BSSched::Events::sendpublishevent($ctx->{'gctx'}, $prp);
   return '';
-}
-
-=head2 sendpublishevent - send a publish event to the publisher
-
- input: $prp - prp to be published
-
-=cut
-
-sub sendpublishevent {
-  my ($gctx, $prp) = @_;
-
-  my ($projid, $repoid) = split('/', $prp, 2);
-  my $ev = {
-    'type' => 'publish',
-    'project' => $projid,
-    'repository' => $repoid,
-  };
-  main::sendevent($gctx, $ev, 'publish', "${projid}::$repoid");
 }
 
 

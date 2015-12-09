@@ -205,56 +205,6 @@ sub getconfig {
 ##
 
 
-sub sendevent {
-  my ($gctx, $ev, $arch, $evname) = @_;
-
-  my $eventdir = $gctx->{'eventdir'};
-  mkdir_p("$eventdir/$arch");
-  $evname = "$ev->{'type'}:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
-  writexml("$eventdir/$arch/.$evname$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);
-  local *F;
-  if (sysopen(F, "$eventdir/$arch/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
-    syswrite(F, 'x');
-    close(F);
-  }
-}
-
-#
-# sendrepochangeevent - send a repository/repoinfo event
-#
-# we don't directly send it to the src server, as this would
-# slow down the scheduler too much. Instead, we write it on
-# disk and the dispatcher will pick it up and send it for us.
-#
-sub sendrepochangeevent {
-  my ($gctx, $prp, $type) = @_;
-
-  my $myarch = $gctx->{'arch'};
-  my ($projid, $repoid) = split('/', $prp, 2);
-  my $ev = {
-    'type' => ($type || 'repository'),
-    'project' => $projid,
-    'repository' => $repoid,
-    'arch' => $myarch,
-  };
-  sendevent($gctx, $ev, 'repository', "${projid}::${repoid}::${myarch}");
-}
-
-#
-# sendunblockedevent - send an unblocked event to another scheduler
-#
-sub sendunblockedevent {
-  my ($gctx, $prp, $arch) = @_;
-
-  my ($projid, $repoid) = split('/', $prp, 2);
-  my $ev = {
-    'type' => 'unblocked',
-    'project' => $projid,
-    'repository' => $repoid,
-  };
-  sendevent($gctx, $ev, $arch, "unblocked::${projid}::${repoid}");
-}
-
 sub set_repo_state {
   my ($gctx, $prp, $state, $details) = @_;
 
@@ -569,7 +519,8 @@ if ($testmode && ($testmode eq 'exit' || $testmode eq 'restart')) {
     'type' => $testmode eq 'restart' ? 'restart' : 'exitcomplete',
   };
   my $evname = "$ev->{'type'}::";
-  sendevent({'eventdir' => $_eventdir}, $ev, $_myarch, $evname);
+  my $gctx = {'eventdir' => $_eventdir};
+  BSSched::Events::sendevent($gctx, $ev, $_myarch, $evname);
   BSUtil::waituntilgone("$_eventdir/$_myarch/$evname");
   if ($testmode eq 'exit') {
     # scheduler saw the event, wait until the process is gone
@@ -1010,25 +961,8 @@ NEXTPRP:
       # drain ping pipe
       my $dummy;
       1 while (sysread(PING, $dummy, 1024, 0) || 0) > 0;
-
-      # check eventdir for new events
-      for my $evfilename (sort(ls($_myeventdir))) {
-	next if $evfilename =~ /^\./;
-	my $ev;
-	if ($evfilename =~ /^finished:(.*)/) {
-	  $ev = {'type' => 'built', 'job' => $1};
-	} else {
-	  $ev = readxml("$_myeventdir/$evfilename", $BSXML::event, 1);
-	  if (!$ev) {
-	    print "$evfilename: bad xml\n";
-	    unlink("$_myeventdir/$evfilename");
-	    next;
-	  }
-	}
-	$ev->{'type'} ||= 'unknown';
-	$ev->{'evfilename'} = "$_myeventdir/$evfilename";
-	push @events, $ev;
-      }
+      # add events from myeventdir
+      push @events, BSSched::Events::readevents($gctx, $gctx->{'myeventdir'});
     }
 
     # process all collected events
@@ -1042,7 +976,10 @@ NEXTPRP:
       );
       eval {
         @events = $ectx->order(@events);
-	$gotevent = 1 if $ectx->process_events(@events);
+	if ($ectx->process_events(@events)) {
+	  # could not process all events, re-run
+	  $gotevent = 1;
+	}
       };
       if ($@) {
         warn($@);
@@ -1134,7 +1071,7 @@ NEXTPRP:
 	  }
 	}
 	$changed_med{$prp} = 2;
-	sendrepochangeevent($gctx, $prp);
+	BSSched::Events::sendrepochangeevent($gctx, $prp);
 	BSSched::BuildJob::killbuilding($gctx, $prp);
 	my $ctx = {'gctx' => $gctx, 'prp' => $prp, 'gdst' => $gdst };
 	BSSched::PublishRepo::prpfinished($ctx);
@@ -1334,7 +1271,7 @@ NEXTPRP:
       my $importarch = $packs->{$packid} && @ifiles ? '' : undef;
       BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $prpsearchpath, undef, $importarch);
       $changed_med{$prp} = 2;
-      sendrepochangeevent($gctx, $prp);
+      BSSched::Events::sendrepochangeevent($gctx, $prp);
       # delete other files
       unlink("$gdst/:logfiles.success/$packid");
       unlink("$gdst/:logfiles.fail/$packid");
@@ -1852,10 +1789,10 @@ NEXTPRP:
     # chance to work
     my $repounchanged = $gctx->{'repounchanged'};
     if (!$repounchanged->{$prp} || (!%unfinished && !$gctx->{'prpfinished'}->{$prp})) {
-      sendrepochangeevent($gctx, $prp);
+      BSSched::Events::sendrepochangeevent($gctx, $prp);
       $repounchanged->{$prp} = 1;
     } elsif ($repounchanged->{$prp} == 2) {
-      sendrepochangeevent($gctx, $prp, 'repoinfo');
+      BSSched::Events::sendrepochangeevent($gctx, $prp, 'repoinfo');
       $repounchanged->{$prp} = 1;
     }
 

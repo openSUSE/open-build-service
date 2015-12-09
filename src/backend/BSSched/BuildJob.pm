@@ -493,9 +493,9 @@ sub fakejobfinished {
   close(F);
   my $ev = {'type' => 'built', 'arch' => $myarch, 'job' => $job};
   if ($needsign) {
-    main::sendevent($gctx, $ev, 'signer', "finished:$myarch:$job");
+    BSSched::Events::sendevent($gctx, $ev, 'signer', "finished:$myarch:$job");
   } else {
-    main::sendevent($gctx, $ev, $myarch, "finished:$job");
+    BSSched::Events::sendevent($gctx, $ev, $myarch, "finished:$job");
   }
 }
 

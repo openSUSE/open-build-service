@@ -290,7 +290,7 @@ sub check {
       if (!$gbininfo && $arch ne $myarch && -d "$gctx->{'eventdir'}/$arch") {
 	# mis-use unblocked to tell other scheduler that it is missing
 	print "    requesting :repoinfo for $aprp/$arch\n";
-	main::sendunblockedevent($gctx, $aprp, $arch);
+	BSSched::Events::sendunblockedevent($gctx, $aprp, $arch);
       }
       @apackids = BSUtil::unify(@apackids, sort keys %$gbininfo) if $gbininfo;
 
@@ -392,7 +392,7 @@ sub check {
     # looks good from our side. tell master arch to check it
     if (-e "$markerdir/.waiting_for_$myarch") {
       unlink("$markerdir/.waiting_for_$myarch");
-      main::sendunblockedevent($gctx, $prp, $buildarch);
+      BSSched::Events::sendunblockedevent($gctx, $prp, $buildarch);
       print "      - $packid (kiwi-product)\n";
       print "        unblocked\n";
     }

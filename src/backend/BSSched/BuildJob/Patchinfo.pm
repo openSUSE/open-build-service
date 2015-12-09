@@ -159,7 +159,7 @@ sub check {
     if (!$blocked) {
       if (-e "$markerdir/.waiting_for_$myarch") {
         unlink("$markerdir/.waiting_for_$myarch");
-        main::sendunblockedevent($gctx, "$projid/$repoid", $buildarch);
+        BSSched::Events::sendunblockedevent($gctx, "$projid/$repoid", $buildarch);
         print "      - $packid (patchinfo)\n";
         print "        unblocked\n";
       }
@@ -168,7 +168,7 @@ sub check {
       # hmm, we should be blocked. trigger build arch check
       if (!-e "$markerdir/.waiting_for_$myarch") {
         BSUtil::touch("$reporoot/$projid/$repoid/$buildarch/:schedulerstate.dirty") if -d "$reporoot/$projid/$repoid/$buildarch";
-        main::sendunblockedevent($gctx, "$projid/$repoid", $buildarch);
+        BSSched::Events::sendunblockedevent($gctx, "$projid/$repoid", $buildarch);
         print "      - $packid (patchinfo)\n";
         print "        blocked\n";
       }
