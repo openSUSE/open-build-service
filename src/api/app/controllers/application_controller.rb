@@ -124,7 +124,7 @@ class ApplicationController < ActionController::Base
         if ::Configuration.registration == "deny"
           logger.debug( "No user found in database, creation disabled" )
           @http_user=nil
-          raise AuthenticationRequiredError.new "User '#{login}' does not exist<br>#{errstr}"
+          raise AuthenticationRequiredError.new "User '#{login}' does not exist.<br>"
         end
         logger.debug( "No user found in database, creating" )
         logger.debug( "Email: #{ldap_info[0]}" )
@@ -140,9 +140,10 @@ class ApplicationController < ActionController::Base
         unless newuser.errors.empty?
           errstr = String.new
           logger.debug("Creating User failed with: ")
-          newuser.errors.each_full do |msg|
-            errstr = errstr+msg
-            logger.debug(msg)
+          newuser.errors.each do |attr, msg|
+            errstr_tmp = "#{attr} #{msg}"
+            errstr << errstr_tmp
+            logger.debug(errstr_tmp)
           end
           @http_user=nil
           raise AuthenticationRequiredError.new "Cannot create ldap userid: '#{login}' on OBS<br>#{errstr}"
@@ -183,7 +184,7 @@ class ApplicationController < ActionController::Base
       unless @http_user
         if ::Configuration.registration == "deny"
           logger.debug("No user found in database, creation disabled")
-          raise AuthenticationRequiredError.new "User '#{login}' does not exist<br>#{errstr}"
+          raise AuthenticationRequiredError.new "User '#{login}' does not exist.<br>"
         end
         state = User.states['confirmed']
         state = User.states['unconfirmed'] if ::Configuration.registration == "confirmation"
