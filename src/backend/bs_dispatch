@@ -1159,8 +1159,12 @@ while (1) {
     my $ic = $infocache{$arch};
     $ic = $infocache{$arch} = {} unless $ic;
     for my $job (@b) {
-      $ic->{$job} ||= readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1) || {};
       my $info = $ic->{$job};
+      if (!$info) {
+	$info = readxml("$jobsdir/$arch/$job", $BSXML::buildinfo, 1);
+	next unless $info && $info->{'file'} && $info->{'file'} ne '_aggregate';
+	$ic->{$job} = $info;
+      }
       # clean up job a bit
       for (qw{bdep subpack imagetype}) {
         delete $info->{$_};
@@ -1178,6 +1182,7 @@ while (1) {
 	}
       }
     }
+    @b = grep {$ic->{$_}} @b;
     @b = List::Util::shuffle(@b);
     @b = sort {($ic->{$b}->{'needed'} || 0) <=> ($ic->{$a}->{'needed'} || 0) || ($ic->{$a}->{'readytime'} || 0) <=> ($ic->{$b}->{'readytime'} || 0)} @b;
     my %powerjobs;
