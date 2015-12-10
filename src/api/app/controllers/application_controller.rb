@@ -137,7 +137,7 @@ class ApplicationController < ActionController::Base
       unless @http_user
         if ::Configuration.registration == "deny"
           logger.debug("No user found in database, creation disabled")
-          raise AuthenticationRequiredError.new "User '#{login}' does not exist<br>#{errstr}"
+          raise AuthenticationRequiredError.new "User '#{login}' does not exist."
         end
         # Generate and store a fake pw in the OBS DB that no-one knows
         # FIXME: we should allow NULL passwords in DB, but that needs user management cleanup
