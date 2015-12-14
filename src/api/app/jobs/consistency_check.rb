@@ -12,7 +12,7 @@ class ConsistencyCheckJob < ActiveJob::Base
     User.current ||= User.get_default_admin
     errors = ""
     errors = project_existens_consistency_check(fix)
-    Project.all.each do |prj|
+    Project.find_each(batch_size: 100) do |prj|
       errors << package_existens_consistency_check(prj, fix)
       errors << project_meta_check(prj, fix)
     end
@@ -102,6 +102,12 @@ class ConsistencyCheckJob < ActiveJob::Base
 
   def package_existens_consistency_check(prj, fix = nil)
     errors=""
+    begin
+      prj.reload
+    rescue ActiveRecord::RecordNotFound
+      # project disappeared ... may happen in running system
+      return ""
+    end
     # compare all packages
     package_list_api = prj.packages.pluck(:name)
 
@@ -109,7 +115,7 @@ class ConsistencyCheckJob < ActiveJob::Base
 
     diff = package_list_api - package_list_backend
     unless diff.empty?
-      errors << "Additional in api of project #{prj.name}:\n #{diff}\n"
+      errors << "Additional package in api project #{prj.name}:\n #{diff}\n"
       if fix
         # delete database object, can be undeleted
         diff.each do |package|
@@ -121,7 +127,7 @@ class ConsistencyCheckJob < ActiveJob::Base
 
     diff = package_list_backend - package_list_api
     unless diff.empty?
-      errors << "Additional in backend of project #{prj.name}:\n #{diff}\n"
+      errors << "Additional package in backend project #{prj.name}:\n #{diff}\n"
 
       if fix
         # restore from backend
