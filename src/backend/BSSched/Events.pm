@@ -33,7 +33,7 @@ use BSSched::BuildJob;
 use BSSched::BuildJob::Upload;
 use BSSched::BuildJob::Import;
 
-=head1 NAME 
+=head1 NAME
 
  BSSched::Events
 
@@ -549,7 +549,7 @@ sub process_one {
 
 sub order {
   my ($ectx, @events) = @_;
-  if (@events > 1) { 
+  if (@events > 1) {
     # sort events a bit, exit events go first ;-)
     # uploadbuild/import events must go last
     my %evprio = ('exit' => -1, 'exitcomplete' => -1, 'restart' => -1, 'uploadbuild' => 1, 'import' => 1);
@@ -558,7 +558,7 @@ sub order {
                     ($a->{'project'} || '') cmp ($b->{'project'} || '') ||
                     ($a->{'job'} || '') cmp ($b->{'job'} || '')
                     } @events;
-    }    
+    }
   return @events;
 }
 
@@ -712,7 +712,7 @@ sub sendevent {
 
   my $eventdir = $gctx->{'eventdir'};
   mkdir_p("$eventdir/$arch");
-  $evname = "$ev->{'type'}:::".Digest::MD5::md5_hex($evname) if length($evname) > 200; 
+  $evname = "$ev->{'type'}:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
   writexml("$eventdir/$arch/.$evname$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);
   local *F;
   if (sysopen(F, "$eventdir/$arch/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
@@ -769,14 +769,14 @@ sub sendunblockedevent {
 =cut
 
 sub sendpublishevent {
-  my ($gctx, $prp) = @_; 
+  my ($gctx, $prp) = @_;
 
-  my ($projid, $repoid) = split('/', $prp, 2); 
-  my $ev = { 
+  my ($projid, $repoid) = split('/', $prp, 2);
+  my $ev = {
     'type' => 'publish',
     'project' => $projid,
     'repository' => $repoid,
-  };  
+  };
   sendevent($gctx, $ev, 'publish', "${projid}::$repoid");
 }
 
@@ -795,6 +795,46 @@ sub sendimportevent {
   };
   # prefix with "import." so that there's no name conflict
   sendevent($gctx, $ev, $arch, "import.$job");
+}
+
+###
+###  Rery events
+###
+
+=head2 addretryevent - add an event to the retry queue
+
+ TODO
+
+=cut
+
+sub addretryevent {
+  my ($gctx, $ev) = @_;
+  for my $oev (@{$gctx->{'retryevents'}}) {
+    next if $ev->{'type'} ne $oev->{'type'} || $ev->{'project'} ne $oev->{'project'};
+    if ($ev->{'type'} eq 'repository' || $ev->{'type'} eq 'recheck') {
+      next if $ev->{'repository'} ne $oev->{'repository'};
+    } elsif ($ev->{'type'} eq 'package') {
+      next if ($ev->{'package'} || '') ne ($oev->{'package'} || '');
+    }
+    return;
+  }
+  $ev->{'retry'} = time() + 60;
+  push @{$gctx->{'retryevents'}}, $ev;
+}
+
+=head2 getretryevents - get all due retry events from the retry queue
+
+=cut
+
+sub getretryevents {
+  my ($gctx) = @_;
+  my $retryevents = $gctx->{'retryevents'};
+  my $now = time();
+  my @due = grep {$_->{'retry'} <= $now} @$retryevents;
+  return () unless @due;
+  @$retryevents = grep {$_->{'retry'} > $now} @$retryevents;
+  delete $_->{'retry'} for @due;
+  return @due;
 }
 
 1;

@@ -733,7 +733,7 @@ NEXTPRP:
 
     # add retry events
     if (@{$gctx->{'retryevents'}}) {
-      my @due = BSSched::Remote::getretryevents($gctx);
+      my @due = BSSched::Events::getretryevents($gctx);
       if (@due) {
 	print "retrying ".@due." events\n";
 	push @events, @due;

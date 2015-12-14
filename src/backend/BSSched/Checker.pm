@@ -181,7 +181,7 @@ sub setup {
       my $error = $remoteprojs->{$aprojid}->{'error'} if $remoteprojs->{$aprojid} && $remoteprojs->{$aprojid}->{'error'};
       if ($error) {
         if ($error =~ /interconnect error:/) {
-          BSSched::Remote::addretryevent($gctx, {'type' => 'project', 'project' => $aprojid});
+          BSSched::Events::addretryevent($gctx, {'type' => 'project', 'project' => $aprojid});
         }
 	return (0, "$aprojid: $error");
       }
@@ -595,7 +595,7 @@ sub checkpkgs {
 
   # copy old data over if we have missing packages
   if ($projpacks->{$projid}->{'missingpackages'}) {
-    BSSched::Remote::addretryevent($gctx, {'type' => 'package', 'project' => $projid});
+    BSSched::Events::addretryevent($gctx, {'type' => 'package', 'project' => $projid});
     $oldpackstatus = BSUtil::retrieve("$gdst/:packstatus", 1) || {};
     $oldpackstatus->{'packstatus'} ||= {};
     $oldpackstatus->{'packerror'} ||= {};
@@ -674,7 +674,7 @@ sub checkpkgs {
 	next;
       }
       if ($pdata->{'error'} eq 'delayed startup' || $pdata->{'error'} =~ /interconnect error:/) {
-	BSSched::Remote::addretryevent($gctx, {'type' => 'package', 'project' => $projid, 'package' => $packid});
+	BSSched::Events::addretryevent($gctx, {'type' => 'package', 'project' => $projid, 'package' => $packid});
 	$ctx->{'havedelayed'} = 1;
 	$packstatus{$packid} = 'blocked';
 	$packerror{$packid} = $pdata->{'error'};

@@ -30,6 +30,7 @@ use BSSolv;	# for depsort
 use Storable;
 use BSConfiguration;
 use BSSched::Remote;
+use BSSched::Events;	# for addretryevents
 
 =head2 checkbuildrepoid - TODO: add summary
 
@@ -160,7 +161,7 @@ sub get_projpacks_resume {
   if ($error) {
     chomp $error;
     warn("$error\n");
-    BSSched::Remote::addretryevent($gctx, {'type' => 'package', 'project' => $projid});
+    BSSched::Events::addretryevent($gctx, {'type' => 'package', 'project' => $projid});
     return;
   }
   my $projpacks = $gctx->{'projpacks'};
