@@ -751,6 +751,7 @@ NEXTPRP:
 	  my $remoteurl = $watcher->{'remoteurl'};
 	  if (!defined($remoteurl)) {
 	    $gctx->{'rctx'}->xrpc_resume($watcher);
+	    $gotevent = 1;	# force loop restart
 	  } elsif ($remoteurl eq 'ping') {
             $gotevent = 1;
 	  } elsif ($watcher->{'retry'}) {
@@ -775,6 +776,7 @@ NEXTPRP:
       1 while (sysread(PING, $dummy, 1024, 0) || 0) > 0;
       # add events from myeventdir
       push @events, BSSched::Events::readevents($gctx, $gctx->{'myeventdir'});
+      next unless @events;
     }
 
     # process all collected events
