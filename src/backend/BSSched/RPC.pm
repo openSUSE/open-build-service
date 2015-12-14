@@ -259,13 +259,13 @@ sub xrpc_resume {
   if (@{$handle->{'_wakeup'} || []}) {
     my %did;
     for my $whandle (BSUtil::unify(@{$handle->{'_wakeup'} || []})) {
-      my $wctx = $whandle->{'ctx'};
+      my $wctx = $whandle->{'_ctx'};
       my $changeprp = $whandle->{'_changeprp'} || $wctx->{'changeprp'};
       my $changetype = $whandle->{'_changetype'} || $wctx->{'changetype'} || 'high';
       my $changelevel = $whandle->{'_changelevel'} || $wctx->{'changelevel'} || 1;
       next if !$changeprp || $did{"$changeprp/$changetype/$changelevel"};
       $did{"$changeprp/$changetype/$changelevel"} = 1;
-      $rctx->{'wakeupfunction'}->($whandle->{'_ctx'}, $whandle);
+      $rctx->{'wakeupfunction'}->($wctx, $whandle);
     }
   }
 }
