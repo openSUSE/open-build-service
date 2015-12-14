@@ -910,9 +910,6 @@ sub do_fetchprojpacks {
   }
   return unless %$fetchprojpacks;
 
-  # create context
-  my $ctx = {'gctx' => $gctx};
-
   # pass1: fetch all projpacks
   for my $projid (sort keys %$fetchprojpacks) {
     my $fetchedall;
