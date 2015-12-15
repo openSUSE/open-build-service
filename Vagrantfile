@@ -11,10 +11,9 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Every Vagrant virtual environment requires a box to build off of.
   config.vm.define "frontend" , primary: true do |fe|
-    fe.vm.box = 'webhippie/opensuse-13.2'
+    fe.vm.box = 'M0ses/openSUSE-Leap-42.1-minimal'
     # Provision the box with a simple shell script
-    fe.vm.provision :shell, path: 'bootstrap.sh'
-    fe.vm.provision :shell, inline: 'mount /vagrant/src/api/tmp', run: "always"
+    fe.vm.provision :shell, inline: '/vagrant/contrib/bootstrap_frontend.sh'
     
     # Execute commands in the frontend directory
     fe.exec.commands '*', directory: '/vagrant/src/api'
@@ -24,51 +23,42 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
 
   config.vm.define "appliance" , primary: true do |app|
-    app.vm.box = 'webhippie/opensuse-13.2'
+    app.vm.box = 'M0ses/openSUSE-Leap-42.1-minimal'
 
     # Provision the box with a simple shell script
-    app.vm.provision :shell, path: 'bootstrap-appliance.sh'
+    app.vm.provision :shell, inline: '/vagrant/contrib/bootstrap_appliance.sh'
 
     # reboot vm to run obsapisetup
     app.vm.provision :reload
 
     # finalize installation
-    app.vm.provision :shell, path: 'bootstrap-appliance-finalize.sh'
+    app.vm.provision :shell, inline: '/vagrant/contrib/bootstrap_appliance-finalize.sh'
 
   end
 
   config.vm.define "rpm-test" , primary: true do |rpmt|
-    rpmt.vm.box = 'webhippie/opensuse-13.2'
+    rpmt.vm.box = 'M0ses/openSUSE-Leap-42.1-minimal'
     # Provision the box with a simple shell script
     rpmt.vm.provision :shell, inline: <<SCRIPT
 export NO_CAT_LOG=1
-echo -e "\ninstalling required software packages...\n"
-echo 'solver.allowVendorChange = true' >> /etc/zypp/zypp.conf
 
-zypper -q ar -f http://download.opensuse.org/repositories/OBS:/Server:/Unstable/openSUSE_13.2/OBS:Server:Unstable.repo
-zypper -q --gpg-auto-import-keys refresh
-zypper -q -n install --no-recommends update-alternatives ruby-devel make gcc gcc-c++ patch cyrus-sasl-devel openldap2-devel libmysqld-devel libxml2-devel zlib-devel libxslt-devel nodejs mariadb memcached sphinx screen sphinx phantomjs obs-api-testsuite-deps inst-source-utils ruby2.2-rubygem-sqlite3
+. /vagrant/contrib/common.sh
 
-# The newer version creates false positives in test:api
-zypper -q -n install --force createrepo-0.9.9-10.35.1
+allow_vendor_change
 
-echo -e "\nsetup ruby binaries...\n"
-for bin in rake rdoc ri; do
-   /usr/sbin/update-alternatives --set $bin /usr/bin/$bin.ruby.ruby2.2
-done
+add_common_repos
 
-echo -e "\ndisabling versioned gem binary names...\n"
-echo 'install: --no-format-executable' >> /etc/gemrc
+install_common_packages
 
-gem install bundle
-BUNDLE_GEMFILE=/vagrant/src/api/Gemfile bundle install
+setup_ruby
 
+install_bundle
 
 make -C /vagrant
 make -C /vagrant install
 
 make -C /vagrant/src/api test
-#chown -R vagrant /vagrant
+chown -R vagrant /vagrant
 SCRIPT
 
   end
@@ -105,20 +95,13 @@ SCRIPT
 
   # Use 1Gb of RAM for Vagrant box (otherwise bundle will go to swap)
   config.vm.provider :virtualbox do |vb|
+
     vb.customize ['modifyvm', :id, '--memory', '2048']
     vb.destroy_unused_network_interfaces = true
-    config.vm.provision :shell, inline: <<SCRIPT
-echo "Setting up your OBS test backend..."
-# Put the backend data dir outside the shared folder so it can use hardlinks
-# which isn't possible with VirtualBox shared folders...
-mkdir /tmp/vagrant_tmp
-mkdir /tmp/vagrant_log/
-chown vagrant:users /tmp/vagrant_tmp
-chown vagrant:users -R /tmp/vagrant_log/
-echo -e "/tmp/vagrant_tmp /vagrant/src/api/tmp none bind 0 0" >> /etc/fstab
-echo -e "/tmp/vagrant_log /vagrant/src/api/log none bind 0 0" >> /etc/fstab
-mount -a
 
+    config.vm.provision :shell, inline: <<SCRIPT
+. /vagrant/contrib/common.sh
+setup_obs_backend
 SCRIPT
   end
 
