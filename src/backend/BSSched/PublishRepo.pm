@@ -16,6 +16,28 @@
 #
 package BSSched::PublishRepo;
 
+# ctx functions
+#   prpfinished
+#   publishdelta
+#
+# static functions
+#   compile_publishfilter
+#   mkdeltaname
+#
+# ctx usage
+#   gctx
+#   gdst
+#   prp
+#   conf
+#   prpsearchpath
+#
+# gctx usage
+#   arch
+#   reporoot
+#   projpacks
+#   myjobsdir
+#   extrepodir
+
 use strict;
 use warnings;
 

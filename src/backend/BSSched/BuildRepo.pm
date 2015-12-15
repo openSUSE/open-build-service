@@ -16,6 +16,62 @@
 #
 package BSSched::BuildRepo;
 
+# fctx functions
+#   fctx_set_metaidmd5
+#   fctx_check_linkedmeta
+#   fctx_add_binary_to_full
+#   fctx_del_binary_from_full
+#   fctx_gbininfo2full
+#   fctx_rebuild_full
+#   fctx_migrate_full
+#   fctx_integrate_package_into_full
+#   fctx_integrate_package_into_full_old
+#   move_into_full
+#
+# gctx functions
+#   sync_fullcache
+#   checkuseforbuild
+#
+# ctx functions
+#   addrepo
+#   addrepo_alien
+#   addrepo_scan
+#
+# static functions
+#   writesolv
+#   
+# fctx usage
+#   metaid
+#   metamd5
+#   lastmeta
+#   linkedmeta
+#   gdst
+#   packid
+#   meta
+#   dst
+#   oldids
+#   metacache
+#   metacache_ismerge
+#   dep2meta
+#   gctx
+#   prp
+#   filter
+#   olduseforbuild
+#   newuseforbuild
+#
+# gctx usage
+#   arch
+#   projpacks
+#   repodatas
+#   reporoot
+#   remoteprojs
+#   repodatas_alien
+#   prpnotready
+#
+# ctx usage
+#   gctx
+
+
 =head1 NAME
 
 BSSched::BuildRepo - create repository which is used for build

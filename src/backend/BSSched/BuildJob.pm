@@ -17,6 +17,64 @@
 
 package BSSched::BuildJob;
 
+# gctx functions
+#   init_ourjobs
+#   purgejob
+#   killjob
+#   killscheduled
+#   killbuilding
+#   killunwantedjobs
+#   writejob
+#   add_crossmarker
+#   update_buildavg
+#   patchpackstatus
+#   addjobhist
+#   path2buildinfopath
+#
+# ectx functions
+#   jobfinished
+#
+# ctx functions
+#   fakejobfinished
+#   fakejobfinished_nouseforbuild
+#   nextbcnt
+#   create
+#   metacheck
+#
+# static functions
+#   jobname
+#   sortedmd5toreason
+#   diffsortedmd5
+#
+# gctx usage
+#   myjobsdir
+#   jobsdir
+#   arch
+#   buildavg
+#   changed_med
+#   projpacks
+#   reporoot
+#   prpsearchpath
+#   repounchanged
+#   obsname
+#   remoteprojs
+#
+# ctx usage
+#   gctx
+#   project
+#   repository
+#   gdst
+#   relsyncmax
+#   conf
+#   prpsearchpath
+#   sysbuild_$buildtype
+#   pool
+#   prp
+#
+# ectx usage
+#   gctx
+#   fullcache
+
 use strict;
 use warnings;
 

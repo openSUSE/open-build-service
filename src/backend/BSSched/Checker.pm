@@ -920,4 +920,19 @@ sub publish {
   return ($schedulerstate, $schedulerdetails);
 }
 
+sub xrpc {
+  my ($ctx, $resource, $param, @args) = @_;
+  return $ctx->{'gctx'}->{'rctx'}->xrpc($ctx, $resource, $param, @args);
+}
+
+sub setchanged {
+  my ($ctx, $handle) = @_;
+  my $gctx = $ctx->{'gctx'};
+  die("no gctx in ctx\n") unless $gctx;
+  my $changeprp = $handle->{'_changeprp'} || $ctx->{'changeprp'};
+  my $changetype = $handle->{'_changetype'} || $ctx->{'changetype'} || 'high';
+  my $changelevel = $handle->{'_changelevel'} || $ctx->{'changelevel'} || 1;
+  BSSched::Lookat::setchanged($gctx,  $changeprp, $changetype, $changelevel);
+}
+
 1;

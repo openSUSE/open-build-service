@@ -462,7 +462,7 @@ my $gctx = {
 
 my $rctx = BSSched::RPC->new(
   'maxserverload' => $maxserverload,
-  'wakeupfunction' => \&BSSched::Lookat::setchanged,
+  'wakeupfunction' => \&BSSched::Checker::setchanged,
 );
 
 $gctx->{'rctx'} = $rctx;

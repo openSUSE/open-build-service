@@ -22,22 +22,18 @@ use warnings;
 use BSUtil;
 
 
-=head2 add a prp to the lookat queue and the dependent prps to the changed hashes
+=head2 setchanged - add a prp to the lookat queue and the dependent prps to the changed hashes
 
  TODO
 
 =cut
 
 sub setchanged {
-  my ($ctx, $handle) = @_;
+  my ($gctx, $changeprp, $changetype, $changelevel) = @_;
 
-  my $gctx = $ctx->{'gctx'};
-  die("no gctx in ctx\n") unless $gctx;
-
-  my $changeprp = $handle->{'_changeprp'} || $ctx->{'changeprp'};
-  my $changetype = $handle->{'_changetype'} || $ctx->{'changetype'} || 'high';
-  my $changelevel = $handle->{'_changelevel'} || $ctx->{'changelevel'} || 1;
   return unless $changeprp;
+  $changetype ||= 'high';
+  $changelevel ||= 1;
 
   my $changed = $gctx->{"changed_$changetype"};
   my $changed_dirty = $gctx->{'changed_dirty'};

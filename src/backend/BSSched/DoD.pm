@@ -138,7 +138,7 @@ sub dodcheck {
 sub dodfetch_resume {
   my ($ctx, $handle, $error) = @_;
   return if $error;     # hmm
-  BSSched::Lookat::setchanged($ctx, $handle);
+  $ctx->setchanged($handle);
   # drop cache
   my $gctx = $ctx->{'gctx'};
   my $myarch = $gctx->{'arch'};
@@ -182,7 +182,7 @@ sub dodfetch {
         '_prpa' => $prpa,
       },
     };
-    $gctx->{'rctx'}->xrpc($ctx, "dodfetch/$prpa", $param, undef, "view=binaryversions", map {"binary=$_"} @pkgs);
+    $ctx->xrpc("dodfetch/$prpa", $param, undef, "view=binaryversions", map {"binary=$_"} @pkgs);
   }
 }
 

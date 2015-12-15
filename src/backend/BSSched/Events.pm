@@ -26,6 +26,7 @@ use BSUtil;
 use BSXML;
 use BSConfiguration;
 use BSSolv;
+use BSSched::Checker;
 use BSSched::BuildResult;
 use BSSched::BuildRepo;
 use BSSched::ProjPacks;
@@ -260,8 +261,9 @@ sub event_scanrepo {
     my $prp = "$projid/$repoid";
     print "reading packages of repository $projid/$repoid\n";
     delete $gctx->{'repodatas'}->{$prp};
+    my $ctx = BSSched::Checker->new($gctx, $prp);
     my $pool = BSSolv::pool->new();
-    BSSched::BuildRepo::addrepo({'gctx' => $gctx, 'prp' => $prp}, $pool, $prp);
+    BSSched::BuildRepo::addrepo($ctx, $pool, $prp);
     undef $pool;
     $changed_high->{$prp} = 2;
     delete $gctx->{'repounchanged'}->{$prp};

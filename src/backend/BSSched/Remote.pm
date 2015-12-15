@@ -16,6 +16,49 @@
 #
 package BSSched::Remote;
 
+# gctx functions
+#   beginwatchcollection
+#   endwatchcollection
+#   addwatchremote
+#   updateremoteprojs
+#   remoteprojid
+#   fetchremoteproj
+#   fetchremoteconfig
+#   remotemap2remoteprojs
+#   setupremotewatcher
+#   getremoteevents
+#   addrepo_remote_unpackcpio
+#   convertpackagebinarylist
+#   cleanup_remotepackstatus
+
+# ctx functions
+#   addrepo_remote
+#   addrepo_remote_resume
+#   read_gbininfo_remote
+#   read_gbininfo_remote_resume
+#
+# gctx usage
+#   watchremote
+#   watchremoteprojs
+#   projpacks
+#   remoteprojs
+#   arch
+#   remoteproxy
+#   obsname
+#   asyncmode
+#   rctx
+#   repodatas
+#   repodatas_alien
+#   remotecache
+#   prpnotready
+#   remotegbininfos
+#   remotepackstatus
+#   remotepackstatus_cleanup
+#
+# ctx usage
+#   gctx
+#   prp
+
 use strict;
 use warnings;
 
@@ -425,14 +468,14 @@ sub addrepo_remote {
   eval {
     die('unsupported view\n') unless $remoteproj->{'partition'} || defined($BSConfig::usesolvstate) && $BSConfig::usesolvstate;
     $param->{'async'}->{'_solvok'} = 1 if $param->{'async'};
-    $cpio = $gctx->{'rctx'}->xrpc($ctx, "repository/$prp/$arch", $param, undef, 'view=solvstate');
+    $cpio = $ctx->xrpc("repository/$prp/$arch", $param, undef, 'view=solvstate');
     $solvok = 1 if $cpio;
   };
   if ($@ && $@ =~ /unsupported view/) {
     $solvok = undef;
     delete $param->{'async'}->{'_solvok'} if $param->{'async'};
     eval {
-      $cpio = $gctx->{'rctx'}->xrpc($ctx, "repository/$prp/$arch", $param, undef, 'view=cache');
+      $cpio = $ctx->xrpc("repository/$prp/$arch", $param, undef, 'view=cache');
     };
   }
   if ($@) {
@@ -447,7 +490,7 @@ sub addrepo_remote_resume {
   my $gctx = $ctx->{'gctx'};
   my $pool = BSSolv::pool->new();
   my $r = addrepo_remote_unpackcpio($gctx, $pool, $handle->{'_prp'}, $handle->{'_arch'}, $cpio, $handle->{'_solvok'}, $error);
-  BSSched::Lookat::setchanged($ctx, $handle) unless !$r && $error && BSSched::RPC::is_transient_error($error);
+  $ctx->setchanged($handle) unless !$r && $error && BSSched::RPC::is_transient_error($error);
 }
 
 sub addrepo_remote_unpackcpio {
@@ -610,9 +653,9 @@ sub read_gbininfo_remote {
   eval {
     if ($remoteproj->{'partition'}) {
       $param->{'async'}->{'_isgbininfo'} = 1 if $param->{'async'};
-      $packagebinarylist = $gctx->{'rctx'}->xrpc($ctx, "bininfo/$prpa", $param, \&BSUtil::fromstorable, "view=gbininfocode");
+      $packagebinarylist = $ctx->xrpc("bininfo/$prpa", $param, \&BSUtil::fromstorable, "view=gbininfocode");
     } else {
-      $packagebinarylist = $gctx->{'rctx'}->xrpc($ctx, "bininfo/$prpa", $param, $BSXML::packagebinaryversionlist, "view=binaryversionscode");
+      $packagebinarylist = $ctx->xrpc("bininfo/$prpa", $param, $BSXML::packagebinaryversionlist, "view=binaryversionscode");
     }
   };
   if ($@) {
@@ -637,7 +680,7 @@ sub read_gbininfo_remote_resume {
   my ($ctx, $handle, $error, $packagebinarylist) = @_;
   my $gctx = $ctx->{'gctx'};
   convertpackagebinarylist($gctx, $handle->{'_prpa'}, $packagebinarylist, $error, $ctx->{'prp'}, $handle->{'_isgbininfo'});
-  BSSched::Lookat::setchanged($ctx, $handle);
+  $ctx->setchanged($handle);
 }
 
 sub convertpackagebinarylist {

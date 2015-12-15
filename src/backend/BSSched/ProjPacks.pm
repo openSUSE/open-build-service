@@ -16,6 +16,52 @@
 #
 package BSSched::ProjPacks;
 
+# gctx functions
+#   checkbuildrepoid
+#   get_projpacks
+#   get_projpacks_resume
+#   update_projpacks
+#   update_project_meta
+#   update_project_meta_check
+#   update_project_meta_resume
+#   update_projpacks_meta
+#   clone_projpacks_part
+#   postprocess_needed_check
+#   get_projpacks_postprocess
+#   calc_projpacks_linked
+#   find_linked_sources
+#   expandsearchpath
+#   expandprojlink
+#   calc_prps
+#   do_delayedprojpackfetches
+#   do_fetchprojpacks
+#   getconfig
+#   update_prpcheckuseforbuild
+#
+# static functions
+#   orderpackids
+#
+# gctx usage
+#   reporoot
+#   arch
+#   projpacks
+#   rctx
+#   testmode
+#   remoteprojs
+#   delayedfetchprojpacks
+#   changed_high
+#   changed_med
+#   changed_low
+#   changed_dirty
+#   prps
+#   channeldata
+#   projpacks_linked
+#   prpsearchpath
+#   prpdeps
+#   prpnoleaf
+#   asyncmode
+#   prpcheckuseforbuild
+
 use strict;
 use warnings;
 
@@ -91,19 +137,18 @@ sub get_projpacks {
   while (1) {
     push @args, 'nopackages' if $testprojid && $projid ne $testprojid;
     for my $tries (4, 3, 2, 1, 0) {
-      my $ctx = {'gctx' => $gctx, 'changeprp' => $projid, '_orderedrpcs' => 1};
       my $param = {
 	'uri' => "$BSConfig::srcserver/getprojpack",
       };
       if ($doasync) {
-	$param->{'async'} = { %$doasync, '_resume' => \&get_projpacks_resume, '_projid' => $projid };
+	$param->{'async'} = { %$doasync, '_resume' => \&get_projpacks_resume, '_projid' => $projid, '_changeprp' => $projid };
 	$param->{'async'}->{'_packids'} = [ @packids ] if @packids;
       }
       eval {
 	if ($usestorableforprojpack) {
-	  $projpacksin = $gctx->{'rctx'}->xrpc($ctx, $projid, $param, \&BSUtil::fromstorable, 'view=storable', 'withsrcmd5', 'withdeps', 'withrepos', 'withconfig', 'withremotemap', "arch=$myarch", @args);
+	  $projpacksin = $gctx->{'rctx'}->xrpc($gctx, $projid, $param, \&BSUtil::fromstorable, 'view=storable', 'withsrcmd5', 'withdeps', 'withrepos', 'withconfig', 'withremotemap', "arch=$myarch", @args);
 	} else {
-	  $projpacksin = $gctx->{'rctx'}->xrpc($ctx, $projid, $param, $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'withconfig', 'withremotemap', "arch=$myarch", @args);
+	  $projpacksin = $gctx->{'rctx'}->xrpc($gctx, $projid, $param, $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'withconfig', 'withremotemap', "arch=$myarch", @args);
 	}
       };
       return 0 if !$@ && $projpacksin && $param->{'async'};
@@ -152,9 +197,7 @@ sub get_projpacks {
 =cut
 
 sub get_projpacks_resume {
-  my ($ctx, $handle, $error, $projpacksin) = @_;
-
-  my $gctx = $ctx->{'gctx'};
+  my ($gctx, $handle, $error, $projpacksin) = @_;
 
   # what we asked about
   my $projid = $handle->{'_projid'};
@@ -225,7 +268,7 @@ sub get_projpacks_resume {
   # no need to call setchanged if this is a package source change event
   # and the project does not exist (i.e. lives on another partition)
   return if $packids && !$projpacks->{$projid};
-  BSSched::Lookat::setchanged($ctx, $handle);
+  BSSched::Lookat::setchanged($gctx, $projid, $handle->{'_changetype'}, $handle->{'_changelevel'});
 }
 
 =head2 update_projpacks - incorporate all the new data from projpacksin into our projpacks data
@@ -326,21 +369,20 @@ sub update_project_meta {
   my ($gctx, $doasync, $projid) = @_;
   print "updating meta for project '$projid' from $BSConfig::srcserver\n";
 
-  my $ctx = {'gctx' => $gctx, 'changeprp' => $projid, '_orderedrpcs' => 1};
   my $myarch = $gctx->{'arch'};
   my $projpacksin;
   my $param = {
     'uri' => "$BSConfig::srcserver/getprojpack",
   };
   if ($doasync) {
-    $param->{'async'} = { %$doasync, '_resume' => \&update_project_meta_resume, '_projid' => $projid };
+    $param->{'async'} = { %$doasync, '_resume' => \&update_project_meta_resume, '_projid' => $projid, '_changeprp' => $projid };
   }
   my @args;
   push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
   push @args, "project=$projid";
   eval {
     # withsrcmd5 is needed for the patterns md5sum
-    $projpacksin = $gctx->{'rctx'}->xrpc($ctx, $projid, $param, $BSXML::projpack, 'nopackages', 'withrepos', 'withconfig', 'withsrcmd5', "arch=$myarch", @args);
+    $projpacksin = $gctx->{'rctx'}->xrpc($gctx, $projid, $param, $BSXML::projpack, 'nopackages', 'withrepos', 'withconfig', 'withsrcmd5', "arch=$myarch", @args);
   };
   if ($@ || !$projpacksin) {
     print $@ if $@;
@@ -395,9 +437,8 @@ sub update_project_meta_check {
 
 =cut
 sub update_project_meta_resume {
-  my ($ctx, $handle, $error, $projpacksin) = @_;
+  my ($gctx, $handle, $error, $projpacksin) = @_;
 
-  my $gctx = $ctx->{'gctx'};
   my $projid = $handle->{'_projid'};
   if ($error || !update_project_meta_check($gctx, $projid, $projpacksin)) {
     if ($error) {
@@ -423,12 +464,12 @@ sub update_project_meta_resume {
       my $async = {'_dolink' => 2, '_changetype' => 'high', '_changelevel' => 1};
       get_projpacks($gctx, $async, $projid, @$packids);
     } else {
-      BSSched::Lookat::setchanged($ctx, $handle);
+      BSSched::Lookat::setchanged($gctx, $projid, $handle->{'_changetype'}, $handle->{'_changelevel'});
     }
   } else {
     # project is gone!
     delete $handle->{'_lpackids'};
-    get_projpacks_resume($ctx, $handle, $error, $projpacksin);
+    get_projpacks_resume($gctx, $handle, $error, $projpacksin);
   }
 }
 
