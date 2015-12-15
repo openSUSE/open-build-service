@@ -11,10 +11,10 @@ class ConsistencyCheckJob < ActiveJob::Base
   def perform(fix = nil)
     User.current ||= User.get_default_admin
     errors = ""
-    errors = project_existens_consistency_check(fix)
-    Project.all.each do |prj|
-      errors << package_existens_consistency_check(prj, fix)
-      errors << project_meta_check(prj, fix)
+    errors = project_existence_consistency_check(fix)
+    Project.find_each(batch_size: 100) do |project|
+      errors << package_existence_consistency_check(project, fix)
+      errors << project_meta_check(project, fix)
     end
     unless errors.blank?
       Rails.logger.error("Detected problems during consistency check")
@@ -24,12 +24,12 @@ class ConsistencyCheckJob < ActiveJob::Base
     nil
   end
 
-  def project_meta_check(prj, fix = nil)
+  def project_meta_check(project, fix = nil)
     errors=""
     # WARNING: this is using the memcache content. should maybe dropped before
-    api_meta = prj.to_axml
+    api_meta = project.to_axml
     begin
-      backend_meta = Suse::Backend.get("/source/#{prj.name}/_meta").body
+      backend_meta = Suse::Backend.get("/source/#{project.name}/_meta").body
     rescue ActiveXML::Transport::NotFoundError
       # project disappeared ... may happen in running system
       return ""
@@ -43,17 +43,17 @@ class ConsistencyCheckJob < ActiveJob::Base
 
     diff = hash_diff(api_hash, backend_hash)
     if diff.size > 0
-      errors << "Project meta is different in backend for #{prj.name}\n#{diff}\n"
+      errors << "Project meta is different in backend for #{project.name}\n#{diff}\n"
       if fix
         # Assume that api is right
-        prj.store({login: "Admin", comment: "out-of-sync fix"})
+        project.store({login: "Admin", comment: "out-of-sync fix"})
       end
     end
 
     errors
   end
 
-  def project_existens_consistency_check(fix = nil)
+  def project_existence_consistency_check(fix = nil)
     errors=""
     # compare projects
     project_list_api = Project.all.pluck(:name).sort
@@ -70,8 +70,8 @@ class ConsistencyCheckJob < ActiveJob::Base
       if fix
         # just delete ... if it exists in backend it can be undeleted
         diff.each do |project|
-          prj = Project.find_by_name project
-          prj.destroy if prj
+          project = Project.find_by_name project
+          project.destroy if project
         end
       end
     end
@@ -85,13 +85,13 @@ class ConsistencyCheckJob < ActiveJob::Base
         diff.each do |project|
           begin
             meta = Suse::Backend.get("/source/#{project}/_meta").body
-            prj = Project.new(name: project)
-            prj.update_from_xml(Xmlhash.parse(meta))
-            prj.save!
+            project = Project.new(name: project)
+            project.update_from_xml(Xmlhash.parse(meta))
+            project.save!
           rescue ActiveRecord::RecordInvalid,
                  ActiveXML::Transport::NotFoundError
             Suse::Backend.delete("/source/#{project}")
-            errors << "DELETED in backend due to invalid data #{project}\n"
+            errors << "DELETED #{project.name} on backend due to invalid data\n"
           end
         end
       end
@@ -100,20 +100,26 @@ class ConsistencyCheckJob < ActiveJob::Base
     errors
   end
 
-  def package_existens_consistency_check(prj, fix = nil)
+  def package_existence_consistency_check(project, fix = nil)
     errors=""
+    begin
+      project.reload
+    rescue ActiveRecord::RecordNotFound
+      # project disappeared ... may happen in running system
+      return ""
+    end
     # compare all packages
-    package_list_api = prj.packages.pluck(:name)
+    package_list_api = project.packages.pluck(:name)
 
-    package_list_backend = dir_to_array(Xmlhash.parse(Suse::Backend.get("/source/#{prj.name}").body))
+    package_list_backend = dir_to_array(Xmlhash.parse(Suse::Backend.get("/source/#{project.name}").body))
 
     diff = package_list_api - package_list_backend
     unless diff.empty?
-      errors << "Additional in api of project #{prj.name}:\n #{diff}\n"
+      errors << "Additional package in api project #{project.name}:\n #{diff}\n"
       if fix
         # delete database object, can be undeleted
         diff.each do |package|
-          pkg = prj.packages.where(name: package).first
+          pkg = project.packages.where(name: package).first
           pkg.destroy if pkg
         end
       end
@@ -121,20 +127,20 @@ class ConsistencyCheckJob < ActiveJob::Base
 
     diff = package_list_backend - package_list_api
     unless diff.empty?
-      errors << "Additional in backend of project #{prj.name}:\n #{diff}\n"
+      errors << "Additional package in backend project #{project.name}:\n #{diff}\n"
 
       if fix
         # restore from backend
         diff.each do |package|
           begin
-            meta = Suse::Backend.get("/source/#{prj.name}/#{package}/_meta").body
-            pkg = prj.packages.new(name: package)
+            meta = Suse::Backend.get("/source/#{project.name}/#{package}/_meta").body
+            pkg = project.packages.new(name: package)
             pkg.update_from_xml(Xmlhash.parse(meta))
             pkg.save!
           rescue ActiveRecord::RecordInvalid,
                  ActiveXML::Transport::NotFoundError
-            Suse::Backend.delete("/source/#{prj.name}/#{package}")
-            errors << "DELETED in backend due to invalid data #{prj.name}/#{package}\n"
+            Suse::Backend.delete("/source/#{project.name}/#{package}")
+            errors << "DELETED in backend due to invalid data #{project.name}/#{package}\n"
           end
         end
       end
