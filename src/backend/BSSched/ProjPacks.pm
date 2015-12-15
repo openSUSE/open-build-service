@@ -869,22 +869,21 @@ sub calc_prps {
 
  See do_fetchprojpacks
 
+ Returns 0 if an async fetch is in progress.
+
 =cut
 
 sub do_delayedprojpackfetches {
   my ($gctx, $doasync, $projid, @packids) = @_;
-  return 0 unless @packids;
   my %packids = map {$_ => 1} @packids;
   if ($packids{'/all'}) {
     if ($doasync) {
       get_projpacks($gctx, $doasync, $projid);
-      return 0;
+      return 0;		# in progress
     }
     get_projpacks($gctx, undef, $projid);
     get_projpacks_postprocess($gctx);
-    %packids = ();
-  }    
-  if (%packids) {
+  } elsif (%packids) {
     @packids = sort keys %packids;
     if ($doasync) {
       get_projpacks($gctx, $doasync, $projid, @packids);
@@ -894,7 +893,7 @@ sub do_delayedprojpackfetches {
     get_projpacks($gctx, undef, $projid, @packids);
     get_projpacks_postprocess($gctx) if BSSched::ProjPacks::postprocess_needed_check($gctx, $projid, $oldprojdata);
   }
-  return 1;
+  return 1;		# all done
 }
 
 =head2 do_fetchprojpacks - TODO
@@ -941,7 +940,7 @@ sub do_fetchprojpacks {
       for my $lprp (@{$gctx->{'prps'}}) {
 	if ($linked->{(split('/', $lprp, 2))[0]}) {
 	  $changed_med->{$lprp} ||= 1;
-	  $changed_dirty->{$lprp} = 1; 
+	  $changed_dirty->{$lprp} = 1;
 	}
       }
     }
@@ -965,10 +964,10 @@ sub do_fetchprojpacks {
         my $async = { '_changetype' => 'high', '_changelevel' => 2 };
         $async->{'_changetype'} = 'low' if $lowprioproject->{$projid} && !$deepcheck->{$projid};
         $async->{'_lpackids'} = [ sort keys %packids ] if %packids;
+        $async->{'_dolink'} = 1 if $deepcheck->{$projid};
 	if ($projpacks->{$projid} && !$deepcheck->{$projid}) {
 	  update_project_meta($gctx, $async, $projid);
 	} else {
-	  $async->{'_dolink'} = 1 if $deepcheck->{$projid};
 	  get_projpacks($gctx, $async, $projid);
 	}
 	delete $fetchprojpacks->{$projid};	# backgrounded
@@ -988,19 +987,20 @@ sub do_fetchprojpacks {
     if (!$fetchedall) {
       # single package (source) changes
       my %packids = map {$_ => 1} grep {defined($_)} @{$fetchprojpacks->{$projid}};
+      next unless %packids;
       # remove em from the delay queue
-      if ($delayedfetchprojpacks->{$projid} && %packids) {
+      if ($delayedfetchprojpacks->{$projid}) {
 	$delayedfetchprojpacks->{$projid} = [ grep {!$packids{$_}} @{$delayedfetchprojpacks->{$projid} || []} ];
 	delete $delayedfetchprojpacks->{$projid} unless @{$delayedfetchprojpacks->{$projid}};
       }
-      if ($asyncmode && %packids) {
+      if ($asyncmode) {
 	# _dolink = 2: try to delay linked packages fetches
 	my $async = { '_dolink' => 2, '_changetype' => 'high', '_changelevel' => 1 };
 	get_projpacks($gctx, $async, $projid, sort keys %packids);
 	delete $fetchprojpacks->{$projid};	# backgrounded
 	next;
       }
-      get_projpacks($gctx, undef, $projid, sort keys %packids) if %packids;
+      get_projpacks($gctx, undef, $projid, sort keys %packids);
     } else {
       delete $delayedfetchprojpacks->{$projid};
     }
@@ -1082,7 +1082,7 @@ sub do_fetchprojpacks {
     get_projpacks_postprocess($gctx) if $projpackchanged;	# just in case...
   }
 
-  %$fetchprojpacks = ();
+  %$fetchprojpacks = ();		# all done
 }
 
 
@@ -1169,20 +1169,20 @@ sub orderpackids {
       # we ignore the name for maintenance release projects and sort only
       # by the incident number
       if ($kind eq 'maintenance_release') {
-        push @s, [ $_, '', $2]; 
+        push @s, [ $_, '', $2];
       } else {
-        push @s, [ $_, $1, $2]; 
-      }    
+        push @s, [ $_, $1, $2];
+      }
     } elsif (/^(.*)\.imported_.*?(\d+)$/) {
       # code11 import hack...
       if ($kind eq 'maintenance_release') {
         push @s, [ $_, '', $2 - 1000000];
       } else {
         push @s, [ $_, $1, $2 - 1000000];
-      }    
+      }
     } else {
       push @s, [ $_, $_, 99999999 ];
-    }    
+    }
   }
   @packids = map {$_->[0]} sort { $a->[1] cmp $b->[1] || $b->[2] <=> $a->[2] || $a->[0] cmp $b->[0] } @s;
   push @packids, @back;
@@ -1203,12 +1203,12 @@ sub update_prpcheckuseforbuild {
   if (!$proj) {
     for my $prp (keys %$prpcheckuseforbuild) {
       delete $prpcheckuseforbuild->{$prp} if (split('/', $prp, 2))[0] eq $projid;
-    }    
+    }
   } else {
     for my $repo (@{$proj->{'repository'}}) {
-      next unless grep {$_ eq $myarch} @{$repo->{'arch'} || []}; 
-      $prpcheckuseforbuild->{"$projid/$repo->{'name'}"} = 1; 
-    }    
+      next unless grep {$_ eq $myarch} @{$repo->{'arch'} || []};
+      $prpcheckuseforbuild->{"$projid/$repo->{'name'}"} = 1;
+    }
   }
 }
 

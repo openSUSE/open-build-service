@@ -201,13 +201,12 @@ sub writeschedulerinfo {
 
 
 sub updaterelsyncmax {
-  my ($gctx, $prp, $arch, $new, $cleanup) = @_;
-  my $reporoot = $gctx->{'reporoot'};
+  my ($dir, $new, $cleanup) = @_;
   local *F;
-  BSUtil::lockopen(\*F, '+>>', "$reporoot/$prp/$arch/:relsync.max");
+  BSUtil::lockopen(\*F, '+>>', "$dir/:relsync.max");
   my $relsyncmax;
-  if (-s "$reporoot/$prp/$arch/:relsync.max") {
-    $relsyncmax = BSUtil::retrieve("$reporoot/$prp/$arch/:relsync.max", 2);
+  if (-s "$dir/:relsync.max") {
+    $relsyncmax = BSUtil::retrieve("$dir/:relsync.max", 2);
   }
   $relsyncmax ||= {};
   my $changed;
@@ -222,7 +221,7 @@ sub updaterelsyncmax {
       $changed = 1;
     }
   }
-  BSUtil::store("$reporoot/$prp/$arch/.:relsync.max", "$reporoot/$prp/$arch/:relsync.max", $relsyncmax) if $changed;
+  BSUtil::store("$dir/.:relsync.max", "$dir/:relsync.max", $relsyncmax) if $changed;
   close(F);
   return $changed;
 }
@@ -232,12 +231,14 @@ sub sendrelsyncupdate {
 
   print "    updating relsync information\n";
   my $myarch = $gctx->{'arch'};
-  my $reporoot = $gctx->{'reporoot'};
+  my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
 
   my ($projid, $repoid) = split('/', $prp, 2);
   my $projpacks = $gctx->{'projpacks'};
   my $packs = ($projpacks->{$projid} || {})->{'package'} || {};
-  my $relsync = BSUtil::retrieve("$reporoot/$prp/$myarch/:relsync") || {};
+  # retrieve new data
+  my $relsync = BSUtil::retrieve("$gdst/:relsync") || {};
+  # convert to max format
   my $relsyncmax = {};
   for my $packid (sort keys %$relsync) {
     next unless $relsync->{$packid} =~ /^(.*)\.([^-]*)$/;
@@ -245,8 +246,9 @@ sub sendrelsyncupdate {
     next if defined($relsyncmax->{"$tag/$1"}) && $relsyncmax->{"$tag/$1"} >= $2;
     $relsyncmax->{"$tag/$1"} = $2;
   }
-  updaterelsyncmax($gctx, $prp, $myarch, $relsyncmax, $isfinished);
-  # sent new data!
+  # merge with relsync.max
+  updaterelsyncmax($gdst, $relsyncmax, $isfinished);
+  # send to other schedulers
   my $param = {
     'uri' => "$BSConfig::srcserver/relsync",
     'request' => 'POST',
@@ -256,9 +258,9 @@ sub sendrelsyncupdate {
     BSRPC::rpc($param, undef, "project=$projid", "repository=$repoid", "arch=$myarch");
   };
   if (!$@) {
-    unlink("$reporoot/$prp/$myarch/:relsync$$");
-    link("$reporoot/$prp/$myarch/:relsync", "$reporoot/$prp/$myarch/:relsync$$");
-    rename("$reporoot/$prp/$myarch/:relsync$$", "$reporoot/$prp/$myarch/:relsync.sent");
+    unlink("$gdst/:relsync$$");
+    link("$gdst/:relsync", "$gdst/:relsync$$");
+    rename("$gdst/:relsync$$", "$gdst/:relsync.sent");
   } else {
     warn($@);
   }
@@ -695,7 +697,6 @@ my $myarch = $gctx->{'arch'};
 eval {
 
   while(1) {
-NEXTPRP:
     if (%{$gctx->{'changed_low'}} || %{$gctx->{'changed_med'}} || %{$gctx->{'changed_high'}}) {
       BSSched::Lookat::changed2lookat($gctx);
       next;
@@ -881,16 +882,15 @@ NEXTPRP:
     }
 
     # do delayed projpack fetches
-    while ($gctx->{'delayedfetchprojpacks'}->{$projid}) {
-      my $async;
-      $async = {'_changeprp' => $prp, '_changetype' => $lookattype} if $gctx->{'asyncmode'};
-      my $delayed = delete $gctx->{'delayedfetchprojpacks'}->{$projid};
-      if ($delayed) {
-	if (!BSSched::ProjPacks::do_delayedprojpackfetches($gctx, $async, $projid, @$delayed)) {
-	  # async request in progress...
-          goto NEXTPRP;
-	}
+    if ($gctx->{'delayedfetchprojpacks'}->{$projid}) {
+      my $inprogress;
+      my $delayed;
+      while ($delayed = delete($gctx->{'delayedfetchprojpacks'}->{$projid})) {
+	my $async;
+	$async = {'_changeprp' => $prp, '_changetype' => $lookattype} if $gctx->{'asyncmode'};
+	$inprogress ||= !BSSched::ProjPacks::do_delayedprojpackfetches($gctx, $async, $projid, @$delayed);
       }
+      next if $inprogress;	# async projpack fetch in progress...
     }
 
     my $projpacks = $gctx->{'projpacks'};
