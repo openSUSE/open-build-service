@@ -693,4 +693,34 @@ sub xsystem {
   }
 }
 
+sub unify {
+  my %h = map {$_ => 1} @_; 
+  return grep(delete($h{$_}), @_); 
+}
+
+sub identical {
+  my ($d1, $d2, $except, $subexcept) = @_;
+
+  return 0 unless defined($d1) && defined($d2);
+  my $r = ref($d1);
+  return 0 if $r ne ref($d2);
+  if ($r eq '') {
+    return 0 if $d1 ne $d2; 
+  } elsif ($r eq 'HASH') {
+    my %k = (%$d1, %$d2);
+    for my $k (keys %k) {
+      next if $except && $except->{$k};
+      return 0 unless identical($d1->{$k}, $d2->{$k}, $subexcept, $subexcept);
+    }    
+  } elsif ($r eq 'ARRAY') {
+    return 0 unless @$d1 == @$d2;
+    for (my $i = 0; $i < @$d1; $i++) {
+      return 0 unless identical($d1->[$i], $d2->[$i], $subexcept, $subexcept);
+    }    
+  } else {
+    return 0;
+  }
+  return 1;
+}
+
 1;
