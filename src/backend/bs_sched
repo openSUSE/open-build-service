@@ -919,13 +919,15 @@ NEXTPRP:
       mergemetacachefile($gctx, $prp);
     }
 
-    my ($error, $details) = $ctx->setup();
-    if ($error ne 'scheduling') {
-      if ($error) {
-        $ctx->set_repo_state($error, $details);
+    my ($state, $details);
+
+    ($state, $details) = $ctx->setup();
+    if ($state ne 'scheduling') {
+      if ($state) {
+        $ctx->set_repo_state($state, $details);
         $gctx->{'prpfinished'}->{$prp} = 1;
       }
-      $details ||= $error;
+      $details ||= $state;
       print "  - $prp: $details";
       next;
     }
@@ -944,18 +946,13 @@ NEXTPRP:
       }
     }
 
-    my $packs = $projpacks->{$projid}->{'package'} || {};
-    my @packs = sort keys %$packs;
-
-    # XXX: setup packid2info hash?
-
     # Step 2a: check if packages got deleted/excluded
     $ctx->wipeobsolete();
 
     # Step 2b: set up pool and repositories
-    ($error, $details) = $ctx->preparepool();
-    if ($error ne 'scheduling') {
-      $ctx->set_repo_state($error, $details);
+    ($state, $details) = $ctx->preparepool();
+    if ($state ne 'scheduling') {
+      $ctx->set_repo_state($state, $details);
       print "    $details\n";
       print "    (delayed)\n" if $ctx->{'havedelayed'};
       next;
@@ -968,9 +965,9 @@ NEXTPRP:
     use warnings 'redefine';
 
     # Step 2c: expand all dependencies, put them in %pdeps hash and sort the packages
-    ($error, $details) = $ctx->expandandsort();
-    if ($error ne 'scheduling') {
-      $ctx->set_repo_state($error, $details);
+    ($state, $details) = $ctx->expandandsort();
+    if ($state ne 'scheduling') {
+      $ctx->set_repo_state($state, $details);
       print "    $details\n";
       next;
     }
@@ -978,7 +975,7 @@ NEXTPRP:
     # fetch relsync data
     $ctx->calcrelsynctrigger();
 
-    my ($schedulerstate, $schedulerdetails) = $ctx->checkpkgs();
+    ($state, $details) = $ctx->checkpkgs();
 
     my $unfinished = $ctx->{'unfinished'};
     # notify remote build services of repository changes or block state
@@ -1006,10 +1003,11 @@ NEXTPRP:
 
     # we always publish kiwi...
     if ((!%$unfinished && !$ctx->{'havedelayed'}) || $ctx->{'prptype'} eq 'kiwi') {
-      ($schedulerstate, $schedulerdetails) = $ctx->publish($schedulerstate, $schedulerdetails);
+      ($state, $details) = $ctx->publish($state, $details);
     }
 
-    if (!%$unfinished && !$ctx->{'havedelayed'} && $schedulerstate eq 'finished') {
+    # clean up and free memory if we are finished
+    if (!%$unfinished && !$ctx->{'havedelayed'} && $state eq 'finished') {
       $gctx->{'prpfinished'}->{$prp} = 1;
       # write out lastcheck cache and delete it
       my $lastcheck = $gctx->{'lastcheck'}->{$prp};
@@ -1065,7 +1063,7 @@ NEXTPRP:
       unlink("$reporoot/$prp/$myarch/:repodone");
     }
 
-    $ctx->set_repo_state($schedulerstate, $schedulerdetails);
+    $ctx->set_repo_state($state, $details);
 
     if (%$unfinished) {
       $gctx->{'prpunfinished'}->{$prp} = scalar(keys %$unfinished);
