@@ -120,8 +120,12 @@ class Project < ActiveRecord::Base
   end
 
   def self.deleted_instance
-    Project.create_with(title: 'Place holder for a deleted project instance').
-        find_or_create_by(name: 'deleted')
+    project = Project.find_by(name: 'deleted')
+    unless project
+      project = Project.create(title: 'Place holder for a deleted project instance', name: 'deleted')
+      project.store
+    end
+    project
   end
 
   def cleanup_before_destroy
