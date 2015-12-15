@@ -856,7 +856,7 @@ class Project < ActiveRecord::Base
         # ignore this error, backend was out of sync
         logger.warn("Project #{self.name} was already missing on backend on removal")
       end
-      logger.tagged('backend_sync') { logger.debug "Deleted Project #{self.name}" }
+      logger.tagged('backend_sync') { logger.warn "Deleted Project #{self.name}" }
     else
       if @commit_opts[:no_backend_write]
         logger.tagged('backend_sync') { logger.warn "Not deleting Project #{self.name}, backend_write is off " }
