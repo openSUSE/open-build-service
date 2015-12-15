@@ -231,7 +231,7 @@ sub sendrelsyncupdate {
   my ($gctx, $prp, $isfinished) = @_;
 
   print "    updating relsync information\n";
-  my $myarch = $gctx->{'myarch'};
+  my $myarch = $gctx->{'arch'};
   my $reporoot = $gctx->{'reporoot'};
 
   my ($projid, $repoid) = split('/', $prp, 2);
@@ -268,7 +268,7 @@ sub mergerelsyncfile {
   my ($gctx, $prp) = @_;
 
   print "    merging relsync data\n";
-  my $myarch = $gctx->{'myarch'};
+  my $myarch = $gctx->{'arch'};
   my $reporoot = $gctx->{'reporoot'};
   my $relsync_merge = BSUtil::retrieve("$reporoot/$prp/$myarch/:relsync.merge", 2);
   if ($relsync_merge) {
@@ -284,7 +284,7 @@ sub mergemetacachefile {
   my ($gctx, $prp) = @_;
 
   print "    merging metacache data\n";
-  my $myarch = $gctx->{'myarch'};
+  my $myarch = $gctx->{'arch'};
   my $reporoot = $gctx->{'reporoot'};
   my $metacache_merge = BSUtil::retrieve("$reporoot/$prp/$myarch/:full.metacache.merge", 2);
   if ($metacache_merge) {
@@ -304,7 +304,7 @@ sub mergemetacachefile {
 sub mergebininfofile {
   my ($gctx, $prp) = @_;
 
-  my $myarch = $gctx->{'myarch'};
+  my $myarch = $gctx->{'arch'};
   my $reporoot = $gctx->{'reporoot'};
   BSSched::BuildResult::read_gbininfo("$reporoot/$prp/$myarch");
   my $repounchanged = $gctx->{'repounchanged'};
