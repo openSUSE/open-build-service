@@ -499,7 +499,6 @@ sub addrepo_remote_unpackcpio {
   my $repodata;
   my $myarch = $gctx->{'arch'};
 
-  # support gross hack from addrepo_alien...
   if ($arch eq $myarch) {
     my $repodatas = $gctx->{'repodatas'};
     $repodatas->{$prp} ||= {};

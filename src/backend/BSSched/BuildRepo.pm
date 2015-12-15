@@ -34,12 +34,11 @@ package BSSched::BuildRepo;
 #
 # ctx functions
 #   addrepo
-#   addrepo_alien
 #   addrepo_scan
 #
 # static functions
 #   writesolv
-#   
+#
 # fctx usage
 #   metaid
 #   metamd5
@@ -857,35 +856,41 @@ sub checkuseforbuild {
 =cut
 
 sub addrepo {
-  my ($ctx, $pool, $prp) = @_;
+  my ($ctx, $pool, $prp, $arch) = @_;
 
   my $gctx = $ctx->{'gctx'};
-  my $arch = $gctx->{'arch'};
+  my $myarch = $gctx->{'arch'};
+  $arch ||= $myarch;
+
+  # first check the cache
   my $now = time();
-  my $repodata = $gctx->{'repodatas'}->{$prp};
+  my $repodata = $arch eq $myarch ? $gctx->{'repodatas'}->{$prp} : $gctx->{'repodatas_alien'}->{"$prp/$arch"};
   if ($repodata && $repodata->{'lastscan'} && $repodata->{'lastscan'} + 24 * 3600 + ($repodata->{'random'} || 0) * 1800 > $now) {
     if (exists $repodata->{'solv'}) {
       my $r;
       eval {$r = $pool->repofromstr($prp, $repodata->{'solv'});};
       return $r if $r;
       delete $repodata->{'solv'};
-    }    
-    my $solvfile = $repodata->{'solvfile'} || "$ctx->{'gctx'}->{'reporoot'}/$prp/$arch/:full.solv";
+    }
+    my $solvfile = $repodata->{'solvfile'} || "$gctx->{'reporoot'}/$prp/$arch/:full.solv";
     if (-s $solvfile) {
       my $r;
       if ($repodata->{'solvfile'}) {
         my @s = stat _;
         utime time(), $s[9], $solvfile; # update atime
-      }    
+      }
       eval {$r = $pool->repofromfile($prp, $solvfile);};
       return $r if $r;
-    }    
+    }
     if ($repodata->{'error'}) {
       print "    repo $prp: $repodata->{'error'}\n";
       return undef;
-    }    
+    }
   }
+
+  # nope, can't use it
   if ($repodata) {
+    # delete old data
     delete $repodata->{'solv'};
     delete $repodata->{'lastscan'};
     delete $repodata->{'random'};
@@ -897,42 +902,18 @@ sub addrepo {
   if ($remoteprojs->{$projid}) {
     return BSSched::Remote::addrepo_remote($ctx, $pool, $prp, $arch, $remoteprojs->{$projid});
   }
-  $gctx->{'repodatas'}->{$prp} = $repodata = {} unless $repodata;
+  if (!$repodata) {
+    if ($arch eq $myarch) {
+      $gctx->{'repodatas'}->{$prp} = $repodata = {};
+    } else {
+      $gctx->{'repodatas_alien'}->{"$prp/$arch"} = $repodata = {};
+    }
+  }
   my $r = addrepo_scan($ctx, $pool, $prp, $arch, $repodata);
-  if ($r && !$repodata->{'dontwrite'}) {
+  if ($r && $arch eq $myarch) {
     $repodata->{'lastscan'} = time();
     $repodata->{'random'} = rand();
   }
-  return $r;
-}
-
-=head2 addrepo_alien - add :full repo from a different architecture to pool
-
- TODO: this is a gross hack
-
-=cut
-
-sub addrepo_alien {
-  my ($ctx, $pool, $prp, $arch) = @_;
-
-  my $gctx = $ctx->{'gctx'};
-  my $repodatas = $gctx->{'repodatas'};
-  my $repodatas_alien = $gctx->{'repodatas_alien'};
-  my $prpnotready = $gctx->{'prpnotready'};
-  $repodatas_alien->{"$prp/$arch"}->{'dontwrite'} = 1; 
-  my $oldrepodata = $repodatas->{$prp};
-  my $oldprpnotready = $prpnotready->{$prp};
-  delete $prpnotready->{$prp};
-  $repodatas->{$prp} = $repodatas_alien->{"$prp/$arch"};
-  my $savemyarch = $gctx->{'arch'};
-  $gctx->{'arch'} = $arch;
-  my $r = addrepo($ctx, $pool, $prp);
-  $gctx->{'arch'} = $savemyarch;
-  $repodatas_alien->{"$prp/$arch"} = $repodatas->{$prp};
-  delete $repodatas->{$prp};
-  $repodatas->{$prp} = $oldrepodata if $oldrepodata;
-  delete $prpnotready->{$prp};
-  $prpnotready->{$prp} = $oldprpnotready if $oldprpnotready;
   return $r;
 }
 
@@ -956,8 +937,6 @@ sub addrepo_scan {
     eval {$cache = $pool->repofromfile($prp, "$dir.solv");};
     warn($@) if $@;
     if ($cache && $cache->isexternal()) {
-      $repodata->{'lastscan'} = time();
-      $repodata->{'random'} = rand();
       return $cache;
     }
   }
@@ -984,8 +963,6 @@ sub addrepo_scan {
       # return in-core empty repo
       my $r = $pool->repofrombins($prp, $dir);
       $repodata->{'solv'} = $r->tostr();
-      $repodata->{'lastscan'} = time();
-      $repodata->{'random'} = rand();
       return $r;
     }
   }
@@ -1002,15 +979,11 @@ sub addrepo_scan {
     $cache = $pool->repofrombins($prp, $dir, @bins);
     $dirty = 1;
   }
-  if ($doddata && $dirty && $cache && !$repodata->{'dontwrite'}) {
+  return $cache if $arch ne $gctx->{'arch'};	# don't write alien repos
+  if ($doddata && $dirty && $cache) {
     @bins = BSSched::DoD::clean_obsolete_dodpackages($cache, $dir, @bins);
   }
-  if ($dirty) {
-    return $cache if $repodata->{'dontwrite'};  # don't write and don't update lastscan
-    writesolv("$dir.solv.new", "$dir.solv", $cache) if $cache;
-  }
-  $repodata->{'lastscan'} = time();
-  $repodata->{'random'} = rand();
+  writesolv("$dir.solv.new", "$dir.solv", $cache) if $cache && $dirty;
   return $cache;
 }
 

@@ -149,7 +149,7 @@ sub check {
 	print "        repository $aprp is unavailable";
 	return ('broken', "repository $aprp is unavailable");
       }
-      my $r = $localbuildarch eq $myarch ? BSSched::BuildRepo::addrepo($ctx, $pool, $aprp) : BSSched::BuildRepo::addrepo_alien($ctx, $pool, $aprp, $localbuildarch);
+      my $r = BSSched::BuildRepo::addrepo($ctx, $pool, $aprp, $localbuildarch);
       if (!$r) {
 	my $error = "repository '$aprp' is unavailable";
 	$error .= " (delayed)" if defined $r;
