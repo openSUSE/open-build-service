@@ -65,7 +65,6 @@ package BSSched::BuildRepo;
 #   reporoot
 #   remoteprojs
 #   repodatas_alien
-#   prpnotready
 #
 # ctx usage
 #   gctx
