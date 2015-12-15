@@ -11,9 +11,9 @@ class ConsistencyCheckJob < ActiveJob::Base
   def perform(fix = nil)
     User.current ||= User.get_default_admin
     errors = ""
-    errors = project_existens_consistency_check(fix)
+    errors = project_existence_consistency_check(fix)
     Project.find_each(batch_size: 100) do |prj|
-      errors << package_existens_consistency_check(prj, fix)
+      errors << package_existence_consistency_check(prj, fix)
       errors << project_meta_check(prj, fix)
     end
     unless errors.blank?
@@ -53,7 +53,7 @@ class ConsistencyCheckJob < ActiveJob::Base
     errors
   end
 
-  def project_existens_consistency_check(fix = nil)
+  def project_existence_consistency_check(fix = nil)
     errors=""
     # compare projects
     project_list_api = Project.all.pluck(:name).sort
@@ -100,7 +100,7 @@ class ConsistencyCheckJob < ActiveJob::Base
     errors
   end
 
-  def package_existens_consistency_check(prj, fix = nil)
+  def package_existence_consistency_check(prj, fix = nil)
     errors=""
     begin
       prj.reload
