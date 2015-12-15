@@ -510,8 +510,9 @@ sub event_configuration {
 =cut
 
 sub new {
-  my ($class, @conf) = @_;
+  my ($class, $gctx, @conf) = @_;
   my $ectx = {
+    'gctx' => $gctx,
     'fetchprojpacks' => {},
     'fetchprojpacks_nodelay' => {},
     'deepcheck' => {},

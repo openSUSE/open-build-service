@@ -784,10 +784,7 @@ NEXTPRP:
       die if $testprojid;
 
       # create event processor
-      my $ectx = BSSched::Events->new(
-	'gctx' => $gctx,
-	'initialstartup' => $initialstartup,
-      );
+      my $ectx = BSSched::Events->new($gctx, 'initialstartup' => $initialstartup);
       eval {
         @events = $ectx->order(@events);
 	if ($ectx->process_events(@events)) {
@@ -809,10 +806,10 @@ NEXTPRP:
     # mark all indirect affected repos dirty
     if (%{$gctx->{'changed_dirty'}}) {
       for my $prp (keys %{$gctx->{'changed_dirty'}}) {
-        my $reporoot = $gctx->{'reporoot'};
-        next if ! -d "$reporoot/$prp/$myarch";
-        next if   -e "$reporoot/$prp/$myarch/:schedulerstate.dirty";
-        BSUtil::touch("$reporoot/$prp/$myarch/:schedulerstate.dirty");
+        my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
+        next if ! -d $gdst;
+        next if   -e "$gdst/:schedulerstate.dirty";
+        BSUtil::touch("$gdst/:schedulerstate.dirty");
       }
       %{$gctx->{'changed_dirty'}} = ();
     }
@@ -903,19 +900,20 @@ NEXTPRP:
     }
 
     my $ctx = BSSched::Checker->new($gctx, $prp, 'changeprp' => $prp, 'changetype' => $lookattype);
+    my $gdst = "$reporoot/$prp/$myarch";
 
     # merge bininfo
-    if (-e "$reporoot/$prp/$myarch/:bininfo.merge" || ! -e "$reporoot/$prp/$myarch/:bininfo") {
+    if (-e "$gdst/:bininfo.merge" || ! -e "$gdst/:bininfo") {
       mergebininfofile($gctx, $prp);
     }
 
     # merge relsync
-    if (-e "$reporoot/$prp/$myarch/:relsync.merge") {
+    if (-e "$gdst/:relsync.merge") {
       mergerelsyncfile($gctx, $prp);
     }
 
     # merge metacache
-    if (-e "$reporoot/$prp/$myarch/:full.metacache.merge") {
+    if (-e "$gdst/:full.metacache.merge") {
       mergemetacachefile($gctx, $prp);
     }
 
@@ -939,8 +937,8 @@ NEXTPRP:
       my $prpsearchpath = $ctx->{'prpsearchpath'};
       # the if statement below is to ease transition to the new full handling
       # for manually created "base" repos
-      if (!$BSSched::BuildResult::new_full_handling || %$packs || ! -d "$reporoot/$prp/$myarch/:full" ||
-          -e "$reporoot/$prp/$myarch/:full.useforbuild") {
+      if (!$BSSched::BuildResult::new_full_handling || %$packs || ! -d "$gdst/:full" ||
+          -e "$gdst/:full.useforbuild") {
         BSSched::BuildRepo::checkuseforbuild($gctx, $prp, $prpsearchpath, undef);
         delete $gctx->{'prpcheckuseforbuild'}->{$prp};
       }
@@ -1012,9 +1010,9 @@ NEXTPRP:
       # write out lastcheck cache and delete it
       my $lastcheck = $gctx->{'lastcheck'}->{$prp};
       if ($lastcheck && %$lastcheck) {
-	BSUtil::store("$reporoot/$prp/$myarch/.:lastcheck", "$reporoot/$prp/$myarch/:lastcheck", $lastcheck);
+	BSUtil::store("$gdst/.:lastcheck", "$gdst/:lastcheck", $lastcheck);
       } else {
-	unlink("$reporoot/$prp/$myarch/:lastcheck");
+	unlink("$gdst/:lastcheck");
       }
       delete $gctx->{'lastcheck'}->{$prp};
       # delete pkg meta cache
@@ -1060,7 +1058,7 @@ NEXTPRP:
       }
     } else {
       delete $gctx->{'prpfinished'}->{$prp};
-      unlink("$reporoot/$prp/$myarch/:repodone");
+      unlink("$gdst/:repodone");
     }
 
     $ctx->set_repo_state($state, $details);
@@ -1073,8 +1071,8 @@ NEXTPRP:
     $gctx->{'prpchecktimes'}->{$prp} = $ctx->{'prpchecktime'};
 
     # send relsync file if something has been changed
-    my @relsync1 = stat("$reporoot/$prp/$myarch/:relsync");
-    my @relsync2 = stat("$reporoot/$prp/$myarch/:relsync.sent");
+    my @relsync1 = stat("$gdst/:relsync");
+    my @relsync2 = stat("$gdst/:relsync.sent");
     if (@relsync1 && (!@relsync2 || "$relsync1[9]/$relsync1[7]/$relsync1[1]" ne "$relsync2[9]/$relsync2[7]/$relsync2[1]")) {
       sendrelsyncupdate($gctx, $prp, %$unfinished ? 0 : 1);
     }
@@ -1100,7 +1098,8 @@ NEXTPRP:
 
 if ($@) {
   warn($@);
-  BSSched::Events::event_exit({ 'gctx' => $gctx }, {'type' => 'emergencydump'});
+  my $ectx = BSSched::Events->new($gctx);
+  BSSched::Events::event_exit($ectx, {'type' => 'emergencydump'});
   exit(1);
 }
 
