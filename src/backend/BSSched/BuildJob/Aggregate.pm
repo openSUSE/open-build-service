@@ -320,7 +320,7 @@ sub build {
 	    warn($@);
 	    $error = $@;
 	    $error =~ s/\n$//s;
-	    BSSched::Events::addretryevent($ctx->{'gctx'}, {'type' => 'repository', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $myarch}) if BSSched::RPC::is_transient_error($error);
+	    BSSched::Events::addretryevent($gctx, {'type' => 'repository', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $myarch}) if BSSched::RPC::is_transient_error($error);
 	    last;
 	  }
 	  for my $bin (@{$cpio || []}) {

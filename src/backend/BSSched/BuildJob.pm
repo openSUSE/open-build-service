@@ -50,12 +50,12 @@ package BSSched::BuildJob;
 #   myjobsdir
 #   jobsdir
 #   arch
-#   buildavg
-#   changed_med
+#   buildavg		[rw]
+#   changed_med		[rw]
 #   projpacks
 #   reporoot
 #   prpsearchpath
-#   repounchanged
+#   repounchanged	[rw]
 #   obsname
 #   remoteprojs
 #
@@ -67,7 +67,7 @@ package BSSched::BuildJob;
 #   relsyncmax
 #   conf
 #   prpsearchpath
-#   sysbuild_$buildtype
+#   sysbuild_$buildtype	[rw]
 #   pool
 #   prp
 #
@@ -342,7 +342,8 @@ sub update_buildavg {
 sub jobfinished {
   my ($ectx, $job, $js) = @_;
 
-  my $myjobsdir = $ectx->{'gctx'}->{'myjobsdir'};
+  my $gctx = $ectx->{'gctx'};
+  my $myjobsdir = $gctx->{'myjobsdir'};
   my $info = readxml("$myjobsdir/$job", $BSXML::buildinfo, 1);
   my $jobdatadir = "$myjobsdir/$job:dir";
   if (!$info || ! -d $jobdatadir) {
@@ -359,15 +360,13 @@ sub jobfinished {
     return ;
   }
 
-  my $fullcache = $ectx->{'fullcache'};
-  my $gctx = $ectx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
   my $changed = $gctx->{'changed_med'};
 
   my $projid = $info->{'project'};
   my $repoid = $info->{'repository'};
   my $packid = $info->{'package'};
   my $prp = "$projid/$repoid";
-  my $myarch = $gctx->{'arch'};
 
   my $now = time(); # ensure that we use the same time in all logs
   if ($info->{'arch'} ne $myarch) {
@@ -477,6 +476,7 @@ sub jobfinished {
   $useforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
   $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
+  my $fullcache = $ectx->{'fullcache'};
   BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath, $fullcache);
   $changed->{$prp} = 2 if $useforbuildenabled;
   my $repounchanged = $gctx->{'repounchanged'};

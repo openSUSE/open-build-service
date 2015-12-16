@@ -73,14 +73,16 @@ sub check {
 
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
+  my $prp = "$projid/$repoid";
   my $repo = $ctx->{'repo'};
   my $gctx = $ctx->{'gctx'};
+  my $gdst = $ctx->{'gdst'};
   my $myarch = $gctx->{'arch'};
   my @archs = @{$repo->{'arch'}};
   return ('broken', 'missing archs') unless @archs;     # can't happen
   my $buildarch = $archs[0];    # always build in first arch
   my $reporoot = $gctx->{'reporoot'};
-  my $markerdir = "$reporoot/$projid/$repoid/$buildarch/$packid";
+  my $markerdir = "$reporoot/$prp/$buildarch/$packid";
   my $patchinfo = $pdata->{'patchinfo'};
   my $projpacks = $gctx->{'projpacks'};
   my $proj = $projpacks->{$projid} || {};
@@ -123,14 +125,14 @@ sub check {
 
   if ($buildarch ne $myarch) {
     # XXX wipe just in case! remove when we do that elsewhere...
-    if (-d "$reporoot/$projid/$repoid/$myarch/$packid") {
+    if (-d "$gdst/$packid") {
       # (patchinfo packages will not be in :full)
-      unlink("$reporoot/$projid/$repoid/$myarch/:meta/$packid");
-      unlink("$reporoot/$projid/$repoid/$myarch/:logfiles.fail/$packid");
-      unlink("$reporoot/$projid/$repoid/$myarch/:logfiles.success/$packid");
-      unlink("$reporoot/$projid/$repoid/$myarch/:logfiles.success/$packid");
-      BSUtil::cleandir("$reporoot/$projid/$repoid/$myarch/$packid");
-      rmdir("$reporoot/$projid/$repoid/$myarch/$packid");
+      unlink("$gdst/:meta/$packid");
+      unlink("$gdst/:logfiles.fail/$packid");
+      unlink("$gdst/:logfiles.success/$packid");
+      unlink("$gdst/:logfiles.success/$packid");
+      BSUtil::cleandir("$gdst/$packid");
+      rmdir("$gdst/$packid");
     }
     # check if we go from blocked to unblocked
     my $blocked;
@@ -144,12 +146,12 @@ sub check {
         $blocked = 1;
         last;
       }
-      if (-e "$reporoot/$projid/$repoid/$myarch/:logfiles.fail/$apackid") {
+      if (-e "$gdst/:logfiles.fail/$apackid") {
         $blocked = 1;
         last;
       }
-      if (! -e "$reporoot/$projid/$repoid/$myarch/:logfiles.success/$apackid") {
-        if (! -e "$reporoot/$projid/$repoid/$myarch/$apackid/.channelinfo") {
+      if (! -e "$gdst/:logfiles.success/$apackid") {
+        if (! -e "$gdst/$apackid/.channelinfo") {
           next if $code eq 'disabled';
           $blocked = 1;
           last;
@@ -159,7 +161,7 @@ sub check {
     if (!$blocked) {
       if (-e "$markerdir/.waiting_for_$myarch") {
         unlink("$markerdir/.waiting_for_$myarch");
-        BSSched::Events::sendunblockedevent($gctx, "$projid/$repoid", $buildarch);
+        BSSched::Events::sendunblockedevent($gctx, $prp, $buildarch);
         print "      - $packid (patchinfo)\n";
         print "        unblocked\n";
       }
@@ -167,8 +169,8 @@ sub check {
     if ($blocked && !$broken) {
       # hmm, we should be blocked. trigger build arch check
       if (!-e "$markerdir/.waiting_for_$myarch") {
-        BSUtil::touch("$reporoot/$projid/$repoid/$buildarch/:schedulerstate.dirty") if -d "$reporoot/$projid/$repoid/$buildarch";
-        BSSched::Events::sendunblockedevent($gctx, "$projid/$repoid", $buildarch);
+        BSUtil::touch("$reporoot/$prp/$buildarch/:schedulerstate.dirty") if -d "$reporoot/$prp/$buildarch";
+        BSSched::Events::sendunblockedevent($gctx, $prp, $buildarch);
         print "      - $packid (patchinfo)\n";
         print "        blocked\n";
       }
@@ -184,7 +186,7 @@ sub check {
   if ($ptype eq 'local') {
     # only rebuild if patchinfo source changes
     my @meta;
-    if (open(F, '<', "$reporoot/$projid/$repoid/$myarch/:meta/$packid")) {
+    if (open(F, '<', "$gdst/:meta/$packid")) {
       @meta = <F>;
       close F;
       chomp @meta;
@@ -205,12 +207,13 @@ sub check {
   my $rpms_seen;
   my $enabled_seen;
   for my $arch (@archs) {
+    my $agdst = "$reporoot/$prp/$arch";
     if ($arch eq $myarch) {
       $apackstatus = $ctx->{'packstatus'};
     } else {
-      my $ps = BSUtil::retrieve("$reporoot/$projid/$repoid/$arch/:packstatus", 1);
+      my $ps = BSUtil::retrieve("$agdst/:packstatus", 1);
       if (!$ps) {
-        $ps = (readxml("$reporoot/$projid/$repoid/$arch/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
+        $ps = (readxml("$agdst/:packstatus", $BSXML::packstatuslist, 1) || {})->{'packstatus'} || [];
         $ps = { 'packstatus' => { map {$_->{'name'} => $_->{'status'}} @$ps } } if $ps;
       }
       $apackstatus = ($ps || {})->{'packstatus'} || {};
@@ -225,16 +228,16 @@ sub check {
         push @blocked, "$arch/$apackid";
         next;
       }
-      if (-e "$reporoot/$projid/$repoid/$arch/:logfiles.fail/$apackid") {
+      if (-e "$agdst/:logfiles.fail/$apackid") {
         # last build failed
-        if ($code ne 'disabled' || -e "$reporoot/$projid/$repoid/$arch/:logfiles.success/$apackid") {
+        if ($code ne 'disabled' || -e "$agdst/:logfiles.success/$apackid") {
           $blockedarch = 1;
           push @blocked, "$arch/$apackid (failed)";
           next;
         }
-      } elsif (! -e "$reporoot/$projid/$repoid/$arch/:logfiles.success/$apackid") {
+      } elsif (! -e "$agdst/:logfiles.success/$apackid") {
         # package was never built yet or channel
-        if (! -e "$reporoot/$projid/$repoid/$arch/$apackid/.channelinfo") {
+        if (! -e "$agdst/$apackid/.channelinfo") {
           next if $code eq 'disabled';
           $blockedarch = 1;
           push @blocked, "$arch/$apackid (no logfiles.success)";
@@ -243,7 +246,7 @@ sub check {
       }
       if ($ptype eq 'binary') {
         # like aggregates
-        my $d = "$reporoot/$projid/$repoid/$arch/$apackid";
+        my $d = "$agdst/$apackid";
         my @d = grep {/\.rpm$/ && !/^::import::/} ls($d);
         my $m = '';
         for my $b (sort @d) {
@@ -258,7 +261,7 @@ sub check {
         }
         $metas{"$arch/$apackid"} = Digest::MD5::md5_hex($m);
       } elsif ($ptype eq 'direct' || $ptype eq 'transitive') {
-        my ($ameta) = split("\n", readstr("$reporoot/$projid/$repoid/$arch/:meta/$apackid", 1) || '', 2);
+        my ($ameta) = split("\n", readstr("$agdst/:meta/$apackid", 1) || '', 2);
         if (!$ameta) {
           push @blocked, "$arch/$apackid";
           $blockedarch = 1;
@@ -274,7 +277,7 @@ sub check {
       push @tocopy, "$arch/$apackid";
     }
     if ($blockedarch && $arch ne $myarch) {
-      mkdir_p("$reporoot/$projid/$repoid/$myarch/$packid");
+      mkdir_p("$gdst/$packid");
       BSUtil::touch("$markerdir/.waiting_for_$arch") unless -e "$markerdir/.waiting_for_$arch";
     } else {
       unlink("$markerdir/.waiting_for_$arch");
@@ -298,7 +301,7 @@ sub check {
 
   # compare with stored meta
   my @meta;
-  if (open(F, '<', "$reporoot/$projid/$repoid/$myarch/:meta/$packid")) {
+  if (open(F, '<', "$gdst/:meta/$packid")) {
     @meta = <F>;
     close F;
     chomp @meta;
@@ -324,6 +327,7 @@ sub build {
   my ($self, $ctx, $packid, $pdata, $info, $data) = @_;
 
   my $gctx = $ctx->{'gctx'};
+  my $gdst = $ctx->{'gdst'};
   my $myarch = $gctx->{'arch'};
   my $projid = $ctx->{'project'};
   my $repoid = $ctx->{'repository'};
@@ -356,8 +360,8 @@ sub build {
   my %binaryfilter = map {$_ => 1} @{$patchinfo->{'binary'} || []};
   my %filtered;
 
-  if (-s "$reporoot/$prp/$myarch/$packid/.updateinfodata") {
-    $updateinfodata = BSUtil::retrieve("$reporoot/$prp/$myarch/$packid/.updateinfodata");
+  if (-s "$gdst/$packid/.updateinfodata") {
+    $updateinfodata = BSUtil::retrieve("$gdst/$packid/.updateinfodata");
     %updateinfodata_tocopy = map {$_ => 1} @{$updateinfodata->{'packages'} || []};
   }
 
@@ -392,7 +396,7 @@ sub build {
     }
     if ($updateinfodata_tocopy{$tocopy} && (!defined($mpackid) || ($updateinfodata->{'metas'}->{$mpackid} || '') eq $ckmetas->{$mpackid})) {
       print "        reusing old packages for '$tocopy'\n";
-      $from = "$reporoot/$projid/$repoid/$myarch/$packid";
+      $from = "$gdst/$packid";
       @bins = grep {$updateinfodata->{'binaryorigins'}->{$_} eq $tocopy} keys(%{$updateinfodata->{'binaryorigins'}});
       if ($updateinfodata->{'supportstatus'}) {
         # fake channelinfo
@@ -405,7 +409,7 @@ sub build {
       }
       $target ||= $updateinfodata->{'target'} if $updateinfodata->{'target'};
     } else {
-      $from = "$reporoot/$projid/$repoid/$tocopy";
+      $from = "$reporoot/$prp/$tocopy";
       @bins = grep {/\.rpm$/ && !/^::import::/} ls($from);
       if (-e "$from/.channelinfo") {
         $channelinfo = BSUtil::retrieve("$from/.channelinfo");
@@ -538,6 +542,7 @@ sub build {
   $update->{'issued'} = { 'date' => $now };
 
   # fetch defined issue trackers from src server. FIXME: cache this
+  # XXX: this is not an async call!
   my @references;
   my $issue_trackers;
   my $param = {

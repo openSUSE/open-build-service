@@ -16,6 +16,31 @@
 #
 package BSSched::BuildResult;
 
+# gctx functions
+#   calculate_exportfilter
+#   set_suf_and_filter_exports
+#   update_dst_full
+#   wipe
+#
+# static functions
+#   compile_exportfilter
+#   update_bininfo_merge
+#   repofromfiles
+#   read_bininfo
+#   read_gbininfo
+#   findmeta
+#   remove_from_volatile
+#
+# gctx usage
+#   arch
+#   reporoot
+#   projpacks
+#   prpcheckuseforbuild		[rw]
+#   prpsearchpath
+#   repounchanged		[rw]
+#
+# fctx usage
+#   dst				[rw]
 
 use strict;
 use warnings;

@@ -446,7 +446,7 @@ sub build {
   # kill those ancient other jobs
   for my $otherjob (@otherjobs) {
     print "        killing old job $otherjob\n";
-    BSSched::BuildJob::killjob($ctx->{'gctx'}, $otherjob);
+    BSSched::BuildJob::killjob($gctx, $otherjob);
   }
 
   my $localbuildarch = $myarch eq 'local' && $BSConfig::localarch ? $BSConfig::localarch : $myarch;
