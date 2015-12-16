@@ -40,6 +40,10 @@
 API_ROOT=/srv/www/obs/api
 CLOCKWORKD=/usr/bin/clockworkd
 
+# If you are using newrelic_rpm you need this
+# to fix detection of our delay_job.api daemons
+export NEW_RELIC_DISPATCHER=delayed_job
+
 function run_in_api
 {
   export RAILS_ENV="production"
@@ -70,7 +74,7 @@ case "$1" in
 	;;
     stop)
 	echo -n "Shutting down OBS api delayed job handler "
-        run_in_api script/delayed_job.api.rb --queue=quick stop
+        run_in_api script/delayed_job.api.rb --queue=quick stop -n $NUM
         run_in_api script/delayed_job.api.rb --queue=releasetracking stop -i 1000
         run_in_api script/delayed_job.api.rb --queue=issuetracking stop -i 1010
         run_in_api script/delayed_job.api.rb --queue=mailers stop -i 1020
