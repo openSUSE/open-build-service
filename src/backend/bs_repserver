@@ -2445,17 +2445,19 @@ sub docommand {
       @packids = grep {$code{$ps->{'packstatus'}->{$_} || 'unknown'}} @packids;
     }
     if ($cmd eq 'rebuild') {
-      for my $packid (@packids) {
-	unlink("$reporoot/$projid/$repoid/$arch/:meta/$packid");
-	my $ev = { type => 'rebuild', 'project' => $projid, 'package' => $packid };
-	my $evname = "rebuild:${projid}::$packid";
-        $evname = "rebuild:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
-	if (-d "$eventdir/$arch") {
-	  writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
+      if (@packids) {
+	dirty($projid, $repoid, $arch);
+	for my $packid (@packids) {
+	  unlink("$reporoot/$projid/$repoid/$arch/:meta/$packid");
+	  my $ev = { type => 'rebuild', 'project' => $projid, 'package' => $packid };
+	  my $evname = "rebuild:${projid}::$packid";
+	  $evname = "rebuild:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
+	  if (-d "$eventdir/$arch") {
+	    writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
+	  }
 	}
+	ping($arch) if -d "$eventdir/$arch";
       }
-      dirty($projid, $repoid, $arch);
-      ping($arch);
     } elsif ($cmd eq 'killbuild' || $cmd eq 'abortbuild') {
       for my $packid (@packids) {
 	eval {
