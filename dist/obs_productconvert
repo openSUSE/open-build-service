@@ -1,2 +1,2 @@
 #!/bin/bash
-exec /usr/lib/obs/server/bs_productconvert "\$@"
+exec /usr/lib/obs/server/bs_productconvert "$@"
