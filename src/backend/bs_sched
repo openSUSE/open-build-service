@@ -415,7 +415,7 @@ my $gctx = {
 					# maps prp => { packid => checkdata }
 
   # postprocessed project data
-  'projpacks_linked' => [],		# data of all linked sources
+  'projpacks_linked' => {},		# data of all linked sources
   'prps' => [],				# sorted list of all local prps (project repos)
   'prpdeps' => {},			# searchpath plus aggregate deps plus kiwi deps
 					# maps prp => [ prp, prp ... ], used for sorting

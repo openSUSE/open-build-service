@@ -573,7 +573,7 @@ sub get_projpacks_postprocess {
   BSSched::Remote::endwatchcollection($gctx);
 }
 
-=head2 calc_projpacks_linked  - generate projpacks_linked helper array
+=head2 calc_projpacks_linked  - generate projpacks_linked helper hash
 
  TODO: add description
 
@@ -582,8 +582,9 @@ sub get_projpacks_postprocess {
 sub calc_projpacks_linked {
   my ($gctx) = @_;
   delete $gctx->{'projpacks_linked'};
-  my @projpacks_linked;
+  my %projpacks_linked;
   my $projpacks = $gctx->{'projpacks'};
+  my %watched;
   for my $projid (sort keys %$projpacks) {
     my $proj = $projpacks->{$projid};
     my ($mypackid, $pack);
@@ -591,26 +592,33 @@ sub calc_projpacks_linked {
       next unless $pack->{'linked'};
       my @li = @{$pack->{'linked'}};
       for my $li (@li) {
-        $li = { %$li };         # clone so that we don't change projpack
-        BSSched::Remote::addwatchremote($gctx, 'package', $li->{'project'}, "/$li->{'package'}");
-        $li->{'myproject'} = $projid;
-        $li->{'mypackage'} = $mypackid;
+	$li = { %$li };         # clone so that we don't change projpack
+	my $lprojid = delete $li->{'project'};
+	if (!$watched{"$lprojid/$li->{'package'}"}) {
+	  BSSched::Remote::addwatchremote($gctx, 'package', $lprojid, "/$li->{'package'}");
+	  $watched{"$lprojid/$li->{'package'}"} = 1;
+	}
+	$li->{'myproject'} = $projid;
+	$li->{'mypackage'} = $mypackid;
+	push @{$projpacks_linked{$lprojid}}, $li;
       }
-      push @projpacks_linked, @li;
     }
     if ($proj->{'link'}) {
       my @li = expandprojlink($gctx, $projid);
       for my $li (@li) {
-        BSSched::Remote::addwatchremote($gctx, 'package', $li->{'project'}, '');        # watch all packages
-        $li->{'package'} = ':*';
-        $li->{'myproject'} = $projid;
+	my $lprojid = delete $li->{'project'};
+	if (!$watched{$lprojid}) {
+	  BSSched::Remote::addwatchremote($gctx, 'package', $lprojid, '');        # watch all packages
+	  $watched{$lprojid} = 1;
+	}
+	$li->{'package'} = ':*';
+	$li->{'myproject'} = $projid;
+	push @{$projpacks_linked{$lprojid}}, $li;
       }
-      push @projpacks_linked, @li;
     }
   }
-  print "projpacks_linked contains ".@projpacks_linked." entries\n";
-  $gctx->{'projpacks_linked'} = \@projpacks_linked;
-  #print Dumper(\@projpacks_linked);
+  $gctx->{'projpacks_linked'} = \%projpacks_linked;
+  #print Dumper(\%projpacks_linked);
 }
 
 =head2 find_linked_sources - find which projects/packages link to the specified project/packages
@@ -621,14 +629,14 @@ sub calc_projpacks_linked {
 
 sub find_linked_sources {
   my ($gctx, $projid, $packids) = @_;
-  my $projpacks_linked = $gctx->{'projpacks_linked'};
+  my $projlinked = $gctx->{'projpacks_linked'}->{$projid};
+  return {} unless $projlinked;
   my %linked;
   if ($packids) {
     my %packids = map {$_ => 1} @$packids;
     my @packids = sort(keys %packids);
     $packids{':*'} = 1;
-    for my $linfo (grep {$_->{'project'} eq $projid} @$projpacks_linked) {
-      next unless $packids{$linfo->{'package'}};
+    for my $linfo (grep {$packids{$_->{'package'}}} @$projlinked) {
       if (defined($linfo->{'mypackage'})) {
         push @{$linked{$linfo->{'myproject'}}}, $linfo->{'mypackage'};
       } else {
@@ -636,7 +644,7 @@ sub find_linked_sources {
       }
     }
   } else {
-    for my $linfo (grep {$_->{'project'} eq $projid} @$projpacks_linked) {
+    for my $linfo (@$projlinked) {
       next unless exists $linfo->{'mypackage'};
       push @{$linked{$linfo->{'myproject'}}}, $linfo->{'mypackage'};
     }
