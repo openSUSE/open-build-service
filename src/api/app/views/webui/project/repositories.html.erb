@@ -54,6 +54,8 @@
               <%= link_to('Release repository', {:action => :release_repository_dialog, :project => @project, :repository => repository.name}, :remote => true) %>
           <% end %>
         </div>
+
+        <%= render :partial => 'download_on_demand', :locals => {repository: repository, repository_id: repository_id} unless repository.download_repositories.empty?%>
       </div>
     </div>
 <% end %>
