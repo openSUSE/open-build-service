@@ -590,8 +590,7 @@ sub calc_projpacks_linked {
     my ($mypackid, $pack);
     while (($mypackid, $pack) = each %{$proj->{'package'} || {}}) {
       next unless $pack->{'linked'};
-      my @li = @{$pack->{'linked'}};
-      for my $li (@li) {
+      for my $li (@{$pack->{'linked'}}) {
 	$li = { %$li };         # clone so that we don't change projpack
 	my $lprojid = delete $li->{'project'};
 	if (!$watched{"$lprojid/$li->{'package'}"}) {
@@ -604,8 +603,7 @@ sub calc_projpacks_linked {
       }
     }
     if ($proj->{'link'}) {
-      my @li = expandprojlink($gctx, $projid);
-      for my $li (@li) {
+      for my $li (expandprojlink($gctx, $projid)) {
 	my $lprojid = delete $li->{'project'};
 	if (!$watched{$lprojid}) {
 	  BSSched::Remote::addwatchremote($gctx, 'package', $lprojid, '');        # watch all packages
