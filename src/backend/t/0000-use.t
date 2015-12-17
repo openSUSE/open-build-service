@@ -3,16 +3,13 @@ use warnings;
 
 use Test::More;                      # last test to print
 
-#require_ok('BSSched');
 require_ok('BSSched::BuildJob');
 require_ok('BSSched::BuildJob::DeltaRpm');
-#require_ok('BSSched::BuildJob::Export');
 require_ok('BSSched::Events');
 require_ok('BSSched::BuildRepo');
 require_ok('BSSched::PublishRepo');
 require_ok('BSSched::BuildResult');
 require_ok('BSSched::RPC');
-#require_ok('BSSched::ProjPack');
 require_ok('BSSched::Remote');
 
 
