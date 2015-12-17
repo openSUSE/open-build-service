@@ -5966,25 +5966,46 @@ sub sourcecopy {
   die("origin must not be virtual for makeoriginolder\n") if $cgi->{'makeoriginolder'} && $orev->{'originproject'};
   $orev->{'linkrev'} = $cgi->{'olinkrev'} if $cgi->{'olinkrev'};
   my $orev_srcmd5 = $orev->{'srcmd5'};  # so that we can restore it later
-  my $files = $cgi->{'noservice'} || $cgi->{'expand'} ? lsrev_service($orev) : lsrev($orev);
+  my $linkinfo = {};
+  my $files = $cgi->{'noservice'} || $cgi->{'expand'} ? lsrev_service($orev, $linkinfo) : lsrev($orev, $linkinfo);
   die("need a revision to copy\n") if !$cgi->{'rev'} && !$cgi->{'orev'} && $oprojid eq $projid && $opackid eq $packid && !($files->{'_link'} && $cgi->{'expand'});
 
   die("makeoriginolder currently does not work on links\n") if $cgi->{'makeoriginolder'} && $files->{'_link'};
 
   my $autosimplifylink;
   my $autosimplifylink_lrev;
-  my $olink;
+  my $freezelink;
+  my $freezelinkfiles;
 
   if ($files->{'_link'} && !$cgi->{'dontupdatesource'} && !$cgi->{'rev'}) {
     # fix me: do this in a more generic way
-    $olink = repreadxml($orev, '_link', $files->{'_link'}, $BSXML::link, 1);
+    my $olink = repreadxml($orev, '_link', $files->{'_link'}, $BSXML::link, 1);
     if ($olink) {
       my $lprojid = $oprojid;
       my $lpackid = $opackid;
       my $lrev = $olink->{'rev'};
       $lprojid = $olink->{'project'} if exists $olink->{'project'};
       $lpackid = $olink->{'package'} if exists $olink->{'package'};
-      if ($lprojid eq $projid && $lpackid eq $packid) {
+      if ($cgi->{'freezelink'}) {
+	# we're going to freeze the link in the source
+	die("400 freezelink needs expand or noservice\n") unless $cgi->{'noservice'} || $cgi->{'expand'};
+	$lrev = getrev($lprojid, $lpackid, $lrev);
+	my %lrev = %$lrev;
+	lsrev_expanded(\%lrev);
+	if (!$olink->{'rev'} || $lrev{'srcmd5'} ne $olink->{'rev'}) {
+	  # halt, freeze!
+	  $olink->{'rev'} = $lrev{'srcmd5'};
+	  $olink->{'vrev'} = $lrev{'vrev'};
+	  if ($lprojid eq $projid && $lpackid eq $packid) {
+	    eval {
+	      checksourceaccess($projid, $packid);
+	      delete $olink->{'missingok'};
+	    };
+	  }
+	  $freezelink = $olink;
+	}
+	$freezelinkfiles = { %$files };
+      } elsif ($lprojid eq $projid && $lpackid eq $packid) {
 	# copy destination is target of link
 	# we're integrating this link
 	$lrev = getrev($lprojid, $lpackid, $lrev);
@@ -6001,6 +6022,8 @@ sub sourcecopy {
       }
     }
   }
+
+  die("400 freezelink: origin provides no link\n") if $cgi->{'freezelink'} && !$freezelinkfiles;
 
   my $oldvrev = $orev->{'vrev'};
   if ($files->{'_link'} && $cgi->{'expand'}) {
@@ -6040,16 +6063,13 @@ sub sourcecopy {
     notify_repservers('package', $oprojid, $opackid);
   }
 
-  if ($cgi->{'freezelink'}) {
-    die("400 freezelink: origin provides no link\n") unless $olink;
-    die("400 freezelink: link points already to a revision\n") if $olink->{'rev'} && $olink->{'rev'} ne $olink->{'baserev'};
-    die("400 freezelink: link has no baserev\n") unless $olink->{'baserev'};
-    $olink->{'rev'} = $olink->{'baserev'};
-    delete $olink->{'missingok'} if $autosimplifylink;
+  if ($freezelink) {
     mkdir_p($uploaddir);
-    writexml("$uploaddir/$$", undef, $olink, $BSXML::link);
-    $files->{'_link'} = addfile($oprojid, $opackid, "$uploaddir/$$", '_link');
-    addrev({ %$cgi, 'user' => 'buildservice-autocommit', 'comment' => 'freeze link'}, $oprojid, $opackid, $files);
+    writexml("$uploaddir/$$", undef, $freezelink, $BSXML::link);
+    $freezelinkfiles->{'_link'} = addfile($oprojid, $opackid, "$uploaddir/$$", '_link');
+    my $isbranch = grep {(keys %$_)[0] eq 'branch'} @{$freezelink->{'patches'}->{''} || []};
+    my $servicemark = update_link_in_service($orev, $freezelinkfiles, $linkinfo->{'xservicemd5'}, $isbranch);
+    addrev({ %$cgi, 'user' => 'buildservice-autocommit', 'comment' => 'freeze link', 'servicemark' => $servicemark }, $oprojid, $opackid, $freezelinkfiles);
   } elsif ($autosimplifylink && !defined($autosimplifylink->{'rev'})) {
     $orev->{'srcmd5'} = $orev_srcmd5;	# back to unexpanded
 
