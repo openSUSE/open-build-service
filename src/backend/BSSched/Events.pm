@@ -26,7 +26,7 @@ use BSUtil;
 use BSXML;
 use BSConfiguration;
 use BSSolv;
-use BSSched::Checker;
+require BSSched::Checker;
 use BSSched::BuildResult;
 use BSSched::BuildRepo;
 use BSSched::ProjPacks;

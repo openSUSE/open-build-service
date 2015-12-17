@@ -8,7 +8,6 @@ require Exporter;
 @EXPORT            = qw(XMLin XMLinfile XMLout);
 $VERSION           = '1.1';
 
-use XML::Parser;
 use Encode;
 
 use strict;

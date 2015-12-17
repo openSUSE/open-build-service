@@ -26,7 +26,7 @@ use BSSolv;
 use BSConfiguration;
 use BSSched::BuildResult;
 use BSSched::BuildJob;
-use BSSched::BuildJob::KiwiImage;	# for expandkiwipath
+require BSSched::BuildJob::KiwiImage;	# for expandkiwipath
 use BSSched::Access;			# for checkprpaccess
 use BSSched::ProjPacks;			# for getconfig, orderpackids
 

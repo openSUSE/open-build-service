@@ -29,16 +29,16 @@ use BSSched::PublishRepo;
 use BSSched::BuildJob;
 use BSSched::Events;
 
-use BSSched::BuildJob::Aggregate;
-use BSSched::BuildJob::Channel;
-use BSSched::BuildJob::DeltaRpm;
-use BSSched::BuildJob::KiwiImage;
-use BSSched::BuildJob::KiwiProduct;
-use BSSched::BuildJob::Package;
-use BSSched::BuildJob::Patchinfo;
-use BSSched::BuildJob::PreInstallImage;
-use BSSched::BuildJob::SimpleImage;
-use BSSched::BuildJob::Unknown;
+require BSSched::BuildJob::Aggregate;
+require BSSched::BuildJob::Channel;
+require BSSched::BuildJob::DeltaRpm;
+require BSSched::BuildJob::KiwiImage;
+require BSSched::BuildJob::KiwiProduct;
+require BSSched::BuildJob::Package;
+require BSSched::BuildJob::Patchinfo;
+require BSSched::BuildJob::PreInstallImage;
+require BSSched::BuildJob::SimpleImage;
+require BSSched::BuildJob::Unknown;
 
 
 =head1 NAME

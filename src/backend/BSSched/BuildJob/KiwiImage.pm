@@ -26,7 +26,7 @@ use BSConfiguration;
 use BSSched::BuildJob;
 use BSSched::DoD;		# for dodcheck
 use BSSched::Access;		# for checkprpaccess
-use BSSched::ProjPacks;		# for getconfig
+require BSSched::ProjPacks;		# for getconfig
 
 
 =head1 NAME

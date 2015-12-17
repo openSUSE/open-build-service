@@ -75,8 +75,8 @@ use BSUtil;
 use BSSolv;	# for depsort
 use Storable;
 use BSConfiguration;
-use BSSched::Remote;
-use BSSched::Events;	# for addretryevents
+require BSSched::Remote;
+require BSSched::Events;	# for addretryevents
 
 =head2 checkbuildrepoid - TODO: add summary
 

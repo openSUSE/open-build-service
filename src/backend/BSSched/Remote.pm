@@ -68,7 +68,7 @@ use BSUtil;
 use BSSolv;
 use BSRPC;
 use BSSched::RPC;
-use BSSched::Events;		# for addretryevent
+require BSSched::Events;		# for addretryevent
 use BSConfiguration;
 
 =head2 beginwatchcollection - TODO: add summary

@@ -65,7 +65,7 @@
 /src/webui/public/main/*.html
 /src/webui/public/documentation/obs
 /src/webui-testsuite/results*
-
+/src/backend/t/tmp
 # All the other crap that fits nowhere specifically
 *~
 *.bak
