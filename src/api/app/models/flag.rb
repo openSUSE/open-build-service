@@ -63,10 +63,23 @@ class Flag < ActiveRecord::Base
     repo_flag = main_object.flags.where("flag = ? AND repo = ? AND architecture_id IS NULL", self.flag, self.repo).first
     arch_flag = main_object.flags.where("flag = ? AND repo IS NULL AND architecture_id = ?", self.flag, self.architecture_id).first
 
+    # Package settings only override project settings...
+    if main_object.kind_of? Package
+      all_flag = main_object.project.flags.where("flag = ? AND repo IS NULL AND architecture_id IS NULL", self.flag).first unless all_flag
+      repo_flag = main_object.project.flags.where("flag = ? AND repo = ? AND architecture_id IS NULL", self.flag, self.repo).first unless repo_flag
+      arch_flag = main_object.project.flags.where("flag = ?
+                                                   AND repo IS NULL
+                                                   AND architecture_id = ?", self.flag, self.architecture_id).first unless arch_flag
+      same_flag = main_object.project.flags.where("flag = ?
+                                                   AND repo = ?
+                                                   AND architecture_id = ?", self.flag, self.repo, self.architecture_id).first
+    end
+
+    return same_flag.status if same_flag
     return repo_flag.status if repo_flag
     return arch_flag.status if arch_flag
     return all_flag.status if all_flag
-    return Flag.default_status(self.flag) if !repo_flag && !all_flag
+    return Flag.default_status(self.flag)
   end
 
   def has_children
