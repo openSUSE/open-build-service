@@ -61,8 +61,10 @@ class Flag < ActiveRecord::Base
   def default_status
     all_flag = main_object.flags.where("flag = ? AND repo IS NULL AND architecture_id IS NULL", self.flag).first
     repo_flag = main_object.flags.where("flag = ? AND repo = ? AND architecture_id IS NULL", self.flag, self.repo).first
+    arch_flag = main_object.flags.where("flag = ? AND repo IS NULL AND architecture_id = ?", self.flag, self.architecture_id).first
 
     return repo_flag.status if repo_flag
+    return arch_flag.status if arch_flag
     return all_flag.status if all_flag
     return Flag.default_status(self.flag) if !repo_flag && !all_flag
   end
@@ -70,6 +72,7 @@ class Flag < ActiveRecord::Base
   def has_children
     return true if repo.blank? && architecture.blank?
     return true if !repo.blank? && architecture.blank?
+    return true if repo.blank? && !architecture.blank?
     return false
   end
 
