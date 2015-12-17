@@ -5989,13 +5989,14 @@ sub sourcecopy {
       if ($cgi->{'freezelink'}) {
 	# we're going to freeze the link in the source
 	die("400 freezelink needs expand or noservice\n") unless $cgi->{'noservice'} || $cgi->{'expand'};
-	$lrev = getrev($lprojid, $lpackid, $lrev);
+	$lrev = getrev($lprojid, $lpackid, $lrev, undef, $olink->{'missingok'});
 	my %lrev = %$lrev;
 	lsrev_expanded(\%lrev);
+	die("400 freezelink refusing to change rev from $olink->{'rev'} to $lrev{'srcmd5'}\n") if $olink->{'rev'} && $lrev{'srcmd5'} ne $olink->{'rev'};
 	if (!$olink->{'rev'} || $lrev{'srcmd5'} ne $olink->{'rev'}) {
 	  # halt, freeze!
 	  $olink->{'rev'} = $lrev{'srcmd5'};
-	  $olink->{'vrev'} = $lrev{'vrev'};
+	  $olink->{'vrev'} = $lrev{'vrev'} if defined $lrev{'vrev'};
 	  if ($lprojid eq $projid && $lpackid eq $packid) {
 	    eval {
 	      checksourceaccess($projid, $packid);
