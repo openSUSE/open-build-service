@@ -9,3 +9,4 @@ install:
 test:
 	make -C src/api test
 	make -C dist test
+	make -C src/backend test

@@ -21,3 +21,7 @@ install_data_dirs: prepare_dirs
 	$(foreach data_dir,$(OBS_BACKEND_DATA_SUBDIRS), \
 		$(shell $(INSTALL) -d -m 755 $(DESTDIR)$(OBS_BACKEND_DATA_DIR)/$(data_dir) ) \
 	)
+
+
+test_unit:
+        LANG=C prove -Ibuild t/*.t
