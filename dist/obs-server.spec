@@ -352,6 +352,8 @@ make -C src/api test
 
 make -C dist test
 
+make -C src/backend test
+
 %pre
 getent group obsrun >/dev/null || groupadd -r obsrun
 getent passwd obsrun >/dev/null || \
