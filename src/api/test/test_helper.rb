@@ -251,6 +251,14 @@ module Webui
       @current_user
     end
 
+    def self.load_fixture(path)
+      File.open(File.join(ActionController::TestCase.fixture_path, path)).read()
+    end
+
+    def self.load_backend_file(path)
+      load_fixture("backend/#{path}")
+    end
+
     self.use_transactional_fixtures = true
     fixtures :all
 

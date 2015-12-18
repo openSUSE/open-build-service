@@ -16,16 +16,6 @@ Substitute: kiwi-packagemanager:instsource package
 Ignore: package:bash
 Ignore: package:cups'
 
-  DOWNLOAD_ON_DEMAND_PROJECT_FOR_ADRIAN = "<project name='home:adrian'>
-  <title>My Home Project</title>
-  <description/>
-  <person userid='adrian' role='maintainer'/>
-  <repository name='standard'>
-    <download arch='x86_64' url='http://somewhere/' repotype='rpmmd'/>
-    <arch>x86_64</arch>
-  </repository>
-</project>"
-
   def test_save_distributions
     login_tom
     visit "/project/add_repository_from_default_list/home:tom"
@@ -441,25 +431,6 @@ XML
 
     # not saved
     assert_nil Project.find_by_name("home:adrian").remoteurl
-  end
-
-  def test_download_on_demand_list
-    use_js
-
-    login_king
-    visit(project_show_path(project: "home:adrian"))
-
-    # Test reading meta data
-    click_link("Advanced")
-    click_link("Meta")
-
-    page.evaluate_script("editors[0].setValue(\"#{DOWNLOAD_ON_DEMAND_PROJECT_FOR_ADRIAN.gsub("\n", '\n')}\");")
-    click_button("Save")
-
-    click_link("Repositories")
-    page.must_have_text 'http://somewhere/'
-    page.must_have_text 'rpmmd'
-    assert_equal Project.find_by_name("home:adrian").repositories.first.download_repositories.count, 1
   end
 
   def test_list_all

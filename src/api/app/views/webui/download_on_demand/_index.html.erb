@@ -1,0 +1,44 @@
+<div style="margin-top: 1em"><%= repository.download_repositories.empty? ? "No d" : "D" %>ownload on demand repositories
+  <% if User.current.is_admin? && repository.download_repositories.count != repository.architectures.count%>
+    &nbsp;
+    <span id="<%= "add_dod_repository_link_container_#{repository_id}" %>">
+      <%= sprite_tag('drive_add') %>
+      <%= link_to('Add', '#', id: "add_dod_repository_link_#{repository_id}") %>
+    </span>
+    <div class="hidden" id="<%= "add_dod_repository_form_#{repository_id}" %>">
+      <%= render partial: 'webui/download_on_demand/add', locals: { project: project, repository: repository, download_on_demand: new_download_on_demand } %>
+    </div>
+    <% content_for :ready_function do %>
+        $("#<%= "add_dod_repository_link_#{repository_id}" %>").click(function() {
+          $("#<%= "add_dod_repository_form_#{repository_id}" %>").show();
+          $("#<%= "add_dod_repository_link_container_#{repository_id}" %>").hide();
+        });
+    <% end -%>
+  <% end -%>
+  <ul style="list-style-type: none;">
+  <% repository.download_repositories.each do |dod_element| %>
+    <li>
+      <b><%= dod_element.arch %></b>:&nbsp;<a href="<%= dod_element.url %>" target="_blank" title="Go to the repository"><%= dod_element.url %></a>&nbsp;(<%= dod_element.repotype %>)
+      <% if User.current.is_admin? %>
+        &nbsp;
+        <span id="<%= "edit_dod_repository_link_container_#{dod_element}" %>" class="edit_dod_repository_link_container">
+          <%= sprite_tag('drive_edit') %>
+          <%= link_to('Edit', '#', id: "edit_dod_repository_link_#{dod_element}") %>
+          <%= sprite_tag('drive_delete', title: 'Delete repository') %>
+          <%= link_to "Delete", download_repository_path(dod_element, project: project),
+                      {data: {confirm: "Really remove Download on Demand for '#{repository.name} / #{dod_element.arch}'?"}, class: 'x', method: :delete} %>
+        </span>
+        <div class="hidden" id="<%= "edit_dod_repository_form_#{dod_element}" %>">
+          <%= render partial: 'webui/download_on_demand/edit', locals: { project: project, repository: repository, download_on_demand: dod_element } %>
+        </div>
+        <% content_for :ready_function do %>
+            $("#<%= "edit_dod_repository_link_#{dod_element}" %>").click(function() {
+              $("#<%= "edit_dod_repository_form_#{dod_element}" %>").show();
+              $("#<%= "edit_dod_repository_link_container_#{dod_element}" %>").hide();
+            });
+        <% end -%>
+      <% end -%>
+    </li>
+  <% end -%>
+  </ul>
+</div>

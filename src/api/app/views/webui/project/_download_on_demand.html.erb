@@ -1,7 +1,0 @@
-<div style="margin-top: 1em">Download on demand repositories
-  <ul style="list-style-type: none;">
-  <% repository.download_repositories.each do |dod_element| %>
-    <li><b><%= dod_element.arch %></b>:&nbsp;<a href="<%= dod_element.url %>" target="_blank" title="Go to the repository"><%= dod_element.url %></a>&nbsp;(<%= dod_element.repotype %>)</li>
-  <% end -%>
-  </ul>
-</div>

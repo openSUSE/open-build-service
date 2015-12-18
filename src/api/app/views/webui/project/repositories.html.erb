@@ -10,7 +10,7 @@
 <!-- renders each line in flag table, excepting the 'all' row -->
 <% @project.repositories.each do |repository| %>
     <% repository_id = valid_xml_id(repository.name) %>
-    <div style="margin-bottom: 1.2em" id="<%= valid_xml_id(repository.name) %>">
+    <div style="margin-bottom: 1.5em" id="<%= valid_xml_id(repository.name) %>">
       <div style="margin-left: 15px">
         <strong><%= link_to(repository.name, :action => 'repository_state', :project => @project, :repository => repository.name) %></strong>
         <i>(<%= repository.architectures.pluck(:name).join(', ') %>)</i>
@@ -38,7 +38,7 @@
               <% content_for :ready_function do %>
                   $("#<%= "edit_repository_link_#{repository_id}" %>").click(function() {
                     $("#<%= "edit_repository_form_#{repository_id}" %>").show();
-		    $("#<%= "edit_repository_link_container_#{repository_id}" %>").hide();
+                    $("#<%= "edit_repository_link_container_#{repository_id}" %>").hide();
                   });
               <% end %>
               <%= sprite_tag('drive_delete', title: 'Delete repository') %>
@@ -55,7 +55,7 @@
           <% end %>
         </div>
 
-        <%= render :partial => 'download_on_demand', :locals => {repository: repository, repository_id: repository_id} unless repository.download_repositories.empty?%>
+        <%= render :partial => 'webui/download_on_demand/index', :locals => {project: @project, repository: repository, repository_id: repository_id, new_download_on_demand: DownloadRepository.new(repository_id: repository.id)}%>
       </div>
     </div>
 <% end %>
