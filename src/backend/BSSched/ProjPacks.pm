@@ -755,6 +755,7 @@ sub calc_prps {
   my %prpsearchpath;
   my %prpdeps;
   my %prpnoleaf;
+  my %haveinterrepodep;
 
   my %newchanneldata;
   my $projpacks = $gctx->{'projpacks'};
@@ -795,9 +796,11 @@ sub calc_prps {
 	$channelrepos{$repo->{'name'}} = 1 if $targets{"$projid/$repo->{'name'}"};
       }
     }
+    my %myprps;
     for my $repo (@myrepos) {
       my $repoid = $repo->{'name'};
       my $prp = "$projid/$repoid";
+      $myprps{$prp} = 1;
       push @prps, $prp;
       my @searchpath = expandsearchpath($gctx, $projid, $repo);
       # map searchpath to internal prp representation
@@ -848,6 +851,7 @@ sub calc_prps {
       for (@{$prpdeps{$prp}}) {
 	$prpnoleaf{$_} = 1 if $_ ne $prp;
       }
+      $haveinterrepodep{$projid} = 1 if grep {$myprps{$_} && $_ ne $prp} @{$prpdeps{$prp}};
     }
   }
   # good bye no longer used entries!
@@ -867,6 +871,7 @@ sub calc_prps {
   $gctx->{'prpsearchpath'} = \%prpsearchpath;
   $gctx->{'prpdeps'} = \%prpdeps;
   $gctx->{'prpnoleaf'} = \%prpnoleaf;
+  $gctx->{'haveinterrepodep'} = \%haveinterrepodep;
 }
 
 =head2 do_delayedprojpackfetches - TODO
