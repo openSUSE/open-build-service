@@ -206,11 +206,12 @@ sub setup {
     return ('broken', "no build type ($lastprojid)");
   }
   $ctx->{'prptype'} = $prptype;
+  my $packs = $projpacks->{$projid}->{'package'} || {};
+  $ctx->{'packs'} = [ sort keys %$packs ];
 
   # set lastcheck
   if (!$gctx->{'lastcheck'}->{$prp}) {
     my $oldlastcheck = BSUtil::retrieve("$gdst/:lastcheck", 1) || {};
-    my $packs = $projpacks->{$projid}->{'package'} || {};
     for (keys %$oldlastcheck) {
       # delete old cruft
       delete $oldlastcheck->{$_} unless $packs->{$_};
@@ -374,7 +375,6 @@ sub expandandsort {
   }
   my $projpacks = $gctx->{'projpacks'};
   my $packs = $projpacks->{$projid}->{'package'} || {};
-  my @packs = sort keys %$packs;
 
   my %experrors;
   my %pdeps;
@@ -386,7 +386,7 @@ sub expandandsort {
   my $subpacks = $ctx->{'subpacks'};
 
   $ctx->{'experrors'} = \%experrors;
-  for my $packid (@packs) {
+  for my $packid (@{$ctx->{'packs'}}) {
     my $pdata = $packs->{$packid};
 
     if ($pdata->{'error'} && $pdata->{'error'} eq 'excluded') {
@@ -460,19 +460,19 @@ sub expandandsort {
   $ctx->{'pkg2buildtype'} = \%pkg2buildtype;
 
   # now sort
-  print "    sorting ".@packs." packages\n";
+  print "    sorting ".@{$ctx->{'packs'}}." packages\n";
   my @cycles;
-  if (@packs > 1) {
-    @packs = BSSolv::depsort(\%pdeps, $ctx->{'dep2src'}, \@cycles, @packs);
+  if (@{$ctx->{'packs'}} > 1) {
+    @{$ctx->{'packs'}} = BSSolv::depsort(\%pdeps, $ctx->{'dep2src'}, \@cycles, @{$ctx->{'packs'}});
     if (@cycles) {
       print "cycle: ".join(' -> ', @$_)."\n" for @cycles;
     }
   }
   if (%havepatchinfos) {
     # bring patchinfos to back
-    my @packs_patchinfos = grep {$havepatchinfos{$_}} @packs;
-    @packs = grep {!$havepatchinfos{$_}} @packs;
-    push @packs, @packs_patchinfos;
+    my @packs_patchinfos = grep {$havepatchinfos{$_}} @{$ctx->{'packs'}};
+    @{$ctx->{'packs'}} = grep {!$havepatchinfos{$_}} @{$ctx->{'packs'}};
+    push @{$ctx->{'packs'}}, @packs_patchinfos;
   }
 
   # write dependency information
@@ -606,8 +606,7 @@ sub checkpkgs {
     }
   }
 
-  my @packs = sort keys %$packs;
-  my @cpacks = @packs;
+  my @cpacks = @{$ctx->{'packs'}};
   while (@cpacks) {
     my $packid = shift @cpacks;
     my $incycle = 0;
@@ -870,13 +869,12 @@ sub publish {
   my $projpacks = $gctx->{'projpacks'};
 
   my $packs = $projpacks->{$projid}->{'package'} || {};
-  my @packs = sort keys %$packs;
 
   my $locked = 0;
   $locked = BSUtil::enabled($repoid, $projpacks->{$projid}->{'lock'}, $locked, $myarch) if $projpacks->{$projid}->{'lock'};
   my $pubenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'publish'}, 1, $myarch);
   my %pubenabled;
-  for my $packid (@packs) {
+  for my $packid (@{$ctx->{'packs'}}) {
     my $pdata = $packs->{$packid};
     next if defined($pdata->{'lock'}) && BSUtil::enabled($repoid, $pdata->{'lock'}, $locked, $myarch);
     next if !defined($pdata->{'lock'}) && $locked;
@@ -887,12 +885,12 @@ sub publish {
     }
   }
   my $repodonestate = $projpacks->{$projid}->{'patternmd5'} || '';
-  for my $packid (@packs) {
+  for my $packid (@{$ctx->{'packs'}}) {
     $repodonestate .= "\0$packid" if $pubenabled{$packid};
   }
   $repodonestate .= "\0$_" for sort keys %$unfinished;
   $repodonestate = Digest::MD5::md5_hex($repodonestate);
-  if (@packs && !grep {$_} values %pubenabled) {
+  if (@{$ctx->{'packs'}} && !grep {$_} values %pubenabled) {
     # all packages have publish disabled hint
     $repodonestate = "disabled:$repodonestate";
   }
@@ -906,7 +904,7 @@ sub publish {
     my $publisherror;
     if (($repodonestate !~ /^disabled/) || -d "$gdst/:repo") {
       mkdir_p($gdst);
-      $publisherror = BSSched::PublishRepo::prpfinished($ctx, \@packs, \%pubenabled);
+      $publisherror = BSSched::PublishRepo::prpfinished($ctx, $ctx->{'packs'}, \%pubenabled);
     } else {
       print "    publishing is disabled\n";
     }
