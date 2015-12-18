@@ -12,6 +12,7 @@ install: prepare_dirs install_data_dirs
 	rm -rf $(DESTDIR)$(OBS_BACKEND_PREFIX)/build
 	cp -a ./* $(DESTDIR)$(OBS_BACKEND_PREFIX)
 	rm -rf $(DESTDIR)$(OBS_BACKEND_PREFIX)/Makefile
+	rm -rf $(DESTDIR)$(OBS_BACKEND_PREFIX)/t
 	[ -f $(DESTDIR)$(OBS_BACKEND_PREFIX)/BSConfig.pm ] || cp ./BSConfig.pm.template $(DESTDIR)$(OBS_BACKEND_PREFIX)/BSConfig.pm
 	rm -rf $(DESTDIR)$(OBS_BACKEND_PREFIX)/testdata
 	# just for check section, it is a %%ghost
