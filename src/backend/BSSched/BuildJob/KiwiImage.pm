@@ -23,10 +23,10 @@ use warnings;
 use Build;
 use BSSolv;
 use BSConfiguration;
-use BSSched::BuildJob;
-use BSSched::DoD;		# for dodcheck
-use BSSched::Access;		# for checkprpaccess
-require BSSched::ProjPacks;		# for getconfig
+use BSSched::BuildJob;  	# for expandkiwipath
+use BSSched::DoD;       	# for dodcheck
+use BSSched::Access;    	# for checkprpaccess
+use BSSched::ProjPacks;         # for getconfig
 
 
 =head1 NAME
@@ -84,7 +84,7 @@ sub check {
   my $prp = $ctx->{'prp'};
   my $repo = $ctx->{'repo'};
 
-  my @aprps = expandkiwipath($info, $ctx->{'prpsearchpath'});
+  my @aprps = BSSched::BuildJob::expandkiwipath($info, $ctx->{'prpsearchpath'});
   # get config from kiwi path
   my $bconf = BSSched::ProjPacks::getconfig($gctx, $myarch, \@aprps);
   if (!$bconf) {
@@ -202,7 +202,7 @@ sub build {
   if (!@{$repo->{'path'} || []}) {
     # repo has no path, use kiwi repositories also for kiwi system setup
     my $prp = "$projid/$repoid";
-    my @aprps = expandkiwipath($info, $ctx->{'prpsearchpath'});
+    my @aprps = BSSched::BuildJob::expandkiwipath($info, $ctx->{'prpsearchpath'});
     # setup pool again for kiwi system expansion
     my $pool = BSSolv::pool->new();
     $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
@@ -234,25 +234,6 @@ sub build {
     return ('broken', 'no config') unless $bconf;       # should not happen
     return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
   }
-}
-
-=head2 expandkiwipath - TODO: add summary
-
- TODO: add description
-
-=cut
-
-sub expandkiwipath {
-  my ($info, $prpsearchpath) = @_;
-  my @path;
-  for (@{$info->{'path'} || []}) {
-    if ($_->{'project'} eq '_obsrepositories') {
-      push @path, @{$prpsearchpath || []};
-    } else {
-      push @path, "$_->{'project'}/$_->{'repository'}";
-    }
-  }
-  return @path;
 }
 
 1;

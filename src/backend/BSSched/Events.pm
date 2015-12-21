@@ -26,7 +26,7 @@ use BSUtil;
 use BSXML;
 use BSConfiguration;
 use BSSolv;
-require BSSched::Checker;
+use BSSched::Checker;
 use BSSched::BuildResult;
 use BSSched::BuildRepo;
 use BSSched::ProjPacks;
@@ -800,44 +800,5 @@ sub sendimportevent {
   sendevent($gctx, $ev, $arch, "import.$job");
 }
 
-###
-###  Rery events
-###
-
-=head2 addretryevent - add an event to the retry queue
-
- TODO
-
-=cut
-
-sub addretryevent {
-  my ($gctx, $ev) = @_;
-  for my $oev (@{$gctx->{'retryevents'}}) {
-    next if $ev->{'type'} ne $oev->{'type'} || $ev->{'project'} ne $oev->{'project'};
-    if ($ev->{'type'} eq 'repository' || $ev->{'type'} eq 'recheck') {
-      next if $ev->{'repository'} ne $oev->{'repository'};
-    } elsif ($ev->{'type'} eq 'package') {
-      next if ($ev->{'package'} || '') ne ($oev->{'package'} || '');
-    }
-    return;
-  }
-  $ev->{'retry'} = time() + 60;
-  push @{$gctx->{'retryevents'}}, $ev;
-}
-
-=head2 getretryevents - get all due retry events from the retry queue
-
-=cut
-
-sub getretryevents {
-  my ($gctx) = @_;
-  my $retryevents = $gctx->{'retryevents'};
-  my $now = time();
-  my @due = grep {$_->{'retry'} <= $now} @$retryevents;
-  return () unless @due;
-  @$retryevents = grep {$_->{'retry'} > $now} @$retryevents;
-  delete $_->{'retry'} for @due;
-  return @due;
-}
 
 1;

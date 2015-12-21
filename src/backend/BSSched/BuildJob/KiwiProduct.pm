@@ -25,10 +25,9 @@ use Build;
 use BSSolv;
 use BSConfiguration;
 use BSSched::BuildResult;
-use BSSched::BuildJob;
-require BSSched::BuildJob::KiwiImage;	# for expandkiwipath
-use BSSched::Access;			# for checkprpaccess
-use BSSched::ProjPacks;			# for getconfig, orderpackids
+use BSSched::BuildJob;          # for expandkiwipath
+use BSSched::Access;		# for checkprpaccess
+use BSSched::ProjPacks;		# for orderpackids
 
 my %bininfo_oldok_cache;
 
@@ -115,7 +114,7 @@ sub check {
   my %deps = map {$_ => 1} @deps;
   delete $deps{''};
 
-  my @aprps = BSSched::BuildJob::KiwiImage::expandkiwipath($info, $ctx->{'prpsearchpath'});
+  my @aprps = BSSched::BuildJob::expandkiwipath($info, $ctx->{'prpsearchpath'});
   my @bprps = @{$ctx->{'prpsearchpath'}};
   my $bconf = $ctx->{'conf'};
 
@@ -457,7 +456,7 @@ sub build {
     # images repo has a configured path, use it to set up the kiwi system
     $syspath = BSSched::BuildJob::path2buildinfopath($gctx, $gctx->{'prpsearchpath'}->{$prp});
   }
-  my @aprps = BSSched::BuildJob::KiwiImage::expandkiwipath($info, $ctx->{'prpsearchpath'});
+  my @aprps = BSSched::BuildJob::expandkiwipath($info, $ctx->{'prpsearchpath'});
   my $searchpath = BSSched::BuildJob::path2buildinfopath($gctx, \@aprps);
   my @bdeps;
   my @pdeps = Build::get_preinstalls($bconf);

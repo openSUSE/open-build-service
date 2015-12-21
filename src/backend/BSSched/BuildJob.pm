@@ -760,7 +760,7 @@ sub create {
   if ($buildtype eq 'kiwi') {
     # switch searchpath to kiwi info path
     $syspath = $searchpath if @$searchpath;
-    $searchpath = path2buildinfopath($gctx, [ BSSched::BuildJob::KiwiImage::expandkiwipath($info, $ctx->{'prpsearchpath'}) ]);
+    $searchpath = path2buildinfopath($gctx, [ expandkiwipath($info, $ctx->{'prpsearchpath'}) ]);
   }
 
   # calculate sysdeps (cannot cache in the kiwi case)
@@ -1067,6 +1067,25 @@ sub diffsortedmd5 {
   }
   push @ret, "+$_->[1]" for @to;
   return @ret;
+}
+
+=head2 expandkiwipath - TODO: add summary
+
+ TODO: add description
+
+=cut
+
+sub expandkiwipath {
+  my ($info, $prpsearchpath) = @_;
+  my @path;
+  for (@{$info->{'path'} || []}) {
+    if ($_->{'project'} eq '_obsrepositories') {
+      push @path, @{$prpsearchpath || []}; 
+    } else {
+      push @path, "$_->{'project'}/$_->{'repository'}";
+    }    
+  }
+  return @path;
 }
 
 1;

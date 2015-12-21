@@ -1,11 +1,9 @@
 use strict;
 use warnings;
 
-use Test::More tests => 6;
+use Test::More tests => 10;
 use Data::Dumper;
 use feature qw/say/;
-
-
 
 require_ok('BSSched::BuildJob');
 
@@ -60,6 +58,43 @@ for my $got (@$changes) {
 };
 
 ################################################################################
+$fixture = {
+  path => [
+    { path => 'abc' , project => 'openSUSE:Factory' , repository => 'standard' },
+  ],
+};
+
+@$got = BSSched::BuildJob::expandkiwipath($fixture);
+$expected = [ 'openSUSE:Factory/standard' ];
+is_deeply($got,$expected,'Checking testcase 1 TODO: better description');
+################################################################################
+$fixture = [
+    {
+      path => [
+        { path => 'abc' , project => '_obsrepositories' },
+      ],
+    },
+  ['prpsearchpath1','prpsearchpath2']
+];
+$expected = [ 'prpsearchpath1', 'prpsearchpath2' ];
+@$got = BSSched::BuildJob::expandkiwipath(@$fixture);
+is_deeply($got,$expected,'Checking with _obsrepositories and prpsearchpath');
+
+################################################################################
+$fixture = [
+    {
+      path => [
+        { path => 'abc' , project => '_obsrepositories' },
+      ],
+    },
+];
+$expected = [ ];
+@$got = BSSched::BuildJob::expandkiwipath(@$fixture);
+is_deeply($got,$expected,'Checking with _obsrepositories w/o prpsearchpath');
+################################################################################
+@$got = BSSched::BuildJob::expandkiwipath();
+$expected = [ 'openSUSE:Factory/standard' ];
+is_deeply($got,[],'Checking empty $info->{path} element');
 
 exit 0;
 sub get_file_content {
@@ -69,4 +104,5 @@ sub get_file_content {
   close(FH);
   return \@content
 }
+
 
