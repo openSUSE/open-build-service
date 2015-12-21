@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;
+use Test::More tests => 13;
 use Data::Dumper;
 use feature qw/say/;
 
@@ -95,6 +95,17 @@ is_deeply($got,$expected,'Checking with _obsrepositories w/o prpsearchpath');
 @$got = BSSched::BuildJob::expandkiwipath();
 $expected = [ 'openSUSE:Factory/standard' ];
 is_deeply($got,[],'Checking empty $info->{path} element');
+
+### Testing BSSched::BuildJob::jobname
+$got= BSSched::BuildJob::jobname("openSUSE:Factory/standard","kernel");
+is($got,'openSUSE:Factory::standard::kernel',"Checking jobname normal length");
+################################################################################
+$got= BSSched::BuildJob::jobname("openSUSE:Factory/standard","kernel". ( "x" x 200 ));
+is($got,':cc9039e0510bfb4c513ff8c0f8360cab:::eb57b075a7e17391136eff38c63547e4',"Checking jobname oversized packid");
+################################################################################
+$got= BSSched::BuildJob::jobname("openSUSE:Factory/standard" . ( "x" x 200 ),"kernel");
+is($got,':7f34cc064ad26bb6433937dee6e058b6::kernel',"Checking jobname oversized prp");
+################################################################################
 
 exit 0;
 sub get_file_content {
