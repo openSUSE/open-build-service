@@ -40,6 +40,9 @@ class Role < ActiveRecord::Base
 
   scope :global, -> { where(global: true) }
 
+  after_save :discard_cache
+  after_destroy :discard_cache
+
   def self.discard_cache
     @cache = nil
   end
@@ -73,18 +76,17 @@ class Role < ActiveRecord::Base
     self.class.discard_cache
   end
 
+  def self.ids_with_permission(perm_string)
+    RolesStaticPermission.joins(:static_permission).
+      where(:static_permissions => { :title => perm_string } ).
+      select('role_id').pluck(:role_id)
+  end
+
   def to_param
     title
   end
 
   def to_s
     title
-  end
-
-  after_save :discard_cache
-  after_destroy :discard_cache
-
-  def self.ids_with_permission(perm_string)
-    RolesStaticPermission.joins(:static_permission).where(:static_permissions => { :title => perm_string } ).select('role_id').map { |rs| rs.role_id }
   end
 end
