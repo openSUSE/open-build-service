@@ -45,12 +45,12 @@ class Role < ActiveRecord::Base
   end
 
   def self.rolecache
-    return @cache if @cache
-    @cache = Hash.new
-    all.each do |role|
-      @cache[role.title] = role
-    end
-    return @cache
+    @cache || self.create_cache
+  end
+
+  def self.create_cache
+    # {"Admin" => #<Role id:1>, "downloader" => #<Role id:2>, ... }
+    @cache = Hash[Role.all.map { |role| [role.title, role] }]
   end
 
   def self.find_by_title!(title)
