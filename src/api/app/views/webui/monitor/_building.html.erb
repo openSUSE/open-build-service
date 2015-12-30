@@ -18,7 +18,7 @@
         <div style="background-color: <%= color %>; margin: 0px; width: 3px ; height: 1em; float: left;">&nbsp;</div>
       <% end -%>
       <div style="float: left; margin-left: 10px"><%= distance_of_time_in_words(@time_now, @dead_line-(@max_color*@interval_steps*60)) -%></div>
-      <div class="clear"/>
+      <div class="clear"></div>
     </div>
   <% else %>
     <div class="info">
