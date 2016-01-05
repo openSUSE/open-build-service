@@ -95,10 +95,8 @@ module Webui::WebuiHelper
     result += "#{theclass}"
     result +=" buildstatus'>".html_safe
 
-    if %w(unresolvable blocked).include?(code)
+    if %w(- unresolvable blocked excluded scheduled).include?(code)
       result += link_to(code, '#', title: link_title, id: status_id, class: code)
-    elsif %w(- excluded scheduled).include?(code)
-      result += code
     else
       result += link_to(code.gsub(/\s/, '&nbsp;'),
                         {
