@@ -329,6 +329,7 @@ OBSApi::Application.routes.draw do
   match 'build/:project/:repository/:arch/:package/_status' => 'build#index', constraints: cons, via: [:get, :post]
   get 'build/:project/:repository/:arch/:package/_log' => 'build#logfile', constraints: cons, as: :raw_logfile
   match 'build/:project/:repository/:arch/:package/_buildinfo' => 'build#buildinfo', constraints: cons, via: [:get, :post]
+  match 'build/:project/:repository/:arch/:package/_preinstallimginfo' => 'build#preinstallimginfo', constraints: cons, via: [:get, :post]
   match 'build/:project/:repository/:arch/:package/_history' => 'build#index', constraints: cons, via: [:get, :post]
   match 'build/:project/:repository/:arch/:package/:filename' => 'build#file', via: [:get, :put, :delete], constraints: cons
   get 'build/:project/:repository/:arch/_builddepinfo' => 'build#builddepinfo', constraints: cons
