@@ -288,9 +288,9 @@ Ignore: package:cups'
     fill_autocomplete 'target_project', with: 'BaseDistro', select: 'BaseDistro:Update'
     page.wont_have_selector 'input[disabled]'
     find('#target_repo').select('BaseDistroUpdateProject_repo')
-    page.wont_have_selector '#add_path_to_repository_button[disabled]'
+    page.wont_have_selector '#add_repository_button[disabled]'
     # somehow the autocomplete logic creates a problem - and click_button refuses to click
-    page.execute_script "$('#add_path_to_repository_button').click();"
+    page.execute_script "$('#add_repository_button').click();"
     find(:id, 'flash-messages').must_have_text 'Successfully added repository'
 
     # move BaseDistro:Update path down

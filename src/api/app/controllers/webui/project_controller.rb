@@ -421,7 +421,7 @@ class Webui::ProjectController < Webui::WebuiController
     authorize @project, :update?
     params[:architectures] ||= []
 
-    target_repository =  Repository.find_by_project_and_name(params[:target_project], params[:target_repo])
+    target_repository = Repository.find_by_project_and_name(params[:target_project], params[:target_repo])
     unless target_repository
       raise ActiveRecord::RecordNotFound
     end

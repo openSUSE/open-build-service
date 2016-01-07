@@ -36,10 +36,7 @@
     <% end %>
   </p>
   <p>
-    <% if params[:torepository] %>
-      <%= submit_tag "Add path to repository #{params[:torepository]}", id: 'add_path_to_repository_button' %>
-    <% else %>
-      <%= submit_tag "Add repository", disabled: true, id: 'add_repository_button' %>
-    <% end %>
+    <% button_label = (params[:torepository] ? "Add path to repository #{params[:torepository]}" : "Add repository") %>
+    <%= submit_tag button_label, disabled: true, id: 'add_repository_button' %>
   </p>
 <% end %>
