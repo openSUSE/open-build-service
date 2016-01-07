@@ -30,6 +30,34 @@ Ignore: package:cups'
            "Checkbox for 'OBS Base 2.0' should be disabled"
   end
 
+  def test_save_repository
+    use_js
+    login_tom
+
+    visit "/project/repositories/home:tom"
+    find("#edit_repository_link_SourceprotectedProject_repo").click
+    click_link("Add additional path to this repository")
+
+    fill_in("target_project", with: "Apache")
+    page.execute_script("$('#target_project').keydown();")
+    find(".ui-menu-item").click
+    find("select#target_repo").select("SUSE_Linux_10.1")
+    click_button("Add path to repository SourceprotectedProject_repo")
+
+    assert_equal "/project/repositories/home:tom", page.current_path
+    find("#edit_repository_link_SourceprotectedProject_repo").click
+    page.must_have_text "Apache/SUSE_Linux_10.1"
+
+    # Verify the repo really has been added
+    path_element = PathElement.where(
+      repository: Repository.find_by_name("SourceprotectedProject_repo"),
+      link:       Repository.find_by_name("SUSE_Linux_10.1")
+    ).first
+
+    assert path_element
+    assert_equal 2, path_element.position
+  end
+
   def test_save_distributions_with_existing_repository
     login_tom
 
