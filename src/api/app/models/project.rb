@@ -1599,23 +1599,10 @@ class Project < ActiveRecord::Base
       rt_name = pkg.name.split('.', 2).last
       next unless rt_name
       # Here we try hard to find the release target our current package is build for:
-      found = false
-      # Stone cold map'o'rama of package.$SOMETHING with package/build/enable/@repository=$ANOTHERTHING to
-      # project/repository/releasetarget/@project=$YETSOMETINGDIFFERENT. Piece o' cake, eh?
-      pkg.flags.where(flag: :build, status: 'enable').each do |enable|
-        if enable.repo
-          release_targets_ng.each do |rt_key, rt_value|
-            if rt_value[:reponame] == enable.repo
-              rt_name = rt_key # Save for re-use
-              found = true
-              break
-            end
-          end
-        end
-      end
+      rt_name = guess_release_target_from_package(pkg, release_targets_ng)
 
       # Build-disabled packages can't be matched to release targets....
-      if found
+      if rt_name
         # Let's silently hope that an incident newer introduces new (sub-)packages....
         release_targets_ng[rt_name][:packages] << pkg
       end
@@ -1810,5 +1797,27 @@ class Project < ActiveRecord::Base
 
   def to_param
     name
+  end
+
+  private
+
+  # Go through all enabled build flags and look for a repo name that matches a
+  # previously parsed release target name (from "release_targets_ng").
+  #
+  # If one was found return the project name, otherwise return nil.
+  def guess_release_target_from_package(package, parsed_targets)
+    # Stone cold map'o'rama of package.$SOMETHING with package/build/enable/@repository=$ANOTHERTHING to
+    # project/repository/releasetarget/@project=$YETSOMETINGDIFFERENT. Piece o' cake, eh?
+    package.flags.where(flag: :build, status: 'enable').each do |enable|
+      if enable.repo
+        parsed_targets.each do |rt_key, rt_value|
+          if rt_value[:reponame] == enable.repo
+            return rt_key
+          end
+        end
+      end
+    end
+
+    nil
   end
 end
