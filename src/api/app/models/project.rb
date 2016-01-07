@@ -1598,36 +1598,25 @@ class Project < ActiveRecord::Base
 
       rt_name = pkg.name.split('.', 2).last
       next unless rt_name
-      if pkg.is_patchinfo?
-        # We found a patchinfo that is specific to (at least) one release target!
-        pi = pkg.patchinfo
-        begin
-          release_targets_ng[rt_name][:patchinfo] = pi
-        rescue
-          # TODO FIXME ARGH: API/backend need some work to support this better.
-          # Until then, multiple patchinfos are problematic
-        end
-      else
-        # Here we try hard to find the release target our current package is build for:
-        found = false
-        # Stone cold map'o'rama of package.$SOMETHING with package/build/enable/@repository=$ANOTHERTHING to
-        # project/repository/releasetarget/@project=$YETSOMETINGDIFFERENT. Piece o' cake, eh?
-        pkg.flags.where(flag: :build, status: 'enable').each do |enable|
-          if enable.repo
-            release_targets_ng.each do |rt_key, rt_value|
-              if rt_value[:reponame] == enable.repo
-                rt_name = rt_key # Save for re-use
-                found = true
-                break
-              end
+      # Here we try hard to find the release target our current package is build for:
+      found = false
+      # Stone cold map'o'rama of package.$SOMETHING with package/build/enable/@repository=$ANOTHERTHING to
+      # project/repository/releasetarget/@project=$YETSOMETINGDIFFERENT. Piece o' cake, eh?
+      pkg.flags.where(flag: :build, status: 'enable').each do |enable|
+        if enable.repo
+          release_targets_ng.each do |rt_key, rt_value|
+            if rt_value[:reponame] == enable.repo
+              rt_name = rt_key # Save for re-use
+              found = true
+              break
             end
           end
         end
-        if !found
-          # Package only contains sth. like: <build><enable repository="standard"/></build>
-          # Thus we asume it belongs to the _only_ release target:
-          rt_name = release_targets_ng.keys.first
-        end
+      end
+      if !found
+        # Package only contains sth. like: <build><enable repository="standard"/></build>
+        # Thus we asume it belongs to the _only_ release target:
+        rt_name = release_targets_ng.keys.first
       end
 
       # Build-disabled packages can't be matched to release targets....
