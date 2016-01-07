@@ -1808,14 +1808,14 @@ class Project < ActiveRecord::Base
   def guess_release_target_from_package(package, parsed_targets)
     # Stone cold map'o'rama of package.$SOMETHING with package/build/enable/@repository=$ANOTHERTHING to
     # project/repository/releasetarget/@project=$YETSOMETINGDIFFERENT. Piece o' cake, eh?
-    package.flags.where(flag: :build, status: 'enable').each do |enable|
-      if enable.repo
-        parsed_targets.each do |rt_key, rt_value|
-          if rt_value[:reponame] == enable.repo
-            return rt_key
-          end
-        end
-      end
+    target_mapping = {}
+    parsed_targets.each do |rt_key, rt_value|
+      target_mapping[rt_value[:reponame]] = rt_key
+    end
+
+    package.flags.where(flag: :build, status: 'enable').each do |flag|
+      rt_key = target_mapping[flag.repo]
+      return rt_key if rt_key
     end
 
     nil
