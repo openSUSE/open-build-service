@@ -1613,11 +1613,6 @@ class Project < ActiveRecord::Base
           end
         end
       end
-      if !found
-        # Package only contains sth. like: <build><enable repository="standard"/></build>
-        # Thus we asume it belongs to the _only_ release target:
-        rt_name = release_targets_ng.keys.first
-      end
 
       # Build-disabled packages can't be matched to release targets....
       if found
