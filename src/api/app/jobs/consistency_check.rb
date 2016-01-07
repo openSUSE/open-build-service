@@ -82,6 +82,8 @@ class ConsistencyCheckJob < ActiveJob::Base
 
       if fix
         # restore from backend
+        oldstate = CONFIG['global_write_through']
+        CONFIG['global_write_through'] = false
         diff.each do |project|
           begin
             meta = Suse::Backend.get("/source/#{project}/_meta").body
@@ -94,6 +96,7 @@ class ConsistencyCheckJob < ActiveJob::Base
             errors << "DELETED #{project.name} on backend due to invalid data\n"
           end
         end
+        CONFIG['global_write_through'] = oldstate
       end
     end
 
@@ -131,11 +134,13 @@ class ConsistencyCheckJob < ActiveJob::Base
 
       if fix
         # restore from backend
+        oldstate = CONFIG['global_write_through']
+        CONFIG['global_write_through'] = false
         diff.each do |package|
           begin
             meta = Suse::Backend.get("/source/#{project.name}/#{package}/_meta").body
             pkg = project.packages.new(name: package)
-            pkg.update_from_xml(Xmlhash.parse(meta))
+            pkg.update_from_xml(Xmlhash.parse(meta), true) # ignore locked project
             pkg.save!
           rescue ActiveRecord::RecordInvalid,
                  ActiveXML::Transport::NotFoundError
@@ -143,6 +148,7 @@ class ConsistencyCheckJob < ActiveJob::Base
             errors << "DELETED in backend due to invalid data #{project.name}/#{package}\n"
           end
         end
+        CONFIG['global_write_through'] = oldstate
       end
     end
     errors

@@ -647,8 +647,8 @@ class Package < ActiveRecord::Base
     return pkg
   end
 
-  def update_from_xml(xmlhash)
-    check_write_access!
+  def update_from_xml(xmlhash, ignoreLock = nil)
+    check_write_access!(ignoreLock)
 
     Package.transaction do
       self.title = xmlhash.value('title')
