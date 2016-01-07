@@ -8,5 +8,9 @@
 </h3>
 
 <div id="incident_display" class="clearfix">
-  <%= render(:partial => 'incident_table', :locals => { :incidents => @incidents }) %>
+  <% if @incidents.exists? %>
+    <%= render(:partial => 'incident_table', :locals => { :incidents => @incidents }) %>
+  <% else %>
+    <p><i>No incidents.</i></p>
+  <% end %>
 </div>
