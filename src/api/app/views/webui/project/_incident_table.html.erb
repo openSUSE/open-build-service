@@ -1,9 +1,7 @@
-<% incident_table_id ||= 'incident_table' %>
-
 <% if incidents.blank? %>
   <p><i>No incidents.</i></p>
 <% else %>
-  <table id="<%= incident_table_id %>">
+  <table>
     <thead>
       <tr>
         <th>Summary</th>
