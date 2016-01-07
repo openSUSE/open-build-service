@@ -13,6 +13,17 @@ class ConsistencyCheckJob < ActiveJob::Base
     errors = ""
     errors = project_existence_consistency_check(fix)
     Project.find_each(batch_size: 100) do |project|
+      unless Project.valid_name? project.name
+        errors << "Invalid project name #{project.name}\n"
+        if fix
+          oldstate = CONFIG['global_write_through']
+          CONFIG['global_write_through'] = false
+          # just remove it, the backend won't accept it anyway
+          project.destroy
+          CONFIG['global_write_through'] = oldstate
+        end
+        next
+      end
       errors << package_existence_consistency_check(project, fix)
       errors << project_meta_check(project, fix)
     end
@@ -111,9 +122,25 @@ class ConsistencyCheckJob < ActiveJob::Base
       # project disappeared ... may happen in running system
       return ""
     end
+
+    # valid package names?
+    oldstate = CONFIG['global_write_through']
+    CONFIG['global_write_through'] = false
+    package_list_api = project.packages.pluck(:name)
+    package_list_api.each do |name|
+      unless Package.valid_name? name
+        errors << "Invalid package name #{name} in project #{project.name}\n"
+        if fix
+          # just remove it, the backend won't accept it anyway
+          project.packages.where(name: name).first.destroy
+          next
+        end
+      end
+    end
+    CONFIG['global_write_through'] = oldstate
+
     # compare all packages
     package_list_api = project.packages.pluck(:name)
-
     package_list_backend = dir_to_array(Xmlhash.parse(Suse::Backend.get("/source/#{project.name}").body))
 
     diff = package_list_api - package_list_backend
