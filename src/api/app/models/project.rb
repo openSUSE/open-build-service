@@ -1592,13 +1592,9 @@ class Project < ActiveRecord::Base
 
     # One catch, currently there's only one patchinfo per incident, but things keep changing every
     # other day, so it never hurts to have a look into the future:
-    global_patchinfo = nil
+    global_patchinfo = find_patchinfo
     self.packages.each do |pkg|
-      if pkg.is_patchinfo?
-        # Global 'patchinfo' without specific release target:
-        global_patchinfo = pkg.patchinfo
-        next
-      end
+      next if pkg.name == global_patchinfo.name
 
       rt_name = pkg.name.split('.', 2).last
       next unless rt_name
@@ -1614,7 +1610,7 @@ class Project < ActiveRecord::Base
 
     if global_patchinfo
       release_targets_ng.each do |_, rt|
-        rt[:patchinfo] = global_patchinfo
+        rt[:patchinfo] = global_patchinfo.patchinfo
       end
     end
     return release_targets_ng
@@ -1823,5 +1819,11 @@ class Project < ActiveRecord::Base
     end
 
     nil
+  end
+
+  def find_patchinfo
+    # Almost all patchfino packages are named _patchinfo
+    self.packages.find { |pkg| pkg.name == "_patchinfo" && pkg.is_patchinfo? } ||
+      self.packages.find { |pkg| pkg.is_patchinfo? }
   end
 end
