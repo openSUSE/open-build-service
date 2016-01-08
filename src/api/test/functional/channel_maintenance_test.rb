@@ -1,5 +1,6 @@
 # rubocop:disable Metrics/LineLength
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
+require File.join(Rails.root, 'app/jobs/consistency_check.rb')
 require 'source_controller'
 
 class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
@@ -819,6 +820,10 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     # validate cleanup
     get '/source/home:tom:branches:OBS_Maintained:pack2/pack2.BaseDistro2.0_LinkedUpdateProject'
     assert_response 404
+
+    # data consistency check
+    chk = ConsistencyCheckJob.new
+    chk.perform # raises exception on error
 
     # test package initialization for projects linking to maintenance_release projects
     put '/source/TEST/_meta', '<project name="TEST"> <title/><description/><link project="BaseDistro2.0:LinkedUpdateProject"/></project>'

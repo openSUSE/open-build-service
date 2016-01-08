@@ -886,8 +886,10 @@ class Package < ActiveRecord::Base
     # local link, go one step deeper
     prj = Project.get_by_name(li['project'])
     pkg = prj.find_package(li['package'])
+
     # broken or remote link, aborting
     return nil if pkg.nil?
+
     return pkg.local_origin_container
   end
 
@@ -922,8 +924,11 @@ class Package < ActiveRecord::Base
     return unless self.linkinfo and project_name == self.linkinfo['project']
 
     # main package
-    ChannelBinary.find_by_project_and_package(project_name, opkg.name).each do |cb|
-      _add_channel(mode, cb, "Listed in #{project_name} #{opkg.name}")
+    name = opkg.name
+    # strip incident suffix in update release projects
+    name.gsub!(/\.[^\.]*$/, '') if opkg.project.is_maintenance_release?
+    ChannelBinary.find_by_project_and_package(project_name, name).each do |cb|
+      _add_channel(mode, cb, "Listed in #{project_name} #{name}")
     end
     # and all possible existing local links
     if opkg.project.is_maintenance_release? and opkg.is_link?
