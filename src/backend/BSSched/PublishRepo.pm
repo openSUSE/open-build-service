@@ -46,6 +46,7 @@ use Digest::MD5 ();
 
 use BSUtil;
 use Build::Rpm;
+use BSConfiguration;
 use BSSched::ProjPacks;		# for orderpackids
 use BSSched::BuildJob::DeltaRpm;
 
@@ -71,7 +72,7 @@ sub compile_publishfilter {
   for (@$filter) {
     eval {
       push @res, qr/$_/;
-    };   
+    };
   }
   return \@res;
 }
@@ -286,6 +287,23 @@ sub prpfinished {
   return '';
 }
 
+sub map_to_extrep {
+  my ($gctx, $prp, $prp_ext) = @_;
+  my $extrep = "$gctx->{'extrepodir'}/$prp_ext";
+  return $extrep unless $BSConfig::publishredirect;
+  if ($BSConfig::publishedredirect_use_regex || $BSConfig::publishedredirect_use_regex) {
+    for my $key (sort {$b cmp $a} keys %{$BSConfig::publishredirect}) {
+      if ($prp =~ /^$key/) {
+	$extrep = $BSConfig::publishredirect->{$key};
+	last;
+      }
+    }
+  } elsif (exists($BSConfig::publishredirect->{$prp})) {
+    $extrep = $BSConfig::publishredirect->{$prp};
+  }
+  $extrep = $extrep->($prp, $prp_ext) if $extrep && ref($extrep) eq 'CODE';
+  return $extrep;
+}
 
 =head2 makedeltas - calculate list of needed delta rpms and create build jobs
 
@@ -377,19 +395,23 @@ sub makedeltas {
       for my $aprp (@aprp) {
         # look in the *published* repos. We allow a special
         # extradeltarepos override in the config.
-        if (!$oldbins{"$aprp/$binarch"}) {
-          my $aextrep = $aprp;
-          $aextrep =~ s/:/:\//g;
-          $aextrep = "$gctx->{'extrepodir'}/$aextrep";
-          $aextrep = $BSConfig::publishredirect->{$aprp} if $BSConfig::publishredirect && defined($BSConfig::publishredirect->{$aprp});
-          $aextrep = $BSConfig::extradeltarepos->{$aprp} if $BSConfig::extradeltarepos && defined($BSConfig::extradeltarepos->{$aprp});
-          $oldbins{$aprp} = $aextrep;
-          $oldbins{"$aprp/$binarch"} = {};
-          for my $obin (sort(ls("$aextrep/$binarch"))) {
-            next unless $obin =~ /^(.+)-[^-]+-[^-]+\.(?:[a-zA-Z][^\/\.\-]*)\.rpm$/;
-            push @{$oldbins{"$aprp/$binarch"}->{$1}}, $obin;
-          }
-        }
+	if (!$oldbins{"$aprp/$binarch"}) {
+	  if (!exists($oldbins{$aprp})) {
+	    my $aextrep = $aprp;
+	    $aextrep =~ s/:/:\//g;
+	    $aextrep = map_to_extrep($gctx, $aprp, $aextrep);
+	    $aextrep = $aextrep->[0] if ref $aextrep;
+	    $aextrep = $BSConfig::extradeltarepos->{$aprp} if $BSConfig::extradeltarepos && defined($BSConfig::extradeltarepos->{$aprp});
+	    $oldbins{$aprp} = $aextrep;
+	  }
+	  $oldbins{"$aprp/$binarch"} = {};
+	  my $aextrep = $oldbins{$aprp};
+	  next unless $aextrep;
+	  for my $obin (sort(ls("$aextrep/$binarch"))) {
+	    next unless $obin =~ /^(.+)-[^-]+-[^-]+\.(?:[a-zA-Z][^\/\.\-]*)\.rpm$/;
+	    push @{$oldbins{"$aprp/$binarch"}->{$1}}, $obin;
+	  }
+	}
         my @cand = grep {$_ ne $bin} @{$oldbins{"$aprp/$binarch"}->{$binname}};
         next unless @cand;
 
@@ -405,6 +427,7 @@ sub makedeltas {
         @cand = splice(@cand, 0, 1);
         for my $obin (@cand) {
           my $aextrep = $oldbins{$aprp};
+	  next unless $aextrep;
           my @s = stat("$aextrep/$binarch/$obin");
           next unless @s;
           # 2013-09-05 mls: dropped $s[1]
