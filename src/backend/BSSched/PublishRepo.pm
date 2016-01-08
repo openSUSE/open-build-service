@@ -401,6 +401,14 @@ sub makedeltas {
 	    $aextrep =~ s/:/:\//g;
 	    $aextrep = map_to_extrep($gctx, $aprp, $aextrep);
 	    $aextrep = $aextrep->[0] if ref $aextrep;
+	    if ($aprp eq $prp) {	# XXX: read repoinfo for the others?
+	      my $subdir;
+	      my $bconf = $ctx->{'conf'};
+	      for (@{($ctx->{'conf'} || {})->{'repotype'} || []}) {
+		$subdir = $1 if /^packagesubdir:([^\.\/][^\/:]+)$/;
+	      }
+	      $aextrep = "$aextrep/$subdir" if $aextrep && $subdir;
+	    }
 	    $aextrep = $BSConfig::extradeltarepos->{$aprp} if $BSConfig::extradeltarepos && defined($BSConfig::extradeltarepos->{$aprp});
 	    $oldbins{$aprp} = $aextrep;
 	  }
