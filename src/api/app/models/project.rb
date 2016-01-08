@@ -1593,7 +1593,11 @@ class Project < ActiveRecord::Base
     # One catch, currently there's only one patchinfo per incident, but things keep changing every
     # other day, so it never hurts to have a look into the future:
     global_patchinfo = find_patchinfo
+    package_count = 0
     self.packages.each do |pkg|
+      # Current ui is only showing the first found package and a symbol for any additional package.
+      break if package_count > 2
+
       next if pkg.name == global_patchinfo.name
 
       rt_name = pkg.name.split('.', 2).last
@@ -1605,6 +1609,7 @@ class Project < ActiveRecord::Base
       if rt_name
         # Let's silently hope that an incident newer introduces new (sub-)packages....
         release_targets_ng[rt_name][:packages] << pkg
+        package_count += 1
       end
     end
 
