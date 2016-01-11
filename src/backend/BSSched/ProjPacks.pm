@@ -858,6 +858,7 @@ sub calc_prps {
   delete $newchanneldata{''};
   %{$gctx->{'channeldata'}} = %newchanneldata;
   print "have ".scalar(keys %newchanneldata)." unique channel configs\n" if %newchanneldata;
+  print "have ".scalar(keys %haveinterrepodep)." inter-repo dependencies\n" if %haveinterrepodep;
 
   # do the real sorting
   print "sorting projects and repositories...\n";
