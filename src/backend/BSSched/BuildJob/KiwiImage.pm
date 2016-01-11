@@ -157,7 +157,7 @@ sub check {
       $nrs{$aprp} = {};
     }
   }
- 
+
   my @blocked;
   for my $n (sort @edeps) {
     my $p = $dep2pkg{$n};
@@ -247,10 +247,10 @@ sub expandkiwipath {
   my @path;
   for (@{$info->{'path'} || []}) {
     if ($_->{'project'} eq '_obsrepositories') {
-      push @path, @{$prpsearchpath || []}; 
+      push @path, @{$prpsearchpath || []};
     } else {
       push @path, "$_->{'project'}/$_->{'repository'}";
-    }    
+    }
   }
   return @path;
 }

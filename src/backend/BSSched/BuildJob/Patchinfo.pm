@@ -59,7 +59,7 @@ sub new {
 =cut
 
 sub expand {
-  return 1, splice(@_, 3); 
+  return 1, splice(@_, 3);
 }
 
 =head2 check - check if a patchinfo needs to be rebuilt

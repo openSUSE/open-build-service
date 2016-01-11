@@ -219,7 +219,7 @@ sub check {
           $dep2meta->{$bpack} = join("\n", @m);
           # do not include our own build results
           next if $m[0] =~ /\/\Q$packid\E$/s;
-          # fixup first line 
+          # fixup first line
           $m[0] =~ s/  .*/  $bpack/;
           push @new_meta, @m;
         } else {

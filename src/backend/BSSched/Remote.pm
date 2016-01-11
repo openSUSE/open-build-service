@@ -291,7 +291,7 @@ sub remotemap2remoteprojs {
       # remote project is gone (partition case)
       delete $remoteprojs->{$projid};
       next;
-    }    
+    }
     my $oproj = $remoteprojs->{$projid};
     undef $oproj if $oproj && ($oproj->{'remoteurl'} ne $proj->{'remoteurl'} || $oproj->{'remoteproject'} ne $proj->{'remoteproject'});
     my $c = $proj->{'config'};
@@ -304,7 +304,7 @@ sub remotemap2remoteprojs {
     if ($error) {
       $proj->{'error'} = $error;
       BSSched::Events::addretryevent($gctx, {'type' => 'project', 'project' => $projid}) if $error =~ /interconnect error:/;
-    }    
+    }
     $remoteprojs->{$projid} = $proj;
   }
 }
@@ -328,22 +328,22 @@ sub setupremotewatcher {
   my %filterpackage;
   for (sort keys %$watchremote) {
     if (substr($_, 0, 8) eq 'package/') {
-      my @s = split('/', $_); 
+      my @s = split('/', $_);
       if (!defined($s[2])) {
 	unshift @{$filterpackage{$s[1]}}, undef;
       } else {
 	push @{$filterpackage{$s[1]}}, $_;
-      }    
+      }
     } else {
       push @filter, $_;
-    }    
+    }
   }
   for (sort keys %filterpackage) {
-    if (!defined($filterpackage{$_}->[0]) || @{$filterpackage{$_}} > 3) { 
+    if (!defined($filterpackage{$_}->[0]) || @{$filterpackage{$_}} > 3) {
       push @filter, "package/$_";
     } else {
       push @filter, @{$filterpackage{$_}};
-    }    
+    }
   }
   my $param = {
     'uri' => "$remoteurl/lastevents",
@@ -364,7 +364,7 @@ sub setupremotewatcher {
   if ($@) {
     warn($@);
     print "retrying in 60 seconds\n";
-    $ret = {'retry' => time() + 60}; 
+    $ret = {'retry' => time() + 60};
   }
   $ret->{'remoteurl'} = $remoteurl;
   return $ret;
@@ -413,8 +413,8 @@ sub getremoteevents {
 	} elsif ($s[0] eq 'repository' || $s[0] eq 'repoinfo') {
 	  push @remoteevents, {'type' => $s[0], 'project' => $projid, 'repository' => $s[2], 'arch' => $s[3]};
 	}
-      }    
-    }    
+      }
+    }
   }
   for my $ev (@{$ret->{'event'} || []}) {
     next unless $ev->{'project'};
@@ -428,7 +428,7 @@ sub getremoteevents {
       $watch = "$ev->{'type'}/$ev->{'project'}/$ev->{'repository'}/$myarch";
     } else {
       next;
-    }    
+    }
     my $projid = $watchremote->{$watch};
     next unless defined $projid;
     push @remoteevents, {%$ev, 'project' => $projid};

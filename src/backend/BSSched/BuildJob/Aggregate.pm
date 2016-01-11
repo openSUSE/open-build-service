@@ -72,7 +72,7 @@ sub new {
 =cut
 
 sub expand {
-  return 1, splice(@_, 3); 
+  return 1, splice(@_, 3);
 }
 
 =head2 check - check if an aggregate needs to be rebuilt
@@ -408,10 +408,10 @@ sub bins2repo {
     next unless $data;
     eval {
       BSVerify::verify_nevraquery($data);
-    };   
+    };
     next if $@;
     delete $data->{'disttag'};
-    $data->{'id'} = $id; 
+    $data->{'id'} = $id;
     $repobins->{$bin} = $data;
   }
   return $repobins;

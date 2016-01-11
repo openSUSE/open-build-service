@@ -64,39 +64,39 @@ our $new_full_handling = 1;
 $new_full_handling = $BSConfig::new_full_handling if defined $BSConfig::new_full_handling;
 
 my %default_exportfilters = (
-  'i586' => { 
+  'i586' => {
     '\.x86_64\.rpm$'   => [ 'x86_64' ],
     '\.ia64\.rpm$'     => [ 'ia64' ],
     '-debuginfo-.*\.rpm$' => [],
     '-debugsource-.*\.rpm$' => [],
   },
-  'x86_64' => { 
+  'x86_64' => {
     '-debuginfo-.*\.rpm$' => [],
     '-debugsource-.*\.rpm$' => [],
   },
-  'ppc' => { 
+  'ppc' => {
     '\.ppc64\.rpm$'   => [ 'ppc64' ],
     '-debuginfo-.*\.rpm$' => [],
     '-debugsource-.*\.rpm$' => [],
   },
-  'ppc64' => { 
+  'ppc64' => {
     '\.ppc\.rpm$'   => [ 'ppc' ],
     '-debuginfo-.*\.rpm$' => [],
     '-debugsource-.*\.rpm$' => [],
   },
-  'sparc' => { 
+  'sparc' => {
     # discard is intended - sparcv9 target is better suited for 64-bit baselibs
     '\.sparc64\.rpm$' => [],
     '-debuginfo-.*\.rpm$' => [],
     '-debugsource-.*\.rpm$' => [],
   },
-  'sparcv8' => { 
+  'sparcv8' => {
     # discard is intended - sparcv9 target is better suited for 64-bit baselibs
     '\.sparc64\.rpm$' => [],
     '-debuginfo-.*\.rpm$' => [],
     '-debugsource-.*\.rpm$' => [],
   },
-  'sparcv9' => { 
+  'sparcv9' => {
     '\.sparc64\.rpm$' => [ 'sparc64' ],
     '-debuginfo-.*\.rpm$' => [],
     '-debugsource-.*\.rpm$' => [],
@@ -581,7 +581,7 @@ sub read_bininfo {
 
  alien: gbininfo is from another scheduler
 
-=cut 
+=cut
 
 sub read_gbininfo {
   my ($dir, $alien, $dontmerge) = @_;
@@ -634,13 +634,13 @@ sub read_gbininfo {
 =cut
 
 sub findmeta {
-  my ($gdst, $packid, $r, $zerook) = @_; 
+  my ($gdst, $packid, $r, $zerook) = @_;
   if ($r->{'imported'}) {
     my $fn = $r->{'filename'};
     if ($fn =~ s/^::import::/.meta.success.import./s) {
       $fn =~ s/::.*//;
       return "$gdst/$packid/$fn" if -s "$gdst/$packid/$fn";
-    }   
+    }
   } else {
     return "$gdst/$packid/.meta.success" if -s "$gdst/$packid/.meta.success";
   }
@@ -659,7 +659,7 @@ sub findmeta {
 =cut
 
 sub remove_from_volatile {
-  my ($gdst, $del) = @_; 
+  my ($gdst, $del) = @_;
   for my $r (@$del) {
     my $bin = $r->{'filename'};
     next unless $bin =~ /^(.*)\.($binsufsre)$/; # hmm?
@@ -668,7 +668,7 @@ sub remove_from_volatile {
     unlink("$gdst/_volatile/$bin");
   }
   unlink("$gdst/_volatile/.bininfo");
-  my $bininfo = read_bininfo("$gdst/_volatile", 1); 
+  my $bininfo = read_bininfo("$gdst/_volatile", 1);
   update_bininfo_merge($gdst, '_volatile', $bininfo);
 }
 
@@ -688,7 +688,7 @@ sub wipe {
   # delete full entries
   my $projpacks = $gctx->{'projpacks'};
   my $proj = $projpacks->{$projid};
-  my $pdata = (($proj || {})->{'package'} || {})->{$packid} || {}; 
+  my $pdata = (($proj || {})->{'package'} || {})->{$packid} || {};
   my $useforbuildenabled = 1;
   $useforbuildenabled = BSUtil::enabled($repoid, $proj->{'useforbuild'}, $useforbuildenabled, $myarch) if $proj;
   $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
@@ -707,7 +707,7 @@ sub wipe {
       rmdir("$gdst/$packid/$f");
     } else {
       unlink("$gdst/$packid/$f");
-    }   
+    }
   }
   rmdir("$gdst/$packid");       # in case there is no history
 }

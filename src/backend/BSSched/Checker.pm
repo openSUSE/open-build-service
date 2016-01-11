@@ -41,7 +41,7 @@ use BSSched::BuildJob::SimpleImage;
 use BSSched::BuildJob::Unknown;
 
 
-=head1 NAME 
+=head1 NAME
 
  BSSched::Checker
 
@@ -121,7 +121,7 @@ sub wipe {
       unlink("$gdst/$dir") || die("$gdst/$dir: $!\n");
     }
   }
-  $gctx->{'changed_med'}->{$prp} = 2; 
+  $gctx->{'changed_med'}->{$prp} = 2;
   BSSched::Events::sendrepochangeevent($ctx->{'gctx'}, $prp);
   BSSched::BuildJob::killbuilding($ctx->{'gctx'}, $prp);
   BSSched::PublishRepo::prpfinished($ctx);
@@ -139,7 +139,7 @@ sub wipe {
     my $others;
     for (ls("$reporoot/$prp")) {
       next unless -d $_;
-      $others = 1; 
+      $others = 1;
     }
     if (!$others) {
       # cannot delete repoinfo because it may contain splitdbg data
@@ -418,7 +418,7 @@ sub expandandsort {
     }
     $pkg2buildtype{$packid} = $buildtype;
     $havepatchinfos{$packid} = 1 if $buildtype eq 'patchinfo';
-  
+
     if (!$info || !defined($info->{'file'}) || !defined($info->{'name'})) {
       if ($pdata->{'error'} && $pdata->{'error'} eq 'disabled') {
 	$pkgdisabled{$packid} = 1;
@@ -529,16 +529,16 @@ sub calcrelsynctrigger {
 	next unless $relsync->{$packid};
 	next unless $relsync->{$packid} =~ /(.*)\.(\d+)$/;
 	next unless defined($relsyncmax->{"$tag/$1"}) && $2 < $relsyncmax->{"$tag/$1"};
-	$relsynctrigger{$packid} = 1; 
+	$relsynctrigger{$packid} = 1;
       }
-    }    
+    }
     if (%relsynctrigger) {
       # filter failed packages
       for (ls("$gdst/:logfiles.fail")) {
 	delete $relsynctrigger{$_};
       }
-    }    
-  }    
+    }
+  }
   $ctx->{'relsynctrigger'} = \%relsynctrigger;
   $ctx->{'relsyncmax'} = $relsyncmax;
 }
@@ -603,7 +603,7 @@ sub checkpkgs {
     for my $packid (keys %{$oldpackstatus->{'packstatus'}}) {
       next if $pdatas->{$packid};
       $packstatus{$packid} = $oldpackstatus->{'packstatus'}->{$packid};
-      $packerror{$packid} = $oldpackstatus->{'packerror'}->{$packid} if $oldpackstatus->{'packerror'}->{$packid}; 
+      $packerror{$packid} = $oldpackstatus->{'packerror'}->{$packid} if $oldpackstatus->{'packerror'}->{$packid};
     }
   }
 
@@ -829,7 +829,7 @@ sub checkpkgs {
   BSUtil::store("$gdst/.:packstatus", "$gdst/:packstatus", {
     'packstatus' => \%packstatus,
     'packerror' => \%packerror,
-  });  
+  });
   unlink("$gdst/:packstatus.finished");
   my $schedulerstate;
   if (keys %building) {
@@ -838,13 +838,13 @@ sub checkpkgs {
     $schedulerstate = 'blocked';
   } else {
     $schedulerstate = 'finished';
-  }    
+  }
   return ($schedulerstate, undef);
 }
 
 sub printstats {
   my ($ctx) = @_;
-  
+
   my $packstatus = $ctx->{'packstatus'};
   for my $status (sort keys %{{map {$_ => 1} values %$packstatus}}) {
     print "    $status: ".scalar(grep {$_ eq $status} values %$packstatus)."\n";

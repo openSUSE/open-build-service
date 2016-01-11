@@ -196,13 +196,13 @@ sub lookatprp {
   if ($lookattype eq 'low') {
     @$lookat_high = grep {$_ ne $prp} @$lookat_high;
     @$lookat_med = grep {$_ ne $prp} @$lookat_med;
-    $gctx->{'notlow'} = 0; 
+    $gctx->{'notlow'} = 0;
   } elsif ($lookattype eq 'med') {
     @$lookat_high = grep {$_ ne $prp} @$lookat_high;
-    $gctx->{'notmed'} = 0; 
+    $gctx->{'notmed'} = 0;
   } else {
     @$lookat_med = grep {$_ ne $prp} @$lookat_med;
-  }    
+  }
   delete $gctx->{'nextmed'}->{$prp};
   my @ltim = localtime(time());
   my $msgtm = sprintf "%04d-%02d-%02d %02d:%02d:%02d:", $ltim[5] + 1900, $ltim[4] + 1, @ltim[3,2,1,0];

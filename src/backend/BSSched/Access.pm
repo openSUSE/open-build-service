@@ -82,7 +82,7 @@ sub checkroles {
   # XXX: check type and roles
   for my $r (@oroles) {
     next if $r->{'role'} eq 'bugowner';
-    my @rx; 
+    my @rx;
     if (exists $r->{'userid'}) {
       push @rx, grep {exists($_->{'userid'}) && $_->{'userid'} eq $r->{'userid'}} @roles;
     } elsif (exists $r->{'groupid'}) {

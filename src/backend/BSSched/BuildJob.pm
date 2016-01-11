@@ -91,7 +91,7 @@ use Build;
 use BSRPC;
 use BSCando;
 
-=head1 NAME 
+=head1 NAME
 
 BSSched::BuildJob
 
@@ -101,7 +101,7 @@ BSSched::BuildJob
 
 =head1 DESCRIPTION
 
- This library contains functions to handle jobs in openbuild-service 
+ This library contains functions to handle jobs in openbuild-service
 
 =cut
 
@@ -214,14 +214,14 @@ sub killscheduled {
 }
 
 
-=head2  killbuilding - kill build jobs 
+=head2  killbuilding - kill build jobs
 
  used if a project/package got deleted to kill all running jobs
 
  input: $prp    - prp we are working on
         $packid - just kill the builds of the package
 =cut
-           
+
 sub killbuilding {
   my ($gctx, $prp, $packid) = @_;
 
@@ -641,7 +641,7 @@ sub fakejobfinished_nouseforbuild {
  patch the packstatus entry of package $packid so that it reflects the finished state
  and does not revert back to scheduled
 
-=cut 
+=cut
 
 sub patchpackstatus {
   my ($gctx, $prp, $packid, $code) = @_;
@@ -964,7 +964,7 @@ sub path2buildinfopath {
 
 sub metacheck {
   my ($ctx, $packid, $buildtype, $new_meta, $data) = @_;
-  
+
   my $gctx = $ctx->{'gctx'};
   my $prp = $ctx->{'prp'};
   my $gdst = $ctx->{'gdst'};
@@ -1000,7 +1000,7 @@ sub metacheck {
     #print "        nothing changed\n";
     return ('done');
   }
-  my $repo = $ctx->{'repo'}; 
+  my $repo = $ctx->{'repo'};
   if ($buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product') {
     my $rebuildmethod = $repo->{'rebuild'} || 'transitive';
     if ($rebuildmethod eq 'local') {
@@ -1026,9 +1026,9 @@ sub sortedmd5toreason {
   my @res;
   for my $line (@_) {
     my $tag = substr($line, 0, 1); # just the first char
-    $tag = 'md5sum' if $tag eq '!'; 
-    $tag = 'added' if $tag eq '+'; 
-    $tag = 'removed' if $tag eq '-'; 
+    $tag = 'md5sum' if $tag eq '!';
+    $tag = 'added' if $tag eq '+';
+    $tag = 'removed' if $tag eq '-';
     push @res, { 'change' => $tag, 'key' => substr($line, 1) };
   }
   return \@res;
@@ -1047,25 +1047,25 @@ sub diffsortedmd5 {
   my @from = map {[$_, substr($_, 34)]} @$fromp;
   my @to   = map {[$_, substr($_, 34)]} @$top;
   @from = sort {$a->[1] cmp $b->[1] || $a->[0] cmp $b->[0]} @from;
-  @to   = sort {$a->[1] cmp $b->[1] || $a->[0] cmp $b->[0]} @to; 
+  @to   = sort {$a->[1] cmp $b->[1] || $a->[0] cmp $b->[0]} @to;
 
   for my $f (@from) {
     if (@to && $f->[1] eq $to[0]->[1]) {
       push @ret, "!$f->[1]" if $f->[0] ne $to[0]->[0];
-      shift @to; 
-      next;   
-    }    
+      shift @to;
+      next;
+    }
     if (!@to || $f->[1] lt $to[0]->[1]) {
       push @ret, "-$f->[1]";
-      next;   
-    }    
+      next;
+    }
     while (@to && $f->[1] gt $to[0]->[1]) {
       push @ret, "+$to[0]->[1]";
-      shift @to; 
-    }    
-    redo;   
+      shift @to;
+    }
+    redo;
   }
-  push @ret, "+$_->[1]" for @to; 
+  push @ret, "+$_->[1]" for @to;
   return @ret;
 }
 

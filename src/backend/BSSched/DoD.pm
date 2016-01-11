@@ -51,7 +51,7 @@ sub put_doddata_in_cache {
     if (!defined &BSSolv::repo::updatedoddata) {
       print "    download on demand: cannot update dod data, perl-BSSolv is too old\n";
       return (0, $cache);
-    }      
+    }
     $cache->updatedoddata($data);
   } else {
     $cache = $pool->repofromdata($prp, $data);
@@ -74,10 +74,10 @@ sub clean_obsolete_dodpackages {
   my $nbinsdirty;
   while (@bins) {
     my ($path, $id) = splice(@bins, 0, 2);
-    if ($paths{$path}) { 
+    if ($paths{$path}) {
       push @nbins, $path, $id;
       next;
-    }      
+    }
     $nbinsdirty = 1;
     print "      - :full/$path [DoD cleanup]\n";
     unlink("$dir/$path");
@@ -122,8 +122,8 @@ sub dodcheck {
     next unless $p && ($pool->pkg2pkgid($p) || '') eq 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0';
     # ohhh, we have to download
     my $prp = $pool->pkg2reponame($p);
-    $ctx->{'doddownloads'}->{"$prp/$arch"}->{$pkg} = 1; 
-    $todownload{$pkg} = 1; 
+    $ctx->{'doddownloads'}->{"$prp/$arch"}->{$pkg} = 1;
+    $todownload{$pkg} = 1;
   }
   return unless %todownload;
   return "downloading ".keys(%todownload)." dod packages";
@@ -199,7 +199,7 @@ sub update_doddata_prp {
   return 0 if BSUtil::identical($doddata, $dodprps->{$prp});
   my ($projid, $repoid) = split('/', $prp, 2);
   my $f = "${projid}::${repoid}::$myarch";
-  $f = ':'.Digest::MD5::md5_hex($f) if length($f) > 200; 
+  $f = ':'.Digest::MD5::md5_hex($f) if length($f) > 200;
   my $dodsdir = $gctx->{'dodsdir'};
   if (!$doddata) {
     unlink("$dodsdir/$f");
@@ -228,7 +228,7 @@ sub update_doddata {
     for my $prp (keys %$dodprps) {
       next unless (split('/', $prp, 2))[0] eq $projid;
       $changed ||= update_doddata_prp($gctx, $prp, undef);
-    }    
+    }
   } else {
     for my $repo (@{$proj->{'repository'}}) {
       my $doddata = (grep {($_->{'arch'} || '') eq $myarch} @{$repo->{'download'} || []})[0];

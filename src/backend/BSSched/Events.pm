@@ -556,7 +556,7 @@ sub order {
     # sort events a bit, exit events go first ;-)
     # uploadbuild/import events must go last
     my %evprio = ('exit' => -1, 'exitcomplete' => -1, 'restart' => -1, 'uploadbuild' => 1, 'import' => 1);
-    @events = sort {($evprio{$a->{'type'}} || 0) <=> ($evprio{$b->{'type'}} || 0) || 
+    @events = sort {($evprio{$a->{'type'}} || 0) <=> ($evprio{$b->{'type'}} || 0) ||
                     $a->{'type'} cmp $b->{'type'} ||
                     ($a->{'project'} || '') cmp ($b->{'project'} || '') ||
                     ($a->{'job'} || '') cmp ($b->{'job'} || '')

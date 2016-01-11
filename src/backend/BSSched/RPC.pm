@@ -25,7 +25,7 @@ use BSRPC;
 use BSUtil;
 use BSConfiguration;
 
-=head1 NAME 
+=head1 NAME
 
  BSSched::RPC
 
@@ -65,7 +65,7 @@ sub new {
 =cut
 
 sub is_transient_error {
-  my ($error) = @_; 
+  my ($error) = @_;
   return 1 if $error =~ /^5\d\d/;
   return 0 if $error =~ /remote error:/;
   return 1;
@@ -78,7 +78,7 @@ sub is_transient_error {
 =cut
 
 sub xrpc {
-  my ($rctx, $ctx, $resource, $param, @args) = @_; 
+  my ($rctx, $ctx, $resource, $param, @args) = @_;
 
   my $async = $param->{'async'};
   return BSRPC::rpc($param, @args) unless $async;
@@ -106,7 +106,7 @@ sub xrpc {
   $server =~ s/\/.*//;
   my $maxserverload = $rctx->{'maxserverload'};
   my $iswaiting_server = $rctx->{'iswaiting_server'};
-  my $serverload = scalar(keys %{$iswaiting_server->{$server} || {}}); 
+  my $serverload = scalar(keys %{$iswaiting_server->{$server} || {}});
   if (defined($maxserverload) && $serverload >= $maxserverload) {
     # load too high. postpone.
     my $handle = { '_xrpc_data' => [$ctx, $resource, $param, @args] };
