@@ -541,12 +541,14 @@ our $buildinfo = [
      [[ 'path' =>
 	    'project',
 	    'repository',
-	    'server',
+	    'server',	# internal
+	    'url',	# external
      ]],
      [[ 'syspath' =>
 	    'project',
 	    'repository',
-	    'server',
+	    'server',	# internal
+	    'url',	# external
      ]],
 	'expanddebug',
 	'followupfile',	# for two-stage builds

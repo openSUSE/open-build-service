@@ -2893,6 +2893,14 @@ sub getbuildinfo {
         $_->{'server'} = $BSConfig::reposerver;
       }
     }
+  } else {
+    for my $r (@{$ret->{'path'}}) {
+      my $rprp = "$r->{'project'}/$r->{'repository'}";
+      my $rprp_ext = $rprp;
+      $rprp_ext =~ s/:/:\//g;
+      my $rurl = get_downloadurl($rprp, $rprp_ext);
+      $r->{'url'} = $rurl if $rurl;
+    }
   }
   $ret->{'srcmd5'} = $pdata->{'srcmd5'} if $pdata->{'srcmd5'};
   $ret->{'verifymd5'} = $pdata->{'verifymd5'} || $pdata->{'srcmd5'} if $pdata->{'verifymd5'} || $pdata->{'srcmd5'};
