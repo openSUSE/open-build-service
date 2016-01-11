@@ -1578,6 +1578,8 @@ class Project < ActiveRecord::Base
   end
 
   def release_targets_ng
+    global_patchinfo = find_patchinfo
+
     # First things first, get release targets as defined by the project, err.. incident. Later on we
     # magically find out which of the contained packages, err. updates are build against those release
     # targets.
@@ -1585,14 +1587,13 @@ class Project < ActiveRecord::Base
     self.repositories.each do |repo|
       repo.release_targets.each do |rt|
         release_targets_ng[rt.target_repository.project.name] = {:reponame => repo.name,
-                                                                 :packages => [], :patchinfo => nil,
+                                                                 :packages => [], :patchinfo => global_patchinfo.patchinfo,
                                                                  :package_issues => {}, :package_issues_by_tracker => {}}
       end
     end
 
     # One catch, currently there's only one patchinfo per incident, but things keep changing every
     # other day, so it never hurts to have a look into the future:
-    global_patchinfo = find_patchinfo
     package_count = 0
     self.packages.select(:name, :id).each do |pkg|
       # Current ui is only showing the first found package and a symbol for any additional package.
@@ -1613,11 +1614,6 @@ class Project < ActiveRecord::Base
       end
     end
 
-    if global_patchinfo
-      release_targets_ng.each do |_, rt|
-        rt[:patchinfo] = global_patchinfo.patchinfo
-      end
-    end
     return release_targets_ng
   end
 
