@@ -5,7 +5,6 @@ class PackageIssue < ActiveRecord::Base
   def self.sync_relations(package, issues)
     retries=10
     begin
-    package.with_lock do
       PackageIssue.transaction do
         allissues=[]
         issues.map{|h| allissues += h.last}
@@ -24,7 +23,6 @@ class PackageIssue < ActiveRecord::Base
           PackageIssue.where(package: package, issue: pair.last).update_all(change: pair.first)
         end
       end
-    end
     rescue ActiveRecord::StatementInvalid
       retries = retries - 1
       retry if retries > 0
