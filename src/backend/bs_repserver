@@ -2895,6 +2895,7 @@ sub getbuildinfo {
     }
   } else {
     for my $r (@{$ret->{'path'}}) {
+      next if $remotemap{$r->{'project'}};	# what to do with those?
       my $rprp = "$r->{'project'}/$r->{'repository'}";
       my $rprp_ext = $rprp;
       $rprp_ext =~ s/:/:\//g;
