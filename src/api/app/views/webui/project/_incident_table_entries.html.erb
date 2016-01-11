@@ -27,11 +27,10 @@
                 <% end %>
               </td>
               <td rowspan="<%= release_targets_ng.length %>">
-                <% packages = rt[:packages]
-                   package = packages.shift
-                   if package %>
-                    <%= link_to(package.name.split('.', 2)[0], controller: 'package', action: 'show', project: incident.name, package: package.name) %>
-                    <% unless packages.empty? %>
+                  <% unless rt[:packages].blank? %>
+                    <% first_pkg = rt[:packages].first %>
+                    <%= link_to(first_pkg.name.split('.', 2)[0], package_show_path(project: incident.name, package: first_pkg.name)) %>
+                    <% if rt[:packages].length > 1 %>
                         , ...
                     <% end %>
                 <% end %>
