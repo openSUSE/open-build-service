@@ -5,7 +5,9 @@ use Test::More;                      # last test to print
 
 require_ok('BSSched::BuildJob');
 require_ok('BSSched::BuildJob::DeltaRpm');
-require_ok('BSSched::Events');
+require_ok('BSSched::EventHandler');
+require_ok('BSSched::EventSource::Directory');
+require_ok('BSSched::EventSource::Retry');
 require_ok('BSSched::BuildRepo');
 require_ok('BSSched::PublishRepo');
 require_ok('BSSched::BuildResult');
@@ -22,7 +24,7 @@ my %BSSched_handlers;
 }
  
 while ( my ($key,$class) = each(%BSSched_handlers)) {
-    require_ok($class);
+    use_ok($class);
     $obj = $class->new();
     print $@;
     ok(ref($obj) eq $class,"Checking object $class creation");

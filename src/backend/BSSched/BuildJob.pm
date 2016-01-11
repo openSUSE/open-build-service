@@ -85,8 +85,9 @@ use BSUtil;
 use BSXML;
 use BSFileDB;
 use BSConfiguration;
-use BSSched::DoD;	# for dodcheck
-use BSSched::Access;	# for checkaccess
+use BSSched::DoD;	                # for dodcheck
+use BSSched::Access;	            	# for checkaccess
+use BSSched::EventSource::Directory; 	# for sendevent
 use Build;
 use BSRPC;
 use BSCando;
@@ -551,9 +552,9 @@ sub fakejobfinished {
   close(F);
   my $ev = {'type' => 'built', 'arch' => $myarch, 'job' => $job};
   if ($needsign) {
-    BSSched::Events::sendevent($gctx, $ev, 'signer', "finished:$myarch:$job");
+    BSSched::EventSource::Directory::sendevent($gctx, $ev, 'signer', "finished:$myarch:$job");
   } else {
-    BSSched::Events::sendevent($gctx, $ev, $myarch, "finished:$job");
+    BSSched::EventSource::Directory::sendevent($gctx, $ev, $myarch, "finished:$job");
   }
 }
 

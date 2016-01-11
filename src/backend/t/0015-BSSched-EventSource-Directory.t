@@ -3,7 +3,7 @@ use warnings;
 
 use Test::More tests => 1;                      # last test to print
 
-use_ok('BSSched::Events');
+use_ok('BSSched::EventSource::Directory');
 use FindBin;
 use Data::Dumper;
 

@@ -49,6 +49,7 @@ use Build::Rpm;
 use BSConfiguration;
 use BSSched::ProjPacks;		# for orderpackids
 use BSSched::BuildJob::DeltaRpm;
+use BSSched::EventSource::Directory;  # sendpublishevent
 
 my $default_publishfilter;
 
@@ -121,7 +122,7 @@ sub prpfinished {
     }
     # release lock and ping publisher
     close(F);
-    BSSched::Events::sendpublishevent($ctx->{'gctx'}, $prp);
+    BSSched::EventSource::Directory::sendpublishevent($ctx->{'gctx'}, $prp);
     return '';
   }
 
@@ -283,7 +284,7 @@ sub prpfinished {
 
   # release lock and ping publisher
   close(F);
-  BSSched::Events::sendpublishevent($ctx->{'gctx'}, $prp);
+  BSSched::EventSource::Directory::sendpublishevent($ctx->{'gctx'}, $prp);
   return '';
 }
 

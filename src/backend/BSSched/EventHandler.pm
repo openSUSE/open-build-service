@@ -15,7 +15,7 @@
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 #
 
-package BSSched::Events;
+package BSSched::EventHandler;
 
 use strict;
 use warnings;
@@ -36,7 +36,7 @@ use BSSched::BuildJob::Import;
 
 =head1 NAME
 
- BSSched::Events
+ BSSched::EventHandler
 
 =head1 DESCRIPTION
 
@@ -47,34 +47,34 @@ use BSSched::BuildJob::Import;
 =cut
 
 our %event_handlers = (
-  'built'           => \&BSSched::Events::event_built,
-  'uploadbuild'     => \&BSSched::Events::event_built,
-  'import'          => \&BSSched::Events::event_built,
+  'built'           => \&BSSched::EventHandler::event_built,
+  'uploadbuild'     => \&BSSched::EventHandler::event_built,
+  'import'          => \&BSSched::EventHandler::event_built,
 
-  'srcevent'        => \&BSSched::Events::event_package,
-  'package'         => \&BSSched::Events::event_package,
+  'srcevent'        => \&BSSched::EventHandler::event_package,
+  'package'         => \&BSSched::EventHandler::event_package,
 
-  'project'         => \&BSSched::Events::event_project,
-  'projevent'       => \&BSSched::Events::event_project,
-  'lowprioproject'  => \&BSSched::Events::event_project,
-  'repository'      => \&BSSched::Events::event_repository,
-  'repoinfo'        => \&BSSched::Events::event_repository,
-  'rebuild'         => \&BSSched::Events::event_check,
-  'recheck'         => \&BSSched::Events::event_check,
-  'admincheck'      => \&BSSched::Events::event_check,
-  'unblocked'       => \&BSSched::Events::event_check_med,
-  'relsync'         => \&BSSched::Events::event_check_med,
-  'scanrepo'        => \&BSSched::Events::event_scanrepo,
-  'scanprjbinaries' => \&BSSched::Events::event_scanprjbinaries,
-  'dumprepo'        => \&BSSched::Events::event_dumprepo,
-  'wipenotyet'      => \&BSSched::Events::event_wipenotyet,
-  'wipe'            => \&BSSched::Events::event_wipe,
-  'exit'            => \&BSSched::Events::event_exit,
-  'exitcomplete'    => \&BSSched::Events::event_exit,
-  'restart'         => \&BSSched::Events::event_exit,
-  'dumpstate'       => \&BSSched::Events::event_exit,
-  'useforbuild'     => \&BSSched::Events::event_useforbuild,
-  'configuration'   => \&BSSched::Events::event_configuration,
+  'project'         => \&BSSched::EventHandler::event_project,
+  'projevent'       => \&BSSched::EventHandler::event_project,
+  'lowprioproject'  => \&BSSched::EventHandler::event_project,
+  'repository'      => \&BSSched::EventHandler::event_repository,
+  'repoinfo'        => \&BSSched::EventHandler::event_repository,
+  'rebuild'         => \&BSSched::EventHandler::event_check,
+  'recheck'         => \&BSSched::EventHandler::event_check,
+  'admincheck'      => \&BSSched::EventHandler::event_check,
+  'unblocked'       => \&BSSched::EventHandler::event_check_med,
+  'relsync'         => \&BSSched::EventHandler::event_check_med,
+  'scanrepo'        => \&BSSched::EventHandler::event_scanrepo,
+  'scanprjbinaries' => \&BSSched::EventHandler::event_scanprjbinaries,
+  'dumprepo'        => \&BSSched::EventHandler::event_dumprepo,
+  'wipenotyet'      => \&BSSched::EventHandler::event_wipenotyet,
+  'wipe'            => \&BSSched::EventHandler::event_wipe,
+  'exit'            => \&BSSched::EventHandler::event_exit,
+  'exitcomplete'    => \&BSSched::EventHandler::event_exit,
+  'restart'         => \&BSSched::EventHandler::event_exit,
+  'dumpstate'       => \&BSSched::EventHandler::event_exit,
+  'useforbuild'     => \&BSSched::EventHandler::event_useforbuild,
+  'configuration'   => \&BSSched::EventHandler::event_configuration,
 );
 
 =head2 event_built - TODO: add summary
@@ -502,69 +502,6 @@ sub event_configuration {
   $gctx->{'remoteproxy'} = $BSConfig::proxy;
 }
 
-
-=head2 new - generate an event processor
-
- TODO: add description
-
-=cut
-
-sub new {
-  my ($class, $gctx, @conf) = @_;
-  my $ectx = {
-    'gctx' => $gctx,
-    'fetchprojpacks' => {},
-    'fetchprojpacks_nodelay' => {},
-    'deepcheck' => {},
-    'lowprioproject' => {},
-    'fullcache' => undef,
-    @conf
-  };
-  return bless $ectx, $class;
-}
-
-=head2 process_one - process a single event
-
- TODO: add description
-
-=cut
-
-sub process_one {
-  my ($ectx, $ev) = @_;
-  my $type = $ev->{'type'} || 'unknown';
-  if ($ectx->{'initialstartup'} && ($type eq 'exit' || $type eq 'exitcomplete')) {
-    print "WARNING: there was an exit event, but we ignore it directly after starting the scheduler.\n";
-    return;
-  }
-  my $evhandler = $event_handlers{$type};
-  if ($evhandler) {
-    $evhandler->($ectx, $ev);
-  } else {
-    print "unknown event type '$type'\n";
-  }
-}
-
-=head2 order - order events so that the important ones come first
-
- TODO: add description
-
-=cut
-
-sub order {
-  my ($ectx, @events) = @_;
-  if (@events > 1) {
-    # sort events a bit, exit events go first ;-)
-    # uploadbuild/import events must go last
-    my %evprio = ('exit' => -1, 'exitcomplete' => -1, 'restart' => -1, 'uploadbuild' => 1, 'import' => 1);
-    @events = sort {($evprio{$a->{'type'}} || 0) <=> ($evprio{$b->{'type'}} || 0) ||
-                    $a->{'type'} cmp $b->{'type'} ||
-                    ($a->{'project'} || '') cmp ($b->{'project'} || '') ||
-                    ($a->{'job'} || '') cmp ($b->{'job'} || '')
-                    } @events;
-    }
-  return @events;
-}
-
 =head2 event_uploadbuildimport_delay - check if an upload event needs to be delayed
 
  TODO: add description
@@ -599,6 +536,30 @@ sub event_uploadbuildimport_delay {
     return 1;
   }
   return 0;
+}
+
+#
+# EVENT QUEUE HANDLING
+#
+
+=head2 new - generate an event processor
+
+ TODO: add description
+
+=cut
+
+sub new {
+  my ($class, $gctx, @conf) = @_;
+  my $ectx = {
+    'gctx' => $gctx,
+    'fetchprojpacks' => {},
+    'fetchprojpacks_nodelay' => {},
+    'deepcheck' => {},
+    'lowprioproject' => {},
+    'fullcache' => undef,
+    @conf
+  };
+  return bless $ectx, $class;
 }
 
 =head2 process_events - process a list of events
@@ -665,139 +626,46 @@ sub process_events {
   return $gotevent;
 }
 
-
-###
-###  Event reader code
-###
-
-=head2 readevents - read events from a directory
-
- we special case the "built" event type as it is so common
-
-=cut
-
-sub readevents {
-  my ($gctx, $eventdir) = @_;
-  my @events;
-
-  for my $evfilename (sort(ls($eventdir))) {
-    next if $evfilename =~ /^\./;
-    my $ev;
-    if ($evfilename =~ /^finished:(.*)/) {
-      $ev = {'type' => 'built', 'job' => $1, 'evfilename' => "$eventdir/$evfilename"};
-    } else {
-      $ev = readxml("$eventdir/$evfilename", $BSXML::event, 1);
-      if (!$ev) {
-	print "$evfilename: bad event xml\n";
-	unlink("$eventdir/$evfilename");
-        next;
-      }
-      $ev->{'type'} ||= 'unknown';
-      $ev->{'evfilename'} = "$eventdir/$evfilename";
-    }
-    push @events, $ev;
-  }
-  return @events;
-}
-
-###
-###  Event writer code
-###
-
-=head2 sendevent - send an event to a different scheduler / publisher / signer
+=head2 process_one - process a single event
 
  TODO: add description
 
 =cut
 
-sub sendevent {
-  my ($gctx, $ev, $arch, $evname) = @_;
-
-  my $eventdir = $gctx->{'eventdir'};
-  mkdir_p("$eventdir/$arch");
-  $evname = "$ev->{'type'}:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
-  writexml("$eventdir/$arch/.$evname$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);
-  local *F;
-  if (sysopen(F, "$eventdir/$arch/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
-    syswrite(F, 'x');
-    close(F);
+sub process_one {
+  my ($ectx, $ev) = @_;
+  my $type = $ev->{'type'} || 'unknown';
+  if ($ectx->{'initialstartup'} && ($type eq 'exit' || $type eq 'exitcomplete')) {
+    print "WARNING: there was an exit event, but we ignore it directly after starting the scheduler.\n";
+    return;
+  }
+  my $evhandler = $event_handlers{$type};
+  if ($evhandler) {
+    $evhandler->($ectx, $ev);
+  } else {
+    print "unknown event type '$type'\n";
   }
 }
 
-=head2 sendrepochangeevent - send a repository/repoinfo event
+=head2 order - order events so that the important ones come first
 
- we don't directly send it to the src server, as this would
- slow down the scheduler too much. Instead, we write it on
- disk and the dispatcher will pick it up and send it for us.
+ TODO: add description
 
 =cut
 
-sub sendrepochangeevent {
-  my ($gctx, $prp, $type) = @_;
-
-  my $myarch = $gctx->{'arch'};
-  my ($projid, $repoid) = split('/', $prp, 2);
-  my $ev = {
-    'type' => ($type || 'repository'),
-    'project' => $projid,
-    'repository' => $repoid,
-    'arch' => $myarch,
-  };
-  sendevent($gctx, $ev, 'repository', "${projid}::${repoid}::${myarch}");
-}
-
-=head2 sendunblockedevent - send an unblocked event to another scheduler
-
- input: $prp  - prp that is unblocked
-        $arch - target scheduler architecture
-
-=cut
-
-sub sendunblockedevent {
-  my ($gctx, $prp, $arch) = @_;
-
-  my ($projid, $repoid) = split('/', $prp, 2);
-  my $ev = {
-    'type' => 'unblocked',
-    'project' => $projid,
-    'repository' => $repoid,
-  };
-  sendevent($gctx, $ev, $arch, "unblocked::${projid}::${repoid}");
-}
-
-=head2 sendpublishevent - send a publish event to the publisher
-
- input: $prp - prp to be published
-
-=cut
-
-sub sendpublishevent {
-  my ($gctx, $prp) = @_;
-
-  my ($projid, $repoid) = split('/', $prp, 2);
-  my $ev = {
-    'type' => 'publish',
-    'project' => $projid,
-    'repository' => $repoid,
-  };
-  sendevent($gctx, $ev, 'publish', "${projid}::$repoid");
-}
-
-=head2 sendimportevent - send an import event to another scheduler
-
- input: $job - import job name
-        $arch - target scheduler architecture
-
-=cut
-
-sub sendimportevent {
-  my ($gctx, $job, $arch) = @_;
-  my $ev = {
-    'type' => 'import',
-    'job' => $job,
-  };
-  # prefix with "import." so that there's no name conflict
-  sendevent($gctx, $ev, $arch, "import.$job");
+sub order {
+  my ($ectx, @events) = @_;
+  if (@events > 1) {
+    # sort events a bit, exit events go first ;-)
+    # uploadbuild/import events must go last
+    my %evprio = ('exit' => -1, 'exitcomplete' => -1, 'restart' => -1, 'uploadbuild' => 1, 'import' => 1);
+    @events = sort {($evprio{$a->{'type'}} || 0) <=> ($evprio{$b->{'type'}} || 0) || 
+                    $a->{'type'} cmp $b->{'type'} ||
+                    ($a->{'project'} || '') cmp ($b->{'project'} || '') ||
+                    ($a->{'job'} || '') cmp ($b->{'job'} || '')
+                    } @events;
+    }
+  return @events;
 }
 
 

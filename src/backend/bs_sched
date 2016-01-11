@@ -56,7 +56,9 @@ use BSSched::ProjPacks;
 use BSSched::BuildRepo;
 use BSSched::BuildResult;
 use BSSched::PublishRepo;
-use BSSched::Events;
+use BSSched::EventHandler;
+use BSSched::EventSource::Directory;
+use BSSched::EventSource::Retry;
 use BSSched::BuildJob;
 use BSSched::Access;
 use BSSched::Lookat;
@@ -338,7 +340,7 @@ if ($testmode && ($testmode eq 'exit' || $testmode eq 'restart')) {
   };
   my $evname = "$ev->{'type'}::";
   my $gctx = {'eventdir' => $_eventdir};
-  BSSched::Events::sendevent($gctx, $ev, $_myarch, $evname);
+  BSSched::EventSource::Directory::sendevent($gctx, $ev, $_myarch, $evname);
   BSUtil::waituntilgone("$_eventdir/$_myarch/$evname");
   if ($testmode eq 'exit') {
     # scheduler saw the event, wait until the process is gone
@@ -719,9 +721,9 @@ eval {
     # create watchers
     for my $remoteurl (sort keys %$watchremote) {
       if (!$remotewatchers{$remoteurl}) {
-	my $watcher = BSSched::Remote::setupremotewatcher($gctx, $remoteurl, $watchremote->{$remoteurl}, $watchremote_start->{$remoteurl});
-	$watcher->{'watchlist'} = join("\0", sort keys %{$watchremote->{$remoteurl}});
-	$remotewatchers{$remoteurl} = $watcher;
+        my $watcher = BSSched::Remote::setupremotewatcher($gctx, $remoteurl, $watchremote->{$remoteurl}, $watchremote_start->{$remoteurl});
+        $watcher->{'watchlist'} = join("\0", sort keys %{$watchremote->{$remoteurl}});
+        $remotewatchers{$remoteurl} = $watcher;
       }
     }
 
@@ -735,10 +737,10 @@ eval {
 
     # add retry events
     if (@{$gctx->{'retryevents'}}) {
-      my @due = BSSched::Events::getretryevents($gctx);
+      my @due = BSSched::EventSource::Retry::getretryevents($gctx);
       if (@due) {
-	print "retrying ".@due." events\n";
-	push @events, @due;
+        print "retrying ".@due." events\n";
+        push @events, @due;
       }
     }
 
@@ -749,23 +751,23 @@ eval {
       my @watchers = (values(%remotewatchers), $gctx->{'rctx'}->xrpc_handles());
       if (@watchers) {
         @watchers = select_read(0, $pingwatcher, @watchers);
-	for my $watcher (@watchers) {
-	  my $remoteurl = $watcher->{'remoteurl'};
-	  if (!defined($remoteurl)) {
-	    $gctx->{'rctx'}->xrpc_resume($watcher);
-	    $gotevent = 1;	# force loop restart
-	  } elsif ($remoteurl eq 'ping') {
-            $gotevent = 1;
-	  } elsif ($watcher->{'retry'}) {
-	    print "retrying watcher for $remoteurl\n";
-	    delete $remotewatchers{$remoteurl};
-	  } else {
-	    push @events, BSSched::Remote::getremoteevents($gctx, $watcher, $watchremote->{$remoteurl}, $watchremote_start);
-	    delete $remotewatchers{$remoteurl} unless $watcher->{'retry'};
-	  }
-	}
+        for my $watcher (@watchers) {
+          my $remoteurl = $watcher->{'remoteurl'};
+          if (!defined($remoteurl)) {
+            $gctx->{'rctx'}->xrpc_resume($watcher);
+            $gotevent = 1;	# force loop restart
+          } elsif ($remoteurl eq 'ping') {
+                $gotevent = 1;
+          } elsif ($watcher->{'retry'}) {
+            print "retrying watcher for $remoteurl\n";
+            delete $remotewatchers{$remoteurl};
+          } else {
+            push @events, BSSched::Remote::getremoteevents($gctx, $watcher, $watchremote->{$remoteurl}, $watchremote_start);
+            delete $remotewatchers{$remoteurl} unless $watcher->{'retry'};
+          }
+        }
       } else {
-	my $dummy;
+	    my $dummy;
         $gotevent = 1 if (sysread(PING, $dummy, 1, 0) || 0) > 0;
       }
     }
@@ -777,7 +779,7 @@ eval {
       my $dummy;
       1 while (sysread(PING, $dummy, 1024, 0) || 0) > 0;
       # add events from myeventdir
-      push @events, BSSched::Events::readevents($gctx, $gctx->{'myeventdir'});
+      push @events, BSSched::EventSource::Directory::readevents($gctx, $gctx->{'myeventdir'});
       next unless @events;
     }
 
@@ -786,17 +788,17 @@ eval {
       die if $testprojid;
 
       # create event processor
-      my $ectx = BSSched::Events->new($gctx, 'initialstartup' => $initialstartup);
+      my $ectx = BSSched::EventHandler->new($gctx, 'initialstartup' => $initialstartup);
       eval {
         @events = $ectx->order(@events);
-	if ($ectx->process_events(@events)) {
-	  # could not process all events, re-run
-	  $gotevent = 1;
-	}
+        if ($ectx->process_events(@events)) {
+          # could not process all events, re-run
+          $gotevent = 1;
+        }
       };
       if ($@) {
         warn($@);
-        BSSched::Events::event_exit($ectx, {'type' => 'emergencydump'});
+        BSSched::EventHandler::event_exit($ectx, {'type' => 'emergencydump'});
         exit(1);
       }
       next;
@@ -833,8 +835,8 @@ eval {
     if (!defined($prp)) {
       # nothing to do. good night, sleep tight...
       if ($testmode && !$gctx->{'rctx'}->xrpc_busy()) {
-	print "Test mode, all sources and events processed, exiting...\n";
-        BSSched::Events::event_exit({ 'gctx' => $gctx }, { 'type' => 'exitcomplete' });
+	    print "Test mode, all sources and events processed, exiting...\n";
+        BSSched::EventHandler::event_exit({ 'gctx' => $gctx }, { 'type' => 'exitcomplete' });
       }
       my @ltim = localtime(time);
       my $msgtm = sprintf "%04d-%02d-%02d %02d:%02d:%02d:", $ltim[5] + 1900, $ltim[4] + 1, @ltim[3,2,1,0];
@@ -857,26 +859,26 @@ eval {
       my $projpacks = $gctx->{'projpacks'};
       my %repoids;
       for my $repo (@{($projpacks->{$projid} || {})->{'repository'} || []}) {
-	$repoids{$repo->{'name'}} = 1 if grep {$_ eq $myarch} @{$repo->{'arch'} || []};
+        $repoids{$repo->{'name'}} = 1 if grep {$_ eq $myarch} @{$repo->{'arch'} || []};
       }
       for my $repoid (ls("$reporoot/$projid")) {
-	next if $repoid eq ':all';	# XXX
-	next if $repoids{$repoid};
-	my $prp = "$projid/$repoid";
-	next if -l "$reporoot/$prp";	# XXX
-	my $gdst = "$reporoot/$prp/$myarch";
-	next unless -d $gdst;
-	# we no longer build this repoid
-	print "  - deleting repository $prp\n";
-	delete $gctx->{'prpfinished'}->{$prp};
-	delete $gctx->{'prpnotready'}->{$prp};
-	delete $gctx->{'prpunfinished'}->{$prp};
-	delete $gctx->{'prpchecktimes'}->{$prp};
-	delete $gctx->{'repodatas'}->{$prp};
-	delete $gctx->{'lastcheck'}->{$prp};
-	delete $gctx->{'prpcheckuseforbuild'}->{$prp};
-	my $ctx = BSSched::Checker->new($gctx, $prp);
-	$ctx->wipe();
+        next if $repoid eq ':all';	# XXX
+        next if $repoids{$repoid};
+        my $prp = "$projid/$repoid";
+        next if -l "$reporoot/$prp";	# XXX
+        my $gdst = "$reporoot/$prp/$myarch";
+        next unless -d $gdst;
+        # we no longer build this repoid
+        print "  - deleting repository $prp\n";
+        delete $gctx->{'prpfinished'}->{$prp};
+        delete $gctx->{'prpnotready'}->{$prp};
+        delete $gctx->{'prpunfinished'}->{$prp};
+        delete $gctx->{'prpchecktimes'}->{$prp};
+        delete $gctx->{'repodatas'}->{$prp};
+        delete $gctx->{'lastcheck'}->{$prp};
+        delete $gctx->{'prpcheckuseforbuild'}->{$prp};
+        my $ctx = BSSched::Checker->new($gctx, $prp);
+        $ctx->wipe();
       }
       rmdir("$reporoot/$projid");		# in case this was the last repo
       next;
@@ -887,9 +889,9 @@ eval {
       my $inprogress;
       my $delayed;
       while ($delayed = delete($gctx->{'delayedfetchprojpacks'}->{$projid})) {
-	my $async;
-	$async = {'_changeprp' => $prp, '_changetype' => $lookattype} if $gctx->{'asyncmode'};
-	$inprogress ||= !BSSched::ProjPacks::do_delayedprojpackfetches($gctx, $async, $projid, @$delayed);
+        my $async;
+        $async = {'_changeprp' => $prp, '_changetype' => $lookattype} if $gctx->{'asyncmode'};
+        $inprogress ||= !BSSched::ProjPacks::do_delayedprojpackfetches($gctx, $async, $projid, @$delayed);
       }
       next if $inprogress;	# async projpack fetch in progress...
     }
@@ -983,10 +985,10 @@ eval {
     # chance to work
     my $repounchanged = $gctx->{'repounchanged'};
     if (!$repounchanged->{$prp} || (!%$unfinished && !$gctx->{'prpfinished'}->{$prp})) {
-      BSSched::Events::sendrepochangeevent($gctx, $prp);
+      BSSched::EventSource::Directory::sendrepochangeevent($gctx, $prp);
       $repounchanged->{$prp} = 1;
     } elsif ($repounchanged->{$prp} == 2) {
-      BSSched::Events::sendrepochangeevent($gctx, $prp, 'repoinfo');
+      BSSched::EventSource::Directory::sendrepochangeevent($gctx, $prp, 'repoinfo');
       $repounchanged->{$prp} = 1;
     }
 
@@ -1013,9 +1015,9 @@ eval {
       # write out lastcheck cache and delete it
       my $lastcheck = $gctx->{'lastcheck'}->{$prp};
       if ($lastcheck && %$lastcheck) {
-	BSUtil::store("$gdst/.:lastcheck", "$gdst/:lastcheck", $lastcheck);
+        BSUtil::store("$gdst/.:lastcheck", "$gdst/:lastcheck", $lastcheck);
       } else {
-	unlink("$gdst/:lastcheck");
+        unlink("$gdst/:lastcheck");
       }
       delete $gctx->{'lastcheck'}->{$prp};
       # delete pkg meta cache
@@ -1023,26 +1025,26 @@ eval {
       delete $repodatas->{$prp}->{'meta'} if $repodatas->{$prp};
 
       if (!$gctx->{'prpnoleaf'}->{$prp}) {
-	# only free repo data if all projects we depend on are finished, too.
-	# (we always have to do the expansion if something changes)
-	my @unfinishedprps;
-	my $remoteprojs = $gctx->{'remoteprojs'};
-	my $prpfinished = $gctx->{'prpfinished'};
-	for (@{$gctx->{'prpdeps'}->{$prp}}) {
-	  next if $prpfinished->{$_};
-	  # if this is a remote repo, check prpnotready
-	  if (!%{$gctx->{'prpnotready'}->{$_} || {}}) {
-	    my ($p) = split('/', $_, 2);
-	    next if $remoteprojs->{$p};
-	  }
-	  push @unfinishedprps, $_;
-	}
-	if (!@unfinishedprps) {
-	  print "    leaf prp, freeing data\n";
-	  delete $repodatas->{$prp};
-	} else {
-	  print "    leaf prp, unfinished prps: @unfinishedprps\n";
-	}
+        # only free repo data if all projects we depend on are finished, too.
+        # (we always have to do the expansion if something changes)
+        my @unfinishedprps;
+        my $remoteprojs = $gctx->{'remoteprojs'};
+        my $prpfinished = $gctx->{'prpfinished'};
+        for (@{$gctx->{'prpdeps'}->{$prp}}) {
+          next if $prpfinished->{$_};
+          # if this is a remote repo, check prpnotready
+          if (!%{$gctx->{'prpnotready'}->{$_} || {}}) {
+            my ($p) = split('/', $_, 2);
+            next if $remoteprojs->{$p};
+          }
+          push @unfinishedprps, $_;
+        }
+        if (!@unfinishedprps) {
+          print "    leaf prp, freeing data\n";
+          delete $repodatas->{$prp};
+        } else {
+          print "    leaf prp, unfinished prps: @unfinishedprps\n";
+        }
       }
     } else {
       delete $gctx->{'prpfinished'}->{$prp};
@@ -1105,8 +1107,8 @@ eval {
 
 if ($@) {
   warn($@);
-  my $ectx = BSSched::Events->new($gctx);
-  BSSched::Events::event_exit($ectx, {'type' => 'emergencydump'});
+  my $ectx = BSSched::EventHandler->new($gctx);
+  BSSched::EventHandler::event_exit($ectx, {'type' => 'emergencydump'});
   exit(1);
 }
 

@@ -27,7 +27,8 @@ use BSSolv;
 use BSSched::ProjPacks;
 use BSSched::PublishRepo;
 use BSSched::BuildJob;
-use BSSched::Events;
+use BSSched::EventSource::Retry;
+use BSSched::EventSource::Directory;
 
 use BSSched::BuildJob::Aggregate;
 use BSSched::BuildJob::Channel;
@@ -53,17 +54,17 @@ use BSSched::BuildJob::Unknown;
 
 
 my %handlers = (
-  'kiwi-product'    => BSSched::BuildJob::KiwiProduct->new(),
-  'kiwi-image'      => BSSched::BuildJob::KiwiImage->new(),
-  'patchinfo'       => BSSched::BuildJob::Patchinfo->new(),
-  'aggregate'       => BSSched::BuildJob::Aggregate->new(),
-  'preinstallimage' => BSSched::BuildJob::PreInstallImage->new(),
-  'simpleimage'     => BSSched::BuildJob::SimpleImage->new(),
-  'channel'         => BSSched::BuildJob::Channel->new(),
-  'unknown'         => BSSched::BuildJob::Unknown->new(),
-);
+  'kiwi-product'    => 'BSSched::BuildJob::KiwiProduct',
+  'kiwi-image'      => 'BSSched::BuildJob::KiwiImage',
+  'patchinfo'       => 'BSSched::BuildJob::Patchinfo',
+  'aggregate'       => 'BSSched::BuildJob::Aggregate',
+  'preinstallimage' => 'BSSched::BuildJob::PreInstallImage',
+  'simpleimage'     => 'BSSched::BuildJob::SimpleImage',
+  'channel'         => 'BSSched::BuildJob::Channel',
+  'unknown'         => 'BSSched::BuildJob::Unknown',
 
-my $defaulthandler = BSSched::BuildJob::Package->new();
+  'default'	    => 'BSSched::BuildJob::Package',
+);
 
 =head2 new - create a checker context
 
@@ -121,8 +122,9 @@ sub wipe {
       unlink("$gdst/$dir") || die("$gdst/$dir: $!\n");
     }
   }
-  $gctx->{'changed_med'}->{$prp} = 2;
-  BSSched::Events::sendrepochangeevent($ctx->{'gctx'}, $prp);
+  $gctx->{'changed_med'}->{$prp} = 2; 
+  BSSched::EventSource::Directory::sendrepochangeevent($ctx->{'gctx'}, $prp);
+
   BSSched::BuildJob::killbuilding($ctx->{'gctx'}, $prp);
   BSSched::PublishRepo::prpfinished($ctx);
   # now that :repo is gone we can remove the directory
@@ -181,7 +183,7 @@ sub setup {
       my $error = $remoteprojs->{$aprojid}->{'error'} if $remoteprojs->{$aprojid} && $remoteprojs->{$aprojid}->{'error'};
       if ($error) {
         if ($error =~ /interconnect error:/) {
-          BSSched::Events::addretryevent($gctx, {'type' => 'project', 'project' => $aprojid});
+          BSSched::EventSource::Retry::addretryevent($gctx, {'type' => 'project', 'project' => $aprojid});
         }
 	return (0, "$aprojid: $error");
       }
@@ -267,7 +269,7 @@ sub wipeobsolete {
     my $importarch = $pdatas->{$packid} && @ifiles ? '' : undef;
     BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, undef, undef, $useforbuildenabled, $ctx->{'prpsearchpath'}, undef, $importarch);
     $gctx->{'changed_med'}->{$prp} = 2;
-    BSSched::Events::sendrepochangeevent($gctx, $prp);
+    BSSched::EventSource::Directory::sendrepochangeevent($gctx, $prp);
     # delete other files
     unlink("$gdst/:logfiles.success/$packid");
     unlink("$gdst/:logfiles.fail/$packid");
@@ -447,7 +449,8 @@ sub expandandsort {
       next;
     }
     my @deps = @{$info->{'dep'} || []};
-    my $handler = $handlers{$buildtype} || $defaulthandler;
+    my $handler_class = $handlers{$buildtype} || $handlers{default};
+    my $handler = $handler_class->new();
     my ($eok, @edeps) = $handler->expand($bconf, $subpacks->{$info->{'name'}}, @deps);
     if (!$eok) {
       $experrors{$packid} = join(', ', @edeps) || '?';
@@ -596,7 +599,7 @@ sub checkpkgs {
 
   # copy old data over if we have missing packages
   if ($projpacks->{$projid}->{'missingpackages'}) {
-    BSSched::Events::addretryevent($gctx, {'type' => 'package', 'project' => $projid});
+    BSSched::EventSource::Retry::addretryevent($gctx, {'type' => 'package', 'project' => $projid});
     $oldpackstatus = BSUtil::retrieve("$gdst/:packstatus", 1) || {};
     $oldpackstatus->{'packstatus'} ||= {};
     $oldpackstatus->{'packerror'} ||= {};
@@ -674,7 +677,7 @@ sub checkpkgs {
 	next;
       }
       if ($pdata->{'error'} eq 'delayed startup' || $pdata->{'error'} =~ /interconnect error:/) {
-	BSSched::Events::addretryevent($gctx, {'type' => 'package', 'project' => $projid, 'package' => $packid});
+	BSSched::EventSource::Retry::addretryevent($gctx, {'type' => 'package', 'project' => $projid, 'package' => $packid});
 	$ctx->{'havedelayed'} = 1;
 	$packstatus{$packid} = 'blocked';
 	$packerror{$packid} = $pdata->{'error'};
@@ -764,7 +767,8 @@ sub checkpkgs {
     }
 
     # dispatch to handlers
-    my $handler = $handlers{$buildtype} || $defaulthandler;
+    my $handler_class = $handlers{$buildtype} || $handlers{default};
+    my $handler = $handler_class->new();
     my ($astatus, $aerror) = $handler->check($ctx, $packid, $pdata, $info, $buildtype);
     if ($astatus eq 'scheduled') {
       # aerror contains rebuild data in this case

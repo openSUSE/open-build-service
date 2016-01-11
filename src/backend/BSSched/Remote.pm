@@ -304,7 +304,7 @@ sub remotemap2remoteprojs {
     if ($error) {
       $proj->{'error'} = $error;
       BSSched::EventSource::Retry::addretryevent($gctx, {'type' => 'project', 'project' => $projid}) if $error =~ /interconnect error:/;
-    }
+    }    
     $remoteprojs->{$projid} = $proj;
   }
 }
