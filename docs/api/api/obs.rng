@@ -370,6 +370,8 @@
       <value>mmx</value>
       <value>sse</value>
       <value>sse2</value>
+      <value>sse3</value>
+      <value>ssse3</value>
     </choice>
   </define>
 
