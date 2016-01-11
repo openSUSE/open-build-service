@@ -656,7 +656,6 @@ if (!$gctx->{'projpacks'}) {
   # get project and package information from src server
   print "cold start, scanning all projects\n";
   BSSched::ProjPacks::get_projpacks($gctx, undef);
-  BSSched::ProjPacks::get_projpacks($gctx, undef, 'opensuse_org') if $testprojid;
   BSSched::ProjPacks::get_projpacks_postprocess($gctx);
   # look at everything
   @{$gctx->{'lookat_low'}} = sort keys %{$gctx->{'projpacks'}};
