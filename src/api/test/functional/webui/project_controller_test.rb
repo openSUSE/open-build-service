@@ -30,6 +30,34 @@ Ignore: package:cups'
            "Checkbox for 'OBS Base 2.0' should be disabled"
   end
 
+  def test_save_repository
+    use_js
+    login_tom
+
+    visit "/project/repositories/home:tom"
+    find("#edit_repository_link_SourceprotectedProject_repo").click
+    click_link("Add additional path to this repository")
+
+    fill_in("target_project", with: "Apache")
+    page.execute_script("$('#target_project').keydown();")
+    find(".ui-menu-item").click
+    find("select#target_repo").select("SUSE_Linux_10.1")
+    click_button("Add path to repository SourceprotectedProject_repo")
+
+    assert_equal "/project/repositories/home:tom", page.current_path
+    find("#edit_repository_link_SourceprotectedProject_repo").click
+    page.must_have_text "Apache/SUSE_Linux_10.1"
+
+    # Verify the repo really has been added
+    path_element = PathElement.where(
+      repository: Repository.find_by_name("SourceprotectedProject_repo"),
+      link:       Repository.find_by_name("SUSE_Linux_10.1")
+    ).first
+
+    assert path_element
+    assert_equal 2, path_element.position
+  end
+
   def test_save_distributions_with_existing_repository
     login_tom
 
@@ -260,9 +288,9 @@ Ignore: package:cups'
     fill_autocomplete 'target_project', with: 'BaseDistro', select: 'BaseDistro:Update'
     page.wont_have_selector 'input[disabled]'
     find('#target_repo').select('BaseDistroUpdateProject_repo')
-    page.wont_have_selector '#add_path_to_repository_button[disabled]'
+    page.wont_have_selector '#add_repository_button[disabled]'
     # somehow the autocomplete logic creates a problem - and click_button refuses to click
-    page.execute_script "$('#add_path_to_repository_button').click();"
+    page.execute_script "$('#add_repository_button').click();"
     find(:id, 'flash-messages').must_have_text 'Successfully added repository'
 
     # move BaseDistro:Update path down
