@@ -40,31 +40,32 @@ class Role < ActiveRecord::Base
 
   scope :global, -> { where(global: true) }
 
-  class << self
-    def discard_cache
-      @cache = nil
-    end
+  after_save :discard_cache
+  after_destroy :discard_cache
 
-    def rolecache
-      return @cache if @cache
-      @cache = Hash.new
-      all.each do |role|
-        @cache[role.title] = role
-      end
-      return @cache
-    end
+  def self.discard_cache
+    @cache = nil
+  end
 
-    def find_by_title!(title)
-      find_by_title(title) or raise NotFound.new("Couldn't find Role '#{title}'")
-    end
+  def self.rolecache
+    @cache || self.create_cache
+  end
 
-    def local_roles
-      %w(maintainer bugowner reviewer downloader reader).map { |r| Role.rolecache[r] }
-    end
+  def self.create_cache
+    # {"Admin" => #<Role id:1>, "downloader" => #<Role id:2>, ... }
+    @cache = Hash[Role.all.map { |role| [role.title, role] }]
+  end
 
-    def global_roles
-      %w(Admin User)
-    end
+  def self.find_by_title!(title)
+    find_by_title(title) or raise NotFound.new("Couldn't find Role '#{title}'")
+  end
+
+  def self.local_roles
+    %w(maintainer bugowner reviewer downloader reader).map { |r| Role.rolecache[r] }
+  end
+
+  def self.global_roles
+    %w(Admin User)
   end
 
   def rolecache
@@ -75,18 +76,17 @@ class Role < ActiveRecord::Base
     self.class.discard_cache
   end
 
+  def self.ids_with_permission(perm_string)
+    RolesStaticPermission.joins(:static_permission).
+      where(:static_permissions => { :title => perm_string } ).
+      select('role_id').pluck(:role_id)
+  end
+
   def to_param
     title
   end
 
   def to_s
     title
-  end
-
-  after_save :discard_cache
-  after_destroy :discard_cache
-
-  def self.ids_with_permission(perm_string)
-    RolesStaticPermission.joins(:static_permission).where(:static_permissions => { :title => perm_string } ).select('role_id').map { |rs| rs.role_id }
   end
 end
