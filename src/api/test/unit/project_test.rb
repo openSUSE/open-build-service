@@ -35,8 +35,12 @@ class ProjectTest < ActiveSupport::TestCase
 
       result = subproject.release_targets_ng
       assert_equal ["ABC:D"], result.keys
-      assert_equal "repo_1", result["ABC:D"][:reponame]
-      assert_equal [package.id], result["ABC:D"][:packages].map(&:id)
+      assert_equal "repo_1",  result["ABC:D"][:reponame]
+
+      assert_equal 1, result["ABC:D"][:packages].count
+      assert_equal package.id, result["ABC:D"][:packages].first.id
+      assert_equal "test2", result["ABC:D"][:packages].first.name
+
       assert_equal "patchinfo", result["ABC:D"][:patchinfo].name
     end
   end

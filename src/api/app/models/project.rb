@@ -1594,7 +1594,7 @@ class Project < ActiveRecord::Base
     # other day, so it never hurts to have a look into the future:
     global_patchinfo = find_patchinfo
     package_count = 0
-    self.packages.each do |pkg|
+    self.packages.select(:name, :id).each do |pkg|
       # Current ui is only showing the first found package and a symbol for any additional package.
       break if package_count > 2
 
