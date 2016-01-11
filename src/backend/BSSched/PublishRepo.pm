@@ -376,6 +376,12 @@ sub makedeltas {
     }
   }
 
+  # check for a subdir definition
+  my $subdir;
+  for (@{($ctx->{'conf'} || {})->{'repotype'} || []}) {
+    $subdir = $1 if /^packagesubdir:([^\.\/][^\/:]+)$/;
+  }
+
   for my $binarchname (sort keys %binarchnames) {
     # we only want deltas against the highest version
     my @binxs = sort {Build::Rpm::verscmp($b->[0], $a->[0])} @{$binarchnames{$binarchname}};
@@ -396,23 +402,16 @@ sub makedeltas {
         # look in the *published* repos. We allow a special
         # extradeltarepos override in the config.
 	if (!$oldbins{"$aprp/$binarch"}) {
+	  $oldbins{"$aprp/$binarch"} = {};
 	  if (!exists($oldbins{$aprp})) {
 	    my $aextrep = $aprp;
 	    $aextrep =~ s/:/:\//g;
 	    $aextrep = map_to_extrep($gctx, $aprp, $aextrep);
 	    $aextrep = $aextrep->[0] if ref $aextrep;
-	    if ($aprp eq $prp) {	# XXX: read repoinfo for the others?
-	      my $subdir;
-	      my $bconf = $ctx->{'conf'};
-	      for (@{($ctx->{'conf'} || {})->{'repotype'} || []}) {
-		$subdir = $1 if /^packagesubdir:([^\.\/][^\/:]+)$/;
-	      }
-	      $aextrep = "$aextrep/$subdir" if $aextrep && $subdir;
-	    }
+	    $aextrep = "$aextrep/$subdir" if $subdir && $aextrep && -d "$aextrep/$subdir";
 	    $aextrep = $BSConfig::extradeltarepos->{$aprp} if $BSConfig::extradeltarepos && defined($BSConfig::extradeltarepos->{$aprp});
 	    $oldbins{$aprp} = $aextrep;
 	  }
-	  $oldbins{"$aprp/$binarch"} = {};
 	  my $aextrep = $oldbins{$aprp};
 	  next unless $aextrep;
 	  for my $obin (sort(ls("$aextrep/$binarch"))) {
