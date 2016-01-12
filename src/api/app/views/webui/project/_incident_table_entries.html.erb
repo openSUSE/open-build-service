@@ -5,25 +5,21 @@
         <tr>
           <% if index == 0 %>
               <td rowspan="<%= release_targets_ng.length %>">
-                <% title = incident.title || incident.name %>
-                <% if rt[:patchinfo] && rt[:patchinfo].value('summary').present?
-                     title = rt[:patchinfo].value('summary')
-                   end
-                   title = "#{short_incident_name(incident)}: #{title}"
-                %>
+                <% title = rt[:patchinfo].try(:[], :summary) || incident.title || incident.name %>
+                <% title = "#{short_incident_name(incident)}: #{title}" %>
                 <%= link_to(elide(title, 60, :right), { action: 'show', project: incident.name }, title: title) %>
               </td>
               <td rowspan="<%= release_targets_ng.length %>">
                 <% if rt[:patchinfo] %>
-                    <%= link_to(rt[:patchinfo].value(:category),
-                                { controller: 'patchinfo', action: 'show',
-                                  project: incident.name, package: 'patchinfo', file: '_patchinfo' },
-                                { style: "color: #{patchinfo_category_color(rt[:patchinfo].value(:category))};" }) %>
-                <% else %>
                     <%= link_to(sprited_text('exclamation', 'Missing patchinfo'),
                                 { controller: 'patchinfo', action: 'new_patchinfo',
                                   project: incident.name, package: 'patchinfo' },
                                 { style: 'color: red;', method: :post }) %>
+                <% else %>
+                    <%= link_to(rt[:patchinfo][:category],
+                                { controller: 'patchinfo', action: 'show',
+                                  project: incident.name, package: 'patchinfo', file: '_patchinfo' },
+                                { style: "color: #{patchinfo_category_color(rt[:patchinfo][:category])};" }) %>
                 <% end %>
               </td>
               <td rowspan="<%= release_targets_ng.length %>">
@@ -59,9 +55,8 @@
                         <%= sprite_tag('lock', title: 'Locked') %>
                     <% end %>
                 <% end %>
-                <% if rt[:patchinfo] && rt[:patchinfo].value('stopped') && !rt[:patchinfo].value('stopped').empty? %>
-                    <% title = "Stopped: #{rt[:patchinfo].value('stopped')}" %>
-                    <%= sprite_tag('clock', title: title) %>
+                <% if rt[:patchinfo] && rt[:patchinfo][:stopped].present? %>
+                    <%= sprite_tag("clock", title: "Stopped: #{rt[:patchinfo][:stopped]}") %>
                 <% end %>
               </td>
           <% end %>

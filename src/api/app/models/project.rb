@@ -1586,9 +1586,13 @@ class Project < ActiveRecord::Base
     release_targets_ng = {}
     self.repositories.each do |repo|
       repo.release_targets.each do |rt|
-        release_targets_ng[rt.target_repository.project.name] = {:reponame => repo.name,
-                                                                 :packages => [], :patchinfo => global_patchinfo.patchinfo,
-                                                                 :package_issues => {}, :package_issues_by_tracker => {}}
+        release_targets_ng[rt.target_repository.project.name] = {
+          reponame:                  repo.name,
+          packages:                  [],
+          patchinfo:                 collect_patchinfo_data(global_patchinfo.patchinfo),
+          package_issues:            {},
+          package_issues_by_tracker: {}
+        }
       end
     end
 
@@ -1826,5 +1830,17 @@ class Project < ActiveRecord::Base
     # Almost all patchfino packages are named _patchinfo
     self.packages.find { |pkg| pkg.name == "_patchinfo" && pkg.is_patchinfo? } ||
       self.packages.find { |pkg| pkg.is_patchinfo? }
+  end
+
+  def collect_patchinfo_data(patchinfo)
+    if patchinfo
+      {
+        summary:  patchinfo.value("summary"),
+        category: patchinfo.value("category"),
+        stopped:  patchinfo.value("stopped")
+      }
+    else
+      {}
+    end
   end
 end
