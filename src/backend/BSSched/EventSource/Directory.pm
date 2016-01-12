@@ -20,19 +20,12 @@ package BSSched::EventSource::Directory;
 use strict;
 use warnings;
 
+use POSIX;
+use Digest::MD5 ();
 use Data::Dumper;
 
 use BSUtil;
 use BSXML;
-use BSConfiguration;
-use BSSolv;
-use BSSched::Checker;
-use BSSched::BuildResult;
-use BSSched::BuildRepo;
-use BSSched::ProjPacks;
-use BSSched::BuildJob;
-use BSSched::BuildJob::Upload;
-use BSSched::BuildJob::Import;
 
 =head1 NAME
 
