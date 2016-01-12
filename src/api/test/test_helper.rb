@@ -41,7 +41,7 @@ require 'mocha/setup'
 require 'capybara/poltergeist'
 
 require 'capybara/rails'
-Capybara.default_wait_time = 6
+Capybara.default_max_wait_time = 6
 
 Capybara.register_driver :poltergeist do |app|
   Capybara::Poltergeist::Driver.new(app, debug: false, timeout: 30)

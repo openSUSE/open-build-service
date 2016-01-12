@@ -33,7 +33,7 @@ class StatusHistoryTest < ActiveSupport::TestCase
   test "history_by_key_and_hours" do
     Timecop.freeze(2010, 7, 12) do
       day_before_yesterday = Time.now.to_i - 2.days
-      yesterday = Time.now.to_i - 1.days
+      yesterday = Time.now.to_i - 1.day
       StatusHistory.transaction do
         10.times do |i|
           StatusHistory.create time: day_before_yesterday + i, key: 'squeue_low_aarch64', value: i

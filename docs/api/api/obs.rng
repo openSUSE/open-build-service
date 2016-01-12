@@ -244,11 +244,9 @@
                   <attribute name="url">
                     <data type="string" />
                   </attribute>
-                  <optional>
-                    <attribute name="sslfingerprint">
-                      <data type="string" />
-                    </attribute>
-                  </optional>
+                  <attribute name="sslfingerprint">
+                    <data type="string" />
+                  </attribute>
                 </element>
               </optional>
               <optional>

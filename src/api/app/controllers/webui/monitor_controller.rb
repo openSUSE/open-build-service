@@ -140,6 +140,6 @@ class Webui::MonitorController < Webui::WebuiController
     @interval_steps = 1
     @max_color = 240
     @time_now = Time.now
-    @dead_line = 1.hours.ago
+    @dead_line = 1.hour.ago
   end
 end
