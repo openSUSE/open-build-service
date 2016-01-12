@@ -107,6 +107,19 @@ SCRIPT
   config.vm.provider :virtualbox do |vb|
     vb.customize ['modifyvm', :id, '--memory', '2048']
     vb.destroy_unused_network_interfaces = true
+    config.vm.provision :shell, inline: <<SCRIPT
+echo "Setting up your OBS test backend..."
+# Put the backend data dir outside the shared folder so it can use hardlinks
+# which isn't possible with VirtualBox shared folders...
+mkdir /tmp/vagrant_tmp
+mkdir /tmp/vagrant_log/
+chown vagrant:users /tmp/vagrant_tmp
+chown vagrant:users -R /tmp/vagrant_log/
+echo -e "/tmp/vagrant_tmp /vagrant/src/api/tmp none bind 0 0" >> /etc/fstab
+echo -e "/tmp/vagrant_log /vagrant/src/api/log none bind 0 0" >> /etc/fstab
+mount -a
+
+SCRIPT
   end
 
   config.vm.provider :libvirt do |lv|

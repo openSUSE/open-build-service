@@ -68,7 +68,7 @@ use BSUtil;
 use BSSolv;
 use BSRPC;
 use BSSched::RPC;
-use BSSched::Events;		# for addretryevent
+use BSSched::EventSource::Retry;	# for addretryevent
 use BSConfiguration;
 
 =head2 beginwatchcollection - TODO: add summary
@@ -230,7 +230,7 @@ sub fetchremoteproj {
     my $error = $@;
     $error =~ s/\n$//s;
     $rproj = {'error' => $error};
-    BSSched::Events::addretryevent($gctx, {'type' => 'project', 'project' => $projid}) if BSSched::RPC::is_transient_error($error);
+    BSSched::EventSource::Retry::addretryevent($gctx, {'type' => 'project', 'project' => $projid}) if BSSched::RPC::is_transient_error($error);
   }
   return undef unless $rproj;
   delete $rproj->{'mountproject'};
@@ -268,7 +268,7 @@ sub fetchremoteconfig {
     warn($@);
     $proj->{'error'} = $@;
     $proj->{'error'} =~ s/\n$//s;
-    BSSched::Events::addretryevent($gctx, {'type' => 'project', 'project' => $projid}) if BSSched::RPC::is_transient_error($proj->{'error'});
+    BSSched::EventSource::Retry::addretryevent($gctx, {'type' => 'project', 'project' => $projid}) if BSSched::RPC::is_transient_error($proj->{'error'});
     return undef;
   }
   $proj->{'config'} = $c;
@@ -303,8 +303,8 @@ sub remotemap2remoteprojs {
     $proj->{'config'} = $c if defined $c;
     if ($error) {
       $proj->{'error'} = $error;
-      BSSched::Events::addretryevent($gctx, {'type' => 'project', 'project' => $projid}) if $error =~ /interconnect error:/;
-    }
+      BSSched::EventSource::Retry::addretryevent($gctx, {'type' => 'project', 'project' => $projid}) if $error =~ /interconnect error:/;
+    }    
     $remoteprojs->{$projid} = $proj;
   }
 }
@@ -518,7 +518,7 @@ sub addrepo_remote_unpackcpio {
     warn("$error\n");
     if (BSSched::RPC::is_transient_error($error)) {
       my ($projid, $repoid) = split('/', $prp, 2);
-      BSSched::Events::addretryevent($gctx, {'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $arch});
+      BSSched::EventSource::Retry::addretryevent($gctx, {'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $arch});
       if (-s "$remotecache/$cachemd5.solv") {
         # try last solv file
         my $r;
@@ -662,7 +662,15 @@ sub read_gbininfo_remote {
     my $error = $@;
     $error =~ s/\n$//s;
     ($projid, $repoid) = split('/', $ctx->{'prp'}, 2);
-    BSSched::Events::addretryevent($ctx->{'gctx'}, {'type' => 'recheck', 'project' => $projid, 'repository' => $repoid}) if BSSched::RPC::is_transient_error($error);
+    if ( BSSched::RPC::is_transient_error($error) ) {
+      BSSched::EventSource::Retry::addretryevent(
+	$ctx->{'gctx'}, 
+        {
+          'type' => 'recheck', 
+          'project' => $projid, 
+          'repository' => $repoid}
+      );
+    }
     return undef;
   }
   return 0 if $packagebinarylist && $param->{'async'};

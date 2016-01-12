@@ -23,14 +23,14 @@ use Digest::MD5 ();
 
 use BSUtil;
 use BSXML;
-use BSRPC;		# FIXME: only async calls, please
+use BSRPC;			# FIXME: only async calls, please
 use BSSched::BuildJob;
 use BSSched::RPC;
-use BSSched::Events;	# for addretryevent
-use BSSched::Access;	# for checkprpaccess
-use BSConfiguration;	# for $BSConfig::sign
-use BSVerify;		# for verify_nevraquery
-use Build;		# for query
+use BSSched::EventSource::Retry;	    # for addretryevent
+use BSSched::Access;		# for checkprpaccess
+use BSConfiguration;		# for $BSConfig::sign
+use BSVerify;			# for verify_nevraquery
+use Build;			# for query
 
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
@@ -108,7 +108,7 @@ sub check {
     if ($proj->{'error'}) {
       if (BSSched::RPC::is_transient_error($proj->{'error'})) {
 	# XXX: hmm, there's already a project retryevent on $aprojid
-	BSSched::Events::addretryevent($gctx, {'type' => 'package', 'project' => $projid, 'package' => $packid});
+	BSSched::EventSource::Retry::addretryevent($gctx, {'type' => 'package', 'project' => $projid, 'package' => $packid});
 	$delayed = 1;
       }
       push @broken, $aprojid;
@@ -320,7 +320,17 @@ sub build {
 	    warn($@);
 	    $error = $@;
 	    $error =~ s/\n$//s;
-	    BSSched::Events::addretryevent($gctx, {'type' => 'repository', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $myarch}) if BSSched::RPC::is_transient_error($error);
+        if ( BSSched::RPC::is_transient_error($error) ) {
+	      BSSched::EventSource::Retry::addretryevent(
+            $gctx,
+            {
+              'type' => 'repository',
+              'project' => $aprojid,
+              'repository' => $arepoid,
+              'arch' => $myarch
+            }
+          );
+        }
 	    last;
 	  }
 	  for my $bin (@{$cpio || []}) {

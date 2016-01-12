@@ -21,7 +21,7 @@ use warnings;
 use BSUtil;
 use BSXML;
 use BSSched::BuildResult;
-
+use BSSched::EventSource::Directory; # for sendimportevent
 my $exportcnt = 0;
 
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
@@ -104,7 +104,7 @@ sub createexportjob {
   # free the lock
   close F;
   # send event
-  BSSched::Events::sendimportevent($gctx, $job, $arch);
+  BSSched::EventSource::Directory::sendimportevent($gctx, $job, $arch);
 }
 
 

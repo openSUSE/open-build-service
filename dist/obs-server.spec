@@ -331,6 +331,8 @@ rm -rf build
 ln -sf /usr/lib/build build
 popd
 
+make -C src/backend test
+
 #### 
 # start api testing
 #
@@ -351,6 +353,7 @@ make -C src/api test
 #### 
 
 make -C dist test
+
 
 %pre
 getent group obsrun >/dev/null || groupadd -r obsrun

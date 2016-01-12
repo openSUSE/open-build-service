@@ -23,8 +23,9 @@ use Digest::MD5 ();
 use BSUtil;
 use BSSched::BuildJob;
 use BSXML;
-use Build;		# for query
-use BSVerify;		# for verify_nevraquery
+use Build;		                      # for query
+use BSVerify;		                  # for verify_nevraquery
+use BSSched::EventSource::Directory;  # for sendunblockedevent
 
 =head1 NAME
 
@@ -161,7 +162,7 @@ sub check {
     if (!$blocked) {
       if (-e "$markerdir/.waiting_for_$myarch") {
         unlink("$markerdir/.waiting_for_$myarch");
-        BSSched::Events::sendunblockedevent($gctx, $prp, $buildarch);
+        BSSched::EventSource::Directory::sendunblockedevent($gctx, $prp, $buildarch);
         print "      - $packid (patchinfo)\n";
         print "        unblocked\n";
       }
@@ -170,7 +171,7 @@ sub check {
       # hmm, we should be blocked. trigger build arch check
       if (!-e "$markerdir/.waiting_for_$myarch") {
         BSUtil::touch("$reporoot/$prp/$buildarch/:schedulerstate.dirty") if -d "$reporoot/$prp/$buildarch";
-        BSSched::Events::sendunblockedevent($gctx, $prp, $buildarch);
+        BSSched::EventSource::Directory::sendunblockedevent($gctx, $prp, $buildarch);
         print "      - $packid (patchinfo)\n";
         print "        blocked\n";
       }

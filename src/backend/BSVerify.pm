@@ -96,26 +96,6 @@ sub verify_patchinfo {
   }
 }
 
-sub verify_patchinfo_complete {
-  # This verifies all necessary content to create a patchinfo repo
-  my $p = $_[0];
-  verify_patchinfo( $p );
-#  die("No bugzilla id defined in _patchinfo") unless $p->{'bugzilla'};
-#  for my $id (@{$p->{'bugzilla'}}){
-#    die("Invalid bugzilla ID in _patchinfo") unless $id->{'_content'} =~ /^[0-9]+$/;
-#  }
-  die("No summary defined in _patchinfo") unless $p->{'summary'};
-  die("No description defined in _patchinfo") unless $p->{'description'};
-  my %allowed_categories = map {$_ => 1} qw{security recommended optional feature};
-  die("No category defined in _patchinfo") unless $p->{'category'};
-  die("Invalid category defined in _patchinfo") unless !$allowed_categories{$p->{'category'}};
-  for my $binary (@{$p->{'binary'}||[]}) {
-    verify_filename($binary);
-  }
-
-  # checks of optional content to be added here
-}
-
 sub verify_simple {
   my $name = $_[0];
   die("illegal characters\n") if $name =~ /[^\-+=\.,0-9:%{}\@#%A-Z_a-z~\200-\377]/s;
