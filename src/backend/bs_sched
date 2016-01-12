@@ -59,6 +59,7 @@ use BSSched::PublishRepo;
 use BSSched::EventHandler;
 use BSSched::EventSource::Directory;
 use BSSched::EventSource::Retry;
+use BSSched::EventSource::RemoteWatcher;
 use BSSched::BuildJob;
 use BSSched::Access;
 use BSSched::Lookat;
@@ -709,21 +710,16 @@ eval {
 
     # delete no longer needed or outdated remotewatchers
     for my $remoteurl (sort keys %remotewatchers) {
-      my $watcher = $remotewatchers{$remoteurl};
-      if (!$watchremote->{$remoteurl} || join("\0", sort keys %{$watchremote->{$remoteurl}}) ne $watcher->{'watchlist'}) {
-	close $watcher->{'socket'} if defined $watcher->{'socket'};
-	delete $remotewatchers{$remoteurl};
-	next;
-      }
+      delete $remotewatchers{$remoteurl} if $remotewatchers{$remoteurl}->isobsolete($watchremote->{$remoteurl});
     }
 
-    # create watchers
+    # create missing watchers
     for my $remoteurl (sort keys %$watchremote) {
-      if (!$remotewatchers{$remoteurl}) {
-        my $watcher = BSSched::Remote::setupremotewatcher($gctx, $remoteurl, $watchremote->{$remoteurl}, $watchremote_start->{$remoteurl});
-        $watcher->{'watchlist'} = join("\0", sort keys %{$watchremote->{$remoteurl}});
-        $remotewatchers{$remoteurl} = $watcher;
-      }
+      $remotewatchers{$remoteurl} ||= BSSched::EventSource::RemoteWatcher->new($myarch, $remoteurl, $watchremote->{$remoteurl},
+	'start' => $watchremote_start->{$remoteurl},
+	'remoteproxy' => $gctx->{'remoteproxy'},
+	'obsname' => $gctx->{'obsname'},
+      );
     }
 
     # collect events to process
@@ -761,8 +757,8 @@ eval {
             print "retrying watcher for $remoteurl\n";
             delete $remotewatchers{$remoteurl};
           } else {
-            push @events, BSSched::Remote::getremoteevents($gctx, $watcher, $watchremote->{$remoteurl}, $watchremote_start);
-            delete $remotewatchers{$remoteurl} unless $watcher->{'retry'};
+	    push @events, $watcher->getevents($watchremote->{$remoteurl}, $watchremote_start);
+            delete $remotewatchers{$remoteurl} unless $watcher->{'retry'};	# watcher is finished
           }
         }
       } else {
