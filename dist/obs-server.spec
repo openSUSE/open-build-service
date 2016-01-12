@@ -182,6 +182,11 @@ Requires:       ruby(abi) >= 2.0
 Requires:       sphinx >= 2.1.8
 BuildRequires:  obs-api-testsuite-deps
 BuildRequires:  rubygem(ruby-ldap)
+# enforce passenger update to ruby 2.3 stack without requiring it
+Conflicts:      ruby2.1-rubygem-passenger
+Conflicts:      ruby2.2-rubygem-passenger
+# For doc generation
+BuildRequires:  rubygem(i18n)
 # for test suite:
 BuildRequires:  createrepo
 BuildRequires:  curl
@@ -194,7 +199,7 @@ BuildRequires:  xorg-x11-server
 BuildRequires:  xorg-x11-server-extra
 # write down dependencies for production
 BuildRequires:  rubygem(bundler)
-Requires:       %(echo `bash %{S:1} %{S:0} "ruby:2.2.0" "production"`)
+Requires:       %(echo `bash %{S:1} %{S:0} "ruby:2.3.0" "production"`)
 # for rebuild_time
 Requires:       perl(GD)
 
