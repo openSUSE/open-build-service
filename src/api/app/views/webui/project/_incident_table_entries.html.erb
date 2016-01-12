@@ -31,13 +31,13 @@
               </td>
               <td rowspan="<%= release_targets_ng.length %>" class="nowrap">
                 <% rqs_in = BsRequest.list_ids(roles: %w(target), states: %w(new review), project: incident.name) %>
-                <% if rqs_in && rqs_in.length > 0 %>
-                    <% text = "#{rqs_in.length} open request#{rqs_in.length == 1 ? '' : 's'}" %>
-                    <% if rqs_in.length == 1 %>
-                        <%= link_to(sprite_tag('exclamation', title: text), request_show_path(id: rqs_in[0])) %>
+                <% if rqs_in.count > 0 %>
+                    <% if rqs_in.count == 1 %>
+                        <% path = request_show_path(id: rqs_in.first) %>
                     <% else %>
-                        <%= link_to(sprite_tag('exclamation', title: text), project_requests_path(project: incident.name)) %>
+                        <% path = project_requests_path(project: incident.name) %>
                     <% end %>
+                    <%= link_to(sprite_tag('exclamation', title: pluralize(rqs_in.count, "open request")), path) %>
                 <% end %>
                 <% rqs_out = BsRequest.list_ids(roles: %w(source), states: %w(new review declined),
                                                           types: %w(maintenance_release), project: incident.name) %>
