@@ -2279,6 +2279,14 @@ sub readbuildenv {
   }
 }
 
+sub has_obsrepositories {
+  my ($repos) = @_;
+  for my $repo (@{$repos || []}) {
+     return 1 if ($repo->{'source'} || {})->{'path'} eq 'obsrepositories:/';
+  }
+  return 0;
+}
+
 sub patchproductkiwi {
   my ($buildinfo, $kiwifile, $meta) = @_;
 
@@ -2311,27 +2319,19 @@ sub patchproductkiwi {
   $kiwi->{'instsource'}->{'productoptions'}->{'productvar'} = \@vars;
 
   # expand obsrepositories:/ directive
-  my @rp;
-  for my $repository (@{$kiwi->{'instsource'}->{'instrepo'} || []}) {
-     if ($repository->{'source'}->{'path'} ne 'obsrepositories:/') {
-        push @rp, $repository;
-        next;
-     }
-     # fill in pathes from buildinfo instead
-     my $counter = 0;
-     for my $path (@{$buildinfo->{'path'} || []}) {
-        my $h = { 'source' => { 'path' => "obs://$path->{'project'}/$path->{'repository'}" } };
-        my $prio = ($repository->{'priority'} || 0) + $counter;
-        $h->{'priority'} = $prio;
-        $h->{'local'} = $repository->{'local'} if $repository->{'local'};
-        if ($repository->{'name'}) {
-          $counter = $counter + 1;
-          $h->{'name'} = "$repository->{'name'}_$counter";
-        }
-        push @rp, $h;
-     }
+  if (has_obsrepositories($kiwi->{'instsource'}->{'instrepo'})) {
+    # fill in pathes from buildinfo instead
+    my @rp;
+    my $prio = 0;
+    for my $path (@{$buildinfo->{'path'} || []}) {
+      $prio = $prio + 1;
+      my $h = { 'source' => { 'path' => "obs://$path->{'project'}/$path->{'repository'}" } };
+      $h->{'priority'} = $prio;
+      $h->{'name'} = "obsrepositories_$prio";
+      push @rp, $h;
+    }
+    $kiwi->{'instsource'}->{'instrepo'} = \@rp;
   }
-  $kiwi->{'instsource'}->{'instrepo'} = \@rp if @rp;
 
   # expand a "take all packages" for products
   for my $repopackages (@{$kiwi->{'instsource'}->{'repopackages'} || []}) {
@@ -2481,6 +2481,12 @@ sub createchannel {
   $c .= "</channel>\n";
   writestr("$dir/._channel", "$dir/_channel", $c);
 }
+
+sub kiwiurlmapper {
+  my ($url) = @_;
+  return '_obsrepositories';
+}
+$Build::Kiwi::urlmapper = \&kiwiurlmapper;
 
 sub dobuild {
   my ($buildinfo) = @_;
@@ -2739,26 +2745,13 @@ sub dobuild {
     if (grep {$_->{'project'} eq '_obsrepositories'} @{$kiwi->{'path'} || []}) {
       push @args, '--kiwi-parameter', '--ignore-repos';
       my $prio = 0;
-      for my $path (@{$kiwi->{'path'} || []}) {
+      for my $prjpath (@{$buildinfo->{'path'} || []}) {
         $prio = $prio + 1;
-        if ($path->{'project'} ne '_obsrepositories') {
-          my $repo = "repos/$path->{'project'}/$path->{'repository'}";
-          push @args, '--kiwi-parameter', '--add-repo', '--kiwi-parameter', $repo;
-          push @args, '--kiwi-parameter', '--add-repotype', '--kiwi-parameter', 'rpm-md';
-          push @args, '--kiwi-parameter', '--add-repoprio', '--kiwi-parameter', ($path->{'priority'} || $prio);
-	} else {
-	  # fill in pathes from buildinfo instead
-	  my $pathprio = 0;
-	  for my $prjpath (@{$buildinfo->{'path'} || []}) {
-	    my $repo ="repos/$prjpath->{'project'}/$prjpath->{'repository'}";
-	    $repo =~ s/:/:\//g;
-	    push @args, '--kiwi-parameter', '--add-repo', '--kiwi-parameter', $repo;
-	    push @args, '--kiwi-parameter', '--add-repotype', '--kiwi-parameter', 'rpm-md';
-	    push @args, '--kiwi-parameter', '--add-repoprio', '--kiwi-parameter', ($path->{'priority'} || $prio) + $pathprio;
-	    $pathprio = $pathprio + 1;
-	  }
-	  $prio += $pathprio - 1;
-	}
+	my $repo ="repos/$prjpath->{'project'}/$prjpath->{'repository'}";
+	$repo =~ s/:/:\//g;		# XXX: no longer needed?
+	push @args, '--kiwi-parameter', '--add-repo', '--kiwi-parameter', $repo;
+	push @args, '--kiwi-parameter', '--add-repotype', '--kiwi-parameter', 'rpm-md';
+	push @args, '--kiwi-parameter', '--add-repoprio', '--kiwi-parameter', $prio;	# different prio for smart?
       }
     }
   }
