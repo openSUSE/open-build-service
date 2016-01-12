@@ -379,8 +379,8 @@ class Package < ActiveRecord::Base
     update_activity
     # mark the backend infos "dirty"
     BackendPackage.where(package_id: self.id).delete_all
-    if dir_xml
-      dir_xml = dir_xml.body if dir_xml.is_a? Net::HTTPSuccess
+    if dir_xml.is_a? Net::HTTPSuccess
+      dir_xml = dir_xml.body
     else
       dir_xml = source_file(nil)
     end
@@ -951,6 +951,8 @@ class Package < ActiveRecord::Base
     return if mode == :skip_disabled and not channel_binary.channel_binary_list.channel.is_active?
     cpkg = channel_binary.create_channel_package_into(self.project, message)
     return unless cpkg
+    # be sure that the object exists or a background job get launched
+    cpkg.backend_package
     # add and enable repos
     return if mode == :add_disabled and not channel_binary.channel_binary_list.channel.is_active?
     cpkg.channels.first.add_channel_repos_to_project(cpkg, mode)
@@ -1008,7 +1010,11 @@ class Package < ActiveRecord::Base
 
   # just make sure the backend_package is there
   def update_if_dirty
-    self.backend_package
+    begin
+      self.backend_package
+    rescue Mysql2::Error
+      # the delayed job might have jumped in and created the entry just before us
+    end
   end
 
   def linking_packages
