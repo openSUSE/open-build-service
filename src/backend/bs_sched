@@ -785,7 +785,6 @@ eval {
       # create event processor
       my $ectx = BSSched::EventHandler->new($gctx, 'initialstartup' => $initialstartup);
       eval {
-        @events = $ectx->order(@events);
         if ($ectx->process_events(@events)) {
           # could not process all events, re-run
           $gotevent = 1;

@@ -574,6 +574,7 @@ sub process_events {
   my $gotevent = 0;
   my $gctx = $ectx->{'gctx'};
 
+  @events = $ectx->order(@events) if @events > 1;
   while (@events) {
     my $ev = shift @events;
     $ev->{'type'} ||= 'unknown';
