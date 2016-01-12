@@ -54,16 +54,16 @@ use BSSched::BuildJob::Unknown;
 
 
 my %handlers = (
-  'kiwi-product'    => 'BSSched::BuildJob::KiwiProduct',
-  'kiwi-image'      => 'BSSched::BuildJob::KiwiImage',
-  'patchinfo'       => 'BSSched::BuildJob::Patchinfo',
-  'aggregate'       => 'BSSched::BuildJob::Aggregate',
-  'preinstallimage' => 'BSSched::BuildJob::PreInstallImage',
-  'simpleimage'     => 'BSSched::BuildJob::SimpleImage',
-  'channel'         => 'BSSched::BuildJob::Channel',
-  'unknown'         => 'BSSched::BuildJob::Unknown',
+  'kiwi-product'    => BSSched::BuildJob::KiwiProduct->new(),
+  'kiwi-image'      => BSSched::BuildJob::KiwiImage->new(),
+  'patchinfo'       => BSSched::BuildJob::Patchinfo->new(),
+  'aggregate'       => BSSched::BuildJob::Aggregate->new(),
+  'preinstallimage' => BSSched::BuildJob::PreInstallImage->new(),
+  'simpleimage'     => BSSched::BuildJob::SimpleImage->new(),
+  'channel'         => BSSched::BuildJob::Channel->new(),
+  'unknown'         => BSSched::BuildJob::Unknown->new(),
 
-  'default'	    => 'BSSched::BuildJob::Package',
+  'default'	    => BSSched::BuildJob::Package->new(),
 );
 
 =head2 new - create a checker context
@@ -449,8 +449,7 @@ sub expandandsort {
       next;
     }
     my @deps = @{$info->{'dep'} || []};
-    my $handler_class = $handlers{$buildtype} || $handlers{default};
-    my $handler = $handler_class->new();
+    my $handler = $handlers{$buildtype} || $handlers{default};
     my ($eok, @edeps) = $handler->expand($bconf, $subpacks->{$info->{'name'}}, @deps);
     if (!$eok) {
       $experrors{$packid} = join(', ', @edeps) || '?';
@@ -767,8 +766,7 @@ sub checkpkgs {
     }
 
     # dispatch to handlers
-    my $handler_class = $handlers{$buildtype} || $handlers{default};
-    my $handler = $handler_class->new();
+    my $handler = $handlers{$buildtype} || $handlers{default};
     my ($astatus, $aerror) = $handler->check($ctx, $packid, $pdata, $info, $buildtype);
     if ($astatus eq 'scheduled') {
       # aerror contains rebuild data in this case
