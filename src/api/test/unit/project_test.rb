@@ -29,6 +29,32 @@ Ignore: package:cups'
     assert_equal ["A", "B", "C"], project.maintained_project_names
   end
 
+  def test_release_targets_ng
+    CONFIG['global_write_through'] = false
+
+    Project.create(name: "ABC", kind: "maintenance")
+    subproject = Project.create(name: "ABC:D", kind: "maintenance_incident")
+    repo_1 = Repository.create(name: "repo_1", db_project_id: subproject.id)
+    repo_2 = Repository.create(name: "repo_2", db_project_id: subproject.id)
+    repo_1.release_targets.create(trigger: "maintenance", target_repository_id: repo_2.id)
+
+    package = subproject.packages.create(name: "test2")
+    package.flags.create(flag: :build, status: "enable", repo: "repo_1")
+    patchinfo = subproject.packages.create(name: "_patchinfo")
+    patchinfo.package_kinds.create(kind: "patchinfo")
+    # Workaround backend dependency
+    patchinfo.stubs(:patchinfo).returns(OpenStruct.new(name: "patchinfo"))
+
+    result = subproject.release_targets_ng
+    assert_equal ["ABC:D"], result.keys
+    assert_equal "repo_1", result["ABC:D"][:reponame]
+    assert_equal [package.id], result["ABC:D"][:packages].map(&:id)
+    assert_equal "patchinfo", result["ABC:D"][:patchinfo].name
+
+  ensure
+    CONFIG['global_write_through'] = true
+  end
+
   def test_flags_to_axml
     # check precondition
     assert_equal 2, @project.type_flags('build').size
