@@ -567,8 +567,8 @@ sub get_projpacks_postprocess {
   BSSched::Remote::beginwatchcollection($gctx);
 
   #print Dumper($projpacks);
-  calc_projpacks_linked($gctx); # modifies watchremote/watchremoteprojs
-  calc_prps($gctx);             # modifies watchremote/watchremoteprojs
+  calc_projpacks_linked($gctx); # modifies watchremote/needremoteproj
+  calc_prps($gctx);             # modifies watchremote/needremoteproj
 
   BSSched::Remote::endwatchcollection($gctx);
 }

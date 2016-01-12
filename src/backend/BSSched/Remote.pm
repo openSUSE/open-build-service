@@ -39,7 +39,7 @@ package BSSched::Remote;
 #
 # gctx usage
 #   watchremote
-#   watchremoteprojs
+#   needremoteproj	(tmp)
 #   projpacks
 #   remoteprojs
 #   arch
@@ -79,8 +79,8 @@ use BSConfiguration;
 
 sub beginwatchcollection {
   my ($gctx) = @_;
-  %{$gctx->{'watchremote'}} = ();
-  $gctx->{'watchremoteprojs'} = {};     # tmp
+  %{$gctx->{'watchremote'}} = ();	# reset all watches
+  $gctx->{'needremoteproj'} = {};	# tmp
 }
 
 =head2 endwatchcollection - TODO: add summary
@@ -91,8 +91,8 @@ sub beginwatchcollection {
 
 sub endwatchcollection {
   my ($gctx) = @_;
-  updateremoteprojs($gctx);
-  delete $gctx->{'watchremoteprojs'};   # clean up
+  my $needremoteproj = delete $gctx->{'needremoteproj'};
+  updateremoteprojs($gctx, $needremoteproj);
 }
 
 =head2 addwatchremote -  register for a possibly remote resource
@@ -108,9 +108,9 @@ sub addwatchremote {
   my $projpacks = $gctx->{'projpacks'};
   return undef if $projpacks->{$projid} && !$projpacks->{$projid}->{'remoteurl'};
   my $proj = remoteprojid($gctx, $projid);
-  my $watchremoteprojs = $gctx->{'watchremoteprojs'} || {};
+  my $needremoteproj = $gctx->{'needremoteproj'} || {};
   # we don't need the project data for package watches
-  $watchremoteprojs->{$projid} = $proj if $type ne 'package';
+  $needremoteproj->{$projid} = $proj if $type ne 'package';
   return undef unless $proj;
   my $watchremote = $gctx->{'watchremote'};
   if ($proj->{'partition'}) {
@@ -121,33 +121,33 @@ sub addwatchremote {
   return $proj;
 }
 
-=head2 updateremoteprojs - sync remoteprojs with watches data
+=head2 updateremoteprojs - sync remoteprojs with data from watch collection
 
 This function deletes all no longer needed elements from the
 remoteprojs hash. It also calls fetchremoteproj for missing
-entries, which should actually not happen.
+entries, which should actually not happen as the remotemap
+should already contain all needed entries.
 
 =cut
 
 sub updateremoteprojs {
-  my ($gctx) = @_;
+  my ($gctx, $needremoteproj) = @_;
 
   my $remoteprojs = $gctx->{'remoteprojs'};
-  my $watchremoteprojs = $gctx->{'watchremoteprojs'};
   for my $projid (keys %$remoteprojs) {
-    my $r = $watchremoteprojs->{$projid};
+    my $r = $needremoteproj->{$projid};
     if (!$r) {
-      delete $remoteprojs->{$projid};
+      delete $remoteprojs->{$projid};	# no longer needed
       next;
     }
     my $or = $remoteprojs->{$projid};
     next if $or && $or->{'partition'};  # XXX how do we update them?
     next if $or && $or->{'remoteurl'} eq $r->{'remoteurl'} && $or->{'remoteproject'} eq $r->{'remoteproject'};
-    delete $remoteprojs->{$projid};
+    delete $remoteprojs->{$projid};	# changed, need to refetch
   }
-  for my $projid (sort keys %$watchremoteprojs) {
-    my $r = $watchremoteprojs->{$projid};
-    fetchremoteproj($gctx, $r, $projid) if $r;
+  for my $projid (sort keys %$needremoteproj) {
+    my $r = $needremoteproj->{$projid};
+    fetchremoteproj($gctx, $r, $projid) if $r && !$remoteprojs->{$projid};
   }
 }
 
