@@ -296,7 +296,7 @@ class Owner
       m = self.extract_maintainer(rootproject, p.resolve_devel_package, filter, owner) if devel == true
       m = self.extract_maintainer(rootproject, p, filter, owner) unless m
 
-      break unless deepest if m
+      break if m and not deepest
     end
 
     # found entry

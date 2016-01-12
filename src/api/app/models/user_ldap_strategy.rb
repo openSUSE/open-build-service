@@ -483,7 +483,9 @@ class UserLdapStrategy
       ldap_info[1] = login
     end
 
-    Rails.cache.write(key, [Digest::MD5.digest(password), ldap_info[0], ldap_info[1]], :expires_in => 2.minute)
+    Rails.cache.write(key,
+                      [Digest::MD5.digest(password), ldap_info[0], ldap_info[1]],
+                      :expires_in => 2.minutes)
     Rails.logger.debug("login success for checking with ldap server")
     ldap_info
   end

@@ -366,8 +366,10 @@ ription</description>
     assert_response :success
     get "/source/kde4/kdelibs/_attribute/OBS:Maintained"
     assert_response :success
-    assert_equal({"attribute"=>[{"name"=>"Maintained", "namespace"=>"OBS"},
-                                {"name"=>"Maintained", "namespace"=>"OBS", "binary"=>"kdelibs-devel"}]}, Xmlhash.parse(@response.body))
+    assert_equal({"attribute" => [{"name"=>"Maintained", "namespace"=>"OBS"},
+                                  {"name"=>"Maintained", "namespace"=>"OBS", "binary"=>"kdelibs-devel"}
+                                 ]},
+                 Xmlhash.parse(@response.body))
     get "/source/kde4/kdelibs/kdelibs-devel/_attribute"
     assert_response :success
     get "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained"

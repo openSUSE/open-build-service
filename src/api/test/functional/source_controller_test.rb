@@ -1506,8 +1506,8 @@ Ignore: package:cups'
   end
 
   def add_file_to_package (url1, asserttag1, url2, assertresp2,
-      assertselect2, assertselect2rev,
-      assertresp3, asserteq3, assertresp4)
+                           assertselect2, assertselect2rev,
+                           assertresp3, asserteq3, assertresp4)
     get url1
     # before md5
     assert_xml_tag asserttag1 if asserttag1
