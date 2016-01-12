@@ -7,19 +7,17 @@
               <td rowspan="<%= release_targets_ng.length %>">
                 <% title = rt[:patchinfo].try(:[], :summary) || incident.title || incident.name %>
                 <% title = "#{short_incident_name(incident)}: #{title}" %>
-                <%= link_to(elide(title, 60, :right), { action: 'show', project: incident.name }, title: title) %>
+                <%= link_to(elide(title, 60, :right), project_show_path(project: incident.name), title: title) %>
               </td>
               <td rowspan="<%= release_targets_ng.length %>">
                 <% if rt[:patchinfo] %>
-                    <%= link_to(sprited_text('exclamation', 'Missing patchinfo'),
-                                { controller: 'patchinfo', action: 'new_patchinfo',
-                                  project: incident.name, package: 'patchinfo' },
-                                { style: 'color: red;', method: :post }) %>
-                <% else %>
                     <%= link_to(rt[:patchinfo][:category],
-                                { controller: 'patchinfo', action: 'show',
-                                  project: incident.name, package: 'patchinfo', file: '_patchinfo' },
-                                { style: "color: #{patchinfo_category_color(rt[:patchinfo][:category])};" }) %>
+                          patchinfo_show_path(project: incident.name, package: "patchinfo", file: "_patchinfo"),
+                          { style: "color: #{patchinfo_category_color(rt[:patchinfo][:category])};" }) %>
+                <% else %>
+                    <%= link_to(sprited_text('exclamation', 'Missing patchinfo'),
+                          patchinfo_new_patchinfo_path(project: incident.name, package: "patchinfo"),
+                          { style: 'color: red;', method: :post }) %>
                 <% end %>
               </td>
               <td rowspan="<%= release_targets_ng.length %>">
@@ -36,11 +34,9 @@
                 <% if rqs_in && rqs_in.length > 0 %>
                     <% text = "#{rqs_in.length} open request#{rqs_in.length == 1 ? '' : 's'}" %>
                     <% if rqs_in.length == 1 %>
-                        <%= link_to(sprite_tag('exclamation', title: text), controller: 'request',
-                                    action: 'show', id: rqs_in[0]) %>
+                        <%= link_to(sprite_tag('exclamation', title: text), request_show_path(id: rqs_in[0])) %>
                     <% else %>
-                        <%= link_to(sprite_tag('exclamation', title: text), action: 'requests',
-                                    project: incident.name) %>
+                        <%= link_to(sprite_tag('exclamation', title: text), project_requests_path(project: incident.name)) %>
                     <% end %>
                 <% end %>
                 <% rqs_out = BsRequest.list_ids(roles: %w(source), states: %w(new review declined),
@@ -48,7 +44,8 @@
                 <% if rqs_out.present? %>
                     <% BsRequest.where(id: rqs_out).order('bs_requests.id').each do |rq_out| %>
                         <% text = "Release request in state '#{rq_out['state']}'" %>
-                        <%= link_to(sprite_tag(map_request_state_to_flag(rq_out['state'].to_s), title: text), controller: 'request', action: 'show', id: rq_out['id']) %>
+                        <%= link_to(sprite_tag(map_request_state_to_flag(rq_out['state'].to_s), title: text),
+                              request_show_path(id: rq_out["id"])) %>
                     <% end %>
                 <% else %>
                     <% if incident.is_locked? %>
@@ -64,13 +61,13 @@
           <td>
             <% buildresult_css_id = "incident_#{valid_xml_id(incident.name)}_results_#{valid_xml_id(rt_name)}" %>
             <% if incident.build_succeeded?(rt[:reponame]) %>
-                <%= link_to(sprite_tag('tick', title: 'Build results', id: buildresult_css_id), action: :show, project: incident.name) %>
+                <%= link_to(sprite_tag('tick', title: 'Build results', id: buildresult_css_id), project_show_path(project: incident.name)) %>
             <% else %>
-                <%= link_to(sprite_tag('exclamation', title: 'Build results', id: buildresult_css_id), action: :show, project: incident.name) %>
+                <%= link_to(sprite_tag('exclamation', title: 'Build results', id: buildresult_css_id), project_show_path(project: incident.name)) %>
             <% end %>
             <%= javascript_tag do %>
                 setup_buildresult_tooltip('<%= buildresult_css_id %>',
-                '<%= url_for controller: 'project', action: 'buildresult', project: incident.name %>');
+                '<%= url_for(project_buildresult_path(project: incident.name)) %>');
             <% end %>
           </td>
           <% index += 1 %>
