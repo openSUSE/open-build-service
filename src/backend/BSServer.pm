@@ -351,12 +351,11 @@ sub server {
 }
 
 sub msg {
-  my @lt = localtime(time);
   my $peer = ($BSServer::request || {})->{'peer'};
   if (defined($peer)) {
-    printf "%04d-%02d-%02d %02d:%02d:%02d: %s: %s\n", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0], $peer, $_[0];
+    print BSUtil::isotime().": $peer: $_[0]\n";
   } else {
-    printf "%04d-%02d-%02d %02d:%02d:%02d: %s\n", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0], $_[0];
+    print BSUtil::isotime().": $_[0]\n";
   }
 }
 

@@ -204,9 +204,7 @@ sub lookatprp {
     @$lookat_med = grep {$_ ne $prp} @$lookat_med;
   }
   delete $gctx->{'nextmed'}->{$prp};
-  my @ltim = localtime(time());
-  my $msgtm = sprintf "%04d-%02d-%02d %02d:%02d:%02d:", $ltim[5] + 1900, $ltim[4] + 1, @ltim[3,2,1,0];
-  print "$msgtm looking at $lookattype prio $prp";
+  print BSUtil::isotime().": looking at $lookattype prio $prp";
   print " (".@$lookat_high."/".@$lookat_med."/".@$lookat_low."/".(keys %$lookat_next)."/".@{$gctx->{'prps'}}.")\n";
 }
 

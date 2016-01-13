@@ -89,7 +89,7 @@ sub dispatch {
   my @lt = localtime(time);
   my $msg = "$req->{'action'} $req->{'path'}?$req->{'query'}";
   BSServer::setstatus(2, $msg) if $conf->{'serverstatus'};
-  $msg = sprintf "%04d-%02d-%02d %02d:%02d:%02d [%d]: %s", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0], $$, $msg;
+  $msg = BSUtil::isotime()." [$$]: $msg";
   $msg .= " (AJAX)" if $isajax;
   print "$msg\n";
   if ($isajax) {

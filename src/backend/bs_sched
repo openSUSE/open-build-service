@@ -818,6 +818,7 @@ eval {
     if (defined($prp)) {
       my ($projid) = split('/', $prp, 2);
       if ($gctx->{'rctx'}->xrpc_busy($projid)) {
+        #print "postponed looking at $prp\n";
 	my $ctx = {'changeprp' => $prp, 'changetype' => $lookattype, 'gctx' => $gctx};
 	$gctx->{'rctx'}->xrpc_addwakeup($ctx, $projid);
 	next;
@@ -830,11 +831,10 @@ eval {
       # nothing to do. good night, sleep tight...
       if ($testmode && !$gctx->{'rctx'}->xrpc_busy()) {
 	print "Test mode, all sources and events processed, exiting...\n";
-        BSSched::EventHandler::event_exit({ 'gctx' => $gctx }, { 'type' => 'exitcomplete' });
+        my $ectx = BSSched::EventHandler->new($gctx);
+        BSSched::EventHandler::event_exit($ectx, { 'type' => 'exitcomplete' });
       }
-      my @ltim = localtime(time);
-      my $msgtm = sprintf "%04d-%02d-%02d %02d:%02d:%02d:", $ltim[5] + 1900, $ltim[4] + 1, @ltim[3,2,1,0];
-      print "$msgtm waiting for an event...\n";
+      print BSUtil::isotime().": waiting for an event...\n";
       exit 0 if $testprojid;
       my $sleepstart = time();
       my @watchers = (values(%remotewatchers), @{$gctx->{'retryevents'}}, $gctx->{'rctx'}->xrpc_handles());
