@@ -3031,10 +3031,10 @@ sub getprojpack {
 	  # if asked for a specific project, put it in remotemap
 	  next unless $remotemap && $cgi->{'project'};
 	  checkpartition($remotemap, $projid, $r) if $remotemap->{':partitions'} && !$remotemap->{':partitions'}->{$projid};
-	  if ($remotemap->{$projid} && $cgi->{'withconfig'}) {
+	  if ($remotemap->{$projid} && $cgi->{'withconfig'} && $remotemap->{$projid}->{'partition'}) {
 	    # also put config in remotemap is asked for a specific project
 	    my $c = readstr("$projectsdir/$projid.conf", 1);
-	    $remotemap->{$projid}->{'config'} = defined($c) ? $c : '' if ($remotemap->{$projid} || {})->{'partition'};
+	    $remotemap->{$projid}->{'config'} = defined($c) ? $c : '';
 	  }
 	  next;
 	}
@@ -3056,9 +3056,21 @@ sub getprojpack {
   for my $projid (@$projids) {
     my $jinfo = { 'name' => $projid };
     my $proj = readproj($projid, 1);
-    if ($remotemap && (!$proj || $proj->{'remoteurl'}) && !exists($remotemap->{$projid})) {
-      my $r = remoteprojid($projid);
-      $remotemap->{$projid} = {%$r, 'proto' => 1} if $r;
+    if ($remotemap && (!$proj || $proj->{'remoteurl'})) {
+      if ($cgi->{'project'}) {
+	# fill remote data if asked for that specific project
+	my $r = remoteprojid($projid);
+	if ($r) {
+	  eval {
+	    fetchremoteproj($r, $projid, $remotemap);
+	    fetchremoteconfig($r, $projid, $remotemap) if $cgi->{'withconfig'};
+	  };
+	}
+      } elsif (!exists($remotemap->{$projid}) ) {
+        # put at least the proto into the remotemap
+        my $r = remoteprojid($projid);
+        $remotemap->{$projid} = {%$r, 'proto' => 1} if $r;
+      }
     }
     next unless $proj;
     for (qw{kind}) {
