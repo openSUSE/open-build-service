@@ -1572,9 +1572,8 @@ class Project < ActiveRecord::Base
   def maintenance_incidents
     Project.where('projects.name like ?', "#{self.name}:%").distinct.
       where(kind: 'maintenance_incident').
-      joins(:repositories).
-      joins('JOIN release_targets rt on rt.repository_id=repositories.id').
-      where('rt.trigger = "maintenance"')
+      joins(:repositories => :release_targets).
+      where('release_targets.trigger = "maintenance"')
   end
 
   def release_targets_ng
