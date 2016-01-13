@@ -40,7 +40,7 @@ module Webui::ProjectHelper
   end
 
   def project_bread_crumb(*args)
-    @crumb_list = [link_to('Projects', project_list_public_path)]
+    @crumb_list = [link_to('Projects', projects_path)]
     return if @spider_bot
     # Sometimes @project is a WebuiProject and sometimes a Project
     # We need to check this before calling new_record?

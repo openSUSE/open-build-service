@@ -164,9 +164,9 @@ OBSApi::Application.routes.draw do
 
     controller 'webui/project' do
       get 'project/' => :index, as: 'projects'
-      get 'project/list_public' => :index
+      get 'project/list_public', to: redirect('/project') # Deprecated. Should be removed at some point
       get 'project/list_all' => :index, show_all: true
-      get 'project/list' => :index
+      get 'project/list', to: redirect('/project') # Deprecated. Should be removed at some point
       get 'project/autocomplete_projects' => :autocomplete_projects
       get 'project/autocomplete_incidents' => :autocomplete_incidents
       get 'project/autocomplete_packages' => :autocomplete_packages
@@ -181,7 +181,7 @@ OBSApi::Application.routes.draw do
       post 'project/new_incident_request' => :new_incident_request
       get 'project/release_request_dialog' => :release_request_dialog
       post 'project/new_release_request/(:project)' => :new_release_request, constraints: cons
-      get 'project/show/(:project)' => :show, constraints: cons, as: 'project_show'
+      get 'project/show/(:project)' => :show, constraints: cons
       get 'project/packages_simple/:project' => :packages_simple, constraints: cons
       get 'project/linking_projects/:project' => :linking_projects, constraints: cons
       get 'project/add_repository_from_default_list/:project' => :add_repository_from_default_list, constraints: cons

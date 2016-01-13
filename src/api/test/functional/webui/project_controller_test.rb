@@ -436,12 +436,12 @@ XML
   def test_list_all
     use_js
 
-    visit project_list_public_path
+    visit projects_path
     first(:css, 'p.main-project a').click
     # verify it's a project
     assert page.current_url.end_with? project_show_path(project: 'BaseDistro')
 
-    visit project_list_public_path
+    visit projects_path
     # avoid random results once projects moves to page 2
     find(:id, 'projects_table_length').select('100')
     find(:id, 'project_list').must_have_link 'BaseDistro'
