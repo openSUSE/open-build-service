@@ -101,8 +101,9 @@ class Channel < ActiveRecord::Base
     _update_from_xml_targets(xmlhash)
     _update_from_xml_binary_lists(xmlhash)
 
-    if self.package.project.is_maintenance_incident?
-      # we skip binaries in incidents because we do not need them
+    if self.package.project.is_maintenance_incident? || self.package.is_link?
+      # we skip binaries in incidents and when they are just a branch
+      # we do not need the data since it is not the origin definition
       save
       return
     end
