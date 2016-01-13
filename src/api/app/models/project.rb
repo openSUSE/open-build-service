@@ -1556,18 +1556,6 @@ class Project < ActiveRecord::Base
     return true
   end
 
-  def find_incident_issues
-    linkdiff = pkg.linkdiff()
-    if linkdiff && linkdiff.has_element?('issues')
-      linkdiff.issues.each(:issue) do |issue|
-        release_targets_ng[rt_name][:package_issues][issue.value('label')] = issue
-
-        release_targets_ng[rt_name][:package_issues_by_tracker][issue.value('tracker')] ||= []
-        release_targets_ng[rt_name][:package_issues_by_tracker][issue.value('tracker')] << issue
-      end
-    end
-  end
-
   # Returns maintenance incidents by type for current project (if any)
   def maintenance_incidents
     Project.where('projects.name like ?', "#{self.name}:%").distinct.
