@@ -22,6 +22,7 @@ package BSSched::Remote;
 #   addwatchremote
 #   updateremoteprojs
 #   remoteprojid
+#   fetchremote_sync
 #   fetchremoteproj
 #   fetchremoteconfig
 #   remotemap2remoteprojs
@@ -204,6 +205,39 @@ sub remoteprojid {
   return undef;
 }
 
+=head2 fetchremote_sync - add a missing remoteprojs entry with a synchronous call
+
+ TODO: add description
+
+=cut
+
+sub fetchremote_sync {
+  my ($gctx, $projid) = @_;
+  print "WARNING: fetching remote project data for $projid\n";
+  my @args;
+  push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
+  push @args, "project=$projid";
+  my $param = {
+    'uri' => "$BSConfig::srcserver/getprojpack",
+    'timeout' => 60,
+  };
+  my $projpacksin;
+  eval {
+    $projpacksin = BSRPC::rpc($param, $BSXML::projpack, 'withconfig', 'withremotemap', "arch=$gctx->{'arch'}", @args);
+  };
+  my $remoteprojs = $gctx->{'remoteprojs'};
+  if ($@) {
+    warn($@);
+    my $error = $@;
+    $error =~ s/\n$//s;
+    $remoteprojs->{$projid} = {'error' => $error};
+    BSSched::EventSource::Retry::addretryevent($gctx, {'type' => 'project', 'project' => $projid}) if BSSched::RPC::is_transient_error($error);
+  } else {
+    remotemap2remoteprojs($gctx, $projpacksin->{'remotemap'});
+  }
+  return $remoteprojs->{$projid};
+}
+
 =head2 fetchremoteproj - TODO: add summary
 
  TODO: add description
@@ -213,32 +247,9 @@ sub remoteprojid {
 sub fetchremoteproj {
   my ($gctx, $proj, $projid) = @_;
   return undef unless $proj && $proj->{'remoteurl'} && $proj->{'remoteproject'};
-  $projid ||= $proj->{'name'};
   my $remoteprojs = $gctx->{'remoteprojs'};
   return $remoteprojs->{$projid} if exists $remoteprojs->{$projid};
-  print "WARNING: fetching remote project data for $projid\n";
-  my $rproj;
-  my $param = {
-    'uri' => "$BSConfig::srcserver/source/$projid/_meta",
-    'timeout' => 60,
-  };
-  eval {
-    $rproj = BSRPC::rpc($param, $BSXML::proj);
-  };
-  if ($@) {
-    warn($@);
-    my $error = $@;
-    $error =~ s/\n$//s;
-    $rproj = {'error' => $error};
-    BSSched::EventSource::Retry::addretryevent($gctx, {'type' => 'project', 'project' => $projid}) if BSSched::RPC::is_transient_error($error);
-  }
-  return undef unless $rproj;
-  delete $rproj->{'mountproject'};
-  for (qw{name root remoteroot remoteurl remoteproject}) {
-    $rproj->{$_} = $proj->{$_};
-  }
-  $remoteprojs->{$projid} = $rproj;
-  return $rproj;
+  return fetchremote_sync($gctx, $projid);	# force in missing entry
 }
 
 =head2 fetchremoteconfig - TODO: add summary
@@ -255,24 +266,9 @@ sub fetchremoteconfig {
   return undef if !$proj || $proj->{'error'};
   return $proj->{'config'} if exists $proj->{'config'};
   return '' if $proj->{'partition'};
-  print "WARNING: fetching remote project config for $projid\n";
-  my $c;
-  my $param = {
-    'uri' => "$BSConfig::srcserver/source/$projid/_config",
-    'timeout' => 60,
-  };
-  eval {
-    $c = BSRPC::rpc($param);
-  };
-  if ($@) {
-    warn($@);
-    $proj->{'error'} = $@;
-    $proj->{'error'} =~ s/\n$//s;
-    BSSched::EventSource::Retry::addretryevent($gctx, {'type' => 'project', 'project' => $projid}) if BSSched::RPC::is_transient_error($proj->{'error'});
-    return undef;
-  }
-  $proj->{'config'} = $c;
-  return $c;
+  $proj = fetchremote_sync($gctx, $projid);	# force in missing entry
+  return undef if !$proj || $proj->{'error'};
+  return $proj->{'config'};
 }
 
 =head2 remotemap2remoteprojs - update remoteprojs with the remotemap data
