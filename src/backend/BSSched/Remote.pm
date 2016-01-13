@@ -82,6 +82,7 @@ sub beginwatchcollection {
   my ($gctx) = @_;
   %{$gctx->{'watchremote'}} = ();	# reset all watches
   $gctx->{'needremoteproj'} = {};	# tmp
+  $gctx->{'watchremote_cache'} = {};	# tmp
 }
 
 =head2 endwatchcollection - TODO: add summary
@@ -92,6 +93,7 @@ sub beginwatchcollection {
 
 sub endwatchcollection {
   my ($gctx) = @_;
+  delete $gctx->{'watchremote_cache'};
   my $needremoteproj = delete $gctx->{'needremoteproj'};
   updateremoteprojs($gctx, $needremoteproj);
 }
@@ -108,7 +110,14 @@ sub addwatchremote {
 
   my $projpacks = $gctx->{'projpacks'};
   return undef if $projpacks->{$projid} && !$projpacks->{$projid}->{'remoteurl'};
-  my $proj = remoteprojid($gctx, $projid);
+  my $proj;
+  my $watchremote_cache = $gctx->{'watchremote_cache'} || {};
+  if (exists($watchremote_cache->{$projid})) {
+    $proj = $watchremote_cache->{$projid};
+  } else {
+    $proj = remoteprojid($gctx, $projid);
+    $watchremote_cache->{$projid} = $proj;
+  }
   my $needremoteproj = $gctx->{'needremoteproj'} || {};
   # we don't need the project data for package watches
   $needremoteproj->{$projid} = $proj if $type ne 'package';
