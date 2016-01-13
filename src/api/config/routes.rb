@@ -417,8 +417,11 @@ OBSApi::Application.routes.draw do
     controller :attribute do
       get 'attribute' => :index
       get 'attribute/:namespace' => :index
-      match 'attribute/:namespace/_meta' => :namespace_definition, via: [:get, :delete, :post]
-      match 'attribute/:namespace/:name/_meta' => :attribute_definition, via: [:get, :delete, :post]
+      # FIXME3.0: drop the POST and DELETE here
+      match 'attribute/:namespace/_meta' => :namespace_definition, via: [:get, :delete, :post, :put]
+      match 'attribute/:namespace/:name/_meta' => :attribute_definition, via: [:get, :delete, :post, :put]
+      delete 'attribute/:namespace' => :namespace_definition
+      delete 'attribute/:namespace/:name' => :attribute_definition
 
       get 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :show_attribute, constraints: cons
       post 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :cmd_attribute, constraints: cons, as: :change_attribute
