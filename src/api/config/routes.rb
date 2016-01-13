@@ -181,7 +181,6 @@ OBSApi::Application.routes.draw do
       post 'project/new_incident_request' => :new_incident_request
       get 'project/release_request_dialog' => :release_request_dialog
       post 'project/new_release_request/(:project)' => :new_release_request, constraints: cons
-      get 'project/show/(:project)' => :show, constraints: cons
       get 'project/packages_simple/:project' => :packages_simple, constraints: cons
       get 'project/linking_projects/:project' => :linking_projects, constraints: cons
       get 'project/add_repository_from_default_list/:project' => :add_repository_from_default_list, constraints: cons
@@ -242,6 +241,9 @@ OBSApi::Application.routes.draw do
       get 'project/unlock_dialog' => :unlock_dialog
       post 'project/unlock' => :unlock
       post 'project/comments/:project' => :save_comment, constraints: cons, as: 'save_project_comment'
+
+      get 'project/:project' => :show, constraints: cons, as: 'project_show'
+      get 'project/show/:project', to: redirect('/project/%{project}') # Deprecated. Should be removed at some point
     end
 
     controller 'webui/request' do

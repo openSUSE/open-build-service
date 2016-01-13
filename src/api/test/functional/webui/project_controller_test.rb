@@ -89,7 +89,7 @@ Ignore: package:cups'
       assert_equal "Tidy", find(:xpath, '(.//td/a)[4]').text
     end
 
-    visit '/project/show?project=My:Maintenance'
+    visit '/project/My:Maintenance'
     page.must_have_selector '#project_title'
   end
 
@@ -117,7 +117,7 @@ Ignore: package:cups'
   def test_kde4_has_two_packages
     use_js
 
-    visit '/project/show?project=kde4'
+    visit '/project/kde4'
     find('#packages').must_have_text 'Packages (2)'
     within('#raw_packages') do
       page.must_have_link 'kdebase'
@@ -491,7 +491,7 @@ XML
   end
 
   def test_successful_comment_creation
-    login_tom to: '/project/show/home:Iggy'
+    login_tom to: '/project/home:Iggy'
     SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       fill_in 'body', with: 'Comment Body'
@@ -504,7 +504,7 @@ XML
   end
 
   def test_unsuccessful_comment_creation
-    login_tom to: '/project/show/home:Iggy'
+    login_tom to: '/project/home:Iggy'
     find_button('Add comment').click
     find('#flash-messages').must_have_text "Comment can't be saved: Body can't be blank."
   end
@@ -512,7 +512,7 @@ XML
   def test_successful_reply_comment_creation
     use_js
 
-    login_Iggy to: '/project/show/BaseDistro'
+    login_Iggy to: '/project/BaseDistro'
     find(:id, 'reply_link_id_100').click
     fill_in 'reply_body_100', with: 'Comment Body'
     find(:id, 'add_reply_100').click

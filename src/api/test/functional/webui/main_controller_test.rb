@@ -22,9 +22,9 @@ class Webui::MainControllerTest < ActionDispatch::IntegrationTest
     @urls = []
     # verify we can fetch sitemaps and it contains useful stuff
     fetch_sitemap(main_sitemap_path)
-    assert @urls.include? '/project/show/BaseDistro'
-    assert @urls.include? '/project/show/home:Iggy'
-    assert @urls.include? '/project/show/home:coolo:test'
+    assert @urls.include? '/project/BaseDistro'
+    assert @urls.include? '/project/home:Iggy'
+    assert @urls.include? '/project/home:coolo:test'
     assert @urls.include? '/package/show/home:coolo:test/kdelibs_DEVEL_package'
     assert @urls.include? '/package/show/home:Iggy/TestPack'
     assert @urls.include? '/package/show/Apache/apache2'

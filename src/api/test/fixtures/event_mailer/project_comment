@@ -20,7 +20,7 @@ Content-Type: text/plain;
  charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-Visit http://localhost/project/show/home:Iggy
+Visit http://localhost/project/home:Iggy
 
 Thor wrote in project home:Iggy:
 
@@ -34,7 +34,7 @@ Content-Type: text/html;
  charset=UTF-8
 Content-Transfer-Encoding: 7bit
 
-<p>Visit <a href="http://localhost/project/show/home:Iggy">http://localhost/project/show/home:Iggy</a></p>
+<p>Visit <a href="http://localhost/project/home:Iggy">http://localhost/project/home:Iggy</a></p>
 
 <p>Thor wrote in project home:Iggy:</p>
 
