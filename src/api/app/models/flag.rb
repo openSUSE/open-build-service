@@ -155,6 +155,6 @@ class Flag < ActiveRecord::Base
   end
 
   def main_object
-    self.package ? self.package : self.project
+    self.package || self.project
   end
 end

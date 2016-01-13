@@ -10,7 +10,7 @@ module GetFlags
     the_flags = {}
 
     # [nil] is a placeholder for "all" repositories
-    [nil].concat(self.repositories.map{|repo| repo.name}).each do |repository|
+    [nil].concat(self.repositories.pluck(:name)).each do |repository|
       the_flags[repository] = []
       # [nil] is a placeholder for "all" architectures
       [nil].concat(self.architectures.uniq).each do |architecture|
