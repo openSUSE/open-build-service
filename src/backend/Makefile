@@ -27,5 +27,13 @@ install_data_dirs: prepare_dirs
 	)
 
 
-test_unit: bs_config
-	LANG=C prove -Ibuild t/*.t
+test_unit: bs_config clean_cover
+	PERL5OPT=-MDevel::Cover LANG=C prove -Ibuild t/*.t
+
+cover: test_unit
+	cover -ignore_re '^((build|XML|t)/|/usr/bin/prove$$)' -outputdir /srv/www/htdocs
+
+clean_cover:
+	rm -rf cover_db/
+
+.PHONY: test_unit cover
