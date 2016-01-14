@@ -167,91 +167,96 @@ OBSApi::Application.routes.draw do
       get 'project/new' => :new, as: 'new_project'
 
       # INDEX
-      get 'project/' => :index, as: 'projects'
+      get 'project/'         => :index, as: 'projects'
       get 'project/list_all' => :index, show_all: true
       get 'project/list_public', to: redirect('/project') # Deprecated. Should be removed at some point
-      get 'project/list', to: redirect('/project') # Deprecated. Should be removed at some point
+      get 'project/list',        to: redirect('/project') # Deprecated. Should be removed at some point
 
       # CREATE, UPDATE, DESTROY
-      post 'project/create' => :create, constraints: cons, as: 'projects_create'
-      patch 'project/update' => :update, constraints: cons
-      delete 'project/destroy' => :destroy
+      get 'project/edit/:project' => :edit, constraints: cons
+      post 'project/create'       => :create, constraints: cons, as: 'projects_create'
+      patch 'project/update'      => :update, constraints: cons
+      delete 'project/destroy'    => :destroy
 
-      get 'project/autocomplete_projects' => :autocomplete_projects
-      get 'project/autocomplete_incidents' => :autocomplete_incidents
-      get 'project/autocomplete_packages' => :autocomplete_packages
+      get 'project/autocomplete_projects'     => :autocomplete_projects
+      get 'project/autocomplete_incidents'    => :autocomplete_incidents
+      get 'project/autocomplete_packages'     => :autocomplete_packages
       get 'project/autocomplete_repositories' => :autocomplete_repositories
 
       # Project tabs
       get 'project/repositories/:project' => :repositories, constraints: cons, as: 'project_repositories'
-      get 'project/monitor/(:project)' => :monitor, constraints: cons, as: 'project_monitor'
-      get 'project/requests/:project' => :requests, constraints: cons, as: 'project_requests'
-      get 'project/users/:project' => :users, constraints: cons, as: 'project_users'
-      get 'project/subprojects/:project' => :subprojects, constraints: cons, as: 'project_subprojects'
-      get 'project/prjconf/:project' => :prjconf, constraints: cons
+      get 'project/monitor/(:project)'    => :monitor, constraints: cons, as: 'project_monitor'
+      get 'project/requests/:project'     => :requests, constraints: cons, as: 'project_requests'
+      get 'project/users/:project'        => :users, constraints: cons, as: 'project_users'
+      get 'project/subprojects/:project'  => :subprojects, constraints: cons, as: 'project_subprojects'
+      get 'project/prjconf/:project'      => :prjconf, constraints: cons
+      get 'project/meta/:project'         => :meta, constraints: cons, as: 'project_meta'
+      get 'project/status/(:project)'     => :status, constraints: cons, as: 'project_status'
       get 'project/attributes/:project', to: redirect('/attribs/%{project}'), constraints: cons
-      get 'project/meta/:project' => :meta, constraints: cons, as: 'project_meta'
-      get 'project/status/(:project)' => :status, constraints: cons, as: 'project_status'
 
-      get 'project/new_package/:project' => :new_package, constraints: cons
+      get 'project/new_package/:project'        => :new_package, constraints: cons
       get 'project/new_package_branch/:project' => :new_package_branch, constraints: cons
-      get 'project/incident_request_dialog' => :incident_request_dialog
-      get 'project/packages_simple/:project' => :packages_simple, constraints: cons
-      get 'project/linking_projects/:project' => :linking_projects, constraints: cons
+      get 'project/incident_request_dialog'     => :incident_request_dialog
+      get 'project/packages_simple/:project'    => :packages_simple, constraints: cons
+      get 'project/linking_projects/:project'   => :linking_projects, constraints: cons
       get 'project/add_repository_from_default_list/:project' => :add_repository_from_default_list, constraints: cons
-      get 'project/add_repository/:project' => :add_repository, constraints: cons
-      get 'project/add_person/:project' => :add_person, constraints: cons
-      get 'project/add_group/:project' => :add_group, constraints: cons
-      get 'project/edit_repository/:project' => :edit_repository, constraints: cons
-      post 'project/update_target/:project' => :update_target, constraints: cons
-      get 'project/repository_state/:project/:repository' => :repository_state, constraints: cons, as: 'project_repository_state'
-      get 'project/rebuild_time/:project' => :rebuild_time, constraints: cons, as: 'project_rebuild_time'
-      get 'project/rebuild_time_png/:project' => :rebuild_time_png, constraints: cons
-      get 'project/packages/:project' => :packages, constraints: cons
-      post 'project/release_repository/:project/:repository' => :release_repository, constraints: cons
-      get 'project/release_repository_dialog/:project/:repository' => :release_repository_dialog, constraints: cons
-      post 'project/move_path/:project' => :move_path
-      post 'project/save_person/:project' => :save_person, constraints: cons
-      post 'project/save_group/:project' => :save_group, constraints: cons
-      post 'project/remove_role/:project' => :remove_role, constraints: cons
-      post 'project/remove_person/:project' => :remove_person, constraints: cons
-      post 'project/remove_group/:project' => :remove_group, constraints: cons
+      get 'project/add_repository/:project'     => :add_repository, constraints: cons
+      get 'project/edit_repository/:project'    => :edit_repository, constraints: cons
+      post 'project/update_target/:project'     => :update_target, constraints: cons
+      get 'project/rebuild_time/:project'       => :rebuild_time, constraints: cons, as: 'project_rebuild_time'
+      get 'project/rebuild_time_png/:project'   => :rebuild_time_png, constraints: cons
+      get 'project/packages/:project'           => :packages, constraints: cons
+      post 'project/move_path/:project'         => :move_path
+      post 'project/remove_role/:project'       => :remove_role, constraints: cons
       get 'project/package_buildresult/:project' => :package_buildresult, constraints: cons
       # TODO: this should be POST (and the link AJAX)
-      get 'project/toggle_watch/:project' => :toggle_watch, constraints: cons, as: 'project_toggle_watch'
-      post 'project/save_meta/:project' => :save_meta, constraints: cons
-      post 'project/save_prjconf/:project' => :save_prjconf, constraints: cons
-      post 'project/flag/:project' => :create_flag, constraints: cons
-      post 'project/flag/:project/:flag' => :toggle_flag, constraints: cons
-      delete 'project/flag/:project/:flag' => :remove_flag, constraints: cons
-      get 'project/clear_failed_comment/:project' => :clear_failed_comment, constraints: cons
-      get 'project/edit/:project' => :edit, constraints: cons
-      get 'project/edit_comment_form/:project' => :edit_comment_form, constraints: cons
-      post 'project/edit_comment/:project' => :edit_comment, constraints: cons
+      get 'project/toggle_watch/:project'       => :toggle_watch, constraints: cons, as: 'project_toggle_watch'
+      post 'project/save_meta/:project'         => :save_meta, constraints: cons
+      post 'project/save_prjconf/:project'      => :save_prjconf, constraints: cons
       get 'project/maintained_projects/:project' => :maintained_projects, constraints: cons
       post 'project/remove_maintained_project/:project' => :remove_maintained_project, constraints: cons
       get 'project/maintenance_incidents/:project' => :maintenance_incidents, constraints: cons
-      get 'project/list_incidents/:project' => :list_incidents, constraints: cons
-      post 'project/comments/:project' => :save_comment, constraints: cons, as: 'save_project_comment'
+      get 'project/list_incidents/:project'     => :list_incidents, constraints: cons
       post 'project/new_release_request/(:project)' => :new_release_request, constraints: cons
+      get 'project/repository_state/:project/:repository' => :repository_state, constraints: cons, as: 'project_repository_state'
 
-      post 'project/new_incident' => :new_incident
-      post 'project/new_incident_request' => :new_incident_request
+      post 'project/release_repository/:project/:repository'       => :release_repository, constraints: cons
+      get 'project/release_repository_dialog/:project/:repository' => :release_repository_dialog, constraints: cons
+
+      post 'project/comments/:project'            => :save_comment, constraints: cons, as: 'save_project_comment'
+      get 'project/edit_comment_form/:project'    => :edit_comment_form, constraints: cons
+      post 'project/edit_comment/:project'        => :edit_comment, constraints: cons
+      get 'project/clear_failed_comment/:project' => :clear_failed_comment, constraints: cons
+
+      post 'project/flag/:project'         => :create_flag, constraints: cons
+      post 'project/flag/:project/:flag'   => :toggle_flag, constraints: cons
+      delete 'project/flag/:project/:flag' => :remove_flag, constraints: cons
+
+      post 'project/new_incident'          => :new_incident
+      post 'project/new_incident_request'  => :new_incident_request
       get 'project/release_request_dialog' => :release_request_dialog
 
-      get 'project/buildresult' => :buildresult, constraints: cons
-      get 'project/delete_dialog' => :delete_dialog
-      post 'project/save_distributions' => :save_distributions
-      post 'project/save_repository' => :save_repository
-      post 'project/save_path_element' => :save_path_element
+      get 'project/add_person/:project'     => :add_person, constraints: cons
+      get 'project/add_group/:project'      => :add_group, constraints: cons
+      post 'project/save_person/:project'   => :save_person, constraints: cons
+      post 'project/save_group/:project'    => :save_group, constraints: cons
+      post 'project/remove_person/:project' => :remove_person, constraints: cons
+      post 'project/remove_group/:project'  => :remove_group, constraints: cons
+
+      get 'project/buildresult'              => :buildresult, constraints: cons
+      get 'project/delete_dialog'            => :delete_dialog
+      post 'project/save_distributions'      => :save_distributions
+      post 'project/save_repository'         => :save_repository
+      post 'project/save_path_element'       => :save_path_element
       get 'project/remove_target_request_dialog' => :remove_target_request_dialog
-      post 'project/remove_target_request' => :remove_target_request
-      post 'project/remove_target' => :remove_target
+      post 'project/remove_target_request'   => :remove_target_request
+      post 'project/remove_target'           => :remove_target
       post 'project/remove_path_from_target' => :remove_path_from_target
       get 'project/add_maintained_project_dialog' => :add_maintained_project_dialog, constraints: cons
-      post 'project/add_maintained_project' => :add_maintained_project, constraints: cons
-      get 'project/unlock_dialog' => :unlock_dialog
-      post 'project/unlock' => :unlock
+
+      post 'project/add_maintained_project'  => :add_maintained_project, constraints: cons
+      get 'project/unlock_dialog'            => :unlock_dialog
+      post 'project/unlock'                  => :unlock
 
       # SHOW
       get 'project/:project' => :show, constraints: cons, as: 'project_show'
