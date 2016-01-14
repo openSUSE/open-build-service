@@ -11,16 +11,19 @@ function add_common_repos() {
 
 function install_common_packages() {
   echo -e "\ninstalling required software packages...\n"
-  zypper -q -n install \
+  zypper  -n install \
     update-alternatives ruby-devel make gcc gcc-c++ patch cyrus-sasl-devel openldap2-devel \
     libmysqld-devel libxml2-devel zlib-devel libxslt-devel nodejs mariadb memcached \
-    sphinx sphinx phantomjs ruby2.2-rubygem-bundler ruby2.2-rubygem-mysql2 \
+    sphinx sphinx phantomjs \
     screen \
     perl-XML-Parser \
+    ruby2.2-rubygem-bundler \
+    ruby2.2-rubygem-mysql2 \
     ruby2.2-rubygem-nokogiri \
     ruby2.2-rubygem-multi_json \
     ruby2.2-rubygem-ruby-ldap \
     ruby2.2-rubygem-xmlhash \
+    ruby2.2-rubygem-thinking-sphinx\
     perl-GD \
     obs-server \
     curl \
@@ -144,6 +147,8 @@ function print_final_information() {
   echo -e "\nProvisioning of your OBS API rails app done!"
   echo -e "To start your development OBS backend run: vagrant exec RAILS_ENV=development ./script/start_test_backend\n"
   echo -e "To start your development OBS frontend run: vagrant exec rails s\n"
+  echo -e "\nTo start testing : \nvagrant ssh\n";
+  echo -e "\nmake -C /vagrant/src/api test\n";
 }
 
 function chown_vagrant_owned_dirs() {

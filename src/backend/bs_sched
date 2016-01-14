@@ -56,6 +56,7 @@ use BSSched::ProjPacks;
 use BSSched::BuildRepo;
 use BSSched::BuildResult;
 use BSSched::PublishRepo;
+use BSSched::EventQueue;
 use BSSched::EventHandler;
 use BSSched::EventSource::Directory;
 use BSSched::EventSource::Retry;
@@ -723,7 +724,7 @@ eval {
     }
 
     # collect events to process
-    my @events;
+    my $ev_queue = BSSched::EventQueue->new($gctx, 'initialstartup' => $initialstartup);
 
     my $pingwatcher = {
       'socket' => \*PING,
@@ -735,7 +736,7 @@ eval {
       my @due = BSSched::EventSource::Retry::getretryevents($gctx);
       if (@due) {
         print "retrying ".@due." events\n";
-        push @events, @due;
+        $ev_queue->add_events(@due);
       }
     }
 
@@ -757,7 +758,12 @@ eval {
             print "retrying watcher for $remoteurl\n";
             delete $remotewatchers{$remoteurl};
           } else {
-	    push @events, $watcher->getevents($watchremote->{$remoteurl}, $watchremote_start);
+	    $ev_queue->add_events(
+              $watcher->getevents(
+                $watchremote->{$remoteurl}, 
+                $watchremote_start
+              )
+            );
             delete $remotewatchers{$remoteurl} unless $watcher->{'retry'};	# watcher is finished
           }
         }
@@ -774,25 +780,28 @@ eval {
       my $dummy;
       1 while (sysread(PING, $dummy, 1024, 0) || 0) > 0;
       # add events from myeventdir
-      push @events, BSSched::EventSource::Directory::readevents($gctx, $gctx->{'myeventdir'});
-      next unless @events;
+      $ev_queue->add_events(
+        BSSched::EventSource::Directory::readevents(
+          $gctx, 
+          $gctx->{'myeventdir'}
+        ) 
+      );
+      next unless $ev_queue->events_in_queue;
     }
 
     # process all collected events
-    if (@events) {
+    if ($ev_queue->events_in_queue) {
       die if $testprojid;
-
-      # create event processor
-      my $ectx = BSSched::EventHandler->new($gctx, 'initialstartup' => $initialstartup);
+      
       eval {
-        if ($ectx->process_events(@events)) {
+        if ($ev_queue->process_events()) {
           # could not process all events, re-run
           $gotevent = 1;
         }
       };
       if ($@) {
         warn($@);
-        BSSched::EventHandler::event_exit($ectx, {'type' => 'emergencydump'});
+        BSSched::EventHandler::event_exit($ev_queue, {'type' => 'emergencydump'});
         exit(1);
       }
       next;
@@ -831,7 +840,7 @@ eval {
       # nothing to do. good night, sleep tight...
       if ($testmode && !$gctx->{'rctx'}->xrpc_busy()) {
 	print "Test mode, all sources and events processed, exiting...\n";
-        my $ectx = BSSched::EventHandler->new($gctx);
+        my $ectx = BSSched::EventQueue->new($gctx);
         BSSched::EventHandler::event_exit($ectx, { 'type' => 'exitcomplete' });
       }
       print BSUtil::isotime().": waiting for an event...\n";
@@ -1101,8 +1110,8 @@ eval {
 
 if ($@) {
   warn($@);
-  my $ectx = BSSched::EventHandler->new($gctx);
-  BSSched::EventHandler::event_exit($ectx, {'type' => 'emergencydump'});
+  my $ev_queue = BSSched::EventQueue->new($gctx);
+  BSSched::EventHandler::event_exit($ev_queue, {'type' => 'emergencydump'});
   exit(1);
 }
 
