@@ -184,14 +184,14 @@ OBSApi::Application.routes.draw do
       get 'project/autocomplete_repositories' => :autocomplete_repositories
 
       # Project tabs
-      get 'project/repositories/:project' => :repositories, constraints: cons, as: 'project_repositories'
-      get 'project/monitor/(:project)'    => :monitor, constraints: cons, as: 'project_monitor'
-      get 'project/requests/:project'     => :requests, constraints: cons, as: 'project_requests'
-      get 'project/users/:project'        => :users, constraints: cons, as: 'project_users'
-      get 'project/subprojects/:project'  => :subprojects, constraints: cons, as: 'project_subprojects'
-      get 'project/prjconf/:project'      => :prjconf, constraints: cons
-      get 'project/meta/:project'         => :meta, constraints: cons, as: 'project_meta'
-      get 'project/status/(:project)'     => :status, constraints: cons, as: 'project_status'
+      get 'project/:project/repositories' => :repositories, constraints: cons, as: 'project_repositories'
+      get 'project/:project/monitor'      => :monitor,      constraints: cons, as: 'project_monitor'
+      get 'project/:project/requests'     => :requests,     constraints: cons, as: 'project_requests'
+      get 'project/:project/users'        => :users,        constraints: cons, as: 'project_users'
+      get 'project/:project/subprojects'  => :subprojects,  constraints: cons, as: 'project_subprojects'
+      get 'project/:project/prjconf'      => :prjconf,      constraints: cons
+      get 'project/:project/meta'         => :meta,         constraints: cons, as: 'project_meta'
+      get 'project/:project/status'       => :status,       constraints: cons, as: 'project_status'
       get 'project/attributes/:project', to: redirect('/attribs/%{project}'), constraints: cons
 
       get 'project/new_package/:project'        => :new_package, constraints: cons

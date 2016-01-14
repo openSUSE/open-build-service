@@ -69,7 +69,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
     return if url.end_with? '/package/view_file/BaseDistro2.0:LinkedUpdateProject/pack2.linked?file=package.spec&rev=1'
     return if url.end_with? '/package/view_file/BaseDistro2.0/pack2.linked?file=package.spec&rev=1'
     return if url.end_with? '/project/edit/RemoteInstance'
-    return if url.end_with? '/project/meta/HiddenRemoteInstance'
+    return if url.end_with? '/project/HiddenRemoteInstance/meta'
     return if url.end_with? '/project/HiddenRemoteInstance'
     return if url.end_with? '/project/edit/HiddenRemoteInstance'
     return if url.end_with? '/user/show/unknown'

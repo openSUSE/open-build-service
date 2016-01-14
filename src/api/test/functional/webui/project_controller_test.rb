@@ -22,7 +22,7 @@ Ignore: package:cups'
     check("OBS Base 2.0")
     find("#submitrepos").click
     page.must_have_text "Successfully added repositories"
-    assert_equal "/project/repositories/home:tom", page.current_path
+    assert_equal "/project/home:tom/repositories", page.current_path
 
     # Test that repository checkbox get's disabled
     visit "/project/add_repository_from_default_list/home:tom"
@@ -34,7 +34,7 @@ Ignore: package:cups'
     use_js
     login_tom
 
-    visit "/project/repositories/home:tom"
+    visit "/project/home:tom/repositories"
     find("#edit_repository_link_SourceprotectedProject_repo").click
     click_link("Add additional path to this repository")
 
@@ -44,7 +44,7 @@ Ignore: package:cups'
     find("select#target_repo").select("SUSE_Linux_10.1")
     click_button("Add path to repository SourceprotectedProject_repo")
 
-    assert_equal "/project/repositories/home:tom", page.current_path
+    assert_equal "/project/home:tom/repositories", page.current_path
     find("#edit_repository_link_SourceprotectedProject_repo").click
     page.must_have_text "Apache/SUSE_Linux_10.1"
 
@@ -533,7 +533,7 @@ XML
       end
     end
     click_link 'succeeded: 1'
-    page.current_path.must_match %r{project/monitor}
+    page.current_path.must_match %r{project/home:Iggy/monitor}
     page.must_have_link 'TestPack'
     page.wont_have_link 'disabled'
 
