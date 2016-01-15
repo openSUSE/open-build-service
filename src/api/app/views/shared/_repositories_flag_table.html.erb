@@ -1,5 +1,4 @@
-<% status = local_assigns.has_key?(:disable) ? 'disable' : 'enable' %>
-<table class="flag_table" id="flag_table_<%= flag_type %>" data-flag="<%= flag_type %>">
+<table class="flag_table" id="flag_table_<%= flags['all'].first.flag %>" data-flag="<%= flags['all'].first.flag %>">
   <tr>
     <th>Repository</th>
     <th style="width: 6ex">All</th>
@@ -7,25 +6,15 @@
       <th style="width: 6ex"><%= architecture.name %></th>
     <% end %>
   </tr>
-  <!-- For all repositories -->
   <tr>
     <td class="reponame"><strong>All</strong></td>
-    <!-- For all architectures -->
-    <td class="allrow">
-      <%= render partial: 'shared/repositories_flag_table_column', :locals => { flag: flags.with_repositories(nil).
-                                                                                            with_architectures(nil).first,
-                                                                                type: flag_type,
-                                                                                repository: nil,
-                                                                                architecture: nil } %>
-    </td>
-    <!-- Architecture specific -->
-    <% @architectures.each do |architecture| %>
-      <td class="allcolumn">
-        <%= render partial: 'shared/repositories_flag_table_column', :locals => { flag: flags.with_repositories(nil).
-                                                                                             with_architectures(architecture.id).first,
-                                                                                  type: flag_type,
-                                                                                  repository: nil,
-                                                                                  architecture: architecture.name } %>
+    <% flags['all'].each_with_index do |flag, index| %>
+      <% if index == 0 %>
+        <td class="allrow">
+      <% else %>
+        <td class="allcolumn">
+      <% end %>
+          <%= render partial: 'shared/repositories_flag_table_column', :locals => { flag: flag } %>
       </td>
     <% end %>
   </tr>
@@ -40,21 +29,13 @@
           <% end %>
         </strong>
       </td>
-      <!-- For this repository for all architectures -->
-      <td class="allrow">
-        <%= render partial: 'shared/repositories_flag_table_column', :locals => { flag: flags.with_repositories(repository.name).
-                                                                                              with_architectures(nil).first,
-                                                                                  type: flag_type,
-                                                                                  repository: repository.name ,
-                                                                                  architecture: nil } %>
-      </td>
-      <% @architectures.each do |architecture| %>
-        <td>
-          <%= render partial: 'shared/repositories_flag_table_column', :locals => { flag: flags.with_repositories(repository.name).
-                                                                                                with_architectures(architecture.id).first,
-                                                                                    type: flag_type,
-                                                                                    repository: repository.name,
-                                                                                    architecture: architecture.name } %>
+      <% flags[repository.name].each_with_index do |flag, index| %>
+        <% if index == 0 %>
+          <td class="allrow">
+        <% else %>
+          <td>
+        <% end %>
+            <%= render partial: 'shared/repositories_flag_table_column', :locals => { flag: flag } %>
         </td>
       <% end %>
     </tr>
@@ -62,7 +43,7 @@
 </table>
 
 <% content_for :ready_function do %>
-  $( ".flag_spinner_trigger_<%= flag_type %>" ).click(function() {
-    $( "#spinner_flag_table_<%= flag_type %>" ).show();
+  $( ".flag_spinner_trigger_<%= flags['all'].first.flag %>" ).click(function() {
+    $( "#spinner_flag_table_<%= flags['all'].first.flag %>" ).show();
   });
 <% end %>

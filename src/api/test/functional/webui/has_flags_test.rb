@@ -78,7 +78,7 @@ class Webui::HasFlagsTest < Webui::IntegrationTest
     find(:link, 'Repositories').click
     # publish disabled icon should appear
     page.must_have_selector '.current_flag_state.icons-publish_disable_blue'
-    assert_equal 'disable', Project.find_by(name: 'home:tom:coolstuff').flags.with_types('publish').first.status
+    assert_equal 'disable', Project.find_by(name: 'home:tom:coolstuff').flags.where(flag: 'publish').first.status
 
     # clean up
     Project.find_by(name: 'home:tom:coolstuff').flags.destroy_all

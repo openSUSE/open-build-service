@@ -1036,10 +1036,10 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def repositories
-    @build = @package.flags.with_types('build')
-    @debuginfo = @package.flags.with_types('debuginfo')
-    @publish = @package.flags.with_types('publish')
-    @useforbuild = @package.flags.with_types('useforbuild')
+    @build = @package.get_flags('build')
+    @debuginfo = @package.get_flags('debuginfo')
+    @publish = @package.get_flags('publish')
+    @useforbuild = @package.get_flags('useforbuild')
     @architectures = @package.project.architectures.uniq
   end
 

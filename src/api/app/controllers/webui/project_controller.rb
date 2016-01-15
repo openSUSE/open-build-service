@@ -294,10 +294,10 @@ class Webui::ProjectController < Webui::WebuiController
       redirect_to :action => :show, :project => params[:project]
       return
     end
-    @build = @project.flags.with_types('build')
-    @debuginfo = @project.flags.with_types('debuginfo')
-    @publish = @project.flags.with_types('publish')
-    @useforbuild = @project.flags.with_types('useforbuild')
+    @build = @project.get_flags('build')
+    @debuginfo = @project.get_flags('debuginfo')
+    @publish = @project.get_flags('publish')
+    @useforbuild = @project.get_flags('useforbuild')
     @architectures = @project.architectures.uniq
   end
 
