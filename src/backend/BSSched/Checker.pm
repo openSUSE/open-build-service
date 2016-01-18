@@ -917,6 +917,7 @@ sub publish {
       $schedulerstate = 'broken';
       $schedulerstate = 'building' if $publisherror eq 'delta generation: building';
       $schedulerdetails = $publisherror;
+      warn("    $publisherror\n") if $schedulerstate eq 'broken';
     }
   }
   return ($schedulerstate, $schedulerdetails);
