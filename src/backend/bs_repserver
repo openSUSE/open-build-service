@@ -2807,7 +2807,7 @@ sub getbuildenv {
 sub getbuildinfo {
   my ($cgi, $projid, $repoid, $arch, $packid, $pdata) = @_;
   my $projpack;
-  my @args = ("project=$projid", "repository=$repoid", "arch=$arch");
+  my @args = ("project=$projid", "repository=$repoid", "arch=$arch", "parseremote=1");
   if (defined($packid)) {
     push @args, "package=$packid";
   } else {

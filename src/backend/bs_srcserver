@@ -3072,6 +3072,9 @@ sub getprojpack {
         $remotemap->{$projid} = {%$r, 'proto' => 1} if $r;
       }
     }
+    if (!$proj && $cgi->{'parseremote'} && $cgi->{'project'} && $remotemap && $remotemap->{$projid}) {
+      $proj = $remotemap->{$projid};
+    }
     next unless $proj;
     for (qw{kind}) {
       $jinfo->{$_} = $proj->{$_} if exists $proj->{$_};
@@ -3142,6 +3145,7 @@ sub getprojpack {
     }
     my @packages;
     @packages = findpackages($projid, $proj, 2) unless $cgi->{'nopackages'} || $proj->{'remoteurl'};
+    @packages = @{$cgi->{'package'}} if $proj->{'remoteurl'} && $cgi->{'package'} && $cgi->{'parseremote'};
     my $missing_packages = grep {$_ eq ':missing_packages'} @packages;
     if ($missing_packages) {
       @packages = grep {$_ ne ':missing_packages'} @packages;
@@ -3224,6 +3228,7 @@ sub getprojpack {
       my $pinfo = {'name' => $packid};
       push @pinfo, $pinfo;
       my $pack = readpack($projid, $packid, 1);
+      ($pack) = getpackage({}, $projid, $packid) if $proj->{'remoteurl'} && $cgi->{'parseremote'};
       $pack ||= {} if $proj->{'link'};
       if (!$pack) {
 	$pinfo->{'error'} = 'no metadata';
@@ -4253,7 +4258,7 @@ sub fetchremoteproj {
     }
     die($@);
   }
-  for (qw{name kind root remoteroot remoteurl remoteproject}) {
+  for (qw{name root remoteroot remoteurl remoteproject}) {
     $rproj->{$_} = $proj->{$_};
   }
   for my $repo (@{$rproj->{'repository'} || []}) {
@@ -6883,7 +6888,7 @@ sub getbuildhistory {
 sub getbuildinfo {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   $arch = $BSConfig::localarch if $arch eq 'local' && defined($BSConfig::localarch);
-  checkprojrepoarch($projid, $repoid, $arch);
+  checkprojrepoarch($projid, $repoid, $arch, 1);
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
   my @args = BSRPC::args($cgi, 'internal', 'debug', 'add');
   my $buildinfo = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/$packid/_buildinfo", $BSXML::buildinfo, @args);
@@ -6893,7 +6898,7 @@ sub getbuildinfo {
 sub getbuildinfo_post {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   $arch = $BSConfig::localarch if $arch eq 'local' && defined($BSConfig::localarch);
-  checkprojrepoarch($projid, $repoid, $arch);
+  checkprojrepoarch($projid, $repoid, $arch, 1);
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
   my @args = BSRPC::args($cgi, 'debug', 'add');
   my $param = {
@@ -8542,7 +8547,7 @@ my $dispatches = [
   '/published/$project/$repository/$arch:filename/$filename/$subfilename:filename view:?' => \&published,
 
   # scheduler calls
-  '/getprojpack $project* $repository* $package* $arch? withrepos:bool? withsrcmd5:bool? withdeps:bool? withconfig:bool? expandedrepos:bool? ignoredisable:bool? nopackages:bool? withremotemap:bool? noremote:bool? partition:? view:?' => \&getprojpack,
+  '/getprojpack $project* $repository* $package* $arch? withrepos:bool? withsrcmd5:bool? withdeps:bool? withconfig:bool? expandedrepos:bool? ignoredisable:bool? nopackages:bool? withremotemap:bool? noremote:bool? parseremote:bool? partition:? view:?' => \&getprojpack,
   'POST:/relsync $project $repository $arch' => \&postrelsync,
   '/relsync $project $repository $arch' => \&getrelsync,
 
