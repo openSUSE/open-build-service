@@ -6,7 +6,7 @@
 # the test suite on EVERY test run, even for an individual file that may not need
 # all of that loaded. Instead, consider making a separate helper file that requires
 # the additional dependencies and performs the additional setup, and require it from
-# the spec files that actually need it. Exactly this is done in the `rails_helper` 
+# the spec files that actually need it. Exactly this is done in the `rails_helper`
 # which loads the complete rails app.
 #
 # See http://rubydoc.info/gems/rspec-core/RSpec/Core/Configuration
@@ -22,12 +22,8 @@ RSpec.configure do |config|
     expectations.include_chain_clauses_in_custom_matcher_descriptions = true
   end
 
+  config.mock_framework = :mocha
   # rspec-mocks config goes here.
-  config.mock_with :rspec do |mocks|
-    # Prevents you from mocking or stubbing a method that does not exist on
-    # a real object.
-    mocks.verify_partial_doubles = true
-  end
 
   # Allows RSpec to persist some state between runs in order to support
   # the `--only-failures` and `--next-failure` CLI options. We recommend
@@ -60,6 +56,12 @@ RSpec.configure do |config|
   # order dependency and want to debug it, you can fix the order by providing
   # the seed, which is printed after each run.
   config.order = :random
+
+  # Tag all groups and examples in the spec/features directory with
+  # :vcr => :true
+  config.define_derived_metadata(:file_path => %r{/spec/features/}) do |metadata|
+    metadata[:vcr] = :true
+  end
 
   # Seed global randomization in this process using the `--seed` CLI option.
   # Setting this allows you to use `--seed` to deterministically reproduce
