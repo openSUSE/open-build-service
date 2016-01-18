@@ -193,8 +193,8 @@ sub check {
     # even more work, generate new meta, check if it changed
     my @new_meta;
     my $repodatas = $gctx->{'repodatas'};
-    my $dep2meta = $repodatas->{$prp}->{'meta'};
-    $repodatas->{$prp}->{'meta'} = $dep2meta = {} unless $dep2meta;
+    my $dep2meta = $repodatas->{"$prp/$myarch"}->{'meta'};
+    $repodatas->{"$prp/$myarch"}->{'meta'} = $dep2meta = {} unless $dep2meta;
     for my $bpack (@$edeps) {
       my $pkg = $dep2pkg->{$bpack};
       my $path = $pool->pkg2fullpath($pkg, $myarch);

@@ -49,7 +49,6 @@ package BSSched::Remote;
 #   asyncmode
 #   rctx
 #   repodatas
-#   repodatas_alien
 #   remotecache
 #   prpnotready
 #   remotegbininfos
@@ -372,18 +371,11 @@ sub addrepo_remote_resume {
 sub addrepo_remote_unpackcpio {
   my ($gctx, $pool, $prp, $arch, $cpio, $solvok, $error) = @_;
 
-  my $repodata;
   my $myarch = $gctx->{'arch'};
 
-  if ($arch eq $myarch) {
-    my $repodatas = $gctx->{'repodatas'};
-    $repodatas->{$prp} ||= {};
-    $repodata = $repodatas->{$prp};
-  } else {
-    my $repodatas_alien = $gctx->{'repodatas_alien'};
-    $repodatas_alien->{"$prp/$arch"} ||= {};
-    $repodata = $repodatas_alien->{"$prp/$arch"};
-  }
+  my $repodatas = $gctx->{'repodatas'};
+  my $repodata = $repodatas->{"$prp/$myarch"};
+  $repodatas->{"$prp/$myarch"} = $repodata = {} unless $repodata;
 
   my $remotecache = $gctx->{'remotecache'};
   my $cachemd5 = Digest::MD5::md5_hex("$prp/$arch");

@@ -164,7 +164,8 @@ sub event_repository {
   $changed_med->{$prp} = 2;
   my $repounchanged = $gctx->{'repounchanged'};
   if ($ev->{'type'} eq 'repository') {
-    delete $gctx->{'repodatas'}->{$prp};
+    my $myarch = $gctx->{'arch'};
+    delete $gctx->{'repodatas'}->{"$prp/$myarch"};
     delete $repounchanged->{$prp};
   } elsif ($ev->{'type'} eq 'repoinfo') {
     $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
@@ -259,8 +260,9 @@ sub event_scanrepo {
   }
   if (defined($projid) && defined($repoid)) {
     my $prp = "$projid/$repoid";
+    my $myarch = $gctx->{'arch'};
     print "reading packages of repository $projid/$repoid\n";
-    delete $gctx->{'repodatas'}->{$prp};
+    delete $gctx->{'repodatas'}->{"$prp/$myarch"};
     my $ctx = BSSched::Checker->new($gctx, $prp);
     my $pool = BSSolv::pool->new();
     $ctx->addrepo($pool, $prp);
@@ -319,7 +321,8 @@ sub event_dumprepo {
 
   my $gctx = $ectx->{'gctx'};
   my $prp = "$ev->{'project'}/$ev->{'repository'}";
-  my $repodata = $gctx->{'repodatas'}->{$prp} || {};
+  my $arch = $ev->{'arch'} || $gctx->{'arch'};
+  my $repodata = $gctx->{'repodatas'}->{"$prp/$arch"} || {};
   local *F;
   open(F, '>', "/tmp/repodump");
   print F "# repodump for $prp\n\n";

@@ -141,14 +141,8 @@ sub dodfetch_resume {
   $ctx->setchanged($handle);
   # drop cache
   my $gctx = $ctx->{'gctx'};
-  my $myarch = $gctx->{'arch'};
   my $prpa = $handle->{'_prpa'};
-  my ($projid, $repoid, $arch) = split('/', $handle->{'_prpa'}, 3);
-  if ($arch eq $myarch) {
-    delete $gctx->{'repodatas'}->{"$projid/$repoid"};
-  } else {
-    delete $gctx->{'repodatas_alien'}->{$prpa};
-  }
+  delete $gctx->{'repodatas'}->{$prpa};
 }
 
 =head2 dodfetch - TODO: add summary

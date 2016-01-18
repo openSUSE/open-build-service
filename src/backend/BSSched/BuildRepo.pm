@@ -64,7 +64,6 @@ package BSSched::BuildRepo;
 #   repodatas
 #   reporoot
 #   remoteprojs
-#   repodatas_alien
 #
 # ctx usage
 #   gctx
@@ -655,6 +654,7 @@ sub move_into_full {
   my $prp = $fctx->{'prp'};
   my $gdst = $fctx->{'gdst'};
   my $gctx = $fctx->{'gctx'};
+  my $prpa = "$prp/$gctx->{'arch'}";
   my $repodatas = $gctx->{'repodatas'};
   my $pool;
   my $satrepo;
@@ -682,7 +682,7 @@ sub move_into_full {
   $fctx->{'oldids'} = \%oldids;
   $fctx->{'metacache'} = $metacache;
   $fctx->{'metacache_ismerge'} = $metacache_ismerge;
-  $fctx->{'dep2meta'} = $repodatas->{$prp}->{'meta'} if $repodatas->{$prp} && $repodatas->{$prp}->{'meta'};
+  $fctx->{'dep2meta'} = $repodatas->{$prpa}->{'meta'} if $repodatas->{$prpa} && $repodatas->{$prpa}->{'meta'};
   mkdir_p("$gdst/:full") if $new && %$new && ! -d "$gdst/:full";
 
   if ($BSSched::BuildResult::new_full_handling) {
@@ -713,7 +713,7 @@ sub move_into_full {
       BSUtil::store("$gdst/.:full.metacache", "$gdst/:full.metacache", $metacache);
     }
   }
-  delete $repodatas->{$prp}->{'solv'};
+  delete $repodatas->{$prpa}->{'solv'};
 }
 
 =head2 sync_fullcache - TODO
@@ -741,7 +741,7 @@ sub sync_fullcache {
     $satrepo = $pool->repofrombins($prp, "$gdst/:full", %oldids);
   }
   writesolv("$gdst/:full.solv.new", "$gdst/:full.solv", $satrepo);
-  delete $gctx->{'repodatas'}->{$prp}->{'solv'};
+  delete $gctx->{'repodatas'}->{"$prp/$myarch"}->{'solv'};
   if ($fullcache->{'metacache'}) {
     if ($fullcache->{'metacache_ismerge'}) {
       BSUtil::store("$gdst/.:full.metacache.merge", "$gdst/:full.metacache.merge", $fullcache->{'metacache'});
@@ -863,7 +863,7 @@ sub addrepo {
 
   # first check the cache
   my $now = time();
-  my $repodata = $arch eq $myarch ? $gctx->{'repodatas'}->{$prp} : $gctx->{'repodatas_alien'}->{"$prp/$arch"};
+  my $repodata = $gctx->{'repodatas'}->{"$prp/$arch"};
   if ($repodata && $repodata->{'lastscan'} && $repodata->{'lastscan'} + 24 * 3600 + ($repodata->{'random'} || 0) * 1800 > $now) {
     if (exists $repodata->{'solv'}) {
       my $r;
@@ -901,13 +901,7 @@ sub addrepo {
   if ($remoteprojs->{$projid}) {
     return BSSched::Remote::addrepo_remote($ctx, $pool, $prp, $arch, $remoteprojs->{$projid});
   }
-  if (!$repodata) {
-    if ($arch eq $myarch) {
-      $gctx->{'repodatas'}->{$prp} = $repodata = {};
-    } else {
-      $gctx->{'repodatas_alien'}->{"$prp/$arch"} = $repodata = {};
-    }
-  }
+  $gctx->{'repodatas'}->{"$prp/$arch"} = $repodata = {} unless $repodata;
   my $r = addrepo_scan($ctx, $pool, $prp, $arch, $repodata);
   if ($r && $arch eq $myarch) {
     $repodata->{'lastscan'} = time();

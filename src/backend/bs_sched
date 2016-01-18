@@ -401,7 +401,6 @@ my $gctx = {
   #  'meta'       meta cache
   #  'solv'       solv data cache (for remote repos)
   'repodatas' => {},
-  'repodatas_alien' => {},		# repodatas for other architectures
 
   # remote bininfo cache
   'remotegbininfos' => {},
@@ -868,7 +867,7 @@ eval {
         delete $gctx->{'prpnotready'}->{$prp};
         delete $gctx->{'prpunfinished'}->{$prp};
         delete $gctx->{'prpchecktimes'}->{$prp};
-        delete $gctx->{'repodatas'}->{$prp};
+        delete $gctx->{'repodatas'}->{"$prp/$myarch"};
         delete $gctx->{'lastcheck'}->{$prp};
         delete $gctx->{'prpcheckuseforbuild'}->{$prp};
         my $ctx = BSSched::Checker->new($gctx, $prp);
@@ -1016,7 +1015,7 @@ eval {
       delete $gctx->{'lastcheck'}->{$prp};
       # delete pkg meta cache
       my $repodatas = $gctx->{'repodatas'};
-      delete $repodatas->{$prp}->{'meta'} if $repodatas->{$prp};
+      delete $repodatas->{"$prp/$myarch"}->{'meta'} if $repodatas->{"$prp/$myarch"};
 
       if (!$gctx->{'prpnoleaf'}->{$prp}) {
         # only free repo data if all projects we depend on are finished, too.
@@ -1035,7 +1034,7 @@ eval {
         }
         if (!@unfinishedprps) {
           print "    leaf prp, freeing data\n";
-          delete $repodatas->{$prp};
+          delete $repodatas->{"$prp/$myarch"};
         } else {
           print "    leaf prp, unfinished prps: @unfinishedprps\n";
         }
