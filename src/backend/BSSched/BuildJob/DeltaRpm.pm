@@ -78,16 +78,16 @@ sub build {
   my $jobdatadir = "$myjobsdir/$job:dir";
   mkdir_p($jobdatadir);
   BSUtil::cleandir($jobdatadir);
-  return (undef, "could not create jobdir") unless -d $jobdatadir;
+  return (undef, "could not create jobdir $jobdatadir") unless -d $jobdatadir;
   for my $delta (@$needdelta) {
     #print Dumper($delta);
     my $deltaid = $delta->[2];
-    link($delta->[0], "$jobdatadir/$deltaid.old") || return (undef, "link error: $!");
-    link($delta->[1], "$jobdatadir/$deltaid.new") || return (undef, "link error: $!");
+    link($delta->[0], "$jobdatadir/$deltaid.old") || return (undef, "link $delta->[0] $jobdatadir/$deltaid.old: $!");
+    link($delta->[1], "$jobdatadir/$deltaid.new") || return (undef, "link $delta->[1] $jobdatadir/$deltaid.new: $!");
     my $qold = Build::Rpm::query("$jobdatadir/$deltaid.old", 'evra' => 1);
     my $qnew = Build::Rpm::query("$jobdatadir/$deltaid.new", 'evra' => 1);
-    return (undef, "bad rpms") unless $qold && $qnew;
-    return (undef, "name/arch mismatch") if $qold->{'name'} ne $qnew->{'name'} || $qold->{'arch'} ne $qnew->{'arch'};
+    return (undef, "bad rpms id $deltaid") unless $qold && $qnew;
+    return (undef, "name/arch mismatch id $deltaid") if $qold->{'name'} ne $qnew->{'name'} || $qold->{'arch'} ne $qnew->{'arch'};
     $qold->{'epoch'} = '' unless defined $qold->{'epoch'};
     $qnew->{'epoch'} = '' unless defined $qnew->{'epoch'};
     my $info = '';
