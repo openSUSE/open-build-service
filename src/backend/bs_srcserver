@@ -2912,6 +2912,9 @@ sub getprojpack {
       my $r = remoteprojid($projid);
       $remotemap->{$projid} = {%$r, 'proto' => 1} if $r;
     }
+    if (!$proj && $cgi->{'parseremote'} && $cgi->{'project'} && $remotemap && $remotemap->{$projid}) {
+      $proj = $remotemap->{$projid};
+    }
     next unless $proj;
     for (qw{kind}) {
       $jinfo->{$_} = $proj->{$_} if exists $proj->{$_};
@@ -2982,6 +2985,7 @@ sub getprojpack {
     }
     my @packages;
     @packages = findpackages($projid, $proj, 2) unless $cgi->{'nopackages'} || $proj->{'remoteurl'};
+    @packages = @{$cgi->{'package'}} if $proj->{'remoteurl'} && $cgi->{'package'} && $cgi->{'parseremote'};
     my $missing_packages = grep {$_ eq ':missing_packages'} @packages;
     if ($missing_packages) {
       @packages = grep {$_ ne ':missing_packages'} @packages;
@@ -3064,6 +3068,7 @@ sub getprojpack {
       my $pinfo = {'name' => $packid};
       push @pinfo, $pinfo;
       my $pack = readpack($projid, $packid, 1);
+      ($pack) = getpackage({}, $projid, $packid) if $proj->{'remoteurl'} && $cgi->{'parseremote'};
       $pack ||= {} if $proj->{'link'};
       if (!$pack) {
 	$pinfo->{'error'} = 'no metadata';
@@ -6615,7 +6620,7 @@ sub getbuildhistory {
 sub getbuildinfo {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   $arch = $BSConfig::localarch if $arch eq 'local' && defined($BSConfig::localarch);
-  checkprojrepoarch($projid, $repoid, $arch);
+  checkprojrepoarch($projid, $repoid, $arch, 1);
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
   my @args;
   push @args, 'internal=1' if $cgi->{'internal'};
@@ -6628,7 +6633,7 @@ sub getbuildinfo {
 sub getbuildinfo_post {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   $arch = $BSConfig::localarch if $arch eq 'local' && defined($BSConfig::localarch);
-  checkprojrepoarch($projid, $repoid, $arch);
+  checkprojrepoarch($projid, $repoid, $arch, 1);
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
   my @args;
   push @args, 'debug=1' if $cgi->{'debug'};
@@ -8280,7 +8285,7 @@ my $dispatches = [
   '/published/$project/$repository/$arch:filename/$filename/$subfilename:filename view:?' => \&published,
 
   # scheduler calls
-  '/getprojpack $project* $repository* $package* $arch? withrepos:bool? withsrcmd5:bool? withdeps:bool? withconfig:bool? expandedrepos:bool? ignoredisable:bool? nopackages:bool? withremotemap:bool? noremote:bool? partition:?' => \&getprojpack,
+  '/getprojpack $project* $repository* $package* $arch? withrepos:bool? withsrcmd5:bool? withdeps:bool? withconfig:bool? expandedrepos:bool? ignoredisable:bool? nopackages:bool? withremotemap:bool? noremote:bool? parseremote:bool? partition:?' => \&getprojpack,
   'POST:/relsync $project $repository $arch' => \&postrelsync,
   '/relsync $project $repository $arch' => \&getrelsync,
 
