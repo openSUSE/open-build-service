@@ -25,8 +25,10 @@ use BSUtil;
 use BSSolv;
 
 use BSSched::ProjPacks;
+use BSSched::BuildRepo;
 use BSSched::PublishRepo;
 use BSSched::BuildJob;
+use BSSched::Access;
 use BSSched::EventSource::Retry;
 use BSSched::EventSource::Directory;
 
@@ -303,11 +305,11 @@ sub preparepool {
   my $delayed;
   my $error;
   for my $rprp (@$prpsearchpath) {
-    if (!BSSched::Access::checkprpaccess($gctx, $rprp, $prp)) {
+    if (!$ctx->checkprpaccess($rprp)) {
       $error = "repository '$rprp' is unavailable";
       last;
     }
-    my $r = BSSched::BuildRepo::addrepo($ctx, $pool, $rprp);
+    my $r = $ctx->addrepo($pool, $rprp);
     if (!$r) {
       $delayed = 1 if defined $r;
       $error = "repository '$rprp' is unavailable";
@@ -936,6 +938,21 @@ sub setchanged {
   my $changetype = $handle->{'_changetype'} || $ctx->{'changetype'} || 'high';
   my $changelevel = $handle->{'_changelevel'} || $ctx->{'changelevel'} || 1;
   BSSched::Lookat::setchanged($gctx,  $changeprp, $changetype, $changelevel);
+}
+
+sub checkprojectaccess {
+  my ($ctx, $projid) = @_;
+  return BSSched::Access::checkprpaccess($ctx->{'gctx'}, $projid, $ctx->{'project'});
+}
+
+sub checkprpaccess {
+  my ($ctx, $prp) = @_;
+  return BSSched::Access::checkprpaccess($ctx->{'gctx'}, $prp, $ctx->{'prp'});
+}
+
+sub addrepo {
+  my ($ctx, $pool, $prp, $arch) = @_;
+  return BSSched::BuildRepo::addrepo($ctx, $pool, $prp, $arch);
 }
 
 1;

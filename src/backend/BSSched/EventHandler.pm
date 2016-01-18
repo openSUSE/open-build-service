@@ -263,7 +263,7 @@ sub event_scanrepo {
     delete $gctx->{'repodatas'}->{$prp};
     my $ctx = BSSched::Checker->new($gctx, $prp);
     my $pool = BSSolv::pool->new();
-    BSSched::BuildRepo::addrepo($ctx, $pool, $prp);
+    $ctx->addrepo($pool, $prp);
     undef $pool;
     $changed_high->{$prp} = 2;
     delete $gctx->{'repounchanged'}->{$prp};

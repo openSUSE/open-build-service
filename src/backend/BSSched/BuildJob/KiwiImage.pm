@@ -25,7 +25,6 @@ use BSSolv;
 use BSConfiguration;
 use BSSched::BuildJob;  	# for expandkiwipath
 use BSSched::DoD;       	# for dodcheck
-use BSSched::Access;    	# for checkprpaccess
 use BSSched::ProjPacks;         # for getconfig
 
 
@@ -98,12 +97,12 @@ sub check {
 
   my $delayed_errors = '';
   for my $aprp (@aprps) {
-    if (!BSSched::Access::checkprpaccess($gctx, $aprp, $prp)) {
+    if (!$ctx->checkprpaccess($aprp)) {
       print "      - $packid (kiwi-image)\n";
       print "        repository $aprp is unavailable";
       return ('broken', "repository $aprp is unavailable");
     }
-    my $r = BSSched::BuildRepo::addrepo($ctx, $pool, $aprp);
+    my $r = $ctx->addrepo($pool, $aprp);
     if (!$r) {
       my $error = "repository '$aprp' is unavailable";
       if (defined $r) {
@@ -207,12 +206,12 @@ sub build {
     my $pool = BSSolv::pool->new();
     $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
     for my $aprp (@aprps) {
-      if (!BSSched::Access::checkprpaccess($gctx, $aprp, $prp)) {
+      if (!$ctx->checkprpaccess($aprp)) {
         print "      - $packid (kiwi-image)\n";
         print "        repository $aprp is unavailable";
         return ('broken', "repository $aprp is unavailable");
       }
-      my $r = BSSched::BuildRepo::addrepo($ctx, $pool, $aprp);
+      my $r = $ctx->addrepo($pool, $aprp);
       if (!$r) {
         my $error = "repository '$aprp' is unavailable";
         $error .= " (delayed)" if defined $r;
