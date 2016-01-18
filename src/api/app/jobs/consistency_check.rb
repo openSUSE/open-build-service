@@ -8,13 +8,17 @@ class ConsistencyCheckJob < ActiveJob::Base
     perform(true)
   end
 
-  def perform(fix = nil)
+  def init
     User.current ||= User.get_default_admin
-    errors = ""
-    errors = project_existence_consistency_check(fix)
+    @errors = ""
+  end
+
+  def perform(fix = nil)
+    init
+    @errors = project_existence_consistency_check(fix)
     Project.find_each(batch_size: 100) do |project|
       unless Project.valid_name? project.name
-        errors << "Invalid project name #{project.name}\n"
+        @errors << "Invalid project name #{project.name}\n"
         if fix
           oldstate = CONFIG['global_write_through']
           CONFIG['global_write_through'] = false
@@ -24,15 +28,33 @@ class ConsistencyCheckJob < ActiveJob::Base
         end
         next
       end
-      errors << package_existence_consistency_check(project, fix)
-      errors << project_meta_check(project, fix)
+      @errors << package_existence_consistency_check(project, fix)
+      @errors << project_meta_check(project, fix)
     end
     unless errors.blank?
       Rails.logger.error("Detected problems during consistency check")
-      Rails.logger.error(errors)
-      raise InconsistentData.new(errors)
+      Rails.logger.error(@errors)
+      raise InconsistentData.new(@errors)
     end
     nil
+  end
+
+  # for manual fixing by admin via rake command
+  def fix_project
+    init
+    check_project(true)
+  end
+
+  def check_project(fix = nil)
+    init
+    if ENV['project'].blank?
+      puts "Please specify the project with 'project=MyProject' on CLI"
+      exit(1)
+    end
+    project = Project.get_by_name(ENV['project'])
+    @errors << project_meta_check(project, fix)
+    @errors << package_existence_consistency_check(project, fix)
+    puts @errors unless @errors.blank?
   end
 
   def project_meta_check(project, fix = nil)
