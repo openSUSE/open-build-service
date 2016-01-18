@@ -1,8 +1,8 @@
 # Open Build Service Test Suite
 This is a test suite based on [RSpec](http://rspec.info/). We are trying to
-test things based on the following rules: 
+test things based on the following rules:
 
-* Every method that isn't private has a unit test (a.k.a. model/controller/helper spec)
+* Every method that isn't private must be tested
 * Every main workflow has a feature test
 
 ## Running the spec
@@ -25,16 +25,14 @@ and its subdirectories. Require them in the individual `*_spec.rb` or `_helper.r
 
 ## Test types
 There are many different [types of specs](https://relishapp.com/rspec/rspec-rails/docs/directory-structure)
-possible in RSpec. We concentrate on 4 types: 
+possible in RSpec. We concentrate on 4 types:
 
 * [Model specs](https://relishapp.com/rspec/rspec-rails/docs/model-specs) reside in the `spec/models` directory and test methods in Models.
 * [Controller specs](https://relishapp.com/rspec/rspec-rails/docs/controller-specs) reside in the `spec/controllers` directory and test methods in Controllers.
 * [Helper specs](https://relishapp.com/rspec/rspec-rails/docs/helper-specs/helper-spec) reside in the `spec/helpers` directory and test methods in Helpers.
-* [Feature specs](https://relishapp.com/rspec/rspec-rails/docs/feature-specs/feature-spec) reside in the `spec/features` directory and test workflows through the webui. 
+* [Feature specs](https://relishapp.com/rspec/rspec-rails/docs/feature-specs/feature-spec) reside in the `spec/features` directory and test workflows through the webui.
 
 ## Adding tests
 We are using the standard [RSpec generators](https://relishapp.com/rspec/rspec-rails/docs/generators) like:
 
 `rails generate rspec:model package`
-
-
