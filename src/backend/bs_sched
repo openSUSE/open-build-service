@@ -922,7 +922,7 @@ eval {
         $gctx->{'prpfinished'}->{$prp} = 1;
       }
       $details ||= $state;
-      print "  - $prp: $details";
+      print "  - $prp: $details\n";
       next;
     }
     print "  - $prp\n";
