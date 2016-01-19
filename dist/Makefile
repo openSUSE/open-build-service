@@ -57,9 +57,9 @@ install_overview:
 	$(INSTALL) -m 644 overview.html.TEMPLATE $(DESTDIR)$(OBS_DOCUMENT_ROOT)/overview
 
 test_unit:
-	prove t/*.t
+	prove -v t/*.t
 
 test_system:
-	prove t/*.ts
+	prove -v t/*.ts
 
 .PHONY: test_unit test_system
