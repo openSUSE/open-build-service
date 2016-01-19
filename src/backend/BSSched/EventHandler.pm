@@ -164,8 +164,7 @@ sub event_repository {
   $changed_med->{$prp} = 2;
   my $repounchanged = $gctx->{'repounchanged'};
   if ($ev->{'type'} eq 'repository') {
-    my $myarch = $gctx->{'arch'};
-    delete $gctx->{'repodatas'}->{"$prp/$myarch"};
+    $gctx->{'repodatas'}->drop($prp, $gctx->{'arch'});
     delete $repounchanged->{$prp};
   } elsif ($ev->{'type'} eq 'repoinfo') {
     $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
@@ -255,14 +254,13 @@ sub event_scanrepo {
   my $repoid = $ev->{'repository'};
   if (!defined($projid) && !defined($repoid)) {
     print "flushing all repository data\n";
-    %{$gctx->{'repodatas'}} = ();
+    $gctx->{'repodatas'}->drop();
     return;
   }
   if (defined($projid) && defined($repoid)) {
     my $prp = "$projid/$repoid";
-    my $myarch = $gctx->{'arch'};
-    print "reading packages of repository $projid/$repoid\n";
-    delete $gctx->{'repodatas'}->{"$prp/$myarch"};
+    print "reading packages of repository $prp\n";
+    $gctx->{'repodatas'}->drop($prp, $gctx->{'arch'});
     my $ctx = BSSched::Checker->new($gctx, $prp);
     my $pool = BSSolv::pool->new();
     $ctx->addrepo($pool, $prp);

@@ -29,7 +29,6 @@ use BSSched::BuildRepo;
 use BSSched::PublishRepo;
 use BSSched::BuildJob;
 use BSSched::Access;
-use BSSched::RepoCache;
 use BSSched::Remote;	# for addrepo_remote
 use BSSched::EventSource::Retry;
 use BSSched::EventSource::Directory;
@@ -957,7 +956,7 @@ sub addrepo {
   my $gctx = $ctx->{'gctx'};
   $arch ||= $gctx->{'arch'};
   # first check the cache
-  my $r = BSSched::RepoCache::addrepo($gctx, $pool, $prp, $arch);
+  my $r = $gctx->{'repodatas'}->addrepo($pool, $prp, $arch);
   return $r if $r || !defined($r);
   # not in cache. scan/fetch.
   my ($projid, $repoid) = split('/', $prp, 2);

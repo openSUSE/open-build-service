@@ -19,26 +19,34 @@ package BSSched::RepoCache;
 use strict;
 use warnings;
 
-sub setcache {
-  my ($gctx, $prp, $arch, %conf) = @_;
+sub new {
+  my ($class, $arch, $reporoot) = @_;
+  my $self = {
+    'arch' => $arch,
+    'reporoot' => $reporoot,
+  };
+  return bless $self, $class;
+}
 
-  my $repodatas = $gctx->{'repodatas'};
-  my $repodata = $repodatas->{"$prp/$arch"};
-  $repodatas->{"$prp/$arch"} = $repodata = {} unless $repodata;
+sub setcache {
+  my ($self, $prp, $arch, %conf) = @_;
+
+  my $repodata = $self->{"$prp/$arch"};
+  $self->{"$prp/$arch"} = $repodata = {} unless $repodata;
   delete $repodata->{$_} for qw{solv solvfile error lastscan random};
   my $isremote = delete $conf{'isremote'};
   $repodata->{$_} = $conf{$_} for keys %conf;
   # we don't cache local alien repos
-  if ($isremote || $arch eq $gctx->{'arch'}) {
+  if ($isremote || $arch eq $self->{'arch'}) {
     $repodata->{'lastscan'} = time();
     $repodata->{'random'} = rand();
   }
 }
 
 sub addrepo {
-  my ($gctx, $pool, $prp, $arch) = @_;
+  my ($self, $pool, $prp, $arch) = @_;
 
-  my $repodata = $gctx->{'repodatas'}->{"$prp/$arch"};
+  my $repodata = $self->{"$prp/$arch"};
   if ($repodata && $repodata->{'lastscan'} && $repodata->{'lastscan'} + 24 * 3600 + ($repodata->{'random'} || 0) * 1800 > time()) {
     if ($repodata->{'error'}) {
       print "    repo $prp/$arch: $repodata->{'error'}\n";
@@ -50,7 +58,7 @@ sub addrepo {
       return $r if $r;
       delete $repodata->{'solv'};	# bad data
     }
-    my $solvfile = $repodata->{'solvfile'} || "$gctx->{'reporoot'}/$prp/$arch/:full.solv";
+    my $solvfile = $repodata->{'solvfile'} || "$self->{'reporoot'}/$prp/$arch/:full.solv";
     if (-s $solvfile) {
       my $r;
       if ($repodata->{'solvfile'}) {
@@ -73,6 +81,25 @@ sub addrepo {
     delete $repodata->{'error'};
   }
   return 0;	# not in cache
+}
+
+sub drop {
+  my ($self, $prp, $arch) = @_;
+  if (defined($prp)) {
+    delete $self->{"$prp/$arch"};
+  } else {
+    %$self = ( 'arch' => $self->{'arch'}, 'reporoot' => $self->{'reporoot'} );
+  }
+}
+
+sub dropmeta {
+  my ($self, $prp, $arch) = @_;
+  delete $self->{"$prp/$arch"}->{'meta'} if $self->{"$prp/$arch"};
+}
+
+sub dropsolv {
+  my ($self, $prp, $arch) = @_;
+  delete $self->{"$prp/$arch"}->{'solv'} if $self->{"$prp/$arch"};
 }
 
 1;

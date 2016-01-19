@@ -87,7 +87,6 @@ use BSUtil;
 use BSConfiguration;
 use Build::Rpm;
 use BSSched::ProjPacks;		# for orderpackids
-use BSSched::RepoCache;
 #use BSSched::BuildResult;	# circular dep
 
 my $exportcnt = 0;
@@ -870,7 +869,7 @@ sub addrepo_scan {
     eval {$r = $pool->repofromfile($prp, "$dir.solv");};
     warn($@) if $@;
     if ($r && $r->isexternal()) {
-      BSSched::RepoCache::setcache($gctx, $prp, $arch);
+      $gctx->{'repodatas'}->setcache($prp, $arch);
       return $r;
     }
   }
@@ -896,7 +895,7 @@ sub addrepo_scan {
     if (!$r) {
       # return in-core empty repo
       my $r = $pool->repofrombins($prp, $dir);
-      BSSched::RepoCache::setcache($gctx, $prp, $arch, 'solv' => $r->tostr());
+      $gctx->{'repodatas'}->setcache($prp, $arch, 'solv' => $r->tostr());
       return $r;
     }
   }
@@ -919,7 +918,7 @@ sub addrepo_scan {
     @bins = BSSched::DoD::clean_obsolete_dodpackages($r, $dir, @bins) if $doddata;
     writesolv("$dir.solv.new", "$dir.solv", $r);
   }
-  BSSched::RepoCache::setcache($gctx, $prp, $arch);
+  $gctx->{'repodatas'}->setcache($prp, $arch);
   return $r;
 }
 

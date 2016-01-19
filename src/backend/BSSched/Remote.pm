@@ -68,7 +68,6 @@ use BSSolv;
 use BSRPC;
 use BSSched::RPC;
 use BSSched::EventSource::Retry;	# for addretryevent
-use BSSched::RepoCache;
 use BSConfiguration;
 
 =head2 beginwatchcollection - TODO: add summary
@@ -386,12 +385,12 @@ sub addrepo_remote_unpackcpio {
         my $r;
         eval {$r = $pool->repofromfile($prp, $solvfile);};
         if ($r) {
-	  BSSched::RepoCache::setcache($gctx, $prp, $arch, 'solvfile' => $solvfile, 'isremote' => 1);
+	  $gctx->{'repodatas'}->setcache($prp, $arch, 'solvfile' => $solvfile, 'isremote' => 1);
           return $r;
         }
       }
     }
-    BSSched::RepoCache::setcache($gctx, $prp, $arch, 'error' => $error, 'isremote' => 1);
+    $gctx->{'repodatas'}->setcache($prp, $arch, 'error' => $error, 'isremote' => 1);
     return undef;
   }
 
@@ -436,7 +435,7 @@ sub addrepo_remote_unpackcpio {
   } else {
     # return empty repo
     $r = $pool->repofrombins($prp, '');
-    BSSched::RepoCache::setcache($gctx, $prp, $arch, 'solv' => $r->tostr(), 'isremote' => 1);
+    $gctx->{'repodatas'}->setcache($prp, $arch, 'solv' => $r->tostr(), 'isremote' => 1);
     $isempty = 1;
   }
   return undef unless $r;
@@ -444,7 +443,7 @@ sub addrepo_remote_unpackcpio {
   mkdir_p("$remotecache/".substr($cachemd5, 0, 2));
   my $solvfile = "$remotecache/$cachemd5.solv";
   BSSched::BuildRepo::writesolv("$solvfile$$", $solvfile, $r);
-  BSSched::RepoCache::setcache($gctx, $prp, $arch, 'solvfile' => $solvfile, 'isremote' => 1) unless $isempty;
+  $gctx->{'repodatas'}->setcache($prp, $arch, 'solvfile' => $solvfile, 'isremote' => 1) unless $isempty;
   return $r;
 }
 
