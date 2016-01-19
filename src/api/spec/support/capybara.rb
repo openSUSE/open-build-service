@@ -15,7 +15,7 @@ Capybara.javascript_driver = :poltergeist
 RSpec.configure do |config|
   config.after(:each, type: :feature) do
     example_filename = RSpec.current_example.full_description
-    example_filename = example_filename.gsub ' ', '_'
+    example_filename = example_filename.tr(' ', '_')
     example_filename = example_filename + '.html'
     example_filename = File.expand_path(example_filename, Capybara.save_and_open_page_path)
     if RSpec.current_example.exception.present?
