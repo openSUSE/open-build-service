@@ -191,6 +191,16 @@ module Suse
 
       public
 
+      def without_global_write_through
+        before = CONFIG['global_write_through']
+        CONFIG['global_write_through'] = false
+
+        yield
+
+      ensure
+        CONFIG['global_write_through'] = before
+      end
+
       def test_backend?
         (!@@backend.nil? && @@backend != :dont)
       end
