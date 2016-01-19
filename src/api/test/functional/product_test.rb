@@ -10,6 +10,50 @@ class ProductTests < ActionDispatch::IntegrationTest
     reset_auth
   end
 
+  def _simple_product_file_calls(prefix)
+    # verbose
+    get "#{prefix}/source/home:tom:temporary?view=verboseproductlist"
+    assert_response :success
+    assert_xml_tag :parent => {
+      :tag        => "product",
+      :attributes => { :name => "simple", :originproject => "home:tom:temporary" }
+    },
+      :tag => "cpe", :content => "cpe:/o:obs_fuzzies:simple:13.1"
+    get "#{prefix}/source/home:tom:temporary?view=verboseproductlist&expand=1"
+    assert_response :success
+    assert_xml_tag :parent => { :tag        => "product",
+                                :attributes => { :name => "simple", :originproject => "home:tom:temporary" } },
+                   :tag => "cpe", :content => "cpe:/o:obs_fuzzies:simple:13.1"
+
+    # product views via project links
+    get "#{prefix}/source/home:tom:temporary:link?view=productlist"
+    assert_response :success
+    assert_no_xml_tag :tag => "product"
+    get "#{prefix}/source/home:tom:temporary:link?view=productlist&expand=1"
+    assert_response :success
+    assert_xml_tag :tag => "product",
+                   :attributes => { :name => "simple", :cpe => "cpe:/o:obs_fuzzies:simple:13.1", :originproject => "home:tom:temporary" }
+
+    # productrepositories
+    get "#{prefix}/source/home:tom:temporary:link/_product?view=productrepositories"
+    assert_response :success
+    assert_xml_tag :parent => { :tag => "repository", :attributes => { :path => 'BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo' } },
+                   :tag => "update"
+    assert_xml_tag :tag => "repository", :attributes => { :path => 'BaseDistro/BaseDistro_repo/repo/DVD' }
+    assert_xml_tag :tag => "repository", :attributes => { :url => 'http://external.url/to.some.one' }
+
+    # product views in a project
+    get "#{prefix}/source/home:tom:temporary?view=productlist"
+    assert_response :success
+    assert_xml_tag :tag => "product",
+                   :attributes => { :name => "simple", :cpe => "cpe:/o:obs_fuzzies:simple:13.1", :originproject => "home:tom:temporary" }
+    get "#{prefix}/source/home:tom:temporary?view=productlist&expand=1"
+    assert_response :success
+    assert_xml_tag :tag => "product",
+                   :attributes => { :name => "simple", :cpe => "cpe:/o:obs_fuzzies:simple:13.1", :originproject => "home:tom:temporary" }
+  end
+  private :_simple_product_file_calls
+
   def test_simple_product_file
     login_tom
     put "/source/home:tom:temporary/_meta",
@@ -45,46 +89,12 @@ class ProductTests < ActionDispatch::IntegrationTest
       assert_response :success
     end
 
-    # product views in a project
-    get "/source/home:tom:temporary?view=productlist"
-    assert_response :success
-    assert_xml_tag :tag => "product",
-                   :attributes => { :name => "simple", :cpe => "cpe:/o:obs_fuzzies:simple:13.1", :originproject => "home:tom:temporary" }
-    get "/source/home:tom:temporary?view=productlist&expand=1"
-    assert_response :success
-    assert_xml_tag :tag => "product",
-                   :attributes => { :name => "simple", :cpe => "cpe:/o:obs_fuzzies:simple:13.1", :originproject => "home:tom:temporary" }
-
-    # verbose
-    get "/source/home:tom:temporary?view=verboseproductlist"
-    assert_response :success
-    assert_xml_tag :parent => {
-      :tag        => "product",
-      :attributes => { :name => "simple", :originproject => "home:tom:temporary" }
-    },
-      :tag => "cpe", :content => "cpe:/o:obs_fuzzies:simple:13.1"
-    get "/source/home:tom:temporary?view=verboseproductlist&expand=1"
-    assert_response :success
-    assert_xml_tag :parent => { :tag        => "product",
-                                :attributes => { :name => "simple", :originproject => "home:tom:temporary" } },
-                   :tag => "cpe", :content => "cpe:/o:obs_fuzzies:simple:13.1"
-
-    # product views via project links
-    get "/source/home:tom:temporary:link?view=productlist"
-    assert_response :success
-    assert_no_xml_tag :tag => "product"
-    get "/source/home:tom:temporary:link?view=productlist&expand=1"
-    assert_response :success
-    assert_xml_tag :tag => "product",
-                   :attributes => { :name => "simple", :cpe => "cpe:/o:obs_fuzzies:simple:13.1", :originproject => "home:tom:temporary" }
-
-    # productrepositories
-    get "/source/home:tom:temporary:link/_product?view=productrepositories"
-    assert_response :success
-    assert_xml_tag :parent => { :tag => "repository", :attributes => { :path => 'BaseDistro2.0:/LinkedUpdateProject/BaseDistro2LinkedUpdateProject_repo' } },
-                   :tag => "update"
-    assert_xml_tag :tag => "repository", :attributes => { :path => 'BaseDistro/BaseDistro_repo/repo/DVD' }
-    assert_xml_tag :tag => "repository", :attributes => { :url => 'http://external.url/to.some.one' }
+    reset_auth
+    # check the same as SCC does
+    _simple_product_file_calls("/public")
+    # and as standard user via default routes
+    login_adrian
+    _simple_product_file_calls("")
 
     # product views in a package
     get "/source/home:tom:temporary/_product?view=issues"

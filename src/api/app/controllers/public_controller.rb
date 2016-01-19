@@ -70,7 +70,7 @@ class PublicController < ApplicationController
   # GET /public/source/:project
   def project_index
     # project visible/known ?
-    Project.get_by_name(params[:project])
+    @project = Project.get_by_name(params[:project])
     path = unshift_public(request.path_info)
     if params[:view] == 'info'
       # nofilename since a package may have no source access
@@ -81,6 +81,14 @@ class PublicController < ApplicationController
       # path has multiple package= parameters
       path += '?' + request.query_string
       path += '&nofilename=1' unless params[:nofilename]
+    elsif params[:view] == 'verboseproductlist'
+      @products = Product.all_products(@project, params[:expand])
+      render 'source/verboseproductlist'
+      return
+    elsif params[:view] == 'productlist'
+      @products = Product.all_products(@project, params[:expand])
+      render 'source/productlist'
+      return
     else
       path += '?expand=1&noorigins=1' # to stay compatible to OBS <2.4
     end
