@@ -955,7 +955,6 @@ END
   end
 
   test 'config file exists and have the right content' do
-    assert @project.config
     assert_equal @project.config.to_s, File.read("test/fixtures/files/home_iggy_project_config.txt").strip
   end
 
@@ -966,7 +965,6 @@ END
     User.current = users(:Iggy)
     query_params = {user: User.current.login, comment: "Updated by test"}
     assert @project.config.save(query_params, new_project_config)
-    assert @project.config.reload
     assert_equal @project.config.to_s, new_project_config
 
     # Leave the backend file as it was
