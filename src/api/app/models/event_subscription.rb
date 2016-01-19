@@ -2,7 +2,7 @@ class EventSubscription < ActiveRecord::Base
   belongs_to :user, inverse_of: :event_subscriptions
   belongs_to :group, inverse_of: :event_subscriptions
 
-  validates :receiver_role, inclusion: { in: [:all, :maintainer, :bugowner, :source_maintainer,
+  validates :receiver_role, inclusion: { in: [:all, :maintainer, :bugowner, :reader, :source_maintainer,
                                               :target_maintainer, :reviewer, :commenter, :creator] }
 
   def receiver_role

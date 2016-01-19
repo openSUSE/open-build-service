@@ -28,7 +28,7 @@ class EventTest < ActionDispatch::IntegrationTest
   end
 
   test 'receive roles for build failure' do
-    assert_equal [:maintainer, :bugowner], events(:build_fails_with_deleted_user_and_request).receiver_roles
+    assert_equal [:maintainer, :bugowner, :reader], events(:build_fails_with_deleted_user_and_request).receiver_roles
   end
 
   def users_for_event(e)
@@ -125,6 +125,16 @@ class EventTest < ActionDispatch::IntegrationTest
     EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :maintainer, user: users(:Iggy)
 
     assert_equal %w(Iggy), users_for_event(events(:build_failure_for_iggy))
+  end
+
+  test 'reader mails for build failure' do
+    # for this test we don't want fixtures to interfere
+    EventSubscription.delete_all
+
+    # just one subsciption
+    EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :reader, user: users(:fred)
+
+    assert_equal %w(fred), users_for_event(events(:build_failure_for_reader))
   end
 
   test 'maintainer mails for source service fail' do

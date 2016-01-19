@@ -186,3 +186,7 @@ record_46:
   user: fred
   role: maintainer
   package: Apache_apache2
+record_47:
+  user: fred 
+  role: reader
+  project: home_Iggy
