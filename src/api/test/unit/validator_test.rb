@@ -7,7 +7,7 @@ class ValidatorTest < ActiveSupport::TestCase
      exception = assert_raise ArgumentError do
        Suse::Validator.validate 'notthere'
      end
-     assert_match("wrong number of arguments (1 for 2)", exception.message)
+     assert_match("wrong number of arguments (given 1, expected 2)", exception.message)
 
      exception = assert_raise RuntimeError do
        # passing garbage
@@ -19,7 +19,7 @@ class ValidatorTest < ActiveSupport::TestCase
        # no action, no schema
        Suse::Validator.validate :controller => :project
      end
-     assert_match("wrong number of arguments (1 for 2)", exception.message)
+     assert_match("wrong number of arguments (given 1, expected 2)", exception.message)
 
      request = ActionController::TestRequest.new
      exception = assert_raise Suse::ValidationError do

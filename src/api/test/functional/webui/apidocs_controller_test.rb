@@ -2,6 +2,7 @@ require_relative '../../test_helper'
 
 class Webui::ApidocsControllerTest < Webui::IntegrationTest
   def test_index
+    return unless File.exist? '/var/adm/fillup-templates'
     # test relative links
     visit apidocs_path
     page.first('a', :text => 'Example').click

@@ -49,7 +49,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :child => { :tag => 'description', :content => "Project is frozen and updates are released via the other project" }
   end
 
-  def test_create_namespace
+  def test_create_namespace_old
     data = "<namespace name='TEST'><modifiable_by user='adrian'/></namespace>"
 
     login_Iggy
@@ -62,11 +62,22 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     assert_match(/Namespace changes are only permitted by the administrator/, @response.body)
 
     login_king
+    # FIXME3.0: POST is deprecated, use PUT
     post "/attribute/TEST/_meta", data
     assert_response :success
     get "/attribute/TEST/_meta"
     assert_response :success
     delete "/attribute/TEST/_meta"
+    assert_response :success
+    get "/attribute/TEST/_meta"
+    assert_response 404
+
+    # using PUT and new delete route
+    put "/attribute/TEST/_meta", data
+    assert_response :success
+    get "/attribute/TEST/_meta"
+    assert_response :success
+    delete "/attribute/TEST"
     assert_response :success
     get "/attribute/TEST/_meta"
     assert_response 404
@@ -105,11 +116,22 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     assert_match(/Attribute type changes are not permitted/, @response.body)
 
     login_adrian
+    # FIXME3.0: POST is deprecated, use PUT
     post "/attribute/TEST/Dummy/_meta", data
     assert_response :success
     get "/attribute/TEST/Dummy/_meta"
     assert_response :success
     delete "/attribute/TEST/Dummy/_meta"
+    assert_response :success
+    get "/attribute/TEST/Dummy/_meta"
+    assert_response 404
+
+    # new PUT way
+    put "/attribute/TEST/Dummy/_meta", data
+    assert_response :success
+    get "/attribute/TEST/Dummy/_meta"
+    assert_response :success
+    delete "/attribute/TEST/Dummy"
     assert_response :success
     get "/attribute/TEST/Dummy/_meta"
     assert_response 404

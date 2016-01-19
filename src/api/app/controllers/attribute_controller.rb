@@ -4,10 +4,12 @@ class AttributeController < ApplicationController
   validate_action :index => {:method => :get, :response => :directory}
   validate_action :namespace_definition => {:method => :get, :response => :attribute_namespace_meta}
   validate_action :namespace_definition => {:method => :delete, :response => :status}
+  validate_action :namespace_definition => {:method => :put, :request => :attribute_namespace_meta, :response => :status}
   validate_action :namespace_definition => {:method => :post, :request => :attribute_namespace_meta, :response => :status}
   validate_action :attribute_definition => {:method => :get, :response => :attrib_type}
   validate_action :attribute_definition => {:method => :delete, :response => :status}
   validate_action :attribute_definition => {:method => :put, :request => :attrib_type, :response => :status}
+  validate_action :attribute_definition => {:method => :post, :request => :attrib_type, :response => :status}
 
   def index
     if params[:namespace]
@@ -56,14 +58,14 @@ class AttributeController < ApplicationController
       return
     end
 
-    if request.post?
+    if request.post? || request.put?
       logger.debug "--- updating attribute namespace definitions ---"
 
       xml_element = Xmlhash.parse( request.raw_post )
 
       unless xml_element['name'] == namespace
         render_error :status => 400, :errorcode => 'illegal_request',
-          :message => "Illegal request: POST #{request.path}: path does not match content"
+          :message => "Illegal request: PUT/POST #{request.path}: path does not match content"
         return
       end
 
@@ -121,14 +123,14 @@ class AttributeController < ApplicationController
       return
     end
 
-    if request.post?
+    if request.post? || request.put?
       logger.debug "--- updating attribute type definitions ---"
 
       xml_element = Xmlhash.parse( request.raw_post )
 
       unless xml_element and xml_element['name'] == name and xml_element['namespace'] == namespace
         render_error :status => 400, :errorcode => 'illegal_request',
-          :message => "Illegal request: POST #{request.path}: path does not match content"
+          :message => "Illegal request: PUT/POST #{request.path}: path does not match content"
         return
       end
 
