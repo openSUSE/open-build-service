@@ -33,6 +33,7 @@ use BSSched::ProjPacks;
 use BSSched::BuildJob;
 use BSSched::BuildJob::Upload;
 use BSSched::BuildJob::Import;
+use BSSched::EventHandler;
 
 =head1 NAME
 
@@ -216,7 +217,8 @@ sub order {
 }
 
 sub add_events {
-  push(@{$_[0]->{_events}},@_);
+  my $self = shift;
+  push(@{$self->{_events}},@_);
 }
 
 =head2 get_events - get list of actual events
