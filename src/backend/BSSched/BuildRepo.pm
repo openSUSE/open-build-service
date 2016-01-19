@@ -86,8 +86,8 @@ use warnings;
 use BSUtil;
 use BSConfiguration;
 use Build::Rpm;
-use BSSched::Remote;
 use BSSched::ProjPacks;		# for orderpackids
+use BSSched::RepoCache;
 #use BSSched::BuildResult;	# circular dep
 
 my $exportcnt = 0;
@@ -848,69 +848,6 @@ sub checkuseforbuild {
 }
 
 
-=head2 addrepo - add :full repo to pool, scan every 24 hours
-
- TODO: add description
-
-=cut
-
-sub addrepo {
-  my ($ctx, $pool, $prp, $arch) = @_;
-
-  my $gctx = $ctx->{'gctx'};
-  my $myarch = $gctx->{'arch'};
-  $arch ||= $myarch;
-
-  # first check the cache
-  my $now = time();
-  my $repodata = $gctx->{'repodatas'}->{"$prp/$arch"};
-  if ($repodata && $repodata->{'lastscan'} && $repodata->{'lastscan'} + 24 * 3600 + ($repodata->{'random'} || 0) * 1800 > $now) {
-    if (exists $repodata->{'solv'}) {
-      my $r;
-      eval {$r = $pool->repofromstr($prp, $repodata->{'solv'});};
-      return $r if $r;
-      delete $repodata->{'solv'};
-    }
-    my $solvfile = $repodata->{'solvfile'} || "$gctx->{'reporoot'}/$prp/$arch/:full.solv";
-    if (-s $solvfile) {
-      my $r;
-      if ($repodata->{'solvfile'}) {
-        my @s = stat _;
-        utime time(), $s[9], $solvfile; # update atime
-      }
-      eval {$r = $pool->repofromfile($prp, $solvfile);};
-      return $r if $r;
-    }
-    if ($repodata->{'error'}) {
-      print "    repo $prp: $repodata->{'error'}\n";
-      return undef;
-    }
-  }
-
-  # nope, can't use it
-  if ($repodata) {
-    # delete old data
-    delete $repodata->{'solv'};
-    delete $repodata->{'lastscan'};
-    delete $repodata->{'random'};
-    delete $repodata->{'solvfile'};
-    delete $repodata->{'error'};
-  }
-  my ($projid, $repoid) = split('/', $prp, 2);
-  my $remoteprojs = $gctx->{'remoteprojs'};
-  if ($remoteprojs->{$projid}) {
-    return BSSched::Remote::addrepo_remote($ctx, $pool, $prp, $arch, $remoteprojs->{$projid});
-  }
-  $gctx->{'repodatas'}->{"$prp/$arch"} = $repodata = {} unless $repodata;
-  my $r = addrepo_scan($ctx, $pool, $prp, $arch, $repodata);
-  if ($r && $arch eq $myarch) {
-    $repodata->{'lastscan'} = time();
-    $repodata->{'random'} = rand();
-  }
-  return $r;
-}
-
-
 =head2 addrepo_scan - add :full repo to pool, make sure repo is up-to-data by scanning the directory
 
  TODO: add description
@@ -918,27 +855,31 @@ sub addrepo {
 =cut
 
 sub addrepo_scan {
-  my ($ctx, $pool, $prp, $arch, $repodata) = @_;
+  my ($gctx, $pool, $prp, $arch) = @_;
 
-  print "    scanning repo $prp...\n";
-  my $gctx = $ctx->{'gctx'};
+  if ($arch eq $gctx->{'arch'}) {
+    print "    scanning repo $prp...\n";
+  } else {
+    print "    scanning repo $prp/$arch...\n";
+  }
   my $dir = "$gctx->{'reporoot'}/$prp/$arch/:full";
-  my $cache;
+  my $r;
   my $dirty;
 
   if (-s "$dir.solv") {
-    eval {$cache = $pool->repofromfile($prp, "$dir.solv");};
+    eval {$r = $pool->repofromfile($prp, "$dir.solv");};
     warn($@) if $@;
-    if ($cache && $cache->isexternal()) {
-      return $cache;
+    if ($r && $r->isexternal()) {
+      BSSched::RepoCache::setcache($gctx, $prp, $arch);
+      return $r;
     }
   }
 
   # update the doddata
   my $doddata;
   if ($BSConfig::enable_download_on_demand) {
-    $doddata = BSSched::DoD::get_doddata($ctx, $prp, $arch);
-    ($dirty, $cache) = BSSched::DoD::put_doddata_in_cache($pool, $prp, $cache, $doddata, $dir);
+    $doddata = BSSched::DoD::get_doddata($gctx, $prp, $arch);
+    ($dirty, $r) = BSSched::DoD::put_doddata_in_cache($pool, $prp, $r, $doddata, $dir);
   }
 
   my @bins;
@@ -952,10 +893,10 @@ sub addrepo_scan {
       }
     }
   } else {
-    if (!$cache) {
+    if (!$r) {
       # return in-core empty repo
       my $r = $pool->repofrombins($prp, $dir);
-      $repodata->{'solv'} = $r->tostr();
+      BSSched::RepoCache::setcache($gctx, $prp, $arch, 'solv' => $r->tostr());
       return $r;
     }
   }
@@ -964,20 +905,22 @@ sub addrepo_scan {
     next unless @s;
     push @bins, $_, "$s[9]/$s[7]/$s[1]";
   }
-  if ($cache) {
-    my $updated = $cache->updatefrombins($dir, @bins);
+  if ($r) {
+    my $updated = $r->updatefrombins($dir, @bins);
     print "    (dirty: $updated)\n" if $updated;
     $dirty = 1 if $updated;
   } else {
-    $cache = $pool->repofrombins($prp, $dir, @bins);
+    $r = $pool->repofrombins($prp, $dir, @bins);
     $dirty = 1;
   }
-  return $cache if $arch ne $gctx->{'arch'};	# don't write alien repos
-  if ($doddata && $dirty && $cache) {
-    @bins = BSSched::DoD::clean_obsolete_dodpackages($cache, $dir, @bins);
+  return undef unless $r;
+  # write solv file (unless alien arch)
+  if ($dirty && $arch eq $gctx->{'arch'}) {
+    @bins = BSSched::DoD::clean_obsolete_dodpackages($r, $dir, @bins) if $doddata;
+    writesolv("$dir.solv.new", "$dir.solv", $r);
   }
-  writesolv("$dir.solv.new", "$dir.solv", $cache) if $cache && $dirty;
-  return $cache;
+  BSSched::RepoCache::setcache($gctx, $prp, $arch);
+  return $r;
 }
 
 1;

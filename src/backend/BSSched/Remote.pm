@@ -48,7 +48,6 @@ package BSSched::Remote;
 #   obsname
 #   asyncmode
 #   rctx
-#   repodatas
 #   remotecache
 #   prpnotready
 #   remotegbininfos
@@ -69,6 +68,7 @@ use BSSolv;
 use BSRPC;
 use BSSched::RPC;
 use BSSched::EventSource::Retry;	# for addretryevent
+use BSSched::RepoCache;
 use BSConfiguration;
 
 =head2 beginwatchcollection - TODO: add summary
@@ -308,7 +308,7 @@ sub remotemap2remoteprojs {
     if ($error) {
       $proj->{'error'} = $error;
       BSSched::EventSource::Retry::addretryevent($gctx, {'type' => 'project', 'project' => $projid}) if $error =~ /interconnect error:/;
-    }    
+    }
     $remoteprojs->{$projid} = $proj;
   }
 }
@@ -323,9 +323,6 @@ sub addrepo_remote {
 
   my ($projid, $repoid) = split('/', $prp, 2);
   return undef if !$remoteproj || $remoteproj->{'error'};
-
-  my $cachemd5 = Digest::MD5::md5_hex("$prp/$arch");
-  substr($cachemd5, 2, 0, '/');
 
   my $gctx = $ctx->{'gctx'};
   print "    fetching remote repository state for $prp\n";
@@ -373,10 +370,6 @@ sub addrepo_remote_unpackcpio {
 
   my $myarch = $gctx->{'arch'};
 
-  my $repodatas = $gctx->{'repodatas'};
-  my $repodata = $repodatas->{"$prp/$myarch"};
-  $repodatas->{"$prp/$myarch"} = $repodata = {} unless $repodata;
-
   my $remotecache = $gctx->{'remotecache'};
   my $cachemd5 = Digest::MD5::md5_hex("$prp/$arch");
   substr($cachemd5, 2, 0, '/');
@@ -387,21 +380,18 @@ sub addrepo_remote_unpackcpio {
     if (BSSched::RPC::is_transient_error($error)) {
       my ($projid, $repoid) = split('/', $prp, 2);
       BSSched::EventSource::Retry::addretryevent($gctx, {'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $arch});
-      if (-s "$remotecache/$cachemd5.solv") {
+      my $solvfile = "$remotecache/$cachemd5.solv";
+      if (-s $solvfile) {
         # try last solv file
         my $r;
-        eval {$r = $pool->repofromfile($prp, "$remotecache/$cachemd5.solv");};
+        eval {$r = $pool->repofromfile($prp, $solvfile);};
         if ($r) {
-          $repodata->{'lastscan'} = time();
-          $repodata->{'random'} = rand();
-          $repodata->{'solvfile'} = "$remotecache/$cachemd5.solv";
+	  BSSched::RepoCache::setcache($gctx, $prp, $arch, 'solvfile' => $solvfile, 'isremote' => 1);
           return $r;
         }
       }
     }
-    $repodata->{'lastscan'} = time();
-    $repodata->{'random'} = rand();
-    $repodata->{'error'} = $error;
+    BSSched::RepoCache::setcache($gctx, $prp, $arch, 'error' => $error, 'isremote' => 1);
     return undef;
   }
 
@@ -416,7 +406,7 @@ sub addrepo_remote_unpackcpio {
     }
   }
   my $r;
-  my $solv;
+  my $isempty;
   if (exists $cpio{'repositorysolv'} && $solvok) {
     eval {$r = $pool->repofromstr($prp, $cpio{'repositorysolv'}); };
     warn($@) if $@;
@@ -446,15 +436,15 @@ sub addrepo_remote_unpackcpio {
   } else {
     # return empty repo
     $r = $pool->repofrombins($prp, '');
-    $repodata->{'solv'} = $r->tostr();  # small enough to keep it incore
+    BSSched::RepoCache::setcache($gctx, $prp, $arch, 'solv' => $r->tostr(), 'isremote' => 1);
+    $isempty = 1;
   }
   return undef unless $r;
   # write solv file
-  $repodata->{'solvfile'} = "$remotecache/$cachemd5.solv";
   mkdir_p("$remotecache/".substr($cachemd5, 0, 2));
-  BSSched::BuildRepo::writesolv("$remotecache/$cachemd5.solv.new$$", "$remotecache/$cachemd5.solv", $r);
-  $repodata->{'lastscan'} = time();
-  $repodata->{'random'} = rand();
+  my $solvfile = "$remotecache/$cachemd5.solv";
+  BSSched::BuildRepo::writesolv("$solvfile$$", $solvfile, $r);
+  BSSched::RepoCache::setcache($gctx, $prp, $arch, 'solvfile' => $solvfile, 'isremote' => 1) unless $isempty;
   return $r;
 }
 

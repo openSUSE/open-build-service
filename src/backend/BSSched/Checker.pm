@@ -29,6 +29,8 @@ use BSSched::BuildRepo;
 use BSSched::PublishRepo;
 use BSSched::BuildJob;
 use BSSched::Access;
+use BSSched::RepoCache;
+use BSSched::Remote;	# for addrepo_remote
 use BSSched::EventSource::Retry;
 use BSSched::EventSource::Directory;
 
@@ -125,7 +127,7 @@ sub wipe {
     }
   }
   $gctx->{'changed_med'}->{$prp} = 2; 
-  BSSched::EventSource::Directory::sendrepochangeevent($ctx->{'gctx'}, $prp);
+  BSSched::EventSource::Directory::sendrepochangeevent($gctx, $prp);
 
   BSSched::BuildJob::killbuilding($ctx->{'gctx'}, $prp);
   BSSched::PublishRepo::prpfinished($ctx);
@@ -952,7 +954,18 @@ sub checkprpaccess {
 
 sub addrepo {
   my ($ctx, $pool, $prp, $arch) = @_;
-  return BSSched::BuildRepo::addrepo($ctx, $pool, $prp, $arch);
+  my $gctx = $ctx->{'gctx'};
+  $arch ||= $gctx->{'arch'};
+  # first check the cache
+  my $r = BSSched::RepoCache::addrepo($gctx, $pool, $prp, $arch);
+  return $r if $r || !defined($r);
+  # not in cache. scan/fetch.
+  my ($projid, $repoid) = split('/', $prp, 2);
+  my $remoteprojs = $gctx->{'remoteprojs'};
+  if ($remoteprojs->{$projid}) {
+    return BSSched::Remote::addrepo_remote($ctx, $pool, $prp, $arch, $remoteprojs->{$projid});
+  }
+  return BSSched::BuildRepo::addrepo_scan($gctx, $pool, $prp, $arch);
 }
 
 1;

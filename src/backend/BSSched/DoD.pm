@@ -86,22 +86,6 @@ sub clean_obsolete_dodpackages {
   return @nbins;
 }
 
-=head2 get_dodata - get doddata definition from projpacks
-
- TODO: add description
-
-=cut
-
-sub get_doddata {
-  my ($ctx, $prp, $arch) = @_;
-  my $gctx = $ctx->{'gctx'};
-  my ($projid, $repoid) = split('/', $prp, 2);
-  my $projpacks = $gctx->{'projpacks'};
-  my $proj = $projpacks->{$projid} || {};
-  my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0] || {};
-  return (grep {($_->{'arch'} || '') eq $arch} @{$repo->{'download'} || $proj->{'download'} || []})[0];
-}
-
 =head2 dodcheck - TODO: add summary
 
  TODO: add description
@@ -178,6 +162,21 @@ sub dodfetch {
     };
     $ctx->xrpc("dodfetch/$prpa", $param, undef, "view=binaryversions", map {"binary=$_"} @pkgs);
   }
+}
+
+=head2 get_dodata - get doddata definition from projpacks
+
+ TODO: add description
+
+=cut
+
+sub get_doddata {
+  my ($gctx, $prp, $arch) = @_;
+  my ($projid, $repoid) = split('/', $prp, 2);
+  my $projpacks = $gctx->{'projpacks'};
+  my $proj = $projpacks->{$projid} || {};
+  my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0] || {};
+  return (grep {($_->{'arch'} || '') eq $arch} @{$repo->{'download'} || $proj->{'download'} || []})[0];
 }
 
 =head2 update_doddata_prp - TODO: add summary
