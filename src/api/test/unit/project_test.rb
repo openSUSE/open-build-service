@@ -19,6 +19,7 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_release_targets_ng
+    before = CONFIG['global_write_through']
     CONFIG['global_write_through'] = false
 
     Project.create(name: "ABC", kind: "maintenance")
@@ -41,7 +42,7 @@ class ProjectTest < ActiveSupport::TestCase
     assert_equal "patchinfo", result["ABC:D"][:patchinfo].name
 
   ensure
-    CONFIG['global_write_through'] = true
+    CONFIG['global_write_through'] = before
   end
 
   def test_flags_to_axml
@@ -869,6 +870,7 @@ END
   end
 
   def test_all_packages_from_projects_inherited_by_two_levels_and_two_links_in_project
+    before = CONFIG['global_write_through']
     CONFIG['global_write_through'] = false
     parent2 = projects('BaseDistro2.0')
     parent1 = projects('BaseDistro2.0_LinkedUpdateProject')
@@ -890,10 +892,12 @@ END
     result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
 
     assert_equal result, child.expand_all_packages
-    CONFIG['global_write_through'] = true
+  ensure
+    CONFIG['global_write_through'] = before
   end
 
-  test 'linked_packages does not return packages overwritten by the actual project' do
+  def test_linked_packages_does_not_return_packages_overwritten_by_the_actual_project
+    before = CONFIG['global_write_through']
     CONFIG['global_write_through'] = false
     parent = projects('BaseDistro2.0')
     child = projects('BaseDistro2.0_LinkedUpdateProject')
@@ -905,10 +909,12 @@ END
                   ["pack2.linked", "BaseDistro2.0"],
                   ["pack_local", "BaseDistro2.0:LinkedUpdateProject"]],
                  child.expand_all_packages
-    CONFIG['global_write_through'] = true
+  ensure
+    CONFIG['global_write_through'] = before
   end
 
-  test 'linked_packages does not return packages overwritten by the actual project inherited from two levels' do
+  def test_linked_packages_does_not_return_packages_overwritten_by_the_actual_project_inherited_from_two_levels
+    before = CONFIG['global_write_through']
     CONFIG['global_write_through'] = false
     parent2 = projects('BaseDistro2.0')
     parent1 = projects('BaseDistro2.0_LinkedUpdateProject')
@@ -929,10 +935,12 @@ END
     result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
 
     assert_equal result, child.expand_all_packages
-    CONFIG['global_write_through'] = true
+  ensure
+    CONFIG['global_write_through'] = before
   end
 
-  test 'linked_packages returns overwritten packages from the project with the highest position' do
+  def test_linked_packages_returns_overwritten_packages_from_the_project_with_the_highest_position
+    before = CONFIG['global_write_through']
     CONFIG['global_write_through'] = false
     base_distro = projects('BaseDistro2.0')
     base_distro_update = projects('BaseDistro2.0_LinkedUpdateProject')
@@ -954,7 +962,8 @@ END
     result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
 
     assert_equal result, child.expand_all_packages
-    CONFIG['global_write_through'] = true
+  ensure
+    CONFIG['global_write_through'] = before
   end
 
   test 'config file exists and have the right content' do
