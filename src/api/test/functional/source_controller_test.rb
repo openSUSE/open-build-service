@@ -7,17 +7,6 @@ require 'source_controller'
 class SourceControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
 
-  CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT = 'Type: spec
-Substitute: kiwi package
-Substitute: kiwi-packagemanager:instsource package
-Ignore: package:bash'
-
-  NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT = 'Type: spec
-Substitute: kiwi package
-Substitute: kiwi-packagemanager:instsource package
-Ignore: package:bash
-Ignore: package:cups'
-
   def setup
     wait_for_scheduler_start
     reset_auth
@@ -3786,27 +3775,30 @@ Ignore: package:cups'
 
     get '/source/home:Iggy/_config'
     assert_response :success
-    assert_equal @response.body, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+    assert_equal @response.body.strip, File.read("test/fixtures/files/home_iggy_project_config.txt").strip
   end
 
   def test_updating_config_file
+    project_config = File.read("test/fixtures/files/home_iggy_project_config.txt")
+    new_project_config = File.read("test/fixtures/files/new_home_iggy_project_config.txt")
+
     login_Iggy
 
     put '/source/home:Iggy/_config?' + {
         project: 'home:Iggy',
         comment: 'Updated by test'
-      }.to_query, NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+      }.to_query, new_project_config
     assert_response :success
 
     get '/source/home:Iggy/_config'
     assert_response :success
-    assert_equal @response.body, NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+    assert_equal @response.body, new_project_config
 
     # Leave the backend file as it was
     put '/source/home:Iggy/_config?' + {
         project: 'home:Iggy',
         comment: 'Updated by test'
-      }.to_query, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+      }.to_query, project_config
     assert_response :success
   end
 end

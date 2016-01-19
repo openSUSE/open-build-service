@@ -5,17 +5,6 @@ require 'json'
 class ProjectTest < ActiveSupport::TestCase
   fixtures :all
 
-  CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT = 'Type: spec
-Substitute: kiwi package
-Substitute: kiwi-packagemanager:instsource package
-Ignore: package:bash'
-
-  NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT = 'Type: spec
-Substitute: kiwi package
-Substitute: kiwi-packagemanager:instsource package
-Ignore: package:bash
-Ignore: package:cups'
-
   def setup
     @project = projects( :home_Iggy )
   end
@@ -970,18 +959,21 @@ END
 
   test 'config file exists and have the right content' do
     assert @project.config
-    assert_equal @project.config.to_s, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+    assert_equal @project.config.to_s, File.read("test/fixtures/files/home_iggy_project_config.txt").strip
   end
 
   test 'update config file and reload it, it also should have the right content' do
+    project_config = File.read("test/fixtures/files/home_iggy_project_config.txt")
+    new_project_config = File.read("test/fixtures/files/new_home_iggy_project_config.txt")
+
     User.current = users(:Iggy)
     query_params = {user: User.current.login, comment: "Updated by test"}
-    assert @project.config.save(query_params, NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT)
+    assert @project.config.save(query_params, new_project_config)
     assert @project.config.reload
-    assert_equal @project.config.to_s, NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+    assert_equal @project.config.to_s, new_project_config
 
     # Leave the backend file as it was
-    assert @project.config.save(query_params, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT)
+    assert @project.config.save(query_params, project_config)
   end
 
   def test_open_requests
