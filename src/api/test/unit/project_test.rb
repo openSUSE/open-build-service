@@ -5,17 +5,6 @@ require 'json'
 class ProjectTest < ActiveSupport::TestCase
   fixtures :all
 
-  CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT = 'Type: spec
-Substitute: kiwi package
-Substitute: kiwi-packagemanager:instsource package
-Ignore: package:bash'
-
-  NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT = 'Type: spec
-Substitute: kiwi package
-Substitute: kiwi-packagemanager:instsource package
-Ignore: package:bash
-Ignore: package:cups'
-
   def setup
     @project = projects( :home_Iggy )
   end
@@ -30,6 +19,7 @@ Ignore: package:cups'
   end
 
   def test_release_targets_ng
+    before = CONFIG['global_write_through']
     CONFIG['global_write_through'] = false
 
     Project.create(name: "ABC", kind: "maintenance")
@@ -52,7 +42,7 @@ Ignore: package:cups'
     assert_equal "patchinfo", result["ABC:D"][:patchinfo].name
 
   ensure
-    CONFIG['global_write_through'] = true
+    CONFIG['global_write_through'] = before
   end
 
   def test_flags_to_axml
@@ -880,6 +870,7 @@ END
   end
 
   def test_all_packages_from_projects_inherited_by_two_levels_and_two_links_in_project
+    before = CONFIG['global_write_through']
     CONFIG['global_write_through'] = false
     parent2 = projects('BaseDistro2.0')
     parent1 = projects('BaseDistro2.0_LinkedUpdateProject')
@@ -901,10 +892,12 @@ END
     result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
 
     assert_equal result, child.expand_all_packages
-    CONFIG['global_write_through'] = true
+  ensure
+    CONFIG['global_write_through'] = before
   end
 
-  test 'linked_packages does not return packages overwritten by the actual project' do
+  def test_linked_packages_does_not_return_packages_overwritten_by_the_actual_project
+    before = CONFIG['global_write_through']
     CONFIG['global_write_through'] = false
     parent = projects('BaseDistro2.0')
     child = projects('BaseDistro2.0_LinkedUpdateProject')
@@ -916,10 +909,12 @@ END
                   ["pack2.linked", "BaseDistro2.0"],
                   ["pack_local", "BaseDistro2.0:LinkedUpdateProject"]],
                  child.expand_all_packages
-    CONFIG['global_write_through'] = true
+  ensure
+    CONFIG['global_write_through'] = before
   end
 
-  test 'linked_packages does not return packages overwritten by the actual project inherited from two levels' do
+  def test_linked_packages_does_not_return_packages_overwritten_by_the_actual_project_inherited_from_two_levels
+    before = CONFIG['global_write_through']
     CONFIG['global_write_through'] = false
     parent2 = projects('BaseDistro2.0')
     parent1 = projects('BaseDistro2.0_LinkedUpdateProject')
@@ -940,10 +935,12 @@ END
     result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
 
     assert_equal result, child.expand_all_packages
-    CONFIG['global_write_through'] = true
+  ensure
+    CONFIG['global_write_through'] = before
   end
 
-  test 'linked_packages returns overwritten packages from the project with the highest position' do
+  def test_linked_packages_returns_overwritten_packages_from_the_project_with_the_highest_position
+    before = CONFIG['global_write_through']
     CONFIG['global_write_through'] = false
     base_distro = projects('BaseDistro2.0')
     base_distro_update = projects('BaseDistro2.0_LinkedUpdateProject')
@@ -965,23 +962,25 @@ END
     result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
 
     assert_equal result, child.expand_all_packages
-    CONFIG['global_write_through'] = true
+  ensure
+    CONFIG['global_write_through'] = before
   end
 
   test 'config file exists and have the right content' do
-    assert @project.config
-    assert_equal @project.config.to_s, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+    assert_equal @project.config.to_s, File.read("test/fixtures/files/home_iggy_project_config.txt").strip
   end
 
   test 'update config file and reload it, it also should have the right content' do
+    project_config = File.read("test/fixtures/files/home_iggy_project_config.txt")
+    new_project_config = File.read("test/fixtures/files/new_home_iggy_project_config.txt")
+
     User.current = users(:Iggy)
     query_params = {user: User.current.login, comment: "Updated by test"}
-    assert @project.config.save(query_params, NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT)
-    assert @project.config.reload
-    assert_equal @project.config.to_s, NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+    assert @project.config.save(query_params, new_project_config)
+    assert_equal @project.config.to_s, new_project_config
 
     # Leave the backend file as it was
-    assert @project.config.save(query_params, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT)
+    assert @project.config.save(query_params, project_config)
   end
 
   def test_open_requests
