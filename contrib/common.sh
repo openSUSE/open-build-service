@@ -11,7 +11,7 @@ function add_common_repos() {
 
 function install_common_packages() {
   echo -e "\ninstalling required software packages...\n"
-  zypper  -n install \
+  zypper -q -n install \
     update-alternatives ruby-devel make gcc gcc-c++ patch cyrus-sasl-devel openldap2-devel \
     libmysqld-devel libxml2-devel zlib-devel libxslt-devel nodejs mariadb memcached \
     sphinx sphinx phantomjs \
