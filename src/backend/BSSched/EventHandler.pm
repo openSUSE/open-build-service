@@ -34,18 +34,6 @@ use BSSched::BuildJob;
 use BSSched::BuildJob::Upload;
 use BSSched::BuildJob::Import;
 
-=head1 NAME
-
- BSSched::EventHandler
-
-=head1 DESCRIPTION
-
- scheduler event handling
-
-=head1 FUNCTIONS
-
-=cut
-
 our %event_handlers = (
   'built'           => \&BSSched::EventHandler::event_built,
   'uploadbuild'     => \&BSSched::EventHandler::event_built,
@@ -76,6 +64,18 @@ our %event_handlers = (
   'useforbuild'     => \&BSSched::EventHandler::event_useforbuild,
   'configuration'   => \&BSSched::EventHandler::event_configuration,
 );
+
+=head1 NAME
+
+ BSSched::EventHandler
+
+=head1 DESCRIPTION
+
+ scheduler event handling
+
+=head1 FUNCTIONS
+
+=cut
 
 =head2 event_built - TODO: add summary
 
@@ -538,137 +538,5 @@ sub event_uploadbuildimport_delay {
   }
   return 0;
 }
-
-#
-# EVENT QUEUE HANDLING
-#
-
-=head2 new - generate an event processor
-
- TODO: add description
-
-=cut
-
-sub new {
-  my ($class, $gctx, @conf) = @_;
-  my $ectx = {
-    'gctx' => $gctx,
-    'fetchprojpacks' => {},
-    'fetchprojpacks_nodelay' => {},
-    'deepcheck' => {},
-    'lowprioproject' => {},
-    'fullcache' => undef,
-    @conf
-  };
-  return bless $ectx, $class;
-}
-
-=head2 process_events - process a list of events
-
- TODO: add description
-
-=cut
-
-sub process_events {
-  my ($ectx, @events) = @_;
-
-  my $gotevent = 0;
-  my $gctx = $ectx->{'gctx'};
-
-  @events = $ectx->order(@events) if @events > 1;
-  while (@events) {
-    my $ev = shift @events;
-    $ev->{'type'} ||= 'unknown';
-
-    # have to be extra careful with uploadbuild/import events. if the package is in
-    # (delayed)fetchprojpacks, delay event processing until we updated the projpack data.
-    if ($ev->{'type'} eq 'uploadbuild' || $ev->{'type'} eq 'import') {
-      if (event_uploadbuildimport_delay($ectx, $ev)) {
-	$gotevent = 1;    # still have an event to process
-	next;
-      }
-    }
-
-    # log event info
-    if ($ev->{'type'} ne 'built') {
-      my $estr = $ev->{'evfilename'} ? 'event' : 'remote event';
-      for (qw{type project repository arch package}) {
-	$estr .= " $ev->{$_}" if $ev->{$_};
-      }
-      print "$estr\n";
-    }
-
-    unlink($ev->{'evfilename'}) if $ev->{'evfilename'};
-    delete $ev->{'evfilename'};
-
-    if ($ev->{'type'} ne 'built' && $ectx->{'fullcache'}) {
-      BSSched::BuildRepo::sync_fullcache($gctx, $ectx->{'fullcache'});
-      $ectx->{'fullcache'} = undef;
-    }
-    if ($ev->{'type'} eq 'built' && !$ectx->{'fullcache'}) {
-      # turn on fullcache if the next event is also of type built
-      $ectx->{'fullcache'} = {} if $events[0] && $events[0]->{'type'} eq 'built';
-    }
-    $ectx->process_one($ev);
-  }
-
-  BSSched::BuildRepo::sync_fullcache($gctx, $ectx->{'fullcache'}) if $ectx->{'fullcache'} && $ectx->{'fullcache'}->{'prp'};
-  $ectx->{'fullcache'} = undef;
-
-  # postprocess
-  if (%{$ectx->{'fetchprojpacks'}}) {
-    BSSched::ProjPacks::do_fetchprojpacks($gctx,
-					  $ectx->{'fetchprojpacks'}, $ectx->{'fetchprojpacks_nodelay'},
-					  $ectx->{'deepcheck'}, $ectx->{'lowprioproject'});
-  }
-  $ectx->{'fetchprojpacks'} = {};
-  $ectx->{'fetchprojpacks_nodelay'} = {};
-  $ectx->{'deepcheck'} = {};
-  $ectx->{'lowprioproject'} = {};
-  return $gotevent;
-}
-
-=head2 process_one - process a single event
-
- TODO: add description
-
-=cut
-
-sub process_one {
-  my ($ectx, $ev) = @_;
-  my $type = $ev->{'type'} || 'unknown';
-  if ($ectx->{'initialstartup'} && ($type eq 'exit' || $type eq 'exitcomplete')) {
-    print "WARNING: there was an exit event, but we ignore it directly after starting the scheduler.\n";
-    return;
-  }
-  my $evhandler = $event_handlers{$type};
-  if ($evhandler) {
-    $evhandler->($ectx, $ev);
-  } else {
-    print "unknown event type '$type'\n";
-  }
-}
-
-=head2 order - order events so that the important ones come first
-
- TODO: add description
-
-=cut
-
-sub order {
-  my ($ectx, @events) = @_;
-  if (@events > 1) {
-    # sort events a bit, exit events go first ;-)
-    # uploadbuild/import events must go last
-    my %evprio = ('exit' => -1, 'exitcomplete' => -1, 'restart' => -1, 'uploadbuild' => 1, 'import' => 1);
-    @events = sort {($evprio{$a->{'type'}} || 0) <=> ($evprio{$b->{'type'}} || 0) || 
-                    $a->{'type'} cmp $b->{'type'} ||
-                    ($a->{'project'} || '') cmp ($b->{'project'} || '') ||
-                    ($a->{'job'} || '') cmp ($b->{'job'} || '')
-                    } @events;
-    }
-  return @events;
-}
-
 
 1;
