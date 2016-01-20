@@ -30,7 +30,6 @@ use BSSched::PublishRepo;
 use BSSched::BuildJob;
 use BSSched::Access;
 use BSSched::Remote;	# for addrepo_remote
-use BSSched::EventSource::Retry;
 use BSSched::EventSource::Directory;
 
 use BSSched::BuildJob::Aggregate;
@@ -186,7 +185,7 @@ sub setup {
       my $error = $remoteprojs->{$aprojid}->{'error'} if $remoteprojs->{$aprojid} && $remoteprojs->{$aprojid}->{'error'};
       if ($error) {
         if ($error =~ /interconnect error:/) {
-          BSSched::EventSource::Retry::addretryevent($gctx, {'type' => 'project', 'project' => $aprojid});
+          $gctx->{'retryevents'}->addretryevent({'type' => 'project', 'project' => $aprojid});
         }
 	return (0, "$aprojid: $error");
       }
@@ -601,7 +600,7 @@ sub checkpkgs {
 
   # copy old data over if we have missing packages
   if ($projpacks->{$projid}->{'missingpackages'}) {
-    BSSched::EventSource::Retry::addretryevent($gctx, {'type' => 'package', 'project' => $projid});
+    $gctx->{'retryevents'}->addretryevent({'type' => 'package', 'project' => $projid});
     $oldpackstatus = BSUtil::retrieve("$gdst/:packstatus", 1) || {};
     $oldpackstatus->{'packstatus'} ||= {};
     $oldpackstatus->{'packerror'} ||= {};
@@ -679,7 +678,7 @@ sub checkpkgs {
 	next;
       }
       if ($pdata->{'error'} eq 'delayed startup' || $pdata->{'error'} =~ /interconnect error:/) {
-	BSSched::EventSource::Retry::addretryevent($gctx, {'type' => 'package', 'project' => $projid, 'package' => $packid});
+	$gctx->{'retryevents'}->addretryevent({'type' => 'package', 'project' => $projid, 'package' => $packid});
 	$ctx->{'havedelayed'} = 1;
 	$packstatus{$packid} = 'blocked';
 	$packerror{$packid} = $pdata->{'error'};

@@ -456,7 +456,7 @@ my $gctx = {
   'delayedfetchprojpacks' => {},	# projpacks fetches we have delayed till prp check time
 
   'nextmed' => {},
-  'retryevents' => [],
+  'retryevents' => BSSched::EventSource::Retry->new(),
 
   # stats
   'buildavg' => 1200,			 # start not at 0, but with 20min for the average ounter
@@ -732,8 +732,8 @@ eval {
     };
 
     # add retry events
-    if (@{$gctx->{'retryevents'}}) {
-      my @due = BSSched::EventSource::Retry::getretryevents($gctx);
+    if ($gctx->{'retryevents'}->count()) {
+      my @due = $gctx->{'retryevents'}->due($gctx);
       if (@due) {
         print "retrying ".@due." events\n";
         $ev_queue->add_events(@due);
@@ -846,7 +846,7 @@ eval {
       print BSUtil::isotime().": waiting for an event...\n";
       exit 0 if $testprojid;
       my $sleepstart = time();
-      my @watchers = (values(%remotewatchers), @{$gctx->{'retryevents'}}, $gctx->{'rctx'}->xrpc_handles());
+      my @watchers = (values(%remotewatchers), $gctx->{'retryevents'}->events(), $gctx->{'rctx'}->xrpc_handles());
       select_read(undef, $pingwatcher, @watchers);
       $gctx->{'slept'} += time() - $sleepstart;
       next;

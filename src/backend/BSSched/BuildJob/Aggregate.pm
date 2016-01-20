@@ -26,7 +26,6 @@ use BSXML;
 use BSRPC;			# FIXME: only async calls, please
 use BSSched::BuildJob;
 use BSSched::RPC;
-use BSSched::EventSource::Retry;	    # for addretryevent
 use BSConfiguration;		# for $BSConfig::sign
 use BSVerify;			# for verify_nevraquery
 use Build;			# for query
@@ -107,7 +106,7 @@ sub check {
     if ($proj->{'error'}) {
       if (BSSched::RPC::is_transient_error($proj->{'error'})) {
 	# XXX: hmm, there's already a project retryevent on $aprojid
-	BSSched::EventSource::Retry::addretryevent($gctx, {'type' => 'package', 'project' => $projid, 'package' => $packid});
+	$gctx->{'retryevents'}->addretryevent({'type' => 'package', 'project' => $projid, 'package' => $packid});
 	$delayed = 1;
       }
       push @broken, $aprojid;
@@ -318,18 +317,8 @@ sub build {
 	  if ($@) {
 	    warn($@);
 	    $error = $@;
-	    $error =~ s/\n$//s;
-        if ( BSSched::RPC::is_transient_error($error) ) {
-	      BSSched::EventSource::Retry::addretryevent(
-            $gctx,
-            {
-              'type' => 'repository',
-              'project' => $aprojid,
-              'repository' => $arepoid,
-              'arch' => $myarch
-            }
-          );
-        }
+	    chomp $error;
+	    $gctx->{'retryevents'}->addretryevent({'type' => 'repository', 'project' => $aprojid, 'repository' => $arepoid, 'arch' => $myarch}) if BSSched::RPC::is_transient_error($error);
 	    last;
 	  }
 	  for my $bin (@{$cpio || []}) {

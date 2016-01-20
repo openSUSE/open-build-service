@@ -1,7 +1,7 @@
 use strict;
 use warnings;
 
-use Test::More tests => 19;                      # last test to print
+use Test::More tests => 21;                      # last test to print
 use Storable qw/dclone/;
 use_ok('BSSched::EventSource::Retry');
 
@@ -12,29 +12,32 @@ my $ev        = undef;
 my $expected  = undef;
 my $txt       = undef;
 my @got       = ();
-my $gctx = {
-  retryevents => [
+my $retry = BSSched::EventSource::Retry->new();
+$retry->addretryevent(
     {
       project     => 'home:M0ses',
       repository  => 'openSUSE_13.2',
       type        => 'repository',
-      'retry'     => time()
-    },
+    }
+);
+$retry->addretryevent(
     {
       project     => 'home:M0ses',
       repository  => 'openSUSE_13.2',
       type        => 'recheck',
-      'retry'     => time()
     },
-  ]
-};
-
+);
+# hack: fixup time entry
+$_->{'retry'} = time() for $retry->events();
+ok($retry->count() == 2, "Checking queue initialization");
 
 #
 # NON CHANGING OPERATIONS
 #
 ###
-my $retryevents = dclone($gctx->{retryevents});
+my $retryevents = dclone([ $retry->events() ]);
+ok(@{$retryevents || []} == 2, "Checking events method");
+
 $expected = $retryevents;
 $ev = {
       project => 'home:M0ses',
@@ -42,9 +45,9 @@ $ev = {
       type  => 'repository'
 };
 
-BSSched::EventSource::Retry::addretryevent($gctx,$ev);
+$retry->addretryevent($ev);
 $txt = sprintf("Checking with event type %s (%s/%s)",$ev->{type},$ev->{project},$ev->{repository});
-is_deeply($gctx->{retryevents},$expected,$txt);
+is_deeply([$retry->events()],$expected,$txt);
 
 ###
 $ev = {
@@ -53,9 +56,9 @@ $ev = {
       type  => 'recheck'
 };
 
-BSSched::EventSource::Retry::addretryevent($gctx,$ev);
+$retry->addretryevent($ev);
 $txt = sprintf("Checking with event type %s (%s/%s)",$ev->{type},$ev->{project},$ev->{repository});
-is_deeply($gctx->{retryevents},$expected,$txt);
+is_deeply([$retry->events()],$expected,$txt);
 
 #
 # CHANGING OPERATIONS
@@ -126,18 +129,18 @@ my $with_retry = [
 
 for my $test (@$with_retry) {
     my $expected = [
-    @{$gctx->{retryevents}},
+    $retry->events(),
     {
       %{$test->{ev}},
       'retry' => time + 60
     }
   ];
-  check_with_retry($gctx,$test->{ev},$expected);
-# print Dumper($gctx->{retryevents});
+  check_with_retry($test->{ev},$expected);
+# print Dumper([$retry->events()]);
 }
 
 
-@got = BSSched::EventSource::Retry::getretryevents($gctx);
+@got = $retry->due();
 $expected = [
       {
         'project' => 'home:M0ses',
@@ -150,24 +153,24 @@ $expected = [
         'project' => 'home:M0ses'
       }
     ];
-is_deeply(\@got,$expected,"Checking getretryevents");
+is_deeply(\@got,$expected,"Checking due method");
 
-@got = BSSched::EventSource::Retry::getretryevents($gctx);
 $expected = [];
-is_deeply(\@got,$expected,"Checking getretryevents when queue empty");
+@got = $retry->due();
+is_deeply(\@got,$expected,"Checking that due method removed entries from the queue");
 
 exit 0;
 
 sub check_with_retry {
 
-  my ($gctx,$ev,$expected) = @_;
+  my ($ev,$expected) = @_;
 
-  BSSched::EventSource::Retry::addretryevent($gctx,$ev);
+  $retry->addretryevent($ev);
   $txt = sprintf("Checking with event type %s (%s/%s)",$ev->{type},$ev->{project},$ev->{repository});
-  is_deeply($gctx->{retryevents},$expected,$txt);
+  is_deeply([$retry->events()],$expected,$txt);
 
-  BSSched::EventSource::Retry::addretryevent($gctx,$ev);
+  $retry->addretryevent($ev);
   $txt = sprintf("Retrying with event type %s (%s/%s)",$ev->{type},$ev->{project},$ev->{repository});
-  is_deeply($gctx->{retryevents},$expected,$txt);
+  is_deeply([$retry->events()],$expected,$txt);
 
 }

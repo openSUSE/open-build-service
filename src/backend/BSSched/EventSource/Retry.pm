@@ -29,6 +29,19 @@ use Data::Dumper;
 =cut
 
 
+=head2 new - create a retry event source
+
+ TODO
+
+=cut
+
+sub new {
+  my ($class) = @_;
+  my $self = {'queue' => []};
+  return bless $self, $class;
+
+}
+
 =head2 addretryevent - add an event to the retry queue
 
  TODO
@@ -36,8 +49,8 @@ use Data::Dumper;
 =cut
 
 sub addretryevent {
-  my ($gctx, $ev) = @_;
-  for my $oev (@{$gctx->{'retryevents'}}) {
+  my ($self, $ev) = @_;
+  for my $oev (@{$self->{'queue'}}) {
     next if $ev->{'type'} ne $oev->{'type'} || $ev->{'project'} ne $oev->{'project'};
     if ($ev->{'type'} eq 'repository' || $ev->{'type'} eq 'recheck') {
       next if $ev->{'repository'} ne $oev->{'repository'};
@@ -47,22 +60,40 @@ sub addretryevent {
     return;
   }
   $ev->{'retry'} = time() + 60;
-  push @{$gctx->{'retryevents'}}, $ev;
+  push @{$self->{'queue'}}, $ev;
 }
 
-=head2 getretryevents - get all due retry events from the retry queue
+=head2 due - remove all due retry events from the retry queue
 
 =cut
 
-sub getretryevents {
-  my ($gctx) = @_;
-  my $retryevents = $gctx->{'retryevents'};
+sub due {
+  my ($self) = @_;
+  my $events = $self->{'queue'};
   my $now = time();
-  my @due = grep {$_->{'retry'} <= $now} @$retryevents;
+  my @due = grep {$_->{'retry'} <= $now} @$events;
   return () unless @due;
-  @$retryevents = grep {$_->{'retry'} > $now} @$retryevents;
+  @$events = grep {$_->{'retry'} > $now} @$events;
   delete $_->{'retry'} for @due;
   return @due;
+}
+
+=head2 events - return all retry events without removing them from the queue
+
+=cut
+
+sub events {
+  my ($self) = @_;
+  return @{$self->{'queue'}};
+}
+
+=head2 count - return the number of queued retry events
+
+=cut
+
+sub count {
+  my ($self) = @_;
+  return scalar(@{$self->{'queue'}});
 }
 
 1;
