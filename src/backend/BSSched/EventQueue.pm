@@ -58,7 +58,7 @@ sub new {
     'deepcheck'               => {},
     'lowprioproject'          => {},
     'fullcache'               => undef,
-    '_events'               => [],
+    '_events'                 => [],
     @conf
   };
   return bless $ectx, $class;
@@ -164,7 +164,7 @@ sub order {
     # sort events a bit, exit events go first ;-)
     # uploadbuild/import events must go last
     my %evprio = ('exit' => -1, 'exitcomplete' => -1, 'restart' => -1, 'uploadbuild' => 1, 'import' => 1);
-    @{$ectx->{_events}}  = sort {
+    @{$ectx->{_events}} = sort {
                     # the following lines might look a bit nasty, but this is needed to avoid 
                     # "Uninitialized values" warings
                     ($evprio{$a->{'type'} || ''} || 0) <=> ($evprio{$b->{'type'} || ''} || 0) || 
@@ -178,7 +178,7 @@ sub order {
 
 sub add_events {
   my $self = shift;
-  push(@{$self->{_events}},@_);
+  push @{$self->{_events}}, @_;
 }
 
 =head2 get_events - get list of actual events
@@ -195,6 +195,8 @@ sub get_events {
 
 =cut
 
-sub events_in_queue { return scalar(@{$_[0]->{_events}}) }
+sub events_in_queue {
+   return scalar(@{$_[0]->{_events}});
+}
 
 1;
