@@ -674,7 +674,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: "collection", attributes: {matches: "2"}
     assert_xml_tag parent: {tag: "channel", attributes: {project: "Channel", package: "BaseDistro3"}},
-                   tag: "binary", attributes: {package: "pack2", name: "package"}
+                   tag: "binary", attributes: {project: "BaseDistro3", package: "pack2", name: "package"}
     assert_xml_tag parent: {tag: "channel", attributes: {project: "Channel", package: "BaseDistro3"}},
                    tag: "target", attributes: {project: "BaseDistro3Channel", repository: "channel_repo"}
     assert_xml_tag parent: {tag: "target", attributes: {project: "BaseDistro2.0:LinkedUpdateProject", repository: "BaseDistro2LinkedUpdateProject_repo"}},

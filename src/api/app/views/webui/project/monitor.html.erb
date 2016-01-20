@@ -93,7 +93,7 @@
           <th></th>
           <% @repohash.sort.each do |repo, archlist| -%>
             <% archlist.sort.each do |arch| -%>
-              <th class="buildstatus"><%= repo_status_icon @repostatushash[repo][arch] %> <%= arch %></th>
+              <th class="buildstatus"><%= repo_status_icon(@repostatushash[repo][arch],@repostatusdetailshash[repo][arch]) %> <%= arch %></th>
             <% end -%>
           <% end -%>
         </tr>

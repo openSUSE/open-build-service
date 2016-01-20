@@ -64,6 +64,8 @@ class ChannelBinary < ActiveRecord::Base
     }
     builder.channel(attributes) do |c|
       binary_data = { name: name }
+      binary_data[:project]       = channel_binary_list.project.name if channel_binary_list.project
+      binary_data[:project]       = project.name  if project
       binary_data[:package]       = package       if package
       binary_data[:binaryarch]    = binaryarch    if binaryarch
       binary_data[:supportstatus] = supportstatus if supportstatus

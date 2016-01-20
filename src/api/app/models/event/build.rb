@@ -30,7 +30,7 @@ class Event::BuildFail < Event::Build
 
   self.raw_type = 'BUILD_FAIL'
   self.description = 'Package has failed to build'
-  receiver_roles :maintainer, :bugowner
+  receiver_roles :maintainer, :bugowner, :reader
 
   def subject
     "Build failure of #{payload['project']}/#{payload['package']} in #{payload['repository']}/#{payload['arch']}"

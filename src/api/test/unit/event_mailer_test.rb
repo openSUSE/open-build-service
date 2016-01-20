@@ -31,6 +31,18 @@ class EventMailerTest < ActionMailer::TestCase
     verify_email('build_fail', mail)
   end
 
+  test 'reader mails for build failure' do
+    # for this test we don't want fixtures to interfere
+    EventSubscription.delete_all
+
+    # just one subsciption
+    EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :reader, user: users(:fred)
+    Suse::Backend.wait_for_scheduler_start
+
+    mail = EventMailer.event([users(:fred)], events(:build_failure_for_reader))
+    verify_email('build_fail_reader', mail)
+  end
+
   test 'group emails' do
     User.current = users(:Iggy)
 
