@@ -34,6 +34,37 @@ use BSSched::BuildJob;
 use BSSched::BuildJob::Upload;
 use BSSched::BuildJob::Import;
 
+our %event_handlers = (
+  'built'           => \&BSSched::EventHandler::event_built,
+  'uploadbuild'     => \&BSSched::EventHandler::event_built,
+  'import'          => \&BSSched::EventHandler::event_built,
+
+  'srcevent'        => \&BSSched::EventHandler::event_package,
+  'package'         => \&BSSched::EventHandler::event_package,
+
+  'project'         => \&BSSched::EventHandler::event_project,
+  'projevent'       => \&BSSched::EventHandler::event_project,
+  'lowprioproject'  => \&BSSched::EventHandler::event_project,
+  'repository'      => \&BSSched::EventHandler::event_repository,
+  'repoinfo'        => \&BSSched::EventHandler::event_repository,
+  'rebuild'         => \&BSSched::EventHandler::event_check,
+  'recheck'         => \&BSSched::EventHandler::event_check,
+  'admincheck'      => \&BSSched::EventHandler::event_check,
+  'unblocked'       => \&BSSched::EventHandler::event_check_med,
+  'relsync'         => \&BSSched::EventHandler::event_check_med,
+  'scanrepo'        => \&BSSched::EventHandler::event_scanrepo,
+  'scanprjbinaries' => \&BSSched::EventHandler::event_scanprjbinaries,
+  'dumprepo'        => \&BSSched::EventHandler::event_dumprepo,
+  'wipenotyet'      => \&BSSched::EventHandler::event_wipenotyet,
+  'wipe'            => \&BSSched::EventHandler::event_wipe,
+  'exit'            => \&BSSched::EventHandler::event_exit,
+  'exitcomplete'    => \&BSSched::EventHandler::event_exit,
+  'restart'         => \&BSSched::EventHandler::event_exit,
+  'dumpstate'       => \&BSSched::EventHandler::event_exit,
+  'useforbuild'     => \&BSSched::EventHandler::event_useforbuild,
+  'configuration'   => \&BSSched::EventHandler::event_configuration,
+);
+
 =head1 NAME
 
  BSSched::EventHandler

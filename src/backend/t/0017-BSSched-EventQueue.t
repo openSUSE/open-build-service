@@ -1,9 +1,11 @@
 use strict;
 use warnings;
 
-use Test::More tests => 6;                      # last test to print
+use Test::More tests => 7;                      # last test to print
 use Data::Dumper;
+use FindBin;
 
+use BSSched::EventSource::Directory;
 use_ok("BSSched::EventQueue");
 
 my $got = undef;
@@ -14,11 +16,11 @@ my $eq = BSSched::EventQueue->new();
 $eq->process_events();
 
 # do no execute any handler ATM
-map { $BSSched::EventQueue::event_handlers{$_} = \&main::event_noop } keys( %BSSched::EventQueue::event_handlers );
+map { $BSSched::EventHandler::event_handlers{$_} = \&main::event_noop } keys( %BSSched::EventHandler::event_handlers );
 
 is(ref($eq),"BSSched::EventQueue","Creating EventQueue");
 
-my $got = $eq->add_events(
+$got = $eq->add_events(
             {
               project => "B",
               job => "B"
@@ -100,15 +102,23 @@ my $sorted = [
           }
         ];
 
-print Dumper($got);
+#print Dumper($got);
 is_deeply($got,$sorted,"Checking sorted events");
 
 is($eq->events_in_queue,10,"Checking counter of events in queue");
+{
+	local *STDOUT;
+	my $out=undef;
+	open STDOUT, '>', \$out or die "Can't open STDOUT: $!";
+	$eq->process_events();
 
-$eq->process_events();
-#print Dumper($got);
+}
 
+is($eq->events_in_queue,0,"Checking if queue is empty after processing");
 
 exit 0;
 
-sub event_noop { print Dumper(@_) }
+sub event_noop {
+	# just a stub
+	#print Dumper(@_) 
+}
