@@ -101,11 +101,15 @@ class SourceController < ApplicationController
     raise Project::UnknownObjectError.new project_name unless @project
     # we let the backend list the packages after we verified the project is visible
     if params.has_key? :view
-      if params['view'] == 'productlist'
-        render xml: render_project_productlist
-      elsif params['view'] == 'verboseproductlist'
-        render xml: render_project_verboseproductlist
-      elsif params['view'] == 'issues'
+      if params[:view] == 'verboseproductlist'
+        @products = Product.all_products(@project, params[:expand])
+        render 'source/verboseproductlist'
+        return
+      elsif params[:view] == 'productlist'
+        @products = Product.all_products(@project, params[:expand])
+        render 'source/productlist'
+        return
+      elsif params[:view] == 'issues'
         render_project_issues
       else
         pass_to_backend
@@ -131,38 +135,6 @@ class SourceController < ApplicationController
       output << packages.map { |p| "  <entry name=\"#{p}\"/>\n" }.join
     end
     output << "</directory>\n"
-    output
-  end
-
-  def render_project_productlist
-    products=nil
-    if params.has_key? :expand
-      products = @project.expand_all_products
-    else
-      products = Product.joins(:package).where("packages.project_id = ? and packages.name = '_product'", @project.id)
-    end
-    output = String.new
-    output << "<productlist count='#{products.length}'>\n"
-    # rubocop:disable Metrics/LineLength
-    output << products.map { |p| "  <product name=\"#{p.name}\" cpe=\"#{p.cpe}\" originproject=\"#{p.package.project.name}\" mtime=\"#{p.package.updated_at.to_i}\"/>\n" }.join
-    # rubocop:enable Metrics/LineLength
-    output << "</productlist>\n"
-    output
-  end
-
-  def render_project_verboseproductlist
-    products=nil
-    if params.has_key? :expand
-      products = @project.expand_all_products
-    else
-      products = Product.joins(:package).where("packages.project_id = ? and packages.name = '_product'", @project.id)
-    end
-    output = String.new
-    output << "<productlist count='#{products.length}'>\n"
-    products.each do |p|
-      output << p.to_axml
-    end
-    output << "</productlist>\n"
     output
   end
 

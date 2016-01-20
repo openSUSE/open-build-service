@@ -18,6 +18,12 @@ class Product < ActiveRecord::Base
     return self.where(name: name, package: package).load
   end
 
+  def self.all_products( project, expand = nil )
+    return project.expand_all_products if expand
+
+    self.joins(:package).where("packages.project_id = ? and packages.name = '_product'", project.id)
+  end
+
   def to_axml(_opts = {})
     Rails.cache.fetch('xml_product_%d' % self.id) do
       # CanRenderModel

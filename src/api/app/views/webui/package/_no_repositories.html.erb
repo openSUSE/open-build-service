@@ -19,7 +19,7 @@
             <% end # if -%>
             <td class="arch">
               <div class="nowrap" style="margin: 0 0.5ex">
-                <%= repo_status_icon @repostatushash[r][a] %> <%= a %>
+                <%= repo_status_icon(@repostatushash[r][a],@repostatusdetailshash[r][a]) %> <%= a %>
               </div>
             </td>
             <%= arch_repo_table_cell r, a, @package.name %>
