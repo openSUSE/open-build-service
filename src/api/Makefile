@@ -63,6 +63,7 @@ build: config
 	sed -i -e 's,^api_version.*,api_version = "%version",'  $(DESTDIR)$(OBS_API_PREFIX)/config/initializers/02_apiversion.rb
 
 test_unit:
+	[ -d log ] || mkdir log
 	echo > log/test.log
 	./script/api_test_in_spec.sh
 
