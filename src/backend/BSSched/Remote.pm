@@ -373,6 +373,8 @@ sub addrepo_remote_unpackcpio {
   my $cachemd5 = Digest::MD5::md5_hex("$prp/$arch");
   substr($cachemd5, 2, 0, '/');
 
+  my $repocache = $gctx->{'repodatas'};
+
   if ($error) {
     chomp $error;
     warn("$error\n");
@@ -385,12 +387,12 @@ sub addrepo_remote_unpackcpio {
         my $r;
         eval {$r = $pool->repofromfile($prp, $solvfile);};
         if ($r) {
-	  $gctx->{'repodatas'}->setcache($prp, $arch, 'solvfile' => $solvfile, 'isremote' => 1);
-          return $r;
+	  $repocache->setcache($prp, $arch, 'solvfile' => $solvfile, 'isremote' => 1) if $repocache;
+	  return $r;
         }
       }
     }
-    $gctx->{'repodatas'}->setcache($prp, $arch, 'error' => $error, 'isremote' => 1);
+    $repocache->setcache($prp, $arch, 'error' => $error, 'isremote' => 1) if $repocache;
     return undef;
   }
 
@@ -435,7 +437,7 @@ sub addrepo_remote_unpackcpio {
   } else {
     # return empty repo
     $r = $pool->repofrombins($prp, '');
-    $gctx->{'repodatas'}->setcache($prp, $arch, 'solv' => $r->tostr(), 'isremote' => 1);
+    $repocache->setcache($prp, $arch, 'solv' => $r->tostr(), 'isremote' => 1) if $repocache;
     $isempty = 1;
   }
   return undef unless $r;
@@ -443,7 +445,7 @@ sub addrepo_remote_unpackcpio {
   mkdir_p("$remotecache/".substr($cachemd5, 0, 2));
   my $solvfile = "$remotecache/$cachemd5.solv";
   BSSched::BuildRepo::writesolv("$solvfile$$", $solvfile, $r);
-  $gctx->{'repodatas'}->setcache($prp, $arch, 'solvfile' => $solvfile, 'isremote' => 1) unless $isempty;
+  $repocache->setcache($prp, $arch, 'solvfile' => $solvfile, 'isremote' => 1) if $repocache && !$isempty;
   return $r;
 }
 

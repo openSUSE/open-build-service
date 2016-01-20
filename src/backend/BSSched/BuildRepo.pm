@@ -861,6 +861,7 @@ sub addrepo_scan {
   } else {
     print "    scanning repo $prp/$arch...\n";
   }
+  my $repocache = $gctx->{'repodatas'};
   my $dir = "$gctx->{'reporoot'}/$prp/$arch/:full";
   my $r;
   my $dirty;
@@ -869,7 +870,7 @@ sub addrepo_scan {
     eval {$r = $pool->repofromfile($prp, "$dir.solv");};
     warn($@) if $@;
     if ($r && $r->isexternal()) {
-      $gctx->{'repodatas'}->setcache($prp, $arch);
+      $repocache->setcache($prp, $arch) if $repocache;
       return $r;
     }
   }
@@ -895,7 +896,7 @@ sub addrepo_scan {
     if (!$r) {
       # return in-core empty repo
       my $r = $pool->repofrombins($prp, $dir);
-      $gctx->{'repodatas'}->setcache($prp, $arch, 'solv' => $r->tostr());
+      $repocache->setcache($prp, $arch, 'solv' => $r->tostr()) if $repocache;
       return $r;
     }
   }
@@ -918,7 +919,7 @@ sub addrepo_scan {
     @bins = BSSched::DoD::clean_obsolete_dodpackages($r, $dir, @bins) if $doddata;
     writesolv("$dir.solv.new", "$dir.solv", $r);
   }
-  $gctx->{'repodatas'}->setcache($prp, $arch);
+  $repocache->setcache($prp, $arch) if $repocache;
   return $r;
 }
 
