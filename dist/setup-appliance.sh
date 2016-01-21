@@ -242,8 +242,8 @@ function prepare_database_setup {
   logline "Setting up rails environment"
   for cmd in $RAKE_COMMANDS
   do
-    logline " - Doing 'rake $cmd'"
-    RAILS_ENV=production bundle exec rake $cmd >> $apidir/log/db_migrate.log
+    logline " - Doing 'rake.ruby2.3 $cmd'"
+    RAILS_ENV=production bundle exec rake.ruby2.3 $cmd >> $apidir/log/db_migrate.log
   done
 
 }

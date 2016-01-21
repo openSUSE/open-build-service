@@ -31,6 +31,7 @@
 %endif
 
 %define obs_api_pkg_name obs-api
+%define our_ruby_prefix ruby2.3
 
 Name:           obs-server
 Summary:        The Open Build Service -- Server Component
@@ -167,7 +168,7 @@ Requires:       obs-common
 %endif
 
 #For apache
-Requires:     apache2 apache2-mod_xforward rubygem-passenger-apache2
+Requires:     apache2 apache2-mod_xforward %{our_ruby_prefix}-rubygem-passenger-apache2
 
 # memcache is required for session data
 Requires:       memcached
@@ -183,9 +184,6 @@ Requires:       ruby(abi) >= 2.0
 Requires:       sphinx >= 2.1.8
 BuildRequires:  obs-api-testsuite-deps
 BuildRequires:  rubygem(ruby-ldap)
-# enforce passenger update to ruby 2.3 stack without requiring it
-Conflicts:      ruby2.1-rubygem-passenger
-Conflicts:      ruby2.2-rubygem-passenger
 # For doc generation
 BuildRequires:  rubygem(i18n)
 # for test suite:
