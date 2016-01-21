@@ -63,6 +63,7 @@ BuildRequires:  perl-TimeDate
 BuildRequires:  perl-XML-Parser
 BuildRequires:  perl-XML-Simple
 BuildRequires:  perl(Devel::Cover)
+BuildRequires:  perl(Test::Simple) > 1
 BuildRequires:  procps
 BuildRequires:  xorg-x11-server
 PreReq:         /usr/sbin/useradd /usr/sbin/groupadd
@@ -315,11 +316,6 @@ DESTDIR=%{buildroot} make install
 %endif
 
 %check
-%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
-# temporary hack to get building packages on SLE 11
-rm src/backend/t/0000-use.t
-%endif
-
 export DESTDIR=$RPM_BUILD_ROOT
 # check installed backend
 pushd $RPM_BUILD_ROOT/usr/lib/obs/server/
