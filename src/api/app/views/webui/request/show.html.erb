@@ -50,7 +50,7 @@
         <% end %>
         <% if @accept_at -%>
             <li><%= sprite_tag('exclamation', title: '') %> This request will get accepted in
-              <%= distance_of_time_in_words(Time.now, Time.parse(@accept_at)) %> automatically!
+              <%= distance_of_time_in_words(Time.now, Time.parse(@accept_at.to_s)) %> automatically!
             </li>
         <% end -%>
         <% @other_open_reviews.each do |review| %>
