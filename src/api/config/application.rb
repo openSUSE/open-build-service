@@ -121,6 +121,13 @@ module OBSApi
     # we're not threadsafe
     config.allow_concurrency = false
 
+    # we don't want factory_girl to interfer with the legacy test suite
+    # based on minitest
+    config.generators do |g|
+      g.factory_girl false
+      g.test_framework :rspec
+    end
+
     config.after_initialize do
       # See Rails::Configuration for more options
     end unless Rails.env.test?

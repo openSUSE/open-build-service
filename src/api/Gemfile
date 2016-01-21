@@ -82,17 +82,12 @@ group :test do
   gem 'minitest-reporters'
   # for rspec like matchers
   gem 'capybara_minitest_spec'
-  # to generate random long strings
-  gem 'faker'
   # to freeze time
   gem 'timecop'
   # to fake backend replies
   gem 'webmock', '>= 1.18.0'
   # for code quality checks
   gem 'flog', '> 4.1.0'
-  # as driver for Capybara
-  # See test/test_helper.rb for details:
-  gem 'poltergeist', '>= 1.4'
   # for mocking and stubbing
   gem 'mocha', '> 0.13.0', require: false
 end
@@ -108,10 +103,20 @@ group :development do
 end
 
 group :development, :test do
+  # as testing framework
+  gem 'rspec-rails', '~> 3.4.0'
+  # for fixtures
+  gem 'factory_girl_rails'
+  # for mocking the backend
+  gem 'vcr'
   # as alternative to the standard IRB shell
   gem 'pry', '>= 0.9.12'
   # for style checks
   gem 'rubocop', require: false
+  # to generate random long strings
+  gem 'faker'
+  # as driver for capybara
+  gem 'poltergeist', '>= 1.4'
 end
 
 # Gems used only for assets and not required in production environments by default.
