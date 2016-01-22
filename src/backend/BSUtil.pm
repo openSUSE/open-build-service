@@ -701,7 +701,10 @@ sub unify {
 sub identical {
   my ($d1, $d2, $except, $subexcept) = @_;
 
-  return 0 unless defined($d1) && defined($d2);
+  if (!defined($d1)) {
+    return defined($d2) ? 0 : 1;
+  }
+  return 0 unless defined($d2);
   my $r = ref($d1);
   return 0 if $r ne ref($d2);
   if ($r eq '') {
