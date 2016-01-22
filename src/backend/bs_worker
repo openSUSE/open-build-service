@@ -1354,7 +1354,7 @@ sub getbinaries_kiwiproduct {
       $res = [];
       for my $name (ls("$localkiwi/build/$projid/$repoid/$arch/$packid")) {
 	my $rarch;
-	if ($name =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+	if ($name =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/) {
 	  $rarch = $2 if $binfilter{"$packid/$1.$2"};
 	} elsif ($name =~ /appdata\.xml$/) {
 	  $rarch = 'appdata'; 
@@ -1417,7 +1417,7 @@ sub getbinaries_kiwiproduct {
 	    $downloadsizek += $bv->{'sizek'};
 	    next;
 	  }
-	  next unless $bin =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+	  next unless $bin =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/;
 	  my $rarch = $2;
 	  next unless $binfilter{"$packid/$1.$2"};
 	  next if $nodbgpkgs && $bin =~ /-(?:debuginfo|debugsource)-/;
@@ -1465,7 +1465,7 @@ sub getbinaries_kiwiproduct {
 	    'map' => sub {
 	      my ($param, $name) = @_;
 	      my $rarch;
-	      if ($name =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+	      if ($name =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/) {
 		$rarch = $2 if $binfilter{"$packid/$1.$2"};
 	      } elsif ($name =~ /appdata\.xml$/) {
 	        $rarch = 'appdata'; 
@@ -1481,7 +1481,7 @@ sub getbinaries_kiwiproduct {
 	  # delete everything as a file might be incomplete
           for my $bv (@bad) {
 	    my $bin = $bv->{'name'};
-	    if ($bin =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+	    if ($bin =~ /-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/) {
 	      unlink("$ddir/$1/$bin.new.rpm");
 	    } elsif ($bin =~ /appdata\.xml$/) {
 	      unlink("$ddir/$arch/$bin.new.rpm");
@@ -1491,7 +1491,7 @@ sub getbinaries_kiwiproduct {
         for my $bv (splice @bad) {
 	  my $bin = $bv->{'name'};
 	  my $rarch;
-	  if ($bin =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+	  if ($bin =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/) {
 	    $rarch = $2 if $binfilter{"$packid/$1.$2"};
 	  } elsif ($bin =~ /appdata\.xml$/) {
 	    $rarch = 'appdata'; 
@@ -1551,7 +1551,7 @@ sub getbinaries_kiwiproduct {
 	  'map' => sub {
 	    my ($param, $name) = @_;
 	    my $rarch;
-	    if ($name =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+	    if ($name =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/) {
 	      $rarch = $2 if $binfilter{"$packid/$1.$2"};
 	    } elsif ($name =~ /appdata\.xml$/) {
 	      $rarch = 'appdata';
@@ -1584,7 +1584,7 @@ sub getbinaries_kiwiproduct {
     my @todometa_f;
     for my $f (@$res) {
       my (undef, $name) = split('/', $f->{'name'}, 2);
-      next unless defined($name) && $name =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+      next unless defined($name) && $name =~ /^(?:::import::.*::)?(.*)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.d?rpm$/;
       my ($n, $rarch) = ($1, $2);
       my $id = $knownmd5{$f->{'name'}};
       $id ||= Build::queryhdrmd5("$ddir/$f->{'name'}");
