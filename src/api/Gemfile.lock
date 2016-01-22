@@ -223,7 +223,7 @@ GEM
     rspec-expectations (3.4.0)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.4.0)
-    rspec-mocks (3.4.0)
+    rspec-mocks (3.4.1)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.4.0)
     rspec-rails (3.4.0)
@@ -232,7 +232,7 @@ GEM
       railties (>= 3.0, < 4.3)
       rspec-core (~> 3.4.0)
       rspec-expectations (~> 3.4.0)
-      rspec-mocks (~> 3.4.0)
+      rspec-mocks (~> 3.4.1)
       rspec-support (~> 3.4.0)
     rspec-support (3.4.1)
     rubocop (0.35.1)
@@ -306,7 +306,7 @@ GEM
     unicorn-rails (2.2.0)
       rack
       unicorn
-    vcr (3.0.0)
+    vcr (3.0.1)
     web-console (2.2.1)
       activemodel (>= 4.0)
       binding_of_caller (>= 0.7.2)
