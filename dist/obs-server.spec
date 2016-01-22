@@ -308,6 +308,7 @@ export DESTDIR=$RPM_BUILD_ROOT
 #  find -type f | xargs sed -i '1,$s/group www/group apache/g'
 #%endif
 
+export OBS_VERSION="%{version}"
 DESTDIR=%{buildroot} make install
 
 #
