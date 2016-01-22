@@ -363,6 +363,8 @@ make -C src/api test
 
 make -C dist test
 
+# TODO - clarify if test suite is needed as extra package (M0ses)
+rm -rf $RPM_BUILD_ROOT/srv/www/obs/api/spec
 
 %pre
 getent group obsrun >/dev/null || groupadd -r obsrun
@@ -629,6 +631,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 %ghost /srv/www/obs/api/log/error.log
 %ghost /srv/www/obs/api/log/lastevents.access.log
 %ghost /srv/www/obs/api/log/production.log
+
 
 %files -n obs-common
 %defattr(-,root,root)
