@@ -12,19 +12,21 @@ function add_common_repos() {
 function install_common_packages() {
   echo -e "\ninstalling required software packages...\n"
   zypper -q -n install \
-    update-alternatives ruby-devel make gcc gcc-c++ patch cyrus-sasl-devel openldap2-devel \
+    update-alternatives make gcc gcc-c++ patch cyrus-sasl-devel openldap2-devel \
     libmysqld-devel libxml2-devel zlib-devel libxslt-devel nodejs mariadb memcached \
     sphinx sphinx phantomjs \
     screen \
-    perl-XML-Parser \
-    ruby2.2-rubygem-bundler \
-    ruby2.2-rubygem-mysql2 \
-    ruby2.2-rubygem-nokogiri \
-    ruby2.2-rubygem-multi_json \
-    ruby2.2-rubygem-ruby-ldap \
-    ruby2.2-rubygem-xmlhash \
-    ruby2.2-rubygem-thinking-sphinx\
+    ruby2.3-devel \
+    ruby2.3-rubygem-bundler \
+    ruby2.3-rubygem-mysql2 \
+    ruby2.3-rubygem-nokogiri \
+    ruby2.3-rubygem-multi_json \
+    ruby2.3-rubygem-ruby-ldap \
+    ruby2.3-rubygem-xmlhash \
+    ruby2.3-rubygem-thinking-sphinx\
     perl-GD \
+    perl-XML-Parser \
+    perl-Devel-Cover \
     obs-server \
     curl \
     vim-data \
@@ -38,9 +40,9 @@ function install_common_packages() {
 
 function setup_ruby() {
   echo -e "\nsetup ruby binaries...\n"
-  [ -f /usr/bin/ruby ] ||ln -s /usr/bin/ruby.ruby2.2 /usr/bin/ruby
+  [ -f /usr/bin/ruby ] ||ln -s /usr/bin/ruby.ruby2.3 /usr/bin/ruby
   for bin in rake rdoc ri; do
-     /usr/sbin/update-alternatives --set $bin /usr/bin/$bin.ruby.ruby2.2
+     /usr/sbin/update-alternatives --set $bin /usr/bin/$bin.ruby.ruby2.3
   done
 }
 
