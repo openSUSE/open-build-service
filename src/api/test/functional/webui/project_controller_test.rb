@@ -5,17 +5,6 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   uses_transaction :test_admin_can_delete_every_project
   uses_transaction :test_create_project_publish_disabled
 
-  CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT = 'Type: spec
-Substitute: kiwi package
-Substitute: kiwi-packagemanager:instsource package
-Ignore: package:bash'
-
-  NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT = 'Type: spec
-Substitute: kiwi package
-Substitute: kiwi-packagemanager:instsource package
-Ignore: package:bash
-Ignore: package:cups'
-
   def test_save_distributions
     login_tom
     visit "/project/add_repository_from_default_list/home:tom"
@@ -715,29 +704,32 @@ XML
     click_link 'advanced_tabs_trigger'
     click_link 'Project Config'
     config_value = page.evaluate_script("editors[0].getValue()")
-    assert_equal config_value, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+    assert_equal config_value, File.read("test/fixtures/files/home_iggy_project_config.txt").strip
   end
 
   def test_updating_config_file
     use_js
 
+    project_config = File.read("test/fixtures/files/home_iggy_project_config.txt")
+    new_project_config = File.read("test/fixtures/files/new_home_iggy_project_config.txt")
+
     login_Iggy to: project_users_path(project: 'home:Iggy')
     click_link 'advanced_tabs_trigger'
     click_link 'Project Config'
-    page.execute_script("editors[0].setValue(\"#{NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT.gsub("\n", '\n')}\")")
+    page.execute_script("editors[0].setValue(\"#{new_project_config.gsub("\n", '\n')}\")")
     click_button 'Save'
 
     visit project_show_path project: "home:Iggy"
     click_link 'advanced_tabs_trigger'
     click_link 'Project Config'
     config_value = page.evaluate_script("editors[0].getValue()")
-    assert_equal config_value, NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+    assert_equal config_value, new_project_config
 
     # Leave the backend file as it was
     put '/source/home:Iggy/_config?' + {
         project: 'home:Iggy',
         comment: 'Updated by test'
-      }.to_query, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+      }.to_query, project_config
     assert_response :success
   end
 end

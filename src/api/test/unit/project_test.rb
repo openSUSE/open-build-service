@@ -5,17 +5,6 @@ require 'json'
 class ProjectTest < ActiveSupport::TestCase
   fixtures :all
 
-  CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT = 'Type: spec
-Substitute: kiwi package
-Substitute: kiwi-packagemanager:instsource package
-Ignore: package:bash'
-
-  NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT = 'Type: spec
-Substitute: kiwi package
-Substitute: kiwi-packagemanager:instsource package
-Ignore: package:bash
-Ignore: package:cups'
-
   def setup
     @project = projects( :home_Iggy )
   end
@@ -30,29 +19,26 @@ Ignore: package:cups'
   end
 
   def test_release_targets_ng
-    CONFIG['global_write_through'] = false
+    Suse::Backend.without_global_write_through do
+      Project.create(name: "ABC", kind: "maintenance")
+      subproject = Project.create(name: "ABC:D", kind: "maintenance_incident")
+      repo_1 = Repository.create(name: "repo_1", db_project_id: subproject.id)
+      repo_2 = Repository.create(name: "repo_2", db_project_id: subproject.id)
+      repo_1.release_targets.create(trigger: "maintenance", target_repository_id: repo_2.id)
 
-    Project.create(name: "ABC", kind: "maintenance")
-    subproject = Project.create(name: "ABC:D", kind: "maintenance_incident")
-    repo_1 = Repository.create(name: "repo_1", db_project_id: subproject.id)
-    repo_2 = Repository.create(name: "repo_2", db_project_id: subproject.id)
-    repo_1.release_targets.create(trigger: "maintenance", target_repository_id: repo_2.id)
+      package = subproject.packages.create(name: "test2")
+      package.flags.create(flag: :build, status: "enable", repo: "repo_1")
+      patchinfo = subproject.packages.create(name: "_patchinfo")
+      patchinfo.package_kinds.create(kind: "patchinfo")
+      # Workaround backend dependency
+      patchinfo.stubs(:patchinfo).returns(OpenStruct.new(name: "patchinfo"))
 
-    package = subproject.packages.create(name: "test2")
-    package.flags.create(flag: :build, status: "enable", repo: "repo_1")
-    patchinfo = subproject.packages.create(name: "_patchinfo")
-    patchinfo.package_kinds.create(kind: "patchinfo")
-    # Workaround backend dependency
-    patchinfo.stubs(:patchinfo).returns(OpenStruct.new(name: "patchinfo"))
-
-    result = subproject.release_targets_ng
-    assert_equal ["ABC:D"], result.keys
-    assert_equal "repo_1", result["ABC:D"][:reponame]
-    assert_equal [package.id], result["ABC:D"][:packages].map(&:id)
-    assert_equal "patchinfo", result["ABC:D"][:patchinfo].name
-
-  ensure
-    CONFIG['global_write_through'] = true
+      result = subproject.release_targets_ng
+      assert_equal ["ABC:D"], result.keys
+      assert_equal "repo_1", result["ABC:D"][:reponame]
+      assert_equal [package.id], result["ABC:D"][:packages].map(&:id)
+      assert_equal "patchinfo", result["ABC:D"][:patchinfo].name
+    end
   end
 
   def test_flags_to_axml
@@ -880,108 +866,109 @@ END
   end
 
   def test_all_packages_from_projects_inherited_by_two_levels_and_two_links_in_project
-    CONFIG['global_write_through'] = false
-    parent2 = projects('BaseDistro2.0')
-    parent1 = projects('BaseDistro2.0_LinkedUpdateProject')
-    child = projects('Apache')
+    Suse::Backend.without_global_write_through do
+      parent2 = projects('BaseDistro2.0')
+      parent1 = projects('BaseDistro2.0_LinkedUpdateProject')
+      child = projects('Apache')
 
-    parent2.linkedprojects.create(project: parent2,
-                               linked_db_project_id: projects('home_Iggy').id,
-                               position: 1)
+      parent2.linkedprojects.create(project: parent2,
+                                 linked_db_project_id: projects('home_Iggy').id,
+                                 position: 1)
 
-    child.linkedprojects.create(project: child,
-                               linked_db_project_id: parent1.id,
-                               position: 1)
+      child.linkedprojects.create(project: child,
+                                 linked_db_project_id: parent1.id,
+                                 position: 1)
 
-    child.linkedprojects.create(project: child,
-                                linked_db_project_id: parent2.id,
-                                position: 2)
+      child.linkedprojects.create(project: child,
+                                  linked_db_project_id: parent2.id,
+                                  position: 2)
 
-    result = projects('home_Iggy').packages + child.packages + parent1.packages + parent2.packages
-    result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
+      result = projects('home_Iggy').packages + child.packages + parent1.packages + parent2.packages
+      result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
 
-    assert_equal result, child.expand_all_packages
-    CONFIG['global_write_through'] = true
+      assert_equal result, child.expand_all_packages
+    end
   end
 
-  test 'linked_packages does not return packages overwritten by the actual project' do
-    CONFIG['global_write_through'] = false
-    parent = projects('BaseDistro2.0')
-    child = projects('BaseDistro2.0_LinkedUpdateProject')
+  def test_linked_packages_does_not_return_packages_overwritten_by_the_actual_project
+    Suse::Backend.without_global_write_through do
+      parent = projects('BaseDistro2.0')
+      child = projects('BaseDistro2.0_LinkedUpdateProject')
 
-    pack2 = parent.packages.where(name: 'pack2').first
-    child.packages << pack2.dup
+      pack2 = parent.packages.where(name: 'pack2').first
+      child.packages << pack2.dup
 
-    assert_equal [["pack2", "BaseDistro2.0:LinkedUpdateProject"],
-                  ["pack2.linked", "BaseDistro2.0"],
-                  ["pack_local", "BaseDistro2.0:LinkedUpdateProject"]],
-                 child.expand_all_packages
-    CONFIG['global_write_through'] = true
+      assert_equal [["pack2", "BaseDistro2.0:LinkedUpdateProject"],
+                    ["pack2.linked", "BaseDistro2.0"],
+                    ["pack_local", "BaseDistro2.0:LinkedUpdateProject"]],
+                   child.expand_all_packages
+    end
   end
 
-  test 'linked_packages does not return packages overwritten by the actual project inherited from two levels' do
-    CONFIG['global_write_through'] = false
-    parent2 = projects('BaseDistro2.0')
-    parent1 = projects('BaseDistro2.0_LinkedUpdateProject')
-    child = projects('Apache')
+  def test_linked_packages_does_not_return_packages_overwritten_by_the_actual_project_inherited_from_two_levels
+    Suse::Backend.without_global_write_through do
+      parent2 = projects('BaseDistro2.0')
+      parent1 = projects('BaseDistro2.0_LinkedUpdateProject')
+      child = projects('Apache')
 
-    child.linkedprojects.create(project: child,
-                                linked_db_project_id: parent1.id,
-                                position: 1)
+      child.linkedprojects.create(project: child,
+                                  linked_db_project_id: parent1.id,
+                                  position: 1)
 
-    child.linkedprojects.create(project: child,
-                                linked_db_project_id: parent2.id,
-                                position: 2)
+      child.linkedprojects.create(project: child,
+                                  linked_db_project_id: parent2.id,
+                                  position: 2)
 
-    pack2 = parent2.packages.where(name: 'pack2').first
-    child.packages << pack2.dup
+      pack2 = parent2.packages.where(name: 'pack2').first
+      child.packages << pack2.dup
 
-    result = child.packages + parent1.packages + parent2.packages.where(name: 'pack2.linked')
-    result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
+      result = child.packages + parent1.packages + parent2.packages.where(name: 'pack2.linked')
+      result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
 
-    assert_equal result, child.expand_all_packages
-    CONFIG['global_write_through'] = true
+      assert_equal result, child.expand_all_packages
+    end
   end
 
-  test 'linked_packages returns overwritten packages from the project with the highest position' do
-    CONFIG['global_write_through'] = false
-    base_distro = projects('BaseDistro2.0')
-    base_distro_update = projects('BaseDistro2.0_LinkedUpdateProject')
+  def test_linked_packages_returns_overwritten_packages_from_the_project_with_the_highest_position
+    Suse::Backend.without_global_write_through do
+      base_distro = projects('BaseDistro2.0')
+      base_distro_update = projects('BaseDistro2.0_LinkedUpdateProject')
 
-    child = projects('Apache')
+      child = projects('Apache')
 
-    child.linkedprojects.create(project: child,
-                                linked_db_project_id: base_distro_update.id,
-                                position: 1)
+      child.linkedprojects.create(project: child,
+                                  linked_db_project_id: base_distro_update.id,
+                                  position: 1)
 
-    child.linkedprojects.create(project: child,
-                                linked_db_project_id: base_distro.id,
-                                position: 2)
+      child.linkedprojects.create(project: child,
+                                  linked_db_project_id: base_distro.id,
+                                  position: 2)
 
-    pack2 = base_distro.packages.where(name: 'pack2').first
-    base_distro_update.packages << pack2.dup
+      pack2 = base_distro.packages.where(name: 'pack2').first
+      base_distro_update.packages << pack2.dup
 
-    result = child.packages + base_distro_update.packages + base_distro.packages.where(name: 'pack2.linked')
-    result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
+      result = child.packages + base_distro_update.packages + base_distro.packages.where(name: 'pack2.linked')
+      result.sort! { |a, b| a.name.downcase <=> b.name.downcase }.map! { |package| [package.name, package.project.name] }
 
-    assert_equal result, child.expand_all_packages
-    CONFIG['global_write_through'] = true
+      assert_equal result, child.expand_all_packages
+    end
   end
 
   test 'config file exists and have the right content' do
-    assert @project.config
-    assert_equal @project.config.to_s, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+    assert_equal @project.config.to_s, File.read("test/fixtures/files/home_iggy_project_config.txt").strip
   end
 
   test 'update config file and reload it, it also should have the right content' do
+    project_config = File.read("test/fixtures/files/home_iggy_project_config.txt")
+    new_project_config = File.read("test/fixtures/files/new_home_iggy_project_config.txt")
+
     User.current = users(:Iggy)
     query_params = {user: User.current.login, comment: "Updated by test"}
-    assert @project.config.save(query_params, NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT)
-    assert @project.config.reload
-    assert_equal @project.config.to_s, NEW_CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT
+    assert @project.config.save(query_params, new_project_config)
+    assert_equal @project.config.to_s, new_project_config
 
     # Leave the backend file as it was
-    assert @project.config.save(query_params, CONFIG_FILE_STRING_FOR_HOME_IGGY_PROJECT)
+    assert @project.config.save(query_params, project_config)
   end
 
   def test_open_requests

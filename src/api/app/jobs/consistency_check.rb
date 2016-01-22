@@ -20,11 +20,10 @@ class ConsistencyCheckJob < ActiveJob::Base
       unless Project.valid_name? project.name
         @errors << "Invalid project name #{project.name}\n"
         if fix
-          oldstate = CONFIG['global_write_through']
-          CONFIG['global_write_through'] = false
-          # just remove it, the backend won't accept it anyway
-          project.destroy
-          CONFIG['global_write_through'] = oldstate
+          Suse::Backend.without_global_write_through do
+            # just remove it, the backend won't accept it anyway
+            project.destroy
+          end
         end
         next
       end
@@ -116,22 +115,21 @@ class ConsistencyCheckJob < ActiveJob::Base
       errors << "Additional projects in backend:\n #{diff}\n"
 
       if fix
+        Suse::Backend.without_global_write_through do
         # restore from backend
-        oldstate = CONFIG['global_write_through']
-        CONFIG['global_write_through'] = false
-        diff.each do |project|
-          begin
-            meta = Suse::Backend.get("/source/#{project}/_meta").body
-            project = Project.new(name: project)
-            project.update_from_xml(Xmlhash.parse(meta))
-            project.save!
-          rescue ActiveRecord::RecordInvalid,
-                 ActiveXML::Transport::NotFoundError
-            Suse::Backend.delete("/source/#{project}")
-            errors << "DELETED #{project.name} on backend due to invalid data\n"
+          diff.each do |project|
+            begin
+              meta = Suse::Backend.get("/source/#{project}/_meta").body
+              project = Project.new(name: project)
+              project.update_from_xml(Xmlhash.parse(meta))
+              project.save!
+            rescue ActiveRecord::RecordInvalid,
+                   ActiveXML::Transport::NotFoundError
+              Suse::Backend.delete("/source/#{project}")
+              errors << "DELETED #{project.name} on backend due to invalid data\n"
+            end
           end
         end
-        CONFIG['global_write_through'] = oldstate
       end
     end
 
@@ -148,20 +146,19 @@ class ConsistencyCheckJob < ActiveJob::Base
     end
 
     # valid package names?
-    oldstate = CONFIG['global_write_through']
-    CONFIG['global_write_through'] = false
-    package_list_api = project.packages.pluck(:name)
-    package_list_api.each do |name|
-      unless Package.valid_name? name
-        errors << "Invalid package name #{name} in project #{project.name}\n"
-        if fix
-          # just remove it, the backend won't accept it anyway
-          project.packages.where(name: name).first.destroy
-          next
+    Suse::Backend.without_global_write_through do
+      package_list_api = project.packages.pluck(:name)
+      package_list_api.each do |name|
+        unless Package.valid_name? name
+          errors << "Invalid package name #{name} in project #{project.name}\n"
+          if fix
+            # just remove it, the backend won't accept it anyway
+            project.packages.where(name: name).first.destroy
+            next
+          end
         end
       end
     end
-    CONFIG['global_write_through'] = oldstate
 
     # compare all packages
     package_list_api = project.packages.pluck(:name)
@@ -184,22 +181,21 @@ class ConsistencyCheckJob < ActiveJob::Base
       errors << "Additional package in backend project #{project.name}:\n #{diff}\n"
 
       if fix
-        # restore from backend
-        oldstate = CONFIG['global_write_through']
-        CONFIG['global_write_through'] = false
-        diff.each do |package|
-          begin
-            meta = Suse::Backend.get("/source/#{project.name}/#{package}/_meta").body
-            pkg = project.packages.new(name: package)
-            pkg.update_from_xml(Xmlhash.parse(meta), true) # ignore locked project
-            pkg.save!
-          rescue ActiveRecord::RecordInvalid,
-                 ActiveXML::Transport::NotFoundError
-            Suse::Backend.delete("/source/#{project.name}/#{package}")
-            errors << "DELETED in backend due to invalid data #{project.name}/#{package}\n"
+        Suse::Backend.without_global_write_through do
+          # restore from backend
+          diff.each do |package|
+            begin
+              meta = Suse::Backend.get("/source/#{project.name}/#{package}/_meta").body
+              pkg = project.packages.new(name: package)
+              pkg.update_from_xml(Xmlhash.parse(meta), true) # ignore locked project
+              pkg.save!
+            rescue ActiveRecord::RecordInvalid,
+                   ActiveXML::Transport::NotFoundError
+              Suse::Backend.delete("/source/#{project.name}/#{package}")
+              errors << "DELETED in backend due to invalid data #{project.name}/#{package}\n"
+            end
           end
         end
-        CONFIG['global_write_through'] = oldstate
       end
     end
     errors
