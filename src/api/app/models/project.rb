@@ -1556,47 +1556,41 @@ class Project < ActiveRecord::Base
     return true
   end
 
-  def find_incident_issues
-    linkdiff = pkg.linkdiff()
-    if linkdiff && linkdiff.has_element?('issues')
-      linkdiff.issues.each(:issue) do |issue|
-        release_targets_ng[rt_name][:package_issues][issue.value('label')] = issue
-
-        release_targets_ng[rt_name][:package_issues_by_tracker][issue.value('tracker')] ||= []
-        release_targets_ng[rt_name][:package_issues_by_tracker][issue.value('tracker')] << issue
-      end
-    end
-  end
-
   # Returns maintenance incidents by type for current project (if any)
   def maintenance_incidents
-    all = Project.where('projects.name like ?', "#{self.name}:%").distinct.where(kind: 'maintenance_incident')
-    all = all.joins(:repositories).joins('JOIN release_targets rt on rt.repository_id=repositories.id')
-    all.where('rt.trigger = "maintenance"')
+    Project.where('projects.name like ?', "#{self.name}:%").distinct.
+      where(kind: 'maintenance_incident').
+      joins(:repositories => :release_targets).
+      where('release_targets.trigger = "maintenance"')
   end
 
   def release_targets_ng
+    global_patchinfo = find_patchinfo
+
     # First things first, get release targets as defined by the project, err.. incident. Later on we
     # magically find out which of the contained packages, err. updates are build against those release
     # targets.
     release_targets_ng = {}
     self.repositories.each do |repo|
       repo.release_targets.each do |rt|
-        release_targets_ng[rt.target_repository.project.name] = {:reponame => repo.name,
-                                                                 :packages => [], :patchinfo => nil,
-                                                                 :package_issues => {}, :package_issues_by_tracker => {}}
+        release_targets_ng[rt.target_repository.project.name] = {
+          reponame:                  repo.name,
+          packages:                  [],
+          patchinfo:                 collect_patchinfo_data(global_patchinfo.patchinfo),
+          package_issues:            {},
+          package_issues_by_tracker: {}
+        }
       end
     end
 
     # One catch, currently there's only one patchinfo per incident, but things keep changing every
     # other day, so it never hurts to have a look into the future:
-    global_patchinfo = nil
-    self.packages.each do |pkg|
-      if pkg.is_patchinfo?
-        # Global 'patchinfo' without specific release target:
-        global_patchinfo = pkg.patchinfo
-        next
-      end
+    package_count = 0
+    self.packages.select(:name, :id).each do |pkg|
+      # Current ui is only showing the first found package and a symbol for any additional package.
+      break if package_count > 2
+
+      next if pkg.name == global_patchinfo.name
 
       rt_name = pkg.name.split('.', 2).last
       next unless rt_name
@@ -1607,14 +1601,10 @@ class Project < ActiveRecord::Base
       if rt_name
         # Let's silently hope that an incident newer introduces new (sub-)packages....
         release_targets_ng[rt_name][:packages] << pkg
+        package_count += 1
       end
     end
 
-    if global_patchinfo
-      release_targets_ng.each do |_, rt|
-        rt[:patchinfo] = global_patchinfo
-      end
-    end
     return release_targets_ng
   end
 
@@ -1821,5 +1811,23 @@ class Project < ActiveRecord::Base
     end
 
     nil
+  end
+
+  def find_patchinfo
+    # Almost all patchfino packages are named _patchinfo
+    self.packages.find { |pkg| pkg.name == "_patchinfo" && pkg.is_patchinfo? } ||
+      self.packages.find { |pkg| pkg.is_patchinfo? }
+  end
+
+  def collect_patchinfo_data(patchinfo)
+    if patchinfo
+      {
+        summary:  patchinfo.value("summary"),
+        category: patchinfo.value("category"),
+        stopped:  patchinfo.value("stopped")
+      }
+    else
+      {}
+    end
   end
 end

@@ -19,26 +19,38 @@ class ProjectTest < ActiveSupport::TestCase
   end
 
   def test_release_targets_ng
-    Suse::Backend.without_global_write_through do
-      Project.create(name: "ABC", kind: "maintenance")
-      subproject = Project.create(name: "ABC:D", kind: "maintenance_incident")
-      repo_1 = Repository.create(name: "repo_1", db_project_id: subproject.id)
-      repo_2 = Repository.create(name: "repo_2", db_project_id: subproject.id)
-      repo_1.release_targets.create(trigger: "maintenance", target_repository_id: repo_2.id)
+    User.current = User.find_by_login "king"
 
-      package = subproject.packages.create(name: "test2")
-      package.flags.create(flag: :build, status: "enable", repo: "repo_1")
-      patchinfo = subproject.packages.create(name: "_patchinfo")
-      patchinfo.package_kinds.create(kind: "patchinfo")
-      # Workaround backend dependency
-      patchinfo.stubs(:patchinfo).returns(OpenStruct.new(name: "patchinfo"))
+    project = Project.create(name: "ABC", kind: "maintenance")
+    project.store
 
-      result = subproject.release_targets_ng
-      assert_equal ["ABC:D"], result.keys
-      assert_equal "repo_1", result["ABC:D"][:reponame]
-      assert_equal [package.id], result["ABC:D"][:packages].map(&:id)
-      assert_equal "patchinfo", result["ABC:D"][:patchinfo].name
-    end
+    subproject = Project.create(name: "ABC:D", kind: "maintenance_incident")
+    subproject.store
+
+    repo_1 = Repository.create(name: "repo_1", db_project_id: subproject.id)
+    repo_2 = Repository.create(name: "repo_2", db_project_id: subproject.id)
+    repo_1.release_targets.create(trigger: "maintenance", target_repository_id: repo_2.id)
+
+    package = subproject.packages.create(name: "test2")
+    package.flags.create(flag: :build, status: "enable", repo: "repo_1")
+
+    Patchinfo.new.create_patchinfo("ABC:D", "_patchinfo", { comment:  "patchinfo summary" })
+
+    result = subproject.reload.release_targets_ng
+    assert_equal ["ABC:D"], result.keys
+    assert_equal "repo_1",  result["ABC:D"][:reponame]
+
+    assert_equal 1, result["ABC:D"][:packages].count
+    assert_equal package.id, result["ABC:D"][:packages].first.id
+    assert_equal "test2", result["ABC:D"][:packages].first.name
+
+    assert_equal "patchinfo summary", result["ABC:D"][:patchinfo][:summary]
+    assert_equal "recommended",       result["ABC:D"][:patchinfo][:category]
+    assert_equal nil,                 result["ABC:D"][:patchinfo][:stopped]
+  ensure
+    # Prevent AAAPreConsistency check to fail
+    project.destroy
+    subproject.destroy
   end
 
   def test_flags_to_axml

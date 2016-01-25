@@ -942,10 +942,7 @@ class Webui::ProjectController < Webui::WebuiController
 
     @is_maintenance_project = @project.is_maintenance?
     if @is_maintenance_project
-      subprojects = Project.where('projects.name like ?', @project.name + ':%').
-          where(kind: 'maintenance_incident').joins(:repositories => :release_targets).
-          where("release_targets.trigger = 'maintenance'")
-      @open_maintenance_incidents = subprojects.pluck('projects.name').sort.uniq
+      @open_maintenance_incidents = @project.maintenance_incidents.pluck('projects.name').sort.uniq
 
       @maintained_projects = @project.maintained_project_names
     end
