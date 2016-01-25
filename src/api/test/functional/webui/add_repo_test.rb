@@ -1,7 +1,7 @@
 require_relative '../../test_helper'
 
 class Webui::AddRepoTest < Webui::IntegrationTest
-  def test_add_default
+  def test_add_default # spec/features/webui/repositories_spec.rb
     use_js
     login_Iggy to: project_show_path(project: 'home:Iggy')
 

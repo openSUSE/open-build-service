@@ -36,3 +36,6 @@ possible in RSpec. We concentrate on 4 types:
 We are using the standard [RSpec generators](https://relishapp.com/rspec/rspec-rails/docs/generators) like:
 
 `rails generate rspec:model package`
+
+## Migrating tests
+When migrating tests from the old minitest based suite to rspec, please add the file path of the new one to every test covered.

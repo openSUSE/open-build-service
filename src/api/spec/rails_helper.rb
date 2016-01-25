@@ -39,3 +39,6 @@ require 'support/factory_girl'
 
 # support Suse::backend
 require 'support/backend'
+
+# support controllers authentification
+require 'support/controllers/authentification'
