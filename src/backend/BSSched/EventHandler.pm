@@ -473,6 +473,33 @@ sub event_exit {
   $schedstate->{'delayedfetchprojpacks'} = $gctx->{'delayedfetchprojpacks'};
   $schedstate->{'watchremote_start'} = $gctx->{'watchremote_start'};
   $schedstate->{'fetchprojpacks'} = $ectx->{'fetchprojpacks'} if %{$ectx->{'fetchprojpacks'} || {}};
+  # collect all running async projpack requests
+  for my $handle ($gctx->{'rctx'}->xrpc_handles()) {
+    my $projid = $handle->{'_iswaiting'};
+    next if $projid =~ /\//;
+    my %packids;
+    my $good;
+    my $meta;
+    for my $h ($handle, @{$handle->{'_nextxrpc'} || []}) {
+      my $async = $h;
+      # HACK: 2 is $param
+      $async = $h->{'_xrpc_data'}->[2]->{'async'} if $h->{'_xrpc_data'};
+      next if $async->{'_projid'} ne $projid;
+      $good = 1;
+      if ($async->{'_packids'}) {
+	$packids{$_} = 1 for @{$async->{'_packids'}};
+      } else {
+	$packids{$_} = 1 for @{$async->{'_lpackids'} || []};
+	$meta = 1;
+      }
+    }
+    next unless $good;
+    my @packids = sort keys %packids;
+    push @packids, undef if $meta || !@packids;
+    $schedstate->{'fetchprojpacks'} ||= {};
+    $schedstate->{'fetchprojpacks'}->{$projid} = [ @{$schedstate->{'fetchprojpacks'}->{$projid} || []}, @packids ];
+  }
+
   my $rundir = $gctx->{'rundir'};
   unlink("$rundir/bs_sched.$myarch.state");
   my $statefile = "$rundir/bs_sched.$myarch.state";
