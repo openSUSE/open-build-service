@@ -424,10 +424,10 @@ sub expandandsort {
     $havepatchinfos{$packid} = 1 if $buildtype eq 'patchinfo';
 
     if (!$info || !defined($info->{'file'}) || !defined($info->{'name'})) {
-      if ($pdata->{'error'} && $pdata->{'error'} eq 'disabled') {
+      if ($pdata->{'error'} && ($pdata->{'error'} eq 'disabled' || $pdata->{'error'} eq 'locked')) {
 	$pkgdisabled{$packid} = 1;
       }
-      if ($info && $info->{'error'} && $info->{'error'} eq 'disabled') {
+      if ($info && $info->{'error'} && ($info->{'error'} eq 'disabled' || $info->{'error'} eq 'locked')) {
 	$pkgdisabled{$packid} = 1;
       }
       $pdeps{$packid} = [];
@@ -662,7 +662,7 @@ sub checkpkgs {
     }
 
     if ($pdata->{'error'}) {
-      if ($pdata->{'error'} eq 'disabled' || $pdata->{'error'} eq 'excluded') {
+      if ($pdata->{'error'} eq 'disabled' || $pdata->{'error'} eq 'locked' || $pdata->{'error'} eq 'excluded') {
 	$packstatus{$packid} = $pdata->{'error'};
 	next;
       }
@@ -715,7 +715,7 @@ sub checkpkgs {
     my $info = (grep {$_->{'repository'} eq $repoid} @{$pdata->{'info'} || []})[0] || {};
 
     if ($info->{'error'}) {
-      if ($info->{'error'} eq 'disabled' || $info->{'error'} eq 'excluded') {
+      if ($info->{'error'} eq 'disabled' || $info->{'error'} eq 'locked' || $info->{'error'} eq 'excluded') {
 	$packstatus{$packid} = $info->{'error'};
 	next;
       }

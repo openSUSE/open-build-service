@@ -412,6 +412,7 @@ sub update_project_meta_check {
   my $oldproj = $projpacks->{$projid};
   # check if the project meta has critical change
   return 0 unless BSUtil::identical($proj->{'build'}, $oldproj->{'build'});
+  return 0 unless BSUtil::identical($proj->{'lock'}, $oldproj->{'lock'});
   return 0 unless BSUtil::identical($proj->{'link'}, $oldproj->{'link'});
   # XXX: could be more clever here
   return 0 unless BSUtil::identical($proj->{'repository'}, $oldproj->{'repository'});
