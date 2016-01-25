@@ -234,6 +234,12 @@ We maintain an [OBS package repository](https://build.opensuse.org/project/show/
     The obs-api package comes with an apache configuration file.
     ```
     /etc/apache2/vhosts.d/obs.conf
+
+    In the mod_passenger configuration file */etc/apache2/conf.d/mod_passenger.conf*
+    
+    change the ruby interpreter to ruby 2.3
+
+    PassengerRuby "/usr/bin/ruby.ruby2.3"
     ```
 
 6. Enable the xforward mode:

@@ -47,3 +47,7 @@ is "$?" 0 "Checking if tables in database $DB_NAME"
 
 curl https://localhost &>/dev/null
 is "$?" 0 "Checking https://localhost for SSL Certificate Errors"
+
+STATUS_CODE_200=$(curl -I http://localhost 2>/dev/null|head -1|grep -w 200)
+[[ -n $STATUS_CODE_200 ]]
+is "$?" 0 "Checking https://localhost for http status code 200"
