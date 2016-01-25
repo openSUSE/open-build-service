@@ -91,11 +91,7 @@ sub sendevent {
   mkdir_p("$eventdir/$arch");
   $evname = "$ev->{'type'}:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
   writexml("$eventdir/$arch/.$evname$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);
-  local *F;
-  if (sysopen(F, "$eventdir/$arch/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
-    syswrite(F, 'x');
-    close(F);
-  }
+  BSUtil::ping("$eventdir/$arch/.ping");
 }
 
 =head2 sendrepochangeevent - send a repository/repoinfo event

@@ -1319,7 +1319,7 @@ sub putbinary {
     my $evname = "scanrepo:${projid}::$repoid";
     $evname = "scanrepo:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
     writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
-    ping($arch);
+    BSUtil::ping("$eventdir/$arch/.ping");
   }
   return $BSStdServer::return_ok;
 }
@@ -1338,7 +1338,7 @@ sub delbinary {
     my $evname = "scanrepo:${projid}::$repoid";
     $evname = "scanrepo:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
     writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
-    ping($arch);
+    BSUtil::ping("$eventdir/$arch/.ping");
   }
   return $BSStdServer::return_ok;
 }
@@ -1515,15 +1515,6 @@ sub dirty {
   }
   for my $r (@repos) {
     BSUtil::touch("$reporoot/$projid/$r/$arch/:schedulerstate.dirty") if -d "$reporoot/$projid/$r/$arch";
-  }
-}
-
-sub ping {
-  my ($arch) = @_;
-  local *F;
-  if (sysopen(F, "$eventdir/$arch/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
-    syswrite(F, 'x');
-    close(F);
   }
 }
 
@@ -1993,7 +1984,7 @@ sub putjob {
 
     mkdir_p("$eventdir/signer");
     writexml("$eventdir/signer/.finished:$arch:$job$$", "$eventdir/signer/finished:$arch:$job", $ev, $BSXML::event);
-    ping('signer');
+    BSUtil::ping("$eventdir/signer/.ping");
   } else {
     # write jobstatus and free lock
     $jobstatus->{'code'} = 'finished';
@@ -2003,7 +1994,7 @@ sub putjob {
     dirty($projid, $repoid, $arch);
     mkdir_p("$eventdir/$arch");
     writexml("$eventdir/$arch/.finished:$job$$", "$eventdir/$arch/finished:$job", $ev, $BSXML::event);
-    ping($arch);
+    BSUtil::ping("$eventdir/$arch/.ping");
   }
 
   return $BSStdServer::return_ok;
@@ -2143,7 +2134,7 @@ sub copybuild {
   dirty($projid, $repoid, $arch) if $arch ne 'signer';
   mkdir_p("$eventdir/$arch");
   writexml("$eventdir/$arch/.copybuild:$job$$", "$eventdir/$arch/copybuild:$job", $ev, $BSXML::event);
-  ping($arch);
+  BSUtil::ping("$eventdir/$arch/.ping");
   return $BSStdServer::return_ok;
 }
 
@@ -2180,7 +2171,7 @@ sub uploadbuild {
   mkdir_p("$eventdir/$arch");
   my $ev = {'type' => 'uploadbuild', 'job' => $job};
   writexml("$eventdir/$arch/.uploadbuild:$job$$", "$eventdir/$arch/uploadbuild:$job", $ev, $BSXML::event);
-  ping($arch);
+  BSUtil::ping("$eventdir/$arch/.ping");
   return $BSStdServer::return_ok;
 }
 
@@ -2214,7 +2205,7 @@ sub forwardevent {
   if ($arch) {
     dirty($projid, $repoid, $arch) unless !defined($repoid) || $arch eq 'dispatch' || $arch eq 'publish';
     writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
-    ping($arch);
+    BSUtil::ping("$eventdir/$arch/.ping");
   } else {
     # XXX: there should be a better way than to just write in all
     # directories... maybe a architecture list in BSConfig?
@@ -2225,7 +2216,7 @@ sub forwardevent {
       eval {
         dirty($projid, $repoid, $a) if defined $repoid;
         writexml("$eventdir/$a/.$evname", "$eventdir/$a/$evname", $ev, $BSXML::event);
-        ping($a);
+        BSUtil::ping("$eventdir/$a/.ping");
       };
       warn($@) if $@;
     }
@@ -2451,7 +2442,7 @@ sub docommand {
 	    writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
 	  }
 	}
-	ping($arch) if -d "$eventdir/$arch";
+	BSUtil::ping("$eventdir/$arch/.ping") if -d "$eventdir/$arch";
       }
     } elsif ($cmd eq 'killbuild' || $cmd eq 'abortbuild') {
       for my $packid (@packids) {

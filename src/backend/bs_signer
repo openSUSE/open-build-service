@@ -602,15 +602,6 @@ sub signjob {
   return 1;
 }
 
-sub ping {
-  my ($arch) = @_;
-  local *F;
-  if (sysopen(F, "$eventdir/$arch/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
-    syswrite(F, 'x');
-    close(F);
-  }
-}
-
 sub signevent {
   my ($event, $ev) = @_;
 
@@ -628,7 +619,7 @@ sub signevent {
   } elsif ($res) {
     my $name = $ev->{'type'} eq 'built' ? 'finished' : $ev->{'type'};
     writexml("$eventdir/$arch/.${name}:$job$$", "$eventdir/$arch/${name}:$job", $ev, $BSXML::event);
-    ping($arch);
+    BSUtil::ping("$eventdir/$arch/.ping");
   }
   unlink("$myeventdir/${event}::inprogress");
 }

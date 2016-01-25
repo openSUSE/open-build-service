@@ -120,15 +120,6 @@ sub uncompress {
   die("bzip2 in unimplemented\n") if $reffile =~ /\.bz2$/;
 }
 
-sub ping {
-  my ($arch) = @_;
-  local *F;
-  if (sysopen(F, "$eventdir/$arch/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
-    syswrite(F, 'x');
-    close(F);
-  }
-}
-
 sub mastercheck {
   my ($doddata, $urlpath, $data) = @_;
   my $master = $doddata->{'master'};
@@ -336,7 +327,7 @@ sub sendscanrepo {
   my $evname = "scanrepo:${projid}::$repoid";
   $evname = "scanrepo:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
   writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
-  ping($arch);
+  BSUtil::ping("$eventdir/$arch/.ping");
 }
 
 sub update_dod {
