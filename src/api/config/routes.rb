@@ -616,6 +616,7 @@ OBSApi::Application.routes.draw do
 
     controller :public do
       get 'public' => :index
+      get 'public/about' => 'about#index'
       get 'public/build/:project' => :build, constraints: cons
       get 'public/build/:project/:repository' => :build, constraints: cons
       get 'public/build/:project/:repository/:arch' => :build, constraints: cons

@@ -14,6 +14,11 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
     assert_response 302
   end
 
+  def test_about
+    get "/public/about"
+    assert_response :success
+  end
+
   def test_basic_read_tests
     get "/public/source/home:Iggy"
     assert_response :success
