@@ -11,7 +11,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     check("OBS Base 2.0")
     find("#submitrepos").click
     page.must_have_text "Successfully added repositories"
-    assert_equal "/project/repositories/home:tom", page.current_path
+    assert_equal "/project/home:tom/repositories", page.current_path
 
     # Test that repository checkbox get's disabled
     visit "/project/add_repository_from_default_list/home:tom"
@@ -23,7 +23,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     use_js
     login_tom
 
-    visit "/project/repositories/home:tom"
+    visit "/project/home:tom/repositories"
     find("#edit_repository_link_SourceprotectedProject_repo").click
     click_link("Add additional path to this repository")
 
@@ -33,7 +33,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     find("select#target_repo").select("SUSE_Linux_10.1")
     click_button("Add path to repository SourceprotectedProject_repo")
 
-    assert_equal "/project/repositories/home:tom", page.current_path
+    assert_equal "/project/home:tom/repositories", page.current_path
     find("#edit_repository_link_SourceprotectedProject_repo").click
     page.must_have_text "Apache/SUSE_Linux_10.1"
 
@@ -78,7 +78,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
       assert_equal "Tidy", find(:xpath, '(.//td/a)[4]').text
     end
 
-    visit '/project/show?project=My:Maintenance'
+    visit '/project/My:Maintenance'
     page.must_have_selector '#project_title'
   end
 
@@ -106,7 +106,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   def test_kde4_has_two_packages
     use_js
 
-    visit '/project/show?project=kde4'
+    visit '/project/kde4'
     find('#packages').must_have_text 'Packages (2)'
     within('#raw_packages') do
       page.must_have_link 'kdebase'
@@ -425,12 +425,12 @@ XML
   def test_list_all
     use_js
 
-    visit project_list_public_path
+    visit projects_path
     first(:css, 'p.main-project a').click
     # verify it's a project
     assert page.current_url.end_with? project_show_path(project: 'BaseDistro')
 
-    visit project_list_public_path
+    visit projects_path
     # avoid random results once projects moves to page 2
     find(:id, 'projects_table_length').select('100')
     find(:id, 'project_list').must_have_link 'BaseDistro'
@@ -480,7 +480,7 @@ XML
   end
 
   def test_successful_comment_creation
-    login_tom to: '/project/show/home:Iggy'
+    login_tom to: '/project/home:Iggy'
     SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       fill_in 'body', with: 'Comment Body'
@@ -493,7 +493,7 @@ XML
   end
 
   def test_unsuccessful_comment_creation
-    login_tom to: '/project/show/home:Iggy'
+    login_tom to: '/project/home:Iggy'
     find_button('Add comment').click
     find('#flash-messages').must_have_text "Comment can't be saved: Body can't be blank."
   end
@@ -501,7 +501,7 @@ XML
   def test_successful_reply_comment_creation
     use_js
 
-    login_Iggy to: '/project/show/BaseDistro'
+    login_Iggy to: '/project/BaseDistro'
     find(:id, 'reply_link_id_100').click
     fill_in 'reply_body_100', with: 'Comment Body'
     find(:id, 'add_reply_100').click
@@ -522,7 +522,7 @@ XML
       end
     end
     click_link 'succeeded: 1'
-    page.current_path.must_match %r{project/monitor}
+    page.current_path.must_match %r{project/home:Iggy/monitor}
     page.must_have_link 'TestPack'
     page.wont_have_link 'disabled'
 

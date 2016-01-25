@@ -34,11 +34,11 @@ class Webui::SpiderTest < Webui::IntegrationTest
       next if link.end_with? '/package/rdiff'
       # admin can see even the hidden
       next if link.end_with? '/package/show/HiddenRemoteInstance'
-      next if link.end_with? '/project/show/HiddenRemoteInstance'
-      next if link.end_with? '/project/show/RemoteInstance'
+      next if link.end_with? '/project/HiddenRemoteInstance'
+      next if link.end_with? '/project/RemoteInstance'
       next if link.end_with? '/package/show/BaseDistro3/pack2'
       next if link.end_with? '/package/show/home:Iggy/TestPack'
-      next if link.end_with? '/project/show/home:user6'
+      next if link.end_with? '/project/home:user6'
       next if link =~ %r{/live_build_log/BinaryprotectedProject}
       next if link =~ %r{/live_build_log/SourceprotectedProject}
       next if link =~ %r{/live_build_log/home:Iggy/ToBeDeletedTestPack}
@@ -69,8 +69,8 @@ class Webui::SpiderTest < Webui::IntegrationTest
     return if url.end_with? '/package/view_file/BaseDistro2.0:LinkedUpdateProject/pack2.linked?file=package.spec&rev=1'
     return if url.end_with? '/package/view_file/BaseDistro2.0/pack2.linked?file=package.spec&rev=1'
     return if url.end_with? '/project/edit/RemoteInstance'
-    return if url.end_with? '/project/meta/HiddenRemoteInstance'
-    return if url.end_with? '/project/show/HiddenRemoteInstance'
+    return if url.end_with? '/project/HiddenRemoteInstance/meta'
+    return if url.end_with? '/project/HiddenRemoteInstance'
     return if url.end_with? '/project/edit/HiddenRemoteInstance'
     return if url.end_with? '/user/show/unknown'
     return if url.end_with? '/user/show/deleted'
