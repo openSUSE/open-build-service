@@ -428,7 +428,7 @@ function prepare_apache2 {
   done
 
   perl -p -i -e \
-    's/^(\s*)PassengerRuby "/usr/bin/ruby"/$1\PassengerRuby "/usr/bin/ruby.ruby2.3"/' \
+    's#^(\s*)PassengerRuby "/usr/bin/ruby"#$1\PassengerRuby "/usr/bin/ruby.ruby2.3"#' \
       /etc/apache2/conf.d/mod_passenger.conf
  
 }

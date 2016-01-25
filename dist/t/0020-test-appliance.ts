@@ -6,7 +6,7 @@ export BASH_TAP_ROOT=$(dirname $0)
 
 . $(dirname $0)/bash-tap-bootstrap
 
-plan tests 23
+plan tests 24
 
 # Service enabled and started
 for srv in \
