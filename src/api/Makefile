@@ -60,7 +60,7 @@ build: config
 	# fixed hardlinking problem in SLE 11
 	echo "# This is to prevent fdupes from hardlinking" >> $(DESTDIR)$(OBS_API_PREFIX)/config/database.yml
 	: >  $(DESTDIR)/srv/www/obs/api/log/production.log
-	sed -i -e 's,^api_version.*,api_version = "%version",'  $(DESTDIR)$(OBS_API_PREFIX)/config/initializers/02_apiversion.rb
+	sed -i -e 's,^api_version.*,api_version = "$(OBS_VERSION)",'  $(DESTDIR)$(OBS_API_PREFIX)/config/initializers/02_apiversion.rb
 
 test_unit:
 	[ -d log ] || mkdir log

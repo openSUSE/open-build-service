@@ -169,7 +169,7 @@ Requires:       obs-common
 %endif
 
 #For apache
-Requires:     apache2 apache2-mod_xforward %{our_ruby_prefix}-rubygem-passenger-apache2
+Requires:     apache2 apache2-mod_xforward rubygem-passenger-apache2
 # enforce passenger update to ruby 2.3 stack without requiring it
 Conflicts:      ruby2.1-rubygem-passenger
 Conflicts:      ruby2.2-rubygem-passenger
@@ -308,6 +308,7 @@ export DESTDIR=$RPM_BUILD_ROOT
 #  find -type f | xargs sed -i '1,$s/group www/group apache/g'
 #%endif
 
+export OBS_VERSION="%{version}"
 DESTDIR=%{buildroot} make install
 
 #
@@ -362,6 +363,8 @@ make -C src/api test
 
 make -C dist test
 
+# TODO - clarify if test suite is needed as extra package (M0ses)
+rm -rf $RPM_BUILD_ROOT/srv/www/obs/api/spec
 
 %pre
 getent group obsrun >/dev/null || groupadd -r obsrun
@@ -628,6 +631,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 %ghost /srv/www/obs/api/log/error.log
 %ghost /srv/www/obs/api/log/lastevents.access.log
 %ghost /srv/www/obs/api/log/production.log
+
 
 %files -n obs-common
 %defattr(-,root,root)
