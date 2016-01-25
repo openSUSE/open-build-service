@@ -270,4 +270,9 @@ sub xrpc_resume {
   }
 }
 
+sub xrpc_nextparams {
+  my ($rctx, $handle) = @_;
+  return map {$_->{'_xrpc_data'}->[2]} @{$handle->{'_nextxrpc'} || []};
+}
+
 1;

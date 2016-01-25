@@ -70,6 +70,7 @@ our $usestorableforprojpack = 1;
 our $testprojid;
 
 use Build;	# for read_config
+use Data::Dumper;
 
 use BSUtil;
 use BSSolv;	# for depsort
@@ -1242,11 +1243,8 @@ sub runningfetchprojpacks {
     my $good;
     my $meta;
     my $all;
-    for my $h ($handle, @{$handle->{'_nextxrpc'} || []}) {
-      my $async = $h; 
-      # HACK: 2 is $param
-      $async = $h->{'_xrpc_data'}->[2]->{'async'} if $h->{'_xrpc_data'};
-      next if $async->{'_projid'} ne $projid;
+    for my $async ($handle, map {$_->{'async'}} $gctx->{'rctx'}->xrpc_nextparams($handle)) {
+      next if !$async || ($async->{'_projid'} || '') ne $projid;
       $good = 1;
       if ($async->{'_packids'}) {
         $packids{$_} = 1 for @{$async->{'_packids'}};
