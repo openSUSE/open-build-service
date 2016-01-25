@@ -426,7 +426,16 @@ function prepare_apache2 {
   for flag in $FLAGS;do
     a2enflag $flag >/dev/null
   done
+
+}
+
+function prepare_passenger {
+
+  perl -p -i -e \
+    's#^(\s*)PassengerRuby "/usr/bin/ruby"#$1\PassengerRuby "/usr/bin/ruby.ruby2.3"#' \
+      /etc/apache2/conf.d/mod_passenger.conf
  
+
 }
 ###############################################################################
 #
@@ -516,6 +525,8 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 ]];then
   fix_permissions
 
   prepare_apache2
+
+  prepare_passenger 
 
   check_service apache2
 

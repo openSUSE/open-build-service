@@ -6,7 +6,7 @@ export BASH_TAP_ROOT=$(dirname $0)
 
 . $(dirname $0)/bash-tap-bootstrap
 
-plan tests 23
+plan tests 25
 
 # Service enabled and started
 for srv in \
@@ -47,3 +47,26 @@ is "$?" 0 "Checking if tables in database $DB_NAME"
 
 curl https://localhost &>/dev/null
 is "$?" 0 "Checking https://localhost for SSL Certificate Errors"
+
+STATUS_CODE_200=$(curl -I http://localhost 2>/dev/null|head -1|grep -w 200)
+[[ -n $STATUS_CODE_200 ]]
+is "$?" 0 "Checking https://localhost for http status code 200"
+
+if [ ! -f $HOME/.oscrc ];then
+	
+	cat <<EOF > $HOME/.oscrc
+
+[general]
+apiurl = https://localhost
+[https://localhost]
+user = Admin
+pass = pensuse
+
+EOF
+
+fi
+
+API_VERSION=$(osc api about|grep revision|perl -p -e 's#.*<revision>(.*)</revision>.*#$1#')
+RPM_VERSION=$(rpm -q --qf "%{version}\n" obs-server)
+
+is $API_VERSION $RPM_VERSION "Checking api about version"
