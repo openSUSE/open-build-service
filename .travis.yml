@@ -21,3 +21,9 @@ notifications:
 services:
   - memcached
 sudo: required
+addons:
+  artifacts: true
+  s3_region: "us-east-1"
+  paths:
+    - $(ls ./src/api/log/*.log | tr "\n" ":")
+    - $(ls -R ./src/api/tmp/capybara/ | tr "\n" ":")
