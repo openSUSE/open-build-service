@@ -3152,6 +3152,18 @@ sub getprojpack {
       # build is enabled
       undef($penable);
     }
+    # check for a global lock
+    my $plocked;
+    if (!$cgi->{'ignoredisable'} && $jinfo->{'lock'}) {
+      for (@{$proj->{'repository'} || []}) {
+        if (BSUtil::enabled($_->{'name'}, $jinfo->{'lock'}, 0, $arch)) {
+	  $plocked = 1;
+	} else {
+	  $plocked = undef;	# at least one repo is not locked
+	  last;
+	}
+      }
+    }
 
     # Check package number quota
     my $quota_exceeded;
@@ -3213,6 +3225,11 @@ sub getprojpack {
       }
       if ($exclude_all) {
 	$pinfo->{'error'} = 'excluded';
+	next;
+      }
+
+      if ($plocked && !$pinfo->{'lock'}) {
+	$pinfo->{'error'} = 'locked';
 	next;
       }
 
