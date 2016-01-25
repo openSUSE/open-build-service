@@ -930,7 +930,7 @@ sub do_fetchprojpacks {
   #pass0: delay them if possible
   for my $projid (sort keys %$fetchprojpacks) {
     next if $fetchprojpacks_nodelay->{$projid};
-    next if grep {!defined($_)} @{$fetchprojpacks->{$projid}};
+    next if grep {!defined($_) || $_ eq '/all'} @{$fetchprojpacks->{$projid}};
     # only source updates, delay them
     my $foundit;
     for my $prp (@{$gctx->{'prps'}}) {
@@ -964,19 +964,20 @@ sub do_fetchprojpacks {
   # pass1: fetch all projpacks
   for my $projid (sort keys %$fetchprojpacks) {
     my $fetchedall;
-    if (grep {!defined($_)} @{$fetchprojpacks->{$projid}}) {
+    if (grep {!defined($_) || $_ eq '/all'} @{$fetchprojpacks->{$projid}}) {
       # project change, this can be
       # a change in _meta
       # a change in _config
       # a change in _pattern
       # deletion of a project
+      my %packids = map {$_ => 1} grep {defined($_)} @{$fetchprojpacks->{$projid}};
+      my $all = delete $packids{'/all'};
       if ($asyncmode) {
-        my %packids = map {$_ => 1} grep {defined($_)} @{$fetchprojpacks->{$projid}};
         my $async = { '_changetype' => 'high', '_changelevel' => 2 };
         $async->{'_changetype'} = 'low' if $lowprioproject->{$projid} && !$deepcheck->{$projid};
         $async->{'_lpackids'} = [ sort keys %packids ] if %packids;
         $async->{'_dolink'} = 1 if $deepcheck->{$projid};
-	if ($projpacks->{$projid} && !$deepcheck->{$projid}) {
+	if ($projpacks->{$projid} && !$deepcheck->{$projid} && !$all) {
 	  update_project_meta($gctx, $async, $projid);
 	} else {
 	  get_projpacks($gctx, $async, $projid);
@@ -984,7 +985,7 @@ sub do_fetchprojpacks {
 	delete $fetchprojpacks->{$projid};	# backgrounded
 	next;
       }
-      if ($projpacks->{$projid} && !$deepcheck->{$projid}) {
+      if ($projpacks->{$projid} && !$deepcheck->{$projid} && !$all) {
 	if (!update_project_meta($gctx, 0, $projid)) {
 	  # update meta failed or critical change, do it the hard way...
 	  get_projpacks($gctx, undef, $projid);
@@ -1221,6 +1222,46 @@ sub update_prpcheckuseforbuild {
       $prpcheckuseforbuild->{"$projid/$repo->{'name'}"} = 1;
     }
   }
+}
+
+=head2 runningfetchprojpacks - get running projpack requests
+
+ we return them in do_fetchprojpacks format
+
+=cut
+
+sub runningfetchprojpacks {
+  my ($gctx) = @_;
+  my %running;
+
+  for my $handle ($gctx->{'rctx'}->xrpc_handles()) {
+    my $projid = $handle->{'_iswaiting'};
+    next if $projid =~ /\//;
+    my %packids;
+    my $good;
+    my $meta;
+    my $all;
+    for my $h ($handle, @{$handle->{'_nextxrpc'} || []}) {
+      my $async = $h; 
+      # HACK: 2 is $param
+      $async = $h->{'_xrpc_data'}->[2]->{'async'} if $h->{'_xrpc_data'};
+      next if $async->{'_projid'} ne $projid;
+      $good = 1;
+      if ($async->{'_packids'}) {
+        $packids{$_} = 1 for @{$async->{'_packids'}};
+      } else {
+        $packids{$_} = 1 for @{$async->{'_lpackids'} || []};
+	$all = 1 if $async->{'_resume'} == \&get_projpacks_resume;
+        $meta = 1;
+      }   
+    }   
+    next unless $good;
+    my @packids = sort keys %packids;
+    push @packids, '/all' if $all;
+    push @packids, undef if $meta || !@packids;
+    push @{$running{$projid}}, @packids;
+  }
+  return \%running;
 }
 
 1;
