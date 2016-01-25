@@ -2288,7 +2288,7 @@ sub findlastworkinglink {
   my @cand = grep {s/-MD5SUMS$//} ls($treedir);
   if ($BSConfig::nosharedtrees && $BSConfig::nosharedtrees == 2) {
     push @cand, grep {s/-MD5SUMS$//} ls("$srcrep/$packid");
-    @cand = unify(@cand);
+    @cand = BSUtil::unify(@cand);
   }
   my %cand;
   for my $cand (@cand) {
@@ -2339,31 +2339,6 @@ sub findlastworkinglink {
 ###
 ###  project/package management
 ###
-
-sub identical {
-  my ($d1, $d2, $except) = @_;
-
-  return 0 unless defined($d1) && defined($d2);
-  my $r = ref($d1);
-  return 0 if $r ne ref($d2);
-  if ($r eq '') {
-    return 0 if $d1 ne $d2;
-  } elsif ($r eq 'HASH') {
-    my %k = (%$d1, %$d2);
-    for my $k (keys %k) {
-      next if $except && $except->{$k};
-      return 0 unless identical($d1->{$k}, $d2->{$k});
-    }
-  } elsif ($r eq 'ARRAY') {
-    return 0 unless @$d1 == @$d2;
-    for (my $i = 0; $i < @$d1; $i++) {
-      return 0 unless identical($d1->[$i], $d2->[$i]);
-    }
-  } else {
-    return 0;
-  }
-  return 1;
-}
 
 sub findprojects {
   my ($deleted) = @_;
@@ -2478,7 +2453,7 @@ sub findpackages {
         }
       }
     }
-    @packids = unify(@packids);
+    @packids = BSUtil::unify(@packids);
   }
 
   return sort @packids;
@@ -2829,11 +2804,6 @@ sub findfile {
     return @{$files{$files[0]}} if @files == 1;
   }
   return (undef, undef);
-}
-
-sub unify {
-  my %h = map {$_ => 1} @_;
-  return grep(delete($h{$_}), @_);
 }
 
 #########################################################################
@@ -3815,7 +3785,7 @@ sub putproject {
   }
 
   my %except = map {$_ => 1} qw{title description person group url attributes};
-  if (!identical($oldproj, $proj, \%except)) {
+  if (!BSUtil::identical($oldproj, $proj, \%except)) {
     if ($cgi->{'lowprio'}) {
       notify_repservers('lowprioproject', $projid);
     } else {
@@ -4023,7 +3993,7 @@ sub putpackage {
 
   addrev_meta($cgi, $projid, $packid, "$uploaddir/$$.2", "$projectsdir/$projid.pkg/$packid.xml", '_meta');
   my %except = map {$_ => 1} qw{title description devel person group url};
-  if (!identical($oldpack, $pack, \%except)) {
+  if (!BSUtil::identical($oldpack, $pack, \%except)) {
     notify_repservers('package', $projid, $packid);
   }
   $pack = readpack($projid, $packid);
@@ -7430,7 +7400,7 @@ sub published {
     die("no such repository\n") unless $repo && $repo->{'name'} eq $repoid;
     $projpack->{'project'} = [ $proj ];
     my @nprojids = grep {$_ ne $projid} map {$_->{'project'}} @{$repo->{'path'} || []};
-    @nprojids = unify(@nprojids);
+    @nprojids = BSUtil::unify(@nprojids);
     for my $nprojid (@nprojids) {
       my $nproj = (getproject({}, $nprojid))[0];
       push @{$projpack->{'project'}}, {

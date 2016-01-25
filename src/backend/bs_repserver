@@ -91,11 +91,6 @@ my $ajaxsocket = "$rundir/bs_repserver.ajax";
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
-sub unify {
-  my %h = map {$_ => 1} @_;
-  return grep(delete($h{$_}), @_); 
-}
-
 # XXX read jobs instead?
 
 sub jobname {
@@ -3220,7 +3215,7 @@ sub getbuildinfo {
   if ($buildtype eq 'kiwi' && $kiwitype eq 'product') {
     # things are very different here. first we have the packages needed for kiwi
     # from the full tree
-    @bdeps = unify(@pdeps, @vmdeps, @sysdeps);
+    @bdeps = BSUtil::unify(@pdeps, @vmdeps, @sysdeps);
     for (splice(@bdeps)) {
       my $b = {'name' => $_};
       my $p = $dep2pkg{$_};
@@ -3298,7 +3293,7 @@ sub getbuildinfo {
     }
   }
 
-  @bdeps = unify(@pdeps, @vmdeps, @edeps, @bdeps, @sysdeps);
+  @bdeps = BSUtil::unify(@pdeps, @vmdeps, @edeps, @bdeps, @sysdeps);
   for (@bdeps) {
     my $b = {'name' => $_};
     my $p = $dep2pkg{$_};
@@ -3459,7 +3454,7 @@ sub getbuilddepinfo {
     }
     my $deps = $pkgdeps->{$packid} || [];
     $deps = [ map {@{$subpack2pack{$_} || []}} @$deps ] if $view eq 'pkgnames';
-    $deps = [ sort(unify(@$deps)) ] if $view eq 'pkgnames' || $view eq 'revpkgnames';
+    $deps = [ sort(BSUtil::unify(@$deps)) ] if $view eq 'pkgnames' || $view eq 'revpkgnames';
     push @res, {'name' => $packid, 
 	'source' => $n,
 	'pkgdep' => $deps,
@@ -3766,7 +3761,7 @@ sub publisheddir {
       for (keys %{$BSConfig::publishredirect}) {
         push @res, (split('/', $_, 2))[0];
       }
-      @res = unify(@res);
+      @res = BSUtil::unify(@res);
     }
   } elsif (!defined($repoid)) {
     my $prp_ext = $projid;
@@ -3777,7 +3772,7 @@ sub publisheddir {
         my @p = split('/', $_, 2);
 	push @res, $p[1] if $p[0] eq $projid;
       }
-      @res = unify(@res);
+      @res = BSUtil::unify(@res);
     }
   } elsif (!defined($arch)) {
     my $prp_ext = "$projid/$repoid";
