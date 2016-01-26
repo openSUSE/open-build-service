@@ -56,15 +56,10 @@ class SourceController < ApplicationController
 
   def projectlist
     # list all projects (visible to user)
-    output = Rails.cache.fetch(['projectlist', Project.maximum(:updated_at), User.current.forbidden_project_ids]) do
-      dir = Project.pluck(:name).sort
-      output = String.new
-      output << "<?xml version='1.0' encoding='UTF-8'?>\n"
-      output << "<directory>\n"
-      output << dir.map { |item| "  <entry name=\"#{::Builder::XChar.encode(item)}\"/>\n" }.join
-      output << "</directory>\n"
+    @projects = Rails.cache.fetch(['projectlist', Project.maximum(:updated_at), User.current.forbidden_project_ids]) do
+      @projects = Project.pluck(:name).sort
     end
-    render xml: output
+    render 'source/projects'
   end
 
   def set_issues_default

@@ -629,6 +629,7 @@ OBSApi::Application.routes.draw do
       get 'public/source/:project/:package/:filename' => :source_file, constraints: cons
       get 'public/distributions' => :distributions
       get 'public/binary_packages/:project/:package' => :binary_packages, constraints: cons
+      get 'public/source' => :projects
     end
 
     get 'public/configuration' => 'configurations#show'

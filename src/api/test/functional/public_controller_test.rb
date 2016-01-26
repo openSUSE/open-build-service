@@ -26,8 +26,8 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
     get "/public/source/home:Iggy/TestPack/_meta"
     assert_response :success
 
-    get "/public/source" # no such action
-    assert_response 404
+    get "/public/source"
+    assert_response :success
 
     get "/public/source/DoesNotExist/_meta"
     assert_response 404

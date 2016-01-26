@@ -95,6 +95,14 @@ class PublicController < ApplicationController
     pass_to_backend path
   end
 
+  # GET /public/source
+  def projects
+    @projects = Rails.cache.fetch(['projectlist', Project.maximum(:updated_at), User.current.forbidden_project_ids]) do
+      @projects = Project.pluck(:name).sort
+    end
+    render 'source/projects'
+  end
+
   # GET /public/source/:project/_config
   # GET /public/source/:project/_pubkey
   def project_file
