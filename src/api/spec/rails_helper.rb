@@ -40,5 +40,5 @@ require 'support/factory_girl'
 # support Suse::backend
 require 'support/backend'
 
-# support controllers authentification
-require 'support/controllers/authentification'
+# helper methods for authentification in controllers tests
+require 'support/controllers/controllers_authentification'
