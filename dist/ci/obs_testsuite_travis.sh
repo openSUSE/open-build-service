@@ -12,7 +12,7 @@ if [ -z $1 ]; then
   TEST_SUITE="all"
 else
   TEST_SUITE="$1"
-fi 
+fi
 
 
 if test -z "$SUBTEST"; then
@@ -30,12 +30,18 @@ if test -z "$SUBTEST"; then
       bundle exec rake test:spider
       ;;
     rubocop)
-      bundle exec rake rubocop 
+      bundle exec rake rubocop
+      ;;
+    rspec)
+      bundle exec rspec
       ;;
     *)
       bundle exec rake rubocop
       bundle exec rake test:api
       bundle exec rake test:webui
+      bundle exec rspec
+      unset DO_COVERAGE
+      bundle exec rake test:spider
       ;;
   esac
 fi
