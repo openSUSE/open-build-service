@@ -14,11 +14,13 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     fe.vm.box = 'M0ses/openSUSE-Leap-42.1-minimal'
     # Provision the box with a simple shell script
     fe.vm.provision :shell, inline: '/vagrant/contrib/bootstrap_frontend.sh'
-    
+
     # Execute commands in the frontend directory
     fe.exec.commands '*', directory: '/vagrant/src/api'
     fe.exec.commands '*', env: {'DATABASE_URL' => 'mysql2://root:opensuse@localhost/api_development'}
     fe.vm.network :forwarded_port, guest: 3000, host: 3000
+
+    fe.vm.synced_folder "src/api/tmp/capybara/", "/vagrant/src/api/tmp/capybara", create: true
   end
 
 
