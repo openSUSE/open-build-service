@@ -20,7 +20,7 @@ RSpec.configure do |config|
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
 
   # run each example within a transaction
-  config.use_transactional_fixtures = true
+  config.use_transactional_fixtures = false
 
   # set spec type based on their file location
   config.infer_spec_type_from_file_location!
