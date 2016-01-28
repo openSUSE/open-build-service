@@ -171,7 +171,10 @@ sub tail_logfile {
 
 sub cleanup_job {
   if ($vm_tmpfs_mode) {
-    qsystem("umount", "-l", $buildroot) && die("umount tmpfs failed: $!\n");
+    # no need to umount if $buildroot is already umounted
+    if (not qsystem('mountpoint', '-q', $buildroot)) {
+      qsystem("umount", "-l", $buildroot) && die("umount tmpfs failed: $!\n");
+    }
   }
 }
 
