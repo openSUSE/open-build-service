@@ -250,9 +250,9 @@ sub handle_start($)
   #print Dumper(\%attrs) . "\n";
   my $package = $attrs{"package"};
   my $client = $attrs{"workerid"};
-  my $readytime = $attrs{"readytime"};
-  my $starttime = $attrs{"starttime"};
-  my $endtime = $attrs{"endtime"};
+  my $readytime = $attrs{"readytime"} || 0;
+  my $starttime = $attrs{"starttime"} || 0;
+  my $endtime = $attrs{"endtime"} || 0;
 
   return unless $package;
   return unless exists $deps{$package};
