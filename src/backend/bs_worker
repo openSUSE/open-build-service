@@ -1026,14 +1026,14 @@ sub manage_cache {
       mkdir_p("$cachedir/".substr($cacheid, 0, 2));
       unlink("$cachefile.$$");
       next unless link_or_copy($path, "$cachefile.$$");
-      rename("$cachefile.$$", $cachefile) || die("rename $cachefile.$$ $cachefile: $!\n");
+      rename("$cachefile.$$", $cachefile) || die("500 rename $cachefile.$$ $cachefile: $!\n");
       unlink("$cachefile.$$");
       my $mpath = "$path.meta";
       $mpath = "$1.meta" if $path =~ /^(.*)\.(?:$binsufsre)$/;
       if (-s $mpath) {
 	unlink("$cachefile.meta.$$");
 	if (link_or_copy($mpath, "$cachefile.meta.$$")) {
-	  rename("$cachefile.meta.$$", "$cachefile.meta") || die("rename $cachefile.meta.$$ $cachefile.meta: $!\n");
+	  rename("$cachefile.meta.$$", "$cachefile.meta") || die("500 rename $cachefile.meta.$$ $cachefile.meta: $!\n");
 	  unlink("$cachefile.meta.$$");
 	} else {
 	  unlink("$cachefile.meta");
@@ -1065,7 +1065,7 @@ sub manage_cache {
   }
   @$content = grep {defined $_} @$content;
   Storable::nstore($content, "$cachedir/content.new");
-  rename("$cachedir/content.new", "$cachedir/content") || die("rename $cachedir/content.new $cachedir/content: $!\n");
+  rename("$cachedir/content.new", "$cachedir/content") || die("500 rename $cachedir/content.new $cachedir/content: $!\n");
   close F;
 }
 
@@ -3273,6 +3273,7 @@ if ($@) {
   $ex = 1;
   # mark as bad build host if Build.pm could not be imported
   $ex = 3 unless defined &Build::queryhdrmd5;
+  $ex = 3 if ( $@ =~ /^500 / );
 }
 if ($buildinfo->{'followupfile'}) {
   my $buildsrcdir = "$buildroot/.build.packages/SOURCES";
