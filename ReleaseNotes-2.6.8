@@ -1,0 +1,29 @@
+#
+# openSUSE Build Service 2.6.8
+#
+
+Updaters from any OBS 2.6 release can just ugrade the packages
+and restart all services. Updaters from former releases should
+read the README.UPDATERS file.
+
+Feature backports:
+==================
+
+* none
+
+Changes:
+========
+
+* none
+
+Bugfixes:
+=========
+
+This release fixes several potential CVEs reported in Ruby on Rails
+http://weblog.rubyonrails.org/2016/1/25/Rails-5-0-0-beta1-1-4-2-5-1-4-1-14-1-3-2-22-1-and-rails-html-sanitizer-1-0-3-have-been-released/
+* [webui] Fixes CVE-2015-7576: Timing attack vulnerability in basic authentication in Action Controller.
+* [webui] Fixes CVE-2016-0751: Possible Object Leak and Denial of Service attack in Action Pack
+* [webui] Fixes CVE-2015-7577: Nested attributes rejection proc bypass in Active Record.
+* [webui] Fixes CVE-2016-0752: Possible Information Leak Vulnerability in Action View
+* [webui] Fixes CVE-2016-0753: Possible Input Validation Circumvention in Active Model
+* [webui] Fixes CVE-2015-7581: Object leak vulnerability for wildcard controller routes in Action Pack
