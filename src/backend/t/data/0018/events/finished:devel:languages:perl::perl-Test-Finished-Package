@@ -1,0 +1,5 @@
+<event type="built">
+	<project>devel:languages:perl</project>
+	<package>perl-Test-Finished-Package</package>
+	<job>blah-blah-nix</job>
+</event>
