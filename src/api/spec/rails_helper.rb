@@ -19,9 +19,6 @@ RSpec.configure do |config|
   # load ActiveRecord fixtures
   config.fixture_path = "#{::Rails.root}/spec/fixtures"
 
-  # run each example within a transaction
-  config.use_transactional_fixtures = false
-
   # set spec type based on their file location
   config.infer_spec_type_from_file_location!
 
@@ -36,6 +33,9 @@ require 'support/coverage'
 
 # support fixtures
 require 'support/factory_girl'
+
+# support database cleanup
+require 'support/database_cleaner'
 
 # support Suse::backend
 require 'support/backend'

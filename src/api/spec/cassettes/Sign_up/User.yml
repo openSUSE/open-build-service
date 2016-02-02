@@ -161,4 +161,78 @@ http_interactions:
         </status>
     http_version: 
   recorded_at: Wed, 20 Jan 2016 11:28:34 GMT
-recorded_with: VCR 3.0.0
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:beau_bins/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home beau_bins' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '156'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:beau_bins' does not exist</summary>
+          <details>404 project 'home:beau_bins' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Wed, 03 Feb 2016 13:01:54 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:london_kautzer/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home london_kautzer' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '166'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:london_kautzer' does not exist</summary>
+          <details>404 project 'home:london_kautzer' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Wed, 03 Feb 2016 13:02:58 GMT
+recorded_with: VCR 3.0.1

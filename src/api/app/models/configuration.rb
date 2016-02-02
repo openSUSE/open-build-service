@@ -50,6 +50,9 @@ class Configuration < ActiveRecord::Base
     # Simple singleton implementation: Try to respond with the
     # the data from the first instance
     def method_missing(method_name, *args, &block)
+      unless first
+       Configuration.create(name: 'private', title: 'Open Build Service', description: 'Private OBS Instance')
+      end
       if first.respond_to?(method_name)
         first.send(method_name, *args, &block)
       else

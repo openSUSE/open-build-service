@@ -395,9 +395,12 @@ class User < ActiveRecord::Base
     end
 
     def find_nobody!
-      Thread.current[:nobody_user] ||= find_by_login(nobody_login)
-      raise NotFoundError.new("Couldn't find #{nobody_login} user") if Thread.current[:nobody_user].nil?
-      return Thread.current[:nobody_user]
+      Thread.current[:nobody_user] ||= User.create_with(email: "nobody@localhost",
+                                                        realname: "Anonymous User",
+                                                        state: "3",
+                                                        password: "123456",
+                                                        password_confirmation: "123456").find_or_create_by(login: nobody_login)
+      Thread.current[:nobody_user]
     end
 
     def find_by_login!(login)
