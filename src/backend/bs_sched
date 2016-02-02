@@ -358,9 +358,7 @@ print "starting build service scheduler\n";
 # get lock
 mkdir_p($_rundir);
 if (!$testprojid) {
-  open(RUNLOCK, '>>', "$_rundir/bs_sched.$_myarch.lock") || die("$_rundir/bs_sched.$_myarch.lock: $!\n");
-  flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("scheduler is already running for $_myarch!\n");
-  utime undef, undef, "$_rundir/bs_sched.$_myarch.lock";
+  BSUtil::lock_daemon_file($_rundir, "sched.$_myarch");
 }
 
 for my $d ("$_eventdir/$_myarch", "$_jobsdir/$_myarch", $_infodir) {

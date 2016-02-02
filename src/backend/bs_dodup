@@ -478,10 +478,7 @@ if (!@ARGV || (@ARGV == 1 && ($ARGV[0] eq '--restart' || $ARGV[0] eq '--exit' ||
   $SIG{'PIPE'} = 'IGNORE';
   BSUtil::restartexit($ARGV[0], 'dodup', "$rundir/bs_dodup");
   printlog("starting build service DoD updater");
-  mkdir_p($rundir);
-  open(RUNLOCK, '>>', "$rundir/bs_dodup.lock") || die("$rundir/bs_dodup.lock: $!\n");
-  flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("dodup is already running!\n");
-  utime undef, undef, "$rundir/bs_dodup.lock";
+  BSUtil::lock_daemon_file($rundir, "dodup");
   daemon();
 }
 
