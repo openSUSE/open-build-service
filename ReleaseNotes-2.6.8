@@ -19,14 +19,8 @@ Changes:
 Bugfixes:
 =========
 
-This release fixes several potential CVEs reported in Ruby on Rails
-http://weblog.rubyonrails.org/2016/1/25/Rails-5-0-0-beta1-1-4-2-5-1-4-1-14-1-3-2-22-1-and-rails-html-sanitizer-1-0-3-have-been-released/
-* [webui] Fixes CVE-2015-7576: Timing attack vulnerability in basic authentication in Action Controller.
-* [webui] Fixes CVE-2016-0751: Possible Object Leak and Denial of Service attack in Action Pack
-* [webui] Fixes CVE-2015-7577: Nested attributes rejection proc bypass in Active Record.
-* [webui] Fixes CVE-2016-0752: Possible Information Leak Vulnerability in Action View
-* [webui] Fixes CVE-2016-0753: Possible Input Validation Circumvention in Active Model
-* [webui] Fixes CVE-2015-7581: Object leak vulnerability for wildcard controller routes in Action Pack
+* [webui] Update rails to version 4.1.14.1 to fix several security issues (CVE-2015-7576, CVE-2016-0751, CVE-2015-7577, CVE-2016-0752, CVE-2016-0753, CVE-2015-7581)
+* [webui] Fix redirect after login for iChain and proxy mode
 
 * [backend] fix local building inside a project on a remote OBS instance
 * [backend] fix lost events on scheduler restart
