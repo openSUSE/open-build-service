@@ -43,11 +43,11 @@ http_interactions:
               <queue high="0" med="0" low="3" next="0" />
             </daemon>
             <daemon type="scheduler" arch="x86_64" state="dead">
-              <queue high="0" med="0" low="9" next="0" />
+              <queue high="0" med="0" low="6" next="0" />
             </daemon>
             <daemon type="publisher" state="dead" />
           </partition>
         </workerstatus>
     http_version: 
-  recorded_at: Wed, 20 Jan 2016 11:02:47 GMT
-recorded_with: VCR 3.0.0
+  recorded_at: Thu, 04 Feb 2016 17:13:32 GMT
+recorded_with: VCR 3.0.1
