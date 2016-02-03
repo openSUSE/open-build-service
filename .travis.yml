@@ -4,6 +4,7 @@ rvm: 2.3.0
 gemfile: src/api/Gemfile
 before_install: dist/ci/obs_testsuite_travis_install.sh
 before_script: dist/ci/obs_testsuite_travis_before.sh
+after_failure: dist/ci/obs_testsuite_travis_failure.sh
 script: "dist/ci/obs_testsuite_travis.sh $TEST_SUITE"
 env:
   - TEST_SUITE=rubocop
@@ -21,6 +22,3 @@ notifications:
 services:
   - memcached
 sudo: required
-addons:
-  artifacts: true
-  s3_region: "us-east-1"
