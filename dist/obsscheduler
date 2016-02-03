@@ -92,7 +92,7 @@ case "$1" in
 		$0 start
 		rc_status
 	;;
-	try-restart)
+	try-restart|reload)
 		$0 status
 		if test $? = 0; then
 			$0 restart
@@ -101,8 +101,6 @@ case "$1" in
 		fi
 		# Remember status and be quiet
 		rc_status
-	;;
-	reload)
 	;;
 	status)
 		echo -n "Checking for obsscheduler: "

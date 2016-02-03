@@ -62,21 +62,14 @@ case "$1" in
 		"$obsdir"/bs_repserver --restart
 		rc_status
 	;;
-	try-restart)
+	try-restart|reload)
 		$0 status
 		if test $? = 0; then
-			$0 restart
+			"$obsdir"/bs_repserver --restart
 		else
 			rc_reset        # Not running is not a failure.
 		fi
 		# Remember status and be quiet
-		rc_status
-	;;
-	reload)
-		$0 status
-                if test $? = 0; then
-		        "$obsdir"/bs_repserver --restart
-		fi
 		rc_status
 	;;
 	status)
