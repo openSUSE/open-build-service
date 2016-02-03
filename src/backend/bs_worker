@@ -2916,7 +2916,9 @@ my $buildcode = codemd5('build');
 $| = 1;
 print "starting worker $workercode build $buildcode\n";
 
-BSUtil::lock_daemon_file($statedir, "worker");
+open(RUNLOCK, '>>', "$statedir/lock") || die("$statedir/lock: $!");
+flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("worker is already running on $statedir!\n");
+utime undef, undef, "$statedir/lock";
 
 # we always start idle
 lockstate();

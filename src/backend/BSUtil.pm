@@ -726,26 +726,4 @@ sub identical {
   return 1;
 }
 
-sub lock_daemon_file {
-  # workaround when systemd starts the new process while the old is still running.
-  my ($dir, $name) = @_;
-  mkdir_p($dir);
-  my $count = 0;
-  while ($count < 5) {
-    $count++;
-    open(RUNLOCK, '>>', "$dir/bs_$name.lock") || die("$dir/bs_$name.lock: $!\n");
-    if (flock(RUNLOCK, LOCK_EX | LOCK_NB)) {
-      # success
-      utime undef, undef, "$dir/bs_$name.lock";
-      return;
-    } else {
-      # failed, sleep and retry
-      print "lock of $name failed, retrying...\n";
-      close(RUNLOCK);
-      sleep(1);
-    }
-  }
-  die("$name is already running!\n");
-}
-
 1;

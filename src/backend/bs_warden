@@ -56,7 +56,10 @@ BSUtil::restartexit($ARGV[0], 'warden', "$rundir/bs_warden");
 print BSUtil::isotime().": starting build service worker warden\n";
 
 # get lock
-BSUtil::lock_daemon_file($rundir, "warden");
+mkdir_p($rundir);
+open(RUNLOCK, '>>', "$rundir/bs_warden.lock") || die("$rundir/bs_warden.lock: $!\n");
+flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("worker warden is already running!\n");
+utime undef, undef, "$rundir/bs_warden.lock";
 
 my %building;
 my $nextorphan = 0;

@@ -643,7 +643,10 @@ BSUtil::restartexit($ARGV[0], 'signer', "$rundir/bs_signer", "$myeventdir/.ping"
 print "starting build service signer\n";
 
 # get lock
-BSUtil::lock_daemon_file($rundir, "signer");
+mkdir_p($rundir);
+open(RUNLOCK, '>>', "$rundir/bs_signer.lock") || die("$rundir/bs_signer.lock: $!\n");
+flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("signer is already running!\n");
+utime undef, undef, "$rundir/bs_signer.lock";
 
 die("sign program is not configured!\n") unless $BSConfig::sign;
 
