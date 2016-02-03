@@ -59,3 +59,4 @@ CONFIG['frontend_ldap_mode'] = :off
 
 # some defaults enforced
 CONFIG['use_static'] = nil
+CONFIG['apidocs_location'] = File.expand_path("../../docs/api/html/")
