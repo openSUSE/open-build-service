@@ -84,7 +84,7 @@ module Event
 
   class ServiceSuccess < Package
     self.raw_type = 'SRCSRV_SERVICE_SUCCESS'
-    self.description = 'Package souce service has succeeded'
+    self.description = 'Package source service has succeeded'
     payload_keys :comment, :package, :project, :rev, :user, :requestid
     receiver_roles :maintainer, :bugowner
     create_jobs :update_backend_infos
@@ -102,7 +102,7 @@ module Event
 
   class ServiceFail < Package
     self.raw_type = 'SRCSRV_SERVICE_FAIL'
-    self.description = 'Package souce service has failed'
+    self.description = 'Package source service has failed'
     payload_keys :comment, :error, :package, :project, :rev, :user, :requestid
     receiver_roles :maintainer, :bugowner
     create_jobs :update_backend_infos
