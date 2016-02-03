@@ -1461,6 +1461,10 @@ sub getbinaries_kiwiproduct {
 	  $downloadsizek = 0;
 	}
 	eval {
+	  my @args;
+	  push @args, "view=cpio";
+	  push @args, "noajax=1" if $server ne $buildinfo->{'srcserver'};
+	  push @args, map {"binary=$_->{'name'}"} @bad;
 	  BSRPC::rpc({
 	    'uri' => "$server/build/$projid/$repoid/$arch/$packid",
 	    'directory' => $ddir,
@@ -1478,7 +1482,7 @@ sub getbinaries_kiwiproduct {
 	      return "$rarch/$name.new.rpm";
 	    },
 	    'receiver' => \&BSHTTP::cpio_receiver,
-	  }, undef, 'view=cpio', map {"binary=$_->{'name'}"} @bad);
+	  }, undef, @args);
 	};
 	if ($@) {
 	  # delete everything as a file might be incomplete
@@ -1547,6 +1551,9 @@ sub getbinaries_kiwiproduct {
 	  };
 	  warn($@) if $@;
 	}
+	my @args;
+	push @args, "view=cpio";
+	push @args, "noajax=1" if $server ne $buildinfo->{'srcserver'};
 	$res = BSRPC::rpc({
 	  'uri' => "$server/build/$projid/$repoid/$arch/$packid",
 	  'directory' => $ddir,
@@ -1567,7 +1574,7 @@ sub getbinaries_kiwiproduct {
 	    return "$rarch/$name";
 	  },
 	  'receiver' => \&BSHTTP::cpio_receiver,
-	}, undef, 'view=cpio');
+	}, undef, @args);
 	if ($cachedir) {
 	  for my $f (@{$res || []}) {
 	    my @s = stat("$ddir/$f->{'name'}");
