@@ -2967,6 +2967,7 @@ while (!($req = BSServer::server($conf))) {
   if ($state->{'state'} eq 'exit') {
     $state = lockstate();
     if ($state->{'state'} eq 'exit') {
+      close RUNLOCK;
       $state = {'state' => 'idle'};
       commitstate($state);
       send_state('exit', $port, $hostarch);

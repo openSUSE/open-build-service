@@ -2286,11 +2286,13 @@ while(1) {
 
   # check for restart/exit
   if (-e "$rundir/bs_publish.exit") {
+    close(RUNLOCK);
     unlink("$rundir/bs_publish.exit");
     print "exiting...\n";
     exit(0);
   }
   if (-e "$rundir/bs_publish.restart") {
+    close(RUNLOCK);
     unlink("$rundir/bs_publish.restart");
     print "restarting...\n";
     exec($0);

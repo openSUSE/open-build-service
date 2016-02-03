@@ -430,11 +430,13 @@ sub printlog {
 
 sub check_exitrestart {
   if (-e "$rundir/bs_dodup.exit") {
+    close(RUNLOCK);
     unlink("$rundir/bs_dodup.exit");
     printlog("exiting...");
     exit(0);
   }
   if (-e "$rundir/bs_dodup.restart") {
+    close(RUNLOCK);
     unlink("$rundir/bs_dodup.restart");
     printlog("restarting...");
     exec($0);

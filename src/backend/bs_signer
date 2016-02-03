@@ -733,6 +733,7 @@ while (1) {
 	delete $chld{$pid};
       }   
     }
+    close(RUNLOCK);
     unlink("$rundir/bs_signer.exit");
     print "exiting...\n";
     exit(0);
@@ -743,6 +744,7 @@ while (1) {
 	delete $chld{$pid};
       }   
     }
+    close(RUNLOCK);
     unlink("$rundir/bs_signer.restart");
     print "restarting...\n";
     exec($0);

@@ -786,6 +786,7 @@ sub filechecks {
       'newestsrcchange' => \%newestsrcchange,
     };
     BSUtil::store("$rundir/bs_dispatch.state.new", "$rundir/bs_dispatch.state", $state);
+    close(RUNLOCK);
     unlink("$rundir/bs_dispatch.exit");
     printlog("exiting...");
     exit(0);
@@ -797,6 +798,7 @@ sub filechecks {
       'newestsrcchange' => \%newestsrcchange,
     };
     BSUtil::store("$rundir/bs_dispatch.state.new", "$rundir/bs_dispatch.state", $state);
+    close(RUNLOCK);
     unlink("$rundir/bs_dispatch.restart");
     printlog("restarting...");
     exec($0);
