@@ -827,10 +827,7 @@ BSUtil::restartexit($ARGV[0], 'dispatcher', "$rundir/bs_dispatch");
 printlog("starting build service dispatcher");
 
 # get lock
-mkdir_p($rundir);
-open(RUNLOCK, '>>', "$rundir/bs_dispatch.lock") || die("$rundir/bs_dispatch.lock: $!\n");
-flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("dispatcher is already running!\n");
-utime undef, undef, "$rundir/bs_dispatch.lock";
+BSUtil::lock_daemon_file($rundir, "dispatch");
 
 my $dispatchprios;
 my $dispatchprios_project;
