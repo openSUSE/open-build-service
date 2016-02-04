@@ -34,18 +34,18 @@
 %define our_ruby_prefix ruby2.3
 
 %if 0%{?suse_version} >= 1315
-%define reload_on_update() %{expand:
+%define reload_on_update() %{?nil:
 	test -n "$FIRST_ARG" || FIRST_ARG=$1
 	if test "$FIRST_ARG" -ge 1 ; then
 	   test -f /etc/sysconfig/services && . /etc/sysconfig/services
 	   if test "$YAST_IS_RUNNING" != "instsys" -a "$DISABLE_RESTART_ON_UPDATE" != yes ; then
 	      test -x /bin/systemctl && /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-	      for service in %%{?*} ; do
+	      for service in %{?*} ; do
 		 test -x /bin/systemctl && /bin/systemctl reload $service >/dev/null 2>&1 || :
 	      done
 	   fi
 	fi
-	%%nil
+	%nil
 }
 %endif
 
