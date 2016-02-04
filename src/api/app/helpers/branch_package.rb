@@ -1,8 +1,7 @@
 class BranchPackage
-  class InvalidFilelistError < APIException;
-  end
-  class DoubleBranchPackageError < APIException;
-  end
+  class InvalidArgument < APIException; end
+  class InvalidFilelistError < APIException; end
+  class DoubleBranchPackageError < APIException; end
 
   attr_accessor :params
 
@@ -21,6 +20,10 @@ class BranchPackage
     @noaccess = params[:noaccess]
     # extend repo and package names ?
     @extend_names = params[:extend_package_names]
+    @rebuild_policy = params[:add_repositories_rebuild]
+    @block_policy = params[:add_repositories_block]
+    raise InvalidArgument.new unless [nil, "all", "local", "never"].include? @block_policy
+    raise InvalidArgument.new unless [nil, "transitive", "direct", "local"].include? @rebuild_policy
     # copy from devel package instead branching ?
     @copy_from_devel = false
     @copy_from_devel = true if params[:newinstance]
@@ -181,7 +184,11 @@ class BranchPackage
       if @add_repositories
         # rubocop:disable Style/EmptyElse
         if p[:link_target_project].is_a? Project
-          tprj.branch_to_repositories_from(p[:link_target_project], tpkg, @extend_names)
+          opts = {}
+          opts[:extend_names] = true if @extend_names
+          opts[:rebuild] = @rebuild_policy if @rebuild_policy
+          opts[:block]   = @block_policy   if @block_policy
+          tprj.branch_to_repositories_from(p[:link_target_project], tpkg, opts)
         else
           # FIXME for remote project instances
           # Please also remove the rubocop ignore comment when you implement the FIXME

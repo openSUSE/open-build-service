@@ -1163,11 +1163,14 @@ class Project < ActiveRecord::Base
     return products
   end
 
-  def add_repository_with_targets(repoName, source_repo, add_target_repos = [])
+  def add_repository_with_targets(repoName, source_repo, add_target_repos = [], opts = {})
     return if self.repositories.where(name: repoName).exists?
     trepo = self.repositories.create :name => repoName
 
     trepo.clone_repository_from(source_repo)
+    trepo.rebuild = opts[:rebuild] if opts[:rebuild]
+    trepo.block   = opts[:block]   if opts[:block]
+    trepo.save
 
     trigger = nil # no trigger is set by default
     trigger = 'maintenance' if self.is_maintenance_incident?
@@ -1179,14 +1182,14 @@ class Project < ActiveRecord::Base
     end
   end
 
-  def branch_to_repositories_from(project, pkg_to_enable, extend_names = nil)
+  def branch_to_repositories_from(project, pkg_to_enable, opts = {})
     # shall we use the repositories from a different project?
     project = project.update_instance('OBS', 'BranchRepositoriesFromProject')
     skip_repos=[]
     a = project.find_attribute('OBS', 'BranchSkipRepositories') and skip_repos=a.values.map{|v| v.value}
     project.repositories.each do |repo|
       next if skip_repos.include? repo.name
-      repoName = extend_names ? repo.extended_name : repo.name
+      repoName = opts[:extend_names] ? repo.extended_name : repo.name
       next if repo.is_local_channel?
       pkg_to_enable.enable_for_repository(repoName) if pkg_to_enable
       next if self.repositories.find_by_name(repoName)
@@ -1208,7 +1211,7 @@ class Project < ActiveRecord::Base
         target_repos = Repository.find_by_project_and_path(update_project, repo)
       end
 
-      self.add_repository_with_targets(repoName, repo, target_repos)
+      self.add_repository_with_targets(repoName, repo, target_repos, opts)
     end
 
     self.branch_copy_flags(project)
