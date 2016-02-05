@@ -85,9 +85,19 @@ namespace :db do
     end
   end
 
- desc 'Create the database, load the structure, and initialize with the seed data'
- redefine_task :setup => :environment do
+  desc 'Create the database, load the structure, and initialize with the seed data'
+  redefine_task :setup => :environment do
     Rake::Task["db:structure:load"].invoke
     Rake::Task["db:seed"].invoke
- end
+  end
+
+  namespace :fixtures do
+    desc 'Recreate the database and initialize with the test fixtures'
+    task :obs => :environment do
+      Rake::Task["db:drop"].invoke
+      Rake::Task["db:create"].invoke
+      Rake::Task["db:setup"].invoke
+      ruby "-Ilib:test test/unit/watched_project_test.rb"
+    end
+  end
 end
