@@ -21,10 +21,10 @@ curl -X PUT -T $1 \
 
 if [ -f log/test.log ]; then
   upload_to_s3 log/test.log
+  echo "Posted: https://obs-travis-articafts.s3.amazonaws.com/$TRAVIS_BUILD_NUMBER/$TRAVIS_JOB_NUMBER/log/test.log"
 fi
 
 for file in tmp/capybara/*; do
   upload_to_s3 $file
+  echo "Posted: https://obs-travis-articafts.s3.amazonaws.com/$TRAVIS_BUILD_NUMBER/$TRAVIS_JOB_NUMBER/tmp/capybara/$file"
 done
-
-echo "You can find the logs etc. here: https://obs-travis-articafts.s3.amazonaws.com/$TRAVIS_BUILD_NUMBER/$TRAVIS_JOB_NUMBER/"
