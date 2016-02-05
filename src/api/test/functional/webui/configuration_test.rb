@@ -4,7 +4,7 @@ require_relative '../../test_helper'
 class Webui::ConfigurationTest < Webui::IntegrationTest
   uses_transaction :test_change_config
 
-  def test_configuration_update
+  def test_configuration_update # spec/controllers/webui/configuration_controller_spec.rb
     visit configuration_path
     flash_message_type.must_equal :alert
     flash_message.must_equal 'Requires admin privileges'
