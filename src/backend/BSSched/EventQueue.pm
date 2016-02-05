@@ -35,7 +35,19 @@ use BSSched::EventHandler;
 
  scheduler event queue handling
 
-=head1 FUNCTIONS
+=head1 SYNOPSIS
+
+  my $gctx = {
+    rctx => BSSched::RPC->new();
+  };
+
+  my $ev_queue     = BSSched::EventQueue->new($gctx,@opts);
+
+  my $total_events = $ev_queue->add_events(@new_events);
+
+  my $gotevents    = $ev_queue->process_events();
+
+=head1 METHODS
 
 =cut
 
@@ -43,9 +55,21 @@ use BSSched::EventHandler;
 # EVENT QUEUE HANDLING
 #
 
-=head2 new - generate an event processor
+=head2 new - generate an event queue
 
- TODO: add description
+  Parameters:
+
+    $gctx - global context (must contain rctx)
+
+    @opts - list of optional parameters
+
+  Returns:
+
+    BSSched::EventQueue object
+
+  Example:
+
+    my $ev_queue = BSSched::EventQueue->new($gctx,@opts);
 
 =cut
 
@@ -66,7 +90,18 @@ sub new {
 
 =head2 process_events - process a list of events
 
- TODO: add description
+  Parameters:
+
+    none
+
+  Returns:
+
+    $gotevent - Boolean which indicates if events left to be executed
+
+  Example:
+
+    my $got_events = BSSched::EventQueue->process_events();
+
 
 =cut
 
@@ -123,16 +158,32 @@ sub process_events {
 					  $ectx->{'fetchprojpacks'}, $ectx->{'fetchprojpacks_nodelay'},
 					  $ectx->{'deepcheck'}, $ectx->{'lowprioproject'});
   }
+
   $ectx->{'fetchprojpacks'} = {};
   $ectx->{'fetchprojpacks_nodelay'} = {};
   $ectx->{'deepcheck'} = {};
   $ectx->{'lowprioproject'} = {};
+
   return $gotevent;
 }
 
 =head2 process_one - process a single event
 
- TODO: add description
+  Parameters:
+
+    $ev - Event as an HashRef
+
+  Returns:
+
+    unknown
+
+  Example:
+
+    BSSched::EventQueue->process_one($ev);
+
+  Description:
+
+    mostly for internal use - should not be used directly
 
 =cut
 
@@ -153,21 +204,35 @@ sub process_one {
 
 =head2 order - order events so that the important ones come first
 
- TODO: add description
+  Parameters:
+
+    none
+
+  Returns:
+
+    0
+
+  Example:
+
+    BSSched::EventQueue->order();
+
+  Description:
+
+    mostly for internal use - should not be used directly
 
 =cut
 
 sub order {
   my ($ectx) = @_;
-  
+
   if (@{$ectx->{_events}} > 1) {
     # sort events a bit, exit events go first ;-)
     # uploadbuild/import events must go last
     my %evprio = ('exit' => -1, 'exitcomplete' => -1, 'restart' => -1, 'uploadbuild' => 1, 'import' => 1);
     @{$ectx->{_events}} = sort {
-                    # the following lines might look a bit nasty, but this is needed to avoid 
+                    # the following lines might look a bit nasty, but this is needed to avoid
                     # "Uninitialized values" warings
-                    ($evprio{$a->{'type'} || ''} || 0) <=> ($evprio{$b->{'type'} || ''} || 0) || 
+                    ($evprio{$a->{'type'} || ''} || 0) <=> ($evprio{$b->{'type'} || ''} || 0) ||
                     ($a->{'type'} || '' )  cmp ($b->{'type'} || '') ||
                     ($a->{'project'} || '') cmp ($b->{'project'} || '') ||
                     ($a->{'job'} || '') cmp ($b->{'job'} || '')
@@ -176,6 +241,23 @@ sub order {
   return 0;
 }
 
+=head2 add_events - add a list of events to event queue
+
+  Parameters:
+
+    @new_events - list of events to be added
+
+  Returns:
+
+    Total count of new events
+
+  Example:
+
+    my $total_events = BSSched::EventQueue->add_events(@new_events);
+
+=cut
+
+
 sub add_events {
   my $self = shift;
   push @{$self->{_events}}, @_;
@@ -183,7 +265,17 @@ sub add_events {
 
 =head2 get_events - get list of actual events
 
-  returns a ArrayRef
+  Parameters:
+
+    none
+
+  Returns:
+
+    ArrayRef to event queue
+
+  Example:
+
+    my $events = BSSched::EventQueue->get_events();
 
 =cut
 
@@ -192,6 +284,18 @@ sub get_events {
 }
 
 =head2 events_in_queue - get counter of events in queue
+
+  Parameters:
+
+    none
+
+  Returns:
+
+    Number of elements in queue
+
+  Example:
+
+    my $count = BSSched::EventQueue->events_in_queue();
 
 =cut
 
