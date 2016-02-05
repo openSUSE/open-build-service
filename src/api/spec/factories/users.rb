@@ -7,6 +7,10 @@ FactoryGirl.define do
 
     factory :confirmed_user do
       state 2
+
+      factory :admin_user do
+        roles { [Role.find_by_title('admin')] }
+      end
     end
 
     # This is needed because the salt is random
