@@ -69,3 +69,6 @@ RSpec.configure do |config|
   # as the one that triggered the failure.
   Kernel.srand config.seed
 end
+
+# We never want the backend to autostart itself...
+ENV['BACKEND_STARTED']='1'
