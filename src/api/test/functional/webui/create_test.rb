@@ -3,7 +3,7 @@ require_relative '../../test_helper'
 class Webui::CreateProjectTest < Webui::IntegrationTest
   uses_transaction :test_create_subproject
 
-  def test_create_package
+  def test_create_package # spec/features/webui/projects_spec.rb
     login_tom to: project_show_path(project: 'home:tom')
     page.must_have_text(/Packages \(0\)/)
     page.must_have_text(/This project does not contain any packages/)
