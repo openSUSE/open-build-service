@@ -5,5 +5,5 @@ require 'rails_helper'
 require 'support/capybara'
 require 'capybara/poltergeist'
 
-# support log in/log out...
-require 'support/functional/authentification'
+# helper methods for authentification in features tests
+require 'support/features/features_authentification'

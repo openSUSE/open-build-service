@@ -465,7 +465,7 @@ class Webui::ProjectController < Webui::WebuiController
           repository = @project.repositories.new(name: distribution['reponame'])
           target_repository =  Repository.find_by_project_and_name(distribution['project'], distribution['repository'])
           unless target_repository
-            raise Activerecord::RecordNotFound
+            raise ActiveRecord::RecordNotFound
           end
           repository.path_elements.new(link: target_repository, position: 1 )
           distribution['architectures'].each_with_index do |architecture, index|

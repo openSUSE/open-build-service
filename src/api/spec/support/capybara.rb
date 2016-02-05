@@ -1,4 +1,4 @@
-Capybara.default_wait_time = 6
+Capybara.default_max_wait_time = 6
 Capybara.save_and_open_page_path = Rails.root.join('tmp', 'capybara')
 
 Capybara.register_driver :poltergeist do |app|
