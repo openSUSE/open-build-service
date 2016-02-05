@@ -187,7 +187,7 @@ sub run_source_update {
       if (close SERVICE) {
         # SUCCESS, move files inside and add prefix
         for my $file (grep {!/^[:\.]/} ls("$myworkdir/out")) {
-	  next if -l "$myworkdir/out" || ! -f _;	# only plain files for now
+	  next if -l "$myworkdir/out/$file" || ! -f _;	# only plain files for now
 	  rename("$myworkdir/out/$file", "_service:$name:$file") || die("rename $myworkdir/out/$file _service:$name:$file: $!\n");
         }
       } else { 
