@@ -30,6 +30,8 @@ my $datadir = "$FindBin::Bin/data/0018";
 my $backenddir = "$FindBin::Bin/tmp/0018";
 my $eventsdir = "$backenddir/events";
 
+( -d "$FindBin::Bin/tmp/" ) || mkdir "$FindBin::Bin/tmp/";
+
 rm_rf($backenddir);
 cp_r($datadir,$backenddir);
 
