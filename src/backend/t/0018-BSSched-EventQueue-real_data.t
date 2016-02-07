@@ -30,9 +30,8 @@ my $datadir = "$FindBin::Bin/data/0018";
 my $backenddir = "$FindBin::Bin/tmp/0018";
 my $eventsdir = "$backenddir/events";
 
-rm_r($backenddir);
+rm_rf($backenddir);
 cp_r($datadir,$backenddir);
-
 
 my $got = undef;
 
@@ -60,9 +59,12 @@ is($eq->events_in_queue,2,"Checking number of events in queue");
 
 my $gotevent;
 eval {
+  local *STDOUT;
+  my $out = undef;
+  open(STDOUT,">",\$out);
   $gotevent = $eq->process_events();
 };
-print "$@\n";
+#print "$@\n";
 
 
 
@@ -87,21 +89,19 @@ sub cp_r {
 	}
 }
 
-sub rm_r {
+sub rm_rf {
 	my ($src) = @_;
 	die "no file or directory given" if (  ! $src );
 	if ( -d $src ) {
 		opendir(my $dh,$src) || die "Could not open $src: $!";
 		while (my $f = readdir($dh) ) {
 			next if ( $f eq '.' or $f eq '..' );
-			rm_r($src."/$f");
+			rm_rf($src."/$f");
 		}
 		closedir($dh);
 		rmdir $src || die "Error while removing directory '$src': $!\n";
 	} elsif ( -e $src ) {
 		print "removing file $src\n" if $DEBUG;
 		unlink $src || die "Error while removing file '$src': $!\n";
-	} else {
-		die "Source $src does not exist";
 	}
 }

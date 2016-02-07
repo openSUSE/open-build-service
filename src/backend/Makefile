@@ -28,6 +28,7 @@ install_data_dirs: prepare_dirs
 
 
 test_unit: bs_config clean_cover
+	rm -rf t/tmp/*
 	PERL5OPT=-MDevel::Cover LANG=C prove -Ibuild -v t/*.t
 
 cover: test_unit
