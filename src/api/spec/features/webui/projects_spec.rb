@@ -18,4 +18,19 @@ RSpec.feature "Projects", :type => :feature, :js => true do
     fill_in "name", :with => "coolstuff"
     click_button "Save changes"
   end
+
+  scenario "create subproject" do
+    login user
+    visit project_show_path(project: user.home_project_name)
+    click_link("Subprojects")
+
+    expect(page).to have_text("This project has no subprojects")
+    click_link("create_subproject_link")
+    fill_in "project_name", :with => "coolstuff"
+    click_button "Create Project"
+    expect(page).to have_content("Project '#{user.home_project_name}:coolstuff' was created successfully")
+
+    expect(page.current_path).to match(project_show_path(project: "#{user.home_project_name}:coolstuff"))
+    expect(find('#project_title').text).to eq("#{user.home_project_name}:coolstuff")
+  end
 end

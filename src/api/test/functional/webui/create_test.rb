@@ -14,7 +14,7 @@ class Webui::CreateProjectTest < Webui::IntegrationTest
     click_button 'Save changes'
   end
 
-  def test_create_subproject
+  def test_create_subproject # spec/features/webui/projects_spec.rb
     login_tom to: project_show_path(project: 'home:tom')
     click_link 'Subprojects'
 
