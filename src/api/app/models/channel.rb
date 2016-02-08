@@ -156,7 +156,7 @@ class Channel < ActiveRecord::Base
     cp = self.package
     if self.channel_targets.empty?
       # not defined in channel, so take all from project
-      tpkg.project.branch_to_repositories_from(cp.project, cp, true)
+      tpkg.project.branch_to_repositories_from(cp.project, cp, {extend_names: true})
       return
     end
 

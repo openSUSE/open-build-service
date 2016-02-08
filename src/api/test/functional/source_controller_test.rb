@@ -2197,6 +2197,45 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  def test_branch_repository_with_extra_policy
+    login_adrian
+    put '/source/home:adrian:TEMP/_meta', "<project name='home:adrian:TEMP'> <title/> <description/>
+          <repository name='repo1'>
+            <arch>x86_64</arch>
+          </repository>
+          <repository name='repo2'>
+            <arch>x86_64</arch>
+          </repository>
+          <repository name='repo3'>
+            <arch>x86_64</arch>
+          </repository>
+        </project>"
+    assert_response :success
+    put '/source/home:adrian:TEMP/dummy/_meta', "<package project='home:adrian:TEMP' name='dummy'> <title/> <description/> </package>"
+    assert_response :success
+
+    # without attribute
+    post '/source/home:adrian:TEMP/dummy', :cmd => 'branch', :add_repositories => 1, :add_repositories_rebuild => :local, :add_repositories_block => :never
+    assert_response :success
+    get '/source/home:adrian:branches:home:adrian:TEMP/_meta'
+    assert_response :success
+    assert_xml_tag(:tag => 'repository', :attributes => {name:"repo1", rebuild: "local", block: "never"})
+    assert_xml_tag(:tag => 'repository', :attributes => {name:"repo2", rebuild: "local", block: "never"})
+    assert_xml_tag(:tag => 'repository', :attributes => {name:"repo3", rebuild: "local", block: "never"})
+    delete '/source/home:adrian:branches:home:adrian:TEMP'
+    assert_response :success
+
+    # invalid policy
+    post '/source/home:adrian:TEMP/dummy', :cmd => 'branch', :add_repositories => 1, :add_repositories_rebuild => :WRONG
+    assert_response 400
+    post '/source/home:adrian:TEMP/dummy', :cmd => 'branch', :add_repositories => 1, :add_repositories_block => :WRONG
+    assert_response 400
+
+    # cleanup
+    delete '/source/home:adrian:TEMP'
+    assert_response :success
+  end
+
   def test_branch_repository_attribute_tests
     login_adrian
     put '/source/home:adrian:TEMP/_meta', "<project name='home:adrian:TEMP'> <title/> <description/>
