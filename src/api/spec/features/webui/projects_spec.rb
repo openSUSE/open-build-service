@@ -1,7 +1,7 @@
 require "browser_helper"
 
 RSpec.feature "Projects", :type => :feature, :js => true do
-  let!(:user) { create(:confirmed_user) }
+  let!(:user) { create(:confirmed_user, login: "Jane") }
 
   scenario "project show" do
     login user
