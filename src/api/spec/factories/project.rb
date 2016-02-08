@@ -8,5 +8,11 @@ FactoryGirl.define do
       description Faker::Lorem.sentence
       remoteurl Faker::Internet.url
     end
+
+    factory :project_with_package do
+      after(:create) do |project|
+        project.packages << create(:package, project_id: project.id)
+      end
+    end
   end
 end
