@@ -115,12 +115,12 @@ class Webui::AttributesTest < Webui::IntegrationTest
     end
   end
 
-  def test_attrib_invalid_package
+  def test_attrib_invalid_package # spec/features/webui/attributes_spec.rb
     visit index_attribs_path(project: 'home:Iggy', package: 'Pok')
     page.must_have_content "Package Pok not found"
   end
 
-  def test_attrib_invalid_project
+  def test_attrib_invalid_project # spec/features/webui/attributes_spec.rb
     visit index_attribs_path(project: 'Does:Not:Exist')
     page.must_have_content "Project not found: Does:Not:Exist"
   end
