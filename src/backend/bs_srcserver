@@ -620,6 +620,56 @@ sub triggerservicerun {
   return $BSStdServer::return_ok;
 }
 
+sub waitservicerun {
+  my ($cgi, $projid, $packid) = @_;
+  die("not implemented for old style services\n") if $BSConfig::old_style_services;
+  if (!$BSStdServer::isajax) {
+    my $rev = getrev($projid, $packid);
+    my $linkinfo = {};
+    my $files = lsrev($rev, $linkinfo);
+    my $servicemark = $linkinfo->{'xservicemd5'};
+    return $BSStdServer::return_ok unless $servicemark;
+    eval {
+      handleservice($rev, $files, $servicemark);
+    };
+    return $BSStdServer::return_ok unless $@;
+    die($@) if $@ !~ /service in progress/;
+    # pass on to ajax
+    BSHandoff::handoff("/source/$projid/$packid", undef, 'cmd=waitservice', "servicemark=$servicemark");
+  }
+  my $servicemark = $cgi->{'servicemark'};
+  die("need a servicemark\n") unless $servicemark;
+  my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+  BSWatcher::addfilewatcher("$treedir/$servicemark-_serviceerror");
+  my $serror = getserviceerror("$treedir/$servicemark-_serviceerror");
+  return $BSStdServer::return_ok unless $serror;
+  return undef if $serror =~ /service in progress/;
+  die("$serror\n");
+}
+
+sub mergeservicerun {
+  my ($cgi, $projid, $packid) = @_;
+  my $rev = getrev($projid, $packid);
+  my $linkinfo = {};
+  my $files = lsrev($rev, $linkinfo);
+  my $servicemark = $linkinfo->{'xservicemd5'};
+  die("package has no service\n") unless $servicemark;
+  $files = handleservice($rev, $files, $servicemark);
+  # merge
+  delete $files->{'_service'};
+  for (sort keys %$files) {
+    next unless /^_service:.*:(.*?)$/s;
+    $files->{$1} = $files->{$_};
+    delete $files->{$_};
+    linkfile($projid, $packid, $1, $projid, $packid, $_, $files->{$1});
+  }
+  $rev = addrev($cgi, $projid, $packid, $files);
+  runservice($cgi, $rev, $files);
+  delete $rev->{'project'};
+  delete $rev->{'package'};
+  return ($rev, $BSXML::revision);
+}
+
 #
 # run the productconverter on _product to create/update/delete
 # all _product:xxx packages
@@ -933,6 +983,14 @@ sub copyfiles {
     link("$srcrep/$opackid/$files->{$f}-$f", "$srcrep/$packid/$files->{$f}-$f");
     die("link error $srcrep/$opackid/$files->{$f}-$f\n") unless -e "$srcrep/$packid/$files->{$f}-$f";
   }
+}
+
+sub linkfile {
+  my ($projid, $packid, $file, $oprojid, $opackid, $ofile, $md5) = @_;
+  return if -e "$srcrep/$packid/$md5-$file";
+  link("$srcrep/$opackid/$md5-$ofile", "$srcrep/$packid/$md5-$file");
+  return if -e "$srcrep/$packid/$md5-$file";
+  die("link $srcrep/$opackid/$md5-$ofile $srcrep/$packid/$md5-$file error\n");
 }
 
 sub getrev_git {
@@ -2188,6 +2246,20 @@ sub handlelinks {
   return $files;
 }
 
+sub getserviceerror {
+  my ($errorfile) = @_;
+  local *SERROR;
+  return '' unless open(SERROR, '<', $errorfile);
+  my $size = -s SERROR;
+  sysseek(SERROR, $size - 1024, 0) if $size > 1024;
+  my $error = '';
+  1 while sysread(SERROR, $error, 1024, length($error));
+  close SERROR;
+  $error =~ s/[\r\n]+$//s;
+  $error =~ s/.*[\r\n]//s;
+  return str2utf8xml($error || 'unknown service error');
+}
+
 # - returns expanded file list
 # - side effects:
 #   modifies $rev->{'srcmd5'}
@@ -2220,18 +2292,8 @@ sub handleservice {
   }
   # don't have the tree yet
   if (-s "$treedir/$servicemark-_serviceerror") {
-    local *SERROR;
-    if (open(SERROR, '<', "$treedir/$servicemark-_serviceerror")) {
-      my $size = -s SERROR;
-      sysseek(SERROR, $size - 1024, 0) if $size > 1024;
-      my $error = '';
-      1 while sysread(SERROR, $error, 1024, length($error));
-      close SERROR;
-      $error =~ s/[\r\n]+$//s;
-      $error =~ s/.*[\r\n]//s;
-      $error ||= 'unknown service error';
-      die(str2utf8xml("$error\n"));
-    }
+    my $serror = getserviceerror("$treedir/$servicemark-_serviceerror");
+    die("$serror\n") if $serror;
   }
   my %nfiles = %$files;
   $nfiles{'/SERVICE'} = $servicemark;
@@ -8509,6 +8571,8 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=deleteuploadrev' => \&deleteuploadrev,
   'POST:/source/$project/$package cmd=undelete user:? comment:? time:num?' => \&undeletepackage,
   'POST:/source/$project/$package cmd=runservice user:? comment:?' => \&triggerservicerun,
+  'POST:/source/$project/$package cmd=waitservice' => \&waitservicerun,
+  'POST:/source/$project/$package cmd=mergeservice user:? comment:?' => \&mergeservicerun,
   'POST:/source/$project/$package cmd=getprojectservices' => \&getprojectservices,
   'POST:/source/$project/$package cmd: *:*' => \&unknowncmd,
 
@@ -8633,6 +8697,7 @@ my $dispatches_ajax = [
   '/getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&worker_getbinaryversions,
   '/lastevents $filter:* start:num? obsname:?' => \&lastevents,
   '/lastnotifications start:num? view:? block:bool?' => \&lastnotifications,
+  '/source/$project/$package cmd=waitservice servicemark:' => \&waitservicerun,
   '/source/$project/$package rev view:' => \&getfilelist_ajax,
   '/source/$project/$package:package/$filename rev?' => \&getfile,
   '/request/$id:num withkey:bool? oldkey:md5?' => \&getrequest,
