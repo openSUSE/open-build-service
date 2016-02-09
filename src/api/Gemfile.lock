@@ -218,7 +218,7 @@ GEM
       mime-types (>= 1.16, < 3.0)
       netrc (~> 0.7)
     riddle (1.5.12)
-    rspec-core (3.4.1)
+    rspec-core (3.4.2)
       rspec-support (~> 3.4.0)
     rspec-expectations (3.4.0)
       diff-lcs (>= 1.2.0, < 2.0)
