@@ -1,7 +1,7 @@
 require_relative '../../test_helper'
 
 class Webui::CommitsFeedTest < Webui::IntegrationTest
-  def test_default_feed
+  def test_default_feed # spec/controllers/webui/feeds_controller_spec.rb
     Timecop.freeze(2013, 8, 14, 12, 0, 0) do
       get '/project/latest_commits/BaseDistro'
       assert_response :success
@@ -12,7 +12,7 @@ class Webui::CommitsFeedTest < Webui::IntegrationTest
     end
   end
 
-  def test_feed_with_dates
+  def test_feed_with_dates # spec/controllers/webui/feeds_controller_spec.rb
     Timecop.freeze(2013, 8, 14, 12, 0, 0) do
       # login_king to: project_show_path(project: 'home:king')
 
@@ -25,7 +25,7 @@ class Webui::CommitsFeedTest < Webui::IntegrationTest
     end
   end
 
-  def test_feed_for_unknown_project
+  def test_feed_for_unknown_project # spec/controllers/webui/feeds_controller_spec.rb
     get '/project/latest_commits/DoesNotExists'
     assert_response 404
   end
@@ -47,7 +47,7 @@ class Webui::CommitsFeedTest < Webui::IntegrationTest
     end
   end
 
-  def test_feed_for_source_protected_project
+  def test_feed_for_source_protected_project # spec/controllers/webui/feeds_controller_spec.rb
     Timecop.travel(2013, 8, 14, 12, 0, 0) do
       visit '/project/latest_commits/SourceprotectedProject'
       assert_equal 403, page.status_code
