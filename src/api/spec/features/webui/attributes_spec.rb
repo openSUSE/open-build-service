@@ -2,13 +2,14 @@ require "browser_helper"
 
 RSpec.feature "Attributes", :type => :feature, :js => true do
   let!(:user) { create(:confirmed_user) }
-  let!(:attribute) { create(:attrib_type_with_namespace) }
+  let!(:attribute_type) { create(:attrib_type_with_namespace) }
+  let!(:attribute) { create(:attrib, project_id: Project.find_by_name(user.home_project_name).id) }
 
   def add_attribute_with_values(package = nil)
     visit index_attribs_path(project: user.home_project_name, package: package.try(:name))
     click_link("add-new-attribute")
     expect(page).to have_text("Add Attribute")
-    find("select#attrib_attrib_type_id").select(attribute.name)
+    find("select#attrib_attrib_type_id").select(attribute_type.name)
     click_button "Create Attribute"
     expect(page).to have_content("Attribute was successfully created.")
 
@@ -33,9 +34,7 @@ RSpec.feature "Attributes", :type => :feature, :js => true do
       expect(page).to have_content("Attribute was successfully updated.")
 
       visit index_attribs_path(project: user.home_project_name)
-      within("tr.attribute-values") do
-        expect(page).to have_content("#{attribute.namespace}:#{attribute.name} test 2, test 1")
-      end
+      expect(page).to have_content("#{attribute_type.namespace}:#{attribute_type.name} test 2, test 1")
     end
 
     describe "with values that are not allowed" do
@@ -55,6 +54,17 @@ RSpec.feature "Attributes", :type => :feature, :js => true do
         expect(page).to have_content("Sorry, you are not authorized to create this Attrib.")
       end
     end
+
+    scenario "remove attribute" do
+      login user
+
+      visit index_attribs_path(project: user.home_project_name)
+
+      find("##{attribute.namespace}-#{attribute.name}-delete").click
+      # Pass the js confirmation dialog
+      page.evaluate_script('window.confirm = function() { return true; }')
+      expect(page).to have_content("Attribute sucessfully deleted!")
+    end
   end
 
   describe "for a project with a package" do
@@ -70,7 +80,7 @@ RSpec.feature "Attributes", :type => :feature, :js => true do
 
       visit index_attribs_path(project: user.home_project_name, package: package.name)
       within("tr.attribute-values") do
-        expect(page).to have_content("#{attribute.namespace}:#{attribute.name} test 2, test 1")
+        expect(page).to have_content("#{attribute_type.namespace}:#{attribute_type.name} test 2, test 1")
       end
     end
   end
