@@ -2,37 +2,6 @@
 http_interactions:
 - request:
     method: get
-    uri: http://127.0.0.1:45139/__identify__
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: 'OK '
-    headers:
-      Server:
-      - WEBrick/1.3.1 (Ruby/2.3.0/2015-12-25)
-      Date:
-      - Mon, 08 Feb 2016 17:07:04 GMT
-      Content-Length:
-      - '8'
-      Connection:
-      - Keep-Alive
-    body:
-      encoding: UTF-8
-      string: '57158820'
-    http_version: 
-  recorded_at: Mon, 08 Feb 2016 17:07:04 GMT
-- request:
-    method: get
     uri: http://localhost:3200/build/home:Jane/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
@@ -67,7 +36,7 @@ http_interactions:
           <details>404 project 'home:Jane' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Mon, 08 Feb 2016 17:07:06 GMT
+  recorded_at: Wed, 10 Feb 2016 16:04:26 GMT
 - request:
     method: get
     uri: http://localhost:3200/build/home:Jane/_result?view=summary
@@ -104,5 +73,5 @@ http_interactions:
           <details>404 project 'home:Jane' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Mon, 08 Feb 2016 17:07:06 GMT
+  recorded_at: Wed, 10 Feb 2016 16:04:26 GMT
 recorded_with: VCR 3.0.1
