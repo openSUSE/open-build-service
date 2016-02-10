@@ -21,7 +21,8 @@ are run by default. Ruby files with custom matchers and macros, etc, belong to
 
 `spec/support/`
 
-and its subdirectories. Require them in the individual `*_spec.rb` or `_helper.rb` files.
+and its subdirectories. Require them in the individual `*_spec.rb` or
+`_helper.rb` files.
 
 ## Test types
 There are many different [types of specs](https://relishapp.com/rspec/rspec-rails/docs/directory-structure)
@@ -35,17 +36,39 @@ possible in RSpec. We concentrate on 4 types:
 ## Adding tests
 We are using the standard [RSpec generators](https://relishapp.com/rspec/rspec-rails/docs/generators) like:
 
-`rails generate rspec:model package`
+`rails generate rspec:model package` or
+`rails generate rspec:controller webui::blah`
 
-If you require response from the OBS backend for your new test you need to start it with
+### Backend responses
+
+If you require a response from the OBS backend for your new test you need to
+start it with
 
 ```
 vagrant exec rake db:fixtures:obs
 vagrant exec RAILS_ENV=test ./script/start_test_backend
 ```
 
-Once your test ran sucessfully for the first time [VCR](https://github.com/vcr/vcr) will have recorded a new cassette in `spec/cassettes`
-and will use this for playback in the next run.
+Once your test ran successfully for the first time [VCR](https://github.com/vcr/vcr)
+will have recorded a new cassette in `spec/cassettes` and will use this for
+playing back the backend response in the next run.
 
-## Migrating tests
-When migrating tests from the old minitest based suite to rspec, please add the file path of the new one to every test covered.
+### VCR gotchas
+VCR matches cassettes to responses you request from the backend by comparing the
+`request.uri`. That means you should avoid random parts, like project/package
+names, in it.
+
+### Migrating tests
+When migrating tests from the old minitest based suite to rspec, please add the
+file path of the new one to every test covered.
+
+### Untested methods
+When you work on the test suite and you notice a method or part of a feature that
+is not tested please either add a test for it or at least add a skipped test case
+like this
+
+```ruby
+describe "some method/feature" do
+ skip
+end
+```
