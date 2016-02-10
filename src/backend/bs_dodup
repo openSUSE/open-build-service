@@ -46,7 +46,7 @@ BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
 
 
 sub fetch {
-  my ($url, $timeout, $filename, $withmd5, $peerfp) = @_;
+  my ($url, $peerfp, $timeout, $filename, $withmd5) = @_;
   my $param = {
     'uri' => $url,
     'maxredirects' => 5,
@@ -124,16 +124,17 @@ sub mastercheck {
   my ($doddata, $urlpath, $data) = @_;
   my $master = $doddata->{'master'};
   return unless $master && $master->{'url'};
+  return if $master->{'url'} eq $doddata->{'url'};	# mirror is master
   my $masterurl = $master->{'url'};
   $masterurl .= '/' unless $masterurl =~ /\/$/;
-  my $masterdata = fetch("$masterurl$urlpath", $timeout_small, undef, undef, $master->{'sslfingerprint'});
+  my $masterdata = fetch("$masterurl$urlpath", $master->{'sslfingerprint'}, $timeout_small);
   die("mirror is out of date\n") unless $data eq $masterdata;
 }
 
 sub signaturecheck {
-  my ($doddata, $url, $data, $strip) = @_;
+  my ($doddata, $url, $sslfingerprint, $data, $strip) = @_;
   return unless $doddata->{'pubkey'};
-  my $data_asc = fetch($url, $timeout_small);
+  my $data_asc = fetch($url, $sslfingerprint, $timeout_small);
   if ($strip) {
     # remove stable key sig
     $data_asc =~ s/-----END PGP SIGNATURE-----\n.*$/-----END PGP SIGNATURE-----\n/s;
@@ -141,17 +142,26 @@ sub signaturecheck {
   gpgverify($data , $data_asc, $doddata->{'pubkey'});
 }
 
+sub getsslfingerprint {
+  my ($doddata) = @_;
+  my $master = $doddata->{'master'};
+  return undef unless $master;
+  return undef if $master->{'url'} && $master->{'url'} ne $doddata->{'url'};
+  return $master->{'sslfingerprint'};	# mirror is master
+}
+
 sub dod_susetags {
   my ($doddata, $cookie, $file) = @_;
   my $url = $doddata->{'url'};
+  my $sslfingerprint = getsslfingerprint($doddata);
   my $descrdir = 'suse/setup/descr';
   my $datadir = 'suse';
   $url .= '/' unless $url =~ /\/$/;
-  my $content = fetch("${url}content", $timeout_small);
+  my $content = fetch("${url}content", $sslfingerprint, $timeout_small);
   my $content_md5 = Digest::MD5::md5_hex($content);
   return undef if ($cookie || '') eq $content_md5;
   mastercheck($doddata, 'content', $content);
-  signaturecheck($doddata, "${url}content.asc", $content);
+  signaturecheck($doddata, "${url}content.asc", $sslfingerprint, $content);
   my ($packages, $packages_sum);
   for (split("\n", $content)) {
     next unless /^META (\S+) (\S+)  (packages(?:.gz)?)$/s;
@@ -160,7 +170,7 @@ sub dod_susetags {
     $packages_sum = lc($1).":$2";
   }
   die("no packages file in META section of content file\n") unless $packages;
-  fetch("${url}$descrdir/$packages", $timeout_large, $file);
+  fetch("${url}$descrdir/$packages", $sslfingerprint, $timeout_large, $file);
   chkverify($file, $packages_sum);
   uncompress($file, $packages);
   return ($content_md5, $url);
@@ -169,12 +179,13 @@ sub dod_susetags {
 sub dod_rpmmd {
   my ($doddata, $cookie, $file) = @_;
   my $url = $doddata->{'url'};
+  my $sslfingerprint = getsslfingerprint($doddata);
   $url .= '/' unless $url =~ /\/$/;
-  my $repomd = fetch("${url}repodata/repomd.xml", $timeout_small);
+  my $repomd = fetch("${url}repodata/repomd.xml", $sslfingerprint, $timeout_small);
   my $repomd_md5 = Digest::MD5::md5_hex($repomd);
   return undef if ($cookie || '') eq $repomd_md5;
   mastercheck($doddata, 'repodata/repomd.xml', $repomd);
-  signaturecheck($doddata, "${url}repodata/repomd.xml.asc", $repomd);
+  signaturecheck($doddata, "${url}repodata/repomd.xml.asc", $sslfingerprint, $repomd);
   writestr("$file.repomd", undef, $repomd);
   my @files;
   Build::Rpmmd::parse_repomd("$file.repomd", \@files);
@@ -182,7 +193,7 @@ sub dod_rpmmd {
   my $primaryfile = (grep {$_->{'type'} eq 'primary' && defined($_->{'location'})} @files)[0];
   die("no primary file in repomd.xml\n") unless $primaryfile;
   die("primary file has no checksum\n") if $doddata->{'pubkey'}&& !$primaryfile->{'checksum'};
-  fetch("${url}$primaryfile->{'location'}", $timeout_large, $file);
+  fetch("${url}$primaryfile->{'location'}", $sslfingerprint, $timeout_large, $file);
   chkverify($file, $primaryfile->{'checksum'}) if $primaryfile->{'checksum'};
   uncompress($file, $primaryfile->{'location'});
   return ($repomd_md5, $url);
@@ -190,10 +201,12 @@ sub dod_rpmmd {
 
 # same parser as in build package:
 #   distribution:   <baseurl>/<dist>/[components]
-#   flat repo:      <baseurl>/.
+#   flat repo:      <baseurl>/.[/components]
+#     components:   comp1,comp2... (main if empty)
 sub dod_deb {
   my ($doddata, $cookie, $file) = @_;
   my $url = $doddata->{'url'};
+  my $sslfingerprint = getsslfingerprint($doddata);
   my @components;
   my $baseurl = $url;
   if ($url =~ /^(.*\/)\.(\/.*)?$/) {
@@ -213,11 +226,11 @@ sub dod_deb {
     $url =~ s/([^\/]+\/)$/dists\/$1/;
     $baseurl =~ s/([^\/]+\/)$//;
   }
-  my $release = fetch("${url}Release", $timeout_small);
+  my $release = fetch("${url}Release", $sslfingerprint, $timeout_small);
   my $release_md5 = Digest::MD5::md5_hex(join(',',@components)."\n$release");
   return undef if ($cookie || '') eq $release_md5;
   mastercheck($doddata, 'Release', $release);
-  signaturecheck($doddata, "${url}Release.gpg", $release, 1);
+  signaturecheck($doddata, "${url}Release.gpg", $sslfingerprint, $release, 1);
   my %files;
   my %csums = ('md5sum' => 'md5', 'sha1' => 'sha1', 'sha256' => 'sha256', 'sha512' => 'sha512');
   my $csum;
@@ -234,7 +247,7 @@ sub dod_deb {
     my $pfile = $component eq '.' ? 'Packages.gz' : "$component/binary-$basearch/Packages.gz";
     die("$pfile not in Release\n") if $doddata->{'pubkey'} && !$files{$pfile};
     my $tmp = "$file.tmp";
-    fetch("$url$pfile", $timeout_large, $tmp);
+    fetch("$url$pfile", $sslfingerprint, $timeout_large, $tmp);
     chkverify($tmp, $files{$pfile}) if $files{$pfile};
     uncompress($tmp, "Packages.gz", $file);
   }
@@ -244,11 +257,11 @@ sub dod_deb {
 sub dod_arch {
   my ($doddata, $cookie, $file) = @_;
   my $url = $doddata->{'url'};
-  # argh, why don't they sign their repo metadata?
+  my $sslfingerprint = getsslfingerprint($doddata);
   $url .= '/' unless $url =~ /\/$/;
   die("cannot determine repo name\n") unless $url =~ /.*\/([^\/]+)\/os\//;
   my $reponame = $1;
-  my $r = fetch("${url}$reponame.db", $timeout_large, $file, 1, ($doddata->{'master'} || {})->{'sslfingerprint'});
+  my $r = fetch("${url}$reponame.db", $sslfingerprint, $timeout_large, $file, 1);
   die unless $r->{'md5'};
   return undef if $cookie && $r->{'md5'} eq $cookie;
   return ($r->{'md5'}, $url);
@@ -257,8 +270,9 @@ sub dod_arch {
 sub dod_mdk {
   my ($doddata, $cookie, $file) = @_;
   my $url = $doddata->{'url'};
+  my $sslfingerprint = getsslfingerprint($doddata);
   $url .= '/' unless $url =~ /\/$/;
-  my $r = fetch("${url}media_info/synthesis.hdlist.cz", $timeout_large, $file, 1, ($doddata->{'master'} || {})->{'sslfingerprint'});
+  my $r = fetch("${url}media_info/synthesis.hdlist.cz", $sslfingerprint, $timeout_large, $file, 1);
   die unless $r->{'md5'};
   return undef if $cookie && $r->{'md5'} eq $cookie;
   uncompress($file, 'synthesis.hdlist.cz');
