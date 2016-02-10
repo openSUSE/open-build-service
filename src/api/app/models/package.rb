@@ -702,13 +702,6 @@ class Package < ActiveRecord::Base
     save!
   end
 
-  def destroy_without_backend_write_and_revoking_requests
-    self.commit_opts = { no_backend_write: 1, project_destroy_transaction: 1 }
-    Package.skip_callback(:destroy, :before, :close_requests)
-    destroy
-    Package.set_callback(:destroy, :before, :close_requests)
-  end
-
   def reset_cache
     Rails.cache.delete("xml_package_#{id}") if id
   end

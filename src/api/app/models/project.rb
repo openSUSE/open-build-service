@@ -882,7 +882,10 @@ class Project < ActiveRecord::Base
   # individually on backend
   def cleanup_packages
     packages.each do |package|
-      package.destroy_without_backend_write_and_revoking_requests
+      package.commit_opts = { no_backend_write: 1,
+                              project_destroy_transaction: 1, request: self.commit_opts[:request]
+                             }
+      package.destroy
     end
   end
 
