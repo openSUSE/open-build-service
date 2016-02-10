@@ -5,4 +5,10 @@ VCR.configure do |config|
   config.hook_into :webmock
   config.default_cassette_options = { :record => :new_episodes }
   config.configure_rspec_metadata!
+
+  config.ignore_request do |request|
+    # Ignore capybara identify calls. For more details:
+    #   http://stackoverflow.com/questions/6119669/using-webmock-with-cucumber
+    request.uri =~ /127.0.0.1:\d{5}\/__identify__/
+  end
 end
