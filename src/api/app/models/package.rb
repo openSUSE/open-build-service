@@ -729,7 +729,6 @@ class Package < ActiveRecord::Base
         logger.tagged('backend_sync') { logger.warn "Not saving Package #{self.project.name}/#{self.name}, global_write_through is off" }
       end
     end
-    @commit_opts = {}
     true
   end
 
@@ -759,7 +758,6 @@ class Package < ActiveRecord::Base
         logger.tagged('backend_sync') { logger.warn "Not deleting Package #{self.project.name}/#{self.name}, global_write_through is off" }
       end
     end
-    @commit_opts = {}
     true
   end
 
