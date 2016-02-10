@@ -2,6 +2,7 @@ require "browser_helper"
 
 RSpec.feature "Attributes", :type => :feature, :js => true do
   let!(:user) { create(:confirmed_user) }
+  let!(:attribute) { create(:attrib_type_with_namespace) }
 
   def add_attribute_with_values(package = nil)
     visit index_attribs_path(project: user.home_project_name, package: package.try(:name))
@@ -24,9 +25,7 @@ RSpec.feature "Attributes", :type => :feature, :js => true do
     click_button "Save Attribute"
   end
 
-  describe "attributes subtab for project without package" do
-    let!(:attribute) { create(:attrib_type_with_namespace) }
-
+  describe "for a project without packages" do
     scenario "add attribute with values" do
       login user
 
@@ -38,13 +37,30 @@ RSpec.feature "Attributes", :type => :feature, :js => true do
         expect(page).to have_content("#{attribute.namespace}:#{attribute.name} test 2, test 1")
       end
     end
+
+    describe "with values that are not allowed" do
+      scenario "add attribute should fail" do
+        skip
+      end
+    end
+
+    describe "without permissions" do
+      let!(:other_user) { create(:confirmed_user) }
+
+      scenario "add attribute with values should fail" do
+        login other_user
+
+        visit index_attribs_path(project: user.home_project_name)
+        click_link("add-new-attribute")
+        expect(page).to have_content("Sorry, you are not authorized to create this Attrib.")
+      end
+    end
   end
 
-  describe "attributes subtab for package" do
+  describe "for a project with a package" do
     let!(:package) {
       create(:package, project_id: Project.find_by_name(user.home_project_name).id)
     }
-    let!(:attribute) { create(:attrib_type_with_namespace) }
 
     scenario "add attribute with values" do
       login user
@@ -58,5 +74,4 @@ RSpec.feature "Attributes", :type => :feature, :js => true do
       end
     end
   end
-
 end
