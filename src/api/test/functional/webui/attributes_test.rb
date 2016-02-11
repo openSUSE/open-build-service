@@ -11,7 +11,7 @@ class Webui::AttributesTest < Webui::IntegrationTest
     use_js
   end
 
-  def add attribute
+  def add attribute # spec/features/webui/attributes_spec.rb
     attribute[:value] ||= ''
     attribute[:expect] ||= :success
     attribute[:id] = attribute[:name].split(':').join('-')
@@ -90,7 +90,7 @@ class Webui::AttributesTest < Webui::IntegrationTest
     end
   end
 
-  def delete attribute
+  def delete attribute # spec/features/webui/attributes_spec.rb
     attribute[:value] ||= ''
     attribute[:expect] ||= :success
     attribute[:id] = attribute[:name].split(':').join('-')
@@ -115,17 +115,17 @@ class Webui::AttributesTest < Webui::IntegrationTest
     end
   end
 
-  def test_attrib_invalid_package
+  def test_attrib_invalid_package # spec/features/webui/attributes_spec.rb
     visit index_attribs_path(project: 'home:Iggy', package: 'Pok')
     page.must_have_content "Package Pok not found"
   end
 
-  def test_attrib_invalid_project
+  def test_attrib_invalid_project # spec/features/webui/attributes_spec.rb
     visit index_attribs_path(project: 'Does:Not:Exist')
     page.must_have_content "Project not found: Does:Not:Exist"
   end
 
-  def test_project_attribute
+  def test_project_attribute # spec/features/webui/attributes_spec.rb
     login_king
 
     add(project: 'home:Iggy',
@@ -135,7 +135,7 @@ class Webui::AttributesTest < Webui::IntegrationTest
            name: 'OBS:ScreenShots')
   end
 
-  def test_package_attribute
+  def test_package_attribute # spec/features/webui/attributes_spec.rb
     login_king
 
     add(project: 'Apache',
@@ -157,7 +157,7 @@ class Webui::AttributesTest < Webui::IntegrationTest
            name: 'OBS:ScreenShots')
   end
 
-  def test_attrib_with_multiple_values
+  def test_attrib_with_multiple_values # spec/features/webui/attributes_spec.rb
     login_king
 
     add(project: 'home:Iggy',
