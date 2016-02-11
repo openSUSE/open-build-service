@@ -409,10 +409,11 @@ exit 0
 
 %post
 %if 0%{?suse_version} >= 1315
-%reload_on_update obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsdodup
+%reload_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup
 %else
-%restart_on_update obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsdodup
+%restart_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup
 %endif
+%restart_on_update obsscheduler
 
 %preun -n obs-source_service
 %stop_on_removal obsservice
