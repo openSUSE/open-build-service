@@ -874,51 +874,35 @@ our $jobhistlist = [
       [ $jobhist ],
 ];
 
+our $ajaxjob = [
+    'job' =>
+	'id',
+	'ev',
+	'fd',
+	'peer',
+	'request',
+];
+
 our $ajaxstatus = [
     'ajaxstatus' =>
      [[ 'watcher' =>
 	    'filename',
 	    'state',
-	 [[ 'job' =>
-		'id',
-		'ev',
-		'fd',
-		'peer',
-		'request',
-	 ]],
+	  [ $ajaxjob ],
      ]],
      [[ 'rpc' =>
 	    'uri',
 	    'state',
 	    'ev',
 	    'fd',
-	 [[ 'job' =>
-		'id',
-		'ev',
-		'fd',
-		'peer',
-		'starttime',
-		'request',
-	 ]],
+	  [ $ajaxjob ],
      ]],
      [[ 'serialize' =>
 	    'filename',
-	 [[ 'job' =>
-		'id',
-		'ev',
-		'fd',
-		'peer',
-		'request',
-	 ]],
+	  [ $ajaxjob ],
      ]],
       [ 'joblist' =>
-	 [[ 'job' =>
-		'id',
-		'ev',
-		'fd',
-		'peer',
-		'request',
-	 ]],
+	  [ $ajaxjob ],
       ],
 ];
 

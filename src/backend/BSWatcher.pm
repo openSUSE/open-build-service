@@ -1116,19 +1116,24 @@ sub rpc_deljob {
 #
 # status query and setup functions
 
+sub jobstatus {
+  my ($ev) = @_;
+  my $j = {'ev' => $ev->{'id'}};
+  $j->{'fd'} = fileno(*{$ev->{'fd'}}) if $ev->{'fd'};
+  my $req = $ev->{'request'};
+  if ($req) {
+    $j->{'peer'} = $req->{'headers'}->{'x-peer'} if $req->{'headers'} && $req->{'headers'}->{'x-peer'};
+    $j->{'request'} = substr("$req->{'action'} $req->{'path'}?$req->{'query'}", 0, 80);
+  }
+  return $j;
+}
+
 sub getstatus {
   my $ret = {};
   for my $filename (sort keys %filewatchers) {
     my $fw = {'filename' => $filename, 'state' => $filewatchers_s{$filename}};
     for my $jev (@{$filewatchers{$filename}}) {
-      my $j = {'ev' => $jev->{'id'}};
-      $j->{'fd'} = fileno(*{$jev->{'fd'}}) if $jev->{'fd'};
-      my $req = $jev->{'request'};
-      if ($req) {
-        $j->{'peer'} = $req->{'headers'}->{'x-peer'} if $req->{'headers'} && $req->{'headers'}->{'x-peer'};
-        $j->{'request'} = substr("$req->{'action'} $req->{'path'}?$req->{'query'}", 0, 80);
-      }
-      push @{$fw->{'job'}}, $j;
+      push @{$fw->{'job'}}, jobstatus($jev);
     }
     push @{$ret->{'watcher'}}, $fw;
   }
@@ -1138,41 +1143,19 @@ sub getstatus {
     $r->{'fd'} = fileno(*{$ev->{'fd'}}) if $ev->{'fd'};
     $r->{'state'} = $ev->{'rpcstate'} if $ev->{'rpcstate'};
     for my $jev (@{$ev->{'joblist'} || []}) {
-      my $j = {'ev' => $jev->{'id'}};
-      $j->{'fd'} = $jev->{'idstring'} if $jev->{'idstring'};
-      $j->{'fd'} = fileno(*{$jev->{'fd'}}) if $jev->{'fd'};
-      my $req = $jev->{'request'};
-      if ($req) {
-        $j->{'peer'} = $req->{'headers'}->{'x-peer'} if $req->{'headers'} && $req->{'headers'}->{'x-peer'};
-        $j->{'request'} = substr("$req->{'action'} $req->{'path'}?$req->{'query'}", 0, 80);
-      }
-      push @{$r->{'job'}}, $j;
+      push @{$r->{'job'}}, jobstatus($jev);
     }
     push @{$ret->{'rpc'}}, $r;
   }
   for my $filename (sort keys %serializations_waiting) {
     my $sz = {'filename' => $filename};
     for my $jev (@{$serializations_waiting{$filename}}) {
-      my $j = {'ev' => $jev->{'id'}};
-      $j->{'fd'} = fileno(*{$jev->{'fd'}}) if $jev->{'fd'};
-      my $req = $jev->{'request'};
-      if ($req) {
-        $j->{'peer'} = $req->{'headers'}->{'x-peer'} if $req->{'headers'} && $req->{'headers'}->{'x-peer'};
-        $j->{'request'} = substr("$req->{'action'} $req->{'path'}?$req->{'query'}", 0, 80);
-      }
-      push @{$sz->{'job'}}, $j;
+      push @{$sz->{'job'}}, jobstatus($jev);
     }
     push @{$ret->{'serialize'}}, $sz;
   }
   for my $jev (BSServerEvents::getrequestevents()) {
-    my $j = {'ev' => $jev->{'id'}};
-    $j->{'fd'} = fileno(*{$jev->{'fd'}}) if $jev->{'fd'};
-    my $req = $jev->{'request'};
-    if ($req) {
-      $j->{'peer'} = $req->{'headers'}->{'x-peer'} if $req->{'headers'} && $req->{'headers'}->{'x-peer'};
-      $j->{'request'} = substr("$req->{'action'} $req->{'path'}?$req->{'query'}", 0, 80);
-    }
-    push @{$ret->{'joblist'}->{'job'}}, $j;
+    push @{$ret->{'joblist'}->{'job'}}, jobstatus($jev);
   }
   return $ret;
 }
