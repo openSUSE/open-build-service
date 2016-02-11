@@ -2,43 +2,6 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:3200/build/home:eisendieter/_result?code=unresolvable&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 404
-      message: project 'home eisendieter' does not exist
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '160'
-    body:
-      encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:eisendieter' does not exist</summary>
-          <details>404 project 'home:eisendieter' does not exist</details>
-        </status>
-    http_version: 
-  recorded_at: Thu, 04 Feb 2016 17:13:37 GMT
-- request:
-    method: get
     uri: http://localhost:3200/build/_workerstatus
     body:
       encoding: US-ASCII
@@ -86,5 +49,42 @@ http_interactions:
           </partition>
         </workerstatus>
     http_version: 
-  recorded_at: Fri, 05 Feb 2016 11:25:25 GMT
+  recorded_at: Wed, 10 Feb 2016 16:04:28 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:eisendieter/_result?code=unresolvable&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: project 'home eisendieter' does not exist
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '160'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>project 'home:eisendieter' does not exist</summary>
+          <details>404 project 'home:eisendieter' does not exist</details>
+        </status>
+    http_version: 
+  recorded_at: Wed, 10 Feb 2016 16:04:28 GMT
 recorded_with: VCR 3.0.1
