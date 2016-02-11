@@ -23,7 +23,7 @@ class Webui::ConfigurationTest < Webui::IntegrationTest
     first('#breadcrump a').text.must_equal title
   end
 
-  def test_architecture_availability
+  def test_architecture_availability # spec/controllers/webui/architectures_controller_spec.rb
     login_king to: architectures_path
 
     assert Architecture.find_by_name('i586').available
