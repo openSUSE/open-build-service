@@ -1164,6 +1164,16 @@ sub getstatus {
     }
     push @{$ret->{'serialize'}}, $sz;
   }
+  for my $jev (BSServerEvents::getrequestevents()) {
+    my $j = {'ev' => $jev->{'id'}};
+    $j->{'fd'} = fileno(*{$jev->{'fd'}}) if $jev->{'fd'};
+    my $req = $jev->{'request'};
+    if ($req) {
+      $j->{'peer'} = $req->{'headers'}->{'x-peer'} if $req->{'headers'} && $req->{'headers'}->{'x-peer'};
+      $j->{'request'} = substr("$req->{'action'} $req->{'path'}?$req->{'query'}", 0, 80);
+    }
+    push @{$ret->{'joblist'}->{'job'}}, $j;
+  }
   return $ret;
 }
 
@@ -1177,15 +1187,7 @@ sub dispatches_call {
 }
 
 sub background {
-  my $jev = $BSServerEvents::gev;
-  return $jev unless $jev && exists $jev->{'fd'};
-  my $ev = BSEvents::new('never');
-  for (keys %$jev) {
-    $ev->{$_} = $jev->{$_} unless $_ eq 'id' || $_ eq 'handler' || $_ eq 'fd';
-  }
-  $jev->{'conf'}->{'stdreply'}->(@_) if @_ && $jev->{'conf'}->{'stdreply'};
-  $BSServerEvents::gev = $ev; 
-  return $ev; 
+  return BSServerEvents::background(@_);
 }
 
 1;

@@ -33,6 +33,7 @@ use Data::Dumper;
 use strict;
 
 our $gev;	# our event
+my %requestevents;
 
 # FIXME: should not set global
 $BSServer::request if 0;	# get rid of used only once warning
@@ -51,6 +52,7 @@ sub replrequest_timeout {
   close($ev->{'nfd'}) if $ev->{'nfd'};
   delete $ev->{'fd'};
   delete $ev->{'nfd'};
+  delete $requestevents{$ev->{'id'}};
 }
 
 sub replrequest_write {
@@ -68,6 +70,7 @@ sub replrequest_write {
     $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
     close($ev->{'fd'});
     close($ev->{'nfd'}) if $ev->{'nfd'};
+    delete $requestevents{$ev->{'id'}};
     return;
   }
   if ($r == length($ev->{'replbuf'})) {
@@ -75,6 +78,7 @@ sub replrequest_write {
     $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
     close($ev->{'fd'});
     close($ev->{'nfd'}) if $ev->{'nfd'};
+    delete $requestevents{$ev->{'id'}};
     return;
   }
   $ev->{'replbuf'} = substr($ev->{'replbuf'}, $r) if $r;
@@ -243,6 +247,7 @@ sub getrequest_timeout {
   $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
   close($ev->{'fd'});
   close($ev->{'nfd'}) if $ev->{'nfd'};
+  delete $requestevents{$ev->{'id'}};
 }
 
 sub getrequest {
@@ -314,6 +319,7 @@ sub getrequest {
     my $req = {'action' => $act, 'path' => $path, 'query' => $query_string, 'headers' => $headers, 'peer' => $ev->{'peer'}, 'conf' => $conf};
     $req->{'peerport'} = $ev->{'peerport'} if $ev->{'peerport'};
     $ev->{'request'} = $req;
+    $requestevents{$ev->{'id'}} = $ev;
     # FIXME: should not use global
     $BSServer::request = $req;
     my @r = $conf->{'dispatch'}->($conf, $req);
@@ -375,11 +381,38 @@ sub cloneconnect {
   };
   $nev->{'peer'} = $peer;
   $nev->{'peerport'} = $peerport if $peerport;
-  BSServerEvents::reply(@reply) if @reply;
+  $requestevents{$nev->{'id'}} = $nev;
+  if (@reply) {
+    if ($ev->{'conf'}->{'stdreply'}) {
+      $ev->{'conf'}->{'stdreply'}->(@reply);
+    } elsif (@reply != 1 || defined($reply[0])) {
+      reply(@reply);
+    }
+  }
   $gev = $nev;	# switch to new event
   if ($nev->{'conf'}->{'setkeepalive'}) {
     setsockopt($nev->{'fd'}, SOL_SOCKET, SO_KEEPALIVE, pack("l",1));
   }
+  return $nev;
+}
+
+sub background {
+  my (@reply) = @_;
+  my $ev = $gev;
+  return $ev unless $ev && exists $ev->{'fd'};	# already in background?
+  my $nev = BSEvents::new('never');
+  for (keys %$ev) {
+    $nev->{$_} = $ev->{$_} unless $_ eq 'id' || $_ eq 'handler' || $_ eq 'fd';
+  }
+  $nev->{'request'} = { %{$ev->{'request'}} } if $ev->{'request'};
+  if (@reply) {
+    if ($ev->{'conf'}->{'stdreply'}) {
+      $ev->{'conf'}->{'stdreply'}->(@reply);
+    } elsif (@reply != 1 || defined($reply[0])) {
+      reply(@reply);
+    }
+  }
+  $gev = $nev;	# switch to new event
   return $nev;
 }
 
@@ -400,6 +433,7 @@ sub stream_close {
     close $wev->{'fd'} if $wev->{'fd'};
     delete $wev->{'fd'};
     delete $wev->{'readev'};
+    delete $requestevents{$wev->{'id'}};
   }
 }
 
@@ -557,6 +591,10 @@ sub addserver {
     BSEvents::add($per_ev, $conf->{'periodic_interval'} || 3);
   }
   return $sockev;
+}
+
+sub getrequestevents {
+  return map {$requestevents{$_}} sort {$a <=> $b} keys %requestevents;
 }
 
 1;

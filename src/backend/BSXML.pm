@@ -911,6 +911,15 @@ our $ajaxstatus = [
 		'request',
 	 ]],
      ]],
+      [ 'joblist' =>
+	 [[ 'job' =>
+		'id',
+		'ev',
+		'fd',
+		'peer',
+		'request',
+	 ]],
+      ],
 ];
 
 our $serverstatus = [
