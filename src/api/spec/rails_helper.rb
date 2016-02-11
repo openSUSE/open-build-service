@@ -40,5 +40,8 @@ require 'support/database_cleaner'
 # support Suse::backend
 require 'support/backend'
 
+# support shoulda matcher
+require 'support/shoulda_matchers'
+
 # helper methods for authentification in controllers tests
 require 'support/controllers/controllers_authentification'
