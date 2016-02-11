@@ -14,6 +14,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
     fe.vm.box = 'M0ses/openSUSE-Leap-42.1-minimal'
     # Provision the box with a simple shell script
     fe.vm.provision :shell, inline: '/vagrant/contrib/bootstrap_frontend.sh'
+    fe.vm.provision :shell, inline: 'mount /vagrant/src/api/tmp', run: "always"
 
     # Execute commands in the frontend directory
     fe.exec.commands '*', directory: '/vagrant/src/api'
