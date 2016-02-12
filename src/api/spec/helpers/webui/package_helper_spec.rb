@@ -20,7 +20,27 @@ RSpec.describe Webui::PackageHelper, type: :helper do
     it 'breaks up long strings' do
       long_string = "a"*50 + "b"*50 + "c"*10
       sanitized_string = nbsp(long_string)
-      assert_equal long_string.scan(/.{1,50}/).join("<wbr>"), sanitized_string
+      expect(long_string.scan(/.{1,50}/).join("<wbr>")).to eq(sanitized_string)
     end
+  end
+
+  describe '#file_url' do
+    skip
+  end
+
+  describe '#rpm_url' do
+    skip
+  end
+
+  describe '#human_readable_fsize' do
+    skip
+  end
+
+  describe '#guess_code_class' do
+    skip
+  end
+
+  describe '#package_bread_crumb' do
+    skip
   end
 end
