@@ -3,7 +3,7 @@ require 'test_helper'
 class Webui::PackageHelperTest < ActiveSupport::TestCase
   include Webui::PackageHelper
 
-  def test_nbsp
+  def test_nbsp # spec/helpers/webui/package_helper_spec.rb
     assert nbsp("a").is_a?(ActiveSupport::SafeBuffer)
 
     sanitized_string = nbsp("<b>unsafe<b/>")
