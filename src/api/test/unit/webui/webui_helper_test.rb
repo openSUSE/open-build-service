@@ -9,7 +9,7 @@ class Webui::WebuiHelperTest < ActiveSupport::TestCase
     @codemirror_editor_setup = 0
   end
 
-  def test_get_frontend_url_for_with_controller
+  def test_get_frontend_url_for_with_controller # spec/helpers/webui/webui_helper_spec.rb
     url = get_frontend_url_for(controller: 'foo',
                                host: 'bar.com',
                                port: 80,
@@ -17,11 +17,11 @@ class Webui::WebuiHelperTest < ActiveSupport::TestCase
     assert_equal url, 'http://bar.com:80/foo'
   end
 
-  def test_bugzilla_url
+  def test_bugzilla_url # spec/helpers/webui/webui_helper_spec.rb
     assert_not_nil bugzilla_url(['foo@example.org'], 'foobar')
   end
 
-  def test_valid_xml_id
+  def test_valid_xml_id # spec/helpers/webui/webui_helper_spec.rb
     assert_equal '_123_456', valid_xml_id('123 456')
   end
 

@@ -77,4 +77,12 @@ RSpec.describe Webui::WebuiHelper do
       expect(url).to eq("http://bar.com:80/foo")
     end
   end
+
+  describe '#bugzilla_url' do
+    expect(bugzilla_url(['foo@example.org']).to eq('foobar')
+  end
+
+  describe '#valid_xml_id' do
+    expect(valid_xml_id('123 456').to eq('_123_456')
+  end
 end
