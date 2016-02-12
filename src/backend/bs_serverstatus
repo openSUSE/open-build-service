@@ -4,8 +4,7 @@ use strict;
 
 BEGIN {
   # sigh, must do it in this way so that Socket::MsgHdr's INIT is called
-  my $file = @ARGV && $ARGV[0] eq '--top' ? $ARGV[1] : $ARGV[0];
-  if ($file && -S $file) {
+  if (@ARGV && -S $ARGV[-1]) {
     use BSXML;
     use BSHandoff;
   }
@@ -20,9 +19,17 @@ sub users {
 }
 
 my $top;
-if (@ARGV && $ARGV[0] eq '--top') {
-  $top = 1;
-  shift @ARGV;
+my $nolastevents;
+while (@ARGV) {
+  if ($ARGV[0] eq '--top') {
+    $top = 1;
+    shift @ARGV;
+  } elsif ($ARGV[0] eq '--nolastevents') {
+    $nolastevents = 1;
+    shift @ARGV;
+  } else {
+    last;
+  }
 }
 die("Usage: bs_serverstatus [--top] <statusfile>\n") unless $ARGV[0];
 $| = 1;
@@ -56,6 +63,7 @@ if (-S $ARGV[0]) {
     for my $job (@{($ajaxstatus->{'joblist'} || {})->{'job'} || []}) {
       my $id = $job->{'ev'};
       next if $id == $ajaxstatus->{'ev'};
+      next if $nolastevents && $job->{'request'} && $job->{'request'} =~ /^GET \/lastevents\?/;
       my $slot = $slots{$id};
       if (!defined $slot) {
 	$slot = 0;
