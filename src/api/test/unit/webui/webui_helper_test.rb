@@ -41,7 +41,7 @@ class Webui::WebuiHelperTest < ActiveSupport::TestCase
     assert_kind_of Fixnum, next_codemirror_uid
   end
 
-  def test_escape_nested_list_escapes_forbidden_chars
+  def test_escape_nested_list_escapes_forbidden_chars # spec/helpers/webui/webui_helper_spec.rb
     input = [['<p>home:Iggy</p>', '<p>This is a paragraph</p>'], ['<p>home:Iggy</p>', '<p>"This is a paragraph"</p>']]
     output = "['&lt;p&gt;home:Iggy&lt;\\/p&gt;', '&lt;p&gt;This is a paragraph&lt;\\/p&gt;'],\n"
     output += "['&lt;p&gt;home:Iggy&lt;\\/p&gt;', '&lt;p&gt;\\&quot;This is a paragraph\\&quot;&lt;\\/p&gt;']"
@@ -49,7 +49,7 @@ class Webui::WebuiHelperTest < ActiveSupport::TestCase
     assert_equal escape_nested_list(input), output
   end
 
-  def test_format_projectname
+  def test_format_projectname # spec/helpers/webui/webui_helper_spec.rb
     assert_equal "some:project:foo:bar", format_projectname("some:project:foo:bar", "bob")
     assert_equal "~", format_projectname("home:bob", "bob")
     assert_equal "~alice", format_projectname("home:alice", "bob")

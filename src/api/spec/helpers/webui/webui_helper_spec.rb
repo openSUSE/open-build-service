@@ -79,10 +79,73 @@ RSpec.describe Webui::WebuiHelper do
   end
 
   describe '#bugzilla_url' do
-    expect(bugzilla_url(['foo@example.org']).to eq('foobar')
+    before do
+      @configuration = { 'bugzilla_url' => 'https://bugzilla.example.org' }
+      @expected_attributes = {
+        classification: 7340,
+        product:        'openSUSE.org',
+        component:      '3rd%20party%20software',
+        assigned_to:    '',
+        short_desc:     ''
+      }
+    end
+
+    it 'returns link to a prefilled bugzilla enter bug form' do
+      expected_url = "https://bugzilla.example.org/enter_bug.cgi?" +
+                       @expected_attributes.map { |key, value| "#{key}=#{value}" }.join('&')
+      expect(bugzilla_url).to eq(expected_url)
+    end
+
+    it 'adds an assignee and description if parameters where given' do
+      expected_attributes = @expected_attributes.clone
+      expected_attributes[:short_desc] = 'some_description'
+      expected_attributes[:assigned_to] = 'assignee@example.org'
+
+      expected_url = "https://bugzilla.example.org/enter_bug.cgi?" +
+                       expected_attributes.map { |key, value| "#{key}=#{value}" }.join('&')
+      expect(bugzilla_url(['assignee@example.org'], 'some_description')).to eq(expected_url)
+    end
   end
 
   describe '#valid_xml_id' do
-    expect(valid_xml_id('123 456').to eq('_123_456')
+    it "ensures that xml_id starts with '_' or a character" do
+      expect(valid_xml_id('123')).to eq('_123')
+      expect(valid_xml_id('abc')).to eq('abc')
+    end
+
+    it 'substitutes invalid characters with underscores' do
+      expect(valid_xml_id('abc+&: .()~@#')).to eq('abc__________')
+    end
+
+    it 'html escapes the input' do
+      expect(valid_xml_id('foo<bar&>?')).to eq('foo&lt;bar_&gt;?')
+    end
+
+    it 'leaves valid characters untouched' do
+      expect(valid_xml_id('aA1-?%$§{}[]\=|')).to eq('aA1-?%$§{}[]\=|')
+    end
+  end
+
+  describe '#format_projectname' do
+    it "shortens project pathes by replacing home projects with '~'" do
+      expect(format_projectname("home:bob", "bob")).to eq("~")
+      expect(format_projectname("home:alice", "bob")).to eq("~alice")
+      expect(format_projectname("home:bob:foo", "bob")).to eq("~:foo")
+      expect(format_projectname("home:alice:foo", "bob")).to eq("~alice:foo")
+    end
+
+    it "leaves projects that are no home projects untouched" do
+      expect(format_projectname("some:project:foo:bar", "bob")).to eq("some:project:foo:bar")
+    end
+  end
+
+  describe '#escape_nested_list' do
+    it 'html escapes a string' do
+      input = [['<p>home:Iggy</p>', '<p>This is a paragraph</p>'], ['<p>home:Iggy</p>', '<p>"This is a paragraph"</p>']]
+      output = "['&lt;p&gt;home:Iggy&lt;\\/p&gt;', '&lt;p&gt;This is a paragraph&lt;\\/p&gt;'],\n"
+      output += "['&lt;p&gt;home:Iggy&lt;\\/p&gt;', '&lt;p&gt;\\&quot;This is a paragraph\\&quot;&lt;\\/p&gt;']"
+
+      expect(escape_nested_list(input)).to eq(output)
+    end
   end
 end
