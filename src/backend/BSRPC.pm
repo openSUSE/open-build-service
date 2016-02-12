@@ -29,18 +29,15 @@ use MIME::Base64;
 use Data::Dumper;
 
 use BSHTTP;
-use BSConfig;
 
 use strict;
 
 our $useragent = 'BSRPC 0.9.1';
+our $noproxy;
 
 my %hostlookupcache;
 my %cookiestore;	# our session store to keep iChain fast
 my $tossl;
-
-my $noproxy;
-$noproxy = $BSConfig::noproxy if defined($BSConfig::noproxy);
 
 sub import {
   if (grep {$_ eq ':https'} @_) {
@@ -85,13 +82,19 @@ sub createuri {
 }
 
 sub useproxy {
-  my ($host, $noproxy) = @_;
+  my ($param, $host) = @_;
 
+  my $nop = $noproxy;
+  if (!defined($nop)) {
+    # XXX: should not get stuff from BSConfig, but compatibility...
+    $nop = $BSConfig::noproxy if defined($BSConfig::noproxy);
+  }
+  return 1 if !defined $nop;
   # strip leading and tailing whitespace
-  $noproxy =~ s/^\s+//;
-  $noproxy =~ s/\s+$//;
+  $nop =~ s/^\s+//;
+  $nop =~ s/\s+$//;
   # noproxy is a list separated by commas and optional whitespace
-  for (split(/\s*,\s*/, $noproxy)) {
+  for (split(/\s*,\s*/, $nop)) {
     return 0 if $host =~ m/(^|\.)$_$/;
   }
   return 1;
@@ -109,7 +112,7 @@ sub createreq {
   die("bad uri: $uri\n") unless $uri =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
   my ($proto, $auth, $host, $port, $path) = ($1, $2, $3, $4, $5);
   my $hostport = $port ? "$host$port" : $host;
-  undef $proxy if $proxy && defined($noproxy) && !useproxy($host, $noproxy);
+  undef $proxy if $proxy && !useproxy($param, $host);
   if ($proxy) {
     die("bad proxy uri: $proxy\n") unless "$proxy/" =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
     ($proto, $proxyauth, $host, $port) = ($1, $2, $3, $4);
