@@ -49,4 +49,25 @@ RSpec.describe Webui::WebuiHelper do
       expect('_10_2').to eq(valid_xml_id('10.2'))
     end
   end
+
+  describe '#repo_status_icon' do
+    it 'renders icon' do
+      blocked = repo_status_icon('blocked')
+      expect(blocked).to include("icons-time")
+      expect(blocked).to include("No build possible atm")
+    end
+
+    it 'renders outdated icon' do
+      outdated_scheduling = repo_status_icon('outdated_scheduling')
+      expect(outdated_scheduling).to include("icons-cog_error")
+      expect(outdated_scheduling).to include("state is being calculated")
+      expect(outdated_scheduling).to include("needs recalculations")
+    end
+
+    it 'renders unknown icon' do
+      undefined_icon = repo_status_icon('undefined')
+      expect(undefined_icon).to include("icons-eye")
+      expect(undefined_icon).to include("Unknown state")
+    end
+  end
 end

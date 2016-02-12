@@ -5,7 +5,7 @@ SimpleCov.command_name 'test:webui'
 class ApplicationHelperTest < ActiveSupport::TestCase
   include Webui::WebuiHelper
 
-  def test_repo_status_icon
+  def test_repo_status_icon # spec/helpers/webui/webui_helper_spec.rb
     # Regular
     status = repo_status_icon('blocked')
     assert_match("icons-time", status)
