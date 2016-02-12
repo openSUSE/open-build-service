@@ -30,7 +30,7 @@ class Webui::WebuiHelperTest < ActiveSupport::TestCase
     assert_equal '_123_456', valid_xml_id('123 456')
   end
 
-  def test_elide
+  def test_elide # spec/helpers/webui/webui_helper_spec.rb
     assert_empty elide('')
     assert_equal '...', elide('aaa', 3)
     assert_equal 'aaa...aaa', elide('aaaaaaaaaa', 9)
@@ -38,7 +38,7 @@ class Webui::WebuiHelperTest < ActiveSupport::TestCase
     assert_equal 'aaaaaa...', elide('aaaaaaaaaa', 9, :right)
   end
 
-  def test_elide_two
+  def test_elide_two # spec/helpers/webui/webui_helper_spec.rb
     assert_equal ["aaa", "bbb"], elide_two('aaa', 'bbb')
   end
 
