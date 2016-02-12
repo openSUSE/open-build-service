@@ -1,7 +1,25 @@
-#!/usr/bin/perl
+#!/usr/bin/perl -w
+
+use strict;
+
+BEGIN {
+  # sigh, must do it in this way so that Socket::MsgHdr's INIT is called
+  my $file = @ARGV && $ARGV[0] eq '--top' ? $ARGV[1] : $ARGV[0];
+  if ($file && -S $file) {
+    use BSXML;
+    use BSHandoff;
+  }
+}
+use Data::Dumper;
+
+
+sub users {
+  my $users = join(" ", map {$_->{'ev'}} @{$_[0] || []});
+  $users = substr($users, 0, 80)." ..." if length($users) > 84;
+  return "        $users";
+}
 
 my $top;
-
 if (@ARGV && $ARGV[0] eq '--top') {
   $top = 1;
   shift @ARGV;
@@ -11,6 +29,81 @@ $| = 1;
 print "\033[H\033[J" if $top;
 my $nl = "\n";
 $nl = "\033[K\n" if $top;
+
+if (-S $ARGV[0]) {
+  # ajaxstatus case
+  my $param = {
+    'uri' => '/ajaxstatus',
+    'handoffpath' => $ARGV[0],
+  };
+  my %slots;
+  while(1) {
+    my $ajaxstatus = BSHandoff::rpc($param, $BSXML::ajaxstatus);
+    my $now = time();
+    # find jobs
+    my %jobs;
+    for my $job (@{($ajaxstatus->{'joblist'} || {})->{'job'} || []}) {
+      my $id = $job->{'ev'};
+      next if $id == $ajaxstatus->{'ev'};
+      $jobs{$id} = 1;
+    }
+    # clean up old slots
+    for (keys %slots) {
+      delete $slots{$_} unless $jobs{$_};
+    }
+    # create slots
+    my @slots;
+    for my $job (@{($ajaxstatus->{'joblist'} || {})->{'job'} || []}) {
+      my $id = $job->{'ev'};
+      next if $id == $ajaxstatus->{'ev'};
+      my $slot = $slots{$id};
+      if (!defined $slot) {
+	$slot = 0;
+	for (sort {$a <=> $b} values %slots) {
+	  last if $_ != $slot;
+	  $slot++;
+	}
+	$slots{$id} = $slot;
+      }
+      my $d = $now - $job->{'starttime'};
+      my $req = $job->{'request'} || '?';
+      my $str = sprintf("%5d %5d %3d %s", $d, $id, $job->{'fd'}, substr($req, 0, 80));
+      $slots[$slot] = $str;
+    }
+    if ($ajaxstatus->{'watcher'}) {
+      push @slots, undef;
+      for my $fw (@{$ajaxstatus->{'watcher'}}) {
+        push @slots, sprintf("%s", $fw->{'filename'});
+	push @slots, users($fw->{'job'}) if $fw->{'job'};
+      }
+    }
+    if ($ajaxstatus->{'rpc'}) {
+      push @slots, undef;
+      for my $rpc (@{$ajaxstatus->{'rpc'}}) {
+	my $d = $now - $rpc->{'starttime'};
+        push @slots, sprintf("%5d %5d %3d %s", $d, $rpc->{'ev'}, $rpc->{'fd'}, substr($rpc->{'uri'}, 0, 80));
+	push @slots, users($rpc->{'job'}) if $rpc->{'job'};
+      }
+    }
+    if ($ajaxstatus->{'serialize'}) {
+      push @slots, undef;
+      for my $re (@{$ajaxstatus->{'serialize'}}) {
+        push @slots, sprintf("%s", $re->{'filename'});
+	push @slots, users($re->{'job'}) if $re->{'job'};
+      }
+    }
+    for my $str (@slots) {
+      $str = '' unless defined $str;
+      print "$str$nl";
+    }
+    last unless $top;
+    print "\033[J";
+    sleep(1);
+    print "\033[H";
+  }
+  exit(0);
+}
+
 while(1) {
   open(STA, '<', $ARGV[0]) || die("$ARGV[0]: $!\n");
   my $now = time();

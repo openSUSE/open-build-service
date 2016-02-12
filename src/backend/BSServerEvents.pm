@@ -94,6 +94,7 @@ sub reply {
     $ev->{'handler'}->($ev) if $ev->{'handler'};
     $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
     print "$str\n" if defined($str) && $str ne '';
+    delete $requestevents{$ev->{'id'}};
     return;
   }
   if ($ev->{'streaming'}) {
@@ -282,6 +283,7 @@ sub getrequest {
       $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
       close($ev->{'fd'});
       close($ev->{'nfd'}) if $ev->{'nfd'};
+      delete $requestevents{$ev->{'id'}};
       return;
     }
     if (!$r) {
@@ -289,6 +291,7 @@ sub getrequest {
       $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
       close($ev->{'fd'});
       close($ev->{'nfd'}) if $ev->{'nfd'};
+      delete $requestevents{$ev->{'id'}};
       return;
     }
     if ($ev->{'reqbuf'} !~ /^(.*?)\r?\n/s) {
@@ -319,7 +322,6 @@ sub getrequest {
     my $req = {'action' => $act, 'path' => $path, 'query' => $query_string, 'headers' => $headers, 'peer' => $ev->{'peer'}, 'conf' => $conf};
     $req->{'peerport'} = $ev->{'peerport'} if $ev->{'peerport'};
     $ev->{'request'} = $req;
-    $requestevents{$ev->{'id'}} = $ev;
     # FIXME: should not use global
     $BSServer::request = $req;
     my @r = $conf->{'dispatch'}->($conf, $req);
@@ -356,6 +358,8 @@ sub newconnect {
   if ($cev->{'conf'}->{'setkeepalive'}) {
     setsockopt($cev->{'fd'}, SOL_SOCKET, SO_KEEPALIVE, pack("l",1));
   }
+  $cev->{'starttime'} = time();
+  $requestevents{$cev->{'id'}} = $cev;
   BSEvents::add($cev, $ev->{'conf'}->{'getrequest_timeout'});
 }
 
@@ -381,6 +385,7 @@ sub cloneconnect {
   };
   $nev->{'peer'} = $peer;
   $nev->{'peerport'} = $peerport if $peerport;
+  $nev->{'starttime'} = $ev->{'starttime'} if $ev->{'starttime'};
   $requestevents{$nev->{'id'}} = $nev;
   if (@reply) {
     if ($ev->{'conf'}->{'stdreply'}) {

@@ -876,15 +876,16 @@ our $jobhistlist = [
 
 our $ajaxjob = [
     'job' =>
-	'id',
 	'ev',
 	'fd',
+	'starttime',
 	'peer',
 	'request',
 ];
 
 our $ajaxstatus = [
     'ajaxstatus' =>
+	'ev',
      [[ 'watcher' =>
 	    'filename',
 	    'state',
@@ -895,6 +896,7 @@ our $ajaxstatus = [
 	    'state',
 	    'ev',
 	    'fd',
+	    'starttime',
 	  [ $ajaxjob ],
      ]],
      [[ 'serialize' =>

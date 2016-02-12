@@ -1076,6 +1076,7 @@ sub rpc {
   $ev->{'rpcuri'} = $rpcuri;
   $ev->{'rpcstate'} = 'connecting';
   $ev->{'param'} = $param;
+  $ev->{'starttime'} = time();
   push @{$ev->{'joblist'}}, $jev;
   $rpcs{$rpcuri} = $ev;
   #print "new rpc $uri\n";
@@ -1120,16 +1121,19 @@ sub jobstatus {
   my ($ev) = @_;
   my $j = {'ev' => $ev->{'id'}};
   $j->{'fd'} = fileno(*{$ev->{'fd'}}) if $ev->{'fd'};
+  $j->{'starttime'} = $ev->{'starttime'} if $ev->{'starttime'};
   my $req = $ev->{'request'};
   if ($req) {
     $j->{'peer'} = $req->{'headers'}->{'x-peer'} if $req->{'headers'} && $req->{'headers'}->{'x-peer'};
-    $j->{'request'} = substr("$req->{'action'} $req->{'path'}?$req->{'query'}", 0, 80);
+    $j->{'request'} = substr("$req->{'action'} $req->{'path'}?$req->{'query'}", 0, 1024);
   }
   return $j;
 }
 
 sub getstatus {
   my $ret = {};
+  my $jev = $BSServerEvents::gev;
+  $ret->{'ev'} = $jev->{'id'};
   for my $filename (sort keys %filewatchers) {
     my $fw = {'filename' => $filename, 'state' => $filewatchers_s{$filename}};
     for my $jev (@{$filewatchers{$filename}}) {
@@ -1139,9 +1143,10 @@ sub getstatus {
   }
   for my $uri (sort keys %rpcs) {
     my $ev = $rpcs{$uri};
-    my $r = {'uri' => $uri, 'ev' => $ev->{'id'}};
+    my $r = {'uri' => substr($uri, 0, 1024), 'ev' => $ev->{'id'}};
     $r->{'fd'} = fileno(*{$ev->{'fd'}}) if $ev->{'fd'};
     $r->{'state'} = $ev->{'rpcstate'} if $ev->{'rpcstate'};
+    $r->{'starttime'} = $ev->{'starttime'} if $ev->{'starttime'};
     for my $jev (@{$ev->{'joblist'} || []}) {
       push @{$r->{'job'}}, jobstatus($jev);
     }
