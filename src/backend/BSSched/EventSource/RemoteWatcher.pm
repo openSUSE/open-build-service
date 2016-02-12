@@ -148,7 +148,12 @@ sub getevents {
 	if ($s[0] eq 'project') {
 	  push @remoteevents, {'type' => 'project', 'project' => $projid};
 	} elsif ($s[0] eq 'package') {
-	  push @remoteevents, {'type' => 'package', 'project' => $projid, 'package' => $s[2]};
+	  if (!$s[2]) {
+	    # watched all packages
+	    push @remoteevents, {'type' => 'package', 'project' => $projid};
+	  } else {
+	    push @remoteevents, {'type' => 'package', 'project' => $projid, 'package' => $s[2]};
+	  }
 	} elsif ($s[0] eq 'repository' || $s[0] eq 'repoinfo') {
 	  push @remoteevents, {'type' => $s[0], 'project' => $projid, 'repository' => $s[2], 'arch' => $s[3]};
 	}
