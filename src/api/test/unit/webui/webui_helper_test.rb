@@ -21,11 +21,6 @@ class Webui::WebuiHelperTest < ActiveSupport::TestCase
     assert_not_nil bugzilla_url(['foo@example.org'], 'foobar')
   end
 
-  def test_plural
-    assert_equal 'car',  plural(1, 'car', ' cars')
-    assert_equal 'cars', plural(5, 'car', 'cars')
-  end
-
   def test_valid_xml_id
     assert_equal '_123_456', valid_xml_id('123 456')
   end
