@@ -218,10 +218,6 @@ module Webui::WebuiHelper
     %w(prjconf index meta status).include? @current_action.to_s
   end
 
-  def mobile_device?
-    request.env['mobile_device_type'] == :mobile
-  end
-
   def sprite_tag(icon, opts = {})
     if opts.has_key? :class
       opts[:class] += " icons-#{icon}"
