@@ -41,10 +41,6 @@ class Webui::WebuiHelperTest < ActiveSupport::TestCase
     assert_kind_of Fixnum, next_codemirror_uid
   end
 
-  def test_array_cachekey
-    assert_not_nil array_cachekey([1, 2, 3])
-  end
-
   def test_escape_nested_list_escapes_forbidden_chars
     input = [['<p>home:Iggy</p>', '<p>This is a paragraph</p>'], ['<p>home:Iggy</p>', '<p>"This is a paragraph"</p>']]
     output = "['&lt;p&gt;home:Iggy&lt;\\/p&gt;', '&lt;p&gt;This is a paragraph&lt;\\/p&gt;'],\n"

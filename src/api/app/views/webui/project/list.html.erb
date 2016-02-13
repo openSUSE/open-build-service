@@ -29,7 +29,7 @@
   </p>
 </div>
 
-<% cachekey = array_cachekey(@projects)
+<% cachekey = Digest::MD5.hexdigest(@projects.join)
    projecturl = url_for(controller: 'project', action: 'show', project: 'REPLACEIT')
 %>
 

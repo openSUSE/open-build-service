@@ -429,10 +429,6 @@ module Webui::WebuiHelper
     end
   end
 
-  def array_cachekey(array)
-    Digest::MD5.hexdigest(array.join)
-  end
-
   def can_register
     return true if User.current.try(:is_admin?)
 
