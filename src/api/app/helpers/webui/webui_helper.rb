@@ -29,14 +29,6 @@ module Webui::WebuiHelper
     # rubocop:enable Metrics/LineLength
   end
 
-  def image_url(source)
-    abs_path = image_path(source)
-    unless abs_path =~ /^http/
-      abs_path = "#{request.protocol}#{request.host_with_port}#{abs_path}"
-    end
-    abs_path
-  end
-
   def user_icon(user, size = 20, css_class = nil, alt = nil)
     user = User.find_by_login!(user) unless user.is_a? User
     alt ||= user.realname
