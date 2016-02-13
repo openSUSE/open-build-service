@@ -48,10 +48,6 @@ module Webui::WebuiHelper
     fuzzy_time(Time.parse(timestring))
   end
 
-  def status_for(repo, arch, package)
-    @statushash[repo][arch][package] || { 'package' => package }
-  end
-
   def format_projectname(prjname, login)
     splitted = prjname.split(':', 3)
     if splitted[0] == 'home'
@@ -67,13 +63,9 @@ module Webui::WebuiHelper
     prjname
   end
 
-  def status_id_for(repo, arch, package)
-    valid_xml_id("id-#{package}_#{repo}_#{arch}")
-  end
-
   def arch_repo_table_cell(repo, arch, package_name)
-    status = status_for(repo, arch, package_name)
-    status_id = status_id_for(repo, arch, package_name)
+    status = @statushash[repo][arch][package_name] || { 'package' => package_name }
+    status_id = valid_xml_id("id-#{package_name}_#{repo}_#{arch}")
     link_title = status['details']
     if status['code']
       code = status['code']
