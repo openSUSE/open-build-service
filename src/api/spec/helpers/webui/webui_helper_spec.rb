@@ -148,4 +148,44 @@ RSpec.describe Webui::WebuiHelper do
       expect(escape_nested_list(input)).to eq(output)
     end
   end
+
+  describe '#sprited_text' do
+    it 'returns a img element with a matching icon class and title attribute and text' do
+      expect(sprited_text('brick_edit', 'Edit description')).to eq('<img title="Edit description" ' +
+                       'class="icons-brick_edit" alt="Edit description" src="/images/s.gif" /> Edit description')
+      expect(sprited_text('user_add', 'Request role addition')).to eq('<img title="Request role addition" ' +
+                       'class="icons-user_add" alt="Request role addition" src="/images/s.gif" /> Request role addition')
+    end
+  end
+
+  describe '#remove_dialog_tag' do
+    it "generates a link element and uses it's parameter as text field" do
+      expect(remove_dialog_tag('Some text')).to eq('<a title="Close" id="remove_dialog" href="#">Some text</a>')
+      expect(remove_dialog_tag('Some other text')).to eq('<a title="Close" id="remove_dialog" href="#">Some other text</a>')
+    end
+  end
+
+  describe '#repo_status_icon' do
+    skip('Please add some tests')
+  end
+
+  describe '#tab' do
+    skip('Please add some tests')
+  end
+
+  describe '#render_dialog' do
+    skip('Please add some tests')
+  end
+
+  describe '#user_and_role' do
+    skip('Please add some tests')
+  end
+
+  describe '#project_or_package_link' do
+    skip('Please add some tests')
+  end
+
+  describe '#user_with_realname_and_icon' do
+    skip('Please add some tests')
+  end
 end
