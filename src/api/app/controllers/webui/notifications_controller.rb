@@ -1,5 +1,4 @@
 class Webui::NotificationsController < Webui::WebuiController
-
   before_filter :require_admin
 
   def index
