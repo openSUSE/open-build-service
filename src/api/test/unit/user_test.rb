@@ -26,7 +26,7 @@ class UserTest < ActiveSupport::TestCase
     assert_equal nil, User.current
   end
 
-  def test_create_home_project
+  def test_create_home_project # spec/models/user_spec.rb
     User.create(login: 'moises', email: 'moises@home.com', password: '123456')
     assert Project.find_by(name: 'home:moises')
     # cleanup
