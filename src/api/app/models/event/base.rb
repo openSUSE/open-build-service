@@ -14,6 +14,15 @@ module Event
       @classnames = nil
       @receiver_roles = nil
 
+      def notification_events
+        %w(
+          Event::RequestCreate Event::RequestStatechange
+          Event::CommentForProject Event::CommentForPackage
+          Event::CommentForRequest Event::BuildFail
+          Event::ReviewWanted Event::ServiceFail
+        ).map { |type| type.constantize }
+      end
+
       def classnames
         @classnames || [self.name]
       end

@@ -1,6 +1,5 @@
 class Webui::ConfigurationController < Webui::WebuiController
   include Webui::WebuiHelper
-  include Webui::NotificationSettings
 
   before_filter :require_admin
   before_filter :set_configuration, only: [:update]

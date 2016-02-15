@@ -980,6 +980,19 @@ class User < ActiveRecord::Base
     %w(md5)
   end
 
+  def self.update_notifications(params, user = nil)
+    Event::Base.notification_events.each do |event_type|
+      values = params[event_type.to_s] || {}
+      event_type.receiver_roles.each do |role|
+        EventSubscription.update_subscription(event_type.to_s, role, user, !values[role].nil?)
+      end
+    end
+  end
+
+  def update_notifications(params)
+    User.update_notifications(params, self)
+  end
+
   private
 
   def can_modify_project_internal(project, ignoreLock)
