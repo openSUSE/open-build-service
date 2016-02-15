@@ -19,6 +19,7 @@ class Architecture < ActiveRecord::Base
 
   #### Validations macros
   validates_uniqueness_of :name
+  validates_presence_of :name
 
   #### Class methods using self. (public and then private)
 
