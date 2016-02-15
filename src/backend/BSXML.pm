@@ -881,10 +881,12 @@ our $ajaxjob = [
 	'starttime',
 	'peer',
 	'request',
+	'state',
 ];
 
 our $ajaxstatus = [
     'ajaxstatus' =>
+	'starttime',
 	'ev',
      [[ 'watcher' =>
 	    'filename',

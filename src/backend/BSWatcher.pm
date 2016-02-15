@@ -1121,11 +1121,12 @@ sub jobstatus {
   my ($ev) = @_;
   my $j = {'ev' => $ev->{'id'}};
   $j->{'fd'} = fileno(*{$ev->{'fd'}}) if $ev->{'fd'};
-  $j->{'starttime'} = $ev->{'starttime'} if $ev->{'starttime'};
   my $req = $ev->{'request'};
   if ($req) {
+    $j->{'state'} = $req->{'state'} if $req->{'state'};
+    $j->{'starttime'} = $req->{'starttime'} if $req->{'starttime'};
     $j->{'peer'} = $req->{'headers'}->{'x-peer'} if $req->{'headers'} && $req->{'headers'}->{'x-peer'};
-    $j->{'request'} = substr("$req->{'action'} $req->{'path'}?$req->{'query'}", 0, 1024);
+    $j->{'request'} = substr("$req->{'action'} $req->{'path'}?$req->{'query'}", 0, 1024) if $req->{'action'};
   }
   return $j;
 }
@@ -1134,6 +1135,8 @@ sub getstatus {
   my $ret = {};
   my $jev = $BSServerEvents::gev;
   $ret->{'ev'} = $jev->{'id'};
+  my $req = $jev->{'request'};
+  $ret->{'starttime'} = $req->{'server'}->{'starttime'};
   for my $filename (sort keys %filewatchers) {
     my $fw = {'filename' => $filename, 'state' => $filewatchers_s{$filename}};
     for my $jev (@{$filewatchers{$filename}}) {
@@ -1159,7 +1162,7 @@ sub getstatus {
     }
     push @{$ret->{'serialize'}}, $sz;
   }
-  for my $jev (BSServerEvents::getrequestevents()) {
+  for my $jev (BSServerEvents::getrequestevents($req->{'server'})) {
     push @{$ret->{'joblist'}->{'job'}}, jobstatus($jev);
   }
   return $ret;
