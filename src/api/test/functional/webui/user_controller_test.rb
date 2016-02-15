@@ -1,7 +1,7 @@
 require_relative '../../test_helper'
 
 class Webui::UserControllerTest < Webui::IntegrationTest
-  def test_edit
+  def test_edit # spec/controllers/webui/user_controller_spec.rb
     login_king to: user_edit_path(user: 'tom')
 
     fill_in 'realname', with: 'Tom Thunder'
@@ -24,7 +24,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     assert Project.where(name: User.current.home_project_name).exists?
   end
 
-  def test_show_user_page
+  def test_show_user_page #  spec/views/webui/user/show.html.erb_spec.rb, spec/controllers/webui/user_controller_spec.rb
     # email hidden to public
     visit user_show_path(user: 'tom')
     page.must_have_text 'Home of tom'
@@ -89,7 +89,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     end
   end
 
-  def test_index
+  def test_index # spec/controllers/webui/users_spec.rb
     login_tom
     visit users_path
     flash_message_type.must_equal :alert
@@ -154,14 +154,14 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     page.must_have_checked_field('Event::CommentForProject_commenter')
   end
 
-  def test_that_require_login_works
+  def test_that_require_login_works # spec/controllers/webui/users_spec.rb
     logout
     visit users_path
     assert_equal user_login_path, page.current_path
     flash_message.must_equal "Please login to access the requested page."
   end
 
-  def test_that_require_admin_works
+  def test_that_require_admin_works # spec/controllers/webui/users_spec.rb
     login_tom
     visit users_path
     assert_equal root_path, page.current_path
@@ -214,4 +214,5 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     assert_equal "bob", User.current.try(:login), "Should log the user in"
     assert_equal root_path, current_path, "Should redirect properly"
   end
+=end
 end
