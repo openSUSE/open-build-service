@@ -22,8 +22,8 @@ RSpec.describe Webui::UserController do
         get :index
       end
 
-      it { is_expected.to set_flash[:error].to('Requires admin privileges') }
-      it { is_expected.to redirect_to root_path }
+      it { expect(controller).to set_flash[:error].to('Requires admin privileges') }
+      it { expect(response).to redirect_to root_path }
     end
 
     context "when the current user is nobody" do
@@ -32,8 +32,8 @@ RSpec.describe Webui::UserController do
         get :index
       end
 
-      it { is_expected.to set_flash[:error].to('Please login to access the requested page.') }
-      it { is_expected.to redirect_to user_login_path }
+      it { expect(controller).to set_flash[:error].to('Please login to access the requested page.') }
+      it { expect(response).to redirect_to user_login_path }
     end
   end
 
@@ -56,7 +56,7 @@ RSpec.describe Webui::UserController do
         expect(response).to render_template("webui/user/show")
       end
 
-      describe "invalid users" do
+      describe "showing a non valid users" do
         subject(:user) { 'INVALID_USER' }
         it_should_behave_like "a non existent account"
       end
@@ -65,12 +65,12 @@ RSpec.describe Webui::UserController do
     context "when the current user isn't admin" do
       before { login non_admin_user }
 
-      describe "deleted users" do
+      describe "showing a deleted user" do
         subject(:user) { deleted_user }
         it_should_behave_like "a non existent account"
       end
 
-      describe "invalid users" do
+      describe "showing a non valid users" do
         subject(:user) { 'INVALID_USER' }
         it_should_behave_like "a non existent account"
       end
@@ -93,20 +93,94 @@ RSpec.describe Webui::UserController do
         get :edit, {user: user}
       end
 
-      it { is_expected.to set_flash[:error].to('Requires admin privileges') }
-      it { is_expected.to redirect_to root_path }
+      it { expect(controller).to set_flash[:error].to('Requires admin privileges') }
+      it { expect(response).to redirect_to root_path }
     end
   end
 
+  describe "GET #home" do
+    skip
+  end
+
+  describe "GET #requests" do
+    skip
+  end
+
+  describe "GET #save" do
 =begin
+    SAVE from edit
 
-SAVE from edit
+        expect(page).to have_text("Editing User Data for User")
+        fill_in 'realname', with: Faker::Name.name
+        fill_in 'email', with: Faker::Internet.email
+        click_button 'Update'
 
-    expect(page).to have_text("Editing User Data for User")
-    fill_in 'realname', with: Faker::Name.name
-    fill_in 'email', with: Faker::Internet.email
-    click_button 'Update'
-
-    expect(page).to have_content("User data for user '#{user.login}' successfully updated.")
+        expect(page).to have_content("User data for user '#{user.login}' successfully updated.")
 =end
+    skip
+  end
+
+  describe "GET #delete" do
+    skip
+  end
+
+  describe "GET #confirm" do
+    skip
+  end
+
+  describe "GET #lock" do
+    skip
+  end
+
+  describe "GET #admin" do
+    skip
+  end
+
+  describe "GET #save_dialog" do
+    skip
+  end
+
+  describe "GET #user_icon" do
+    skip
+  end
+
+  describe "GET #icon" do
+    skip
+  end
+
+  describe "GET #register" do
+    skip
+  end
+
+  describe "GET #register_user" do
+    skip
+  end
+
+  describe "GET #password_dialog" do
+    skip
+  end
+
+  describe "GET #change_password" do
+    skip
+  end
+
+  describe "GET #autocomplete" do
+    skip
+  end
+
+  describe "GET #tokens" do
+    skip
+  end
+
+  describe "GET #notifications" do
+    skip
+  end
+
+  describe "GET #update_notifications" do
+    skip
+  end
+
+  describe "GET #list_users(prefix = nil, hash = nil)" do
+    skip
+  end
 end
