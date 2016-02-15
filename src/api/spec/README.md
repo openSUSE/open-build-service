@@ -72,3 +72,7 @@ describe "some method/feature" do
  skip
 end
 ```
+
+## Better Specs
+As a set of "rules" to follow in our specs we use [BetterSpecs.org](http://betterspecs.org/).
+Please read those guidelines before you start coding new specs.
