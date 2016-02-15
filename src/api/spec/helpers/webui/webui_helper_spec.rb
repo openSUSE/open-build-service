@@ -160,8 +160,138 @@ RSpec.describe Webui::WebuiHelper do
 
   describe '#remove_dialog_tag' do
     it "generates a link element and uses it's parameter as text field" do
-      expect(remove_dialog_tag('Some text')).to eq('<a title="Close" id="remove_dialog" href="#">Some text</a>')
-      expect(remove_dialog_tag('Some other text')).to eq('<a title="Close" id="remove_dialog" href="#">Some other text</a>')
+      expect(remove_dialog_tag('Some text')).to eq(
+        '<a title="Close" id="remove_dialog" href="#">Some text</a>')
+      expect(remove_dialog_tag('Some other text')).to eq(
+        '<a title="Close" id="remove_dialog" href="#">Some other text</a>')
+    end
+  end
+
+  describe '#remove_dialog_tag' do
+    it "generates a 'pre' element and uses it's parameter as text field" do
+      expect(description_wrapper('some description')).to eq(
+        '<pre id="description_text" class="plain">some description</pre>')
+      expect(description_wrapper('some other description')).to eq(
+        '<pre id="description_text" class="plain">some other description</pre>')
+    end
+  end
+
+  describe '#possibly_empty_ul' do
+    context 'if the block is not blank' do
+      before do
+        @cont = proc { 'some content' }
+      end
+
+      it "embeds content returned by a block in an 'ul' element" do
+        expect(possibly_empty_ul({}, &@cont)).to eq('<ul>some content</ul>')
+      end
+
+      it "applies parameters as attributes to an 'ul' element" do
+        html_options = { class: 'list', id: 'my-list' }
+        expect(possibly_empty_ul(html_options, &@cont)).to eq('<ul class="list" id="my-list">some content</ul>')
+      end
+
+      it 'ignores a possible fallback parameter' do
+        html_options = { class: 'list', fallback: "<p><i>fallback</i></p>" }
+        expect(possibly_empty_ul(html_options, &@cont)).to eq('<ul class="list">some content</ul>')
+      end
+    end
+
+    context 'if the block is blank' do
+      before do
+        @cont = proc { '' }
+      end
+
+      context 'and a fallback option is given' do
+        before do
+          @html_options = { class: 'list', fallback: "<p><i>fallback</i></p>"}
+        end
+
+        it { expect(possibly_empty_ul(@html_options, &@cont)).to eq('<p><i>fallback</i></p>') }
+      end
+
+      context 'and no fallback option is given' do
+        it { expect(possibly_empty_ul({}, &@cont)).to be nil }
+      end
+    end
+  end
+
+  describe '#is_advanced_tab?' do
+    advanced_tabs = ['prjconf', 'index', 'meta', 'status']
+    advanced_tabs.each do |action|
+      context "@current_action is '#{action}'" do
+        before do
+          @current_action = action
+        end
+
+        it { expect(is_advanced_tab?).to be true }
+      end
+    end
+
+    context "@current_action is not within #{advanced_tabs}" do
+      before do
+        @current_action = 'something'
+      end
+
+      it { expect(is_advanced_tab?).to be false }
+    end
+
+    context '@current_action is an empty string' do
+      before do
+        @current_action = ''
+      end
+
+      it { expect(is_advanced_tab?).to be false }
+    end
+  end
+
+  describe '#next_codemirror_uid' do
+    before do
+      @codemirror_editor_setup = 0
+    end
+
+    after do
+      @codemirror_editor_setup = 0
+    end
+
+    it { expect(next_codemirror_uid).to be_instance_of(Fixnum) }
+
+    context "if next_codemirror_uid get's called the first time" do
+      it { expect(next_codemirror_uid).to eq(1) }
+    end
+
+    context "if next_codemirror_uid has been called before" do
+      before do
+        next_codemirror_uid
+      end
+
+      it 'increases @codemirror_editor_setup by 1' do
+        expect(next_codemirror_uid).to eq(2)
+        expect(next_codemirror_uid).to eq(3)
+      end
+    end
+  end
+
+  describe '#can_register' do
+    context 'current user is admin' do
+      before do
+        User.current = create(:admin_user)
+      end
+
+      it { expect(can_register).to be(true) }
+    end
+
+    context 'user is not registered' do
+      before do
+        User.current = create(:user)
+        UnregisteredUser.stubs(:can_register?).raises(APIException)
+      end
+
+      it { expect(can_register).to be(false) }
+    end
+
+    context 'user is registered' do
+      it { expect(can_register).to be(true) }
     end
   end
 
@@ -186,6 +316,14 @@ RSpec.describe Webui::WebuiHelper do
   end
 
   describe '#user_with_realname_and_icon' do
+    skip('Please add some tests')
+  end
+
+  describe '#setup_codemirror_editor' do
+    skip('Please add some tests')
+  end
+
+  describe '#package_link' do
     skip('Please add some tests')
   end
 end
