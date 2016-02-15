@@ -10,7 +10,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     find('#flash-messages').must_have_text("User data for user 'tom' successfully updated.")
   end
 
-  def test_creation_of_home_projects # spec/controllers/webui/user_controller_spec.rb
+  def test_creation_of_home_projects # spec/features/webui/users/users_home_project_spec.rb, spec/models/user_spec.rb
     User.current = users(:Iggy)
     Project.find_by(name: "home:Iggy").destroy
     login_Iggy
