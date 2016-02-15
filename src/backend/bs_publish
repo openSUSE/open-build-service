@@ -1847,7 +1847,7 @@ sub publish {
 	  delete $pt->{'_content'};
 	  $pt->{'medium'} = $medium;
 	  my $fn = '';
-	  $fn .= "/".(defined($pt->{$_}) ? $pt->{$_} : '') for qw{arch name epoch version release};
+	  $fn .= "/".(defined($pt->{$_}) ? $pt->{$_} : '') for qw{binaryarch name epoch version release};
 	  $packtrack->{"$medium$fn"} = $pt;
 	}
       }
