@@ -59,11 +59,15 @@ if (-S $ARGV[0]) {
       delete $slots{$_} unless $jobs{$_};
     }
     # create slots
+    my $lasteventscount = 0;
     my @slots;
     for my $job (@{($ajaxstatus->{'joblist'} || {})->{'job'} || []}) {
       my $id = $job->{'ev'};
       next if $id == $ajaxstatus->{'ev'};
-      next if $nolastevents && $job->{'request'} && $job->{'request'} =~ /^GET \/lastevents\?/;
+      if ($nolastevents && $job->{'request'} && $job->{'request'} =~ /^GET \/lastevents\?/) {
+        $lasteventscount++;
+        next;
+      }
       my $slot = $slots{$id};
       if (!defined $slot) {
 	$slot = 0;
@@ -77,6 +81,9 @@ if (-S $ARGV[0]) {
       my $req = $job->{'request'} || '?';
       my $str = sprintf("%5d %5d %3d %s", $d, $id, $job->{'fd'}, substr($req, 0, 80));
       $slots[$slot] = $str;
+    }
+    if ($nolastevents) {
+      unshift @slots, "suppressed lastevents: $lasteventscount";
     }
     if ($ajaxstatus->{'watcher'}) {
       push @slots, undef;
