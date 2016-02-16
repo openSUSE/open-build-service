@@ -11,12 +11,22 @@ BEGIN {
 }
 use Data::Dumper;
 
+my $cols;
 
 sub users {
   my $users = join(" ", map {$_->{'ev'}} @{$_[0] || []});
-  $users = substr($users, 0, 80)." ..." if length($users) > 84;
+  $users = substr($users, 0, $cols - 13)." ..." if length($users) > $cols - 9;
   return "        $users";
 }
+
+if (-t STDOUT) {
+  eval {
+    require Term::ReadKey;
+    ($cols) = Term::ReadKey::GetTerminalSize(\*STDOUT);
+    $SIG{'WINCH'} = sub { ($cols) = Term::ReadKey::GetTerminalSize(\*STDOUT) } if $cols;
+  };
+}
+$cols ||= 80;
 
 my $top;
 my $nolastevents;
@@ -79,7 +89,7 @@ if (-S $ARGV[0]) {
       }
       my $d = $now - $job->{'starttime'};
       my $req = $job->{'request'} || '?';
-      my $str = sprintf("%5d %5d %3d %s", $d, $id, $job->{'fd'}, substr($req, 0, 80));
+      my $str = sprintf("%5d %5d %3d %s", $d, $id, $job->{'fd'}, substr($req, 0, $cols - 17));
       $slots[$slot] = $str;
     }
     if ($nolastevents) {
@@ -96,7 +106,7 @@ if (-S $ARGV[0]) {
       push @slots, undef;
       for my $rpc (@{$ajaxstatus->{'rpc'}}) {
 	my $d = $now - $rpc->{'starttime'};
-        push @slots, sprintf("%5d %5d %3d %s", $d, $rpc->{'ev'}, $rpc->{'fd'}, substr($rpc->{'uri'}, 0, 80));
+        push @slots, sprintf("%5d %5d %3d %s", $d, $rpc->{'ev'}, $rpc->{'fd'}, substr($rpc->{'uri'}, 0, $cols - 17));
 	push @slots, users($rpc->{'job'}) if $rpc->{'job'};
       }
     }
