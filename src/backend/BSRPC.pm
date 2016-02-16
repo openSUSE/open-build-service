@@ -23,6 +23,7 @@
 package BSRPC;
 
 use Socket;
+use POSIX;
 use XML::Structured;
 use Symbol;
 use MIME::Base64;
@@ -257,7 +258,8 @@ sub rpc {
       BSHTTP::swrite(\*S, $proxytunnel);
       my $ans = '';
       do {
-	die("received truncated answer\n") if !sysread(S, $ans, 1024, length($ans));
+	my $r = sysread(S, $ans, 1024, length($ans));
+	die("received truncated answer\n") if !$r && (defined($r) || ($! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK));
       } while ($ans !~ /\n\r?\n/s);
       die("bad answer\n") unless $ans =~ s/^HTTP\/\d+?\.\d+?\s+?(\d+[^\r\n]*)/Status: $1/s;
       my $status = $1;
@@ -317,7 +319,8 @@ sub rpc {
   }
   my $ans = '';
   do {
-    die("received truncated answer\n") if !sysread(S, $ans, 1024, length($ans));
+    my $r = sysread(S, $ans, 1024, length($ans));
+    die("received truncated answer\n") if !$r && (defined($r) || ($! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK));
   } while ($ans !~ /\n\r?\n/s);
   die("bad answer\n") unless $ans =~ s/^HTTP\/\d+?\.\d+?\s+?(\d+[^\r\n]*)/Status: $1/s;
   my $status = $1;

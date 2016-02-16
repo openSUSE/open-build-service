@@ -22,6 +22,7 @@
 
 package BSHTTP;
 
+use POSIX;
 use Digest::MD5 ();
 use Fcntl qw(:DEFAULT);
 
@@ -73,7 +74,7 @@ sub read_data {
       if (defined($maxl) && $maxl <= $cl) {
 	while(length($qu) < $maxl) {
 	  my $r = sysread(S, $qu, 8192, length($qu));
-	  unexpected_eof($req) unless $r;
+	  unexpected_eof($req) if !$r && (defined($r) || ($! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK));
 	}
 	$ret .= substr($qu, 0, $maxl);
 	$req->{'__cl'} = $cl - $maxl;
@@ -84,7 +85,7 @@ sub read_data {
 	# no maxl or maxl > cl, read full cl
 	while(length($qu) < $cl) {
 	  my $r = sysread(S, $qu, 8192, length($qu));
-	  unexpected_eof($req) unless $r;
+	  unexpected_eof($req) if !$r && (defined($r) || ($! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK));
 	}
 	$ret .= substr($qu, 0, $cl);
 	$qu = substr($qu, $cl);
@@ -99,7 +100,7 @@ sub read_data {
       # reached end of chunk, prepare for next one
       while ($qu !~ /\r?\n/s) {
 	my $r = sysread(S, $qu, 8192, length($qu));
-	unexpected_eof($req) unless $r;
+        unexpected_eof($req) if !$r && (defined($r) || ($! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK));
       }
       if (substr($qu, 0, 1) eq "\n") {
 	$qu = substr($qu, 1);
@@ -121,7 +122,7 @@ sub read_data {
 	$qu = "\r\n$qu";
 	while ($qu !~ /\n\r?\n/s) {
 	  my $r = sysread(S, $qu, 8192, length($qu));
-	  unexpected_eof($req) unless $r;
+	  unexpected_eof($req) if !$r && (defined($r) || ($! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK));
 	}
 	$qu =~ /^(.*?)\n\r?\n/;
 	# get trailing header
@@ -141,7 +142,7 @@ sub read_data {
       my $m = ($maxl || 0) - length($qu);
       $m = 8192 if $m < 8192;
       my $r = sysread(S, $qu, $m, length($qu));
-      if (!$r) {
+      if (!$r &&  (defined($r) || ($! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK))) {
 	$req->{'__eof'} = 1;
 	die("unexpected EOF\n") if defined($cl) || ($exact && defined($maxl));
 	$cl = $maxl = length($qu);
