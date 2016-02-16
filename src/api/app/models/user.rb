@@ -871,7 +871,7 @@ class User < ActiveRecord::Base
   end
 
   def forbidden_project_ids
-    @f_ids ||= Relationship.forbidden_project_ids_for_user(self)
+    Relationship.forbidden_project_ids_for_user(self)
   end
 
   def user_relevant_packages_for_status
