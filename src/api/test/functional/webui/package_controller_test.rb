@@ -265,7 +265,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     end
     first('.buildstatus').must_have_text 'succeeded'
     click_link 'succeeded'
-    find(:id, 'log_space').must_have_text '[1] this is my dummy logfile -&gt; ümlaut'
+    find(:id, 'log_space').must_have_text '[1] this is my dummy logfile -> ümlaut'
     first(:link, 'Download logfile').click
     # don't bother with the ümlaut
     assert_match %r{this is my dummy}, page.source
@@ -478,14 +478,14 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     visit '/package/live_build_log/home:Iggy/TestPack/10.2/i586'
     page.status_code.must_equal 200
     page.must_have_text "Build finished"
-    page.must_have_text "[1] this is my dummy logfile -&gt; ümlaut"
+    page.must_have_text "[1] this is my dummy logfile -> ümlaut"
     login_Iggy to: '/package/live_build_log/SourceprotectedProject/pack/repo/i586'
     page.status_code.must_equal 200
     flash_message.must_equal 'Could not access build log'
     visit '/package/live_build_log/UseRemoteInstance/pack2.linked/pop/i586/'
     page.status_code.must_equal 200
     page.must_have_text "Build finished"
-    page.must_have_text "[1] this is my dummy logfile -&gt; ümlaut"
+    page.must_have_text "[1] this is my dummy logfile -> ümlaut"
   end
 
   def test_save_meta
