@@ -592,6 +592,48 @@ sub periodic_handler {
   BSEvents::add($ev, $conf->{'periodic_interval'} || 3) if $conf->{'periodic'};
 }
 
+# Connectivity check. We cheat here, as TCP does not provide a way to
+# check if the other side can receive data. Instead we check for EOF,
+# i.e. if we received a FIN. This does not work if the other side
+# did only shutdown the sender (but who does that?).
+sub concheck_handler {
+  my ($cev) = @_;
+  my $server = $cev->{'server'};
+  my $requestevents = $server->{'requestevents'} || {};
+  while (1) {
+    my $rvec = '';
+    for my $ev (values %$requestevents) {
+      next unless $ev->{'fd'};
+      my $req = $ev->{'request'};
+      next if !$req || $req->{'state'} eq 'receiving';
+      vec($rvec, fileno(*{$ev->{'fd'}}), 1) = 1;
+    }
+    last if $rvec eq '';
+    my $nfound = select($rvec, undef, undef, 0);
+    last unless $nfound;
+    for my $ev (values %$requestevents) {
+      next unless $ev->{'fd'};
+      my $req = $ev->{'request'};
+      next if !$req || $req->{'state'} eq 'receiving';
+      next unless vec($rvec, fileno(*{$ev->{'fd'}}), 1);
+      my $buf = '';
+      my $r = sysread($ev->{'fd'}, $buf, 1024);
+      next if $r;
+      if (!defined($r)) {
+	next if $! == POSIX::EINTR || $! == POSIX::EWOULDBLOCK;
+	print "concheck: read error for $ev->{'peer'}: $!\n";
+      } else {
+	print "concheck: EOF for $ev->{'peer'}\n";
+      }
+      $ev->{'closehandler'}->($ev) if $ev->{'closehandler'};
+      close($ev->{'fd'});
+      close($ev->{'nfd'}) if $ev->{'nfd'};
+      delete $requestevents->{$ev->{'id'}};
+    }
+  }
+  BSEvents::add($cev, $server->{'conf'}->{'concheck_interval'} || 6);
+}
+
 sub addserver {
   my ($fd, $conf) = @_;
   my $server = { 'starttime' => time(), 'conf' => $conf, 'requestevents' => {} };
@@ -605,6 +647,9 @@ sub addserver {
     $per_ev->{'server'} = $server;
     BSEvents::add($per_ev, $conf->{'periodic_interval'} || 3);
   }
+  my $con_ev = BSEvents::new('timeout', \&concheck_handler);
+  $con_ev->{'server'} = $server;
+  BSEvents::add($con_ev, $conf->{'concheck_interval'} || 60);
   return $sockev;
 }
 
