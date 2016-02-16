@@ -3120,8 +3120,22 @@ if ($path eq '/info') {
   my $kiwitreefile = "$buildroot/.build.packages/.kiwitree";
   die("kiwitreefile does not exist\n") unless -e $kiwitreefile;
   my @send;
+  my %ok;
   for my $f (@{$cgi->{'file'} || []}) {
-    die("$f: $!\n") unless -f "$buildroot/.build.packages/KIWI/$f";
+    die("bad file $f\n") if "/$f/" =~ m!//!s;		# no dup slashes
+    die("bad file $f\n") if "/$f/" =~ m!/\.\.?/!s;	# no . or ..
+    my @f = split('/', $f);
+    die("bad file $f\n") unless @f;
+    my $c = pop(@f);
+    $f = '';
+    for (@f) {
+      $f .= $_;
+      die("bad file $f\n") if !$ok{$f} && (-l "$buildroot/.build.packages/KIWI/$f" || ! -d _);
+      $ok{$f} = 1;
+      $f .= '/';
+    }
+    $f .= $c;
+    die("bad file $f\n") if -l "$buildroot/.build.packages/KIWI/$f" || ! -f _;
     push @send, { 'name' => $f, 'filename' => "$buildroot/.build.packages/KIWI/$f" };
   }
   BSServer::reply_cpio(\@send);
