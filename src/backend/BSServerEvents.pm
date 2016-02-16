@@ -445,7 +445,7 @@ sub stream_close {
     close $wev->{'fd'} if $wev->{'fd'};
     delete $wev->{'fd'};
     delete $wev->{'readev'};
-    delete $ev->{'requestevents'}->{$ev->{'id'}} if $ev->{'requestevents'};
+    delete $wev->{'requestevents'}->{$wev->{'id'}} if $wev->{'requestevents'};
   }
 }
 
@@ -629,6 +629,7 @@ sub concheck_handler {
       close($ev->{'fd'});
       close($ev->{'nfd'}) if $ev->{'nfd'};
       delete $requestevents->{$ev->{'id'}};
+      BSEvents::rem($ev);	# just in case...
     }
   }
   BSEvents::add($cev, $server->{'conf'}->{'concheck_interval'} || 6);
