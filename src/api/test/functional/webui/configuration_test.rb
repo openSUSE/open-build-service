@@ -45,7 +45,7 @@ class Webui::ConfigurationTest < Webui::IntegrationTest
     assert_equal Architecture.find_by_name( "s390" ).available, false
   end
 
-  def test_notification_defaults
+  def test_notification_defaults # spec/features/webui/notifications_spec.rb
     # set some defaults as admin
     login_king to: notifications_path
 
