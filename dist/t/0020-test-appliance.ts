@@ -6,7 +6,7 @@ export BASH_TAP_ROOT=$(dirname $0)
 
 . $(dirname $0)/bash-tap-bootstrap
 
-plan tests 26
+plan tests 27
 
 # Service enabled and started
 for srv in \
@@ -74,3 +74,10 @@ is $API_VERSION $RPM_VERSION "Checking api about version"
 OSC_UNAUHTORIZED=$(osc -A https://localhost ls 2>&1|grep 401)
 [ -z "$OSC_UNAUHTORIZED" ]
 is "$?" 0 "Checking authorization for osc"
+
+# test /apidocs
+HTTP_OK=$(curl -ik https://localhost/apidocs/ 2>/dev/null |grep "200 OK")
+[ -n "$HTTP_OK" ]
+is $? 0 "Checking for https://localhost/apidocs/"
+
+
