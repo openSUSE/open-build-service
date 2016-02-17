@@ -5,6 +5,9 @@ require_dependency 'opensuse/permission'
 require_dependency 'opensuse/backend'
 require_dependency 'opensuse/validator'
 require_dependency 'api_exception'
+if CONFIG['kerberos_service_principal']
+  require_dependency 'gssapi'
+end
 
 class ApplicationController < ActionController::Base
   include Pundit
@@ -41,7 +44,7 @@ class ApplicationController < ActionController::Base
   before_action :validate_params
   before_action :require_login
 
-  # contains current authentification method, one of (:proxy, :basic)
+  # contains current authentification method, one of (:proxy, :basic, :negotiate)
   attr_accessor :auth_method
 
   def pundit_user
@@ -152,6 +155,66 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def initialize_krb_session
+    principal = CONFIG['kerberos_service_principal']
+
+    unless CONFIG['kerberos_realm']
+      CONFIG['kerberos_realm'] = principal.rpartition("@")[2]
+    end
+
+    krb = GSSAPI::Simple.new(
+        principal.partition("/")[2].rpartition("@")[0],
+        principal.partition("/")[0],
+        CONFIG['kerberos_keytab'] || "/etc/krb5.keytab")
+    krb.acquire_credentials
+
+    return krb
+  end
+
+  def extract_krb_user(authorization)
+    unless authorization[1]
+      logger.debug "Didn't receive any negotiation data."
+      response.headers["WWW-Authenticate"] = authorization.join(' ')
+      raise AuthenticationRequiredError.new "GSSAPI negotiation failed."
+    end
+
+    begin
+      krb = initialize_krb_session
+
+      begin
+        tok = krb.accept_context(Base64.strict_decode64(authorization[1]))
+      rescue GSSAPI::GssApiError
+        response.headers["WWW-Authenticate"] = authorization.join(' ')
+        raise AuthenticationRequiredError.new "Received invalid GSSAPI context."
+      end
+
+      unless krb.display_name.match("@#{CONFIG['kerberos_realm']}$")
+        response.headers["WWW-Authenticate"] = authorization.join(' ')
+        raise AuthenticationRequiredError.new "User authenticated in wrong Kerberos realm."
+      end
+
+      unless tok == true
+        tok = Base64.strict_encode64(tok)
+        response.headers["WWW-Authenticate"] = "Negotiate #{tok}"
+      end
+
+      @login = krb.display_name.partition("@")[0]
+      @http_user = User.find_by_login @login
+      raise AuthenticationRequiredError.new "User '#{@login}' has no account on the server." unless @http_user
+      @auth_method = :negotiate
+    rescue GSSAPI::GssApiError => err
+      raise "Received a GSSAPI exception; #{err.message}."
+    end
+  end
+
+  def extract_basic_user(authorization)
+    @login, @passwd = Base64.decode64(authorization[1]).split(':', 2)[0..1]
+
+    # set password to the empty string in case no password is transmitted in the auth string
+    @passwd ||= ""
+    @auth_method = :basic
+  end
+
   def authorization_infos
     # 1. try to get it where mod_rewrite might have put it
     # 2. for Apace/mod_fastcgi with -pass-header Authorization
@@ -164,19 +227,21 @@ class ApplicationController < ActionController::Base
     return
   end
 
-  def extract_basic_auth_user
+  def extract_auth_user
     authorization = authorization_infos
 
     # privacy! logger.debug( "AUTH: #{authorization.inspect}" )
-
-    if authorization && authorization[0] == "Basic"
+    if authorization
       # logger.debug( "AUTH2: #{authorization}" )
-      @login, @passwd = Base64.decode64(authorization[1]).split(':', 2)[0..1]
-
-      # set password to the empty string in case no password is transmitted in the auth string
-      @passwd ||= ""
+      if authorization[0] == "Basic"
+        extract_basic_user authorization
+      elsif authorization[0] == "Negotiate" && CONFIG['kerberos_service_principal']
+        extract_krb_user authorization
+      else
+        logger.debug "Unsupported authentication string '#{authorization[0]}' received."
+      end
     else
-      logger.debug "no authentication string was sent"
+      logger.debug "No authentication string was received."
     end
   end
 
@@ -185,11 +250,8 @@ class ApplicationController < ActionController::Base
     if mode == :on
       extract_proxy_user
     else
-      @auth_method = :basic
-
-      extract_basic_auth_user
-
-      @http_user = User.find_with_credentials @login, @passwd if @login
+      extract_auth_user
+      @http_user = User.find_with_credentials @login, @passwd if @login && @passwd
     end
 
     if !@http_user && session[:login]
@@ -441,7 +503,13 @@ class ApplicationController < ActionController::Base
     end
 
     if @status == 401
-      response.headers["WWW-Authenticate"] = 'basic realm="API login"'
+      unless response.headers["WWW-Authenticate"]
+        if CONFIG['kerberos_service_principal']
+          response.headers["WWW-Authenticate"] = 'Negotiate, basic realm="API login"'
+        else
+          response.headers["WWW-Authenticate"] = 'basic realm="API login"'
+        end
+      end
     end
     if @status == 404
       @summary ||= "Not found"
