@@ -1,3 +1,7 @@
+if CONFIG['kerberos_service_principal']
+  require_dependency 'gssapi'
+end
+
 class Authenticator
   class AuthenticationRequiredError < APIException
     setup 401, "Authentication required"
@@ -25,7 +29,8 @@ class Authenticator
 
   attr_reader :request, :session, :user_permissions, :http_user
 
-  def initialize(request, session)
+  def initialize(request, session, response)
+    @response = response
     @request = request
     @session = session
     @http_user = nil
@@ -40,9 +45,8 @@ class Authenticator
     if proxy_mode?
       extract_proxy_user
     else
-      extract_basic_auth_user
-
-      @http_user = User.find_with_credentials @login, @passwd if @login
+      extract_auth_user
+      @http_user = User.find_with_credentials @login, @passwd if @login && @passwd
     end
 
     if !@http_user && session[:login]
@@ -80,6 +84,65 @@ class Authenticator
 
   private
 
+  def initialize_krb_session
+    principal = CONFIG['kerberos_service_principal']
+
+    unless CONFIG['kerberos_realm']
+      CONFIG['kerberos_realm'] = principal.rpartition("@")[2]
+    end
+
+    krb = GSSAPI::Simple.new(
+      principal.partition("/")[2].rpartition("@")[0],
+      principal.partition("/")[0],
+      CONFIG['kerberos_keytab'] || "/etc/krb5.keytab"
+    )
+    krb.acquire_credentials
+
+    return krb
+  end
+
+  def extract_krb_user(authorization)
+    unless authorization[1]
+      Rails.logger.debug "Didn't receive any negotiation data."
+      @response.headers["WWW-Authenticate"] = authorization.join(' ')
+      raise AuthenticationRequiredError.new "GSSAPI negotiation failed."
+    end
+
+    begin
+      krb = initialize_krb_session
+
+      begin
+        tok = krb.accept_context(Base64.strict_decode64(authorization[1]))
+      rescue GSSAPI::GssApiError
+        @response.headers["WWW-Authenticate"] = authorization.join(' ')
+        raise AuthenticationRequiredError.new "Received invalid GSSAPI context."
+      end
+
+      unless krb.display_name.match("@#{CONFIG['kerberos_realm']}$")
+        @response.headers["WWW-Authenticate"] = authorization.join(' ')
+        raise AuthenticationRequiredError.new "User authenticated in wrong Kerberos realm."
+      end
+
+      unless tok == true
+        tok = Base64.strict_encode64(tok)
+        @response.headers["WWW-Authenticate"] = "Negotiate #{tok}"
+      end
+
+      @login = krb.display_name.partition("@")[0]
+      @http_user = User.find_by_login @login
+      raise AuthenticationRequiredError.new "User '#{@login}' has no account on the server." unless @http_user
+    rescue GSSAPI::GssApiError => err
+      raise AuthenticationRequiredError.new, "Received a GSSAPI exception; #{err.message}."
+    end
+  end
+
+  def extract_basic_user(authorization)
+    @login, @passwd = Base64.decode64(authorization[1]).split(':', 2)[0..1]
+
+    # set password to the empty string in case no password is transmitted in the auth string
+    @passwd ||= ""
+  end
+
   def extract_proxy_user
     proxy_user = request.env['HTTP_X_USERNAME']
     if proxy_user
@@ -115,19 +178,21 @@ class Authenticator
     end
   end
 
-  def extract_basic_auth_user
+  def extract_auth_user
     authorization = authorization_infos
 
-    # privacy! Rails.logger.debug( "AUTH: #{authorization.inspect}" )
-
-    if authorization && authorization[0] == "Basic"
-      # Rails.logger.debug( "AUTH2: #{authorization}" )
-      @login, @passwd = Base64.decode64(authorization[1]).split(':', 2)[0..1]
-
-      # set password to the empty string in case no password is transmitted in the auth string
-      @passwd ||= ""
+    # privacy! logger.debug( "AUTH: #{authorization.inspect}" )
+    if authorization
+      # logger.debug( "AUTH2: #{authorization}" )
+      if authorization[0] == "Basic"
+        extract_basic_user authorization
+      elsif authorization[0] == "Negotiate" && CONFIG['kerberos_service_principal']
+        extract_krb_user authorization
+      else
+        Rails.logger.debug "Unsupported authentication string '#{authorization[0]}' received."
+      end
     else
-      Rails.logger.debug "no authentication string was sent"
+      Rails.logger.debug "No authentication string was received."
     end
   end
 

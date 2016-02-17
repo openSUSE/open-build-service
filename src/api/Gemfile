@@ -74,6 +74,8 @@ group :development, :production do
   gem 'clockwork', '>= 0.7'
   # as interface to LDAP
   gem 'ruby-ldap', require: false
+  # to enable GSSAPI / Kerberos authentication
+  gem "gssapi", require: false
 end
 
 group :production do
