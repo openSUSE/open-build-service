@@ -8064,7 +8064,7 @@ sub lastevents {
     push @args, "start=$cgi->{'start'}";
     BSHandoff::handoff('/lastevents', undef, @args);
   }
-  BSWatcher::addfilewatcher("$eventdir/lastevents");
+  BSWatcher::addfilewatcher("$eventdir/lastevents", 120);
 
   my @s = stat("$eventdir/lastevents");
   my @events;
@@ -8139,7 +8139,7 @@ sub lastevents {
   # - survive history truncation
   $cgi->{'start_orig'} ||= $cgi->{'start'};
   $cgi->{'req_time'} ||= time();
-  if ($BSStdServer::isajax && !@events && $nextno < $cgi->{'start_orig'} + 100 && $s[9] < $cgi->{'req_time'} + 300) {
+  if ($BSStdServer::isajax && !@events && $nextno < $cgi->{'start_orig'} + 100 && time() < $cgi->{'req_time'} + 300) {
     # small hack: update cgi to the next event number
     $cgi->{'start'} = $nextno if $cgi->{'start'} < $nextno;
     return undef;

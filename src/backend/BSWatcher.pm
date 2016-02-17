@@ -25,7 +25,6 @@ package BSWatcher;
 
 use BSServer;
 use BSServerEvents;
-use BSDispatch;
 use BSRPC;
 use BSEvents;
 use BSHTTP;
@@ -34,7 +33,6 @@ use Socket;
 use Symbol;
 use XML::Structured;
 use Data::Dumper;
-use MIME::Base64;
 use Digest::MD5 ();
 
 use strict;
@@ -84,16 +82,6 @@ sub reply_cpio {
 # - args
 #
 
-my %rpcs;
-
-my %filewatchers;
-my %filewatchers_s;
-my $filewatchers_ev;
-my $filewatchers_ev_active;
-
-my %serializations;
-my %serializations_waiting;
-
 sub redo_request {
   my ($jev) = @_;
   return if $jev->{'deljob_done'};	# job is already deleted
@@ -121,6 +109,156 @@ sub deljob {
   serialize_deljob($jev);
   rpc_deljob($jev);
 }
+
+
+###########################################################################
+#
+# file watching
+#
+
+# state
+my %filewatchers;
+my %filewatchers_s;
+my %filewatchers_periodic;
+my $filewatchers_ev;
+my $filewatchers_ev_active;
+
+sub filewatcher_handler {
+  # print "filewatcher_handler\n";
+  BSEvents::add($filewatchers_ev, 1);
+  for my $file (sort keys %filewatchers) {
+    next unless $filewatchers{$file};
+    my $periodic = $filewatchers_periodic{$file};
+    my @s = stat($file);
+    my $s = @s ? "$s[9]/$s[7]/$s[1]" : "-/-/-";
+    if ($s eq $filewatchers_s{$file}) {
+      if ($periodic && $periodic->[1] + $periodic->[0] < time()) {
+        print "periodic call for file $file!\n";
+      } else {
+        next;
+      }
+    } else {
+      print "file $file changed!\n";
+    }
+    $filewatchers_s{$file} = $s;
+    $periodic->[1] = time() if $periodic;
+    my @jobs = @{$filewatchers{$file}};
+    for my $jev (@jobs) {
+      redo_request($jev);
+    }
+  }
+}
+
+sub addfilewatcher {
+  my ($file, $periodic) = @_;
+
+  my $jev = $BSServerEvents::gev;
+  return unless $jev;
+  $jev->{'closehandler'} = \&deljob;
+  if ($filewatchers{$file}) {
+    #print "addfilewatcher to already watched $file\n";
+    if ($periodic) {
+      $filewatchers_periodic{$file} ||= [ $periodic, time() ];
+      $filewatchers_periodic{$file}->[0] = $periodic if $filewatchers_periodic{$file}->[0] > $periodic;
+    }
+    push @{$filewatchers{$file}}, $jev unless grep {$_ eq $jev} @{$filewatchers{$file}};
+    return;
+  }
+  #print "addfilewatcher $file\n";
+  if (!$filewatchers_ev) {
+    $filewatchers_ev = BSEvents::new('timeout', \&filewatcher_handler);
+  }
+  if (!$filewatchers_ev_active) {
+    BSEvents::add($filewatchers_ev, 1);
+    $filewatchers_ev_active = 1;
+  }
+  my @s = stat($file);
+  my $s = @s ? "$s[9]/$s[7]/$s[1]" : "-/-/-";
+  push @{$filewatchers{$file}}, $jev;
+  $filewatchers_s{$file} = $s;
+  $filewatchers_periodic{$file} = [ $periodic, time() ] if $periodic;
+}
+
+sub filewatcher_deljob {
+  my ($jev) = @_;
+  for my $file (keys %filewatchers) {
+    next unless grep {$_ == $jev} @{$filewatchers{$file}};
+    @{$filewatchers{$file}} = grep {$_ != $jev} @{$filewatchers{$file}};
+    if (!@{$filewatchers{$file}}) {
+      delete $filewatchers{$file};
+      delete $filewatchers_s{$file};
+      delete $filewatchers_periodic{$file};
+    }    
+  }
+  if (!%filewatchers && $filewatchers_ev_active) {
+    BSEvents::rem($filewatchers_ev);
+    $filewatchers_ev_active = 0; 
+  }
+}
+
+###########################################################################
+#
+# serialization
+#
+
+# state
+my %serializations;
+my %serializations_waiting;
+
+sub serialize {
+  my ($file) = @_;
+  my $jev = $BSServerEvents::gev;
+  die("only supported in AJAX servers\n") unless $jev;
+  $jev->{'closehandler'} = \&deljob;
+  if ($serializations{$file}) {
+    if ($serializations{$file} != $jev) {
+      #print "adding to serialization queue of $file\n";
+      push @{$serializations_waiting{$file}}, $jev unless grep {$_ eq $jev} @{$serializations_waiting{$file}};
+      return undef;
+    }
+  } else {
+    $serializations{$file} = $jev;
+  }
+  return {'file' => $file};
+}
+
+sub serialize_end {
+  my ($ser) = @_;
+  return unless $ser;
+  my $file = $ser->{'file'};
+  #print "serialize_end for $file\n";
+  delete $serializations{$file};
+  my @waiting = @{$serializations_waiting{$file} || []};
+  delete $serializations_waiting{$file};
+  while (@waiting) {
+    my $jev = shift @waiting;
+    #print "waking up $jev\n";
+    redo_request($jev);
+    if ($serializations{$file}) {
+      push @{$serializations_waiting{$file}}, @waiting;
+      last;
+    }
+  }
+}
+
+sub serialize_deljob {
+  my ($jev) = @_;
+  for my $file (keys %serializations) {
+    @{$serializations_waiting{$file}} = grep {$_ != $jev} @{$serializations_waiting{$file}};
+    delete $serializations_waiting{$file} unless @{$serializations_waiting{$file} || []};
+    serialize_end({'file' => $file}) if $jev == $serializations{$file};
+  }
+}
+
+
+
+###########################################################################
+#
+# rpc implementation
+#
+
+# state
+my %rpcs;
 
 sub rpc_error {
   my ($ev, $err) = @_;
@@ -187,117 +325,6 @@ sub rpc_redirect {
   }
 }
 
-
-###########################################################################
-#
-# file watching
-
-sub filewatcher_handler {
-  # print "filewatcher_handler\n";
-  BSEvents::add($filewatchers_ev, 1);
-  for my $file (sort keys %filewatchers) {
-    next unless $filewatchers{$file};
-    my @s = stat($file);
-    my $s = @s ? "$s[9]/$s[7]/$s[1]" : "-/-/-";
-    next if ($s eq $filewatchers_s{$file});
-    print "file $file changed!\n";
-    $filewatchers_s{$file} = $s;
-    my @jobs = @{$filewatchers{$file}};
-    for my $jev (@jobs) {
-      redo_request($jev);
-    }
-  }
-}
-
-sub addfilewatcher {
-  my ($file) = @_;
-
-  my $jev = $BSServerEvents::gev;
-  return unless $jev;
-  $jev->{'closehandler'} = \&deljob;
-  if ($filewatchers{$file}) {
-    #print "addfilewatcher to already watched $file\n";
-    push @{$filewatchers{$file}}, $jev unless grep {$_ eq $jev} @{$filewatchers{$file}};
-    return;
-  }
-  #print "addfilewatcher $file\n";
-  if (!$filewatchers_ev) {
-    $filewatchers_ev = BSEvents::new('timeout', \&filewatcher_handler);
-  }
-  if (!$filewatchers_ev_active) {
-    BSEvents::add($filewatchers_ev, 1);
-    $filewatchers_ev_active = 1;
-  }
-  my @s = stat($file);
-  my $s = @s ? "$s[9]/$s[7]/$s[1]" : "-/-/-";
-  push @{$filewatchers{$file}}, $jev;
-  $filewatchers_s{$file} = $s;
-}
-
-sub filewatcher_deljob {
-  my ($jev) = @_;
-  for my $file (keys %filewatchers) {
-    next unless grep {$_ == $jev} @{$filewatchers{$file}};
-    @{$filewatchers{$file}} = grep {$_ != $jev} @{$filewatchers{$file}};
-    if (!@{$filewatchers{$file}}) {
-      delete $filewatchers{$file};
-      delete $filewatchers_s{$file};
-    }    
-  }
-  if (!%filewatchers && $filewatchers_ev_active) {
-    BSEvents::rem($filewatchers_ev);
-    $filewatchers_ev_active = 0; 
-  }
-}
-
-###########################################################################
-#
-# serialization
-
-sub serialize {
-  my ($file) = @_;
-  my $jev = $BSServerEvents::gev;
-  die("only supported in AJAX servers\n") unless $jev;
-  $jev->{'closehandler'} = \&deljob;
-  if ($serializations{$file}) {
-    if ($serializations{$file} != $jev) {
-      #print "adding to serialization queue of $file\n";
-      push @{$serializations_waiting{$file}}, $jev unless grep {$_ eq $jev} @{$serializations_waiting{$file}};
-      return undef;
-    }
-  } else {
-    $serializations{$file} = $jev;
-  }
-  return {'file' => $file};
-}
-
-sub serialize_end {
-  my ($ser) = @_;
-  return unless $ser;
-  my $file = $ser->{'file'};
-  #print "serialize_end for $file\n";
-  delete $serializations{$file};
-  my @waiting = @{$serializations_waiting{$file} || []};
-  delete $serializations_waiting{$file};
-  while (@waiting) {
-    my $jev = shift @waiting;
-    #print "waking up $jev\n";
-    redo_request($jev);
-    if ($serializations{$file}) {
-      push @{$serializations_waiting{$file}}, @waiting;
-      last;
-    }
-  }
-}
-
-sub serialize_deljob {
-  my ($jev) = @_;
-  for my $file (keys %serializations) {
-    @{$serializations_waiting{$file}} = grep {$_ != $jev} @{$serializations_waiting{$file}};
-    delete $serializations_waiting{$file} unless @{$serializations_waiting{$file} || []};
-    serialize_end({'file' => $file}) if $jev == $serializations{$file};
-  }
-}
 
 ###########################################################################
 #
@@ -1116,6 +1143,7 @@ sub rpc_deljob {
 ###########################################################################
 #
 # status query and setup functions
+#
 
 sub jobstatus {
   my ($ev) = @_;
