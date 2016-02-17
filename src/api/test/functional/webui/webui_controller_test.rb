@@ -11,7 +11,7 @@ class Webui::WebuiControllerTest < Webui::IntegrationTest
     CONFIG['proxy_auth_mode'] = @before
   end
 
-  def test_check_user_in_proxy
+  def test_check_user_in_proxy # spec/controllers/webui/webui_controller_spec.rb
     use_js
 
     # No user set by proxy
