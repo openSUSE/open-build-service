@@ -107,16 +107,14 @@ RSpec.describe Webui::UserController do
   end
 
   describe "GET #save" do
-=begin
-    SAVE from edit
+  #  SAVE from edit
 
-        expect(page).to have_text("Editing User Data for User")
-        fill_in 'realname', with: Faker::Name.name
-        fill_in 'email', with: Faker::Internet.email
-        click_button 'Update'
+  #      expect(page).to have_text("Editing User Data for User")
+  #      fill_in 'realname', with: Faker::Name.name
+  #      fill_in 'email', with: Faker::Internet.email
+  #      click_button 'Update'
 
-        expect(page).to have_content("User data for user '#{user.login}' successfully updated.")
-=end
+  #      expect(page).to have_content("User data for user '#{user.login}' successfully updated.")
     skip
   end
 

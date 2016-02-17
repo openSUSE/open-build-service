@@ -214,5 +214,4 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     assert_equal "bob", User.current.try(:login), "Should log the user in"
     assert_equal root_path, current_path, "Should redirect properly"
   end
-=end
 end
