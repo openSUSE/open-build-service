@@ -6,35 +6,16 @@ RSpec.describe Webui::UserController do
   let!(:admin_user) { create(:admin_user, login: "king") }
   let(:deleted_user) { create(:deleted_user) }
 
+  it { is_expected.to use_before_action(:require_login) }
+  it { is_expected.to use_before_action(:require_admin) }
+
   describe "GET #index" do
-    context "when the current user is admin" do
-      before do
-        login admin_user
-        get :index
-      end
-
-      it { is_expected.to render_template("webui/user/index") }
+    before do
+      login admin_user
+      get :index
     end
 
-    context "when the current user isn't admin" do
-      before do
-        login non_admin_user
-        get :index
-      end
-
-      it { expect(controller).to set_flash[:error].to('Requires admin privileges') }
-      it { expect(response).to redirect_to root_path }
-    end
-
-    context "when the current user is nobody" do
-      before do
-        logout
-        get :index
-      end
-
-      it { expect(controller).to set_flash[:error].to('Please login to access the requested page.') }
-      it { expect(response).to redirect_to user_login_path }
-    end
+    it { is_expected.to render_template("webui/user/index") }
   end
 
   describe "GET #show" do
@@ -78,24 +59,12 @@ RSpec.describe Webui::UserController do
   end
 
   describe "GET #user_edit" do
-    context "when the current user is admin" do
-      before do
-        login admin_user
-        get :edit, {user: user}
-      end
-
-      it { is_expected.to render_template("webui/user/edit") }
+    before do
+      login admin_user
+      get :edit, {user: user}
     end
 
-    context "when the current user isn't admin" do
-      before do
-        login non_admin_user
-        get :edit, {user: user}
-      end
-
-      it { expect(controller).to set_flash[:error].to('Requires admin privileges') }
-      it { expect(response).to redirect_to root_path }
-    end
+    it { is_expected.to render_template("webui/user/edit") }
   end
 
   describe "GET #home" do
