@@ -13,6 +13,11 @@ FactoryGirl.define do
       end
     end
 
+    factory :deleted_user do
+      login 'deleted'
+      state 4
+    end
+
     # This is needed because the salt is random
     # in User.after_validation
     after(:create) do |user|
