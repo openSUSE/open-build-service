@@ -9,9 +9,9 @@ RSpec.feature 'Notifications', :type => :feature, :js => true do
       expect(page).to have_content('Events to get email for')
 
       %w(Event::CommentForPackage_commenter
-        Event::CommentForProject_maintainer
-        Event::CommentForRequest_reviewer
-        Event::BuildFail_maintainer
+         Event::CommentForProject_maintainer
+         Event::CommentForRequest_reviewer
+         Event::BuildFail_maintainer
       ).each do |checkbox|
         check(checkbox)
       end
@@ -22,10 +22,14 @@ RSpec.feature 'Notifications', :type => :feature, :js => true do
       # for global Notification settings there is no user_id set
       user_id = user.is_admin? ? nil : user.id
 
-      expect(EventSubscription.exists?(user_id: user_id, eventtype: 'Event::CommentForPackage', receiver_role: 'commenter', receive: true)).to be true
-      expect(EventSubscription.exists?(user_id: user_id, eventtype: 'Event::CommentForProject', receiver_role: 'maintainer', receive: true)).to be true
-      expect(EventSubscription.exists?(user_id: user_id, eventtype: 'Event::CommentForRequest', receiver_role: 'reviewer', receive: true)).to be true
-      expect(EventSubscription.exists?(user_id: user_id, eventtype: 'Event::BuildFail', receiver_role: 'maintainer', receive: true)).to be true
+      expect(EventSubscription.exists?(user_id: user_id, eventtype: 'Event::CommentForPackage',
+                                       receiver_role: 'commenter', receive: true)).to be true
+      expect(EventSubscription.exists?(user_id: user_id, eventtype: 'Event::CommentForProject',
+                                      receiver_role: 'maintainer', receive: true)).to be true
+      expect(EventSubscription.exists?(user_id: user_id, eventtype: 'Event::CommentForRequest',
+                                       receiver_role: 'reviewer', receive: true)).to be true
+      expect(EventSubscription.exists?(user_id: user_id, eventtype: 'Event::BuildFail',
+                                       receiver_role: 'maintainer', receive: true)).to be true
     end
   end
 
