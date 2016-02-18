@@ -1,9 +1,9 @@
 require 'rails_helper'
 
 RSpec.describe Configuration do
-  it { should validate_presence_of(:name) }
-  it { should validate_presence_of(:title) }
-  it { should validate_presence_of(:description) }
+  it { is_expected.to validate_presence_of(:name) }
+  it { is_expected.to validate_presence_of(:title) }
+  it { is_expected.to validate_presence_of(:description) }
 
   it 'creates a new Configuration if no Configuration exists' do
     Configuration.first.destroy
