@@ -3,7 +3,6 @@ require 'event'
 
 class Webui::UserController < Webui::WebuiController
   include Webui::WebuiHelper
-  include Webui::NotificationSettings
 
   before_filter :check_display_user, :only => [:show, :edit, :requests, :list_my, :delete, :save, :confirm, :admin, :lock]
   before_filter :require_login, :only => [:edit, :save, :notifications, :update_notifications, :index]
@@ -237,7 +236,9 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def notifications
-    @notifications = notifications_for_user(User.current)
+    @user = User.current
+    @groups = User.current.groups_users
+    @notifications = Event::Base.notification_events
   end
 
   def update_notifications
@@ -246,7 +247,7 @@ class Webui::UserController < Webui::WebuiController
       gu.save
     end
 
-    update_notifications_for_user(params, User.current)
+    User.current.update_notifications(params)
 
     flash[:notice] = 'Notifications settings updated'
     redirect_to action: :notifications

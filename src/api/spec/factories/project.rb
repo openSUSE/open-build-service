@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :project do
-    name Faker::Internet.domain_word
+    sequence(:name){|n| "#{Faker::Internet.domain_word}#{n}" }
     title Faker::Book.title
 
     # remote projects validate additional the description and remoteurl
