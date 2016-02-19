@@ -21,7 +21,7 @@
 
       <% packageurl = url_for(controller: 'package', action: 'show', project: @project, package: 'REPLACEIT') %>
       <% if @packages.present? %>
-          <% cache [packageurl, array_cachekey(@packages)] do %>
+          <% cache [packageurl, Digest::MD5.hexdigest(@packages.join)] do %>
               <div id="packages_table_wrapper" data-url="<%= packageurl %>">
                 <%= javascript_tag do %>
                     var packages = [ <%= escape_list(@packages) %> ];
@@ -50,7 +50,7 @@
     <% if @ipackages.present? %>
         <div id="inherited_packages" class="tab">
           <% packageurl = url_for(controller: 'package', action: 'show', project: @project, package: 'REPLACEPKG') %>
-          <% cache [packageurl, array_cachekey(@ipackages)] do %>
+          <% cache [packageurl, Digest::MD5.hexdigest(@ipackages.join)] do %>
               <div id="ipackages_wrapper" data-url="<%= packageurl %>">
                 <%= javascript_tag do %>
                     var ipackages = [ <%= escape_nested_list(@ipackages) %> ];

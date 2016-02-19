@@ -9,7 +9,7 @@ class Webui::WebuiHelperTest < ActiveSupport::TestCase
     @codemirror_editor_setup = 0
   end
 
-  def test_get_frontend_url_for_with_controller
+  def test_get_frontend_url_for_with_controller # spec/helpers/webui/webui_helper_spec.rb
     url = get_frontend_url_for(controller: 'foo',
                                host: 'bar.com',
                                port: 80,
@@ -17,20 +17,15 @@ class Webui::WebuiHelperTest < ActiveSupport::TestCase
     assert_equal url, 'http://bar.com:80/foo'
   end
 
-  def test_bugzilla_url
+  def test_bugzilla_url # spec/helpers/webui/webui_helper_spec.rb
     assert_not_nil bugzilla_url(['foo@example.org'], 'foobar')
   end
 
-  def test_plural
-    assert_equal 'car',  plural(1, 'car', ' cars')
-    assert_equal 'cars', plural(5, 'car', 'cars')
-  end
-
-  def test_valid_xml_id
+  def test_valid_xml_id # spec/helpers/webui/webui_helper_spec.rb
     assert_equal '_123_456', valid_xml_id('123 456')
   end
 
-  def test_elide
+  def test_elide # spec/helpers/webui/webui_helper_spec.rb
     assert_empty elide('')
     assert_equal '...', elide('aaa', 3)
     assert_equal 'aaa...aaa', elide('aaaaaaaaaa', 9)
@@ -38,7 +33,7 @@ class Webui::WebuiHelperTest < ActiveSupport::TestCase
     assert_equal 'aaaaaa...', elide('aaaaaaaaaa', 9, :right)
   end
 
-  def test_elide_two
+  def test_elide_two # spec/helpers/webui/webui_helper_spec.rb
     assert_equal ["aaa", "bbb"], elide_two('aaa', 'bbb')
   end
 
@@ -46,11 +41,7 @@ class Webui::WebuiHelperTest < ActiveSupport::TestCase
     assert_kind_of Fixnum, next_codemirror_uid
   end
 
-  def test_array_cachekey
-    assert_not_nil array_cachekey([1, 2, 3])
-  end
-
-  def test_escape_nested_list_escapes_forbidden_chars
+  def test_escape_nested_list_escapes_forbidden_chars # spec/helpers/webui/webui_helper_spec.rb
     input = [['<p>home:Iggy</p>', '<p>This is a paragraph</p>'], ['<p>home:Iggy</p>', '<p>"This is a paragraph"</p>']]
     output = "['&lt;p&gt;home:Iggy&lt;\\/p&gt;', '&lt;p&gt;This is a paragraph&lt;\\/p&gt;'],\n"
     output += "['&lt;p&gt;home:Iggy&lt;\\/p&gt;', '&lt;p&gt;\\&quot;This is a paragraph\\&quot;&lt;\\/p&gt;']"
@@ -58,7 +49,7 @@ class Webui::WebuiHelperTest < ActiveSupport::TestCase
     assert_equal escape_nested_list(input), output
   end
 
-  def test_format_projectname
+  def test_format_projectname # spec/helpers/webui/webui_helper_spec.rb
     assert_equal "some:project:foo:bar", format_projectname("some:project:foo:bar", "bob")
     assert_equal "~", format_projectname("home:bob", "bob")
     assert_equal "~alice", format_projectname("home:alice", "bob")

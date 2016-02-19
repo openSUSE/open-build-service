@@ -29,14 +29,6 @@ module Webui::WebuiHelper
     # rubocop:enable Metrics/LineLength
   end
 
-  def image_url(source)
-    abs_path = image_path(source)
-    unless abs_path =~ /^http/
-      abs_path = "#{request.protocol}#{request.host_with_port}#{abs_path}"
-    end
-    abs_path
-  end
-
   def user_icon(user, size = 20, css_class = nil, alt = nil)
     user = User.find_by_login!(user) unless user.is_a? User
     alt ||= user.realname
@@ -56,10 +48,6 @@ module Webui::WebuiHelper
     fuzzy_time(Time.parse(timestring))
   end
 
-  def status_for(repo, arch, package)
-    @statushash[repo][arch][package] || { 'package' => package }
-  end
-
   def format_projectname(prjname, login)
     splitted = prjname.split(':', 3)
     if splitted[0] == 'home'
@@ -75,13 +63,9 @@ module Webui::WebuiHelper
     prjname
   end
 
-  def status_id_for(repo, arch, package)
-    valid_xml_id("id-#{package}_#{repo}_#{arch}")
-  end
-
   def arch_repo_table_cell(repo, arch, package_name)
-    status = status_for(repo, arch, package_name)
-    status_id = status_id_for(repo, arch, package_name)
+    status = @statushash[repo][arch][package_name] || { 'package' => package_name }
+    status_id = valid_xml_id("id-#{package_name}_#{repo}_#{arch}")
     link_title = status['details']
     if status['code']
       code = status['code']
@@ -156,12 +140,8 @@ module Webui::WebuiHelper
     sprite_tag icon, title: description
   end
 
-  def plural(count, singular, plural)
-    count > 1 ? plural : singular
-  end
-
   def valid_xml_id(rawid)
-    rawid = '_' + rawid if rawid !~ /^[A-Za-z_]/ # xs:ID elements have to start with character or '_'
+    rawid = "_#{rawid}" if rawid !~ /^[A-Za-z_]/ # xs:ID elements have to start with character or '_'
     ERB::Util::h(rawid.gsub(/[+&: .\/\~\(\)@#]/, '_'))
   end
 
@@ -236,10 +216,6 @@ module Webui::WebuiHelper
 
   def is_advanced_tab?
     %w(prjconf index meta status).include? @current_action.to_s
-  end
-
-  def mobile_device?
-    request.env['mobile_device_type'] == :mobile
   end
 
   def sprite_tag(icon, opts = {})
@@ -431,10 +407,6 @@ module Webui::WebuiHelper
       html_opts.delete :fallback
       content_tag(:ul, content, html_opts)
     end
-  end
-
-  def array_cachekey(array)
-    Digest::MD5.hexdigest(array.join)
   end
 
   def can_register
