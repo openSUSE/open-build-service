@@ -166,6 +166,21 @@ function get_hostname {
   else
     SHORTHOSTNAME=$FQHOSTNAME
   fi 
+
+  if [[ -z $FQHOSTNAME ]]; then
+    cat <<EOF
+Could not determine FQHN. Please check your DNS resolution for this host.
+Exiting here, because otherwise apache would break later on. You can run $0 
+securely after fixing your DNS resolution.
+
+HINT: use "hostname -f" to test your DNS resolution.
+
+... Exiting now.
+EOF
+    exit 1
+  fi
+
+
 }
 ###############################################################################
 function generate_proposed_dnsnames {
