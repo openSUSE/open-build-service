@@ -758,13 +758,10 @@ eval {
             print "retrying watcher for $remoteurl\n";
             delete $remotewatchers{$remoteurl};
           } else {
-	    $ev_queue->add_events(
-              $watcher->getevents(
-                $watchremote->{$remoteurl}, 
-                $watchremote_start
-              )
-            );
+	    my @events = $watcher->getevents($watchremote->{$remoteurl}, $watchremote_start);
+	    $ev_queue->add_events(@events);
             delete $remotewatchers{$remoteurl} unless $watcher->{'retry'};	# watcher is finished
+            $gotevent = 1;	# force loop restart
           }
         }
       } else {
@@ -780,17 +777,13 @@ eval {
       my $dummy;
       1 while (sysread(PING, $dummy, 1024, 0) || 0) > 0;
       # add events from myeventdir
-      $ev_queue->add_events(
-        BSSched::EventSource::Directory::readevents(
-          $gctx, 
-          $gctx->{'myeventdir'}
-        ) 
-      );
-      next unless $ev_queue->events_in_queue;
+      my @events = BSSched::EventSource::Directory::readevents($gctx, $gctx->{'myeventdir'});
+      $ev_queue->add_events(@events);
+      next unless $ev_queue->events_in_queue();
     }
 
     # process all collected events
-    if ($ev_queue->events_in_queue) {
+    if ($ev_queue->events_in_queue()) {
       die if $testprojid;
       
       eval {
