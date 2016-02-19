@@ -757,6 +757,7 @@ eval {
           } elsif ($watcher->{'retry'}) {
             print "retrying watcher for $remoteurl\n";
             delete $remotewatchers{$remoteurl};
+            $gotevent = 1;	# force loop restart
           } else {
 	    my @events = $watcher->getevents($watchremote->{$remoteurl}, $watchremote_start);
 	    $ev_queue->add_events(@events);
