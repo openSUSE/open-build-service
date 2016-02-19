@@ -4,13 +4,9 @@ RSpec.describe Webui::ArchitecturesController do
   let(:confirmed_user) { create(:confirmed_user) }
   let(:admin_user) { create(:admin_user) }
 
-  describe 'GET #index' do
-    it { should use_before_action(:require_admin) }
-  end
+  it { is_expected.to use_before_action(:require_admin) }
 
   describe 'POST #bulk_update_availability' do
-    it { should use_before_action(:require_admin) }
-
     context 'as admin' do
       it 'creates the architectures' do
         login(admin_user)
