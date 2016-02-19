@@ -11,6 +11,12 @@ FactoryGirl.define do
       factory :admin_user do
         roles { [Role.find_by_title('admin')] }
       end
+
+      factory :user_with_groups do
+        after(:create) do |user|
+          user.groups_users << create(:groups_user, group: create(:group))
+        end
+      end
     end
 
     factory :deleted_user do
