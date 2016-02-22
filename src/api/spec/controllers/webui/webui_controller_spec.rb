@@ -6,6 +6,7 @@ RSpec.describe Webui::WebuiController do
   # https://www.relishapp.com/rspec/rspec-rails/docs/controller-specs/anonymous-controller
   controller do
     before_filter :require_admin, only: :new
+    before_filter :require_login, only: :show
 
     def index
       render text: 'anonymous controller'
@@ -15,6 +16,10 @@ RSpec.describe Webui::WebuiController do
     # http://stackoverflow.com/questions/7027518/no-route-matches-rspecs-anonymous-controller
     def new
       render text: 'anonymous controller - requires_admin_privileges'
+    end
+
+    def show
+      render text: 'anonymous controller - requires_login'
     end
   end
 
@@ -66,6 +71,20 @@ RSpec.describe Webui::WebuiController do
     it 'for admin' do
       login(create(:admin_user, login: 'admin_user'))
       get :new
+      expect(response).to have_http_status(:success)
+    end
+  end
+
+  describe 'require_login before filter' do
+    it 'redirects to main page for new users' do
+      get :show, id: 1
+      expect(response).to redirect_to(user_login_path)
+      expect(flash[:error]).to eq('Please login to access the requested page.')
+    end
+
+    it 'does not redirect for a confirmed user' do
+      login(create(:confirmed_user, login: 'eisendieter'))
+      get :show, id: 1
       expect(response).to have_http_status(:success)
     end
   end
