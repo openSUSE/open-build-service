@@ -4,8 +4,7 @@ require_relative '../../test_helper'
 class Webui::DownloadOnDemandControllerTest < Webui::IntegrationTest
   PROJECT_WITH_DOWNLOAD_ON_DEMAND = load_backend_file("download_on_demand/project_with_dod.xml")
   PROJECT_WITHOUT_DOWNLOAD_ON_DEMAND = load_backend_file("download_on_demand/project_without_dod.xml")
-
-  def test_listing_download_on_demand
+  def test_listing_download_on_demand_admin
     use_js
 
     # Login as admin
@@ -17,6 +16,7 @@ class Webui::DownloadOnDemandControllerTest < Webui::IntegrationTest
     click_link("Meta")
     page.evaluate_script("editors[0].setValue(\"#{PROJECT_WITH_DOWNLOAD_ON_DEMAND.gsub("\n", '\n')}\");")
     click_button("Save")
+
     find(:id, 'flash-messages').must_have_text('Config successfully saved!')
 
     click_link("Repositories")
@@ -25,15 +25,25 @@ class Webui::DownloadOnDemandControllerTest < Webui::IntegrationTest
 
     find(:xpath, "//span[@class='edit_dod_repository_link_container']").must_have_link('Edit')
     find(:xpath, "//span[@class='edit_dod_repository_link_container']").must_have_link('Delete')
+  end
 
-    # Login as normal user, can't change DoDs
+  def test_listing_download_on_demand_no_admin
+    use_js
+
     login_tom
-    visit(project_show_path(project: "home:user5"))
+    visit(project_show_path(project: "home:tom"))
 
+    click_link("Advanced")
+    click_link("Meta")
+
+    page.evaluate_script("editors[0].setValue(\"#{PROJECT_WITH_DOWNLOAD_ON_DEMAND.gsub("\n", '\n').gsub("user5", "tom")}\");")
+    click_button("Save")
+    find(:id, 'flash-messages').must_have_text('Admin rights are required to change projects using remote resources')
     click_link("Repositories")
-    page.must_have_text 'Download on demand repositories'
-    page.must_have_link 'http://mola.org2'
-    page.must_have_text 'rpmmd'
+
+    page.wont_have_text 'Download on demand repositories'
+    page.wont_have_link 'http://mola.org2'
+    page.wont_have_text 'rpmmd'
   end
 
   def test_adding_download_on_demand
