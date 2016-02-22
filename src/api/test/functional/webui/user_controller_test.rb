@@ -24,7 +24,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     assert Project.where(name: User.current.home_project_name).exists?
   end
 
-  def test_show_user_page #  spec/views/webui/user/show.html.erb_spec.rb, spec/controllers/webui/user_controller_spec.rb
+  def test_show_user_page #  spec/controllers/webui/user_controller_spec.rb
     # email hidden to public
     visit user_show_path(user: 'tom')
     page.must_have_text 'Home of tom'
@@ -51,7 +51,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     find('#flash-messages').must_have_text("User not found INVALID")
   end
 
-  def test_show_user_tables
+  def test_show_user_tables  # spec/features/webui/users/users_spec.rb
     use_js
     visit user_show_path(user: 'fred')
 
@@ -102,7 +102,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     page.must_have_text "Manage users."
   end
 
-  def test_show_icons
+  def test_show_icons  # spec/features/webui/users/users_spec.rb
     visit '/user/icon/Iggy.png'
     page.status_code.must_equal 200
     visit '/user/icon/Iggy.png?size=20'
@@ -113,7 +113,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     page.status_code.must_equal 200
   end
 
-  def test_notification_settings_for_group
+  def test_notification_settings_for_group #spec/features/webui/users/users_notifications_settings_spec.rb
     login_adrian to: user_notifications_path
 
     page.must_have_text 'Get mails if in group'
@@ -125,7 +125,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     page.must_have_unchecked_field('test_group')
   end
 
-  def test_notification_settings_without_group
+  def test_notification_settings_without_group #spec/features/webui/users/users_notifications_settings_spec.rb
     login_tom to: user_notifications_path
 
     page.wont_have_text 'Get mails if in group'
@@ -134,7 +134,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     flash_message.must_equal 'Notifications settings updated'
   end
 
-  def test_notification_settings_for_events
+  def test_notification_settings_for_events #spec/features/webui/users/users_notifications_settings_spec.rb
     login_adrian to: user_notifications_path
 
     page.must_have_text 'Events to get email for'
