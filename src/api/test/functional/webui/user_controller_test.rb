@@ -113,7 +113,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     page.status_code.must_equal 200
   end
 
-  def test_notification_settings_for_group #spec/features/webui/users/users_notifications_settings_spec.rb
+  def test_notification_settings_for_group # spec/features/webui/users/users_notifications_settings_spec.rb
     login_adrian to: user_notifications_path
 
     page.must_have_text 'Get mails if in group'
@@ -125,7 +125,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     page.must_have_unchecked_field('test_group')
   end
 
-  def test_notification_settings_without_group #spec/features/webui/users/users_notifications_settings_spec.rb
+  def test_notification_settings_without_group # spec/features/webui/users/users_notifications_settings_spec.rb
     login_tom to: user_notifications_path
 
     page.wont_have_text 'Get mails if in group'
@@ -134,7 +134,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     flash_message.must_equal 'Notifications settings updated'
   end
 
-  def test_notification_settings_for_events #spec/features/webui/users/users_notifications_settings_spec.rb
+  def test_notification_settings_for_events # spec/features/webui/users/users_notifications_settings_spec.rb
     login_adrian to: user_notifications_path
 
     page.must_have_text 'Events to get email for'

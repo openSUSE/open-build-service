@@ -38,7 +38,7 @@ RSpec.feature "User's UI shows", type: :feature, js: true do
   scenario "a table with owned projects and packages" do
     create(:relationship_project_user, project: project_with_package, user: another_user)
     create(:relationship_package_user, package: project_with_package.packages.first,  user: another_user)
-    #Needed to mark project as OBS:OwnerRootProject
+    # Needed to mark project as OBS:OwnerRootProject
     attrib_type_OBS_OwnerRootProject = create(:attrib_type_OBS_OwnerRootProject)
     create(:attrib, attrib_type: attrib_type_OBS_OwnerRootProject, project_id: project_with_package.id)
     visit user_show_path(user: another_user)
