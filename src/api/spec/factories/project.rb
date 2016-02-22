@@ -14,5 +14,11 @@ FactoryGirl.define do
         project.packages << create(:package, project_id: project.id)
       end
     end
+
+    factory :forbidden_project do
+      after(:create) do |project|
+        create(:access_flag, status: 'disable', project: project)
+      end
+    end
   end
 end
