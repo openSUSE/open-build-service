@@ -147,7 +147,13 @@ function get_hostname {
     FQHOSTNAME=`ec2-public-hostname`
   fi
 
-  if [ "$?" != "0" ]; then
+  if [ "$FQHOSTNAME" = "" ]; then
+    ask "Please enter the full qualified hostname!"
+    FQHOSTNAME=$rv
+  fi
+
+  # fallback in non-interative mode
+  if [ "$FQHOSTNAME" = "" ]; then
     # Fallback to IP of the VM/host
     FQHOSTNAME=`ip addr | sed -n 's,.*inet \(.*\)/.* brd.*,\1,p' | grep -v ^127. | head -n 1`
     if [ "$?" != "0" -o "$FQHOSTNAME" = "" ]; then
@@ -276,13 +282,23 @@ function network_failure_warning {
 
   echo "OBS appliance could not get setup, no network found" > /srv/www/obs/overview/index.html
 
-  echo '**********************************************' >> /etc/issue
-  echo '**           NETWORK SETUP FAILED           **' >> /etc/issue
-  echo '**                                          **' >> /etc/issue
-  echo '** OBS is not usable                        **' >> /etc/issue
-  echo '** A working DHCP and DNS server in network **' >> /etc/issue
-  echo '** is required!                             **' >> /etc/issue
-  echo '**********************************************' >> /etc/issue
+  cat <<EOF > /etc/issue
+*******************************************************************************
+**           NETWORK SETUP FAILED                                            **
+**                                                                           **
+** OBS is not usable. A working DNS resolution for your host is required!    **
+** You can check this with 'hostname -f'.                                    **
+** This often happens in virtualization environments like e.g. VirtualBox.   **
+**                                                                           **
+** You also could run                                                        **
+**                                                                           **
+** /usr/lib/obs/server/setup-appliance.sh                                    **
+**                                                                           **
+** for interactive configuration                                             **
+**                                                                           **
+*******************************************************************************
+EOF
+
 
 }
 ###############################################################################
