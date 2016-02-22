@@ -2150,7 +2150,7 @@ sub getbinaries {
     } else {
       $ddir = $dir;
     }
-    last if !@todo;
+    next if !@todo;
     my $nometa = 0;
     $nometa = 1 if $kiwimode || $repo->{'project'} ne $projid || $repo->{'repository'} ne $repoid;
     $nometa = 1 if $buildinfo->{'file'} eq '_preinstallimage';
