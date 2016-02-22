@@ -14,7 +14,7 @@ FactoryGirl.define do
 
       factory :user_with_groups do
         after(:create) do |user|
-          user.groups_users << create(:groups_user, group: create(:group))
+          create(:group, users: [user])
         end
       end
     end
