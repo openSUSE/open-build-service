@@ -1642,11 +1642,20 @@ class Project < ActiveRecord::Base
     return {} if User.current.is_admin?
 
     # either OBS interconnect or repository "download on demand" feature used
-    if request_data.has_key?('remoteurl') || request_data.has_key?('remoteproject') ||
-       (request_data['repository'] && request_data['repository'].any?{|r| r.first == 'download'})
+    if request_data.has_key?('remoteurl') ||
+         request_data.has_key?('remoteproject') ||
+         self.has_dod_elements?(request_data['repository'])
       return {error: 'Admin rights are required to change projects using remote resources'}
     end
     {}
+  end
+
+  def self.has_dod_elements?(request_data)
+    if request_data.is_a?(Array)
+      request_data.any? { |r| r['download'] }
+    elsif request_data.is_a?(Hash)
+      request_data['download'].present?
+    end
   end
 
   def self.validate_maintenance_xml_attribute(request_data)

@@ -432,6 +432,39 @@ END
     assert_xml_tag xml, :tag => :pubkey, :content => "grfzl"
   end
 
+  def test_validate_remote_permissions
+    # Single repository elements
+    request_data = Xmlhash.parse(load_backend_file("download_on_demand/project_with_dod.xml"))
+    User.current = users(:king)
+    assert Project.validate_remote_permissions(request_data).empty?
+    User.current = users(:user5)
+    assert_equal "Admin rights are required to change projects using remote resources",
+                 Project.validate_remote_permissions(request_data)[:error]
+
+    # With multiple repository elements
+    request_data = Xmlhash.parse("
+      <project name='home:user5'>
+      <title>User5 Home Project</title>
+      <description/>
+      <person userid='user5' role='maintainer'/>
+      <repository name='standard'>
+        <download arch='i586' url='http://mola.org2' repotype='rpmmd'>
+          <archfilter>i586, noarch</archfilter>
+          <master url='http://opensuse.org' sslfingerprint='asdfasd'/>
+          <pubkey>3jnlkdsjfoisdjf0932juro2ikjfdslñkfj</pubkey>
+        </download>
+        <arch>i586</arch>
+        <arch>x86_64</arch>
+      </repository>
+      <repository name='images'>
+        <arch>x86_64</arch>
+        </repository>
+      </project>
+    ")
+    User.current = users(:king)
+    assert Project.validate_remote_permissions(request_data).empty?
+  end
+
   def test_repository_path_sync
     User.current = users( :king )
 
