@@ -2079,6 +2079,7 @@ sub getbinaries {
   my ($buildinfo, $dir, $srcdir, $preinstallimagedata) = @_;
 
   return getbinaries_buildenv($buildinfo, $dir, $srcdir) if $buildinfo->{'hasbuildenv'};
+
   mkdir_p($dir);
   my $kiwimode;
   $kiwimode = 1 if $buildinfo->{'file'} =~ /\.kiwi$/;
@@ -2141,14 +2142,11 @@ sub getbinaries {
   $imagebins ||= {};
 
   for my $repo (@{$buildinfo->{'path'} || []}) {
-    my @args;
     my $ddir = $dir;
     if ($kiwimode) {
       my $prpdir = "$repo->{'project'}/$repo->{'repository'}";
       $ddir = "$srcdir/repos/$prpdir";
       mkdir_p($ddir);
-    } else {
-      $ddir = $dir;
     }
     next if !@todo;
     my $nometa = 0;
