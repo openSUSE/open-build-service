@@ -625,65 +625,52 @@ sub device_size($) {
   return undef;
 }
 
-my $workerenvstate = {};
-{
-  # host labels
-  if (@hostlabel) {
-    $workerenvstate->{'hostlabel'} = \@hostlabel if @hostlabel;
-  }
-  # sandbox
-  $workerenvstate->{'sandbox'} = 'chroot';
-  $workerenvstate->{'sandbox'} = 'xen' if $vm =~ /xen/;
-  $workerenvstate->{'sandbox'} = 'kvm' if $vm =~ /kvm/;
-  $workerenvstate->{'sandbox'} = 'emulator' if $vm =~ /emulator/;
-  $workerenvstate->{'sandbox'} = 'lxc' if $vm =~ /lxc/;
-  $workerenvstate->{'sandbox'} = 'zvm' if $vm =~ /zvm/;
-  $workerenvstate->{'sandbox'} = 'docker' if $vm =~ /docker/;
-  # build host owner
-  $workerenvstate->{'owner'} = $owner if $owner;
-  # linux kernel
-  my $str = readstr("/proc/version");
-  if ($str =~ /^Linux version ([^-]*)-([^-]*)-([^ ]*) .*$/s) {
-    my $linux = {};
-    $linux->{'version'} = $1."-".$2;
-    $linux->{'flavor'} = $3;
-    $workerenvstate->{'linux'} = $linux;
-  }
-  my $hw = {};
-  $hw->{'cpu'} = {};
-  $hw->{'processors'} = 0;
-  # memory, undefined in non vm mode since no guarantees are exist
-  if (open(FILE, "<", "/proc/cpuinfo")) {
-    while(<FILE>) {
-      chomp;
-      if (/^processor/s) {
-        $hw->{'processors'} = $hw->{'processors'} + 1;
-      } elsif (/^flags\s*:\s(.*)$/) {
-        my @cpuflags = split(' ', $1);
-        $hw->{'cpu'}->{'flag'} = \@cpuflags;
-      } elsif (/^cpu\s*:\sPOWER8/) {
-        # PowerPC kernel does not provide any flags, but we need to be able
-        # to distinguish between power7 and 8 at least
-        $hw->{'cpu'}->{'flag'} = [ "power7", "power8" ];
-      } elsif (/^cpu\s*:\sPOWER7/) {
-        $hw->{'cpu'}->{'flag'} = [ "power7" ];
-      }
+# create worker info data
+my $workerinfo = {};
+# host labels
+$workerinfo->{'hostlabel'} = \@hostlabel if @hostlabel;
+# sandbox
+$workerinfo->{'sandbox'} = 'chroot';
+$workerinfo->{'sandbox'} = $1 if $vm =~ /(xen|kvm|emulator|lxc|zvm|docker)/;
+# build host owner
+$workerinfo->{'owner'} = $owner if $owner;
+# linux kernel
+my $str = readstr('/proc/version');
+if ($str =~ /^Linux version ([^-]*)-([^-]*)-([^ ]*) /s) {
+  $workerinfo->{'linux'} = { 'version' => "$1-$2", 'flavor' => $3 };
+}
+my $hw = {'cpu' => {}, 'processors' => 0};
+# memory, undefined in non vm mode since no guarantees are exist
+if (open(FILE, "<", "/proc/cpuinfo")) {
+  while(<FILE>) {
+    chomp;
+    if (/^processor/s) {
+      $hw->{'processors'} = $hw->{'processors'} + 1;
+    } elsif (/^flags\s*:\s(.*)$/) {
+      my @cpuflags = split(' ', $1);
+      $hw->{'cpu'}->{'flag'} = \@cpuflags;
+    } elsif (/^cpu\s*:\sPOWER8/) {
+      # PowerPC kernel does not provide any flags, but we need to be able
+      # to distinguish between power7 and 8 at least
+      $hw->{'cpu'}->{'flag'} = [ "power7", "power8" ];
+    } elsif (/^cpu\s*:\sPOWER7/) {
+      $hw->{'cpu'}->{'flag'} = [ "power7" ];
     }
-    close FILE;
   }
-  $hw->{'memory'} = $vm_memory if $vm_memory;
-  $hw->{'swap'} = $vmdisk_swapsize if $vmdisk_swapsize;
-  $hw->{'disk'} = $vmdisk_rootsize if $vmdisk_rootsize;
-  if ($vm_root) {
-    my $size = device_size($vm_root);
-    $hw->{'disk'} = $size if $size;
-  }
-  if ($vm_swap) {
-    my $size = device_size($vm_swap);
-    $hw->{'swap'} = $size if $size;
-  }
-  $workerenvstate->{'hardware'} = $hw;
-};
+  close FILE;
+}
+$hw->{'memory'} = $vm_memory if $vm_memory;
+$hw->{'swap'} = $vmdisk_swapsize if $vmdisk_swapsize;
+$hw->{'disk'} = $vmdisk_rootsize if $vmdisk_rootsize;
+if ($vm_root) {
+  my $size = device_size($vm_root);
+  $hw->{'disk'} = $size if $size;
+}
+if ($vm_swap) {
+  my $size = device_size($vm_swap);
+  $hw->{'swap'} = $size if $size;
+}
+$workerinfo->{'hardware'} = $hw;
 
 sub stream_logfile {
   my ($nostream, $start, $end) = @_;
@@ -738,7 +725,7 @@ sub send_state {
     };
     if ($state eq 'idle') {
       $param->{'request'} = 'POST';
-      $param->{'data'} = BSUtil::toxml($workerenvstate, $BSXML::worker);
+      $param->{'data'} = BSUtil::toxml($workerinfo, $BSXML::worker);
     }
     eval {
       BSRPC::rpc($param, undef, @args);
@@ -2725,8 +2712,7 @@ sub dobuild {
     push @args, '--vm-worker-nr', $vm_worker_instance if $vm_worker_instance;
   } else {
     push @args, '--root', $buildroot;
-    push @args, '--vm-type', 'lxc' if $vm =~ /lxc/;
-    push @args, '--vm-type', 'docker' if $vm =~ /docker/;
+    push @args, '--vm-type', $1 if $vm =~ /(lxc|docker)/;
   }
   push @args, '--clean';
   push @args, '--changelog';
