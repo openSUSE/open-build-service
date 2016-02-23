@@ -75,8 +75,8 @@ if (-S $ARGV[0]) {
       my $id = $job->{'ev'};
       next if $id == $ajaxstatus->{'ev'};
       if ($nolastevents && $job->{'request'} && $job->{'request'} =~ /^GET \/lastevents\?/) {
-        $lasteventscount++;
-        next;
+	$lasteventscount++;
+	next;
       }
       my $slot = $slots{$id};
       if (!defined $slot) {
@@ -89,8 +89,8 @@ if (-S $ARGV[0]) {
       }
       my $d = $now - $job->{'starttime'};
       my $req = $job->{'request'} || '?';
-      my $str = sprintf("%5d %5d %3d %s", $d, $id, $job->{'fd'}, substr($req, 0, $cols - 17));
-      $slots[$slot] = $str;
+      my $str = sprintf("%5d %5d %3d %s", $d, $id, $job->{'fd'}, $req);
+      $slots[$slot] = substr($str, 0, $cols - 1);
     }
     if ($nolastevents) {
       unshift @slots, "suppressed lastevents: $lasteventscount";
@@ -98,7 +98,7 @@ if (-S $ARGV[0]) {
     if ($ajaxstatus->{'watcher'}) {
       push @slots, undef;
       for my $fw (@{$ajaxstatus->{'watcher'}}) {
-        push @slots, sprintf("%s", $fw->{'filename'});
+	push @slots, sprintf("%s", $fw->{'filename'});
 	push @slots, users($fw->{'job'}) if $fw->{'job'};
       }
     }
@@ -106,14 +106,15 @@ if (-S $ARGV[0]) {
       push @slots, undef;
       for my $rpc (@{$ajaxstatus->{'rpc'}}) {
 	my $d = $now - $rpc->{'starttime'};
-        push @slots, sprintf("%5d %5d %3d %s", $d, $rpc->{'ev'}, $rpc->{'fd'}, substr($rpc->{'uri'}, 0, $cols - 17));
+	my $str = sprintf("%5d %5d %3d %s", $d, $rpc->{'ev'}, $rpc->{'fd'}, $rpc->{'uri'});
+	push @slots, substr($str, 0, $cols - 1);
 	push @slots, users($rpc->{'job'}) if $rpc->{'job'};
       }
     }
     if ($ajaxstatus->{'serialize'}) {
       push @slots, undef;
       for my $re (@{$ajaxstatus->{'serialize'}}) {
-        push @slots, sprintf("%s", $re->{'filename'});
+	push @slots, sprintf("%s", $re->{'filename'});
 	push @slots, users($re->{'job'}) if $re->{'job'};
       }
     }
