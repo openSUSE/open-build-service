@@ -36,7 +36,7 @@ http_interactions:
           <details>404 project 'home:moi' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Tue, 16 Feb 2016 16:00:23 GMT
+  recorded_at: Tue, 23 Feb 2016 15:44:22 GMT
 - request:
     method: get
     uri: http://localhost:3200/build/home:moi/_result?view=summary
@@ -73,5 +73,5 @@ http_interactions:
           <details>404 project 'home:moi' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Tue, 16 Feb 2016 16:00:24 GMT
+  recorded_at: Tue, 23 Feb 2016 15:44:22 GMT
 recorded_with: VCR 3.0.1
