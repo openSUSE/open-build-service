@@ -1,6 +1,6 @@
 require "browser_helper"
 
-RSpec.feature "User's UI shows", type: :feature, js: true do
+RSpec.feature "User's dashboard shows", type: :feature, js: true do
   let(:user) { create(:confirmed_user, login: 'moi') }
   let(:another_user) { create(:confirmed_user, login: 'henne') }
   let(:project) { create(:project, name: 'project_a') }
