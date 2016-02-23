@@ -74,4 +74,38 @@ RSpec.describe Webui::DownloadOnDemandController do
       it { expect(DownloadRepository.where(dod_parameters[:download_repository])).not_to exist }
     end
   end
+
+  describe 'DELETE destroy' do
+    let(:dod_repository) { create(:download_repository) }
+
+    before do
+      repository.download_repositories << dod_repository
+    end
+
+    context "for non-admin users" do
+      before do
+        login(create(:confirmed_user))
+        delete :destroy, id: dod_repository.id, project: project.name
+      end
+
+      it { is_expected.to redirect_to(root_path) }
+      it { expect(flash[:error]).to eq("Sorry, you are not authorized to delete this DownloadRepository.") }
+      it { expect(DownloadRepository.where(id: dod_repository.id)).to exist }
+    end
+
+    context "valid requests" do
+      before do
+        login(admin_user)
+        delete :destroy, id: dod_repository.id, project: project.name
+      end
+
+      it { is_expected.to redirect_to(project_repositories_path(project)) }
+      it { expect(flash[:notice]).to eq("Successfully removed Download on Demand") }
+      it { expect(DownloadRepository.where(id: dod_repository.id)).not_to exist }
+    end
+
+    context "invalid requests" do
+      skip("Please add some tests:-)")
+    end
+  end
 end
