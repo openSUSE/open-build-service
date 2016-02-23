@@ -3412,6 +3412,17 @@ sub getbuilddepinfo {
   my $pkgdeps = $depends->{'pkgdeps'} || {};
   my $pkg2src = $depends->{'pkg2src'} || {};
   my %subpack2pack;
+  if ($view eq 'order') {
+    # order like the scheduler does
+    my @cycles;
+    my @packs = sort keys %$pkg2src;
+    @packs = sort keys %packids if %packids;
+    @packs = BSSolv::depsort($pkgdeps, $pkg2src, \@cycles, @packs);
+    my @res = map { { 'name' => $_ } } @packs;
+    my $res = { 'package' => \@res, };
+    $res->{'cycle'} = \@cycles if @cycles;
+    return ($res, $BSXML::builddepinfo);
+  }
   if ($view eq 'pkgnames' || $view eq 'revpkgnames') {
     for my $packid (sort keys %$pkg2src) {
       my $n = $pkg2src->{$packid} || $packid;
