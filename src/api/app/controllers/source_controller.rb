@@ -327,9 +327,10 @@ class SourceController < ApplicationController
     end
 
     # valid post commands
-    valid_commands=%w(diff branch servicediff linkdiff showlinked copy remove_flag set_flag rebuild undelete
-                      wipe runservice commit commitfilelist createSpecFileTemplate deleteuploadrev
-                      linktobranch updatepatchinfo getprojectservices unlock release importchannel
+    valid_commands=%w(diff branch servicediff linkdiff showlinked copy remove_flag set_flag
+                      undelete runservice waitservice mergeservice commit commitfilelist
+                      createSpecFileTemplate deleteuploadrev linktobranch updatepatchinfo
+                      getprojectservices unlock release importchannel wipe rebuild
                       collectbuildenv instantiate addchannels enablechannel)
 
     @command = params[:cmd]
@@ -376,7 +377,8 @@ class SourceController < ApplicationController
     dispatch_command(:package_command, @command)
   end
 
-  Source_untouched_commands = %w(branch diff linkdiff servicediff showlinked rebuild wipe remove_flag set_flag getprojectservices)
+  Source_untouched_commands = %w(branch diff linkdiff servicediff showlinked rebuild wipe
+                                 waitservice remove_flag set_flag getprojectservices)
   # list of cammands which create the target package
   Package_creating_commands = %w(branch release copy undelete instantiate)
   # list of commands which are allowed even when the project has the package only via a project link
@@ -1500,6 +1502,22 @@ class SourceController < ApplicationController
       release_package(pkg, targetrepo, pkg.name, repo, nil, params[:setrelease], true)
   end
   private :_package_command_release_manual_target
+
+  # POST /source/<project>/<package>?cmd=waitservice
+  def package_command_waitservice
+    path = request.path_info
+    path += build_query_from_hash(params, [:cmd])
+    pass_to_backend path
+  end
+
+  # POST /source/<project>/<package>?cmd=mergeservice
+  def package_command_mergeservice
+    path = request.path_info
+    path += build_query_from_hash(params, [:cmd, :comment, :user])
+    pass_to_backend path
+
+    @package.sources_changed
+  end
 
   # POST /source/<project>/<package>?cmd=runservice
   def package_command_runservice

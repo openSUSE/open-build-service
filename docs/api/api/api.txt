@@ -786,6 +786,8 @@ POST /source/<project>/<package>
   rebuild: rebuild all builds
   getprojectservices: list all service defined in project spaces defined for this package.
   runservice: trigger run of defined services in _service file
+  waitservice: returns when all services have finished, code 200 when service run was successful
+  mergeservice: drops the _service file and commits all server side generated files
   wipe: wipe all build results of this package
 
 Parameters: 
