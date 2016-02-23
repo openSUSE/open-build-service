@@ -108,4 +108,54 @@ RSpec.describe Webui::DownloadOnDemandController do
       skip("Please add some tests:-)")
     end
   end
+
+  describe "POST update" do
+    let(:dod_repository) { create(:download_repository) }
+
+    before do
+      repository.download_repositories << dod_repository
+    end
+
+    context "for non-admin users" do
+      before do
+        login(create(:confirmed_user))
+        dod_parameters[:id] = dod_repository.id
+        dod_parameters[:download_repository][:arch] = "s390x"
+
+        post :update, dod_parameters
+      end
+
+      it { is_expected.to redirect_to(root_path) }
+      it { expect(flash[:error]).to eq("Sorry, you are not authorized to update this DownloadRepository.") }
+
+      it "updates the DownloadRepository" do
+        expect(dod_repository.arch).to eq("x86_64")
+      end
+    end
+
+    context "valid requests" do
+      before do
+        login(admin_user)
+        dod_parameters[:id] = dod_repository.id
+        dod_parameters[:download_repository][:arch] = "s390x"
+
+        post :update, dod_parameters
+      end
+
+      it { is_expected.to redirect_to(project_repositories_path(project)) }
+      it { expect(flash[:notice]).to eq("Successfully updated Download on Demand") }
+
+      it "updates the DownloadRepository" do
+        expect(dod_repository.reload.arch).to eq("s390x")
+      end
+    end
+
+    context "invalid requests" do
+      skip("Please add some tests:-)")
+    end
+
+    context "repository id" do
+      skip("Ensure that users can't change repository_id of an existing dod repository!")
+    end
+  end
 end

@@ -19,7 +19,7 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
       @project.store
       redirect_to project_repositories_path(@project), notice: "Successfully updated Download on Demand"
     else
-      redirect_to :back, error: "Download on Demand can't be created: #{@download_on_demand.errors.full_messages.to_sentence}"
+      redirect_to :back, error: "Download on Demand can't be updated: #{@download_on_demand.errors.full_messages.to_sentence}"
     end
   end
 
