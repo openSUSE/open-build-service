@@ -36,7 +36,7 @@ http_interactions:
           <details>404 project 'home:Jane' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Tue, 23 Feb 2016 15:44:03 GMT
+  recorded_at: Wed, 10 Feb 2016 16:04:26 GMT
 - request:
     method: get
     uri: http://localhost:3200/build/home:Jane/_result?view=summary
@@ -73,5 +73,5 @@ http_interactions:
           <details>404 project 'home:Jane' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Tue, 23 Feb 2016 15:44:03 GMT
+  recorded_at: Wed, 10 Feb 2016 16:04:26 GMT
 recorded_with: VCR 3.0.1
