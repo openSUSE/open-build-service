@@ -31,6 +31,12 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
     get "/public/source/home:Iggy/TestPack/_meta"
     assert_response :success
 
+    # osc repos
+    get "/public/configuration"
+    assert_response :success
+    get "/public/configuration.xml"
+    assert_response :success
+
     get "/public/source" # no such action
     assert_response 404
 

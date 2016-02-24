@@ -608,6 +608,8 @@ OBSApi::Application.routes.draw do
       get 'public' => :index
       get 'public/about' => 'about#index'
       get 'public/build/:project(/:repository(/:arch(/:package(/:file))))' => :build, constraints: cons
+      get 'public/configuration' => :configuration_show
+      get 'public/configuration.xml' => :configuration_show
       get 'public/source/:project' => :project_index, constraints: cons
       get 'public/source/:project/_meta' => :project_meta, constraints: cons
       get 'public/source/:project/_config' => :project_file, constraints: cons
@@ -619,8 +621,6 @@ OBSApi::Application.routes.draw do
       get 'public/binary_packages/:project/:package' => :binary_packages, constraints: cons
     end
 
-    get 'public/configuration' => 'configurations#show'
-    get 'public/configuration.xml' => 'configurations#show'
     get 'public/status/:action' => 'status#index'
 
     get '/404' => 'main#notfound'

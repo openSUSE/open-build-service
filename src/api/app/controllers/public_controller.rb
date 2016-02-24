@@ -59,6 +59,18 @@ class PublicController < ApplicationController
     pass_to_backend path
   end
 
+  # GET /public/configuration
+  # GET /public/configuration.xml
+  # GET /public/configuration.json
+  def configuration_show
+    @configuration = ::Configuration.first
+
+    respond_to do |format|
+      format.xml  { render :xml => @configuration.render_xml }
+      format.json { render :json => @configuration.to_json }
+    end
+  end
+
   # GET /public/source/:project/_meta
   def project_meta
     # project visible/known ?
