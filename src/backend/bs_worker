@@ -3042,6 +3042,7 @@ while (!($req = BSServer::server($conf))) {
       $kill_job = "kvm memory page bug" if $tail =~ /BUG: unable to handle kernel NULL pointer dereference at/;
       $kill_job = "kvm spinnlock bug" if $tail =~ /INFO: rcu_sched self-detected stall on CPU/;
       $kill_job = "xen soft lockup" if $tail =~ /BUG: soft lockup - CPU#\d+ stuck for/;
+      $kill_job = "stuck in SLOF" if $tail =~ /\( \d+ \) Data Storage Exception/;
       if ($kill_job) {
         next unless $locked;
 	print "detected $kill_job, discarding job\n";
