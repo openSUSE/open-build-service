@@ -22,11 +22,7 @@ RSpec.describe User do
 
     it { expect(user.state).to eq(User::STATES['unconfirmed']) }
 
-    it 'validates uniqueness of login' do
-      invalid_user = build(:user, login: user.login)
-      invalid_user.save
-      expect(invalid_user.errors.full_messages).to eq(['Login is the name of an already existing user.'])
-    end
+    it { expect(create(:user)).to validate_uniqueness_of(:login).with_message('is the name of an already existing user.') }
   end
 
   shared_examples 'updates notifications' do
