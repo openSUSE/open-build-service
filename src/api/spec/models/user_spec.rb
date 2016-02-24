@@ -107,4 +107,32 @@ RSpec.describe User do
       expect(project).to be_nil
     end
   end
+
+  describe "methods used in the User's dashboard" do
+    let(:project) { create(:project, name: 'project_a') }
+    let(:project_with_package) { create(:project_with_package, name: 'project_b') }
+
+    it "will have involved packages" do
+      create(:relationship_package_user, package: project_with_package.packages.first, user: user)
+      expect(user.involved_packages).to include(project_with_package.packages.first)
+    end
+
+    it "will have involved projects" do
+      create(:relationship_project_user, project: project, user: user)
+      create(:relationship_project_user, project: project_with_package, user: user)
+      involved_projects = user.involved_projects
+      expect(involved_projects).to include(Project.find_by_name(user.home_project_name))
+      expect(involved_projects).to include(project)
+      expect(involved_projects).to include(project_with_package)
+    end
+
+    it "will have owned projects and packages" do
+      create(:attrib, attrib_type: AttribType.find_by(name: 'OwnerRootProject'), project: project_with_package)
+      create(:relationship_package_user, package: project_with_package.packages.first, user: user)
+      create(:relationship_project_user, project: project_with_package, user: user)
+      owned_packages = user.owned_packages
+      expect(owned_packages[0]).to eq([nil, project_with_package.name])
+      expect(owned_packages[1]).to eq([project_with_package.packages.first.name, project_with_package.name])
+    end
+  end
 end
