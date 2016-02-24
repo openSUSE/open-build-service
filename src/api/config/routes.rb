@@ -331,22 +331,20 @@ OBSApi::Application.routes.draw do
     end
 
     ### /apidocs
-    get 'apidocs' => 'webui/apidocs#index'
-    get 'apidocs/index' => 'webui/apidocs#index'
+    get 'apidocs(/index)' => 'webui/apidocs#index'
   end
 
   # first the routes where the mime type does not matter
 
   ### /build
-  match 'build/:project/:repository/:arch/:package/_status' => 'build#index', constraints: cons, via: [:get, :post]
   get 'build/:project/:repository/:arch/:package/_log' => 'build#logfile', constraints: cons, as: :raw_logfile
   match 'build/:project/:repository/:arch/:package/_buildinfo' => 'build#buildinfo', constraints: cons, via: [:get, :post]
+  match 'build/:project/:repository/:arch/:package/_status' => 'build#index', constraints: cons, via: [:get, :post]
   match 'build/:project/:repository/:arch/:package/_history' => 'build#index', constraints: cons, via: [:get, :post]
   match 'build/:project/:repository/:arch/:package/:filename' => 'build#file', via: [:get, :put, :delete], constraints: cons
   get 'build/:project/:repository/:arch/_builddepinfo' => 'build#builddepinfo', constraints: cons
-  match 'build/:project/:repository/:arch/:package' => 'build#index', constraints: cons, via: [:get, :post]
   match 'build/:project/:repository/_buildconfig' => 'build#index', constraints: cons, via: [:get, :post]
-  match 'build/:project/:repository/:arch' => 'build#index', constraints: cons, via: [:get, :post]
+  match 'build/:project/:repository/:arch(/:package)' => 'build#index', constraints: cons, via: [:get, :post]
   get 'build/:project/_result' => 'build#result', constraints: cons
   match 'build/:project/:repository' => 'build#index', constraints: cons, via: [:get, :post]
   # the web client does no longer use that route, but we keep it for backward compat
@@ -356,11 +354,8 @@ OBSApi::Application.routes.draw do
 
   ### /published
 
-  get 'published/:project/:repository/:arch/:binary' => 'published#index', constraints: cons
   # :arch can be also a ymp for a pattern :/
-  get 'published/:project/:repository/:arch' => 'published#index', constraints: cons
-  get 'published/:project/:repository/' => 'published#index', constraints: cons
-  get 'published/:project' => 'published#index', constraints: cons
+  get 'published/:project(/:repository(/:arch(/:binary)))' => 'published#index', constraints: cons
   get 'published/' => 'source#index', via: :get
 
   constraints(APIMatcher) do
@@ -483,8 +478,7 @@ OBSApi::Application.routes.draw do
     get 'user/:user/tags/_tagcloud' => 'tag#tagcloud', constraints: cons
 
     # Get tags for a certain object by user.
-    match 'user/:user/tags/:project' => 'tag#tags_by_user_and_object', constraints: cons, via: [:get, :post, :put, :delete]
-    match 'user/:user/tags/:project/:package' => 'tag#tags_by_user_and_object', constraints: cons, via: [:get, :post, :put, :delete]
+    match 'user/:user/tags/:project(/:package)' => 'tag#tags_by_user_and_object', constraints: cons, via: [:get, :post, :put, :delete]
 
     ### /statistics
     # Routes for statistics
@@ -496,20 +490,16 @@ OBSApi::Application.routes.draw do
 
       # Timestamps
       #
-      get 'statistics/added_timestamp/:project' => :added_timestamp, constraints: cons
-      get 'statistics/added_timestamp/:project/:package' => :added_timestamp, constraints: cons
-      get 'statistics/updated_timestamp/:project' => :updated_timestamp, constraints: cons
-      get 'statistics/updated_timestamp/:project/:package' => :updated_timestamp, constraints: cons
+      get 'statistics/added_timestamp/:project(/:package)' => :added_timestamp, constraints: cons
+      get 'statistics/updated_timestamp/:project(/:package)' => :updated_timestamp, constraints: cons
 
       # Ratings
       #
-      get 'statistics/rating/:project' => :rating, constraints: cons
-      get 'statistics/rating/:project/:package' => :rating, constraints: cons
+      get 'statistics/rating/:project(/:package)' => :rating, constraints: cons
 
       # Activity
       #
-      get 'statistics/activity/:project' => :activity, constraints: cons
-      get 'statistics/activity/:project/:package' => :activity, constraints: cons
+      get 'statistics/activity/:project(/:package)' => :activity, constraints: cons
 
       # Newest stats
       #
@@ -617,11 +607,7 @@ OBSApi::Application.routes.draw do
     controller :public do
       get 'public' => :index
       get 'public/about' => 'about#index'
-      get 'public/build/:project' => :build, constraints: cons
-      get 'public/build/:project/:repository' => :build, constraints: cons
-      get 'public/build/:project/:repository/:arch' => :build, constraints: cons
-      get 'public/build/:project/:repository/:arch/:package' => :build, constraints: cons
-      get 'public/build/:project/:repository/:arch/:package/:file' => :build, constraints: cons
+      get 'public/build/:project(/:repository(/:arch(/:package(/:file))))' => :build, constraints: cons
       get 'public/source/:project' => :project_index, constraints: cons
       get 'public/source/:project/_meta' => :project_meta, constraints: cons
       get 'public/source/:project/_config' => :project_file, constraints: cons

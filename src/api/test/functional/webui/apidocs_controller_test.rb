@@ -4,7 +4,7 @@ class Webui::ApidocsControllerTest < Webui::IntegrationTest
   def test_index
     return unless File.exist? '/var/adm/fillup-templates'
     # test relative links
-    visit apidocs_path
+    visit "/apidocs"
     page.first('a', :text => 'Example').click
     assert page.source =~ %r{<title>Open Build Service API</title>}
   end
@@ -22,7 +22,7 @@ class Webui::ApidocsControllerTest < Webui::IntegrationTest
   def test_broken_apidocs_setup
     old_location = CONFIG['apidocs_location']
     CONFIG['apidocs_location'] = '/your/mom'
-    visit apidocs_path
+    visit "/apidocs"
     page.wont_have_link 'Example'
   ensure
     CONFIG['apidocs_location'] = old_location
