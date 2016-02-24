@@ -621,6 +621,7 @@ OBSApi::Application.routes.draw do
       get 'public/build/:project/:repository' => :build, constraints: cons
       get 'public/build/:project/:repository/:arch' => :build, constraints: cons
       get 'public/build/:project/:repository/:arch/:package' => :build, constraints: cons
+      get 'public/build/:project/:repository/:arch/:package/:file' => :build, constraints: cons
       get 'public/source/:project' => :project_index, constraints: cons
       get 'public/source/:project/_meta' => :project_meta, constraints: cons
       get 'public/source/:project/_config' => :project_file, constraints: cons

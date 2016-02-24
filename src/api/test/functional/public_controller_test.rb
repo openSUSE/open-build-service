@@ -84,12 +84,25 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
 
   def test_get_files
     get "/public/source/home:Iggy/TestPack/myfile"
-    assert_response 200
+    assert_response :success
     assert_match "DummyContent", @response.body
 
     get "/public/source/home:Iggy/TestPack/myfile2"
     assert_response 404
     assert_match(/myfile2: no such file/, @response.body)
+
+    # access to package build area
+    get "/public/build/home:Iggy/10.2/i586/TestPack"
+    assert :success
+    get "/public/build/home:Iggy/10.2/i586/TestPack/package-1.0-1.i586.rpm"
+    assert :success
+
+    # access to :full repo
+    get "/public/build/home:Iggy/10.2/i586/_repository"
+    assert :success
+    get "/public/build/home:Iggy/10.2/i586/_repository/package.rpm"
+    assert :success
+    # FIXME: validate rpm
 
     get "/public/build/home:Iggy/10.2/i586/TestPack/doesnotexist"
     assert_response 404
