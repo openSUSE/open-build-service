@@ -28,7 +28,7 @@ RSpec.describe Relationship do
     it 'hides projects for users' do
       User.current = create(:confirmed_user)
       project = create(:forbidden_project)
-      create(:relationship, project: project, user: User.current)
+      create(:relationship_project_user, project: project, user: User.current)
 
       User.current = create(:confirmed_user)
       expect(Relationship.forbidden_project_ids).to include(project.id)
@@ -37,7 +37,7 @@ RSpec.describe Relationship do
     it 'shows projects for whitelisted users' do
       project = create(:forbidden_project)
       user = create(:confirmed_user)
-      create(:relationship, project: project, user: user)
+      create(:relationship_project_user, project: project, user: user)
 
       User.current = user
       expect(Relationship.forbidden_project_ids).not_to include(project.id)
