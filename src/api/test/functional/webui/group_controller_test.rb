@@ -3,7 +3,7 @@ require_relative '../../test_helper'
 class Webui::GroupControllerTest < Webui::IntegrationTest
   uses_transaction :test_edit_group
 
-  def test_list_all_groups
+  def test_list_all_groups # spec/features/webui/groups_spec.rb
     use_js
 
     login_king to: groups_path
@@ -19,7 +19,7 @@ class Webui::GroupControllerTest < Webui::IntegrationTest
     assert page.current_url.end_with? user_show_path(user: 'adrian')
   end
 
-  def test_edit_group
+  def test_edit_group # spec/features/webui/groups_spec.rb
     use_js
 
     login_king to: groups_path
@@ -37,13 +37,13 @@ class Webui::GroupControllerTest < Webui::IntegrationTest
     end
   end
 
-  def test_invalid_group
+  def test_invalid_group # spec/controllers/webui/groups_controller_spec.rb
     visit group_show_path('nogroup')
     flash_message.must_equal "Group 'nogroup' does not exist"
     flash_message_type.must_equal :alert
   end
 
-  def test_input_tokens_group
+  def test_input_tokens_group # spec/controllers/webui/groups_controller_spec.rb
     visit group_tokens_path(term: 'nosuch')
     page.status_code.must_equal 404
 
@@ -60,7 +60,7 @@ class Webui::GroupControllerTest < Webui::IntegrationTest
                                         { 'name' => 'test_group_empty' }]
   end
 
-  def test_autocomplete_group
+  def test_autocomplete_group # spec/controllers/webui/groups_controller_spec.rb
     visit group_autocomplete_path(q: 'nosuch')
     page.status_code.must_equal 404
 
