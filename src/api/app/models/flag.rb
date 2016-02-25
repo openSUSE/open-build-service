@@ -8,6 +8,9 @@ class Flag < ActiveRecord::Base
   validates :position, :presence => true
   validates_numericality_of :position, :only_integer => true
 
+  after_save :discard_forbidden_project_cache
+  after_destroy :discard_forbidden_project_cache
+
   before_validation(:on => :create) do
     if self.project
       self.position = (self.project.flags.maximum(:position) || 0 ) + 1
@@ -56,6 +59,10 @@ class Flag < ActiveRecord::Base
     else
       'disable'
     end
+  end
+
+  def discard_forbidden_project_cache
+    Relationship.discard_cache if self.flag == 'access'
   end
 
   def default_status

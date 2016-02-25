@@ -1,8 +1,6 @@
 class Relationship < ActiveRecord::Base
   class SaveError < APIException; end
 
-  FORBIDDEN_PROJECT_IDS_CACHE_KEY="forbidden_project_ids"
-
   belongs_to :role
 
   # only one is true
@@ -108,42 +106,46 @@ class Relationship < ActiveRecord::Base
     r.delete if r.invalid?
   end
 
-  # this is to speed up secure Project.find
+  # calculate and cache forbidden_project_ids for users
   def self.forbidden_project_ids
-    if User.current
-      return User.current.forbidden_project_ids
-    end
-    # mainly for scripts
-    forbidden_project_ids_for_user(nil)
-  end
+    # Admins don't have forbidden projects
+    return [0] if User.current && User.current.is_admin?
 
-  def self.forbidden_project_ids_for_user(user)
-    project_user_cache = Rails.cache.fetch(FORBIDDEN_PROJECT_IDS_CACHE_KEY) do
-      puc = Hash.new
+    # This will cache and return a hash like this:
+    # {projecs: [p1,p2], whitelist: { u1: [p1], u2: [p1,p2], u3: [p2] } }
+    forbidden_projects = Rails.cache.fetch('forbidden_projects') do
+      forbidden_projects_hash = {projects: [], whitelist: {}}
       Relationship.find_by_sql("SELECT ur.project_id, ur.user_id from flags f,
                 relationships ur where f.flag = 'access' and f.status = 'disable' and ur.project_id = f.project_id").each do |r|
-        puc[r.project_id] ||= Hash.new
-        puc[r.project_id][r.user_id] = 1
+        forbidden_projects_hash[:projects] << r.project_id
+        if r.user_id
+          forbidden_projects_hash[:whitelist][r.user_id] ||= []
+          forbidden_projects_hash[:whitelist][r.user_id] << r.project_id if r.user_id
+        end
       end
-      puc
+      forbidden_projects_hash[:projects].uniq!
+      forbidden_projects_hash[:projects] << 0 if forbidden_projects_hash[:projects].empty?
+
+      forbidden_projects_hash
     end
-    ret = [0]
-    if user
-      return ret if user.is_admin?
-      userid = user.id
-    else
-      userid = User.find_nobody!.id
+    # We don't need to check the relationships if we don't have a User
+    return forbidden_projects[:projects] if User.current.nil? || User.current.is_nobody?
+    # The cache sequence is for invalidating user centric cache entries for all users
+    cache_sequence = Rails.cache.read('cache_sequence_for_forbidden_projects') || 0
+    Rails.cache.fetch("users/#{User.current.id}-forbidden_projects-#{cache_sequence}") do
+      # Normal users can be in the whitelist let's substract allowed projects
+      whitelistened_projects_for_user = forbidden_projects[:whitelist][User.current.id] || []
+      result = forbidden_projects[:projects] - whitelistened_projects_for_user
+      result = [0] if result.empty?
+      result
     end
-    project_user_cache.each do |project_id, users|
-      ret << project_id unless users[userid]
-    end
-    # we always put a 0 in there to avoid having to check for NULL
-    ret << 0 if ret.blank?
-    ret
   end
 
   def self.discard_cache
-    Rails.cache.delete(FORBIDDEN_PROJECT_IDS_CACHE_KEY)
+    # Increasing the cache sequence will 'discard' all user centric forbidden_projects caches
+    cache_sequence = Rails.cache.read('cache_sequence_for_forbidden_projects') || 0
+    Rails.cache.write('cache_sequence_for_forbidden_projects', cache_sequence + 1)
+    Rails.cache.delete('forbidden_projects')
     User.current.discard_cache if User.current
   end
 

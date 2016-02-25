@@ -870,10 +870,6 @@ class User < ActiveRecord::Base
     return array
   end
 
-  def forbidden_project_ids
-    Relationship.forbidden_project_ids_for_user(self)
-  end
-
   def user_relevant_packages_for_status
     role_id = Role.rolecache['maintainer'].id
     # First fetch the project ids
