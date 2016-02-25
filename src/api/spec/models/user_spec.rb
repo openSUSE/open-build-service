@@ -88,17 +88,47 @@ RSpec.describe User do
     end
   end
 
-  it 'creates a home project by default if allow_user_to_create_home_project is enabled' do
-    Configuration.stubs(:allow_user_to_create_home_project).returns(true)
-    user = create(:confirmed_user)
-    project = Project.find_by(name: user.home_project_name)
-    expect(project).not_to be_nil
+  describe 'home project creation' do
+    it 'creates a home project by default if allow_user_to_create_home_project is enabled' do
+      Configuration.stubs(:allow_user_to_create_home_project).returns(true)
+      user = create(:confirmed_user, login: 'random_name')
+      project = Project.find_by(name: user.home_project_name)
+      expect(project).not_to be_nil
+    end
+
+    it "doesn't creates a home project if allow_user_to_create_home_project is disabled" do
+      Configuration.stubs(:allow_user_to_create_home_project).returns(false)
+      user = create(:confirmed_user, login: 'another_random_name')
+      project = Project.find_by(name: user.home_project_name)
+      expect(project).to be_nil
+    end
   end
 
-  it "doesn't creates a home project if allow_user_to_create_home_project is disabled" do
-    Configuration.stubs(:allow_user_to_create_home_project).returns(false)
-    user = create(:confirmed_user)
-    project = Project.find_by(name: user.home_project_name)
-    expect(project).to be_nil
+  describe "methods used in the User's dashboard" do
+    let(:project) { create(:project, name: 'project_a') }
+    let(:project_with_package) { create(:project_with_package, name: 'project_b') }
+
+    it "will have involved packages" do
+      create(:relationship_package_user, package: project_with_package.packages.first, user: user)
+      expect(user.involved_packages).to include(project_with_package.packages.first)
+    end
+
+    it "will have involved projects" do
+      create(:relationship_project_user, project: project, user: user)
+      create(:relationship_project_user, project: project_with_package, user: user)
+      involved_projects = user.involved_projects
+      expect(involved_projects).to include(Project.find_by_name(user.home_project_name))
+      expect(involved_projects).to include(project)
+      expect(involved_projects).to include(project_with_package)
+    end
+
+    it "will have owned projects and packages" do
+      create(:attrib, attrib_type: AttribType.find_by(name: 'OwnerRootProject'), project: project_with_package)
+      create(:relationship_package_user, package: project_with_package.packages.first, user: user)
+      create(:relationship_project_user, project: project_with_package, user: user)
+      owned_packages = user.owned_packages
+      expect(owned_packages[0]).to eq([nil, project_with_package.name])
+      expect(owned_packages[1]).to eq([project_with_package.packages.first.name, project_with_package.name])
+    end
   end
 end
