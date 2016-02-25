@@ -1,83 +1,80 @@
 class Webui::GroupsController < Webui::WebuiController
   include Webui::WebuiHelper
 
-  before_filter :require_admin, only: [:index]
-  before_filter :overwrite_group, only: [:edit]
   before_filter :require_login, except: [:show, :tokens, :autocomplete]
+  before_filter :set_group, only: [:show, :update, :edit]
+  after_action :verify_authorized, except: [:show, :autocomplete, :tokens]
 
   def index
+    authorize Group, :index?
     @groups = Group.all
   end
 
-  def show
-    required_parameters :id
-    @group = Group.find_by_title(params[:id])
-    unless @group
-      flash[:error] = "Group '#{params[:id]}' does not exist"
-      redirect_back_or_to controller: 'main', action: 'index'
-    end
+  def show; end
+
+  def new
+    authorize Group, :create?
   end
 
-  def new; end
-
   def edit
-    required_parameters :group
+    authorize @group, :update?
     @roles = Role.global_roles
     @members = []
-    @displayed_group.users.each do |person|
+    @group.users.each do |person|
       user = { 'name' => person.login }
       @members << user
     end
   end
 
-  def save
-    group = Group.where(title: params[:name]).first
-    if group.nil?
-      authorize Group, :create?
-      group = Group.create(title: params[:name])
+  def create
+    authorize Group, :create?
+
+    group = Group.new(title: group_params[:title])
+    if group.save && group.replace_members(group_params[:members])
+      flash[:success] = "Group '#{group.title}' successfully updated."
+      redirect_to controller: :groups, action: :index
+    else
+      redirect_to :back, error: "Group can't be saved: #{group.errors.full_messages.to_sentence}"
     end
-    authorize group, :update?
-    Group.transaction do
-      group.users.delete_all
-      params[:members].split(',').each do |m|
-        group.users << User.find_by_login!(m)
-      end
-      group.save!
+  end
+
+  def update
+    authorize @group, :update?
+
+    if @group.replace_members(group_params[:members])
+      flash[:success] = "Group '#{@group.title}' successfully updated."
+      redirect_to controller: :groups, action: :index
+    else
+      redirect_to :back, error: "Group can't be saved: #{@group.errors.full_messages.to_sentence}"
     end
-    flash[:success] = "Group '#{group.title}' successfully updated."
-    redirect_to controller: :groups, action: :index
   end
 
   def autocomplete
     required_parameters :term
-    render json: list_groups(params[:term])
+    groups = Group.where("title LIKE ?", "#{params[:term]}%").pluck(:title)
+    render json: groups
   end
 
   def tokens
     required_parameters :q
-    render json: list_groups(params[:q], true)
+    groups = Group.where("title LIKE ?", "#{params[:q]}%").pluck(:title).map { |title| { name: title } }
+    render json: groups
   end
 
-  def overwrite_group
-    @displayed_group = @group
-    group = Group.find_by_title(params['group']) if params['group'].present?
-    @displayed_group = group if group
+  private
+
+  def group_params
+    params.require(:group).permit(:title, :members)
   end
 
-  private :overwrite_group
+  def set_group
+    required_parameters :title
+    @group = Group.find_by_title(params[:title])
 
-  protected
-
-  def list_groups(prefix = nil, hash = nil)
-    names = []
-    groups = Group.arel_table
-    Group.where(groups[:title].matches("#{prefix}%")).pluck(:title).each do |group|
-      if hash
-        names << { 'name' => group }
-      else
-        names << group
-      end
+    # Group.find_by_title! is self implemented and would raise an 500 error
+    unless @group
+      flash[:error] = "Group '#{params[:title]}' does not exist"
+      redirect_back_or_to controller: 'main', action: 'index'
     end
-    names
   end
 end
