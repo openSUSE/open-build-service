@@ -318,12 +318,13 @@ OBSApi::Application.routes.draw do
 
     controller 'webui/groups' do
       get 'groups' => :index
-      get 'group/show/:id' => :show, constraints: {:id => /[^\/]*/}, as: 'group_show'
+      get 'group/show/:title' => :show, constraints: {:title => /[^\/]*/}, as: 'group_show'
       get 'group/new' => :new
-      post 'group/save' => :save
+      post 'group/create' => :create
+      get 'group/edit/title' => :edit, constraints: {:title => /[^\/]*/}
+      post 'group/update' => :update
       get 'group/autocomplete' => :autocomplete
       get 'group/tokens' => :tokens
-      get 'group/edit' => :edit
     end
 
     namespace :webui do

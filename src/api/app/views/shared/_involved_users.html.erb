@@ -76,7 +76,7 @@
           <tbody>
           <% @groups.each do |group| %>
               <tr>
-                <td><%= link_to(group.title, :controller => 'groups', :action => 'show', id: group.title) %></td>
+                <td><%= link_to(group.title, :controller => 'groups', :action => 'show', title: group.title) %></td>
                 <% @roles.each do |role| %>
                     <%= content_tag(:td, data: { group: group, role: role.title, type: 'group' }) do %>
                         <% if @package %>

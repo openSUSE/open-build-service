@@ -87,6 +87,18 @@ class Group < ActiveRecord::Base
     gu.save!
   end
 
+  def replace_members(members)
+    Group.transaction do
+      users.delete_all
+      members.split(',').each do |m|
+        users << User.find_by_login!(m)
+      end
+      save!
+    end
+  rescue ActiveRecord::RecordInvalid, NotFoundError => exception
+    errors.add(:base, exception.message)
+  end
+
   def remove_user(user)
     GroupsUser.delete_all(['user_id = ? AND group_id = ?', user.id, self.id])
   end

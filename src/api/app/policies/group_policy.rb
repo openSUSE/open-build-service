@@ -1,4 +1,8 @@
 class GroupPolicy < ApplicationPolicy
+  def index?
+    create?
+  end
+
   def create?
     # Only admins can create new groups atm
     @user.is_admin?
