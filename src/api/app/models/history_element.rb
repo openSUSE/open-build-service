@@ -184,6 +184,12 @@ class HistoryElement::ReviewReopened < HistoryElement::Review
   end
 end
 
+class HistoryElement::ReviewObsoleted < HistoryElement::Review
+  def description
+    'Review got obsoleted'
+  end
+end
+
 class HistoryElement::ReviewAssigned < HistoryElement::Review
   def description
     'Review got assigned'

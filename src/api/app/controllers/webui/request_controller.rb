@@ -41,7 +41,7 @@ class Webui::RequestController < Webui::WebuiController
       req.addreview(opts)
     rescue BsRequestPermissionCheck::AddReviewNotPermitted
       flash[:error] = "Not permitted to add a review to '#{params[:id]}'"
-    rescue APIException => e
+    rescue ActiveRecord::RecordInvalid, APIException => e
       flash[:error] = "Unable add review to '#{params[:id]}': #{e.message}"
     end
     redirect_to :controller => :request, :action => 'show', :id => params[:id]

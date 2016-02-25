@@ -29,22 +29,30 @@ class PackageRemoveTest < ActiveSupport::TestCase
     assert_equal 1, HistoryElement::RequestRevoked.where(op_object_id: @request.id).count
   end
 
-  def test_review_gets_removed
+  def test_review_gets_obsoleted
     project = Project.find_by(name: 'Apache')
-    review_package = project.packages.build(name: 'test_review_gets_removed')
+    review_package = project.packages.create(name: 'test_review_gets_removed')
 
     User.current = users(:Iggy)
     branch_package
     create_request
     @request.addreview(by_project: review_package.project.name, by_package: review_package.name)
+    @request.reload
+    assert_equal :review, @request.state
 
     assert_equal 1, @request.reviews.count
     assert_equal 1, HistoryElement::RequestReviewAdded.where(op_object_id: @request.id).count
+    assert_equal :new, @request.reviews.first.state
 
     review_package.destroy
 
-    assert_equal 0, @request.reviews.count
-    assert_equal 0, HistoryElement::RequestReviewAdded.where(op_object_id: @request.id).count
+    @request.reload
+    assert_equal 1, @request.reviews.count
+    assert_equal 1, HistoryElement::RequestReviewAdded.where(op_object_id: @request.id).count
+    assert_equal :obsoleted, @request.reviews.first.state
+
+    # request changed to new state
+    assert_equal :new, @request.state
   end
 
   def test_destroy_target_declines_request

@@ -1126,7 +1126,7 @@ class Package < ActiveRecord::Base
       # Don't alter the request that is the trigger of this close_requests run
       next if request.id == @commit_opts[:request]
 
-      request.remove_reviews(:by_package => self.name)
+      request.obsolete_reviews(:by_project => self.project.name, :by_package => self.name)
     end
   end
 
