@@ -69,7 +69,7 @@ RSpec.describe Webui::DownloadOnDemandController do
       end
 
       it { is_expected.to redirect_to(root_path) }
-      it { expect(flash[:error]).to eq("Download on Demand can't be created: Arch can't be blank") }
+      it { expect(flash[:error]).to eq("Download on Demand can't be created: Arch can't be blank and Arch is not included in the list") }
       it { expect(assigns(:download_on_demand)).to be_kind_of(DownloadRepository) }
       it { expect(DownloadRepository.where(dod_parameters[:download_repository])).not_to exist }
     end
