@@ -67,6 +67,15 @@ RSpec.describe Webui::UserController do
     it { is_expected.to render_template("webui/user/edit") }
   end
 
+  describe "POST #do_login" do
+    before do
+      request.env["HTTP_REFERER"] = search_url # Needed for the redirect_to :back
+      post :do_login, {username: user.login, password: 'buildservice'}
+    end
+
+    it { expect(response).to redirect_to search_url }
+  end
+
   describe "GET #home" do
     skip
   end
@@ -115,8 +124,26 @@ RSpec.describe Webui::UserController do
     skip
   end
 
-  describe "GET #register" do
-    skip
+  describe "POST #register" do
+    let!(:new_user) { build(:user, login: 'moi_new') }
+
+    context "when home project creation enabled" do
+      before do
+        Configuration.stubs(:allow_user_to_create_home_project).returns(true)
+        post :register, { login: new_user.login, email: new_user.email, password: 'buildservice' }
+      end
+
+      it { expect(response).to redirect_to project_show_path(new_user.home_project_name) }
+    end
+
+    context "when home project creation disabled" do
+      before do
+        Configuration.stubs(:allow_user_to_create_home_project).returns(false)
+        post :register, { login: new_user.login, email: new_user.email, password: 'buildservice' }
+      end
+
+      it { expect(response).to redirect_to root_path }
+    end
   end
 
   describe "GET #register_user" do

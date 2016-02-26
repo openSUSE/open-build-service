@@ -168,7 +168,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     flash_message.must_equal "Requires admin privileges"
   end
 
-  def test_that_redirect_after_login_works
+  def test_that_redirect_after_login_works # spec/controllers/webui/users_spec.rb
     use_js
 
     visit search_path
@@ -181,7 +181,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     assert_equal search_path, current_path
   end
 
-  def test_redirect_after_register_user_action_works
+  def test_redirect_after_register_user_action_works # spec/controllers/webui/users_spec.rb
     visit user_register_user_path
     within ".sign-up" do
       fill_in "Username", with: "bob"
@@ -197,7 +197,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
                  "Should redirect properly"
   end
 
-  def test_redirect_after_register_user_action_works_no_homes
+  def test_redirect_after_register_user_action_works_no_homes # spec/controllers/webui/users_spec.rb
     Configuration.stubs(:allow_user_to_create_home_project).returns(false)
 
     visit user_register_user_path
