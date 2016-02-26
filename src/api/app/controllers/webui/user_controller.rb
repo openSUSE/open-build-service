@@ -175,7 +175,8 @@ class Webui::UserController < Webui::WebuiController
       UnregisteredUser.register(opts)
     rescue APIException => e
       flash[:error] = e.message
-      redirect_back_or_to :controller => 'main', :action => 'index' and return
+      redirect_back_or_to root_path
+      return
     end
 
     flash[:success] = "The account '#{params[:login]}' is now active."
@@ -188,7 +189,7 @@ class Webui::UserController < Webui::WebuiController
       if Project.where(name: User.current.home_project_name).exists?
         redirect_to project_show_path(User.current.home_project_name)
       else
-        redirect_to :controller => :main, :action => :index
+        redirect_to root_path
       end
     end
   end
