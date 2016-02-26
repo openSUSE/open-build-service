@@ -146,7 +146,6 @@ class Relationship < ActiveRecord::Base
     cache_sequence = Rails.cache.read('cache_sequence_for_forbidden_projects') || 0
     Rails.cache.write('cache_sequence_for_forbidden_projects', cache_sequence + 1)
     Rails.cache.delete('forbidden_projects')
-    User.current.discard_cache if User.current
   end
 
   private
