@@ -1078,15 +1078,20 @@ GET /build/<project>/<repository>/<arch>/<package>/<binaryname>?view=fileinfo_ex
 Result: fileinfo
 
 
-GET /build/<project>/<repository>/<arch>/_builddepinfo?package=<package>
+GET /build/<project>/<repository>/<arch>/_builddepinfo
+POST /build/<project>/<repository>/<arch>/_builddepinfo
 
   Shows all build dependencies of one or more packages, a change in any of them will
   trigger a build.
+    A changed dependency can be posted to let the server recalculate the order
+  including the local dependency changes.
   
 Parameters:
 
+  package=<name>    filter package container, can be used multiple times
   view=pkgnames     show package names instead of binary names
   view=revpkgnames  show which packages will be triggered if the package is changed
+  view=order        sort packages ordered by dependencies
 
 Result: build dependencies
 

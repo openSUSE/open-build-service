@@ -122,13 +122,19 @@ class BuildController < ApplicationController
     pass_to_backend path
   end
 
+  # /build/:project/:repository/:arch/_builddepinfo
   def builddepinfo
     required_parameters :project, :repository, :arch
 
     # just for permission checking
     Project.get_by_name params[:project]
 
-    pass_to_backend
+    path = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/_builddepinfo"
+    unless request.query_string.empty?
+      path += '?' + request.query_string
+    end
+
+    pass_to_backend path
   end
 
   # /build/:project/:repository/:arch/:package/:filename

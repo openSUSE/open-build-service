@@ -207,6 +207,16 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_no_xml_tag :parent => { :tag => "package", :attributes => { :name => "TestPack" } }, :tag => "source"
     assert_no_xml_tag :parent => { :tag => "package", :attributes => { :name => "TestPack" } }, :tag => "subpkg"
+
+    # for osc project build feature
+    get "/build/HiddenProject/nada/i586/_builddepinfo?view=order"
+    assert_response :success
+    assert_xml_tag :parent => { tag: "builddepinfo" }, tag: "package", attributes: { name: "pack" }
+    data = @response.body
+
+    post "/build/HiddenProject/nada/i586/_builddepinfo?view=order", data
+    assert_response :success
+    assert_xml_tag :parent => { tag: "builddepinfo" }, tag: "package", attributes: { name: "pack" }
   end
 
   def test_package_index
