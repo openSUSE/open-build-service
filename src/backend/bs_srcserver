@@ -6633,8 +6633,16 @@ sub getbuilddepinfo {
 
   checkprojrepoarch($projid, $repoid, $arch);
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
-  my @args = BSRPC::args($cgi, 'package', 'view');;
-  my $res = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/_builddepinfo", $BSXML::builddepinfo, @args);
+  my @args = BSRPC::args($cgi, 'package', 'view');
+  my $param = {
+    'uri' => "$reposerver/build/$projid/$repoid/$arch/_builddepinfo",
+  };
+  if (BSServer::have_content()) {
+    $param->{'request'} = 'POST';
+    $param->{'data'} = BSServer::read_data(10000000);
+    $param->{'headers'} = [ 'Content-Type: application/octet-stream' ];
+  }
+  my $res = BSWatcher::rpc($param, $BSXML::builddepinfo, @args);
   return ($res, $BSXML::builddepinfo);
 }
 
@@ -8659,7 +8667,7 @@ my $dispatches = [
   '/build/$project/$repository' => \&getarchlist,
   '/build/$project/$repository/_buildconfig path:prp*' => \&getbuildconfig,
   '/build/$project/$repository/$arch package* view:?' => \&getpackagelist_build,
-  '/build/$project/$repository/$arch/_builddepinfo package* view:?' => \&getbuilddepinfo,
+  '!- /build/$project/$repository/$arch/_builddepinfo package* view:?' => \&getbuilddepinfo,
   '/build/$project/$repository/$arch/_jobhistory package* code:* limit:num?' => \&getjobhistory,
   'POST:/build/$project/$repository/$arch/_repository match:' =>  \&postrepo,
   'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool? setrelease:?' => \&copybuild,

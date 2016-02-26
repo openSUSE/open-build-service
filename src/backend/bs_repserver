@@ -3404,13 +3404,27 @@ sub getbuildinfo_post {
 
 sub getbuilddepinfo {
   my ($cgi, $projid, $repoid, $arch) = @_;
+  my $builddepinfo_in;
+  if (BSServer::have_content()) {
+    my $content = BSServer::read_data(10000000);
+    $builddepinfo_in = BSUtil::fromxml($content, $BSXML::builddepinfo);
+  }
   my %packids = map {$_ => 1} @{$cgi->{'package'} || []};
   my $view = $cgi->{'view'} || '';
-  my $depends = BSUtil::retrieve("$reporoot/$projid/$repoid/$arch/:depends", 1);
-  return ({'package' => []}, $BSXML::builddepinfo) unless $depends;
+  my $depends = BSUtil::retrieve("$reporoot/$projid/$repoid/$arch/:depends", 1) || {};
   my $subpacks = $depends->{'subpacks'} || {};
   my $pkgdeps = $depends->{'pkgdeps'} || {};
   my $pkg2src = $depends->{'pkg2src'} || {};
+  if ($builddepinfo_in) {
+    for my $in (@{$builddepinfo_in->{'package'} || []}) {
+      my $packid = $in->{'name'};
+      next unless $packid;
+      $pkg2src->{$packid} = $in->{'source'} if $in->{'source'};
+      $subpacks->{$packid} = $in->{'subpkg'} if $in->{'subpkg'};
+      delete $pkgdeps->{$packid};
+      $pkgdeps->{$packid} = $in->{'pkgdep'} if $in->{'pkgdep'};
+    }
+  }
   my %subpack2pack;
   if ($view eq 'order') {
     # order like the scheduler does
