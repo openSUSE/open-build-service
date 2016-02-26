@@ -5875,7 +5875,7 @@ sub copyproject {
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
   my $oreposerver = $BSConfig::partitioning ? projid2reposerver($oprojid) : $BSConfig::reposerver;
   if ($cgi->{'withbinaries'} && $reposerver ne $oreposerver) {
-    die("cannot copy binaries between different reposiory servers yet\n");
+    die("cannot copy binaries between different repository servers yet\n");
   }
 
   my $user = defined($cgi->{'user'}) && $cgi->{'user'} ne '' ? $cgi->{'user'} : 'unknown';
