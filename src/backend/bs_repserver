@@ -3431,7 +3431,7 @@ sub getbuilddepinfo {
     my @cycles;
     my @packs = sort keys %$pkg2src;
     @packs = sort keys %packids if %packids;
-    @packs = BSSolv::depsort($pkgdeps, $pkg2src, \@cycles, @packs);
+    @packs = BSSolv::depsort($pkgdeps, $pkg2src, \@cycles, @packs) if @packs > 1;
     my @res = map { { 'name' => $_ } } @packs;
     my $res = { 'package' => \@res, };
     $res->{'cycle'} = \@cycles if @cycles;
