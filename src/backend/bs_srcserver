@@ -5587,6 +5587,7 @@ sub keeplink {
 	if (!$ltgtfiles->{$file} && $ofilesl->{$file} && $ofilesl->{$file} eq ($ofiles->{$file} || '')) {
 	  # local file no longer needed
 	  delete $nfiles->{$file};
+	  next;
 	}
 	push @dfiles, $file;
 	delete $nfiles->{$file};
