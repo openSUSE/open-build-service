@@ -67,6 +67,15 @@ RSpec.describe Webui::UserController do
     it { is_expected.to render_template("webui/user/edit") }
   end
 
+  describe "POST #do_login" do
+    before do
+      request.env["HTTP_REFERER"] = search_url # Needed for the redirect_to :back
+      post :do_login, {username: user.login, password: 'buildservice'}
+    end
+
+    it { expect(response).to redirect_to search_url }
+  end
+
   describe "GET #home" do
     skip
   end
@@ -75,16 +84,44 @@ RSpec.describe Webui::UserController do
     skip
   end
 
-  describe "GET #save" do
-  #  SAVE from edit
+  describe "POST #save" do
+    context "when user is updating its own profile" do
+      before do
+        login user
+        post :save, {user: user, realname: 'another real name', email: 'new_valid@email.es' }
+        user.reload
+      end
 
-  #      expect(page).to have_text("Editing User Data for User")
-  #      fill_in 'realname', with: Faker::Name.name
-  #      fill_in 'email', with: Faker::Internet.email
-  #      click_button 'Update'
+      it { expect(user.realname).to eq('another real name') }
+      it { expect(user.email).to eq('new_valid@email.es') }
+      it { is_expected.to redirect_to user_show_path(user) }
+    end
 
-  #      expect(page).to have_content("User data for user '#{user.login}' successfully updated.")
-    skip
+    context "when user is trying to update another user's profile" do
+      before do
+        login user
+        request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+        post :save, {user: non_admin_user, realname: 'another real name', email: 'new_valid@email.es' }
+        non_admin_user.reload
+      end
+
+      it { expect(non_admin_user.realname).not_to eq('another real name') }
+      it { expect(non_admin_user.email).not_to eq('new_valid@email.es') }
+      it { expect(flash[:error]).to eq("Can't edit #{non_admin_user.login}") }
+      it { is_expected.to redirect_to :back }
+    end
+
+    context "when admin is updating another user's profile" do
+      before do
+        login admin_user
+        post :save, {user: user, realname: 'another real name', email: 'new_valid@email.es' }
+        user.reload
+      end
+
+      it { expect(user.realname).to eq('another real name') }
+      it { expect(user.email).to eq('new_valid@email.es') }
+      it { is_expected.to redirect_to user_show_path(user) }
+    end
   end
 
   describe "GET #delete" do
@@ -115,8 +152,38 @@ RSpec.describe Webui::UserController do
     skip
   end
 
-  describe "GET #register" do
-    skip
+  describe "POST #register" do
+    let!(:new_user) { build(:user, login: 'moi_new') }
+
+    context "when existing user is already registered with this login" do
+      before do
+        already_registered_user = create(:confirmed_user, login: 'previous_user')
+        post :register, { login: already_registered_user.login, email: already_registered_user.email, password: 'buildservice' }
+      end
+
+      it { expect(flash[:error]).not_to be nil }
+      it { expect(response).to redirect_to root_path }
+    end
+
+    context "when home project creation enabled" do
+      before do
+        Configuration.stubs(:allow_user_to_create_home_project).returns(true)
+        post :register, { login: new_user.login, email: new_user.email, password: 'buildservice' }
+      end
+
+      it { expect(flash[:success]).to eq("The account '#{new_user.login}' is now active.") }
+      it { expect(response).to redirect_to project_show_path(new_user.home_project_name) }
+    end
+
+    context "when home project creation disabled" do
+      before do
+        Configuration.stubs(:allow_user_to_create_home_project).returns(false)
+        post :register, { login: new_user.login, email: new_user.email, password: 'buildservice' }
+      end
+
+      it { expect(flash[:success]).to eq("The account '#{new_user.login}' is now active.") }
+      it { expect(response).to redirect_to root_path }
+    end
   end
 
   describe "GET #register_user" do
