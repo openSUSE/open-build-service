@@ -3,14 +3,15 @@ package BSConfig::Hooks::createrepo_rpmmd;
 #
 #  CONFIG:
 #
-#  $BSConfig::repomd_hook_masterregex   -  only work on projects that match this
+#  $BSConfig::repomd_hook_masterregex           -  only work on projects that match this
 #  $BSConfig::repomd_hook_expires = [
 #    'regexp' => expire'
 #  ...
-#  ]                                    -  set expire time for the project, first match wins
-#  $BSConfig::repomd_hook_euladir       -  global eula dir
-#  $BSConfig::repomd_hook_extraeuladir  -  project based eulas
-#  $BSConfig::repomd_hook_unpacklegacy  -  turn on legacy rpm unpacking
+#  ]                                            -  set expire time for the project, first match wins
+#  $BSConfig::repomd_hook_euladir               -  global eula dir
+#  $BSConfig::repomd_hook_extraeuladir          -  project based eulas
+#  $BSConfig::repomd_hook_unpacklegacy          -  turn on legacy rpm unpacking
+#  $BSConfig::repomd_hook_dumpprimarychecksums  - location of the dumpprimarychecksums helper
 # 
 
 die("Can only be used from BSConfig\n") unless $BSConfig::bsdir;
@@ -291,7 +292,8 @@ sub createrepo_rpmmd_hook {
         my $primary = (grep {/primary\.xml/} sort(ls("$extrep/repodata")))[0];
         if ($primary) {
 	  local *F;
-          if (open(F, '-|', 'dumpprimarychecksums', "$extrep/repodata/$primary")) {
+	  my $dumpprimarychecksums = $BSConfig::repomd_hook_dumpprimarychecksums || 'dumpprimarychecksums';
+          if (open(F, '-|', $dumpprimarychecksums, "$extrep/repodata/$primary")) {
 	    while (<F>) {
 	      chomp;
 	      my @s = split(' ', $_, 5);
