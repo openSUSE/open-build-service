@@ -674,7 +674,6 @@ OBSApi::Application.routes.draw do
   # spiders request this, not browsers
   get 'main/sitemap' => 'webui/main#sitemap'
   get 'main/sitemap_projects' => 'webui/main#sitemap_projects'
-  get 'main/sitemap_projects_packages' => 'webui/main#sitemap_projects_packages'
   get 'main/sitemap_packages/:listaction' => 'webui/main#sitemap_packages'
 end
 
