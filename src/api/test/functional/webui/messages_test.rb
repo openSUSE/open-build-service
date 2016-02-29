@@ -1,6 +1,9 @@
 require_relative '../../test_helper'
 
 class Webui::MessagesTest < Webui::IntegrationTest
+  # spec/controllers/webui/feeds_controller_spec.rb
+  # spec/controllers/webui/main_controller_spec.rb
+  # spec/features/webui/main_page_spec.rb
   def test_add_and_remove_message
     use_js
 

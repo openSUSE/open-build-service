@@ -87,7 +87,7 @@ class Webui::MainController < Webui::WebuiController
   end
 
   def add_news
-    if params[:message].nil? or params[:severity].empty?
+    if params[:message].nil? or params[:severity].blank?
       flash[:error] = 'Please provide a message and severity'
       redirect_to(:action => 'index') and return
     end
