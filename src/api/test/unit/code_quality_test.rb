@@ -88,7 +88,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'Owner::search'                                                           => 80.51,
       'PersonController#internal_register'                                      => 112.01,
       'Package#find_changed_issues'                                             => 93.74,
-      'Package#close_requests'                                                  => 81.68,
+      'Package#close_requests'                                                  => 84.82,
       'Project#update_one_repository_without_path'                              => 115.39,
       'PublicController#binary_packages'                                        => 126.16,
       'Repository#cleanup_before_destroy'                                       => 82.98,

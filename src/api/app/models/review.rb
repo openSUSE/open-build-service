@@ -6,7 +6,7 @@ class Review < ActiveRecord::Base
   end
 
   belongs_to :bs_request
-  validates_inclusion_of :state, :in => VALID_REQUEST_STATES
+  validates_inclusion_of :state, :in => VALID_REVIEW_STATES
 
   validates :by_user, length: { maximum: 250 }
   validates :by_group, length: { maximum: 250 }
@@ -14,6 +14,8 @@ class Review < ActiveRecord::Base
   validates :by_package, length: { maximum: 250 }
   validates :reviewer, length: { maximum: 250 }
   validates :reason, length: { maximum: 65534 }
+
+  validate :check_initial, :on => [:create]
 
   before_validation(on: :create) do
     if read_attribute(:state).nil?
@@ -23,6 +25,38 @@ class Review < ActiveRecord::Base
 
   def state
     read_attribute(:state).to_sym
+  end
+
+  def check_initial
+    # Validates the existence of references.
+    # NOTE: they can disappear later and the review should be still
+    #       usable to some degree (can be showed at least)
+    #       But it must not be possible to create one with broken references
+    unless self.by_user or self.by_group or self.by_project
+      errors.add(:unknown, 'no reviewer defined')
+    end
+
+    if self.by_user and not User.find_by_login(self.by_user)
+      errors.add(:by_user, "#{self.by_user} not found")
+    end
+
+    if self.by_group and not Group.find_by_title(self.by_group)
+      errors.add(:by_group, "#{self.by_group} not found")
+    end
+
+    if self.by_project and not Project.find_by_name(self.by_project)
+      # must be a local project or we can't ask
+      errors.add(:by_project, "#{self.by_project} not found")
+    end
+
+    if self.by_package and not self.by_project
+      errors.add(:unknown, 'by_package defined, but missing by_project')
+    end
+    if self.by_package and not Package.find_by_project_and_name(self.by_project, self.by_package)
+      # must be a local package. maybe we should rewrite in case the
+      # package comes via local project link...
+      errors.add(:by_package, "#{self.by_project}/#{self.by_package} not found")
+    end
   end
 
   def self.new_from_xml_hash(hash)

@@ -98,22 +98,30 @@ class ProjectRemoveTest < ActiveSupport::TestCase
     other_package.destroy
   end
 
-  def test_review_gets_removed
+  def test_review_gets_obsoleted
     review_project = Project.create(name: 'test_review_gets_removed')
 
     User.current = users(:Iggy)
     branch_package
     create_request
     @request.addreview(by_project: review_project.name)
+    @request.reload
+    assert_equal :review, @request.state
 
     assert_equal 1, @request.reviews.count
     assert_equal 1, HistoryElement::RequestReviewAdded.where(op_object_id: @request.id).count
+    assert_equal :new, @request.reviews.first.state
 
     review_project.destroy
 
-    assert_equal 0, @request.reviews.count
-    assert_equal 0, HistoryElement::RequestReviewAdded.where(op_object_id: @request.id).count
+    @request.reload
+    assert_equal 1, @request.reviews.count
+    assert_equal :obsoleted, @request.reviews.first.state
 
+    # request changed to new state
+    assert_equal :new, @request.state
+
+    # cleanup
     @package.project.destroy
   end
 

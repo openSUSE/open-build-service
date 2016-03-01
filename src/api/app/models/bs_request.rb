@@ -294,22 +294,28 @@ class BsRequest < ActiveRecord::Base
     false
   end
 
-  def remove_reviews(opts)
+  def obsolete_reviews(opts)
     return false unless opts[:by_user] or opts[:by_group] or opts[:by_project] or opts[:by_package]
     reviews.each do |review|
       if review.by_user and review.by_user == opts[:by_user] or
           review.by_group and review.by_group == opts[:by_group] or
           review.by_project and review.by_project == opts[:by_project] or
           review.by_package and review.by_package == opts[:by_package]
-        logger.debug "Removing review #{review.id}"
-        self.reviews.delete(review)
-        if self.reviews.none?
+        logger.debug "Obsoleting review #{review.id}"
+        review.state = :obsoleted
+        review.save
+        history = HistoryElement::ReviewObsoleted
+        history.create(review: review, comment: "reviewer got removed", user_id: User.current.id)
+
+        # Maybe this will turn the request into an approved state?
+        if self.state == :review and self.reviews.where(state: "new").none?
           self.state = :new
-          HistoryElement::RequestReviewAdded.where(description_extension: review.id).delete_all
+          self.save
+          history = HistoryElement::RequestAllReviewsApproved
+          history.create(request: self, comment: opts[:comment], user_id: User.current.id)
         end
       end
     end
-    self.save
   end
 
   def remove_from_group(group)
@@ -556,19 +562,20 @@ class BsRequest < ActiveRecord::Base
     end
   end
 
-  def change_review_state(state, opts = {})
+  def change_review_state(new_review_state, opts = {})
     self.with_lock do
-      state = state.to_sym
+      new_review_state = new_review_state.to_sym
 
-      unless self.state == :review || (self.state == :new && state == :new)
+      unless self.state == :review || (self.state == :new && new_review_state == :new)
         raise InvalidStateError.new 'request is not in review state'
       end
       check_if_valid_review!(opts)
-      unless [:new, :accepted, :declined, :superseded].include? state
-        raise InvalidStateError.new "review state must be new, accepted, declined or superseded, was #{state}"
+      unless [:new, :accepted, :declined, :superseded].include? new_review_state
+        raise InvalidStateError.new "review state must be new, accepted, declined or superseded, was #{new_review_state}"
       end
+      # to track if the request state needs to be changed as well
       go_new_state = :review
-      go_new_state = state if [:declined, :superseded].include? state
+      go_new_state = new_review_state if [:declined, :superseded].include? new_review_state
       found = false
 
       reviews_seen = Hash.new
@@ -587,20 +594,22 @@ class BsRequest < ActiveRecord::Base
           reviews_seen[rkey] = 1
           found = true
           comment = opts[:comment] || ''
-          if review.state != state || review.reviewer != User.current.login || review.reason != comment
+          if review.state != new_review_state || review.reviewer != User.current.login || review.reason != comment
             review.reason = comment
-            review.state = state
+            review.state = new_review_state
             review.reviewer = User.current.login
             review.save!
 
             history = nil
-            history = HistoryElement::ReviewAccepted if state == :accepted
-            history = HistoryElement::ReviewDeclined if state == :declined
-            history = HistoryElement::ReviewReopened if state == :new
+            history = HistoryElement::ReviewAccepted if new_review_state == :accepted
+            history = HistoryElement::ReviewDeclined if new_review_state == :declined
+            history = HistoryElement::ReviewReopened if new_review_state == :new
             history.create(review: review, comment: opts[:comment], user_id: User.current.id) if history
 
+            # last review finished:
             go_new_state = :new if go_new_state == :review && review.state == :accepted
-            go_new_state = review.state if go_new_state == :review && review.state != :new # take decline
+            # take decline in any situation:
+            go_new_state = review.state if go_new_state == :review && review.state != :new
           else
             # no new history entry
             go_new_state = nil
@@ -611,11 +620,10 @@ class BsRequest < ActiveRecord::Base
           go_new_state = nil if review.state == :new && go_new_state != :declined && go_new_state != :superseded
         end
       end
-
       raise Review::NotFoundError.new unless found
       history=nil
       p={request: self, comment: opts[:comment], user_id: User.current.id}
-      if state == :superseded
+      if new_review_state == :superseded
         self.state = :superseded
         self.superseded_by = opts[:superseded_by]
         history = HistoryElement::RequestSuperseded
@@ -678,7 +686,6 @@ class BsRequest < ActiveRecord::Base
                                       by_group: opts[:by_group], by_project: opts[:by_project],
                                       by_package: opts[:by_package], creator: User.current.login
       self.save!
-
       p={request: self, user_id: User.current.id, description_extension: newreview.id.to_s}
       p[:comment] = opts[:comment] if opts[:comment]
       HistoryElement::RequestReviewAdded.create(p)

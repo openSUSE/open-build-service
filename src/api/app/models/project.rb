@@ -220,7 +220,7 @@ class Project < ActiveRecord::Base
       # Don't alter the request that is the trigger of this revoke_requests run
       next if request.id == @commit_opts[:request]
 
-      request.remove_reviews(:by_project => self.name)
+      request.obsolete_reviews(:by_project => self.name)
     end
   end
 

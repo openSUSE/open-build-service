@@ -156,6 +156,28 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.must_have_text "There's nothing to be done right now"
   end
 
+  uses_transaction :test_tom_adds_invalid_project_reviewer
+  def test_tom_adds_invalid_project_reviewer
+    login_tom to: user_show_path(user: 'tom')
+
+    within('tr#tr_request_4') do
+      page.must_have_text '~:branches:kde4 / BranchPack'
+      first(:css, 'a.request_link').click
+    end
+
+    page.must_have_text 'Review for tom'
+
+    click_link 'Add a review'
+    page.must_have_text 'Add Reviewer'
+    # test switching reviewer type
+    find(:id, 'review_type').select('Project')
+    page.must_have_text 'Project:'
+    fill_in 'review_project', with: 'INVALID/PROJECT'
+    click_button 'Ok'
+    find('#flash-messages').must_have_text 'Unable add review to'
+    page.must_have_text 'Open review for test_group'
+  end
+
   uses_transaction :test_tom_adds_reviewer_Iggy
   def test_tom_adds_reviewer_Iggy
     login_tom to: user_show_path(user: 'tom')
@@ -174,7 +196,8 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.must_have_text 'Group:'
     fill_in 'review_group', with: 'test_group_b'
     click_button 'Ok'
-    page.must_have_text 'Open review for test_group'
+    page.must_have_text 'Open review for test_group' # existed already
+    page.must_have_text 'Open review for test_group_b' # added by us
 
     click_link 'Add a review'
     find(:id, 'review_type').select('Project')
