@@ -7,10 +7,6 @@
 
 <h2>Add Repositories to <%= @project %></h2>
 
-<p>Please choose the repositories that your packages will be built for by following default list. Or
-  <%= link_to 'pick one via advanced interface', :action => :add_repository, :project => @project %>.
-</p>
-
 <%= form_tag(:action => :save_distributions, :project => @project) do %>
     <% @distributions.each do |vendor, list| %>
         <h3><%= sprite_tag("distributions-#{vendor.downcase}") %> <%= vendor -%> distributions</h3>
@@ -37,7 +33,10 @@
     </p>
 
     <p>
-      <%= submit_tag 'Add selected repositories', :disabled => true, :id => 'submitrepos' -%>
+      <span class="nowrap">
+        <%= submit_tag 'Add selected repositories', :disabled => true, :id => 'submitrepos' -%>
+        <%= link_to 'Expert mode', { action: 'add_repository', project: @project }, { style: 'padding-left: 4px' } %>
+      </span>
     </p>
 
 <% end %>
