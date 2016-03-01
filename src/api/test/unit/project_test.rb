@@ -55,8 +55,8 @@ class ProjectTest < ActiveSupport::TestCase
 
   def test_flags_to_axml
     # check precondition
-    assert_equal 2, @project.type_flags('build').size
-    assert_equal 2, @project.type_flags('publish').size
+    assert_equal 2, @project.flags.of_type('build').size
+    assert_equal 2, @project.flags.of_type('publish').size
 
     xml_string = @project.to_axml
     # puts xml_string
@@ -103,37 +103,37 @@ class ProjectTest < ActiveSupport::TestCase
     @project.reload
 
     # check results
-    assert_equal 1, @project.type_flags('build').size
-    assert_equal 'disable', @project.type_flags('build')[0].status
-    assert_equal '10.2', @project.type_flags('build')[0].repo
-    assert_equal 'i586', @project.type_flags('build')[0].architecture.name
-    assert_equal 1, @project.type_flags('build')[0].position
-    assert_nil @project.type_flags('build')[0].package
-    assert_equal 'home:Iggy', @project.type_flags('build')[0].project.name
+    assert_equal 1, @project.flags.of_type('build').size
+    assert_equal 'disable', @project.flags.of_type('build')[0].status
+    assert_equal '10.2', @project.flags.of_type('build')[0].repo
+    assert_equal 'i586', @project.flags.of_type('build')[0].architecture.name
+    assert_equal 1, @project.flags.of_type('build')[0].position
+    assert_nil @project.flags.of_type('build')[0].package
+    assert_equal 'home:Iggy', @project.flags.of_type('build')[0].project.name
 
-    assert_equal 1, @project.type_flags('publish').size
-    assert_equal 'enable', @project.type_flags('publish')[0].status
-    assert_equal '10.2', @project.type_flags('publish')[0].repo
-    assert_equal 'x86_64', @project.type_flags('publish')[0].architecture.name
-    assert_equal 2, @project.type_flags('publish')[0].position
-    assert_nil @project.type_flags('publish')[0].package
-    assert_equal 'home:Iggy', @project.type_flags('publish')[0].project.name
+    assert_equal 1, @project.flags.of_type('publish').size
+    assert_equal 'enable', @project.flags.of_type('publish')[0].status
+    assert_equal '10.2', @project.flags.of_type('publish')[0].repo
+    assert_equal 'x86_64', @project.flags.of_type('publish')[0].architecture.name
+    assert_equal 2, @project.flags.of_type('publish')[0].position
+    assert_nil @project.flags.of_type('publish')[0].package
+    assert_equal 'home:Iggy', @project.flags.of_type('publish')[0].project.name
 
-    assert_equal 1, @project.type_flags('debuginfo').size
-    assert_equal 'disable', @project.type_flags('debuginfo')[0].status
-    assert_equal '10.0', @project.type_flags('debuginfo')[0].repo
-    assert_equal 'i586', @project.type_flags('debuginfo')[0].architecture.name
-    assert_equal 3, @project.type_flags('debuginfo')[0].position
-    assert_nil @project.type_flags('debuginfo')[0].package
-    assert_equal 'home:Iggy', @project.type_flags('debuginfo')[0].project.name
+    assert_equal 1, @project.flags.of_type('debuginfo').size
+    assert_equal 'disable', @project.flags.of_type('debuginfo')[0].status
+    assert_equal '10.0', @project.flags.of_type('debuginfo')[0].repo
+    assert_equal 'i586', @project.flags.of_type('debuginfo')[0].architecture.name
+    assert_equal 3, @project.flags.of_type('debuginfo')[0].position
+    assert_nil @project.flags.of_type('debuginfo')[0].package
+    assert_equal 'home:Iggy', @project.flags.of_type('debuginfo')[0].project.name
   end
 
   def test_delete_flags_through_xml
     User.current = users( :Iggy )
 
     # check precondition
-    assert_equal 2, @project.type_flags('build').size
-    assert_equal 2, @project.type_flags('publish').size
+    assert_equal 2, @project.flags.of_type('build').size
+    assert_equal 2, @project.flags.of_type('publish').size
 
     # project is given as axml
     axml = Xmlhash.parse(
@@ -144,8 +144,8 @@ class ProjectTest < ActiveSupport::TestCase
       )
 
     @project.update_all_flags(axml)
-    assert_equal 0, @project.type_flags('build').size
-    assert_equal 0, @project.type_flags('publish').size
+    assert_equal 0, @project.flags.of_type('build').size
+    assert_equal 0, @project.flags.of_type('publish').size
   end
 
   def test_store_axml
@@ -167,11 +167,13 @@ class ProjectTest < ActiveSupport::TestCase
       )
 
     @project.update_from_xml!(axml)
+    @project.save!
 
-    assert_equal 0, @project.type_flags('build').size
-    assert_equal 1, @project.type_flags('debuginfo').size
+    assert_equal 0, @project.flags.of_type('build').size
+    assert_equal 1, @project.flags.of_type('debuginfo').size
 
     @project.update_from_xml!(Xmlhash.parse(original))
+    @project.save!
   end
 
   def test_ordering

@@ -4,6 +4,8 @@ class Flag < ActiveRecord::Base
 
   belongs_to :architecture
 
+  scope :of_type, ->(type) { where(flag: type) }
+
   validates :flag, :presence => true
   validates :position, :presence => true
   validates_numericality_of :position, :only_integer => true
