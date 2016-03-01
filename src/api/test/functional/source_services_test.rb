@@ -260,6 +260,74 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response 404
   end
 
+  def test_service_merge_invalid
+    login_tom
+    # Setup package
+    raw_put '/source/home:tom/service/_meta', "<package project='home:tom' name='service'> <title /> <description /> </package>"
+    assert_response :success
+    raw_put '/source/home:tom/service/pack.spec', "# Comment \nName: pack\nVersion: 12\nRelease: 9\nSummary: asd"
+    assert_response :success
+
+    raw_put '/source/home:tom/service/_service', '<services> <service name="not_existing" /> </services>'
+    assert_response :success
+    assert_nil Package.find_by_project_and_name("home:tom", "service").backend_package.error
+    post '/source/home:tom/service?cmd=runservice'
+    assert_response :success
+    post '/source/home:tom/service?cmd=waitservice'
+    # we have waited, but service was not running successful
+    assert_response 400
+    get '/source/home:tom/service'
+    assert_response :success
+    assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'failed' }
+    UpdateNotificationEvents.new.perform
+    get '/source/home:tom/service?expand=1'
+    assert_response 400
+    assert_match(/not_existing/, @response.body) # multiple line error shows up
+  end
+
+  def test_service_merge_valid
+    login_tom
+    # Setup package
+    raw_put '/source/home:tom/service/_meta', "<package project='home:tom' name='service'> <title /> <description /> </package>"
+    assert_response :success
+    raw_put '/source/home:tom/service/pack.spec', "# Comment \nName: pack\nVersion: 12\nRelease: 9\nSummary: asd"
+    assert_response :success
+
+    raw_put '/source/home:tom/service/_service',
+            '<services> <service name="download_url" >
+             <param name="host">localhost</param>
+             <param name="path">/directory/subdirectory/file</param>
+             </service> </services>'
+    assert_response :success
+    post '/source/home:tom/service?cmd=runservice'
+    assert_response :success
+    post '/source/home:tom/service?cmd=waitservice'
+    assert_response :success
+
+    get '/source/home:tom/service'
+    assert_response :success
+    assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'succeeded' }
+    assert_no_xml_tag :parent => { :tag => 'serviceinfo' }, :tag => 'error'
+    get '/source/home:tom/service/_service:download_url:file?expand=1'
+    assert_response :success
+    post '/source/home:tom/service?cmd=mergeservice', nil
+    assert_response :success
+    get '/source/home:tom/service'
+    assert_response :success
+    # _service file got dropped
+    get '/source/home:tom/service/_service'
+    assert_response 404
+    # result got commited as usual file
+    get '/source/home:tom/service/file'
+    assert_response :success
+    # old file remained
+    get '/source/home:tom/service/pack.spec'
+    assert_response :success
+
+    delete '/source/home:tom/service'
+    assert_response :success
+  end
+
   def test_buildtime_service
     login_Iggy
     raw_put '/source/home:Iggy/service/_meta',
