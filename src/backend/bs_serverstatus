@@ -5,8 +5,8 @@ use strict;
 BEGIN {
   # sigh, must do it in this way so that Socket::MsgHdr's INIT is called
   if (@ARGV && -S $ARGV[-1]) {
-    use BSXML;
-    use BSHandoff;
+    require BSXML;
+    require BSHandoff;
   }
 }
 use Data::Dumper;
@@ -54,8 +54,8 @@ if (-S $ARGV[0]) {
     'handoffpath' => $ARGV[0],
   };
   my %slots;
-  while(1) {
-    my $ajaxstatus = BSHandoff::rpc($param, $BSXML::ajaxstatus);
+  while (1) {
+    my $ajaxstatus = BSHandoff::rpc($param, $BSXML::ajaxstatus || $BSXML::ajaxstatus);
     my $now = time();
     # find jobs
     my %jobs;
