@@ -65,6 +65,7 @@ my $vm_swap = '';
 my $vm_kernel;
 my $vm_initrd;
 my $vm_memory;
+my $vm_enable_console;
 my $vm_worker_name;
 my $vm_worker_instance;
 my $vmdisk_rootsize;
@@ -428,6 +429,11 @@ while (@ARGV) {
   if ($ARGV[0] eq '--vm-worker-nr') {
     shift @ARGV;
     $vm_worker_instance = shift @ARGV;
+    next;
+  }
+  if ($ARGV[0] eq '--vm-enable-console') {
+    shift @ARGV;
+    $vm_enable_console = 1;
     next;
   }
   if ($ARGV[0] eq '--vmdisk-rootsize') {
@@ -2710,6 +2716,7 @@ sub dobuild {
     push @args, '--hugetlbfs', $hugetlbfs if $hugetlbfs;
     push @args, '--vm-worker', $vm_worker_name if $vm_worker_name;
     push @args, '--vm-worker-nr', $vm_worker_instance if $vm_worker_instance;
+    push @args, '--vm-enable-console' if $vm_enable_console;
   } else {
     push @args, '--root', $buildroot;
     push @args, '--vm-type', $1 if $vm =~ /(lxc|docker)/;
