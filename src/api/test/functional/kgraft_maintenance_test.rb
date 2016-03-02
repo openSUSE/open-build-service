@@ -59,21 +59,14 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get "/source/#{kernelIncidentProject}/_meta"
     assert_response :success
 
+#### add empty kgraft container
+
     # create a GA update patch
     Timecop.freeze(1)
     post '/source/BaseDistro2.0/kgraft-GA', :cmd => 'branch', :missingok => 1, :extend_package_names => 1, :add_repositories => 1, :ignoredevel => 1
     assert_response :success
     raw_put "/source/home:king:branches:BaseDistro2.0/kgraft-GA.BaseDistro2.0/package.spec",
             File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read
-    assert_response :success
-    # create a update patch based on former kernel incident
-    Timecop.freeze(1)
-    post '/source/'+kernelIncidentProject+'/kgraft-incident-'+kernelIncidentID,
-         :cmd => 'branch', :target_project => "home:king:branches:BaseDistro2.0",
-         :missingok => 1, :extend_package_names => 1, :add_repositories => 1
-    assert_response :success
-    raw_put "/source/home:king:branches:BaseDistro2.0/kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}/packageNew.spec",
-            File.open("#{Rails.root}/test/fixtures/backend/binary/packageNew.spec").read
     assert_response :success
 
     # add channel
@@ -104,7 +97,20 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
             <binary name="package" package="pack2" project="BaseDistro2.0:LinkedUpdateProject" repository="BaseDistro2LinkedUpdateProject_repo" />
           </binaries>
         </channel>'
+#### add reference to empty kgraft container
     assert_response :success
+
+### Here starts the kgraft team
+    # create a update patch based on former kernel incident
+    Timecop.freeze(1)
+    post '/source/'+kernelIncidentProject+'/kgraft-incident-'+kernelIncidentID,
+         :cmd => 'branch', :target_project => "home:king:branches:BaseDistro2.0",
+         :missingok => 1, :maintenance => 1
+    assert_response :success
+    raw_put "/source/home:king:branches:BaseDistro2.0/kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}/packageNew.spec",
+            File.open("#{Rails.root}/test/fixtures/backend/binary/packageNew.spec").read
+    assert_response :success
+
     post '/source/Channel/BaseDistro2', :cmd => 'branch', :target_project => "home:king:branches:BaseDistro2.0", :extend_package_names => 1, :add_repositories => 1
     assert_response :success
     raw_put "/source/home:king:branches:BaseDistro2.0/BaseDistro2.Channel/_channel", "<?xml version='1.0' encoding='UTF-8'?>
