@@ -44,31 +44,40 @@ sub calcchecksum {
 }
 
 my $susedata_dtd = [
-  'susedata' =>
-    'xmlns',
-    'packages',
-    [[ 'package' =>
-         'pkgid',
-         'name',
-         'arch',
-         [ 'version' =>
-             'epoch',
-             'ver',
-             'rel',
-         ],
-        [[ 'eula' =>
-             'lang',
-             '_content',
-        ]],
-	 [ 'keyword' ],
-    ]],
+    'susedata' =>
+	'xmlns',
+	'packages',
+     [[ 'package' =>
+	    'pkgid',
+	    'name',
+	    'arch',
+	  [ 'version' =>
+		'epoch',
+		'ver',
+		'rel',
+	  ],
+	 [[ 'eula' =>
+		'lang',
+		'_content',
+	 ]],
+	  [ 'keyword' ],
+	  [ 'diskusage' =>
+	      [ 'dirs' =>
+		 [[ 'dir' =>
+			'name',
+			'size',
+			'count',
+		 ]],
+	      ],
+	  ],
+     ]],
 ];
 
 my $suseinfo_dtd = [
-  'suseinfo' =>
-    'xmlns',
-    [],
-    'expire',
+    'suseinfo' =>
+	'xmlns',
+	[],
+	'expire',
 ];
 
 my $prodfile_dtd = [
@@ -87,78 +96,79 @@ my $prodfile_dtd = [
         'arch',
         'endoflife',
         'productline',
-        [ 'register' =>
-                [],
-                'target',
-                'release',
-                [ 'repositories' =>
-                        [[ 'repository' =>
-                                'path',
-                        ]],
-                ],
-        ],
-        [ 'upgrades' =>
-                [],
-                [ 'upgrade' =>
-                        [],
-                        'name',
-                        'summary',
-                        'product',
-                        'notify',
-                        'status',
-                ],
-        ],
+      [ 'register' =>
+	    [],
+	    'target',
+	    'release',
+	  [ 'repositories' =>
+	     [[ 'repository' =>
+		    'path',
+	     ]],
+          ],
+      ],
+      [ 'upgrades' =>
+	    [],
+	  [ 'upgrade' =>
+		[],
+		'name',
+		'summary',
+		'product',
+		'notify',
+		'status',
+	  ],
+      ],
         'updaterepokey',
         'summary',
         'shortsummary',
         'description',
-        [ 'linguas' =>
-                [[ 'language' => '_content' ]],
-        ],
-        [ 'urls' =>
-                [[ 'url' =>
-                        'name',
-                        '_content',
-                ]],
-        ],
-        [ 'buildconfig' =>
-                'producttheme',
-                'betaversion',
-                'allowresolving',
-                'mainproduct',
-        ],
-        [ 'installconfig' =>
-                'defaultlang',
-                'datadir',
-                'descriptiondir',
-                [],
-                [ 'releasepackage' =>
-                        'name',
-                        'flag',
-                        'version',
-                        'release',
-                ],
-                'distribution',
-                [ 'obsoletepackage' ],
-        ],
-        'runtimeconfig',
+      [ 'linguas' =>
+	 [[ 'language' =>
+		'_content',
+	 ]],
+      ],
+      [ 'urls' =>
+	 [[ 'url' =>
+		'name',
+		'_content',
+	 ]],
+      ],
+      [ 'buildconfig' =>
+	    'producttheme',
+	    'betaversion',
+	    'allowresolving',
+	    'mainproduct',
+      ],
+      [ 'installconfig' =>
+	    'defaultlang',
+	    'datadir',
+	    'descriptiondir',
+	  [ 'releasepackage' =>
+		'name',
+		'flag',
+		'version',
+		'release',
+	  ],
+	    'distribution',
+	  [ 'obsoletepackage' ],
+      ],
+	'runtimeconfig',
 ];
 
 my $productsfile_dtd = [
-        'products' =>
-                [[ 'product' =>
-                        [],
-                        'name',
-                        [ 'version' =>
-                                'ver',
-                                'rel',
-                                'epoch',
-                        ],
-                        'arch',
-                        'vendor',
-                        'summary',
-                        'description',
-                ]],
+    'products' =>
+     [[ 'product' =>
+	    [],
+	    'name',
+	  [ 'version' =>
+		'ver',
+		'rel',
+		'epoch',
+	  ],
+	    'arch',
+	    'vendor',
+	    'summary',
+	    'description',
+     ]],
 ];
 
 
@@ -182,10 +192,101 @@ sub unpack_legacy_product {
   rmdir($unpack_dir);
 }
 
+sub calcdudata {
+  my ($rpm, $maxdepth) = @_;
+  my %q = Build::Rpm::rpmq($rpm, 1027, 1028, 1030, 1095, 1096, 1116, 1117, 1118);
+  if (!$q{1027}) {
+    $q{1027} = $q{1117} || [];
+    my @di = @{$q{1116} || []};
+    $_ = $q{1118}->[shift @di] . $_ for @{$q{1027}};
+  }
+  my @modes = @{$q{1030} || []};
+  my @devs = @{$q{1095} || []};
+  my @inos = @{$q{1096} || []};
+  my @names = @{$q{1027} || []};
+  my @sizes = @{$q{1028} || []};
+  my %seen;
+  my %dirnum;
+  my %subdirnum;
+  my %dirsize;
+  my %subdirsize;
+  my ($name, $first);
+  for $name (@names) {
+    my $mode = shift @modes;
+    my $dev = shift @devs;
+    my $ino = shift @inos;
+    my $size = shift @sizes;
+    # strip leading slash
+    # prefix is either empty or ends in /
+    $name = "usr/src/packages/$name" unless $name =~ s/^\///;
+
+    # check if regular file
+    next if ($mode & 0170000) != 0100000;
+    # don't count hardlinks twice
+    next if $seen{"$dev $ino"};
+    $seen{"$dev $ino"} = 1;
+
+    # rounded size in kbytes
+    $size = int ($size / 1024) + 1;
+
+    $name = '' unless $name =~ s/\/[^\/]*$//;
+    if (($name =~ tr/\///) < $maxdepth) {
+      $dirsize{"$name/"} += $size;
+      $dirnum{"$name/"} += 1;
+      $subdirsize{"$name/"} ||= 0;    # so we get all keys
+    }
+    # traverse though path stripping components from the back
+    $name =~ s/\/[^\/]*$// while ($name =~ tr/\///) > $maxdepth;
+
+    while ($name ne '') {
+      $name = '' unless $name =~ s/\/[^\/]*$//;
+      $subdirsize{"$name/"} += $size;
+      $subdirnum{"$name/"} += 1;
+    }
+  }
+  my @dulist;
+  for $name (sort keys %subdirsize) {
+    next unless $dirsize{$name} || $subdirsize{$name};
+    $dirsize{$name} ||= 0;
+    $subdirsize{$name} ||= 0;
+    $dirnum{$name} ||= 0;
+    $subdirnum{$name} ||= 0;
+    #push @dulist, "$name $dirsize{$name} $subdirsize{$name} $dirnum{$name} $subdirnum{$name}";
+    push @dulist, [ $name, $dirsize{$name} + $subdirsize{$name}, $dirnum{$name} + $subdirnum{$name} ];
+  }
+  @dulist = map { { 'name' => $_->[0], 'size' => $_->[1], 'count' => $_->[2] } } @dulist;
+  return { 'dirs' => { 'dir' => \@dulist } };
+}
+
 sub createrepo_rpmmd_hook {
   my ($projid, $repoid, $extrep, $options, $data) = @_;
 
   my @oldrepodata = ls("$extrep/repodata");
+
+  # dudata calc is expensive, so reuse old data if present
+  my %olddudata;
+  if ($options->{'diskusage'}) {
+    my $oldsusedatafile = (grep {/susedata\.xml/} @oldrepodata)[0];
+    if ($oldsusedatafile) {
+      my $oldsusedata = '';
+      if ($oldsusedatafile =~ /\.gz$/) {
+        local *F;
+	if (open(F, '-|', 'gunzip', '-dc', '--', "$extrep/repodata/$oldsusedatafile")) {
+	    1 while sysread(F, $oldsusedata, 8192, length($oldsusedata));
+	    close(F) || warn("$extrep/repodata/$oldsusedatafile: $?\n");
+	}
+      } else {
+	$oldsusedata = readstr("$extrep/repodata/$oldsusedatafile", 2);
+      }
+      if ($oldsusedata) {
+        $oldsusedata = BSUtil::fromxml($oldsusedata, $susedata_dtd, 2);
+	for my $pkg (@{$oldsusedata->{'package'} || []}) {
+	  $olddudata{$pkg->{'pkgid'}} = $pkg->{'diskusage'} if $pkg->{'pkgid'} && $pkg->{'diskusage'};
+	}
+      }
+    }
+  }
+
   unlink("$extrep/repodata/$_") for grep {/(?:suseinfo|susedata|products)\.xml/} @oldrepodata;
 
   return unless $projid =~ /^$BSConfig::repomd_hook_masterregex/;
@@ -284,8 +385,9 @@ sub createrepo_rpmmd_hook {
       if ($supportstatus{$path}) {
 	push @kw, $supportstatus{$path};
       }
-      next unless @pe || @kw;
       s/^(l\d|unsuported|acc)$/support_$1/ for @kw;
+
+      next unless @pe || @kw || $options->{'diskusage'};
 
       if (!$checksumcache) {
 	$checksumcache = {};
@@ -336,6 +438,13 @@ sub createrepo_rpmmd_hook {
       };
       $pd->{'eula'} = \@pe if @pe;
       $pd->{'keyword'} = \@kw if @kw;
+
+      if ($options->{'diskusage'}) {
+	my $du = $olddudata{$q->{'chksum'}};
+	$du ||= calcdudata("$extrep/$subdir$path", 3);
+	$pd->{'diskusage'} = $du if $du;
+      }
+
       push @susedata, $pd;
     }
   }
