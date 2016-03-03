@@ -257,7 +257,8 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     find(:link, 'Add repositories').click
     find(:id, 'repo_images').click # aka "KIWI image build" checkbox
     find_button('Add selected repositories').click
-    assert first(:id, 'images')
+
+    assert first('strong a', text: "images")
 
     find(:link, 'Add repositories').click
     find(:link, 'Expert mode').click
