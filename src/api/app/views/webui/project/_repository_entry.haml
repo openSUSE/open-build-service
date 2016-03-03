@@ -1,0 +1,39 @@
+- repository_id = valid_xml_id(repository.name)
+.repository-container{ id: repository_id, style: "margin-bottom: 1.5em" }
+  %div{ style: "margin-left: 15px" }
+    %strong
+      = link_to(repository.name, :action => 'repository_state', :project => @project, :repository => repository.name)
+    %i
+      = "(" + repository.architectures.pluck(:name).join(', ') + ")"
+  %div{ style: "margin-left: 30px" }
+    -# FIXME: just fix me please;-)
+    - begin
+      - repository.each_path do |path|
+        - if path.project == 'deleted'
+          = sprite_tag 'exclamation'
+          = Target repository has been removed
+        - else
+          %span
+            = "#{path.project}/#{path.repository}"
+          %br
+    - rescue; end
+
+    %div{ style: "margin-top: 1em" }
+      - if User.current.can_modify_project?(@project)
+        %span.edit-repository-field
+          = sprite_tag('drive_edit')
+          = link_to('Edit repository', '#', data: { "repository-edit": true })
+        %div.hidden.edit-repository-container
+          = render partial: 'edit_repository', locals: { project: @project, repository: repository }
+        = sprite_tag('drive_delete', title: 'Delete repository')
+        = link_to('Delete repository', { action: "remove_target", project: @project, target: repository.name }, |
+                      { data: { confirm: "Really remove repository '#{repository.name}'?" }, class: 'x', method: :post })
+      - elsif !User.current.is_nobody?
+        = sprite_tag('drive_delete', title: 'Delete repository')
+        = link_to('Request repository deletion', { :action => :remove_target_request_dialog, :project => @project, :repository => repository.name }, :remote => true)
+      = render :partial => 'shared/download_repository_link', :locals => { :project => @project, :repository => repository }
+      - if repository.release_targets.where(trigger: "manual").exists?
+        = sprite_tag('flag_green')
+        = link_to('Release repository', { :action => :release_repository_dialog, :project => @project, :repository => repository.name }, :remote => true)
+    = render :partial => 'webui/download_on_demand/index', :locals => {project: @project, repository: repository, repository_id: repository_id, new_download_on_demand: DownloadRepository.new(repository_id: repository.id)}
+
