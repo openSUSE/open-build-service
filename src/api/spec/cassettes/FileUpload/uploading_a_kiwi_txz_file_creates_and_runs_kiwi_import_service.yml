@@ -1,0 +1,1144 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/test_package/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '108'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:22 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/test_package?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '240'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="test_package" rev="3" vrev="3" srcmd5="3157573ec64372c79644656206dae4c9">
+          <error> 400 remote error: /vagrant/src/api/test/fixtures/backend/services/kiwi_import.service  No such file or directory</error>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:26 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '522'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test_package" rev="3" vrev="3" srcmd5="3157573ec64372c79644656206dae4c9">
+          <serviceinfo code="failed" xsrcmd5="8862fc3a348442d9ffddcee7915c5bb9">
+            <error> 400 remote error: /vagrant/src/api/test/fixtures/backend/services/kiwi_import.service  No such file or directory</error>
+          </serviceinfo>
+          <entry name="_service" md5="489f334e1b6bcff609a0c01f2d937242" size="54" mtime="1456844192" />
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1456844192" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:26 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '305'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="e8761216f94af6b4e5678dd44ec7806b">
+          <old project="home:tom" package="test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom" package="test_package" rev="3" srcmd5="3157573ec64372c79644656206dae4c9" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:26 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '522'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test_package" rev="3" vrev="3" srcmd5="3157573ec64372c79644656206dae4c9">
+          <serviceinfo code="failed" xsrcmd5="8862fc3a348442d9ffddcee7915c5bb9">
+            <error> 400 remote error: /vagrant/src/api/test/fixtures/backend/services/kiwi_import.service  No such file or directory</error>
+          </serviceinfo>
+          <entry name="_service" md5="489f334e1b6bcff609a0c01f2d937242" size="54" mtime="1456844192" />
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1456844192" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:26 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/test_package?rev=3
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '522'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test_package" rev="3" vrev="3" srcmd5="3157573ec64372c79644656206dae4c9">
+          <serviceinfo code="failed" xsrcmd5="8862fc3a348442d9ffddcee7915c5bb9">
+            <error> 400 remote error: /vagrant/src/api/test/fixtures/backend/services/kiwi_import.service  No such file or directory</error>
+          </serviceinfo>
+          <entry name="_service" md5="489f334e1b6bcff609a0c01f2d937242" size="54" mtime="1456844192" />
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1456844192" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:26 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '522'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test_package" rev="3" vrev="3" srcmd5="3157573ec64372c79644656206dae4c9">
+          <serviceinfo code="failed" xsrcmd5="8862fc3a348442d9ffddcee7915c5bb9">
+            <error> 400 remote error: /vagrant/src/api/test/fixtures/backend/services/kiwi_import.service  No such file or directory</error>
+          </serviceinfo>
+          <entry name="_service" md5="489f334e1b6bcff609a0c01f2d937242" size="54" mtime="1456844192" />
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1456844192" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:26 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/test_package/foo.kiwi.txz?user=tom
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Content-Length:
+      - '0'
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '203'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="4" vrev="4">
+          <srcmd5>388339c62bee54443b7c8bc152f7cf13</srcmd5>
+          <version>unknown</version>
+          <time>1456847607</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:27 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/test_package/_service
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '54'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <services>
+          <service name="kiwi_import"/>
+        </services>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:27 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/test_package/_service?user=tom
+    body:
+      encoding: UTF-8
+      string: |-
+        <services>
+          <service name="kiwi_import"/>
+        <service name="kiwi_import"/></services>
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Content-Length:
+      - '83'
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '203'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="5" vrev="5">
+          <srcmd5>157142356f1671344a324466ecbc0dd2</srcmd5>
+          <version>unknown</version>
+          <time>1456847607</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:28 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom/test_package?cmd=runservice&user=tom
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:28 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '332'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test_package" rev="6" vrev="6" srcmd5="d19172476892766215bcbc135ad664fc">
+          <serviceinfo code="running" />
+          <entry name="_service" md5="b3e38e1862429ebeb1946756a563d62a" size="83" mtime="1456847607" />
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1456844192" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:28 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/test_package?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '146'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="test_package" rev="6" vrev="6" srcmd5="d19172476892766215bcbc135ad664fc">
+          <error>service in progress</error>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:28 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '332'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test_package" rev="6" vrev="6" srcmd5="d19172476892766215bcbc135ad664fc">
+          <serviceinfo code="running" />
+          <entry name="_service" md5="b3e38e1862429ebeb1946756a563d62a" size="83" mtime="1456847607" />
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1456844192" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:29 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '305'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="ad3d1dc28b007aa81dcb423a2f1c484c">
+          <old project="home:tom" package="test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom" package="test_package" rev="6" srcmd5="d19172476892766215bcbc135ad664fc" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:29 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom/test_package?cmd=waitservice
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:31 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom/test_package?cmd=mergeservice&user=tom
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '203'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="7" vrev="7">
+          <srcmd5>f619aceb9f94380f0b8272f79c9658ab</srcmd5>
+          <version>unknown</version>
+          <time>1456847611</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:31 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '301'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test_package" rev="7" vrev="7" srcmd5="f619aceb9f94380f0b8272f79c9658ab">
+          <entry name="config.kiwi" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1456847608" />
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1456844192" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:31 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/test_package?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '186'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="test_package" rev="7" vrev="7" srcmd5="f619aceb9f94380f0b8272f79c9658ab" verifymd5="f619aceb9f94380f0b8272f79c9658ab">
+          <revtime>1456847611</revtime>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:31 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '301'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test_package" rev="7" vrev="7" srcmd5="f619aceb9f94380f0b8272f79c9658ab">
+          <entry name="config.kiwi" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1456847608" />
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1456844192" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:31 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '305'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="4c0d4f991cc28febc1fd612f78b89dcc">
+          <old project="home:tom" package="test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom" package="test_package" rev="7" srcmd5="f619aceb9f94380f0b8272f79c9658ab" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:31 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:tom/_result?package=test_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '774'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="2253242fe08c2762782382d6624a4db3">
+          <result project="home:tom" repository="home_coolo_standard" arch="i586" code="finished" state="finished" />
+          <result project="home:tom" repository="home_coolo_standard" arch="x86_64" code="finished" state="finished" />
+          <result project="home:tom" repository="home_adrian_ProtectionTest_repo" arch="i586" code="finished" state="finished" />
+          <result project="home:tom" repository="home_adrian_ProtectionTest_repo" arch="x86_64" code="finished" state="finished" />
+          <result project="home:tom" repository="SourceprotectedProject_repo" arch="i586" code="finished" state="finished" />
+          <result project="home:tom" repository="SourceprotectedProject_repo" arch="x86_64" code="finished" state="finished" />
+        </resultlist>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:31 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '301'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test_package" rev="7" vrev="7" srcmd5="f619aceb9f94380f0b8272f79c9658ab">
+          <entry name="config.kiwi" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1456847608" />
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1456844192" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:31 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/test_package?expand=1&rev=7
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '301'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test_package" rev="7" vrev="7" srcmd5="f619aceb9f94380f0b8272f79c9658ab">
+          <entry name="config.kiwi" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1456847608" />
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1456844192" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:31 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '301'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test_package" rev="7" vrev="7" srcmd5="f619aceb9f94380f0b8272f79c9658ab">
+          <entry name="config.kiwi" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1456847608" />
+          <entry name="foo.kiwi.txz" md5="d41d8cd98f00b204e9800998ecf8427e" size="0" mtime="1456844192" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:31 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/test_package/_history
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '1363'
+    body:
+      encoding: UTF-8
+      string: |
+        <revisionlist>
+          <revision rev="1" vrev="1">
+            <srcmd5>5c6164d882258ac8ef8d0f3f065c7b68</srcmd5>
+            <version>unknown</version>
+            <time>1456844192</time>
+            <user>tom</user>
+          </revision>
+          <revision rev="2" vrev="2">
+            <srcmd5>ab434c3ede01df02184bd59d8d8ce8d7</srcmd5>
+            <version>unknown</version>
+            <time>1456844192</time>
+            <user>tom</user>
+          </revision>
+          <revision rev="3" vrev="3">
+            <srcmd5>3157573ec64372c79644656206dae4c9</srcmd5>
+            <version>unknown</version>
+            <time>1456844192</time>
+            <user>tom</user>
+            <comment>trigger service run</comment>
+          </revision>
+          <revision rev="4" vrev="4">
+            <srcmd5>388339c62bee54443b7c8bc152f7cf13</srcmd5>
+            <version>unknown</version>
+            <time>1456847607</time>
+            <user>tom</user>
+          </revision>
+          <revision rev="5" vrev="5">
+            <srcmd5>157142356f1671344a324466ecbc0dd2</srcmd5>
+            <version>unknown</version>
+            <time>1456847607</time>
+            <user>tom</user>
+          </revision>
+          <revision rev="6" vrev="6">
+            <srcmd5>d19172476892766215bcbc135ad664fc</srcmd5>
+            <version>unknown</version>
+            <time>1456847608</time>
+            <user>tom</user>
+            <comment>trigger service run</comment>
+          </revision>
+          <revision rev="7" vrev="7">
+            <srcmd5>f619aceb9f94380f0b8272f79c9658ab</srcmd5>
+            <version>unknown</version>
+            <time>1456847611</time>
+            <user>tom</user>
+          </revision>
+        </revisionlist>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:32 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:tom/_result?package=test_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '774'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="2253242fe08c2762782382d6624a4db3">
+          <result project="home:tom" repository="home_coolo_standard" arch="i586" code="finished" state="finished" />
+          <result project="home:tom" repository="home_coolo_standard" arch="x86_64" code="finished" state="finished" />
+          <result project="home:tom" repository="home_adrian_ProtectionTest_repo" arch="i586" code="finished" state="finished" />
+          <result project="home:tom" repository="home_adrian_ProtectionTest_repo" arch="x86_64" code="finished" state="finished" />
+          <result project="home:tom" repository="SourceprotectedProject_repo" arch="i586" code="finished" state="finished" />
+          <result project="home:tom" repository="SourceprotectedProject_repo" arch="x86_64" code="finished" state="finished" />
+        </resultlist>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:32 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:tom/_result?package=test_package&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '774'
+    body:
+      encoding: UTF-8
+      string: |
+        <resultlist state="2253242fe08c2762782382d6624a4db3">
+          <result project="home:tom" repository="home_coolo_standard" arch="i586" code="finished" state="finished" />
+          <result project="home:tom" repository="home_coolo_standard" arch="x86_64" code="finished" state="finished" />
+          <result project="home:tom" repository="home_adrian_ProtectionTest_repo" arch="i586" code="finished" state="finished" />
+          <result project="home:tom" repository="home_adrian_ProtectionTest_repo" arch="x86_64" code="finished" state="finished" />
+          <result project="home:tom" repository="SourceprotectedProject_repo" arch="i586" code="finished" state="finished" />
+          <result project="home:tom" repository="SourceprotectedProject_repo" arch="x86_64" code="finished" state="finished" />
+        </resultlist>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:32 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:tom/home_coolo_standard/i586/test_package/rpmlint.log
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: rpmlint.log  No such file or directory
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '154'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>rpmlint.log: No such file or directory</summary>
+          <details>404 rpmlint.log: No such file or directory</details>
+        </status>
+    http_version: 
+  recorded_at: Tue, 01 Mar 2016 15:53:34 GMT
+recorded_with: VCR 3.0.1

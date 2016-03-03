@@ -72,23 +72,6 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  def wait_for_service( project, package )
-    i=0
-    while true
-      get "/source/#{project}/#{package}"
-      assert_response :success
-      node = ActiveXML::Node.new(@response.body)
-      return unless node.has_element? 'serviceinfo'
-      return if %w(failed succeeded).include? node.find_first(:serviceinfo).value(:code) # else "running"
-      i=i+1
-      if i > 10
-        puts 'ERROR in wait_for_service: service did not run until time limit'
-        exit 1
-      end
-      sleep 0.5
-    end
-  end
-
   def test_run_source_service
     login_tom
     raw_put '/source/home:tom/service/_meta', "<package project='home:tom' name='service'> <title /> <description /> </package>"
@@ -101,7 +84,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_nil Package.find_by_project_and_name("home:tom", "service").backend_package.error
     post '/source/home:tom/service?cmd=runservice'
     assert_response :success
-    wait_for_service( 'home:tom', 'service')
+    post '/source/home:tom/service?cmd=waitservice'
+    assert_response 400 # broken service
     get '/source/home:tom/service'
     assert_response :success
     assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'failed' }
@@ -118,7 +102,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     post '/source/home:tom/service?cmd=runservice'
     assert_response :success
-    wait_for_service( 'home:tom', 'service')
+    post '/source/home:tom/service?cmd=waitservice'
+    assert_response :success
     get '/source/home:tom/service'
     assert_response :success
     assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'succeeded' }
@@ -160,7 +145,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     put '/source/home:tom:branches:home:tom/service/new_file', 'content'
     assert_response :success
     assert_nil Package.find_by_project_and_name("home:tom:branches:home:tom", "service").backend_package.error
-    wait_for_service( 'home:tom:branches:home:tom', 'service')
+    post '/source/home:tom:branches:home:tom/service?cmd=waitservice'
+    assert_response :success
     UpdateNotificationEvents.new.perform
     assert_nil Package.find_by_project_and_name("home:tom:branches:home:tom", "service").backend_package.error
     get '/source/home:tom:branches:home:tom/service/_service:download_url:file?expand=1'
@@ -234,7 +220,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     post '/source/home:tom/service?cmd=runservice'
     assert_response :success
-    wait_for_service( 'home:tom', 'service')
+    post '/source/home:tom/service?cmd=waitservice'
+    assert_response :success
     get '/source/home:tom/service'
     assert_response :success
     assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'succeeded' }
@@ -260,6 +247,74 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response 404
   end
 
+  def test_service_merge_invalid
+    login_tom
+    # Setup package
+    raw_put '/source/home:tom/service/_meta', "<package project='home:tom' name='service'> <title /> <description /> </package>"
+    assert_response :success
+    raw_put '/source/home:tom/service/pack.spec', "# Comment \nName: pack\nVersion: 12\nRelease: 9\nSummary: asd"
+    assert_response :success
+
+    raw_put '/source/home:tom/service/_service', '<services> <service name="not_existing" /> </services>'
+    assert_response :success
+    assert_nil Package.find_by_project_and_name("home:tom", "service").backend_package.error
+    post '/source/home:tom/service?cmd=runservice'
+    assert_response :success
+    post '/source/home:tom/service?cmd=waitservice'
+    # we have waited, but service was not running successful
+    assert_response 400
+    get '/source/home:tom/service'
+    assert_response :success
+    assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'failed' }
+    UpdateNotificationEvents.new.perform
+    get '/source/home:tom/service?expand=1'
+    assert_response 400
+    assert_match(/not_existing/, @response.body) # multiple line error shows up
+  end
+
+  def test_service_merge_valid
+    login_tom
+    # Setup package
+    raw_put '/source/home:tom/service/_meta', "<package project='home:tom' name='service'> <title /> <description /> </package>"
+    assert_response :success
+    raw_put '/source/home:tom/service/pack.spec', "# Comment \nName: pack\nVersion: 12\nRelease: 9\nSummary: asd"
+    assert_response :success
+
+    raw_put '/source/home:tom/service/_service',
+            '<services> <service name="download_url" >
+             <param name="host">localhost</param>
+             <param name="path">/directory/subdirectory/file</param>
+             </service> </services>'
+    assert_response :success
+    post '/source/home:tom/service?cmd=runservice'
+    assert_response :success
+    post '/source/home:tom/service?cmd=waitservice'
+    assert_response :success
+
+    get '/source/home:tom/service'
+    assert_response :success
+    assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'succeeded' }
+    assert_no_xml_tag :parent => { :tag => 'serviceinfo' }, :tag => 'error'
+    get '/source/home:tom/service/_service:download_url:file?expand=1'
+    assert_response :success
+    post '/source/home:tom/service?cmd=mergeservice', nil
+    assert_response :success
+    get '/source/home:tom/service'
+    assert_response :success
+    # _service file got dropped
+    get '/source/home:tom/service/_service'
+    assert_response 404
+    # result got commited as usual file
+    get '/source/home:tom/service/file'
+    assert_response :success
+    # old file remained
+    get '/source/home:tom/service/pack.spec'
+    assert_response :success
+
+    delete '/source/home:tom/service'
+    assert_response :success
+  end
+
   def test_buildtime_service
     login_Iggy
     raw_put '/source/home:Iggy/service/_meta',
@@ -268,14 +323,16 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     raw_put '/source/home:Iggy/service/pack.spec', "# Comment \nName: pack\nVersion: 12\nRelease: 9\nSummary: asd"
     assert_response :success
 
-    wait_for_service( 'home:Iggy', 'service')
+    post '/source/home:Iggy/service?cmd=waitservice'
+    assert_response :success
     put '/source/home:Iggy/service/_service',
         '<services> <service name="set_version" mode="buildtime">
          <param name="version">0817</param>
          <param name="file">pack.spec</param>
          </service> </services>'
     assert_response :success
-    wait_for_service( 'home:Iggy', 'service')
+    post '/source/home:Iggy/service?cmd=waitservice'
+    assert_response :success
     run_scheduler('i586')
     get '/build/home:Iggy/_result'
     assert_response :success
@@ -299,16 +356,19 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     login_tom
     put '/source/home:tom/service/_meta', "<package project='home:tom' name='service'> <title /> <description /> </package>"
     assert_response :success
-    wait_for_service( 'home:tom', 'service')
+    post '/source/home:tom/service?cmd=waitservice'
+    assert_response :success
     put '/source/home:tom/service/_service',
         '<services> <service name="set_version" >
          <param name="version">0819</param>
          <param name="file">pack.spec</param> </service> </services>'
     assert_response :success
-    wait_for_service( 'home:tom', 'service')
+    post '/source/home:tom/service?cmd=waitservice'
+    assert_response :success
     put '/source/home:tom/service/pack.spec', "# Comment \nVersion: 12\nRelease: 9\nSummary: asd"
     assert_response :success
-    wait_for_service( 'home:tom', 'service')
+    post '/source/home:tom/service?cmd=waitservice'
+    assert_response :success
 
     # find out the md5sum of _service file
     get '/source/home:tom/service'
@@ -324,14 +384,16 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
                md5sum_service + '" /> <entry name="pack.spec" md5="' + md5sum_spec + '" /> </directory> '
     raw_post '/source/home:tom/service?cmd=commitfilelist', filelist
     assert_response :success
-    wait_for_service( 'home:tom', 'service')
+    post '/source/home:tom/service?cmd=waitservice'
+    assert_response :success
 
     get '/source/home:tom/service/_history'
     # do another commit, check that the service files are kept
     filelist = '<directory> <entry name="_service" md5="' + md5sum_service + '" /> <entry name="pack.spec" md5="' + md5sum_spec + '" /> </directory> '
     raw_post '/source/home:tom/service?cmd=commitfilelist', filelist
     assert_response :success
-    wait_for_service( 'home:tom', 'service')
+    post '/source/home:tom/service?cmd=waitservice'
+    assert_response :success
 
     # validate revisions
     get '/source/home:tom/service/_history'
@@ -366,7 +428,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     post '/source/home:tom/service?cmd=runservice'
     assert_response :success
-    wait_for_service( 'home:tom', 'service')
+    post '/source/home:tom/service?cmd=waitservice'
+    assert_response 400 # broken service
     get '/source/home:tom/service'
     assert_response :success
     assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'failed' }
@@ -377,7 +440,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     post '/source/home:tom/service?cmd=runservice'
     assert_response :success
-    wait_for_service( 'home:tom', 'service')
+    post '/source/home:tom/service?cmd=waitservice'
+    assert_response 400 # broken service
     get '/source/home:tom/service'
     assert_response :success
     assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'failed' }
@@ -405,7 +469,8 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
     post '/source/home:tom/service2?cmd=runservice'
     assert_response :success
-    wait_for_service( 'home:tom', 'service2')
+    post '/source/home:tom/service2?cmd=waitservice'
+    assert_response :success
     get '/source/home:tom/service2'
     assert_response :success
     assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'succeeded' }

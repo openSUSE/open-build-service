@@ -1283,6 +1283,13 @@ class Package < ActiveRecord::Base
     path = self.source_path(opt[:filename], put_opt)
     ActiveXML.backend.http_do :put, path, data: content, timeout: 500
 
+    # KIWI file
+    if opt[:filename] =~ /\.kiwi\.txz$/
+      logger.debug 'Found a kiwi archive, creating kiwi_import source service'
+      services = self.services
+      services.addKiwiImport
+    end
+
     # update package timestamp and reindex sources
     unless opt[:rev] == 'repository' || %w(_project _pattern).include?(self.name)
       self.sources_changed(wait_for_update: ['_aggregate', '_constraints', '_link', '_service', '_patchinfo', '_channel'].include?(opt[:filename]))

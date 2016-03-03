@@ -60,6 +60,24 @@ class Service < ActiveXML::Node
     true
   end
 
+  def addKiwiImport
+    addService('kiwi_import')
+    if save
+      logger.debug 'Service successfully saved'
+      begin
+        logger.debug 'Executing waitservice command'
+        Suse::Backend.post("/source/#{URI.escape(init_options[:project])}/#{URI.escape(init_options[:package])}?cmd=waitservice", '')
+        logger.debug 'Executing mergeservice command'
+        cmd = "/source/#{URI.escape(init_options[:project])}/#{URI.escape(init_options[:package])}?cmd=mergeservice&user=#{User.current.login}"
+        Suse::Backend.post(cmd, '')
+      rescue ActiveXML::Transport::Error, Timeout::Error => e
+        logger.debug "Error while executing backend command: #{e.message}"
+      end
+    else
+      logger.debug 'Failed to save service'
+    end
+  end
+
   def removeService(serviceid)
     each("/services/service") do |service|
       serviceid -= 1
