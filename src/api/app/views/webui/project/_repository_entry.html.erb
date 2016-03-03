@@ -1,5 +1,5 @@
 <% repository_id = valid_xml_id(repository.name) %>
-<div style="margin-bottom: 1.5em" id="<%= repository_id %>">
+<div class="repository-container" style="margin-bottom: 1.5em" id="<%= repository_id %>">
   <div style="margin-left: 15px">
     <strong><%= link_to(repository.name, :action => 'repository_state', :project => @project, :repository => repository.name) %></strong>
     <i>(<%= repository.architectures.pluck(:name).join(', ') %>)</i>
@@ -17,19 +17,13 @@
 
     <div style="margin-top: 1em">
       <% if User.current.can_modify_project?(@project) %>
-          <span id="<%= "edit_repository_link_container_#{repository_id}" %>">
+          <span class="edit-repository-field">
             <%= sprite_tag('drive_edit') %>
-            <%= link_to('Edit repository', '#', id: "edit_repository_link_#{repository_id}") %>
+            <%= link_to('Edit repository', '#', data: { "repository-edit": true }) %>
           </span>
-          <div class="hidden" id="<%= "edit_repository_form_#{repository_id}" %>">
+          <div class="hidden edit-repository-container">
             <%= render partial: 'edit_repository', locals: { project: @project, repository: repository } %>
           </div>
-          <% content_for :ready_function do %>
-              $("#<%= "edit_repository_link_#{repository_id}" %>").click(function() {
-                $("#<%= "edit_repository_form_#{repository_id}" %>").show();
-                $("#<%= "edit_repository_link_container_#{repository_id}" %>").hide();
-              });
-          <% end %>
           <%= sprite_tag('drive_delete', title: 'Delete repository') %>
           <%= link_to('Delete repository', {action: :remove_target, project: @project, target: repository.name},
                       {data: {confirm: "Really remove repository '#{repository.name}'?"}, class: 'x', method: :post}) %>
