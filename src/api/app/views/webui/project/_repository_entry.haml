@@ -5,17 +5,13 @@
     %i
       = "(" + repository.architectures.pluck(:name).join(', ') + ")"
   %div{ style: "margin-left: 30px" }
-    -# FIXME: just fix me please;-)
-    - begin
-      - repository.each_path do |path|
-        - if path.project == 'deleted'
-          = sprite_tag 'exclamation'
-          = Target repository has been removed
-        - else
-          %span
-            = "#{path.project}/#{path.repository}"
-          %br
-    - rescue; end
+    - repository.path_elements.each do |path|
+      - if path.link.project == 'deleted'
+        = sprite_tag 'exclamation'
+        = Target repository has been removed
+      - else
+        %span
+          = "#{path.link.project}/#{path.link.name}"
 
     %div{ style: "margin-top: 1em" }
       - if User.current.can_modify_project?(@project)

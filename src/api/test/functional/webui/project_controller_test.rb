@@ -36,10 +36,16 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     click_button("Add path to repository SourceprotectedProject_repo")
 
     assert_equal "/project/repositories/home:tom", page.current_path
+    # Basic repository related information
+    page.must_have_text "BaseDistro3/BaseDistro3_repo Apache/SUSE_Linux_10.1"
+
     within("div.repository-container", text: "SourceprotectedProject_repo") do
       click_link 'Edit repository'
     end
-    page.must_have_text "Apache/SUSE_Linux_10.1"
+    # The more detailed view
+    within "form#update_target_form-SourceprotectedProject_repo" do
+      page.must_have_text "Apache/SUSE_Linux_10.1"
+    end
 
     # Verify the repo really has been added
     path_element = PathElement.where(
