@@ -139,16 +139,7 @@ class User < ActiveRecord::Base
     @new_password
   end
 
-  def discard_cache
-    @projects_to_modify = {}
-  end
-
-  after_initialize :init
-  def init
-    @projects_to_modify = {}
-  end
-
-    # Method to update the password and confirmation at the same time. Call
+  # Method to update the password and confirmation at the same time. Call
   # this method when you update the password from code and don't need
   # password_confirmation - which should really only be used when data
   # comes from forms.
@@ -551,15 +542,7 @@ class User < ActiveRecord::Base
       raise NotFoundError, "Project is not stored yet"
     end
 
-    # we don't touch the cache for ignoreLock
-    return can_modify_project_internal(project, ignoreLock) if ignoreLock
-
-    unless @projects_to_modify.has_key? project.id
-      # build cache
-      @projects_to_modify[project.id] = can_modify_project_internal(project, nil)
-    end
-
-    @projects_to_modify[project.id]
+    can_modify_project_internal(project, ignoreLock)
   end
 
   # package is instance of Package
