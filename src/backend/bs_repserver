@@ -738,10 +738,10 @@ sub getbinarylist_repository {
 
 sub filtersources {
   my (@bins) = @_;
-  my $debian = grep {/\.dsc$/} @bins;
+  my $debian = grep {/\.(?:dsc|sdeb)$/} @bins;
   for my $bin (splice @bins) {
     next if $bin =~ /\.(?:no)?src\.rpm$/;
-    next if $bin =~ /-debug(:?info|source).*\.rpm$/;
+    next if $bin =~ /-debug(?:info|source).*\.rpm$/;
     next if $debian && ($bin !~ /\.deb$/) && ($bin !~ /-appdata\.xml$/);
     push @bins, $bin;
   }
