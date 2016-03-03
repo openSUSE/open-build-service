@@ -256,7 +256,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     assert first(:id, 'images')
 
     find(:link, 'Add repositories').click
-    find(:link, 'advanced interface').click
+    find(:link, 'Expert mode').click
     fill_autocomplete 'target_project', with: 'Base', select: 'BaseDistro'
 
     # wait for the ajax loader to disappear
