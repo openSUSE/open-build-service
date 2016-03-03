@@ -119,6 +119,8 @@ group :development, :test do
   gem 'faker'
   # as driver for capybara
   gem 'poltergeist', '>= 1.4'
+  # to launch browser in test
+  gem 'launchy'
 end
 
 # Gems used only for assets and not required in production environments by default.

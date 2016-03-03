@@ -135,6 +135,8 @@ GEM
       actionpack (>= 3.0.0)
       activesupport (>= 3.0.0)
     kgio (2.10.0)
+    launchy (2.4.3)
+      addressable (~> 2.3)
     loofah (2.0.3)
       nokogiri (>= 1.5.9)
     mail (2.6.3)
@@ -357,6 +359,7 @@ DEPENDENCIES
   jquery-rails
   jquery-ui-rails (~> 4.2.1)
   kaminari
+  launchy
   minitest (= 5.8.3)
   minitest-fail-fast
   minitest-reporters
