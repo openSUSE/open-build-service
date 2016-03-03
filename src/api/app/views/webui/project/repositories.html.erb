@@ -10,7 +10,7 @@
 <!-- renders each line in flag table, excepting the 'all' row -->
 <% @project.repositories.each do |repository| %>
     <% repository_id = valid_xml_id(repository.name) %>
-    <div style="margin-bottom: 1.5em" id="<%= valid_xml_id(repository.name) %>">
+    <div style="margin-bottom: 1.5em" id="<%= repository_id %>">
       <div style="margin-left: 15px">
         <strong><%= link_to(repository.name, :action => 'repository_state', :project => @project, :repository => repository.name) %></strong>
         <i>(<%= repository.architectures.pluck(:name).join(', ') %>)</i>
