@@ -9,7 +9,7 @@ Build-Depends: debhelper (>= 9),
                fdupes,
                libbssolv-perl,
                python-dev
-Standards-Version: 3.9.6
+Standards-Version: 3.9.7
 Homepage: http://en.opensuse.org/Build_Service
 
 Package: obs-server
