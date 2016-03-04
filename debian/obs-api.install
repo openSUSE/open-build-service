@@ -1,7 +1,6 @@
 # Install all web and api parts. (Remove parts in rules file)
-src/api                                /srv/www/obs/
-
+# docs/api/html                 /srv/www/obs/api/public/apidocs/
 # install apidocs
 # the html dir was not found in source.
-# docs/api/html                 /srv/www/obs/api/public/apidocs/
 docs/api/api/*.{rng,xsd}        /srv/www/obs/docs/api/
+src/api                                /srv/www/obs/

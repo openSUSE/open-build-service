@@ -1,5 +1,4 @@
-# install obs mirror script and obs copy script
-# dropped on 2.5
 # dist/obs_mirror_project         /usr/sbin/
+# dropped on 2.5
+# install obs mirror script and obs copy script
 dist/obs_project_update         /usr/sbin/
-

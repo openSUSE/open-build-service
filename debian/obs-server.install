@@ -1,18 +1,13 @@
-# install overview page template
-dist/overview.html.TEMPLATE	/srv/www/obs/overview/
-
-# install SLP registration files
-dist/sysconfig.obs-server       /etc/default/
-dist/obs.source_server.reg	/etc/slp.reg.d/
-dist/obs.repo_server.reg	/etc/slp.reg.d/
-
-# create symlink for product converter by rules file.
-
 # Install all backend parts. (remove useless files in rules file)
-src/backend/*			        /usr/lib/obs/server/
-
+# create symlink for product converter by rules file.
+# install SLP registration files
+# install overview page template
 # symlinks for obs_admin and obs_serverstatus
 debian/obs_admin		/usr/sbin
 debian/obs_serverstatus		/usr/sbin
-
 debian/wrap-obs-service /usr/sbin
+dist/obs.repo_server.reg	/etc/slp.reg.d/
+dist/obs.source_server.reg	/etc/slp.reg.d/
+dist/overview.html.TEMPLATE	/srv/www/obs/overview/
+dist/sysconfig.obs-server       /etc/default/
+src/backend/*			        /usr/lib/obs/server/

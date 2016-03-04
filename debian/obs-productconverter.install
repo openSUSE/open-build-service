@@ -1,4 +1,3 @@
 # symlink for product converter
 debian/obs_productconvert		/usr/bin/
-
 src/backend/bs_productconvert			/usr/lib/obs/server/

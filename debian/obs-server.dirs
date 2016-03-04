@@ -1,5 +1,5 @@
-/usr/bin
-/usr/sbin
+/etc/obs
 /srv/www/obs/api/log
 /srv/www/obs/api/tmp
-/etc/obs
+/usr/bin
+/usr/sbin
