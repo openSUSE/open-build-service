@@ -185,19 +185,40 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
     find(:link, 'Add repositories').click
     find(:link, 'advanced interface').click
-    fill_autocomplete 'target_project', with: 'Local', select: 'LocalProject'
+    fill_autocomplete 'target_project', with: 'Base', select: 'BaseDistro'
 
     # wait for the ajax loader to disappear
     page.wont_have_selector 'input[disabled]'
 
     # wait for autoload of repos
-    find('#target_repo').select('pop')
+    find('#target_repo').select('BaseDistro_repo')
 
-    find_field('repo_name').value.must_equal 'LocalProject_pop'
+    find_field('repo_name').value.must_equal 'BaseDistro_BaseDistro_repo'
     page.wont_have_selector '#add_repository_button[disabled]'
     # somehow the autocomplete logic creates a problem - and click_button refuses to click
     page.execute_script "$('#add_repository_button').click();"
     find(:id, 'flash-messages').must_have_text 'Build targets were added successfully'
+    
+    # add additional path to BaseDistro_BaseDistro_repo
+    click_link 'edit_repository_link_BaseDistro_BaseDistro_repo'
+    find(:link, 'Add additional path to this repository').click
+    fill_autocomplete 'target_project', with: 'BaseDistro', select: 'BaseDistro:Update'
+    page.wont_have_selector 'input[disabled]'
+    find('#target_repo').select('BaseDistroUpdateProject_repo')
+    page.wont_have_selector '#add_path_to_repository_button[disabled]'
+    # somehow the autocomplete logic creates a problem - and click_button refuses to click
+    page.execute_script "$('#add_path_to_repository_button').click();"
+    find(:id, 'flash-messages').must_have_text 'Path BaseDistro:Update/BaseDistroUpdateProject_repo added successfully'
+
+    # move BaseDistro:Update path down
+    click_link 'edit_repository_link_BaseDistro_BaseDistro_repo'
+    click_link 'move_path_down-BaseDistro_Update_BaseDistroUpdateProject_repo'
+    find(:id, 'flash-messages').must_have_text 'Path BaseDistro:Update/BaseDistroUpdateProject_repo moved successfully'
+
+    # move BaseDistro:Update path up again
+    click_link 'edit_repository_link_BaseDistro_BaseDistro_repo'
+    click_link 'move_path_up-BaseDistro_Update_BaseDistroUpdateProject_repo'
+    find(:id, 'flash-messages').must_have_text 'Path BaseDistro:Update/BaseDistroUpdateProject_repo moved successfully'
   end
 
   test 'list all' do
