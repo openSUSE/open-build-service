@@ -5,7 +5,7 @@ LOGROTATE_CONFIGS := obs-api obs-server
 OBS_BIN_SCRIPTS 	:= obs_productconvert
 OBS_SBIN_SCRIPTS 	:= obs_admin obs_serverstatus
 
-install: install_obsapisetup install_apache install_initscripts install_project_update install_logrotate install_fillups install_slp install_obs_bin install_devel_docs install_overview
+install: install_obsapisetup install_apache install_initscripts install_project_update install_logrotate install_fillups install_slp install_obs_bin install_devel_docs install_overview install_tests_appliance
 
 #install_overview
 
@@ -48,6 +48,7 @@ system_dirs:
 	$(INSTALL) -d -m 755 $(DESTDIR)/usr/sbin/
 	$(INSTALL) -d -m 755 $(DESTDIR)/var/adm/fillup-templates
 	$(INSTALL) -d -m 755 $(DESTDIR)/usr/share/doc/packages/obs-devel
+	$(INSTALL) -d -m 755 $(DESTDIR)/usr/lib/obs/tests/appliance
 
 install_devel_docs:
 	$(INSTALL) -m 644 README.devel $(DESTDIR)/usr/share/doc/packages/obs-devel/README.devel
@@ -55,6 +56,9 @@ install_devel_docs:
 install_overview:
 	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_DOCUMENT_ROOT)/overview
 	$(INSTALL) -m 644 overview.html.TEMPLATE $(DESTDIR)$(OBS_DOCUMENT_ROOT)/overview
+
+install_tests_appliance:
+	cp -r ./t/*	$(DESTDIR)/usr/lib/obs/tests/appliance/
 
 test_unit:
 	prove -v t/*.t
