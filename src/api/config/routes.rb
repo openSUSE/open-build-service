@@ -299,6 +299,7 @@ OBSApi::Application.routes.draw do
       get 'user/tokens' => :tokens
 
       post 'user/do_login' => :do_login
+      get 'user/do_login' => :home
       get 'user/edit/:user' => :edit, constraints: cons, as: 'user_edit'
 
       post 'user/notifications' => :update_notifications
