@@ -286,8 +286,12 @@ Requires:       ruby
 obs_project_update is a tool to copy a packages of a project from one obs to another
 
 %package -n obs-tests-appliance
-Summary:        The Open Build Service -- Test cases for installed appliances
+
+Summary:  The Open Build Service -- Test cases for installed appliances
+
 Requires: obs-server = %{version}
+Requires: obs-api = %{version}
+
 %if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
 Group:          Productivity/Networking/Web/Utilities
 %endif
