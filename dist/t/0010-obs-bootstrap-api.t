@@ -2,10 +2,22 @@
 
 export BOOTSTRAP_TEST_MODE=1
 export NON_INTERACTIVE=1
-export BASH_TAP_ROOT=t
+export BASH_TAP_ROOT=$(dirname $0)
+
 
 . $(dirname $0)/bash-tap-bootstrap
-. $(dirname $0)/../setup-appliance.sh
+
+
+if [ -f $(dirname $0)/../setup-appliance.sh ];
+then
+	. $(dirname $0)/../setup-appliance.sh
+else
+  if [ -f /usr/lib/obs/server/setup-appliance.sh ];then
+	. /usr/lib/obs/server/setup-appliance.sh
+  else
+    BAIL_OUT "Could not find setup-appliance.sh"
+  fi
+fi
 
 plan tests 12
 

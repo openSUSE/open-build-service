@@ -285,6 +285,24 @@ Requires:       ruby
 %description -n obs-utils
 obs_project_update is a tool to copy a packages of a project from one obs to another
 
+%package -n obs-tests-appliance
+
+Summary:  The Open Build Service -- Test cases for installed appliances
+
+Requires: obs-server = %{version}
+Requires: obs-api = %{version}
+
+%if 0%{?suse_version} < 1210 && 0%{?suse_version:1}
+Group:          Productivity/Networking/Web/Utilities
+%endif
+
+%description -n obs-tests-appliance
+This package contains test cases for testing a installed appliances.
+ Test cases can be for example:
+ * checks for setup-appliance.sh
+ * checks if database setup worked correctly
+ * checks if required service came up properly
+
 #--------------------------------------------------------------------------------
 %prep
 export DESTDIR=$RPM_BUILD_ROOT
@@ -681,5 +699,12 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 %defattr(-,root,root)
 %dir %_docdir/obs-devel
 %_docdir/obs-devel/README.devel
+
+%files -n obs-tests-appliance
+%defattr(-,root,root)
+%dir /usr/lib/obs/tests/
+%dir /usr/lib/obs/tests/appliance
+/usr/lib/obs/tests/appliance/*
+
 
 %changelog
