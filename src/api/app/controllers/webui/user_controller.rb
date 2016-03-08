@@ -36,7 +36,7 @@ class Webui::UserController < Webui::WebuiController
 
     session[:login] = User.current.login
 
-    redirect_back_or_to root_path
+    redirect_to :action => 'home'
   end
 
   def show
