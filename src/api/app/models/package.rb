@@ -919,9 +919,10 @@ class Package < ActiveRecord::Base
     return unless self.linkinfo and project_name == self.linkinfo['project']
 
     # main package
-    name = opkg.name
+    name = opkg.name.dup
     # strip incident suffix in update release projects
-    name.gsub!(/\.[^\.]*$/, '') if opkg.project.is_maintenance_release?
+    # but beware of packages where the name has already a dot
+    name.gsub!(/\.[^\.]*$/, '') if opkg.project.is_maintenance_release? and not opkg.is_link?
     ChannelBinary.find_by_project_and_package(project_name, name).each do |cb|
       _add_channel(mode, cb, "Listed in #{project_name} #{name}")
     end
