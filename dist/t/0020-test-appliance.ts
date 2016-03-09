@@ -40,7 +40,13 @@ do
 done
 
 
-FQHN=$(hostname -f)
+FQHN=$(hostname -f 2>/dev/null)
+
+if [[ -z $FQHN ]];then
+  FQHN=`ip addr | sed -n 's,.*inet \(.*\)/.* brd.*,\1,p' | grep -v ^127. | head -n 1`
+fi
+
+
 for file in \
 server.crt \
 server.key \
