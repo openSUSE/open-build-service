@@ -181,6 +181,18 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     assert_equal search_path, current_path
   end
 
+  def test_that_redirect_from_user_do_login_works
+    use_js
+
+    visit user_login_path
+    fill_in 'Username', with: "tom"
+    fill_in 'Password', with: "buildservice"
+    click_button 'Log In'
+
+    assert_equal "tom", find('#home-username').text
+    assert_equal "/user/show/tom", page.current_path
+  end
+
   def test_redirect_after_register_user_action_works # spec/controllers/webui/users_spec.rb
     visit user_register_user_path
     within ".sign-up" do
