@@ -53,7 +53,11 @@ class Webui::UserController < Webui::WebuiController
 
       flash[:success] = 'You are logged in now'
       session[:login] = User.current.login
-      redirect_back_or_to root_path
+      if request.referer.end_with?("/user/login")
+        redirect_to home_path
+      else
+        redirect_back_or_to root_path
+      end
       return
     end
     flash[:error] = 'Authentication failed'

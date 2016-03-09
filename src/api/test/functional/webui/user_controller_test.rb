@@ -83,4 +83,20 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     assert_equal "tom", find('#link-to-user-home').text
     assert_equal search_path, current_path
   end
+
+  def test_that_redirect_from_user_do_login_works
+    use_js
+
+    visit search_path
+    click_link("Log In")
+    fill_in 'Username', with: "tom"
+    fill_in 'Password', with: "brokenpassword"
+    click_button 'Log In'
+
+    fill_in 'Username', with: "tom"
+    fill_in 'Password', with: "buildservice"
+    click_button 'Log In'
+
+    assert_equal "tom", find('#home-username').text
+  end
 end
