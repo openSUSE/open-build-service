@@ -1,6 +1,7 @@
 require 'capybara'
 require 'capybara/dsl'
 require 'capybara/poltergeist'
+require 'socket'
 
 include Capybara::DSL
 
@@ -12,4 +13,10 @@ end
 
 Capybara.default_driver = :poltergeist
 Capybara.javascript_driver = :poltergeist
-Capybara.app_host = "https://" + `hostname -f`
+
+hostname = Socket.gethostbyname(Socket.gethostname).first
+ipaddress = Socket.ip_address_list.find { |ai| ai.ipv4? && !ai.ipv4_loopback? }.ip_address
+if hostname.empty?
+  hostname = ipaddress
+end
+Capybara.app_host = "https://" + hostname
