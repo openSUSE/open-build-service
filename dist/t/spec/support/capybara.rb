@@ -14,7 +14,10 @@ end
 Capybara.default_driver = :poltergeist
 Capybara.javascript_driver = :poltergeist
 
-hostname = Socket.gethostbyname(Socket.gethostname).first
+begin
+	hostname = Socket.gethostbyname(Socket.gethostname).first
+rescue
+	hostname = ""
 ipaddress = Socket.ip_address_list.find { |ai| ai.ipv4? && !ai.ipv4_loopback? }.ip_address
 if hostname.empty?
   hostname = ipaddress
