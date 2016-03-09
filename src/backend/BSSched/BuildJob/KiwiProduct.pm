@@ -228,7 +228,11 @@ sub check {
     }
     if (@blocked) {
       print "      - $packid (kiwi-product)\n";
-      print "        blocked for sysbuild (@blocked)\n";
+      if (@blocked < 10) {
+        print "        blocked for sysbuild (@blocked)\n";
+      } else {
+        print "        blocked for sysbuild (@blocked[0..9] ...)\n";
+      }
       return ('blocked', join(', ', @blocked));
     }
     push @rpms, @kdeps;

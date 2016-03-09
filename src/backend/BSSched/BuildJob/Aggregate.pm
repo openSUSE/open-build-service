@@ -196,7 +196,11 @@ sub check {
   }
   if (@blocked) {
     print "      - $packid (aggregate)\n";
-    print "        blocked (@blocked)\n";
+    if (@blocked < 11) {
+      print "        blocked (@blocked)\n";
+    } else {
+      print "        blocked (@blocked[0..9] ...)\n";
+    }
     return ('blocked', join(', ', @blocked));
   }
   my @new_meta;

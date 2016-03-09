@@ -267,12 +267,16 @@ sub check {
   }
   if (@broken) {
     print "      - $packid (channel)\n";
-    print "        broken (@blocked)\n";
+    print "        broken (@broken)\n";
     return ('broken', 'missing: '.join(', ', @broken));
   }
   if (@blocked) {
     print "      - $packid (channel)\n";
-    print "        blocked (@blocked)\n";
+    if (@blocked < 11) {
+      print "        blocked (@blocked)\n";
+    } else {
+      print "        blocked (@blocked[0..9] ...)\n";
+    }
     return ('blocked', join(', ', @blocked));
   }
   my @meta;
