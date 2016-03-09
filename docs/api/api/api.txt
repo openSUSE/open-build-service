@@ -445,8 +445,8 @@ Parameters:
   deleted: show deleted package instead of existing
   expand: include also packages from linked projects
   view: issues, can be used to show all tracked issues for all packages in project
-        productlists, shows all containing products, unifies result when used with expand
-        verboseproductlists, same as productlist, but with detailed information about the product
+        productlist, shows all containing products, unifies result when used with expand
+        verboseproductlist, same as productlist, but with detailed information about the product
 
 
 GET /source/<project>/<package>
