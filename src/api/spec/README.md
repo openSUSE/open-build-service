@@ -24,6 +24,12 @@ are run by default. Ruby files with custom matchers and macros, etc, belong to
 and its subdirectories. Require them in the individual `*_spec.rb` or
 `_helper.rb` files.
 
+Shared examples that are shared among different test files are stored in
+
+`spec/support/shared_example/{features,controller,model,helper}/*`
+
+depending on the type of spec it is meant for.
+
 ## Test types
 There are many different [types of specs](https://relishapp.com/rspec/rspec-rails/docs/directory-structure)
 possible in RSpec. We concentrate on 4 types:

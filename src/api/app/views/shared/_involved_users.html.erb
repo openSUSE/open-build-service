@@ -78,7 +78,7 @@
               <tr>
                 <td><%= link_to(group.title, :controller => 'groups', :action => 'show', title: group.title) %></td>
                 <% @roles.each do |role| %>
-                    <%= content_tag(:td, data: { group: group, role: role.title, type: 'group' }) do %>
+                    <%= content_tag(:td, data: { group: group.title, role: role.title, type: 'group' }) do %>
                         <% if @package %>
                             <%= check_box_tag('group_' + role.title + '_' + group.title, '', @package.group_has_role?(group, role), disabled: !user_is_maintainer, :class => :trigger) %>
                             <% if @project.group_has_role?(group, role) %>
