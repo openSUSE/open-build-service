@@ -24,7 +24,9 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     login_tom
 
     visit "/project/repositories/home:tom"
-    find("#edit_repository_link_SourceprotectedProject_repo").click
+    within("div.repository-container", text: "SourceprotectedProject_repo") do
+      click_link 'Edit repository'
+    end
     click_link("Add additional path to this repository")
 
     fill_in("target_project", with: "Apache")
@@ -34,8 +36,16 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     click_button("Add path to repository SourceprotectedProject_repo")
 
     assert_equal "/project/repositories/home:tom", page.current_path
-    find("#edit_repository_link_SourceprotectedProject_repo").click
-    page.must_have_text "Apache/SUSE_Linux_10.1"
+    # Basic repository related information
+    page.must_have_text "BaseDistro3/BaseDistro3_repo Apache/SUSE_Linux_10.1"
+
+    within("div.repository-container", text: "SourceprotectedProject_repo") do
+      click_link 'Edit repository'
+    end
+    # The more detailed view
+    within "form#update_target_form-SourceprotectedProject_repo" do
+      page.must_have_text "Apache/SUSE_Linux_10.1"
+    end
 
     # Verify the repo really has been added
     path_element = PathElement.where(
@@ -253,7 +263,8 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     find(:link, 'Add repositories').click
     find(:id, 'repo_images').click # aka "KIWI image build" checkbox
     find_button('Add selected repositories').click
-    assert first(:id, 'images')
+
+    assert first('strong a', text: "images")
 
     find(:link, 'Add repositories').click
     find(:link, 'Expert mode').click
@@ -272,7 +283,9 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     find(:id, 'flash-messages').must_have_text 'Successfully added repository'
 
     # add additional path to BaseDistro_BaseDistro_repo
-    click_link 'edit_repository_link_BaseDistro_BaseDistro_repo'
+    within("div.repository-container", text: "BaseDistro_BaseDistro_repo") do
+      click_link 'Edit repository'
+    end
     find(:link, 'Add additional path to this repository').click
     fill_autocomplete 'target_project', with: 'BaseDistro', select: 'BaseDistro:Update'
     page.wont_have_selector 'input[disabled]'
@@ -283,17 +296,23 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     find(:id, 'flash-messages').must_have_text 'Successfully added repository'
 
     # move BaseDistro:Update path down
-    click_link 'edit_repository_link_BaseDistro_BaseDistro_repo'
+    within("div.repository-container", text: "BaseDistro_BaseDistro_repo") do
+      click_link 'Edit repository'
+    end
     click_link 'move_path_up-BaseDistro:Update_BaseDistroUpdateProject_repo'
     find(:id, 'flash-messages').must_have_text 'Path moved up successfully'
 
     # move BaseDistro:Update path up again
-    click_link 'edit_repository_link_BaseDistro_BaseDistro_repo'
+    within("div.repository-container", text: "BaseDistro_BaseDistro_repo") do
+      click_link 'Edit repository'
+    end
     click_link 'move_path_down-BaseDistro:Update_BaseDistroUpdateProject_repo'
     find(:id, 'flash-messages').must_have_text 'Path moved down successfully'
 
     # disable arch_i586 for images repository
-    click_link 'edit_repository_link_images'
+    within("div.repository-container", text: "images") do
+      click_link 'Edit repository'
+    end
     page.must_have_text 'Edit images' # popup opened
     uncheck('arch_i586')
     click_button 'Update images'

@@ -17,6 +17,6 @@ RSpec.feature "Repositories", :type => :feature, :js => true do
     click_button 'Add selected repositories'
 
     expect(page).to have_text("Successfully added repositories")
-    expect(page).to have_css("##{distribution.reponame}")
+    expect(page).to have_css("div.repository-container", text: distribution.reponame)
   end
 end

@@ -7,57 +7,8 @@
 <h3><%= @pagetitle %></h3>
 <p>You can configure individual flags for this project here.</p>
 
-<!-- renders each line in flag table, excepting the 'all' row -->
 <% @project.repositories.each do |repository| %>
-    <% repository_id = valid_xml_id(repository.name) %>
-    <div style="margin-bottom: 1.5em" id="<%= valid_xml_id(repository.name) %>">
-      <div style="margin-left: 15px">
-        <strong><%= link_to(repository.name, :action => 'repository_state', :project => @project, :repository => repository.name) %></strong>
-        <i>(<%= repository.architectures.pluck(:name).join(', ') %>)</i>
-      </div>
-      <div style="margin-left: 30px">
-        <% begin -%>
-            <% repository.each_path do |path| %>
-                <% if path.project == 'deleted' %>
-                    <%= sprite_tag 'exclamation' %> Target repository has been removed
-                <% else %>
-                    <span><%= path.project + '/' + path.repository %></span><br/>
-                <% end %>
-            <% end -%>
-        <% rescue; end %>
-
-        <div style="margin-top: 1em">
-          <% if User.current.can_modify_project?(@project) %>
-	      <span id="<%= "edit_repository_link_container_#{repository_id}" %>">
-                <%= sprite_tag('drive_edit') %>
-                <%= link_to('Edit repository', '#', id: "edit_repository_link_#{repository_id}") %>
-              </span>
-	      <div class="hidden" id="<%= "edit_repository_form_#{repository_id}" %>">
-                <%= render partial: 'edit_repository', locals: { project: @project, repository: repository } %>
-              </div>
-              <% content_for :ready_function do %>
-                  $("#<%= "edit_repository_link_#{repository_id}" %>").click(function() {
-                    $("#<%= "edit_repository_form_#{repository_id}" %>").show();
-                    $("#<%= "edit_repository_link_container_#{repository_id}" %>").hide();
-                  });
-              <% end %>
-              <%= sprite_tag('drive_delete', title: 'Delete repository') %>
-              <%= link_to('Delete repository', {action: :remove_target, project: @project, target: repository.name},
-                          {data: {confirm: "Really remove repository '#{repository.name}'?"}, class: 'x', method: :post}) %>
-          <% elsif !User.current.is_nobody? %>
-              <%= sprite_tag('drive_delete', title: 'Delete repository') %>
-              <%= link_to('Request repository deletion', {:action => :remove_target_request_dialog, :project => @project, :repository => repository.name}, :remote => true) %>
-          <% end %>
-          <%= render :partial => 'shared/download_repository_link', :locals => {:project => @project, :repository => repository} %>
-          <% if repository.release_targets.where(trigger: "manual").exists? %>
-              <%= sprite_tag('flag_green') %>
-              <%= link_to('Release repository', {:action => :release_repository_dialog, :project => @project, :repository => repository.name}, :remote => true) %>
-          <% end %>
-        </div>
-
-        <%= render :partial => 'webui/download_on_demand/index', :locals => {project: @project, repository: repository, repository_id: repository_id, new_download_on_demand: DownloadRepository.new(repository_id: repository.id)}%>
-      </div>
-    </div>
+  <%= render partial: "repository_entry", locals: { repository: repository }%>
 <% end %>
 
 <% if User.current.can_modify_project?(@project) %>
