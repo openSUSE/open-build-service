@@ -251,10 +251,13 @@ sub calcdudata {
     $subdirsize{$name} ||= 0;
     $dirnum{$name} ||= 0;
     $subdirnum{$name} ||= 0;
-    #push @dulist, "$name $dirsize{$name} $subdirsize{$name} $dirnum{$name} $subdirnum{$name}";
-    push @dulist, [ $name, $dirsize{$name} + $subdirsize{$name}, $dirnum{$name} + $subdirnum{$name} ];
+    # SUSETAGS: "$name $dirsize{$name} $subdirsize{$name} $dirnum{$name} $subdirnum{$name}";
+
+    # workaround for libsolv parser bug, make sure dir starts with '/'
+    my $xname = $name;
+    $xname = "/$xname" unless $xname =~ /^\//;
+    push @dulist, { 'name' => $xname, 'size' => $dirsize{$name} + $subdirsize{$name}, 'count' => $dirnum{$name} + $subdirnum{$name} };
   }
-  @dulist = map { { 'name' => $_->[0], 'size' => $_->[1], 'count' => $_->[2] } } @dulist;
   return { 'dirs' => { 'dir' => \@dulist } };
 }
 

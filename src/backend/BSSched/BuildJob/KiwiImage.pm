@@ -166,7 +166,11 @@ sub check {
   }
   if (@blocked) {
     print "      - $packid (kiwi-image)\n";
-    print "        blocked (@blocked)\n";
+    if (@blocked < 11) {
+      print "        blocked (@blocked)\n";
+    } else {
+      print "        blocked (@blocked[0..9] ...)\n";
+    }
     return ('blocked', join(', ', @blocked));
   }
   @new_meta = sort {substr($a, 34) cmp substr($b, 34)} @new_meta;
