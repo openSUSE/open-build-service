@@ -35,7 +35,7 @@ RSpec.feature "Projects", :type => :feature, :js => true do
   end
 
   it_behaves_like 'user tab' do
-    let(:project_path) { project_show_path(project: group_tab_user.home_project_name) }
-    let(:project) { Project.find_by_name(group_tab_user.home_project_name) }
+    let(:project_path) { project_show_path(project: user_tab_user.home_project_name) }
+    let(:project) { Project.find_by_name(user_tab_user.home_project_name) }
   end
 end

@@ -2,7 +2,7 @@
 http_interactions:
 - request:
     method: get
-    uri: http://localhost:3200/build/home:Jane/_result?code=unresolvable&view=status
+    uri: http://localhost:3200/build/home:user_tab_user/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -18,7 +18,7 @@ http_interactions:
   response:
     status:
       code: 404
-      message: project 'home Jane' does not exist
+      message: project 'home user_tab_user' does not exist
     headers:
       Content-Type:
       - text/xml
@@ -27,19 +27,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '164'
     body:
       encoding: UTF-8
       string: |
         <status code="404">
-          <summary>project 'home:Jane' does not exist</summary>
-          <details>404 project 'home:Jane' does not exist</details>
+          <summary>project 'home:user_tab_user' does not exist</summary>
+          <details>404 project 'home:user_tab_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Wed, 09 Mar 2016 17:19:14 GMT
+  recorded_at: Thu, 10 Mar 2016 10:35:39 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:Jane/_result?view=summary
+    uri: http://localhost:3200/build/home:user_tab_user/_result?view=summary
     body:
       encoding: US-ASCII
       string: ''
@@ -55,7 +55,7 @@ http_interactions:
   response:
     status:
       code: 404
-      message: project 'home Jane' does not exist
+      message: project 'home user_tab_user' does not exist
     headers:
       Content-Type:
       - text/xml
@@ -64,19 +64,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '146'
+      - '164'
     body:
       encoding: UTF-8
       string: |
         <status code="404">
-          <summary>project 'home:Jane' does not exist</summary>
-          <details>404 project 'home:Jane' does not exist</details>
+          <summary>project 'home:user_tab_user' does not exist</summary>
+          <details>404 project 'home:user_tab_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Wed, 09 Mar 2016 17:19:14 GMT
+  recorded_at: Thu, 10 Mar 2016 10:35:39 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:Jane:coolstuff/_result?code=unresolvable&view=status
+    uri: http://localhost:3200/build/home:user_tab_user/_result?code=unresolvable&view=status
     body:
       encoding: US-ASCII
       string: ''
@@ -92,7 +92,7 @@ http_interactions:
   response:
     status:
       code: 404
-      message: project 'home Jane coolstuff' does not exist
+      message: project 'home user_tab_user' does not exist
     headers:
       Content-Type:
       - text/xml
@@ -101,19 +101,19 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '164'
     body:
       encoding: UTF-8
       string: |
         <status code="404">
-          <summary>project 'home:Jane:coolstuff' does not exist</summary>
-          <details>404 project 'home:Jane:coolstuff' does not exist</details>
+          <summary>project 'home:user_tab_user' does not exist</summary>
+          <details>404 project 'home:user_tab_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Wed, 09 Mar 2016 17:19:14 GMT
+  recorded_at: Thu, 10 Mar 2016 10:35:40 GMT
 - request:
     method: get
-    uri: http://localhost:3200/build/home:Jane:coolstuff/_result?view=summary
+    uri: http://localhost:3200/build/home:user_tab_user/_result?view=summary
     body:
       encoding: US-ASCII
       string: ''
@@ -129,7 +129,7 @@ http_interactions:
   response:
     status:
       code: 404
-      message: project 'home Jane coolstuff' does not exist
+      message: project 'home user_tab_user' does not exist
     headers:
       Content-Type:
       - text/xml
@@ -138,14 +138,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '166'
+      - '164'
     body:
       encoding: UTF-8
       string: |
         <status code="404">
-          <summary>project 'home:Jane:coolstuff' does not exist</summary>
-          <details>404 project 'home:Jane:coolstuff' does not exist</details>
+          <summary>project 'home:user_tab_user' does not exist</summary>
+          <details>404 project 'home:user_tab_user' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Wed, 09 Mar 2016 17:19:14 GMT
+  recorded_at: Thu, 10 Mar 2016 10:35:40 GMT
 recorded_with: VCR 3.0.1
