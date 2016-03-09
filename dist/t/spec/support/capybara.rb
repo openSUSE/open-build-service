@@ -12,3 +12,4 @@ end
 
 Capybara.default_driver = :poltergeist
 Capybara.javascript_driver = :poltergeist
+Capybara.app_host = "https://" + `hostname -f`
