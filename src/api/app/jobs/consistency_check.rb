@@ -1,8 +1,6 @@
 require 'api_exception'
 require 'xmlhash'
 
-class InconsistentData < APIException; end
-
 class ConsistencyCheckJob < ActiveJob::Base
   def fix
     perform(true)
@@ -33,7 +31,8 @@ class ConsistencyCheckJob < ActiveJob::Base
     unless @errors.blank?
       Rails.logger.error("Detected problems during consistency check")
       Rails.logger.error(@errors)
-      raise InconsistentData.new(@errors)
+
+      AdminMailer.error(@errors).deliver_now
     end
     nil
   end
