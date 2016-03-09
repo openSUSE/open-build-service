@@ -43,6 +43,7 @@ sub new {
   my @filter;
   my %filterpackage;
   for (sort keys %$watchremote) {
+    next if $_ eq 'watchlist';
     if (substr($_, 0, 8) eq 'package/') {
       my @s = split('/', $_);
       if (!defined($s[2])) {
@@ -84,7 +85,10 @@ sub new {
   } else {
     $ret = { 'rpc' => $ret, 'socket' => $ret->{'socket'} };
   }
-  $ret->{'watchlist'} = join("\0", sort keys %$watchremote);
+  if (!exists($watchremote->{'watchlist'})) {
+    $watchremote->{'watchlist'} = join("\0", sort keys %$watchremote);
+  }
+  $ret->{'watchlist'} = $watchremote->{'watchlist'};
   $ret->{'remoteurl'} = $remoteurl;
   $ret->{'arch'} = $myarch;
   return bless $ret, $class;
@@ -98,7 +102,10 @@ sub new {
 
 sub isobsolete {
   my ($watcher, $watchremote) = @_;
-  if (!$watchremote || join("\0", sort keys %$watchremote) ne $watcher->{'watchlist'}) {
+  if ($watchremote && !exists($watchremote->{'watchlist'})) {
+    $watchremote->{'watchlist'} = join("\0", sort keys %$watchremote);
+  }
+  if (!$watchremote || $watchremote->{'watchlist'} ne $watcher->{'watchlist'}) {
     my $rpc = $watcher->{'rpc'};
     close($rpc->{'socket'}) if $rpc && defined($rpc->{'socket'});
     delete $watcher->{'socket'};
@@ -142,6 +149,7 @@ sub getevents {
       print "next: $ret->{'next'}\n" if $ret->{'next'};
       # synthesize all events we watch
       for my $watch (sort keys %$watchremote) {
+	next if $watch eq 'watchlist';
 	my $projid = $watchremote->{$watch};
 	next unless defined $projid;
 	my @s = split('/', $watch);
