@@ -11,7 +11,7 @@ RSpec.configure do |config|
   config.disable_monkey_patching!
 
   # Run specs in random order to surface order dependencies
-  config.order = :random
+  ##config.order = :random  # we will follow one workflow for now...
 end
 
 # for capybara rspec support
