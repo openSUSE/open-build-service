@@ -165,13 +165,15 @@ function get_hostname {
     USEIP=$FQHOSTNAME
   fi
 
-  DOMAINNAME=""
-  if [[ $FQHOSTNAME =~ '.' ]];then
-    DOMAINNAME=$(echo $FQHOSTNAME | perl -pe 's/^[\w\-_]*\.(.*)/$1/')
-    SHORTHOSTNAME=$(echo $FQHOSTNAME | perl -pe 's/^([\w\-_]*)\..*/$1/')
-  else
-    SHORTHOSTNAME=$FQHOSTNAME
-  fi 
+  if [[ -z $USEIP  ]];then
+    DOMAINNAME=""
+    if [[ $FQHOSTNAME =~ '.' ]];then
+      DOMAINNAME=$(echo $FQHOSTNAME | perl -pe 's/^[\w\-_]*\.(.*)/$1/')
+      SHORTHOSTNAME=$(echo $FQHOSTNAME | perl -pe 's/^([\w\-_]*)\..*/$1/')
+    else
+      SHORTHOSTNAME=$FQHOSTNAME
+    fi 
+  fi
 }
 ###############################################################################
 function generate_proposed_dnsnames {
