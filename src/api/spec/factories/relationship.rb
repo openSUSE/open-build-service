@@ -1,25 +1,25 @@
 FactoryGirl.define do
-  factory :relationship_project_user, class: Relationship do
-    project
-    user
+  factory :relationship do
     role { Role.find_by_title('maintainer') }
-  end
 
-  factory :relationship_project_group, class: Relationship do
-    project
-    group
-    role { Role.find_by_title('maintainer') }
-  end
+    factory :relationship_project_user do
+      project
+      user
+    end
 
-  factory :relationship_package_user, class: Relationship do
-    package
-    user
-    role { Role.find_by_title('maintainer') }
-  end
+    factory :relationship_project_group do
+      project
+      group
+    end
 
-  factory :relationship_package_group, class: Relationship do
-    package
-    group
-    role { Role.find_by_title('maintainer') }
+    factory :relationship_package_user do
+      package
+      user
+    end
+
+    factory :relationship_package_group do
+      package
+      group
+    end
   end
 end
