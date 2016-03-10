@@ -9,7 +9,9 @@ export BASH_TAP_ROOT=$(dirname $0)
 plan tests 29
 
 
-MAX_WAIT=600
+MAX_WAIT=300
+
+tmpcount=$MAX_WAIT
 
 # Service enabled and started
 for srv in \
@@ -26,7 +28,6 @@ do
   STATE=` systemctl is-enabled $srv\.service 2>/dev/null`
   is "$STATE" "enabled" "Checking $srv enabled"
   ACTIVE=`systemctl is-active $srv\.service`
-  tmpcount=$MAX_WAIT
   while [[ $ACTIVE != 'active' ]];do
     tmpcount=$(( $tmpcount - 1 ))
     ACTIVE=`systemctl is-active $srv\.service`
