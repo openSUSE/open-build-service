@@ -798,9 +798,10 @@ sub createrepo_staticlinks {
       } elsif (/^(.*)-(\d+\.\d+\.\d+)-Build\d+\.\d+([-\.].*\.(gz|bz2|tbz|tgz|xz)?(?:\.sha256)?)$/s) {
         $link = "$1$3";
         $link = "$1-$2$3" if $versioned;
-      } elsif (/^(.*)-(\d+\.\d+\.\d+)-Build\d+\.\d+(\.(raw.install.raw.xz|raw.xz|box|json|install.iso|tbz|tgz|vmx|vmdk|vhdfixed.xz|iso|qcow2|qcow2.xz|ova)?(?:\.sha256)?)$/s) {
-        $link = "$1$3";
-        $link = "$1-$2$3" if $versioned;
+      } elsif (/^(.*)-(\d+\.\d+\.\d+)?(\.\w+)?-Build\d+\.\d+(\.(raw.install.raw.xz|raw.xz|box|json|install.iso|tbz|tgz|vmx|vmdk|vhdfixed.xz|iso|qcow2|qcow2.xz|ova)?(?:\.sha256)?)$/s) {
+        my $profile = $3 || "";
+        $link = "$1$profile$4";
+        $link = "$1$profile-$2$4" if $versioned;
       }
       next unless $link;
       unlink("$extrep/$arch/.$link"); # drop left over
