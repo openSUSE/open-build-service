@@ -912,14 +912,18 @@ Result: diff as text/plain
 
 POST /request/<id>
   
-  Modify a request state
+  Modify a request
 
 XmlResult: request
 
   Commands on processing requests
   addreview: Adds a review to a request
+  assignreview: Adds a review for a user and accepts it for the used group
   changestate: Modifies the state of a request
+  changereviewstate: Modifies the state of a review inside a request
   setpriority: Modifies the priority of a requst
+  setincident: Change the target incident for maintenance_incident actions
+  setacceptat: Set or modify the accept_at time. Either specified by time parameter or now.
 
 Parameters: 
   newstate: Define the new state
@@ -928,6 +932,8 @@ Parameters:
   by_group: Specify the group of the new review
   by_project: Specify the project of the new review
   by_package: Specify the user of the new review
+  incident: Specifiy inicdent number for setincident
+  time: Specifiy time for setacceptat
 
 
 == Attribute definition api

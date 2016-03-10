@@ -86,9 +86,9 @@ class RequestController < ApplicationController
     # FIXME: this should be moved into the model functions, doing
     #        these actions
     case params[:cmd]
-    when 'create', 'changestate', 'addreview', 'setpriority', 'setincident'
+    when 'create', 'changestate', 'addreview', 'setpriority', 'setincident', 'setacceptat'
       # create -> noop
-      # changestate,addressview,setpriority,setincident -> the model is checking already
+      # permissions are checked by the model
     when 'changereviewstate', 'assignreview'
       @req.permission_check_change_review!(params)
     when 'addrequest', 'removerequest'
@@ -213,6 +213,12 @@ class RequestController < ApplicationController
 
   def request_command_setincident
     @req.setincident(params[:incident])
+    render_ok
+  end
+
+  def request_command_setacceptat
+    time = DateTime.parse(params[:time]) unless params[:time].blank?
+    @req.set_accept_at!(time)
     render_ok
   end
 

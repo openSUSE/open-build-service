@@ -663,6 +663,11 @@ class BsRequest < ActiveRecord::Base
       end
       self.save!
       history.create(p) if history
+
+      # we want to check right now if pre-approved requests can be processed
+      if go_new_state == :new and self.accept_at
+        Delayed::Job.enqueue AcceptRequestsJob.new
+      end
     end
   end
 
@@ -920,6 +925,15 @@ class BsRequest < ActiveRecord::Base
     end
 
     apply_default_reviewers
+  end
+
+  def set_accept_at!(time = nil)
+    # Approve a request to be accepted when the reviews finished
+    self.permission_check_change_state!({:newstate => 'accepted'})
+
+    self.accept_at = time || Time.now
+    self.save!
+    reset_cache
   end
 
   def apply_default_reviewers

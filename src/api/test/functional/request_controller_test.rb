@@ -2594,6 +2594,47 @@ XML
     assert_response :success
   end
 
+  def test_set_auto_accept
+    login_tom
+
+    Timecop.freeze(2010, 07, 12)
+
+    req = "<request>
+            <action type='delete'>
+              <target project='home:Iggy' package='TestPack' />
+            </action>
+            <description>delete</description>
+            <state/>
+          </request>"
+
+    # works as user with write permission in target
+    login_Iggy
+    post '/request?cmd=create', req
+    assert_response :success
+    assert_xml_tag(:tag => 'request')
+    node = Xmlhash.parse(@response.body)
+    id = node['id']
+    assert id.present?
+
+    # accept it now
+    post "/request/#{id}?cmd=setacceptat"
+    assert_response :success
+
+    # correct rendered
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(:tag => 'accept_at', :content => '2010-07-12 00:00:00 UTC')
+
+    # modify accept time
+    post "/request/#{id}?cmd=setacceptat&time='2013-12-01%2000:00:00%20UTC'"
+    assert_response :success
+
+    # correct rendered
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(:tag => 'accept_at', :content => '2013-12-01 00:00:00 UTC')
+  end
+
   def test_branch_version_update_and_submit_request_back
     # branch a package which does not exist in project, but project is linked
     login_tom

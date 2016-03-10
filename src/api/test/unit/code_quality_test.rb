@@ -65,7 +65,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'BranchPackage#determine_details_about_package_to_branch'                 => 91.39,
       'BranchPackage#lookup_incident_pkg'                                       => 83.09,
       'BranchPackage#extend_packages_to_link'                                   => 80.23,
-      'BsRequest#change_review_state'                                           => 203.53,
+      'BsRequest#change_review_state'                                           => 209.72,
       'BsRequest#apply_default_reviewers'                                       => 129.52,
       'BsRequest#webui_actions'                                                 => 130.13,
       'BsRequest::new_from_xml'                                                 => 113.77,
