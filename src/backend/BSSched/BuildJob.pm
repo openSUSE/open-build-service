@@ -130,7 +130,9 @@ my $workerreposerver = $BSConfig::workerreposerver ? $BSConfig::workerreposerver
 sub init_ourjobs {
   my ($gctx) = @_;
   my $myjobsdir = $gctx->{'myjobsdir'};
-  %ourjobs = map {$_ => 1} grep {!/(?::dir|:status)$/} ls($myjobsdir);
+  for my $job (grep {!/(?::dir|:status)$/} ls($myjobsdir)) {
+     $ourjobs{$1}->{$job} = 1 if $job =~ /^(:.+?|[^:].*?::.+?)::/s;
+  }
 }
 
 =head2 purgejob - remove a job and all of its artifacts
@@ -148,7 +150,7 @@ sub purgejob {
   }
   unlink("$myjobsdir/$job");
   unlink("$myjobsdir/$job:status");
-  delete $ourjobs{$job};
+  delete (($ourjobs{$1} || {})->{$job}) if $job =~ /^(:.+?|[^:].*?::.+?)::/s;
 }
 
 =head2 killjob - kill a single build job
@@ -252,14 +254,17 @@ sub killbuilding {
 sub killunwantedjobs {
   my ($gctx, $prp, $packstatus) = @_;
 
+  my $job1 = $prp;
+  $job1 =~ s/\//::/s;
+  my $job2 = ':'.Digest::MD5::md5_hex($prp);
+  return unless $ourjobs{$job1} || $ourjobs{$job2};
   my $myjobsdir = $gctx->{'myjobsdir'};
-  my $prpjobs = jobname($prp, '');
-  for my $job (grep {/^\Q$prpjobs\E/} sort keys %ourjobs) {
-    if ($job =~ /^\Q$prpjobs\E(.*)-[0-9a-f]{32}$/) {
+  for my $job (keys %{$ourjobs{$job1} || {}}, keys %{$ourjobs{$job2} || {}}) {
+    if ($job =~ /^(?:\Q$job1\E|\Q$job2\E)::(.*)-[0-9a-f]{32}$/s) {
       my $status = $packstatus->{$1} || '';
       next if $status eq 'scheduled';
       if (! -e "$myjobsdir/$job") {
-	delete $ourjobs{$job};
+        delete(($ourjobs{$1} || {})->{$job}) if $job =~ /^(:.+?|[^:].*?::.+?)::/s;
 	next;
       }
       if ($status eq 'disabled' || $status eq 'excluded' || $status eq 'locked') {
@@ -272,6 +277,8 @@ sub killunwantedjobs {
       }
     }
   }
+  delete $ourjobs{$job1} unless %{$ourjobs{$job1} || {}};
+  delete $ourjobs{$job2} unless %{$ourjobs{$job2} || {}};
 }
 
 =head2 writejob - write a new job to disc
@@ -289,7 +296,7 @@ sub writejob {
   my $myjobsdir = $gctx->{'myjobsdir'};
   writexml("$myjobsdir/.$job", "$myjobsdir/$job", $binfo, $BSXML::buildinfo);
   add_crossmarker($gctx, $binfo->{'hostarch'}, $job) if $binfo->{'hostarch'};
-  $ourjobs{$job} = 1;
+  $ourjobs{$1}->{$_} = 1 if $job =~ /^(:.+?|[^:].*?::.+?)::/s;
 }
 
 
