@@ -296,7 +296,7 @@ sub writejob {
   my $myjobsdir = $gctx->{'myjobsdir'};
   writexml("$myjobsdir/.$job", "$myjobsdir/$job", $binfo, $BSXML::buildinfo);
   add_crossmarker($gctx, $binfo->{'hostarch'}, $job) if $binfo->{'hostarch'};
-  $ourjobs{$1}->{$_} = 1 if $job =~ /^(:.+?|[^:].*?::.+?)::/s;
+  $ourjobs{$1}->{$job} = 1 if $job =~ /^(:.+?|[^:].*?::.+?)::/s;
 }
 
 
