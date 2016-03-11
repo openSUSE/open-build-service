@@ -807,7 +807,7 @@ sub calc_prps {
       # map searchpath to internal prp representation
       my @sp = map {"$_->{'project'}/$_->{'repository'}"} @searchpath;
       $prpsearchpath{$prp} = \@sp;
-      $prpdeps{"$projid/$repo->{'name'}"} = \@sp;
+      $prpdeps{$prp} = \@sp;
 
       # Find extra dependencies due to aggregate/kiwi description files
       my @xsp;
@@ -852,12 +852,17 @@ sub calc_prps {
       for (@{$prpdeps{$prp}}) {
 	$prpnoleaf{$_} = 1 if $_ ne $prp;
       }
+    }
+    # check for inter-repository project dependencies
+    for my $prp (keys %myprps) {
       $haveinterrepodep{$projid} = 1 if grep {$myprps{$_} && $_ ne $prp} @{$prpdeps{$prp}};
     }
   }
   # good bye no longer used entries!
   delete $newchanneldata{''};
   %{$gctx->{'channeldata'}} = %newchanneldata;
+
+  # print statistics
   print "have ".scalar(keys %newchanneldata)." unique channel configs\n" if %newchanneldata;
   print "have ".scalar(keys %haveinterrepodep)." inter-repo dependencies\n" if %haveinterrepodep;
 
@@ -869,9 +874,16 @@ sub calc_prps {
     print "cycle: ".join(' -> ', @$_)."\n" for @cycs;
   }
 
+  # create reverse deps to speed up changed2lookat
+  my %rprpdeps;
+  for my $prp (keys %prpdeps) {
+    push @{$rprpdeps{$_}}, $prp for @{$prpdeps{$prp}};
+  }
+
   $gctx->{'prps'} = \@prps;
   $gctx->{'prpsearchpath'} = \%prpsearchpath;
   $gctx->{'prpdeps'} = \%prpdeps;
+  $gctx->{'rprpdeps'} = \%rprpdeps;
   $gctx->{'prpnoleaf'} = \%prpnoleaf;
   $gctx->{'haveinterrepodep'} = \%haveinterrepodep;
 }

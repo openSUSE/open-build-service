@@ -102,23 +102,38 @@ sub changed2lookat {
   my $changed_med  = $gctx->{'changed_med'};
   my $changed_high = $gctx->{'changed_high'};
 
-  # add all changed_high entries to changed_med to make things simpler
-  for (keys %$changed_high) {
-    $changed_med->{$_} = $changed_high->{$_} unless ($changed_med->{$_} || 0) == 2;
+  if (%$changed_high) {
+    # add all changed_high entries to changed_med to make things simpler
+    for (keys %$changed_high) {
+      $changed_med->{$_} = $changed_high->{$_} unless ($changed_med->{$_} || 0) == 2;
+    }
+    push @$lookat_high, grep {$changed_high->{$_}} sort keys %$changed_med;
+    push @$lookat_med, grep {!$changed_high->{$_}} sort keys %$changed_med;
+  } else {
+    push @$lookat_med, sort keys %$changed_med;
   }
-  push @$lookat_high, grep {$changed_high->{$_}} sort keys %$changed_med;
-  push @$lookat_med, grep {!$changed_high->{$_}} sort keys %$changed_med;
   @$lookat_high = BSUtil::unify(@$lookat_high);
   @$lookat_med = BSUtil::unify(@$lookat_med);
   my %lookat_high = map {$_ => 1} @$lookat_high;
   @$lookat_med = grep {!$lookat_high{$_}} @$lookat_med;
-  my $prpdeps = $gctx->{'prpdeps'};
-  for my $prp (@{$gctx->{'prps'}}) {
-    if (!$changed_low->{$prp} && !$changed_med->{$prp}) {
-      next unless grep {$changed_med->{$_}} @{$prpdeps->{$prp}};
-    }
+
+  for my $prp (keys %$changed_low) {
     $lookat_next->{$prp} = 1;
   }
+  my $rprpdeps = $gctx->{'rprpdeps'};
+  for my $prp (keys %$changed_med) {
+    $lookat_next->{$prp} = 1;
+    $lookat_next->{$_} = 1 for @{$rprpdeps->{$prp} || []};
+  }
+
+  #my $prpdeps = $gctx->{'prpdeps'};
+  #for my $prp (@{$gctx->{'prps'}}) {
+  #  if (!$changed_low->{$prp} && !$changed_med->{$prp}) {
+  #    next unless grep {$changed_med->{$_}} @{$prpdeps->{$prp}};
+  #  }
+  #  $lookat_next->{$prp} = 1;
+  #}
+
   %$changed_low = ();
   %$changed_med = ();
   %$changed_high = ();
