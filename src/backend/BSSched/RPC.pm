@@ -191,6 +191,35 @@ sub xrpc_printstats {
   }
 }
 
+sub xrpc_resume_nextrpc {
+  my ($rctx, $nextrpc) = @_;
+
+  my $handle;
+  eval {
+    $handle = xrpc($rctx, @{$nextrpc->{'_xrpc_data'}});
+  };
+  if (!$@ && $handle) {
+    # copy over handle additions
+    for (keys %$nextrpc) {
+      $handle->{$_} = $nextrpc->{$_} if $_ ne '_xrpc_data';
+    }
+    return;
+  }
+  my $error = $@ || "internal xrpc_resume_nextrpc error\n";
+  # create fake handle, call resume function with the error
+  my ($ctx, $resource, $param, @args) = @{$nextrpc->{'_xrpc_data'}};
+  my $async = $param->{'async'};
+  $handle = {};
+  $handle->{'_ctx'} = $ctx;
+  $handle->{'_iswaiting'} = $resource;
+  $handle->{$_} = $async->{$_} for keys %$async;
+  for (keys %$nextrpc) {
+    $handle->{$_} = $nextrpc->{$_} if $_ ne '_xrpc_data';
+  }
+  die("no _resume set in handler $handle\n") unless $handle->{'_resume'};
+  $handle->{'_resume'}->($handle->{'_ctx'}, $handle, $error);
+}
+
 =head2 xrpc_resume - to be called when a rpc handle can be processed
 
  TODO: add description
@@ -227,16 +256,14 @@ sub xrpc_resume {
       }
       my $resource = $nextrpc->{'_iswaiting'};
       delete $iswaiting->{$resource};
-      my $nhandle = xrpc($rctx, @{$nextrpc->{'_xrpc_data'}});
-      for (keys %$nextrpc) {
-        $nhandle->{$_} = $nextrpc->{$_} if $_ ne '_xrpc_data';
-      }
+      xrpc_resume_nextrpc($rctx, $nextrpc);
       last if $iswaiting_serverload->{$server} || $iswaiting_serverload_low->{$server};
     }
     push @{$iswaiting_serverload->{$server}}, @loadrpcs;
     push @{$iswaiting_serverload_low->{$server}}, @loadrpcs_low;
   }
 
+  # get result of rpc
   my $ret;
   eval { $ret = BSRPC::rpc($handle) };
   my $error;
@@ -251,11 +278,10 @@ sub xrpc_resume {
 
   # fire up waiting rpcs
   for my $nextrpc (@{$handle->{'_nextxrpc'} || []}) {
-    my $nhandle = xrpc($rctx, @{$nextrpc->{'_xrpc_data'}});
-    for (keys %$nextrpc) {
-      $nhandle->{$_} = $nextrpc->{$_} if $_ ne '_xrpc_data';
-    }
+    xrpc_resume_nextrpc($rctx, $nextrpc);
   }
+
+  # call wakeup function
   if (@{$handle->{'_wakeup'} || []}) {
     my %did;
     for my $whandle (BSUtil::unify(@{$handle->{'_wakeup'} || []})) {
