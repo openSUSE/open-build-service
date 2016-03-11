@@ -40,12 +40,21 @@ RSpec.describe "Create Interconnect as admin and build pckg" do
     File.write("build.spec", Net::HTTP.get(URI.parse("https://api.opensuse.org/public/source/OBS:Server:Unstable/build/build.spec")))
     find('img[title="Create package"]').click
     expect(page).to have_content("Create New Package for home:Admin")
-    fill_in 'name', with: 'testpackage'
+    fill_in 'name', with: 'obs-build'
     find('input[name="commit"]').click #Save changes
-    expect(page).to have_content("Package 'testpackage' was created successfully")
+    expect(page).to have_content("Package 'obs-build' was created successfully")
     find('img[title="Add file"]').click
     expect(page).to have_content("Add File to")
     attach_file("file", "build.spec")
+    find('input[name="commit"]').click #Save changes
+    expect(page).to have_content("Source Files")
+  end
+
+  it "should be able to attach _service file" do
+    File.write("_service", Net::HTTP.get(URI.parse("https://api.opensuse.org/public/source/OBS:Server:Unstable/build/_service")))
+    find('img[title="Add file"]').click
+    expect(page).to have_content("Add File to")
+    attach_file("file", "_service")
     find('input[name="commit"]').click #Save changes
     expect(page).to have_content("Source Files")
   end
@@ -64,5 +73,20 @@ RSpec.describe "Create Interconnect as admin and build pckg" do
   it "should be able to Overview Build Results" do
     click_link('Overview')
     expect(page).to have_content("Build Results")
+  end
+
+  it "should be able to refresh Build Results" do
+    #TO DO research osc buildlog option to gather results
+    timeout = 60
+    build_succeeded = false
+    until timeout == 0 do
+      click_link('Build Results')
+      if expect(page).to have_content("succeeded")
+        build_succeeded = true
+        break
+      timeout -= 1
+    end
+    puts "We've success!" if build_succeeded
+  end
   end
 end
