@@ -61,6 +61,11 @@ class Repository < ActiveRecord::Base
     end
   end
 
+  def project_name
+    return self.project.name  if self.project
+    self.remote_project_name
+  end
+
   class << self
     # FIXME: Don't lie, it's find_or_create_by_project_and_name_if_project_is_remote
     def find_by_project_and_name( project, repo )

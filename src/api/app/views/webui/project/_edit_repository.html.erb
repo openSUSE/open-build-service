@@ -14,25 +14,25 @@
       <div style="margin-left: 30px">
         <% begin -%>
           <% repository.path_elements.each do |path| -%>
-            <% if path.link.nil? || path.link.project.nil? %>
+            <% if path.link == Repository.deleted_instance %>
               <%= image_tag 'exclamation.png' %> Target repository has been removed
             <% else %>
-              <span><%= path.link.project.name + "/" + path.link.name %></span>
+              <span><%= path.link.project_name + "/" + path.link.name %></span>
 
               <% if repository.path_elements.size > 1 %>
                 <% if path != repository.path_elements.first %>
-                  <%= link_to(image_tag('arrow_up.png'), { action: :move_path, project: project, repository: repository, path: path, direction: 'up' }, { class: 'x', method: :post, id: "move_path_up-#{path.link.project.name}_#{path.link.name}" }) -%>
+                  <%= link_to(image_tag('arrow_up.png'), { action: :move_path, project: project, repository: repository, path: path, direction: 'up' }, { class: 'x', method: :post, id: "move_path_up-#{path.link.project_name}_#{path.link.name}" }) -%>
                 <% end %>
 
                 <% if path != repository.path_elements.last %>
-                  <%= link_to(image_tag('arrow_down.png'), { action: :move_path, project: project, repository: repository, path: path, direction: 'down'}, { class: 'x', method: :post, id: "move_path_down-#{path.link.project.name}_#{path.link.name}" }) -%>
+                  <%= link_to(image_tag('arrow_down.png'), { action: :move_path, project: project, repository: repository, path: path, direction: 'down'}, { class: 'x', method: :post, id: "move_path_down-#{path.link.project_name}_#{path.link.name}" }) -%>
                 <% end %>
               <% end %>
 
               <%= link_to(image_tag('drive_delete.png'), { :action => :remove_path_from_target,
                                                            :project => project, :repository => repository,
                                                            :path => path },
-                                                         { data: { confirm: "Really remove #{path.link.project.name} / #{path.link.name} path from repository  '#{repository.name}'?" },
+                                                         { data: { confirm: "Really remove #{path.link.project_name} / #{path.link.name} path from repository  '#{repository.name}'?" },
                                                            :class => 'x', :method => :post }) -%>
             <% end %>
 
