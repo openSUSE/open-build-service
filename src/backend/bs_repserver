@@ -4152,8 +4152,8 @@ sub deljob {
       return $BSStdServer::return_ok;
     }
   }
-  my $js = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus, 1);
-  if ($js && $js->{'code'} eq 'building') {
+  my $js = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus);
+  if ($js->{'code'} eq 'building') {
     my $req = {
       'uri' => "$js->{'uri'}/discard",
       'timeout' => 60,
