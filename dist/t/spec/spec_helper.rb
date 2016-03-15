@@ -1,3 +1,4 @@
+require 'wait_for_ajax.rb'
 # OBS Appliance spec helper.
 #
 RSpec.configure do |config|
@@ -5,6 +6,7 @@ RSpec.configure do |config|
     config.expect_with :rspec do |expectations|
     # to disable deprecated should syntax
     expectations.syntax = :expect
+    config.include WaitForAjax
   end
 
   # Limits the available syntax to the non-monkey patched
