@@ -1,6 +1,8 @@
 require "spec_helper"
 #for getting spec file
-require 'net/http'
+require 'tmpdir'
+require "net/https"
+require "uri"
 
 RSpec.describe "Sign Up & Login" do
   it "should be able to sign up successfully and logout" do
@@ -22,7 +24,6 @@ RSpec.describe "Create Interconnect as admin and build pckg" do
     visit "/user/login"
     fill_in 'user_login', with: 'Admin'
     fill_in 'user_password', with: 'opensuse'
-    save_screenshot("/tmp/login/l.png")
     click_button('Log In »')
     visit "/configuration/interconnect"
     click_button('openSUSE')
@@ -37,7 +38,7 @@ RSpec.describe "Create Interconnect as admin and build pckg" do
   end
 
   it "should be able to create a new package from OBS:Server:Unstable/build/build.spec" do
-    File.write("build.spec", Net::HTTP.get(URI.parse("https://api.opensuse.org/public/source/OBS:Server:Unstable/build/build.spec")))
+    File.write("#{Dir.mktmpdir}/build.spec", Net::HTTP.get(URI.parse("https://api.opensuse.org/public/source/OBS:Server:Unstable/build/build.spec")))
     find('img[title="Create package"]').click
     expect(page).to have_content("Create New Package for home:Admin")
     fill_in 'name', with: 'obs-build'
@@ -51,7 +52,7 @@ RSpec.describe "Create Interconnect as admin and build pckg" do
   end
 
   it "should be able to attach _service file" do
-    File.write("_service", Net::HTTP.get(URI.parse("https://api.opensuse.org/public/source/OBS:Server:Unstable/build/_service")))
+    File.write("#{Dir.mktmpdir}/_service", Net::HTTP.get(URI.parse("https://api.opensuse.org/public/source/OBS:Server:Unstable/build/_service")))
     find('img[title="Add file"]').click
     expect(page).to have_content("Add File to")
     attach_file("file", "_service")
@@ -75,18 +76,13 @@ RSpec.describe "Create Interconnect as admin and build pckg" do
     expect(page).to have_content("Build Results")
   end
 
-  it "should be able to refresh Build Results" do
-    #TO DO research osc buildlog option to gather results
-    timeout = 60
-    build_succeeded = false
-    until timeout == 0 do
-      click_link('Build Results')
-      if expect(page).to have_content("succeeded")
-        build_succeeded = true
-        break
-      timeout -= 1
-    end
-    puts "We've success!" if build_succeeded
-  end
+  it "should be able to check Build Results and see succeeded 3 times" do
+    visit "/package/live_build_log/home:Admin/obs-build/openSUSE_Tumbleweed/i586"
+    wait_for_ajax
+    visit "/package/live_build_log/home:Admin/obs-build/openSUSE_Leap_42.1/x86_64"
+    wait_for_ajax
+    visit "/project/show/home:Admin/"
+    click_link('Build Results')
+    page.all('a', :text =>'succeeded: 1', :count => 3, :wait => 30)
   end
 end
