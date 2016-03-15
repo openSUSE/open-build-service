@@ -322,13 +322,23 @@ sub preparepool {
   }
   $pool->createwhatprovides();
 
+  my $prpnotready = $gctx->{'prpnotready'};
+  $prpnotready = undef if ($ctx->{'repo'}->{'block'} || '') eq 'local';
+
+  # if we have the fast preparehashes helper function, use it.
+  if (defined &BSSolv::pool::preparehashes) {
+    ($ctx->{'dep2pkg'}, $ctx->{'dep2src'}, $ctx->{'depislocal'}, $ctx->{'notready'}, $ctx->{'subpacks'}) = $pool->preparehashes($prp, $prpnotready);
+    return ('scheduling', undef);
+  }
+
+  # old code
   my %dep2src;
   my %dep2pkg;
   my %depislocal;     # used in meta calculation
   my %notready;       # unfinished and will modify :full
   my %subpacks;
 
-  my $prpnotready = $gctx->{'prpnotready'};
+  $prpnotready ||= {};
   for my $p ($pool->consideredpackages()) {
     my $rprp = $pool->pkg2reponame($p);
     my $n = $pool->pkg2name($p);
@@ -339,11 +349,6 @@ sub preparepool {
       $depislocal{$n} = 1;
     } else {
       $notready{$sn} = 2 if $prpnotready->{$rprp} && $prpnotready->{$rprp}->{$sn};
-    }
-  }
-  if (($ctx->{'repo'}->{'block'} || '') eq 'local') {
-    for (keys %notready) {
-      delete $notready{$_} if $notready{$_} == 2;
     }
   }
   push @{$subpacks{$dep2src{$_}}}, $_ for keys %dep2src;
