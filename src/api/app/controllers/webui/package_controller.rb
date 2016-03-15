@@ -294,8 +294,8 @@ class Webui::PackageController < Webui::WebuiController
            BsRequestAction::UnknownProject,
            BsRequestAction::UnknownTargetPackage => e
       flash[:error] = "Unable to submit (missing target): #{e.message}"
-    rescue APIException
-      flash[:error] = "Unable to submit"
+    rescue APIException => e
+      flash[:error] = "Unable to submit: #{e.message}"
     end
 
     if flash[:error]
