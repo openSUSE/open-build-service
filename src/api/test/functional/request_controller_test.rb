@@ -53,6 +53,30 @@ XML
     end
   end
 
+  def test_get_requests_collection
+    login_king
+    get '/request', view: 'collection', reviewstates: 'accepted'
+    assert_response :success
+    # Should respond with a collection of 9 requests
+    assert_select 'collection request', 9
+    # Should show all data belonging to each request
+    assert_select 'collection', matches: 9 do
+      assert_select 'request', id: 1000 do
+        assert_select 'action', type: 'submit' do
+          assert_select 'source', project: 'Apache', package: 'apache2', rev: '1'
+          assert_select 'target', project: 'kde4', package: 'apache2'
+        end
+        assert_select 'state', name: 'review', who: 'tom', when: '2013-09-09T19:15:16' do
+          assert_select 'comment'
+        end
+        assert_select 'review', state: 'new', by_package: 'apache2', by_project: 'Apache'
+        assert_select 'review', state: 'new', by_user: 'adrian'
+        assert_select 'review', state: 'new', by_group: 'test_group'
+        assert_select 'description', 'want to see his reaction'
+      end
+    end
+  end
+
   def test_get_invalid_1
     prepare_request_with_user 'Iggy', 'xxx'
     get '/request/0815'
