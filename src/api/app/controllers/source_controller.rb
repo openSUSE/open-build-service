@@ -698,7 +698,7 @@ class SourceController < ApplicationController
       end
     else
       prj = Project.get_by_name(@project_name)
-      unless User.current.can_create_package_in?(prj)
+      unless prj.kind_of?(Project) and User.current.can_create_package_in?(prj)
         render_error :status => 403, :errorcode => 'create_package_no_permission',
                      :message => "no permission to create a package in project '#{@project_name}'"
         return
@@ -1299,7 +1299,7 @@ class SourceController < ApplicationController
       raise PackageExists.new "the package exists already #{@target_project_name} #{@target_package_name}"
     end
     tprj = Project.get_by_name(@target_project_name)
-    unless User.current.can_create_package_in?(tprj)
+    unless tprj.kind_of?(Project) and User.current.can_create_package_in?(tprj)
       raise CmdExecutionNoPermission.new "no permission to create package in project #{@target_project_name}"
     end
 

@@ -393,6 +393,11 @@ end
     post '/source/RemoteInstance:BaseDistro2.0/package', :cmd => :copy, :oproject => 'BaseDistro2.0', :opackage => 'pack2'
     assert_response 403
     assert_xml_tag :tag => 'status', :attributes => { :code => 'cmd_execution_no_permission' }
+    put '/source/RemoteInstance:BaseDistro2.0/pack/_meta',
+        '<package name="pack" project="RemoteInstance:BaseDistro2.0">
+           <title/><description/></package>'
+    assert_response 403
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'create_package_no_permission' }
   end
 
   def test_invalid_submit_to_remote_instance
