@@ -69,13 +69,16 @@ sub jobfinished {
   my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
   my $dst = "$gdst/$packid";
   mkdir_p($dst);
+  my $meta;
+  $meta = "$jobdatadir/meta" if -e "$jobdatadir/meta";
   print "  - $prp: $packid uploaded\n";
   my $useforbuildenabled = 1;
   $useforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
   $useforbuildenabled = BSUtil::enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled, $myarch);
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
-  BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath);
+  BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath);
   $changed->{$prp} = 2 if $useforbuildenabled;
+  rename($meta, "$gdst/:meta/$packid") if $meta;
   my $repounchanged = $gctx->{'repounchanged'};
   delete $repounchanged->{$prp} if $useforbuildenabled;
   $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
