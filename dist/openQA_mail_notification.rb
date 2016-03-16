@@ -5,6 +5,7 @@ require 'net/smtp'
 require 'uri'
 require 'json'
 require 'mail'
+require 'yaml/store'
 
 FROM = 'obs-admin@opensuse.org'
 TO = 'obs-tests@opensuse.org'
@@ -68,12 +69,23 @@ end
 
 build = get_build_information
 
-modules = build['modules']
-successful_modules = modules.select { |m| m['result'] == 'passed' }
-failed_modules = modules.select { |m| m['result'] == 'failed' }
-successful_modules = modules_to_sentence(successful_modules)
-failed_modules = modules_to_sentence(failed_modules)
+store = YAML::Store.new('builds.yml')
+last_build = store.transaction { store[:build] }
+result = last_build <=> build['name']
 
-subject = "Build #{build['result']} in openQA: #{build['name']}"
-message = build_message(build['settings']['BUILD'], successful_modules, failed_modules)
-send_notification(FROM, TO, subject, message)
+unless result == 0
+  modules = build['modules']
+  successful_modules = modules.select { |m| m['result'] == 'passed' }
+  failed_modules = modules.select { |m| m['result'] == 'failed' }
+  successful_modules = modules_to_sentence(successful_modules)
+  failed_modules = modules_to_sentence(failed_modules)
+
+  subject = "Build #{build['result']} in openQA: #{build['name']}"
+  message = build_message(build['settings']['BUILD'], successful_modules, failed_modules)
+  send_notification(FROM, TO, subject, message)
+
+  store.transaction do
+    store[:name] = build['name']
+    store[:last_run] = build['t_finished']
+  end
+end
