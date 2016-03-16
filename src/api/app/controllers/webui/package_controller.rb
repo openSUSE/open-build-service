@@ -248,7 +248,7 @@ class Webui::PackageController < Webui::WebuiController
   def submit_request
     required_parameters :project, :package
 
-    target_project_name = params[:targetproject].strip
+    target_project_name = params[:targetproject].try(:strip)
     package_name = params[:package].strip
     project_name = params[:project].strip
 
