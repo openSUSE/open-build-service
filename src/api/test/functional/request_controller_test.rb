@@ -77,10 +77,17 @@ XML
     end
 
     # Narrow search for reviews by user adrian
-    get '/request', view: 'collection', reviewstates: 'accepted', roles: 'reviewer', user: 'adrian'
+    get '/request', view: 'collection', reviewstates: 'new', roles: 'reviewer', user: 'adrian'
     assert_response :success
+
     # Should respond with a collection of 2 requests
     assert_select 'collection request', 2
+
+    # Request 1000 should have exactly 4 review elements
+    assert_select 'request[id=1000] review', 4
+    # Request 4 should have exactly 1 review elements
+    assert_select 'request[id=4] review', 1
+
     # Should show all data belonging to each request
     assert_select 'collection', matches: 2 do
       assert_select 'request', id: 1000 do
@@ -93,8 +100,13 @@ XML
         end
         assert_select 'review', state: 'new', by_package: 'apache2', by_project: 'Apache'
         assert_select 'review', state: 'new', by_user: 'adrian'
+        assert_select 'review', state: 'new', by_user: 'tom'
         assert_select 'review', state: 'new', by_group: 'test_group'
         assert_select 'description', 'want to see his reaction'
+      end
+      # Should find requests of groups adrian belongs to
+      assert_select 'request', id: 4 do
+        assert_select 'review', state: 'new', by_group: 'test_group'
       end
     end
   end
