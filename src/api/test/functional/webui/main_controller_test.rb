@@ -1,7 +1,7 @@
 require_relative '../../test_helper'
 
 class Webui::MainControllerTest < ActionDispatch::IntegrationTest
-  def fetch_sitemap(url)
+  def fetch_sitemap(url) # spec/controllers/webui/main_controller_spec.rb
     get url
     assert_response :success
 
@@ -18,7 +18,7 @@ class Webui::MainControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  def test_sitemap
+  def test_sitemap # spec/controllers/webui/main_controller_spec.rb
     @urls = []
     # verify we can fetch sitemaps and it contains useful stuff
     fetch_sitemap(main_sitemap_path)
