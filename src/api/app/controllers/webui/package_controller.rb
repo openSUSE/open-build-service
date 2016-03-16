@@ -248,7 +248,7 @@ class Webui::PackageController < Webui::WebuiController
   def submit_request
     required_parameters :project, :package
 
-    target_project_name = params[:targetproject].strip
+    target_project_name = params[:targetproject].try(:strip)
     package_name = params[:package].strip
     project_name = params[:project].strip
 
@@ -294,8 +294,8 @@ class Webui::PackageController < Webui::WebuiController
            BsRequestAction::UnknownProject,
            BsRequestAction::UnknownTargetPackage => e
       flash[:error] = "Unable to submit (missing target): #{e.message}"
-    rescue APIException
-      flash[:error] = "Unable to submit"
+    rescue APIException => e
+      flash[:error] = "Unable to submit: #{e.message}"
     end
 
     if flash[:error]
