@@ -787,8 +787,12 @@ sub createrepo_staticlinks {
   for my $arch ('.', ls($extrep)) {
     next unless -d "$extrep/$arch";
     for (ls("$extrep/$arch")) {
-      next unless -f "$extrep/$arch/$_";
       my $link;
+      if (/^(.*)-Build\d\d\d\d(-Media\d?(\.license)?)$/s) {
+        $link = "$1$2"; # no support for versioned links
+      } else {
+        next unless -f "$extrep/$arch/$_";
+      }
       if (/^(.*)-([^-]*)-[^-]*\.rpm$/s) {
         $link = "$1.rpm";
         $link = "$1-$2.rpm" if $versioned;
