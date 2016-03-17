@@ -18,6 +18,11 @@ class Repository < ActiveRecord::Base
 
   scope :not_remote, -> { where(:remote_project_name => nil) }
 
+  validates :name, length: { in: 1..200 }
+  # Keep in sync with src/backend/BSVerify.pm
+  validates :name, format: { with:    /\A[^_:\/\000-\037][^:\/\000-\037]+\Z/,
+                             message: "Repository name must not start with '_' or contain any of these characters ':/'" }
+
   validate :validate_duplicates, :on => :create
   def validate_duplicates
     if Repository.where("db_project_id = ? AND name = ? AND ( remote_project_name = ? OR remote_project_name is NULL)",
