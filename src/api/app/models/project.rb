@@ -1571,7 +1571,7 @@ class Project < ActiveRecord::Base
   end
 
   def release_targets_ng
-    global_patchinfo = find_patchinfo
+    global_patchinfo_package = find_patchinfo_package
 
     # First things first, get release targets as defined by the project, err.. incident. Later on we
     # magically find out which of the contained packages, err. updates are build against those release
@@ -1579,15 +1579,21 @@ class Project < ActiveRecord::Base
     release_targets_ng = {}
     self.repositories.each do |repo|
       repo.release_targets.each do |rt|
+        patchinfo = nil
+        if global_patchinfo_package
+          xml = Patchinfo.new(global_patchinfo_package.source_file('_patchinfo'))
+          patchinfo = collect_patchinfo_data(xml)
+        end
         release_targets_ng[rt.target_repository.project.name] = {
           reponame:                  repo.name,
           packages:                  [],
-          patchinfo:                 collect_patchinfo_data(global_patchinfo.patchinfo),
+          patchinfo:                 patchinfo,
           package_issues:            {},
           package_issues_by_tracker: {}
         }
       end
     end
+
 
     # One catch, currently there's only one patchinfo per incident, but things keep changing every
     # other day, so it never hurts to have a look into the future:
@@ -1596,7 +1602,7 @@ class Project < ActiveRecord::Base
       # Current ui is only showing the first found package and a symbol for any additional package.
       break if package_count > 2
 
-      next if pkg.name == global_patchinfo.name
+      next if pkg == global_patchinfo_package
 
       rt_name = pkg.name.split('.', 2).last
       next unless rt_name
@@ -1828,10 +1834,8 @@ class Project < ActiveRecord::Base
     nil
   end
 
-  def find_patchinfo
-    # Almost all patchfino packages are named _patchinfo
-    self.packages.find { |pkg| pkg.name == "_patchinfo" && pkg.is_patchinfo? } ||
-      self.packages.find { |pkg| pkg.is_patchinfo? }
+  def find_patchinfo_package
+    self.packages.find { |pkg| pkg.is_patchinfo? }
   end
 
   def collect_patchinfo_data(patchinfo)
