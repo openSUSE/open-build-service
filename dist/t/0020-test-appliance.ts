@@ -8,6 +8,15 @@ export BASH_TAP_ROOT=$(dirname $0)
 
 plan tests 29
 
+for i in $(dirname $0)/../setup-appliance.sh /usr/lib/obs/server/setup-appliance.sh;do
+	[[ -f $i && -z $SETUP_APPLIANCE ]] && SETUP_APPLIANCE=$i
+done
+
+if [[ -z $SETUP_APPLIANCE ]];then
+	BAIL_OUT "Could not find setup appliance"
+fi
+
+. $SETUP_APPLIANCE
 
 MAX_WAIT=300
 
@@ -40,13 +49,8 @@ do
   is "$ACTIVE" "active" "Checking $srv status"
 done
 
-
-FQHN=$(hostname -f 2>/dev/null)
-
-if [[ -z $FQHN ]];then
-  FQHN=`ip addr | sed -n 's,.*inet \(.*\)/.* brd.*,\1,p' | grep -v ^127. | head -n 1`
-fi
-
+get_hostname
+FQHN=$FQHOSTNAME
 
 for file in \
 server.crt \
