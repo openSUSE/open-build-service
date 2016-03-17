@@ -237,7 +237,8 @@ function cmp_ok() {
 # Other helper functions
 
 function BAIL_OUT() {
-    echo TODO
+    echo "Bail out! $@"
+    exit 255
 }
 
 function skip() {
