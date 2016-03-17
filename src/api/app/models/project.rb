@@ -1594,7 +1594,6 @@ class Project < ActiveRecord::Base
       end
     end
 
-
     # One catch, currently there's only one patchinfo per incident, but things keep changing every
     # other day, so it never hurts to have a look into the future:
     package_count = 0
