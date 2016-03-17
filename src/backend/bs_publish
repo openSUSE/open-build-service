@@ -2242,10 +2242,13 @@ while(1) {
 
   # check for events
   my @events = ls($myeventdir);
-  @events = grep {!/^\./} @events;
-  for my $event (@events) {
+  # allows the admin to rename an event with a _ prefix to be the next event.
+  my @highprioevents = grep {/^_/} @events;
+  @events = grep {!/^[_\.]/} @events;
+  for my $event (@highprioevents, @events) {
     next if $publish_retry{$event};
     last if -e "$rundir/bs_publish.exit";
+    last if -e "$rundir/bs_publish.rescan";
     last if -e "$rundir/bs_publish.restart";
     my $ev = readxml("$myeventdir/$event", $BSXML::event, 1);
     if ($ev && $ev->{'type'} eq 'configuration') {
@@ -2307,6 +2310,9 @@ while(1) {
     print "restarting...\n";
     exec($0);
     die("$0: $!\n");
+  }
+  if (-e "$rundir/bs_publish.rescan") {
+    unlink("$rundir/bs_publish.rescan");
   }
 
   if (%publish_retry) {
