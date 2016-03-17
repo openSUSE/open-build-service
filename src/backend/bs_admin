@@ -107,6 +107,10 @@ Job Controlling
    is also updating the search database.
    WARNING: this works also for locked projects!
 
+ --prefer-publish-event <name>
+   prefers a publish event to be next. <name> is the file name inside of the publish
+   event directory.
+
  --republish-repository <project> <repository>
    enforce to publish a repository
 
@@ -544,6 +548,14 @@ sub write_publish_event {
   }
 }
 
+sub prefer_publish_event {
+  my ($name) = @_;
+  rename( "$eventroot/publish/$name", "$eventroot/publish/_$name" ) || die("rename of $eventroot/publish/$name failed: $!");
+  if (sysopen(F, "$rundir/bs_publish.rescan", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
+    close(F);
+  }
+}
+
 sub scan_repo {
   my ($project, $repo, $arch) = @_;
   write_event( $project, $repo, $arch, 'scanrepo' );
@@ -803,6 +815,10 @@ while (@ARGV) {
       }
     }
     write_publish_event($project, $repo);
+  } elsif ($arg eq "--prefer-publish-event") {
+    die("ERROR: need event file name as argument!\n") if @ARGV != 1;
+    my $name = shift @ARGV;
+    prefer_publish_event( $name );
   } elsif ( $arg eq "--clone-repository" ) {
     my $dovolatile;
     if (@ARGV && $ARGV[0] eq '--volatile') {
