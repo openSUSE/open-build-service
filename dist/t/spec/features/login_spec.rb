@@ -37,8 +37,9 @@ RSpec.describe "Create Interconnect as admin and build pckg" do
     expect(page).to have_content("Project 'home:Admin' was created successfully")
   end
 
-  it "should be able to create a new package from OBS:Server:Unstable/build/build.spec" do
-    File.write("#{Dir.mktmpdir}/build.spec", Net::HTTP.get(URI.parse("https://api.opensuse.org/public/source/OBS:Server:Unstable/build/build.spec")))
+  it "should be able to create a new package from OBS:Server:Unstable/build/build.spec and _service files" do
+    dir = Dir.mktmpdir
+    File.write("#{dir}/build.spec", Net::HTTP.get(URI.parse("https://api.opensuse.org/public/source/OBS:Server:Unstable/build/build.spec")))
     find('img[title="Create package"]').click
     expect(page).to have_content("Create New Package for home:Admin")
     fill_in 'name', with: 'obs-build'
@@ -46,16 +47,13 @@ RSpec.describe "Create Interconnect as admin and build pckg" do
     expect(page).to have_content("Package 'obs-build' was created successfully")
     find('img[title="Add file"]').click
     expect(page).to have_content("Add File to")
-    attach_file("file", "build.spec")
+    attach_file("file", "#{dir}/build.spec")
     find('input[name="commit"]').click #Save changes
     expect(page).to have_content("Source Files")
-  end
-
-  it "should be able to attach _service file" do
-    File.write("#{Dir.mktmpdir}/_service", Net::HTTP.get(URI.parse("https://api.opensuse.org/public/source/OBS:Server:Unstable/build/_service")))
+    File.write("#{dir}/_service", Net::HTTP.get(URI.parse("https://api.opensuse.org/public/source/OBS:Server:Unstable/build/_service")))
     find('img[title="Add file"]').click
     expect(page).to have_content("Add File to")
-    attach_file("file", "_service")
+    attach_file("file", "#{dir}/_service")
     find('input[name="commit"]').click #Save changes
     expect(page).to have_content("Source Files")
   end
