@@ -183,12 +183,14 @@ sub mkdir_p_chown {
 
   $user = -1 unless defined $user;
   $group = -1 unless defined $group;
+  my $ouser = $user;
+  my $ogroup = $group;
   
-  if ($user  !~ /^-?\d+$/ && !($user = getpwnam($user))) {
-    warn "user $user unknown\n"; return undef
+  if ($user  !~ /^-?\d+$/ && !defined($user = getpwnam($user))) {
+    warn "user $ouser unknown\n"; return undef
   }
-  if ($group !~ /^-?\d+$/ && !($group = getgrnam($group))) {
-    warn "group $group unknown\n"; return undef
+  if ($group !~ /^-?\d+$/ && !defined($group = getgrnam($group))) {
+    warn "group $ogroup unknown\n"; return undef
   }
 
   my @s = stat($dir);
