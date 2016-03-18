@@ -586,6 +586,11 @@ class Project < ActiveRecord::Base
 
   def update_repositories(xmlhash, force)
     fill_repo_cache
+    # Some repositories might be refered by path elements before they appear in the
+    # xml tree. Thus we have 2 iterations. First one goes through all repository
+    # elements, second run handles path elements.
+    # This can be the case when creating multiple repositories in a project where one
+    # repository uses another one, eg. importing an existing config from elsewhere.
     xmlhash.elements('repository') do |repo|
       update_one_repository_without_path(repo)
     end
