@@ -70,7 +70,7 @@ end
 build = get_build_information
 
 store = YAML::Store.new('builds.yml')
-last_build = store.transaction { store[:build] }
+last_build = store.transaction { store[:name] }
 result = last_build <=> build['name']
 
 unless result == 0
