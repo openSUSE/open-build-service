@@ -140,7 +140,7 @@ function get_hostname {
   if [[ $1 && $BOOTSTRAP_TEST_MODE == 1 ]];then
     FQHOSTNAME=$1
   else
-     FQHOSTNAME=`hostname -f `
+     FQHOSTNAME=`hostname -f 2>/dev/null`
   fi
   
   if type -p ec2-public-hostname; then
@@ -154,8 +154,10 @@ function get_hostname {
 
   # fallback in non-interative mode
   if [ "$FQHOSTNAME" = "" ]; then
+    # Prefer interface with default route if exists
+    DEFAULT_ROUTE_INTERFACE=`LANG=C ip route show|perl  -e '$_=<>; ( m/^default via.*dev\s+([\w]+)\s.*/ ) && print $1'`
     # Fallback to IP of the VM/host
-    FQHOSTNAME=`ip addr | sed -n 's,.*inet \(.*\)/.* brd.*,\1,p' | grep -v ^127. | head -n 1`
+    FQHOSTNAME=`LANG=C ip addr show $DEFAULT_ROUTE_INTERFACE| perl -lne '( m#^\s+inet\s+([0-9\.]+)(/\d+)?\s+.*# ) && print $1' | grep -v ^127. | head -n 1`
     if [ "$?" != "0" -o "$FQHOSTNAME" = "" ]; then
       echo "    Can't determine hostname or IP - Network setup failed!"
       echo "    Check if networking is up and dhcp is working!"
@@ -462,7 +464,7 @@ function prepare_passenger {
 ###############################################################################
 # make parsed output predictable
 
-if [[ ! $BOOTSTRAP_TEST_MODE == 1 ]];then
+if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
   export LC_ALL=C
 
   # package or appliance defaults
