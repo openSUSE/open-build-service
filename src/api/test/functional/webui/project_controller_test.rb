@@ -70,7 +70,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
     check("OBS Base 2.0")
     find("#submitrepos").click
-    page.must_have_text "Can't add repositories: Validation failed: Project already has repository with name Base_repo"
+    page.must_have_text "Can't add repositories: Validation failed: Name Base_repo is already used by a repository of this project."
     assert_equal "/project/add_repository_from_default_list/home:tom", page.current_path
   ensure
     repository.destroy if defined?(:repository)

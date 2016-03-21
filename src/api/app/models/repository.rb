@@ -18,13 +18,18 @@ class Repository < ActiveRecord::Base
 
   scope :not_remote, -> { where(:remote_project_name => nil) }
 
-  validate :validate_duplicates, :on => :create
-  def validate_duplicates
-    if Repository.where("db_project_id = ? AND name = ? AND ( remote_project_name = ? OR remote_project_name is NULL)",
-                        self.db_project_id, self.name, self.remote_project_name).first
-      errors.add(:project, "already has repository with name #{self.name}")
-    end
-  end
+  validates :name, length: { in: 1..200 }
+  # Keep in sync with src/backend/BSVerify.pm
+  validates :name, format: { with:    /\A[^_:\/\000-\037][^:\/\000-\037]+\Z/,
+                             message: "Repository name must not start with '_' or contain any of these characters ':/'" }
+
+  # Name has to be unique among local repositories and remote_repositories of the associated db_project.
+  # Note that remote repositories have to be unique among their remote project (remote_project_name)
+  # and the associated db_project.
+  validates :name, uniqueness: { scope:   [:db_project_id, :remote_project_name],
+                                 message: "%{value} is already used by a repository of this project."}
+
+  validates :db_project_id, presence: true
 
   def cleanup_before_destroy
     # change all linking repository pathes
