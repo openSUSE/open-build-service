@@ -35,6 +35,8 @@
 
       <value>ia64</value>
 
+      <value>k1om</value>
+
       <value>mips</value>
       <value>mipsel</value>
       <value>mips32</value>

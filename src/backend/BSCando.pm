@@ -45,6 +45,8 @@ our %cando = (
   'i686'    => [           'i586',         'i686' ],
   'x86_64'  => [ 'x86_64', 'i586:linux32', 'i686:linux32' ],
 
+  'k1om'    => [           'k1om' ],
+
   'parisc'  => [ 'hppa', 'hppa64:linux64' ],
   'parisc64'=> [ 'hppa64', 'hppa:linux32' ],
 

@@ -167,6 +167,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
     assert_match(/\nVENDOR Open Build Service/, @response.body)
     assert_match(/\nARCH.x86_64 x86_64 i686 i586 i486 i386 noarch/, @response.body)
     assert_match(/\nARCH.i586 i586 i486 i386 noarch/, @response.body)
+    assert_match(/\nARCH.k1om k1om noarch/, @response.body)
     assert_match(/\nDEFAULTBASE i586\n/, @response.body)
     assert_match(/\nDESCRDIR descr\n/, @response.body)
     assert_match(/\nDATADIR .\n/, @response.body)

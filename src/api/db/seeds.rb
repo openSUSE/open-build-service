@@ -4,7 +4,7 @@ puts "Seeding architectures table..."
 # NOTE: armvXel is actually obsolete (because it never exist as official platform),
 # but kept for compatibility reasons. armv7hl is in for compatibility (soft/hard).
 %w(aarch64 aarch64_ilp32 armv4l armv5l armv6l armv7l armv5el armv6el armv7el armv7hl armv8el
-   hppa i586 i686 ia64 local m68k mips mips32 mips64 ppc ppc64 ppc64p7 ppc64le
+   hppa i586 i686 ia64 k1om local m68k mips mips32 mips64 ppc ppc64 ppc64p7 ppc64le
    s390 s390x sparc sparc64 sparc64v sparcv8 sparcv9 sparcv9v x86_64).each do |arch_name|
   Architecture.where(name: arch_name).first_or_create
 end
