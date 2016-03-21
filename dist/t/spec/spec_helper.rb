@@ -2,18 +2,23 @@ require 'wait_for_ajax.rb'
 # OBS Appliance spec helper.
 #
 RSpec.configure do |config|
-  # rspec-expectations config goes here.
-    config.expect_with :rspec do |expectations|
-    # to disable deprecated should syntax
+  #rspec-expectations config goes here.
+  config.expect_with :rspec do |expectations|
+  # to disable deprecated should syntax
     expectations.syntax = :expect
-    config.include WaitForAjax
   end
-
+  config.include WaitForAjax
+  config.before(:suite) do
+    FileUtils.rm_rf(SCREENSHOT_DIR)
+    FileUtils.mkdir_p(SCREENSHOT_DIR)
+  end
+  config.after(:each) do |example|
+    if example.exception
+      take_screenshot(example)
+    end
+  end
   # Limits the available syntax to the non-monkey patched
   config.disable_monkey_patching!
-
-  # Run specs in random order to surface order dependencies
-  ##config.order = :random  # we will follow one workflow for now...
 end
 
 # for capybara rspec support
@@ -31,15 +36,3 @@ def take_screenshot(example)
   puts meta[:full_description] + "\n Screenshot: #{screenshot_path}"
 end
 
-RSpec.configure do |config|
-  config.before(:suite) do
-    FileUtils.rm_rf(SCREENSHOT_DIR)
-    FileUtils.mkdir_p(SCREENSHOT_DIR)
-  end
-
-  config.after(:each) do |example|
-    if example.exception
-      take_screenshot(example)
-    end
-  end
-end
