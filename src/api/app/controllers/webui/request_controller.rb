@@ -180,9 +180,9 @@ class Webui::RequestController < Webui::WebuiController
           end
         end
       end
-    end
 
-    accept_request if changestate == 'accepted'
+      accept_request if changestate == 'accepted'
+    end
 
     redirect_to :action => 'show', :id => params[:id]
   end
