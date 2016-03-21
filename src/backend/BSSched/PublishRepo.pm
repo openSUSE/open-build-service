@@ -128,6 +128,11 @@ sub prpfinished {
 
   my $bconf = $ctx->{'conf'};
 
+  # to produce a failure for the test suite
+  if (grep {"$_:" =~ /:(?:publisherror):/} @{$bconf->{'repotype'} || []}) {
+      return "Testcase publish error";
+  }
+
   # make all the deltas we need
   my $needdeltas;
   $needdeltas = 1 if grep {"$_:" =~ /:(?:deltainfo|prestodelta):/} @{$bconf->{'repotype'} || []};

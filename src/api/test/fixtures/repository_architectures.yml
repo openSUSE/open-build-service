@@ -117,3 +117,8 @@ repository_architectures_940713210:
   position: 0
   id: 940713210
   architecture: i586
+repository_architectures_broken_publishing:
+  repository_id: 97
+  position: 0
+  id: 940713216
+  architecture: i586

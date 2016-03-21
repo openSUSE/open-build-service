@@ -282,3 +282,11 @@ home_user6:
   updated_at: 2014-02-14 01:00:01.000000000 Z
   kind: standard
   delta: 1
+BrokenPublishing:
+  name: BrokenPublishing
+  title: This is a a project with failures at publish time
+  description: contains nothing important
+  created_at: 2005-01-02 01:00:01.000000000 Z
+  updated_at: 2005-01-02 01:00:01.000000000 Z
+  kind: standard
+  delta: 1
