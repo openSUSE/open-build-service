@@ -20,6 +20,13 @@ review_for_1000_3:
   by_group: test_group
   created_at: 2013-09-09 19:15:16.000000000 Z
   updated_at: 2013-09-09 19:15:16.000000000 Z
+review_for_1000_4:
+  id: 9
+  bs_request_id: 1000
+  state: new
+  by_user: tom
+  created_at: 2013-09-10 19:15:16.000000000 Z
+  updated_at: 2013-09-10 19:15:20.000000000 Z
 reviews_1:
   id: 1
   bs_request_id: 4

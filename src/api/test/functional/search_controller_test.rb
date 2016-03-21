@@ -363,6 +363,36 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get "/search/request", match: "[@id=1]"
     assert_response :success
     # rubocop:enable Metrics/LineLength
+
+    get "/search/request", match:  "(review[@state='new' and @by_user='adrian'])"
+    assert_response :success
+
+    # FIXME: Similar to test/functional/request_controller_test.rb
+    #        Could be DRY'ed by shared examples once migrated to rspec
+    # Should respond with a collection of 1 requests
+    assert_select 'collection request', 1
+    # Request 1000 should have exactly 4 review elements
+    assert_select 'request[id=1000] review', 4
+
+    # Should show all data belonging to each request
+    assert_select 'collection', matches: 2 do
+      assert_select 'request', id: 1000 do
+        assert_select 'action', type: 'submit' do
+          assert_select 'source', project: 'Apache', package: 'apache2', rev: '1'
+          assert_select 'target', project: 'kde4', package: 'apache2'
+        end
+        assert_select 'state', name: 'review', who: 'tom', when: '2013-09-09T19:15:16' do
+          assert_select 'comment'
+        end
+        assert_select 'review', state: 'new', by_package: 'apache2', by_project: 'Apache'
+        assert_select 'review', state: 'new', by_user: 'adrian'
+        assert_select 'review', state: 'new', by_user: 'tom'
+        assert_select 'review', state: 'new', by_group: 'test_group'
+        assert_select 'description', 'want to see his reaction'
+      end
+      # XPath search is not expected to find requests of groups adrian belongs to
+      assert_select 'request[id=4]', false
+    end
   end
 
   def test_search_request_2
