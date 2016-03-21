@@ -11,6 +11,7 @@
       <value>noarch</value>
 
       <value>aarch64</value>
+      <value>aarch64_ilp32</value>
 
       <value>armv4l</value>
       <value>armv5l</value>
