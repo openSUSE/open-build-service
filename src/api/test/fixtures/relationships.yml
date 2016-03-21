@@ -187,6 +187,10 @@ record_46:
   role: maintainer
   package: Apache_apache2
 record_47:
-  user: fred 
+  user: fred
   role: reader
   project: home_Iggy
+record_48:
+  role: maintainer
+  group: test_group
+  project: BrokenPublishing

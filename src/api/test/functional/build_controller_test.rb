@@ -290,6 +290,13 @@ class BuildControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(:tag => "status", :attributes => { :code => 'no_repositories_found' })
   end
 
+  def test_result_of_failed_publish
+    run_publisher
+    get "/build/BrokenPublishing/_result"
+    assert_response :success
+    assert_xml_tag tag: "result", attributes: { code: "broken", state: "broken", details: "Testcase publish error" }
+  end
+
   def test_read_access_hidden_result_prj
     get "/build/HiddenProject/_result"
     assert_response 404

@@ -138,3 +138,8 @@ record_20:
   position: 1
   flag: lock
   project: home_user6
+record_broken_publishing_build_disabled:
+  status: disable
+  position: 1
+  flag: build
+  project: BrokenPublishing
