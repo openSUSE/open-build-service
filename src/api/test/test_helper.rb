@@ -367,7 +367,7 @@ module Webui
     def delete_package project, package
       visit package_show_path(package: package, project: project)
       find(:id, 'delete-package').click
-      find(:id, 'del_dialog').must_have_text 'Delete Confirmation'
+      find(:id, 'del_dialog').must_have_text 'Do you really want to delete this package?'
       find_button('Ok').click
       find('#flash-messages').must_have_text "Package was successfully removed."
     end
