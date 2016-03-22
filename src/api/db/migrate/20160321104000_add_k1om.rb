@@ -1,4 +1,4 @@
-class Addk1om < ActiveRecord::Migration
+class AddK1om < ActiveRecord::Migration
   def self.up
     Architecture.where(name: "k1om").first_or_create
   end
