@@ -47,8 +47,8 @@ use BSBuild;
 
 use strict;
 
-undef $BSConfig::bsuser;	# need to stay root
-undef $BSConfig::bsgroup;
+$BSConfig::bsuser = $BSConfig::bsserviceuser;
+$BSConfig::bsgroup = $BSConfig::bsservicegroup;
 
 BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BSConfig::disable_data_sync;
 
