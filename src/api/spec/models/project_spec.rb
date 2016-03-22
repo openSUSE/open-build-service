@@ -110,5 +110,54 @@ RSpec.describe Project do
         )
       end
     end
+
+    describe "hostsystem" do
+      let!(:target_project) { create(:project, name: "target_project") }
+      let!(:target_repository) { create(:repository, name: 'target_repo', project: target_project) }
+
+      before do
+        repository_1.hostsystem = target_repository
+        repository_1.save!
+
+        @xml_hash = Xmlhash.parse(
+          <<-EOF
+            <project name="#{project.name}">
+              <repository name="repo_1" />
+              <repository name="repo_2">
+                <hostsystem repository="#{target_repository.name}" project="#{target_project.name}" />
+              </repository>
+            </project>
+          EOF
+        )
+      end
+
+      it "updates the hostsystem of a repository" do
+        project.update_repositories(@xml_hash, force = false)
+        expect(repository_1.reload.hostsystem).to be nil
+        expect(repository_2.reload.hostsystem).to eq target_repository
+      end
+
+      it "raises an error if hostsystem refers itself" do
+        xml_hash = Xmlhash.parse(
+          <<-EOF
+            <project name="#{project.name}">
+              <repository name="repo_2">
+                <hostsystem repository="repo_2" project="#{project.name}" />
+              </repository>
+            </project>
+          EOF
+        )
+        expect { project.update_repositories(xml_hash, force = false) }.to raise_error(
+          Project::SaveError, "Using same repository as hostsystem element is not allowed"
+        )
+      end
+
+      it "raises an error if target repository does not exist" do
+        target_repository.destroy
+        expect { project.update_repositories(@xml_hash, force = false) }.to raise_error(
+          Project::SaveError, "Unknown target repository 'target_project/target_repo'"
+        )
+      end
+    end
   end
 end
