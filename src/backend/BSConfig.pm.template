@@ -77,6 +77,12 @@ our @reposervers = ("http://$hostname:5252");
 our $bsdir = '/srv/obs';
 our $bsuser = 'obsrun';
 our $bsgroup = 'obsrun';
+# user and group for bs_service (if the lxc service wrapper is used, set
+# $bsserviceuser to root). If several obs services (e.g., bs_service and
+# bs_srcserver) run on the same host, make sure that $bsservicegroup is set
+# to $bsgroup.
+our $bsserviceuser = 'obsservicerun';
+our $bsservicegroup = $bsgroup;
 #our $bsquotafile = '/srv/obs/quota.xml';
 
 # Use asynchronus scheduler. This avoids hanging schedulers on remote projects,
