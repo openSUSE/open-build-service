@@ -55,5 +55,60 @@ RSpec.describe Project do
         expect(new_repo.linkedbuild).to eq "all"
       end
     end
+
+    describe "repositories with release targets" do
+      let!(:target_project) { create(:project, name: "target_project") }
+      let!(:target_repository) { create(:repository, name: 'target_repo', project: target_project) }
+      let!(:remote_repository) {
+        create(:repository, name: 'remote_repo', remote_project_name: "remote_project", project: project)
+      }
+      let!(:release_target) { create(:release_target, repository: repository_1) }
+
+      it "updates release targets" do
+        xml_hash = Xmlhash.parse(
+          <<-EOF
+            <project name="#{project.name}">
+              <repository name="repo_1">
+                <releasetarget project="#{target_project.name}" repository="#{target_repository.name}" trigger="manual" />
+              </repository>
+            </project>
+          EOF
+        )
+        project.update_repositories(xml_hash, force = false)
+
+        expect(repository_1.release_targets.count).to eq 1
+        expect(repository_1.release_targets.first.trigger).to eq "manual"
+      end
+
+      it "raises an error if target repository does not exist" do
+        xml_hash = Xmlhash.parse(
+          <<-EOF
+            <project name="#{project.name}">
+              <repository name="repo_1">
+                <releasetarget project="#{target_project.name}" repository="nonexistant_repo" trigger="manual" />
+              </repository>
+            </project>
+          EOF
+        )
+        expect { project.update_repositories(xml_hash, force = false) }.to raise_error(
+          Project::SaveError, "Unknown target repository 'target_project/nonexistant_repo'"
+        )
+      end
+
+      it "raises an error if target repository is a remote repository" do
+        xml_hash = Xmlhash.parse(
+          <<-EOF
+            <project name="#{project.name}">
+              <repository name="repo_1">
+                <releasetarget project="#{project.name}" repository="#{remote_repository.name}" trigger="manual" />
+              </repository>
+            </project>
+          EOF
+        )
+        expect { project.update_repositories(xml_hash, force = false) }.to raise_error(
+          Project::SaveError, "Unknown target repository '#{project.name}/remote_repo'"
+        )
+      end
+    end
   end
 end
