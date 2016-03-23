@@ -40,6 +40,17 @@ RSpec.feature "Login", :type => :feature, :js => true do
     end
   end
 
+  scenario "login with home project shows a link to it" do
+    login user
+    expect(page).to have_content "#{user.login} | Home Project | Logout"
+  end
+
+  scenario "login without home project shows a link to create it" do
+    Project.find_by(name: user.home_project_name).destroy
+    login user
+    expect(page).to have_content "#{user.login} | Create Home | Logout"
+  end
+
   scenario "login via login page" do
     visit user_login_path
     fill_in "Username", with: user.login
