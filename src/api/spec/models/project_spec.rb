@@ -249,5 +249,79 @@ RSpec.describe Project do
         expect(download_repository.pubkey).to eq "my_pubkey"
       end
     end
+
+    describe "path elements" do
+      let!(:other_project) { create(:project, name: "other_project") }
+      let!(:other_projects_repository) { create(:repository, name: 'other_repo', project: other_project) }
+      let!(:path_element) { create(:path_element, repository: repository_3) }
+
+      context "valid usecase" do
+        before do
+          xml_hash = Xmlhash.parse(
+            <<-EOF
+              <project name="#{project.name}">
+                <repository name="repo_1">
+                  <path project="other_project" repository="other_repo" />
+                  <path project="#{project.name}" repository="repo_3" />
+                </repository>
+                <repository name="repo_2">
+                  <path project="#{project.name}" repository="repo_3" />
+                </repository>
+                <repository name="repo_3" />
+              </project>
+            EOF
+          )
+          project.update_repositories(xml_hash, force = false)
+        end
+
+        it "updates path elements" do
+          expect(repository_1.path_elements.count).to eq 2
+
+          expect(repository_1.path_elements.find_by(position: 1).link.name).to eq "other_repo"
+          expect(repository_1.path_elements.find_by(position: 2).link.name).to eq "repo_3"
+        end
+
+        it "can handle dependencies between repositories" do
+          expect(repository_2.path_elements.count).to eq 1
+          expect(repository_2.path_elements.find_by(position: 1).link.name).to eq "repo_3"
+        end
+
+        it "removes path elements" do
+          expect(repository_3.path_elements.count).to eq 0
+        end
+      end
+
+      context "invalid usecase" do
+        it "raises an error when a repository refers itself" do
+          xml_hash = Xmlhash.parse(
+            <<-EOF
+              <project name="#{project.name}">
+                <repository name="repo_1">
+                  <path project="#{project.name}" repository="repo_1" />
+                </repository>
+              </project>
+            EOF
+          )
+          expect { project.update_repositories(xml_hash, force = false) }.to raise_error(
+            Project::SaveError, "Using same repository as path element is not allowed"
+          )
+        end
+
+        it "raises an error for non existant repository links" do
+          xml_hash = Xmlhash.parse(
+            <<-EOF
+              <project name="#{project.name}">
+                <repository name="repo_1">
+                  <path project="other_project" repository="nonexistant" />
+                </repository>
+              </project>
+            EOF
+          )
+          expect { project.update_repositories(xml_hash, force = false) }.to raise_error(
+            Project::SaveError, "unable to walk on path 'other_project/nonexistant'"
+          )
+        end
+      end
+    end
   end
 end
