@@ -17,4 +17,16 @@ RSpec.describe Webui::PackageController, vcr: true do
       it { expect(BsRequestActionSubmit.where(target_project: target_project, target_package: source_package).count).to eq(0) }
     end
   end
+
+  describe 'POST #save' do
+    before do
+      login(user)
+      post :save, { project: source_project, package: source_package, title: 'New title for package', description: 'New description for package' }
+    end
+
+    it { expect(flash[:notice]).to eq("Package data for '#{source_package.name}' was saved successfully") }
+    it { expect(source_package.reload.title).to eq('New title for package') }
+    it { expect(source_package.reload.description).to eq('New description for package') }
+    it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
+  end
 end
