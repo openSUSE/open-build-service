@@ -6,7 +6,7 @@ class Webui::ProjectLockTest < Webui::IntegrationTest
   uses_transaction :test_project_unlock
   uses_transaction :test_project_unlock_fails
 
-  def test_project_unlock
+  def test_project_unlock # spec/features/webui/projects_spec.rb
     use_js
     login_user('user6', 'buildservice')
     visit project_show_path(project: 'home:user6')
@@ -16,7 +16,7 @@ class Webui::ProjectLockTest < Webui::IntegrationTest
     find('#flash-messages').must_have_text "Successfully unlocked project"
   end
 
-  def test_project_unlock_fails
+  def test_project_unlock_fails # spec/features/webui/projects_spec.rb
     Project.any_instance.stubs(:can_be_unlocked?).returns(false)
     use_js
     login_user('user6', 'buildservice')

@@ -20,5 +20,11 @@ FactoryGirl.define do
         create(:access_flag, status: 'disable', project: project)
       end
     end
+
+    factory :locked_project do
+      after(:create) do |project|
+        create(:lock_flag, status: 'enable', project: project)
+      end
+    end
   end
 end
