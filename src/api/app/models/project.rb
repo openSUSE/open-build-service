@@ -681,6 +681,7 @@ class Project < ActiveRecord::Base
       unless target_repo
         raise SaveError.new("Unknown target repository '#{rt['project']}/#{rt['repository']}'")
       end
+      # FIXME: Repository.find_by_project_and_name uses a not_remote scope which makes this check obsolete
       unless target_repo.remote_project_name.nil?
         raise SaveError.new("Can not use remote repository as release target '#{rt['project']}/#{rt['repository']}'")
       end
