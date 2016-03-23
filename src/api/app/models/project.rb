@@ -457,7 +457,7 @@ class Project < ActiveRecord::Base
   end
 
   def is_remote?
-    !self.remoteurl.nil?
+    self.remoteurl.present?
   end
 
   def can_free_repositories?
@@ -677,15 +677,16 @@ class Project < ActiveRecord::Base
 
     # recreate release targets from xml
     repo.elements('releasetarget') do |rt|
-      target_repo = Repository.find_by_project_and_name(rt['project'], rt['repository'])
-      unless target_repo
-        raise SaveError.new("Unknown target repository '#{rt['project']}/#{rt['repository']}'")
+      if Project.find_by(name: rt['project']).is_remote?
+        raise SaveError, "Can not use remote repository as release target '#{rt['project']}/#{rt['repository']}'"
+      else
+        target_repo = Repository.find_by_project_and_name(rt['project'], rt['repository'])
+        if target_repo
+          current_repo.release_targets.new(target_repository: target_repo, trigger: rt['trigger'])
+        else
+          raise SaveError, "Unknown target repository '#{rt['project']}/#{rt['repository']}'"
+        end
       end
-      # FIXME: Repository.find_by_project_and_name uses a not_remote scope which makes this check obsolete
-      unless target_repo.remote_project_name.nil?
-        raise SaveError.new("Can not use remote repository as release target '#{rt['project']}/#{rt['repository']}'")
-      end
-      current_repo.release_targets.new :target_repository => target_repo, :trigger => rt['trigger']
     end
 
     # set host hostsystem

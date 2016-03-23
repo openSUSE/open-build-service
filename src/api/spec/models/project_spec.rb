@@ -59,8 +59,9 @@ RSpec.describe Project do
     describe "repositories with release targets" do
       let!(:target_project) { create(:project, name: "target_project") }
       let!(:target_repository) { create(:repository, name: 'target_repo', project: target_project) }
+      let!(:remote_project) { create(:project, name: "remote_project", remoteurl: "http://myOBS.org") }
       let!(:remote_repository) {
-        create(:repository, name: 'remote_repo', remote_project_name: "remote_project", project: project)
+        create(:repository, name: 'remote_repo', remote_project_name: "remote_project", project: remote_project)
       }
       let!(:release_target) { create(:release_target, repository: repository_1) }
 
@@ -100,13 +101,13 @@ RSpec.describe Project do
           <<-EOF
             <project name="#{project.name}">
               <repository name="repo_1">
-                <releasetarget project="#{project.name}" repository="#{remote_repository.name}" trigger="manual" />
+                <releasetarget project="#{remote_project.name}" repository="#{remote_repository.name}" trigger="manual" />
               </repository>
             </project>
           EOF
         )
         expect { project.update_repositories(xml_hash, force = false) }.to raise_error(
-          Project::SaveError, "Unknown target repository '#{project.name}/remote_repo'"
+          Project::SaveError, "Can not use remote repository as release target '#{remote_project.name}/remote_repo'"
         )
       end
     end
