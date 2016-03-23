@@ -6,7 +6,7 @@ class Webui::PackageEditTest < Webui::IntegrationTest
   uses_transaction :test_change_home_project_package_info
   uses_transaction :test_change_home_project_package_title
 
-  def setup
+  def setup # src/api/spec/controllers/webui/package_controller_spec.rb
     @package = 'TestPack'
     @project = 'home:Iggy'
     super
@@ -14,19 +14,19 @@ class Webui::PackageEditTest < Webui::IntegrationTest
 
   # ============================================================================
   #
-  def package_title
+  def package_title # src/api/spec/controllers/webui/package_controller_spec.rb
     find(:id, 'package_title').text
   end
 
   # ============================================================================
   #
-  def package_description
+  def package_description # src/api/spec/controllers/webui/package_controller_spec.rb
     find(:id, 'description_text').text
   end
 
   # ============================================================================
   #
-  def change_package_info new_info
+  def change_package_info new_info # src/api/spec/controllers/webui/package_controller_spec.rb
     assert !new_info[:title].blank? || !new_info[:description].blank?
 
     click_link('Edit description')
@@ -59,21 +59,21 @@ class Webui::PackageEditTest < Webui::IntegrationTest
     end
   end
 
-  def test_change_home_project_package_title
+  def test_change_home_project_package_title # src/api/spec/controllers/webui/package_controller_spec.rb
     login_Iggy to: package_show_path(:project => @project, :package => @package)
 
     change_package_info(
       :title => 'My Title hopefully got changed ' + Time.now.to_i.to_s)
   end
 
-  def test_change_home_project_package_description
+  def test_change_home_project_package_description # src/api/spec/controllers/webui/package_controller_spec.rb
     login_Iggy to: package_show_path(:project => @project, :package => @package)
 
     change_package_info(
       :description => 'New description. Not kidding.. Brand new! ' + Time.now.to_i.to_s)
   end
 
-  def test_change_home_project_package_info
+  def test_change_home_project_package_info # src/api/spec/controllers/webui/package_controller_spec.rb
     login_Iggy to: package_show_path(:project => @project, :package => @package)
 
     change_package_info(
