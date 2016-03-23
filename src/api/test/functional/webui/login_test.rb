@@ -68,21 +68,6 @@ class Webui::LoginTest < Webui::IntegrationTest
     end
     flash_message.must_equal "Authentication failed"
     flash_message_type.must_equal :alert
-
-    login_Iggy
-    logout
-  end
-
-  def test_login_empty_entry
-    visit root_path
-    click_link 'login-trigger'
-    within('#login-form') do
-      fill_in 'Username', with: ''
-      fill_in 'Password', with: ''
-      click_button 'Log In'
-    end
-    flash_message.must_equal "Authentication failed"
-    flash_message_type.must_equal :alert
   end
 
   def test_change_real_name_for_user
