@@ -74,13 +74,20 @@ RSpec.describe "Create Interconnect as admin and build pckg" do
     expect(page).to have_content("Build Results")
   end
 
-  it "should be able to check Build Results and see succeeded 3 times" do
+  it "should be able to check Build Results and see succeeded package built" do
     visit "/package/live_build_log/home:Admin/obs-build/openSUSE_Tumbleweed/i586"
     wait_for_ajax
     visit "/package/live_build_log/home:Admin/obs-build/openSUSE_Leap_42.1/x86_64"
     wait_for_ajax
     visit "/project/show/home:Admin/"
     click_link('Build Results')
-    page.all('a', :text =>'succeeded: 1', :count => 3, :wait => 30)
+    counter = 30
+    while (page.has_no_link?('scheduled: 1') || page.has_no_link?('building: 1')) && counter > 0 do
+      sleep(4)
+      click_link('Build Results')
+      puts "Refreshed Build Results @ #{Time.now}, #{counter} retries left."
+      counter -= 1
+    end
+    page.all('a', :text =>'succeeded: 1', :count => 2, :wait => 30)
   end
 end
