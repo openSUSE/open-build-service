@@ -31,7 +31,7 @@ class Webui::LoginTest < Webui::IntegrationTest
     user_real_name.must_equal new_name
   end
 
-  def test_login_as_user
+  def test_login_as_user # spec/features/webui/login_spec.rb
     use_js
 
     # Login via login page
@@ -58,7 +58,7 @@ class Webui::LoginTest < Webui::IntegrationTest
     assert_equal "king", find('#link-to-user-home').text
   end
 
-  def test_login_invalid_entry
+  def test_login_invalid_entry # spec/features/webui/login_spec.rb
     visit root_path
     click_link 'login-trigger'
     within('#login-form') do
