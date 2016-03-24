@@ -625,7 +625,31 @@ class Project < ActiveRecord::Base
   def update_one_repository_add_pathes(repo)
     current_repo = self.repositories.find_by_name(repo['name'])
 
-    # sync download on demand config
+    update_download_repositories(current_repo, repo)
+    update_path_elements(current_repo, repo)
+
+    current_repo.save!
+  end
+
+  def update_one_repository_without_path(repo)
+    current_repo = @repocache[repo['name']]
+    unless current_repo
+      logger.debug "adding repository '#{repo['name']}'"
+      current_repo = self.repositories.new(:name => repo['name'])
+    end
+    logger.debug "modifying repository '#{repo['name']}'"
+
+    update_repository_flags(current_repo, repo)
+    update_release_targets(current_repo, repo)
+    update_hostsystem(current_repo, repo)
+    update_repository_architectures(current_repo, repo)
+
+    current_repo.save!
+
+    @repocache.delete repo['name']
+  end
+
+  def update_download_repositories(current_repo, repo)
     download_repositories = []
     repo.elements('download').each do |xml_download|
       download_repository = DownloadRepository.new(arch: xml_download['arch'],
@@ -640,7 +664,9 @@ class Project < ActiveRecord::Base
       download_repositories << download_repository
     end
     current_repo.download_repositories.replace(download_repositories)
+  end
 
+  def update_path_elements(current_repo, repo)
     # destroy all current pathelements
     current_repo.path_elements.destroy_all
 
@@ -658,20 +684,9 @@ class Project < ActiveRecord::Base
       current_repo.path_elements.new(link: link_repo, position: position)
       position += 1
     end
-
-    current_repo.save!
   end
 
-  def update_one_repository_without_path(repo)
-    current_repo = @repocache[repo['name']]
-    unless current_repo
-      logger.debug "adding repository '#{repo['name']}'"
-      current_repo = self.repositories.new(:name => repo['name'])
-    end
-    logger.debug "modifying repository '#{repo['name']}'"
-
-    update_repository_flags(current_repo, repo)
-
+  def update_release_targets(current_repo, repo)
     # destroy all current releasetargets
     current_repo.release_targets.destroy_all
 
@@ -688,9 +703,10 @@ class Project < ActiveRecord::Base
         end
       end
     end
+  end
 
-    # set host hostsystem
-    if repo.has_key? 'hostsystem'
+  def update_hostsystem(current_repo, repo)
+    if repo.has_key?('hostsystem')
       hostsystem = Project.get_by_name repo['hostsystem']['project']
       target_repo = hostsystem.repositories.find_by_name repo['hostsystem']['repository']
       if repo['hostsystem']['project'] == self.name and repo['hostsystem']['repository'] == repo['name']
@@ -705,7 +721,9 @@ class Project < ActiveRecord::Base
     end
 
     current_repo.save! if current_repo.changed?
+  end
 
+  def update_repository_architectures(current_repo, repo)
     # destroy architecture references
     logger.debug "delete all of #{current_repo.id}"
     RepositoryArchitecture.delete_all(['repository_id = ?', current_repo.id])
@@ -721,10 +739,6 @@ class Project < ActiveRecord::Base
       current_repo.repository_architectures.create architecture: Architecture.archcache[arch], position: position
       position += 1
     end
-
-    current_repo.save!
-
-    @repocache.delete repo['name']
   end
 
   def update_repository_flags(current_repo, repo)
