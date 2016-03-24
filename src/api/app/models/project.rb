@@ -728,23 +728,9 @@ class Project < ActiveRecord::Base
   end
 
   def update_repository_flags(current_repo, repo)
-    if repo.has_key?('rebuild')
-      current_repo.rebuild = repo['rebuild']
-    else
-      current_repo.rebuild = nil
-    end
-
-    if repo.has_key?('block')
-      current_repo.block = repo['block']
-    else
-      current_repo.block = nil
-    end
-
-    if repo.has_key?('linkedbuild')
-      current_repo.linkedbuild = repo['linkedbuild']
-    else
-      current_repo.linkedbuild = nil
-    end
+    current_repo.rebuild     = repo['rebuild']
+    current_repo.block       = repo['block']
+    current_repo.linkedbuild = repo['linkedbuild']
   end
 
   def parse_develproject(xmlhash)
