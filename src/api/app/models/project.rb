@@ -586,14 +586,15 @@ class Project < ActiveRecord::Base
 
   def update_repositories(xmlhash, force)
     fill_repo_cache
+
+    xmlhash.elements('repository') do |repo_xml_hash|
+      update_repository_without_path_element(repo_xml_hash)
+    end
     # Some repositories might be refered by path elements before they appear in the
     # xml tree. Thus we have 2 iterations. First one goes through all repository
     # elements, second run handles path elements.
     # This can be the case when creating multiple repositories in a project where one
     # repository uses another one, eg. importing an existing config from elsewhere.
-    xmlhash.elements('repository') do |repo|
-      update_one_repository_without_path(repo)
-    end
     xmlhash.elements('repository') do |repo|
       current_repo = self.repositories.find_by_name(repo['name'])
       update_path_elements(current_repo, repo)
@@ -623,23 +624,23 @@ class Project < ActiveRecord::Base
     end
   end
 
-  def update_one_repository_without_path(repo)
-    current_repo = @repocache[repo['name']]
+  def update_repository_without_path_element(xml_hash)
+    current_repo = @repocache[xml_hash['name']]
     unless current_repo
-      logger.debug "adding repository '#{repo['name']}'"
-      current_repo = self.repositories.new(:name => repo['name'])
+      logger.debug "adding repository '#{xml_hash['name']}'"
+      current_repo = self.repositories.new(name: xml_hash['name'])
     end
-    logger.debug "modifying repository '#{repo['name']}'"
+    logger.debug "modifying repository '#{xml_hash['name']}'"
 
-    update_repository_flags(current_repo, repo)
-    update_release_targets(current_repo, repo)
-    update_hostsystem(current_repo, repo)
-    update_repository_architectures(current_repo, repo)
-    update_download_repositories(current_repo, repo)
+    update_repository_flags(current_repo, xml_hash)
+    update_release_targets(current_repo, xml_hash)
+    update_hostsystem(current_repo, xml_hash)
+    update_repository_architectures(current_repo, xml_hash)
+    update_download_repositories(current_repo, xml_hash)
 
     current_repo.save!
 
-    @repocache.delete repo['name']
+    @repocache.delete(xml_hash['name'])
   end
 
   def update_download_repositories(current_repo, xml_hash)
@@ -661,16 +662,16 @@ class Project < ActiveRecord::Base
     current_repo.download_repositories.replace(dod_repositories)
   end
 
-  def update_path_elements(current_repo, repo)
+  def update_path_elements(current_repo, xml_hash)
     # destroy all current pathelements
     current_repo.path_elements.destroy_all
-    return unless repo["path"]
+    return unless xml_hash["path"]
 
     # recreate pathelements from xml
     position = 1
-    repo.elements('path') do |path|
+    xml_hash.elements('path') do |path|
       link_repo = Repository.find_by_project_and_name(path['project'], path['repository'])
-      if path['project'] == self.name && path['repository'] == repo['name']
+      if path['project'] == self.name && path['repository'] == xml_hash['name']
         raise SaveError, 'Using same repository as path element is not allowed'
       end
       unless link_repo
@@ -724,13 +725,13 @@ class Project < ActiveRecord::Base
     current_repo.save! if current_repo.changed?
   end
 
-  def update_repository_architectures(current_repo, repo)
+  def update_repository_architectures(current_repo, xml_hash)
     # destroy architecture references
     logger.debug "delete all repository architectures of repository '#{self.id}'"
     RepositoryArchitecture.delete_all(['repository_id = ?', current_repo.id])
 
     position = 1
-    repo.elements('arch') do |arch|
+    xml_hash.elements('arch') do |arch|
       unless Architecture.archcache.has_key?(arch)
         raise SaveError, "unknown architecture: '#{arch}'"
       end
@@ -742,10 +743,10 @@ class Project < ActiveRecord::Base
     end
   end
 
-  def update_repository_flags(current_repo, repo)
-    current_repo.rebuild     = repo['rebuild']
-    current_repo.block       = repo['block']
-    current_repo.linkedbuild = repo['linkedbuild']
+  def update_repository_flags(current_repo, xml_hash)
+    current_repo.rebuild     = xml_hash['rebuild']
+    current_repo.block       = xml_hash['block']
+    current_repo.linkedbuild = xml_hash['linkedbuild']
   end
 
   def parse_develproject(xmlhash)
