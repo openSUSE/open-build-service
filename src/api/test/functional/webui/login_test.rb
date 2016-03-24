@@ -70,7 +70,7 @@ class Webui::LoginTest < Webui::IntegrationTest
     flash_message_type.must_equal :alert
   end
 
-  def test_change_real_name_for_user
+  def test_change_real_name_for_user # spec/features/webui/users/user_home_page.rb
     use_js
 
     login_Iggy
@@ -78,7 +78,7 @@ class Webui::LoginTest < Webui::IntegrationTest
     change_user_real_name Faker::Name.name
   end
 
-  def test_remove_user_real_name
+  def test_remove_user_real_name # spec/features/webui/users/user_home_page.rb
     use_js
 
     login_Iggy
@@ -86,7 +86,7 @@ class Webui::LoginTest < Webui::IntegrationTest
     change_user_real_name ""
   end
 
-  def test_real_name_stays_changed
+  def test_real_name_stays_changed # spec/features/webui/users/user_home_page.rb
     use_js
 
     login_Iggy
