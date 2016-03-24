@@ -595,7 +595,8 @@ class Project < ActiveRecord::Base
       update_one_repository_without_path(repo)
     end
     xmlhash.elements('repository') do |repo|
-      update_one_repository_add_pathes(repo)
+      current_repo = self.repositories.find_by_name(repo['name'])
+      update_path_elements(current_repo, repo)
     end
 
     # delete remaining repositories in @repocache
@@ -622,15 +623,6 @@ class Project < ActiveRecord::Base
     end
   end
 
-  def update_one_repository_add_pathes(repo)
-    current_repo = self.repositories.find_by_name(repo['name'])
-
-    update_download_repositories(current_repo, repo)
-    update_path_elements(current_repo, repo)
-
-    current_repo.save!
-  end
-
   def update_one_repository_without_path(repo)
     current_repo = @repocache[repo['name']]
     unless current_repo
@@ -643,6 +635,7 @@ class Project < ActiveRecord::Base
     update_release_targets(current_repo, repo)
     update_hostsystem(current_repo, repo)
     update_repository_architectures(current_repo, repo)
+    update_download_repositories(current_repo, repo)
 
     current_repo.save!
 
@@ -669,6 +662,7 @@ class Project < ActiveRecord::Base
   def update_path_elements(current_repo, repo)
     # destroy all current pathelements
     current_repo.path_elements.destroy_all
+    return unless repo["path"]
 
     # recreate pathelements from xml
     position = 1
@@ -684,6 +678,8 @@ class Project < ActiveRecord::Base
       current_repo.path_elements.new(link: link_repo, position: position)
       position += 1
     end
+
+    current_repo.save!
   end
 
   def update_release_targets(current_repo, repo)
