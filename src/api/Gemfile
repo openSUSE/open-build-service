@@ -45,6 +45,8 @@ gem 'bundler'
 gem 'acts_as_tree'
 # js plotting (OBS monitor)
 gem 'flot-rails'
+#
+gem 'jquery_mobile_rails'
 
 group :development, :production do
   # to have the delayed job daemon
