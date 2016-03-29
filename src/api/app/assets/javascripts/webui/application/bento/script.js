@@ -123,14 +123,16 @@ $(document).ready(function() {
   $('.dropdown-menu-content').hide(); // hide dropdown-menu
   
   $('.dropdown-menu').click(function() {
+    var objectID, date;
+
     if ($(".dropdown-menu-content").is(":hidden")) {
       if (this.id) { // if ID is set use this ID
-        var objectID = this.id;
+        objectID = this.id;
         // console.log('true');
         // console.log(objectID);
       } else { // if no ID is set create one
-        var date = new Date();
-        var objectID = $(this).attr('class') + '-' + date.getTime(); // make unique id
+        date = new Date();
+        objectID = $(this).attr('class') + '-' + date.getTime(); // make unique id
         $(this).attr('id', objectID);
       }
       dropDownMenu(objectID);
