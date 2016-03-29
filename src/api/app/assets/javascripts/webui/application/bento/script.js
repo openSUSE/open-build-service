@@ -34,7 +34,7 @@ $(document).ready(function() {
   $('#login-form input.inline-text').each(function() { // hide overlaying <label> elements if there input-elements are NOT empty.
     if ($(this).val()) { // check if value is set
       $(this).prev('label').addClass('focus').hide();
-    };
+    }
   });
   
   $('#login-form input').focus(function() { // hide label if input-field get focus
@@ -44,7 +44,7 @@ $(document).ready(function() {
   $('#login-form input').blur(function() { // show label if imput-field is empty and hase no focus
     if ($(this).val() === false) { // check if value is empty
       $('#login-form .focus').removeClass('focus').show();
-    };
+    }
   });
   
   $('#close-login').click(function() { // close login-form onClick
@@ -88,7 +88,7 @@ $(document).ready(function() {
       if (x0 === 1 || y0 === 1) {
         formStatus = closeLoginForm();
       }
-    };
+    }
     
   });
 
@@ -159,7 +159,7 @@ $(document).ready(function() {
     if (!dropDownMenuID) {
       dropDownMenuID = trigger_id + '-content';
       $("#"+trigger_id).next('ul').attr('id', dropDownMenuID);
-    };
+    }
     
     $("#"+dropDownMenuID).insertAfter('#footer');
     $("#"+dropDownMenuID).css({
@@ -196,7 +196,7 @@ $(document).ready(function() {
       return true;
     } else {
       return false;
-    };
+    }
   }
   
   // Close login-form
