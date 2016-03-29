@@ -38,8 +38,13 @@ var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 function addChangesEntryTemplate() {
-    date = new Date();
-    day = date.getUTCDate().toString();
+    var date = new Date(),
+        day = date.getUTCDate().toString(),
+        hours,
+        minutes,
+        seconds,
+        templ;
+
     if (day.length === 1) { day = " " + day; } // Pad single character day value
     hours = date.getUTCHours();
     if (hours < 10) { hours = '0' + hours; }

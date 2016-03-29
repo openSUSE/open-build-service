@@ -1,7 +1,7 @@
 function sz(t) {
-    a = t.value.split('\n');
-    b = 1;
-    for (x = 0; x < a.length; x++) {
+    var a = t.value.split('\n');
+    var b = 1;
+    for (var x = 0; x < a.length; x++) {
         if (a[x].length >= t.cols) b += Math.floor(a[x].length / t.cols);
     }
     b += a.length;
