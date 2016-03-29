@@ -1,6 +1,3 @@
-var a=new Date;
-if(18==a.getDate()&&0==a.getMonth()&&2012==a.getFullYear())window.location="http://sopastrike.com/strike";
-
 $(document).ready(function() {
   
   // == Login Form UI Actions ================================================
