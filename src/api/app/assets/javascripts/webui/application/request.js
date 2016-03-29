@@ -76,7 +76,7 @@ function requestAddAcceptRequestButton() {
         }
         if ($('.forward_checkbox').size() !== 0 &&
             $('.forward_checkbox').is(':checked')) {
-            $('.forward_checkbox').each(function (index) {
+            $('.forward_checkbox').each(function () {
                 additional_element = '<input id="' + $(this).attr('id') +
                     '" name="' + $(this).attr('name') +
                     '" type="hidden" value="' + $(this).attr('value') + '"/>';
@@ -87,6 +87,7 @@ function requestAddAcceptRequestButton() {
 }
 
 function requestShowReview() {
+    var index;
     $('.review_descision_link').click(function (event) {
         $('#review_descision_select li.selected').attr('class', '');
         $(event.target).parent().attr('class', 'selected');
@@ -161,6 +162,7 @@ function requestAddReviewAutocomplete() {
 }
 
 function setupActionLink() {
+    var index;
     $('.action_select_link').click(function (event) {
         $('#action_select li.selected').attr('class', '');
         $(event.target).parent().attr('class', 'selected');
