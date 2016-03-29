@@ -19,7 +19,7 @@
 //= require jquery.flot
 //= require jquery.flot.resize
 //= require jquery.flot.time
-//= require jquery.expander.js
+//= require jquery.expander.min.js
 //= require jquery_ujs
 //= require dataTables/jquery.dataTables
 //= require cocoon
