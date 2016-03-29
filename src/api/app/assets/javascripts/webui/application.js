@@ -16,13 +16,14 @@
 //= require jquery.ui.tabs
 //= require jquery.ui.tooltip
 //= require jquery.tokeninput
+//= require jquery.flot
+//= require jquery.flot.resize
+//= require jquery.flot.time
 //= require jquery_ujs
 //= require dataTables/jquery.dataTables
 //= require cocoon
 //
 //= require webui/application/jquery.expander.js
-//= require webui/application/jquery.flot.js
-//= require webui/application/jquery.flot.stack.js
 //= require webui/application/bento/script.js
 //= require webui/application/bento/global-navigation.js
 //= require webui/application/bento/l10n/global-navigation-data-en_US.js

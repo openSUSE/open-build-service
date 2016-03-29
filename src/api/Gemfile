@@ -43,6 +43,8 @@ gem 'responders', '~> 2.0'
 gem 'bundler'
 # for threaded comments
 gem 'acts_as_tree'
+# js plotting (OBS monitor)
+gem 'flot-rails'
 
 group :development, :production do
   # to have the delayed job daemon
