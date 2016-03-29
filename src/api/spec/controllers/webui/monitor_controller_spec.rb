@@ -18,6 +18,12 @@ RSpec.describe Webui::MonitorController, vcr: true do
   end
 
   describe "GET #update_building" do
+    before do
+        xhr :get, :update_building
+        @json_response = JSON.parse(response.body)
+    end
+
+    it { expect(@json_response).to have_key('simulated') } # it relays on a simulated VCR cassette
   end
 
   describe "GET #events" do
