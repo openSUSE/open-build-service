@@ -32,7 +32,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
       flash_message.must_equal message_prefix + 'was created successfully'
       flash_message_type.must_equal :info
       new_package[:description] = 'No description set' if new_package[:description].empty?
-      assert_equal new_package[:description].gsub(%r{\s+}, ' '), find(:id, 'description_text').text
+      assert_equal new_package[:description].gsub(%r{\s+}, ' '), find(:id, 'description-text').text
     elsif new_package[:expect] == :invalid_name
       flash_message.must_equal "Invalid package name: '#{new_package[:name]}'"
       flash_message_type.must_equal :alert
