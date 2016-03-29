@@ -116,7 +116,7 @@ function refresh(newoffset, initial) {
 			cache: false };
 	
 	var baseurl = lw.data('url');
-	options['url'] = baseurl + '&offset=' + lw.data("offset") + ';&' + 'initial=' + initial;
+	options.url = baseurl + '&offset=' + lw.data("offset") + ';&' + 'initial=' + initial;
 	lw.data("ajaxreq", $.ajax(options));
     }
 }
