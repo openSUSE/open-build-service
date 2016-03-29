@@ -70,7 +70,7 @@ function goto_url(url) {
         document.forms[0].elements[0].blur();
         return;
     }
-    window.open(url, 'helpwindow', 'toolbar=yes,location=yes,scrollbars=yes')
+    window.open(url, 'helpwindow', 'toolbar=yes,location=yes,scrollbars=yes');
     document.forms[0].reset();
     document.forms[0].elements[0].blur();
 }
@@ -133,19 +133,19 @@ function project_monitor_ready() {
         $("#archbox").hide();
         $("#repobox").hide();
         return false;
-    })
+    });
     $("#archlink").click(function () {
         toggleBox($(this), "#archbox");
         $("#statusbox").hide();
         $("#repobox").hide();
         return false;
-    })
+    });
     $("#repolink").click(function () {
         toggleBox($(this), "#repobox");
         $("#archbox").hide();
         $("#statusbox").hide();
         return false;
-    })
+    });
 
     $("#statusbox_close").click(function () {
         $("#statusbox").hide();
@@ -283,7 +283,7 @@ function change_role(obj) {
     if (obj.is(':checked')) {
         url = $('#involved_users').data("save-" + type);
     } else {
-        url = $('#involved_users').data("remove")
+        url = $('#involved_users').data("remove");
     }
 
     $('#' + type + '_spinner').show();

@@ -11,7 +11,7 @@ function sz(t) {
 function setup_comment_toggles() {
     $('.togglable_comment').click(function () {
         var toggleid = $(this).data("toggle");
-        $("#" + toggleid).toggle()
+        $("#" + toggleid).toggle();
     });
 }
 

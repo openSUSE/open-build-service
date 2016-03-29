@@ -67,7 +67,7 @@
 	    this.cm.setOption(name, function(cm) { 
 		(value)(cm); 
 		if(typeof(oldval) == 'function') (oldval)(cm);  
-	    })
+	    });
 	}
     }
     
@@ -126,7 +126,7 @@
 		modeSelector.appendChild(option);
 	    }
 	}
-	var selectedType = this.cm.getOption('fileType')
+	var selectedType = this.cm.getOption('fileType');
 	if(selectedType != null) {
 	    modeSelector.value = document.getElementById(selectedType+'_'+this.cm.id).value;
 	    this.cm.setOption('mode', modeSelector.value);
@@ -252,7 +252,7 @@
 	    cursor = this.cm.getSearchCursor(query, begin);
 	    cursor.findNext();
 	}
-	if(typeof(mark) != 'undefined') mark.clear()
+	if(typeof(mark) != 'undefined') mark.clear();
 	var found = cursor.findNext();
 	if(found == true) {
 	    mark = this.cm.markText(cursor.from(), cursor.to(), 'CodeMirror-markNextPrev');
@@ -402,7 +402,7 @@
     function autoFormat(cm, elt) {
 	this.cm = cm;
 	if(this.cm.somethingSelected()) {
-	    this.cm.autoFormatRange(this.cm.getCursor(true), this.cm.getCursor(false))
+	    this.cm.autoFormatRange(this.cm.getCursor(true), this.cm.getCursor(false));
 	}
 	else {
 	    var totalLines = this.cm.lineCount();

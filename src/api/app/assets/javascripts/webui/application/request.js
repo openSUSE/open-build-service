@@ -71,7 +71,7 @@ function requestAddAcceptRequestButton() {
             $('.submitter_is_maintainer_checkbox').is(':checked')) {
             additional_element = '<input id="' + $('.submitter_is_maintainer_checkbox').attr('id') +
                 '" name="' + $('.submitter_is_maintainer_checkbox').attr('name') +
-                '" type="hidden" value="' + $('.submitter_is_maintainer_checkbox').attr('value') + '"/>'
+                '" type="hidden" value="' + $('.submitter_is_maintainer_checkbox').attr('value') + '"/>';
             $('#request_handle_form p:last').append(additional_element);
         }
         if ($('.forward_checkbox').size() != 0 &&
@@ -79,7 +79,7 @@ function requestAddAcceptRequestButton() {
             $('.forward_checkbox').each(function (index) {
                 additional_element = '<input id="' + $(this).attr('id') +
                     '" name="' + $(this).attr('name') +
-                    '" type="hidden" value="' + $(this).attr('value') + '"/>'
+                    '" type="hidden" value="' + $(this).attr('value') + '"/>';
                 $('#request_handle_form p:last').append(additional_element);
             });
         }
@@ -89,9 +89,9 @@ function requestAddAcceptRequestButton() {
 function requestShowReview() {
     $('.review_descision_link').click(function (event) {
         $('#review_descision_select li.selected').attr('class', '');
-        $(event.target).parent().attr('class', 'selected')
+        $(event.target).parent().attr('class', 'selected');
         $('.review_descision_display').hide();
-        index = event.target.id.split('review_descision_link_')[1]
+        index = event.target.id.split('review_descision_link_')[1];
         $('#review_descision_display_' + index).show();
         return false;
     });
@@ -163,9 +163,9 @@ function requestAddReviewAutocomplete() {
 function setupActionLink() {
     $('.action_select_link').click(function (event) {
         $('#action_select li.selected').attr('class', '');
-        $(event.target).parent().attr('class', 'selected')
+        $(event.target).parent().attr('class', 'selected');
         $('.action_display').hide();
-        index = event.target.id.split('action_select_link_')[1]
+        index = event.target.id.split('action_select_link_')[1];
         $('#action_display_' + index).show();
         return false;
     });
