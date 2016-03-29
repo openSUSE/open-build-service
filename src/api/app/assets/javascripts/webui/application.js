@@ -66,7 +66,7 @@ function toggle_display_by_name(element_name) {
 
 // open url in a new browser instance
 function goto_url(url) {
-    if (url == '') {
+    if (url === '') {
         document.forms[0].reset();
         document.forms[0].elements[0].blur();
         return;
@@ -99,10 +99,10 @@ function setup_buildresult_tooltip(element_id, url) {
 }
 
 function fillEmptyFields() {
-    if (document.getElementById('username').value == '') {
+    if (document.getElementById('username').value === '') {
         document.getElementById('username').value = "_";
     }
-    if (document.getElementById('password').value == '') {
+    if (document.getElementById('password').value === '') {
         document.getElementById('password').value = "_";
     }
 }

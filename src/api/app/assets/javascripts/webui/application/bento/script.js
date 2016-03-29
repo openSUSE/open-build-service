@@ -42,7 +42,7 @@ $(document).ready(function() {
   });
 
   $('#login-form input').blur(function() { // show label if imput-field is empty and hase no focus
-    if ($(this).val() == false) { // check if value is empty
+    if ($(this).val() === false) { // check if value is empty
       $('#login-form .focus').removeClass('focus').show();
     };
   });
@@ -55,7 +55,7 @@ $(document).ready(function() {
 	// TODO: this can be replaced with a .mouseleave() event
   $(document).click(function(event) { // events to perform on mouse-click somewhere on document
 
-    if (formStatus == true) { // check if form is open
+    if (formStatus === true) { // check if form is open
 
       // save mouse-click position
       xClick = event.pageX;
@@ -74,7 +74,7 @@ $(document).ready(function() {
       var y0 = 0;
       
       // work around for unmotivated clicks in webkit
-      if (xClick == 0 && yClick == 0) { return; }
+      if (xClick === 0 && yClick === 0) { return; }
 
       // Check if Click was inside or outside of form
       if (xClick < x1 || xClick > x2) {
@@ -85,7 +85,7 @@ $(document).ready(function() {
       }
       
       // If 1 (true) clode form
-      if (x0 == 1 || y0 == 1) {
+      if (x0 === 1 || y0 === 1) {
         formStatus = closeLoginForm();
       }
     };
@@ -191,7 +191,7 @@ $(document).ready(function() {
   // Show overlaying <label>, if <input> is emty, else do nothing
   function showLabel (e) {
     var eVal = $('#' + e).val(); // get <input> value
-    if (eVal == false) { // check if value is empty and show <label> again
+    if (eVal === false) { // check if value is empty and show <label> again
       $('label[for="' + e + '"]').removeClass('focus').show();
       return true;
     } else {
