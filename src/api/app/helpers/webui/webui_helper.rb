@@ -206,11 +206,11 @@ module Webui::WebuiHelper
 
   def description_wrapper(description)
     if description.blank?
-      content_tag(:p, id: 'description_text') do
+      content_tag(:p, id: 'description-text') do
         content_tag(:i, 'No description set')
       end
     else
-      content_tag(:pre, description, id: 'description_text', class: 'plain')
+      content_tag(:pre, description, id: 'description-text', class: 'plain')
     end
   end
 
