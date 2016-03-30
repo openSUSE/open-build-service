@@ -31,7 +31,7 @@ class Webui::LoginTest < Webui::IntegrationTest
     user_real_name.must_equal new_name
   end
 
-  def test_login_as_user
+  def test_login_as_user # spec/features/webui/login_spec.rb
     use_js
 
     # Login via login page
@@ -58,7 +58,7 @@ class Webui::LoginTest < Webui::IntegrationTest
     assert_equal "king", find('#link-to-user-home').text
   end
 
-  def test_login_invalid_entry
+  def test_login_invalid_entry # spec/features/webui/login_spec.rb
     visit root_path
     click_link 'login-trigger'
     within('#login-form') do
@@ -68,24 +68,9 @@ class Webui::LoginTest < Webui::IntegrationTest
     end
     flash_message.must_equal "Authentication failed"
     flash_message_type.must_equal :alert
-
-    login_Iggy
-    logout
   end
 
-  def test_login_empty_entry
-    visit root_path
-    click_link 'login-trigger'
-    within('#login-form') do
-      fill_in 'Username', with: ''
-      fill_in 'Password', with: ''
-      click_button 'Log In'
-    end
-    flash_message.must_equal "Authentication failed"
-    flash_message_type.must_equal :alert
-  end
-
-  def test_change_real_name_for_user
+  def test_change_real_name_for_user # spec/features/webui/users/user_home_page.rb
     use_js
 
     login_Iggy
@@ -93,7 +78,7 @@ class Webui::LoginTest < Webui::IntegrationTest
     change_user_real_name Faker::Name.name
   end
 
-  def test_remove_user_real_name
+  def test_remove_user_real_name # spec/features/webui/users/user_home_page.rb
     use_js
 
     login_Iggy
@@ -101,7 +86,7 @@ class Webui::LoginTest < Webui::IntegrationTest
     change_user_real_name ""
   end
 
-  def test_real_name_stays_changed
+  def test_real_name_stays_changed # spec/features/webui/users/user_home_page.rb
     use_js
 
     login_Iggy
