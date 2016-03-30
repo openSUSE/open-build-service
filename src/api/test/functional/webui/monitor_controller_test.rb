@@ -3,7 +3,7 @@ require_relative '../../test_helper'
 class Webui::MonitorControllerTest < Webui::IntegrationTest
   uses_transaction :test_reload_monitor
 
-  def test_monitor
+  def test_monitor # src/api/spec/controllers/webui/monitor_controller_spec.rb
     visit monitor_path
     assert find(:id, "header-logo")
 
@@ -15,7 +15,7 @@ class Webui::MonitorControllerTest < Webui::IntegrationTest
     Timecop.return
   end
 
-  def test_reload_monitor
+  def test_reload_monitor # src/api/spec/controllers/webui/monitor_controller_spec.rb
     skip "random failures here on travis"
     use_js
 
