@@ -78,7 +78,10 @@ sub jobfinished {
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath);
   $changed->{$prp} = 2 if $useforbuildenabled;
-  rename($meta, "$gdst/:meta/$packid") if $meta;
+  if ($meta) {
+    mkdir_p("$gdst/:meta");
+    rename($meta, "$gdst/:meta/$packid");
+  }
   my $repounchanged = $gctx->{'repounchanged'};
   delete $repounchanged->{$prp} if $useforbuildenabled;
   $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
