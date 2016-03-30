@@ -899,6 +899,7 @@ class BsRequest < ActiveRecord::Base
     # apply default values, expand and do permission checks
     self.creator ||= User.current.login
     self.commenter ||= User.current.login
+    # FIXME: Move permission checks to controller level
     unless self.creator == User.current.login or User.current.is_admin?
       raise SaveError, 'Admin permissions required to set request creator to foreign user'
     end
