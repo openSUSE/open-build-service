@@ -3,6 +3,11 @@ require "browser_helper"
 RSpec.feature "Projects", :type => :feature, :js => true do
   let!(:user) { create(:confirmed_user, login: "Jane") }
 
+  it_behaves_like 'user tab' do
+    let(:project_path) { project_show_path(project: user_tab_user.home_project_name) }
+    let(:project) { Project.find_by_name(user_tab_user.home_project_name) }
+  end
+
   scenario "project show" do
     login user
     visit project_show_path(project: user.home_project_name)
@@ -34,8 +39,35 @@ RSpec.feature "Projects", :type => :feature, :js => true do
     expect(find('#project_title').text).to eq("#{user.home_project_name}:coolstuff")
   end
 
-  it_behaves_like 'user tab' do
-    let(:project_path) { project_show_path(project: user_tab_user.home_project_name) }
-    let(:project) { Project.find_by_name(user_tab_user.home_project_name) }
+  describe "locked projects" do
+    let!(:locked_project) { create(:locked_project, name: "locked_project") }
+    let!(:relationship) { create(:relationship, project: locked_project, user: user) }
+
+    before do
+      login user
+      visit project_show_path(project: locked_project.name)
+    end
+
+    scenario "unlock project" do
+      click_link("Unlock project")
+      fill_in "comment", with: "Freedom at last!"
+      click_button("Ok")
+      expect(page).to have_text("Successfully unlocked project")
+
+      visit project_show_path(project: locked_project.name)
+      expect(page).not_to have_text("is locked")
+    end
+
+    scenario "unlock project" do
+      Project.any_instance.stubs(:can_be_unlocked?).returns(false)
+
+      click_link("Unlock project")
+      fill_in "comment", with: "Freedom at last!"
+      click_button("Ok")
+      expect(page).to have_text("Project can't be unlocked")
+
+      visit project_show_path(project: locked_project.name)
+      expect(page).to have_text("is locked")
+    end
   end
 end
