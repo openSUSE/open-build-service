@@ -209,7 +209,7 @@ sub cpio_nextfile {
       @s = stat($fd);
       if (!@s) {
 	$ev->{'cpioerrors'} .= "$file->{'name'}: stat: $!\n";
-	close($fd) if !ref($file->{'filename'});
+	close($fd);
 	next;
       }
       if (ref($file->{'filename'})) {
@@ -232,6 +232,17 @@ sub cpio_nextfile {
   }
 }
 
+sub cpio_closehandler {
+  my ($ev) = @_;
+  my $files = $ev->{'files'};
+  my $filesno = defined($ev->{'filesno'}) ? $ev->{'filesno'} + 1 : 0;
+  while ($filesno < @$files) {
+    my $file = $files->[$filesno];
+    close($file->{'filename'}) if ref($file->{'filename'});
+    $filesno++;
+  }
+}
+
 sub reply_cpio {
   my ($files, @hdrs) = @_;
   my $rev = BSEvents::new('always');
@@ -239,6 +250,7 @@ sub reply_cpio {
   $rev->{'cpioerrors'} = '';
   $rev->{'makechunks'} = 1;
   $rev->{'eofhandler'} = \&cpio_nextfile;
+  $rev->{'closehandler'} = \&cpio_closehandler;
   unshift @hdrs, 'Content-Type: application/x-cpio';
   reply_stream($rev, @hdrs);
 }
