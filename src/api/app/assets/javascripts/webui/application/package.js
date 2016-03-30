@@ -4,7 +4,9 @@ function makeServicesDragable() {
 	update: function(event, ui) {
 	    var position = -1;
 	    $(this).find(".service").each(function(index) {
-		if ($(this).attr("id") == ui.item.attr("id")) { position = index; }
+		if ($(this).attr("id") === ui.item.attr("id")) {
+                    position = index;
+                }
 	    });
 	    $("#services").animate({opacity: 0.2}, 500);
 	    $("#services").sortable('disable');
@@ -36,9 +38,14 @@ var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 var MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 function addChangesEntryTemplate() {
-    date = new Date();
-    day = date.getUTCDate().toString();
-    if (day.length == 1) { day = " " + day; } // Pad single character day value
+    var date = new Date(),
+        day = date.getUTCDate().toString(),
+        hours,
+        minutes,
+        seconds,
+        templ;
+
+    if (day.length === 1) { day = " " + day; } // Pad single character day value
     hours = date.getUTCHours();
     if (hours < 10) { hours = '0' + hours; }
     minutes = date.getUTCMinutes();
@@ -94,7 +101,7 @@ function remove_ajaxreq() {
 function stop_refresh() {
     var lw = $('#log_space_wrapper');
     lw.data("autorefresh", 0);
-    if (lw.data("ajaxreq") != 0)
+    if (lw.data("ajaxreq") !== 0)
 	lw.data("ajaxreq").abort();
     lw.data("ajaxreq", 0);
     $('.stop_refresh').hide();
@@ -114,7 +121,7 @@ function refresh(newoffset, initial) {
 			cache: false };
 	
 	var baseurl = lw.data('url');
-	options['url'] = baseurl + '&offset=' + lw.data("offset") + ';&' + 'initial=' + initial;
+	options.url = baseurl + '&offset=' + lw.data("offset") + ';&' + 'initial=' + initial;
 	lw.data("ajaxreq", $.ajax(options));
     }
 }

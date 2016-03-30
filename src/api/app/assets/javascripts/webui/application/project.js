@@ -43,8 +43,8 @@ function renderProjectsTable(length) {
 }
 
 function renderPackagesProjectsTable(options) {
-    var length = options.length || 25
-    var name = options.name || "packages_projects_wrapper"
+    var length = options.length || 25;
+    var name = options.name || "packages_projects_wrapper";
 
     var packageurl = $("#" + name).data("url");
     $("#" + name).html("<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"display\" id=\"" + name + '_table' + "\"></table>");

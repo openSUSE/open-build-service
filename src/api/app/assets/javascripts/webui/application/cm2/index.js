@@ -70,7 +70,7 @@ function use_codemirror(id, read_only, mode) {
     matchBrackets: false,
     fontSize: '9pt',
     mode: mode
-  }
+  };
   if (read_only) {
     codeMirrorOptions['readOnly'] = true;
   }
