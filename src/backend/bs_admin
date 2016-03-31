@@ -61,6 +61,7 @@ my $srcrepdir = "$BSConfig::bsdir/sources";
 my $configfile = "$BSConfig::bsdir/configuration.xml";
 my $treesdir = $nosharedtrees ? "$BSConfig::bsdir/trees" : $srcrepdir;
 my $sourcedb = "$BSConfig::bsdir/db/source";
+my $rundir  = "$BSConfig::bsdir/run";
 
 
 sub echo_help {
