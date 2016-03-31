@@ -20,7 +20,7 @@ class Webui::ProjectEditTest < Webui::IntegrationTest
   # will probably get trimmed and stripped when displayed.
   #
   def project_description
-    find(:id, 'description_text').text
+    find(:id, 'description-text').text
   end
 
   # ============================================================================

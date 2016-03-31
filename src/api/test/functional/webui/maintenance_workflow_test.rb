@@ -57,7 +57,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
 
     find(:link, 'open request').click
     first('.request_link').click
-    find(:id, 'description_text').text.must_equal 'I want the update'
+    find(:id, 'description-text').text.must_equal 'I want the update'
     find(:id, 'action_display_0').must_have_text ('Release in BaseDistro2.0:LinkedUpdateProject')
     fill_in 'reason', with: 'really? ok'
     find(:id, 'accept_request_button').click
@@ -112,7 +112,7 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
 
     find(:link, 'open request').click
     first('.request_link').click
-    find(:id, 'description_text').text.must_equal 'I have a additional fix'
+    find(:id, 'description-text').text.must_equal 'I have a additional fix'
     find(:link, 'Merge with existing incident').click
     # set to not existing incident
     fill_in 'incident_project', with: '2'

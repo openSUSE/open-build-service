@@ -170,9 +170,9 @@ RSpec.describe Webui::WebuiHelper do
   describe '#remove_dialog_tag' do
     it "generates a 'pre' element and uses it's parameter as text field" do
       expect(description_wrapper('some description')).to eq(
-        '<pre id="description_text" class="plain">some description</pre>')
+        '<pre id="description-text" class="plain">some description</pre>')
       expect(description_wrapper('some other description')).to eq(
-        '<pre id="description_text" class="plain">some other description</pre>')
+        '<pre id="description-text" class="plain">some other description</pre>')
     end
   end
 

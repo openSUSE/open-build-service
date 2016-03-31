@@ -239,7 +239,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     login_adrian to: project_show_path(project: 'home:adrian:hasrepotoremove')
     find('#tab-requests a').click # The project tab "Requests"
     find('.request_link').click # Should be the first and only request for this project
-    find(:id, 'description_text').text.must_equal "I don't like the repo"
+    find(:id, 'description-text').text.must_equal "I don't like the repo"
     fill_in 'reason', with: 'really? ok'
     find(:id, 'accept_request_button').click
     visit project_show_path(project: 'home:adrian:hasrepotoremove')

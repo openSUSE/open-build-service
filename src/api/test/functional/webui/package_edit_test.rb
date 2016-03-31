@@ -21,7 +21,7 @@ class Webui::PackageEditTest < Webui::IntegrationTest
   # ============================================================================
   #
   def package_description # src/api/spec/controllers/webui/package_controller_spec.rb
-    find(:id, 'description_text').text
+    find(:id, 'description-text').text
   end
 
   # ============================================================================

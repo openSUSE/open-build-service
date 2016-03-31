@@ -3,7 +3,7 @@
 <% @crumb_list = ["Request #{@id}"] %>
 
 <%= content_for :ready_function do %>
-    $('#description').expander({slicePoint: 300, expandText: '[+]', expandPrefix: ' ', userCollapseText: '[-]',});
+    $('#description-text').expander({slicePoint: 300, expandText: '[+]', expandPrefix: ' ', userCollapseText: '[-]',});
 <% end %>
 
 <div id="request_navigation_box" style="position: absolute; right: 0.3em;">

@@ -404,6 +404,7 @@ class User < ActiveRecord::Base
 
     def get_by_login(login)
       user = find_by_login!(login)
+      # FIXME: Move permission checks to controller level
       unless User.current.is_admin? or user == User.current
         raise NoPermission.new "User #{login} can not be accessed by #{User.current.login}"
       end

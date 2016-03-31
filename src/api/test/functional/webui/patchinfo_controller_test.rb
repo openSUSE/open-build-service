@@ -91,7 +91,7 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     page.must_have_text "This update was submitted from #{current_user}"
     page.must_have_text "and rated as low"
 
-    assert_equal find(:id, "description_text").text, description
+    assert_equal find(:id, "description-text").text, description
     page.must_have_selector("#zypp_false")
     page.must_have_selector("#reboot_false")
     page.must_have_selector("#relogin_false")
