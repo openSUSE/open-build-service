@@ -642,21 +642,23 @@ class Project < ActiveRecord::Base
     @repocache.delete repo['name']
   end
 
-  def update_download_repositories(current_repo, repo)
-    download_repositories = []
-    repo.elements('download').each do |xml_download|
-      download_repository = DownloadRepository.new(arch: xml_download['arch'],
-                    url: xml_download['url'],
-                    repotype: xml_download['repotype'],
-                    archfilter: xml_download['archfilter'],
-                    pubkey: xml_download['pubkey'])
-      if xml_download['master']
-         download_repository.masterurl = xml_download['master']['url']
-         download_repository.mastersslfingerprint = xml_download['master']['sslfingerprint']
+  def update_download_repositories(current_repo, xml_hash)
+    dod_repositories = xml_hash.elements("download").map do |dod|
+      dod_attributes = {
+         arch:       dod["arch"],
+         url:        dod["url"],
+         repotype:   dod["repotype"],
+         archfilter: dod["archfilter"],
+         pubkey:     dod["pubkey"]
+      }
+      if dod["master"]
+        dod_attributes[:masterurl]            = dod["master"]["url"]
+        dod_attributes[:mastersslfingerprint] = dod["master"]["sslfingerprint"]
       end
-      download_repositories << download_repository
+
+      DownloadRepository.new(dod_attributes)
     end
-    current_repo.download_repositories.replace(download_repositories)
+    current_repo.download_repositories.replace(dod_repositories)
   end
 
   def update_path_elements(current_repo, repo)
