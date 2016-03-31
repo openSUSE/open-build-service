@@ -726,18 +726,18 @@ class Project < ActiveRecord::Base
 
   def update_repository_architectures(current_repo, repo)
     # destroy architecture references
-    logger.debug "delete all of #{current_repo.id}"
+    logger.debug "delete all repository architectures of repository '#{self.id}'"
     RepositoryArchitecture.delete_all(['repository_id = ?', current_repo.id])
 
     position = 1
     repo.elements('arch') do |arch|
-      unless Architecture.archcache.has_key? arch
+      unless Architecture.archcache.has_key?(arch)
         raise SaveError, "unknown architecture: '#{arch}'"
       end
       if current_repo.repository_architectures.where(architecture: Architecture.archcache[arch]).exists?
         raise SaveError, "double use of architecture: '#{arch}'"
       end
-      current_repo.repository_architectures.create architecture: Architecture.archcache[arch], position: position
+      current_repo.repository_architectures.create(architecture: Architecture.archcache[arch], position: position)
       position += 1
     end
   end
