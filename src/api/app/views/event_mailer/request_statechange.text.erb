@@ -1,6 +1,6 @@
-Visit <%= url_for(controller: 'webui/request', action: :show, id: @e['id'], host: @host, only_path: false) %>
+Visit <%= url_for(controller: 'webui/request', action: :show, number: @e['number'], host: @host, only_path: false) %>
 
-State of request <%= @e['id']%> was changed by <%= @e['who']%>:
+State of request <%= @e['number']%> was changed by <%= @e['who']%>:
 
   <%= @e['oldstate']%> -> <%= @e['state']%>
 

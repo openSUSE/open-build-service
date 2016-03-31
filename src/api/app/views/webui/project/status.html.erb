@@ -81,7 +81,7 @@
               icon = "error"
             elsif c == 'currently_declined'
               outs << link_to("Current sources were declined: request #{p['currently_declined']}", 
-                              :controller => :request, :action => :show, :id => p['currently_declined'])
+                              :controller => :request, :action => :show, :number => p['currently_declined'])
               sortkey = "2-declines-" + p['name']
               icon = "error"
             else
@@ -93,12 +93,12 @@
           end
         end
         p['requests_to'].each do |id|
-          outs.unshift("Request %s to %s" % [link_to(id, :controller => :request, :action => :show, :id => id), p['develproject']])
+          outs.unshift("Request %s to %s" % [link_to(id, :controller => :request, :action => :show, :number => id), p['develproject']])
           icon = "changes"
           sortkey = "3-request%06d-%s" % [ 999999 - id, p['name']]
         end
         p['requests_from'].each do |id|
-          outs.unshift("Request %s to %s" % [link_to(id, :controller => :request, :action => :show, :id => id), @project.name])
+          outs.unshift("Request %s to %s" % [link_to(id, :controller => :request, :action => :show, :number => id), @project.name])
           icon = "changes"
           sortkey = "2-drequest%06d-%s" % [ 999999 - id, p['name']]
         end
