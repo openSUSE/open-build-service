@@ -5125,17 +5125,15 @@ sub getfilelist {
     for my $filename (sort keys %$files) {
       next unless $filename =~ /\.product$/s;
       next if $cgi->{'product'} && $filename ne "$cgi->{'product'}.product";
-      my $filename = repfilename($rev, $filename, $files->{$filename});
-      my $xml = BSProductXML::readproductxml($filename, 0, undef, $files);
+      my $xml = BSProductXML::readproductxml(repfilename($rev, $filename, $files->{$filename}), 0, undef, $files);
       die("400 Unable to parse $filename\n") unless $xml;
-      $xml = getproductrepositories($xml) if $view eq 'productrepositories';
       push @res, $xml;
     }
     if ($view eq 'productrepositories') {
+      @res = map {getproductrepositories($_)} @res;
       return ({"product" => \@res}, $BSProductXML::productlistrepositories);
-    } else {
-      return ({'productdefinition' => \@res}, $BSProductXML::products);
     }
+    return ({'productdefinition' => \@res}, $BSProductXML::products);
   }
 
   my $ret = {};
