@@ -31,12 +31,13 @@ package BSCando;
 #FIXME 3.0: obsolete the not exiting arm architectures
 
 our %cando = (
-  'aarch64' => [ 'aarch64_ilp32', 'aarch64', 'armv8l' ], # armv8l is aarch32 (32-bit mode of aarch64), not a full subset of armv7l
-  'aarch64_ilp32' => [ 'aarch64_ilp32', 'aarch64', 'armv8l' ],
+  # aarch64_ilp32: is just a software architecure convention
+  'aarch64' => [ 'aarch64', 'aarch64_ilp32', 'armv8l:linux32', 'armv7l:linux32', 'armv7hl:linux32', 'armv6l:linux32', 'armv6hl:linux32' ],
+  'aarch64_ilp32' => [ 'aarch64_ilp32', 'aarch64' ],
   'armv4l'  => [ 'armv4l'                                                                                                 ],
   'armv5l'  => [ 'armv4l', 'armv5l'                    , 'armv5el'                                                        ],
   'armv6l'  => [ 'armv4l', 'armv5l', 'armv6l'          , 'armv5el', 'armv6el'                                             ],
-  'armv7l'  => [ 'armv4l', 'armv5l', 'armv6l', 'armv7l', 'armv5el', 'armv6el', 'armv6hl', 'armv7el', 'armv7hl', 'armv8el' ], # this armv8el is just for MeeGo, it does not exist for real
+  'armv7l'  => [ 'armv4l', 'armv5l', 'armv6l', 'armv7l', 'armv5el', 'armv6el', 'armv6hl', 'armv7el', 'armv7hl', 'armv8el' ], # armv8el is invented by MeeGo, it does not exist for real
   'armv8l'  => [ 'armv8l' ],
 
   'sh4'     => [ 'sh4' ],

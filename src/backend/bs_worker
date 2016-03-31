@@ -653,8 +653,16 @@ if (open(FILE, "<", "/proc/cpuinfo")) {
     if (/^processor/s) {
       $hw->{'processors'} = $hw->{'processors'} + 1;
     } elsif (/^flags\s*:\s(.*)$/) {
+      # classic ix86 and x86_64
       my @cpuflags = split(' ', $1);
       $hw->{'cpu'}->{'flag'} = \@cpuflags;
+    } elsif (/^Features\s*:\s(.*)$/) {
+      # aarch64
+      my @cpuflags = split(' ', $1);
+      $hw->{'cpu'}->{'flag'} = \@cpuflags;
+    } elsif (/^CPU implementer\s*:\s0x43/) {
+      # aarch64 special case: does not support armvXl instruction set
+      $hw->{'cpu'}->{'nativeonly'} = {};
     } elsif (/^cpu\s*:\sPOWER8/) {
       # PowerPC kernel does not provide any flags, but we need to be able
       # to distinguish between power7 and 8 at least

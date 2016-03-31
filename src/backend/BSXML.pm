@@ -730,6 +730,7 @@ our $worker = [
           [ 'flag' ],
         ],
         'processors',
+        'nativeonly',   # don't allow usage via the helper script
 	'memory',	# in MBytes
 	'swap',		# in MBytes
 	'disk',		# in MBytes
