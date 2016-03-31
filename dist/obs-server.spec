@@ -420,16 +420,16 @@ getent passwd obsrun >/dev/null || \
 exit 0
 
 %preun
-%stop_on_removal obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsdodup
+%stop_on_removal obssrcserver obsrepserver obsdispatcher obsscheduler obspublisher obswarden obssigner obsdodup obsdeltastore
 
 %preun -n obs-worker
 %stop_on_removal obsworker
 
 %post
 %if 0%{?suse_version} >= 1315
-%reload_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup
+%reload_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup obsdeltastore
 %else
-%restart_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup
+%restart_on_update obssrcserver obsrepserver obsdispatcher obspublisher obswarden obssigner obsdodup obsdeltastore
 %endif
 %restart_on_update obsscheduler
 
@@ -515,6 +515,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /etc/init.d/obssrcserver
 /etc/init.d/obswarden
 /etc/init.d/obsdodup
+/etc/init.d/obsdeltastore
 /etc/init.d/obssigner
 /usr/sbin/obs_admin
 /usr/sbin/obs_serverstatus
@@ -525,6 +526,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /usr/sbin/rcobssrcserver
 /usr/sbin/rcobswarden
 /usr/sbin/rcobsdodup
+/usr/sbin/rcobsdeltastore
 /usr/sbin/rcobssigner
 /usr/lib/obs/server/plugins
 /usr/lib/obs/server/BSAccess.pm
@@ -562,8 +564,9 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /usr/lib/obs/server/XML
 /usr/lib/obs/server/bs_admin
 /usr/lib/obs/server/bs_archivereq
-/usr/lib/obs/server/bs_dodup
 /usr/lib/obs/server/bs_check_consistency
+/usr/lib/obs/server/bs_deltastore
+/usr/lib/obs/server/bs_dodup
 /usr/lib/obs/server/bs_getbinariesproxy
 /usr/lib/obs/server/bs_mergechanges
 /usr/lib/obs/server/bs_mkarchrepo
