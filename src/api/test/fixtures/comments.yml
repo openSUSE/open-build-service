@@ -58,7 +58,7 @@ project_comment_reply_2:
   project: BaseDistro
 request_comment_parent:
   id: 300
-  bs_request_id: 4
+  bs_request_id: 9994
   body: |-
     This request rules!
 
@@ -69,7 +69,7 @@ request_comment_parent:
   user: Admin
 request_comment_reply_1:
   id: 301
-  bs_request_id: 4
+  bs_request_id: 9994
   body: And I like that comment.
   parent_id: 300
   type: CommentRequest
@@ -78,7 +78,7 @@ request_comment_reply_1:
   user: tom
 request_comment_reply_2:
   id: 302
-  bs_request_id: 4
+  bs_request_id: 9994
   body: While I don't!
   parent_id: 301
   type: CommentRequest

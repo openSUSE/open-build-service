@@ -33,7 +33,7 @@ class CommentsController < ApplicationController
       end
     else
       @template = 'request'
-      @obj = BsRequest.find(params[:id])
+      @obj = BsRequest.find_by_number!(params[:id])
     end
   end
 end

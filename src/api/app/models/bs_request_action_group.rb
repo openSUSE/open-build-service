@@ -43,13 +43,13 @@ class BsRequestActionGroup < BsRequestAction
 
     return if req.is_target_maintainer?(User.current)
 
-    raise CantGroupRequest.new "Request #{req.id} does not match in the group"
+    raise CantGroupRequest.new "Request #{req.number} does not match in the group"
   end
 
   def check_and_add_request(newid)
-    req = BsRequest.find(newid)
+    req = BsRequest.find_by_number(newid)
     if self.bs_requests.where(id: req.id).exists?
-      raise AlreadyGrouped.new "#{req.id} is already part of the group request #{self.bs_request.id}"
+      raise AlreadyGrouped.new "#{req.number} is already part of the group request #{self.bs_request.number}"
     end
     if req.bs_request_actions.first.action_type == :group
       raise CantGroupInGroups.new 'Groups are not supported in groups'
@@ -61,7 +61,8 @@ class BsRequestActionGroup < BsRequestAction
   def store_from_xml(hash)
     super(hash)
     hash.elements('grouped') do |g|
-      check_and_add_request(Integer(g['id']))
+      r = BsRequest.find_by_number(Integer(g['id']))
+      check_and_add_request(r.try(:number))
     end
     hash.delete('grouped')
   end
@@ -79,7 +80,7 @@ class BsRequestActionGroup < BsRequestAction
 
   def render_xml_attributes(node)
     self.bs_requests.each do |r|
-      node.grouped id: r.id
+      node.grouped id: r.number
     end
   end
 
@@ -89,9 +90,9 @@ class BsRequestActionGroup < BsRequestAction
   end
 
   def remove_request(oldid)
-    req = BsRequest.find oldid
-    unless self.bs_requests.where(id: oldid).first
-      raise NotInGroup.new "Request #{oldid} can't be removed from group request #{self.bs_request.id}"
+    req = BsRequest.find_by_number oldid
+    unless req
+      raise NotInGroup.new "Request #{oldid} can't be removed from group request #{self.bs_request.number}"
     end
     req.remove_from_group(self)
   end

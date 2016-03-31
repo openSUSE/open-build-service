@@ -49,7 +49,7 @@ class EventMailerTest < ActionMailer::TestCase
     # the default is reviewer groups get email, so check that adrian gets an email
     req = bs_requests(:submit_from_home_project)
     Timecop.travel(2013, 8, 20, 12, 0, 0)
-    myid = req.id
+    myid = req.number
     SendEventEmails.new.perform # empty queue
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       req.addreview(by_group: 'test_group', comment: 'does it look ok?')

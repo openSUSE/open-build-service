@@ -142,7 +142,7 @@ class BsRequestPermissionCheck
     return unless [:submit, :change_devel, :maintenance_release, :maintenance_incident].include? action.action_type
 
     if action.action_type == :change_devel and !action.target_package
-      raise PostRequestNoPermission.new "Target package is missing in request #{action.bs_request.id} (type #{action.action_type})"
+      raise PostRequestNoPermission.new "Target package is missing in request #{action.bs_request.number} (type #{action.action_type})"
     end
 
     # full read access checks
@@ -155,7 +155,7 @@ class BsRequestPermissionCheck
       err = nil
       case action.action_type
         when :change_devel
-          err = "Local source package is missing for request #{action.bs_request.id} (type #{action.action_type})"
+          err = "Local source package is missing for request #{action.bs_request.number} (type #{action.action_type})"
         when :set_bugowner
         when :add_role
         else
@@ -357,7 +357,7 @@ class BsRequestPermissionCheck
       if "accepted" == opts[:newstate] and not @write_permission_in_this_action
         msg = ''
         msg = "No permission to modify target of request " +
-              "#{action.bs_request.id} (type #{action.action_type}): project #{action.target_project}" unless action.bs_request.new_record?
+              "#{action.bs_request.number} (type #{action.action_type}): project #{action.target_project}" unless action.bs_request.new_record?
         msg += ", package #{action.target_package}" if action.target_package
         raise PostRequestNoPermission.new msg
       end
@@ -380,7 +380,7 @@ class BsRequestPermissionCheck
 # Is the user involved in any project or package ?
   def require_permissions_in_target_or_source
     unless @write_permission_in_target or @write_permission_in_source
-      raise AddReviewNotPermitted.new "You have no role in request #{req.id}"
+      raise AddReviewNotPermitted.new "You have no role in request #{req.number}"
     end
     true
   end
@@ -391,27 +391,27 @@ class BsRequestPermissionCheck
           when 'superseded'
             # Is the user involved in any project or package ?
             unless @write_permission_in_target or @write_permission_in_source
-              "You have no role in request #{req.id}"
+              "You have no role in request #{req.number}"
             end
           when 'accepted'
             # requires write permissions in all targets, this is already handled in each action check
           when 'revoked'
             # general revoke permission check based on source maintainership. We don't get here if the user is the creator of request
             unless @write_permission_in_source
-              "No permission to revoke request #{req.id}"
+              "No permission to revoke request #{req.number}"
             end
           when 'new'
             if (req.state == :revoked && !@write_permission_in_source) ||
                 (req.state == :declined && !@write_permission_in_target)
-              "No permission to reopen request #{req.id}"
+              "No permission to reopen request #{req.number}"
             end
           when 'declined'
             unless @write_permission_in_target
               # at least on one target the permission must be granted on decline
-              "No permission to decline request #{req.id}"
+              "No permission to decline request #{req.number}"
             end
           else
-            "No permission to change request #{req.id} state"
+            "No permission to change request #{req.number} state"
         end
     raise PostRequestNoPermission.new err if err
   end

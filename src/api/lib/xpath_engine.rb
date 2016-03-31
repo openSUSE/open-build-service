@@ -198,15 +198,17 @@ class XpathEngine
           ['LEFT JOIN users ON users.id = issues.owner_id']}
       },
       'requests' => {
-        '@id' => { :cpart => 'bs_requests.id' },
+        '@id' => { :cpart => 'bs_requests.number' },
         'state/@name' => { :cpart => 'bs_requests.state' },
         'state/@who' => { :cpart => 'bs_requests.commenter' },
         'state/@when' => { :cpart => 'bs_requests.updated_at' },
         'action/@type' => { :cpart => 'a.type',
                             joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id"
         },
-        'action/grouped/@id' => { cpart: 'g.bs_request_id',
-                                  joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id LEFT JOIN group_request_requests g on g.bs_request_action_group_id = a.id" },
+        'action/grouped/@id' => { cpart: 'gr.number',
+                                  joins: ["LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id",
+                                          "LEFT JOIN group_request_requests g on g.bs_request_action_group_id = a.id",
+                                          "LEFT JOIN bs_requests gr on gr.id = g.bs_request_id"] },
         'action/target/@project' => { :cpart => 'a.target_project', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
         'action/target/@package' => { :cpart => 'a.target_package', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
         'action/source/@project' => { :cpart => 'a.source_project', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },

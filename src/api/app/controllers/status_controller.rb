@@ -118,11 +118,8 @@ class StatusController < ApplicationController
     Suse::Backend.start_test_backend if Rails.env.test?
     @id = params[:id]
 
-    actions = BsRequestAction.where(bs_request_id: params[:id])
-    raise NotFoundError.new unless actions.count > 0
-
     @result = Hash.new
-    actions.each do |action|
+    BsRequest.find_by_number!(params[:id]).bs_request_actions.each do |action|
       # raise NotSubmitRequest.new 'Not submit' unless action.action_type == :submit
       sproj = Project.find_by_name!(action.source_project)
       tproj = Project.find_by_name!(action.target_project)

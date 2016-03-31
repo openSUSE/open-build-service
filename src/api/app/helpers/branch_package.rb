@@ -509,7 +509,7 @@ class BranchPackage
     @packages = []
     if params[:request]
       # find packages from request
-      req = BsRequest.find(params[:request])
+      req = BsRequest.find_by_number(params[:request])
 
       req.bs_request_actions.each do |action|
         prj=nil

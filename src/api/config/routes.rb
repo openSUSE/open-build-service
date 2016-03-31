@@ -250,10 +250,10 @@ OBSApi::Application.routes.draw do
       get 'request/add_reviewer_dialog' => :add_reviewer_dialog
       post 'request/add_reviewer' => :add_reviewer
       post 'request/modify_review' => :modify_review
-      get 'request/show/:id' => :show, as: 'request_show', constraints: cons
+      get 'request/show/:number' => :show, as: 'request_show', constraints: cons
       post 'request/sourcediff' => :sourcediff
       post 'request/changerequest' => :changerequest
-      get 'request/diff/:id' => :diff
+      get 'request/diff/:number' => :diff
       get 'request/list' => :list
       get 'request/list_small' => :list_small
       get 'request/delete_request_dialog' => :delete_request_dialog
@@ -266,7 +266,7 @@ OBSApi::Application.routes.draw do
       post 'request/change_devel_request' => :change_devel_request
       get 'request/set_incident_dialog' => :set_incident_dialog
       post 'request/set_incident' => :set_incident
-      post 'request/comments/:id' => :save_comment
+      post 'request/comments/:number' => :save_comment
     end
 
     controller 'webui/search' do

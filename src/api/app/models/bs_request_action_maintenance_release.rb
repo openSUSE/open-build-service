@@ -51,7 +51,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
       commit_params = {
         cmd:       "commit",
         user:      User.current.login,
-        requestid: self.bs_request.id,
+        requestid: self.bs_request.number,
         rev:       "latest",
         comment:   "Releasing from project #{sprj}"
       }
@@ -115,8 +115,8 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     end
 
     # run search
-    open_ids = rel.select('bs_requests').pluck(:id)
-    open_ids.delete(self.bs_request.id) if self.bs_request
+    open_ids = rel.select('bs_requests').pluck(:number)
+    open_ids.delete(self.bs_request.number) if self.bs_request
     if open_ids.count > 0
       msg = "The following open requests have the same target #{self.target_project} / #{tpkgprefix}: " + open_ids.join(', ')
       raise OpenReleaseRequests.new msg
