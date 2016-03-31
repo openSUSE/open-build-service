@@ -670,8 +670,7 @@ class Project < ActiveRecord::Base
     position = 1
     repo.elements('path') do |path|
       link_repo = Repository.find_by_project_and_name(path['project'], path['repository'])
-      if path['project'] == self.name &&
-          path['repository'] == repo['name']
+      if path['project'] == self.name && path['repository'] == repo['name']
         raise SaveError, 'Using same repository as path element is not allowed'
       end
       unless link_repo
@@ -684,20 +683,24 @@ class Project < ActiveRecord::Base
     current_repo.save!
   end
 
-  def update_release_targets(current_repo, repo)
+  def update_release_targets(current_repo, xml_hash)
     # destroy all current releasetargets
     current_repo.release_targets.destroy_all
 
     # recreate release targets from xml
-    repo.elements('releasetarget') do |rt|
-      if Project.find_by(name: rt['project']).is_remote?
-        raise SaveError, "Can not use remote repository as release target '#{rt['project']}/#{rt['repository']}'"
+    xml_hash.elements('releasetarget') do |release_target|
+      project    = release_target['project']
+      repository = release_target['repository']
+      trigger    = release_target['trigger']
+
+      if Project.find_by(name: project).is_remote?
+        raise SaveError, "Can not use remote repository as release target '#{project}/#{repository}'"
       else
-        target_repo = Repository.find_by_project_and_name(rt['project'], rt['repository'])
+        target_repo = Repository.find_by_project_and_name(project, repository)
         if target_repo
-          current_repo.release_targets.new(target_repository: target_repo, trigger: rt['trigger'])
+          current_repo.release_targets.new(target_repository: target_repo, trigger: trigger)
         else
-          raise SaveError, "Unknown target repository '#{rt['project']}/#{rt['repository']}'"
+          raise SaveError, "Unknown target repository '#{project}/#{repository}'"
         end
       end
     end
