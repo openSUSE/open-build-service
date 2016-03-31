@@ -6,8 +6,8 @@
       - requests.each do |req|
         %tr
           %td{style: "border: medium none; padding: 0px;"}
-            = check_box_tag('supersede_request_ids[]', req.id, false, id: "supersede_request_ids_#{req.id}")
-            = link_to(req.id, controller: :request, action: :show, id: req.id)
+            = check_box_tag('supersede_request_numbers[]', req.number, false, id: "supersede_request_numbers#{req.number}")
+            = link_to(req.number, controller: :request, action: :show, number: req.number)
             by
             = user_with_realname_and_icon(req.creator, short: true)
             (#{fuzzy_time(req.created_at)})

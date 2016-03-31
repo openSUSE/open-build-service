@@ -24,7 +24,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.must_have_selector 'table#requests_in_table tr'
 
     # walk over the table
-    rs = find('tr#tr_request_1').find('.request_target')
+    rs = find('tr#tr_request_9991').find('.request_target')
     rs.find(:xpath, '//a[@title="kde4"]').must_have_text 'kde4'
     rs.find(:xpath, '//a[@title="kdelibs"]').must_have_text 'kdelibs'
   end
@@ -93,15 +93,15 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     oldrequest = current_path.gsub(%r{\/request\/show\/(\d*)}, '\1').to_i
     # verify it is not superseding anything
     page.wont_have_text('Superseding')
-    page.wont_have_field('supersede_request_ids[]')
+    page.wont_have_field('supersede_request_numbers[]')
 
     # create submission that is superseding the former one
     visit package_show_path(project: 'Apache', package: 'apache2')
     click_link 'Submit package'
     fill_in 'targetproject', with: 'kde4'
     fill_in 'description', with: 'I want to see his reaction'
-    page.must_have_field('supersede_request_ids[]')
-    all('input[name="supersede_request_ids[]"]').each {|input| check(input[:id]) }
+    page.must_have_field('supersede_request_numbers[]')
+    all('input[name="supersede_request_numbers[]"]').each {|input| check(input[:id]) }
     click_button 'Ok'
     within '#flash-messages' do
       click_link 'submit request'
@@ -160,7 +160,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   def test_tom_adds_invalid_project_reviewer
     login_tom to: user_show_path(user: 'tom')
 
-    within('tr#tr_request_4') do
+    within('tr#tr_request_9994') do
       page.must_have_text '~:branches:kde4 / BranchPack'
       first(:css, 'a.request_link').click
     end
@@ -182,7 +182,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   def test_tom_adds_reviewer_Iggy
     login_tom to: user_show_path(user: 'tom')
 
-    within('tr#tr_request_4') do
+    within('tr#tr_request_9994') do
       page.must_have_text '~:branches:kde4 / BranchPack'
       first(:css, 'a.request_link').click
     end

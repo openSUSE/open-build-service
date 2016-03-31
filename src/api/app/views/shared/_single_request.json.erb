@@ -36,11 +36,11 @@
       <%= req.state %>,
   <% end %>
 <%= req.priority %>,
-<%= link_to(sprite_tag('req-showdiff', title: "Show request ##{req.id}"),
-            { :controller => :request, :action => :show, :id => req.id }, { :class => 'request_link' }) -%>
+<%= link_to(sprite_tag('req-showdiff', title: "Show request ##{req.number}"),
+            { :controller => :request, :action => :show, :number => req.number }, { :class => 'request_link' }) -%>
 <% if source_package && source_package != :multiple && source_exists %>
-    <%= link_to(sprite_tag('information', title: 'Build results', id: "req_#{req.id}"), source_url) %>
+    <%= link_to(sprite_tag('information', title: 'Build results', id: "req_#{req.number}"), source_url) %>
     <%= javascript_tag do %>
-        setup_buildresult_tooltip('<%= "req_#{req.id}" %>', '<%= buildresult_url %>')
+        setup_buildresult_tooltip('<%= "req_#{req.number}" %>', '<%= buildresult_url %>')
     <% end %>
 <% end %>

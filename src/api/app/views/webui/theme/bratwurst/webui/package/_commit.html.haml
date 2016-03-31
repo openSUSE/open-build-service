@@ -25,7 +25,7 @@
             = commit['user'] || 'unknown'
         - if commit['requestid']
           accepted
-          = link_to("request #{commit['requestid']}", {:controller => :request, :action => :show, :id => commit['requestid']})
+          = link_to("request #{commit['requestid']}", {:controller => :request, :action => :show, :number => commit['requestid']})
         - else
           authored
         = fuzzy_time(Time.at(commit['time'].to_i))

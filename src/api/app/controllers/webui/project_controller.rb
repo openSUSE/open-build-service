@@ -164,7 +164,7 @@ class Webui::ProjectController < Webui::WebuiController
           req.save!
         end
         flash[:success] = "Created maintenance release request " +
-                          "<a href='#{url_for(:controller => 'request', :action => 'show', :id => req.id)}'>#{req.id}</a>"
+                          "<a href='#{url_for(:controller => 'request', :action => 'show', :number => req.number)}'>#{req.number}</a>"
       rescue Patchinfo::IncompletePatchinfo,
              BsRequestAction::UnknownProject,
              BsRequestAction::BuildNotFinished,
@@ -511,13 +511,13 @@ class Webui::ProjectController < Webui::WebuiController
       end
       flash[:success] = "Created <a href='#{url_for(:controller => 'request',
                                                     :action => 'show',
-                                                    :id => req.id)}'>repository delete request #{req.id}</a>"
+                                                    :number => req.number)}'>repository delete request #{req.number}</a>"
     rescue BsRequestAction::UnknownTargetProject,
            BsRequestAction::UnknownTargetPackage => e
       flash[:error] = e.message
       redirect_to :action => :repositories, :project => params[:project] and return
     end
-    redirect_to :controller => :request, :action => :show, :id => req.id
+    redirect_to :controller => :request, :action => :show, :number => req.number
   end
 
   def remove_target
@@ -1279,7 +1279,7 @@ class Webui::ProjectController < Webui::WebuiController
   def status_gather_requests
     # we do not filter requests for project because we need devel projects too later on and as long as the
     # number of open requests is limited this is the easiest solution
-    raw_requests = BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
+    raw_requests = BsRequest.order(:number).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
         where(bs_request_actions: {type: 'submit'}).pluck('bs_requests.id', 'bs_requests.state',
                                                           'bs_request_actions.target_project',
                                                           'bs_request_actions.target_package')

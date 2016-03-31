@@ -316,7 +316,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     # try to submit unchanged sources
     click_link 'Submit package'
     page.must_have_field('targetproject', with: 'home:dmayr')
-    page.wont_have_field('supersede_request_ids[]')
+    page.wont_have_field('supersede_request_numbers[]')
     check('sourceupdate')
     click_button 'Ok'
     page.wont_have_selector '.dialog' # wait for the reload
@@ -326,7 +326,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     Suse::Backend.put( '/source/home:adrian/x11vnc/DUMMY?user=adrian', 'DUMMY')
     click_link 'Submit package'
     page.must_have_field('targetproject', with: 'home:dmayr')
-    page.wont_have_field('supersede_request_ids[]')
+    page.wont_have_field('supersede_request_numbers[]')
     check('sourceupdate')
     click_button 'Ok'
 
@@ -334,12 +334,14 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.wont_have_selector '.dialog' # wait for the reload
     flash_message.must_match %r{Created submit request \d* to home:dmayr}
     requestid = flash_message.gsub(%r{Created submit request (\d*) to home:dmayr}, '\1').to_i
+    assert requestid
+    assert requestid > 0
     within '#flash-messages' do
       click_link 'submit request'
     end
 
     logout
-    login_dmayr to: request_show_path(id: requestid)
+    login_dmayr to: request_show_path(number: requestid)
     page.must_have_text 'Submit package home:adrian / x11vnc (revision'
     page.must_have_text ' to package home:dmayr / x11vnc'
     fill_in 'reason', with: 'Bad idea'
@@ -371,13 +373,13 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
       page.must_have_text "#{requestid} by adrian"
     end
 
-    page.must_have_field('supersede_request_ids[]')
-    all('input[name="supersede_request_ids[]"]').each {|input| check(input[:id]) }
+    page.must_have_field('supersede_request_numbers[]')
+    all('input[name="supersede_request_numbers[]"]').each {|input| check(input[:id]) }
     click_button 'Ok'
     page.wont_have_selector '.dialog' # wait for the reload
     flash_message.must_match %r{Created submit request .* to home:dmayr}
     new_requestid = flash_message.gsub(%r{Created submit request (\d*) to home:dmayr}, '\1').to_i
-    visit request_show_path(id: requestid)
+    visit request_show_path(number: requestid)
     page.must_have_text "Request #{requestid} (superseded)"
     page.must_have_content "Superseded by #{new_requestid}"
 
@@ -388,8 +390,8 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     Suse::Backend.put( '/source/home:adrian/x11vnc/DUMMY2?user=adrian', 'DUMMY2')
     login_tom to: package_show_path(project: 'home:adrian', package: 'x11vnc')
     click_link 'Submit package'
-    page.must_have_field('supersede_request_ids[]')
-    all('input[name="supersede_request_ids[]"]').each {|input| check(input[:id]) }
+    page.must_have_field('supersede_request_numbers[]')
+    all('input[name="supersede_request_numbers[]"]').each {|input| check(input[:id]) }
     click_button 'Ok'
     page.wont_have_selector '.dialog' # wait for the reload
     flash_message.must_match %r{Created submit request \d* to home:dmayr}
@@ -402,7 +404,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     fill_in 'linked_package', with: 'x11vnc'
     click_button 'Create Branch'
     click_link 'Submit package'
-    page.wont_have_field('supersede_request_ids[]')
+    page.wont_have_field('supersede_request_numbers[]')
   end
 
   def test_submit_request
@@ -435,7 +437,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     fill_in "To target project", with: " home:Iggy "
     fill_in "To target package", with: " ToBeDeletedTestPack "
     click_button("Ok")
-    page.must_have_text "Created submit request #{BsRequest.last.id} to home:Iggy"
+    page.must_have_text "Created submit request #{BsRequest.last.number} to home:Iggy"
     assert_equal package_show_path(project: "home:Iggy", package: "TestPack"),
                  page.current_path
   end

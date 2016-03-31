@@ -304,15 +304,14 @@ class Webui::PackageController < Webui::WebuiController
 
     # Supersede logic has to be below addition as we need the new request id
     supersede_errors = []
-    if params[:supersede_request_ids]
-      params[:supersede_request_ids].each do |request_id|
-        r = BsRequest.find_by_id request_id
-        next if r.nil? # unable to load
+    if params[:supersede_request_numbers]
+      params[:supersede_request_numbers].each do |request_number|
         begin
+          r = BsRequest.find_by_number! request_number
           opts = {
             newstate:      "superseded",
-            reason:        "Superseded by request #{req.id}",
-            superseded_by: req.id
+            reason:        "Superseded by request #{req.number}",
+            superseded_by: req.number
           }
           r.change_state(opts)
         rescue APIException => e
@@ -325,7 +324,7 @@ class Webui::PackageController < Webui::WebuiController
       supersede_notice = "Superseding failed: "
       supersede_notice += supersede_errors.join('. ')
     end
-    flash[:notice] = "Created <a href='#{request_show_path(req.id)}'>submit request #{req.id}</a>\
+    flash[:notice] = "Created <a href='#{request_show_path(req.number)}'>submit request #{req.number}</a>\
                       to <a href='#{project_show_path(target_project_name)}'>#{target_project_name}</a>
                       #{supersede_notice}"
     redirect_to(action: 'show', project: project_name, package: package_name)
@@ -432,7 +431,7 @@ class Webui::PackageController < Webui::WebuiController
         return nil # ignore all !declined
       end
       return {
-        id:       last_req.id,
+        id:       last_req.number,
         decliner: last_req.commenter,
         when:     last_req.updated_at,
         comment:  last_req.comment

@@ -15,7 +15,7 @@ class Webui::RequestController < Webui::WebuiController
   before_filter :set_project, only: [:change_devel_request_dialog]
 
   def add_reviewer_dialog
-    @request_id = params[:id]
+    @request_number = params[:number]
     render_dialog 'requestAddReviewAutocomplete'
   end
 
@@ -36,14 +36,14 @@ class Webui::RequestController < Webui::WebuiController
       end
       opts[:comment] = params[:review_comment] if params[:review_comment]
 
-      req = BsRequest.find_by_id(params[:id])
+      req = BsRequest.find_by_number!(params[:number])
       req.addreview(opts)
     rescue BsRequestPermissionCheck::AddReviewNotPermitted
-      flash[:error] = "Not permitted to add a review to '#{params[:id]}'"
+      flash[:error] = "Not permitted to add a review to '#{params[:number]}'"
     rescue ActiveRecord::RecordInvalid, APIException => e
-      flash[:error] = "Unable add review to '#{params[:id]}': #{e.message}"
+      flash[:error] = "Unable add review to '#{params[:number]}': #{e.message}"
     end
-    redirect_to :controller => :request, :action => 'show', :id => params[:id]
+    redirect_to :controller => :request, :action => 'show', :number => params[:number]
   end
 
   def modify_review
@@ -52,7 +52,7 @@ class Webui::RequestController < Webui::WebuiController
     req = nil
     params.each do |key, value|
       state = key if  %w(accepted declined new).include? key
-      req = BsRequest.find_by_id(value) if key.starts_with?('review_request_id_')
+      req = BsRequest.find_by_number!(value) if key.starts_with?('review_request_number_')
 
       # Our views are valid XHTML. So, several forms 'POST'-ing to the same action have different
       # HTML ids. Thus we have to parse 'params' a bit:
@@ -80,20 +80,20 @@ class Webui::RequestController < Webui::WebuiController
       end
     end
 
-    redirect_to :action => 'show', :id => req.id
+    redirect_to :action => 'show', :number => req.number
   end
 
   def show
-    redirect_back_or_to user_show_path(User.current) and return if !params[:id]
-    begin
-      @bsreq = BsRequest.find(params[:id])
-    rescue ActiveRecord::RecordNotFound
-      flash[:error] = "Can't find request #{params[:id]}"
+    redirect_back_or_to user_show_path(User.current) and return if !params[:number]
+    @bsreq = BsRequest.find_by_number(params[:number])
+    unless @bsreq
+      flash[:error] = "Can't find request #{params[:number]}"
       redirect_back_or_to user_show_path(User.current) and return
     end
 
     @req = @bsreq.webui_infos
     @id = @req['id']
+    @number = @req['number']
     @state = @req['state'].to_s
     @accept_at = @req['accept_at']
     @is_author = @req['creator'] == User.current
@@ -134,19 +134,19 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def require_request
-    required_parameters :id
-    @req = BsRequest.find params[:id]
+    required_parameters :number
+    @req = BsRequest.find_by_number params[:number]
     unless @req
-      flash[:error] = "Can't find request #{params[:id]}"
+      flash[:error] = "Can't find request #{params[:number]}"
       redirect_back_or_to user_show_path(User.current) and return
     end
   end
 
   def changerequest
     begin
-      @req = BsRequest.find(params[:id])
+      @req = BsRequest.find_by_number(params[:number])
     rescue ActiveRecord::RecordNotFound
-      flash[:error] = "Can't find request #{params[:id]}"
+      flash[:error] = "Can't find request #{params[:number]}"
       redirect_back_or_to user_show_path(User.current) and return
     end
 
@@ -183,11 +183,11 @@ class Webui::RequestController < Webui::WebuiController
       accept_request if changestate == 'accepted'
     end
 
-    redirect_to :action => 'show', :id => params[:id]
+    redirect_to :action => 'show', :number => params[:number]
   end
 
   def accept_request
-    flash[:notice] = "Request #{params[:id]} accepted"
+    flash[:notice] = "Request #{params[:number]} accepted"
 
     # Check if we have to forward this request to other projects / packages
     params.keys.grep(/^forward_.*/).each do |fwd|
@@ -200,7 +200,7 @@ class Webui::RequestController < Webui::WebuiController
     description = @req.description
     description ||= ""
     who = @req.creator
-    description += ' (forwarded request %d from %s)' % [params[:id], who]
+    description += ' (forwarded request %d from %s)' % [params[:number], who]
 
     req = nil
     begin
@@ -237,12 +237,12 @@ class Webui::RequestController < Webui::WebuiController
                                           :project => tgt_prj,
                                           :package => tgt_pkg)}'>#{tgt_prj} / #{tgt_pkg}</a>
                        (request <a href='#{url_for(:action => 'show',
-                                                   :id => req.id)}'>#{req.id}</a>)"
+                                                   :number => req.number)}'>#{req.number}</a>)"
   end
 
   def diff
     # just for compatibility. OBS 1.X used this route for show
-    redirect_to :action => :show, :id => params[:id]
+    redirect_to :action => :show, :number => params[:number]
   end
 
   def list
@@ -289,13 +289,13 @@ class Webui::RequestController < Webui::WebuiController
       end
       flash[:success] = "Created <a href='#{url_for(:controller => 'request',
                                                     :action => 'show',
-                                                    :id => req.id)}'>repository delete request #{req.id}</a>"
+                                                    :number => req.number)}'>repository delete request #{req.number}</a>"
     rescue APIException => e
       flash[:error] = e.message
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
       redirect_to :controller => :project, :action => :show, :project => params[:project] and return
     end
-    redirect_to :controller => :request, :action => :show, :id => req.id
+    redirect_to :controller => :request, :action => :show, :number => req.number
   end
 
   def add_role_request_dialog
@@ -330,7 +330,7 @@ class Webui::RequestController < Webui::WebuiController
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
       redirect_to :controller => :project, :action => :show, :project => params[:project] and return
     end
-    redirect_to :controller => :request, :action => :show, :id => req.id
+    redirect_to :controller => :request, :action => :show, :number => req.number
   end
 
   def set_bugowner_request_dialog
@@ -361,7 +361,7 @@ class Webui::RequestController < Webui::WebuiController
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
       redirect_to :controller => :project, :action => :show, :project => params[:project] and return
     end
-    redirect_to :controller => :request, :action => :show, :id => req.id
+    redirect_to :controller => :request, :action => :show, :number => req.number
   end
 
   def change_devel_request_dialog
@@ -402,7 +402,7 @@ class Webui::RequestController < Webui::WebuiController
       flash[:error] = "Unable to create request: #{e.message}"
       redirect_to :controller => 'package', :action => 'show', :project => params[:project], :package => params[:package] and return
     end
-    redirect_to :controller => 'request', :action => 'show', id: req.id
+    redirect_to :controller => 'request', :action => 'show', number: req.number
   end
 
   def set_incident_dialog
@@ -410,7 +410,7 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def set_incident
-    req = BsRequest.find_by_id(params[:id])
+    req = BsRequest.find_by_number(params[:number])
     if req.nil?
       flash[:error] = "Unable to load request"
     elsif params[:incident_project].blank?
@@ -418,7 +418,7 @@ class Webui::RequestController < Webui::WebuiController
     else
       begin
         req.setincident(params[:incident_project])
-        flash[:notice] = "Set target of request #{req.id} to incident #{params[:incident_project]}"
+        flash[:notice] = "Set target of request #{req.number} to incident #{params[:incident_project]}"
       rescue Project::UnknownObjectError => e
         flash[:error] = "Incident #{e.message} does not exist"
       rescue APIExcetion => e
@@ -426,18 +426,18 @@ class Webui::RequestController < Webui::WebuiController
       end
     end
 
-    redirect_to :action => 'show', :id => params[:id]
+    redirect_to :action => 'show', :number => params[:number]
   end
 
   # used by mixins
   def main_object
-    BsRequest.find params[:id]
+    BsRequest.find_by_number params[:number]
   end
 
   private
 
   def change_state(newstate, params)
-    req = BsRequest.find_by_id(params[:id])
+    req = BsRequest.find_by_number(params[:number])
     if req.nil?
       flash[:error] = "Unable to load request"
     else

@@ -1,7 +1,7 @@
 class RequestCounter < ActiveRecord::Migration
   def self.up
     add_column :bs_requests, :number, :integer
-    add_index  :bs_requests, :number
+    add_index :bs_requests, :number
 
     create_table :bs_request_counter do |t|
       t.integer :counter, default: 0
@@ -16,7 +16,7 @@ class RequestCounter < ActiveRecord::Migration
     # set counter
     lastreq = BsRequest.all.order(:id).last
     if lastreq
-      BsRequest.connection.execute "INSERT INTO bs_request_counter(counter) VALUES('#{lastreq.id.to_s}')"
+      BsRequest.connection.execute "INSERT INTO bs_request_counter(counter) VALUES('#{lastreq.id}')"
     end
   end
 
