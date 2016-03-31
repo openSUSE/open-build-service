@@ -192,14 +192,14 @@ class Project < ActiveRecord::Base
     self.open_requests_with_project_as_source_or_target.each do |request|
       logger.debug "#{self.class} #{self.name} doing revoke_requests with #{@commit_opts.inspect}"
       # Don't alter the request that is the trigger of this revoke_requests run
-      next if request.id == @commit_opts[:request]
+      next if request.number == @commit_opts[:request]
 
       request.bs_request_actions.each do |action|
         if action.source_project == self.name
           begin
             request.change_state({:newstate => 'revoked', :comment => "The source project '#{self.name}' has been removed"})
           rescue PostRequestNoPermission
-            logger.debug "#{User.current.login} tried to revoke request #{self.id} but had no permissions"
+            logger.debug "#{User.current.login} tried to revoke request #{self.number} but had no permissions"
           end
           break
         end
@@ -207,7 +207,7 @@ class Project < ActiveRecord::Base
           begin
             request.change_state({:newstate => 'declined', :comment => "The target project '#{self.name}' has been removed"})
           rescue PostRequestNoPermission
-            logger.debug "#{User.current.login} tried to decline request #{self.id} but had no permissions"
+            logger.debug "#{User.current.login} tried to decline request #{self.number} but had no permissions"
           end
           break
         end
@@ -218,7 +218,7 @@ class Project < ActiveRecord::Base
     # but leave the requests otherwise untouched.
     self.open_requests_with_by_project_review.each do |request|
       # Don't alter the request that is the trigger of this revoke_requests run
-      next if request.id == @commit_opts[:request]
+      next if request.number == @commit_opts[:request]
 
       request.obsolete_reviews(:by_project => self.name)
     end
@@ -1438,12 +1438,12 @@ class Project < ActiveRecord::Base
   end
 
   def open_requests
-    reviews = BsRequest.collection(project: name, states: %w(review)).ids
-    targets = BsRequest.collection(project: name, states: %w(new)).ids
-    incidents = BsRequest.collection(project: name, states: %w(new), types: %w(maintenance_incident)).ids
+    reviews = BsRequest.collection(project: name, states: %w(review)).map{|r| r.number}
+    targets = BsRequest.collection(project: name, states: %w(new)).map{|r| r.number}
+    incidents = BsRequest.collection(project: name, states: %w(new), types: %w(maintenance_incident)).map{|r| r.number}
 
     if is_maintenance?
-      maintenance_release = BsRequest.collection(project: name, states: %w(new), types: %w(maintenance_release), subprojects: true).ids
+      maintenance_release = BsRequest.collection(project: name, states: %w(new), types: %w(maintenance_release), subprojects: true).map{|r| r.number}
     else
       maintenance_release = []
     end
@@ -1509,11 +1509,11 @@ class Project < ActiveRecord::Base
     end
   end
 
-  def unlock_by_request(id)
+  def unlock_by_request(request)
     f = self.flags.find_by_flag_and_status('lock', 'enable')
     if f
       self.flags.delete(f)
-      self.store(comment: "Request got revoked", request: id, lowprio: 1)
+      self.store(comment: "Request got revoked", request: request.number, lowprio: 1)
     end
   end
 

@@ -16,31 +16,44 @@ class BsRequestTest < ActiveSupport::TestCase
               <state name="new" />
           </request>'
     req = BsRequest.new_from_xml(xml)
-    assert req.id.nil?
+    assert req.number.nil?
+    assert_equal 1, req.bs_request_actions.length
     req.save!
 
     User.current = users( :_nobody_ )
     req = BsRequest.new_from_xml(xml)
-    assert req.id.nil?
+    assert req.number.nil?
     exception = assert_raise ActiveRecord::RecordInvalid do
       req.save!
     end
     assert_match(/Validation failed: Creator Login _nobody_ is not an active user/, exception.message)
   end
 
-  test "target_maintainer" do
+  def test_target_maintainer
     req = bs_requests(:missing_source_project)
 
     assert req.is_target_maintainer?(users(:adrian))
     assert !req.is_target_maintainer?(users(:user1))
   end
 
-  test "add_role" do
+  def test_incremental_request_numbers
+    req = BsRequest.new_from_xml(load_backend_file('request/add_role'))
+    req.save!
+    req2 = BsRequest.new_from_xml(load_backend_file('request/add_role'))
+    req2.save!
+    req3 = BsRequest.new_from_xml(load_backend_file('request/add_role'))
+    req3.save!
+
+    assert_equal req.number+1, req2.number
+    assert_equal req.number+2, req3.number
+  end
+
+  def test_add_role
     req = BsRequest.new_from_xml(load_backend_file('request/add_role'))
     req.save!
 
     wi = req.webui_infos(diffs: false)
-    assert_equal wi['id'], req.id
+    assert_equal wi['number'], req.number
     assert_equal wi['description'], ''
     assert_equal wi['state'], :review
     assert_equal wi['creator'].login, 'Iggy'
@@ -57,6 +70,7 @@ class BsRequestTest < ActiveSupport::TestCase
 
     wi = req.webui_infos(diffs: false)
     assert_equal wi['id'], req.id
+    assert_equal wi['number'], req.number
     assert_equal wi['description'], ''
     assert_equal wi['state'], :review
     assert_equal wi['creator'].login, 'Iggy'
@@ -79,7 +93,7 @@ class BsRequestTest < ActiveSupport::TestCase
     req.change_review_state('accepted', by_user: 'tom') # he's allowed to - for some reason
   end
 
-  test "parse bigger" do
+  def test_parse_bigger
     xml = <<eos
 <request id="1027">
   <action type="submit">
@@ -107,6 +121,8 @@ class BsRequestTest < ActiveSupport::TestCase
 eos
     req = BsRequest.new_from_xml(xml)
     req.save!
+    # number got increased by one
+    assert_equal 1027, req.number
 
     newxml = req.render_xml
     assert_equal xml, newxml
@@ -130,9 +146,9 @@ eos
     User.current = User.find_by_login(user)
     BsRequest.all.each do |r|
       # puts r.render_xml
-      expect = trues.include?(r.id)
+      expect = trues.include?(r.number)
       assert_equal expect, r.webui_infos(diffs: false)['is_target_maintainer'],
-                   "Request #{r.id} should have #{expect} in target_maintainer for #{user}"
+                   "Request #{r.number} should have #{expect} in target_maintainer for #{user}"
     end
   end
 

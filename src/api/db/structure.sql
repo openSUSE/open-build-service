@@ -232,6 +232,12 @@ CREATE TABLE `bs_request_actions` (
   CONSTRAINT `bs_request_actions_ibfk_1` FOREIGN KEY (`bs_request_id`) REFERENCES `bs_requests` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
+CREATE TABLE `bs_request_counter` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `counter` int(11) DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `bs_request_histories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `bs_request_id` int(11) DEFAULT NULL,
@@ -257,10 +263,12 @@ CREATE TABLE `bs_requests` (
   `updated_at` datetime NOT NULL,
   `accept_at` datetime DEFAULT NULL,
   `priority` enum('critical','important','moderate','low') COLLATE utf8_bin DEFAULT 'moderate',
+  `number` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_bs_requests_on_creator` (`creator`),
   KEY `index_bs_requests_on_state` (`state`),
-  KEY `index_bs_requests_on_superseded_by` (`superseded_by`)
+  KEY `index_bs_requests_on_superseded_by` (`superseded_by`),
+  KEY `index_bs_requests_on_number` (`number`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `cache_lines` (
@@ -1667,6 +1675,8 @@ INSERT INTO schema_migrations (version) VALUES ('20151030130011');
 INSERT INTO schema_migrations (version) VALUES ('20160321085300');
 
 INSERT INTO schema_migrations (version) VALUES ('20160321104000');
+
+INSERT INTO schema_migrations (version) VALUES ('20160321105300');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

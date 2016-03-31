@@ -17,7 +17,7 @@ class RequestController < ApplicationController
 
     # directory list of all requests. not very useful but for backward compatibility...
     # OBS3: make this more useful
-    @request_list = BsRequest.order(:id).pluck(:id)
+    @request_list = BsRequest.order(:number).pluck(:number)
   end
 
   class RequireFilter < APIException
@@ -52,7 +52,7 @@ class RequestController < ApplicationController
   # GET /request/:id
   def show
     required_parameters :id
-    req = BsRequest.find(params[:id])
+    req = BsRequest.find_by_number!(params[:id])
     render xml: req.render_xml(params)
   end
 
@@ -76,7 +76,7 @@ class RequestController < ApplicationController
     be_not_nobody!
 
     params[:user] = User.current.login
-    @req = BsRequest.find params[:id]
+    @req = BsRequest.find_by_number!(params[:id])
 
     # transform request body into query parameter 'comment'
     # the query parameter is preferred if both are set
@@ -113,12 +113,12 @@ class RequestController < ApplicationController
     Suse::Validator.validate(:request, body)
 
     BsRequest.transaction do
-      oldrequest = BsRequest.find params[:id]
+      oldrequest = BsRequest.find_by_number!(params[:id])
       notify = oldrequest.notify_parameters
       oldrequest.destroy
 
       req = BsRequest.new_from_xml(body)
-      req.id = params[:id]
+      req.number = params[:id]
       req.skip_sanitize
       req.save!
 
@@ -131,7 +131,7 @@ class RequestController < ApplicationController
 
   # DELETE /request/:id
   def destroy
-    request = BsRequest.find(params[:id])
+    request = BsRequest.find_by_number!(params[:id])
     notify = request.notify_parameters
     request.destroy # throws us out of here if failing
     notify[:who] = User.current.login
@@ -163,11 +163,11 @@ class RequestController < ApplicationController
   end
 
   def request_command_diff
-    req = BsRequest.find params[:id]
+    req = BsRequest.find_by_number!(params[:id])
 
     diff_text = ''
     xml_request = if params[:view] == 'xml'
-      ActiveXML::Node.new("<request id='#{req.id}'/>")
+      ActiveXML::Node.new("<request id='#{req.number}'/>")
     end
 
     req.bs_request_actions.each do |action|

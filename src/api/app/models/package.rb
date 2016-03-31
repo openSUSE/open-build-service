@@ -1100,7 +1100,7 @@ class Package < ActiveRecord::Base
     self.open_requests_with_package_as_source_or_target.each do |request|
       logger.debug "#{self.class} #{self.name} doing close_requests on request #{request.id} with #{@commit_opts.inspect}"
       # Don't alter the request that is the trigger of this close_requests run
-      next if request.id == @commit_opts[:request]
+      next if request.number == @commit_opts[:request]
 
       request.bs_request_actions.each do |action|
         if action.source_project == self.project.name && action.source_package == self.name

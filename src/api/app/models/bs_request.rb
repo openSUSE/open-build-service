@@ -42,6 +42,8 @@ class BsRequest < ActiveRecord::Base
            ["%#{search}%"] * SEARCHABLE_FIELDS.length].flatten)
   }
 
+  before_create :assign_number
+  before_save :assign_number
   has_many :bs_request_actions, -> { includes([:bs_request_action_accept_info]) }, dependent: :destroy
   has_many :reviews, :dependent => :delete_all
   has_and_belongs_to_many :bs_request_action_groups, join_table: :group_request_requests
@@ -60,6 +62,17 @@ class BsRequest < ActiveRecord::Base
     sanitize! if new and not @skip_sanitize
     super
     notify if new
+  end
+
+  def self.find_by_number!(number)
+    # overload for propper error reporting
+    r = BsRequest.find_by_number(number)
+    unless r
+      # the external visible request id is stored in number row.
+      # the database id must not be exposed to the outside
+      raise NotFoundError.new("Couldn't find request with id '#{number}'")
+    end
+    r
   end
 
   def set_add_revision
@@ -87,6 +100,25 @@ class BsRequest < ActiveRecord::Base
     end
   end
 
+  def assign_number
+     return if self.number
+     # to assign a unique and steady incremental number. Using MySQL auto-increment
+     # mechanism is not working on clusters.
+     sql = BsRequest.connection
+     r = sql.execute("SELECT counter FROM bs_request_counter FOR UPDATE").first
+     if r.nil?
+       # no counter exists, initialize it base on current highest entry
+       last_number = BsRequest.order(:id).last.try(:id)
+       last_number ||= 1
+       sql.execute("INSERT INTO bs_request_counter(counter) VALUES('#{last_number}')")
+       r = sql.execute("SELECT counter FROM bs_request_counter FOR UPDATE").first
+     end
+
+     # do an atomic increase of counter
+     sql.execute("UPDATE bs_request_counter SET counter = counter+1")
+     self.number = r[0]
+  end
+
   def check_supersede_state
     if self.state == :superseded and ( not self.superseded_by.is_a?(Numeric) or not self.superseded_by > 0 )
       errors.add(:superseded_by, 'Superseded_by should be set')
@@ -97,7 +129,7 @@ class BsRequest < ActiveRecord::Base
   end
 
   def superseding
-    BsRequest.where(superseded_by: id)
+    BsRequest.where(superseded_by: self.number)
   end
 
   def state
@@ -137,7 +169,7 @@ class BsRequest < ActiveRecord::Base
 
     BsRequest.transaction do
       request = BsRequest.new
-      request.id = theid if theid
+      request.number = theid if theid
 
       actions = hashed.delete('action')
       if actions.kind_of? Hash
@@ -221,12 +253,12 @@ class BsRequest < ActiveRecord::Base
 
   def to_axml_id
     # FIXME: naming it axml is nonsense if it's just a string
-    "<request id='#{self.id}'/>\n"
+    "<request id='#{self.number}'/>\n"
   end
 
   def render_xml(opts = {})
     builder = Nokogiri::XML::Builder.new
-    builder.request(id: self.id) do |r|
+    builder.request(id: self.number) do |r|
       self.bs_request_actions.each do |action|
         action.render_xml(r)
       end
@@ -329,11 +361,11 @@ class BsRequest < ActiveRecord::Base
         # if the review is open, there is nothing we have to care about
         return if r.state == :new
       end
-      self.comment = "removed from group #{group.bs_request.id}"
+      self.comment = "removed from group #{group.bs_request.number}"
       self.state = :new
       self.save
 
-      p={request: self, comment: "Reopened by removing from group #{group.bs_request.id}", user_id: User.current.id}
+      p={request: self, comment: "Reopened by removing from group #{group.bs_request.number}", user_id: User.current.id}
       HistoryElement::RequestReopened.create(p)
     end
   end
@@ -439,7 +471,7 @@ class BsRequest < ActiveRecord::Base
     self.bs_request_actions.where(type: 'maintenance_release').each do |action|
       # unlock incident project in the soft way
       prj = Project.get_by_name(action.source_project)
-      prj.unlock_by_request(self.id)
+      prj.unlock_by_request(self)
     end
   end
 
@@ -455,7 +487,7 @@ class BsRequest < ActiveRecord::Base
         a.request_changes_state(state)
       end
       self.bs_request_action_groups.each do |g|
-        g.remove_request(self.id)
+        g.remove_request(self.number)
         if opts[:superseded_by] && state == :superseded
           g.addrequest('newid' => opts[:superseded_by])
         end
@@ -763,7 +795,7 @@ class BsRequest < ActiveRecord::Base
   ActionNotifyLimit=50
 
   def notify_parameters(ret = {})
-    ret[:id] = self.id
+    ret[:number] = self.number
     ret[:description] = self.description
     ret[:state] = self.state
     ret[:oldstate] = self.state_was if self.state_changed?
@@ -830,6 +862,7 @@ class BsRequest < ActiveRecord::Base
     opts.reverse_merge!(diffs: true)
     result = Hash.new
     result['id'] = self.id
+    result['number'] = self.number
 
     result['description'] = self.description
     result['priority'] = self.priority

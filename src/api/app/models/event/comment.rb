@@ -47,13 +47,13 @@ end
 class Event::CommentForRequest < ::Event::Request
   include CommentEvent
   self.description = 'New comment for request created'
-  payload_keys :request_id
+  payload_keys :request_number
   receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer
 
   def subject
-    req = BsRequest.find(payload['id'])
+    req = BsRequest.find_by_number(payload['number'])
     req_payload = req.notify_parameters
-    "Request #{payload['id']} commented by #{User.find(payload['commenter']).login} (#{BsRequest.actions_summary(req_payload)})"
+    "Request #{payload['number']} commented by #{User.find(payload['commenter']).login} (#{BsRequest.actions_summary(req_payload)})"
   end
 
   def set_payload(attribs, keys)
