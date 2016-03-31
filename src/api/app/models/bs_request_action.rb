@@ -467,13 +467,13 @@ class BsRequestAction < ActiveRecord::Base
       splits = self.source_project.split(':')
       return nil if splits.count == 2 && splits[0] == 'home'
 
-      source_project.commit_opts = { comment: self.bs_request.description, request: self.bs_request.id }
+      source_project.commit_opts = { comment: self.bs_request.description, request: self.bs_request.number }
       source_project.destroy
       return "/source/#{self.source_project}"
     end
     # just remove one package
     source_package = source_project.packages.find_by_name!(self.source_package)
-    source_package.commit_opts = { comment: self.bs_request.description, request: self.bs_request.id }
+    source_package.commit_opts = { comment: self.bs_request.description, request: self.bs_request.number }
     source_package.destroy
     return Package.source_path(self.source_project, self.source_package)
   end

@@ -95,7 +95,7 @@ module MaintenanceHelper
       noservice: "1",
       comment:   "Set link to #{targetPackageName} via maintenance_release request"
     }
-    upload_params[:requestid] = action.bs_request.id if action
+    upload_params[:requestid] = action.bs_request.number if action
     upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(targetPackageName)}"
     upload_path << Suse::Backend.build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
     answer = Suse::Backend.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
@@ -127,7 +127,7 @@ module MaintenanceHelper
     # commit
     upload_params[:cmd] = 'commitfilelist'
     upload_params[:noservice] = '1'
-    upload_params[:requestid] = request.id if request
+    upload_params[:requestid] = request.number if request
     upload_path = "/source/#{URI.escape(targetProject.name)}/#{URI.escape(basePackageName)}"
     upload_path << Suse::Backend.build_query_from_hash(upload_params, [:user, :comment, :cmd, :noservice, :requestid])
     answer = Suse::Backend.post upload_path, "<directory> <entry name=\"_link\" md5=\"#{md5}\" /> </directory>"
@@ -148,7 +148,7 @@ module MaintenanceHelper
       noservice:      "1",
       withacceptinfo: "1"
     }
-    cp_params[:requestid] = action.bs_request.id if action
+    cp_params[:requestid] = action.bs_request.number if action
     if targetProject.is_maintenance_release? && sourcePackage.is_link?
       # no permission check here on purpose
       if sourcePackage.linkinfo['project'] == targetProject.name &&

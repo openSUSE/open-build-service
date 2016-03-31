@@ -30,7 +30,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 XML
     post '/request?cmd=create', xml
     assert_response :success
-    new_request_id = BsRequest.last.id
+    new_request_id = BsRequest.last.number
     assert_select "request", id: new_request_id do
       assert_select "action", type: "submit" do
         assert_select "source", project: "home:Iggy", package: "TestPack", rev: "2"
@@ -163,7 +163,7 @@ XML
 
     post "/request/#{id}?cmd=changestate&newstate=accepted&comment=approved&force=1"
     assert_response :success
-    assert_equal :accepted, BsRequest.find(id).state
+    assert_equal :accepted, BsRequest.find_by_number(id).state
 
     # Ensure that requests can't be accepted twice
     post "/request/#{id}?cmd=changestate&newstate=accepted&comment=approved&force=1"
@@ -174,7 +174,7 @@ XML
 
     post "/request/#{id2}?cmd=changestate&newstate=accepted&comment=approved&force=1"
     assert_response :success
-    assert_equal :accepted, BsRequest.find(id2).state
+    assert_equal :accepted, BsRequest.find_by_number(id2).state
 
     get "/source/home:Iggy/NEW_PACKAGE/_meta"
     assert_response :success
@@ -255,8 +255,8 @@ XML
     Timecop.freeze(1)
     post "/request/#{id}?cmd=changestate&newstate=accepted&comment=approved"
     assert_response :success
-    assert_equal :accepted, BsRequest.find(id).state
-    assert_equal "approved", BsRequest.find(id).comment
+    assert_equal :accepted, BsRequest.find_by_number(id).state
+    assert_equal "approved", BsRequest.find_by_number(id).comment
 
     # package got created
     get '/source/home:Iggy/NEW_PACKAGE/new_file'
@@ -750,16 +750,16 @@ XML
     assert_response 403
 
     # update comment for real
-    h1 = History.find_by_request(BsRequest.find(id))
-    hr1 = History.find_by_request(BsRequest.find(id), { withreviews: 1 })
+    h1 = History.find_by_request(BsRequest.find_by_number(id))
+    hr1 = History.find_by_request(BsRequest.find_by_number(id), { withreviews: 1 })
     login_tom
     post "/request/#{id}?cmd=changereviewstate&newstate=new&by_user=tom&comment=blahfasel"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
     assert_xml_tag(:parent => { tag: 'review', attributes: { by_user: 'tom' } }, :tag => 'comment', :content => 'blahfasel')
-    h2 = History.find_by_request(BsRequest.find(id))
-    hr2 = History.find_by_request(BsRequest.find(id), { withreviews: 1 })
+    h2 = History.find_by_request(BsRequest.find_by_number(id))
+    hr2 = History.find_by_request(BsRequest.find_by_number(id), { withreviews: 1 })
     assert_equal h2.length-h1.length, 0 # no change
     assert_equal hr2.length-hr1.length, 1 # review accepted
 
@@ -2085,7 +2085,7 @@ XML
     assert_match(/review state change for group test_group is not permitted for Iggy/, @response.body)
     post '/request/987654321?cmd=changereviewstate&newstate=accepted&by_group=test_group'
     assert_response 404
-    assert_match(/Couldn't find BsRequest with 'id'=987654321/, @response.body)
+    assert_match(/Couldn't find request with id '987654321'/, @response.body)
 
     # Only partly matching by_ arguments
     login_adrian
@@ -3290,7 +3290,7 @@ XML
     assert_response :success
     id = Xmlhash.parse(@response.body)['id']
 
-    infos = BsRequest.find(id).webui_infos
+    infos = BsRequest.find_by_number(id).webui_infos
     assert !infos['is_target_maintainer'], 'tom is target maintainer'
   end
 
