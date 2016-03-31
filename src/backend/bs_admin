@@ -200,6 +200,12 @@ Debug Options
 
  --show-scheduler-architectures
    Show all architectures which are configured in configuration.xml to be supported by this instance.
+
+ --show-delta-file <file>
+   Show all instructions of a OBS delta file
+
+ --show-delta-store <file>
+   Show delta store statistics
 ";
 }
 my $emptymd5 = 'd41d8cd98f00b204e9800998ecf8427e';
@@ -852,6 +858,24 @@ while (@ARGV) {
     my $arch = shift @ARGV;
     wipe_notyet($project, $repo, $arch);
     check_project($project, $repo, $arch, undef, 1); # with adminhighprio
+  } elsif ($arg eq "--show-delta-file") {
+    die("ERROR: need delta file as argument!\n") if @ARGV < 1;
+    die("ERROR: not a OBS delta file!\n") unless BSSolv::isobscpio($ARGV[0]);
+    my $store = $ARGV[0];
+    $store =~ s/[^\/]*$/deltastore/s;
+    if (-e $store) {
+      BSSolv::obscpioinstr($ARGV[0], $store);
+    } else {
+      BSSolv::obscpioinstr($ARGV[0]);
+    }
+    shift @ARGV;
+  } elsif ($arg eq "--show-delta-store") {
+    die("ERROR: need delta file/store as argument!\n") if @ARGV < 1;
+    my $store = $ARGV[0];
+    $store =~ s/[^\/]*$/deltastore/s;
+    $store = $ARGV[0] unless -e $store;
+    BSSolv::obscpiostats($store);
+    shift @ARGV;
   } elsif ($arg eq "--create-patchinfo-from-updateinfo") {
     my $uf = shift @ARGV;
     my $pooldirecotory = shift @ARGV;
