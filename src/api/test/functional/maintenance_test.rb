@@ -2292,12 +2292,22 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response 403
     assert_xml_tag :tag => 'status', :attributes => { code: 'project_copy_no_permission' }
 
+    # as admin
+    login_king
+
+    # not needed for runnning this test case alone, but another test case might have triggered
+    # a build job, so we need to be sure to have no reason to schedule a build
+    get '/build/BaseDistro3/BaseDistro3_repo/i586/pack2/_history'
+    xml = Xmlhash.parse(@response.body)
+    md5 = xml['entry']['srcmd5']
+    post "/source/BaseDistro3/pack2?cmd=copy&orev=#{md5}&oproject=BaseDistro3&opackage=pack2"
+    assert_response :success
+    run_scheduler('i586')
+
     get '/build/BaseDistro3/_result'
     assert_response :success
     assert_xml_tag :tag => 'status', :attributes => { package: 'pack2', code: 'succeeded' }
 
-    # as admin
-    login_king
     sleep 1 # to ensure that the timestamp becomes newer
     post '/source/CopyOfBaseDistro3?cmd=copy&oproject=BaseDistro3&withhistory=1&withbinaries=1&nodelay=1'
     assert_response :success
