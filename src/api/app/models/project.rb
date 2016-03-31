@@ -703,18 +703,18 @@ class Project < ActiveRecord::Base
     end
   end
 
-  def update_hostsystem(current_repo, repo)
-    if repo.has_key?('hostsystem')
-      hostsystem = Project.get_by_name repo['hostsystem']['project']
-      target_repo = hostsystem.repositories.find_by_name repo['hostsystem']['repository']
-      if repo['hostsystem']['project'] == self.name and repo['hostsystem']['repository'] == repo['name']
+  def update_hostsystem(current_repo, xml_hash)
+    if xml_hash.has_key?('hostsystem')
+      target_project = Project.get_by_name(xml_hash['hostsystem']['project'])
+      target_repo = target_project.repositories.find_by_name(xml_hash['hostsystem']['repository'])
+      if xml_hash['hostsystem']['project'] == self.name && xml_hash['hostsystem']['repository'] == xml_hash['name']
         raise SaveError, 'Using same repository as hostsystem element is not allowed'
       end
       unless target_repo
-        raise SaveError, "Unknown target repository '#{repo['hostsystem']['project']}/#{repo['hostsystem']['repository']}'"
+        raise SaveError, "Unknown target repository '#{xml_hash['hostsystem']['project']}/#{xml_hash['hostsystem']['repository']}'"
       end
       current_repo.hostsystem = target_repo
-    elsif current_repo.hostsystem
+    else
       current_repo.hostsystem = nil
     end
 
