@@ -2284,27 +2284,31 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
   def test_copy_project_with_history_and_binaries
     login_tom
-    post '/source/home:tom:CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&withbinaries=1'
+    post '/source/home:tom:CopyOfBaseDistro3?cmd=copy&oproject=BaseDistro3&withbinaries=1'
     assert_response 403
     assert_xml_tag :tag => 'status', :attributes => { code: 'project_copy_no_permission' }
+
+    get '/build/BaseDistro3/_result'
+    assert_response :success
+    assert_xml_tag :tag => 'status', :attributes => { package: 'pack2', code: 'succeeded' }
 
     # as admin
     login_king
     sleep 1 # to ensure that the timestamp becomes newer
-    post '/source/CopyOfBaseDistro?cmd=copy&oproject=BaseDistro&withhistory=1&withbinaries=1&nodelay=1'
+    post '/source/CopyOfBaseDistro3?cmd=copy&oproject=BaseDistro3&withhistory=1&withbinaries=1&nodelay=1'
     assert_response :success
-    get '/source/CopyOfBaseDistro/_meta'
+    get '/source/CopyOfBaseDistro3/_meta'
     assert_response :success
-    get '/source/BaseDistro'
+    get '/source/BaseDistro3'
     assert_response :success
     opackages = ActiveXML::Node.new(@response.body)
-    get '/source/CopyOfBaseDistro'
+    get '/source/CopyOfBaseDistro3'
     assert_response :success
     packages = ActiveXML::Node.new(@response.body)
     assert_equal opackages.to_s, packages.to_s
 
     # compare revisions
-    get '/source/BaseDistro/pack2/_history'
+    get '/source/BaseDistro3/pack2/_history'
     assert_response :success
     history = ActiveXML::Node.new(@response.body)
     srcmd5 = last_revision(history).value(:srcmd5)
@@ -2312,7 +2316,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     time = last_revision(history).value(:time)
     vrev = last_revision(history).value(:vrev)
     assert_not_nil srcmd5
-    get '/source/CopyOfBaseDistro/pack2/_history'
+    get '/source/CopyOfBaseDistro3/pack2/_history'
     assert_response :success
     copyhistory = ActiveXML::Node.new(@response.body)
     copysrcmd5 = last_revision(copyhistory).value(:srcmd5)
@@ -2328,15 +2332,23 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # compare binaries
     run_scheduler('i586')
-    get '/build/BaseDistro/BaseDistro_repo/i586/pack2'
+    get '/build/BaseDistro3/BaseDistro3_repo/i586/pack2'
     assert_response :success
     assert_xml_tag :tag => 'binary', :attributes => { filename: 'package-1.0-1.i586.rpm' }
     orig = @response.body
-    get '/build/CopyOfBaseDistro/BaseDistro_repo/i586/pack2'
+    get '/build/CopyOfBaseDistro3/BaseDistro3_repo/i586/pack2'
     assert_response :success
     assert_equal orig, @response.body
 
-    delete '/source/CopyOfBaseDistro'
+    # verify scheduler state
+    get '/build/BaseDistro3/_result'
+    assert_response :success
+    assert_xml_tag :tag => 'status', :attributes => { package: 'pack2', code: 'succeeded' }
+    get '/build/CopyOfBaseDistro3/_result'
+    assert_response :success
+    assert_xml_tag :tag => 'status', :attributes => { package: 'pack2', code: 'succeeded' }
+
+    delete '/source/CopyOfBaseDistro3'
     assert_response :success
   end
 
