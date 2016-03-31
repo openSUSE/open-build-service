@@ -60,6 +60,8 @@ use BSXPathKeys;
 use BSDB;
 use BSDBIndex;
 
+use BSSolv;
+
 $Build::Rpm::unfilteredprereqs = 1 if defined $Build::Rpm::unfilteredprereqs;
 
 use strict;
@@ -109,6 +111,13 @@ my $collect_remote_getrev;
 my $remote_getrev_todo;
 my %remote_getrev_cache;
 my $frozenlinks_cache;
+
+if (!defined(&BSSolv::isobscpio)) {
+  *BSSolv::isobscpio = sub {die("installed BSSolv does not support obscpio\n") };
+  *BSSolv::obscpiostat = sub {die("installed BSSolv does not support obscpio\n") };
+  *BSSolv::obscpioopen= sub {die("installed BSSolv does not support obscpio\n") };
+  *BSSolv::expandobscpio = sub {die("installed BSSolv does not support obscpio\n") };
+}
 
 sub notify {
   my ($type, $p) = @_;
@@ -297,6 +306,16 @@ sub notify_all_repservers {
     };
     print "warning: $reposerver: $@" if $@;
   }
+}
+
+sub adddeltastoreevent {
+  my ($projid, $packid, $file) = @_;
+  mkdir_p("$eventdir/deltastore");
+  my $ev = { type => 'deltastore', 'project' => $projid, 'package' => $packid, 'job' => $file };
+  my $evname = "deltastore:${projid}::${packid}::${file}";
+  $evname = "deltastore:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
+  writexml("$eventdir/deltastore/.$evname", "$eventdir/deltastore/$evname", $ev, $BSXML::event);
+  BSUtil::ping("$eventdir/deltastore/.ping");
 }
 
 # check if a service run is needed for the upcoming commit
@@ -668,7 +687,7 @@ sub mergeservicerun {
     next unless /^_service:.*:(.*?)$/s;
     $files->{$1} = $files->{$_};
     delete $files->{$_};
-    linkfile($projid, $packid, $1, $projid, $packid, $_, $files->{$1});
+    copyonefile($projid, $packid, $1, $projid, $packid, $_, $files->{$1});
   }
   $rev = addrev($cgi, $projid, $packid, $files);
   runservice($cgi, $rev, $files);
@@ -710,7 +729,7 @@ sub expandproduct {
   BSUtil::cleandir($dir);
   mkdir_p($dir);
   for my $file (sort keys %$files) {
-    link("$srcrep/$packid/$files->{$file}-$file", "$dir/$file") || die("link $srcrep/$packid/$files->{$file}-$file $dir/$file: $!\n");
+    copyonefile_tmp($projid, $packid, $file, $files->{$file}, "$dir/$file");
   }
   my @prods = grep {/.product$/}  sort keys %$files;
   my %pids;
@@ -913,6 +932,7 @@ sub repstat {
   my ($rev, $filename, $md5) = @_;
   return repstat_git($rev, $filename, $md5) if length($md5) == 40;
   return stat(repfilename($rev, $filename, $md5)) if $filename eq '_serviceerror';
+  return BSSolv::obscpiostat("$srcrep/$rev->{'package'}/$md5-$filename") if $filename =~ /\.obscpio$/s;
   return stat("$srcrep/$rev->{'package'}/$md5-$filename");
 }
 
@@ -920,19 +940,20 @@ sub repopen {
   my ($rev, $filename, $md5, $fd) = @_;
   return repopen_git($rev, $filename, $md5, $fd) if length($md5) == 40;
   return open($fd, '<', repfilename($rev, $filename, $md5)) if $filename eq '_serviceerror';
+  return BSSolv::obscpioopen("$srcrep/$rev->{'package'}/$md5-$filename", "$srcrep/$rev->{'package'}/deltastore", $fd) if $filename =~ /\.obscpio$/s;
   return open($fd, '<', "$srcrep/$rev->{'package'}/$md5-$filename");
 }
 
 sub repreadstr {
   my ($rev, $filename, $md5, $nonfatal) = @_;
-  my $packid = $rev->{'package'};
-  return readstr("$srcrep/$packid/$md5-$filename", $nonfatal);
+  die("repreadstr does not work with .obscpio files\n") if $filename =~ /\.obscpio$/s;
+  return readstr("$srcrep/$rev->{'package'}/$md5-$filename", $nonfatal);
 }
 
 sub repreadxml {
   my ($rev, $filename, $md5, $dtd, $nonfatal) = @_;
-  my $packid = $rev->{'package'};
-  return readxml("$srcrep/$packid/$md5-$filename", $dtd, $nonfatal);
+  die("repreadxml does not work with .obscpio files\n") if $filename =~ /\.obscpio$/s;
+  return readxml("$srcrep/$rev->{'package'}/$md5-$filename", $dtd, $nonfatal);
 }
 
 sub repfilename {
@@ -951,6 +972,7 @@ sub repfilename {
 sub addfile {
   my ($projid, $packid, $tmpfile, $filename, $md5) = @_;
 
+  die("must not upload unexpanded obscpio files\n") if $filename =~ /\.obscpio$/s && BSSolv::isobscpio($tmpfile);
   if (!$md5) {
     open(F, '<', $tmpfile) || die("$tmpfile: $!\n");
     my $ctx = Digest::MD5->new;
@@ -969,6 +991,7 @@ sub addfile {
         }
       }
     }
+    adddeltastoreevent($projid, $packid, "$md5-$filename");
   } else {
     unlink($tmpfile);
   }
@@ -987,17 +1010,39 @@ sub copyfiles {
   for my $f (sort keys %$files) {
     next if $except && $except->{$f};
     next if -e "$srcrep/$packid/$files->{$f}-$f";
+    if ($f =~ /\.obscpio$/s) {
+      copyonefile($projid, $packid, $f, $oprojid, $opackid, $f, $files->{$f});
+      next;
+    }
     link("$srcrep/$opackid/$files->{$f}-$f", "$srcrep/$packid/$files->{$f}-$f");
     die("link error $srcrep/$opackid/$files->{$f}-$f\n") unless -e "$srcrep/$packid/$files->{$f}-$f";
   }
 }
 
-sub linkfile {
+sub copyonefile_tmp {
+  my ($projid, $packid, $file, $md5, $tmpname) = @_;
+  if ($file =~ /\.obscpio$/s) {
+    BSSolv::expandobscpio("$srcrep/$packid/$md5-$file", "$srcrep/$packid/deltastore", $tmpname);
+  } else {
+    link("$srcrep/$packid/$md5-$file", $tmpname) || die("link $srcrep/$packid/$md5-$file $tmpname: $!\n");
+  }
+}
+
+sub copyonefile {
   my ($projid, $packid, $file, $oprojid, $opackid, $ofile, $md5) = @_;
   return if -e "$srcrep/$packid/$md5-$file";
+  if ($file =~ /\.obscpio$/s) {
+    mkdir_p($uploaddir);
+    my $tmpname = "$uploaddir/copyonefile.$$";
+    copyonefile_tmp($oprojid, $opackid, $ofile, $md5, $tmpname);
+    link($tmpname, "$srcrep/$packid/$md5-$file");
+    die("link error $tmpname $srcrep/$packid/$md5-$file\n") unless -e "$srcrep/$packid/$md5-$file";
+    unlink($tmpname);
+    adddeltastoreevent($projid, $packid, "$md5-$file");
+    return;
+  }
   link("$srcrep/$opackid/$md5-$ofile", "$srcrep/$packid/$md5-$file");
-  return if -e "$srcrep/$packid/$md5-$file";
-  die("link $srcrep/$opackid/$md5-$ofile $srcrep/$packid/$md5-$file error\n");
+  die("link error $srcrep/$opackid/$md5-$ofile $srcrep/$packid/$md5-$file\n") unless -e "$srcrep/$packid/$md5-$file";
 }
 
 sub getrev_git {
@@ -1893,12 +1938,12 @@ sub applylink {
   if (!$isbranch) {
     for my $f (sort keys %$fsrc) {
       next if $flnk->{$f} && !$apply{$f};
-      link("$srcrep/$lsrc->{'package'}/$fsrc->{$f}-$f", "$tmpdir/$f") || die("$f: $!\n");
+      copyonefile_tmp($lsrc->{'project'}, $lsrc->{'package'}, $f, $fsrc->{$f}, "$tmpdir/$f");
       $fl{$f} = "$lsrc->{'package'}/$fsrc->{$f}-$f";
     }
     for my $f (sort keys %$flnk) {
       next if $apply{$f} || $f eq '_link';
-      link("$srcrep/$llnk->{'package'}/$flnk->{$f}-$f", "$tmpdir/$f") || die("$f: $!\n");
+      copyonefile_tmp($llnk->{'project'}, $llnk->{'package'}, $f, $flnk->{$f}, "$tmpdir/$f");
       $fl{$f} = "$llnk->{'package'}/$flnk->{$f}-$f";
     }
   }
@@ -1938,13 +1983,13 @@ sub applylink {
 	my $mlnk = $flnk->{$f} || '';
 	if ($mbas eq $mlnk) {
 	  next if $msrc eq '';
-	  link("$srcrep/$lsrc->{'package'}/$fsrc->{$f}-$f", "$tmpdir/$f") || die("$fsrc->{$f}-$f: $!\n");
+	  copyonefile_tmp($lsrc->{'project'}, $lsrc->{'package'}, $f, $fsrc->{$f}, "$tmpdir/$f");
 	  $fl{$f} = "$lsrc->{'package'}/$fsrc->{$f}-$f";
 	  next;
 	}
 	if ($mbas eq $msrc || $mlnk eq $msrc) {
 	  next if $mlnk eq '';
-	  link("$srcrep/$llnk->{'package'}/$flnk->{$f}-$f", "$tmpdir/$f") || die("$flnk->{$f}-$f: $!\n");
+	  copyonefile_tmp($llnk->{'project'}, $llnk->{'package'}, $f, $flnk->{$f}, "$tmpdir/$f");
 	  $fl{$f} = "$llnk->{'package'}/$flnk->{$f}-$f";
 	  next;
 	}
@@ -1952,10 +1997,14 @@ sub applylink {
 	  $failed = "conflict in file $f";
 	  last;
 	}
+	if ($f =~ /\.obscpio$/s) {
+	  $failed = "conflict in file $f";
+	  last;
+	}
         # run merge tools
-	link("$srcrep/$lsrc->{'package'}/$fsrc->{$f}-$f", "$tmpdir/$f.new") || die("link $fsrc->{$f}-$f: $!\n");
-	link("$srcrep/$lsrc->{'package'}/$fbas->{$f}-$f", "$tmpdir/$f.old") || die("link $fbas->{$f}-$f: $!\n");
-	link("$srcrep/$llnk->{'package'}/$flnk->{$f}-$f", "$tmpdir/$f.mine") || die("link $flnk->{$f}-$f: $!\n");
+        copyonefile_tmp($lsrc->{'project'}, $lsrc->{'package'}, $f, $fsrc->{$f}, "$tmpdir/$f.new");
+        copyonefile_tmp($lsrc->{'project'}, $lsrc->{'package'}, $f, $fbas->{$f}, "$tmpdir/$f.old");
+        copyonefile_tmp($llnk->{'project'}, $llnk->{'package'}, $f, $flnk->{$f}, "$tmpdir/$f.mine");
 	if (!isascii("$tmpdir/$f.new") || !isascii("$tmpdir/$f.old") || !isascii("$tmpdir/$f.mine")) {
 	  $failed = "conflict in file $f";
 	  last;
@@ -5054,9 +5103,19 @@ sub getfilelist {
 	BSHandoff::handoff("/source/$projid/$packid", undef, "rev=$rev->{'srcmd5'}", 'view=cpio');
       }
     }
-    my @files = map {{'name' => $_, 'filename' => "$srcrep/$packid/$files->{$_}-$_"}} sort keys %$files;
-    # sigh
-    $files->[0]->{'filename'} = repfilename($rev, '_serviceerror', $files->{'_serviceerror'}) if @files == 1 && $files->{'_serviceerror'};
+    my @files;
+    for my $f (sort keys %$files) {
+      if ($f =~ /\.obscpio$/s) {
+        my $fd = gensym;
+	if (!repopen($rev, $f, $files->{$f}, $fd)) {
+          push @files, {'name' => $f, 'error' => "repopen $files->{$f}: $!"};
+	} else {
+          push @files, {'name' => $f, 'filename' => $fd};
+	}
+	next;
+      }
+      push @files, {'name' => $f, 'filename' => repfilename($rev, $f, $files->{$f})};
+    }
     BSServer::reply_cpio(\@files);
     return undef;
   }
@@ -5064,22 +5123,19 @@ sub getfilelist {
   if ($view && ($view eq 'products' || $view eq 'productrepositories') ) {
     my @res;
     for my $filename (sort keys %$files) {
-      next unless $filename =~ /\.product$/;
+      next unless $filename =~ /\.product$/s;
       next if $cgi->{'product'} && $filename ne "$cgi->{'product'}.product";
-      my $xml = BSProductXML::readproductxml("$srcrep/$rev->{'package'}/$files->{$filename}-$filename", 0, undef, $files);
+      my $filename = repfilename($rev, $filename, $files->{$filename});
+      my $xml = BSProductXML::readproductxml($filename, 0, undef, $files);
       die("400 Unable to parse $filename\n") unless $xml;
-      if ($view eq 'productrepositories') {
-        push @res, getproductrepositories($xml);
-      } else {
-        push @res, $xml;
-      }
+      $xml = getproductrepositories($xml) if $view eq 'productrepositories';
+      push @res, $xml;
     }
     if ($view eq 'productrepositories') {
       return ({"product" => \@res}, $BSProductXML::productlistrepositories);
+    } else {
+      return ({'productdefinition' => \@res}, $BSProductXML::products);
     }
-    my $ret = {};
-    $ret->{'productdefinition'} = \@res;
-    return ($ret, $BSProductXML::products);
   }
 
   my $ret = {};
@@ -5146,7 +5202,6 @@ sub putfile {
   mkdir_p($uploaddir);
   my $uploaded = BSServer::read_file("$uploaddir/$$", 'withmd5' => 1);
   die("upload failed\n") unless $uploaded;
-
   if ($cgi->{'meta'}) {
     if ($filename eq '_attribute') {
       my $attribs = readxml("$uploaddir/$$", $BSXML::attributes);
@@ -5729,8 +5784,8 @@ sub integratelink {
 	    my $ppatch = findprojectpatchname($files);
 	    mkdir_p($uploaddir);
 	    unlink("$uploaddir/$$");
-	    link("$srcrep/$opackid/$ofiles->{$oppatch}-$oppatch", "$uploaddir/$$") || die("link $srcrep/$opackid/$ofiles->{$oppatch}-$oppatch $uploaddir/$$: $!\n");
-            $files->{$ppatch} = addfile($projid, $packid, "$uploaddir/$$", $ppatch);
+	    copyonefile_tmp($oprojid, $opackid, $oppatch, $ofiles->{$oppatch}, "$uploaddir/$$");
+	    $files->{$ppatch} = addfile($projid, $packid, "$uploaddir/$$", $ppatch);
 	    push @{$nl->{'patches'}->{''}}, {'apply' => {'name' => $ppatch}};
 	    next;
 	  }
