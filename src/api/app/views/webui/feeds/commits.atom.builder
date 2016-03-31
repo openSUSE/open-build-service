@@ -15,7 +15,7 @@ xml.feed(feed_opts) do |feed|
     feed.entry do |entry|
       package = commit.package_name
       user = commit.user_name
-      reqid = commit.bs_request_id
+      reqid = BsRequest.find(commit.bs_request_id).number if commit.bs_request_id
       datetime = commit.datetime
       url = ''
 

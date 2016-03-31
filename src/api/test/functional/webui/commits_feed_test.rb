@@ -1,6 +1,11 @@
 require_relative '../../test_helper'
 
 class Webui::CommitsFeedTest < Webui::IntegrationTest
+  def setup
+    wait_for_scheduler_start
+    reset_auth
+  end
+
   def test_default_feed # spec/controllers/webui/feeds_controller_spec.rb
     Timecop.freeze(2013, 8, 14, 12, 0, 0) do
       get '/project/latest_commits/BaseDistro'

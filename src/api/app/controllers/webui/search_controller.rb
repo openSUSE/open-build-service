@@ -46,7 +46,7 @@ class Webui::SearchController < Webui::WebuiController
 
     # request number when string starts with a #
     if @search_text.starts_with?('#') && @search_text[1..-1].to_i > 0
-      redirect_to controller: 'request', action: 'show', id: @search_text[1..-1]
+      redirect_to controller: 'request', action: 'show', number: @search_text[1..-1]
       return
     end
 
