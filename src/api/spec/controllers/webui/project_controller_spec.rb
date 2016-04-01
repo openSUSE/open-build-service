@@ -54,16 +54,99 @@ RSpec.describe Webui::ProjectController do
     end
   end
 
-  describe 'GET #autocomplete_projectsindex' do
+  describe 'GET #autocomplete_projects' do
+    before do
+      create(:project, name: 'Apache')
+      create(:project, name: 'Apache2')
+      create(:project, name: 'openSUSE')
+      create(:maintenance_incident_project, name: 'ApacheMI')
+    end
+
+    context 'without search term' do
+      before do
+        get :autocomplete_projects
+        @json_response = JSON.parse(response.body)
+      end
+
+      it { expect(@json_response).to be_a(Array) }
+      it { expect(@json_response.length).to eq(3) }
+      it { expect(@json_response).to contain_exactly('Apache', 'Apache2', 'openSUSE') }
+      it { expect(@json_response).not_to include('ApacheMI') }
+    end
+
+    context 'with search term' do
+      before do
+        get :autocomplete_projects, term: 'Apache'
+        @json_response = JSON.parse(response.body)
+      end
+
+      it { expect(@json_response).to be_a(Array)}
+      it { expect(@json_response.length).to eq(2) }
+      it { expect(@json_response).to contain_exactly('Apache', 'Apache2') }
+      it { expect(@json_response).not_to include('ApacheMI') }
+      it { expect(@json_response).not_to include('openSUSE') }
+    end
   end
 
   describe 'GET #autocomplete_incidents' do
+    before do
+      create(:project, name: 'Apache')
+      create(:maintenance_incident_project, name: 'ApacheMI')
+      get :autocomplete_incidents, term: 'Apache'
+      @json_response = JSON.parse(response.body)
+    end
+
+    it { expect(@json_response).to be_a(Array) }
+    it { expect(@json_response).to contain_exactly('ApacheMI') }
+    it { expect(@json_response).not_to include('Apache') }
   end
 
   describe 'GET #autocomplete_packages' do
+    before do
+      apache_project = create(:project, name: 'Apache')
+      create(:package, name: 'Apache_Package', project: apache_project)
+      create(:package, name: 'Apache2_Package', project: apache_project)
+      another_project = create(:project, name: 'Another_Project')
+      create(:package, name: 'Apache_Package_Another_Project', project: another_project)
+    end
+
+    context 'without search term' do
+      before do
+        get :autocomplete_packages, project: 'Apache'
+        @json_response = JSON.parse(response.body)
+      end
+
+      it { expect(@json_response).to be_a(Array) }
+      it { expect(@json_response.length).to eq(2) }
+      it { expect(@json_response).to contain_exactly('Apache_Package', 'Apache2_Package') }
+      it { expect(@json_response).not_to include('Apache_Package_Another_Project') }
+    end
+
+    context 'with search term' do
+      before do
+        get :autocomplete_packages, { project: 'Apache', term: 'Apache2' }
+        @json_response = JSON.parse(response.body)
+      end
+
+      it { expect(@json_response).to be_a(Array)}
+      it { expect(@json_response.length).to eq(1) }
+      it { expect(@json_response).to contain_exactly('Apache2_Package') }
+      it { expect(@json_response).not_to include('Apache_Package') }
+      it { expect(@json_response).not_to include('Apache_Package_Another_Project') }
+    end
   end
 
   describe 'GET #autocomplete_repositories' do
+    before do
+      apache_project = create(:project, name: 'Apache')
+      @repositories = create_list(:repository, 5, { project: apache_project })
+      get :autocomplete_repositories, project: 'Apache'
+      @json_response = JSON.parse(response.body)
+    end
+
+    it { expect(@json_response).to be_a(Array) }
+    it { expect(@json_response.length).to eq(5) }
+    it { expect(@json_response).to match_array(@repositories.map {|r| r.name }) }
   end
 
   describe 'GET #users' do
@@ -266,6 +349,4 @@ RSpec.describe Webui::ProjectController do
 
   describe 'GET #set_project_by_name' do
   end
-
-
 end
