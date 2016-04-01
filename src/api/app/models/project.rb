@@ -52,7 +52,7 @@ class Project < ActiveRecord::Base
   has_many :attribs, :dependent => :destroy
 
   has_many :repositories, :dependent => :destroy, foreign_key: :db_project_id
-  has_many :repository_architectures, -> { order("position") }, :dependent => :destroy, through: :repositories
+  has_many :repository_architectures, -> { order("position") }, through: :repositories
   has_many :architectures, -> { order("position").distinct }, :through => :repository_architectures
 
   has_many :messages, :as => :db_object, :dependent => :delete_all
