@@ -22,8 +22,8 @@ RSpec.describe Webui::ProjectController do
   describe 'GET #index' do
     context 'showing all projects' do
       before do
-        create(:confirmed_user, login: 'moi')
-        create(:project)
+        create(:project, name: 'home:moi')
+        create(:project, name: 'AnotherProject')
         get :index, { show_all: true}
       end
 
@@ -34,8 +34,8 @@ RSpec.describe Webui::ProjectController do
 
     context 'showing not home projects' do
       before do
-        create(:confirmed_user, login: 'moi')
-        create(:project)
+        create(:project, name: 'home:moi')
+        create(:project, name: 'AnotherProject')
         get :index, { show_all: false}
       end
 
@@ -68,8 +68,6 @@ RSpec.describe Webui::ProjectController do
         @json_response = JSON.parse(response.body)
       end
 
-      it { expect(@json_response).to be_a(Array) }
-      it { expect(@json_response.length).to eq(3) }
       it { expect(@json_response).to contain_exactly('Apache', 'Apache2', 'openSUSE') }
       it { expect(@json_response).not_to include('ApacheMI') }
     end
@@ -80,8 +78,6 @@ RSpec.describe Webui::ProjectController do
         @json_response = JSON.parse(response.body)
       end
 
-      it { expect(@json_response).to be_a(Array)}
-      it { expect(@json_response.length).to eq(2) }
       it { expect(@json_response).to contain_exactly('Apache', 'Apache2') }
       it { expect(@json_response).not_to include('ApacheMI') }
       it { expect(@json_response).not_to include('openSUSE') }
@@ -96,7 +92,6 @@ RSpec.describe Webui::ProjectController do
       @json_response = JSON.parse(response.body)
     end
 
-    it { expect(@json_response).to be_a(Array) }
     it { expect(@json_response).to contain_exactly('ApacheMI') }
     it { expect(@json_response).not_to include('Apache') }
   end
@@ -116,8 +111,6 @@ RSpec.describe Webui::ProjectController do
         @json_response = JSON.parse(response.body)
       end
 
-      it { expect(@json_response).to be_a(Array) }
-      it { expect(@json_response.length).to eq(2) }
       it { expect(@json_response).to contain_exactly('Apache_Package', 'Apache2_Package') }
       it { expect(@json_response).not_to include('Apache_Package_Another_Project') }
     end
@@ -128,8 +121,6 @@ RSpec.describe Webui::ProjectController do
         @json_response = JSON.parse(response.body)
       end
 
-      it { expect(@json_response).to be_a(Array)}
-      it { expect(@json_response.length).to eq(1) }
       it { expect(@json_response).to contain_exactly('Apache2_Package') }
       it { expect(@json_response).not_to include('Apache_Package') }
       it { expect(@json_response).not_to include('Apache_Package_Another_Project') }
@@ -144,12 +135,25 @@ RSpec.describe Webui::ProjectController do
       @json_response = JSON.parse(response.body)
     end
 
-    it { expect(@json_response).to be_a(Array) }
-    it { expect(@json_response.length).to eq(5) }
     it { expect(@json_response).to match_array(@repositories.map {|r| r.name }) }
   end
 
   describe 'GET #users' do
+    before do
+      @project = create(:project)
+      create(:relationship_project_user, project: @project, user: create(:confirmed_user))
+      create(:relationship_project_user, project: @project, user: create(:confirmed_user))
+      create(:relationship_project_group, project: @project, group: create(:group))
+
+      another_project = create(:project)
+      create(:relationship_project_user, project: another_project, user: create(:confirmed_user))
+      create(:relationship_project_group, project: another_project, group: create(:group))
+      get :users, project: @project
+    end
+
+    it { expect(assigns(:users)).to match_array(@project.users) }
+    it { expect(assigns(:groups)).to match_array(@project.groups) }
+    it { expect(assigns(:roles)).to match_array(Role.local_roles) }
   end
 
   describe 'GET #subprojects' do
