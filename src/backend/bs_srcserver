@@ -940,7 +940,7 @@ sub repopen {
   my ($rev, $filename, $md5, $fd) = @_;
   return repopen_git($rev, $filename, $md5, $fd) if length($md5) == 40;
   return open($fd, '<', repfilename($rev, $filename, $md5)) if $filename eq '_serviceerror';
-  return BSSolv::obscpioopen("$srcrep/$rev->{'package'}/$md5-$filename", "$srcrep/$rev->{'package'}/deltastore", $fd) if $filename =~ /\.obscpio$/s;
+  return BSSolv::obscpioopen("$srcrep/$rev->{'package'}/$md5-$filename", "$srcrep/$rev->{'package'}/deltastore", $fd, $uploaddir) if $filename =~ /\.obscpio$/s;
   return open($fd, '<', "$srcrep/$rev->{'package'}/$md5-$filename");
 }
 
