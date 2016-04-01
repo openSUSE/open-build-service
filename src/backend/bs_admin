@@ -873,9 +873,9 @@ while (@ARGV) {
   } elsif ($arg eq "--show-delta-store") {
     die("ERROR: need delta file/store as argument!\n") if @ARGV < 1;
     my $store = $ARGV[0];
-    $store =~ s/[^\/]*$/deltastore/s;
-    $store = $ARGV[0] unless -e $store;
-    BSSolv::obscpiostats($store);
+    $store .= '/deltastore' if -d $store;
+    $store =~ s/[^\/]*\.obscpio$/deltastore/s;
+    BSSolv::obscpiostorestats($store);
     shift @ARGV;
   } elsif ($arg eq "--create-patchinfo-from-updateinfo") {
     my $uf = shift @ARGV;
