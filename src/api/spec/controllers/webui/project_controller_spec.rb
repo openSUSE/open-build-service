@@ -157,6 +157,17 @@ RSpec.describe Webui::ProjectController do
   end
 
   describe 'GET #subprojects' do
+    before do
+      create(:project, name: 'Apache')
+      @project = create(:project, name: 'Apache:Apache2')
+      create(:project, name: 'Apache:Apache2:TestSubproject')
+      create(:project, name: 'Apache:Apache2:TestSubproject2')
+      create(:project, name: 'Another_Project')
+      get :subprojects, project: @project
+    end
+
+    it { expect(assigns(:subprojects)).to match_array(@project.subprojects) }
+    it { expect(assigns(:parentprojects)).to match_array(@project.ancestors) }
   end
 
   describe 'GET #new' do
