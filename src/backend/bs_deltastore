@@ -70,6 +70,19 @@ sub deltastore {
     return;
   }
   unlink("$tmp.in");
+  if (1) {
+    if ($file =~ /^([0-9a-f]{32})-/) {
+      my $md5 = $1;
+      print "  - verifying re-expansion...\n";
+      local *F;
+      BSSolv::obscpioopen($tmp, "$srcrep/$packid/deltastore", \*F, $uploaddir) || die("BSSolv::obscpioopen failed\n");
+      my $ctx = Digest::MD5->new;
+      $ctx->addfile(*F);
+      close F;
+      my $rmd5 = $ctx->hexdigest();
+      die("  - md5sum mismatch: $md5 $rmd5\n") if $md5 ne $rmd5;
+    }
+  }
   if (!rename($tmp, "$srcrep/$packid/$file")) {
     print "  - rename $tmp $srcrep/$packid/$file: $!\n";
     unlink("$tmp.in");
