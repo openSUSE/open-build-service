@@ -4836,8 +4836,20 @@ sub getfilelist_ajax {
   if ($cgi->{'view'} eq 'cpio') {
     my $rev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $cgi->{'rev'}};
     my $files = lsrev($rev);
-    my @send = map {{'name' => $_, 'filename' => "$srcrep/$packid/$files->{$_}-$_"}} keys %$files;
-    BSWatcher::reply_cpio(\@send);
+    my @files;
+    for my $f (sort keys %$files) {
+      if ($f =~ /\.obscpio$/s) {
+        my $fd = gensym;
+        if (!repopen($rev, $f, $files->{$f}, $fd)) {
+          push @files, {'name' => $f, 'error' => "repopen $files->{$f}: $!"};
+        } else {
+          push @files, {'name' => $f, 'filename' => $fd};
+        }
+        next;
+      }
+      push @files, {'name' => $f, 'filename' => repfilename($rev, $f, $files->{$f})};      
+    }
+    BSWatcher::reply_cpio(\@files);
     return undef;
   }
   die("unknown view '$cgi->{'view'}'\n") unless $cgi->{'view'} eq 'notify';
