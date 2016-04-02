@@ -12,6 +12,7 @@ env:
   - TEST_SUITE=webui
   - TEST_SUITE=spider
   - TEST_SUITE=rspec
+  - TEST_SUITE=backend
 matrix:
   fast_finish: true
 notifications:
