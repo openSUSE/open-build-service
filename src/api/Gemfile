@@ -8,7 +8,7 @@ gem 'actionmailer'
 # as our database
 gem 'mysql2'
 # as requirement for activexml
-gem 'nokogiri', '~>1.6.7'
+gem 'nokogiri', '~>1.6.3'
 # for delayed tasks
 gem 'delayed_job_active_record', '>= 4.0.0'
 # to fill errbit
@@ -43,8 +43,6 @@ gem 'responders', '~> 2.0'
 gem 'bundler'
 # for threaded comments
 gem 'acts_as_tree'
-# js plotting (OBS monitor)
-gem 'flot-rails'
 
 group :development, :production do
   # to have the delayed job daemon
@@ -116,7 +114,7 @@ group :development, :test do
   # as alternative to the standard IRB shell
   gem 'pry', '>= 0.9.12'
   # for style checks
-  gem 'rubocop', require: false
+  gem 'rubocop', '>= 0.39.0', require: false
   # to generate random long strings
   gem 'faker'
   # as driver for capybara
@@ -134,7 +132,7 @@ group :assets do
   # to use sass in the asset pipeline
   gem 'sass-rails', '~> 5.0.1'
   # assets for jQuery DataTables
-  gem 'jquery-datatables-rails'
+  gem 'jquery-datatables-rails', '~> 1.12.2'  # version 3 needs henne's new webui
   # assets for the text editor
   gem 'codemirror-rails'
   # assets for jQuery tokeninput
