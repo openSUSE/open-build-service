@@ -42,11 +42,8 @@ module Webui::ProjectHelper
   def project_bread_crumb(*args)
     @crumb_list = [link_to('Projects', project_list_public_path)]
     return if @spider_bot
-    # Sometimes @project is a WebuiProject and sometimes a Project
-    # We need to check this before calling new_record?
-    unless @project.nil? ||
-        (@project.kind_of?(Project) && @project.new_record?) ||
-        @project.is_remote?
+    # FIXME: should also work for remote
+    if @project && @project.kind_of?(Project) && !@project.new_record?
       prj_parents = nil
       if @namespace # corner case where no project object is available
         prj_parents = Project.parent_projects(@namespace)

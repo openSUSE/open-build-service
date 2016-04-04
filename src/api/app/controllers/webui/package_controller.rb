@@ -796,11 +796,11 @@ class Webui::PackageController < Webui::WebuiController
     end
 
     begin
-      @package = Package.get_by_project_and_name(params[:project], params[:package],
+      @package = Package.get_by_project_and_name(@project, params[:package],
                                                  use_source: false, follow_project_links: true)
     rescue Package::UnknownObjectError
-      flash[:error] = "Couldn't find package '#{params[:package]}' in project '#{params[:project]}'. Are you sure it exists?"
-      redirect_to project_show_path(@project.name)
+      flash[:error] = "Couldn't find package '#{params[:package]}' in project '#{@project.to_param}'. Are you sure it exists?"
+      redirect_to project_show_path(@project.to_param)
       return
     end
 
@@ -810,7 +810,7 @@ class Webui::PackageController < Webui::WebuiController
       return
     end
 
-    @package = params[:package] unless @package
+    @package ||= params[:package] # for remote package
     @arch = params[:arch]
     @repo = params[:repository]
     @offset = 0
