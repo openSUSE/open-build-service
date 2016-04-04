@@ -4837,8 +4837,8 @@ sub getsources {
   my ($cgi, $projid, $packid, $srcmd5) = @_;
   my $rev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $srcmd5};
   my $files = lsrev($rev);
-  my @send = map {{'name' => $_, 'filename' => "$srcrep/$packid/$files->{$_}-$_"}} keys %$files;
-  BSServer::reply_cpio(\@send);
+  my @files = map {repcpiofile($rev, $_, $files->{$_})} sort keys %$files;
+  BSServer::reply_cpio(\@files);
   return undef;
 }
 
@@ -8435,7 +8435,7 @@ sub sourceinfo {
     $r->{'error'} = "don't know how to build $file";
     return $r;
   }
-  my $d = Build::parse_typed($bconf, "$srcrep/$packid/$files->{$file}-$file", $buildtype);
+  my $d = Build::parse_typed($bconf, repfilename($rev, $file, $files->{$file}), $buildtype);
   if (!$d) {
     $r->{'error'} = "parse error";
     return $r;
