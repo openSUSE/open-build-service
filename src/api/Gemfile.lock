@@ -368,7 +368,7 @@ DEPENDENCIES
   minitest-reporters
   mocha (> 0.13.0)
   mysql2
-  nokogiri (~> 1.6.3)
+  nokogiri (~> 1.6.7)
   poltergeist (>= 1.4)
   pry (>= 0.9.12)
   pundit
