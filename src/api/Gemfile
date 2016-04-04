@@ -8,7 +8,7 @@ gem 'actionmailer'
 # as our database
 gem 'mysql2'
 # as requirement for activexml
-gem 'nokogiri', '~>1.6.3'
+gem 'nokogiri', '~>1.6.7'
 # for delayed tasks
 gem 'delayed_job_active_record', '>= 4.0.0'
 # to fill errbit
