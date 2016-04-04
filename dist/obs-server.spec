@@ -69,7 +69,7 @@ BuildRequires:  python-devel
 # also see requires in the obs-server-api sub package
 BuildRequires:  build >= 20151130
 BuildRequires:  inst-source-utils
-BuildRequires:  perl-BSSolv >= 0.25.1
+BuildRequires:  perl-BSSolv >= 0.28
 BuildRequires:  perl-Compress-Zlib
 BuildRequires:  perl-File-Sync >= 0.10
 BuildRequires:  perl-JSON-XS
@@ -87,7 +87,7 @@ BuildArch:      noarch
 Requires:       obs-common
 Requires:       build >= 20151130
 Requires:       obs-productconverter >= %version
-Requires:       perl-BSSolv >= 0.19.0
+Requires:       perl-BSSolv >= 0.28
 # Required by source server
 Requires:       diffutils
 PreReq:         git-core
