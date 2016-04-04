@@ -5402,21 +5402,33 @@ sub sourcediff {
   }
   my $tmpdir = "$uploaddir/srcdiff$$";
   my $d;
+  my %xobscpio;
+  mkdir_p($uploaddir);
+  my $xobscpio = sub {
+    return repfilename($_[0], $_[1], $_[2]) if $_[1] !~ /\.obscpio$/;
+    my $tmp = "$uploaddir/sourcediff.obscpio.$$.$_[2]-$_[1]";
+    copyonefile_tmp($_[0]->{'project'}, $_[0]->{'package'}, $_[1], $_[2], $tmp) unless $xobscpio{$tmp};
+    $xobscpio{$tmp} = 1;
+    return $tmp;
+  };
+  my $ofn = sub { $xobscpio->($orev, $_[0], $_[1]) };
+  my $fn  = sub { $xobscpio->($rev, $_[0], $_[1]) };
   if ($view eq 'xml') {
     my %opts = ('edir' => $tmpdir, 'similar' => 1, 'doarchive' => 1, 'fmax' => $fmax, 'tmax' => $tmax);
     if (!$cgi->{'onlyissues'}) {
-      $xmlret->{'files'} = { 'file' => BSSrcdiff::datadiff("$srcrep/$opackid", $ofiles, $orev->{'rev'}, "$srcrep/$packid", $files, $rev->{'rev'}, %opts) };
+      $xmlret->{'files'} = { 'file' => BSSrcdiff::datadiff($ofn, $ofiles, $orev, $fn, $files, $rev, %opts) };
     }
     if ($cgi->{'withissues'}) {
       my $trackers = readxml("$BSConfig::bsdir/issuetrackers.xml", $BSXML::issue_trackers, 1) || {};
       $trackers = $trackers->{'issue-tracker'} || [];
-      $xmlret->{'issues'} = { 'issue' => BSSrcdiff::issuediff("$srcrep/$opackid", $ofiles, $orev->{'rev'}, "$srcrep/$packid", $files, $rev->{'rev'}, $trackers, %opts) };
+      $xmlret->{'issues'} = { 'issue' => BSSrcdiff::issuediff($ofn, $ofiles, $orev, $fn, $files, $rev, $trackers, %opts) };
     }
     BSUtil::data2utf8xml($xmlret);
     $d = XMLout($BSXML::sourcediff, $xmlret);
   } else {
-    $d = BSSrcdiff::diff("$srcrep/$opackid", $ofiles, $orev->{'rev'}, "$srcrep/$packid", $files, $rev->{'rev'}, $fmax, $tmax, $tmpdir, $view eq 'unified' ? 1 : 0);
+    $d = BSSrcdiff::diff($ofn, $ofiles, $orev, $fn, $files, $rev, $fmax, $tmax, $tmpdir, $view eq 'unified' ? 1 : 0);
   }
+  unlink($_) for keys %xobscpio;
   mkdir_p("$diffcache/".substr($cacheid, 0, 2));
   writestr("$diffcache/.new$$", $cn, $d);
   unlink("$cn.run");
