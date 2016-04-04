@@ -1,10 +1,11 @@
 inherit_from: .rubocop_todo.yml
 AllCops:
-  RunRailsCops: true
   Exclude:
     - 'tmp/**/*'
     - 'lib/templates/**/*'
     - 'vendor/bundle/**/*'
+Rails:
+  Enabled: true
 
 # Someday we should add copyrights
 Style/Copyright:
