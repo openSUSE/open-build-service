@@ -586,16 +586,18 @@ class Project < ActiveRecord::Base
 
   def update_repositories(xmlhash, force)
     fill_repo_cache
+
+    xmlhash.elements('repository') do |repo_xml_hash|
+      update_repository_without_path_element(repo_xml_hash)
+    end
     # Some repositories might be refered by path elements before they appear in the
     # xml tree. Thus we have 2 iterations. First one goes through all repository
     # elements, second run handles path elements.
     # This can be the case when creating multiple repositories in a project where one
     # repository uses another one, eg. importing an existing config from elsewhere.
     xmlhash.elements('repository') do |repo|
-      update_one_repository_without_path(repo)
-    end
-    xmlhash.elements('repository') do |repo|
-      update_one_repository_add_pathes(repo)
+      current_repo = self.repositories.find_by_name(repo['name'])
+      update_path_elements(current_repo, repo)
     end
 
     # delete remaining repositories in @repocache
@@ -622,34 +624,54 @@ class Project < ActiveRecord::Base
     end
   end
 
-  def update_one_repository_add_pathes(repo)
-    current_repo = self.repositories.find_by_name(repo['name'])
-
-    # sync download on demand config
-    download_repositories = []
-    repo.elements('download').each do |xml_download|
-      download_repository = DownloadRepository.new(arch: xml_download['arch'],
-                    url: xml_download['url'],
-                    repotype: xml_download['repotype'],
-                    archfilter: xml_download['archfilter'],
-                    pubkey: xml_download['pubkey'])
-      if xml_download['master']
-         download_repository.masterurl = xml_download['master']['url']
-         download_repository.mastersslfingerprint = xml_download['master']['sslfingerprint']
-      end
-      download_repositories << download_repository
+  def update_repository_without_path_element(xml_hash)
+    current_repo = @repocache[xml_hash['name']]
+    unless current_repo
+      logger.debug "adding repository '#{xml_hash['name']}'"
+      current_repo = self.repositories.new(name: xml_hash['name'])
     end
-    current_repo.download_repositories.replace(download_repositories)
+    logger.debug "modifying repository '#{xml_hash['name']}'"
 
+    update_repository_flags(current_repo, xml_hash)
+    update_release_targets(current_repo, xml_hash)
+    update_hostsystem(current_repo, xml_hash)
+    update_repository_architectures(current_repo, xml_hash)
+    update_download_repositories(current_repo, xml_hash)
+
+    current_repo.save!
+
+    @repocache.delete(xml_hash['name'])
+  end
+
+  def update_download_repositories(current_repo, xml_hash)
+    dod_repositories = xml_hash.elements("download").map do |dod|
+      dod_attributes = {
+         arch:       dod["arch"],
+         url:        dod["url"],
+         repotype:   dod["repotype"],
+         archfilter: dod["archfilter"],
+         pubkey:     dod["pubkey"]
+      }
+      if dod["master"]
+        dod_attributes[:masterurl]            = dod["master"]["url"]
+        dod_attributes[:mastersslfingerprint] = dod["master"]["sslfingerprint"]
+      end
+
+      DownloadRepository.new(dod_attributes)
+    end
+    current_repo.download_repositories.replace(dod_repositories)
+  end
+
+  def update_path_elements(current_repo, xml_hash)
     # destroy all current pathelements
     current_repo.path_elements.destroy_all
+    return unless xml_hash["path"]
 
     # recreate pathelements from xml
     position = 1
-    repo.elements('path') do |path|
+    xml_hash.elements('path') do |path|
       link_repo = Repository.find_by_project_and_name(path['project'], path['repository'])
-      if path['project'] == self.name &&
-          path['repository'] == repo['name']
+      if path['project'] == self.name && path['repository'] == xml_hash['name']
         raise SaveError, 'Using same repository as path element is not allowed'
       end
       unless link_repo
@@ -662,89 +684,69 @@ class Project < ActiveRecord::Base
     current_repo.save!
   end
 
-  def update_one_repository_without_path(repo)
-    current_repo = @repocache[repo['name']]
-    unless current_repo
-      logger.debug "adding repository '#{repo['name']}'"
-      current_repo = self.repositories.new(:name => repo['name'])
-    end
-    logger.debug "modifying repository '#{repo['name']}'"
-
-    update_repository_flags(current_repo, repo)
-
+  def update_release_targets(current_repo, xml_hash)
     # destroy all current releasetargets
     current_repo.release_targets.destroy_all
 
     # recreate release targets from xml
-    repo.elements('releasetarget') do |rt|
-      if Project.find_by(name: rt['project']).is_remote?
-        raise SaveError, "Can not use remote repository as release target '#{rt['project']}/#{rt['repository']}'"
+    xml_hash.elements('releasetarget') do |release_target|
+      project    = release_target['project']
+      repository = release_target['repository']
+      trigger    = release_target['trigger']
+
+      if Project.find_by(name: project).is_remote?
+        raise SaveError, "Can not use remote repository as release target '#{project}/#{repository}'"
       else
-        target_repo = Repository.find_by_project_and_name(rt['project'], rt['repository'])
+        target_repo = Repository.find_by_project_and_name(project, repository)
         if target_repo
-          current_repo.release_targets.new(target_repository: target_repo, trigger: rt['trigger'])
+          current_repo.release_targets.new(target_repository: target_repo, trigger: trigger)
         else
-          raise SaveError, "Unknown target repository '#{rt['project']}/#{rt['repository']}'"
+          raise SaveError, "Unknown target repository '#{project}/#{repository}'"
         end
       end
     end
+  end
 
-    # set host hostsystem
-    if repo.has_key? 'hostsystem'
-      hostsystem = Project.get_by_name repo['hostsystem']['project']
-      target_repo = hostsystem.repositories.find_by_name repo['hostsystem']['repository']
-      if repo['hostsystem']['project'] == self.name and repo['hostsystem']['repository'] == repo['name']
+  def update_hostsystem(current_repo, xml_hash)
+    if xml_hash.has_key?('hostsystem')
+      target_project = Project.get_by_name(xml_hash['hostsystem']['project'])
+      target_repo = target_project.repositories.find_by_name(xml_hash['hostsystem']['repository'])
+      if xml_hash['hostsystem']['project'] == self.name && xml_hash['hostsystem']['repository'] == xml_hash['name']
         raise SaveError, 'Using same repository as hostsystem element is not allowed'
       end
       unless target_repo
-        raise SaveError, "Unknown target repository '#{repo['hostsystem']['project']}/#{repo['hostsystem']['repository']}'"
+        raise SaveError, "Unknown target repository '#{xml_hash['hostsystem']['project']}/#{xml_hash['hostsystem']['repository']}'"
       end
       current_repo.hostsystem = target_repo
-    elsif current_repo.hostsystem
+    else
       current_repo.hostsystem = nil
     end
 
     current_repo.save! if current_repo.changed?
+  end
 
+  def update_repository_architectures(current_repo, xml_hash)
     # destroy architecture references
-    logger.debug "delete all of #{current_repo.id}"
+    logger.debug "delete all repository architectures of repository '#{self.id}'"
     RepositoryArchitecture.delete_all(['repository_id = ?', current_repo.id])
 
     position = 1
-    repo.elements('arch') do |arch|
-      unless Architecture.archcache.has_key? arch
+    xml_hash.elements('arch') do |arch|
+      unless Architecture.archcache.has_key?(arch)
         raise SaveError, "unknown architecture: '#{arch}'"
       end
       if current_repo.repository_architectures.where(architecture: Architecture.archcache[arch]).exists?
         raise SaveError, "double use of architecture: '#{arch}'"
       end
-      current_repo.repository_architectures.create architecture: Architecture.archcache[arch], position: position
+      current_repo.repository_architectures.create(architecture: Architecture.archcache[arch], position: position)
       position += 1
     end
-
-    current_repo.save!
-
-    @repocache.delete repo['name']
   end
 
-  def update_repository_flags(current_repo, repo)
-    if repo.has_key?('rebuild')
-      current_repo.rebuild = repo['rebuild']
-    else
-      current_repo.rebuild = nil
-    end
-
-    if repo.has_key?('block')
-      current_repo.block = repo['block']
-    else
-      current_repo.block = nil
-    end
-
-    if repo.has_key?('linkedbuild')
-      current_repo.linkedbuild = repo['linkedbuild']
-    else
-      current_repo.linkedbuild = nil
-    end
+  def update_repository_flags(current_repo, xml_hash)
+    current_repo.rebuild     = xml_hash['rebuild']
+    current_repo.block       = xml_hash['block']
+    current_repo.linkedbuild = xml_hash['linkedbuild']
   end
 
   def parse_develproject(xmlhash)
