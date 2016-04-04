@@ -646,7 +646,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 
 
 /srv/www/obs/api/config/locales
-%dir /srv/www/obs/api/vendor
+/srv/www/obs/api/vendor
 /srv/www/obs/api/vendor/diststats
 
 #
