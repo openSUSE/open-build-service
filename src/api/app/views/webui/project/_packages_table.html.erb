@@ -33,8 +33,8 @@
           <p><i>This project does not contain any packages</i></p>
       <% end %>
 
-      <% if User.current.can_modify_project?(@project) %>
-          <% if !@project.is_remote? && !(@is_incident_project && !@packages.blank? && @has_patchinfo && @open_release_requests.length == 0) && !@is_maintenance_project %>
+      <% if @project.kind_of?(Project) && User.current.can_modify_project?(@project) %>
+          <% if !@project.defines_remote_instance? && !(@is_incident_project && !@packages.blank? && @has_patchinfo && @open_release_requests.length == 0) && !@is_maintenance_project %>
               <ul class="horizontal-list">
                 <li>
                   <%= link_to(sprited_text('package_add', 'Create package'), controller: 'project', action: 'new_package', project: @project) %>

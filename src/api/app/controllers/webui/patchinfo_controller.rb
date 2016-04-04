@@ -312,13 +312,14 @@ class Webui::PatchinfoController < Webui::WebuiController
 
   def require_exists
     unless params[:package].blank?
-      @package = Package.get_by_project_and_name(@project.to_param, params[:package], use_source: false)
+      @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false)
     end
-    @patchinfo = @file = @package.patchinfo
 
-    unless @file
+    unless @package && @package.patchinfo
+      # FIXME: should work for remote packages
       flash[:error] = "Patchinfo not found for #{params[:project]}"
       redirect_to controller: 'package', action: 'show', project: @project, package: @package and return
     end
+    @patchinfo = @file = @package.patchinfo
   end
 end

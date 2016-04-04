@@ -284,7 +284,7 @@ class Project < ActiveRecord::Base
   def self.is_remote_project?(name, skip_access = false)
     lpro = find_remote_project(name, skip_access)
 
-    lpro && lpro[0].is_remote?
+    lpro && lpro[0].defines_remote_instance?
   end
 
   def self.check_access?(dbp = self)
@@ -391,8 +391,8 @@ class Project < ActiveRecord::Base
       logger.debug "Trying to find local project #{local_project}, remote_project #{remote_project}"
 
       project = Project.find_by(name: local_project)
-      if project && check_access?(project) && project.is_remote?
-        logger.debug "Found local project #{project.name} with remoteurl #{project.remoteurl}"
+      if project && check_access?(project) && project.defines_remote_instance?
+        logger.debug "Found local project #{project.name} for #{remote_project} with remoteurl #{project.remoteurl}"
         return project, remote_project
       end
     end
@@ -456,7 +456,7 @@ class Project < ActiveRecord::Base
     self.kind == 'standard'
   end
 
-  def is_remote?
+  def defines_remote_instance?
     self.remoteurl.present?
   end
 
