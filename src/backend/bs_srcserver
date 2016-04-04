@@ -541,9 +541,9 @@ sub runservice {
     BSUtil::touch($lockfile);
   }
 
-  my @send = map {{'name' => $_, 'filename' => "$srcrep/$packid/$files->{$_}-$_"}} grep {$_ ne '/SERVICE'} sort(keys %$files);
-  push @send, {'name' => '_serviceproject', 'data' => XMLout($BSXML::services, $projectservices)} if $projectservices;
-  push @send, map {{'name' => $_, 'filename' => "$srcrep/$packid/$oldfiles->{$_}-$_"}} grep {!$files->{$_}} sort(keys %$oldfiles);
+  my @send = map {repcpiofile($rev, $_, $files->{$_})} grep {$_ ne '/SERVICE'} sort(keys %$files);
+  push @send, {'name' => '_serviceproject', 'data' => BSUtil::toxml($projectservices, $BSXML::services)} if $projectservices;
+  push @send, map {repcpiofile($rev, $_, $oldfiles->{$_})} grep {!$files->{$_}} sort(keys %$oldfiles);
 
   # run the source update in own process (do not wait for it)
   my $pid = xfork();
@@ -964,6 +964,20 @@ sub repfilename {
     return "$treedir/$md5-_serviceerror" if -e "$treedir/$md5-_serviceerror";
   }
   return "$srcrep/$rev->{'package'}/$md5-$filename";
+}
+
+# small helper to build cpio requests
+sub repcpiofile {
+  my ($rev, $filename, $md5, $forcehandle) = @_;
+  if ($forcehandle || $filename =~ /\.obscpio$/s) {
+    my $fd = gensym;
+    if (!repopen($rev, $filename, $md5, $fd)) {
+      return {'name' => $filename, 'error' => "repopen $md5: $!"};
+    } else {
+      return {'name' => $filename, 'filename' => $fd};
+    }
+  }
+  return {'name' => $filename, 'filename' => repfilename($rev, $filename, $md5)};      
 }
 
 #
@@ -4836,19 +4850,7 @@ sub getfilelist_ajax {
   if ($cgi->{'view'} eq 'cpio') {
     my $rev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $cgi->{'rev'}};
     my $files = lsrev($rev);
-    my @files;
-    for my $f (sort keys %$files) {
-      if ($f =~ /\.obscpio$/s) {
-        my $fd = gensym;
-        if (!repopen($rev, $f, $files->{$f}, $fd)) {
-          push @files, {'name' => $f, 'error' => "repopen $files->{$f}: $!"};
-        } else {
-          push @files, {'name' => $f, 'filename' => $fd};
-        }
-        next;
-      }
-      push @files, {'name' => $f, 'filename' => repfilename($rev, $f, $files->{$f})};      
-    }
+    my @files = map {repcpiofile($rev, $_, $files->{$_})} sort keys %$files;
     BSWatcher::reply_cpio(\@files);
     return undef;
   }
@@ -5115,19 +5117,7 @@ sub getfilelist {
 	BSHandoff::handoff("/source/$projid/$packid", undef, "rev=$rev->{'srcmd5'}", 'view=cpio');
       }
     }
-    my @files;
-    for my $f (sort keys %$files) {
-      if ($f =~ /\.obscpio$/s) {
-        my $fd = gensym;
-	if (!repopen($rev, $f, $files->{$f}, $fd)) {
-          push @files, {'name' => $f, 'error' => "repopen $files->{$f}: $!"};
-	} else {
-          push @files, {'name' => $f, 'filename' => $fd};
-	}
-	next;
-      }
-      push @files, {'name' => $f, 'filename' => repfilename($rev, $f, $files->{$f})};
-    }
+    my @files = map {repcpiofile($rev, $_, $files->{$_})} sort keys %$files;
     BSServer::reply_cpio(\@files);
     return undef;
   }
