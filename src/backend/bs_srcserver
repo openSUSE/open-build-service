@@ -1005,7 +1005,7 @@ sub addfile {
         }
       }
     }
-    adddeltastoreevent($projid, $packid, "$md5-$filename");
+    adddeltastoreevent($projid, $packid, "$md5-$filename") if $filename =~ /\.obscpio$/s;
   } else {
     unlink($tmpfile);
   }
