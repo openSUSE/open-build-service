@@ -288,7 +288,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def repositories
-    if @project.is_remote?
+    unless @project
       # TODO support flagdetails for remote instances in the API
       flash[:error] = "You can't show repositories for remote instances"
       redirect_to :action => :show, :project => params[:project]

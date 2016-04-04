@@ -73,7 +73,7 @@
 
         <%= render partial: 'shared/open_requests' %>
 
-        <% if @project.is_remote? %>
+        <% if @project.defines_remote_instance? %>
             <li>
               <%= sprite_tag 'information' %>
               Links against the remote OBS instance at: <i><%= link_to_if(@project.remoteurl,
@@ -110,7 +110,7 @@
               </li>
           <% end -%>
           <% if User.current.can_modify_project?(@project, true) %>
-              <% unless @project.is_remote? %>
+              <% unless @project.defines_remote_instance? %>
                   <% if @is_incident_project && @packages.present? && @has_patchinfo && @open_release_requests.blank? %>
                       <li>
                         <%= link_to(sprited_text('brick_go', 'Request to release'), { controller: 'project', action: 'release_request_dialog', project: @project }, remote: true) %>
