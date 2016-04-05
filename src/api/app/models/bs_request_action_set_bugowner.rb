@@ -36,7 +36,7 @@ class BsRequestActionSetBugowner < BsRequestAction
     end
     object.add_user( self.person_name, bugowner, true ) if self.person_name # runs with ignoreLock
     object.add_group( self.group_name, bugowner, true ) if self.group_name  # runs with ignoreLock
-    object.store(comment: "set_bugowner request #{self.bs_request.number}", requestid: self.bs_request.number)
+    object.store(comment: "set_bugowner request #{self.bs_request.number}", request: self.bs_request)
   end
 
   def render_xml_attributes(node)

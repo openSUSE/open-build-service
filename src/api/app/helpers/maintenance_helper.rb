@@ -325,7 +325,7 @@ module MaintenanceHelper
     pkg.store
 
     arguments="&noservice=1"
-    arguments << "&requestid=" << opts[:requestid] if opts[:requestid]
+    arguments << "&requestid=" << opts[:request].number.to_s if opts[:request]
     arguments << "&comment=" << CGI.escape(opts[:comment]) if opts[:comment]
     if opts[:makeoriginolder]
       # rubocop:disable Metrics/LineLength
