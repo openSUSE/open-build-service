@@ -70,14 +70,7 @@ file path of the new one to every test covered.
 
 ### Untested methods
 When you work on the test suite and you notice a method or part of a feature that
-is not tested please either add a test for it or at least add a skipped test case
-like this
-
-```ruby
-describe "some method/feature" do
- skip
-end
-```
+is not tested please add a test for it.
 
 ## Better Specs
 As a set of "rules" to follow in our specs we use [BetterSpecs.org](http://betterspecs.org/).
