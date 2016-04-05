@@ -30,9 +30,6 @@
 %global apache_group www
 %endif
 
-%define obs_api_pkg_name obs-api
-%define our_ruby_prefix ruby2.3
-
 %define secret_key_file /srv/www/obs/api/config/secret.key
 
 %if 0%{?suse_version} >= 1315
