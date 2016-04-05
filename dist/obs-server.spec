@@ -680,6 +680,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 %dir /etc/apache2/vhosts.d
 %config(noreplace) /etc/apache2/vhosts.d/obs.conf
 
+%defattr(0644,wwwrun,www)
 %ghost /srv/www/obs/api/log/access.log
 %ghost /srv/www/obs/api/log/backend_access.log
 %ghost /srv/www/obs/api/log/delayed_job.log
