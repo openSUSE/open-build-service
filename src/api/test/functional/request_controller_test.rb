@@ -3076,6 +3076,12 @@ XML
     post "/request/#{iddelete}?cmd=changestate&newstate=accepted"
     assert_response :success
 
+    # verify request number loging
+    login_king
+    get '/source/home:Iggy:todo/_project/_history?meta=1&deleted=1'
+    assert_xml_tag(:parent => { :tag => 'revision' }, :tag => 'requestid', :content => iddelete)
+    assert_response :success
+
     # cleanup
     delete '/source/home:Iggy:todo'
     assert_response 404 # already removed

@@ -192,7 +192,7 @@ class Project < ActiveRecord::Base
     self.open_requests_with_project_as_source_or_target.each do |request|
       logger.debug "#{self.class} #{self.name} doing revoke_requests with #{@commit_opts.inspect}"
       # Don't alter the request that is the trigger of this revoke_requests run
-      next if request.number == @commit_opts[:request]
+      next if request == @commit_opts[:request]
 
       request.bs_request_actions.each do |action|
         if action.source_project == self.name
@@ -218,7 +218,7 @@ class Project < ActiveRecord::Base
     # but leave the requests otherwise untouched.
     self.open_requests_with_by_project_review.each do |request|
       # Don't alter the request that is the trigger of this revoke_requests run
-      next if request.number == @commit_opts[:request]
+      next if request == @commit_opts[:request]
 
       request.obsolete_reviews(:by_project => self.name)
     end
@@ -839,7 +839,8 @@ class Project < ActiveRecord::Base
       login = @commit_opts[:login] || User.current.login
       query = { user: login }
       query[:comment] = @commit_opts[:comment] unless @commit_opts[:comment].blank?
-      query[:requestid] = @commit_opts[:requestid] unless @commit_opts[:requestid].blank?
+      # api request number is requestid in backend
+      query[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
       query[:lowprio] = '1' if @commit_opts[:lowprio]
       logger.debug "Writing #{self.name} to backend"
       Suse::Backend.put_source(self.source_path('_meta', query), to_axml)
@@ -858,7 +859,9 @@ class Project < ActiveRecord::Base
   def delete_on_backend
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       path = source_path
-      path << Suse::Backend.build_query_from_hash({user: User.current.login, comment: @commit_opts[:comment]}, [:user, :comment])
+      h = {user: User.current.login, comment: @commit_opts[:comment]}
+      h[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
+      path << Suse::Backend.build_query_from_hash(h, [:user, :comment, :requestid])
       begin
         Suse::Backend.delete path
       rescue ActiveXML::Transport::NotFoundError
@@ -1513,7 +1516,7 @@ class Project < ActiveRecord::Base
     f = self.flags.find_by_flag_and_status('lock', 'enable')
     if f
       self.flags.delete(f)
-      self.store(comment: "Request got revoked", request: request.number, lowprio: 1)
+      self.store(comment: "Request got revoked", request: request, lowprio: 1)
     end
   end
 

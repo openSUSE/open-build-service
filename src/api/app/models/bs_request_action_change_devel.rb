@@ -24,7 +24,7 @@ class BsRequestActionChangeDevel < BsRequestAction
     target_package.develpackage = Package.get_by_project_and_name(self.source_project, self.source_package)
 
     target_package.resolve_devel_package
-    target_package.store(comment: "change_devel request #{self.bs_request.number}", requestid: self.bs_request.number)
+    target_package.store(comment: "change_devel request #{self.bs_request.number}", request: self.bs_request)
   end
 
   #### Alias of methods
