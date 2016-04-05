@@ -2135,6 +2135,23 @@ publishprog_done:
     }
   }
 
+  # support for regex usage in $BSConfig::unpublishedhook
+  my $unpublish_prp = $prp;
+  if ($BSConfig::unpublishedhook_use_regex || $BSConfig::unpublishedhook_use_regex) {
+    for my $key (sort {$b cmp $a} keys %{$BSConfig::unpublishedhook}) {
+      if ($prp =~ /^$key/) {
+        $unpublish_prp = $key;
+        last;
+      }
+    }
+  }
+  if ($BSConfig::unpublishedhook && $BSConfig::unpublishedhook->{$unpublish_prp}) {
+    my $hook = $BSConfig::unpublishedhook->{$unpublish_prp};
+    $hook = [ $hook ] unless ref $hook;
+    print "    calling unpublished hook @$hook\n";
+    qsystem(@$hook, $prp, $extrep, @db_deleted) && warn("    @$hook failed: $?\n");
+  }
+
   # support for regex usage in $BSConfig::publishedhook
   my $publish_prp = $prp;
   if ($BSConfig::publishedhook_use_regex || $BSConfig::publishedhook_use_regex) {
