@@ -143,10 +143,10 @@ Requires:       bash
 Requires:       binutils
 Requires:       bsdtar
 Summary:        The Open Build Service -- Build Host Component
-%if 0%{?suse_version}
-%if 0%{?suse_version} < 1210
+%if 0%{?suse_version} && 0%{?suse_version} < 1210
 Group:          Productivity/Networking/Web/Utilities
 %endif
+%if 0%{?suse_version}
 PreReq:         %insserv_prereq
 %endif
 %if 0%{?suse_version} <= 1030
@@ -154,7 +154,7 @@ Requires:       lzma
 %endif
 Requires:       util-linux >= 2.16
 # the following may not even exist depending on the architecture
-Recommends:       powerpc32
+Recommends:     powerpc32
 
 %description -n obs-worker
 This is the obs build host, to be installed on each machine building
@@ -163,10 +163,10 @@ run a local playground test installation.
 
 %package -n obs-common
 Summary:        The Open Build Service -- base configuration files
-%if 0%{?suse_version}
-%if 0%{?suse_version} < 1210
+%if 0%{?suse_version} && 0%{?suse_version} < 1210
 Group:          Productivity/Networking/Web/Utilities
 %endif
+%if 0%{?suse_version}
 PreReq:         %fillup_prereq
 %endif
 
@@ -175,16 +175,16 @@ This is a package providing basic configuration files.
 
 %package -n obs-api
 Summary:        The Open Build Service -- The API and WEBUI
-%if 0%{?suse_version}
-%if 0%{?suse_version} < 1210
+%if 0%{?suse_version} && 0%{?suse_version} < 1210
 Group:          Productivity/Networking/Web/Utilities
 %endif
+%if 0%{?suse_version}
 PreReq:         %insserv_prereq
 Requires:       obs-common
 %endif
 
 #For apache
-Requires:     apache2 apache2-mod_xforward rubygem-passenger-apache2
+Requires:       apache2 apache2-mod_xforward rubygem-passenger-apache2
 # enforce passenger update to ruby 2.3 stack without requiring it
 Conflicts:      ruby2.1-rubygem-passenger
 Conflicts:      ruby2.2-rubygem-passenger
