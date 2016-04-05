@@ -60,7 +60,7 @@ class BsRequestActionSubmit < BsRequestAction
       linked_package = target_project.find_package(self.target_package)
       if linked_package
         # exists via project links
-        opts = { requestid: self.bs_request.number.to_s }
+        opts = { request: self.bs_request }
         opts[:makeoriginolder] = true if self.makeoriginolder
         instantiate_container(target_project, linked_package.update_instance, opts)
         target_package = target_project.packages.find_by_name(linked_package.name)
@@ -79,7 +79,7 @@ class BsRequestActionSubmit < BsRequestAction
           target_package.develpackage = Package.find_by_project_and_name( self.source_project, self.source_package )
           relinkSource=true
         end
-        target_package.store(comment: "submit request #{self.bs_request.number}", requestid: self.bs_request.number)
+        target_package.store(comment: "submit request #{self.bs_request.number}", request: self.bs_request)
       end
     end
 

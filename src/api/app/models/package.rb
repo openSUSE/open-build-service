@@ -720,7 +720,8 @@ class Package < ActiveRecord::Base
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       query = { user: User.current ? User.current.login : User.nobody_login }
       query[:comment] = @commit_opts[:comment] unless @commit_opts[:comment].blank?
-      query[:requestid] = @commit_opts[:requestid] unless @commit_opts[:requestid].blank?
+      # the request number is the requestid parameter in the backend api
+      query[:requestid] = @commit_opts[:request].number if @commit_opts[:request]
       Suse::Backend.put_source(self.source_path('_meta', query), to_axml)
       logger.tagged('backend_sync') { logger.debug "Saved Package #{self.project.name}/#{self.name}" }
     else
@@ -741,8 +742,10 @@ class Package < ActiveRecord::Base
 
     if CONFIG['global_write_through'] && !@commit_opts[:no_backend_write]
       path = source_path
-      path << Suse::Backend.build_query_from_hash({ user: User.current.login, comment: commit_opts[:comment], requestid: commit_opts[:request]},
-                                                  [:user, :comment, :requestid])
+
+      h = { user: User.current.login, comment: commit_opts[:comment] }
+      h[:requestid] = commit_opts[:request].number if commit_opts[:request]
+      path << Suse::Backend.build_query_from_hash(h, [:user, :comment, :requestid])
       begin
         Suse::Backend.delete path
       rescue ActiveXML::Transport::NotFoundError
@@ -1108,7 +1111,7 @@ class Package < ActiveRecord::Base
     self.open_requests_with_package_as_source_or_target.each do |request|
       logger.debug "#{self.class} #{self.name} doing close_requests on request #{request.id} with #{@commit_opts.inspect}"
       # Don't alter the request that is the trigger of this close_requests run
-      next if request.number == @commit_opts[:request]
+      next if request == @commit_opts[:request]
 
       request.bs_request_actions.each do |action|
         if action.source_project == self.project.name && action.source_package == self.name

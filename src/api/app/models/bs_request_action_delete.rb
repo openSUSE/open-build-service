@@ -31,7 +31,7 @@ class BsRequestActionDelete < BsRequestAction
       raise RepositoryMissing.new "The repository #{self.target_project} / #{self.target_repository} does not exist"
     end
     r.destroy
-    prj.store(lowprio: opts[:lowprio], comment: opts[:comment], requestid: self.bs_request.number)
+    prj.store(lowprio: opts[:lowprio], comment: opts[:comment], request: self.bs_request)
   end
 
   def render_xml_attributes(node)
@@ -63,12 +63,12 @@ class BsRequestActionDelete < BsRequestAction
     if self.target_package
       package = Package.get_by_project_and_name(self.target_project, self.target_package,
                                                 use_source: true, follow_project_links: false)
-      package.commit_opts = { comment: self.bs_request.description, request: self.bs_request.number }
+      package.commit_opts = { comment: self.bs_request.description, request: self.bs_request }
       package.destroy
       return Package.source_path self.target_project, self.target_package
     else
       project = Project.get_by_name(self.target_project)
-      project.commit_opts = { comment: self.bs_request.description, request: self.bs_request.number }
+      project.commit_opts = { comment: self.bs_request.description, request: self.bs_request }
       project.destroy
       return "/source/#{self.target_project}"
     end
