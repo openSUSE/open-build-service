@@ -33,6 +33,8 @@
 %define obs_api_pkg_name obs-api
 %define our_ruby_prefix ruby2.3
 
+%define secret_key_file /srv/www/obs/api/config/secret.key
+
 %if 0%{?suse_version} >= 1315
 %define reload_on_update() %{?nil:
 	test -n "$FIRST_ARG" || FIRST_ARG=$1
@@ -482,12 +484,13 @@ for i in production.rb ; do
     cp /srv/www/obs/frontend/config/environments/$i /srv/www/obs/api/config/environments/$i
   fi
 done
-SECRET_KEY="/srv/www/obs/api/config/secret.key"
-if [ ! -e "$SECRET_KEY" ]; then
-  ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >$SECRET_KEY )
+
+if [ ! -e %{secret_key_file} ]; then
+  ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 > %{secret_key_file} )
 fi
-chmod 0640 $SECRET_KEY
-chown root.www $SECRET_KEY
+chmod 0640 %{secret_key_file}
+chown root.www %{secret_key_file}
+
 # update config
 sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/api/config/database.yml
 touch /srv/www/obs/api/log/production.log
@@ -683,7 +686,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 %ghost /srv/www/obs/api/log/error.log
 %ghost /srv/www/obs/api/log/lastevents.access.log
 %ghost /srv/www/obs/api/log/production.log
-
+%ghost %attr(0640,root,www) %secret_key_file
 
 %files -n obs-common
 %defattr(-,root,root)
