@@ -484,7 +484,7 @@ for i in production.rb ; do
 done
 SECRET_KEY="/srv/www/obs/api/config/secret.key"
 if [ ! -e "$SECRET_KEY" ]; then
-  ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >$SECRET_KEY )
+  RAILS_ENV=production bundle exec rake secret > $SECRET_KEY
 fi
 chmod 0640 $SECRET_KEY
 chown root.www $SECRET_KEY
@@ -646,7 +646,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 
 
 /srv/www/obs/api/config/locales
-%dir /srv/www/obs/api/vendor
+/srv/www/obs/api/vendor
 /srv/www/obs/api/vendor/diststats
 
 #
