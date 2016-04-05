@@ -317,6 +317,8 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     fill_in 'description', with: 'I want to see his reaction'
     click_button 'Ok'
 
+    assert_equal package_show_path(project: 'Apache', package: 'apache2'), page.current_path
+    assert page.has_content?(/Created submit request \d+ to kde4/)
     within '#flash-messages' do
       click_link 'submit request'
     end
