@@ -15,6 +15,7 @@
 # defaults
 MYVERSION=""
 FILES=""
+DELAY=""
 
 while test $# -gt 0; do
   case $1 in
@@ -32,6 +33,10 @@ while test $# -gt 0; do
     ;;
     *-outdir)
       MYOUTDIR="$2"
+      shift
+    ;;
+    *-delay)
+      DELAY="$2"
       shift
     ;;
     *)
@@ -65,6 +70,12 @@ fi
 if [ -z "$MYOUTDIR" ]; then
   echo "ERROR: no output directory is given via --outdir parameter!"
   exit 1
+fi
+if [ -n "$DELAY" ]; then
+  re='^[0-9]+$'
+  if [[ $DELAY =~ $re ]]; then
+    sleep $DELAY
+  fi
 fi
 
 for i in $FILES; do

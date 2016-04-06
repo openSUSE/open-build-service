@@ -63,7 +63,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  def wait_for_service( project, package )
+  def wait_for_service( project, package, &do_while_waiting )
     i=0
     while true
       get "/source/#{project}/#{package}"
@@ -76,8 +76,43 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
         puts 'ERROR in wait_for_service: service did not run until time limit'
         exit 1
       end
+      if do_while_waiting
+        do_while_waiting.call(i)
+      end
       sleep 0.5
     end
+  end
+
+  def test_branch_service_running
+    login_tom
+
+    raw_put '/source/home:tom/tmp/_meta', "<package project='home:tom' name='tmp'> <title /> <description /> </package>"
+    assert_response :success
+
+    raw_put '/source/home:tom/tmp/pack.spec', "# Comment \nVersion: 12\nRelease: 9\nSummary: asd"
+    assert_response :success
+
+    put '/source/home:tom/tmp/_service', '<services> <service name="set_version" > <param name="version">0819</param> <param name="file">pack.spec</param> <param name="delay">3</param>  </service> </services>'
+    assert_response :success
+
+    post '/source/home:tom/tmp?cmd=runservice'
+    assert_response :success
+    wait_for_service('home:tom', 'tmp') do |i|
+      if i == 1
+        post '/source/home:tom/tmp', :cmd => 'branch'
+        assert_response :success
+      end
+    end
+    get '/source/home:tom/tmp'
+    assert_response :success
+    assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'succeeded' }
+
+    get '/source/home:tom:branches:home:tom/tmp'
+    assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'running' }
+
+    wait_for_service('home:tom:branches:home:tom', 'tmp')
+    get '/source/home:tom:branches:home:tom/tmp'
+    assert_xml_tag :tag => 'serviceinfo', :attributes => { :code => 'succeeded' }
   end
 
   def test_run_source_service
