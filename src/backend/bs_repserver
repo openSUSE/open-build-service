@@ -2050,7 +2050,7 @@ sub copybuild {
   mkdir_p($dir);
   my $delayed_linking;
   my $needsign;
-  for my $bin (grep {$_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls($odir)) {
+  for my $bin (grep {$_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && $_ ne 'meta' && !/^\./} sort(ls($odir))) {
     if ($bin eq "updateinfo.xml" && $cgi->{'setupdateinfoid'}) {
       my $updateinfo = readxml("$odir/$bin", $BSXML::updateinfo);
       for (@{$updateinfo->{'update'} || []}) {
@@ -2058,6 +2058,7 @@ sub copybuild {
       }
       writexml("$dir/$bin", undef, $updateinfo, $BSXML::updateinfo);
     } else {
+      next if $bin =~ /^::import::/;   # can't copy those yet
       $needsign = 1 if $bin =~ /\.(?:d?rpm|sha256|iso)$/;
       my $nbin = $bin;
       my $setrelease = $cgi->{'setrelease'};
@@ -2079,6 +2080,7 @@ sub copybuild {
       }
     }
   }
+  link("$odir/.meta.success", "$dir/meta") if -e "$odir/.meta.success";
 
   # we run the linking of directory trees in background, since it can take a long time
   # for simple files it happened already

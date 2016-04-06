@@ -4538,12 +4538,18 @@ sub uploadbuildevent {
   my $gdst = "$reporoot/$prp/$myarch";
   my $dst = "$gdst/$packid";
   mkdir_p($dst);
+  my $meta;
+  $meta = "$jobdatadir/meta" if -e "$jobdatadir/meta";
   print "  - $prp: $packid uploaded\n";
   my $useforbuildenabled = 1;
   $useforbuildenabled = enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled);
   $useforbuildenabled = enabled($repoid, $pdata->{'useforbuild'}, $useforbuildenabled);
-  update_dst_full($prp, $packid, $jobdatadir, undef, $useforbuildenabled, $prpsearchpath{$prp});
+  update_dst_full($prp, $packid, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath{$prp});
   $changed->{$prp} = 2 if $useforbuildenabled;
+  if ($meta) {
+    mkdir_p("$gdst/:meta");
+    rename($meta, "$gdst/:meta/$packid");
+  }
   delete $repounchanged{$prp} if $useforbuildenabled;
   $repounchanged{$prp} = 2 if $repounchanged{$prp};
   $changed->{$prp} ||= 1;
