@@ -2,6 +2,8 @@
 # Likewise, all the methods added will be available for all controllers.
 
 class Webui::WebuiController < ActionController::Base
+  helper_method :valid_xml_id
+
   Rails.cache.set_domain if Rails.cache.respond_to?('set_domain')
 
   include Pundit
@@ -100,6 +102,11 @@ class Webui::WebuiController < ActionController::Base
 
   def set_project_by_id
     @project = Project.find(params[:id])
+  end
+
+  def valid_xml_id(rawid)
+    rawid = "_#{rawid}" if rawid !~ /^[A-Za-z_]/ # xs:ID elements have to start with character or '_'
+    CGI.escapeHTML(rawid.gsub(/[+&: .\/\~\(\)@#]/, '_'))
   end
 
   protected
@@ -311,5 +318,13 @@ class Webui::WebuiController < ActionController::Base
     else
       return User.current
     end
+  end
+
+  # dialog_init is a function name called before dialog is shown
+  def render_dialog(dialog_init = nil)
+    check_ajax
+    @dialog_html = ActionController::Base.helpers.escape_javascript(render_to_string(partial: @current_action.to_s))
+    @dialog_init = dialog_init
+    render partial: 'dialog', content_type: 'application/javascript'
   end
 end

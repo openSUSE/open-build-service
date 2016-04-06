@@ -1,5 +1,4 @@
 class Webui::PatchinfoController < Webui::WebuiController
-  include Webui::WebuiHelper
   include Webui::PackageHelper
   before_filter :set_project
   before_filter :get_binaries, except: [:show, :delete]

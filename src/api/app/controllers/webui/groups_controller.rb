@@ -1,6 +1,4 @@
 class Webui::GroupsController < Webui::WebuiController
-  include Webui::WebuiHelper
-
   before_filter :require_login, except: [:show, :tokens, :autocomplete]
   before_filter :set_group, only: [:show, :update, :edit]
   after_action :verify_authorized, except: [:show, :autocomplete, :tokens]

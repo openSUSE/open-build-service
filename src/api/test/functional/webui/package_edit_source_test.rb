@@ -2,7 +2,6 @@
 require_relative '../../test_helper'
 
 class Webui::PackageEditSourcesTest < Webui::IntegrationTest
-  include Webui::WebuiHelper
   include ActionView::Helpers::JavaScriptHelper
   include URI
 

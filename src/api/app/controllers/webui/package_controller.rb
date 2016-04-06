@@ -6,7 +6,6 @@ class Webui::PackageController < Webui::WebuiController
   include Webui::HasComments
   include Webui::HasFlags
   include ParsePackageDiff
-  include Webui::WebuiHelper
   include Webui::PackageHelper
   include Escaper
   include Webui::LoadBuildresults

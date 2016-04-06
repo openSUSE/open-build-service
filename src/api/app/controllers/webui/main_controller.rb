@@ -1,5 +1,4 @@
 class Webui::MainController < Webui::WebuiController
-  include Webui::WebuiHelper
   include StatisticsCalculations
 
   # permissions.status_message_create

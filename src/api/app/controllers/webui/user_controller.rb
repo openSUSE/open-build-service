@@ -2,8 +2,6 @@ require 'base64'
 require 'event'
 
 class Webui::UserController < Webui::WebuiController
-  include Webui::WebuiHelper
-
   before_filter :check_display_user, :only => [:show, :edit, :requests, :list_my, :delete, :save, :confirm, :admin, :lock]
   before_filter :require_login, :only => [:edit, :save, :notifications, :update_notifications, :index]
   before_filter :require_admin, :only => [:edit, :delete, :lock, :confirm, :admin, :index]

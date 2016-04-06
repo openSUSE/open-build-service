@@ -1,6 +1,4 @@
 class Webui::ConfigurationController < Webui::WebuiController
-  include Webui::WebuiHelper
-
   before_filter :require_admin
   before_filter :set_configuration, only: [:update]
   before_filter :require_available_architectures, only: [:index]

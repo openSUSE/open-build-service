@@ -140,11 +140,6 @@ module Webui::WebuiHelper
     sprite_tag icon, title: description
   end
 
-  def valid_xml_id(rawid)
-    rawid = "_#{rawid}" if rawid !~ /^[A-Za-z_]/ # xs:ID elements have to start with character or '_'
-    ERB::Util::h(rawid.gsub(/[+&: .\/\~\(\)@#]/, '_'))
-  end
-
   def tab(id, text, opts)
     opts[:package] = @package.to_s if @package
     opts[:project] = @project.to_s if @project
@@ -267,14 +262,6 @@ module Webui::WebuiHelper
 
   def remove_dialog_tag(text)
     link_to(text, '#', title: 'Close', id: 'remove_dialog')
-  end
-
-  # dialog_init is a function name called before dialog is shown
-  def render_dialog(dialog_init = nil)
-    check_ajax
-    @dialog_html = escape_javascript(render_to_string(partial: @current_action.to_s))
-    @dialog_init = dialog_init
-    render partial: 'dialog', content_type: 'application/javascript'
   end
 
   # @param [String] user login of the user

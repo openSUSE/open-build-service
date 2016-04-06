@@ -2,7 +2,6 @@ class Webui::ProjectController < Webui::WebuiController
   require_dependency 'opensuse/validator'
   include Webui::HasComments
   include Webui::HasFlags
-  include Webui::WebuiHelper
   include Webui::RequestHelper
   include Webui::ProjectHelper
   include Webui::LoadBuildresults
