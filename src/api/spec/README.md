@@ -52,7 +52,7 @@ start it with
 
 ```
 vagrant exec rake db:fixtures:obs
-vagrant exec RAILS_ENV=test ./script/start_test_backend
+vagrant exec RAILS_ENV=test bundle exec ./script/start_test_backend
 ```
 
 Once your test ran successfully for the first time [VCR](https://github.com/vcr/vcr)

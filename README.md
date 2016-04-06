@@ -322,7 +322,7 @@ We are using [Vagrant](https://www.vagrantup.com/) to create our development env
 6. Start your development backend with:
 
     ```
-    vagrant exec RAILS_ENV=development ./script/start_test_backend
+    vagrant exec RAILS_ENV=development bundle exec ./script/start_test_backend
     ```
 
 7. Start your development OBS frontend:
