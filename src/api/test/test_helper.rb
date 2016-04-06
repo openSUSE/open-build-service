@@ -371,6 +371,10 @@ module Webui
       find_button('Ok').click
       find('#flash-messages').must_have_text "Package was successfully removed."
     end
+
+    def valid_xml_id(rawid)
+      Webui::WebuiController.new.valid_xml_id(rawid)
+    end
   end
 end
 

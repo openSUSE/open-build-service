@@ -40,16 +40,6 @@ RSpec.describe Webui::WebuiHelper do
     end
   end
 
-  describe '#valid_xml_id' do
-    it 'replaces invalid characters with underscores' do
-      expect('a___________').to eq(valid_xml_id('a+&: ./~()@#'))
-    end
-
-    it 'prepends an underscore if id does not start with a valid character' do
-      expect('_10_2').to eq(valid_xml_id('10.2'))
-    end
-  end
-
   describe '#repo_status_icon' do
     it 'renders icon' do
       blocked = repo_status_icon('blocked')
@@ -104,25 +94,6 @@ RSpec.describe Webui::WebuiHelper do
       expected_url = "https://bugzilla.example.org/enter_bug.cgi?" +
                        expected_attributes.map { |key, value| "#{key}=#{value}" }.join('&')
       expect(bugzilla_url(['assignee@example.org'], 'some_description')).to eq(expected_url)
-    end
-  end
-
-  describe '#valid_xml_id' do
-    it "ensures that xml_id starts with '_' or a character" do
-      expect(valid_xml_id('123')).to eq('_123')
-      expect(valid_xml_id('abc')).to eq('abc')
-    end
-
-    it 'substitutes invalid characters with underscores' do
-      expect(valid_xml_id('abc+&: .()~@#')).to eq('abc__________')
-    end
-
-    it 'html escapes the input' do
-      expect(valid_xml_id('foo<bar&>?')).to eq('foo&lt;bar_&gt;?')
-    end
-
-    it 'leaves valid characters untouched' do
-      expect(valid_xml_id('aA1-?%$§{}[]\=|')).to eq('aA1-?%$§{}[]\=|')
     end
   end
 

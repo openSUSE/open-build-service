@@ -88,4 +88,27 @@ RSpec.describe Webui::WebuiController do
       expect(response).to have_http_status(:success)
     end
   end
+
+  describe '#valid_xml_id' do
+    it "ensures that xml_id starts with '_' or a character" do
+      expect(controller.valid_xml_id('123')).to eq('_123')
+      expect(controller.valid_xml_id('abc')).to eq('abc')
+    end
+
+    it 'substitutes invalid characters with underscores' do
+      expect(controller.valid_xml_id('abc+&: .()~@#')).to eq('abc__________')
+    end
+
+    it 'html escapes the input' do
+      expect(controller.valid_xml_id('foo<bar&>?')).to eq('foo&lt;bar_&gt;?')
+    end
+
+    it 'leaves valid characters untouched' do
+      expect(controller.valid_xml_id('aA1-?%$§{}[]\=|')).to eq('aA1-?%$§{}[]\=|')
+    end
+
+    it 'prepends an underscore if id does not start with a valid character' do
+      expect('_10_2').to eq(controller.valid_xml_id('10.2'))
+    end
+  end
 end
