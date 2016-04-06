@@ -2,8 +2,6 @@
 require_relative '../../test_helper'
 
 class Webui::PackageControllerTest < Webui::IntegrationTest
-  include Webui::WebuiHelper
-
   NEW_META_XML_FOR_TEST_PACK = '<package name="TestPack" project="home:Iggy">
   <title>My Test package Updated via Webui</title>
   <description/>
