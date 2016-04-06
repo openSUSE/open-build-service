@@ -21,10 +21,6 @@ class Webui::WebuiHelperTest < ActiveSupport::TestCase
     assert_not_nil bugzilla_url(['foo@example.org'], 'foobar')
   end
 
-  def test_valid_xml_id # spec/helpers/webui/webui_helper_spec.rb
-    assert_equal '_123_456', valid_xml_id('123 456')
-  end
-
   def test_elide # spec/helpers/webui/webui_helper_spec.rb
     assert_empty elide('')
     assert_equal '...', elide('aaa', 3)
