@@ -1781,13 +1781,16 @@ sub publish {
 
   # get sign key
   my $signargs = [];
-  my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid", "withpubkey=1", "autoextend=1");
+  my $signkey = BSRPC::rpc("$BSConfig::srcserver/getsignkey", undef, "project=$projid", "withpubkey=1", "autoextend=1", "withalgo=1");
   my $pubkey;
+  my $algo;
   if ($signkey) {
     ($signkey, $pubkey) = split("\n", $signkey, 2);
+    $algo = $1 if $signkey && $signkey =~ s/^(\S+)://;
     mkdir_p("$uploaddir");
     writestr("$uploaddir/publisher.$$", undef, $signkey);
     $signargs = [ '-P', "$uploaddir/publisher.$$" ];
+    push @$signargs, '-h', 'sha256' if $algo && $algo eq 'rsa';
     undef $pubkey unless $pubkey && length($pubkey) > 2;	# not a valid pubkey
   }
   if (!$pubkey) {

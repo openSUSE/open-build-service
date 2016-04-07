@@ -43,6 +43,7 @@ use BSUtil;
 use BSXML;
 use BSHTTP;
 use BSVerify;
+use BSPgp;
 
 use strict;
 
@@ -308,65 +309,6 @@ sub fixup_sha256_checksum {
   writestr("$jobdir/$shafile", undef, $sha);
 }
 
-sub pkdecodetaglenoff {
-  my ($pkg) = @_;
-  my $tag = unpack('C', $pkg);
-  die("not a gpg packet\n") unless $tag & 128; 
-  my $len;
-  my $off = 1; 
-  if ($tag & 64) {
-    # new packet format
-    $tag &= 63;  
-    $len = unpack('C', substr($pkg, 1)); 
-    if ($len < 192) {
-      $off = 2; 
-    } elsif ($len != 255) {
-      $len = (($len - 192) << 8) + unpack('C', substr($pkg, 2)) + 192; 
-      $off = 3; 
-    } else {
-      $len = unpack('N', substr($pkg, 2)); 
-      $off = 5; 
-    }    
-  } else {
-    # old packet format
-    if (($tag & 3) == 0) { 
-      $len = unpack('C', substr($pkg, 1)); 
-      $off = 2; 
-    } elsif (($tag & 3) == 1) { 
-      $len = unpack('n', substr($pkg, 1)); 
-      $off = 3; 
-    } elsif (($tag & 3) == 1) { 
-      $len = unpack('N', substr($pkg, 1)); 
-      $off = 6; 
-    } else {
-      die("can't deal with not specified packet length\n");
-    }    
-    $tag = ($tag & 60) >> 2;
-  }
-  return ($tag, $len, $off);
-}
-
-sub pk2signtime {
-  my ($pk) = @_;
-  my ($tag, $len, $off) = pkdecodetaglenoff($pk);
-  die("not a signature\n") unless $tag == 2;
-  my $pack = substr($pk, $off, $len);
-  my $sver = unpack('C', substr($pack, 0, 1));
-  return unpack('N', substr($pack, 3, 4)) if $sver == 3;
-  die("unsupported sig version\n") if $sver != 4;
-  my $plen = unpack('n', substr($pack, 4, 2));
-  $pack = substr($pack, 6, $plen);
-  while ($pack ne '') {
-    $pack = pack('C', 0xc0).$pack;
-    ($tag, $len, $off) = pkdecodetaglenoff($pack);
-    my $spack = substr($pack, $off, $len);
-    $pack = substr($pack, $len + $off);
-    $tag = unpack('C', substr($spack, 0, 1));
-    return unpack('N', substr($spack, 1, 4)) if $tag == 2;
-  }
-  return undef;
-}
-
 sub signjob {
   my ($job, $arch) = @_;
 
@@ -421,7 +363,10 @@ sub signjob {
     push @args, "project=$projid";
     push @args, "withpubkey=1" if $needpubkey;
     push @args, "autoextend=1" if $needpubkey;
+    push @args, "withalgo=1";
     my $signkey = BSRPC::rpc($param, undef, @args);
+    my $algo;
+    $algo = $1 if $signkey && $signkey =~ s/^(\S+)://;
     my $pubkey;
     if ($signkey) {
       ($signkey, $pubkey) = split("\n", $signkey, 2) if $needpubkey;
@@ -442,6 +387,7 @@ sub signjob {
       mkdir_p($uploaddir);
       writestr("$uploaddir/signer.$$", undef, $signkey);
       push @signargs, '-P', "$uploaddir/signer.$$";
+      push @signargs, '-h', 'sha256' if $algo && $algo eq 'rsa';
     }
     unlink("$jobdir/.checksums");
 
@@ -477,7 +423,7 @@ sub signjob {
 	    my %res = Build::Rpm::rpmq("$jobdir/$signfile", 'SIGTAG_GPG', 'SIGTAG_PGP');
 	    my $sig = $res{'SIGTAG_PGP'} || $res{'SIGTAG_GPG'};
 	    $sig = $sig->[0] if $sig;
-	    $signtime = pk2signtime($sig) if $sig;
+	    $signtime = BSPgp::pk2signtime($sig) if $sig;
 	  };
 	  warn("get signtime: $@") if $@;
 	  system('rpm', '--delsign', "$jobdir/$signfile") && warn("delsign $jobdir/$signfile failed: $?\n");
