@@ -1,11 +1,12 @@
 class ChannelTarget < ActiveRecord::Base
   belongs_to :channel
   belongs_to :repository
+  has_one :project, through: :repository
 
   class MultipleChannelTargets < APIException; end
 
   def self._sync_keys
-    [ :repository ]
+    [ :project, :repository ]
   end
 
   def self.find_by_repo(repo, projectFilter = nil)
