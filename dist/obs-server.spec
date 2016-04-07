@@ -30,8 +30,7 @@
 %global apache_group www
 %endif
 
-%define obs_api_pkg_name obs-api
-%define our_ruby_prefix ruby2.3
+%define secret_key_file /srv/www/obs/api/config/secret.key
 
 %if 0%{?suse_version} >= 1315
 %define reload_on_update() %{?nil:
@@ -144,10 +143,10 @@ Requires:       bash
 Requires:       binutils
 Requires:       bsdtar
 Summary:        The Open Build Service -- Build Host Component
-%if 0%{?suse_version}
-%if 0%{?suse_version} < 1210
+%if 0%{?suse_version} && 0%{?suse_version} < 1210
 Group:          Productivity/Networking/Web/Utilities
 %endif
+%if 0%{?suse_version}
 PreReq:         %insserv_prereq
 %endif
 %if 0%{?suse_version} <= 1030
@@ -155,7 +154,7 @@ Requires:       lzma
 %endif
 Requires:       util-linux >= 2.16
 # the following may not even exist depending on the architecture
-Recommends:       powerpc32
+Recommends:     powerpc32
 
 %description -n obs-worker
 This is the obs build host, to be installed on each machine building
@@ -164,10 +163,10 @@ run a local playground test installation.
 
 %package -n obs-common
 Summary:        The Open Build Service -- base configuration files
-%if 0%{?suse_version}
-%if 0%{?suse_version} < 1210
+%if 0%{?suse_version} && 0%{?suse_version} < 1210
 Group:          Productivity/Networking/Web/Utilities
 %endif
+%if 0%{?suse_version}
 PreReq:         %fillup_prereq
 %endif
 
@@ -176,16 +175,16 @@ This is a package providing basic configuration files.
 
 %package -n obs-api
 Summary:        The Open Build Service -- The API and WEBUI
-%if 0%{?suse_version}
-%if 0%{?suse_version} < 1210
+%if 0%{?suse_version} && 0%{?suse_version} < 1210
 Group:          Productivity/Networking/Web/Utilities
 %endif
+%if 0%{?suse_version}
 PreReq:         %insserv_prereq
 Requires:       obs-common
 %endif
 
 #For apache
-Requires:     apache2 apache2-mod_xforward rubygem-passenger-apache2
+Requires:       apache2 apache2-mod_xforward rubygem-passenger-apache2
 # enforce passenger update to ruby 2.3 stack without requiring it
 Conflicts:      ruby2.1-rubygem-passenger
 Conflicts:      ruby2.2-rubygem-passenger
@@ -482,12 +481,13 @@ for i in production.rb ; do
     cp /srv/www/obs/frontend/config/environments/$i /srv/www/obs/api/config/environments/$i
   fi
 done
-SECRET_KEY="/srv/www/obs/api/config/secret.key"
-if [ ! -e "$SECRET_KEY" ]; then
-  ( umask 0077; dd if=/dev/urandom bs=256 count=1 2>/dev/null |sha256sum| cut -d\  -f 1 >$SECRET_KEY )
+
+if [ ! -e %{secret_key_file} ]; then
+  ( umask 0077; RAILS_ENV=production bundle exec rake.ruby2.3 secret > %{secret_key_file} )
 fi
-chmod 0640 $SECRET_KEY
-chown root.www $SECRET_KEY
+chmod 0640 %{secret_key_file}
+chown root.www %{secret_key_file}
+
 # update config
 sed -i -e 's,[ ]*adapter: mysql$,  adapter: mysql2,' /srv/www/obs/api/config/database.yml
 touch /srv/www/obs/api/log/production.log
@@ -677,13 +677,14 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 %dir /etc/apache2/vhosts.d
 %config(noreplace) /etc/apache2/vhosts.d/obs.conf
 
+%defattr(0644,wwwrun,www)
 %ghost /srv/www/obs/api/log/access.log
 %ghost /srv/www/obs/api/log/backend_access.log
 %ghost /srv/www/obs/api/log/delayed_job.log
 %ghost /srv/www/obs/api/log/error.log
 %ghost /srv/www/obs/api/log/lastevents.access.log
 %ghost /srv/www/obs/api/log/production.log
-
+%ghost %attr(0640,root,www) %secret_key_file
 
 %files -n obs-common
 %defattr(-,root,root)
