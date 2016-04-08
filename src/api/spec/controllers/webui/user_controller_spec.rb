@@ -5,6 +5,7 @@ RSpec.describe Webui::UserController do
   let!(:non_admin_user) { create(:confirmed_user, login: "moi") }
   let!(:admin_user) { create(:admin_user, login: "king") }
   let(:deleted_user) { create(:deleted_user) }
+  let!(:non_admin_user_request) { create(:bs_request, creator: non_admin_user, commenter: non_admin_user) }
 
   it { is_expected.to use_before_action(:require_login) }
   it { is_expected.to use_before_action(:require_admin) }
@@ -51,9 +52,21 @@ RSpec.describe Webui::UserController do
         it_should_behave_like "a non existent account"
       end
 
-      describe "showing a non valid users" do
+      describe "showing an invalid user" do
         subject(:user) { 'INVALID_USER' }
         it_should_behave_like "a non existent account"
+      end
+      describe "showing self" do
+        it 'includes requests' do
+          get :show, {user: non_admin_user}
+          expect(assigns(:requests_out)).to eq non_admin_user.outgouing_requests
+        end
+      end
+      describe "showing someone else" do
+        it 'does not include requests' do
+          get :show, {user: admin_user}
+          expect(assigns(:reviews)).to be_nil
+        end
       end
     end
   end
@@ -81,7 +94,12 @@ RSpec.describe Webui::UserController do
   end
 
   describe "GET #requests" do
-    skip
+    before { login non_admin_user }
+
+    it 'renders the requests as json' do
+      get :requests, { :format => :json }
+      expect(response.body).to eq({"sEcho": 2, "iTotalRecords": 1, "iTotalDisplayRecords": 1, "aaData": []}.to_json)
+    end
   end
 
   describe "POST #save" do
