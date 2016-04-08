@@ -50,6 +50,7 @@ There are 3 scenarios for which you can setup an OBS instance. Running it in *pr
 
   2. Run our setup wizard
 
+
         /usr/lib/obs/server/setup-appliance.sh
 
 
