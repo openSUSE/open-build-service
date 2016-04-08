@@ -260,7 +260,6 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
   def test_search_russian
     visit search_path
 
-if $ENABLE_BROKEN_TEST
     search(
       :text => 'вокябюч',
       :for  => [:projects, :packages],
@@ -270,7 +269,6 @@ if $ENABLE_BROKEN_TEST
     page.must_have_text '窞綆腤 埱娵徖 渮湸湤 殠 唲堔'
     results.include?(:type => :project, :project_name => 'home:tom')
     results.count.must_equal 1
-end
   end
 
   def test_search_in_nothing
