@@ -19,6 +19,22 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
            "Checkbox for 'OBS Base 2.0' should be disabled"
   end
 
+  def test_change_project_info
+    login_king to: project_show_path(project: 'LocalProject')
+
+    click_link 'Edit description'
+    page.must_have_text 'Edit Project Information of'
+
+    fill_in 'project_title', with: 'My Title hopefully got changed'
+
+    fill_in 'project_description', with: 'New description. Not kidding.. Brand new!'
+
+    click_button 'Update Project'
+
+    find(:id, 'project_title').text.must_equal 'My Title hopefully got changed'
+    find(:id, 'description-text').text.must_equal 'New description. Not kidding.. Brand new!'
+  end
+
   def test_save_repository
     use_js
     login_tom
