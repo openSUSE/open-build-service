@@ -1,6 +1,7 @@
 # Manual Setup Guide
 
-## Table of Contents
+## <a name="toc"> Table of Contents
+* [Table of Contents](#toc)
 * [Basic Setup of OBS Server](#basic_setup)
     * [Prerequisites](#prerequisites)
         * [Install/Configure the SQL Database](#install_mysql)
@@ -76,11 +77,14 @@
   The following guide describes, how to install on the latest version of the
   [openSUSE Linux Distribution](http://www.opensuse.org)
 
+  First of all you need to activate the OBS Server repository for the latest stable version (or the version you want to install)
+
+        zypper ar -f http://download.opensuse.org/repositories/OBS:/Server:/2.7/openSUSE_42.1/OBS:Server:2.7.repo
+
 #### <a name="install_obs_backend"/> Howto install the OBS backend
 
   1. Install the packages:
 
-        zypper ar -f http://download.opensuse.org/repositories/OBS:/Server:/2.7/openSUSE_42.1/OBS:Server:2.7.repo
         zypper in obs-server
 
 
@@ -138,8 +142,6 @@
 
   1. Install the packages:
 
-
-        zypper ar -f http://download.opensuse.org/repositories/OBS:/Server:/2.6/openSUSE_13.2/OBS:Server:2.6.repo
         zypper in obs-api
 
   2. Configure the database password you have set previously:
