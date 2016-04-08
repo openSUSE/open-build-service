@@ -550,6 +550,8 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
 
   check_service apache2
 
+  check_service memcached
+
   check_service obsapidelayed
 
   create_issue_file
