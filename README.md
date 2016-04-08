@@ -36,7 +36,7 @@ There are 3 scenarios for which you can setup an OBS instance. Running it in *pr
 
 3. Install packages and configure your system manually
 
-    If you have a more complex setup (e.g. a distributed backend) we recommend to follow our [manual setup guide](dist/README.SETUP)
+    If you have a more complex setup (e.g. a distributed backend) we recommend to follow our [manual setup guide](dist/README.SETUP.md)
 
 
 #### Setup an OBS backend for development
