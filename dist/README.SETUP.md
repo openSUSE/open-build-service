@@ -1,29 +1,29 @@
 # Manual Setup Guide
 
 ## Table of Contents
-* [Basic Setup of OBS Server](#Basic Setup of OBS Server)
-    * [Prerequisites](#Prerequisites)
-        * [Install/Configure the SQL Database](#Install/Configure the SQL Database)
-        * [Install the Memcache Daemon](#Install the Memcache Daemon)
-    * [Install/Configure the Open Build Service](#Install/Configure the Open Build Service)
-        * [Howto install the OBS backend](#Howto install the OBS backend)
-        * [Howto install the OBS frontend](#Howto install the OBS frontend)
-* [Advanced Setup](#Advanced Setup)
-    * [Distributed Workers](#Distributed Workers)
-    * [Distributed Backend](#Distributed Backend)
+* [Basic Setup of OBS Server](#basic_setup)
+    * [Prerequisites](#prerequisites)
+        * [Install/Configure the SQL Database](#install_mysql)
+        * [Install the Memcache Daemon](#install_memcached)
+    * [Install/Configure the Open Build Service](#install_obs)
+        * [Howto install the OBS backend](#install_obs_backend)
+        * [Howto install the OBS frontend](#install_obs_frontend)
+* [Advanced Setup](#advanced_setup)
+    * [Distributed Workers](#advanced_setup_distributed_workers)
+    * [Distributed Backend](#advanced_setup_distributed_backend)
 
-## Basic Setup of OBS Server
+## <a name="basic_setup"/> Basic Setup of OBS Server
 
 **WARNING:**
 
 **The following HOWTO will start services which are accessible from the outside. 
 Do not do this on a system connected to an untrusted network!**
 
-### Prerequisites
+### <a name="prerequisites"/> Prerequisites
 
   The OBS needs a SQL database for persistent and a memcache daemon for volatile data.
 
-#### Install/Configure the SQL Database
+#### <a name="install_mysql"/> Install/Configure the SQL Database
 
 Here is an example on how to setup [MariaDB](https://mariadb.org/) on the [openSUSE Linux Distribution](http://www.opensuse.org). 
 If you use another Linux distribution or another OS please refer to your manuals on how to get this running.
@@ -45,7 +45,7 @@ If you use another Linux distribution or another OS please refer to your manuals
 If you use the SQL database for other services too,
 it's recommended to [add a separate SQL user](https://dev.mysql.com/doc/refman/5.1/en/adding-users.html).
 
-#### Install the Memcache Daemon
+#### <a name="install_memcached"/> Install the Memcache Daemon
 
 Here is an example on how to setup [memcached](http://www.memcached.org/) on the [openSUSE Linux Distribution](http://www.opensuse.org). 
 If you use another Linux distribution or another OS please refer to your manuals on how to get this running.
@@ -59,7 +59,7 @@ If you use another Linux distribution or another OS please refer to your manuals
         systemctl enable memcached
         systemctl start memcached
 
-### Install/Configure the Open Build Service
+### <a name="install_obs"/> Install/Configure the Open Build Service
 
 **Note:**
 
@@ -76,7 +76,7 @@ and is written mostly in [Perl](http://www.perl.org/).
 The following guide describes, how to install on the latest version of the
 [openSUSE Linux Distribution](http://www.opensuse.org)
 
-#### Howto install the OBS backend
+#### <a name="install_obs_backend"/> Howto install the OBS backend
 
 1. Install the packages:
 
@@ -130,7 +130,7 @@ The following guide describes, how to install on the latest version of the
         systemctl start obswarden.service
 
 
-### Howto install the OBS frontend
+### <a name="install_obs_frontend"/> Howto install the OBS frontend
 
 
 The OBS frontend is a [Ruby on Rails](http://rubyonrails.org/) application that collects the OBS data and serves the HTML and XML views.
@@ -224,9 +224,9 @@ The OBS frontend is a [Ruby on Rails](http://rubyonrails.org/) application that 
     By default, you can see the HTML views on port 443 (e.g: https://localhost) and the repos on port 82 (once some packages are built). 
     The default admin user is "Admin" with the password "opensuse".
 
-## Advanced Setup
+## <a name="advanced_setup"/> Advanced Setup
 
-### Distributed Workers
+### <a name="advanced_setup_distributed_workers"/> Distributed Workers
 
 To not burden your OBS backend daemons with the unpredictable load package builds can produce (think someone builds a monstrous package like LibreOffice) you should not run OBS workers on the same host as the rest of the backend daemons. 
 
@@ -249,7 +249,7 @@ Here is an example on how to setup a remote OBS worker on the [openSUSE Linux Di
         systemctl enable obsworker
         systemctl start obsworker
 
-### Distributed Backend
+### <a name="advanced_setup_distributed_backend"/> Distributed Backend
 
 All OBS backend daemons can also be started on individual machines in your network. 
 Especially for large scale OBS installations this is the recommended setup. 
