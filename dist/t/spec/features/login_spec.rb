@@ -75,19 +75,46 @@ RSpec.describe "Create Interconnect as admin and build pckg" do
   end
 
   it "should be able to check Build Results and see succeeded package built" do
+    sleep(10)
     visit "/package/live_build_log/home:Admin/obs-build/openSUSE_Tumbleweed/i586"
-    wait_for_ajax
-    visit "/package/live_build_log/home:Admin/obs-build/openSUSE_Leap_42.1/x86_64"
-    wait_for_ajax
-    visit "/project/show/home:Admin/"
-    click_link('Build Results')
-    counter = 30
-    while (page.has_no_link?('scheduled: 1') || page.has_no_link?('building: 1')) && counter > 0 do
-      sleep(4)
-      click_link('Build Results')
-      puts "Refreshed Build Results @ #{Time.now}, #{counter} retries left."
-      counter -= 1
+    begin
+      Timeout.timeout(160) {
+        if page.has_content?("No live log available:") then
+          page.evaluate_script("window.location.reload()")
+          first(:link, "Start refresh").click
+        end
+        expect(page).to have_selector("div#log_space_wrapper", :wait => 20)
+        expect(page).to have_content('finished "build build.spec"', :wait => 160)
+      }
+    rescue Timeout::Error
+      puts "Let's retry on rescue."
+      page.evaluate_script("window.location.reload()")
+      expect(page).to have_content('finished "build build.spec"', :wait => 120)
     end
-    page.all('a', :text =>'succeeded: 1', :count => 2, :wait => 30)
+    visit "/package/live_build_log/home:Admin/obs-build/openSUSE_Leap_42.1/x86_64"
+    begin
+      Timeout.timeout(90) {
+        expect(page).to have_selector("div#log_space_wrapper", :wait => 20)
+        page.evaluate_script("window.location.reload()") if page.has_content?("No live log available:")
+        next if page.has_content?("Build finished")
+        expect(page).to have_content('finished "build build.spec"', :wait => 90)
+      }
+    rescue Timeout::Error
+      puts "Let's retry on rescue."
+      page.evaluate_script("window.location.reload()")
+      next if page.has_content?("Build finished")
+      expect(page).to have_content('finished "build build.spec"', :wait => 60)
+    end
+    visit "/project/show/home:Admin/"
+    expect(page).to have_content("Build Results")
+    click_link("Build Results")
+    retries = 30
+    while (page.has_no_content?("succeeded: 1", :count => 3, :wait => 1)) && retries > 0 do
+      page.evaluate_script("window.location.reload()")
+      sleep(5)
+      puts "Refreshed Build Results @ #{Time.now}.\nCurrent status: \n"
+      puts "#{find("div#project_buildstatus").text}"
+      retries -= 1
+    end
   end
 end
