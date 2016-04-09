@@ -10,7 +10,9 @@
 may happen when there is no other trouble and with a fixed set of build jobs associated to the project (usually not the
 case). To see what happens with less or more build hosts, play with these numbers:</p>
 
-<%= form_tag(:action => :rebuild_time, :project => @project.name, :arch => @arch, :repository => @repository) do -%>
+<%= form_tag(project_rebuild_time_path(project: @project.name), method: "GET") do -%>
+   <%= hidden_field_tag(:arch, @arch) %>
+   <%= hidden_field_tag(:repository, @repository) %>
    <p>Jobs: <%= select_tag("hosts", options_for_select((2..100).to_a, @hosts)) %>
    <%= submit_tag "Check" %>
    </p>
