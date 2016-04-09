@@ -152,8 +152,9 @@ sub calculate_exportfilter {
   # argh, need a bconf, this slows us down a bit
   my $bconf;
   if ($prpsearchpath) {
+    my ($projid, $repoid) = split('/', $prp, 2);
     $bconf = $fullcache->{'config'} if $fullcache && $fullcache->{'config'};
-    $bconf ||= BSSched::ProjPacks::getconfig($gctx, $myarch, $prpsearchpath);
+    $bconf ||= BSSched::ProjPacks::getconfig($gctx, $projid, $repoid, $myarch, $prpsearchpath);
     $fullcache->{'config'} = $bconf if $fullcache;
   }
   $filter = $bconf->{'exportfilter'} if $bconf;

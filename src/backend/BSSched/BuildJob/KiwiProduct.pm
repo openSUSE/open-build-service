@@ -120,7 +120,7 @@ sub check {
   if (!@{$repo->{'path'} || []}) {
     # have no configured path, use repos from kiwi file instead
     @bprps = @aprps;
-    $bconf = BSSched::ProjPacks::getconfig($gctx, $myarch, \@bprps);
+    $bconf = BSSched::ProjPacks::getconfig($gctx, $projid, $repoid, $myarch, \@bprps);
     if (!$bconf) {
       print "      - $packid (kiwi-product)\n";
       print "        no config\n";

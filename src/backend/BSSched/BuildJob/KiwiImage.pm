@@ -85,7 +85,7 @@ sub check {
 
   my @aprps = BSSched::BuildJob::expandkiwipath($info, $ctx->{'prpsearchpath'});
   # get config from kiwi path
-  my $bconf = BSSched::ProjPacks::getconfig($gctx, $myarch, \@aprps);
+  my $bconf = BSSched::ProjPacks::getconfig($gctx, $projid, $repoid, $myarch, \@aprps);
   if (!$bconf) {
     print "      - $packid (kiwi-image)\n";
     print "        no config\n";

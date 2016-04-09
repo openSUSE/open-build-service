@@ -1165,16 +1165,12 @@ sub do_fetchprojpacks {
 =cut
 
 sub getconfig {
-  my ($gctx, $arch, $path) = @_;
-  my $config = '';
+  my ($gctx, $projid, $repoid, $arch, $path) = @_;
   my $extraconfig = '';
-  if (@$path) {
-    my ($p, $r) = split('/', $path->[0], 2);
-    $config .= "%define _project $p\n";
-    if ($BSConfig::extraconfig) {
-      for (sort keys %{$BSConfig::extraconfig}) {
-        $extraconfig .= $BSConfig::extraconfig->{$_} if $p =~ /$_/;
-      }
+  my $config = "%define _project $projid\n";
+  if ($BSConfig::extraconfig) {
+    for (sort keys %{$BSConfig::extraconfig}) {
+      $extraconfig .= $BSConfig::extraconfig->{$_} if $projid =~ /$_/;
     }
   }
   my $projpacks = $gctx->{'projpacks'};

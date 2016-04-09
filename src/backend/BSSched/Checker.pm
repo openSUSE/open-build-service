@@ -176,7 +176,7 @@ sub setup {
   $ctx->{'repo'} = $repo;
 
   # set config
-  my $bconf = BSSched::ProjPacks::getconfig($gctx, $myarch, $prpsearchpath);
+  my $bconf = BSSched::ProjPacks::getconfig($gctx, $projid, $repoid, $myarch, $prpsearchpath);
   if (!$bconf) {
     # see if it is caused by a remote error
     my $remoteprojs = $gctx->{'remoteprojs'};
