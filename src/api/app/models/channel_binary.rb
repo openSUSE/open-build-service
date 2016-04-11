@@ -4,6 +4,14 @@ class ChannelBinary < ActiveRecord::Base
   belongs_to :repository
   belongs_to :architecture
 
+  validate do |channel_binary|
+    if channel_binary.project && channel_binary.repository
+      unless channel_binary.repository.project == channel_binary.project
+        errors.add_to_base("Associated project has to match with repository.project")
+      end
+    end
+  end
+
   def self._sync_keys
     [ :name, :project, :repository, :architecture, :package, :binaryarch ]
   end

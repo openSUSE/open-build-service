@@ -542,7 +542,15 @@ class Package < ActiveRecord::Base
   def update_channel_list
     if self.is_channel?
       xml = Suse::Backend.get(self.source_path('_channel'))
-      self.channels.first_or_create.update_from_xml(xml.body.to_s)
+      begin
+        self.channels.first_or_create.update_from_xml(xml.body.to_s)
+      rescue ActiveRecord::RecordInvalid => e
+        if Rails.env.test?
+          raise e
+        else
+          HoptoadNotifier.notify(e, { failed_job: "Couldn't store channel" })
+        end
+      end
     else
       self.channels.destroy_all
     end
