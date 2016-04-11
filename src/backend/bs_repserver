@@ -2339,7 +2339,7 @@ sub getresult {
       } else {
         my $s = {'package' => $packid, 'code' => $code};
         $s->{'details'} = $ps->{'packerror'}->{$packid} if !$cgi->{'lastbuild'} && $ps->{'packerror'}->{$packid};
-        if ($cgi->{'withversrel'}) {
+        if ($cgi->{'withversrel'} && -e "$reporoot/$prpa/:logfiles.success/$packid") {
 	  my $history = BSFileDB::fdb_getlast("$reporoot/$prpa/$packid/history", $historylay) || {};
 	  $s->{'versrel'} = $history->{'versrel'} if $history->{'versrel'};
         }
