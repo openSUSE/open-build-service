@@ -1,10 +1,11 @@
 require "browser_helper"
 
 RSpec.feature "Requests", :type => :feature, :js => true do
-  RSpec.shared_examples "expandable element" do
-    let!(:bs_request) { create(:bs_request, description: "a long text - " * 200) }
-    let!(:user) { create(:confirmed_user) }
+  let!(:submitter) { create(:confirmed_user) }
+  let!(:receiver) { create(:confirmed_user) }
+  let!(:bs_request) { create(:bs_request, description: "a long text - " * 200, creator: submitter.login) }
 
+  RSpec.shared_examples "expandable element" do
     scenario "expanding a text field" do
       invalid_word_count = valid_word_count + 1
 
@@ -36,6 +37,87 @@ RSpec.feature "Requests", :type => :feature, :js => true do
         let(:element) { ".expandable_event_comment" }
         let(:valid_word_count) { 3 }
       end
+    end
+  end
+
+  context 'role addition' do
+    describe 'for projects' do
+      it 'can be submitted' do
+        login submitter
+        visit project_show_path(project: receiver.home_project_name)
+        click_link 'Request role addition'
+        find(:id, 'role').select('Bugowner')
+        fill_in 'description', with: 'I can fix bugs too.'
+        expect do
+          click_button 'Ok'
+        end.to change{ BsRequest.count }.by 1
+        expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants the role bugowner for project #{receiver.home_project_name}")
+        expect(page).to have_css("#description-text", text: "I can fix bugs too.")
+        expect(page).to have_text('In state new')
+      end
+
+      it 'can be accepted' do
+        new_action = create(:bs_request_action_add_maintainer_role, target_project: receiver.home_project_name, person_name: submitter)
+        bs_request.bs_request_actions = [new_action]
+        bs_request.save
+
+        expect(bs_request.bs_request_actions).to eq([new_action])
+        login receiver
+        visit request_show_path(bs_request.id)
+        click_button 'Accept'
+        expect(page).to have_text("Request #{bs_request.id} (accepted)")
+        expect(page).to have_text('In state accepted')
+      end
+    end
+    describe 'for packages' do
+      skip
+    end
+  end
+
+  context 'accept request' do
+    describe 'and add submitter as maintainer' do
+      skip
+    end
+    describe 'not possible for own requests' do
+      skip
+    end
+  end
+
+  describe 'superseeding' do
+    skip
+  end
+
+  describe 'revoking' do
+    skip
+  end
+
+  context 'commenting' do
+    describe 'start thread' do
+      skip
+    end
+    describe 'reply' do
+      skip
+    end
+    describe 'mail notifications' do
+      skip
+    end
+  end
+
+  context 'reviews' do
+    describe 'for user' do
+      skip
+    end
+    describe 'for group' do
+      skip
+    end
+    describe 'for project' do
+      skip
+    end
+    describe 'for invalid project' do
+      skip
+    end
+    describe 'for package' do
+      skip
     end
   end
 end
