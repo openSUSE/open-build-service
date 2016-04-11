@@ -31,6 +31,34 @@ class Repository < ActiveRecord::Base
 
   validates :db_project_id, presence: true
 
+  # FIXME: Don't lie, it's find_or_create_by_project_and_name_if_project_is_remote
+  def self.find_by_project_and_name( project, repo )
+    result = not_remote.joins(:project).where(:projects => {:name => project}, :name => repo).first
+    return result unless result.nil?
+
+    # no local repository found, check if remote repo possible
+
+    local_project, remote_project = Project.find_remote_project(project)
+    if local_project
+      return local_project.repositories.find_or_create_by(name: repo, remote_project_name: remote_project)
+    end
+
+    return nil
+  end
+
+  def self.find_by_project_and_path( project, path )
+    not_remote.joins(:path_elements).where(:project => project, :path_elements => {:link => path})
+  end
+
+  def self.deleted_instance
+    repo = Repository.find_by_project_and_name( "deleted", "deleted" )
+    return repo unless repo.nil?
+
+    # does not exist, so let's create it
+    project = Project.deleted_instance
+    project.repositories.find_or_create_by!(name: "deleted")
+  end
+
   def cleanup_before_destroy
     # change all linking repository pathes
     self.linking_repositories.each do |lrep|
@@ -69,36 +97,6 @@ class Repository < ActiveRecord::Base
   def project_name
     return self.project.name  if self.project
     self.remote_project_name
-  end
-
-  class << self
-    # FIXME: Don't lie, it's find_or_create_by_project_and_name_if_project_is_remote
-    def find_by_project_and_name( project, repo )
-      result = not_remote.joins(:project).where(:projects => {:name => project}, :name => repo).first
-      return result unless result.nil?
-
-      # no local repository found, check if remote repo possible
-
-      local_project, remote_project = Project.find_remote_project(project)
-      if local_project
-        return local_project.repositories.find_or_create_by(name: repo, remote_project_name: remote_project)
-      end
-
-      return nil
-    end
-
-    def find_by_project_and_path( project, path )
-      not_remote.joins(:path_elements).where(:project => project, :path_elements => {:link => path})
-    end
-
-    def deleted_instance
-      repo = Repository.find_by_project_and_name( "deleted", "deleted" )
-      return repo unless repo.nil?
-
-      # does not exist, so let's create it
-      project = Project.deleted_instance
-      project.repositories.find_or_create_by!(name: "deleted")
-    end
   end
 
   def expand_all_repositories
