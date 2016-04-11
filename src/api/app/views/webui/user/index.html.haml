@@ -6,6 +6,8 @@
   = render :partial => 'webui/configuration/tabs'
   %p
     Manage users.
+  %p
+    = link_to(sprited_text('user_add', ' Create new user'), :controller => :user, :action => :register_user)
 
   - unless @users.empty?
     %table#user_table
@@ -30,9 +32,6 @@
     %p
       %i
         There are no users configured
-    %p
-      = link_to(sprited_text('user_add', ' Create new user'), :controller => :user, :action => :register_user)
-
 
 :javascript
   $(document).ready(function() {
