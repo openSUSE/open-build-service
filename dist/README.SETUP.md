@@ -4,8 +4,6 @@
 * [Table of Contents](#toc)
 * [Basic Setup of OBS Server](#basic_setup)
     * [Prerequisites](#prerequisites)
-        * [Install/Configure the SQL Database](#install_mysql)
-        * [Install the Memcache Daemon](#install_memcached)
     * [Install/Configure the Open Build Service](#install_obs)
         * [Howto install the OBS backend](#install_obs_backend)
         * [Howto install the OBS frontend](#install_obs_frontend)
@@ -17,48 +15,15 @@
 
   **WARNING:**
 
-  **The following HOWTO will start services which are accessible from the outside. 
+  **The following HOWTO will start services which are accessible from the outside.
   Do not do this on a system connected to an untrusted network!**
 
 ### <a name="prerequisites"/> Prerequisites
 
   The OBS needs a SQL database for persistent and a memcache daemon for volatile data.
 
-#### <a name="install_mysql"/> Install/Configure the SQL Database
+  The required packages will be installed automatically as requirements of obs-api
 
-  Here is an example on how to setup [MariaDB](https://mariadb.org/) on the [openSUSE Linux Distribution](http://www.opensuse.org). 
-  If you use another Linux distribution or another OS please refer to your manuals on how to get this running.
-
-  1. Install the mysql package:
-
-        zypper in mariadb
-
-  2. Start the database permanently:
-
-        systemctl enable mysql.service
-        systemctl start mysql.service
-
-  3. Secure the database and set a database (root) password:
-
-        mysql_secure_installation
-
-  **WARNING**:
-  If you use the SQL database for other services too,
-  it's recommended to [add a separate SQL user](https://dev.mysql.com/doc/refman/5.1/en/adding-users.html).
-
-#### <a name="install_memcached"/> Install the Memcache Daemon
-
-  Here is an example on how to setup [memcached](http://www.memcached.org/) on the [openSUSE Linux Distribution](http://www.opensuse.org). 
-  If you use another Linux distribution or another OS please refer to your manuals on how to get this running.
-
-  1. Install the memcachd package:
-
-        zypper in memcached
-
-  2. Start the memcache daemon permanently:
-
-        systemctl enable memcached
-        systemctl start memcached
 
 ### <a name="install_obs"/> Install/Configure the Open Build Service
 
@@ -144,7 +109,26 @@
 
         zypper in obs-api
 
-  2. Configure the database password you have set previously:
+  2. Start the database permanently:
+
+        systemctl enable mysql.service
+        systemctl start mysql.service
+
+  3. Secure the database and set a database (root) password:
+
+        mysql_secure_installation
+
+  **WARNING**:
+  If you use the SQL database for other services too,
+  it's recommended to [add a separate SQL user](https://dev.mysql.com/doc/refman/5.1/en/adding-users.html).
+
+
+  4. Start the memcache daemon permanently:
+
+        systemctl enable memcached
+        systemctl start memcached
+
+  5. Configure the database password you have set previously:
 
     In */srv/www/obs/api/config/database.yml*:
 
@@ -155,19 +139,19 @@
           password: YOUR_PASSWORD
           encoding: utf8
 
-  3. Allow anonymous access to your API:
+  6. Allow anonymous access to your API:
 
     In */srv/www/obs/api/config/options.yml*:
 
         allow_anonymous: true
         read_only_hosts: [ "127.0.0.1", 'localhost' ]
 
-  4. Setup the production databases:
+  7. Setup the production databases:
 
         RAILS_ENV=production rake -f /srv/www/obs/api/Rakefile db:create
         RAILS_ENV=production rake -f /srv/www/obs/api/Rakefile db:setup
 
-  5. Setup the Apache webserver:
+  8. Setup the Apache webserver:
 
     In the apache2 configuration file */etc/sysconfig/apache2*
     append the following apache modules to the variable *APACHE_MODULES*:
@@ -189,14 +173,14 @@
         PassengerRuby "/usr/bin/ruby.ruby2.3"
 
 
-  6. Enable the xforward mode:
+  9. Enable the xforward mode:
 
      In */srv/www/obs/api/config/options.yml*:
 
         use_xforward: true
 
 
-  7. Create a self-signed SSL certificate:
+  10. Create a self-signed SSL certificate:
 
         mkdir /srv/obs/certs
         openssl genrsa -out /srv/obs/certs/server.key 1024
@@ -204,24 +188,24 @@
         openssl x509 -req -days 365 -in /srv/obs/certs/server.csr -signkey /srv/obs/certs/server.key -out /srv/obs/certs/server.crt
         cat /srv/obs/certs/server.key /srv/obs/certs/server.crt > /srv/obs/certs/server.pem
 
-  8. Trust this certificate on your host: *TODO M0ses: obsolete in Leap: rework* 
+  11. Trust this certificate on your host: *TODO M0ses: obsolete in Leap: rework* 
 
 
         cp /srv/obs/certs/server.pem /usr/share/pki/trust/anchors/server.`hostname`.pem
         update-ca-certificates
 
 
-  9. Start the web server permanently:
+  12. Start the web server permanently:
 
         systemctl enable apache2
         systemctl start apache2
 
-  10. Start the OBS delayed job daemon:
+  13. Start the OBS delayed job daemon:
 
         systemctl enable obsapidelayed.service
         systemctl start obsapidelayed.service
 
-  11. Check out your OBS frontend:
+  14. Check out your OBS frontend:
 
     By default, you can see the HTML views on port 443 (e.g: https://localhost) and the repos on port 82 (once some packages are built). 
     The default admin user is "Admin" with the password "opensuse".
