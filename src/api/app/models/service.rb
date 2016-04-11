@@ -49,10 +49,11 @@ class Service < ActiveXML::Node
       addService("download_src_package", -1, service_content)
     elsif uri.scheme == "git"
       service_content = [{:name => "scm", :value => "git"}, {:name => "url", :value => url}]
-      addService("tar_scm", -1, service_content)
+      addService("obs_scm", -1, service_content)
+      addService("tar", -1, nil, "buildtime")
       service_content = [{:name => "compression", :value => "xz"}, {:name => "file", :value => "*.tar"}]
-      addService("recompress", -1, service_content)
-      addService("set_version")
+      addService("recompress", -1, service_content, "buildtime")
+      addService("set_version", -1, nil, "buildtime")
     else # just download
       service_content << {:name => "filename", :value => filename} unless filename.blank?
       addService("download_url", -1, service_content)
@@ -98,8 +99,10 @@ class Service < ActiveXML::Node
   end
 
   # parameters need to be given as an array with hash pairs :name and :value
-  def addService(name, position = -1, parameters = [])
-    element = add_element('service', 'name' => name)
+  def addService(name, position = -1, parameters = [], mode = nil)
+    attribs = { :name => name }
+    attribs[:mode] =  mode if mode
+    element = add_element('service', attribs)
     if position >= 0
       service_elements = each("/services/service")
       element.move_before(service_elements[position-1]) if service_elements.count >= position
