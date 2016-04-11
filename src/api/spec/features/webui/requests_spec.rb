@@ -40,7 +40,7 @@ RSpec.feature "Requests", :type => :feature, :js => true do
     end
   end
 
-  context 'role addition' do
+  context 'for role addition' do
     describe 'for projects' do
       it 'can be submitted' do
         login submitter
@@ -57,11 +57,10 @@ RSpec.feature "Requests", :type => :feature, :js => true do
       end
 
       it 'can be accepted' do
-        new_action = create(:bs_request_action_add_maintainer_role, target_project: receiver.home_project_name, person_name: submitter)
+        new_action = create(:bs_request_action_add_bugowner_role, target_project: receiver.home_project_name, person_name: submitter)
         bs_request.bs_request_actions = [new_action]
         bs_request.save
 
-        expect(bs_request.bs_request_actions).to eq([new_action])
         login receiver
         visit request_show_path(bs_request.id)
         click_button 'Accept'
@@ -70,7 +69,35 @@ RSpec.feature "Requests", :type => :feature, :js => true do
       end
     end
     describe 'for packages' do
-      skip
+      let(:package) { create(:package, project_id: Project.find_by(name: receiver.home_project_name).id ) }
+
+      it 'can be submitted' do
+        login submitter
+        visit package_show_path(project: package.project, package: package)
+        click_link 'Request role addition'
+        find(:id, 'role').select('Maintainer')
+        fill_in 'description', with: 'I can produce bugs too.'
+        expect do
+          click_button 'Ok'
+        end.to change{ BsRequest.count }.by 1
+        expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants the role maintainer \
+                                   for package #{receiver.home_project_name} / #{package.name}")
+        expect(page).to have_css("#description-text", text: "I can produce bugs too.")
+        expect(page).to have_text('In state new')
+      end
+      it 'can be accepted' do
+        new_action = create(:bs_request_action_add_maintainer_role, target_project: receiver.home_project_name,
+                                                                    target_package: package.name,
+                                                                    person_name: submitter)
+        bs_request.bs_request_actions = [new_action]
+        bs_request.save
+
+        login receiver
+        visit request_show_path(bs_request.id)
+        click_button 'Accept'
+        expect(page).to have_text("Request #{bs_request.id} (accepted)")
+        expect(page).to have_text('In state accepted')
+      end
     end
   end
 
