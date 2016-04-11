@@ -1,8 +1,16 @@
 require "browser_helper"
+# WARNING: If you change tests make sure you uncomment this line
+# and start a test backend. Some of the BsRequestAction methods
+# require real backend answers for projects/packages.
+# CONFIG['global_write_through'] = true
 
 RSpec.feature "Requests", :type => :feature, :js => true do
-  let!(:submitter) { create(:confirmed_user) }
-  let!(:receiver) { create(:confirmed_user) }
+  let!(:submitter) { create(:confirmed_user, login: 'kugelblitz' ) }
+  let!(:receiver) { create(:confirmed_user, login: 'titan' ) }
+  let(:target_project) { Project.find_by(name: receiver.home_project_name) }
+  let!(:target_package) { create(:package, name: 'goal', project_id: target_project.id) }
+  let(:source_project) { Project.find_by(name: submitter.home_project_name) }
+  let!(:source_package) { create(:package, name: 'ball', project_id: source_project.id) }
   let!(:bs_request) { create(:bs_request, description: "a long text - " * 200, creator: submitter.login) }
 
   RSpec.shared_examples "expandable element" do
@@ -44,22 +52,23 @@ RSpec.feature "Requests", :type => :feature, :js => true do
     describe 'for projects' do
       it 'can be submitted' do
         login submitter
-        visit project_show_path(project: receiver.home_project_name)
+        visit project_show_path(project: target_project)
         click_link 'Request role addition'
         find(:id, 'role').select('Bugowner')
         fill_in 'description', with: 'I can fix bugs too.'
         expect do
           click_button 'Ok'
         end.to change{ BsRequest.count }.by 1
-        expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants the role bugowner for project #{receiver.home_project_name}")
+        expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants the role bugowner for project #{target_project}")
         expect(page).to have_css("#description-text", text: "I can fix bugs too.")
         expect(page).to have_text('In state new')
       end
 
       it 'can be accepted' do
-        new_action = create(:bs_request_action_add_bugowner_role, target_project: receiver.home_project_name, person_name: submitter)
-        bs_request.bs_request_actions = [new_action]
-        bs_request.save
+        bs_request.bs_request_actions.delete_all
+        create(:bs_request_action_add_bugowner_role, target_project: target_project.name,
+                                                     person_name: submitter,
+                                                     bs_request_id: bs_request.id)
 
         login receiver
         visit request_show_path(bs_request.id)
@@ -69,11 +78,9 @@ RSpec.feature "Requests", :type => :feature, :js => true do
       end
     end
     describe 'for packages' do
-      let(:package) { create(:package, project_id: Project.find_by(name: receiver.home_project_name).id ) }
-
       it 'can be submitted' do
         login submitter
-        visit package_show_path(project: package.project, package: package)
+        visit package_show_path(project: target_project, package: target_package)
         click_link 'Request role addition'
         find(:id, 'role').select('Maintainer')
         fill_in 'description', with: 'I can produce bugs too.'
@@ -81,17 +88,16 @@ RSpec.feature "Requests", :type => :feature, :js => true do
           click_button 'Ok'
         end.to change{ BsRequest.count }.by 1
         expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants the role maintainer \
-                                   for package #{receiver.home_project_name} / #{package.name}")
+                                   for package #{target_project} / #{target_package}")
         expect(page).to have_css("#description-text", text: "I can produce bugs too.")
         expect(page).to have_text('In state new')
       end
       it 'can be accepted' do
-        new_action = create(:bs_request_action_add_maintainer_role, target_project: receiver.home_project_name,
-                                                                    target_package: package.name,
-                                                                    person_name: submitter)
-        bs_request.bs_request_actions = [new_action]
-        bs_request.save
-
+        bs_request.bs_request_actions.delete_all
+        create(:bs_request_action_add_maintainer_role, target_project: target_project.name,
+                                                       target_package: target_package.name,
+                                                       person_name: submitter,
+                                                       bs_request_id: bs_request.id)
         login receiver
         visit request_show_path(bs_request.id)
         click_button 'Accept'
@@ -101,12 +107,22 @@ RSpec.feature "Requests", :type => :feature, :js => true do
     end
   end
 
-  context 'accept request' do
-    describe 'and add submitter as maintainer' do
-      skip
-    end
-    describe 'not possible for own requests' do
-      skip
+  describe 'accept' do
+    it 'can add submitter as maintainer' do
+      bs_request.bs_request_actions.delete_all
+      create(:bs_request_action_submit, target_project: target_project.name,
+                                        target_package: source_package.name,
+                                        source_project: source_project.name,
+                                        source_package: source_package.name,
+                                        bs_request_id: bs_request.id)
+
+      login receiver
+      visit request_show_path(bs_request.id)
+      check 'add_submitter_as_maintainer_0'
+      click_button 'Accept request'
+      expect(page).to have_text("Request #{bs_request.id} (accepted)")
+      expect(page).to have_text('In state accepted')
+      expect(submitter.has_local_permission?('change_package', target_project.packages.find_by(name: source_package.name))).to be_truthy
     end
   end
 
