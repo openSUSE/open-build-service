@@ -2,7 +2,6 @@ FactoryGirl.define do
   factory :bs_request do
     description Faker::Lorem.paragraph
     state "new"
-    bs_request_actions { [create(:bs_request_action)] }
 
     before(:create) do |request|
       unless request.creator
@@ -11,7 +10,9 @@ FactoryGirl.define do
         request.creator   = user.login
         request.commenter = user.login
       end
-
+      unless request.bs_request_actions.any?
+        request.bs_request_actions << create(:bs_request_action)
+      end
       # Monkeypatch to avoid errors caused by permission checks made
       # in user and bs_request model
       User.current = user unless request.creator
