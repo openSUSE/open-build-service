@@ -2,6 +2,7 @@ require "browser_helper"
 
 RSpec.feature "Projects", :type => :feature, :js => true do
   let!(:user) { create(:confirmed_user, login: "Jane") }
+  let(:project) { Project.find_by_name(user.home_project_name) }
 
   it_behaves_like 'user tab' do
     let(:project_path) { project_show_path(project: user_tab_user.home_project_name) }
@@ -10,9 +11,27 @@ RSpec.feature "Projects", :type => :feature, :js => true do
 
   scenario "project show" do
     login user
-    visit project_show_path(project: user.home_project_name)
+    visit project_show_path(project: project)
     expect(page).to have_text("Packages (0)")
     expect(page).to have_text("This project does not contain any packages")
+    expect(page).to have_text(project.description)
+    expect(page).to have_css("h3", text: project.title)
+  end
+
+  scenario "changing project title and description" do
+    login user
+    visit project_show_path(project: project)
+
+    click_link("Edit description")
+    expect(page).to have_text("Edit Project Information of")
+
+    fill_in "project_title", with: "My Title hopefully got changed"
+    fill_in "project_description", with: "New description. Not kidding.. Brand new!"
+    click_button "Update Project"
+
+    visit project_show_path(project: project)
+    expect(find(:id, "project_title")).to have_text("My Title hopefully got changed")
+    expect(find(:id, "description-text")).to have_text("New description. Not kidding.. Brand new!")
   end
 
   scenario "create package" do

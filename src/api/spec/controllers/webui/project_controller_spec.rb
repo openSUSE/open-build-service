@@ -57,6 +57,36 @@ RSpec.describe Webui::ProjectController do
     end
   end
 
+  describe 'PATCH #update' do
+    let(:project) { Project.find_by_name(user_tom.home_project_name) }
+
+    context "with valid parameters" do
+      before do
+        login user_tom
+        patch :update, id: project.id, project: { description: "My projects description", title: "My projects title" }
+        project.reload
+      end
+
+      it { expect(response).to redirect_to( project_show_path(project)) }
+      it { expect(flash[:notice]).to eq "Project was successfully updated." }
+      it { expect(project.title).to eq "My projects title" }
+      it { expect(project.description).to eq "My projects description" }
+    end
+
+    context "with invalid data" do
+      before do
+        login user_tom
+        patch :update, id: project.id, project: { description: "My projects description", title: "My projects title"*200 }
+        project.reload
+      end
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect(flash[:error]).to eq "Failed to update project" }
+      it { expect(project.title).to be nil }
+      it { expect(project.description).to be nil }
+    end
+  end
+
   describe 'GET #autocomplete_projects' do
     before do
       create(:project, name: 'Apache')
