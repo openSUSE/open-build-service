@@ -63,6 +63,7 @@ our %event_handlers = (
   'dumpstate'       => \&BSSched::EventHandler::event_exit,
   'useforbuild'     => \&BSSched::EventHandler::event_useforbuild,
   'configuration'   => \&BSSched::EventHandler::event_configuration,
+  'suspendproject'  => \&BSSched::EventHandler::event_suspendproject,
 );
 
 =head1 NAME
@@ -128,6 +129,7 @@ sub event_package {
   my $packid = $ev->{'package'};
   push @{$fetchprojpacks->{$projid}}, $packid;
   $deepcheck->{$projid} = 1 if !defined $packid;
+  delete $ectx->{'gctx'}->{'projsuspended'}->{$projid} if !defined $packid;
 }
 
 =head2 event_project - TODO: add summary
@@ -470,6 +472,7 @@ sub event_exit {
   $schedstate->{'prpfinished'} = $gctx->{'prpfinished'};
   $schedstate->{'globalnotready'} = $gctx->{'prpnotready'};
   $schedstate->{'repounchanged'} = $gctx->{'repounchanged'};
+  $schedstate->{'projsuspended'} = $gctx->{'projsuspended'};
   $schedstate->{'delayedfetchprojpacks'} = $gctx->{'delayedfetchprojpacks'};
   $schedstate->{'watchremote_start'} = $gctx->{'watchremote_start'};
   $schedstate->{'fetchprojpacks'} = $ectx->{'fetchprojpacks'} if %{$ectx->{'fetchprojpacks'} || {}};
@@ -495,7 +498,7 @@ sub event_exit {
   }
 }
 
-=head2 event_exit - TODO: add summary
+=head2 event_configuration - TODO: add summary
 
  TODO: add description
 
@@ -508,6 +511,23 @@ sub event_configuration {
   BSConfiguration::update_from_configuration();
   $gctx->{'obsname'} = $BSConfig::obsname;
   $gctx->{'remoteproxy'} = $BSConfig::proxy;
+}
+
+sub event_suspendproject {
+  my ($ectx, $ev) = @_;
+  my $projid = $ev->{'project'};
+  my $gctx = $ectx->{'gctx'};
+  return unless $ev->{'job'};
+  $gctx->{'projsuspended'}->{$projid} = $ev->{'job'};
+  # try to set the repo state right away
+  my $projpacks = $gctx->{'projpacks'};
+  my $proj = $projpacks->{$projid};
+  return unless $proj;
+  for my $repo (@{$proj->{'repository'} || []}) {
+    next unless grep {$_ eq $gctx->{'arch'}} @{$repo->{'arch'} || []};
+    my $ctx = BSSched::Checker->new($gctx, "$projid/$repo->{'name'}");
+    $ctx->set_repo_state('blocked', $ev->{'job'});
+  }
 }
 
 =head2 event_uploadbuildimport_delay - check if an upload event needs to be delayed

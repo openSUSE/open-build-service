@@ -228,7 +228,7 @@ sub order {
   if (@{$ectx->{_events}} > 1) {
     # sort events a bit, exit events go first ;-)
     # uploadbuild/import events must go last
-    my %evprio = ('exit' => -1, 'exitcomplete' => -1, 'restart' => -1, 'uploadbuild' => 1, 'import' => 1);
+    my %evprio = ('exit' => -2, 'exitcomplete' => -2, 'restart' => -2, 'suspendproject' => -1, 'uploadbuild' => 1, 'import' => 1);
     @{$ectx->{_events}} = sort {
                     # the following lines might look a bit nasty, but this is needed to avoid
                     # "Uninitialized values" warings

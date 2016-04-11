@@ -413,6 +413,7 @@ my $gctx = {
   'projpacks' => undef,			# data of all local projects
   'channeldata' => {},			# global channel data unificator to save memory
   'remoteprojs' => {},			# remote project cache
+  'projsuspended' => {},		# project is suspended for now
 
   # lastcheck cache
   'lastcheck' => {},			# package check data of last check
@@ -568,6 +569,10 @@ if (!$testprojid && -s "$_rundir/bs_sched.$_myarch.state") {
     for my $projid (keys %$projpacks) {
       $delayedfetchprojpacks->{$projid} = $olddelayedfetchprojpacks->{$projid} if $olddelayedfetchprojpacks->{$projid};
     }
+
+    # update projsuspended hash
+    my $oldprojsuspended =  $schedstate->{'projsuspended'} || {};
+    %{$gctx->{'projsuspended'}} = %$oldprojsuspended;
 
     # use old start values
     if ($schedstate->{'watchremote_start'}) {

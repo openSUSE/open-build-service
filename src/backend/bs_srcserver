@@ -260,14 +260,15 @@ sub deletenotificationpayload {
 }
 
 sub notify_repservers {
-  my ($type, $projid, $packid) = @_;
+  my ($type, $projid, $packid, $job) = @_;
 
   my $ev = {'type' => $type, 'project' => $projid};
   $ev->{'package'} = $packid if defined $packid;
-  addevent($ev);
+  addevent($ev) unless $type eq 'suspendproject';
 
   my @args = ("type=$type", "project=$projid");
   push @args, "package=$packid" if defined $packid;
+  push @args, "job=$job" if defined $job;
   my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
   my $param = {
     'uri' => "$reposerver/event",
@@ -5960,6 +5961,9 @@ sub copyproject {
     addrev($cgi, $projid, '_project', $files);
   }
 
+  # signal start of project copy
+  notify_repservers('suspendproject', $projid, undef, 'copyproject in progress');
+
   # use {} as we do not want to copy project linked packages
   my @pkgs = findpackages($oprojid, {});
   delete $cgi->{'servicemark'};		# just in case...
@@ -6095,7 +6099,7 @@ sub copyproject {
     }
   }
   # check all packages in project
-  notify_repservers('package', $projid);
+  notify_repservers('package', $projid);	# also resumes the project
   return $BSStdServer::return_ok;
 }
 

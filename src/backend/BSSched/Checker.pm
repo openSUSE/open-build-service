@@ -173,6 +173,9 @@ sub setup {
   if ($repo->{'status'} && $repo->{'status'} eq 'disabled') {
     return ('disabled', undef);
   }
+  if ($gctx->{'projsuspended'}->{$projid}) {
+    return ('blocked', $gctx->{'projsuspended'}->{$projid});
+  }
   $ctx->{'repo'} = $repo;
 
   # set config
