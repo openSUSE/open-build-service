@@ -46,17 +46,17 @@ class Service < ActiveXML::Node
     end
 
     if uri.path =~ /.src.rpm$/ || uri.path =~ /.spm$/ # download and extract source package
-      addService("download_src_package", -1, service_content)
+      addService("download_src_package", service_content)
     elsif uri.scheme == "git"
       service_content = [{:name => "scm", :value => "git"}, {:name => "url", :value => url}]
-      addService("obs_scm", -1, service_content)
-      addService("tar", -1, nil, "buildtime")
+      addService("obs_scm", service_content)
+      addService("tar", nil, "buildtime")
       service_content = [{:name => "compression", :value => "xz"}, {:name => "file", :value => "*.tar"}]
-      addService("recompress", -1, service_content, "buildtime")
-      addService("set_version", -1, nil, "buildtime")
+      addService("recompress", service_content, "buildtime")
+      addService("set_version", nil, "buildtime")
     else # just download
       service_content << {:name => "filename", :value => filename} unless filename.blank?
-      addService("download_url", -1, service_content)
+      addService("download_url", service_content)
     end
     true
   end
@@ -99,14 +99,10 @@ class Service < ActiveXML::Node
   end
 
   # parameters need to be given as an array with hash pairs :name and :value
-  def addService(name, position = -1, parameters = [], mode = nil)
+  def addService(name, parameters = [], mode = nil)
     attribs = { :name => name }
     attribs[:mode] =  mode if mode
     element = add_element('service', attribs)
-    if position >= 0
-      service_elements = each("/services/service")
-      element.move_before(service_elements[position-1]) if service_elements.count >= position
-    end
     fill_params(element, parameters)
   end
 
