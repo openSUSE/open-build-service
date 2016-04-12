@@ -96,7 +96,7 @@ class Webui::DriverUpdateController < Webui::PackageController
     dud_params |= @repositories.map{|project| {name: 'instrepo', value: project}}
     services = @package.services
     services.removeService('generator_driver_update_disk')
-    services.addService('generator_driver_update_disk', -1, dud_params)
+    services.addService('generator_driver_update_disk', dud_params)
     unless services.save
       flash.now[:error] = 'Error saving services file'
       render :create
