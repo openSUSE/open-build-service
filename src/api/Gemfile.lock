@@ -181,6 +181,8 @@ GEM
       slop (~> 3.4)
     pundit (1.0.1)
       activesupport (>= 3.0.0)
+    quiet_assets (1.0.2)
+      railties (>= 3.1, < 5.0)
     rack (1.6.4)
     rack-test (0.6.3)
       rack (>= 1.0)
@@ -372,6 +374,7 @@ DEPENDENCIES
   poltergeist (>= 1.4)
   pry (>= 0.9.12)
   pundit
+  quiet_assets
   rails (~> 4.2.2)
   rails_tokeninput (>= 1.6.1.rc1)
   rdoc
@@ -399,4 +402,4 @@ DEPENDENCIES
   yajl-ruby
 
 BUNDLED WITH
-   1.10.6
+   1.11.2
