@@ -184,10 +184,7 @@ Requires:       obs-common
 %endif
 
 #For apache
-Requires:       apache2 apache2-mod_xforward rubygem-passenger-apache2
-# enforce passenger update to ruby 2.3 stack without requiring it
-Conflicts:      ruby2.1-rubygem-passenger
-Conflicts:      ruby2.2-rubygem-passenger
+Requires:       apache2 apache2-mod_xforward rubygem-passenger-apache2 ruby2.3-rubygem-passenger
 
 # memcache is required for session data
 Requires:       memcached
