@@ -11,4 +11,5 @@ class DownloadRepository < ActiveRecord::Base
   validates :repotype, inclusion: { in: REPOTYPES }
 
   delegate :to_s, to: :id
+
 end
