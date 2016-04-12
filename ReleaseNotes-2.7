@@ -3,13 +3,6 @@
 # Open Build Service 2.7
 #
 
-WARNING:
-WARNING: This is a development release, not for production usage!
-WARNING:
-
-
-
-
 Please read the README.SETUP file for initial installation
 instructions or use the OBS Appliance from
 
@@ -23,6 +16,7 @@ OBS Appliance users who have setup their LVM can just replace
 their appliance image without data loss. The migration will 
 happen automatically.
 
+OBS 2.7 will be the last release supporting SLES 11 as OS for the server installation.
 
 Features
 ========
@@ -46,11 +40,16 @@ Features
  * New hardware architectures are supported: k1om, aarch64_ilp32
  * Many improvements in the maintenance support features
  * Groups can have an email adress for notifications and contact
+ * Improved scheduler speed
+ * New waitservice and mergeservice commands to handle _service files
+ * Allow non-obs urls in kiwi, map to obs urls if possible
+ * collax package format support
+ * Support virt-builder repository meta data
 
-Changes on purpose:
-===================
+Incompatible Changes
+====================
 
- * OBS 2.7 will be the last release supporting SLES 11 as OS for the server installation.
+ * Repository meta data and packages are now signed with sha256 instead of sha1 if RSA is used
  * Users are allowed to add themself in their home project, even when they got removed.
    Admins can set the user state to "locked" when they do want to block them.
  * request "addrevision" option is using unexpanded revision when "updatelink" option is used
@@ -78,4 +77,25 @@ To avoid these problems you need switch directory to by-pass systemd:
 
  # cd /etc/init.d
  # ./obssrcserver status|stop|start
+
+Other small changes
+===================
+
+- experimental deep_check_dependent_projects_on_macro_change option
+- bs_worker --vm-enable-console switch
+- experimental view=order mode for _builddepinfo
+- bs_serverstatus now works on ajax socket
+- allow to get buildinfo for remote projects
+- improved scheduling of inter-project dependent repositories
+- use sign time from old signature when re-signing
+- support view=versrel in _result query
+- experimental expandflags:preinstallexpand support
+- support "repotag" extension to set repository tags
+- support "singleexport" option to use/publish only the best version
+- support "simpleimage" build type
+- support switching the build type from kiwi to spec in followup builds
+- support triggerservicerun on _product
+- add --rebuild-full-tree option to bs_admin
+- implement view=cpioheaders for packages
+- allow an array ref for $BSConfig::notification_plugin
 
