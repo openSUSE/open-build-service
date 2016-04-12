@@ -18,7 +18,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     ActionMailer::Base.deliveries.clear
   end
 
-  def test_my_involved_requests
+  def test_my_involved_requests # spec/controllers/webui/user_controller_spec.rb
     login_king to: user_show_path(user: 'king')
 
     page.must_have_selector 'table#requests_in_table tr'
@@ -29,7 +29,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     rs.find(:xpath, '//a[@title="kdelibs"]').must_have_text 'kdelibs'
   end
 
-  def test_can_request_role_addition_for_projects
+  def test_can_request_role_addition_for_projects # spec/features/webui/requests_spec.rb
     login_Iggy to: project_show_path(project: 'home:tom')
     click_link 'Request role addition'
     find(:id, 'role').select('Bugowner')
@@ -47,7 +47,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     click_button 'Accept'
   end
 
-  def test_can_request_role_addition_for_packages
+  def test_can_request_role_addition_for_packages # spec/features/webui/requests_spec.rb
     login_Iggy to: package_show_path(project: 'home:Iggy', package: 'TestPack')
     # no need for "request role"
     page.wont_have_link 'Request role addition'
@@ -80,7 +80,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.wont_have_link 'Request role addition'
   end
 
-  def test_superseding_is_displayed_when_needed
+  def test_superseding_is_displayed_when_needed # spec/features/webui/requests_spec.rb
     # create testing superseded submission first
     login_tom to: package_show_path(project: 'Apache', package: 'apache2')
     click_link 'Submit package'
@@ -119,14 +119,14 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.must_have_link(newrequest)
   end
 
-  def test_invalid_id_gives_error
+  def test_invalid_id_gives_error # spec/controllers/webui/request_controller_spec.rb
     login_Iggy
     visit request_show_path(20000)
     page.must_have_text("Can't find request 20000")
     page.must_have_text('Home of Iggy')
   end
 
-  def test_submit_package_and_revoke
+  def test_submit_package_and_revoke # spec/features/webui/requests_spec.rb
     login_Iggy to: package_show_path(project: 'home:Iggy', package: 'TestPack')
     click_link 'Submit package'
     fill_in 'targetproject', with: 'home:tom'
@@ -157,7 +157,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   end
 
   uses_transaction :test_tom_adds_invalid_project_reviewer
-  def test_tom_adds_invalid_project_reviewer
+  def test_tom_adds_invalid_project_reviewer # spec/features/webui/requests_spec.rb
     login_tom to: user_show_path(user: 'tom')
 
     within('tr#tr_request_9994') do
@@ -179,7 +179,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   end
 
   uses_transaction :test_tom_adds_reviewer_Iggy
-  def test_tom_adds_reviewer_Iggy
+  def test_tom_adds_reviewer_Iggy # spec/features/webui/requests_spec.rb
     login_tom to: user_show_path(user: 'tom')
 
     within('tr#tr_request_9994') do
@@ -246,7 +246,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.must_have_text 'Request 4 (declined)'
   end
 
-  def test_request_4_can_expand
+  def test_request_4_can_expand # spec/features/webui/requests_spec.rb
     # no login required
     visit request_show_path(4)
     within '#diff_headline_myfile_diff_action_0_submit_0_0' do
@@ -261,7 +261,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
   end
 
   uses_transaction :test_add_submitter_as_maintainer
-  def test_add_submitter_as_maintainer
+  def test_add_submitter_as_maintainer # spec/features/webui/requests_spec.rb
     use_js
 
     # Accept the request adding submitter
@@ -285,16 +285,16 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.must_have_text 'Request 10'
   end
 
-  def test_requests_display_as_nobody
+  def test_requests_display_as_nobody # spec/controllers/webui/request_controller_spec.rb
     visit_requests
   end
 
-  def test_requests_display_as_king
+  def test_requests_display_as_king # spec/controllers/webui/request_controller_spec.rb
     login_king
     visit_requests
   end
 
-  def test_requests
+  def test_requests # spec/controllers/webui/user_controller_spec.rb
     get "/home/requests.json"
     assert_response :success
     result = ActiveSupport::JSON.decode(@response.body)
@@ -331,14 +331,14 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     assert_equal "/request/show/5", page.current_path
   end
 
-  def test_succesful_comment_creation
+  def test_succesful_comment_creation # spec/features/webui/requests_spec.rb
     login_Iggy to: request_show_path(1)
     fill_in 'body', with: 'Comment Body'
     find_button('Add comment').click
     find('#flash-messages').must_have_text 'Comment was successfully created.'
   end
 
-  def test_can_not_accept_own_requests
+  def test_can_not_accept_own_requests # spec/features/webui/requests_spec.rb
     login_tom to: package_show_path(project: 'Apache', package: 'apache2')
     click_link 'Submit package'
     fill_in 'targetproject', with: 'kde4'
@@ -357,7 +357,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.wont_have_selector 'input#accept_request_button'
   end
 
-  def test_succesful_reply_comment_creation
+  def test_succesful_reply_comment_creation # spec/features/webui/requests_spec.rb
     login_Iggy to: request_show_path(4)
     find(:id, 'reply_link_id_301').click
     fill_in 'reply_body_301', with: 'Comment Body'
@@ -373,7 +373,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     assert_equal should, lines.join("\n")
   end
 
-  def test_comment_event
+  def test_comment_event # spec/features/webui/requests_spec.rb
     login_tom to: request_show_path(4)
 
     # adrian is reviewer, Iggy creator, Admin (fixture) commenter
