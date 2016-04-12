@@ -27,27 +27,35 @@ happen automatically.
 Features
 ========
 
- * support tracking of github issues
- * instantiate package api call for projects building service packs 
- * running source service during build time
- * Add support to use docker as virtualization engine
- * Added support for simple image creation
+ * Incremental storage of sources from upstream SCM systems
+   - cpio archives are stored incremental and offered the to the build job
+     as directory.
+   - The default git handling has been changed to use obs_scm service which 
+     produces the right format.
+ * Reworked download on demand support
+   - supports changing repositories now
+   - webui has support to add remote repositories
+ * Support tracking of github issues
+ * Instantiate package api call for projects building service packs 
+ * Source services can be used during build time
+   - they get executed before the packaging tool (eg. rpm-build) gets started
+ * Support to use docker as virtualization engine
+ * Support for simple image creation
  * New option to avoid usage of defined repositories when branching a package
    via the OBS:BranchSkipRepositories attribute
- * reworked download on demand support
+ * New hardware architectures are supported: k1om, aarch64_ilp32
+ * Many improvements in the maintenance support features
+ * Groups can have an email adress for notifications and contact
 
 Changes on purpose:
 ===================
 
+ * OBS 2.7 will be the last release supporting SLES 11 as OS for the server installation.
  * Users are allowed to add themself in their home project, even when they got removed.
-   Admins should use the user state and set them to "locked" when they do want to block them.
+   Admins can set the user state to "locked" when they do want to block them.
  * request "addrevision" option is using unexpanded revision when "updatelink" option is used
  * package search for bug issues in attributes is done via own attribute_issue xpath attribute.
    the search api used to match source and attribute issues via same xpath attribute before
-
-Incompatible changes:
-=====================
-
  * "download" elements have been moved to "repository" elements and got a new syntax in project xml.
 
 Notes for systems using systemd:
@@ -61,13 +69,12 @@ in general. Not working are usages like
 
  # rcobssrcserver status
 
-You will only get the systemd status here.
+You will only get the systemd status here and not the service status.
 
-Also stopping services may not kill all processes, which leads to abstract errors
-when trying to restart them. We heard also about trashed MySQL databases when using
-systemd.
+Also stopping services may not terminate all processes, which leads to abstract errors
+when trying to restart them.
 
-To avoid these problems you need switch directory to avoid the systemd mapper:
+To avoid these problems you need switch directory to by-pass systemd:
 
  # cd /etc/init.d
  # ./obssrcserver status|stop|start
