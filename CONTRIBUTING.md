@@ -3,14 +3,14 @@
 1. [Request for contributions](#request)
 2. [How to contribute code](#contribute_code)
 3. [How to contribute issues](#contribute_issues)
-4. [Contribute to the OBS documentation](#contribute_docu)
+4. [How to contribute documentation](#contribute_docu)
 5. [Conduct](#conduct)
 6. [Communication](#communication)
 7. [Rubocop](#rubocop)
 8. [Setup an OBS backend for development](#setup_backend)
 9. [Quick Start Guid (Howto setup a developer VM)](#quick_start)
 
-# <a name="request"/> Request for contributions
+# <a name="request"/>Request for contributions
 We are always looking for contributions to the Open Build Service. Read this guide on how to do that.
 
 In particular, this community seeks the following types of contributions:
@@ -40,7 +40,7 @@ We are using priority labels from **P0** to **P4** for our issues. So if you are
 * P3: Medium - Fix this when you have time.
 * P4: Low  - Fix this when you don't see any issues with the other priorities.
 
-# <a name="contribute_docu" />Contribute to the OBS documentation
+# <a name="contribute_docu" />How to contribute documentation
 
 The Open Build Service documentation is hosted in a separated repository available on [GitHub](https://github.com/openSUSE/obs-docu). How you can contribute to our documentation is described on our [project page](http://openbuildservice.org/help/manuals/obs-reference-guide/appendix.work_on_obs_book.html). Needless to say that contributions are highly welcome, right?;-)
 
@@ -82,22 +82,20 @@ If you want to take part of this please follow this process:
 
 # <a name="setup_backend"/>Setup an OBS backend for development
 
-Check [src/backend/README](https://github.com/openSUSE/open-build-service/blob/master/src/backend/README) how to run the backend from the source code repository.
+Check [src/backend/README](src/backend/README) how to run the backend from the source code repository.
 
 
-# <a name="quick_start"/>Quick Start Guid (Howto setup a developer VM)
+# <a name="quick_start"/>Quick Start Guide (Howto setup a developer VM)
 
 We are using [Vagrant](https://www.vagrantup.com/) to create our development environments.
 
 1. Install [Vagrant](https://www.vagrantup.com/downloads.html) and [VirtualBox](https://www.virtualbox.org/wiki/Downloads). Both tools support Linux, MacOS and Windows and in principal setting up your OBS development environment works similar.
 
-2. Install [vagrant-exec](https://github.com/p0deje/vagrant-exec):
+2. Install [vagrant-exec](https://github.com/p0deje/vagrant-exec) Vagrant Plugins:
 
     ```
     vagrant plugin install vagrant-exec
     vagrant plugin install vagrant-reload
-    # optional if you are running vagrant with libvirt (e.g. kvm)
-    vagrant plugin install vagrant-libvirt
     ```
 
 3. Clone this code repository:

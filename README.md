@@ -13,7 +13,7 @@ The Open Build Service is Free Software and is released under the terms of the G
 ## Community
 You can discuss with the OBS Team via IRC on the channel [#opensuse-buildservice](irc://freenode.net/opensuse-buildservice). Or you can use our mailing list [opensuse-buildservice@opensuse.org](mailto:opensuse-buildservice+subscribe@opensuse.org).
 
-### Contribution
+### Development / Contribution
 If you want to contribute to the OBS please checkout our [contribution readme](CONTRIBUTING.md):-)
 
 ## Source Code Repository Layout
@@ -25,7 +25,7 @@ The OBS source code repository is hosted on [Github](http://github.com/opensuse/
         src/backend   Backend code (Perl)
 
 ## Setup
-There are 3 scenarios for which you can setup an OBS instance. Running it in *production* for your users, for *development* on it and for executing the *test* suite.
+There are 3 scenarios for which you can setup an OBS instance.
 
 1. Use the OBS appliance
 

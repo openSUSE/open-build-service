@@ -188,7 +188,7 @@
         openssl x509 -req -days 365 -in /srv/obs/certs/server.csr -signkey /srv/obs/certs/server.key -out /srv/obs/certs/server.crt
         cat /srv/obs/certs/server.key /srv/obs/certs/server.crt > /srv/obs/certs/server.pem
 
-  11. Trust this certificate on your host: *TODO M0ses: obsolete in Leap: rework* 
+  11. Trust this certificate on your host:
 
 
         cp /srv/obs/certs/server.pem /usr/share/pki/trust/anchors/server.`hostname`.pem
