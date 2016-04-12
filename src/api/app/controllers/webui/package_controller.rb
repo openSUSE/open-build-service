@@ -244,6 +244,7 @@ class Webui::PackageController < Webui::WebuiController
     render_dialog
   end
 
+  # FIXME: This should be in Webui::RequestController
   def submit_request
     required_parameters :project, :package
 

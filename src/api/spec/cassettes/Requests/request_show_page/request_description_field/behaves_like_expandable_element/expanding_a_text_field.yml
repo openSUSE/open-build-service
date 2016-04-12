@@ -40,7 +40,7 @@ http_interactions:
           <person userid="kugelblitz" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 12 Apr 2016 12:06:43 GMT
+  recorded_at: Tue, 12 Apr 2016 12:06:30 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:titan/_meta?user=titan
@@ -81,7 +81,7 @@ http_interactions:
           <person userid="titan" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Tue, 12 Apr 2016 12:06:43 GMT
+  recorded_at: Tue, 12 Apr 2016 12:06:30 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:titan/goal/_meta?user=_nobody_
@@ -120,7 +120,7 @@ http_interactions:
           <description></description>
         </package>
     http_version: 
-  recorded_at: Tue, 12 Apr 2016 12:06:43 GMT
+  recorded_at: Tue, 12 Apr 2016 12:06:31 GMT
 - request:
     method: put
     uri: http://localhost:3200/source/home:kugelblitz/ball/_meta?user=_nobody_
@@ -159,75 +159,5 @@ http_interactions:
           <description></description>
         </package>
     http_version: 
-  recorded_at: Tue, 12 Apr 2016 12:06:43 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/build/home:titan/_result?code=unresolvable&view=status
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '56'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000" />
-
-'
-    http_version: 
-  recorded_at: Tue, 12 Apr 2016 12:06:44 GMT
-- request:
-    method: get
-    uri: http://localhost:3200/build/home:titan/_result?view=summary
-    body:
-      encoding: US-ASCII
-      string: ''
-    headers:
-      Content-Type:
-      - text/plain
-      Accept-Encoding:
-      - identity
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/xml
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '56'
-    body:
-      encoding: UTF-8
-      string: '<resultlist state="00000000000000000000000000000000" />
-
-'
-    http_version: 
-  recorded_at: Tue, 12 Apr 2016 12:06:44 GMT
+  recorded_at: Tue, 12 Apr 2016 12:06:31 GMT
 recorded_with: VCR 3.0.1

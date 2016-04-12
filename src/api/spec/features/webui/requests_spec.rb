@@ -126,15 +126,36 @@ RSpec.feature "Requests", :type => :feature, :js => true do
     end
   end
 
-  describe 'superseeding' do
+  describe 'superseed' do
+    it 'other requests' do
+      bs_request.bs_request_actions.delete_all
+      create(:bs_request_action_submit, target_project: target_project.name,
+                                        target_package: source_package.name,
+                                        source_project: source_project.name,
+                                        source_package: source_package.name,
+                                        bs_request_id: bs_request.id)
+      Suse::Backend.put("/source/#{source_package.project.name}/#{source_package.name}/somefile.txt", Faker::Lorem.paragraph)
+
+      login submitter
+      visit package_show_path(project: source_project, package: source_package)
+      click_link 'Submit package'
+      fill_in 'targetproject', with: target_project.name
+      fill_in 'description', with: 'Testing superseeding'
+      page.execute_script("$('#menu-favorites').show();")
+      check("supersede_request_ids_#{bs_request.id}")
+      click_button 'Ok'
+      within '#flash-messages' do
+        click_link 'submit request'
+      end
+      expect(page).to have_text("Supersedes #{bs_request.id}")
+    end
+  end
+
+  describe 'revoke' do
     skip
   end
 
-  describe 'revoking' do
-    skip
-  end
-
-  context 'commenting' do
+  context 'comment' do
     describe 'start thread' do
       skip
     end
@@ -146,7 +167,7 @@ RSpec.feature "Requests", :type => :feature, :js => true do
     end
   end
 
-  context 'reviews' do
+  context 'review' do
     describe 'for user' do
       skip
     end

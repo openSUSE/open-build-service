@@ -1,6 +1,166 @@
 ---
 http_interactions:
 - request:
+    method: put
+    uri: http://localhost:3200/source/home:kugelblitz/_meta?user=kugelblitz
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:kugelblitz">
+          <title/>
+          <description/>
+          <person userid="kugelblitz" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '143'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:kugelblitz">
+          <title></title>
+          <description></description>
+          <person userid="kugelblitz" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 12:06:56 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:titan/_meta?user=titan
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:titan">
+          <title/>
+          <description/>
+          <person userid="titan" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '133'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:titan">
+          <title></title>
+          <description></description>
+          <person userid="titan" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 12:06:56 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:titan/goal/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="home:titan">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '102'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="home:titan">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 12:06:56 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:kugelblitz/ball/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ball" project="home:kugelblitz">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '107'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ball" project="home:kugelblitz">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 12:06:56 GMT
+- request:
     method: get
     uri: http://localhost:3200/build/home:titan/_result?package=goal&view=status
     body:
@@ -17,8 +177,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home titan' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -27,16 +187,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '56'
     body:
       encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:titan' does not exist</summary>
-          <details>404 project 'home:titan' does not exist</details>
-        </status>
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
     http_version: 
-  recorded_at: Tue, 12 Apr 2016 09:00:50 GMT
+  recorded_at: Tue, 12 Apr 2016 12:06:57 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:titan/goal?nofilename=1&view=info&withchangesmd5=1
@@ -52,8 +210,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home titan' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -62,16 +220,15 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '142'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:titan' does not exist</summary>
-          <details>404 project 'home:titan' does not exist</details>
-        </status>
+        <sourceinfo package="goal" srcmd5="d41d8cd98f00b204e9800998ecf8427e" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+          <revtime/>
+        </sourceinfo>
     http_version: 
-  recorded_at: Tue, 12 Apr 2016 09:00:50 GMT
+  recorded_at: Tue, 12 Apr 2016 12:06:57 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:titan/goal
@@ -87,8 +244,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home titan' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -97,16 +254,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '79'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:titan' does not exist</summary>
-          <details>404 project 'home:titan' does not exist</details>
-        </status>
+        <directory name="goal" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
     http_version: 
-  recorded_at: Tue, 12 Apr 2016 09:00:50 GMT
+  recorded_at: Tue, 12 Apr 2016 12:06:57 GMT
 - request:
     method: post
     uri: http://localhost:3200/source/home:titan/goal?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
@@ -124,8 +279,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home titan' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -134,16 +289,17 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '270'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:titan' does not exist</summary>
-          <details>404 project 'home:titan' does not exist</details>
-        </status>
+        <sourcediff key="d448a0a6933adf3a00c24531cb7ed6d0">
+          <old project="home:titan" package="goal" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:titan" package="goal" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <files />
+        </sourcediff>
     http_version: 
-  recorded_at: Tue, 12 Apr 2016 09:00:50 GMT
+  recorded_at: Tue, 12 Apr 2016 12:06:57 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:titan/goal
@@ -159,8 +315,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home titan' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -169,16 +325,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '79'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:titan' does not exist</summary>
-          <details>404 project 'home:titan' does not exist</details>
-        </status>
+        <directory name="goal" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
     http_version: 
-  recorded_at: Tue, 12 Apr 2016 09:00:50 GMT
+  recorded_at: Tue, 12 Apr 2016 12:06:57 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:titan/goal?expand=1
@@ -196,8 +350,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home titan' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -206,16 +360,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '79'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:titan' does not exist</summary>
-          <details>404 project 'home:titan' does not exist</details>
-        </status>
+        <directory name="goal" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
     http_version: 
-  recorded_at: Tue, 12 Apr 2016 09:00:50 GMT
+  recorded_at: Tue, 12 Apr 2016 12:06:57 GMT
 - request:
     method: get
     uri: http://localhost:3200/source/home:titan/goal
@@ -233,8 +385,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home titan' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -243,16 +395,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '79'
     body:
       encoding: UTF-8
       string: |
-        <status code="404">
-          <summary>project 'home:titan' does not exist</summary>
-          <details>404 project 'home:titan' does not exist</details>
-        </status>
+        <directory name="goal" srcmd5="d41d8cd98f00b204e9800998ecf8427e">
+        </directory>
     http_version: 
-  recorded_at: Tue, 12 Apr 2016 09:00:50 GMT
+  recorded_at: Tue, 12 Apr 2016 12:06:57 GMT
 - request:
     method: get
     uri: http://localhost:3200/build/home:titan/_result?package=goal&view=status
@@ -270,8 +420,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home titan' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -280,16 +430,14 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '56'
     body:
       encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:titan' does not exist</summary>
-          <details>404 project 'home:titan' does not exist</details>
-        </status>
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
     http_version: 
-  recorded_at: Tue, 12 Apr 2016 09:00:50 GMT
+  recorded_at: Tue, 12 Apr 2016 12:06:57 GMT
 - request:
     method: get
     uri: http://localhost:3200/build/home:titan/_result?package=goal&view=status
@@ -307,8 +455,8 @@ http_interactions:
       - Ruby
   response:
     status:
-      code: 404
-      message: project 'home titan' does not exist
+      code: 200
+      message: OK
     headers:
       Content-Type:
       - text/xml
@@ -317,14 +465,12 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '148'
+      - '56'
     body:
       encoding: UTF-8
-      string: |
-        <status code="404">
-          <summary>project 'home:titan' does not exist</summary>
-          <details>404 project 'home:titan' does not exist</details>
-        </status>
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
     http_version: 
-  recorded_at: Tue, 12 Apr 2016 09:00:50 GMT
+  recorded_at: Tue, 12 Apr 2016 12:06:57 GMT
 recorded_with: VCR 3.0.1
