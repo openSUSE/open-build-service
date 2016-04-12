@@ -224,6 +224,7 @@ RSpec.describe Project do
                   <master url='http://master.opensuse.org' sslfingerprint='my_fingerprint'/>
                   <pubkey>my_pubkey</pubkey>
                 </download>
+                <arch>i586</arch>
               </repository>
             </project>
           EOF

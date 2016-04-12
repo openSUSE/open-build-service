@@ -7,6 +7,10 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
 
     begin
       ActiveRecord::Base.transaction do
+        RepositoryArchitecture.first_or_create!(
+          repository:   @download_on_demand.repository,
+          architecture: Architecture.find_by_name(permitted_params[:arch])
+        )
         @download_on_demand.save!
         @project.store
       end
@@ -24,6 +28,7 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
 
     begin
       ActiveRecord::Base.transaction do
+        # FIXME: Handle changing architecture or permit it
         @download_on_demand.update_attributes!(permitted_params)
         @project.store
       end
@@ -41,6 +46,7 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
 
     begin
       ActiveRecord::Base.transaction do
+        # FIXME: should remove repo arch?
         @download_on_demand.destroy!
         @project.store
       end
