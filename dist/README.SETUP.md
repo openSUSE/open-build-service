@@ -4,7 +4,7 @@
 * [Table of Contents](#table-of-contents)
 * [Basic Setup of OBS Server](#basic-setup-of-obs-server)
     * [Prerequisites](#prerequisites)
-    * [Install/Configure the Open Build Service](#install-configure-the-open-build-service)
+    * [Install/Configure the Open Build Service](#installconfigure-the-open-build-service)
         * [Howto install the OBS backend](#howto-install-the-obs-backend)
         * [Howto install the OBS frontend](#howto-install-the-obs-frontend)
 * [Advanced Setup](#advanced-setup)

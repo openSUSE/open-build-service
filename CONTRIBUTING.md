@@ -3,7 +3,7 @@
 1. [Request for contributions](#request-for-contributions)
 2. [How to contribute code](#how-to-contribute-code)
 3. [How to contribute issues](#how-to-contribute-issues)
-4. [How to contribute documentation](#how-to-contribute-docu)
+4. [How to contribute documentation](#how-to-contribute-documentation)
 5. [Conduct](#conduct)
 6. [Communication](#communication)
 7. [Rubocop](#rubocop)
