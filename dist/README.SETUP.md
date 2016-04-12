@@ -1,31 +1,31 @@
 # Manual Setup Guide
 
-## <a name="toc"> Table of Contents
-* [Table of Contents](#toc)
-* [Basic Setup of OBS Server](#basic_setup)
+## Table of Contents
+* [Table of Contents](#table-of-contents)
+* [Basic Setup of OBS Server](#basic-setup-of-obs-server)
     * [Prerequisites](#prerequisites)
-    * [Install/Configure the Open Build Service](#install_obs)
-        * [Howto install the OBS backend](#install_obs_backend)
-        * [Howto install the OBS frontend](#install_obs_frontend)
-* [Advanced Setup](#advanced_setup)
-    * [Distributed Workers](#advanced_setup_distributed_workers)
-    * [Distributed Backend](#advanced_setup_distributed_backend)
+    * [Install/Configure the Open Build Service](#install-configure-the-open-build-service)
+        * [Howto install the OBS backend](#howto-install-the-obs-backend)
+        * [Howto install the OBS frontend](#howto-install-the-obs-frontend)
+* [Advanced Setup](#advanced-setup)
+    * [Distributed Workers](#distributed-workers)
+    * [Distributed Backend](#distributed-backend)
 
-## <a name="basic_setup"/> Basic Setup of OBS Server
+## Basic Setup of OBS Server
 
   **WARNING:**
 
   **The following HOWTO will start services which are accessible from the outside.
   Do not do this on a system connected to an untrusted network!**
 
-### <a name="prerequisites"/> Prerequisites
+### Prerequisites
 
   The OBS needs a SQL database for persistent and a memcache daemon for volatile data.
 
   The required packages will be installed automatically as requirements of obs-api
 
 
-### <a name="install_obs"/> Install/Configure the Open Build Service
+### Install/Configure the Open Build Service
 
   **Note:**
 
@@ -46,7 +46,7 @@
 
         zypper ar -f http://download.opensuse.org/repositories/OBS:/Server:/2.7/openSUSE_42.1/OBS:Server:2.7.repo
 
-#### <a name="install_obs_backend"/> Howto install the OBS backend
+#### Howto install the OBS backend
 
   1. Install the packages:
 
@@ -99,7 +99,7 @@
         systemctl start obswarden.service
 
 
-### <a name="install_obs_frontend"/> Howto install the OBS frontend
+### Howto install the OBS frontend
 
 
   The OBS frontend is a [Ruby on Rails](http://rubyonrails.org/) application that collects the OBS data and serves the HTML and XML views.
@@ -210,9 +210,9 @@
     By default, you can see the HTML views on port 443 (e.g: https://localhost) and the repos on port 82 (once some packages are built). 
     The default admin user is "Admin" with the password "opensuse".
 
-## <a name="advanced_setup"/> Advanced Setup
+## Advanced Setup
 
-### <a name="advanced_setup_distributed_workers"/> Distributed Workers
+### Distributed Workers
 
   To not burden your OBS backend daemons with the unpredictable load package builds can produce (think someone builds a monstrous package like LibreOffice) you should not run OBS workers on the same host as the rest of the backend daemons. 
 
@@ -235,7 +235,7 @@
         systemctl enable obsworker
         systemctl start obsworker
 
-### <a name="advanced_setup_distributed_backend"/> Distributed Backend
+### Distributed Backend
 
   All OBS backend daemons can also be started on individual machines in your network. 
   Especially for large scale OBS installations this is the recommended setup. 
