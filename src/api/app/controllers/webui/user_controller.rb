@@ -45,9 +45,10 @@ class Webui::UserController < Webui::WebuiController
       end
 
       unless User.current
-        flash.now[:error] = 'Authentication failed'
+        reset_session
+        flash[:error] = 'Authentication failed'
         User.current = User.find_by_login('_nobody_')
-        render :template => 'webui/user/login'
+        redirect_to action: 'login'
         return
       end
 

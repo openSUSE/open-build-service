@@ -71,6 +71,7 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     page.must_have_checked_field('CommentForProject_commenter')
   end
 
+  # Using the widget
   def test_that_redirect_after_login_works
     use_js
 
@@ -84,15 +85,32 @@ class Webui::UserControllerTest < Webui::IntegrationTest
     assert_equal search_path, current_path
   end
 
-  def test_that_redirect_from_user_do_login_works
+  # Using the login form
+  def test_that_login_via_user_login_form_works
     use_js
 
     visit user_login_path
     fill_in 'Username', with: "tom"
-    fill_in 'Password', with: "buildservice"
+    fill_in 'Password', with: "thunder"
     click_button 'Log In'
 
-    assert_equal "tom", find('#home-username').text
+    assert_equal "tom", find('#link-to-user-home').text
+    # Logins that are not done via widget should redirect to the user page
     assert_equal "/user/show/tom", page.current_path
+  end
+
+  def test_failed_logins
+    use_js
+
+    visit search_path
+    click_link("Log In")
+    fill_in 'Username', with: "tom"
+    fill_in 'Password', with: "foo"
+    click_button 'Log In'
+
+    page.wont_have_css('#link-to-user-home')
+    assert_equal user_login_path, current_path
+    flash_message.must_equal "Authentication failed"
+    flash_message_type.must_equal :alert
   end
 end
