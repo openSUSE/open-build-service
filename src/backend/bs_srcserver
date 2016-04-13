@@ -551,7 +551,7 @@ sub runservice {
   return if $pid;
 
   # child continues...
-  my $odir = "$srcrep/:service/$$";
+  my $odir = "$uploaddir/runservice$$";
   BSUtil::cleandir($odir) if -d $odir;
   mkdir_p($odir);
   my $receive;
@@ -849,7 +849,7 @@ sub getcommitinfo {
     my $rev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $srcmd5};
     my (undef, $file) = findfile($rev, undef, $type, $files);
     next unless defined $file;
-    my $d = Build::parse($bconf, "$srcrep/$packid/$files->{$file}-$file");
+    my $d = Build::parse($bconf, repfilename($rev, $file, $files->{$file}));
     next unless defined $d->{'version'};
     $version = $d->{'version'};
     $release = $d->{'release'} if defined $d->{'release'};
@@ -1873,7 +1873,7 @@ sub topaddspec {
 # apply a single link step
 # store the result under the identifier "$md5"
 #
-# if "$md5" is not set, store the result in "$uploaddir/applylink$$"
+# hack: if "$md5" is not set, store the result in "$uploaddir/applylink$$"
 #
 sub applylink {
   my ($md5, $lsrc, $llnk) = @_;
@@ -1949,17 +1949,17 @@ sub applylink {
   unlink("$tmpdir/$_") for ls($tmpdir);	# remove old stuff
   my %apply = map {$_->{'name'} => 1} grep {$_->{'type'} eq 'apply'} @patches;
   $apply{$_} = 1 for keys %{$llnk->{'ignore'} || {}};	# also ignore those files, used in keeplink
-  my %fl;
+  my %fl;	# file origins
   if (!$isbranch) {
     for my $f (sort keys %$fsrc) {
       next if $flnk->{$f} && !$apply{$f};
       copyonefile_tmp($lsrc->{'project'}, $lsrc->{'package'}, $f, $fsrc->{$f}, "$tmpdir/$f");
-      $fl{$f} = "$lsrc->{'package'}/$fsrc->{$f}-$f";
+      $fl{$f} = repfilename($lsrc, $f, $fsrc->{$f});
     }
     for my $f (sort keys %$flnk) {
       next if $apply{$f} || $f eq '_link';
       copyonefile_tmp($llnk->{'project'}, $llnk->{'package'}, $f, $flnk->{$f}, "$tmpdir/$f");
-      $fl{$f} = "$llnk->{'package'}/$flnk->{$f}-$f";
+      $fl{$f} = repfilename($llnk, $f, $flnk->{$f});
     }
   }
   my $failed;
@@ -1999,13 +1999,13 @@ sub applylink {
 	if ($mbas eq $mlnk) {
 	  next if $msrc eq '';
 	  copyonefile_tmp($lsrc->{'project'}, $lsrc->{'package'}, $f, $fsrc->{$f}, "$tmpdir/$f");
-	  $fl{$f} = "$lsrc->{'package'}/$fsrc->{$f}-$f";
+	  $fl{$f} = repfilename($lsrc, $f, $fsrc->{$f});
 	  next;
 	}
 	if ($mbas eq $msrc || $mlnk eq $msrc) {
 	  next if $mlnk eq '';
 	  copyonefile_tmp($llnk->{'project'}, $llnk->{'package'}, $f, $flnk->{$f}, "$tmpdir/$f");
-	  $fl{$f} = "$llnk->{'package'}/$flnk->{$f}-$f";
+	  $fl{$f} = repfilename($llnk, $f, $flnk->{$f});
 	  next;
 	}
 	if ($mbas eq '' || $msrc eq '' || $mlnk eq '') {
@@ -2100,7 +2100,8 @@ sub applylink {
     if (!($pid = xfork())) {
       delete $SIG{'__DIE__'};
       chdir($tmpdir) || die("$tmpdir: $!\n");
-      open(STDIN, '<', "$srcrep/$llnk->{'package'}/$flnk->{$pn}-$pn") || die("$srcrep/$llnk->{'package'}/$flnk->{$pn}-$pn: $!\n");
+      my $pnfile = repfilename($llnk, $pn, $flnk->{$pn});
+      open(STDIN, '<', $pnfile) || die("$pnfile: $!\n");
       open(STDOUT, '>>', ".log") || die(".log: $!\n");
       open(STDERR, '>&STDOUT');
       $| = 1;
@@ -2157,8 +2158,8 @@ sub applylink {
     my @s = stat "$tmpdir/$f";
     die("$tmpdir/$f: $!\n") unless @s;
     if ($s[3] > 1 && $fl{$f}) {
-      my @s2 = stat "$srcrep/$fl{$f}";
-      die("$srcrep/$fl{$f}: $!\n") unless @s2;
+      my @s2 = stat($fl{$f});
+      die("$fl{$f}: $!\n") unless @s2;
       if ("$s[0]/$s[1]" eq "$s2[0]/$s2[1]") {
         $newf->{$f} = $fl{$f};
         $newf->{$f} =~ s/.*\///;
@@ -2833,7 +2834,7 @@ sub getprojectservices {
   my $projectrev = getrev($projid, '_project');
   my $projectfiles = lsrev($projectrev);
   if ($projectfiles->{'_service'}) {
-    $services = readxml("$srcrep/_project/$projectfiles->{'_service'}-_service", $BSXML::services, 1) || {};
+    $services = repreadxml($projectrev, '_service', $projectfiles->{'_service'}, $BSXML::services, 1) || {};
   }
 
   # find further projects via project link
@@ -2952,7 +2953,7 @@ sub kiwibootcallback {
   my $files = lsrev($rev);
   my ($md5, $file) = findfile($rev, undef, 'kiwi', $files);
   die("no kiwi file found\n") unless $md5 && $file;
-  my $xml = readstr("$srcrep/$packid/$md5-$file");
+  my $xml = repreadstr($rev, $file, $md5);
   return ($xml, {'project' => $projid, 'package' => $packid, 'srcmd5' => $rev->{'srcmd5'}, 'file' => $file});
 }
 $Build::Kiwi::bootcallback = \&kiwibootcallback;
@@ -3664,7 +3665,7 @@ sub getprojpack {
 	      }
 	    }
 	    # get build dependency info
-	    my $d = Build::parse_typed($conf, "$srcrep/$packid/$md5-$file", $buildtype);
+	    my $d = Build::parse_typed($conf, repfilename($rev, $file, $md5), $buildtype);
 	    data2utf8xml($d);
 	    if (!$d || !defined($d->{'name'})) {
 	      $rinfo->{'error'} = "can not parse package name from $file";
@@ -4564,6 +4565,8 @@ sub remote_getrev {
     die("$dir->{'error'}\n");
   }
   $rev = {};
+  $rev->{'project'} = $projid;
+  $rev->{'package'} = $packid;
   $rev->{'rev'} = $dir->{'rev'} || $dir->{'srcmd5'};
   $rev->{'srcmd5'} = $dir->{'srcmd5'};
   $rev->{'vrev'} = $dir->{'vrev'};
@@ -4572,7 +4575,9 @@ sub remote_getrev {
   my $files = {};
   for my $entry (@{$dir->{'entry'} || []}) {
     $files->{$entry->{'name'}} = $entry->{'md5'};
-    next if -e "$srcrep/$packid/$entry->{'md5'}-$entry->{'name'}";
+    # check if we already have the file
+    next if -e repfilename($rev, $entry->{'name'}, $entry->{'md5'});
+    # nope, download it
     if ($linked && $entry->{'size'} > 8192) {
       # getprojpack request, hand over to AJAX
       BSHandoff::rpc("/source/$projid/$packid", undef, "rev=$dir->{'srcmd5'}", 'view=notify');
@@ -4629,11 +4634,11 @@ sub remote_getrev {
   die("srcmd5 mismatch\n") if $dir->{'srcmd5'} ne $srcmd5;
   if (!$dir->{'linkinfo'} || $linked) {
     my %revcopy = %$rev;
+    delete $revcopy{'project'};		# save mem
+    delete $revcopy{'package'};
     $revcopy{'linked'} = [ map { { %$_ } } @linked ] if $dir->{'linkinfo'};
     $remote_getrev_cache{"$projid/$packid/$cacherev"} = \%revcopy;
   }
-  $rev->{'project'} = $projid;
-  $rev->{'package'} = $packid;
   return $rev;
 }
 
@@ -4848,8 +4853,9 @@ my %getfilelist_ajax_inprogress;
 sub getfilelist_ajax {
   my ($cgi, $projid, $packid) = @_;
 
+  my $srcmd5 = $cgi->{'rev'};
+  my $rev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $srcmd5};
   if ($cgi->{'view'} eq 'cpio') {
-    my $rev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $cgi->{'rev'}};
     my $files = lsrev($rev);
     my @files = map {repcpiofile($rev, $_, $files->{$_})} sort keys %$files;
     BSWatcher::reply_cpio(\@files);
@@ -4858,21 +4864,19 @@ sub getfilelist_ajax {
   die("unknown view '$cgi->{'view'}'\n") unless $cgi->{'view'} eq 'notify';
   my $jev = $BSServerEvents::gev;
   if (!$jev->{'remoteurl'}) {
-    die unless $cgi->{'rev'};
     my $proj = remoteprojid($projid);
     die("missing project/package\n") unless $proj;
     $jev->{'remoteurl'} = $proj->{'remoteurl'};
     $jev->{'remoteproject'} = $proj->{'remoteproject'};
   }
   if (!$jev->{'filelist'}) {
-    my $rev = $cgi->{'rev'};
-    return $BSStdServer::return_ok if $getfilelist_ajax_inprogress{"$projid/$packid/$rev"};
+    return $BSStdServer::return_ok if $getfilelist_ajax_inprogress{"$projid/$packid/$srcmd5"};
     my $param = {
       'uri' => "$jev->{'remoteurl'}/source/$jev->{'remoteproject'}/$packid",
       'proxy' => $proxy,
     };
     eval {
-      $jev->{'filelist'} = BSWatcher::rpc($param, $BSXML::dir, "rev=$rev");
+      $jev->{'filelist'} = BSWatcher::rpc($param, $BSXML::dir, "rev=$srcmd5");
     };
     if ($@) {
       my $err = $@;
@@ -4881,15 +4885,15 @@ sub getfilelist_ajax {
     }
     return undef unless $jev->{'filelist'};
     $jev = BSWatcher::background($BSStdServer::return_ok);
-    $jev->{'idstring'} = "$projid/$packid/$rev";
-    $getfilelist_ajax_inprogress{"$projid/$packid/$rev"} = $jev;
-    $jev->{'handler'} = sub {delete $getfilelist_ajax_inprogress{"$projid/$packid/$rev"}};
+    $jev->{'idstring'} = "$projid/$packid/$srcmd5";
+    $getfilelist_ajax_inprogress{"$projid/$packid/$srcmd5"} = $jev;
+    $jev->{'handler'} = sub {delete $getfilelist_ajax_inprogress{"$projid/$packid/$srcmd5"}};
   }
   my $havesize = 0;
   my $needsize = 0;
   my @need;
   for my $entry (@{$jev->{'filelist'}->{'entry'} || []}) {
-    if (-e "$srcrep/$packid/$entry->{'md5'}-$entry->{'name'}") {
+    if (-e repfilename($rev, $entry->{'name'}, $entry->{'md5'})) {
       $havesize += $entry->{'size'};
     } else {
       push @need, $entry;
@@ -4922,7 +4926,7 @@ sub getfilelist_ajax {
     };
     my $res;
     eval {
-      $res = BSWatcher::rpc($param, undef, "rev=$cgi->{'rev'}", 'view=cpio');
+      $res = BSWatcher::rpc($param, undef, "rev=$srcmd5", 'view=cpio');
     };
     if ($@) {
       # notify scheduler that the download failed
@@ -4934,7 +4938,7 @@ sub getfilelist_ajax {
     return undef unless $res;
   }
   for my $entry (@need) {
-    next if -e "$srcrep/$packid/$entry->{'md5'}-$entry->{'name'}";
+    next if -e repfilename($rev, $entry->{'name'}, $entry->{'md5'});
     my $param = {
       'uri' => "$jev->{'remoteurl'}/source/$jev->{'remoteproject'}/$packid/$entry->{'name'}",
       'filename' => "$uploaddir/$$-$jev->{'id'}",
@@ -4944,7 +4948,7 @@ sub getfilelist_ajax {
     };
     my $res;
     eval {
-      $res = BSWatcher::rpc($param, undef, "rev=$cgi->{'rev'}");
+      $res = BSWatcher::rpc($param, undef, "rev=$srcmd5");
     };
     if ($@) {
       # notify scheduler that the download failed
@@ -4959,7 +4963,7 @@ sub getfilelist_ajax {
     addfile($projid, $packid, "$uploaddir/$$-$jev->{'id'}", $entry->{'name'}, $entry->{'md5'});
   }
   BSWatcher::serialize_end($serial) if $serial;
-  delete $getfilelist_ajax_inprogress{"$projid/$packid/$cgi->{'rev'}"};
+  delete $getfilelist_ajax_inprogress{"$projid/$packid/$srcmd5"};
   notify_all_repservers('package', $projid, $packid);
   return '';
 }
@@ -5514,6 +5518,7 @@ sub findprojectpatchname {
 # in the src repository.
 # if it was a link before, try to keep this link
 # files: expanded file set
+# orev: old revision with the link to keep
 #
 sub keeplink {
   my ($cgi, $projid, $packid, $files, $orev) = @_;
@@ -5567,7 +5572,7 @@ sub keeplink {
 
   my $ltgtsrcmd5;
   my $ofiles;
-  my $ofilesdir;
+  my %ofilesfn;		# file names
   if (!$repair) {
     # expand old link
     my %olrev = %$orev;
@@ -5576,18 +5581,19 @@ sub keeplink {
     $ofiles = handlelinks(\%olrev, $ofilesl, \%li);
     die("bad link: $ofiles\n") unless ref $ofiles;
     $ltgtsrcmd5 = $li{'srcmd5'};
-    $ofilesdir = "$srcrep/$packid";
+    $ofilesfn{$_} = repfilename(\%olrev, $_, $ofiles->{$_}) for keys %$ofiles;
   }
 
   # get link target file list
   my $ltgtprojid = defined($l->{'project'}) ? $l->{'project'} : $projid;
   my $ltgtpackid = defined($l->{'package'}) ? $l->{'package'} : $packid;
+  my $ltgtrev;
   my $ltgtfiles;
   if ($ltgtsrcmd5) {
-    my $ltgtrev = {'project' => $ltgtprojid, 'package' => $ltgtpackid, 'srcmd5' => $ltgtsrcmd5};
+    $ltgtrev = {'project' => $ltgtprojid, 'package' => $ltgtpackid, 'srcmd5' => $ltgtsrcmd5};
     $ltgtfiles = lsrev($ltgtrev);
   } else {
-    my $ltgtrev = getrev($ltgtprojid, $ltgtpackid, $linkrev || $l->{'rev'});
+    $ltgtrev = getrev($ltgtprojid, $ltgtpackid, $linkrev || $l->{'rev'});
     $ltgtfiles = lsrev_expanded($ltgtrev);
     $ltgtsrcmd5 = $ltgtrev->{'srcmd5'};
   }
@@ -5623,10 +5629,11 @@ sub keeplink {
     return $nfiles;
   }
 
+  my $applylinkcalled;
   if ($cgi->{'convertbranchtopatch'}) {
     $ofilesl = {};
     $ofiles = $ltgtfiles;
-    $ofilesdir = "$srcrep/$ltgtpackid";
+    $ofilesfn{$_} = repfilename($ltgtrev, $_, $ofiles->{$_}) for keys %$ofiles;
   } elsif ($repair || $changedlink) {
     # apply changed link
     my $frominfo = {'project' => $ltgtprojid, 'package' => $ltgtpackid, 'srcmd5' => $ltgtsrcmd5};
@@ -5634,13 +5641,14 @@ sub keeplink {
     $linkinfo->{'ignore'} = \%lignore;
     $ofiles = applylink(undef, $frominfo, $linkinfo);
     die("bad link: $ofiles\n") unless ref $ofiles;
-    $ofilesdir = "$uploaddir/applylink$$";
+    $applylinkcalled = 1;
+    $ofilesfn{$_} = "$uploaddir/applylink$$/$ofiles->{$_}-$_"  for keys %$ofiles;
   }
 
   #print "-- ofilesl:\n";
   #print "  $ofilesl->{$_}  $_\n" for sort keys %$ofilesl;
   #print "-- ofiles:\n";
-  #print "  $ofiles->{$_}  $_\n" for sort keys %$ofiles;
+  #print "  $ofiles->{$_}  $_ [$ofilesfn{$_}]\n" for sort keys %$ofiles;
   #print "-- files:\n";
   #print "  $files->{$_}  $_\n" for sort keys %$files;
 
@@ -5665,12 +5673,12 @@ sub keeplink {
       if ($ofiles->{$file} eq $files->{$file}) {
 	next;
       }
-      if (!isascii("$srcrep/$packid/$files->{$file}-$file") || !isascii("$ofilesdir/$ofiles->{$file}-$file")) {
+      if (!isascii(repfilename($orev, $file, $files->{$file})) || !isascii($ofilesfn{$file})) {
 	$nfiles->{$file} = $files->{$file};
 	next;
       }
     } else {
-      if (!isascii("$srcrep/$packid/$files->{$file}-$file")) {
+      if (!isascii(repfilename($orev, $file, $files->{$file}))) {
 	$nfiles->{$file} = $files->{$file};
 	next;
       }
@@ -5687,7 +5695,7 @@ sub keeplink {
     }
     # both are ascii, create diff
     mkdir_p($uploaddir);
-    if (!rundiff($ofiles->{$file} ? "$ofilesdir/$ofiles->{$file}-$file" : '/dev/null', "$srcrep/$packid/$files->{$file}-$file", $file, "$uploaddir/$$")) {
+    if (!rundiff($ofiles->{$file} ? $ofilesfn{$file} : '/dev/null', repfilename($orev, $file, $files->{$file}), $file, "$uploaddir/$$")) {
       $nfiles->{$file} = $files->{$file};
     }
   }
@@ -5719,7 +5727,7 @@ sub keeplink {
     writexml("$uploaddir/$$", undef, $l, $BSXML::link);
     $nfiles->{'_link'} = addfile($projid, $packid, "$uploaddir/$$", '_link')
   }
-  if ($ofilesdir eq "$uploaddir/applylink$$") {
+  if ($applylinkcalled) {
     BSUtil::cleandir("$uploaddir/applylink$$");
     rmdir("$uploaddir/applylink$$");
   }
@@ -5843,14 +5851,15 @@ sub sourcecommitfilelist {
   my $uploaded = BSServer::read_file("$uploaddir/$$");
   die("upload failed\n") unless $uploaded;
   my $fl = readxml("$uploaddir/$$", $BSXML::dir);
-  unlink("$srcrep/:upload/$$");
+  unlink("$uploaddir/$$");
   # make sure we know every file
   my @missing;
   my $files = {};
+  my $orev = {'project' => $projid, 'package' => $packid};
   for my $entry (@{$fl->{'entry'} || []}) {
     BSVerify::verify_filename($entry->{'name'});
     BSVerify::verify_md5($entry->{'md5'});
-    if (! -e "$srcrep/$packid/$entry->{'md5'}-$entry->{'name'}") {
+    if (! -e repfilename($orev, $entry->{'name'}, $entry->{'md5'})) {
       push @missing, $entry;
     } else {
       die("duplicate file: $entry->{'name'}\n") if exists $files->{$entry->{'name'}};
@@ -6370,7 +6379,6 @@ sub sourcebranch {
   $l->{'rev'} = $cgi->{'orev'} if defined $cgi->{'orev'};
   $l->{'baserev'} = $orev->{'srcmd5'};
   my $lfiles = {};
-  mkdir_p("$srcrep/$packid");
   if ($usebranch) {
     $l->{'patches'}->{''} = [ { 'branch' => undef} ];
     copyfiles($projid, $packid, $oprojid, $opackid, $files) unless $cgi->{'keepcontent'};
