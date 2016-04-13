@@ -129,7 +129,10 @@ sub event_package {
   my $packid = $ev->{'package'};
   push @{$fetchprojpacks->{$projid}}, $packid;
   $deepcheck->{$projid} = 1 if !defined $packid;
-  delete $ectx->{'gctx'}->{'projsuspended'}->{$projid} if !defined $packid;
+  if (!defined($packid) && $ectx->{'gctx'}->{'projsuspended'}->{$projid}) {
+    print "resuming project $projid\n";
+    delete $ectx->{'gctx'}->{'projsuspended'}->{$projid};
+  }
 }
 
 =head2 event_project - TODO: add summary
@@ -518,6 +521,7 @@ sub event_suspendproject {
   my $projid = $ev->{'project'};
   my $gctx = $ectx->{'gctx'};
   return unless $ev->{'job'};
+  print "suspending project $projid: $ev->{'job'}\n";
   $gctx->{'projsuspended'}->{$projid} = $ev->{'job'};
   # try to set the repo state right away
   my $projpacks = $gctx->{'projpacks'};
