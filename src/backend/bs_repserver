@@ -2162,8 +2162,8 @@ sub forwardevent {
   if ($type eq 'badhost') {
     $repoid = $cgi->{'repository'} if exists $cgi->{'repository'};
     $arch = $cgi->{'arch'} if exists $cgi->{'arch'};
-    $job = $cgi->{'job'} if exists $cgi->{'job'};
   }
+  $job = $cgi->{'job'} if exists($cgi->{'job'}) && ($type eq 'badhost' || $type eq 'suspendproject');
   # hack: mis-use job to transfer wipe target
   if ($type eq 'wipe' && $cgi->{'wipe'}) {
     $job = join(',', @{$cgi->{'wipe'}});
