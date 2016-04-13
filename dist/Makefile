@@ -66,4 +66,7 @@ test_unit:
 test_system:
 	prove -v t/*.ts
 
+test_appliance:
+	prove -v t/*.ta
+
 .PHONY: test_unit test_system
