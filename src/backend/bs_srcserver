@@ -61,8 +61,6 @@ use BSXPathKeys;
 use BSDB;
 use BSDBIndex;
 
-use BSSolv;
-
 $Build::Rpm::unfilteredprereqs = 1 if defined $Build::Rpm::unfilteredprereqs;
 
 use strict;
@@ -113,12 +111,6 @@ my $remote_getrev_todo;
 my %remote_getrev_cache;
 my $frozenlinks_cache;
 
-if (!defined(&BSSolv::isobscpio)) {
-  *BSSolv::isobscpio = sub {die("installed BSSolv does not support obscpio\n") };
-  *BSSolv::obscpiostat = sub {die("installed BSSolv does not support obscpio\n") };
-  *BSSolv::obscpioopen= sub {die("installed BSSolv does not support obscpio\n") };
-  *BSSolv::expandobscpio = sub {die("installed BSSolv does not support obscpio\n") };
-}
 
 sub notify {
   my ($type, $p) = @_;

@@ -27,6 +27,7 @@ use Digest::MD5 ();
 use BSConfiguration;
 use BSUtil;
 use Symbol;
+use BSSolv;
 
 use strict;
 
@@ -37,6 +38,13 @@ my $eventdir = "$BSConfig::bsdir/events";
 my $uploaddir = "$srcrep/:upload";
 
 our $emptysrcmd5 = 'd41d8cd98f00b204e9800998ecf8427e';
+
+if (!defined(&BSSolv::isobscpio)) {
+  *BSSolv::isobscpio = sub {die("installed BSSolv does not support obscpio\n") };
+  *BSSolv::obscpiostat = sub {die("installed BSSolv does not support obscpio\n") };
+  *BSSolv::obscpioopen= sub {die("installed BSSolv does not support obscpio\n") };
+  *BSSolv::expandobscpio = sub {die("installed BSSolv does not support obscpio\n") };
+}
 
 #
 #  Source file handling
