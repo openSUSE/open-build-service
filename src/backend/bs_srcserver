@@ -666,9 +666,8 @@ sub waitservicerun {
   }
   my $servicemark = $cgi->{'servicemark'};
   die("need a servicemark\n") unless $servicemark;
-  my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
-  BSWatcher::addfilewatcher("$treedir/$servicemark-_serviceerror");
-  my $serror = getserviceerror("$treedir/$servicemark-_serviceerror");
+  BSWatcher::addfilewatcher(serviceerrorfile($projid, $packid, $servicemark));
+  my $serror = getserviceerror($projid, $packid, $servicemark);
   return $BSStdServer::return_ok unless $serror;
   return undef if $serror =~ /service in progress/;
   die("$serror\n");
@@ -1296,6 +1295,28 @@ sub addmeta_link {
   }
 }
 
+sub addmeta_linkerror {
+  my ($projid, $packid, $srcmd5, $errorfile) = @_;
+  if (!link($errorfile, "$srcrep/$packid/$srcmd5-_linkerror")) {
+    my $err = "link $errorfile $srcrep/$packid/$srcmd5-_linkerror: $!\n";
+    die($err) unless -e "$srcrep/$packid/$srcmd5-_linkerror";
+  }
+}
+
+sub getlinkerror {
+  my ($projid, $packid, $srcmd5) = @_; 
+  return '' unless -e "$srcrep/$packid/$srcmd5-_linkerror";
+  my $log = readstr("$srcrep/$packid/$srcmd5-_linkerror", 1); 
+  $log ||= "unknown error";
+  chomp $log;
+  $log =~ s/.*\n//s;
+  return str2utf8xml($log || 'unknown error');
+}
+
+sub havelinkerror {
+  my ($projid, $packid, $srcmd5) = @_; 
+  return -e "$srcrep/$packid/$srcmd5-_linkerror";
+}
 
 # like addmeta, but adds service information after a source
 # service finished successfully. stores under the "wrong" md5sum.
@@ -1324,6 +1345,29 @@ sub addmeta_serviceerror {
     mkdir_p($treedir);
     writestr("$treedir/.$srcmd5-_serviceerror", "$treedir/$srcmd5-_serviceerror", "$error\n");
   }
+}
+
+sub getserviceerror {
+  my ($projid, $packid, $srcmd5) = @_;
+  my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+  my $errorfile = "$treedir/$srcmd5-_serviceerror";
+  return '' unless -e $errorfile;
+  local *SERROR;
+  return '' unless open(SERROR, '<', $errorfile);
+  my $size = -s SERROR;
+  sysseek(SERROR, $size - 1024, 0) if $size > 1024;
+  my $error = '';
+  1 while sysread(SERROR, $error, 1024, length($error));
+  close SERROR;
+  $error =~ s/[\r\n]+$//s;
+  $error =~ s/.*[\r\n]//s;
+  return str2utf8xml($error || 'unknown service error');
+}
+
+sub serviceerrorfile {
+  my ($projid, $packid, $srcmd5) = @_;
+  my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+  return "$treedir/$srcmd5-_serviceerror";
 }
 
 sub addmeta_serialize_servicerun {
@@ -1884,14 +1928,10 @@ sub topaddspec {
 #
 sub applylink {
   my ($md5, $lsrc, $llnk) = @_;
-  if ($md5 && -e "$srcrep/$llnk->{'package'}/$md5-_linkerror") {
-    # no need to do all the work again...
-    my $log = readstr("$srcrep/$llnk->{'package'}/$md5-_linkerror", 1);
-    $log ||= "unknown error";
-    chomp $log;
-    $log =~ s/.*\n//s;
-    $log ||= "unknown error";
-    return str2utf8xml($log);
+  # no need to do all the work again if we already have an error result...
+  if ($md5) {
+    my $lerror = getlinkerror($llnk->{'project'}, $llnk->{'package'}, $md5);
+    return $lerror if $lerror;
   }
   my $flnk = lsrev($llnk);
   my $fsrc = lsrev($lsrc);
@@ -2144,16 +2184,9 @@ sub applylink {
     last if $failed;
   }
   if ($failed) {
-    local *F;
-    # add result as last line
-    open(F, '>>', "$tmpdir/.log") || die("$tmpdir/.log: $!\n");
-    print F "\n$failed\n";
-    close F;
-    # link error marker
-    if ($md5 && !link("$tmpdir/.log", "$srcrep/$llnk->{'package'}/$md5-_linkerror")) {
-      my $err = "link $tmpdir/.log $srcrep/$llnk->{'package'}/$md5-_linkerror: $!\n";
-      die($err) unless -e "$srcrep/$llnk->{'package'}/$md5-_linkerror";
-    }
+    BSUtil::appendstr("$tmpdir/.log", "\n$failed\n");
+    # save link error log
+    addmeta_linkerror($llnk->{'project'}, $llnk->{'package'}, $md5, "$tmpdir/.log") if $md5;
     BSUtil::cleandir($tmpdir);
     rmdir($tmpdir);
     return str2utf8xml($failed);
@@ -2325,20 +2358,6 @@ sub handlelinks {
   return $files;
 }
 
-sub getserviceerror {
-  my ($errorfile) = @_;
-  local *SERROR;
-  return '' unless open(SERROR, '<', $errorfile);
-  my $size = -s SERROR;
-  sysseek(SERROR, $size - 1024, 0) if $size > 1024;
-  my $error = '';
-  1 while sysread(SERROR, $error, 1024, length($error));
-  close SERROR;
-  $error =~ s/[\r\n]+$//s;
-  $error =~ s/.*[\r\n]//s;
-  return str2utf8xml($error || 'unknown service error');
-}
-
 # - returns expanded file list
 # - side effects:
 #   modifies $rev->{'srcmd5'}
@@ -2370,10 +2389,8 @@ sub handleservice {
     return $sfiles;
   }
   # don't have the tree yet
-  if (-s "$treedir/$servicemark-_serviceerror") {
-    my $serror = getserviceerror("$treedir/$servicemark-_serviceerror");
-    die("$serror\n") if $serror;
-  }
+  my $serror = getserviceerror($rev->{'project'}, $rev->{'package'}, $servicemark);
+  die("$serror\n") if $serror;
   my %nfiles = %$files;
   $nfiles{'/SERVICE'} = $servicemark;
   $rev->{'srcmd5'} = $lsrcmd5;	# put it back so that runservice can put it in /LSRCMD5
@@ -5106,7 +5123,7 @@ sub getfilelist {
 	# link is broken
 	$li->{'error'} = $lfiles;
 	# set xsrcmd5 if we have a link error file
-	$li->{'xsrcmd5'} = $lrev{'srcmd5'} if $lrev{'srcmd5'} && -e "$srcrep/$packid/$lrev{'srcmd5'}-_linkerror";
+	$li->{'xsrcmd5'} = $lrev{'srcmd5'} if $lrev{'srcmd5'} && havelinkerror($projid, $packid, $lrev{'srcmd5'});
 	if ($cgi->{'lastworking'}) {
 	  my $lastworking = findlastworkinglink($rev);
 	  $li->{'lastworking'} = $lastworking if $lastworking;
