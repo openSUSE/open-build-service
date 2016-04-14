@@ -47,6 +47,7 @@ use BSProductXML;
 use BSDB;
 use BSDBIndex;
 use BSSolv;
+use BSSrcrep;
 
 my $nosharedtrees;
 $nosharedtrees = $BSConfig::nosharedtrees if defined($BSConfig::nosharedtrees);
@@ -216,8 +217,8 @@ my $srcrevlay = [qw{rev vrev srcmd5 version time user comment requestid}];
 sub getrev {
   my ($projid, $packid, $rev) = @_;
   die("bad projid\n") if $projid =~ /\// || $projid =~ /^\./;
-  return {'srcmd5' => 'pattern', 'rev' => 'pattern'} if $packid eq '_pattern';
   die("bad packid\n") if $packid =~ /\// || $packid =~ /^\./;
+  return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'pattern', 'rev' => 'pattern', 'special_meta' => "$projectsdir/$projid.pkg/pattern-MD5SUMS"} if $packid eq '_pattern';
   undef $rev if $rev && ($rev eq 'latest' || $rev eq 'build');
   undef $rev if $rev && $rev eq 'upload' && ! -e "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS";
   if (!defined($rev)) {
@@ -234,34 +235,9 @@ sub getrev {
     $rev = BSFileDB::fdb_getmatch("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, 'rev', $rev);
   }
   $rev->{'srcmd5'} =~ s/\/.*// if $rev;         # XXX still needed?
+  $rev->{'projid'} = $projid;
+  $rev->{'packid'} = $packid;
   return $rev;
-}
-sub lsrep {
-  my ($projid, $packid, $srcmd5) = @_;
-  die("no such revision\n") unless defined $srcmd5;
-  local *F;
-  die("bad packid\n") if $packid =~ /\// || $packid =~ /^\./;
-  if ($srcmd5 eq 'upload') {
-    open(F, '<', "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS") || die("$packid/$srcmd5-$packid: not in repository\n");
-  } elsif ($srcmd5 eq 'pattern') {
-    open(F, '<', "$projectsdir/$projid.pkg/pattern-MD5SUMS") || return {};
-  } elsif ($srcmd5 eq 'empty' || $srcmd5 eq $emptymd5) {
-    return {};
-  } else {
-    die("bad srcmd5 '$srcmd5'\n") if $srcmd5 !~ /^[0-9a-f]{32}$/;
-    if (!open(F, '<', "$srcrepdir/$packid/$srcmd5-MD5SUMS")) {
-      return {'_linkerror' => $srcmd5} if -e "$srcrepdir/$packid/$srcmd5-_linkerror";
-      die("$packid/$srcmd5-$packid: not in repository\n");
-    }
-  }
-  my @files = <F>;
-  close F;
-  chomp @files;
-  return {map {substr($_, 34) => substr($_, 0, 32)} @files};
-}
-sub repreadxml {
-  my ($rev, $packid, $filename, $md5, $dtd, $nonfatal) = @_;
-  return readxml("$srcrepdir/$packid/$md5-$filename", $dtd, $nonfatal);
 }
 sub findprojects {
   local *D;
@@ -273,6 +249,7 @@ sub findprojects {
 sub findpackages {
   my ($projid) = @_;
   my @packids;
+  local *D;
   if (opendir(D, "$projectsdir/$projid.pkg")) {
     @packids = grep {s/\.xml$//} readdir(D);
     closedir(D);
@@ -287,7 +264,7 @@ sub updatelinkinfodb {
   my $linkdb = BSDB::opendb($sourcedb, 'linkinfo');
   my $linkinfo;
   if ($files && $files->{'_link'}) {
-    my $l = repreadxml($rev, $packid, '_link', $files->{'_link'}, $BSXML::link, 1);
+    my $l = BSSrcrep::repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link, 1);
     if ($l) {
       $linkinfo = {};
       $linkinfo->{'project'} = defined $l->{'project'} ? $l->{'project'} : $projid;
@@ -298,8 +275,9 @@ sub updatelinkinfodb {
   $linkdb->store("$projid/$packid", $linkinfo);
 }
 sub findfile {
-  my ($projid, $packid, $repoid, $ext, $files) = @_;
-  $files = lsrep($projid, $packid, $files) unless ref $files;
+  my ($rev, $repoid, $ext, $files) = @_;
+  $files = BSSrcrep::lsrev($rev) unless ref $files;
+  my $packid = $rev->{'package'};
   return ($files->{"$packid-$repoid.$ext"}, "$packid-$repoid.$ext") if defined($repoid) && $files->{"$packid-$repoid.$ext"};
   return ($files->{"$packid.$ext"}, "$packid.$ext") if $files->{"$packid.$ext"} && defined($repoid);
   my @files = grep {/\.$ext$/} keys %$files;
@@ -325,13 +303,13 @@ sub find_latest_file {
   if (!$rev || $rev->{'srcmd5'} eq 'empty') {
     return ( "Refered to non existing $type in $project $package" );
   }
-  my $files = lsrep($project, $package, $rev->{'srcmd5'});
+  my $files = BSSrcrep::lsrev($rev);
 # FIXME: handle source links
 #   $files = handlelinks($projid, $pinfo, $files, $rev) if ref($files) && $files->{'_link'};
   if (!ref $files) {
     return( "could not get file list for $project $package" );
   }
-  my ($md5, $file) = findfile($project, $package, undef, $type, $files);
+  my ($md5, $file) = findfile($rev, undef, $type, $files);
   return ($md5, $file);
 }
 
@@ -669,7 +647,7 @@ while (@ARGV) {
       for my $packid (findpackages($projid)) {
         print "$projid/$packid\n";
         my $rev = getrev($projid, $packid);
-        my $files = lsrep($projid, $packid, $rev->{'srcmd5'});
+        my $files = BSSrcrep::lsrev($rev);
         updatelinkinfodb($projid, $packid, $rev, $files);
       }
     }
