@@ -102,9 +102,6 @@ my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 my $repoid;
 my %packagequota;
 
-# This is the md5sum of an empty file
-my $emptysrcmd5 = 'd41d8cd98f00b204e9800998ecf8427e';
-
 # remote getrev cache
 my $collect_remote_getrev;
 my $remote_getrev_todo;
@@ -405,7 +402,7 @@ sub fake_service_run {
   my ($projid, $packid, $files, $sfiles, $servicemark) = @_;
   $files->{'/SERVICE'} = $servicemark;
   $sfiles->{'/SERVICE'} = $servicemark;
-  my $nsrcmd5 = calcsrcmd5($files);
+  my $nsrcmd5 = BSSrcrep::calcsrcmd5($files);
   addrev_service({}, {'project' => $projid, 'package' => $packid, 'srcmd5' => $nsrcmd5}, $sfiles);
   delete $files->{'/SERVICE'};
   delete $sfiles->{'/SERVICE'};
@@ -941,7 +938,7 @@ sub getrev {
 	  my $files = BSSrcrep::lsrev($lrev);
 	  BSSrcrep::copyfiles($projid, $packid, $lprojid, $packid, $files);
 	  my $srcmd5 = $lrev->{'srcmd5'};
-	  if ($BSConfig::nosharedtrees && $srcmd5 ne $emptysrcmd5) {
+	  if ($BSConfig::nosharedtrees && $srcmd5 ne $BSSrcrep::emptysrcmd5) {
 	    # copy the tree
 	    my $treedir = "$treesdir/$projid/$packid";
 	    if (! -e "$treedir/$srcmd5-MD5SUMS") {
@@ -970,7 +967,7 @@ sub getrev {
       if ($BSConfig::nosharedtrees && $BSConfig::nosharedtrees == 2 && ! -e "$treedir/$rev-MD5SUMS") {
 	$treedir = "$srcrep/$packid";
       }
-      if ($rev eq $emptysrcmd5 || -e "$treedir/$rev-MD5SUMS") {
+      if ($rev eq $BSSrcrep::emptysrcmd5 || -e "$treedir/$rev-MD5SUMS") {
         # tree exists. make sure we knew the project/package at one time in the past
         if (-e "$projectsdir/$projid.pkg/$packid.mrev.del" ||
             -e "$projectsdir/_deleted/$projid.pkg/$packid.mrev" ||
@@ -989,17 +986,17 @@ sub getrev {
       addrev_meta({'user' => 'internal', 'comment' => 'initial commit'}, $projid, undef, undef, undef, undef, 'rev');
       $rev = BSFileDB::fdb_getlast("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay);
     }
-    $rev = {'srcmd5' => $emptysrcmd5} unless $rev;
+    $rev = {'srcmd5' => $BSSrcrep::emptysrcmd5} unless $rev;
   } elsif ($rev =~ /^[0-9a-f]{32}$/) {
     return undef unless -e "$projectsdir/$projid.pkg/$packid.rev" || -e "$projectsdir/$projid.pkg/$packid.mrev";
     $rev = {'srcmd5' => $rev, 'rev' => $rev};
   } elsif ($rev eq 'upload') {
     $rev = {'srcmd5' => 'upload', 'rev' => 'upload', 'special_meta' => "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS"};
   } elsif ($rev eq 'repository') {
-    $rev = {'srcmd5' => $emptysrcmd5, 'rev' => 'repository'}
+    $rev = {'srcmd5' => $BSSrcrep::emptysrcmd5, 'rev' => 'repository'}
   } else {
     if ($rev eq '0') {
-      $rev = {'srcmd5' => $emptysrcmd5};
+      $rev = {'srcmd5' => $BSSrcrep::emptysrcmd5};
     } else {
       $rev = BSFileDB::fdb_getmatch("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, 'rev', $rev);
       die("no such revision\n") unless defined $rev;
@@ -1023,7 +1020,7 @@ sub getrev_deleted {
   if (!defined($rev)) {
     $rev = BSFileDB::fdb_getlast($revfile, $srcrevlay);
   } elsif ($rev eq '0') {
-    $rev = {'srcmd5' => $emptysrcmd5};
+    $rev = {'srcmd5' => $BSSrcrep::emptysrcmd5};
   } else {
     $rev = BSFileDB::fdb_getmatch($revfile, $srcrevlay, 'rev', $rev);
   }
@@ -1044,14 +1041,6 @@ sub addmeta_upload {
   mkdir_p("$projectsdir/$projid.pkg");
   writestr("$uploaddir/addmeta$$", "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS", $meta);
   return $srcmd5;
-}
-
-# used only in fake_service_run. must match addmeta
-sub calcsrcmd5 {
-  my ($files) = @_;
-  my $meta = '';
-  $meta .= "$files->{$_}  $_\n" for sort keys %$files;
-  return Digest::MD5::md5_hex($meta);
 }
 
 sub updatelinkinfodb {
@@ -1187,7 +1176,7 @@ sub addrev {
     return {'project' => $projid, 'package' => $packid, 'rev' => 'upload', 'srcmd5' => $srcmd5};
   } elsif ($target && $target eq 'repository') {
     # repository only upload.
-    return {'project' => $projid, 'package' => $packid, 'rev' => 'repository', 'srcmd5' => $emptysrcmd5};
+    return {'project' => $projid, 'package' => $packid, 'rev' => 'repository', 'srcmd5' => $BSSrcrep::emptysrcmd5};
   } elsif (defined($target)) {
     # internal version only upload.
     my $srcmd5 = BSSrcrep::addmeta($projid, $packid, $files);
@@ -2011,12 +2000,7 @@ sub findlastworkinglink {
 
   my $projid = $rev->{'project'};
   my $packid = $rev->{'package'};
-  my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
-  my @cand = grep {s/-MD5SUMS$//} ls($treedir);
-  if ($BSConfig::nosharedtrees && $BSConfig::nosharedtrees == 2) {
-    push @cand, grep {s/-MD5SUMS$//} ls("$srcrep/$packid");
-    @cand = BSUtil::unify(@cand);
-  }
+  my @cand = BSSrcrep::knowntrees($projid, $packid);
   my %cand;
   for my $cand (@cand) {
     my $candrev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $cand};
@@ -2198,7 +2182,7 @@ sub getrev_meta {
   my $rev;
   if (!defined($revid) || $revid eq 'latest') {
     $rev = BSFileDB::fdb_getlast($revfile, $srcrevlay);
-    $rev = { 'srcmd5' => $emptysrcmd5 } unless $rev;
+    $rev = { 'srcmd5' => $BSSrcrep::emptysrcmd5 } unless $rev;
   } elsif ($revid =~ /^[0-9a-f]{32}$/) {
     $rev = { 'srcmd5' => $revid };
   } else {
@@ -3004,7 +2988,7 @@ sub getprojpack {
 	  }
  	  next;
 	}
-	if (!$rev || $rev->{'srcmd5'} eq 'empty' || $rev->{'srcmd5'} eq $emptysrcmd5) {
+	if (!$rev || $rev->{'srcmd5'} eq 'empty' || $rev->{'srcmd5'} eq $BSSrcrep::emptysrcmd5) {
 	  $pinfo->{'error'} = 'no source uploaded';
 	  next;
 	}
@@ -4058,7 +4042,7 @@ sub fill_remote_getrev_cache_projid {
       }
       if ($si->{'error'} eq 'no source uploaded') {
 	delete $si->{'error'};
-	$rev->{'srcmd5'} = $emptysrcmd5;
+	$rev->{'srcmd5'} = $BSSrcrep::emptysrcmd5;
       } elsif ($si->{'verifymd5'} || $si->{'error'} =~ /^404[^\d]/) {
 	$rev->{'error'} = $si->{'error'};
 	$remote_getrev_cache{"$projid/$packid/"} = $rev;
@@ -4099,7 +4083,7 @@ sub remote_getrev {
   my $proj = remoteprojid($projid);
   if (!$proj) {
     return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'pattern', 'rev' => 'pattern', 'special_meta' => "$projectsdir/$projid.pkg/pattern-MD5SUMS"} if $packid eq '_pattern';
-    return {'project' => $projid, 'package' => $packid, 'srcmd5' => $emptysrcmd5} if $missingok;
+    return {'project' => $projid, 'package' => $packid, 'srcmd5' => $BSSrcrep::emptysrcmd5} if $missingok;
     die("404 package '$packid' does not exist\n") if -e "$projectsdir/$projid.xml";
     die("404 project '$projid' does not exist\n");
   }
@@ -4107,12 +4091,12 @@ sub remote_getrev {
   # the remote server
   if ($rev && $rev =~ /^[0-9a-f]{32}$/) {
     my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
-    if ($rev eq $emptysrcmd5 || -e "$treedir/$rev-MD5SUMS") {
+    if ($rev eq $BSSrcrep::emptysrcmd5 || -e "$treedir/$rev-MD5SUMS") {
       return {'project' => $projid, 'package' => $packid, 'rev' => $rev, 'srcmd5' => $rev};
     }        
   }
   if (defined($rev) && $rev eq '0') {
-    return {'srcmd5' => $emptysrcmd5, 'project' => $projid, 'package' => $packid};
+    return {'srcmd5' => $BSSrcrep::emptysrcmd5, 'project' => $projid, 'package' => $packid};
   }
   my @args;
   push @args, 'expand=1';
@@ -4122,7 +4106,7 @@ sub remote_getrev {
     $rev = { %{$remote_getrev_cache{"$projid/$packid/$cacherev"}} };
     push @$linked, map { { %$_ } } @{$rev->{'linked'}} if $linked && $rev->{'linked'};
     if ($rev->{'error'}) {
-      return {'project' => $projid, 'package' => $packid, 'srcmd5' => $emptysrcmd5} if $missingok && $rev->{'error'} =~ /^404[^\d]/;
+      return {'project' => $projid, 'package' => $packid, 'srcmd5' => $BSSrcrep::emptysrcmd5} if $missingok && $rev->{'error'} =~ /^404[^\d]/;
       die("$rev->{'error'}\n");
     }
     delete $rev->{'linked'};
@@ -4143,7 +4127,7 @@ sub remote_getrev {
       $dir = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid", 'proxy' => $proxy}, $BSXML::dir, @args);
     };
     if ($@) {
-      return {'project' => $projid, 'package' => $packid, 'srcmd5' => $emptysrcmd5} if $missingok && $@ =~ /^404[^\d]/;
+      return {'project' => $projid, 'package' => $packid, 'srcmd5' => $BSSrcrep::emptysrcmd5} if $missingok && $@ =~ /^404[^\d]/;
       die($@);
     }
   }
@@ -4708,7 +4692,7 @@ sub getfilelist {
   }
 
   if ($view && $view eq 'cpio') {
-    if (!$cgi->{'extension'} && $rev->{'srcmd5'} && $rev->{'srcmd5'} ne 'upload' && $rev->{'srcmd5'} ne 'pattern' && $rev->{'srcmd5'} ne 'empty' && $rev->{'srcmd5'} ne $emptysrcmd5) {
+    if (!$cgi->{'extension'} && $rev->{'srcmd5'} && $rev->{'srcmd5'} ne 'upload' && $rev->{'srcmd5'} ne 'pattern' && $rev->{'srcmd5'} ne 'empty' && $rev->{'srcmd5'} ne $BSSrcrep::emptysrcmd5) {
       # hack: we identify remote source downloads by looking at the user agent
       my $useragent = $BSServer::request->{'headers'}->{'user-agent'} || '';
       if ($useragent =~ /BSRPC/) {
@@ -4781,7 +4765,7 @@ sub getfile {
   die("404 $filename: no such file\n") unless $files->{$filename};
   my @s = BSSrcrep::repstat($rev, $filename, $files->{$filename});
   die("$projid/$packid/$files->{$filename}-$filename: $!\n") unless @s;
-  if (!$BSStdServer::isajax && $rev->{'srcmd5'} && $rev->{'srcmd5'} ne 'upload' && $rev->{'srcmd5'} ne 'pattern' && $rev->{'srcmd5'} ne 'empty' && $rev->{'srcmd5'} ne $emptysrcmd5) {
+  if (!$BSStdServer::isajax && $rev->{'srcmd5'} && $rev->{'srcmd5'} ne 'upload' && $rev->{'srcmd5'} ne 'pattern' && $rev->{'srcmd5'} ne 'empty' && $rev->{'srcmd5'} ne $BSSrcrep::emptysrcmd5) {
     # hack: we identify remote source downloads by looking at the user agent
     my $useragent = $BSServer::request->{'headers'}->{'user-agent'} || '';
     if ($useragent =~ /BSRPC/) {
@@ -4963,9 +4947,9 @@ sub sourcediff {
     $xmlret = {};
     $xmlret->{'key'} = $cacheid;
     $rev->{'rev'} ||= 0;
-    $rev->{'srcmd5'} = $emptysrcmd5 if $rev->{'srcmd5'} eq 'empty';
+    $rev->{'srcmd5'} = $BSSrcrep::emptysrcmd5 if $rev->{'srcmd5'} eq 'empty';
     $orev->{'rev'} ||= 0;
-    $orev->{'srcmd5'} = $emptysrcmd5 if $rev->{'srcmd5'} eq 'empty';
+    $orev->{'srcmd5'} = $BSSrcrep::emptysrcmd5 if $rev->{'srcmd5'} eq 'empty';
     $xmlret->{'old'} = { 'project' => $orev->{'project'}, 'package' => $orev->{'package'}, 'rev' => $orev->{'rev'}, 'srcmd5' => $orev->{'srcmd5'} };
     $xmlret->{'new'} = { 'project' => $rev->{'project'}, 'package' => $rev->{'package'}, 'rev' => $rev->{'rev'}, 'srcmd5' => $rev->{'srcmd5'} };
     $xmlret->{'files'} = {};
@@ -5191,7 +5175,7 @@ sub keeplink {
     $ltgtsrcmd5 = $ltgtrev->{'srcmd5'};
   }
 
-  if ($l->{'missingok'} && $ltgtfiles->{'srcmd5'} ne $emptysrcmd5) {
+  if ($l->{'missingok'} && $ltgtfiles->{'srcmd5'} ne $BSSrcrep::emptysrcmd5) {
     # delete missingok flag as it's no longer needed
     eval {
       checksourceaccess($ltgtprojid, $ltgtpackid);
@@ -5622,7 +5606,7 @@ sub copyproject {
       if (!$lastorev || !$lastorev->{'rev'}) {
 	next unless $cgi->{'makeolder'};
 	# fake empty commit
-	$lastorev = { 'version' => 'unknown', 'rev' => 0, 'vrev' => 0, 'srcmd5' => $emptysrcmd5 };
+	$lastorev = { 'version' => 'unknown', 'rev' => 0, 'vrev' => 0, 'srcmd5' => $BSSrcrep::emptysrcmd5 };
       }
       # always do one new commit, we don't use addrev to have full control over vrev
       my $linkinfo = {};
@@ -5968,7 +5952,7 @@ sub sourcebranch {
     checksourceaccess($oprojid, $opackid) if $opackid eq $packid && $oprojid ne $projid;
   };
   $l->{'package'} = $opackid if $@;
-  $l->{'missingok'} = "true" if defined $cgi->{'missingok'} && $orev->{'srcmd5'} eq $emptysrcmd5;
+  $l->{'missingok'} = "true" if defined $cgi->{'missingok'} && $orev->{'srcmd5'} eq $BSSrcrep::emptysrcmd5;
   $l->{'rev'} = $cgi->{'orev'} if defined $cgi->{'orev'};
   $l->{'baserev'} = $orev->{'srcmd5'};
   my $lfiles = {};
@@ -7900,9 +7884,9 @@ sub sourceinfo {
     $r->{'srcmd5'} = $rev->{'srcmd5'} if $rev->{'srcmd5'} ne 'empty';
     $r->{'rev'} = $rev->{'rev'} if $rev->{'rev'};
     $r->{'vrev'} = $rev->{'vrev'} if $rev->{'vrev'};
-    if (!$rev || $rev->{'srcmd5'} eq 'empty' || $rev->{'srcmd5'} eq $emptysrcmd5) {
+    if (!$rev || $rev->{'srcmd5'} eq 'empty' || $rev->{'srcmd5'} eq $BSSrcrep::emptysrcmd5) {
       die("no source uploaded\n") unless $cgi->{'nofilename'};
-      $rev = {'srcmd5' => $emptysrcmd5, 'project' => $projid, 'package' => $packid };
+      $rev = {'srcmd5' => $BSSrcrep::emptysrcmd5, 'project' => $projid, 'package' => $packid };
     }
     my $linkinfo = {};
     $files = BSSrcrep::lsrev($rev, $linkinfo);

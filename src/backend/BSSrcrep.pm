@@ -23,11 +23,11 @@
 package BSSrcrep;
 
 use Digest::MD5 ();
+use Symbol;
+use BSSolv;
 
 use BSConfiguration;
 use BSUtil;
-use Symbol;
-use BSSolv;
 
 use strict;
 
@@ -243,6 +243,13 @@ sub lsrev {
   return $files;
 }
 
+sub calcsrcmd5 {
+  my ($files) = @_;
+  my $meta = '';
+  $meta .= "$files->{$_}  $_\n" for sort keys %$files;
+  return Digest::MD5::md5_hex($meta);
+}
+
 sub addmeta {
   my ($projid, $packid, $files, $target) = @_;
 
@@ -257,6 +264,17 @@ sub addmeta {
     writestr("$uploaddir/addmeta$$", "$treedir/$srcmd5-MD5SUMS", $meta);
   }
   return $srcmd5;
+}
+
+sub knowntrees {
+  my ($projid, $packid) = @_;
+  my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+  my @cand = grep {s/-MD5SUMS$//} ls($treedir);
+  if ($BSConfig::nosharedtrees && $BSConfig::nosharedtrees == 2) {
+    push @cand, grep {s/-MD5SUMS$//} ls("$srcrep/$packid");
+    @cand = BSUtil::unify(@cand);
+  }
+  return @cand;
 }
 
 #
