@@ -1,3 +1,44 @@
+For Updaters to OBS 2.7 from OBS 2.6
+====================================
+
+WARNING: Please be aware, that this section is work in progress
+
+  1. Remove the OBS 2.6 Repository
+
+        zypper rs OBS:Server:2.6
+
+  2. Add the OBS 2.7 Repository and update repository cache
+
+        zypper ar http://download.opensuse.org/repositories/OBS:/Server:/2.7/$YOUR_DISTRIBUTION/OBS:Server:2.7.repo
+        zypper ref -s
+
+  3. Remove packages which might case conflicts
+
+        zypper -n remove ruby2.1-rubygem-passenger
+
+  4. Update packages
+
+        zypper dup --no-recommends --from OBS_Server_2.7
+
+  5. Migrate database
+
+        cd /srv/www/obs/api/
+        RAILS_ENV="production" rake.ruby2.3 db:migrate
+
+  6. Make sure that log and tmp are owned by wwwrun
+
+        chown -R wwwrun.www /srv/www/obs/api/log
+        chown -R wwwrun.www /srv/www/obs/api/tmp
+
+  7. Restart following services in this order
+
+        service apache2 restart
+        service obsapidelayed restart
+        service memcached restart
+
+
+
+
 For Updaters to OBS 2.6 from OBS 2.5
 ====================================
 
