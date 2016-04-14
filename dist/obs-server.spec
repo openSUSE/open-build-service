@@ -349,6 +349,12 @@ DESTDIR=%{buildroot} make install
 %fdupes $RPM_BUILD_ROOT/srv/www/obs
 %endif
 
+# fix build for SLE 11
+%if 0%{?suse_version} < 1315
+touch %{buildroot}/%{secret_key_file}
+chmod 0640 %{buildroot}/%{secret_key_file}
+%endif
+
 %check
 ### TEMPORARY HACK
 # disabling this testsuite, since sphinx startup breaks unreliable in kvm
