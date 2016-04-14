@@ -353,7 +353,6 @@ DESTDIR=%{buildroot} make install
 %if 0%{?suse_version} < 1315
 touch %{buildroot}/%{secret_key_file}
 chmod 0640 %{buildroot}/%{secret_key_file}
-chown root.www %{buildroot}/%{secret_key_file}
 %endif
 
 %check
