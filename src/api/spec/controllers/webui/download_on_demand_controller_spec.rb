@@ -69,7 +69,7 @@ RSpec.describe Webui::DownloadOnDemandController do
       end
 
       it { is_expected.to redirect_to(root_path) }
-      it { expect(flash[:error]).to eq("Download on Demand can't be created: Arch can't be blank and Arch is not included in the list") }
+      it { expect(flash[:error]).to eq("Download on Demand can't be created: Validation failed: Architecture can't be blank") }
       it { expect(assigns(:download_on_demand)).to be_kind_of(DownloadRepository) }
       it { expect(DownloadRepository.where(dod_parameters[:download_repository])).not_to exist }
     end
@@ -112,15 +112,11 @@ RSpec.describe Webui::DownloadOnDemandController do
   describe "POST update" do
     let(:dod_repository) { create(:download_repository) }
 
-    before do
-      repository.download_repositories << dod_repository
-    end
-
     context "for non-admin users" do
       before do
         login(create(:confirmed_user))
         dod_parameters[:id] = dod_repository.id
-        dod_parameters[:download_repository][:arch] = "s390x"
+        dod_parameters[:download_repository][:url] = "http://opensuse.org"
 
         post :update, dod_parameters
       end
@@ -129,7 +125,7 @@ RSpec.describe Webui::DownloadOnDemandController do
       it { expect(flash[:error]).to eq("Sorry, you are not authorized to update this DownloadRepository.") }
 
       it "updates the DownloadRepository" do
-        expect(dod_repository.arch).to eq("x86_64")
+        expect(dod_repository.url).to eq("http://suse.com")
       end
     end
 
@@ -137,17 +133,15 @@ RSpec.describe Webui::DownloadOnDemandController do
       before do
         login(admin_user)
         dod_parameters[:id] = dod_repository.id
-        dod_parameters[:download_repository][:arch] = "s390x"
+        dod_parameters[:download_repository][:url] = "http://opensuse.org"
+        dod_parameters[:download_repository][:repository_id] = dod_repository.repository.id
 
         post :update, dod_parameters
       end
 
       it { is_expected.to redirect_to(project_repositories_path(project)) }
       it { expect(flash[:notice]).to eq("Successfully updated Download on Demand") }
-
-      it "updates the DownloadRepository" do
-        expect(dod_repository.reload.arch).to eq("s390x")
-      end
+      it { expect(dod_repository.reload.url).to eq("http://opensuse.org") }
     end
 
     context "invalid requests" do

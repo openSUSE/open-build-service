@@ -88,7 +88,7 @@ class Webui::DownloadOnDemandControllerTest < Webui::IntegrationTest
     select('rpmmd', from: 'Type')
     fill_in('Url', with: '')
     click_button('Add Download on Demand')
-    find(:id, 'flash-messages').must_have_text("Download on Demand can't be created: Url can't be blank")
+    find(:id, 'flash-messages').must_have_text("Download on Demand can't be created: Validation failed: Url can't be blank")
   end
 
   def test_editing_download_on_demand
@@ -132,7 +132,7 @@ class Webui::DownloadOnDemandControllerTest < Webui::IntegrationTest
     # Fill in the form and send a not working dod data
     fill_in('Url', with: '')
     click_button('Update Download on Demand')
-    find(:id, 'flash-messages').must_have_text("Download on Demand can't be updated: Url can't be blank")
+    find(:id, 'flash-messages').must_have_text("Download on Demand can't be updated: Validation failed: Url can't be blank")
     page.must_have_link 'http://somerandomurl_2.es'
   end
 

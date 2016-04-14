@@ -10,14 +10,13 @@ module ModelHelper
   def sync_hash_with_model(entry_class, dblist, inhasharray)
     keys = entry_class._sync_keys
     entries = {}
-    to_delete = {}
 
     dblist.each do |e|
       key = ""
-      keys.each{|k| key << "#{e.send(k)}::"}
-      entries[key]=e
+      keys.each { |k| key << "#{e.send(k)}::" }
+      entries[key] = e
     end
-    to_delete=entries.clone
+    to_delete = entries.clone
 
     entry_class.transaction do
       inhasharray.each do |hash|
@@ -28,12 +27,12 @@ module ModelHelper
         end
         if entries[key]
           # exists, do we need to update it?
-          modified=nil
-          hash.each do |entry|
-            next if keys.include? entry.first
-            if entry.last != entries[key][entry.first]
-              entries[key][entry.first] = entry.last
-              modified=true
+          modified = nil
+          hash.each do |entry_key, entry_value|
+            next if keys.include?(entry_key)
+            if entry_value != entries[key][entry_key]
+              entries[key][entry_key] = entry_value
+              modified = true
             end
           end
           entries[key].save if modified

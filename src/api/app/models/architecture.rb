@@ -11,8 +11,8 @@ class Architecture < ActiveRecord::Base
   has_many :flags
 
   #### Callbacks macros: before_save, after_save, etc.
-  after_save 'Architecture.discard_cache'
-  after_destroy 'Architecture.discard_cache'
+  after_save :discard_cache
+  after_destroy :discard_cache
 
   #### Scopes (first the default_scope macro if is used)
   scope :available, -> { where(available: 1) }
@@ -23,17 +23,13 @@ class Architecture < ActiveRecord::Base
 
   #### Class methods using self. (public and then private)
 
-  def self.discard_cache
+  def discard_cache
     Rails.cache.delete("archcache")
   end
 
   def self.archcache
-    return Rails.cache.fetch("archcache") do
-      ret = Hash.new
-      Architecture.all.each do |arch|
-        ret[arch.name] = arch
-      end
-      ret
+    Rails.cache.fetch("archcache") do
+      Architecture.all.map { |arch| [arch.name, arch] }.to_h
     end
   end
 
