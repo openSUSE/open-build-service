@@ -1053,6 +1053,7 @@ while (@ARGV) {
         opendir(E, $srcrepdir.'/'.$dir) || die($!);
         foreach my $file (readdir(E)) {
           next if $file =~ /^\.{1,2}$/;
+	  next if $file eq 'deltastore';
           $sourcefiles{$file} = "$srcrepdir/$dir/$file";
         }
         closedir(E);
