@@ -6,7 +6,7 @@ export BASH_TAP_ROOT=$(dirname $0)
 
 . $(dirname $0)/bash-tap-bootstrap
 
-plan tests 29
+plan tests 27
 
 for i in $(dirname $0)/../setup-appliance.sh /usr/lib/obs/server/setup-appliance.sh;do
 	[[ -f $i && -z $SETUP_APPLIANCE ]] && SETUP_APPLIANCE=$i
@@ -24,7 +24,6 @@ tmpcount=$MAX_WAIT
 
 # Service enabled and started
 for srv in \
-obsapisetup \
 obsapidelayed \
 obsdispatcher \
 obspublisher \
