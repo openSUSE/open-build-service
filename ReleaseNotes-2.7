@@ -8,11 +8,13 @@ instructions or use the OBS Appliance from
 
   http://openbuildservice.org/download/
 
-There is also an install medium with installs OBS on hard disc now.
+There is also an install medium which installs OBS on hard disc now.
 
-Updates should read the README.UPDATERS file about the necessary steps.
+If you already have a running OBS installation and want to update it, please
+read also the README.UPDATERS file about the necessary steps.
 Please note that you need to have at least OBS 2.5 to be able to 
-update to OBS 2.7 release or database migration will fail.
+update to OBS 2.7 release. Migrations from older OBS versions will fails due
+to database migration errors.
 
 OBS Appliance users who have setup their LVM can just replace 
 their appliance image without data loss. The migration will 
@@ -63,7 +65,7 @@ Notes for systems using systemd:
 ================================
 
 OBS is using init scripts, not systemd style .service files. This will stay until
-we will switch from SLES 11 to SLES 12 as default production platform.
+we switch from SLES 11 to SLES 12 as default production platform.
 
 openSUSE installations may use systemd (instead of sysvinit) and it should work
 in general. Not working are usages like
@@ -75,7 +77,7 @@ You will only get the systemd status here and not the service status.
 Also stopping services may not terminate all processes, which leads to abstract errors
 when trying to restart them.
 
-To avoid these problems you need switch directory to by-pass systemd:
+To avoid these problems you need to switch directory to by-pass systemd:
 
  # cd /etc/init.d
  # ./obssrcserver status|stop|start
