@@ -1,7 +1,8 @@
 For Updaters to OBS 2.7 from OBS 2.6
 ====================================
 
-WARNING: Please be aware, that this section is work in progress
+Note: Update from OBS 2.5 should also work, but is untested.
+      A direct update from OBS 2.4 or older will not work.
 
   1. Remove the OBS 2.6 Repository
 
