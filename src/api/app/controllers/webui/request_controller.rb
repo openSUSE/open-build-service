@@ -226,8 +226,9 @@ class Webui::RequestController < Webui::WebuiController
         end
       end
     rescue APIException => e
+      HoptoadNotifier.notify(e, { failed_job: "Failed to forward BsRequest '#{params[:id]}'" })
       flash[:error] = "Unable to forward submit: #{e.message}"
-      redirect_to(:action => 'show', :project => params[:project], :package => params[:package]) and return
+      redirect_to(request_show_path(params[:id])) and return
     end
 
     target_link = ActionController::Base.helpers.link_to("#{tgt_prj} / #{tgt_pkg}", package_show_url(project: tgt_prj, package: tgt_pkg))
