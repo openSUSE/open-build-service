@@ -32,6 +32,7 @@ BEGIN {
 
 use XML::Structured ':bytes';
 use POSIX;
+use Fcntl qw(:DEFAULT :flock);
 use Digest::MD5 ();
 use Data::Dumper;
 use Storable ();
@@ -7064,6 +7065,32 @@ sub getbuildstatus {
   return ($status, $BSXML::buildstatus);
 }
 
+sub add_deltaworkerstatus {
+  my ($cgi, $ws) = @_;
+  return $ws if $cgi->{'type'} && !grep {$_ eq 'deltastore'} @{$cgi->{'type'}};
+  return $ws if $cgi->{'arch'} && !grep {$_ eq 'deltastore'} @{$cgi->{'arch'}};
+  return $ws unless -e "$rundir/bs_deltastore.lock";
+  my $daemondata = {'state' => 'dead', 'type' => 'deltastore'};
+  local *F;
+  if (open(F, '<', "$rundir/bs_deltastore.lock")) {
+    if (!flock(F, LOCK_EX | LOCK_NB)) {
+      my @s = stat(F);
+      $daemondata->{'state'} = 'running';
+      $daemondata->{'starttime'} = $s[9] if @s;
+    }
+    close F;
+  }
+  my $part = (grep {!defined($_->{'name'})} @{$ws->{'partition'}})[0];
+  if (!$part) {
+    $part = {};
+    $ws->{'partition'} ||= [];
+    unshift @{$ws->{'partition'}}, $part;
+  }
+  $part->{'daemon'} ||= [];
+  unshift(@{$part->{'daemon'}}, $daemondata);
+  return $ws;
+}
+
 sub getworkerstatus {
   my ($cgi) = @_;
   # compat
@@ -7077,6 +7104,7 @@ sub getworkerstatus {
     my $ws = BSWatcher::rpc("$reposerver/workerstatus", $BSXML::workerstatus, @args);
     delete $_->{'uri'} for @{$ws->{'idle'} || []};
     delete $_->{'uri'} for @{$ws->{'building'} || []};
+    add_deltaworkerstatus($cgi, $ws);
     return ($ws, $BSXML::workerstatus);
   }
 
@@ -7143,6 +7171,7 @@ sub getworkerstatus {
     $cws->{'buildavg'} = [ sort {$a->{'arch'} cmp $b->{'arch'} || $a cmp $b}  @{$cws->{'buildavg'}} ];
   }
   
+  add_deltaworkerstatus($cgi, $cws);
   return ($cws, $BSXML::workerstatus);
 }
 
