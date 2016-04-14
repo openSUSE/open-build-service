@@ -1,110 +1,162 @@
 #!/usr/bin/env ruby.ruby2.3
 require File.dirname(__FILE__) + '/../config/boot'
 require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
+require 'colorize'
 
-def check_foreign_key(id, table, othertable, delete)
-  sql="select distinct %s from %s where %s is not null and %s not in (select id from %s);" % [id, table, id, id, othertable]
-  ids=[]
-  ActiveRecord::Base.connection.execute(sql).each do |row|
-    ids << Integer(row[0])
+class DBChecker
+  def initialize
+    @contraints_to_check = [
+      # id, table, othertable, use_delete_statement
+      [:project_id, :packages, :projects],
+      [:develpackage_id, :packages, :packages, false],
+      [:repository_id, :repository_architectures, :repositories],
+      [:architecture_id, :repository_architectures, :architectures],
+      [:user_id, :watched_projects, :users],
+      [:db_project_id, :db_projects_tags, :projects],
+      [:tag_id, :db_projects_tags, :tags],
+      [:attrib_type_id, :attribs, :attrib_types],
+      [:package_id, :attribs, :packages],
+      [:project_id, :attribs, :projects],
+      [:project_id, :flags, :projects],
+      [:package_id, :flags, :packages],
+      [:architecture_id, :flags, :architectures],
+      [:attrib_id, :attrib_values, :attribs],
+      [:attrib_namespace_id, :attrib_types, :attrib_namespaces],
+      [:group_id, :groups_roles, :groups],
+      [:role_id, :groups_roles, :roles],
+      [:group_id, :groups_users, :groups],
+      [:user_id, :groups_users, :roles],
+      [:package_id, :relationships, :packages],
+      [:user_id, :relationships, :users],
+      [:role_id, :relationships, :roles],
+      [:project_id, :relationships, :projects],
+      [:parent_id, :path_elements, :repositories],
+      [:repository_id, :path_elements, :repositories],
+      [:repository_id, :release_targets, :repositories],
+      [:target_repository_id, :release_targets, :repositories],
+      [:user_id, :ratings, :users],
+      [:db_project_id, :repositories, :projects],
+      [:parent_id, :roles, :roles],
+      [:role_id, :roles_static_permissions, :roles],
+      [:static_permission_id, :roles_static_permissions, :static_permissions],
+      [:user_id, :roles_users, :users],
+      [:role_id, :roles_users, :roles],
+      [:tag_id, :taggings, :tags],
+      [:user_id, :taggings, :users],
+      [:user_id, :user_registrations, :users],
+      [:attrib_type_id, :attrib_allowed_values, :attrib_types],
+      [:attrib_type_id, :attrib_default_values, :attrib_types],
+      [:attrib_namespace_id, :attrib_namespace_modifiable_bies, :attrib_namespaces],
+      [:user_id, :attrib_namespace_modifiable_bies, :users],
+      [:group_id, :attrib_namespace_modifiable_bies, :groups],
+      [:package_id, :backend_packages, :packages],
+      [:links_to_id, :backend_packages, :packages],
+      [:parent_id, :comments, :comments],
+      [:repository_id, :download_repositories, :repositories],
+      [:project_id, :incident_updateinfo_counter_values, :projects]
+    ]
+    @failed = false
   end
-  return if ids.empty?
-  puts "# alter table %s add FOREIGN KEY (%s) references %s (id);" % [table, id, othertable]
-  if delete == 1
-    puts " delete from %s where %s in (%s);" % [table, id, ids.join(",")]
-  else
-    puts " update %s set %s=NULL where %s in (%s);" % [table, id, id, ids.join(",")]
+
+  def check_foreign_keys
+    print "\nChecking constraints "
+    constraints_to_fix = []
+    @contraints_to_check.each do |constraint|
+      ids = check_foreign_key(constraint)
+      print step(ids.empty? ? :ok : :fail)
+      constraints_to_fix << [constraint, ids] unless ids.empty?
+    end
+    puts summary(constraints_to_fix.empty? ? :ok : :fail)
+    puts "\n  Trying to fix inconsistent records in #{constraints_to_fix.size} constraints:".yellow if constraints_to_fix.any?
+    constraints_to_fix.each do |constraint_and_ids|
+      ask_for_fixing(*constraint_and_ids)
+    end
+  end
+
+  def resolve_devel_packages
+    print "\nChecking devel packages "
+    begin
+      User.current = User.find_by_login('_nobody_')
+      projects = {}
+      Package.where("develpackage_id is not null").each do |package|
+        begin
+          package.resolve_devel_package
+          print step(:ok)
+        rescue Package::CycleError => e
+          projects[package.project.name] ||= []
+          projects[package.project.name] << [package.name, e.message]
+          print step(:fail)
+        end
+      end
+      puts summary(projects.empty? ? :ok : :fail)
+      projects.keys.sort.each do |project|
+        puts "\n  Errors detected at project #{"\"#{project}\"".blue}:\n"
+        projects[project].each do |package_name_and_message|
+          puts "    #{package_name_and_message.first.blue}: #{package_name_and_message.last.red}"
+        end
+      end
+    rescue StandardError => e
+      puts summary(:fail)
+      puts e.message.red
+    end
+  end
+
+  def warn_for_rerun
+    if @failed
+      puts "\nWARNING: You should run this check again to be sure that all problems were fixed\n".red
+    else
+      puts "\nAll checks passed\n".green
+    end
+  end
+
+  private
+
+  def check_foreign_key(constraint)
+    id, table, othertable = *constraint
+    sql = "select distinct #{id} from #{table} where #{id} is not null and #{id} not in (select id from #{othertable});"
+    execute_sql(sql).map(&:first)
+  end
+
+  def ask_for_fixing(constraint, ids)
+    id, table, othertable, use_delete_statement = *constraint
+    use_delete_statement ||= true
+    puts "\n  Inconsistent FOREIGN KEY for #{"\"#{table}.#{id}\"".blue} that references #{"\"#{table}.id\"".blue}"
+    statement = if use_delete_statement
+      "delete from #{table} where #{id} in (#{ids.join(",")});"
+    else
+      "update #{table} set #{id}=NULL where #{id} in (#{ids.join(",")});"
+    end
+    print "  Proposed solution: #{statement.green} Do you want to run it now? #{'[y/N]'.yellow}:"
+    execute_sql(statement) if gets.chomp.casecmp('Y') == 0
+  end
+
+  def execute_sql(sql)
+    ActiveRecord::Base.connection.execute(sql)
+  end
+
+  def step(ok = :ok)
+    if ok.to_sym == :ok
+      '.'.green
+    else
+      'x'.red
+    end
+  end
+
+  def summary(ok = :ok)
+    if ok.to_sym == :ok
+      "[#{'OK'.green}]"
+    else
+      @failed = true
+      "[#{'FAIL'.red}]"
+    end
   end
 end
 
-User.current = User.find_by_login('_nobody_')
-
-packs = Package.find :all, :conditions => "(develpackage_id is not null)"
-projects = Hash.new
-
-packs.each do |p|
-  begin
-    p.resolve_devel_package
-  rescue Package::CycleError => e
-    projects[p.project.name] ||= Array.new
-    projects[p.project.name] << e.message
-  end
+if ENV['RAILS_ENV'] != 'production'
+  puts "\nWARNING: This script is supposed to be running in \"production\" environment but actual is \"#{ENV['RAILS_ENV']}\".".red
+  puts "         To do so just run \"RAILS_ENV=production ./script/check_database\"".red
 end
-
-projects.keys.sort.each do |p|
-  projects[p].each do |m|
-    puts " " + m
-  end
-end
-
-packages_tbl="packages"
-projects_tbl="projects"
-arch_rep_tbl="repository_architectures"
-
-check_foreign_key("project_id", packages_tbl, projects_tbl, 1)
-check_foreign_key("develpackage_id", packages_tbl, packages_tbl, 0)
-check_foreign_key("repository_id", arch_rep_tbl, "repositories", 1)
-check_foreign_key("architecture_id", arch_rep_tbl, "architectures", 1)
-
-check_foreign_key("user_id", "watched_projects", "users", 1)
-
-check_foreign_key("db_project_id", "db_projects_tags", projects_tbl, 1)
-check_foreign_key("tag_id", "db_projects_tags", "tags", 1)
-
-check_foreign_key("attrib_type_id", "attribs", "attrib_types", 1)
-check_foreign_key("package_id", "attribs", packages_tbl, 1)
-check_foreign_key("project_id", "attribs", projects_tbl, 1)
-
-check_foreign_key("project_id", "flags", projects_tbl, 1)
-check_foreign_key("package_id", "flags", packages_tbl, 1)
-check_foreign_key("architecture_id", "flags", "architectures", 1)
-
-check_foreign_key("attrib_id", "attrib_values", "attribs", 1)
-
-check_foreign_key("attrib_namespace_id", "attrib_types", "attrib_namespaces", 1)
-
-check_foreign_key("group_id", "groups_roles", "groups", 1)
-check_foreign_key("role_id", "groups_roles", "roles", 1)
-
-check_foreign_key("group_id", "groups_users", "groups", 1)
-check_foreign_key("user_id", "groups_users", "users", 1)
-
-check_foreign_key("package_id", "relationships", packages_tbl, 1)
-check_foreign_key("user_id", "relationships", "users", 1)
-check_foreign_key("role_id", "relationships", "roles", 1)
-check_foreign_key("project_id", "relationships", projects_tbl, 1)
-
-check_foreign_key("parent_id", "path_elements", "repositories", 1)
-check_foreign_key("repository_id", "path_elements", "repositories", 1)
-
-check_foreign_key("repository_id", "release_targets", "repositories", 1)
-check_foreign_key("target_repository_id", "release_targets", "repositories", 1)
-
-check_foreign_key("user_id", "ratings", "users", 1)
-
-check_foreign_key("db_project_id", "repositories", projects_tbl, 1)
-
-check_foreign_key("parent_id", "roles", "roles", 1)
-
-check_foreign_key("role_id", "roles_static_permissions", "roles", 1)
-check_foreign_key("static_permission_id", "roles_static_permissions", "static_permissions", 1)
-
-check_foreign_key("user_id", "roles_users", "users", 1)
-check_foreign_key("role_id", "roles_users", "roles", 1)
-
-check_foreign_key("tag_id", "taggings", "tags", 1)
-check_foreign_key("user_id", "taggings", "users", 1)
-
-check_foreign_key("user_id", "user_registrations", "users", 1)
-
-check_foreign_key("attrib_type_id", "attrib_allowed_values", "attrib_types", 1)
-check_foreign_key("attrib_type_id", "attrib_default_values", "attrib_types", 1)
-
-check_foreign_key("attrib_namespace_id", "attrib_namespace_modifiable_bies", "attrib_namespaces", 1)
-check_foreign_key("user_id", "attrib_namespace_modifiable_bies", "users", 1)
-check_foreign_key("group_id", "attrib_namespace_modifiable_bies", "groups", 1)
-
-check_foreign_key("package_id", "backend_packages", "packages", 1)
-check_foreign_key("links_to_id", "backend_packages", "packages", 1)
-
-check_foreign_key('parent_id', 'comments', 'comments', 1)
+checker = DBChecker.new
+checker.resolve_devel_packages
+checker.check_foreign_keys
+checker.warn_for_rerun
