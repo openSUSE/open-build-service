@@ -9,7 +9,7 @@ WARNING: Please be aware, that this section is work in progress
 
   2. Add the OBS 2.7 Repository and update repository cache
 
-        zypper ar http://download.opensuse.org/repositories/OBS:/Server:/2.7/openSUSE_13.2/OBS:Server:2.7.repo
+        zypper ar http://download.opensuse.org/repositories/OBS:/Server:/2.7/$YOUR_DISTRIBUTION/OBS:Server:2.7.repo
         zypper ref -s
 
   3. Remove packages which might case conflicts
@@ -20,21 +20,17 @@ WARNING: Please be aware, that this section is work in progress
 
         zypper dup --no-recommends --from OBS_Server_2.7
 
-  5. Update system defaults to use new ruby version
-
-        update-alternatives --set rake /usr/bin/rake.ruby.ruby2.3
-
-  6. Migrate database
+  5. Migrate database
 
         cd /srv/www/obs/api/
-        RAILS_ENV="production" rake db:migrate
+        RAILS_ENV="production" rake.ruby2.3 db:migrate
 
-  7. Make sure that log and tmp are owned by wwwrun
+  6. Make sure that log and tmp are owned by wwwrun
 
         chown -R wwwrun.www /srv/www/obs/api/log
         chown -R wwwrun.www /srv/www/obs/api/tmp
 
-  8. Restart following services in this order
+  7. Restart following services in this order
 
         service apache2 restart
         service obsapidelayed restart
