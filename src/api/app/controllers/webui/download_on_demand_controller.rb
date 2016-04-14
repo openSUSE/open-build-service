@@ -5,16 +5,23 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
     @download_on_demand = DownloadRepository.new(permitted_params)
     authorize @download_on_demand
 
+    # Workaround: We need this association to pass the DownloadRepository validation.
+    #             If something in the transaction goes wrong, we have to destroy the object again.
+    repository_arch = nil
+    unless @download_on_demand.repository.architectures.pluck(:name).include?(permitted_params[:arch])
+      repository_arch = RepositoryArchitecture.create(
+        repository:   @download_on_demand.repository,
+        architecture: Architecture.find_by_name(permitted_params[:arch])
+      )
+    end
+
     begin
       ActiveRecord::Base.transaction do
-        RepositoryArchitecture.first_or_create!(
-          repository:   @download_on_demand.repository,
-          architecture: Architecture.find_by_name(permitted_params[:arch])
-        )
         @download_on_demand.save!
         @project.store
       end
     rescue ActiveRecord::RecordInvalid, ActiveXML::Transport::Error => exception
+      repository_arch.destroy if repository_arch
       redirect_to :back, error: "Download on Demand can't be created: #{exception.message}"
       return
     end
