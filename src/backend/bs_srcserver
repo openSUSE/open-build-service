@@ -893,6 +893,61 @@ sub get_frozenlinks {
   return $frozen;
 }
 
+sub getrev_projlink {
+  my ($projid, $packid, $rev, $linked, $missingok, $projlink) = @_;
+
+  my $collect_error;
+  $linked ||= [];
+  my $frozen = get_frozenlinks($projid);
+  for my $lprojid (map {$_->{'project'}} @{$projlink || []}) {
+    next if $lprojid eq $projid;
+    next if grep {$_->{'project'} eq $lprojid && $_->{'package'} eq $packid} @$linked;
+    push @$linked, {'project' => $lprojid, 'package' => $packid};
+    my $frozenp = $frozen->{'/all'} || $frozen->{$lprojid};
+    my $lrev;
+    if ($frozenp->{$packid} && !($rev && $rev =~ /^[0-9a-f]{32}$/)) {
+      eval {
+        $lrev = getrev($lprojid, $packid, $frozenp->{$packid}->{'srcmd5'}, $linked, $missingok);
+        $lrev->{'vrev'} = $frozenp->{$packid}->{'vrev'} if defined $frozenp->{$packid}->{'vrev'};
+      };
+    } else {
+      eval {
+        $lrev = getrev($lprojid, $packid, $rev, $linked, $missingok);
+      };
+    }
+    next if $collect_error;
+    if ($@ && $@ !~ /^404/) {
+      if ($collect_remote_getrev && $@ =~ /collect_remote_getrev$/) {
+        # special case for project links, we don't know if the package exists yet,
+        # so collect from all link elements
+        $collect_error = $@;
+        next;
+      }
+      die($@);
+    }
+    next unless $lrev;
+    # make sure that we may access the sources of this package
+    checksourceaccess($lprojid, $packid);
+    # make the tree available
+    BSSrcrep::copytree($projid, $packid, $lprojid, $packid, $lrev->{'srcmd5'});
+    $lrev->{'originproject'} ||= $lprojid;
+    $lrev->{'project'} = $projid;
+    return $lrev;
+  }
+  die($collect_error) if $collect_error;
+  return undef;
+}
+
+sub getrev_deleted_srcmd5 {
+  my ($projid, $packid, $srcmd5) = @_;
+  return undef unless BSSrcrep::existstree($projid, $packid, $srcmd5);
+  # tree exists. make sure we knew the project/package at one time in the past
+  return undef unless -e "$projectsdir/$projid.pkg/$packid.mrev.del" ||
+                      -e "$projectsdir/_deleted/$projid.pkg/$packid.mrev" ||
+                      -e "$projectsdir/_deleted/$projid.pkg/$packid.mrev.del";
+  return {'project' => $projid, 'package' => $packid, 'rev' => $srcmd5, 'srcmd5' => $srcmd5};
+}
+
 #
 # get a revision object from a revision identifier
 #
@@ -903,58 +958,21 @@ sub getrev {
   if ($packid ne '_project' && ! -e "$projectsdir/$projid.pkg/$packid.xml") {
     my $proj = readproj($projid, 1);
     if ($proj && $proj->{'link'}) {
-      my $collect_error;
-      $linked ||= [];
-      my $frozen = get_frozenlinks($projid);
-      for my $lprojid (map {$_->{'project'}} @{$proj->{'link'}}) {
-	next if $lprojid eq $projid;
-	next if grep {$_->{'project'} eq $lprojid && $_->{'package'} eq $packid} @$linked;
-	push @$linked, {'project' => $lprojid, 'package' => $packid};
-        my $frozenp = $frozen->{'/all'} || $frozen->{$lprojid};
-	my $lrev;
-        if ($frozenp->{$packid} && !($rev && $rev =~ /^[0-9a-f]{32}$/)) {
-	  eval {
-	    $lrev = getrev($lprojid, $packid, $frozenp->{$packid}->{'srcmd5'}, $linked, $missingok);
-	    $lrev->{'vrev'} = $frozenp->{$packid}->{'vrev'} if defined $frozenp->{$packid}->{'vrev'};
-	  };
-	} else {
-	  eval {
-	    $lrev = getrev($lprojid, $packid, $rev, $linked, $missingok);
-	  };
-	}
-	next if $collect_error;
-	if ($@ && $@ !~ /^404/) {
-	  if ($collect_remote_getrev && $@ =~ /collect_remote_getrev$/) {
-	    # special case for project links, we don't know if the package exists yet,
-	    # so collect from all link elements
-	    $collect_error = $@;
-	    next;
-	  }
-	  die($@);
-	}
-	if ($lrev) {
-	  # make sure that we may access the sources of this package
-	  checksourceaccess($lprojid, $packid);
-	  BSSrcrep::copytree($projid, $packid, $lprojid, $packid, $lrev->{'srcmd5'});
-	  $lrev->{'originproject'} ||= $lprojid;
-	  $lrev->{'project'} = $projid;
-	  return $lrev;
-	}
-      }
-      die($collect_error) if $collect_error;
+      my $lrev = getrev_projlink($projid, $packid, $rev, $linked, $missingok, $proj->{'link'});
+      return $lrev if $lrev;
     }
-    if (defined($rev) && $rev =~ /^[0-9a-f]{32}$/) {
-      # getrev by srcmd5. we allow access to packages that were deleted.
-      if (BSSrcrep::existstree($projid, $packid, $rev)) {
-        # tree exists. make sure we knew the project/package at one time in the past
-        if (-e "$projectsdir/$projid.pkg/$packid.mrev.del" ||
-            -e "$projectsdir/_deleted/$projid.pkg/$packid.mrev" ||
-            -e "$projectsdir/_deleted/$projid.pkg/$packid.mrev.del") {
-          return {'project' => $projid, 'package' => $packid, 'rev' => $rev, 'srcmd5' => $rev};
-        }
-      }
+    if ($rev && $rev =~ /^[0-9a-f]{32}$/) {
+      my $lrev = getrev_deleted_srcmd5($projid, $packid, $rev);
+      return $lrev if $lrev;
     }
-    return remote_getrev($projid, $packid, $rev, $linked, $missingok);
+    if (!$proj || $proj->{'remoteurl'}) {
+      my $lrev = remote_getrev($projid, $packid, $rev, $linked, $missingok);
+      return $lrev if $lrev;
+    }
+    return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'pattern', 'rev' => 'pattern', 'special_meta' => "$projectsdir/$projid.pkg/pattern-MD5SUMS"} if $packid eq '_pattern';
+    return {'project' => $projid, 'package' => $packid, 'srcmd5' => $BSSrcrep::emptysrcmd5} if $missingok;
+    die("404 package '$packid' does not exist\n") if -e "$projectsdir/$projid.xml";
+    die("404 project '$projid' does not exist\n");
   }
   undef $rev if $rev && ($rev eq 'latest' || $rev eq 'build');
   undef $rev if $rev && $rev eq 'upload' && ! -e "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS";
@@ -4059,19 +4077,13 @@ sub fill_remote_getrev_cache {
 sub remote_getrev {
   my ($projid, $packid, $rev, $linked, $missingok) = @_;
   my $proj = remoteprojid($projid);
-  if (!$proj) {
-    return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'pattern', 'rev' => 'pattern', 'special_meta' => "$projectsdir/$projid.pkg/pattern-MD5SUMS"} if $packid eq '_pattern';
-    return {'project' => $projid, 'package' => $packid, 'srcmd5' => $BSSrcrep::emptysrcmd5} if $missingok;
-    die("404 package '$packid' does not exist\n") if -e "$projectsdir/$projid.xml";
-    die("404 project '$projid' does not exist\n");
-  }
+  return undef unless $proj;
   # check if we already know this srcmd5, if yes don't bother to contact
   # the remote server
   if ($rev && $rev =~ /^[0-9a-f]{32}$/) {
-    my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
-    if ($rev eq $BSSrcrep::emptysrcmd5 || -e "$treedir/$rev-MD5SUMS") {
+    if (BSSrcrep::existstree($projid, $packid, $rev)) {
       return {'project' => $projid, 'package' => $packid, 'rev' => $rev, 'srcmd5' => $rev};
-    }        
+    }
   }
   if (defined($rev) && $rev eq '0') {
     return {'srcmd5' => $BSSrcrep::emptysrcmd5, 'project' => $projid, 'package' => $packid};
