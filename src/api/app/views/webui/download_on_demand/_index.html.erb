@@ -9,7 +9,8 @@
       <%= render partial: 'webui/download_on_demand/add', locals: { project: project, repository: repository, download_on_demand: new_download_on_demand } %>
     </div>
     <% content_for :ready_function do %>
-        $("#<%= "add_dod_repository_link_#{repository_id}" %>").click(function() {
+        $("#<%= "add_dod_repository_link_#{repository_id}" %>").click(function(e) {
+          e.preventDefault();
           $("#<%= "add_dod_repository_form_#{repository_id}" %>").show();
           $("#<%= "add_dod_repository_link_container_#{repository_id}" %>").hide();
         });
@@ -32,7 +33,8 @@
           <%= render partial: 'webui/download_on_demand/edit', locals: { project: project, repository: repository, download_on_demand: dod_element } %>
         </div>
         <% content_for :ready_function do %>
-            $("#<%= "edit_dod_repository_link_#{dod_element}" %>").click(function() {
+            $("#<%= "edit_dod_repository_link_#{dod_element}" %>").click(function(e) {
+              e.preventDefault();
               $("#<%= "edit_dod_repository_form_#{dod_element}" %>").show();
               $("#<%= "edit_dod_repository_link_container_#{dod_element}" %>").hide();
             });

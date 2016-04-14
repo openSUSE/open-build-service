@@ -1,7 +1,8 @@
 $(document).on(
   'click',
   'a[data-repository-edit]',
-  function() {
+  function(e) {
+    e.preventDefault();
     $(this).
       parent('.edit-repository-field').
       hide().
