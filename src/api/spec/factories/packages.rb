@@ -1,5 +1,5 @@
 FactoryGirl.define do
   factory :package do
-    name Faker::Lorem.word
+    sequence(:name) { |n| "#{Faker::Internet.domain_word}#{n}" }
   end
 end

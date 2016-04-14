@@ -69,6 +69,7 @@ GEM
     codemirror-rails (5.3)
       railties (>= 3.0, < 5)
     coderay (1.1.0)
+    colorize (0.7.7)
     concurrent-ruby (1.0.0)
     coveralls (0.8.10)
       json (~> 1.8)
@@ -347,6 +348,7 @@ DEPENDENCIES
   clockwork (>= 0.7)
   cocoon
   codemirror-rails
+  colorize
   coveralls
   cssmin (>= 1.0.2)
   daemons
