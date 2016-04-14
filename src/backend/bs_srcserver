@@ -935,25 +935,7 @@ sub getrev {
 	if ($lrev) {
 	  # make sure that we may access the sources of this package
 	  checksourceaccess($lprojid, $packid);
-	  my $files = BSSrcrep::lsrev($lrev);
-	  BSSrcrep::copyfiles($projid, $packid, $lprojid, $packid, $files);
-	  my $srcmd5 = $lrev->{'srcmd5'};
-	  if ($BSConfig::nosharedtrees && $srcmd5 ne $BSSrcrep::emptysrcmd5) {
-	    # copy the tree
-	    my $treedir = "$treesdir/$projid/$packid";
-	    if (! -e "$treedir/$srcmd5-MD5SUMS") {
-	      my $ltreedir = "$treesdir/$lprojid/$packid";
-	      $ltreedir = "$srcrep/$packid" if $BSConfig::nosharedtrees == 2 && ! -e "$ltreedir/$srcmd5-MD5SUMS";
-	      if (-e "$ltreedir/$srcmd5-MD5SUMS") {
-		my $meta = readstr("$ltreedir/$srcmd5-MD5SUMS");
-	        mkdir_p($treedir);
-	        mkdir_p($uploaddir);
-		writestr("$uploaddir/$$", "$treedir/$srcmd5-MD5SUMS", $meta);
-	      } else {
-		BSSrcrep::addmeta($projid, $packid, $files);	# last resort...
-	      }
-	    }
-	  }
+	  BSSrcrep::copytree($projid, $packid, $lprojid, $packid, $lrev->{'srcmd5'});
 	  $lrev->{'originproject'} ||= $lprojid;
 	  $lrev->{'project'} = $projid;
 	  return $lrev;
@@ -963,11 +945,7 @@ sub getrev {
     }
     if (defined($rev) && $rev =~ /^[0-9a-f]{32}$/) {
       # getrev by srcmd5. we allow access to packages that were deleted.
-      my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
-      if ($BSConfig::nosharedtrees && $BSConfig::nosharedtrees == 2 && ! -e "$treedir/$rev-MD5SUMS") {
-	$treedir = "$srcrep/$packid";
-      }
-      if ($rev eq $BSSrcrep::emptysrcmd5 || -e "$treedir/$rev-MD5SUMS") {
+      if (BSSrcrep::existstree($projid, $packid, $rev)) {
         # tree exists. make sure we knew the project/package at one time in the past
         if (-e "$projectsdir/$projid.pkg/$packid.mrev.del" ||
             -e "$projectsdir/_deleted/$projid.pkg/$packid.mrev" ||
@@ -5588,15 +5566,8 @@ sub copyproject {
 	  }
 	}
 	# make trees available in new project
-	my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
-	if ($BSConfig::nosharedtrees) {
-	  my $treedir = "$treesdir/$projid/$packid";
-	  for my $rev (@allrevs) {
-	    next if -e "$treedir/$rev->{'srcmd5'}-MD5SUMS";
-	    my $files = BSSrcrep::lsrev({ %$rev, 'project' => $oprojid, 'package' => $packid });
-	    BSSrcrep::copyfiles($projid, $packid, $oprojid, $packid, $files);
-	    BSSrcrep::addmeta($projid, $packid, $files);
-	  }
+	for my $rev (@allrevs) {
+	  BSSrcrep::copytree($projid, $packid, $oprojid, $packid, $rev->{'srcmd5'});
 	}
 	BSFileDB::fdb_add_multiple("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, @allrevs);
 	$lastorev = $allrevs[-1];

@@ -266,6 +266,16 @@ sub addmeta {
   return $srcmd5;
 }
 
+sub existstree {
+  my ($projid, $packid, $srcmd5) = @_;
+  return 1 if $srcmd5 eq $emptysrcmd5;
+  my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+  if ($BSConfig::nosharedtrees && $BSConfig::nosharedtrees == 2 && ! -e "$treedir/$srcmd5-MD5SUMS") {
+    $treedir = "$srcrep/$packid";
+  }
+  return -e "$treedir/$srcmd5-MD5SUMS" ? 1 : 0;
+}
+
 sub knowntrees {
   my ($projid, $packid) = @_;
   my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
@@ -275,6 +285,28 @@ sub knowntrees {
     @cand = BSUtil::unify(@cand);
   }
   return @cand;
+}
+
+sub copytree {
+  my ($projid, $packid, $oprojid, $opackid, $srcmd5) = @_;
+  return if $srcmd5 eq $emptysrcmd5;	# nothing to copy
+  return if !$BSConfig::nosharedtrees && $packid eq $opackid;
+  my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+  return if -e "$treedir/$srcmd5-MD5SUMS";	# already known
+  my $files = lsrev({'project' => $oprojid, 'package' => $opackid, 'srcmd5' => $srcmd5});
+  # first copy file content
+  copyfiles($projid, $packid, $oprojid, $opackid, $files);
+  # then copy the tree data
+  my $otreedir = $BSConfig::nosharedtrees ? "$treesdir/$oprojid/$opackid" : "$treesdir/$opackid";
+  $otreedir = "$srcrep/$opackid" if $BSConfig::nosharedtrees == 2 && ! -e "$otreedir/$srcmd5-MD5SUMS";
+  if (-e "$otreedir/$srcmd5-MD5SUMS") {
+    my $meta = readstr("$otreedir/$srcmd5-MD5SUMS");
+    mkdir_p($treedir);
+    mkdir_p($uploaddir);
+    writestr("$uploaddir/$$", "$treedir/$srcmd5-MD5SUMS", $meta);
+  } else {
+    addmeta($projid, $packid, $files);    # last resort...
+  }
 }
 
 #
