@@ -31,7 +31,6 @@ BEGIN {
 use POSIX;
 use Data::Dumper;
 use Getopt::Long;
-use Storable ();
 use Digest::MD5 ();
 use XML::Structured ':bytes';
 
@@ -215,21 +214,11 @@ my $emptymd5 = 'd41d8cd98f00b204e9800998ecf8427e';
 
 #### FIXME: these functions are copied from src server. We should move it to some util class maybe.
 sub findprojects {
-  local *D;
-  opendir(D, $projectsdir) || die("$projectsdir: $!\n");
-  my @projids = grep {s/\.xml$//} readdir(D);
-  closedir(D);
-  return sort @projids;
+  return sort(grep {s/\.xml$//} ls($projectsdir));
 }
 sub findpackages {
   my ($projid) = @_;
-  my @packids;
-  local *D;
-  if (opendir(D, "$projectsdir/$projid.pkg")) {
-    @packids = grep {s/\.xml$//} readdir(D);
-    closedir(D);
-  }
-  return sort @packids;
+  return sort(grep {s/\.xml$//} ls("$projectsdir/$projid.pkg"));
 }
 sub findfile {
   my ($rev, $repoid, $ext, $files) = @_;
@@ -272,7 +261,7 @@ sub find_latest_file {
 
 sub dump_nStore {
   my ($file, $sel) = @_;
-  my $cache = Storable::retrieve($file) || {};
+  my $cache = BSUtil::retrieve($file);
   $cache = $cache->{$sel} if defined $sel;
   print Dumper($cache);
   return $cache
@@ -596,11 +585,11 @@ while (@ARGV) {
     }
   } elsif ($arg eq "--update-source-db") {
     BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
-    my $prjs = findprojects();
+    my @prjs = findprojects();
     if (@ARGV == 1) {
-       $prjs = (shift @ARGV);
+       @prjs = (shift @ARGV);
     }
-    for my $projid ($prjs) {
+    for my $projid (@prjs) {
       for my $packid (findpackages($projid)) {
         print "$projid/$packid\n";
         my $rev = BSRevision::getrev_local($projid, $packid);
@@ -677,7 +666,7 @@ while (@ARGV) {
       $s->{$key} = $value;
       print "\nChanged to:\n";
       print Dumper($s);
-      Storable::nstore($s, $file);
+      BSUtil::store($file, undef, $s);
     }
   } elsif ($arg eq "--dump-state") {
     die("ERROR: need architecture as argument!\n") if @ARGV < 1;
