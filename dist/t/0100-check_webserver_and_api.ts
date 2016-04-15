@@ -1,16 +1,10 @@
 #!/bin/bash
 
-export BOOTSTRAP_TEST_MODE=1
-export NON_INTERACTIVE=1
 export BASH_TAP_ROOT=$(dirname $0)
 
 . $(dirname $0)/bash-tap-bootstrap
 
 plan tests 4
-
-STATUS_CODE_200=$(curl -I http://localhost 2>/dev/null|head -1|grep -w 200)
-[[ -n $STATUS_CODE_200 ]]
-is "$?" 0 "Checking https://localhost for http status code 200"
 
 if [ ! -f $HOME/.oscrc ];then
 	
@@ -41,3 +35,6 @@ HTTP_OK=$(curl -ik https://localhost/apidocs/ 2>/dev/null |grep "200 OK")
 is $? 0 "Checking for https://localhost/apidocs/"
 
 
+STATUS_CODE_200=$(curl -I http://localhost 2>/dev/null|head -1|grep -w 200)
+[[ -n $STATUS_CODE_200 ]]
+is "$?" 0 "Checking https://localhost for http status code 200"
