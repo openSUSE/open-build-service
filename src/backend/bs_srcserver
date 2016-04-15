@@ -2168,7 +2168,7 @@ sub findpackages {
 }
 
 sub getrev_meta {
-  my ($projid, $packid, $revid, $deleted, $nonfatal) = @_;
+  my ($projid, $packid, $revid, $deleted) = @_;
   my $revfile = defined($packid) ? "$projectsdir/$projid.pkg/$packid.mrev" : "$projectsdir/$projid.pkg/_project.mrev";
   if ($deleted) {
     $revfile = defined($packid) ? "$projectsdir/$projid.pkg/$packid.mrev.del" : "$projectsdir/_deleted/$projid.pkg/_project.mrev";
@@ -2185,13 +2185,12 @@ sub getrev_meta {
   } else {
     $rev = BSFileDB::fdb_getmatch($revfile, $srcrevlay, 'rev', $revid);
   }
-  if ($rev) {
-    $rev->{'project'} = $projid;
-    $rev->{'package'} = defined($packid) ? $packid : '_project';
-  } elsif (!$nonfatal) {
+  if (!$rev) {
     die("404 revision '$revid' does not exist\n") if $revid;
     die("404 no revision\n");
   }
+  $rev->{'project'} = $projid;
+  $rev->{'package'} = defined($packid) ? $packid : '_project';
   return $rev;
 }
 
@@ -2381,7 +2380,7 @@ sub readpack {
   my ($projid, $packid, $nonfatal, $revid) = @_;
   my $pack;
   if ($revid) {
-    my $rev = getrev_meta($projid, $packid, $revid, undef, $nonfatal);
+    my $rev = getrev_meta($projid, $packid, $revid);
     my $files = $rev ? BSSrcrep::lsrev($rev) : {};
     $pack = BSSrcrep::repreadxml($rev, '_meta', $files->{'_meta'}, $BSXML::pack, 1) if $files->{'_meta'};
   } else {
