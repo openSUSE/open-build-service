@@ -48,6 +48,7 @@ use BSDB;
 use BSDBIndex;
 use BSSolv;
 use BSSrcrep;
+use BSRevision;
 
 my $nosharedtrees;
 $nosharedtrees = $BSConfig::nosharedtrees if defined($BSConfig::nosharedtrees);
@@ -213,32 +214,6 @@ Debug Options
 my $emptymd5 = 'd41d8cd98f00b204e9800998ecf8427e';
 
 #### FIXME: these functions are copied from src server. We should move it to some util class maybe.
-my $srcrevlay = [qw{rev vrev srcmd5 version time user comment requestid}];
-sub getrev {
-  my ($projid, $packid, $rev) = @_;
-  die("bad projid\n") if $projid =~ /\// || $projid =~ /^\./;
-  die("bad packid\n") if $packid =~ /\// || $packid =~ /^\./;
-  return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'pattern', 'rev' => 'pattern', 'special_meta' => "$projectsdir/$projid.pkg/pattern-MD5SUMS"} if $packid eq '_pattern';
-  undef $rev if $rev && ($rev eq 'latest' || $rev eq 'build');
-  undef $rev if $rev && $rev eq 'upload' && ! -e "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS";
-  if (!defined($rev)) {
-    $rev = BSFileDB::fdb_getlast("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay);
-    $rev = {'srcmd5' => $emptymd5} unless $rev;
-  } elsif ($rev =~ /^[0-9a-f]{32}$/) {
-    return undef unless -e "$projectsdir/$projid.pkg/$packid.rev";
-    $rev = {'srcmd5' => $rev, 'rev' => $rev};
-  } elsif ($rev eq 'upload') {
-    $rev = {'srcmd5' => 'upload', 'rev' => 'upload'}
-  } elsif ($rev eq 'repository') {
-    $rev = {'srcmd5' => $emptymd5, 'rev' => 'repository'}
-  } else {
-    $rev = BSFileDB::fdb_getmatch("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, 'rev', $rev);
-  }
-  $rev->{'srcmd5'} =~ s/\/.*// if $rev;         # XXX still needed?
-  $rev->{'projid'} = $projid;
-  $rev->{'packid'} = $packid;
-  return $rev;
-}
 sub findprojects {
   local *D;
   opendir(D, $projectsdir) || die("$projectsdir: $!\n");
@@ -255,24 +230,6 @@ sub findpackages {
     closedir(D);
   }
   return sort @packids;
-}
-
-sub updatelinkinfodb {
-  my ($projid, $packid, $rev, $files) = @_;
-
-  mkdir_p($sourcedb) unless -d $sourcedb;
-  my $linkdb = BSDB::opendb($sourcedb, 'linkinfo');
-  my $linkinfo;
-  if ($files && $files->{'_link'}) {
-    my $l = BSSrcrep::repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link, 1);
-    if ($l) {
-      $linkinfo = {};
-      $linkinfo->{'project'} = defined $l->{'project'} ? $l->{'project'} : $projid;
-      $linkinfo->{'package'} = defined $l->{'package'} ? $l->{'package'} : $packid;
-      $linkinfo->{'rev'} = $l->{'rev'} if defined $l->{'rev'};
-    }    
-  }
-  $linkdb->store("$projid/$packid", $linkinfo);
 }
 sub findfile {
   my ($rev, $repoid, $ext, $files) = @_;
@@ -299,7 +256,7 @@ sub findfile {
 sub find_latest_file {
   my ($project, $package, $type) = @_;
 
-  my $rev = getrev($project, $package);
+  my $rev = BSRevision::getrev_local($project, $package);
   if (!$rev || $rev->{'srcmd5'} eq 'empty') {
     return ( "Refered to non existing $type in $project $package" );
   }
@@ -646,9 +603,8 @@ while (@ARGV) {
     for my $projid ($prjs) {
       for my $packid (findpackages($projid)) {
         print "$projid/$packid\n";
-        my $rev = getrev($projid, $packid);
-        my $files = BSSrcrep::lsrev($rev);
-        updatelinkinfodb($projid, $packid, $rev, $files);
+        my $rev = BSRevision::getrev_local($projid, $packid);
+        BSRevision::updatelinkinfodb($projid, $packid, $rev, BSSrcrep::lsrev($rev));
       }
     }
   } elsif ($arg eq "--check-kiwi-xml") {
@@ -1082,8 +1038,8 @@ while (@ARGV) {
 	    } ;
 	    if ($@) { warn "$@ whilst processing $treesfiles{$file}"; next; }
             next if !defined $link->{"package"} || !defined $link->{"project"} || !defined $link->{"rev"};
-            my $revision = getrev($link->{"project"}, $link->{"package"}, $link->{"rev"});
-            next if !defined($revision->{"time"});
+            my $revision = BSRevision::getrev_local($link->{"project"}, $link->{"package"}, $link->{"rev"});
+            next if !defined($revision) || !defined($revision->{"time"});
             if ($revision->{"time"} < $mastertimestamp) {
               # delete the hash with the link to be able to rewrite .rev files
               delete ($deletehashes{$revision->{"srcmd5"}});
