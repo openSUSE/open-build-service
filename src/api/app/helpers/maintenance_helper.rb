@@ -5,6 +5,8 @@ module MaintenanceHelper
     setup 400, 'The request contains no actions. Submit requests without source changes may have skipped!'
   end
 
+  class MultipleUpdateInfoTemplate < APIException; end
+
   def _release_product(sourcePackage, targetProject, action)
     productPackage = Package.find_by_project_and_name sourcePackage.project.name, "_product"
     # create package container, if missing
@@ -242,8 +244,14 @@ module MaintenanceHelper
       projectFilter = prj.maintained_projects.map{|mp| mp.project}
     end
     # prefer a channel in the source project to avoid double hits exceptions
-    ct = ChannelTarget.find_by_repo(targetRepo, [sourcePackage.project]) || ChannelTarget.find_by_repo(targetRepo, projectFilter)
-    id_template=ct.id_template if ct and ct.id_template
+    cts = ChannelTarget.find_by_repo(targetRepo, [sourcePackage.project]) 
+    cts = ChannelTarget.find_by_repo(targetRepo, projectFilter) unless cts.any?
+    first_ct = cts.first
+    unless cts.all?{|c| c.id_template == first_ct.id_template}
+      msg = cts.map{|cti| "#{cti.channel.package.project.name}/#{cti.channel.package.name}"}.join(", ")
+      raise MultipleUpdateInfoTemplate.new "Multiple channel targets found in #{msg} for repository #{targetRepo.project.name}/#{targetRepo.name}"
+    end
+    id_template = cts.first.id_template if cts.first and cts.first.id_template
 
     uID = mi.getUpdateinfoId(id_template, patchName)
     return uID

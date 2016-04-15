@@ -120,9 +120,9 @@ class Repository < ActiveRecord::Base
   def is_local_channel?
     # is any our path elements the target of a channel package in this project?
     self.path_elements.includes(:link).each do |pe|
-      return true if ChannelTarget.find_by_repo(pe.link, [self.project])
+      return true if ChannelTarget.find_by_repo(pe.link, [self.project]).any?
     end
-    return true if ChannelTarget.find_by_repo(self, [self.project])
+    return true if ChannelTarget.find_by_repo(self, [self.project]).any?
     false
   end
 
