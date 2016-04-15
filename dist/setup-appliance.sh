@@ -573,6 +573,11 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
 
   check_service memcached
 
+  # make sure that apache gets restarted after cert change
+  if [[ $DETECTED_CERT_CHANGE ]];then
+    systemctl restart apache2.service
+  fi
+
   check_service obsapidelayed
 
   create_issue_file
