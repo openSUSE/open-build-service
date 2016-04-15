@@ -87,7 +87,6 @@ RSpec.describe "Create Interconnect as admin and build pckg" do
         expect(page).to have_content('finished "build build.spec"', :wait => 160)
       }
     rescue Timeout::Error
-      puts "Let's retry on rescue."
       page.evaluate_script("window.location.reload()")
       expect(page).to have_content('finished "build build.spec"', :wait => 120)
     end
@@ -100,7 +99,6 @@ RSpec.describe "Create Interconnect as admin and build pckg" do
         expect(page).to have_content('finished "build build.spec"', :wait => 90)
       }
     rescue Timeout::Error
-      puts "Let's retry on rescue."
       page.evaluate_script("window.location.reload()")
       next if page.has_content?("Build finished")
       expect(page).to have_content('finished "build build.spec"', :wait => 60)
