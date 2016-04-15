@@ -4,7 +4,7 @@ export BASH_TAP_ROOT=$(dirname $0)
 
 . $(dirname $0)/bash-tap-bootstrap
 
-plan tests 4
+plan tests 6
 
 MAX_WAIT=300
 
@@ -13,6 +13,7 @@ tmpcount=$MAX_WAIT
 # Service enabled and started
 for srv in \
 obsdodup \
+obssigner \
 obsdeltastore
 do
   STATE=` systemctl is-enabled $srv\.service 2>/dev/null`
