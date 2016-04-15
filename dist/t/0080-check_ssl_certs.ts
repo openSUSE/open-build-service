@@ -18,10 +18,6 @@ fi
 
 . $SETUP_APPLIANCE
 
-MAX_WAIT=300
-
-tmpcount=$MAX_WAIT
-
 get_hostname
 FQHN=$FQHOSTNAME
 

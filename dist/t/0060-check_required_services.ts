@@ -1,22 +1,10 @@
 #!/bin/bash
 
-export BOOTSTRAP_TEST_MODE=1
-export NON_INTERACTIVE=1
 export BASH_TAP_ROOT=$(dirname $0)
 
 . $(dirname $0)/bash-tap-bootstrap
 
 plan tests 16
-
-for i in $(dirname $0)/../setup-appliance.sh /usr/lib/obs/server/setup-appliance.sh;do
-	[[ -f $i && -z $SETUP_APPLIANCE ]] && SETUP_APPLIANCE=$i
-done
-
-if [[ -z $SETUP_APPLIANCE ]];then
-	BAIL_OUT "Could not find setup appliance"
-fi
-
-. $SETUP_APPLIANCE
 
 MAX_WAIT=300
 
