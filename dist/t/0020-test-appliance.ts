@@ -6,32 +6,7 @@ export BASH_TAP_ROOT=$(dirname $0)
 
 . $(dirname $0)/bash-tap-bootstrap
 
-plan tests 6
-
-for i in $(dirname $0)/../setup-appliance.sh /usr/lib/obs/server/setup-appliance.sh;do
-	[[ -f $i && -z $SETUP_APPLIANCE ]] && SETUP_APPLIANCE=$i
-done
-
-if [[ -z $SETUP_APPLIANCE ]];then
-	BAIL_OUT "Could not find setup appliance"
-fi
-
-. $SETUP_APPLIANCE
-
-MAX_WAIT=300
-
-tmpcount=$MAX_WAIT
-
-get_hostname
-FQHN=$FQHOSTNAME
-
-DB_NAME=api_production
-DB_EXISTS=$(mysql -e "show databases"|grep $DB_NAME)
-is "$DB_EXISTS" "$DB_NAME" "Checking if database exists"
-
-TABLES_IN_DB=$(mysql -e "show tables" $DB_NAME)
-[[ $TABLES_IN_DB ]]
-is "$?" 0 "Checking if tables in database $DB_NAME"
+plan tests 4
 
 STATUS_CODE_200=$(curl -I http://localhost 2>/dev/null|head -1|grep -w 200)
 [[ -n $STATUS_CODE_200 ]]
