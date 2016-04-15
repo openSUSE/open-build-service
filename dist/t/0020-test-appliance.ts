@@ -6,7 +6,7 @@ export BASH_TAP_ROOT=$(dirname $0)
 
 . $(dirname $0)/bash-tap-bootstrap
 
-plan tests 11
+plan tests 6
 
 for i in $(dirname $0)/../setup-appliance.sh /usr/lib/obs/server/setup-appliance.sh;do
 	[[ -f $i && -z $SETUP_APPLIANCE ]] && SETUP_APPLIANCE=$i
@@ -25,16 +25,6 @@ tmpcount=$MAX_WAIT
 get_hostname
 FQHN=$FQHOSTNAME
 
-for file in \
-server.crt \
-server.key \
-server.$FQHN\.created \
-server.$FQHN\.crt
-do
-  [ -e /srv/obs/certs/$file ]
-  is "$?" 0 "Checking file $file"
-done
-
 DB_NAME=api_production
 DB_EXISTS=$(mysql -e "show databases"|grep $DB_NAME)
 is "$DB_EXISTS" "$DB_NAME" "Checking if database exists"
@@ -42,9 +32,6 @@ is "$DB_EXISTS" "$DB_NAME" "Checking if database exists"
 TABLES_IN_DB=$(mysql -e "show tables" $DB_NAME)
 [[ $TABLES_IN_DB ]]
 is "$?" 0 "Checking if tables in database $DB_NAME"
-
-curl https://localhost &>/dev/null
-is "$?" 0 "Checking https://localhost for SSL Certificate Errors"
 
 STATUS_CODE_200=$(curl -I http://localhost 2>/dev/null|head -1|grep -w 200)
 [[ -n $STATUS_CODE_200 ]]
