@@ -544,6 +544,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /usr/lib/obs/server/BSHandoff.pm
 /usr/lib/obs/server/BSNotify.pm
 /usr/lib/obs/server/BSPgp.pm
+/usr/lib/obs/server/BSRevision.pm
 /usr/lib/obs/server/BSRPC.pm
 /usr/lib/obs/server/BSServer.pm
 /usr/lib/obs/server/BSServerEvents.pm
