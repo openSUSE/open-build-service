@@ -1,9 +1,6 @@
 require 'capybara'
-require 'capybara/dsl'
 require 'capybara/poltergeist'
 require 'socket'
-
-include Capybara::DSL
 
 Capybara.default_max_wait_time = 6
 
