@@ -31,7 +31,6 @@ BEGIN {
 use POSIX;
 use Data::Dumper;
 use Getopt::Long;
-use Storable ();
 use Digest::MD5 ();
 use XML::Structured ':bytes';
 
@@ -264,20 +263,11 @@ sub repreadxml {
   return readxml("$srcrepdir/$packid/$md5-$filename", $dtd, $nonfatal);
 }
 sub findprojects {
-  local *D;
-  opendir(D, $projectsdir) || die("$projectsdir: $!\n");
-  my @projids = grep {s/\.xml$//} readdir(D);
-  closedir(D);
-  return sort @projids;
+  return sort(grep {s/\.xml$//} ls($projectsdir));
 }
 sub findpackages {
   my ($projid) = @_;
-  my @packids;
-  if (opendir(D, "$projectsdir/$projid.pkg")) {
-    @packids = grep {s/\.xml$//} readdir(D);
-    closedir(D);
-  }
-  return sort @packids;
+  return sort(grep {s/\.xml$//} ls("$projectsdir/$projid.pkg"));
 }
 
 sub updatelinkinfodb {
@@ -337,7 +327,7 @@ sub find_latest_file {
 
 sub dump_nStore {
   my ($file, $sel) = @_;
-  my $cache = Storable::retrieve($file) || {};
+  my $cache = BSUtil::retrieve($file);
   $cache = $cache->{$sel} if defined $sel;
   print Dumper($cache);
   return $cache
@@ -743,7 +733,7 @@ while (@ARGV) {
       $s->{$key} = $value;
       print "\nChanged to:\n";
       print Dumper($s);
-      Storable::nstore($s, $file);
+      BSUtil::store($file, undef, $s);
     }
   } elsif ($arg eq "--dump-state") {
     die("ERROR: need architecture as argument!\n") if @ARGV < 1;
