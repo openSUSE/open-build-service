@@ -15,7 +15,7 @@ Note: Update from OBS 2.5 should also work, but is untested.
 
   3) Remove packages which might case conflicts
 
-        zypper -n remove ruby2.1-rubygem-passenger
+        zypper -n remove ruby2.1-rubygem-passenger ruby2.1-rubygem-activerecord-4_1 ruby2.1-rubygem-rails-4_1
 
   4) Update packages
 
