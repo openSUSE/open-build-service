@@ -226,18 +226,14 @@ class Webui::RequestController < Webui::WebuiController
         end
       end
     rescue APIException => e
+      HoptoadNotifier.notify(e, { failed_job: "Failed to forward BsRequest '#{params[:id]}'" })
       flash[:error] = "Unable to forward submit: #{e.message}"
-      redirect_to(:action => 'show', :project => params[:project], :package => params[:package]) and return
+      redirect_to(request_show_path(params[:id])) and return
     end
 
-    # link_to isn't available here, so we have to write some HTML. Uses url_for to not hardcode URLs.
-    flash[:notice] += " and forwarded to
-                       <a href='#{url_for(:controller => 'package',
-                                          :action => 'show',
-                                          :project => tgt_prj,
-                                          :package => tgt_pkg)}'>#{tgt_prj} / #{tgt_pkg}</a>
-                       (request <a href='#{url_for(:action => 'show',
-                                                   :number => req.number)}'>#{req.number}</a>)"
+    target_link = ActionController::Base.helpers.link_to("#{tgt_prj} / #{tgt_pkg}", package_show_url(project: tgt_prj, package: tgt_pkg))
+    request_link = ActionController::Base.helpers.link_to(req.number, request_show_path(req.number))
+    flash[:notice] += " and forwarded to #{target_link} (request #{request_link})"
   end
 
   def diff
@@ -287,9 +283,10 @@ class Webui::RequestController < Webui::WebuiController
 
         req.save!
       end
-      flash[:success] = "Created <a href='#{url_for(:controller => 'request',
-                                                    :action => 'show',
-                                                    :number => req.number)}'>repository delete request #{req.number}</a>"
+
+      request_link = ActionController::Base.helpers.link_to("repository delete request #{req.number}", request_show_path(req.number))
+      flash[:success] = "Created #{request_link}"
+
     rescue APIException => e
       flash[:error] = e.message
       redirect_to :controller => :package, :action => :show, :package => params[:package], :project => params[:project] and return if params[:package]
