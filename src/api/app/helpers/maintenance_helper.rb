@@ -244,7 +244,7 @@ module MaintenanceHelper
       projectFilter = prj.maintained_projects.map{|mp| mp.project}
     end
     # prefer a channel in the source project to avoid double hits exceptions
-    cts = ChannelTarget.find_by_repo(targetRepo, [sourcePackage.project]) 
+    cts = ChannelTarget.find_by_repo(targetRepo, [sourcePackage.project])
     cts = ChannelTarget.find_by_repo(targetRepo, projectFilter) unless cts.any?
     first_ct = cts.first
     unless cts.all?{|c| c.id_template == first_ct.id_template}
