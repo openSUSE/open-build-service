@@ -183,7 +183,7 @@ sub adddeltastoreevent {
   my $ev = { type => 'deltastore', 'project' => $projid, 'package' => $packid, 'job' => $file };
   my $evname = "deltastore:${projid}::${packid}::${file}";
   $evname = "deltastore:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
-  writexml("$eventdir/deltastore/.$evname", "$eventdir/deltastore/$evname", $ev, $BSXML::event);
+  writexml("$eventdir/deltastore/.$evname.$$", "$eventdir/deltastore/$evname", $ev, $BSXML::event);
   BSUtil::ping("$eventdir/deltastore/.ping");
 }
 

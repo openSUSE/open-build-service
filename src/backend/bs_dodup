@@ -343,7 +343,7 @@ sub sendscanrepo {
   };
   my $evname = "scanrepo:${projid}::$repoid";
   $evname = "scanrepo:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
-  writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
+  writexml("$eventdir/$arch/.$evname.$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);
   BSUtil::ping("$eventdir/$arch/.ping");
 }
 

@@ -1318,7 +1318,7 @@ sub putbinary {
     my $ev = { type => 'scanrepo', 'project' => $projid, 'repository' => $repoid };
     my $evname = "scanrepo:${projid}::$repoid";
     $evname = "scanrepo:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
-    writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
+    writexml("$eventdir/$arch/.$evname.$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);
     BSUtil::ping("$eventdir/$arch/.ping");
   }
   return $BSStdServer::return_ok;
@@ -1337,7 +1337,7 @@ sub delbinary {
     my $ev = { type => 'scanrepo', 'project' => $projid, 'repository' => $repoid };
     my $evname = "scanrepo:${projid}::$repoid";
     $evname = "scanrepo:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
-    writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
+    writexml("$eventdir/$arch/.$evname.$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);
     BSUtil::ping("$eventdir/$arch/.ping");
   }
   return $BSStdServer::return_ok;
@@ -1681,7 +1681,7 @@ sub sendbadhostevent {
   my $evname = "badhost::$info->{'project'}::$info->{'package'}::$info->{'arch'}::$idlename";
   $evname = "badhost:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
   mkdir_p("$eventdir/dispatch");
-  writexml("$eventdir/dispatch/.$evname", "$eventdir/dispatch/$evname", $ev, $BSXML::event);
+  writexml("$eventdir/dispatch/.$evname.$$", "$eventdir/dispatch/$evname", $ev, $BSXML::event);
 }
 
 sub receivekiwitree_scan {
@@ -2206,7 +2206,7 @@ sub forwardevent {
   mkdir_p("$eventdir/$arch") if $arch;
   if ($arch) {
     dirty($projid, $repoid, $arch) unless !defined($repoid) || $arch eq 'dispatch' || $arch eq 'publish';
-    writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
+    writexml("$eventdir/$arch/.$evname.$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);
     BSUtil::ping("$eventdir/$arch/.ping");
   } else {
     # XXX: there should be a better way than to just write in all
@@ -2217,7 +2217,7 @@ sub forwardevent {
       next if $a eq 'publish' || $a eq 'repository' || $a eq 'watch' || $a eq 'signer' || $a eq 'dispatch' || $a eq 'service' || $a eq 'deltastore';
       eval {
         dirty($projid, $repoid, $a) if defined $repoid;
-        writexml("$eventdir/$a/.$evname", "$eventdir/$a/$evname", $ev, $BSXML::event);
+        writexml("$eventdir/$a/.$evname.$$", "$eventdir/$a/$evname", $ev, $BSXML::event);
         BSUtil::ping("$eventdir/$a/.ping");
       };
       warn($@) if $@;
@@ -2441,7 +2441,7 @@ sub docommand {
 	  my $evname = "rebuild:${projid}::$packid";
 	  $evname = "rebuild:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
 	  if (-d "$eventdir/$arch") {
-	    writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
+	    writexml("$eventdir/$arch/.$evname.$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);
 	  }
 	}
 	BSUtil::ping("$eventdir/$arch/.ping") if -d "$eventdir/$arch";
