@@ -8,10 +8,7 @@ class RequestCounter < ActiveRecord::Migration
     end
 
     # migrate
-    BsRequest.all.each do |r|
-      r.number = r.id
-      r.save!
-    end
+    BsRequest.connection.execute("UPDATE bs_requests AS br SET br.number = br.id")
 
     # set counter
     lastreq = BsRequest.all.order(:id).last
