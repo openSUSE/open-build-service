@@ -21,6 +21,9 @@ Note: Update from OBS 2.5 should also work, but is untested.
 
         zypper dup --no-recommends --from OBS_Server_2.7
 
+     Note: Select the ruby 2.3 version, in case you run into dependency issues
+           of rubygem packages
+
   5) Migrate database
 
         cd /srv/www/obs/api/
