@@ -19,7 +19,7 @@ function check_service {
   srv=$1
   service_critical=$2
 
-  [[ $SETUP_ONLY == 1 ]] && return 
+  [[ $SETUP_ONLY == 1 ]] && return
 
   echo "Checking service $srv ..."
   STATUS=`systemctl is-active $srv\.service 2>/dev/null`
@@ -391,9 +391,9 @@ function ask {
 function check_required_backend_services {
 
   [[ $SETUP_ONLY == 1 ]] && return 
-  NEEDED_SERVICES="obsrepserver obssrcserver obsscheduler obsdispatcher obspublisher"
+  REQUIRED_SERVICES="obsrepserver obssrcserver obsscheduler obsdispatcher obspublisher"
 
-  for srv in $NEEDED_SERVICES;do
+  for srv in $REQUIRED_SERVICES ;do
     ENABLED=`systemctl is-enabled $srv`
     ACTIVE=`systemctl is-active $srv`
     [[ "$ENABLED" == "enabled" ]] || systemctl enable $srv
@@ -402,10 +402,29 @@ function check_required_backend_services {
 
 }
 ###############################################################################
+function check_recommended_backend_services {
+
+  [[ $SETUP_ONLY == 1 ]] && return 
+  RECOMMENDED_SERVICES="obsdodup obsdeltastore obssigner"
+
+  for srv in $RECOMMENDED_SERVICES;do
+    STATE=$(chkconfig $srv|awk '{print $2}')
+    if [[ $STATE != on ]];then
+      ask "Service $srv is not enabled. Would you like to enable it? [Yn]" "y"
+      case $rv in
+        y|yes|Y|YES)
+          systemctl enable $srv
+          systemctl start $srv
+        ;;
+      esac
+    fi
+  done
+}
+###############################################################################
 function check_optional_backend_services {
 
   [[ $SETUP_ONLY == 1 ]] && return 
-  OPTIONAL_SERVICES="obsdodup obswarden obssigner obsapisetup obsstoragesetup obsworker"
+  OPTIONAL_SERVICES="obswarden obsapisetup obsstoragesetup obsworker"
 
   for srv in $OPTIONAL_SERVICES;do
     STATE=$(chkconfig $srv|awk '{print $2}')
@@ -494,6 +513,8 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
   done
 
   check_required_backend_services
+
+  check_recommended_backend_services
 
   check_optional_backend_services
 
