@@ -624,6 +624,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 %dir /srv/www/obs/api/config/environments
 %dir /srv/www/obs/api/files
 %dir /srv/www/obs/api/db
+/srv/www/obs/api/db/checker.rb
 /srv/www/obs/api/Gemfile
 /srv/www/obs/api/Gemfile.lock
 /srv/www/obs/api/config.ru
