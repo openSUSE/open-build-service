@@ -1,37 +1,41 @@
-#!/bin/bash
+#!/usr/bin/env perl
 
-export BASH_TAP_ROOT=$(dirname $0)
+use strict;
+use warnings;
+use Test::More 'tests' => 16;
 
-. $(dirname $0)/bash-tap-bootstrap
+my $max_wait = 300;
 
-plan tests 16
+my @daemons = qw/obsapidelayed  obsdispatcher  	obspublisher  	obsrepserver
+		 obsscheduler  	obssrcserver	apache2  	mysql/;
 
-MAX_WAIT=300
+foreach my $srv (@daemons) {
+	my @state=`systemctl is-enabled $srv\.service 2>/dev/null`;
+	chomp($state[0]);
+	is($state[0],"enabled","Checking if recommended service $srv is enabled");
+}
 
-tmpcount=$MAX_WAIT
+my %srv_state=();
 
-# Service enabled and started
-for srv in \
-obsapidelayed \
-obsdispatcher \
-obspublisher \
-obsrepserver \
-obsscheduler \
-obssrcserver \
-apache2 \
-mysql
-do
-  STATE=` systemctl is-enabled $srv\.service 2>/dev/null`
-  is "$STATE" "enabled" "Checking $srv enabled"
-  ACTIVE=`systemctl is-active $srv\.service`
-  while [[ $ACTIVE != 'active' ]];do
-    tmpcount=$(( $tmpcount - 1 ))
-    ACTIVE=`systemctl is-active $srv\.service`
-    if [[ $tmpcount -le 0 ]];then
-      ACTIVE='timeout'
-      break
-    fi
-    sleep 1
-  done
-  is "$ACTIVE" "active" "Checking $srv status"
-done
+while ($max_wait > 0) {
+	
+	foreach my $srv (@daemons) {
+		my @state=`systemctl is-active $srv\.service 2>/dev/null`;
+		chomp($state[0]);
+		if ( $state[0] eq 'active') {
+			$srv_state{$srv} = 'active';
+		}
+	}
+	if ( keys(%srv_state) == scalar(@daemons) ) {
+		last;
+	}
+	$max_wait--;
+	sleep 1;
+}
+
+foreach my $srv ( @daemons ) {
+	is($srv_state{$srv} || 'timeout','active',"Checking recommended service '$srv' status");
+}
+
+
+exit 0;
