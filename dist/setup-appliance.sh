@@ -325,12 +325,17 @@ function import_ca_cert {
 ###############################################################################
 function relink_server_cert {
   
-  if [[ $DETECTED_CERT_CHANGE == 1 || ! -e $backenddir/certs/server.crt ]];then
-    # change links for certs according to hostnames
-    cd $backenddir/certs
-    rm -f server.crt
-    ln -sf server.${FQHOSTNAME}.crt server.crt
-    cd - >/dev/null
+  if [[ $DETECTED_CERT_CHANGE == 1 ]];then
+    CERT_LINK_FILE=$backenddir/certs/server.crt
+    # check if CERT_LINK_FILE not exists or is symbolic link because we don't
+    # want to remove real files
+    if [ ! -e $CERT_LINK_FILE || -L $CERT_LINK_FILE ];then
+      # change links for certs according to hostnames
+      cd $backenddir/certs
+      rm -f server.crt
+      ln -sf server.${FQHOSTNAME}.crt server.crt
+      cd - >/dev/null
+    fi
   fi
 }
 
@@ -555,9 +560,9 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
 
   DNS_NAMES="$rv"
 
-  check_server_cert
-
   DETECTED_CERT_CHANGE=0
+
+  check_server_cert
 
   import_ca_cert
 
