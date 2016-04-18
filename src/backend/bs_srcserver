@@ -687,8 +687,7 @@ sub expandproduct {
 
   if (!$files) {
     # gone!
-    # {} argument makes findpackages ignore packages from project links
-    my @packages = grep {/^\Q${packid}:\E/} findpackages($projid, {});
+    my @packages = grep {/^\Q${packid}:\E/} BSRevision::lspackages_local($projid);
     for my $opid (@packages) {
       unlink("$projectsdir/$projid.pkg/$opid.upload-MD5SUMS");
       unlink("$projectsdir/$projid.pkg/$opid.rev");
@@ -797,7 +796,7 @@ sub expandproduct {
   BSUtil::cleandir($dir);
   rmdir($dir);
   # now do away with the old packages
-  my @packages = grep {/^\Q${packid}:\E/} findpackages($projid, {});
+  my @packages = grep {/^\Q${packid}:\E/} BSRevision::lspackages_local($projid);
   @packages = grep {!$pids{$_}} @packages;
   for my $opid (@packages) {
     unlink("$projectsdir/$projid.pkg/$opid.upload-MD5SUMS");
@@ -1962,6 +1961,7 @@ sub findlastworkinglink {
 
 sub findprojects {
   my ($deleted) = @_;
+  # add support for remote projects?
   return BSRevision::lsprojects_local($deleted);
 }
 
@@ -1996,8 +1996,44 @@ sub findpackages_remote {
   return @packids;
 }
 
+sub findpackages_projlink {
+  my ($projid, $proj, $nonfatal, $origins, $seen, @packids) = @_;
+  $seen->{$projid} = 1;
+  my $frozen = get_frozenlinks($projid);
+  for my $lprojid (map {$_->{'project'}} @{$proj->{'link'}}) {
+    next if $seen->{$lprojid};
+    $seen->{$lprojid} = 1;
+    my @lpackids;
+    my $frozenp = $frozen->{'/all'} || $frozen->{$lprojid};
+    my $lorigins = defined($origins) ? {} : undef;
+    if ($frozenp) {
+      @lpackids = sort keys %$frozenp;
+      if ($lorigins) {
+        $lorigins->{$_} = $lprojid for @lpackids;
+      }
+    } else {
+      my $lproj = readproj($lprojid, 1);
+      if (!$lproj || $lproj->{'remoteurl'}) {
+        $lproj = remoteprojid($lprojid);
+	next unless $lproj;	# linked project does not exist
+      }
+      @lpackids = findpackages($lprojid, $lproj, $nonfatal || -1, $lorigins, undef, undef, $seen);
+    }
+    if (grep {$_ eq '_product'} @packids) {
+      @lpackids = grep {$_ ne '_product' && !/^_product:/} @lpackids;
+    }
+    push @packids, @lpackids;
+    if ($origins && $lorigins) {
+      for (@lpackids) {
+        $origins->{$_} = $lorigins->{$_} unless defined $origins->{$_};
+      }
+    }
+  }
+  return sort(BSUtil::unify(@packids));
+}
+
 sub findpackages {
-  my ($projid, $proj, $nonfatal, $seen, $origins, $noexpand, $deleted) = @_;
+  my ($projid, $proj, $nonfatal, $origins, $noexpand, $deleted, $seen) = @_;
 
   # check remote case
   $proj ||= readproj($projid, 1) || {};
@@ -2013,39 +2049,7 @@ sub findpackages {
 
   # handle project links (but not if deleted)
   if ($proj->{'link'} && !$noexpand && !$deleted) {
-    $seen ||= {};
-    $seen->{$projid} = 1;
-    my $frozen = get_frozenlinks($projid);
-    for my $lprojid (map {$_->{'project'}} @{$proj->{'link'}}) {
-      next if $seen->{$lprojid};
-      $seen->{$lprojid} = 1;
-      my @lpackids;
-      my $frozenp = $frozen->{'/all'} || $frozen->{$lprojid};
-      my $lorigins = defined($origins) ? {} : undef;
-      if ($frozenp) {
-	@lpackids = sort keys %$frozenp;
-	if ($lorigins) {
-	  $lorigins->{$_} = $lprojid for @lpackids;
-	}
-      } else {
-        my $lproj = readproj($lprojid, 1);
-        if (!$lproj || $lproj->{'remoteurl'}) {
-          $lproj = remoteprojid($lprojid);
-	  next unless $lproj;	# linked project does not exist
-        }
-        @lpackids = findpackages($lprojid, $lproj, $nonfatal || -1, $seen, $lorigins);
-      }
-      if (grep {$_ eq '_product'} @packids) {
-	@lpackids = grep {$_ ne '_product' && !/^_product:/} @lpackids;
-      }
-      push @packids, @lpackids;
-      if ($origins && $lorigins) {
-        for (@lpackids) {
-          $origins->{$_} = $lorigins->{$_} unless defined $origins->{$_};
-        }
-      }
-    }
-    @packids = sort(BSUtil::unify(@packids));
+    @packids = findpackages_projlink($projid, $proj, $nonfatal, $origins, $seen || {}, @packids);
   }
 
   return @packids;
@@ -3299,7 +3303,7 @@ sub getpackagelist {
   my $origins = $cgi->{'noorigins'} ? undef : {};
   my $proj;
   $proj = checkprojrepoarch($projid, $repoid, $arch, 1) unless $cgi->{'deleted'};
-  my @packages = findpackages($projid, $proj, 0, {}, $origins, !$cgi->{'expand'}, $cgi->{'deleted'});
+  my @packages = findpackages($projid, $proj, 0, $origins, !$cgi->{'expand'}, $cgi->{'deleted'});
   for (@packages) {
     $_ = {'name' => $_};
     $_->{'originproject'} = $origins->{$_->{'name'}} if $origins && $origins->{$_->{'name'}} ne $projid;
@@ -3381,7 +3385,7 @@ sub putpackage {
   die("$projid is a remote project\n") if $proj->{'remoteurl'};
   if ($packid eq '_product' && ! -e "$projectsdir/$projid.pkg/$packid.xml") {
     # creating a _product package, make sure that there is no _product:xxx package
-    my @pkgs = findpackages($projid, $proj, 1, undef, undef, 1);
+    my @pkgs = BSRevision::lspackages_local($projid);
     die("cannot create '$packid' if _product:* packages already exist\n") if grep {/^_product:/} @pkgs;
   }
   if (($packid =~ /^_product:/) && ! -e "$projectsdir/$projid.pkg/$packid.xml") {
@@ -5168,8 +5172,8 @@ sub copyproject {
   # signal start of project copy
   notify_repservers('suspendproject', $projid, undef, 'copyproject in progress');
 
-  # use {} as we do not want to copy project linked packages
-  my @pkgs = findpackages($oprojid, {});
+  # local packages only
+  my @pkgs = BSRevision::lspackages_local($oprojid);
   delete $cgi->{'servicemark'};		# just in case...
   for my $packid (@pkgs) {
     if (! -e "$projectsdir/$projid.pkg/$packid.xml") {
@@ -6411,7 +6415,7 @@ sub pkgsearch_indexfunc {
     my @projids = findprojects();
     my @r;
     for my $projid (@projids) {
-      push @r, map {"$projid/$_"} findpackages($projid, {}, 1);
+      push @r, map {"$projid/$_"} BSRevision::lspackages_local($projid);
     }
     $db->{'_allkeys'} = \@r;
     return @r;
@@ -6425,7 +6429,7 @@ sub pkgsearch_indexfunc {
     }
   } else {
     return BSDBIndex::getvalues($db, "$db->{'index'}$path", $value) if $path =~ /^linkinfo\//;
-    return map {"$value/$_"} findpackages($value, {}, 1) if $path eq 'project';
+    return map {"$value/$_"} BSRevision::lspackages_local($value) if $path eq 'project';
     if ($path eq 'name') {
       $lkeys = [ pkgsearch_indexfunc($db) ] unless $lkeys;
       return grep {/\Q$value\E$/} @$lkeys;
@@ -6443,7 +6447,7 @@ sub search_pack {
     my $startswith = $2;
     $projid =~ s/''/'/g;
     $startswith =~ s/''/'/g;
-    my @packages = findpackages($projid, {});
+    my @packages = BSRevision::lspackages_local($projid);
     my $data = [];
     for my $packid (grep {/^\Q$startswith\E/} @packages) {
       my ($pack, undef) = getpackage($cgi, $projid, $packid);
@@ -6725,7 +6729,7 @@ sub search {
     }
   } elsif ($in eq 'packages') {
     for my $projid (findprojects()) {
-      my @packages = findpackages($projid, {});
+      my @packages = BSRevision::lspackages_local($projid);
       for my $packid (@packages) {
         my ($pack, undef) = getpackage($cgi, $projid, $packid);
 	$pack->{'project'} = $projid;
