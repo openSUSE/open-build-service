@@ -1,7 +1,7 @@
 <%= form_for(download_on_demand) do |form| %>
   <div style="margin-bottom: 1.2em; margin-left: 2em" >
     <%= form.label :arch, 'Architecture', style: "display:inline-block;width:100px;" %>
-    <%= form.select :arch, options_for_select(repository.architectures, download_on_demand.try(:arch)) %>
+    <%= form.select :arch, options_for_select(Architecture.available, download_on_demand.try(:arch)) %>
     <br/><br/>
     <%= form.label :repotype, 'Type', style: "display:inline-block;width:100px;" %>
     <%= form.select :repotype, options_for_select(DownloadRepository::REPOTYPES, download_on_demand.try(:repotype)) %>

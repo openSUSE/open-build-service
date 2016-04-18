@@ -208,4 +208,8 @@ class Repository < ActiveRecord::Base
       xml.elements('url').last.to_s
     end
   end
+
+  def is_dod_repository?
+    self.download_repositories.any?
+  end
 end
