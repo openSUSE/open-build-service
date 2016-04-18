@@ -90,6 +90,8 @@ File.open("#{Rails.root}/../backend/BSConfig.pm.template") do |template|
     line.gsub!(/our \$ipaccess/, 'our $ipaccess = undef; our $dummy')
     line.gsub!(/(our \$bsuser)/, '#\1')
     line.gsub!(/(our \$bsgroup)/, '#\1')
+    line.gsub!(/(our \$bsserviceuser)/, '#\1')
+    line.gsub!(/(our \$bsservicegroup)/, '#\1')
     line.gsub!(/^(my \$hostname).*/, '\1 = "localhost";')
     line.gsub!(/.*our \$localarch.*/, 'our $localarch = "x86_64";')
     line.gsub!(/our \$bsdir = .*/, "our $bsdir = '#{backend_data}';")
