@@ -43,11 +43,17 @@ rundir="$OBS_RUN_DIR"
 logdir="$OBS_LOG_DIR"
 workdir="/var/tmp/obs_service"
 
+rundir_perm() {
+	# make sure rundir is group writable
+	test "$(stat -c "%A" "$rundir" | cut -c6)" = "-" && chmod 0775 "$rundir"
+}
+
 rc_reset
 case "$1" in
 	start)
 		echo -n "Initializing obsservice"
 		mkdir -p "$rundir" "$logdir" "$workdir"
+		rundir_perm
 		chown obsrun:obsrun "$logdir" "$rundir" "$workdir"
 		startproc -f -l "$logdir"/src_service.log "$obsdir"/bs_service --tempdir "$workdir"
 		rc_status -v
@@ -60,12 +66,14 @@ case "$1" in
 	restart)
 		## If first returns OK call the second, if first or
 		## second command fails, set echo return value.
+		rundir_perm
 		"$obsdir"/bs_service --restart
 		rc_status
 	;;
 	try-restart|reload)
 		$0 status
 		if test $? = 0; then
+			rundir_perm
 			"$obsdir"/bs_service --restart
 		else
 			rc_reset        # Not running is not a failure.
