@@ -826,7 +826,7 @@ sub getcommitinfo {
   my $bconf = Build::read_config('noarch', $cfile);
   for my $type ('spec', 'dsc', 'kiwi') {
     my $rev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $srcmd5};
-    my (undef, $file) = findfile($rev, undef, $type, $files);
+    my $file = findfile($rev, undef, $type, $files);
     next unless defined $file;
     my $d = Build::parse($bconf, BSSrcrep::repfilename($rev, $file, $files->{$file}));
     next unless defined $d->{'version'};
@@ -2158,52 +2158,46 @@ sub getprojectservices {
 sub findfile {
   my ($rev, $repoid, $ext, $files) = @_;
 
-  return (undef, undef) if !$ext || $ext eq 'none';
-  $files = BSSrcrep::lsrev($rev) unless $files;
-  return (undef, undef) unless $files;
-
-  # create filename -> return value hash
-  my %files = map {$_ => [$files->{$_}, $_]} keys %$files;
+  return undef if !$files || !$ext || $ext eq 'none';
 
   # map services files to their real name
+  my %files = map {$_ => $_} keys %$files;
   if ($files{'_service'}) {
     for (sort keys %files) {
       next unless /^_service:.*:(.*?)$/s;
-      next unless $files{$_};
-      $files{$1} = $files{$_};
-      delete $files{$_};
+      $files{$1} = delete($files{$_}) if $files{$_};
     }
   }
 
-  return @{$files{'_preinstallimage'}} if $ext ne 'kiwi' && keys(%files) == 1 && $files{'_preinstallimage'};
-  return @{$files{'simpleimage'}} if $files{'simpleimage'};
+  return $files{'_preinstallimage'} if $ext ne 'kiwi' && keys(%files) == 1 && $files{'_preinstallimage'};
+  return $files{'simpleimage'} if $files{'simpleimage'};
 
   if ($ext eq 'arch') {
-    return @{$files{'PKGBUILD'}} if $files{'PKGBUILD'};
-    return (undef, undef);
+    return $files{'PKGBUILD'} if $files{'PKGBUILD'};
+    return undef;
   }
 
   my $packid = $rev->{'package'};
-  return (@{$files{"$packid-$repoid.$ext"}}) if defined($repoid) && $files{"$packid-$repoid.$ext"};
+  return $files{"$packid-$repoid.$ext"} if defined($repoid) && $files{"$packid-$repoid.$ext"};
   # 28.4.2009 mls: deleted "&& defined($repoid)"
-  return @{$files{"$packid.$ext"}} if $files{"$packid.$ext"};
+  return $files{"$packid.$ext"} if $files{"$packid.$ext"};
   # try again without last components
   if ($packid =~ /^(.*?)\./) {
-    return @{$files{"$1.$ext"}} if $files{"$1.$ext"};
+    return $files{"$1.$ext"} if $files{"$1.$ext"};
   }
   my @files = grep {/\.$ext$/} keys %files;
   @files = grep {/^\Q$packid\E/i} @files if @files > 1;
-  return @{$files{$files[0]}} if @files == 1;
+  return $files{$files[0]} if @files == 1;
   if (@files > 1) {
     if (!defined($repoid)) {
-      # return (undef, undef);
+      # return undef;
       @files = sort @files;
-      return @{$files{$files[0]}};
+      return $files{$files[0]};
     }
     @files = grep {/^\Q$packid-$repoid\E/i} @files if @files > 1;
-    return @{$files{$files[0]}} if @files == 1;
+    return $files{$files[0]} if @files == 1;
   }
-  return (undef, undef);
+  return undef;
 }
 
 #########################################################################
@@ -2217,9 +2211,9 @@ sub kiwibootcallback {
   checksourceaccess($projid, $packid);
   my $rev = getrev($projid, $packid);
   my $files = BSSrcrep::lsrev($rev);
-  my ($md5, $file) = findfile($rev, undef, 'kiwi', $files);
-  die("no kiwi file found\n") unless $md5 && $file;
-  my $xml = BSSrcrep::repreadstr($rev, $file, $md5);
+  my $file = findfile($rev, undef, 'kiwi', $files);
+  die("no kiwi file found\n") unless $file;
+  my $xml = BSSrcrep::repreadstr($rev, $file, $files->{$file});
   return ($xml, {'project' => $projid, 'package' => $packid, 'srcmd5' => $rev->{'srcmd5'}, 'file' => $file});
 }
 $Build::Kiwi::bootcallback = \&kiwibootcallback;
@@ -2912,8 +2906,8 @@ sub getprojpack {
 	      $rinfo->{'error'} = 'bad build configuration, no build type defined or detected';
 	      next;
 	    }
-            my ($md5, $file) = findfile($rev, $repoid, $type, $files);
-	    if (!$md5) {
+            my $file = findfile($rev, $repoid, $type, $files);
+	    if (!defined($file)) {
 	      $rinfo->{'error'} = 'excluded';
 	      next;
 	    }
@@ -2931,7 +2925,7 @@ sub getprojpack {
 	      }
 	    }
 	    # get build dependency info
-	    my $d = Build::parse_typed($conf, BSSrcrep::repfilename($rev, $file, $md5), $buildtype);
+	    my $d = Build::parse_typed($conf, BSSrcrep::repfilename($rev, $file, $files->{$file}), $buildtype);
 	    data2utf8xml($d);
 	    if (!$d || !defined($d->{'name'})) {
 	      $rinfo->{'error'} = "can not parse package name from $file";
@@ -7579,13 +7573,13 @@ sub sourceinfo {
   if (!$type || $type eq 'UNDEFINED') {
     undef $type;
     for my $t ('spec', 'dsc', 'kiwi') {
-      (undef, $file) = findfile($rev, $cgi->{'repository'}, $t, $files);
+      $file = findfile($rev, $cgi->{'repository'}, $t, $files);
       next unless defined $file;
       $type = $t;
       last;
     }
   } else {
-    (undef, $file) = findfile($rev, $cgi->{'repository'}, $type, $files);
+    $file = findfile($rev, $cgi->{'repository'}, $type, $files);
   }
   if (!$type) {
     $r->{'error'} = 'bad build configuration, no build type defined or detected';
