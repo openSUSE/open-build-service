@@ -51,6 +51,11 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
     @download_on_demand = DownloadRepository.find(params[:id])
     authorize @download_on_demand
 
+    if @download_on_demand.repository.download_repositories.count <= 1
+      redirect_to :back, error: "Download on Demand can't be removed: DoD Repositories must have at least one repository."
+      return
+    end
+
     begin
       ActiveRecord::Base.transaction do
         # FIXME: should remove repo arch?

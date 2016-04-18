@@ -69,7 +69,10 @@ RSpec.describe Webui::DownloadOnDemandController do
       end
 
       it { is_expected.to redirect_to(root_path) }
-      it { expect(flash[:error]).to eq("Download on Demand can't be created: Validation failed: Architecture can't be blank") }
+      it {
+        expect(flash[:error]).to eq("Download on Demand can't be created: Validation failed: " +
+          "Arch can't be blank, Architecture has to be available via repository association.")
+      }
       it { expect(assigns(:download_on_demand)).to be_kind_of(DownloadRepository) }
       it { expect(DownloadRepository.where(dod_parameters[:download_repository])).not_to exist }
     end

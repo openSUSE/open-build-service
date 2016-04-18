@@ -244,6 +244,9 @@ OBSApi::Application.routes.draw do
       get 'project/unlock_dialog' => :unlock_dialog
       post 'project/unlock' => :unlock
       post 'project/comments/:project' => :save_comment, constraints: cons, as: 'save_project_comment'
+
+      # dod resource ...
+      post 'project/create_dod_repository' => :create_dod_repository
     end
 
     controller 'webui/request' do

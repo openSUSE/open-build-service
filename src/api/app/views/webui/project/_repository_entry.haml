@@ -14,12 +14,14 @@
           = "#{path.link.project}/#{path.link.name}"
 
     %div{ style: "margin-top: 1em" }
-      - if User.current.can_modify_project?(@project)
+      - # No edit for DoD repositories
+      - if User.current.can_modify_project?(@project) && !repository.is_dod_repository?
         %span.edit-repository-field
           = sprite_tag('drive_edit')
           = link_to('Edit repository', '#', data: { "repository-edit": true })
         %div.hidden.edit-repository-container
           = render partial: 'edit_repository', locals: { project: @project, repository: repository }
+      - if User.current.can_modify_project?(@project)
         = sprite_tag('drive_delete', title: 'Delete repository')
         = link_to('Delete repository', { action: "remove_target", project: @project, target: repository.name }, |
                       { data: { confirm: "Really remove repository '#{repository.name}'?" }, class: 'x', method: :post })
@@ -30,5 +32,5 @@
       - if repository.release_targets.where(trigger: "manual").exists?
         = sprite_tag('flag_green')
         = link_to('Release repository', { :action => :release_repository_dialog, :project => @project, :repository => repository.name }, :remote => true)
-    = render :partial => 'webui/download_on_demand/index', :locals => {project: @project, repository: repository, repository_id: valid_xml_id(repository.name), new_download_on_demand: DownloadRepository.new(repository_id: repository.id)}
-
+    - if repository.is_dod_repository?
+      = render :partial => 'webui/download_on_demand/index', :locals => { project: @project, repository: repository }

@@ -9,12 +9,17 @@
 %p
   You can configure individual flags for this project here.
 
-- @project.repositories.each do |repository|
-  = render partial: "repository_entry", locals: { repository: repository }
+#repository-list
+  - @project.repositories.each do |repository|
+    = render partial: "repository_entry", locals: { repository: repository }
 
+- if User.current.is_admin?
+  %div.hidden.add-dod-repository-form
+    = render partial: "dod_repository_form", locals: { project: @project, download_on_demand: DownloadRepository.new }
+  %p
+    = link_to(sprite_tag("drive_add", title: "Add DoD repository") + " Add DoD repository", "#", id: "add-dod-repository-link")
 - if User.current.can_modify_project?(@project)
   %p
-    = link_to(sprite_tag("drive_add", title: "Add repository"), action: "add_repository_from_default_list", project: @project)
-    = link_to("Add repositories", action: "add_repository_from_default_list", project: @project)
+    = link_to(sprite_tag("drive_add", title: "Add repository") + " Add repositories", action: "add_repository_from_default_list", project: @project)
 
 = render partial: "shared/repositories", locals: { obj: @project }

@@ -4,6 +4,7 @@ require_relative '../../test_helper'
 class Webui::DownloadOnDemandControllerTest < Webui::IntegrationTest
   PROJECT_WITH_DOWNLOAD_ON_DEMAND = load_backend_file("download_on_demand/project_with_dod.xml")
   PROJECT_WITHOUT_DOWNLOAD_ON_DEMAND = load_backend_file("download_on_demand/project_without_dod.xml")
+  PROJECT_WITH_SEVERAL_DOWNLOAD_ON_DEMAND = load_backend_file("download_on_demand/project_with_several_dod.xml")
   def test_listing_download_on_demand_admin
     use_js
 
@@ -23,8 +24,8 @@ class Webui::DownloadOnDemandControllerTest < Webui::IntegrationTest
     page.must_have_link 'http://mola.org2'
     page.must_have_text 'rpmmd'
 
-    find(:xpath, "//span[@class='edit_dod_repository_link_container']").must_have_link('Edit')
-    find(:xpath, "//span[@class='edit_dod_repository_link_container']").must_have_link('Delete')
+    find(:xpath, "//span[@class='edit-dod-repository-link-container']").must_have_link('Edit')
+    find(:xpath, "//span[@class='edit-dod-repository-link-container']").must_have_link('Delete')
   end
 
   def test_listing_download_on_demand_no_admin
@@ -51,19 +52,11 @@ class Webui::DownloadOnDemandControllerTest < Webui::IntegrationTest
 
     # Login as admin
     login_king
-    visit(project_show_path(project: "home:user5"))
-
-    # Updating via meta
-    click_link("Advanced")
-    click_link("Meta")
-    page.evaluate_script("editors[0].setValue(\"#{PROJECT_WITHOUT_DOWNLOAD_ON_DEMAND.gsub("\n", '\n')}\");")
-    click_button("Save")
-    find(:id, 'flash-messages').must_have_text('Config successfully saved!')
-
-    click_link("Repositories")
-    click_link("add_dod_repository_link_standard")
+    visit(project_repositories_path(project: "home:user5"))
+    click_link("Add DoD repository")
 
     # Fill in the form and send a working dod data
+    fill_in("Repository name", with: "My DoD repository")
     select('i586', from: 'Architecture')
     select('rpmmd', from: 'Type')
     fill_in('Url', with: 'http://somerandomurl.es')
@@ -71,17 +64,19 @@ class Webui::DownloadOnDemandControllerTest < Webui::IntegrationTest
     fill_in('Master Url', with: 'http://somerandomurl2.es')
     fill_in('SSL Fingerprint', with: '293470239742093')
     fill_in('Public Key', with: 'JLKSDJFSJ83U4902RKLJSDFLJF2J9IJ23OJFKJFSDF')
-    click_button('Add Download on Demand')
-    find(:id, 'flash-messages').must_have_text('Successfully created Download on Demand')
-    find(:id, "add_dod_repository_link_container_standard").must_have_link('Add')
-    find(:xpath, "//span[@class='edit_dod_repository_link_container']").must_have_link('Edit')
-    find(:xpath, "//span[@class='edit_dod_repository_link_container']").must_have_link('Delete')
-    page.must_have_text 'Download on demand repositories'
-    page.must_have_link 'http://somerandomurl.es'
-    page.must_have_text 'rpmmd'
+    click_button('Save')
+
+    within "#repository-list" do
+      find(:xpath, "//a[@href='/project/repository_state/home:user5/My%20DoD%20repository']").must_have_text("My DoD repository")
+      find_link('Add')
+      find(".edit-dod-repository-link-container").must_have_link('Edit')
+      find(".edit-dod-repository-link-container").must_have_link('Delete')
+      page.must_have_link 'http://somerandomurl.es'
+      page.must_have_text 'rpmmd'
+    end
 
     click_link("Repositories")
-    click_link("add_dod_repository_link_standard")
+    click_link("Add")
 
     # Fill in the form and send a not working dod data
     select('x86_64', from: 'Architecture')
@@ -106,7 +101,7 @@ class Webui::DownloadOnDemandControllerTest < Webui::IntegrationTest
     find(:id, 'flash-messages').must_have_text('Config successfully saved!')
 
     click_link("Repositories")
-    within(:css, "span.edit_dod_repository_link_container") do
+    within(:css, "span.edit-dod-repository-link-container") do
       click_link("Edit")
     end
 
@@ -120,12 +115,11 @@ class Webui::DownloadOnDemandControllerTest < Webui::IntegrationTest
     fill_in('Public Key', with: '902RKLJSDFLJF902RKLJSDFLJF902RKLJSDFLJF')
     click_button('Update Download on Demand')
     find(:id, 'flash-messages').must_have_text('Successfully updated Download on Demand')
-    page.must_have_text 'Download on demand repositories'
     page.must_have_link 'http://somerandomurl_2.es'
     page.must_have_text 'deb'
 
     click_link("Repositories")
-    within(:css, "span.edit_dod_repository_link_container") do
+    within(:css, "span.edit-dod-repository-link-container") do
       click_link("Edit")
     end
 
@@ -146,14 +140,12 @@ class Webui::DownloadOnDemandControllerTest < Webui::IntegrationTest
     # Updating via meta
     click_link("Advanced")
     click_link("Meta")
-    page.evaluate_script("editors[0].setValue(\"#{PROJECT_WITH_DOWNLOAD_ON_DEMAND.gsub("\n", '\n')}\");")
+    page.evaluate_script("editors[0].setValue(\"#{PROJECT_WITH_SEVERAL_DOWNLOAD_ON_DEMAND.gsub("\n", '\n')}\");")
     click_button("Save")
     find(:id, 'flash-messages').must_have_text('Config successfully saved!')
 
     click_link("Repositories")
-    within(:css, "span.edit_dod_repository_link_container") do
-      click_link("Delete")
-    end
+    first(:xpath, "//a[text()='Delete']").click
 
     page.wont_have_text 'Download on demand repositories'
     page.wont_have_link 'http://mola.org2'

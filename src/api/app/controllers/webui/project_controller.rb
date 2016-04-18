@@ -21,7 +21,7 @@ class Webui::ProjectController < Webui::WebuiController
                                      :update_target, :repositories, :repository_state, :rebuild_time, :packages_simple,
                                      :requests, :save, :save_distributions, :remove_target, :monitor, :toggle_watch, :meta,
                                      :prjconf, :create_flag, :toggle_flag, :remove_flag, :edit, :save_comment, :edit_comment,
-                                     :status, :maintained_projects,
+                                     :status, :maintained_projects, :create_dod_repository, :remove_dod_repository,
                                      :add_maintained_project_dialog, :add_maintained_project, :remove_maintained_project,
                                      :maintenance_incidents, :unlock_dialog, :unlock, :save_person, :save_group, :remove_role, :save_repository,
                                      :move_path, :save_prjconf, :clear_failed_comment]
@@ -409,6 +409,26 @@ class Webui::ProjectController < Webui::WebuiController
         flash[:error] = "Failed to update project"
         format.html { render :edit }
       end
+    end
+  end
+
+  # POST /project/create_dod_repository/:project
+  def create_dod_repository
+    authorize @project, :update?
+
+    if Repository.find_by_name(params[:name])
+      @error = "Repository with name '#{params[:name]}' already exists."
+    end
+
+    begin
+      ActiveRecord::Base.transaction do
+        @new_repository = @project.repositories.create!(name: params[:name])
+        @new_repository.repository_architectures.create!(architecture: Architecture.find_by(name: params[:arch]), position: 1)
+        @new_repository.download_repositories.create!(arch: params[:arch], url: params[:url], repotype: params[:repotype])
+        @project.store
+      end
+    rescue ::Timeout::Error, ActiveRecord::RecordInvalid => e
+      @error = "Couldn't add repository: #{e.message}"
     end
   end
 
