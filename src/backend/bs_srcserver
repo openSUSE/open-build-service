@@ -1962,85 +1962,57 @@ sub findlastworkinglink {
 
 sub findprojects {
   my ($deleted) = @_;
-  if ($deleted) {
-    my @projids = grep {s/\.pkg$//} ls("$projectsdir/_deleted");
-    @projids = grep {! -e "$projectsdir/$_.xml"} @projids;
-    return sort @projids;
+  return BSRevision::lsprojects_local($deleted);
+}
+
+sub findpackages_remote {
+  my ($projid, $proj, $nonfatal, $origins, $noexpand, $deleted) = @_;
+
+  my @packids;
+  my @args;
+  push @args, 'deleted=1' if $deleted;
+  push @args, 'expand=1' unless $noexpand || $deleted;
+  my $r;
+  eval {
+    $r = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}", 'proxy' => $proxy}, $BSXML::dir, @args);
+  };
+  if ($@ && $@ =~ /^404/) {
+    # remote project does not exist
+    die($@) unless $nonfatal;
+    return ();
   }
-  local *D;
-  mkdir_p("$projectsdir") || die("creating $projectsdir: $!\n");
-  opendir(D, $projectsdir) || die("$projectsdir: $!\n");
-  my @projids = grep {s/\.xml$//} readdir(D);
-  closedir(D);
-  return sort @projids;
+  if ($@) {
+    die($@) unless $nonfatal && $nonfatal > 0;	# -1: internal projectlink recursion, errors are still fatal
+    warn($@);
+    push @packids, ':missing_packages' if $nonfatal == 2;
+    return @packids;
+  }
+  @packids = map {$_->{'name'}} @{($r || {})->{'entry'} || []};
+  if ($origins) {
+    for my $entry (@{($r || {})->{'entry'} || []}) {
+      $origins->{$entry->{'name'}} = defined($entry->{'originproject'}) ? maptoremote($proj, $entry->{'originproject'}) : $projid;
+    }
+  }
+  return @packids;
 }
 
 sub findpackages {
   my ($projid, $proj, $nonfatal, $seen, $origins, $noexpand, $deleted) = @_;
+
+  # check remote case
   $proj ||= readproj($projid, 1) || {};
-  local *D;
-  my @packids;
-
-  # if this is a remote project, forward to remote server
-  if ($proj->{'remoteurl'}) {
-    my $r;
-    my @args;
-    push @args, 'deleted=1' if $deleted;
-    push @args, 'expand=1' unless $noexpand || $deleted;
-    eval {
-      $r = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}", 'proxy' => $proxy}, $BSXML::dir, @args);
-    };
-    if ($@ && $@ =~ /^404/) {
-      # remote project does not exist
-      die($@) unless $nonfatal;
-      return @packids;
-    }
-    if ($@) {
-      die($@) unless $nonfatal && $nonfatal > 0;	# -1: internal projectlink recursion, errors are still fatal
-      warn($@);
-      push @packids, ':missing_packages' if $nonfatal == 2;
-      return @packids;
-    }
-    @packids = map {$_->{'name'}} @{($r || {})->{'entry'} || []};
-    if ($origins) {
-      for my $entry (@{($r || {})->{'entry'} || []}) {
-	$origins->{$entry->{'name'}} = defined($entry->{'originproject'}) ? maptoremote($proj, $entry->{'originproject'}) : $projid;
-      }
-    }
-    return @packids;
-  }
-
-  # handle deleted packages
-  if ($deleted) {
-    # we never expand deleted packages
-    if (! -e "$projectsdir/$projid.xml" && -d "$projectsdir/_deleted/$projid.pkg") {
-      @packids = grep {$_ ne '_meta' && $_ ne '_project'} grep {s/\.mrev$//} ls("$projectsdir/_deleted/$projid.pkg");
-    } else {
-      @packids = grep {s/\.mrev\.del$//} ls("$projectsdir/$projid.pkg");
-      @packids = grep {! -e "$projectsdir/$projid.pkg/$_.xml"} @packids;
-    }
-    @packids = sort @packids;
-    if ($origins) {
-      for (@packids) {
-        $origins->{$_} = $projid unless defined $origins->{$_};
-      }
-    }
-    return @packids;
-  }
+  return findpackages_remote($projid, $proj, $nonfatal, $origins, $noexpand, $deleted) if $proj->{'remoteurl'};
 
   # get local packages
-  if (opendir(D, "$projectsdir/$projid.pkg")) {
-    @packids = grep {s/\.xml$//} readdir(D);
-    closedir(D);
-    if ($origins) {
-      for (@packids) {
-        $origins->{$_} = $projid unless defined $origins->{$_};
-      }
+  my @packids = BSRevision::lspackages_local($projid, $deleted);
+  if ($origins) {
+    for (@packids) {
+      $origins->{$_} = $projid unless defined $origins->{$_};
     }
   }
 
-  # handle project links
-  if ($proj->{'link'} && !$noexpand) {
+  # handle project links (but not if deleted)
+  if ($proj->{'link'} && !$noexpand && !$deleted) {
     $seen ||= {};
     $seen->{$projid} = 1;
     my $frozen = get_frozenlinks($projid);
@@ -2073,10 +2045,10 @@ sub findpackages {
         }
       }
     }
-    @packids = BSUtil::unify(@packids);
+    @packids = sort(BSUtil::unify(@packids));
   }
 
-  return sort @packids;
+  return @packids;
 }
 
 sub readproj {
@@ -3325,7 +3297,8 @@ sub undeleteproject {
 sub getpackagelist {
   my ($cgi, $projid, $repoid, $arch) = @_;
   my $origins = $cgi->{'noorigins'} ? undef : {};
-  my $proj = checkprojrepoarch($projid, $repoid, $arch, 1) unless $cgi->{'deleted'};
+  my $proj;
+  $proj = checkprojrepoarch($projid, $repoid, $arch, 1) unless $cgi->{'deleted'};
   my @packages = findpackages($projid, $proj, 0, {}, $origins, !$cgi->{'expand'}, $cgi->{'deleted'});
   for (@packages) {
     $_ = {'name' => $_};

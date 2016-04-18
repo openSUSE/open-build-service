@@ -212,14 +212,7 @@ Debug Options
 }
 my $emptymd5 = 'd41d8cd98f00b204e9800998ecf8427e';
 
-#### FIXME: these functions are copied from src server. We should move it to some util class maybe.
-sub findprojects {
-  return sort(grep {s/\.xml$//} ls($projectsdir));
-}
-sub findpackages {
-  my ($projid) = @_;
-  return sort(grep {s/\.xml$//} ls("$projectsdir/$projid.pkg"));
-}
+#### FIXME: this function is copied from src server. We should move it to some util module maybe.
 sub findfile {
   my ($rev, $repoid, $ext, $files) = @_;
   $files = BSSrcrep::lsrev($rev) unless ref $files;
@@ -585,12 +578,12 @@ while (@ARGV) {
     }
   } elsif ($arg eq "--update-source-db") {
     BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
-    my @prjs = findprojects();
+    my @prjs = BSRevision::lsprojects_local();
     if (@ARGV == 1) {
        @prjs = (shift @ARGV);
     }
     for my $projid (@prjs) {
-      for my $packid (findpackages($projid)) {
+      for my $packid (BSRevision::lspackages_local($projid)) {
         print "$projid/$packid\n";
         my $rev = BSRevision::getrev_local($projid, $packid);
         BSRevision::updatelinkinfodb($projid, $packid, $rev, BSSrcrep::lsrev($rev));

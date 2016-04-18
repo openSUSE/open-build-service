@@ -397,4 +397,38 @@ sub undelete_rev {
   return $nrev;
 }
 
+sub lsprojects_local {
+  my ($deleted) = @_;
+  if ($deleted) {
+    my @projids = grep {s/\.pkg$//} ls("$projectsdir/_deleted");
+    @projids = grep {! -e "$projectsdir/$_.xml"} @projids;
+    return sort @projids;
+  }
+  local *D;
+  return () unless opendir(D, $projectsdir);
+  my @projids = grep {s/\.xml$//} readdir(D);
+  closedir(D);
+  return sort @projids;
+}
+
+sub lspackages_local {
+  my ($projid, $deleted) = @_;
+
+  if ($deleted) {
+    my @packids;
+    if (! -e "$projectsdir/$projid.xml" && -d "$projectsdir/_deleted/$projid.pkg") {
+      @packids = grep {$_ ne '_meta' && $_ ne '_project'} grep {s/\.mrev$//} ls("$projectsdir/_deleted/$projid.pkg");
+    } else {
+      @packids = grep {s/\.mrev\.del$//} ls("$projectsdir/$projid.pkg");
+      @packids = grep {! -e "$projectsdir/$projid.pkg/$_.xml"} @packids;
+    }
+    return sort @packids;
+  }
+  local *D;
+  return () unless opendir(D, "$projectsdir/$projid.pkg");
+  my @packids = grep {s/\.xml$//} readdir(D);
+  closedir(D);
+  return sort @packids;
+}
+
 1;
