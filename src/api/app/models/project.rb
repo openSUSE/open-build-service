@@ -199,7 +199,7 @@ class Project < ActiveRecord::Base
           begin
             request.change_state({:newstate => 'revoked', :comment => "The source project '#{self.name}' has been removed"})
           rescue PostRequestNoPermission
-            logger.debug "#{User.current.login} tried to revoke request #{self.number} but had no permissions"
+            logger.debug "#{User.current.login} tried to revoke request #{request.number} but had no permissions"
           end
           break
         end
@@ -207,7 +207,7 @@ class Project < ActiveRecord::Base
           begin
             request.change_state({:newstate => 'declined', :comment => "The target project '#{self.name}' has been removed"})
           rescue PostRequestNoPermission
-            logger.debug "#{User.current.login} tried to decline request #{self.number} but had no permissions"
+            logger.debug "#{User.current.login} tried to decline request #{request.number} but had no permissions"
           end
           break
         end
