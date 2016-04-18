@@ -14,6 +14,7 @@
     <cpu>
       <flag>mmx</flag>
     </cpu>
+    <nativeonly/>
     <processors>32</processors>
     <memory>6400</memory>
     <swap>51200</swap>

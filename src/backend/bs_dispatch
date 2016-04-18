@@ -1301,6 +1301,12 @@ while (1) {
 	if ($BSConfig::dispatch_constraint) {
 	  next if !$BSConfig::dispatch_constraint->($info, $workerinfo{$idle});
 	}
+        # a helper is needed for personality change?
+        my $helper;
+        /^\Q$arch\E:(.*)$/ && ($helper = $1) for @{$BSCando::cando{$harch}};
+        if ($helper && $workerinfo{$idle} && $workerinfo{$idle}->{hardware} && $workerinfo{$idle}->{hardware}->{nativeonly}) {
+           next; # worker is not supporting the needed personality change
+        }
 	if ($constraints) {
 	  my $ora = oracle($workerinfo{$idle}, $constraints);
 	  next unless defined($ora) && $ora > 0;
