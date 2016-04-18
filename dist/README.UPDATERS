@@ -6,12 +6,11 @@ Note: Update from OBS 2.5 should also work, but is untested.
 
   1) Remove the OBS 2.6 Repository
 
-        zypper rs OBS:Server:2.6
+        zypper rr OBS_Server_2.6
 
   2) Add the OBS 2.7 Repository and update repository cache
 
-        zypper ar http://download.opensuse.org/repositories/OBS:/Server:/2.7/$YOUR_DISTRIBUTION/OBS:Server:2.7.repo
-        zypper ref -s
+        zypper ar -f http://download.opensuse.org/repositories/OBS:/Server:/2.7/$YOUR_DISTRIBUTION/OBS:Server:2.7.repo
 
   3) Remove packages which might case conflicts
 
