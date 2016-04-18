@@ -3213,46 +3213,27 @@ sub delproject {
 
   $cgi->{'comment'} ||= 'project was deleted';
   die("404 project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
+
   # add delete commit to both source and meta
   BSRevision::addrev_meta($cgi, $projid, undef, undef, undef, undef, 'rev');
   BSRevision::addrev_meta($cgi, $projid, undef, undef, undef, undef);
+
   if (-d "$projectsdir/$projid.pkg") {
     # delete packages in sub process to avoid timeout errors
     my $pid;
     if (!($pid = xfork())) {
-      # delete those packages and keys
       mkdir_p("$projectsdir/_deleted/$projid.pkg");
-      # make room in old delete by deleting all old packages
-      for my $f (ls("$projectsdir/_deleted/$projid.pkg")) {
-        if ($f =~ /\.m?rev$/) {
-          my $oldrev = readstr("$projectsdir/_deleted/$projid.pkg/$f", 1);
-          if (defined($oldrev) && $oldrev ne '') {
-            BSUtil::lockopen(\*F, '+>>', "$projectsdir/_deleted/$projid.pkg/$f.del");
-            BSUtil::appendstr("$projectsdir/_deleted/$projid.pkg/$f.del", $oldrev);
-            # XXX: add comment
-            close F;
-          }
-          unlink("$projectsdir/_deleted/$projid.pkg/$f");
-        }
-      }
+      # make room in old delete area by deleting all old packages
+      BSRevision::delete_deleted($cgi, $projid);
+      # make sure we have mrev files for all packages
       for my $f (ls("$projectsdir/$projid.pkg")) {
-        if ($f =~ /^(.*)\.xml$/) {
-          my $packid = $1;
-          if (! -f "$projectsdir/$projid.pkg/$1.mrev") {
-            # create initial meta revision in case it does not exist yet
-            BSRevision::addrev_meta($cgi, $projid, $packid, undef, undef, undef);
-          }
-        }
+	next unless $f =~ /^(.*)\.xml$/;
+        BSRevision::addrev_meta($cgi, $projid, $1) unless -f "$projectsdir/$projid.pkg/$1.mrev";
       }
+      # now do the real delete on all of those files
       for my $f (ls("$projectsdir/$projid.pkg")) {
-        if ($f =~ /\.m?rev(?:\.del)?$/) {
-          BSRevision::updatelinkinfodb($projid, $1) if $f =~ /^(.*)\.rev$/;
-          my $oldrev = readstr("$projectsdir/$projid.pkg/$f", 1);
-          if (defined($oldrev) && $oldrev ne '') {
-            BSUtil::lockopen(\*F, '+>>', "$projectsdir/_deleted/$projid.pkg/$f");
-            BSUtil::appendstr("$projectsdir/_deleted/$projid.pkg/$f", $oldrev);
-            close F;
-          }
+        if ($f =~ /^(.*)\.m?rev(?:\.del)?$/) {
+	  BSRevision::delete_rev($cgi, $projid, $1, "$projectsdir/$projid.pkg/$f", "$projectsdir/_deleted/$projid.pkg/$f");
         }
         unlink("$projectsdir/$projid.pkg/$f");
       }
@@ -3280,8 +3261,7 @@ sub undeleteproject {
     if ($f =~ /\.m?rev\.del$/) {
       BSUtil::cp("$projectsdir/_deleted/$projid.pkg/$f", "$uploaddir/$$.2", "$projectsdir/$projid.pkg/$f");
     } elsif ($f =~ /^(.*)\.(m?rev)$/) {
-      my $packid = $1;
-      BSRevision::undelete_rev($cgi, $projid, $packid, "$projectsdir/_deleted/$projid.pkg/$f", "$projectsdir/$projid.pkg/$f");
+      BSRevision::undelete_rev($cgi, $projid, $1, "$projectsdir/_deleted/$projid.pkg/$f", "$projectsdir/$projid.pkg/$f");
     }
   }
   notify_repservers('project', $projid);
@@ -3407,26 +3387,18 @@ sub delpackage {
   if ($packid =~ /^_product:/) {
     die("403 cannot delete '$packid' if a '_product' package exists\n") if -e "$projectsdir/$projid.pkg/_product.xml";
   }
+  # kill upload revision
+  unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
+
   # add delete commit to both source and meta
   BSRevision::addrev_meta($cgi, $projid, $packid, undef, undef, undef, 'rev');
   BSRevision::addrev_meta($cgi, $projid, $packid, undef, undef, undef);
-  unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
-  unlink("$projectsdir/$projid.pkg/$packid.xml");
-  my $oldrev = readstr("$projectsdir/$projid.pkg/$packid.rev", 1);
-  if (defined($oldrev) && $oldrev ne '') {
-    BSUtil::lockopen(\*F, '+>>', "$projectsdir/$projid.pkg/$packid.rev.del");
-    BSUtil::appendstr("$projectsdir/$projid.pkg/$packid.rev.del", $oldrev);
-    close F;
-    BSRevision::updatelinkinfodb($projid, $packid);
-  }
-  unlink("$projectsdir/$projid.pkg/$packid.rev");
-  $oldrev = readstr("$projectsdir/$projid.pkg/$packid.mrev", 1);
-  if (defined($oldrev) && $oldrev ne '') {
-    BSUtil::lockopen(\*F, '+>>', "$projectsdir/$projid.pkg/$packid.mrev.del");
-    BSUtil::appendstr("$projectsdir/$projid.pkg/$packid.mrev.del", $oldrev);
-    close F;
-  }
-  unlink("$projectsdir/$projid.pkg/$packid.mrev");
+
+  # now do the real delete of the package
+  BSRevision::delete_rev($cgi, $projid, $packid, "$projectsdir/$projid.pkg/$packid.rev", "$projectsdir/$projid.pkg/$packid.rev.del");
+  BSRevision::delete_rev($cgi, $projid, $packid, "$projectsdir/$projid.pkg/$packid.mrev", "$projectsdir/$projid.pkg/$packid.mrev.del");
+
+  # get rid of the generated product packages as well
   if ($packid eq '_product') {
     expandproduct($projid, $packid, undef, undef);
   }
@@ -3444,6 +3416,13 @@ sub undeletepackage {
   BSRevision::undelete_rev($cgi, $projid, $packid, "$projectsdir/$projid.pkg/$packid.mrev.del", "$projectsdir/$projid.pkg/$packid.mrev");
   if (-s "$projectsdir/$projid.pkg/$packid.rev.del") {
     BSRevision::undelete_rev($cgi, $projid, $packid, "$projectsdir/$projid.pkg/$packid.rev.del", "$projectsdir/$projid.pkg/$packid.rev");
+  }
+  if ($packid eq '_product') {
+    my $rev = BSRevision::getrev_local($projid, $packid);
+    if ($rev) {
+      my $files = BSSrcrep::lsrev($rev);
+      expandproduct($projid, $packid, $rev, $files, $rev->{'user'});
+    }
   }
   notify_repservers('package', $projid, $packid);
   notify("SRCSRV_UNDELETE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown"), "comment" => $cgi->{'comment'} });
