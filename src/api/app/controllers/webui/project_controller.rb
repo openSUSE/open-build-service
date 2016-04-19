@@ -947,7 +947,7 @@ class Webui::ProjectController < Webui::WebuiController
       @open_release_requests = BsRequest.collection(project: @project.name,
                                     states: %w(new review),
                                     types: %w(maintenance_release),
-                                    roles: %w(source)).ids
+                                    roles: %w(source)).pluck(:number)
     end
   end
 
