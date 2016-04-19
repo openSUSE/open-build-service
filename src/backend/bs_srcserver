@@ -3233,7 +3233,7 @@ sub delproject {
       # now do the real delete on all of those files
       for my $f (ls("$projectsdir/$projid.pkg")) {
         if ($f =~ /^(.*)\.m?rev(?:\.del)?$/) {
-	  BSRevision::delete_rev($cgi, $projid, $1, "$projectsdir/$projid.pkg/$f", "$projectsdir/_deleted/$projid.pkg/$f");
+	  BSRevision::delete_rev($cgi, $projid, $1, "$projectsdir/$projid.pkg/$f", "$projectsdir/_deleted/$projid.pkg/$f", 1);
         }
         unlink("$projectsdir/$projid.pkg/$f");
       }

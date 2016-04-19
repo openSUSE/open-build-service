@@ -398,7 +398,7 @@ sub undelete_rev {
 }
 
 sub delete_rev {
-  my ($cgi, $projid, $packid, $revfilefrom, $revfileto) = @_;
+  my ($cgi, $projid, $packid, $revfilefrom, $revfileto, $wipe) = @_;
 
   if ($revfilefrom =~ /\.mrev$/) {
     if ($packid eq '_project') {
@@ -414,7 +414,7 @@ sub delete_rev {
     }
   }
   my $oldrev = readstr($revfilefrom, 1);
-  if (defined($oldrev) && $oldrev ne '') {
+  if (defined($oldrev) && $oldrev ne '' && not $wipe) {
     BSUtil::lockopen(\*F, '+>>', $revfileto);
     BSUtil::appendstr("$projectsdir/$projid.pkg/$packid.rev.del", $oldrev);
     close F;
