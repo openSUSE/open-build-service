@@ -416,7 +416,11 @@ sub delete_rev {
   my $oldrev = readstr($revfilefrom, 1);
   if (defined($oldrev) && $oldrev ne '' && not $wipe) {
     BSUtil::lockopen(\*F, '+>>', $revfileto);
-    BSUtil::appendstr("$projectsdir/$projid.pkg/$packid.rev.del", $oldrev);
+    if ($revfilefrom =~ /\.mrev$/) {
+      BSUtil::appendstr("$projectsdir/$projid.pkg/$packid.mrev.del", $oldrev);
+    } else {
+      BSUtil::appendstr("$projectsdir/$projid.pkg/$packid.rev.del", $oldrev);
+    }
     close F;
     if ($packid ne '_project' && $revfilefrom =~ /\.rev$/) {
       BSRevision::updatelinkinfodb($projid, $packid);
