@@ -397,53 +397,6 @@ sub undelete_rev {
   return $nrev;
 }
 
-sub delete_rev {
-  my ($cgi, $projid, $packid, $revfilefrom, $revfileto, $wipe) = @_;
-
-  if ($revfilefrom =~ /\.mrev$/) {
-    if ($packid eq '_project') {
-      unlink("$projectsdir/$projid.pkg/_pubkey");
-      unlink("$projectsdir/$projid.pkg/_signkey");
-      unlink("$projectsdir/$projid.xml");
-    } else {
-      unlink("$projectsdir/$projid.pkg/$packid.xml");
-    }
-  } elsif ($revfilefrom =~ /\.rev$/) {
-    if ($packid eq '_project') {
-      unlink("$projectsdir/$projid.conf");
-    }
-  }
-  my $oldrev = readstr($revfilefrom, 1);
-  if (defined($oldrev) && $oldrev ne '' && not $wipe) {
-    BSUtil::lockopen(\*F, '+>>', $revfileto);
-    if ($revfilefrom =~ /\.mrev$/) {
-      BSUtil::appendstr("$projectsdir/$projid.pkg/$packid.mrev.del", $oldrev);
-    } else {
-      BSUtil::appendstr("$projectsdir/$projid.pkg/$packid.rev.del", $oldrev);
-    }
-    close F;
-    if ($packid ne '_project' && $revfilefrom =~ /\.rev$/) {
-      BSRevision::updatelinkinfodb($projid, $packid);
-    }
-  }
-  unlink($revfilefrom);
-}
-
-sub delete_deleted {
-  my ($cgi, $projid) = @_;
-  for my $f (ls("$projectsdir/_deleted/$projid.pkg")) {
-    next unless  $f =~ /\.m?rev$/;
-    my $oldrev = readstr("$projectsdir/_deleted/$projid.pkg/$f", 1);
-    if (defined($oldrev) && $oldrev ne '') {
-      BSUtil::lockopen(\*F, '+>>', "$projectsdir/_deleted/$projid.pkg/$f.del");
-      BSUtil::appendstr("$projectsdir/_deleted/$projid.pkg/$f.del", $oldrev);
-      # XXX: add comment
-      close F;
-    }
-    unlink("$projectsdir/_deleted/$projid.pkg/$f");
-  }
-}
-
 sub lsprojects_local {
   my ($deleted) = @_;
   if ($deleted) {
