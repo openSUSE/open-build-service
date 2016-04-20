@@ -41,7 +41,6 @@ else
 fi
 rundir="$OBS_RUN_DIR"
 logdir="$OBS_LOG_DIR"
-workdir="/var/tmp/obs_service"
 
 rundir_perm() {
 	# make sure rundir is group writable
@@ -52,10 +51,10 @@ rc_reset
 case "$1" in
 	start)
 		echo -n "Initializing obsservice"
-		mkdir -p "$rundir" "$logdir" "$workdir"
+		mkdir -p "$rundir" "$logdir"
 		rundir_perm
-		chown obsrun:obsrun "$logdir" "$rundir" "$workdir"
-		startproc -f -l "$logdir"/src_service.log "$obsdir"/bs_service --tempdir "$workdir"
+		chown obsrun:obsrun "$logdir" "$rundir"
+		startproc -f -l "$logdir"/src_service.log "$obsdir"/bs_service
 		rc_status -v
 	;;
 	stop)

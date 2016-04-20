@@ -54,7 +54,7 @@ our $serviceserver = "http://$hostname:5152";
 #our $workerreposerver = "http://$hostname:5253";
 
 our $servicedir = "/usr/lib/obs/service/";
-#our $servicetempdir = "/var/temp/";
+#our $servicetempdir = "/srv/obs/service";
 #our $serviceroot = "/opt/obs/MyServiceSystem";
 
 # Maximum number of concurrent jobs for source service
