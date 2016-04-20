@@ -89,7 +89,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'PersonController#internal_register'                                      => 112.01,
       'Package#find_changed_issues'                                             => 93.74,
       'Package#close_requests'                                                  => 84.82,
-      'Project#update_one_repository_without_path'                              => 115.39,
       'PublicController#binary_packages'                                        => 126.16,
       'Repository#cleanup_before_destroy'                                       => 82.98,
       'SearchController#find_attribute'                                         => 97.33,
