@@ -15,5 +15,6 @@ RSpec.describe Repository do
     it { should_not allow_value("f/oo").for(:name) }
     it { should_not allow_value("f\noo").for(:name) }
     it { should allow_value("fOO_-§$&!#+~()=?\\\"").for(:name) }
+    it { should allow_value("f").for(:name) }
   end
 end
