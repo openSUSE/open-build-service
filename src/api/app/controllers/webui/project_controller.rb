@@ -416,18 +416,21 @@ class Webui::ProjectController < Webui::WebuiController
     authorize @project, :update?
     params[:architectures] ||= []
 
-    target_repository = Repository.find_by_project_and_name(params[:target_project], params[:target_repo])
-    unless target_repository
-      redirect_to :back, error: "Can not add repository: Repository '#{params[:target_repo]}' not found in project '#{params[:target_project]}'."
-      return
-    end
-
     repository = @project.repositories.find_or_create_by!(name: params[:repository])
 
-    path_element = repository.path_elements.find_or_initialize_by(link: target_repository)
-    unless path_element.position.present?
-      next_position = repository.path_elements.maximum(:position).to_i + 1
-      path_element.position = next_position
+    if params[:target_repo]
+      # add a repository from an existing project
+      target_repository = Repository.find_by_project_and_name(params[:target_project], params[:target_repo])
+      unless target_repository
+        redirect_to :back, error: "Can not add repository: Repository '#{params[:target_repo]}' not found in project '#{params[:target_project]}'."
+        return
+      end
+
+      path_element = repository.path_elements.find_or_initialize_by(link: target_repository)
+      unless path_element.position.present?
+        next_position = repository.path_elements.maximum(:position).to_i + 1
+        path_element.position = next_position
+      end
     end
 
     params[:architectures].each_with_index do |architecture, index|
