@@ -182,11 +182,11 @@ class BinaryRelease < ActiveRecord::Base
   end
 
   def to_axml(_opts = {})
-    Rails.cache.fetch("xml_binary_release_#{id}") { render_xml }
+    Rails.cache.fetch("xml_binary_release_#{cache_key}") { render_xml }
   end
 
   def reset_cache
-    Rails.cache.delete("xml_binary_release_#{id}")
+    Rails.cache.delete("xml_binary_release_#{cache_key}")
   end
 
   #### Alias of methods
