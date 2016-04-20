@@ -79,11 +79,7 @@ RSpec.describe Webui::DownloadOnDemandController do
   end
 
   describe 'DELETE destroy' do
-    let(:dod_repository) { create(:download_repository) }
-
-    before do
-      repository.download_repositories << dod_repository
-    end
+    let!(:dod_repository) { create(:download_repository, repository: repository) }
 
     context "for non-admin users" do
       before do
@@ -97,6 +93,8 @@ RSpec.describe Webui::DownloadOnDemandController do
     end
 
     context "valid requests" do
+      let!(:dod_repository_2) { create(:download_repository, arch: "i586", repository: repository) }
+
       before do
         login(admin_user)
         delete :destroy, id: dod_repository.id, project: project.name
