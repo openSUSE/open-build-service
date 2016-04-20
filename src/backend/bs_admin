@@ -786,6 +786,16 @@ while (@ARGV) {
       BSSolv::obscpioinstr($ARGV[0]);
     }
     shift @ARGV;
+  } elsif ($arg eq "--cat-delta-file") {
+    die("ERROR: need delta file as argument!\n") if @ARGV < 1;
+    my $store = $ARGV[0];
+    $store =~ s/[^\/]*$/deltastore/s;
+    local *F;
+    BSSolv::obscpioopen($ARGV[0], $store, \*F, "$srcrepdir/:upload") || die("ARGV[0]: $!\n");
+    my $chunk;
+    print $chunk while read(F, $chunk, 4096);
+    close F;
+    shift @ARGV;
   } elsif ($arg eq "--show-delta-store") {
     die("ERROR: need delta file/store as argument!\n") if @ARGV < 1;
     my $store = $ARGV[0];
