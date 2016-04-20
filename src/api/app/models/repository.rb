@@ -20,7 +20,7 @@ class Repository < ActiveRecord::Base
 
   validates :name, length: { in: 1..200 }
   # Keep in sync with src/backend/BSVerify.pm
-  validates :name, format: { with:    /\A[^_:\/\000-\037][^:\/\000-\037]+\Z/,
+  validates :name, format: { with:    /\A[^_:\/\000-\037][^:\/\000-\037]*\Z/,
                              message: "Repository name must not start with '_' or contain any of these characters ':/'" }
 
   # Name has to be unique among local repositories and remote_repositories of the associated db_project.
