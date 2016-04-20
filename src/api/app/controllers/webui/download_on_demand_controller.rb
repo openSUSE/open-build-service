@@ -64,6 +64,7 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
       end
     rescue ActiveRecord::RecordInvalid, ActiveXML::Transport::Error => exception
       redirect_to :back, error: "Download on Demand can't be removed: #{exception.message}"
+      return
     end
 
     redirect_to project_repositories_path(@project), notice: "Successfully removed Download on Demand"

@@ -47,7 +47,7 @@ class Webui::DownloadOnDemandControllerTest < Webui::IntegrationTest
     page.wont_have_text 'rpmmd'
   end
 
-  def test_adding_download_on_demand
+  def test_adding_download_on_demand # spec/features/webui/projects_spec.rb
     use_js
 
     # Login as admin
@@ -86,7 +86,7 @@ class Webui::DownloadOnDemandControllerTest < Webui::IntegrationTest
     find(:id, 'flash-messages').must_have_text("Download on Demand can't be created: Validation failed: Url can't be blank")
   end
 
-  def test_editing_download_on_demand
+  def test_editing_download_on_demand # spec/features/webui/projects_spec.rb
     use_js
 
     # Login as admin
@@ -130,7 +130,7 @@ class Webui::DownloadOnDemandControllerTest < Webui::IntegrationTest
     page.must_have_link 'http://somerandomurl_2.es'
   end
 
-  def test_destroying_download_on_demand
+  def test_destroying_download_on_demand # spec/features/webui/projects_spec.rb
     use_js
 
     # Login as admin
