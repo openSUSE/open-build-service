@@ -52,7 +52,7 @@ $BSConfig::bsgroup = $BSConfig::bsservicegroup;
 
 BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BSConfig::disable_data_sync;
 
-my $tempdir = $BSConfig::servicetempdir || $BSConfig::servicetempdir || "/srv/obs/service";
+my $tempdir = $BSConfig::servicetempdir || $BSConfig::servicetempdir || "$BSConfig::bsdir/service";
 my $port = 5152;
 $port = $1 if $BSConfig::serviceserver =~ /:(\d+)$/;
 
