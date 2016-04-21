@@ -537,7 +537,7 @@ class Webui::PackageController < Webui::WebuiController
     authorize @package, :branch?
     # FIXME: This authorize isn't in sync with the permission checks of BranchPackage. And the created
     #        project might differ from the one we check here.
-    authorize Project.new(name: User.current.branch_project_name(@project.name)), :create?
+    authorize Project.new(name: User.current.branch_project_name(@project)), :create?
 
     branched_package = BranchPackage.new(project: @project.name, package: @package.name).branch
     created_project_name = branched_package[:data][:targetproject]
@@ -549,7 +549,7 @@ class Webui::PackageController < Webui::WebuiController
     redirect_to(package_show_path(project: created_project_name, package: created_package_name),
                 notice: "Successfully branched package")
   rescue BranchPackage::DoubleBranchPackageError => e
-      redirect_to(package_show_path(project: User.current.branch_project_name(@project.name), package: @package),
+      redirect_to(package_show_path(project: User.current.branch_project_name(@project), package: @package),
                   notice: 'You have already branched this package')
   rescue APIException => e
       redirect_to :back, error: e.message

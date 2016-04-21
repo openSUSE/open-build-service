@@ -462,7 +462,8 @@ class User < ActiveRecord::Base
   end
 
   def branch_project_name(branch)
-    home_project_name + ":branches:" + branch
+    return home_project_name + ":branches:" + branch if branch.kind_of? String
+    home_project_name + ":branches:" + branch.name
   end
 
   # updates users email address and real name using data transmitted by authentification proxy

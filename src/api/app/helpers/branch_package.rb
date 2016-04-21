@@ -363,7 +363,7 @@ class BranchPackage
 
     # set default based on first found package location
     unless @target_project
-      @target_project = User.current.branch_project_name(p[:link_target_project].name)
+      @target_project = User.current.branch_project_name(p[:link_target_project])
       @auto_cleanup = ::Configuration.cleanup_after_days
     end
 
