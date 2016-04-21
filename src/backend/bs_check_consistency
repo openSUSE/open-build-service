@@ -229,7 +229,8 @@ sub check_package_dir {
       } || warnORremove("$basedir/$ent", "broken xml file, $@");
     } elsif ($ent =~ /\.rpm$/) {
       is_rpm_package("$basedir/$ent");
-    } elsif ($ent =~ /\.sha256$/ || $ent =~ /\.md5$/ || $ent =~ /\.bz2$/ || $ent =~ /\.iso$/ || $ent =~ /\.tar\.gz$/) {
+    } elsif ($ent =~ /\.sha256$/ || $ent =~ /\.md5$/ || $ent =~ /\.bz2$/ || $ent =~ /\.iso$/ || $ent =~ /\.tar\.gz$/ ||
+             $ent =~ /\.info$/) {
       # fixme to be done
     } elsif ($ent =~ /updateinfo.xml$/) {
       eval {
@@ -276,7 +277,7 @@ sub check_package_dir {
       # just a flag file
     } elsif ($ent eq "rpmlint.log") {
       # unchecked for now
-    } elsif ($ent eq ".preinstallimages") {
+    } elsif ($ent =~ /^\.?preinstallimage/) {
       # unchecked for now
     } elsif ($ent =~ /-Build/) {
       # kiwi build result
@@ -589,6 +590,8 @@ if (-d "$buildroot" && $check_build) {
                   } elsif ($prap eq ".preinstallimages") {
                     # unchecked for now
                   } elsif ($prap eq ":packstatus.finished") {
+                    # unchecked for now
+                  } elsif ($prap eq ":preinstallimages") {
                     # unchecked for now
                   } elsif ($prap eq ".meta.success") {
                     # unchecked for now
