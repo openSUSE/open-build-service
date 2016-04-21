@@ -36,17 +36,11 @@ class BranchPackage
     end
   end
 
-  def branch
-    Package.transaction do
-      branch_with_transaction
-    end
-  end
-
   def logger
     Rails.logger
   end
 
-  def branch_with_transaction
+  def branch
     #
     # 1) BaseProject <-- 2) UpdateProject <-- 3) DevelProject/Package
     # X) BranchProject
@@ -363,7 +357,7 @@ class BranchPackage
 
     # set default based on first found package location
     unless @target_project
-      @target_project = User.current.branch_project_name(p[:link_target_project].name)
+      @target_project = User.current.branch_project_name(p[:link_target_project])
       @auto_cleanup = ::Configuration.cleanup_after_days
     end
 
