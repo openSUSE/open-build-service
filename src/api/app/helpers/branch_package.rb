@@ -36,17 +36,11 @@ class BranchPackage
     end
   end
 
-  def branch
-    Package.transaction do
-      branch_with_transaction
-    end
-  end
-
   def logger
     Rails.logger
   end
 
-  def branch_with_transaction
+  def branch
     #
     # 1) BaseProject <-- 2) UpdateProject <-- 3) DevelProject/Package
     # X) BranchProject
