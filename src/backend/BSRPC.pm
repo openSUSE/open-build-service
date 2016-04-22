@@ -96,7 +96,8 @@ sub useproxy {
   $nop =~ s/\s+$//;
   # noproxy is a list separated by commas and optional whitespace
   for (split(/\s*,\s*/, $nop)) {
-    return 0 if $host =~ m/(^|\.)$_$/;
+    s/^\.?/./s; 
+    return 0 if ".$host" =~ /\Q$_\E$/s;
   }
   return 1;
 }
