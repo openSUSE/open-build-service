@@ -397,7 +397,21 @@ module ActiveXML
       content = nil
       proxyuri = ENV['http_proxy']
       proxyuri = CONFIG['http_proxy'] unless CONFIG['http_proxy'].blank?
-      if proxyuri
+      noproxy = ENV['no_proxy']
+      noproxy = CONFIG['no_proxy'] unless CONFIG['no_proxy'].blank?
+
+      noproxy_applies = false
+      if noproxy
+        np_split = noproxy.split(",")
+        np_split.each do |np|
+          np = np.strip
+          if uri.host.end_with?(np)
+            noproxy_applies = true
+          end
+        end
+      end
+
+      if proxyuri && noproxy_applies == false
         proxy = URI.parse(proxyuri)
         proxy_user, proxy_pass = proxy.userinfo.split(/:/) if proxy.userinfo
         http = Net::HTTP::Proxy(proxy.host, proxy.port, proxy_user, proxy_pass).new(uri.host, uri.port)
