@@ -403,12 +403,7 @@ module ActiveXML
       noproxy_applies = false
       if noproxy
         np_split = noproxy.split(",")
-        np_split.each do |np|
-          np = np.strip
-          if uri.host.end_with?(np)
-            noproxy_applies = true
-          end
-        end
+        noproxy_applies = np_split.any?{ |np| uri.host.end_with?(np.strip) }
       end
 
       if proxyuri && noproxy_applies == false
