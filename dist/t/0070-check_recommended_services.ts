@@ -13,6 +13,7 @@ tmpcount=$MAX_WAIT
 # Service enabled and started
 for srv in \
 obsdodup \
+obsstoragesetup \
 obssigner \
 obsdeltastore
 do
