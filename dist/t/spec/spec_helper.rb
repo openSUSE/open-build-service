@@ -35,3 +35,13 @@ def take_screenshot(example)
   page.save_screenshot(screenshot_path)
   puts meta[:full_description] + "\n Screenshot: #{screenshot_path}"
 end
+
+def obs_login (user,password)
+
+    visit "/user/login"
+    fill_in 'user_login', with: user 
+    fill_in 'user_password', with: password
+    click_button('Log In »')
+    first(:link,'Logout')
+
+end
