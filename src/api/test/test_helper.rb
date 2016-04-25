@@ -6,23 +6,6 @@ require "minitest/reporters"
 
 Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
 
-if ENV['DO_COVERAGE']
-  Coveralls.wear_merged!('rails')
-
-  SimpleCov.start 'rails' do
-    add_filter '/app/indices/'
-    add_filter '/app/models/user_ldap_strategy.rb'
-    add_filter '/lib/templates/'
-    merge_timeout 3600
-    formatter Coveralls::SimpleCov::Formatter
-  end
-
-  SimpleCov.at_exit do
-    puts "Coverage done"
-    SimpleCov.result.format!
-  end
-end
-
 require File.expand_path('../../config/environment', __FILE__)
 require_relative 'test_consistency_helper'
 
