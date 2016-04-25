@@ -12,6 +12,7 @@ if ENV['DO_COVERAGE']
   SimpleCov.start 'rails' do
     add_filter '/app/indices/'
     add_filter '/app/models/user_ldap_strategy.rb'
+    add_filter '/lib/templates/'
     merge_timeout 3600
     formatter Coveralls::SimpleCov::Formatter
   end
