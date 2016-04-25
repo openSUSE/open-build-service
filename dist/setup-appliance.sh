@@ -329,7 +329,7 @@ function relink_server_cert {
     CERT_LINK_FILE=$backenddir/certs/server.crt
     # check if CERT_LINK_FILE not exists or is symbolic link because we don't
     # want to remove real files
-    if [ ! -e $CERT_LINK_FILE || -L $CERT_LINK_FILE ];then
+    if [ ! -e $CERT_LINK_FILE -o -L $CERT_LINK_FILE ];then
       # change links for certs according to hostnames
       cd $backenddir/certs
       rm -f server.crt
