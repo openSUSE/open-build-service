@@ -1,3 +1,19 @@
+require 'simplecov'
+require 'coveralls'
+
+Coveralls.wear_merged!('rails')
+SimpleCov.start 'rails' do
+  add_filter '/app/indices/'
+  add_filter '/app/models/user_ldap_strategy.rb'
+  add_filter '/lib/templates/'
+  merge_timeout 3600
+  formatter Coveralls::SimpleCov::Formatter
+end
+
+SimpleCov.at_exit do
+  puts "Coverage done"
+  SimpleCov.result.format!
+end
 # OBS spec helper. See README.md in this directory for details.
 #
 # WARNING: Given that it is always loaded, you are strongly encouraged to keep
