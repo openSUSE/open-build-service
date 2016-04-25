@@ -467,7 +467,7 @@ function prepare_apache2 {
   done
 
 }
-
+###############################################################################
 function prepare_passenger {
 
   perl -p -i -e \
@@ -477,40 +477,103 @@ function prepare_passenger {
 
 }
 ###############################################################################
+function prepare_obssigner {
+
+  # Only used if there is a local BSConfig
+  if [ -e /usr/lib/obs/server/BSConfig.pm ]; then
+    # signing setup
+    perl -p -i -e 's,^\s*#\s*our \$gpg_standard_key.*,our \$gpg_standard_key = "/srv/obs/obs-default-gpg.asc";,' /usr/lib/obs/server/BSConfig.pm
+    perl -p -i -e 's,^\s*#\s*our \$keyfile.*,our \$keyfile = "/srv/obs/obs-default-gpg.asc";,' /usr/lib/obs/server/BSConfig.pm
+    perl -p -i -e 's,^\s*#\s*our \$sign = .*,our \$sign = "/usr/bin/sign";,' /usr/lib/obs/server/BSConfig.pm
+    perl -p -i -e 's,^\s*#\s*our \$forceprojectkeys.*,our \$forceprojectkeys = 1;,' /usr/lib/obs/server/BSConfig.pm
+    chmod 4755 /usr/bin/sign
+
+    # create default gpg key if not existing
+    if [ ! -e "$backenddir"/obs-default-gpg.asc ] && grep -q "^our \$keyfile.*/obs-default-gpg.asc.;$" /usr/lib/obs/server/BSConfig.pm; then
+      echo -n Generating OBS default GPG key ....
+      mkdir -p "$backenddir"/gnupg/phrases
+      chmod -R 0700 "$backenddir"/gnupg
+      cat >/tmp/obs-gpg.$$ <<EOF
+           %echo Generating a default OBS instance key
+           Key-Type: DSA
+           Key-Length: 1024
+           Subkey-Type: ELG-E
+           Subkey-Length: 1024
+           Name-Real: private OBS
+           Name-Comment: key without passphrase
+           Name-Email: defaultkey@localobs
+           Expire-Date: 0
+           %pubring $backenddir/gnupg/pubring.gpg
+           %secring $backenddir/gnupg/secring.gpg
+           %commit
+           %echo done
+EOF
+      gpg2 --homedir $backenddir/gnupg --batch --gen-key /tmp/obs-gpg.$$
+      gpg2 --homedir $backenddir/gnupg --export -a > "$backenddir"/obs-default-gpg.asc
+      # empty file just for accepting the key
+      touch "$backenddir/gnupg/phrases/defaultkey@localobs"
+    fi
+    # to update sign.conf also after an appliance update
+    if [ -e "$backenddir"/obs-default-gpg.asc ] && ! grep -q "^user" /etc/sign.conf; then
+      # extend signd config
+      echo "user: defaultkey@localobs"   >> /etc/sign.conf
+      echo "server: 127.0.0.1"           >> /etc/sign.conf
+      echo "allowuser: obsrun"           >> /etc/sign.conf
+      echo "allow: 127.0.0.1"            >> /etc/sign.conf
+      echo "phrases: $backenddir/gnupg/phrases" >> /etc/sign.conf
+      echo done
+      rm /tmp/obs-gpg.$$
+      sed -i 's,^# \(our $sign =.*\),\1,' /usr/lib/obs/server/BSConfig.pm
+      sed -i 's,^# \(our $forceprojectkeys =.*\),\1,' /usr/lib/obs/server/BSConfig.pm
+    fi
+    if [ ! -e "$backenddir"/obs-default-gpg.asc ] ; then
+        sed -i 's,^\(our $sign =.*\),# \1,' /usr/lib/obs/server/BSConfig.pm
+        sed -i 's,^\(our $forceprojectkeys =.*\),# \1,' /usr/lib/obs/server/BSConfig.pm
+    fi
+
+  fi
+
+}
+###############################################################################
 #
 # MAIN
 #
 ###############################################################################
-# make parsed output predictable
+
+export LC_ALL=C
+
+# package or appliance defaults
+if [ -e /etc/sysconfig/obs-server ]; then
+  source /etc/sysconfig/obs-server
+fi
+
+# Set default directories
+apidir=/srv/www/obs/api
+backenddir=/srv/obs
+
+# Overwrite directory defaults with settings in
+# config file /etc/sysconfig/obs-server
+if [ -n "$OBS_BASE_DIR" ]; then
+  backenddir="$OBS_BASE_DIR"
+fi
+
+
+NON_INTERACTIVE=0
+
+while [[ $1 ]];do
+  case $1 in
+    --non-interactive) NON_INTERACTIVE=1;;
+    --setup-only) SETUP_ONLY=1;;
+  esac
+  shift
+done
 
 if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
-  export LC_ALL=C
 
-  # package or appliance defaults
-  if [ -e /etc/sysconfig/obs-server ]; then
-    source /etc/sysconfig/obs-server
-  fi
-
-  # Set default directories
-  apidir=/srv/www/obs/api
-  backenddir=/srv/obs
-
-  # Overwrite directory defaults with settings in
-  # config file /etc/sysconfig/obs-server
-  if [ -n "$OBS_BASE_DIR" ]; then
-    backenddir="$OBS_BASE_DIR"
-  fi
-
-
-  NON_INTERACTIVE=0
-
-  while [[ $1 ]];do
-    case $1 in
-      --non-interactive) NON_INTERACTIVE=1;;
-      --setup-only) SETUP_ONLY=1;;
-    esac
-    shift
-  done
+  # prepare configuration for obssigner before any other backend service
+  # is started, because obssigner configuration might affect other services
+  # too
+  prepare_obssigner
 
   check_required_backend_services
 
