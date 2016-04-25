@@ -202,6 +202,11 @@ our $relsync_pool = {
 #                           'main' => 'http://main-backend-server:5252',
 #                         };
 
+# enable download on demand
+#
+#
+our $enable_download_on_demand = 1;
+
 
 # host specific configs
 my $hostconfig = __FILE__;

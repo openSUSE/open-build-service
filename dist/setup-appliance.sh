@@ -9,12 +9,12 @@ function execute_silently {
   $@ > /dev/null 2>&1
   return $?
 }
-
+###############################################################################
 function logline {
   [[ $BOOTSTRAP_TEST_MODE == 1 ]] && return
   echo $@
 }
-
+###############################################################################
 function check_service {
   srv=$1
   service_critical=$2
@@ -26,6 +26,10 @@ function check_service {
   if [[ "$STATUS" == "inactive" ]];then
     echo "$srv daemon not started. Trying to start"
     execute_silently systemctl start $srv\.service
+    if [[ $srv == 'apache2' ]];then
+      echo "Setting apache2 to just started"
+      APACHE_JUST_STARTED=1
+    fi
     if [[ $? -gt 0 ]];then
       echo -n "Starting $srv daemon failed." 
       if [[ $service_critical == 1 ]];then
@@ -563,17 +567,17 @@ if [ -n "$OBS_BASE_DIR" ]; then
 fi
 
 
-NON_INTERACTIVE=0
-
-while [[ $1 ]];do
-  case $1 in
-    --non-interactive) NON_INTERACTIVE=1;;
-    --setup-only) SETUP_ONLY=1;;
-  esac
-  shift
-done
-
 if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
+
+  NON_INTERACTIVE=0
+
+  while [[ $1 ]];do
+    case $1 in
+      --non-interactive) NON_INTERACTIVE=1;;
+      --setup-only) SETUP_ONLY=1;;
+    esac
+    shift
+  done
 
   # prepare configuration for obssigner before any other backend service
   # is started, because obssigner configuration might affect other services
@@ -642,8 +646,8 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
   check_service memcached
 
   # make sure that apache gets restarted after cert change
-  if [[ $DETECTED_CERT_CHANGE ]];then
-    systemctl restart apache2.service
+  if [[ $DETECTED_CERT_CHANGE && ! $SETUP_ONLY ]];then
+      systemctl reload apache2
   fi
 
   check_service obsapidelayed
