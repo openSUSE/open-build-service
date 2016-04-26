@@ -2288,6 +2288,10 @@ sub handlelinks {
       $rev->{'vrev'} = $lrev->{'vrev'} || 0;
       $rev->{'vrev'} =~ s/(\d+)$/$1+$v/e;
     }
+    if (defined $l->{'vrev'}) {
+      $oldvrev = $rev->{'vrev'};
+      $vrevdone = 1;
+    }
 
     push @linkinfo, {'project' => $projid, 'package' => $packid, 'srcmd5' => $lrev->{'srcmd5'}, 'rev' => $lrev->{'rev'}};
   }
