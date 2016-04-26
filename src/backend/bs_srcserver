@@ -5641,6 +5641,9 @@ sub keeplink {
     $ofilesdir = "$uploaddir/applylink$$";
   }
 
+  # drop service generated files
+  delete $ofiles->{$_} for grep {/^_service[_:]/} keys %$ofiles;
+
   #print "-- ofilesl:\n";
   #print "  $ofilesl->{$_}  $_\n" for sort keys %$ofilesl;
   #print "-- ofiles:\n";
