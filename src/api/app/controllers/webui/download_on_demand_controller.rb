@@ -7,10 +7,10 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
 
     begin
       ActiveRecord::Base.transaction do
-        RepositoryArchitecture.first_or_create!(
+        @download_on_demand.repository.repository_architectures.where(
           repository:   @download_on_demand.repository,
           architecture: Architecture.find_by_name(permitted_params[:arch])
-        )
+        ).first_or_create!
         @download_on_demand.save!
         @project.store
       end
@@ -28,7 +28,10 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
 
     begin
       ActiveRecord::Base.transaction do
-        # FIXME: Handle changing architecture or permit it
+        @download_on_demand.repository.repository_architectures.where(
+          repository:   @download_on_demand.repository,
+          architecture: Architecture.find_by_name(permitted_params[:arch])
+        ).first_or_create!
         @download_on_demand.update_attributes!(permitted_params)
         @project.store
       end
@@ -44,14 +47,19 @@ class Webui::DownloadOnDemandController < Webui::WebuiController
     @download_on_demand = DownloadRepository.find(params[:id])
     authorize @download_on_demand
 
+    if @download_on_demand.repository.download_repositories.count <= 1
+      redirect_to :back, error: "Download on Demand can't be removed: DoD Repositories must have at least one repository."
+      return
+    end
+
     begin
       ActiveRecord::Base.transaction do
-        # FIXME: should remove repo arch?
         @download_on_demand.destroy!
         @project.store
       end
     rescue ActiveRecord::RecordInvalid, ActiveXML::Transport::Error => exception
       redirect_to :back, error: "Download on Demand can't be removed: #{exception.message}"
+      return
     end
 
     redirect_to project_repositories_path(@project), notice: "Successfully removed Download on Demand"

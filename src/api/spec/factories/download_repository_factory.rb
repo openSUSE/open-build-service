@@ -3,12 +3,12 @@ FactoryGirl.define do
     arch "x86_64"
     url "http://suse.com"
     repotype "rpmmd"
-    repository
+    repository { create(:repository, architectures: [arch])}
 
     before(:create) do |download_repository|
-      RepositoryArchitecture.first_or_create!(
+      RepositoryArchitecture.find_or_create_by!(
         repository:   download_repository.repository,
-        architecture: Architecture.find_by_name("x86_64")
+        architecture: Architecture.find_by_name(download_repository.arch)
       )
     end
   end
