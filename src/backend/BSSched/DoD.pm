@@ -20,9 +20,7 @@ use strict;
 use warnings;
 
 use BSUtil;
-if ($BSConfig::enable_download_on_demand) {
-  require BSDoD;
-}
+use BSDoD;
 
 =head2 put_doddata_in_cache - TODO: add summary
 
