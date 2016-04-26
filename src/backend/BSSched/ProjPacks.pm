@@ -250,7 +250,7 @@ sub get_projpacks_resume {
       my $changed_dirty = $gctx->{'changed_dirty'};
       for my $prp (sort keys %{$gctx->{'prpsearchpath'} || {}}) {
 	next unless grep {$badprp{$_}} @{$gctx->{'prpsearchpath'}->{$prp}};
-	my $badprojid = split('/', $prp, 2);
+	my $badprojid = (split('/', $prp, 2))[0];
 	next if $badprojids{$badprojid};
 	next unless $projpacks->{$badprojid};
 	# trigger a low fetch of all packages
