@@ -3,63 +3,126 @@
 # Open Build Service 2.7
 #
 
-Please read the README.SETUP file for initial installation
+Please read the README.md file for initial installation
 instructions or use the OBS Appliance from
 
   http://openbuildservice.org/download/
 
-There is also an install medium which installs OBS on hard disc now.
-
 If you already have a running OBS installation and want to update it, please
-read also the README.UPDATERS file about the necessary steps.
-Please note that you need to have at least OBS 2.5 to be able to 
-update to OBS 2.7 release. Migrations from older OBS versions will fails due
-to database migration errors.
+read also the README.UPDATERS file about the necessary steps. Please note that
+you need to have at least OBS 2.5 to be able to update to OBS 2.7 release.
+Migrations from older OBS versions will fail.
 
-OBS Appliance users who have setup their LVM can just replace 
-their appliance image without data loss. The migration will 
-happen automatically.
+OBS Appliance users who have setup their LVM according to our documentation can
+just replace their appliance image without data loss. The migration will happen
+automatically.
 
-OBS 2.7 will be the last release supporting SLES 11 as OS for the server installation.
+OBS 2.7 will be the last release supporting SUSE Linux Enterprise Server 11 as
+operating system for the server installation.
 
-Features
-========
+Backend Features
+================
+* make the new full tree handling the default
+* Incremental storage of sources from upstream SCM systems
+  * cpio archives are stored incremental and offered the to the build job
+    as directory.
+  * The default git handling has been changed to use obs_scm service which
+    produces the right format.
+* Download on demand repositories support changing source repos now
+* Source services can be used during build time
+  * they get executed before the packaging tool (eg. rpm-build) gets started
+* Support to use docker as virtualization engine
+* Support for simple image creation
+* New hardware architectures are supported: k1om, aarch64_ilp32
+* Many improvements in the maintenance support features
+* Improved scheduler speed
+* Allow non-obs urls in kiwi, map to obs urls if possible
+* collax package format support
+* Support virt-builder repository meta data
+* bs_admin:
+  * give the admin a chance to prefer publish events with --prefer-publish-event
+  * --vm-enable-console
+  * --rebuild-full-tree
+* Add sse3 and ssse3 to list of valid cpu flags
+* auto-update configuration from time to time
+* add support for peer fingerprint verification
+  Can be used for DoD, interconnect, etc...
+* Basic support for simpleimage
+  Adding support for squashfs and tar.gz binaries and for simpleimage
+  build type (request for build update to support it sent separately)
+* support buildtime source services
+  * skip them on service server
+  * add dependencies to build env
 
- * Incremental storage of sources from upstream SCM systems
-   - cpio archives are stored incremental and offered the to the build job
-     as directory.
-   - The default git handling has been changed to use obs_scm service which 
-     produces the right format.
- * Reworked download on demand support
-   - supports changing repositories now
-   - webui has support to add remote repositories
- * Support tracking of github issues
- * Instantiate package api call for projects building service packs 
- * Source services can be used during build time
-   - they get executed before the packaging tool (eg. rpm-build) gets started
- * Support to use docker as virtualization engine
- * Support for simple image creation
- * New option to avoid usage of defined repositories when branching a package
-   via the OBS:BranchSkipRepositories attribute
- * New hardware architectures are supported: k1om, aarch64_ilp32
- * Many improvements in the maintenance support features
- * Groups can have an email adress for notifications and contact
- * Improved scheduler speed
- * New waitservice and mergeservice commands to handle _service files
- * Allow non-obs urls in kiwi, map to obs urls if possible
- * collax package format support
- * Support virt-builder repository meta data
+
+Frontend Features
+=================
+* Support embargo of projects (#316776)
+* webui has support to add remote repositories
+* Instantiate package api call for projects building service packs
+* Support tracking of github issues
+* New option to avoid usage of defined repositories when branching a package
+  via the OBS:BranchSkipRepositories attribute
+* Groups can have an email adress for notifications and contact
+* New waitservice and mergeservice commands to handle _service files
+
+* make request numbering reliable when using a MySQL cluster
+* Lots of data input validations
+* use new obs_scm service for git source URLs
+* Make it possible to force Package.destroy
+* allow to set or modify the accept_at time in a request
+  can be used also to pre-approve requests with open reviews
+* The frontend will warn you about inconsitencies between the api database
+  and the backend via email
+* kiwi import feature
+  Creates kiwi_import service and runs waitservice followed by mergeservice command when
+  uploaded filename ends with kiwi.txz
+* Force login for all API calls
+  Except /public, /trigger and /about route. This is necessary to be consistent with our public instance which
+  uses the iChain login proxy and forces also login for all request except the described ones.
+* Show all open requests of a project in the UI
+* Kill Frontend -> Frontend ActiveXML for good!
+  * Refactor destroying Project/Package objects
+* Make it possible to unlock projects
+* show more error details on failing release request
+* speed up channel target lookup
+  avoid thousands of additional SQL calls, speeding up maintenance_release request creation
+* All request tab at user's home with search an order. FIXES: #928
+* Restrict supersede requests to same source project
+* Allow picking requests to supersede on submit requests
+* Break project names in watchlist
+  Currently long project names are shortened in the watchlist. This makes
+  it quite hard to identify projects in that list.
+  This commit will instead add html zery width spaces after every colon
+  which allows HTML to break them if necessary.
+* Don't truncate project or packages names on search results.
+* Fix to work when hosted in a subdirectory of the server directory.
+  This change allows OBS API and WebUI to be installed on a web server
+  in a place other than document root, so its URL prefix has a non-empty
+  pathname (like https://example.com/obs instead of https://obs.example.com).
+* Send `Content-Disposition: inline` for text files
+  Without this fix, text files such as _log are served with
+  `Content-Disposition: attachment`, which makes Firefox prompt the user to
+  download the file rather than simply showing the text within the browser.
+* add support to track github issues
+* support special kgraft maintenance incident and releases
+* Allow dots in user login names
+* Support embargo of projects (#316776)
+  In first place intended for maintenance incidents, but it works with any project.
+   Setting attribute OBS:EmbargoDate in the project still allows to create requests
+   using it as source, but blocks accepting them.
+
 
 Incompatible Changes
 ====================
 
- * Repository meta data and packages are now signed with sha256 instead of sha1 if RSA is used
- * Users are allowed to add themself in their home project, even when they got removed.
-   Admins can set the user state to "locked" when they do want to block them.
- * request "addrevision" option is using unexpanded revision when "updatelink" option is used
- * package search for bug issues in attributes is done via own attribute_issue xpath attribute.
-   the search api used to match source and attribute issues via same xpath attribute before
- * "download" elements have been moved to "repository" elements and got a new syntax in project xml.
+* Repository meta data and packages are now signed with sha256 instead of sha1 if RSA is used
+* Users are allowed to add themself in their home project, even when they got removed.
+  Admins can set the user state to "locked" when they do want to block them.
+* request "addrevision" option is using unexpanded revision when "updatelink" option is used
+* package search for bug issues in attributes is done via own attribute_issue xpath attribute.
+  the search api used to match source and attribute issues via same xpath attribute before
+* "download" elements have been moved to "repository" elements and got a new syntax in project xml.
 
 Notes for systems using systemd:
 ================================
@@ -85,21 +148,21 @@ To avoid these problems you need to switch directory to by-pass systemd:
 Other small changes
 ===================
 
-- experimental deep_check_dependent_projects_on_macro_change option
-- bs_worker --vm-enable-console switch
-- experimental view=order mode for _builddepinfo
-- bs_serverstatus now works on ajax socket
-- allow to get buildinfo for remote projects
-- improved scheduling of inter-project dependent repositories
-- use sign time from old signature when re-signing
-- support view=versrel in _result query
-- experimental expandflags:preinstallexpand support
-- support "repotag" extension to set repository tags
-- support "singleexport" option to use/publish only the best version
-- support "simpleimage" build type
-- support switching the build type from kiwi to spec in followup builds
-- support triggerservicerun on _product
-- add --rebuild-full-tree option to bs_admin
-- implement view=cpioheaders for packages
-- allow an array ref for $BSConfig::notification_plugin
+* experimental deep_check_dependent_projects_on_macro_change option
+* bs_worker --vm-enable-console switch
+* experimental view=order mode for _builddepinfo
+* bs_serverstatus now works on ajax socket
+* allow to get buildinfo for remote projects
+* improved scheduling of inter-project dependent repositories
+* use sign time from old signature when re-signing
+* support view=versrel in _result query
+* experimental expandflags:preinstallexpand support
+* support "repotag" extension to set repository tags
+* support "singleexport" option to use/publish only the best version
+* support "simpleimage" build type
+* support switching the build type from kiwi to spec in followup builds
+* support triggerservicerun on _product
+* add --rebuild-full-tree option to bs_admin
+* implement view=cpioheaders for packages
+* allow an array ref for $BSConfig::notification_plugin
 
