@@ -48,6 +48,7 @@ use Build;
 use BSDB;
 use BSSolv;
 use BSCando;
+use BSDoD;
 
 use BSSched::RPC;
 use BSSched::Remote;
@@ -66,10 +67,6 @@ use BSSched::Access;
 use BSSched::Lookat;
 use BSSched::Checker;
 use BSSched::RepoCache;
-
-if ($BSConfig::enable_download_on_demand) {
-  require BSDoD;
-}
 
 use strict;
 
