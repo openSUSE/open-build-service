@@ -48,7 +48,6 @@ use Build;
 use BSDB;
 use BSSolv;
 use BSCando;
-use BSDoD;
 
 use BSSched::RPC;
 use BSSched::Remote;
