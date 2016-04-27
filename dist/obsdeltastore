@@ -46,6 +46,12 @@ rc_reset
 case "$1" in
 	start)
 		echo -n "Initializing obsdeltastore"
+		# need logdir before startproc and doing chown to prevent other daemons sharing logdir
+		# from failing because of permissions problems
+		mkdir -p $logdir
+		bsuser=`perl -I/usr/lib/obs/server -MBSConfig -e 'print ( $BSConfig::bsuser || "obsrun" )'`
+		bsgroup=`perl -I/usr/lib/obs/server -MBSConfig -e 'print ( $BSConfig::bsgroup || "obsrun" )'`
+		chown $bsuser:$bsgroup "$logdir"
                 # FIXME: not nice, this should receive a proper daemon handling, 
                 #        including real logging, pid file and startproc
 		startproc -f -l "$logdir"/deltastore.log \
