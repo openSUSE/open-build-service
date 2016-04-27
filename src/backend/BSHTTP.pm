@@ -324,13 +324,14 @@ sub makecpiohead {
   return "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000b00000000TRAILER!!!\0\0\0\0" if !$file;
   my $name = $file->{'name'};
   my $mode = $file->{'mode'} || 0x81a4;
+  my $mtime = $file->{'mtime'} || $s->[9];
   my $h = sprintf("07070100000000%08x000000000000000000000001", $mode);
   if ($s->[7] > 0xffffffff) {
     # build service length extension
     my $top = int($s->[7] / 4294967296.);
-    $h .= sprintf("%08xffffffff%08x%08x", $s->[9], $top, $s->[7] - $top * 4294967296.);
+    $h .= sprintf("%08xffffffff%08x%08x", $mtime, $top, $s->[7] - $top * 4294967296.);
   } else {
-    $h .= sprintf("%08x%08x", $s->[9], $s->[7]);
+    $h .= sprintf("%08x%08x", $mtime, $s->[7]);
   }
   $h .= "00000000000000000000000000000000";
   $h .= sprintf("%08x", length($name) + 1); 
