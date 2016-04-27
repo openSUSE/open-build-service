@@ -53,33 +53,51 @@ sub getrev_deleted_srcmd5 {
 # get a revision object from a revision identifier, local case only
 #
 sub getrev_local {
-  my ($projid, $packid, $rev) = @_;
+  my ($projid, $packid, $revid, $deleted) = @_;
   die("bad projid\n") if $projid =~ /\// || $projid =~ /^\./;
   die("bad packid\n") if $packid =~ /\// || $packid =~ /^\./;
+  undef $revid if $revid && ($revid eq 'latest' || $revid eq 'build');
+  my $rev;
+  if ($deleted) {
+    return getrev_deleted_srcmd5($projid, $packid, $revid) if $revid && $revid =~ /^[0-9a-f]{32}$/;
+    return getrev_local($projid, $packid, $revid) if defined($revid) && $revid !~ /^\d{1,31}$/;
+    my $revfile = $packid ne '_project' ? "$projectsdir/$projid.pkg/$packid.rev.del" : "$projectsdir/_deleted/$projid.pkg/_project.rev";
+    if ($packid ne '_project' && ! -e $revfile && ! -e "$projectsdir/$projid.xml" && -e "$projectsdir/_deleted/$projid.pkg") {
+      $revfile = "$projectsdir/_deleted/$projid.pkg/$packid.rev";
+    }
+    if (!defined($revid)) {
+      $rev = BSFileDB::fdb_getlast($revfile, $srcrevlay);
+    } elsif ($revid eq '0') {
+      $rev = {'srcmd5' => $BSSrcrep::emptysrcmd5};
+    } else {
+      $rev = BSFileDB::fdb_getmatch($revfile, $srcrevlay, 'rev', $revid);
+    }
+    die("no such revision\n") unless defined $rev;
+    $rev->{'project'} = $projid;
+    $rev->{'package'} = $packid;
+    return $rev;
+  }
   return undef if $packid ne '_project' && ! -e "$projectsdir/$projid.pkg/$packid.xml";
-  undef $rev if $rev && ($rev eq 'latest' || $rev eq 'build');
-  undef $rev if $rev && $rev eq 'upload' && ! -e "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS";
-  if (!defined($rev)) {
+  undef $revid if $revid && $revid eq 'upload' && ! -e "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS";
+  if (!defined($revid)) {
     $rev = BSFileDB::fdb_getlast("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay);
     if (!$rev && ($packid eq '_project' && -e "$projectsdir/$projid.conf")) {
       addrev_meta({'user' => 'internal', 'comment' => 'initial commit'}, $projid, undef, undef, undef, undef, 'rev');
       $rev = BSFileDB::fdb_getlast("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay);
     }
-    $rev = {'srcmd5' => $BSSrcrep::emptysrcmd5} unless $rev;
-  } elsif ($rev =~ /^[0-9a-f]{32}$/) {
+    $rev ||= {'srcmd5' => $BSSrcrep::emptysrcmd5};
+  } elsif ($revid =~ /^[0-9a-f]{32}$/) {
     return undef unless -e "$projectsdir/$projid.pkg/$packid.rev" || -e "$projectsdir/$projid.pkg/$packid.mrev";
-    $rev = {'srcmd5' => $rev, 'rev' => $rev};
-  } elsif ($rev eq 'upload') {
+    $rev = {'srcmd5' => $revid, 'rev' => $revid};
+  } elsif ($revid eq 'upload') {
     $rev = {'srcmd5' => 'upload', 'rev' => 'upload', 'special_meta' => "$projectsdir/$projid.pkg/$packid.upload-MD5SUMS"};
-  } elsif ($rev eq 'repository') {
+  } elsif ($revid eq 'repository') {
     $rev = {'srcmd5' => $BSSrcrep::emptysrcmd5, 'rev' => 'repository'}
+  } elsif ($revid eq '0') {
+    $rev = {'srcmd5' => $BSSrcrep::emptysrcmd5};
   } else {
-    if ($rev eq '0') {
-      $rev = {'srcmd5' => $BSSrcrep::emptysrcmd5};
-    } else {
-      $rev = BSFileDB::fdb_getmatch("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, 'rev', $rev);
-      die("no such revision\n") unless defined $rev;
-    }
+    $rev = BSFileDB::fdb_getmatch("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, 'rev', $revid);
+    die("no such revision\n") unless defined $rev;
   }
   $rev->{'project'} = $projid;
   $rev->{'package'} = $packid;

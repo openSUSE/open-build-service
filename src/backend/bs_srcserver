@@ -964,29 +964,6 @@ sub getrev {
   die("404 project '$projid' does not exist\n");
 }
 
-# get a revision object for a deleted project/package
-# XXX: fold into getrev
-sub getrev_deleted {
-  my ($projid, $packid, $rev) = @_;
-  undef $rev if $rev && ($rev eq 'latest' || $rev eq 'build');
-  return getrev($projid, $packid, $rev) if defined($rev) && $rev !~ /^\d{1,31}$/;
-  my $revfile = $packid ne '_project' ? "$projectsdir/$projid.pkg/$packid.rev.del" : "$projectsdir/_deleted/$projid.pkg/_project.rev";
-  if ($packid ne '_project' && ! -e $revfile && ! -e "$projectsdir/$projid.xml" && -e "$projectsdir/_deleted/$projid.pkg") {
-    $revfile = "$projectsdir/_deleted/$projid.pkg/$packid.rev";
-  }
-  if (!defined($rev)) {
-    $rev = BSFileDB::fdb_getlast($revfile, $srcrevlay);
-  } elsif ($rev eq '0') {
-    $rev = {'srcmd5' => $BSSrcrep::emptysrcmd5};
-  } else {
-    $rev = BSFileDB::fdb_getmatch($revfile, $srcrevlay, 'rev', $rev);
-  }
-  die("no such revision\n") unless defined $rev;
-  $rev->{'project'} = $projid;
-  $rev->{'package'} = $packid;
-  return $rev;
-}
-
 sub addmeta_upload {
   my ($projid, $packid, $files) = @_;
 
@@ -4203,7 +4180,7 @@ sub getfilelist {
   if ($cgi->{'meta'}) {
     $rev = BSRevision::getrev_meta($projid, $packid, $cgi->{'rev'}, $cgi->{'deleted'});
   } elsif ($cgi->{'deleted'}) {
-    $rev = getrev_deleted($projid, $packid, $cgi->{'rev'});
+    $rev = BSRevision::getrev_local($projid, $packid, $cgi->{'rev'}, $cgi->{'deleted'});
   } else {
     $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
   }
@@ -4367,7 +4344,7 @@ sub getfile {
   if ($cgi->{'meta'}) {
     $rev = BSRevision::getrev_meta($projid, $packid, $cgi->{'rev'}, $cgi->{'deleted'});
   } elsif ($cgi->{'deleted'}) {
-    $rev = getrev_deleted($projid, $packid, $cgi->{'rev'});
+    $rev = BSRevision::getrev_local($projid, $packid, $cgi->{'rev'}, $cgi->{'deleted'});
   } else {
     $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
   }
