@@ -1341,6 +1341,7 @@ sub getbinaries_kiwiproduct {
   # now fetch all packages that go into the repos subdir
   my %meta;
   my $linklocal = $localkiwi && -d "$localkiwi/build" ? 1 : 0;
+  my $rpmhdrs_only = $buildinfo->{'rpmhdrs_only'} ? "/rpmhdrs_only" : '';
 
   my %cachenew;
   my @cacheold;
@@ -1440,7 +1441,7 @@ sub getbinaries_kiwiproduct {
 	  next unless $binfilter{"$packid/$1.$2"};
 	  next if $nodbgpkgs && $bin =~ /-(?:debuginfo|debugsource)-/;
 	  next if $nosrcpkgs && ($rarch eq 'src' || $rarch eq 'nosrc');
-	  my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}");
+	  my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}$rpmhdrs_only");
 	  my $cachefile = "$cachedir/".substr($cacheid, 0, 2)."/$cacheid";
 	  mkdir_p("$ddir/$rarch");
 	  if (link_or_copy($cachefile, "$ddir/$rarch/$bin.new.rpm")) {
@@ -1477,7 +1478,7 @@ sub getbinaries_kiwiproduct {
 	}
 	eval {
 	  my @args;
-	  push @args, "view=cpio";
+	  push @args, $rpmhdrs_only ? "view=cpioheaderchksums" : "view=cpio";
 	  push @args, "noajax=1" if $server ne $buildinfo->{'srcserver'};
 	  push @args, map {"binary=$_->{'name'}"} @bad;
 	  BSRPC::rpc({
@@ -1532,7 +1533,7 @@ sub getbinaries_kiwiproduct {
 	  my $id = Build::queryhdrmd5("$ddir/$rarch/$bin.new.rpm", \$leadsigmd5);
 	  if ($id eq $bv->{'hdrmd5'} && (!$bv->{'leadsigmd5'} || $bv->{'leadsigmd5'} eq $leadsigmd5)) {
 	    push @good, "$rarch/$bin";
-            my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}");
+            my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$bv->{'hdrmd5'}$rpmhdrs_only");
 	    $cachenew{"$ddir/$rarch/$bin"} = [$cacheid, $s[7], "$ddir/$rarch/$bin"];
 	    $knownmd5{"$rarch/$bin"} = $id;
 	  } else {
@@ -1567,7 +1568,7 @@ sub getbinaries_kiwiproduct {
 	  warn($@) if $@;
 	}
 	my @args;
-	push @args, "view=cpio";
+	push @args, $rpmhdrs_only ? "view=cpioheaderchksums" : "view=cpio";
 	push @args, "noajax=1" if $server ne $buildinfo->{'srcserver'};
 	$res = BSRPC::rpc({
 	  'uri' => "$server/build/$projid/$repoid/$arch/$packid",
@@ -1596,7 +1597,7 @@ sub getbinaries_kiwiproduct {
 	    next unless @s;
 	    my $id = Build::queryhdrmd5("$ddir/$f->{'name'}");
 	    next unless $id;
-	    my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$id");
+	    my $cacheid =  Digest::MD5::md5_hex("$projid/$repoid/$arch/$id$rpmhdrs_only");
 	    $cachenew{"$ddir/$f->{'name'}"} = [$cacheid, $s[7], "$ddir/$f->{'name'}"];
 	    $knownmd5{$f->{'name'}} = $id;
 	  }
@@ -2632,6 +2633,10 @@ sub dobuild {
     readbuildenv($buildinfo, $srcdir);
     print "packages, ";
     if (($kiwimode || '') eq 'product') {
+      my $kiwi = readxml("$srcdir/$buildinfo->{'file'}", $BSKiwiXML::kiwidesc, 1);
+      for my $productvar (@{$kiwi->{'instsource'}->{'productoptions'}->{'productvar'} || []}) {
+        $buildinfo->{'rpmhdrs_only'} = 1 if $productvar->{'name'} eq 'RPMHDRS_ONLY' and $productvar->{'_content'} eq 'true';
+      }
       push @meta, getbinaries_kiwiproduct($buildinfo, $pkgdir, $srcdir, $kiwiorigins);
     } else {
       push @meta, getbinaries($buildinfo, $pkgdir, $srcdir, $preinstallimagedata);
@@ -3133,6 +3138,7 @@ if ($path eq '/info') {
   }
   my $kiwitreefile = "$buildroot/.build.packages/.kiwitree";
   die("kiwitreefile does not exist\n") unless -e $kiwitreefile;
+  die("kiwitreefile does not work in rpmhdrs_only mode\n") if -e "$kiwitreefile.rpmhdrs_only";
   my @send;
   my %ok;
   for my $f (@{$cgi->{'file'} || []}) {
@@ -3425,6 +3431,7 @@ if ($ex == 0) {
     eval {
       die(".kiwitree already exists\n") if -e $kiwitreefile;
       buildkiwitree($kiwitreefile, map { ("$buildroot/.build.packages/KIWI/$_", "$_/") } @$kiwitree);
+      BSUtil::touch("$kiwitreefile.rpmhdrs_only") if $buildinfo->{'rpmhdrs_only'};
       push @send, { name => '.kiwitree', filename => $kiwitreefile };
     };
     if ($@) {

@@ -5988,7 +5988,7 @@ sub getbinarylist {
     my $bvl = BSWatcher::rpc($param, $BSXML::binaryversionlist, @args);
     return ($bvl, $BSXML::binaryversionlist);
   }
-  if ($view && $view eq 'cpioheaders') {
+  if ($view && ($view eq 'cpioheaders' || $view eq 'cpioheaderchksums')) {
      $param->{'ignorestatus'} = 1;
      $param->{'receiver'} = \&BSServer::reply_receiver;
      BSWatcher::rpc($param, undef, @args);

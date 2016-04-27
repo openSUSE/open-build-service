@@ -862,6 +862,37 @@ sub getbinarylist {
     BSWatcher::reply_cpio(\@files);
     return undef;
   }
+  if ($view eq 'cpioheaderchksums') {
+    my %chksum;
+    local *CS;
+    if (open(CS, '<', "$reporoot/$prp/$arch/$packid/.checksums")) {
+      while (<CS>) {
+	chomp;
+	$chksum{$1} = $_ if /^(.{32}) /;
+      }
+      close CS;
+    }
+    my @files;
+    my @bins = grep {$_ ne 'logfile' && $_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls("$reporoot/$prp/$arch/$packid");
+    @bins = grep {!/^::import::/} @bins if $cgi->{'noimport'};
+    @bins = filtersources(@bins) if $cgi->{'nosource'} || -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
+    for my $bin (sort @bins) {
+      next if %binaries && !$binaries{$bin};
+      if ($bin =~ /\.rpm$/) {
+	my $size = -s "$reporoot/$prp/$arch/$packid/$bin";
+	my ($lead, $sighdr, $hdr) = getrpmheaders("$reporoot/$prp/$arch/$packid/$bin");
+	my $leadsigmd5 = Digest::MD5::md5_hex("$lead$sighdr");
+	die("$bin not in checksum file\n") unless $chksum{$leadsigmd5};
+	push @files, {'name' => "$bin", 'data' => "$lead$sighdr${hdr}chk:$chksum{$leadsigmd5} size:$size\n"};
+	next;
+      }
+      my $fd = gensym;
+      next unless open($fd, '<', "$reporoot/$prp/$arch/$packid/$bin");
+      push @files, {'name' => $bin, 'filename' => $fd},
+    }
+    BSWatcher::reply_cpio(\@files);
+    return undef;
+  }
   if ($view eq 'binaryversions') {
     my $bininfo = read_bininfo("$reporoot/$prp/$arch/$packid");
     filtersources_bininfo($bininfo) if $cgi->{'nosource'} || $bininfo->{'.nosourceaccess'};
