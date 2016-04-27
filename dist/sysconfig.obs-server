@@ -361,3 +361,11 @@ OBS_ROOT_SSHD_KEY_URL=""
 #
 OBS_WORKER_SCRIPT_URL=""
 
+## Path:        Applications/OBS
+## Description: If chroot/lxc is used for build, empty it after build is finished
+## Type:        ("yes" | "")
+## Default:     ""
+## Config:      OBS
+#
+#
+OBS_WORKER_CLEANUP_CHROOT=""
