@@ -398,6 +398,14 @@ case "$1" in
 			fi
 		fi
 
+		# make sure that directories needed by mostly all other daemons are created now
+		# and set proper ownership
+		bsuser=`perl -I/usr/lib/obs/server -MBSConfig -e 'print ( $BSConfig::bsuser || "obsrun" )'`
+		bsgroup=`perl -I/usr/lib/obs/server -MBSConfig -e 'print ( $BSConfig::bsgroup || "obsrun" )'`
+		[ -d $backenddir/run ] || mkdir -p $backenddir/run
+		[ -d $backenddir/log ] || mkdir -p $backenddir/log
+		chown $bsuser:$bsgroup $backenddir $backenddir/run $backenddir/log
+
 		# offer hook to make random special things in your setup
 		if [ -n "$OBS_WORKER_SCRIPT_URL" ]; then
 			echo "Running special script for this worker from $OBS_WORKER_SCRIPT_URL"
