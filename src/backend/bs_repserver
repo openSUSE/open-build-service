@@ -4399,4 +4399,9 @@ if ($BSConfig::workerreposerver) {
   $conf->{'port2'} = $wport if $wport != $port;
 }
 
+# Ensure that all directories we need at runtime are existant and owned by $bsuser:$bsgroup
+# before root privileges are dropped by BSServer::serveropen called by BSStdServer::server
+for my $dir_to_check ($reporoot , $workersdir , $jobsdir , $eventdir , $infodir , $uploaddir , $rundir , $extrepodir , $extrepodb) {
+  BSUtil::mkdir_p_chown("$dir_to_check", $BSConfig::bsuser, $BSConfig::bsgroup) unless -d "$dir_to_check";
+}
 BSStdServer::server('bs_repserver', \@ARGV, $conf, $aconf);
