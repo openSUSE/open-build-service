@@ -1,5 +1,6 @@
 <% if @finished %>
-  $('#log_space').append('<%= escape_javascript(@log_chunk) %>');
+  $('#log_space').html('<%= escape_javascript(@log_chunk) %>');
+  autoscroll();
   build_finished();
   hide_abort();
 <% else %>

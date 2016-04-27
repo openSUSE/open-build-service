@@ -43,4 +43,20 @@ module BuildLogSupport
     path = "/build/#{pesc project}/#{pesc repo}/#{pesc arch}/#{pesc package}/_jobstatus"
     ActiveXML::backend.direct_http URI("#{path}"), timeout: 500
   end
+
+  def get_status(project, package, repo, arch)
+    path = "/build/#{pesc project}/_result?view=status&package=#{pesc package}&arch=#{pesc arch}&repository=#{pesc repo}"
+    code = ""
+    data = ActiveXML::backend.direct_http URI("#{path}"), timeout: 500
+    return code unless data
+    doc = Xmlhash.parse(data)
+    if doc['result']
+      result = doc['result']
+      if result['status']
+        status = result['status']
+        code = status['code'] if status['code']
+      end
+    end
+    code
+  end
 end
