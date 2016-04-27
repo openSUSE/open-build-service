@@ -20,7 +20,41 @@ use strict;
 use warnings;
 
 use BSUtil;
-use BSDoD;
+
+=head2 gencookie - generate a cookie from file metadata
+
+ TODO: add description
+
+=cut
+
+sub gencookie {
+  my ($datafile) = @_;
+  my @s = stat($datafile);
+  return @s ? "1/$s[9]/$s[7]/$s[1]" : undef;
+}
+
+=head2 readparsed - read the pre-parsed repository metadata
+
+ TODO: add description
+
+=cut
+
+sub readparsed {
+  my ($datafile) = @_;
+  my $cookie = gencookie($datafile);
+  return "doddata: $!" unless $cookie;
+  my $data = BSUtil::retrieve($datafile, 2);
+  return 'could not retrieve pre-parsed metadata' unless $data;
+  my $baseurl = delete $data->{'/url'};
+  return 'baseurl missing in data' unless $baseurl;
+  for (values %$data) {
+    $_->{'id'} = 'dod';
+    $_->{'hdrmd5'} = 'd0d0d0d0d0d0d0d0d0d0d0d0d0d0d0d0';
+  }
+  $data->{'/url'} = $baseurl;
+  $data->{'/dodcookie'} = $cookie;
+  return $data;
+}
 
 =head2 put_doddata_in_cache - TODO: add summary
 
@@ -35,12 +69,14 @@ sub put_doddata_in_cache {
     $cache->updatedoddata() if defined &BSSolv::repo::updatedoddata;
     return(1, $cache);
   }
-  if ($cache && $cache->dodurl()) {
-    my $dodcookie;
-    $dodcookie = $cache->dodcookie() if defined &BSSolv::repo::dodcookie;
-    return (0, $cache) if BSDoD::checkcookie($doddata, $dir, $dodcookie);
+  if ($cache && $cache->dodurl() && defined(&BSSolv::repo::dodcookie)) {
+    my $dodcookie = $cache->dodcookie();
+    if ($dodcookie) {
+      my $cookie = gencookie("$dir/doddata");
+      return (0, $cache) if $cookie && $cookie eq $dodcookie;
+    }
   }
-  my $data = BSDoD::parse($doddata, $dir);
+  my $data = readparsed("$dir/doddata");
   if (!ref($data)) {
     print "    download on demand: $data\n";
     return undef;
