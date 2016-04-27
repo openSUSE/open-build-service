@@ -258,6 +258,10 @@ function prepare_database_setup {
   do
     logline " - Doing 'rake.ruby2.3 $cmd'"
     RAILS_ENV=production bundle exec rake.ruby2.3 $cmd >> $apidir/log/db_migrate.log
+    if [[ $? > 0 ]];then
+      (>&2 echo "Command $cmd FAILED")
+      exit 1  
+    fi
   done
 
 }
