@@ -498,6 +498,7 @@ function prepare_obssigner {
 
     # create default gpg key if not existing
     if [ ! -e "$backenddir"/obs-default-gpg.asc ] && grep -q "^our \$keyfile.*/obs-default-gpg.asc.;$" /usr/lib/obs/server/BSConfig.pm; then
+      GPG_KEY_CREATED=1
       echo -n Generating OBS default GPG key ....
       mkdir -p "$backenddir"/gnupg/phrases
       chmod -R 0700 "$backenddir"/gnupg
@@ -581,7 +582,14 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
   # prepare configuration for obssigner before any other backend service
   # is started, because obssigner configuration might affect other services
   # too
+  GPG_KEY_CREATED=0
+
   prepare_obssigner
+
+  if [[ $GPG_KEY_CREATED == 1 ]];then
+    /usr/lib/obs/server/bs_srcserver --restart
+    /usr/lib/obs/server/bs_repserver --restart
+  fi
 
   check_required_backend_services
 
