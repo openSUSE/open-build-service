@@ -894,7 +894,7 @@ sub get_frozenlinks {
 }
 
 sub getrev_projlink {
-  my ($projid, $packid, $rev, $linked, $missingok, $projlink) = @_;
+  my ($projid, $packid, $revid, $linked, $missingok, $projlink) = @_;
 
   my $collect_error;
   $linked ||= [];
@@ -904,15 +904,15 @@ sub getrev_projlink {
     next if grep {$_->{'project'} eq $lprojid && $_->{'package'} eq $packid} @$linked;
     push @$linked, {'project' => $lprojid, 'package' => $packid};
     my $frozenp = $frozen->{'/all'} || $frozen->{$lprojid};
-    my $lrev;
-    if ($frozenp->{$packid} && !($rev && $rev =~ /^[0-9a-f]{32}$/)) {
+    my $rev;
+    if ($frozenp->{$packid} && !($revid && $revid =~ /^[0-9a-f]{32}$/)) {
       eval {
-        $lrev = getrev($lprojid, $packid, $frozenp->{$packid}->{'srcmd5'}, $linked, $missingok);
-        $lrev->{'vrev'} = $frozenp->{$packid}->{'vrev'} if defined $frozenp->{$packid}->{'vrev'};
+        $rev = getrev($lprojid, $packid, $frozenp->{$packid}->{'srcmd5'}, $linked, $missingok);
+        $rev->{'vrev'} = $frozenp->{$packid}->{'vrev'} if defined $frozenp->{$packid}->{'vrev'};
       };
     } else {
       eval {
-        $lrev = getrev($lprojid, $packid, $rev, $linked, $missingok);
+        $rev = getrev($lprojid, $packid, $revid, $linked, $missingok);
       };
     }
     next if $collect_error;
@@ -925,14 +925,14 @@ sub getrev_projlink {
       }
       die($@);
     }
-    next unless $lrev;
+    next unless $rev;
     # make sure that we may access the sources of this package
     checksourceaccess($lprojid, $packid);
     # make the tree available
-    BSSrcrep::copytree($projid, $packid, $lprojid, $packid, $lrev->{'srcmd5'});
-    $lrev->{'originproject'} ||= $lprojid;
-    $lrev->{'project'} = $projid;
-    return $lrev;
+    BSSrcrep::copytree($projid, $packid, $lprojid, $packid, $rev->{'srcmd5'});
+    $rev->{'originproject'} ||= $lprojid;
+    $rev->{'project'} = $projid;
+    return $rev;
   }
   die($collect_error) if $collect_error;
   return undef;
@@ -942,21 +942,21 @@ sub getrev_projlink {
 # get a revision object from a revision identifier
 #
 sub getrev {
-  my ($projid, $packid, $rev, $linked, $missingok) = @_;
-  my $lrev = BSRevision::getrev_local($projid, $packid, $rev);
-  return $lrev if $lrev;
+  my ($projid, $packid, $revid, $linked, $missingok) = @_;
+  my $rev = BSRevision::getrev_local($projid, $packid, $revid);
+  return $rev if $rev;
   my $proj = readproj($projid, 1);
   if ($proj && $proj->{'link'}) {
-    $lrev = getrev_projlink($projid, $packid, $rev, $linked, $missingok, $proj->{'link'});
-    return $lrev if $lrev;
+    $rev = getrev_projlink($projid, $packid, $revid, $linked, $missingok, $proj->{'link'});
+    return $rev if $rev;
   }
-  if ($rev && $rev =~ /^[0-9a-f]{32}$/) {
-    $lrev = BSRevision::getrev_deleted_srcmd5($projid, $packid, $rev);
-    return $lrev if $lrev;
+  if ($revid && $revid =~ /^[0-9a-f]{32}$/) {
+    $rev = BSRevision::getrev_deleted_srcmd5($projid, $packid, $revid);
+    return $rev if $rev;
   }
   if (!$proj || $proj->{'remoteurl'}) {
-    $lrev = remote_getrev($projid, $packid, $rev, $linked, $missingok);
-    return $lrev if $lrev;
+    $rev = remote_getrev($projid, $packid, $revid, $linked, $missingok);
+    return $rev if $rev;
   }
   return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'pattern', 'rev' => 'pattern', 'special_meta' => "$projectsdir/$projid.pkg/pattern-MD5SUMS"} if $packid eq '_pattern';
   return {'project' => $projid, 'package' => $packid, 'srcmd5' => $BSSrcrep::emptysrcmd5} if $missingok;
