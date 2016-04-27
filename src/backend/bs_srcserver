@@ -8787,6 +8787,7 @@ if ($BSConfig::workersrcserver) {
 # Ensure that all directories we need at runtime are existant and owned by $bsuser:$bsgroup
 # before root privileges are dropped by BSServer::serveropen called by BSStdServer::server
 for my $dir_to_check ($BSConfig::bsdir,$projectsdir,$eventdir,$srcrep,$treesdir,$requestsdir,$oldrequestsdir,$rundir,$diffcache,"$BSConfig::bsdir/db/",$remotecache,$notificationpayloaddir) {
+  print "Checking directory '$dir_to_check'\n";
   BSUtil::mkdir_p_chown("$dir_to_check", $BSConfig::bsuser, $BSConfig::bsgroup);
 }
 # set a repoid for identification of this data repository
