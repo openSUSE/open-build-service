@@ -879,11 +879,12 @@ sub getbinarylist {
     for my $bin (sort @bins) {
       next if %binaries && !$binaries{$bin};
       if ($bin =~ /\.rpm$/) {
-	my $size = -s "$reporoot/$prp/$arch/$packid/$bin";
+	my @s = stat "$reporoot/$prp/$arch/$packid/$bin";
+	die("$reporoot/$prp/$arch/$packid/$bin: $!\n") unless @s;
 	my ($lead, $sighdr, $hdr) = getrpmheaders("$reporoot/$prp/$arch/$packid/$bin");
 	my $leadsigmd5 = Digest::MD5::md5_hex("$lead$sighdr");
 	die("$bin not in checksum file\n") unless $chksum{$leadsigmd5};
-	push @files, {'name' => "$bin", 'data' => "$lead$sighdr${hdr}chk:$chksum{$leadsigmd5} size:$size\n"};
+	push @files, {'name' => "$bin", 'mtime' => $s[9], 'data' => "$lead$sighdr${hdr}chk:$chksum{$leadsigmd5} size:$s[7]\n"};
 	next;
       }
       my $fd = gensym;
