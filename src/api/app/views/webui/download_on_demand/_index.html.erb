@@ -3,20 +3,13 @@
   <b>Download on demand sources</b>
   <% if User.current.is_admin? %>
     &nbsp;
-    <span id="<%= "add_dod_repository_link_container_#{repository_id}" %>">
+    <span class="add-dod-repository-link-container">
       <%= sprite_tag('drive_add') %>
-      <%= link_to('Add', '#', id: "add_dod_repository_link_#{repository_id}") %>
+      <%= link_to('Add', '#', data: { "dod-repository-add": true }) %>
     </span>
-    <div class="hidden" id="<%= "add_dod_repository_form_#{repository_id}" %>">
+    <div class="hidden add-dod-repository-form">
       <%= render partial: 'webui/download_on_demand/add', locals: { project: project, repository: repository, download_on_demand: DownloadRepository.new(repository_id: repository.id) } %>
     </div>
-    <% content_for :ready_function do %>
-        $("#<%= "add_dod_repository_link_#{repository_id}" %>").click(function(e) {
-          e.preventDefault();
-          $("#<%= "add_dod_repository_form_#{repository_id}" %>").show();
-          $("#<%= "add_dod_repository_link_container_#{repository_id}" %>").hide();
-        });
-    <% end -%>
   <% end -%>
   <ul style="list-style-type: none;">
   <% repository.download_repositories.each do |dod_element| %>
