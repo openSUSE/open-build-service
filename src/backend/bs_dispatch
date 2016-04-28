@@ -179,6 +179,7 @@ my $lastcodechecktime;
 my %badhost;
 my %newestsrcchange;
 my %infocache;
+my %jobattempt;
 my %constraintscache;
 
 my %lastbuild;	# last time a job was build in that prpa
@@ -241,6 +242,10 @@ sub assignjob {
     return undef;
   }
 
+  # counter for this job
+  $jobattempt{"$arch/$job"} ||= 0;
+  $jobattempt{"$arch/$job"}++;
+
   eval {
     BSRPC::rpc({
       'uri'     => "http://$worker->{'ip'}:$worker->{'port'}/build",
@@ -248,7 +253,8 @@ sub assignjob {
       'request' => "PUT",
       'headers' => [ "Content-Type: text/xml" ],
       'data'    => $infoxml,
-    }, undef, "port=$port", "workercode=$workercode", "buildcode=$buildcode");
+    }, undef, "port=$port", "workercode=$workercode", "buildcode=$buildcode",
+    "attempt=".$jobattempt{"$arch/$job"});
   };
   if ($@) {
     my $err = $@;
@@ -279,6 +285,7 @@ sub assignjob {
   $jobstatus->{'starttime'} = time();
   $jobstatus->{'hostarch'} = $worker->{'hostarch'};
   $jobstatus->{'jobid'} = $jobid;
+  $jobstatus->{'attempt'} = $jobattempt{"$arch/$job"};
 
   # put worker into building list
   $worker->{'job'} = $job;
@@ -295,6 +302,7 @@ sub assignjob {
     # we did out job. delete job
     unlink("$jobsdir/$arch/$job");
     unlink("$jobsdir/$arch/$job:status");
+    delete $jobattempt{"$arch/$job"};
     close F;
     return 'assigned';
   }

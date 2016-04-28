@@ -573,6 +573,7 @@ our $jobstatus = [
 	'arch',		# our architecture
 	'job',		# our jobname
 	'jobid',	# md5 of job info file
+	'attempt',      # number of attempts to build the job
 ];
 
 our $buildreason = [
