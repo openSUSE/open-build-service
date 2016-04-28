@@ -3987,8 +3987,7 @@ sub makeymp {
   $inner_group->{'repositories'} = {'repository' => \@repos };
   $inner_group->{'software'} = {'item' => [$pkg]};
   push @group, $inner_group;
-  my $ympxml = XMLout($BSXML::ymp, $ymp);
-  return ($ympxml, "Content-Type: text/x-suse-ymp");
+  return ($ymp, $BSXML::ymp, 'Content-Type: text/x-suse-ymp');
 }
 
 sub fileinfo {
