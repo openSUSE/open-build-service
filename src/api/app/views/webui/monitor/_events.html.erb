@@ -56,9 +56,9 @@
       xaxis: { mode: 'time' },
       yaxis: { min: 0, max: data['events_max'], position: "left", labelWidth: 25 }
     });
-    
+
     $.plot($("#building"), [ { data: data['building'], label: "Currently building", color: 3},
-                             {  data: data['idle'], label: "Idle workers", color: 4 } ],
+                             { data: data['idle'], label: "Idle workers", color: 4 } ],
       {
             series: {
                 stack: true,
