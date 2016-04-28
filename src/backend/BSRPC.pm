@@ -27,7 +27,6 @@ use POSIX;
 use XML::Structured;
 use Symbol;
 use MIME::Base64;
-use Data::Dumper;
 
 use BSHTTP;
 
@@ -176,6 +175,7 @@ sub args {
 # timeout
 # uri
 # data
+# marshall
 # headers (array)
 # chunked
 # request
@@ -195,54 +195,57 @@ sub args {
 #
 
 sub rpc {
-  my ($uri, $xmlargs, @args) = @_;
+  my ($param, $xmlargs, @args) = @_;
 
-  my $data = '';
-  my @xhdrs;
-  my $chunked;
-  my $param = {'uri' => $uri};
+  $param = {'uri' => $param} if ref($param) ne 'HASH';
 
-  if (ref($uri) eq 'HASH') {
-    $param = $uri;
-    my $timeout = $param->{'timeout'};
-    if ($timeout) {
-      my %paramcopy = %$param;
-      delete $paramcopy{'timeout'};
-      my $ans;
-      local $SIG{'ALRM'} = sub {alarm(0); die("rpc timeout\n");};
+  # process timeout setup
+  if ($param->{'timeout'}) {
+    my %paramcopy = %$param;
+    my $timeout = delete $paramcopy{'timeout'};
+    my $ans;
+    local $SIG{'ALRM'} = sub {alarm(0); die("rpc timeout\n");};
+    eval {
       eval {
-        eval {
-          alarm($timeout);
-          $ans = rpc(\%paramcopy, $xmlargs, @args);
-        };
-        alarm(0);
-        die($@) if $@;
+        alarm($timeout);
+        $ans = rpc(\%paramcopy, $xmlargs, @args);
       };
+      alarm(0);
       die($@) if $@;
-      return $ans;
-    }
-    $uri = $param->{'uri'};
-    $data = $param->{'data'};
-    @xhdrs = @{$param->{'headers'} || []};
-    $chunked = 1 if $param->{'chunked'};
-    if (!defined($data) && $param->{'request'} && $param->{'request'} eq 'POST' && @args && grep {/^content-type:\sapplication\/x-www-form-urlencoded$/i} @xhdrs) {
-      for (@args) {
-	$_ = urlencode($_);
-        s/%3D/=/;	# convert now escaped = back
-      }
-      $data = join('&', @args);
-      @args = ();
-    }
-    push @xhdrs, "Content-Length: ".length($data) if defined($data) && !ref($data) && !$chunked && !grep {/^content-length:/i} @xhdrs;
-    push @xhdrs, "Transfer-Encoding: chunked" if $chunked;
-    $data = '' unless defined $data;
+    };
+    die($@) if $@;
+    return $ans;
   }
-  $uri = createuri($param, @args);
+
+  my $data = $param->{'data'};
+  my @xhdrs = @{$param->{'headers'} || []};
+  my $chunked = $param->{'chunked'} ? 1 : undef;
+  if ($param->{'marshall'} && defined($data)) {
+    my $marshall = $param->{'marshall'};
+    if (ref($marshall) eq 'CODE') {
+      $data = $marshall->($data);
+    } else {
+      $data = XMLout($marshall, $data);
+    }
+  }
+  if (!defined($data) && ($param->{'request'} || '') eq 'POST' && @args && grep {/^content-type:\sapplication\/x-www-form-urlencoded$/i} @xhdrs) {
+    for (@args) {
+      $_ = urlencode($_);
+      s/%3D/=/;	# convert now escaped = back
+    }
+    $data = join('&', @args);
+    @args = ();
+  }
+  push @xhdrs, "Content-Length: ".length($data) if defined($data) && !ref($data) && !$chunked && !grep {/^content-length:/i} @xhdrs;
+  push @xhdrs, "Transfer-Encoding: chunked" if $chunked;
+  my $uri = createuri($param, @args);
   my $proxy = $param->{'proxy'};
   my ($proto, $host, $port, $req, $proxytunnel) = createreq($param, $uri, $proxy, \%cookiestore, @xhdrs);
   if ($proto eq 'https' || $proxytunnel) {
     die("https not supported\n") unless $tossl || $param->{'https'};
   }
+
+  # connect to server
   local *S;
   if (exists($param->{'socket'})) {
     *S = $param->{'socket'};
@@ -275,7 +278,10 @@ sub rpc {
       }
     }
   }
+
+  # send request
   if (!$param->{'continuation'}) {
+    $data = '' unless defined $data;
     if ($param->{'verbose'}) {
       print "> $_\n" for split("\r\n", $req);
       #print "> $data\n" unless ref($data);
@@ -302,22 +308,26 @@ sub rpc {
       }
       BSHTTP::swrite(\*S, "0\r\n\r\n") if $chunked;
     }
-    if ($param->{'async'}) {
-      my $ret = {};
-      $ret->{'uri'} = $uri;
-      my $fd = gensym;
-      *$fd = \*S;
-      $ret->{'socket'} = $fd;
-      $ret->{'async'} = 1;
-      $ret->{'continuation'} = 1;
-      $ret->{'request'} = $param->{'request'} || 'GET';
-      $ret->{'verbose'} = $param->{'verbose'} if $param->{'verbose'};
-      $ret->{'replyheaders'} = $param->{'replyheaders'} if $param->{'replyheaders'};
-      $ret->{'receiver'} = $param->{'receiver'} if $param->{'receiver'};
-      $ret->{'receiverarg'} = $xmlargs if $xmlargs;
-      return $ret;
-    }
   }
+
+  # return here if in async mode
+  if ($param->{'async'} && !$param->{'continuation'}) {
+    my $ret = {};
+    $ret->{'uri'} = $uri;
+    my $fd = gensym;
+    *$fd = \*S;
+    $ret->{'socket'} = $fd;
+    $ret->{'async'} = 1;
+    $ret->{'continuation'} = 1;
+    $ret->{'request'} = $param->{'request'} || 'GET';
+    $ret->{'verbose'} = $param->{'verbose'} if $param->{'verbose'};
+    $ret->{'replyheaders'} = $param->{'replyheaders'} if $param->{'replyheaders'};
+    $ret->{'receiver'} = $param->{'receiver'} if $param->{'receiver'};
+    $ret->{'receiverarg'} = $xmlargs if $xmlargs;
+    return $ret;
+  }
+
+  # read answer from server, first the header
   my $ans = '';
   do {
     my $r = sysread(S, $ans, 1024, length($ans));
@@ -333,6 +343,8 @@ sub rpc {
   }
   my %headers;
   BSHTTP::gethead(\%headers, $headers);
+
+  # process header
   if ($status =~ /^200[^\d]/) {
     undef $status;
   } elsif ($status =~ /^302[^\d]/) {
@@ -358,6 +370,8 @@ sub rpc {
   }
   updatecookies(\%cookiestore, $param->{'uri'}, $headers{'set-cookie'}) if $headers{'set-cookie'};
   ${$param->{'replyheaders'}} = \%headers if $param->{'replyheaders'};
+
+  # read and process rest of answer
   if (($param->{'request'} || '') eq 'HEAD') {
     close S;
     return \%headers;
@@ -376,6 +390,7 @@ sub rpc {
     $ans = BSHTTP::read_data($ansreq, undef, 1);
   }
   close S;
+
   #if ($param->{'verbose'}) {
   #  print "< $ans\n";
   #}
