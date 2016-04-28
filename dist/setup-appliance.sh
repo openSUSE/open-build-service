@@ -26,10 +26,6 @@ function check_service {
   if [[ "$STATUS" == "inactive" ]];then
     echo "$srv daemon not started. Trying to start"
     execute_silently systemctl start $srv\.service
-    if [[ $srv == 'apache2' ]];then
-      echo "Setting apache2 to just started"
-      APACHE_JUST_STARTED=1
-    fi
     if [[ $? -gt 0 ]];then
       echo -n "Starting $srv daemon failed." 
       if [[ $service_critical == 1 ]];then
@@ -252,6 +248,9 @@ function prepare_database_setup {
     RAKE_COMMANDS="db:migrate"
     echo
   fi
+
+  logline "Setting ownership of '$backenddir' obsrun"
+  chown obsrun.obsrun $backenddir
 
   logline "Setting up rails environment"
   for cmd in $RAKE_COMMANDS
