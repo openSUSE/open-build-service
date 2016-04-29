@@ -735,6 +735,10 @@ class Package < ActiveRecord::Base
   end
 
   def delete_on_backend
+    # lock this package object to avoid that dependend objects get created in parallel
+    # for example a backend_package
+    reload(lock: true)
+
     # not really packages...
     # everything below _product:
     return true if name =~ /\A_product:\w[-+\w\.]*\z/
@@ -1036,6 +1040,9 @@ class Package < ActiveRecord::Base
   end
 
   def update_backendinfo
+    # avoid creation of backend_package while destroying this package object
+    reload(lock: true)
+
     bp = build_backend_package
 
     # determine the infos provided by srcsrv
