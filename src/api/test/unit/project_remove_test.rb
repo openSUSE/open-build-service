@@ -83,7 +83,7 @@ class ProjectRemoveTest < ActiveSupport::TestCase
     User.current = users(:Iggy)
     branch_package
     project = Project.find_by(name: "home:Iggy:branches:Apache")
-    other_package = project.packages.create(name: 'pack')
+    project.packages.create!(name: 'pack')
     create_request
 
     User.current = users(:fred)
@@ -95,7 +95,6 @@ class ProjectRemoveTest < ActiveSupport::TestCase
     assert_equal 0, HistoryElement::RequestRevoked.where(op_object_id: @request.id).count
 
     @package.project.destroy
-    other_package.destroy
   end
 
   def test_review_gets_obsoleted
