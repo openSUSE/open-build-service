@@ -175,7 +175,7 @@ sub args {
 # timeout
 # uri
 # data
-# marshall
+# datafmt
 # headers (array)
 # chunked
 # request
@@ -192,6 +192,7 @@ sub args {
 # receiverarg
 # maxredirects
 # proxy
+# formurlencode
 #
 
 sub rpc {
@@ -217,25 +218,38 @@ sub rpc {
     return $ans;
   }
 
-  my $data = $param->{'data'};
   my @xhdrs = @{$param->{'headers'} || []};
   my $chunked = $param->{'chunked'} ? 1 : undef;
-  if ($param->{'marshall'} && defined($data)) {
-    my $marshall = $param->{'marshall'};
-    if (ref($marshall) eq 'CODE') {
-      $data = $marshall->($data);
+
+  # do data conversion
+  my $data = $param->{'data'};
+  if ($param->{'datafmt'} && defined($data)) {
+    my $datafmt = $param->{'datafmt'};
+    if (ref($datafmt) eq 'CODE') {
+      $data = $datafmt->($data);
     } else {
-      $data = XMLout($marshall, $data);
+      $data = XMLout($datafmt, $data);
     }
   }
-  if (!defined($data) && ($param->{'request'} || '') eq 'POST' && @args && grep {/^content-type:\sapplication\/x-www-form-urlencoded$/i} @xhdrs) {
-    for (@args) {
-      $_ = urlencode($_);
-      s/%3D/=/;	# convert now escaped = back
+
+  # do from urlencoding if requested
+  my $formurlencode = $param->{'formurlencode'};
+  if (!defined($data) && ($param->{'request'} || '') eq 'POST' && @args) {
+    if (grep {/^content-type:\sapplication\/x-www-form-urlencoded$/i} @xhdrs) {
+      $formurlencode = 1;		# compat
+    } elsif ($formurlencode) {
+      push @xhdrs, 'Content-Type: application/x-www-form-urlencoded';
     }
-    $data = join('&', @args);
-    @args = ();
+    if ($formurlencode) {
+      for (@args) {
+        $_ = urlencode($_);
+        s/%3D/=/;	# convert now escaped = back
+      }
+      $data = join('&', @args);
+      @args = ();
+    }
   }
+
   push @xhdrs, "Content-Length: ".length($data) if defined($data) && !ref($data) && !$chunked && !grep {/^content-length:/i} @xhdrs;
   push @xhdrs, "Transfer-Encoding: chunked" if $chunked;
   my $uri = createuri($param, @args);
