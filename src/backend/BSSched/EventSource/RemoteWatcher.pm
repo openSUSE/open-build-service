@@ -66,7 +66,7 @@ sub new {
     'uri' => "$remoteurl/lastevents",
     'async' => 1,
     'request' => 'POST',
-    'headers' => [ 'Content-Type: application/x-www-form-urlencoded' ],
+    'formurlencode' => 1,
     'proxy' => $conf{'remoteproxy'},
   };
   my @args;

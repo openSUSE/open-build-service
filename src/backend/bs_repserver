@@ -1804,7 +1804,7 @@ sub receivekiwitree {
     my $param = {
       'uri' => "$js->{'uri'}/kiwitree",
       'request' => 'POST',
-      'headers' => [ 'Content-Type: application/x-www-form-urlencoded' ],
+      'formurlencode' => 1,
       'directory' => $dir,
       'timeout' => 600,
       'acceptsubdirs' => 1,

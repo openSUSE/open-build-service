@@ -41,12 +41,13 @@ sub notify {
   my $param = {
     'uri' => "$BSConfig::srcserver/notify/$type",
     'request' => 'POST',
-    'headers' => [ 'Content-Type: application/x-www-form-urlencoded' ],
+    'formurlencode' => 1,
     'timeout' => 60,
   };
   if ($payload) {
     $param->{'headers'} = [ 'Content-Type: application/octet-stream' ];
     $param->{'data'} = $payload;
+    $param->{'formurlencode'} = 0;
   }
   my @args = map {"$_=$p->{$_}"} sort keys %$p;
   eval {
