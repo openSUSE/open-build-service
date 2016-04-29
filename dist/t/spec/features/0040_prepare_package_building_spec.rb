@@ -3,6 +3,22 @@ require "spec_helper"
 require 'tmpdir'
 require "net/https"
 require "uri"
+require "nokogiri"
+
+def get_build_source(download_url)
+  text = Net::HTTP.get(URI.parse(download_url))
+
+  xml_doc = Nokogiri::XML(text)
+
+  stb = ''
+
+  xml_doc.xpath("//directory/entry").each do |entry|
+
+    return entry['name'] if /^obs-build.*\.tar\.gz$/.match(entry['name'])
+
+  end
+end
+
 
 RSpec.describe "Preparation for building package obs-build" do
 
@@ -25,7 +41,8 @@ RSpec.describe "Preparation for building package obs-build" do
   download_url = "https://api.opensuse.org/public/source/OBS:Server:2.7/build"
   dir = Dir.mktmpdir
   # get spec file
-  upload_files = ['build.spec','_service','obs-build-20160426.tar.gz']
+  upload_files = ['build.spec','_service']
+  upload_files.push(get_build_source(download_url))
   upload_files.each do |fn|
     it "should be able to upload #{fn}" do
       File.write("#{dir}/#{fn}", Net::HTTP.get(URI.parse("#{download_url}/#{fn}")))
