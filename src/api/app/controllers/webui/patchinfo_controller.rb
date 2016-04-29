@@ -311,7 +311,13 @@ class Webui::PatchinfoController < Webui::WebuiController
 
   def require_exists
     unless params[:package].blank?
-      @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false)
+      begin
+        @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false)
+      rescue Package::UnknownObjectError
+        flash[:error] = "Patchinfo '#{params[:package]}' not found in project '#{params[:project]}'"
+        redirect_to project_show_path(project: params[:project])
+        return
+      end
     end
 
     unless @package && @package.patchinfo
