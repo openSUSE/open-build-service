@@ -676,7 +676,7 @@ if (open(FILE, "<", "/proc/cpuinfo")) {
       $hw->{'cpu'}->{'flag'} = \@cpuflags;
     } elsif (/^CPU implementer\s*:\s0x43/) {
       # aarch64 special case: does not support armvXl instruction set
-      $hw->{'cpu'}->{'nativeonly'} = {};
+      $hw->{'nativeonly'} = {};
     } elsif (/^cpu\s*:\sPOWER8/) {
       # PowerPC kernel does not provide any flags, but we need to be able
       # to distinguish between power7 and 8 at least
