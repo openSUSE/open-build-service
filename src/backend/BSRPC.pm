@@ -205,7 +205,7 @@ sub rpc {
     my %paramcopy = %$param;
     my $timeout = delete $paramcopy{'timeout'};
     my $ans;
-    local $SIG{'ALRM'} = sub {alarm(0); die("rpc timeout\n");};
+    local $SIG{'ALRM'} = sub {alarm(0); die("rpc timeout($timeout sec) uri: '$param->{uri}'\n");};
     eval {
       eval {
         alarm($timeout);

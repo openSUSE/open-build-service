@@ -7920,8 +7920,13 @@ if ($BSConfig::workersrcserver) {
   $conf->{'port2'} = $wport if $wport != $port;
 }
 
+# Ensure that all directories we need at runtime are existant and owned by $bsuser:$bsgroup
+# before root privileges are dropped by BSServer::serveropen called by BSStdServer::server
+for my $dir_to_check ($BSConfig::bsdir,$projectsdir,$eventdir,$srcrep,$treesdir,$requestsdir,$oldrequestsdir,$rundir,$diffcache,"$BSConfig::bsdir/db/",$remotecache,$notificationpayloaddir) {
+  print "Checking directory '$dir_to_check'\n";
+  BSUtil::mkdir_p_chown("$dir_to_check", $BSConfig::bsuser, $BSConfig::bsgroup);
+}
 # set a repoid for identification of this data repository
-BSUtil::mkdir_p_chown("$projectsdir", $BSConfig::bsuser, $BSConfig::bsgroup) unless -d "$projectsdir";
 if (! -e "$projectsdir/_repoid") {
   my $randomid = int(rand(1000000000));
   writestr("$projectsdir/._repoid", "$projectsdir/_repoid", sprintf("%09d", $randomid));

@@ -3,6 +3,22 @@ require "spec_helper"
 require 'tmpdir'
 require "net/https"
 require "uri"
+require "nokogiri"
+
+def get_build_source(download_url)
+  text = Net::HTTP.get(URI.parse(download_url))
+
+  xml_doc = Nokogiri::XML(text)
+
+  stb = ''
+
+  xml_doc.xpath("//directory/entry").each do |entry|
+
+    return entry['name'] if /^obs-build.*\.tar\.gz$/.match(entry['name'])
+
+  end
+end
+
 
 RSpec.describe "Preparation for building package obs-build" do
 
@@ -12,25 +28,30 @@ RSpec.describe "Preparation for building package obs-build" do
     visit("/project/show/home:Admin")
   end
 
-  it "should be able to create a new package from OBS:Server:Unstable/build/build.spec and _service files" do
-    dir = Dir.mktmpdir
-    File.write("#{dir}/build.spec", Net::HTTP.get(URI.parse("https://api.opensuse.org/public/source/OBS:Server:Unstable/build/build.spec")))
+  it "should be able to create a new package 'build'" do
     find('img[title="Create package"]').click
     expect(page).to have_content("Create New Package for home:Admin")
     fill_in 'name', with: 'obs-build'
     find('input[name="commit"]').click #Save changes
     expect(page).to have_content("Package 'obs-build' was created successfully")
-    find('img[title="Add file"]').click
-    expect(page).to have_content("Add File to")
-    attach_file("file", "#{dir}/build.spec")
-    find('input[name="commit"]').click #Save changes
-    expect(page).to have_content("Source Files")
-    File.write("#{dir}/_service", Net::HTTP.get(URI.parse("https://api.opensuse.org/public/source/OBS:Server:Unstable/build/_service")))
-    find('img[title="Add file"]').click
-    expect(page).to have_content("Add File to")
-    attach_file("file", "#{dir}/_service")
-    find('input[name="commit"]').click #Save changes
-    expect(page).to have_content("Source Files")
+
+  end
+
+  # prepare for upload
+  download_url = "https://api.opensuse.org/public/source/OBS:Server:2.7/build"
+  dir = Dir.mktmpdir
+  # get spec file
+  upload_files = ['build.spec','_service']
+  upload_files.push(get_build_source(download_url))
+  upload_files.each do |fn|
+    it "should be able to upload #{fn}" do
+      File.write("#{dir}/#{fn}", Net::HTTP.get(URI.parse("#{download_url}/#{fn}")))
+      find('img[title="Add file"]').click
+      expect(page).to have_content("Add File to")
+      attach_file("file", "#{dir}/#{fn}")
+      find('input[name="commit"]').click #Save changes
+      expect(page).to have_content("Source Files")
+    end
   end
 
   it "should be able to add build targets from existing repos" do
@@ -51,20 +72,5 @@ RSpec.describe "Preparation for building package obs-build" do
     uncheck("arch_x86_64")
     click_button("Update openSUSE_Tumbleweed")
   end
-
-  it "should be able to add a DOD repository for Leap (x86_64)" do
-    visit("/project/repositories/home:Admin")
-    find_by_id("add_dod_repository_link_openSUSE_Leap_42_1").click
-    first(:xpath,'//*[@id="download_repository_url"]').set "http://download.opensuse.org/repositories/openSUSE:/Tools/openSUSE_42.1/"
-    find("input#add_dod_button").click
-  end
-
-  it "should be able to add a DOD repository for Tumbleweed (i586)" do
-    visit("/project/repositories/home:Admin")
-    find_by_id("add_dod_repository_link_openSUSE_Tumbleweed").click
-    first(:xpath,'//*[@id="download_repository_url"]').set "http://download.opensuse.org/repositories/openSUSE:/Tools/openSUSE_42.1/"
-    find("input#add_dod_button").click
-  end
-
 
 end

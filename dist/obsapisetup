@@ -10,7 +10,7 @@
 ### BEGIN INIT INFO
 # Provides:          obsapisetup
 # X-Start-Before:    apache2
-# Should-Start:      obsstoragesetup obssrcserver
+# Should-Start:      obsstoragesetup obssrcserver obsrepserver
 # Should-Stop:       $none
 # Required-Start:    mysql
 # Required-Stop:     $null
