@@ -4406,9 +4406,8 @@ if ($BSConfig::workerreposerver) {
 }
 
 # Ensure that all directories we need at runtime are existant and owned by $bsuser:$bsgroup
-# before root privileges are dropped by BSServer::serveropen called by BSStdServer::server
-for my $dir_to_check ($BSConfig::bsdir,$reporoot , $workersdir , $jobsdir , $eventdir , $infodir , $uploaddir , $rundir , $extrepodir , $extrepodb) {
-  print "Checking directory '$dir_to_check'\n";
-  BSUtil::mkdir_p_chown("$dir_to_check", $BSConfig::bsuser, $BSConfig::bsgroup);
+# before root privileges are dropped
+for my $dir_to_check ($BSConfig::bsdir, $reporoot, $workersdir, $jobsdir, $eventdir, $infodir, $uploaddir, $rundir, $extrepodir, $extrepodb) {
+  BSUtil::mkdir_p_chown($dir_to_check, $BSConfig::bsuser, $BSConfig::bsgroup);
 }
 BSStdServer::server('bs_repserver', \@ARGV, $conf, $aconf);
