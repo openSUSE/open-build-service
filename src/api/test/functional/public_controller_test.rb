@@ -48,6 +48,10 @@ class PublicControllerTest < ActionDispatch::IntegrationTest
     get "/public/build/home:Iggy/10.2/i586/TestPack"
     assert_response :success
 
+    get "/public/request/1000"
+    assert_response :success
+    assert_xml_tag :tag => 'request', attributes: {id: "1000"}
+
     # remote interconnect from scheduler for product building
     get "/public/build/home:Iggy/10.2/i586"
     assert_response :success

@@ -153,6 +153,13 @@ class PublicController < ApplicationController
     render 'distributions/index'
   end
 
+  # GET /public/request/:number
+  def show_request
+    required_parameters :number
+    req = BsRequest.find_by_number!(params[:number])
+    render xml: req.render_xml()
+  end
+
   # GET /public/binary_packages/:project/:package
   def binary_packages
     check_package_access(params[:project], params[:package], false)

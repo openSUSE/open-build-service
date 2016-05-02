@@ -615,6 +615,7 @@ OBSApi::Application.routes.draw do
       get 'public/about' => 'about#index'
       get 'public/configuration' => :configuration_show
       get 'public/configuration.xml' => :configuration_show
+      get 'public/request/:number' => :show_request, constraints: cons
       get 'public/source/:project' => :project_index, constraints: cons
       get 'public/source/:project/_meta' => :project_meta, constraints: cons
       get 'public/source/:project/_config' => :project_file, constraints: cons
