@@ -112,11 +112,11 @@ class Webui::RequestController < Webui::WebuiController
 
     @request_before = nil
     @request_after = nil
-    index = session[:requests].try(:index, @id)
+    index = session[:request_numbers].try(:index, @number)
     if index
-      @request_before = session[:requests][index-1] if index > 0
+      @request_before = session[:request_numbers][index-1] if index > 0
       # will be nil for after end
-      @request_after = session[:requests][index+1]
+      @request_after = session[:request_numbers][index+1]
     end
 
     @comments = @bsreq.comments
@@ -243,8 +243,8 @@ class Webui::RequestController < Webui::WebuiController
     requests = BsRequest.list_ids(params)
     elide_len = 44
     elide_len = params[:elide_len].to_i if params[:elide_len]
-    session[:requests] = requests
-    requests = BsRequest.collection(ids: session[:requests])
+    session[:request_numbers] = requests.map { |id| BsRequest.find(id).number }
+    requests = BsRequest.collection(ids: requests)
     render :partial => 'shared/requests', :locals => {:requests => requests, :elide_len => elide_len, :no_target => params[:no_target]}
   end
 
