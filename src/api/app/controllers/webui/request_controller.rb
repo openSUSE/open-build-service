@@ -243,7 +243,7 @@ class Webui::RequestController < Webui::WebuiController
     requests = BsRequest.list_ids(params)
     elide_len = 44
     elide_len = params[:elide_len].to_i if params[:elide_len]
-    session[:request_numbers] = requests.map { |id| BsRequest.find(id).number }
+    session[:request_numbers] = requests.map { |id| BsRequest.find(id).number }.uniq
     requests = BsRequest.collection(ids: requests)
     render :partial => 'shared/requests', :locals => {:requests => requests, :elide_len => elide_len, :no_target => params[:no_target]}
   end
