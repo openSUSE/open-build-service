@@ -3225,7 +3225,7 @@ if ($cgi->{'workercode'} && $cgi->{'port'} && $cgi->{'workercode'} ne $workercod
   die("rebooting...\n");
 }
 
-my $jobattempt = $cgi->{'attempt'} || 0;
+my $nobadhost = $cgi->{'nobadhost'};
 
 my $infoxml = readstr("job.new.$$");
 die("bad job xml data\n") unless $infoxml =~ /<.*?>/s;
@@ -3454,7 +3454,11 @@ if (!$ex) {
 } elsif ($ex == 2) {
   print "build succeeded, but does not differ from old build result...\n";
   $code = 'unchanged';
-} elsif ($ex == 3 && $jobattempt < 5) {
+} elsif ($ex == 3 && $nobadhost) {
+  print "build failed, ignored bad build host...\n";
+  BSUtil::appendstr("$buildroot/.build.log", "\n$nobadhost\n");
+  $code = 'failed';
+} elsif ($ex == 3) {
   print "build failed, marked as bad build host...\n";
   $code = 'badhost';
   # Check if buildconfig is just broken and won't ever succeed

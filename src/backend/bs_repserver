@@ -1701,15 +1701,16 @@ sub workerstatus {
 }
 
 sub sendbadhostevent {
-  my ($info, $idlename, $isputbuild) = @_;
+  my ($info, $idlename, $job) = @_;
   my $ev = {
     'type' => 'badhost',
     'project' => $info->{'project'},
     'package' => $info->{'package'},
     'repository' => $info->{'repository'},
     'arch' => $info->{'arch'},
-    'job' => $idlename,
+    'worker' => $idlename,
   };
+  $ev->{'job'} = $job if $job;
   my $evname = "badhost::$info->{'project'}::$info->{'package'}::$info->{'arch'}::$idlename";
   $evname = "badhost:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
   mkdir_p("$eventdir/dispatch");
@@ -1861,7 +1862,7 @@ sub putjob {
   if ($cgi->{'code'} && $cgi->{'code'} eq 'badhost') {
     # turned out that this host couldn't build the job
     # rebuild on some other
-    sendbadhostevent($info, $idlename);
+    sendbadhostevent($info, $idlename, $job);
     unlink("$jobsdir/$arch/$job:status");
     close(F);
     return $BSStdServer::return_ok;
@@ -2214,11 +2215,14 @@ sub forwardevent {
   my $ev = { type => $type };
   $ev->{'project'} = $projid unless $type eq 'configuration';
   my $job;
+  my $worker;
   if ($type eq 'badhost') {
     $repoid = $cgi->{'repository'} if exists $cgi->{'repository'};
     $arch = $cgi->{'arch'} if exists $cgi->{'arch'};
+    $worker = $cgi->{'worker'} if exists $cgi->{'worker'};
+    $job = $cgi->{'job'} if exists $cgi->{'job'};
   }
-  $job = $cgi->{'job'} if exists($cgi->{'job'}) && ($type eq 'badhost' || $type eq 'suspendproject');
+  $job = $cgi->{'job'} if exists($cgi->{'job'}) && $type eq 'suspendproject';
   # hack: mis-use job to transfer wipe target
   if ($type eq 'wipe' && $cgi->{'wipe'}) {
     $job = join(',', @{$cgi->{'wipe'}});
@@ -2230,6 +2234,8 @@ sub forwardevent {
   $evname .= "::$repoid" if defined $repoid;
   $ev->{'arch'} = $arch if defined $arch;
   $evname .= "::$arch" if defined $arch;
+  $ev->{'worker'} = $worker if defined $worker;
+  $evname .= "::$worker" if defined $worker;
   $ev->{'job'} = $job if defined $job;
   $evname .= "::$job" if defined $job;
   $evname = "${type}:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
@@ -4324,7 +4330,7 @@ my $dispatches = [
   '/build/_dispatchprios' => \&getdispatchprios,
 
   # src server calls
-  'POST:/event $type: $project $package? repository? arch? job?' => \&forwardevent,
+  'POST:/event $type: $project $package? repository? arch? job? worker:job?' => \&forwardevent,
 
   # worker calls
   '!worker /worker $arch $port $state: workerid? working:bool? memory:num? disk:num? buildarch:arch* tellnojob:bool?' => \&workerstate,

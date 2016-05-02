@@ -633,6 +633,7 @@ our $event = [
 	'arch',
 	'package',
 	'job',
+	'worker',
 	'due',
 ];
 

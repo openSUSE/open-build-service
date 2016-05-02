@@ -179,7 +179,6 @@ my $lastcodechecktime;
 my %badhost;
 my %newestsrcchange;
 my %infocache;
-my %jobattempt;
 my %constraintscache;
 
 my %lastbuild;	# last time a job was build in that prpa
@@ -192,6 +191,19 @@ sub printlog {
   my @ltim = localtime(time);
   my $msgtm = sprintf "%04d-%02d-%02d %02d:%02d:%02d:", $ltim[5] + 1900, $ltim[4] + 1, @ltim[3,2,1,0];
   print "$msgtm $msg\n";
+}
+
+sub checkbadhost {
+  my (@attempts) = @_;
+  my %hosts;
+  for my $attempt (@attempts) {
+    my $host = $attempt;
+    $host =~ s/:\d+$//;
+    $hosts{$host} = 1;
+  }
+  my $nhosts = keys %hosts;
+  $nhosts = 1 unless $nhosts;
+  return (@attempts > 5 + 20 / $nhosts) ? 1 : 0;
 }
 
 sub assignjob {
@@ -242,9 +254,15 @@ sub assignjob {
     return undef;
   }
 
-  # counter for this job
-  $jobattempt{"$arch/$job"} ||= 0;
-  $jobattempt{"$arch/$job"}++;
+  my @args = ("port=$port", "workercode=$workercode", "buildcode=$buildcode");
+  my $attempt = 0;
+  if ($badhost{"$info->{'arch'}/$job"}) {
+    my $id = "$info->{'arch'}/$job";
+    my @attempts = grep {s/^\Q$id\E\///} keys %badhost;
+    $attempt = scalar(@attempts) + 1;
+    my $msg = "gave up after $attempt failed build attempts...";
+    push @args, "nobadhost=$msg" if checkbadhost(@attempts);
+  }
 
   eval {
     BSRPC::rpc({
@@ -253,8 +271,7 @@ sub assignjob {
       'request' => "PUT",
       'headers' => [ "Content-Type: text/xml" ],
       'data'    => $infoxml,
-    }, undef, "port=$port", "workercode=$workercode", "buildcode=$buildcode",
-    "attempt=".$jobattempt{"$arch/$job"});
+    }, undef, @args);
   };
   if ($@) {
     my $err = $@;
@@ -285,7 +302,7 @@ sub assignjob {
   $jobstatus->{'starttime'} = time();
   $jobstatus->{'hostarch'} = $worker->{'hostarch'};
   $jobstatus->{'jobid'} = $jobid;
-  $jobstatus->{'attempt'} = $jobattempt{"$arch/$job"};
+  $jobstatus->{'attempt'} = $attempt if $attempt;
 
   # put worker into building list
   $worker->{'job'} = $job;
@@ -302,7 +319,6 @@ sub assignjob {
     # we did out job. delete job
     unlink("$jobsdir/$arch/$job");
     unlink("$jobsdir/$arch/$job:status");
-    delete $jobattempt{"$arch/$job"};
     close F;
     return 'assigned';
   }
@@ -315,7 +331,7 @@ sub assignjob {
 sub sendeventtoserver {
   my ($server, $ev) = @_;
   my @args;
-  for ('type', 'project', 'package', 'repository', 'arch', 'job') {
+  for ('type', 'project', 'package', 'repository', 'arch', 'job', 'worker') {
     push @args, "$_=$ev->{$_}" if defined $ev->{$_};
   }
   my $param = {
@@ -768,11 +784,14 @@ sub forwardevents {
       if ($ev->{'type'} eq 'built') {
         # resend to rep server
       } elsif ($ev->{'type'} eq 'badhost') {
-        printlog("badhost event: $ev->{'project'}/$ev->{'package'}/$ev->{'arch'}/$ev->{'job'}");
+        printlog("badhost event: $ev->{'project'}/$ev->{'package'}/$ev->{'arch'}/$ev->{'worker'}");
 	if ($BSConfig::masterdispatcher && $BSConfig::masterdispatcher ne $BSConfig::reposerver) {
           sendeventtoserver($BSConfig::masterdispatcher, $ev) unless $ev->{'package'} eq '_deltas';	# XXX
 	} else {
-	  $badhost{"$ev->{'project'}/$ev->{'package'}/$ev->{'arch'}/$ev->{'job'}"} = time();
+	  my $now = time();
+	  $badhost{"$ev->{'project'}/$ev->{'package'}/$ev->{'arch'}/$ev->{'worker'}"} = $now;
+	  $badhost{"$ev->{'arch'}/$ev->{'job'}"} = $now;
+	  $badhost{"$ev->{'arch'}/$ev->{'job'}/$ev->{'worker'}"} = $now;
 	}
       } else {
         sendeventtoserver($BSConfig::srcserver, $ev);
