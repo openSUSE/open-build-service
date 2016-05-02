@@ -101,7 +101,7 @@ my $uploaddir = "$srcrep/:upload";
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
-my $repoid;
+my $datarepoid;
 my %packagequota;
 
 # remote getrev cache
@@ -2968,7 +2968,7 @@ sub getprojpack {
     push @res, $jinfo;
   }
   $frozenlinks_cache = undef;
-  my $ret = {'repoid' => $repoid, 'project' => \@res};
+  my $ret = {'repoid' => $datarepoid, 'project' => \@res};
   if ($remotemap) {
     delete $remotemap->{':partition'};
     delete $remotemap->{':partitions'};
@@ -7720,8 +7720,8 @@ sub notify_plugins {
 
 sub hello {
   my ($cgi) = @_;
-  return "<hello name=\"Source Repository Ajax Server\" repoid=\"$repoid\" />\n" if $BSStdServer::isajax;
-  return "<hello name=\"Source Repository Server\" repoid=\"$repoid\" />\n";
+  return "<hello name=\"Source Repository Ajax Server\" repoid=\"$datarepoid\" />\n" if $BSStdServer::isajax;
+  return "<hello name=\"Source Repository Server\" repoid=\"$datarepoid\" />\n";
 }
 
 ####################################################################
@@ -7920,17 +7920,16 @@ if ($BSConfig::workersrcserver) {
   $conf->{'port2'} = $wport if $wport != $port;
 }
 
-# Ensure that all directories we need at runtime are existant and owned by $bsuser:$bsgroup
-# before root privileges are dropped
-for my $dir_to_check ($BSConfig::bsdir, $projectsdir, $eventdir, $srcrep, $treesdir, $requestsdir, $rundir, $diffcache, "$BSConfig::bsdir/db", $remotecache, $notificationpayloaddir) {
-  BSUtil::mkdir_p_chown($dir_to_check, $BSConfig::bsuser, $BSConfig::bsgroup);
-}
+# create bsdir before root privileges are dropped
+BSUtil::mkdir_p_chown($BSConfig::bsdir, $BSConfig::bsuser, $BSConfig::bsgroup);
+
 # set a repoid for identification of this data repository
 if (! -e "$projectsdir/_repoid") {
-  my $randomid = int(rand(1000000000));
-  writestr("$projectsdir/._repoid", "$projectsdir/_repoid", sprintf("%09d", $randomid));
+  BSUtil::mkdir_p_chown($projectsdir, $BSConfig::bsuser, $BSConfig::bsgroup);
+  $datarepoid = sprintf("%09d", int(rand(1000000000)));
+  writestr("$projectsdir/._repoid$$", "$projectsdir/_repoid", $datarepoid);
 }
-$repoid = readstr("$projectsdir/_repoid");
+$datarepoid = readstr("$projectsdir/_repoid");
 
 BSStdServer::server('bs_srcserver', \@ARGV, $conf, $aconf);
 
