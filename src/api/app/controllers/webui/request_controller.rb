@@ -85,6 +85,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def show
     redirect_back_or_to user_show_path(User.current) and return if !params[:number]
+
     @bsreq = BsRequest.find_by_number(params[:number])
     unless @bsreq
       flash[:error] = "Can't find request #{params[:number]}"
@@ -111,17 +112,15 @@ class Webui::RequestController < Webui::WebuiController
     @history = History.find_by_request(@bsreq, {withreviews: 1})
     @actions = @req['actions']
 
-    request_list = session[:requests]
     @request_before = nil
     @request_after = nil
-    index = request_list.index(@id) if request_list
-    if index and index > 0
-      @request_before = request_list[index-1]
-    end
+    index = session[:requests].try(:index, @id)
     if index
-      # will be nul for after end
-      @request_after = request_list[index+1]
+      @request_before = session[:requests][index-1] if index > 0
+      # will be nil for after end
+      @request_after = session[:requests][index+1]
     end
+
     @comments = @bsreq.comments
   end
 
