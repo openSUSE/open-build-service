@@ -203,9 +203,7 @@ our $relsync_pool = {
 #                         };
 
 # enable download on demand
-#
-#
-our $enable_download_on_demand = 1;
+# our $enable_download_on_demand = 1;
 
 
 # host specific configs
