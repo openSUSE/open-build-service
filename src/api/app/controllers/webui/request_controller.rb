@@ -84,8 +84,6 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def show
-    redirect_back_or_to user_show_path(User.current) and return if !params[:number]
-
     @bsreq = BsRequest.find_by_number(params[:number])
     unless @bsreq
       flash[:error] = "Can't find request #{params[:number]}"
