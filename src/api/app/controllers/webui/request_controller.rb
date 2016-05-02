@@ -241,8 +241,7 @@ class Webui::RequestController < Webui::WebuiController
   def list
     redirect_to user_show_path(User.current) and return unless request.xhr? # non ajax request
     requests = BsRequest.list_ids(params)
-    elide_len = 44
-    elide_len = params[:elide_len].to_i if params[:elide_len]
+    elide_len = (params[:elide_len] || 44).to_i
     session[:request_numbers] = requests.map { |id| BsRequest.find(id).number }.uniq
     requests = BsRequest.collection(ids: requests)
     render :partial => 'shared/requests', :locals => {:requests => requests, :elide_len => elide_len, :no_target => params[:no_target]}
