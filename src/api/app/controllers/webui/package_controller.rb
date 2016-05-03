@@ -1079,7 +1079,7 @@ class Webui::PackageController < Webui::WebuiController
 
     unless @package
       flash[:error] = "Package \"#{params[:package]}\" not found in project \"#{params[:project]}\""
-      redirect_to controller: :project, action: :show, project: @project, nextstatus: 404
+      redirect_to project_show_path(project: @project, nextstatus: 404)
     end
   end
 
