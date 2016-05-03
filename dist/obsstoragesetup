@@ -101,7 +101,7 @@ case "$1" in
 
 				# Find unpartitioned disks and create LVM partition on them
 				for disk in `hwinfo --disk | grep "Device File:" |\
-					cut -f2 -d: | cut -f2 -d" "`;do
+					cut -f2 -d: | cut -f2 -d" " | grep -v /dev/ram`;do
 				        count=0
 				        used=
 				        for i in `sfdisk -l $disk 2>/dev/null | tr -d '*' | grep ^/ |\
