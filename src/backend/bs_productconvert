@@ -85,7 +85,7 @@ sub readProductFile( $ )
     my ($filename) = @_;
 
     print "parsing product definition... ";
-    my $xml = BSProductXML::readproductxml( "$filename", 0, $opt_d );
+    my $xml = BSProductXML::readproductxml( "$filename", 1, $opt_d );
 
     if( defined($xml) ) {
 	print "success!\n";
@@ -1092,12 +1092,22 @@ sub writeProductSPECfile( $$$$ )
     writestr($file, undef, $str);
 }
 
-sub createPreSelectPatternDeps ( $ ) {
+sub createPreSelectPatternDepsOld ( $ ) {
   my ( $patterns ) = @_;
 
   my $pattern_lines="";
   foreach my $pattern (@{$patterns->[0]->{'pattern'}}){
       $pattern_lines.="Recommends:     pattern() = $pattern->{'name'}\n";
+  }
+  return $pattern_lines;
+}
+
+sub createPreSelectPatternDeps ( $ ) {
+  my ( $patterns ) = @_;
+
+  my $pattern_lines="";
+  foreach my $pattern (@{$patterns->[0]->{'pattern'}}){
+      $pattern_lines.="Provides:       defaultpattern($pattern->{'name'})\n";
   }
   return $pattern_lines;
 }
@@ -1131,6 +1141,10 @@ sub createSPECfileFlavors ( $$ ) {
     my ( $prodRef,$product ) = @_;
     my $product_flavors = '';
     my %seen;
+
+    # take media style from first media. not nice, but we can only have one product package for all of them.
+    my $defaultmedium = $prodRef->{mediasets}->{media}[0];
+
     foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
       next if !defined($flavor->{'flavor'}) || $flavor->{'flavor'} eq '' || $seen{$flavor->{flavor}};
       $seen{$flavor->{flavor}} = 1;
@@ -1145,11 +1159,13 @@ sub createSPECfileFlavors ( $$ ) {
       $product_flavors.="Provides:       product_flavor()\n";
       $product_flavors.="Provides:       flavor($flavor->{flavor})\n";
       if (defined($flavor->{'preselected_patterns'})){
-        $product_flavors.=createPreSelectPatternDeps($flavor->{'preselected_patterns'});
+        if ($flavor->{'mediastyle'} ne "suse-sle12" && $flavor->{'mediastyle'} ne "suse-sle12-sp1" ) {
+          $product_flavors.=createPreSelectPatternDeps($flavor->{'preselected_patterns'});
+        } else {
+          $product_flavors.=createPreSelectPatternDepsOld($flavor->{'preselected_patterns'});
+        }
       }
-      # take media style from first media. not nice, but we can only have one product package for all of them.
-      my $medium = $prodRef->{mediasets}->{media}[0];
-      if ((not defined $medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
+      if ((not defined $flavor->{'mediastyle'}) || $flavor->{'mediastyle'} eq "suse-11.1" || $flavor->{'mediastyle'} eq "suse-11.2" || $flavor->{'mediastyle'} eq "suse-11.3") {
         $product_flavors.="Provides:       product_flavor($product->{name}) = %version-%release\n";
       } else {
         # this is the product version and release, not a package release.
@@ -1159,8 +1175,8 @@ sub createSPECfileFlavors ( $$ ) {
       }
       if (defined($flavor->{'productdependency'})){
         # old compat code.
-        die("productdependency works only with new mediastyles") unless defined($medium->{'mediastyle'});
-        if ($medium->{'mediastyle'} ne "suse-11.1" && $medium->{'mediastyle'} ne "suse-11.2" && $medium->{'mediastyle'} ne "suse-11.3" && $medium->{'mediastyle'} ne "suse-12.1" && $medium->{'mediastyle'} ne "suse-sle11-sp2" ) {
+        die("productdependency works only with new mediastyles") unless defined($defaultmedium->{'mediastyle'});
+        if ($defaultmedium->{'mediastyle'} ne "suse-11.1" && $defaultmedium->{'mediastyle'} ne "suse-11.2" && $defaultmedium->{'mediastyle'} ne "suse-11.3" && $defaultmedium->{'mediastyle'} ne "suse-12.1" && $defaultmedium->{'mediastyle'} ne "suse-sle11-sp2" ) {
             die("productdependency must be defined per product for post 12.1 media styles");
         }
         $product_flavors.=createProductDependencyLines($flavor->{'productdependency'});
