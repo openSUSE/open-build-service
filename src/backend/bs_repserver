@@ -742,7 +742,7 @@ sub filtersources {
   for my $bin (splice @bins) {
     next if $bin =~ /\.(?:no)?src\.rpm$/;
     next if $bin =~ /-debug(?:info|source).*\.rpm$/;
-    next if $debian && ($bin !~ /\.deb$/) && ($bin !~ /-appdata\.xml$/);
+    next if $debian && ($bin !~ /\.deb$/) && ($bin !~ /\.appdata\.xml$/);
     push @bins, $bin;
   }
   return @bins;
@@ -773,7 +773,7 @@ sub read_bininfo {
       $r->{'hdrmd5'} = $hdrmd5;
       $r->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
       $bininfo->{$file} = $r;
-    } elsif ($file =~ /-appdata\.xml$/) {
+    } elsif ($file =~ /\.appdata\.xml$/) {
       local *F;
       open(F, '<', "$dir/$file") || next;
       my @s = stat(F);
@@ -1958,7 +1958,7 @@ sub putjob {
     my $id = "$s[9]/$s[7]/$s[1]";
     my $data;
     if ($file->{'name'} !~ /\.(?:$binsufsre)$/) {
-      if ($file->{'name'} =~ /^.*-appdata.xml$/) {
+      if ($file->{'name'} =~ /^.*\.appdata.xml$/) {
 	# used in product building, store md5sum
 	local *F;
 	open(F, '<', "$dir/$file->{'name'}");
@@ -2762,7 +2762,7 @@ sub getkiwiproductpackages {
 	      next if $seen_binary->{"$b->{'name'}.$b->{'arch'}"};
 	      $seen_binary->{"$b->{'name'}.$b->{'arch'}"} = 1;
 	    }
-	    if ($b->{'filename'} =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/ || $b->{'filename'} =~ /^.*-appdata.xml$/) {
+	    if ($b->{'filename'} =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/ || $b->{'filename'} =~ /^.*\.appdata.xml$/) {
 	      push @got, "$aprp/$arch/$apackid/$b->{'filename'}";
 	    }
 	  }
@@ -2808,7 +2808,7 @@ sub getkiwiproductpackages {
 	  push @got, "$aprp/$arch/$apackid/$b";
 	}
         for my $b (@bins) {
-	  push @got, "$aprp/$arch/$apackid/$b" if $b =~ /^.*-appdata.xml$/;
+	  push @got, "$aprp/$arch/$apackid/$b" if $b =~ /^.*\.appdata.xml$/;
         }
       }
     }
@@ -3278,7 +3278,7 @@ sub getbuildinfo {
         $d->{'arch'} = $4;
       } else {
         # for now we only support appdata.xml
-        next unless $bn[-1] =~ /^(.*)-appdata.xml$/;
+        next unless $bn[-1] =~ /^(.*)\.appdata.xml$/;
       }
       $d->{'project'} = $bn[0];
       $d->{'repository'} = $bn[1];

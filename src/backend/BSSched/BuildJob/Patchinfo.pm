@@ -469,10 +469,10 @@ sub build {
         unlink("$jobdatadir/$bin");
         next;
       }
-      if ($d->{'arch'} ne 'src' && $d->{'arch'} ne 'nosrc' && -e "$from/$d->{'name'}-appdata.xml") {
-        unlink("$jobdatadir/$d->{'name'}-appdata.xml");
-        if (!link("$from/$d->{'name'}-appdata.xml", "$jobdatadir/$d->{'name'}-appdata.xml")) {
-          my $error = "link $from/$d->{'name'}-appdata.xml $jobdatadir/$d->{'name'}-appdata.xml: $!\n";
+      if ($d->{'arch'} ne 'src' && $d->{'arch'} ne 'nosrc' && -e "$from/$d->{'name'}.appdata.xml") {
+        unlink("$jobdatadir/$d->{'name'}.appdata.xml");
+        if (!link("$from/$d->{'name'}.appdata.xml", "$jobdatadir/$d->{'name'}.appdata.xml")) {
+          my $error = "link $from/$d->{'name'}.appdata.xml $jobdatadir/$d->{'name'}.appdata.xml: $!\n";
           return ('broken', $error);
         }
       }
