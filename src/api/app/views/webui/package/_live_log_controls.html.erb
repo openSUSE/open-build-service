@@ -8,10 +8,6 @@
   <% end %>
 </p>
 
-<% if @package.kind_of?(Package)%>
-  <%= render :partial => "tabs" %>
-<% end %>
-
 <% if @package.kind_of?(Package) && User.current.can_modify_package?(@package) %>
     <p>
       <span class="link_trigger_rebuild hidden">
