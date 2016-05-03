@@ -3,6 +3,10 @@
    package_bread_crumb 'Build Log' 
 -%>
 
+<% if @package.kind_of?(Package)%>
+  <%= render :partial => "tabs" %>
+<% end %>
+
 <%= content_for :ready_function do %>
   live_build_log_ready();
 <% end -%>
