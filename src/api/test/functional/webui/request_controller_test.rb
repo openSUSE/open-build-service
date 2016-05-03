@@ -303,6 +303,34 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     assert_equal [], result["aaData"]
   end
 
+  def test_going_through_request_list
+    use_js
+    login_king
+
+    visit project_requests_path(project: "Apache")
+    page.must_have_text "Requests for Apache"
+    all("a.request_link").count.must_equal 4
+
+    first("a.request_link").click
+    assert_equal "/request/show/1000", page.current_path
+    # start of list
+    page.wont_have_link("<<")
+    click_link(">>")
+    assert_equal "/request/show/10", page.current_path
+    click_link(">>")
+    assert_equal "/request/show/5", page.current_path
+    click_link(">>")
+    assert_equal "/request/show/4", page.current_path
+    page.wont_have_link(">>")
+    # end of list
+    click_link("<<")
+    assert_equal "/request/show/5", page.current_path
+    click_link("<<")
+    assert_equal "/request/show/10", page.current_path
+    click_link(">>")
+    assert_equal "/request/show/5", page.current_path
+  end
+
   def test_succesful_comment_creation
     login_Iggy to: request_show_path(1)
     fill_in 'body', with: 'Comment Body'
