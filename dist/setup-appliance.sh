@@ -637,9 +637,9 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
 
   DNS_NAMES="$rv"
 
-  check_server_cert
-
   DETECTED_CERT_CHANGE=0
+
+  check_server_cert
 
   import_ca_cert
 
