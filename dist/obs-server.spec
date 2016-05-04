@@ -607,9 +607,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 %files -n obs-worker
 %defattr(-,root,root)
 /etc/init.d/obsworker
-/etc/init.d/obsstoragesetup
 /usr/sbin/rcobsworker
-/usr/sbin/rcobsstoragesetup
 
 %files -n obs-api
 %defattr(-,root,root)
@@ -651,7 +649,6 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /srv/www/obs/api/bin
 /srv/www/obs/api/test
 /srv/www/obs/docs
-/usr/lib/obs/server/setup-appliance.sh
 
 
 /srv/www/obs/api/config/locales
@@ -698,6 +695,10 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 %files -n obs-common
 %defattr(-,root,root)
 /var/adm/fillup-templates/sysconfig.obs-server
+/usr/lib/obs/server/setup-appliance.sh
+/etc/init.d/obsstoragesetup
+/usr/sbin/rcobsstoragesetup
+
 
 %files -n obs-utils
 %defattr(-,root,root)
