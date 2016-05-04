@@ -67,6 +67,7 @@ sub new {
 sub is_transient_error {
   my ($error) = @_;
   return 1 if $error =~ /^5\d\d/;
+  return 1 if $error =~ /Too many open files/;
   return 0 if $error =~ /remote error:/;
   return 1;
 }
