@@ -338,7 +338,9 @@ sub addrepo_remote {
   eval {
     die('unsupported view\n') unless $remoteproj->{'partition'} || defined($BSConfig::usesolvstate) && $BSConfig::usesolvstate;
     $param->{'async'}->{'_solvok'} = 1 if $param->{'async'};
-    $cpio = $ctx->xrpc("repository/$prp/$arch", $param, undef, 'view=solvstate');
+    my @args = ('view=solvstate');
+    push @args, 'noajax=1' if $remoteproj->{'partition'};
+    $cpio = $ctx->xrpc("repository/$prp/$arch", $param, undef, @args);
     $solvok = 1 if $cpio;
   };
   if ($@ && $@ =~ /unsupported view/) {
