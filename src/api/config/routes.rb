@@ -562,6 +562,7 @@ OBSApi::Application.routes.draw do
       match 'search/published/pattern/id' => :pass_to_backend, via: [:get, :post]
       match 'search/channel/binary/id' => :channel_binary_id, via: [:get, :post]
       match 'search/channel/binary' => :channel_binary, via: [:get, :post]
+      match 'search/channel' => :channel, via: [:get, :post]
       match 'search/released/binary/id' => :released_binary_id, via: [:get, :post]
       match 'search/released/binary' => :released_binary, via: [:get, :post]
       match 'search/project/id' => :project_id, via: [:get, :post]

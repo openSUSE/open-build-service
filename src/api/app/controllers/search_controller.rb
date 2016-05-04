@@ -37,6 +37,10 @@ class SearchController < ApplicationController
     search(:request, false)
   end
 
+  def channel
+    search(:channel, true)
+  end
+
   def channel_binary
     search(:channel_binary, true)
   end
@@ -210,6 +214,9 @@ class SearchController < ApplicationController
       opts[:withfullhistory] = 1 if params[:withfullhistory]
     when :person
       relation = User.where(id: search_items)
+      includes = []
+    when :channel
+      relation = ChannelBinary.where(id: search_items)
       includes = []
     when :channel_binary
       relation = ChannelBinary.where(id: search_items)

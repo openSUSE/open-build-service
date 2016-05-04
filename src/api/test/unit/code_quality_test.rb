@@ -91,6 +91,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'PublicController#binary_packages'                                        => 126.16,
       'Repository#cleanup_before_destroy'                                       => 82.98,
       'SearchController#find_attribute'                                         => 97.33,
+      'SearchController#search'                                                 => 81.15,
       'SourceController#project_command_copy'                                   => 140.04,
       'SourceController#update_project_meta'                                    => 100.07,
       'UserLdapStrategy::find_with_ldap'                                        => 119.04,
