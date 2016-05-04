@@ -507,7 +507,7 @@ sub getbinarylist_repository {
   my $prp = "$projid/$repoid";
   my $view = $cgi->{'view'} || '';
 
-  if (($view eq 'cache' || $view eq 'cpio' || $view eq 'solvstate') && !$BSStdServer::isajax) {
+  if (($view eq 'cache' || $view eq 'cpio' || $view eq 'solvstate') && !$BSStdServer::isajax && !$cgi->{'noajax'}) {
     my @args = BSRPC::args($cgi, 'view', 'binary');
     BSHandoff::handoff("/build/$projid/$repoid/$arch/_repository", undef, @args);
   }
