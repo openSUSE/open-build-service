@@ -22,6 +22,16 @@ function check_service {
   [[ $SETUP_ONLY == 1 ]] && return
 
   echo "Checking service $srv ..."
+
+  ENABLED=`systemctl is-enabled $srv\.service 2>/dev/null`
+  if [[ "$ENABLED" == "disabled" ]];then
+    logline "Enabling $srv"
+    execute_silently systemctl enable $srv\.service
+    if [[ $? -gt 0 ]];then
+      logline "WARNING: Enabling $srv daemon failed."
+    fi
+  fi
+
   STATUS=`systemctl is-active $srv\.service 2>/dev/null`
   if [[ "$STATUS" == "inactive" ]];then
     echo "$srv daemon not started. Trying to start"
@@ -35,14 +45,6 @@ function check_service {
     fi
   fi
 
-  ENABLED=`systemctl is-enabled $srv\.service 2>/dev/null`
-  if [[ "$ENABLED" == "disabled" ]];then
-    logline "Enabling $srv"
-    execute_silently systemctl enable $srv\.service
-    if [[ $? -gt 0 ]];then
-      logline "WARNING: Enabling $srv daemon failed."
-    fi
-  fi
 }
 ###############################################################################
 function check_server_cert {
