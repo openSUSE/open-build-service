@@ -67,7 +67,12 @@ sub new {
 sub is_transient_error {
   my ($error) = @_;
   return 1 if $error =~ /^5\d\d/;
-  return 1 if $error =~ /Too many open files/;
+  if ($error =~ /^400/) {
+    return 1 if $error =~ /Too many open files/;
+    return 1 if $error =~ /No space left on device/;
+    return 1 if $error =~ /Not enough space/;
+    return 1 if $error =~ /Resource temporarily unavailable/;
+  }
   return 0 if $error =~ /remote error:/;
   return 1;
 }
