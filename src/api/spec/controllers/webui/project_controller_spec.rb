@@ -1,8 +1,16 @@
 require 'rails_helper'
 
-RSpec.describe Webui::ProjectController do
+RSpec.describe Webui::ProjectController, vcr: true do
   let(:user_moi) { create(:confirmed_user, login: "moi") }
   let(:user_tom) { create(:confirmed_user, login: "tom") }
+  let(:admin_user) { create(:admin_user, login: "admin") }
+  let(:apache_project) { create(:project, name: 'Apache') }
+  let(:another_project) { create(:project, name: 'Another_Project') }
+  let(:apache2_project) { create(:project, name: 'Apache2') }
+  let(:openSUSE_project) { create(:project, name: 'openSUSE') }
+  let(:apache_maintenance_incident_project) { create(:maintenance_incident_project, name: 'ApacheMI') }
+  let(:home_moi_project) { create(:project, name: 'home:moi') }
+  let(:maintenance_project) { create(:maintenance_project, name: 'maintenance_project') }
 
   describe 'CSRF protection' do
     before do
@@ -25,8 +33,8 @@ RSpec.describe Webui::ProjectController do
   describe 'GET #index' do
     context 'showing all projects' do
       before do
-        create(:project, name: 'home:moi')
-        create(:project, name: 'AnotherProject')
+        home_moi_project
+        another_project
         get :index, { show_all: true}
       end
 
@@ -37,8 +45,8 @@ RSpec.describe Webui::ProjectController do
 
     context 'showing not home projects' do
       before do
-        create(:project, name: 'home:moi')
-        create(:project, name: 'AnotherProject')
+        home_moi_project
+        another_project
         get :index, { show_all: false}
       end
 
@@ -89,10 +97,10 @@ RSpec.describe Webui::ProjectController do
 
   describe 'GET #autocomplete_projects' do
     before do
-      create(:project, name: 'Apache')
-      create(:project, name: 'Apache2')
-      create(:project, name: 'openSUSE')
-      create(:maintenance_incident_project, name: 'ApacheMI')
+      apache_project
+      apache2_project
+      openSUSE_project
+      apache_maintenance_incident_project
     end
 
     context 'without search term' do
@@ -101,8 +109,8 @@ RSpec.describe Webui::ProjectController do
         @json_response = JSON.parse(response.body)
       end
 
-      it { expect(@json_response).to contain_exactly('Apache', 'Apache2', 'openSUSE') }
-      it { expect(@json_response).not_to include('ApacheMI') }
+      it { expect(@json_response).to contain_exactly(apache_project.name, apache2_project.name, openSUSE_project.name) }
+      it { expect(@json_response).not_to include(apache_maintenance_incident_project.name) }
     end
 
     context 'with search term' do
@@ -111,36 +119,34 @@ RSpec.describe Webui::ProjectController do
         @json_response = JSON.parse(response.body)
       end
 
-      it { expect(@json_response).to contain_exactly('Apache', 'Apache2') }
-      it { expect(@json_response).not_to include('ApacheMI') }
-      it { expect(@json_response).not_to include('openSUSE') }
+      it { expect(@json_response).to contain_exactly(apache_project.name, apache2_project.name) }
+      it { expect(@json_response).not_to include(apache_maintenance_incident_project.name) }
+      it { expect(@json_response).not_to include(openSUSE_project.name) }
     end
   end
 
   describe 'GET #autocomplete_incidents' do
     before do
-      create(:project, name: 'Apache')
-      create(:maintenance_incident_project, name: 'ApacheMI')
+      apache_project
+      apache_maintenance_incident_project
       get :autocomplete_incidents, term: 'Apache'
       @json_response = JSON.parse(response.body)
     end
 
-    it { expect(@json_response).to contain_exactly('ApacheMI') }
-    it { expect(@json_response).not_to include('Apache') }
+    it { expect(@json_response).to contain_exactly(apache_maintenance_incident_project.name) }
+    it { expect(@json_response).not_to include(apache_project.name) }
   end
 
   describe 'GET #autocomplete_packages' do
     before do
-      apache_project = create(:project, name: 'Apache')
       create(:package, name: 'Apache_Package', project: apache_project)
       create(:package, name: 'Apache2_Package', project: apache_project)
-      another_project = create(:project, name: 'Another_Project')
       create(:package, name: 'Apache_Package_Another_Project', project: another_project)
     end
 
     context 'without search term' do
       before do
-        get :autocomplete_packages, project: 'Apache'
+        get :autocomplete_packages, project: apache_project
         @json_response = JSON.parse(response.body)
       end
 
@@ -150,7 +156,7 @@ RSpec.describe Webui::ProjectController do
 
     context 'with search term' do
       before do
-        get :autocomplete_packages, { project: 'Apache', term: 'Apache2' }
+        get :autocomplete_packages, { project: apache_project, term: 'Apache2' }
         @json_response = JSON.parse(response.body)
       end
 
@@ -162,40 +168,37 @@ RSpec.describe Webui::ProjectController do
 
   describe 'GET #autocomplete_repositories' do
     before do
-      apache_project = create(:project, name: 'Apache')
       @repositories = create_list(:repository, 5, { project: apache_project })
-      get :autocomplete_repositories, project: 'Apache'
+      get :autocomplete_repositories, project: apache_project
       @json_response = JSON.parse(response.body)
     end
 
-    it { expect(@json_response).to match_array(@repositories.map {|r| r.name }) }
+    it { expect(@json_response).to match_array(@repositories.map(&:name)) }
   end
 
   describe 'GET #users' do
     before do
-      @project = create(:project)
-      create(:relationship_project_user, project: @project, user: create(:confirmed_user))
-      create(:relationship_project_user, project: @project, user: create(:confirmed_user))
-      create(:relationship_project_group, project: @project, group: create(:group))
+      create(:relationship_project_user, project: apache_project, user: create(:confirmed_user))
+      create(:relationship_project_user, project: apache_project, user: create(:confirmed_user))
+      create(:relationship_project_group, project: apache_project, group: create(:group))
 
-      another_project = create(:project)
       create(:relationship_project_user, project: another_project, user: create(:confirmed_user))
       create(:relationship_project_group, project: another_project, group: create(:group))
-      get :users, project: @project
+      get :users, project: apache_project
     end
 
-    it { expect(assigns(:users)).to match_array(@project.users) }
-    it { expect(assigns(:groups)).to match_array(@project.groups) }
+    it { expect(assigns(:users)).to match_array(apache_project.users) }
+    it { expect(assigns(:groups)).to match_array(apache_project.groups) }
     it { expect(assigns(:roles)).to match_array(Role.local_roles) }
   end
 
   describe 'GET #subprojects' do
     before do
-      create(:project, name: 'Apache')
+      apache_project
       @project = create(:project, name: 'Apache:Apache2')
       create(:project, name: 'Apache:Apache2:TestSubproject')
       create(:project, name: 'Apache:Apache2:TestSubproject2')
-      create(:project, name: 'Another_Project')
+      another_project
       get :subprojects, project: @project
     end
 
@@ -211,5 +214,42 @@ RSpec.describe Webui::ProjectController do
 
     it { expect(assigns(:project)).to be_a(Project) }
     it { expect(assigns(:project).name).to eq('ProjectName') }
+  end
+
+  describe 'GET #new_package_branch' do
+    before do
+      login(user_moi)
+      @remote_projects_created = create_list(:remote_project, 3)
+      get :new_package_branch, project: apache_project
+    end
+
+    it { expect(assigns(:remote_projects)).to match_array(@remote_projects_created.map {|r| [r.id, r.name, r.title]}) }
+  end
+
+  describe 'GET #new_incident' do
+    before do
+      login(admin_user)
+    end
+
+    context 'with a Maintenance project' do
+      # This is needed because we can't see local variables of the controller action
+      let(:new_maintenance_incident_project) { Project.maintenance_incident.first }
+
+      before do
+        get :new_incident, ns: maintenance_project
+      end
+
+      it { is_expected.to redirect_to(project_show_path(project: new_maintenance_incident_project.name)) }
+      it { expect(flash[:success]).to start_with("Created maintenance incident project #{new_maintenance_incident_project.name}") }
+    end
+
+    context 'without a Maintenance project' do
+      before do
+        get :new_incident, ns: apache_project
+      end
+
+      it { is_expected.to redirect_to(project_show_path(project: apache_project)) }
+      it { expect(flash[:error]).to eq('Incident projects shall only create below maintenance projects.') }
+    end
   end
 end

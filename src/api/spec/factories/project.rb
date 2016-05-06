@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :project do
-    sequence(:name){|n| "#{Faker::Internet.domain_word}#{n}" }
+    sequence(:name) { |n| "#{Faker::Internet.domain_word}#{n}" }
     title { Faker::Book.title }
 
     # remote projects validate additional the description and remoteurl
@@ -10,8 +10,17 @@ FactoryGirl.define do
     end
 
     factory :project_with_package do
-      after(:create) do |project|
-        project.packages << create(:package, project_id: project.id)
+      transient do
+        package_name nil
+      end
+
+      after(:create) do |project, evaluator|
+        new_package = if evaluator.package_name
+                        create(:package, project_id: project.id, name: evaluator.package_name)
+                      else
+                        create(:package, project_id: project.id)
+                      end
+        project.packages << new_package
       end
     end
 
@@ -29,6 +38,14 @@ FactoryGirl.define do
 
     factory :maintenance_incident_project do
       kind 'maintenance_incident'
+    end
+
+    factory :maintenance_project do
+      kind 'maintenance'
+
+      after(:create) do |project|
+        create(:attrib, project_id: project.id, attrib_type: AttribType.find_by_namespace_and_name!('OBS', 'MaintenanceProject'))
+      end
     end
   end
 end
