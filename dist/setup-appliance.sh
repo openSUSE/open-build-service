@@ -265,6 +265,11 @@ function prepare_database_setup {
     fi
   done
 
+  if [ -n "$RUN_INITIAL_SETUP" ]; then
+    if [[ ! "$SETUP_ONLY" ]];then
+      `systemctl restart obsscheduler.service`
+    fi
+  fi
 }
 
 ###############################################################################
