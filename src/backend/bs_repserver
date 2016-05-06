@@ -674,14 +674,18 @@ sub getbinarylist_repository {
         return unless defined $path;
         $needscan = 1;
       }
+      my $n = $bin;
+      $n .= ".$1" if $path =~ /\.($binsufsre)$/;
+      if ($BSStdServer::isajax) {
+	push @files, {'name' => $n, 'filename' => $path},
+	next;
+      }
       my $fd = gensym;
       if (!open($fd, '<', $path)) {
 	push @files, {'name' => $bin, 'error' => 'not available'};
-	next;
+      } else {
+        push @files, {'name' => $n, 'filename' => $fd},
       }
-      my $n = $bin;
-      $n .= ".$1" if $path =~ /\.($binsufsre)$/;
-      push @files, {'name' => $n, 'filename' => $fd},
     }
     undef $repo;
     undef $pool;
@@ -833,6 +837,10 @@ sub getbinarylist {
     @bins = filtersources(@bins) if $cgi->{'nosource'} || -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
     for (sort @bins) {
       next if %binaries && !$binaries{$_};
+      if ($BSStdServer::isajax) {
+	push @files, {'name' => $_, 'filename' => "$reporoot/$prp/$arch/$packid/$_"},
+	next;
+      }
       my $fd = gensym;
       next unless open($fd, '<', "$reporoot/$prp/$arch/$packid/$_");
       push @files, {'name' => $_, 'filename' => $fd},
