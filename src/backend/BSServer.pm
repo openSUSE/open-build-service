@@ -422,6 +422,10 @@ sub parse_error_string {
     $tag = $2;
   } elsif ($err =~ /^([^\r\n]+)/) {
     $tag = $1;
+    $code = 500 if $tag =~ /Too many open files/;
+    $code = 500 if $tag =~ /No space left on device/;
+    $code = 500 if $tag =~ /Not enough space/;
+    $code = 500 if $tag =~ /Resource temporarily unavailable/;
   } else {
     $tag = 'Error';
   }
