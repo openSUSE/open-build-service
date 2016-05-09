@@ -21,10 +21,11 @@
 
 . /etc/rc.status
 
-# package or appliance defaults
-if [ -e /etc/sysconfig/obs-server ]; then
-  source /etc/sysconfig/obs-server
-fi
+# BOOTSTRAP_TEST_MODE prevents setup-appliance.sh execution
+# this is also sourcing /etc/sysconfig/obs-server
+export BOOTSTRAP_TEST_MODE=1
+source /usr/lib/obs/server/setup-appliance.sh
+unset BOOTSTRAP_TEST_MODE
 
 # instance defaults
 if [ -e /etc/buildhost.config ]; then
