@@ -87,6 +87,7 @@ use BSUtil;
 use BSConfiguration;
 use Build::Rpm;
 use BSSched::ProjPacks;		# for orderpackids
+use BSSched::DoD;
 #use BSSched::BuildResult;	# circular dep
 
 my $exportcnt = 0;
