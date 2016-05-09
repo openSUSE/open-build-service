@@ -154,12 +154,7 @@ case "$1" in
 			obs_server_size=$(( $(lvdisplay -c OBS/server 2>/dev/null | cut -d: -f7) / 2 / 1024 ))
                 fi
 
-
-		# BOOTSTRAP_TEST_MODE prevents setup-appliance.sh execution
-		# only function prepare_obssigner should be imported in our shell
-		export BOOTSTRAP_TEST_MODE=1
-		source /usr/lib/obs/server/setup-appliance.sh
-		unset BOOTSTRAP_TEST_MODE
+                # setup signer and signd if possible
 		prepare_obssigner
 
                 # Force mysql to update database. FIXME: only on version update
