@@ -677,14 +677,14 @@ sub getbinarylist_repository {
       my $n = $bin;
       $n .= ".$1" if $path =~ /\.($binsufsre)$/;
       if ($BSStdServer::isajax) {
-	push @files, {'name' => $n, 'filename' => $path},
+	push @files, {'name' => $n, 'filename' => $path};
 	next;
       }
       my $fd = gensym;
       if (!open($fd, '<', $path)) {
 	push @files, {'name' => $bin, 'error' => 'not available'};
       } else {
-        push @files, {'name' => $n, 'filename' => $fd},
+        push @files, {'name' => $n, 'filename' => $fd};
       }
     }
     undef $repo;
@@ -838,12 +838,12 @@ sub getbinarylist {
     for (sort @bins) {
       next if %binaries && !$binaries{$_};
       if ($BSStdServer::isajax) {
-	push @files, {'name' => $_, 'filename' => "$reporoot/$prp/$arch/$packid/$_"},
+	push @files, {'name' => $_, 'filename' => "$reporoot/$prp/$arch/$packid/$_"};
 	next;
       }
       my $fd = gensym;
       next unless open($fd, '<', "$reporoot/$prp/$arch/$packid/$_");
-      push @files, {'name' => $_, 'filename' => $fd},
+      push @files, {'name' => $_, 'filename' => $fd};
     }
     BSWatcher::reply_cpio(\@files);
     return undef;
