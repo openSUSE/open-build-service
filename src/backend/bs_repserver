@@ -691,7 +691,6 @@ sub getbinarylist_repository {
     undef $pool;
     BSWatcher::serialize_end($serial) if defined $serial;
     forwardevent($cgi, 'scanrepo', $projid, undef, $repoid, $arch) if $needscan;
-print Dumper(\@files);
     BSWatcher::reply_cpio(\@files);
     return undef;
   }
