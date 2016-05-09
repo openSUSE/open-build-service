@@ -52,6 +52,8 @@ my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 
 my $myeventdir = "$eventdir/deltastore";
 
+my $testmode;
+
 sub deltastore {
   my ($projid, $packid, $file) = @_;
   print "generating src delta for $projid/$packid/$file\n";
@@ -92,6 +94,11 @@ sub deltastore {
     unlink($tmp);
     return;
   }
+}
+
+if (@ARGV && ($ARGV[0] eq '--test-mode' || $ARGV[0] eq '--testmode')) {
+  $testmode = 1;
+  shift @ARGV;
 }
 
 $| = 1;
@@ -141,6 +148,12 @@ while(1) {
     } else {
       unlink("$myeventdir/$event");
     }
+  }
+
+  if ($testmode) {
+    close(RUNLOCK);
+    print "Test mode, exiting...\n";
+    exit(0);
   }
 
   # check for restart/exit
