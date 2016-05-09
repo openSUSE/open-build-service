@@ -78,7 +78,7 @@ while (@ARGV) {
   if ($ARGV[0] eq '--test-directory') {
     shift @ARGV;
     $testdir = shift @ARGV;
-  } elsif ($ARGV[0] eq '--test-mode') {
+  } elsif ($ARGV[0] eq '--test-mode' || $ARGV[0] eq '--testmode') {
     shift @ARGV;
     $testmode = 1;
   } elsif ($ARGV[0] eq '--test-constraints') {
