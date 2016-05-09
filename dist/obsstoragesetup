@@ -243,7 +243,7 @@ case "$1" in
 						I=$(( $I + 1 ))
 				
 						lverr=$(mktemp)
-						if ! lvcreate --wipesignatures y -n worker_root_${I} -L ${OBS_WORKER_ROOT_SIZE}M OBS ${pvs[$(( $pv_idx + $o1 ))]} 2> $lverr; then
+						if ! lvcreate --wipesignatures y --zero y -n worker_root_${I} -L ${OBS_WORKER_ROOT_SIZE}M OBS ${pvs[$(( $pv_idx + $o1 ))]} 2> $lverr; then
 							if grep "Insufficient free space" $lverr; then 
 								I=$(( $I - 1 ))
 							else	
@@ -251,7 +251,7 @@ case "$1" in
 								exit
 							fi
 						else
- 				                        lvcreate --wipesignatures y -n worker_swap_${I} -L ${OBS_WORKER_SWAP_SIZE}M OBS ${pvs[$(( $pv_idx + $o2 ))]} || exit
+ 				                        lvcreate --wipesignatures y --zero y -n worker_swap_${I} -L ${OBS_WORKER_SWAP_SIZE}M OBS ${pvs[$(( $pv_idx + $o2 ))]} || exit
 						fi
 						rm -f $lverr
 				                pv_idx=$(( $pv_idx + 2 ))
@@ -280,14 +280,14 @@ case "$1" in
 							DEVS="$DEVS ${pvs[$(( $I * $disks_per_instance + $J ))]}"
 						done
 	
-						lvcreate --wipesignatures y -n worker_root_${I} -i $disks_per_instance -L ${OBS_WORKER_ROOT_SIZE}M OBS $DEVS || exit
-				                lvcreate --wipesignatures y -n worker_swap_${I} -i $disks_per_instance -L ${OBS_WORKER_SWAP_SIZE}M OBS $DEVS || exit
+						lvcreate --wipesignatures y --zero y -n worker_root_${I} -i $disks_per_instance -L ${OBS_WORKER_ROOT_SIZE}M OBS $DEVS || exit
+				                lvcreate --wipesignatures y --zero y -n worker_swap_${I} -i $disks_per_instance -L ${OBS_WORKER_SWAP_SIZE}M OBS $DEVS || exit
 					done
 				fi
 
 				# Create cache partition on remaining space
 				#lvcreate -n cache -i $disks_per_instance -l 100%FREE OBS || exit
-				lvcreate --wipesignatures y -n cache -i $disks_per_instance -L "${OBS_WORKER_CACHE_SIZE}M" OBS || exit
+				lvcreate --wipesignatures y --zero y -n cache -i $disks_per_instance -L "${OBS_WORKER_CACHE_SIZE}M" OBS || exit
 				mkfs -text4 /dev/OBS/cache || exit
 			fi
 		fi
