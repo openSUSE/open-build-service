@@ -124,15 +124,10 @@ my $port = 5252;        #'RR'
 $port = $1 if $BSConfig::reposerver =~ /:(\d+)$/;
 
 # strip helpers from cando
-my %cando; # = %BSCando::cando;
-for my $hostarch (keys %BSCando::cando) {
-  $cando{$hostarch} = [];
-  for (@{$BSCando::cando{$hostarch} || []}) {
-    # do a deep copy, we need unmodified BSCando::cando also
-    my $targetarch = $_;
-    $targetarch =~ s/:.*//;
-    push ( @{$cando{$hostarch}}, $targetarch );
-  }
+my %cando = %BSCando::cando;
+for my $hostarch (values %cando) {
+  $hostarch = [ @{$hostarch || []} ];
+  s/:.*// for @$hostarch;
 }
 
 # 4h build will add .5 to the load
@@ -1363,7 +1358,7 @@ while (1) {
         # a helper is needed for personality change?
         my $helper;
         /^\Q$arch\E:(.*)$/ && ($helper = $1) for @{$BSCando::cando{$harch}};
-        if ($helper && $workerinfo{$idle} && $workerinfo{$idle}->{hardware} && defined($workerinfo{$idle}->{hardware}->{nativeonly})) {
+        if ($helper && $workerinfo{$idle} && $workerinfo{$idle}->{hardware} && exists($workerinfo{$idle}->{hardware}->{nativeonly})) {
            next; # worker is not supporting the needed personality change
         }
 	if ($constraints) {
