@@ -3770,6 +3770,36 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_select 'status[code] > summary', "Attributes need to be changed through /source/home:tom/_attribute"
   end
 
+  def test_obscpio_deltastore
+    login_tom
+    put('/source/home:tom:deltastore/_meta', '<project name="home:tom:deltastore"><title/><description/></project>')
+    assert_response :success
+    put('/source/home:tom:deltastore/deltapack/_meta', '<package name="deltapack" project="home:tom:deltastore"><title/><description/></package>')
+    assert_response :success
+
+    raw_put '/source/home:tom:deltastore/deltapack/archive.obscpio', load_backend_file('source/deltapack/archive.obscpio')
+    assert_response :success
+
+    get '/source/home:tom:deltastore/deltapack'
+    assert_response :success
+    before_deltastore = @response.body
+
+    deltastore = "#{Rails.root}/tmp/backend_data/sources/deltapack/deltastore"
+
+    assert_not File.exist?(deltastore)
+    run_deltastore()
+    assert File.exist?(deltastore)
+
+    get '/source/home:tom:deltastore/deltapack'
+    assert_response :success
+    assert_equal before_deltastore, @response.body
+
+    assert 0, run_admin("--show-delta-file #{Rails.root}/tmp/backend_data/sources/deltapack/c1b8dd35488695c3c248f0acd447b4d5-archive.obscpio")
+
+    delete '/source/home:tom:deltastore'
+    assert_response :success
+  end
+
   def test_issue_441
     login_tom
     get '/source/Foo'

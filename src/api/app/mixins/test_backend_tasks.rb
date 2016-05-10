@@ -11,7 +11,7 @@ module TestBackendTasks
   def run_dispatcher
     Rails.logger.debug 'run dispatcher'
     perlopts="-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
-    IO.popen("cd #{backend_config}; exec perl #{perlopts} ./bs_dispatch --test-mode") do |io|
+    IO.popen("cd #{backend_config}; exec perl #{perlopts} ./bs_dispatch --testmode") do |io|
       # just for waiting until dispatcher finishes
       io.each { |line| Rails.logger.debug("dispatcher: #{line.strip.chomp}") unless line.blank? }
     end
@@ -24,5 +24,26 @@ module TestBackendTasks
       # just for waiting until publisher finishes
       io.each { |line| Rails.logger.debug("publisher: #{line.strip.chomp}") unless line.blank? }
     end
+  end
+
+  def run_deltastore
+    Rails.logger.debug 'run deltastore'
+    perlopts="-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
+    IO.popen("cd #{backend_config}; exec perl #{perlopts} ./bs_deltastore --testmode") do |io|
+      # just for waiting until deltastore finishes
+      io.each { |line| Rails.logger.debug("deltastore: #{line.strip.chomp}") unless line.blank? }
+    end
+  end
+
+  def run_admin(args)
+    Rails.logger.debug 'run admin'
+    ret = -1
+    perlopts="-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
+    IO.popen("cd #{backend_config}; exec perl #{perlopts} ./bs_admin #{args}") do |io|
+      io.each { |line| Rails.logger.debug("bs_admin: #{line.strip.chomp}") unless line.blank? }
+      io.close
+      ret = $CHILD_STATUS
+    end
+    ret
   end
 end
