@@ -236,6 +236,8 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
 
        --kvm       : enable kvm
 
+       --pvm       : enable pvm
+
        --xen       : enable xen
 
        --lxc       : enable lxc
@@ -395,7 +397,7 @@ while (@ARGV) {
     $testmode = 1;
     next;
   }
-  if ($ARGV[0] =~ /^--(kvm|xen|lxc|emulator|zvm|docker)$/) {
+  if ($ARGV[0] =~ /^--(kvm|xen|lxc|emulator|zvm|docker|pvm)$/) {
     $vm = "--$1";
     shift @ARGV;
     next;
@@ -651,7 +653,7 @@ my $workerinfo = {};
 $workerinfo->{'hostlabel'} = \@hostlabel if @hostlabel;
 # sandbox
 $workerinfo->{'sandbox'} = 'chroot';
-$workerinfo->{'sandbox'} = $1 if $vm =~ /(xen|kvm|emulator|lxc|zvm|docker)/;
+$workerinfo->{'sandbox'} = $1 if $vm =~ /(xen|kvm|emulator|lxc|zvm|docker|pvm)/;
 # build host owner
 $workerinfo->{'owner'} = $owner if $owner;
 # linux kernel
@@ -2716,7 +2718,7 @@ sub dobuild {
   }
 
   push @args, "$statedir/build/build";
-  if ($vm =~ /(xen|kvm|zvm|emulator)/) {
+  if ($vm =~ /(xen|kvm|zvm|emulator|pvm)/) {
     mkdir("$buildroot/.mount") unless -d "$buildroot/.mount";
     push @args, '--root', "$buildroot/.mount";
     if ($vm =~ /emulator/) {
@@ -2808,7 +2810,7 @@ sub dobuild {
     return 1;
   }
 
-  if ($vm =~ /(xen|kvm|zvm|emulator)/) {
+  if ($vm =~ /(xen|kvm|zvm|emulator|pvm)/) {
     rm_rf("$buildroot/.build.packages");
     # move directory with extracted build results
     if(!rename("$buildroot/.mount/.build.packages", "$buildroot/.build.packages")) {
