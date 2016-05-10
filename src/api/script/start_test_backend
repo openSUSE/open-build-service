@@ -104,7 +104,8 @@ File.open("#{Rails.root}/../backend/BSConfig.pm.template") do |template|
 end
 file.close
 
-%w{bs_admin bs_srcserver bs_repserver bs_service bs_sched bs_publish bs_dispatch bs_productconvert bs_check_consistency bs_mergechanges}.each do |srv|
+%w{bs_admin bs_srcserver bs_repserver bs_service bs_sched bs_publish bs_dispatch
+   bs_productconvert bs_check_consistency bs_mergechanges bs_deltastore bs_dodup}.each do |srv|
   FileUtils.symlink("#{Rails.root}/../backend/#{srv}", "#{backend_config}/#{srv}")
   unless system("cd #{backend_config} && exec perl -c ./#{srv} 2>&1")
     puts "ERROR: syntax broken of #{srv}"

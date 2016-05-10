@@ -1,4 +1,6 @@
 # rubocop:disable Metrics/LineLength
+# rubocop:disable Metrics/AbcSize
+# rubocop:disable Metrics/MethodLength
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require File.join(Rails.root, 'app/jobs/consistency_check.rb')
 require 'source_controller'
@@ -682,6 +684,12 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     get '/search/channel/binary?match=@package="pack2"'
     assert_response :success
     assert_xml_tag tag: "collection", attributes: {matches: "2"}
+    # channel search refers to channel package container
+    get '/search/channel?match=@package="BaseDistro3"+and+binary/@package="pack2"'
+    assert_response :success
+    assert_xml_tag tag: "collection", attributes: {matches: "1"}
+    assert_xml_tag parent: {tag: "channel", attributes: {project: "Channel", package: "BaseDistro3"}},
+                   tag: "binary", attributes: {project: "BaseDistro3", package: "pack2", name: "package"}
     # search by given product
     get '/search/channel/binary?match=updatefor/[@project="BaseDistro"+and+@product="fixed"]'
     assert_response :success

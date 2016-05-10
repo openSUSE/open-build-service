@@ -17,6 +17,7 @@ class XpathEngine
       'repository'      => 'repositories',
       'issue'           => 'issues',
       'request'         => 'requests',
+      'channel'         => 'channels',
       'channel_binary'  => 'channel_binaries',
       'released_binary' => 'released_binaries'
     }
@@ -119,6 +120,26 @@ class XpathEngine
         'targetproduct/@baseversion' => {:cpart => 'product.baseversion'},
         'targetproduct/@patchlevel' => {:cpart => 'product.patchlevel'},
         'targetproduct/@version' => {:cpart => 'product.version'}
+      },
+      'channels' => {
+        'binary/@name' => {:cpart => 'channel_binaries.name'},
+        'binary/@binaryarch' => {:cpart => 'channel_binaries.binaryarch'},
+        'binary/@package' => {:cpart => 'channel_binaries.package'},
+        'binary/@supportstatus' => {:cpart => 'supportstatus'},
+        '@package' => {:cpart => 'cpkg.name'},
+        '@project' => {:cpart => 'cprj.name'},
+        'target/disabled' => {:cpart => 'ufdct.disabled', :joins => [
+          'LEFT join channel_targets ufdct on ufdct.channel_id=channel.id']},
+        'target/updatefor/@project' => {:cpart => 'puprj.name', :joins => [
+          'LEFT join channel_targets ufct on ufct.channel_id=channel.id',
+          'LEFT join product_update_repositories pur on pur.repository_id=ufct.repository_id',
+          'LEFT join products pun on pun.id=pur.product_id ',
+          'LEFT join packages pupkg on pupkg.id=pun.package_id ',
+          'LEFT join projects puprj on puprj.id=pupkg.project_id ']},
+        'target/updatefor/@product' => {:cpart => 'pupn.name', :joins => [
+          'LEFT join channel_targets ufnct on ufnct.channel_id=channel.id',
+          'LEFT join product_update_repositories pnur on pnur.repository_id=ufnct.repository_id',
+          'LEFT join products pupn on pupn.id=pnur.product_id ']}
       },
       'channel_binaries' => {
         '@name' => {:cpart => 'channel_binaries.name'},
@@ -347,6 +368,13 @@ class XpathEngine
       relation = User.all
     when 'issues'
       relation = Issue.all
+    when 'channels'
+      relation = ChannelBinary.all
+      @joins = [ 'LEFT join channel_binary_lists channel_binary_list on channel_binary_list.id=channel_binaries.channel_binary_list_id',
+                 'LEFT join channels channel on channel.id=channel_binary_list.channel_id',
+                 'LEFT join packages cpkg on cpkg.id=channel.package_id',
+                 'LEFT join projects cprj on cprj.id=cpkg.project_id'
+               ] << @joins
     when 'channel_binaries'
       relation = ChannelBinary.all
       @joins = [ 'LEFT join channel_binary_lists channel_binary_list on channel_binary_list.id=channel_binaries.channel_binary_list_id',
