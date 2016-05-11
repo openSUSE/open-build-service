@@ -1652,6 +1652,7 @@ sub workerstatus {
   push @daemonarchs, 'signer' if -e "$rundir/bs_signer.lock";
   push @daemonarchs, 'warden' if -e "$rundir/bs_warden.lock";
   push @daemonarchs, 'dodup' if -e "$rundir/bs_dodup.lock";
+  push @daemonarchs, 'repserver';
   @daemonarchs = (@{$cgi->{'arch'}}) if $cgi->{'arch'};
   for my $arch (@daemonarchs) {
     local *F;
@@ -1672,6 +1673,11 @@ sub workerstatus {
     } elsif ($arch eq 'dodup') {
       $lock = 'bs_dodup.lock';
       $daemondata->{'type'} = 'dodup';
+    } elsif ($arch eq 'repserver') {
+      $daemondata->{'type'} = 'repserver';
+      $daemondata->{'state'} = 'running';
+      my $req = $BSServer::request;
+      $daemondata->{'starttime'} = $req->{'server'}->{'starttime'} if $req && $req->{'server'};
     } else {
       # scheduler
       $lock = "bs_sched.$arch.lock";
@@ -1681,7 +1687,7 @@ sub workerstatus {
       $daemondata->{'queue'} = $si->{'queue'} if $si && $si->{'queue'};
     }
     next if %types && !$types{$daemondata->{'type'}};
-    if (open(F, '<', "$rundir/$lock")) {
+    if ($lock && open(F, '<', "$rundir/$lock")) {
       if (!flock(F, LOCK_EX | LOCK_NB)) {
         my @s = stat(F);
         $daemondata->{'state'} = 'running';

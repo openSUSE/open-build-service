@@ -6223,6 +6223,19 @@ sub getbuildstatus {
   return ($status, $BSXML::buildstatus);
 }
 
+sub add_daemondata {
+  my ($ws, $daemondata) = @_;
+  my $part = (grep {!defined($_->{'name'})} @{$ws->{'partition'}})[0];
+  if (!$part) {
+    $part = {};
+    $ws->{'partition'} ||= [];
+    unshift @{$ws->{'partition'}}, $part;
+  }
+  $part->{'daemon'} ||= [];
+  unshift(@{$part->{'daemon'}}, $daemondata);
+  return $ws;
+}
+
 sub add_deltaworkerstatus {
   my ($cgi, $ws) = @_;
   return $ws if $cgi->{'type'} && !grep {$_ eq 'deltastore'} @{$cgi->{'type'}};
@@ -6238,15 +6251,36 @@ sub add_deltaworkerstatus {
     }
     close F;
   }
-  my $part = (grep {!defined($_->{'name'})} @{$ws->{'partition'}})[0];
-  if (!$part) {
-    $part = {};
-    $ws->{'partition'} ||= [];
-    unshift @{$ws->{'partition'}}, $part;
-  }
-  $part->{'daemon'} ||= [];
-  unshift(@{$part->{'daemon'}}, $daemondata);
-  return $ws;
+  return add_daemondata($ws, $daemondata);
+}
+
+sub add_ownworkerstatus {
+  my ($cgi, $ws) = @_;
+  return $ws if $cgi->{'type'} && !grep {$_ eq 'srcserver'} @{$cgi->{'type'}};
+  return $ws if $cgi->{'arch'} && !grep {$_ eq 'srcserver'} @{$cgi->{'arch'}};
+  my $daemondata = {'state' => 'running', 'type' => 'srcserver'};
+  my $req = $BSServer::request;
+  $daemondata->{'starttime'} = $req->{'server'}->{'starttime'} if $req && $req->{'server'};
+  return add_daemondata($ws, $daemondata);
+}
+
+sub add_serviceserverstatus {
+  my ($cgi, $ws) = @_;
+  return $ws unless $BSConfig::serviceserver;
+  return $ws if $cgi->{'type'} && !grep {$_ eq 'service'} @{$cgi->{'type'}};
+  return $ws if $cgi->{'arch'} && !grep {$_ eq 'service'} @{$cgi->{'arch'}};
+  my $daemondata = {'state' => 'dead', 'type' => 'service'};
+  my $param = {
+    'uri' => "$BSConfig::serviceserver/serverstatus",
+    'timeout' => 60,
+  };
+  eval {
+    my $sta = BSWatcher::rpc($param, $BSXML::serverstatus);
+    $daemondata->{'state'} = 'running';
+    $daemondata->{'starttime'} = $sta->{'starttime'};
+  };
+  warn($@) if $@;
+  return add_daemondata($ws, $daemondata);
 }
 
 sub getworkerstatus {
@@ -6263,6 +6297,8 @@ sub getworkerstatus {
     delete $_->{'uri'} for @{$ws->{'idle'} || []};
     delete $_->{'uri'} for @{$ws->{'building'} || []};
     add_deltaworkerstatus($cgi, $ws);
+    add_serviceserverstatus($cgi, $ws);
+    add_ownworkerstatus($cgi, $ws);
     return ($ws, $BSXML::workerstatus);
   }
 
@@ -6330,6 +6366,8 @@ sub getworkerstatus {
   }
   
   add_deltaworkerstatus($cgi, $cws);
+  add_ownworkerstatus($cgi, $cws);
+  add_serviceserverstatus($cgi, $cws);
   return ($cws, $BSXML::workerstatus);
 }
 
