@@ -2893,7 +2893,8 @@ sub getbuildinfo {
     # a repo with no path will expand to just the prp as the only element
     if ($kiwitype eq 'image' || @{$repo->{'path'} || []} < 2) {
       @configpath = expandkiwipath($info, $repo);
-      unshift @configpath, "$projid/$repoid" unless @configpath;
+      # always put ourselfs in front
+      unshift @configpath, "$projid/$repoid" unless @configpath && $configpath[0] eq "$projid/$repoid";
     }
   }
   my $bconf = getconfig($projid, $repoid, $arch, \@configpath);

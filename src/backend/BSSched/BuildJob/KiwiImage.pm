@@ -85,7 +85,10 @@ sub check {
 
   my @aprps = BSSched::BuildJob::expandkiwipath($info, $ctx->{'prpsearchpath'});
   # get config from kiwi path
-  my $bconf = BSSched::ProjPacks::getconfig($gctx, $projid, $repoid, $myarch, \@aprps);
+  my @configpath = @aprps;
+  # always put ourselfs in front
+  unshift @configpath, "$projid/$repoid" unless @configpath && $configpath[0] eq "$projid/$repoid";
+  my $bconf = BSSched::ProjPacks::getconfig($gctx, $projid, $repoid, $myarch, \@configpath);
   if (!$bconf) {
     print "      - $packid (kiwi-image)\n";
     print "        no config\n";
@@ -193,7 +196,7 @@ sub check {
 
 sub build {
   my ($self, $ctx, $packid, $pdata, $info, $data) = @_;
-  my $bconf = $data->[0];
+  my $bconf = $data->[0];	# this is the config used to expand the image packages
   my $edeps = $data->[1];
   my $reason = $data->[2];
 
