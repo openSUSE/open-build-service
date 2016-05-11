@@ -6296,8 +6296,8 @@ sub getworkerstatus {
     my $ws = BSWatcher::rpc("$reposerver/workerstatus", $BSXML::workerstatus, @args);
     delete $_->{'uri'} for @{$ws->{'idle'} || []};
     delete $_->{'uri'} for @{$ws->{'building'} || []};
-    add_deltaworkerstatus($cgi, $ws);
     add_serviceserverstatus($cgi, $ws);
+    add_deltaworkerstatus($cgi, $ws);
     add_ownworkerstatus($cgi, $ws);
     return ($ws, $BSXML::workerstatus);
   }
@@ -6365,9 +6365,9 @@ sub getworkerstatus {
     $cws->{'buildavg'} = [ sort {$a->{'arch'} cmp $b->{'arch'} || $a cmp $b}  @{$cws->{'buildavg'}} ];
   }
   
+  add_serviceserverstatus($cgi, $cws);
   add_deltaworkerstatus($cgi, $cws);
   add_ownworkerstatus($cgi, $cws);
-  add_serviceserverstatus($cgi, $cws);
   return ($cws, $BSXML::workerstatus);
 }
 
