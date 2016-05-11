@@ -245,6 +245,7 @@ my $dispatches = [
   '!- HEAD:' => undef,
 
   '/service' => \&list_service,
+  '/serverstatus' => \&BSStdServer::serverstatus,
   '!- POST:/sourceupdate/$project/$package' => \&run_source_update,
 ];
 
