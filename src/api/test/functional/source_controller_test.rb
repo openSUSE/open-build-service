@@ -1736,14 +1736,34 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # undelete single package
+    post '/source/kde4/kdelibs', :cmd => :undelete, :time => 99
+    assert_response 403
+    assert_match(/Only administrators are allowed to set the time/, @response.body)
     post '/source/kde4/kdelibs', :cmd => :undelete
     assert_response :success
-    get '/source/kde4/kdelibs'
+    get '/source/kde4/kdelibs/_history'
     assert_response :success
+    assert_no_xml_tag(tag: "time", content: "99")
     get '/source/kde4/kdelibs/_meta'
     assert_response :success
 
+    # admin only operations
+    prepare_request_with_user 'fredlibs', 'buildservice'
+    delete '/source/kde4/kdelibs'
+    assert_response :success
+    login_king
+    post '/source/kde4/kdelibs', :cmd => :undelete, :time => 99
+    assert_response 400
+    assert_match(/specified time is less than time in last commit/, @response.body)
+    mytime = Time.now.utc.to_i + 2
+    post '/source/kde4/kdelibs', :cmd => :undelete, :time => mytime
+    assert_response :success
+    get '/source/kde4/kdelibs/_history'
+    assert_response :success
+    assert_xml_tag(tag: "time", content: mytime)
+
     # delete entire project
+    prepare_request_with_user 'fredlibs', 'buildservice'
     delete '/source/kde4?user=illegal&comment=drop%20project'
     assert_response :success
 
@@ -1758,11 +1778,13 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     #    assert_response :success
     #    assert_xml_tag( :tag => "entry", :attributes => { :name => "kdelibs"} )
 
-    # list content of deleted project
+    # admin only operations
     login_king
+    # list content of deleted project
     get '/source', :deleted => 1
     assert_response 200
     assert_xml_tag(:tag => 'entry', :attributes => { :name => 'kde4' })
+
     prepare_request_with_user 'fredlibs', 'buildservice'
     get '/source', :deleted => 1
     assert_response 403

@@ -788,6 +788,7 @@ POST /source/<project>/<package>
   runservice: trigger run of defined services in _service file
   waitservice: returns when all services have finished, code 200 when service run was successful
   mergeservice: drops the _service file and commits all server side generated files
+  time: set the time on undelete operation (admin only operation)
   wipe: wipe all build results of this package
 
 Parameters: 

@@ -1304,7 +1304,10 @@ class SourceController < ApplicationController
     end
 
     path = request.path_info
-    path += build_query_from_hash(params, [:cmd, :user, :comment])
+    unless User.current.is_admin? or params[:time].blank?
+      raise CmdExecutionNoPermission.new "Only administrators are allowed to set the time"
+    end
+    path += build_query_from_hash(params, [:cmd, :user, :comment, :time])
     pass_to_backend path
 
     # read meta data from backend to restore database object
