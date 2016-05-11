@@ -93,74 +93,6 @@ class ApplicationController < ActionController::Base
     setup 403
   end
 
-  def extract_ldap_user
-    # Reject empty passwords to prevent LDAP lockouts.
-    return if @passwd.blank?
-
-    begin
-      require 'ldap'
-      logger.debug( "Using LDAP to find #{@login}" )
-      ldap_info = UserLdapStrategy.find_with_ldap( @login, @passwd )
-    rescue LoadError
-      logger.warn "ldap_mode selected but 'ruby-ldap' module not installed."
-      ldap_info = nil # now fall through as if we'd not found a user
-    rescue Exception
-      logger.debug "#{@login} not found in LDAP."
-      ldap_info = nil # now fall through as if we'd not found a user
-    end
-
-    if ldap_info
-      # We've found an ldap authenticated user - find or create an OBS userDB entry.
-      logger.debug "User.find_by_login( #{@login} )"
-      @http_user = User.find_by_login( @login )
-      if @http_user
-        # Check for ldap updates
-        if @http_user.email != ldap_info[0]
-          @http_user.email = ldap_info[0]
-          @http_user.save
-        end
-      else
-        if ::Configuration.registration == "deny"
-          logger.debug( "No user found in database, creation disabled" )
-          @http_user=nil
-          raise AuthenticationRequiredError.new "User '#{login}' does not exist<br>#{errstr}"
-        end
-        logger.debug( "No user found in database, creating" )
-        logger.debug( "Email: #{ldap_info[0]}" )
-        logger.debug( "Name : #{ldap_info[1]}" )
-        # Generate and store a fake pw in the OBS DB that no-one knows
-        chars = ["A".."Z", "a".."z", "0".."9"].collect { |r| r.to_a }.join
-        fakepw = (1..24).collect { chars[rand(chars.size)] }.pack('a'*24)
-        newuser = User.create(
-            :login => @login,
-            :password => fakepw,
-            :password_confirmation => fakepw,
-            :email => ldap_info[0] )
-        unless newuser.errors.empty?
-          errstr = String.new
-          logger.debug("Creating User failed with: ")
-          newuser.errors.full_messages.each do |msg|
-            errstr = errstr+msg
-            logger.debug(msg)
-          end
-          @http_user=nil
-          raise AuthenticationRequiredError.new "Cannot create ldap userid: '#{login}' on OBS<br>#{errstr}"
-        end
-        newuser.realname = ldap_info[1]
-        newuser.state = User::STATES['confirmed']
-        newuser.state = User::STATES['unconfirmed'] if ::Configuration.registration == "confirmation"
-        newuser.adminnote = "User created via LDAP"
-
-        logger.debug( "saving new user..." )
-        newuser.save
-
-        @http_user = newuser
-      end
-    else
-      logger.debug( "User not found with LDAP, falling back to database" )
-    end
-  end
-
   def extract_proxy_user
     @auth_method = :proxy
     proxy_user = request.env['HTTP_X_USERNAME']
@@ -235,13 +167,7 @@ class ApplicationController < ActionController::Base
 
       extract_basic_auth_user
 
-      if CONFIG['ldap_mode'] == :on
-        extract_ldap_user
-      end
-
-      if @login && !@http_user
-        @http_user = User.find_with_credentials @login, @passwd
-      end
+      @http_user = User.find_with_credentials @login, @passwd if @login
     end
 
     if !@http_user && session[:login]

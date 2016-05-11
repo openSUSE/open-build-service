@@ -424,7 +424,7 @@ class UserLdapStrategy
       else
         user_filter = "(#{CONFIG['ldap_search_attr']}=#{login})"
       end
-      Rails.logger.debug("Search for #{user_filter}")
+      Rails.logger.debug("Search for #{CONFIG['ldap_search_base']} #{user_filter}")
       begin
         ldap_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter) do |entry|
           user = entry.to_hash
