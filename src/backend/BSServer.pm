@@ -42,6 +42,7 @@ use BSUtil;
 
 use strict;
 
+my $server;
 my $MS2;	# secondary server port
 
 our $request;		# FIXME: should not be global
@@ -97,6 +98,7 @@ sub serveropen {
     $MS2 = \*MS2 if @ports > 1;
   }
   BSUtil::drop_privs_to($user, $group);
+  $server = { 'starttime' => time() };
 }
 
 sub serveropen_unix {
@@ -143,6 +145,7 @@ sub serverclose {
   close MS;
   close $MS2 if $MS2;
   undef $MS2;
+  undef $server;
 }
 
 sub getsocket {
@@ -296,21 +299,23 @@ sub server {
     close $MS2;
     undef $MS2;
   }
+  my $req = {
+    'peer' => 'unknown',
+    'conf' => $conf,
+    'server' => $server,
+    'starttime' => time(),
+  };
   if ($conf->{'serverstatus'}) {
     close(STA);
     if (open(STA, '+<', $conf->{'serverstatus'})) {
       fcntl(STA, F_SETFD, FD_CLOEXEC);
       if (defined(sysseek(STA, $BSServer::slot * 256, Fcntl::SEEK_SET))) {
-        syswrite(STA, pack("NNCCnZ244", time(), $$, $group, 0, 1, 'forked'), 256);
+        syswrite(STA, pack("NNCCnZ244", $req->{'starttime'}, $$, $group, 0, 1, 'forked'), 256);
       }
     } else {
       undef $BSServer::slot;
     }
   }
-  my $req = {
-    'peer' => 'unknown',
-    'conf' => $conf,
-  };
   $BSServer::request = $req;
   eval {
     my ($peerport, $peera) = sockaddr_in($peeraddr);
