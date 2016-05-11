@@ -1395,6 +1395,7 @@ sub workerstate {
     for (qw{job arch}) {
       delete $workerskel->{$_};
     }
+    $workerskel->{'hardware'}->{'nativeonly'} = undef if $workerskel->{'hardware'} && exists($workerskel->{'hardware'}->{'nativeonly'});
   }
   my $idlename = "$harch:$workerid";
   $idlename =~ s/\//_/g;

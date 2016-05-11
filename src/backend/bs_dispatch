@@ -254,6 +254,7 @@ sub assignjob {
     printlog("worker is gone!");
     return undef;
   }
+  $worker->{'hardware'}->{'nativeonly'} = undef if $worker->{'hardware'} && exists($worker->{'hardware'}->{'nativeonly'});
 
   my @args = ("port=$port", "workercode=$workercode", "buildcode=$buildcode");
   my $attempt = 0;
