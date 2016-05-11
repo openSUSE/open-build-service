@@ -1647,12 +1647,12 @@ sub workerstatus {
   my @partitions;
   my @daemons;
   my @daemonarchs = grep {s/^bs_sched\.(.*)\.lock$/$1/} sort(ls($rundir));
+  push @daemonarchs, 'repserver';
   push @daemonarchs, 'dispatcher' if -e "$rundir/bs_dispatch.lock";
   push @daemonarchs, 'publisher' if -e "$rundir/bs_publish.lock";
   push @daemonarchs, 'signer' if -e "$rundir/bs_signer.lock";
   push @daemonarchs, 'warden' if -e "$rundir/bs_warden.lock";
   push @daemonarchs, 'dodup' if -e "$rundir/bs_dodup.lock";
-  push @daemonarchs, 'repserver';
   @daemonarchs = (@{$cgi->{'arch'}}) if $cgi->{'arch'};
   for my $arch (@daemonarchs) {
     local *F;
