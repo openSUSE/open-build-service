@@ -3371,6 +3371,36 @@ sub getbuildinfo {
   return ($ret, $BSXML::buildinfo);
 }
 
+my $kiwiurlmapcache;
+sub kiwiurlmapper {
+  my ($url) = @_;
+  $url =~ s/\/+$//;
+  if (!$kiwiurlmapcache) {
+    $kiwiurlmapcache = {};
+    for my $prp (%{$BSConfig::prp_ext_map || {}}) {
+      my $u = $BSConfig::prp_ext_map->{$prp};
+      $u =~ s/\/+$//;
+      $kiwiurlmapcache->{$u} = $prp;
+    }
+  }
+  my $prp = $kiwiurlmapcache->{$url};
+  return $prp if $prp;
+  if ($BSConfig::repodownload && $url =~ /^\Q$BSConfig::repodownload\E\/(.+\/.+)/) {
+    my @p = split('/', $1);
+    while (@p > 1 && $p[0] =~ /:$/) {
+      splice(@p, 0, 2, "$p[0]$p[1]");
+    }
+    my $project = shift(@p);
+    while (@p > 1 && $p[0] =~ /:$/) {
+      splice(@p, 0, 2, "$p[0]$p[1]");
+    }
+    my $repository = shift(@p);
+    return "$project/$repository" if $project && $repository;
+  }
+  return undef;
+}
+$Build::Kiwi::urlmapper = \&kiwiurlmapper;
+
 sub getbuildinfo_post {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
 
