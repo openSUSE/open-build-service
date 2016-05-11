@@ -915,6 +915,7 @@ our $ajaxstatus = [
 
 our $serverstatus = [
     'serverstatus' =>
+	'starttime',
      [[ 'job' =>
 	    'id',
 	    'starttime',

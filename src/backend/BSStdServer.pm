@@ -158,7 +158,11 @@ sub serverstatus {
     };
     $res[-1]->{'group'} = $s->{'group'} if $s->{'group'};
   }
-  return ({'job' => \@res}, $BSXML::serverstatus);
+  my $serverstatus = {
+    'job' => \@res,
+    'starttime' => $BSServer::request->{'server'}->{'starttime'},
+  };
+  return ($serverstatus, $BSXML::serverstatus);
 }
 
 sub isrunning {
