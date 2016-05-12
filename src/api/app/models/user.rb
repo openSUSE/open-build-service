@@ -220,14 +220,84 @@ class User < ActiveRecord::Base
   # in the database. Returns the user or nil if he could not be found
   def self.find_with_credentials(login, password)
     # Find user
-    user = User.where(login: login).first
+    user = find_by_login(login)
+
+    if CONFIG['ldap_mode'] == :on
+      begin
+        require 'ldap'
+        logger.debug( "Using LDAP to find #{login}" )
+        ldap_info = UserLdapStrategy.find_with_ldap( login, password )
+      rescue LoadError
+        logger.warn "ldap_mode selected but 'ruby-ldap' module not installed."
+        ldap_info = nil # now fall through as if we'd not found a user
+      rescue
+        logger.debug "#{login} not found in LDAP."
+        ldap_info = nil # now fall through as if we'd not found a user
+      end
+
+      unless ldap_info
+        if user
+          user.login_failure_count = user.login_failure_count + 1
+          self.execute_without_timestamps { user.save! }
+        end
+        return nil
+      end
+
+      # We've found an ldap authenticated user - find or create an OBS userDB entry.
+      if user
+        # stuff without affect to update_at
+        user.last_logged_in_at = Time.now
+        user.login_failure_count = 0
+        self.execute_without_timestamps { user.save! }
+
+        # Check for ldap updates
+        if user.email != ldap_info[0] || user.realname != ldap_info[1]
+          user.email = ldap_info[0]
+          user.realname = ldap_info[1]
+          user.save
+        end
+        return user
+      end
+
+      # still in LDAP mode, user authentificated, but not existing in OBS yet
+      if ::Configuration.registration == "deny"
+        logger.debug( "No user found in database, creation disabled" )
+        return nil
+      end
+      logger.debug( "No user found in database, creating" )
+      logger.debug( "Email: #{ldap_info[0]}" )
+      logger.debug( "Name : #{ldap_info[1]}" )
+      # Generate and store a fake pw in the OBS DB that no-one knows
+      chars = ["A".."Z", "a".."z", "0".."9"].collect { |r| r.to_a }.join
+      password = (1..24).collect { chars[rand(chars.size)] }.pack('a'*24)
+      user = User.create( :login => login,
+                          :password => password,
+                          :password_confirmation => password,
+                          :email => ldap_info[0],
+                          :last_logged_in_at => Time.now)
+      unless user.errors.empty?
+        errstr = String.new
+        logger.debug("Creating User failed with: ")
+        user.errors.full_messages.each do |msg|
+          errstr = errstr+msg
+          logger.debug(msg)
+        end
+        logger.info("Cannot create ldap userid: '#{login}' on OBS<br>#{errstr}")
+        return nil
+      end
+      user.realname = ldap_info[1]
+      user.state = User::STATES['confirmed']
+      user.state = User::STATES['unconfirmed'] if ::Configuration.registration == "confirmation"
+      user.adminnote = "User created via LDAP"
+      logger.debug( "saving new user..." )
+      user.save
+    end
 
     # If the user could be found and the passwords equal then return the user
     if user && user.password_equals?(password)
-      if user.login_failure_count > 0
-        user.login_failure_count = 0
-        self.execute_without_timestamps { user.save! }
-      end
+      user.last_logged_in_at = Time.now
+      user.login_failure_count = 0
+      self.execute_without_timestamps { user.save! }
 
       return user
     end
@@ -388,7 +458,7 @@ class User < ActiveRecord::Base
     def find_nobody!
       Thread.current[:nobody_user] ||= User.create_with(email: "nobody@localhost",
                                                         realname: "Anonymous User",
-                                                        state: "3",
+                                                        state: STATES['locked'],
                                                         password: "123456",
                                                         password_confirmation: "123456").find_or_create_by(login: nobody_login)
       Thread.current[:nobody_user]
