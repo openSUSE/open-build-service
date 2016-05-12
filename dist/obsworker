@@ -134,10 +134,10 @@ if [ -n "$OBS_VM_TYPE" -a "$OBS_VM_TYPE" != "auto" ] ; then
     elif [ "$OBS_VM_TYPE" != "none" ] ; then
         vmopt="--$OBS_VM_TYPE"
     fi
-elif [ -e /dev/kvm ] ; then
+elif [ -e /dev/kvm -a -x /usr/bin/qemu-kvm ] ; then
     vmopt=--kvm
     OBS_VM_TYPE="kvm"
-elif [ -e /sys/hypervisor/type ] && grep -q xen /sys/hypervisor/type; then
+elif [ -e /sys/hypervisor/type ] && [ -x /usr/sbin/xl -o -x /usr/sbin/xm ] && grep -q xen /sys/hypervisor/type; then
     vmopt=--xen
     OBS_VM_TYPE="xen"
 fi
