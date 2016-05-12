@@ -1823,6 +1823,10 @@ sub handleservice {
     # not our own package, don't run service. try getrev/lsrev instead.
     my $rrev = getrev($rev->{'project'}, $rev->{'package'}, $servicemark);
     $sfiles = BSSrcrep::lsrev($rrev);
+    if ($sfiles->{'_serviceerror'}) {
+      my $serror = BSSrcrep::getserviceerror($rev->{'project'}, $rev->{'package'}, $servicemark) || 'unknown service error';
+      die("$serror\n");
+    }
   }
   if ($sfiles) {
     # tree is available, i.e. the service has finished
