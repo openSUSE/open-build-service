@@ -25,6 +25,10 @@ module Event
     self.description = 'Package was undeleted'
     payload_keys :comment
 
+    def set_payload(attribs, keys)
+      attribs['comment'] = attribs['comment'][0..800] unless attribs['comment'].blank?
+      super(attribs, keys)
+    end
     create_jobs :cleanup_cache_lines, :update_backend_infos
   end
 
@@ -33,6 +37,10 @@ module Event
     self.description = 'Package was deleted'
     payload_keys :comment, :requestid
 
+    def set_payload(attribs, keys)
+      attribs['comment'] = attribs['comment'][0..800] unless attribs['comment'].blank?
+      super(attribs, keys)
+    end
     create_jobs :cleanup_cache_lines
   end
 
