@@ -230,23 +230,32 @@ class User < ActiveRecord::Base
       rescue LoadError
         logger.warn "ldap_mode selected but 'ruby-ldap' module not installed."
         ldap_info = nil # now fall through as if we'd not found a user
-      rescue Exception
+      rescue
         logger.debug "#{login} not found in LDAP."
         ldap_info = nil # now fall through as if we'd not found a user
       end
 
-      return nil unless ldap_info
+      unless ldap_info
+        if user
+          user.login_failure_count = user.login_failure_count + 1
+          self.execute_without_timestamps { user.save! }
+        end
+        return nil
+      end
 
       # We've found an ldap authenticated user - find or create an OBS userDB entry.
       if user
+        # stuff without affect to update_at
+        user.last_logged_in_at = Time.now
+        user.login_failure_count = 0
+        self.execute_without_timestamps { user.save! }
+
         # Check for ldap updates
         if user.email != ldap_info[0] || user.realname != ldap_info[1]
           user.email = ldap_info[0]
           user.realname = ldap_info[1]
           user.save
         end
-        user.login_failure_count = user.login_failure_count + 1
-        self.execute_without_timestamps { user.save! }
         return user
       end
 
@@ -261,11 +270,11 @@ class User < ActiveRecord::Base
       # Generate and store a fake pw in the OBS DB that no-one knows
       chars = ["A".."Z", "a".."z", "0".."9"].collect { |r| r.to_a }.join
       password = (1..24).collect { chars[rand(chars.size)] }.pack('a'*24)
-      user = User.create(
-          :login => login,
-          :password => password,
-          :password_confirmation => password,
-          :email => ldap_info[0] )
+      user = User.create( :login => login,
+                          :password => password,
+                          :password_confirmation => password,
+                          :email => ldap_info[0],
+                          :last_logged_in_at => Time.now)
       unless user.errors.empty?
         errstr = String.new
         logger.debug("Creating User failed with: ")
@@ -286,10 +295,9 @@ class User < ActiveRecord::Base
 
     # If the user could be found and the passwords equal then return the user
     if user && user.password_equals?(password)
-      if user.login_failure_count > 0
-        user.login_failure_count = 0
-        self.execute_without_timestamps { user.save! }
-      end
+      user.last_logged_in_at = Time.now
+      user.login_failure_count = 0
+      self.execute_without_timestamps { user.save! }
 
       return user
     end
