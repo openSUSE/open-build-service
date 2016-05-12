@@ -263,6 +263,7 @@ case "$1" in
 	elif [ "--zvm" == "$vmopt" ]; then echo "z/VM virtual machine"
 	elif [ "--pvm" == "$vmopt" ]; then echo "PowerVM LPAR"
 	elif [ "--emulator" == "$vmopt" ]; then echo "System emulated virtual machine"
+	elif [ "--lxc" == "$vmopt" ]; then echo "LXC container"
 	else  echo "chroot"
 	fi
 
