@@ -11,6 +11,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   let(:apache_maintenance_incident_project) { create(:maintenance_incident_project, name: 'ApacheMI') }
   let(:home_moi_project) { create(:project, name: 'home:moi') }
   let(:maintenance_project) { create(:maintenance_project, name: 'maintenance_project') }
+  let(:project_with_package) { create(:project_with_package, name: 'NewProject', package_name: 'PackageExample') }
 
   describe 'CSRF protection' do
     before do
@@ -214,6 +215,58 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     it { expect(assigns(:project)).to be_a(Project) }
     it { expect(assigns(:project).name).to eq('ProjectName') }
+  end
+
+  describe 'GET #show' do
+    before do
+      login admin_user
+      Project.any_instance.stubs(:number_of_build_problems).returns(0) # To not ask backend for build status
+    end
+
+    it 'without nextstatus param' do
+      get :show, project: apache_project
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'with nextstatus param' do
+      get :show, { project: apache_project, nextstatus: 500 }
+      expect(response).to have_http_status(:internal_server_error)
+    end
+
+    it 'without patchinfo' do
+      get :show, project: apache_project
+      expect(assigns(:has_patchinfo)).to be_falsey
+    end
+
+    it 'with patchinfo' do
+      login admin_user
+      Directory.stubs(:hashed).returns(Xmlhash::XMLHash.new('entry' => {'name' => '_patchinfo'})) # Avoid fetching from backend directly
+      Package.any_instance.stubs(:sources_changed).returns(nil) # Avoid writing to the backend
+      Patchinfo.new.create_patchinfo(apache_project.name, nil, comment: 'Fake comment', force: false)
+      get :show, project: apache_project
+      expect(assigns(:has_patchinfo)).to be_truthy
+    end
+
+    it 'with comments' do
+      apache_project.comments << build(:comment_project, user: user_moi)
+      get :show, project: apache_project
+      expect(assigns(:comments)).to match_array(apache_project.comments)
+    end
+
+    it 'with bugowners' do
+      create(:relationship_project_user, role: Role.find_by_title('bugowner'), project: apache_project, user: user_moi)
+      get :show, project: apache_project
+      expect(assigns(:bugowners_mail)).to match_array([user_moi.email])
+    end
+
+    context 'without bugowners' do
+      before do
+        get :show, project: apache_project
+      end
+
+      it { expect(assigns(:bugowners_mail)).to be_a(Array) }
+      it { expect(assigns(:bugowners_mail)).to be_empty }
+    end
   end
 
   describe 'GET #new_package_branch' do
