@@ -6225,7 +6225,7 @@ sub getbuildstatus {
 
 sub add_daemondata {
   my ($ws, $daemondata) = @_;
-  my $part = (grep {!defined($_->{'name'})} @{$ws->{'partition'}})[0];
+  my $part = (grep {!defined($_->{'name'})} @{$ws->{'partition'} || []})[0];
   if (!$part) {
     $part = {};
     $ws->{'partition'} ||= [];
@@ -6293,7 +6293,15 @@ sub getworkerstatus {
 
   if (!$BSConfig::partitioning || !$BSConfig::partitionservers) {
     my $reposerver = $BSConfig::reposerver;
-    my $ws = BSWatcher::rpc("$reposerver/workerstatus", $BSXML::workerstatus, @args);
+    my $param = {
+      'uri' => "$reposerver/workerstatus",
+      'timeout' => 60,
+    };
+    my $ws = { 'partition' => [ { 'daemon' => [ { 'state' => 'dead', 'type' => 'repserver' } ] } ] };
+    eval {
+      $ws = BSWatcher::rpc($param, $BSXML::workerstatus, @args);
+    };
+    warn($@) if $@;
     delete $_->{'uri'} for @{$ws->{'idle'} || []};
     delete $_->{'uri'} for @{$ws->{'building'} || []};
     add_serviceserverstatus($cgi, $ws);
@@ -6316,7 +6324,20 @@ sub getworkerstatus {
 
   my %reposervers = map {$_ => 1} values(%$BSConfig::partitionservers);
   for my $reposerver (sort keys %reposervers) {
-    my $ws = BSWatcher::rpc("$reposerver/workerstatus", $BSXML::workerstatus, @args);
+    my $param = {
+      'uri' => "$reposerver/workerstatus",
+      'timeout' => 60,
+    };
+    my $ws;
+    eval {
+      $ws = BSWatcher::rpc("$reposerver/workerstatus", $BSXML::workerstatus, @args);
+    };
+    warn($@) if $@;
+    if (!$ws) {
+      for my $par (grep {$BSConfig::partitionservers->{$_} eq $reposerver} sort(keys(%$BSConfig::partitionservers))) {
+        push @{$ws->{'partition'}}, { 'name' => $par, 'daemon' => [ { 'state' => 'dead', 'type' => 'repserver' } ] };
+      }
+    }
 
     push @{$cws->{'partition'}}, @{$ws->{'partition'}};
     next if $cgi->{'daemonsonly'};
