@@ -9,6 +9,7 @@ class UpdateNotificationEvents
 
   def create_events
     retries=10
+    data = type = nil
     begin
       Event::Base.transaction do
         @last.elements('notification') do |e|
@@ -24,7 +25,7 @@ class UpdateNotificationEvents
     rescue ActiveRecord::StatementInvalid => e
       retries = retries - 1
       retry if retries > 0
-      HoptoadNotifier.notify(e, {failed_job: "RETRYED 10 times: #{type.inspect}"})
+      HoptoadNotifier.notify(e, {failed_job: "RETRYED 10 times: #{type.inspect}: #{data}"})
       return
     rescue => e
       if Rails.env.test?
