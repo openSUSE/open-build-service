@@ -28,7 +28,7 @@
       <%= hidden_field_tag( "repository", params[:torepository] ) %><br/>
     <% else %>
       <strong>Name: </strong><br/>
-      <%= text_field_tag 'repository', '', size: 60, id: 'repo_name', disabled: true %><br/>
+      <%= text_field_tag 'repository', '', size: 60, id: 'repo_name', disabled: false %><br/>
       <strong>Architectures: </strong><br/>
       <% Architecture.available.each do |architecture| %>
         <%= check_box_tag "architectures[]", architecture.name, true, id: "architecture_#{architecture.name}" %><%= architecture.name %>
@@ -37,6 +37,6 @@
   </p>
   <p>
     <% button_label = (params[:torepository] ? "Add path to repository #{params[:torepository]}" : "Add repository") %>
-    <%= submit_tag button_label, disabled: true, id: 'add_repository_button' %>
+    <%= submit_tag button_label, disabled: false, id: 'add_repository_button' %>
   </p>
 <% end %>
