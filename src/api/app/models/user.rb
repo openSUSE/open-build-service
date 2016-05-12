@@ -458,7 +458,7 @@ class User < ActiveRecord::Base
     def find_nobody!
       Thread.current[:nobody_user] ||= User.create_with(email: "nobody@localhost",
                                                         realname: "Anonymous User",
-                                                        state: "3",
+                                                        state: STATES['locked'],
                                                         password: "123456",
                                                         password_confirmation: "123456").find_or_create_by(login: nobody_login)
       Thread.current[:nobody_user]
