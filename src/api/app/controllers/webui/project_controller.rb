@@ -137,7 +137,7 @@ class Webui::ProjectController < Webui::WebuiController
     rescue MaintenanceHelper::MissingAction,
            BsRequestAction::UnknownProject,
            BsRequestAction::UnknownTargetPackage => e
-      flash[:error] = e.summary
+      flash[:error] = e.message
       redirect_back_or_to :action => 'show', :project => params[:project] and return
     end
     redirect_to :action => 'show', :project => params[:project]
