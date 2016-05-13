@@ -1145,6 +1145,7 @@ sub getrev {
 	  # make sure that we may access the sources of this package
 	  checksourceaccess($lprojid, $packid);
 	  my $files = lsrev($lrev);
+	  die("cannot copy service errors\n") if $files->{'_serviceerror'} && keys(%$files) == 1;
 	  copyfiles($projid, $packid, $lprojid, $packid, $files);
 	  my $srcmd5 = $lrev->{'srcmd5'};
 	  if ($BSConfig::nosharedtrees && $srcmd5 ne $emptysrcmd5) {
@@ -2354,6 +2355,10 @@ sub handleservice {
     # not our own package, don't run service. try getrev/lsrev instead.
     my $rrev = getrev($rev->{'project'}, $rev->{'package'}, $servicemark);
     $sfiles = lsrev($rrev);
+    if ($sfiles->{'_serviceerror'} && keys(%$sfiles) == 1) {
+      my $serror = getserviceerror("$treedir/$servicemark-_serviceerror") || 'unknown service error';
+      die("$serror\n");
+    }
   }
   if ($sfiles) {
     # tree is available, i.e. the service has finished
