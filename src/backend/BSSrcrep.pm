@@ -294,6 +294,7 @@ sub copytree {
   my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
   return if -e "$treedir/$srcmd5-MD5SUMS";	# already known
   my $files = lsrev({'project' => $oprojid, 'package' => $opackid, 'srcmd5' => $srcmd5});
+  die("cannot copy service errors\n") if $files->{'_serviceerror'} && keys(%$files) == 1;
   # first copy file content
   copyfiles($projid, $packid, $oprojid, $opackid, $files);
   # then copy the tree data
