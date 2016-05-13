@@ -221,6 +221,7 @@ class User < ActiveRecord::Base
   def self.find_with_credentials(login, password)
     # Find user
     user = find_by_login(login)
+    ldap_info = nil
 
     if CONFIG['ldap_mode'] == :on
       begin
@@ -229,20 +230,12 @@ class User < ActiveRecord::Base
         ldap_info = UserLdapStrategy.find_with_ldap( login, password )
       rescue LoadError
         logger.warn "ldap_mode selected but 'ruby-ldap' module not installed."
-        ldap_info = nil # now fall through as if we'd not found a user
       rescue
         logger.debug "#{login} not found in LDAP."
-        ldap_info = nil # now fall through as if we'd not found a user
       end
+    end
 
-      unless ldap_info
-        if user
-          user.login_failure_count = user.login_failure_count + 1
-          self.execute_without_timestamps { user.save! }
-        end
-        return nil
-      end
-
+    if ldap_info
       # We've found an ldap authenticated user - find or create an OBS userDB entry.
       if user
         # stuff without affect to update_at
