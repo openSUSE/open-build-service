@@ -18,7 +18,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       # Needed because Rails disables it in test mode by default
       ActionController::Base.allow_forgery_protection = true
 
-      login(user_tom)
+      login user_tom
       user_moi
     end
 
@@ -209,7 +209,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
   describe 'GET #new' do
     before do
-      login(user_moi)
+      login user_moi
       get :new, name: 'ProjectName'
     end
 
@@ -271,7 +271,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
   describe 'GET #new_package_branch' do
     before do
-      login(user_moi)
+      login user_moi
       @remote_projects_created = create_list(:remote_project, 3)
       get :new_package_branch, project: apache_project
     end
@@ -281,7 +281,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
   describe 'GET #new_incident' do
     before do
-      login(admin_user)
+      login admin_user
     end
 
     context 'with a Maintenance project' do
@@ -305,8 +305,6 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { expect(flash[:error]).to eq('Incident projects shall only create below maintenance projects.') }
     end
   end
-<<<<<<< HEAD
-=======
 
   describe 'GET #linking_projects' do
     before do
@@ -353,5 +351,4 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { expect(assigns(:distributions)).to be_empty }
     end
   end
->>>>>>> 3c72cd9... rename associations
 end
