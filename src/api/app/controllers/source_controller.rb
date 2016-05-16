@@ -890,7 +890,7 @@ class SourceController < ApplicationController
   def project_command_showlinked
     builder = Builder::XmlMarkup.new( :indent => 2 )
     xml = builder.collection() do |c|
-      @project.find_linking_projects.each do |l|
+      @project.linked_by_projects.each do |l|
         p={}
         p[:name] = l.name
         c.project(p)
@@ -1085,7 +1085,7 @@ class SourceController < ApplicationController
     end
 
     project.all_sources_changed
-    project.find_linking_projects.each {|p| p.all_sources_changed}
+    project.linked_by_projects.each {|p| p.all_sources_changed}
 
     render_ok
   end

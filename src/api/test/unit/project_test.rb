@@ -916,15 +916,15 @@ END
       parent1 = projects('BaseDistro2.0_LinkedUpdateProject')
       child = projects('Apache')
 
-      parent2.linkedprojects.create(project: parent2,
+      parent2.linking_to.create(project: parent2,
                                  linked_db_project_id: projects('home_Iggy').id,
                                  position: 1)
 
-      child.linkedprojects.create(project: child,
+      child.linking_to.create(project: child,
                                  linked_db_project_id: parent1.id,
                                  position: 1)
 
-      child.linkedprojects.create(project: child,
+      child.linking_to.create(project: child,
                                   linked_db_project_id: parent2.id,
                                   position: 2)
 
@@ -956,11 +956,11 @@ END
       parent1 = projects('BaseDistro2.0_LinkedUpdateProject')
       child = projects('Apache')
 
-      child.linkedprojects.create(project: child,
+      child.linking_to.create(project: child,
                                   linked_db_project_id: parent1.id,
                                   position: 1)
 
-      child.linkedprojects.create(project: child,
+      child.linking_to.create(project: child,
                                   linked_db_project_id: parent2.id,
                                   position: 2)
 
@@ -981,11 +981,11 @@ END
 
       child = projects('Apache')
 
-      child.linkedprojects.create(project: child,
+      child.linking_to.create(project: child,
                                   linked_db_project_id: base_distro_update.id,
                                   position: 1)
 
-      child.linkedprojects.create(project: child,
+      child.linking_to.create(project: child,
                                   linked_db_project_id: base_distro.id,
                                   position: 2)
 

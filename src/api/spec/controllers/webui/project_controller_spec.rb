@@ -305,4 +305,53 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { expect(flash[:error]).to eq('Incident projects shall only create below maintenance projects.') }
     end
   end
+<<<<<<< HEAD
+=======
+
+  describe 'GET #linking_projects' do
+    before do
+      login user_moi
+      apache2_project
+      another_project.projects_linking_to << apache_project
+      xhr :get, :linking_projects, project: apache_project
+    end
+
+    it { expect(Project.count).to eq(4) }
+    it { expect(assigns(:linking_projects)).to match_array([another_project.name]) }
+  end
+
+  describe 'GET #add_repository_from_default_list' do
+    context 'with some distributions' do
+      before do
+        login user_moi
+        create_list(:distribution, 4, vendor: 'vendor1')
+        create_list(:distribution, 2, vendor: 'vendor2')
+        get :add_repository_from_default_list, project: apache_project
+      end
+
+      it { expect(assigns(:distributions).length).to eq(2) }
+    end
+
+    context 'without any distribution and being normal user' do
+      before do
+        login user_moi
+        get :add_repository_from_default_list, project: apache_project
+      end
+
+      it { is_expected.to redirect_to(controller: 'project', action: 'add_repository', project: apache_project) }
+      it { expect(assigns(:distributions)).to be_empty }
+    end
+
+    context 'without any distribution and being admin user' do
+      before do
+        login admin_user
+        get :add_repository_from_default_list, project: apache_project
+      end
+
+      it { is_expected.to redirect_to(configuration_interconnect_path) }
+      it { expect(flash[:alert]).to eq('There are no distributions configured. Maybe you want to connect to one of the public OBS instances?') }
+      it { expect(assigns(:distributions)).to be_empty }
+    end
+  end
+>>>>>>> 3c72cd9... rename associations
 end
