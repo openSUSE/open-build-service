@@ -219,8 +219,8 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
   describe 'GET #show' do
     before do
-      login admin_user
-      Project.any_instance.stubs(:number_of_build_problems).returns(0) # To not ask backend for build status
+      # To not ask backend for build status
+      Project.any_instance.stubs(:number_of_build_problems).returns(0)
     end
 
     it 'without nextstatus param' do
@@ -240,8 +240,10 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     it 'with patchinfo' do
       login admin_user
-      Directory.stubs(:hashed).returns(Xmlhash::XMLHash.new('entry' => {'name' => '_patchinfo'})) # Avoid fetching from backend directly
-      Package.any_instance.stubs(:sources_changed).returns(nil) # Avoid writing to the backend
+      # Avoid fetching from backend directly
+      Directory.stubs(:hashed).returns(Xmlhash::XMLHash.new('entry' => {'name' => '_patchinfo'}))
+      # Avoid writing to the backend
+      Package.any_instance.stubs(:sources_changed).returns(nil)
       Patchinfo.new.create_patchinfo(apache_project.name, nil, comment: 'Fake comment', force: false)
       get :show, project: apache_project
       expect(assigns(:has_patchinfo)).to be_truthy
