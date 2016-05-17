@@ -4,11 +4,10 @@
 2. [How to contribute code](#how-to-contribute-code)
 3. [How to contribute issues](#how-to-contribute-issues)
 4. [How to contribute documentation](#how-to-contribute-documentation)
-5. [Conduct](#conduct)
+5. [How to conduct yourself when contributing](#how-to-conduct-yourself-when-contributing)
 6. [Communication](#communication)
-7. [Rubocop](#rubocop)
-8. [Setup an OBS backend for development](#setup-an-obs-backend-for-development)
-9. [Quick Start Guide (Howto setup a developer VM)](#quick-start-guide-howto-setup-a-developer-vm)
+8. [How to setup an OBS backend development environment](#how-to-setup-an-obs-backend-development-environment)
+9. [How to setup an OBS frontend development environment](#how-to-setup-an-obs-frontend-development-environment)
 
 # Request for contributions
 We are always looking for contributions to the Open Build Service. Read this guide on how to do that.
@@ -22,12 +21,11 @@ In particular, this community seeks the following types of contributions:
 # How to contribute code
 * Prerequisites: familiarity with [GitHub Pull Requests](https://help.github.com/articles/using-pull-requests.)
 * Fork the repository and make a pull-request with your changes
-  * Please make sure to mind what our test suite in [travis](https://travis-ci.org/openSUSE/open-build-service) tells you! :-)
-  * Please increase our [code coverage](https://codeclimate.com/github/openSUSE/open-build-service) by your pull request!
+  * Please make sure to mind what our test suite in [travis](https://travis-ci.org/openSUSE/open-build-service) tells you
+  * Please always increase our [code coverage](https://codeclimate.com/github/openSUSE/open-build-service) by your pull request
 
-* One of the Open Build Service maintainers will review your pull-request
-  * If you are already a contributor (means you're in the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service)) and you get a positive review, you can merge your pull-request yourself
-  * If you are not a contributor already the reviewer will merge your pull-request
+* A developer of the [open-build-service team](https://github.com/orgs/openSUSE/teams/open-build-service) will review your pull-request
+  * If the pull request gets a positive review the reviewer will merge it
 
 # How to contribute issues
 * Prerequisites: familiarity with [GitHub Issues](https://guides.github.com/features/issues/).
@@ -41,51 +39,18 @@ We are using priority labels from **P0** to **P4** for our issues. So if you are
 * P4: Low  - Fix this when you don't see any issues with the other priorities.
 
 # How to contribute documentation
+The Open Build Service documentation is hosted in a separated repository called [obs-docu](https://github.com/openSUSE/obs-docu). Please send pull-requests against this repository. 
 
-The Open Build Service documentation is hosted in a separated repository available on [GitHub](https://github.com/openSUSE/obs-docu). How you can contribute to our documentation is described on our [project page](http://openbuildservice.org/help/manuals/obs-reference-guide/appendix.work_on_obs_book.html). Needless to say that contributions are highly welcome, right?;-)
-
-# Conduct
+# How to conduct yourself when contributing
 The Open Build Service is part of the openSUSE project. We follow all the [openSUSE Guiding
 Principles!](http://en.opensuse.org/openSUSE:Guiding_principles) If you think
 someone doesn't do that, please let any of the [openSUSE
 owners](https://github.com/orgs/openSUSE/teams/owners) know!
 
-# Communication
-GitHub issues are the primary way for communicating about specific proposed
-changes to this project. If you have other problems please use one of the other
-[support channels](http://openbuildservice.org/support/)
-
-# Rubocop
-We are currently in the process of adding rubocop rules to OBS. For that we
-frequently meet, decide on new rules to add and afterwards go through that list
-and fix those.
-
-Since we want to make sure that the number of merge conflicts stays as small as
-possible, we mark rubocop offenses with name tags (in .rubocop.yml). Developers are
-only supposed to work on a rubocop offense, if there is no name tag above theirs;-)
-
-If you want to take part of this please follow this process:
-
-* Make sure noone else is working on rubocop issues. (By Checking that your name
-  is on top of the .rubocop.yml file).
-
-* Pick one rubocop rule and enable it in .rubocop.yml. Make sure there are no
-  excludes for that offense in the .rubocop_todo.yml.
-
-* Run rubocop and fix reported offenses.
-
-* Run rubocop --auto-gen-config to update .rubocop_todo.yml.
-
-* Create a commit with all changes.
-
-* Go to the next rubocop offense.
-
-# Setup an OBS backend for development
-
+# How to setup an OBS backend development environment
 Check [src/backend/README](src/backend/README) how to run the backend from the source code repository.
 
-
-# Quick Start Guide (Howto setup a developer VM)
+# How to setup an OBS frontend development environment
 
 We are using [Vagrant](https://www.vagrantup.com/) to create our development environments.
 
