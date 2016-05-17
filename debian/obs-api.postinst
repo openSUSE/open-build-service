@@ -44,6 +44,16 @@ fi
   chmod 0640 $SECRET_KEY
   chown nobody.www-data $SECRET_KEY
 
+# Generate Gemfile.lock file.
+cd /srv/www/obs/api
+rm -f .bundle/config
+bundle --local --quiet
+
+export BUNDLE_WITHOUT=test:assets:development
+export BUNDLE_FROZEN=1
+bundle config --local frozen 1
+bundle config --local without test:assets:development
+
 if [ -z "$2" ]; then
     RAILS_ENV=production rake -f /srv/www/obs/api/Rakefile db:create
     RAILS_ENV=production rake -f /srv/www/obs/api/Rakefile db:setup
@@ -51,11 +61,8 @@ else
     RAILS_ENV=production rake -f /srv/www/obs/api/Rakefile db:migrate
 fi
 
-cd /srv/www/obs/api ; bundle exec rake assets:precompile RAILS_ENV=production RAILS_GROUPS=assets
-export BUNDLE_WITHOUT=test:assets:development
-export BUNDLE_FROZEN=1
-bundle config --local frozen 1
-bundle config --local without test:assets:development
+bundle exec rake assets:precompile RAILS_ENV=production RAILS_GROUPS=assets
+
 # reinstall
 #install config/database.yml.example config/database.yml
 #: > log/production.log
