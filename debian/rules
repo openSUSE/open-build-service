@@ -23,7 +23,7 @@ override_dh_install:
 	# Rename dh_install installed web service config files.
 	# (new default since OBS 2.3)
 	mkdir -p debian/obs-api/etc/apache2/sites-available/
-	mv debian/obs-apache2.conf \
+	cp debian/obs-apache2.conf \
 		debian/obs-api/etc/apache2/sites-available/obs.conf
 
 	mkdir -p debian/obs-api/usr/share/dbconfig-common/data/obs-api/install/
