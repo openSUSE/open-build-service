@@ -24,42 +24,32 @@ The OBS source code repository is hosted on [Github](http://github.com/opensuse/
         src/api       Rails app (Ruby on Rails)
         src/backend   Backend code (Perl)
 
-## Setup
-There are 3 scenarios for which you can setup an OBS instance.
+## Installation
+To run the OBS in production we recommend using our [appliance](http://openbuildservice.org/download/) which is the whole package: A recent and stable Linux Operating System ([openSUSE](http://www.opensuse.org)) bundled and pre-configured with all the server and OBS components you need to get going.
 
-1. Use the OBS appliance
+If that is not for you because you have some special needs for your setup (e.g. different partition schema, SLES as base system, etc.) you can also install our packages and run a setup wizard.
 
-  To run the OBS in production we recommend using our [OBS appliance](http://openbuildservice.org/download/) which is the whole package:
-  a recent and stable Linux Operating System ([openSUSE](http://www.opensuse.org)) bundled and pre-configured with all the server and
-  OBS components you need to get going.
+After finishing the installation of your base system, follow these steps:
 
-2. Install packages and run the setup wizard
+1. Add the OBS software repository with zypper. Please be aware, that the needed URL differs, depending on your Base Operating System. We use openSUSE Leap 42.1 in this example.
 
-  This installation method is recommended if you have some special needs for your setup (e.g. different partition schema, SLES as base system, etc.).
+    ```shell
+    zypper ar -f http://download.opensuse.org/repositories/OBS:/Server:/2.7/openSUSE_42.1/OBS:Server:2.7.repo
+    ```
 
-  After finishing the installation of your base system, follow the following steps:
+2. Install the package
 
-  1. Add the OBS software repository with zypper
+   ```shell
+   zypper in -t pattern OBS_Server
+   ```
 
-    Please be aware, that the needed URL might differ, depending on your Operating System.
-    (We use openSUSE Leap 42.1 in this example)
+3. Run our setup wizard
 
-        zypper ar -f http://download.opensuse.org/repositories/OBS:/Server:/2.7/openSUSE_42.1/OBS:Server:2.7.repo
-
-        zypper in obs-api obs-server
-
-  2. Run our setup wizard
-
-        ```
-        /usr/lib/obs/server/setup-appliance.sh
-        ```
-
-
-3. Install packages and configure your system manually
-
-    If you have a more complex setup (e.g. a distributed backend) we recommend to follow our [Manual Setup Guide](dist/README.SETUP.md)
+   ```shell
+   /usr/lib/obs/server/setup-appliance.sh
+   ```
 
 ## Advanced Setup
 
-Please see the administration chapter in our [reference manual](http://openbuildservice.org/help/manuals/obs-reference-guide/cha.obs.admin.html) for details on complex setups.
-
+If you have a more complex setup (e.g. a distributed backend) we recommend to read the Administration
+chapter in our [reference manual](http://openbuildservice.org/help/manuals/obs-reference-guide/cha.obs.admin.html).
