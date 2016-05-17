@@ -5,13 +5,13 @@ require "browser_helper"
 # CONFIG['global_write_through'] = true
 
 RSpec.feature "Requests", :type => :feature, :js => true do
-  let!(:submitter) { create(:confirmed_user, login: 'kugelblitz' ) }
-  let!(:receiver) { create(:confirmed_user, login: 'titan' ) }
+  let(:submitter) { create(:confirmed_user, login: 'kugelblitz' ) }
+  let(:receiver) { create(:confirmed_user, login: 'titan' ) }
   let(:target_project) { Project.find_by(name: receiver.home_project_name) }
-  let!(:target_package) { create(:package, name: 'goal', project_id: target_project.id) }
+  let(:target_package) { create(:package, name: 'goal', project_id: target_project.id) }
   let(:source_project) { Project.find_by(name: submitter.home_project_name) }
-  let!(:source_package) { create(:package, name: 'ball', project_id: source_project.id) }
-  let!(:bs_request) { create(:bs_request, description: "a long text - " * 200, creator: submitter.login) }
+  let(:source_package) { create(:package, name: 'ball', project_id: source_project.id) }
+  let(:bs_request) { create(:bs_request, description: "a long text - " * 200, creator: submitter.login) }
   let(:create_submit_request) do
     bs_request.bs_request_actions.delete_all
     create(:bs_request_action_submit, target_project: target_project.name,
@@ -65,9 +65,7 @@ RSpec.feature "Requests", :type => :feature, :js => true do
         find(:id, 'role').select('Bugowner')
         fill_in 'description', with: 'I can fix bugs too.'
 
-        expect do
-          click_button 'Ok'
-        end.to change{ BsRequest.count }.by 1
+        expect { click_button 'Ok' }.to change{ BsRequest.count }.by 1
         expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants the role bugowner for project #{target_project}")
         expect(page).to have_css("#description-text", text: "I can fix bugs too.")
         expect(page).to have_text('In state new')
@@ -94,9 +92,7 @@ RSpec.feature "Requests", :type => :feature, :js => true do
         find(:id, 'role').select('Maintainer')
         fill_in 'description', with: 'I can produce bugs too.'
 
-        expect do
-          click_button 'Ok'
-        end.to change{ BsRequest.count }.by 1
+        expect { click_button 'Ok' }.to change{ BsRequest.count }.by 1
         expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants the role maintainer \
                                    for package #{target_project} / #{target_package}")
         expect(page).to have_css("#description-text", text: "I can produce bugs too.")
@@ -141,7 +137,7 @@ RSpec.feature "Requests", :type => :feature, :js => true do
       click_link 'Submit package'
       fill_in 'targetproject', with: target_project.name
       fill_in 'description', with: 'Testing superseeding'
-      check("supersede_request_ids_#{bs_request.id}")
+      check("supersede_request_numbers#{bs_request.id}")
       click_button 'Ok'
       within '#flash-messages' do
         click_link 'submit request'
@@ -170,7 +166,7 @@ RSpec.feature "Requests", :type => :feature, :js => true do
       skip
     end
     describe 'for group' do
-      let(:review_group) { create(:group)}
+      let(:review_group) { create(:group) }
       it 'opens a review' do
         login submitter
         visit request_show_path(bs_request.id)

@@ -15,8 +15,7 @@ FactoryGirl.define do
       end
       # Monkeypatch to avoid errors caused by permission checks made
       # in user and bs_request model
-      User.current = user unless request.creator
-      User.current = User.find_by(login: request.creator) if request.creator
+      User.current = User.find_by(login: request.creator) || user
     end
 
     after(:create) { User.current = nil }
