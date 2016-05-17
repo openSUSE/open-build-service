@@ -11,10 +11,13 @@ if [ -f /usr/share/dbconfig-common/dpkg/postrm.mysql ]; then
     dbc_go obs-api $@
 fi
 if [ "$1" = "purge" ]; then
-    rm -f /etc/obs/api/config/database.yml
+    # ucf follows the symlink under /etc
+    rm -f /srv/www/obs/api/config/database.yml
     if which ucf >/dev/null 2>&1; then
-        ucf --purge /etc/obs/api/config/database.yml
+	ucf --purge /srv/www/obs/api/config/database.yml
     fi
+    rm -f /srv/www/obs/api/.bundle/config
+    rm -f /srv/www/obs/api/config/secret.key
 fi
 
 if [ -L /srv/www/obs/api/vendor/rails ]; then
