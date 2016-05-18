@@ -39,7 +39,7 @@ WITH_NET="0"
 COMMAND="$1"
 shift
 case "$COMMAND" in
-  */download_url|*/tar_scm|*/download_src_package|*/update_source|*/download_files|*/generator_pom)
+  */download_url|*/tar_scm|*/obs_scm|*/download_src_package|*/update_source|*/download_files|*/generator_pom)
     WITH_NET="1"
     ;;
 esac
