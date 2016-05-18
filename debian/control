@@ -81,6 +81,7 @@ Depends: apache2,
          memcached,
          mysql-client,
          mysql-server,
+         ruby (>= 2.1),
          ruby-acts-as-list,
          ruby-addressable,
          ruby-capybara,
@@ -141,7 +142,6 @@ Depends: apache2,
          ruby-xmlhash,
          ruby-xpath,
          ruby-yajl,
-         ruby2.1,
          rubygems-integration,
          unicorn,
          ${misc:Depends},
@@ -163,7 +163,7 @@ Description: Open Build Service (product definition utility)
 Package: obs-utils
 Architecture: any
 Depends: osc,
-         ruby2.1,
+         ruby (>= 2.1),
          ${misc:Depends},
          ${shlibs:Depends}
 Description: Open Build Service (utilities)
