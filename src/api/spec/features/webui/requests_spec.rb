@@ -1,10 +1,27 @@
 require "browser_helper"
+# WARNING: If you change tests make sure you uncomment this line
+# and start a test backend. Some of the BsRequestAction methods
+# require real backend answers for projects/packages.
+# CONFIG['global_write_through'] = true
 
 RSpec.feature "Requests", :type => :feature, :js => true do
-  RSpec.shared_examples "expandable element" do
-    let!(:bs_request) { create(:bs_request, description: "a long text - " * 200) }
-    let!(:user) { create(:confirmed_user) }
+  let(:submitter) { create(:confirmed_user, login: 'kugelblitz' ) }
+  let(:receiver) { create(:confirmed_user, login: 'titan' ) }
+  let(:target_project) { Project.find_by(name: receiver.home_project_name) }
+  let(:target_package) { create(:package, name: 'goal', project_id: target_project.id) }
+  let(:source_project) { Project.find_by(name: submitter.home_project_name) }
+  let(:source_package) { create(:package, name: 'ball', project_id: source_project.id) }
+  let(:bs_request) { create(:bs_request, description: "a long text - " * 200, creator: submitter.login) }
+  let(:create_submit_request) do
+    bs_request.bs_request_actions.delete_all
+    create(:bs_request_action_submit, target_project: target_project.name,
+                                      target_package: source_package.name,
+                                      source_project: source_project.name,
+                                      source_package: source_package.name,
+                                      bs_request_id: bs_request.id)
+  end
 
+  RSpec.shared_examples "expandable element" do
     scenario "expanding a text field" do
       invalid_word_count = valid_word_count + 1
 
@@ -36,6 +53,150 @@ RSpec.feature "Requests", :type => :feature, :js => true do
         let(:element) { ".expandable_event_comment" }
         let(:valid_word_count) { 3 }
       end
+    end
+  end
+
+  context 'for role addition' do
+    describe 'for projects' do
+      it 'can be submitted' do
+        login submitter
+        visit project_show_path(project: target_project)
+        click_link 'Request role addition'
+        find(:id, 'role').select('Bugowner')
+        fill_in 'description', with: 'I can fix bugs too.'
+
+        expect { click_button 'Ok' }.to change{ BsRequest.count }.by 1
+        expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants the role bugowner for project #{target_project}")
+        expect(page).to have_css("#description-text", text: "I can fix bugs too.")
+        expect(page).to have_text('In state new')
+      end
+
+      it 'can be accepted' do
+        bs_request.bs_request_actions.delete_all
+        create(:bs_request_action_add_bugowner_role, target_project: target_project.name,
+                                                     person_name: submitter,
+                                                     bs_request_id: bs_request.id)
+        login receiver
+        visit request_show_path(bs_request.id)
+        click_button 'Accept'
+
+        expect(page).to have_text("Request #{bs_request.id} (accepted)")
+        expect(page).to have_text('In state accepted')
+      end
+    end
+    describe 'for packages' do
+      it 'can be submitted' do
+        login submitter
+        visit package_show_path(project: target_project, package: target_package)
+        click_link 'Request role addition'
+        find(:id, 'role').select('Maintainer')
+        fill_in 'description', with: 'I can produce bugs too.'
+
+        expect { click_button 'Ok' }.to change{ BsRequest.count }.by 1
+        expect(page).to have_text("#{submitter.realname} (#{submitter.login}) wants the role maintainer \
+                                   for package #{target_project} / #{target_package}")
+        expect(page).to have_css("#description-text", text: "I can produce bugs too.")
+        expect(page).to have_text('In state new')
+      end
+      it 'can be accepted' do
+        bs_request.bs_request_actions.delete_all
+        create(:bs_request_action_add_maintainer_role, target_project: target_project.name,
+                                                       target_package: target_package.name,
+                                                       person_name: submitter,
+                                                       bs_request_id: bs_request.id)
+        login receiver
+        visit request_show_path(bs_request.id)
+        click_button 'Accept'
+
+        expect(page).to have_text("Request #{bs_request.id} (accepted)")
+        expect(page).to have_text('In state accepted')
+      end
+    end
+  end
+
+  describe 'accept' do
+    it 'can add submitter as maintainer' do
+      create_submit_request
+      login receiver
+      visit request_show_path(bs_request.id)
+      check 'add_submitter_as_maintainer_0'
+      click_button 'Accept request'
+
+      expect(page).to have_text("Request #{bs_request.id} (accepted)")
+      expect(page).to have_text('In state accepted')
+      expect(submitter.has_local_permission?('change_package', target_project.packages.find_by(name: source_package.name))).to be_truthy
+    end
+  end
+
+  describe 'superseed' do
+    it 'other requests' do
+      create_submit_request
+      Suse::Backend.put("/source/#{source_package.project.name}/#{source_package.name}/somefile.txt", Faker::Lorem.paragraph)
+      login submitter
+      visit package_show_path(project: source_project, package: source_package)
+      click_link 'Submit package'
+      fill_in 'targetproject', with: target_project.name
+      fill_in 'description', with: 'Testing superseeding'
+      check("supersede_request_numbers#{bs_request.id}")
+      click_button 'Ok'
+      within '#flash-messages' do
+        click_link 'submit request'
+      end
+
+      expect(page).to have_text("Supersedes #{bs_request.id}")
+    end
+  end
+
+  describe 'revoke' do
+    it 'revokes request' do
+      create_submit_request
+      login submitter
+      visit request_show_path(bs_request.id)
+      fill_in 'reason', with: 'Oops'
+      click_button 'Revoke request'
+
+      expect(page).to have_text('Request revoked!')
+      expect(page).to have_text("Request #{bs_request.id} (revoked)")
+      expect(page).to have_text("There's nothing to be done right now")
+    end
+  end
+
+  context 'review' do
+    describe 'for user' do
+      skip
+    end
+    describe 'for group' do
+      let(:review_group) { create(:group) }
+      it 'opens a review' do
+        login submitter
+        visit request_show_path(bs_request.id)
+        click_link 'Add a review'
+        find(:id, 'review_type').select('Group')
+        fill_in 'review_group', with: review_group.title
+        click_button 'Ok'
+        expect(page).to have_text("Open review for #{review_group.title}")
+      end
+    end
+    describe 'for project' do
+      skip
+    end
+    describe 'for invalid project' do
+      skip
+    end
+    describe 'for package' do
+      skip
+    end
+  end
+
+  context 'comments' do
+    describe 'can be created' do
+      skip
+    end
+    describe 'reply' do
+      skip
+    end
+    describe 'mail notifications' do
+      skip
     end
   end
 end

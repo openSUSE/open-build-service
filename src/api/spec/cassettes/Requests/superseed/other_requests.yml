@@ -1,0 +1,995 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:kugelblitz/_meta?user=kugelblitz
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:kugelblitz">
+          <title/>
+          <description/>
+          <person userid="kugelblitz" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '143'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:kugelblitz">
+          <title></title>
+          <description></description>
+          <person userid="kugelblitz" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:10 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:titan/_meta?user=titan
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:titan">
+          <title/>
+          <description/>
+          <person userid="titan" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '133'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:titan">
+          <title></title>
+          <description></description>
+          <person userid="titan" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:10 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:titan/goal/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="home:titan">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '102'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="goal" project="home:titan">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:10 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:kugelblitz/ball/_meta?user=_nobody_
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ball" project="home:kugelblitz">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '107'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="ball" project="home:kugelblitz">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:10 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:kugelblitz/ball/somefile.txt
+    body:
+      encoding: UTF-8
+      string: Corrupti ut architecto nesciunt sit nisi soluta porro. Qui qui dolores
+        molestiae ea voluptas error vitae. Laboriosam vel ut pariatur fuga est eveniet
+        reiciendis.
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '207'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="1" vrev="1">
+          <srcmd5>46dc2f6c0655aaba82546626c808c17d</srcmd5>
+          <version>unknown</version>
+          <time>1460473630</time>
+          <user>unknown</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:10 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:11 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:kugelblitz/ball?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '178'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="ball" rev="1" vrev="1" srcmd5="46dc2f6c0655aaba82546626c808c17d" verifymd5="46dc2f6c0655aaba82546626c808c17d">
+          <revtime>1460473630</revtime>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:11 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:kugelblitz/ball
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '197'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" rev="1" vrev="1" srcmd5="46dc2f6c0655aaba82546626c808c17d">
+          <entry name="somefile.txt" md5="fd585656d44c9a1c092da6a57f0b9c81" size="161" mtime="1460473630" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:11 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:kugelblitz/ball?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '303'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="b416bf5b3e63ff613c902244d6ba59ff">
+          <old project="home:kugelblitz" package="ball" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:kugelblitz" package="ball" rev="1" srcmd5="46dc2f6c0655aaba82546626c808c17d" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:11 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:kugelblitz/ball
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '197'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" rev="1" vrev="1" srcmd5="46dc2f6c0655aaba82546626c808c17d">
+          <entry name="somefile.txt" md5="fd585656d44c9a1c092da6a57f0b9c81" size="161" mtime="1460473630" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:11 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:kugelblitz/ball?expand=1&rev=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '197'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" rev="1" vrev="1" srcmd5="46dc2f6c0655aaba82546626c808c17d">
+          <entry name="somefile.txt" md5="fd585656d44c9a1c092da6a57f0b9c81" size="161" mtime="1460473630" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:11 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:kugelblitz/ball
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '197'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" rev="1" vrev="1" srcmd5="46dc2f6c0655aaba82546626c808c17d">
+          <entry name="somefile.txt" md5="fd585656d44c9a1c092da6a57f0b9c81" size="161" mtime="1460473630" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:11 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:kugelblitz/ball/_history
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '213'
+    body:
+      encoding: UTF-8
+      string: |
+        <revisionlist>
+          <revision rev="1" vrev="1">
+            <srcmd5>46dc2f6c0655aaba82546626c808c17d</srcmd5>
+            <version>unknown</version>
+            <time>1460473630</time>
+            <user>unknown</user>
+          </revision>
+        </revisionlist>
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:11 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:11 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:11 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:kugelblitz/ball
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '197'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" rev="1" vrev="1" srcmd5="46dc2f6c0655aaba82546626c808c17d">
+          <entry name="somefile.txt" md5="fd585656d44c9a1c092da6a57f0b9c81" size="161" mtime="1460473630" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:11 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:kugelblitz/ball?expand=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '197'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" rev="1" vrev="1" srcmd5="46dc2f6c0655aaba82546626c808c17d">
+          <entry name="somefile.txt" md5="fd585656d44c9a1c092da6a57f0b9c81" size="161" mtime="1460473630" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:11 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:12 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:kugelblitz/ball
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '197'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" rev="1" vrev="1" srcmd5="46dc2f6c0655aaba82546626c808c17d">
+          <entry name="somefile.txt" md5="fd585656d44c9a1c092da6a57f0b9c81" size="161" mtime="1460473630" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:12 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:kugelblitz/ball?expand=1&rev=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '197'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" rev="1" vrev="1" srcmd5="46dc2f6c0655aaba82546626c808c17d">
+          <entry name="somefile.txt" md5="fd585656d44c9a1c092da6a57f0b9c81" size="161" mtime="1460473630" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:12 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:kugelblitz/ball
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '197'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" rev="1" vrev="1" srcmd5="46dc2f6c0655aaba82546626c808c17d">
+          <entry name="somefile.txt" md5="fd585656d44c9a1c092da6a57f0b9c81" size="161" mtime="1460473630" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:12 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:12 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:12 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:kugelblitz/ball
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '197'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="ball" rev="1" vrev="1" srcmd5="46dc2f6c0655aaba82546626c808c17d">
+          <entry name="somefile.txt" md5="fd585656d44c9a1c092da6a57f0b9c81" size="161" mtime="1460473630" />
+        </directory>
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:12 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:kugelblitz/ball?cmd=diff&expand=1&filelimit=10000&orev=0&rev=46dc2f6c0655aaba82546626c808c17d&view=xml&withissues=1
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '699'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="eff04881d4694a593ba699f724c40a09">
+          <old project="home:kugelblitz" package="ball" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:kugelblitz" package="ball" rev="46dc2f6c0655aaba82546626c808c17d" srcmd5="46dc2f6c0655aaba82546626c808c17d" />
+          <files>
+            <file state="added">
+              <new name="somefile.txt" md5="fd585656d44c9a1c092da6a57f0b9c81" size="161" />
+              <diff lines="3">@@ -0,0 +1 @@
+        +Corrupti ut architecto nesciunt sit nisi soluta porro. Qui qui dolores molestiae ea voluptas error vitae. Laboriosam vel ut pariatur fuga est eveniet reiciendis.
+        \ No newline at end of file
+        </diff>
+            </file>
+          </files>
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:12 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:12 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/build/home:kugelblitz/_result?package=ball&view=status
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '56'
+    body:
+      encoding: UTF-8
+      string: '<resultlist state="00000000000000000000000000000000" />
+
+'
+    http_version: 
+  recorded_at: Tue, 12 Apr 2016 15:07:12 GMT
+recorded_with: VCR 3.0.1
