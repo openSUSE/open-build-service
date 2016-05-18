@@ -7086,6 +7086,10 @@ sub event_package {
   my $packid = $ev->{'package'};
   push @{$fetchprojpacks->{$projid}}, $packid;
   $deepcheck->{$projid} = 1 if !defined $packid;
+  if (!defined($packid) && $ectx->{'gctx'}->{'projsuspended'}->{$projid}) {
+    print "resuming project $projid\n";
+    delete $ectx->{'gctx'}->{'projsuspended'}->{$projid};
+  }
 }
 
 sub event_project {
@@ -7354,6 +7358,8 @@ sub event_exit {
   $schedstate->{'lookat_oob'} = $ectx->{'lookat_med'};
   $schedstate->{'lookat_oobhigh'} = $ectx->{'lookat_high'};
   $schedstate->{'prpfinished'} = \%prpfinished;
+  my $gctx = $ectx->{'gctx'};
+  $schedstate->{'projsuspended'} = $gctx->{'projsuspended'} if %{$gctx->{'projsuspended'} || {}};
   $schedstate->{'globalnotready'} = \%prpnotready;
   $schedstate->{'fetchprojpacks'} = $ectx->{'fetchprojpacks'} if %{$ectx->{'fetchprojpacks'} || {}};
   $schedstate->{'delayedfetchprojpacks'} = $ectx->{'delayedfetchprojpacks'};
@@ -7407,6 +7413,23 @@ sub event_configuration {
   BSConfiguration::update_from_configuration();
 }
 
+sub event_suspendproject {
+  my ($ectx, $ev) = @_;
+  my $projid = $ev->{'project'};
+  my $gctx = $ectx->{'gctx'};
+  return unless $ev->{'job'};
+  print "suspending project $projid: $ev->{'job'}\n";
+  $gctx->{'projsuspended'}->{$projid} = $ev->{'job'};
+  # try to set the repo state right away
+  my $projpacks = $gctx->{'projpacks'};
+  my $proj = $projpacks->{$projid};
+  return unless $proj;
+  for my $repo (@{$proj->{'repository'} || []}) {
+    next unless grep {$_ eq $gctx->{'arch'}} @{$repo->{'arch'} || []};
+    set_repo_state("$projid/$repo->{'name'}", 'blocked', $ev->{'job'});
+  }
+}
+
 my %event_handlers = (
   'built' => \&event_built,
   'uploadbuild' => \&event_built,
@@ -7434,6 +7457,7 @@ my %event_handlers = (
   'dumpstate' => \&event_exit,
   'useforbuild' => \&event_useforbuild,
   'configuration' => \&event_configuration,
+  'suspendproject'  => \&event_suspendproject,
 );
 
 
@@ -7694,6 +7718,7 @@ my %changed_high;
 my %changed_dirty;
 my %lastcheck;
 my %delayedfetchprojpacks;
+my %projsuspended = {};
 
 my %lookat_next;	# not so important, next series
 my @lookat_low;         # not so important
@@ -7779,6 +7804,10 @@ if (!$testprojid && -s "$rundir/bs_sched.$myarch.state") {
     for my $projid (keys %$projpacks) {
       $delayedfetchprojpacks{$projid} = $olddelayedfetchprojpacks->{$projid} if $olddelayedfetchprojpacks->{$projid};
     }
+
+    # update projsuspended hash
+    my $oldprojsuspended =  $schedstate->{'projsuspended'} || {};
+    %projsuspended = %$oldprojsuspended;
 
     # use old start values
     if ($schedstate->{'watchremote_start'}) {
@@ -7928,6 +7957,7 @@ my $gctx = {
 
   'nextmed' => \%nextmed,
   'iswaiting' => \%iswaiting,
+  'projsuspended' => \%projsuspended,
 };
 
 ##
@@ -8047,7 +8077,7 @@ NEXTPRP:
       if (@events > 1) {
 	# sort events a bit, exit events go first ;-)
 	# uploadbuild events must go last
-	my %evprio = ('exit' => -1, 'exitcomplete' => -1, 'restart' => -1, 'uploadbuild' => 1);
+	my %evprio = ('exit' => -2, 'exitcomplete' => -2, 'restart' => -2, 'suspendproject' => -1, 'uploadbuild' => 1);
 	@events = sort {($evprio{$a->{'type'}} || 0) <=> ($evprio{$b->{'type'}} || 0) || 
 			$a->{'type'} cmp $b->{'type'} ||
 			($a->{'project'} || '') cmp ($b->{'project'} || '') ||
@@ -8445,6 +8475,11 @@ NEXTPRP:
       print "      disabled\n";
       set_repo_state($prp, 'disabled');
       $prpfinished{$prp} = 1;
+      next;
+    }
+
+    if ($gctx->{'projsuspended'}->{$projid}) {
+      set_repo_state($prp, 'blocked', $gctx->{'projsuspended'}->{$projid});
       next;
     }
 
