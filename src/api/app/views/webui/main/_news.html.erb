@@ -28,7 +28,7 @@
             <% else %>
                 <%= sprite_tag('information', alt: 'Information') %>
             <% end %>
-            <%= raw msg.message %>
+            <%= comment_body(msg.message) %>
           </div>
           <div class="clear"></div>
       <% end %>
