@@ -1407,6 +1407,7 @@ class Project < ActiveRecord::Base
     return false unless name.kind_of? String
     # this length check is duplicated but useful for other uses for this function
     return false if name.length > 200 || name.blank?
+    return false if name == "0";
     return false if name =~ %r{^[_\.]}
     return false if name =~ %r{::}
     return false if name.end_with?(':')

@@ -988,6 +988,7 @@ class Package < ActiveRecord::Base
     return false unless name.kind_of? String
     # this length check is duplicated but useful for other uses for this function
     return false if name.length > 200 || name.blank?
+    return false if name == "0"
     return true if name =~ /\A_product:\w[-+\w\.]*\z/
     # obsolete, just for backward compatibility
     return true if name =~ /\A_patchinfo:\w[-+\w\.]*\z/
