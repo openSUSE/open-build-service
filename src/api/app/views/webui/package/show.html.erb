@@ -17,7 +17,7 @@
         <small><%= link_to(@package.url, @package.url) %></small>
       <% end %>
     </h3>
-    <%= description_wrapper(@package.description) %>
+    <%= description_wrapper(comment_body(@package.description)) %>
   </div>
   <div class="grid_6 omega">
     <%= possibly_empty_ul class: :clean_list do %>

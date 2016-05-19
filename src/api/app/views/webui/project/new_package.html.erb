@@ -20,7 +20,7 @@
   <strong>Title:</strong><br/>
   <%= text_field_tag 'title', @package_title, :size => 80 %><br/>
   <strong>Description:</strong><br/>
-  <%= text_area_tag 'description', @package_description, :cols => 80, :rows => 10 %><br/>
+  <%= text_area_tag 'description', @package_description, :cols => 80, :rows => 10, :placeholder => '(markdown markup supported)' %><br/>
   <% unless @configuration['hide_private_options'] %>
     <%= check_box_tag :source_protection %>Deny access to sources of package.<br/>
   <% end %>
