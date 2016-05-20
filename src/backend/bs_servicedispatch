@@ -1,0 +1,295 @@
+#!/usr/bin/perl
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
+}
+
+use XML::Structured ':bytes';
+use POSIX;
+use Fcntl qw(:DEFAULT :flock);
+
+use BSConfiguration;
+use BSRPC ':https';
+use BSUtil;
+use BSSrcrep;
+use BSRevision;
+use BSNotify;
+
+use strict;
+
+my $bsdir = $BSConfig::bsdir || "/srv/obs";
+
+BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup);
+BSUtil::drop_privs_to($BSConfig::bsuser||$BSConfig::bsuser, $BSConfig::bsgroup||$BSConfig::bsgroup);
+BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BSConfig::disable_data_sync;
+
+my $eventdir = "$BSConfig::bsdir/events";
+my $srcrep = "$BSConfig::bsdir/sources";
+my $uploaddir = "$srcrep/:upload";
+my $rundir = $BSConfig::rundir || $BSConfig::rundir || "$BSConfig::bsdir/run";
+
+my $maxchild = 4;
+$maxchild = $BSConfig::servicedispatch_maxchild if defined $BSConfig::servicedispatch_maxchild;
+
+my $myeventdir = "$eventdir/servicedispatch";
+
+sub addrev_service {
+  my ($rev, $servicemark, $files, $error) = @_;
+
+  if ($error) {
+    chomp $error;
+    $error ||= 'unknown service error';
+  }
+  if ($files->{'_service_error'} && !$error) {
+    $error = BSSrcrep::repreadstr($rev, '_service_error', $files->{'_service_error'});
+    chomp $error;
+    $error ||= 'unknown service error';
+  }
+  if (!$error) {
+    eval {
+      BSSrcrep::addmeta_service($rev->{'project'}, $rev->{'package'}, $files, $servicemark, $rev->{'srcmd5'});
+    };
+    $error = $@ if $@;
+  }
+  if ($error) {
+    BSSrcrep::addmeta_serviceerror($rev->{'project'}, $rev->{'package'}, $servicemark, $error);
+    $error =~ s/[\r\n]+$//s;
+    $error =~ s/.*[\r\n]//s;
+    $error = str2utf8xml($error) || 'unknown service error';
+  }
+  my $user = $rev->{'user'};
+  my $comment = $rev->{'comment'};
+  my $requestid = $rev->{'requestid'};
+  $user = '' unless defined $user;
+  $user = 'unknown' if $user eq '';
+  $user = str2utf8xml($user);
+  $comment = '' unless defined $comment;
+  $comment = str2utf8xml($comment);
+  my $p = {
+    'project' => $rev->{'project'}, 'package' => $rev->{'package'}, 'rev' => $rev->{'rev'},
+    'user' => $user, 'comment' => $comment, 'requestid' => $requestid,
+  };
+  $p->{'error'} = $error if $error;
+  BSNotify::notify($error ? 'SRCSRV_SERVICE_FAIL' : 'SRCSRV_SERVICE_SUCCESS', $p);
+}
+
+
+sub runservice {
+  my ($projid, $packid, $servicemark, $srcmd5, $revid, $linksrcmd5, $projectservicesmd5, $oldsrcmd5) = @_;
+
+  print "dispatching service $projid/$packid $servicemark $srcmd5\n";
+  # get revision and file list
+  my $rev;
+  if ($revid) {
+    eval {
+      $rev = BSRevision::getrev_local($projid, $packid, $revid);
+    };
+  }
+  if (!$rev || $rev->{'srcmd5'} ne $srcmd5) {
+    $rev = BSRevision::getrev_local($projid, $packid, $srcmd5);
+  }
+  my $linkinfo = {};
+  my $files = BSSrcrep::lsrev($rev, $linkinfo);
+  die("servicemark mismatch\n") unless ($linkinfo->{'xservicemd5'} || '') eq $servicemark;
+
+  # check if in progress
+  my $serviceerror = BSSrcrep::getserviceerror($projid, $packid, $servicemark);
+  return if $serviceerror ne 'service in progress';
+ 
+  # handle link case
+  my $linkfiles;
+  if ($linksrcmd5) {
+    $linkfiles = $files;
+    my $lrev = BSRevision::getrev_local($projid, $packid, $linksrcmd5);
+    $files = BSSrcrep::lsrev($lrev);
+  }
+
+  # get old files
+  my $oldfiles;
+  if ($oldsrcmd5) {
+    my $oldrev = BSRevision::getrev_local($projid, $packid, $oldsrcmd5);
+    $oldfiles = BSSrcrep::lsrev($oldrev);
+  }
+  $oldfiles ||= {};
+
+  my @send = map {BSSrcrep::repcpiofile($rev, $_, $files->{$_})} sort(keys %$files);
+  push @send, BSSrcrep::repcpiofile({'project' => $projid, 'package' => '_project'}, '_serviceproject', $projectservicesmd5) if $projectservicesmd5;
+  push @send, map {BSSrcrep::repcpiofile($rev, $_, $oldfiles->{$_})} grep {!$files->{$_}} sort(keys %$oldfiles);
+
+  my $odir = "$uploaddir/runservice$$";
+  BSUtil::cleandir($odir) if -d $odir;
+  mkdir_p($odir);
+  my $receive;
+  eval {
+    $receive = BSRPC::rpc({
+      'uri'       => "$BSConfig::serviceserver/sourceupdate/$projid/$packid",
+      'request'   => 'POST',
+      'headers'   => [ 'Content-Type: application/x-cpio' ],
+      'chunked'   => 1,
+      'data'      => \&BSHTTP::cpio_sender,
+      'cpiofiles' => \@send,
+      'directory' => $odir,
+      'timeout'   => 3600,
+      'withmd5'   => 1,
+      'receiver' => \&BSHTTP::cpio_receiver,
+    }, undef);
+  };
+  my $error = $@;
+
+  # and update source repository with the result
+  if ($receive) {
+    # drop all existing service files
+    for (keys %$files) {
+      delete $files->{$_} if /^_service[_:]/;
+    }
+    # add new service files
+    eval {
+      for my $pfile (ls($odir)) {
+        if ($pfile eq '.errors') {
+          my $e = readstr("$odir/.errors");
+          $e ||= 'empty .errors file';
+          die($e);
+        }
+        unless ($pfile =~ /^_service[_:]/) {
+          die("service returned a non-_service file: $pfile\n");
+        }
+        BSVerify::verify_filename($pfile);
+        $files->{$pfile} = BSSrcrep::addfile($projid, $packid, "$odir/$pfile", $pfile);
+      }
+    };
+    $error = $@ if $@;
+  } else {
+    $error ||= 'error';
+    $error = "service daemon error:\n $error";
+  }
+  if ($linkfiles) {
+    # argh, a link! put service run result in old filelist
+    if (!$error) {
+      $linkfiles->{$_} = $files->{$_} for grep {/^_service[_:]/} keys %$files;
+    }
+    $files = $linkfiles;
+  }
+  addrev_service($rev, $servicemark, $files, $error);
+  BSUtil::cleandir($odir);
+  rmdir($odir);
+  BSRPC::rpc({
+    'uri'       => "$BSConfig::srcserver/source/$projid/$packid",
+    'request'   => 'POST',
+    'timeout'   => 60,
+  }, undef, 'cmd=notifypackagechange');
+}
+
+sub runservice_ev {
+  my ($event, $ev) = $_;
+  eval {
+    runservice($ev->{'project'}, $ev->{'package'}, $ev->{'job'}, $ev->{'srcmd5'}, $ev->{'rev'}, $ev->{'linksrcmd5'}, $ev->{'projectservicesmd5'}, $ev->{'oldsrcmd5'});
+  };
+  if ($@) {
+    warn($@);
+    $ev->{'due'} = time() + 10 * 60;
+    writexml("$myeventdir/.$event$$", "$myeventdir/$event", $ev, $BSXML::event);
+  } else {
+    unlink("$myeventdir/$event");
+  }
+}
+
+$| = 1;
+$SIG{'PIPE'} = 'IGNORE';
+BSUtil::restartexit($ARGV[0], 'servicedispatch', "$rundir/bs_servicedispatch", "$myeventdir/.ping");
+print "starting service dispatcher\n";
+
+mkdir_p($rundir);
+open(RUNLOCK, '>>', "$rundir/bs_servicedispatch.lock") || die("$rundir/bs_servicedispatch.lock: $!\n");
+flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("servicedispatch is already running!\n");
+utime undef, undef, "$rundir/bs_servicedispatch.lock";
+
+mkdir_p($myeventdir);
+if (!-p "$myeventdir/.ping") {
+  POSIX::mkfifo("$myeventdir/.ping", 0666) || die("$myeventdir/.ping: $!");
+  chmod(0666, "$myeventdir/.ping");
+}
+sysopen(PING, "$myeventdir/.ping", POSIX::O_RDWR) || die("$myeventdir/.ping: $!");
+
+my %chld;
+my $pid;
+
+while (1) {
+  # drain ping pipe
+  my $dummy;
+  fcntl(PING,F_SETFL,POSIX::O_NONBLOCK);
+  1 while (sysread(PING, $dummy, 1024, 0) || 0) > 0;
+  fcntl(PING,F_SETFL,0);
+
+  # check for events
+  my @events = sort(ls($myeventdir));
+  @events = grep {!/^\./} @events;
+
+  my $havedue;
+
+  for my $event (@events) {
+    last if -e "$rundir/bs_servicedispatch.exit";
+    last if -e "$rundir/bs_servicedispatch.restart";
+    my $ev = readxml("$myeventdir/$event", $BSXML::event, 1);
+    if (!$ev || !$ev->{'type'} || $ev->{'type'} ne 'servicedispatch') {
+      unlink("$myeventdir/$event");
+      next;
+    }
+    if (!defined($ev->{'project'}) || !defined($ev->{'package'}) || !defined($ev->{'job'})) {
+      unlink("$myeventdir/$event");
+      next;
+    }
+    if ($ev->{'due'} && time() < $ev->{'due'}) {
+      $havedue = 1;
+      next;
+    }
+    if (!$maxchild || $maxchild == 1) {
+      runservice_ev($event, $ev);
+      next;
+    }
+    if (!($pid = xfork())) {
+      runservice_ev($event, $ev);
+      exit(0);
+    }
+    $chld{$pid} = undef;
+    while (($pid = waitpid(-1, defined($maxchild) && keys(%chld) > $maxchild ? 0 : POSIX::WNOHANG)) > 0) {
+      delete $chld{$pid};
+    }
+  }
+
+  # check for restart/exit
+  if (-e "$rundir/bs_servicedispatch.exit") {
+    if (%chld) {
+      delete $chld{$pid} while ($pid = waitpid(-1, 0)) > 0;
+    }
+    close(RUNLOCK);
+    unlink("$rundir/bs_servicedispatch.exit");
+    print "exiting...\n";
+    exit(0);
+  }
+  if (-e "$rundir/bs_servicedispatch.restart") {
+    if (%chld) {
+      delete $chld{$pid} while ($pid = waitpid(-1, 0)) > 0;
+    }
+    close(RUNLOCK);
+    unlink("$rundir/bs_servicedispatch.restart");
+    print "restarting...\n";
+    exec($0);
+    die("$0: $!\n");
+  }
+  if ($havedue) {
+    print "sleeping 10 seconds...\n";
+    fcntl(PING,F_SETFL,POSIX::O_NONBLOCK);
+    for my $i (0..9) {
+      last if (sysread(PING, $dummy, 1024, 0) || 0) > 0;
+      sleep(1);
+    }
+    fcntl(PING,F_SETFL,0);
+  } else {
+    print "waiting for an event...\n";
+    sysread(PING, $dummy, 1, 0);
+  }
+}
+

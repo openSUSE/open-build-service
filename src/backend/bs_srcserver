@@ -423,6 +423,7 @@ sub runservice {
   return if $packid eq '_project';
 
   my $oldfiles = {};
+  my $oldfilesrev;
   if ($files->{'/SERVICE'}) {
     # check serialization
     return unless BSSrcrep::addmeta_serialize_servicerun($rev->{'project'}, $rev->{'package'}, $files->{'/SERVICE'});
@@ -435,11 +436,12 @@ sub runservice {
     while ($revno && $revno > 1) {
       $revno = $revno - 1;	# get the commit before this one
       eval {
-        my $oldfilerev = getrev($projid, $packid, $revno);
-	$oldfiles = lsrev_service($oldfilerev) || {};
+	$oldfilesrev = getrev($projid, $packid, $revno);
+	$oldfiles = lsrev_service($oldfilesrev) || {};
       };
       if ($@) {
         warn($@);
+	undef $oldfilesrev;
         next if $@ =~ /service in progress/;
       }
       $oldfiles = {} if !$oldfiles || $oldfiles->{'_service_error'};
@@ -488,6 +490,7 @@ sub runservice {
   }
 
   my $linkfiles;
+  my $linksrcmd5;
   if ($files->{'_link'}) {
     # make sure it's a branch
     my $l = BSSrcrep::repreadxml($rev, '_link', $files->{'_link'}, $BSXML::link, 1);
@@ -499,8 +502,10 @@ sub runservice {
       $linkfiles = { %$files };
       delete $files->{'/SERVICE'};
       eval {
-        $files = handlelinks({%$rev, 'linkrev' => 'base'}, $files);
-        die("bad link: $files\n") unless ref $files;
+	my $lrev = {%$rev, 'linkrev' => 'base'};
+	$files = handlelinks($lrev, $files);
+	die("bad link: $files\n") unless ref $files;
+	$linksrcmd5 = $lrev->{'srcmd5'};
       };
       if ($@) {
 	if (($@ =~ /service in progress/) && $linkfiles->{'/SERVICE'}) {
@@ -515,6 +520,32 @@ sub runservice {
       }
       $files->{'/SERVICE'} = $linkfiles->{'/SERVICE'} if $linkfiles->{'/SERVICE'}
     }
+  }
+
+  if ($files->{'/SERVICE'} && $BSConfig::servicedispatch) {
+    my $projectservicesmd5;
+    if ($projectservices) {
+      mkdir_p($uploaddir);
+      writestr("$uploaddir/_serviceproject$$", undef, BSUtil::toxml($projectservices, $BSXML::services));
+      $projectservicesmd5 = BSSrcrep::addfile($projid, '_project', "$uploaddir/_serviceproject$$", '_serviceproject');
+    }
+    my $ev = {
+      'type' => 'servicedispatch',
+      'project' => $projid,
+      'package' => $packid,
+      'job' => $files->{'/SERVICE'},
+      'srcmd5' => $rev->{'srcmd5'},
+      'rev' => $rev->{'rev'},
+    };
+    $ev->{'linksrcmd5'} = $linksrcmd5 if $linksrcmd5;
+    $ev->{'projectservicesmd5'} = $projectservicesmd5 if $projectservicesmd5;
+    $ev->{'oldsrcmd5'} = $oldfilesrev->{'srcmd5'} if %$oldfiles && $oldfilesrev;
+    mkdir_p("$eventdir/servicedispatch");
+    my $evname = "servicedispatch:${projid}::${packid}::$rev->{'srcmd5'}::$files->{'/SERVICE'}";
+    $evname = "servicedispatch:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
+    writexml("$eventdir/servicedispatch/.$evname.$$", "$eventdir/servicedispatch/$evname", $ev, $BSXML::event);
+    BSUtil::ping("$eventdir/servicedispatch/.ping");
+    return;
   }
 
   return unless $BSConfig::serviceserver;
@@ -2137,6 +2168,12 @@ sub getprojectservices {
   }
 
   return ($services, $BSXML::services);
+}
+
+sub notifypackagechange {
+  my ($cgi, $projid, $packid) = @_;
+  notify_repservers('package', $projid, $packid);
+  return $BSStdServer::return_ok;
 }
 
 # find matching .spec/.dsc/.kiwi file depending on packid and/or repoid
@@ -6245,14 +6282,21 @@ sub add_daemondata {
   return $ws;
 }
 
-sub add_deltaworkerstatus {
-  my ($cgi, $ws) = @_;
-  return $ws if $cgi->{'type'} && !grep {$_ eq 'deltastore'} @{$cgi->{'type'}};
-  return $ws if $cgi->{'arch'} && !grep {$_ eq 'deltastore'} @{$cgi->{'arch'}};
-  return $ws unless -e "$rundir/bs_deltastore.lock";
-  my $daemondata = {'state' => 'dead', 'type' => 'deltastore'};
+sub add_localworkerstatus {
+  my ($cgi, $ws, $type, $lock) = @_;
+  return $ws if $cgi->{'type'} && !grep {$_ eq $type} @{$cgi->{'type'}};
+  return $ws if $cgi->{'arch'} && !grep {$_ eq $type} @{$cgi->{'arch'}};
+  if ($type eq 'srcserver') {
+    my $daemondata = {'state' => 'running', 'type' => $type};
+    my $req = $BSServer::request;
+    $daemondata->{'starttime'} = $req->{'server'}->{'starttime'} if $req && $req->{'server'};
+    return add_daemondata($ws, $daemondata);
+  }
+  return $ws if $type eq 'servicedispatch' && !$BSConfig::servicedispatch;
+  return $ws unless -e "$rundir/$lock";
+  my $daemondata = {'state' => 'dead', 'type' => $type};
   local *F;
-  if (open(F, '<', "$rundir/bs_deltastore.lock")) {
+  if (open(F, '<', "$rundir/$lock")) {
     if (!flock(F, LOCK_EX | LOCK_NB)) {
       my @s = stat(F);
       $daemondata->{'state'} = 'running';
@@ -6260,16 +6304,6 @@ sub add_deltaworkerstatus {
     }
     close F;
   }
-  return add_daemondata($ws, $daemondata);
-}
-
-sub add_ownworkerstatus {
-  my ($cgi, $ws) = @_;
-  return $ws if $cgi->{'type'} && !grep {$_ eq 'srcserver'} @{$cgi->{'type'}};
-  return $ws if $cgi->{'arch'} && !grep {$_ eq 'srcserver'} @{$cgi->{'arch'}};
-  my $daemondata = {'state' => 'running', 'type' => 'srcserver'};
-  my $req = $BSServer::request;
-  $daemondata->{'starttime'} = $req->{'server'}->{'starttime'} if $req && $req->{'server'};
   return add_daemondata($ws, $daemondata);
 }
 
@@ -6314,8 +6348,9 @@ sub getworkerstatus {
     delete $_->{'uri'} for @{$ws->{'idle'} || []};
     delete $_->{'uri'} for @{$ws->{'building'} || []};
     add_serviceserverstatus($cgi, $ws);
-    add_deltaworkerstatus($cgi, $ws);
-    add_ownworkerstatus($cgi, $ws);
+    add_localworkerstatus($cgi, $ws, 'deltastore', 'bs_deltastore.lock');
+    add_localworkerstatus($cgi, $ws, 'servicedispatch', 'bs_servicedispatch.lock');
+    add_localworkerstatus($cgi, $ws, 'srcserver');
     return ($ws, $BSXML::workerstatus);
   }
 
@@ -6396,8 +6431,9 @@ sub getworkerstatus {
   }
   
   add_serviceserverstatus($cgi, $cws);
-  add_deltaworkerstatus($cgi, $cws);
-  add_ownworkerstatus($cgi, $cws);
+  add_localworkerstatus($cgi, $cws, 'deltastore', 'bs_deltastore.lock');
+  add_localworkerstatus($cgi, $cws, 'servicedispatch', 'bs_servicedispatch.lock');
+  add_localworkerstatus($cgi, $cws, 'srcserver');
   return ($cws, $BSXML::workerstatus);
 }
 
@@ -7841,6 +7877,7 @@ my $dispatches = [
   'POST:/source/$project/$package cmd=waitservice' => \&waitservicerun,
   'POST:/source/$project/$package cmd=mergeservice user:? comment:?' => \&mergeservicerun,
   'POST:/source/$project/$package cmd=getprojectservices' => \&getprojectservices,
+  'POST:/source/$project/$package cmd=notifypackagechange' => \&notifypackagechange,
   'POST:/source/$project/$package cmd: *:*' => \&unknowncmd,
 
   'PUT:/source/$project/$package cmd: rev? user:? comment:?' => \&sourcecommitfilelist,	# obsolete

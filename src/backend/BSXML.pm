@@ -635,6 +635,11 @@ our $event = [
 	'job',
 	'worker',
 	'due',
+	'srcmd5',		# for type=servicedispatch
+	'rev',			# for type=servicedispatch
+	'linksrcmd5',		# for type=servicedispatch
+	'projectservicesmd5',	# for type=servicedispatch
+	'oldsrcmd5',		# for type=servicedispatch
 ];
 
 our $events = [
