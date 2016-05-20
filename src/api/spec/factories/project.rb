@@ -12,6 +12,8 @@ FactoryGirl.define do
     factory :project_with_package do
       transient do
         package_name nil
+        create_patchinfo false
+        maintainer nil
       end
 
       after(:create) do |project, evaluator|
@@ -21,6 +23,10 @@ FactoryGirl.define do
                         create(:package, project_id: project.id)
                       end
         project.packages << new_package
+        if evaluator.create_patchinfo
+          create(:relationship_project_user, project: project, user: evaluator.maintainer)
+          Patchinfo.new.create_patchinfo(project.name, new_package.name, comment: 'Fake comment', force: true)
+        end
       end
     end
 

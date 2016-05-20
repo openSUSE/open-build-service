@@ -201,7 +201,7 @@ class Webui::ProjectController < Webui::WebuiController
   def packages_simple; end
 
   def linking_projects
-    @linking_projects = @project.find_linking_projects.map { |p| p.name }
+    @linking_projects = @project.linked_by_projects.pluck(:name)
     render_dialog
   end
 
@@ -245,7 +245,7 @@ class Webui::ProjectController < Webui::WebuiController
   end
 
   def delete_dialog
-    @linking_projects = @project.find_linking_projects.map { |p| p.name }
+    @linking_projects = @project.linked_by_projects.pluck(:name)
     render_dialog
   end
 
@@ -918,7 +918,7 @@ class Webui::ProjectController < Webui::WebuiController
     find_maintenance_infos
     @packages = @project.packages.order_by_name.pluck(:name)
     @ipackages = @project.expand_all_packages.find_all{ |p| not @packages.include?(p[0]) }
-    @linking_projects = @project.find_linking_projects.map { |p| p.name }
+    @linking_projects = @project.linked_by_projects.pluck(:name)
 
     reqs = @project.open_requests
     @requests = (reqs[:reviews] + reqs[:targets] + reqs[:incidents] + reqs[:maintenance_release]).sort.uniq

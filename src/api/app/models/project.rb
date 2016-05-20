@@ -58,7 +58,11 @@ class Project < ActiveRecord::Base
   has_many :messages, :as => :db_object, :dependent => :delete_all
   has_many :watched_projects, :dependent => :destroy, inverse_of: :project
 
-  has_many :linkedprojects, -> { order(:position) }, :class_name => 'LinkedProject', foreign_key: :db_project_id, :dependent => :delete_all
+  # Direct links between projects (not expanded ones)
+  has_many :linking_to, -> { order(:position) }, :class_name => 'LinkedProject', foreign_key: :db_project_id, :dependent => :delete_all
+  has_many :projects_linking_to, through: :linking_to, class_name: 'Project', source: :linked_db_project
+  has_many :linked_by, -> { order(:position) }, :class_name => 'LinkedProject', foreign_key: :linked_db_project_id, :dependent => :delete_all
+  has_many :linked_by_projects, through: :linked_by, class_name: 'Project', source: :project
 
   has_many :taggings, :as => :taggable, :dependent => :delete_all
   has_many :tags, :through => :taggings
@@ -412,18 +416,6 @@ class Project < ActiveRecord::Base
     return User.current.can_create_project?(self.name) if self.new_record?
 
     User.current.can_modify_project?(self, ignoreLock)
-  end
-
-  def find_linking_projects
-      sql =<<-END_SQL
-      SELECT prj.*
-      FROM projects prj
-      LEFT OUTER JOIN linked_projects lp ON lp.db_project_id = prj.id
-      LEFT OUTER JOIN projects lprj ON lprj.id = lp.linked_db_project_id
-      WHERE lprj.name = ?
-      END_SQL
-      # ACL TODO: should be check this or do we break functionality ?
-      Project.find_by_sql [sql, self.name]
   end
 
   def is_locked?
@@ -783,14 +775,14 @@ class Project < ActiveRecord::Base
   def update_linked_projects(xmlhash)
     position = 1
     # destroy all current linked projects
-    self.linkedprojects.destroy_all
+    self.linking_to.destroy_all
 
     # recreate linked projects from xml
     xmlhash.elements('link') do |l|
       link = Project.find_by_name(l['project'])
       if link.nil?
         if Project.find_remote_project(l['project'])
-          self.linkedprojects.create(project: self,
+          self.linking_to.create(project: self,
                                      linked_remote_project_name: l['project'],
                                      position: position)
         else
@@ -800,7 +792,7 @@ class Project < ActiveRecord::Base
         if link == self
           raise SaveError, 'unable to link against myself'
         end
-        self.linkedprojects.create!(project: self,
+        self.linking_to.create!(project: self,
                                     linked_db_project: link,
                                     position: position)
       end
@@ -1067,7 +1059,7 @@ class Project < ActiveRecord::Base
     return pkg if pkg and Package.check_access?(pkg)
 
     # search via all linked projects
-    self.linkedprojects.each do |lp|
+    self.linking_to.each do |lp|
       if self == lp.linked_db_project
         raise CycleError, 'project links against itself, this is not allowed'
       end
@@ -1104,7 +1096,7 @@ class Project < ActiveRecord::Base
     projects = [self]
 
     # add all linked and indirect linked projects
-    self.linkedprojects.each do |lp|
+    self.linking_to.each do |lp|
       if lp.linked_db_project.nil?
         if allow_remote_projects
           projects << lp.linked_remote_project_name
@@ -1144,7 +1136,7 @@ class Project < ActiveRecord::Base
     end
 
     # second path, all packages from indirect linked projects
-    self.linkedprojects.each do |lp|
+    self.linking_to.each do |lp|
       if lp.linked_db_project.nil?
         # FIXME: this is a remote project
       else
@@ -1162,7 +1154,7 @@ class Project < ActiveRecord::Base
     products = Product.joins(:package).where("packages.project_id = ? and packages.name = '_product'", self.id)
     products.each { |p| p_map[p.cpe] = 1 } # existing packages map
     # second path, all packages from indirect linked projects
-    self.linkedprojects.each do |lp|
+    self.linking_to.each do |lp|
       if lp.linked_db_project.nil?
         # FIXME: this is a remote project
       else

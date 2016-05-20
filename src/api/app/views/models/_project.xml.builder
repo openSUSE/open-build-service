@@ -6,7 +6,7 @@ xml.project(project_attributes) do
   xml.title(my_model.title)
   xml.description(my_model.description)
 
-  my_model.linkedprojects.each do |l|
+  my_model.linking_to.each do |l|
     if l.linked_db_project
       xml.link(project: l.linked_db_project.name)
     else

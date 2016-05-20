@@ -11,13 +11,14 @@ RSpec.describe Webui::ProjectController, vcr: true do
   let(:apache_maintenance_incident_project) { create(:maintenance_incident_project, name: 'ApacheMI') }
   let(:home_moi_project) { create(:project, name: 'home:moi') }
   let(:maintenance_project) { create(:maintenance_project, name: 'maintenance_project') }
+  let(:project_with_package) { create(:project_with_package, name: 'NewProject', package_name: 'PackageExample') }
 
   describe 'CSRF protection' do
     before do
       # Needed because Rails disables it in test mode by default
       ActionController::Base.allow_forgery_protection = true
 
-      login(user_tom)
+      login user_tom
       user_moi
     end
 
@@ -208,7 +209,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
   describe 'GET #new' do
     before do
-      login(user_moi)
+      login user_moi
       get :new, name: 'ProjectName'
     end
 
@@ -216,9 +217,63 @@ RSpec.describe Webui::ProjectController, vcr: true do
     it { expect(assigns(:project).name).to eq('ProjectName') }
   end
 
+  describe 'GET #show' do
+    before do
+      # To not ask backend for build status
+      Project.any_instance.stubs(:number_of_build_problems).returns(0)
+    end
+
+    it 'without nextstatus param' do
+      get :show, project: apache_project
+      expect(response).to have_http_status(:ok)
+    end
+
+    it 'with nextstatus param' do
+      get :show, { project: apache_project, nextstatus: 500 }
+      expect(response).to have_http_status(:internal_server_error)
+    end
+
+    it 'without patchinfo' do
+      get :show, project: apache_project
+      expect(assigns(:has_patchinfo)).to be_falsey
+    end
+
+    it 'with patchinfo' do
+      login admin_user
+      # Avoid fetching from backend directly
+      Directory.stubs(:hashed).returns(Xmlhash::XMLHash.new('entry' => {'name' => '_patchinfo'}))
+      # Avoid writing to the backend
+      Package.any_instance.stubs(:sources_changed).returns(nil)
+      Patchinfo.new.create_patchinfo(apache_project.name, nil, comment: 'Fake comment', force: false)
+      get :show, project: apache_project
+      expect(assigns(:has_patchinfo)).to be_truthy
+    end
+
+    it 'with comments' do
+      apache_project.comments << build(:comment_project, user: user_moi)
+      get :show, project: apache_project
+      expect(assigns(:comments)).to match_array(apache_project.comments)
+    end
+
+    it 'with bugowners' do
+      create(:relationship_project_user, role: Role.find_by_title('bugowner'), project: apache_project, user: user_moi)
+      get :show, project: apache_project
+      expect(assigns(:bugowners_mail)).to match_array([user_moi.email])
+    end
+
+    context 'without bugowners' do
+      before do
+        get :show, project: apache_project
+      end
+
+      it { expect(assigns(:bugowners_mail)).to be_a(Array) }
+      it { expect(assigns(:bugowners_mail)).to be_empty }
+    end
+  end
+
   describe 'GET #new_package_branch' do
     before do
-      login(user_moi)
+      login user_moi
       @remote_projects_created = create_list(:remote_project, 3)
       get :new_package_branch, project: apache_project
     end
@@ -228,7 +283,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
   describe 'GET #new_incident' do
     before do
-      login(admin_user)
+      login admin_user
     end
 
     context 'with a Maintenance project' do
@@ -250,6 +305,52 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
       it { is_expected.to redirect_to(project_show_path(project: apache_project)) }
       it { expect(flash[:error]).to eq('Incident projects shall only create below maintenance projects.') }
+    end
+  end
+
+  describe 'GET #linking_projects' do
+    before do
+      login user_moi
+      apache2_project
+      another_project.projects_linking_to << apache_project
+      xhr :get, :linking_projects, project: apache_project
+    end
+
+    it { expect(Project.count).to eq(4) }
+    it { expect(assigns(:linking_projects)).to match_array([another_project.name]) }
+  end
+
+  describe 'GET #add_repository_from_default_list' do
+    context 'with some distributions' do
+      before do
+        login user_moi
+        create_list(:distribution, 4, vendor: 'vendor1')
+        create_list(:distribution, 2, vendor: 'vendor2')
+        get :add_repository_from_default_list, project: apache_project
+      end
+
+      it { expect(assigns(:distributions).length).to eq(2) }
+    end
+
+    context 'without any distribution and being normal user' do
+      before do
+        login user_moi
+        get :add_repository_from_default_list, project: apache_project
+      end
+
+      it { is_expected.to redirect_to(controller: 'project', action: 'add_repository', project: apache_project) }
+      it { expect(assigns(:distributions)).to be_empty }
+    end
+
+    context 'without any distribution and being admin user' do
+      before do
+        login admin_user
+        get :add_repository_from_default_list, project: apache_project
+      end
+
+      it { is_expected.to redirect_to(configuration_interconnect_path) }
+      it { expect(flash[:alert]).to eq('There are no distributions configured. Maybe you want to connect to one of the public OBS instances?') }
+      it { expect(assigns(:distributions)).to be_empty }
     end
   end
 end
