@@ -140,9 +140,8 @@ class Webui::RequestController < Webui::WebuiController
   end
 
   def changerequest
-    begin
-      @req = BsRequest.find_by_number(params[:number])
-    rescue ActiveRecord::RecordNotFound
+    @req = BsRequest.find_by_number(params[:number])
+    unless @req
       flash[:error] = "Can't find request #{params[:number]}"
       redirect_back_or_to user_show_path(User.current) and return
     end
