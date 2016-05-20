@@ -34,6 +34,8 @@ our $total_size = 0;
 sub print_help {
     my $help = <<"END_HELP";
 
+*** EXPERIMENTAL ***
+
 Admin tool for finding and/or removing old source files in one or more pacakges.
 
 usage:

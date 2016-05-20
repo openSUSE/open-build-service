@@ -263,12 +263,12 @@ CREATE TABLE `bs_requests` (
   `updated_at` datetime NOT NULL,
   `accept_at` datetime DEFAULT NULL,
   `priority` enum('critical','important','moderate','low') COLLATE utf8_bin DEFAULT 'moderate',
-  `number` int(11) DEFAULT NULL,
+  `number` int(11) NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `index_bs_requests_on_number` (`number`),
   KEY `index_bs_requests_on_creator` (`creator`),
   KEY `index_bs_requests_on_state` (`state`),
-  KEY `index_bs_requests_on_superseded_by` (`superseded_by`),
-  KEY `index_bs_requests_on_number` (`number`)
+  KEY `index_bs_requests_on_superseded_by` (`superseded_by`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `cache_lines` (
@@ -1677,6 +1677,8 @@ INSERT INTO schema_migrations (version) VALUES ('20160321085300');
 INSERT INTO schema_migrations (version) VALUES ('20160321104000');
 
 INSERT INTO schema_migrations (version) VALUES ('20160321105300');
+
+INSERT INTO schema_migrations (version) VALUES ('20160518105300');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 
