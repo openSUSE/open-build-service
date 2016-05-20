@@ -12,13 +12,13 @@
 
     <h3>Legend</h3>
     <div>
-      <div style="float: left; margin-right: 10px"><%= distance_of_time_in_words(@time_now, @dead_line) -%></div>
+      <div style="float: left; margin-left: 10px; margin-right: 10px"><%= distance_of_time_in_words(@time_now, @dead_line) -%></div>
       <% @max_color.downto(0) do |n| -%>
         <% color = "rgb(255,#{n},0)" %>
         <div style="background-color: <%= color %>; margin: 0px; width: 3px ; height: 1em; float: left;">&nbsp;</div>
       <% end -%>
       <div style="float: left; margin-left: 10px"><%= distance_of_time_in_words(@time_now, @dead_line-(@max_color*@interval_steps*60)) -%></div>
-      <div class="clear"/>
+      <div class="clear"></div>
     </div>
   <% else %>
     <div class="info">
@@ -27,7 +27,7 @@
           <% if (@project_filter) %>
             No package of the "<%= @project_filter %>" project is building. Maybe remove the filter?:)
           <% else %>
-            None of the <%= max_clients %> hosts is working atm!
+            All <%= max_clients %> hosts are idle!
           <% end %>
         <% else %>
           Nothing to do here!
