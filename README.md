@@ -59,4 +59,7 @@ There are 3 scenarios for which you can setup an OBS instance.
 
     If you have a more complex setup (e.g. a distributed backend) we recommend to follow our [Manual Setup Guide](dist/README.SETUP.md)
 
+## Advanced Setup
+
+Please see the administration chapter in our [reference manual](http://openbuildservice.org/help/manuals/obs-reference-guide/cha.obs.admin.html) for details on complex setups.
 
