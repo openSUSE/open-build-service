@@ -149,6 +149,7 @@ case "$1" in
 		fi
 
 		echo "Looking for existing OBS Server LVM Volume"
+		[ -d "$backenddir" ] || mkdir -p "$backenddir"
                 if [ -e /dev/OBS/server ]; then
 			mount /dev/OBS/server "$backenddir"
 			obs_server_size=$(( $(lvdisplay -c OBS/server 2>/dev/null | cut -d: -f7) / 2 / 1024 ))
