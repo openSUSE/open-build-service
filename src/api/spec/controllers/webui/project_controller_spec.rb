@@ -272,7 +272,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   end
 
   describe 'GET #new_package_branch' do
-    it do
+    it 'branches the package' do
       login user_moi
       @remote_projects_created = create_list(:remote_project, 3)
       get :new_package_branch, project: apache_project
@@ -321,7 +321,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
   describe 'GET #add_repository_from_default_list' do
     context 'with some distributions' do
-      it do
+      it 'shows repositories from default list' do
         login user_moi
         create_list(:distribution, 4, vendor: 'vendor1')
         create_list(:distribution, 2, vendor: 'vendor2')
@@ -353,7 +353,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   end
 
   describe 'GET #add_person' do
-    it do
+    it 'assigns the local roles' do
       login user_moi
       get :add_person, project: user_moi.home_project
       expect(assigns(:roles)).to match_array(Role.local_roles)
@@ -361,7 +361,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   end
 
   describe 'GET #add_group' do
-    it do
+    it 'assigns the local roles' do
       login user_moi
       get :add_group, project: user_moi.home_project
       expect(assigns(:roles)).to match_array(Role.local_roles)
