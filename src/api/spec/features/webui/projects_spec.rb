@@ -62,6 +62,16 @@ RSpec.feature "Projects", :type => :feature, :js => true do
       expect(page).to have_text("Invalid package name: 'cool stuff'")
       expect(page.current_path).to eq("/project/new_package/#{user.home_project_name}")
     end
+
+    scenario "that already exists" do
+      create(:package, name: "coolstuff", project: user.home_project)
+
+      fill_in "name", :with => "coolstuff"
+      click_button "Save changes"
+
+      expect(page).to have_text("Package 'coolstuff' already exists in project '#{user.home_project_name}'")
+      expect(page.current_path).to eq("/project/new_package/#{user.home_project_name}")
+    end
   end
 
   scenario "create subproject" do
