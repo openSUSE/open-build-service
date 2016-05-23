@@ -8,10 +8,10 @@
 
 <div id="request_navigation_box" style="position: absolute; right: 0.3em;">
   <% if @request_before -%>
-      <%= link_to '<<', request_show_path(number: @request_before) %>
+      <%= link_to '<<', request_show_path(@request_before) %>
   <% end -%>
   <% if @request_after -%>
-      <%= link_to '>>', request_show_path(number: @request_after) %>
+      <%= link_to '>>', request_show_path(@request_after) %>
   <% end -%>
 </div>
 

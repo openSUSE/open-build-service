@@ -33,7 +33,7 @@
                 <% rqs_in = BsRequest.list_ids(roles: %w(target), states: %w(new review), project: incident.name) %>
                 <% if rqs_in.count > 0 %>
                     <% if rqs_in.count == 1 %>
-                        <% path = request_show_path(id: rqs_in.first) %>
+                        <% path = request_show_path(rqs_in.first) %>
                     <% else %>
                         <% path = project_requests_path(project: incident.name) %>
                     <% end %>
@@ -45,7 +45,7 @@
                     <% BsRequest.where(id: rqs_out).order('bs_requests.number').each do |rq_out| %>
                         <% text = "Release request in state '#{rq_out['state']}'" %>
                         <%= link_to(sprite_tag(map_request_state_to_flag(rq_out['state'].to_s), title: text),
-                              request_show_path(number: rq_out["number"])) %>
+                              request_show_path(rq_out["number"])) %>
                     <% end %>
                 <% else %>
                     <% if incident.is_locked? %>
