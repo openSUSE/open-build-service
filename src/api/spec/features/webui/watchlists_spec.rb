@@ -12,7 +12,7 @@ RSpec.feature "Watchlists", :type => :feature, :js => true do
 
   scenario "add projects to watchlist" do
     login user
-    visit project_show_path(project: user.home_project_name)
+    visit project_show_path(user.home_project)
 
     page.execute_script("$('#menu-favorites').show();")
     expect(page).to have_content("List of projects you are watching")

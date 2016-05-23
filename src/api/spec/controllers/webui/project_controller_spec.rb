@@ -67,7 +67,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   end
 
   describe 'PATCH #update' do
-    let(:project) { Project.find_by_name(user_tom.home_project_name) }
+    let(:project) { user_tom.home_project }
 
     context "with valid parameters" do
       before do
@@ -272,13 +272,12 @@ RSpec.describe Webui::ProjectController, vcr: true do
   end
 
   describe 'GET #new_package_branch' do
-    before do
+    it do
       login user_moi
       @remote_projects_created = create_list(:remote_project, 3)
       get :new_package_branch, project: apache_project
+      expect(assigns(:remote_projects)).to match_array(@remote_projects_created.map {|r| [r.id, r.name, r.title]})
     end
-
-    it { expect(assigns(:remote_projects)).to match_array(@remote_projects_created.map {|r| [r.id, r.name, r.title]}) }
   end
 
   describe 'GET #new_incident' do
@@ -322,14 +321,13 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
   describe 'GET #add_repository_from_default_list' do
     context 'with some distributions' do
-      before do
+      it do
         login user_moi
         create_list(:distribution, 4, vendor: 'vendor1')
         create_list(:distribution, 2, vendor: 'vendor2')
         get :add_repository_from_default_list, project: apache_project
+        expect(assigns(:distributions).length).to eq(2)
       end
-
-      it { expect(assigns(:distributions).length).to eq(2) }
     end
 
     context 'without any distribution and being normal user' do
@@ -351,6 +349,22 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { is_expected.to redirect_to(configuration_interconnect_path) }
       it { expect(flash[:alert]).to eq('There are no distributions configured. Maybe you want to connect to one of the public OBS instances?') }
       it { expect(assigns(:distributions)).to be_empty }
+    end
+  end
+
+  describe 'GET #add_person' do
+    it do
+      login user_moi
+      get :add_person, project: user_moi.home_project
+      expect(assigns(:roles)).to match_array(Role.local_roles)
+    end
+  end
+
+  describe 'GET #add_group' do
+    it do
+      login user_moi
+      get :add_group, project: user_moi.home_project
+      expect(assigns(:roles)).to match_array(Role.local_roles)
     end
   end
 end

@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Package, vcr: true do
   let(:user) { create(:confirmed_user, login: 'tom') }
-  let(:home_project) { Project.find_by(name: user.home_project_name) }
+  let(:home_project) { user.home_project }
   let(:package) { create(:package, name: 'test_package', project: home_project) }
   let(:services) { package.services }
 

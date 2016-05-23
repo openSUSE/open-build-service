@@ -3,11 +3,11 @@ require "browser_helper"
 RSpec.feature "Projects", :type => :feature, :js => true do
   let!(:admin_user) { create(:admin_user) }
   let!(:user) { create(:confirmed_user, login: "Jane") }
-  let(:project) { Project.find_by_name(user.home_project_name) }
+  let(:project) { user.home_project }
 
   it_behaves_like 'user tab' do
-    let(:project_path) { project_show_path(project: user_tab_user.home_project_name) }
-    let(:project) { Project.find_by_name(user_tab_user.home_project_name) }
+    let(:project_path) { project_show_path(user_tab_user.home_project) }
+    let(:project) { user_tab_user.home_project }
   end
 
   scenario "project show" do
@@ -37,7 +37,7 @@ RSpec.feature "Projects", :type => :feature, :js => true do
 
   scenario "create package" do
     login user
-    visit project_show_path(project: user.home_project_name)
+    visit project_show_path(user.home_project)
     click_link("Create package")
     expect(page).to have_text("Create New Package for #{user.home_project_name}")
     fill_in "name", :with => "coolstuff"
@@ -46,7 +46,7 @@ RSpec.feature "Projects", :type => :feature, :js => true do
 
   scenario "create subproject" do
     login user
-    visit project_show_path(project: user.home_project_name)
+    visit project_show_path(user.home_project)
     click_link("Subprojects")
 
     expect(page).to have_text("This project has no subprojects")

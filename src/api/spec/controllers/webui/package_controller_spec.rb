@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe Webui::PackageController, vcr: true do
   let(:user) { create(:user, login: 'tom') }
-  let(:source_project) { Project.find_by(name: user.home_project_name) }
+  let(:source_project) { user.home_project }
   let(:source_package) { create(:package, name: 'my_package', project: source_project) }
   let(:target_project) { create(:project) }
 

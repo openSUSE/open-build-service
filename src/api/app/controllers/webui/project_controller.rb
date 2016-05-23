@@ -239,8 +239,39 @@ class Webui::ProjectController < Webui::WebuiController
 
   def buildresult
     check_ajax
-    load_buildresult
-    convert_buildresult
+    @buildresult = Buildresult.find_hashed(:project => params[:project], :view => 'summary')
+    fill_status_cache
+    # convert build result
+    myarray = []
+    @buildresult.elements('result') do |result|
+      result['summary'].elements('statuscount') do |sc|
+        myarray << [result['repository'], result['arch'], Buildresult.code2index(sc['code']), sc['count']]
+      end
+    end
+    myarray.sort!
+    repos = []
+    orepo = nil
+    oarch = nil
+    archs = nil
+    counts = nil
+    myarray.each do |repo, arch, code, count|
+      if orepo != repo
+        archs << [oarch, counts] if oarch
+        oarch = nil
+        repos << [orepo, archs] if orepo
+        archs = []
+      end
+      orepo = repo
+      if oarch != arch
+        archs << [oarch, counts] if oarch
+        counts = []
+      end
+      oarch = arch
+      counts << [Buildresult.index2code(code), count]
+    end
+    archs << [oarch, counts] if oarch
+    repos << [orepo, archs] if orepo
+    @buildresult = repos
     render :partial => 'buildstatus'
   end
 
@@ -946,11 +977,6 @@ class Webui::ProjectController < Webui::WebuiController
     return true
   end
 
-  def load_buildresult
-    @buildresult = Buildresult.find_hashed(:project => params[:project], :view => 'summary')
-    fill_status_cache
-  end
-
   ################################### Helper methods ###################################
 
   def find_maintenance_infos
@@ -972,39 +998,6 @@ class Webui::ProjectController < Webui::WebuiController
                                     types: %w(maintenance_release),
                                     roles: %w(source)).pluck(:number)
     end
-  end
-
-  def convert_buildresult
-    myarray = Array.new
-    @buildresult.elements('result') do |result|
-      result['summary'].elements('statuscount') do |sc|
-        myarray << [result['repository'], result['arch'], Buildresult.code2index(sc['code']), sc['count']]
-      end
-    end
-    myarray.sort!
-    repos = Array.new
-    orepo = nil
-    oarch = nil
-    archs = nil
-    counts = nil
-    myarray.each do |repo, arch, code, count|
-      if orepo != repo
-        archs << [oarch, counts] if oarch
-        oarch = nil
-        repos << [orepo, archs] if orepo
-        archs = Array.new
-      end
-      orepo = repo
-      if oarch != arch
-        archs << [oarch, counts] if oarch
-        counts = Array.new
-      end
-      oarch = arch
-      counts << [Buildresult.index2code(code), count]
-    end
-    archs << [oarch, counts] if oarch
-    repos << [orepo, archs] if orepo
-    @buildresult = repos || Array.new
   end
 
   def calculate_repo_cycle(arch)
