@@ -230,11 +230,18 @@ function adapt_worker_jobs {
 }
 ###############################################################################
 function prepare_database_setup {
-  DATABASE_EXISTS=$(mysql -e "show databases"|grep api_production)
+ 
+  cd /srv/www/obs/api 
+  RAILS_ENV=production rake.ruby2.3 db:migrate:status > /dev/null
 
-  if [[ ! $DATABASE_EXISTS ]];then
+  if [[ $? > 0 ]];then
     echo "Initialize MySQL databases (first time only)"
     mysqladmin -u root password "opensuse"
+    if [[ $? > 0 ]];then
+      echo "ERROR: Your mysql setup doesn't fit your rails setup"
+      echo "Please check your database settings for mysql and rails"
+      exit 1
+    fi
     RUN_INITIAL_SETUP="true"
   fi
 
