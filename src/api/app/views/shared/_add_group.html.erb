@@ -2,7 +2,7 @@
 
 <%= form_tag :action => :save_group do %>
   <p>
-    <b>Group:</b><br/>
+    <label for="groupid"><b>Group:</b></label><br/>
     <%= text_field_tag 'groupid', params[:groupid], :size => '25' %><br/>
     <%= javascript_tag do %>
       $("#groupid").autocomplete({source: '<%= url_for :controller => 'groups', :action => 'autocomplete' %>', minLength: 2});

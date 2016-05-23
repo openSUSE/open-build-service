@@ -2,7 +2,7 @@
 require_relative '../../test_helper'
 
 class Webui::EditPackageUsersTest < Webui::IntegrationTest
-  def test_add_and_edit_package_people
+  def test_add_and_edit_package_people # spec/support/shared_examples/features/user_tab.rb
     use_js
 
     @project = 'kde4'
@@ -52,7 +52,7 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
     page.wont_have_selector 'table#user_table tr#user-user4'
   end
 
-  def test_add_and_edit_project_users
+  def test_add_and_edit_project_users # spec/support/shared_examples/features/user_tab.rb
     @project = 'kde4'
     @userspath = project_users_path(project: @project)
 
