@@ -523,8 +523,8 @@ class Webui::PackageController < Webui::WebuiController
     end
     @project = @project.api_obj
     unless User.current.can_create_package_in? @project
-      redirect_to controller: :project, action: :new_package, project: @project,
-                  error: "You can't create packages in #{@project.name}"
+      flash[:error] = "You can't create packages in #{@project.name}"
+      redirect_to controller: :project, action: :new_package, project: @project
       return false
     end
     true

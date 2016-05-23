@@ -74,6 +74,38 @@ RSpec.feature "Projects", :type => :feature, :js => true do
     end
   end
 
+  describe "creating packages in projects not owned by user, eg. global namespace" do
+    let(:other_user) { create(:confirmed_user, login: "other_user") }
+    let(:global_project) { create(:project, name: "global_project") }
+
+    scenario "as non-admin user" do
+      login other_user
+      visit project_show_path(project: global_project)
+      expect(page).not_to have_link("Create package")
+
+      # Use direct path instead
+      visit "/project/new_package/#{global_project}"
+
+      fill_in "name", :with => "coolstuff"
+      click_button "Save changes"
+
+      expect(page).to have_text("You can't create packages in #{global_project}")
+      expect(page.current_path).to eq("/project/new_package/#{global_project}")
+    end
+
+    scenario "as admin" do
+      login admin_user
+      visit project_show_path(project: global_project)
+      click_link("Create package")
+
+      fill_in "name", :with => "coolstuff"
+      click_button "Save changes"
+
+      expect(page).to have_text("Package 'coolstuff' was created successfully")
+      expect(page.current_path).to eq(package_show_path(project: "#{global_project}", package: "coolstuff"))
+    end
+  end
+
   scenario "create subproject" do
     login user
     visit project_show_path(user.home_project)
