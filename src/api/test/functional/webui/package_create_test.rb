@@ -46,7 +46,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
     end
   end
 
-  def test_create_home_project_package_for_user
+  def test_create_home_project_package_for_user # spec/features/webui/projects_spec.rb
     use_js
     login_Iggy to: project_show_path(project: 'home:Iggy')
     open_new_package
@@ -68,7 +68,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
     delete_package('home:Iggy', 'HomePackage1')
   end
 
-  def test_create_global_project_package
+  def test_create_global_project_package # spec/features/webui/projects_spec.rb
     use_js
     login_king to: project_show_path(project: 'LocalProject')
 
@@ -81,7 +81,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
     delete_package('LocalProject', 'PublicPackage1')
   end
 
-  def test_create_package_without_name
+  def test_create_package_without_name # spec/features/webui/projects_spec.rb
     login_Iggy to: project_show_path(project: 'home:Iggy')
 
     open_new_package
@@ -92,7 +92,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
       :expect => :invalid_name)
   end
 
-  def test_create_package_name_with_spaces
+  def test_create_package_name_with_spaces # spec/features/webui/projects_spec.rb
     login_Iggy to: project_show_path(project: 'home:Iggy')
 
     open_new_package
@@ -102,7 +102,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
       :expect => :invalid_name)
   end
 
-  def test_create_package_with_only_name
+  def test_create_package_with_only_name # spec/features/webui/projects_spec.rb
     use_js
     login_Iggy to: project_show_path(project: 'home:Iggy')
 
@@ -114,7 +114,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
     delete_package('home:Iggy', 'HomePackage-OnlyName')
   end
 
-  def test_create_package_with_long_description
+  def test_create_package_with_long_description # spec/features/webui/projects_spec.rb
     use_js
 
     login_Iggy to: project_show_path(project: 'home:Iggy')
@@ -129,7 +129,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
     delete_package('home:Iggy', 'HomePackage-LongDesc')
   end
 
-  def test_create_package_strange_name
+  def test_create_package_strange_name # spec/features/webui/projects_spec.rb
     use_js
     login_Iggy to: project_show_path(project: 'home:Iggy')
 

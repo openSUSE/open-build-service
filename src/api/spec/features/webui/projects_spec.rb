@@ -35,13 +35,33 @@ RSpec.feature "Projects", :type => :feature, :js => true do
     expect(find(:id, "description-text")).to have_text("New description. Not kidding.. Brand new!")
   end
 
-  scenario "create package" do
-    login user
-    visit project_show_path(user.home_project)
-    click_link("Create package")
-    expect(page).to have_text("Create New Package for #{user.home_project_name}")
-    fill_in "name", :with => "coolstuff"
-    click_button "Save changes"
+  describe "creating packages in projects owned by user, eg. home projects" do
+    before do
+      login user
+      visit project_show_path(project: user.home_project)
+      click_link("Create package")
+      expect(page).to have_text("Create New Package for #{user.home_project_name}")
+    end
+
+    scenario "with valid data" do
+      fill_in "name", :with => "coolstuff"
+      fill_in "title", :with => "cool stuff everyone needs"
+      fill_in "description", :with => "some description"
+      click_button "Save changes"
+
+      expect(page).to have_text("Package 'coolstuff' was created successfully")
+      expect(page.current_path).to eq(package_show_path(project: user.home_project_name, package: "coolstuff"))
+      expect(find(:css, "h3#package_title")).to have_text("cool stuff everyone needs")
+      expect(find(:css, "pre#description-text")).to have_text("some description")
+    end
+
+    scenario "with invalid data (validation fails)" do
+      fill_in "name", :with => "cool stuff"
+      click_button "Save changes"
+
+      expect(page).to have_text("Invalid package name: 'cool stuff'")
+      expect(page.current_path).to eq("/project/new_package/#{user.home_project_name}")
+    end
   end
 
   scenario "create subproject" do
