@@ -3,7 +3,7 @@ require "browser_helper"
 RSpec.feature "Attributes", :type => :feature, :js => true do
   let!(:user) { create(:confirmed_user) }
   let!(:attribute_type) { create(:attrib_type_with_namespace) }
-  let!(:attribute) { create(:attrib, project_id: Project.find_by_name(user.home_project_name).id) }
+  let!(:attribute) { create(:attrib, project_id: user.home_project.id) }
 
   def add_attribute_with_values(package = nil)
     visit index_attribs_path(project: user.home_project_name, package: package.try(:name))
@@ -69,7 +69,7 @@ RSpec.feature "Attributes", :type => :feature, :js => true do
 
   describe "for a project with a package" do
     let!(:package) {
-      create(:package, project_id: Project.find_by_name(user.home_project_name).id)
+      create(:package, project_id: user.home_project.id)
     }
 
     scenario "add attribute with values" do

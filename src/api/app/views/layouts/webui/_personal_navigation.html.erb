@@ -13,8 +13,8 @@
         <%= User.current %>
        <% end %>
     <% end %> |
-      <% if Project.where(name: User.current.home_project_name).exists? %>
-        <%= link_to "Home Project", project_show_path(User.current.home_project_name) %>
+      <% if User.current.home_project %>
+        <%= link_to "Home Project", project_show_path(User.current.home_project) %>
       <% else %>
         <%= link_to "Create Home", new_project_path(name: User.current.home_project_name) %>
       <% end %> |

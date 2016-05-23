@@ -7,9 +7,9 @@ require "browser_helper"
 RSpec.feature "Requests", :type => :feature, :js => true do
   let(:submitter) { create(:confirmed_user, login: 'kugelblitz' ) }
   let(:receiver) { create(:confirmed_user, login: 'titan' ) }
-  let(:target_project) { Project.find_by(name: receiver.home_project_name) }
+  let(:target_project) { receiver.home_project }
   let(:target_package) { create(:package, name: 'goal', project_id: target_project.id) }
-  let(:source_project) { Project.find_by(name: submitter.home_project_name) }
+  let(:source_project) { submitter.home_project }
   let(:source_package) { create(:package, name: 'ball', project_id: source_project.id) }
   let(:bs_request) { create(:bs_request, description: "a long text - " * 200, creator: submitter.login) }
   let(:create_submit_request) do

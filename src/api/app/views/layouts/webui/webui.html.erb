@@ -25,7 +25,7 @@
       $(function() {
         <%= yield :ready_function %>
         <% if @configuration['theme'] == 'bento' %>
-          callPiwik();  
+          callPiwik();
         <% end %>
       });
     <% end %>
@@ -85,8 +85,8 @@
         <strong class="grey-medium spacer1"><%= link_to(user_show_path(User.current)) do %><%= User.current %><% end %>:</strong>
         <ul>
           <li><%= link_to "Your Profile", user_show_path(User.current) %> </li>
-          <% if Project.where(name: User.current.home_project_name).exists? %>
-            <li><%= link_to "Home Project", project_show_path(User.current.home_project_name) %></li>
+          <% if User.current.home_project %>
+            <li><%= link_to "Home Project", project_show_path(User.current.home_project) %></li>
           <% else %>
             <li><%= link_to "Create Home Project", new_project_path(name: User.current.home_project_name) %></li>
           <% end %>
@@ -116,7 +116,7 @@
             { 'OBS Manuals'  => 'http://openbuildservice.org/help/manuals/' },
             { 'openSUSEs OBS Portal' => 'http://en.opensuse.org/Portal:Build_service' },
             { 'Reporting a Bug'   => 'http://openbuildservice.org/support/' } ]
-  
+
           @helplinks.each do |helplink|
             for k in helplink.keys %>
               <li><a href="<%= helplink[k] -%>"><%= k %></a></li>
@@ -133,7 +133,7 @@
             { 'Forums'  => 'http://forums.opensuse.org/forumdisplay.php/692-Open-Build-Service-%28OBS%29' },
             { 'Chat (IRC)' => 'irc://irc.opensuse.org/opensuse-buildservice' },
             { 'Twitter'   => 'http://twitter.com/OBShq' } ]
-  
+
           @contactlinks.each do |contactlink|
              for k in contactlink.keys %>
                <li><a href="<%= contactlink[k] -%>"><%= k %></a></li>
@@ -141,7 +141,7 @@
           <% end %>
         </ul>
       </div>
-      <div class="clear"></div>  
+      <div class="clear"></div>
       <div id="footer-legal" class="grid_12">
         <p>
           <a href="http://openbuildservice.org">Open Build Service (OBS)</a> is an <a href="http://www.opensuse.org">openSUSE project</a>.

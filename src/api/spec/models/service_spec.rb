@@ -3,7 +3,7 @@ require 'webmock/rspec'
 
 RSpec.describe Service, vcr: true do
   let(:user) { create(:confirmed_user, login: 'tom') }
-  let(:home_project) { Project.find_by(name: user.home_project_name) }
+  let(:home_project) { user.home_project }
   let(:package) { create(:package, name: 'test_package', project: home_project) }
   let(:service) { package.services }
   let(:url) { "http://localhost:3200/source/#{home_project.name}/#{package.name}" }

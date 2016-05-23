@@ -92,15 +92,13 @@ RSpec.describe User do
     it 'creates a home project by default if allow_user_to_create_home_project is enabled' do
       Configuration.stubs(:allow_user_to_create_home_project).returns(true)
       user = create(:confirmed_user, login: 'random_name')
-      project = Project.find_by(name: user.home_project_name)
-      expect(project).not_to be_nil
+      expect(user.home_project).not_to be_nil
     end
 
     it "doesn't creates a home project if allow_user_to_create_home_project is disabled" do
       Configuration.stubs(:allow_user_to_create_home_project).returns(false)
       user = create(:confirmed_user, login: 'another_random_name')
-      project = Project.find_by(name: user.home_project_name)
-      expect(project).to be_nil
+      expect(user.home_project).to be_nil
     end
   end
 
@@ -117,7 +115,7 @@ RSpec.describe User do
       create(:relationship_project_user, project: project, user: user)
       create(:relationship_project_user, project: project_with_package, user: user)
       involved_projects = user.involved_projects
-      expect(involved_projects).to include(Project.find_by_name(user.home_project_name))
+      expect(involved_projects).to include(user.home_project)
       expect(involved_projects).to include(project)
       expect(involved_projects).to include(project_with_package)
     end

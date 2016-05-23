@@ -190,7 +190,7 @@ RSpec.describe Webui::UserController do
       end
 
       it { expect(flash[:success]).to eq("The account '#{new_user.login}' is now active.") }
-      it { expect(response).to redirect_to project_show_path(new_user.home_project_name) }
+      it { expect(response).to redirect_to project_show_path(new_user.home_project) }
     end
 
     context "when home project creation disabled" do

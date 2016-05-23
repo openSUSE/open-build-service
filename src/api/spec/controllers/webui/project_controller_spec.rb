@@ -67,7 +67,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   end
 
   describe 'PATCH #update' do
-    let(:project) { Project.find_by_name(user_tom.home_project_name) }
+    let(:project) { user_tom.home_project }
 
     context "with valid parameters" do
       before do
@@ -355,7 +355,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   describe 'GET #add_person' do
     it do
       login user_moi
-      get :add_person, project: Project.find_by(name: user_moi.home_project_name)
+      get :add_person, project: user_moi.home_project
       expect(assigns(:roles)).to match_array(Role.local_roles)
     end
   end
@@ -363,7 +363,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   describe 'GET #add_group' do
     it do
       login user_moi
-      get :add_group, project: Project.find_by(name: user_moi.home_project_name)
+      get :add_group, project: user_moi.home_project
       expect(assigns(:roles)).to match_array(Role.local_roles)
     end
   end

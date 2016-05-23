@@ -5,8 +5,8 @@ RSpec.describe Webui::AttributeController do
 
   describe 'GET index' do
     it 'shows an error message when package does not exist' do
-      get :index, project: user.home_project_name, package: "Pok"
-      expect(response).to redirect_to(project_show_path(user.home_project_name))
+      get :index, project: user.home_project, package: "Pok"
+      expect(response).to redirect_to(project_show_path(user.home_project))
       expect(flash[:error]).to eq("Package Pok not found")
     end
 

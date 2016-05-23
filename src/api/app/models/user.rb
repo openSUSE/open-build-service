@@ -74,6 +74,7 @@ class User < ActiveRecord::Base
       project.relationships.create(user: self,
                                    role: Role.find_by_title('maintainer'))
       project.store({login: self.login})
+      @home_project = project
     end
     true
   end
@@ -522,6 +523,10 @@ class User < ActiveRecord::Base
 
   def home_project_name
     "home:#{self.login}"
+  end
+
+  def home_project
+    @home_project ||= Project.find_by(name: home_project_name)
   end
 
   def branch_project_name(branch)

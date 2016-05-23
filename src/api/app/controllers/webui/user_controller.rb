@@ -188,8 +188,8 @@ class Webui::UserController < Webui::WebuiController
     else
       session[:login] = opts[:login]
       User.current = User.find_by_login(session[:login])
-      if Project.where(name: User.current.home_project_name).exists?
-        redirect_to project_show_path(User.current.home_project_name)
+      if User.current.home_project
+        redirect_to project_show_path(User.current.home_project)
       else
         redirect_to root_path
       end
