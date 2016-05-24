@@ -142,6 +142,8 @@ case "$1" in
 			# Cannot test on existence of "/dev/OBS", in case no LVs in VG OBS have been created!
 			if [ -n "$(vgdisplay -c OBS 2>/dev/null)" ]; then
 			        lvremove -f /dev/OBS/worker_* /dev/OBS/cache 2>/dev/null
+				# make sure that logical volumes are active
+				vgchange -ay OBS 
                         else
 				echo "WARNING: The LVM volume group 'OBS' can not be used."
                                 echo "         Please create one to get worker partitions configured"
