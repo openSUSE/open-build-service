@@ -141,6 +141,9 @@ case "$1" in
 			echo "Remove all LVM cache and worker partitions in VG OBS."
 			# Cannot test on existence of "/dev/OBS", in case no LVs in VG OBS have been created!
 			if [ -n "$(vgdisplay -c OBS 2>/dev/null)" ]; then
+				for i in /dev/OBS/worker_swap_*;do
+					swapoff $i 2>/dev/null	
+				done
 			        lvremove -f /dev/OBS/worker_* /dev/OBS/cache 2>/dev/null
 				# make sure that logical volumes are active
 				lvchange -ay /dev/OBS/server 2>/dev/null 
