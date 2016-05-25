@@ -393,4 +393,14 @@ RSpec.describe Webui::ProjectController, vcr: true do
       expect(flash[:error]).to eq("Couldn't add repository: 'Name must not start with '_' or contain any of these characters ':/'")
     end
   end
+
+  describe 'GET #buildresult' do
+    it 'assigns the buildresult' do
+      summary = Xmlhash::XMLHash.new({'statuscount' => {'code' => 'succeeded', 'count' => 1} })
+      build_result  = { 'result' => Xmlhash::XMLHash.new({'repository' => 'openSUSE', 'arch' => 'x86_64', 'summary' => summary }) }
+      Buildresult.stubs(:find_hashed).returns(Xmlhash::XMLHash.new(build_result))
+      xhr :get, :buildresult, project: project_with_package
+      expect(assigns(:buildresult)).to match_array([["openSUSE", [["x86_64", [[:succeeded, 1]]]]]])
+    end
+  end
 end
