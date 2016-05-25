@@ -257,4 +257,66 @@ RSpec.feature "Projects", :type => :feature, :js => true do
       end
     end
   end
+
+  describe "branching" do
+    let(:other_user) { create(:confirmed_user, login: "other_user") }
+    let!(:package_of_another_project) { create(:package_with_file, name: "branch_test_package", project: other_user.home_project) }
+
+    before do
+      if CONFIG['global_write_through']
+        Suse::Backend.put("/source/#{CGI.escape(project.name)}/_meta", project.to_axml)
+      end
+      login user
+      visit project_show_path(project)
+      click_link("Branch existing package")
+    end
+
+    after do
+      if CONFIG['global_write_through']
+        Suse::Backend.delete("/source/#{CGI.escape(other_user.home_project_name)}")
+        Suse::Backend.delete("/source/#{CGI.escape(user.home_project_name)}")
+      end
+    end
+
+    scenario "an existing package" do
+      fill_in("Name of original project:", with: other_user.home_project_name)
+      fill_in("Name of package in original project:", with: package_of_another_project.name)
+      # This needs global write through
+      click_button("Create Branch")
+
+      expect(page).to have_text("Successfully branched package")
+      expect(page.current_path).to eq("/package/show/home:Jane/branch_test_package")
+    end
+
+    scenario "an existing package, but chose a different target package name" do
+      fill_in("Name of original project:", with: other_user.home_project_name)
+      fill_in("Name of package in original project:", with: package_of_another_project.name)
+      fill_in("Name of branched package in target project:", with: "some_different_name")
+      # This needs global write through
+      click_button("Create Branch")
+
+      expect(page).to have_text("Successfully branched package")
+      expect(page.current_path).to eq("/package/show/#{user.home_project_name}/some_different_name")
+    end
+
+    scenario "an existing package to an invalid target package or project" do
+      fill_in("Name of original project:", with: other_user.home_project_name)
+      fill_in("Name of package in original project:", with: "non-existing_ project_target")
+      # This needs global write through
+      click_button("Create Branch")
+
+      expect(page).to have_text("Failed to branch: Package does not exist.")
+      expect(page.current_path).to eq("/project/new_package_branch/home:Jane")
+    end
+
+    scenario "a non-existing package" do
+      fill_in("Name of original project:", with: "non-existing_package")
+      fill_in("Name of package in original project:", with: package_of_another_project.name)
+      # This needs global write through
+      click_button("Create Branch")
+
+      expect(page).to have_text("Failed to branch: Package does not exist.")
+      expect(page.current_path).to eq("/project/new_package_branch/home:Jane")
+    end
+  end
 end

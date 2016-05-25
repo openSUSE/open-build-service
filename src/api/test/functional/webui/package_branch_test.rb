@@ -56,7 +56,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
     super
   end
 
-  def test_branch_package_for_home_project
+  def test_branch_package_for_home_project # spec/features/webui/projects_spec.rb
     login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
@@ -102,7 +102,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
     delete_package("home:Iggy", "TestPack_link")
   end
 
-  def test_branch_package_for_global_project
+  def test_branch_package_for_global_project # spec/features/webui/projects_spec.rb
     login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
@@ -175,7 +175,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :expect => :invalid_project_name)
   end
 
-  def test_branch_project_invalid_target
+  def test_branch_project_invalid_target # spec/features/webui/projects_spec.rb
     login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
