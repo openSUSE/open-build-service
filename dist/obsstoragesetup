@@ -404,7 +404,13 @@ case "$1" in
 			bsgroup=`perl -I/usr/lib/obs/server -MBSConfig -e 'print ( $BSConfig::bsgroup || "obsrun" )'`
 			[ -d $backenddir/run ] || mkdir -p $backenddir/run
 			[ -d $backenddir/log ] || mkdir -p $backenddir/log
-			chown $bsuser:$bsgroup $backenddir $backenddir/run $backenddir/log
+			# fix ownership
+			chown $bsuser:$bsgroup -R $backenddir
+			[ -d $backenddir/gnupg ] && chown -R root:root $backenddir/gnupg
+			[ -d $backenddir/certs ] && chown -R root:root $backenddir/certs
+			[ -f $backenddir/obs-default-gpg.asc ] && chown root:root $backenddir/obs-default-gpg.asc
+			[ -d $backenddir/MySQL ] && chown -R mysql:mysql $backenddir/MySQL
+			[ -d $backenddir/service ] && chown -R obsservicerun:obsrun $backenddir/service
 		fi
 
 		# offer hook to make random special things in your setup
