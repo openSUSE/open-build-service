@@ -172,7 +172,7 @@ case "$1" in
 							echo "owner $owner_rundir is not configured bsuser '$bsuser'"
 							echo "changing ownership"
 							uid_rundir=`stat -L --printf="%u" "$backenddir/run"`
-							find $backenddir -uid $uid_rundir -exec chown $bsuser:$bsgroup {} ;
+							find $backenddir -uid $uid_rundir -exec chown $bsuser:$bsgroup {} \;
 						else 
 							echo "Owner of '$backenddir/run' is '$bsuser'. Nothing to fix!"
 						fi
@@ -260,6 +260,7 @@ case "$1" in
 					echo "OBS_SERVER_SIZE=$OBS_SERVER_SIZE"
 					TOTAL_SWAP_SIZE=$(( $NUM * $OBS_WORKER_SWAP_SIZE ))
 					echo "TOTAL_SWAP_SIZE=$TOTAL_SWAP_SIZE"
+					echo "FINAL_VG_SIZE = $VG_SIZE - $OBS_SERVER_SIZE - $OBS_WORKER_CACHE_SIZE - $TOTAL_SWAP_SIZE"
 					FINAL_VG_SIZE=$(( $VG_SIZE - $OBS_SERVER_SIZE - $OBS_WORKER_CACHE_SIZE - $TOTAL_SWAP_SIZE ))
 					echo "FINAL_VG_SIZE=$FINAL_VG_SIZE";
 					OBS_WORKER_ROOT_SIZE=$(( $FINAL_VG_SIZE / $NUM ))
