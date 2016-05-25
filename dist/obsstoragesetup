@@ -143,7 +143,7 @@ case "$1" in
 			if [ -n "$(vgdisplay -c OBS 2>/dev/null)" ]; then
 			        lvremove -f /dev/OBS/worker_* /dev/OBS/cache 2>/dev/null
 				# make sure that logical volumes are active
-				vgchange -ay OBS 
+				lvchange -ay /dev/OBS/server 2>/dev/null 
                         else
 				echo "WARNING: The LVM volume group 'OBS' can not be used."
                                 echo "         Please create one to get worker partitions configured"
@@ -241,7 +241,7 @@ case "$1" in
 					FINAL_VG_SIZE=$(( $VG_SIZE - $OBS_SERVER_SIZE - $OBS_WORKER_CACHE_SIZE - $TOTAL_SWAP_SIZE ))
 					echo "FINAL_VG_SIZE=$FINAL_VG_SIZE";
 					OBS_WORKER_ROOT_SIZE=$(( $FINAL_VG_SIZE / $NUM ))
-					echo "MIN_WORKER_ROOT_SIZE="
+					echo "OBS_WORKER_ROOT_SIZE=$OBS_WORKER_ROOT_SIZE"
 					MIN_WORKER_ROOT_SIZE=$(( 4 * 1024 ))
 					echo "MIN_WORKER_ROOT_SIZE=$MIN_WORKER_ROOT_SIZE"
 					if test $OBS_WORKER_ROOT_SIZE -lt $(( 4 * 1024 )); then
