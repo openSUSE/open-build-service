@@ -173,11 +173,21 @@ case "$1" in
 							echo "changing ownership"
 							uid_rundir=`stat -L --printf="%u" "$backenddir/run"`
 							find $backenddir -uid $uid_rundir -exec chown $bsuser:$bsgroup {} ;
+						else 
+							echo "Owner of '$backenddir/run' is '$bsuser'. Nothing to fix!"
 						fi
+					else 
+						echo "Owner of '$backenddir/run' is root. Not changing anything"
 					fi
+				else 
+					echo "Directory '$backenddir/run' not found"
 				fi
+			else
+				echo "No BSConfig found while setting up /dev/OBS/server"
 			fi
 			obs_server_size=$(( $(lvdisplay -c OBS/server 2>/dev/null | cut -d: -f7) / 2 / 1024 ))
+		else 
+			echo "No logical volume found under /dev/OBS/server"
                 fi
 
                 # setup signer and signd if possible
