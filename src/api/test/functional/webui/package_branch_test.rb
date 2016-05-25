@@ -111,7 +111,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :original_project => 'kde4')
   end
 
-  def test_branch_package_twice_duplicate_name
+  def test_branch_package_twice_duplicate_name # spec/features/webui/projects_spec.rb
     login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
@@ -121,7 +121,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :original_project => 'home:Iggy')
   end
 
-  def test_branch_package_twice
+  def test_branch_package_twice # spec/features/webui/projects_spec.rb
     login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(

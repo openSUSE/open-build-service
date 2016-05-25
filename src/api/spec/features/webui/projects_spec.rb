@@ -309,6 +309,18 @@ RSpec.feature "Projects", :type => :feature, :js => true do
       expect(page.current_path).to eq("/project/new_package_branch/home:Jane")
     end
 
+    scenario "an existing package were the target package already exists" do
+      create(:package_with_file, name: package_of_another_project.name, project: user.home_project)
+
+      fill_in("Name of original project:", with: other_user.home_project_name)
+      fill_in("Name of package in original project:", with: package_of_another_project.name)
+      # This needs global write through
+      click_button("Create Branch")
+
+      expect(page).to have_text("You have already branched this package")
+      expect(page.current_path).to eq("/package/show/home:Jane/branch_test_package")
+    end
+
     scenario "a non-existing package" do
       fill_in("Name of original project:", with: "non-existing_package")
       fill_in("Name of package in original project:", with: package_of_another_project.name)
