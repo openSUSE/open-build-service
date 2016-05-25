@@ -157,15 +157,24 @@ case "$1" in
 		[ -d "$backenddir" ] || mkdir -p "$backenddir"
                 if [ -e /dev/OBS/server ]; then
 			mount /dev/OBS/server "$backenddir"
-			if [ -e /usr/lib/obs/server/BSConfig.pm -a -d "$backenddir/run" ]; then
-				# make sure that directories needed by mostly all other daemons are created now
-				# and set proper ownership
-				bsuser=`perl -I/usr/lib/obs/server -MBSConfig -e 'print ( $BSConfig::bsuser || "obsrun" )'`
-				bsgroup=`perl -I/usr/lib/obs/server -MBSConfig -e 'print ( $BSConfig::bsgroup || "obsrun" )'`
-				owner_rundir=`stat -L --printf="%U" "$backenddir/run"`
-				if [ "$owner_rundir" != "root" -a "$owner_rundir" != "$bsuser" ];then
-					uid_rundir=`stat -L --printf="%u" "$backenddir/run"`
-					find $backenddir -uid $uid_rundir -exec chown $bsuser:$bsgroup {} ;
+			if [ -e /usr/lib/obs/server/BSConfig.pm ];then
+				echo "Found BSConfig.pm"
+				if [ -d "$backenddir/run" ]; then
+					echo "Directory '$backenddir/run' exists"
+					# make sure that directories needed by mostly all other daemons are created now
+					# and set proper ownership
+					bsuser=`perl -I/usr/lib/obs/server -MBSConfig -e 'print ( $BSConfig::bsuser || "obsrun" )'`
+					bsgroup=`perl -I/usr/lib/obs/server -MBSConfig -e 'print ( $BSConfig::bsgroup || "obsrun" )'`
+					owner_rundir=`stat -L --printf="%U" "$backenddir/run"`
+					if [ "$owner_rundir" != "root" ];then
+						echo "owner of '$backenddir/run' is $owner_rundir"
+						if [ "$owner_rundir" != "$bsuser" ];then
+							echo "owner $owner_rundir is not configured bsuser '$bsuser'"
+							echo "changing ownership"
+							uid_rundir=`stat -L --printf="%u" "$backenddir/run"`
+							find $backenddir -uid $uid_rundir -exec chown $bsuser:$bsgroup {} ;
+						fi
+					fi
 				fi
 			fi
 			obs_server_size=$(( $(lvdisplay -c OBS/server 2>/dev/null | cut -d: -f7) / 2 / 1024 ))
