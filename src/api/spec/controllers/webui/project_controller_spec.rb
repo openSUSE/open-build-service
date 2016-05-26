@@ -403,4 +403,57 @@ RSpec.describe Webui::ProjectController, vcr: true do
       expect(assigns(:buildresult)).to match_array([["openSUSE", [["x86_64", [[:succeeded, 1]]]]]])
     end
   end
+
+  describe 'GET #delete_dialog' do
+    it 'assigns only linking_projects' do
+      apache2_project
+      another_project.projects_linking_to << apache_project
+      xhr :get, :delete_dialog, project: apache_project
+      expect(assigns(:linking_projects)).to match_array([another_project.name])
+    end
+  end
+
+  describe 'DELETE #destroy' do
+    before do
+      login user_moi
+    end
+
+    context 'with check_weak_dependencies to true' do
+      before do
+        Project.any_instance.stubs(:check_weak_dependencies?).returns(true)
+      end
+
+      context 'having a parent project' do
+        before do
+          subproject = create(:project, name: "#{user_moi.home_project}:subproject")
+          delete :destroy, project: subproject
+        end
+
+        it { expect(Project.count).to eq(1) }
+        it { is_expected.to redirect_to(project_show_path(user_moi.home_project)) }
+        it { expect(flash[:notice]).to eq("Project was successfully removed.") }
+      end
+
+      context 'not having a parent project' do
+        before do
+          delete :destroy, project: user_moi.home_project
+        end
+
+        it { expect(Project.count).to eq(0) }
+        it { is_expected.to redirect_to(action: :index) }
+        it { expect(flash[:notice]).to eq("Project was successfully removed.") }
+      end
+    end
+
+    context 'with check_weak_dependencies to false' do
+      before do
+        Project.any_instance.stubs(:check_weak_dependencies?).returns(false)
+        delete :destroy, project: user_moi.home_project
+      end
+
+      it { expect(Project.count).to eq(1) }
+      it { is_expected.to redirect_to(project_show_path(user_moi.home_project)) }
+      it { expect(flash[:notice]).to start_with("Project can't be removed:") }
+    end
+  end
 end
