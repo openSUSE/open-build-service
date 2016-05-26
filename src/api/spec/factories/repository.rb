@@ -1,7 +1,7 @@
 FactoryGirl.define do
   factory :repository do
     project
-    name { Faker::Internet.domain_word }
+    sequence(:name) { |n| "#{Faker::Internet.domain_word}#{n}" }
 
     transient do
       architectures []

@@ -11,6 +11,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   let(:home_moi_project) { create(:project, name: 'home:moi') }
   let(:maintenance_project) { create(:maintenance_project, name: 'maintenance_project') }
   let(:project_with_package) { create(:project_with_package, name: 'NewProject', package_name: 'PackageExample') }
+  let(:repo_for_user_home) { create(:repository, project: user.home_project) }
 
   describe 'CSRF protection' do
     before do
@@ -415,28 +416,28 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
   describe 'DELETE #destroy' do
     before do
-      login user_moi
+      login user
     end
 
-    context 'with check_weak_dependencies to true' do
+    context 'with check_weak_dependencies enabled' do
       before do
         Project.any_instance.stubs(:check_weak_dependencies?).returns(true)
       end
 
       context 'having a parent project' do
         before do
-          subproject = create(:project, name: "#{user_moi.home_project}:subproject")
+          subproject = create(:project, name: "#{user.home_project}:subproject")
           delete :destroy, project: subproject
         end
 
         it { expect(Project.count).to eq(1) }
-        it { is_expected.to redirect_to(project_show_path(user_moi.home_project)) }
+        it { is_expected.to redirect_to(project_show_path(user.home_project)) }
         it { expect(flash[:notice]).to eq("Project was successfully removed.") }
       end
 
       context 'not having a parent project' do
         before do
-          delete :destroy, project: user_moi.home_project
+          delete :destroy, project: user.home_project
         end
 
         it { expect(Project.count).to eq(0) }
@@ -445,15 +446,52 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
     end
 
-    context 'with check_weak_dependencies to false' do
+    context 'with check_weak_dependencies disabled' do
       before do
         Project.any_instance.stubs(:check_weak_dependencies?).returns(false)
-        delete :destroy, project: user_moi.home_project
+        delete :destroy, project: user.home_project
       end
 
       it { expect(Project.count).to eq(1) }
-      it { is_expected.to redirect_to(project_show_path(user_moi.home_project)) }
+      it { is_expected.to redirect_to(project_show_path(user.home_project)) }
       it { expect(flash[:notice]).to start_with("Project can't be removed:") }
+    end
+  end
+
+  describe 'POST #update_target' do
+    before do
+      login user
+    end
+
+    context 'updating non existent repository' do
+      it 'will raise a NoMethodError' do
+        expect do
+          post :update_target, project: user.home_project, repo: 'standard'
+        end.to raise_error(NoMethodError)
+      end
+    end
+
+    context 'updating the repository without architectures' do
+      before do
+        post :update_target, project: user.home_project, repo: repo_for_user_home.name
+      end
+
+      it { expect(repo_for_user_home.architectures.pluck(:name)).to be_empty }
+      it { expect(assigns(:repository_arch_hash).to_a).to match_array([["armv7l", false], ['i586', false], ['x86_64', false]])}
+      it { is_expected.to redirect_to(action: :repositories) }
+      it { expect(flash[:notice]).to eq("Successfully updated repository") }
+    end
+
+    context 'updating the repository with architectures' do
+      before do
+        post :update_target, project: user.home_project, repo: repo_for_user_home.name, arch: {'i586' => true, 'x86_64' => true}
+      end
+
+      it { expect(repo_for_user_home.architectures.pluck(:name)).to match_array(['i586', 'x86_64']) }
+      it { expect(Architecture.available.pluck(:name)).to match_array(["armv7l", "i586", "x86_64"]) }
+      it { expect(assigns(:repository_arch_hash).to_a).to match_array([["armv7l", false], ['i586', true], ['x86_64', true]])}
+      it { is_expected.to redirect_to(action: :repositories) }
+      it { expect(flash[:notice]).to eq("Successfully updated repository") }
     end
   end
 end
