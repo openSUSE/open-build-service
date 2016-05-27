@@ -20,7 +20,6 @@ class Webui::EditPackageUsersTest < Webui::IntegrationTest
     add_user 'user6', 'downloader'
 
     add_user 'sadasxsacxsacsa', 'reader', :expect => :unknown_user
-    add_user '', 'maintainer', :expect => :unknown_user
     add_user '~@$@#%#%@$0-=m,.,\/\/12`;.{{}}{}', 'maintainer', :expect => :unknown_user
 
     # add_package_role_to_username_with_question_sign do

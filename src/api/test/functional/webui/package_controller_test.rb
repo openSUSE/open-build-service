@@ -414,16 +414,14 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     visit(package_show_path(project: "home:Iggy", package: "TestPack"))
     click_link("Submit package")
     click_button("Ok")
-    page.must_have_text "Please provide a target for the submit request"
     assert_equal package_show_path(project: "home:Iggy", package: "TestPack"),
-                 page.current_path
+                 page.current_path, "Client-side validation should have prevented package submission."
 
     click_link("Submit package")
     fill_in "To target project", with: "nonexistant:project"
     click_button("Ok")
-    page.must_have_text "Unable to submit (missing target): nonexistant:project"
     assert_equal package_show_path(project: "home:Iggy", package: "TestPack"),
-                 page.current_path
+                 page.current_path, "Client-side validation should have prevented package submission."
 
     click_link("Submit package")
     fill_in "To target project", with: "home:Iggy"

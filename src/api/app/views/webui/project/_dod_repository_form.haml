@@ -6,7 +6,7 @@
     %div
       %p
         = label_tag(:name, "Repository name")
-        = text_field_tag(:name)
+        = text_field_tag(:name, required: true)
 
     %div
       %h4
@@ -14,7 +14,7 @@
       - # Note: Mostly C&P from app/views/webui/download_on_demand/_form.html.erb
       %div{ style: "margin-bottom: 1.2em; margin-left: 2em" }
         = label_tag :arch, "Architecture", style: "display:inline-block;width:100px;"
-        = select_tag :arch, options_for_select(Architecture.available, "")
+        = select_tag :arch, options_for_select(Architecture.available, ""), required: true
         %br
         %br
         = label_tag :repotype, 'Type', style: "display:inline-block;width:100px;"
@@ -22,7 +22,7 @@
         %br
         %br
         = label_tag :url, 'Url', style: "display:inline-block;width:100px;"
-        = text_field_tag :url
+        = text_field_tag :url, required: true
         %br
         %br
         = label_tag :archfilter, 'Arch. Filter' , style: "display:inline-block;width:100px;"

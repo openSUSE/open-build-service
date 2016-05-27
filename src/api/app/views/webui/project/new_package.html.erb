@@ -16,7 +16,7 @@
 <%= form_tag controller: :package, action: 'save_new', project: @project.to_param do %>
 <p>
   <strong>Name:</strong><br/>
-  <%= text_field_tag 'name', @package_name, :size => 80 %><br/>
+  <%= text_field_tag 'name', @package_name, :size => 80, required: true %><br/>
   <strong>Title:</strong><br/>
   <%= text_field_tag 'title', @package_title, :size => 80 %><br/>
   <strong>Description:</strong><br/>
