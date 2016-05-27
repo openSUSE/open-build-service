@@ -91,8 +91,13 @@ class Webui::MainController < Webui::WebuiController
       redirect_to(:action => 'index') and return
     end
     # TODO - make use of permissions.status_message_create
-    StatusMessage.create!(message: params[:message], severity: params[:severity], user: User.current)
-    redirect_to(:action => 'index')
+    status_message = StatusMessage.new(message: params[:message], severity: params[:severity], user: User.current)
+    if status_message.save
+      flash[:notice] = "Status message was successfully created."
+    else
+      flash[:error] = "Could not create status message: #{status_message.errors.full_messages.to_sentence}"
+    end
+    redirect_to(:action => "index")
   end
 
   def delete_message_dialog
