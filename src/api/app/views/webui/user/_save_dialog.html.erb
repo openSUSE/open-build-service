@@ -12,7 +12,7 @@
         </p>
         <p>
           <%= label_tag :email, 'e-Mail:' %><br/>
-          <%= email_field_tag :email, User.current.email, required: true %>
+          <%= email_field_tag :email, User.current.email, required: true, email: true %>
         </p>
         <div class="dialog-buttons">
           <%= submit_tag("Ok") %>
