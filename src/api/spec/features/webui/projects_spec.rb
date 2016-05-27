@@ -35,13 +35,75 @@ RSpec.feature "Projects", :type => :feature, :js => true do
     expect(find(:id, "description-text")).to have_text("New description. Not kidding.. Brand new!")
   end
 
-  scenario "create package" do
-    login user
-    visit project_show_path(user.home_project)
-    click_link("Create package")
-    expect(page).to have_text("Create New Package for #{user.home_project_name}")
-    fill_in "name", :with => "coolstuff"
-    click_button "Save changes"
+  describe "creating packages in projects owned by user, eg. home projects" do
+    before do
+      login user
+      visit project_show_path(project: user.home_project)
+      click_link("Create package")
+      expect(page).to have_text("Create New Package for #{user.home_project_name}")
+    end
+
+    scenario "with valid data" do
+      fill_in "name", :with => "coolstuff"
+      fill_in "title", :with => "cool stuff everyone needs"
+      fill_in "description", :with => "some description"
+      click_button "Save changes"
+
+      expect(page).to have_text("Package 'coolstuff' was created successfully")
+      expect(page.current_path).to eq(package_show_path(project: user.home_project_name, package: "coolstuff"))
+      expect(find(:css, "h3#package_title")).to have_text("cool stuff everyone needs")
+      expect(find(:css, "pre#description-text")).to have_text("some description")
+    end
+
+    scenario "with invalid data (validation fails)" do
+      fill_in "name", :with => "cool stuff"
+      click_button "Save changes"
+
+      expect(page).to have_text("Invalid package name: 'cool stuff'")
+      expect(page.current_path).to eq("/project/new_package/#{user.home_project_name}")
+    end
+
+    scenario "that already exists" do
+      create(:package, name: "coolstuff", project: user.home_project)
+
+      fill_in "name", :with => "coolstuff"
+      click_button "Save changes"
+
+      expect(page).to have_text("Package 'coolstuff' already exists in project '#{user.home_project_name}'")
+      expect(page.current_path).to eq("/project/new_package/#{user.home_project_name}")
+    end
+  end
+
+  describe "creating packages in projects not owned by user, eg. global namespace" do
+    let(:other_user) { create(:confirmed_user, login: "other_user") }
+    let(:global_project) { create(:project, name: "global_project") }
+
+    scenario "as non-admin user" do
+      login other_user
+      visit project_show_path(project: global_project)
+      expect(page).not_to have_link("Create package")
+
+      # Use direct path instead
+      visit "/project/new_package/#{global_project}"
+
+      fill_in "name", :with => "coolstuff"
+      click_button "Save changes"
+
+      expect(page).to have_text("You can't create packages in #{global_project}")
+      expect(page.current_path).to eq("/project/new_package/#{global_project}")
+    end
+
+    scenario "as admin" do
+      login admin_user
+      visit project_show_path(project: global_project)
+      click_link("Create package")
+
+      fill_in "name", :with => "coolstuff"
+      click_button "Save changes"
+
+      expect(page).to have_text("Package 'coolstuff' was created successfully")
+      expect(page.current_path).to eq(package_show_path(project: "#{global_project}", package: "coolstuff"))
+    end
   end
 
   scenario "create subproject" do
