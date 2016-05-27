@@ -105,13 +105,29 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def dependency
-    if Architecture.archcache.include?(params[:arch])
-      @arch = params[:arch]
-    else
+    unless Project.find_by_name(params[:dproject].to_s)
+      flash[:error] = "Project '#{params[:dproject]}' is invalid."
+      redirect_back_or_to root_path
+      return
+    end
+
+    unless Architecture.archcache.include?(params[:arch])
       flash[:error] = "Architecture '#{params[:arch]}' is invalid."
       redirect_back_or_to project_show_path(project: params[:dproject])
       return
     end
+    project_repositories = Project.find_by_name(params[:dproject]).repositories.pluck(:name)
+    [:repository, :drepository].each do |repo_key|
+      unless project_repositories.include?(params[repo_key])
+        flash[:error] = "Repository '#{params[repo_key]}' is invalid."
+        redirect_back_or_to project_show_path(project: params[:dproject])
+        # rubocop:disable Lint/NonLocalExitFromIterator
+        return
+        # rubocop:enable Lint/NonLocalExitFromIterator
+      end
+    end
+
+    @arch = params[:arch]
     @repository = params[:repository]
     @drepository = params[:drepository]
     @dproject = params[:dproject]
