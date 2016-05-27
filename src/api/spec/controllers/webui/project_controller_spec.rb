@@ -367,4 +367,14 @@ RSpec.describe Webui::ProjectController, vcr: true do
       expect(assigns(:roles)).to match_array(Role.local_roles)
     end
   end
+
+  describe 'POST #save_repository' do
+    it 'does not save invalid repositories' do
+      login user
+      expect {
+        get :save_repository, project: user.home_project, repository: "_invalid"
+      }.to_not change(Repository, :count)
+      expect(flash[:error]).to eq("Couldn't add repository: 'Name must not start with '_' or contain any of these characters ':/'")
+    end
+  end
 end

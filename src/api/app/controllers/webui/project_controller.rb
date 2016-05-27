@@ -467,7 +467,11 @@ class Webui::ProjectController < Webui::WebuiController
     authorize @project, :update?
     params[:architectures] ||= []
 
-    repository = @project.repositories.find_or_create_by!(name: params[:repository])
+    repository = @project.repositories.find_or_initialize_by(name: params[:repository])
+    unless repository.save
+      redirect_to :back, error: "Couldn't add repository: 'Name must not start with '_' or contain any of these characters ':/'"
+      return
+    end
 
     if params[:target_repo]
       # add a repository from an existing project
