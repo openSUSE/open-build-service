@@ -104,15 +104,31 @@ RSpec.describe Webui::UserController do
 
   describe "POST #save" do
     context "when user is updating its own profile" do
-      before do
-        login user
-        post :save, {user: user, realname: 'another real name', email: 'new_valid@email.es' }
-        user.reload
+      context "with valid data" do
+        before do
+          login user
+          post :save, { user: user, realname: 'another real name', email: 'new_valid@email.es' }
+          user.reload
+        end
+
+        it { expect(flash[:success]).to eq("User data for user '#{user.login}' successfully updated.") }
+        it { expect(user.realname).to eq('another real name') }
+        it { expect(user.email).to eq('new_valid@email.es') }
+        it { is_expected.to redirect_to user_show_path(user) }
       end
 
-      it { expect(user.realname).to eq('another real name') }
-      it { expect(user.email).to eq('new_valid@email.es') }
-      it { is_expected.to redirect_to user_show_path(user) }
+      context "with invalid data" do
+        before do
+          login user
+          post :save, { user: user, realname: "another real name", email: "" }
+          user.reload
+        end
+
+        it { expect(flash[:error]).to eq("Couldn't update user: Validation failed: Email must be given, Email must be a valid email address..") }
+        it { expect(user.realname).to eq(user.realname) }
+        it { expect(user.email).to eq(user.email) }
+        it { is_expected.to redirect_to user_show_path(user) }
+      end
     end
 
     context "when user is trying to update another user's profile" do
