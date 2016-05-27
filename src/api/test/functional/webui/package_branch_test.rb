@@ -135,7 +135,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :original_project => 'kde4')
   end
 
-  def test_branch_empty_package_name
+  def test_branch_empty_package_name # spec/controllers/webui/package_controller_spec.rb
     login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
@@ -145,7 +145,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :expect => :invalid_package_name)
   end
 
-  def test_branch_empty_project_name
+  def test_branch_empty_project_name # spec/controllers/webui/package_controller_spec.rb
     login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
@@ -155,7 +155,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :expect => :invalid_project_name)
   end
 
-  def test_branch_package_name_with_spaces
+  def test_branch_package_name_with_spaces # spec/controllers/webui/package_controller_spec.rb
     login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
@@ -165,7 +165,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :expect => :invalid_package_name)
   end
 
-  def test_branch_project_name_with_spaces
+  def test_branch_project_name_with_spaces # spec/controllers/webui/package_controller_spec.rb
     login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
