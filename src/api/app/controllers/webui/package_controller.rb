@@ -105,7 +105,13 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def dependency
-    @arch = params[:arch]
+    if Architecture.archcache.include?(params[:arch])
+      @arch = params[:arch]
+    else
+      flash[:error] = "Architecture '#{params[:arch]}' is invalid."
+      redirect_back_or_to project_show_path(project: params[:dproject])
+      return
+    end
     @repository = params[:repository]
     @drepository = params[:drepository]
     @dproject = params[:dproject]
