@@ -20,13 +20,13 @@
               <strong><%= image_tag('info.png', :title => 'Enter a short summary. Mainpackage: shortdescription of the mainfix', :alt => 'Summaryinfo') %>
                 Summary:</strong>
 
-              <%= text_area_tag 'summary', @summary, :size => '60x1', required: true %>
+              <%= text_area_tag 'summary', @summary, :size => '60x1', required: true, min: 10 %>
             </p>
 
             <p>
               <strong><%= image_tag('info.png', :title => 'Enter a full description what the update fixes', :alt => 'Descriptioninfo') %>
                 Description: </strong>
-              <%= text_area_tag 'description', @description, :size => '65x9', required: true %>
+              <%= text_area_tag 'description', @description, :size => '65x9', required: true, min: 10 %>
             </p>
 
             <p>
