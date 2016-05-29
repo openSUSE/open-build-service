@@ -542,7 +542,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     use_js
     login_king to: package_live_build_log_path(package: 'pack2.linked', project: 'BaseDistro2.0', repository: 'BaseDistro2_repo', arch: 'i586')
 
-    page.all(:link, 'Trigger Rebuild')[0].click
+    page.first(:link, 'Trigger Rebuild').click
     find('#flash-messages').must_have_text('Triggered rebuild for BaseDistro2.0/pack2.linked successfully.')
   end
 end
