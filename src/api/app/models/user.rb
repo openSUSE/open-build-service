@@ -285,8 +285,7 @@ class User < ActiveRecord::Base
         return nil
       end
       user.realname = ldap_info[1]
-      user.state = User::STATES['confirmed']
-      user.state = User::STATES['unconfirmed'] if ::Configuration.registration == "confirmation"
+      user.state = User.default_user_state
       user.adminnote = "User created via LDAP"
       logger.debug( "saving new user..." )
       user.save
