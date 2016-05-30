@@ -53,14 +53,52 @@ class User < ActiveRecord::Base
   # users have 0..1 user_registration records assigned to them
   has_one :user_registration
 
-  # This method returns an array with the names of all available
-  # password hash types supported by this User class.
-  def self.password_hash_types
-    default_password_hash_types
-  end
+  validates_presence_of :login, :email, :password, :password_hash_type, :state,
+                        :message => 'must be given'
+
+  validates_uniqueness_of :login,
+                          :message => 'is the name of an already existing user.'
+
+  validates_format_of :login,
+                      :with => %r{\A[\w \$\^\-\.#\*\+&'"]*\z},
+                      :message => 'must not contain invalid characters.'
+  validates_length_of :login,
+                      :in => 2..100, :allow_nil => true,
+                      :too_long => 'must have less than 100 characters.',
+                      :too_short => 'must have more than two characters.'
+
+  # We want a valid email address. Note that the checking done here is very
+  # rough. Email adresses are hard to validate now domain names may include
+  # language specific characters and user names can be about anything anyway.
+  # However, this is not *so* bad since users have to answer on their email
+  # to confirm their registration.
+  validates_format_of :email,
+                      :with => %r{\A([\w\-\.\#\$%&!?*\'\+=(){}|~]+)@([0-9a-zA-Z\-\.\#\$%&!?*\'=(){}|~]+)+\z},
+                      :message => 'must be a valid email address.'
+
+  # We want to validate the format of the password and only allow alphanumeric
+  # and some punctiation characters.
+  # The format must only be checked if the password has been set and the record
+  # has not been stored yet and it has actually been set at all. Make sure you
+  # include this condition in your :if parameter to validates_format_of when
+  # overriding the password format validation.
+  validates_format_of :password,
+                      :with => %r{\A[\w\.\- !?(){}|~*]+\z},
+                      :message => 'must not contain invalid characters.',
+                      :if => Proc.new { |user| user.new_password? and not user.password.nil? }
+
+  # We want the password to have between 6 and 64 characters.
+  # The length must only be checked if the password has been set and the record
+  # has not been stored yet and it has actually been set at all. Make sure you
+  # include this condition in your :if parameter to validates_length_of when
+  # overriding the length format validation.
+  validates_length_of :password,
+                      :within => 6..64,
+                      :too_long => 'must have between 6 and 64 characters.',
+                      :too_short => 'must have between 6 and 64 characters.',
+                     :if => Proc.new { |user| user.new_password? and not user.password.nil? }
 
   after_create :create_home_project
-
   def create_home_project
     # avoid errors during seeding
     return if [ "_nobody_", "Admin" ].include? self.login
@@ -79,12 +117,6 @@ class User < ActiveRecord::Base
     true
   end
 
-  # the default state of a user based on the api configuration
-  def self.default_user_state
-    return STATES['unconfirmed'] if ::Configuration.registration == "confirmation"
-    STATES['confirmed']
-  end
-
   # When a record object is initialized, we set the state, password
   # hash type, indicator whether the password has freshly been set
   # (@new_password) and the login failure count to
@@ -99,9 +131,43 @@ class User < ActiveRecord::Base
     self.login_failure_count = 0 if self.login_failure_count.nil?
   end
 
+
   # Set the last login time etc. when the record is created at first.
   def before_create
     self.last_logged_in_at = Time.now
+  end
+
+  # the default state of a user based on the api configuration
+  def self.default_user_state
+    return STATES['unconfirmed'] if ::Configuration.registration == "confirmation"
+    STATES['confirmed']
+  end
+
+  # This method returns an array with the names of all available
+  # password hash types supported by this User class.
+  def self.password_hash_types
+    default_password_hash_types
+  end
+
+  # Overriding this method to do some more validation: Password equals
+  # password_confirmation, state an password hash type being in the range
+  # of allowed values.
+  def validate
+    # validate state and password has type to be in the valid range of values
+    errors.add(:password_hash_type, 'must be in the list of hash types.') unless User.password_hash_types.include? password_hash_type
+    # check that the state transition is valid
+    errors.add(:state, 'must be a valid new state from the current state.') unless state_transition_allowed?(@old_state, state)
+
+    # validate the password
+    if @new_password and not password.nil?
+      errors.add(:password, 'must match the confirmation.') unless password_confirmation == password
+    end
+
+    # check that the password hash type has not been set if no new password
+    # has been provided
+    if @new_hash_type and (!@new_password or password.nil?)
+      errors.add(:password_hash_type, 'cannot be changed unless a new password has been provided.')
+    end
   end
 
   # Override the accessor for the "password_hash_type" property so it sets
@@ -349,74 +415,6 @@ class User < ActiveRecord::Base
       false
     end
   end
-
-  # Model Validation
-
-  validates_presence_of :login, :email, :password, :password_hash_type, :state,
-                        :message => 'must be given'
-
-  validates_uniqueness_of :login,
-                          :message => 'is the name of an already existing user.'
-
-  # Overriding this method to do some more validation: Password equals
-  # password_confirmation, state an password hash type being in the range
-  # of allowed values.
-  def validate
-    # validate state and password has type to be in the valid range of values
-    errors.add(:password_hash_type, 'must be in the list of hash types.') unless User.password_hash_types.include? password_hash_type
-    # check that the state transition is valid
-    errors.add(:state, 'must be a valid new state from the current state.') unless state_transition_allowed?(@old_state, state)
-
-    # validate the password
-    if @new_password and not password.nil?
-      errors.add(:password, 'must match the confirmation.') unless password_confirmation == password
-    end
-
-    # check that the password hash type has not been set if no new password
-    # has been provided
-    if @new_hash_type and (!@new_password or password.nil?)
-      errors.add(:password_hash_type, 'cannot be changed unless a new password has been provided.')
-    end
-  end
-
-  validates_format_of :login,
-                      :with => %r{\A[\w \$\^\-\.#\*\+&'"]*\z},
-                      :message => 'must not contain invalid characters.'
-  validates_length_of :login,
-                      :in => 2..100, :allow_nil => true,
-                      :too_long => 'must have less than 100 characters.',
-                      :too_short => 'must have more than two characters.'
-
-  # We want a valid email address. Note that the checking done here is very
-  # rough. Email adresses are hard to validate now domain names may include
-  # language specific characters and user names can be about anything anyway.
-  # However, this is not *so* bad since users have to answer on their email
-  # to confirm their registration.
-  validates_format_of :email,
-                      :with => %r{\A([\w\-\.\#\$%&!?*\'\+=(){}|~]+)@([0-9a-zA-Z\-\.\#\$%&!?*\'=(){}|~]+)+\z},
-                      :message => 'must be a valid email address.'
-
-  # We want to validate the format of the password and only allow alphanumeric
-  # and some punctiation characters.
-  # The format must only be checked if the password has been set and the record
-  # has not been stored yet and it has actually been set at all. Make sure you
-  # include this condition in your :if parameter to validates_format_of when
-  # overriding the password format validation.
-  validates_format_of :password,
-                      :with => %r{\A[\w\.\- !?(){}|~*]+\z},
-                      :message => 'must not contain invalid characters.',
-                      :if => Proc.new { |user| user.new_password? and not user.password.nil? }
-
-  # We want the password to have between 6 and 64 characters.
-  # The length must only be checked if the password has been set and the record
-  # has not been stored yet and it has actually been set at all. Make sure you
-  # include this condition in your :if parameter to validates_length_of when
-  # overriding the length format validation.
-  validates_length_of :password,
-                      :within => 6..64,
-                      :too_long => 'must have between 6 and 64 characters.',
-                      :too_short => 'must have between 6 and 64 characters.',
-                     :if => Proc.new { |user| user.new_password? and not user.password.nil? }
 
   class << self
     def current
