@@ -130,6 +130,8 @@ class User < ActiveRecord::Base
   # After saving, we want to set the "@new_hash_type" value set to false
   # again.
   after_save '@new_hash_type = false'
+  # After saving the object into the database, the password is not new any more.
+  after_save '@new_password = false'
 
   # When a record object is initialized, we set the state, password
   # hash type, indicator whether the password has freshly been set
@@ -145,6 +147,29 @@ class User < ActiveRecord::Base
     self.login_failure_count = 0 if self.login_failure_count.nil?
   end
 
+  # After validation, the password should be encrypted
+  after_validation(:on => :create) do
+    if errors.empty? and @new_password and !password.nil?
+      # generate a new 10-char long hash only Base64 encoded so things are compatible
+      self.password_salt = [Array.new(10){rand(256).chr}.join].pack('m')[0..9]
+
+      # vvvvvv added this to maintain the password list for lighttpd
+      write_attribute(:password_crypted, password.crypt('os'))
+      #  ^^^^^^
+
+      # write encrypted password to object property
+      write_attribute(:password, hash_string(password))
+
+      # mark password as "not new" any more
+      @new_password = false
+      self.password_confirmation = nil
+
+      # mark the hash type as "not new" any more
+      @new_hash_type = false
+    else
+      logger.debug "Error - skipping to create user #{errors.inspect} #{@new_password.inspect} #{password.inspect}"
+    end
+  end
 
   # Set the last login time etc. when the record is created at first.
   def before_create
@@ -364,6 +389,8 @@ class User < ActiveRecord::Base
     fetch_field(person, :realname)
   end
 
+  public
+
   # Overriding this method to do some more validation: Password equals
   # password_confirmation, state an password hash type being in the range
   # of allowed values.
@@ -423,9 +450,6 @@ class User < ActiveRecord::Base
     self.password_confirmation = hash_string(pass)
     self.password = hash_string(pass)
   end
-
-  # After saving the object into the database, the password is not new any more.
-  after_save '@new_password = false'
 
   # This method returns true if the user is assigned the role with one of the
   # role titles given as parameters. False otherwise.
@@ -515,30 +539,6 @@ class User < ActiveRecord::Base
       desired_state.present?
     else
       false
-    end
-  end
-
-  # After validation, the password should be encrypted
-  after_validation(:on => :create) do
-    if errors.empty? and @new_password and !password.nil?
-      # generate a new 10-char long hash only Base64 encoded so things are compatible
-      self.password_salt = [Array.new(10){rand(256).chr}.join].pack('m')[0..9]
-
-      # vvvvvv added this to maintain the password list for lighttpd
-      write_attribute(:password_crypted, password.crypt('os'))
-      #  ^^^^^^
-
-      # write encrypted password to object property
-      write_attribute(:password, hash_string(password))
-
-      # mark password as "not new" any more
-      @new_password = false
-      self.password_confirmation = nil
-
-      # mark the hash type as "not new" any more
-      @new_hash_type = false
-    else
-      logger.debug "Error - skipping to create user #{errors.inspect} #{@new_password.inspect} #{password.inspect}"
     end
   end
 
