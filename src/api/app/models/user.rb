@@ -53,6 +53,16 @@ class User < ActiveRecord::Base
   # users have 0..1 user_registration records assigned to them
   has_one :user_registration
 
+  scope :all_without_nobody, -> { where("login != ?", nobody_login) }
+
+  # Add accessors for "new_password" property. This boolean property is set
+  # to true when the password has been set and validation on this password is
+  # required.
+  attr_accessor :new_password
+
+  # Generate accessors for the password confirmation property.
+  attr_accessor :password_confirmation
+
   validates_presence_of :login, :email, :password, :password_hash_type, :state,
                         :message => 'must be given'
 
@@ -117,6 +127,10 @@ class User < ActiveRecord::Base
     true
   end
 
+  # After saving, we want to set the "@new_hash_type" value set to false
+  # again.
+  after_save '@new_hash_type = false'
+
   # When a record object is initialized, we set the state, password
   # hash type, indicator whether the password has freshly been set
   # (@new_password) and the login failure count to
@@ -178,20 +192,6 @@ class User < ActiveRecord::Base
     write_attribute(:password_hash_type, value)
     @new_hash_type = true
   end
-
-  # After saving, we want to set the "@new_hash_type" value set to false
-  # again.
-  after_save '@new_hash_type = false'
-
-  # Add accessors for "new_password" property. This boolean property is set
-  # to true when the password has been set and validation on this password is
-  # required.
-  attr_accessor :new_password
-
-  # Generate accessors for the password confirmation property.
-  attr_accessor :password_confirmation
-
-  scope :all_without_nobody, -> { where("login != ?", nobody_login) }
 
   # Overriding the default accessor to update @new_password on setting this
   # property.
