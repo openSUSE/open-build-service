@@ -648,6 +648,8 @@ OBSApi::Application.routes.draw do
     delete 'source/:project/_pubkey' => :delete_project_pubkey, constraints: cons
 
     # package level
+    get '/source/:project/_project/:filename' => :get_file, constraints: cons
+
     get '/source/:project/:package/_meta' => :show_package_meta, constraints: cons
     put '/source/:project/:package/_meta' => :update_package_meta, constraints: cons
 
