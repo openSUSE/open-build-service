@@ -276,13 +276,12 @@ class User < ActiveRecord::Base
                           :email => ldap_info[0],
                           :last_logged_in_at => Time.now)
       unless user.errors.empty?
-        errstr = String.new
         logger.debug("Creating User failed with: ")
-        user.errors.full_messages.each do |msg|
-          errstr = errstr+msg
+        all_errors = user.errors.full_messages.map do |msg|
           logger.debug(msg)
+          msg
         end
-        logger.info("Cannot create ldap userid: '#{login}' on OBS<br>#{errstr}")
+        logger.info("Cannot create ldap userid: '#{login}' on OBS<br>#{all_errors.join(', ')}")
         return nil
       end
       user.realname = ldap_info[1]
