@@ -1,8 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Webui::ProjectController, vcr: true do
-  let(:user_moi) { create(:confirmed_user, login: "moi") }
-  let(:user_tom) { create(:confirmed_user, login: "tom") }
+  let(:user) { create(:confirmed_user, login: "tom") }
   let(:admin_user) { create(:admin_user, login: "admin") }
   let(:apache_project) { create(:project, name: 'Apache') }
   let(:another_project) { create(:project, name: 'Another_Project') }
@@ -18,8 +17,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       # Needed because Rails disables it in test mode by default
       ActionController::Base.allow_forgery_protection = true
 
-      login user_tom
-      user_moi
+      login user
     end
 
     after do
@@ -67,11 +65,11 @@ RSpec.describe Webui::ProjectController, vcr: true do
   end
 
   describe 'PATCH #update' do
-    let(:project) { user_tom.home_project }
+    let(:project) { user.home_project }
 
     context "with valid parameters" do
       before do
-        login user_tom
+        login user
         patch :update, id: project.id, project: { description: "My projects description", title: "My projects title" }
         project.reload
       end
@@ -84,7 +82,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context "with invalid data" do
       before do
-        login user_tom
+        login user
         patch :update, id: project.id, project: { description: "My projects description", title: "My projects title"*200 }
         project.reload
       end
@@ -209,7 +207,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
   describe 'GET #new' do
     before do
-      login user_moi
+      login user
       get :new, name: 'ProjectName'
     end
 
@@ -250,15 +248,15 @@ RSpec.describe Webui::ProjectController, vcr: true do
     end
 
     it 'with comments' do
-      apache_project.comments << build(:comment_project, user: user_moi)
+      apache_project.comments << build(:comment_project, user: user)
       get :show, project: apache_project
       expect(assigns(:comments)).to match_array(apache_project.comments)
     end
 
     it 'with bugowners' do
-      create(:relationship_project_user, role: Role.find_by_title('bugowner'), project: apache_project, user: user_moi)
+      create(:relationship_project_user, role: Role.find_by_title('bugowner'), project: apache_project, user: user)
       get :show, project: apache_project
-      expect(assigns(:bugowners_mail)).to match_array([user_moi.email])
+      expect(assigns(:bugowners_mail)).to match_array([user.email])
     end
 
     context 'without bugowners' do
@@ -273,7 +271,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
   describe 'GET #new_package_branch' do
     it 'branches the package' do
-      login user_moi
+      login user
       @remote_projects_created = create_list(:remote_project, 3)
       get :new_package_branch, project: apache_project
       expect(assigns(:remote_projects)).to match_array(@remote_projects_created.map {|r| [r.id, r.name, r.title]})
@@ -309,7 +307,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
   describe 'GET #linking_projects' do
     before do
-      login user_moi
+      login user
       apache2_project
       another_project.projects_linking_to << apache_project
       xhr :get, :linking_projects, project: apache_project
@@ -322,7 +320,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   describe 'GET #add_repository_from_default_list' do
     context 'with some distributions' do
       it 'shows repositories from default list' do
-        login user_moi
+        login user
         create_list(:distribution, 4, vendor: 'vendor1')
         create_list(:distribution, 2, vendor: 'vendor2')
         get :add_repository_from_default_list, project: apache_project
@@ -332,7 +330,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
     context 'without any distribution and being normal user' do
       before do
-        login user_moi
+        login user
         get :add_repository_from_default_list, project: apache_project
       end
 
@@ -354,16 +352,16 @@ RSpec.describe Webui::ProjectController, vcr: true do
 
   describe 'GET #add_person' do
     it 'assigns the local roles' do
-      login user_moi
-      get :add_person, project: user_moi.home_project
+      login user
+      get :add_person, project: user.home_project
       expect(assigns(:roles)).to match_array(Role.local_roles)
     end
   end
 
   describe 'GET #add_group' do
     it 'assigns the local roles' do
-      login user_moi
-      get :add_group, project: user_moi.home_project
+      login user
+      get :add_group, project: user.home_project
       expect(assigns(:roles)).to match_array(Role.local_roles)
     end
   end
