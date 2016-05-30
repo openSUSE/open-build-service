@@ -365,23 +365,10 @@ class User < ActiveRecord::Base
     return user
   end
 
-  def self.find_by_email(email)
-    return where(:email => email).first
-  end
-
   def self.realname_for_login(login)
     User.find_by_login!(login).realname
   rescue NotFoundError
     ""
-  end
-
-  def self.fetch_field(person, field)
-    p = User.where(login: person).pluck(field)
-    p[0] || ''
-  end
-
-  def self.email_for_login(person)
-    fetch_field(person, :email)
   end
 
   public
