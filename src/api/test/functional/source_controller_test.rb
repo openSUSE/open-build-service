@@ -1550,6 +1550,18 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(:tag => 'revisionlist')
   end
 
+  def test_get_project_meta_file
+    get '/source/kde4/_project/_history'
+    assert_response 401
+    prepare_request_with_user 'fredlibs', 'buildservice'
+    get '/source/kde4/_project/_meta?meta=1'
+    assert_response :success
+    assert_xml_tag(:tag => 'project')
+    get '/source/kde4/_project/_meta?meta=1&rev=latest'
+    assert_response :success
+    assert_xml_tag(:tag => 'project')
+  end
+
   def test_invalid_package_command
     prepare_request_with_user 'fredlibs', 'geröllheimer'
     post '/source/kde4/kdelibs'

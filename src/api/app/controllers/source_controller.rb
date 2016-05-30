@@ -739,7 +739,7 @@ class SourceController < ApplicationController
   def get_file
 
     project_name = params[:project]
-    package_name = params[:package]
+    package_name = params[:package] || "_project"
     file = params[:filename]
 
     if params.has_key?(:deleted)
