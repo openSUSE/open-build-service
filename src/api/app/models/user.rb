@@ -268,9 +268,8 @@ class User < ActiveRecord::Base
       logger.debug( "No user found in database, creating" )
       logger.debug( "Email: #{ldap_info[0]}" )
       logger.debug( "Name : #{ldap_info[1]}" )
-      # Generate and store a fake pw in the OBS DB that no-one knows
-      chars = ["A".."Z", "a".."z", "0".."9"].collect { |r| r.to_a }.join
-      password = (1..24).collect { chars[rand(chars.size)] }.pack('a'*24)
+      # Generate and store a 24 char fake pw in the OBS DB that no-one knows
+      password = SecureRandom.base64
       user = User.create( :login => login,
                           :password => password,
                           :password_confirmation => password,
