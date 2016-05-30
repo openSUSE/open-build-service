@@ -606,20 +606,17 @@ class User < ActiveRecord::Base
   end
 
   def is_in_group?(group)
-    if group.nil?
-      return false
-    end
-    if group.kind_of? String
+    case group
+    when String
       group = Group.find_by_title(group)
-      return false unless group
-    end
-    if group.kind_of? Fixnum
+    when Fixnum
       group = Group.find(group)
-    end
-    unless group.kind_of? Group
+    when Group, nil
+    else
       raise ArgumentError, "illegal parameter type to User#is_in_group?: #{group.class}"
     end
-    lookup_strategy.is_in_group?(self, group)
+
+    group && lookup_strategy.is_in_group?(self, group)
   end
 
   # This method returns true if the user is granted the permission with one
