@@ -1033,7 +1033,6 @@ class User < ActiveRecord::Base
     address.format
   end
 
-
   def update_notifications(params)
     User.update_notifications(params, self)
   end
