@@ -163,6 +163,207 @@ class User < ActiveRecord::Base
     default_password_hash_types
   end
 
+  # This method allows to execute a block while deactivating timestamp
+  # updating.
+  def self.execute_without_timestamps
+    old_state = ActiveRecord::Base.record_timestamps
+    ActiveRecord::Base.record_timestamps = false
+
+    yield
+
+    ActiveRecord::Base.record_timestamps = old_state
+  end
+
+  # This method returns an array which contains all valid hash types.
+  def self.default_password_hash_types
+    %w(md5)
+  end
+
+  def self.update_notifications(params, user = nil)
+    Event::Base.notification_events.each do |event_type|
+      values = params[event_type.to_s] || {}
+      event_type.receiver_roles.each do |role|
+        EventSubscription.update_subscription(event_type.to_s, role, user, !values[role].nil?)
+      end
+    end
+  end
+
+  # Returns the default state of new User objects.
+  def self.default_state
+    STATES['unconfirmed']
+  end
+
+  # Returns true when users with the given state may log in. False otherwise.
+  # The given parameter must be an integer.
+  def self.state_allows_login?(state)
+    [ STATES['confirmed'], STATES['retrieved_password'] ].include?(state)
+  end
+
+  # This static method tries to find a user with the given login and password
+  # in the database. Returns the user or nil if he could not be found
+  def self.find_with_credentials(login, password)
+    # Find user
+    user = find_by_login(login)
+    ldap_info = nil
+
+    if CONFIG['ldap_mode'] == :on
+      begin
+        require 'ldap'
+        logger.debug( "Using LDAP to find #{login}" )
+        ldap_info = UserLdapStrategy.find_with_ldap( login, password )
+      rescue LoadError
+        logger.warn "ldap_mode selected but 'ruby-ldap' module not installed."
+      rescue
+        logger.debug "#{login} not found in LDAP."
+      end
+    end
+
+    if ldap_info
+      # We've found an ldap authenticated user - find or create an OBS userDB entry.
+      if user
+        # stuff without affect to update_at
+        user.last_logged_in_at = Time.now
+        user.login_failure_count = 0
+        self.execute_without_timestamps { user.save! }
+
+        # Check for ldap updates
+        if user.email != ldap_info[0] || user.realname != ldap_info[1]
+          user.email = ldap_info[0]
+          user.realname = ldap_info[1]
+          user.save
+        end
+        return user
+      end
+
+      # still in LDAP mode, user authentificated, but not existing in OBS yet
+      if ::Configuration.registration == "deny"
+        logger.debug( "No user found in database, creation disabled" )
+        return nil
+      end
+      logger.debug( "No user found in database, creating" )
+      logger.debug( "Email: #{ldap_info[0]}" )
+      logger.debug( "Name : #{ldap_info[1]}" )
+      # Generate and store a fake pw in the OBS DB that no-one knows
+      chars = ["A".."Z", "a".."z", "0".."9"].collect { |r| r.to_a }.join
+      password = (1..24).collect { chars[rand(chars.size)] }.pack('a'*24)
+      user = User.create( :login => login,
+                          :password => password,
+                          :password_confirmation => password,
+                          :email => ldap_info[0],
+                          :last_logged_in_at => Time.now)
+      unless user.errors.empty?
+        errstr = String.new
+        logger.debug("Creating User failed with: ")
+        user.errors.full_messages.each do |msg|
+          errstr = errstr+msg
+          logger.debug(msg)
+        end
+        logger.info("Cannot create ldap userid: '#{login}' on OBS<br>#{errstr}")
+        return nil
+      end
+      user.realname = ldap_info[1]
+      user.state = User::STATES['confirmed']
+      user.state = User::STATES['unconfirmed'] if ::Configuration.registration == "confirmation"
+      user.adminnote = "User created via LDAP"
+      logger.debug( "saving new user..." )
+      user.save
+    end
+
+    # If the user could be found and the passwords equal then return the user
+    if user && user.password_equals?(password)
+      user.last_logged_in_at = Time.now
+      user.login_failure_count = 0
+      self.execute_without_timestamps { user.save! }
+
+      return user
+    end
+
+    # Otherwise increase the login count - if the user could be found - and return nil
+    if user
+      user.login_failure_count = user.login_failure_count + 1
+      self.execute_without_timestamps { user.save! }
+    end
+
+    return nil
+  end
+
+  def self.current
+    Thread.current[:user]
+  end
+
+  def self.current=(user)
+    Thread.current[:user] = user
+  end
+
+  def self.nobody_login
+    '_nobody_'
+  end
+
+  def self.authenticate(user_login, password)
+    user = User.find_with_credentials(user_login, password)
+
+    # User account is not confirmed yet
+    return if user.try(:state) == STATES['unconfirmed']
+
+    Rails.logger.debug "Authentificated user '#{user.try(:login)}'"
+
+    User.current = user
+  end
+
+  def self.get_default_admin
+    admin = CONFIG['default_admin'] || 'Admin'
+    user = find_by_login(admin)
+    raise NotFoundError.new("Admin not found, user #{admin} has not admin permissions") unless user.is_admin?
+    return user
+  end
+
+  def self.find_nobody!
+    Thread.current[:nobody_user] ||= User.create_with(email: "nobody@localhost",
+                                                      realname: "Anonymous User",
+                                                      state: STATES['locked'],
+                                                      password: "123456",
+                                                      password_confirmation: "123456").find_or_create_by(login: nobody_login)
+    Thread.current[:nobody_user]
+  end
+
+  def self.find_by_login!(login)
+    user = find_by_login(login)
+    if user.nil? or user.state == STATES['deleted']
+      raise NotFoundError.new("Couldn't find User with login = #{login}")
+    end
+    return user
+  end
+
+  def self.get_by_login(login)
+    user = find_by_login!(login)
+    # FIXME: Move permission checks to controller level
+    unless User.current.is_admin? or user == User.current
+      raise NoPermission.new "User #{login} can not be accessed by #{User.current.login}"
+    end
+    return user
+  end
+
+  def self.find_by_email(email)
+    return where(:email => email).first
+  end
+
+  def self.realname_for_login(login)
+    User.find_by_login(login).realname
+  end
+
+  def self.fetch_field(person, field)
+    p = User.where(login: person).pluck(field)
+    p[0] || ''
+  end
+
+  def self.email_for_login(person)
+    fetch_field(person, :email)
+  end
+
+  def self.realname_for_login(person)
+    fetch_field(person, :realname)
+  end
+
   # Overriding this method to do some more validation: Password equals
   # password_confirmation, state an password hash type being in the range
   # of allowed values.
@@ -265,110 +466,11 @@ class User < ActiveRecord::Base
     return true
   end
 
-  # Returns the default state of new User objects.
-  def self.default_state
-    STATES['unconfirmed']
-  end
-
-  # Returns true when users with the given state may log in. False otherwise.
-  # The given parameter must be an integer.
-  def self.state_allows_login?(state)
-    [ STATES['confirmed'], STATES['retrieved_password'] ].include?(state)
-  end
-
   # Overwrite the state setting so it backs up the initial state from
   # the database.
   def state=(value)
     @old_state = state if @old_state.nil?
     write_attribute(:state, value)
-  end
-
-  # This static method tries to find a user with the given login and password
-  # in the database. Returns the user or nil if he could not be found
-  def self.find_with_credentials(login, password)
-    # Find user
-    user = find_by_login(login)
-    ldap_info = nil
-
-    if CONFIG['ldap_mode'] == :on
-      begin
-        require 'ldap'
-        logger.debug( "Using LDAP to find #{login}" )
-        ldap_info = UserLdapStrategy.find_with_ldap( login, password )
-      rescue LoadError
-        logger.warn "ldap_mode selected but 'ruby-ldap' module not installed."
-      rescue
-        logger.debug "#{login} not found in LDAP."
-      end
-    end
-
-    if ldap_info
-      # We've found an ldap authenticated user - find or create an OBS userDB entry.
-      if user
-        # stuff without affect to update_at
-        user.last_logged_in_at = Time.now
-        user.login_failure_count = 0
-        self.execute_without_timestamps { user.save! }
-
-        # Check for ldap updates
-        if user.email != ldap_info[0] || user.realname != ldap_info[1]
-          user.email = ldap_info[0]
-          user.realname = ldap_info[1]
-          user.save
-        end
-        return user
-      end
-
-      # still in LDAP mode, user authentificated, but not existing in OBS yet
-      if ::Configuration.registration == "deny"
-        logger.debug( "No user found in database, creation disabled" )
-        return nil
-      end
-      logger.debug( "No user found in database, creating" )
-      logger.debug( "Email: #{ldap_info[0]}" )
-      logger.debug( "Name : #{ldap_info[1]}" )
-      # Generate and store a fake pw in the OBS DB that no-one knows
-      chars = ["A".."Z", "a".."z", "0".."9"].collect { |r| r.to_a }.join
-      password = (1..24).collect { chars[rand(chars.size)] }.pack('a'*24)
-      user = User.create( :login => login,
-                          :password => password,
-                          :password_confirmation => password,
-                          :email => ldap_info[0],
-                          :last_logged_in_at => Time.now)
-      unless user.errors.empty?
-        errstr = String.new
-        logger.debug("Creating User failed with: ")
-        user.errors.full_messages.each do |msg|
-          errstr = errstr+msg
-          logger.debug(msg)
-        end
-        logger.info("Cannot create ldap userid: '#{login}' on OBS<br>#{errstr}")
-        return nil
-      end
-      user.realname = ldap_info[1]
-      user.state = User::STATES['confirmed']
-      user.state = User::STATES['unconfirmed'] if ::Configuration.registration == "confirmation"
-      user.adminnote = "User created via LDAP"
-      logger.debug( "saving new user..." )
-      user.save
-    end
-
-    # If the user could be found and the passwords equal then return the user
-    if user && user.password_equals?(password)
-      user.last_logged_in_at = Time.now
-      user.login_failure_count = 0
-      self.execute_without_timestamps { user.save! }
-
-      return user
-    end
-
-    # Otherwise increase the login count - if the user could be found - and return nil
-    if user
-      user.login_failure_count = user.login_failure_count + 1
-      self.execute_without_timestamps { user.save! }
-    end
-
-    return nil
   end
 
   # This method checks whether the given value equals the password when
@@ -413,72 +515,6 @@ class User < ActiveRecord::Base
       desired_state.present?
     else
       false
-    end
-  end
-
-  class << self
-    def current
-      Thread.current[:user]
-    end
-
-    def current=(user)
-      Thread.current[:user] = user
-    end
-
-    def nobody_login
-      '_nobody_'
-    end
-
-    def authenticate(user_login, password)
-      user = User.find_with_credentials(user_login, password)
-
-      # User account is not confirmed yet
-      return if user.try(:state) == STATES['unconfirmed']
-
-      Rails.logger.debug "Authentificated user '#{user.try(:login)}'"
-
-      User.current = user
-    end
-
-    def get_default_admin
-      admin = CONFIG['default_admin'] || 'Admin'
-      user = find_by_login(admin)
-      raise NotFoundError.new("Admin not found, user #{admin} has not admin permissions") unless user.is_admin?
-      return user
-    end
-
-    def find_nobody!
-      Thread.current[:nobody_user] ||= User.create_with(email: "nobody@localhost",
-                                                        realname: "Anonymous User",
-                                                        state: STATES['locked'],
-                                                        password: "123456",
-                                                        password_confirmation: "123456").find_or_create_by(login: nobody_login)
-      Thread.current[:nobody_user]
-    end
-
-    def find_by_login!(login)
-      user = find_by_login(login)
-      if user.nil? or user.state == STATES['deleted']
-        raise NotFoundError.new("Couldn't find User with login = #{login}")
-      end
-      return user
-    end
-
-    def get_by_login(login)
-      user = find_by_login!(login)
-      # FIXME: Move permission checks to controller level
-      unless User.current.is_admin? or user == User.current
-        raise NoPermission.new "User #{login} can not be accessed by #{User.current.login}"
-      end
-      return user
-    end
-
-    def find_by_email(email)
-      return where(:email => email).first
-    end
-
-    def realname_for_login(login)
-      User.find_by_login(login).realname
     end
   end
 
@@ -948,19 +984,6 @@ class User < ActiveRecord::Base
     end
   end
 
-  def self.fetch_field(person, field)
-    p = User.where(login: person).pluck(field)
-    p[0] || ''
-  end
-
-  def self.email_for_login(person)
-    fetch_field(person, :email)
-  end
-
-  def self.realname_for_login(person)
-    fetch_field(person, :realname)
-  end
-
   def watched_project_names
     Rails.cache.fetch(['watched_project_names', self]) do
       Project.where(id: watched_projects.pluck(:project_id)).pluck(:name).sort
@@ -1016,30 +1039,6 @@ class User < ActiveRecord::Base
     address.format
   end
 
-  # This method allows to execute a block while deactivating timestamp
-  # updating.
-  def self.execute_without_timestamps
-    old_state = ActiveRecord::Base.record_timestamps
-    ActiveRecord::Base.record_timestamps = false
-
-    yield
-
-    ActiveRecord::Base.record_timestamps = old_state
-  end
-
-  # This method returns an array which contains all valid hash types.
-  def self.default_password_hash_types
-    %w(md5)
-  end
-
-  def self.update_notifications(params, user = nil)
-    Event::Base.notification_events.each do |event_type|
-      values = params[event_type.to_s] || {}
-      event_type.receiver_roles.each do |role|
-        EventSubscription.update_subscription(event_type.to_s, role, user, !values[role].nil?)
-      end
-    end
-  end
 
   def update_notifications(params)
     User.update_notifications(params, self)
