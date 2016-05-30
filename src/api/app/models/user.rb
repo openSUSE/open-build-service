@@ -370,7 +370,9 @@ class User < ActiveRecord::Base
   end
 
   def self.realname_for_login(login)
-    User.find_by_login(login).realname
+    User.find_by_login!(login).realname
+  rescue NotFoundError
+    ""
   end
 
   def self.fetch_field(person, field)
@@ -380,10 +382,6 @@ class User < ActiveRecord::Base
 
   def self.email_for_login(person)
     fetch_field(person, :email)
-  end
-
-  def self.realname_for_login(person)
-    fetch_field(person, :realname)
   end
 
   public
