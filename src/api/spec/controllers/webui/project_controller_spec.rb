@@ -11,6 +11,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
   let(:home_moi_project) { create(:project, name: 'home:moi') }
   let(:maintenance_project) { create(:maintenance_project, name: 'maintenance_project') }
   let(:project_with_package) { create(:project_with_package, name: 'NewProject', package_name: 'PackageExample') }
+  let(:repo_for_user_home) { create(:repository, project: user.home_project) }
 
   describe 'CSRF protection' do
     before do
@@ -391,6 +392,106 @@ RSpec.describe Webui::ProjectController, vcr: true do
         get :save_repository, project: user.home_project, repository: "_invalid"
       }.to_not change(Repository, :count)
       expect(flash[:error]).to eq("Couldn't add repository: 'Name must not start with '_' or contain any of these characters ':/'")
+    end
+  end
+
+  describe 'GET #buildresult' do
+    it 'assigns the buildresult' do
+      summary = Xmlhash::XMLHash.new({'statuscount' => {'code' => 'succeeded', 'count' => 1} })
+      build_result  = { 'result' => Xmlhash::XMLHash.new({'repository' => 'openSUSE', 'arch' => 'x86_64', 'summary' => summary }) }
+      Buildresult.stubs(:find_hashed).returns(Xmlhash::XMLHash.new(build_result))
+      xhr :get, :buildresult, project: project_with_package
+      expect(assigns(:buildresult)).to match_array([["openSUSE", [["x86_64", [[:succeeded, 1]]]]]])
+    end
+  end
+
+  describe 'GET #delete_dialog' do
+    it 'assigns only linking_projects' do
+      apache2_project
+      another_project.projects_linking_to << apache_project
+      xhr :get, :delete_dialog, project: apache_project
+      expect(assigns(:linking_projects)).to match_array([another_project.name])
+    end
+  end
+
+  describe 'DELETE #destroy' do
+    before do
+      login user
+    end
+
+    context 'with check_weak_dependencies enabled' do
+      before do
+        Project.any_instance.stubs(:check_weak_dependencies?).returns(true)
+      end
+
+      context 'having a parent project' do
+        before do
+          subproject = create(:project, name: "#{user.home_project}:subproject")
+          delete :destroy, project: subproject
+        end
+
+        it { expect(Project.count).to eq(1) }
+        it { is_expected.to redirect_to(project_show_path(user.home_project)) }
+        it { expect(flash[:notice]).to eq("Project was successfully removed.") }
+      end
+
+      context 'not having a parent project' do
+        before do
+          delete :destroy, project: user.home_project
+        end
+
+        it { expect(Project.count).to eq(0) }
+        it { is_expected.to redirect_to(action: :index) }
+        it { expect(flash[:notice]).to eq("Project was successfully removed.") }
+      end
+    end
+
+    context 'with check_weak_dependencies disabled' do
+      before do
+        Project.any_instance.stubs(:check_weak_dependencies?).returns(false)
+        delete :destroy, project: user.home_project
+      end
+
+      it { expect(Project.count).to eq(1) }
+      it { is_expected.to redirect_to(project_show_path(user.home_project)) }
+      it { expect(flash[:notice]).to start_with("Project can't be removed:") }
+    end
+  end
+
+  describe 'POST #update_target' do
+    before do
+      login user
+    end
+
+    context 'updating non existent repository' do
+      it 'will raise a NoMethodError' do
+        expect do
+          post :update_target, project: user.home_project, repo: 'standard'
+        end.to raise_error(NoMethodError)
+      end
+    end
+
+    context 'updating the repository without architectures' do
+      before do
+        post :update_target, project: user.home_project, repo: repo_for_user_home.name
+      end
+
+      it { expect(repo_for_user_home.architectures.pluck(:name)).to be_empty }
+      it { expect(assigns(:repository_arch_hash).to_a).to match_array([["armv7l", false], ['i586', false], ['x86_64', false]])}
+      it { is_expected.to redirect_to(action: :repositories) }
+      it { expect(flash[:notice]).to eq("Successfully updated repository") }
+    end
+
+    context 'updating the repository with architectures' do
+      before do
+        post :update_target, project: user.home_project, repo: repo_for_user_home.name, arch: {'i586' => true, 'x86_64' => true}
+      end
+
+      it { expect(repo_for_user_home.architectures.pluck(:name)).to match_array(['i586', 'x86_64']) }
+      it { expect(Architecture.available.pluck(:name)).to match_array(["armv7l", "i586", "x86_64"]) }
+      it { expect(assigns(:repository_arch_hash).to_a).to match_array([["armv7l", false], ['i586', true], ['x86_64', true]])}
+      it { is_expected.to redirect_to(action: :repositories) }
+      it { expect(flash[:notice]).to eq("Successfully updated repository") }
     end
   end
 end
