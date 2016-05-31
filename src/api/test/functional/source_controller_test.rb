@@ -3536,8 +3536,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
                   ['disable', {:repository=> '10.2', :arch=> 'x86_64', :explicit=> '1' }],
                   ['enable', {:arch=> 'i586' }],
                   ['enable', {:arch=> 'x86_64' }],
-                  ['enable', {}]],
-                 projects(:home_Iggy).expand_flags['build'])
+                  ['enable', {:explicit=> "1" }]],
+                 projects(:home_Iggy).reload.expand_flags['build'])
   end
 
   def test_package_remove_flag
