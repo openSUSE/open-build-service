@@ -517,7 +517,8 @@ class SourceController < ApplicationController
         # FIXME3.0: don't modify send data
         project.relationships.build(user: User.current, role: Role.find_by_title!('maintainer'))
       end
-      project.store
+      opts = { :comment => params[:comment] }
+      project.store opts
     end
     render_ok
   end
