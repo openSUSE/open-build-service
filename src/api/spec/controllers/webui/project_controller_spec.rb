@@ -221,42 +221,60 @@ RSpec.describe Webui::ProjectController, vcr: true do
       Project.any_instance.stubs(:number_of_build_problems).returns(0)
     end
 
-    it 'without nextstatus param' do
-      get :show, project: apache_project
-      expect(response).to have_http_status(:ok)
+    context 'without nextstatus param' do
+      before do
+        get :show, project: apache_project
+      end
+
+      it { expect(response).to have_http_status(:ok) }
     end
 
-    it 'with nextstatus param' do
-      get :show, { project: apache_project, nextstatus: 500 }
-      expect(response).to have_http_status(:internal_server_error)
+    context 'with nextstatus param' do
+      before do
+        get :show, { project: apache_project, nextstatus: 500 }
+      end
+
+      it { expect(response).to have_http_status(:internal_server_error) }
     end
 
-    it 'without patchinfo' do
-      get :show, project: apache_project
-      expect(assigns(:has_patchinfo)).to be_falsey
+    context 'without patchinfo' do
+      before do
+        get :show, project: apache_project
+      end
+
+      it { expect(assigns(:has_patchinfo)).to be_falsey }
     end
 
-    it 'with patchinfo' do
-      login admin_user
-      # Avoid fetching from backend directly
-      Directory.stubs(:hashed).returns(Xmlhash::XMLHash.new('entry' => {'name' => '_patchinfo'}))
-      # Avoid writing to the backend
-      Package.any_instance.stubs(:sources_changed).returns(nil)
-      Patchinfo.new.create_patchinfo(apache_project.name, nil, comment: 'Fake comment', force: false)
-      get :show, project: apache_project
-      expect(assigns(:has_patchinfo)).to be_truthy
+    context 'with patchinfo' do
+      before do
+        login admin_user
+        # Avoid fetching from backend directly
+        Directory.stubs(:hashed).returns(Xmlhash::XMLHash.new('entry' => {'name' => '_patchinfo'}))
+        # Avoid writing to the backend
+        Package.any_instance.stubs(:sources_changed).returns(nil)
+        Patchinfo.new.create_patchinfo(apache_project.name, nil, comment: 'Fake comment', force: false)
+        get :show, project: apache_project
+      end
+
+      it { expect(assigns(:has_patchinfo)).to be_truthy }
     end
 
-    it 'with comments' do
-      apache_project.comments << build(:comment_project, user: user)
-      get :show, project: apache_project
-      expect(assigns(:comments)).to match_array(apache_project.comments)
+    context 'with comments' do
+      before do
+        apache_project.comments << build(:comment_project, user: user)
+        get :show, project: apache_project
+      end
+
+      it { expect(assigns(:comments)).to match_array(apache_project.comments) }
     end
 
-    it 'with bugowners' do
-      create(:relationship_project_user, role: Role.find_by_title('bugowner'), project: apache_project, user: user)
-      get :show, project: apache_project
-      expect(assigns(:bugowners_mail)).to match_array([user.email])
+    context 'with bugowners' do
+      before do
+        create(:relationship_project_user, role: Role.find_by_title('bugowner'), project: apache_project, user: user)
+        get :show, project: apache_project
+      end
+
+      it { expect(assigns(:bugowners_mail)).to match_array([user.email]) }
     end
 
     context 'without bugowners' do
