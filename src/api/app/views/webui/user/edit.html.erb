@@ -14,7 +14,7 @@
     </p>
     <p>
      <%= label_tag :email, 'e-Mail:' %><br/>
-     <%= text_field_tag :email, @displayed_user.email %>
+     <%= text_field_tag :email, @displayed_user.email, required: true, email: true %>
     </p>
     <p>
     <%= label_tag :globalrole, 'Admin:' %>

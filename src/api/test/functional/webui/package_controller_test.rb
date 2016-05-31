@@ -414,16 +414,14 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     visit(package_show_path(project: "home:Iggy", package: "TestPack"))
     click_link("Submit package")
     click_button("Ok")
-    page.must_have_text "Please provide a target for the submit request"
     assert_equal package_show_path(project: "home:Iggy", package: "TestPack"),
-                 page.current_path
+                 page.current_path, "Client-side validation should have prevented package submission."
 
     click_link("Submit package")
     fill_in "To target project", with: "nonexistant:project"
     click_button("Ok")
-    page.must_have_text "Unable to submit (missing target): nonexistant:project"
     assert_equal package_show_path(project: "home:Iggy", package: "TestPack"),
-                 page.current_path
+                 page.current_path, "Client-side validation should have prevented package submission."
 
     click_link("Submit package")
     fill_in "To target project", with: "home:Iggy"
@@ -544,7 +542,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     use_js
     login_king to: package_live_build_log_path(package: 'pack2.linked', project: 'BaseDistro2.0', repository: 'BaseDistro2_repo', arch: 'i586')
 
-    page.all(:link, 'Trigger Rebuild')[0].click
+    page.first(:link, 'Trigger Rebuild').click
     find('#flash-messages').must_have_text('Triggered rebuild for BaseDistro2.0/pack2.linked successfully.')
   end
 end

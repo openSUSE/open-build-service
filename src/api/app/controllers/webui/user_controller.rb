@@ -106,9 +106,14 @@ class Webui::UserController < Webui::WebuiController
       @displayed_user.state = User::STATES[params[:state]] if params[:state]
       @displayed_user.update_globalroles([params[:globalrole]]) if params[:globalrole]
     end
-    @displayed_user.save!
 
-    flash[:success] = "User data for user '#{@displayed_user.login}' successfully updated."
+    begin
+      @displayed_user.save!
+      flash[:success] = "User data for user '#{@displayed_user.login}' successfully updated."
+    rescue ActiveRecord::RecordInvalid => e
+      flash[:error] = "Couldn't update user: #{e.message}."
+    end
+
     redirect_back_or_to :action => 'show', user: @displayed_user
   end
 
