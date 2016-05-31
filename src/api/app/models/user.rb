@@ -89,9 +89,7 @@ class User < ActiveRecord::Base
   # We want to validate the format of the password and only allow alphanumeric
   # and some punctiation characters.
   # The format must only be checked if the password has been set and the record
-  # has not been stored yet and it has actually been set at all. Make sure you
-  # include this condition in your :if parameter to validates_format_of when
-  # overriding the password format validation.
+  # has not been stored yet.
   validates_format_of :password,
                       :with => %r{\A[\w\.\- !?(){}|~*]+\z},
                       :message => 'must not contain invalid characters.',
@@ -99,9 +97,7 @@ class User < ActiveRecord::Base
 
   # We want the password to have between 6 and 64 characters.
   # The length must only be checked if the password has been set and the record
-  # has not been stored yet and it has actually been set at all. Make sure you
-  # include this condition in your :if parameter to validates_length_of when
-  # overriding the length format validation.
+  # has not been stored yet.
   validates_length_of :password,
                       :within => 6..64,
                       :too_long => 'must have between 6 and 64 characters.',
