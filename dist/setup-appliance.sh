@@ -428,7 +428,7 @@ function check_required_backend_services {
 function check_recommended_backend_services {
 
   [[ $SETUP_ONLY == 1 ]] && return 
-  RECOMMENDED_SERVICES="obsdodup obsdeltastore obssigner"
+  RECOMMENDED_SERVICES="obsdodup obsdeltastore obssigner obssignd"
 
   for srv in $RECOMMENDED_SERVICES;do
     STATE=$(chkconfig $srv|awk '{print $2}')
@@ -453,7 +453,7 @@ function check_optional_backend_services {
   fi
 
   [[ $SETUP_ONLY == 1 ]] && return 
-  OPTIONAL_SERVICES="obssignd obswarden obsapisetup obsstoragesetup obsworker obsservice"
+  OPTIONAL_SERVICES="obswarden obsapisetup obsstoragesetup obsworker obsservice"
 
   for srv in $OPTIONAL_SERVICES;do
     STATE=$(chkconfig $srv|awk '{print $2}')
