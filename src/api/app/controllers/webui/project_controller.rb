@@ -325,8 +325,7 @@ class Webui::ProjectController < Webui::WebuiController
     required_parameters :repository
 
     # Get cycles of the repository build dependency information
-    #
-    @repocycles = Hash.new
+    @repocycles = {}
 
     @repository = @project.repositories.where(name: params[:repository]).first
 

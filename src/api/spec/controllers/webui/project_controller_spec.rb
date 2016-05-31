@@ -506,4 +506,27 @@ RSpec.describe Webui::ProjectController, vcr: true do
     it { expect(assigns(:useforbuild).to_s).to eq(apache_project.get_flags('useforbuild').to_s) }
     it { expect(assigns(:architectures)).to eq(apache_project.architectures.uniq) }
   end
+
+  describe 'GET #repository_state' do
+    context 'with a valid repository param' do
+      before do
+        get :repository_state, project: user.home_project, repository: repo_for_user_home.name
+      end
+
+      it { expect(assigns(:repocycles)).to be_a(Hash) }
+      it { expect(assigns(:repository)).to eq(repo_for_user_home) }
+      it { expect(assigns(:archs)).to match_array(repo_for_user_home.architectures.pluck(:name)) }
+    end
+
+    context 'with a non valid repository param' do
+      before do
+        request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+        get :repository_state, project: user.home_project, repository: 'non_valid_repo_name'
+      end
+
+      it { expect(assigns(:repocycles)).to be_a(Hash) }
+      it { expect(assigns(:repository)).to be_falsey }
+      it { is_expected.to redirect_to(:back) }
+    end
+  end
 end
