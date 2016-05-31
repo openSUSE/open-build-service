@@ -185,7 +185,7 @@ class Webui::PackageBranchTest < Webui::IntegrationTest
       :expect => :invalid_target)
   end
 
-  def test_branch_without_source_access
+  def test_branch_without_source_access # spec/features/webui/projects_spec.rb
     login_Iggy to: project_show_path(:project => @project)
 
     create_package_branch(
