@@ -330,5 +330,18 @@ RSpec.feature "Projects", :type => :feature, :js => true do
       expect(page).to have_text("Failed to branch: Package does not exist.")
       expect(page.current_path).to eq("/project/new_package_branch/home:Jane")
     end
+
+    scenario "a package with disabled access flag" do
+      create(:access_flag, status: 'disable', project: other_user.home_project)
+
+      fill_in("Name of original project:", with: other_user.home_project_name)
+      fill_in("Name of package in original project:", with: package_of_another_project.name)
+      fill_in("Name of branched package in target project:", with: "some_different_name")
+      # This needs global write through
+      click_button("Create Branch")
+
+      expect(page).to have_text("Failed to branch: Package does not exist.")
+      expect(page.current_path).to eq("/project/new_package_branch/home:Jane")
+    end
   end
 end
