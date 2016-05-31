@@ -140,13 +140,12 @@ module FlagHelper
   end
 
   def find_flag_state(flag_type, repo, arch)
-    flags = self.flags.of_type(flag_type).select { |flag| flag.is_relevant_for?(repo, arch) }
-    flag = flags.sort { |a, b| a.specifics <=> b.specifics }.last
-    if flag
-      state = flag.status
-    else
-      state = :default
-    end
+    flag = self.flags.of_type(flag_type).
+      select { |f| f.is_relevant_for?(repo, arch) }.
+      sort_by(&:specifics).
+      last
+
+    state = flag.try(:status) || :default
 
     if state == :default
       if self.respond_to? 'project'
