@@ -22,6 +22,13 @@ function check_service {
   [[ $SETUP_ONLY == 1 ]] && return
 
   echo "Checking service $srv ..."
+
+  logline "Enabling $srv"
+  execute_silently systemctl enable $srv\.service
+  if [[ $? -gt 0 ]];then
+    logline "WARNING: Enabling $srv daemon failed."
+  fi
+
   STATUS=`systemctl is-active $srv\.service 2>/dev/null`
   if [[ "$STATUS" == "inactive" ]];then
     echo "$srv daemon not started. Trying to start"
@@ -35,14 +42,6 @@ function check_service {
     fi
   fi
 
-  ENABLED=`systemctl is-enabled $srv\.service 2>/dev/null`
-  if [[ "$ENABLED" == "disabled" ]];then
-    logline "Enabling $srv"
-    execute_silently systemctl enable $srv\.service
-    if [[ $? -gt 0 ]];then
-      logline "WARNING: Enabling $srv daemon failed."
-    fi
-  fi
 }
 ###############################################################################
 function check_server_cert {
@@ -263,6 +262,11 @@ function prepare_database_setup {
     fi
   done
 
+  if [ -n "$RUN_INITIAL_SETUP" ]; then
+    if [[ ! "$SETUP_ONLY" ]];then
+      `systemctl restart obsscheduler.service`
+    fi
+  fi
 }
 
 ###############################################################################
@@ -331,7 +335,7 @@ function import_ca_cert {
 }
 ###############################################################################
 function relink_server_cert {
-  
+
   if [[ $DETECTED_CERT_CHANGE == 1 ]];then
     CERT_LINK_FILE=$backenddir/certs/server.crt
     # check if CERT_LINK_FILE not exists or is symbolic link because we don't
@@ -435,13 +439,19 @@ function check_recommended_backend_services {
 ###############################################################################
 function check_optional_backend_services {
 
+  DEFAULT_ANSWER="n"
+
+  if [[ $ENABLE_OPTIONAL_SERVICES ]];then
+    DEFAULT_ANSWER="y"
+  fi
+
   [[ $SETUP_ONLY == 1 ]] && return 
-  OPTIONAL_SERVICES="obswarden obsapisetup obsstoragesetup obsworker"
+  OPTIONAL_SERVICES="obssignd obswarden obsapisetup obsstoragesetup obsworker obsservice"
 
   for srv in $OPTIONAL_SERVICES;do
     STATE=$(chkconfig $srv|awk '{print $2}')
     if [[ $STATE != on ]];then
-      ask "Service $srv is not enabled. Would you like to enable it? [yN]" "n"
+      ask "Service $srv is not enabled. Would you like to enable it? [yN]" $DEFAULT_ANSWER
       case $rv in
         y|yes|Y|YES)
           systemctl enable $srv
@@ -555,6 +565,8 @@ EOF
 
 export LC_ALL=C
 
+ENABLE_OPTIONAL_SERVICES=0
+
 # package or appliance defaults
 if [ -e /etc/sysconfig/obs-server ]; then
   source /etc/sysconfig/obs-server
@@ -579,6 +591,7 @@ if [[ ! $BOOTSTRAP_TEST_MODE == 1 && $0 != "-bash" ]];then
     case $1 in
       --non-interactive) NON_INTERACTIVE=1;;
       --setup-only) SETUP_ONLY=1;;
+      --enable-optional-services) ENABLE_OPTIONAL_SERVICES=1;;
     esac
     shift
   done
