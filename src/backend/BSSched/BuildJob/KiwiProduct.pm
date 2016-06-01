@@ -455,7 +455,6 @@ sub build {
   }
 
   my $localbuildarch = $myarch eq 'local' && $BSConfig::localarch ? $BSConfig::localarch : $myarch;
-  my $now = time(); # ensure that we use the same time in all logs
 
   my $syspath;
   if (@{$repo->{'path'} || []}) {
@@ -500,9 +499,6 @@ sub build {
     }} @{$info->{'extrasource'}};
   }
 
-  my $dst = "$gdst/$packid";
-  mkdir_p($dst);
-
   my $bcnt = BSSched::BuildJob::nextbcnt($ctx, $packid, $pdata);
 
   my $binfo = {
@@ -520,7 +516,7 @@ sub build {
     'bdep' => \@bdeps,
     'path' => $searchpath,
     'reason' => $reason->{'explain'},
-    'readytime' => $now,
+    'readytime' => time(),
   };
   my $obsname = $gctx->{'obsname'};
   $binfo->{'disturl'} = "obs://$obsname/$projid/$repoid/$srcmd5-$packid";
@@ -532,11 +528,9 @@ sub build {
   $binfo->{'nosrcpkgs'} = $info->{'nosrcpkgs'} if $info->{'nosrcpkgs'};
   $binfo->{'constraintsmd5'} = $pdata->{'constraintsmd5'} if $pdata->{'constraintsmd5'};
   $binfo->{'prjconfconstraint'} = $bconf->{'constraint'} if @{$bconf->{'constraint'} || []};
-  mkdir_p($dst);
-  writexml("$dst/.status", "$dst/status", { 'status' => 'scheduled', 'readytime' => $now, 'job' => $job}, $BSXML::buildstatus);
-  $reason->{'time'} = $now;
-  writexml("$dst/.reason", "$dst/reason", $reason, $BSXML::buildreason);
-  BSSched::BuildJob::writejob($gctx, $job, $binfo);
+
+  BSSched::BuildJob::writejob($ctx, $job, $binfo,$reason);
+
   return ('scheduled', $job);
 }
 

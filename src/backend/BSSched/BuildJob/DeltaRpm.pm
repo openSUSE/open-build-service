@@ -136,7 +136,7 @@ sub build {
   my $obsname = $gctx->{'obsname'};
   $binfo->{'disturl'} = "obs://$obsname/$projid/$repoid/$srcmd5-$packid";
   $binfo->{'hostarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'};
-  BSSched::BuildJob::writejob($gctx, $job, $binfo);
+  BSSched::BuildJob::writejob($ctx, $job, $binfo);
   print "    created deltajob...\n";
   return $job;
 }
