@@ -4614,11 +4614,16 @@ sub remote_getrev {
   }
   my @linked;
   if ($dir->{'linkinfo'}) {
-    $dir->{'srcmd5'} = $rev->{'srcmd5'} = $srcmd5;
-    $rev->{'rev'} = $rev->{'srcmd5'} unless $dir->{'rev'};
+    my $li = $dir->{'linkinfo'};
+    # hack: the following line is used because we fake a linkinfo element
+    # for project links... compatibility to old versions sure has some
+    # drawbacks...
+    if (defined($li->{'project'})) {
+      $dir->{'srcmd5'} = $rev->{'srcmd5'} = $srcmd5;
+      $rev->{'rev'} = $rev->{'srcmd5'} unless $dir->{'rev'};
+    }
     if ($linked) {
       # add linked info for getprojpack
-      my $li = $dir->{'linkinfo'};
       if ($li->{'linked'}) {
 	for my $l (@{$li->{'linked'}}) {
 	  $l->{'project'} = maptoremote($proj, $l->{'project'});
@@ -5022,12 +5027,14 @@ sub getfilelist {
 
   my $view = $cgi->{'view'};
   my $rev;
+  my $linked;
+  $linked = [] if $cgi->{'withlinked'};
   if ($cgi->{'meta'}) {
     $rev = getrev_meta($projid, $packid, $cgi->{'rev'}, $cgi->{'deleted'});
   } elsif ($cgi->{'deleted'}) {
     $rev = getrev_deleted($projid, $packid, $cgi->{'rev'});
   } else {
-    $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload');
+    $rev = getrev($projid, $packid, defined($cgi->{'rev'}) ? $cgi->{'rev'} : 'upload', $linked);
   }
   my $li = {};
   my $files = lsrev($rev, $li);
@@ -5090,7 +5097,7 @@ sub getfilelist {
     }
     my %lrev = %$rev;
     $lrev{'linkrev'} = $cgi->{'linkrev'} if $cgi->{'linkrev'};
-    $li->{'linked'} = [] if $cgi->{'withlinked'};
+    $li->{'linked'} = $linked if $linked;
     my $lfiles = handlelinks(\%lrev, $files, $li);
     if ($cgi->{'expand'}) {
       if (!ref($lfiles)) {
@@ -5177,6 +5184,13 @@ sub getfilelist {
     linkinfo_addtarget($rev, $li);
     $ret->{'linkinfo'} = $li;
   }
+
+  # fake linkinfo element for project links. see comment in remote_getrev
+  if ($linked && @$linked && !$ret->{'linkinfo'}) {
+    $li->{'linked'} = $linked;
+    $ret->{'linkinfo'} = $li;
+  }
+
   $ret->{'entry'} = \@res;
   return ($ret, $BSXML::dir);
 }
