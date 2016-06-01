@@ -53,14 +53,58 @@ class User < ActiveRecord::Base
   # users have 0..1 user_registration records assigned to them
   has_one :user_registration
 
-  # This method returns an array with the names of all available
-  # password hash types supported by this User class.
-  def self.password_hash_types
-    default_password_hash_types
-  end
+  scope :all_without_nobody, -> { where("login != ?", nobody_login) }
+
+  # Add accessors for "new_password" property. This boolean property is set
+  # to true when the password has been set and validation on this password is
+  # required.
+  attr_accessor :new_password
+
+  # Generate accessors for the password confirmation property.
+  attr_accessor :password_confirmation
+
+  validates_presence_of :login, :email, :password, :password_hash_type, :state,
+                        :message => 'must be given'
+
+  validates_uniqueness_of :login,
+                          :message => 'is the name of an already existing user.'
+
+  validates_format_of :login,
+                      :with => %r{\A[\w \$\^\-\.#\*\+&'"]*\z},
+                      :message => 'must not contain invalid characters.'
+  validates_length_of :login,
+                      :in => 2..100, :allow_nil => true,
+                      :too_long => 'must have less than 100 characters.',
+                      :too_short => 'must have more than two characters.'
+
+  # We want a valid email address. Note that the checking done here is very
+  # rough. Email adresses are hard to validate now domain names may include
+  # language specific characters and user names can be about anything anyway.
+  # However, this is not *so* bad since users have to answer on their email
+  # to confirm their registration.
+  validates_format_of :email,
+                      :with => %r{\A([\w\-\.\#\$%&!?*\'\+=(){}|~]+)@([0-9a-zA-Z\-\.\#\$%&!?*\'=(){}|~]+)+\z},
+                      :message => 'must be a valid email address.'
+
+  # We want to validate the format of the password and only allow alphanumeric
+  # and some punctiation characters.
+  # The format must only be checked if the password has been set and the record
+  # has not been stored yet.
+  validates_format_of :password,
+                      :with => %r{\A[\w\.\- !?(){}|~*]+\z},
+                      :message => 'must not contain invalid characters.',
+                      :if => Proc.new { |user| user.new_password? and not user.password.nil? }
+
+  # We want the password to have between 6 and 64 characters.
+  # The length must only be checked if the password has been set and the record
+  # has not been stored yet.
+  validates_length_of :password,
+                      :within => 6..64,
+                      :too_long => 'must have between 6 and 64 characters.',
+                      :too_short => 'must have between 6 and 64 characters.',
+                     :if => Proc.new { |user| user.new_password? and not user.password.nil? }
 
   after_create :create_home_project
-
   def create_home_project
     # avoid errors during seeding
     return if [ "_nobody_", "Admin" ].include? self.login
@@ -79,11 +123,11 @@ class User < ActiveRecord::Base
     true
   end
 
-  # the default state of a user based on the api configuration
-  def self.default_user_state
-    return STATES['unconfirmed'] if ::Configuration.registration == "confirmation"
-    STATES['confirmed']
-  end
+  # After saving, we want to set the "@new_hash_type" value set to false
+  # again.
+  after_save '@new_hash_type = false'
+  # After saving the object into the database, the password is not new any more.
+  after_save '@new_password = false'
 
   # When a record object is initialized, we set the state, password
   # hash type, indicator whether the password has freshly been set
@@ -99,104 +143,70 @@ class User < ActiveRecord::Base
     self.login_failure_count = 0 if self.login_failure_count.nil?
   end
 
+  # After validation, the password should be encrypted
+  after_validation(:on => :create) do
+    if errors.empty? and @new_password and !password.nil?
+      # generate a new 10-char long hash only Base64 encoded so things are compatible
+      self.password_salt = [Array.new(10){rand(256).chr}.join].pack('m')[0..9]
+
+      # vvvvvv added this to maintain the password list for lighttpd
+      write_attribute(:password_crypted, password.crypt('os'))
+      #  ^^^^^^
+
+      # write encrypted password to object property
+      write_attribute(:password, hash_string(password))
+
+      # mark password as "not new" any more
+      @new_password = false
+      self.password_confirmation = nil
+
+      # mark the hash type as "not new" any more
+      @new_hash_type = false
+    else
+      logger.debug "Error - skipping to create user #{errors.inspect} #{@new_password.inspect} #{password.inspect}"
+    end
+  end
+
   # Set the last login time etc. when the record is created at first.
   def before_create
     self.last_logged_in_at = Time.now
   end
 
-  # Override the accessor for the "password_hash_type" property so it sets
-  # the "@new_hash_type" private property to signal that the password's
-  # hash method has been changed. Changing the password hash type is only
-  # possible if a new password has been provided.
-  def password_hash_type=(value)
-    write_attribute(:password_hash_type, value)
-    @new_hash_type = true
+  # the default state of a user based on the api configuration
+  def self.default_user_state
+    return STATES['unconfirmed'] if ::Configuration.registration == "confirmation"
+    STATES['confirmed']
   end
 
-  # After saving, we want to set the "@new_hash_type" value set to false
-  # again.
-  after_save '@new_hash_type = false'
-
-  # Add accessors for "new_password" property. This boolean property is set
-  # to true when the password has been set and validation on this password is
-  # required.
-  attr_accessor :new_password
-
-  # Generate accessors for the password confirmation property.
-  attr_accessor :password_confirmation
-
-  scope :all_without_nobody, -> { where("login != ?", nobody_login) }
-
-  # Overriding the default accessor to update @new_password on setting this
-  # property.
-  def password=(value)
-    write_attribute(:password, value)
-    @new_password = true
+  # This method returns an array with the names of all available
+  # password hash types supported by this User class.
+  def self.password_hash_types
+    default_password_hash_types
   end
 
-  # Returns true if the password has been set after the User has been loaded
-  # from the database and false otherwise
-  def new_password?
-    @new_password
+  # This method allows to execute a block while deactivating timestamp
+  # updating.
+  def self.execute_without_timestamps
+    old_state = ActiveRecord::Base.record_timestamps
+    ActiveRecord::Base.record_timestamps = false
+
+    yield
+
+    ActiveRecord::Base.record_timestamps = old_state
   end
 
-  # Method to update the password and confirmation at the same time. Call
-  # this method when you update the password from code and don't need
-  # password_confirmation - which should really only be used when data
-  # comes from forms.
-  #
-  # A ussage example:
-  #
-  #   user = User.find(1)
-  #   user.update_password "n1C3s3cUreP4sSw0rD"
-  #   user.save
-  #
-  def update_password(pass)
-    self.password_crypted = hash_string(pass).crypt('os')
-    self.password_confirmation = hash_string(pass)
-    self.password = hash_string(pass)
+  # This method returns an array which contains all valid hash types.
+  def self.default_password_hash_types
+    %w(md5)
   end
 
-  # After saving the object into the database, the password is not new any more.
-  after_save '@new_password = false'
-
-  # This method returns true if the user is assigned the role with one of the
-  # role titles given as parameters. False otherwise.
-  def has_role?(*role_titles)
-    obj = all_roles.detect do |role|
-      role_titles.include?(role.title)
+  def self.update_notifications(params, user = nil)
+    Event::Base.notification_events.each do |event_type|
+      values = params[event_type.to_s] || {}
+      event_type.receiver_roles.each do |role|
+        EventSubscription.update_subscription(event_type.to_s, role, user, !values[role].nil?)
+      end
     end
-
-    return !obj.nil?
-  end
-
-  # This method creates a new registration token for the current user. Raises
-  # a MultipleRegistrationTokens Exception if the user already has a
-  # registration token assigned to him.
-  #
-  # Use this method instead of creating user_registration objects directly!
-  def create_user_registration
-    raise unless user_registration.nil?
-
-    token = UserRegistration.new
-    self.user_registration = token
-  end
-
-  # This method expects the token for the current user. If the token is
-  # correct, the user's state will be set to "confirmed" and the associated
-  # "user_registration" record will be removed.
-  # Returns "true" on success and "false" on failure/or the user is already
-  # confirmed and/or has no "user_registration" record.
-  def confirm_registration(token)
-    return false if self.user_registration.nil?
-    return false if user_registration.token != token
-    return false unless state_transition_allowed?(state, STATES['confirmed'])
-
-    self.state = STATES['confirmed']
-    self.save!
-    user_registration.destroy
-
-    return true
   end
 
   # Returns the default state of new User objects.
@@ -208,13 +218,6 @@ class User < ActiveRecord::Base
   # The given parameter must be an integer.
   def self.state_allows_login?(state)
     [ STATES['confirmed'], STATES['retrieved_password'] ].include?(state)
-  end
-
-  # Overwrite the state setting so it backs up the initial state from
-  # the database.
-  def state=(value)
-    @old_state = state if @old_state.nil?
-    write_attribute(:state, value)
   end
 
   # This static method tries to find a user with the given login and password
@@ -261,27 +264,24 @@ class User < ActiveRecord::Base
       logger.debug( "No user found in database, creating" )
       logger.debug( "Email: #{ldap_info[0]}" )
       logger.debug( "Name : #{ldap_info[1]}" )
-      # Generate and store a fake pw in the OBS DB that no-one knows
-      chars = ["A".."Z", "a".."z", "0".."9"].collect { |r| r.to_a }.join
-      password = (1..24).collect { chars[rand(chars.size)] }.pack('a'*24)
+      # Generate and store a 24 char fake pw in the OBS DB that no-one knows
+      password = SecureRandom.base64
       user = User.create( :login => login,
                           :password => password,
                           :password_confirmation => password,
                           :email => ldap_info[0],
                           :last_logged_in_at => Time.now)
       unless user.errors.empty?
-        errstr = String.new
         logger.debug("Creating User failed with: ")
-        user.errors.full_messages.each do |msg|
-          errstr = errstr+msg
+        all_errors = user.errors.full_messages.map do |msg|
           logger.debug(msg)
+          msg
         end
-        logger.info("Cannot create ldap userid: '#{login}' on OBS<br>#{errstr}")
+        logger.info("Cannot create ldap userid: '#{login}' on OBS<br>#{all_errors.join(', ')}")
         return nil
       end
       user.realname = ldap_info[1]
-      user.state = User::STATES['confirmed']
-      user.state = User::STATES['unconfirmed'] if ::Configuration.registration == "confirmation"
+      user.state = User.default_user_state
       user.adminnote = "User created via LDAP"
       logger.debug( "saving new user..." )
       user.save
@@ -303,6 +303,176 @@ class User < ActiveRecord::Base
     end
 
     return nil
+  end
+
+  def self.current
+    Thread.current[:user]
+  end
+
+  def self.current=(user)
+    Thread.current[:user] = user
+  end
+
+  def self.nobody_login
+    '_nobody_'
+  end
+
+  def self.authenticate(user_login, password)
+    user = User.find_with_credentials(user_login, password)
+
+    # User account is not confirmed yet
+    return if user.try(:state) == STATES['unconfirmed']
+
+    Rails.logger.debug "Authentificated user '#{user.try(:login)}'"
+
+    User.current = user
+  end
+
+  def self.get_default_admin
+    admin = CONFIG['default_admin'] || 'Admin'
+    user = find_by_login(admin)
+    raise NotFoundError.new("Admin not found, user #{admin} has not admin permissions") unless user.is_admin?
+    return user
+  end
+
+  def self.find_nobody!
+    Thread.current[:nobody_user] ||= User.create_with(email: "nobody@localhost",
+                                                      realname: "Anonymous User",
+                                                      state: STATES['locked'],
+                                                      password: "123456",
+                                                      password_confirmation: "123456").find_or_create_by(login: nobody_login)
+    Thread.current[:nobody_user]
+  end
+
+  def self.find_by_login!(login)
+    user = find_by_login(login)
+    if user.nil? or user.state == STATES['deleted']
+      raise NotFoundError.new("Couldn't find User with login = #{login}")
+    end
+    return user
+  end
+
+  def self.get_by_login(login)
+    user = find_by_login!(login)
+    # FIXME: Move permission checks to controller level
+    unless User.current.is_admin? or user == User.current
+      raise NoPermission.new "User #{login} can not be accessed by #{User.current.login}"
+    end
+    return user
+  end
+
+  def self.realname_for_login(login)
+    User.find_by_login!(login).realname
+  rescue NotFoundError
+    ""
+  end
+
+  public
+
+  # Overriding this method to do some more validation: Password equals
+  # password_confirmation, state an password hash type being in the range
+  # of allowed values.
+  def validate
+    # validate state and password has type to be in the valid range of values
+    errors.add(:password_hash_type, 'must be in the list of hash types.') unless User.password_hash_types.include? password_hash_type
+    # check that the state transition is valid
+    errors.add(:state, 'must be a valid new state from the current state.') unless state_transition_allowed?(@old_state, state)
+
+    # validate the password
+    if @new_password and not password.nil?
+      errors.add(:password, 'must match the confirmation.') unless password_confirmation == password
+    end
+
+    # check that the password hash type has not been set if no new password
+    # has been provided
+    if @new_hash_type and (!@new_password or password.nil?)
+      errors.add(:password_hash_type, 'cannot be changed unless a new password has been provided.')
+    end
+  end
+
+  # Override the accessor for the "password_hash_type" property so it sets
+  # the "@new_hash_type" private property to signal that the password's
+  # hash method has been changed. Changing the password hash type is only
+  # possible if a new password has been provided.
+  def password_hash_type=(value)
+    write_attribute(:password_hash_type, value)
+    @new_hash_type = true
+  end
+
+  # Overriding the default accessor to update @new_password on setting this
+  # property.
+  def password=(value)
+    write_attribute(:password, value)
+    @new_password = true
+  end
+
+  # Returns true if the password has been set after the User has been loaded
+  # from the database and false otherwise
+  def new_password?
+    @new_password
+  end
+
+  # Method to update the password and confirmation at the same time. Call
+  # this method when you update the password from code and don't need
+  # password_confirmation - which should really only be used when data
+  # comes from forms.
+  #
+  # A ussage example:
+  #
+  #   user = User.find(1)
+  #   user.update_password "n1C3s3cUreP4sSw0rD"
+  #   user.save
+  #
+  def update_password(pass)
+    self.password_crypted = hash_string(pass).crypt('os')
+    self.password_confirmation = hash_string(pass)
+    self.password = hash_string(pass)
+  end
+
+  # This method returns true if the user is assigned the role with one of the
+  # role titles given as parameters. False otherwise.
+  def has_role?(*role_titles)
+    obj = all_roles.detect do |role|
+      role_titles.include?(role.title)
+    end
+
+    return !obj.nil?
+  end
+
+  # This method creates a new registration token for the current user. Raises
+  # a MultipleRegistrationTokens Exception if the user already has a
+  # registration token assigned to him.
+  #
+  # Use this method instead of creating user_registration objects directly!
+  def create_user_registration
+    raise unless user_registration.nil?
+
+    token = UserRegistration.new
+    self.user_registration = token
+  end
+
+  # This method expects the token for the current user. If the token is
+  # correct, the user's state will be set to "confirmed" and the associated
+  # "user_registration" record will be removed.
+  # Returns "true" on success and "false" on failure/or the user is already
+  # confirmed and/or has no "user_registration" record.
+  def confirm_registration(token)
+    return false if self.user_registration.nil?
+    return false if user_registration.token != token
+    return false unless state_transition_allowed?(state, STATES['confirmed'])
+
+    self.state = STATES['confirmed']
+    self.save!
+    user_registration.destroy
+
+    return true
+  end
+
+  # Overwrite the state setting so it backs up the initial state from
+  # the database.
+  def state=(value)
+    @old_state = state if @old_state.nil?
+    write_attribute(:state, value)
   end
 
   # This method checks whether the given value equals the password when
@@ -347,164 +517,6 @@ class User < ActiveRecord::Base
       desired_state.present?
     else
       false
-    end
-  end
-
-  # Model Validation
-
-  validates_presence_of :login, :email, :password, :password_hash_type, :state,
-                        :message => 'must be given'
-
-  validates_uniqueness_of :login,
-                          :message => 'is the name of an already existing user.'
-
-  # Overriding this method to do some more validation: Password equals
-  # password_confirmation, state an password hash type being in the range
-  # of allowed values.
-  def validate
-    # validate state and password has type to be in the valid range of values
-    errors.add(:password_hash_type, 'must be in the list of hash types.') unless User.password_hash_types.include? password_hash_type
-    # check that the state transition is valid
-    errors.add(:state, 'must be a valid new state from the current state.') unless state_transition_allowed?(@old_state, state)
-
-    # validate the password
-    if @new_password and not password.nil?
-      errors.add(:password, 'must match the confirmation.') unless password_confirmation == password
-    end
-
-    # check that the password hash type has not been set if no new password
-    # has been provided
-    if @new_hash_type and (!@new_password or password.nil?)
-      errors.add(:password_hash_type, 'cannot be changed unless a new password has been provided.')
-    end
-  end
-
-  validates_format_of :login,
-                      :with => %r{\A[\w \$\^\-\.#\*\+&'"]*\z},
-                      :message => 'must not contain invalid characters.'
-  validates_length_of :login,
-                      :in => 2..100, :allow_nil => true,
-                      :too_long => 'must have less than 100 characters.',
-                      :too_short => 'must have more than two characters.'
-
-  # We want a valid email address. Note that the checking done here is very
-  # rough. Email adresses are hard to validate now domain names may include
-  # language specific characters and user names can be about anything anyway.
-  # However, this is not *so* bad since users have to answer on their email
-  # to confirm their registration.
-  validates_format_of :email,
-                      :with => %r{\A([\w\-\.\#\$%&!?*\'\+=(){}|~]+)@([0-9a-zA-Z\-\.\#\$%&!?*\'=(){}|~]+)+\z},
-                      :message => 'must be a valid email address.'
-
-  # We want to validate the format of the password and only allow alphanumeric
-  # and some punctiation characters.
-  # The format must only be checked if the password has been set and the record
-  # has not been stored yet and it has actually been set at all. Make sure you
-  # include this condition in your :if parameter to validates_format_of when
-  # overriding the password format validation.
-  validates_format_of :password,
-                      :with => %r{\A[\w\.\- !?(){}|~*]+\z},
-                      :message => 'must not contain invalid characters.',
-                      :if => Proc.new { |user| user.new_password? and not user.password.nil? }
-
-  # We want the password to have between 6 and 64 characters.
-  # The length must only be checked if the password has been set and the record
-  # has not been stored yet and it has actually been set at all. Make sure you
-  # include this condition in your :if parameter to validates_length_of when
-  # overriding the length format validation.
-  validates_length_of :password,
-                      :within => 6..64,
-                      :too_long => 'must have between 6 and 64 characters.',
-                      :too_short => 'must have between 6 and 64 characters.',
-                     :if => Proc.new { |user| user.new_password? and not user.password.nil? }
-
-  class << self
-    def current
-      Thread.current[:user]
-    end
-
-    def current=(user)
-      Thread.current[:user] = user
-    end
-
-    def nobody_login
-      '_nobody_'
-    end
-
-    def authenticate(user_login, password)
-      user = User.find_with_credentials(user_login, password)
-
-      # User account is not confirmed yet
-      return if user.try(:state) == STATES['unconfirmed']
-
-      Rails.logger.debug "Authentificated user '#{user.try(:login)}'"
-
-      User.current = user
-    end
-
-    def get_default_admin
-      admin = CONFIG['default_admin'] || 'Admin'
-      user = find_by_login(admin)
-      raise NotFoundError.new("Admin not found, user #{admin} has not admin permissions") unless user.is_admin?
-      return user
-    end
-
-    def find_nobody!
-      Thread.current[:nobody_user] ||= User.create_with(email: "nobody@localhost",
-                                                        realname: "Anonymous User",
-                                                        state: STATES['locked'],
-                                                        password: "123456",
-                                                        password_confirmation: "123456").find_or_create_by(login: nobody_login)
-      Thread.current[:nobody_user]
-    end
-
-    def find_by_login!(login)
-      user = find_by_login(login)
-      if user.nil? or user.state == STATES['deleted']
-        raise NotFoundError.new("Couldn't find User with login = #{login}")
-      end
-      return user
-    end
-
-    def get_by_login(login)
-      user = find_by_login!(login)
-      # FIXME: Move permission checks to controller level
-      unless User.current.is_admin? or user == User.current
-        raise NoPermission.new "User #{login} can not be accessed by #{User.current.login}"
-      end
-      return user
-    end
-
-    def find_by_email(email)
-      return where(:email => email).first
-    end
-
-    def realname_for_login(login)
-      User.find_by_login(login).realname
-    end
-  end
-
-  # After validation, the password should be encrypted
-  after_validation(:on => :create) do
-    if errors.empty? and @new_password and !password.nil?
-      # generate a new 10-char long hash only Base64 encoded so things are compatible
-      self.password_salt = [Array.new(10){rand(256).chr}.join].pack('m')[0..9]
-
-      # vvvvvv added this to maintain the password list for lighttpd
-      write_attribute(:password_crypted, password.crypt('os'))
-      #  ^^^^^^
-
-      # write encrypted password to object property
-      write_attribute(:password, hash_string(password))
-
-      # mark password as "not new" any more
-      @new_password = false
-      self.password_confirmation = nil
-
-      # mark the hash type as "not new" any more
-      @new_hash_type = false
-    else
-      logger.debug "Error - skipping to create user #{errors.inspect} #{@new_password.inspect} #{password.inspect}"
     end
   end
 
@@ -575,20 +587,17 @@ class User < ActiveRecord::Base
   end
 
   def is_in_group?(group)
-    if group.nil?
-      return false
-    end
-    if group.kind_of? String
+    case group
+    when String
       group = Group.find_by_title(group)
-      return false unless group
-    end
-    if group.kind_of? Fixnum
+    when Fixnum
       group = Group.find(group)
-    end
-    unless group.kind_of? Group
+    when Group, nil
+    else
       raise ArgumentError, "illegal parameter type to User#is_in_group?: #{group.class}"
     end
-    lookup_strategy.is_in_group?(self, group)
+
+    group && lookup_strategy.is_in_group?(self, group)
   end
 
   # This method returns true if the user is granted the permission with one
@@ -950,19 +959,6 @@ class User < ActiveRecord::Base
     end
   end
 
-  def self.fetch_field(person, field)
-    p = User.where(login: person).pluck(field)
-    p[0] || ''
-  end
-
-  def self.email_for_login(person)
-    fetch_field(person, :email)
-  end
-
-  def self.realname_for_login(person)
-    fetch_field(person, :realname)
-  end
-
   def watched_project_names
     Rails.cache.fetch(['watched_project_names', self]) do
       Project.where(id: watched_projects.pluck(:project_id)).pluck(:name).sort
@@ -1016,31 +1012,6 @@ class User < ActiveRecord::Base
     address = Mail::Address.new self.email
     address.display_name = self.realname
     address.format
-  end
-
-  # This method allows to execute a block while deactivating timestamp
-  # updating.
-  def self.execute_without_timestamps
-    old_state = ActiveRecord::Base.record_timestamps
-    ActiveRecord::Base.record_timestamps = false
-
-    yield
-
-    ActiveRecord::Base.record_timestamps = old_state
-  end
-
-  # This method returns an array which contains all valid hash types.
-  def self.default_password_hash_types
-    %w(md5)
-  end
-
-  def self.update_notifications(params, user = nil)
-    Event::Base.notification_events.each do |event_type|
-      values = params[event_type.to_s] || {}
-      event_type.receiver_roles.each do |role|
-        EventSubscription.update_subscription(event_type.to_s, role, user, !values[role].nil?)
-      end
-    end
   end
 
   def update_notifications(params)
