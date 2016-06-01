@@ -289,13 +289,25 @@ to a free worker.
 =cut
 
 sub writejob {
-  my ($gctx, $job, $binfo) = @_;
+  my ($ctx, $job, $binfo,$reason) = @_;
 
+  my $dst = $ctx->{gdst} . "/" . $binfo->{package};
+
+  # jay! ready for building, write status and job info
+  if ( $reason ) {
+	  mkdir_p($dst);
+	  my $now = $binfo->{readytime};
+	  writexml("$dst/.status", "$dst/status", { 'status' => 'scheduled', 'readytime' => $now, 'job' => $job}, $BSXML::buildstatus);
+	  # And store reason and time
+	  $reason->{'time'} = $now;
+	  writexml("$dst/.reason", "$dst/reason", $reason, $BSXML::buildreason);
+  }
   $binfo->{'srcserver'} ||= $workersrcserver;
   $binfo->{'reposerver'} ||= $workerreposerver;
-  my $myjobsdir = $gctx->{'myjobsdir'};
+
+  my $myjobsdir = $ctx->{gctx}->{'myjobsdir'};
   writexml("$myjobsdir/.$job", "$myjobsdir/$job", $binfo, $BSXML::buildinfo);
-  add_crossmarker($gctx, $binfo->{'hostarch'}, $job) if $binfo->{'hostarch'};
+  add_crossmarker($ctx->{gctx}, $binfo->{'hostarch'}, $job) if $binfo->{'hostarch'};
   $ourjobs{$1}->{$job} = 1 if $job =~ /^(:.+?|[^:].*?::.+?)::/s;
 }
 
@@ -555,7 +567,7 @@ sub fakejobfinished {
     'job' => $job,
     %{$buildinfoskel || {}},
   };
-  writejob($gctx, $job, $binfo);
+  writejob($ctx, $job, $binfo);
   close(F);
   my $ev = {'type' => 'built', 'arch' => $myarch, 'job' => $job};
   if ($needsign) {
@@ -809,9 +821,7 @@ sub create {
     }
   }
 
-  my $dst = "$gdst/$packid";
   # find the last build count we used for this version/release
-  mkdir_p($dst);
   my $bcnt = nextbcnt($ctx, $packid, $pdata);
 
   # kill those ancient other jobs
@@ -819,13 +829,6 @@ sub create {
     print "        killing old job $otherjob\n";
     killjob($gctx, $otherjob);
   }
-
-  # jay! ready for building, write status and job info
-  my $now = time();
-  writexml("$dst/.status", "$dst/status", { 'status' => 'scheduled', 'readytime' => $now, 'job' => $job}, $BSXML::buildstatus);
-  # And store reason and time
-  $reason->{'time'} = $now;
-  writexml("$dst/.reason", "$dst/reason", $reason, $BSXML::buildreason);
 
   my @pdeps = Build::get_preinstalls($bconf);
   my @vmdeps = Build::get_vminstalls($bconf);
@@ -865,7 +868,7 @@ sub create {
     'job' => $job,
     'arch' => $myarch,
     'reason' => $reason->{'explain'},
-    'readytime' => $now,
+    'readytime' => time(),
     'srcmd5' => $pdata->{'srcmd5'},
     'verifymd5' => $vmd5,
     'rev' => $pdata->{'rev'},
@@ -907,7 +910,9 @@ sub create {
   $debuginfo = BSUtil::enabled($repoid, $pdata->{'debuginfo'}, $debuginfo, $myarch);
   $binfo->{'debuginfo'} = 1 if $debuginfo;
 
-  writejob($gctx, $job, $binfo);
+
+  my $dst = "$gdst/$packid";
+  writejob($ctx, $job, $binfo,$reason);
   # all done. the dispatcher will now pick up the job and send it
   # to a worker.
   return ('scheduled', $job);
