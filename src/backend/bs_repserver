@@ -65,6 +65,8 @@ use BSNotify;
 
 use BSSolv;
 
+use BSSched::ProjPacks;
+
 use strict;
 
 my $port = 5252;	#'RR'
@@ -2650,39 +2652,6 @@ sub expandkiwipath {
   return map {"$_->{'project'}/$_->{'repository'}"} expandkiwipath_hash(@_);
 }
 
-sub orderpackids {
-  my ($proj, @packids) = @_;
-  $proj ||= {};
-  my @s;
-  my @back;
-  my $kind = $proj->{'kind'} || '';
-  for (@packids) {
-    if ($_ eq '_volatile') {
-      push @back, $_;
-    } elsif (/^(.*)\.(\d+)$/) {
-      # we ignore the name for maintenance release projects and sort only
-      # by the incident number
-      if ($kind eq 'maintenance_release') {
-        push @s, [ $_, '', $2]; 
-      } else {
-        push @s, [ $_, $1, $2]; 
-      }    
-    } elsif (/^(.*)\.imported_.*?(\d+)$/) {
-      # code11 import hack...
-      if ($kind eq 'maintenance_release') {
-        push @s, [ $_, '', $2 - 1000000];
-      } else {
-        push @s, [ $_, $1, $2 - 1000000];
-      }    
-    } else {
-      push @s, [ $_, $_, 99999999 ];
-    }    
-  }
-  @packids = map {$_->[0]} sort { $a->[1] cmp $b->[1] || $b->[2] <=> $a->[2] || $a->[0] cmp $b->[0] } @s;
-  push @packids, @back;
-  return @packids;
-}
-
 sub getkiwiproductpackages {
   my ($proj, $repo, $pdata, $info, $deps, $remotemap) = @_;
 
@@ -2749,7 +2718,7 @@ sub getkiwiproductpackages {
 
       # fast if we have gbininfo
       if ($gbininfo) {
-        for my $apackid (orderpackids({'kind' => $aprojidkind}, keys %$gbininfo)) {
+        for my $apackid (BSSched::ProjPacks::orderpackids({'kind' => $aprojidkind}, keys %$gbininfo)) {
 	  next if $apackid eq '_volatile';
 	  my $bininfo = $gbininfo->{$apackid} || {};
 	  # skip channels/patchinfos
@@ -2793,7 +2762,7 @@ sub getkiwiproductpackages {
       my $depends = BSUtil::retrieve("$reporoot/$aprp/$arch/:depends", 1);
       next unless $depends && $depends->{'subpacks'};
       my %apackids = (%{$depends->{'subpacks'} || {}}, %{$depends->{'pkgdeps'}});
-      for my $apackid (orderpackids({'kind' => $aprojidkind}, keys %apackids)) {
+      for my $apackid (BSSched::ProjPacks::orderpackids({'kind' => $aprojidkind}, keys %apackids)) {
 	next if $apackid eq '_volatile';
 	next if -e "$reporoot/$aprp/$arch/$apackid/updateinfo.xml";
 	next if -e "$reporoot/$aprp/$arch/$apackid/.channelinfo";
