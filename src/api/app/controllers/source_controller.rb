@@ -517,8 +517,7 @@ class SourceController < ApplicationController
         # FIXME3.0: don't modify send data
         project.relationships.build(user: User.current, role: Role.find_by_title!('maintainer'))
       end
-      opts = { :comment => params[:comment] }
-      project.store opts
+      project.store({comment: params[:comment]})
     end
     render_ok
   end
@@ -707,6 +706,7 @@ class SourceController < ApplicationController
       pkg = prj.packages.new(name: @package_name)
     end
 
+    pkg.set_comment(params[:comment])
     pkg.update_from_xml(rdata)
     render_ok
   end
