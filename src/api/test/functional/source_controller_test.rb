@@ -1653,6 +1653,27 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     raw_put '/source/kde4/kdelibs/my_patch.diff?user=king', 'argl'
   end
 
+  def test_get_package_meta_history
+    get '/source/kde4/kdelibs/_history'
+    assert_response 401
+    prepare_request_with_user 'fredlibs', 'buildservice'
+    get '/source/kde4/kdelibs/_history'
+    assert_response :success
+    assert_xml_tag(:tag => 'revisionlist')
+    get '/source/kde4/kdelibs/_history?meta=1'
+    assert_response :success
+    assert_xml_tag(:tag => 'revisionlist')
+    get '/source/kde4/kdelibs/_meta'
+    assert_response :success
+    meta = @response.body
+    put '/source/kde4/kdelibs/_meta?comment=empty+change', meta
+    assert_response :success
+    get '/source/kde4/kdelibs/_history?meta=1'
+    assert_response :success
+    assert_xml_tag(tag: 'revisionlist')
+    assert_xml_tag(tag: 'comment', content: "empty change")
+  end
+
   def test_get_project_meta_history
     get '/source/kde4/_project/_history'
     assert_response 401
@@ -1663,6 +1684,15 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     get '/source/kde4/_project/_history?meta=1'
     assert_response :success
     assert_xml_tag(:tag => 'revisionlist')
+    get '/source/kde4/_meta'
+    assert_response :success
+    meta = @response.body
+    put '/source/kde4/_meta?comment=empty+change', meta
+    assert_response :success
+    get '/source/kde4/_project/_history?meta=1'
+    assert_response :success
+    assert_xml_tag(tag: 'revisionlist')
+    assert_xml_tag(tag: 'comment', content: "empty change")
   end
 
   def test_get_project_meta_file

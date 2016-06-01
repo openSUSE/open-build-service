@@ -714,6 +714,10 @@ class Package < ActiveRecord::Base
     Rails.cache.delete("xml_package_#{id}") if id
   end
 
+  def set_comment(comment)
+    @commit_opts[:comment] = comment
+  end
+
   def write_to_backend
     reset_cache
     #--- write through to backend ---#
