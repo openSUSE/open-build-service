@@ -57,7 +57,7 @@ class Webui::PackageEditSourcesTest < Webui::IntegrationTest
     if file[:expect] == :success
       flash_message.must_equal "The file '#{file[:name]}' has been successfully saved."
       flash_message_type.must_equal :info
-      find(:css, "tr#file-#{valid_xml_id(file[:name])} td:first-child a").click
+      click_link(file[:name])
       page.must_have_text "File #{file[:name]} of Package #{@package}"
 
       # Check if uploaded file and stored are the same
