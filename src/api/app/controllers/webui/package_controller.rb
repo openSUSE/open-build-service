@@ -587,7 +587,7 @@ class Webui::PackageController < Webui::WebuiController
       source_package_name = params[:linked_package]
     # If we are linking a local package we have to do it ourselves
     else
-      source_package = Package.find_by_project_and_name(params[:linked_project], params[:linked_package])
+      source_package = Package.get_by_project_and_name(params[:linked_project], params[:linked_package])
       unless source_package
         redirect_to :back, error: "Failed to branch: Package does not exist."
         return
@@ -930,7 +930,7 @@ class Webui::PackageController < Webui::WebuiController
   def devel_project
     check_ajax
     required_parameters :package, :project
-    tgt_pkg = Package.find_by_project_and_name( params[:project], params[:package] )
+    tgt_pkg = Package.get_by_project_and_name( params[:project], params[:package] )
     if tgt_pkg and tgt_pkg.develpackage
       render text: tgt_pkg.develpackage.project
     else
