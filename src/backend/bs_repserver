@@ -2398,7 +2398,7 @@ sub getresult {
   if ($cgi->{'oldstate'} && $state eq $cgi->{'oldstate'}) {
     return if $BSStdServer::isajax;	# watcher will call us back...
     my @args = map {"prpa=$_"} @{$prpas || []};
-    push @args, BSRPC::args($cgi, 'olstate', 'package', 'code', 'withbinarylist');
+    push @args, BSRPC::args($cgi, 'oldstate', 'package', 'code', 'withbinarylist');
     BSHandoff::handoff('/_result', undef, @args);
   }
   return ({'result' => $r, 'state' => $state}, $BSXML::resultlist);
