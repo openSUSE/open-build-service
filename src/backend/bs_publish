@@ -2161,7 +2161,7 @@ publishprog_done:
       my $id = delete $pt->{'id'};
       push @newcache, $id, [ map {$pt->{$_ eq 'arch' ? 'binaryarch' : $_}} qw{arch name epoch version release disturl buildtime} ] if $id;
     }
-    $repoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo") || {};
+    $repoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo", 1) || {};
     if (%$repoinfo) {
       $repoinfo->{'trackercache'} = \@newcache;
       $repoinfo->{'trackercacheversion'} = '1';
