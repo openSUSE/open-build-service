@@ -48,19 +48,21 @@ use BSDB;
 use BSXML;
 use BSNotify;
 use BSVerify;
+use BSStdRunner;
 
 use strict;
 
-BSUtil::drop_privs_to($BSConfig::bsuser||$BSConfig::bsuser, $BSConfig::bsgroup||$BSConfig::bsgroup);
-
-BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BSConfig::disable_data_sync;
+my $maxchild;
+my $maxchild_flavor;
+$maxchild = $BSConfig::publish_maxchild if defined $BSConfig::publish_maxchild;
+$maxchild_flavor = $BSConfig::publish_maxchild_flavor if defined $BSConfig::publish_maxchild_flavor;
 
 my $reporoot = "$BSConfig::bsdir/build";
 my $eventdir = "$BSConfig::bsdir/events";
 my $extrepodir = "$BSConfig::bsdir/repos";
 my $extrepodir_sync = "$BSConfig::bsdir/repos_sync";
 my $uploaddir = "$BSConfig::bsdir/upload";
-my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
+my $rundir = $BSConfig::rundir || $BSConfig::rundir || "$BSConfig::bsdir/run";
 
 my $extrepodb = "$BSConfig::bsdir/db/published";
 
@@ -139,16 +141,21 @@ sub fillpkgdescription {
 
 my @db_sync;
 my $db_oldsync_read;
+my $db_sync_append;
+
+sub db_pickup {
+  if (-s "$extrepodb.sync") {
+    my $oldsync = BSUtil::retrieve("$extrepodb.sync");
+    unshift @db_sync, @{$oldsync || []};
+  }
+}
 
 sub db_open {
   my ($name) = @_;
 
   return undef unless $extrepodb;
   if (!$db_oldsync_read) {
-    if (-s "$extrepodb.sync") {
-      my $oldsync = BSUtil::retrieve("$extrepodb.sync");
-      @db_sync = @{$oldsync || []};
-    }
+    db_pickup();
     $db_oldsync_read = 1;
   }
   return {'name' => $name, 'index' => "$name/"};
@@ -190,10 +197,19 @@ sub db_sync {
   if ($@) {
     warn($@);
     mkdir_p($1) if $extrepodb =~ /^(.*)\//;
-    BSUtil::store("$extrepodb.sync.new", "$extrepodb.sync", \@db_sync);
+    if ($db_sync_append) {
+      local *F;
+      BSUtil::lockopen(\*F, '>>', "$extrepodb.sync");
+      db_pickup();
+      BSUtil::store("$extrepodb.sync.new$$", "$extrepodb.sync", \@db_sync);
+      close F;
+      @db_sync = ();
+    } else {
+      BSUtil::store("$extrepodb.sync.new", "$extrepodb.sync", \@db_sync);
+    }
   } else {
     @db_sync = ();
-    unlink("$extrepodb.sync");
+    unlink("$extrepodb.sync") unless $db_sync_append;
   }
 }
 
@@ -2186,153 +2202,196 @@ sub check_publish_prg_running {
   return 0;
 }
 
-$| = 1;
-$SIG{'PIPE'} = 'IGNORE';
-BSUtil::restartexit($ARGV[0], 'publisher', "$rundir/bs_publish", "$myeventdir/.ping");
-print "starting build service publisher\n";
-
-mkdir_p($rundir);
-open(RUNLOCK, '>>', "$rundir/bs_publish.lock") || die("$rundir/bs_publish.lock: $!\n");
-flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("publisher is already running!\n");
-utime undef, undef, "$rundir/bs_publish.lock";
-
-mkdir_p($myeventdir);
-if (!-p "$myeventdir/.ping") {
-  POSIX::mkfifo("$myeventdir/.ping", 0666) || die("$myeventdir/.ping: $!");
-  chmod(0666, "$myeventdir/.ping");
-}
-sysopen(PING, "$myeventdir/.ping", POSIX::O_RDWR) || die("$myeventdir/.ping: $!");
-
-db_sync();
-
-if (@ARGV && $ARGV[0] eq '--testmode') {
-  $testmode = 1;
-  shift @ARGV;
-}
-if (@ARGV > 1 && $ARGV[0] eq '--event') {
-  my $eventfile = $ARGV[1];
-  my $ev = readxml($eventfile, $BSXML::event);
-  die("not a publish event\n") if !$ev->{'type'} || $ev->{'type'} ne 'publish';
-  die("need a project and repository\n") unless defined($ev->{'project'}) && defined($ev->{'repository'});
-  my $prp = "$ev->{'project'}/$ev->{'repository'}";
-  die("$prp: external publish program still running\n") if check_publish_prg_running($prp);
-  rename($eventfile, "${eventfile}::inprogress");
-  BSNotify::notify('REPO_PUBLISH_STATE', { 'project' => $ev->{'project'}, 'repo' => $ev->{'repository'}, 'state' => 'publishing'} );
-  eval {
-    publish($ev->{'project'}, $ev->{'repository'});
-  };
-  if ($@) {
-    warn("publish failed for $ev->{'project'}, $ev->{'repository'} : $@");
-    clear_repoinfo_state($prp);
-    rename("${eventfile}::inprogress", $eventfile);
-    db_sync();
-    exit(1);
-  }
-  BSNotify::notify('REPO_PUBLISH_STATE', { 'project' => $ev->{'project'}, 'repo' => $ev->{'repository'}, 'state' => 'published'} );
-  db_sync();
-  unlink("${eventfile}::inprogress");
-  exit(0);
-}
-
 my %publish_retry;
 my %publish_lasttime;
 my %publish_duration;
 
-while(1) {
-  # drain ping pipe
-  my $dummy;
-  fcntl(PING,F_SETFL,POSIX::O_NONBLOCK);
-  1 while (sysread(PING, $dummy, 1024, 0) || 0) > 0;
-  fcntl(PING,F_SETFL,0);
+sub writepublishtimeevent {
+  my ($projid, $repoid, $now, $duration, $evn) = @_;
+  my $ev = {
+    'type' => 'publishtime',
+    'project' => $projid,
+    'repository' => $repoid,
+    'job' => "$now $duration",
+  };   
+  $ev->{'job'} .= " $evn" if defined $evn;
+  my $evname = "publishtime::${projid}::$repoid";
+  $evname = "publishtime::".Digest::MD5::md5_hex($evname) if length($evname) > 200; 
+  writexml("$myeventdir/.$evname$$", "$myeventdir/$evname", $ev, $BSXML::event);
+  BSUtil::ping("$myeventdir/.ping");
+}
 
-  # check for events
-  my @events = ls($myeventdir);
-  # allows the admin to rename an event with a _ prefix to be the next event.
-  my @highprioevents = grep {/^_/} @events;
-  @events = grep {!/^[_\.]/} @events;
-  for my $event (@highprioevents, @events) {
-    next if $publish_retry{$event};
-    last if -e "$rundir/bs_publish.exit";
-    last if -e "$rundir/bs_publish.rescan";
-    last if -e "$rundir/bs_publish.restart";
-    my $ev = readxml("$myeventdir/$event", $BSXML::event, 1);
-    if ($ev && $ev->{'type'} eq 'configuration') {
-      print "updating configuration\n";
-      BSConfiguration::update_from_configuration();
-    }
-    if (!$ev || !$ev->{'type'} || $ev->{'type'} ne 'publish') {
-      unlink("$myeventdir/$event");
-      next;
-    }
-    if (!defined($ev->{'project'}) || !defined($ev->{'repository'})) {
-      unlink("$myeventdir/$event");
-      next;
-    }
-    my $prp = "$ev->{'project'}/$ev->{'repository'}";
-    if (check_publish_prg_running($prp)) {
-      print "$prp: external publish program still running\n";
-      $publish_retry{$event} = time() + 60;
-      next;
-    }
-    my $starttime = time();
-    if ($publish_lasttime{$prp} && $publish_duration{$prp} > 300 && $publish_lasttime{$prp} + 5 * $publish_duration{$prp} > $starttime) {
-      print "$prp: not yet\n";
-      $publish_retry{$event} = $starttime + 60 * 5;
-      next;
-    }
-    rename("$myeventdir/$event", "$myeventdir/${event}::inprogress");
-    BSNotify::notify('REPO_PUBLISH_STATE', { 'project' => $ev->{'project'}, 'repo' => $ev->{'repository'}, 'state' => 'publishing'} );
-    eval {
-      publish($ev->{'project'}, $ev->{'repository'});
-    };
-    if ($@) {
-      warn("publish failed for $ev->{'project'}, $ev->{'repository'} : $@");
-      # delete state from repoinfo so that we will always re-publish
-      clear_repoinfo_state($prp);
-      rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
-      $publish_retry{$event} = time() + 60;
-      db_sync();
-    } else {
-      my $now = time();
-      $publish_lasttime{$prp} = $now;
-      $publish_duration{$prp} = $now - $starttime;
-      BSNotify::notify('REPO_PUBLISH_STATE', { 'project' => $ev->{'project'}, 'repo' => $ev->{'repository'}, 'state' => 'published'} );
-      db_sync();
-      unlink("$myeventdir/${event}::inprogress");
-    }
-  }
-
-  # check for restart/exit
-  if (-e "$rundir/bs_publish.exit") {
-    close(RUNLOCK);
-    unlink("$rundir/bs_publish.exit");
-    print "exiting...\n";
-    exit(0);
-  }
-  if (-e "$rundir/bs_publish.restart") {
-    close(RUNLOCK);
-    unlink("$rundir/bs_publish.restart");
-    print "restarting...\n";
-    exec($0);
-    die("$0: $!\n");
-  }
-  if (-e "$rundir/bs_publish.rescan") {
-    unlink("$rundir/bs_publish.rescan");
-  }
-
-  if (%publish_retry) {
-    my $now = time();
-    for (sort keys %publish_retry) {
-      delete($publish_retry{$_}) if $publish_retry{$_} < $now;
-    }
-    print "sleeping 10 seconds...\n";
-    sleep(10);
-  } else {
-    if ($testmode) {
-      print "Test mode, all events processed, exiting...\n";
-      exit(0);
-    }
-    print "waiting for an event...\n";
-    sysread(PING, $dummy, 1, 0);
+sub clean_publish_retry {
+  my $now = time();
+  for (sort keys %publish_retry) {
+    delete($publish_retry{$_}) if $publish_retry{$_} < $now;
   }
 }
+
+sub set_publish_retry {
+  my ($req, $due) = @_;
+  $publish_retry{$req->{'event'}} = $due;
+  my $ev = $req->{'ev'};
+  writepublishtimeevent($ev->{'project'}, $ev->{'repository'}, 0, $due, $req->{'event'}) if $req->{'forked'};
+  BSUtil::ping("$myeventdir/.ping");
+}
+
+sub notify_state {
+  my ($projid, $repoid, $state) = @_;
+  BSNotify::notify('REPO_PUBLISH_STATE', { 'project' => $projid, 'repo' => $repoid, 'state' => $state });
+}
+
+sub syncdb {
+  die if @db_sync;
+  db_pickup();
+  db_sync();
+}
+
+sub publishevent {
+  my ($req, $projid, $repoid) = @_;
+
+  $db_sync_append = 1 if $req->{'forked'};
+  syncdb() if $req->{'syncdb'};
+
+  my $prp = "$projid/$repoid";
+  my $starttime = time();
+
+  if (check_publish_prg_running($prp)) {
+    set_publish_retry($req, $starttime + 60);
+    die("$prp: external publish program still running\n");
+  }
+  if ($publish_lasttime{$prp} && $publish_duration{$prp} > 300 && $publish_lasttime{$prp} + 5 * $publish_duration{$prp} > $starttime) {
+    set_publish_retry($req, $starttime + 60 * 5);
+    die("$prp: not yet\n");
+  }
+
+  notify_state($projid, $repoid, 'publishing');
+  eval {
+    publish($projid, $repoid);
+  };
+  if ($@) {
+    warn("publish failed for $projid/$repoid : $@");
+    # delete state from repoinfo so that we will always re-publish
+    clear_repoinfo_state($prp);
+    set_publish_retry($req, time() + 60);
+    db_sync();
+    return 0;
+  }
+
+  my $now = time();
+  $publish_lasttime{$prp} = $now;
+  $publish_duration{$prp} = $now - $starttime;
+  writepublishtimeevent($projid, $repoid, $now, $now - $starttime) if $req->{'forked'};
+  notify_state($projid, $repoid, 'published');
+  db_sync();
+  return 1;
+}
+
+sub publishtimeevent {
+  my ($req, $projid, $repoid, $job) = @_;
+  my $prp = "$projid/$repoid";
+  my ($lasttime, $duration, $evn) = split(' ', $job, 3);
+  if ($lasttime) {
+    $publish_lasttime{$prp} = $lasttime;
+    $publish_duration{$prp} = $duration;
+  } elsif (defined($evn)) {
+    $publish_retry{$evn} = $duration;
+  }
+  return 1;
+}
+
+sub configurationevent {
+  my ($req) = @_;
+  print "updating configuration\n";
+  BSConfiguration::update_from_configuration();
+  return 1;
+}
+
+sub lsevents {
+  clean_publish_retry() if %publish_retry;
+  my @events = BSStdRunner::lsevents(@_);
+  # put publishtime and highprio events to the front
+  my @publishtimeevents = grep {/^publishtime/} @events;
+  @events = grep {!/^publishtime/} @events if @publishtimeevents;
+  my @highprioevents = grep {/^_/} @events;
+  @events = grep {!/^[_]/} @events if @highprioevents;
+  return (@publishtimeevents, @highprioevents, @events);
+}
+
+sub getevent {
+  my ($req) = @_;
+  my $evname = $req->{'event'};
+  if ($publish_retry{$evname}) {
+    return (undef, 1) if $publish_retry{$evname} > time();
+    delete $publish_retry{$evname};
+  }
+  $req = BSStdRunner::getevent($req);
+  return undef unless $req;
+
+  # publishtime are nofork events
+  if (($req->{'ev'}->{'type'} || '') eq 'publishtime') {
+    return ($req, 1, 1) if ($req->{'ev'}->{'job'} || '') =~ /^0 /;
+    return ($req, undef, 1);
+  }
+
+  # don't fork if the database is not in sync
+  if (@db_sync) {
+    print "not forking because of unsynced database entries\n";
+    return ($req, undef, 1);
+  }
+
+  # serialize if our children have unsynced data
+  if (!@db_sync && $maxchild && $maxchild > 1 && $extrepodb && -s "$extrepodb.sync") {
+    print "not forking because of unsynced database entries (syncdb)\n";
+    $req->{'syncdb'} = 1;
+    return ($req, undef, 2);
+  }
+
+  return $req;
+}
+
+sub runsingleevent {
+  my ($conf, $eventfile) = @_;
+
+  my $ev = readxml($eventfile, $BSXML::event);
+  $conf->{'eventdir'} = '.';
+  ($conf->{'eventdir'}, $eventfile) = ($1, $2) if $eventfile =~ /^(.*)\/([^\/]*)$/;
+  my $req = {'conf' => $conf, 'event' => $eventfile, 'ev' => $ev};
+  my $r = BSStdRunner::dispatch($req);
+  exit($r ? 0 : 1);
+}
+
+sub call_run {
+  my ($conf) = @_;
+  db_sync();	# try to sync old events
+  runsingleevent($conf, $ARGV[1]) if @ARGV > 1 && $ARGV[0] eq '--event';
+  BSRunner::run($conf);
+}
+
+sub fc_rescan {
+  my ($conf, $fc) = @_;
+  unlink($fc);
+}
+  
+my $dispatches = [ 
+  'configuration' => \&configurationevent,
+  'publish $project $repository' => \&publishevent,
+  'publishtime $project $repository $job' => \&publishtimeevent,
+];
+
+my $conf = { 
+  'runname' => 'bs_publish',
+  'eventdir' => $myeventdir,
+  'dispatches' => $dispatches,
+  'lsevents' => \&lsevents,
+  'getevent' => \&getevent,
+  'run' => \&call_run,
+  'filechecks' => { "$rundir/bs_publish.rescan" => \&fc_rescan },
+  'inprogress' => 1,
+  'maxchild' => $maxchild,
+  'maxchild_flavor' => $maxchild_flavor,
+};
+$conf->{'getflavor'} = $BSConfig::publish_getflavor if $BSConfig::publish_getflavor;
+
+BSStdRunner::run('publisher', \@ARGV, $conf);
+

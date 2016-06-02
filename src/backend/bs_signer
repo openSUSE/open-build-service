@@ -32,7 +32,6 @@ use POSIX;
 use Data::Dumper;
 use Digest;
 use Digest::MD5 ();
-use Fcntl qw(:DEFAULT :flock);
 use XML::Structured ':bytes';
 use Build;
 use Storable;
@@ -44,15 +43,12 @@ use BSXML;
 use BSHTTP;
 use BSVerify;
 use BSPgp;
+use BSStdRunner;
 
 use strict;
 
 my $bsdir = $BSConfig::bsdir || "/srv/obs";
 
-BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup);
-BSUtil::drop_privs_to($BSConfig::bsuser, $BSConfig::bsgroup);
-
-my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 my $jobsdir = "$BSConfig::bsdir/jobs";
 my $eventdir = "$BSConfig::bsdir/events";
 my $myeventdir = "$eventdir/signer";
@@ -549,162 +545,53 @@ sub signjob {
 }
 
 sub signevent {
-  my ($event, $ev) = @_;
+  my ($req, $job, $arch) = @_;
 
-  rename("$myeventdir/$event", "$myeventdir/${event}::inprogress");
-  my $job = $ev->{'job'};
-  my $arch = $ev->{'arch'};
   my $res;
   eval {
     $res = signjob($job, $arch);
   };
-  if ($@) {
-    warn("sign failed: $@");
-    rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
-    return;
-  } elsif ($res) {
-    my $name = $ev->{'type'} eq 'built' ? 'finished' : $ev->{'type'};
-    writexml("$eventdir/$arch/.${name}:$job$$", "$eventdir/$arch/${name}:$job", $ev, $BSXML::event);
+  die("sign failed: $@") if $@;
+  if ($res) {
+    my $ev = $req->{'ev'};
+    my $type = $ev->{'type'} eq 'built' ? 'finished' : $ev->{'type'};
+    writexml("$eventdir/$arch/.${type}:$job$$", "$eventdir/$arch/${type}:$job", $ev, $BSXML::event);
     BSUtil::ping("$eventdir/$arch/.ping");
   }
-  unlink("$myeventdir/${event}::inprogress");
+  return 1;	# event is processed
 }
 
 # we currently support two flavors, rsasign and iso
 sub getflavor {
-  my ($ev) = @_;
+  my ($req) = @_;
   
-  my $job = $ev->{'job'};
-  my $arch = $ev->{'arch'};
-  my @dir = ls("$jobsdir/$arch/$job:dir");
+  my $ev = $req->{'ev'};
+  my @dir = ls("$jobsdir/$ev->{'arch'}/$ev->{'job'}:dir");
   return undef unless @dir;
   return 'iso' if grep {/\.iso$/} @dir;
   return 'rsasign' if grep {/\.rsasign$/} @dir;
   return undef;
 }
 
-$| = 1;
-$SIG{'PIPE'} = 'IGNORE';
-BSUtil::restartexit($ARGV[0], 'signer', "$rundir/bs_signer", "$myeventdir/.ping");
-print "starting build service signer\n";
+my $dispatches = [
+  'built $job $arch' => \&signevent,
+  'uploadbuild $job $arch' => \&signevent,
+];
 
-# get lock
-mkdir_p($rundir);
-open(RUNLOCK, '>>', "$rundir/bs_signer.lock") || die("$rundir/bs_signer.lock: $!\n");
-flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("signer is already running!\n");
-utime undef, undef, "$rundir/bs_signer.lock";
+my $conf = {
+  'runname' => 'bs_signer',
+  'eventdir' => $myeventdir,
+  'dispatches' => $dispatches,
+  'maxchild' => $maxchild,
+  'maxchild_flavor' => $maxchild_flavor,
+  'getflavor' => \&getflavor,
+  'inprogress' => 1,
+};
+$conf->{'getflavor'} = $BSConfig::signer_getflavor if $BSConfig::signer_getflavor;
 
 die("sign program is not configured!\n") unless $BSConfig::sign;
-
-mkdir_p($myeventdir);
-if (!-p "$myeventdir/.ping") {
-  POSIX::mkfifo("$myeventdir/.ping", 0666) || die("$myeventdir/.ping: $!");
-  chmod(0666, "$myeventdir/.ping");
-}
-sysopen(PING, "$myeventdir/.ping", POSIX::O_RDWR) || die("$myeventdir/.ping: $!");
-
-for my $event (grep {s/::inprogress$//s} ls($myeventdir)) {
-  rename("$myeventdir/${event}::inprogress", "$myeventdir/$event");
-}
-
 check_sign_S();
 print "warning: sign does not seem to support checksum files, please update\n" unless $sign_supports_S;
 
-my %chld;
-my %chld_flavor;
-my $pid;
+BSStdRunner::run('signer', \@ARGV, $conf);
 
-while (1) {
-  # drain ping pipe
-  my $dummy;
-  fcntl(PING,F_SETFL,POSIX::O_NONBLOCK);
-  1 while (sysread(PING, $dummy, 1024, 0) || 0) > 0; 
-  fcntl(PING,F_SETFL,0);
-
-  my @events = ls($myeventdir);
-  @events = grep {!/^\./ && !/::inprogress$/} @events;
-  my $havedelayed;
-  my $havereaped;
-
-  for my $event (@events) {
-    last if -e "$rundir/bs_signer.exit";
-    last if -e "$rundir/bs_signer.restart";
-
-    my $ev = readxml("$myeventdir/$event", $BSXML::event, 1);
-    if (!$ev) {
-      unlink("$myeventdir/$event");
-      next;
-    }
-    if ($ev->{'type'} ne 'built' && $ev->{'type'} ne 'uploadbuild') {
-      print "unknown event type: $ev->{'type'}\n";
-      unlink("$myeventdir/$event");
-      next;
-    }
-    my $flavor;
-    if ($maxchild_flavor) {
-	$flavor = getflavor($ev);
-	if (defined($flavor) && $maxchild_flavor->{$flavor}) {
-	  if (keys(%{$chld_flavor{$flavor} || {}}) > $maxchild_flavor->{$flavor}) {
-	    $havedelayed = 1;
-	    next;
-	  }
-	}
-    }
-    if (!$maxchild || $maxchild == 1) {
-      signevent($event, $ev);
-      next;
-    }
-    if (!($pid = xfork())) {
-      signevent($event, $ev);
-      exit(0);
-    }
-    $chld{$pid} = $flavor;
-    $chld_flavor{$flavor}->{$pid} = undef if defined $flavor;
-    while (($pid = waitpid(-1, defined($maxchild) && keys(%chld) > $maxchild ? 0 : POSIX::WNOHANG)) > 0) {
-      my $cflavor = delete $chld{$pid};
-      delete $chld_flavor{$cflavor}->{$pid} if defined $cflavor && $chld_flavor{$cflavor};
-    }
-    $havereaped = 1;
-  }
-  if ($havedelayed && %chld && !$havereaped) {
-    while (($pid = waitpid(-1, defined($maxchild) && keys(%chld) > $maxchild ? 0 : POSIX::WNOHANG)) > 0) {
-      my $cflavor = delete $chld{$pid};
-      delete $chld_flavor{$cflavor}->{$pid} if defined $cflavor && $chld_flavor{$cflavor};
-    }
-  }
-
-  if (-e "$rundir/bs_signer.exit") {
-    if (%chld) {
-      while (($pid = waitpid(-1, 0)) > 0) {
-	delete $chld{$pid};
-      }   
-    }
-    close(RUNLOCK);
-    unlink("$rundir/bs_signer.exit");
-    print "exiting...\n";
-    exit(0);
-  }
-  if (-e "$rundir/bs_signer.restart") {
-    if (%chld) {
-      while (($pid = waitpid(-1, 0)) > 0) {
-	delete $chld{$pid};
-      }   
-    }
-    close(RUNLOCK);
-    unlink("$rundir/bs_signer.restart");
-    print "restarting...\n";
-    exec($0);
-    die("$0: $!\n");
-  }
-  if ($havedelayed) {
-    fcntl(PING,F_SETFL,POSIX::O_NONBLOCK);
-    for my $i (0, 1, 2, 3, 4, 5, 6, 7, 8, 9) {
-      last if (sysread(PING, $dummy, 1024, 0) || 0) > 0;
-      sleep(1);
-    }
-    fcntl(PING,F_SETFL,0);
-    next;
-  }
-  print "waiting for an event...\n";
-  sysread(PING, $dummy, 1, 0);
-}

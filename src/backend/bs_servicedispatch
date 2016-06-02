@@ -9,7 +9,6 @@ BEGIN {
 
 use XML::Structured ':bytes';
 use POSIX;
-use Fcntl qw(:DEFAULT :flock);
 
 use BSConfiguration;
 use BSRPC ':https';
@@ -17,14 +16,11 @@ use BSUtil;
 use BSSrcrep;
 use BSRevision;
 use BSNotify;
+use BSStdRunner;
 
 use strict;
 
 my $bsdir = $BSConfig::bsdir || "/srv/obs";
-
-BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup);
-BSUtil::drop_privs_to($BSConfig::bsuser||$BSConfig::bsuser, $BSConfig::bsgroup||$BSConfig::bsgroup);
-BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BSConfig::disable_data_sync;
 
 my $eventdir = "$BSConfig::bsdir/events";
 my $srcrep = "$BSConfig::bsdir/sources";
@@ -182,114 +178,27 @@ sub runservice {
   }, undef, 'cmd=notifypackagechange');
 }
 
-sub runservice_ev {
-  my ($event, $ev) = $_;
+sub servicedispatchevent {
+  my ($req, @args) = @_;
   eval {
-    runservice($ev->{'project'}, $ev->{'package'}, $ev->{'job'}, $ev->{'srcmd5'}, $ev->{'rev'}, $ev->{'linksrcmd5'}, $ev->{'projectservicesmd5'}, $ev->{'oldsrcmd5'});
+    runservice(@args);
   };
   if ($@) {
-    warn($@);
-    $ev->{'due'} = time() + 10 * 60;
-    writexml("$myeventdir/.$event$$", "$myeventdir/$event", $ev, $BSXML::event);
-  } else {
-    unlink("$myeventdir/$event");
+    # retry in 10 minutes
+    BSStdRunner::setdue($req, time() + 10 * 60);
+    die($@);
   }
+  return 1;
 }
 
-$| = 1;
-$SIG{'PIPE'} = 'IGNORE';
-BSUtil::restartexit($ARGV[0], 'servicedispatch', "$rundir/bs_servicedispatch", "$myeventdir/.ping");
-print "starting service dispatcher\n";
+my $dispatches = [
+  'servicedispatch $project $package $job $srcmd5 $rev? $linksrcmd5? $projectservicesmd5? $oldsrcmd5?' => \&servicedispatchevent,
+];
 
-mkdir_p($rundir);
-open(RUNLOCK, '>>', "$rundir/bs_servicedispatch.lock") || die("$rundir/bs_servicedispatch.lock: $!\n");
-flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("servicedispatch is already running!\n");
-utime undef, undef, "$rundir/bs_servicedispatch.lock";
+my $conf = {
+  'eventdir' => $myeventdir,
+  'dispatches' => $dispatches,
+  'maxchild' => $maxchild,
+};
 
-mkdir_p($myeventdir);
-if (!-p "$myeventdir/.ping") {
-  POSIX::mkfifo("$myeventdir/.ping", 0666) || die("$myeventdir/.ping: $!");
-  chmod(0666, "$myeventdir/.ping");
-}
-sysopen(PING, "$myeventdir/.ping", POSIX::O_RDWR) || die("$myeventdir/.ping: $!");
-
-my %chld;
-my $pid;
-
-while (1) {
-  # drain ping pipe
-  my $dummy;
-  fcntl(PING,F_SETFL,POSIX::O_NONBLOCK);
-  1 while (sysread(PING, $dummy, 1024, 0) || 0) > 0;
-  fcntl(PING,F_SETFL,0);
-
-  # check for events
-  my @events = sort(ls($myeventdir));
-  @events = grep {!/^\./} @events;
-
-  my $havedue;
-
-  for my $event (@events) {
-    last if -e "$rundir/bs_servicedispatch.exit";
-    last if -e "$rundir/bs_servicedispatch.restart";
-    my $ev = readxml("$myeventdir/$event", $BSXML::event, 1);
-    if (!$ev || !$ev->{'type'} || $ev->{'type'} ne 'servicedispatch') {
-      unlink("$myeventdir/$event");
-      next;
-    }
-    if (!defined($ev->{'project'}) || !defined($ev->{'package'}) || !defined($ev->{'job'})) {
-      unlink("$myeventdir/$event");
-      next;
-    }
-    if ($ev->{'due'} && time() < $ev->{'due'}) {
-      $havedue = 1;
-      next;
-    }
-    if (!$maxchild || $maxchild == 1) {
-      runservice_ev($event, $ev);
-      next;
-    }
-    if (!($pid = xfork())) {
-      runservice_ev($event, $ev);
-      exit(0);
-    }
-    $chld{$pid} = undef;
-    while (($pid = waitpid(-1, defined($maxchild) && keys(%chld) > $maxchild ? 0 : POSIX::WNOHANG)) > 0) {
-      delete $chld{$pid};
-    }
-  }
-
-  # check for restart/exit
-  if (-e "$rundir/bs_servicedispatch.exit") {
-    if (%chld) {
-      delete $chld{$pid} while ($pid = waitpid(-1, 0)) > 0;
-    }
-    close(RUNLOCK);
-    unlink("$rundir/bs_servicedispatch.exit");
-    print "exiting...\n";
-    exit(0);
-  }
-  if (-e "$rundir/bs_servicedispatch.restart") {
-    if (%chld) {
-      delete $chld{$pid} while ($pid = waitpid(-1, 0)) > 0;
-    }
-    close(RUNLOCK);
-    unlink("$rundir/bs_servicedispatch.restart");
-    print "restarting...\n";
-    exec($0);
-    die("$0: $!\n");
-  }
-  if ($havedue) {
-    print "sleeping 10 seconds...\n";
-    fcntl(PING,F_SETFL,POSIX::O_NONBLOCK);
-    for my $i (0..9) {
-      last if (sysread(PING, $dummy, 1024, 0) || 0) > 0;
-      sleep(1);
-    }
-    fcntl(PING,F_SETFL,0);
-  } else {
-    print "waiting for an event...\n";
-    sysread(PING, $dummy, 1, 0);
-  }
-}
-
+BSStdRunner::run('bs_servicedispatch', \@ARGV, $conf);
