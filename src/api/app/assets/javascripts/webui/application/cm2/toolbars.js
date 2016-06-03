@@ -62,13 +62,6 @@
     function prependOption(cm, name, value) {
 	this.cm = cm;
 	return;
-	if(name.match(/^on/)) {
-	    var oldval = this.cm.getOption(name);
-	    this.cm.setOption(name, function(cm) { 
-		(value)(cm); 
-		if(typeof(oldval) == 'function') (oldval)(cm);  
-	    });
-	}
     }
     
     CodeMirror.defineExtension("prependOption", function(name,value) {
