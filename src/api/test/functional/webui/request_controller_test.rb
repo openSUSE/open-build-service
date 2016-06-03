@@ -309,9 +309,8 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
 
     visit project_requests_path(project: "Apache")
     page.must_have_text "Requests for Apache"
-    all("a.request_link").count.must_equal 4
+    find_all("a.request_link", count: 4).first.click
 
-    first("a.request_link").click
     assert_equal "/request/show/1000", page.current_path
     # start of list
     page.wont_have_link("<<")
