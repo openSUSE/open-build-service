@@ -192,7 +192,12 @@ sub fetchdodbinary {
   #print "fetching: $url\n";
   my $param = {'uri' => $url, 'filename' => $tmp, 'receiver' => \&BSHTTP::file_receiver, 'proxy' => $proxy};
   $param->{'maxredirects'} = $maxredirects if defined $maxredirects;
-  my $r = BSWatcher::rpc($param);
+  my $r;
+  eval { $r = BSWatcher::rpc($param); };
+  if ($@) {
+    $@ =~ s/(\d* *)/$1$url: /;
+    die($@);
+  }
   return unless defined $r;
   my $checksum;
   $checksum = $pool->pkg2checksum($p) if defined &BSSolv::pool::pkg2checksum;
