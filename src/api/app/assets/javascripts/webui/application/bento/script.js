@@ -47,6 +47,11 @@ $(document).ready(function() {
     }
   });
   
+  function closeLoginForm () {
+    $('#login-form').slideUp().removeClass('login-show');
+    return false;
+  }
+
   $('#close-login').click(function() { // close login-form onClick
     closeLoginForm();
     return false; // disable action onClick
@@ -200,11 +205,4 @@ $(document).ready(function() {
       return false;
     }
   }
-  
-  // Close login-form
-  function closeLoginForm () {
-    $('#login-form').slideUp().removeClass('login-show');
-    return false;
-  }
-  
 });
