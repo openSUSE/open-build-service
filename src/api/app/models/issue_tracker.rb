@@ -114,7 +114,7 @@ class IssueTracker < ActiveRecord::Base
     if mtime.nil? or self.issues_updated.nil? or (self.issues_updated < mtime)
       # new file exists
       h = http.get("/data/downloads/allitems.xml.gz")
-      unzipedio = Zlib::GzipReader.new(StringIO.new(h.body))
+      unzipedio = StringIO.new(h.body) # Net::HTTP is decompressing already
       listener = CVEparser.new()
       listener.set_tracker(self)
       parser = Nokogiri::XML::SAX::Parser.new(listener)
@@ -319,7 +319,7 @@ class CVEparser < Nokogiri::XML::SAX::Document
         end
       end
 
-      @@myIssue = Issue.find_or_create_by_name_and_tracker(cve, @@myTracker.name)
+      @@myIssue = Issue.find_or_create_by_name_and_tracker(cve.gsub(/^CVE-/, ''), @@myTracker.name)
       @@mySummary = ""
       @@isDesc = false
     end
@@ -339,7 +339,7 @@ class CVEparser < Nokogiri::XML::SAX::Document
   def end_element(name)
     return unless name == "item"
     unless @@mySummary.blank?
-      @@myIssue.summary = @@mySummary
+      @@myIssue.summary = @@mySummary[0..254]
       @@myIssue.save
     end
     @@myIssue = nil
