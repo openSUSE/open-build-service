@@ -40,7 +40,7 @@ use Storable;
 
 use BSRPC;
 use BSServer;
-use BSDispatch;		# for parse_cgi
+use BSDispatch;
 use BSConfiguration;
 use BSUtil;
 use BSXML;
@@ -108,6 +108,10 @@ my $buildlog_maxidle = $BSConfig::buildlog_maxidle ? $BSConfig::buildlog_maxidle
 my $binariesdownload;
 my $binariescachehits;
 my $binariesdownloadsize;
+
+
+my $workercode;
+my $buildcode;
 
 $hostcheck = $BSConfig::workerhostcheck if defined($BSConfig::workerhostcheck);
 
@@ -614,6 +618,7 @@ die("arch $hostarch cannot build anything!\n") unless $BSCando::cando{$hostarch}
 
 $srcserver = $BSConfig::srcserver unless defined $srcserver;
 @reposervers = @BSConfig::reposervers unless @reposervers;
+@reposervers = $BSConfig::reposerver unless @reposervers;
 
 if ($justbuild) {
   my $buildinfo = readxml($ARGV[0], $BSXML::buildinfo);
@@ -2919,54 +2924,217 @@ sub buildkiwitree {
   close(F) || die("close $destfile: $!\n");
 }
 
-if (defined($oneshot)) {
-  $oneshot = time() + $oneshot;
+sub getstate {
+  my ($jobid, $needbuilding) = @_;
+  my $state = readxml("$statedir/state", $BSXML::workerstate, 1);
+  $state ||= {'state' => 'unknown state'};
+  die("not building a job\n") if ($jobid || $needbuilding) && $state->{'state'} ne 'building';
+  die("building a different job\n") if $jobid && $jobid ne $state->{'jobid'};
+  return $state;
 }
 
-# better safe than sorry...
-chdir($statedir) || die("$statedir: $!\n");
-
-
-BSServer::deamonize(@ARGV) unless $oneshot;
-$SIG{'PIPE'} = 'IGNORE';
-
-# calculate code meta md5
-my $workercode = codemd5('worker');
-my $buildcode = codemd5('build');
-$| = 1;
-print "starting worker $workercode build $buildcode\n";
-
-open(RUNLOCK, '>>', "$statedir/lock") || die("$statedir/lock: $!");
-flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("worker is already running on $statedir!\n");
-utime undef, undef, "$statedir/lock";
-
-# we always start idle
-lockstate();
-unlink("$statedir/job");
-unlink("$buildroot/.build.log");
-commitstate({'state' => 'idle'});
-
-# start server process...
-if ($port) {
-  BSServer::serveropen($port);
-} else {
-  BSServer::serveropen(\$port);
+sub stdreply {
+  my @rep = @_; 
+  return unless @rep && defined($rep[0]);
+  if (ref($rep[0]) eq 'HASH') {
+    if (ref($rep[1]) eq 'CODE') {
+      $rep[1] = $rep[1]->($rep[0]);
+    } else {
+      $rep[1] = BSUtil::toxml($rep[0], $rep[1]);
+    }   
+    shift @rep;
+  }
+  push @rep, 'Content-Type: text/xml' if @rep == 1;
+  BSServer::reply(@rep);
 }
-mkdir($buildroot) unless -d $buildroot;
-send_state('idle', $port, $hostarch);
-hardstatus('idle');
+
+sub errreply {
+  my ($err, $code, $tag, @hdrs) = @_; 
+  my $opresult = {'code' => $code, 'summary' => $tag};
+  $opresult->{'details'} = $err if $err && $err ne $tag && $err ne "$tag\n";
+  my $opresultxml;
+  eval {
+    $opresultxml = BSUtil::toxml($opresult, $BSXML::opstatus);
+  };  
+  $opresultxml ||= "<status code=\"500\"\n  <summary>internal error in errreply</summary>\n</status>\n";
+  BSServer::reply($opresultxml, "Status: $code $tag", 'Content-Type: text/xml', @hdrs);
+}
+
+sub getkiwitreefiles {
+  my ($cgi, $jobid) = @_;
+
+  my $state = getstate($jobid, 1);
+  my $kiwitreefile = "$buildroot/.build.packages/.kiwitree";
+  die("kiwitreefile does not exist\n") unless -e $kiwitreefile;
+  die("kiwitreefile does not work in rpmhdrs_only mode\n") if -e "$kiwitreefile.rpmhdrs_only";
+  my @send;
+  my %ok;
+  for my $f (@{$cgi->{'file'} || []}) {
+    die("bad file $f\n") if "/$f/" =~ m!//!s;           # no dup slashes
+    die("bad file $f\n") if "/$f/" =~ m!/\.\.?/!s;      # no . or ..
+    my @f = split('/', $f);
+    die("bad file $f\n") unless @f;
+    my $c = pop(@f);
+    $f = '';
+    for (@f) {
+      $f .= $_;
+      die("bad file $f\n") if !$ok{$f} && (-l "$buildroot/.build.packages/KIWI/$f" || ! -d _);
+      $ok{$f} = 1;
+      $f .= '/';
+    }
+    $f .= $c;
+    die("bad file $f\n") if -l "$buildroot/.build.packages/KIWI/$f" || ! -f _;
+    push @send, { 'name' => $f, 'filename' => "$buildroot/.build.packages/KIWI/$f" };
+  }
+  BSServer::reply_cpio(\@send);
+  return undef;
+}
+
+sub jobinfo {
+  my ($cgi, $jobid) = @_;
+  my $state = getstate($jobid);
+  my $info;
+  if ($state->{'state'} eq 'building') {
+    $info = readstr("$statedir/job");
+  } else {
+    $info = "<buildinfo>\n  <error>".$state->{'state'}."</error>\n</buildinfo>\n";
+  }
+  return $info;
+}
+
+sub workerinfo {
+  my ($cgi, $jobid) = @_;
+  my $state = getstate($jobid);
+  my $info = {'hostarch' => $hostarch, 'port' => $port};
+  $info->{'workerid'} = $workerid if defined $workerid;
+  # $info->{'job'} = $state->{'job'};
+  # $info->{'arch'} = $state->{'arch'};
+  return ($info, $BSXML::worker);
+}
+
+sub getlogfile {
+  my ($cgi, $jobid) = @_;
+  my $state = getstate($jobid, 1);
+  if ($cgi->{'view'} && $cgi->{'view'} eq 'entry') {
+    my @s = stat("$buildroot/.build.log");
+    die("$buildroot/.build.log: $!\n") unless @s;
+    my $dir = { 'entry' => [ {'name' => '_log', 'size' => $s[7], 'mtime' => $s[9]} ] };
+    return ($dir, $BSXML::dir);
+  }
+  stream_logfile($cgi->{'nostream'}, $cgi->{'start'}, $cgi->{'end'});
+  return undef;
+}
+
+sub killjob {
+  my ($cgi, $jobid) = @_;
+  my $state = getstate($jobid, 1);
+  die("could not kill job\n") unless kill_job();
+  BSUtil::appendstr("$buildroot/.build.log", "\n\nKilled Job\n");
+  $state->{'state'} = 'killed';
+  commitstate($state);
+  return "<status=\"ok\" />\n";
+}
+
+sub discardjob {
+  my ($cgi, $jobid) = @_;
+  my $state = getstate($jobid, 1);
+  die("could not kill job\n") unless kill_job();
+  BSUtil::appendstr("$buildroot/.build.log", "\n\nDiscarded Job\n");
+  $state->{'state'} = 'discarded';
+  commitstate($state);
+  return "<status=\"ok\" />\n";
+}
+
+sub startbuild {
+  my ($cgi, $jobid) = @_;
+
+  if ($vm =~ /xen/ && $xenstore_maxsize && 0 + (-s '/var/lib/xenstored/tdb') > $xenstore_maxsize) {
+    die("xenstore too big:".(-s '/var/lib/xenstored/tdb')."\n");
+  }
+  unlink("job.new.$$");
+  BSServer::read_file("job.new.$$");
+  my $state = lockstate();
+  die("I am not idle!\n") unless $state->{'state'} eq 'idle';
+  my $req = $BSServer::request;
+  if ($cgi->{'workercode'} && $cgi->{'port'} && $cgi->{'workercode'} ne $workercode && !$noworkercheck) {
+    unlink("job.new.$$");
+    my $peer = "$req->{'peer'}:$cgi->{'port'}";
+    $workercode = getcode('worker', "http://$peer/getworkercode");
+    die("could not update worker code\n") unless $workercode;
+    $state->{'state'} = 'rebooting';
+    print "activating new worker code $workercode\n";
+    commitstate($state);
+    hardstatus('rebooting');
+    die("rebooting...\n");
+  }
+  my $infoxml = readstr("job.new.$$");
+  die("bad job xml data\n") unless $infoxml =~ /<.*?>/s;
+  my $buildinfo = XMLin($BSXML::buildinfo, $infoxml);
+  $jobid ||= Digest::MD5::md5_hex($infoxml);
+  undef $infoxml;
+  $buildinfo->{'jobid'} = $jobid;
+  # old buildinfos missed some entries
+  if (@{$buildinfo->{'path'} || []}) {
+    $buildinfo->{'project'} ||= $buildinfo->{'path'}->[0]->{'project'};
+    $buildinfo->{'repository'} ||= $buildinfo->{'path'}->[0]->{'repository'};
+    $buildinfo->{'reposerver'} ||= $buildinfo->{'path'}->[0]->{'server'};
+  }
+  if ($localkiwi) {
+    # make sure this is the right job for us
+    my $jobname = ($buildinfo->{'arch'} || '<unknown>') . '/' . ($buildinfo->{'job'} || '<unknown>');
+    die("bad job: $jobname: not a kiwi job\n") unless $buildinfo->{'file'} =~ /\.kiwi$/;
+    die("bad job: $jobname: not a kiwi product job\n") unless $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product';
+  }
+
+  $buildcode = codemd5('build');
+  if (!$nobuildcodecheck && $cgi->{'buildcode'} && $cgi->{'port'} && $cgi->{'buildcode'} ne $buildcode) {
+    print "fetching new buildcode $cgi->{'buildcode'}, mine was $buildcode\n";
+    my $peer = "$req->{'peer'}:$cgi->{'port'}";
+    $buildcode = getcode('build', "http://$peer/getbuildcode");
+    die("could not update build code\n") unless $buildcode;
+  }
+  rename("job.new.$$", 'job') || die("rename job.new.$$ job: $!\n");
+  if ($hostcheck) {
+    my $server = $buildinfo->{'srcserver'} || $srcserver;
+    if (system($hostcheck, '--srcserver', $server, "$statedir/job", 'precheck', $buildroot)) {
+      my $res = ($? >> 8) || 1;
+      unlink('job');
+      die("400 cannot build anything\n") if $res == 3;
+      die("400 cannot build this repository\n") if $res == 2;
+      die("400 cannot build this package\n");
+    }
+  }
+
+  if (!$testmode && $buildinfo->{'masterdispatched'}) {
+    $buildinfo->{'jobid'} = $jobid = $buildinfo->{'masterdispatched'};
+    eval {
+      send_dispatched($buildinfo->{'reposerver'}, $port, $hostarch, $buildinfo);
+    };
+    if ($@) {
+      unlink('job');
+      if ($@ =~ /no such job/ || $@ =~ /wrong job/) {
+	warn($@);
+        # not an error for the master dispatcher
+        return "<status code=\"ok\">\n  <details>better luck next time...</details>\n</status>\n";
+      }
+      die($@);
+    }
+  }
+
+  # make the BSServer::server() call return
+  $BSServer::request->{'returnfromserver'} = [$state, $buildinfo, $cgi->{'nobadhost'}];
+
+  return ("<status code=\"failed\">\n  <details>testmode activated</details>\n</status>\n", 'Status: 400 Testmode', 'Content-Type: text/xml') if $testmode;
+  return "<status code=\"ok\">\n  <details>so much work, so little time...</details>\n</status>\n";
+}
 
 my $idlecnt = 0;
 my $rekillcnt = 0;
+$oneshot = time() + $oneshot if defined $oneshot;
 
-my $conf = {
-  'timeout' => 10,
-};
-my $req;
-while (!($req = BSServer::server($conf))) {
-  # timeout handler, called every 10 seconds
+sub periodic {
   my $state = readxml("$statedir/state", $BSXML::workerstate, 1);
-  next unless $state;
+  return unless $state;
 
   if ($state->{'state'} eq 'idle') {
     if ($oneshot && time() > $oneshot) {
@@ -3000,7 +3168,7 @@ while (!($req = BSServer::server($conf))) {
     chdir("$statedir/worker") || die("$statedir/worker: $!");
     close RUNLOCK;
     exec("./bs_worker", @saveargv);
-    die("$statedir/worker/bs_worker: $!\n");	# oops
+    die("$statedir/worker/bs_worker: $!\n");    # oops
   }
 
   if ($state->{'state'} eq 'killed' || $state->{'state'} eq 'discarded') {
@@ -3027,281 +3195,142 @@ while (!($req = BSServer::server($conf))) {
     if ($state->{'pid'} && !kill(0, $state->{'pid'})) {
       $state = lockstate();
       if ($state->{'state'} eq 'killed' || $state->{'state'} eq 'discarded' || $state->{'state'} eq 'building') {
-	if ($state->{'pid'} && !kill(0, $state->{'pid'})) {
-	  # our worker process is gone, should never happen...
-          kill_job();	# just in case...
-	  $state = {'state' => $state->{'nextstate'} || 'idle'};
-	  commitstate($state);
-	  next;
-	}
+        if ($state->{'pid'} && !kill(0, $state->{'pid'})) {
+          # our worker process is gone, should never happen...
+          kill_job();   # just in case...
+          $state = {'state' => $state->{'nextstate'} || 'idle'};
+          commitstate($state);
+          next;
+        }
       }
       unlockstate();
     }
   }
 
-  next unless $state->{'state'} eq 'building';
-
-  my $locked = -1;
-  while ($locked++ < 1) {
-    $state = lockstate() if $locked == 1;
-    last if $state->{'state'} ne 'building';
-    my $ct = time();
-    my @s = stat("$buildroot/.build.log");
-    next unless @s;
-    if ($s[7] > $buildlog_maxsize) {
-      next unless $locked;
-      if (!kill_job()) {
-        warn("could not kill job\n");
-        last;
-      }
-      trunc_logfile("$buildroot/.build.log");
-      $state->{'state'} = 'killed';
-      commitstate($state);
-      $locked = 0;
-    } elsif ($ct - $s[9] > $buildlog_maxidle) {
-      next unless $locked;
-      if (!kill_job()) {
-        warn("could not kill job\n");
-        last;
-      }
-      local *F;
-      if (open(F, '>>', "$buildroot/.build.log")) {
-	print F "\n\nJob seems to be stuck here, killed. (after $buildlog_maxidle seconds of inactivity)\n";
-	close F;
-      }
-      $state->{'state'} = 'killed';
-      commitstate($state);
-      $locked = 0;
-    } elsif ($s[7] > 250) {
-      my $tail = tail_logfile("$buildroot/.build.log", 250) || '';
-      my $kill_job;
-      $kill_job = "kvm memory page bug" if $tail =~ /BUG: unable to handle kernel NULL pointer dereference at/;
-      $kill_job = "kvm spinnlock bug" if $tail =~ /INFO: rcu_sched self-detected stall on CPU/;
-      $kill_job = "xen soft lockup" if $tail =~ /BUG: soft lockup - CPU#\d+ stuck for/;
-      $kill_job = "stuck in SLOF" if $tail =~ /\( \d+ \) Data Storage Exception/;
-      if ($kill_job) {
-        next unless $locked;
-	print "detected $kill_job, discarding job\n";
-        if (!kill_job()) {
-          warn("could not kill job\n");
-          last;
-        }
-        $state->{'state'} = 'discarded';
-        commitstate($state);
-        $locked = 0;
-      }
-    }
-    last;
-  }
-  unlockstate() if $locked;
-}
-close RUNLOCK;
-
-BSServer::readrequest($req);
-my $path = $req->{'path'};
-my $multies;
-$multies = {'file' => undef} if $path eq '/kiwitree';
-my $cgi = BSDispatch::parse_cgi($req, $multies);
-if ($path eq '/info') {
-  # check state?
-  my $state = readxml("$statedir/state", $BSXML::workerstate, 1);
-  if ($cgi->{'jobid'}) {
-    die("not building a job\n") if $state->{'state'} ne 'building';
-    die("building a different job\n") if $cgi->{'jobid'} ne $state->{'jobid'};
-  }
-  my $info;
   if ($state->{'state'} eq 'building') {
-    $info = readstr("$statedir/job");
-  } else {
-    $info = "<buildinfo>\n  <error>".$state->{'state'}."</error>\n</buildinfo>\n";
-  }
-  BSServer::reply($info, 'Content-Type: text/xml');
-  exit(0);
-} elsif ($path eq '/worker') {
-  my $state = readxml("$statedir/state", $BSXML::workerstate, 1);
-  if ($cgi->{'jobid'}) {
-    die("not building a job\n") if $state->{'state'} ne 'building';
-    die("building a different job\n") if $cgi->{'jobid'} ne $state->{'jobid'};
-  }
-  my $info = {};
-  $info->{'hostarch'} = $hostarch;
-  $info->{'port'} = $port;
-  $info->{'workerid'} = $workerid if defined $workerid;
-  # $info->{'job'} = $state->{'job'};
-  # $info->{'arch'} = $state->{'arch'};
-  $info = XMLout($BSXML::worker, $info);
-  BSServer::reply($info, 'Content-Type: text/xml');
-  exit(0);
-} elsif ($path eq '/kiwitree') {
-  my $state = readxml("$statedir/state", $BSXML::workerstate, 1);
-  if ($cgi->{'jobid'}) {
-    die("not building a job\n") if $state->{'state'} ne 'building';
-    die("building a different job\n") if $cgi->{'jobid'} ne $state->{'jobid'};
-  }
-  my $kiwitreefile = "$buildroot/.build.packages/.kiwitree";
-  die("kiwitreefile does not exist\n") unless -e $kiwitreefile;
-  die("kiwitreefile does not work in rpmhdrs_only mode\n") if -e "$kiwitreefile.rpmhdrs_only";
-  my @send;
-  my %ok;
-  for my $f (@{$cgi->{'file'} || []}) {
-    die("bad file $f\n") if "/$f/" =~ m!//!s;		# no dup slashes
-    die("bad file $f\n") if "/$f/" =~ m!/\.\.?/!s;	# no . or ..
-    my @f = split('/', $f);
-    die("bad file $f\n") unless @f;
-    my $c = pop(@f);
-    $f = '';
-    for (@f) {
-      $f .= $_;
-      die("bad file $f\n") if !$ok{$f} && (-l "$buildroot/.build.packages/KIWI/$f" || ! -d _);
-      $ok{$f} = 1;
-      $f .= '/';
+    my $locked = -1;
+    while ($locked++ < 1) {
+      $state = lockstate() if $locked == 1;
+      last if $state->{'state'} ne 'building';
+      my $ct = time();
+      my @s = stat("$buildroot/.build.log");
+      next unless @s;
+      if ($s[7] > $buildlog_maxsize) {
+	next unless $locked;
+	if (!kill_job()) {
+	  warn("could not kill job\n");
+	  last;
+	}
+	trunc_logfile("$buildroot/.build.log");
+	$state->{'state'} = 'killed';
+	commitstate($state);
+	$locked = 0;
+      } elsif ($ct - $s[9] > $buildlog_maxidle) {
+	next unless $locked;
+	if (!kill_job()) {
+	  warn("could not kill job\n");
+	  last;
+	}
+	local *F;
+	if (open(F, '>>', "$buildroot/.build.log")) {
+	  print F "\n\nJob seems to be stuck here, killed. (after $buildlog_maxidle seconds of inactivity)\n";
+	  close F;
+	}
+	$state->{'state'} = 'killed';
+	commitstate($state);
+	$locked = 0;
+      } elsif ($s[7] > 250) {
+	my $tail = tail_logfile("$buildroot/.build.log", 250) || '';
+	my $kill_job;
+	$kill_job = "kvm memory page bug" if $tail =~ /BUG: unable to handle kernel NULL pointer dereference at/;
+	$kill_job = "kvm spinnlock bug" if $tail =~ /INFO: rcu_sched self-detected stall on CPU/;
+	$kill_job = "xen soft lockup" if $tail =~ /BUG: soft lockup - CPU#\d+ stuck for/;
+	$kill_job = "stuck in SLOF" if $tail =~ /\( \d+ \) Data Storage Exception/;
+	if ($kill_job) {
+	  next unless $locked;
+	  print "detected $kill_job, discarding job\n";
+	  if (!kill_job()) {
+	    warn("could not kill job\n");
+	    last;
+	  }
+	  $state->{'state'} = 'discarded';
+	  commitstate($state);
+	  $locked = 0;
+	}
+      }
+      last;
     }
-    $f .= $c;
-    die("bad file $f\n") if -l "$buildroot/.build.packages/KIWI/$f" || ! -f _;
-    push @send, { 'name' => $f, 'filename' => "$buildroot/.build.packages/KIWI/$f" };
+    unlockstate() if $locked;
   }
-  BSServer::reply_cpio(\@send);
-  exit(0);
-} elsif ($path eq '/logfile') {
-  my $state = readxml("$statedir/state", $BSXML::workerstate, 1);
-  die("not building\n") if $state->{'state'} ne 'building';
-  die("building a different job\n") if $cgi->{'jobid'} && $cgi->{'jobid'} ne $state->{'jobid'};
-  if ($cgi->{'view'} && $cgi->{'view'} eq 'entry') {
-    my @s = stat("$buildroot/.build.log");
-    die("$buildroot/.build.log: $!\n") unless @s;
-    my $xml = "<directory>\n  <entry name=\"_log\" size=\"$s[7]\" mtime=\"$s[9]\" />\n</directory>\n";
-    BSServer::reply($xml, 'Content-Type: text/xml');
-    exit(0);
-  }
-  stream_logfile($cgi->{'nostream'}, $cgi->{'start'}, $cgi->{'end'});
-  exit(0);
-} elsif ($path eq '/kill' || $path eq '/discard') {
-  my $state = lockstate();
-  die("not building\n") if $state->{'state'} ne 'building';
-  die("building a different job\n") if $cgi->{'jobid'} && $cgi->{'jobid'} ne $state->{'jobid'};
-  if (!kill_job()) {
-    die("could not kill job\n");
-  }
-  local *F;
-  if (open(F, '>>', "$buildroot/.build.log")) {
-    if ($path eq '/kill') {
-      print F "\n\nKilled Job\n";
-    } else {
-      print F "\n\nDiscarded Job\n";
-    }
-    close F;
-  }
-  if ($path eq '/kill') {
-    $state->{'state'} = 'killed';
-    commitstate($state);
-    BSServer::reply("<status=\"ok\" />\n", 'Content-Type: text/xml');
-  } else {
-    $state->{'state'} = 'discarded';
-    commitstate($state);
-    BSServer::reply("<status=\"ok\" />\n", 'Content-Type: text/xml');
-  }
-  exit(0);
-} elsif ($path ne '/build' || $req->{'action'} ne 'PUT') {
-  die("unknown request: $path\n");
 }
 
-# Check for XEN daemon database leak
-if ($vm =~ /xen/ && $xenstore_maxsize && 0 + (-s '/var/lib/xenstored/tdb') > $xenstore_maxsize) {
-  die("xenstore too big:".(-s '/var/lib/xenstored/tdb')."\n");
-}
 
-unlink("job.new.$$");
-BSServer::read_file("job.new.$$");
+# better safe than sorry...
+chdir($statedir) || die("$statedir: $!\n");
 
-my $state = lockstate();
-die("I am not idle!\n") unless $state->{'state'} eq 'idle';
+BSServer::deamonize(@ARGV) unless $oneshot;
+$SIG{'PIPE'} = 'IGNORE';
+$| = 1;
 
-if ($cgi->{'workercode'} && $cgi->{'port'} && $cgi->{'workercode'} ne $workercode && !$noworkercheck) {
-  my $peer = "$req->{'peer'}:$cgi->{'port'}";
-  $workercode = getcode('worker', "http://$peer/getworkercode");
-  die("could not update worker code\n") unless $workercode;
-  $state->{'state'} = 'rebooting';
-  print "activating new worker code $workercode\n";
-  commitstate($state);
-  hardstatus('rebooting');
-  die("rebooting...\n");
-}
-
-my $nobadhost = $cgi->{'nobadhost'};
-
-my $infoxml = readstr("job.new.$$");
-die("bad job xml data\n") unless $infoxml =~ /<.*?>/s;
-my $buildinfo = XMLin($BSXML::buildinfo, $infoxml);
-my $jobid = $cgi->{'jobid'};
-$jobid ||= Digest::MD5::md5_hex($infoxml);
-
-$buildinfo->{'jobid'} = $jobid;
-
-# old buildinfos missed some entries
-if (@{$buildinfo->{'path'} || []}) {
-  $buildinfo->{'project'} ||= $buildinfo->{'path'}->[0]->{'project'};
-  $buildinfo->{'repository'} ||= $buildinfo->{'path'}->[0]->{'repository'};
-  $buildinfo->{'reposerver'} ||= $buildinfo->{'path'}->[0]->{'server'};
-}
-
-if ($localkiwi) {
-  # make sure this is the right job for us
-  my $jobname = ($buildinfo->{'arch'} || '<unknown>') . '/' . ($buildinfo->{'job'} || '<unknown>');
-  die("bad job: $jobname: not a kiwi job\n") unless $buildinfo->{'file'} =~ /\.kiwi$/;
-  die("bad job: $jobname: not a kiwi product job\n") unless $buildinfo->{'imagetype'} && $buildinfo->{'imagetype'}->[0] eq 'product';
-}
-
+# calculate code meta md5
+$workercode = codemd5('worker');
 $buildcode = codemd5('build');
-if (!$nobuildcodecheck && $cgi->{'buildcode'} && $cgi->{'port'} && $cgi->{'buildcode'} ne $buildcode) {
-  print "fetching new buildcode $cgi->{'buildcode'}, mine was $buildcode\n";
-  my $peer = "$req->{'peer'}:$cgi->{'port'}";
-  $buildcode = getcode('build', "http://$peer/getbuildcode");
-  die("could not update build code\n") unless $buildcode;
-}
 
-rename("job.new.$$", 'job') || die("rename job.new.$$ job: $!\n");
+open(RUNLOCK, '>>', "$statedir/lock") || die("$statedir/lock: $!");
+flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("worker is already running on $statedir!\n");
+utime undef, undef, "$statedir/lock";
 
-if ($hostcheck) {
-  my $server = $buildinfo->{'srcserver'} || $srcserver;
-  if (system($hostcheck, '--srcserver', $server, "$statedir/job", 'precheck', $buildroot)) {
-    my $res = ($? >> 8) || 1;
-    unlink('job');
-    die("400 cannot build this repository\n") if $res == 2;
-    die("400 cannot build anything\n") if $res == 3;
-    die("400 cannot build this package\n");
-  }
-}
+# we always start idle
+lockstate();
+unlink("$statedir/job");
+unlink("$buildroot/.build.log");
+commitstate({'state' => 'idle'});
 
-if (!$testmode && $buildinfo->{'masterdispatched'}) {
-  $buildinfo->{'jobid'} = $jobid = $buildinfo->{'masterdispatched'};
-  eval {
-    send_dispatched($buildinfo->{'reposerver'}, $port, $hostarch, $buildinfo);
-  };
-  if ($@) {
-    unlink('job');
-    if ($@ =~ /no such job/ || $@ =~ /wrong job/) {
-      # not an error for the master dispatcher
-      BSServer::reply("<status code=\"ok\">\n  <details>better luck next time...</details>\n</status>\n", 'Content-Type: text/xml');
-      delete $SIG{'__DIE__'};
-    }
-    die($@);
-  }
-}
+# start server process...
+BSServer::serveropen($port ? $port : \$port);
 
-if ($testmode) {
-  BSServer::reply("<status code=\"failed\">\n  <details>testmode activated</details>\n</status>\n", 'Status: 400 Testmode', 'Content-Type: text/xml');
-} else {
-  BSServer::reply("<status code=\"ok\">\n  <details>so much work, so little time...</details>\n</status>\n", 'Content-Type: text/xml');
-}
+print "worker started on port $port code $workercode build $buildcode\n";
+mkdir($buildroot) unless -d $buildroot;
+send_state('idle', $port, $hostarch);
+hardstatus('idle');
+
+my $dispatches = [
+  '/kiwitree $jobid:? $file:*' => \&getkiwitreefiles,
+  '/info $jobid:?' => \&jobinfo,
+  '/worker $jobid:?' => \&workerinfo,
+  '/logfile $jobid:? nostream:? start:? end:?' => \&getlogfile,
+  '/kill $jobid:?' => \&killjob,
+  '/discard $jobid:?' => \&discardjob,
+  'PUT:/build $jobid:? buildcode:? workercode:? port:? nobadhost:? *:?' => \&startbuild,
+];
+
+my $conf = {
+  'dispatches' => $dispatches,
+  'periodic' => \&periodic,
+  'periodic_interval' => 10,
+  'accept' => sub {close(RUNLOCK)},
+};
+
+
+BSDispatch::compile($conf);
+$conf->{'stdreply'} ||= \&stdreply;
+$conf->{'errorreply'} ||= \&errreply;
+$conf->{'dispatch'} ||= \&BSDispatch::dispatch;
+
+# run the server, this will return only for /build requests
+# see returnfromserver setting above
+my ($state, $buildinfo, $nobadhost) = BSServer::server($conf);
+
 print "got job, run build...\n";
-delete $SIG{'__DIE__'};
+close(BSServer::getsocket());
+
 unlink("$buildroot/.build.meta");
 unlink("$buildroot/.build.packages");
 unlink("$buildroot/.build.log");
 writestr("$buildroot/.build.log", undef, '');
 
 $state->{'state'} = 'building';
-$state->{'jobid'} = $jobid;
+$state->{'jobid'} = $buildinfo->{'jobid'};
 $state->{'pid'} = $$;
 commitstate($state);
 
@@ -3514,7 +3543,7 @@ if (!$testmode) {
     cpiofiles => \@send,
   };
   my $now = time();
-  my @args = ("job=$buildinfo->{'job'}", "arch=$buildinfo->{'arch'}", "jobid=$jobid", "code=$code", "now=$now");
+  my @args = ("job=$buildinfo->{'job'}", "arch=$buildinfo->{'arch'}", "jobid=$buildinfo->{'jobid'}", "code=$code", "now=$now");
   push @args, "workerid=$workerid" if defined $workerid;
   push @args, "kiwitree=1" if $kiwitree && $code eq 'succeeded';
   if ($code eq 'badhost') {

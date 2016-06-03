@@ -339,7 +339,7 @@ sub server {
         alarm(0);
       };
       my @r = $conf->{'dispatch'}->($conf, $req);
-      if (!$req->{'replying'} && !$req->{'returnfromserver'}) {
+      if (!$req->{'replying'}) {
         if ($conf->{'stdreply'}) {
           $conf->{'stdreply'}->(@r);
         } else {
@@ -347,7 +347,7 @@ sub server {
         }
       }
     };
-    return @{$req->{'returnfromserver'}} if $req->{'returnfromserver'};
+    return @{$req->{'returnfromserver'}} if $req->{'returnfromserver'} && !$@;
     reply_error($conf, $@) if $@;
     close CLNT;
     exit(0);
