@@ -88,7 +88,7 @@ function use_codemirror(id, read_only, mode) {
     editor.setSelections(editor);
 
     editor.on('change', function (cm) {
-      changed = true;
+      var changed = true;
       cm.updateHistory(cm);
       if (cm.historySize().undo > 0)
         $("#save_" + id).removeClass('inactive');
@@ -102,7 +102,7 @@ function use_codemirror(id, read_only, mode) {
   if (textarea.data('save-url')) {
     $('#save_' + id).click(function () {
       $('#flash-messages').remove();
-      data = textarea.data('data');
+      var data = textarea.data('data');
       data[data['submit']] = editors[id].getValue();
       $("#save_" + id).addClass("inactive").addClass("working");
       $.ajax({

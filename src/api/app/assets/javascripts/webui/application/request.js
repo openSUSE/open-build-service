@@ -66,6 +66,8 @@ function setup_request_dialog() {
 
 function requestAddAcceptRequestButton() {
     $('#accept_request_button').click(function (data) {
+        var additional_element;
+
         /* Add some hidden elements to carry HTML form data that is found at other DOM places for design reasons.  */
         if ($('.submitter_is_maintainer_checkbox').size() !== 0 &&
             $('.submitter_is_maintainer_checkbox').is(':checked')) {

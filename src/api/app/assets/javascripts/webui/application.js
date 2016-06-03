@@ -41,7 +41,7 @@
 // -> does NOT reserve the needed space for the element when not displayed
 function toggle_display(element_id) {
     if (document.getElementById) {
-        element = document.getElementById(element_id);
+        var element = document.getElementById(element_id);
         if (element.style.display == "none") {
             element.style.display = "block";
         } else {
@@ -54,7 +54,7 @@ function toggle_display(element_id) {
 // -> does NOT reserve the needed space for the element when not displayed
 function toggle_display_by_name(element_name) {
     if (document.getElementsByName) {
-        elements = document.getElementsByName(element_name);
+        var elements = document.getElementsByName(element_name);
         for (var i = 0; i < elements.length; i++) {
             if (elements[i].style.display == "none") {
                 elements[i].style.display = "inline";
@@ -110,8 +110,8 @@ function fillEmptyFields() {
 
 function toggleBox(link, box) {
     //calculating offset for displaying popup message
-    leftVal = link.position().left + "px";
-    topVal = link.position().bottom + "px";
+    var leftVal = link.position().left + "px";
+    var topVal = link.position().bottom + "px";
     $(box).css({
         left: leftVal,
         top: topVal
@@ -258,7 +258,7 @@ function change_role(obj) {
     var role = td.data("role");
 
     var url;
-    data = {project: $('#involved_users').data("project"), package: $('#involved_users').data("package"), role: role};
+    var data = {project: $('#involved_users').data("project"), package: $('#involved_users').data("package"), role: role};
     data[type + 'id'] = td.data(type);
     if (obj.is(':checked')) {
         url = $('#involved_users').data("save-" + type);
@@ -283,7 +283,7 @@ function change_role(obj) {
 }
 
 function collapse_expand(file_id) {
-    placeholder = $('#diff_view_' + file_id + '_placeholder');
+    var placeholder = $('#diff_view_' + file_id + '_placeholder');
     if (placeholder.attr('id')) {
         $.ajax({
             url: placeholder.parents('.table_wrapper').data("url"),

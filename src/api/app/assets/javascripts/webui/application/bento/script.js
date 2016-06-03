@@ -19,7 +19,7 @@ $(document).ready(function() {
     var offsetSubheader = $('#subheader').offset(); // get position of #subheader
     var posX = parseInt(offsetSubheader.left) + $('#subheader').width() - $('#login-form').width(); // calculate position for login-form
     $('#login-form').css('left', posX).slideDown('fast', function() { // slide down and set position in callback
-       rbPos = $('.position-br').offset();
+       var rbPos = $('.position-br').offset();
        x1 = posX; // left
        x2 = rbPos.left; // right
        y1 = offsetSubheader.top; // top
@@ -63,8 +63,8 @@ $(document).ready(function() {
     if (formStatus === true) { // check if form is open
 
       // save mouse-click position
-      xClick = event.pageX;
-      yClick = event.pageY;
+      var xClick = event.pageX;
+      var yClick = event.pageY;
       
       // x1/y1--------------x2/y1
       // |                      |
