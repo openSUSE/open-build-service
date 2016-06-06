@@ -722,6 +722,7 @@ our $worker = [
           [ 'flag' ],
         ],
         'processors',
+        'jobs',
 	'memory',	# in MBytes
 	'swap',		# in MBytes
 	'disk',		# in MBytes
@@ -1632,6 +1633,7 @@ our @constraint = (
 	      [ 'flag' ],
 	  ],
 	    'processors',
+	    'jobs',
 	  [ 'disk' => $size ],
 	  [ 'memory' => $size ],
 	  [ 'physicalmemory' => $size ],

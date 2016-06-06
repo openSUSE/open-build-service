@@ -102,6 +102,11 @@
               </element>
             </optional>
             <optional>
+              <element name="jobs">
+                <data type="integer"/>
+              </element>
+            </optional>
+            <optional>
               <element name="disk">
                 <ref name="size-unit"/>
               </element>
