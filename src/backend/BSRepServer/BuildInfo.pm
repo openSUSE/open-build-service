@@ -13,6 +13,10 @@ use BSXML;
 use Build;
 use BSSolv;
 use BSRepServer;
+use BSRepServer::BuildInfo::Generic;
+use BSRepServer::BuildInfo::KiwiImage;
+use BSRepServer::BuildInfo::Product;
+
 
 my $proxy;
 $proxy = $BSConfig::proxy if defined($BSConfig::proxy);
@@ -75,7 +79,7 @@ sub getkiwiproductpackages {
   my %deps = map {$_ => 1} @deps;
   delete $deps{''};
   my @aprps = expandkiwipath($info, $repo);
-  my $allpacks = $deps{'*'} ? 1 : 0; 
+  my $allpacks = $deps{'*'} ? 1 : 0;
 
   # sigh. Need to get the project kind...
   # it would be much easier to have this in the repo...
@@ -241,30 +245,72 @@ sub get_projpack_via_rpc {
   return $projpack;
 }
 
+sub new {
+	# args: (class,cgi,projid,repoid,arch,packid,pdata)
+	my $class = shift;
+	my $self  = {};
+
+	bless($self,$class);
+
+	# take variables
+	# 					 shift only once because rest ist needed for get_projpack_via_rpc()
+	$self->{cgi}       = shift;
+	$self->{projid}    = $_[0];
+	$self->{repoid}    = $_[1];
+	$self->{arch}      = $_[2];
+	$self->{packid}    = $_[3];
+
+	# get projpack information for generating remotemap
+	$self->{projpack}  = get_projpack_via_rpc(@_);
+	$self->{proj}      = $self->{projpack}->{'project'}->[0];
+    $self->{repo}      = $self->{proj}->{'repository'}->[0];
+
+	# generate initial remotemap
+	$self->{remotemap} = map {$_->{'project'} => $_} @{$projpack->{'remotemap'} || []};
+
+	# create pdata (package data) if needed and verify
+	my $pdata = $_[4];
+	if (!$pdata) {
+	  $pdata = $proj->{'package'}->[0];
+	  die("no such package\n") unless $pdata && $pdata->{'name'} eq $packid;
+	  die("$pdata->{'error'}\n") if $pdata->{'error'};
+	  $pdata->{'buildenv'} = getbuildenv($projid, $repoid, $arch, $packid, $pdata->{'srcmd5'}) if $pdata->{'hasbuildenv'};
+	}
+	die("$pdata->{'buildenv'}->{'error'}\n") if $pdata->{'buildenv'} && $pdata->{'buildenv'}->{'error'};
+	$self->{pdata}     = $pdata;
+
+	# Prepartion for selection of handler
+	$self->{info} = $pdata->{'info'}->[0];
+  	die("bad info\n") unless $self->{info} && $self->{info}->{'repository'} eq $self->{repoid};
+
+  	my $buildtype = $pdata->{'buildtype'} || Build::recipe2buildtype($self->{info}->{'file'}) || 'spec';
+
+	my $kiwitype;
+	if ($buildtype eq 'kiwi') {
+	  if ($self->{info}->{'imagetype'} && $self->{info}->{'imagetype'}->[0] eq 'product') {
+		$self->{handler} = BSRepServer::BuildInfo::KiwiProduct->new();
+	  } else {
+		$self->{handler} = BSRepServer::BuildInfo::KiwiImage->new();
+	  }
+	} else {
+		$self->{handler} = BSRepServer::BuildInfo::Generic->new();
+	}
+	return $self;
+}
+
 sub getbuildinfo {
   my ($cgi, $projid, $repoid, $arch, $packid, $pdata) = @_;
   my $projpack = get_projpack_via_rpc($projid, $repoid, $arch, $packid, $pdata);
 
-  my %remotemap = map {$_->{'project'} => $_} @{$projpack->{'remotemap'} || []};
-  my $proj = $projpack->{'project'}->[0];
-  my $repo = $proj->{'repository'}->[0];
-
-  if (!$pdata) {
-    $pdata = $proj->{'package'}->[0];
-    die("no such package\n") unless $pdata && $pdata->{'name'} eq $packid;
-    die("$pdata->{'error'}\n") if $pdata->{'error'};
-    $pdata->{'buildenv'} = getbuildenv($projid, $repoid, $arch, $packid, $pdata->{'srcmd5'}) if $pdata->{'hasbuildenv'};
-  }
-  die("$pdata->{'buildenv'}->{'error'}\n") if $pdata->{'buildenv'} && $pdata->{'buildenv'}->{'error'};
-
-  my $info = $pdata->{'info'}->[0];
-  die("bad info\n") unless $info && $info->{'repository'} eq $repoid;
-
-  my $buildtype = $pdata->{'buildtype'} || Build::recipe2buildtype($info->{'file'}) || 'spec';
-
-  my @configpath;
+  my @configpath = $self->{handler}->expand_configpath;
   my $kiwitype;
   if ($buildtype eq 'kiwi') {
+    if ($info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product') {
+      $kiwitype = 'product';
+    } else {
+      $kiwitype = 'image';
+    }
+    # sub append_to_remotemap (\%remotemap,$info->{path});
     if (@{$info->{'path'} || []}) {
       # fill in all remotemap entries we need
       my @args = map {"project=$_->{'project'}"} grep {$_->{'project'} ne '_obsrepositories'} @{$info->{'path'}};
@@ -274,11 +320,9 @@ sub getbuildinfo {
         %remotemap = (%remotemap, map {$_->{'project'} => $_} @{$pp->{'remotemap'} || []});
       }
     }
-    if ($info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product') {
-      $kiwitype = 'product';
-    } else {
-      $kiwitype = 'image';
-    }
+	# / sub append_to_remotemap
+    # sub expand_configpath
+    # $self->{handler}->expand_configpath($self->{info},$self->{repo})
     # a repo with no path will expand to just the prp as the only element
     if ($kiwitype eq 'image' || @{$repo->{'path'} || []} < 2) {
       @configpath = expandkiwipath($info, $repo);
@@ -286,6 +330,9 @@ sub getbuildinfo {
       unshift @configpath, "$projid/$repoid" unless @configpath && $configpath[0] eq "$projid/$repoid";
     }
   }
+
+
+  # TODO: implement $self->{handler}->buildtype
   my $bconf = BSRepServer::getconfig($projid, $repoid, $arch, \@configpath);
   $bconf->{'type'} = $buildtype if $buildtype;
 
@@ -297,7 +344,9 @@ sub getbuildinfo {
   $ret->{'arch'} = $arch;
   $ret->{'hostarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'};
   $ret->{'path'} = $repo->{'path'} || [];
+
   my @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
+
   if ($buildtype eq 'kiwi') {
     $ret->{'imagetype'} = $info->{'imagetype'} || [];
     if (@prp < 2 || grep {$_->{'project'} eq '_obsrepositories'} @{$info->{'path'} || []}) {
@@ -632,7 +681,7 @@ sub getbuildinfo {
       } else {
 	die("buildenv package $_->{'name'} has no hdrmd5 set\n");
       }
-      $_->{'notmeta'} = 1; 
+      $_->{'notmeta'} = 1;
       $_->{'preinstall'} = 1 if $pdeps{$_->{'name'}};
       $_->{'vminstall'} = 1 if $vmdeps{$_->{'name'}};
       $_->{'runscripts'} = 1 if $runscripts{$_->{'name'}};
@@ -671,7 +720,7 @@ sub getbuildinfo {
       my $d = { 'binary' => $bn[-1] };
       if ($bn[-1] =~ /^(?:::import::.*::)?(.+)-([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/) {
         $d->{'name'} = $1;
-        $d->{'version'} = $2; 
+        $d->{'version'} = $2;
         $d->{'release'} = $3;
         $d->{'arch'} = $4;
       } else {
