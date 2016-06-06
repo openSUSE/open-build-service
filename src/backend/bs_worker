@@ -3121,8 +3121,10 @@ sub startbuild {
     }
   }
 
+  $buildinfo->{'nobadhost'} = $cgi->{'nobadhost'} if $cgi->{'nobadhost'};
+
   # make the BSServer::server() call return
-  $BSServer::request->{'returnfromserver'} = [$state, $buildinfo, $cgi->{'nobadhost'}];
+  $BSServer::request->{'returnfromserver'} = [$state, $buildinfo];
 
   return ("<status code=\"failed\">\n  <details>testmode activated</details>\n</status>\n", 'Status: 400 Testmode', 'Content-Type: text/xml') if $testmode;
   return "<status code=\"ok\">\n  <details>so much work, so little time...</details>\n</status>\n";
@@ -3319,7 +3321,7 @@ $conf->{'dispatch'} ||= \&BSDispatch::dispatch;
 
 # run the server, this will return only for /build requests
 # see returnfromserver setting above
-my ($state, $buildinfo, $nobadhost) = BSServer::server($conf);
+my ($state, $buildinfo) = BSServer::server($conf);
 
 print "got job, run build...\n";
 close(BSServer::getsocket());
@@ -3485,9 +3487,9 @@ if (!$ex) {
 } elsif ($ex == 2) {
   print "build succeeded, but does not differ from old build result...\n";
   $code = 'unchanged';
-} elsif ($ex == 3 && $nobadhost) {
-  print "build failed, ignored bad build host...\n";
-  BSUtil::appendstr("$buildroot/.build.log", "\n$nobadhost\n");
+} elsif ($ex == 3 && $buildinfo->{'nobadhost'}) {
+  print "build failed (ignored bad build host flag)...\n";
+  BSUtil::appendstr("$buildroot/.build.log", "\n$buildinfo->{'nobadhost'}\n");
   $code = 'failed';
 } elsif ($ex == 3) {
   print "build failed, marked as bad build host...\n";
