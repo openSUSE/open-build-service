@@ -337,9 +337,9 @@ sub build {
     my $tfilename = $bi->{'filename'};
     $tfilename =~ s/^::import::.*?:://;
     link($file, "$jobdatadir/$tfilename") || die("link $file $jobdatadir/$tfilename: $!\n");
-    if ($bi->{'arch'} ne 'src' && $bi->{'arch'} ne 'nosrc' && -e "$dir/$bi->{'name'}-appdata.xml") {
-      unlink("$jobdatadir/$bi->{'name'}-appdata.xml");
-      link("$dir/$bi->{'name'}-appdata.xml", "$jobdatadir/$bi->{'name'}-appdata.xml") || die("link $bi->{'name'}-appdata.xml $jobdatadir/$bi->{'name'}-appdata.xml: $!\n");
+    if ($bi->{'arch'} ne 'src' && $bi->{'arch'} ne 'nosrc' && -e "$dir/$bi->{'name'}.appdata.xml") {
+      unlink("$jobdatadir/$bi->{'name'}.appdata.xml");
+      link("$dir/$bi->{'name'}.appdata.xml", "$jobdatadir/$bi->{'name'}.appdata.xml") || die("link $bi->{'name'}.appdata.xml $jobdatadir/$bi->{'name'}.appdata.xml: $!\n");
     }
     if (!$checksums_seen{"$arepoid/$apackid"}) {
       $checksums_seen{"$arepoid/$apackid"} = 1;
