@@ -1553,7 +1553,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   def test_get_project_meta_file
     get '/source/kde4/_project/_history'
     assert_response 401
-    prepare_request_with_user 'fredlibs', 'buildservice'
+    prepare_request_with_user 'fredlibs', 'geröllheimer'
     get '/source/kde4/_project/_meta?meta=1'
     assert_response :success
     assert_xml_tag(:tag => 'project')
