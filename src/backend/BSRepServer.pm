@@ -32,6 +32,25 @@ sub getconfig {
   return $bconf;
 }
 
+sub map_to_extrep {
+  my ($prp, $prp_ext) = @_;
+
+  my $extrep = "$extrepodir/$prp_ext";
+  return $extrep unless $BSConfig::publishredirect;
+  if ($BSConfig::publishedredirect_use_regex || $BSConfig::publishedredirect_use_regex) {
+    for my $key (sort {$b cmp $a} keys %{$BSConfig::publishredirect}) {
+      if ($prp =~ /^$key/) {
+        $extrep = $BSConfig::publishredirect->{$key};
+        last;
+      }
+    }
+  } elsif (exists($BSConfig::publishredirect->{$prp})) {
+    $extrep = $BSConfig::publishredirect->{$prp};
+  }
+  $extrep = $extrep->($prp, $prp_ext) if $extrep && ref($extrep) eq 'CODE';
+  return $extrep;
+}
+
 sub get_downloadurl {
   my ($prp, $prp_ext) = @_;
   if ($BSConfig::prp_ext_map && exists $BSConfig::prp_ext_map->{$prp}) {
