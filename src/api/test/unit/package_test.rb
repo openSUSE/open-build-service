@@ -19,9 +19,9 @@ class PackageTest < ActiveSupport::TestCase
 
   def test_flags_to_axml
     # check precondition
-    assert_equal 2, @package.type_flags('build').size
-    assert_equal 1, @package.type_flags('publish').size
-    assert_equal 1, @package.type_flags('debuginfo').size
+    assert_equal 2, @package.flags.of_type('build').size
+    assert_equal 1, @package.flags.of_type('publish').size
+    assert_equal 1, @package.flags.of_type('debuginfo').size
 
     xml_string = @package.to_axml
 
@@ -70,37 +70,37 @@ class PackageTest < ActiveSupport::TestCase
     @package.reload
 
     # check results
-    assert_equal 1, @package.type_flags('build').size
-    assert_equal 'enable', @package.type_flags('build')[0].status
-    assert_equal '10.2', @package.type_flags('build')[0].repo
-    assert_equal 'i586', @package.type_flags('build')[0].architecture.name
-    assert_equal 1, @package.type_flags('build')[0].position
-    assert_nil @package.type_flags('build')[0].project
-    assert_equal 'TestPack', @package.type_flags('build')[0].package.name
+    assert_equal 1, @package.flags.of_type('build').size
+    assert_equal 'enable', @package.flags.of_type('build')[0].status
+    assert_equal '10.2', @package.flags.of_type('build')[0].repo
+    assert_equal 'i586', @package.flags.of_type('build')[0].architecture.name
+    assert_equal 1, @package.flags.of_type('build')[0].position
+    assert_nil @package.flags.of_type('build')[0].project
+    assert_equal 'TestPack', @package.flags.of_type('build')[0].package.name
     assert_equal true, @package.enabled_for?('build', '10.2', 'i586')
     assert_equal false, @package.disabled_for?('build', '10.2', 'i586')
 
-    assert_equal 1, @package.type_flags('publish').size
-    assert_equal 'enable', @package.type_flags('publish')[0].status
-    assert_equal '10.1', @package.type_flags('publish')[0].repo
-    assert_equal 'x86_64', @package.type_flags('publish')[0].architecture.name
-    assert_equal 2, @package.type_flags('publish')[0].position
-    assert_nil @package.type_flags('publish')[0].project
-    assert_equal 'TestPack', @package.type_flags('publish')[0].package.name
+    assert_equal 1, @package.flags.of_type('publish').size
+    assert_equal 'enable', @package.flags.of_type('publish')[0].status
+    assert_equal '10.1', @package.flags.of_type('publish')[0].repo
+    assert_equal 'x86_64', @package.flags.of_type('publish')[0].architecture.name
+    assert_equal 2, @package.flags.of_type('publish')[0].position
+    assert_nil @package.flags.of_type('publish')[0].project
+    assert_equal 'TestPack', @package.flags.of_type('publish')[0].package.name
 
-    assert_equal 1, @package.type_flags('debuginfo').size
-    assert_equal 'disable', @package.type_flags('debuginfo')[0].status
-    assert_equal '10.0', @package.type_flags('debuginfo')[0].repo
-    assert_equal 'i586', @package.type_flags('debuginfo')[0].architecture.name
-    assert_equal 3, @package.type_flags('debuginfo')[0].position
-    assert_nil @package.type_flags('debuginfo')[0].project
-    assert_equal 'TestPack', @package.type_flags('debuginfo')[0].package.name
+    assert_equal 1, @package.flags.of_type('debuginfo').size
+    assert_equal 'disable', @package.flags.of_type('debuginfo')[0].status
+    assert_equal '10.0', @package.flags.of_type('debuginfo')[0].repo
+    assert_equal 'i586', @package.flags.of_type('debuginfo')[0].architecture.name
+    assert_equal 3, @package.flags.of_type('debuginfo')[0].position
+    assert_nil @package.flags.of_type('debuginfo')[0].project
+    assert_equal 'TestPack', @package.flags.of_type('debuginfo')[0].package.name
   end
 
   def test_delete_flags_through_xml
     # check precondition
-    assert_equal 2, @package.type_flags('build').size
-    assert_equal 1, @package.type_flags('publish').size
+    assert_equal 2, @package.flags.of_type('build').size
+    assert_equal 1, @package.flags.of_type('publish').size
 
     # package is given as axml
     axml = Xmlhash.parse(
@@ -112,8 +112,8 @@ class PackageTest < ActiveSupport::TestCase
 
     # first update build-flags, should only delete build-flags
     @package.update_all_flags(axml)
-    assert_equal 0, @package.type_flags('build').size
-    assert_equal 0, @package.type_flags('publish').size
+    assert_equal 0, @package.flags.of_type('build').size
+    assert_equal 0, @package.flags.of_type('publish').size
   end
 
   def test_rating

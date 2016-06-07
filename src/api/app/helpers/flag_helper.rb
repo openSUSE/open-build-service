@@ -3,14 +3,6 @@ module FlagHelper
     setup 'invalid_flag'
   end
 
-  def type_flags(type)
-    ret = []
-    flags.each do |f|
-      ret << f if f.flag == type
-    end
-    return ret
-  end
-
   TYPES = {
     'lock'           => :disable,
     'build'          => :enable,
@@ -79,7 +71,7 @@ module FlagHelper
 
   def remove_flag(flag, repository, arch = nil)
     validate_type flag
-    flaglist = self.type_flags(flag)
+    flaglist = self.flags.of_type(flag)
     arch = Architecture.find_by_name(arch) if arch
 
     flags_to_remove = Array.new
@@ -148,16 +140,12 @@ module FlagHelper
   end
 
   def find_flag_state(flag_type, repo, arch)
-    state = :default
+    flag = self.flags.of_type(flag_type).
+      select { |f| f.is_relevant_for?(repo, arch) }.
+      sort_by(&:specifics).
+      last
 
-    flags = Array.new
-    self.type_flags(flag_type).each do |flag|
-      flags << flag if flag.is_relevant_for?(repo, arch)
-    end
-    flags.sort! { |a, b| a.specifics <=> b.specifics }
-    flags.each do |flag|
-      state = flag.status
-    end
+    state = flag.try(:status) || :default
 
     if state == :default
       if self.respond_to? 'project'
