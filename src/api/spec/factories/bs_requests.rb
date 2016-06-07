@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :bs_request do
-    description Faker::Lorem.paragraph
+    description { Faker::Lorem.paragraph }
     state "new"
 
     before(:create) do |request|
