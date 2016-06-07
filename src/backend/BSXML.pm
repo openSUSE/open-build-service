@@ -554,6 +554,16 @@ our $buildinfo = [
 	'followupfile',	# for two-stage builds
 	'masterdispatched',	# dispatched through a master dispatcher
 	'nounchanged',	# do not check for "unchanged" builds
+
+      [ 'preinstallimage' =>
+	    'project',
+	    'repository',
+	    'repoarch',
+	    'package',
+	    'filename',
+	  [ 'binary' ],
+	    'url',	# external
+      ],
 ];
 
 our $jobstatus = [
