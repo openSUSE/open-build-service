@@ -1,6 +1,6 @@
 FactoryGirl.define do
   factory :package do
-    sequence(:name) { |n| "#{Faker::Internet.domain_word}#{n}" }
+    sequence(:name) { |n| "package_#{n}" }
     factory :package_with_file do
       after(:create) do |package|
         # NOTE: Enable global write through when writing new VCR cassetes.
