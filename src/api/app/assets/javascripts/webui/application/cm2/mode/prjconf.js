@@ -27,8 +27,8 @@ CodeMirror.defineMode("prjconf", function(config, modeConfig) {
       }
 
       if (stream.sol()) {
-        var match;
-        if (match = stream.match(prjconf)) {
+        var match = stream.match(prjconf);
+        if (match) {
           if (match[0] == "ExportFilter:") {
             state.exportFilter = true;
           }

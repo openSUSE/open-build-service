@@ -24,7 +24,7 @@
 	this.cm = cm;
 	if(typeof(cm_instance) == 'undefined') {
 	    cm_instance = new Array();
-	    cm_counter = 0;
+	    var cm_counter = 0;
 	}
 	else {
 	    cm_counter++;	
@@ -62,13 +62,6 @@
     function prependOption(cm, name, value) {
 	this.cm = cm;
 	return;
-	if(name.match(/^on/)) {
-	    var oldval = this.cm.getOption(name);
-	    this.cm.setOption(name, function(cm) { 
-		(value)(cm); 
-		if(typeof(oldval) == 'function') (oldval)(cm);  
-	    });
-	}
     }
     
     CodeMirror.defineExtension("prependOption", function(name,value) {
@@ -159,6 +152,8 @@
     var search;
     var replace;
     function Search(cm, elt) {
+        var query, begin;
+
 	this.cm = cm;
 	elt.value = elt.value == 'on' ? 'off' : 'on' ;
 	document.getElementById('find_'+this.cm.id).style.display = 'inline';
@@ -203,6 +198,8 @@
     });
 
     function Find(cm, elt) {
+        var found, mark;
+
 	this.cm = cm;
 	var S = document.getElementById('search_'+this.cm.id);
 	if(S.disabled) return;
@@ -221,7 +218,7 @@
 	begin = null;
 	begin = {line:cursor.from().line, ch:cursor.from().ch};
 	cursor = this.cm.getSearchCursor(query, {line:0, ch:0});
-	
+
 	for(;;) {
 	    found = cursor.findNext();
 	    if(found == false) {
@@ -230,11 +227,11 @@
 	    }
 	    if(typeof(cursor.from()) != 'undefined' && typeof(begin) != 'undefined') {
 		if(cursor.from().line == begin.line && cursor.from().ch == begin.ch) {
-		    var mark = this.cm.markText(cursor.from(), cursor.to(), 'CodeMirror-markSelected');
+		    mark = this.cm.markText(cursor.from(), cursor.to(), 'CodeMirror-markSelected');
 		    marked.push(mark);
 		}
 		else {
-		    var mark = this.cm.markText(cursor.from(), cursor.to(), 'CodeMirror-markFound');
+		    mark = this.cm.markText(cursor.from(), cursor.to(), 'CodeMirror-markFound');
 		    marked.push(mark);
 		}
 	    }
