@@ -29,4 +29,22 @@ RSpec.describe Webui::PackageController, vcr: true do
     it { expect(source_package.reload.description).to eq('New description for package') }
     it { expect(response).to redirect_to(package_show_path(project: source_project, package: source_package)) }
   end
+
+  describe "POST #save_new_link" do
+    before do
+      login(user)
+    end
+
+    it "shows an error if source package doesn't exist" do
+      post :save_new_link, project: user.home_project, linked_project: source_project
+      expect(flash[:error]).to eq("Failed to branch: Package does not exist.")
+      expect(response).to redirect_to(root_path)
+    end
+
+    it "shows an error if source project doesn't exist" do
+      post :save_new_link, project: user.home_project
+      expect(flash[:error]).to eq("Failed to branch: Package does not exist.")
+      expect(response).to redirect_to(root_path)
+    end
+  end
 end
