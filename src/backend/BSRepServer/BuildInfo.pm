@@ -15,7 +15,7 @@ use BSSolv;
 use BSRepServer;
 use BSRepServer::BuildInfo::Generic;
 use BSRepServer::BuildInfo::KiwiImage;
-use BSRepServer::BuildInfo::Product;
+use BSRepServer::BuildInfo::KiwiProduct;
 
 
 my $proxy;
@@ -246,70 +246,193 @@ sub get_projpack_via_rpc {
 }
 
 sub new {
-	# args: (class,cgi,projid,repoid,arch,packid,pdata)
-	my $class = shift;
-	my $self  = {};
+  # args: (class,cgi,projid,repoid,arch,packid,pdata)
+  my $class = shift;
+  my $self  = {};
 
-	bless($self,$class);
+  bless($self,$class);
 
-	# take variables
-	# 					 shift only once because rest ist needed for get_projpack_via_rpc()
-	$self->{cgi}       = shift;
-	$self->{projid}    = $_[0];
-	$self->{repoid}    = $_[1];
-	$self->{arch}      = $_[2];
-	$self->{packid}    = $_[3];
+  # take variables
+  # 					 shift only once because rest ist needed for get_projpack_via_rpc()
+  $self->{cgi}       = shift;
+  $self->{projid}    = $_[0];
+  $self->{repoid}    = $_[1];
+  $self->{arch}      = $_[2];
+  $self->{packid}    = $_[3];
+  $self->{pdata}     = $_[4];
 
-	# get projpack information for generating remotemap
-	$self->{projpack}  = get_projpack_via_rpc(@_);
-	$self->{proj}      = $self->{projpack}->{'project'}->[0];
-    $self->{repo}      = $self->{proj}->{'repository'}->[0];
+  # get projpack information for generating remotemap
+  $self->{projpack}  = get_projpack_via_rpc(@_);
+  $self->{proj}      = $self->{projpack}->{'project'}->[0];
+  $self->{repo}      = $self->{proj}->{'repository'}->[0];
 
-	# generate initial remotemap
-	$self->{remotemap} = map {$_->{'project'} => $_} @{$projpack->{'remotemap'} || []};
+  # generate initial remotemap
+  $self->{remotemap} = map {$_->{'project'} => $_} @{$self->{projpack}->{'remotemap'} || []};
 
-	# create pdata (package data) if needed and verify
-	my $pdata = $_[4];
-	if (!$pdata) {
-	  $pdata = $proj->{'package'}->[0];
-	  die("no such package\n") unless $pdata && $pdata->{'name'} eq $packid;
-	  die("$pdata->{'error'}\n") if $pdata->{'error'};
-	  $pdata->{'buildenv'} = getbuildenv($projid, $repoid, $arch, $packid, $pdata->{'srcmd5'}) if $pdata->{'hasbuildenv'};
-	}
-	die("$pdata->{'buildenv'}->{'error'}\n") if $pdata->{'buildenv'} && $pdata->{'buildenv'}->{'error'};
-	$self->{pdata}     = $pdata;
+  # create pdata (package data) if needed and verify
+  my $pdata = $self->{pdata};
+  if (!$pdata) {
+    $pdata = $self->{proj}->{'package'}->[0];
+    die("no such package\n") unless $pdata && $pdata->{'name'} eq $self->{packid};
+    die("$pdata->{'error'}\n") if $pdata->{'error'};
+    $pdata->{'buildenv'} = getbuildenv($self->{projid}, $self->{repoid}, $self->{arch}, $self->{packid}, $pdata->{'srcmd5'}) if $pdata->{'hasbuildenv'};
+  }
+  die("$pdata->{'buildenv'}->{'error'}\n") if $pdata->{'buildenv'} && $pdata->{'buildenv'}->{'error'};
+  $self->{pdata}     = $pdata;
 
-	# Prepartion for selection of handler
-	$self->{info} = $pdata->{'info'}->[0];
-  	die("bad info\n") unless $self->{info} && $self->{info}->{'repository'} eq $self->{repoid};
+  # Prepartion for selection of handler
+  $self->{info} = $pdata->{'info'}->[0];
+  die("bad info\n") unless $self->{info} && $self->{info}->{'repository'} eq $self->{repoid};
 
-  	my $buildtype = $pdata->{'buildtype'} || Build::recipe2buildtype($self->{info}->{'file'}) || 'spec';
+  my $buildtype = $pdata->{'buildtype'} || Build::recipe2buildtype($self->{info}->{'file'}) || 'spec';
 
-	my $kiwitype;
-	if ($buildtype eq 'kiwi') {
-	  if ($self->{info}->{'imagetype'} && $self->{info}->{'imagetype'}->[0] eq 'product') {
-		$self->{handler} = BSRepServer::BuildInfo::KiwiProduct->new();
-	  } else {
-		$self->{handler} = BSRepServer::BuildInfo::KiwiImage->new();
+  my $kiwitype;
+  if ($buildtype eq 'kiwi') {
+    if ($self->{info}->{'imagetype'} && $self->{info}->{'imagetype'}->[0] eq 'product') {
+	  $self->{handler} = BSRepServer::BuildInfo::KiwiProduct->new();
+    } else {
+	  $self->{handler} = BSRepServer::BuildInfo::KiwiImage->new();
+    }
+  } else {
+	  $self->{handler} = BSRepServer::BuildInfo::Generic->new();
+  }
+  return $self;
+}
+
+
+=head2 get_deps_from_buildenv - Take _buildenv parameter for cgi as input for dependency generation
+
+Parameters:
+
+  $ret
+  $pdata
+  $pool
+  \@prp
+  \%remotemap
+  \%pdeps
+  \%vmdeps
+  \%runscripts
+
+=cut
+
+sub get_deps_from_buildenv {
+  my $self=shift;
+  my $arch = $self->{arch};
+  my ($ret,$pdata,$pool,$prp,$remotemap,$pdeps,$vmdeps,$runscripts) = @_;
+
+  my @allpackages;
+  if (defined &BSSolv::pool::allpackages) {
+    @allpackages = $pool->allpackages();
+  } else {
+    # crude way to get ids of all packages
+    my $npkgs = 0;
+    for my $r ($pool->repos()) {
+      my @pids = $r->getpathid();
+      $npkgs += @pids / 2;
+    }
+    @allpackages = 2 ... ($npkgs + 1) if $npkgs;
+  }
+  my %allpackages;
+  for my $p (@allpackages) {
+    my $n = $pool->pkg2name($p);
+    my $hdrmd5 = $pool->pkg2pkgid($p);
+    next unless $n && $hdrmd5;
+    push @{$allpackages{"$n.$hdrmd5"}}, $p;
+  }
+  my @bdeps = @{$pdata->{'buildenv'}->{'bdep'}};
+  # check if we got em all
+  if (grep {$_->{'hdrmd5'} && !$allpackages{"$_->{'name'}.$_->{'hdrmd5'}"}} @bdeps) {
+    # nope, need to search package data as well
+    for my $aprp (@$prp) {
+      my ($aprojid, $arepoid) = split('/', $aprp, 2);
+      my $gbininfo = BSRepServer::read_gbininfo("$reporoot/$aprp/$arch");
+      if ($gbininfo) {
+	for my $packid (sort keys %$gbininfo) {
+	  for (map {$gbininfo->{$packid}->{$_}} sort keys %{$gbininfo->{$packid}}) {
+	    next unless $_->{'name'} && $_->{'hdrmd5'};
+	    $_->{'package'} = $packid;
+	    $_->{'prp'} = $aprp;
+	    push @{$allpackages{"$_->{'name'}.$_->{'hdrmd5'}"}}, $_;
 	  }
-	} else {
-		$self->{handler} = BSRepServer::BuildInfo::Generic->new();
 	}
-	return $self;
+      }
+      if (!$gbininfo && $remotemap->{$aprojid}) {
+	my $remoteproj = $remotemap->{$aprojid};
+	print "fetching remote project binary state for $aprp/$arch\n";
+	my $param = {
+	  'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$arepoid/$arch",
+	  'timeout' => 200,
+	  'proxy' => $proxy,
+	};
+	my $packagebinarylist = BSRPC::rpc($param, $BSXML::packagebinaryversionlist, "view=binaryversions");
+	for my $binaryversionlist (@{$packagebinarylist->{'binaryversionlist'} || []}) {
+	  for my $binary (@{$binaryversionlist->{'binary'} || []}) {
+	    next unless $binary->{'hdrmd5'};
+	    # XXX: rpm filenames don't have the epoch...
+	    next unless $binary->{'name'} =~ /^(?:::import::.*::)?(.+)-(?:(\d+?):)?([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
+	    my $d = {
+	      'name' => $1,
+	      'epoch' => $2,
+	      'version' => $3,
+	      'release' => $4,
+	      'arch' => $5,
+	      'filename' => $binary->{'name'},
+	      'prp' => $aprp,
+	      'package' => $binaryversionlist->{'package'},
+	    };
+	    push @{$allpackages{"$1.$binary->{'hdrmd5'}"}}, $d;
+	  }
+	}
+      }
+    }
+  }
+  for (@bdeps) {
+
+    $_->{'name'} =~ s/\.rpm$//;	# workaround bug in buildenv generation
+    die("buildenv package $_->{'name'} has no hdrmd5 set\n") if ( ! $_->{'hdrmd5'} );
+
+    my $n      = $_->{'name'};
+    my $hdrmd5 = $_->{'hdrmd5'};
+    die("package $n\@$hdrmd5 is unavailable\n") unless $allpackages{"$n.$hdrmd5"};
+
+    my $p = $allpackages{"$n.$hdrmd5"}->[0];
+    my ($d, $prp);
+
+    if (ref($p)) {
+      $d   = $p;
+      $prp = $d->{'prp'};
+    } else {
+      $d   = $pool->pkg2data($p);
+      $prp = $pool->pkg2reponame($p);
+    }
+    ($_->{'project'}, $_->{'repository'}) = split('/', $prp) if $prp ne '';
+    $_->{'version'} = $d->{'version'};
+    $_->{'epoch'}   = $d->{'epoch'}   if $d->{'epoch'};
+    $_->{'release'} = $d->{'release'} if exists $d->{'release'};
+    $_->{'arch'}    = $d->{'arch'}    if $d->{'arch'};
+    $_->{'package'} = $d->{'package'} if defined $d->{'package'};
+    $_->{'notmeta'}    = 1;
+    $_->{'preinstall'} = 1 if $pdeps->{$_->{'name'}};
+    $_->{'vminstall'}  = 1 if $vmdeps->{$_->{'name'}};
+    $_->{'runscripts'} = 1 if $runscripts->{$_->{'name'}};
+  }
+  $ret->{'bdep'} = \@bdeps;
+  return ($ret, $BSXML::buildinfo);
 }
 
 sub getbuildinfo {
-  my ($cgi, $projid, $repoid, $arch, $packid, $pdata) = @_;
+  my $self = shift;
+  # The following definition are here for performance and compability reason
+  my ($cgi, $projid, $repoid, $arch, $packid, $pdata, $info, $repo, $proj) = ($self->{cgi},$self->{projid},$self->{repoid},$self->{arch},$self->{packid},$self->{pdata},$self->{info}, $self->{repo}, $self->{proj});
   my $projpack = get_projpack_via_rpc($projid, $repoid, $arch, $packid, $pdata);
 
-  my @configpath = $self->{handler}->expand_configpath;
-  my $kiwitype;
+  #my @configpath = $self->{handler}->expand_configpath;
+  #my %remotemap  = $self->{handler}->append_to_remotemap;
+  my $buildtype = $self->{handler}->buildtype;
+  my $kiwitype  = $self->{handler}->kiwitype;
+  my %remotemap;
+  my @configpath;
   if ($buildtype eq 'kiwi') {
-    if ($info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product') {
-      $kiwitype = 'product';
-    } else {
-      $kiwitype = 'image';
-    }
     # sub append_to_remotemap (\%remotemap,$info->{path});
     if (@{$info->{'path'} || []}) {
       # fill in all remotemap entries we need
@@ -591,103 +714,7 @@ sub getbuildinfo {
   my %sysdeps = map {$_ => 1} @sysdeps;
 
   if ($pdata->{'buildenv'}) {
-    my @allpackages;
-    if (defined &BSSolv::pool::allpackages) {
-      @allpackages = $pool->allpackages();
-    } else {
-      # crude way to get ids of all packages
-      my $npkgs = 0;
-      for my $r ($pool->repos()) {
-        my @pids = $r->getpathid();
-        $npkgs += @pids / 2;
-      }
-      @allpackages = 2 ... ($npkgs + 1) if $npkgs;
-    }
-    my %allpackages;
-    for my $p (@allpackages) {
-      my $n = $pool->pkg2name($p);
-      my $hdrmd5 = $pool->pkg2pkgid($p);
-      next unless $n && $hdrmd5;
-      push @{$allpackages{"$n.$hdrmd5"}}, $p;
-    }
-    @bdeps = @{$pdata->{'buildenv'}->{'bdep'}};
-    # check if we got em all
-    if (grep {$_->{'hdrmd5'} && !$allpackages{"$_->{'name'}.$_->{'hdrmd5'}"}} @bdeps) {
-      # nope, need to search package data as well
-      for my $aprp (@prp) {
-	my ($aprojid, $arepoid) = split('/', $aprp, 2);
-        my $gbininfo = BSRepServer::read_gbininfo("$reporoot/$aprp/$arch");
-	if ($gbininfo) {
-	  for my $packid (sort keys %$gbininfo) {
-	    for (map {$gbininfo->{$packid}->{$_}} sort keys %{$gbininfo->{$packid}}) {
-	      next unless $_->{'name'} && $_->{'hdrmd5'};
-	      $_->{'package'} = $packid;
-	      $_->{'prp'} = $aprp;
-              push @{$allpackages{"$_->{'name'}.$_->{'hdrmd5'}"}}, $_;
-	    }
-	  }
-	}
-        if (!$gbininfo && $remotemap{$aprojid}) {
-	  my $remoteproj = $remotemap{$aprojid};
-	  print "fetching remote project binary state for $aprp/$arch\n";
-	  my $param = {
-	    'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$arepoid/$arch",
-	    'timeout' => 200,
-	    'proxy' => $proxy,
-	  };
-	  my $packagebinarylist = BSRPC::rpc($param, $BSXML::packagebinaryversionlist, "view=binaryversions");
-	  for my $binaryversionlist (@{$packagebinarylist->{'binaryversionlist'} || []}) {
-	    for my $binary (@{$binaryversionlist->{'binary'} || []}) {
-	      next unless $binary->{'hdrmd5'};
-	      # XXX: rpm filenames don't have the epoch...
-	      next unless $binary->{'name'} =~ /^(?:::import::.*::)?(.+)-(?:(\d+?):)?([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
-	      my $d = {
-		'name' => $1,
-		'epoch' => $2,
-		'version' => $3,
-		'release' => $4,
-		'arch' => $5,
-		'filename' => $binary->{'name'},
-		'prp' => $aprp,
-		'package' => $binaryversionlist->{'package'},
-	      };
-	      push @{$allpackages{"$1.$binary->{'hdrmd5'}"}}, $d;
-	    }
-	  }
-	}
-      }
-    }
-    for (@bdeps) {
-      $_->{'name'} =~ s/\.rpm$//;	# workaround bug in buildenv generation
-      if ($_->{'hdrmd5'}) {
-	my $n = $_->{'name'};
-	my $hdrmd5 = $_->{'hdrmd5'};
-	die("package $n\@$hdrmd5 is unavailable\n") unless $allpackages{"$n.$hdrmd5"};
-	my $p = $allpackages{"$n.$hdrmd5"}->[0];
-	my ($d, $prp);
-	if (ref($p)) {
-	  $d = $p;
-          $prp = $d->{'prp'};
-	} else {
-          $d = $pool->pkg2data($p);
-          $prp = $pool->pkg2reponame($p);
-	}
-        ($_->{'project'}, $_->{'repository'}) = split('/', $prp) if $prp ne '';
-        $_->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
-        $_->{'version'} = $d->{'version'};
-        $_->{'release'} = $d->{'release'} if exists $d->{'release'};
-        $_->{'arch'} = $d->{'arch'} if $d->{'arch'};
-        $_->{'package'} = $d->{'package'} if defined $d->{'package'};
-      } else {
-	die("buildenv package $_->{'name'} has no hdrmd5 set\n");
-      }
-      $_->{'notmeta'} = 1;
-      $_->{'preinstall'} = 1 if $pdeps{$_->{'name'}};
-      $_->{'vminstall'} = 1 if $vmdeps{$_->{'name'}};
-      $_->{'runscripts'} = 1 if $runscripts{$_->{'name'}};
-    }
-    $ret->{'bdep'} = \@bdeps;
-    return ($ret, $BSXML::buildinfo);
+    return $self->get_deps_from_buildenv($ret,$pdata,$pool,\@prp,\%remotemap,\%pdeps,\%vmdeps,\%runscripts);
   }
 
   if ($buildtype eq 'kiwi' && $kiwitype eq 'product') {
