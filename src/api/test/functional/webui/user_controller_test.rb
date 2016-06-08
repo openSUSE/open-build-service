@@ -11,16 +11,15 @@ class Webui::UserControllerTest < Webui::IntegrationTest
   end
 
   def test_creation_of_home_projects # spec/features/webui/users/users_home_project_spec.rb, spec/models/user_spec.rb
-    User.current = users(:Iggy)
-    Project.find_by(name: "home:Iggy").destroy
-    login_Iggy
+    User.current = users(:user4)
+    login_user "user4", "buildservice"
 
-    page.must_have_text "Iggy | Create Home | Logout"
+    page.must_have_text "user4 | Create Home | Logout"
     click_link("Create Home")
-    assert_equal "home:Iggy", find("#project_name").value
+    assert_equal "home:user4", find("#project_name").value
     click_button("Create Project")
 
-    page.must_have_text "Iggy | Home Project | Logout"
+    page.must_have_text "user4 | Home Project | Logout"
     assert Project.where(name: User.current.home_project_name).exists?
   end
 
