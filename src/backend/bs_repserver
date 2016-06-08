@@ -2547,6 +2547,11 @@ sub kiwiurlmapper {
 }
 $Build::Kiwi::urlmapper = \&kiwiurlmapper;
 
+sub getbuildinfo {
+  my ($cgi, $projid, $repoid, $arch, $packid) = @_;
+  return BSRepServer::BuildInfo::getbuildinfo($cgi, $projid, $repoid, $arch, $packid);
+}
+
 sub getbuildinfo_post {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
 
@@ -3464,7 +3469,7 @@ my $dispatches = [
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
   '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool? nosource:bool? noimport:bool? withmd5:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo_post,
-  '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&BSRepServer::BuildInfo::getbuildinfo,
+  '/build/$project/$repository/$arch/$package/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo,
   '/build/$project/$repository/$arch/$package/_reason' => \&getbuildreason,
   '/build/$project/$repository/$arch/$package/_status' => \&getbuildstatus,
   '/build/$project/$repository/$arch/$package/_jobstatus' => \&getjobstatus,
