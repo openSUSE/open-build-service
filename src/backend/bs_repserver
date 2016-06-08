@@ -2057,7 +2057,8 @@ sub copybuild {
     die("job lock failed\n");
   }
   my $dir = "$jobsdir/$arch/$job:dir";
-  my $odir = "$reporoot/$oprojid/$orepoid/$arch/$opackid";
+  my $ogdst = "$reporoot/$oprojid/$orepoid/$arch";
+  my $odir = "$ogdst/$opackid";
   mkdir_p($dir);
   my %delayed_linking;
   my $needsign;
@@ -2112,7 +2113,11 @@ sub copybuild {
       }
     }
   }
-  link("$odir/.meta.success", "$dir/meta") if -e "$odir/.meta.success";
+  link("$odir/.meta.success", "$dir/.meta.success") if -e "$odir/.meta.success";
+  link("$ogdst/:meta/$opackid", "$dir/meta") if -e "$ogdst/:meta/$opackid";
+  link("$ogdst/:logfiles.success/$opackid", "$dir/.logfile.success");
+  link("$ogdst/:logfiles.fail/$opackid", "$dir/.logfile.fail");
+  BSUtil::touch("$dir/.preinstallimage") if -e "$odir/.preinstallimage";
 
   # we run the linking of directory trees in background, since it can take a long time
   # for simple files it happened already
