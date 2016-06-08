@@ -11,18 +11,13 @@ FactoryGirl.define do
 
     factory :project_with_package do
       transient do
-        package_name nil
+        sequence(:package_name) { |n| "package_#{n}" }
         create_patchinfo false
         maintainer nil
       end
 
       after(:create) do |project, evaluator|
-        new_package = if evaluator.package_name
-                        create(:package, project_id: project.id, name: evaluator.package_name)
-                      else
-                        create(:package, project_id: project.id)
-                      end
-        project.packages << new_package
+        project.packages << create(:package, project_id: project.id, name: evaluator.package_name)
         if evaluator.create_patchinfo
           create(:relationship_project_user, project: project, user: evaluator.maintainer)
           Patchinfo.new.create_patchinfo(project.name, new_package.name, comment: 'Fake comment', force: true)
