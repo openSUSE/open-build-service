@@ -420,6 +420,63 @@ sub get_deps_from_buildenv {
   return ($ret, $BSXML::buildinfo);
 }
 
+sub calc_build_deps_kiwiproduct {
+  my $self = shift;
+  my ($ret,$pdeps,$vmdeps,$sysdeps,$edeps,$runscripts,$dep2pkg,$remotemap,$pool) = @_ ;
+  my $cgi = $self->{cgi};
+  # things are very different here. first we have the packages needed for kiwi
+  # from the full tree
+  my @bdeps = BSUtil::unify(@$pdeps, @$vmdeps, @$sysdeps);
+  for (splice(@bdeps)) {
+	my $b = {'name' => $_};
+	my $p = $dep2pkg->{$_};
+	if (!$cgi->{'internal'}) {
+	  my $prp = $pool->pkg2reponame($p);
+	  ($b->{'project'}, $b->{'repository'}) = split('/', $prp) if $prp ne '';
+	}
+	my $d = $pool->pkg2data($p);
+	$b->{'version'}      = $d->{'version'};
+	$b->{'notmeta'}      = 1;
+	$b->{'epoch'}        = $d->{'epoch'}   if $d->{'epoch'};
+	$b->{'release'}      = $d->{'release'} if exists $d->{'release'};
+	$b->{'arch'}         = $d->{'arch'}    if $d->{'arch'};
+	$b->{'preinstall'}   = 1 if $pdeps->{$_};
+	$b->{'vminstall'}    = 1 if $vmdeps->{$_};
+	$b->{'runscripts'}   = 1 if $runscripts->{$_};
+	push @bdeps, $b;
+  }
+
+  # now the binaries from the packages
+  my @bins = getkiwiproductpackages($self->{proj}, $self->{repo}, $self->{pdata}, $self->{info}, $edeps, $remotemap);
+  for my $b (@bins) {
+	my @bn = split('/', $b);
+	my $d = { 'binary' => $bn[-1] };
+	if ($bn[-1] =~ /^(?:::import::.*::)?(.+)-([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+	  $d->{'name'}    = $1;
+	  $d->{'version'} = $2;
+	  $d->{'release'} = $3;
+	  $d->{'arch'}    = $4;
+	} else {
+	  # for now we only support appdata.xml
+	  next unless $bn[-1] =~ /^(.*)-appdata.xml$/;
+	}
+	$d->{'repoarch'}   = $bn[2] if $bn[2] ne $self->{arch};
+	$d->{'project'}    = $bn[0];
+	$d->{'repository'} = $bn[1];
+	$d->{'package'}    = $bn[3];
+	$d->{'noinstall'}  = 1;
+	push @bdeps, $d;
+  }
+  if ($self->{info}->{'extrasource'}) {
+	push @bdeps, map {{
+	  'name' => $_->{'file'}, 'version' => '', 'repoarch' => $_->{'arch'}, 'arch' => 'src',
+	  'project' => $_->{'project'}, 'package' => $_->{'package'}, 'srcmd5' => $_->{'srcmd5'},
+	}} @{$self->{info}->{'extrasource'}};
+  }
+  $ret->{'bdep'} = \@bdeps;
+  return ($ret, $BSXML::buildinfo);
+}
+
 sub getbuildinfo {
   my $self = shift;
   # The following definition are here for performance and compability reason
@@ -718,57 +775,7 @@ sub getbuildinfo {
   }
 
   if ($buildtype eq 'kiwi' && $kiwitype eq 'product') {
-    # things are very different here. first we have the packages needed for kiwi
-    # from the full tree
-    @bdeps = BSUtil::unify(@pdeps, @vmdeps, @sysdeps);
-    for (splice(@bdeps)) {
-      my $b = {'name' => $_};
-      my $p = $dep2pkg{$_};
-      if (!$cgi->{'internal'}) {
-	my $prp = $pool->pkg2reponame($p);
-	($b->{'project'}, $b->{'repository'}) = split('/', $prp) if $prp ne '';
-      }
-      my $d = $pool->pkg2data($p);
-      $b->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
-      $b->{'version'} = $d->{'version'};
-      $b->{'release'} = $d->{'release'} if exists $d->{'release'};
-      $b->{'arch'} = $d->{'arch'} if $d->{'arch'};
-      $b->{'notmeta'} = 1;
-      $b->{'preinstall'} = 1 if $pdeps{$_};
-      $b->{'vminstall'} = 1 if $vmdeps{$_};
-      $b->{'runscripts'} = 1 if $runscripts{$_};
-      push @bdeps, $b;
-    }
-
-    # now the binaries from the packages
-    my @bins = getkiwiproductpackages($proj, $repo, $pdata, $info, \@edeps, \%remotemap);
-    for my $b (@bins) {
-      my @bn = split('/', $b);
-      my $d = { 'binary' => $bn[-1] };
-      if ($bn[-1] =~ /^(?:::import::.*::)?(.+)-([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/) {
-        $d->{'name'} = $1;
-        $d->{'version'} = $2;
-        $d->{'release'} = $3;
-        $d->{'arch'} = $4;
-      } else {
-        # for now we only support appdata.xml
-        next unless $bn[-1] =~ /^(.*)-appdata.xml$/;
-      }
-      $d->{'project'} = $bn[0];
-      $d->{'repository'} = $bn[1];
-      $d->{'repoarch'} = $bn[2] if $bn[2] ne $arch;
-      $d->{'package'} = $bn[3];
-      $d->{'noinstall'} = 1;
-      push @bdeps, $d;
-    }
-    if ($info->{'extrasource'}) {
-      push @bdeps, map {{
-        'name' => $_->{'file'}, 'version' => '', 'repoarch' => $_->{'arch'}, 'arch' => 'src',
-        'project' => $_->{'project'}, 'package' => $_->{'package'}, 'srcmd5' => $_->{'srcmd5'},
-      }} @{$info->{'extrasource'}};
-    }
-    $ret->{'bdep'} = \@bdeps;
-    return ($ret, $BSXML::buildinfo);
+	return $self->calc_build_deps_kiwiproduct($ret,\@pdeps,\@vmdeps,\@sysdeps,\@edeps,\%runscripts,\%dep2pkg,\%remotemap,$pool);
   }
 
   my @rdeps;
