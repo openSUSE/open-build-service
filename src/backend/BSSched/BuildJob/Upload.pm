@@ -69,8 +69,10 @@ sub jobfinished {
   my $gdst = "$gctx->{'reporoot'}/$prp/$myarch";
   my $dst = "$gdst/$packid";
   mkdir_p($dst);
+  # find the meta for the successful build
   my $meta;
-  $meta = "$jobdatadir/meta" if -e "$jobdatadir/meta";
+  $meta = "$jobdatadir/.meta.success" if -e "$jobdatadir/.meta.success";
+  $meta = "$jobdatadir/meta" if !$meta && -e "$jobdatadir/meta";
   print "  - $prp: $packid uploaded\n";
   my $useforbuildenabled = 1;
   $useforbuildenabled = BSUtil::enabled($repoid, $projpacks->{$projid}->{'useforbuild'}, $useforbuildenabled, $myarch);
@@ -78,10 +80,19 @@ sub jobfinished {
   my $prpsearchpath = $gctx->{'prpsearchpath'}->{$prp};
   BSSched::BuildResult::update_dst_full($gctx, $prp, $packid, $jobdatadir, $meta, $useforbuildenabled, $prpsearchpath);
   $changed->{$prp} = 2 if $useforbuildenabled;
-  if ($meta) {
-    mkdir_p("$gdst/:meta");
-    rename($meta, "$gdst/:meta/$packid");
+  if (-e "$jobdatadir/.logfile.success") {
+    mkdir_p("$gdst/:logfiles.success");
+    rename("$jobdatadir/.logfile.success", "$gdst/:logfiles.success/$packid");
   }
+  if (-e "$jobdatadir/.logfile.fail") {
+    mkdir_p("$gdst/:logfiles.fail");
+    rename("$jobdatadir/.logfile.fail", "$gdst/:logfiles.fail/$packid");
+  }
+  if (-e "$jobdatadir/meta") {
+    mkdir_p("$gdst/:meta");
+    rename("$jobdatadir/meta", "$gdst/:meta/$packid");
+  }
+  rename("$jobdatadir/logfile", "$dst/logfile") if -e "$jobdatadir/logfile";
   my $repounchanged = $gctx->{'repounchanged'};
   delete $repounchanged->{$prp} if $useforbuildenabled;
   $repounchanged->{$prp} = 2 if $repounchanged->{$prp};
