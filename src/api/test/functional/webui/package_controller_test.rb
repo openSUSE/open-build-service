@@ -401,7 +401,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.wont_have_field('supersede_request_numbers[]')
   end
 
-  def test_submit_request
+  def test_submit_request_clientside_form_validation
     use_js
     login_Iggy
 
@@ -411,19 +411,30 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     assert_equal package_show_path(project: "home:Iggy", package: "TestPack"),
                  page.current_path, "Client-side validation should have prevented package submission."
 
-    click_link("Submit package")
     fill_in "To target project", with: "nonexistant:project"
     click_button("Ok")
     assert_equal package_show_path(project: "home:Iggy", package: "TestPack"),
                  page.current_path, "Client-side validation should have prevented package submission."
+  end
 
+  def test_submit_request_unchanged_sources
+    use_js
+    login_Iggy
+
+    visit(package_show_path(project: "home:Iggy", package: "TestPack"))
     click_link("Submit package")
     fill_in "To target project", with: "home:Iggy"
     click_button("Ok")
     page.must_have_text "Unable to submit, sources are unchanged"
     assert_equal package_show_path(project: "home:Iggy", package: "TestPack"),
                  page.current_path
+  end
 
+  def test_submit_request
+    use_js
+    login_Iggy
+
+    visit(package_show_path(project: "home:Iggy", package: "TestPack"))
     click_link("Submit package")
     # Note: The whitespaces are part of the test, see issue#1248 for details
     fill_in "To target project", with: " home:Iggy "
