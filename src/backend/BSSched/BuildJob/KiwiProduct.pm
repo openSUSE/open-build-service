@@ -529,7 +529,7 @@ sub build {
   $binfo->{'constraintsmd5'} = $pdata->{'constraintsmd5'} if $pdata->{'constraintsmd5'};
   $binfo->{'prjconfconstraint'} = $bconf->{'constraint'} if @{$bconf->{'constraint'} || []};
 
-  BSSched::BuildJob::writejob($ctx, $job, $binfo,$reason);
+  BSSched::BuildJob::writejob($ctx, $job, $binfo, $reason);
 
   return ('scheduled', $job);
 }

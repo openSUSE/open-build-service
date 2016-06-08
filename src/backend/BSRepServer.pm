@@ -6,7 +6,6 @@ use warnings;
 use BSConfiguration;
 use BSRPC ':https';
 use BSUtil;
-#use BSFileDB;
 use BSHTTP;
 use BSXML;
 use Build;
@@ -15,10 +14,10 @@ use BSSolv;
 my $proxy;
 $proxy = $BSConfig::proxy if defined($BSConfig::proxy);
 
-my $historylay = [qw{versrel bcnt srcmd5 rev time duration}];
 my $reporoot = "$BSConfig::bsdir/build";
 my $extrepodir = "$BSConfig::bsdir/repos";
 my $extrepodb = "$BSConfig::bsdir/db/published";
+
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 

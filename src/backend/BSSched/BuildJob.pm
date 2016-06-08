@@ -289,19 +289,19 @@ to a free worker.
 =cut
 
 sub writejob {
-  my ($ctx, $job, $binfo,$reason) = @_;
+  my ($ctx, $job, $binfo, $reason) = @_;
 
-  my $dst = $ctx->{gdst} . "/" . $binfo->{package};
-
-  # jay! ready for building, write status and job info
-  if ( $reason ) {
-	  mkdir_p($dst);
-	  my $now = $binfo->{readytime};
-	  writexml("$dst/.status", "$dst/status", { 'status' => 'scheduled', 'readytime' => $now, 'job' => $job}, $BSXML::buildstatus);
-	  # And store reason and time
-	  $reason->{'time'} = $now;
-	  writexml("$dst/.reason", "$dst/reason", $reason, $BSXML::buildreason);
+  # jay! ready for building, write status, reason, and job info
+  if ($reason) {
+    my $dst = "$ctx->{'gdst'}/$binfo->{'package'}";
+    mkdir_p($dst);
+    my $now = $binfo->{'readytime'};
+    writexml("$dst/.status", "$dst/status", { 'status' => 'scheduled', 'readytime' => $now, 'job' => $job}, $BSXML::buildstatus);
+    # And store reason and time
+    $reason->{'time'} = $now;
+    writexml("$dst/.reason", "$dst/reason", $reason, $BSXML::buildreason);
   }
+
   $binfo->{'srcserver'} ||= $workersrcserver;
   $binfo->{'reposerver'} ||= $workerreposerver;
 
@@ -910,9 +910,7 @@ sub create {
   $debuginfo = BSUtil::enabled($repoid, $pdata->{'debuginfo'}, $debuginfo, $myarch);
   $binfo->{'debuginfo'} = 1 if $debuginfo;
 
-
-  my $dst = "$gdst/$packid";
-  writejob($ctx, $job, $binfo,$reason);
+  writejob($ctx, $job, $binfo, $reason);
   # all done. the dispatcher will now pick up the job and send it
   # to a worker.
   return ('scheduled', $job);
