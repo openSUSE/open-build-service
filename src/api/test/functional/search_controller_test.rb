@@ -132,6 +132,17 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag content: "#&lt;NoMethodError: undefined method `[]' for nil:NilClass&gt;"
   end
 
+  def test_xpath_not_method
+    login_Iggy
+    # not correct, but we used to support it :/
+    get "/search/package", match: '[not(@name)]'
+    assert_response :success
+    # this needs to work as well osc#205)
+    get "/search/package", match: '[not(@name="home:Iggy")]'
+    assert_response :success
+    assert_xml_tag tag: 'collection'
+  end
+
   def test_xpath_search_for_person_or_group
     # used by maintenance people
     login_Iggy
