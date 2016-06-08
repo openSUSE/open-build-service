@@ -45,6 +45,88 @@ We are using the standard [RSpec generators](https://relishapp.com/rspec/rspec-r
 `rails generate rspec:model package` or
 `rails generate rspec:controller webui::blah`
 
+### Factory Girl
+We use [Factory Girl](https://github.com/thoughtbot/factory_girl_rails) to create our ruby objects, make sure to get familiar with the factory girl [features and syntax](http://www.rubydoc.info/gems/factory_girl/file/GETTING_STARTED.md).
+Be aware of that factories, other than fixtures, run through ActiveRecord validations.
+All OBS factories reside in `spec/factories`.
+
+#### has_many associations
+For creating has_many associations we prefer ```create_list```:
+
+```
+project.packages = create_list(:package, 2)
+```
+
+Please also have a look at the [factory girl documentation](https://github.com/thoughtbot/factory_girl/blob/master/GETTING_STARTED.md#associations)
+
+#### Use a sequence for unique values
+It's necessary to use a [sequence](https://github.com/thoughtbot/factory_girl/blob/master/GETTING_STARTED.md#sequences) for attributes which have to be unique like project.title or user.login.
+
+```
+sequence(:login) { |n| "user_#{n}" }
+```
+
+Please keep in mind that you have to overwrite these attributes if they are part of the URI and you use it in combination with VCR.
+Otherwise your tests will fail as VCR matches the cassette by the URI.
+
+```
+let!(:user) { create(:confirmed_user, login: "proxy_user") }
+```
+
+By passing ```login: "proxy_user"``` to the create statement, the username is now always proxy_user and not random (e.g. user_42).
+
+#### Factories should be the bare minimum
+Different to fixtures, factory girl runs through your ActiveRecord validations.
+That said, only add the bare minimum to your factory which is required to be valid.
+You can use an inherited factory to add or override attributes.
+
+```
+  factory :user do
+    email { Faker::Internet.email }
+    realname { Faker::Name.name }
+    sequence(:login) { |n| "user_#{n}" }
+    password 'buildservice'
+
+    factory :confirmed_user do
+      state 2
+    end
+```
+
+See this [blog article](https://robots.thoughtbot.com/factories-should-be-the-bare-minimum) for a detailed explanation.
+
+#### When Transient Attributes make sense
+Use [transient attributes](https://github.com/thoughtbot/factory_girl/blob/master/GETTING_STARTED.md#transient-attributes) to DRY your factories.
+
+```
+  factory :project_with_package do
+    transient do
+      package_name nil
+    end
+
+    after(:create) do |project, evaluator|
+      new_package = if evaluator.package_name
+                      create(:package, project_id: project.id, name: evaluator.package_name)
+                    else
+                      create(:package, project_id: project.id)
+                    end
+      project.packages << new_package
+    end
+  end
+```
+
+Without the transient attribute package_name it would be necessary to explicit create a package with a different name.
+Now you can just do:
+
+```
+create(:project_with_package, package_name: 'foobar')
+```
+
+#### Generating fake data
+We use the [faker gem](https://github.com/stympy/faker) to generate more realistic test data.
+However, we don't use this in cases where we use the data to identify objects (like user.login or project.title), to simplify debugging.
+In that case, please use a simple sequence.
+Attention: Faker generates random but **NOT** unique data!
+
 ### Backend responses
 
 If you require a response from the OBS backend for your new test you need to
