@@ -6,7 +6,13 @@ test things based on the following rules:
 * Every main workflow has a feature test
 
 ## Running the spec
-`bundle exec rake spec`
+```bundle exec rspec```
+
+and to run a single test file:
+
+```
+bundle exec rspec spec/models/user_spec.rb
+```
 
 ## Directory structure
 Conventionally, all tests live under the
