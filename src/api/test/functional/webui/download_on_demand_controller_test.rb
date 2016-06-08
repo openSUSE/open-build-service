@@ -66,14 +66,12 @@ class Webui::DownloadOnDemandControllerTest < Webui::IntegrationTest
     fill_in('Public Key', with: 'JLKSDJFSJ83U4902RKLJSDFLJF2J9IJ23OJFKJFSDF')
     click_button('Save')
 
-    within "#repository-list" do
-      find(:xpath, "//a[@href='/project/repository_state/home:user5/My%20DoD%20repository']").must_have_text("My DoD repository")
-      find_link('Add')
-      find(".edit-dod-repository-link-container").must_have_link('Edit')
-      find(".edit-dod-repository-link-container").must_have_link('Delete')
-      page.must_have_link 'http://somerandomurl.es'
-      page.must_have_text 'rpmmd'
-    end
+    find_link("My DoD repository")
+    find_link('Add')
+    find(".edit-dod-repository-link-container").must_have_link('Edit')
+    find(".edit-dod-repository-link-container").must_have_link('Delete')
+    page.must_have_link 'http://somerandomurl.es'
+    page.must_have_text 'rpmmd'
 
     click_link("Repositories")
     click_link("Add")
