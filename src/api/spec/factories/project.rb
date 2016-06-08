@@ -17,11 +17,7 @@ FactoryGirl.define do
       end
 
       after(:create) do |project, evaluator|
-        new_package = if evaluator.package_name
-                        create(:package, project_id: project.id, name: evaluator.package_name)
-                      else
-                        create(:package, project_id: project.id)
-                      end
+        new_package = create(:package, { project: project, name: evaluator.package_name }.compact)
         project.packages << new_package
         if evaluator.create_patchinfo
           create(:relationship_project_user, project: project, user: evaluator.maintainer)
