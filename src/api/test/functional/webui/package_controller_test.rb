@@ -254,13 +254,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
 
     visit package_show_path(package: 'TestPack', project: 'home:Iggy')
     # test reload and wait for the build to finish
-    starttime=Time.now
-    while Time.now - starttime < 10
-      first('.icons-reload').click
-      if page.has_selector? '.buildstatus'
-        break if first('.buildstatus').text == 'succeeded'
-      end
-    end
+    find('.icons-reload').click
     first('.buildstatus').must_have_text 'succeeded'
     click_link 'succeeded'
     find(:id, 'log_space').must_have_text '[1] this is my dummy logfile -> ümlaut'
@@ -541,8 +535,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   def test_trigger_rebuild_via_live_log
     use_js
     login_king to: package_live_build_log_path(package: 'pack2.linked', project: 'BaseDistro2.0', repository: 'BaseDistro2_repo', arch: 'i586')
-
-    page.first(:link, 'Trigger Rebuild').click
+    find("div#content p:nth-of-type(3) > span.link_trigger_rebuild").click_link("Trigger Rebuild")
     find('#flash-messages').must_have_text('Triggered rebuild for BaseDistro2.0/pack2.linked successfully.')
   end
 end
