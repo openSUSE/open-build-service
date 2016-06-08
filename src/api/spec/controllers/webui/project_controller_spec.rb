@@ -606,4 +606,14 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { expect(response.header['Content-Disposition']).to eq('inline') }
     end
   end
+
+  describe 'GET #requests' do
+    before do
+      get :requests, project: apache_project, type: 'my_type', state: 'my_state'
+    end
+
+    it { expect(assigns(:requests)).to eq(apache_project.open_requests) }
+    it { expect(assigns(:default_request_type)).to eq('my_type') }
+    it { expect(assigns(:default_request_state)).to eq('my_state') }
+  end
 end
