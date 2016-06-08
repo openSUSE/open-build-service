@@ -306,7 +306,6 @@ Parameters:
 
   $ret
   $pdata
-  $pool
   \@prp
   \%remotemap
   \%pdeps
@@ -318,7 +317,8 @@ Parameters:
 sub get_deps_from_buildenv {
   my $self=shift;
   my $arch = $self->{arch};
-  my ($ret,$pdata,$pool,$prp,$remotemap,$pdeps,$vmdeps,$runscripts) = @_;
+  my $pool = $self->{pool};
+  my ($ret,$pdata,$prp,$remotemap,$pdeps,$vmdeps,$runscripts) = @_;
 
   my @allpackages;
   if (defined &BSSolv::pool::allpackages) {
@@ -422,7 +422,8 @@ sub get_deps_from_buildenv {
 
 sub calc_build_deps_kiwiproduct {
   my $self = shift;
-  my ($ret,$pdeps,$vmdeps,$sysdeps,$edeps,$runscripts,$dep2pkg,$remotemap,$pool) = @_ ;
+  my $pool = $self->{pool};
+  my ($ret,$pdeps,$vmdeps,$sysdeps,$edeps,$runscripts,$dep2pkg,$remotemap) = @_ ;
   my $cgi = $self->{cgi};
   # things are very different here. first we have the packages needed for kiwi
   # from the full tree
@@ -594,8 +595,8 @@ sub getbuildinfo {
     return ($ret, $BSXML::buildinfo);
   }
 
-  my $pool = BSSolv::pool->new();
-  $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
+  $self->{pool} = BSSolv::pool->new();
+  $self->{pool}->settype('deb') if $bconf->{'binarytype'} eq 'deb';
 
   if ($pdata->{'ldepfile'}) {
     # have local deps, add them to pool
@@ -603,7 +604,7 @@ sub getbuildinfo {
     Build::readdeps({ %$bconf }, $data, $pdata->{'ldepfile'});
     delete $data->{'/url'};
     delete $data->{'/external/'};
-    my $r = $pool->repofromdata('', $data);
+    my $r = $self->{pool}->repofromdata('', $data);
     die("ldepfile repo add failed\n") unless $r;
   }
 
@@ -611,20 +612,21 @@ sub getbuildinfo {
     my ($rprojid, $rrepoid) = split('/', $prp, 2);
     my $r;
     if ($remotemap{$rprojid}) {
-      $r = BSRepServer::addrepo_remote($pool, $prp, $arch, $remotemap{$rprojid});
+      $r = BSRepServer::addrepo_remote($self->{pool}, $prp, $arch, $remotemap{$rprojid});
     } else {
-      $r = BSRepServer::addrepo_scan($pool, $prp, $arch);
+      $r = BSRepServer::addrepo_scan($self->{pool}, $prp, $arch);
     }
     die("repository $prp not available\n") unless $r;
   }
 
-  $pool->createwhatprovides();
+  $self->{pool}->createwhatprovides();
+#TODO: pack to object
   my %dep2pkg;
   my %dep2src;
-  for my $p ($pool->consideredpackages()) {
-    my $n = $pool->pkg2name($p);
+  for my $p ($self->{pool}->consideredpackages()) {
+    my $n = $self->{pool}->pkg2name($p);
     $dep2pkg{$n} = $p;
-    $dep2src{$n} = $pool->pkg2srcname($p);
+    $dep2src{$n} = $self->{pool}->pkg2srcname($p);
   }
   my $pname = $info->{'name'};
   my @subpacks = grep {defined($dep2src{$_}) && $dep2src{$_} eq $pname} keys %dep2src;
@@ -655,7 +657,7 @@ sub getbuildinfo {
     my $bconfignoreh = $bconf->{'ignoreh'};
     delete $bconf->{'ignore'};
     delete $bconf->{'ignoreh'};
-    my $xp = BSSolv::expander->new($pool, $bconf);
+    my $xp = BSSolv::expander->new($self->{pool}, $bconf);
     no warnings 'redefine';
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
@@ -670,7 +672,7 @@ sub getbuildinfo {
   } elsif ($pdata->{'buildenv'}) {
      @edeps = (1);
   } else {
-    my $xp = BSSolv::expander->new($pool, $bconf);
+    my $xp = BSSolv::expander->new($self->{pool}, $bconf);
     no warnings 'redefine';
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
@@ -691,24 +693,23 @@ sub getbuildinfo {
     # use different path for system setup
     $bconf = BSRepServer::getconfig($projid, $repoid, $arch);
     @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
-    $epool = $pool;
-    $pool = BSSolv::pool->new();
-    $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
+    $epool = $self->{pool};
+    $self->{pool} = BSSolv::pool->new();
     for my $prp (@prp) {
       my ($rprojid, $rrepoid) = split('/', $prp, 2);
       my $r;
       if ($remotemap{$rprojid}) {
-	$r = BSRepServer::addrepo_remote($pool, $prp, $arch, $remotemap{$rprojid});
+	$r = BSRepServer::addrepo_remote($self->{pool}, $prp, $arch, $remotemap{$rprojid});
       } else {
-	$r = BSRepServer::addrepo_scan($pool, $prp, $arch);
+	$r = BSRepServer::addrepo_scan($self->{pool}, $prp, $arch);
       }
       die("repository $prp not available\n") unless $r;
     }
-    $pool->createwhatprovides();
+    $self->{pool}->createwhatprovides();
   }
 
   # create expander
-  my $xp = BSSolv::expander->new($pool, $bconf);
+  my $xp = BSSolv::expander->new($self->{pool}, $bconf);
   no warnings 'redefine';
   local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
   use warnings 'redefine';
@@ -771,15 +772,19 @@ sub getbuildinfo {
   my %sysdeps = map {$_ => 1} @sysdeps;
 
   if ($pdata->{'buildenv'}) {
-    return $self->get_deps_from_buildenv($ret,$pdata,$pool,\@prp,\%remotemap,\%pdeps,\%vmdeps,\%runscripts);
+    return $self->get_deps_from_buildenv($ret,$pdata,\@prp,\%remotemap,\%pdeps,\%vmdeps,\%runscripts);
   }
 
   if ($buildtype eq 'kiwi' && $kiwitype eq 'product') {
-	return $self->calc_build_deps_kiwiproduct($ret,\@pdeps,\@vmdeps,\@sysdeps,\@edeps,\%runscripts,\%dep2pkg,\%remotemap,$pool);
+    return $self->calc_build_deps_kiwiproduct($ret,\@pdeps,\@vmdeps,\@sysdeps,\@edeps,\%runscripts,\%dep2pkg,\%remotemap);
   }
 
   my @rdeps;
+  # TBC: fs - epool is only set if repo path greater than two
+  # Question: is this really an performance optimization or could 
+  #           we handle this in a more general way
   if ($buildtype eq 'kiwi' && $kiwitype eq 'image' && $epool) {
+    
     # have special system setup pool, first add image packages, then fall through to system setup packages
     for (@bdeps) {
       my $p = $dep2pkg{$_};
@@ -799,8 +804,8 @@ sub getbuildinfo {
     @edeps = @bdeps = ();
     %edeps = %bdeps = ();
     %dep2pkg = ();
-    for my $p ($pool->consideredpackages()) {
-      my $n = $pool->pkg2name($p);
+    for my $p ($self->{pool}->consideredpackages()) {
+      my $n = $self->{pool}->pkg2name($p);
       $dep2pkg{$n} = $p;
     }
   }
@@ -811,18 +816,18 @@ sub getbuildinfo {
     my $b = {'name' => $_};
     my $p = $dep2pkg{$_};
     if (!$cgi->{'internal'}) {
-      my $prp = $pool->pkg2reponame($p);
+      my $prp = $self->{pool}->pkg2reponame($p);
       ($b->{'project'}, $b->{'repository'}) = split('/', $prp) if $prp ne '';
     }
-    my $d = $pool->pkg2data($p);
-    $b->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
-    $b->{'version'} = $d->{'version'};
-    $b->{'release'} = $d->{'release'} if exists $d->{'release'};
-    $b->{'arch'} = $d->{'arch'} if $d->{'arch'};
+    my $d = $self->{pool}->pkg2data($p);
+    $b->{'version'}    = $d->{'version'};
+    $b->{'epoch'}      = $d->{'epoch'}   if $d->{'epoch'};
+    $b->{'release'}    = $d->{'release'} if exists $d->{'release'};
+    $b->{'arch'}       = $d->{'arch'}    if $d->{'arch'};
     $b->{'preinstall'} = 1 if $pdeps{$_};
-    $b->{'vminstall'} = 1 if $vmdeps{$_};
+    $b->{'vminstall'}  = 1 if $vmdeps{$_};
     $b->{'runscripts'} = 1 if $runscripts{$_};
-    $b->{'notmeta'} = 1 unless $edeps{$_};
+    $b->{'notmeta'}    = 1 unless $edeps{$_};
     if (@sysdeps) {
       $b->{'installonly'} = 1 if $sysdeps{$_} && !$bdeps{$_} && $buildtype ne 'kiwi';
       $b->{'noinstall'} = 1 if $bdeps{$_} && !($sysdeps{$_} || $vmdeps{$_} || $pdeps{$_});
