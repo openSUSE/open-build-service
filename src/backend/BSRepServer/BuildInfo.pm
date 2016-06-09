@@ -48,7 +48,7 @@ sub new {
   $self->{repo}      = $self->{proj}->{'repository'}->[0];
 
   # generate initial remotemap
-  $self->{remotemap} = map {$_->{'project'} => $_} @{$self->{projpack}->{'remotemap'} || []};
+  $self->{remotemap} = { map {$_->{'project'} => $_} @{$self->{projpack}->{'remotemap'} || []} };
 
   # create pdata (package data) if needed and verify
   my $pdata = $self->{pdata};
@@ -120,8 +120,8 @@ sub getpreinstallimages {
 }
 
 sub getkiwiproductpackages {
-  my ($self,$proj, $repo, $pdata, $info, $deps, $remotemap) = @_;
-
+  my ($self,$proj, $repo, $pdata, $info, $deps) = @_;
+  my $remotemap = $self->{remotemap};
   my $nodbgpkgs = $info->{'nodbgpkgs'};
   my $nosrcpkgs = $info->{'nosrcpkgs'};
   my @got;
@@ -304,7 +304,6 @@ Parameters:
   $ret
   $pdata
   \@prp
-  \%remotemap
   \%pdeps
   \%vmdeps
   \%runscripts
@@ -312,12 +311,13 @@ Parameters:
 =cut
 
 sub get_deps_from_buildenv {
-  my $self=shift;
-  my $arch = $self->{arch};
-  my $pool = $self->{pool};
-  my ($ret,$pdata,$prp,$remotemap,$pdeps,$vmdeps,$runscripts) = @_;
-
+  my $self      = shift;
+  my $arch      = $self->{arch};
+  my $pool      = $self->{pool};
+  my $remotemap = $self->{remotemap};
+  my ($ret,$pdata,$prp,$pdeps,$vmdeps,$runscripts) = @_;
   my @allpackages;
+
   if (defined &BSSolv::pool::allpackages) {
     @allpackages = $pool->allpackages();
   } else {
@@ -420,7 +420,8 @@ sub get_deps_from_buildenv {
 sub calc_build_deps_kiwiproduct {
   my $self = shift;
   my $pool = $self->{pool};
-  my ($ret,$pdeps,$vmdeps,$sysdeps,$edeps,$runscripts,$dep2pkg,$remotemap) = @_ ;
+  my ($ret, $pdeps, $vmdeps, $sysdeps, $edeps, $runscripts, $dep2pkg) = @_ ;
+  my $remotemap = $self->{remotemap};
   # things are very different here. first we have the packages needed for kiwi
   # from the full tree
   my @bdeps = BSUtil::unify(@$pdeps, @$vmdeps, @$sysdeps);
@@ -444,7 +445,7 @@ sub calc_build_deps_kiwiproduct {
   }
 
   # now the binaries from the packages
-  my @bins = $self->getkiwiproductpackages($self->{proj}, $self->{repo}, $self->{pdata}, $self->{info}, $edeps, $remotemap);
+  my @bins = $self->getkiwiproductpackages($self->{proj}, $self->{repo}, $self->{pdata}, $self->{info}, $edeps);
   for my $b (@bins) {
 	my @bn = split('/', $b);
 	my $d = { 'binary' => $bn[-1] };
@@ -484,7 +485,8 @@ sub getbuildinfo {
   #my %remotemap  = $self->{handler}->append_to_remotemap;
   my $buildtype = $self->{handler}->buildtype;
   my $kiwitype  = $self->{handler}->kiwitype;
-  my %remotemap;
+  #my %remotemap;
+  my $remotemap = $self->{remotemap};
   my @configpath;
   if ($buildtype eq 'kiwi') {
     # sub append_to_remotemap (\%remotemap,$info->{path});
@@ -494,7 +496,7 @@ sub getbuildinfo {
       if (@args) {
         push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
         my $pp = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withremotemap', 'nopackages', @args);
-        %remotemap = (%remotemap, map {$_->{'project'} => $_} @{$pp->{'remotemap'} || []});
+        map {$remotemap->{$_->{'project'}} = $_} @{$pp->{'remotemap'} || []};
       }
     }
 	# / sub append_to_remotemap
@@ -537,7 +539,7 @@ sub getbuildinfo {
   }
   if ($self->{'internal'}) {
     for (@{$ret->{'path'}}) {
-      if ($remotemap{$_->{'project'}}) {
+      if ($remotemap->{$_->{'project'}}) {
         $_->{'server'} = $BSConfig::srcserver;
       } else {
         $_->{'server'} = $BSConfig::reposerver;
@@ -545,7 +547,7 @@ sub getbuildinfo {
     }
   } else {
     for my $r (@{$ret->{'path'}}) {
-      next if $remotemap{$r->{'project'}};	# what to do with those?
+      next if $remotemap->{$r->{'project'}};	# what to do with those?
       my $rprp = "$r->{'project'}/$r->{'repository'}";
       my $rprp_ext = $rprp;
       $rprp_ext =~ s/:/:\//g;
@@ -607,8 +609,8 @@ sub getbuildinfo {
   for my $prp (@prp) {
     my ($rprojid, $rrepoid) = split('/', $prp, 2);
     my $r;
-    if ($remotemap{$rprojid}) {
-      $r = BSRepServer::addrepo_remote($self->{pool}, $prp, $arch, $remotemap{$rprojid});
+    if ($remotemap->{$rprojid}) {
+      $r = BSRepServer::addrepo_remote($self->{pool}, $prp, $arch, $remotemap->{$rprojid});
     } else {
       $r = BSRepServer::addrepo_scan($self->{pool}, $prp, $arch);
     }
@@ -694,8 +696,8 @@ sub getbuildinfo {
     for my $prp (@prp) {
       my ($rprojid, $rrepoid) = split('/', $prp, 2);
       my $r;
-      if ($remotemap{$rprojid}) {
-	$r = BSRepServer::addrepo_remote($self->{pool}, $prp, $arch, $remotemap{$rprojid});
+      if ($remotemap->{$rprojid}) {
+	$r = BSRepServer::addrepo_remote($self->{pool}, $prp, $arch, $remotemap->{$rprojid});
       } else {
 	$r = BSRepServer::addrepo_scan($self->{pool}, $prp, $arch);
       }
@@ -768,11 +770,11 @@ sub getbuildinfo {
   my %sysdeps = map {$_ => 1} @sysdeps;
 
   if ($pdata->{'buildenv'}) {
-    return $self->get_deps_from_buildenv($ret,$pdata,\@prp,\%remotemap,\%pdeps,\%vmdeps,\%runscripts);
+    return $self->get_deps_from_buildenv($ret,$pdata,\@prp,\%pdeps,\%vmdeps,\%runscripts);
   }
 
   if ($buildtype eq 'kiwi' && $kiwitype eq 'product') {
-    return $self->calc_build_deps_kiwiproduct($ret,\@pdeps,\@vmdeps,\@sysdeps,\@edeps,\%runscripts,\%dep2pkg,\%remotemap);
+    return $self->calc_build_deps_kiwiproduct($ret,\@pdeps,\@vmdeps,\@sysdeps,\@edeps,\%runscripts,\%dep2pkg);
   }
 
   my @rdeps;
