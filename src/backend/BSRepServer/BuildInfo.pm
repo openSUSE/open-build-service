@@ -104,7 +104,8 @@ sub getbuildenv {
 }
 
 sub getpreinstallimages {
-  my ($prpa) = @_;
+  my ($self, $prpa) = @_;
+  my $reporoot = $self->{gctx}->{reporoot};
   return undef unless -e "$reporoot/$prpa/:preinstallimages";
   if (-l "$reporoot/$prpa/:preinstallimages") {
     # small hack: allow symlink to another prpa's file
@@ -828,18 +829,18 @@ sub getbuildinfo {
       $b->{'noinstall'} = 1 if $bdeps{$_} && !($sysdeps{$_} || $vmdeps{$_} || $pdeps{$_});
     }
     push @rdeps, $b;
-    push @preimghdrs, $pool->pkg2pkgid($p) if !$b->{'noinstall'};
+    push @preimghdrs, $self->{pool}->pkg2pkgid($p) if !$b->{'noinstall'};
   }
 
-  if (!$cgi->{'internal'}) {
+  if (!$self->{'internal'}) {
     my %neededhdrmd5s = map {$_ => 1} grep {$_} @preimghdrs;
-    my @prpas = map {$_->name() . "/$arch"} $pool->repos();
+    my @prpas = map {$_->name() . "/$arch"} $self->{pool}->repos();
 
     my $bestimgn = 2; 
     my $bestimg;
 
     for my $prpa (@prpas) {
-      my $images = getpreinstallimages($prpa);
+      my $images = $self->getpreinstallimages($prpa);
       next unless $images;
       for my $img (@$images) {
        next if @{$img->{'hdrmd5s'} || []} < $bestimgn;

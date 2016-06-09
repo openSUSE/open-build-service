@@ -38,7 +38,7 @@ use warnings;
 
 use_ok("BSRepServer::BuildInfo");
 
-my ($bi) = BSRepServer::BuildInfo::getbuildinfo({}, 'openSUSE:13.2', 'standard', 'i586', 'screen');
+my ($bi) = BSRepServer::BuildInfo->new(projid=>'openSUSE:13.2', repoid=>'standard', arch=>'i586', packid=>'screen')->getbuildinfo();
 my $xbi = BSUtil::readxml("testdata/buildinfo/result/buildinfo_13_2_screen", $BSXML::buildinfo);
 
 $bi->{'bdep'}  = [ sort {$a->{'name'} cmp $b->{'name'}} @{$bi->{'bdep'} || []} ];
