@@ -220,8 +220,13 @@ sub getkiwiproductpackages {
 }
 
 sub get_projpack_via_rpc {
-  my ($projid, $repoid, $arch, $packid, $pdata) = @_;
-  my $projpack;
+  my ($self) = @_;
+  
+use Carp qw/cluck/;
+cluck();
+  my ($projid, $repoid, $arch, $packid, $pdata) = ($self->{projid}, $self->{repoid}, $self->{arch}, $self->{packid}, $self->{pdata});
+
+  # prepare args for rpc call
   my @args = ("project=$projid", "repository=$repoid", "arch=$arch", "parseremote=1");
   if (defined($packid)) {
     push @args, "package=$packid";
@@ -229,40 +234,33 @@ sub get_projpack_via_rpc {
     push @args, "nopackages";
   }
   push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
+
+  # fetch projpack information via rpc
   if (!$pdata) {
-    $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'expandedrepos', 'withremotemap', 'ignoredisable', @args);
-    die("404 no such project/package/repository\n") unless $projpack->{'project'};
+    $self->{projpack} = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'expandedrepos', 'withremotemap', 'ignoredisable', @args);
+    die("404 no such project/package/repository\n") unless $self->{projpack}->{'project'};
   } else {
-    $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'withremotemap', @args);
-    die("404 no such project/repository\n") unless $projpack->{'project'};
+    $self->{projpack} = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'withremotemap', @args);
+    die("404 no such project/repository\n") unless $self->{projpack}->{'project'};
   }
 
-  my $proj = $projpack->{'project'}->[0];
+  # verify projpack
+  my $proj = $self->{projpack}->{'project'}->[0];
   die("no such project\n") unless $proj && $proj->{'name'} eq $projid;
   my $repo = $proj->{'repository'}->[0];
   die("no such repository\n") unless $repo && $repo->{'name'} eq $repoid;
 
-  return $projpack;
 }
 
 sub new {
-  # args: (class,cgi,projid,repoid,arch,packid,pdata)
+
   my $class = shift;
-  my $self  = {};
+  my $self  = {@_};
 
   bless($self,$class);
 
-  # take variables
-  # 					 shift only once because rest ist needed for get_projpack_via_rpc()
-  $self->{cgi}       = shift;
-  $self->{projid}    = $_[0];
-  $self->{repoid}    = $_[1];
-  $self->{arch}      = $_[2];
-  $self->{packid}    = $_[3];
-  $self->{pdata}     = $_[4];
-
   # get projpack information for generating remotemap
-  $self->{projpack}  = get_projpack_via_rpc(@_);
+  $self->get_projpack_via_rpc();
   $self->{proj}      = $self->{projpack}->{'project'}->[0];
   $self->{repo}      = $self->{proj}->{'repository'}->[0];
 
@@ -294,7 +292,7 @@ sub new {
 	  $self->{handler} = BSRepServer::BuildInfo::KiwiImage->new();
     }
   } else {
-	  $self->{handler} = BSRepServer::BuildInfo::Generic->new();
+	  $self->{handler} = BSRepServer::BuildInfo::Generic->new(buildtype=>$buildtype);
   }
   return $self;
 }
@@ -424,14 +422,13 @@ sub calc_build_deps_kiwiproduct {
   my $self = shift;
   my $pool = $self->{pool};
   my ($ret,$pdeps,$vmdeps,$sysdeps,$edeps,$runscripts,$dep2pkg,$remotemap) = @_ ;
-  my $cgi = $self->{cgi};
   # things are very different here. first we have the packages needed for kiwi
   # from the full tree
   my @bdeps = BSUtil::unify(@$pdeps, @$vmdeps, @$sysdeps);
   for (splice(@bdeps)) {
 	my $b = {'name' => $_};
 	my $p = $dep2pkg->{$_};
-	if (!$cgi->{'internal'}) {
+	if (!$self->{'internal'}) {
 	  my $prp = $pool->pkg2reponame($p);
 	  ($b->{'project'}, $b->{'repository'}) = split('/', $prp) if $prp ne '';
 	}
@@ -481,8 +478,8 @@ sub calc_build_deps_kiwiproduct {
 sub getbuildinfo {
   my $self = shift;
   # The following definition are here for performance and compability reason
-  my ($cgi, $projid, $repoid, $arch, $packid, $pdata, $info, $repo, $proj) = ($self->{cgi},$self->{projid},$self->{repoid},$self->{arch},$self->{packid},$self->{pdata},$self->{info}, $self->{repo}, $self->{proj});
-  my $projpack = get_projpack_via_rpc($projid, $repoid, $arch, $packid, $pdata);
+  my ($projid, $repoid, $arch, $packid, $pdata, $info, $repo, $proj) = ($self->{projid},$self->{repoid},$self->{arch},$self->{packid},$self->{pdata},$self->{info}, $self->{repo}, $self->{proj});
+  my $projpack = $self->{projpack};
 
   #my @configpath = $self->{handler}->expand_configpath;
   #my %remotemap  = $self->{handler}->append_to_remotemap;
@@ -539,7 +536,7 @@ sub getbuildinfo {
       @prp = expandkiwipath($info, $repo);
     }
   }
-  if ($cgi->{'internal'}) {
+  if ($self->{'internal'}) {
     for (@{$ret->{'path'}}) {
       if ($remotemap{$_->{'project'}}) {
         $_->{'server'} = $BSConfig::srcserver;
@@ -639,8 +636,8 @@ sub getbuildinfo {
 
   # expand meta deps
   my @edeps = @{$info->{'dep'} || []};
-  local $Build::expand_dbg = 1 if $cgi->{'debug'};
-  $ret->{'expanddebug'} = '' if $cgi->{'debug'};
+  local $Build::expand_dbg = 1 if $self->{'debug'};
+  $ret->{'expanddebug'} = '' if $self->{'debug'};
   if (grep {$_ eq '-simple_expansion_hack'} @edeps) {
     # special hack to expand dependencies without the build packages
     delete $bconf->{'ignore'};
@@ -717,7 +714,7 @@ sub getbuildinfo {
   # expand sysbuild deps
   my @sysdeps;
   if ($buildtype eq 'kiwi') {
-    @sysdeps = Build::get_sysbuild($bconf, "kiwi-$kiwitype", [ @{$cgi->{'add'} || []}, grep {/^kiwi-.*:/} @{$info->{'dep'} || []} ]);
+    @sysdeps = Build::get_sysbuild($bconf, "kiwi-$kiwitype", [ @{$self->{'add'} || []}, grep {/^kiwi-.*:/} @{$info->{'dep'} || []} ]);
   } else {
     @sysdeps = Build::get_sysbuild($bconf, $buildtype);
   }
@@ -731,12 +728,12 @@ sub getbuildinfo {
   my @bdeps;
   if ($pdata->{'buildenv'}) {
     @bdeps = (1);
-  } elsif ($cgi->{'deps'}) {
-    @bdeps = Build::get_deps($bconf, \@subpacks, @{$info->{'dep'} || []}, @{$cgi->{'add'} || []});
+  } elsif ($self->{'deps'}) {
+    @bdeps = Build::get_deps($bconf, \@subpacks, @{$info->{'dep'} || []}, @{$self->{'add'} || []});
   } elsif ($buildtype eq 'kiwi') {
     @bdeps = (1, @edeps);	# reuse meta deps
   } else {
-    @bdeps = (@{$info->{'dep'} || []}, @{$cgi->{'add'} || []});
+    @bdeps = (@{$info->{'dep'} || []}, @{$self->{'add'} || []});
     push @bdeps, '--ignoreignore--' if @sysdeps;
     my @prereqs = grep {!/^\// || $bconf->{'fileprovides'}->{$_}} @{$info->{'prereq'} || []};
     unshift @prereqs, '--directdepsend--' if @prereqs;
@@ -749,14 +746,14 @@ sub getbuildinfo {
   }
   if (!shift(@bdeps)) {
     undef $xp;
-    undef $Build::expand_dbg if $cgi->{'debug'};
+    undef $Build::expand_dbg if $self->{'debug'};
     $ret->{'error'} = "unresolvable: ".join(', ', @bdeps);
     return ($ret, $BSXML::buildinfo);
   }
 
   if (@sysdeps && !shift(@sysdeps)) {
     undef $xp;
-    undef $Build::expand_dbg if $cgi->{'debug'};
+    undef $Build::expand_dbg if $self->{'debug'};
     $ret->{'error'} = "unresolvable: ".join(', ', @sysdeps);
     return ($ret, $BSXML::buildinfo);
   }
@@ -789,7 +786,7 @@ sub getbuildinfo {
     for (@bdeps) {
       my $p = $dep2pkg{$_};
       my $b = {'name' => $_};
-      if (!$cgi->{'internal'}) {
+      if (!$self->{'internal'}) {
 	my $prp = $epool->pkg2reponame($p);
 	($b->{'project'}, $b->{'repository'}) = split('/', $prp) if $prp ne '';
       }
@@ -815,7 +812,7 @@ sub getbuildinfo {
   for (@bdeps) {
     my $b = {'name' => $_};
     my $p = $dep2pkg{$_};
-    if (!$cgi->{'internal'}) {
+    if (!$self->{'internal'}) {
       my $prp = $self->{pool}->pkg2reponame($p);
       ($b->{'project'}, $b->{'repository'}) = split('/', $prp) if $prp ne '';
     }
