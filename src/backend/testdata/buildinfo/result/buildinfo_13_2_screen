@@ -1,0 +1,221 @@
+<buildinfo project="openSUSE:13.2" repository="standard" package="screen" downloadurl="http://download.opensuse.org/repositories">
+  <arch>i586</arch>
+  <srcmd5>195bbad3fdd5f42be14e125f80a098d6</srcmd5>
+  <verifymd5>195bbad3fdd5f42be14e125f80a098d6</verifymd5>
+  <rev>1</rev>
+  <specfile>screen.spec</specfile>
+  <file>screen.spec</file>
+  <versrel>4.2.1-2.1</versrel>
+  <bcnt>1</bcnt>
+  <release>2.1.1</release>
+  <debuginfo>1</debuginfo>
+  <subpack>screen</subpack>
+  <subpack>screen-debuginfo</subpack>
+  <subpack>screen-debugsource</subpack>
+  <bdep name="aaa_base" preinstall="1" runscripts="1" notmeta="1" version="13.2+git20140911.61c1681" release="1.3" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="attr" preinstall="1" notmeta="1" version="2.4.47" release="4.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="bash" preinstall="1" notmeta="1" version="4.2" release="75.3.1" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="coreutils" preinstall="1" notmeta="1" version="8.23" release="2.3.1" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="diffutils" preinstall="1" notmeta="1" version="3.3" release="6.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="filesystem" preinstall="1" notmeta="1" version="13.2" release="4.3.1" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="fillup" preinstall="1" notmeta="1" version="1.42" release="271.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="glibc" preinstall="1" notmeta="1" version="2.19" release="16.2.5" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="grep" preinstall="1" notmeta="1" version="2.20" release="2.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libbz2-1" preinstall="1" notmeta="1" version="1.0.6" release="29.2.7" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libgcc_s1" preinstall="1" notmeta="1" version="4.8.3+r212056" release="2.2.4" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="m4" preinstall="1" notmeta="1" version="1.4.17" release="2.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libncurses5" preinstall="1" notmeta="1" version="5.9" release="52.2.3" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="pam" preinstall="1" notmeta="1" version="1.1.8" release="11.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="permissions" preinstall="1" notmeta="1" version="2014.08.26.1452" release="1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libreadline6" preinstall="1" notmeta="1" version="6.2" release="75.3.1" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="rpm" preinstall="1" notmeta="1" version="4.11.3" release="1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="sed" preinstall="1" notmeta="1" version="4.2.2" release="5.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="tar" preinstall="1" notmeta="1" version="1.28" release="2.2.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libz1" preinstall="1" notmeta="1" version="1.2.8" release="5.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libselinux1" preinstall="1" notmeta="1" version="2.3" release="2.2.5" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="liblzma5" preinstall="1" notmeta="1" version="5.0.7" release="1.1" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libcap2" preinstall="1" notmeta="1" version="2.22" release="13.1.8" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libacl1" preinstall="1" notmeta="1" version="2.2.52" release="5.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libattr1" preinstall="1" notmeta="1" version="2.4.47" release="4.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libpopt0" preinstall="1" notmeta="1" version="1.16" release="27.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libelf1" preinstall="1" notmeta="1" version="0.158" release="4.2.6" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="liblua5_1" preinstall="1" notmeta="1" version="5.1.5" release="10.2.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libpcre1" preinstall="1" notmeta="1" version="8.35" release="3.2.3" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="util-linux" vminstall="1" version="2.25.1" release="2.4" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libmount1" vminstall="1" version="2.25.1" release="2.4" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="perl-base" vminstall="1" version="5.20.1" release="1.3" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libdb-4_8" vminstall="1" version="4.8.30" release="29.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libsepol1" vminstall="1" version="2.3" release="2.1.8" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libblkid1" vminstall="1" version="2.25.1" release="2.4" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libuuid1" vminstall="1" version="2.25.1" release="2.4" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="net-tools" vminstall="1" version="1.60" release="765.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libsmartcols1" vminstall="1" version="2.25.1" release="2.4" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="kernel-obs-build" vminstall="1" notmeta="1" version="3.16.6" release="2.1" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="makeinfo" version="4.13a" release="38.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="ncurses-devel" version="5.9" release="52.2.3" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="utempter-devel" version="1.1.6" release="5.2.3" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="autoconf" version="2.69" release="10.1.2" arch="noarch" project="openSUSE:13.2" repository="standard" />
+  <bdep name="automake" version="1.13.4" release="5.1.2" arch="noarch" project="openSUSE:13.2" repository="standard" />
+  <bdep name="rpm-build" version="4.11.3" release="1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libzio1" version="1.00" release="10.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libncurses6" version="5.9" release="52.2.3" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libutempter0" version="1.1.6" release="5.2.3" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="info" version="4.13a" release="38.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="glibc-devel" version="2.19" release="16.2.5" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="cpio" version="2.11" release="29.2.3" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="xz" version="5.0.7" release="1.1" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="gcc" version="4.8" release="7.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="findutils" version="4.5.14" release="2.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="file" version="5.19" release="3.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="bzip2" version="1.0.6" release="29.2.7" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="make" version="4.0" release="2.2.3" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="gawk" version="4.1.1" release="3.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="binutils" version="2.24" release="6.1.7" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="gzip" version="1.6" release="8.1.8" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="glibc-locale" version="2.19" release="16.2.5" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="which" version="2.20" release="4.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="patch" version="2.7.1" release="7.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="systemd-rpm-macros" version="2" release="8.1.2" arch="noarch" project="openSUSE:13.2" repository="standard" />
+  <bdep name="terminfo-base" version="5.9" release="52.2.3" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libgdbm4" version="1.11" release="3.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libgmp10" version="5.1.3" release="3.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="linux-glibc-devel" version="3.16" release="2.1.7" arch="noarch" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libaudit1" version="2.4" release="1.3" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libcap-ng0" version="0.7.4" release="3.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="insserv-compat" version="0.1" release="12.2.2" arch="noarch" project="openSUSE:13.2" repository="standard" />
+  <bdep name="gcc48" version="4.8.3+r212056" release="2.2.4" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="cpp" version="4.8" release="7.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libmagic1" version="5.19" release="3.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="update-alternatives" version="1.16.10" release="8.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libsemanage1" version="2.3" release="2.1.8" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libcrack2" version="2.9.0" release="4.1.3" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libmpfr4" version="3.1.2" release="5.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libcloog-isl4" version="0.18.1" release="2.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libisl10" version="0.12.2" release="2.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libmpc3" version="1.0.2" release="2.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="cpp48" version="4.8.3+r212056" release="2.2.4" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libasan0" version="4.8.3+r212056" release="2.2.4" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="file-magic" version="5.19" release="3.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libustr-1_0-1" version="1.0.4" release="33.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="cracklib" version="2.9.0" release="4.1.3" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libatomic1" version="4.8.3+r212056" release="2.2.4" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libgomp1" version="4.8.3+r212056" release="2.2.4" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libitm1" version="4.8.3+r212056" release="2.2.4" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="gettext-tools-mini" version="0.19.2" release="2.1.3" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="gettext-runtime-mini" version="0.19.2" release="2.1.3" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="libstdc++6" version="4.8.3+r212056" release="2.2.4" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="pam-modules" notmeta="1" version="12.1" release="24.1.2" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="perl" notmeta="1" version="5.20.1" release="1.3" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="build-mkbaselibs" notmeta="1" version="20140424" release="2.1.3" arch="noarch" project="openSUSE:13.2" repository="standard" />
+  <bdep name="brp-check-suse" notmeta="1" version="13.2+git20140727.d76b99d" release="3.2.1" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="post-build-checks" notmeta="1" version="13.2+git20140318.f24deaf" release="2.1.2" arch="noarch" project="openSUSE:13.2" repository="standard" />
+  <bdep name="rpmlint-Factory" notmeta="1" version="1.0" release="88.1.2" arch="noarch" project="openSUSE:13.2" repository="standard" />
+  <bdep name="build-compare" notmeta="1" version="2014.07.15" release="4.1.5" arch="noarch" project="openSUSE:13.2" repository="standard" />
+  <bdep name="brp-extract-appdata" notmeta="1" version="2012.02.13" release="22.1.2" arch="noarch" project="openSUSE:13.2" repository="standard" />
+  <bdep name="rpmlint-Factory-strict" notmeta="1" version="1.0" release="88.1.2" arch="noarch" project="openSUSE:13.2" repository="standard" />
+  <bdep name="brp-trim-desktopfiles" notmeta="1" version="12.1" release="27.2.1" arch="noarch" project="openSUSE:13.2" repository="standard" />
+  <bdep name="aaa_base-malloccheck" notmeta="1" version="13.2+git20140911.61c1681" release="1.3" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <bdep name="rpmlint-mini" notmeta="1" version="1.5" release="8.1.9" arch="i586" project="openSUSE:13.2" repository="standard" />
+  <path project="openSUSE:13.2" repository="standard" url="http://download.opensuse.org/repositories/openSUSE:/13.2/standard/" />
+  <preinstallimage project="openSUSE:13.2" repository="standard" package="preinstallimage-base" filename="_preinstallimage.f621a3458b2a45fcbea45d4b45f663fb" hdrmd5="f621a3458b2a45fcbea45d4b45f663fb">
+    <binary>aaa_base</binary>
+    <binary>aaa_base-malloccheck</binary>
+    <binary>attr</binary>
+    <binary>bash</binary>
+    <binary>binutils</binary>
+    <binary>brp-check-suse</binary>
+    <binary>brp-extract-appdata</binary>
+    <binary>build-compare</binary>
+    <binary>build-mkbaselibs</binary>
+    <binary>bzip2</binary>
+    <binary>coreutils</binary>
+    <binary>cpio</binary>
+    <binary>cpp</binary>
+    <binary>cpp48</binary>
+    <binary>cracklib</binary>
+    <binary>diffutils</binary>
+    <binary>file</binary>
+    <binary>file-magic</binary>
+    <binary>filesystem</binary>
+    <binary>fillup</binary>
+    <binary>findutils</binary>
+    <binary>gawk</binary>
+    <binary>gcc</binary>
+    <binary>gcc48</binary>
+    <binary>gettext-runtime-mini</binary>
+    <binary>gettext-tools-mini</binary>
+    <binary>glibc</binary>
+    <binary>glibc-devel</binary>
+    <binary>glibc-locale</binary>
+    <binary>grep</binary>
+    <binary>gzip</binary>
+    <binary>info</binary>
+    <binary>insserv-compat</binary>
+    <binary>kernel-obs-build</binary>
+    <binary>libacl1</binary>
+    <binary>libasan0</binary>
+    <binary>libatomic1</binary>
+    <binary>libattr1</binary>
+    <binary>libaudit1</binary>
+    <binary>libblkid1</binary>
+    <binary>libbz2-1</binary>
+    <binary>libcap-ng0</binary>
+    <binary>libcap2</binary>
+    <binary>libcloog-isl4</binary>
+    <binary>libcrack2</binary>
+    <binary>libdb-4_8</binary>
+    <binary>libelf1</binary>
+    <binary>libgcc_s1</binary>
+    <binary>libgdbm4</binary>
+    <binary>libgmp10</binary>
+    <binary>libgomp1</binary>
+    <binary>libisl10</binary>
+    <binary>libitm1</binary>
+    <binary>liblua5_1</binary>
+    <binary>liblzma5</binary>
+    <binary>libmagic1</binary>
+    <binary>libmount1</binary>
+    <binary>libmpc3</binary>
+    <binary>libmpfr4</binary>
+    <binary>libncurses5</binary>
+    <binary>libncurses6</binary>
+    <binary>libpcre1</binary>
+    <binary>libpopt0</binary>
+    <binary>libreadline6</binary>
+    <binary>libselinux1</binary>
+    <binary>libsemanage1</binary>
+    <binary>libsepol1</binary>
+    <binary>libsmartcols1</binary>
+    <binary>libstdc++6</binary>
+    <binary>libustr-1_0-1</binary>
+    <binary>libutempter0</binary>
+    <binary>libuuid1</binary>
+    <binary>libz1</binary>
+    <binary>libzio1</binary>
+    <binary>linux-glibc-devel</binary>
+    <binary>m4</binary>
+    <binary>make</binary>
+    <binary>net-tools</binary>
+    <binary>pam</binary>
+    <binary>pam-modules</binary>
+    <binary>patch</binary>
+    <binary>perl</binary>
+    <binary>perl-base</binary>
+    <binary>permissions</binary>
+    <binary>post-build-checks</binary>
+    <binary>rpm</binary>
+    <binary>rpm-build</binary>
+    <binary>rpmlint-Factory</binary>
+    <binary>rpmlint-Factory-strict</binary>
+    <binary>rpmlint-mini</binary>
+    <binary>sed</binary>
+    <binary>systemd-rpm-macros</binary>
+    <binary>tar</binary>
+    <binary>terminfo-base</binary>
+    <binary>update-alternatives</binary>
+    <binary>util-linux</binary>
+    <binary>which</binary>
+    <binary>xz</binary>
+    <url>http://download.opensuse.org/repositories/openSUSE:/13.2/standard/</url>
+  </preinstallimage>
+</buildinfo>
