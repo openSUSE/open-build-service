@@ -13,249 +13,32 @@ use BSXML;
 use Build;
 use BSSolv;
 use BSRepServer;
+use BSRepServer::Checker;
 use BSRepServer::BuildInfo::Generic;
 use BSRepServer::BuildInfo::KiwiImage;
 use BSRepServer::BuildInfo::KiwiProduct;
 
-
-my $proxy;
-$proxy = $BSConfig::proxy if defined($BSConfig::proxy);
-
 my $historylay = [qw{versrel bcnt srcmd5 rev time duration}];
-my $reporoot = "$BSConfig::bsdir/build";
-my $extrepodir = "$BSConfig::bsdir/repos";
-my $extrepodb = "$BSConfig::bsdir/db/published";
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
-
-sub expandkiwipath_hash {
-  my ($info, $repo) = @_;
-  return map {$_->{'project'} eq '_obsrepositories' ? @{$repo->{'path'} || []} : ($_)} @{$info->{'path'} || []};
-}
-
-sub expandkiwipath {
-  return map {"$_->{'project'}/$_->{'repository'}"} expandkiwipath_hash(@_);
-}
-
-sub getbuildenv {
-  my ($projid, $repoid, $arch, $packid, $srcmd5) = @_;
-  my $res = BSRPC::rpc({
-    'uri' => "$BSConfig::srcserver/source/$projid/$packid",
-  }, $BSXML::dir, "rev=$srcmd5");
-  my %entries = map {$_->{'name'} => $_} @{$res->{'entry'} || []};
-  my $bifile = "_buildenv.$repoid.$arch";
-  $bifile = '_buildenv' unless $entries{$bifile};
-  die("srcserver is confused about the buildenv\n") unless $entries{$bifile};
-  return BSRPC::rpc({
-    'uri' => "$BSConfig::srcserver/source/$projid/$packid/$bifile",
-  }, $BSXML::buildinfo, "rev=$srcmd5");
-}
-
-sub getpreinstallimages {
-  my ($prpa) = @_;
-  return undef unless -e "$reporoot/$prpa/:preinstallimages";
-  if (-l "$reporoot/$prpa/:preinstallimages") {
-    # small hack: allow symlink to another prpa's file
-    my $l = readlink("$reporoot/$prpa/:preinstallimages") || '';
-    my @l = split('/', "$prpa////$l", -1);
-    $l[-4] = $l[0] if $l[-4] eq '' || $l[-4] eq '..';
-    $l[-3] = $l[1] if $l[-3] eq '' || $l[-3] eq '..';
-    $l[-2] = $l[2] if $l[-2] eq '' || $l[-2] eq '..';
-    $prpa = "$l[-4]/$l[-3]/$l[-2]";
-  }
-  return BSUtil::retrieve("$reporoot/$prpa/:preinstallimages", 1);
-}
-
-sub getkiwiproductpackages {
-  my ($proj, $repo, $pdata, $info, $deps, $remotemap) = @_;
-
-  my $nodbgpkgs = $info->{'nodbgpkgs'};
-  my $nosrcpkgs = $info->{'nosrcpkgs'};
-  my @got;
-  my %imagearch = map {$_ => 1} @{$info->{'imagearch'} || []};
-  my @archs = grep {$imagearch{$_}} @{$repo->{'arch'} || []};
-  die("no architectures to use for packages\n") unless @archs;
-  my @deps = @{$deps || []};
-  my %deps = map {$_ => 1} @deps;
-  delete $deps{''};
-  my @aprps = expandkiwipath($info, $repo);
-  my $allpacks = $deps{'*'} ? 1 : 0;
-
-  # sigh. Need to get the project kind...
-  # it would be much easier to have this in the repo...
-  my %prjkind;
-  for my $aprp (@aprps) {
-    my ($aprojid) = split('/', $aprp, 2);
-    next if $aprojid eq $proj->{'name'};
-    next if $remotemap->{$aprojid};
-    $prjkind{$aprojid} = undef;
-  }
-  if (%prjkind) {
-    print "fetching project kind for ".keys(%prjkind)." projects\n";
-    my $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'nopackages', 'noremote', 'ignoredisable', map {"project=$_"} sort(keys %prjkind));
-    for my $p (@{$projpack->{'project'} || []}) {
-      $prjkind{$p->{'name'}} = $p->{'kind'} if exists $prjkind{$p->{'name'}};
-    }
-  }
-  $prjkind{$proj->{'name'}} = $proj->{'kind'};
-
-  for my $aprp (@aprps) {
-    my %known;
-    my ($aprojid, $arepoid) = split('/', $aprp, 2);
-    for my $arch (@archs) {
-      my $aprojidkind = $prjkind{$aprojid};
-      $aprojidkind = $remotemap->{$aprojid}->{'kind'} if $remotemap->{$aprojid};
-      my $seen_binary;
-      $seen_binary = {} if ($aprojidkind || '') eq 'maintenance_release';
-
-      my $gbininfo = BSRepServer::read_gbininfo("$reporoot/$aprp/$arch");
-      # support for remote projects
-      if (!$gbininfo && $remotemap->{$aprojid}) {
-	my $remoteproj = $remotemap->{$aprojid};
-	print "fetching remote project binary state for $aprp/$arch\n";
-	my $param = {
-	  'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$arepoid/$arch",
-	  'timeout' => 200,
-	  'proxy' => $proxy,
-	};
-	my $packagebinarylist = BSRPC::rpc($param, $BSXML::packagebinaryversionlist, "view=binaryversions");
-	$gbininfo = {};
-	for my $binaryversionlist (@{$packagebinarylist->{'binaryversionlist'} || []}) {
-	  my %bins;
-	  for my $binary (@{$binaryversionlist->{'binary'} || []}) {
-	    next unless $binary->{'name'} =~ /^(?:::import::.*::)?(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
-	    $bins{$binary->{'name'}} = {'filename' => $binary->{'name'}, 'name' => $1, 'arch' => $2};
-	  }
-	  $gbininfo->{$binaryversionlist->{'package'}} = \%bins;
-	}
-      }
-
-      # fast if we have gbininfo
-      if ($gbininfo) {
-        for my $apackid (BSSched::ProjPacks::orderpackids({'kind' => $aprojidkind}, keys %$gbininfo)) {
-	  next if $apackid eq '_volatile';
-	  my $bininfo = $gbininfo->{$apackid} || {};
-	  # skip channels/patchinfos
-	  next if $bininfo->{'.nouseforbuild'};
-	  my $needit;
-	  for my $b (values %$bininfo) {
-	    my $n = $b->{'name'};
-	    next unless defined $n;
-	    next unless $deps{$n} || ($allpacks && !$deps{"-$n"});
-	    next if $nodbgpkgs && $b->{'filename'} =~ /-(?:debuginfo|debugsource)-/;
-	    next if $nosrcpkgs && $b->{'filename'} =~ /\.(?:nosrc|src)\.rpm$/;
-	    $needit = 1;
-	    last;
-	  }
-	  next unless $needit;
-	  # need it
-	  my @bi = sort keys %$bininfo;
-	  # put imports last
-	  my @ibi = grep {/^::import::/} @bi;
-	  if (@ibi) {
-	    @bi = grep {!/^::import::/} @bi;
-	    push @bi, @ibi;
-	  }
-	  for my $bf (@bi) {
-	    my $b = $bininfo->{$bf};
-            next unless $b->{'filename'};
-	    next if $nodbgpkgs && $b->{'filename'} =~ /-(?:debuginfo|debugsource)-/;
-	    next if $nosrcpkgs && $b->{'filename'} =~ /\.(?:nosrc|src)\.rpm$/;
-	    if ($seen_binary && defined($b->{'name'})) {
-	      next if $seen_binary->{"$b->{'name'}.$b->{'arch'}"};
-	      $seen_binary->{"$b->{'name'}.$b->{'arch'}"} = 1;
-	    }
-	    if ($b->{'filename'} =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/ || $b->{'filename'} =~ /^.*-appdata.xml$/) {
-	      push @got, "$aprp/$arch/$apackid/$b->{'filename'}";
-	    }
-	  }
-	}
-	next;
-      }
-
-      my $depends = BSUtil::retrieve("$reporoot/$aprp/$arch/:depends", 1);
-      next unless $depends && $depends->{'subpacks'};
-      my %apackids = (%{$depends->{'subpacks'} || {}}, %{$depends->{'pkgdeps'}});
-      for my $apackid (BSSched::ProjPacks::orderpackids({'kind' => $aprojidkind}, keys %apackids)) {
-	next if $apackid eq '_volatile';
-	next if -e "$reporoot/$aprp/$arch/$apackid/updateinfo.xml";
-	next if -e "$reporoot/$aprp/$arch/$apackid/.channelinfo";
-        if (!$allpacks && $depends->{'subpacks'}->{$apackid}) {
-	  next unless grep {$deps{$_}} @{$depends->{'subpacks'}->{$apackid} || []};
-        }
-        # need package, scan content
-	my @bins = grep {/\.rpm$|\.xml$/} ls ("$reporoot/$aprp/$arch/$apackid");
-	my @ibins = grep {/^::import::/} @bins;
-	if (@ibins) {
-	  @bins = grep {!/^::import::/} @bins;
-	  push @bins, @ibins;
-	}
-        my $needit;
-	for my $b (@bins) {
-	  next unless $b =~ /^(?:::import::.*::)?(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
-	  next unless $deps{$1} || ($allpacks && !$deps{"-$1"});
-	  next if $nodbgpkgs && $b =~ /-(?:debuginfo|debugsource)-/;
-	  next if $nosrcpkgs && $b =~ /\.(?:nosrc|src)\.rpm$/;
-	  $needit = 1;
-	  last;
-	}
-        next unless $needit;
-	for my $b (@bins) {
-	  next unless $b =~ /^(?:::import::.*::)?(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
-	  if ($seen_binary) {
-	    next if $seen_binary->{"$1.$2"};
-	    $seen_binary->{"$1.$2"} = 1;
-	  }
-	  next if $nodbgpkgs && $b =~ /-(?:debuginfo|debugsource)-/;
-	  next if $nosrcpkgs && $b =~ /\.(?:nosrc|src)\.rpm$/;
-	  push @got, "$aprp/$arch/$apackid/$b";
-	}
-        for my $b (@bins) {
-	  push @got, "$aprp/$arch/$apackid/$b" if $b =~ /^.*-appdata.xml$/;
-        }
-      }
-    }
-  }
-  return @got;
-}
-
-sub get_projpack_via_rpc {
-  my ($self) = @_;
-  
-use Carp qw/cluck/;
-cluck();
-  my ($projid, $repoid, $arch, $packid, $pdata) = ($self->{projid}, $self->{repoid}, $self->{arch}, $self->{packid}, $self->{pdata});
-
-  # prepare args for rpc call
-  my @args = ("project=$projid", "repository=$repoid", "arch=$arch", "parseremote=1");
-  if (defined($packid)) {
-    push @args, "package=$packid";
-  } else {
-    push @args, "nopackages";
-  }
-  push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
-
-  # fetch projpack information via rpc
-  if (!$pdata) {
-    $self->{projpack} = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'expandedrepos', 'withremotemap', 'ignoredisable', @args);
-    die("404 no such project/package/repository\n") unless $self->{projpack}->{'project'};
-  } else {
-    $self->{projpack} = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'withremotemap', @args);
-    die("404 no such project/repository\n") unless $self->{projpack}->{'project'};
-  }
-
-  # verify projpack
-  my $proj = $self->{projpack}->{'project'}->[0];
-  die("no such project\n") unless $proj && $proj->{'name'} eq $projid;
-  my $repo = $proj->{'repository'}->[0];
-  die("no such repository\n") unless $repo && $repo->{'name'} eq $repoid;
-
-}
 
 sub new {
 
   my $class = shift;
   my $self  = {@_};
+
+  my $gctx = {
+	arch        => $self->{arch},
+	reporoot    => "$BSConfig::bsdir/build",
+	#extrepodir  => "$BSConfig::bsdir/repos",
+	#extrepodb   => "$BSConfig::bsdir/db/published",
+	remoteproxy => $BSConfig::proxy,
+  };
+
+  my $ctx = BSRepServer::Checker->new($gctx);
+
+  $self->{gctx} = $gctx;
+  $self->{ctx}  = $ctx;
 
   bless($self,$class);
 
@@ -296,6 +79,221 @@ sub new {
   }
   return $self;
 }
+
+sub expandkiwipath_hash {
+  my ($info, $repo) = @_;
+  return map {$_->{'project'} eq '_obsrepositories' ? @{$repo->{'path'} || []} : ($_)} @{$info->{'path'} || []};
+}
+
+sub expandkiwipath {
+  return map {"$_->{'project'}/$_->{'repository'}"} expandkiwipath_hash(@_);
+}
+
+sub getbuildenv {
+  my ($projid, $repoid, $arch, $packid, $srcmd5) = @_;
+  my $res = BSRPC::rpc({
+    'uri' => "$BSConfig::srcserver/source/$projid/$packid",
+  }, $BSXML::dir, "rev=$srcmd5");
+  my %entries = map {$_->{'name'} => $_} @{$res->{'entry'} || []};
+  my $bifile = "_buildenv.$repoid.$arch";
+  $bifile = '_buildenv' unless $entries{$bifile};
+  die("srcserver is confused about the buildenv\n") unless $entries{$bifile};
+  return BSRPC::rpc({
+    'uri' => "$BSConfig::srcserver/source/$projid/$packid/$bifile",
+  }, $BSXML::buildinfo, "rev=$srcmd5");
+}
+
+sub getpreinstallimages {
+  my ($prpa) = @_;
+  return undef unless -e "$reporoot/$prpa/:preinstallimages";
+  if (-l "$reporoot/$prpa/:preinstallimages") {
+    # small hack: allow symlink to another prpa's file
+    my $l = readlink("$reporoot/$prpa/:preinstallimages") || '';
+    my @l = split('/', "$prpa////$l", -1);
+    $l[-4] = $l[0] if $l[-4] eq '' || $l[-4] eq '..';
+    $l[-3] = $l[1] if $l[-3] eq '' || $l[-3] eq '..';
+    $l[-2] = $l[2] if $l[-2] eq '' || $l[-2] eq '..';
+    $prpa = "$l[-4]/$l[-3]/$l[-2]";
+  }
+  return BSUtil::retrieve("$reporoot/$prpa/:preinstallimages", 1);
+}
+
+sub getkiwiproductpackages {
+  my ($self,$proj, $repo, $pdata, $info, $deps, $remotemap) = @_;
+
+  my $nodbgpkgs = $info->{'nodbgpkgs'};
+  my $nosrcpkgs = $info->{'nosrcpkgs'};
+  my @got;
+  my %imagearch = map {$_ => 1} @{$info->{'imagearch'} || []};
+  my @archs = grep {$imagearch{$_}} @{$repo->{'arch'} || []};
+  die("no architectures to use for packages\n") unless @archs;
+  my @deps = @{$deps || []};
+  my %deps = map {$_ => 1} @deps;
+  delete $deps{''};
+  my @aprps = expandkiwipath($info, $repo);
+  my $allpacks = $deps{'*'} ? 1 : 0;
+
+  # sigh. Need to get the project kind...
+  # it would be much easier to have this in the repo...
+  my %prjkind;
+  for my $aprp (@aprps) {
+    my ($aprojid) = split('/', $aprp, 2);
+    next if $aprojid eq $proj->{'name'};
+    next if $remotemap->{$aprojid};
+    $prjkind{$aprojid} = undef;
+  }
+  if (%prjkind) {
+    print "fetching project kind for ".keys(%prjkind)." projects\n";
+    my $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'nopackages', 'noremote', 'ignoredisable', map {"project=$_"} sort(keys %prjkind));
+    for my $p (@{$projpack->{'project'} || []}) {
+      $prjkind{$p->{'name'}} = $p->{'kind'} if exists $prjkind{$p->{'name'}};
+    }
+  }
+  $prjkind{$proj->{'name'}} = $proj->{'kind'};
+
+  for my $aprp (@aprps) {
+    my %known;
+    my ($aprojid, $arepoid) = split('/', $aprp, 2);
+    for my $arch (@archs) {
+      my $aprojidkind = $prjkind{$aprojid};
+      $aprojidkind = $remotemap->{$aprojid}->{'kind'} if $remotemap->{$aprojid};
+      my $seen_binary;
+      $seen_binary = {} if ($aprojidkind || '') eq 'maintenance_release';
+
+      my $gbininfo = $self->{ctx}->read_gbininfo($aprp, $arch);
+
+      if (!$gbininfo) {
+        push @got, $self->getkiwiproductpackages_compat($aprp, $arch, \%deps , $allpacks, $seen_binary, $aprojidkind);
+        next;
+      }
+      for my $apackid (BSSched::ProjPacks::orderpackids({'kind' => $aprojidkind}, keys %$gbininfo)) {
+	next if $apackid eq '_volatile';
+	my $bininfo = $gbininfo->{$apackid} || {};
+	# skip channels/patchinfos
+	next if $bininfo->{'.nouseforbuild'};
+	my $needit;
+	for my $b (values %$bininfo) {
+	  my $n = $b->{'name'};
+	  next unless defined $n;
+	  next unless $deps{$n} || ($allpacks && !$deps{"-$n"});
+	  next if $nodbgpkgs && $b->{'filename'} =~ /-(?:debuginfo|debugsource)-/;
+	  next if $nosrcpkgs && $b->{'filename'} =~ /\.(?:nosrc|src)\.rpm$/;
+	  $needit = 1;
+	  last;
+	}
+	next unless $needit;
+	# need it
+	my @bi = sort keys %$bininfo;
+	# put imports last
+	my @ibi = grep {/^::import::/} @bi;
+	if (@ibi) {
+	  @bi = grep {!/^::import::/} @bi;
+	  push @bi, @ibi;
+	}
+	for my $bf (@bi) {
+	  my $b = $bininfo->{$bf};
+	  next unless $b->{'filename'};
+	  next if $nodbgpkgs && $b->{'filename'} =~ /-(?:debuginfo|debugsource)-/;
+	  next if $nosrcpkgs && $b->{'filename'} =~ /\.(?:nosrc|src)\.rpm$/;
+	  if ($seen_binary && defined($b->{'name'})) {
+	    next if $seen_binary->{"$b->{'name'}.$b->{'arch'}"};
+	    $seen_binary->{"$b->{'name'}.$b->{'arch'}"} = 1;
+	  }
+	  if ($b->{'filename'} =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/ || $b->{'filename'} =~ /^.*-appdata.xml$/) {
+	    push @got, "$aprp/$arch/$apackid/$b->{'filename'}";
+	  }
+	}
+      }
+    }
+  }
+  return @got;
+}
+
+=head2 getkiwiproductpackages_compat - for old projects without bininfo
+
+=cut
+
+sub getkiwiproductpackages_compat {
+  my ($self, $aprp, $arch, $deps, $allpacks, $seen_binary, $aprojidkind) = @_;
+  my @got;
+  my $nodbgpkgs = $self->{info}->{'nodbgpkgs'};
+  my $nosrcpkgs = $self->{info}->{'nosrcpkgs'};
+  my $reporoot  = $self->{gctx}->{reporoot};
+
+  my $depends = BSUtil::retrieve("$self->{gctx}->{reporoot}/$aprp/$arch/:depends", 1);
+  next unless $depends && $depends->{'subpacks'};
+  my %apackids = (%{$depends->{'subpacks'} || {}}, %{$depends->{'pkgdeps'}});
+  for my $apackid (BSSched::ProjPacks::orderpackids({'kind' => $aprojidkind}, keys %apackids)) {
+    next if $apackid eq '_volatile';
+    next if -e "$reporoot/$aprp/$arch/$apackid/updateinfo.xml";
+    next if -e "$reporoot/$aprp/$arch/$apackid/.channelinfo";
+    if (!$allpacks && $depends->{'subpacks'}->{$apackid}) {
+      next unless grep {$deps->{$_}} @{$depends->{'subpacks'}->{$apackid} || []};
+    }
+    # need package, scan content
+    my @bins = grep {/\.rpm$|\.xml$/} ls ("$reporoot/$aprp/$arch/$apackid");
+    my @ibins = grep {/^::import::/} @bins;
+    if (@ibins) {
+      @bins = grep {!/^::import::/} @bins;
+      push @bins, @ibins;
+    }
+    my $needit;
+    for my $b (@bins) {
+      next unless $b =~ /^(?:::import::.*::)?(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+      next unless $deps->{$1} || ($allpacks && !$deps->{"-$1"});
+      next if $nodbgpkgs && $b =~ /-(?:debuginfo|debugsource)-/;
+      next if $nosrcpkgs && $b =~ /\.(?:nosrc|src)\.rpm$/;
+      $needit = 1;
+      last;
+    }
+    next unless $needit;
+    for my $b (@bins) {
+      next unless $b =~ /^(?:::import::.*::)?(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+      if ($seen_binary) {
+	next if $seen_binary->{"$1.$2"};
+	$seen_binary->{"$1.$2"} = 1;
+      }
+      next if $nodbgpkgs && $b =~ /-(?:debuginfo|debugsource)-/;
+      next if $nosrcpkgs && $b =~ /\.(?:nosrc|src)\.rpm$/;
+      push @got, "$aprp/$arch/$apackid/$b";
+    }
+    for my $b (@bins) {
+      push @got, "$aprp/$arch/$apackid/$b" if $b =~ /^.*-appdata.xml$/;
+    }
+  }
+
+  return @got;
+}
+
+sub get_projpack_via_rpc {
+  my ($self) = @_;
+  
+  # prepare args for rpc call
+  my @args = ("project=$self->{projid}", "repository=$self->{repoid}", "arch=$self->{arch}", "parseremote=1");
+  if (defined($self->{packid})) {
+    push @args, "package=$self->{packid}";
+  } else {
+    push @args, "nopackages";
+  }
+  push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
+
+  # fetch projpack information via rpc
+  if (!$self->{pdata}) {
+    $self->{projpack} = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'expandedrepos', 'withremotemap', 'ignoredisable', @args);
+    die("404 no such project/package/repository\n") unless $self->{projpack}->{'project'};
+  } else {
+    $self->{projpack} = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'withremotemap', @args);
+    die("404 no such project/repository\n") unless $self->{projpack}->{'project'};
+  }
+
+  # verify projpack
+  my $proj = $self->{projpack}->{'project'}->[0];
+  die("no such project\n") unless $proj && $proj->{'name'} eq $self->{projid};
+  my $repo = $proj->{'repository'}->[0];
+  die("no such repository\n") unless $repo && $repo->{'name'} eq $self->{repoid};
+
+}
+
 
 
 =head2 get_deps_from_buildenv - Take _buildenv parameter for cgi as input for dependency generation
@@ -343,7 +341,7 @@ sub get_deps_from_buildenv {
     # nope, need to search package data as well
     for my $aprp (@$prp) {
       my ($aprojid, $arepoid) = split('/', $aprp, 2);
-      my $gbininfo = BSRepServer::read_gbininfo("$reporoot/$aprp/$arch");
+      my $gbininfo = $self->{ctx}->read_gbininfo($aprp, $arch);
       if ($gbininfo) {
 	for my $packid (sort keys %$gbininfo) {
 	  for (map {$gbininfo->{$packid}->{$_}} sort keys %{$gbininfo->{$packid}}) {
@@ -360,7 +358,7 @@ sub get_deps_from_buildenv {
 	my $param = {
 	  'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$arepoid/$arch",
 	  'timeout' => 200,
-	  'proxy' => $proxy,
+	  'proxy' => $self->{gctx}->{remoteproxy},
 	};
 	my $packagebinarylist = BSRPC::rpc($param, $BSXML::packagebinaryversionlist, "view=binaryversions");
 	for my $binaryversionlist (@{$packagebinarylist->{'binaryversionlist'} || []}) {
@@ -445,7 +443,7 @@ sub calc_build_deps_kiwiproduct {
   }
 
   # now the binaries from the packages
-  my @bins = getkiwiproductpackages($self->{proj}, $self->{repo}, $self->{pdata}, $self->{info}, $edeps, $remotemap);
+  my @bins = $self->getkiwiproductpackages($self->{proj}, $self->{repo}, $self->{pdata}, $self->{info}, $edeps, $remotemap);
   for my $b (@bins) {
 	my @bn = split('/', $b);
 	my $d = { 'binary' => $bn[-1] };
@@ -567,7 +565,7 @@ sub getbuildinfo {
 
   if (defined($packid) && exists($pdata->{'versrel'})) {
     $ret->{'versrel'} = $pdata->{'versrel'};
-    my $h = BSFileDB::fdb_getmatch("$reporoot/$projid/$repoid/$arch/$packid/history", $historylay, 'versrel', $pdata->{'versrel'}, 1);
+    my $h = BSFileDB::fdb_getmatch("$self->{gctx}->{reporoot}/$projid/$repoid/$arch/$packid/history", $historylay, 'versrel', $pdata->{'versrel'}, 1);
     $h = {'bcnt' => 0} unless $h;
     $ret->{'bcnt'} = $h->{'bcnt'} + 1;
     my $release = $ret->{'versrel'};

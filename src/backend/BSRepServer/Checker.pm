@@ -26,9 +26,9 @@ sub new {
   my $ctx = { @conf };
   my $prp = "$ctx->{'project'}/$ctx->{'package'}";
   $ctx->{'prp'} = $prp;
-  $ctx->{'gdst'} = "$ctx->{'reporoot'}/$prp/$ctx->{'arch'}"
+  $ctx->{'gdst'} = "$ctx->{'reporoot'}/$prp/$ctx->{'arch'}";
   # move some stuff into gxtc
-  my $gctx = {}
+  my $gctx = {};
   for ('arch', 'reporoot', 'extrepodir', 'extrepodb') {
     $gctx->{$_} = delete $ctx->{$_};
   }
