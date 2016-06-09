@@ -143,7 +143,7 @@ sub check {
 
       # for remote projects we always need the gbininfo
       if ($remoteprojs->{$aprojid}) {
-	my $gbininfo = BSSched::Remote::read_gbininfo_remote($ctx, "$aprp/$myarch", $remoteprojs->{$aprojid}, $ps);
+	my $gbininfo = $ctx->read_gbininfo($aprp, $myarch, $ps);
 	$gbininfos{"$aprp/$myarch"} = $gbininfo;
 	if (!$gbininfo) {
 	  $delayed = 1 if defined $gbininfo;
@@ -158,7 +158,7 @@ sub check {
 	if ($remoteprojs->{$aprojid}) {
 	  $gbininfo = $gbininfos{"$aprp/$myarch"};
 	} else {
-	  $gbininfo = BSSched::BuildResult::read_gbininfo("$reporoot/$aprp/$myarch");
+	  $gbininfo = $ctx->read_gbininfo($aprp);
 	}
 	if (!$gbininfo) {
 	  push @broken, $aprp;

@@ -162,7 +162,7 @@ sub check {
     for my $aprojid (keys %proj2repo) {
       $aprojids{$aprojid} = 1 if $proj2repo{$aprojid}->{$arepoid};
     }
-    my $gbininfo = BSSched::BuildResult::read_gbininfo("$reporoot/$aprp/$myarch");
+    my $gbininfo = $ctx->read_gbininfo($aprp);
     for my $apackid (@apackids) {
       next if $arepoid eq $repoid && $apackid eq $packid;
       my $code = $ps->{$apackid} || 'unknown';

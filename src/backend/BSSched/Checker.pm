@@ -26,6 +26,7 @@ use BSSolv;
 
 use BSSched::ProjPacks;
 use BSSched::BuildRepo;
+use BSSched::BuildResult;
 use BSSched::PublishRepo;
 use BSSched::BuildJob;
 use BSSched::Access;
@@ -972,6 +973,19 @@ sub addrepo {
     return BSSched::Remote::addrepo_remote($ctx, $pool, $prp, $arch, $remoteprojs->{$projid});
   }
   return BSSched::BuildRepo::addrepo_scan($gctx, $pool, $prp, $arch);
+}
+
+sub read_gbininfo {
+  my ($ctx, $prp, $arch, $ps) = @_;
+  my $gctx = $ctx->{'gctx'};
+  $arch ||= $gctx->{'arch'};
+  my $remoteprojs = $gctx->{'remoteprojs'};
+  my ($projid, $repoid) = split('/', $prp, 2);
+  if ($remoteprojs->{$projid}) {
+    return BSSched::Remote::read_gbininfo_remote($ctx, "$prp, $arch", $remoteprojs->{$projid}, $ps);
+  }
+  my $reporoot = $gctx->{'reporoot'};
+  return BSSched::BuildResult::read_gbininfo("$reporoot/$prp/$arch", $arch eq $gctx->{'arch'} ? 0 : 1);
 }
 
 1;

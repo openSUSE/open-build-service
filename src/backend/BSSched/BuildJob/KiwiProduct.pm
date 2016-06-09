@@ -275,22 +275,17 @@ sub check {
       }
       $ps = ($ps || {})->{'packstatus'} || {};
 
-      my $gbininfo;
-      if ($remoteprojs->{$aprojid}) {
-	$gbininfo = BSSched::Remote::read_gbininfo_remote($ctx, "$aprp/$arch", $remoteprojs->{$aprojid}, $ps);
-	if (!$gbininfo) {
-	  my $error = "project binary state of $aprp/$arch is unavailable";
-	  $error .= " (delayed)" if defined $gbininfo;
-	  print "      - $packid (kiwi-product)\n";
-	  print "        $error\n";
-	  if (defined $gbininfo) {
-	    $delayed_errors .= ", $error";
-	    next;
-	  }
-	  return ('broken', $error);
+      my $gbininfo = $ctx->read_gbininfo($aprp, $arch, $ps);
+      if (!$gbininfo && $remoteprojs->{$aprojid}) {
+	my $error = "project binary state of $aprp/$arch is unavailable";
+	$error .= " (delayed)" if defined $gbininfo;
+	print "      - $packid (kiwi-product)\n";
+	print "        $error\n";
+	if (defined $gbininfo) {
+	  $delayed_errors .= ", $error";
+	  next;
 	}
-      } else {
-	$gbininfo = BSSched::BuildResult::read_gbininfo("$reporoot/$aprp/$arch", $arch eq $myarch ? 0 : 1);
+	return ('broken', $error);
       }
       next if $delayed_errors;
       if (!$gbininfo && $arch ne $myarch && -d "$gctx->{'eventdir'}/$arch") {
