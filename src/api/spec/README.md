@@ -181,6 +181,24 @@ You should only use shared examples where you have the exact same functionality 
 Otherwise these tests get fast hard to refactor and review.
 In our experience, shared examples are used mainly for controllers. Since models are pretty different from each other, they (usually) do not share much logic.
 
+### Travis
+We use [travis-ci](https://travis-ci.org/) for continues integration.
+
+#### Setup
+As travis-ci runs on an Ubuntu machine, we need to add the OBS repository and install some OBS specific Ubuntu packages first.
+We do this in [dist/ci/obs_testsuite_travis_install.sh](https://github.com/openSUSE/open-build-service/blob/master/dist/ci/obs_testsuite_travis_install.sh).
+You can find the Ubuntu specific packages in this repository [http://download.opensuse.org/repositories/OBS:/Server:/Unstable/xUbuntu_12.04/](http://download.opensuse.org/repositories/OBS:/Server:/Unstable/xUbuntu_12.04/).
+We do not package the rubygems for Ubuntu, instead we use bundler to install them.
+
+#### Skipped tests
+Some tests we run only on SUSE/openSUSE systems due to significant package differences to other distributions.
+However, travis-ci runs on an Ubuntu machine.
+To find out which tests we skip, you can ```grep``` for:
+
+```
+fillup-templates
+```
+
 ### Migrating tests
 When migrating tests from the old minitest based suite to rspec, please add the
 file path of the new one to every test covered.
