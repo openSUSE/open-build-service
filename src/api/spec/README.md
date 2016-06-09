@@ -172,6 +172,12 @@ Before you finally commit your test, you should remove the generated cassettes a
 This ensures that only by the test needed responses are included in the cassette and nothing more.
 You can also review the cassette manually (but **NEVER** edit them manually)!
 
+### Shared examples
+To DRY our tests we use in rare situations [shared examples](https://www.relishapp.com/rspec/rspec-core/docs/example-groups/shared-examples).
+You should only use shared examples where you have the exact same functionality (e.g. package/project or user/group tab).
+Otherwise these tests get fast hard to refactor and review.
+In our experience, shared examples are used mainly for controllers. Since models are pretty different from each other, they (usually) do not share much logic.
+
 ### Migrating tests
 When migrating tests from the old minitest based suite to rspec, please add the
 file path of the new one to every test covered.
