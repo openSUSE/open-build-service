@@ -195,4 +195,26 @@ sub read_bininfo {
   return $bininfo;
 }
 
+sub read_gbininfo_remote {
+  my ($prpa, $remoteproj) = @_;
+  my ($projid, $repoid, $arch) = split('/', $prpa, 3);
+  print "fetching remote project binary state for $prpa\n";
+  my $param = { 
+    'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$repoid/$arch",
+    'timeout' => 200,
+    'proxy' => $proxy,
+  };
+  my $packagebinarylist = BSRPC::rpc($param, $BSXML::packagebinaryversionlist, "view=binaryversions");
+  my $gbininfo = {};
+  for my $binaryversionlist (@{$packagebinarylist->{'binaryversionlist'} || []}) {
+   my %bins;
+   for my $binary (@{$binaryversionlist->{'binary'} || []}) {
+     next unless $binary->{'name'} =~ /^(?:::import::.*::)?(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+     $bins{$binary->{'name'}} = {'filename' => $binary->{'name'}, 'name' => $1, 'arch' => $2};
+   }
+   $gbininfo->{$binaryversionlist->{'package'}} = \%bins;
+ }
+  return $gbininfo;
+}
+
 1;
