@@ -45,6 +45,9 @@ possible in RSpec. We concentrate on 4 types:
 * [Helper specs](https://relishapp.com/rspec/rspec-rails/docs/helper-specs/helper-spec) reside in the `spec/helpers` directory and test methods in Helpers.
 * [Feature specs](https://relishapp.com/rspec/rspec-rails/docs/feature-specs/feature-spec) reside in the `spec/features` directory and test workflows through the webui.
 
+We agreed that we wan to focus on model and feature tests.
+While migrating the old test suite, we review all controller tests and try to translate most of them to model tests.
+
 ## Adding tests
 We are using the standard [RSpec generators](https://relishapp.com/rspec/rspec-rails/docs/generators) like:
 
