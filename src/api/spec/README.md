@@ -143,14 +143,34 @@ vagrant exec rake db:fixtures:obs
 vagrant exec RAILS_ENV=test ./script/start_test_backend
 ```
 
-Once your test ran successfully for the first time [VCR](https://github.com/vcr/vcr)
-will have recorded a new cassette in `spec/cassettes` and will use this for
-playing back the backend response in the next run.
+We use [VCR](https://github.com/vcr/vcr) to record the response from the backend.
+VCR records the HTTP interactions with the backend and replays them during future test runs for fast, deterministic, accurate tests.
+Once your test ran successfully for the first time [VCR](https://github.com/vcr/vcr) will have recorded a new cassette (a simple yml file) in `spec/cassettes`.
 
-### VCR gotchas
-VCR matches cassettes to responses you request from the backend by comparing the
-`request.uri`. That means you should avoid random parts, like project/package
-names, in it.
+#### VCR cassette matching
+VCR matches cassettes to responses you request from the backend by comparing the `request.uri`.
+That means you should avoid random parts, like project/package names, in the URL requested.
+Otherwise the cassette will not match and VCR tries record a new cassette each time which will fail because the backend is not running anymore.
+
+```
+  let(:apache_project) { create(:project, name: 'Apache') }
+```
+
+#### Enable VCR for model and controller tests
+To make loading tests faster, we only include VCR in feature tests by default.
+However, sometimes you also get and want to verify a backend response in a model or controller test.
+Make sure you enable VCR in the test metadata like this:
+
+```
+  RSpec.describe Package, vcr: true do
+    ...
+  end
+```
+
+#### Remove all cassettes and run the test again before you commit
+Before you finally commit your test, you should remove the generated cassettes and run your test again.
+This ensures that only by the test needed responses are included in the cassette and nothing more.
+You can also review the cassette manually (but **NEVER** edit them manually)!
 
 ### Migrating tests
 When migrating tests from the old minitest based suite to rspec, please add the
