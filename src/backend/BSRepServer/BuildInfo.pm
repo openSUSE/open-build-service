@@ -3,10 +3,12 @@ package BSRepServer::BuildInfo;
 use strict;
 use warnings;
 
+use Data::Dumper;
+
 use BSConfiguration;
 use BSRPC ':https';
 use BSUtil;
-#use BSFileDB;
+use BSFileDB;
 use BSXML;
 use Build;
 use BSSolv;
@@ -43,6 +45,21 @@ sub getbuildenv {
   return BSRPC::rpc({
     'uri' => "$BSConfig::srcserver/source/$projid/$packid/$bifile",
   }, $BSXML::buildinfo, "rev=$srcmd5");
+}
+
+sub getpreinstallimages {
+  my ($prpa) = @_;
+  return undef unless -e "$reporoot/$prpa/:preinstallimages";
+  if (-l "$reporoot/$prpa/:preinstallimages") {
+    # small hack: allow symlink to another prpa's file
+    my $l = readlink("$reporoot/$prpa/:preinstallimages") || '';
+    my @l = split('/', "$prpa////$l", -1);
+    $l[-4] = $l[0] if $l[-4] eq '' || $l[-4] eq '..';
+    $l[-3] = $l[1] if $l[-3] eq '' || $l[-3] eq '..';
+    $l[-2] = $l[2] if $l[-2] eq '' || $l[-2] eq '..';
+    $prpa = "$l[-4]/$l[-3]/$l[-2]";
+  }
+  return BSUtil::retrieve("$reporoot/$prpa/:preinstallimages", 1);
 }
 
 sub getkiwiproductpackages {
@@ -386,7 +403,7 @@ sub getbuildinfo {
   if ($info->{'subpacks'}) {
     $ret->{'subpack'} = $info->{'subpacks'};
   } elsif (@subpacks) {
-    $ret->{'subpack'} = [ @subpacks ];
+    $ret->{'subpack'} = [ sort @subpacks ];
   }
 
   # expand meta deps
@@ -705,6 +722,7 @@ sub getbuildinfo {
     }
   }
 
+  my @preimghdrs;
   @bdeps = BSUtil::unify(@pdeps, @vmdeps, @edeps, @bdeps, @sysdeps);
   for (@bdeps) {
     my $b = {'name' => $_};
@@ -727,6 +745,39 @@ sub getbuildinfo {
       $b->{'noinstall'} = 1 if $bdeps{$_} && !($sysdeps{$_} || $vmdeps{$_} || $pdeps{$_});
     }
     push @rdeps, $b;
+    push @preimghdrs, $pool->pkg2pkgid($p) if !$b->{'noinstall'};
+  }
+
+  if (!$cgi->{'internal'}) {
+    my %neededhdrmd5s = map {$_ => 1} grep {$_} @preimghdrs;
+    my @prpas = map {$_->name() . "/$arch"} $pool->repos();
+
+    my $bestimgn = 2; 
+    my $bestimg;
+
+    for my $prpa (@prpas) {
+      my $images = getpreinstallimages($prpa);
+      next unless $images;
+      for my $img (@$images) {
+       next if @{$img->{'hdrmd5s'} || []} < $bestimgn;
+       next unless $img->{'sizek'} && $img->{'hdrmd5'};
+       next if grep {!$neededhdrmd5s{$_}} @{$img->{'hdrmd5s'} || []}; 
+       next if $prpa eq "$projid/$repoid/$arch" && $packid && $img->{'package'} eq $packid;
+       $img->{'prpa'} = $prpa;
+       $bestimg = $img;
+       $bestimgn = @{$img->{'hdrmd5s'} || []}; 
+      }
+    }
+    if ($bestimg) {
+      my $pi = {'package' => $bestimg->{'package'}, 'filename' => "_preinstallimage.$bestimg->{'hdrmd5'}", 'binary' => $bestimg->{'bins'}, 'hdrmd5' => $bestimg->{'hdrmd5'}};
+      ($pi->{'project'}, $pi->{'repository'}) = split('/', $bestimg->{'prpa'}, 3);
+      my $rprp = "$pi->{'project'}/$pi->{'repository'}";
+      my $rprp_ext = $rprp;
+      $rprp_ext =~ s/:/:\//g;
+      my $rurl = BSRepServer::get_downloadurl($rprp, $rprp_ext);
+      $pi->{'url'} = $rurl if $rurl;
+      $ret->{'preinstallimage'} = $pi;
+    }
   }
 
   # add extra source (needed for kiwi)

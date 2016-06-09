@@ -561,6 +561,7 @@ our $buildinfo = [
 	    'repoarch',
 	    'package',
 	    'filename',
+	    'hdrmd5',
 	  [ 'binary' ],
 	    'url',	# external
       ],
