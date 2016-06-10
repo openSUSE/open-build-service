@@ -910,7 +910,8 @@ sub create {
   $debuginfo = BSUtil::enabled($repoid, $pdata->{'debuginfo'}, $debuginfo, $myarch);
   $binfo->{'debuginfo'} = 1 if $debuginfo;
 
-  writejob($ctx, $job, $binfo, $reason);
+  $ctx->writejob($job, $binfo, $reason);
+
   # all done. the dispatcher will now pick up the job and send it
   # to a worker.
   return ('scheduled', $job);

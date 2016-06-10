@@ -988,4 +988,8 @@ sub read_gbininfo {
   return BSSched::BuildResult::read_gbininfo("$reporoot/$prp/$arch", $arch eq $gctx->{'arch'} ? 0 : 1);
 }
 
+sub writejob {
+  return BSSched::BuildJob::writejob(@_);
+}
+
 1;
