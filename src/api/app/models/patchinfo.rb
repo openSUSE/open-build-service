@@ -73,6 +73,7 @@ class Patchinfo < ActiveXML::Node
     data.elements('issue').each do |i|
       tracker = IssueTracker.find_by_name(i['tracker'])
       raise TrackerNotFound.new "Tracker #{i['tracker']} is not registered in this OBS instance" unless tracker
+      raise IssueTracker::InvalidIssueName.new "The issue name is not supported: #{i['id']}" unless tracker.valid_issue_name?(i['id'])
     end
     # are releasetargets specified ? validate that this project is actually defining them.
     data.elements('releasetarget') { |r| check_releasetarget!(r) }

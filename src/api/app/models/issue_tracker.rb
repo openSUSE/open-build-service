@@ -7,6 +7,7 @@ class IssueTracker < ActiveRecord::Base
   class NotFoundError < APIException
     setup 'issue_tracker_not_found', 404, "Issue Tracker not found"
   end
+  class InvalidIssueName < APIException; end
 
   validates_presence_of :name, :regex, :url, :kind
   validates_uniqueness_of :name, :regex
@@ -30,6 +31,14 @@ class IssueTracker < ActiveRecord::Base
 
   before_validation(:on => :create) do
     self.issues_updated ||= Time.now
+  end
+
+  def cve?
+    kind == "cve"
+  end
+
+  def valid_issue_name?(name)
+    Issue.valid_name?(self, name)
   end
 
   # Checks if the given issue belongs to this issue tracker
