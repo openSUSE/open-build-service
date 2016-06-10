@@ -982,7 +982,7 @@ sub read_gbininfo {
   my $remoteprojs = $gctx->{'remoteprojs'};
   my ($projid, $repoid) = split('/', $prp, 2);
   if ($remoteprojs->{$projid}) {
-    return BSSched::Remote::read_gbininfo_remote($ctx, "$prp, $arch", $remoteprojs->{$projid}, $ps);
+    return BSSched::Remote::read_gbininfo_remote($ctx, "$prp/$arch", $remoteprojs->{$projid}, $ps);
   }
   my $reporoot = $gctx->{'reporoot'};
   return BSSched::BuildResult::read_gbininfo("$reporoot/$prp/$arch", $arch eq $gctx->{'arch'} ? 0 : 1);
