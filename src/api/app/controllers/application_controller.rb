@@ -119,8 +119,7 @@ class ApplicationController < ActionController::Base
         @http_user = User.new(
             login: proxy_user,
             state: User.default_user_state,
-            password: fakepw,
-            password_confirmation: fakepw)
+            password: fakepw)
       end
 
       # update user data from login proxy headers

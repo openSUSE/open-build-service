@@ -50,7 +50,6 @@ class UnregisteredUser < User
     newuser = User.create(
         :login => opts[:login],
         :password => opts[:password],
-        :password_confirmation => opts[:password],
         :email => opts[:email] )
 
     newuser.realname = opts[:realname] || ""

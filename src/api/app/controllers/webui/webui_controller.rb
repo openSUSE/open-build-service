@@ -220,8 +220,7 @@ class Webui::WebuiController < ActionController::Base
                      email: request.env['HTTP_X_EMAIL'],
                      state: User.default_user_state,
                      realname: "#{request.env['HTTP_X_FIRSTNAME']} #{request.env['HTTP_X_LASTNAME']}".strip,
-                     password: fakepw,
-                     password_confirmation: fakepw)
+                     password: fakepw)
       end
 
       User.current = User.find_by_login(user_login)

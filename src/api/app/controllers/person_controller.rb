@@ -80,7 +80,7 @@ class PersonController < ApplicationController
       end
     else
       if User.current.is_admin?
-        user = User.create(:login => login, :password => "notset", :password_confirmation => "notset", :email => "TEMP")
+        user = User.create(:login => login, :password => "notset", :email => "TEMP")
         user.state = "locked"
       else
         logger.debug "Tried to create non-existing user without admin rights"

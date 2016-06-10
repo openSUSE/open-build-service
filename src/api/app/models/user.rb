@@ -51,9 +51,6 @@ class User < ActiveRecord::Base
   # required.
   attr_accessor :new_password
 
-  # Generate accessors for the password confirmation property.
-  attr_accessor :password_confirmation
-
   validates_presence_of :login, :email, :password, :password_hash_type, :state,
                         :message => 'must be given'
 
@@ -146,10 +143,6 @@ class User < ActiveRecord::Base
 
       # write encrypted password to object property
       write_attribute(:password, hash_string(password))
-
-      # mark password as "not new" any more
-      @new_password = false
-      self.password_confirmation = nil
 
       # mark the hash type as "not new" any more
       @new_hash_type = false
@@ -253,7 +246,6 @@ class User < ActiveRecord::Base
       password = SecureRandom.base64
       user = User.create( :login => login,
                           :password => password,
-                          :password_confirmation => password,
                           :email => ldap_info[0],
                           :last_logged_in_at => Time.now)
       unless user.errors.empty?
@@ -324,8 +316,7 @@ class User < ActiveRecord::Base
     Thread.current[:nobody_user] ||= User.create_with(email: "nobody@localhost",
                                                       realname: "Anonymous User",
                                                       state: 'locked',
-                                                      password: "123456",
-                                                      password_confirmation: "123456").find_or_create_by(login: nobody_login)
+                                                      password: "123456").find_or_create_by(login: nobody_login)
     Thread.current[:nobody_user]
   end
 
@@ -354,19 +345,13 @@ class User < ActiveRecord::Base
 
   public
 
-  # Overriding this method to do some more validation: Password equals
-  # password_confirmation, state an password hash type being in the range
-  # of allowed values.
+  # Overriding this method to do some more validation:
+  # state an password hash type being in the range of allowed values.
   def validate
     # validate state and password has type to be in the valid range of values
     errors.add(:password_hash_type, 'must be in the list of hash types.') unless User.password_hash_types.include? password_hash_type
     # check that the state transition is valid
     errors.add(:state, 'must be a valid new state from the current state.') unless state_transition_allowed?(@old_state, state)
-
-    # validate the password
-    if @new_password and not password.nil?
-      errors.add(:password, 'must match the confirmation.') unless password_confirmation == password
-    end
 
     # check that the password hash type has not been set if no new password
     # has been provided
@@ -398,9 +383,8 @@ class User < ActiveRecord::Base
   end
 
   # Method to update the password and confirmation at the same time. Call
-  # this method when you update the password from code and don't need
-  # password_confirmation - which should really only be used when data
-  # comes from forms.
+  # this method when you update the password from code  - which should really
+  # only be used when data comes from forms.
   #
   # A ussage example:
   #
@@ -410,7 +394,6 @@ class User < ActiveRecord::Base
   #
   def update_password(pass)
     self.password_crypted = hash_string(pass).crypt('os')
-    self.password_confirmation = hash_string(pass)
     self.password = hash_string(pass)
   end
 
