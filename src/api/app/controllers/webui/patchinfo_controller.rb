@@ -136,6 +136,8 @@ class Webui::PatchinfoController < Webui::WebuiController
               flash[:error] = "Unknown Issue tracker #{issue[1]}"
               return
             end
+            # people tend to enter entire cve strings instead of just the name
+            issue[0].gsub!(/^(CVE|cve)-/, '') if issue[1] == "cve"
             node.issue(issue[2], tracker: issue[1], id: issue[0])
           end
           node.category params[:category]
@@ -152,7 +154,12 @@ class Webui::PatchinfoController < Webui::WebuiController
         begin
           authorize @package, :update?
 
-          Package.verify_file!(@package, '_patchinfo', xml)
+          begin
+            Package.verify_file!(@package, '_patchinfo', xml)
+          rescue APIException => e
+            flash[:error] = "patchinfo is invalid: #{e.message}"
+            return
+          end
 
           Suse::Backend.put @package.source_path('_patchinfo', user: User.current.login), xml
 
