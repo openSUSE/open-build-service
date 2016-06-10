@@ -25,7 +25,7 @@
             %td
               = user_with_realname_and_icon(user, no_icon: true)
             %td
-              = user.state_name
+              = user.state
             %td.nowrap
               = render :partial => 'dropdown_menu', locals: { user: user }
   - else

@@ -22,15 +22,6 @@ end
 class User < ActiveRecord::Base
   include CanRenderModel
 
-  STATES = {
-    'unconfirmed'        => 1,
-    'confirmed'          => 2,
-    'locked'             => 3,
-    'deleted'            => 4,
-    'ichainrequest'      => 5,
-    'retrieved_password' => 6
-  }
-
   has_many :taggings, :dependent => :destroy
   has_many :tags, :through => :taggings
 
@@ -134,7 +125,7 @@ class User < ActiveRecord::Base
   # (@new_password) and the login failure count to
   # unconfirmed/false/0 when it has not been set yet.
   before_validation(:on => :create) do
-    self.state = STATES['unconfirmed'] if self.state.nil?
+    self.state ||= 'unconfirmed'
     self.password_hash_type = 'md5' if self.password_hash_type.to_s == ''
 
     @new_password = false if @new_password.nil?
@@ -174,8 +165,7 @@ class User < ActiveRecord::Base
 
   # the default state of a user based on the api configuration
   def self.default_user_state
-    return STATES['unconfirmed'] if ::Configuration.registration == "confirmation"
-    STATES['confirmed']
+    ::Configuration.registration == 'confirmation' ? 'unconfirmed' : 'confirmed'
   end
 
   # This method returns an array with the names of all available
@@ -209,15 +199,10 @@ class User < ActiveRecord::Base
     end
   end
 
-  # Returns the default state of new User objects.
-  def self.default_state
-    STATES['unconfirmed']
-  end
-
   # Returns true when users with the given state may log in. False otherwise.
   # The given parameter must be an integer.
   def self.state_allows_login?(state)
-    [ STATES['confirmed'], STATES['retrieved_password'] ].include?(state)
+    'confirmed' == state
   end
 
   # This static method tries to find a user with the given login and password
@@ -321,7 +306,7 @@ class User < ActiveRecord::Base
     user = User.find_with_credentials(user_login, password)
 
     # User account is not confirmed yet
-    return if user.try(:state) == STATES['unconfirmed']
+    return if user.try(:state) == 'unconfirmed'
 
     Rails.logger.debug "Authentificated user '#{user.try(:login)}'"
 
@@ -338,7 +323,7 @@ class User < ActiveRecord::Base
   def self.find_nobody!
     Thread.current[:nobody_user] ||= User.create_with(email: "nobody@localhost",
                                                       realname: "Anonymous User",
-                                                      state: STATES['locked'],
+                                                      state: 'locked',
                                                       password: "123456",
                                                       password_confirmation: "123456").find_or_create_by(login: nobody_login)
     Thread.current[:nobody_user]
@@ -346,7 +331,7 @@ class User < ActiveRecord::Base
 
   def self.find_by_login!(login)
     user = find_by_login(login)
-    if user.nil? or user.state == STATES['deleted']
+    if user.nil? || user.state == 'deleted'
       raise NotFoundError.new("Couldn't find User with login = #{login}")
     end
     return user
@@ -459,9 +444,9 @@ class User < ActiveRecord::Base
   def confirm_registration(token)
     return false if self.user_registration.nil?
     return false if user_registration.token != token
-    return false unless state_transition_allowed?(state, STATES['confirmed'])
+    return false unless state_transition_allowed?(state, 'confirmed')
 
-    self.state = STATES['confirmed']
+    self.state = 'confirmed'
     self.save!
     user_registration.destroy
 
@@ -489,8 +474,7 @@ class User < ActiveRecord::Base
   end
 
   # Returns true if the the state transition from "from" state to "to" state
-  # is valid. Returns false otherwise. +new_state+ must be the integer value
-  # of the state as returned by +User::STATES['state_name']+.
+  # is valid. Returns false otherwise.
   #
   # Note that currently no permission checking is included here; It does not
   # matter what permissions the currently logged in user has, only that the
@@ -498,23 +482,18 @@ class User < ActiveRecord::Base
   def state_transition_allowed?(from, to)
     from = from.to_i
     to = to.to_i
-    desired_state = STATES.key(to)
 
     return true if from == to # allow keeping state
 
     case from
-    when STATES['unconfirmed']
+    when 'unconfirmed'
       true
-    when STATES['confirmed']
-      ["retrieved_password", "locked", "deleted", "ichainrequest"].include?(desired_state)
-    when STATES['locked']
-      ["confirmed", "deleted"].include?(desired_state)
-    when STATES['deleted']
-      desired_state == "confirmed"
-    when STATES['ichainrequest']
-      ["locked", "confirmed", "deleted"].include?(desired_state)
-    when 0
-      desired_state.present?
+    when 'confirmed'
+      ["locked", "deleted"].include?(to)
+    when 'locked'
+      ["confirmed", "deleted"].include?(to)
+    when 'deleted'
+      to == "confirmed"
     else
       false
     end
@@ -527,10 +506,6 @@ class User < ActiveRecord::Base
   def render_axml( watchlist = false )
     # CanRenderModel
     render_xml(watchlist: watchlist)
-  end
-
-  def state_name
-    STATES.invert[state]
   end
 
   def home_project_name
@@ -578,7 +553,7 @@ class User < ActiveRecord::Base
   end
 
   def is_active?
-    self.state == STATES['confirmed']
+    self.state == 'confirmed'
   end
 
   # used to avoid

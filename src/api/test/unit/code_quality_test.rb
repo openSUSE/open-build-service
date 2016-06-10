@@ -82,7 +82,6 @@ class CodeQualityTest < ActiveSupport::TestCase
       'ConfigurationsController#update'                                         => 85.63,
       'IssueTrackersController#update'                                          => 100.78,
       'MaintenanceHelper#instantiate_container'                                 => 163.57,
-      'Owner::_extract_from_container'                                          => 80.11,
       'Owner::search'                                                           => 80.51,
       'PersonController#internal_register'                                      => 112.01,
       'Package#find_changed_issues'                                             => 93.74,

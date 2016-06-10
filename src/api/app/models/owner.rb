@@ -153,18 +153,18 @@ class Owner
     end
 
     # find all groups which have an active user
-    maintained_groups = Group.joins(:groups_users).joins(:users).where("users.state = ?", User::STATES['confirmed']).to_a
+    maintained_groups = Group.joins(:groups_users).joins(:users).where("users.state = 'confirmed'").to_a
 
     # fast find packages with defintions
     # relationship in package object by user
-    defined_packages = Package.where(project_id: projects).joins(:relationships => :user).where(["relationships.role_id IN (?) AND users.state = ?",
-                                                                                                 roles, User::STATES['confirmed']]).pluck(:name)
+    defined_packages = Package.where(project_id: projects).joins(:relationships => :user).where(["relationships.role_id IN (?) AND users.state = 'confirmed'",
+                                                                                                 roles]).pluck(:name)
     # relationship in package object by group
     defined_packages += Package.where(project_id: projects).joins(:relationships).where(["relationships.role_id IN (?) AND group_id IN (?)",
                                                                                          roles, maintained_groups]).pluck(:name)
     # relationship in project object by user
-    Project.joins(:relationships => :user).where("projects.id in (?) AND role_id in (?) AND users.state = ?",
-                                                 projects, roles, User::STATES['confirmed']).each do |prj|
+    Project.joins(:relationships => :user).where("projects.id in (?) AND role_id in (?) AND users.state = 'confirmed'",
+                                                 projects, roles).each do |prj|
       defined_packages += prj.packages.pluck(:name)
     end
     # relationship in project object by group
@@ -336,14 +336,14 @@ class Owner
     groupsql = sql << " AND group_id = " << objfilter.id.to_s if objfilter.class == Group
 
     r.users.where(usersql).each do |p|
-      next unless p.user.state == User::STATES['confirmed']
+      next unless p.user.state == "confirmed"
       m.users ||= {}
       m.users[p.role.title] ||= []
       m.users[p.role.title] << p.user.login
     end unless objfilter.class == Group
 
     r.groups.where(groupsql).each do |p|
-      next unless p.group.users.where(state: User::STATES['confirmed']).length > 0
+      next unless p.group.users.where(state: "confirmed").length > 0
       m.groups ||= {}
       m.groups[p.role.title] ||= []
       m.groups[p.role.title] << p.group.title

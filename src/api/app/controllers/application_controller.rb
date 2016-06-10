@@ -206,14 +206,14 @@ class ApplicationController < ActionController::Base
       raise AuthenticationRequiredError.new "Unknown user '#{@login}' or invalid password"
     end
 
-    if @http_user.state == User::STATES['ichainrequest'] or @http_user.state == User::STATES['unconfirmed']
+    if @http_user.state == 'unconfirmed'
       raise UnconfirmedUserError.new "User is registered but not yet approved. " +
                                          "Your account is a registered account, but it is not yet approved for the OBS by admin."
     end
 
     User.current = @http_user
 
-    if @http_user.state == User::STATES['confirmed']
+    if @http_user.state == 'confirmed'
       logger.debug "USER found: #{@http_user.login}"
       @user_permissions = Suse::Permission.new(@http_user)
       return true

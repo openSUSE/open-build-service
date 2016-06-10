@@ -41,19 +41,11 @@ class UnregisteredUser < User
     raise ErrRegisterSave, 'Sorry, sign up is disabled'
   end
 
-  def self.get_state
-    state = User::STATES.key(User.default_state)
-    state = 'unconfirmed' if ::Configuration.registration == 'confirmation'
-    state = 'confirmed' if ::Configuration.registration == 'allow'
-    logger.debug "User state is: #{state}"
-    return state
-  end
-
   def self.register(opts)
     can_register?
 
     opts[:note] = nil unless User.current and User.current.is_admin?
-    state = get_state
+    state = (::Configuration.registration == 'allow') ? "confirmed" : "unconfirmed"
 
     newuser = User.create(
         :login => opts[:login],
@@ -62,7 +54,7 @@ class UnregisteredUser < User
         :email => opts[:email] )
 
     newuser.realname = opts[:realname] || ""
-    newuser.state = User::STATES[state]
+    newuser.state = state
     newuser.adminnote = opts[:note]
     logger.debug("Saving new user #{newuser.login}")
     newuser.save
@@ -72,7 +64,7 @@ class UnregisteredUser < User
       raise ErrRegisterSave.new "Could not save the registration, details: #{details}"
     end
 
-    if newuser.state == User::STATES["unconfirmed"]
+    if newuser.state == "unconfirmed"
       raise ErrRegisterSave.new "Thank you for signing up! An admin has to confirm your account now. Please be patient."
     end
   end

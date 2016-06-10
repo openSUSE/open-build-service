@@ -20,7 +20,7 @@ RSpec.describe User do
 
     it { expect(user.password_hash_type).to eq('md5') }
 
-    it { expect(user.state).to eq(User::STATES['unconfirmed']) }
+    it { expect(user.state).to eq('unconfirmed') }
 
     it { expect(create(:user)).to validate_uniqueness_of(:login).with_message('is the name of an already existing user.') }
   end

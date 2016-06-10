@@ -10,7 +10,7 @@ Admin:
   password_hash_type: md5
   password_salt: 6H2zF0vSjj
   password_crypted: osQq6OKjF0f8I
-  state: 2
+  state: "confirmed"
 Iggy:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
@@ -21,7 +21,7 @@ Iggy:
   password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
-  state: 2
+  state: "confirmed"
 _nobody_:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
@@ -32,7 +32,7 @@ _nobody_:
   password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
-  state: 3
+  state: "locked"
 adrian:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
@@ -43,7 +43,7 @@ adrian:
   password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
-  state: 2
+  state: "confirmed"
 adrian_downloader:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
@@ -54,7 +54,7 @@ adrian_downloader:
   password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
-  state: 2
+  state: "confirmed"
 adrian_nobody:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
@@ -65,7 +65,7 @@ adrian_nobody:
   password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
-  state: 2
+  state: "confirmed"
 adrian_reader:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
@@ -76,7 +76,7 @@ adrian_reader:
   password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
-  state: 2
+  state: "confirmed"
 binary_homer:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
@@ -87,7 +87,7 @@ binary_homer:
   password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
-  state: 2
+  state: "confirmed"
 deleted:
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
@@ -100,7 +100,7 @@ deleted:
   password_hash_type: md5
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
-  state: 4
+  state: "deleted"
 dmayr:
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
@@ -113,7 +113,7 @@ dmayr:
   password_hash_type: md5
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
-  state: 2
+  state: "confirmed"
 fred:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
@@ -124,7 +124,7 @@ fred:
   password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
-  state: 2
+  state: "confirmed"
 fredlibs:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
@@ -135,7 +135,7 @@ fredlibs:
   password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
-  state: 2
+  state: "confirmed"
 hidden_homer:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
@@ -146,7 +146,7 @@ hidden_homer:
   password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
-  state: 2
+  state: "confirmed"
 king:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
@@ -157,7 +157,7 @@ king:
   password: e5e7105d5c05d9c0cc5944ff1341b533
   password_hash_type: md5
   password_salt: ''
-  state: 2
+  state: "confirmed"
 maintenance_assi:
   created_at: 2014-04-07 06:51:18.000000000 Z
   updated_at: 2014-04-07 06:51:18.000000000 Z
@@ -169,7 +169,7 @@ maintenance_assi:
   password_hash_type: md5
   password_salt: 0hY2gWMfcb
   password_crypted: osAB47949pfHo
-  state: 2
+  state: "confirmed"
 maintenance_coord:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
@@ -180,7 +180,7 @@ maintenance_coord:
   password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
-  state: 2
+  state: "confirmed"
 sourceaccess_homer:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
@@ -191,7 +191,7 @@ sourceaccess_homer:
   password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
-  state: 2
+  state: "confirmed"
 tom:
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
@@ -202,7 +202,7 @@ tom:
   password: 2852b2024791b850ae30314b1b9f28eb
   password_hash_type: md5
   password_salt: ''
-  state: 2
+  state: "confirmed"
 user1:
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
@@ -215,7 +215,7 @@ user1:
   password_hash_type: md5
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
-  state: 2
+  state: "confirmed"
 user2:
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
@@ -228,7 +228,7 @@ user2:
   password_hash_type: md5
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
-  state: 2
+  state: "confirmed"
 user3:
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
@@ -241,7 +241,7 @@ user3:
   password_hash_type: md5
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
-  state: 2
+  state: "confirmed"
 user4:
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
@@ -254,7 +254,7 @@ user4:
   password_hash_type: md5
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
-  state: 2
+  state: "confirmed"
 user5:
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
@@ -267,7 +267,7 @@ user5:
   password_hash_type: md5
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
-  state: 2
+  state: "confirmed"
 user6:
   created_at: 2012-01-16 13:36:00.000000000 Z
   updated_at: 2012-01-16 13:36:00.000000000 Z
@@ -293,4 +293,4 @@ unconfirmed_user:
   password_hash_type: md5
   password_salt: Vibb8QsN4I
   password_crypted: osEJSjdDGtlBY
-  state: 1
+  state: "unconfirmed"
