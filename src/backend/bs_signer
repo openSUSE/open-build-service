@@ -69,7 +69,7 @@ sub check_sign_S {
     open(STDOUT, ">/dev/null");
     open(STDERR, ">&STDOUT");
     my @signargs;
-    push @signargs, '--project', 'dummy'if $BSConfig::sign_project;
+    push @signargs, '--project', 'dummy' if $BSConfig::sign_project;
     exec($BSConfig::sign, @signargs, '-S', '/dev/null', '-k');
     die("$BSConfig::sign: $!\n");
   }
