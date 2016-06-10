@@ -17,6 +17,7 @@
 package Test::Mock::BSRPC;
 
 use strict;
+use Carp qw/cluck/;
 
 BEGIN {
   require BSRPC;
@@ -24,22 +25,55 @@ BEGIN {
 
   *BSRPC::rpc = sub {
 	my ($param, $xmlargs, @args) = @_;
+	my $f2r;
+	my $ret;
 	$param = {'uri' => $param} if ref($param) ne 'HASH';
 	my $uri = $param->{'uri'};
+	$uri =~ s#https?://##;
+
 	for (@args) {
 	  $_ = BSRPC::urlencode($_);
 	  s/%3D/=/;
 	}
 	$uri = "$uri?" . join('&', @args);
-	$uri =~ s/\//_/g;
-	$uri =~ s/_/\//;
-	$uri = "$BSConfig::bsdir/$uri";
-	die("missing fixture: $uri\n") unless -e $uri;
-	if ($xmlargs) {
-	  return BSUtil::readxml($uri, $xmlargs);
+	if ( $Test::Mock::BSRPC::fixtures_map->{$uri} ) {
+	  $uri = $Test::Mock::BSRPC::fixtures_map->{$uri}
 	} else {
-	  return BSUtil::readstr($uri, $xmlargs);
+      $uri =~ s/\//_/g;
+      $uri =~ s/_/\//;
 	}
+	$uri = "$BSConfig::bsdir/$uri";
+
+	# hack to get smaller fixtures
+	if ( -e "$uri.xz" ) {
+	  system("xz",'--decompress','-k',"$uri.xz");
+	  $f2r = $uri;
+	}
+
+	die("missing fixture: $uri\n") unless -e $uri;
+
+	if ($xmlargs) {
+	  $ret = BSUtil::readxml($uri, $xmlargs);
+	} else {
+	  my $receiver = $param->{'receiver'};
+	  $xmlargs ||= $param->{'receiverarg'};
+	  if ($receiver) {
+		#$ans = $receiver->($ansreq, $param, $xmlargs);
+		#$xmlargs = undef;
+		open(S,'<',$uri) || die "$uri: $!\n";
+		my $ansreq = {
+			__socket => \*S
+		};
+		$ret = $receiver->($ansreq, $param, $xmlargs);
+	  } else {
+		$ret =  BSUtil::readstr($uri, $xmlargs);
+	  }
+	}
+
+	if ( $f2r )  { unlink $f2r };
+
+	return $ret;
+
   }
 
 }

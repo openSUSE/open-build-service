@@ -16,18 +16,22 @@ use Data::Dumper;
 
 no warnings 'once';
 # preparing data directory for testcase 1
-$BSConfig::bsdir = "$FindBin::Bin/data/0360/tc01";
+$BSConfig::bsdir = "$FindBin::Bin/data/0360/";
 $BSConfig::srcserver = 'srcserver';
 $BSConfig::repodownload = 'http://download.opensuse.org/repositories';
 use warnings;
 
 use_ok("BSRepServer::BuildInfo");
 
-my ($bi) = BSRepServer::BuildInfo->new(projid=>'openSUSE:13.2', repoid=>'standard', arch=>'i586', packid=>'screen')->getbuildinfo();
-my $xbi = BSUtil::readxml("$BSConfig::bsdir/result/buildinfo_13_2_screen", $BSXML::buildinfo);
+my ($got,$expected);
 
-$bi->{'bdep'}  = [ sort {$a->{'name'} cmp $b->{'name'}} @{$bi->{'bdep'} || []} ];
-$xbi->{'bdep'} = [ sort {$a->{'name'} cmp $b->{'name'}} @{$xbi->{'bdep'} || []} ];
+### Test Case 01
+($got) = BSRepServer::BuildInfo->new(projid=>'openSUSE:13.2', repoid=>'standard', arch=>'i586', packid=>'screen')->getbuildinfo();
+$expected = BSUtil::readxml("$BSConfig::bsdir/result/buildinfo_13_2_screen", $BSXML::buildinfo);
 
-is_deeply($bi, $xbi, 'buildinfo for screen');
+$got->{'bdep'}  = [ sort {$a->{'name'} cmp $b->{'name'}} @{$got->{'bdep'} || []} ];
+$expected->{'bdep'} = [ sort {$a->{'name'} cmp $b->{'name'}} @{$expected->{'bdep'} || []} ];
 
+is_deeply($got, $expected, 'buildinfo for screen');
+
+exit 0;
