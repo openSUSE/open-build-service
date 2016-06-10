@@ -259,8 +259,9 @@ class BuildController < ApplicationController
   def result_lastsuccess
     required_parameters :package, :pathproject
 
-    pkg = Package.get_by_project_and_name params[:project], params[:package],
-                                          use_source: false, follow_project_links: false
+    pkg = Package.get_by_project_and_name(params[:project], params[:package],
+                                          {use_source: false, follow_project_links: true})
+    raise RemoteProjectError.new 'The package lifes in a remote project, this is not supported atm' unless pkg
 
     tprj = Project.get_by_name params[:pathproject]
     bs = PackageBuildStatus.new(pkg).result(target_project: tprj, srcmd5: params[:srcmd5])
