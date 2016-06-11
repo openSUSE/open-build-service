@@ -36,7 +36,7 @@ use XML::Structured ':bytes';
 
 use Build;
 
-use BSConfig;
+use BSConfiguration;
 use BSFileDB;
 use BSWatcher;
 use BSUtil;

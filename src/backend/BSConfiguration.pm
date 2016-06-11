@@ -41,11 +41,12 @@ $bsconfigvalues{'forceprojectkeys'} = 1 if defined $BSConfig::forceprojectkeys;
 my $configurationid = '';
 my $configuration_file = "$BSConfig::bsdir/configuration.xml";
 my $confiuration_checked_once;
+our $xml;
 
 sub update_from_configuration {
   my @s = stat($configuration_file);
   $configurationid = @s ? "$s[9]/$s[7]/$s[1]" : '';
-  my $xml = readxml($configuration_file, $BSXML::configuration, 1) || {};
+  $xml = readxml($configuration_file, $BSXML::configuration, 1) || {};
   $BSConfig::obsname = $xml->{'name'} unless $bsconfigvalues{'obsname'};
   $BSConfig::proxy = $xml->{'http_proxy'} unless $bsconfigvalues{'proxy'};
   $BSConfig::noproxy = $xml->{'no_proxy'} unless $bsconfigvalues{'noproxy'};
