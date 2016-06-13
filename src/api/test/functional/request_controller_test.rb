@@ -1,5 +1,6 @@
 # encoding: UTF-8
 # rubocop:disable Metrics/LineLength
+# rubocop:disable Metrics/ClassLength
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'request_controller'
 
@@ -278,6 +279,7 @@ XML
     assert_xml_tag(:tag => 'history', :attributes => { who: 'Iggy' })
     assert_equal({
                    'id'          => id,
+                   'creator'     => "Iggy",
                    'action'      => {
                      'type'       => 'submit',
                      'source'     => { 'project' => 'home:Iggy:branches:home:Iggy', 'package' => 'NEW_PACKAGE' },
@@ -933,6 +935,7 @@ XML
     assert_xml_tag(:parent => { tag: 'review', attributes: { state: 'new', by_user: 'tom' } }, :tag => 'comment', :content => 'reopen2')
     node = Xmlhash.parse(@response.body)
     assert_equal({ 'id'      => "#{id}",
+                   'creator' => 'Iggy',
                    'action'  => {
                      'type'   => 'add_role',
                      'target' => { 'project' => 'home:Iggy', 'package' => 'TestPack' },
@@ -1140,6 +1143,13 @@ XML
     assert_xml_tag(:tag => 'review', :attributes => { by_user: 'adrian' })
     assert_xml_tag(:tag => 'review', :attributes => { by_user: 'tom' })
     assert_xml_tag(:tag => 'review', :attributes => { by_group: 'test_group' })
+  end
+
+  def test_search_by_creator
+    login_Iggy
+    get '/search/request', :match => "@creator='Iggy'"
+    assert_response :success
+    assert_xml_tag(tag: "request", :attributes => {id: "6", creator: "Iggy"})
   end
 
   def test_search_and_involved_requests
@@ -3249,6 +3259,7 @@ XML
     get "/request/#{id}?withhistory=1"
     node = Xmlhash.parse(@response.body)
     assert_equal({ 'id'      => id,
+                   'creator' => "Iggy",
                    'action'  =>
                                 { 'type'   => 'add_role',
                                   'target' => { 'project' => 'home:Iggy:fordecline' },
@@ -3272,6 +3283,7 @@ XML
     get "/request/#{id}?withhistory=1"
     node = Xmlhash.parse(@response.body)
     assert_equal({ 'id'      => id,
+                   'creator' => "Iggy",
                    'action'  =>
                                 { 'type'   => 'add_role',
                                   'target' => { 'project' => 'home:Iggy:fordecline' },

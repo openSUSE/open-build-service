@@ -157,6 +157,8 @@ class BsRequest < ActiveRecord::Base
     else
       theid = nil
     end
+    # we will set it our own according to the user
+    hashed.delete('creator')
 
     if hashed['submit'] && hashed['type'] == 'submit'
       # old style, convert to new style on the fly
@@ -258,7 +260,7 @@ class BsRequest < ActiveRecord::Base
 
   def render_xml(opts = {})
     builder = Nokogiri::XML::Builder.new
-    builder.request(id: self.number) do |r|
+    builder.request(id: self.number, creator: self.creator) do |r|
       self.bs_request_actions.each do |action|
         action.render_xml(r)
       end
