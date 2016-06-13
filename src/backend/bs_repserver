@@ -2128,19 +2128,19 @@ sub forwardevent {
     writexml("$eventdir/$arch/.$evname.$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);
     BSUtil::ping("$eventdir/$arch/.ping");
   } else {
-    my @archs;
-    if ($BSConfiguration::xml->{'schedulers'} && $BSConfiguration::xml->{'schedulers'}->{'arch'}) {
-      # notify only active schedulers
-      @archs = @{$BSConfiguration::xml->{'schedulers'}->{'arch'}};
-    } else {
+    BSConfiguration::check_configuration_once();
+    my @archs = @{$BSConfig::schedulerarchs || []};
+    if (!$BSConfig::schedulerarchs) {
       # unconfigured, fallback to all existing directories
-      @archs = ls($eventdir);
+      for my $a (ls($eventdir)) {
+        next if $a =~ /^\./;
+        next if $a eq 'publish' || $a eq 'repository' || $a eq 'watch' || $a eq 'signer' || $a eq 'dispatch' || $a eq 'service' || $a eq 'deltastore';
+        next unless -d "$eventdir/$a";
+      }
     }
-    for my $a (ls($eventdir)) {
-      next if $a =~ /^\./;
-      next unless -d "$eventdir/$a";
-      next if $a eq 'publish' || $a eq 'repository' || $a eq 'watch' || $a eq 'signer' || $a eq 'dispatch' || $a eq 'service' || $a eq 'deltastore';
+    for my $a (@archs) {
       eval {
+        mkdir_p("$eventdir/$a");
         dirty($projid, $repoid, $a) if defined $repoid;
         writexml("$eventdir/$a/.$evname.$$", "$eventdir/$a/$evname", $ev, $BSXML::event);
         BSUtil::ping("$eventdir/$a/.ping");

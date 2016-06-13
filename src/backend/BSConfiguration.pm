@@ -36,17 +36,17 @@ $bsconfigvalues{'noproxy'} = 1 if defined $BSConfig::noproxy;
 $bsconfigvalues{'repodownload'} = 1 if defined $BSConfig::repodownload;
 $bsconfigvalues{'enable_download_on_demand'} = 1 if defined $BSConfig::enable_download_on_demand;
 $bsconfigvalues{'forceprojectkeys'} = 1 if defined $BSConfig::forceprojectkeys;
+$bsconfigvalues{'schedulerarchs'} = 1 if defined $BSConfig::schedulerarchs;
 
 
 my $configurationid = '';
 my $configuration_file = "$BSConfig::bsdir/configuration.xml";
 my $confiuration_checked_once;
-our $xml;
 
 sub update_from_configuration {
   my @s = stat($configuration_file);
   $configurationid = @s ? "$s[9]/$s[7]/$s[1]" : '';
-  $xml = readxml($configuration_file, $BSXML::configuration, 1) || {};
+  my $xml = readxml($configuration_file, $BSXML::configuration, 1) || {};
   $BSConfig::obsname = $xml->{'name'} unless $bsconfigvalues{'obsname'};
   $BSConfig::proxy = $xml->{'http_proxy'} unless $bsconfigvalues{'proxy'};
   $BSConfig::noproxy = $xml->{'no_proxy'} unless $bsconfigvalues{'noproxy'};
@@ -56,6 +56,9 @@ sub update_from_configuration {
   }
   if (!$bsconfigvalues{'forceprojectkeys'}) {
     $BSConfig::forceprojectkeys = ($xml->{'enforce_project_keys'} || '') eq 'on' ? 1 : 0;
+  }
+  if (!$bsconfigvalues{'schedulerarchs'}) {
+    $BSConfig::schedulerarchs = $xml->{'schedulers'}->{'arch'} if $xml->{'schedulers'} && $xml->{'schedulers'}->{'arch'};
   }
   $BSConfig::obsname = "build.some.where" unless defined $BSConfig::obsname;
 }
