@@ -697,4 +697,56 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { expect(response).to have_http_status(:success) }
     end
   end
+
+  describe 'POST #create_dod_repository' do
+    before do
+      login user
+    end
+
+    context "with an existing repository" do
+      let(:existing_repository) { create(:repository) }
+
+      before do
+        xhr :post, :create_dod_repository, project: user.home_project, name: existing_repository.name,
+                                           arch: Architecture.first.name, url: 'http://whatever.com',
+                                           repotype: 'rpmmd'
+      end
+
+      it { expect(assigns(:error)).to start_with('Repository with name') }
+      it { expect(response).to have_http_status(:success) }
+    end
+
+    context "with no valid repository type" do
+      before do
+        xhr :post, :create_dod_repository, project: user.home_project, name: 'NewRepo',
+                                           arch: Architecture.first.name, url: 'http://whatever.com',
+                                           repotype: 'invalid_repo_type'
+      end
+
+      it { expect(assigns(:error)).to start_with("Couldn't add repository:") }
+      it { expect(response).to have_http_status(:success) }
+    end
+
+    context "with no valid repository Architecture" do
+      before do
+        xhr :post, :create_dod_repository, project: user.home_project, name: 'NewRepo',
+                                           arch: 'non_existent_arch', url: 'http://whatever.com',
+                                           repotype: 'rpmmd'
+      end
+
+      it { expect(assigns(:error)).to start_with("Couldn't add repository:") }
+      it { expect(response).to have_http_status(:success) }
+    end
+
+    context "with valid repository data" do
+      before do
+        xhr :post, :create_dod_repository, project: user.home_project, name: 'NewRepo',
+                                           arch: Architecture.first.name, url: 'http://whatever.com',
+                                           repotype: 'rpmmd'
+      end
+
+      it { expect(assigns(:error)).to be_nil }
+      it { expect(response).to have_http_status(:success) }
+    end
+  end
 end
