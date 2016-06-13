@@ -361,8 +361,8 @@ RSpec.feature "Projects", :type => :feature, :js => true do
   describe "maintenance projects" do
     scenario "creating a maintenance project" do
       login(admin_user)
-
       visit project_show_path(project)
+
       click_link("Advanced")
       click_link("Attributes")
       click_link("Add a new attribute")
@@ -371,6 +371,23 @@ RSpec.feature "Projects", :type => :feature, :js => true do
 
       expect(page).to have_text("Attribute was successfully created.")
       expect(find("table tr.attribute-values td:first-child")).to have_text("OBS:MaintenanceProject")
+    end
+  end
+
+  describe "maintained projects" do
+    let(:maintenance_project) { create(:maintenance_project, name: "maintenance_project") }
+
+    scenario "creating a maintened project" do
+      login(admin_user)
+      visit project_show_path(maintenance_project)
+
+      click_link("Maintained Projects")
+      click_link("Add project to maintenance")
+      fill_in("Project to maintain:", with: project.name)
+      click_button("Ok")
+
+      expect(page).to have_text("Added #{project.name} to maintenance")
+      expect(find("table#maintained_projects_table td:first-child")).to have_text(project.name)
     end
   end
 end
