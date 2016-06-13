@@ -38,10 +38,9 @@ class Channel < ActiveRecord::Base
   end
 
   def name
-    name = package.name
-    name += "."
-    name += package.project.name.gsub(/:/, '_')
-    return name
+    project_name = package.project.name.tr(":", "_")
+
+    "#{package.name}.#{project_name}"
   end
 
   def _update_from_xml_targets(xmlhash)
