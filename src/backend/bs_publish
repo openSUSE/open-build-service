@@ -2328,13 +2328,15 @@ sub getevent {
   $req = BSStdRunner::getevent($req);
   return undef unless $req;
 
-  # publishtime are nofork events
-  if (($req->{'ev'}->{'type'} || '') eq 'publishtime') {
+  # publishtime and configuration events are nofork events
+  my $evtype = $req->{'ev'}->{'type'} || '';
+  if ($evtype eq 'publishtime') {
     return ($req, 1, 1) if ($req->{'ev'}->{'job'} || '') =~ /^0 /;
     return ($req, undef, 1);
   }
+  return ($req, undef, 1) if $evtype eq 'configuration';
 
-  # don't fork if the database is not in sync
+  # also don't fork if the database is not in sync
   if (@db_sync) {
     print "not forking because of unsynced database entries\n";
     return ($req, undef, 1);
