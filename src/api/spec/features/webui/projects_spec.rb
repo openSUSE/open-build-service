@@ -357,4 +357,20 @@ RSpec.feature "Projects", :type => :feature, :js => true do
       expect(page.current_path).to eq("/project/new_package_branch/home:Jane")
     end
   end
+
+  describe "maintenance projects" do
+    scenario "creating a maintenance project" do
+      login(admin_user)
+
+      visit project_show_path(project)
+      click_link("Advanced")
+      click_link("Attributes")
+      click_link("Add a new attribute")
+      select("OBS:MaintenanceProject")
+      click_button("Create Attribute")
+
+      expect(page).to have_text("Attribute was successfully created.")
+      expect(find("table tr.attribute-values td:first-child")).to have_text("OBS:MaintenanceProject")
+    end
+  end
 end
