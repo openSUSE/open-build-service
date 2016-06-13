@@ -671,4 +671,30 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { is_expected.to redirect_to(:back) }
     end
   end
+
+  describe 'PATCH #update' do
+    before do
+      login user
+    end
+
+    context "with valid data" do
+      before do
+        patch :update, id: user.home_project.id, project: { title: 'New Title' }
+      end
+
+      it { expect(assigns(:project).title).to eq('New Title') }
+      it { expect(flash[:notice]).to eq("Project was successfully updated.") }
+      it { is_expected.to redirect_to(project_show_path(user.home_project)) }
+    end
+
+    context "with no valid data" do
+      before do
+        patch :update, id: user.home_project.id, project: { name: 'non valid name' }
+      end
+
+      it { expect(flash[:error]).to eq("Failed to update project") }
+      it { is_expected.to render_template("webui/project/edit") }
+      it { expect(response).to have_http_status(:success) }
+    end
+  end
 end
