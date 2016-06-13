@@ -8,14 +8,12 @@ class ChannelTarget < ActiveRecord::Base
   end
 
   def self.find_by_repo(repo, projectFilter = nil)
-    ct = []
-
     if projectFilter.nil?
-      ct = ChannelTarget.distinct.where(repository: repo)
+      ChannelTarget.distinct.where(repository: repo)
     else
-      ct = ChannelTarget.joins(:channel => :package).distinct.where("repository_id = ? AND project_id IN (?)", repo, projectFilter.map{|p| p.id})
+      ChannelTarget.joins(channel: :package).
+        distinct.
+        where("repository_id = ? AND project_id IN (?)", repo, projectFilter.map(&:id))
     end
-
-    ct
   end
 end
