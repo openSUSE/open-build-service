@@ -50,8 +50,13 @@ class ConsistencyCheckJob < ActiveJob::Base
       puts "Please specify the project with 'project=MyProject' on CLI"
       exit(1)
     end
-    project = Project.get_by_name(ENV['project'])
-    @errors << project_meta_check(project, fix)
+    begin
+      project = Project.get_by_name(ENV['project'])
+      @errors << project_meta_check(project, fix)
+    rescue Project::UnknownObjectError
+      # specified but does not exist in api. does it also not exist in backend?
+      @errors << import_project_from_backend(ENV['project'])
+    end
     @errors << package_existence_consistency_check(project, fix)
     puts @errors unless @errors.blank?
     # rubocop:enable Output
@@ -114,25 +119,28 @@ class ConsistencyCheckJob < ActiveJob::Base
       errors << "Additional projects in backend:\n #{diff}\n"
 
       if fix
-        Suse::Backend.without_global_write_through do
-        # restore from backend
-          diff.each do |project|
-            begin
-              meta = Suse::Backend.get("/source/#{project}/_meta").body
-              project = Project.new(name: project)
-              project.update_from_xml(Xmlhash.parse(meta))
-              project.save!
-            rescue ActiveRecord::RecordInvalid,
-                   ActiveXML::Transport::NotFoundError
-              Suse::Backend.delete("/source/#{project}")
-              errors << "DELETED #{project.name} on backend due to invalid data\n"
-            end
-          end
+        diff.each do |project|
+          errors << import_project_from_backend(project)
         end
       end
     end
 
     errors
+  end
+
+  def import_project_from_backend(project)
+    Suse::Backend.without_global_write_through do
+      meta = Suse::Backend.get("/source/#{project}/_meta").body
+      project = Project.new(name: project)
+      project.update_from_xml(Xmlhash.parse(meta))
+      project.save!
+    end
+    return ""
+  rescue ActiveRecord::RecordInvalid
+    Suse::Backend.delete("/source/#{project}")
+    return "DELETED #{project} on backend due to invalid data\n"
+  rescue ActiveXML::Transport::NotFoundError
+    return "specified #{project} does not exist on backend\n"
   end
 
   def package_existence_consistency_check(project, fix = nil)
