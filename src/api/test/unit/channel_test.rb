@@ -1,5 +1,4 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
-require 'faker'
 
 class ChannelTest < ActiveSupport::TestCase
   fixtures :all
@@ -36,8 +35,7 @@ class ChannelTest < ActiveSupport::TestCase
         </channel>'
     )
 
-    for i in 0..2
-      i=i # avoid ruby -cv report
+    3.times do
       # just doing it multiple times to create and update
       @channel.update_from_xml(axml)
       @channel.save
