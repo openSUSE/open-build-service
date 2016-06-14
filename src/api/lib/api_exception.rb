@@ -71,6 +71,7 @@ end
 
 # 400 errors
 class MissingParameterError < APIException; end
+class RemoteProjectError < APIException; end
 class InvalidParameterError < APIException; end
 class InvalidProjectNameError < APIException; end
 class UnknownCommandError < APIException; end
