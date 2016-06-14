@@ -749,4 +749,54 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { expect(response).to have_http_status(:success) }
     end
   end
+
+  describe 'POST #save_repository' do
+    before do
+      login user
+    end
+
+    context "with a no valid repository name" do
+      before do
+        request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+        post :save_repository, project: user.home_project, repository: '_not/valid/name'
+      end
+
+      it { expect(flash[:error]).to eq("Couldn't add repository: 'Name must not start with '_' or contain any of these characters ':/'") }
+      it { is_expected.to redirect_to(:back) }
+    end
+
+    context "with a non valid target repository" do
+      before do
+        request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+        post :save_repository, project: user.home_project, repository: 'valid_name', target_project: another_project, target_repo: 'non_valid_repo'
+      end
+
+      it { expect(flash[:error]).to eq("Can not add repository: Repository 'non_valid_repo' not found in project '#{another_project.name}'.") }
+      it { is_expected.to redirect_to(:back) }
+    end
+
+    context "with a valid repository but with a non valid architecture" do
+      before do
+        target_repo = create(:repository, project: another_project)
+        request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+        post :save_repository, project: user.home_project, repository: 'valid_name', architectures: ['non_existent_arch']
+      end
+
+      it { expect(flash[:error]).to start_with("Can not add repository: Repository ") }
+      it { is_expected.to redirect_to(:back) }
+    end
+
+    context "with a valid repository" do
+      before do
+        target_repo = create(:repository, project: another_project)
+        request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+        post :save_repository, project: user.home_project, repository: 'valid_name', target_project: another_project, target_repo: target_repo.name,
+                               architectures: ['i586']
+      end
+
+      it { expect(flash[:success]).to eq("Successfully added repository") }
+      it { is_expected.to redirect_to(action: :repositories, project: user.home_project) }
+      it { expect(user.home_project.repositories.find_by(name: 'valid_name').repository_architectures.count).to eq(1) }
+    end
+  end
 end
