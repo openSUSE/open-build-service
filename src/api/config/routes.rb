@@ -1,6 +1,5 @@
 # we take everything here that is not XML - the default mimetype is xml though
 class WebuiMatcher
-
   class InvalidRequestFormat < APIException
   end
 
@@ -17,20 +16,27 @@ end
 class APIMatcher
   def self.matches?(request)
     format = request.format.to_sym || :xml
-    #Rails.logger.debug "MATCHES #{format}"
+    # Rails.logger.debug "MATCHES #{format}"
     format == :xml || format == :json
   end
 end
 
 OBSApi::Application.routes.draw do
+  cons = {
+    arch:       %r{[^\/]*},
+    binary:     %r{[^\/]*},
+    filename:   %r{[^\/]*},
+    id:         %r{\d*},
+    login:      %r{[^\/]*},
+    package:    %r{[^\/]*},
+    project:    %r{[^\/]*},
+    repository: %r{[^\/]*},
+    service:    %r{\w[^\/]*},
+    title:      %r{[^\/]*},
+    user:       %r{[^\/]*}
+  }
 
   constraints(WebuiMatcher) do
-
-    cons = {project: %r{[^\/]*}, package: %r{[^\/]*}, binary: %r{[^\/]*},
-            user: %r{[^\/]*}, login: %r{[^\/]*}, title: %r{[^\/]*}, service: %r{\w[^\/]*},
-            repository: %r{[^\/]*}, filename: %r{[^\/]*}, arch: %r{[^\/]*},
-            id: %r{\d*}}
-
     root 'webui/main#index'
 
     controller 'webui/main' do
@@ -55,17 +61,23 @@ OBSApi::Application.routes.draw do
       end
     end
 
-    controller 'webui/configuration' do
-      get 'configuration/' => :index
-      get 'configuration/users' => :users
-      get 'configuration/groups' => :groups
-      get 'configuration/connect_instance' => :connect_instance
-      post 'configuration/save_instance' => :save_instance
-      post 'configuration/update_configuration' => :update_configuration
-      post 'configuration/update_architectures' => :update_architectures
+    resources :download_repositories, constraints: cons, only: [:create, :update, :destroy], controller: 'webui/download_on_demand'
 
-      get 'configuration/notifications' => :notifications
-      post 'configuration/notifications' => :update_notifications
+    controller 'webui/configuration' do
+      get 'configuration' => :index
+      patch 'configuration' => :update
+      get 'configuration/interconnect' => :interconnect
+      post 'configuration/interconnect' => :create_interconnect
+    end
+
+    controller 'webui/notifications' do
+      get 'notifications' => :index
+      patch 'notifications' => :bulk_update, as: 'bulk_update_notifications'
+    end
+
+    controller 'webui/architectures' do
+      get 'architectures' => :index
+      patch 'architectures/bulk_update_availability' => :bulk_update_availability, as: 'bulk_update_availability'
     end
 
     controller 'webui/driver_update' do
@@ -114,7 +126,6 @@ OBSApi::Application.routes.draw do
       post 'package/save_group/:project/:package' => :save_group, constraints: cons
       post 'package/remove_role/:project/:package' => :remove_role, constraints: cons
       get 'package/view_file/(:project/(:package/(:filename)))' => :view_file, constraints: cons, as: 'package_view_file'
-      post 'package/save_modified_file/:project/:package' => :save_modified_file, constraints: cons
       get 'package/live_build_log/(:project/(:package/(:repository/(:arch))))' => :live_build_log, constraints: cons, as: 'package_live_build_log'
       get 'package/update_build_log/:project/:package' => :update_build_log, constraints: cons
       get 'package/abort_build/:project/:package' => :abort_build, constraints: cons
@@ -127,10 +138,13 @@ OBSApi::Application.routes.draw do
       get 'package/meta/:project/:package' => :meta, constraints: cons, as: 'package_meta'
       post 'package/save_meta/:project/:package' => :save_meta, constraints: cons
       # compat route
-      get 'package/attributes/:project/:package', to: redirect('/attribs/%{project}/%{package}')
+      get 'package/attributes/:project/:package', to: redirect('/attribs/%{project}/%{package}'), constraints: cons
       get 'package/edit/:project/:package' => :edit, constraints: cons
       get 'package/repositories/:project/:package' => :repositories, constraints: cons
-      post 'package/change_flag/:project/:package' => :change_flag, constraints: cons
+      post 'package/flag/:project/:package' => :create_flag, constraints: cons
+      post 'project/flag/:project/:package/:flag' => :toggle_flag, constraints: cons
+      delete 'project/flag/:project/:package/:flag' => :remove_flag, constraints: cons
+
       get 'package/import_spec/:project/:package' => :import_spec, constraints: cons
       # compat route
       get 'package/files/:project/:package' => :show, constraints: cons
@@ -141,7 +155,7 @@ OBSApi::Application.routes.draw do
       post 'patchinfo/new_patchinfo' => :new_patchinfo
       post 'patchinfo/updatepatchinfo' => :updatepatchinfo
       get 'patchinfo/edit_patchinfo' => :edit_patchinfo
-      get 'patchinfo/show/:project/:package' => :show, as: 'patchinfo_show'
+      get 'patchinfo/show/:project/:package' => :show, as: 'patchinfo_show', constraints: cons
       get 'patchinfo/read_patchinfo' => :read_patchinfo
       post 'patchinfo/save' => :save
       post 'patchinfo/remove' => :remove
@@ -151,26 +165,24 @@ OBSApi::Application.routes.draw do
     end
 
     controller 'webui/project' do
-      get 'project/' => :index
-      get 'project/list_public' => :list_public
-      get 'project/list_all' => :list_all
-      get 'project/list' => :list
-      get 'project/list_simple' => :list_simple
+      get 'project/' => :index, as: 'projects'
+      get 'project/list_public' => :index
+      get 'project/list_all' => :index, show_all: true
+      get 'project/list' => :index
       get 'project/autocomplete_projects' => :autocomplete_projects
       get 'project/autocomplete_incidents' => :autocomplete_incidents
       get 'project/autocomplete_packages' => :autocomplete_packages
       get 'project/autocomplete_repositories' => :autocomplete_repositories
       get 'project/users/:project' => :users, constraints: cons, as: 'project_users'
       get 'project/subprojects/:project' => :subprojects, constraints: cons, as: 'project_subprojects'
-      get 'project/attributes/:project', to: redirect('/attribs/%{project}')
-      get 'project/new' => :new
+      get 'project/attributes/:project', to: redirect('/attribs/%{project}'), constraints: cons
       post 'project/new_incident' => :new_incident
       get 'project/new_package/:project' => :new_package, constraints: cons
       get 'project/new_package_branch/:project' => :new_package_branch, constraints: cons
       get 'project/incident_request_dialog' => :incident_request_dialog
       post 'project/new_incident_request' => :new_incident_request
       get 'project/release_request_dialog' => :release_request_dialog
-      post 'project/new_release_request/(:project)' => :new_release_request
+      post 'project/new_release_request/(:project)' => :new_release_request, constraints: cons
       get 'project/show/(:project)' => :show, constraints: cons, as: 'project_show'
       get 'project/packages_simple/:project' => :packages_simple, constraints: cons
       get 'project/linking_projects/:project' => :linking_projects, constraints: cons
@@ -180,26 +192,28 @@ OBSApi::Application.routes.draw do
       get 'project/add_group/:project' => :add_group, constraints: cons
       get 'project/buildresult' => :buildresult, constraints: cons
       get 'project/delete_dialog' => :delete_dialog
-      post 'project/delete' => :delete
-      get 'project/edit_repository/:project' => :edit_repository
-      post 'project/update_target/:project' => :update_target
+      get 'project/new' => :new, as: 'new_project'
+      post 'project/create' => :create, constraints: cons, as: 'projects_create'
+      patch 'project/update' => :update, constraints: cons
+      delete 'project/destroy' => :destroy
+      get 'project/edit_repository/:project' => :edit_repository, constraints: cons
+      post 'project/update_target/:project' => :update_target, constraints: cons
       get 'project/repositories/:project' => :repositories, constraints: cons, as: 'project_repositories'
       get 'project/repository_state/:project/:repository' => :repository_state, constraints: cons, as: 'project_repository_state'
       get 'project/rebuild_time/:project' => :rebuild_time, constraints: cons, as: 'project_rebuild_time'
       get 'project/rebuild_time_png/:project' => :rebuild_time_png, constraints: cons
       get 'project/packages/:project' => :packages, constraints: cons
-      get 'project/requests/:project' => :requests, constraints: cons
-      post 'project/save_new' => :save_new, constraints: cons
-      post 'project/save' => :save, constraints: cons
-      post 'project/save_targets' => :save_targets
+      get 'project/requests/:project' => :requests, constraints: cons, as: 'project_requests'
+      post 'project/save_distributions' => :save_distributions
+      post 'project/save_repository' => :save_repository
+      post 'project/save_path_element' => :save_path_element
       get 'project/remove_target_request_dialog' => :remove_target_request_dialog
       post 'project/remove_target_request' => :remove_target_request
       post 'project/remove_target' => :remove_target
       post 'project/remove_path_from_target' => :remove_path_from_target
       post 'project/release_repository/:project/:repository' => :release_repository, constraints: cons
       get 'project/release_repository_dialog/:project/:repository' => :release_repository_dialog, constraints: cons
-      get 'project/move_path_up' => :move_path_up
-      get 'project/move_path_down' => :move_path_down
+      post 'project/move_path/:project' => :move_path
       post 'project/save_person/:project' => :save_person, constraints: cons
       post 'project/save_group/:project' => :save_group, constraints: cons
       post 'project/remove_role/:project' => :remove_role, constraints: cons
@@ -213,7 +227,9 @@ OBSApi::Application.routes.draw do
       post 'project/save_meta/:project' => :save_meta, constraints: cons
       get 'project/prjconf/:project' => :prjconf, constraints: cons
       post 'project/save_prjconf/:project' => :save_prjconf, constraints: cons
-      post 'project/change_flag/:project' => :change_flag, constraints: cons
+      post 'project/flag/:project' => :create_flag, constraints: cons
+      post 'project/flag/:project/:flag' => :toggle_flag, constraints: cons
+      delete 'project/flag/:project/:flag' => :remove_flag, constraints: cons
       get 'project/clear_failed_comment/:project' => :clear_failed_comment, constraints: cons
       get 'project/edit/:project' => :edit, constraints: cons
       get 'project/edit_comment_form/:project' => :edit_comment_form, constraints: cons
@@ -228,16 +244,19 @@ OBSApi::Application.routes.draw do
       get 'project/unlock_dialog' => :unlock_dialog
       post 'project/unlock' => :unlock
       post 'project/comments/:project' => :save_comment, constraints: cons, as: 'save_project_comment'
+
+      # dod resource ...
+      post 'project/create_dod_repository' => :create_dod_repository
     end
 
     controller 'webui/request' do
       get 'request/add_reviewer_dialog' => :add_reviewer_dialog
       post 'request/add_reviewer' => :add_reviewer
       post 'request/modify_review' => :modify_review
-      get 'request/show/:id' => :show, as: 'request_show', constraints: cons
+      get 'request/show/:number' => :show, as: 'request_show', constraints: cons
       post 'request/sourcediff' => :sourcediff
       post 'request/changerequest' => :changerequest
-      get 'request/diff/:id' => :diff
+      get 'request/diff/:number' => :diff
       get 'request/list' => :list
       get 'request/list_small' => :list_small
       get 'request/delete_request_dialog' => :delete_request_dialog
@@ -250,7 +269,7 @@ OBSApi::Application.routes.draw do
       post 'request/change_devel_request' => :change_devel_request
       get 'request/set_incident_dialog' => :set_incident_dialog
       post 'request/set_incident' => :set_incident
-      post 'request/comments/:id' => :save_comment
+      post 'request/comments/:number' => :save_comment
     end
 
     controller 'webui/search' do
@@ -259,6 +278,7 @@ OBSApi::Application.routes.draw do
     end
 
     controller 'webui/user' do
+      get 'users' => :index
 
       post 'user/register' => :register
       get 'user/register_user' => :register_user
@@ -282,13 +302,13 @@ OBSApi::Application.routes.draw do
       get 'user/tokens' => :tokens
 
       post 'user/do_login' => :do_login
-      get 'configuration/users/:user' => :edit, constraints: cons, as: 'configuration_user'
+      get 'user/edit/:user' => :edit, constraints: cons, as: 'user_edit'
 
       post 'user/notifications' => :update_notifications
       get 'user/notifications' => :notifications
 
       get 'user/show/:user' => :show, constraints: cons, as: 'user_show'
-      get 'user/icon/:user' => :icon, constraints: cons, as: 'user_icon'
+      get 'user/icon/:icon' => :user_icon, constraints: cons, as: 'user_icon'
       get 'user/requests/:user' => :requests, constraints: cons, as: 'user_requests'
       # Only here to make old /home url's work
       get 'home/' => :home, as: 'home'
@@ -299,13 +319,15 @@ OBSApi::Application.routes.draw do
       get 'user/:user/icon' => :icon, constraints: cons
     end
 
-    controller 'webui/group' do
-      get 'group/show/:id' => :show, constraints: {:id => /[^\/]*/}, as: 'group_show'
-      get 'group/add' => :add
-      post 'group/save' => :save
+    controller 'webui/groups' do
+      get 'groups' => :index
+      get 'group/show/:title' => :show, constraints: {:title => /[^\/]*/}, as: 'group_show'
+      get 'group/new' => :new
+      post 'group/create' => :create
+      get 'group/edit/title' => :edit, constraints: {:title => /[^\/]*/}
+      post 'group/update' => :update
       get 'group/autocomplete' => :autocomplete
       get 'group/tokens' => :tokens
-      get 'group/edit' => :edit
     end
 
     namespace :webui do
@@ -313,28 +335,22 @@ OBSApi::Application.routes.draw do
     end
 
     ### /apidocs
-    get 'apidocs' => 'webui/apidocs#index'
-    get 'apidocs/index' => 'webui/apidocs#index'
-
+    get 'apidocs(/index)' => 'webui/apidocs#index'
   end
 
   # first the routes where the mime type does not matter
-  cons = {project: %r{[^\/]*}, package: %r{[^\/]*},
-          binary: %r{[^\/]*}, user: %r{[^\/]*}, login: %r{[^\/]*},
-          title: %r{[^\/]*}, service: %r{\w[^\/]*},
-          repository: %r{[^\/]*}, filename: %r{[^\/]*},
-          arch: %r{[^\/]*}, id: %r{\d*}}
+  ### /public
+  get 'public/build/:project(/:repository(/:arch(/:package(/:file))))' => 'public#build', constraints: cons, as: :public_build
 
   ### /build
-  match 'build/:project/:repository/:arch/:package/_status' => 'build#index', constraints: cons, via: [:get, :post]
   get 'build/:project/:repository/:arch/:package/_log' => 'build#logfile', constraints: cons, as: :raw_logfile
   match 'build/:project/:repository/:arch/:package/_buildinfo' => 'build#buildinfo', constraints: cons, via: [:get, :post]
+  match 'build/:project/:repository/:arch/:package/_status' => 'build#index', constraints: cons, via: [:get, :post]
   match 'build/:project/:repository/:arch/:package/_history' => 'build#index', constraints: cons, via: [:get, :post]
   match 'build/:project/:repository/:arch/:package/:filename' => 'build#file', via: [:get, :put, :delete], constraints: cons
-  get 'build/:project/:repository/:arch/_builddepinfo' => 'build#builddepinfo', constraints: cons
-  match 'build/:project/:repository/:arch/:package' => 'build#index', constraints: cons, via: [:get, :post]
+  match 'build/:project/:repository/:arch/_builddepinfo' => 'build#builddepinfo', via: [:get, :post], constraints: cons
   match 'build/:project/:repository/_buildconfig' => 'build#index', constraints: cons, via: [:get, :post]
-  match 'build/:project/:repository/:arch' => 'build#index', constraints: cons, via: [:get, :post]
+  match 'build/:project/:repository/:arch(/:package)' => 'build#index', constraints: cons, via: [:get, :post]
   get 'build/:project/_result' => 'build#result', constraints: cons
   match 'build/:project/:repository' => 'build#index', constraints: cons, via: [:get, :post]
   # the web client does no longer use that route, but we keep it for backward compat
@@ -344,16 +360,11 @@ OBSApi::Application.routes.draw do
 
   ### /published
 
-  get 'published/:project/:repository/:arch/:binary' => 'published#index', constraints: cons
   # :arch can be also a ymp for a pattern :/
-  get 'published/:project/:repository/:arch' => 'published#index', constraints: cons
-  get 'published/:project/:repository/' => 'published#index', constraints: cons
-  get 'published/:project' => 'published#index', constraints: cons
+  get 'published/:project(/:repository(/:arch(/:binary)))' => 'published#index', constraints: cons
   get 'published/' => 'source#index', via: :get
 
-
   constraints(APIMatcher) do
-
     get '/' => 'main#index'
 
     resource :configuration, only: [:show, :update, :schedulers]
@@ -361,10 +372,10 @@ OBSApi::Application.routes.draw do
     ### /person
     post 'person' => 'person#command'
     get 'person' => 'person#show'
-    post 'person/:login/login' => 'person#login' # temporary hack for webui, do not use, to be removed
-    get 'person/:login/token' => 'person#tokenlist'
-    post 'person/:login/token' => 'person#command_token'
-    delete 'person/:login/token/:id' => 'person#delete_token'
+    post 'person/:login/login' => 'person#login', constraints: cons # temporary hack for webui, do not use, to be removed
+    get 'person/:login/token' => 'person#tokenlist', constraints: cons
+    post 'person/:login/token' => 'person#command_token', constraints: cons
+    delete 'person/:login/token/:id' => 'person#delete_token', constraints: { id: %r{[^\/]*}, login: %r{[^\/]*} }
 
     # FIXME3.0: this is no clean namespace, a person "register" or "changepasswd" could exist ...
     #           remove these for OBS 3.0
@@ -409,8 +420,11 @@ OBSApi::Application.routes.draw do
     controller :attribute do
       get 'attribute' => :index
       get 'attribute/:namespace' => :index
-      match 'attribute/:namespace/_meta' => :namespace_definition, via: [:get, :delete, :post]
-      match 'attribute/:namespace/:name/_meta' => :attribute_definition, via: [:get, :delete, :post]
+      # FIXME3.0: drop the POST and DELETE here
+      match 'attribute/:namespace/_meta' => :namespace_definition, via: [:get, :delete, :post, :put]
+      match 'attribute/:namespace/:name/_meta' => :attribute_definition, via: [:get, :delete, :post, :put]
+      delete 'attribute/:namespace' => :namespace_definition
+      delete 'attribute/:namespace/:name' => :attribute_definition
 
       get 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :show_attribute, constraints: cons
       post 'source/:project(/:package(/:binary))/_attribute(/:attribute)' => :cmd_attribute, constraints: cons, as: :change_attribute
@@ -431,20 +445,20 @@ OBSApi::Application.routes.draw do
 
     ### /tag
 
-    #routes for tagging support
+    # routes for tagging support
     #
     # get 'tag/_all' => 'tag',
     #  action: 'list_xml'
-    #Get/put tags by object
+    # Get/put tags by object
     ### moved to source section
 
-    #Get objects by tag.
+    # Get objects by tag.
     controller :tag do
       get 'tag/:tag/_projects' => :get_projects_by_tag
       get 'tag/:tag/_packages' => :get_packages_by_tag
       get 'tag/:tag/_all' => :get_objects_by_tag
 
-      #Get a tagcloud including all tags.
+      # Get a tagcloud including all tags.
       match 'tag/tagcloud' => :tagcloud, via: [:get, :post]
 
       get 'tag/get_tagged_projects_by_user' => :get_tagged_projects_by_user
@@ -458,48 +472,40 @@ OBSApi::Application.routes.draw do
       get 'tag/get_taglist' => :get_taglist
       get 'tag/project_tags' => :project_tags
       get 'tag/package_tags' => :package_tags
-
     end
-
 
     ### /user
 
-    #Get objects tagged by user. (objects with tags)
+    # Get objects tagged by user. (objects with tags)
     get 'user/:user/tags/_projects' => 'tag#get_tagged_projects_by_user', constraints: cons
     get 'user/:user/tags/_packages' => 'tag#get_tagged_packages_by_user', constraints: cons
 
-    #Get tags by user.
+    # Get tags by user.
     get 'user/:user/tags/_tagcloud' => 'tag#tagcloud', constraints: cons
 
-    #Get tags for a certain object by user.
-    match 'user/:user/tags/:project' => 'tag#tags_by_user_and_object', constraints: cons, via: [:get, :post, :put, :delete]
-    match 'user/:user/tags/:project/:package' => 'tag#tags_by_user_and_object', constraints: cons, via: [:get, :post, :put, :delete]
+    # Get tags for a certain object by user.
+    match 'user/:user/tags/:project(/:package)' => 'tag#tags_by_user_and_object', constraints: cons, via: [:get, :post, :put, :delete]
 
     ### /statistics
     # Routes for statistics
     # ---------------------
     controller :statistics do
-
       # Download statistics
       #
       get 'statistics/download_counter' => :download_counter
 
       # Timestamps
       #
-      get 'statistics/added_timestamp/:project' => :added_timestamp, constraints: cons
-      get 'statistics/added_timestamp/:project/:package' => :added_timestamp, constraints: cons
-      get 'statistics/updated_timestamp/:project' => :updated_timestamp, constraints: cons
-      get 'statistics/updated_timestamp/:project/:package' => :updated_timestamp, constraints: cons
+      get 'statistics/added_timestamp/:project(/:package)' => :added_timestamp, constraints: cons
+      get 'statistics/updated_timestamp/:project(/:package)' => :updated_timestamp, constraints: cons
 
       # Ratings
       #
-      get 'statistics/rating/:project' => :rating, constraints: cons
-      get 'statistics/rating/:project/:package' => :rating, constraints: cons
+      get 'statistics/rating/:project(/:package)' => :rating, constraints: cons
 
       # Activity
       #
-      get 'statistics/activity/:project' => :activity, constraints: cons
-      get 'statistics/activity/:project/:package' => :activity, constraints: cons
+      get 'statistics/activity/:project(/:package)' => :activity, constraints: cons
 
       # Newest stats
       #
@@ -516,13 +522,12 @@ OBSApi::Application.routes.draw do
       get 'statistics/global_counters' => :global_counters
       get 'statistics/latest_built' => :latest_built
 
-      get 'statistics/active_request_creators/:project' => :active_request_creators
+      get 'statistics/active_request_creators/:project' => :active_request_creators, constraints: cons
     end
 
     ### /status_message
 
     controller :status do
-
       # Routes for status_messages
       # --------------------------
       get 'status_message' => 'status#messages'
@@ -535,7 +540,6 @@ OBSApi::Application.routes.draw do
       get 'status/history' => :history
       get 'status/project/:project' => :project, constraints: cons
       get 'status/bsrequest' => :bsrequest
-
     end
 
     ### /message
@@ -549,21 +553,21 @@ OBSApi::Application.routes.draw do
       delete 'message/:id' => :delete
     end
 
-
     ### /search
 
     controller :search do
-
       # ACL(/search/published/binary/id) TODO: direct passed call to  "pass_to_backend'
       match 'search/published/binary/id' => :pass_to_backend, via: [:get, :post]
       # ACL(/search/published/pattern/id) TODO: direct passed call to  'pass_to_backend'
       match 'search/published/pattern/id' => :pass_to_backend, via: [:get, :post]
+      match 'search/channel/binary/id' => :channel_binary_id, via: [:get, :post]
+      match 'search/channel/binary' => :channel_binary, via: [:get, :post]
       match 'search/released/binary/id' => :released_binary_id, via: [:get, :post]
       match 'search/released/binary' => :released_binary, via: [:get, :post]
       match 'search/project/id' => :project_id, via: [:get, :post]
       match 'search/package/id' => :package_id, via: [:get, :post]
-      match 'search/project_id' => :project_id, via: [:get, :post] #FIXME3.0: to be removed
-      match 'search/package_id' => :package_id, via: [:get, :post] #FIXME3.0: to be removed
+      match 'search/project_id' => :project_id, via: [:get, :post] # FIXME3.0: to be removed
+      match 'search/package_id' => :package_id, via: [:get, :post] # FIXME3.0: to be removed
       match 'search/project' => :project, via: [:get, :post]
       match 'search/package' => :package, via: [:get, :post]
       match 'search/person' => :person, via: [:get, :post]
@@ -577,7 +581,6 @@ OBSApi::Application.routes.draw do
       match 'search/repository/id' => :repository_id, via: [:get, :post]
       match 'search/issue' => :issue, via: [:get, :post]
       match 'search/attribute' => :attribute, via: [:get, :post]
-
     end
 
     ### /request
@@ -609,10 +612,9 @@ OBSApi::Application.routes.draw do
 
     controller :public do
       get 'public' => :index
-      get 'public/build/:project' => :build, constraints: cons
-      get 'public/build/:project/:repository' => :build, constraints: cons
-      get 'public/build/:project/:repository/:arch' => :build, constraints: cons
-      get 'public/build/:project/:repository/:arch/:package' => :build, constraints: cons
+      get 'public/about' => 'about#index'
+      get 'public/configuration' => :configuration_show
+      get 'public/configuration.xml' => :configuration_show
       get 'public/source/:project' => :project_index, constraints: cons
       get 'public/source/:project/_meta' => :project_meta, constraints: cons
       get 'public/source/:project/_config' => :project_file, constraints: cons
@@ -624,16 +626,12 @@ OBSApi::Application.routes.draw do
       get 'public/binary_packages/:project/:package' => :binary_packages, constraints: cons
     end
 
-    get 'public/configuration' => 'configurations#show'
-    get 'public/configuration.xml' => 'configurations#show'
     get 'public/status/:action' => 'status#index'
 
     get '/404' => 'main#notfound'
-
   end
 
   controller :source do
-
     get 'source' => :index
     post 'source' => :global_command
 
@@ -650,6 +648,8 @@ OBSApi::Application.routes.draw do
     delete 'source/:project/_pubkey' => :delete_project_pubkey, constraints: cons
 
     # package level
+    get '/source/:project/_project/:filename' => :get_file, constraints: cons
+
     get '/source/:project/:package/_meta' => :show_package_meta, constraints: cons
     put '/source/:project/:package/_meta' => :update_package_meta, constraints: cons
 
@@ -663,7 +663,6 @@ OBSApi::Application.routes.draw do
   end
 
   controller :comments do
-
     get 'comments/request/:id' => :show_comments, constraints: cons, as: :comments_request
     post 'comments/request/:id' => :create, constraints: cons, as: :create_request_comment
     get 'comments/package/:project/:package' => :show_comments, constraints: cons, as: :comments_package
@@ -672,19 +671,16 @@ OBSApi::Application.routes.draw do
     post 'comments/project/:project' => :create, constraints: cons, as: :create_project_comment
 
     delete 'comment/:id' => :destroy, constraints: cons, as: :comment_delete
-
   end
 
   # this can be requested by non browsers (like HA proxies :)
-  get 'apidocs/:filename' => 'webui/apidocs#file', constraints: {filename: %r{[^\/]*}}, as: 'apidocs_file'
+  get 'apidocs/:filename' => 'webui/apidocs#file', constraints: cons, as: 'apidocs_file'
 
   # TODO: move to api
   # spiders request this, not browsers
   get 'main/sitemap' => 'webui/main#sitemap'
   get 'main/sitemap_projects' => 'webui/main#sitemap_projects'
-  get 'main/sitemap_projects_packages' => 'webui/main#sitemap_projects_packages'
   get 'main/sitemap_packages/:listaction' => 'webui/main#sitemap_packages'
-
 end
 
 OBSEngine::Base.subclasses.each do |engine|

@@ -1,14 +1,17 @@
 require_relative '../../test_helper'
 
 class Webui::AttributesTest < Webui::IntegrationTest
-
-  ATTRIBUTES = %w(NSTEST:status OBS:VeryImportantProject OBS:UpdateProject OBS:OwnerRootProject OBS:Maintained OBS:RequestCloned OBS:InitializeDevelPackage OBS:MaintenanceProject OBS:MaintenanceIdTemplate OBS:RejectRequests OBS:ApprovedRequestSource OBS:BranchTarget OBS:ScreenShots OBS:ProjectStatusPackageFailComment OBS:QualityCategory).sort
+  ATTRIBUTES = %w(NSTEST:status OBS:VeryImportantProject OBS:UpdateProject
+                  OBS:OwnerRootProject OBS:Maintained OBS:RequestCloned
+                  OBS:InitializeDevelPackage OBS:MaintenanceProject OBS:MaintenanceIdTemplate
+                  OBS:RejectRequests OBS:ApprovedRequestSource OBS:BranchTarget
+                  OBS:ScreenShots OBS:ProjectStatusPackageFailComment OBS:QualityCategory).sort
 
   setup do
     use_js
   end
 
-  def add attribute
+  def add attribute # spec/features/webui/attributes_spec.rb
     attribute[:value] ||= ''
     attribute[:expect] ||= :success
     attribute[:id] = attribute[:name].split(':').join('-')
@@ -36,12 +39,12 @@ class Webui::AttributesTest < Webui::IntegrationTest
       values = attribute[:value].split(',')
       # For the case that the AttribType has unlimited value_count
       # or that there are less values then
-      #puts "BEFORE #{attribute[:name]}: VALUES: #{values.length} | INPUTS: #{inputs.count}"
+      # puts "BEFORE #{attribute[:name]}: VALUES: #{values.length} | INPUTS: #{inputs.count}"
       (values.length - inputs.count).times do
         click_link 'add value'
       end
       inputs = page.all('div.nested-fields')
-      #puts "AFTER #{attribute[:name]}: VALUES: #{values.length} | INPUTS: #{inputs.count}"
+      # puts "AFTER #{attribute[:name]}: VALUES: #{values.length} | INPUTS: #{inputs.count}"
       inputs.count.must_equal values.count
 
       values.each_index do |i|
@@ -70,7 +73,7 @@ class Webui::AttributesTest < Webui::IntegrationTest
         flash_message.must_match %r{Saving attribute failed: attribute value #{attribute[:value]} for}
       end
     end
-    
+
     unless attribute[:expect] == :no_permission
       # Check the existence and correct value
       visit index_attribs_path(project: attribute[:project], package: attribute[:package] )
@@ -87,7 +90,7 @@ class Webui::AttributesTest < Webui::IntegrationTest
     end
   end
 
-  def delete attribute
+  def delete attribute # spec/features/webui/attributes_spec.rb
     attribute[:value] ||= ''
     attribute[:expect] ||= :success
     attribute[:id] = attribute[:name].split(':').join('-')
@@ -112,18 +115,17 @@ class Webui::AttributesTest < Webui::IntegrationTest
     end
   end
 
-
-  test 'attrib invalid package' do
+  def test_attrib_invalid_package # spec/features/webui/attributes_spec.rb
     visit index_attribs_path(project: 'home:Iggy', package: 'Pok')
     page.must_have_content "Package Pok not found"
   end
 
-  test 'attrib invalid project' do
+  def test_attrib_invalid_project # spec/features/webui/attributes_spec.rb
     visit index_attribs_path(project: 'Does:Not:Exist')
     page.must_have_content "Project not found: Does:Not:Exist"
   end
 
-  test 'project attribute' do
+  def test_project_attribute # spec/features/webui/attributes_spec.rb
     login_king
 
     add(project: 'home:Iggy',
@@ -133,7 +135,7 @@ class Webui::AttributesTest < Webui::IntegrationTest
            name: 'OBS:ScreenShots')
   end
 
-  test 'package attribute' do
+  def test_package_attribute # spec/features/webui/attributes_spec.rb
     login_king
 
     add(project: 'Apache',
@@ -145,7 +147,7 @@ class Webui::AttributesTest < Webui::IntegrationTest
            name: 'OBS:ScreenShots')
   end
 
-  test 'attrib with single value' do
+  def test_attrib_with_single_value
     login_king
 
     add(project: 'home:Iggy',
@@ -155,7 +157,7 @@ class Webui::AttributesTest < Webui::IntegrationTest
            name: 'OBS:ScreenShots')
   end
 
-  test 'attrib with multiple values' do
+  def test_attrib_with_multiple_values # spec/features/webui/attributes_spec.rb
     login_king
 
     add(project: 'home:Iggy',
@@ -165,7 +167,7 @@ class Webui::AttributesTest < Webui::IntegrationTest
            name: 'OBS:ScreenShots')
   end
 
-  test 'attrib with multiple values and multiple allowed values' do
+  def test_attrib_with_multiple_values_and_multiple_allowed_values
     login_king
 
     add(project: 'home:Iggy',
@@ -175,7 +177,7 @@ class Webui::AttributesTest < Webui::IntegrationTest
            name: 'OBS:OwnerRootProject')
   end
 
-  test 'attrib with default and allowed values' do
+  def test_attrib_with_default_and_allowed_values
     login_Iggy
 
     add(project: 'home:Iggy',
@@ -184,5 +186,4 @@ class Webui::AttributesTest < Webui::IntegrationTest
     delete(project: 'home:Iggy',
            name: 'OBS:QualityCategory')
   end
-
 end

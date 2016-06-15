@@ -1,14 +1,14 @@
 # encoding: UTF-8
+# rubocop:disable Metrics/LineLength
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'request_controller'
 
 class RequestControllerTest < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   def setup
-    super
     wait_for_scheduler_start
+    reset_auth
   end
 
   teardown do
@@ -17,19 +17,98 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
   def test_set_and_get_1
     login_king
-    # make sure there is at least one
-    req = load_backend_file('request/1')
-    post '/request?cmd=create', req
-    assert_response :success
-    node = ActiveXML::Node.new(@response.body)
-    id = node.value :id
 
-    put("/request/#{id}", load_backend_file('request/1'))
+    xml = <<-XML
+<request>
+  <action type='submit'>
+    <source project='home:Iggy' package='TestPack' rev='2'/>
+    <target project='kde4' package='wpa_supplicant'/>
+  </action>
+  <description/>
+  <state name='new' who='tom' when='2011-12-02T17:20:42'/>
+</request>
+XML
+    post '/request?cmd=create', xml
     assert_response :success
-    get "/request/#{id}"
+    new_request_id = BsRequest.last.number
+    assert_select "request", id: new_request_id do
+      assert_select "action", type: "submit" do
+        assert_select "source", project: "home:Iggy", package: "TestPack", rev: "2"
+        assert_select "target", project: "kde4", package: "wpa_supplicant"
+      end
+      assert_select "state", name: "review", who: "tom" do
+        assert_select "comment"
+      end
+      assert_select "review", state: "new", by_user: "adrian"
+      assert_select "review", state: "new", by_group: "test_group"
+      assert_select "description"
+    end
+
+    put("/request/#{new_request_id}", xml)
     assert_response :success
-    assert_xml_tag(:tag => 'request', :attributes => { id: id })
-    assert_xml_tag(:tag => 'state', :attributes => { name: 'new' })
+    get "/request/#{new_request_id}"
+    assert_response :success
+    assert_select "request", id: new_request_id do
+      assert_select "state", name: "new"
+    end
+  end
+
+  def test_get_requests_collection
+    login_king
+    get '/request', view: 'collection', reviewstates: 'accepted'
+    assert_response :success
+    # Should respond with a collection of 9 requests
+    assert_select 'collection request', 9
+    # Should show all data belonging to each request
+    assert_select 'collection', matches: 9 do
+      assert_select 'request', id: 1000 do
+        assert_select 'action', type: 'submit' do
+          assert_select 'source', project: 'Apache', package: 'apache2', rev: '1'
+          assert_select 'target', project: 'kde4', package: 'apache2'
+        end
+        assert_select 'state', name: 'review', who: 'tom', when: '2013-09-09T19:15:16' do
+          assert_select 'comment'
+        end
+        assert_select 'review', state: 'new', by_package: 'apache2', by_project: 'Apache'
+        assert_select 'review', state: 'new', by_user: 'adrian'
+        assert_select 'review', state: 'new', by_group: 'test_group'
+        assert_select 'description', 'want to see his reaction'
+      end
+    end
+
+    # Narrow search for reviews by user adrian
+    get '/request', view: 'collection', reviewstates: 'new', roles: 'reviewer', user: 'adrian'
+    assert_response :success
+
+    # Should respond with a collection of 2 requests
+    assert_select 'collection request', 2
+
+    # Request 1000 should have exactly 4 review elements
+    assert_select 'request[id=1000] review', 4
+    # Request 4 should have exactly 1 review elements
+    assert_select 'request[id=4] review', 1
+
+    # Should show all data belonging to each request
+    assert_select 'collection', matches: 2 do
+      assert_select 'request', id: 1000 do
+        assert_select 'action', type: 'submit' do
+          assert_select 'source', project: 'Apache', package: 'apache2', rev: '1'
+          assert_select 'target', project: 'kde4', package: 'apache2'
+        end
+        assert_select 'state', name: 'review', who: 'tom', when: '2013-09-09T19:15:16' do
+          assert_select 'comment'
+        end
+        assert_select 'review', state: 'new', by_package: 'apache2', by_project: 'Apache'
+        assert_select 'review', state: 'new', by_user: 'adrian'
+        assert_select 'review', state: 'new', by_user: 'tom'
+        assert_select 'review', state: 'new', by_group: 'test_group'
+        assert_select 'description', 'want to see his reaction'
+      end
+      # Should find requests of groups adrian belongs to
+      assert_select 'request', id: 4 do
+        assert_select 'review', state: 'new', by_group: 'test_group'
+      end
+    end
   end
 
   def test_get_invalid_1
@@ -42,10 +121,16 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     login_king
     post '/request?cmd=create', 'GRFZL'
     assert_response 400
+
+    reset_auth
+    # make sure requests from not valid users do not pass
+    req = load_backend_file('request/1')
+    post '/request?cmd=create', req
+    assert_response 401
   end
 
   def test_submit_request_of_new_package_with_devel_package
-    prepare_request_with_user 'Iggy', 'asdfasdf'
+    prepare_request_with_user 'Iggy', 'buildservice'
 
     # we have a devel package definition in source
     get "/source/BaseDistro:Update/pack2/_meta"
@@ -78,8 +163,18 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     post "/request/#{id}?cmd=changestate&newstate=accepted&comment=approved&force=1"
     assert_response :success
+    assert_equal :accepted, BsRequest.find_by_number(id).state
+
+    # Ensure that requests can't be accepted twice
+    post "/request/#{id}?cmd=changestate&newstate=accepted&comment=approved&force=1"
+    assert_response 403
+    assert_select "status", code: "post_request_no_permission" do
+      assert_select "summary", "change state from an accepted state is not allowed."
+    end
+
     post "/request/#{id2}?cmd=changestate&newstate=accepted&comment=approved&force=1"
     assert_response :success
+    assert_equal :accepted, BsRequest.find_by_number(id2).state
 
     get "/source/home:Iggy/NEW_PACKAGE/_meta"
     assert_response :success
@@ -87,16 +182,18 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     get "/source/home:Iggy/NEW_PACKAGE2/_meta"
     assert_response :success
     assert_no_xml_tag(:tag => 'devel')
+
+    login_king
     delete "/source/home:Iggy/NEW_PACKAGE"
     assert_response :success
     delete "/source/home:Iggy/NEW_PACKAGE2"
     assert_response :success
   end
 
-  test 'submit_request_of_new_package' do
+  def test_submit_request_of_new_package
     wait_for_scheduler_start
 
-    prepare_request_with_user 'Iggy', 'asdfasdf'
+    prepare_request_with_user 'Iggy', 'buildservice'
     post '/source/home:Iggy/NEW_PACKAGE', :cmd => :branch
     assert_response 404
     assert_xml_tag(:tag => 'status', :attributes => { code: 'unknown_package' })
@@ -135,14 +232,18 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     get "/status/bsrequest?id=#{id}"
     assert_response :success
     node = Xmlhash.parse(@response.body)
-    assert_equal({ 'id' => id,
+    assert_equal({ 'id'         => id,
                    'repository' =>
-                       { 'name' => '10.2',
-                         'arch' =>
-                             [{ 'arch' => 'i586', 'result' => 'unknown' },
-                              { 'arch' => 'x86_64', 'result' => 'unknown' }] } }, node)
+                                   { 'name' => '10.2',
+                                     'arch' =>
+                                               [{ 'arch' => 'i586', 'result' => 'unknown' },
+                                                { 'arch' => 'x86_64', 'result' => 'unknown' }] } }, node)
 
     # create more history entries prio change, decline, reopen and finally accept it
+    post "/request/#{id}?cmd=setpriority&priority=ILLEGAL&comment=dontcare"
+    assert_response 400
+    assert_xml_tag(:tag => 'status', :attributes => { code: 'request_save_error' })
+    assert_xml_tag(:tag => 'summary', :content => "Illegal priority 'ILLEGAL'")
     post "/request/#{id}?cmd=setpriority&priority=low&comment=dontcare"
     assert_response :success
     Timecop.freeze(1)
@@ -154,6 +255,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     Timecop.freeze(1)
     post "/request/#{id}?cmd=changestate&newstate=accepted&comment=approved"
     assert_response :success
+    assert_equal :accepted, BsRequest.find_by_number(id).state
+    assert_equal "approved", BsRequest.find_by_number(id).comment
 
     # package got created
     get '/source/home:Iggy/NEW_PACKAGE/new_file'
@@ -174,24 +277,25 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(:tag => 'state', :attributes => { name: 'accepted', who: 'Iggy' })
     assert_xml_tag(:tag => 'history', :attributes => { who: 'Iggy' })
     assert_equal({
-                     'id' => id,
-                     'action' => {
-                         'type' => 'submit',
-                         'source' => { 'project' => 'home:Iggy:branches:home:Iggy', 'package' => 'NEW_PACKAGE' },
-                         'target' => { 'project' => 'home:Iggy', 'package' => 'NEW_PACKAGE' },
-                         'options' => { 'sourceupdate' => 'cleanup' },
-                         'acceptinfo' => { 'rev' => '1', 'srcmd5' => '1ded65e42c0f04bd08075dfd1fd08105', 'osrcmd5' => 'd41d8cd98f00b204e9800998ecf8427e' }
-                     },
-                     'priority' => 'low',
-                     'state' => { 'name' => 'accepted', 'who' => 'Iggy', 'when' => '2010-07-12T00:00:04', 'comment' => 'approved' },
-                     'history' => [
-                         {"who"=>"Iggy", "when"=>"2010-07-12T00:00:00", "description"=>"Request created", "comment"=>"DESCRIPTION IS HERE"},
-                         {"who"=>"Iggy", "when"=>"2010-07-12T00:00:01", "description"=>"Request got a new priority: critical => low", "comment"=>"dontcare"},
-                         {"who"=>"Iggy", "when"=>"2010-07-12T00:00:02", "description"=>"Request got declined", "comment"=>"notgood"},
-                         {"who"=>"Iggy", "when"=>"2010-07-12T00:00:03", "description"=>"Request got reopened", "comment"=>"oops"},
-                         {"who"=>"Iggy", "when"=>"2010-07-12T00:00:04", "description"=>"Request got accepted", "comment"=>"approved"}
-                     ],
-                     'description' => 'DESCRIPTION IS HERE' }, node)
+                   'id'          => id,
+                   'action'      => {
+                     'type'       => 'submit',
+                     'source'     => { 'project' => 'home:Iggy:branches:home:Iggy', 'package' => 'NEW_PACKAGE' },
+                     'target'     => { 'project' => 'home:Iggy', 'package' => 'NEW_PACKAGE' },
+                     'options'    => { 'sourceupdate' => 'cleanup' },
+                     'acceptinfo' => { 'rev' => '1', 'srcmd5' => '1ded65e42c0f04bd08075dfd1fd08105', 'osrcmd5' => 'd41d8cd98f00b204e9800998ecf8427e' }
+                   },
+                   'priority'    => 'low',
+                   'state'       => { 'name' => 'accepted', 'who' => 'Iggy', 'when' => '2010-07-12T00:00:04', 'comment' => 'approved' },
+                   'history'     => [
+                     {"who"=>"Iggy", "when"=>"2010-07-12T00:00:00", "description"=>"Request created", "comment"=>"DESCRIPTION IS HERE"},
+                     {"who"=>"Iggy", "when"=>"2010-07-12T00:00:01", "description"=>"Request got a new priority: critical => low", "comment"=>"dontcare"},
+                     {"who"=>"Iggy", "when"=>"2010-07-12T00:00:02", "description"=>"Request got declined", "comment"=>"notgood"},
+                     {"who"=>"Iggy", "when"=>"2010-07-12T00:00:03", "description"=>"Request got reopened", "comment"=>"oops"},
+                     {"who"=>"Iggy", "when"=>"2010-07-12T00:00:04", "description"=>"Request got accepted", "comment"=>"approved"}
+                   ],
+                   'description' => 'DESCRIPTION IS HERE'
+                 }, node)
 
     # compare times
     node = ActiveXML::Node.new(@response.body)
@@ -212,7 +316,10 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag(:tag => 'link', :attributes => { missingok: 'true' })
 
     # cleanup
+    login_king
     delete '/source/home:Iggy:branches:home:Iggy'
+    assert_response :success
+    delete "/source/home:Iggy/NEW_PACKAGE"
     assert_response :success
 
     Timecop.return
@@ -250,7 +357,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
     id2 = node.value('id')
-
 
     delete '/source/home:Iggy/TestPack.DELETE2'
     assert_response :success
@@ -426,14 +532,20 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(:tag => 'person', :attributes => {userid: 'Iggy',  role: 'bugowner' })
     assert_no_xml_tag(:tag => 'group', :attributes => { role: 'bugowner' })
+    get "/source/kde4/kdelibs/_history?meta=1"
+    assert_response :success
     post "/request/#{id2}?cmd=changestate&newstate=accepted&force=1"
     assert_response :success
     get "/source/kde4/kdelibs/_meta"
     assert_response :success
     assert_no_xml_tag(:tag => 'person', :attributes => { role: 'bugowner' }) # reset
     assert_xml_tag(:tag => 'group', :attributes => { groupid: 'test_group', role: 'bugowner' })
+    get "/source/kde4/kdelibs/_history?meta=1"
+    assert_response :success
+    assert_xml_tag(:tag => 'comment', :content => "set_bugowner request #{id2}")
+    assert_xml_tag(:tag => 'requestid', :content => id2)
 
-    # cleanup 
+    # cleanup
     put "/source/kde4/kdelibs/_meta", meta
     assert_response :success
   end
@@ -611,6 +723,9 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(:tag => 'attribute', :attributes => { namespace: 'OBS', name: 'RequestCloned' },
                    :child => { tag: 'value', content: id })
+    # cleanup
+    delete "/source/home:tom:branches:REQUEST_#{id}"
+    assert_response :success
   end
 
   def test_create_request_review_and_supersede
@@ -635,16 +750,16 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response 403
 
     # update comment for real
-    h1 = History.find_by_request(BsRequest.find(id))
-    hr1 = History.find_by_request(BsRequest.find(id), { withreviews: 1 })
+    h1 = History.find_by_request(BsRequest.find_by_number(id))
+    hr1 = History.find_by_request(BsRequest.find_by_number(id), { withreviews: 1 })
     login_tom
     post "/request/#{id}?cmd=changereviewstate&newstate=new&by_user=tom&comment=blahfasel"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
     assert_xml_tag(:parent => { tag: 'review', attributes: { by_user: 'tom' } }, :tag => 'comment', :content => 'blahfasel')
-    h2 = History.find_by_request(BsRequest.find(id))
-    hr2 = History.find_by_request(BsRequest.find(id), { withreviews: 1 })
+    h2 = History.find_by_request(BsRequest.find_by_number(id))
+    hr2 = History.find_by_request(BsRequest.find_by_number(id), { withreviews: 1 })
     assert_equal h2.length-h1.length, 0 # no change
     assert_equal hr2.length-hr1.length, 1 # review accepted
 
@@ -694,7 +809,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_create_request_and_supersede_as_creator
-
     login_Iggy
     req = load_backend_file('request/works')
     post '/request?cmd=create', req
@@ -709,7 +823,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_create_request_and_decline_review
-
     login_Iggy
     req = load_backend_file('request/works')
     post '/request?cmd=create', req
@@ -801,7 +914,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=tom&comment=review2"
     assert_response :success
 
-
     # check review comments are the same
     get "/request/#{id}"
     assert_response :success
@@ -820,64 +932,159 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(:parent => { tag: 'review', attributes: { state: 'accepted', by_user: 'tom' } }, :tag => 'comment', :content => 'review1')
     assert_xml_tag(:parent => { tag: 'review', attributes: { state: 'new', by_user: 'tom' } }, :tag => 'comment', :content => 'reopen2')
     node = Xmlhash.parse(@response.body)
-    assert_equal({ 'id' => "#{id}",
-                   'action' =>
-                       { 'type' => 'add_role',
-                         'target' => { 'project' => 'home:Iggy', 'package' => 'TestPack' },
-                         'person' => { 'name' => 'Iggy', 'role' => 'reviewer' } },
-                   'state' =>
-                       { 'name' => 'review',
-                         'who' => 'tom',
-                         'when' => '2010-07-12T00:00:05',
-                         'comment' => 'reopen2' },
-                   'review' =>
-                       [{ 'state' => 'accepted',
-                          'when' => '2010-07-12T00:00:01',
-                          'who' => 'tom',
-                          'by_user' => 'tom',
-                          'comment' => 'review1',
-                          "history" => {"who"=>"tom", "when"=>"2010-07-12T00:00:02",
-                                         "description"=>"Review got accepted",
-                                         "comment"=>"review1"},
-                        },
-                        { 'state' => 'new',
-                          'when' => '2010-07-12T00:00:03',
-                          'who' => 'tom',
-                          'by_user' => 'tom',
-                          'comment' => 'reopen2',
-                          "history" => [{"who"=>"tom", "when"=>"2010-07-12T00:00:04",
-                                         "description"=>"Review got accepted",
-                                         "comment"=>"review2"},
-                                        {"who"=>"tom", "when"=>"2010-07-12T00:00:05",
-                                         "description"=>"Review got reopened",
-                                         "comment"=>"reopen2"}],
-                         }],
-                   'history' =>
-                       [
-                        { "who"=>"Iggy",
-                          "when"=>"2010-07-12T00:00:00",
-                          "description"=>"Request created"},
-                        { "description" => "Request got a new review request",
-                          'who' => 'Iggy',
-                          'when' => '2010-07-12T00:00:01',
-                          'comment' => 'couldyou' },
-                        { "description" => "Request got reviewed",
-                          'who' => 'tom',
-                          'when' => '2010-07-12T00:00:02',
-                          'comment' => 'review1' },
-                        { "description" => "Request got a new review request",
-                          'who' => 'Iggy',
-                          'when' => '2010-07-12T00:00:03',
-                          'comment' => 'overlooked' },
-                        { "description" => "Request got reviewed",
-                          'who' => 'tom',
-                          'when' => '2010-07-12T00:00:04',
-                          'comment' => 'review2' }] }, node)
-
+    assert_equal({ 'id'      => "#{id}",
+                   'action'  => {
+                     'type'   => 'add_role',
+                     'target' => { 'project' => 'home:Iggy', 'package' => 'TestPack' },
+                     'person' => { 'name' => 'Iggy', 'role' => 'reviewer' }
+                   },
+                   'state'   => {
+                     'name'    => 'review',
+                     'who'     => 'tom',
+                     'when'    => '2010-07-12T00:00:05',
+                     'comment' => 'reopen2'
+                   },
+                   'review'  => [{
+                     'state'   => 'accepted',
+                     'when'    => '2010-07-12T00:00:01',
+                     'who'     => 'tom',
+                     'by_user' => 'tom',
+                     'comment' => 'review1',
+                     "history" => {
+                       "who"         => "tom",
+                       "when"        => "2010-07-12T00:00:02",
+                       "description" => "Review got accepted",
+                       "comment"     => "review1"
+                     }
+                   }, {
+                     'state'   => 'new',
+                     'when'    => '2010-07-12T00:00:03',
+                     'who'     => 'tom',
+                     'by_user' => 'tom',
+                     'comment' => 'reopen2',
+                     "history" => [{"who"=>"tom", "when"=>"2010-07-12T00:00:04",
+                                    "description"=>"Review got accepted",
+                                    "comment"=>"review2"},
+                                   {"who"=>"tom", "when"=>"2010-07-12T00:00:05",
+                                    "description"=>"Review got reopened",
+                                    "comment"=>"reopen2"}]
+                   }],
+                   'history' => [
+                     { "who"         => "Iggy",
+                       "when"        => "2010-07-12T00:00:00",
+                       "description" => "Request created"},
+                     { "description" => "Request got a new review request",
+                       'who'         => 'Iggy',
+                       'when'        => '2010-07-12T00:00:01',
+                       'comment'     => 'couldyou' },
+                     { "description" => "Request got reviewed",
+                       'who'         => 'tom',
+                       'when'        => '2010-07-12T00:00:02',
+                       'comment'     => 'review1' },
+                     { "description" => "Request got a new review request",
+                       'who'         => 'Iggy',
+                       'when'        => '2010-07-12T00:00:03',
+                       'comment'     => 'overlooked' },
+                     { "description" => "Request got reviewed",
+                       'who'         => 'tom',
+                       'when'        => '2010-07-12T00:00:04',
+                       'comment'     => 'review2' }]
+                   }, node)
   end
 
-  test 'change_review_state_after_leaving_review_phase' do
+  def test_assign_from_group
+    login_Iggy
+    req = load_backend_file('request/works')
+    post '/request?cmd=create', req
+    assert_response :success
+    assert_xml_tag(:tag => 'request')
+    node = ActiveXML::Node.new(@response.body)
+    assert node.has_attribute?(:id)
+    id = node.value(:id)
 
+    # add reviewer group
+    login_Iggy
+    post "/request/#{id}?cmd=addreview&by_user=king"
+    assert_response :success
+    post "/request/#{id}?cmd=addreview&by_group=test_group"
+    assert_response :success
+    post "/request/#{id}?cmd=addreview&by_group=test_group_b"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(:tag => 'review', :attributes => { by_group: 'test_group' })
+
+    # adrian assigns to Iggy and reverts
+    login_adrian
+    get "/request/#{id}"
+    assert_response :success
+    assert_no_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'Iggy' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'king' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_group: 'test_group' })
+    post "/request/#{id}?by_group=test_group&cmd=assignreview&reviewer=Iggy", 'Iggy, please have a look'
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'Iggy' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'king' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'accepted', by_group: 'test_group' })
+    # stealing the review of king is not working
+    post "/request/#{id}?by_group=test_group&cmd=assignreview&reviewer=king&revert=1", 'try to kill it'
+    assert_response 404
+    assert_xml_tag :tag => 'summary', :content => "Not an assigned review"
+    # Iggy went home without telling....
+    post "/request/#{id}?by_group=test_group&cmd=assignreview&reviewer=Iggy&revert=1", 'ups, drop it again'
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_no_xml_tag(:tag => 'review', :attributes => { by_user: 'Iggy' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'king' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_group: 'test_group' })
+
+    # adrian assigns to adrian_downloader
+    login_adrian
+    get "/request/#{id}"
+    assert_response :success
+    assert_no_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'adrian_downloader' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'king' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_group: 'test_group' })
+    post "/request/#{id}?by_group=test_group&cmd=assignreview&reviewer=adrian_downloader", 'adrian_downloader, please have a look'
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'adrian_downloader' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'king' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'accepted', by_group: 'test_group' })
+
+    login_adrian_downloader
+    post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_user=adrian_downloader"
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'accepted', by_user: 'adrian_downloader' })
+
+    # adrian_downloader assigns to himself
+    post "/request/#{id}?by_group=test_group_b&cmd=assignreview&reviewer=adrian_downloader", 'I will work on it as well'
+    assert_response :success
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'new', by_user: 'adrian_downloader' })
+    assert_no_xml_tag(:tag => 'review', :attributes => { state: 'accepted', by_user: 'adrian_downloader' })
+
+    # ah, no.....
+    post "/request/#{id}?cmd=changereviewstate&newstate=declined&by_user=adrian_downloader"
+    assert_response :success
+
+    # validate
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(:tag => 'state', :attributes => { name: 'declined' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'declined', by_user: 'adrian_downloader' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'accepted', by_group: 'test_group' })
+    assert_xml_tag(:tag => 'review', :attributes => { state: 'accepted', by_group: 'test_group_b' })
+  end
+
+  def test_change_review_state_after_leaving_review_phase
     login_Iggy
     req = load_backend_file('request/works')
     post '/request?cmd=create', req
@@ -904,7 +1111,9 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     login_adrian
     post "/request/#{id}?newstate=new&by_group=test_group&cmd=changereviewstate", 'adrian is looking'
+    assert_response :success
     post "/request/#{id}?newstate=new&by_group=test_group&cmd=changereviewstate", 'adrian does not care'
+    assert_response :success
 
     login_tom
     post "/request/#{id}?cmd=changereviewstate&newstate=declined&by_user=tom"
@@ -931,7 +1140,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(:tag => 'review', :attributes => { by_user: 'adrian' })
     assert_xml_tag(:tag => 'review', :attributes => { by_user: 'tom' })
     assert_xml_tag(:tag => 'review', :attributes => { by_group: 'test_group' })
-
   end
 
   def test_search_and_involved_requests
@@ -1000,7 +1208,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
     if $ENABLE_BROKEN_TEST
-      #FIXME there is no code in this test creating request from HiddenProject
+      # FIXME there is no code in this test creating request from HiddenProject
 
       assert_xml_tag(:tag => 'source', :attributes => { project: 'HiddenProject', package: 'pack' })
     end
@@ -1034,7 +1242,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
       assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
       assert_xml_tag(:tag => 'target', :attributes => { project: 'HiddenProject' })
     end
-
   end
 
   def test_process_devel_request
@@ -1106,7 +1313,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     # cleanup
     put '/source/home:Iggy/TestPack/_meta', oldmeta.dup
     assert_response :success
-
   end
 
   def test_reject_request_creation
@@ -1142,7 +1348,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', rq
     assert_response :success
 
-
     # block request creation in package
     post '/source/home:Iggy/TestPack/_attribute', "<attributes><attribute namespace='OBS' name='RejectRequests'> <value>Package blocked</value> </attribute> </attributes>"
     assert_response :success
@@ -1173,16 +1378,16 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', rq
     assert_response :success
 
-#FIXME: test with request without target
+# FIXME: test with request without target
 
-#cleanup
+# cleanup
     delete '/source/home:Iggy/TestPack/_attribute/OBS:RejectRequests'
     assert_response :success
   end
 
   # osc is still submitting with old style by default
   def test_old_style_submit_request
-    prepare_request_with_user 'hidden_homer', 'homer'
+    prepare_request_with_user 'hidden_homer', 'buildservice'
     post '/request?cmd=create', '<request type="submit">
                                    <submit>
                                      <source project="HiddenProject" package="pack" rev="1"/>
@@ -1223,7 +1428,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
                                  </request>'
     assert_response 403
 
-    prepare_request_with_user 'hidden_homer', 'homer'
+    prepare_request_with_user 'hidden_homer', 'buildservice'
     post '/request?cmd=create', '<request>
                                    <action type="submit">
                                      <source project="HiddenProject" package="pack" rev="1"/>
@@ -1238,7 +1443,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post "/request/#{id}?cmd=changestate&newstate=revoked"
     assert_response :success
 
-    prepare_request_with_user 'sourceaccess_homer', 'homer'
+    prepare_request_with_user 'sourceaccess_homer', 'buildservice'
     post '/request?cmd=create', '<request>
                                    <action type="submit">
                                      <source project="SourceprotectedProject" package="pack" rev="1"/>
@@ -1318,7 +1523,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(:tag => 'target', :attributes => { project: 'home:tom:branches:kde4', package: 'kdebase' })
     node = ActiveXML::Node.new(@response.body)
     assert node.has_attribute?(:id)
-    #id2 = node.value(:id)
+    # id2 = node.value(:id)
 
     # delete projects
     delete '/source/home:tom:branches:kde4'
@@ -1434,7 +1639,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(:tag => 'review', :attributes => { by_group: 'test_group' })
 
     # test search via xpath as well
-    get 'search/request', :match => "state/@name='review' and review[@by_group='test_group' and @state='new']"
+    get '/search/request', :match => "state/@name='review' and review[@by_group='test_group' and @state='new']"
     assert_response :success
     assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
     assert_xml_tag(:tag => 'review', :attributes => { by_group: 'test_group' })
@@ -1465,8 +1670,8 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response 403
     post '/request/ILLEGAL_CONTENT?cmd=changestate&newstate=revoked'
     assert_response 404
-    #Rails does not allow /request/:id to match non-integers, so there is no XML generated for 404
-    #assert_xml_tag tag: 'status', attributes: {code: 'not_found'}
+    # Rails does not allow /request/:id to match non-integers, so there is no XML generated for 404
+    # assert_xml_tag tag: 'status', attributes: {code: 'not_found'}
 
     login_Iggy
     post "/request/#{id}?cmd=changestate&newstate=revoked"
@@ -1535,6 +1740,54 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', req
     assert_response 403
     assert_xml_tag(:tag => 'status', :attributes => { code: 'lacking_maintainership' })
+  end
+
+  def test_makeoriginolder_request
+    login_Iggy
+
+    put '/source/home:Iggy:Apache/_meta', "<project name='home:Iggy:Apache'> <title/> <description/>
+                                         <link project='Apache'/>
+                                        </project>"
+    assert_response :success
+
+    req = "<request>
+            <action type='submit'>
+              <source project='Apache' package='apache2' rev='1' />
+              <target project='home:Iggy:Apache' package='apache2' />
+              <options>
+                <makeoriginolder>true</makeoriginolder>
+              </options>
+            </action>
+            <description/>
+          </request>"
+    post '/request?cmd=create', req
+    assert_response :success
+    node = Xmlhash.parse(@response.body)
+    id = node['id']
+    assert !id.blank?
+    # no write permission
+    post "/request/#{id}?cmd=changestate&newstate=accepted&comment=But+I+want+it"
+    assert_response 403
+    post "/request/#{id}?cmd=changestate&newstate=revoked&comment=take+it+back"
+    assert_response :success
+    post "/request/#{id}?cmd=changestate&newstate=new&comment=try+again"
+    assert_response :success
+
+    # approvereview
+    login_fred
+    post "/request/#{id}?cmd=changereviewstate&by_project=Apache&by_package=apache2&newstate=accepted"
+    assert_response :success
+
+    login_Iggy
+    post "/request/#{id}?cmd=changestate&newstate=accepted&comment=But+I+want+it"
+    assert_response 403
+    assert_xml_tag(:tag => 'status', :attributes => { code: 'post_request_no_permission' })
+    post "/request/#{id}?cmd=changestate&newstate=accepted&force=1&comment=But+I+want+it"
+    assert_response 403
+    assert_xml_tag(:tag => 'status', :attributes => { code: 'post_request_no_permission' })
+
+    delete '/source/home:Iggy:Apache'
+    assert_response :success
   end
 
   def test_reopen_a_review_declined_request
@@ -1624,7 +1877,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post "/request/#{id}?cmd=changestate&newstate=new"
     assert_response 403
     # and reopen it as a non-source-maintainer is not working
-    prepare_request_with_user 'fredlibs', 'geröllheimer'
+    prepare_request_with_user 'fredlibs', 'buildservice'
     post "/request/#{id}?cmd=changestate&newstate=new"
     assert_response 403
 
@@ -1662,25 +1915,29 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response 403
 
     # and reopen it as a different maintainer from target
-    prepare_request_with_user 'fredlibs', 'geröllheimer'
+    prepare_request_with_user 'fredlibs', 'buildservice'
     post "/request/#{id}?cmd=changestate&newstate=new"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
     assert_xml_tag(:tag => 'state', :attributes => { name: 'new' })
+
+    # cleanup
+    login_Iggy
+    delete '/source/home:Iggy:branches:Apache'
+    assert_response :success
   end
 
   def test_all_action_types
     req = load_backend_file('request/cover_all_action_types_request')
     login_Iggy
 
-    # create kdelibs package
+    # create kdebase package
     post '/source/kde4/kdebase', :cmd => :branch
     assert_response :success
     post '/request?cmd=create', req
-    assert_response 400
-    assert_xml_tag(:tag => 'status', :attributes => { code: 'missing_action' })
-    put '/source/home:Iggy:branches:kde4/kdebase/change', 'avoid failure of unchanged package submit'
+    assert_response :success
+    put '/source/home:Iggy:branches:kde4/kdebase/change', 'avoid dropped submit action'
     assert_response :success
     post '/request?cmd=create', req
     assert_response :success
@@ -1789,7 +2046,12 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(:tag => 'group', :attributes => { groupid: 'test_group', role: 'reader' })
 
     # cleanup
+    login_king
     delete '/source/kde4/Testing'
+    assert_response :success
+    post '/source/home:fred:DeleteProject', :cmd => "undelete"
+    assert_response :success
+    post '/source/home:Iggy/ToBeDeletedTestPack', :cmd => "undelete"
     assert_response :success
   end
 
@@ -1823,7 +2085,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_match(/review state change for group test_group is not permitted for Iggy/, @response.body)
     post '/request/987654321?cmd=changereviewstate&newstate=accepted&by_group=test_group'
     assert_response 404
-    assert_match(/Couldn't find BsRequest with 'id'=987654321/, @response.body)
+    assert_match(/Couldn't find request with id '987654321'/, @response.body)
 
     # Only partly matching by_ arguments
     login_adrian
@@ -1843,14 +2105,14 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     get "/request/#{id}"
     assert_response :success
     assert_xml_tag(:tag => 'state', :attributes => { name: 'review' },
-                   :parent => { tag: 'request' }) #remains in review state
+                   :parent => { tag: 'request' }) # remains in review state
 
     post "/request/#{id}?cmd=changereviewstate&newstate=accepted&by_group=test_group"
     assert_response :success
     get "/request/#{id}"
     assert_response :success
     assert_xml_tag(:tag => 'state', :attributes => { name: 'review' },
-                   :parent => { tag: 'request' }) #switch to new after last review
+                   :parent => { tag: 'request' }) # switch to new after last review
 
     # approve accepted and check initialized devel package
     post "/request/#{id}?cmd=changestate&newstate=accepted&force=1"
@@ -1858,6 +2120,13 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     get '/source/kde4/Testing/_meta'
     assert_response :success
     assert_xml_tag(:tag => 'devel', :attributes => { project: 'home:Iggy', package: 'TestPack' })
+
+    # cleanup
+    login_king
+    delete '/source/home:Iggy/TestPack/_link'
+    assert_response :success
+    delete '/source/kde4/Testing'
+    assert_response :success
   end
 
   def test_reviewer_added_when_source_maintainer_is_missing
@@ -2053,8 +2322,10 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post '/request?cmd=create', req
     assert_response :success
 
-    #cleanup
+    # cleanup
     login_king
+    delete '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject'
+    assert_response :success
     delete '/source/DummY'
     assert_response :success
   end
@@ -2129,7 +2400,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
               <source project='home:tom:branches:BaseDistro2.0:LinkedUpdateProject' package='pack2' />
               <target project='DummY' package='pack2' />
               <options>
-                <sourceupdate>cleanup</sourceupdate>
                 <updatelink>true</updatelink>
               </options>
             </action>
@@ -2169,12 +2439,50 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(:parent => { tag: 'file', attributes: { state: 'changed' } }, :tag => 'new', :attributes => { name: 'NEW_FILE' })
 
+    # create request
+    req = "<request>
+            <action type='submit'>
+              <source project='home:tom:branches:BaseDistro2.0:LinkedUpdateProject' package='pack2' />
+              <target project='DummY' package='pack2.NEW' />
+              <options>
+                <sourceupdate>cleanup</sourceupdate>
+                <updatelink>true</updatelink>
+              </options>
+            </action>
+            <description>SUBMIT</description>
+            <state who='Iggy' name='new'/>
+          </request>"
+    post '/request?cmd=create&addrevision=1', req
+    assert_response :success
+    assert_xml_tag(:tag => 'request')
+    node = Xmlhash.parse(@response.body)
+    id = node['id']
+    assert id.present?
+
+    # ensure that the diff shows the link change
+    post "/request/#{id}?cmd=diff&view=xml", nil
+    assert_response :success
+    assert_xml_tag(:parent => { tag: 'file', attributes: { state: 'added' } }, :tag => 'new', :attributes => { name: '_link' })
+
+    # accept the request
+    login_king
+    post "/request/#{id}?cmd=changestate&newstate=accepted&force=1"
+    assert_response :success
+
+    # the link got transfered
+    get '/source/DummY/pack2.NEW/_link'
+    assert_response :success
+    assert_xml_tag(:tag => 'link', :attributes => { project: 'BaseDistro2.0:LinkedUpdateProject', package: nil })
+
     ###
     # create delete request two times
     login_tom
     req = "<request>
             <action type='delete'>
               <target project='DummY' package='pack2'/>
+            </action>
+            <action type='delete'>
+              <target project='DummY' package='pack2.NEW'/>
             </action>
             <description>DELETE REQUEST</description>
             <state who='tom' name='new'/>
@@ -2215,8 +2523,15 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag(:parent => { tag: 'revision' }, :tag => 'comment', :content => 'DELETE REQUEST')
     assert_xml_tag(:parent => { tag: 'revision' }, :tag => 'requestid', :content => id)
 
-    # accept the other request, what will fail
     login_king
+    # you can only accept request in state new
+    post "/request/#{id2}?cmd=changestate&newstate=accepted&force=1"
+    assert_response 403
+    assert_xml_tag(:tag => 'status', :attributes => { code: 'post_request_no_permission' })
+
+    # you can only accept request in state new and with an existing target
+    post "/request/#{id2}?cmd=changestate&newstate=new&force=1"
+    assert_response :success
     post "/request/#{id2}?cmd=changestate&newstate=accepted&force=1"
     assert_response 404
     assert_xml_tag(:tag => 'status', :attributes => { code: 'not_existing_target' })
@@ -2249,8 +2564,11 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(:tag => 'state', :attributes => { name: 'revoked' })
 
-    #cleanup
+    # cleanup
+    login_king
     delete '/source/DummY'
+    assert_response :success
+    delete '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject'
     assert_response :success
   end
 
@@ -2327,11 +2645,52 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     get "/request/#{id2}"
     assert_response :success
     assert_xml_tag(tag: 'state', attributes: { name: 'revoked', when: '2010-07-14T00:00:00', who: 'Iggy' })
-    assert_xml_tag(:tag => 'comment', :content => 'Target disappeared')
+    assert_xml_tag(:tag => 'comment', :content => 'Permission problem')
 
     # good, now revive to fix the state of the union
     post '/source/home:Iggy/TestPack?cmd=undelete'
     assert_response :success
+  end
+
+  def test_set_auto_accept
+    login_tom
+
+    Timecop.freeze(2010, 07, 12)
+
+    req = "<request>
+            <action type='delete'>
+              <target project='home:Iggy' package='TestPack' />
+            </action>
+            <description>delete</description>
+            <state/>
+          </request>"
+
+    # works as user with write permission in target
+    login_Iggy
+    post '/request?cmd=create', req
+    assert_response :success
+    assert_xml_tag(:tag => 'request')
+    node = Xmlhash.parse(@response.body)
+    id = node['id']
+    assert id.present?
+
+    # accept it now
+    post "/request/#{id}?cmd=setacceptat"
+    assert_response :success
+
+    # correct rendered
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(:tag => 'accept_at', :content => '2010-07-12 00:00:00 UTC')
+
+    # modify accept time
+    post "/request/#{id}?cmd=setacceptat&time='2013-12-01%2000:00:00%20UTC'"
+    assert_response :success
+
+    # correct rendered
+    get "/request/#{id}"
+    assert_response :success
+    assert_xml_tag(:tag => 'accept_at', :content => '2013-12-01 00:00:00 UTC')
   end
 
   def test_branch_version_update_and_submit_request_back
@@ -2404,7 +2763,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     vrev_after_accept = node.value(:vrev)
     assert vrev <= vrev_after_accept
 
-    #cleanup
+    # cleanup
     delete '/source/home:tom:branches:home:Iggy'
     assert_response :success
     # restore original spec file
@@ -2416,7 +2775,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   #
   #
   def test_submit_from_source_protected_project
-    prepare_request_with_user 'sourceaccess_homer', 'homer'
+    prepare_request_with_user 'sourceaccess_homer', 'buildservice'
     post '/request?cmd=create', load_backend_file('request/from_source_protected_valid')
     assert_response :success
     assert_xml_tag(:tag => 'request')
@@ -2451,15 +2810,15 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
   ## create request to hidden package from open place - valid user  - success
   def test_create_request_to_hidden_package_from_open_place_valid_user
-    request_hidden('adrian', 'so_alone', 'request/to_hidden_from_open_valid')
+    request_hidden('adrian', 'buildservice', 'request/to_hidden_from_open_valid')
     assert_response :success
-    #assert_xml_tag( :tag => "state", :attributes => { :name => 'new' } )
+    # assert_xml_tag( :tag => "state", :attributes => { :name => 'new' } )
   end
 
   ## create request to hidden package from open place - invalid user - fail
   # request_controller.rb:178
   def test_create_request_to_hidden_package_from_open_place_invalid_user
-    request_hidden('Iggy', 'asdfasdf', 'request/to_hidden_from_open_invalid')
+    request_hidden('Iggy', 'buildservice', 'request/to_hidden_from_open_invalid')
     assert_response 404
     assert_xml_tag(:tag => 'status', :attributes => { code: 'unknown_project' })
   end
@@ -2469,14 +2828,14 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     login_king
     put '/source/HiddenProject/target/file', 'ASD'
     assert_response :success
-    request_hidden('adrian', 'so_alone', 'request/to_hidden_from_hidden_valid')
+    request_hidden('adrian', 'buildservice', 'request/to_hidden_from_hidden_valid')
     assert_response :success
     assert_xml_tag(:tag => 'state', :attributes => { name: 'new' })
   end
 
   ## create request to hidden package from hidden place - invalid user - fail
   def test_create_request_to_hidden_package_from_hidden_place_invalid_user
-    request_hidden('Iggy', 'asdfasdf', 'request/to_hidden_from_hidden_invalid')
+    request_hidden('Iggy', 'buildservice', 'request/to_hidden_from_hidden_invalid')
     assert_response 404
     assert_xml_tag(:tag => 'status', :attributes => { code: 'unknown_project' })
   end
@@ -2484,7 +2843,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   # requests from Hidden to external
   ## create request from hidden package to open place - valid user  - fail ! ?
   def test_create_request_from_hidden_package_to_open_place_valid_user
-    request_hidden('adrian', 'so_alone', 'request/from_hidden_to_open_valid')
+    request_hidden('adrian', 'buildservice', 'request/from_hidden_to_open_valid')
     # FIXME !!
     # should we really allow this - might be a mistake. qualified procedure could be:
     # sr from hidden to hidden and then make new location visible
@@ -2493,7 +2852,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   end
 
   ### bugowner
-  ### role 
+  ### role
   def test_hidden_add_role_request
     login_Iggy
     post '/request?cmd=create', load_backend_file('request/hidden_add_role_fail')
@@ -2671,7 +3030,6 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag(:tag => 'collection', :child => { tag: 'request' })
     assert_xml_tag(:tag => 'target', :attributes => { project: 'c++', package: 'TestPack' })
-
   end
 
   def test_project_delete_request_with_pending
@@ -2716,6 +3074,12 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     login_Iggy
     post "/request/#{iddelete}?cmd=changestate&newstate=accepted"
+    assert_response :success
+
+    # verify request number loging
+    login_king
+    get '/source/home:Iggy:todo/_project/_history?meta=1&deleted=1'
+    assert_xml_tag(:parent => { :tag => 'revision' }, :tag => 'requestid', :content => iddelete)
     assert_response :success
 
     # cleanup
@@ -2820,8 +3184,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test 'delete_request_id' do
-
+  def test_delete_request_id
     login_tom
     req = load_backend_file('request/1')
     post '/request?cmd=create', req
@@ -2843,11 +3206,9 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     get "/request/#{id}"
     assert_response 404
-
   end
 
-  test 'reopen declined request' do
-
+  def test_reopen_declined_request
     login_Iggy
     req = load_backend_file('request/add_role')
     post '/request?cmd=create', req
@@ -2867,11 +3228,10 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     post "/request/#{id}?cmd=changestate&newstate=new&comment=oh"
     get "/request/#{id}"
     assert_xml_tag(tag: 'state', attributes: { name: 'review' })
-
   end
 
   # it was reported that requests can't be revoked - test cases verifie sthat
-  test 'revoke autodeclined submit requests' do
+  def test_revoke_autodeclined_submit_requests
     login_Iggy
 
     Timecop.freeze(2010, 07, 12)
@@ -2888,22 +3248,22 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     get "/request/#{id}?withhistory=1"
     node = Xmlhash.parse(@response.body)
-    assert_equal({ 'id' => id,
-                   'action' =>
-                       { 'type' => 'add_role',
-                         'target' => { 'project' => 'home:Iggy:fordecline' },
-                         'person' => { 'name' => 'Iggy', 'role' => 'reviewer' } },
-                   'state' =>
-                       { 'name' => 'declined',
-                         'who' => 'Iggy',
-                         'when' => '2010-07-12T00:00:01',
-                         'comment' => "The target project 'home:Iggy:fordecline' was removed" },
-                   'history' => [{"who"=>"Iggy", 
-                                  "when"=>"2010-07-12T00:00:00",
-                                  "description"=>"Request created"},
+    assert_equal({ 'id'      => id,
+                   'action'  =>
+                                { 'type'   => 'add_role',
+                                  'target' => { 'project' => 'home:Iggy:fordecline' },
+                                  'person' => { 'name' => 'Iggy', 'role' => 'reviewer' } },
+                   'state'   =>
+                                { 'name'    => 'declined',
+                                  'who'     => 'Iggy',
+                                  'when'    => '2010-07-12T00:00:01',
+                                  'comment' => "The target project 'home:Iggy:fordecline' has been removed" },
+                   'history' => [{"who"         => "Iggy",
+                                  "when"        => "2010-07-12T00:00:00",
+                                  "description" => "Request created"},
                                  { 'who' => 'Iggy', 'when' => '2010-07-12T00:00:01',
                                    "description" => "Request got declined",
-                                   'comment' => "The target project 'home:Iggy:fordecline' was removed"}] }, node)
+                                   'comment' => "The target project 'home:Iggy:fordecline' has been removed"}] }, node)
 
     Timecop.freeze(1)
     post "/request/#{id}?cmd=changestate&newstate=revoked"
@@ -2911,37 +3271,36 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
 
     get "/request/#{id}?withhistory=1"
     node = Xmlhash.parse(@response.body)
-    assert_equal({ 'id' => id,
-                   'action' =>
-                       { 'type' => 'add_role',
-                         'target' => { 'project' => 'home:Iggy:fordecline' },
-                         'person' => { 'name' => 'Iggy', 'role' => 'reviewer' } },
-                   'state' => { 'name' => 'revoked',
-                                'who' => 'Iggy',
-                                'when' => '2010-07-12T00:00:02',
-                                'comment' => {} },
+    assert_equal({ 'id'      => id,
+                   'action'  =>
+                                { 'type'   => 'add_role',
+                                  'target' => { 'project' => 'home:Iggy:fordecline' },
+                                  'person' => { 'name' => 'Iggy', 'role' => 'reviewer' } },
+                   'state'   => { 'name'    => 'revoked',
+                                  'who'     => 'Iggy',
+                                  'when'    => '2010-07-12T00:00:02',
+                                  'comment' => {} },
                    'history' =>
-                       [{"who"=>"Iggy", "when"=>"2010-07-12T00:00:00",
+                                [{"who"=>"Iggy", "when"=>"2010-07-12T00:00:00",
                          "description"=>"Request created"},
-                        {"who"=>"Iggy", "when"=>"2010-07-12T00:00:01",
-                         "description"=>"Request got declined",
-                         "comment"=>"The target project 'home:Iggy:fordecline' was removed"},
-                        {"who"=>"Iggy", "when"=>"2010-07-12T00:00:02",
-                         "description"=>"Request got revoked"}] }, node)
-
+                                 {"who"=>"Iggy", "when"=>"2010-07-12T00:00:01",
+                                  "description"=>"Request got declined",
+                                  "comment"=>"The target project 'home:Iggy:fordecline' has been removed"},
+                                 {"who"=>"Iggy", "when"=>"2010-07-12T00:00:02",
+                                  "description"=>"Request got revoked"}] }, node)
   end
 
-  test 'check target maintainer' do
+  def test_check_target_maintainer
     login_tom
     raw_post '/request?cmd=create', "<request><action type='submit'><source project='Apache' package='apache2'/><target project='kde4' package='apache2'/></action></request>"
     assert_response :success
     id = Xmlhash.parse(@response.body)['id']
 
-    infos = BsRequest.find(id).webui_infos
+    infos = BsRequest.find_by_number(id).webui_infos
     assert !infos['is_target_maintainer'], 'tom is target maintainer'
   end
 
-  test 'cleanup from home' do
+  def test_cleanup_from_home
     login_dmayr
     req = load_backend_file('request/cleanup_from_home')
     post '/request?cmd=create', req
@@ -2956,9 +3315,12 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     get '/source/home:dmayr'
     assert_response :success
     assert_xml_tag tag: 'entry', attributes: { name: 'x11vnc' }
+
+    delete '/source/home:Iggy/x11vnc'
+    assert_response :success
   end
 
-  test 'reviews in delete requests' do
+  def test_reviews_in_delete_requests
     # make Iggy maintainer for pack2 in this test
     packages(:Devel_BaseDistro_Update_pack2).relationships.create(role: roles(:maintainer), user: users(:Iggy))
 
@@ -3054,7 +3416,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_ordering_of_requests
-    prepare_request_with_user 'Iggy', 'asdfasdf'
+    prepare_request_with_user 'Iggy', 'buildservice'
 
     Timecop.freeze(2010, 07, 12)
     post '/request?cmd=create', '<request>
@@ -3122,7 +3484,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert !important.blank?
     Timecop.freeze(1)
 
-    get 'search/request', :match => "target/@project = 'home:Iggy'"
+    get '/search/request', :match => "target/@project = 'home:Iggy'"
     assert_response :success
     assert_xml_tag(:tag => 'collection', :child => { tag: 'request' },
                    :attributes => { :matches => 6 })
@@ -3138,7 +3500,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
               <value>100</value>
             </attribute></attributes>"
     assert_response :success
-    get 'search/request', :match => "target/@project = 'home:Iggy'"
+    get '/search/request', :match => "target/@project = 'home:Iggy'"
     assert_response :success
     assert_xml_tag(:tag => 'collection', :child => { tag: 'request' },
                    :attributes => { :matches => 6 })
@@ -3150,7 +3512,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
               <value>100</value>
             </attribute></attributes>"
     assert_response :success
-    get 'search/request', :match => "target/@project = 'home:Iggy'"
+    get '/search/request', :match => "target/@project = 'home:Iggy'"
     assert_response :success
     assert_xml_tag(:tag => 'collection', :child => { tag: 'request' },
                    :attributes => { :matches => 6 })
@@ -3164,7 +3526,7 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
               <value>101</value>
             </attribute></attributes>"
     assert_response :success
-    get 'search/request', :match => "target/@project = 'home:Iggy'"
+    get '/search/request', :match => "target/@project = 'home:Iggy'"
     assert_response :success
     assert_xml_tag(:tag => 'collection', :child => { tag: 'request' },
                    :attributes => { :matches => 6 })
@@ -3173,3 +3535,4 @@ class RequestControllerTest < ActionDispatch::IntegrationTest
     assert_equal 'important', node['request'][1]['priority']
   end
 end
+# rubocop:enable Metrics/LineLength

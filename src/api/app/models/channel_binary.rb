@@ -1,54 +1,109 @@
 class ChannelBinary < ActiveRecord::Base
-
   belongs_to :channel_binary_list
   belongs_to :project
   belongs_to :repository
   belongs_to :architecture
 
+  validate do |channel_binary|
+    if channel_binary.project && channel_binary.repository
+      unless channel_binary.repository.project == channel_binary.project
+        errors.add_to_base("Associated project has to match with repository.project")
+      end
+    end
+  end
+
+  def self._sync_keys
+    [ :name, :project, :repository, :architecture, :package, :binaryarch ]
+  end
+
   def self.find_by_project_and_package(project, package)
     project = Project.find_by_name(project) if project.is_a? String
 
-    # I am not able to construct this with rails in a valid way :/
-    return ChannelBinary.find_by_sql(['SELECT channel_binaries.* FROM channel_binaries LEFT JOIN channel_binary_lists ON channel_binary_lists.id = channel_binaries.channel_binary_list_id WHERE (channel_binary_lists.project_id = ? and package = ?)', project.id, package])
+    # find maintained projects filter
+    maintained_projects = Project.get_maintenance_project.expand_maintained_projects
+
+    # gsub(/\s+/, "") makes sure there are no additional newlines and whitespaces
+    query = <<-SQL.gsub(/\s+/, " ")
+      SELECT channel_binaries.* FROM channel_binaries
+        LEFT JOIN channel_binary_lists ON channel_binary_lists.id = channel_binaries.channel_binary_list_id
+          LEFT JOIN channels ON channel_binary_lists.channel_id = channels.id
+            LEFT JOIN packages ON channels.package_id = packages.id WHERE (
+              channel_binary_lists.project_id = ? and package = ? and packages.project_id IN (?)
+            )
+    SQL
+    ChannelBinary.find_by_sql([query, project.id, package, maintained_projects])
   end
 
-  def create_channel_package(pkg, maintenanceProject)
+  def create_channel_package_into(project, comment = nil)
     channel = self.channel_binary_list.channel
-    cp = channel.package
-    name = channel.name
-
+    package_exists = Package.exists_by_project_and_name(project.name, channel.name,
+                                                        follow_project_links: false,
+                                                        allow_remote_packages: false
+                                                       )
     # does it exist already? then just skip it
-    return if Package.exists_by_project_and_name(pkg.project.name, name)
+    unless package_exists
+      # create a channel package beside my package and return that
+      channel.branch_channel_package_into_project(project, comment)
+    end
+  end
 
-    # do we need to take care about a maintained list from upper project?
-    if maintenanceProject and MaintainedProject.where(maintenance_project: maintenanceProject, project: cp.project).count < 1
-      # not a maintained project here
-      return
+  def to_axml_id(_opts = {})
+    Rails.cache.fetch("xml_channel_binary_id_#{id}") do
+      create_xml
+    end
+  end
+
+  def to_axml(_opts = {})
+    Rails.cache.fetch("xml_channel_binary_#{id}") do
+      create_xml(include_channel_targets: true)
+    end
+  end
+
+  private
+
+  # Creates an xml builder object for all binaries
+  def create_xml(options = {})
+    channel = channel_binary_list.channel
+
+    builder = Nokogiri::XML::Builder.new
+    attributes = {
+      project: channel.package.project.name,
+      package: channel.package.name
+    }
+    builder.channel(attributes) do |c|
+      binary_data = { name: name }
+      binary_data[:project]       = channel_binary_list.project.name if channel_binary_list.project
+      binary_data[:project]       = project.name  if project
+      binary_data[:package]       = package       if package
+      binary_data[:binaryarch]    = binaryarch    if binaryarch
+      binary_data[:supportstatus] = supportstatus if supportstatus
+      c.binary(binary_data)
+
+      # report target repository and products using it.
+      if options[:include_channel_targets]
+        channel.channel_targets.each do |channel_target|
+          create_channel_node_element(c, channel_target)
+        end
+      end
     end
 
-    # create a package beside me
-    tpkg = Package.new(:name => name, :title => cp.title, :description => cp.description)
-    pkg.project.packages << tpkg
-    tpkg.store
+    builder.to_xml :save_with => Nokogiri::XML::Node::SaveOptions::NO_DECLARATION |
+                                 Nokogiri::XML::Node::SaveOptions::FORMAT
+  end
 
-    # branch sources
-    tpkg.branch_from(cp.project.name, cp.name)
-    tpkg.sources_changed
-
-    # branch repositories
-    if channel.channel_targets.empty?
-      # not defined in channel, so take all from project
-      tpkg.project.branch_to_repositories_from(cp.project, cp, true)
-    else
-      # defined in channel
-      channel.channel_targets.each do |ct|
-        repo_name = ct.repository.extended_name
-        # add repositories
-        unless pkg.project.repositories.find_by_name(repo_name)
-          tpkg.project.add_repository_with_targets(repo_name, ct.repository, [ct.repository]) 
-        end
-        # enable package
-        tpkg.enable_for_repository repo_name
+  def create_channel_node_element(channel_node, channel_target)
+    attributes = {
+      project:    channel_target.repository.project.name,
+      repository: channel_target.repository.name
+    }
+    channel_node.target(attributes) do |target|
+      target.disabled if channel_target.disabled
+      channel_target.repository.product_update_repositories.each do |up|
+        attributes = {
+          project: up.product.package.project.name,
+          product: up.product.name
+        }
+        target.updatefor(up.product.extend_id_hash(attributes))
       end
     end
   end

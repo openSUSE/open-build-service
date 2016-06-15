@@ -1,9 +1,71 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'source_controller'
 
-class ReleaseManagementTests < ActionDispatch::IntegrationTest 
+class ReleaseManagementTests < ActionDispatch::IntegrationTest
   fixtures :all
-  
+
+  def setup
+    reset_auth
+  end
+
+  def test_move_entire_project
+    wait_for_scheduler_start
+
+    login_tom
+
+    # try as non-admin
+    post "/source/home:tom:BaseDistro", :cmd => :move, :oproject => "BaseDistro"
+    assert_response 403
+
+    login_king
+    post "/source/home:tom", :cmd => :move, :oproject => "BaseDistro"
+    assert_response 400
+
+    # real move
+    post "/source/TEMP:BaseDistro", :cmd => :move, :oproject => "BaseDistro"
+    assert_response :success
+    assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
+    get "/source/TEMP:BaseDistro"
+    assert_response :success
+    get "/source/TEMP:BaseDistro/_project"
+    assert_response :success
+    get "/source/TEMP:BaseDistro/_project/_history?meta=1"
+    assert_response :success
+    assert_xml_tag :tag => "comment", :content => "Project move from BaseDistro to TEMP:BaseDistro"
+    get "/source/TEMP:BaseDistro/pack2/_meta"
+    assert_response :success
+    assert_xml_tag :tag => "package", :attributes => { :project => "TEMP:BaseDistro" }
+    get "/build/TEMP:BaseDistro"
+    assert_response :success
+    get "/build/TEMP:BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm"
+    assert_response :success
+    get "/source/BaseDistro"
+    assert_response 404
+    get "/build/BaseDistro"
+    assert_response 404
+    get "/build/BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm"
+    assert_response 404
+
+    # move back
+    post "/source/BaseDistro", :cmd => :move, :oproject => "TEMP:BaseDistro"
+    assert_response :success
+    assert_xml_tag( :tag => "status", :attributes => { :code => "ok"} )
+    get "/source/BaseDistro/pack2/_meta"
+    assert_response :success
+    assert_xml_tag :tag => "package", :attributes => { :project => "BaseDistro" }
+    get "/source/BaseDistro/_project/_history?meta=1"
+    assert_response :success
+    assert_xml_tag :tag => "comment", :content => "Project move from TEMP:BaseDistro to BaseDistro"
+    get "/build/TEMP:BaseDistro"
+    assert_response 404
+    get "/build/TEMP:BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm"
+    assert_response 404
+    get "/build/BaseDistro"
+    assert_response :success
+    get "/build/BaseDistro/BaseDistro_repo/i586/pack2/package-1.0-1.i586.rpm"
+    assert_response :success
+  end
+
   def test_release_project
     login_tom
 
@@ -25,7 +87,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     post "/source/home:tom:BaseDistro", :cmd => :copy, :oproject => "BaseDistro", :makeolder => 1
     assert_response 403
 
-    #cleanup
+    # cleanup
     delete "/source/home:tom:BaseDistro"
     assert_response :success
 
@@ -62,7 +124,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
       assert_equal "#{vrevs[k].to_i+1}.1", files.value(:vrev)
     end
 
-    #cleanup
+    # cleanup
     delete "/source/TEST:BaseDistro"
     assert_response :success
 
@@ -86,9 +148,8 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
       assert_equal "#{vrevs[k].to_i+3}.1", files.value(:vrev)
     end
 
-    #cleanup
+    # cleanup
     delete "/source/TEST:BaseDistro"
     assert_response :success
   end
-
 end

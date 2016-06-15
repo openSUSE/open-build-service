@@ -2,7 +2,7 @@ require 'rexml/document'
 
 class Wizard
   def initialize(text = nil)
-    if ! text || text.empty?
+    if !text || text.empty?
       @data = DirtyHash.new
       @guess = DirtyHash.new
       @version = 1
@@ -105,42 +105,41 @@ class Wizard
   @@databits = {
     # note that the name is already known when running in the buildservice
     "name"        => {
-      'type'    => "text",
-      'label'   => "Name of the package",
+      'type'  => "text",
+      'label' => "Name of the package"
     },
-    "sourcefile"     => {
-      'type'    => "url",
-      'label'   => "Source file to download",
+    "sourcefile"  => {
+      'type'  => "url",
+      'label' => "Source file to download"
     },
-    "generator"    => {
+    "generator"   => {
       'type'    => "select",
       'label'   => "Generate build description",
       'options' => [
 # shall be requested from backend
         { "-" => { 'label' => "skip"} },
-        { "qmake"  => { 'label' => "qmake based code generator"} },
-      ],
+        { "qmake" => { 'label' => "qmake based code generator"} }
+      ]
     },
     "summary"     => {
-      'type'    => "text",
-      'label'   => "Short summary of the package",
+      'type'  => "text",
+      'label' => "Short summary of the package"
     },
     "description" => {
-      'type'    => "longtext",
-      'label'   => "Describe your package",
+      'type'  => "longtext",
+      'label' => "Describe your package"
     },
     "license"     => {
-      'type'    => "text",
-      'label'   => "License of the package",
+      'type'  => "text",
+      'label' => "License of the package"
     },
     "group"       => {
-      'type'    => "text",
-      'label'   => "Package group",
-      'legend'  => "See http://en.opensuse.org/SUSE_Package_Conventions/RPM_Groups",
-    },
+      'type'   => "text",
+      'label'  => "Package group",
+      'legend' => "See http://en.opensuse.org/SUSE_Package_Conventions/RPM_Groups"
+    }
   }
 
-  public
   def self.guess_version(name, tarball)
       if tarball =~ /^#{name}-(.*)\.tar\.(gz|bz2)$/i
         return $1
@@ -150,7 +149,6 @@ class Wizard
       return nil
   end
 
-  private
   # hash that sets a dirty flag on write
   class DirtyHash < Hash
     attr_reader :dirty
@@ -159,10 +157,10 @@ class Wizard
       replace(h)
     end
 
-    def []=(key,value)
+    def []=(key, value)
       if self[key] != value
         @dirty = true
-        super(key,value)
+        super(key, value)
       end
     end
   end
@@ -183,5 +181,3 @@ class Wizard
     end
   end
 end
-
-# vim:et:ts=2:sw=2

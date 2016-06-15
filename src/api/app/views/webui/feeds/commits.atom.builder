@@ -2,7 +2,7 @@
 feed_opts = { "xml:lang" => "en-US",
               "xmlns" => 'http://www.w3.org/2005/Atom' }
 schema_date = "2013-11-22"
-obs_host = URI.parse(::Configuration.first.obs_url).host
+obs_host = URI.parse(::Configuration.obs_url).host
 
 xml.feed(feed_opts) do |feed|
   feed.id "tag:#{request.host},#{schema_date}:#{request.fullpath.split(".")[0]}"
@@ -15,7 +15,7 @@ xml.feed(feed_opts) do |feed|
     feed.entry do |entry|
       package = commit.package_name
       user = commit.user_name
-      reqid = commit.bs_request_id
+      reqid = BsRequest.find(commit.bs_request_id).number if commit.bs_request_id
       datetime = commit.datetime
       url = ''
 

@@ -3,7 +3,6 @@ require 'event'
 require 'event_subscription'
 
 class EventTest < ActionDispatch::IntegrationTest
-
   fixtures :all
   set_fixture_class events: Event::Base
 
@@ -22,14 +21,14 @@ class EventTest < ActionDispatch::IntegrationTest
     e = Event::Factory.new_from_type('SRCSRV_CREATE_PACKAGE',
                                      {'project' => 'kde4',
                                       'package' => 'kdelibs',
-                                      'sender' => 'tom'})
+                                      'sender'  => 'tom'})
     assert_equal 'Event::CreatePackage', e.class.name
     assert_equal 'kdelibs', e.payload['package']
     assert_equal [], e.receiver_roles
   end
 
   test 'receive roles for build failure' do
-    assert_equal [:maintainer, :bugowner], events(:build_fails_with_deleted_user_and_request).receiver_roles
+    assert_equal [:maintainer, :bugowner, :reader], events(:build_fails_with_deleted_user_and_request).receiver_roles
   end
 
   def users_for_event(e)
@@ -51,7 +50,7 @@ class EventTest < ActionDispatch::IntegrationTest
     e = Event::Factory.new_from_type('SRCSRV_CREATE_PACKAGE',
                                      {'project' => 'kde4',
                                       'package' => 'kdebase',
-                                      'sender' => 'tom'})
+                                      'sender'  => 'tom'})
 
     # fred, fredlibs and king are maintainer, adrian is in test_group
     assert_equal %w(fred fredlibs king), users_for_event(e)
@@ -75,15 +74,16 @@ class EventTest < ActionDispatch::IntegrationTest
                              receiver_role: :all, receive: true
 
     assert_equal %w(fredlibs), users_for_event(e)
-
   end
 
   test 'create request' do
     User.current = users(:Iggy)
     req = bs_requests(:submit_from_home_project)
-    myid = req.id
+    myid = req.number
+    SendEventEmails.new.perform # empty queue
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       req.addreview by_user: 'tom', comment: 'Can you check that?'
+      SendEventEmails.new.perform
     end
     email = ActionMailer::Base.deliveries.last
 
@@ -100,17 +100,6 @@ class EventTest < ActionDispatch::IntegrationTest
 
   test 'sent all' do
     Event::NotifyBackends.trigger_delayed_sent
-  end
-
-  test 'get last' do
-if false
-# this just hangs forever, if not enough events got produced yet
-    firstcount = Event::Base.count
-    UpdateNotificationEvents.new.perform
-    oldcount = Event::Base.count
-    # the first call fetches around 100
-    assert oldcount - firstcount > 100, "oldcount: #{oldcount}, firstcount: #{firstcount} - not +100"
-end
   end
 
   test 'cleanup job' do
@@ -138,6 +127,16 @@ end
     assert_equal %w(Iggy), users_for_event(events(:build_failure_for_iggy))
   end
 
+  test 'reader mails for build failure' do
+    # for this test we don't want fixtures to interfere
+    EventSubscription.delete_all
+
+    # just one subsciption
+    EventSubscription.create eventtype: 'Event::BuildFail', receiver_role: :reader, user: users(:fred)
+
+    assert_equal %w(fred), users_for_event(events(:build_failure_for_reader))
+  end
+
   test 'maintainer mails for source service fail' do
     # for this test we don't want fixtures to interfere
     EventSubscription.delete_all
@@ -148,4 +147,32 @@ end
     assert_equal %w(Iggy), users_for_event(events(:service_failure_for_iggy))
   end
 
+  test 'package maintainer mail' do
+    ActionMailer::Base.deliveries.clear
+    User.current = users(:Iggy)
+    req = bs_requests(:submit_from_home_project)
+    myid = req.number
+    SendEventEmails.new.perform # empty queue
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
+      req.addreview by_project: 'home:Iggy', by_package: 'TestPack', comment: 'Can you check that?'
+      SendEventEmails.new.perform
+    end
+    email = ActionMailer::Base.deliveries.last
+
+    assert_equal "Request #{myid} requires review (submit Apache/BranchPack)", email.subject
+    # fred is maintainer of the package, hidden_homer of the project, Iggy triggers the event, so doesn't get email
+    assert_equal %w(fred@feuerstein.de homer@nospam.net), email.to.sort
+
+    # now verify another review sends other emails
+    ActionMailer::Base.deliveries.clear
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
+      req.addreview by_project: 'Apache', by_package: 'apache2', comment: 'Can you check that?'
+      SendEventEmails.new.perform
+    end
+    email = ActionMailer::Base.deliveries.last
+
+    assert_equal "Request #{myid} requires review (submit Apache/BranchPack)", email.subject
+    # fred and fredlibs are project maintainers, apache2 has no package maintainer - and they share the email address (DUDE!)
+    assert_equal %w(fred@feuerstein.de fred@feuerstein.de), email.to
+  end
 end

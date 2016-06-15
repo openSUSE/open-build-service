@@ -1,18 +1,133 @@
+# encoding: utf-8
 require_relative '../../test_helper'
 
 class Webui::ProjectControllerTest < Webui::IntegrationTest
-
   uses_transaction :test_admin_can_delete_every_project
   uses_transaction :test_create_project_publish_disabled
 
-  test 'project show' do
+  def test_save_distributions
+    login_tom
+    visit "/project/add_repository_from_default_list/home:tom"
+    check("OBS Base 2.0")
+    find("#submitrepos").click
+    page.must_have_text "Successfully added repositories"
+    assert_equal "/project/repositories/home:tom", page.current_path
+
+    # Test that repository checkbox get's disabled
+    visit "/project/add_repository_from_default_list/home:tom"
+    assert find("input#repo_Base_repo").disabled?,
+           "Checkbox for 'OBS Base 2.0' should be disabled"
+  end
+
+  def test_change_project_info # spec/features/webui/projects_spec.rb
+    login_king to: project_show_path(project: 'LocalProject')
+
+    click_link 'Edit description'
+    page.must_have_text 'Edit Project Information of'
+
+    fill_in 'project_title', with: 'My Title hopefully got changed'
+    fill_in 'project_description', with: 'New description. Not kidding.. Brand new!'
+    click_button 'Update Project'
+
+    find(:id, 'project_title').text.must_equal 'My Title hopefully got changed'
+    find(:id, 'description-text').text.must_equal 'New description. Not kidding.. Brand new!'
+  end
+
+  def test_save_repository
+    use_js
+    login_tom
+
+    visit "/project/repositories/home:tom"
+    within("div.repository-container", text: "SourceprotectedProject_repo") do
+      click_link 'Edit repository'
+    end
+    click_link("Add additional path to this repository")
+
+    fill_in("target_project", with: "Apache")
+    page.execute_script("$('#target_project').keydown();")
+    find(".ui-menu-item").click
+    find("select#target_repo").select("SUSE_Linux_10.1")
+    click_button("Add path to repository SourceprotectedProject_repo")
+
+    assert_equal "/project/repositories/home:tom", page.current_path
+    # Basic repository related information
+    page.must_have_text "BaseDistro3/BaseDistro3_repo Apache/SUSE_Linux_10.1"
+
+    within("div.repository-container", text: "SourceprotectedProject_repo") do
+      click_link 'Edit repository'
+    end
+    # The more detailed view
+    within "form#update_target_form-SourceprotectedProject_repo" do
+      page.must_have_text "Apache/SUSE_Linux_10.1"
+    end
+
+    # Verify the repo really has been added
+    path_element = PathElement.where(
+      repository: Repository.find_by_name("SourceprotectedProject_repo"),
+      link:       Repository.find_by_name("SUSE_Linux_10.1")
+    ).first
+
+    assert path_element
+    assert_equal 2, path_element.position
+  end
+
+  def test_save_distributions_with_existing_repository
+    login_tom
+
+    visit "/project/add_repository_from_default_list/home:tom"
+    check("OBS Base 2.0")
+
+    # Fake that the project got added meanwhile, eg. when a user has a second screen open
+    project = Project.find_by(name: "home:tom")
+    repository = Repository.create(db_project_id: project.id, name: "Base_repo")
+    repository.path_elements.create(link: repository, position: 1)
+
+    check("OBS Base 2.0")
+    find("#submitrepos").click
+    page.must_have_text "Can't add repositories: Validation failed: Name Base_repo is already used by a repository of this project."
+    assert_equal "/project/add_repository_from_default_list/home:tom", page.current_path
+  ensure
+    repository.destroy if defined?(:repository)
+  end
+
+  def test_project_show
+    use_js
     visit project_show_path(project: 'Apache')
     page.must_have_selector '#project_title'
+
+    within "table#packages_table_wrapper_table" do
+      assert_equal "apache2", find(:xpath, '(.//td/a)[1]').text
+      assert_equal "libapr-util1", find(:xpath, '(.//td/a)[2]').text
+      assert_equal "Taskjuggler", find(:xpath, '(.//td/a)[3]').text
+      assert_equal "Tidy", find(:xpath, '(.//td/a)[4]').text
+    end
+
     visit '/project/show?project=My:Maintenance'
     page.must_have_selector '#project_title'
   end
 
-  test 'kde4 has two packages' do
+  uses_transaction :test_project_show_inherited_packages
+  def test_project_show_inherited_packages
+    use_js
+    visit project_show_path(project: 'BaseDistro:Update')
+    page.must_have_selector '#project_title'
+    click_link("Inherited Packages")
+    within "table#ipackages_wrapper_table" do
+      assert_equal "_product", find(:xpath, '(.//td/a)[1]').text
+      assert_equal "_product:fixed-release", find(:xpath, '(.//td/a)[2]').text
+      assert_equal "pack1", find(:xpath, '(.//td/a)[3]').text
+      # "pack2" is filtered since it exists in :Update project
+      assert_equal "Pack3", find(:xpath, '(.//td/a)[4]').text
+      assert_equal "patchinfo", find(:xpath, '(.//td/a)[5]').text
+    end
+  end
+
+  def test_project_show_remote_instances
+    visit project_show_path(project: 'RemoteInstance')
+    page.must_have_text "Links against the remote OBS instance at: http://localhost:3200"
+  end
+
+  def test_kde4_has_two_packages
     use_js
 
     visit '/project/show?project=kde4'
@@ -23,7 +138,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     end
   end
 
-  test 'adrian can edit kde4' do
+  def test_adrian_can_edit_kde4
     # adrian is maintainer via group on kde4
     login_adrian to: project_show_path(project: 'kde4')
 
@@ -34,38 +149,25 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
   def create_subproject
     login_tom to: project_subprojects_path(project: 'home:tom')
-    find(:id, 'link-create-subproject').click
+    find(:id, 'create_subproject_link').click
   end
 
-  test 'create project publish disabled' do
-    create_subproject
-    fill_in 'name', with: 'coolstuff'
-    find(:id, 'disable_publishing').click
-    find_button('Create Project').click
-    find(:link, 'Repositories').click
-    # publish disabled icon should appear
-    page.must_have_selector 'div.icons-publish_disabled_blue'
-  end
-
-  test 'create invalid ns' do
-    login_tom to: project_new_path(ns: 'home:toM')
-    flash_message.must_equal "Invalid namespace name 'home:toM'"
-  end
-
-  test 'create hidden project' do
+  def test_create_hidden_project
     use_js
 
     create_subproject
 
-    fill_in 'name', with: 'hiddenstuff'
+    fill_in 'project_name', with: 'hiddenstuff'
     find(:id, 'access_protection').click
     find_button('Create Project').click
 
     find(:id, 'advanced_tabs_trigger').click
     find(:link, 'Meta').click
 
-    # TODO: find a more reliable way to retrieve the text - having the line numbers in here sounds dangerous
-    find(:css, 'div.CodeMirror-lines').must_have_text %r{<access> 6 <disable/> 7 </access>}
+    editor_lines = page.evaluate_script("editors[0].getValue()").lines.map(&:strip)
+    assert_equal editor_lines[4], "<access>"
+    assert_equal editor_lines[5], "<disable/>"
+    assert_equal editor_lines[6], "</access>"
 
     # now check that adrian can't see it
     logout
@@ -74,62 +176,55 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.wont_have_text 'hiddenstuff'
   end
 
-  test 'delete subproject redirects to parent' do
+  def test_delete_subproject_redirects_to_parent
     use_js
 
     create_subproject
-    fill_in 'name', with: 'toberemoved'
+    fill_in 'project_name', with: 'toberemoved'
     find_button('Create Project').click
 
     find(:id, 'delete-project').click
     find_button('Ok').click
-    find('#flash-messages').must_have_text "Project 'home:tom:toberemoved' was removed successfully"
+    find('#flash-messages').must_have_text "Project was successfully removed."
     # now the actual assertion :)
-    assert page.current_url.end_with?(project_show_path(project: 'home:tom')), "#{page.current_url} does not end with #{project_show_path(project: 'home:tom')}"
+    assert page.current_url.end_with?(project_show_path(project: 'home:tom')),
+           "#{page.current_url} does not end with #{project_show_path(project: 'home:tom')}"
   end
 
-  test 'delete home project' do
-    use_js
-
-    login_user('user1', '123456', to: project_show_path(project: 'home:user1'))
-
-    # now on to a suprise - the project needs to be created on first login
-    find_button('Create Project').click
-
-    find(:id, 'delete-project').click
-    find_button('Ok').click
-
-    find('#flash-messages').must_have_text "Project 'home:user1' was removed successfully"
-    # now the actual assertion :)
-    assert page.current_url.end_with? project_list_public_path
+  def test_delete_project_with_local_devel_package_defintions
+    skip("project deletion must work without force")
   end
 
-  test 'admin can delete every project' do
+  def test_delete_project_with_external_devel_package_defintions
+    skip("project deletion must fail. we should offer a force option to ignore it and remove anyway.")
+  end
+
+  def test_admin_can_delete_every_project
     use_js
 
     login_king to: project_show_path(project: 'LocalProject')
     find(:id, 'delete-project').click
-    find_button('Ok').click
+    click_button('Ok')
 
-    flash_message.must_equal "Project 'LocalProject' was removed successfully"
-    assert page.current_url.end_with? project_list_public_path
+    flash_message.must_equal "Project was successfully removed."
+    assert page.current_url.end_with? projects_path
     find('#project_list').wont_have_text 'LocalProject'
 
     # now that it worked out we better make sure to recreate it.
     # The API database is rolled back on test end, but the backend is not
-    visit project_new_path
-    fill_in 'name', with: 'LocalProject'
+    visit new_project_path
+    fill_in 'project_name', with: 'LocalProject'
     find_button('Create Project').click
   end
 
-  test 'request project repository target removal' do
+  def test_request_project_repository_target_removal
     use_js
 
     # Let user1 create a project with a repo that others can request to delete
     login_adrian to: project_show_path(project: 'home:adrian')
     find(:link, 'Subprojects').click
-    find(:link, 'Create subproject').click
-    fill_in 'name', with: 'hasrepotoremove'
+    find(:link, 'create_subproject_link').click
+    fill_in 'project_name', with: 'hasrepotoremove'
     find_button('Create Project').click
     find(:link, 'Repositories').click
     find(:link, 'Add repositories').click
@@ -158,7 +253,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     login_adrian to: project_show_path(project: 'home:adrian:hasrepotoremove')
     find('#tab-requests a').click # The project tab "Requests"
     find('.request_link').click # Should be the first and only request for this project
-    find(:id, 'description_text').text.must_equal "I don't like the repo"
+    find(:id, 'description-text').text.must_equal "I don't like the repo"
     fill_in 'reason', with: 'really? ok'
     find(:id, 'accept_request_button').click
     visit project_show_path(project: 'home:adrian:hasrepotoremove')
@@ -166,7 +261,8 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.wont_have_selector '#images' # The repo "images" should be gone by now
   end
 
-  test 'add repo' do
+  uses_transaction :test_add_and_modify_repo
+  def test_add_and_modify_repo
     use_js
 
     visit project_repositories_path(project: 'home:Iggy')
@@ -175,32 +271,191 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.wont_have_link 'Delete Repository'
 
     create_subproject
-    fill_in 'name', with: 'addrepo'
+    fill_in 'project_name', with: 'addrepo'
     find_button('Create Project').click
     find('#tab-repositories a').click
     find(:link, 'Add repositories').click
     find(:id, 'repo_images').click # aka "KIWI image build" checkbox
     find_button('Add selected repositories').click
-    assert first(:id, 'images')
+
+    assert first('strong a', text: "images")
 
     find(:link, 'Add repositories').click
-    find(:link, 'advanced interface').click
-    fill_autocomplete 'target_project', with: 'Local', select: 'LocalProject'
+    find(:link, 'Expert mode').click
+    fill_autocomplete 'target_project', with: 'Base', select: 'BaseDistro'
 
     # wait for the ajax loader to disappear
     page.wont_have_selector 'input[disabled]'
 
     # wait for autoload of repos
-    find('#target_repo').select('pop')
+    find('#target_repo').select('BaseDistro_repo')
 
-    find_field('repo_name').value.must_equal 'LocalProject_pop'
+    find_field('repo_name').value.must_equal 'BaseDistro_BaseDistro_repo'
     page.wont_have_selector '#add_repository_button[disabled]'
     # somehow the autocomplete logic creates a problem - and click_button refuses to click
     page.execute_script "$('#add_repository_button').click();"
-    find(:id, 'flash-messages').must_have_text 'Build targets were added successfully'
+    find(:id, 'flash-messages').must_have_text 'Successfully added repository'
+
+    # add additional path to BaseDistro_BaseDistro_repo
+    within("div.repository-container", text: "BaseDistro_BaseDistro_repo") do
+      click_link 'Edit repository'
+    end
+    find(:link, 'Add additional path to this repository').click
+    fill_autocomplete 'target_project', with: 'BaseDistro', select: 'BaseDistro:Update'
+    page.wont_have_selector 'input[disabled]'
+    find('#target_repo').select('BaseDistroUpdateProject_repo')
+    page.wont_have_selector '#add_repository_button[disabled]'
+    # somehow the autocomplete logic creates a problem - and click_button refuses to click
+    page.execute_script "$('#add_repository_button').click();"
+    find(:id, 'flash-messages').must_have_text 'Successfully added repository'
+
+    # move BaseDistro:Update path down
+    within("div.repository-container", text: "BaseDistro_BaseDistro_repo") do
+      click_link 'Edit repository'
+    end
+    click_link 'move_path_up-BaseDistro:Update_BaseDistroUpdateProject_repo'
+    find(:id, 'flash-messages').must_have_text 'Path moved up successfully'
+
+    # move BaseDistro:Update path up again
+    within("div.repository-container", text: "BaseDistro_BaseDistro_repo") do
+      click_link 'Edit repository'
+    end
+    click_link 'move_path_down-BaseDistro:Update_BaseDistroUpdateProject_repo'
+    find(:id, 'flash-messages').must_have_text 'Path moved down successfully'
+
+    # disable arch_i586 for images repository
+    within("div.repository-container", text: "images") do
+      click_link 'Edit repository'
+    end
+    page.must_have_text 'Edit images' # popup opened
+    uncheck('arch_i586')
+    click_button 'Update images'
+
+    # now check again
+    page.must_have_text 'images (x86_64)'
+
+    # check API too
+    get '/source/home:tom:addrepo/_meta'
+    assert_response :success
+    assert_xml_tag :parent => { :tag => "repository", :attributes => { name: "images" } },
+                   :tag => "arch", :content => "x86_64"
   end
 
-  test 'list all' do
+  def test_save_meta
+    use_js
+
+    login_adrian
+    visit(project_show_path(project: "home:adrian"))
+
+    # Test reading meta data
+    click_link("Advanced")
+    click_link("Meta")
+    # Note that textarea#editor_0 is a hidden element.
+    # This isn't ideal for a test, but best we can do to test this part of the ui
+    assert find(:css, "textarea#editor_0", visible: false).
+      text(:all).include?("<title>adrian's Home Project</title>")
+
+    # Test writing valid meta data
+    xml = <<-XML.gsub(/(?:\s*\n|^\s*)/, '') # evaluate_script fails otherwise
+<project name='home:adrian'>
+  <title>My Home Project</title>
+  <description/>
+  <person userid='adrian' role='maintainer'/>
+</project>
+XML
+    # Workaround. There doesn't seem to be a way to change stored meta content via the textarea.
+    page.evaluate_script("editors[0].setValue(\"#{xml}\");")
+    click_button("Save")
+    find(:id, 'flash-messages').must_have_text("Config successfully saved!")
+    click_link("Meta")
+    meta_xml = find(:css, "textarea#editor_0", visible: false).text(:all)
+    result = Nokogiri::XML(meta_xml)
+    assert_select result, "project", name: "home:adrian" do
+      assert_select "title", "My Home Project", 1
+      assert_select "description[not(text())]", 1, "Should have an empty description"
+      assert_select "person", userid: "adrian", role: "maintainer"
+    end
+    assert_equal 3, result.xpath("/project/child::*").count, "Should not have additional nodes."
+
+    # test writing invalid meta data
+    xml = "<project name='home:adrian'> <title>My Home Project</title </project>"
+    page.evaluate_script("editors[0].setValue(\"#{xml}\");")
+    click_button("Save")
+    find(:id, 'flash-messages').must_have_text("project validation error: expected '>'")
+
+    xml = "<project name='home:adrian'><title>My Home Project</title></project>"
+    page.evaluate_script("editors[0].setValue(\"#{xml}\");")
+    click_button("Save")
+    find(:id, 'flash-messages').
+      must_have_text("project validation error: Expecting an element description, got nothing")
+
+    # Trigger data reload and verify that nothing was saved
+    click_link("Meta")
+    meta_xml = find(:css, "textarea#editor_0", visible: false).text(:all)
+    result = Nokogiri::XML(meta_xml)
+    assert_select result, "project", name: "home:adrian" do
+      assert_select "title", "My Home Project", 1
+      assert_select "description[not(text())]", 1, "Should have an empty description"
+      assert_select "person", userid: "adrian", role: "maintainer"
+    end
+    assert_equal 3, result.xpath("/project/child::*").count, "Should not have additional nodes."
+  end
+
+  def test_save_meta_permission_check
+    use_js
+
+    login_adrian
+    visit(project_show_path(project: "home:adrian"))
+
+    # Test reading meta data
+    click_link("Advanced")
+    click_link("Meta")
+
+    # Test writing valid meta data
+    xml = <<-XML.gsub(/(?:\s*\n|^\s*)/, '') # evaluate_script fails otherwise
+<project name='home:adrian'>
+  <title>My Home Project</title>
+  <description/>
+  <remoteurl>http://remote.instance.org/</remoteurl>
+  <person userid='adrian' role='maintainer'/>
+</project>
+XML
+    # Workaround. There doesn't seem to be a way to change stored meta content via the textarea.
+    page.evaluate_script("editors[0].setValue(\"#{xml}\");")
+    click_button("Save")
+    find(:id, 'flash-messages').must_have_text("Admin rights are required to change projects using remote resources")
+
+    # not saved
+    assert_nil Project.find_by_name("home:adrian").remoteurl
+
+    # same with download url in repo
+    visit(project_show_path(project: "home:adrian"))
+
+    # Test reading meta data
+    click_link("Advanced")
+    click_link("Meta")
+
+    # Test writing valid meta data
+    xml = <<-XML.gsub(/(?:\s*\n|^\s*)/, '') # evaluate_script fails otherwise
+<project name='home:adrian'>
+  <title>My Home Project</title>
+  <description/>
+  <person userid='adrian' role='maintainer'/>
+  <repository name='standard'>
+    <download arch='x86_64' url='http://somewhere/' repotype='rpmmd'/>
+  </repository>
+</project>
+XML
+    # Workaround. There doesn't seem to be a way to change stored meta content via the textarea.
+    page.evaluate_script("editors[0].setValue(\"#{xml}\");")
+    click_button("Save")
+    find(:id, 'flash-messages').must_have_text("Admin rights are required to change projects using remote resources")
+
+    # not saved
+    assert_nil Project.find_by_name("home:adrian").remoteurl
+  end
+
+  def test_list_all
     use_js
 
     visit project_list_public_path
@@ -214,15 +469,16 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     find(:id, 'project_list').must_have_link 'BaseDistro'
     find(:id, 'project_list').wont_have_link 'HiddenProject'
     find(:id, 'project_list').wont_have_link 'home:adrian'
-    uncheck('excludefilter')
+
+    click_link('Include home projects')
     find(:id, 'project_list').must_have_link 'home:adrian'
 
-    login_king to: project_list_public_path
+    login_king to: projects_path
     find(:id, 'projects_table_length').select('100')
     find(:id, 'project_list').must_have_link 'HiddenProject'
   end
 
-  test 'Iggy adds himself as reviewer' do
+  def test_Iggy_adds_himself_as_reviewer
     use_js
     login_Iggy to: project_users_path(project: 'home:Iggy')
     check('user_reviewer_Iggy')
@@ -233,7 +489,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.must_have_text '<person userid="Iggy" role="reviewer"/>'
   end
 
-  test 'Iggy removes homer as maintainer' do
+  def test_Iggy_removes_homer_as_maintainer
     login_Iggy to: project_users_path(project: 'home:Iggy')
     uncheck 'user_maintainer_hidden_homer'
     # wait for it to be clickable again before switching pages
@@ -243,7 +499,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.wont_have_text '<person userid="homer" role="maintainer"/>'
   end
 
-  test 'check status' do
+  def test_check_status
     visit project_status_path(project: 'LocalProject')
     page.must_have_text 'Include version updates' # just don't crash
   end
@@ -256,63 +512,36 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     assert_equal should, lines.join("\n")
   end
 
-  test 'succesful comment creation' do
-    use_js
-
+  def test_successful_comment_creation
     login_tom to: '/project/show/home:Iggy'
+    SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       fill_in 'body', with: 'Comment Body'
       find_button('Add comment').click
-      find('#flash-messages').must_have_text 'Comment added successfully '
+      find('#flash-messages').must_have_text 'Comment was successfully created.'
+      SendEventEmails.new.perform
     end
     email = ActionMailer::Base.deliveries.last
     verify_email('project_comment', email)
   end
 
-  test 'another succesful comment creation' do
-    login_Iggy to: '/project/show?project=home:Iggy'
-    fill_in 'body', with: 'Comment Body'
+  def test_unsuccessful_comment_creation
+    login_tom to: '/project/show/home:Iggy'
     find_button('Add comment').click
-    find('#flash-messages').must_have_text 'Comment added successfully '
+    find('#flash-messages').must_have_text "Comment can't be saved: Body can't be blank."
   end
 
-  test 'succesful reply comment creation' do
+  def test_successful_reply_comment_creation
     use_js
+
     login_Iggy to: '/project/show/BaseDistro'
     find(:id, 'reply_link_id_100').click
     fill_in 'reply_body_100', with: 'Comment Body'
     find(:id, 'add_reply_100').click
-    find('#flash-messages').must_have_text 'Comment added successfully '
+    find('#flash-messages').must_have_text 'Comment was successfully created.'
   end
 
-  test 'removing architectures in repo works' do
-    use_js
-    login_Iggy to: project_repositories_path(project: 'home:Iggy')
-
-    page.must_have_text '10.2 (i586, x86_64)'
-    click_link 'Edit repository'
-    page.must_have_text 'Edit 10.2' # popup opened
-    uncheck('arch_i586')
-    click_button 'Update 10.2'
-
-    # wait for the button to be disabled again before continue
-    page.must_have_xpath('.//input[@id="save_button"][@disabled="disabled"]')
-
-    # now check again
-    visit project_repositories_path(project: 'home:Iggy')
-    page.must_have_text '10.2 (x86_64)'
-
-    # verify _meta
-    visit project_meta_path(project: 'home:Iggy')
-    page.wont_have_text '<arch>i586</arch>'
-
-    # check API too
-    get '/source/home:Iggy/_meta'
-    assert_response :success
-    assert_equal('x86_64', Xmlhash.parse(@response.body)['repository']['arch'])
-  end
-
-  test 'buildresults' do
+  def test_buildresults
     use_js
 
     visit project_show_path(project: 'home:Iggy')
@@ -336,14 +565,14 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     page.must_have_text 'There are no cycles for x86_64'
   end
 
-  test 'repository links' do
+  def test_repository_links
     visit project_repositories_path(project: 'home:Iggy')
     all(:link, '10.2').each do |l|
       l['href'].must_equal project_repository_state_path(project: 'home:Iggy', repository: '10.2')
     end
   end
 
-  test 'request deletion' do
+  def test_request_deletion
     use_js
 
     login_tom to: project_show_path(project: 'home:Iggy')
@@ -356,27 +585,27 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     click_button 'Revoke request'
   end
 
-  test 'add maintenance project' do
+  def test_add_maintenance_project
     use_js
 
     login_king to: project_show_path(project: 'My:Maintenance')
     click_link 'maintained projects'
     click_link 'Add project to maintenance'
-    fill_autocomplete 'maintained_project', with: 'Apa', select: 'Apache'
+    fill_autocomplete 'maintained_project', with: 'Apache', select: 'Apache'
     click_button 'Ok'
     page.must_have_link 'Apache'
   end
 
-  test 'zypper on webui' do
+  def test_zypper_on_webui
     # people do strange things
     visit '/project/repository_state/Apache/content?repository=SLE11'
     flash_message.must_equal "Repository 'content' not found"
   end
 
-  test 'do not cache hidden' do
+  def test_do_not_cache_hidden
     use_js
 
-    login_king to: project_list_all_path
+    login_king to: projects_path
     # king can see HiddenProject
     page.must_have_link 'HiddenProject'
 
@@ -391,12 +620,149 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     # adrian is in test group, which is maintainer so he should see it too
     page.must_have_link 'HiddenProject'
   end
-  
-  test 'rebuild time on apache' do
+
+  def test_rebuild_time_on_apache
     login_tom to: project_rebuild_time_path(project: 'Apache', arch: 'i586', repository: 'SUSE_Linux_Factory')
 
-    page.must_have_link 'Apache' 
+    page.must_have_link 'Apache'
     # we only test it's not crashing here
     page.must_have_text 'Rebuildtime: '
+  end
+
+  def test_create_home_project_for_user
+    login_user('user1', 'buildservice')
+    count = Project.count
+
+    visit new_project_path
+
+    fill_in 'project_name', with: 'home:user1'
+    click_button('Create Project')
+
+    assert_equal count + 1, Project.count
+
+    assert Relationship.where(project: Project.find_by_name("home:user1"),
+                              user: User.find_by_login("user1"),
+                              role: Role.find_by_title("maintainer")).count > 0
+  end
+
+  def test_create_home_project_for_user_not_allowed
+    login_user('user1', 'buildservice')
+    count = Project.count
+
+    # try to create it, but server config is not permitting it
+    Configuration.stubs(:allow_user_to_create_home_project).returns(false)
+
+    visit new_project_path
+    fill_in 'project_name', with: 'home:user1'
+    click_button('Create Project')
+
+    assert_equal count, Project.count
+    flash_message.must_equal "Sorry, you are not authorized to create this Project."
+    flash_message_type.must_equal :alert
+  end
+
+  def test_create_global_project
+    login_king to: new_project_path
+    count = Project.count
+
+    fill_in 'project_name', with: 'PublicProject'
+    fill_in 'project_title', with: 'NewTitle'
+    click_button('Create Project')
+
+    assert_equal count + 1, Project.count
+  end
+
+  def test_create_global_project_as_user
+    login_Iggy to: new_project_path
+    count = Project.count
+
+    fill_in 'project_name', with: 'PublicProject1'
+    fill_in 'project_title', with: 'NewTitle'
+    click_button('Create Project')
+
+    assert_equal count, Project.count
+    flash_message.must_equal "Sorry, you are not authorized to create this Project."
+    flash_message_type.must_equal :alert
+  end
+
+  def test_breadcrumbs
+    login_king to: new_project_path
+    count = Project.count
+
+    fill_in 'project_name', with: "my_project"
+    fill_in 'project_title', with: 'none'
+    click_button('Create Project')
+
+    assert_equal count + 1, Project.count
+
+    visit project_subprojects_path project: "my_project"
+    click_link('create_subproject_link')
+
+    fill_in :project_name, with: 'b'
+    click_button('Create Project')
+
+    # the parent project should be clickable
+    within '#breadcrump' do
+      find(:link, "my_project").text.must_equal "my_project"
+    end
+  end
+
+  def test_breadcrumps_with_subproject_first
+    login_king to: new_project_path
+    count = Project.count
+
+    fill_in 'project_name', with: "my_other_project:sub"
+    click_button('Create Project')
+
+    assert_equal count + 1, Project.count
+
+    visit new_project_path
+    fill_in :project_name, with: "my_other_project"
+    click_button 'Create Project'
+
+    assert_equal count + 2, Project.count
+
+    visit project_show_path project: "my_other_project:sub"
+
+    # the parent project should be clickable
+    within '#breadcrump' do
+      find(:link, "my_other_project").text.must_equal "my_other_project"
+    end
+  end
+
+  def test_config_file
+    use_js
+
+    login_Iggy to: project_users_path(project: 'home:Iggy')
+    click_link 'advanced_tabs_trigger'
+    click_link 'Project Config'
+    config_value = page.evaluate_script("editors[0].getValue()")
+    assert_equal config_value, File.read("test/fixtures/files/home_iggy_project_config.txt").strip
+  end
+
+  def test_updating_config_file
+    use_js
+
+    project_config = File.read("test/fixtures/files/home_iggy_project_config.txt")
+    new_project_config = File.read("test/fixtures/files/new_home_iggy_project_config.txt")
+
+    login_Iggy to: project_users_path(project: 'home:Iggy')
+    click_link 'advanced_tabs_trigger'
+    click_link 'Project Config'
+    page.execute_script("editors[0].setValue(\"#{new_project_config.gsub("\n", '\n')}\")")
+    click_button 'Save'
+
+    visit project_show_path project: "home:Iggy"
+    click_link 'advanced_tabs_trigger'
+    click_link 'Project Config'
+    config_value = page.evaluate_script("editors[0].getValue()")
+    assert_equal config_value, new_project_config
+
+    # Leave the backend file as it was
+    put '/source/home:Iggy/_config?' + {
+        project: 'home:Iggy',
+        comment: 'Updated by test'
+      }.to_query, project_config
+    assert_response :success
   end
 end

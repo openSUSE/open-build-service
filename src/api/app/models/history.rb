@@ -1,8 +1,7 @@
 # this class is used to fetch all history elements and order them
 
 class History
-
-  def self.find_by_request(request, opts={})
+  def self.find_by_request(request, opts = {})
      if opts[:withreviews]
        req_history = HistoryElement::Request.where(op_object_id: request.id)
 
@@ -19,6 +18,4 @@ class History
   def self.find_by_review(review)
      HistoryElement::Review.where(op_object_id: review.id).order(:created_at)
   end
-
 end
-

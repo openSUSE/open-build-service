@@ -23,5 +23,4 @@ class Token < ActiveRecord::Base
     self.string = SecureRandom.base64(30) # 30 bytes leads to 40 chars string
     self.save!
   end
-
 end

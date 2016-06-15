@@ -3,12 +3,11 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'source_controller'
 
 class BranchPublishFlagTest < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   def setup
-    super
     wait_for_scheduler_start
+    reset_auth
   end
 
   @@verbose = false
@@ -88,4 +87,3 @@ class BranchPublishFlagTest < ActionDispatch::IntegrationTest
     branch_helper(false, false)
   end
 end
-

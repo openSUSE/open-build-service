@@ -1,14 +1,15 @@
 class AttributeController < ApplicationController
-
   include ValidationHelper
 
   validate_action :index => {:method => :get, :response => :directory}
   validate_action :namespace_definition => {:method => :get, :response => :attribute_namespace_meta}
   validate_action :namespace_definition => {:method => :delete, :response => :status}
+  validate_action :namespace_definition => {:method => :put, :request => :attribute_namespace_meta, :response => :status}
   validate_action :namespace_definition => {:method => :post, :request => :attribute_namespace_meta, :response => :status}
   validate_action :attribute_definition => {:method => :get, :response => :attrib_type}
   validate_action :attribute_definition => {:method => :delete, :response => :status}
   validate_action :attribute_definition => {:method => :put, :request => :attrib_type, :response => :status}
+  validate_action :attribute_definition => {:method => :post, :request => :attrib_type, :response => :status}
 
   def index
     if params[:namespace]
@@ -35,7 +36,6 @@ class AttributeController < ApplicationController
 
   # /attribute/:namespace/_meta
   def namespace_definition
-
     if params[:namespace].nil?
       raise MissingParameterError.new "parameter 'namespace' is missing"
     end
@@ -58,14 +58,14 @@ class AttributeController < ApplicationController
       return
     end
 
-    if request.post?
+    if request.post? || request.put?
       logger.debug "--- updating attribute namespace definitions ---"
 
       xml_element = Xmlhash.parse( request.raw_post )
 
       unless xml_element['name'] == namespace
         render_error :status => 400, :errorcode => 'illegal_request',
-          :message => "Illegal request: POST #{request.path}: path does not match content"
+          :message => "Illegal request: PUT/POST #{request.path}: path does not match content"
         return
       end
 
@@ -123,14 +123,14 @@ class AttributeController < ApplicationController
       return
     end
 
-    if request.post?
+    if request.post? || request.put?
       logger.debug "--- updating attribute type definitions ---"
 
       xml_element = Xmlhash.parse( request.raw_post )
 
       unless xml_element and xml_element['name'] == name and xml_element['namespace'] == namespace
         render_error :status => 400, :errorcode => 'illegal_request',
-          :message => "Illegal request: POST #{request.path}: path does not match content"
+          :message => "Illegal request: PUT/POST #{request.path}: path does not match content"
         return
       end
 
@@ -162,10 +162,6 @@ class AttributeController < ApplicationController
     setup 400, "Attribute access to remote project is not yet supported"
   end
 
-  class NotExistingAttribute < APIException
-    setup 404, "Attribute is not defined in system"
-  end
-
   class InvalidAttribute < APIException
   end
 
@@ -180,13 +176,16 @@ class AttributeController < ApplicationController
     # init
     # checks
     # exec
-    if params[:rev]
-      path = "/source/#{URI.escape(params[:project])}/#{URI.escape(params[:package]||'_project')}/_attribute?meta=1&rev=#{CGI.escape(params[:rev])}"
+    if params[:rev] or @attribute_container.nil?
+      # old or remote instance entry
+      path = "/source/#{URI.escape(params[:project])}/#{URI.escape(params[:package]||'_project')}/_attribute?meta=1"
+      path += "&rev=#{CGI.escape(params[:rev])}" if params[:rev]
       answer = Suse::Backend.get(path)
       render :text => answer.body.to_s, :content_type => 'text/xml'
-    else
-      render :text => @attribute_container.render_attribute_axml(params), :content_type => 'text/xml'
+      return
     end
+
+    render :text => @attribute_container.render_attribute_axml(params), :content_type => 'text/xml'
   end
 
   # DELETE
@@ -290,27 +289,19 @@ class AttributeController < ApplicationController
       @attribute_container = Project.get_by_name(params[:project])
     end
 
-    if @attribute_container.nil?
-      raise NotExistingAttribute.new
-    end
-
     # is the attribute type defined at all ?
-    if params[:attribute]
-      # Valid attribute
-      aname = params[:attribute]
-      name_parts = aname.split(/:/)
-      if name_parts.length != 2
-        raise InvalidAttribute.new "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
-      end
-      # existing ?
-      at = AttribType.find_by_name(params[:attribute])
-      unless at
-        raise NotExistingAttribute.new
-      end
-      # only needed for a get request
-      params[:namespace] = name_parts[0]
-      params[:name] = name_parts[1]
-    end
-  end
+    return if params[:attribute].blank?
 
+    # Valid attribute
+    aname = params[:attribute]
+    name_parts = aname.split(/:/)
+    if name_parts.length != 2
+      raise InvalidAttribute.new "attribute '#{aname}' must be in the $NAMESPACE:$NAME style"
+    end
+    # existing ?
+    AttribType.find_by_name!(params[:attribute])
+    # only needed for a get request
+    params[:namespace] = name_parts[0]
+    params[:name] = name_parts[1]
+  end
 end

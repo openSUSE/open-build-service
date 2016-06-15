@@ -1,31 +1,22 @@
 class Webui::ApidocsController < Webui::WebuiController
-
-  include Webui::WebuiHelper
   # Apidocs is insensitive static information, no login needed therefore
   skip_before_filter :extract_user
-  
-  # the main purpose of this subfunction is easier stubing
-  def indexpath
-    filename = File.expand_path(CONFIG['apidocs_location']) + "/index"
-    if !File.exist?( filename + ".html" )
-      return nil
-    else
-      return filename
-    end
-  end
 
   def index
-    filename = indexpath
-    unless filename
-      flash[:error] = "Unable to load API documentation source file: #{CONFIG['apidocs_location']}"
-      redirect_back_or_to :controller => 'main', :action => 'index'
-    else
+    filename = File.expand_path(CONFIG['apidocs_location']) + "/index.html"
+    if File.exist?(filename)
       render :file => filename, formats: [:html]
+    else
+      logger.error "Unable to load apidocs index file from #{CONFIG['apidocs_location'] }. Did you create the apidocs?"
+      flash[:error] = "Unable to load API documentation."
+      redirect_back_or_to root_path
     end
   end
 
   def file
-    file = File.expand_path( File.join(CONFIG['schema_location'], params[:filename]) )
+    # Ensure it really is just a file name, no '/..', etc.
+    filename = File.basename(params[:filename])
+    file = File.expand_path( File.join(CONFIG['schema_location'], filename) )
     if File.exist?( file )
       send_file( file, :type => "text/xml", :disposition => "inline" )
     else
@@ -34,5 +25,4 @@ class Webui::ApidocsController < Webui::WebuiController
     end
     return
   end
-
 end

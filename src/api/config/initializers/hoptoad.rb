@@ -8,7 +8,7 @@ HoptoadNotifier.configure do |config|
     config.development_environments = "development test"
   end
 
-  config.ignore_only = %w{ 
+  config.ignore_only = %w{
   ActiveRecord::RecordNotFound
   ActionController::InvalidAuthenticityToken
   CGI::Session::CookieStore::TamperedWithCookie
@@ -19,11 +19,12 @@ HoptoadNotifier.configure do |config|
   Net::HTTPBadResponse
   WebuiMatcher::InvalidRequestFormat
   ActionController::UnknownFormat
+  ActivXML::Transport::NotFoundError
   }
- 
+
   config.ignore_by_filter do |exception_data|
     ret=false
-    if exception_data[:error_class] == "ActionController::RoutingError" 
+    if exception_data[:error_class] == "ActionController::RoutingError"
       message = exception_data[:error_message]
       ret=true if message =~ %r{Required Parameter}
       ret=true if message =~ %r{\[GET\]}
@@ -31,5 +32,4 @@ HoptoadNotifier.configure do |config|
     end
     ret
   end
-
 end

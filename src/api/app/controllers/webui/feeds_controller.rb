@@ -1,9 +1,8 @@
 class Webui::FeedsController < Webui::WebuiController
-
-  include Webui::WebuiHelper
   include StatisticsCalculations
 
   layout false
+  before_filter :set_project, only: ['commits']
 
   def news
     @news = StatusMessage.alive.limit(5)
@@ -16,14 +15,9 @@ class Webui::FeedsController < Webui::WebuiController
   end
 
   def commits
-    @project = Project.find_by_name(params[:project])
-    if @project.nil?
-      render(file: Rails.root.join('public/404'), status: 404, layout: false, formats: [:html])
-      return
-    end
     # The sourceaccess flag is checked for the project, but not for every package
     if !User.current.is_admin? && @project.disabled_for?('sourceaccess', nil, nil)
-      render file: Rails.root.join('public/403'), formats: [:html], status: :forbidden, layout: false
+      redirect_to '/403.html', :status => :forbidden
       return
     end
     unless params[:starting_at].blank?

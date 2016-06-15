@@ -22,7 +22,9 @@
 
 package BSHTTP;
 
+use POSIX;
 use Digest::MD5 ();
+use Fcntl qw(:DEFAULT);
 
 use strict;
 
@@ -32,77 +34,80 @@ sub gethead {
   my ($field, $data);
   for (split(/[\r\n]+/, $t)) {
     next if $_ eq '';
-    if (/^[ \t]/) {
-      next unless defined $field;
-      s/^\s*/ /;
-      $h->{$field} .= $_;
+    if (/^[ \t]/s) {
+      s/^\s*/ /s;
+      $h->{$field} .= $_ if defined $field;
     } else {
       ($field, $data) = split(/\s*:\s*/, $_, 2);
       $field =~ tr/A-Z/a-z/;
-      if ($h->{$field} && $h->{$field} ne '') {
-        $h->{$field} = $h->{$field}.','.$data;
-      } else {
-        $h->{$field} = $data;
-      }
+      $h->{$field} = $h->{$field} && $h->{$field} ne '' ? "$h->{$field},$data" : $data;
     }
   }
 }
 
+sub unexpected_eof {
+  my ($req) = @_;
+  $req->{'__eof'} = 1 if $req;
+  die("unexpected EOF\n");
+}
+
 #
-# read data from socket, do chunk decoding
-# hdr: header data
+# read data from socket, do chunk decoding if needed
+# req: request data
 # maxl = undef: read as much as you can
 # exact = 1: read maxl data, maxl==undef -> read to eof;
 #
 sub read_data {
-  my ($hdr, $maxl, $exact) = @_;
+  my ($req, $maxl, $exact) = @_;
 
   my $ret = '';
-  local *S = $hdr->{'__socket'};
+  my $hdr = $req->{'headers'} || {};
+  local *S = $req->{'__socket'};
   if ($hdr->{'transfer-encoding'} && lc($hdr->{'transfer-encoding'}) eq 'chunked') {
-    my $cl = $hdr->{'__cl'} || 0;
+    my $cl = $req->{'__cl'} || 0;
     if ($cl < 0) {
       die("unexpected EOF\n") if $exact && defined($maxl) && length($ret) < $maxl;
       return $ret;
     }
-    my $qu = $hdr->{'__data'};
-    while(1) {
+    my $qu = $req->{'__data'};
+    while (1) {
       if (defined($maxl) && $maxl <= $cl) {
 	while(length($qu) < $maxl) {
-          my $r = sysread(S, $qu, 8192, length($qu));
-          die("unexpected EOF\n") unless $r;
+	  my $r = sysread(S, $qu, 8192, length($qu));
+	  unexpected_eof($req) if !$r && (defined($r) || ($! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK));
 	}
 	$ret .= substr($qu, 0, $maxl);
-        $hdr->{'__cl'} = $cl - $maxl;
-        $hdr->{'__data'} = substr($qu, $maxl);
+	$req->{'__cl'} = $cl - $maxl;
+	$req->{'__data'} = substr($qu, $maxl);
 	return $ret;
       }
       if ($cl) {
 	# no maxl or maxl > cl, read full cl
 	while(length($qu) < $cl) {
-          my $r = sysread(S, $qu, 8192, length($qu));
-          die("unexpected EOF\n") unless $r;
+	  my $r = sysread(S, $qu, 8192, length($qu));
+	  unexpected_eof($req) if !$r && (defined($r) || ($! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK));
 	}
 	$ret .= substr($qu, 0, $cl);
 	$qu = substr($qu, $cl);
 	$maxl -= $cl if defined $maxl;
-        $cl = 0;
+	$cl = 0;
 	if (!defined($maxl) && !$exact) { # no maxl, return every chunk
-	  $hdr->{'__cl'} = $cl;
-	  $hdr->{'__data'} = $qu;
+	  $req->{'__cl'} = $cl;
+	  $req->{'__data'} = $qu;
 	  return $ret;
 	}
       }
+      # reached end of chunk, prepare for next one
       while ($qu !~ /\r?\n/s) {
-        my $r = sysread(S, $qu, 8192, length($qu));
-        die("unexpected EOF\n") unless $r;
+	my $r = sysread(S, $qu, 8192, length($qu));
+        unexpected_eof($req) if !$r && (defined($r) || ($! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK));
       }
       if (substr($qu, 0, 1) eq "\n") {
-        $qu = substr($qu, 1);
+	$qu = substr($qu, 1);
 	next;
       }
       if (substr($qu, 0, 2) eq "\r\n") {
-        $qu = substr($qu, 2);
+	$qu = substr($qu, 2);
 	next;
       }
       die("bad CHUNK data: $qu\n") unless $qu =~ /^([0-9a-fA-F]+)/;
@@ -110,22 +115,24 @@ sub read_data {
       die if $cl < 0;
       $qu =~ s/^.*?\r?\n//s;
       if ($cl == 0) {
-        $hdr->{'__cl'} = -1;	# mark EOF
-        die("unexpected EOF\n") if $exact && defined($maxl) && length($ret) < $maxl;
+	$req->{'__cl'} = -1;	# mark EOF
+	$req->{'__eof'} = 1;
+	die("unexpected EOF\n") if $exact && defined($maxl) && length($ret) < $maxl;
 	# read trailer
 	$qu = "\r\n$qu";
 	while ($qu !~ /\n\r?\n/s) {
-          my $r = sysread(S, $qu, 8192, length($qu));
-          die("unexpected EOF\n") unless $r;
+	  my $r = sysread(S, $qu, 8192, length($qu));
+	  unexpected_eof($req) if !$r && (defined($r) || ($! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK));
 	}
 	$qu =~ /^(.*?)\n\r?\n/;
+	# get trailing header
 	gethead($hdr, length($1) >= 2 ? substr($1, 2) : '');
 	return $ret;
       }
     }
   } else {
-    my $qu = $hdr->{'__data'};
-    my $cl = $hdr->{'__cl'};
+    my $qu = $req->{'__data'};
+    my $cl = $req->{'__cl'};
     $cl = $hdr->{'content-length'} unless defined $cl;
     if (defined($cl) && (!defined($maxl) || $maxl > $cl)) {
       die("unexpected EOF\n") if $exact && defined($maxl);
@@ -135,40 +142,48 @@ sub read_data {
       my $m = ($maxl || 0) - length($qu);
       $m = 8192 if $m < 8192;
       my $r = sysread(S, $qu, $m, length($qu));
-      if (!$r) {
-        die("unexpected EOF\n") if defined($cl) || ($exact && defined($maxl));
-        $cl = $maxl = length($qu);
+      if (!$r &&  (defined($r) || ($! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK))) {
+	$req->{'__eof'} = 1;
+	die("unexpected EOF\n") if defined($cl) || ($exact && defined($maxl));
+	$cl = $maxl = length($qu);
       }
     }
     $cl -= $maxl if defined($cl);
     $ret = substr($qu, 0, $maxl);
-    $hdr->{'__cl'} = $cl;
-    $hdr->{'__data'} = substr($qu, $maxl);
+    $req->{'__cl'} = $cl;
+    $req->{'__data'} = substr($qu, $maxl);
+    $req->{'__eof'} = 1 if defined($cl) && $cl == 0;
     return $ret;
   }
 }
 
-sub str2hdr {
+sub str2req {
   my ($str) = @_;
-  my $hdr = {
+  my $req = {
     '__data' => $str,
     '__cl' => length($str),
   };
-  return $hdr;
+  return $req;
 }
 
-sub fd2hdr {
+sub fd2req {
   my ($fd) = @_;
-  my $hdr = {
+  my $req = {
     '__data' => '',
     '__socket' => $fd,
     '__cl' => -s *$fd,
   };
-  return $hdr;
+  return $req;
+}
+
+sub null_receiver {
+  my ($req, $param) = @_;
+  1 while(read_data($req, 8192) ne '');
+  return '';
 }
 
 sub file_receiver {
-  my ($hdr, $param) = @_;
+  my ($req, $param) = @_;
 
   die("file_receiver: no filename\n") unless defined $param->{'filename'};
   my $fn = $param->{'filename'};
@@ -179,7 +194,7 @@ sub file_receiver {
   open(F, '>', $fn) || die("$fn: $!\n");
   my $size = 0;
   while(1) {
-    my $s = read_data($hdr, 8192);
+    my $s = read_data($req, 8192);
     last if $s eq '';
     (syswrite(F, $s) || 0) == length($s) || die("syswrite: $!\n");
     $size += length($s);
@@ -192,20 +207,20 @@ sub file_receiver {
 }
 
 sub cpio_receiver {
-  my ($hdr, $param) = @_;
+  my ($req, $param) = @_;
   my @res;
   my $dn = $param->{'directory'};
   my $withmd5 = $param->{'withmd5'};
   local *F;
   while(1) {
-    my $cpiohead = read_data($hdr, 110, 1);
+    my $cpiohead = read_data($req, 110, 1);
     die("cpio: not a 'SVR4 no CRC ascii' cpio\n") unless substr($cpiohead, 0, 6) eq '070701';
     my $mode = hex(substr($cpiohead, 14, 8));
     my $mtime = hex(substr($cpiohead, 46, 8));
     my $size  = hex(substr($cpiohead, 54, 8));
     if ($size == 0xffffffff) {
       # build service length extension
-      $cpiohead .= read_data($hdr, 16, 1);
+      $cpiohead .= read_data($req, 16, 1);
       $size = hex(substr($cpiohead, 62, 8)) * 4294967296. + hex(substr($cpiohead, 70, 8));
       substr($cpiohead, 62, 16) = '';
     }
@@ -213,7 +228,7 @@ sub cpio_receiver {
     die("ridiculous long filename\n") if $nsize > 8192;
     my $nsizepad = $nsize;
     $nsizepad += 4 - ($nsize + 2 & 3) if $nsize + 2 & 3;
-    my $name = read_data($hdr, $nsizepad, 1);
+    my $name = read_data($req, $nsizepad, 1);
     $name =~ s/\0.*//s;
     $name =~ s/^\.\///s;
     my $sizepad = $size;
@@ -245,7 +260,7 @@ sub cpio_receiver {
       # skip entry
       while ($sizepad) {
         my $m = $sizepad > 8192 ? 8192 : $sizepad;
-        read_data($hdr, $m, 1);
+        read_data($req, $m, 1);
         $sizepad -= $m;
       }
       next;
@@ -271,7 +286,7 @@ sub cpio_receiver {
     }
     while ($sizepad) {
       my $m = $sizepad > 8192 ? 8192 : $sizepad;
-      my $data = read_data($hdr, $m, 1);
+      my $data = read_data($req, $m, 1);
       $sizepad -= $m;
       $size -= $m;
       $m += $size if $size < 0;
@@ -293,8 +308,10 @@ sub cpio_receiver {
 }
 
 sub swrite {
-  my ($sock, $data) = @_;
+  my ($sock, $data, $chunked) = @_;
   local *S = $sock;
+  return if $chunked && $data eq '';	# can't write that
+  $data = sprintf("%X\r\n", length($data)).$data."\r\n" if $chunked;
   while (length($data)) {
     my $l = syswrite(S, $data, length($data));
     die("socket write: $!\n") unless $l;
@@ -302,73 +319,87 @@ sub swrite {
   }
 }
 
+sub makecpiohead {
+  my ($file, $s) = @_; 
+  return "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000b00000000TRAILER!!!\0\0\0\0" if !$file;
+  my $name = $file->{'name'};
+  my $mode = $file->{'mode'} || 0x81a4;
+  my $mtime = $file->{'mtime'} || $s->[9];
+  my $h = sprintf("07070100000000%08x000000000000000000000001", $mode);
+  if ($s->[7] > 0xffffffff) {
+    # build service length extension
+    my $top = int($s->[7] / 4294967296.);
+    $h .= sprintf("%08xffffffff%08x%08x", $mtime, $top, $s->[7] - $top * 4294967296.);
+  } else {
+    $h .= sprintf("%08x%08x", $mtime, $s->[7]);
+  }
+  $h .= "00000000000000000000000000000000";
+  $h .= sprintf("%08x", length($name) + 1); 
+  $h .= "00000000$name\0";
+  $h .= substr("\0\0\0\0", (length($h) & 3)) if length($h) & 3;
+  my $pad = $s->[7] % 4 ? substr("\0\0\0\0", $s->[7] % 4) : ''; 
+  return ($h, $pad);
+}
+
 sub cpio_sender {
   my ($param, $sock) = @_;
 
-  my $errors = '';
   local *F;
-  my $data;
-  for my $file (@{$param->{'cpiofiles'} || []}, {'__errors' => 1}) {
+  my ($data, $pad);
+  my $errors = {'__errors' => 1, 'name' => '.errors', 'data' => ''};
+  for my $file (@{$param->{'cpiofiles'} || []}, $errors) {
     my @s;
     if ($file->{'error'}) {
-	$errors .= "$file->{'name'}: $file->{'error'}\n";
+	$errors->{'data'} .= "$file->{'name'}: $file->{'error'}\n";
 	next;
     }
     if (exists $file->{'filename'}) {
-      if (ref($file->{'filename'})) {
-	*F = $file->{'filename'};
-      } elsif (!open(F, '<', $file->{'filename'})) {
-	$errors .= "$file->{'name'}: $file->{'filename'}: $!\n";
+      my $filename = $file->{'filename'};
+      if (ref($filename)) {
+	*F = $filename;
+      } elsif (!open(F, '<', $filename)) {
+	$errors->{'data'} .= "$file->{'name'}: $filename: $!\n";
 	next;
       }
       @s = stat(F);
-    } else {
-      if ($file->{'__errors'}) {
-	next if $errors eq '';
-        $file->{'data'} = $errors;
-        $file->{'name'} = ".errors";
+      if (!@s) {
+	$errors->{'data'} .= "$file->{'name'}: stat: $!\n";
+	close F unless ref $filename;
+	next;
       }
-      $s[7] = length($file->{'data'});
-      $s[9] = time;
-    }
-    my $mode = $file->{'mode'} || 0x81a4;
-    $data = sprintf("07070100000000%08x000000000000000000000001", $mode);
-    if ($s[7] > 0xffffffff) {
-      # build service length extension
-      my $top = int($s[7] / 4294967296.);
-      $data .= sprintf("%08xffffffff%08x%08x", $s[9], $top, $s[7] - $top * 4294967296.);
-    } else {
-      $data .= sprintf("%08x%08x", $s[9], $s[7]);
-    }
-    $data .= "00000000000000000000000000000000";
-    $data .= sprintf("%08x", length($file->{'name'}) + 1);
-    $data .= "00000000";
-    $data .= "$file->{'name'}\0";
-    $data .= substr("\0\0\0\0", (length($data) & 3)) if length($data) & 3;
-    if (exists $file->{'filename'}) {
+      if (ref($filename)) {
+	my $off = sysseek(F, 0, Fcntl::SEEK_CUR) || 0;
+	$s[7] -= $off if $off > 0;
+      }
+      ($data, $pad) = makecpiohead($file, \@s);
       my $l = $s[7];
       my $r = 0;
       while(1) {
-        $r = sysread(F, $data, $l > 8192 ? 8192 : $l, length($data)) if $l;
-        $data .= substr("\0\0\0\0", ($s[7] % 4)) if $r == $l && ($s[7] % 4) != 0;
-	$data = sprintf("%X\r\n", length($data)).$data."\r\n" if $param->{'chunked'};
-	swrite($sock, $data);
-        $data = '';
-        $l -= $r;
-        last unless $l;
+	$r = sysread(F, $data, $l > 8192 ? 8192 : $l, length($data)) if $l;
+	$data .= $pad if $r == $l;
+	swrite($sock, $data, $param->{'chunked'});
+	$data = '';
+	$l -= $r;
+	last unless $l;
       }
       die("internal error\n") if $l;
-      close F unless ref $file->{'filename'};
+      close F unless ref $filename;
     } else {
-      $data .= $file->{'data'};
-      $data .= substr("\0\0\0\0", (length($data) & 3)) if length($data) & 3;
-      $data = sprintf("%X\r\n", length($data)).$data."\r\n" if $param->{'chunked'};
-      swrite($sock, $data);
+      next if $file->{'__errors'} && $file->{'data'} eq '';
+      $s[7] = length($file->{'data'});
+      $s[9] = time;
+      ($data, $pad) = makecpiohead($file, \@s);
+      $data .= "$file->{'data'}$pad";
+      while ($param->{'chunked'} && length($data) > 8192) {
+	# keep chunks small
+	swrite($sock, substr($data, 0, 4096), $param->{'chunked'});
+	$data = substr($data, 4096);
+      }
+      swrite($sock, $data, $param->{'chunked'});
     }
   }
-  $data = "07070100000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000b00000000TRAILER!!!\0\0\0\0";
-  $data = sprintf("%X\r\n", length($data)).$data."\r\n" if $param->{'chunked'};
-  swrite($sock, $data);
+  $data = makecpiohead();
+  swrite($sock, $data, $param->{'chunked'});
   return '';
 }
 
@@ -391,8 +422,7 @@ sub file_sender {
       $data = substr($data, 0, $bytes) if length($data) > $bytes;
       $bytes -= length($data);
     }
-    $data = sprintf("%X\r\n", length($data)).$data."\r\n" if $param->{'chunked'};
-    swrite($sock, $data);
+    swrite($sock, $data, $param->{'chunked'});
   }
   close F unless ref $param->{'filename'};
   return '';

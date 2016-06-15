@@ -7,7 +7,6 @@ require_dependency 'opensuse/validator'
 require_dependency 'api_exception'
 
 class ApplicationController < ActionController::Base
-
   include Pundit
   protect_from_forgery
 
@@ -42,7 +41,7 @@ class ApplicationController < ActionController::Base
   before_action :validate_params
   before_action :require_login
 
-  #contains current authentification method, one of (:proxy, :basic)
+  # contains current authentification method, one of (:proxy, :basic)
   attr_accessor :auth_method
 
   def pundit_user
@@ -56,7 +55,7 @@ class ApplicationController < ActionController::Base
   protected
 
   def load_nobody
-    @http_user = User.find_by_login( "_nobody_" )
+    @http_user = User.find_nobody!
     User.current = @http_user
     User.current.is_admin = false
     @user_permissions = Suse::Permission.new( User.current )
@@ -94,80 +93,11 @@ class ApplicationController < ActionController::Base
     setup 403
   end
 
-  def extract_ldap_user
-    begin
-      require 'ldap'
-      logger.debug( "Using LDAP to find #{@login}" )
-      ldap_info = UserLdapStrategy.find_with_ldap( @login, @passwd )
-    rescue LoadError
-      logger.warn "ldap_mode selected but 'ruby-ldap' module not installed."
-      ldap_info = nil # now fall through as if we'd not found a user
-    rescue Exception
-      logger.debug "#{@login} not found in LDAP."
-      ldap_info = nil # now fall through as if we'd not found a user
-    end
-
-    if ldap_info
-      # We've found an ldap authenticated user - find or create an OBS userDB entry.
-      logger.debug "User.find_by_login( #{@login} )"
-      @http_user = User.find_by_login( @login )
-      if @http_user
-        # Check for ldap updates
-        if @http_user.email != ldap_info[0]
-          @http_user.email = ldap_info[0]
-          @http_user.save
-        end
-      else
-        if ::Configuration.registration == "deny"
-          logger.debug( "No user found in database, creation disabled" )
-          @http_user=nil
-          raise AuthenticationRequiredError.new "User '#{login}' does not exist<br>#{errstr}"
-        end
-        logger.debug( "No user found in database, creating" )
-        logger.debug( "Email: #{ldap_info[0]}" )
-        logger.debug( "Name : #{ldap_info[1]}" )
-        # Generate and store a fake pw in the OBS DB that no-one knows
-        chars = ["A".."Z","a".."z","0".."9"].collect { |r| r.to_a }.join
-        fakepw = (1..24).collect { chars[rand(chars.size)] }.pack('a'*24)
-        newuser = User.create(
-            :login => @login,
-            :password => fakepw,
-            :password_confirmation => fakepw,
-            :email => ldap_info[0] )
-        unless newuser.errors.empty?
-          errstr = String.new
-          logger.debug("Creating User failed with: ")
-          newuser.errors.each_full do |msg|
-            errstr = errstr+msg
-            logger.debug(msg)
-          end
-          @http_user=nil
-          raise AuthenticationRequiredError.new "Cannot create ldap userid: '#{login}' on OBS<br>#{errstr}"
-        end
-        newuser.realname = ldap_info[1]
-        newuser.state = User.states['confirmed']
-        newuser.state = User.states['unconfirmed'] if ::Configuration.registration == "confirmation"
-        newuser.adminnote = "User created via LDAP"
-
-        logger.debug( "saving new user..." )
-        newuser.save
-
-        @http_user = newuser
-      end
-    else
-      logger.debug( "User not found with LDAP, falling back to database" )
-    end
-
-  end
-
-  def extract_proxy_user(mode)
+  def extract_proxy_user
     @auth_method = :proxy
     proxy_user = request.env['HTTP_X_USERNAME']
     if proxy_user
       logger.info "iChain user extracted from header: #{proxy_user}"
-    elsif mode == :simulate
-      proxy_user = CONFIG['proxy_auth_test_user']
-      logger.debug "iChain user extracted from config: #{proxy_user}"
     end
 
     # we're using a login proxy, there is no need to authenticate the user from the credentials
@@ -182,17 +112,15 @@ class ApplicationController < ActionController::Base
           logger.debug("No user found in database, creation disabled")
           raise AuthenticationRequiredError.new "User '#{login}' does not exist<br>#{errstr}"
         end
-        state = User.states['confirmed']
-        state = User.states['unconfirmed'] if ::Configuration.registration == "confirmation"
         # Generate and store a fake pw in the OBS DB that no-one knows
         # FIXME: we should allow NULL passwords in DB, but that needs user management cleanup
         chars = ["A".."Z", "a".."z", "0".."9"].collect { |r| r.to_a }.join
         fakepw = (1..24).collect { chars[rand(chars.size)] }.pack("a"*24)
         @http_user = User.new(
-            :login => proxy_user,
-            :password => fakepw,
-            :password_confirmation => fakepw,
-            :state => state)
+            login: proxy_user,
+            state: User.default_user_state,
+            password: fakepw,
+            password_confirmation: fakepw)
       end
 
       # update user data from login proxy headers
@@ -200,7 +128,6 @@ class ApplicationController < ActionController::Base
     else
       logger.error "No X-username header from login proxy! Are we really using an authentification proxy?"
     end
-
   end
 
   def authorization_infos
@@ -224,7 +151,7 @@ class ApplicationController < ActionController::Base
       # logger.debug( "AUTH2: #{authorization}" )
       @login, @passwd = Base64.decode64(authorization[1]).split(':', 2)[0..1]
 
-      #set password to the empty string in case no password is transmitted in the auth string
+      # set password to the empty string in case no password is transmitted in the auth string
       @passwd ||= ""
     else
       logger.debug "no authentication string was sent"
@@ -233,25 +160,14 @@ class ApplicationController < ActionController::Base
 
   def extract_user
     mode = CONFIG['proxy_auth_mode'] || CONFIG['ichain_mode'] || :basic
-    if mode == :on || mode == :simulate # configured in the the environment file
-      extract_proxy_user mode
+    if mode == :on
+      extract_proxy_user
     else
       @auth_method = :basic
 
       extract_basic_auth_user
 
-      if CONFIG['ldap_mode'] == :on
-        # disallow empty passwords to prevent LDAP lockouts
-        if @passwd.blank?
-          raise AuthenticationRequiredError.new "User '#{@login}' did not provide a password"
-        end
-
-        extract_ldap_user
-      end
-
-      if @login && !@http_user
-        @http_user = User.find_with_credentials @login, @passwd
-      end
+      @http_user = User.find_with_credentials @login, @passwd if @login
     end
 
     if !@http_user && session[:login]
@@ -262,7 +178,7 @@ class ApplicationController < ActionController::Base
   end
 
   def check_for_anonymous_user
-    if ::Configuration.anonymous?
+    if ::Configuration.anonymous
       # Fixed list of clients which do support the read only mode
       hua = request.env['HTTP_USER_AGENT']
       if hua # ignore our test suite (TODO: we need to fix that)
@@ -271,6 +187,14 @@ class ApplicationController < ActionController::Base
       end
     end
     false
+  end
+
+  def require_login
+    # we allow anonymous user only for rare special operations (if configured) but we require
+    # a valid account for all other operations.
+    # For this rare special operations we simply skip the require login before filter!
+    # At the moment these operations are the /public, /trigger and /about controller actions.
+    be_not_nobody!
   end
 
   def check_extracted_user
@@ -282,20 +206,21 @@ class ApplicationController < ActionController::Base
       raise AuthenticationRequiredError.new "Unknown user '#{@login}' or invalid password"
     end
 
-    if @http_user.state == User.states['ichainrequest'] or @http_user.state == User.states['unconfirmed']
+    if @http_user.state == User::STATES['ichainrequest'] or @http_user.state == User::STATES['unconfirmed']
       raise UnconfirmedUserError.new "User is registered but not yet approved. " +
                                          "Your account is a registered account, but it is not yet approved for the OBS by admin."
     end
 
     User.current = @http_user
 
-    if @http_user.state == User.states['confirmed']
+    if @http_user.state == User::STATES['confirmed']
       logger.debug "USER found: #{@http_user.login}"
       @user_permissions = Suse::Permission.new(@http_user)
       return true
     end
 
-    raise InactiveUserError.new "User is registered but not in confirmed state. Your account is a registered account, but it is in a not active state."
+    raise InactiveUserError.new "User is registered but not in confirmed state. Your account is a registered account, " +
+                                "but it is in a not active state."
   end
 
   def require_valid_project_name
@@ -317,7 +242,6 @@ class ApplicationController < ActionController::Base
 
   hide_action :forward_from_backend
   def forward_from_backend(path)
-
     # apache & mod_xforward case
     if CONFIG['use_xforward'] and CONFIG['use_xforward'] != "false"
       logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
@@ -325,7 +249,7 @@ class ApplicationController < ActionController::Base
       headers['Cache-Control'] = 'no-transform' # avoid compression
       head(200)
       @skip_validation = true
-      return
+      return true
     end
 
     # lighttpd 1.5 case
@@ -336,7 +260,7 @@ class ApplicationController < ActionController::Base
       headers['Cache-Control'] = 'no-transform' # avoid compression
       head(200)
       @skip_validation = true
-      return
+      return true
     end
 
     # nginx case
@@ -346,10 +270,10 @@ class ApplicationController < ActionController::Base
       headers['Cache-Control'] = 'no-transform' # avoid compression
       head(200)
       @skip_validation = true
-      return
+      return true
     end
 
-    volley_backend_path path
+    false
   end
 
   def volley_backend_path(path)
@@ -374,6 +298,7 @@ class ApplicationController < ActionController::Base
       end
     end
     opts[:length] = @volleyfile.length
+    opts[:disposition] = 'inline' if opts[:type] == 'text/plain'
     # streaming makes it very hard for test cases to verify output
     opts[:stream] = false if Rails.env.test?
     send_file(@volleyfile.path, opts)
@@ -385,16 +310,14 @@ class ApplicationController < ActionController::Base
     file = Tempfile.new 'volley', :encoding => 'ascii-8bit'
     b = request.body
     buffer = String.new
-    while b.read(40960, buffer)
-      file.write(buffer)
-    end
+    file.write(buffer) while b.read(40960, buffer)
     file.close
     file.open
     file
   end
 
   def get_request_path
-    path = request.path
+    path = request.path_info
     query_string = request.query_string
     if request.form_data?
       # it's uncommon, but possible that we have both
@@ -402,15 +325,14 @@ class ApplicationController < ActionController::Base
       query_string += request.raw_post
     end
     query_string = "?" + query_string unless query_string.blank?
-    path + query_string 
+    path + query_string
   end
 
   def pass_to_backend( path = nil )
-
     path ||= get_request_path
 
     if request.get? || request.head?
-      forward_from_backend( path )
+      volley_backend_path(path) unless forward_from_backend(path)
       return
     end
     case request.method_symbol
@@ -450,7 +372,7 @@ class ApplicationController < ActionController::Base
     render_error status: 408, errorcode: "timeout_error", message: exception.message
   end
 
-  rescue_from ActiveXML::ParseError do |exception|
+  rescue_from ActiveXML::ParseError do
     render_error status: 400, errorcode: 'invalid_xml', message: "Invalid XML"
   end
 
@@ -544,7 +466,6 @@ class ApplicationController < ActionController::Base
     else
       @errorcode ||= 'unknown'
     end
-
   end
 
   def render_error( opt = {} )
@@ -573,7 +494,7 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def render_ok(opt={})
+  def render_ok(opt = {})
     # keep compatible to old call style
     @errorcode = "ok"
     @summary = "Ok"
@@ -581,7 +502,7 @@ class ApplicationController < ActionController::Base
     render :template => 'status', :status => 200
   end
 
-  def render_invoked(opt={})
+  def render_invoked(opt = {})
     @errorcode = "invoked"
     @summary = "Job invoked"
     @data = opt[:data] if opt[:data]
@@ -613,7 +534,7 @@ class ApplicationController < ActionController::Base
     __send__ cmd_handler
   end
 
-  def build_query_from_hash(hash, key_list=nil)
+  def build_query_from_hash(hash, key_list = nil)
     Suse::Backend.build_query_from_hash(hash, key_list)
   end
 
@@ -649,6 +570,7 @@ class ApplicationController < ActionController::Base
     def initialize(req)
       @req = req
     end
+
     def to_s
       @req.raw_post
     end
@@ -664,6 +586,7 @@ class ApplicationController < ActionController::Base
 
   def validate_xml_response
     return if @skip_validation
+    # rubocop:disable Metrics/LineLength
     if request.format != 'json' && response.status.to_s[0..2] == '200' && response.headers['Content-Type'] !~ /.*\/json/i && response.headers['Content-Disposition'] != 'attachment'
       opt = params()
       opt[:method] = request.method.to_s
@@ -680,11 +603,12 @@ class ApplicationController < ActionController::Base
       end
       logger.debug "Validate XML response: #{response} took #{Integer(ms + 0.5)}ms"
     end
+    # rubocop:enable Metrics/LineLength
   end
 
   private
+
   def shutup_rails
     Rails.cache.silence! unless Rails.env.development?
   end
-
 end

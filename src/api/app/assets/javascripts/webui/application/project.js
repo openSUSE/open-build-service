@@ -26,7 +26,7 @@ function renderProjectsTable(length) {
     var projecturl = $("#projects_table_wrapper").data("url");
     $("#projects_table_wrapper").html('<table cellpadding="0" cellspacing="0" border="0" class="display" id="projects_table"></table>');
     $("#projects_table").dataTable({"aaData": projects,
-        "bPaginate": (main_projects.length + excl_projects.length) > 20,
+        "bPaginate": true,
         "aoColumns": [
             {
                 "sTitle": "Name",
@@ -43,8 +43,8 @@ function renderProjectsTable(length) {
 }
 
 function renderPackagesProjectsTable(options) {
-    var length = options.length || 25
-    var name = options.name || "packages_projects_wrapper"
+    var length = options.length || 25;
+    var name = options.name || "packages_projects_wrapper";
 
     var packageurl = $("#" + name).data("url");
     $("#" + name).html("<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"display\" id=\"" + name + '_table' + "\"></table>");

@@ -1,5 +1,4 @@
 class IncidentPriorityAttribute  < ActiveRecord::Migration
-
   class AttribTypeModifiableBy < ActiveRecord::Base; end
 
   def self.up
@@ -12,9 +11,7 @@ class IncidentPriorityAttribute  < ActiveRecord::Migration
     AttribTypeModifiableBy.create(role_id: role.id, attrib_type_id: at.id)
   end
 
-
   def self.down
     AttribType.find_by_namespace_and_name("OBS", "IncidentPriority").delete()
   end
-
 end

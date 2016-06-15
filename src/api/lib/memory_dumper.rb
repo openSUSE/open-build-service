@@ -1,7 +1,6 @@
 require 'memprof'
 
 class MemoryDumper
-
   def initialize(app)
    @app = app
    @toexit = 0
@@ -12,7 +11,7 @@ class MemoryDumper
      old_handler.call if old_handler
    }
   end
- 
+
   def call(env)
    ret = @app.call(env)
    if @toexit == 1
@@ -29,6 +28,3 @@ class MemoryDumper
    ret
   end
 end
-
-
-

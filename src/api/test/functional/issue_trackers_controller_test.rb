@@ -1,8 +1,13 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
+  def setup
+    reset_auth
+  end
+
   def test_should_get_index
     # Get all issue trackers
+    login_king
     get '/issue_trackers'
     assert_response :success
     assert_not_nil assigns(:issue_trackers)
@@ -48,7 +53,7 @@ class IssueTrackersControllerTest < ActionDispatch::IntegrationTest
     get '/issue_trackers/test.json'
     assert_response :success
 
-#FIXME: check backend data
+# FIXME: check backend data
 
     # Update that issue tracker
     issue_tracker_xml = <<-EOF

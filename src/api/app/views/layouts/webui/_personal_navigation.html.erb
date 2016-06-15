@@ -1,5 +1,5 @@
 <div class="grid_6 omega" style="text-align: right">
-  <% unless User.current.is_nobody? %>
+  <% if User.current && !User.current.is_nobody? %>
     <% nr_requests_that_need_work = User.current.nr_of_requests_that_need_work -%>
     <% if nr_requests_that_need_work > 0 -%>
       <%= link_to(user_show_path(User.current), :id  => 'link-to-user-home') do %>
@@ -13,22 +13,25 @@
         <%= User.current %>
        <% end %>
     <% end %> |
-    <%= link_to 'Home Project', project_show_path("home:#{User.current.login}") %> |
+      <% if Project.where(name: User.current.home_project_name).exists? %>
+        <%= link_to "Home Project", project_show_path(User.current.home_project_name) %>
+      <% else %>
+        <%= link_to "Create Home", new_project_path(name: User.current.home_project_name) %>
+      <% end %> |
     <%= link_to 'Logout', user_logout_path, method: :post, id: 'logout-link' %>
   <% else %>
     <% if CONFIG['proxy_auth_mode'] == :on %>
       <% unless CONFIG['proxy_auth_register_page'].blank? %>
-        <%= link_to 'Sign Up', "#{CONFIG['proxy_auth_register_page']}?%22#{@return_to_host}#{@return_to_path}%22" %> |
+        <%= link_to 'Sign Up', "#{CONFIG['proxy_auth_register_page']}?%22" %> |
       <% end %>
       <%= link_to 'Log In', user_login_path, id: 'login-trigger' %>
       <div id="login-form">
         <%= form_tag(CONFIG['proxy_auth_login_page'], method: :post, id: 'login_form', enctype: 'application/x-www-form-urlencoded') do %>
           <p>
-            <%= hidden_field_tag(:url, "#{@return_to_host}#{@return_to_path}") %>
             <%= hidden_field_tag(:context, 'default') %>
             <%= hidden_field_tag(:proxypath, 'reserve') %>
             <%= hidden_field_tag(:message, 'Please log in') %>
-            <%= hidden_field_tag(:return_to_path, @return_to_path) %>
+            <%= hidden_field_tag(:url, request.fullpath) %>
             <%= label_tag(:username, 'Username') %>
             <%= text_field_tag(:username, '') %>
           </p>
@@ -48,7 +51,6 @@
       <div id="login-form">
         <%= form_tag(user_do_login_path) do %>
           <p>
-            <%= hidden_field_tag(:return_to_path, @return_to_path) %>
             <%= label_tag(:username, 'Username') %>
             <%= text_field_tag(:username, '') %>
           </p>

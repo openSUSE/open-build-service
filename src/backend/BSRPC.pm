@@ -23,24 +23,22 @@
 package BSRPC;
 
 use Socket;
+use POSIX;
 use XML::Structured;
 use Symbol;
 use MIME::Base64;
 use Data::Dumper;
 
 use BSHTTP;
-use BSConfig;
 
 use strict;
 
 our $useragent = 'BSRPC 0.9.1';
+our $noproxy;
 
 my %hostlookupcache;
 my %cookiestore;	# our session store to keep iChain fast
 my $tossl;
-
-my $noproxy;
-$noproxy = $BSConfig::noproxy if defined($BSConfig::noproxy);
 
 sub import {
   if (grep {$_ eq ':https'} @_) {
@@ -85,14 +83,21 @@ sub createuri {
 }
 
 sub useproxy {
-  my ($host, $noproxy) = @_;
+  my ($param, $host) = @_;
 
+  my $nop = $noproxy;
+  if (!defined($nop)) {
+    # XXX: should not get stuff from BSConfig, but compatibility...
+    $nop = $BSConfig::noproxy if defined($BSConfig::noproxy);
+  }
+  return 1 if !defined $nop;
   # strip leading and tailing whitespace
-  $noproxy =~ s/^\s+//;
-  $noproxy =~ s/\s+$//;
+  $nop =~ s/^\s+//;
+  $nop =~ s/\s+$//;
   # noproxy is a list separated by commas and optional whitespace
-  for (split(/\s*,\s*/, $noproxy)) {
-    return 0 if $host =~ m/(^|\.)$_$/;
+  for (split(/\s*,\s*/, $nop)) {
+    s/^\.?/./s; 
+    return 0 if ".$host" =~ /\Q$_\E$/s;
   }
   return 1;
 }
@@ -109,7 +114,7 @@ sub createreq {
   die("bad uri: $uri\n") unless $uri =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
   my ($proto, $auth, $host, $port, $path) = ($1, $2, $3, $4, $5);
   my $hostport = $port ? "$host$port" : $host;
-  undef $proxy if $proxy && defined($noproxy) && !useproxy($host, $noproxy);
+  undef $proxy if $proxy && !useproxy($param, $host);
   if ($proxy) {
     die("bad proxy uri: $proxy\n") unless "$proxy/" =~ /^(https?):\/\/(?:([^\/\@]*)\@)?([^\/:]+)(:\d+)?(\/.*)$/;
     ($proto, $proxyauth, $host, $port) = ($1, $2, $3, $4);
@@ -143,6 +148,27 @@ sub createreq {
   }
   my $req = "$act $path HTTP/1.1\r\n".join("\r\n", @xhdrs)."\r\n\r\n";
   return ($proto, $host, $port, $req, $proxytunnel);
+}
+
+sub updatecookies {
+  my ($cookiestore, $uri, $setcookie) = @_;
+  return unless $cookiestore && $uri && $setcookie;
+  my @cookie = split(',', $setcookie);
+  s/;.*// for @cookie;
+  if ($uri =~ /((:?https?):\/\/(?:([^\/]*)\@)?(?:[^\/:]+)(?::\d+)?)(?:\/.*)$/) {
+    my %cookie = map {$_ => 1} @cookie;
+    push @cookie, grep {!$cookie{$_}} @{$cookiestore->{$1} || []};
+    splice(@cookie, 10) if @cookie > 10;
+    $cookiestore->{$1} = \@cookie;
+  }
+}
+
+sub args {
+  my ($h, @k) = @_;
+  return map {
+    my ($v, $k) = ($h->{$_}, $_);
+    !defined($v) ? () : ref($v) eq 'ARRAY' ? map {"$k=$_"} @$v : "$k=$v";
+  } @k;
 }
 
 #
@@ -233,34 +259,48 @@ sub rpc {
       BSHTTP::swrite(\*S, $proxytunnel);
       my $ans = '';
       do {
-	die("received truncated answer\n") if !sysread(S, $ans, 1024, length($ans));
+	my $r = sysread(S, $ans, 1024, length($ans));
+	die("received truncated answer\n") if !$r && (defined($r) || ($! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK));
       } while ($ans !~ /\n\r?\n/s);
       die("bad answer\n") unless $ans =~ s/^HTTP\/\d+?\.\d+?\s+?(\d+[^\r\n]*)/Status: $1/s;
       my $status = $1;
       die("proxy tunnel: CONNECT method failed: $status\n") unless $status =~ /^200[^\d]/;
     }
-    ($param->{'https'} || $tossl)->(\*S, $param->{'ssl_keyfile'}, $param->{'ssl_certfile'}, 1) if $proto eq 'https' || $proxytunnel;
+    if ($proto eq 'https' || $proxytunnel) {
+      ($param->{'https'} || $tossl)->(\*S, $param->{'ssl_keyfile'}, $param->{'ssl_certfile'}, 1);
+      if ($param->{'sslpeerfingerprint'}) {
+	die("bad sslpeerfingerprint '$param->{'sslpeerfingerprint'}'\n") unless $param->{'sslpeerfingerprint'} =~ /^(.*?):(.*)$/s;
+	my $pfp =  tied(*S)->peerfingerprint($1);
+	die("peer fingerprint does not match: $2 != $pfp\n") if $2 ne $pfp;
+      }
+    }
   }
   if (!$param->{'continuation'}) {
     if ($param->{'verbose'}) {
       print "> $_\n" for split("\r\n", $req);
       #print "> $data\n" unless ref($data);
     }
-    $req .= "$data" unless ref($data);
-    if ($param->{'sender'}) {
-      $param->{'sender'}->($param, \*S, $req);
-    } else {
-      while(1) {
-	BSHTTP::swrite(\*S, $req);
-	last unless ref $data;
-	$req = &$data($param, \*S);
-	if (!defined($req) || !length($req)) {
-	  $req = $data = '';
-	  $req = "0\r\n\r\n" if $chunked;
-	  next;
-	}
-	$req = sprintf("%X\r\n", length($req)).$req."\r\n" if $chunked;
+    if (!ref($data)) {
+      # append body to request (chunk encoded if requested)
+      if ($chunked) {
+	$data = sprintf("%X\r\n", length($data)).$data."\r\n" if $data ne '';
+	$data .= "0\r\n\r\n";
       }
+      $req .= $data;
+      undef $data;
+    }
+    if ($param->{'sender'}) {
+      $param->{'sender'}->($param, \*S, $req, $data);
+    } elsif (!ref($data)) {
+      BSHTTP::swrite(\*S, $req);
+    } else {
+      BSHTTP::swrite(\*S, $req);
+      while(1) {
+	$req = &$data($param, \*S);
+	last if !defined($req) || !length($req);
+        BSHTTP::swrite(\*S, $req, $chunked);
+      }
+      BSHTTP::swrite(\*S, "0\r\n\r\n") if $chunked;
     }
     if ($param->{'async'}) {
       my $ret = {};
@@ -274,14 +314,14 @@ sub rpc {
       $ret->{'verbose'} = $param->{'verbose'} if $param->{'verbose'};
       $ret->{'replyheaders'} = $param->{'replyheaders'} if $param->{'replyheaders'};
       $ret->{'receiver'} = $param->{'receiver'} if $param->{'receiver'};
-      $ret->{$_} = $param->{$_} for grep {/^receiver:/} keys %$param;
       $ret->{'receiverarg'} = $xmlargs if $xmlargs;
       return $ret;
     }
   }
   my $ans = '';
   do {
-    die("received truncated answer\n") if !sysread(S, $ans, 1024, length($ans));
+    my $r = sysread(S, $ans, 1024, length($ans));
+    die("received truncated answer\n") if !$r && (defined($r) || ($! != POSIX::EINTR && $! != POSIX::EWOULDBLOCK));
   } while ($ans !~ /\n\r?\n/s);
   die("bad answer\n") unless $ans =~ s/^HTTP\/\d+?\.\d+?\s+?(\d+[^\r\n]*)/Status: $1/s;
   my $status = $1;
@@ -316,44 +356,36 @@ sub rpc {
       die("remote error: $status\n") unless $param->{'ignorestatus'};
     }
   }
-  if ($headers{'set-cookie'} && $param->{'uri'}) {
-    my @cookie = split(',', $headers{'set-cookie'});
-    s/;.*// for @cookie;
-    if ($param->{'uri'} =~ /((:?https?):\/\/(?:([^\/]*)\@)?(?:[^\/:]+)(?::\d+)?)(?:\/.*)$/) {
-      my %cookie = map {$_ => 1} @cookie;
-      push @cookie, grep {!$cookie{$_}} @{$cookiestore{$1} || []};
-      splice(@cookie, 10) if @cookie > 10;
-      $cookiestore{$1} = \@cookie;
-    }
-  }
+  updatecookies(\%cookiestore, $param->{'uri'}, $headers{'set-cookie'}) if $headers{'set-cookie'};
+  ${$param->{'replyheaders'}} = \%headers if $param->{'replyheaders'};
   if (($param->{'request'} || '') eq 'HEAD') {
     close S;
-    ${$param->{'replyheaders'}} = \%headers if $param->{'replyheaders'};
     return \%headers;
   }
-  $headers{'__socket'} = \*S;
-  $headers{'__data'} = $ans;
-  my $receiver;
-  $receiver = $param->{'receiver:'.lc($headers{'content-type'} || '')};
-  $receiver ||= $param->{'receiver'};
+  my $ansreq = {
+    'headers' => \%headers,
+    '__socket' => \*S,
+    '__data' => $ans,
+  };
+  my $receiver = $param->{'receiver'};
   $xmlargs ||= $param->{'receiverarg'};
   if ($receiver) {
-    $ans = $receiver->(\%headers, $param, $xmlargs);
+    $ans = $receiver->($ansreq, $param, $xmlargs);
     $xmlargs = undef;
   } else {
-    $ans = BSHTTP::read_data(\%headers, undef, 1);
+    $ans = BSHTTP::read_data($ansreq, undef, 1);
   }
   close S;
-  delete $headers{'__socket'};
-  delete $headers{'__data'};
-  ${$param->{'replyheaders'}} = \%headers if $param->{'replyheaders'};
   #if ($param->{'verbose'}) {
   #  print "< $ans\n";
   #}
   if ($xmlargs) {
-    die("answer is not xml\n") if $ans !~ /<.*?>/s;
-    my $res = XMLin($xmlargs, $ans);
-    return $res;
+    if (ref($xmlargs) eq 'CODE') {
+      $ans = $xmlargs->($ans);
+    } else {
+      die("answer is not xml\n") if $ans !~ /<.*?>/s;
+      $ans = XMLin($xmlargs, $ans);
+    }
   }
   return $ans;
 }

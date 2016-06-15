@@ -1,5 +1,4 @@
 class Webui::MonitorController < Webui::WebuiController
-
   before_filter :require_settings, :only => [:old, :index, :filtered_list, :update_building]
   before_filter :require_available_architectures, :only => [:index]
   before_filter :fetch_workerstatus, :only => [:old, :filtered_list, :update_building]
@@ -73,16 +72,11 @@ class Webui::MonitorController < Webui::WebuiController
     render :json => workers
   end
 
-  def gethistory(key, range, cache=1)
+  def gethistory(key, range, cache = 1)
     cachekey = key + "-#{range}"
     Rails.cache.delete(cachekey, :shared => true) if !cache
     return Rails.cache.fetch(cachekey, :expires_in => (range.to_i * 3600) / 150, :shared => true) do
-      hash = Hash.new
-      data = ActiveXML::api.direct_http(URI('/status/history?key=%s&hours=%d&samples=400' % [key, range]))
-      doc = Nokogiri::XML(data)
-      doc.root.elements.each do |value|
-        hash[value.attributes['time'].value.to_i] = value.attributes['value'].value.to_f
-      end
+      hash = StatusHistory.history_by_key_and_hours(key, range)
       hash.sort { |a, b| a[0] <=> b[0] }
     end
   end
@@ -110,7 +104,7 @@ class Webui::MonitorController < Webui::WebuiController
       comb << [1000*time, clow + value]
     end
     data['squeue_low'] = comb
-    max = Webui::MonitorController.addarrays(data['squeue_high'], data['squeue_med']).map { |time, value| value }.max || 0
+    max = Webui::MonitorController.addarrays(data['squeue_high'], data['squeue_med']).map { |_, value| value }.max || 0
     data['events_max'] = max * 2
     data['jobs_max'] = maximumvalue(data['waiting']) * 2
     render :json => data
@@ -119,7 +113,7 @@ class Webui::MonitorController < Webui::WebuiController
   private
 
   def maximumvalue(arr)
-    arr.map { |time, value| value }.max || 0
+    arr.map { |_, value| value }.max || 0
   end
 
   def self.addarrays(arr1, arr2)
@@ -146,7 +140,6 @@ class Webui::MonitorController < Webui::WebuiController
     @interval_steps = 1
     @max_color = 240
     @time_now = Time.now
-    @dead_line = 1.hours.ago
+    @dead_line = 1.hour.ago
   end
-
 end

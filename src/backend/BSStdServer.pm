@@ -27,11 +27,12 @@ use Fcntl;
 
 use BSWatcher;
 use BSServer;
+use BSDispatch;
 use BSVerify;
 use BSServerEvents;
 use BSXML;
 use BSUtil;
-use BSConfig;
+use BSConfiguration;
 use XML::Structured;
 
 use strict;
@@ -46,7 +47,11 @@ sub stdreply {
   my @rep = @_;
   return unless @rep && defined($rep[0]);
   if (ref($rep[0]) eq 'HASH') {
-    $rep[1] = XMLout($rep[1], $rep[0]);
+    if (ref($rep[1]) eq 'CODE') {
+      $rep[1] = $rep[1]->($rep[0]);
+    } else {
+      $rep[1] = XMLout($rep[1], $rep[0]);
+    }
     shift @rep;
   }
   push @rep, 'Content-Type: text/xml' if @rep == 1;
@@ -65,11 +70,11 @@ sub errreply {
   BSWatcher::reply($opresultxml, "Status: $code $tag", 'Content-Type: text/xml', @hdrs);
 }
 
-sub authenticate {
+sub authorize {
   my ($conf, $req, $auth) = @_;
   return () unless $BSConfig::ipaccess;
   my %auths;
-  my $peer = $BSServer::peer;
+  my $peer = $req->{'peer'};
   for my $ipre (sort keys %$BSConfig::ipaccess) {
     next unless $peer =~ /^$ipre$/s;
     $auths{$_} = 1 for split(',', $BSConfig::ipaccess->{$ipre});
@@ -84,14 +89,16 @@ sub dispatch {
   my @lt = localtime(time);
   my $msg = "$req->{'action'} $req->{'path'}?$req->{'query'}";
   BSServer::setstatus(2, $msg) if $conf->{'serverstatus'};
-  $msg = sprintf "%04d-%02d-%02d %02d:%02d:%02d [%d]: %s", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0], $$, $msg;
+  $msg = BSUtil::isotime()." [$$]: $msg";
   $msg .= " (AJAX)" if $isajax;
   print "$msg\n";
   if ($isajax) {
     BSServerEvents::cloneconnect("OK\n", "Content-Type: text/plain");
   }
-  BSServer::dispatch($conf, $req);
+  BSDispatch::dispatch($conf, $req);
 }
+
+my $configurationcheck = 0;
 
 sub periodic {
   my ($conf) = @_;
@@ -120,6 +127,10 @@ sub periodic {
     }
     exec($0, '--restart', $arg);
     die("$0: $!\n");
+  }
+  if ($configurationcheck++ > 10) {
+    BSConfiguration::check_configuration();
+    $configurationcheck = 0;
   }
 }
 
@@ -193,24 +204,33 @@ sub server {
   BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup) || die("unable to create $bsdir\n");
 
   if ($conf) {
-    $conf->{'dispatches'} = BSServer::compile_dispatches($conf->{'dispatches'}, $BSVerify::verifyers) if $conf->{'dispatches'};
+    $conf->{'verifiers'} ||= $BSVerify::verifiers;
     $conf->{'dispatch'} ||= \&dispatch;
     $conf->{'stdreply'} ||= \&stdreply;
     $conf->{'errorreply'} ||= \&errreply;
-    $conf->{'authenticate'} ||= \&authenticate;
+    $conf->{'authorize'} ||= \&authorize;
     $conf->{'periodic'} ||= \&periodic;
     $conf->{'periodic_interval'} ||= 1;
     $conf->{'serverstatus'} ||= "$rundir/$name.status";
+    $conf->{'setkeepalive'} = 1 unless defined $conf->{'setkeepalive'};
     $conf->{'name'} = $name;
+    BSDispatch::compile($conf);
   }
   if ($aconf) {
-    $aconf->{'dispatches'} = BSWatcher::compile_dispatches($aconf->{'dispatches'}, $BSVerify::verifyers) if $aconf->{'dispatches'};
+    require BSHandoff;
+    $aconf->{'verifiers'} ||= $BSVerify::verifiers;
     $aconf->{'dispatch'} ||= \&dispatch;
     $aconf->{'stdreply'} ||= \&stdreply;
     $aconf->{'errorreply'} ||= \&errreply;
     $aconf->{'periodic'} ||= \&periodic_ajax;
     $aconf->{'periodic_interval'} ||= 1;
+    $aconf->{'dispatches_call'} ||= \&BSWatcher::dispatches_call;
+    $aconf->{'getrequest_recvfd'} ||= \&BSHandoff::receivefd;
+    $aconf->{'setkeepalive'} = 1 unless defined $aconf->{'setkeepalive'};
+    $aconf->{'getrequest_timeout'} = 10 unless exists $aconf->{'getrequest_timeout'};
+    $aconf->{'replrequest_timeout'} = 10 unless exists $aconf->{'replrequest_timeout'};
     $aconf->{'name'} = $name;
+    BSDispatch::compile($aconf);
   }
   BSServer::deamonize(@{$args || []});
   if ($conf) {
@@ -224,6 +244,7 @@ sub server {
     }
     BSServer::serveropen($port2 ? "$port,$port2" : $port, $BSConfig::bsuser, $BSConfig::bsgroup);
     $conf->{'ajaxsocketpath'} = $aconf->{'socketpath'} if $aconf;
+    $conf->{'handoffpath'} = $aconf->{'socketpath'} if $aconf;
     unlink("$aconf->{'socketpath'}.lock") if $aconf;
   }
   if ($aconf) {

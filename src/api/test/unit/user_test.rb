@@ -1,12 +1,51 @@
 require_relative '../test_helper'
 
 class UserTest < ActiveSupport::TestCase
-
   fixtures :all
 
   def setup
     @project = projects(:home_Iggy)
     @user = User.find_by_login('Iggy')
+  end
+
+  def test_login
+    user = User.authenticate("tom", "buildservice")
+    assert_equal User.find_by(login: "tom"), user
+    assert_equal User.find_by(login: "tom"), User.current
+
+    user = User.authenticate("tom", "wrong_pw")
+    assert_equal nil, user
+    assert_equal nil, User.current
+
+    user = User.authenticate("nonexistant", "foobar")
+    assert_equal nil, user
+    assert_equal nil, User.current
+
+    user = User.authenticate("unconfirmed_user", "thunder")
+    assert_equal nil, user, "Should not authenticate users with state 'unconfirmed'"
+    assert_equal nil, User.current
+  end
+
+  def test_create_home_project # spec/models/user_spec.rb
+    User.create(login: 'moises', email: 'moises@home.com', password: '123456')
+    assert Project.find_by(name: 'home:moises')
+    # cleanup
+    Project.find_by(name: 'home:moises').destroy
+
+    Configuration.stubs(:allow_user_to_create_home_project).returns(false)
+    User.create(login: 'bob', email: 'bob@home.com', password: '123456')
+    assert !Project.find_by(name: 'home:bob')
+  end
+
+  def test_can_modify_project
+    user = User.find_by(login: "adrian")
+    project = Project.find_by(name: "home:adrian")
+
+    assert user.can_modify_project?(project)
+
+    assert_raise ArgumentError, "illegal parameter type to User#can_modify_project?: Package" do
+      user.can_modify_project?(Package.last)
+    end
   end
 
   def test_basics
@@ -64,7 +103,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   def test_states
-    assert_not_nil User.states
+    assert_not_nil User::STATES
   end
 
   def test_deleted_user
@@ -78,15 +117,27 @@ class UserTest < ActiveSupport::TestCase
   end
 
   def test_user_requests
-    # no projects, no requests
-    #assert_equal({:declined=>[], :new=>[], :reviews=>[]}, users(:user4).request_ids_by_class)
     assert_equal 0, users(:user4).nr_of_requests_that_need_work
-    #assert_equal({declined: [], new: [], reviews: [4]}, users(:tom).request_ids_by_class)
-    assert_equal 1, users(:tom).nr_of_requests_that_need_work
-    #assert_equal({declined: [], new: [1], reviews: [4, 1000]}, users(:adrian).request_ids_by_class)
+    assert_equal 2, users(:tom).nr_of_requests_that_need_work
     assert_equal 3, users(:adrian).nr_of_requests_that_need_work
-    #assert_equal({declined: [], new: [1], reviews: [10, 1000]}, users(:fred).request_ids_by_class)
-    assert_equal 3, users(:fred).nr_of_requests_that_need_work
+    assert_equal 4, users(:fred).nr_of_requests_that_need_work
+  end
+
+  def test_update_globalroles
+    user = User.find_by(login: "tom")
+    user.roles << Role.create(title: "local_role", global: false)
+    user.roles << Role.create(title: "global_role_1", global: true)
+    user.roles << Role.create(title: "global_role_2", global: true)
+    user.save!
+
+    user.update_globalroles(["global_role_2", "Admin"])
+    user.save!
+    updated_roles = user.reload.roles.map(&:title)
+    assert updated_roles.include?("global_role_2")
+    assert updated_roles.include?("Admin")
+    assert updated_roles.include?("local_role"), "Should keep local roles"
+    assert_equal 3, user.roles.count, "Should remove all additional global roles"
+    assert_equal 3, user.roles_users.count
   end
 
   test 'gravatar image' do

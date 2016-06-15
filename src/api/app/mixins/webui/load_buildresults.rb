@@ -1,14 +1,13 @@
 module Webui::LoadBuildresults
-
   def fill_status_cache
     @repohash = Hash.new
     @statushash = Hash.new
     @packagenames = Array.new
     @repostatushash = Hash.new
+    @repostatusdetailshash = Hash.new
     @failures = 0
 
     @buildresult.elements('result') do |result|
-
       @resultvalue = result
       repo = result['repository']
       arch = result['arch']
@@ -33,7 +32,7 @@ module Webui::LoadBuildresults
 
       # repository status cache
       @repostatushash[repo] ||= Hash.new
-      @repostatushash[repo][arch] = Hash.new
+      @repostatusdetailshash[repo] ||= Hash.new
 
       if result.has_key? 'state'
         if result.has_key? 'dirty'
@@ -41,8 +40,10 @@ module Webui::LoadBuildresults
         else
           @repostatushash[repo][arch] = result['state']
         end
+        if result.has_key? 'details'
+          @repostatusdetailshash[repo][arch] = result['details']
+        end
       end
     end
   end
 end
-

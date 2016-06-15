@@ -54,7 +54,7 @@ our $serviceserver = "http://$hostname:5152";
 #our $workerreposerver = "http://$hostname:5253";
 
 our $servicedir = "/usr/lib/obs/service/";
-#our $servicetempdir = "/var/temp/";
+#our $servicetempdir = "/srv/obs/service";
 #our $serviceroot = "/opt/obs/MyServiceSystem";
 
 # Maximum number of concurrent jobs for source service
@@ -77,6 +77,12 @@ our @reposervers = ("http://$hostname:5252");
 our $bsdir = '/srv/obs';
 our $bsuser = 'obsrun';
 our $bsgroup = 'obsrun';
+# user and group for bs_service (if the lxc service wrapper is used, set
+# $bsserviceuser to root). If several obs services (e.g., bs_service and
+# bs_srcserver) run on the same host, make sure that $bsservicegroup is set
+# to $bsgroup.
+our $bsserviceuser = 'obsservicerun';
+our $bsservicegroup = $bsgroup;
 #our $bsquotafile = '/srv/obs/quota.xml';
 
 # Use asynchronus scheduler. This avoids hanging schedulers on remote projects,
@@ -130,6 +136,7 @@ our $relsync_pool = {
  "mipsel" => "mipsel",
  "mips64el" => "mipsel",
  "aarch64"  => "arm",
+ "aarch64_ilp32"  => "arm",
  "armv4l"  => "arm",
  "armv5l"  => "arm",
  "armv6l"  => "arm",
@@ -195,11 +202,11 @@ our $relsync_pool = {
 #                           'main' => 'http://main-backend-server:5252',
 #                         };
 
-
 # host specific configs
-my $hostconfig = "bsconfig." . $hostname;
-if(-r $hostconfig) {
-  print "reading $hostconfig...\n";
+my $hostconfig = __FILE__;
+$hostconfig =~ s/[^\/]*$/bsconfig.$hostname/;
+if (-r $hostconfig) {
+  print STDERR "reading $hostconfig...\n";
   require $hostconfig;
 }
 

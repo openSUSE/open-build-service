@@ -159,6 +159,14 @@
                 </choice>
               </element>
             </optional>
+            <optional>
+              <element name="makeoriginolder">
+                <choice>
+                  <value>true</value>
+                  <value>false</value>
+                </choice>
+              </element>
+            </optional>
             <empty/>
           </element>
         </optional>
@@ -168,7 +176,15 @@
 	    <attribute name="srcmd5"/>
 	    <attribute name="osrcmd5"/>
 	    <optional>
+	      <attribute name="oproject"/>
+	    </optional>
+	    <optional>
+	      <attribute name="opackage"/>
+	    </optional>
+	    <optional>
 	      <attribute name="xsrcmd5"/>
+	    </optional>
+	    <optional>
 	      <attribute name="oxsrcmd5"/>
 	    </optional>
 	    <empty/>

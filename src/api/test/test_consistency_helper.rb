@@ -2,8 +2,7 @@ require File.expand_path(File.dirname(__FILE__) + "/..") + "/test/test_helper"
 require 'source_controller'
 
 #
-# Add all kind of data consistency checks here. It runs before and after all functional tests
-# to detect any kind of data corruption due to some other code
+# code which is supposed to be run at multiple stages during the test suite run
 #
 
 def resubmit_all_fixtures
@@ -19,6 +18,7 @@ def resubmit_all_fixtures
     get "/source/#{name}/_meta"
     assert_response :success
     r = @response.body
+    next if Project.find_by_name(name).is_locked?
     # FIXME: add some more validation checks here
     put "/source/#{name}/_meta", r.dup
     assert_response :success
@@ -26,7 +26,7 @@ def resubmit_all_fixtures
     assert_response :success
     assert_not_nil r
     assert_equal r, @response.body
-  
+
     # packages
     get "/source/#{name}"
     assert_response :success
@@ -41,7 +41,7 @@ def resubmit_all_fixtures
       get "/source/#{name}/#{p['name']}/_meta"
       assert_response :success
       assert_not_nil r
-      assert_equal r, @response.body
+      assert_equal r, @response.body, "in #{name}"
     end
   end
 end

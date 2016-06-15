@@ -38,13 +38,17 @@
 . /etc/rc.status
 
 API_ROOT=/srv/www/obs/api
-CLOCKWORKD=/usr/bin/clockworkd
+CLOCKWORKD=/usr/bin/clockworkd.ruby2.3
+
+# If you are using newrelic_rpm you need this
+# to fix detection of our delay_job.api daemons
+export NEW_RELIC_DISPATCHER=delayed_job
 
 function run_in_api
 {
   export RAILS_ENV="production"
   # startproc only works for classical daemons
-  chroot --userspec=wwwrun:www / /bin/bash -c "cd $API_ROOT && /usr/bin/bundle exec $*"
+  chroot --userspec=wwwrun:www / /bin/bash -c "cd $API_ROOT && /usr/bin/bundle.ruby2.3 exec $*"
 }
 
 # number of parallel delayed jobs
@@ -59,8 +63,9 @@ case "$1" in
         run_in_api script/delayed_job.api.rb --queue=quick start -n $NUM
         run_in_api script/delayed_job.api.rb --queue=releasetracking start -i 1000
         run_in_api script/delayed_job.api.rb --queue=issuetracking start -i 1010
+        run_in_api script/delayed_job.api.rb --queue=mailers start -i 1020
         # to be removed later. This is just for processing old jobs without default queue
-        run_in_api script/delayed_job.api.rb start -i 1020
+        run_in_api script/delayed_job.api.rb start -i 1030
 	rc_status -v
 	echo -n "Starting OBS api clock daemon "
         run_in_api $CLOCKWORKD --log-dir=log -l -c config/clock.rb start
@@ -69,13 +74,18 @@ case "$1" in
 	;;
     stop)
 	echo -n "Shutting down OBS api delayed job handler "
-        run_in_api script/delayed_job.api.rb stop
+        run_in_api script/delayed_job.api.rb --queue=quick stop -n $NUM
+        run_in_api script/delayed_job.api.rb --queue=releasetracking stop -i 1000
+        run_in_api script/delayed_job.api.rb --queue=issuetracking stop -i 1010
+        run_in_api script/delayed_job.api.rb --queue=mailers stop -i 1020
+        # to be removed later. This is just for processing old jobs without default queue
+        run_in_api script/delayed_job.api.rb stop -i 1030
 	rc_status -v
 	echo -n "Shutting down OBS api clock daemon "
         run_in_api $CLOCKWORKD -l -c config/clock.rb stop
 	rc_status -v
 	echo -n "Shutting down OBS searchd daemon "
-        run_in_api rake ts:stop
+        run_in_api rake.ruby2.3 ts:stop
 	rc_status -v
 	;;
     try-restart|condrestart)
@@ -93,7 +103,7 @@ case "$1" in
     clean-restart)
 	$0 stop
         rm -f $API_ROOT/db/sphinx/production/*
-        run_in_api rake ts:index
+        run_in_api rake.ruby2.3 ts:index
 	$0 start
 
 	rc_status

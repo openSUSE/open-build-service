@@ -8,5 +8,4 @@ class BackendInfoTest < ActiveSupport::TestCase
      BackendInfo.lastnotification_nr = old
      assert_equal BackendInfo.lastnotification_nr, old
   end
-
 end

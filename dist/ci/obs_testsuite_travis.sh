@@ -1,49 +1,47 @@
-#!/bin/sh
-#
-# This script runs all build service test suites depending on $SUBTEST
-#
+#!/bin/bash
+# This script runs the test suites for the CI build
 
-###############################################################################
-# Script content for 'Build' step
-###############################################################################
-#
-# Either invoke as described above or copy into an 'Execute shell' 'Command'.
-#
-
+# Be verbose and fail script on the first error
 set -xe
 
-. `dirname $0`/obs_testsuite_common.sh
+# Everything happens here
+pushd src/api
 
-ret=0
-export OBS_REPORT_DIR=results/
-export HEADLESS=forsure
+# Which test suite should run? By default: all
+if [ -z $1 ]; then
+  TEST_SUITE="all"
+else
+  TEST_SUITE="$1"
+fi
 
-cd src/api
 
 if test -z "$SUBTEST"; then
   export DO_COVERAGE=1
   export TESTOPTS="-v"
-  bundle exec rake test:api
-  bundle exec rake test:webui
-  cat coverage/.last_run.json
-  ruby -rcoveralls -e 'Coveralls.push!'
+  case $TEST_SUITE in
+    api)
+      bundle exec rake test:api
+      ;;
+    webui)
+      bundle exec rake test:webui
+      ;;
+    spider)
+      unset DO_COVERAGE
+      bundle exec rake test:spider
+      ;;
+    rubocop)
+      bundle exec rake rubocop
+      ;;
+    rspec)
+      bundle exec rspec
+      ;;
+    *)
+      bundle exec rake rubocop
+      bundle exec rake test:api
+      bundle exec rake test:webui
+      bundle exec rspec
+      unset DO_COVERAGE
+      bundle exec rake test:spider
+      ;;
+  esac
 fi
-
-case $SUBTEST in
-  rake:*)
-   SUBTEST=${SUBTEST/rake:/}
-   bundle exec rake $SUBTEST --trace
-   ;;
-  api:*)
-   SUBTEST=${SUBTEST/api:/}
-   thetest=${SUBTEST/:*/}
-   thename=${SUBTEST/*:/}
-   bundle exec ruby -Itest test/$thetest --name=$thename || ret=1
-   tail -n 6000 log/test.log
-   ;;
-esac
-
-cd ../..
-cleanup
-exit $ret
-

@@ -39,23 +39,6 @@
     </element>
   </define>
 
-  <define ns="" name="project-download-element">
-    <element name="download">
-      <attribute name="arch">
-        <data type="string" />
-      </attribute>
-      <attribute name="baseurl">
-        <data type="string" />
-      </attribute>
-      <attribute name="mtype">
-        <data type="string" />
-      </attribute>
-      <attribute name="metafile">
-        <data type="string" />
-      </attribute>
-    </element>
-  </define>
-
   <define name="project-element">
     <element>
       <name ns="">project</name>
@@ -172,10 +155,6 @@
 
         <zeroOrMore>
           <ref name="repository-element"/>
-        </zeroOrMore>
-
-        <zeroOrMore>
-          <ref name="project-download-element" />
         </zeroOrMore>
 
       </interleave>

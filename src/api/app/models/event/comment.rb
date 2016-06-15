@@ -1,5 +1,4 @@
 module CommentEvent
-
   def self.included(base)
     base.class_eval do
       payload_keys :commenters, :commenter, :comment_body, :comment_title
@@ -32,7 +31,6 @@ class Event::CommentForProject < ::Event::Project
   def subject
     "New comment in project #{payload['project']} by #{User.find(payload['commenter']).login}"
   end
-
 end
 
 class Event::CommentForPackage < ::Event::Package
@@ -44,21 +42,24 @@ class Event::CommentForPackage < ::Event::Package
   def subject
     "New comment in package #{payload['project']}/#{payload['package']} by #{User.find(payload['commenter']).login}"
   end
-
 end
 
 class Event::CommentForRequest < ::Event::Request
-
   include CommentEvent
   self.description = 'New comment for request created'
-  payload_keys :request_id
+  payload_keys :request_number
   receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer
 
   def subject
-    req = BsRequest.find(payload['id'])
+    req = BsRequest.find_by_number(payload['number'])
     req_payload = req.notify_parameters
-    "Request #{payload['id']} commented by #{User.find(payload['commenter']).login} (#{BsRequest.actions_summary(req_payload)})"
+    "Request #{payload['number']} commented by #{User.find(payload['commenter']).login} (#{BsRequest.actions_summary(req_payload)})"
   end
 
+  def set_payload(attribs, keys)
+    # limit the error string
+    attribs['comment'] = attribs['comment'][0..800] unless attribs['comment'].blank?
+    attribs['files'] = attribs['files'][0..800] unless attribs['files'].blank?
+    super(attribs, keys)
+  end
 end
-

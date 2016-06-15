@@ -1,24 +1,20 @@
 require 'opensuse/backend'
 
-class ProjectCreateAutoCleanupRequests
-
-  Description="This is a kind request to remove this project.
+class ProjectCreateAutoCleanupRequests < ActiveJob::Base
+  Description="This is a humble request to remove this project.
 Accepting this request will free resources on our always crowded server.
 Please decline this request if you want to keep this repository nevertheless. Otherwise this request
 will get accepted automatically in near future.
 Such requests get not created for projects with open requests or if you remove the OBS:AutoCleanup attribute."
 
-  def initialize
-  end
-
   def perform
     # disabled ?
-    cleanupDays = ::Configuration.first.cleanup_after_days
+    cleanupDays = ::Configuration.cleanup_after_days
     return unless cleanupDays and cleanupDays > 0
 
     # defaults
     User.current ||= User.find_by_login "Admin"
-    @cleanup_attribute = AttribType.find_by_namespace_and_name("OBS", "AutoCleanup")
+    @cleanup_attribute = AttribType.find_by_namespace_and_name!("OBS", "AutoCleanup")
     @cleanupTime = DateTime.now + cleanupDays.days
 
     Project.find_by_attribute_type(@cleanup_attribute).each do |prj|
@@ -31,13 +27,19 @@ Such requests get not created for projects with open requests or if you remove t
     return if prj.nil? or prj.is_locked?
 
     # open requests do block the cleanup
-    return if BsRequest.open_requests_for(prj).length > 0
+    open_requests_count = BsRequest.in_states([:new, :review, :declined]).
+      joins(:bs_request_actions).
+      where("bs_request_actions.target_project = ? OR bs_request_actions.source_project = ?", prj.name, prj.name).
+      count
+    return if open_requests_count > 0
 
     # check the time in project attribute
     time = nil
     begin
-      return unless attribute = prj.attribs.find_by_attrib_type_id(@cleanup_attribute.id)
-      return unless time = DateTime.parse(attribute.values.first.value)
+      attribute = prj.attribs.find_by_attrib_type_id(@cleanup_attribute.id)
+      return unless attribute
+      time = DateTime.parse(attribute.values.first.value)
+      return unless time
     rescue ArgumentError
       # not parseable time
       return
@@ -57,9 +59,6 @@ Such requests get not created for projects with open requests or if you remove t
                                        <accept_at>' + @cleanupTime.to_s + '</accept_at>
                                      </request>')
     req.save!
-    notify = req.notify_parameters
-    Event::RequestCreate.create notify
+    Event::RequestCreate.create(req.notify_parameters)
   end
-
 end
-

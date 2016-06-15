@@ -1,13 +1,12 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
-class PublishedControllerTest < ActionDispatch::IntegrationTest 
-
+class PublishedControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
 
   def setup
-    super
     wait_for_scheduler_start
-    wait_for_publisher()
+    run_publisher()
+    reset_auth
   end
 
   def test_index
@@ -54,13 +53,28 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
 #    assert_response 404
   end
 
+  def test_ymp_as_used_on_software_o_o
+    login_adrian
+    get "/published/home:Iggy/10.2/TestPack?view=ymp"
+    assert_response :success
+    assert_xml_tag :parent => {:tag => 'repository', :attributes => { :recommended => "true" }},
+                   tag: "url", content: "http://example.com/download/home:/Iggy/10.2/"
+    assert_xml_tag :parent => {:tag => 'repository', :attributes => { :recommended => "false" }},
+                   tag: "url", content: "http://example.com/download/BaseDistro/BaseDistro_repo/"
+
+    # software description
+    assert_xml_tag :tag => 'name', :content => "TestPack"
+    assert_xml_tag :tag => 'summary', :content => "The TestPack package"
+    assert_xml_tag :tag => 'description', :content => "The TestPack package"
+  end
+
   def test_binary_view
     get "/published/kde4/openSUSE_11.3/i586/kdelibs-3.2.1-1.5.i586.rpm"
     assert_response 401
 
     login_tom
     get "/published/kde4/openSUSE_11.3/i586/kdelibs-3.2.1-1.5.i586.rpm"
-    assert_response 404 #does not exist
+    assert_response 404 # does not exist
   end
   # FIXME: this needs to be extended, when we have added binaries and bs_publisher to the test suite
 
@@ -118,13 +132,13 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
            # seems to be a SUSE system
            if p["format"]["rpm:suggests"].nil?
              print "createrepo seems not to create week dependencies, we need this at least on SUSE systems"
-           end 
+           end
            assert_equal "pure_optional", p["format"]["rpm:suggests"]['rpm:entry']['name']
            assert_equal "would_be_nice", p["format"]["rpm:recommends"]['rpm:entry']['name']
            assert_equal "other_package_likes_it", p["format"]["rpm:supplements"]['rpm:entry']['name']
            assert_equal "other_package", p["format"]["rpm:enhances"]['rpm:entry']['name']
          end
-      end
+       end
     end
     assert package_seen["package"]
     assert package_seen["package_newweaktags"]
@@ -134,7 +148,12 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
     IO.popen("cat #{Rails.root}/tmp/backend_data/repos/BaseDistro3/BaseDistro3_repo/repodata/repomd.xml") do |io|
        hashed = Xmlhash.parse(io.read)
     end
-    assert_equal hashed["tags"]["repo"], "obsrepository://obstest/BaseDistro3/BaseDistro3_repo"
+    if File.exist? '/var/adm/fillup-templates'
+      # seems to be a SUSE system
+      assert_equal hashed["tags"]["repo"], "obsrepository://obstest/BaseDistro3/BaseDistro3_repo"
+    else
+      puts "WARNING: some tests are skipped on non-SUSE systems. rpmmd meta data may not be complete."
+    end
   end
 
   def test_suse_format
@@ -148,6 +167,7 @@ class PublishedControllerTest < ActionDispatch::IntegrationTest
     assert_match(/\nVENDOR Open Build Service/, @response.body)
     assert_match(/\nARCH.x86_64 x86_64 i686 i586 i486 i386 noarch/, @response.body)
     assert_match(/\nARCH.i586 i586 i486 i386 noarch/, @response.body)
+    assert_match(/\nARCH.k1om k1om noarch/, @response.body)
     assert_match(/\nDEFAULTBASE i586\n/, @response.body)
     assert_match(/\nDESCRDIR descr\n/, @response.body)
     assert_match(/\nDATADIR .\n/, @response.body)

@@ -1,6 +1,4 @@
 class Webui::MainController < Webui::WebuiController
-
-  include Webui::WebuiHelper
   include StatisticsCalculations
 
   # permissions.status_message_create
@@ -78,7 +76,9 @@ class Webui::MainController < Webui::WebuiController
     result.each do |pid, name|
       @packages << [projects[pid], name]
     end
-    render :template => 'webui/main/sitemap_packages', :layout => false, :locals => {:action => params[:listaction]}, :content_type => 'application/xml'
+    render :template => 'webui/main/sitemap_packages',
+           :layout => false, :locals => {:action => params[:listaction]},
+           :content_type => 'application/xml'
   end
 
   def add_news_dialog
@@ -86,11 +86,11 @@ class Webui::MainController < Webui::WebuiController
   end
 
   def add_news
-    if params[:message].nil? or params[:severity].empty?
+    if params[:message].nil? or params[:severity].blank?
       flash[:error] = 'Please provide a message and severity'
       redirect_to(:action => 'index') and return
     end
-    #TODO - make use of permissions.status_message_create
+    # TODO - make use of permissions.status_message_create
     StatusMessage.create!(message: params[:message], severity: params[:severity], user: User.current)
     redirect_to(:action => 'index')
   end
@@ -104,5 +104,4 @@ class Webui::MainController < Webui::WebuiController
     StatusMessage.find(params[:message_id]).delete
     redirect_to(:action => 'index')
   end
-
 end

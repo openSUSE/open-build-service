@@ -1,5 +1,5 @@
+# rubocop:disable Metrics/LineLength
 class XpathEngine
-
   require 'rexml/parsers/xpathparser'
 
   class IllegalXpathError < APIException
@@ -8,18 +8,20 @@ class XpathEngine
 
   def initialize
     @lexer = REXML::Parsers::XPathParser.new
-    
+
     @tables = {
-      'attribute' => 'attribs',
-      'package' => 'packages',
-      'project' => 'projects',
-      'person' => 'users',
-      'repository' => 'repositories',
-      'issue' => 'issues',
-      'request' => 'requests',
-      'released_binary' => 'binaries'
+      'attribute'       => 'attribs',
+      'package'         => 'packages',
+      'project'         => 'projects',
+      'person'          => 'users',
+      'repository'      => 'repositories',
+      'issue'           => 'issues',
+      'request'         => 'requests',
+      'channel_binary'  => 'channel_binaries',
+      'released_binary' => 'released_binaries'
     }
-    
+
+    # rubocop:disable Style/AlignHash
     @attribs = {
       'packages' => {
         '@project' => {:cpart => 'projects.name',
@@ -29,95 +31,62 @@ class XpathEngine
         'description' => {:cpart => 'packages.description'},
         'kind' => {:cpart => 'package_kinds.kind', :joins =>
            ['LEFT JOIN package_kinds ON package_kinds.package_id = packages.id']},
-        'devel/@project' => {:cpart => 'projs.name', :joins => 
+        'devel/@project' => {:cpart => 'projs.name', :joins =>
           ['left join packages devels on packages.develpackage_id = devels.id',
            'left join projects projs on devels.project_id=projs.id']},
-        'devel/@package' => {:cpart => 'develpackage.name', :joins => 
+        'devel/@package' => {:cpart => 'develpackage.name', :joins =>
           ['LEFT JOIN packages develpackage ON develpackage.id = packages.develpackage_id']},
-        'issue/@state' => {:cpart => 'issues.state', :joins => 
-          ['LEFT JOIN package_issues ON packages.id = package_issues.package_id',
-           'LEFT JOIN issues ON issues.id = package_issues.issue_id',
-           'LEFT JOIN attribs ON attribs.package_id = packages.id',
-           'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
-           'LEFT JOIN issues AS issues2 ON issues2.id = attrib_issues.issue_id',
-          ]},
-        'issue/@name' => {:cpart => 'issues.name = ? or issues2.name', :double => true, :joins =>
-          ['LEFT JOIN package_issues ON packages.id = package_issues.package_id',
-           'LEFT JOIN issues ON issues.id = package_issues.issue_id',
-           'LEFT JOIN attribs ON attribs.package_id = packages.id',
-           'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
-           'LEFT JOIN issues AS issues2 ON issues2.id = attrib_issues.issue_id',
-          ]},
-        'issue/@tracker' => {:cpart => 'issue_trackers.name', :joins =>
-          ['LEFT JOIN package_issues ON packages.id = package_issues.package_id',
-           'LEFT JOIN issue_trackers ON issues.issue_tracker_id = issue_trackers.id',
-           'LEFT JOIN attribs ON attribs.package_id = packages.id',
-           'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
-           'LEFT JOIN issue_trackers AS issue_trackers2 ON issues.issue_tracker_id = issue_trackers2.id'
-          ]},
-        'issue/@change' => {:cpart => 'package_issues.change',
-                            joins: 'LEFT JOIN package_issues ON packages.id = package_issues.package_id'},
-        'issue/owner/@email' => {:cpart => 'users2.email = ? or users.email', :double => 1, :joins => 
-          ['LEFT JOIN package_issues ON packages.id = package_issues.package_id',
-           'LEFT JOIN issues ON issues.id = package_issues.issue_id',
-           'LEFT JOIN users ON users.id = issues.owner_id',
-           'LEFT JOIN attribs ON attribs.package_id = packages.id',
-           'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
-           'LEFT JOIN issues2 ON issues2.id = attrib_issues.issue_id',
-           'LEFT JOIN users AS users2 ON users.id = issues2.owner_id']},
-        'issue/owner/@login' => {:cpart => 'users2.login = ? or users.login', :double => 1, :joins => 
-          ['LEFT JOIN package_issues ON packages.id = package_issues.package_id',
-           'LEFT JOIN issues ON issues.id = package_issues.issue_id',
-           'LEFT JOIN users ON users.id = issues.owner_id',
-           'LEFT JOIN attribs ON attribs.package_id = packages.id',
-           'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
-           'LEFT JOIN users AS users2 ON users2.id = issues.owner_id']},
-        'person/@userid' => {:cpart => 'users.login', :joins => 
-          ['LEFT JOIN relationships rpu ON packages.id = package_id',
-           'LEFT JOIN users ON users.id = rpu.user_id']},
+        'issue/@state' => {:cpart => 'issues.state'},
+        'issue/@name' => {:cpart => 'issues.name'},
+        'issue/@tracker' => {:cpart => 'issue_trackers.name'},
+        'issue/@change' => {:cpart => 'package_issues.change'},
+        'issue/owner/@email' => {:cpart => 'users.email', :joins =>
+          [ 'LEFT JOIN users ON users.id = issues.owner_id' ]},
+        'issue/owner/@login' => {:cpart => 'users.login', :joins =>
+          [ 'LEFT JOIN users ON users.id = issues.owner_id' ]},
+        'attribute_issue/@state' => {:cpart => 'attribissues.state'},
+        'attribute_issue/@name' => {:cpart => 'attribissues.name'},
+        'attribute_issue/@tracker' => {:cpart => 'attribissue_trackers.name'},
+        'attribute_issue/owner/@email' => {:cpart => 'users.email', :joins =>
+          [ 'LEFT JOIN users ON users.id = attribissues.owner_id' ]},
+        'attribute_issue/owner/@login' => {:cpart => 'users.login', :joins =>
+          [ 'LEFT JOIN users ON users.id = attribissues.owner_id' ]},
+        'person/@userid' => {:cpart => 'users.login', :joins =>
+          [ 'LEFT JOIN users ON users.id = user_relation.user_id']},
         'person/@role' => {:cpart => 'ppr.title', :joins =>
-          ['LEFT JOIN relationships rpr ON packages.id = rpr.package_id',
-           'LEFT JOIN roles AS ppr ON rpr.role_id = ppr.id']},
+          [ 'LEFT JOIN roles AS ppr ON user_relation.role_id = ppr.id']},
         'group/@groupid' => {:cpart => 'groups.title', :joins =>
-          ['LEFT JOIN relationships AS ppr ON packages.id = ppr.package_id',
-           'LEFT JOIN groups ON groups.id = ppr.group_id']},
+          [ 'LEFT JOIN groups ON groups.id = group_relation.group_id']},
         'group/@role' => {:cpart => 'gpr.title', :joins =>
-          ['LEFT JOIN relationships ON packages.id = relationships.package_id',
-           'LEFT JOIN roles AS gpr ON relationships.role_id = gpr.id']},
+          [ 'LEFT JOIN roles AS gpr ON group_relation.role_id = gpr.id']},
         'attribute/@name' => {:cpart => 'attrib_namespaces.name = ? AND attrib_types.name',
-          :split => ':', :joins => 
-          ['LEFT JOIN attribs ON attribs.package_id = packages.id',
-           'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
+          :split => ':', :joins =>
+          ['LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
            'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id',
            'LEFT JOIN attribs AS attribsprj ON attribsprj.project_id = packages.project_id',   # include also, when set in project
-           'LEFT JOIN attrib_types AS attrib_typesprj ON attribsprj.attrib_type_id = attrib_typesprj.id', 
+           'LEFT JOIN attrib_types AS attrib_typesprj ON attribsprj.attrib_type_id = attrib_typesprj.id',
            'LEFT JOIN attrib_namespaces AS attrib_namespacesprj ON attrib_typesprj.attrib_namespace_id = attrib_namespacesprj.id']},
         'project/attribute/@name' => {:cpart => 'attrib_namespaces_proj.name = ? AND attrib_types_proj.name', :split => ':', :joins =>
           ['LEFT JOIN attribs AS attribs_proj ON attribs_proj.project_id = packages.project_id',
            'LEFT JOIN attrib_types AS attrib_types_proj ON attribs_proj.attrib_type_id = attrib_types_proj.id',
-           'LEFT JOIN attrib_namespaces AS attrib_namespaces_proj ON attrib_types_proj.attrib_namespace_id = attrib_namespaces_proj.id']},
+           'LEFT JOIN attrib_namespaces AS attrib_namespaces_proj ON attrib_types_proj.attrib_namespace_id = attrib_namespaces_proj.id']}
       },
       'projects' => {
         '@name' => {:cpart => 'projects.name'},
-        '@kind' => {:cpart => 'pt.name', :joins => [
-          'LEFT JOIN db_project_types pt ON projects.type_id = pt.id']},
+        '@kind' => {:cpart => 'projects.kind'},
         'title' => {:cpart => 'projects.title'},
         'description' => {:cpart => 'projects.description'},
         'maintenance/maintains/@project' => {:cpart => 'maintains_prj.name', :joins => [
           'LEFT JOIN maintained_projects AS maintained_prj ON projects.id = maintained_prj.maintenance_project_id',
           'LEFT JOIN projects AS maintains_prj ON maintained_prj.project_id = maintains_prj.id']},
         'person/@userid' => {:cpart => 'users.login', :joins => [
-          'LEFT JOIN relationships AS rpr ON projects.id = rpr.project_id',
-          'LEFT JOIN users ON users.id = rpr.user_id']},
+          'LEFT JOIN users ON users.id = user_relation.user_id']},
         'person/@role' => {:cpart => 'ppr.title', :joins => [
-          'LEFT JOIN relationships ON projects.id = relationships.project_id',
-          'LEFT JOIN roles AS ppr ON relationships.role_id = ppr.id']},
+          'LEFT JOIN roles AS ppr ON user_relation.role_id = ppr.id']},
         'group/@groupid' => {:cpart => 'groups.title', :joins =>
-          ['LEFT JOIN relationships gprs ON projects.id = gprs.project_id',
-           'LEFT JOIN groups ON groups.id = gprs.group_id']},
+          [ 'LEFT JOIN groups ON groups.id = group_relation.group_id']},
         'group/@role' => {:cpart => 'gpr.title', :joins =>
-          ['LEFT JOIN relationships AS gprs ON projects.id = gprs.project_id',
-           'LEFT JOIN roles AS gpr ON gprs.role_id = gpr.id']},
+          [ 'LEFT JOIN roles AS gpr ON group_relation.role_id = gpr.id']},
         'repository/@name' => {:cpart => 'repositories.name'},
         'repository/path/@project' => {:cpart => 'childs.name', :joins => [
           'join repositories r on r.db_project_id=projects.id',
@@ -127,14 +96,52 @@ class XpathEngine
         'repository/releasetarget/@trigger' => {:cpart => 'rt.trigger', :joins => [
           'join repositories r on r.db_project_id=projects.id',
           'join release_targets rt on rt.repository_id=r.id']},
-        'package/@name' => {:cpart => 'packs.name', :joins => 
+        'package/@name' => {:cpart => 'packs.name', :joins =>
           ['LEFT JOIN packages AS packs ON packs.project_id = projects.id']},
-        'attribute/@name' => {:cpart => 'attrib_namespaces.name = ? AND attrib_types.name', :split => ':', :joins => 
+        'attribute/@name' => {:cpart => 'attrib_namespaces.name = ? AND attrib_types.name', :split => ':', :joins =>
           ['LEFT JOIN attribs ON attribs.project_id = projects.id',
            'LEFT JOIN attrib_types ON attribs.attrib_type_id = attrib_types.id',
-           'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id']},
+           'LEFT JOIN attrib_namespaces ON attrib_types.attrib_namespace_id = attrib_namespaces.id']}
       },
-      'binaries' => {
+      'repositories' => {
+        '@project' => {cpart: 'pr.name',
+                       joins: 'LEFT JOIN projects AS pr ON repositories.db_project_id=pr.id' },
+        '@name' => {cpart: 'repositories.name'},
+        'path/@project' => {:cpart => 'pathrepoprj.name', :joins => [
+          'LEFT join projects pathrepoprj on path_repo.db_project_id=pathrepoprj.id']},
+        'path/@repository' => {:cpart => 'path_repo.name' },
+        'targetproduct/@project' => {:cpart => 'tpprj.name', :joins => [
+          'LEFT join packages tppkg on tppkg.id=product.package_id ',
+          'LEFT join projects tpprj on tpprj.id=tppkg.project_id ']},
+        'targetproduct/@arch' => {:cpart => 'tppa.name', :joins => [
+          'LEFT join architectures tppa on tppa.id=product_update_repository.arch_filter_id ']},
+        'targetproduct/@name' => {:cpart => 'product.name'},
+        'targetproduct/@baseversion' => {:cpart => 'product.baseversion'},
+        'targetproduct/@patchlevel' => {:cpart => 'product.patchlevel'},
+        'targetproduct/@version' => {:cpart => 'product.version'}
+      },
+      'channel_binaries' => {
+        '@name' => {:cpart => 'channel_binaries.name'},
+        '@binaryarch' => {:cpart => 'channel_binaries.binaryarch'},
+        '@package' => {:cpart => 'channel_binaries.package'},
+        '@project' => {:cpart => 'cprj.name', :joins => [
+          'LEFT join packages cpkg on cpkg.id=channel.package_id',
+          'LEFT join projects cprj on cprj.id=cpkg.project_id']},
+        '@supportstatus' => {:cpart => 'supportstatus'},
+        'target/disabled' => {:cpart => 'ufdct.disabled', :joins => [
+          'LEFT join channel_targets ufdct on ufdct.channel_id=channel.id']},
+        'updatefor/@project' => {:cpart => 'puprj.name', :joins => [
+          'LEFT join channel_targets ufct on ufct.channel_id=channel.id',
+          'LEFT join product_update_repositories pur on pur.repository_id=ufct.repository_id',
+          'LEFT join products pun on pun.id=pur.product_id ',
+          'LEFT join packages pupkg on pupkg.id=pun.package_id ',
+          'LEFT join projects puprj on puprj.id=pupkg.project_id ']},
+        'updatefor/@product' => {:cpart => 'pupn.name', :joins => [
+          'LEFT join channel_targets ufnct on ufnct.channel_id=channel.id',
+          'LEFT join product_update_repositories pnur on pnur.repository_id=ufnct.repository_id',
+          'LEFT join products pupn on pupn.id=pnur.product_id ']}
+      },
+      'released_binaries' => {
         '@name' => {:cpart => 'binary_name'},
         '@version' => {:cpart => 'binary_version'},
         '@release' => {:cpart => 'binary_release'},
@@ -144,67 +151,40 @@ class XpathEngine
         'updateinfo/@id' => {:cpart => 'binary_updateinfo'},
         'updateinfo/@version' => {:cpart => 'binary_updateinfo_version'},
         'operation' => {:cpart => 'operation'},
+        'modify/@time' => {:cpart => 'modify_time'},
         'obsolete/@time' => {:cpart => 'obsolete_time'},
         'repository/@project' => {:cpart => 'release_projects.name'},
         'repository/@name' => {:cpart => 'release_repositories.name'},
+        'publish/@time' => {:cpart => 'binary_releasetime'},
+        'publish/@package' => {:cpart => 'ppkg.name', :joins => [
+          'LEFT join packages ppkg on ppkg.id=release_package_id'
+        ]},
         'updatefor/@project' => {:cpart => 'puprj.name', :joins => [
-          'LEFT join product_update_repositories pur on pur.repository_id=release_repositories.id',
-          'LEFT join products pun on pun.id=pur.product_id ',
-          'LEFT join packages pupkg on pupkg.id=pun.package_id ',
+          'LEFT join packages pupkg on pupkg.id=product_update.package_id ',
           'LEFT join projects puprj on puprj.id=pupkg.project_id ']},
         'updatefor/@arch' => {:cpart => 'pupa.name', :joins => [
-          'LEFT join product_update_repositories pnuar on pnuar.repository_id=release_repositories.id',
-          'LEFT join architectures pupa on pupa.id=pnuar.arch_filter_id ']},
-        'updatefor/@product' => {:cpart => 'pupn.name', :joins => [
-          'LEFT join product_update_repositories pnur on pnur.repository_id=release_repositories.id',
-          'LEFT join products pupn on pupn.id=pnur.product_id ']},
-        'updatefor/@baseversion' => {:cpart => 'pupnb.baseversion', :joins => [
-          'LEFT join product_update_repositories pnurb on pnurb.repository_id=release_repositories.id',
-          'LEFT join products pupnb on pupnb.id=pnurb.product_id ']},
-        'updatefor/@patchlevel' => {:cpart => 'pupnp.patchlevel', :joins => [
-          'LEFT join product_update_repositories pnurp on pnurp.repository_id=release_repositories.id',
-          'LEFT join products pupnp on pupnp.id=pnurp.product_id ']},
-        'updatefor/@version' => {:cpart => 'pupnv.version', :joins => [
-          'LEFT join product_update_repositories pnurv on pnurv.repository_id=release_repositories.id',
-          'LEFT join products pupnv on pupnv.id=pnurv.product_id ']},
+          'LEFT join architectures pupa on pupa.id=product_update_repository.arch_filter_id ']},
+        'updatefor/@product' => {:cpart => 'product_update.name'},
+        'updatefor/@baseversion' => {:cpart => 'product_update.baseversion'},
+        'updatefor/@patchlevel' => {:cpart => 'product_update.patchlevel'},
+        'updatefor/@version' => {:cpart => 'product_update.version'},
         'product/@project' => {:cpart => 'pprj.name', :joins => [
-          'LEFT join product_media pm on (pm.repository_id=release_repositories.id
-            AND pm.name=binary_releases.medium)',
-          'LEFT join products pn on pn.id=pm.product_id ',
-          'LEFT join packages ppkg on ppkg.id=pn.package_id ',
+          'LEFT join packages ppkg on ppkg.id=product_ga.package_id ',
           'LEFT join projects pprj on pprj.id=ppkg.project_id ']},
-        'product/@version' => {:cpart => 'pvv.version', :joins => [
-          'LEFT join product_media pmv on (pmv.repository_id=release_repositories.id
-            AND pmv.name=binary_releases.medium)',
-          'LEFT join products pvv on pvv.id=pmv.product_id ']},
-        'product/@release' => {:cpart => 'pvr.release', :joins => [
-          'LEFT join product_media pmr on (pmr.repository_id=release_repositories.id
-            AND pmr.name=binary_releases.medium)',
-          'LEFT join products pvr on pvr.id=pmr.product_id ']},
-        'product/@baseversion' => {:cpart => 'pvb.baseversion', :joins => [
-          'LEFT join product_media pmb on (pmb.repository_id=release_repositories.id
-            AND pmb.name=binary_releases.medium)',
-          'LEFT join products pvb on pvb.id=pmb.product_id ']},
-        'product/@patchlevel' => {:cpart => 'pvp.patchlevel', :joins => [
-          'LEFT join product_media pmp on (pmp.repository_id=release_repositories.id
-            AND pmp.name=binary_releases.medium)',
-          'LEFT join products pvp on pvp.id=pmp.product_id ']},
-        'product/@name' => {:cpart => 'ppn.name', :joins => [
-          'LEFT join product_media ppm on (ppm.repository_id=release_repositories.id
-            AND ppm.name=binary_releases.medium)',
-          'LEFT join products ppn on ppn.id=ppm.product_id ']},
+        'product/@version' => {:cpart => 'product_ga.version'},
+        'product/@release' => {:cpart => 'product_ga.release'},
+        'product/@baseversion' => {:cpart => 'product_ga.baseversion'},
+        'product/@patchlevel' => {:cpart => 'product_ga.patchlevel'},
+        'product/@name' => {:cpart => 'product_ga.name'},
         'product/@arch' => {:cpart => 'ppna.name', :joins => [
-          'LEFT join product_media ppma on (ppma.repository_id=release_repositories.id
-            AND ppma.name=binary_releases.medium)',
-          'LEFT join architectures ppna on ppna.id=ppm.arch_filter_id ']},
-        'product/@medium' => {:cpart => 'mpm.name', :joins => [
-          'LEFT join product_media mpm on mpm.repository_id=release_repositories.id']},
+          'LEFT join architectures ppna on ppna.id=product_media.arch_filter_id ']},
+        'product/@medium' => {:cpart => 'product_media.name'}
       },
       'users' => {
         '@login' => {:cpart => 'users.login'},
         '@email' => {:cpart => 'users.email'},
         '@realname' => {:cpart => 'users.realname'},
-        '@state' => {:cpart => 'users.state'},
+        '@state' => {:cpart => 'users.state'}
        },
       'issues' => {
         '@name' => {:cpart => 'issues.name'},
@@ -212,21 +192,23 @@ class XpathEngine
         '@tracker' => {cpart: 'issue_trackers.name',
                        joins: 'LEFT JOIN issue_trackers ON issues.issue_tracker_id = issue_trackers.id'
         },
-        'owner/@email' => {:cpart => 'users.email', :joins => 
+        'owner/@email' => {:cpart => 'users.email', :joins =>
           ['LEFT JOIN users ON users.id = issues.owner_id']},
-        'owner/@login' => {:cpart => 'users.login', :joins => 
-          ['LEFT JOIN users ON users.id = issues.owner_id']},
+        'owner/@login' => {:cpart => 'users.login', :joins =>
+          ['LEFT JOIN users ON users.id = issues.owner_id']}
       },
       'requests' => {
-        '@id' => { :cpart => 'bs_requests.id' },
+        '@id' => { :cpart => 'bs_requests.number' },
         'state/@name' => { :cpart => 'bs_requests.state' },
         'state/@who' => { :cpart => 'bs_requests.commenter' },
         'state/@when' => { :cpart => 'bs_requests.updated_at' },
         'action/@type' => { :cpart => 'a.type',
                             joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id"
         },
-        'action/grouped/@id' => { cpart: 'g.bs_request_id',
-                                  joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id LEFT JOIN group_request_requests g on g.bs_request_action_group_id = a.id" },
+        'action/grouped/@id' => { cpart: 'gr.number',
+                                  joins: ["LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id",
+                                          "LEFT JOIN group_request_requests g on g.bs_request_action_group_id = a.id",
+                                          "LEFT JOIN bs_requests gr on gr.id = g.bs_request_id"] },
         'action/target/@project' => { :cpart => 'a.target_project', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
         'action/target/@package' => { :cpart => 'a.target_package', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
         'action/source/@project' => { :cpart => 'a.source_project', joins: "LEFT JOIN bs_request_actions a ON a.bs_request_id = bs_requests.id" },
@@ -247,9 +229,10 @@ class XpathEngine
         'submit/target/@project' => { empty: true },
         'submit/target/@package' => { empty: true },
         'submit/source/@project' => { empty: true },
-        'submit/source/@package' => { empty: true },
+        'submit/source/@package' => { empty: true }
       }
     }
+    # rubocop:enable Style/AlignHash
 
     @operators = [:eq, :and, :or, :neq, :gt, :lt, :gteq, :lteq]
 
@@ -266,7 +249,7 @@ class XpathEngine
 
   # Careful: there is no return value, the items found are passed to the calling block
   def find(xpath)
-    #logger.debug "---------------------- parsing xpath: #{xpath} -----------------------"
+    # logger.debug "---------------------- parsing xpath: #{xpath} -----------------------"
 
     begin
       @stack = @lexer.parse xpath
@@ -275,7 +258,7 @@ class XpathEngine
       #  undefined method `[]' for nil:NilClass
       raise IllegalXpathError, "failed to parse #{e.inspect}"
     end
-    #logger.debug "starting stack: #{@stack.inspect}"
+    # logger.debug "starting stack: #{@stack.inspect}"
 
     if @stack.shift != :document
       raise IllegalXpathError, "xpath expression has to begin with root node"
@@ -293,7 +276,7 @@ class XpathEngine
 
     while !@stack.empty?
       token = @stack.shift
-      #logger.debug "next token: #{token.inspect}"
+      # logger.debug "next token: #{token.inspect}"
       case token
       when :ancestor
       when :ancestor_or_self
@@ -312,8 +295,8 @@ class XpathEngine
         if @stack.shift != :qname
           raise IllegalXpathError, "non :qname token after :child token: #{token.inspect}"
         end
-        @stack.shift #namespace
-        @stack.shift #node
+        @stack.shift # namespace
+        @stack.shift # node
       when :predicate
         parse_predicate([], @stack.shift)
       else
@@ -321,17 +304,36 @@ class XpathEngine
       end
     end
 
-    #logger.debug "-------------------- end parsing xpath: #{xpath} ---------------------"
+    # logger.debug "-------------------- end parsing xpath: #{xpath} ---------------------"
 
     relation = nil
     order = nil
     case @base_table
     when 'packages'
       relation = Package.all
+      @joins = ['LEFT JOIN package_issues ON packages.id = package_issues.package_id',
+                'LEFT JOIN issues ON issues.id = package_issues.issue_id',
+                'LEFT JOIN issue_trackers ON issues.issue_tracker_id = issue_trackers.id',
+                'LEFT JOIN attribs ON attribs.package_id = packages.id',
+                'LEFT JOIN attrib_issues ON attrib_issues.attrib_id = attribs.id',
+                'LEFT JOIN issues AS attribissues ON attribissues.id = attrib_issues.issue_id',
+                'LEFT JOIN issue_trackers AS attribissue_trackers ON attribissues.issue_tracker_id = attribissue_trackers.id',
+                'LEFT JOIN relationships user_relation ON packages.id = user_relation.package_id',
+                'LEFT JOIN relationships group_relation ON packages.id = group_relation.package_id'
+               ] << @joins
     when 'projects'
       relation = Project.all
+      @joins = ['LEFT JOIN relationships user_relation ON projects.id = user_relation.project_id',
+                'LEFT JOIN relationships group_relation ON projects.id = group_relation.project_id'
+               ] << @joins
     when 'repositories'
-      relation = Repository.where("db_project_id not in (?)", Relationship.forbidden_project_ids)
+      relation = Repository.where("repositories.db_project_id not in (?)", Relationship.forbidden_project_ids)
+      @joins = ['LEFT join path_elements path_element on path_element.parent_id=repositories.id',
+                'LEFT join repositories path_repo on path_element.repository_id=path_repo.id',
+                'LEFT join release_targets release_target on release_target.repository_id=repositories.id',
+                'LEFT join product_update_repositories product_update_repository on product_update_repository.repository_id=release_target.target_repository_id',
+                'LEFT join products product on product.id=product_update_repository.product_id '
+               ] << @joins
     when 'requests'
       relation = BsRequest.all
       attrib = AttribType.find_by_namespace_and_name('OBS', 'IncidentPriority')
@@ -345,20 +347,28 @@ class XpathEngine
       relation = User.all
     when 'issues'
       relation = Issue.all
-    when 'binaries'
-      relation = BinaryRelease.includes(
-                    :repository => [ {:product_medium => {:product => {:package => :project}}},
-                                     {:product_update_repositories => :product} ])
+    when 'channel_binaries'
+      relation = ChannelBinary.all
+      @joins = [ 'LEFT join channel_binary_lists channel_binary_list on channel_binary_list.id=channel_binaries.channel_binary_list_id',
+                 'LEFT join channels channel on channel.id=channel_binary_list.channel_id'
+               ] << @joins
+    when 'released_binaries'
+      relation = BinaryRelease.all
 
       @joins = ['LEFT JOIN repositories AS release_repositories ON binary_releases.repository_id = release_repositories.id',
-                 'LEFT JOIN projects AS release_projects ON release_repositories.db_project_id = release_projects.id'] << @joins
+                'LEFT JOIN projects AS release_projects ON release_repositories.db_project_id = release_projects.id',
+                'LEFT join product_media on (product_media.repository_id=release_repositories.id AND product_media.name=binary_releases.medium)',
+                'LEFT join products product_ga on product_ga.id=product_media.product_id ',
+                'LEFT join product_update_repositories product_update_repository on product_update_repository.repository_id=release_repositories.id',
+                'LEFT join products product_update on product_update.id=product_update_repository.product_id '
+               ] << @joins
       order = :binary_releasetime
     else
       logger.debug "strange base table: #{@base_table}"
     end
     cond_ary = [@conditions.flatten.uniq.join(" AND "), @condition_values].flatten
 
-    logger.debug("#{relation.to_sql}.find #{ { joins: @joins.flatten.uniq.join(' '),
+    logger.debug("#{relation.to_sql}.find #{ { joins:      @joins.flatten.uniq.join(' '),
                                                conditions: cond_ary}.inspect }")
     relation = relation.joins(@joins.flatten.uniq.join(" ")).where(cond_ary).order(order)
     # .distinct is critical for perfomance here...
@@ -366,8 +376,8 @@ class XpathEngine
   end
 
   def parse_predicate(root, stack)
-    #logger.debug "------------------ predicate ---------------"
-    #logger.debug "-- pred_array: #{stack.inspect} --"
+    # logger.debug "------------------ predicate ---------------"
+    # logger.debug "-- pred_array: #{stack.inspect} --"
 
     raise IllegalXpathError.new "invalid predicate" if stack.nil?
 
@@ -381,14 +391,6 @@ class XpathEngine
           raise IllegalXpathError, "unknown xpath function '#{fname}'"
         end
         __send__ fname_int, root, *(stack.shift)
-      when *@operators
-        opname = token.to_s
-        opname_int = "xpath_op_"+opname
-        if not respond_to? opname_int
-          raise IllegalXpathError, "unhandled xpath operator '#{opname}'"
-        end
-        __send__ opname_int, root, *(stack)
-        stack = []
       when :child
         t = stack.shift
         if t == :qname
@@ -410,27 +412,35 @@ class XpathEngine
         else
           raise IllegalXpathError, "unhandled token '#{t.inspect}'"
         end
+      when *@operators
+        opname = token.to_s
+        opname_int = "xpath_op_"+opname
+        if not respond_to? opname_int
+          raise IllegalXpathError, "unhandled xpath operator '#{opname}'"
+        end
+        __send__ opname_int, root, *(stack)
+        stack = []
       else
         raise IllegalXpathError, "illegal token X '#{token.inspect}'"
       end
     end
 
-    #logger.debug "-------------- predicate finished ----------"
+    # logger.debug "-------------- predicate finished ----------"
   end
 
-  def evaluate_expr(expr, root, escape=false)
+  def evaluate_expr(expr, root, escape = false)
     table = @base_table
     a = Array.new
     while !expr.empty?
       token = expr.shift
       case token
       when :child
-        expr.shift #qname
-        expr.shift #namespace
+        expr.shift # qname
+        expr.shift # namespace
         a << expr.shift
       when :attribute
         expr.shift #:qname token
-        expr.shift #namespace
+        expr.shift # namespace
         a << "@"+expr.shift
       when :literal
         value = (escape ? escape_for_like(expr.shift) : expr.shift)
@@ -459,7 +469,7 @@ class XpathEngine
     # literal. The real fix is to translate the xpath into SQL directly
     @last_key = key
     raise IllegalXpathError, "unable to evaluate '#{key}' for '#{table}'" unless @attribs[table] and @attribs[table].has_key? key
-    #logger.debug "-- found key: #{key} --"
+    # logger.debug "-- found key: #{key} --"
     if @attribs[table][key][:empty]
       return nil
     end
@@ -477,7 +487,7 @@ class XpathEngine
   end
 
   def xpath_op_eq(root, lv, rv)
-    #logger.debug "-- xpath_op_eq(#{lv.inspect}, #{rv.inspect}) --"
+    # logger.debug "-- xpath_op_eq(#{lv.inspect}, #{rv.inspect}) --"
 
     lval = evaluate_expr(lv, root)
     rval = evaluate_expr(rv, root)
@@ -487,13 +497,13 @@ class XpathEngine
     else
       condition = "#{lval} = #{rval}"
     end
-    #logger.debug "-- condition: [#{condition}]"
+    # logger.debug "-- condition: [#{condition}]"
 
     @conditions << condition
   end
 
   def xpath_op_neq(root, lv, rv)
-    #logger.debug "-- xpath_op_neq(#{lv.inspect}, #{rv.inspect}) --"
+    # logger.debug "-- xpath_op_neq(#{lv.inspect}, #{rv.inspect}) --"
 
     lval = evaluate_expr(lv, root)
     rval = evaluate_expr(rv, root)
@@ -504,7 +514,7 @@ class XpathEngine
       condition = "#{lval} != #{rval}"
     end
 
-    #logger.debug "-- condition: [#{condition}]"
+    # logger.debug "-- condition: [#{condition}]"
 
     @conditions << condition
   end
@@ -538,20 +548,20 @@ class XpathEngine
   end
 
   def xpath_op_and(root, lv, rv)
-    #logger.debug "-- xpath_op_and(#{lv.inspect}, #{rv.inspect}) --"
+    # logger.debug "-- xpath_op_and(#{lv.inspect}, #{rv.inspect}) --"
     parse_predicate(root, lv)
     lv_cond = @conditions.pop
     parse_predicate(root, rv)
     rv_cond = @conditions.pop
 
     condition = "((#{lv_cond}) AND (#{rv_cond}))"
-    #logger.debug "-- condition: [#{condition}]"
+    # logger.debug "-- condition: [#{condition}]"
 
     @conditions << condition
   end
 
   def xpath_op_or(root, lv, rv)
-    #logger.debug "-- xpath_op_or(#{lv.inspect}, #{rv.inspect}) --"
+    # logger.debug "-- xpath_op_or(#{lv.inspect}, #{rv.inspect}) --"
 
     parse_predicate(root, lv)
     lv_cond = @conditions.pop
@@ -565,13 +575,13 @@ class XpathEngine
     else
       condition = "((#{lv_cond}) OR (#{rv_cond}))"
     end
-    #logger.debug "-- condition: [#{condition}]"
+    # logger.debug "-- condition: [#{condition}]"
 
     @conditions << condition
-  end 
+  end
 
   def xpath_func_contains(root, haystack, needle)
-    #logger.debug "-- xpath_func_contains(#{haystack.inspect}, #{needle.inspect}) --"
+    # logger.debug "-- xpath_func_contains(#{haystack.inspect}, #{needle.inspect}) --"
 
     hs = evaluate_expr(haystack, root)
     ne = evaluate_expr(needle, root, true)
@@ -581,13 +591,26 @@ class XpathEngine
     else
       condition = "LOWER(#{hs}) LIKE LOWER(CONCAT('%',#{ne},'%'))"
     end
-    #logger.debug "-- condition : [#{condition}]"
+    # logger.debug "-- condition : [#{condition}]"
 
     @conditions << condition
   end
 
+  def xpath_func_boolean(root, expr)
+    # logger.debug "-- xpath_func_boolean(#{expr}) --"
+
+    @condition_values_needed = 2
+    cond = evaluate_expr(expr, root)
+
+    condition = "NOT (NOT #{cond} OR ISNULL(#{cond}))"
+    # logger.debug "-- condition : [#{condition}]"
+
+    @condition_values_needed = 1
+    @conditions << condition
+  end
+
   def xpath_func_not(root, expr)
-    #logger.debug "-- xpath_func_not(#{expr}) --"
+    # logger.debug "-- xpath_func_not(#{expr}) --"
 
     # An XPath query like "not(@foo='bar')" in the SQL world means, all rows where the 'foo' column
     # is not 'bar' and where it is NULL. As a result, 'cond' below occurs twice in the resulting SQL.
@@ -595,7 +618,7 @@ class XpathEngine
     # occor twice, hence the @condition_values_needed counter. For our example, the resulting SQL will
     # look like:
     #
-    #   SELECT * FROM projects p LEFT JOIN db_project_types t ON p.type_id = t.id 
+    #   SELECT * FROM projects p LEFT JOIN db_project_types t ON p.type_id = t.id
     #            WHERE (NOT t.name = 'maintenance_incident' OR t.name IS NULL);
     #
     # Note that this can result in bloated SQL statements, so some trust in the query optimization
@@ -605,33 +628,34 @@ class XpathEngine
     cond = evaluate_expr(expr, root)
 
     condition = "(NOT #{cond} OR ISNULL(#{cond}))"
-    #logger.debug "-- condition : [#{condition}]"
+    # logger.debug "-- condition : [#{condition}]"
 
     @condition_values_needed = 1
     @conditions << condition
   end
 
   def xpath_func_starts_with(root, x, y)
-    #logger.debug "-- xpath_func_starts_with(#{x.inspect}, #{y.inspect}) --"
+    # logger.debug "-- xpath_func_starts_with(#{x.inspect}, #{y.inspect}) --"
 
     s1 = evaluate_expr(x, root)
     s2 = evaluate_expr(y, root, true)
 
     condition = "#{s1} LIKE CONCAT(#{s2},'%')"
-    #logger.debug "-- condition: [#{condition}]"
+    # logger.debug "-- condition: [#{condition}]"
 
-    @conditions << condition 
-  end 
+    @conditions << condition
+  end
 
   def xpath_func_ends_with(root, x, y)
-    #logger.debug "-- xpath_func_ends_with(#{x.inspect}, #{y.inspect}) --"
+    # logger.debug "-- xpath_func_ends_with(#{x.inspect}, #{y.inspect}) --"
 
     s1 = evaluate_expr(x, root)
     s2 = evaluate_expr(y, root, true)
 
     condition = "#{s1} LIKE CONCAT('%',#{s2})"
-    #logger.debug "-- condition: [#{condition}]"
+    # logger.debug "-- condition: [#{condition}]"
 
-    @conditions << condition 
-  end 
+    @conditions << condition
+  end
 end
+# rubocop:enable Metrics/LineLength

@@ -1,5 +1,4 @@
 class AcceptRequestsJob
-
   def initialize
   end
 
@@ -18,7 +17,4 @@ class AcceptRequestsJob
       end
     end
   end
-
 end
-
-

@@ -1,38 +1,37 @@
-#!/bin/sh
-#
-# This script installs dependencies on travis 
-#
+#!/bin/bash
+# This script prepares the CI build for running
 
-###############################################################################
-# Script content for 'Build' step
-###############################################################################
-#
-# Either invoke as described above or copy into an 'Execute shell' 'Command'.
-#
-
-set -xe
-
-sudo chmod a+w /etc/apt/sources.list.d
-echo 'deb http://download.opensuse.org/repositories/OBS:/Server:/2.6/xUbuntu_12.04 /' > /etc/apt/sources.list.d/opensuse.list
-#sudo apt-get update
-sudo apt-get update -o Dir::Etc::sourcelist="sources.list.d/opensuse.list" -o Dir::Etc::sourceparts="-" -o APT::Get::List-Cleanup="0"
-
-cat > /etc/apt/sources.list.d/security.list << EOF
-deb http://security.ubuntu.com/ubuntu precise-security main restricted
-deb http://security.ubuntu.com/ubuntu precise-security universe
-deb http://security.ubuntu.com/ubuntu precise-security multiverse
-EOF
-sudo apt-get update -o Dir::Etc::sourcelist="sources.list.d/security.list" -o Dir::Etc::sourceparts="-" -o APT::Get::List-Cleanup="0"
-
-# dependencies of backend
-sudo apt-get install --force-yes travis-deps libxml-parser-perl libfile-sync-perl python-rpm python-urlgrabber python-sqlitecachec python-libxml2 createrepo libbssolv-perl sphinxsearch libjson-xs-perl libxml-simple-perl libgd-gd2-perl
+echo "Configuring backend"
+sed -i -e "s|my \$hostname = .*$|my \$hostname = 'localhost';|" \
+       -e "s|our \$bsuser = 'obsrun';|our \$bsuser = 'jenkins';|" \
+       -e "s|our \$bsgroup = 'obsrun';|our \$bsgroup = 'jenkins';|" src/backend/BSConfig.pm.template
+cp src/backend/BSConfig.pm.template src/backend/BSConfig.pm
+chmod a+x src/api/script/start_test_backend
 
 pushd src/api
-if test "$REMOVEGEMLOCK" = true; then
-  rm Gemfile.lock
-fi
-gem install bundler
-echo 'gem "coveralls"' >> Gemfile
-bundle install
+echo "Creating database"
+mysql -e 'create database ci_api_test;'
+
+echo "Configuring database"
+cp config/database.yml.example config/database.yml
+sed -e 's,password:.*,password:,' -i config/database.yml
+sed -i "s|database: api|database: ci_api|" config/database.yml
+
+echo "Configuring frontend"
+cp config/options.yml.example config/options.yml
+cp config/thinking_sphinx.yml.example config/thinking_sphinx.yml
+
+echo "Initialize database"
+bundle exec rake db:drop db:create db:setup --trace
+
+# Stuff
+# travis rvm can not deal with our extended executable names
+sed -i 1,1s,\.ruby2\.3,, {script,bin}/*
+# Clear temp data
+rm -rf log/* tmp/cache tmp/sessions tmp/sockets
 popd
 
+echo "Build apidocs"
+pushd docs/api
+make
+popd

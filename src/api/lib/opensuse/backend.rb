@@ -4,7 +4,6 @@ require 'api_exception'
 
 module Suse
   class Backend
-
     class IllegalEncodingError < APIException
       setup 'invalid_text_encoding'
     end
@@ -20,7 +19,6 @@ module Suse
     end
 
     class << self
-
       attr_accessor :source_host, :source_port
 
       def host
@@ -43,7 +41,7 @@ module Suse
         Rails.logger
       end
 
-      def get(path, in_headers={})
+      def get(path, in_headers = {})
         start_test_backend
         @start_of_last = Time.now
         logger.debug "[backend] GET: #{path}"
@@ -52,7 +50,13 @@ module Suse
 
         response = Net::HTTP.start(host, port) do |http|
           http.read_timeout = timeout
-          http.request backend_request
+          if block_given?
+            http.request(backend_request) do |backend_response|
+              yield(backend_response)
+            end
+          else
+            http.request(backend_request)
+          end
         end
 
         write_backend_log "GET", host, port, path, response
@@ -92,18 +96,18 @@ module Suse
         handle_response response
       end
 
-      def put(path, data, in_headers={})
+      def put(path, data, in_headers = {})
         put_or_post("PUT", path, data, in_headers)
       end
 
-      def post(path, data, in_headers={})
+      def post(path, data, in_headers = {})
         in_headers = {
             'Content-Type' => 'application/octet-stream'
         }.merge in_headers
         put_or_post("POST", path, data, in_headers)
       end
 
-      def delete(path, in_headers={})
+      def delete(path, in_headers = {})
         start_test_backend
         @start_of_last = Time.now
         logger.debug "[backend] DELETE: #{path}"
@@ -115,7 +119,7 @@ module Suse
         end
         write_backend_log "DELETE", host, port, path, response
         handle_response response
-        #do_delete(source_host, source_port, path)
+        # do_delete(source_host, source_port, path)
       end
 
       alias_method :get_source, :get
@@ -123,7 +127,7 @@ module Suse
       alias_method :post_source, :post
       alias_method :delete_source, :delete
 
-      def build_query_from_hash(hash, key_list=nil)
+      def build_query_from_hash(hash, key_list = nil)
         key_list ||= hash.keys
         query = key_list.map do |key|
           if hash.has_key?(key)
@@ -135,18 +139,13 @@ module Suse
 
             if hash[key].nil?
               # just a boolean argument ?
-              [hash[key]].flatten.map { |x| "#{key}" }.join("&")
+              [hash[key]].flat_map { "#{key}" }.join("&")
             else
-              [hash[key]].flatten.map { |x| "#{key}=#{CGI.escape(hash[key].to_s)}" }.join("&")
+              [hash[key]].flat_map { "#{key}=#{CGI.escape(hash[key].to_s)}" }.join("&")
             end
           end
         end
-
-        if query.empty?
-          return ""
-        else
-          return "?"+query.compact.join('&')
-        end
+        query.empty? ? "" : "?#{query.compact.join('&')}"
       end
 
       private
@@ -192,8 +191,18 @@ module Suse
 
       public
 
+      def without_global_write_through
+        before = CONFIG['global_write_through']
+        CONFIG['global_write_through'] = false
+
+        yield
+
+      ensure
+        CONFIG['global_write_through'] = before
+      end
+
       def test_backend?
-        return true if @@backend && @@backend != :dont
+        (!@@backend.nil? && @@backend != :dont)
       end
 
       def do_not_start_test_backend
@@ -201,14 +210,14 @@ module Suse
       end
 
       def start_test_backend
-        #do_not_start_test_backend
+        # do_not_start_test_backend
         return unless Rails.env.test?
         return if @@backend
         return if ENV['BACKEND_STARTED']
         print "Starting test backend..."
         @@backend = IO.popen("#{Rails.root}/script/start_test_backend")
         logger.debug "Test backend started with pid: #{@@backend.pid}"
-        while true do
+        while true
           line = @@backend.gets
           raise RuntimeError.new('Backend died') unless line
           break if line =~ /DONE NOW/
@@ -232,12 +241,11 @@ module Suse
         counter = 0
         marker = Rails.root.join('tmp', 'scheduler.done')
         while counter < 100
-          return if File.exists?(marker)
+          return if File.exist?(marker)
           sleep 0.5
           counter = counter + 1
         end
       end
-
     end
   end
 end

@@ -35,7 +35,7 @@ module Suse
         unless (opt.has_key?(:request) or opt.has_key?(:response))
           raise "missing (or wrong) parameters, #{opt.inspect}"
         end
-        #logger.debug "add validation mapping: #{controller.inspect}, #{action.inspect} => #{opt.inspect}"
+        # logger.debug "add validation mapping: #{controller.inspect}, #{action.inspect} => #{opt.inspect}"
 
         controller = controller.to_s
         @schema_map ||= Hash.new
@@ -62,7 +62,7 @@ module Suse
         key = opt[:action].to_s + '-' + opt[:method].to_s.downcase + '-' + opt[:type].to_s
         key2 = opt[:action].to_s + '-' + opt[:type].to_s
 
-        #logger.debug "checking schema map for controller '#{c}', key: '#{key}'"
+        # logger.debug "checking schema map for controller '#{c}', key: '#{key}'"
         return nil if @schema_map.nil?
         return nil unless @schema_map.has_key? c
         return @schema_map[c][key] || @schema_map[c][key2]
@@ -81,9 +81,9 @@ module Suse
 
         schema_base_filename = schema_location + '/' + schema_file
         schema = nil
-        if File.exists? schema_base_filename + '.rng'
+        if File.exist? schema_base_filename + '.rng'
           schema = Nokogiri::XML::RelaxNG(File.open(schema_base_filename + '.rng'))
-        elsif File.exists? schema_base_filename + '.xsd'
+        elsif File.exist? schema_base_filename + '.xsd'
           schema = Nokogiri::XML::Schema(File.open(schema_base_filename + '.xsd'))
         else
           logger.debug "no schema found, skipping validation for #{opt.inspect}"
@@ -91,12 +91,12 @@ module Suse
         end
 
         if content.nil?
-          raise "illegal option; need content for #{schema_base_filename}"
+          raise "illegal option; need content for #{schema_file}"
         end
         content = content.to_s
         if content.empty?
           logger.debug "no content, skipping validation for #{schema_file}"
-          raise ValidationError, "Document is empty, not allowed for #{schema_base_filename}"
+          raise ValidationError, "Document is empty, not allowed for #{schema_file}"
         end
 
         begin
@@ -113,6 +113,5 @@ module Suse
         return true
       end
     end
-
   end
 end

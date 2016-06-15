@@ -1,8 +1,8 @@
 Return-Path: <obs-email@opensuse.org>
 From: Thor <tschmidt@example.com>
 Sender: OBS Notification <obs-email@opensuse.org>
-To: test_group <test_group@testsuite.org>, 
- Iggy Pop <Iggy@pop.org>
+To: Iggy Pop <Iggy@pop.org>, 
+ test_group <test_group@testsuite.org>
 Message-ID: <notrandom@localhost>
 In-Reply-To: <obs-request-4@localhost>
 References: <obs-request-4@localhost>

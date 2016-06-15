@@ -3,10 +3,7 @@
 require_relative '../../test_helper'
 require 'faker'
 
-SimpleCov.command_name 'test:webui'
-
 class Webui::LoginTest < Webui::IntegrationTest
-  
   #
   def open_home
     find(:id, "link-to-user-home").click
@@ -22,7 +19,6 @@ class Webui::LoginTest < Webui::IntegrationTest
     end
   end
 
-
   #
   def change_user_real_name new_name
     find(:id, 'save_dialog').click
@@ -35,22 +31,34 @@ class Webui::LoginTest < Webui::IntegrationTest
     user_real_name.must_equal new_name
   end
 
+  def test_login_as_user # spec/features/webui/login_spec.rb
+    use_js
 
-  test "login_as_user" do
-    
-    # pretty useless actually :)
-    login_Iggy
-    logout
+    # Login via login page
+    visit user_login_path
+    fill_in "Username", with: "tom"
+    fill_in "Password", with: "buildservice"
+    click_button("Log In")
+
+    assert_equal "tom", find('#link-to-user-home').text
+
+    within("div#subheader") do
+      click_link("Logout")
+    end
+    assert_not page.has_css?("a#link-to-user-home")
+
+    # Login via widget, and different user
+    click_link("Log In")
+    within("div#login-form") do
+      fill_in "Username", with: "king"
+      fill_in "Password", with: "sunflower"
+      click_button("Log In")
+    end
+
+    assert_equal "king", find('#link-to-user-home').text
   end
 
-  test "login_as_second_user" do
-  
-    login_tom
-    logout
-  end
-
-  test "login_invalid_entry" do
-  
+  def test_login_invalid_entry # spec/features/webui/login_spec.rb
     visit root_path
     click_link 'login-trigger'
     within('#login-form') do
@@ -60,43 +68,25 @@ class Webui::LoginTest < Webui::IntegrationTest
     end
     flash_message.must_equal "Authentication failed"
     flash_message_type.must_equal :alert
-
-    login_Iggy
-    logout
   end
 
-  
-  test "login_empty_entry" do
-  
-    visit root_path
-    click_link 'login-trigger'
-    within('#login-form') do
-      fill_in 'Username', with: ''
-      fill_in 'Password', with: ''
-      click_button 'Log In'
-    end
-    flash_message.must_equal "Authentication failed"
-    flash_message_type.must_equal :alert
-    
-  end
-
-  test "change_real_name_for_user" do
+  def test_change_real_name_for_user # spec/features/webui/users/user_home_page.rb
     use_js
 
     login_Iggy
     open_home
     change_user_real_name Faker::Name.name
   end
-  
-  test "remove_user_real_name" do
+
+  def test_remove_user_real_name # spec/features/webui/users/user_home_page.rb
     use_js
 
     login_Iggy
     open_home
     change_user_real_name ""
   end
-  
-  test "real_name_stays_changed" do
+
+  def test_real_name_stays_changed # spec/features/webui/users/user_home_page.rb
     use_js
 
     login_Iggy
@@ -108,5 +98,4 @@ class Webui::LoginTest < Webui::IntegrationTest
     open_home
     user_real_name.must_equal new_name
   end
-  
 end

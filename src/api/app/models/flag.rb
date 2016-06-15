@@ -4,6 +4,98 @@ class Flag < ActiveRecord::Base
 
   belongs_to :architecture
 
+  validates :flag, :presence => true
+  validates :position, :presence => true
+  validates_numericality_of :position, :only_integer => true
+
+  after_save :discard_forbidden_project_cache
+  after_destroy :discard_forbidden_project_cache
+
+  before_validation(:on => :create) do
+    if self.project
+      self.position = (self.project.flags.maximum(:position) || 0 ) + 1
+    elsif self.package
+      self.position = (self.package.flags.maximum(:position) || 0 ) + 1
+    end
+  end
+
+  validate :validate_custom_save
+  def validate_custom_save
+    errors.add(:name, 'Please set either project or package.') if self.project.nil? and self.package.nil?
+    errors.add(:name, 'Please set either project or package.') unless self.project.nil? or self.package.nil?
+    errors.add(:flag, 'There needs to be a valid flag.') unless FlagHelper::TYPES.has_key?(self.flag.to_s)
+    # rubocop:disable Metrics/LineLength
+    errors.add(:status, 'Status needs to be enable or disable') unless (self.status && (self.status.to_sym == :enable or self.status.to_sym == :disable))
+    # rubocop:enable Metrics/LineLength
+  end
+
+  validate :validate_duplicates, :on => :create
+  def validate_duplicates
+    # rubocop:disable Metrics/LineLength
+    if Flag.where("status = ? AND repo = ? AND project_id = ? AND package_id = ? AND architecture_id = ? AND flag = ?", self.status, self.repo, self.project_id, self.package_id, self.architecture_id, self.flag).exists?
+      errors.add(:flag, "Flag already exists")
+    end
+    # rubocop:enable Metrics/LineLength
+  end
+
+  def self.default_status(flag_name)
+    case flag_name
+    when 'lock'
+      'disable'
+    when 'build'
+      'enable'
+    when 'publish'
+      'enable'
+    when 'debuginfo'
+      'disable'
+    when 'useforbuild'
+      'enable'
+    when 'binarydownload'
+      'enable'
+    when 'binarydownload'
+      'enable'
+    when 'access'
+      'enable'
+    else
+      'disable'
+    end
+  end
+
+  def discard_forbidden_project_cache
+    Relationship.discard_cache if self.flag == 'access'
+  end
+
+  def default_status
+    all_flag = main_object.flags.where("flag = ? AND repo IS NULL AND architecture_id IS NULL", self.flag).first
+    repo_flag = main_object.flags.where("flag = ? AND repo = ? AND architecture_id IS NULL", self.flag, self.repo).first
+    arch_flag = main_object.flags.where("flag = ? AND repo IS NULL AND architecture_id = ?", self.flag, self.architecture_id).first
+
+    # Package settings only override project settings...
+    if main_object.kind_of? Package
+      all_flag = main_object.project.flags.where("flag = ? AND repo IS NULL AND architecture_id IS NULL", self.flag).first unless all_flag
+      repo_flag = main_object.project.flags.where("flag = ? AND repo = ? AND architecture_id IS NULL", self.flag, self.repo).first unless repo_flag
+      arch_flag = main_object.project.flags.where("flag = ?
+                                                   AND repo IS NULL
+                                                   AND architecture_id = ?", self.flag, self.architecture_id).first unless arch_flag
+      same_flag = main_object.project.flags.where("flag = ?
+                                                   AND repo = ?
+                                                   AND architecture_id = ?", self.flag, self.repo, self.architecture_id).first
+    end
+
+    return same_flag.status if same_flag
+    return repo_flag.status if repo_flag
+    return arch_flag.status if arch_flag
+    return all_flag.status if all_flag
+    return Flag.default_status(self.flag)
+  end
+
+  def has_children
+    return true if repo.blank? && architecture.blank?
+    return true if !repo.blank? && architecture.blank?
+    return true if repo.blank? && !architecture.blank?
+    return false
+  end
+
   def to_xml(builder)
     raise RuntimeError.new( "FlagError: No flag-status set. \n #{self.inspect}" ) if self.status.nil?
     options = Hash.new
@@ -58,24 +150,18 @@ class Flag < ActiveRecord::Base
     ret
   end
 
-  validates :flag, :presence => true
-  validates :position, :presence => true
-  validates_numericality_of :position, :only_integer => true
-
-  before_validation(:on => :create) do
-    if self.project
-      self.position = (self.project.flags.maximum(:position) || 0 ) + 1
-    elsif self.package
-      self.position = (self.package.flags.maximum(:position) || 0 ) + 1
-    end
+  def fullname
+    ret = self.flag
+    ret += "_#{repo}" unless repo.blank?
+    ret += "_#{architecture.name}" unless architecture_id.blank?
+    ret
   end
 
-  validate :validate_custom_save
-  def validate_custom_save
-    errors.add(:name, 'Please set either project or package.') if self.project.nil? and self.package.nil?
-    errors.add(:name, 'Please set either project or package.') unless self.project.nil? or self.package.nil?
-    errors.add(:flag, 'There needs to be a valid flag.') unless FlagHelper::TYPES.has_key?(self.flag.to_s)
-    errors.add(:status, 'Status needs to be enable or disable') unless (self.status && (self.status.to_sym == :enable or self.status.to_sym == :disable))
+  def arch
+    architecture_id.blank? ? '' : architecture.name
   end
 
+  def main_object
+    self.package || self.project
+  end
 end

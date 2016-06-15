@@ -8,7 +8,7 @@ class PublicController < ApplicationController
 
   def extract_user_public
     # to become _public_ special user
-    if ::Configuration.anonymous?
+    if ::Configuration.anonymous
       load_nobody
       return true
     end
@@ -21,8 +21,7 @@ class PublicController < ApplicationController
     redirect_to controller: 'about', action: 'index'
   end
 
-  def check_package_access(project, package, use_source=true)
-
+  def check_package_access(project, package, use_source = true)
     # don't use the cache for use_source
     if use_source
       begin
@@ -51,28 +50,40 @@ class PublicController < ApplicationController
   def build
     required_parameters :project
 
-    # project visible/known ? 
+    # project visible/known ?
     Project.get_by_name(params[:project])
 
-    path = unshift_public(request.path)
-    path << "?#{request.query_string}" unless request.query_string.empty?
+    path = unshift_public(request.path_info)
+    path += "?#{request.query_string}" unless request.query_string.empty?
 
     pass_to_backend path
   end
 
+  # GET /public/configuration
+  # GET /public/configuration.xml
+  # GET /public/configuration.json
+  def configuration_show
+    @configuration = ::Configuration.first
+
+    respond_to do |format|
+      format.xml  { render :xml => @configuration.render_xml }
+      format.json { render :json => @configuration.to_json }
+    end
+  end
+
   # GET /public/source/:project/_meta
   def project_meta
-    # project visible/known ? 
+    # project visible/known ?
     Project.get_by_name(params[:project])
 
-    pass_to_backend unshift_public(request.path)
+    pass_to_backend unshift_public(request.path_info)
   end
 
   # GET /public/source/:project
   def project_index
-    # project visible/known ? 
-    Project.get_by_name(params[:project])
-    path = unshift_public(request.path)
+    # project visible/known ?
+    @project = Project.get_by_name(params[:project])
+    path = unshift_public(request.path_info)
     if params[:view] == 'info'
       # nofilename since a package may have no source access
       if params[:nofilename] and params[:nofilename] != '1'
@@ -82,6 +93,14 @@ class PublicController < ApplicationController
       # path has multiple package= parameters
       path += '?' + request.query_string
       path += '&nofilename=1' unless params[:nofilename]
+    elsif params[:view] == 'verboseproductlist'
+      @products = Product.all_products(@project, params[:expand])
+      render 'source/verboseproductlist'
+      return
+    elsif params[:view] == 'productlist'
+      @products = Product.all_products(@project, params[:expand])
+      render 'source/productlist'
+      return
     else
       path += '?expand=1&noorigins=1' # to stay compatible to OBS <2.4
     end
@@ -91,10 +110,10 @@ class PublicController < ApplicationController
   # GET /public/source/:project/_config
   # GET /public/source/:project/_pubkey
   def project_file
-    # project visible/known ? 
+    # project visible/known ?
     Project.get_by_name(params[:project])
 
-    path = unshift_public(request.path)
+    path = unshift_public(request.path_info)
     path += "?#{request.query_string}" unless request.query_string.empty?
     pass_to_backend path
   end
@@ -103,7 +122,7 @@ class PublicController < ApplicationController
   def package_index
     check_package_access(params[:project], params[:package])
 
-    path = unshift_public(request.path)
+    path = unshift_public(request.path_info)
     path += "?#{request.query_string}" unless request.query_string.empty?
     pass_to_backend path
   end
@@ -112,7 +131,7 @@ class PublicController < ApplicationController
   def package_meta
     check_package_access(params[:project], params[:package], false)
 
-    pass_to_backend unshift_public(request.path)
+    pass_to_backend unshift_public(request.path_info)
   end
 
   # GET /public/source/:project/:package/:filename
@@ -124,19 +143,18 @@ class PublicController < ApplicationController
     path = "/source/#{CGI.escape(params[:project])}/#{CGI.escape(params[:package])}/#{CGI.escape(file)}"
 
     path += build_query_from_hash(params, [:rev])
-    forward_from_backend path
+    volley_backend_path(path) unless forward_from_backend(path)
   end
 
   # GET /public/distributions
   def distributions
     @distributions = Distribution.all_as_hash
-    
+
     render 'distributions/index'
   end
 
   # GET /public/binary_packages/:project/:package
   def binary_packages
-
     check_package_access(params[:project], params[:package], false)
     @pkg = Package.find_by_project_and_name(params[:project], params[:package])
 
@@ -203,5 +221,4 @@ class PublicController < ApplicationController
       return path
     end
   end
-
 end

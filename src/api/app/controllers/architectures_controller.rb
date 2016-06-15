@@ -1,7 +1,6 @@
 require 'opensuse/validator'
 
 class ArchitecturesController < ApplicationController
-
   validate_action :index => {:method => :get, :response => :directory}
   validate_action :show  => {:method => :get, :response => :architecture}
 
@@ -11,7 +10,7 @@ class ArchitecturesController < ApplicationController
     @architectures = Architecture.all()
 
     respond_to do |format|
-      format.xml do 
+      format.xml do
         builder = Builder::XmlMarkup.new(:indent => 2)
         arch_count = 0
         xml = builder.directory(:count => '@@@') do |directory|
@@ -45,5 +44,4 @@ class ArchitecturesController < ApplicationController
       end
     end
   end
-
 end

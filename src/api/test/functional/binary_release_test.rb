@@ -1,13 +1,13 @@
+# rubocop:disable Metrics/LineLength
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'xmlhash'
 
-class BinaryReleaseTest < ActionDispatch::IntegrationTest 
-  
+class BinaryReleaseTest < ActionDispatch::IntegrationTest
   fixtures :all
 
   def setup
-    super
     wait_for_scheduler_start
+    reset_auth
   end
 
   def test_search_binary_release_in_fixtures
@@ -17,7 +17,7 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     get '/search/released/binary', match: "@name = 'package'"
     assert_response 401
 
-    login_Iggy 
+    login_Iggy
     get '/search/released/binary/id', match: "@name = 'package'"
     assert_response :success
     assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :name => "package", :version => "1.0", :release => "1", :arch => "i586"}
@@ -44,6 +44,14 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :name => "package", :version => "1.0", :release => "1", :arch => "i586"}
 
+    # search via publish container
+    get '/search/released/binary/id', match: "publish/@package = 'pack2'"
+    assert_response :success
+    assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :name => "package", :version => "1.0", :release => "1", :arch => "i586"}
+    get '/search/released/binary/id', match: "publish/@time = '2013-09-30 15:50:30 UTC'"
+    assert_response :success
+    assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :name => "package", :version => "1.0", :release => "1", :arch => "i586"}
+
     # exact search
     get '/search/released/binary', match: "@name = 'package' and @version = '1.0' and @release = '1' and @arch = 'i586' and supportstatus = 'l3' and operation = 'added'"
     assert_response :success
@@ -65,8 +73,12 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_no_xml_tag :tag => "obsolete"
 
+    # without modified rpms
+    get '/search/released/binary', match: "repository/[@project = 'BaseDistro3' and @name = 'BaseDistro3_repo'] and modify[not(@time)]"
+    assert_response :success
+    assert_no_xml_tag :tag => "modify"
+
     # by product
-    get '/search/released/binary', match: "product/[@project = 'BaseDistro' and @name = 'fixed' and (@arch = 'x86_64' or not(@arch))]"
     get '/search/released/binary', match: "product/[@project = 'BaseDistro' and @name = 'fixed' and (@arch = 'i586' or not(@arch))]"
     assert_response :success
     assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :name => "package", :version => "1.0", :release => "1", :arch => "i586", :medium => "DVD"}
@@ -100,8 +112,8 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag :tag => "binary", :attributes => { :project => "BaseDistro3", :repository => "BaseDistro3_repo", :name => "package", :version => "1.0", :release => "1", :arch => "i586" }
     assert_xml_tag :tag => "updatefor", :attributes => { project: "BaseDistro", product: "fixed" }
-  
-    # by version 
+
+    # by version
     get '/search/released/binary', match: "updatefor/[@project = 'BaseDistro' and @product = 'fixed' and @baseversion = '1.2' and @patchlevel='0']"
     assert_response :success
     get '/search/released/binary', match: "updatefor/[@project = 'BaseDistro' and @product = 'fixed' and @version = '1.2']"
@@ -129,6 +141,5 @@ class BinaryReleaseTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => "updatefor", :attributes => { project: "BaseDistro", product: "fixed" }
     assert_xml_tag :tag => "product", :attributes => { name: "fixed", version: "1.2" }
   end
-
 end
-
+# rubocop:enable Metrics/LineLength

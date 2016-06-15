@@ -43,5 +43,4 @@ module Event
 
     create_jobs :cleanup_cache_lines
   end
-
 end

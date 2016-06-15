@@ -31,18 +31,21 @@ package BSCando;
 #FIXME 3.0: obsolete the not exiting arm architectures
 
 our %cando = (
-  'aarch64' => [ 'aarch64', 'armv4l', 'armv5l', 'armv6l', 'armv7l', 'armv5el', 'armv6el', 'armv6hl', 'armv7el', 'armv7hl' ],
-
+  'aarch64' => [ 'aarch64_ilp32', 'aarch64', 'armv8l' ], # armv8l is aarch32 (32-bit mode of aarch64), not a full subset of armv7l
+  'aarch64_ilp32' => [ 'aarch64_ilp32', 'aarch64', 'armv8l' ],
   'armv4l'  => [ 'armv4l'                                                                                                 ],
   'armv5l'  => [ 'armv4l', 'armv5l'                    , 'armv5el'                                                        ],
   'armv6l'  => [ 'armv4l', 'armv5l', 'armv6l'          , 'armv5el', 'armv6el'                                             ],
   'armv7l'  => [ 'armv4l', 'armv5l', 'armv6l', 'armv7l', 'armv5el', 'armv6el', 'armv6hl', 'armv7el', 'armv7hl', 'armv8el' ], # this armv8el is just for MeeGo, it does not exist for real
+  'armv8l'  => [ 'armv8l' ],
 
   'sh4'     => [ 'sh4' ],
 
   'i586'    => [           'i586' ],
   'i686'    => [           'i586',         'i686' ],
   'x86_64'  => [ 'x86_64', 'i586:linux32', 'i686:linux32' ],
+
+  'k1om'    => [           'k1om' ],
 
   'parisc'  => [ 'hppa', 'hppa64:linux64' ],
   'parisc64'=> [ 'hppa64', 'hppa:linux32' ],

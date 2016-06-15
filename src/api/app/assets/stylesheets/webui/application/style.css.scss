@@ -1,4 +1,4 @@
-/* 
+/*
 **
 **  Funktion:  Provides all styles for build.openSUSE.org
 **  Author:    Frank Sundermeyer <fs@opensuse.org>, Robert Lihm <rlihm@opensuse.org>
@@ -189,7 +189,7 @@ div#log_space_wrapper {
     text-align: left;
     width: 21ex;
   }
-  .allcow, .allrow {
+  .allcolumn, .allrow {
     background-color: #cfc;
   }
 }
@@ -198,15 +198,15 @@ div#log_space_wrapper {
   position: relative;
 }
 .flagimage:hover {
-  z-index:25; 
+  z-index:25;
 
   div.flagtoggle {
     display: block;
     background: white;
-    border: 1px solid black; 
+    border: 1px solid black;
     position:absolute;
-    top:10px; 
-    left:5ex; 
+    top:10px;
+    left:5ex;
     padding: 5px;
     text-align: left;
 
@@ -220,7 +220,7 @@ div#log_space_wrapper {
       left: 0px;
     }
 
-    a { 
+    a {
       margin-left: 30px;
       min-height: 27px;
       display: block;
@@ -244,15 +244,15 @@ div#log_space_wrapper {
 
 table.patchinfo td { vertical-align: middle; }
 
-.flot_legend table { 
+.flot_legend table {
   display: inline;
 }
 
-.y1Axis .tickLabel { 
+.y1Axis .tickLabel {
   min-width: 15px;
 }
 
-.plotspinner { 
+.plotspinner {
   position: absolute;
   right: 40px;
   top: 20px;
@@ -278,7 +278,7 @@ table.patchinfo td { vertical-align: middle; }
       vertical-align: middle;
     }
   }
-} 
+}
 
 .horizontal-list:after {
   content: ".";
@@ -335,7 +335,7 @@ div.dataTables_wrapper:after {
 
 .attribute-values {
   form,div {
-    display: inline; 
+    display: inline;
   }
 }
 
@@ -350,11 +350,11 @@ div.dataTables_wrapper:after {
   float: left;
   margin-right: 5px;
 }
-
+/*
 .dataTable th.sorting_disabled { display: none; }
-
+*/
 .global-navigation-menu li span.global-navigation-icon {
-    background-image: image-url("globalnav-im.png"); 
+    background-image: image-url("globalnav-im.png");
 }
 
 .global-navigation-menu.global-navigation-menu-favorites li span.icons-project {

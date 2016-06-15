@@ -10,7 +10,7 @@ class IssueTracker < ActiveRecord::Base
 
   validates_presence_of :name, :regex, :url, :kind
   validates_uniqueness_of :name, :regex
-  validates_inclusion_of :kind, :in => %w(other bugzilla cve fate trac launchpad sourceforge)
+  validates_inclusion_of :kind, :in => %w(other bugzilla cve fate trac launchpad sourceforge github)
 
   # FIXME: issues_updated should not be hidden, but it should also not break our api
   DEFAULT_RENDER_PARAMS = {:except => [:id, :password, :user, :issues_updated], :dasherize => true, :skip_types => true, :skip_instruct => true}
@@ -25,7 +25,7 @@ class IssueTracker < ActiveRecord::Base
     Suse::Backend.put_source(path, IssueTracker.all.to_xml(DEFAULT_RENDER_PARAMS))
 
     # We need to parse again ALL sources ...
-    UpdatePackageMetaJob.new.delay.perform
+    UpdatePackageMetaJob.perform_later
   end
 
   before_validation(:on => :create) do
@@ -38,7 +38,7 @@ class IssueTracker < ActiveRecord::Base
   #  end
 
   # Generates a URL to display a given issue in the upstream issue tracker
-  def show_url_for(issue, html=nil)
+  def show_url_for(issue, html = nil)
     return nil unless issue
     url = show_url.gsub('@@@', issue)
     return "<a href=\"#{url}\">#{CGI::escapeHTML(show_label_for(issue))}</a>" if html
@@ -51,19 +51,21 @@ class IssueTracker < ActiveRecord::Base
 
   # expands all matches with defined urls
   def get_html(text)
-    text.gsub(Regexp.new(regex)) { |m| show_url_for($1, true) }
+    text.gsub(Regexp.new(regex)) { show_url_for($1, true) }
   end
 
-  #  def issue(issue_id)
-  #    return Issue.find_by_name_and_tracker(issue_id, self.name)
-  #  end
+  def get_markdown(text)
+    text.gsub(Regexp.new(regex)) { "[#{$&}](#{show_url_for($1, false)})" }
+  end
 
   def update_issues_bugzilla
+    return unless self.enable_fetch
+
     begin
       result = bugzilla_server.search(:last_change_time => self.issues_updated)
     rescue Net::ReadTimeout
       if (self.issues_updated + 2.days).past?
-         # failures since two days? 
+         # failures since two days?
          # => enforce a full update in small steps to avoid over load at bugzilla side
          enforced_update_all_issues
          return true
@@ -80,36 +82,57 @@ class IssueTracker < ActiveRecord::Base
     end
   end
 
+  def update_issues_github
+    return unless self.enable_fetch
+
+    # must be like this "url = https://github.com/repos/#{self.owner}/#{self.name}/issues"
+    url = URI.parse("#{self.url}?since=#{self.issues_updated.to_time.iso8601}")
+    mtime = Time.now
+    begin # Need a loop to follow redirects...
+      http = Net::HTTP.new(url.host, url.port)
+      http.use_ssl = (url.scheme == 'https')
+      request = Net::HTTP::Get.new(url.path)
+      response = http.start { |h| h.request(request) }
+      url = URI.parse(response.header['location']) if response.header['location']
+    end while response.header['location']
+    return nil if response.blank?
+    parse_github_issues(ActiveSupport::JSON.decode(response.body))
+
+    # done
+    self.issues_updated = mtime - 1.second
+    self.save
+  end
+
   def update_issues_cve
-    if self.enable_fetch
-      # fixed URL of all entries
-      # cveurl = "http://cve.mitre.org/data/downloads/allitems.xml.gz"
-      http = Net::HTTP.start("cve.mitre.org")
-      header = http.head("/data/downloads/allitems.xml.gz")
-      mtime = Time.parse(header["Last-Modified"])
-      if mtime.nil? or self.issues_updated.nil? or (self.issues_updated < mtime)
-        # new file exists
-        h = http.get("/data/downloads/allitems.xml.gz")
-        unzipedio = Zlib::GzipReader.new(StringIO.new(h.body))
-        listener = CVEparser.new()
-        listener.set_tracker(self)
-        parser = Nokogiri::XML::SAX::Parser.new(listener)
-        parser.parse_io(unzipedio)
-        # done
-        self.issues_updated = mtime - 1.second
-        self.save
-      end
-      return true
+    return unless self.enable_fetch
+
+    # fixed URL of all entries
+    # cveurl = "http://cve.mitre.org/data/downloads/allitems.xml.gz"
+    http = Net::HTTP.start("cve.mitre.org")
+    header = http.head("/data/downloads/allitems.xml.gz")
+    mtime = Time.parse(header["Last-Modified"])
+    if mtime.nil? or self.issues_updated.nil? or (self.issues_updated < mtime)
+      # new file exists
+      h = http.get("/data/downloads/allitems.xml.gz")
+      unzipedio = StringIO.new(h.body) # Net::HTTP is decompressing already
+      listener = CVEparser.new()
+      listener.set_tracker(self)
+      parser = Nokogiri::XML::SAX::Parser.new(listener)
+      parser.parse_io(unzipedio)
+      # done
+      self.issues_updated = mtime - 1.second
+      self.save
     end
   end
 
   def update_issues
     # before asking remote to ensure that it is older then on remote, assuming ntp works ...
-    # to be sure, just reduce it by 5 seconds (would be nice to have a counter at bugzilla to 
+    # to be sure, just reduce it by 5 seconds (would be nice to have a counter at bugzilla to
     # guarantee a complete search)
     @update_time_stamp = Time.at(Time.now.to_f - 5)
 
     return update_issues_bugzilla if kind == "bugzilla"
+    return update_issues_github if kind == "github"
     return update_issues_cve if kind == "cve"
     return false
   end
@@ -119,7 +142,7 @@ class IssueTracker < ActiveRecord::Base
     @update_time_stamp = Time.at(Time.now.to_f - 5)
 
     ids = issues.map { |x| x.name.to_s }
-    ids.sort! { |x,y| y <=> x } # backward
+    ids.sort! { |x, y| y <=> x } # backward
 
     if private_fetch_issues(ids)
       self.issues_updated = @update_time_stamp
@@ -129,7 +152,7 @@ class IssueTracker < ActiveRecord::Base
     return false
   end
 
-  def fetch_issues(issues=nil)
+  def fetch_issues(issues = nil)
     unless issues
       # find all new issues for myself
       issues = self.issues.stateless
@@ -182,7 +205,7 @@ class IssueTracker < ActiveRecord::Base
         issue.state = Issue.bugzilla_state(r["status"])
       end
       u = User.find_by_email(r["assigned_to"].to_s)
-      logger.info "Bugzilla user #{r["assigned_to"].to_s} is not found in OBS user database" unless u
+      logger.info "Bugzilla user #{r["assigned_to"]} is not found in OBS user database" unless u
       issue.owner_id = u.id if u
       issue.updated_at = @update_time_stamp
       if r["is_private"]
@@ -194,6 +217,32 @@ class IssueTracker < ActiveRecord::Base
     end
   end
 
+  def parse_github_issues(js)
+    js.each do |item|
+      parse_github_issue(item)
+    end
+  end
+
+  def parse_github_issue(js, create = nil)
+      issue = nil
+      if create
+        issue = Issue.find_or_create_by_name_and_tracker(js["number"].to_s, self.name)
+      else
+        issue = Issue.find_by_name_and_tracker(js["number"].to_s, self.name)
+        return if issue.nil?
+      end
+
+      if js["state"] == "open"
+        issue.state = "OPEN"
+      else
+        issue.state = "CLOSED"
+      end
+#      u = User.find_by_email(js["assignee"]["login"].to_s)
+      issue.updated_at = @update_time_stamp
+      issue.summary = js["title"]
+      issue.save
+  end
+
   def private_fetch_issues(ids)
     unless self.enable_fetch
       logger.info "Bug mentioned on #{self.name}, but fetching from server is disabled"
@@ -202,6 +251,8 @@ class IssueTracker < ActiveRecord::Base
 
     if kind == "bugzilla"
       return fetch_bugzilla_issues(ids)
+    elsif kind == "github"
+      return fetch_github_issues(ids)
     elsif kind == "fate"
       # Try with 'IssueTracker.find_by_name('fate').details('123')' on script/console
       return fetch_fate_issues
@@ -223,6 +274,22 @@ class IssueTracker < ActiveRecord::Base
     return false
   end
 
+  def fetch_github_issues(ids)
+    response = nil
+    ids.each do |i|
+      url = URI.parse("#{self.url}/#{i}")
+      begin # Need a loop to follow redirects...
+        http = Net::HTTP.new(url.host, url.port)
+        http.use_ssl = (url.scheme == 'https')
+        request = Net::HTTP::Get.new(url.path)
+        response = http.start { |h| h.request(request) }
+        url = URI.parse(response.header['location']) if response.header['location']
+      end while response.header['location']
+      next unless response.is_a?(Net::HTTPSuccess)
+      parse_github_issue(ActiveSupport::JSON.decode(response.body), true)
+    end
+  end
+
   def bugzilla_server
     server = XMLRPC::Client.new2("#{self.url}/xmlrpc.cgi")
     server.timeout = 300 # 5 minutes timeout
@@ -230,7 +297,6 @@ class IssueTracker < ActiveRecord::Base
     server.password=self.password if self.password
     return server.proxy('Bug')
   end
-
 end
 
 # internal CVE parser class
@@ -244,7 +310,7 @@ class CVEparser < Nokogiri::XML::SAX::Document
     @@myTracker = tracker
   end
 
-  def start_element(name, attrs=[])
+  def start_element(name, attrs = [])
     if name == "item"
       cve=nil
       attrs.each_index do |i|
@@ -253,8 +319,7 @@ class CVEparser < Nokogiri::XML::SAX::Document
         end
       end
 
-      #@@myIssue = Issue.find_or_create_by_name_and_tracker(cve, @@myTracker.name)
-      @@myIssue = Issue.find_by_name_and_tracker cve, @@myTracker.name
+      @@myIssue = Issue.find_or_create_by_name_and_tracker(cve.gsub(/^CVE-/, ''), @@myTracker.name)
       @@mySummary = ""
       @@isDesc = false
     end
@@ -274,10 +339,9 @@ class CVEparser < Nokogiri::XML::SAX::Document
   def end_element(name)
     return unless name == "item"
     unless @@mySummary.blank?
-      @@myIssue.summary = @@mySummary
+      @@myIssue.summary = @@mySummary[0..254]
       @@myIssue.save
     end
     @@myIssue = nil
   end
 end
-

@@ -1,51 +1,28 @@
-class ValueLengthValidator < ActiveModel::Validator
-  def validate(record)
-    if record.attrib_type && record.attrib_type.value_count && record.attrib_type.value_count != record.values.length
-      record.errors[:values] << "has #{record.values.length} values, but only #{record.attrib_type.value_count} are allowed"
-    end
-  end
-end
-
-class IssueValidator < ActiveModel::Validator
-  def validate(record)
-    if record.attrib_type && !record.attrib_type.issue_list and record.issues.any?
-      record.errors[:issues] << "can't have issues"
-    end
-  end
-end
-
-class AllowedValuesValidator < ActiveModel::Validator
-  def validate(record)
-    if record.attrib_type && record.attrib_type.allowed_values.any?
-      record.values.each do |value|
-        found = false
-        record.attrib_type.allowed_values.each do |allowed|
-          if allowed.value == value.value
-            found = true
-            break
-          end
-        end
-        if !found
-          record.errors[:values] << "value \'#{value}\' is not allowed. Please use one of: #{record.attrib_type.allowed_values.map{|av| av.value }.join(', ')}"
-        end
-      end
-    end
-  end
-end
-
-# Attribute container inside package meta data
-# Attribute definitions are inside attrib_type
-
+# Attribute container inside package meta data. Attribute definitions are inside attrib_type
 class Attrib < ActiveRecord::Base
+  #### Includes and extends
+  #### Constants
+  #### Self config
+  #### Attributes
+  delegate :name, to: :attrib_type
+  delegate :namespace, to: :attrib_type
+
+  #### Associations macros (Belongs to, Has one, Has many)
   belongs_to :package
   belongs_to :project
   belongs_to :attrib_type
   has_many :attrib_issues
   has_many :issues, through: :attrib_issues, dependent: :destroy
   has_many :values, -> { order("position ASC") }, class_name: 'AttribValue', dependent: :delete_all
+
   accepts_nested_attributes_for :values, allow_destroy: true
   accepts_nested_attributes_for :issues, allow_destroy: true
 
+  #### Callbacks macros: before_save, after_save, etc.
+  #### Scopes (first the default_scope macro if is used)
+  scope :nobinary, -> { where(binary: nil) }
+
+  #### Validations macros
   validates_associated :values
   validates_associated :issues
   validates :attrib_type, presence: true
@@ -54,84 +31,62 @@ class Attrib < ActiveRecord::Base
   validates :package_id, :absence => {:message => "can't also be present"}, if: "project_id.present?"
   validates :project, presence: true, if: "package_id.nil?"
 
-  validates_with ValueLengthValidator
-  validates_with IssueValidator
-  validates_with AllowedValuesValidator
+  validate :validate_value_count,
+           :validate_issues,
+           :validate_allowed_values_for_attrib_type
 
-  delegate :name, to: :attrib_type
-  delegate :namespace, to: :attrib_type
-
-  scope :nobinary, -> { where(:binary => nil) }
-
+  #### Class methods using self. (public and then private)
   def self.find_by_container_and_fullname( container, fullname )
-    atype = AttribType.find_by_name(fullname)
-    return container.attribs.where(attrib_type: atype).first
+    container.attribs.where(attrib_type: AttribType.find_by_name!(fullname)).first
   end
 
+  #### To define class methods as private use private_class_method
+  #### private
+
+  #### Instance methods (public and then protected/private)
   def fullname
-    return "#{self.namespace}:#{self.name}"
+    "#{namespace}:#{name}"
   end
 
   def container
-    if self.package_id
-      return self.package
-    elsif self.project_id
-      return self.project
+    if package_id
+      package
+    elsif project_id
+      project
     end
   end
 
-  #def project
-  #  return project if self.project_id
-  #  return package.project if self.package_id
-  #end
   def project
     if package
-      return package.project
+      package.project
     else
       super
     end
   end
 
   def values_editable?
-    ret = false
-
-    # If unlimited values
-    ret = true if !self.attrib_type.value_count
-    # If value_count > 0
-    ret = true if self.attrib_type.value_count && self.attrib_type.value_count > 0
-    # If issue_list true
-    ret = true if self.attrib_type.issue_list
-
-    return ret
+    !attrib_type.value_count ||  # If unlimited values
+      (attrib_type.value_count && attrib_type.value_count > 0) ||  # If value_count > 0
+      attrib_type.issue_list  # If issue_list true
   end
 
   def values_removeable?
-    ret = false
-
-    # If unlimited values
-    ret = true if !self.attrib_type.value_count
-    # If value_count != values.length
-    ret = true if self.attrib_type.value_count and (self.attrib_type.value_count != self.values.length)
-
-    return ret
+    !attrib_type.value_count ||  # If unlimited values
+      (attrib_type.value_count && (attrib_type.value_count != values.length))  # If value_count != values.length
   end
-  alias :values_addable? :values_removeable?
 
   def cachekey
-    if binary
-      "#{attrib_type.attrib_namespace.name}|#{attrib_type.name}|#{binary}"
-    else
-      "#{attrib_type.attrib_namespace.name}|#{attrib_type.name}"
-    end
+    key = "#{attrib_type.attrib_namespace.name}|#{attrib_type.name}"
+    key += "|#{binary}" if binary
   end
 
   def update_with_associations(values = [], issues = [])
-    save = false
+    will_save = false
 
     #--- update issues ---#
     if issues.map { |i| i.name }.sort != self.issues.map { |i| i.name }.sort
       logger.debug "Attrib.update_with_associations: Issues for #{self.fullname} changed, updating."
-      save = true
+      will_save = true
       self.issues.delete_all
       issues.each do |issue|
         self.issues << issue
@@ -141,7 +96,7 @@ class Attrib < ActiveRecord::Base
     #--- update values ---#
     if values.sort != self.values.map { |v| v.value}.sort
       logger.debug "Attrib.update_with_associations: Values for #{self.fullname} changed, updating."
-      save = true
+      will_save = true
       self.values.delete_all
       position = 1
       values.each do |val|
@@ -150,8 +105,37 @@ class Attrib < ActiveRecord::Base
       end
     end
 
-    self.save! if save
-    return save
+    self.save! if will_save
+    will_save
   end
 
+  #### Alias of methods
+  alias :values_addable? :values_removeable?
+
+  private
+
+  def validate_value_count
+    if self.attrib_type && self.attrib_type.allowed_values.any?
+      self.values.map(&:value).each do |value|
+        allowed_values = self.attrib_type.allowed_values.map(&:value)
+        unless allowed_values.include?(value)
+          self.errors[:values] <<
+            "Value '#{value}' is not allowed. Please use one of: #{allowed_values.join(', ')}"
+        end
+      end
+    end
+  end
+
+  def validate_issues
+    if self.attrib_type && !self.attrib_type.issue_list && self.issues.any?
+      self.errors[:issues] << "can't have issues"
+    end
+  end
+
+  def validate_allowed_values_for_attrib_type
+    value_count = self.attrib_type.try(:value_count)
+    if value_count && value_count != self.values.length
+      self.errors[:values] << "has #{self.values.length} values, but only #{value_count} are allowed"
+    end
+  end
 end

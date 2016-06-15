@@ -1,5 +1,4 @@
 class AddObsBranchRepositoriesAttribute  < ActiveRecord::Migration
-
   class AttribTypeModifiableBy < ActiveRecord::Base; end
 
   def self.up
@@ -10,9 +9,7 @@ class AddObsBranchRepositoriesAttribute  < ActiveRecord::Migration
     AttribTypeModifiableBy.create(bs_role_id: role.id, attrib_type_id: at.id)
   end
 
-
   def self.down
     AttribType.find_by_namespace_and_name("OBS", "BranchRepositoriesFromProject").destroy()
   end
-
 end

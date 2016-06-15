@@ -1,14 +1,13 @@
 # a model that has relationships - e.g. a project and a package
 module HasRelationships
-
   class SaveError < APIException
   end
 
-  def add_user(user, role, ignoreLock=nil)
+  def add_user(user, role, ignoreLock = nil)
     Relationship.add_user(self, user, role, ignoreLock)
   end
 
-  def add_group(group, role, ignoreLock=nil)
+  def add_group(group, role, ignoreLock = nil)
     Relationship.add_group(self, group, role, ignoreLock)
   end
 
@@ -99,8 +98,8 @@ module HasRelationships
 
   def remove_all_old_relationships(cache)
     # delete all roles that weren't found in the uploaded xml
-    cache.each do |user, roles|
-      roles.each do |role, object|
+    cache.each do |_, roles|
+      roles.each do |_, object|
         next if [:keep, :new].include? object
         object.destroy
       end
@@ -176,7 +175,6 @@ module HasRelationships
   end
 
   def update_generic_relationships(xmlhash)
-
     # we remember the current relationships in a hash
     cache = Hash.new
     self.relationships.each do |purr|
@@ -188,10 +186,8 @@ module HasRelationships
     # in a second step we parse the XML and track in the hash if
     # we keep the relationships
     xmlhash.elements(@updater.xml_element) do |node|
-
-      unless role = Role.rolecache[node['role']]
-        raise SaveError, "illegal role name '#{node['role']}'"
-      end
+      role = Role.rolecache[node['role']]
+      raise SaveError, "illegal role name '#{node['role']}'" unless role
 
       id = @updater.id(node)
       item = @updater.find!(id)
@@ -200,20 +196,19 @@ module HasRelationships
         # item has already a role in this model
         pcache = cache[id]
         if pcache.has_key? role.title
-          #role already defined, only remove from cache
+          # role already defined, only remove from cache
           pcache[role.title] = :keep
         else
-          #new role
-          record = self.relationships.build(role: role)
+          # new role
+          record = self.relationships.new(role: role)
           @updater.set_item(record, item)
           pcache[role.title] = :new
         end
       else
-        record = self.relationships.build(role: role)
+        record = self.relationships.new(role: role)
         @updater.set_item(record, item)
         cache[id] = { role.title => :new }
       end
-
     end
 
     # all relationships left in cache are to be deleted

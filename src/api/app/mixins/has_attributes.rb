@@ -1,6 +1,5 @@
 # a model that has attributes - e.g. a project and a package
 module HasAttributes
-
   def self.included(base)
     base.class_eval do
       has_many :ratings, :as => :db_object, :dependent => :delete_all
@@ -10,7 +9,7 @@ module HasAttributes
   class AttributeSaveError < APIException
   end
 
-  def write_attributes(comment=nil)
+  def write_attributes(comment = nil)
     login = User.current.login
     path = self.attribute_url + "?meta=1&user=#{CGI.escape(login)}"
     path += "&comment=#{CGI.escape(comment)}" if comment
@@ -21,7 +20,7 @@ module HasAttributes
     end
   end
 
-  def store_attribute_axml(attrib, binary=nil)
+  def store_attribute_axml(attrib, binary = nil)
     values = []
     attrib.each('value') do |val|
       values << val.text
@@ -37,9 +36,7 @@ module HasAttributes
 
   def store_attribute(namespace, name, values, issues, binary = nil)
     # get attrib_type
-    if (not attrib_type = AttribType.find_by_namespace_and_name(namespace, name) or attrib_type.blank?)
-      raise AttributeSaveError, "unknown attribute type '#{namespace}':'#{name}'"
-    end
+    attrib_type = AttribType.find_by_namespace_and_name!(namespace, name)
 
     # update or create attribute entry
     changed = false
@@ -68,7 +65,7 @@ module HasAttributes
     a.update_with_associations(values, issues) || changed
   end
 
-  def find_attribute(namespace, name, binary=nil)
+  def find_attribute(namespace, name, binary = nil)
     logger.debug "find_attribute for #{namespace}:#{name}"
     if namespace.nil?
       raise AttributeFindError, "Namespace must be given"
@@ -80,9 +77,11 @@ module HasAttributes
       if self.is_a? Project
         raise AttributeFindError, "binary packages are not allowed in project attributes"
       end
+      # rubocop:disable Metrics/LineLength
       a = attribs.joins(:attrib_type => :attrib_namespace).where("attrib_types.name = ? and attrib_namespaces.name = ? AND attribs.binary = ?", name, namespace, binary).first
     else
       a = attribs.nobinary.joins(:attrib_type => :attrib_namespace).where("attrib_types.name = ? and attrib_namespaces.name = ?", name, namespace).first
+      # rubocop:enable Metrics/LineLength
     end
     if a && a.readonly? # FIXME: joins make things read only
       a = attribs.find a.id
@@ -90,7 +89,7 @@ module HasAttributes
     return a
   end
 
-  def render_attribute_axml(params={})
+  def render_attribute_axml(params = {})
     builder = Nokogiri::XML::Builder.new
 
     builder.attributes do |xml|
@@ -131,18 +130,16 @@ module HasAttributes
   end
 
   def render_single_attribute(attr, with_default, builder)
-    unless attr.values.empty?
-      attr.values.each do |val|
-        builder.value(val.value)
-      end
-    else
+    if attr.values.empty?
       if with_default
         attr.attrib_type.default_values.each do |val|
           builder.value(val.value)
         end
       end
+    else
+      attr.values.each do |val|
+        builder.value(val.value)
+      end
     end
   end
-
-
 end

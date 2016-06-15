@@ -25,7 +25,7 @@ class Webui::AttributeController < Webui::WebuiController
   def edit
     authorize @attribute
     if @attribute.attrib_type.value_count and ( @attribute.attrib_type.value_count > @attribute.values.length )
-      ( @attribute.attrib_type.value_count - @attribute.values.length ).times do |i|
+      ( @attribute.attrib_type.value_count - @attribute.values.length ).times do
         @attribute.values.build(attrib: @attribute)
       end
     end
@@ -45,11 +45,12 @@ class Webui::AttributeController < Webui::WebuiController
 
     if @attribute.save
       if @attribute.values_editable?
-        redirect_to edit_attribs_path(:project => @attribute.project.to_s, :package => @attribute.package.to_s, :attribute => @attribute.fullname),
-        notice: 'Attribute was successfully created.'
+        redirect_to edit_attribs_path(:project => @attribute.project.to_s, :package => @attribute.package.to_s,
+                                      :attribute => @attribute.fullname),
+                    notice: 'Attribute was successfully created.'
       else
         redirect_to index_attribs_path(:project => @attribute.project.to_s, :package => @attribute.package.to_s),
-        notice: 'Attribute was successfully created.'
+                    notice: 'Attribute was successfully created.'
       end
     else
       redirect_to :back, error: "Saving attribute failed: #{@attribute.errors.full_messages.join(', ')}"
@@ -61,7 +62,7 @@ class Webui::AttributeController < Webui::WebuiController
 
     if @attribute.update(attrib_params)
       redirect_to edit_attribs_path(:project => @attribute.project.to_s, :package => @attribute.package.to_s, :attribute => @attribute.fullname),
-      notice: 'Attribute was successfully updated.'
+                  notice: 'Attribute was successfully updated.'
     else
       redirect_to :back, error: "Updating attribute failed: #{@attribute.errors.full_messages.join(', ')}"
     end
@@ -69,7 +70,7 @@ class Webui::AttributeController < Webui::WebuiController
 
   def destroy
     authorize @attribute
-    
+
     @attribute.destroy
     redirect_to :back, notice: 'Attribute sucessfully deleted!'
   end
@@ -82,7 +83,7 @@ class Webui::AttributeController < Webui::WebuiController
       @project = Project.get_by_name(params[:project])
     rescue APIException
       flash[:error] = "Project not found: #{params[:project]}"
-      redirect_to :controller => 'project', :action => 'list_public' and return
+      redirect_to :controller => 'project' and return
     end
     if params[:package]
       begin
@@ -112,7 +113,8 @@ class Webui::AttributeController < Webui::WebuiController
 
   # Never trust parameters from the scary internet, only allow the white list through.
   def attrib_params
-    params.require(:attrib).permit(:attrib_type_id, :project_id, :package_id, values_attributes: [:id, :value, :position, :_destroy], issues_attributes: [:id, :name, :issue_tracker_id, :_destroy])
+    params.require(:attrib).permit(:attrib_type_id, :project_id, :package_id,
+                                   values_attributes: [:id, :value, :position, :_destroy],
+                                   issues_attributes: [:id, :name, :issue_tracker_id, :_destroy])
   end
-
 end

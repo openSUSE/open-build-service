@@ -42,7 +42,7 @@ fi
 rundir="$OBS_RUN_DIR"
 logdir="$OBS_LOG_DIR"
 
-OBS_NEW_SCHEDULER_ARCHITECTURES=`$obsdir/bs_admin --show-scheduler-architectures`
+OBS_NEW_SCHEDULER_ARCHITECTURES=`$obsdir/bs_admin --show-scheduler-architectures 2>/dev/null`
 
 if test -n "$OBS_NEW_SCHEDULER_ARCHITECTURES" ; then
 	if test -n "$OBS_SCHEDULER_ARCHITECTURES" ; then
@@ -92,7 +92,7 @@ case "$1" in
 		$0 start
 		rc_status
 	;;
-	try-restart)
+	try-restart|reload)
 		$0 status
 		if test $? = 0; then
 			$0 restart
@@ -101,8 +101,6 @@ case "$1" in
 		fi
 		# Remember status and be quiet
 		rc_status
-	;;
-	reload)
 	;;
 	status)
 		echo -n "Checking for obsscheduler: "

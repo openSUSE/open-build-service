@@ -7,6 +7,7 @@ class MemoryDebugger
       self.line = line
       self.lines = Array.new
     end
+
     def add(line)
       return if line.nil?
       return unless line.parent.nil?
@@ -14,6 +15,7 @@ class MemoryDebugger
       line.parent = self
       self.lines << line
     end
+
     def check_up(line)
       return false if self == line
       return true unless self.parent
@@ -21,7 +23,7 @@ class MemoryDebugger
     end
   end
 
-  def log_line(logger, d, prefix='')
+  def log_line(logger, d, prefix = '')
     logger.debug prefix + d.line.inspect
     d.lines.each do |l|
       log_line(logger, l, prefix + '  ')
@@ -31,18 +33,19 @@ class MemoryDebugger
   def initialize(app)
     @app=app
   end
+
   def call(env)
     logger = Rails.logger
     GC.start
-    before=`ps -orss= -p#{$$}`.to_i
+    before=%x(ps -orss= -p#{$$}).to_i
     file = File.new("/tmp/memprof-#{$$}.log", "w")
-    ret = Memprof.dump(file.path) do 
-      ret = @app.call(env) 
+    ret = Memprof.dump(file.path) do
+      ret = @app.call(env)
       GC.start
       ret
     end
     file.close
-    after=`ps -orss= -p#{$$}`.to_i
+    after=%x(ps -orss= -p#{$$}).to_i
     logger.debug "memory diff #{after-before} from #{before} to #{after}"
     file = File.new("/tmp/memprof-#{$$}.log", "r")
     ids = Hash.new
@@ -53,10 +56,10 @@ class MemoryDebugger
     file.close
     File.delete(file.path)
 
-    ids.each do |id, d|
+    ids.each do |_, d|
       type = d.line['type'] || ''
       if d.line["data"]
-	d.line["data"].each do |key,value|
+	d.line["data"].each do |key, value|
 	  d.add(ids[key])
 	  d.add(ids[value])
 	end if type == 'varmap' || type == 'hash'
@@ -65,19 +68,19 @@ class MemoryDebugger
 	end if type == "array"
       end
       if type == "scope"
-	d.line["variables"].each do |key,value|
+	d.line["variables"].each do |key, value|
 	  d.add(ids[key])
 	  d.add(ids[value])
 	end if d.line["variables"]
       end
       if type == "class"
-	d.line["methods"].each do |key,value|
+	d.line["methods"].each do |key, value|
 	  d.add(ids[key])
 	  d.add(ids[value])
 	end if d.line["methods"]
       end
       if type == "object"
-	d.line["ivars"].each do |key,value|
+	d.line["ivars"].each do |key, value|
 	  d.add(ids[key])
 	  d.add(ids[value])
 	end if d.line["ivars"]

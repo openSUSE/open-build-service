@@ -3,10 +3,9 @@
 require_relative '../../test_helper'
 
 class Webui::SearchControllerTest < Webui::IntegrationTest
-
   setup do
     OBSApi::TestSphinx.ensure
-    use_js 
+    use_js
   end
 
   def validate_search_page
@@ -15,11 +14,11 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     page.must_have_text 'Advanced'
   end
 
-  def search options  
+  def search options
     validate_search_page
     # avoid the animation that happens when you press the button
     page.execute_script('$("#advanced_container").show()')
-    #click_button("advanced_link") # yes, that's the id of the button :)
+    # click_button("advanced_link") # yes, that's the id of the button :)
 
     options[:for]    ||= [:projects, :packages]
     options[:in]     ||= [:name]
@@ -65,13 +64,13 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
       when 'icons-project'
       when 'project'
         { :type         => :project,
-          :project_name => row.find('a.project').text,
+          :project_name => row.find('a.project').text
         }
       when 'icons-package'
       when 'package'
-        { :type         => :package, 
+        { :type         => :package,
           :project_name => row.find('a.project').text,
-          :package_name => row.find('a.package').text,
+          :package_name => row.find('a.package').text
         }
       else
         fail "Unrecognized result icon. #{theclass}"
@@ -79,13 +78,13 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     end
   end
 
-  test 'find_search_link_in_footer' do
+  def test_find_search_link_in_footer
     visit root_path
     find(:css, 'div#footer a.search-link').click
     validate_search_page
   end
-  
-  test 'basic_search_functionality' do
+
+  def test_basic_search_functionality
     visit search_path
     validate_search_page
 
@@ -98,8 +97,8 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     visit root_path + '/search?search_text=kdebase'
     page.must_have_link 'kdebase'
   end
-  
-  test 'header_search_functionality' do
+
+  def test_header_search_functionality
     visit root_path
     fill_in 'search', with: 'kdebase'
     page.evaluate_script("$('#global-search-form').get(0).submit()")
@@ -112,16 +111,29 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     page.must_have_text(/Base.* distro without update project/)
   end
 
-  test 'search_by_baseurl' do
-    visit root_path + '/search?search_text=obs://build.opensuse.org/openSUSE:Factory/standard/fd6e76cd402226c76e65438a5e3df693-bash'
-    find('#flash-messages').must_have_text 'Project not found: openSUSE:Factory'
+  def test_search_by_request_number
+    visit root_path
+    fill_in 'search', with: '#1'
+    page.evaluate_script("$('#global-search-form').get(0).submit()")
 
-    visit root_path + '/search?search_text=obs://foo'
-    find('#flash-messages').must_have_text('This disturl does not compute!')
+    page.must_have_text(/Request 1/)
   end
 
-  test 'search_for_home_projects' do
-  
+  def test_search_by_baseurl
+    visit root_path
+    fill_in 'search', with: 'obs://myhost/BaseDistro/BaseDistro_repo/d430c2f61e4d8999f9ca6ed6667a104e-pack2'
+    page.evaluate_script("$('#global-search-form').get(0).submit()")
+
+    page.must_have_text(/Source Files/)
+
+    visit root_path
+    fill_in 'search', with: 'obs://foo'
+    page.evaluate_script("$('#global-search-form').get(0).submit()")
+
+    find('#flash-messages').must_have_text('Sorry, this disturl does not compute...')
+  end
+
+  def test_search_for_home_projects
     visit search_path
 
     search(
@@ -141,14 +153,12 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     assert results.count >= 4
   end
 
-
-  test 'search_for_subprojects' do
-
+  def test_search_for_subprojects
     visit search_path
 
     search(
       :text => 'branches',
-      :for  => [:projects], 
+      :for  => [:projects],
       :in   => [:name])
 
     results = search_results
@@ -156,14 +166,12 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     results.count.must_equal 1
   end
 
-
-  test 'search_for_projects' do
-
+  def test_search_for_projects
     visit search_path
 
     search(
       :text => 'localproject',
-      :for  => [:projects], 
+      :for  => [:projects],
       :in   => [:name])
 
     results = search_results
@@ -171,134 +179,120 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     results.count.must_equal 1
   end
 
-
-  test 'search_for_packages' do
-
+  def test_search_for_packages
     visit search_path
 
     search(
       :text => 'Test',
-      :for  => [:packages], 
+      :for  => [:packages],
       :in   => [:name])
-    
+
     results = search_results
     assert results.include? :type => :package, :project_name => 'CopyTest', :package_name => 'test'
-    #assert results.include? :type => :package, :project_name => "home:Iggy", :package_name => "TestPack"
-    #assert results.include? :type => :package, :project_name => "home:Iggy", :package_name => "ToBeDeletedTestPack"
+    # assert results.include? :type => :package, :project_name => "home:Iggy", :package_name => "TestPack"
+    # assert results.include? :type => :package, :project_name => "home:Iggy", :package_name => "ToBeDeletedTestPack"
     results.count.must_equal 1
   end
-  
 
-  test 'search_by_title' do
-    #TODO
+  def test_search_by_title
+    skip("not yet implemented")
   end
 
-
-  test 'search by description' do
-    #TODO
+  def test_search_by_description
+    skip("not yet implemented")
   end
 
-
-  test 'search by attributes' do
-    #TODO
+  def test_search_by_attributes
+    skip("not yet implemented")
   end
 
-
-  test 'search_non_existing_by_name' do
-
+  def test_search_non_existing_by_name
     visit search_path
-  
+
     search(
       :text => 'no such name, please!',
-      :for  => [:projects, :packages], 
+      :for  => [:projects, :packages],
       :in   => [:name],
       :expect => :no_results)
   end
 
-
-  test 'search_non_existing_by_title' do
-
+  def test_search_non_existing_by_title
     visit search_path
 
     search(
       :text => 'Perhaps a non-existing title.',
-      :for  => [:projects, :packages], 
+      :for  => [:projects, :packages],
       :in   => [:title],
       :expect => :no_results)
   end
 
-
-  test 'search_non_existing_by_description' do
-
+  def test_search_non_existing_by_description
     visit search_path
 
     search(
       :text => 'Some non-existing description I hope.',
-      :for  => [:projects, :packages], 
+      :for  => [:projects, :packages],
       :in   => [:description],
       :expect => :no_results)
   end
 
-
-  test 'search_non_existing_by_attributes' do
+  def test_search_non_existing_by_attributes
     visit search_path
 
     search(
       :text => '',
-      :for  => [:projects, :packages], 
+      :for  => [:projects, :packages],
       :in   => [],
       :attribute => 'OBS:RequestCloned',
       :expect => :no_results)
   end
 
-  test 'search_for_nothing' do
+  def test_search_for_nothing
     visit search_path
 
     search(
       :text => 'Some empty search.',
-      :for  => [:projects, :packages], 
+      :for  => [:projects, :packages],
       :in   => [:name, :title, :description],
       :expect => :no_results)
   end
-  
-  test 'search_russian' do
+
+  def test_search_russian
     visit search_path
-    
+
     search(
       :text => 'вокябюч',
       :for  => [:projects, :packages],
       :in   => [:name, :title, :description])
-    
+
     results = search_results
     page.must_have_text '窞綆腤 埱娵徖 渮湸湤 殠 唲堔'
     results.include?(:type => :project, :project_name => 'home:tom')
     results.count.must_equal 1
   end
 
-  test 'search_in_nothing' do
+  def test_search_in_nothing
     visit search_path
 
     search(
       :text => 'Some empty search again.',
-      :for  => [:projects, :packages], 
+      :for  => [:projects, :packages],
       :in   => [],
       :expect => :invalid_search_options)
   end
-  
-  
-  test 'search_with_empty_text' do
+
+  def test_search_with_empty_text
     visit search_path
     search(
       :text => '',
-      :for  => [:projects, :packages], 
+      :for  => [:projects, :packages],
       :in   => [:name],
       :expect => :invalid_search_text)
   end
 
-  test 'search_hidden_as_anonymous' do
-
+  def test_search_hidden_as_anonymous
     visit search_path
-  
+
     search(
       :text => 'packcopy',
       :for  => [:projects, :packages],
@@ -306,8 +300,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
       :expect => :no_results)
   end
 
-  test 'search_hidden_as_adrian' do
-
+  def test_search_hidden_as_adrian
     login_adrian to: search_path
 
     search(
@@ -319,5 +312,4 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     assert results.include? :type => :package, :package_name => 'packCopy', :project_name=> 'HiddenProject'
     results.count.must_equal 1
   end
-
 end

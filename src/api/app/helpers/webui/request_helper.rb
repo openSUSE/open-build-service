@@ -1,9 +1,8 @@
 module Webui::RequestHelper
-
   STATE_COLORS = {
-      'new' => 'green',
-      'declined' => 'red',
-      'superseded' => 'red',
+    'new'        => 'green',
+    'declined'   => 'red',
+    'superseded' => 'red'
   }
 
   def request_state_color(state)
@@ -37,7 +36,6 @@ module Webui::RequestHelper
       res[:request_type] = map_request_type(res[:request_type])
       res
     end
-
   end
 
   def map_request_type(type)
@@ -83,5 +81,4 @@ module Webui::RequestHelper
       "4"
     end
   end
-
 end

@@ -25,6 +25,7 @@ for i in *.old ; do
   fi
   i="${i%.old}"
   rm -f "$odir/$i.drpm" "$odir/$i.out" "$odir/$i.seq" "$odir/$i.dseq"
+  cat "$i.info"
   if makedeltarpm $mopt -s "$odir/$i.seq" "$i.old" "$i.new" "$odir/$i.drpm" >"$i.err" 2>&1 ; then
     rm -f "$odir/$i.err"
     newsize=$(stat -c %s "$i.new")

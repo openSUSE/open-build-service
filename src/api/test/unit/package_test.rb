@@ -18,17 +18,17 @@ class PackageTest < ActiveSupport::TestCase
   end
 
   def test_flags_to_axml
-    #check precondition
-    assert_equal 1, @package.type_flags('build').size
+    # check precondition
+    assert_equal 2, @package.type_flags('build').size
     assert_equal 1, @package.type_flags('publish').size
     assert_equal 1, @package.type_flags('debuginfo').size
 
     xml_string = @package.to_axml
 
-    #check the results
+    # check the results
     xml = REXML::Document.new(xml_string)
     assert_equal 1, xml.root.get_elements("/package/build").size
-    assert_equal 1, xml.root.get_elements("/package/build/*").size
+    assert_equal 2, xml.root.get_elements("/package/build/*").size
 
     assert_equal 1, xml.root.get_elements("/package/publish").size
     assert_equal 1, xml.root.get_elements("/package/publish/*").size
@@ -37,15 +37,13 @@ class PackageTest < ActiveSupport::TestCase
     assert_equal 1, xml.root.get_elements("/package/debuginfo/*").size
   end
 
-
   def test_add_new_flags_from_xml
-
-    #precondition check
+    # precondition check
     @package.flags.destroy_all
     @package.reload
     assert_equal 0, @package.flags.size
 
-    #package is given as axml
+    # package is given as axml
     axml = Xmlhash.parse(
         "<package name='TestPack' project='home:Iggy'>
         <title>My Test package</title>
@@ -58,7 +56,7 @@ class PackageTest < ActiveSupport::TestCase
         </publish>
         <debuginfo>
           <disable repository='10.0' arch='i586'/>
-        </debuginfo>        
+        </debuginfo>
         <url></url>
       </package>"
     )
@@ -71,7 +69,7 @@ class PackageTest < ActiveSupport::TestCase
     @package.save
     @package.reload
 
-    #check results
+    # check results
     assert_equal 1, @package.type_flags('build').size
     assert_equal 'enable', @package.type_flags('build')[0].status
     assert_equal '10.2', @package.type_flags('build')[0].repo
@@ -97,16 +95,14 @@ class PackageTest < ActiveSupport::TestCase
     assert_equal 3, @package.type_flags('debuginfo')[0].position
     assert_nil @package.type_flags('debuginfo')[0].project
     assert_equal 'TestPack', @package.type_flags('debuginfo')[0].package.name
-
   end
 
-
   def test_delete_flags_through_xml
-    #check precondition
-    assert_equal 1, @package.type_flags('build').size
+    # check precondition
+    assert_equal 2, @package.type_flags('build').size
     assert_equal 1, @package.type_flags('publish').size
 
-    #package is given as axml
+    # package is given as axml
     axml = Xmlhash.parse(
         "<package name='TestPack' project='home:Iggy'>
         <title>My Test package</title>
@@ -114,11 +110,10 @@ class PackageTest < ActiveSupport::TestCase
       </package>"
     )
 
-    #first update build-flags, should only delete build-flags
+    # first update build-flags, should only delete build-flags
     @package.update_all_flags(axml)
     assert_equal 0, @package.type_flags('build').size
     assert_equal 0, @package.type_flags('publish').size
-
   end
 
   def test_rating
@@ -131,11 +126,13 @@ class PackageTest < ActiveSupport::TestCase
     assert_equal Xmlhash.parse(xml), {"name" => "kdelibs",
                                       "project" => "kde4", "title" => "blub", "description" => "blub",
                                       "devel" => {"project" => "home:coolo:test", "package" => "kdelibs_DEVEL_package"},
-                                      "person" => [{"userid" => "fredlibs", "role" => "maintainer"}, {"userid" => "adrian", "role" => "reviewer"}], "group" => {"groupid" => "test_group", "role" => "maintainer"}}
+                                      "person" => [{"userid" => "fredlibs", "role" => "maintainer"},
+                                                   {"userid" => "adrian", "role" => "reviewer"}],
+                                      "group" => {"groupid" => "test_group", "role" => "maintainer"}}
   end
 
   def test_can_be_deleted
-    assert !packages(:kde4_kdelibs).can_be_deleted?
+    assert !packages(:kde4_kdelibs).check_weak_dependencies!
   end
 
   def test_store
@@ -197,16 +194,16 @@ class PackageTest < ActiveSupport::TestCase
     assert_equal orig, @package.render_xml
   end
 
-  test "names are case sensitive" do
-    np = @package.project.packages.new(name: 'testpack')
-    xh = Xmlhash.parse(@package.to_axml)
-    np.update_from_xml(xh)
-    assert_equal np.name, 'testpack'
-    assert np.id > 0
-    assert np.id != @package.id
-
-    # cleanup backend
-    np.destroy
+  def test_names_are_case_sensitive
+    Suse::Backend.without_global_write_through do
+      np = @package.project.packages.new(name: 'testpack')
+      xh = Xmlhash.parse(@package.to_axml)
+      np.save!
+      np.update_from_xml(xh)
+      assert_equal np.name, 'testpack'
+      assert np.id > 0
+      assert np.id != @package.id
+    end
   end
 
   test "invalid names are catched" do
@@ -231,85 +228,92 @@ class PackageTest < ActiveSupport::TestCase
   test "utf8 input" do
     xml = '<package name="libconfig" project="home:coolo">
   <title>libconfig &#8211; C/C++ Configuration File Library</title>
-  <description>Libconfig is a simple library for processing structured configuration files, like this one: test.cfg. This file format is more compact and more readable than XML. And unlike XML, it is type-aware, so it is not necessary to do string parsing in application code.
+  <description>Libconfig is a simple library for processing structured configuration files,
+  like this one: test.cfg. This file format is more compact and more readable than XML.
+  And unlike XML, it is type-aware, so it is not necessary to do string parsing in application code.
 
-Libconfig is very compact &#8212; just 38K for the stripped C shared library (less than one-fourth the size of the expat XML parser library) and 66K for the stripped C++ shared library. This makes it well-suited for memory-constrained systems like handheld devices.
+  Libconfig is very compact &#8212; just 38K for the stripped C shared library (less than one-fourth the
+  size of the expat XML parser library) and 66K for the stripped C++ shared library. This makes it well-suited
+  for memory-constrained systems like handheld devices.
 
-The library includes bindings for both the C and C++ languages. It works on POSIX-compliant UNIX systems (GNU/Linux, Mac OS X, Solaris, FreeBSD) and Windows (2000, XP and later).</description>
+  The library includes bindings for both the C and C++ languages. It works on POSIX-compliant UNIX
+  systems (GNU/Linux, Mac OS X, Solaris, FreeBSD) and Windows (2000, XP and later).
+  </description>
   </package>'
     xh = Xmlhash.parse(xml)
     @package.update_from_xml(xh)
   end
 
   def test_activity
-    Timecop.freeze(2010, 1, 1)
-    project = projects(:home_Iggy)
-    newyear = project.packages.create!(name: 'newyear')
-    # freshly created it should have 20
-    assert_equal 20, newyear.activity_index
-    assert_in_delta(20.0, newyear.activity, 0.2)
-    assert_equal 0, newyear.update_counter
+    Suse::Backend.without_global_write_through do
+      Timecop.freeze(2010, 1, 1)
+      project = projects(:home_Iggy)
+      newyear = project.packages.create!(name: 'newyear')
+      # freshly created it should have 20
+      assert_equal 20, newyear.activity_index
+      assert_in_delta(20.0, newyear.activity, 0.2)
+      assert_equal 0, newyear.update_counter
 
-    # a month later now
-    Timecop.freeze(2010, 2, 1)
-    assert_in_delta(15.9, newyear.activity, 0.2)
+      # a month later now
+      Timecop.freeze(2010, 2, 1)
+      assert_in_delta(15.9, newyear.activity, 0.2)
 
-    # a month later now
-    Timecop.freeze(2010, 3, 1)
-    assert_in_delta(12.9, newyear.activity, 0.2)
+      # a month later now
+      Timecop.freeze(2010, 3, 1)
+      assert_in_delta(12.9, newyear.activity, 0.2)
 
-    newyear.title = "Just a silly update"
-    newyear.save
-    assert_equal 1, newyear.update_counter
-    assert_in_delta(22.9, newyear.activity, 0.2)
+      newyear.title = "Just a silly update"
+      newyear.save
+      assert_equal 1, newyear.update_counter
+      assert_in_delta(22.9, newyear.activity, 0.2)
 
-    Timecop.freeze(2010, 4, 1)
-    assert_in_delta(18.3, newyear.activity, 0.2)
+      Timecop.freeze(2010, 4, 1)
+      assert_in_delta(18.3, newyear.activity, 0.2)
 
-    Timecop.freeze(2010, 5, 1)
-    assert_in_delta(14.7, newyear.activity, 0.2)
+      Timecop.freeze(2010, 5, 1)
+      assert_in_delta(14.7, newyear.activity, 0.2)
 
-    newyear.title = "Just a silly update 2"
-    newyear.save
-    assert_equal 2, newyear.update_counter
-    assert_in_delta(24.7, newyear.activity, 0.2)
-    newyear.title = "Just a silly update 3"
-    newyear.save
-    # activity stays the same  now
-    assert_in_delta(24.7, newyear.activity, 0.2)
+      newyear.title = "Just a silly update 2"
+      newyear.save
+      assert_equal 2, newyear.update_counter
+      assert_in_delta(24.7, newyear.activity, 0.2)
+      newyear.title = "Just a silly update 3"
+      newyear.save
+      # activity stays the same  now
+      assert_in_delta(24.7, newyear.activity, 0.2)
 
-    # an hour later perhaps?
-    Timecop.freeze(3600)
-    newyear.title = "Just a silly update 4"
-    newyear.save
-    assert_in_delta(25.1, newyear.activity, 0.2)
+      # an hour later perhaps?
+      Timecop.freeze(3600)
+      newyear.title = "Just a silly update 4"
+      newyear.save
+      assert_in_delta(25.1, newyear.activity, 0.2)
 
-    # and commit every day?
-    Timecop.freeze(90000)
-    newyear.title = "Just a silly update 5"
-    newyear.save
-    assert_in_delta(34.9, newyear.activity, 0.2)
+      # and commit every day?
+      Timecop.freeze(90000)
+      newyear.title = "Just a silly update 5"
+      newyear.save
+      assert_in_delta(34.9, newyear.activity, 0.2)
 
-    Timecop.freeze(90000)
-    newyear.title = "Just a silly update 6"
-    newyear.save
-    assert_in_delta(44.6, newyear.activity, 0.2)
+      Timecop.freeze(90000)
+      newyear.title = "Just a silly update 6"
+      newyear.save
+      assert_in_delta(44.6, newyear.activity, 0.2)
 
-    Timecop.freeze(90000)
-    newyear.title = "Just a silly update 7"
-    newyear.save
-    assert_in_delta(54.2, newyear.activity, 0.2)
+      Timecop.freeze(90000)
+      newyear.title = "Just a silly update 7"
+      newyear.save
+      assert_in_delta(54.2, newyear.activity, 0.2)
 
-    Timecop.freeze(90000)
-    newyear.title = "Just a silly update 8"
-    newyear.save
-    assert_in_delta(63.8, newyear.activity, 0.2)
+      Timecop.freeze(90000)
+      newyear.title = "Just a silly update 8"
+      newyear.save
+      assert_in_delta(63.8, newyear.activity, 0.2)
 
-    Timecop.freeze(90000)
-    newyear.title = "Just a silly update 8"
-    newyear.save
-    assert_in_delta(73.4, newyear.activity, 0.2)
-
+      Timecop.freeze(90000)
+      newyear.title = "Just a silly update 8"
+      newyear.save
+      assert_in_delta(73.4, newyear.activity, 0.2)
+    end
   end
 
   test 'is_binary_file?' do
@@ -358,4 +362,11 @@ The library includes bindings for both the C and C++ languages. It works on POSI
     suffixes_out.concat(suffixes_in.collect { |i| i.capitalize.swapcase })
   end
 
+  test 'default scope does not include forbidden projects' do
+    # assert that unscoped the forbidden projects are included
+    assert Package.unscoped.all.where(project_id: Relationship.forbidden_project_ids).any?
+
+    # assert that with default scope the forbidden projects are not included
+    assert_not Package.all.where(project_id: Relationship.forbidden_project_ids).any?
+  end
 end

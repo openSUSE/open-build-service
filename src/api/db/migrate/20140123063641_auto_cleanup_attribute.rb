@@ -1,5 +1,4 @@
 class AutoCleanupAttribute  < ActiveRecord::Migration
-
   class AttribTypeModifiableBy < ActiveRecord::Base; end
 
   def self.up
@@ -14,10 +13,8 @@ class AutoCleanupAttribute  < ActiveRecord::Migration
     add_column :configurations, :cleanup_after_days, :integer
   end
 
-
   def self.down
     AttribType.find_by_namespace_and_name("OBS", "AutoCleanup").delete()
     remove_column :configurations, :cleanup_after_days
   end
-
 end

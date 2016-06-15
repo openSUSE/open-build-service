@@ -2,7 +2,7 @@ class EventSubscription < ActiveRecord::Base
   belongs_to :user, inverse_of: :event_subscriptions
   belongs_to :group, inverse_of: :event_subscriptions
 
-  validates :receiver_role, inclusion: { in: [:all, :maintainer, :bugowner, :source_maintainer,
+  validates :receiver_role, inclusion: { in: [:all, :maintainer, :bugowner, :reader, :source_maintainer,
                                               :target_maintainer, :reviewer, :commenter, :creator] }
 
   def receiver_role
@@ -40,7 +40,7 @@ class EventSubscription < ActiveRecord::Base
     rule = _get_role_rule(rel.where(user_id: nil, group_id: nil), role)
     return rule.receive if rule
 
-    # if nothing set, nothing is set
+    # if nothing set, nothing is set. Thank you captain obvious!
     false
   end
 
@@ -52,7 +52,6 @@ class EventSubscription < ActiveRecord::Base
     rule.save
   end
 
-  private
   def self.filter_relationships(rel, obj)
     if obj.kind_of? User
       return rel.where(user: obj)
@@ -64,6 +63,4 @@ class EventSubscription < ActiveRecord::Base
 
     raise "Unable to filter by #{obj.class}"
   end
-
 end
-

@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/ruby.ruby2.3
 
 require 'optparse'
 require 'rubygems'

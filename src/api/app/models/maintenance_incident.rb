@@ -1,97 +1,95 @@
 # The maintenance incident class represents the entry in the database.
 #
 class MaintenanceIncident < ActiveRecord::Base
-
   belongs_to :project, class_name: "Project", foreign_key: :db_project_id
   belongs_to :maintenance_db_project, :class_name => "Project"
 
-  def project_name
-      unless self.incident_id
-        sql = ActiveRecord::Base.connection()
-        r = sql.execute( "SELECT counter FROM incident_counter WHERE maintenance_db_project_id = " + self.maintenance_db_project_id.to_s + " FOR UPDATE" ).first
+  def self.build_maintenance_incident(project, no_access = false, request = nil)
+    result = nil
+    return result unless project && project.kind == 'maintenance'
 
-        if r.nil?
-          # no counter exists, initialize it and select again
-          sql.execute( "INSERT INTO incident_counter(maintenance_db_project_id) VALUES('" + self.maintenance_db_project_id.to_s + "')" )
-          r = sql.execute( "SELECT counter FROM incident_counter WHERE maintenance_db_project_id = " + self.maintenance_db_project_id.to_s + " FOR UPDATE" ).first
-        end
-        # do an atomic increase of counter
-        sql.execute( "UPDATE incident_counter SET counter = counter+1 WHERE maintenance_db_project_id = " + self.maintenance_db_project_id.to_s )
-        self.incident_id = r[0]
+    request = { request: request } if request
+
+    Project.transaction do
+      result = MaintenanceIncident.new(maintenance_db_project: project)
+      target_project = Project.create(name: result.project_name)
+      target_project.flags.create(position: 1, flag: 'build', status: 'disable')
+
+      # publish is disabled, just patchinfos get enabled
+      target_project.flags.create(flag: 'publish', status: 'disable')
+      if no_access
+        target_project.flags.create(flag: 'access', status: 'disable')
       end
 
-      name = self.maintenance_db_project.name + ":" + self.incident_id.to_s 
-      return name
+      # take over roles from maintenance project
+      project.relationships.each do |r|
+        target_project.relationships.create(user: r.user, role: r.role, group: r.group)
+      end
+
+      # set default bugowner if missing
+      bugowner = Role.rolecache['bugowner']
+      unless target_project.relationships.users.where('role_id = ?', bugowner.id).exists?
+        target_project.add_user( User.current, bugowner )
+      end
+
+      # and write it
+      target_project.kind = 'maintenance_incident'
+      target_project.store(request)
+      result.db_project_id = target_project.id
+      result.save!
+    end
+    result
   end
 
-  def initUpdateinfoId(template = "%Y-%C", patch_name = nil)
-    return if self.released_at
+  def project_name
+      unless self.incident_id
+        r = MaintenanceIncident.exec_query(["SELECT counter FROM incident_counter WHERE maintenance_db_project_id = ? FOR UPDATE",
+                                            self.maintenance_db_project_id]).first
+        if r.nil?
+          # no counter exists, initialize it and select again
+          MaintenanceIncident.exec_query ["INSERT INTO incident_counter(maintenance_db_project_id) VALUES('?')", self.maintenance_db_project_id]
 
-    # set current time, to be used 
-    self.released_at = Time.now.utc
-    self.name = patch_name
+          r = MaintenanceIncident.exec_query(["SELECT counter FROM incident_counter WHERE maintenance_db_project_id = ? FOR UPDATE",
+                                              self.maintenance_db_project_id]).first
+        end
 
-    # Run an atomar counter++ based on the used scheme
-    if template =~ /%Y/
-      counterType = " AND year  = " + self.released_at.year.to_s
-      year = "'" + self.released_at.year.to_s + "'"
-    else
-      counterType = " AND ISNULL(year)"
-      year = "NULL"
-    end
-    if template =~ /%M/
-      counterType << " AND month = " + self.released_at.month.to_s
-      month = "'" + self.released_at.month.to_s + "'"
-    else
-      counterType << " AND ISNULL(month)"
-      month = "NULL"
-    end
-    if template =~ /%D/
-      counterType << " AND day   = " + self.released_at.day.to_s
-      day = "'" + self.released_at.day.to_s + "'"
-    else
-      counterType << " AND ISNULL(day)"
-      day = "NULL"
-    end
-    if template =~ /%N/
-      name = ActiveRecord::Base.connection.quote(self.name||"")
-      counterType << " AND name   = " + name
-    else
-      counterType << " AND ISNULL(name)"
-      name = "NULL"
-    end
-    sql = ActiveRecord::Base.connection()
-    r = sql.execute( "SELECT counter FROM updateinfo_counter WHERE maintenance_db_project_id = " + self.maintenance_db_project.id.to_s + counterType + " FOR UPDATE" ).first
-    unless r
-      # no counter exists, initialize it and select again
-      sql.execute( "INSERT INTO updateinfo_counter(maintenance_db_project_id, year, month, day, name) VALUES('" + self.maintenance_db_project.id.to_s + "', " + year + ", " + month + ", " + day + "," + name + ")" )
-      r = sql.execute( "SELECT counter FROM updateinfo_counter WHERE maintenance_db_project_id = " + self.maintenance_db_project.id.to_s + counterType + " FOR UPDATE" ).first
-    end
-    # do an atomic increase of counter
-    sql.execute( "UPDATE updateinfo_counter SET counter = counter+1 WHERE maintenance_db_project_id = " + self.maintenance_db_project.id.to_s + counterType )
-    self.counter = r[0].to_i + 1
-
-    self.save!
+        # do an atomic increase of counter
+        MaintenanceIncident.exec_query ["UPDATE incident_counter SET counter = counter+1 WHERE maintenance_db_project_id = ?",
+                                        self.maintenance_db_project_id]
+        self.incident_id = r[0]
+      end
+      name = self.maintenance_db_project.name + ":" + self.incident_id.to_s
+      name
   end
 
-  def getUpdateinfoId( id_template, patch_name=nil )
+  def getUpdateinfoCounter(time, template = "%Y-%C")
+    uc = UpdateinfoCounter.find_or_create(time, template)
+    IncidentUpdateinfoCounterValue.find_or_create(time, uc, self.project)
+  end
+
+  def getUpdateinfoId( id_template, patch_name )
     # this is not used anymore, but we need to keep it for released incidents base on old (OBS 2.5) code
     return self.updateinfo_id if self.updateinfo_id
 
     # initialize on first run
-    initUpdateinfoId(id_template, patch_name)
+    counter = getUpdateinfoCounter(Time.now.utc, id_template)
 
     my_id = id_template
 
     # replace place holders
-    my_id.gsub!( /%C/, self.counter.to_s )
-    my_id.gsub!( /%Y/, self.released_at.year.to_s )
-    my_id.gsub!( /%M/, self.released_at.month.to_s )
-    my_id.gsub!( /%D/, self.released_at.day.to_s )
-    my_id.gsub!( /%N/, self.name || "" )
+    my_id.gsub!( /%C/, counter.value.to_s )
+    my_id.gsub!( /%Y/, counter.released_at.year.to_s )
+    my_id.gsub!( /%M/, counter.released_at.month.to_s )
+    my_id.gsub!( /%D/, counter.released_at.day.to_s )
+    my_id.gsub!( /%N/, patch_name||"" )
     my_id.gsub!( /%i/, self.incident_id.to_s )
     my_id.gsub!( /%g/, self.id.to_s )
 
     return my_id
+  end
+
+  # execute a sql query + escaped string
+  def self.exec_query(query)
+    self.connection.execute self.escape_sql query
   end
 end

@@ -1,4 +1,4 @@
-#! /usr/bin/ruby
+#! /usr/bin/ruby.ruby2.3
 
 require 'rubygems'
 require 'json'
@@ -9,6 +9,7 @@ class Line
     self.line = line
     self.lines = Array.new
   end
+
   def add(line)
     return if line.nil?
     return unless line.parent.nil?
@@ -16,6 +17,7 @@ class Line
     line.parent = self
     self.lines << line
   end
+
   def check_up(line)
     return false if self == line
     return true unless self.parent
@@ -23,7 +25,7 @@ class Line
   end
 end
 
-def log_line(file, d, prefix='')
+def log_line(file, d, prefix = '')
   file.write prefix + d.line.inspect
   d.lines.each do |l|
     log_line(file, l, prefix + '  ')
@@ -41,10 +43,10 @@ file.close
 File.delete(file.path)
 file = File.new(filename, "w")
 
-ids.each do |id, d|
+ids.each do |_, d|
   type = d.line['type'] || ''
   if d.line["data"]
-    d.line["data"].each do |key,value|
+    d.line["data"].each do |key, value|
       d.add(ids[key])
       d.add(ids[value])
     end if type == 'varmap' || type == 'hash'
@@ -53,19 +55,19 @@ ids.each do |id, d|
     end if type == "array"
   end
   if type == "scope"
-    d.line["variables"].each do |key,value|
+    d.line["variables"].each do |key, value|
       d.add(ids[key])
       d.add(ids[value])
     end if d.line["variables"]
   end
   if type == "class"
-    d.line["methods"].each do |key,value|
+    d.line["methods"].each do |key, value|
       d.add(ids[key])
       d.add(ids[value])
     end if d.line["methods"]
   end
   if type == "object"
-    d.line["ivars"].each do |key,value|
+    d.line["ivars"].each do |key, value|
       d.add(ids[key])
       d.add(ids[value])
     end if d.line["ivars"]

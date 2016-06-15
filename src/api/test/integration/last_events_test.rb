@@ -1,7 +1,6 @@
-require 'test_helper'
+require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class LastEventsTest < ActionDispatch::IntegrationTest
-
   def setup
     # ensure that the backend got started or we read, process and forget the indexed data.
     # of course only if our timing is bad :/
@@ -35,6 +34,4 @@ class LastEventsTest < ActionDispatch::IntegrationTest
     UpdateNotificationEvents.new.perform
     assert_equal count_before, BackendPackage.links.count
   end
-
 end
-

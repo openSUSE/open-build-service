@@ -1,8 +1,11 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class GroupControllerTest < ActionDispatch::IntegrationTest
-
   fixtures :all
+
+  def setup
+    reset_auth
+  end
 
   def test_list_groups
     get "/group"
@@ -49,7 +52,7 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_response 403
     delete "/group/new_group"
     assert_response 404
-    delete "/group/test_group" #exists
+    delete "/group/test_group" # exists
     assert_response 403
 
     login_king
@@ -57,6 +60,14 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_response 404
     delete "/group/new_group"
     assert_response 404
+    put "/group/test_group", xml
+    assert_response 400
+    assert_xml_tag :tag => 'status', :attributes => {code: "invalid_parameter"}
+    assert_xml_tag :tag => 'summary', :content => "group name from path and xml mismatch"
+    put "/group/NOT_EXISTING_group", xml
+    assert_response 400
+    assert_xml_tag :tag => 'status', :attributes => {code: "invalid_parameter"}
+    assert_xml_tag :tag => 'summary', :content => "group name from path and xml mismatch"
     put "/group/new_group", xml
     assert_response :success
 
@@ -76,7 +87,7 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
 
     # double save is done by webui, we need to support it. Drop email adress also
     login_king
-    xml2 = "<group><title>new_group</title> 
+    xml2 = "<group><title>new_group</title>
               <maintainer userid='Iggy' />
               <person><person userid='fred' /><person userid='fred' /></person>
             </group>"
@@ -180,5 +191,4 @@ class GroupControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :tag => 'entry', :attributes => {:name => 'test_group'}
     assert_no_xml_tag :tag => 'entry', :attributes => {:name => 'test_group_b'}
   end
-
 end

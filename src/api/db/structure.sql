@@ -166,6 +166,7 @@ CREATE TABLE `binary_releases` (
   `medium` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `binary_updateinfo` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `binary_updateinfo_version` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `modify_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_binary_releases_on_binary_name` (`binary_name`),
   KEY `ra_name_index` (`repository_id`,`binary_name`),
@@ -196,6 +197,8 @@ CREATE TABLE `bs_request_action_accept_infos` (
   `osrcmd5` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `oxsrcmd5` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
+  `oproject` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `opackage` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `bs_request_action_id` (`bs_request_action_id`),
   CONSTRAINT `bs_request_action_accept_infos_ibfk_1` FOREIGN KEY (`bs_request_action_id`) REFERENCES `bs_request_actions` (`id`)
@@ -218,6 +221,7 @@ CREATE TABLE `bs_request_actions` (
   `role` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
   `created_at` datetime DEFAULT NULL,
   `target_repository` varchar(255) COLLATE utf8_bin DEFAULT NULL,
+  `makeoriginolder` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `bs_request_id` (`bs_request_id`),
   KEY `index_bs_request_actions_on_target_project` (`target_project`),
@@ -227,6 +231,12 @@ CREATE TABLE `bs_request_actions` (
   KEY `index_bs_request_actions_on_target_project_and_source_project` (`target_project`,`source_project`),
   CONSTRAINT `bs_request_actions_ibfk_1` FOREIGN KEY (`bs_request_id`) REFERENCES `bs_requests` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+CREATE TABLE `bs_request_counter` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `counter` int(11) DEFAULT '0',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `bs_request_histories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -253,7 +263,9 @@ CREATE TABLE `bs_requests` (
   `updated_at` datetime NOT NULL,
   `accept_at` datetime DEFAULT NULL,
   `priority` enum('critical','important','moderate','low') COLLATE utf8_bin DEFAULT 'moderate',
+  `number` int(11) NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `index_bs_requests_on_number` (`number`),
   KEY `index_bs_requests_on_creator` (`creator`),
   KEY `index_bs_requests_on_state` (`state`),
   KEY `index_bs_requests_on_superseded_by` (`superseded_by`)
@@ -315,6 +327,8 @@ CREATE TABLE `channel_targets` (
   `channel_id` int(11) NOT NULL,
   `repository_id` int(11) NOT NULL,
   `id_template` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `disabled` tinyint(1) DEFAULT '0',
+  `requires_issue` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `index_channel_targets_on_channel_id_and_repository_id` (`channel_id`,`repository_id`),
   KEY `repository_id` (`repository_id`),
@@ -326,6 +340,7 @@ CREATE TABLE `channels` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `package_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `index_unique` (`package_id`),
   KEY `package_id` (`package_id`),
   CONSTRAINT `channels_ibfk_1` FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -385,12 +400,6 @@ CREATE TABLE `configurations` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
-CREATE TABLE `db_project_types` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) CHARACTER SET utf8 NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
-
 CREATE TABLE `db_projects_tags` (
   `db_project_id` int(11) NOT NULL,
   `tag_id` int(11) NOT NULL,
@@ -412,7 +421,6 @@ CREATE TABLE `delayed_jobs` (
   `locked_by` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `queue` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   PRIMARY KEY (`id`),
-  KEY `index_delayed_jobs_on_locked_at` (`locked_at`),
   KEY `index_delayed_jobs_on_queue` (`queue`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
@@ -443,17 +451,20 @@ CREATE TABLE `distributions` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-CREATE TABLE `downloads` (
+CREATE TABLE `download_repositories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `baseurl` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `metafile` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `mtype` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `architecture_id` int(11) DEFAULT NULL,
-  `db_project_id` int(11) DEFAULT NULL,
+  `repository_id` int(11) NOT NULL,
+  `arch` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `url` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `repotype` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `archfilter` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `masterurl` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `mastersslfingerprint` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `pubkey` text COLLATE utf8_unicode_ci,
   PRIMARY KEY (`id`),
-  KEY `index_downloads_on_db_project_id` (`db_project_id`),
-  KEY `index_downloads_on_architecture_id` (`architecture_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+  KEY `repository_id` (`repository_id`),
+  CONSTRAINT `download_repositories_ibfk_1` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `event_subscriptions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -479,6 +490,7 @@ CREATE TABLE `events` (
   `updated_at` datetime DEFAULT NULL,
   `project_logged` tinyint(1) DEFAULT '0',
   `undone_jobs` int(11) DEFAULT '0',
+  `mails_sent` tinyint(1) DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `index_events_on_queued` (`queued`),
   KEY `index_events_on_project_logged` (`project_logged`),
@@ -519,6 +531,8 @@ CREATE TABLE `group_maintainers` (
 CREATE TABLE `group_request_requests` (
   `bs_request_action_group_id` int(11) DEFAULT NULL,
   `bs_request_id` int(11) DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`),
   KEY `index_group_request_requests_on_bs_request_id` (`bs_request_id`),
   KEY `index_group_request_requests_on_bs_request_action_group_id` (`bs_request_action_group_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -565,7 +579,7 @@ CREATE TABLE `history_elements` (
   `created_at` datetime NOT NULL,
   `user_id` int(11) NOT NULL,
   `description_extension` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `comment` text COLLATE utf8_unicode_ci DEFAULT NULL,
+  `comment` text COLLATE utf8_unicode_ci,
   PRIMARY KEY (`id`),
   KEY `index_history_elements_on_created_at` (`created_at`),
   KEY `index_history_elements_on_type` (`type`),
@@ -580,10 +594,22 @@ CREATE TABLE `incident_counter` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+CREATE TABLE `incident_updateinfo_counter_values` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `updateinfo_counter_id` int(11) NOT NULL,
+  `project_id` int(11) NOT NULL,
+  `value` int(11) NOT NULL,
+  `released_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `uniq_id_index` (`updateinfo_counter_id`,`project_id`),
+  KEY `project_id` (`project_id`),
+  CONSTRAINT `incident_updateinfo_counter_values_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `projects` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `issue_trackers` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) CHARACTER SET utf8 NOT NULL,
-  `kind` enum('other','bugzilla','cve','fate','trac','launchpad','sourceforge') CHARACTER SET utf8 DEFAULT NULL,
+  `kind` enum('other','bugzilla','cve','fate','trac','launchpad','sourceforge','github') COLLATE utf8_bin NOT NULL,
   `description` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `url` varchar(255) CHARACTER SET utf8 NOT NULL,
   `show_url` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
@@ -638,12 +664,9 @@ CREATE TABLE `maintenance_incidents` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `db_project_id` int(11) DEFAULT NULL,
   `maintenance_db_project_id` int(11) DEFAULT NULL,
-  `request` int(11) DEFAULT NULL,
   `updateinfo_id` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `incident_id` int(11) DEFAULT NULL,
-  `counter` int(11) DEFAULT NULL,
   `released_at` datetime DEFAULT NULL,
-  `name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `index_maintenance_incidents_on_db_project_id` (`db_project_id`),
   KEY `index_maintenance_incidents_on_maintenance_db_project_id` (`maintenance_db_project_id`)
@@ -717,7 +740,6 @@ CREATE TABLE `path_elements` (
   `position` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `parent_repository_index` (`parent_id`,`repository_id`),
-  UNIQUE KEY `parent_repo_pos_index` (`parent_id`,`position`),
   KEY `repository_id` (`repository_id`),
   CONSTRAINT `path_elements_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `repositories` (`id`),
   CONSTRAINT `path_elements_ibfk_2` FOREIGN KEY (`repository_id`) REFERENCES `repositories` (`id`)
@@ -809,15 +831,13 @@ CREATE TABLE `projects` (
   `updated_at` datetime DEFAULT '0000-00-00 00:00:00',
   `remoteurl` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
   `remoteproject` varchar(255) CHARACTER SET utf8 DEFAULT NULL,
-  `type_id` int(11) NOT NULL,
   `develproject_id` int(11) DEFAULT NULL,
   `delta` tinyint(1) NOT NULL DEFAULT '1',
+  `kind` enum('standard','maintenance','maintenance_incident','maintenance_release') COLLATE utf8_bin DEFAULT 'standard',
   PRIMARY KEY (`id`),
   UNIQUE KEY `projects_name_index` (`name`(255)),
   KEY `updated_at_index` (`updated_at`),
-  KEY `devel_project_id_index` (`develproject_id`),
-  KEY `type_id` (`type_id`),
-  CONSTRAINT `projects_ibfk_1` FOREIGN KEY (`type_id`) REFERENCES `db_project_types` (`id`)
+  KEY `devel_project_id_index` (`develproject_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 CREATE TABLE `ratings` (
@@ -946,6 +966,8 @@ CREATE TABLE `roles_users` (
   `user_id` int(11) NOT NULL DEFAULT '0',
   `role_id` int(11) NOT NULL DEFAULT '0',
   `created_at` datetime DEFAULT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`),
   UNIQUE KEY `roles_users_all_index` (`user_id`,`role_id`),
   KEY `role_id` (`role_id`),
   CONSTRAINT `roles_users_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
@@ -1033,14 +1055,13 @@ CREATE TABLE `tokens` (
   CONSTRAINT `tokens_ibfk_2` FOREIGN KEY (`package_id`) REFERENCES `packages` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-CREATE TABLE `updateinfo_counter` (
+CREATE TABLE `updateinfo_counters` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `maintenance_db_project_id` int(11) DEFAULT NULL,
   `day` int(11) DEFAULT NULL,
   `month` int(11) DEFAULT NULL,
   `year` int(11) DEFAULT NULL,
   `counter` int(11) DEFAULT '0',
-  `name` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -1557,8 +1578,6 @@ INSERT INTO schema_migrations (version) VALUES ('20140219185200');
 
 INSERT INTO schema_migrations (version) VALUES ('20140516182719');
 
-INSERT INTO schema_migrations (version) VALUES ('20140604101042');
-
 INSERT INTO schema_migrations (version) VALUES ('20140624101042');
 
 INSERT INTO schema_migrations (version) VALUES ('20140627071042');
@@ -1609,7 +1628,57 @@ INSERT INTO schema_migrations (version) VALUES ('20141022105426');
 
 INSERT INTO schema_migrations (version) VALUES ('20141022205426');
 
+INSERT INTO schema_migrations (version) VALUES ('20141107135426');
+
 INSERT INTO schema_migrations (version) VALUES ('20141110105426');
+
+INSERT INTO schema_migrations (version) VALUES ('20141125105426');
+
+INSERT INTO schema_migrations (version) VALUES ('20141201135426');
+
+INSERT INTO schema_migrations (version) VALUES ('20141202135426');
+
+INSERT INTO schema_migrations (version) VALUES ('20141208135426');
+
+INSERT INTO schema_migrations (version) VALUES ('20150112135426');
+
+INSERT INTO schema_migrations (version) VALUES ('20150127135426');
+
+INSERT INTO schema_migrations (version) VALUES ('20150129135426');
+
+INSERT INTO schema_migrations (version) VALUES ('20150129135427');
+
+INSERT INTO schema_migrations (version) VALUES ('20150227063641');
+
+INSERT INTO schema_migrations (version) VALUES ('20150623063641');
+
+INSERT INTO schema_migrations (version) VALUES ('20150625105426');
+
+INSERT INTO schema_migrations (version) VALUES ('20150630135426');
+
+INSERT INTO schema_migrations (version) VALUES ('20150715112346');
+
+INSERT INTO schema_migrations (version) VALUES ('20150716112346');
+
+INSERT INTO schema_migrations (version) VALUES ('20150716124906');
+
+INSERT INTO schema_migrations (version) VALUES ('20150807105426');
+
+INSERT INTO schema_migrations (version) VALUES ('20150902130939');
+
+INSERT INTO schema_migrations (version) VALUES ('20150903084813');
+
+INSERT INTO schema_migrations (version) VALUES ('20150916084813');
+
+INSERT INTO schema_migrations (version) VALUES ('20151030130011');
+
+INSERT INTO schema_migrations (version) VALUES ('20160321085300');
+
+INSERT INTO schema_migrations (version) VALUES ('20160321104000');
+
+INSERT INTO schema_migrations (version) VALUES ('20160321105300');
+
+INSERT INTO schema_migrations (version) VALUES ('20160518105300');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

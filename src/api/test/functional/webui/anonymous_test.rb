@@ -1,8 +1,7 @@
 require_relative '../../test_helper'
 
 class Webui::AnonymousTest < Webui::IntegrationTest
-
-  test 'Disable anonymous access' do
+  def test_Disable_anonymous_access # -> spec/controllers/webui/webui_controller_spec.rb
     # Check general access
     visit root_path
     page.must_have_text 'Locations'
@@ -26,5 +25,4 @@ class Webui::AnonymousTest < Webui::IntegrationTest
     config.anonymous = true
     config.save!
   end
-
 end

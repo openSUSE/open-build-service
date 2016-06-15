@@ -3,8 +3,7 @@
 require_relative '../../test_helper'
 
 class Webui::OwnerSearchTest < Webui::IntegrationTest
-
-  uses_transaction :test_basic_owner_search 
+  uses_transaction :test_basic_owner_search
   uses_transaction :test_owner_search_with_devel
 
   def setup
@@ -49,17 +48,18 @@ class Webui::OwnerSearchTest < Webui::IntegrationTest
       {
         :project => (row.find("a.project").text rescue nil),
         :package => (row.find("a.package").text rescue nil),
-        :owners =>  (row.find("p").text rescue nil)
+        :owners  => (row.find("p").text rescue nil)
       }
     end
   end
 
-  test "empty_owner_search" do
+  def test_empty_owner_search
     visit_owner_search
     search text: "does_not_exist", expect: :no_results
   end
 
-  test "basic_owner_search" do
+  def test_basic_owner_search
+    run_publisher
     visit_owner_search
     search text: "package", expect: "success"
     result = search_results.first
@@ -72,7 +72,8 @@ class Webui::OwnerSearchTest < Webui::IntegrationTest
     assert_not result[:owners].include? "test_group_empty as maintainer"
   end
 
-  test "owner_search_with_devel" do
+  def test_owner_search_with_devel
+    run_publisher
     use_js
 
     # set devel package (this one has another devel package in home:coolo:test)

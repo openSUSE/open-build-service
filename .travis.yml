@@ -1,27 +1,25 @@
 language: ruby
-rvm:
-  - 2.1
-before_script: 
-  - mysql -e 'create database ci_api_test;'
-  - sed -e 's,password:.*,password:,' -i src/api/config/database.yml.example
-  - travis_retry bash -x dist/ci/obs_testsuite_travis_before.sh
-  - bash -x dist/ci/obs_testsuite_travis_setup.sh
-script: bash -x dist/ci/obs_testsuite_travis.sh
+cache: bundler
+rvm: 2.3.0
+gemfile: src/api/Gemfile
+before_install: dist/ci/obs_testsuite_travis_install.sh
+before_script: dist/ci/obs_testsuite_travis_before.sh
+after_failure: dist/ci/obs_testsuite_travis_failure.sh
+script: "dist/ci/obs_testsuite_travis.sh $TEST_SUITE"
 env:
-  # just one special test
-  #- SUBTEST=api:functional/aaa_pre_consistency_test.rb:test_resubmit_fixtures
-  #- SUBTEST=rake:test:api
-  #- SUBTEST=rake:test:webui
-  # api and webui webrat with latest gems
-  #- SUBTEST=rake:test REMOVEGEMLOCK=true
+  - TEST_SUITE=rubocop
+  - TEST_SUITE=api
+  - TEST_SUITE=webui
+  - TEST_SUITE=spider
+  - TEST_SUITE=rspec
 matrix:
-  allow_failures:
-    - env: SUBTEST=rake:test REMOVEGEMLOCK=true
+  fast_finish: true
 notifications:
   irc:
      channels:
        - "chat.freenode.net#opensuse-buildservice"
      on_success: change
-     on_failure: change  
+     on_failure: change
 services:
-  - memcached # will start memcached
+  - memcached
+sudo: required

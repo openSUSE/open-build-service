@@ -1,5 +1,4 @@
 namespace :test do
-
   desc 'Measures test coverage'
   task :coverage do
     rm_f "coverage"
@@ -18,7 +17,4 @@ namespace :test do
     system("#{rcov} --html -t test/unit/*_test.rb")
     system("#{rcov} --html -t test/functional/*_test.rb")
   end
-
 end
-
-

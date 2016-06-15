@@ -96,17 +96,18 @@ class AttribTest < ActiveSupport::TestCase
     attrib_type.allowed_values << AttribAllowedValue.new(value: 'One')
     attrib_type.allowed_values << AttribAllowedValue.new(value: 'Two')
     attrib_type.allowed_values << AttribAllowedValue.new(value: 'Three')
-    attrib = Attrib.new(attrib_type: attrib_type, package: Package.first)
 
+    attrib = Attrib.new(attrib_type: attrib_type, package: Package.first)
     assert attrib.valid?, "attrib should be valid: #{attrib.errors.messages}"
-    attrib.values << AttribValue.new(value: 'xxx')
+
+    attrib.values.new(value: 'xxx')
     assert_not attrib.valid?
-    assert_equal ["value \'xxx\' is not allowed. Please use one of: One, Two, Three"], attrib.errors.messages[:values]
+    assert_equal ["Value 'xxx' is not allowed. Please use one of: One, Two, Three"], attrib.errors.messages[:values]
+
     attrib.values.delete_all
-    attrib.values << AttribValue.new(value: 'Three')
+    attrib.values.new(value: 'Three')
     assert attrib.valid?, "attrib should be valid: #{attrib.errors.messages}"
   end
-  
 
   test 'sets values from default_values and validates allowed_values and value_count' do
     attrib_type = AttribType.new(attrib_namespace: @namespace, name: 'AttribValueCombi')
@@ -181,10 +182,9 @@ class AttribTest < ActiveSupport::TestCase
     attrib = Attrib.new(attrib_type: attrib_type, project: Project.first)
 
     # If unlimited values
-    assert attrib.values_addable? 
+    assert attrib.values_addable?
     # If value_count != values.length
     attrib_type.value_count = 1
     assert attrib.values_addable?
   end
-
 end

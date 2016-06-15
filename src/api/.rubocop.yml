@@ -1,0 +1,52 @@
+inherit_from: .rubocop_todo.yml
+AllCops:
+  RunRailsCops: true
+  Exclude:
+    - 'tmp/**/*'
+    - 'lib/templates/**/*'
+    - 'vendor/bundle/**/*'
+
+# Someday we should add copyrights
+Style/Copyright:
+  Enabled: false
+  Notice: '^Copyright (\(c\) )?2[0-9]{3} .+'
+  AutocorrectNotice: ''# Configuration parameters: AllowURI, URISchemes.
+
+# Configuration parameters: AllowURI, URISchemes.
+Metrics/LineLength:
+  Max: 150
+  Exclude:
+    - 'db/**/*'
+
+Metrics/ClassLength:
+  Severity: refactor
+
+Metrics/ModuleLength:
+  Severity: refactor
+
+Style/CommandLiteral:
+  EnforcedStyle: percent_x
+
+Lint/EndAlignment:
+  AlignWith: variable
+
+Style/AlignHash:
+  EnforcedHashRocketStyle: table
+  EnforcedColonStyle: table
+  EnforcedLastArgumentHashStyle: ignore_implicit
+
+Style/AlignParameters:
+  EnforcedStyle: with_first_parameter
+
+# Moisés
+# Configuration parameters: AllowSafeAssignment.
+Lint/AssignmentInCondition:
+  Enabled: true
+
+# Henne
+Style/AndOr:
+  Enabled: false
+  EnforcedStyle: always
+
+Style/EmptyElse:
+  EnforcedStyle: both

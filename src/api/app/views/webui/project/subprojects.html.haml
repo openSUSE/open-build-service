@@ -12,9 +12,9 @@
         %th Parent project
         %th Description
     %tbody
-      - @parentprojects.each do |name, project|
+      - @parentprojects.each do |project|
         %tr
-          %td= link_to name, :action => 'show', :project => name
+          %td= link_to project.name, :action => 'show', :project => project.name
           %td= project.title
 
 %h3= @pagetitle
@@ -34,10 +34,14 @@
   %p
     %i This project has no subprojects
 
-- if User.current.can_modify_project?(@project.api_obj)
+- if User.current.can_modify_project?(@project)
   %p
-    = link_to sprited_text('brick_add', 'Create subproject'), { :controller => :project, :action => :new, :ns => @project.name }, id: "link-create-subproject"
+    = link_to sprite_tag('brick_add', title: 'New subproject') + ' New subproject', '#', id: 'create_subproject_link'
+    #create_subproject.hidden
+      = render partial: 'form', locals: { project: Project.new, configuration: @configuration, ns: @project.name }
 
 - if @subprojects.present?
   - content_for :ready_function do
     setup_subprojects_tables();
+- content_for :ready_function do
+  $("#create_subproject_link").click(function() { $('#create_subproject').show(); $('#create_subproject_link').hide() });

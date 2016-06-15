@@ -1,5 +1,4 @@
 class CleanupCacheLines < CreateJob
-
   attr_accessor :event
 
   def initialize(event)

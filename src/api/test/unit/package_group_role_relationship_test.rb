@@ -1,10 +1,9 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 
 class PackageGroupRoleRelationshipTest < ActiveSupport::TestCase
-
   def test_validation
     # empty == invalid
-    pgr = Relationship.new 
+    pgr = Relationship.new
     assert_equal true, pgr.invalid?
     assert_equal false, pgr.save
     # only role
@@ -29,5 +28,4 @@ class PackageGroupRoleRelationshipTest < ActiveSupport::TestCase
     # not another time
     assert_equal false, pgr.valid?
   end
-  
 end

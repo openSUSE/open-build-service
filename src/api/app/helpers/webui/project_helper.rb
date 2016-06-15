@@ -1,12 +1,7 @@
 module Webui::ProjectHelper
-
   include Webui::WebuiHelper
 
   protected
-
-  def escape_project_list(arr)
-    arr.map { |p| "['#{p[0]}','#{escape_javascript(p[1])}']" }.join(",\n").html_safe
-  end
 
   def show_status_comment(comment, package, firstfail, comments_to_clear)
     status_comment_html = ''.html_safe
@@ -47,12 +42,13 @@ module Webui::ProjectHelper
   def project_bread_crumb(*args)
     @crumb_list = [link_to('Projects', project_list_public_path)]
     return if @spider_bot
-    unless @project.nil? || @project.is_remote?
+    # FIXME: should also work for remote
+    if @project && @project.kind_of?(Project) && !@project.new_record?
       prj_parents = nil
-      if @namespace # corner case where no project object is available (i.e. 'new' action)
+      if @namespace # corner case where no project object is available
         prj_parents = Project.parent_projects(@namespace)
       else
-        #FIXME: Some controller's @project is a Project object whereas other's @project is a String object.
+        # FIXME: Some controller's @project is a Project object whereas other's @project is a String object.
         prj_parents = Project.parent_projects(@project.to_s)
       end
       project_list = []
@@ -81,7 +77,7 @@ module Webui::ProjectHelper
     link_to(h(package), :controller => :package, :action => :show, :project => @project, :package => package) + ' ' + format_seconds(btime)
   end
 
-  def short_incident_name(maintenance_project, incident)
+  def short_incident_name(incident)
     re = Regexp.new("#{@project.name}\:(.*)")
     match = incident.name.match(re)
     return match[1] if match.length > 1
@@ -107,15 +103,23 @@ module Webui::ProjectHelper
     end
   end
 
-
   STATE_ICONS = {
-      'new' => 'flag_green',
-      'review' => 'flag_yellow',
-      'declined' => 'flag_red',
+      'new'      => 'flag_green',
+      'review'   => 'flag_yellow',
+      'declined' => 'flag_red'
   }
 
   def map_request_state_to_flag(state)
     STATE_ICONS[state.to_s] || ''
   end
 
+  def escape_list(list)
+    # The input list is not html_safe because it's
+    # user input which we should never trust!!!
+    list.map { |p|
+      "['".html_safe +
+          escape_javascript(p) +
+          "']".html_safe
+    }.join(',').html_safe
+  end
 end

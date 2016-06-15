@@ -3,10 +3,10 @@
   <div class="box box-shadow">
     <h2 class="box-header">Add Reviewer</h2>
     <div class="dialog-content">
-      <p>Add a reviewer to request <%= @request_id %></p>
+      <p>Add a reviewer to request <%= @request_number %></p>
   
       <%= form_tag(:action => "add_reviewer") do %>
-          <%= hidden_field_tag(:id, @request_id) %>
+          <%= hidden_field_tag(:number, @request_number) %>
           <p>
             <%= label_tag(:review_type, "Type:") %><br/>
             <%= select_tag(:review_type, options_for_select([%w(User user), %w(Group group), %w(Project project), %w(Package package)])) %>

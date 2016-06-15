@@ -5,5 +5,4 @@ class WatchedProject < ActiveRecord::Base
 
   validates :project, presence: true
   validates :user, presence: true
- 
 end

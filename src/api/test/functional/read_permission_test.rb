@@ -2,13 +2,12 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'source_controller'
 
-class ReadPermissionTest < ActionDispatch::IntegrationTest 
-
+class ReadPermissionTest < ActionDispatch::IntegrationTest
   fixtures :all
-  
+
   def setup
-    super
     wait_for_scheduler_start
+    reset_auth
   end
 
   def test_basic_read_tests_public
@@ -51,9 +50,9 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
 
     # anonymous access with user-agent set
     get "/source/SourceprotectedProject", nil, { 'HTTP_USER_AGENT' => 'osc-something' }
-    assert_response 200
+    assert_response 401
     get "/source/SourceprotectedProject/_meta", nil, { 'HTTP_USER_AGENT' => 'osc-something' }
-    assert_response 200
+    assert_response 401
     get "/source/SourceprotectedProject/pack",  nil, { 'HTTP_USER_AGENT' => 'osc-something' }
     assert_response 401
 
@@ -67,7 +66,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response 403
 
     # reader access
-    prepare_request_with_user "sourceaccess_homer", "homer"
+    prepare_request_with_user "sourceaccess_homer", "buildservice"
     get "/source/SourceprotectedProject"
     assert_response :success
     get "/source/SourceprotectedProject/_meta"
@@ -83,7 +82,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
 
     # anonymous access with user-agent set
     get "/build/SourceprotectedProject/repo/i586/pack",  nil, { 'HTTP_USER_AGENT' => 'osc-something' }
-    assert_response 200
+    assert_response 401
 
     srcrpm="package-1.0-1.src.rpm"
 
@@ -118,10 +117,10 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response :success
     # can't do any check on the list without also deleting projects, which is too much for this test
     assert_xml_tag( :tag => "directory" )
-  end 
+  end
 
-  def do_read_access_all_pathes(user, response, debug=false)
-    prepare_request_with_user user, "so_alone" #adrian users have all the same password
+  def do_read_access_all_pathes(user, response)
+    prepare_request_with_user user, "buildservice"
     get "/source/HiddenProject/_meta"
     assert_response response
     get "/source/HiddenProject"
@@ -139,14 +138,17 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     # Access as a maintainer to a hidden project
     do_read_access_all_pathes( "adrian", :success )
   end
+
   def test_read_hidden_prj_reader
     # Hidden project is visible to all involved users
     do_read_access_all_pathes( "adrian_reader", :success )
   end
+
   def test_read_hidden_prj_downloader
     # Visible to all involved users
     do_read_access_all_pathes( "adrian_downloader", :success )
   end
+
   def test_read_hidden_prj_nobody
     # Hidden project not visible to external user
     do_read_access_all_pathes( "adrian_nobody", 404 )
@@ -170,7 +172,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     delresp=404
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # maintainer
-    prepare_request_with_user "hidden_homer", "homer"
+    prepare_request_with_user "hidden_homer", "buildservice"
     tprj="home:hidden_homer:tmp"
     get "/source/#{tprj}"
     assert_response 404
@@ -189,7 +191,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
 
     # open -> hidden
     # unauthorized
-    reset_auth 
+    reset_auth
     sprj="home:coolo:test"       # source project
     spkg="kdelibs_DEVEL_package" # source package
     tprj="HiddenProject"         # target project
@@ -207,7 +209,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # maintainer
 
-    prepare_request_with_user "hidden_homer", "homer"
+    prepare_request_with_user "hidden_homer", "buildservice"
     get "/source/#{tprj}/_meta"
     assert :success
     resp=:success
@@ -239,7 +241,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     delresp=404
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
     # maintainer
-    prepare_request_with_user "sourceaccess_homer", "homer"
+    prepare_request_with_user "sourceaccess_homer", "buildservice"
     tprj="home:sourceaccess_homer"
     resp=:success
     match="SourceprotectedProject"
@@ -249,6 +251,8 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     # admin
     login_king
     do_branch_package_test(sprj, spkg, tprj, resp, match, testflag, delresp, debug)
+    delete "/source/home:sourceaccess_homer"
+    assert_response :success
   end
 
   def do_branch_package_test (sprj, spkg, tprj, resp, match, testflag, delresp, debug)
@@ -269,26 +273,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response delresp if delresp
   end
 
-  def do_read_access_project(user, pass, targetproject, response)
-    prepare_request_with_user user, pass
-    get "/source/#{targetproject}/_meta"
-    assert_response response
-    get "/source/#{targetproject}"
-  end
-
-  def do_read_access_package(user, pass, targetproject, package, response)
-    assert_response response
-    get "/source/#{targetproject}/pack"
-    assert_response response
-    get "/source/#{targetproject}/pack/_meta"
-    assert_response response
-    get "/source/#{targetproject}/pack/my_file"
-    assert_response response
-  end
-  protected :do_read_access_project
-  protected :do_read_access_package
-
-  def do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+  def do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     get "/source/#{destprj}/#{destpkg}/_meta"
     orig=@response.body
     post "/source/#{destprj}/#{destpkg}", :cmd => "copy", :oproject => "#{srcprj}", :opackage => "#{srcpkg}"
@@ -313,28 +298,26 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     resp=401
     flag=nil
     delresp=401
-    debug=false
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # some user
     login_tom
     resp=404
     delresp=200
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # maintainer
-    prepare_request_with_user "hidden_homer", "homer"
+    prepare_request_with_user "hidden_homer", "buildservice"
     # flag not inherited
     resp=:success
     delresp=:success
-    debug=false
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # admin has special permission
     login_king
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     #
-    # reverse 
+    # reverse
     #
     # invalid
-    reset_auth 
+    reset_auth
     srcprj="CopyTest"
     srcpkg="test"
     destprj="HiddenProject"
@@ -342,22 +325,21 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     resp=401
     flag=nil
     delresp=401
-    debug=false
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # some user
     login_tom
     resp=403       # not allowed to create project, which looks to be not existing
     delresp=404    # project does not exist, it seems ...
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # maintainer
-    prepare_request_with_user "hidden_homer", "homer"
+    prepare_request_with_user "hidden_homer", "buildservice"
     # flag not inherited - should we inherit in any case to be on the safe side ?
     resp=:success
     delresp=:success
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # admin
     login_king
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
   end
 
   def test_copy_sourceaccess_protected_project
@@ -369,26 +351,25 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     resp=401
     flag=nil
     delresp=401
-    debug=false
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # some user
     login_tom
     resp=403
     delresp=200
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # maintainer
-    prepare_request_with_user "sourceaccess_homer", "homer"
+    prepare_request_with_user "sourceaccess_homer", "buildservice"
     resp=:success
     delresp=:success
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # admin
     login_king
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     #
-    # reverse 
+    # reverse
     #
     # invalid
-    reset_auth 
+    reset_auth
     srcprj="CopyTest"
     srcpkg="test"
     destprj="SourceprotectedProject"
@@ -396,21 +377,20 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     resp=401
     flag=nil
     delresp=401
-    debug=false
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # some user
     login_tom
     resp=403
     delresp=403
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # maintainer
-    prepare_request_with_user "sourceaccess_homer", "homer"
+    prepare_request_with_user "sourceaccess_homer", "buildservice"
     resp=:success
     delresp=:success
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
     # maintainer
     login_king
-    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp, debug)
+    do_test_copy_package(srcprj, srcpkg, destprj, destpkg, resp, flag, delresp)
   end
 
   def test_create_links_hidden_project
@@ -492,7 +472,15 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response 404
 
     # cleanup
-    delete url
+    login_king
+    delete "/source/kde4/temporary2"
+    assert_response 200
+    delete "/source/kde4/temporary3"
+    assert_response 200
+    delete "/source/HiddenProject/temporary"
+    assert_response 200
+    delete "/source/HiddenProject/temporary4"
+    assert_response 200
   end
 
   def test_alter_source_access_flags
@@ -541,8 +529,10 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:PublicProject"),
         '<project name="home:adrian:PublicProject"> <title/> <description/> </project>'
     assert_response :success
+    # rubocop:disable Metrics/LineLength
     put url_for(:controller => :source, :action => :update_package_meta, :project => "home:adrian:PublicProject", :package => "ProtectedPackage"),
         '<package name="ProtectedPackage" project="home:adrian:PublicProject"> <title/> <description/>  <sourceaccess><disable/></sourceaccess>  </package>'
+    # rubocop:enable Metrics/LineLength
     assert_response :success
     put "/source/home:adrian:PublicProject/ProtectedPackage/dummy_file", "dummy"
 
@@ -649,6 +639,8 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     assert_response 403
 
     # cleanup
+    delete "/source/home:tom:temp"
+    assert_response :success
     login_adrian
     delete "/source/home:adrian:ProtectedProject"
     assert_response :success
@@ -665,7 +657,6 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:tom:ProtectedProject2"),
         '<project name="home:tom:ProtectedProject2"> <title/> <description/> <link project="HiddenProject"/> </project>'
     assert_response 404
-
 
     login_adrian
     # try to link to an access protected hidden project from sourceaccess project
@@ -686,7 +677,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     # Allow linking from not sourceaccess protected project to protected own. src.rpms are not delivered by the backend.
     #
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject1"),
-     '<project name="home:adrian:ProtectedProject1"> <title/> <description/> <link project="home:adrian:ProtectedProject2"/> </project>'
+        '<project name="home:adrian:ProtectedProject1"> <title/> <description/> <link project="home:adrian:ProtectedProject2"/> </project>'
     assert_response :success
 
     # try to link to an access protected hidden project from access hidden project
@@ -705,9 +696,10 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject4"),
         '<project name="home:adrian:ProtectedProject4"> <title/> <description/> <access><disable/></access> </project>'
     assert_response :success
-
+    # rubocop:disable Metrics/LineLength
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject4"),
         '<project name="home:adrian:ProtectedProject4"> <title/> <description/> <access><disable/></access> <link project="home:adrian:ProtectedProject2"/> </project>'
+    # rubocop:enable Metrics/LineLength
     assert_response :success
 
     # try to access it directly with a user not permitted
@@ -720,6 +712,8 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
 
     # cleanup
     login_king
+    delete "/source/home:adrian:ProtectedProject1"
+    assert_response :success
     delete "/source/home:adrian:ProtectedProject2"
     assert_response :success
     delete "/source/home:adrian:ProtectedProject3"
@@ -784,20 +778,29 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
   def test_project_paths_to_download_protected_projects
     # NOTE: we documented that binarydownload can be workarounded, it is NO security feature, just convenience.
     # try to access it with a user permitted for binarydownload
-    prepare_request_with_user "binary_homer", "homer"
+    prepare_request_with_user "binary_homer", "buildservice"
 
     # check if sufficiently protected projects can access protected projects
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:binary_homer:ProtectedProject1"),
         '<project name="home:binary_homer:ProtectedProject1"> <title/> <description/> <binarydownload><disable/></binarydownload> </project>'
     assert_response 200
 
+    # rubocop:disable Metrics/LineLength
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:binary_homer:ProtectedProject1"),
         '<project name="home:binary_homer:ProtectedProject1"> <title/> <description/> <repository name="BinaryprotectedProjectRepo"> <path repository="nada" project="BinaryprotectedProject"/> <arch>i586</arch> </repository> </project>'
+    # rubocop:enable Metrics/LineLength
     assert_response 200
 
     # check if sufficiently protected projects can access protected projects
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:binary_homer:ProtectedProject2"),
         '<project name="home:binary_homer:ProtectedProject2"> <title/> <description/> </project>'
+    assert_response 200
+
+    # cleanup
+    login_king
+    delete "/source/home:binary_homer:ProtectedProject1"
+    assert_response 200
+    delete "/source/home:binary_homer:ProtectedProject2"
     assert_response 200
   end
 
@@ -806,8 +809,10 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     login_tom
 
     # check if unsufficiently permitted users tries to access protected projects
+    # rubocop:disable Metrics/LineLength
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:tom:ProtectedProject2"),
         '<project name="home:tom:ProtectedProject2"> <title/> <description/>  <repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
+    # rubocop:enable Metrics/LineLength
     assert_response 404
 
     # try to access it with a user permitted for access
@@ -815,16 +820,20 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
 
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject1"),
         '<project name="home:adrian:ProtectedProject1"> <title/> <description/> <access><disable/></access> </project>'
-    #STDERR.puts(@response.body)
+    # STDERR.puts(@response.body)
     assert_response 200
 
+    # rubocop:disable Metrics/LineLength
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject1"),
         '<project name="home:adrian:ProtectedProject1"> <title/> <description/> <repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
+    # rubocop:enable Metrics/LineLength
     assert_response 404
 
     # building against
+    # rubocop:disable Metrics/LineLength
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject2"),
         '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
+    # rubocop:enable Metrics/LineLength
     assert_response 404
 
     # check if download protected project has to access protected project, which reveals Hidden project existence to others and is and error
@@ -832,23 +841,33 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
         '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <binarydownload><disable/></binarydownload> </project>'
     assert_response 200
 
+    # rubocop:disable Metrics/LineLength
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:adrian:ProtectedProject2"),
         '<project name="home:adrian:ProtectedProject2"> <title/> <description/> <repository name="HiddenProjectRepo"> <path repository="nada" project="HiddenProject"/> <arch>i586</arch> </repository> </project>'
-    #STDERR.puts(@response.body)
+    # rubocop:enable Metrics/LineLength
     assert_response 404
 
     # check if access protected project has access binarydownload protected project
-    prepare_request_with_user "binary_homer", "homer"
+    prepare_request_with_user "binary_homer", "buildservice"
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:binary_homer:ProtectedProject3"),
         '<project name="home:binary_homer:ProtectedProject3"> <title/> <description/> <access><disable/></access> </project>'
-    #STDERR.puts(@response.body)
+    # STDERR.puts(@response.body)
     assert_response 200
 
+    # rubocop:disable Metrics/LineLength
     put url_for(:controller => :source, :action => :update_project_meta, :project => "home:binary_homer:ProtectedProject3"),
         '<project name="home:binary_homer:ProtectedProject3"> <title/> <description/> <repository name="BinaryprotectedProjectRepo"> <path repository="nada" project="BinaryprotectedProject"/> <arch>i586</arch> </repository> </project>'
-    #STDERR.puts(@response.body)
+    # rubocop:enable Metrics/LineLength
     assert_response 200
 
+    # cleanup
+    login_king
+    delete "/source/home:adrian:ProtectedProject1"
+    assert_response 200
+    delete "/source/home:adrian:ProtectedProject2"
+    assert_response 200
+    delete "/source/home:binary_homer:ProtectedProject3"
+    assert_response 200
   end
 
   def test_copy_project_of_hidden_project
@@ -880,7 +899,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     put "/source/home:tom/ProtectedPackage/_meta",
         '<package project="home:tom" name="ProtectedPackage"> <title/> <description/> <sourceaccess><disable/></sourceaccess> </package>'
     assert_response :success
-    
+
     post "/source/CopyOfProject?cmd=copy&oproject=home:tom&nodelay=1"
     assert_response :success
     get "/source/CopyOfProject/_meta"
@@ -920,6 +939,7 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     get "/source/home:tom:branches:home:Iggy/_meta"
     assert_response :success
     assert_xml_tag( :tag => "disable", :parent => { :tag => "access" } )
+
     delete "/source/home:tom:branches:home:Iggy"
     assert_response :success
   end
@@ -964,6 +984,4 @@ class ReadPermissionTest < ActionDispatch::IntegrationTest
     delete "/source/home:adrian:Project"
     assert_response :success
   end
-
-
 end

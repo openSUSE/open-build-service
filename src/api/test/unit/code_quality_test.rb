@@ -9,7 +9,7 @@ class CodeQualityTest < ActiveSupport::TestCase
     @ruby_files = []
     RAILS_BASE_DIRS.each do |base_dir|
       Find.find(base_dir.to_s) do |path|
-        @ruby_files << path if FileTest.file?(path) and path.end_with?('.rb')
+        @ruby_files << path if FileTest.file?(path) && path.end_with?('.rb') && !path.match(/\/lib\/templates\//)
       end
     end
   end
@@ -42,7 +42,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       failed = Integer(output.split(':')[1])
       failedfile = nil
       linenrs.each do |ruby_file, line|
-        break if line > failed 
+        break if line > failed
         failedfile = ruby_file
       end
       IO.popen("ruby -cv #{failedfile} 2>&1 > /dev/null | grep #{Rails.root}") do |io|
@@ -54,78 +54,72 @@ class CodeQualityTest < ActiveSupport::TestCase
     end
   end
 
-  # Checks that no 'debugger' statement is present in ruby code
-  test 'no ruby debugger statement' do
-    @ruby_files.each do |ruby_file|
-      File.open(ruby_file).each_with_index do |line, number|
-        assert(false, "#{ruby_file}:#{number + 1} 'debugger' statement found!") if line.match(/^\s*debugger/)
-	assert(false, "#{ruby_file}:#{number + 1} 'save_and_open_page' statement found!") if line.match(/^\s*save_and_open_page/)
-      end
-    end
-  end
-
   # our current exceptions
-  BlackList = {
-      'ApplicationController#extract_ldap_user' => 116.66,
-      'AttributeController#attribute_definition' => 87.7,
-      'BinaryRelease::update_binary_releases_via_json' => 122.54,
-      'BranchPackage#find_packages_to_branch' => 239.64,
-      'BranchPackage#create_branch_packages' => 214.0,
-      'BranchPackage#determine_details_about_package_to_branch' => 207.47,
-      'BranchPackage#check_for_update_project' => 110.23,
-      'BsRequest#change_review_state' => 203.53,
-      'BsRequest#apply_default_reviewers' => 129.52,
-      'BsRequest#webui_actions' => 130.13,
-      'BsRequest::new_from_xml' => 113.77,
-      'BsRequestAction#check_action_permission!' => 232.82,
-      'BsRequestAction#create_expand_package' => 291.31,
-      'BsRequestAction#default_reviewers' => 141.02,
-      'BsRequestAction#store_from_xml' => 88.01,
-      'BsRequestActionMaintenanceIncident#merge_into_maintenance_incident' => 166.26,
-      'BsRequestActionMaintenanceRelease#check_permissions!' => 91.4,
-      'BsRequestActionSubmit#execute_accept' => 136.79,
-      'BsRequestPermissionCheck#cmd_changestate_permissions' => 114.87,
-      'BuildController#file' => 127.42,
-      'BuildController#project_index' => 129.0,
-      'ConfigurationsController#update' => 85.63,
-      'IssueTrackersController#update' => 100.78,
-      'MaintenanceIncident#initUpdateinfoId' => 140.32,
-      'Owner::_extract_from_container' => 84.07,
-      'PersonController#internal_register' => 112.01,
-      'Project#update_one_repository_without_path' => 150.7,
-      'PublicController#binary_packages' => 126.16,
-      'Repository#cleanup_before_destroy' => 82.98,
-      'RequestController#render_request_collection' => 92.82,
-      'SearchController#find_attribute' => 97.33,
-      'SearchController#search' => 81.64, 
-      'SourceController#project_command_copy' => 140.04,
-      'SourceController#update_file' => 97.26,
-      'SourceController#update_project_meta' => 106.89,
-      'UserLdapStrategy::find_with_ldap' => 183.71,
-      'UserLdapStrategy::render_grouplist_ldap' => 100.3,
-      'Webui::DriverUpdateController#save' => 97.16,
-      'Webui::PackageController#submit_request' => 149.9,
-      'Webui::PatchinfoController#save' => 252.95,
-      'Webui::ProjectController#check_devel_package_status' => 81.95, 
-      'Webui::ProjectController#save_new' => 90,
-      'Webui::ProjectController#save_targets' => 123.29,
-      'Webui::SearchController#set_parameters' => 98.04,
-      'Webui::WebuiHelper#flag_status' => 93.0,
-      'WizardController#package_wizard' => 97.46
+  BLACK_LIST = {
+      'ApplicationController#extract_ldap_user'                                 => 116.52,
+      'AttributeController#attribute_definition'                                => 92.09,
+      'BinaryRelease::update_binary_releases_via_json'                          => 128.58,
+      'BranchPackage#find_packages_to_branch'                                   => 238.17,
+      'BranchPackage#create_branch_packages'                                    => 234.78,
+      'BranchPackage#check_for_update_project'                                  => 105.96,
+      'BranchPackage#determine_details_about_package_to_branch'                 => 91.39,
+      'BranchPackage#lookup_incident_pkg'                                       => 83.09,
+      'BranchPackage#extend_packages_to_link'                                   => 80.23,
+      'BsRequest#change_review_state'                                           => 209.72,
+      'BsRequest#apply_default_reviewers'                                       => 129.52,
+      'BsRequest#webui_actions'                                                 => 130.13,
+      'BsRequest::new_from_xml'                                                 => 113.77,
+      'BsRequestAction#check_action_permission!'                                => 117.71,
+      'BsRequestAction#check_action_permission_target!'                         => 89.68,
+      'BsRequestAction#create_expand_package'                                   => 443.16,
+      'BsRequestAction#default_reviewers'                                       => 141.02,
+      'BsRequestAction#store_from_xml'                                          => 88.01,
+      'BsRequestActionMaintenanceIncident#_merge_pkg_into_maintenance_incident' => 130.81,
+      'BsRequestActionMaintenanceRelease#sanity_check!'                         => 81.82,
+      'BsRequestActionSubmit#execute_accept'                                    => 126.42,
+      'BsRequestPermissionCheck#cmd_changestate_permissions'                    => 117.09,
+      'RequestSourceDiff::ActionSourceDiffer#diff_for_source'                   => 94.62,
+      'BuildController#file'                                                    => 127.42,
+      'BuildController#project_index'                                           => 129.0,
+      'ConfigurationsController#update'                                         => 85.63,
+      'IssueTrackersController#update'                                          => 100.78,
+      'MaintenanceHelper#instantiate_container'                                 => 163.57,
+      'Owner::_extract_from_container'                                          => 80.11,
+      'Owner::search'                                                           => 80.51,
+      'PersonController#internal_register'                                      => 112.01,
+      'Package#find_changed_issues'                                             => 93.74,
+      'Package#close_requests'                                                  => 84.82,
+      'PublicController#binary_packages'                                        => 126.16,
+      'Repository#cleanup_before_destroy'                                       => 82.98,
+      'SearchController#find_attribute'                                         => 97.33,
+      'SourceController#project_command_copy'                                   => 140.04,
+      'SourceController#update_project_meta'                                    => 103.21,
+      'UserLdapStrategy::find_with_ldap'                                        => 122.14,
+      'User::find_with_credentials'                                             => 131.43,
+      'UserLdapStrategy::render_grouplist_ldap'                                 => 100.3,
+      'Webui::DriverUpdateController#save'                                      => 91.69,
+      'Webui::PackageController#submit_request'                                 => 95.89,
+      'Webui::PatchinfoController#save'                                         => 240.1,
+      'Webui::ProjectController#check_devel_package_status'                     => 81.95,
+      'Webui::SearchController#set_parameters'                                  => 98.04,
+      'WizardController#package_wizard'                                         => 97.46
   }
 
   test 'code complexity' do
     require 'flog_cli'
     flog = Flog.new :continue => true
-    dirs = %w(app/controllers app/views app/models app/mixins app/indices app/helpers app/jobs webui/app/controllers webui/app/models webui/app/helpers webui/app/mixins)
+    dirs = %w(app/controllers app/views app/models
+              app/mixins app/indices app/helpers
+              app/jobs webui/app/controllers webui/app/models
+              webui/app/helpers webui/app/mixins)
     files = FlogCLI.expand_dirs_to_files(*dirs)
     flog.flog(*files)
 
-    black = BlackList.dup
+    black = BLACK_LIST.dup
     flog.calculate
     mismatches = []
 
-    flog.each_by_score do |class_method, score, call_list|
+    flog.each_by_score do |class_method, score, _|
       break if score < 80 # they are sorted. 80 means the function still fits on a standard screen
       next if class_method.end_with? '#none'
       score = Integer(score * 100)
@@ -142,7 +136,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       if score > oldscore
         mismatches << error
       else
-	# scare them but don't fail
+        # scare them but don't fail
         puts error
       end
     end

@@ -1,5 +1,4 @@
 class Directory < ActiveXML::Node
-
   def self.hashed(opts)
     project = opts.delete :project
     package = opts.delete :package

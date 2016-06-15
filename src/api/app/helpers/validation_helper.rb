@@ -1,15 +1,14 @@
 require 'api_exception'
 
 module ValidationHelper
-
   class InvalidProjectNameError < APIException
-  end 
+  end
 
   class InvalidPackageNameError < APIException
   end
 
   def valid_project_name? name
-    return Project.valid_name? name  
+    return Project.valid_name? name
   end
 
   def valid_project_name! project_name
@@ -19,7 +18,7 @@ module ValidationHelper
   end
 
   def valid_package_name? name
-    return Package.valid_name? name 
+    return Package.valid_name? name
   end
 
   def valid_package_name! package_name
@@ -73,9 +72,8 @@ module ValidationHelper
     raise Project::UnknownObjectError unless r
     return true if @http_user.is_admin?
     if FlagHelper.xml_disabled_for?(Xmlhash.parse(r.body), 'access')
-      #FIXME: actually a per user checking would be more accurate here
+      # FIXME: actually a per user checking would be more accurate here
       raise Project::UnknownObjectError, "#{project}"
     end
   end
-
 end

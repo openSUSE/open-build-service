@@ -7,7 +7,7 @@ module Rake
       deps = deps.collect {|d| d.to_s }
       task = @tasks[task_name.to_s] = task_class.new(task_name, self)
       task.application = self
-      #task.add_comment(@last_comment)
+      # task.add_comment(@last_comment)
       @last_comment = nil
       task.enhance(deps, &block)
       task
@@ -27,7 +27,6 @@ def redefine_task(args, &block)
 end
 
 namespace :db do
-  
   namespace :structure do
     desc "Dump the database structure to a SQL file"
     task :dump => :environment do
@@ -39,7 +38,7 @@ namespace :db do
         con = ActiveRecord::Base.connection
 
         sql = "SHOW FULL TABLES WHERE Table_type = 'BASE TABLE'"
- 
+
         structure = con.select_all(sql, 'SCHEMA').map { |table|
           table.delete('Table_type')
           sql = "SHOW CREATE TABLE #{con.quote_table_name(table.to_a.first.last)}"
@@ -84,13 +83,21 @@ namespace :db do
       end
       File.open("#{Rails.root}/db/structure.sql", "w+") { |f| f << new_structure }
     end
-     
   end
 
- desc 'Create the database, load the structure, and initialize with the seed data'
- redefine_task :setup => :environment do 
+  desc 'Create the database, load the structure, and initialize with the seed data'
+  redefine_task :setup => :environment do
     Rake::Task["db:structure:load"].invoke
     Rake::Task["db:seed"].invoke
- end
+  end
 
+  namespace :fixtures do
+    desc 'Recreate the database and initialize with the test fixtures'
+    task :obs => :environment do
+      Rake::Task["db:drop"].invoke
+      Rake::Task["db:create"].invoke
+      Rake::Task["db:setup"].invoke
+      ruby "-Ilib:test test/unit/watched_project_test.rb"
+    end
+  end
 end

@@ -1,8 +1,9 @@
 class Product < ActiveRecord::Base
-
   belongs_to :package, foreign_key: :package_id
   has_many :product_update_repositories, dependent: :destroy
   has_many :product_media, dependent: :destroy
+
+  include CanRenderModel
 
   def self.find_or_create_by_name_and_package( name, package )
     raise Product::NotFoundError.new( "Error: Package not valid." ) unless package.class == Package
@@ -17,11 +18,36 @@ class Product < ActiveRecord::Base
     return self.where(name: name, package: package).load
   end
 
-  def set_CPE(swClass, vendor, pversion=nil)
+  def self.all_products( project, expand = nil )
+    return project.expand_all_products if expand
+
+    self.joins(:package).where("packages.project_id = ? and packages.name = '_product'", project.id)
+  end
+
+  def to_axml(_opts = {})
+    Rails.cache.fetch('xml_product_%d' % self.id) do
+      # CanRenderModel
+      render_xml
+    end
+  end
+
+  def set_CPE(swClass, vendor, pversion = nil)
     # hack for old SLE 11 definitions
     vendor="suse" if vendor.start_with?("SUSE LINUX")
     self.cpe = "cpe:/#{swClass}:#{vendor.downcase}:#{self.name.downcase}"
     self.cpe += ":#{pversion}" unless pversion.blank?
+  end
+
+  def extend_id_hash(h)
+    # extends an existing hash for xml rendering with our version
+    if baseversion
+      h[:baseversion] = baseversion
+      h[:patchlevel] = patchlevel
+    else
+      h[:version] = version
+    end
+    h[:release] = release if release
+    h
   end
 
   def update_from_xml(xml)
@@ -41,7 +67,8 @@ class Product < ActiveRecord::Base
             self.baseversion = p['baseversion']
             self.patchlevel = p['patchlevel']
             pversion = p['version']
-            pversion = "#{p['baseversion']}.#{p['patchlevel']}" if pversion.blank? and p['baseversion']
+            pversion = p['baseversion'] if p['baseversion']
+            pversion += ":sp#{p['patchlevel']}" if p['patchlevel'] and p['patchlevel'].to_i > 0
             self.set_CPE(swClass, p['vendor'], pversion)
             self.version = pversion
             # update update channel connections
@@ -55,6 +82,7 @@ class Product < ActiveRecord::Base
   end
 
   private
+
   def _update_from_xml_register_pool(rxml)
     rxml.elements('pool') do |u|
       medium = {}
@@ -70,8 +98,11 @@ class Product < ActiveRecord::Base
       end
       u.elements('repository') do |repo|
         next if repo['project'].blank? # it may be just a url= reference
-        poolRepo = Repository.find_by_project_and_repo_name(repo['project'], repo['name'])
-        raise UnknownRepository.new "Pool repository #{repo['project']}/#{repo['name']} does not exist" unless poolRepo
+        poolRepo = Repository.find_by_project_and_name(repo['project'], repo['name'])
+        unless poolRepo
+          errors.add(:missing, "Pool repository #{repo['project']}/#{repo['name']} missing")
+          next
+        end
         name = repo.get('medium')
         arch = repo.get('arch')
         key = "#{poolRepo.id}/#{name}"
@@ -82,8 +113,11 @@ class Product < ActiveRecord::Base
           p = {product: self, repository: poolRepo, name: name}
           unless arch.blank?
             arch_filter = Architecture.find_by_name(arch)
-            raise NotFoundError.new("Architecture #{arch} not valid") unless arch_filter
-            p[:arch_filter_id] = arch_filter.id
+            if arch_filter
+              p[:arch_filter_id] = arch_filter.id
+            else
+              errors.add(:invalid, "Architecture #{arch} not valid")
+            end
           end
           self.product_media.create(p)
         end
@@ -92,6 +126,7 @@ class Product < ActiveRecord::Base
       self.product_media.delete(medium.values)
     end
   end
+
   def _update_from_xml_register_update(rxml)
     rxml.elements('updates') do |u|
       update = {}
@@ -102,7 +137,7 @@ class Product < ActiveRecord::Base
         update[key] = pu
       end
       u.elements('repository') do |repo|
-        updateRepo = Repository.find_by_project_and_repo_name(repo.get('project'), repo.get('name'))
+        updateRepo = Repository.find_by_project_and_name(repo.get('project'), repo.get('name'))
         next unless updateRepo # it might be a remote repo, which will not become indexed
         arch = repo.get('arch')
         key = updateRepo.id.to_s
@@ -110,8 +145,11 @@ class Product < ActiveRecord::Base
         unless arch.blank?
           key += "/#{arch}"
           arch_filter = Architecture.find_by_name(arch)
-          raise NotFoundError.new("Architecture #{arch} not valid") unless arch_filter
-          p[:arch_filter_id] = arch_filter.id
+          if arch_filter
+            p[:arch_filter_id] = arch_filter.id
+          else
+            errors.add(:invalid, "Architecture #{arch} not valid")
+          end
         end
         ProductUpdateRepository.create(p) unless update[key]
         update.delete(key)
@@ -119,6 +157,7 @@ class Product < ActiveRecord::Base
       self.product_update_repositories.delete(update.values)
     end
   end
+
   def _update_from_xml_register(rxml)
     _update_from_xml_register_update(rxml)
     _update_from_xml_register_pool(rxml)

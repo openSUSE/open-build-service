@@ -1,5 +1,5 @@
 <div id="package_buildstatus">
-  <% if not @project.has_element?(:repository) %>
+  <% if not @project.repositories.any? %>
     <%= render "no_repositories" %>
   <% elsif @buildresult.blank? %>
     <p><i>No build result available</i></p>
@@ -19,7 +19,7 @@
             <% end # if -%>
             <td class="arch">
               <div class="nowrap" style="margin: 0 0.5ex">
-                <%= repo_status_icon @repostatushash[r][a] %> <%= a %>
+                <%= repo_status_icon(@repostatushash[r][a],@repostatusdetailshash[r][a]) %> <%= a %>
               </div>
             </td>
             <%= arch_repo_table_cell r, a, @package.name %>
@@ -30,3 +30,10 @@
 
   <% end # if -%>
 </div>
+
+<%= javascript_tag do %>
+    $('.unresolvable, .blocked').click(function() {
+        var title = $(this).attr('title');
+        alert(title);
+    });
+<% end %>

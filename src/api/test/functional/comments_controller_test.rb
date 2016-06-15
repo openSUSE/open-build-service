@@ -1,8 +1,11 @@
 require_relative '../test_helper'
 
 class CommentsControllerTest < ActionDispatch::IntegrationTest
+  def setup
+    reset_auth
+  end
 
-  test 'package comments' do
+  def test_package_comments
     get comments_package_path(project: 'BaseDistro3', package: 'pack2')
     assert_response 401
 
@@ -11,27 +14,26 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     assert_xml_tag tag: 'comment', attributes: { who: 'tom' }
-
   end
 
-  test 'hidden project comments' do
+  def test_hidden_project_comments
     login_tom
     get comments_project_path(project: 'HiddenProject')
     assert_response 404 # huh? Nothing here
 
-    prepare_request_with_user 'hidden_homer', 'homer'
+    prepare_request_with_user 'hidden_homer', 'buildservice'
     get comments_project_path(project: 'HiddenProject')
     assert_response :success
   end
 
-  test 'show request comments' do
+  def test_show_request_comments
     login_tom
     get comments_request_path(id: 4)
     assert_response :success
     assert_xml_tag tag: 'comment', attributes: { who: 'tom', parent: '300' }
   end
 
-  test 'delete comment' do
+  def test_delete_comment
     delete comment_delete_path(300)
     assert_response 401 # no anonymous deletes
 
@@ -50,10 +52,9 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_no_xml_tag tag: 'comment', attributes: { who: 'tom', parent: '300' }
     assert_xml_tag tag: 'comment', attributes: { who: '_nobody_', id: '301' }, content: 'This comment has been deleted'
-
   end
 
-  test 'delete commented package' do
+  def test_delete_commented_package
     # home:king/commentpack has comments
     login_king
     delete '/source/home:king/commentpack'
@@ -63,7 +64,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test 'delete commented project' do
+  def test_delete_commented_project
     # home:king has comments
     login_king
     delete '/source/home:king'
@@ -73,7 +74,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test 'create request comment' do
+  def test_create_request_comment
     post create_request_comment_path(id: 2)
     assert_response 401 # no anonymous comments
 
@@ -86,9 +87,11 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     # body can't be empty
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_record' }
 
+    SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       raw_post create_request_comment_path(id: 2), 'Hallo'
       assert_response :success
+      SendEventEmails.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
@@ -100,34 +103,38 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
 
     # just check if adrian gets the mail too - he's a commenter now
     login_dmayr
+    SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       raw_post create_request_comment_path(id: 2), 'Hallo'
       assert_response :success
+      SendEventEmails.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
-    assert_equal %w(adrian@example.com tschmidt@example.com), email.to
+    assert_equal %w(adrian@example.com tschmidt@example.com), email.to.sort
 
     # now to something fancy
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       raw_post create_request_comment_path(id: 2), 'Hallo @fred'
       assert_response :success
+      SendEventEmails.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
-    assert_equal %w(adrian@example.com fred@feuerstein.de tschmidt@example.com), email.to
+    assert_equal %w(adrian@example.com fred@feuerstein.de tschmidt@example.com), email.to.sort
 
     # and check if @fred becomes a 'commenter' for ever
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       raw_post create_request_comment_path(id: 2), 'Is Fred listening now?'
       assert_response :success
+      SendEventEmails.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
-    assert_equal %w(adrian@example.com fred@feuerstein.de tschmidt@example.com), email.to
+    assert_equal %w(adrian@example.com fred@feuerstein.de tschmidt@example.com), email.to.sort
   end
 
-  test 'create project comment' do
+  def test_create_project_comment
     post create_project_comment_path(project: 'Apache')
     assert_response 401 # no anonymous comments
 
@@ -137,21 +144,23 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     # body can't be empty
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_record' }
 
+    SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       raw_post create_project_comment_path(project: 'Apache'), 'Beautiful project'
       assert_response :success
+      SendEventEmails.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
     assert_equal 'New comment in project Apache by adrian', email.subject
     # Fred have two users and both are maintainers of the project
-    assert_equal ['fred@feuerstein.de', 'fred@feuerstein.de'], email.to
+    assert_equal ['fred@feuerstein.de', 'fred@feuerstein.de'], email.to.sort
 
     get comments_project_path(project: 'Apache')
     assert_xml_tag tag: 'comment', attributes: { who: 'adrian' }, content: 'Beautiful project'
   end
 
-  test 'create package comment' do
+  def test_create_package_comment
     post create_package_comment_path(project: 'kde4', package: 'kdebase')
     assert_response 401 # no anonymous comments
 
@@ -161,25 +170,29 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     # body can't be empty
     assert_xml_tag tag: 'status', attributes: { code: 'invalid_record' }
 
+    SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       raw_post create_package_comment_path(project: 'kde4', package: 'kdebase'), "Hola, estoy aprendiendo español"
       assert_response :success
+      SendEventEmails.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
     assert_equal 'New comment in package kde4/kdebase by tom', email.subject
-    assert_equal ["fred@feuerstein.de", "king@all-the-kings.org", "fred@feuerstein.de", "test_group@testsuite.org"], email.to
+    assert_equal ["fred@feuerstein.de", "king@all-the-kings.org", "fred@feuerstein.de", "test_group@testsuite.org"].sort, email.to.sort
 
     get comments_package_path(project: 'kde4', package: 'kdebase')
     assert_xml_tag tag: 'comment', attributes: { who: 'tom' }, content: "Hola, estoy aprendiendo español"
   end
 
-  test 'create a comment that only mentioned people will notice' do
+  def test_create_a_comment_that_only_mentioned_people_will_notice
     login_tom
+    SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       # Trolling
       raw_post create_package_comment_path(project: 'BaseDistro', package: 'pack1'), "I preffer Apache1, don't you? @fred"
       assert_response :success
+      SendEventEmails.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
@@ -191,7 +204,7 @@ class CommentsControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'comment', attributes: { who: 'tom' }, content: "I preffer Apache1, don't you? @fred"
   end
 
-  test 'upload mail reply' do
+  def test_upload_mail_reply
     # to be implemented, just for setting up the infrastructure for now
     reset_auth
     put "/mail_handler"

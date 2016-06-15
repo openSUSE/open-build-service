@@ -2,15 +2,19 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'source_controller'
 
-class AttributeControllerTest < ActionDispatch::IntegrationTest 
-  
+class AttributeControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
+
+  def setup
+    wait_for_scheduler_start
+    reset_auth
+  end
 
   def test_index
     get "/attribute/"
     assert_response 401
 
-    login_Iggy 
+    login_Iggy
     get "/attribute/"
     assert_response :success
 
@@ -29,7 +33,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
 
     get "/attribute/OBS"
     assert_response :success
-    count = 18
+    count = 21
     assert_xml_tag :tag => 'directory', :attributes => { :count => count }
     assert_xml_tag :children => { :count => count }
     assert_xml_tag :child => { :tag => 'entry', :attributes => { :name => "Maintained" } }
@@ -45,7 +49,7 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :child => { :tag => 'description', :content => "Project is frozen and updates are released via the other project" }
   end
 
-  def test_create_namespace
+  def test_create_namespace_old
     data = "<namespace name='TEST'><modifiable_by user='adrian'/></namespace>"
 
     login_Iggy
@@ -58,11 +62,22 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     assert_match(/Namespace changes are only permitted by the administrator/, @response.body)
 
     login_king
+    # FIXME3.0: POST is deprecated, use PUT
     post "/attribute/TEST/_meta", data
     assert_response :success
     get "/attribute/TEST/_meta"
     assert_response :success
     delete "/attribute/TEST/_meta"
+    assert_response :success
+    get "/attribute/TEST/_meta"
+    assert_response 404
+
+    # using PUT and new delete route
+    put "/attribute/TEST/_meta", data
+    assert_response :success
+    get "/attribute/TEST/_meta"
+    assert_response :success
+    delete "/attribute/TEST"
     assert_response :success
     get "/attribute/TEST/_meta"
     assert_response 404
@@ -72,7 +87,6 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     # create test namespace
     login_king
     data = "<namespace name='TEST'><modifiable_by user='adrian'/></namespace>"
-    login_king
     post "/attribute/TEST/_meta", data
     assert_response :success
 
@@ -102,11 +116,22 @@ class AttributeControllerTest < ActionDispatch::IntegrationTest
     assert_match(/Attribute type changes are not permitted/, @response.body)
 
     login_adrian
+    # FIXME3.0: POST is deprecated, use PUT
     post "/attribute/TEST/Dummy/_meta", data
     assert_response :success
     get "/attribute/TEST/Dummy/_meta"
     assert_response :success
     delete "/attribute/TEST/Dummy/_meta"
+    assert_response :success
+    get "/attribute/TEST/Dummy/_meta"
+    assert_response 404
+
+    # new PUT way
+    put "/attribute/TEST/Dummy/_meta", data
+    assert_response :success
+    get "/attribute/TEST/Dummy/_meta"
+    assert_response :success
+    delete "/attribute/TEST/Dummy"
     assert_response :success
     get "/attribute/TEST/Dummy/_meta"
     assert_response 404
@@ -185,8 +210,8 @@ ription</description>
 
     # set issues
     data = "<attributes><attribute namespace='TEST' name='Dummy'>
-              <issue name='123' tracker='bnc'/> 
-              <issue name='456' tracker='bnc'/> 
+              <issue name='123' tracker='bnc'/>
+              <issue name='456' tracker='bnc'/>
             </attribute></attributes>"
     post "/source/home:adrian/_attribute", data
     assert_response :success
@@ -200,7 +225,7 @@ ription</description>
 
     # remove one
     data = "<attributes><attribute namespace='TEST' name='Dummy'>
-              <issue name='456' tracker='bnc'/> 
+              <issue name='456' tracker='bnc'/>
             </attribute></attributes>"
     post "/source/home:adrian/_attribute", data
     assert_response :success
@@ -223,7 +248,7 @@ ription</description>
 
     get "/attribute/OBS"
     assert_response :success
-    count = 18
+    count = 21
     assert_xml_tag :tag => 'directory', :attributes => { :count => count }
     assert_xml_tag :children => { :count => count }
     assert_xml_tag :child => { :tag => 'entry', :attributes => { :name => "Maintained" } }
@@ -241,7 +266,7 @@ ription</description>
     data = "<attributes><attribute namespace='OBS' name='Playground'/></attributes>"
     post "/source/home:tom/_attribute", data
     assert_response 404
-    assert_select "status[code] > summary", /unknown attribute type 'OBS:Playground'/ 
+    assert_select "status[code] > summary", /Attribute Type OBS:Playground does not exist/
 
     data = "<attributes><attribute namespace='OBS' name='Maintained' >
               <value>blah</value>
@@ -249,7 +274,7 @@ ription</description>
     post "/source/home:tom/_attribute", data
     assert_response 400
     assert_select "status[code] > summary", /has 1 values, but only 0 are allowed/
-  
+
     data = "<attributes><attribute namespace='OBS' name='Maintained'></attribute></attributes>"
     post "/source/home:tom/_attribute", data
     assert_response :success
@@ -335,7 +360,7 @@ ription</description>
     data = "<attributes><attribute namespace='OBS' name='Playground'/></attributes>"
     post "/source/kde4/kdelibs/_attribute", data
     assert_response 404
-    assert_select "status[code] > summary", /unknown attribute type 'OBS:Playground'/
+    assert_select "status[code] > summary", /Attribute Type OBS:Playground does not exist/
 
     data = "<attributes><attribute namespace='OBS' name='Maintained' >
               <BROKENXML>
@@ -363,8 +388,10 @@ ription</description>
     assert_response :success
     get "/source/kde4/kdelibs/_attribute/OBS:Maintained"
     assert_response :success
-    assert_equal({"attribute"=>[{"name"=>"Maintained", "namespace"=>"OBS"}, 
-                                {"name"=>"Maintained", "namespace"=>"OBS", "binary"=>"kdelibs-devel"}]}, Xmlhash.parse(@response.body))
+    assert_equal({"attribute" => [{"name"=>"Maintained", "namespace"=>"OBS"},
+                                  {"name"=>"Maintained", "namespace"=>"OBS", "binary"=>"kdelibs-devel"}
+                                 ]},
+                 Xmlhash.parse(@response.body))
     get "/source/kde4/kdelibs/kdelibs-devel/_attribute"
     assert_response :success
     get "/source/kde4/kdelibs/kdelibs-devel/_attribute/OBS:Maintained"
@@ -437,6 +464,4 @@ ription</description>
 
 # FIXME:
 # * value based test are missing
-
 end
-

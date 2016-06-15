@@ -91,11 +91,6 @@ my $ajaxsocket = "$rundir/bs_repserver.ajax";
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
-sub unify {
-  my %h = map {$_ => 1} @_;
-  return grep(delete($h{$_}), @_); 
-}
-
 # XXX read jobs instead?
 
 sub jobname {
@@ -104,29 +99,6 @@ sub jobname {
   $job =~ s/\//::/g;
   $job = ':'.Digest::MD5::md5_hex($prp).'::'.(length($packid) > 160 ? ':'.Digest::MD5::md5_hex($packid) : $packid) if length($job) > 200;
   return $job;
-}
-
-sub notify {
-  my ($type, $p) = @_;
-
-  # strip
-  $p = { map {$_ => $p->{$_}} grep {defined($p->{$_}) && !ref($p->{$_})} sort keys %{$p || {}} };
-  if (0) {
-    BSNotify::notify($type, $p);
-  } else {
-    # always route over to the src server
-    my $param = {
-      'uri' => "$BSConfig::srcserver/notify/$type",
-      'request' => 'POST',
-      'headers' => [ 'Content-Type: application/x-www-form-urlencoded' ],
-      'timeout' => 60,
-    };
-    my @args = map {"$_=$p->{$_}"} sort keys %$p;
-    eval {
-      BSRPC::rpc($param, undef, @args);
-    };
-    warn($@) if $@;
-  }
 }
 
 # add :full repo to pool, make sure repo is up-to-data by
@@ -141,15 +113,13 @@ sub addrepo_scan {
   if (-s "$dir.solv") {
     eval {$cache = $pool->repofromfile($prp, "$dir.solv");};
     warn($@) if $@;
-    return $cache if $cache && $cache->isexternal();
-    ### speed up test...
     return $cache if $cache;
     print "local repo $prp\n";
   }
   my @bins;
   local *D;
   if (opendir(D, $dir)) {
-    @bins = grep {/\.(?:$binsufsre)$/} readdir(D);
+    @bins = grep {/\.(?:$binsufsre)$/s && !/^\.dod\./s} readdir(D);
     closedir D;
     if (!@bins && -s "$dir.subdirs") {
       for my $subdir (split(' ', readstr("$dir.subdirs"))) {
@@ -183,16 +153,16 @@ sub addrepo_remote {
   my $cpio = BSRPC::rpc($param, undef, "view=cache");
   my %cpio = map {$_->{'name'} => $_->{'data'}} @{$cpio || []}; 
   if (exists $cpio{'repositorycache'}) {
-    my $cache;
-    eval { $cache = Storable::thaw(substr($cpio{'repositorycache'}, 4)); };
+    my $cache = BSUtil::fromstorable($cpio{'repositorycache'}, 2);
     delete $cpio{'repositorycache'};	# free mem
-    warn($@) if $@;
     return undef unless $cache;
     # free some unused entries to save mem
     for (values %$cache) {
       delete $_->{'path'};
       delete $_->{'id'};
     }
+    delete $cache->{'/external/'};
+    delete $cache->{'/url'};
     return $pool->repofromdata($prp, $cache);
   } else {
     # return empty repo
@@ -206,24 +176,45 @@ sub fetchdodbinary {
   my $reponame = $repo->name();
   die("$reponame is no dod repo\n") unless $repo->dodurl();
   my $path = $pool->pkg2path($p);
-  my $suf = $path;
-  $suf =~ s/.*\.//;
-  my $localname = "$reporoot/$reponame/$arch/:full/".$pool->pkg2name($p).".$suf";
+  die("$path has an unsupported suffix\n") unless $path =~ /\.($binsufsre)$/;
+  my $suf = $1;
+  my $pkgname = $pool->pkg2name($p);
+  BSVerify::verify_filename($pkgname);
+  BSVerify::verify_simple($pkgname);
+  my $localname = "$reporoot/$reponame/$arch/:full/$pkgname.$suf";
   return $localname if -e $localname;
   # we really need to download, handoff to ajax if not already done
-  if ($handoff && !$BSStdServer::isajax) {
-    BSHandoff::handoff($ajaxsocket, @$handoff);
-    exit(0);
-  }
+  BSHandoff::handoff(@$handoff) if $handoff && !$BSStdServer::isajax;
   my $url = $repo->dodurl();
   $url .= '/' unless $url =~ /\/$/;
   $url .= $pool->pkg2path($p);
-  my $tmp = "$localname.$$";
+  my $tmp = "$reporoot/$reponame/$arch/:full/.dod.$$.$pkgname.$suf";
   #print "fetching: $url\n";
   my $param = {'uri' => $url, 'filename' => $tmp, 'receiver' => \&BSHTTP::file_receiver, 'proxy' => $proxy};
   $param->{'maxredirects'} = $maxredirects if defined $maxredirects;
   my $r = BSWatcher::rpc($param);
   return unless defined $r;
+  my $checksum;
+  $checksum = $pool->pkg2checksum($p) if defined &BSSolv::pool::pkg2checksum;
+  eval {
+    # verify the checksum if we know it
+    die("checksum error for $tmp, expected $checksum\n") if $checksum && !$pool->verifypkgchecksum($p, $tmp);
+    # also make sure that the evra matches what we want
+    my $q = Build::query($tmp, 'evra' => 1);
+    my $data = $pool->pkg2data($p);
+    $data->{'release'} = '__undef__' unless defined $data->{'release'};
+    $q->{'release'} = '__undef__' unless defined $q->{'release'};
+    die("downloaded package is not the one we want\n") if $data->{'name'} ne $q->{'name'} ||
+	      ($data->{'arch'} || '') ne ($q->{'arch'} || '') ||
+	      ($data->{'epoch'} || 0) != ($q->{'epoch'} || 0) ||
+	      $data->{'version'} ne $q->{'version'} ||
+	      $data->{'release'} ne $q->{'release'};
+    BSVerify::verify_nevraquery($q);	# just in case...
+  };
+  if ($@) {
+    unlink($tmp);
+    die($@);
+  }
   rename($tmp, $localname) || die("rename $tmp $localname: $!\n");
   return $localname;
 }
@@ -231,7 +222,7 @@ sub fetchdodbinary {
 sub readpackstatus {
   my ($prpa) = @_;
   my $psf = readstr("$reporoot/$prpa/:packstatus.finished", 1);
-  my $ps = BSUtil::retrieve("$reporoot/$prpa/:packstatus", 1);;
+  my $ps = BSUtil::retrieve("$reporoot/$prpa/:packstatus", 1);
   if (!$ps) {
     # backward compat: try old xml format
     return undef unless -e "$reporoot/$prpa/:packstatus";
@@ -351,75 +342,56 @@ sub getpackagebinaryversionlist {
     $code = ($ps || {})->{'packstatus'} || {};
   }
   
-  # new code
-  my $gbininfo = read_gbininfo("$reporoot/$prp/$arch");
-  if ($gbininfo) {
-    my %packids = map {$_ => 1} @{$packids || []};
-    if ($code) {
-      $gbininfo->{$_} ||= {} for %$code;
-    }
-    for my $packid (sort keys %$gbininfo) {
-      next if %packids && !$packids{$packid};
-      next if $packid eq '_volatile' && !$packids;
-      my $bininfo = $gbininfo->{$packid};
-      filtersources_bininfo($bininfo) if $bininfo->{'.nosourceaccess'};
-      my @pres;
-      for (sort keys %$bininfo) {
-	my $bin = $bininfo->{$_};
-	next unless exists $bin->{'filename'};
-	my $r = { 'name' => $bin->{'filename'} };
-	$r->{'hdrmd5'} = $bin->{'hdrmd5'} if $bin->{'hdrmd5'};
-	$r->{'leadsigmd5'} = $bin->{'leadsigmd5'} if $bin->{'leadsigmd5'};
-	my $size = (split('/', $bin->{'id'}))[1];
-	$r->{'sizek'} = ($size + 512) >> 10;
-	push @pres, $r;
-      }
-      push @res, {'package' => $packid, 'binary' => \@pres};
-      $res[-1]->{'code'} = $code->{$packid} || 'unknown' if $code;
-    }
-    return ({ 'binaryversionlist' => \@res }, $BSXML::packagebinaryversionlist);
+  my $gbininfo = read_gbininfo("$reporoot/$prp/$arch", 1);
+  my %packids = map {$_ => 1} @{$packids || []};
+  if ($code) {
+    $gbininfo->{$_} ||= {} for keys %$code;
   }
-
-  # old code
-  $packids ||= [];
-  if (!@$packids) {
-    for my $packid (grep {!/^[:\.]/} sort(ls("$reporoot/$prp/$arch"))) {
-      push @$packids, $packid if $packid ne '_deltas' && -d "$reporoot/$prp/$arch/$packid";
-    }
-    if ($code) {
-      push @$packids, keys %$code;
-      @$packids = unify(sort(@$packids));
-    }
-  }
-  for my $packid (@$packids) {
-    my @bins = grep {/(?:\.(?:$binsufsre)|-appdata\.xml)$/} ls("$reporoot/$prp/$arch/$packid");
-    @bins = filtersources(@bins) if -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
+  for my $packid (sort keys %$gbininfo) {
+    next if %packids && !$packids{$packid};
+    next if $packid eq '_volatile' && !$packids;
+    my $bininfo = $gbininfo->{$packid};
+    filtersources_bininfo($bininfo) if $bininfo->{'.nosourceaccess'};
     my @pres;
-    # should use bininfo instead, but we need the leadsigmd5
-    for my $bin (sort @bins) {
-      my @s = stat("$reporoot/$prp/$arch/$packid/$bin");
-      next unless @s;
-      my ($hdrmd5, $leadsigmd5);
-      if ($bin !~ /-appdata\.xml$/) {
-        $hdrmd5 = Build::queryhdrmd5("$reporoot/$prp/$arch/$packid/$bin", \$leadsigmd5);
-        next unless $hdrmd5;
-      }
-      my $r = {'name' => $bin, 'sizek' => ($s[7] + 512) >> 10};
-      $r->{'hdrmd5'} = $hdrmd5 if $hdrmd5;
-      $r->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
+    for (sort keys %$bininfo) {
+      my $bin = $bininfo->{$_};
+      next unless exists $bin->{'filename'};
+      my $r = { 'name' => $bin->{'filename'} };
+      $r->{'hdrmd5'} = $bin->{'hdrmd5'} if $bin->{'hdrmd5'};
+      $r->{'leadsigmd5'} = $bin->{'leadsigmd5'} if $bin->{'leadsigmd5'};
+      my $size = (split('/', $bin->{'id'}))[1];
+      $r->{'sizek'} = ($size + 512) >> 10;
       push @pres, $r;
     }
+    # add nouseforbuild marker for the scheduler
+    push @pres, { 'name' => '.nouseforbuild' } if $code && $bininfo->{'.nouseforbuild'};
     push @res, {'package' => $packid, 'binary' => \@pres};
     $res[-1]->{'code'} = $code->{$packid} || 'unknown' if $code;
   }
   return ({ 'binaryversionlist' => \@res }, $BSXML::packagebinaryversionlist);
 }
 
+sub getgbininfo {
+  my ($cgi, $projid, $repoid, $arch) = @_;
+  my $prp = "$projid/$repoid";
+
+  die("getgbininfo: package filtering is not supported\n") if $cgi->{'package'};
+  my $gbininfo = read_gbininfo("$reporoot/$prp/$arch", 1);
+  if ($cgi->{'withcode'}) {
+    my $ps = readpackstatus("$projid/$repoid/$arch");
+    my $code = ($ps || {})->{'packstatus'} || {};
+    $gbininfo->{$_}->{'.code'} = $code->{$_} for keys %$code;
+  }
+  delete $_->{'.bininfo'} for values %$gbininfo;
+  return (BSUtil::tostorable($gbininfo), 'Content-Type: application/octet-stream');
+}
+
 sub getpackagelist_build {
   my ($cgi, $projid, $repoid, $arch) = @_;
   die "must specify view\n" unless $cgi->{'view'};
+  $cgi->{'withcode'} = 1 if $cgi->{'view'}  eq 'binaryversionscode' || $cgi->{'view'}  eq 'gbininfocode';
+  return getgbininfo($cgi, $projid, $repoid, $arch) if $cgi->{'view'} eq 'gbininfo' || $cgi->{'view'} eq 'gbininfocode';
   die("unknown view '$cgi->{'view'}'\n") unless $cgi->{'view'} eq 'binaryversions' || $cgi->{'view'} eq 'binaryversionscode';
-  $cgi->{'withcode'} = 1 if $cgi->{'view'}  eq 'binaryversionscode';
   return getpackagebinaryversionlist($cgi, $projid, $repoid, $arch, $cgi->{'package'});
 }
 
@@ -535,12 +507,9 @@ sub getbinarylist_repository {
   my $prp = "$projid/$repoid";
   my $view = $cgi->{'view'} || '';
 
-  if (($view eq 'cache' || $view eq 'cpio' || $view eq 'solvstate') && !$BSStdServer::isajax) {
-    my @args;
-    push @args, "view=$view";
-    push @args, map {"binary=$_"} @{$cgi->{'binary'} || []};
-    BSHandoff::handoff($ajaxsocket, "/build/$projid/$repoid/$arch/_repository", undef, @args);
-    exit(0);
+  if (($view eq 'cache' || $view eq 'cpio' || $view eq 'solvstate') && !$BSStdServer::isajax && !$cgi->{'noajax'}) {
+    my @args = BSRPC::args($cgi, 'view', 'binary');
+    BSHandoff::handoff("/build/$projid/$repoid/$arch/_repository", undef, @args);
   }
 
   if ($view eq 'solv') {
@@ -621,7 +590,7 @@ sub getbinarylist_repository {
         }
 	if (keys(%data) < 100 && $s[7] < 10000) {
 	  # small repo, feed from memory
-	  push @files, { 'name' => 'repositorycache', 'data' => "pst0".Storable::nfreeze(\%data) };
+	  push @files, { 'name' => 'repositorycache', 'data' => BSUtil::tostorable(\%data) };
 	} else {
 	  # cache result
 	  my $tmpname = "$reporoot/$prp/$arch/:full.xcache.$$";
@@ -705,14 +674,18 @@ sub getbinarylist_repository {
         return unless defined $path;
         $needscan = 1;
       }
+      my $n = $bin;
+      $n .= ".$1" if $path =~ /\.($binsufsre)$/;
+      if ($BSStdServer::isajax) {
+	push @files, {'name' => $n, 'filename' => $path};
+	next;
+      }
       my $fd = gensym;
       if (!open($fd, '<', $path)) {
 	push @files, {'name' => $bin, 'error' => 'not available'};
-	next;
+      } else {
+        push @files, {'name' => $n, 'filename' => $fd};
       }
-      my $n = $bin;
-      $n .= ".$1" if $path =~ /\.($binsufsre)$/;
-      push @files, {'name' => $n, 'filename' => $fd},
     }
     undef $repo;
     undef $pool;
@@ -769,10 +742,10 @@ sub getbinarylist_repository {
 
 sub filtersources {
   my (@bins) = @_;
-  my $debian = grep {/\.dsc$/} @bins;
+  my $debian = grep {/\.(?:dsc|sdeb)$/} @bins;
   for my $bin (splice @bins) {
     next if $bin =~ /\.(?:no)?src\.rpm$/;
-    next if $bin =~ /-debug(:?info|source).*\.rpm$/;
+    next if $bin =~ /-debug(?:info|source).*\.rpm$/;
     next if $debian && ($bin !~ /\.deb$/) && ($bin !~ /-appdata\.xml$/);
     push @bins, $bin;
   }
@@ -794,26 +767,36 @@ sub read_bininfo {
   return $bininfo if $bininfo;
   # .bininfo not present or old style, generate it
   $bininfo = {};
-  $bininfo->{'.nosourceaccess'} = {} if -e "$dir/.nosourceaccess";
-  my @bins = grep {/(?:\.(?:$binsufsre)|-appdata\.xml)$/} ls($dir);
-  for my $bin (@bins) {
-    my @s = stat("$dir/$bin");
-    next unless @s;
-    my ($hdrmd5, $leadsigmd5);
-    if ($bin !~ /-appdata\.xml$/) {
-      $hdrmd5 = Build::queryhdrmd5("$dir/$bin", \$leadsigmd5);
+  for my $file (ls($dir)) {
+    if ($file =~ /\.(?:$binsufsre)$/) {
+      my @s = stat("$dir/$file");
+      my ($hdrmd5, $leadsigmd5);
+      $hdrmd5 = Build::queryhdrmd5("$dir/$file", \$leadsigmd5);
       next unless $hdrmd5;
+      my $r = {'filename' => $file, 'id' => "$s[9]/$s[7]/$s[1]"};
+      $r->{'hdrmd5'} = $hdrmd5;
+      $r->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
+      $bininfo->{$file} = $r;
+    } elsif ($file =~ /-appdata\.xml$/) {
+      local *F;
+      open(F, '<', "$dir/$file") || next;
+      my @s = stat(F);
+      next unless @s;
+      my $ctx = Digest::MD5->new;
+      $ctx->addfile(*F);
+      close F;
+      $bininfo->{$file} = {'md5sum' => $ctx->hexdigest(), 'filename' => $file, 'id' => "$s[9]/$s[7]/$s[1]"};
+    } elsif ($file eq '.nosourceaccess') {
+      $bininfo->{'.nosourceaccess'} = {};
+    } elsif ($file eq '.channelinfo' || $file eq 'updateinfo.xml') {
+      $bininfo->{'.nouseforbuild'} = {};
     }
-    my $r = {'filename' => $bin, 'id' => "$s[9]/$s[7]/$s[1]"};
-    $r->{'hdrmd5'} = $hdrmd5 if $hdrmd5;
-    $r->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
-    $bininfo->{$bin} = $r;
   }
   return $bininfo;
 }
 
 sub read_gbininfo {
-  my ($dir) = @_;
+  my ($dir, $collect) = @_;
   my $gbininfo = BSUtil::retrieve("$dir/:bininfo", 1);
   if ($gbininfo) {
     my $gbininfo_m = BSUtil::retrieve("$dir/:bininfo.merge", 1);
@@ -827,6 +810,13 @@ sub read_gbininfo {
       }
     }
   }
+  if (!$gbininfo && $collect) {
+    $gbininfo = {};
+    for my $packid (grep {!/^[:\.]/} sort(ls($dir))) {
+      next if $packid eq '_deltas' || $packid eq '_volatile' || ! -d "$dir/$packid";
+      $gbininfo->{$packid} = read_bininfo("$dir/$packid");
+    }
+  }
   return $gbininfo;
 }
 
@@ -836,12 +826,8 @@ sub getbinarylist {
   my $prp = "$projid/$repoid";
   my $view = $cgi->{'view'} || '';
   if ($view eq 'cpio' && !$BSStdServer::isajax && !$cgi->{'noajax'}) {
-    my @args;
-    push @args, "view=$view";
-    push @args, map {"binary=$_"} @{$cgi->{'binary'} || []};
-    push @args, "nosource=1" if $cgi->{'nosource'};
-    BSHandoff::handoff($ajaxsocket, "/build/$projid/$repoid/$arch/$packid", undef, @args);
-    exit(0);
+    my @args = BSRPC::args($cgi, 'view', 'binary', 'nosource');
+    BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid", undef, @args);
   }
   my %binaries = map {$_ => 1} @{$cgi->{'binary'} || []};
   if ($view eq 'cpio') {
@@ -851,9 +837,35 @@ sub getbinarylist {
     @bins = filtersources(@bins) if $cgi->{'nosource'} || -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
     for (sort @bins) {
       next if %binaries && !$binaries{$_};
+      if ($BSStdServer::isajax) {
+	push @files, {'name' => $_, 'filename' => "$reporoot/$prp/$arch/$packid/$_"};
+	next;
+      }
       my $fd = gensym;
       next unless open($fd, '<', "$reporoot/$prp/$arch/$packid/$_");
-      push @files, {'name' => $_, 'filename' => $fd},
+      push @files, {'name' => $_, 'filename' => $fd};
+    }
+    BSWatcher::reply_cpio(\@files);
+    return undef;
+  }
+  if ($view eq 'cpioheaders') {
+    my @files;
+    my @bins = grep {/\.rpm$/ && !/^\./} ls("$reporoot/$prp/$arch/$packid");
+    @bins = grep {!/^::import::/} @bins if $cgi->{'noimport'};
+    @bins = filtersources(@bins) if $cgi->{'nosource'} || -e "$reporoot/$prp/$arch/$packid/.nosourceaccess";
+    for my $bin (sort @bins) {
+      next if %binaries && !$binaries{$_};
+      my ($lead, $sighdr, $hdr, $hdrmd5);
+      eval {
+        ($lead, $sighdr, $hdr, $hdrmd5) = getrpmheaders("$reporoot/$prp/$arch/$packid/$bin", 1);
+      };
+      if ($hdr) {
+        push @files, {'name' => "$bin-$hdrmd5", 'data' => "$lead$sighdr$hdr"};
+      } else {
+        my $err = $@;
+        chomp $err;
+        push @files, {'name' => $bin, 'error' => $err || 'bad rpm'};
+      }
     }
     BSWatcher::reply_cpio(\@files);
     return undef;
@@ -985,12 +997,12 @@ sub getjobstatus {
 
   my $jobstatus = readxml("$jobsdir/$arch/$status->{'job'}:status", $BSXML::jobstatus, 1);
   # not yet building
-  return ({}, $BSXML::jobstatus) unless $status && $status->{'status'} eq 'scheduled';
+  return ({}, $BSXML::jobstatus) unless $jobstatus;
 
   # find last successful build
-  my @history = BSFileDB::fdb_getlast("$reporoot/$projid/$repoid/$arch/$packid/history", $historylay);
+  my $history = BSFileDB::fdb_getlast("$reporoot/$projid/$repoid/$arch/$packid/history", $historylay);
   my $lastduration;
-  $lastduration = $history[0]->{duration} if @history > 0;
+  $lastduration = $history->{'duration'} if $history;
   $jobstatus->{'lastduration'} = $lastduration if $lastduration;
 
   return ($jobstatus, $BSXML::jobstatus);
@@ -1001,14 +1013,8 @@ sub getlogfile {
 
   die("unknown view '$cgi->{'view'}'\n") if $cgi->{'view'} && $cgi->{'view'} ne 'entry';
   if ($cgi->{'handoff'} && !$BSStdServer::isajax) {
-    my @args = ();
-    push @args, 'nostream' if $cgi->{'nostream'};
-    push @args, "start=$cgi->{'start'}" if defined $cgi->{'start'};
-    push @args, "end=$cgi->{'end'}" if defined $cgi->{'end'};
-    push @args, "view=$cgi->{'view'}" if $cgi->{'view'};
-    my $url = "/build/$projid/$repoid/$arch/$packid/_log";
-    BSHandoff::handoff($ajaxsocket, $url, undef, @args);
-    exit(0);
+    my @args = BSRPC::args($cgi, 'nostream', 'start', 'end', 'view');
+    BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid/_log", undef, @args);
   }
   my $status = readxml("$reporoot/$projid/$repoid/$arch/$packid/status", $BSXML::buildstatus, 1);
   my $jobstatus;
@@ -1017,20 +1023,10 @@ sub getlogfile {
     $jobstatus = readxml("$jobsdir/$arch/$status->{'job'}:status", $BSXML::jobstatus, 1);
   }
 
-  #if ($BSStdServer::isajax) {
-  #  $status->{'status'} = 'building';
-  #  $status->{'uri'} = 'http://192.168.1.102:4711';
-  #}
   if (!$cgi->{'last'} && $jobstatus && $jobstatus->{'code'} && $jobstatus->{'code'} eq 'building' && $jobstatus->{'uri'}) {
-    my @args;
-    push @args, 'nostream' if $cgi->{'nostream'};
-    push @args, "start=$cgi->{'start'}" if defined $cgi->{'start'};
-    push @args, "end=$cgi->{'end'}" if defined $cgi->{'end'};
-    push @args, "view=$cgi->{'view'}" if $cgi->{'view'};
+    my @args = BSRPC::args($cgi, 'nostream', 'start', 'end', 'view');
     if (!$BSStdServer::isajax && !$cgi->{'view'}) {
-      my $url = "/build/$projid/$repoid/$arch/$packid/_log";
-      BSHandoff::handoff($ajaxsocket, $url, undef, @args);
-      exit(0);
+      BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid/_log", undef, @args);
     }
     my $param = {
       'uri' => "$jobstatus->{'uri'}/logfile",
@@ -1064,10 +1060,11 @@ sub getlogfile {
   die("start out of range: $start\n") if $start > $s[7];
   $end = $s[7] if !defined($end) || $end > $s[7];
   $end = $start if defined($end) && $end < $start;
+  my $len = $end - $start;
   my $fd = gensym;
   open($fd, '<', $logfile) || die("$logfile: $!\n");
   defined(sysseek($fd, $start, Fcntl::SEEK_SET)) || die("sysseek: $!\n");
-  BSWatcher::reply_file($fd, 'Content-Type: text/plain', 'Content-Length: '.($end - $start));
+  BSWatcher::reply_file($fd, 'Content-Type: text/plain', "Content-Length: $len");
   close $fd unless $BSStdServer::isajax;
   return undef;
 }
@@ -1329,8 +1326,8 @@ sub putbinary {
     my $ev = { type => 'scanrepo', 'project' => $projid, 'repository' => $repoid };
     my $evname = "scanrepo:${projid}::$repoid";
     $evname = "scanrepo:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
-    writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
-    ping($arch);
+    writexml("$eventdir/$arch/.$evname.$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);
+    BSUtil::ping("$eventdir/$arch/.ping");
   }
   return $BSStdServer::return_ok;
 }
@@ -1348,8 +1345,8 @@ sub delbinary {
     my $ev = { type => 'scanrepo', 'project' => $projid, 'repository' => $repoid };
     my $evname = "scanrepo:${projid}::$repoid";
     $evname = "scanrepo:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
-    writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
-    ping($arch);
+    writexml("$eventdir/$arch/.$evname.$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);
+    BSUtil::ping("$eventdir/$arch/.ping");
   }
   return $BSStdServer::return_ok;
 }
@@ -1509,7 +1506,7 @@ sub getpreinstallimageinfos {
   }
   print "- sending data for ".@infos." of $imagescnt images\n";
   # send answer as perl storable
-  my $answer = "pst0".Storable::nfreeze(\@infos);
+  my $answer = BSUtil::tostorable(\@infos);
   return ($answer, 'Content-Type: application/octet-stream');
 }
 
@@ -1526,15 +1523,6 @@ sub dirty {
   }
   for my $r (@repos) {
     BSUtil::touch("$reporoot/$projid/$r/$arch/:schedulerstate.dirty") if -d "$reporoot/$projid/$r/$arch";
-  }
-}
-
-sub ping {
-  my ($arch) = @_;
-  local *F;
-  if (sysopen(F, "$eventdir/$arch/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
-    syswrite(F, 'x');
-    close(F);
   }
 }
 
@@ -1630,6 +1618,7 @@ sub workerstatus {
   push @daemonarchs, 'publisher' if -e "$rundir/bs_publish.lock";
   push @daemonarchs, 'signer' if -e "$rundir/bs_signer.lock";
   push @daemonarchs, 'warden' if -e "$rundir/bs_warden.lock";
+  push @daemonarchs, 'dodup' if -e "$rundir/bs_dodup.lock";
   @daemonarchs = (@{$cgi->{'arch'}}) if $cgi->{'arch'};
   for my $arch (@daemonarchs) {
     local *F;
@@ -1647,6 +1636,9 @@ sub workerstatus {
     } elsif ($arch eq 'warden') {
       $lock = 'bs_warden.lock';
       $daemondata->{'type'} = 'warden';
+    } elsif ($arch eq 'dodup') {
+      $lock = 'bs_dodup.lock';
+      $daemondata->{'type'} = 'dodup';
     } else {
       # scheduler
       $lock = "bs_sched.$arch.lock";
@@ -1697,7 +1689,7 @@ sub sendbadhostevent {
   my $evname = "badhost::$info->{'project'}::$info->{'package'}::$info->{'arch'}::$idlename";
   $evname = "badhost:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
   mkdir_p("$eventdir/dispatch");
-  writexml("$eventdir/dispatch/.$evname", "$eventdir/dispatch/$evname", $ev, $BSXML::event);
+  writexml("$eventdir/dispatch/.$evname.$$", "$eventdir/dispatch/$evname", $ev, $BSXML::event);
 }
 
 sub receivekiwitree_scan {
@@ -1816,6 +1808,13 @@ sub putjob {
   die("different jobid\n") if $oldjobstatus->{'jobid'} ne $jobid;
   die("job is not building\n") if $oldjobstatus->{'code'} ne 'building';
   die("job is building on a different worker: $cgi->{'workerid'} -- $oldjobstatus->{'workerid'}\n") if $cgi->{'workerid'} && $oldjobstatus->{'workerid'} && $cgi->{'workerid'} ne $oldjobstatus->{'workerid'};
+  if (defined($BSConfig::putjob_verify_peerip) && $BSConfig::putjob_verify_peerip) {
+    my $peerip = BSServer::getpeerdata();
+    my $uri = $oldjobstatus->{'uri'};
+    $uri =~ s/.*\///s;
+    $uri =~ s/:[\d]+$//s;
+    die("job was dispatched to a different peer\n") unless $peerip eq $uri;
+  }
 
   my $infoxml = readstr("$jobsdir/$arch/$job");
   my $infoxmlmd5 = Digest::MD5::md5_hex($infoxml);
@@ -1921,9 +1920,9 @@ sub putjob {
 
   if ($cgi->{'code'} && $cgi->{'code'} eq 'unchanged') {
     $jobstatus->{'result'} = 'unchanged';
-    notify('BUILD_UNCHANGED', \%ninfo);
+    BSNotify::notify('BUILD_UNCHANGED', \%ninfo);
   } else {
-    notify($jobstatus->{'result'} eq 'succeeded' ? 'BUILD_SUCCESS' :  'BUILD_FAIL', \%ninfo);
+    BSNotify::notify($jobstatus->{'result'} eq 'succeeded' ? 'BUILD_SUCCESS' :  'BUILD_FAIL', \%ninfo);
   }
 
   # calculate binary info to speed up scheduler
@@ -1993,7 +1992,7 @@ sub putjob {
 
     mkdir_p("$eventdir/signer");
     writexml("$eventdir/signer/.finished:$arch:$job$$", "$eventdir/signer/finished:$arch:$job", $ev, $BSXML::event);
-    ping('signer');
+    BSUtil::ping("$eventdir/signer/.ping");
   } else {
     # write jobstatus and free lock
     $jobstatus->{'code'} = 'finished';
@@ -2003,7 +2002,7 @@ sub putjob {
     dirty($projid, $repoid, $arch);
     mkdir_p("$eventdir/$arch");
     writexml("$eventdir/$arch/.finished:$job$$", "$eventdir/$arch/finished:$job", $ev, $BSXML::event);
-    ping($arch);
+    BSUtil::ping("$eventdir/$arch/.ping");
   }
 
   return $BSStdServer::return_ok;
@@ -2029,6 +2028,18 @@ sub getjobdata {
   return undef;
 }
 
+sub moveproject {
+  my ($cgi, $projid) = @_;
+  my $oprojid = $cgi->{'oproject'};
+  return $BSStdServer::return_ok if $oprojid eq $projid;
+  return $BSStdServer::return_ok unless -d "$reporoot/$oprojid";
+
+  # FIXME: this is only save when scheduler are stopped. let them doing this ...
+  rename("$reporoot/$oprojid", "$reporoot/$projid");
+
+  return $BSStdServer::return_ok;
+}
+
 sub copybuild {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   my $oprojid = defined($cgi->{'oproject'}) ? $cgi->{'oproject'} : $projid;
@@ -2048,16 +2059,19 @@ sub copybuild {
   my $dir = "$jobsdir/$arch/$job:dir";
   my $odir = "$reporoot/$oprojid/$orepoid/$arch/$opackid";
   mkdir_p($dir);
-  my $delayed_linking;
+  my %delayed_linking;
   my $needsign;
-  for my $bin (grep {$_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && !/^\./} ls($odir)) {
+  my %renamed;
+  for my $bin (grep {$_ ne 'status' && $_ ne 'reason' && $_ ne 'history' && $_ ne 'meta' && !/^\./} sort(ls($odir))) {
     if ($bin eq "updateinfo.xml" && $cgi->{'setupdateinfoid'}) {
       my $updateinfo = readxml("$odir/$bin", $BSXML::updateinfo);
       for (@{$updateinfo->{'update'} || []}) {
         $_->{'id'} = $cgi->{'setupdateinfoid'};
+        $_->{'issued'} = { 'date' => time() } if $_->{'issued'};
       }
       writexml("$dir/$bin", undef, $updateinfo, $BSXML::updateinfo);
     } else {
+      next if $bin =~ /^::import::/;	# can't copy those yet
       $needsign = 1 if $bin =~ /\.(?:d?rpm|sha256|iso)$/;
       my $nbin = $bin;
       my $setrelease = $cgi->{'setrelease'};
@@ -2072,26 +2086,45 @@ sub copybuild {
 	$nbin =~ s/-([^-]+)(-Media(?:\d?)(?:\..*?)?)$/$setrelease$2/; # kiwi product builds
 	$nbin =~ s/-([^-.]+).([^.]*.rpm)$/$setrelease.$2/; # rpms
       }
+      $renamed{$bin} = $nbin if $bin ne $nbin;
       if (-d "$odir/$bin") {
-        $delayed_linking->{"$dir/$nbin"} = "$odir/$bin";
+        $delayed_linking{"$dir/$nbin"} = "$odir/$bin";
       } else {
+	# patch in new file name if we renamed files
+	if (%renamed && $bin =~ /\.sha256$/ && (((-s "$odir/$bin") || 0) <= 65536)) {
+	  my $shafile = readstr("$odir/$bin");
+	  if ($shafile =~ /-----BEGIN PGP SIGNED MESSAGE-----\n/s) {
+	    # de-pgp
+	    $shafile =~ s/.*-----BEGIN PGP SIGNED MESSAGE-----//s;
+	    $shafile =~ s/.*?\n\n//s;
+	    $shafile =~ s/-----BEGIN PGP SIGNATURE-----.*//s;
+	  }
+	  my $writeit;
+	  for (sort keys %renamed) {
+	    $writeit = 1 if $shafile =~ s/([ \/])\Q$_\E\n/$1$renamed{$_}\n/g;
+	  }
+	  if ($writeit) {
+	    writestr("$dir/$nbin", undef, $shafile);
+	    next;
+	  }
+	}
         link("$odir/$bin", "$dir/$nbin") || die("link $odir/$bin $dir/$nbin: $!\n");
       }
     }
   }
+  link("$odir/.meta.success", "$dir/meta") if -e "$odir/.meta.success";
 
   # we run the linking of directory trees in background, since it can take a long time
   # for simple files it happened already
-  my $pid;
-  $pid = xfork() if $delayed_linking;
-  return $BSStdServer::return_ok if ($pid);
-
-  # now run the delayed tree linking
-  for (keys %$delayed_linking) {
-    BSUtil::linktree($delayed_linking->{$_}, $_);
+  if (%delayed_linking) {
+    my $pid = xfork();
+    return $BSStdServer::return_ok if $pid;
+    for (sort(keys %delayed_linking)) {
+      BSUtil::linktree($delayed_linking{$_}, $_);
+    }
   }
 
-  # and emit signals to signer and scheduler
+  # and emit signals to signer or scheduler
   my $info = {
     'project' => $projid,
     'repository' => $repoid,
@@ -2111,7 +2144,7 @@ sub copybuild {
   dirty($projid, $repoid, $arch) if $arch ne 'signer';
   mkdir_p("$eventdir/$arch");
   writexml("$eventdir/$arch/.copybuild:$job$$", "$eventdir/$arch/copybuild:$job", $ev, $BSXML::event);
-  ping($arch);
+  BSUtil::ping("$eventdir/$arch/.ping");
   return $BSStdServer::return_ok;
 }
 
@@ -2148,7 +2181,7 @@ sub uploadbuild {
   mkdir_p("$eventdir/$arch");
   my $ev = {'type' => 'uploadbuild', 'job' => $job};
   writexml("$eventdir/$arch/.uploadbuild:$job$$", "$eventdir/$arch/uploadbuild:$job", $ev, $BSXML::event);
-  ping($arch);
+  BSUtil::ping("$eventdir/$arch/.ping");
   return $BSStdServer::return_ok;
 }
 
@@ -2160,8 +2193,8 @@ sub forwardevent {
   if ($type eq 'badhost') {
     $repoid = $cgi->{'repository'} if exists $cgi->{'repository'};
     $arch = $cgi->{'arch'} if exists $cgi->{'arch'};
-    $job = $cgi->{'job'} if exists $cgi->{'job'};
   }
+  $job = $cgi->{'job'} if exists($cgi->{'job'}) && ($type eq 'badhost' || $type eq 'suspendproject');
   # hack: mis-use job to transfer wipe target
   if ($type eq 'wipe' && $cgi->{'wipe'}) {
     $job = join(',', @{$cgi->{'wipe'}});
@@ -2181,19 +2214,19 @@ sub forwardevent {
   mkdir_p("$eventdir/$arch") if $arch;
   if ($arch) {
     dirty($projid, $repoid, $arch) unless !defined($repoid) || $arch eq 'dispatch' || $arch eq 'publish';
-    writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
-    ping($arch);
+    writexml("$eventdir/$arch/.$evname.$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);
+    BSUtil::ping("$eventdir/$arch/.ping");
   } else {
     # XXX: there should be a better way than to just write in all
     # directories... maybe a architecture list in BSConfig?
     for my $a (ls($eventdir)) {
       next if $a =~ /^\./;
       next unless -d "$eventdir/$a";
-      next if $a eq 'publish' || $a eq 'repository' || $a eq 'watch' || $a eq 'signer' || $a eq 'dispatch' || $a eq 'service';
+      next if $a eq 'publish' || $a eq 'repository' || $a eq 'watch' || $a eq 'signer' || $a eq 'dispatch' || $a eq 'service' || $a eq 'deltastore';
       eval {
         dirty($projid, $repoid, $a) if defined $repoid;
-        writexml("$eventdir/$a/.$evname", "$eventdir/$a/$evname", $ev, $BSXML::event);
-        ping($a);
+        writexml("$eventdir/$a/.$evname.$$", "$eventdir/$a/$evname", $ev, $BSXML::event);
+        BSUtil::ping("$eventdir/$a/.ping");
       };
       warn($@) if $@;
     }
@@ -2314,6 +2347,10 @@ sub getresult {
       } else {
         my $s = {'package' => $packid, 'code' => $code};
         $s->{'details'} = $ps->{'packerror'}->{$packid} if !$cgi->{'lastbuild'} && $ps->{'packerror'}->{$packid};
+        if ($cgi->{'withversrel'} && -e "$reporoot/$prpa/:logfiles.success/$packid") {
+	  my $history = BSFileDB::fdb_getlast("$reporoot/$prpa/$packid/history", $historylay) || {};
+	  $s->{'versrel'} = $history->{'versrel'} if $history->{'versrel'};
+        }
         push @{$sl->{'status'}}, $s;
       }
       if ($cgi->{'withbinarylist'}) {
@@ -2361,12 +2398,8 @@ sub getresult {
   if ($cgi->{'oldstate'} && $state eq $cgi->{'oldstate'}) {
     return if $BSStdServer::isajax;	# watcher will call us back...
     my @args = map {"prpa=$_"} @{$prpas || []};
-    push @args, "oldstate=$cgi->{'oldstate'}";
-    push @args, map {"package=$_"} @{$cgi->{'package'} || []};
-    push @args, map {"code=$_"} @{$cgi->{'code'} || []};
-    push @args, "withbinarylist=1" if $cgi->{'withbinarylist'};
-    BSHandoff::handoff($ajaxsocket, '/_result', undef, @args);
-    exit(0);
+    push @args, BSRPC::args($cgi, 'oldstate', 'package', 'code', 'withbinarylist');
+    BSHandoff::handoff('/_result', undef, @args);
   }
   return ({'result' => $r, 'state' => $state}, $BSXML::resultlist);
 }
@@ -2408,17 +2441,19 @@ sub docommand {
       @packids = grep {$code{$ps->{'packstatus'}->{$_} || 'unknown'}} @packids;
     }
     if ($cmd eq 'rebuild') {
-      for my $packid (@packids) {
-	unlink("$reporoot/$projid/$repoid/$arch/:meta/$packid");
-	my $ev = { type => 'rebuild', 'project' => $projid, 'package' => $packid };
-	my $evname = "rebuild:${projid}::$packid";
-        $evname = "rebuild:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
-	if (-d "$eventdir/$arch") {
-	  writexml("$eventdir/$arch/.$evname", "$eventdir/$arch/$evname", $ev, $BSXML::event);
+      if (@packids) {
+	dirty($projid, $repoid, $arch);
+	for my $packid (@packids) {
+	  unlink("$reporoot/$projid/$repoid/$arch/:meta/$packid");
+	  my $ev = { type => 'rebuild', 'project' => $projid, 'package' => $packid };
+	  my $evname = "rebuild:${projid}::$packid";
+	  $evname = "rebuild:::".Digest::MD5::md5_hex($evname) if length($evname) > 200;
+	  if (-d "$eventdir/$arch") {
+	    writexml("$eventdir/$arch/.$evname.$$", "$eventdir/$arch/$evname", $ev, $BSXML::event);
+	  }
 	}
+	BSUtil::ping("$eventdir/$arch/.ping") if -d "$eventdir/$arch";
       }
-      dirty($projid, $repoid, $arch);
-      ping($arch);
     } elsif ($cmd eq 'killbuild' || $cmd eq 'abortbuild') {
       for my $packid (@packids) {
 	eval {
@@ -2565,6 +2600,39 @@ sub expandkiwipath {
   return map {"$_->{'project'}/$_->{'repository'}"} expandkiwipath_hash(@_);
 }
 
+sub orderpackids {
+  my ($proj, @packids) = @_;
+  $proj ||= {};
+  my @s;
+  my @back;
+  my $kind = $proj->{'kind'} || '';
+  for (@packids) {
+    if ($_ eq '_volatile') {
+      push @back, $_;
+    } elsif (/^(.*)\.(\d+)$/) {
+      # we ignore the name for maintenance release projects and sort only
+      # by the incident number
+      if ($kind eq 'maintenance_release') {
+        push @s, [ $_, '', $2]; 
+      } else {
+        push @s, [ $_, $1, $2]; 
+      }    
+    } elsif (/^(.*)\.imported_.*?(\d+)$/) {
+      # code11 import hack...
+      if ($kind eq 'maintenance_release') {
+        push @s, [ $_, '', $2 - 1000000];
+      } else {
+        push @s, [ $_, $1, $2 - 1000000];
+      }    
+    } else {
+      push @s, [ $_, $_, 99999999 ];
+    }    
+  }
+  @packids = map {$_->[0]} sort { $a->[1] cmp $b->[1] || $b->[2] <=> $a->[2] || $a->[0] cmp $b->[0] } @s;
+  push @packids, @back;
+  return @packids;
+}
+
 sub getkiwiproductpackages {
   my ($proj, $repo, $pdata, $info, $deps, $remotemap) = @_;
 
@@ -2579,10 +2647,34 @@ sub getkiwiproductpackages {
   delete $deps{''};
   my @aprps = expandkiwipath($info, $repo);
   my $allpacks = $deps{'*'} ? 1 : 0; 
+
+  # sigh. Need to get the project kind...
+  # it would be much easier to have this in the repo...
+  my %prjkind;
+  for my $aprp (@aprps) {
+    my ($aprojid) = split('/', $aprp, 2);
+    next if $aprojid eq $proj->{'name'};
+    next if $remotemap->{$aprojid};
+    $prjkind{$aprojid} = undef;
+  }
+  if (%prjkind) {
+    print "fetching project kind for ".keys(%prjkind)." projects\n";
+    my $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'nopackages', 'noremote', 'ignoredisable', map {"project=$_"} sort(keys %prjkind));
+    for my $p (@{$projpack->{'project'} || []}) {
+      $prjkind{$p->{'name'}} = $p->{'kind'} if exists $prjkind{$p->{'name'}};
+    }
+  }
+  $prjkind{$proj->{'name'}} = $proj->{'kind'};
+
   for my $aprp (@aprps) {
     my %known;
     my ($aprojid, $arepoid) = split('/', $aprp, 2);
     for my $arch (@archs) {
+      my $aprojidkind = $prjkind{$aprojid};
+      $aprojidkind = $remotemap->{$aprojid}->{'kind'} if $remotemap->{$aprojid};
+      my $seen_binary;
+      $seen_binary = {} if ($aprojidkind || '') eq 'maintenance_release';
+
       my $gbininfo = read_gbininfo("$reporoot/$aprp/$arch");
       # support for remote projects
       if (!$gbininfo && $remotemap->{$aprojid}) {
@@ -2607,9 +2699,11 @@ sub getkiwiproductpackages {
 
       # fast if we have gbininfo
       if ($gbininfo) {
-        for my $apackid (sort keys %$gbininfo) {
+        for my $apackid (orderpackids({'kind' => $aprojidkind}, keys %$gbininfo)) {
 	  next if $apackid eq '_volatile';
 	  my $bininfo = $gbininfo->{$apackid} || {};
+	  # skip channels/patchinfos
+	  next if $bininfo->{'.nouseforbuild'};
 	  my $needit;
 	  for my $b (values %$bininfo) {
 	    my $n = $b->{'name'};
@@ -2622,11 +2716,22 @@ sub getkiwiproductpackages {
 	  }
 	  next unless $needit;
 	  # need it
-	  for my $bf (sort keys %$bininfo) {
+	  my @bi = sort keys %$bininfo;
+	  # put imports last
+	  my @ibi = grep {/^::import::/} @bi;
+	  if (@ibi) {
+	    @bi = grep {!/^::import::/} @bi;
+	    push @bi, @ibi;
+	  }
+	  for my $bf (@bi) {
 	    my $b = $bininfo->{$bf};
             next unless $b->{'filename'};
 	    next if $nodbgpkgs && $b->{'filename'} =~ /-(?:debuginfo|debugsource)-/;
 	    next if $nosrcpkgs && $b->{'filename'} =~ /\.(?:nosrc|src)\.rpm$/;
+	    if ($seen_binary && defined($b->{'name'})) {
+	      next if $seen_binary->{"$b->{'name'}.$b->{'arch'}"};
+	      $seen_binary->{"$b->{'name'}.$b->{'arch'}"} = 1;
+	    }
 	    if ($b->{'filename'} =~ /^(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/ || $b->{'filename'} =~ /^.*-appdata.xml$/) {
 	      push @got, "$aprp/$arch/$apackid/$b->{'filename'}";
 	    }
@@ -2638,13 +2743,20 @@ sub getkiwiproductpackages {
       my $depends = BSUtil::retrieve("$reporoot/$aprp/$arch/:depends", 1);
       next unless $depends && $depends->{'subpacks'};
       my %apackids = (%{$depends->{'subpacks'} || {}}, %{$depends->{'pkgdeps'}});
-      my @apackids = sort keys %apackids;
-      for my $apackid (@apackids) {
+      for my $apackid (orderpackids({'kind' => $aprojidkind}, keys %apackids)) {
+	next if $apackid eq '_volatile';
+	next if -e "$reporoot/$aprp/$arch/$apackid/updateinfo.xml";
+	next if -e "$reporoot/$aprp/$arch/$apackid/.channelinfo";
         if (!$allpacks && $depends->{'subpacks'}->{$apackid}) {
 	  next unless grep {$deps{$_}} @{$depends->{'subpacks'}->{$apackid} || []};
         }
         # need package, scan content
 	my @bins = grep {/\.rpm$|\.xml$/} ls ("$reporoot/$aprp/$arch/$apackid");
+	my @ibins = grep {/^::import::/} @bins;
+	if (@ibins) {
+	  @bins = grep {!/^::import::/} @bins;
+	  push @bins, @ibins;
+	}
         my $needit;
 	for my $b (@bins) {
 	  next unless $b =~ /^(?:::import::.*::)?(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
@@ -2657,6 +2769,10 @@ sub getkiwiproductpackages {
         next unless $needit;
 	for my $b (@bins) {
 	  next unless $b =~ /^(?:::import::.*::)?(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+	  if ($seen_binary) {
+	    next if $seen_binary->{"$1.$2"};
+	    $seen_binary->{"$1.$2"} = 1;
+	  }
 	  next if $nodbgpkgs && $b =~ /-(?:debuginfo|debugsource)-/;
 	  next if $nosrcpkgs && $b =~ /\.(?:nosrc|src)\.rpm$/;
 	  push @got, "$aprp/$arch/$apackid/$b";
@@ -2670,10 +2786,24 @@ sub getkiwiproductpackages {
   return @got;
 }
 
+sub getbuildenv {
+  my ($projid, $repoid, $arch, $packid, $srcmd5) = @_;
+  my $res = BSRPC::rpc({
+    'uri' => "$BSConfig::srcserver/source/$projid/$packid",
+  }, $BSXML::dir, "rev=$srcmd5");
+  my %entries = map {$_->{'name'} => $_} @{$res->{'entry'} || []};
+  my $bifile = "_buildenv.$repoid.$arch";
+  $bifile = '_buildenv' unless $entries{$bifile};
+  die("srcserver is confused about the buildenv\n") unless $entries{$bifile};
+  return BSRPC::rpc({
+    'uri' => "$BSConfig::srcserver/source/$projid/$packid/$bifile",
+  }, $BSXML::buildinfo, "rev=$srcmd5");
+}
+
 sub getbuildinfo {
   my ($cgi, $projid, $repoid, $arch, $packid, $pdata) = @_;
   my $projpack;
-  my @args = ("project=$projid", "repository=$repoid", "arch=$arch");
+  my @args = ("project=$projid", "repository=$repoid", "arch=$arch", "parseremote=1");
   if (defined($packid)) {
     push @args, "package=$packid";
   } else {
@@ -2696,7 +2826,9 @@ sub getbuildinfo {
     $pdata = $proj->{'package'}->[0];
     die("no such package\n") unless $pdata && $pdata->{'name'} eq $packid;
     die("$pdata->{'error'}\n") if $pdata->{'error'};
+    $pdata->{'buildenv'} = getbuildenv($projid, $repoid, $arch, $packid, $pdata->{'srcmd5'}) if $pdata->{'hasbuildenv'};
   }
+  die("$pdata->{'buildenv'}->{'error'}\n") if $pdata->{'buildenv'} && $pdata->{'buildenv'}->{'error'};
 
   my $info = $pdata->{'info'}->[0];
   die("bad info\n") unless $info && $info->{'repository'} eq $repoid;
@@ -2733,7 +2865,7 @@ sub getbuildinfo {
   $ret->{'project'} = $projid;
   $ret->{'repository'} = $repoid;
   $ret->{'package'} = $packid if defined $packid;
-  $ret->{'downloadurl'} = $BSConfig::repodownload if defined $BSConfig::repodownload;;
+  $ret->{'downloadurl'} = $BSConfig::repodownload if defined $BSConfig::repodownload;
   $ret->{'arch'} = $arch;
   $ret->{'hostarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'};
   $ret->{'path'} = $repo->{'path'} || [];
@@ -2756,6 +2888,15 @@ sub getbuildinfo {
       } else {
         $_->{'server'} = $BSConfig::reposerver;
       }
+    }
+  } else {
+    for my $r (@{$ret->{'path'}}) {
+      next if $remotemap{$r->{'project'}};	# what to do with those?
+      my $rprp = "$r->{'project'}/$r->{'repository'}";
+      my $rprp_ext = $rprp;
+      $rprp_ext =~ s/:/:\//g;
+      my $rurl = get_downloadurl($rprp, $rprp_ext);
+      $r->{'url'} = $rurl if $rurl;
     }
   }
   $ret->{'srcmd5'} = $pdata->{'srcmd5'} if $pdata->{'srcmd5'};
@@ -2803,6 +2944,8 @@ sub getbuildinfo {
     # have local deps, add them to pool
     my $data = {};
     Build::readdeps({ %$bconf }, $data, $pdata->{'ldepfile'});
+    delete $data->{'/url'};
+    delete $data->{'/external/'};
     my $r = $pool->repofromdata('', $data);
     die("ldepfile repo add failed\n") unless $r;
   }
@@ -2828,16 +2971,18 @@ sub getbuildinfo {
   }
   my $pname = $info->{'name'};
   my @subpacks = grep {defined($dep2src{$_}) && $dep2src{$_} eq $pname} keys %dep2src;
+  @subpacks = () if $buildtype eq 'kiwi';
   if ($info->{'subpacks'}) {
     $ret->{'subpack'} = $info->{'subpacks'};
   } elsif (@subpacks) {
     $ret->{'subpack'} = [ @subpacks ];
   }
-  my @deps = @{$info->{'dep'} || []};
 
-  # expand deps
+  # expand meta deps
+  my @edeps = @{$info->{'dep'} || []};
+  local $Build::expand_dbg = 1 if $cgi->{'debug'};
   $ret->{'expanddebug'} = '' if $cgi->{'debug'};
-  if (grep {$_ eq '-simple_expansion_hack'} @deps) {
+  if (grep {$_ eq '-simple_expansion_hack'} @edeps) {
     # special hack to expand dependencies without the build packages
     delete $bconf->{'ignore'};
     delete $bconf->{'ignoreh'};
@@ -2846,55 +2991,42 @@ sub getbuildinfo {
     $bconf->{'required'} = [];
     $bconf->{'support'} = [];
   }
-  $Build::expand_dbg = 1 if $cgi->{'debug'};
-  @subpacks = () if $buildtype eq 'kiwi';
-  my @edeps;
   if ($buildtype eq 'kiwi' && $kiwitype eq 'product') {
-    @edeps = (1, @deps);
+    @edeps = (1, @edeps);
   } elsif ($buildtype eq 'kiwi') {
     my $bconfignore = $bconf->{'ignore'};
     my $bconfignoreh = $bconf->{'ignoreh'};
     delete $bconf->{'ignore'};
     delete $bconf->{'ignoreh'};
     my $xp = BSSolv::expander->new($pool, $bconf);
-    my $ownexpand = sub {
-      $_[0] = $xp;
-      goto &BSSolv::expander::expand;
-    };
     no warnings 'redefine';
-    local *Build::expand = $ownexpand;
+    local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
-    @edeps = Build::get_build($bconf, \@subpacks, @deps);
+    @edeps = Build::get_build($bconf, [], @edeps, '--ignoreignore--');
     $bconf->{'ignore'} = $bconfignore if $bconfignore;
     $bconf->{'ignoreh'} = $bconfignoreh if $bconfignoreh;
-    $ret->{'expanddebug'} .= $xp->debugstr() if defined($ret->{'expanddebug'}) && defined &BSSolv::expander::debugstr;
+    if (defined($ret->{'expanddebug'})) {
+      $ret->{'expanddebug'} .= "\n" if $ret->{'expanddebug'};
+      $ret->{'expanddebug'} .= "=== kiwi image expansion\n";
+      $ret->{'expanddebug'} .= $xp->debugstr() if defined &BSSolv::expander::debugstr;
+    }
+  } elsif ($pdata->{'buildenv'}) {
+     @edeps = (1);
   } else {
     my $xp = BSSolv::expander->new($pool, $bconf);
-    my $ownexpand = sub {
-      $_[0] = $xp;
-      goto &BSSolv::expander::expand;
-    };
     no warnings 'redefine';
-    local *Build::expand = $ownexpand;
+    local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
-    @edeps = Build::get_deps($bconf, \@subpacks, @deps);
-    $ret->{'expanddebug'} .= $xp->debugstr() if defined($ret->{'expanddebug'}) && defined &BSSolv::expander::debugstr;
+    @edeps = Build::get_deps($bconf, \@subpacks, @edeps);
+    if (defined($ret->{'expanddebug'})) {
+      $ret->{'expanddebug'} .= "\n" if $ret->{'expanddebug'};
+      $ret->{'expanddebug'} .= "=== meta deps expansion\n";
+      $ret->{'expanddebug'} .= $xp->debugstr() if defined &BSSolv::expander::debugstr;
+    }
   }
-  undef $Build::expand_dbg if $cgi->{'debug'};
   if (! shift @edeps) {
     $ret->{'error'} = "unresolvable: ".join(', ', @edeps);
     return ($ret, $BSXML::buildinfo);
-  }
-  if ($buildtype eq 'kiwi') {
-    # packages used for build environment
-    if ($kiwitype ne 'product') {
-      @deps = @{$bconf->{'substitute'}->{'kiwi-setup:image'} || []};
-      @deps = ('kiwi', 'createrepo', 'tar') unless @deps;       # default
-    } else {
-      @deps = @{$bconf->{'substitute'}->{'kiwi-setup:product'} || []};
-      @deps = ('kiwi') unless @deps;
-    }
-    push @deps, grep {/^kiwi-.*:/} @{$info->{'dep'} || []};
   }
 
   my $epool;
@@ -2918,32 +3050,52 @@ sub getbuildinfo {
     $pool->createwhatprovides();
   }
 
-  my @bdeps = grep {!/^\// || $bconf->{'fileprovides'}->{$_}} @{$info->{'prereq'} || []};
-  unshift @bdeps, '--directdepsend--' if @bdeps;
-  unshift @bdeps, @deps;
-  $Build::expand_dbg = 1 if $cgi->{'debug'};
+  # create expander
   my $xp = BSSolv::expander->new($pool, $bconf);
-  my $ownexpand = sub {
-    $_[0] = $xp;
-    goto &BSSolv::expander::expand;
-  };
   no warnings 'redefine';
-  local *Build::expand = $ownexpand;
+  local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
   use warnings 'redefine';
-  if (!$cgi->{'deps'}) {
-    @bdeps = Build::get_build($bconf, \@subpacks, @bdeps, @{$cgi->{'add'} || []});
+
+  # expand sysbuild deps
+  my @sysdeps;
+  if ($buildtype eq 'kiwi') {
+    @sysdeps = Build::get_sysbuild($bconf, "kiwi-$kiwitype", [ @{$cgi->{'add'} || []}, grep {/^kiwi-.*:/} @{$info->{'dep'} || []} ]);
   } else {
-    @bdeps = Build::get_deps($bconf, \@subpacks, @deps, @{$cgi->{'add'} || []});
+    @sysdeps = Build::get_sysbuild($bconf, $buildtype);
   }
-  $ret->{'expanddebug'} .= "\n" if $ret->{'expanddebug'};
-  $ret->{'expanddebug'} .= $xp->debugstr() if defined($ret->{'expanddebug'}) && defined &BSSolv::expander::debugstr;
-  if (! shift @bdeps) {
+  if (@sysdeps && defined($ret->{'expanddebug'})) {
+    $ret->{'expanddebug'} .= "\n" if $ret->{'expanddebug'};
+    $ret->{'expanddebug'} .= "=== sysdeps expansion\n";
+    $ret->{'expanddebug'} .= $xp->debugstr() if defined &BSSolv::expander::debugstr;
+  }
+
+  # expand build deps
+  my @bdeps;
+  if ($pdata->{'buildenv'}) {
+    @bdeps = (1);
+  } elsif ($cgi->{'deps'}) {
+    @bdeps = Build::get_deps($bconf, \@subpacks, @{$info->{'dep'} || []}, @{$cgi->{'add'} || []});
+  } elsif ($buildtype eq 'kiwi') {
+    @bdeps = (1, @edeps);	# reuse meta deps
+  } else {
+    @bdeps = (@{$info->{'dep'} || []}, @{$cgi->{'add'} || []});
+    push @bdeps, '--ignoreignore--' if @sysdeps;
+    my @prereqs = grep {!/^\// || $bconf->{'fileprovides'}->{$_}} @{$info->{'prereq'} || []};
+    unshift @prereqs, '--directdepsend--' if @prereqs;
+    @bdeps = Build::get_build($bconf, \@subpacks, @bdeps, @prereqs);
+    if (defined($ret->{'expanddebug'})) {
+      $ret->{'expanddebug'} .= "\n" if $ret->{'expanddebug'};
+      $ret->{'expanddebug'} .= "=== build expansion\n";
+      $ret->{'expanddebug'} .= $xp->debugstr() if defined &BSSolv::expander::debugstr;
+    }
+  }
+  if (!shift(@bdeps)) {
     undef $xp;
     undef $Build::expand_dbg if $cgi->{'debug'};
     $ret->{'error'} = "unresolvable: ".join(', ', @bdeps);
     return ($ret, $BSXML::buildinfo);
   }
-  my @sysdeps = Build::get_sysbuild($bconf, $buildtype);
+
   if (@sysdeps && !shift(@sysdeps)) {
     undef $xp;
     undef $Build::expand_dbg if $cgi->{'debug'};
@@ -2951,7 +3103,6 @@ sub getbuildinfo {
     return ($ret, $BSXML::buildinfo);
   }
   undef $xp;
-  undef $Build::expand_dbg if $cgi->{'debug'};
 
   my @pdeps = Build::get_preinstalls($bconf);
   my @vmdeps = Build::get_vminstalls($bconf);
@@ -2962,10 +3113,110 @@ sub getbuildinfo {
   my %edeps = map {$_ => 1} @edeps;
   my %sysdeps = map {$_ => 1} @sysdeps;
 
+  if ($pdata->{'buildenv'}) {
+    my @allpackages;
+    if (defined &BSSolv::pool::allpackages) {
+      @allpackages = $pool->allpackages();
+    } else {
+      # crude way to get ids of all packages
+      my $npkgs = 0;
+      for my $r ($pool->repos()) {
+        my @pids = $r->getpathid();
+        $npkgs += @pids / 2;
+      }
+      @allpackages = 2 ... ($npkgs + 1) if $npkgs;
+    }
+    my %allpackages;
+    for my $p (@allpackages) {
+      my $n = $pool->pkg2name($p);
+      my $hdrmd5 = $pool->pkg2pkgid($p);
+      next unless $n && $hdrmd5;
+      push @{$allpackages{"$n.$hdrmd5"}}, $p;
+    }
+    @bdeps = @{$pdata->{'buildenv'}->{'bdep'}};
+    # check if we got em all
+    if (grep {$_->{'hdrmd5'} && !$allpackages{"$_->{'name'}.$_->{'hdrmd5'}"}} @bdeps) {
+      # nope, need to search package data as well
+      for my $aprp (@prp) {
+	my ($aprojid, $arepoid) = split('/', $aprp, 2);
+        my $gbininfo = read_gbininfo("$reporoot/$aprp/$arch");
+	if ($gbininfo) {
+	  for my $packid (sort keys %$gbininfo) {
+	    for (map {$gbininfo->{$packid}->{$_}} sort keys %{$gbininfo->{$packid}}) {
+	      next unless $_->{'name'} && $_->{'hdrmd5'};
+	      $_->{'package'} = $packid;
+	      $_->{'prp'} = $aprp;
+              push @{$allpackages{"$_->{'name'}.$_->{'hdrmd5'}"}}, $_;
+	    }
+	  }
+	}
+        if (!$gbininfo && $remotemap{$aprojid}) {
+	  my $remoteproj = $remotemap{$aprojid};
+	  print "fetching remote project binary state for $aprp/$arch\n";
+	  my $param = {
+	    'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$arepoid/$arch",
+	    'timeout' => 200,
+	    'proxy' => $proxy,
+	  };
+	  my $packagebinarylist = BSRPC::rpc($param, $BSXML::packagebinaryversionlist, "view=binaryversions");
+	  for my $binaryversionlist (@{$packagebinarylist->{'binaryversionlist'} || []}) {
+	    for my $binary (@{$binaryversionlist->{'binary'} || []}) {
+	      next unless $binary->{'hdrmd5'};
+	      # XXX: rpm filenames don't have the epoch...
+	      next unless $binary->{'name'} =~ /^(?:::import::.*::)?(.+)-(?:(\d+?):)?([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
+	      my $d = {
+		'name' => $1,
+		'epoch' => $2,
+		'version' => $3,
+		'release' => $4,
+		'arch' => $5,
+		'filename' => $binary->{'name'},
+		'prp' => $aprp,
+		'package' => $binaryversionlist->{'package'},
+	      };
+	      push @{$allpackages{"$1.$binary->{'hdrmd5'}"}}, $d;
+	    }
+	  }
+	}
+      }
+    }
+    for (@bdeps) {
+      $_->{'name'} =~ s/\.rpm$//;	# workaround bug in buildenv generation
+      if ($_->{'hdrmd5'}) {
+	my $n = $_->{'name'};
+	my $hdrmd5 = $_->{'hdrmd5'};
+	die("package $n\@$hdrmd5 is unavailable\n") unless $allpackages{"$n.$hdrmd5"};
+	my $p = $allpackages{"$n.$hdrmd5"}->[0];
+	my ($d, $prp);
+	if (ref($p)) {
+	  $d = $p;
+          $prp = $d->{'prp'};
+	} else {
+          $d = $pool->pkg2data($p);
+          $prp = $pool->pkg2reponame($p);
+	}
+        ($_->{'project'}, $_->{'repository'}) = split('/', $prp) if $prp ne '';
+        $_->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
+        $_->{'version'} = $d->{'version'};
+        $_->{'release'} = $d->{'release'} if exists $d->{'release'};
+        $_->{'arch'} = $d->{'arch'} if $d->{'arch'};
+        $_->{'package'} = $d->{'package'} if defined $d->{'package'};
+      } else {
+	die("buildenv package $_->{'name'} has no hdrmd5 set\n");
+      }
+      $_->{'notmeta'} = 1; 
+      $_->{'preinstall'} = 1 if $pdeps{$_->{'name'}};
+      $_->{'vminstall'} = 1 if $vmdeps{$_->{'name'}};
+      $_->{'runscripts'} = 1 if $runscripts{$_->{'name'}};
+    }
+    $ret->{'bdep'} = \@bdeps;
+    return ($ret, $BSXML::buildinfo);
+  }
+
   if ($buildtype eq 'kiwi' && $kiwitype eq 'product') {
     # things are very different here. first we have the packages needed for kiwi
     # from the full tree
-    @bdeps = unify(@pdeps, @vmdeps, @bdeps);
+    @bdeps = BSUtil::unify(@pdeps, @vmdeps, @sysdeps);
     for (splice(@bdeps)) {
       my $b = {'name' => $_};
       my $p = $dep2pkg{$_};
@@ -3018,8 +3269,8 @@ sub getbuildinfo {
 
   my @rdeps;
   if ($buildtype eq 'kiwi' && $kiwitype eq 'image' && $epool) {
-    # have special system setup pool
-    for (@edeps) {
+    # have special system setup pool, first add image packages, then fall through to system setup packages
+    for (@bdeps) {
       my $p = $dep2pkg{$_};
       my $b = {'name' => $_};
       if (!$cgi->{'internal'}) {
@@ -3034,8 +3285,8 @@ sub getbuildinfo {
       $b->{'noinstall'} = 1;
       push @rdeps, $b;
     }
-    @edeps = ();
-    %edeps = ();
+    @edeps = @bdeps = ();
+    %edeps = %bdeps = ();
     %dep2pkg = ();
     for my $p ($pool->consideredpackages()) {
       my $n = $pool->pkg2name($p);
@@ -3043,7 +3294,7 @@ sub getbuildinfo {
     }
   }
 
-  @bdeps = unify(@pdeps, @vmdeps, @edeps, @bdeps, @sysdeps);
+  @bdeps = BSUtil::unify(@pdeps, @vmdeps, @edeps, @bdeps, @sysdeps);
   for (@bdeps) {
     my $b = {'name' => $_};
     my $p = $dep2pkg{$_};
@@ -3060,10 +3311,8 @@ sub getbuildinfo {
     $b->{'vminstall'} = 1 if $vmdeps{$_};
     $b->{'runscripts'} = 1 if $runscripts{$_};
     $b->{'notmeta'} = 1 unless $edeps{$_};
-    if ($buildtype eq 'kiwi') {
-      $b->{'noinstall'} = 1 if $edeps{$_} && !($bdeps{$_} || $vmdeps{$_} || $pdeps{$_});
-    } elsif (@sysdeps) {
-      $b->{'installonly'} = 1 if $sysdeps{$_} && !$bdeps{$_};
+    if (@sysdeps) {
+      $b->{'installonly'} = 1 if $sysdeps{$_} && !$bdeps{$_} && $buildtype ne 'kiwi';
       $b->{'noinstall'} = 1 if $bdeps{$_} && !($sysdeps{$_} || $vmdeps{$_} || $pdeps{$_});
     }
     push @rdeps, $b;
@@ -3081,6 +3330,36 @@ sub getbuildinfo {
   $ret->{'bdep'} = \@rdeps;
   return ($ret, $BSXML::buildinfo);
 }
+
+my $kiwiurlmapcache;
+sub kiwiurlmapper {
+  my ($url) = @_;
+  $url =~ s/\/+$//;
+  if (!$kiwiurlmapcache) {
+    $kiwiurlmapcache = {};
+    for my $prp (%{$BSConfig::prp_ext_map || {}}) {
+      my $u = $BSConfig::prp_ext_map->{$prp};
+      $u =~ s/\/+$//;
+      $kiwiurlmapcache->{$u} = $prp;
+    }
+  }
+  my $prp = $kiwiurlmapcache->{$url};
+  return $prp if $prp;
+  if ($BSConfig::repodownload && $url =~ /^\Q$BSConfig::repodownload\E\/(.+\/.+)/) {
+    my @p = split('/', $1);
+    while (@p > 1 && $p[0] =~ /:$/) {
+      splice(@p, 0, 2, "$p[0]$p[1]");
+    }
+    my $project = shift(@p);
+    while (@p > 1 && $p[0] =~ /:$/) {
+      splice(@p, 0, 2, "$p[0]$p[1]");
+    }
+    my $repository = shift(@p);
+    return "$project/$repository" if $project && $repository;
+  }
+  return undef;
+}
+$Build::Kiwi::urlmapper = \&kiwiurlmapper;
 
 sub getbuildinfo_post {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
@@ -3103,16 +3382,20 @@ sub getbuildinfo_post {
     sysseek(F, 0, 0);
     my $dir = "$uploaddir/$$.dir";
     mkdir_p($dir);
-    my $uploaded = BSHTTP::cpio_receiver(BSHTTP::fd2hdr(\*F), {'directory' => $dir});
+    my $uploaded = BSHTTP::cpio_receiver(BSHTTP::fd2req(\*F), {'directory' => $dir});
     close(F);
     # should we check if the cpio archive contains <= 2 files?
-    ($depfile) = map { $_->{'name'} =~ /(deps)/ } @$uploaded;
-    $depfile = "$dir/$depfile" if defined $depfile;
-    $fn = (grep { $_->{'name'} ne "deps" } @$uploaded)[0];
+    $depfile = (grep { $_->{'name'} eq 'deps' } @$uploaded)[0];
+    $depfile = "$dir/$depfile->{'name'}" if $depfile;
+    my $servicefile = (grep { $_->{'name'} eq '_service' } @$uploaded)[0];
+    $servicefile = "$dir/$servicefile->{'name'}" if $servicefile;
+    my $bifile = (grep { $_->{'name'} eq 'buildenv' } @$uploaded)[0];
+    $bifile = "$dir/$bifile->{'name'}" if $bifile;
+    $fn = (grep { $_->{'name'} ne "deps" && $_->{'name'} ne 'buildenv' && $_->{'name'} ne '_service'} @$uploaded)[0];
     die("no build recipe file found\n") unless $fn;
     my @r;
     eval {
-      @r = getbuildinfo_post({ %$cgi, '_fn' => "$dir/$fn->{'name'}", '_depfile' => $depfile, '_buildtype' => Build::recipe2buildtype($fn->{'name'})}, $projid, $repoid, $arch, $packid);
+      @r = getbuildinfo_post({ %$cgi, '_fn' => "$dir/$fn->{'name'}", '_depfile' => $depfile, '_buildenvfile' => $bifile, '_servicefile' => $servicefile, '_buildtype' => Build::recipe2buildtype($fn->{'name'})}, $projid, $repoid, $arch, $packid);
     };
     unlink("$dir/$_") for ls($dir);
     rmdir($dir) if -d $dir;
@@ -3147,20 +3430,56 @@ sub getbuildinfo_post {
     $info->{'path'} = $d->{'path'};
   }
   my $pdata = {'buildtype' => $bconf->{'type'}, 'info' => [ $info ]};
+  $pdata->{'buildenv'} = readxml($cgi->{'_buildenvfile'}, $BSXML::buildinfo) if $cgi->{'_buildenvfile'};
+  if ($cgi->{'_servicefile'}) {
+    my $services = readxml($cgi->{'_servicefile'}, $BSXML::services);
+    for my $service (@{$services->{'service'} || []}) {
+       next unless $service->{'mode'} && $service->{'mode'} eq 'buildtime';
+       my $pkgname = "obs-service-$service->{'name'}";
+       # debian does not allow _ in package name
+       $pkgname =~ s/_/-/g if $bconf->{'binarytype'} eq 'deb';
+       push @{$info->{'dep'}}, $pkgname;
+     }
+  }
   $pdata->{'ldepfile'} = $depfile if defined $depfile;
   return getbuildinfo($cgi, $projid, $repoid, $arch, $packid, $pdata);
 }
 
 sub getbuilddepinfo {
   my ($cgi, $projid, $repoid, $arch) = @_;
+  my $builddepinfo_in;
+  if (BSServer::have_content()) {
+    my $content = BSServer::read_data(10000000);
+    $builddepinfo_in = BSUtil::fromxml($content, $BSXML::builddepinfo);
+  }
   my %packids = map {$_ => 1} @{$cgi->{'package'} || []};
   my $view = $cgi->{'view'} || '';
-  my $depends = BSUtil::retrieve("$reporoot/$projid/$repoid/$arch/:depends", 1);
-  return ({'package' => []}, $BSXML::builddepinfo) unless $depends;
+  my $depends = BSUtil::retrieve("$reporoot/$projid/$repoid/$arch/:depends", 1) || {};
   my $subpacks = $depends->{'subpacks'} || {};
   my $pkgdeps = $depends->{'pkgdeps'} || {};
   my $pkg2src = $depends->{'pkg2src'} || {};
+  if ($builddepinfo_in) {
+    for my $in (@{$builddepinfo_in->{'package'} || []}) {
+      my $packid = $in->{'name'};
+      next unless $packid;
+      $pkg2src->{$packid} = $in->{'source'} if $in->{'source'};
+      $subpacks->{$packid} = $in->{'subpkg'} if $in->{'subpkg'};
+      delete $pkgdeps->{$packid};
+      $pkgdeps->{$packid} = $in->{'pkgdep'} if $in->{'pkgdep'};
+    }
+  }
   my %subpack2pack;
+  if ($view eq 'order') {
+    # order like the scheduler does
+    my @cycles;
+    my @packs = sort keys %$pkg2src;
+    @packs = sort keys %packids if %packids;
+    @packs = BSSolv::depsort($pkgdeps, $pkg2src, \@cycles, @packs) if @packs > 1;
+    my @res = map { { 'name' => $_ } } @packs;
+    my $res = { 'package' => \@res, };
+    $res->{'cycle'} = \@cycles if @cycles;
+    return ($res, $BSXML::builddepinfo);
+  }
   if ($view eq 'pkgnames' || $view eq 'revpkgnames') {
     for my $packid (sort keys %$pkg2src) {
       my $n = $pkg2src->{$packid} || $packid;
@@ -3194,7 +3513,7 @@ sub getbuilddepinfo {
     }
     my $deps = $pkgdeps->{$packid} || [];
     $deps = [ map {@{$subpack2pack{$_} || []}} @$deps ] if $view eq 'pkgnames';
-    $deps = [ sort(unify(@$deps)) ] if $view eq 'pkgnames' || $view eq 'revpkgnames';
+    $deps = [ sort(BSUtil::unify(@$deps)) ] if $view eq 'pkgnames' || $view eq 'revpkgnames';
     push @res, {'name' => $packid, 
 	'source' => $n,
 	'pkgdep' => $deps,
@@ -3501,7 +3820,7 @@ sub publisheddir {
       for (keys %{$BSConfig::publishredirect}) {
         push @res, (split('/', $_, 2))[0];
       }
-      @res = unify(@res);
+      @res = BSUtil::unify(@res);
     }
   } elsif (!defined($repoid)) {
     my $prp_ext = $projid;
@@ -3512,7 +3831,7 @@ sub publisheddir {
         my @p = split('/', $_, 2);
 	push @res, $p[1] if $p[0] eq $projid;
       }
-      @res = unify(@res);
+      @res = BSUtil::unify(@res);
     }
   } elsif (!defined($arch)) {
     my $prp_ext = "$projid/$repoid";
@@ -3552,6 +3871,43 @@ sub publisheddir {
   @res = sort @res;
   @res = map {{'name' => $_}} @res;
   return ({'entry' => \@res}, $BSXML::dir);
+}
+
+sub map_to_extrep {
+  my ($prp, $prp_ext) = @_;
+  
+  my $extrep = "$extrepodir/$prp_ext";
+  return $extrep unless $BSConfig::publishredirect;
+  if ($BSConfig::publishedredirect_use_regex || $BSConfig::publishedredirect_use_regex) {
+    for my $key (sort {$b cmp $a} keys %{$BSConfig::publishredirect}) {
+      if ($prp =~ /^$key/) {
+        $extrep = $BSConfig::publishredirect->{$key};
+        last;
+      }    
+    }    
+  } elsif (exists($BSConfig::publishredirect->{$prp})) {
+    $extrep = $BSConfig::publishredirect->{$prp};
+  }
+  $extrep = $extrep->($prp, $prp_ext) if $extrep && ref($extrep) eq 'CODE';
+  return $extrep;
+}
+
+sub get_downloadurl {
+  my ($prp, $prp_ext) = @_;
+  if ($BSConfig::prp_ext_map && exists $BSConfig::prp_ext_map->{$prp}) {
+    return $BSConfig::prp_ext_map->{$prp};
+  }
+  my $extrep = map_to_extrep($prp, $prp_ext);
+  $extrep = [ $extrep ] unless ref $extrep;
+  return $extrep->[2] if $extrep->[2];
+  BSConfiguration::check_configuration_once();
+  return undef unless $BSConfig::repodownload;
+  if ($extrep->[0] =~ /^\Q$BSConfig::bsdir\E\/repos\/(.*)$/) {
+    my $url = "$BSConfig::repodownload/$1/";
+    $url =~ s!//$!/!;
+    return $url;
+  }
+  return "$BSConfig::repodownload/$prp_ext/";
 }
 
 sub makeymp {
@@ -3614,12 +3970,10 @@ sub makeymp {
       $r->{'description'} = $nprojpack{$pa->{'project'}}->{'description'};
     }
     my $prp_ext = "$pa->{'project'}/$pa->{'repository'}";
-    if ($BSConfig::prp_ext_map && $BSConfig::prp_ext_map->{$prp_ext}) {
-      $r->{'url'} = $BSConfig::prp_ext_map->{$prp_ext};
-    } else {
-      $prp_ext =~ s/:/:\//g;
-      $r->{'url'} = "$BSConfig::repodownload/$prp_ext/";
-    }
+    $prp_ext =~ s/:/:\//g;
+    my $url = get_downloadurl("$pa->{'project'}/$pa->{'repository'}", $prp_ext);
+    next unless defined $url;
+    $r->{'url'} = $url;
     push @repos, $r;
   }
   my $pkg = {};
@@ -3718,10 +4072,10 @@ sub getrelsync {
   if ($relsync_merge) {
     my $relsync = BSUtil::retrieve("$reporoot/$prp/$arch/:relsync", 1) || {};
     $relsync = { %$relsync, %$relsync_merge };
-    $relsyncdata = "pst0".Storable::nfreeze($relsync);
+    $relsyncdata = BSUtil::tostorable($relsync);
   } else {
     $relsyncdata = readstr("$reporoot/$prp/$arch/:relsync");
-    $relsyncdata ||= "pst0".Storable::nfreeze({});
+    $relsyncdata ||= BSUtil::tostorable({});
   }
   return ($relsyncdata, 'Content-Type: application/octet-stream');
 }
@@ -3731,7 +4085,7 @@ sub postrelsync {
   my $prp = "$projid/$repoid";
 
   my $newdata = BSServer::read_data(10000000);
-  my $new = Storable::thaw(substr($newdata, 4));
+  my $new = BSUtil::fromstorable($newdata);
   die("no data\n") unless $new;
 
   local *F;
@@ -3841,8 +4195,8 @@ sub deljob {
       return $BSStdServer::return_ok;
     }
   }
-  my $js = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus, 1);
-  if ($js && $js->{'code'} eq 'building') {
+  my $js = BSUtil::lockopenxml(\*F, '<', "$jobsdir/$arch/$job:status", $BSXML::jobstatus);
+  if ($js->{'code'} eq 'building') {
     my $req = {
       'uri' => "$js->{'uri'}/discard",
       'timeout' => 60,
@@ -3866,7 +4220,7 @@ sub postmdload {
   my ($cgi) = @_;
 
   my $newdata = BSServer::read_data(200000000);
-  my $newmdload = Storable::thaw(substr($newdata, 4));
+  my $newmdload = BSUtil::fromstorable($newdata);
   die("no data\n") unless $newmdload;
   return $BSStdServer::return_ok unless %$newmdload;
   local *F;
@@ -3933,10 +4287,7 @@ sub getconfiguration {
 
 sub getajaxstatus {
   my ($cgi) = @_;
-  if (!$BSStdServer::isajax) {
-    BSHandoff::handoff($ajaxsocket, '/ajaxstatus');
-    exit(0);
-  }
+  BSHandoff::handoff('/ajaxstatus') if !$BSStdServer::isajax;
   my $r = BSWatcher::getstatus();
   return ($r, $BSXML::ajaxstatus);
 }
@@ -3961,6 +4312,7 @@ my $dispatches = [
   'POST:/build/$project/$repository/$arch/_relsync' => \&postrelsync,
   '/build/$project/$repository/$arch/_relsync' => \&getrelsync,
   'POST:/build/$project/$repository/$arch/$package cmd=copy oproject:project? opackage:package? orepository:repository? setupdateinfoid:? resign:bool? setrelease:?' => \&copybuild,
+  'POST:/build/$project cmd=move oproject:project' => \&moveproject,
   'POST:/build/$project/$repository/$arch/$package' => \&uploadbuild,
   '!worker,rw /build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nometa:bool? noajax:bool? nosource:bool? noimport:bool? withmd5:bool?' => \&getbinarylist,
   'POST:/build/$project/$repository/$arch/$package_repository/_buildinfo add:* internal:bool? debug:bool? deps:bool?' => \&getbuildinfo_post,
@@ -4018,7 +4370,7 @@ my $dispatches = [
   'PUT:/configuration' => \&putconfiguration,
   '/configuration' => \&getconfiguration,
 
-  '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool? withstats:bool? summary:bool?' => \&getresult,
+  '/_result $prpa+ oldstate:md5? package* code:* lastbuild:bool? withbinarylist:bool? withstats:bool? summary:bool? withversrel:bool?' => \&getresult,
   'POST:/_command $cmd: $prpa+ package* code:* wipe:*' => \&docommand,
 
   '/serverstatus' => \&BSStdServer::serverstatus,
@@ -4031,7 +4383,7 @@ my $dispatches_ajax = [
   '/build/$project/$repository/$arch/$package/_log nostream:bool? last:bool? start:intnum? end:num? view:?' => \&getlogfile,
   '/build/$project/$repository/$arch/$package:package_repository view:? binary:filename* nosource:bool?' => \&getbinarylist,
   '/build/$project/$repository/$arch/$package:package_repository/$filename view:?' => \&getbinary,
-  '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool? withstats:bool? summary:bool?' => \&getresult,
+  '/_result $prpa+ oldstate:md5? package* code:* withbinarylist:bool? withstats:bool? summary:bool? withversrel:bool?' => \&getresult,
   '/getbinaries $project $repository $arch binaries: nometa:bool? metaonly:bool?' => \&getbinaries,
   '/getbinaryversions $project $repository $arch binaries: nometa:bool?' => \&getbinaryversions,
 ];
@@ -4039,7 +4391,6 @@ my $dispatches_ajax = [
 my $conf = {
   'port' => $port,
   'dispatches' => $dispatches,
-  'setkeepalive' => 1, 
   'maxchild' => 20,
   'maxchild2' => 20,
 };
@@ -4047,10 +4398,6 @@ my $conf = {
 my $aconf = {
   'socketpath' => $ajaxsocket,
   'dispatches' => $dispatches_ajax,
-  'getrequest_timeout' => 10,
-  'replrequest_timeout' => 10, 
-  'getrequest_recvfd' => \&BSHandoff::receive,
-  'setkeepalive' => 1,
 };
 
 if ($BSConfig::workerreposerver) {
@@ -4059,4 +4406,6 @@ if ($BSConfig::workerreposerver) {
   $conf->{'port2'} = $wport if $wport != $port;
 }
 
+# create bsdir before root privileges are dropped
+BSUtil::mkdir_p_chown($BSConfig::bsdir, $BSConfig::bsuser, $BSConfig::bsgroup);
 BSStdServer::server('bs_repserver', \@ARGV, $conf, $aconf);

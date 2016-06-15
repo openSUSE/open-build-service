@@ -6,8 +6,8 @@ class FullTextSearch
   include ActiveModel::Serializers::JSON
 
   cattr_accessor :ranker, :field_weights, :per_page, :star,
-      :linked_count_weight, :activity_index_weight, :links_to_other_weight,
-      :is_devel_weight, :max_matches
+                 :linked_count_weight, :activity_index_weight, :links_to_other_weight,
+                 :is_devel_weight, :max_matches
 
   self.linked_count_weight = 100
   self.activity_index_weight = 500
@@ -77,7 +77,7 @@ class FullTextSearch
   # return [Boolean]  true if no exception is raised
   def index_and_start
     # Ensure the connection
-    ActiveRecord::Base.connection_pool.with_connection do |sql|
+    ActiveRecord::Base.connection_pool.with_connection do |_|
       # Use the RakeInterface provided by ThinkingSphinx
       interface = ThinkingSphinx::RakeInterface.new
 
@@ -114,10 +114,10 @@ class FullTextSearch
 
   def find_issue_id
     if issue_tracker_name && issue_name
+      # compat code for handling all writings of CVE id's
+      issue_name.gsub!(/^CVE-/i, '') if issue_tracker_name == "cve"
       # Return 0 if the issue does not exist in order to force an empty result
       Issue.joins(:issue_tracker).where("issue_trackers.name" => issue_tracker_name, name: issue_name).pluck(:id).first || 0
-    else
-      nil
     end
   end
 end

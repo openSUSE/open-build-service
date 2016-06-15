@@ -1,5 +1,4 @@
 class Repository < ActiveRecord::Base
-
   belongs_to :project, foreign_key: :db_project_id, inverse_of: :repositories
 
   before_destroy :cleanup_before_destroy
@@ -7,9 +6,9 @@ class Repository < ActiveRecord::Base
   has_many :channel_targets, :class_name => "ChannelTarget", :dependent => :delete_all, :foreign_key => 'repository_id'
   has_many :release_targets, :class_name => "ReleaseTarget", :dependent => :delete_all, :foreign_key => 'repository_id'
   has_many :path_elements, -> { order("position") }, foreign_key: 'parent_id', dependent: :delete_all, inverse_of: :repository
+  has_many :download_repositories, :dependent => :delete_all, foreign_key: :repository_id
   has_many :links, :class_name => "PathElement", :foreign_key => 'repository_id', inverse_of: :link
   has_many :targetlinks, :class_name => "ReleaseTarget", :foreign_key => 'target_repository_id'
-  has_many :download_stats
   has_one :hostsystem, :class_name => "Repository", :foreign_key => 'hostsystem_id'
   has_many :binary_releases, :dependent => :destroy
   has_many :product_update_repositories, dependent: :delete_all
@@ -19,12 +18,18 @@ class Repository < ActiveRecord::Base
 
   scope :not_remote, -> { where(:remote_project_name => nil) }
 
-  validate :validate_duplicates, :on => :create
-  def validate_duplicates
-    if Repository.where("db_project_id = ? AND name = ? AND ( remote_project_name = ? OR remote_project_name is NULL)", self.db_project_id, self.name, self.remote_project_name).first
-      errors.add(:project, "already has repository with name #{self.name}")
-    end
-  end
+  validates :name, length: { in: 1..200 }
+  # Keep in sync with src/backend/BSVerify.pm
+  validates :name, format: { with:    /\A[^_:\/\000-\037][^:\/\000-\037]*\Z/,
+                             message: "Repository name must not start with '_' or contain any of these characters ':/'" }
+
+  # Name has to be unique among local repositories and remote_repositories of the associated db_project.
+  # Note that remote repositories have to be unique among their remote project (remote_project_name)
+  # and the associated db_project.
+  validates :name, uniqueness: { scope:   [:db_project_id, :remote_project_name],
+                                 message: "%{value} is already used by a repository of this project."}
+
+  validates :db_project_id, presence: true
 
   def cleanup_before_destroy
     # change all linking repository pathes
@@ -33,7 +38,7 @@ class Repository < ActiveRecord::Base
         next unless pe.link == self # this is not pointing to our repo
         if lrep.path_elements.where(repository_id: Repository.deleted_instance).size > 0
           # repo has already a path element pointing to deleted repository
-          pe.destroy 
+          pe.destroy
         else
           pe.link = Repository.deleted_instance
           pe.save
@@ -50,7 +55,7 @@ class Repository < ActiveRecord::Base
         if lrep.targetlinks.where(repository_id: Repository.deleted_instance).size > 0
           # repo has already a path element pointing to deleted repository
           logger.debug "destroy release target #{rt.target_repository.project.name}/#{rt.target_repository.name}"
-          rt.destroy 
+          rt.destroy
         else
           logger.debug "set deleted repo for releasetarget #{rt.target_repository.project.name}/#{rt.target_repository.name}"
           rt.target_repository = Repository.deleted_instance
@@ -61,12 +66,18 @@ class Repository < ActiveRecord::Base
     end
   end
 
+  def project_name
+    return self.project.name  if self.project
+    self.remote_project_name
+  end
+
   class << self
-    def find_by_project_and_repo_name( project, repo )
+    # FIXME: Don't lie, it's find_or_create_by_project_and_name_if_project_is_remote
+    def find_by_project_and_name( project, repo )
       result = not_remote.joins(:project).where(:projects => {:name => project}, :name => repo).first
       return result unless result.nil?
 
-      #no local repository found, check if remote repo possible
+      # no local repository found, check if remote repo possible
 
       local_project, remote_project = Project.find_remote_project(project)
       if local_project
@@ -76,21 +87,45 @@ class Repository < ActiveRecord::Base
       return nil
     end
 
+    def find_by_project_and_path( project, path )
+      not_remote.joins(:path_elements).where(:project => project, :path_elements => {:link => path})
+    end
+
     def deleted_instance
-      repo = Repository.find_by_project_and_repo_name( "deleted", "deleted" )
+      repo = Repository.find_by_project_and_name( "deleted", "deleted" )
       return repo unless repo.nil?
 
       # does not exist, so let's create it
       project = Project.deleted_instance
-      project.repositories.find_or_create_by(name: "deleted")
+      project.repositories.find_or_create_by!(name: "deleted")
     end
   end
 
-  #returns a list of repositories that include path_elements linking to this one
-  #or empty list
+  def expand_all_repositories
+    repositories = [self]
+    # add all linked and indirect linked repositories
+    self.links.each do |path_element|
+      path_element.repository.expand_all_repositories.each do |repo|
+        repositories << repo
+      end
+    end
+    return repositories.uniq
+  end
+
+  # returns a list of repositories that include path_elements linking to this one
+  # or empty list
   def linking_repositories
     return [] if links.size == 0
     links.map {|l| l.repository}
+  end
+
+  def is_local_channel?
+    # is any our path elements the target of a channel package in this project?
+    self.path_elements.includes(:link).each do |pe|
+      return true if ChannelTarget.find_by_repo(pe.link, [self.project])
+    end
+    return true if ChannelTarget.find_by_repo(self, [self.project])
+    false
   end
 
   def linking_target_repositories
@@ -115,6 +150,34 @@ class Repository < ActiveRecord::Base
     name
   end
 
+  def is_kiwi_type?
+    # HACK: will be cleaned up after implementing FATE #308899
+    self.name == "images"
+  end
+
+  def clone_repository_from(source_repository)
+    source_repository.repository_architectures.each do |ra|
+      self.repository_architectures.create :architecture => ra.architecture, :position => ra.position
+    end
+
+    if source_repository.is_kiwi_type?
+      # kiwi builds need to copy path elements
+      source_repository.path_elements.each do |pa|
+        self.path_elements.create(:link => pa.link, :position => pa.position)
+      end
+      # and set type in prjconf
+      prjconf = self.project.source_file('_config')
+      unless prjconf =~ /^Type:/
+        prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
+        Suse::Backend.put_source(self.project.source_path('_config'), prjconf)
+      end
+      return
+    end
+
+    # we build against the other repository by default
+    self.path_elements.create(:link => source_repository, :position => 1)
+  end
+
   def download_medium_url(medium)
     Rails.cache.fetch("download_url_#{self.project.name}##{self.name}##medium##{medium}") do
       path  = "/published/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}"
@@ -137,10 +200,16 @@ class Repository < ActiveRecord::Base
 
   def download_url_for_package(package, architecture, filename)
     Rails.cache.fetch("download_url_for_package_#{self.project.name}##{self.name}##{package.name}##{architecture}##{filename}") do
+      # rubocop:disable Metrics/LineLength
       path  = "/build/#{URI.escape(self.project.name)}/#{URI.escape(self.name)}/#{URI.escape(architecture)}/#{URI.escape(package.name)}/#{URI.escape(filename)}"
+      # rubocop:enable Metrics/LineLength
       path += "?view=publishedpath"
       xml = Xmlhash.parse(Suse::Backend.get(path).body)
       xml.elements('url').last.to_s
     end
+  end
+
+  def is_dod_repository?
+    self.download_repositories.any?
   end
 end

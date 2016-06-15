@@ -10,12 +10,19 @@ record_1:
   position: 1
   flag: useforbuild
   package: BaseDistro_pack1
-record_2:
+build_enable_for_Iggy_TestPack_i586:
   status: enable
   repo: '10.2'
   position: 1
   flag: build
   architecture: i586
+  package: home_Iggy_TestPack
+build_enable_for_Iggy_TestPack_x86_64:
+  status: enable
+  repo: '10.2'
+  position: 1
+  flag: build
+  architecture: x86_64
   package: home_Iggy_TestPack
 record_3:
   status: disable
@@ -42,6 +49,16 @@ record_7:
   position: 1
   flag: publish
   project: BinaryprotectedProject
+BaseDistro2.0_build:
+  status: disable
+  position: 2
+  flag: build
+  project: BaseDistro2.0
+BaseDistro2.0_publish:
+  status: disable
+  position: 2
+  flag: publish
+  project: BaseDistro2.0
 record_8:
   status: disable
   position: 2
@@ -116,3 +133,13 @@ record_19:
   flag: publish
   architecture: x86_64
   project: home_Iggy
+record_20:
+  status: enable
+  position: 1
+  flag: lock
+  project: home_user6
+record_broken_publishing_build_disabled:
+  status: disable
+  position: 1
+  flag: build
+  project: BrokenPublishing

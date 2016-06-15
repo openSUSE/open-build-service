@@ -1,6 +1,3 @@
-var a=new Date;
-if(18==a.getDate()&&0==a.getMonth()&&2012==a.getFullYear())window.location="http://sopastrike.com/strike";
-
 $(document).ready(function() {
   
   // == Login Form UI Actions ================================================
@@ -37,7 +34,7 @@ $(document).ready(function() {
   $('#login-form input.inline-text').each(function() { // hide overlaying <label> elements if there input-elements are NOT empty.
     if ($(this).val()) { // check if value is set
       $(this).prev('label').addClass('focus').hide();
-    };
+    }
   });
   
   $('#login-form input').focus(function() { // hide label if input-field get focus
@@ -45,9 +42,9 @@ $(document).ready(function() {
   });
 
   $('#login-form input').blur(function() { // show label if imput-field is empty and hase no focus
-    if ($(this).val() == false) { // check if value is empty
+    if ($(this).val() === false) { // check if value is empty
       $('#login-form .focus').removeClass('focus').show();
-    };
+    }
   });
   
   $('#close-login').click(function() { // close login-form onClick
@@ -58,7 +55,7 @@ $(document).ready(function() {
 	// TODO: this can be replaced with a .mouseleave() event
   $(document).click(function(event) { // events to perform on mouse-click somewhere on document
 
-    if (formStatus == true) { // check if form is open
+    if (formStatus === true) { // check if form is open
 
       // save mouse-click position
       xClick = event.pageX;
@@ -77,7 +74,7 @@ $(document).ready(function() {
       var y0 = 0;
       
       // work around for unmotivated clicks in webkit
-      if (xClick == 0 && yClick == 0) { return; }
+      if (xClick === 0 && yClick === 0) { return; }
 
       // Check if Click was inside or outside of form
       if (xClick < x1 || xClick > x2) {
@@ -88,10 +85,10 @@ $(document).ready(function() {
       }
       
       // If 1 (true) clode form
-      if (x0 == 1 || y0 == 1) {
+      if (x0 === 1 || y0 === 1) {
         formStatus = closeLoginForm();
       }
-    };
+    }
     
   });
 
@@ -126,14 +123,16 @@ $(document).ready(function() {
   $('.dropdown-menu-content').hide(); // hide dropdown-menu
   
   $('.dropdown-menu').click(function() {
+    var objectID, date;
+
     if ($(".dropdown-menu-content").is(":hidden")) {
       if (this.id) { // if ID is set use this ID
-        var objectID = this.id;
+        objectID = this.id;
         // console.log('true');
         // console.log(objectID);
       } else { // if no ID is set create one
-        var date = new Date();
-        var objectID = $(this).attr('class') + '-' + date.getTime(); // make unique id
+        date = new Date();
+        objectID = $(this).attr('class') + '-' + date.getTime(); // make unique id
         $(this).attr('id', objectID);
       }
       dropDownMenu(objectID);
@@ -162,7 +161,7 @@ $(document).ready(function() {
     if (!dropDownMenuID) {
       dropDownMenuID = trigger_id + '-content';
       $("#"+trigger_id).next('ul').attr('id', dropDownMenuID);
-    };
+    }
     
     $("#"+dropDownMenuID).insertAfter('#footer');
     $("#"+dropDownMenuID).css({
@@ -194,12 +193,12 @@ $(document).ready(function() {
   // Show overlaying <label>, if <input> is emty, else do nothing
   function showLabel (e) {
     var eVal = $('#' + e).val(); // get <input> value
-    if (eVal == false) { // check if value is empty and show <label> again
+    if (eVal === false) { // check if value is empty and show <label> again
       $('label[for="' + e + '"]').removeClass('focus').show();
       return true;
     } else {
       return false;
-    };
+    }
   }
   
   // Close login-form

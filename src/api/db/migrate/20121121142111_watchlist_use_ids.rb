@@ -8,7 +8,7 @@ class WatchlistUseIds < ActiveRecord::Migration
         wp.project_id = prj.id
         wp.save
       else
-        wp.delete 
+        wp.delete
       end
     end
     remove_column :watched_projects, :name

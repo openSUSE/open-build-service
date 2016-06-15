@@ -16,7 +16,7 @@
       <%= image_tag('ajax-loader.gif', :id => "spinner", :class => "hidden") %>
     <% end %><br/>
     <%= text_area_tag( "description", @package.description, :cols => "80", :rows => "20" ) %><br/>
-    <%= hidden_field_tag( "project", @project.api_obj.name ) %>
+    <%= hidden_field_tag( "project", @project.name ) %>
     <%= hidden_field_tag( "package", @package.name ) %>
   </p>
   <p><%= submit_tag %></p>

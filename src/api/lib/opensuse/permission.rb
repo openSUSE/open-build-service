@@ -1,14 +1,12 @@
-#require "project"
-#require "package"
+# require "project"
+# require "package"
 
 #
 # This is basically only a helper class around permission checking for user model
 #
 
 module Suse
-
   class Permission
-
     def to_s
       return "OpenSUSE Permissions for user #{@user.login}"
     end
@@ -23,20 +21,19 @@ module Suse
       # is the owner of the project
       logger.debug "User #{@user.login} wants to change the project"
 
-      return true if @user.has_global_permission?( "global_project_change" )
-
       if project.kind_of? Project
         prj = project
       elsif project.kind_of? String
         prj = Project.find_by_name( project )
+        # avoid remote projects
+        return false unless prj.kind_of? Project
       end
 
-      if prj.nil?
-        raise ArgumentError, "unable to find project object for #{project}"
-      end
+      raise ArgumentError, "unable to find project object for #{project}" if prj.nil?
 
-      return true if @user.can_modify_project?( prj )
-      return false
+      return true if @user.has_global_permission?( "global_project_change" )
+
+      @user.can_modify_project?( prj )
     end
 
     # args can either be an instance of the respective class (Package, Project),
@@ -45,7 +42,7 @@ module Suse
     # the second arg can be omitted if the first one is a Package object. second
     # arg is needed if first arg is a string
 
-    def package_change?( package, project=nil )
+    def package_change?( package, project = nil )
       logger.debug "User #{@user.login} wants to change the package"
 
       # Get DbPackage object
@@ -70,8 +67,7 @@ module Suse
       return false
     end
 
-    def method_missing( perm, *args, &block)
-
+    def method_missing( perm, *_args, &_block)
       logger.debug "Dynamic Permission requested: <#{perm}>"
 
       if @user

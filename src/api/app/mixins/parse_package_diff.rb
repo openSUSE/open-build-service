@@ -1,5 +1,4 @@
 module ParsePackageDiff
-
   def issues_hash(sourcediff)
     ret = {}
     sourcediff.get('issues').elements('issue') do |issue|
@@ -12,7 +11,6 @@ module ParsePackageDiff
   end
 
   def parse_one_diff(sourcediff)
-
     # Sort files into categories by their ending and add all of them to a hash. We
     # will later use the sorted and concatenated categories as key index into the per action file hash.
     changes_file_keys, spec_file_keys, patch_file_keys, other_file_keys = [], [], [], []
@@ -41,11 +39,11 @@ module ParsePackageDiff
     end
 
     {
-      'old' => sourcediff['old'],
-      'new' => sourcediff['new'],
+      'old'       => sourcediff['old'],
+      'new'       => sourcediff['new'],
       'filenames' => changes_file_keys.sort + spec_file_keys.sort + patch_file_keys.sort + other_file_keys.sort,
-      'files' => files_hash,
-      'issues' => issues_hash(sourcediff)
+      'files'     => files_hash,
+      'issues'    => issues_hash(sourcediff)
     }
   end
 
@@ -60,5 +58,4 @@ module ParsePackageDiff
     end
     return parsed_sourcediff
   end
-
 end

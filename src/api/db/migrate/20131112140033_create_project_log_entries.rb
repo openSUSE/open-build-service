@@ -2,12 +2,12 @@ class CreateProjectLogEntries < ActiveRecord::Migration
   def up
     create_table :project_log_entries do |t|
       t.references :project
-      t.string     :user_name
-      t.string     :package_name
+      t.string :user_name
+      t.string :package_name
       t.references :bs_request
-      t.datetime   :datetime
-      t.string     :event_type
-      t.text       :additional_info
+      t.datetime :datetime
+      t.string :event_type
+      t.text :additional_info
     end
 
     # Only project_id is a real foreign key

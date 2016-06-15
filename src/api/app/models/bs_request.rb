@@ -5,19 +5,45 @@ require 'opensuse/backend'
 include MaintenanceHelper
 
 class BsRequest < ActiveRecord::Base
-
   class InvalidStateError < APIException
     setup 'request_not_modifiable', 404
   end
   class InvalidReview < APIException
     setup 'invalid_review', 400, 'request review item is not specified via by_user, by_group or by_project'
   end
+  class InvalidDate < APIException
+    setup 'invalid_date', 400
+  end
+  class UnderEmbargo < APIException
+    setup 'under_embargo', 400
+  end
   class SaveError < APIException
     setup 'request_save_error'
   end
 
-  scope :to_accept, -> { where(state: 'new').where('accept_at < ?', DateTime.now) }
+  SEARCHABLE_FIELDS = [
+    'bs_requests.creator',
+    'bs_requests.priority',
+    'bs_request_actions.target_project',
+    'bs_request_actions.source_project',
+    'bs_request_actions.type'
+  ]
 
+  scope :to_accept, -> { where(state: 'new').where('accept_at < ?', DateTime.now) }
+  # Scopes for collections
+  scope :with_actions, -> { joins(:bs_request_actions).distinct.order(priority: :asc, id: :desc) }
+  scope :in_states, ->(states) { where(state: states) }
+  scope :with_types, ->(types) { where('bs_request_actions.type in (?)', types).references(:bs_request_actions) }
+  scope :from_source_project, ->(source_project) { where('bs_request_actions.source_project = ?', source_project).references(:bs_request_actions) }
+  scope :in_ids, ->(ids) { where(id: ids) }
+  # Searching capabilities using dataTable (1.9)
+  scope :do_search, lambda {|search|
+    where([SEARCHABLE_FIELDS.map { |field| "#{field} like ?" }.join(' or '),
+           ["%#{search}%"] * SEARCHABLE_FIELDS.length].flatten)
+  }
+
+  before_create :assign_number
+  before_save :assign_number
   has_many :bs_request_actions, -> { includes([:bs_request_action_accept_info]) }, dependent: :destroy
   has_many :reviews, :dependent => :delete_all
   has_and_belongs_to_many :bs_request_action_groups, join_table: :group_request_requests
@@ -25,6 +51,7 @@ class BsRequest < ActiveRecord::Base
   validates_inclusion_of :state, :in => VALID_REQUEST_STATES
   validates :creator, :presence => true
   validate :check_supersede_state
+  validate :check_creator, :on => [ :create, :save! ]
   validates_length_of :comment, :maximum => 300000
   validates_length_of :description, :maximum => 300000
 
@@ -35,6 +62,17 @@ class BsRequest < ActiveRecord::Base
     sanitize! if new and not @skip_sanitize
     super
     notify if new
+  end
+
+  def self.find_by_number!(number)
+    # overload for propper error reporting
+    r = BsRequest.find_by_number(number)
+    unless r
+      # the external visible request id is stored in number row.
+      # the database id must not be exposed to the outside
+      raise NotFoundError.new("Couldn't find request with id '#{number}'")
+    end
+    r
   end
 
   def set_add_revision
@@ -49,6 +87,38 @@ class BsRequest < ActiveRecord::Base
     @skip_sanitize = true
   end
 
+  def check_creator
+    unless self.creator
+      errors.add(:creator, 'No creator defined')
+    end
+    user = User.get_by_login self.creator
+    unless user
+      errors.add(:creator, "Invalid creator specified #{self.creator}")
+    end
+    unless user.is_active?
+      errors.add(:creator, "Login #{user.login} is not an active user")
+    end
+  end
+
+  def assign_number
+     return if self.number
+     # to assign a unique and steady incremental number. Using MySQL auto-increment
+     # mechanism is not working on clusters.
+     sql = BsRequest.connection
+     r = sql.execute("SELECT counter FROM bs_request_counter FOR UPDATE").first
+     if r.nil?
+       # no counter exists, initialize it base on current highest entry
+       last_number = BsRequest.order(:id).last.try(:id)
+       last_number ||= 1
+       sql.execute("INSERT INTO bs_request_counter(counter) VALUES('#{last_number}')")
+       r = sql.execute("SELECT counter FROM bs_request_counter FOR UPDATE").first
+     end
+
+     # do an atomic increase of counter
+     sql.execute("UPDATE bs_request_counter SET counter = counter+1")
+     self.number = r[0]
+  end
+
   def check_supersede_state
     if self.state == :superseded and ( not self.superseded_by.is_a?(Numeric) or not self.superseded_by > 0 )
       errors.add(:superseded_by, 'Superseded_by should be set')
@@ -59,7 +129,7 @@ class BsRequest < ActiveRecord::Base
   end
 
   def superseding
-    BsRequest.where(superseded_by: id)
+    BsRequest.where(superseded_by: self.number)
   end
 
   def state
@@ -70,35 +140,10 @@ class BsRequest < ActiveRecord::Base
   after_save :reset_cache
 
   def reset_cache
-    Rails.cache.delete('xml_bs_request_%d' % id)
-  end
-
-  def self.open_requests_for_source(obj)
-   if obj.kind_of? Project
-     return BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
-               where(bs_request_actions: {source_project: obj.name})
-   elsif obj.kind_of? Package
-     return BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
-               where(bs_request_actions: {source_project: obj.project.name, source_package: obj.name})
-   else
-     raise "Invalid object #{obj.class}"
-   end
-  end
-
-  def self.open_requests_for_target(obj)
-   if obj.kind_of? Project
-     return BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
-               where(bs_request_actions: {target_project: obj.name})
-   elsif obj.kind_of? Package
-     return BsRequest.order(:id).where(state: [:new, :review, :declined]).joins(:bs_request_actions).
-               where(bs_request_actions: {target_project: obj.project.name, target_package: obj.name})
-   else
-     raise "Invalid object #{obj.class}"
-   end
-  end
-
-  def self.open_requests_for(obj)
-    self.open_requests_for_target(obj) + self.open_requests_for_source(obj)
+    return unless id
+    Rails.cache.delete("xml_bs_request_fullhistory_#{id}")
+    Rails.cache.delete("xml_bs_request_history_#{id}")
+    Rails.cache.delete("xml_bs_request_#{id}")
   end
 
   def self.new_from_xml(xml)
@@ -123,9 +168,8 @@ class BsRequest < ActiveRecord::Base
     request = nil
 
     BsRequest.transaction do
-
       request = BsRequest.new
-      request.id = theid if theid
+      request.number = theid if theid
 
       actions = hashed.delete('action')
       if actions.kind_of? Hash
@@ -191,17 +235,17 @@ class BsRequest < ActiveRecord::Base
     request
   end
 
-  def to_axml(opts={})
+  def to_axml(opts = {})
     if opts[:withfullhistory]
-      Rails.cache.fetch('xml_bs_request_fullhistory_%d' % id) do
+      Rails.cache.fetch("xml_bs_request_fullhistory_#{id}") do
         render_xml({withfullhistory: 1})
       end
     elsif opts[:withhistory]
-      Rails.cache.fetch('xml_bs_request_history_%d' % id) do
+      Rails.cache.fetch("xml_bs_request_history_#{id}") do
         render_xml({withhistory: 1})
       end
     else
-      Rails.cache.fetch('xml_bs_request_%d' % id) do
+      Rails.cache.fetch("xml_bs_request_#{id}") do
         render_xml
       end
     end
@@ -209,12 +253,12 @@ class BsRequest < ActiveRecord::Base
 
   def to_axml_id
     # FIXME: naming it axml is nonsense if it's just a string
-    "<request id='#{self.id}'/>\n"
+    "<request id='#{self.number}'/>\n"
   end
 
-  def render_xml(opts={})
+  def render_xml(opts = {})
     builder = Nokogiri::XML::Builder.new
-    builder.request(id: self.id) do |r|
+    builder.request(id: self.number) do |r|
       self.bs_request_actions.each do |action|
         action.render_xml(r)
       end
@@ -282,18 +326,28 @@ class BsRequest < ActiveRecord::Base
     false
   end
 
-  def remove_reviews(opts)
+  def obsolete_reviews(opts)
     return false unless opts[:by_user] or opts[:by_group] or opts[:by_project] or opts[:by_package]
-    each_review do |review|
+    reviews.each do |review|
       if review.by_user and review.by_user == opts[:by_user] or
           review.by_group and review.by_group == opts[:by_group] or
           review.by_project and review.by_project == opts[:by_project] or
           review.by_package and review.by_package == opts[:by_package]
-        logger.debug "Removing review #{review.dump_xml}"
-        self.delete_element(review)
+        logger.debug "Obsoleting review #{review.id}"
+        review.state = :obsoleted
+        review.save
+        history = HistoryElement::ReviewObsoleted
+        history.create(review: review, comment: "reviewer got removed", user_id: User.current.id)
+
+        # Maybe this will turn the request into an approved state?
+        if self.state == :review and self.reviews.where(state: "new").none?
+          self.state = :new
+          self.save
+          history = HistoryElement::RequestAllReviewsApproved
+          history.create(request: self, comment: opts[:comment], user_id: User.current.id)
+        end
       end
     end
-    self.save
   end
 
   def remove_from_group(group)
@@ -307,11 +361,11 @@ class BsRequest < ActiveRecord::Base
         # if the review is open, there is nothing we have to care about
         return if r.state == :new
       end
-      self.comment = "removed from group #{group.bs_request.id}"
+      self.comment = "removed from group #{group.bs_request.number}"
       self.state = :new
       self.save
 
-      p={request: self, comment: "Reopened by removing from group #{group.bs_request.id}", user_id: User.current.id}
+      p={request: self, comment: "Reopened by removing from group #{group.bs_request.number}", user_id: User.current.id}
       HistoryElement::RequestReopened.create(p)
     end
   end
@@ -347,23 +401,54 @@ class BsRequest < ActiveRecord::Base
   def permission_check_change_state!(opts)
     checker = BsRequestPermissionCheck.new(self, opts)
     checker.cmd_changestate_permissions(opts)
+
+    # check target write permissions
+    if opts[:newstate] == 'accepted'
+      self.bs_request_actions.each do |action|
+        action.check_action_permission!(true)
+        action.check_for_expand_errors! !@addrevision.nil?
+        self.raisepriority(action.minimum_priority)
+      end
+    end
   end
 
   def changestate_accepted(opts)
     # all maintenance_incident actions go into the same incident project
     incident_project = nil  # .where(type: 'maintenance_incident')
     self.bs_request_actions.each do |action|
+      source_project = Project.find_by_name(action.source_project)
+      if action.source_project && action.is_maintenance_release?
+        if source_project.kind_of?(Project)
+          at = AttribType.find_by_namespace_and_name!('OBS', 'EmbargoDate')
+          attrib = source_project.attribs.where(attrib_type_id: at.id).first
+          v = attrib.values.first if attrib
+          if defined?(v) && v
+            begin
+              embargo = DateTime.parse(v.value)
+              if v.value =~ /^\d{4}-\d\d?-\d\d?$/
+                # no time specified, allow it next day
+                embargo = embargo.tomorrow
+              end
+            rescue ArgumentError
+              raise InvalidDate, "Unable to parse the date in OBS:EmbargoDate of project #{source_project.name}: #{v}"
+            end
+            if embargo > DateTime.now
+              raise UnderEmbargo, "The project #{source_project.name} is under embargo until #{v}"
+            end
+          end
+        end
+      end
+
       next unless action.is_maintenance_incident?
 
-      tprj = Project.get_by_name action.target_project
-
+      target_project = Project.get_by_name action.target_project
       # create a new incident if needed
-      if tprj.is_maintenance?
+      if target_project.is_maintenance?
         # create incident if it is a maintenance project
-        incident_project ||= create_new_maintenance_incident(tprj, nil, self).project
+        incident_project ||= MaintenanceIncident.build_maintenance_incident(target_project, source_project.nil?, self).project
         opts[:check_for_patchinfo] = true
 
-        unless incident_project.name.start_with?(tprj.name)
+        unless incident_project.name.start_with?(target_project.name)
           raise MultipleMaintenanceIncidents.new 'This request handles different maintenance incidents, this is not allowed !'
         end
         action.target_project = incident_project.name
@@ -386,24 +471,23 @@ class BsRequest < ActiveRecord::Base
     self.bs_request_actions.where(type: 'maintenance_release').each do |action|
       # unlock incident project in the soft way
       prj = Project.get_by_name(action.source_project)
-      prj.unlock_by_request(self.id)
+      prj.unlock_by_request(self)
     end
   end
 
   def change_state(opts)
-    self.permission_check_change_state!(opts)
-
-    changestate_revoked if opts[:newstate] == 'revoked'
-    changestate_accepted(opts) if opts[:newstate] == 'accepted'
-
-    state = opts[:newstate].to_sym
     self.with_lock do
+      self.permission_check_change_state!(opts)
+      changestate_revoked if opts[:newstate] == 'revoked'
+      changestate_accepted(opts) if opts[:newstate] == 'accepted'
+
+      state = opts[:newstate].to_sym
       bs_request_actions.each do |a|
         # "inform" the actions
-        a.request_changes_state(state, opts)
+        a.request_changes_state(state)
       end
       self.bs_request_action_groups.each do |g|
-        g.remove_request(self.id)
+        g.remove_request(self.number)
         if opts[:superseded_by] && state == :superseded
           g.addrequest('newid' => opts[:superseded_by])
         end
@@ -425,46 +509,109 @@ class BsRequest < ActiveRecord::Base
         end
       end
       self.save!
-    end
 
-    params={request: self, comment: opts[:comment], user_id: User.current.id}
-    case opts[:newstate]
-      when "accepted" then
-        history = HistoryElement::RequestAccepted
-      when "declined" then
-        history = HistoryElement::RequestDeclined
-      when "revoked" then
-        history = HistoryElement::RequestRevoked
-      when "superseded" then
-        history = HistoryElement::RequestSuperseded
-        params[:description_extension] = self.superseded_by.to_s
-      when "review" then
-        history = HistoryElement::RequestReopened
-      when "new" then
-        history = HistoryElement::RequestReopened
-      else
-        raise RuntimeError, "Unhandled state #{opts[:newstate]} for history"
+      params={request: self, comment: opts[:comment], user_id: User.current.id}
+      case opts[:newstate]
+        when "accepted" then
+          history = HistoryElement::RequestAccepted
+        when "declined" then
+          history = HistoryElement::RequestDeclined
+        when "revoked" then
+          history = HistoryElement::RequestRevoked
+        when "superseded" then
+          history = HistoryElement::RequestSuperseded
+          params[:description_extension] = self.superseded_by.to_s
+        when "review" then
+          history = HistoryElement::RequestReopened
+        when "new" then
+          history = HistoryElement::RequestReopened
+        else
+          raise RuntimeError, "Unhandled state #{opts[:newstate]} for history"
+      end
+      history.create(params)
     end
-    history.create(params)
   end
 
-  def change_review_state(state, opts = {})
-    self.with_lock do
-      state = state.to_sym
+  def _assignreview_update_reviews(reviewer, opts)
+    review_comment = nil
+    self.reviews.reverse_each do |review|
+      next if review.by_user
+      next if review.by_group && review.by_group != opts[:by_group]
+      next if review.by_project && review.by_project != opts[:by_project]
+      next if review.by_package && review.by_package != opts[:by_package]
 
-      unless self.state == :review || (self.state == :new && state == :new)
+      # approve for this review
+      if opts[:revert]
+        review.state = :new
+        review_comment = "revert the "
+        history_class = HistoryElement::ReviewReopened
+      else
+        review.state = :accepted
+        review_comment = ""
+        history_class = HistoryElement::ReviewAccepted
+      end
+      review.save!
+
+      review_comment += "review for group #{opts[:by_group]}" if opts[:by_group]
+      review_comment += "review for project #{opts[:by_project]}" if opts[:by_project]
+      review_comment += "review for package #{opts[:by_project]} / #{opts[:by_package]}" if opts[:by_package]
+      history_class.create(review: review, comment: "review assigend to user #{reviewer.login}", user_id: User.current.id)
+    end
+    raise Review::NotFoundError.new unless review_comment
+    review_comment
+  end
+  private :_assignreview_update_reviews
+
+  def assignreview(opts = {})
+    unless self.state == :review || (self.state == :new && state == :new)
+      raise InvalidStateError.new 'request is not in review state'
+    end
+    reviewer = User.find_by_login!(opts[:reviewer])
+
+    Review.transaction do
+      review_comment = _assignreview_update_reviews(reviewer, opts)
+
+      # check if user is a reviewer already
+      user_review = self.reviews.where(by_user: reviewer.login).last
+      if opts[:revert]
+        raise Review::NotFoundError.new unless user_review
+        raise InvalidStateError.new "review is not in new state" unless user_review.state == :new
+        raise Review::NotFoundError.new "Not an assigned review" unless HistoryElement::ReviewAssigned.where(op_object_id: user_review.id).last
+        user_review.destroy
+      else
+        if user_review
+          user_review.state = :new
+          user_review.save!
+          HistoryElement::ReviewReopened.create(review: user_review, comment: review_comment, user: User.current)
+        else
+          user_review = self.reviews.create(by_user: reviewer.login, creator: User.current.login)
+          user_review.state = :new
+          user_review.save!
+          HistoryElement::ReviewAssigned.create(review: user_review, comment: review_comment, user: User.current)
+        end
+      end
+      self.save!
+    end
+  end
+
+  def change_review_state(new_review_state, opts = {})
+    self.with_lock do
+      new_review_state = new_review_state.to_sym
+
+      unless self.state == :review || (self.state == :new && new_review_state == :new)
         raise InvalidStateError.new 'request is not in review state'
       end
       check_if_valid_review!(opts)
-      unless [:new, :accepted, :declined, :superseded].include? state
-        raise InvalidStateError.new "review state must be new, accepted, declined or superseded, was #{state}"
+      unless [:new, :accepted, :declined, :superseded].include? new_review_state
+        raise InvalidStateError.new "review state must be new, accepted, declined or superseded, was #{new_review_state}"
       end
+      # to track if the request state needs to be changed as well
       go_new_state = :review
-      go_new_state = state if [:declined, :superseded].include? state
+      go_new_state = new_review_state if [:declined, :superseded].include? new_review_state
       found = false
 
       reviews_seen = Hash.new
-      self.reviews.reverse.each do |review|
+      self.reviews.reverse_each do |review|
         matching = true
         matching = false if review.by_user && review.by_user != opts[:by_user]
         matching = false if review.by_group && review.by_group != opts[:by_group]
@@ -479,35 +626,36 @@ class BsRequest < ActiveRecord::Base
           reviews_seen[rkey] = 1
           found = true
           comment = opts[:comment] || ''
-          if review.state != state || review.reviewer != User.current.login || review.reason != comment
+          if review.state != new_review_state || review.reviewer != User.current.login || review.reason != comment
             review.reason = comment
-            review.state = state
+            review.state = new_review_state
             review.reviewer = User.current.login
             review.save!
 
             history = nil
-            history = HistoryElement::ReviewAccepted if state == :accepted
-            history = HistoryElement::ReviewDeclined if state == :declined
-            history = HistoryElement::ReviewReopened if state == :new
+            history = HistoryElement::ReviewAccepted if new_review_state == :accepted
+            history = HistoryElement::ReviewDeclined if new_review_state == :declined
+            history = HistoryElement::ReviewReopened if new_review_state == :new
             history.create(review: review, comment: opts[:comment], user_id: User.current.id) if history
 
+            # last review finished:
             go_new_state = :new if go_new_state == :review && review.state == :accepted
-            go_new_state = review.state if go_new_state == :review && review.state != :new # take decline
+            # take decline in any situation:
+            go_new_state = review.state if go_new_state == :review && review.state != :new
           else
             # no new history entry
             go_new_state = nil
           end
         else
-          # don't touch the request state if a review is still open, except the
-          # review got declined or superseded or reopened.
+          # don't touch the request state if a review is still open, except the review
+          # got declined or superseded or reopened.
           go_new_state = nil if review.state == :new && go_new_state != :declined && go_new_state != :superseded
         end
       end
-
       raise Review::NotFoundError.new unless found
       history=nil
       p={request: self, comment: opts[:comment], user_id: User.current.id}
-      if state == :superseded
+      if new_review_state == :superseded
         self.state = :superseded
         self.superseded_by = opts[:superseded_by]
         history = HistoryElement::RequestSuperseded
@@ -547,6 +695,11 @@ class BsRequest < ActiveRecord::Base
       end
       self.save!
       history.create(p) if history
+
+      # we want to check right now if pre-approved requests can be processed
+      if go_new_state == :new and self.accept_at
+        Delayed::Job.enqueue AcceptRequestsJob.new
+      end
     end
   end
 
@@ -570,7 +723,6 @@ class BsRequest < ActiveRecord::Base
                                       by_group: opts[:by_group], by_project: opts[:by_project],
                                       by_package: opts[:by_package], creator: User.current.login
       self.save!
-
       p={request: self, user_id: User.current.id, description_extension: newreview.id.to_s}
       p[:comment] = opts[:comment] if opts[:comment]
       HistoryElement::RequestReviewAdded.create(p)
@@ -580,6 +732,10 @@ class BsRequest < ActiveRecord::Base
 
   def setpriority(opts)
     self.permission_check_setpriority!
+
+    unless [ 'low', 'moderate', 'important', 'critical' ].include? opts[:priority]
+      raise SaveError, "Illegal priority '#{opts[:priority]}'"
+    end
 
     p={request: self, user_id: User.current.id, description_extension: "#{self.priority} => #{opts[:priority]}"}
     p[:comment] = opts[:comment] if opts[:comment]
@@ -627,7 +783,6 @@ class BsRequest < ActiveRecord::Base
     end
   end
 
-
   IntermediateStates = %w(new review)
 
   def send_state_change
@@ -637,19 +792,21 @@ class BsRequest < ActiveRecord::Base
     Event::RequestStatechange.create(self.notify_parameters)
   end
 
+  ActionNotifyLimit=50
+
   def notify_parameters(ret = {})
-    ret[:id] = self.id
+    ret[:number] = self.number
     ret[:description] = self.description
     ret[:state] = self.state
     ret[:oldstate] = self.state_was if self.state_changed?
-    ret[:who] = User.current.login
+    ret[:who] = self.commenter if self.commenter.present?
     ret[:when] = self.updated_at.strftime('%Y-%m-%dT%H:%M:%S')
     ret[:comment] = self.comment
     ret[:author] = self.creator
 
     # Use a nested data structure to support multiple actions in one request
     ret[:actions] = []
-    self.bs_request_actions.each do |a|
+    self.bs_request_actions[0..ActionNotifyLimit].each do |a|
       ret[:actions] << a.notify_params
     end
     ret
@@ -657,7 +814,7 @@ class BsRequest < ActiveRecord::Base
 
   def self.actions_summary(payload)
     ret = []
-    payload.with_indifferent_access['actions'].each do |a|
+    payload.with_indifferent_access['actions'][0..ActionNotifyLimit].each do |a|
       str = "#{a['type']} #{a['targetproject']}"
       str += "/#{a['targetpackage']}" if a['targetpackage']
       str += "/#{a['targetrepository']}" if a['targetrepository']
@@ -705,6 +862,7 @@ class BsRequest < ActiveRecord::Base
     opts.reverse_merge!(diffs: true)
     result = Hash.new
     result['id'] = self.id
+    result['number'] = self.number
 
     result['description'] = self.description
     result['priority'] = self.priority
@@ -734,7 +892,7 @@ class BsRequest < ActiveRecord::Base
         change_state({:newstate => 'accepted', :comment => 'Auto accept'})
       rescue BsRequestPermissionCheck::NotExistingTarget
         change_state({:newstate => 'revoked', :comment => 'Target disappeared'})
-      rescue BsRequestPermissionCheck::PostRequestNoPermission
+      rescue PostRequestNoPermission
         change_state({:newstate => 'revoked', :comment => 'Permission problem'})
       rescue APIException
         change_state({:newstate => 'declined', :comment => 'Unhandled error during accept'})
@@ -774,6 +932,7 @@ class BsRequest < ActiveRecord::Base
     # apply default values, expand and do permission checks
     self.creator ||= User.current.login
     self.commenter ||= User.current.login
+    # FIXME: Move permission checks to controller level
     unless self.creator == User.current.login or User.current.is_admin?
       raise SaveError, 'Admin permissions required to set request creator to foreign user'
     end
@@ -802,6 +961,15 @@ class BsRequest < ActiveRecord::Base
     apply_default_reviewers
   end
 
+  def set_accept_at!(time = nil)
+    # Approve a request to be accepted when the reviews finished
+    self.permission_check_change_state!({:newstate => 'accepted'})
+
+    self.accept_at = time || Time.now
+    self.save!
+    reset_cache
+  end
+
   def apply_default_reviewers
     #
     # Find out about defined reviewers in target
@@ -813,7 +981,7 @@ class BsRequest < ActiveRecord::Base
       reviewers += action.default_reviewers
 
       action.create_post_permissions_hook({
-         per_package_locking: @per_package_locking,
+         per_package_locking: @per_package_locking
       })
     end
 
@@ -848,7 +1016,7 @@ class BsRequest < ActiveRecord::Base
   end
 
   def webui_actions(with_diff = true)
-    #TODO: Fix!
+    # TODO: Fix!
     actions = []
     self.bs_request_actions.each do |xml|
       action = {type: xml.action_type}
@@ -932,7 +1100,6 @@ class BsRequest < ActiveRecord::Base
   end
 
   def expand_targets
-
     newactions = []
     oldactions = []
 
@@ -944,9 +1111,184 @@ class BsRequest < ActiveRecord::Base
       oldactions << action
       newactions.concat(na)
     end
+    # will become an empty request
+    raise MissingAction.new if newactions.empty? and oldactions.size == self.bs_request_actions.size
 
     oldactions.each { |a| self.bs_request_actions.destroy a }
     newactions.each { |a| self.bs_request_actions << a }
   end
 
+  def self.collection(opts)
+    roles = opts[:roles] || []
+    states = opts[:states] || []
+    types = opts[:types] || []
+    review_states = opts[:review_states] || ['new']
+    # Setup the collection based on params
+    requests = with_actions
+    requests = requests.in_states(states) unless states.blank?
+    requests = requests.with_types(types) unless types.blank?
+    unless opts[:source_project].blank?
+      requests = requests.from_source_project(opts[:source_project])
+    end
+    unless opts[:project].blank?
+      requests = extend_query_for_project(requests, roles, states, review_states, opts[:package], opts[:subprojects], opts[:project])
+    end
+    if opts[:user]
+      requests = extend_query_for_user(opts[:user], requests, roles, review_states)
+    end
+    if opts[:group]
+      requests = extend_query_for_group(opts[:group], requests, roles, review_states)
+    end
+    requests = requests.in_ids(opts[:ids]) if opts[:ids]
+    requests = requests.do_search(opts[:search]) if opts[:search]
+    requests
+  end
+
+  def self.list_ids(opts)
+    # All types means don't pass 'type'
+    if opts[:types] == 'all' || (opts[:types].respond_to?(:include?) && opts[:types].include?('all'))
+      opts.delete(:types)
+    end
+    # Do not allow a full collection to avoid server load
+    if opts[:project].blank? && opts[:user].blank? && opts[:package].blank?
+      raise RuntimeError, 'This call requires at least one filter, either by user, project or package'
+    end
+    roles = opts[:roles] || []
+    states = opts[:states] || []
+
+    # it's wiser to split the queries
+    if opts[:project] && roles.empty? && (states.empty? || states.include?('review'))
+      rel = collection(opts.merge(roles: %w(reviewer)))
+      ids = rel.ids
+      rel = collection(opts.merge(roles: %w(target source)))
+    else
+      rel = collection(opts)
+      ids = []
+    end
+    ids.concat(rel.ids)
+  end
+
+  def self.extend_query_for_group(group, requests, roles, review_states)
+    inner_or = []
+    group = Group.find_by_title!(group)
+
+    # find requests where group is maintainer in target project
+    requests, inner_or = extend_query_for_maintainer(group, requests, roles, inner_or)
+
+    if roles.empty? || roles.include?('reviewer')
+      requests = requests.includes(:reviews).references(:reviews)
+      # requests where the user is reviewer or own requests that are in review by someone else
+      or_in_and = %W(reviews.by_group=#{quote(group.title)})
+
+      requests, inner_or = extend_query_for_involved_reviews(group, or_in_and, requests, review_states, inner_or)
+    end
+    if inner_or.empty?
+      requests.none
+    else
+      requests.where(inner_or.join(' or '))
+    end
+  end
+
+  def self.extend_query_for_user(user, requests, roles, review_states)
+    inner_or = []
+    user = User.find_by_login!(user)
+
+    # user's own submitted requests
+    if roles.empty? || roles.include?('creator')
+      inner_or << "bs_requests.creator = #{quote(user.login)}"
+    end
+    # find requests where user is maintainer in target project
+    requests, inner_or = extend_query_for_maintainer(user, requests, roles, inner_or)
+    if roles.empty? || roles.include?('reviewer')
+      requests = requests.includes(:reviews).references(:reviews)
+
+      # requests where the user is reviewer or own requests that are in review by someone else
+      or_in_and = %W(reviews.by_user=#{quote(user.login)})
+
+      # include all groups of user
+      usergroups = user.groups.map { |group| "'#{group.title}'" }
+      or_in_and << "reviews.by_group in (#{usergroups.join(',')})" unless usergroups.blank?
+
+      requests, inner_or = extend_query_for_involved_reviews(user, or_in_and, requests, review_states, inner_or)
+    end
+    if inner_or.empty?
+      requests.none
+    else
+      requests.where(inner_or.join(' or '))
+    end
+  end
+
+  def self.extend_query_for_project(requests, roles, states, review_states, package, subprojects, project)
+    inner_or = []
+    requests, inner_or = extend_relation('source', requests, roles, package, subprojects, project, inner_or)
+    requests, inner_or = extend_relation('target', requests, roles, package, subprojects, project, inner_or)
+
+    if (roles.empty? || roles.include?('reviewer')) &&
+       (states.empty? || states.include?('review'))
+      requests = requests.references(:reviews)
+      review_states.each do |review_state|
+        requests = requests.includes(:reviews)
+        if package.blank?
+          inner_or << "(reviews.state=#{quote(review_state)} and reviews.by_project=#{quote(project)})"
+        else
+          inner_or << "(reviews.state=#{quote(review_state)} and reviews.by_project=#{quote(project)} and reviews.by_package=#{quote(package)})"
+        end
+      end
+    end
+    if inner_or.empty?
+      requests.none
+    else
+      requests.where(inner_or.join(' or '))
+    end
+  end
+
+  def self.extend_relation(source_or_target, requests, roles, package, subprojects, project, inner_or)
+    if roles.empty? || roles.include?(source_or_target)
+      requests = requests.references(:bs_request_actions)
+      if package.blank?
+        if subprojects.blank?
+          inner_or << "bs_request_actions.#{source_or_target}_project=#{quote(project)}"
+        else
+          inner_or << "(bs_request_actions.#{source_or_target}_project like #{quote(project + ':%')})"
+        end
+      else
+        inner_or << "(bs_request_actions.#{source_or_target}_project=#{quote(project)} and " +
+          "bs_request_actions.#{source_or_target}_package=#{quote(package)})"
+      end
+    end
+    [requests, inner_or]
+  end
+
+  def self.extend_query_for_maintainer(obj, requests, roles, inner_or)
+    if roles.empty? || roles.include?('maintainer')
+      names = obj.involved_projects.pluck('name').map { |p| quote(p) }
+      requests = requests.references(:bs_request_actions)
+      inner_or << "bs_request_actions.target_project in (#{names.join(',')})" unless names.empty?
+      ## find request where group is maintainer in target package, except we have to project already
+      obj.involved_packages.each do |ip|
+        inner_or << "(bs_request_actions.target_project='#{ip.project.name}' and bs_request_actions.target_package='#{ip.name}')"
+      end
+    end
+    [requests, inner_or]
+  end
+
+  def self.extend_query_for_involved_reviews(obj, or_in_and, requests, review_states, inner_or)
+    review_states.each do |review_state|
+      # find requests where obj is maintainer in target project
+      projects = obj.involved_projects.pluck('projects.name').map { |project| quote(project) }
+      or_in_and << "reviews.by_project in (#{projects.join(',')})" unless projects.blank?
+
+      ## find request where user is maintainer in target package, except we have to project already
+      obj.involved_packages.select('name,project_id').includes(:project).each do |ip|
+        or_in_and << "(reviews.by_project='#{ip.project.name}' and reviews.by_package='#{ip.name}')"
+      end
+
+      inner_or << "(reviews.state=#{quote(review_state)} and (#{or_in_and.join(' or ')}))"
+    end
+    [requests, inner_or]
+  end
+
+  def self.quote(str)
+    connection.quote(str)
+  end
 end

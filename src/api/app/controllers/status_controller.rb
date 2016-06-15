@@ -1,7 +1,6 @@
 require_dependency 'status_helper'
 
 class StatusController < ApplicationController
-
   class PermissionDeniedError < APIException
     setup 403
   end
@@ -67,16 +66,9 @@ class StatusController < ApplicationController
 
   def history
     required_parameters :hours, :key
-    samples = begin
-      Integer(params[:samples] || '100') rescue 0
-    end
-    @samples = [samples, 1].max
 
-    hours = begin
-      Integer(params[:hours] || '24') rescue 24
-    end
-    starttime = Time.now.to_i - hours.to_i * 3600
-    @values = StatusHistory.where("time >= ? AND \`key\` = ?", starttime, params[:key]).pluck(:time, :value).collect { |time, value| [time.to_i, value.to_f] }
+    @samples = [params[:samples].to_i, 1].max
+    @values = StatusHistory.history_by_key_and_hours(params[:key], params[:hours])
   end
 
   # move to models?
@@ -108,7 +100,7 @@ class StatusController < ApplicationController
       if user_id
         package_hash[package_id].add_person(user_from_cache(user_id),
                                             role_from_cache(role_id))
-     else
+      else
         package_hash[package_id].add_group(group_from_cache(group_id),
                                            role_from_cache(role_id))
       end
@@ -126,13 +118,9 @@ class StatusController < ApplicationController
     Suse::Backend.start_test_backend if Rails.env.test?
     @id = params[:id]
 
-    actions = BsRequestAction.where(bs_request_id: params[:id])
-    raise NotFoundError.new unless actions.count > 0
-
     @result = Hash.new
-    actions.each do |action|
-
-      #raise NotSubmitRequest.new 'Not submit' unless action.action_type == :submit
+    BsRequest.find_by_number!(params[:id]).bs_request_actions.each do |action|
+      # raise NotSubmitRequest.new 'Not submit' unless action.action_type == :submit
       sproj = Project.find_by_name!(action.source_project)
       tproj = Project.find_by_name!(action.target_project)
       spkg = sproj.packages.find_by_name!(action.source_package)
@@ -154,5 +142,4 @@ class StatusController < ApplicationController
 
   class NotSubmitRequest < APIException
   end
-
 end

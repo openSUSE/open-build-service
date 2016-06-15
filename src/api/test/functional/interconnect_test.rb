@@ -1,12 +1,12 @@
 require File.expand_path(File.dirname(__FILE__) + '/..') + '/test_helper'
 require 'source_controller'
 
-class InterConnectTests < ActionDispatch::IntegrationTest 
-
+class InterConnectTests < ActionDispatch::IntegrationTest
   fixtures :all
-   
+
   def setup
     wait_for_scheduler_start
+    reset_auth
   end
 
   def test_anonymous_access
@@ -115,21 +115,21 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/public/source/UseRemoteInstance/_meta'
     assert_response :success
-    get '/public/source/UseRemoteInstance/pack1'
+    get '/public/source/UseRemoteInstance/pack2.linked'
     assert_response :success
-    get '/public/source/UseRemoteInstance/pack1?expand'
+    get '/public/source/UseRemoteInstance/pack2.linked?expand'
     assert_response :success
-    get '/public/source/UseRemoteInstance/pack1?expand=1'
+    get '/public/source/UseRemoteInstance/pack2.linked?expand=1'
     assert_response :success
-    get '/public/source/UseRemoteInstance/pack1/_meta'
+    get '/public/source/UseRemoteInstance/pack2.linked/_meta'
     assert_response :success
-    get '/public/source/UseRemoteInstance/pack1/my_file'
+    get '/public/source/UseRemoteInstance/pack2.linked/package.spec'
     assert_response :success
     get '/public/source/UseRemoteInstance/NotExisting'
     assert_response 404
     get '/public/source/UseRemoteInstance/NotExisting/_meta'
     assert_response 404
-    get '/public/source/UseRemoteInstance/NotExisting/my_file'
+    get '/public/source/UseRemoteInstance/NotExisting/package.spec'
     assert_response 404
   end
 
@@ -138,7 +138,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag( :tag => 'sourceinfo', :attributes => { :package => 'pack1' } )
     assert_xml_tag( :tag => 'sourceinfo', :attributes => { :package => 'pack2' } )
-    assert_no_xml_tag( :tag => 'sourceinfo', :attributes => { :package => 'pack3' } )
+    assert_no_xml_tag( :tag => 'sourceinfo', :attributes => { :package => 'Pack3' } )
 
     # with credentials
     login_tom
@@ -146,7 +146,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag( :tag => 'sourceinfo', :attributes => { :package => 'pack1' } )
     assert_xml_tag( :tag => 'sourceinfo', :attributes => { :package => 'pack2' } )
-    assert_no_xml_tag( :tag => 'sourceinfo', :attributes => { :package => 'pack3' } )
+    assert_no_xml_tag( :tag => 'sourceinfo', :attributes => { :package => 'Pack3' } )
   end
 
   def test_backend_post_with_forms
@@ -175,7 +175,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     put '/source/RemoteInstance/_meta', @response.body.dup
     assert_response :success
 
-    # cleanup     
+    # cleanup
     delete '/source/home:tom:testing'
     assert_response :success
   end
@@ -189,6 +189,8 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     get '/source/RemoteInstance:BaseDistro'
     assert_response :success
     get '/source/RemoteInstance:BaseDistro/_meta'
+    assert_response :success
+    get '/source/RemoteInstance:BaseDistro/_config'
     assert_response :success
     get '/source/RemoteInstance:BaseDistro/_pubkey'
     assert_response :success
@@ -207,7 +209,7 @@ class InterConnectTests < ActionDispatch::IntegrationTest
     assert_response :success
     get '/source/RemoteInstance:BaseDistro2.0:LinkedUpdateProject'
     assert_response :success
-    assert_xml_tag( :tag => 'directory', :children => { :count => 0 } ) # backend does not provide a counter
+    assert_xml_tag( :tag => 'directory', :children => { :count => 1 } ) # backend does not provide a counter
     get '/source/RemoteInstance:BaseDistro2.0:LinkedUpdateProject?expand=1'
     assert_response :success
     assert_xml_tag( :tag => 'entry', :attributes => { :name => 'pack2', :originproject => 'RemoteInstance:BaseDistro2.0' } )
@@ -259,6 +261,8 @@ class InterConnectTests < ActionDispatch::IntegrationTest
 
     # direct access to remote instance, not existing project/package
     login_tom
+    get '/source/RemoteInstance:NotExisting/_config'
+    assert_response 404
     get '/source/RemoteInstance:NotExisting/_meta'
     assert_response 404
     get '/source/RemoteInstance:NotExisting/pack1'
@@ -283,15 +287,15 @@ class InterConnectTests < ActionDispatch::IntegrationTest
       assert_response :success
       get "/source/#{project}/_meta"
       assert_response :success
-      get "/source/#{project}/pack1"
+      get "/source/#{project}/pack2.linked"
       assert_response :success
-      get "/source/#{project}/pack1/_meta"
+      get "/source/#{project}/pack2.linked/_meta"
       assert_response :success
-      get "/source/#{project}/pack1/my_file"
+      get "/source/#{project}/pack2.linked/package.spec"
       assert_response :success
-      post "/source/#{project}/pack1", :cmd => 'showlinked'
+      post "/source/#{project}/pack2", :cmd => 'showlinked'
       assert_response :success
-      post "/source/#{project}/pack1", :cmd => 'branch'
+      post "/source/#{project}/pack2", :cmd => 'branch'
       assert_response :success
       get "/source/#{project}"
       assert_response :success
@@ -299,20 +303,19 @@ class InterConnectTests < ActionDispatch::IntegrationTest
       get "/source/#{project}?expand=1"
       assert_response :success
 if $ENABLE_BROKEN_TEST
-#FIXME2.4: remote packages get not added yet.
+# FIXME2.4: remote packages get not added yet.
       assert_xml_tag( :tag => 'directory', :attributes => { :count => '1' } )
       assert_xml_tag( :tag => 'entry', :attributes => { :name => 'pack1', :originproject => 'BaseDistro2.0' } )
 end
     end
 
     # check access to binaries of remote instance
-    get '/build/UseRemoteInstance/pop/i586/pack1/_log'
-    assert_response 400
-    assert_match(/remote error: pack1  no logfile/, @response.body) # we had no build, but request reached backend
+    get '/build/UseRemoteInstance/pop/i586/pack2.linked/_log'
+    assert_response :success
     # test source modifications
-    post '/build/UseRemoteInstance/pack1', :cmd => 'set_flag'
+    post '/build/UseRemoteInstance/pack2', :cmd => 'set_flag'
     assert_response 403
-    post '/build/UseRemoteInstance/pack1', :cmd => 'unlock'
+    post '/build/UseRemoteInstance/pack2', :cmd => 'unlock'
     assert_response 403
     get '/source/UseRemoteInstance/NotExisting'
     assert_response 404
@@ -322,9 +325,9 @@ end
     assert_response 404
     # test binary operations
     login_king
-    post '/build/UseRemoteInstance', :cmd => 'wipe', :package => 'pack1'
+    post '/build/UseRemoteInstance', :cmd => 'wipe', :package => 'pack2.linked'
     assert_response :success
-    post '/build/UseRemoteInstance', :cmd => 'rebuild', :package => 'pack1'
+    post '/build/UseRemoteInstance', :cmd => 'rebuild', :package => 'pack2.linked'
     assert_response :success
     post '/build/UseRemoteInstance', :cmd => 'wipe'
     assert_response :success
@@ -367,6 +370,34 @@ end
     assert_response :success
     post '/build/LocalProject', :cmd => 'rebuild'
     assert_response :success
+
+    # cleanup
+    delete '/source/home:tom:branches:UseRemoteInstanceIndirect'
+    assert_response :success
+    delete '/source/home:tom:branches:UseRemoteInstance'
+    assert_response :success
+    delete '/source/home:tom:branches:RemoteInstance:BaseDistro'
+    assert_response :success
+    delete '/source/home:tom:branches:LocalProject'
+    assert_response :success
+  end
+
+  def test_invalid_operation_to_remote
+    login_king
+    delete '/source/RemoteInstance:BaseDistro2.0'
+    assert_response 403
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'delete_project_no_permission' }
+    delete '/source/RemoteInstance:BaseDistro2.0/pack2'
+    assert_response 403
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'delete_package_no_permission' }
+    post '/source/RemoteInstance:BaseDistro2.0/package', :cmd => :copy, :oproject => 'BaseDistro2.0', :opackage => 'pack2'
+    assert_response 403
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'cmd_execution_no_permission' }
+    put '/source/RemoteInstance:BaseDistro2.0/pack/_meta',
+        '<package name="pack" project="RemoteInstance:BaseDistro2.0">
+           <title/><description/></package>'
+    assert_response 403
+    assert_xml_tag :tag => 'status', :attributes => { :code => 'create_package_no_permission' }
   end
 
   def test_invalid_submit_to_remote_instance
@@ -383,17 +414,16 @@ end
   end
 
   def test_submit_requests_from_remote
-
     login_king
-    post '/source/LocalProject/pack1', :cmd => :copy, :oproject => 'LocalProject', :opackage => 'remotepackage'
+    post '/source/LocalProject/pack2.linked', :cmd => :copy, :oproject => 'LocalProject', :opackage => 'remotepackage'
     assert_response :success
 
     login_tom
-    # FIXME: submission from a remote project is not yet supported "RemoteInstance:BaseDistro"
+    # FIXME: submission from a remote project is not yet supported "RemoteInstance:BaseDistro2.0"
     %w(LocalProject UseRemoteInstance).each do |prj|
       post '/request?cmd=create', '<request>
                                    <action type="submit">
-                                     <source project="' + prj + '" package="pack1" rev="1"/>
+                                     <source project="' + prj + '" package="pack2.linked" rev="1"/>
                                      <target project="home:tom" package="pack1"/>
                                    </action>
                                    <state name="new" />
@@ -412,7 +442,7 @@ end
     end
 
     login_king
-    delete '/source/LocalProject/pack1'
+    delete '/source/LocalProject/pack2.linked'
     assert_response :success
   end
 
@@ -425,14 +455,18 @@ end
     assert_response :success
     delete '/source/LocalProject/temporary'
     assert_response :success
-    post '/source/LocalProject/temporary', :cmd => :copy, :oproject => 'UseRemoteInstance', :opackage => 'pack1'
+    post '/source/LocalProject/temporary', :cmd => :copy, :oproject => 'UseRemoteInstance', :opackage => 'pack2.linked'
     assert_response :success
     post '/source/LocalProject/temporary', :cmd => :copy, :oproject => 'RemoteInstance:BaseDistro', :opackage => 'pack1'
     assert_response :success
 
     post '/source/LocalProject/temporary', :cmd => :diff, :oproject => 'LocalProject', :opackage => 'remotepackage'
     assert_response :success
-    post '/source/LocalProject/temporary', :cmd => :diff, :oproject => 'UseRemoteInstance', :opackage => 'pack1'
+    post '/source/LocalProject/temporary', :cmd => :diff, :oproject => 'UseRemoteInstance', :opackage => 'pack2.linked'
+    assert_response :success
+
+    login_king
+    delete '/source/LocalProject/temporary'
     assert_response :success
   end
 
@@ -469,7 +503,7 @@ end
     get '/source/HiddenRemoteInstance:BaseDistro'
     assert_response 404
     reset_auth
-    prepare_request_with_user 'hidden_homer', 'homer'
+    prepare_request_with_user 'hidden_homer', 'buildservice'
     get '/source/HiddenRemoteInstance'
     assert_response :success
     get '/source/HiddenRemoteInstance:BaseDistro'
@@ -489,7 +523,7 @@ end
     get '/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/pack1'
     assert_response 404
     reset_auth
-    prepare_request_with_user 'hidden_homer', 'homer'
+    prepare_request_with_user 'hidden_homer', 'buildservice'
     get '/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository'
     assert_response :success
     get '/build/HiddenRemoteInstance:BaseDistro/BaseDistro_repo/i586/_repository?view=cache'
@@ -522,7 +556,7 @@ end
     put '/source/home:tom:remote/_meta', p
     assert_response :success
 
-    #cleanup
+    # cleanup
     delete '/source/home:tom:remote'
     assert_response :success
   end
@@ -568,7 +602,9 @@ end
 
   def test_submit_from_remote
     login_Iggy
-    raw_post '/request?cmd=create', "<request><action type='submit'><source project='RemoteInstance:home:Iggy' package='TestPack'/><target project='home:Iggy' package='TEMPORARY'/></action></request>"
+    raw_post '/request?cmd=create',
+             "<request><action type='submit'><source project='RemoteInstance:home:Iggy' package='TestPack'/>
+              <target project='home:Iggy' package='TEMPORARY'/></action></request>"
     assert_response :success
     id = Xmlhash.parse(@response.body)['id']
     post "/request/#{id}?cmd=changestate&newstate=accepted"
@@ -580,7 +616,9 @@ end
     assert_response :success
 
     # cleanup option can not work, do not allow to create requests
-    raw_post '/request?cmd=create', "<request><action type='submit'><source project='RemoteInstance:home:Iggy' package='TestPack'/><target project='home:Iggy' package='TEMPORARY'/> <options><sourceupdate>cleanup</sourceupdate></options></action></request>"
+    raw_post '/request?cmd=create',
+             "<request><action type='submit'><source project='RemoteInstance:home:Iggy' package='TestPack'/>
+              <target project='home:Iggy' package='TEMPORARY'/> <options><sourceupdate>cleanup</sourceupdate></options></action></request>"
     assert_response 400
     assert_xml_tag :tag => 'status', :attributes => { :code => 'not_supported' }
   end

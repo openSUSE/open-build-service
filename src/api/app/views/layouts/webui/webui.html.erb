@@ -6,7 +6,7 @@
     <meta name="robots" content="<%= @metarobots %>"/>
     <% end %>
 
-    <link href="<%= CONFIG['relative_url_root'] %>/favicon.ico" rel="shortcut icon" />
+    <%= favicon_link_tag %>
 
     <title><%= "#{@pagetitle} - " if @pagetitle -%><%= @configuration ? @configuration['title'] : 'Open Build Service' %></title>
 
@@ -59,6 +59,7 @@
       <%= render :partial => "layouts/webui/personal_navigation"  %>
     </div>
 
+
     <%= render :partial => "layouts/webui/flash", :object => flash  %>
 
     <!-- this is needed for the delete confirm dialogues -->
@@ -79,22 +80,26 @@
     <div style="clear: both;"></div>
 
     <div id="footer" class="container_12">
-    <% unless User.current.is_nobody? -%>
+    <% if User.current && !User.current.is_nobody? -%>
       <div class="grid_3">
         <strong class="grey-medium spacer1"><%= link_to(user_show_path(User.current)) do %><%= User.current %><% end %>:</strong>
         <ul>
           <li><%= link_to "Your Profile", user_show_path(User.current) %> </li>
-          <li><%= link_to "Home Project", project_show_path("home:#{User.current.login}") %></li>
+          <% if Project.where(name: User.current.home_project_name).exists? %>
+            <li><%= link_to "Home Project", project_show_path(User.current.home_project_name) %></li>
+          <% else %>
+            <li><%= link_to "Create Home Project", new_project_path(name: User.current.home_project_name) %></li>
+          <% end %>
           <li><%= link_to 'Logout', user_logout_path, method: :post %></li>
         </ul>
       </div>
     <% end -%>
 
-    <% if ::Configuration.anonymous? -%>
+    <% if ::Configuration.anonymous -%>
       <div class="grid_3">
         <strong class="grey-medium spacer1">Locations</strong>
         <ul>
-          <li><%= link_to "Projects", project_list_public_path %></li>
+          <li><%= link_to "Projects", projects_path %></li>
           <li><%= link_to "Search", search_path, class: 'search-link' %></li>
           <% unless @spider_bot -%>
             <li><%= link_to "Status Monitor", monitor_path %></li>

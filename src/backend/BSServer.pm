@@ -27,8 +27,6 @@
 #   *CLNT - client socket
 #   *LCK  - lock for exclusive access to *MS
 
-#   $peer - address:port of connected client
-
 package BSServer;
 
 use Data::Dumper;
@@ -46,13 +44,9 @@ use strict;
 
 my $MS2;	# secondary server port
 
-# FIXME: store in request and make request available
-our $request;
-our $peer;
-our $peerport;
-our $slot;
-our $forwardedfor;
-our $replying;	# we're sending the answer (2 == in chunked mode)
+our $request;		# FIXME: should not be global
+
+our $slot;		# put in request?
 
 sub deamonize {
   my (@args) = @_;
@@ -158,7 +152,9 @@ sub getsocket {
 sub setsocket {
   # with argument    - set current client socket
   # without argument - close it
-  $peer = 'unknown';
+  my $req = $BSServer::request || {};
+  $req->{'peer'} = 'unknown';
+  delete $req->{'peerport'};
   if (defined($_[0])) {
     (*CLNT) = @_;
   } else {
@@ -168,9 +164,10 @@ sub setsocket {
   eval {
     my $peername = getpeername(CLNT);
     if ($peername) {
-      my $peera;
+      my ($peerport, $peera);
       ($peerport, $peera) = sockaddr_in($peername);
-      $peer = inet_ntoa($peera);
+      $req->{'peerport'} = $peerport;
+      $req->{'peer'} = inet_ntoa($peera);
     }
   }
 }
@@ -291,7 +288,7 @@ sub server {
       }
     }
     # timeout was set in the $conf and select timeouted on this value. There was no new connection -> exit.
-    return 0 if !$r && defined $timeout;
+    return undef if !$r && defined $timeout;
   }
   # from now on, this is only the child process
   close MS;
@@ -310,73 +307,90 @@ sub server {
       undef $BSServer::slot;
     }
   }
-  $peer = 'unknown';
+  my $req = {
+    'peer' => 'unknown',
+    'conf' => $conf,
+  };
+  $BSServer::request = $req;
   eval {
-    my $peera;
-    ($peerport, $peera) = sockaddr_in($peeraddr);
-    $peer = inet_ntoa($peera);
+    my ($peerport, $peera) = sockaddr_in($peeraddr);
+    $req->{'peerport'} = $peerport;
+    $req->{'peer'} = inet_ntoa($peera);
   };
 
   setsockopt(CLNT, SOL_SOCKET, SO_KEEPALIVE, pack("l",1)) if $conf->{'setkeepalive'};
   if ($conf->{'accept'}) {
     eval {
-      $conf->{'accept'}->($conf, $peer);
+      $conf->{'accept'}->($conf, $req);
     };
     reply_error($conf, $@) if $@;
   }
   if ($conf->{'dispatch'}) {
     eval {
-      my $req;
       do {
         local $SIG{'ALRM'} = sub {POSIX::_exit(0);};
         alarm(60);	# should be enough to read the request
-        $req = readrequest();
+        readrequest($req);
         alarm(0);
       };
-      $conf->{'dispatch'}->($conf, $req);
+      my @r = $conf->{'dispatch'}->($conf, $req);
+      if (!$req->{'replying'}) {
+        if ($conf->{'stdreply'}) {
+          $conf->{'stdreply'}->(@r);
+        } else {
+	  reply(@r);
+        }
+      }
     };
     reply_error($conf, $@) if $@;
     close CLNT;
     exit(0);
   }
   $SIG{'__DIE__'} = sub { die(@_) if $^S; reply_error($conf, $_[0]); };
-  return 1;
+  return $req;
 }
 
 sub msg {
-  my @lt = localtime(time);
+  my $peer = ($BSServer::request || {})->{'peer'};
   if (defined($peer)) {
-    printf "%04d-%02d-%02d %02d:%02d:%02d: %s: %s\n", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0], $peer, $_[0];
+    print BSUtil::isotime().": $peer: $_[0]\n";
   } else {
-    printf "%04d-%02d-%02d %02d:%02d:%02d: %s\n", $lt[5] + 1900, $lt[4] + 1, @lt[3,2,1,0], $_[0];
+    print BSUtil::isotime().": $_[0]\n";
   }
 }
 
 # write reply to CLNT
 # $str: reply string
-# @hi: http header lines, 1st line can contain status
+# @hdrs: http header lines, 1st line can contain status
 sub reply {
-  my ($str, @hi) = @_;
+  my ($str, @hdrs) = @_;
 
-  if (@hi && $hi[0] =~ /^status: (\d+.*)/i) {
+  my $req = $BSServer::request || {};
+  if (@hdrs && $hdrs[0] =~ /^status: (\d+.*)/i) {
     my $msg = $1;
     $msg =~ s/:/ /g;
-    $hi[0] = "HTTP/1.1 $msg";
+    $hdrs[0] = "HTTP/1.1 $msg";
   } else {
-    unshift @hi, "HTTP/1.1 200 OK";
+    unshift @hdrs, "HTTP/1.1 200 OK";
   }
-  push @hi, "Cache-Control: no-cache";
-  push @hi, "Connection: close";
-  push @hi, "Content-Length: ".length($str) if defined($str);
-  my $data = join("\r\n", @hi)."\r\n\r\n";
+  push @hdrs, "Cache-Control: no-cache";
+  push @hdrs, "Connection: close";
+  push @hdrs, "Content-Length: ".length($str) if defined($str);
+  my $data = join("\r\n", @hdrs)."\r\n\r\n";
   $data .= $str if defined $str;
 
 #  if ($replying && $replying == 2) {
 #    # Already replying. As we're in chunked mode, we can attach
 #    # the error as chunk header.
-#    $hi[0] =~ s/^.*? /Status: /;
-#    $data = "0\r\n$hi[0]\r\n\r\n";
+#    $hdrs[0] =~ s/^.*? /Status: /;
+#    $data = "0\r\n$hdrs[0]\r\n\r\n";
 #  }
+
+  # discard the body so that the client gets our answer instead
+  # of a sigpipe.
+  if (exists($req->{'__data'}) && !$req->{'__eof'} && !$req->{'need_continue'}) {
+    eval { discard_body() };
+  }
 
   # work around linux tcp implementation problem, the read side
   # must be empty otherwise a tcp-reset is done when we close
@@ -390,37 +404,49 @@ sub reply {
   while (length($data)) {
     $l = syswrite(CLNT, $data, length($data));
     die("write error: $!\n") unless $l;
-    $replying = 1;
+    $req->{'replying'} = 1;
     $data = substr($data, $l);
   }
 }
 
-sub reply_error  {
+# "parse" error string into code and tag
+sub parse_error_string {
   my ($conf, $err) = @_; 
+
   $err ||= "unspecified error";
   $err =~ s/\n$//s;
   my $code = 400;
   my $tag = '';
-  # "parse" err string 
   if ($err =~ /^(\d+)\s+([^\r\n]*)/) {
     $code = $1;
     $tag = $2;
   } elsif ($err =~ /^([^\r\n]+)/) {
     $tag = $1;
+    $code = 500 if $tag =~ /Too many open files/;
+    $code = 500 if $tag =~ /No space left on device/;
+    $code = 500 if $tag =~ /Not enough space/;
+    $code = 500 if $tag =~ /Resource temporarily unavailable/;
   } else {
     $tag = 'Error';
   }
-  # send reply through custom function or standard reply
-  if ($conf && $conf->{'errorreply'}) {
-    $conf->{'errorreply'}->($err, $code, $tag);
-  } else {
-    reply("$err\n", "Status: $code $tag", 'Content-Type: text/plain');
-  }
-  close CLNT;
-  die("$peer: $err\n");
+  my @hdrs;
+  push @hdrs, "WWW-Authenticate: $conf->{'wwwauthenticate'}" if $code == 401 && $conf && $conf->{'wwwauthenticate'};
+  return ($err, $code, $tag, @hdrs);
 }
 
-my $post_hdrs;
+sub reply_error  {
+  my ($conf, $errstr) = @_; 
+  my ($err, $code, $tag, @hdrs) = parse_error_string($conf, $errstr);
+  # send reply through custom function or standard reply
+  if ($conf && $conf->{'errorreply'}) {
+    $conf->{'errorreply'}->($err, $code, $tag, @hdrs);
+  } else {
+    reply("$err\n", "Status: $code $tag", 'Content-Type: text/plain', @hdrs);
+  }
+  close CLNT;
+  my $peer = ($BSServer::request || {})->{'peer'};
+  die("$peer: $err\n");
+}
 
 sub done {
   close CLNT;
@@ -435,123 +461,19 @@ sub getpeerdata {
   return ($port, $addr);
 }
 
-sub gethead {
-  # parses http header and fills hash
-  # $h: reference to the hash to be filled
-  # $t: http header as string
-  my ($h, $t) = @_;
-
-  my ($field, $data);
-  for (split(/[\r\n]+/, $t)) {
-    next if $_ eq '';
-    if (/^[ \t]/) {
-      next unless defined $field;
-      s/^\s*/ /;
-      $h->{$field} .= $_;
-    } else {
-      ($field, $data) = split(/\s*:\s*/, $_, 2);
-      $field =~ tr/A-Z/a-z/;
-      if ($h->{$field} && $h->{$field} ne '') {
-        $h->{$field} = $h->{$field}.','.$data;
-      } else {
-        $h->{$field} = $data;
-      }
-    }
-  }
-}
-
-sub parse_cgi {
-  # $req:
-  #      the part of URI after ?
-  # $multis:
-  #      hash of separators
-  #      key does not exist - multiple cgi values are not allowed
-  #      key is undef - multiple cgi values are put into array
-  #      key is - then value is used as separator between cgi values
-  my ($req, $multis, $singles) = @_;
-
-  my $query_string = $req->{'query'};
-  my %cgi;
-  my @query_string = split('&', $query_string);
-  while (@query_string) {
-    my ($name, $value) = split('=', shift(@query_string), 2);
-    next unless defined $name && $name ne '';
-    # convert from URI format
-    $name  =~ tr/+/ /;
-    $name  =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
-    if (defined($value)) {
-      # convert from URI format
-      $value =~ tr/+/ /;
-      $value =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
-    } else {
-      $value = 1;	# assume boolean
-    }
-    if ($multis && exists($multis->{$name})) {
-      if (defined($multis->{$name})) {
-        if (exists($cgi{$name})) {
-	  $cgi{$name} .= "$multis->{$name}$value";
-        } else {
-          $cgi{$name} = $value;
-        }
-      } else {
-        push @{$cgi{$name}}, $value;
-      }
-    } elsif ($singles && $multis && !exists($singles->{$name}) && exists($multis->{'*'})) {
-      if (defined($multis->{'*'})) {
-        if (exists($cgi{$name})) {
-	  $cgi{$name} .= "$multis->{'*'}$value";
-        } else {
-          $cgi{$name} = $value;
-        }
-      } else {
-        push @{$cgi{$name}}, $value;
-      }
-    } else {
-      die("parameter '$name' set multiple times\n") if exists $cgi{$name};
-      $cgi{$name} = $value;
-    }
-  }
-  return \%cgi;
-}
-
-# return only the singles from a query
-sub parse_cgi_singles {
-  my ($req) = @_;
-  my $query_string = $req->{'query'};
-  my %cgi;
-  for my $qu (split('&', $query_string)) {
-    my ($name, $value) = split('=', $qu, 2);
-    $name  =~ tr/+/ /;
-    $name  =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
-    if (exists $cgi{$name}) {
-      $cgi{$name} = undef;
-      next;
-    }
-    $value = 1 unless defined $value;
-    $value =~ tr/+/ /;
-    $value =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;
-    $cgi{$name} = $value;
-  }
-  for (keys %cgi) {
-    delete $cgi{$_} unless defined $cgi{$_};
-  }
-  return \%cgi;
-}
-
 sub readrequest {
-  my ($qu) = @_;
-  $qu = '' unless defined $qu;
-  undef $post_hdrs;
-  my $req;
+  my ($req) = @_;
+  my $qu = '';
+  my $request;
   # read first query line
   while (1) {
     if ($qu =~ /^(.*?)\r?\n/s) {
-      $req = $1;
+      $request = $1;
       last;
     }
     die($qu eq '' ? "empty query\n" : "received truncated query\n") if !sysread(CLNT, $qu, 1024, length($qu));
   }
-  my ($act, $path, $vers, undef) = split(' ', $req, 4);
+  my ($act, $path, $vers, undef) = split(' ', $request, 4);
   my %headers;
   die("400 No method name\n") if !$act;
   if ($vers) {
@@ -562,13 +484,12 @@ sub readrequest {
     }
     $qu =~ /^(.*?)\r?\n\r?\n(.*)$/s;	# redo regexp to work around perl bug
     $qu = $2;
-    gethead(\%headers, "Request: $1");	# put 1st line of http request into $headers{'request'}
+    BSHTTP::gethead(\%headers, "Request: $1");	# put 1st line of http request into $headers{'request'}
   } else {
     # no version -> HTTP 0.9 request
     die("501 Bad method, must be GET\n") if $act ne 'GET';
     $qu = '';
   }
-  $forwardedfor = $headers{'x-forwarded-for'};
   my $query_string = '';
   if ($path =~ /^(.*?)\?(.*)$/) {
     $path = $1;
@@ -576,103 +497,127 @@ sub readrequest {
   }
   $path =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge;	# unescape path
   die("501 invalid path\n") unless $path =~ /^\//s; # forbid relative paths
-  my $res = {};
-  $res->{'action'} = $act;
-  $res->{'path'} = $path;
-  $res->{'query'} = $query_string;
-  $res->{'headers'} = \%headers;
+  $req->{'action'} = $act;
+  $req->{'path'} = $path;
+  $req->{'query'} = $query_string;
+  $req->{'headers'} = \%headers;
   if ($act eq 'POST' || $act eq 'PUT') {
     # send HTTP 1.1's 100-continue answer if requested by the client
     if ($headers{'expect'}) {
       die("417 unknown expect\n") unless lc($headers{'expect'}) eq '100-continue';
-      my $data = "HTTP/1.1 100 continue\r\n\r\n";
-      while (length($data)) {
-        my $l = syswrite(CLNT, $data, length($data));
-        die("write error: $!\n") unless $l;
-        $data = substr($data, $l);
-      }
+      $req->{'need_continue'} = 1;
     }
     
-    if ($act eq 'PUT' || !$headers{'content-type'} || lc($headers{'content-type'}) ne 'application/x-www-form-urlencoded') {
-      $headers{'__data'} = $qu;
-      $post_hdrs = \%headers; # $post_hdrs is global (module local) variable
-      return $res;
+    my $transfer_encoding = lc($headers{'transfer-encoding'} || '');
+    if ($act eq 'POST' && $headers{'content-type'} && lc($headers{'content-type'}) eq 'application/x-www-form-urlencoded') {
+      die("cannot do x-www-form-urlencoded with chunks\n") if $transfer_encoding eq 'chunked';
+      # form-urlencoded, read body and append to query string
+      send_continue() if $req->{'need_continue'};
+      my $cl = $headers{'content-length'} || 0;
+      while (length($qu) < $cl) {
+        sysread(CLNT, $qu, $cl - length($qu), length($qu)) || die("400 Truncated body\n");
+      }
+      $query_string .= '&' if $cl && $query_string ne '';
+      $query_string .= substr($qu, 0, $cl);
+      $req->{'query'} = $query_string;
+    } elsif (defined($headers{'content-length'}) || $transfer_encoding eq 'chunked') {
+      $req->{'__data'} = $qu;
     }
-    my $cl = $headers{'content-length'} || 0;
-    while (length($qu) < $cl) {
-      sysread(CLNT, $qu, $cl - length($qu), length($qu)) || die("400 Truncated body\n");
-    }
-    $query_string .= '&' if $query_string ne '';
-    $query_string .= substr($qu, 0, $cl);
-    $res->{'query'} = $query_string;
-    $qu = substr($qu, $cl);
   }
-  return $res;
 }
 
 sub swrite {
-  BSHTTP::swrite(\*CLNT, $_[0]);
-}
-
-sub get_content_type {
-  die("get_content_type: invalid request\n") unless $post_hdrs;
-  return $post_hdrs->{'content-type'};
+  BSHTTP::swrite(\*CLNT, @_);
 }
 
 sub header {
-  die("header: invalid request\n") unless $post_hdrs;
-  return $post_hdrs->{$_[0]};
+  my $req = $BSServer::request || {};
+  return ($req->{'headers'} || {})->{lc($_[0])};
 }
 
 sub have_content {
-  return $post_hdrs ? 1 : 0;
+  my $req = $BSServer::request || {};
+  return exists($req->{'__data'}) ? 1 : 0;
+}
+
+sub get_content_type {
+  die("get_content_type: no content attached\n") unless have_content();
+  return header('content-type');
+}
+
+
+###########################################################################
+
+sub send_continue {
+  my $req = $BSServer::request;
+  return unless delete $req->{'need_continue'};
+  my $data = "HTTP/1.1 100 continue\r\n\r\n";
+  while (length($data)) {
+    my $l = syswrite(CLNT, $data, length($data));
+    die("write error: $!\n") unless $l;
+    $data = substr($data, $l);
+  }
+}
+
+sub discard_body {
+  my $req = $BSServer::request;
+  return unless exists($req->{'__data'}) && !$req->{'__eof'};
+  1 while read_data(8192) ne '';
 }
 
 ###########################################################################
 
 sub read_file {
-  my ($fn, @args) = @_;
-  die("read_file: invalid request\n") unless $post_hdrs;
-  $post_hdrs->{'__socket'} = \*CLNT;
-  my $res = BSHTTP::file_receiver($post_hdrs, {'filename' => $fn, @args});
-  delete $post_hdrs->{'__socket'};
+  my ($filename, @args) = @_;
+  die("read_file: no content attached\n") unless have_content();
+  my $req = $BSServer::request;
+  send_continue() if $req->{'need_continue'};
+  $req->{'__socket'} = \*CLNT;
+  my $res = BSHTTP::file_receiver($req, {'filename' => $filename, @args});
+  delete $req->{'__socket'};
   return $res;
 }
 
 sub read_cpio {
-  my ($dn, @args) = @_;
-  die("read_cpio: invalid request\n") unless $post_hdrs;
-  $post_hdrs->{'__socket'} = \*CLNT;
-  my $res = BSHTTP::cpio_receiver($post_hdrs, {'directory' => $dn, @args});
-  delete $post_hdrs->{'__socket'};
+  my ($dirname, @args) = @_;
+  die("read_cpio: no content attached\n") unless have_content();
+  my $req = $BSServer::request;
+  send_continue() if $req->{'need_continue'};
+  $req->{'__socket'} = \*CLNT;
+  my $res = BSHTTP::cpio_receiver($req, {'directory' => $dirname, @args});
+  delete $req->{'__socket'};
   return $res;
 }
 
 sub read_data {
   my ($maxl, $exact) = @_;
-  die("read_data: invalid request\n") unless $post_hdrs;
-  $post_hdrs->{'__socket'} = \*CLNT;
-  my $res = BSHTTP::read_data($post_hdrs, $maxl, $exact);
-  delete $post_hdrs->{'__socket'};
+  die("read_data: no content attached\n") unless have_content();
+  my $req = $BSServer::request;
+  send_continue() if $req->{'need_continue'};
+  $req->{'__socket'} = \*CLNT;
+  my $res = BSHTTP::read_data($req, $maxl, $exact);
+  delete $req->{'__socket'};
   return $res;
 }
 
 ###########################################################################
 
 sub reply_cpio {
-  my ($files, @args) = @_;
-  reply(undef, 'Content-Type: application/x-cpio', 'Transfer-Encoding: chunked', @args);
-  $replying = 2;
+  my ($files, @hdrs) = @_;
+  my $req = $BSServer::request || {};
+  reply(undef, 'Content-Type: application/x-cpio', 'Transfer-Encoding: chunked', @hdrs);
+  $req->{'replying'} = 2;
   BSHTTP::cpio_sender({'cpiofiles' => $files, 'chunked' => 1}, \*CLNT);
-  BSHTTP::swrite(\*CLNT, "0\r\n\r\n");
+  swrite("0\r\n\r\n");
 }
 
 sub reply_file {
-  my ($file, @args) = @_;
+  my ($file, @hdrs) = @_;
+  my $req = $BSServer::request || {};
   my $chunked;
-  $chunked = 1 if grep {/^transfer-encoding:\s*chunked/i} @args;
-  my @cl = grep {/^content-length:/i} @args;
-  if (!@cl && !$chunked) {
+  $chunked = 1 if grep {/^transfer-encoding:\s*chunked/i} @hdrs;
+  my $cl = (grep {/^content-length:/i} @hdrs)[0];
+  if (!$cl && !$chunked) {
     # detect file size
     if (!ref($file)) {
       my $fd = gensym;
@@ -681,44 +626,45 @@ sub reply_file {
     }
     if (-f $file) {
       my $size = -s $file;
-      @cl = ("Content-Length: $size");
-      push @args, $cl[0];
+      $cl = "Content-Length: $size";
+      push @hdrs, $cl;
     } else {
-      push @args, 'Transfer-Encoding: chunked';
+      push @hdrs, 'Transfer-Encoding: chunked';
       $chunked = 1;
     }
   }
-  unshift @args, 'Content-Type: application/octet-stream' unless grep {/^content-type:/i} @args;
-  reply(undef, @args);
-  $replying = 2 if $chunked;
+  unshift @hdrs, 'Content-Type: application/octet-stream' unless grep {/^content-type:/i} @hdrs;
+  reply(undef, @hdrs);
+  $req->{'replying'} = 2 if $chunked;
   my $param = {'filename' => $file};
-  $param->{'bytes'} = $1 if @cl && $cl[0] =~ /(\d+)/;
+  $param->{'bytes'} = $1 if $cl && $cl =~ /(\d+)/;	# limit to content length
   $param->{'chunked'} = 1 if $chunked;
   BSHTTP::file_sender($param, \*CLNT);
-  BSHTTP::swrite(\*CLNT, "0\r\n\r\n") if $chunked;
+  swrite("0\r\n\r\n") if $chunked;
 }
 
 sub reply_receiver {
-  my ($hdr, $param) = @_;
+  my ($req, $param) = @_;
 
+  my $replyreq = $BSServer::request || {};
+  my $hdr = $req->{'headers'};
   $param->{'reply_receiver_called'} = 1;
-  my @args;
   my $st = $hdr->{'status'};
   my $ct = $hdr->{'content-type'} || 'text/plain';
   my $cl = $hdr->{'content-length'};
   my $chunked;
   $chunked = 1 if $hdr->{'transfer-encoding'} && lc($hdr->{'transfer-encoding'}) eq 'chunked';
-  push @args, "Status: $st" if $st; 
-  push @args, "Content-Type: $ct";
-  push @args, "Content-Length: $cl" if defined($cl) && !$chunked;
-  push @args, 'Transfer-Encoding: chunked' if $chunked;
-  reply(undef, @args); 
-  $replying = 2 if $chunked;
+  my @hdrs;
+  push @hdrs, "Status: $st" if $st; 
+  push @hdrs, "Content-Type: $ct";
+  push @hdrs, "Content-Length: $cl" if defined($cl) && !$chunked;
+  push @hdrs, 'Transfer-Encoding: chunked' if $chunked;
+  reply(undef, @hdrs); 
+  $replyreq->{'replying'} = 2 if $chunked;
   while(1) {
-    my $data = BSHTTP::read_data($hdr, 8192);
+    my $data = BSHTTP::read_data($req, 8192);
     last unless defined($data) && $data ne '';
-    $data = sprintf("%X\r\n", length($data)).$data."\r\n" if $chunked;
-    swrite($data);
+    swrite($data, $chunked);
   }
   swrite("0\r\n\r\n") if $chunked;
 }
@@ -728,168 +674,12 @@ sub reply_receiver {
 # sender (like file_sender in BSHTTP) that forwards received data
 
 sub forward_sender {
-  return read_data(8192);
-}
-
-###########################################################################
-
-sub dispatch_checkcgi {
-  my ($cgi, @known) = @_;
-  my %known = map {$_ => 1} @known;
-  my @bad = grep {!$known{$_}} keys %$cgi;
-  die("unknown parameter '".join("', '", @bad)."'\n") if @bad;
-}
-
-sub compile_dispatches {
-  my ($disps, $verifyers, $callfunction) = @_;
-  my @disps = @$disps;
-  $verifyers ||= {};
-  my @out;
-  while (@disps) {
-    my $p = shift @disps;
-    my $f = shift @disps;
-    my $needsauth;
-    my $cgisingles;
-    if ($p =~ /^!([^\/\s]*)\s*(.*?)$/) {
-      $needsauth = $1 || 'auth';
-      $p = $2;
-    }
-    if ($p eq '/') {
-      my $cpld = [ qr/^(?:GET|HEAD|POST):\/$/ ];
-      $cpld->[2] = $needsauth eq '-' ? undef : $needsauth if $needsauth;
-      push @out, $cpld, $f;
-      next;
-    }
-    my @cgis = split(' ', $p);
-    s/%([a-fA-F0-9]{2})/chr(hex($1))/ge for @cgis;
-    $p = shift @cgis;
-    my @p = split('/', $p, -1);
-    my $code = "my (\@args);\n";
-    my $code2 = '';
-    my $num = 1;
-    my @args;
-    my $known = '';
-    for my $pp (@p) {
-      if ($pp =~ /^\$(.*)$/) {
-        my $var = $1;
-        my $vartype = $var;
-	($var, $vartype) = ($1, $2) if $var =~ /^(.*):(.*)/;
-        die("no verifyer for $vartype\n") unless $vartype eq '' || $verifyers->{$vartype};
-        $pp = "([^\\/]*)";
-        $code .= "\$cgi->{'$var'} = \$$num;\n";
-        $code2 .= "\$verifyers->{'$vartype'}->(\$cgi->{'$var'});\n" if $vartype ne '';
-	push @args, $var;
-	$known .= ", '$var'";
-        $num++;
-      } else {
-        $pp = "\Q$pp\E";
-      }
-    }
-    $p[0] .= ".*" if @p == 1 && $p[0] =~ /^[A-Z]*\\:$/;
-    $p[0] = '[^:]*:.*' if $p[0] eq '\\:.*';
-    $p[0] = "(?:GET|HEAD|POST):$p[0]" if $p[0] !~ /:/;
-    $p[-1] = '.*' if $p[-1] eq '\.\.\.';
-    $p[-1] = '(.*)' if $p[-1] eq "([^\\/]*)" && $args[-1] eq '...';
-    my $multis = '';
-    my $singles = '';
-    my $hasstar;
-    for my $pp (@cgis) {
-      my ($arg, $qual) = (0, '{1}');
-      $arg = 1 if $pp =~ s/^\$//;
-      $qual = $1 if $pp =~ s/([+*?])$//;
-      my $var = $pp;
-      if ($var =~ /^(.*)=(.*)$/) {
-	$cgisingles ||= {};
-	$cgisingles->{$1} = $2;
-	$singles .= ', ' if $singles ne '';
-	$singles .= "'$1' => undef";
-	$known .= ", '$1'";
-	next;
-      }
-      my $vartype = $var;
-      ($var, $vartype) = ($1, $2) if $var =~ /^(.*):(.*)/;
-      die("no verifyer for $vartype\n") unless $vartype eq '' || $verifyers->{$vartype};
-      $code2 .= "die(\"parameter '$var' is missing\\n\") unless exists \$cgi->{'$var'};\n" if $qual ne '*' && $qual ne '?';
-      $hasstar = 1 if $var eq '*';
-      if ($qual eq '+' || $qual eq '*') {
-	$multis .= ', ' if $multis ne '';
-	$multis .= "'$var' => undef";
-        $code2 .= "\$verifyers->{'$vartype'}->(\$_) for \@{\$cgi->{'$var'} || []};\n" if $vartype ne '';
-      } else {
-	$singles .= ', ' if $singles ne '';
-	$singles .= "'$var' => undef";
-        $code2 .= "\$verifyers->{'$vartype'}->(\$cgi->{'$var'}) if exists \$cgi->{'$var'};\n" if $vartype ne '';
-      }
-      push @args, $var if $arg;
-      $known .= ", '$var'";
-    }
-    if ($hasstar) {
-      $code = "my \$cgi = parse_cgi(\$req, {$multis}, {$singles});\n$code";
-    } else {
-      $code = "my \$cgi = parse_cgi(\$req, {$multis});\n$code";
-    }
-    $code2 .= "push \@args, \$cgi->{'$_'};\n" for @args;
-    $code2 .= "&dispatch_checkcgi(\$cgi$known);\n" unless $hasstar;
-    if ($callfunction) {
-      $code .= "$code2\$callfunction->(\$f, \$cgi, \@args);\n";
-    } else {
-      $code .= "$code2\$f->(\$cgi, \@args);\n";
-    }
-    my $np = join('/', @p);
-    my $cpld = [ qr/^$np$/ ];
-    $cpld->[1] = $cgisingles if $cgisingles;
-    $cpld->[2] = $needsauth eq '-' ? undef : $needsauth if $needsauth;
-    my $fnew;
-    if ($f) {
-      eval "\$fnew = sub {my (\$conf, \$req) = \@_;\n$code};";
-      die("compile_dispatches: $@\n") if $@;
-    }
-    push @out, $cpld, $fnew;
+  my ($param, $sock) = @_;
+  my $data;
+  while (($data = read_data(8192)) ne '') {
+    BSHTTP::swrite($sock, $data, $param->{'chunked'});
   }
-  return \@out;
-}
-
-sub dispatch {
-  my ($conf, $req) = @_;
-  $BSServer::request = $req;
-  my $disps = $conf->{'dispatches'};
-  my $stdreply = $conf->{'stdreply'};
-  die("500 no dispatches configured\n") unless $disps;
-  my @disps = @$disps;
-  my $path = "$req->{'action'}:$req->{'path'}";
-  if (1) {
-    # path is already urldecoded
-    die("400 path is not utf-8\n") unless BSUtil::checkutf8($path);
-    my $q = $req->{'query'};
-    $q =~ s/%([a-fA-F0-9]{2})/chr(hex($1))/ge if defined($q) && $q =~ /\%/s;
-    die("400 query string is not utf-8\n") unless BSUtil::checkutf8($q);
-  }
-  my $ppath = $path;
-  # strip trailing slash
-  $ppath =~ s/\/+$// if substr($ppath, -1, 1) eq '/' && $ppath !~ /^[A-Z]*:\/$/s;
-  my $auth;
-  my $cgisingles;
-  while (@disps) {
-    my ($p, $f) = splice(@disps, 0, 2);
-    next unless $ppath =~ /$p->[0]/;
-    if ($p->[1]) {
-      $cgisingles ||= parse_cgi_singles($req);
-      next if grep {($cgisingles->{$_} || '') ne $p->[1]->{$_}} keys %{$p->[1]};
-    }
-    $auth = $p->[2] if @$p > 2;	# optional auth overwrite
-    next unless $f;
-    if ($auth) {
-      die("500 no authenticate method defined\n") unless $conf->{'authenticate'};
-      my @r = $conf->{'authenticate'}->($conf, $req, $auth);
-      if (@r) {
-        return $stdreply->(@r) if $stdreply;
-	return @r;
-      }
-    }
-    return $stdreply->($f->($conf, $req)) if $stdreply;
-    return $f->($conf, $req);
-  }
-  die("400 unknown request: $path\n");
+  return '';
 }
 
 1;

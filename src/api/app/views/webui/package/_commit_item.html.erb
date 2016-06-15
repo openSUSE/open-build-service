@@ -16,7 +16,7 @@
             <i><%= commit['user'] || '-' %></i>
         <% end %>
         <% if commit['requestid'] %>
-            accepted <%= link_to("request #{commit['requestid']}", {:controller => :request, :action => :show, :id => commit['requestid']}) %>
+            accepted <%= link_to("request #{commit['requestid']}", {:controller => :request, :action => :show, :number => commit['requestid']}) %>
         <% else %>
             committed
         <% end %>

@@ -1,12 +1,30 @@
+ENV['origin_RAILS_ENV'] = ENV['RAILS_ENV']
 ENV['RAILS_ENV'] = 'test'
-
 require 'simplecov'
-SimpleCov.start 'rails' do
-  add_filter '/app/indices/'
-  add_filter '/app/models/user_ldap_strategy.rb'
-end if ENV['DO_COVERAGE']
+require 'coveralls'
+require "minitest/reporters"
+
+Minitest::Reporters.use! Minitest::Reporters::SpecReporter.new
+
+if ENV['DO_COVERAGE']
+  Coveralls.wear_merged!('rails')
+
+  SimpleCov.start 'rails' do
+    add_filter '/app/indices/'
+    add_filter '/app/models/user_ldap_strategy.rb'
+    merge_timeout 3600
+    formatter Coveralls::SimpleCov::Formatter
+  end
+
+  SimpleCov.at_exit do
+    puts "Coverage done"
+    SimpleCov.result.format!
+  end
+end
 
 require File.expand_path('../../config/environment', __FILE__)
+require_relative 'test_consistency_helper'
+
 require 'rails/test_help'
 
 require 'minitest/unit'
@@ -23,8 +41,7 @@ require 'mocha/setup'
 require 'capybara/poltergeist'
 
 require 'capybara/rails'
-## this is the build service! 2 seconds - HAHAHA
-Capybara.default_wait_time = 30
+Capybara.default_max_wait_time = 6
 
 Capybara.register_driver :poltergeist do |app|
   Capybara::Poltergeist::Driver.new(app, debug: false, timeout: 30)
@@ -38,21 +55,37 @@ Capybara.javascript_driver = :poltergeist
 
 WebMock.disable_net_connect!(allow_localhost: true)
 
-unless File.exists? '/proc'
+unless File.exist? '/proc'
   print 'ERROR: proc file system not mounted, aborting'
   exit 1
 end
-unless File.exists? '/dev/fd'
+unless File.exist? '/dev/fd'
   print 'ERROR: /dev/fd does not exist, aborting'
   exit 1
 end
 
 # uncomment to enable tests which currently are known to fail, but where either the test
 # or the code has to be fixed
-#$ENABLE_BROKEN_TEST=true
+# $ENABLE_BROKEN_TEST=true
 
-def inject_build_job(project, package, repo, arch, extrabinary=nil)
-  job=IO.popen("find #{Rails.root}/tmp/backend_data/jobs/#{arch}/ -name #{project}::#{repo}::#{package}-*")
+def backend_config
+  backend_dir_suffix = ""
+  if ENV['origin_RAILS_ENV'] == 'development'
+    backend_dir_suffix = "_development"
+  end
+  "#{Rails.root}/tmp/backend_config#{backend_dir_suffix}"
+end
+
+def backend_data
+  backend_dir_suffix = ""
+  if ENV['origin_RAILS_ENV'] == 'development'
+    backend_dir_suffix = "_development"
+  end
+  "#{Rails.root}/tmp/backend_data#{backend_dir_suffix}"
+end
+
+def inject_build_job(project, package, repo, arch, extrabinary = nil)
+  job=IO.popen("find #{backend_data}/jobs/#{arch}/ -name #{project}::#{repo}::#{package}-*")
   jobfile=job.readlines.first
   return unless jobfile
   jobfile.chomp!
@@ -63,11 +96,63 @@ def inject_build_job(project, package, repo, arch, extrabinary=nil)
   data = REXML::Document.new(File.new(jobfile))
   verifymd5 = data.elements['/buildinfo/verifymd5'].text
   f = File.open("#{jobfile}:status", 'w')
-  f.write("<jobstatus code=\"building\"> <jobid>#{jobid}</jobid> <workerid>simulated</workerid> <hostarch>#{arch}</hostarch> </jobstatus>")
+
+  output = '<jobstatus code="building">' \
+    "<jobid>#{jobid}</jobid>" \
+    '<starttime>0</starttime>' \
+    '<workerid>simulated</workerid>' \
+    "<hostarch>#{arch}</hostarch>" \
+    '</jobstatus>'
+
+  f.write(output)
   f.close
   extrabinary=" -o -name #{extrabinary}" if extrabinary
+  # rubocop:disable Metrics/LineLength
   system("cd #{Rails.root}/test/fixtures/backend/binary/; exec find . -name '*#{arch}.rpm' -o -name '*src.rpm' -o -name logfile -o -name _statistics #{extrabinary} | cpio -H newc -o 2>/dev/null | curl -s -X POST -T - 'http://localhost:3201/putjob?arch=#{arch}&code=success&job=#{jobfile.gsub(/.*\//, '')}&jobid=#{jobid}' > /dev/null")
+  # rubocop:enable Metrics/LineLength
   system("echo \"#{verifymd5}  #{package}\" > #{jobfile}:dir/meta")
+end
+
+module Minitest
+  def self.__run reporter, options
+    # there is no way to avoid the randomization of used suites, so we overload this method.
+    suites = Runnable.runnables # .shuffle <- disabled here
+    parallel, serial = suites.partition { |s| s.test_order == :parallel }
+
+    serial.map { |suite| suite.run reporter, options } +
+      parallel.map { |suite| suite.run reporter, options }
+  end
+
+  # we should fix this first ... unfortunatly there seems to be no way to repeat the last order
+  # to find out what went wrong and to validate it :(
+  def self.sort_order
+    :sorted
+  end
+end
+
+class ActionDispatch::IntegrationTest
+  # usually we do only test at the end of all tests to not slow down too much.
+  # but for debugging or for deep testing the check can be run after each test case
+  def after_teardown
+    super
+    if false
+      begin
+        # something else is going wrong in some random test and you do not know where?
+        # add the specific test for it here:
+        # login_king
+        # get "/source/home:Iggy/TestPack/_link"
+        # assert_response 404
+
+        # simple test that the objects itself or the same in backend and api.
+        # it does not check the content (eg. repository list in project meta)
+        compare_project_and_package_lists
+      rescue MiniTest::Assertion => e
+        puts "Backend became out of sync in #{self.name}"
+        puts e.inspect
+        exit
+      end
+    end
+  end
 end
 
 module ActionDispatch
@@ -104,7 +189,6 @@ module ActionDispatch
         rack_env['RAW_POST_DATA'] = data
         process(:put, path, parameters, add_auth(rack_env))
       end
-
     end
   end
 end
@@ -114,48 +198,16 @@ module Webui
     # Make the Capybara DSL available
     include Capybara::DSL
 
-    @@frontend = nil
-
-    def self.start_test_api
-      return if @@frontend
-      if ENV['API_STARTED']
-        @@frontend = :dont
-        return
-      end
-      # avoid a race
-      Suse::Backend.start_test_backend
-      @@frontend = IO.popen(Rails.root.join('script', 'start_test_api').to_s)
-      puts "Starting test API with pid: #{@@frontend.pid}"
-      lines = []
-      while true do
-        line = @@frontend.gets
-        unless line
-          puts lines.join()
-          raise RuntimeError.new('Frontend died')
-        end
-        break if line =~ /Test API ready/
-        lines << line
-      end
-      puts "Test API up and running with pid: #{@@frontend.pid}"
-      at_exit do
-        puts "Killing test API with pid: #{@@frontend.pid}"
-        Process.kill 'INT', @@frontend.pid
-        begin
-          Process.wait @@frontend.pid
-        rescue Errno::ECHILD
-          # already gone
-        end
-        @@frontend = nil
-      end
-    end
-
     def login_user(user, password, opts = {})
       # no idea why calling it twice would help
       WebMock.disable_net_connect!(allow_localhost: true)
-      visit user_login_path(return_to_path: opts[:to])
+      visit user_login_path
       fill_in 'Username', with: user
       fill_in 'Password', with: password
       click_button 'Log In'
+
+      visit opts[:to] if opts[:to]
+
       @current_user = user
       if opts[:do_assert] != false
         assert_match %r{^#{user}( |$)}, find('#link-to-user-home').text
@@ -166,15 +218,15 @@ module Webui
 
     # will provide a user without special permissions
     def login_tom(opts = {})
-      login_user('tom', 'thunder', opts)
+      login_user('tom', 'buildservice', opts)
     end
 
     def login_Iggy(opts = {})
-      login_user('Iggy', 'asdfasdf', opts)
+      login_user('Iggy', 'buildservice', opts)
     end
 
     def login_adrian(opts = {})
-      login_user('adrian', 'so_alone', opts)
+      login_user('adrian', 'buildservice', opts)
     end
 
     def login_king(opts = {})
@@ -182,11 +234,11 @@ module Webui
     end
 
     def login_fred(opts = {})
-      login_user('fred', 'geröllheimer', opts)
+      login_user('fred', 'buildservice', opts)
     end
 
     def login_dmayr(opts = {})
-      login_user 'dmayr', '123456', opts
+      login_user 'dmayr', 'buildservice', opts
     end
 
     def logout
@@ -195,38 +247,16 @@ module Webui
       ll.click if ll
     end
 
-    def open_file(file)
-      find(:css, "tr##{valid_xml_id('file-' + file)} td:first-child a").click
-    end
-
-    # ============================================================================
-    #
-    def edit_file(new_content)
-      # new edit page does not allow comments
-
-      savebutton = find(:css, '.buttons.save')
-      page.must_have_selector('.buttons.save.inactive')
-
-      # is it all rendered?
-      page.must_have_selector('.CodeMirror-lines')
-
-      # codemirror is not really test friendly, so just brute force it - we basically
-      # want to test the load and save work flow not the codemirror library
-      page.execute_script("editors[0].setValue('#{escape_javascript(new_content)}');")
-
-      # wait for it to be active
-      page.wont_have_selector('.buttons.save.inactive')
-      assert !savebutton['class'].split(' ').include?('inactive')
-      savebutton.click
-      page.must_have_selector('.buttons.save.inactive')
-      assert savebutton['class'].split(' ').include? 'inactive'
-
-      #flash_message.must_equal "Successfully saved file #{@file}"
-      #flash_message_type.must_equal :info
-    end
-
     def current_user
       @current_user
+    end
+
+    def self.load_fixture(path)
+      File.open(File.join(ActionController::TestCase.fixture_path, path)).read()
+    end
+
+    def self.load_backend_file(path)
+      load_fixture("backend/#{path}")
     end
 
     self.use_transactional_fixtures = true
@@ -236,8 +266,8 @@ module Webui
       Capybara.current_driver = :rack_test
 # crude work around - one day I will dig into why this is necessary
       Minitest::Spec.new('MINE') unless Minitest::Spec.current
-      self.class.start_test_api
-      #Capybara.current_driver = Capybara.javascript_driver
+      Suse::Backend.start_test_backend
+      # Capybara.current_driver = Capybara.javascript_driver
       @starttime = Time.now
       WebMock.disable_net_connect!(allow_localhost: true)
       CONFIG['global_write_through'] = true
@@ -251,9 +281,9 @@ module Webui
       dirpath = Rails.root.join('tmp', 'capybara')
       htmlpath = dirpath.join(self.name + '.html')
       if !passed?
-        Dir.mkdir(dirpath) unless Dir.exists? dirpath
+        Dir.mkdir(dirpath) unless Dir.exist? dirpath
         save_page(htmlpath)
-      elsif File.exists?(htmlpath)
+      elsif File.exist?(htmlpath)
         File.unlink(htmlpath)
       end
 
@@ -266,14 +296,14 @@ module Webui
         DatabaseCleaner.clean_with :deletion
       end
 
-      #puts "#{self.__name__} took #{Time.now - @starttime}"
+      # puts "#{self.__name__} took #{Time.now - @starttime}"
     end
 
     def fill_autocomplete(field, options = {})
       fill_in field, with: options[:with]
 
-      page.execute_script %Q{ $('##{field}').trigger('focus') }
-      page.execute_script %Q{ $('##{field}').trigger('keydown') }
+      page.execute_script "$('##{field}').trigger('focus')"
+      page.execute_script "$('##{field}').trigger('keydown')"
 
       page.must_have_selector('ul.ui-autocomplete li.ui-menu-item a')
       ret = []
@@ -281,7 +311,7 @@ module Webui
         ret << l.text
       end
       ret.must_include options[:select]
-      page.execute_script %Q{ select_from_autocomplete('#{options[:select]}') }
+      page.execute_script "select_from_autocomplete('#{options[:select]}')"
       ret
     end
 
@@ -337,16 +367,20 @@ module Webui
     def delete_package project, package
       visit package_show_path(package: package, project: project)
       find(:id, 'delete-package').click
-      find(:id, 'del_dialog').must_have_text 'Delete Confirmation'
+      find(:id, 'del_dialog').must_have_text 'Do you really want to delete this package?'
       find_button('Ok').click
-      find('#flash-messages').must_have_text "Package '#{package}' was removed successfully"
+      find('#flash-messages').must_have_text "Package was successfully removed."
     end
 
+    def valid_xml_id(rawid)
+      Webui::WebuiController.new.valid_xml_id(rawid)
+    end
   end
 end
 
 module ActionDispatch
   class IntegrationTest
+    include TestBackendTasks
 
     def teardown
       Rails.cache.clear
@@ -370,13 +404,12 @@ module ActionDispatch
     end
 
     def prepare_request_with_user(user, passwd)
-      re = 'Basic ' + Base64.encode64(user + ':' + passwd)
-      @@auth = re
+      @@auth = 'Basic ' + Base64.encode64(user + ':' + passwd)
     end
 
     # will provide a user without special permissions
     def prepare_request_valid_user
-      prepare_request_with_user 'tom', 'thunder'
+      prepare_request_with_user 'tom', 'buildservice'
     end
 
     def prepare_request_invalid_user
@@ -411,32 +444,8 @@ module ActionDispatch
       super(hash)
     end
 
-    def wait_for_publisher
-      Rails.logger.debug 'Wait for publisher'
-      counter = 0
-      while counter < 100
-        events = Dir.open(Rails.root.join('tmp/backend_data/events/publish'))
-        #  3 => ".", ".." and ".ping"
-        break unless events.count > 3
-        sleep 0.5
-        counter = counter + 1
-      end
-      if counter == 100
-        raise 'Waited 50 seconds for publisher'
-      end
-    end
-
     def wait_for_scheduler_start
       Suse::Backend.wait_for_scheduler_start
-    end
-
-    def run_scheduler(arch)
-      Rails.logger.debug "RUN_SCHEDULER #{arch}"
-      perlopts="-I#{Rails.root}/../backend -I#{Rails.root}/../backend/build"
-      IO.popen("cd #{Rails.root}/tmp/backend_config; exec perl #{perlopts} ./bs_sched --testmode #{arch}") do |io|
-        # just for waiting until scheduler finishes
-        io.each { |line| line.strip.chomp unless line.blank? }
-      end
     end
 
     def login_king
@@ -444,25 +453,28 @@ module ActionDispatch
     end
 
     def login_Iggy
-      prepare_request_with_user 'Iggy', 'asdfasdf'
+      prepare_request_with_user 'Iggy', 'buildservice'
     end
 
     def login_adrian
-      prepare_request_with_user 'adrian', 'so_alone'
+      prepare_request_with_user 'adrian', 'buildservice'
+    end
+
+    def login_adrian_downloader
+      prepare_request_with_user 'adrian_downloader', 'buildservice'
     end
 
     def login_fred
-      prepare_request_with_user 'fred', 'geröllheimer'
+      prepare_request_with_user 'fred', 'buildservice'
     end
 
     def login_tom
-      prepare_request_with_user 'tom', 'thunder'
+      prepare_request_with_user 'tom', 'buildservice'
     end
 
     def login_dmayr
-      prepare_request_with_user 'dmayr', '123456'
+      prepare_request_with_user 'dmayr', 'buildservice'
     end
-
   end
 end
 
@@ -494,4 +506,3 @@ class ActiveSupport::TestCase
     Rails.cache.clear
   end
 end
-

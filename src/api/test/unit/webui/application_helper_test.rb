@@ -1,30 +1,25 @@
 require 'test_helper'
 
-include Webui::WebuiHelper
+SimpleCov.command_name 'test:webui'
 
-module Webui
- module WebuiHelper
-  def image_tag(filename, opts = {})
-    "<img class='#{opts.inspect}'/>"
-  end
- end
-end
 class ApplicationHelperTest < ActiveSupport::TestCase
-  def test_repo_status_icon
+  include Webui::WebuiHelper
+
+  def test_repo_status_icon # spec/helpers/webui/webui_helper_spec.rb
     # Regular
-    status = Webui::WebuiHelper::repo_status_icon("blocked")
-    status.must_match(/icons-time/)
-    status.must_match(/No build possible atm/)
+    status = repo_status_icon('blocked')
+    assert_match("icons-time", status)
+    assert_match("No build possible atm", status)
 
     # Outdated
-    status = Webui::WebuiHelper::repo_status_icon("outdated_scheduling")
-    status.must_match(/icons-cog_error/)
-    status.must_match(/state is being calculated/)
-    status.must_match(/needs recalculations/)
+    status = repo_status_icon('outdated_scheduling')
+    assert_match("icons-cog_error", status)
+    assert_match("state is being calculated", status)
+    assert_match("needs recalculations", status)
 
     # Fallback
-    status = Webui::WebuiHelper::repo_status_icon("undefined")
-    status.must_match(/icons-eye/)
-    status.must_match(/Unknown state/)
+    status = repo_status_icon('undefined')
+    assert_match("icons-eye", status)
+    assert_match("Unknown state", status)
   end
 end

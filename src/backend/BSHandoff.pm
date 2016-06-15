@@ -29,8 +29,9 @@ use BSRPC;
 use BSServer;
 
 sub handoffsender {
-  my ($param, $s, $req) = @_;
+  my ($param, $s, $req, $data) = @_;
   local *FD;
+  die("handoffsender: data arg is not supported\n") if defined $data;
   if (!$param->{'nullhandoff'}) {
     *FD = BSServer::getsocket();
   } else {
@@ -42,41 +43,7 @@ sub handoffsender {
   (sendmsg(SOCK, $msgHdr) == length($req)) || die("sendmsg: $!\n");
 }
 
-sub handoff {
-  my ($sockname, $path, @args) = @_;
-  local *SOCK;
-  socket(SOCK, PF_UNIX, SOCK_STREAM, 0) || die("socket: $!\n");
-  connect(SOCK, sockaddr_un($sockname)) || die("connect: $!\n");
-  my $param = {
-    'uri' => $path,
-    'socket' => *SOCK,
-    'sender' => \&handoffsender,
-  };
-  my @headers;
-  if ($BSServer::forwardedfor) {
-    push @headers, "X-Peer: $BSServer::forwardedfor";
-  } elsif ($BSServer::peer) {
-    push @headers, "X-Peer: $BSServer::peer";
-  }
-  $param->{'headers'} = \@headers if @headers;
-  return BSRPC::rpc($param, @args);
-}
-
-sub rpc {
-  my ($sockname, $path, @args) = @_;
-  local *SOCK;
-  socket(SOCK, PF_UNIX, SOCK_STREAM, 0) || die("socket: $!\n");
-  connect(SOCK, sockaddr_un($sockname)) || die("connect: $!\n");
-  my $param = {
-    'uri' => ref($path) ? $path->{'uri'} : $path,
-    'socket' => *SOCK,
-    'sender' => \&handoffsender,
-    'nullhandoff' => 1,
-  };
-  return BSRPC::rpc($param, @args);
-}
-
-sub receive {
+sub receivefd {
   my ($fd, $newfd, $len) = @_;
   my $inHdr = Socket::MsgHdr->new(buflen => $len, controllen => 256);
   my $r = recvmsg($fd, $inHdr, 0);
@@ -85,6 +52,42 @@ sub receive {
   die("no socket attached\n") unless $type && $type == SCM_RIGHTS;
   open($newfd, "+<&=".unpack('i', $data)) || die("socket reopen: $!\n");
   return $inHdr->buf();
+}
+
+sub handoff {
+  my ($path, @args) = @_;
+  my $req = $BSServer::request;
+  $path = { 'uri' => $path } unless ref $path;
+  my $sockpath = $path->{'handoffpath'};
+  $sockpath = $req->{'conf'}->{'handoffpath'} unless $sockpath;
+  die("no handoff path set\n") unless $sockpath;
+  local *SOCK;
+  socket(SOCK, PF_UNIX, SOCK_STREAM, 0) || die("socket: $!\n");
+  connect(SOCK, sockaddr_un($sockpath)) || die("connect: $!\n");
+  my $param = {
+    'uri' => $path->{'uri'},
+    'socket' => *SOCK,
+    'sender' => \&handoffsender,
+  };
+  $param->{'nullhandoff'} = 1 if $path->{'nullhandoff'};
+  my @headers;
+  if ($req->{'headers'}->{'x-forwarded-for'}) {
+    push @headers, "X-Peer: $req->{'headers'}->{'x-forwarded-for'}";
+  } elsif ($req->{'headers'}->{'peer'}) {
+    push @headers, "X-Peer: $req->{'headers'}->{'peer'}";
+  }
+  $param->{'headers'} = \@headers if @headers;
+  my $r = BSRPC::rpc($param, @args);
+  exit(0) unless $path->{'noexit'};
+  return $r;
+}
+
+sub rpc {
+  my ($path, @args) = @_;
+  $path = ref($path) ? { %$path } : { 'uri' => $path };
+  $path->{'nullhandoff'} = 1;
+  $path->{'noexit'} = 1;
+  return handoff($path, @args);
 }
 
 1;

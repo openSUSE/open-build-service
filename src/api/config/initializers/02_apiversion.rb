@@ -9,4 +9,3 @@ if CONFIG['version'].blank?
     CONFIG['version'] = api_version
   end
 end
-

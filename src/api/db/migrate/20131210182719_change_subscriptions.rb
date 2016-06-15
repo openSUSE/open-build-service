@@ -1,5 +1,4 @@
 class ChangeSubscriptions < ActiveRecord::Migration
-
   class EventSubscription < ActiveRecord::Base; end
 
   def change

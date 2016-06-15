@@ -1,6 +1,6 @@
 = Open Build Service API
 
-Version: 2.4
+Version: 2.7
 
   Only authenticated users are allowed to access the API. Authentication is done
   by sending a Basic HTTP Authorisation header. 
@@ -249,6 +249,7 @@ POST /source
 
 Parameters:
 
+  linkrev: linked revision, optional (for linkrev=base)
   attribute: attribute used for package search, default is OBS:Maintained
   update_project_attribute: attribute name used to find out possible existing update projects of a package
   request: branch by request, branch all packages in actions of request for superseding it
@@ -400,11 +401,14 @@ POST /source/<project>
   undelete: undelete the project and all packages existing when the project got removed.
   showlinked: List all projects linking to this one
   copy: copy the entire project
+  move: ADMIN ONLY. schedulers need to be stopped. move all sources and binaries around from oproject.
   createmaintenanceincident: create a single mainatenance incident project as sub project
   createpatchinfo: create a new patchinfo package collecting all mentioned issues in sources
   addchannels: add channel packages and repositories for matching packages in project
+  modifychannels: modify existing channels by specified mode
   set_flag: change a defined flag, requires at least flag and status parameters
   remove_flag: remove a defined flag, requires at least flag and status parameters
+  lock: lock a project
   unlock: unlock a locked project
   release: release sources and binaries according to release target specification
 
@@ -415,6 +419,8 @@ Parameters:
   flag: modify this flag (build/publish/..) for set_flag command
   status: enable or disable for set_flag command
   comment: description for the history
+  # for modifychannels and addchannels command only:
+  mode: how to deal with disabled channels: add_disabled(default), skip_disabled, enable_all
   # for copy command only:
   oproject: origin project name (required)
   resign: resign all binaries with new target project key
@@ -439,7 +445,8 @@ Parameters:
   deleted: show deleted package instead of existing
   expand: include also packages from linked projects
   view: issues, can be used to show all tracked issues for all packages in project
-        productlists, shows all containing products, unifies result when used with expand
+        productlist, shows all containing products, unifies result when used with expand
+        verboseproductlist, same as productlist, but with detailed information about the product
 
 
 GET /source/<project>/<package>
@@ -563,6 +570,18 @@ Parameters:
 Result: diff as text/plain
 
 
+POST /source/<project>/<package>?cmd=instantiate
+
+  Instantiate a package container, which is available via project links only so far.
+
+Parameters:
+
+  makeoriginolder: optional, can be used to modify source and target to guarantee that new version 
+                   stay older also on future updates in older code stream
+
+XmlResult: status
+
+
 POST /source/<project>/<package>?cmd=release
 
   Releases sources and binaries of that package. This requires a set
@@ -602,8 +621,12 @@ Parameters:
   target_package: target package name, optional
   noaccess: the new created project will be read protected, bool, optional
   missingok: the target package does not exist
+  newinstance: the target package exists only via project links, but the link should point to given project
   add_repositories: bool, optional, adds repositories base on source project (default for new projects)
+  update_path_elements: bool, optional, update all path elements if needed (used repositories depend on each other)
   extend_package_names: bool, optional, extends package and repository names to allow multiple instances of same package
+  add_repositories_rebuild: use defined rebuild policy for new repos
+  add_repositories_block: use defined block policy for new repos
 
 XmlResult: status
 
@@ -636,6 +659,21 @@ Parameters:
 
   rev: revision, mandatory
   comment: comment, optional
+
+XmlResult: status
+
+
+POST /source/<project>/<package>?cmd=collectbuildenv
+
+  Creates _buildenv files based on origin package builds. This can be used
+  to re-use exact older build enviroment even when further new binary packages
+  got added. For example to re-build an old maintenance update in the same way.
+
+Parameters:
+
+  oproject: Origin project to copy from (required)
+  opackage: Origin package to copy from (required)
+  comment: Optional comment by the user
 
 XmlResult: status
 
@@ -739,6 +777,7 @@ POST /source/<project>/<package>
   release: release sources and binaries according to release target specification
   branch: branch a package into another one
   linktobranch: convert a plain source link into a full branch
+  enablechannel: adds repositories and enable this channel package
   updatepatchinfo: update _patchinfo file, esp. the issues list
   remove_flag: remove a specific flag from meta (flag must be defined, optionally arch and repository)
   set_flag: remove a specific flag from meta (flag must be defined, optionally arch and repository)
@@ -747,6 +786,8 @@ POST /source/<project>/<package>
   rebuild: rebuild all builds
   getprojectservices: list all service defined in project spaces defined for this package.
   runservice: trigger run of defined services in _service file
+  waitservice: returns when all services have finished, code 200 when service run was successful
+  mergeservice: drops the _service file and commits all server side generated files
   wipe: wipe all build results of this package
 
 Parameters: 
@@ -762,6 +803,7 @@ Parameters:
   keeplink: keep link on source commit, optional
   repairlink: repair link on source commit, optional
   dontupdatesource: Do not update origin package, optional (copy only)
+  noservice: do not run source services
   comment: comment for history, optional
   meta: switch to meta files
   arch: architecture when using flag modifing command
@@ -769,7 +811,6 @@ Parameters:
   view: may be "xml" for structured answered (for diff commands)
   withissues: set to get issues parsed from changelogs (for diff commands)
   onlyissues: used to limit to issues (for diff commands)
-  noservice: do not run source services
   setrelease: define a specific release tag when used with "release" command. Setting it to "-" strips
               the release string.
 
@@ -871,14 +912,18 @@ Result: diff as text/plain
 
 POST /request/<id>
   
-  Modify a request state
+  Modify a request
 
 XmlResult: request
 
   Commands on processing requests
   addreview: Adds a review to a request
+  assignreview: Adds a review for a user and accepts it for the used group
   changestate: Modifies the state of a request
+  changereviewstate: Modifies the state of a review inside a request
   setpriority: Modifies the priority of a requst
+  setincident: Change the target incident for maintenance_incident actions
+  setacceptat: Set or modify the accept_at time. Either specified by time parameter or now.
 
 Parameters: 
   newstate: Define the new state
@@ -887,6 +932,8 @@ Parameters:
   by_group: Specify the group of the new review
   by_project: Specify the project of the new review
   by_package: Specify the user of the new review
+  incident: Specifiy inicdent number for setincident
+  time: Specifiy time for setacceptat
 
 
 == Attribute definition api
@@ -971,6 +1018,13 @@ POST /comments/package/:project/:pname
 XmlResult: status
 
 
+DELETE /comment/:id
+
+  Delete a comment specified by the comment id
+
+XmlResult: status
+
+
 == Build Results
 
 <build>: Build repository
@@ -1032,15 +1086,20 @@ GET /build/<project>/<repository>/<arch>/<package>/<binaryname>?view=fileinfo_ex
 Result: fileinfo
 
 
-GET /build/<project>/<repository>/<arch>/_builddepinfo?package=<package>
+GET /build/<project>/<repository>/<arch>/_builddepinfo
+POST /build/<project>/<repository>/<arch>/_builddepinfo
 
   Shows all build dependencies of one or more packages, a change in any of them will
   trigger a build.
+    A changed dependency can be posted to let the server recalculate the order
+  including the local dependency changes.
   
 Parameters:
 
+  package=<name>    filter package container, can be used multiple times
   view=pkgnames     show package names instead of binary names
   view=revpkgnames  show which packages will be triggered if the package is changed
+  view=order        sort packages ordered by dependencies
 
 Result: build dependencies
 
@@ -1361,6 +1420,34 @@ XmlResult: collection
 GET /search/published/pattern/id
 
   Search for published patterns
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
+GET /search/channel/binary
+
+  Search for packages, sources or binaries which are referenced in channel files.
+  Unlike the released/binary search this works already after setting up a channel
+  even without releasing files.
+
+Parameters:
+
+  match: xpath predicate, mandatory
+
+XmlResult: collection
+
+
+GET /search/channel/binary/id
+
+  Search for packages, sources or binaries which are referenced in channel files.
+  Unlike the released/binary search this works already after setting up a channel
+  even without releasing files.
+
+  This is the short version without full release data information.
 
 Parameters:
 
