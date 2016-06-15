@@ -170,107 +170,111 @@ RSpec.feature "Projects", :type => :feature, :js => true do
     end
   end
 
-  describe "DoD repositories" do
-    let(:project_with_dod_repo) { create(:project) }
-    let(:repository) { create(:repository, project: project_with_dod_repo) }
-    let!(:download_repository) { create(:download_repository, repository: repository) }
+  describe "repositories tab" do
+    include_examples "tests for sections with flag tables"
 
-    before do
-      login admin_user
-    end
+    describe "DoD repositories" do
+      let(:project_with_dod_repo) { create(:project) }
+      let(:repository) { create(:repository, project: project_with_dod_repo) }
+      let!(:download_repository) { create(:download_repository, repository: repository) }
 
-    scenario "adding DoD repositories" do
-      visit(project_repositories_path(project: admin_user.home_project_name))
-      click_link("Add DoD repository")
-      fill_in("Repository name", with: "My DoD repository")
-      select("i586", from: "Architecture")
-      select("rpmmd", from: "Type")
-      fill_in("Url", with: "http://somerandomurl.es")
-      fill_in("Arch. Filter", with: "i586, noarch")
-      fill_in("Master Url", with: "http://somerandomurl2.es")
-      fill_in("SSL Fingerprint", with: "293470239742093")
-      fill_in("Public Key", with: "JLKSDJFSJ83U4902RKLJSDFLJF2J9IJ23OJFKJFSDF")
-      click_button("Save")
-
-      within ".repository-container" do
-        expect(page).to have_text("My DoD repository")
-        expect(page).to have_link("Delete repository")
-        expect(page).to have_text("Download on demand sources")
-        expect(page).to have_link("Add")
-        expect(page).to have_link("Edit")
-        expect(page).to have_link("Delete")
-        expect(page).to have_link("http://somerandomurl.es")
-        expect(page).to have_text("rpmmd")
+      before do
+        login admin_user
       end
-    end
 
-    scenario "removing DoD repositories" do
-      visit(project_repositories_path(project: project_with_dod_repo))
-      within ".repository-container" do
-        click_link("Delete repository")
+      scenario "adding DoD repositories" do
+        visit(project_repositories_path(project: admin_user.home_project_name))
+        click_link("Add DoD repository")
+        fill_in("Repository name", with: "My DoD repository")
+        select("i586", from: "Architecture")
+        select("rpmmd", from: "Type")
+        fill_in("Url", with: "http://somerandomurl.es")
+        fill_in("Arch. Filter", with: "i586, noarch")
+        fill_in("Master Url", with: "http://somerandomurl2.es")
+        fill_in("SSL Fingerprint", with: "293470239742093")
+        fill_in("Public Key", with: "JLKSDJFSJ83U4902RKLJSDFLJF2J9IJ23OJFKJFSDF")
+        click_button("Save")
+
+        within ".repository-container" do
+          expect(page).to have_text("My DoD repository")
+          expect(page).to have_link("Delete repository")
+          expect(page).to have_text("Download on demand sources")
+          expect(page).to have_link("Add")
+          expect(page).to have_link("Edit")
+          expect(page).to have_link("Delete")
+          expect(page).to have_link("http://somerandomurl.es")
+          expect(page).to have_text("rpmmd")
+        end
       end
-      expect(project_with_dod_repo.repositories).to be_empty
-    end
 
-    # Note DownloadRepositories belong to Repositories (= DoD repositories)
-    scenario "editing download repositories" do
-      visit(project_repositories_path(project: project_with_dod_repo))
-      within ".repository-container" do
-        click_link("Edit")
+      scenario "removing DoD repositories" do
+        visit(project_repositories_path(project: project_with_dod_repo))
+        within ".repository-container" do
+          click_link("Delete repository")
+        end
+        expect(project_with_dod_repo.repositories).to be_empty
       end
-      select("i586", from: "Architecture")
-      select("deb", from: "Type")
-      fill_in("Url", with: "http://some_random_url_2.es")
-      fill_in("Arch. Filter", with: "i586, noarch")
-      fill_in("Master Url", with: "http://some_other_url.es")
-      fill_in("SSL Fingerprint", with: "test")
-      fill_in("Public Key", with: "some_key")
-      click_button("Update Download on Demand")
 
-      download_repository.reload
-      expect(download_repository.arch).to eq "i586"
-      expect(download_repository.repotype).to eq "deb"
-      expect(download_repository.url).to eq "http://some_random_url_2.es"
-      expect(download_repository.archfilter).to eq "i586, noarch"
-      expect(download_repository.masterurl).to eq "http://some_other_url.es"
-      expect(download_repository.mastersslfingerprint).to eq "test"
-      expect(download_repository.pubkey).to eq "some_key"
-    end
+      # Note DownloadRepositories belong to Repositories (= DoD repositories)
+      scenario "editing download repositories" do
+        visit(project_repositories_path(project: project_with_dod_repo))
+        within ".repository-container" do
+          click_link("Edit")
+        end
+        select("i586", from: "Architecture")
+        select("deb", from: "Type")
+        fill_in("Url", with: "http://some_random_url_2.es")
+        fill_in("Arch. Filter", with: "i586, noarch")
+        fill_in("Master Url", with: "http://some_other_url.es")
+        fill_in("SSL Fingerprint", with: "test")
+        fill_in("Public Key", with: "some_key")
+        click_button("Update Download on Demand")
 
-    scenario "removing download repositories" do
-      create(:repository_architecture, repository: repository, architecture: Architecture.find_by_name("i586"))
-      download_repository_2 = create(:download_repository, repository: repository, arch: "i586")
+        download_repository.reload
+        expect(download_repository.arch).to eq "i586"
+        expect(download_repository.repotype).to eq "deb"
+        expect(download_repository.url).to eq "http://some_random_url_2.es"
+        expect(download_repository.archfilter).to eq "i586, noarch"
+        expect(download_repository.masterurl).to eq "http://some_other_url.es"
+        expect(download_repository.mastersslfingerprint).to eq "test"
+        expect(download_repository.pubkey).to eq "some_key"
+      end
 
-      visit(project_repositories_path(project: project_with_dod_repo))
-      # Delete link
-      find(:xpath, "//a[@href='/download_repositories/#{download_repository.id}?project=#{project_with_dod_repo}'][text()='Delete']").click
-      expect(page).to have_text "Successfully removed Download on Demand"
-      expect(repository.download_repositories.count).to eq 1
+      scenario "removing download repositories" do
+        create(:repository_architecture, repository: repository, architecture: Architecture.find_by_name("i586"))
+        download_repository_2 = create(:download_repository, repository: repository, arch: "i586")
 
-      find(:xpath, "//a[@href='/download_repositories/#{download_repository_2.id}?project=#{project_with_dod_repo}'][text()='Delete']").click
-      expect(page).to have_text "Download on Demand can't be removed: DoD Repositories must have at least one repository."
-      expect(repository.download_repositories.count).to eq 1
-    end
+        visit(project_repositories_path(project: project_with_dod_repo))
+        # Delete link
+        find(:xpath, "//a[@href='/download_repositories/#{download_repository.id}?project=#{project_with_dod_repo}'][text()='Delete']").click
+        expect(page).to have_text "Successfully removed Download on Demand"
+        expect(repository.download_repositories.count).to eq 1
 
-    scenario "adding DoD repositories via meta editor" do
-      fixture_file = File.read(Rails.root + "test/fixtures/backend/download_on_demand/project_with_dod.xml").
-        gsub("user5", admin_user.login)
+        find(:xpath, "//a[@href='/download_repositories/#{download_repository_2.id}?project=#{project_with_dod_repo}'][text()='Delete']").click
+        expect(page).to have_text "Download on Demand can't be removed: DoD Repositories must have at least one repository."
+        expect(repository.download_repositories.count).to eq 1
+      end
 
-      visit(project_meta_path(project: admin_user.home_project_name))
-      page.evaluate_script("editors[0].setValue(\"#{fixture_file.gsub("\n", '\n')}\");")
-      click_button("Save")
-      expect(page).to have_css("#flash-messages", text: "Config successfully saved!")
+      scenario "adding DoD repositories via meta editor" do
+        fixture_file = File.read(Rails.root + "test/fixtures/backend/download_on_demand/project_with_dod.xml").
+          gsub("user5", admin_user.login)
 
-      visit(project_repositories_path(project: admin_user.home_project_name))
-      within ".repository-container" do
-        expect(page).to have_link("standard")
-        expect(page).to have_link("Delete repository")
-        expect(page).to have_text("Download on demand sources")
-        expect(page).to have_link("Add")
-        expect(page).to have_link("Edit")
-        expect(page).to have_link("Delete")
-        expect(page).to have_link("http://mola.org2")
-        expect(page).to have_text("rpmmd")
+        visit(project_meta_path(project: admin_user.home_project_name))
+        page.evaluate_script("editors[0].setValue(\"#{fixture_file.gsub("\n", '\n')}\");")
+        click_button("Save")
+        expect(page).to have_css("#flash-messages", text: "Config successfully saved!")
+
+        visit(project_repositories_path(project: admin_user.home_project_name))
+        within ".repository-container" do
+          expect(page).to have_link("standard")
+          expect(page).to have_link("Delete repository")
+          expect(page).to have_text("Download on demand sources")
+          expect(page).to have_link("Add")
+          expect(page).to have_link("Edit")
+          expect(page).to have_link("Delete")
+          expect(page).to have_link("http://mola.org2")
+          expect(page).to have_text("rpmmd")
+        end
       end
     end
   end

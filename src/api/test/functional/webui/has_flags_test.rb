@@ -85,7 +85,7 @@ class Webui::HasFlagsTest < Webui::IntegrationTest
     assert_equal 0, Project.find_by(name: 'home:tom:coolstuff').flags.count
   end
 
-  def test_project_repositories_uniq_archs
+  def test_project_repositories_uniq_archs # spec/features/webui/projects_spec.rb
     use_js
     login_tom
 
