@@ -1,5 +1,4 @@
 class SearchController < ApplicationController
-
   require_dependency 'xpath_engine'
 
   def project
@@ -38,6 +37,14 @@ class SearchController < ApplicationController
     search(:request, false)
   end
 
+  def channel_binary
+    search(:channel_binary, true)
+  end
+
+  def channel_binary_id
+    search(:channel_binary, false)
+  end
+
   def released_binary
     search(:released_binary, true)
   end
@@ -55,20 +62,20 @@ class SearchController < ApplicationController
   end
 
   def missing_owner
-    params[:limit] ||= "0" #unlimited by default
+    params[:limit] ||= "0" # unlimited by default
 
     @owners = Owner.search(params, nil).map(&:to_hash)
-
   end
 
   def owner
-
     Suse::Backend.start_test_backend if Rails.env.test?
 
     obj = nil
     obj = params[:binary] unless params[:binary].blank?
     obj = User.find_by_login!(params[:user]) unless params[:user].blank?
     obj = Group.find_by_title!(params[:group]) unless params[:group].blank?
+    obj = Package.get_by_project_and_name(params[:project], params[:package]) unless params[:project].blank? or params[:package].blank?
+    obj = Project.get_by_name(params[:project]) unless not obj.nil? or params[:project].blank?
 
     if obj.blank?
       render_error :status => 400, :errorcode => "no_binary",
@@ -80,18 +87,19 @@ class SearchController < ApplicationController
   end
 
   def predicate_from_match_parameter(p)
-    if p=~ /^\(\[(.*)\]\)$/
-      pred = $1
-    elsif p=~ /^\[(.*)\]$/
-      pred = $1
-    else
-      pred = p
+    pred = case p
+      when  /^\(\[(.*)\]\)$/
+           $1
+      when /^\[(.*)\]$/
+           $1
+      else
+           p
     end
     pred = "*" if pred.nil? or pred.empty?
-    return pred
+    pred
   end
 
-  def filter_items(items, offset, limit)
+  def filter_items(items)
     begin
       @offset = Integer(params[:offset])
     rescue
@@ -104,7 +112,6 @@ class SearchController < ApplicationController
     end
     nitems = Array.new
     items.each do |item|
-
       if @offset > 0
         @offset -= 1
       else
@@ -165,13 +172,13 @@ class SearchController < ApplicationController
 
     if params[:offset] || params[:limit]
       # Add some pagination. Limiting the ids we have
-      items = filter_items(items, params[:offset], params[:limit])
+      items = filter_items(items)
     end
 
     includes = nil
     opts = {}
 
-    output = "<collection matches=\"#{matches.to_s}\">\n"
+    output = "<collection matches=\"#{matches}\">\n"
 
     xml = Hash.new # filled by filter
     if render_all
@@ -203,6 +210,9 @@ class SearchController < ApplicationController
       opts[:withfullhistory] = 1 if params[:withfullhistory]
     when :person
       relation = User.where(id: search_items)
+      includes = []
+    when :channel_binary
+      relation = ChannelBinary.where(id: search_items)
       includes = []
     when :released_binary
       relation = BinaryRelease.where(id: search_items)
@@ -248,11 +258,7 @@ class SearchController < ApplicationController
   #          and values   = <values>value+</values>
   #          and value    = <value>CDATA</value>
   def find_attribute(namespace, name)
-    attrib = AttribType.find_by_namespace_and_name(namespace, name)
-    unless attrib
-      render_error :status => 404, :message => "no such attribute"
-      return
-    end
+    attrib = AttribType.find_by_namespace_and_name!(namespace, name)
 
     # gather the relation for attributes depending on project/package combination
     if params[:package]
@@ -305,5 +311,4 @@ class SearchController < ApplicationController
     end
     render :text => xml, :content_type => "text/xml"
   end
-
 end

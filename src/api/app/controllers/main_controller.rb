@@ -1,5 +1,4 @@
 class MainController < ApplicationController
-
   skip_before_filter :extract_user, :only => [:notfound]
 
   def index
@@ -10,5 +9,4 @@ class MainController < ApplicationController
     render_error :message => "Page not found", :status => 404, :errorcode => "not_found"
     return
   end
-
 end

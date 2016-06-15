@@ -178,3 +178,19 @@ record_44:
   user: Iggy
   role: maintainer
   project: home_Iggy
+record_45:
+  user: user5
+  role: maintainer
+  project: home_user5
+record_46:
+  user: fred
+  role: maintainer
+  package: Apache_apache2
+record_47:
+  user: fred
+  role: reader
+  project: home_Iggy
+record_48:
+  role: maintainer
+  group: test_group
+  project: BrokenPublishing

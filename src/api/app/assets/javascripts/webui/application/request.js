@@ -11,6 +11,7 @@ function updateSupersedeAndDevelPackageDisplay() {
             url: $('#targetproject').data('requests-url'),
             data: {
                 project: $('#targetproject')[0].value,
+                source_project: $('#project')[0].value,
                 package: $('#package')[0].value,
                 types: 'submit',
                 states: ['new', 'review', 'declined']
@@ -18,11 +19,10 @@ function updateSupersedeAndDevelPackageDisplay() {
             success: function (data) {
                 if (data.indexOf('No requests') == -1) {
                     $('#supersede_display').show();
-                    $('#supersede').prop('checked', true);
-                    $('#pending_requests').html(data);
+                    $('#supersede_requests').html(data);
                 } else {
                     $('#supersede_display').hide();
-                    $('#supersede').prop('checked', false);
+                    $('#supersede_requests').html('');
                 }
             }
         });
@@ -67,19 +67,19 @@ function setup_request_dialog() {
 function requestAddAcceptRequestButton() {
     $('#accept_request_button').click(function (data) {
         /* Add some hidden elements to carry HTML form data that is found at other DOM places for design reasons.  */
-        if ($('.submitter_is_maintainer_checkbox').size() != 0 &&
+        if ($('.submitter_is_maintainer_checkbox').size() !== 0 &&
             $('.submitter_is_maintainer_checkbox').is(':checked')) {
             additional_element = '<input id="' + $('.submitter_is_maintainer_checkbox').attr('id') +
                 '" name="' + $('.submitter_is_maintainer_checkbox').attr('name') +
-                '" type="hidden" value="' + $('.submitter_is_maintainer_checkbox').attr('value') + '"/>'
+                '" type="hidden" value="' + $('.submitter_is_maintainer_checkbox').attr('value') + '"/>';
             $('#request_handle_form p:last').append(additional_element);
         }
-        if ($('.forward_checkbox').size() != 0 &&
+        if ($('.forward_checkbox').size() !== 0 &&
             $('.forward_checkbox').is(':checked')) {
-            $('.forward_checkbox').each(function (index) {
+            $('.forward_checkbox').each(function () {
                 additional_element = '<input id="' + $(this).attr('id') +
                     '" name="' + $(this).attr('name') +
-                    '" type="hidden" value="' + $(this).attr('value') + '"/>'
+                    '" type="hidden" value="' + $(this).attr('value') + '"/>';
                 $('#request_handle_form p:last').append(additional_element);
             });
         }
@@ -87,11 +87,12 @@ function requestAddAcceptRequestButton() {
 }
 
 function requestShowReview() {
+    var index;
     $('.review_descision_link').click(function (event) {
         $('#review_descision_select li.selected').attr('class', '');
-        $(event.target).parent().attr('class', 'selected')
+        $(event.target).parent().attr('class', 'selected');
         $('.review_descision_display').hide();
-        index = event.target.id.split('review_descision_link_')[1]
+        index = event.target.id.split('review_descision_link_')[1];
         $('#review_descision_display_' + index).show();
         return false;
     });
@@ -161,11 +162,12 @@ function requestAddReviewAutocomplete() {
 }
 
 function setupActionLink() {
+    var index;
     $('.action_select_link').click(function (event) {
         $('#action_select li.selected').attr('class', '');
-        $(event.target).parent().attr('class', 'selected')
+        $(event.target).parent().attr('class', 'selected');
         $('.action_display').hide();
-        index = event.target.id.split('action_select_link_')[1]
+        index = event.target.id.split('action_select_link_')[1];
         $('#action_display_' + index).show();
         return false;
     });

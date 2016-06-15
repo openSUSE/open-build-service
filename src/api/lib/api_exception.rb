@@ -28,15 +28,14 @@ class APIException < Exception
     # if the class name stops with Error, strip that
     err.gsub(%r{_error$}, '')
   end
-  
+
   def status
     self.class.instance_variable_get "@status"
   end
-  
+
   def default_message
     self.class.instance_variable_get "@default_message"
   end
-
 end
 
 # 403 errors (how about a subclass?)
@@ -50,6 +49,9 @@ class DeleteFileNoPermission < APIException
   setup 403
 end
 class PostRequestNoPermission < APIException
+  setup 403
+end
+class OpenReleaseRequest < APIException
   setup 403
 end
 
@@ -73,7 +75,10 @@ class InvalidParameterError < APIException; end
 class InvalidProjectNameError < APIException; end
 class UnknownCommandError < APIException; end
 class NotMissingError < APIException; end
-class ExpandError < APIException; 
+class PackageAlreadyExists < APIException; end
+class ExpandError < APIException;
   setup 'expand_error'
 end
-
+class ProjectNotLocked < APIException
+  setup 'not_locked'
+end

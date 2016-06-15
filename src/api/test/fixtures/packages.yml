@@ -56,12 +56,23 @@ BaseDistro2.0_pack2.linked:
   name: pack2.linked
   title: For maintenance tests
   description: ''
+  bcntsynctag: pack2
   created_at: 2007-05-16 16:19:18.000000000 Z
   updated_at: 2007-05-16 16:19:18.000000000 Z
   update_counter: 1
   activity_index: 10.0
   delta: 1
   project: BaseDistro2.0
+LinkedUpdateProject_pack_local:
+  name: pack_local
+  title: For linked project tests
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  update_counter: 1
+  activity_index: 10.0
+  delta: 1
+  project: BaseDistro2.0_LinkedUpdateProject
 BaseDistro3_pack2:
   name: pack2
   title: For maintenance tests
@@ -107,7 +118,7 @@ BaseDistro_pack2:
   delta: 1
   project: BaseDistro
 BaseDistro_pack3:
-  name: pack3
+  name: Pack3
   title: For maintenance tests
   description: ''
   created_at: 2007-05-16 16:19:18.000000000 Z
@@ -120,6 +131,17 @@ BaseDistro_pack3:
   project: BaseDistro
 BaseDistro_product:
   name: _product
+  title: Our single product
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  url: ''
+  update_counter: 1
+  activity_index: 10.0
+  delta: 1
+  project: BaseDistro
+BaseDistro_product_fixed_release:
+  name: _product:fixed-release
   title: Our single product
   description: ''
   created_at: 2007-05-16 16:19:18.000000000 Z
@@ -185,7 +207,7 @@ Devel_BaseDistro_Update_pack2:
   delta: 1
   project: Devel_BaseDistro_Update
 Devel_BaseDistro_Update_pack3:
-  name: pack3
+  name: Pack3
   title: Devel package for maintenance tests
   description: ''
   created_at: 2007-05-16 16:19:18.000000000 Z
@@ -338,7 +360,7 @@ home_dmayr_x11vnc:
   delta: 1
   project: home_dmayr
 home_king_commentpack:
-  name: commentpack 
+  name: commentpack
   title: commentpack
   description: description
   created_at: 2014-02-14 01:00:02.000000000 Z
@@ -368,3 +390,13 @@ kde4_kdelibs:
   delta: 1
   project: kde4
   develpackage: home_coolo_test_kdelibs_DEVEL_package
+BrokenPublishing_pack_broken_publish:
+  name: pack_broken_publish
+  title: For tests
+  description: ''
+  created_at: 2007-05-16 16:19:18.000000000 Z
+  updated_at: 2007-05-16 16:19:18.000000000 Z
+  update_counter: 1
+  activity_index: 10.0
+  delta: 1
+  project: BrokenPublishing

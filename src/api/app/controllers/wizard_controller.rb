@@ -1,7 +1,6 @@
 require 'wizard'
 
 class WizardController < ApplicationController
-
   class ChangePackageNoPermission < APIException
     setup 403
   end
@@ -87,6 +86,7 @@ class WizardController < ApplicationController
   end
 
   private
+
   def render_wizard
     if @wizard.dirty
       Suse::Backend.put(@wizard_xml + '?user=king', @wizard.serialize)

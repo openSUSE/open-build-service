@@ -1,7 +1,5 @@
-
-<% unless flash.blank? %>
-
-  <div id="flash-messages" class="container_16" >
+<div id="flash-messages" class="container_16" >
+  <% unless flash.blank? %>
     <div class="ui-widget grid_16 alpha omega">
 
       <% [:success, :error, :alert, :notice].each do |flash_type|
@@ -37,5 +35,5 @@
       <% end %>
 
     </div>
-  </div>
-<% end %>
+  <% end %>
+</div>

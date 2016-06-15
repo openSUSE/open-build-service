@@ -1,6 +1,5 @@
 module OBSApi
   class TestSphinx
-
     @started = false
 
     def self.ensure

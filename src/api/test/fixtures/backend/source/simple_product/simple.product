@@ -77,8 +77,11 @@ lines
 		   <package name="patterns-obs"/>
                </metadata>
             <use group="obs">
+		<package name="package" relationship="requires" />
+<!--
 		<package name="obs-release" relationship="requires" />
 		<package name="obs-release-cd" relationship="requires" />
+-->
 	    </use>
         </media>
     </mediasets>

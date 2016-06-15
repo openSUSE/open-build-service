@@ -26,3 +26,7 @@ record_6:
   parent_id: 83
   repository_id: 82
   position: 1
+UseRemoteInstance_pop_path:
+  parent_id: BaseDistro_repo
+  repository_id: UseRemoteInstance_pop
+  position: 1

@@ -5,7 +5,7 @@
     <b>Group:</b><br/>
     <%= text_field_tag 'groupid', params[:groupid], :size => '25' %><br/>
     <%= javascript_tag do %>
-      $("#groupid").autocomplete({source: '<%= url_for :controller => 'group', :action => 'autocomplete' %>', minLength: 2});
+      $("#groupid").autocomplete({source: '<%= url_for :controller => 'groups', :action => 'autocomplete' %>', minLength: 2});
     <% end %>
     <b>Role:</b><br/>
     <%= select_tag 'role', options_for_select(@roles, params[:role]) %><br/>

@@ -16,9 +16,9 @@
   </p>
     <% end %>
 
-    <%= render partial: "shared/editor", locals: {text: @file, mode: guess_code_class(@filename), 
-			save: {url: url_for(controller: 'package', action: 'save_modified_file', method: :post), 
-			method: 'POST', 
+    <%= render partial: "shared/editor", locals: {text: @file, mode: guess_code_class(@filename),
+			save: {url: url_for(controller: :package, action: :save_file, method: :post), 
+			method: 'POST',
 			data: {project: @project.name, package: @package.name, submit: 'file', comment: '', filename: @filename, rev: @rev}}} %>
     <%# TODO: Provide a comments field thru a callback!! %>
 <% else %>

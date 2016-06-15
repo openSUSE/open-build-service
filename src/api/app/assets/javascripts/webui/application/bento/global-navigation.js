@@ -3,7 +3,7 @@ var position_menu = function(button_id, menu_id) {
     var left = $('#' + button_id).offset().left;
     $('#' + menu_id).css({left:'',top:''});
     $('#' + menu_id).offset({left:left,top:top});
-}
+};
 
 $(document).ready(function() {
 

@@ -6,11 +6,11 @@ class UserBasicStrategy
     user.groups_users.where(group_id: group.id).exists?
   end
 
-  def local_role_check(role, object)
+  def local_role_check(_role, _object)
     false # all is checked, nothing remote
   end
 
-  def local_permission_check(roles, object)
+  def local_permission_check(_roles, _object)
     false # all is checked, nothing remote
   end
 
@@ -20,8 +20,16 @@ class UserBasicStrategy
 end
 
 class User < ActiveRecord::Base
-
   include CanRenderModel
+
+  STATES = {
+    'unconfirmed'        => 1,
+    'confirmed'          => 2,
+    'locked'             => 3,
+    'deleted'            => 4,
+    'ichainrequest'      => 5,
+    'retrieved_password' => 6
+  }
 
   has_many :taggings, :dependent => :destroy
   has_many :tags, :through => :taggings
@@ -51,13 +59,37 @@ class User < ActiveRecord::Base
     default_password_hash_types
   end
 
+  after_create :create_home_project
+
+  def create_home_project
+    # avoid errors during seeding
+    return if [ "_nobody_", "Admin" ].include? self.login
+    # may be disabled via Configuration setting
+    return unless can_create_project?(self.home_project_name)
+    # find or create the project
+    project = Project.find_by(name: self.home_project_name)
+    unless project
+      project = Project.create(name: self.home_project_name)
+      # make the user maintainer
+      project.relationships.create(user: self,
+                                   role: Role.find_by_title('maintainer'))
+      project.store({login: self.login})
+    end
+    true
+  end
+
+  # the default state of a user based on the api configuration
+  def self.default_user_state
+    return STATES['unconfirmed'] if ::Configuration.registration == "confirmation"
+    STATES['confirmed']
+  end
+
   # When a record object is initialized, we set the state, password
-  # hash type, indicator whether the password has freshly been set 
-  # (@new_password) and the login failure count to 
+  # hash type, indicator whether the password has freshly been set
+  # (@new_password) and the login failure count to
   # unconfirmed/false/0 when it has not been set yet.
   before_validation(:on => :create) do
-
-    self.state = User.states['unconfirmed'] if self.state.nil?
+    self.state = STATES['unconfirmed'] if self.state.nil?
     self.password_hash_type = 'md5' if self.password_hash_type.to_s == ''
 
     @new_password = false if @new_password.nil?
@@ -84,13 +116,15 @@ class User < ActiveRecord::Base
   # again.
   after_save '@new_hash_type = false'
 
-  # Add accessors for "new_password" property. This boolean property is set 
+  # Add accessors for "new_password" property. This boolean property is set
   # to true when the password has been set and validation on this password is
   # required.
   attr_accessor :new_password
 
   # Generate accessors for the password confirmation property.
   attr_accessor :password_confirmation
+
+  scope :all_without_nobody, -> { where("login != ?", nobody_login) }
 
   # Overriding the default accessor to update @new_password on setting this
   # property.
@@ -105,19 +139,10 @@ class User < ActiveRecord::Base
     @new_password
   end
 
-  def discard_cache
-    @projects_to_modify = {}
-  end
-
-  after_initialize :init
-  def init
-    @projects_to_modify = {}
-  end
-
-    # Method to update the password and confirmation at the same time. Call
-  # this method when you update the password from code and don't need 
+  # Method to update the password and confirmation at the same time. Call
+  # this method when you update the password from code and don't need
   # password_confirmation - which should really only be used when data
-  # comes from forms. 
+  # comes from forms.
   #
   # A ussage example:
   #
@@ -145,7 +170,7 @@ class User < ActiveRecord::Base
   end
 
   # This method creates a new registration token for the current user. Raises
-  # a MultipleRegistrationTokens Exception if the user already has a 
+  # a MultipleRegistrationTokens Exception if the user already has a
   # registration token assigned to him.
   #
   # Use this method instead of creating user_registration objects directly!
@@ -164,9 +189,9 @@ class User < ActiveRecord::Base
   def confirm_registration(token)
     return false if self.user_registration.nil?
     return false if user_registration.token != token
-    return false unless state_transition_allowed?(state, User.states['confirmed'])
+    return false unless state_transition_allowed?(state, STATES['confirmed'])
 
-    self.state = User.states['confirmed']
+    self.state = STATES['confirmed']
     self.save!
     user_registration.destroy
 
@@ -175,13 +200,13 @@ class User < ActiveRecord::Base
 
   # Returns the default state of new User objects.
   def self.default_state
-    User.states['unconfirmed']
+    STATES['unconfirmed']
   end
 
   # Returns true when users with the given state may log in. False otherwise.
   # The given parameter must be an integer.
   def self.state_allows_login?(state)
-    [ User.states['confirmed'], User.states['retrieved_password'] ].include?(state)
+    [ STATES['confirmed'], STATES['retrieved_password'] ].include?(state)
   end
 
   # Overwrite the state setting so it backs up the initial state from
@@ -195,20 +220,83 @@ class User < ActiveRecord::Base
   # in the database. Returns the user or nil if he could not be found
   def self.find_with_credentials(login, password)
     # Find user
-    user = User.where(login: login).first
+    user = find_by_login(login)
+    ldap_info = nil
 
-    # If the user could be found and the passwords equal then return the user
-    if not user.nil? and user.password_equals? password
-      if user.login_failure_count > 0
+    if CONFIG['ldap_mode'] == :on
+      begin
+        require 'ldap'
+        logger.debug( "Using LDAP to find #{login}" )
+        ldap_info = UserLdapStrategy.find_with_ldap( login, password )
+      rescue LoadError
+        logger.warn "ldap_mode selected but 'ruby-ldap' module not installed."
+      rescue
+        logger.debug "#{login} not found in LDAP."
+      end
+    end
+
+    if ldap_info
+      # We've found an ldap authenticated user - find or create an OBS userDB entry.
+      if user
+        # stuff without affect to update_at
+        user.last_logged_in_at = Time.now
         user.login_failure_count = 0
         self.execute_without_timestamps { user.save! }
+
+        # Check for ldap updates
+        if user.email != ldap_info[0] || user.realname != ldap_info[1]
+          user.email = ldap_info[0]
+          user.realname = ldap_info[1]
+          user.save
+        end
+        return user
       end
+
+      # still in LDAP mode, user authentificated, but not existing in OBS yet
+      if ::Configuration.registration == "deny"
+        logger.debug( "No user found in database, creation disabled" )
+        return nil
+      end
+      logger.debug( "No user found in database, creating" )
+      logger.debug( "Email: #{ldap_info[0]}" )
+      logger.debug( "Name : #{ldap_info[1]}" )
+      # Generate and store a fake pw in the OBS DB that no-one knows
+      chars = ["A".."Z", "a".."z", "0".."9"].collect { |r| r.to_a }.join
+      password = (1..24).collect { chars[rand(chars.size)] }.pack('a'*24)
+      user = User.create( :login => login,
+                          :password => password,
+                          :password_confirmation => password,
+                          :email => ldap_info[0],
+                          :last_logged_in_at => Time.now)
+      unless user.errors.empty?
+        errstr = String.new
+        logger.debug("Creating User failed with: ")
+        user.errors.full_messages.each do |msg|
+          errstr = errstr+msg
+          logger.debug(msg)
+        end
+        logger.info("Cannot create ldap userid: '#{login}' on OBS<br>#{errstr}")
+        return nil
+      end
+      user.realname = ldap_info[1]
+      user.state = User::STATES['confirmed']
+      user.state = User::STATES['unconfirmed'] if ::Configuration.registration == "confirmation"
+      user.adminnote = "User created via LDAP"
+      logger.debug( "saving new user..." )
+      user.save
+    end
+
+    # If the user could be found and the passwords equal then return the user
+    if user && user.password_equals?(password)
+      user.last_logged_in_at = Time.now
+      user.login_failure_count = 0
+      self.execute_without_timestamps { user.save! }
 
       return user
     end
 
     # Otherwise increase the login count - if the user could be found - and return nil
-    if not user.nil?
+    if user
       user.login_failure_count = user.login_failure_count + 1
       self.execute_without_timestamps { user.save! }
     end
@@ -219,10 +307,10 @@ class User < ActiveRecord::Base
   # This method checks whether the given value equals the password when
   # hashed with this user's password hash type. Returns a boolean.
   def password_equals?(value)
-    return hash_string(value) == self.password
+    hash_string(value) == self.password
   end
 
-  # Sets the last login time and saves the object. Note: Must currently be 
+  # Sets the last login time and saves the object. Note: Must currently be
   # called explicitely!
   def did_log_in
     self.last_logged_in_at = DateTime.now
@@ -231,7 +319,7 @@ class User < ActiveRecord::Base
 
   # Returns true if the the state transition from "from" state to "to" state
   # is valid. Returns false otherwise. +new_state+ must be the integer value
-  # of the state as returned by +User.states['state_name']+.
+  # of the state as returned by +User::STATES['state_name']+.
   #
   # Note that currently no permission checking is included here; It does not
   # matter what permissions the currently logged in user has, only that the
@@ -239,22 +327,23 @@ class User < ActiveRecord::Base
   def state_transition_allowed?(from, to)
     from = from.to_i
     to = to.to_i
+    desired_state = STATES.key(to)
 
     return true if from == to # allow keeping state
 
-    return case from
-    when User.states['unconfirmed']
+    case from
+    when STATES['unconfirmed']
       true
-    when User.states['confirmed']
-      %w(retrieved_password locked deleted deleted ichainrequest).map{|x| User.states[x]}.include?(to)
-    when User.states['locked']
-      %w(confirmed deleted).map{|x| User.states[x]}.include?(to)
-    when User.states['deleted']
-      to == User.states['confirmed']
-    when User.states['ichainrequest']
-      %w(locked confirmed deleted).map{|x| User.states[x]}.include?(to)
+    when STATES['confirmed']
+      ["retrieved_password", "locked", "deleted", "ichainrequest"].include?(desired_state)
+    when STATES['locked']
+      ["confirmed", "deleted"].include?(desired_state)
+    when STATES['deleted']
+      desired_state == "confirmed"
+    when STATES['ichainrequest']
+      ["locked", "confirmed", "deleted"].include?(desired_state)
     when 0
-      User.states.value?(to)
+      desired_state.present?
     else
       false
     end
@@ -262,13 +351,13 @@ class User < ActiveRecord::Base
 
   # Model Validation
 
-  validates_presence_of   :login, :email, :password, :password_hash_type, :state,
-                          :message => 'must be given'
+  validates_presence_of :login, :email, :password, :password_hash_type, :state,
+                        :message => 'must be given'
 
   validates_uniqueness_of :login,
                           :message => 'is the name of an already existing user.'
 
-  # Overriding this method to do some more validation: Password equals 
+  # Overriding this method to do some more validation: Password equals
   # password_confirmation, state an password hash type being in the range
   # of allowed values.
   def validate
@@ -289,13 +378,13 @@ class User < ActiveRecord::Base
     end
   end
 
-  validates_format_of    :login,
-                         :with => %r{\A[\w \$\^\-\.#\*\+&'"]*\z},
-                         :message => 'must not contain invalid characters.'
-  validates_length_of    :login,
-                         :in => 2..100, :allow_nil => true,
-                         :too_long => 'must have less than 100 characters.',
-                         :too_short => 'must have more than two characters.'
+  validates_format_of :login,
+                      :with => %r{\A[\w \$\^\-\.#\*\+&'"]*\z},
+                      :message => 'must not contain invalid characters.'
+  validates_length_of :login,
+                      :in => 2..100, :allow_nil => true,
+                      :too_long => 'must have less than 100 characters.',
+                      :too_short => 'must have more than two characters.'
 
   # We want a valid email address. Note that the checking done here is very
   # rough. Email adresses are hard to validate now domain names may include
@@ -337,8 +426,19 @@ class User < ActiveRecord::Base
       Thread.current[:user] = user
     end
 
-    def nobodyID
-      return Thread.current[:nobody_id] ||= find_by_login!('_nobody_').id
+    def nobody_login
+      '_nobody_'
+    end
+
+    def authenticate(user_login, password)
+      user = User.find_with_credentials(user_login, password)
+
+      # User account is not confirmed yet
+      return if user.try(:state) == STATES['unconfirmed']
+
+      Rails.logger.debug "Authentificated user '#{user.try(:login)}'"
+
+      User.current = user
     end
 
     def get_default_admin
@@ -348,9 +448,18 @@ class User < ActiveRecord::Base
       return user
     end
 
+    def find_nobody!
+      Thread.current[:nobody_user] ||= User.create_with(email: "nobody@localhost",
+                                                        realname: "Anonymous User",
+                                                        state: "3",
+                                                        password: "123456",
+                                                        password_confirmation: "123456").find_or_create_by(login: nobody_login)
+      Thread.current[:nobody_user]
+    end
+
     def find_by_login!(login)
       user = find_by_login(login)
-      if user.nil? or user.state == User.states['deleted']
+      if user.nil? or user.state == STATES['deleted']
         raise NotFoundError.new("Couldn't find User with login = #{login}")
       end
       return user
@@ -358,6 +467,7 @@ class User < ActiveRecord::Base
 
     def get_by_login(login)
       user = find_by_login!(login)
+      # FIXME: Move permission checks to controller level
       unless User.current.is_admin? or user == User.current
         raise NoPermission.new "User #{login} can not be accessed by #{User.current.login}"
       end
@@ -371,10 +481,9 @@ class User < ActiveRecord::Base
     def realname_for_login(login)
       User.find_by_login(login).realname
     end
-
   end
 
-  # After validation, the password should be encrypted  
+  # After validation, the password should be encrypted
   after_validation(:on => :create) do
     if errors.empty? and @new_password and !password.nil?
       # generate a new 10-char long hash only Base64 encoded so things are compatible
@@ -398,7 +507,7 @@ class User < ActiveRecord::Base
     end
   end
 
-  def to_axml(opts={})
+  def to_axml(_opts = {})
     render_axml
   end
 
@@ -407,21 +516,16 @@ class User < ActiveRecord::Base
     render_xml(watchlist: watchlist)
   end
 
-  STATES = {
-    'unconfirmed'        => 1,
-    'confirmed'          => 2,
-    'locked'             => 3,
-    'deleted'            => 4,
-    'ichainrequest'      => 5,
-    'retrieved_password' => 6,
-  }
-
-  def self.states
-    STATES
-  end
-
   def state_name
     STATES.invert[state]
+  end
+
+  def home_project_name
+    "home:#{self.login}"
+  end
+
+  def branch_project_name(branch)
+    home_project_name + ":branches:" + branch
   end
 
   # updates users email address and real name using data transmitted by authentification proxy
@@ -456,6 +560,10 @@ class User < ActiveRecord::Base
     self.login == '_nobody_'
   end
 
+  def is_active?
+    self.state == STATES['confirmed']
+  end
+
   # used to avoid
   def is_admin=(is_she)
     @is_admin = is_she
@@ -487,33 +595,22 @@ class User < ActiveRecord::Base
     end
   end
 
-  def can_modify_project_internal(project, ignoreLock)
-    return false if not ignoreLock and project.is_locked?
-    return true if is_admin?
-    return true if has_global_permission? 'change_project'
-    return true if has_local_permission? 'change_project', project
-    return false
-  end
-  private :can_modify_project_internal
-
   # project is instance of Project
-  def can_modify_project?(project, ignoreLock=nil)
+  def can_modify_project?(project, ignoreLock = nil)
     unless project.kind_of? Project
       raise ArgumentError, "illegal parameter type to User#can_modify_project?: #{project.class.name}"
     end
-    if ignoreLock # we ignore the cache in this case
-      can_modify_project_internal(project, ignoreLock)
-    else
-      if @projects_to_modify.has_key? project.id
-        @projects_to_modify[project.id]
-      else
-        @projects_to_modify[project.id] = can_modify_project_internal(project, nil)
-      end
+
+    if project.new_record?
+      # Project.check_write_access(!) should have been used?
+      raise NotFoundError, "Project is not stored yet"
     end
+
+    can_modify_project_internal(project, ignoreLock)
   end
 
   # package is instance of Package
-  def can_modify_package?(package, ignoreLock=nil)
+  def can_modify_package?(package, ignoreLock = nil)
     return false if package.nil? # happens with remote packages easily
     unless package.kind_of? Package
       raise ArgumentError, "illegal parameter type to User#can_modify_package?: #{package.class.name}"
@@ -526,7 +623,7 @@ class User < ActiveRecord::Base
   end
 
   # project is instance of Project
-  def can_create_package_in?(project, ignoreLock=nil)
+  def can_create_package_in?(project, ignoreLock = nil)
     unless project.kind_of? Project
       raise ArgumentError, "illegal parameter type to User#can_change?: #{project.class.name}"
     end
@@ -541,14 +638,14 @@ class User < ActiveRecord::Base
   # project_name is name of the project
   def can_create_project?(project_name)
     ## special handling for home projects
-    return true if project_name == "home:#{self.login}" and ::Configuration.first.allow_user_to_create_home_project
-    return true if /^home:#{self.login}:/.match( project_name ) and ::Configuration.first.allow_user_to_create_home_project
+    return true if project_name == self.home_project_name && Configuration.allow_user_to_create_home_project
+    return true if /^#{self.home_project_name}:/.match(project_name) && Configuration.allow_user_to_create_home_project
 
-    return true if has_global_permission? 'create_project'
-    p = Project.find_parent_for(project_name)
-    return false if p.nil?
+    return true if has_global_permission?('create_project')
+    parent_project = Project.new(name: project_name).parent
+    return false if parent_project.nil?
     return true  if is_admin?
-    return has_local_permission?( 'create_project', p)
+    return has_local_permission?('create_project', parent_project)
   end
 
   def can_modify_attribute_definition?(object)
@@ -587,10 +684,7 @@ class User < ActiveRecord::Base
     end
 
     # find attribute type definition
-    atype = AttribType.find_by_namespace_and_name(opts[:namespace], opts[:name])
-    if atype.blank?
-      raise ActiveRecord::RecordNotFound, "unknown attribute type '#{opts[:namespace]}:#{opts[:name]}'"
-    end
+    atype = AttribType.find_by_namespace_and_name!(opts[:namespace], opts[:name])
 
     return true if is_admin?
 
@@ -642,7 +736,7 @@ class User < ActiveRecord::Base
       return true if can_download_binaries?(parm)
     end
     return true if can_access?(parm)
-    return false
+    false
   end
 
   def can_access_downloadsrcany?(parm)
@@ -651,11 +745,10 @@ class User < ActiveRecord::Base
       return true if can_source_access?(parm)
     end
     return true if can_access?(parm)
-    return false
+    false
   end
 
   def has_local_role?( role, object )
-
     if object.is_a?(Package) || object.is_a?(Project)
       logger.debug "running local role package check: user #{self.login}, package #{object.name}, role '#{role.title}'"
       rels = object.relationships.where(:role_id => role.id, :user_id => self.id)
@@ -670,7 +763,7 @@ class User < ActiveRecord::Base
       return has_local_role?(role, object.project)
     end
 
-    return false
+    false
   end
 
   # local permission check
@@ -684,12 +777,12 @@ class User < ActiveRecord::Base
     case object
     when Package
       logger.debug "running local permission check: user #{self.login}, package #{object.name}, permission '#{perm_string}'"
-      #check permission for given package
+      # check permission for given package
       parent = object.project
     when Project
       logger.debug "running local permission check: user #{self.login}, project #{object.name}, permission '#{perm_string}'"
-      #check permission for given project
-      parent = object.find_parent
+      # check permission for given project
+      parent = object.parent
     when nil
       return has_global_permission?(perm_string)
     else
@@ -703,12 +796,12 @@ class User < ActiveRecord::Base
     return true if lookup_strategy.local_permission_check(roles, object)
 
     if parent
-      #check permission of parent project
+      # check permission of parent project
       logger.debug "permission not found, trying parent project '#{parent.name}'"
       return has_local_permission?(perm_string, parent)
     end
 
-    return false
+    false
   end
 
   def involved_projects_ids
@@ -726,7 +819,7 @@ class User < ActiveRecord::Base
 
   def involved_projects
     # now filter the projects that are not visible
-    return Project.where(id: involved_projects_ids)
+    Project.where(id: involved_projects_ids)
   end
 
   # lists packages maintained by this user and are not in maintained projects
@@ -743,7 +836,7 @@ class User < ActiveRecord::Base
     # all packages where user is maintainer via a group
     packages += Relationship.packages.where(role_id: role.id).joins(:groups_users).where(groups_users: { user_id: self.id }).pluck(:package_id)
 
-    return Package.where(id: packages).where('project_id not in (?)', projects)
+    Package.where(id: packages).where('project_id not in (?)', projects)
   end
 
   # list packages owned by this user.
@@ -751,49 +844,52 @@ class User < ActiveRecord::Base
     owned = []
     begin
       Owner.search({}, self).each do |owner|
-        owned << [owner.project, owner.package]
+        owned << [owner.package, owner.project]
       end
     rescue APIException => e # no attribute set
       Rails.logger.debug "0wned #{e.inspect}"
     end
-    return owned
+    owned
   end
 
   # lists reviews involving this user
   def involved_reviews
-    open_reviews = BsRequestCollection.new(user: self.login, roles: %w(reviewer creator), reviewstates: %w(new), states: %w(review)).relation
-    reviews_in = []
-    open_reviews.each do |review|
-      if review['creator'] != login
-        reviews_in << review
-      end
+    open_reviews = BsRequest.collection(user: self.login, roles: %w(reviewer creator), reviewstates: %w(new), states: %w(review))
+    open_reviews.select do |review|
+      review['creator'] != login
     end
-    return reviews_in
   end
 
   # list requests involving this user
   def declined_requests
-    declined_requests = BsRequestCollection.new(user: self.login, states: %w(declined), roles: %w(creator)).relation
-    return declined_requests
+    BsRequest.collection(user: self.login, states: %w(declined), roles: %w(creator))
   end
 
   # list incoming requests involving this user
   def incoming_requests
-    requests_in = BsRequestCollection.new(user: self.login, states: %w(new), roles: %w(maintainer)).relation
-    return requests_in
+    BsRequest.collection(user: self.login, states: %w(new), roles: %w(maintainer))
   end
 
   # list outgoing requests involving this user
   def outgouing_requests
-    requests_out = BsRequestCollection.new(user: self.login, states: %w(new review), roles: %w(creator)).relation
-    return requests_out
+    BsRequest.collection(user: login, states: %w(new review), roles: %w(creator))
+  end
+
+  # finds if the user have any request
+  def requests?
+    requests.count > 0
+  end
+
+  # list of all requests
+  def requests(search = nil)
+    BsRequest.collection(user: login, states: VALID_REQUEST_STATES, roles: %w(creator maintainer reviewer), search: search)
   end
 
   # lists running maintenance updates where this user is involved in
   def involved_patchinfos
     array = Array.new
 
-    rel = PackageIssue.joins(:issue).where(issues: { state: 'OPEN', owner_id: self.id})
+    rel = PackageIssue.joins(:issue).where(issues: { state: 'OPEN', owner_id: id})
     rel = rel.joins('LEFT JOIN package_kinds ON package_kinds.package_id = package_issues.package_id')
     ids = rel.where('package_kinds.kind="patchinfo"').pluck('distinct package_issues.package_id')
 
@@ -821,10 +917,6 @@ class User < ActiveRecord::Base
     return array
   end
 
-  def forbidden_project_ids
-    @f_ids ||= Relationship.forbidden_project_ids_for_user(self)
-  end
-
   def user_relevant_packages_for_status
     role_id = Role.rolecache['maintainer'].id
     # First fetch the project ids
@@ -847,16 +939,9 @@ class User < ActiveRecord::Base
 
   def nr_of_requests_that_need_work
     Rails.cache.fetch("requests_for_#{login}", expires_in: 2.minutes) do
-      nr_requests_that_need_work = 0
-
-      rel = BsRequestCollection.new(user: login, states: %w(declined), roles: %w(creator))
-      nr_requests_that_need_work += rel.ids.size
-
-      rel = BsRequestCollection.new(user: login, states: %w(new), roles: %w(maintainer))
-      nr_requests_that_need_work += rel.ids.size
-
-      rel = BsRequestCollection.new(user: login, roles: %w(reviewer), reviewstates: %w(new), states: %w(review))
-      nr_requests_that_need_work += rel.ids.size
+      BsRequest.collection(user: login, states: %w(declined), roles: %w(creator)).count +
+      BsRequest.collection(user: login, states: %w(new), roles: %w(maintainer)).count +
+      BsRequest.collection(user: login, roles: %w(reviewer), reviewstates: %w(new), states: %w(review)).count
     end
   end
 
@@ -874,49 +959,41 @@ class User < ActiveRecord::Base
   end
 
   def watched_project_names
-    @watched_projects ||= Rails.cache.fetch(['watched_project_names', self]) do
+    Rails.cache.fetch(['watched_project_names', self]) do
       Project.where(id: watched_projects.pluck(:project_id)).pluck(:name).sort
     end
   end
 
   def add_watched_project(name)
     watched_projects.create(project: Project.find_by_name!(name))
-    self.touch
+    clear_watched_projects_cache
   end
 
   def remove_watched_project(name)
     watched_projects.joins(:project).where(projects: { name: name }).delete_all
-    self.touch
+    clear_watched_projects_cache
+  end
+
+  # Needed to clear cache even when user's updated_at timestamp did not change,
+  # aka. changes within the same second. Mainly an issue when in our test suite
+  def clear_watched_projects_cache
+    Rails.cache.delete(['watched_project_names', self])
   end
 
   def watches?(name)
     watched_project_names.include? name
   end
 
-  def update_globalroles( new_globalroles )
-    old_globalroles = []
-
-    self.roles.where(global: true).each do |ugr|
-      old_globalroles << ugr.title
-    end
-
-    add_to_globalroles = new_globalroles.collect {|i| old_globalroles.include?(i) ? nil : i}.compact
-    remove_from_globalroles = old_globalroles.collect {|i| new_globalroles.include?(i) ? nil : i}.compact
-
-    remove_from_globalroles.each do |title|
-      self.roles_users.where(role_id: Role.find_by_title!(title).id).delete_all
-    end
-
-    add_to_globalroles.each do |title|
-      self.roles_users.new(role: Role.find_by_title!(title))
-    end
+  def update_globalroles(global_role_titles)
+    self.roles.replace(
+      Role.where(title: global_role_titles) + roles.where(global: false)
+    )
   end
 
   # returns the gravatar image as string or :none
   def gravatar_image(size)
     Rails.cache.fetch([self, 'home_face', size, Configuration.first]) do
-
-      if ::Configuration.use_gravatar?
+      if ::Configuration.gravatar
         hash = Digest::MD5.hexdigest(self.email.downcase)
         begin
           content = ActiveXML.backend.load_external_url("http://www.gravatar.com/avatar/#{hash}?s=#{size}&d=wavatar")
@@ -932,11 +1009,10 @@ class User < ActiveRecord::Base
 
   def display_name
     address = Mail::Address.new self.email
-    address.display_name = self.realname 
+    address.display_name = self.realname
     address.format
   end
 
-  protected
   # This method allows to execute a block while deactivating timestamp
   # updating.
   def self.execute_without_timestamps
@@ -948,19 +1024,43 @@ class User < ActiveRecord::Base
     ActiveRecord::Base.record_timestamps = old_state
   end
 
-  private
-
   # This method returns an array which contains all valid hash types.
   def self.default_password_hash_types
     %w(md5)
   end
 
+  def self.update_notifications(params, user = nil)
+    Event::Base.notification_events.each do |event_type|
+      values = params[event_type.to_s] || {}
+      event_type.receiver_roles.each do |role|
+        EventSubscription.update_subscription(event_type.to_s, role, user, !values[role].nil?)
+      end
+    end
+  end
+
+  def update_notifications(params)
+    User.update_notifications(params, self)
+  end
+
+  private
+
+  def can_modify_project_internal(project, ignoreLock)
+    # The ordering is important because of the lock status check
+    return false if !ignoreLock && project.is_locked?
+    return true if is_admin?
+
+    return true if has_global_permission? 'change_project'
+    return true if has_local_permission? 'change_project', project
+    return true if project.name == self.home_project_name # users tend to remove themself, allow to re-add them
+    false
+  end
+
   # Hashes the given parameter by the selected hashing method. It uses the
   # "password_salt" property's value to make the hashing more secure.
   def hash_string(value)
-    return case password_hash_type
-           when 'md5' then Digest::MD5.hexdigest(value + self.password_salt)
-           end
+    if password_hash_type == "md5"
+      Digest::MD5.hexdigest(value + self.password_salt)
+    end
   end
 
   cattr_accessor :lookup_strategy do
@@ -970,5 +1070,4 @@ class User < ActiveRecord::Base
       @@lstrategy = UserBasicStrategy.new
     end
   end
-
 end

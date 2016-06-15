@@ -11,6 +11,7 @@
       <value>noarch</value>
 
       <value>aarch64</value>
+      <value>aarch64_ilp32</value>
 
       <value>armv4l</value>
       <value>armv5l</value>
@@ -33,6 +34,8 @@
       <value>athlon</value>
 
       <value>ia64</value>
+
+      <value>k1om</value>
 
       <value>mips</value>
       <value>mipsel</value>
@@ -85,6 +88,7 @@
       <value>trylocal</value>      <!-- try on local clients and merge result, but run also on server side -->
       <value>localonly</value>     <!-- never run on server side, but on the clients (not enforced) -->
       <value>serveronly</value>    <!-- run on server side, but not on the clients by default -->
+      <value>buildtime</value>     <!-- run during build time, pulls in services as build dependencies -->
       <value>disabled</value>      <!-- never run, except user explicit starts it locally -->
     </choice>
   </define>
@@ -221,6 +225,42 @@
         </attribute>
       </optional>
       <interleave>
+        <zeroOrMore>
+          <element name="download">
+            <attribute name="arch">
+              <data type="string" />
+            </attribute>
+            <attribute name="url">
+              <data type="string" />
+            </attribute>
+            <attribute name="repotype">
+              <data type="string" />
+            </attribute>
+            <interleave>
+              <optional>
+                <element name="archfilter">
+                  <text/>
+                </element>
+              </optional>
+              <optional>
+                <element name="master">
+                  <attribute name="url">
+                    <data type="string" />
+                  </attribute>
+                  <attribute name="sslfingerprint">
+                    <data type="string" />
+                  </attribute>
+                </element>
+              </optional>
+              <optional>
+                <element name="pubkey">
+                  <text/>
+                </element>
+              </optional>
+            </interleave>
+          </element>
+        </zeroOrMore>
+
         <optional> <!-- limited to one currently. Could be extended later -->
             <element name="releasetarget">
               <attribute name="project">
@@ -331,6 +371,8 @@
       <value>mmx</value>
       <value>sse</value>
       <value>sse2</value>
+      <value>sse3</value>
+      <value>ssse3</value>
     </choice>
   </define>
 

@@ -7,20 +7,17 @@ class RequestController < ApplicationController
   validate_action :show => { method: :get, response: :request }
   validate_action :request_create => { method: :post, response: :request }
 
-  #TODO: allow PUT for non-admins
+  # TODO: allow PUT for non-admins
   before_filter :require_admin, :only => [:update, :destroy]
 
   # GET /request
   def index
-    if params[:view] == 'collection'
-
-      # Do not allow a full collection to avoid server load
-      return render_request_collection
-    end
+    # Do not allow a full collection to avoid server load
+    return render_request_collection if params[:view] == 'collection'
 
     # directory list of all requests. not very useful but for backward compatibility...
     # OBS3: make this more useful
-    @request_list = BsRequest.order(:id).pluck(:id)
+    @request_list = BsRequest.order(:number).pluck(:number)
   end
 
   class RequireFilter < APIException
@@ -28,9 +25,8 @@ class RequestController < ApplicationController
   end
 
   def render_request_collection
-    if params[:project].blank? and params[:user].blank? and params[:states].blank? and params[:types].blank? and params[:reviewstates].blank? and params[:ids].blank?
-      raise RequireFilter.new
-    end
+    # if all params areblank, something is wrong
+    raise RequireFilter.new if [:project, :user, :states, :types, :reviewstates, :ids].all? { |f| params[f].blank? }
 
     # convert comma seperated values into arrays
     roles = params[:roles].split(',') if params[:roles]
@@ -38,12 +34,10 @@ class RequestController < ApplicationController
     states = params[:states].split(',') if params[:states]
     review_states = params[:reviewstates].split(',') if params[:reviewstates]
     ids = params[:ids].split(',').map { |i| i.to_i } if params[:ids]
-
     params.merge!({states: states, types: types, review_states: review_states, roles: roles, ids: ids})
-    rel = BsRequestCollection.new(params).relation
-    rel = rel.includes([:reviews])
-    rel = rel.includes({bs_request_actions: :bs_request_action_accept_info})
-    rel = rel.order('bs_requests.id').references(:bs_requests)
+    rel = BsRequest.collection(params).includes([:reviews]).
+          includes({bs_request_actions: :bs_request_action_accept_info}).
+          order('bs_requests.id').references(:bs_requests)
 
     xml = ActiveXML::Node.new '<collection/>'
     matches=0
@@ -58,8 +52,7 @@ class RequestController < ApplicationController
   # GET /request/:id
   def show
     required_parameters :id
-
-    req = BsRequest.find(params[:id])
+    req = BsRequest.find_by_number!(params[:id])
     render xml: req.render_xml(params)
   end
 
@@ -68,13 +61,12 @@ class RequestController < ApplicationController
     unless %w(create).include? params[:cmd]
       raise UnknownCommandError.new "Unknown command '#{params[opt[:cmd_param]]}' for path #{request.path}"
     end
+
     # refuse request creation for anonymous users
     be_not_nobody!
-
     # no need for dispatch_command, there is only one command
     request_create
   end
-
 
   # POST /request/:id?cmd=$CMD
   def request_command
@@ -83,34 +75,25 @@ class RequestController < ApplicationController
     # refuse request manipulation for anonymous users
     be_not_nobody!
 
-
     params[:user] = User.current.login
-    @req = BsRequest.find params[:id]
+    @req = BsRequest.find_by_number!(params[:id])
 
     # transform request body into query parameter 'comment'
     # the query parameter is preferred if both are set
-    if params[:comment].blank?
-      params[:comment] = request.raw_post
-    end
+    params[:comment] = request.raw_post if params[:comment].blank?
 
     # might raise an exception (which then renders an error)
     # FIXME: this should be moved into the model functions, doing
     #        these actions
-    if params[:cmd] == 'create'
-      # noop
-    elsif params[:cmd] == 'changereviewstate'
+    case params[:cmd]
+    when 'create', 'changestate', 'addreview', 'setpriority', 'setincident', 'setacceptat'
+      # create -> noop
+      # permissions are checked by the model
+    when 'changereviewstate', 'assignreview'
       @req.permission_check_change_review!(params)
-    elsif params[:cmd] == 'addreview'
-      # the model is checking already
-    elsif params[:cmd] == 'setpriority'
-      # the model is checking already
-    elsif params[:cmd] == 'setincident'
-      # the model is checking already
-    elsif %w(addrequest removerequest).include? params[:cmd]
+    when 'addrequest', 'removerequest'
       # FIXME3.0: to be dropped
       @req.permission_check_change_groups!
-    elsif params[:cmd] == 'changestate'
-      # the model is checking already
     else
       raise UnknownCommandError.new "Unknown command '#{params[:cmd]}' for path #{request.path}"
     end
@@ -130,15 +113,16 @@ class RequestController < ApplicationController
     Suse::Validator.validate(:request, body)
 
     BsRequest.transaction do
-      oldrequest = BsRequest.find params[:id]
+      oldrequest = BsRequest.find_by_number!(params[:id])
+      notify = oldrequest.notify_parameters
       oldrequest.destroy
 
       req = BsRequest.new_from_xml(body)
-      req.id = params[:id]
+      req.number = params[:id]
       req.skip_sanitize
       req.save!
 
-      notify = oldrequest.notify_parameters
+      notify[:who] = User.current.login
       Event::RequestChange.create notify
 
       render xml: req.render_xml
@@ -147,9 +131,10 @@ class RequestController < ApplicationController
 
   # DELETE /request/:id
   def destroy
-    request = BsRequest.find(params[:id])
+    request = BsRequest.find_by_number!(params[:id])
     notify = request.notify_parameters
     request.destroy # throws us out of here if failing
+    notify[:who] = User.current.login
     Event::RequestDelete.create notify
     render_ok
   end
@@ -158,18 +143,15 @@ class RequestController < ApplicationController
 
   # POST /request?cmd=create
   def request_create
-
-    body = request.raw_post.to_s
-
-    xml = BsRequest.transaction do
-      @req = BsRequest.new_from_xml(body)
+    xml = nil
+    BsRequest.transaction do
+      @req = BsRequest.new_from_xml(request.raw_post.to_s)
       @req.set_add_revision       unless params[:addrevision].blank?
       @req.set_ignore_build_state unless params[:ignore_build_state].blank?
       @req.save!
 
       xml = @req.render_xml
       Suse::Validator.validate(:request, xml)
-      xml
     end
 
     # cache the diff (in the backend)
@@ -181,20 +163,15 @@ class RequestController < ApplicationController
   end
 
   def request_command_diff
-    req = BsRequest.find params[:id]
+    req = BsRequest.find_by_number!(params[:id])
 
     diff_text = ''
-    action_counter = 0
-
-    if params[:view] == 'xml'
-      xml_request = ActiveXML::Node.new("<request id='#{req.id}'/>")
-    else
-      xml_request = nil
+    xml_request = if params[:view] == 'xml'
+      ActiveXML::Node.new("<request id='#{req.number}'/>")
     end
 
     req.bs_request_actions.each do |action|
-      withissues = false
-      withissues = true if params[:withissues] == '1' || params[:withissues].to_s == 'true'
+      withissues = ["1", "true"].include?(params[:withissues].to_s)
       action_diff = action.sourcediff(view: params[:view], withissues: withissues)
 
       if xml_request
@@ -209,7 +186,7 @@ class RequestController < ApplicationController
     end
 
     if xml_request
-      xml_request.set_attribute('actions', action_counter.to_s)
+      xml_request.set_attribute('actions', "0")
       render xml: xml_request.dump_xml
     else
       render text: diff_text
@@ -239,6 +216,12 @@ class RequestController < ApplicationController
     render_ok
   end
 
+  def request_command_setacceptat
+    time = DateTime.parse(params[:time]) unless params[:time].blank?
+    @req.set_accept_at!(time)
+    render_ok
+  end
+
   def request_command_addreview
     @req.addreview(params)
     render_ok
@@ -246,6 +229,11 @@ class RequestController < ApplicationController
 
   def request_command_setpriority
     @req.setpriority(params)
+    render_ok
+  end
+
+  def request_command_assignreview
+    @req.assignreview(params)
     render_ok
   end
 
@@ -262,6 +250,4 @@ class RequestController < ApplicationController
     @req.change_state(params)
     render_ok
   end
-
-
 end

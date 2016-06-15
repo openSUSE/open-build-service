@@ -1,23 +1,22 @@
 require File.expand_path(File.dirname(__FILE__) + "/..") + "/test_helper"
 require 'xmlhash'
 
-class SearchControllerTest < ActionDispatch::IntegrationTest 
-  
+class SearchControllerTest < ActionDispatch::IntegrationTest
   fixtures :all
 
   def setup
-    super
     wait_for_scheduler_start
+    reset_auth
   end
 
   def test_search_unknown
     get "/search/attribute?namespace=OBS&name=FailedCommend"
     assert_response 401
 
-    login_Iggy 
+    login_Iggy
     get "/search/attribute?namespace=OBS&name=FailedCommend"
     assert_response 404
-    assert_select "status[code] > summary", /no such attribute/
+    assert_select "status[code] > summary", /Attribute Type OBS:FailedCommend does not exist/
   end
 
   def test_search_one_maintained_package
@@ -33,7 +32,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
 
   # there are 4 different code paths
-  test "different parameters for search attribute" do
+  def test_different_parameters_for_search_attribute
     login_Iggy
     get "/search/attribute?namespace=OBS&name=Maintained&project=home:Iggy"
     assert_response :success
@@ -46,16 +45,15 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get "/search/attribute?namespace=OBS&name=Maintained&package=pack2"
     assert_response :success
     assert_xml_tag tag: 'attribute', children: { count: 0 }
-    
+
     get "/search/attribute?namespace=OBS&name=Maintained&package=apache2"
     assert_response :success
     assert_xml_tag tag: 'attribute', children: { count: 1 }
 
-
     get "/search/attribute?namespace=OBS&name=Maintained"
     assert_response :success
     assert_xml_tag tag: 'attribute', children: { count: 1 }
-  end 
+  end
 
   def test_xpath_1
     login_Iggy
@@ -98,7 +96,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'collection', :children => { :count => 0 }
   end
-  
+
   def test_xpath_5
     login_Iggy
     get "/search/package", match: '[devel/@project="kde4"]'
@@ -134,7 +132,6 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag content: "#&lt;NoMethodError: undefined method `[]' for nil:NilClass&gt;"
   end
 
-
   def test_xpath_search_for_person_or_group
     # used by maintenance people
     login_Iggy
@@ -152,7 +149,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
 
   # do as the webui does
-  test "involved packages" do
+  def test_involved_packages
     login_Iggy
     get "/search/package/id", match: "(person/@userid='Iggy') or (group/@groupid='test_group')"
     assert_response :success
@@ -185,7 +182,6 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
 #    get "/search/person", match: "(@state='confirmed')"
 #    assert_response :success
 #    assert_xml_tag tag: 'collection', :attributes => { :matches => "1" }
-
   end
 
   def test_xpath_old_osc
@@ -209,9 +205,10 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get "/search/project", match: '[@name="HiddenProject"]'
     assert_response :success
     assert_xml_tag tag: 'collection', :children => { :count => 1 }
-    #<project name="HiddenProject">
+    # <project name="HiddenProject">
     assert_xml_tag :child => { tag: 'project', :attributes => { :name => 'HiddenProject'} }
   end
+
   def test_search_hidden_project_with_invalid_user
     # user is not maintainer - project has to be invisible
     login_Iggy
@@ -230,6 +227,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'collection', :children => { :count => 1 }
     assert_xml_tag :child => { tag: 'package', :attributes => { :name => 'pack', :project => "HiddenProject"} }
   end
+
   def test_search_package_in_hidden_project_as_non_maintainer
     # user is not maintainer - package has to be invisible
     login_Iggy
@@ -254,7 +252,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_search_issues
-    login_Iggy 
+    login_Iggy
     get "/search/issue", match: '[@name="123456"]'
     assert_response :success
     assert_xml_tag :parent => { tag: 'issue'}, tag: 'name', :content => "123456"
@@ -293,8 +291,8 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag :parent => { tag: 'issue'}, tag: 'label', :content => "bnc#123456"
   end
 
-  def test_search_repository_id
-    login_Iggy 
+  def test_search_repository
+    login_Iggy
     get "/search/repository/id"
     assert_response :success
     assert_xml_tag tag: 'collection'
@@ -302,13 +300,32 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert repos.include?('home:Iggy/10.2')
     assert !repos.include?('HiddenProject/nada'), "HiddenProject repos public"
 
-    login_king 
+    login_king
     get "/search/repository/id"
     assert_response :success
     assert_xml_tag tag: 'collection'
     repos = get_repos
     assert repos.include?('home:Iggy/10.2')
     assert repos.include?('HiddenProject/nada'), "HiddenProject repos public"
+
+    get "/source/home:Iggy/_meta"
+    get "/search/repository/id?match=@project='home:Iggy'+and+@name='10.2'"
+    assert_response :success
+    assert_xml_tag tag: 'collection'
+    assert_xml_tag tag: 'repository', :attributes => { project: 'home:Iggy', name: '10.2' }
+    assert repos.count, 1
+
+    get "/search/repository/id?match=path/@repository='BaseDistro_repo'"
+    assert_response :success
+    assert_xml_tag tag: 'collection'
+    assert_xml_tag tag: 'repository', :attributes => { project: 'home:Iggy', name: '10.2' }
+    assert repos.count, 1
+
+    get "/search/repository/id?match=path/[@project='BaseDistro'+and+@repository='BaseDistro_repo']"
+    assert_response :success
+    assert_xml_tag tag: 'collection'
+    assert_xml_tag tag: 'repository', :attributes => { project: 'home:Iggy', name: '10.2' }
+    assert repos.count, 1
   end
 
   def test_osc_search_devel_package_after_request_accept
@@ -321,38 +338,70 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
   end
 
   def test_search_request
+    # rubocop:disable Metrics/LineLength
     login_Iggy
     get "/search/request", match: "(action/target/@package='pack2' and action/target/@project='BaseDistro2.0' and action/source/@project='BaseDistro2.0' and action/source/@package='pack2.linked' and action/@type='submit')"
     assert_response :success
 
     # what osc may do
-    get "search/request", match: "(state/@name='new' or state/@name='review') and (action/target/@project='BaseDistro2.0' or submit/target/@project='BaseDistro2.0' or action/source/@project='BaseDistro2.0' or submit/source/@project='BaseDistro2.0') and (action/target/@package='pack2.linked' or submit/target/@package='pack2_linked' or action/source/@package='pack2_linked' or submit/source/@package='pack2_linked')"
+    get "/search/request", match: "(state/@name='new' or state/@name='review') and (action/target/@project='BaseDistro2.0' or submit/target/@project='BaseDistro2.0' or action/source/@project='BaseDistro2.0' or submit/source/@project='BaseDistro2.0') and (action/target/@package='pack2.linked' or submit/target/@package='pack2_linked' or action/source/@package='pack2_linked' or submit/source/@package='pack2_linked')"
     assert_response :success
 
     # what osc really is doing
-    get "search/request", match: "(state/@name='new' or state/@name='review') and (target/@project='BaseDistro2.0' or source/@project='BaseDistro2.0') and (target/@package='pack2.linked' or source/@package='pack2_linked')"
+    get "/search/request", match: "(state/@name='new' or state/@name='review') and (target/@project='BaseDistro2.0' or source/@project='BaseDistro2.0') and (target/@package='pack2.linked' or source/@package='pack2_linked')"
     assert_response :success
 
     # maintenance team is doing this query
-    get "search/request", match: "state/@name='review' and review[@by_group='maintenance-team' and @state='new']"
+    get "/search/request", match: "state/@name='review' and review[@by_group='maintenance-team' and @state='new']"
     assert_response :success
 
-    get "search/request", match: "(action/target/@project='Apache' and action/@type='submit' and state/@name='review' ) or (action/target/@project='Apache' and action/@type='maintenance_release' and state/@name='review' )"
+    get "/search/request", match: "(action/target/@project='Apache' and action/@type='submit' and state/@name='review' ) or (action/target/@project='Apache' and action/@type='maintenance_release' and state/@name='review' )"
     assert_response :success
     assert_xml_tag tag: "collection", attributes: { "matches"=> "1" }
     assert_xml_tag tag: "request", children: { count: 3, only: { tag: "review"} }
 
-    get "/search/request", match: "[@id=#{1}]"
+    get "/search/request", match: "[@id=1]"
+    assert_response :success
+    # rubocop:enable Metrics/LineLength
+
+    get "/search/request", match:  "(review[@state='new' and @by_user='adrian'])"
     assert_response :success
 
+    # FIXME: Similar to test/functional/request_controller_test.rb
+    #        Could be DRY'ed by shared examples once migrated to rspec
+    # Should respond with a collection of 1 requests
+    assert_select 'collection request', 1
+    # Request 1000 should have exactly 4 review elements
+    assert_select 'request[id=1000] review', 4
+
+    # Should show all data belonging to each request
+    assert_select 'collection', matches: 2 do
+      assert_select 'request', id: 1000 do
+        assert_select 'action', type: 'submit' do
+          assert_select 'source', project: 'Apache', package: 'apache2', rev: '1'
+          assert_select 'target', project: 'kde4', package: 'apache2'
+        end
+        assert_select 'state', name: 'review', who: 'tom', when: '2013-09-09T19:15:16' do
+          assert_select 'comment'
+        end
+        assert_select 'review', state: 'new', by_package: 'apache2', by_project: 'Apache'
+        assert_select 'review', state: 'new', by_user: 'adrian'
+        assert_select 'review', state: 'new', by_user: 'tom'
+        assert_select 'review', state: 'new', by_group: 'test_group'
+        assert_select 'description', 'want to see his reaction'
+      end
+      # XPath search is not expected to find requests of groups adrian belongs to
+      assert_select 'request[id=4]', false
+    end
   end
 
   def test_search_request_2
     login_Iggy
     # this is not a good test - as the actual test is that didn't create bizar SQL queries, but this requires human eyes
+    # rubocop:disable Metrics/LineLength
     get "/search/request",  match: 'action/@type="submit" and (action/target/@project="Apache" or submit/target/@project="Apache") and (action/target/@package="apache2" or submit/target/@package="apache2")'
+    # rubocop:enable Metrics/LineLength
     assert_response :success
-
   end
 
   def get_package_count
@@ -385,11 +434,11 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: 'status', :attributes => { :code => "no_binary" }
 
     # must be after first search controller call or backend might not be started on single test case runs
-    wait_for_publisher()
+    run_publisher()
 
     get "/search/owner?binary='package'"
     assert_response 400
-    assert_xml_tag tag: 'status', :attributes => { :code => "attribute_not_set" }
+    assert_xml_tag tag: 'status', :attributes => { :code => "400", origin: "backend" }
 
     get "/search/owner?binary='package'&attribute='OBS:does_not_exist'"
     assert_response 404
@@ -434,6 +483,44 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'collection', :children => { :count => 0 }
 
+    # lookup maintainers
+    get "/search/owner?project=home:Iggy"
+    assert_response :success
+    assert_xml_tag tag: 'collection', :children => { :count => 1 }
+    assert_xml_tag :parent => { tag: 'owner', :children => { :count => 2 },
+                                :attributes => { :rootproject => "", :project => "home:Iggy" }},
+                   tag: 'person', :attributes => { :name => "Iggy", :role => "maintainer" }
+
+    get "/search/owner?project=home:Iggy&package=TestPack"
+    assert_xml_tag tag: 'collection', :children => { :count => 2 }
+    assert_xml_tag :parent => { tag: 'owner', :children => { :count => 4 },
+                                :attributes => { :project => "home:Iggy", :package => "TestPack" }},
+                   tag: 'person', :attributes => { :name => "fred", :role => "maintainer" }
+    assert_xml_tag :parent => { tag: 'owner', :children => { :count => 4 },
+                                :attributes => { :project => "home:Iggy", :package => "TestPack" }},
+                   tag: 'person', :attributes => { :name => "Iggy", :role => "bugowner" }
+    assert_xml_tag :parent => { tag: 'owner', :children => { :count => 4 },
+                                :attributes => { :project => "home:Iggy", :package => "TestPack" }},
+                   tag: 'person', :attributes => { :name => "Iggy", :role => "maintainer" }
+    assert_xml_tag :parent => { tag: 'owner', :children => { :count => 4 },
+                                :attributes => { :project => "home:Iggy", :package => "TestPack" }},
+                   tag: 'group', :attributes => { :name => "test_group_b", :role => "maintainer" }
+    assert_xml_tag :parent => { tag: 'owner', :children => { :count => 2 },
+                                :attributes => { :project => "home:Iggy" } },
+                   tag: 'person', :attributes => { :name => "hidden_homer", :role => "maintainer" }
+
+    get "/search/owner?project=home:Iggy&package=TestPack&filter=bugowner"
+    # no bugowner defined for the project => no owner node for the project
+    assert_xml_tag tag: 'collection', :children => { :count => 1 }
+    assert_xml_tag :parent => { tag: 'owner', :children => { :count => 1 },
+                                :attributes => { :project => "home:Iggy", :package => "TestPack" }},
+                   tag: 'person', :attributes => { :name => "Iggy", :role => "bugowner" }
+
+    get "/search/owner?project=home:coolo:test"
+    assert_xml_tag tag: 'collection', :children => { :count => 2 }
+    assert_xml_tag tag: 'owner', :children => { :count => 1 }, :attributes => { :project => "home:coolo:test" }
+    assert_xml_tag tag: 'owner', :children => { :count => 1 }, :attributes => { :project => "home:coolo" }
+
     # some illegal searches
     get "/search/owner?user=INVALID&filter=bugowner"
     assert_response 404
@@ -441,6 +528,11 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get "/search/owner?user=fred&filter=INVALID"
     assert_response 404
     assert_xml_tag tag: 'status', :attributes => { :code => "not_found" }
+    get "/search/owner?package=TestPack"
+    assert_response 400
+    assert_xml_tag tag: 'status', :attributes => { :code => "no_binary" }
+    get "/search/owner?project=DOESNOTEXIST"
+    assert_response 404
 
     # set devel package (this one has another devel package in home:coolo:test)
     pkg = Package.find_by_project_and_name "home:Iggy", "TestPack"
@@ -489,14 +581,15 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag tag: 'owner', :attributes => { :project => "home:coolo:test" }
 
     # additional package
-    put "/source/TEMPORARY/pack/_meta", "<package name='pack' project='TEMPORARY'><title/><description/><group groupid='test_group' role='bugowner'/></package>"
+    put "/source/TEMPORARY/pack/_meta",
+        "<package name='pack' project='TEMPORARY'><title/><description/><group groupid='test_group' role='bugowner'/></package>"
     assert_response :success
     raw_put '/source/TEMPORARY/pack/package.spec', File.open("#{Rails.root}/test/fixtures/backend/binary/package.spec").read()
     assert_response :success
     run_scheduler("i586")
     inject_build_job( "TEMPORARY", "pack", "standard", "i586" )
     run_scheduler("i586")
-    wait_for_publisher()
+    run_publisher()
 
     get "/search/owner?project=TEMPORARY&binary=package&limit=0&devel=false"
     assert_response :success
@@ -545,12 +638,12 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag tag: 'group', :attributes => { :name => "test_group", :role => "bugowner" }
     # disable a user and check that he disappears
     u=User.find_by_login "Iggy"
-    u.state = User.states['unconfirmed']
+    u.state = User::STATES['unconfirmed']
     u.save!
     get "/search/owner?project=TEMPORARY&binary=package&filter=bugowner"
     assert_response :success
     assert_no_xml_tag tag: 'person', :attributes => { :name => "Iggy", :role => "bugowner" }
-    u.state = User.states['confirmed']
+    u.state = User::STATES['confirmed']
     u.save
 
     # group in project meta
@@ -576,6 +669,44 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     get "/search/missing_owner?project=TEMPORARY&filter=reviewer"
     assert_response :success
     assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "TEMPORARY", :project => "TEMPORARY", :package => "pack" }
+
+    # set an empty group
+    put "/source/TEMPORARY/pack/_meta",
+        "<package name='pack' project='TEMPORARY'><title/><description/><group groupid='test_group_empty' role='bugowner'/></package>"
+    assert_response :success
+    get "/search/missing_owner?project=TEMPORARY&filter=bugowner"
+    assert_response :success
+    assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "TEMPORARY", :project => "TEMPORARY", :package => "pack" }
+
+    # set an valid group
+    put "/source/TEMPORARY/pack/_meta",
+        "<package name='pack' project='TEMPORARY'><title/><description/><group groupid='test_group' role='bugowner'/></package>"
+    assert_response :success
+    get "/search/missing_owner?project=TEMPORARY&filter=bugowner"
+    assert_response :success
+    assert_no_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "TEMPORARY", :project => "TEMPORARY", :package => "pack" }
+    assert_response :success
+
+    # set an valid group via project
+    put "/source/TEMPORARY/pack/_meta", "<package name='pack' project='TEMPORARY'><title/><description/></package>"
+    assert_response :success
+    get "/search/missing_owner?project=TEMPORARY&filter=maintainer"
+    assert_response :success
+    assert_no_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "TEMPORARY", :project => "TEMPORARY", :package => "pack" }
+    assert_response :success
+    # empty group in project
+    put "/source/TEMPORARY/_meta", "<project name='TEMPORARY'><title/><description/><link project='home:Iggy'/>
+                                      <group groupid='test_group_empty' role='bugowner' />
+                                      <repository name='standard'>
+                                        <path project='home:Iggy' repository='10.2'/>
+                                        <arch>i586</arch>
+                                      </repository>
+                                    </project>"
+    assert_response :success
+    get "/search/missing_owner?project=TEMPORARY&filter=bugowner"
+    assert_response :success
+    assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "TEMPORARY", :project => "TEMPORARY", :package => "pack" }
+    assert_response :success
 
     # reset devel package setting again
     pkg.develpackage = nil
@@ -611,20 +742,20 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "pack1" }
     assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "pack2" }
-    assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "pack3" }
+    assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "Pack3" }
 
     get "/search/missing_owner?project=BaseDistro&filter=reviewer"
     assert_response :success
     assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "pack1" }
     assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "pack2" }
-    assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "pack3" }
+    assert_xml_tag tag: 'missing_owner', :attributes => { :rootproject => "BaseDistro", :project => "BaseDistro", :package => "Pack3" }
   end
 
   def test_find_owner_when_binary_exist_in_Update_but_definition_is_in_GA_project
     login_king
 
     # must be after first search controller call or backend might not be started on single test case runs
-    wait_for_publisher()
+    run_publisher()
 
     # setup projects and packages
     put "/source/TEMPORARY:GA/_meta", "<project name='TEMPORARY:GA'><title/><description/>
@@ -656,7 +787,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     run_scheduler("i586")
     inject_build_job( "TEMPORARY:Update", "package", "standard", "i586" )
     run_scheduler("i586")
-    wait_for_publisher()
+    run_publisher()
 
     # search: upper hit
     get "/search/owner?binary=package&project=TEMPORARY:Update"
@@ -666,7 +797,10 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     # search: find definition in package below without this binary
     get "/search/owner?binary=package&project=TEMPORARY:Update&filter=bugowner"
     assert_response :success
-    assert_xml_tag :parent => { tag: 'owner', :attributes => { :rootproject => "TEMPORARY:Update", :project => "TEMPORARY:GA", :package => "package" } },
+    assert_xml_tag :parent => { tag: 'owner',
+                                :attributes => { :rootproject => "TEMPORARY:Update",
+                                                 :project     => "TEMPORARY:GA",
+                                                 :package     => "package" } },
                    tag: "person", :attributes => { :name => "fred", :role => "bugowner" }
 
     # cleanup
@@ -676,7 +810,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "xpath operators" do
+  def test_xpath_operators
     login_Iggy
 
     get '/search/request/id', match: '@id>1'
@@ -704,19 +838,18 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_xml_tag tag: 'request', attributes: { id: '2'}
     assert_no_xml_tag tag: 'request', attributes: { id: '1'}
-
   end
 
-  test "xpath with two relationships" do
+  def test_xpath_with_two_relationships
     login_Iggy
-    get '/search/package/id', match: "person/@userid = 'adrian' and person/@role = 'maintainer'"
+    get '/search/package/id', match: "person/@userid = 'adrian' and person/@role = 'reviewer'"
     assert_response :success
     assert_xml_tag tag: 'package', attributes: { project: 'kde4', name: 'kdelibs' }
+    assert_xml_tag tag: 'collection', children: { count: 1 }
 
     get '/search/project', match: "person/@userid = 'adrian' and person/@role = 'maintainer'"
     assert_response :success
-    assert_xml_tag tag: 'project', attributes: { name: 'kde4' }
     assert_xml_tag tag: 'project', attributes: { name: 'home:adrian' }
+    assert_xml_tag tag: 'collection', children: { count: 1 }
   end
 end
-

@@ -1,10 +1,16 @@
+deleted:
+  name: deleted
+  created_at: 2014-02-14 01:00:01.000000000 Z
+  updated_at: 2014-02-14 01:00:01.000000000 Z
+  kind: standard
+  delta: 1
 Apache:
   name: Apache
   title: Up-to-date Apache packages
   description: description
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 BaseDistro:
   name: BaseDistro
@@ -12,7 +18,7 @@ BaseDistro:
   description: This could be openSUSE:11.2 project for example
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 BaseDistro2.0:
   name: BaseDistro2.0
@@ -20,7 +26,7 @@ BaseDistro2.0:
   description: This could be openSUSE:11.3 project for example
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 BaseDistro2.0_LinkedUpdateProject:
   name: BaseDistro2.0:LinkedUpdateProject
@@ -29,7 +35,7 @@ BaseDistro2.0_LinkedUpdateProject:
     to the original one
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
-  type_id: 4
+  kind: maintenance_release
   delta: 1
 BaseDistro3:
   name: BaseDistro3
@@ -37,7 +43,7 @@ BaseDistro3:
   description: Base distro without update project
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
-  type_id: 4
+  kind: maintenance_release
   delta: 1
 BaseDistro_Update:
   name: BaseDistro:Update
@@ -45,7 +51,7 @@ BaseDistro_Update:
   description: contains official released updates
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
-  type_id: 4
+  kind: maintenance_release
   delta: 1
   develproject: Devel_BaseDistro_Update
 BinaryprotectedProject:
@@ -54,7 +60,7 @@ BinaryprotectedProject:
   description: for testing read/view permissions = binarydownload disabled
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 CopyTest:
   name: CopyTest
@@ -62,7 +68,7 @@ CopyTest:
   description: for testing access/sourceacces
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 Devel_BaseDistro_Update:
   name: Devel:BaseDistro:Update
@@ -70,7 +76,7 @@ Devel_BaseDistro_Update:
   description: contains candidate changes for next updates
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 HiddenProject:
   name: HiddenProject
@@ -78,7 +84,7 @@ HiddenProject:
   description: for testing read/view permissions = access disabled
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 HiddenRemoteInstance:
   name: HiddenRemoteInstance
@@ -87,7 +93,7 @@ HiddenRemoteInstance:
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
   remoteurl: http://localhost:3200
-  type_id: 1
+  kind: standard
   delta: 1
 LocalProject:
   name: LocalProject
@@ -95,7 +101,7 @@ LocalProject:
   description: for testing remoteurl support
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 My_Maintenance:
   name: My:Maintenance
@@ -103,7 +109,7 @@ My_Maintenance:
   description: official maintenance space, maintained by maintenance ;)
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
-  type_id: 2
+  kind: maintenance
   delta: 1
 RemoteInstance:
   name: RemoteInstance
@@ -113,7 +119,7 @@ RemoteInstance:
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
   remoteurl: http://localhost:3200
-  type_id: 1
+  kind: standard
   delta: 1
 SourceprotectedProject:
   name: SourceprotectedProject
@@ -121,7 +127,7 @@ SourceprotectedProject:
   description: for testing read/view permissions = sourceaccess disabled
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 UseRemoteInstance:
   name: UseRemoteInstance
@@ -129,7 +135,7 @@ UseRemoteInstance:
   description: for testing remoteurl support
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 UseRemoteInstanceIndirect:
   name: UseRemoteInstanceIndirect
@@ -138,13 +144,13 @@ UseRemoteInstanceIndirect:
   description: for testing remoteurl support
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 c++:
   name: c++
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 home_Iggy:
   name: home:Iggy
@@ -152,7 +158,7 @@ home_Iggy:
   description: ''
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 home_Iggy_branches_kde4:
   name: home:Iggy:branches:kde4
@@ -160,7 +166,7 @@ home_Iggy_branches_kde4:
   description: ''
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 home_adrian:
   name: home:adrian
@@ -170,7 +176,7 @@ home_adrian:
     Have fun!
   created_at: 2011-09-19 11:19:37.000000000 Z
   updated_at: 2011-09-19 11:19:37.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 home_adrian_BaseDistro:
   name: home:adrian:BaseDistro
@@ -178,7 +184,7 @@ home_adrian_BaseDistro:
   description: For testing project linking
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 home_adrian_ProtectionTest:
   name: home:adrian:ProtectionTest
@@ -186,7 +192,7 @@ home_adrian_ProtectionTest:
   description: ''
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 home_coolo:
   name: home:coolo
@@ -194,14 +200,14 @@ home_coolo:
   description: ''
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 15:04:23.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 home_coolo_test:
   name: home:coolo:test
   title: only a test
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2011-07-29 14:00:21.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 home_dmayr:
   name: home:dmayr
@@ -209,7 +215,7 @@ home_dmayr:
   description: description
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2013-09-22 14:54:54.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 home_fred:
   name: home:fred
@@ -217,7 +223,7 @@ home_fred:
   description: ''
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 home_fred_DeleteProject:
   name: home:fred:DeleteProject
@@ -225,7 +231,7 @@ home_fred_DeleteProject:
   description: ''
   created_at: 2005-01-01 01:00:01.000000000 Z
   updated_at: 2005-01-01 01:00:01.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 home_tom:
   name: home:tom
@@ -236,15 +242,15 @@ home_tom:
     曒檃檑 鴸鼢曘, 溙滊煁 馻噈嫶 毼毹 滍, 齥廲 幋 儮嬼懫 榓甂睮 轞騹鼚
   created_at: 2011-07-29 14:00:21.000000000 Z
   updated_at: 2012-11-29 21:18:02.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 home_king:
   name: home:king
-  title: test_delete_commented 
+  title: test_delete_commented
   description: ''
   created_at: 2014-02-14 01:00:01.000000000 Z
   updated_at: 2014-02-14 01:00:01.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 kde:
   name: kde
@@ -252,7 +258,7 @@ kde:
   description: bla
   created_at: 2003-03-03 04:03:03.000000000 Z
   updated_at: 2004-04-04 06:04:04.000000000 Z
-  type_id: 1
+  kind: standard
   delta: 1
 kde4:
   name: kde4
@@ -260,5 +266,27 @@ kde4:
   description: bla
   created_at: 2008-04-28 07:05:05.000000000 Z
   updated_at: 2008-04-28 08:06:06.000000000 Z
-  type_id: 1
+  kind: standard
+  delta: 1
+home_user5:
+  name: home:user5
+  title: 'mine'
+  description: ''
+  created_at: 2014-02-14 01:00:01.000000000 Z
+  updated_at: 2014-02-14 01:00:01.000000000 Z
+  kind: standard
+  delta: 1
+home_user6:
+  name: home:user6
+  created_at: 2014-02-14 01:00:01.000000000 Z
+  updated_at: 2014-02-14 01:00:01.000000000 Z
+  kind: standard
+  delta: 1
+BrokenPublishing:
+  name: BrokenPublishing
+  title: This is a a project with failures at publish time
+  description: contains nothing important
+  created_at: 2005-01-02 01:00:01.000000000 Z
+  updated_at: 2005-01-02 01:00:01.000000000 Z
+  kind: standard
   delta: 1

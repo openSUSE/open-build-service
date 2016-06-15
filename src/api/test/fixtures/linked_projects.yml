@@ -1,7 +1,7 @@
 UseRemoteInstance:
   id: 43
   position: 1
-  linked_remote_project_name: RemoteInstance:BaseDistro
+  linked_remote_project_name: RemoteInstance:BaseDistro2.0
   project: UseRemoteInstance
 UseRemoteInstanceIndirect_to_UseRemoteInstance:
   id: 45

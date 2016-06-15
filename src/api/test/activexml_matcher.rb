@@ -1,12 +1,11 @@
 
 module NodeMatcher #:nodoc:
-
   class Conditions < Hash #:nodoc:
     def initialize(hash)
       super()
-      hash = { :content => hash } unless Hash === hash
+      hash = { :content => hash } unless hash.kind_of?(Hash)
       hash = keys_to_symbols(hash)
-      hash.each do |k,v|
+      hash.each do |k, v|
         case k
         when :tag, :content then
           # keys are valid, and require no further processing
@@ -17,7 +16,7 @@ module NodeMatcher #:nodoc:
           hash[k] = Conditions.new(v)
         when :children
           hash[k] = v = keys_to_symbols(v)
-          v.each do |key,value|
+          v.each do |key, value|
             case key
             when :count, :greater_than, :less_than
               # keys are valid, and require no further processing
@@ -119,7 +118,6 @@ module NodeMatcher #:nodoc:
   #              :descendant => { :tag => "span",
   #                               :child => /hello world/ }
   def self.match(node, conditions)
-
     return false unless node
 
     case conditions
@@ -133,10 +131,11 @@ module NodeMatcher #:nodoc:
     end
     # check content of child nodes
     if conditions[:content]
-      unless node.has_elements?
-        return false unless match_condition(node.text, conditions[:content])
-      else
+      if node.has_elements?
+        # FIXME: This will always be falsy
         return false unless node.each { |child| match(child, conditions[:content]) }
+      else
+        return false unless match_condition(node.text, conditions[:content])
       end
     end
 
@@ -173,8 +172,11 @@ module NodeMatcher #:nodoc:
     # test ancestors
     if conditions[:ancestor]
       return false unless catch :found do
-        p = node
-        throw :found, true if match(p, conditions[:ancestor]) while p = p.parent
+        p = node.parent
+        while p
+          throw :found, true if match(p, conditions[:ancestor])
+          p = p.parent
+        end
       end
     end
 
@@ -192,7 +194,8 @@ module NodeMatcher #:nodoc:
     end
 
     # count children
-    if opts = conditions[:children]
+    opts = conditions[:children]
+    if opts
       matches = Array.new
       node.each do |child|
         if opts[:only]
@@ -206,7 +209,7 @@ module NodeMatcher #:nodoc:
         next if key == :only
         case key
         when :count
-          if Integer === value
+          if value.kind_of?(Integer)
             return false if matches.length != value
           else
             return false unless value.include?(matches.length)
@@ -222,7 +225,6 @@ module NodeMatcher #:nodoc:
 
     # test siblings
     if conditions[:sibling] || conditions[:before] || conditions[:after]
-
       siblings = []
       self_index = -1
       node.parent.each_with_index do |child, index|
@@ -244,7 +246,7 @@ module NodeMatcher #:nodoc:
       end
 
       if conditions[:after]
-        return false unless siblings[0,self_index].detect do |s|
+        return false unless siblings[0, self_index].detect do |s|
           s != node && match(s, conditions[:after])
         end
       end
@@ -254,6 +256,7 @@ module NodeMatcher #:nodoc:
   end
 
   private
+
   # Match the given value to the given condition.
   def self.match_condition(value, condition)
     case condition
@@ -273,5 +276,4 @@ module NodeMatcher #:nodoc:
       false
     end
   end
-
 end

@@ -65,6 +65,13 @@
           </element>
         </optional>
         <optional>
+          <element name="modify"> <!-- something changed, either the binary or it's meta data -->
+            <attribute name="time">
+              <data type="string" />
+            </attribute>
+          </element>
+        </optional>
+        <optional>
           <element name="obsolete"> <!-- this binary is not part of the repository anymore -->
             <attribute name="time">
               <data type="string" />

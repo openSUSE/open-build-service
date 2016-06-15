@@ -14,11 +14,10 @@ class BuildFlagTest < ActiveSupport::TestCase
 
   # Replace this with your real tests.
   def test_add_build_flag_to_project
-
-    #checking precondition
+    # checking precondition
     assert_equal 2, @project.type_flags('build').size
 
-    #create two new flags and save it.
+    # create two new flags and save it.
     for i in 1..2 do
       f = Flag.new(:repo => "10.#{i}", :status => "enable", :flag => 'build')
       f.architecture = @arch
@@ -27,7 +26,7 @@ class BuildFlagTest < ActiveSupport::TestCase
 
     @project.reload
 
-    #check the result
+    # check the result
     assert_equal 4, @project.type_flags('build').size
 
     f = @project.type_flags('build')[2]
@@ -47,101 +46,92 @@ class BuildFlagTest < ActiveSupport::TestCase
     assert_equal @project.id, f.project_id
     assert_nil f.package_id
     assert_equal 4, f.position
-
   end
 
-
   def test_add_build_flag_to_package
+    # checking precondition
+    assert_equal 2, @package.type_flags('build').size
 
-    #checking precondition
-    assert_equal 1, @package.type_flags('build').size
-
-    #create two new flags and save it.
+    # create two new flags and save it.
     for i in 1..2 do
-      f = Flag.new(:repo => "10.#{i}", :status => "disable", :flag => 'build')
+      f = Flag.new(:repo => "9.#{i}", :status => "disable", :flag => 'build')
       f.architecture = @arch
       @package.flags << f
     end
 
     @package.reload
 
-    #check the result
-    assert_equal 3, @package.type_flags('build').size
+    # check the result
+    assert_equal 4, @package.type_flags('build').size
 
-    f = @package.type_flags('build')[1]
+    f = @package.type_flags('build')[2]
 
-    assert_equal '10.1', f.repo
+    assert_equal '9.1', f.repo
     assert_equal @arch.id, f.architecture_id
     assert_equal 'disable', f.status
     assert_equal @package.id, f.package_id
     assert_nil f.project_id
     assert_equal 2, f.position
 
-    f = @package.type_flags('build')[2]
+    f = @package.type_flags('build')[3]
 
-    assert_equal '10.2', f.repo
+    assert_equal '9.2', f.repo
     assert_equal @arch.id, f.architecture_id
     assert_equal 'disable', f.status
     assert_equal @package.id, f.package_id
     assert_nil f.project_id
     assert_equal 3, f.position
-
   end
 
-
   def test_delete_type_flags_build__from_project
-
-    #checking precondition
+    # checking precondition
     assert_equal 2, @project.type_flags('build').size
-    #checking total number of flags stored in the database
+    # checking total number of flags stored in the database
     count = Flag.all.size
 
-    #destroy flags
+    # destroy flags
     @project.type_flags('build')[1].destroy
-    #reload required!
+    # reload required!
     @project.reload
     assert_equal 1, @project.type_flags('build').size
     assert_equal 1, count - Flag.all.size
 
     @project.type_flags('build')[0].destroy
-    #reload required
+    # reload required
     @project.reload
     assert_equal 0, @project.type_flags('build').size
     assert_equal 2, count - Flag.all.size
   end
 
-
   def test_delete_type_build_flags_from_package
-
-    #checking precondition
-    assert_equal 1, @package.type_flags('build').size
-    #checking total number of flags stored in the database
+    # checking precondition
+    assert_equal 2, @package.type_flags('build').size
+    # checking total number of flags stored in the database
     count = Flag.all.size
 
-    #destroy flags
+    # destroy flags
     @package.type_flags('build')[0].destroy
-    #reload required!
+    # reload required!
     @package.reload
-    assert_equal 0, @package.type_flags('build').size
+    assert_equal 1, @package.type_flags('build').size
     assert_equal 1, count - Flag.all.size
-
   end
 
   def test_position
-    # Because of each flag belongs_to architecture AND project|package for the 
+    # Because of each flag belongs_to architecture AND project|package for the
     # position calculation it is important in which order the assignments
     # flag -> architecture and flag -> project|package are done.
     # If flag -> architecture is be done first, no flag position (in the list of
     # flags assigned to a object) can be calculated. This is because of no reference
-    # (project_id or package_id) is set, which is needed for position calculation. 
+    # (project_id or package_id) is set, which is needed for position calculation.
     # The models should take this circumstances into consideration.
 
-    #checking precondition
+    # checking precondition
     assert_equal 2, @project.type_flags('build').size
-    #checking total number of flags stored in the database
+    # checking total number of flags stored in the database
     count = Flag.all.size
 
-    #create new flag and save it.
+    # create new flag and save it.
     f = Flag.new(:repo => "10.3", :status => "enable", :flag => 'build')
     f.architecture = @arch
     @project.flags << f
@@ -153,7 +143,7 @@ class BuildFlagTest < ActiveSupport::TestCase
     f.reload
     assert_equal 3, f.position
 
-    #a flag update should not alter the flag position
+    # a flag update should not alter the flag position
     f.repo = '10.0'
     f.save
 
@@ -161,8 +151,8 @@ class BuildFlagTest < ActiveSupport::TestCase
     assert_equal '10.0', f.repo
     assert_equal 3, f.position
 
-    #create new flag and save it, but set the references in different order as above.
-    #The result should be the same.
+    # create new flag and save it, but set the references in different order as above.
+    # The result should be the same.
     f = Flag.new(:repo => "10.2", :status => "enable", :position => 4, :flag => 'build')
     @project.flags << f
 
@@ -173,15 +163,12 @@ class BuildFlagTest < ActiveSupport::TestCase
     f.reload
     assert_equal 4, f.position
 
-    #a flag update should not alter the flag position
+    # a flag update should not alter the flag position
     f.repo = '10.1'
     f.save
 
     f.reload
     assert_equal '10.1', f.repo
     assert_equal 4, f.position
-
   end
-
-
 end

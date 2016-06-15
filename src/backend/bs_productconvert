@@ -27,11 +27,6 @@ BEGIN {
   chdir($wd);
   unshift @INC,  "$wd/build";
   unshift @INC,  "$wd";
-  # required just for the test suite :/
-  if (-d "$wd/../../../backend") {
-    unshift @INC,  "$wd/../../../backend/build";
-    unshift @INC,  "$wd/../../../backend";
-  }
 }
 
 use strict;
@@ -184,10 +179,18 @@ sub getUrl( $$$ ){
     my $url="";
     foreach my $url ( @{$product->{'urls'}->{'url'}} ){
         if ( "$url->{'name'}" eq "$searchstring" ){
-            my $url = $url->{'_content'};
-            $url =~ s/%{_target_cpu}/$arch/g;
-            return $url;
-	}
+            if ( exists $url->{'arch'} && "$url->{'arch'}" eq "$arch" ) {
+                my $url = $url->{'_content'};
+                $url =~ s/%{_target_cpu}/$arch/g;
+                return $url;
+            } elsif (exists $url->{'arch'}) {
+                next;
+            } else {
+                my $url = $url->{'_content'};
+                $url =~ s/%{_target_cpu}/$arch/g;
+                return $url;
+            }
+        }
     }
     return $url;
 }
@@ -615,7 +618,7 @@ sub groupToPackages( $$$$$ )
 		if( $p->{arch} ) {
 		    $takeIt = 0;
 		    foreach my $validArch( @validArchs ) {
-			if( grep( /$validArch/, @condArchs ) ) {
+			if( grep( /\b$validArch\b/, @condArchs ) ) {
 			    $takeIt = 1;
 			    last;
 			}
@@ -801,9 +804,11 @@ sub createRepository
 
 sub createFlavorReadme( $$ ){
     my($prodRef,$product)=@_;
-    my $reame_file="";
+    my $reame_file = "";
+    my %seen;
     foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
-      next if ((!defined ($flavor->{'flavor'}) || ("$flavor->{'flavor'}" eq "")));
+      next if !defined($flavor->{'flavor'}) || $flavor->{'flavor'} eq '' || $seen{$flavor->{flavor}};
+      $seen{$flavor->{flavor}} = 1;
       my $readmedir = "\$RPM_BUILD_ROOT/%{_defaultdocdir}/$product->{releasepkgname}-$flavor->{flavor}";
       $reame_file .= "mkdir -p $readmedir\n";
       $reame_file .= "cat >$readmedir/README << EOF\n";
@@ -966,7 +971,11 @@ sub writeProductSPECfile( $$$$ )
          $productprovides.="%ifarch $repo->{arch}\n" if $repo->{arch};
          $productprovides.="Provides:       product-updates-repoid() = ".escapeProvides("obsrepository://$obsname/$repo->{project}/$repo->{name}")."\n";
          $productprovides.="%endif\n" if $repo->{arch};
-      };
+      }
+      if ($product->{register}->{flavor}) {
+         $productprovides.="Provides:       product-register-flavor() = ";
+         $productprovides.=escapeProvides($product->{register}->{flavor})."\n";
+      }
     }
     foreach my $predecessor ( @{$product->{'predecessor'}} ){
       $productprovides.="Obsoletes:       product:$predecessor\n";
@@ -1085,6 +1094,16 @@ sub writeProductSPECfile( $$$$ )
     writestr($file, undef, $str);
 }
 
+sub createPreSelectPatternDeps ( $ ) {
+  my ( $patterns ) = @_;
+
+  my $pattern_lines="";
+  foreach my $pattern (@{$patterns->[0]->{'pattern'}}){
+      $pattern_lines.="Recommends:     pattern() = $pattern->{'name'}\n";
+  }
+  return $pattern_lines;
+}
+
 sub createProductDependencyLines ( $ ) {
   my ( $productDependency ) = @_;
 
@@ -1112,9 +1131,11 @@ sub createProductDependencyLines ( $ ) {
 
 sub createSPECfileFlavors ( $$ ) {
     my ( $prodRef,$product ) = @_;
-    my $product_flavors="";
+    my $product_flavors = '';
+    my %seen;
     foreach my $flavor ( @{$prodRef->{mediasets}->{media}} ){
-      next if ((!defined ($flavor->{'flavor'}) || ("$flavor->{'flavor'}" eq "")));
+      next if !defined($flavor->{'flavor'}) || $flavor->{'flavor'} eq '' || $seen{$flavor->{flavor}};
+      $seen{$flavor->{flavor}} = 1;
       $product_flavors.="%package $flavor->{flavor}\n";
       $product_flavors.="License:        BSD-3-Clause\n";
       $product_flavors.="Group:          System/Fhs\n";
@@ -1125,6 +1146,9 @@ sub createSPECfileFlavors ( $$ ) {
       }
       $product_flavors.="Provides:       product_flavor()\n";
       $product_flavors.="Provides:       flavor($flavor->{flavor})\n";
+      if (defined($flavor->{'preselected_patterns'})){
+        $product_flavors.=createPreSelectPatternDeps($flavor->{'preselected_patterns'});
+      }
       # take media style from first media. not nice, but we can only have one product package for all of them.
       my $medium = $prodRef->{mediasets}->{media}[0];
       if ((not defined $medium->{'mediastyle'}) || $medium->{'mediastyle'} eq "suse-11.1" || $medium->{'mediastyle'} eq "suse-11.2" || $medium->{'mediastyle'} eq "suse-11.3") {
@@ -1137,6 +1161,7 @@ sub createSPECfileFlavors ( $$ ) {
       }
       if (defined($flavor->{'productdependency'})){
         # old compat code.
+        die("productdependency works only with new mediastyles") unless defined($medium->{'mediastyle'});
         if ($medium->{'mediastyle'} ne "suse-11.1" && $medium->{'mediastyle'} ne "suse-11.2" && $medium->{'mediastyle'} ne "suse-11.3" && $medium->{'mediastyle'} ne "suse-12.1" && $medium->{'mediastyle'} ne "suse-sle11-sp2" ) {
             die("productdependency must be defined per product for post 12.1 media styles");
         }
@@ -1216,8 +1241,14 @@ sub getCpeId ($$) {
     $vendor = "suse" if $product->{vendor} =~ /^SUSE LINUX/;
     die("Vendor contains non valid chars") if $vendor =~ /[^\-+=\.,0-9:%{}\@#%A-Z_a-z~\200-\377]/s;
     die("Vendor contains non valid chars") if $vendor =~ /[\/:\.\000-\037]/;
-    my $cpeid_uri = lc("cpe:".$tag.":".$vendor.":".$product->{name}.":".$product->{version});
-    return $cpeid_uri;
+    my $cpeid_uri = "cpe:".$tag.":".$vendor.":".$product->{name};
+    if (defined($product->{baseversion})) {
+      $cpeid_uri.=":$product->{baseversion}";
+      $cpeid_uri.=":sp$product->{patchlevel}" if (defined($product->{patchlevel}) && $product->{patchlevel} ne "0");
+    } else {
+      $cpeid_uri.=":".$product->{version};
+    }
+    return lc($cpeid_uri);
 }
 
 
@@ -1230,7 +1261,15 @@ sub createOsReleaseFile ($) {
     my $name = $product->{'name'};
     # shall we strip ^SUSE_ here or better modify the name in SLE 12?
     $os_release_file .= "NAME=\"".$name."\"\n";
-    $os_release_file .= "VERSION=\"%{version}%{?betaversion: }%{?betaversion}\"\n";
+
+    if (defined($product->{baseversion})) {
+      $os_release_file .= "VERSION=\"".$product->{baseversion};
+      $os_release_file .= "-SP".$product->{patchlevel} if (defined($product->{patchlevel}) && $product->{patchlevel} ne "0");
+    } else {
+      $os_release_file .= "VERSION=\"%{version}";
+    }
+    $os_release_file .= "%{?betaversion: }%{?betaversion}\"\n";
+
     $os_release_file .= "VERSION_ID=\"%{version}%{?betaversion?: }%{?betaversion}\"\n";
     $os_release_file .= "PRETTY_NAME=\"".$product->{'summary'}[0]->{_content}."\"\n" if $product->{'summary'};
     $os_release_file .= "BUG_REPORT_URL=\"".$bugtracker."\"\n" if $bugtracker;
@@ -1369,6 +1408,7 @@ $product->{'releasepkgname'} ||= "$product->{'name'}-release";
 # Calculate version strings
 #
 die ("It is not allowed to specify baseversion and version.") if (defined($product->{'baseversion'}) && defined($product->{'version'}) );
+die("You must use baseversion instead of version when using a patchlevel definition") if (defined($product->{'version'}) && defined($product->{'patchlevel'}));
 if (defined($product->{'baseversion'})) {
     $product->{'version'}      = $product->{'baseversion'};
     $product->{'version'}     .= ".".$product->{'patchlevel'} if (defined($product->{'patchlevel'}) && $product->{'patchlevel'} ne '0');

@@ -7,7 +7,7 @@
         <div class="dialog-content">
           <p>Change the submit target of this request to an already existing incident.</p>
           <%= form_tag(:action => 'set_incident') do %>
-            <%= hidden_field_tag(:id, params[:id]) %>
+            <%= hidden_field_tag(:number, params[:number]) %>
             <p>
               <%= label_tag(:incident_project, 'Incident:') %><br/>
               <%= text_field_tag(:incident_project, '', :size => 40) %><br/>

@@ -59,9 +59,9 @@ cve_numbers:
   kind: cve
   description: CVE numbers
   url: http://cve.mitre.org
-  show_url: http://cve.mitre.org/cgi-bin/cvename.cgi?name=@@@
-  regex: CVE-\d{4,4}-\d{4,4}
-  label: '@@@'
+  show_url: http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-@@@
+  regex: (?:cve|CVE)-(\d\d\d\d-\d+)
+  label: 'CVE-@@@'
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0
 deb:
@@ -249,5 +249,15 @@ perl_rt:
   show_url: http://rt.cpan.org/Public/Bug/Display.html?id=@@@
   regex: RT#(\d+)
   label: '@@@'
+  issues_updated: 2011-07-29 14:00:21.000000000 Z
+  enable_fetch: 0
+obs_github:
+  name: obs
+  kind: github
+  description: OBS issues on github
+  url: https://api.github.com/repos/openSUSE/open-build-service/issues
+  show_url: https://github.com/openSUSE/open-build-service/issues/@@@
+  regex: obs#(\d+)
+  label: obs#@@@
   issues_updated: 2011-07-29 14:00:21.000000000 Z
   enable_fetch: 0

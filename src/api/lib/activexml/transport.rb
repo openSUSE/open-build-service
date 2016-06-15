@@ -3,8 +3,8 @@ module ActiveXML
     @@transport_api
   end
 
-  def self.setup_transport_api(schema, host, port)
-    @@transport_api = Transport.new(schema, host, port)
+  def self.setup_transport_api(schema, host, port, prefix = '')
+    @@transport_api = Transport.new(schema, host, port, prefix)
   end
 
   def self.backend
@@ -16,15 +16,13 @@ module ActiveXML
   end
 
   class Transport
-
     attr_accessor :port
 
     class Error < StandardError
-      
       def parse!
         return @xml if @xml
 
-        #Rails.logger.debug "extract #{exception.class} #{exception.message}"
+        # Rails.logger.debug "extract #{exception.class} #{exception.message}"
         begin
           @xml = Xmlhash.parse( exception.message )
         rescue TypeError
@@ -67,7 +65,7 @@ module ActiveXML
     class NotFoundError < Error; end
     class NotImplementedError < Error; end
 
-    #TODO: put lots of stuff into base class
+    # TODO: put lots of stuff into base class
 
     require 'base64'
     require 'net/https'
@@ -80,15 +78,15 @@ module ActiveXML
       Rails.logger
     end
 
-    def connect( model, target, opt={} )
-      opt.each do |key,value|
+    def connect(model, target, opt = {})
+      opt.each do |key, value|
         opt[key] = URI(opt[key])
         replace_server_if_needed( opt[key] )
       end
 
       uri = URI( target )
       replace_server_if_needed( uri )
-      #logger.debug "setting up transport for model #{model}: #{uri} opts: #{opt}"
+      # logger.debug "setting up transport for model #{model}: #{uri} opts: #{opt}"
       raise "overwriting #{model}" if @mapping.has_key? model
       @mapping[model] = {:target_uri => uri, :opt => opt}
     end
@@ -100,20 +98,21 @@ module ActiveXML
     end
 
     def target_for( model )
-      #logger.debug "retrieving target_uri for model '#{model.inspect}' #{@mapping.inspect}"
+      # logger.debug "retrieving target_uri for model '#{model.inspect}' #{@mapping.inspect}"
       raise "Model #{model.inspect} is not configured" unless @mapping.has_key? model
       @mapping[model][:target_uri]
     end
 
     def options_for( model )
-      #logger.debug "retrieving option hash for model '#{model.inspect}' #{@mapping.inspect}"
+      # logger.debug "retrieving option hash for model '#{model.inspect}' #{@mapping.inspect}"
       @mapping[model][:opt]
     end
 
-    def initialize( schema, host, port )
+    def initialize( schema, host, port, prefix = '' )
       @schema = schema
       @host = host
       @port = port
+      @prefix = prefix
       @default_servers ||= Hash.new
       @http_header = {"Content-Type" => "text/plain", 'Accept-Encoding' => 'identity'}
       # stores mapping information
@@ -129,7 +128,6 @@ module ActiveXML
 
     # returns object
     def find( model, *args )
-
       logger.debug "[REST] find( #{model.inspect}, #{args.inspect} )"
       params = Hash.new
       data = nil
@@ -139,8 +137,8 @@ module ActiveXML
       options = options_for( symbolified_model )
       case args[0]
       when Symbol
-        #logger.debug "Transport.find: using symbol"
-        #raise ArgumentError, "Illegal symbol, must be :all (or String/Hash)" unless args[0] == :all
+        # logger.debug "Transport.find: using symbol"
+        # raise ArgumentError, "Illegal symbol, must be :all (or String/Hash)" unless args[0] == :all
         uri = options[args[0]]
         if args.length > 1
           #:conditions triggers atm. always a post request, the conditions are
@@ -153,7 +151,7 @@ module ActiveXML
       when String
         raise ArgumentError.new "find with string is no longer allowed #{args.inspect}"
       when Hash
-        #logger.debug "Transport.find: using hash"
+        # logger.debug "Transport.find: using hash"
         if args[0].has_key? :predicate and args[0].has_key? :what
           own_mimetype = "application/x-www-form-urlencoded"
         end
@@ -170,35 +168,35 @@ module ActiveXML
         data = url.query
         url.query = nil
       end
-      #use get-method if no conditions defined <- no post-data is set.
+      # use get-method if no conditions defined <- no post-data is set.
       if data.nil?
-        #logger.debug"[REST] Transport.find using GET-method"
-        objdata = http_do( 'get', url, :timeout => 300 )
-        raise RuntimeError.new("GET to %s returned no data" % url) if objdata.empty?
+        # logger.debug"[REST] Transport.find using GET-method"
+        objdata = http_do('get', url, :timeout => 300)
+        raise RuntimeError, "GET to #{url} returned no data" if objdata.empty?
       else
-        #use post-method
-        logger.debug"[REST] Transport.find using POST-method"
-        #logger.debug"[REST] POST-data as xml: #{data.to_s}"
-        objdata = http_do( 'post', url, :data => data.to_s, :content_type => own_mimetype)
-        raise RuntimeError.new("POST to %s returned no data" % url) if objdata.empty?
+        # use post-method
+        logger.debug "[REST] Transport.find using POST-method"
+        # logger.debug"[REST] POST-data as xml: #{data.to_s}"
+        objdata = http_do('post', url, :data => data.to_s, :content_type => own_mimetype)
+        raise RuntimeError, "POST to #{url} returned no data" if objdata.empty?
       end
       objdata = objdata.force_encoding("UTF-8")
       return [objdata, params]
     end
 
-    def create(object, opt={})
+    def create(object, opt = {})
       logger.debug "creating object #{object.class} (#{object.init_options.inspect}) to api:\n #{object.dump_xml}"
       url = substituted_uri_for( object, :create, opt )
       http_do 'post', url, :data => object.dump_xml
     end
 
-    def save(object, opt={})
+    def save(object, opt = {})
       logger.debug "saving object #{object.class} (#{object.init_options.inspect}) to api:\n #{object.dump_xml}"
       url = substituted_uri_for( object, nil, opt )
       http_do 'put', url, :data => object.dump_xml
     end
 
-    def delete(object, opt={})
+    def delete(object, opt = {})
       logger.debug "delete object #{object.class} (#{object.init_options.inspect}) to api:\n #{object.dump_xml}"
       url = substituted_uri_for( object, :delete, opt )
       http_do 'delete', url
@@ -222,7 +220,7 @@ module ActiveXML
     end
 
     # TODO: get rid of this very thin wrapper
-    def direct_http( url, opt={} )
+    def direct_http( url, opt = {} )
       defaults = {:method => "GET"}
       opt = defaults.merge opt
 
@@ -231,12 +229,11 @@ module ActiveXML
       http_do opt[:method], url, opt
     end
 
-    #replaces the parameter parts in the uri from the config file with the correct values
+    # replaces the parameter parts in the uri from the config file with the correct values
     def substitute_uri( uri, params )
-
-      #logger.debug "[REST] reducing args: #{params.inspect}"
+      # logger.debug "[REST] reducing args: #{params.inspect}"
       params.delete(:conditions)
-      #logger.debug "[REST] args is now: #{params.inspect}"
+      # logger.debug "[REST] args is now: #{params.inspect}"
 
       u = uri.clone
       u.scheme = uri.scheme
@@ -253,11 +250,11 @@ module ActiveXML
             new_pairs << pair.join("=")
           elsif pair.length == 1
             pair[0] =~ /:(\w+)/
-            #new substitution rules:
-            #when param is not there, don't put anything in url
-            #when param is array, put multiple params in url
-            #when param is a hash, put key=value params in url
-            #any other case, stringify param and put it in url
+            # new substitution rules:
+            # when param is not there, don't put anything in url
+            # when param is array, put multiple params in url
+            # when param is a hash, put key=value params in url
+            # any other case, stringify param and put it in url
             next if not params.has_key? $1.to_sym or params[$1.to_sym].nil?
             sub_val = params[$1.to_sym]
             if sub_val.kind_of? Array
@@ -281,7 +278,7 @@ module ActiveXML
       return u
     end
 
-    def substituted_uri_for( object, path_id=nil, opt={} )
+    def substituted_uri_for( object, path_id = nil, opt = {} )
       symbolified_model = object.class.name.downcase.split('::').last.to_sym
       options = options_for(symbolified_model)
       if path_id and options.has_key? path_id
@@ -292,7 +289,7 @@ module ActiveXML
       substitute_uri( uri, object.instance_variable_get("@init_options").merge(opt) )
     end
 
-    def http_do( method, url, opt={} )
+    def http_do( method, url, opt = {} )
       defaults = {:timeout => 60}
       opt = defaults.merge opt
 
@@ -300,7 +297,7 @@ module ActiveXML
         url = URI(url)
       end
 
-      #set default host if not set in uri
+      # set default host if not set in uri
       if not url.host
         url.scheme, url.host = @schema, @host
       end
@@ -329,7 +326,7 @@ module ActiveXML
         @http.read_timeout = opt[:timeout]
 
         raise "url.path.nil" if url.path.nil?
-        path = url.path
+        path = @prefix + url.path
         path += "?" + url.query if url.query
         logger.debug "http_do: method: #{method} url: " +
         "http#{"s" if @http.use_ssl?}://#{url.host}:#{url.port}#{path}"
@@ -393,14 +390,23 @@ module ActiveXML
 
       return handle_response( http_response )
     end
-    
+
     def load_external_url(uri)
       uri = URI.parse(uri)
       http = nil
       content = nil
       proxyuri = ENV['http_proxy']
       proxyuri = CONFIG['http_proxy'] unless CONFIG['http_proxy'].blank?
-      if proxyuri
+      noproxy = ENV['no_proxy']
+      noproxy = CONFIG['no_proxy'] unless CONFIG['no_proxy'].blank?
+
+      noproxy_applies = false
+      if noproxy
+        np_split = noproxy.split(",")
+        noproxy_applies = np_split.any?{ |np| uri.host.end_with?(np.strip) }
+      end
+
+      if proxyuri && noproxy_applies == false
         proxy = URI.parse(proxyuri)
         proxy_user, proxy_pass = proxy.userinfo.split(/:/) if proxy.userinfo
         http = Net::HTTP::Proxy(proxy.host, proxy.port, proxy_user, proxy_pass).new(uri.host, uri.port)
@@ -416,7 +422,7 @@ module ActiveXML
         end
       rescue SocketError, Errno::EINTR, Errno::EPIPE, EOFError, Net::HTTPBadResponse, IOError, Errno::ENETUNREACH,
         Errno::ETIMEDOUT, Errno::ECONNREFUSED, Timeout::Error => err
-        logger.debug "#{err} when fetching #{uri.to_s}"
+        logger.debug "#{err} when fetching #{uri}"
         http = nil
       end
       http.finish if http && http.started?
@@ -458,6 +464,5 @@ module ActiveXML
       message = http_response.to_s if message.blank?
       raise Error, message.force_encoding("UTF-8")
     end
-    
   end
 end

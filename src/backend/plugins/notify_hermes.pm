@@ -34,18 +34,16 @@ sub new {
 }
 
 sub notify() {
-  my ($self, $type, $paramRef ) = @_;
+  my ($self, $type, $paramRef) = @_;
 
   return unless $BSConfig::hermesserver;
 
-  my @args = ( "rm=notify" );
-
-  $type = "UNKNOWN" unless $type;
   # prepend something BS specific
   my $prefix = $BSConfig::hermesnamespace || "OBS";
-  $type =  "${prefix}_$type";
+  $type ||= "UNKNOWN";
+  $type = "${prefix}_$type";
 
-  push @args, "_type=$type";
+  my @args = ("rm=notify", "_type=$type");
 
   if ($paramRef) {
     for my $key (sort keys %$paramRef) {
@@ -72,7 +70,7 @@ sub notify() {
     'timeout' => 60,
   };
   eval {
-    BSRPC::rpc( $param, undef, @args );
+    BSRPC::rpc($param, undef, @args);
   };
   warn("Hermes: $@") if $@;
 }

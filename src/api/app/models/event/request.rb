@@ -1,14 +1,16 @@
 class Event::Request < ::Event::Base
   self.description = 'Request was updated'
   self.abstract_class = true
-  payload_keys :author, :comment, :description, :id, :actions, :state, :when, :who
+  payload_keys :author, :comment, :description, :number, :actions, :state, :when, :who
 
-  def self.message_id(id)
-    "<obs-request-#{id}@#{message_domain}>"
+  DiffLimit = 120
+
+  def self.message_number(number)
+    "<obs-request-#{number}@#{message_domain}>"
   end
 
-  def my_message_id
-    Event::Request.message_id(payload['id'])
+  def my_message_number
+    Event::Request.message_number(payload['number'])
   end
 
   def originator
@@ -16,12 +18,12 @@ class Event::Request < ::Event::Base
   end
 
   def custom_headers
-    mid = my_message_id
+    mid = my_message_number
     h = super
     h['In-Reply-To'] = mid
     h['References'] = mid
     h['X-OBS-Request-Creator'] = payload['author']
-    h['X-OBS-Request-Id'] = payload['id']
+    h['X-OBS-Request-Id'] = payload['number']
     h['X-OBS-Request-State'] = payload['state']
 
     h.merge(headers_for_actions)
@@ -68,8 +70,6 @@ class Event::Request < ::Event::Base
     end
   end
 
-  DiffLimit = 120
-
   def payload_with_diff
     ret = payload
     payload['actions'].each do |a|
@@ -88,7 +88,7 @@ class Event::Request < ::Event::Base
 
   def reviewers
     ret = []
-    BsRequest.find(payload['id']).reviews.each do |r|
+    BsRequest.find_by_number(payload['number']).reviews.each do |r|
       ret.concat(r.users_and_groups_for_review)
     end
     ret.uniq
@@ -113,7 +113,6 @@ class Event::Request < ::Event::Base
   def source_maintainers
     action_maintainers('sourceproject', 'sourcepackage')
   end
-
 end
 
 class Event::RequestChange < Event::Request
@@ -131,11 +130,11 @@ class Event::RequestCreate < Event::Request
     # we're the one they mean
     base.delete('In-Reply-To')
     base.delete('References')
-    base.merge({'Message-ID' => my_message_id})
+    base.merge({'Message-ID' => my_message_number})
   end
 
   def subject
-    "Request #{payload['id']} created by #{payload['who']} (#{actions_summary})"
+    "Request #{payload['number']} created by #{payload['who']} (#{actions_summary})"
   end
 
   def expanded_payload
@@ -155,7 +154,7 @@ class Event::RequestStatechange < Event::Request
   receiver_roles :source_maintainer, :target_maintainer, :creator, :reviewer
 
   def subject
-    "Request #{payload['id']} changed to #{payload['state']} (#{actions_summary})"
+    "Request #{payload['number']} changed to #{payload['state']} (#{actions_summary})"
   end
 end
 
@@ -166,7 +165,7 @@ class Event::ReviewWanted < Event::Request
   receiver_roles :reviewer
 
   def subject
-    "Request #{payload['id']} requires review (#{actions_summary})"
+    "Request #{payload['number']} requires review (#{actions_summary})"
   end
 
   def expanded_payload

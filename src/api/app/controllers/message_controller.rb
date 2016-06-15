@@ -1,5 +1,4 @@
 class MessageController < ApplicationController
-
   validate_action show: {response: :messages}
   validate_action list: {response: :messages}
   validate_action update: {request: :message, response: :status}
@@ -62,8 +61,8 @@ class MessageController < ApplicationController
     end
   end
 
-
   private
+
   def check_permissions
     if (@package and not permissions.package_change? @package.name, @project.name) or
         (@project and not permissions.project_change? @project.name)
@@ -73,5 +72,4 @@ class MessageController < ApplicationController
     end
     return true
   end
-
 end

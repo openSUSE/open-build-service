@@ -19,9 +19,10 @@ $(function() {
   $('a[data-toggle="tab"]').on('click', function(e) {
     history.pushState(null, null, $(this).attr('href'));
   });
+
   // navigate to a tab when the history changes
-  window.addEventListener("popstate", function(e) {
-    var activeTab = $('[href=' + location.hash + ']');
+  var activeTab = $('[href=' + location.hash + ']');
+  window.addEventListener('popstate', function(e) {
     if (activeTab.length) {
       activeTab.tab('show');
     } else {
@@ -31,6 +32,6 @@ $(function() {
 });
 
 $(function() {
-    var hash = window.location.hash;
-    hash && $('ul.nav a[href="' + hash + '"]').tab('show');
+  var hash = window.location.hash;
+  hash && $('ul.nav a[href="' + hash + '"]').tab('show');
 });

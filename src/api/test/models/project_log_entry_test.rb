@@ -22,7 +22,7 @@ class ProjectLogEntryTest < ActiveSupport::TestCase
     refute entry.new_record?
     assert_equal projects(:"BaseDistro2.0"), entry.project
     assert_equal users(:Iggy), entry.user
-    assert_equal BsRequest.find(1000), entry.bs_request
+    assert_equal BsRequest.find_by_number(1000), entry.bs_request
     assert_nil entry.package
     assert_equal "isgone", entry.package_name
   end

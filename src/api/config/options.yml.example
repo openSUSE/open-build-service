@@ -20,6 +20,7 @@ response_schema_validation: false
 
 # backend source server
 source_host: localhost
+# NOTE: the source_port setting is ignored and hardcoded for "test" and "development" env
 source_port: 5352
 #source_protocol: https
 
@@ -27,6 +28,7 @@ source_port: 5352
 frontend_host: localhost
 frontend_port: 443
 frontend_protocol: https
+#api_relative_url_root: /obs
 # if your users access the hosts through a proxy (or just a different name, use this to
 # overwrite the settings for users)
 #external_frontend_host: api.opensuse.org
@@ -44,9 +46,6 @@ proxy_auth_mode: :off
 # valid user does no further authentication. So take care...
 proxy_auth_test_user: coolguy
 proxy_auth_test_email: coolguy@example.com
-
-# set this to enable auto cleanup requests after the given days
-auto_cleanup_after_days: 30
 
 #schema_location
 
@@ -110,10 +109,10 @@ ldap_search_auth: ""
 # be met; eg group membership
 #
 # To allow only users in a specific group uncomment this line:
-#ldap_user_filter: memberof=CN=group,OU=Groups,DC=Domain Component)
+#ldap_user_filter: (memberof=CN=group,OU=Groups,DC=Domain Component)
 #
 # Note this is joined to the normal selection like so:
-# (&(#{dap_search_attr}=#{login})#{ldap_user_filter})
+# (&(#{ldap_search_attr}=#{login})#{ldap_user_filter})
 # giving an ldap search of:
 #  (&(sAMAccountName=#{login})(memberof=CN=group,OU=Groups,DC=Domain Component))
 #

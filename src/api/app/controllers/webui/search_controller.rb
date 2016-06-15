@@ -1,24 +1,23 @@
 class Webui::SearchController < Webui::WebuiController
-
   before_filter :set_attribute_list
   before_filter :set_tracker_list
   before_filter :set_parameters
-  
+
   def index
     search
   end
-  
+
   def owner
     Suse::Backend.start_test_backend if Rails.env.test?
 
     # If the search is too short, return
     return if @search_text.blank?
-    if @search_text and @search_text.length < 2
-      flash[:error] = "Search string must contain at least two characters."
+    if @search_text && @search_text.length < 2
+      flash[:error] = 'Search string must contain at least two characters.'
       return
     end
 
-    @results = Owner.search({:limit => "#{@owner_limit}", :devel => "#{@owner_devel}"}, @search_text)
+    @results = Owner.search({ limit: "#{@owner_limit}", devel: "#{@owner_devel}" }, @search_text)
     flash[:notice] = 'Your search did not return any results.' if @results.count < 1
   end
 
@@ -40,19 +39,34 @@ class Webui::SearchController < Webui::WebuiController
     # If there is nothing to search for, just return
     return unless params[:search_text]
     # If the search is too short, return too
-    if (!@search_text or @search_text.length < 2) && !@search_attrib_type_id && !@search_issue
-      flash[:error] = "Search string must contain at least two characters."
-      return
-    end
-    
-    if @search_text.starts_with?("obs://")
-    # The user entered an OBS-specific RPM disturl, redirect to package source files with respective revision
-      flash[:error] = "This disturl does not compute!" unless handle_disturl(@search_text)
+    if (!@search_text || @search_text.length < 2) && !@search_attrib_type_id && !@search_issue
+      flash[:error] = 'Search string must contain at least two characters.'
       return
     end
 
+    # request number when string starts with a #
+    if @search_text.starts_with?('#') && @search_text[1..-1].to_i > 0
+      redirect_to controller: 'request', action: 'show', number: @search_text[1..-1]
+      return
+    end
+
+    # The user entered an OBS-specific RPM disturl, redirect to package source files with respective revision
+    if @search_text.starts_with?('obs://')
+      disturl_project, _, disturl_pkgrev = @search_text.split('/')[3..5]
+      unless disturl_pkgrev.nil?
+        disturl_rev, disturl_package = disturl_pkgrev.split('-', 2)
+      end
+      if Package.exists_by_project_and_name(disturl_project, disturl_package)
+        redirect_to controller: 'package', action: 'show', project: disturl_project, package: disturl_package, rev: disturl_rev
+        return
+      else
+        redirect_to :back, notice: 'Sorry, this disturl does not compute...'
+        return
+      end
+    end
+
     logger.debug "Searching for the string \"#{@search_text}\" in the #{@search_where}'s of #{@search_what}'s"
-    if @search_where.length < 1 and !@search_attrib_type_id and !@search_issue
+    if @search_where.length < 1 && !@search_attrib_type_id && !@search_issue
       flash[:error] = "You have to search for #{@search_text} in something. Click the advanced button..."
       return
     end
@@ -64,36 +78,11 @@ class Webui::SearchController < Webui::WebuiController
                                 fields: @search_where,
                                 issue_name: @search_issue,
                                 issue_tracker_name: @search_tracker)
-    @results = search.search(:page => params[:page], :per_page => @per_page)
+    @results = search.search(page: params[:page], per_page: @per_page)
     flash[:notice] = 'Your search did not return any results.' if @results.count < 1
   end
 
-  # This method handles obs:// disturls
-  #
-  # * *Args* :
-  #   - +disturl+ -> A dist url string like obs://INSTANCE/PROJECT/REPO/REVISION-PACKAGE
-  #   obs://build.opensuse.org/openSUSE:Maintenance:1055/openSUSE_12.2_Update/255b363336b47a513d4df73a92bc2acc-aaa_base.openSUSE_12.2_Update
-  # * *Returns* :
-  #   - 
-  # * *Redirects* :
-  #   - +package/show+ -> if the disturl is computeable
-  #   - +search/index+ -> if the disturl isn't computeable
-  # * *Raises* :
-  #   - 
-  #
-  def handle_disturl(disturl)
-    disturl_project, _, disturl_pkgrev = disturl.split('/')[3..5]
-    unless disturl_pkgrev.nil?
-      disturl_rev, disturl_package = disturl_pkgrev.split('-', 2)
-    end
-    unless disturl_package.nil? || disturl_rev.nil?
-      redirect_to :controller => 'package', :action => 'show', :project => disturl_project, :package => disturl_package, :rev => disturl_rev and return true
-    end
-    logger.debug "Computing disturl #{disturl} failed"
-    return false
-  end
-
-private
+  private
 
   # This sets the needed defaults and input we've got for instance variables
   #
@@ -119,25 +108,25 @@ private
 
     @search_text = ""
     @search_text = params[:search_text].strip unless params[:search_text].blank?
-    @search_text = @search_text.gsub("'", "").gsub("[", "").gsub("]", "").gsub("\n", "")
-   
+    @search_text = @search_text.gsub("'", '').gsub('[', '').gsub(']', '').gsub("\n", '')
+
     @search_what = []
-    @search_what << 'package' if params[:package] == "1" or params[:package].nil?
-    @search_what << 'project' if params[:project] == "1" or params[:project].nil? and !@search_issue
-    @search_what << 'owner' if params[:owner] == "1" and !@search_issue
-    
+    @search_what << 'package' if params[:package] == '1' || params[:package].nil?
+    @search_what << 'project' if params[:project] == '1' || params[:project].nil? && !@search_issue
+    @search_what << 'owner' if params[:owner] == '1' && !@search_issue
+
     @search_where = []
-    @search_where << 'name' if params[:name] == "1" or params[:name].nil?
-    @search_where << 'title' if params[:title] == "1"
-    @search_where << 'description' if params[:description] == "1"
-    
+    @search_where << 'name' if params[:name] == '1' || params[:name].nil?
+    @search_where << 'title' if params[:title] == '1'
+    @search_where << 'description' if params[:description] == '1'
+
     @owner_limit = nil
-    @owner_limit = "1" if params[:limit].nil?
+    @owner_limit = '1' if params[:limit].nil?
     @owner_limit = params[:limit] if !params[:limit].nil?
-    
+
     @owner_devel = nil
-    @owner_devel = "0" if params[:devel] == "off"
-    @owner_devel = "1" if params[:devel] == "on"
+    @owner_devel = '0' if params[:devel] == 'off'
+    @owner_devel = '1' if params[:devel] == 'on'
   end
 
   def set_attribute_list
@@ -152,6 +141,6 @@ private
     @issue_tracker_list = IssueTracker.order(:name).map do |t|
       ["#{t.name} (#{t.description})", t.name]
     end
-    @default_tracker = ::Configuration.first.default_tracker
+    @default_tracker = ::Configuration.default_tracker
   end
 end

@@ -1,19 +1,32 @@
+#
 class BsRequestActionGroup < BsRequestAction
+  #### Includes and extends
+  #### Constants
 
+  #### Self config
+  class AlreadyGrouped < APIException; end
+  class CantGroupInGroups < APIException; end
+  class CantGroupRequest < APIException; 403; end
+  class GroupActionMustBeSingle < APIException; end
+  class NotInGroup < APIException; setup 404; end
+  class RequireId < APIException; end
+
+  #### Attributes
+  #### Associations macros (Belongs to, Has one, Has many)
   has_and_belongs_to_many :bs_requests, join_table: :group_request_requests
 
+  #### Callbacks macros: before_save, after_save, etc.
+  #### Scopes (first the default_scope macro if is used)
+  #### Validations macros
+
+  #### Class methods using self. (public and then private)
   def self.sti_name
     return :group
   end
 
-  class AlreadyGrouped < APIException
-  end
-  class CantGroupInGroups < APIException
-  end
-  class CantGroupRequest < APIException
-    403
-  end
-
+  #### To define class methods as private use private_class_method
+  #### private
+  #### Instance methods (public and then protected/private)
   def check_permissions_on(req)
     # root is always right
     return if User.current.is_admin?
@@ -22,7 +35,7 @@ class BsRequestActionGroup < BsRequestAction
     creator = User.current
     if self.bs_request # bootstrap?
       creator = self.bs_request.creator
-    end 
+    end
     return if creator == req.creator
 
     # a single request is always fine
@@ -30,13 +43,13 @@ class BsRequestActionGroup < BsRequestAction
 
     return if req.is_target_maintainer?(User.current)
 
-    raise CantGroupRequest.new "Request #{req.id} does not match in the group"
+    raise CantGroupRequest.new "Request #{req.number} does not match in the group"
   end
 
   def check_and_add_request(newid)
-    req = BsRequest.find(newid)
+    req = BsRequest.find_by_number(newid)
     if self.bs_requests.where(id: req.id).exists?
-      raise AlreadyGrouped.new "#{req.id} is already part of the group request #{self.bs_request.id}"
+      raise AlreadyGrouped.new "#{req.number} is already part of the group request #{self.bs_request.number}"
     end
     if req.bs_request_actions.first.action_type == :group
       raise CantGroupInGroups.new 'Groups are not supported in groups'
@@ -48,12 +61,10 @@ class BsRequestActionGroup < BsRequestAction
   def store_from_xml(hash)
     super(hash)
     hash.elements('grouped') do |g|
-      check_and_add_request(Integer(g['id']))
+      r = BsRequest.find_by_number(Integer(g['id']))
+      check_and_add_request(r.try(:number))
     end
     hash.delete('grouped')
-  end
-
-  class GroupActionMustBeSingle < APIException;
   end
 
   def check_permissions!
@@ -69,7 +80,7 @@ class BsRequestActionGroup < BsRequestAction
 
   def render_xml_attributes(node)
     self.bs_requests.each do |r|
-      node.grouped id: r.id
+      node.grouped id: r.number
     end
   end
 
@@ -78,19 +89,15 @@ class BsRequestActionGroup < BsRequestAction
     # TODO
   end
 
-  class NotInGroup < APIException
-    setup 404
-  end
-
   def remove_request(oldid)
-    req = BsRequest.find oldid
-    unless self.bs_requests.where(id: oldid).first
-      raise NotInGroup.new "Request #{oldid} can't be removed from group request #{self.bs_request.id}"
+    req = BsRequest.find_by_number oldid
+    unless req
+      raise NotInGroup.new "Request #{oldid} can't be removed from group request #{self.bs_request.number}"
     end
     req.remove_from_group(self)
   end
 
-  def request_changes_state(state, opts)
+  def request_changes_state(state)
     if [:revoked, :declined, :superseded].include? state
       # now comes the heavy lifting. we need to make sure all requests
       # get their right state
@@ -109,11 +116,8 @@ class BsRequestActionGroup < BsRequestAction
     end
   end
 
-  def create_post_permissions_hook(opts)
+  def create_post_permissions_hook(_opts)
     check_for_group_in_review
-  end
-
-  class RequireId < APIException;
   end
 
   # this function is only called if all requests have no open reviews
@@ -181,4 +185,5 @@ class BsRequestActionGroup < BsRequestAction
     return :new
   end
 
+  #### Alias of methods
 end

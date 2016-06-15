@@ -4,7 +4,6 @@ require 'benchmark'
 require 'nokogiri'
 
 class Webui::SpiderTest < Webui::IntegrationTest
-
   def getlinks(baseuri, body)
     # skip some uninteresting projects
     return if baseuri =~ %r{project=home%3Afred}
@@ -39,6 +38,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
       next if link.end_with? '/project/show/RemoteInstance'
       next if link.end_with? '/package/show/BaseDistro3/pack2'
       next if link.end_with? '/package/show/home:Iggy/TestPack'
+      next if link.end_with? '/project/show/home:user6'
       next if link =~ %r{/live_build_log/BinaryprotectedProject}
       next if link =~ %r{/live_build_log/SourceprotectedProject}
       next if link =~ %r{/live_build_log/home:Iggy/ToBeDeletedTestPack}
@@ -62,7 +62,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
     return if url.end_with? '/package/users/SourceprotectedProject/pack'
     return if url.end_with? '/package/view_file/BaseDistro:Update/pack2?file=my_file&rev=1'
     return if url.end_with? '/package/view_file/Devel:BaseDistro:Update/pack2?file=my_file&rev=1'
-    return if url.end_with? '/package/view_file/Devel:BaseDistro:Update/pack3?file=my_file&rev=1'
+    return if url.end_with? '/package/view_file/Devel:BaseDistro:Update/Pack3?file=my_file&rev=1'
     return if url.end_with? '/package/view_file/LocalProject/remotepackage?file=my_file&rev=1'
     return if url.end_with? '/package/view_file/BaseDistro2.0:LinkedUpdateProject/pack2.linked?file=myfile&rev=1'
     return if url.end_with? '/package/view_file/BaseDistro2.0/pack2.linked?file=myfile&rev=1'
@@ -94,14 +94,14 @@ class Webui::SpiderTest < Webui::IntegrationTest
       @pages_to_visit.delete theone
 
       begin
-        #puts "V #{theone} #{@pages_to_visit.length}/#{@pages_visited.keys.length+@pages_to_visit.length}"
+        # puts "V #{theone} #{@pages_to_visit.length}/#{@pages_visited.keys.length+@pages_to_visit.length}"
         page.visit(theone)
         if page.status_code != 200
           raiseit("Status code #{page.status_code}", theone)
           return
         end
         if page.response_headers['Content-Type'] !~ %r{text/html}
-          #puts "ignoring #{page.response_headers.inspect}"
+          # puts "ignoring #{page.response_headers.inspect}"
           next
         end
         page.first(:id, 'header-logo')
@@ -115,7 +115,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
       begin
         body = Nokogiri::HTML::Document.parse(page.source).root
       rescue Nokogiri::XML::SyntaxError
-        #puts "HARDCORE!! #{theone}"
+        # puts "HARDCORE!! #{theone}"
       end
       next unless body
       flashes = body.css('div#flash-messages div.ui-state-error')
@@ -143,18 +143,18 @@ class Webui::SpiderTest < Webui::IntegrationTest
     wait_for_scheduler_start
   end
 
-  test 'spider anonymously' do
+  def test_spider_anonymously
     visit root_path
     @pages_to_visit = {page.current_url => [nil, nil]}
     @pages_visited = Hash.new
 
     crawl
     ActiveRecord::Base.clear_active_connections!
-    
-    @pages_visited.keys.length.must_be :>, 700
+
+    @pages_visited.keys.length.must_be :>, 500
   end
 
-  test 'spider as admin' do
+  def test_spider_as_admin
     login_king to: root_path
     @pages_to_visit = {page.current_url => [nil, nil]}
     @pages_visited = Hash.new
@@ -162,7 +162,6 @@ class Webui::SpiderTest < Webui::IntegrationTest
     crawl
     ActiveRecord::Base.clear_active_connections!
 
-    @pages_visited.keys.length.must_be :>, 1300
+    @pages_visited.keys.length.must_be :>, 900
   end
-
 end

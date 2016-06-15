@@ -2,9 +2,8 @@
 require_relative '../../test_helper'
 
 class Webui::PackageCreateTest < Webui::IntegrationTest
-
   setup do
-    @project = 'home:Iggy' 
+    @project = 'home:Iggy'
   end
 
   def open_new_package
@@ -19,21 +18,21 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
     new_package[:description] ||= ''
 
     new_package[:description].squeeze!(' ')
-    new_package[:description].gsub!(/ *\n +/ , "\n")
+    new_package[:description].gsub!(/ *\n +/, "\n")
     new_package[:description].strip!
     message_prefix = "Package '#{new_package[:name]}' "
 
     fill_in 'name', with: new_package[:name]
     fill_in 'title', with: new_package[:title]
     fill_in 'description', with: new_package[:description]
-    
+
     click_button('Save changes')
 
     if new_package[:expect] == :success
       flash_message.must_equal message_prefix + 'was created successfully'
       flash_message_type.must_equal :info
       new_package[:description] = 'No description set' if new_package[:description].empty?
-      assert_equal new_package[:description].gsub(%r{\s+}, ' '), find(:id, 'description_text').text
+      assert_equal new_package[:description].gsub(%r{\s+}, ' '), find(:id, 'description-text').text
     elsif new_package[:expect] == :invalid_name
       flash_message.must_equal "Invalid package name: '#{new_package[:name]}'"
       flash_message_type.must_equal :alert
@@ -46,8 +45,8 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
       throw 'Invalid value for argument expect(must be :success, :invalid_name, :already_exists)'
     end
   end
-  
-  test 'create_home_project_package_for_user' do
+
+  def test_create_home_project_package_for_user
     use_js
     login_Iggy to: project_show_path(project: 'home:Iggy')
     open_new_package
@@ -69,7 +68,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
     delete_package('home:Iggy', 'HomePackage1')
   end
 
-  test 'create_global_project_package' do
+  def test_create_global_project_package
     use_js
     login_king to: project_show_path(project: 'LocalProject')
 
@@ -82,8 +81,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
     delete_package('LocalProject', 'PublicPackage1')
   end
 
-  test 'create_package_without_name' do
-
+  def test_create_package_without_name
     login_Iggy to: project_show_path(project: 'home:Iggy')
 
     open_new_package
@@ -93,10 +91,8 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
       :description => 'Empty home project package without name. Must fail.',
       :expect => :invalid_name)
   end
-  
-  
-  test 'create_package_name_with_spaces' do
-  
+
+  def test_create_package_name_with_spaces
     login_Iggy to: project_show_path(project: 'home:Iggy')
 
     open_new_package
@@ -106,8 +102,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
       :expect => :invalid_name)
   end
 
-  
-  test 'create_package_with_only_name' do
+  def test_create_package_with_only_name
     use_js
     login_Iggy to: project_show_path(project: 'home:Iggy')
 
@@ -119,8 +114,7 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
     delete_package('home:Iggy', 'HomePackage-OnlyName')
   end
 
-  
-  test 'create_package_with_long_description' do
+  def test_create_package_with_long_description
     use_js
 
     login_Iggy to: project_show_path(project: 'home:Iggy')
@@ -133,11 +127,9 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
 
     # tear down
     delete_package('home:Iggy', 'HomePackage-LongDesc')
-
   end
 
-  
-  test 'create_package_strange_name' do
+  def test_create_package_strange_name
     use_js
     login_Iggy to: project_show_path(project: 'home:Iggy')
 
@@ -164,8 +156,6 @@ class Webui::PackageCreateTest < Webui::IntegrationTest
 
   # RUBY CODE ENDS HERE.
   # BELOW ARE APPENDED ALL DATA STRUCTURES USED BY THE TESTS.
-  
-
 
 # -------------------------------------------------------------------------------------- #
 LONG_DESCRIPTION = <<LICENSE_END
@@ -256,6 +246,4 @@ and give any other recipients of the Program a copy of this License
 along with the Program.
 LICENSE_END
 # -------------------------------------------------------------------------------------- #
-
-
 end

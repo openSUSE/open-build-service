@@ -42,13 +42,14 @@ class PackInfo
     # return packages not having sources
     return if srcmd5.blank?
     xml = options[:builder] ||= Builder::XmlMarkup.new(:indent => options[:indent])
-    opts = { :project => project,
-             :name => name,
-             :version => version,
-             :srcmd5 => srcmd5,
-             :changesmd5 => changesmd5,
-             :maxmtime => maxmtime,
-             :release => release }
+    opts = { project:    project,
+             name:       name,
+             version:    version,
+             srcmd5:     srcmd5,
+             changesmd5: changesmd5,
+             maxmtime:   maxmtime,
+             release:    release
+           }
     unless verifymd5.blank? or verifymd5 == srcmd5
       opts[:verifymd5] = verifymd5
     end
@@ -97,18 +98,14 @@ class PackInfo
   end
 
   def fails
-    ret = Array.new
-    @failed.each do |repo, tuple|
+    @failed.map do |repo, tuple|
       # repo, arch, time, md5
-      ret << [repo, tuple[1], tuple[0], tuple[2]]
+      [repo, tuple[1], tuple[0], tuple[2]]
     end
-    return ret
   end
-
 end
 
 class ProjectStatusCalculator
-
   def check_md5(packages)
     # remap
     ph = {}
@@ -128,27 +125,33 @@ class ProjectStatusCalculator
 
   # parse the jobhistory and put the result in a format we can cache
   def parse_jobhistory(dname, repo, arch)
-
     uri = '/build/%s/%s/%s/_jobhistory?code=lastfailures' % [CGI.escape(dname), CGI.escape(repo), arch]
 
     ret = []
     d = Suse::Backend.get(uri).body
-    unless d.blank?
-      data = Xmlhash.parse(d)
 
-      data.elements('jobhist') do |p|
-        line = {'name' => p['package'],
-                'code' => p['code'],
-                'versrel' => p['versrel'],
-                'verifymd5' => p['verifymd5']}
+    return [] if d.blank?
 
-        begin
-          line['readytime'] = Integer(p['readytime'])
-        rescue
-          line['readytime'] = 0
+    data = Xmlhash.parse(d)
+
+    data.elements('jobhist') do |p|
+        line = {
+          'name'      => p['package'],
+          'code'      => p['code'],
+          'versrel'   => p['versrel'],
+          'verifymd5' => p['verifymd5']
+        }
+
+        if p.has_key?('readytime')
+            if p['readytime'].respond_to?(:to_i)
+                line['readytime'] = p['readytime'].to_i
+            else
+                line['readytime'] = 0
+            end
+        else
+            line['readytime'] = 0
         end
         ret << line
-      end
     end
     ret
   end
@@ -165,7 +168,6 @@ class ProjectStatusCalculator
     proj.repositories_linking_project(@dbproj).each do |r|
       repo = r['name']
       r.elements('arch') do |arch|
-
         cachekey = "history2#{proj.cache_key}#{repo}#{arch}"
         jobhistory = Rails.cache.fetch(cachekey, expires_in: 30.minutes) do
           parse_jobhistory(dname, repo, arch)
@@ -211,7 +213,7 @@ class ProjectStatusCalculator
 
     links = Array.new
     # find links
-    mypackages.values.each do |package|
+    mypackages.each_value.each do |package|
       if package.project == @dbproj.name and package.links_to_id
         links << package.links_to_id
       end
@@ -238,14 +240,14 @@ class ProjectStatusCalculator
       projects[pid] = pname
     end
 
-    projects.each do |id, name|
+    projects.each do |id, _|
       if !opts[:pure_project] || id == @dbproj.id
         update_jobhistory(Project.find(id), mypackages)
       end
     end
 
     # cleanup
-    mypackages.keys.each do |key|
+    mypackages.each_key do |key|
       mypackages.delete(key) if mypackages[key].project != @dbproj.name
     end
 
@@ -255,5 +257,4 @@ class ProjectStatusCalculator
   def logger
     Rails.logger
   end
-
 end

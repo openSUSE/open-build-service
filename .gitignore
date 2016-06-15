@@ -34,8 +34,10 @@
 /src/api/db/schema.rb
 /src/api/files/distributions.xml
 /src/api/log
+/src/api/public/assets
 /src/api/mkmf.log
 /src/api/tmp
+/src/api/spec/examples.txt
 /src/backend/blib
 /src/backend/BSConfig.pm
 /src/backend/BSSolv.bs
@@ -45,30 +47,13 @@
 /src/backend/Makefile
 /src/backend/pm_to_blib
 /src/backend/sat-solver
-/src/webui/app/views/maintenance/new_*
-/src/webui/app/views/maintenance/qa_*
-/src/webui/app/views/maintenance/released_*
-/src/webui/config/database.yml
-/src/webui/config/environments/development.*.rb
-/src/webui/config/options.yml
-/src/webui/config/repositories.rb
-/src/webui/config/initializers/hoptoad.rb
-/src/webui/config/secret.key
-/src/webui/coverage
-/src/webui/coverage.data
-/src/webui/db/*.db
-/src/webui/db/development_structure.sql
-/src/webui/log
-/src/webui/public/assets
-/src/webui/mkmf.log
-/src/webui/public/main/*.html
-/src/webui/public/documentation/obs
-/src/webui-testsuite/results*
+/src/backend/t/tmp
 
 # All the other crap that fits nowhere specifically
 *~
 *.bak
 *.tmp
+*.vagrant
 .*.sw*
 .directory
 .o
@@ -81,3 +66,4 @@ nbproject
 *.ipr
 *.iws
 .idea/
+.kanku/

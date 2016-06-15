@@ -1,5 +1,4 @@
 class PackageBuildStatus
-
   class NoRepositoriesFound < APIException
     setup 404, "No repositories build against target"
   end
@@ -34,7 +33,7 @@ class PackageBuildStatus
     archs = []
     srep.elements('path') do |p|
       if p['project'] != @pkg.project.name
-        r = Repository.find_by_project_and_repo_name(p['project'], p['repository'])
+        r = Repository.find_by_project_and_name(p['project'], p['repository'])
         r.architectures.each { |a| archs << a.name.to_s }
         trepo << [p['project'], p['repository']]
       end
@@ -54,7 +53,7 @@ class PackageBuildStatus
   def gather_target_packages(trepo)
     @tpackages = Hash.new
     vprojects = Hash.new
-    trepo.each do |p, r|
+    trepo.each do |p, _|
       next if vprojects.has_key? p
       prj = Project.find_by_name(p)
       next unless prj # in case of remote projects
@@ -93,7 +92,9 @@ class PackageBuildStatus
   def gather_current_buildcode(srep, arch)
     @buildcode="unknown"
     begin
+      # rubocop:disable Metrics/LineLength
       uri = URI("/build/#{CGI.escape(@pkg.project.name)}/_result?package=#{CGI.escape(@pkg.name)}&repository=#{CGI.escape(srep['name'])}&arch=#{CGI.escape(arch)}")
+      # rubocop:enable Metrics/LineLength
       resultlist = Xmlhash.parse(ActiveXML.backend.direct_http(uri))
       currentcode = nil
       resultlist.elements('result') do |r|
@@ -126,7 +127,9 @@ class PackageBuildStatus
     missingdeps=[]
     # if
     if @eversucceeded
+      # rubocop:disable Metrics/LineLength
       uri = URI("/build/#{CGI.escape(@pkg.project.name)}/#{CGI.escape(srep['name'])}/#{CGI.escape(arch)}/_builddepinfo?package=#{CGI.escape(@pkg.name)}&view=pkgnames")
+      # rubocop:enable Metrics/LineLength
       begin
         buildinfo = Xmlhash.parse(ActiveXML.backend.direct_http(uri))
       rescue ActiveXML::Transport::Error => e

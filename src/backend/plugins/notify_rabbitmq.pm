@@ -22,7 +22,7 @@
 
 package notify_rabbitmq;
 
-use Net::RabbitMQ;
+use Net::AMQP::RabbitMQ;
 use BSConfig;
 use JSON::XS;
 #use Data::UUID;
@@ -35,28 +35,33 @@ sub new {
   return $self;
 }
 
+# compat...
+my $defaultconfig = {
+  'server' => "192.168.50.99",
+  'user' => "mailer",
+  'password' => "mailerpwd",
+  'vhost' => "mailer_vhost",
+};
+
 sub notify() {
   my ($self, $type, $paramRef ) = @_;
 
-  $type = "UNKNOWN" unless $type;
   my $prefix = $BSConfig::notification_namespace || "OBS";
+  $type ||= "UNKNOWN";
   $type =  "${prefix}_$type";
 
-
   #my $uu = Data::UUID->new;
-  if ($paramRef) {
-    $paramRef->{'eventtype'} = $type;
-    my $mq = Net::RabbitMQ->new();
-    $mq->connect("192.168.50.99", { user => "mailer", password => "mailerpwd", vhost => "mailer_vhost" });
-    warn("RabbitMQ Plugin: $@") if $@;
-    $mq->channel_open(1);
-    #$mq->queue_declare(1, "mailer_queue");
-    $mq->queue_bind(1, "mailer_queue", "mailer_exchange", "mailer");
-    $mq->publish(1, "mailer", encode_json($paramRef), { exchange => 'mailer_exchange' });
-    $mq->disconnect();
-  }
-
-
+  $paramRef ||= {};
+  $paramRef->{'eventtype'} = $type;
+  my $mq = Net::AMQP::RabbitMQ->new();
+  my %rabbitparam = %{$BSConfig::rabbitmqconfig || $BSConfig::rabbitmqconfig || $defaultconfig};
+  my $rabbitserver = delete $rabbitparam{'server'};
+  $mq->connect($rabbitserver, \%rabbitparam);
+  $mq->channel_open(1);
+  #$mq->queue_declare(1, "mailer_queue");
+  $mq->queue_bind(1, "mailer_queue", "mailer_exchange", "mailer");
+  $mq->publish(1, "mailer", encode_json($paramRef), { exchange => 'mailer_exchange' });
+  $mq->disconnect();
 }
 
 1;

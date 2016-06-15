@@ -47,7 +47,7 @@
   function update()
   {
      $("#workers_updating").fadeIn(1200);
-     resizeMonitorBoxes();
+     // resizeMonitorBoxes();
      $.getJSON("<%= url_for(:controller => :monitor, :action => :update_building) %>", function(json) {
 	 $.each(json, function(i,item) {
             processCtrl(i, item);
@@ -60,7 +60,8 @@
 <%= content_for :ready_function do %>
        $("#worker_display option:selected").each(function() { logfileinfo=$(this).attr("value"); });
 
-       resizeMonitorBoxes();
+       // Resize is not implemented right now. Hint: flot resize plugin could handle this.
+       // resizeMonitorBoxes();
 
        update();
        setInterval("update()", 100000 );

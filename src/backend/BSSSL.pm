@@ -137,4 +137,15 @@ sub DESTROY {
   UNTIE($sslr) if $sslr && $sslr->[0];
 }
 
+sub peerfingerprint {
+  my ($sslr, $type) = @_;
+  my $cert = Net::SSLeay::get_peer_certificate($sslr->[0]);
+  return undef unless $cert;
+  my $fp = Net::SSLeay::X509_get_fingerprint($cert, lc($type));
+  Net::SSLeay::X509_free($cert);
+  return undef unless $fp;
+  $fp =~ s/://g;
+  return lc($fp);
+}
+
 1;

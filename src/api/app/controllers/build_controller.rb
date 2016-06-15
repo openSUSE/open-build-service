@@ -1,5 +1,4 @@
 class BuildController < ApplicationController
-
   def index
     # for read access and visibility permission check
     if params[:package] and not %w(_repository _jobhistory).include?(params[:package])
@@ -9,7 +8,7 @@ class BuildController < ApplicationController
     end
 
     if request.get?
-      pass_to_backend 
+      pass_to_backend
       return
     end
 
@@ -33,15 +32,14 @@ class BuildController < ApplicationController
       pass_to_backend
       return
     elsif request.post?
-      #check if user has project modify rights
+      # check if user has project modify rights
       allowed = false
       allowed = true if permissions.global_project_change
       allowed = true if permissions.project_change? prj
 
-      #check for cmd parameter
+      # check for cmd parameter
       if params[:cmd].nil?
         raise MissingParameterError.new "Missing parameter 'cmd'"
-        return
       end
 
       unless %w(wipe restartbuild killbuild abortbuild rebuild).include? params[:cmd]
@@ -64,7 +62,7 @@ class BuildController < ApplicationController
           package_names = [params[:package]]
         end
         package_names.each do |pack_name|
-          pkg = Package.find_by_project_and_name( prj.name, pack_name ) 
+          pkg = Package.find_by_project_and_name( prj.name, pack_name )
           if pkg.nil?
             allowed = permissions.project_change? prj
             if not allowed
@@ -91,7 +89,7 @@ class BuildController < ApplicationController
 
       pass_to_backend
       return
-    elsif request.put? 
+    elsif request.put?
       if @http_user.is_admin?
         pass_to_backend
       else
@@ -124,13 +122,19 @@ class BuildController < ApplicationController
     pass_to_backend path
   end
 
+  # /build/:project/:repository/:arch/_builddepinfo
   def builddepinfo
     required_parameters :project, :repository, :arch
 
     # just for permission checking
     Project.get_by_name params[:project]
 
-    pass_to_backend
+    path = "/build/#{params[:project]}/#{params[:repository]}/#{params[:arch]}/_builddepinfo"
+    unless request.query_string.empty?
+      path += '?' + request.query_string
+    end
+
+    pass_to_backend path
   end
 
   # /build/:project/:repository/:arch/:package/:filename
@@ -152,7 +156,7 @@ class BuildController < ApplicationController
       return
     end
 
-    path = request.path+"?"+request.query_string
+    path = request.path_info+"?"+request.query_string
 
     if request.delete?
       unless permissions.project_change? params[:project]
@@ -174,8 +178,8 @@ class BuildController < ApplicationController
     regexp = nil
     # if there is a query, we can't assume it's a simple download, so better leave out the logic (e.g. view=fileinfo)
     unless request.query_string
-      #check if binary exists and for size
-      fpath = "/build/"+[:project,:repository,:arch,:package].map {|x| params[x]}.join("/")
+      # check if binary exists and for size
+      fpath = "/build/"+[:project, :repository, :arch, :package].map {|x| params[x]}.join("/")
       file_list = Suse::Backend.get(fpath)
       regexp = file_list.body.match(/name=["']#{Regexp.quote params[:filename]}["'].*size=["']([^"']*)["']/)
     end
@@ -200,10 +204,10 @@ class BuildController < ApplicationController
         'Transfer-Encoding' => 'binary',
         'Content-Length' => fsize
       )
-      
-      render :status => 200, :text => Proc.new {|request,output|
+
+      render :status => 200, :text => Proc.new {|_, output|
         backend_request = Net::HTTP::Get.new(path)
-        Net::HTTP.start(CONFIG['source_host'],CONFIG['source_port']) do |http|
+        Net::HTTP.start(CONFIG['source_host'], CONFIG['source_port']) do |http|
           http.request(backend_request) do |response|
             response.read_body do |chunk|
               output.write(chunk)
@@ -238,7 +242,6 @@ class BuildController < ApplicationController
     pass_to_backend
   end
 
-
   def result
     required_parameters :project
 
@@ -266,10 +269,10 @@ class BuildController < ApplicationController
       archs = []
       status.each do |arch, archstat|
         oneline = [arch, archstat[:result]]
-        unless archstat[:missing].blank?
-          oneline << archstat[:missing].join(",")
-        else
+        if archstat[:missing].blank?
           oneline << nil
+        else
+          oneline << archstat[:missing].join(",")
         end
         archs << oneline
       end
@@ -277,5 +280,4 @@ class BuildController < ApplicationController
     end
     render xml: render_to_string(partial: "lastsuccess")
   end
-
 end

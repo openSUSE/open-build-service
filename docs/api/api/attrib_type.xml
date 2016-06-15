@@ -16,5 +16,5 @@ of this attribute.
   <issue_list/>
   <modifiable_by user="demouser"/>
   <modifiable_by group="attribute_maintainers"/>
-  <modifiable_by role="demorole"/>
+  <modifiable_by role="bugowner"/>
 </definition>

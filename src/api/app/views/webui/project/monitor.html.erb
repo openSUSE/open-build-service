@@ -78,7 +78,6 @@
   <% elsif @packagenames.empty? -%>
     <h3>No Results</h3>
   <% else -%>
-
     <table class="buildstatus">
       <!-- repo row -->
       <thead class="header">
@@ -94,7 +93,7 @@
           <th></th>
           <% @repohash.sort.each do |repo, archlist| -%>
             <% archlist.sort.each do |arch| -%>
-              <th class="buildstatus"><%= repo_status_icon @repostatushash[repo][arch] %> <%= arch %></th>
+              <th class="buildstatus"><%= repo_status_icon(@repostatushash[repo][arch],@repostatusdetailshash[repo][arch]) %> <%= arch %></th>
             <% end -%>
           <% end -%>
         </tr>
@@ -143,3 +142,11 @@
   </div>
 
 </div>
+
+<% content_for :ready_function do %>
+    $('.unresolvable, .blocked').click(function() {
+    var title = $(this).attr('title');
+    alert(title);
+    return false;
+    });
+<% end %>

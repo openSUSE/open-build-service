@@ -1,5 +1,4 @@
 class WorkerStatus
-
   def self.hidden
     mydata = Rails.cache.read('workerstatus')
     ws = ActiveXML::Node.new(mydata || ActiveXML.backend.direct_http('/build/_workerstatus'))
@@ -29,6 +28,7 @@ class WorkerStatus
     ret=ActiveXML.backend.direct_http('/build/_workerstatus')
     wdata=Xmlhash.parse(ret)
     @mytime = Time.now.to_i
+    @squeues = Hash.new
     Rails.cache.write('workerstatus', ret, expires_in: 3.minutes)
     StatusHistory.transaction do
       wdata.elements('blocked') do |e|
@@ -43,11 +43,19 @@ class WorkerStatus
         end
       end
       parse_worker_infos(wdata)
+      @squeues.each_pair do |key, value|
+         StatusHistory.create time: @mytime, key: key, value: value
+      end
     end
     ret
   end
 
   private
+
+  def add_squeue(key, value)
+    @squeues[key] ||= 0
+    @squeues[key] += value.to_i
+  end
 
   def parse_daemon_infos(daemon)
     return unless daemon['type'] == 'scheduler'
@@ -61,16 +69,13 @@ class WorkerStatus
     end
     queue = daemon.get('queue')
     return unless queue
-    StatusHistory.create :time => @mytime, :key => "squeue_high_#{arch}", :value => queue['high'].to_i
-    StatusHistory.create :time => @mytime, :key => "squeue_next_#{arch}", :value => queue['next'].to_i
-    StatusHistory.create :time => @mytime, :key => "squeue_med_#{arch}", :value => queue['med'].to_i
-    StatusHistory.create :time => @mytime, :key => "squeue_low_#{arch}", :value => queue['low'].to_i
+    %w(high next med low).each { |key| add_squeue("squeue_#{key}_#{arch}", queue[key]) }
   end
 
   def parse_worker_infos(wdata)
     allworkers = Hash.new
     workers = Hash.new
-    %w{building idle}.each do |state|
+    %w(building idle).each do |state|
       wdata.elements(state) do |e|
         id=e['workerid']
         if workers.has_key? id
@@ -101,5 +106,4 @@ class WorkerStatus
     line.value = e['jobs']
     line.save
   end
-
 end

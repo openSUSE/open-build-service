@@ -1,7 +1,6 @@
 require_relative '../../test_helper'
 
 class Webui::RequestControllerTest < Webui::IntegrationTest
-
   uses_transaction :test_can_request_role_addition_for_packages
   uses_transaction :test_can_request_role_addition_for_projects
   uses_transaction :test_submit_package_and_revoke
@@ -25,12 +24,12 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.must_have_selector 'table#requests_in_table tr'
 
     # walk over the table
-    rs = find('tr#tr_request_1').find('.request_target')
+    rs = find('tr#tr_request_9991').find('.request_target')
     rs.find(:xpath, '//a[@title="kde4"]').must_have_text 'kde4'
     rs.find(:xpath, '//a[@title="kdelibs"]').must_have_text 'kdelibs'
   end
 
-  test 'can request role addition for projects' do
+  def test_can_request_role_addition_for_projects
     login_Iggy to: project_show_path(project: 'home:tom')
     click_link 'Request role addition'
     find(:id, 'role').select('Bugowner')
@@ -38,7 +37,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     click_button 'Ok'
     requestid = current_path.gsub(%r{\/request\/show\/(\d*)}, '\1').to_i
     page.must_have_text 'Iggy Pop (Iggy) wants the role bugowner for project home:tom'
-    find('#description_text').must_have_text 'I can fix bugs too.'
+    find('#description-text').must_have_text 'I can fix bugs too.'
     page.must_have_selector(:xpath, "//input[@name='revoked']")
     page.must_have_text('In state new')
 
@@ -48,7 +47,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     click_button 'Accept'
   end
 
-  test 'can request role addition for packages' do
+  def test_can_request_role_addition_for_packages
     login_Iggy to: package_show_path(project: 'home:Iggy', package: 'TestPack')
     # no need for "request role"
     page.wont_have_link 'Request role addition'
@@ -60,7 +59,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     click_button 'Ok'
     requestid = current_path.gsub(%r{\/request\/show\/(\d*)}, '\1').to_i
     find('#action_display_0').must_have_text 'Iggy Pop (Iggy) wants the role maintainer for package Apache / apache2'
-    find('#description_text').must_have_text 'I can fix bugs too.'
+    find('#description-text').must_have_text 'I can fix bugs too.'
     page.must_have_selector(:xpath, "//input[@name='revoked']")
     page.must_have_text('In state new')
 
@@ -79,16 +78,14 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     logout
     login_Iggy to: package_show_path(project: 'Apache', package: 'apache2')
     page.wont_have_link 'Request role addition'
-
   end
 
-  test 'superseding is displayed when needed' do
+  def test_superseding_is_displayed_when_needed
     # create testing superseded submission first
     login_tom to: package_show_path(project: 'Apache', package: 'apache2')
     click_link 'Submit package'
     fill_in 'targetproject', with: 'kde4'
     fill_in 'description', with: 'I want to see his reaction'
-    uncheck('supersede')
     click_button 'Ok'
     within '#flash-messages' do
       click_link 'submit request'
@@ -96,13 +93,15 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     oldrequest = current_path.gsub(%r{\/request\/show\/(\d*)}, '\1').to_i
     # verify it is not superseding anything
     page.wont_have_text('Superseding')
+    page.wont_have_field('supersede_request_numbers[]')
 
     # create submission that is superseding the former one
     visit package_show_path(project: 'Apache', package: 'apache2')
     click_link 'Submit package'
     fill_in 'targetproject', with: 'kde4'
     fill_in 'description', with: 'I want to see his reaction'
-    check('supersede')
+    page.must_have_field('supersede_request_numbers[]')
+    all('input[name="supersede_request_numbers[]"]').each {|input| check(input[:id]) }
     click_button 'Ok'
     within '#flash-messages' do
       click_link 'submit request'
@@ -120,14 +119,14 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.must_have_link(newrequest)
   end
 
-  test 'invalid id gives error' do
+  def test_invalid_id_gives_error
     login_Iggy
     visit request_show_path(20000)
     page.must_have_text("Can't find request 20000")
     page.must_have_text('Home of Iggy')
   end
 
-  test 'submit package and revoke' do
+  def test_submit_package_and_revoke
     login_Iggy to: package_show_path(project: 'home:Iggy', package: 'TestPack')
     click_link 'Submit package'
     fill_in 'targetproject', with: 'home:tom'
@@ -157,10 +156,11 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.must_have_text "There's nothing to be done right now"
   end
 
-  test 'tom adds reviewer Iggy' do
+  uses_transaction :test_tom_adds_invalid_project_reviewer
+  def test_tom_adds_invalid_project_reviewer
     login_tom to: user_show_path(user: 'tom')
 
-    within('tr#tr_request_4') do
+    within('tr#tr_request_9994') do
       page.must_have_text '~:branches:kde4 / BranchPack'
       first(:css, 'a.request_link').click
     end
@@ -169,12 +169,35 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
 
     click_link 'Add a review'
     page.must_have_text 'Add Reviewer'
-    #test switching reviewer type
+    # test switching reviewer type
+    find(:id, 'review_type').select('Project')
+    page.must_have_text 'Project:'
+    fill_in 'review_project', with: 'INVALID/PROJECT'
+    click_button 'Ok'
+    find('#flash-messages').must_have_text 'Unable add review to'
+    page.must_have_text 'Open review for test_group'
+  end
+
+  uses_transaction :test_tom_adds_reviewer_Iggy
+  def test_tom_adds_reviewer_Iggy
+    login_tom to: user_show_path(user: 'tom')
+
+    within('tr#tr_request_9994') do
+      page.must_have_text '~:branches:kde4 / BranchPack'
+      first(:css, 'a.request_link').click
+    end
+
+    page.must_have_text 'Review for tom'
+
+    click_link 'Add a review'
+    page.must_have_text 'Add Reviewer'
+    # test switching reviewer type
     find(:id, 'review_type').select('Group')
     page.must_have_text 'Group:'
     fill_in 'review_group', with: 'test_group_b'
     click_button 'Ok'
-    page.must_have_text 'Open review for test_group'
+    page.must_have_text 'Open review for test_group' # existed already
+    page.must_have_text 'Open review for test_group_b' # added by us
 
     click_link 'Add a review'
     find(:id, 'review_type').select('Project')
@@ -223,7 +246,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.must_have_text 'Request 4 (declined)'
   end
 
-  test 'request 4 can expand' do
+  def test_request_4_can_expand
     # no login required
     visit request_show_path(4)
     within '#diff_headline_myfile_diff_action_0_submit_0_0' do
@@ -237,7 +260,8 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.must_have_text '+DummyContent'
   end
 
-  test 'add_submitter_as_maintainer' do
+  uses_transaction :test_add_submitter_as_maintainer
+  def test_add_submitter_as_maintainer
     use_js
 
     # Accept the request adding submitter
@@ -261,30 +285,40 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.must_have_text 'Request 10'
   end
 
-  test 'requests display as nobody' do
+  def test_requests_display_as_nobody
     visit_requests
   end
 
-  test 'requests display as king' do
+  def test_requests_display_as_king
     login_king
     visit_requests
   end
 
-  test 'succesful comment creation' do
+  def test_requests
+    get "/home/requests.json"
+    assert_response :success
+    result = ActiveSupport::JSON.decode(@response.body)
+    assert_equal 2, result["sEcho"]
+    assert_equal 0, result["iTotalRecords"]
+    assert_equal [], result["aaData"]
+  end
+
+  def test_succesful_comment_creation
     login_Iggy to: request_show_path(1)
     fill_in 'body', with: 'Comment Body'
     find_button('Add comment').click
-    find('#flash-messages').must_have_text 'Comment added successfully '
+    find('#flash-messages').must_have_text 'Comment was successfully created.'
   end
 
-  test 'can not accept own requests' do
+  def test_can_not_accept_own_requests
     login_tom to: package_show_path(project: 'Apache', package: 'apache2')
     click_link 'Submit package'
     fill_in 'targetproject', with: 'kde4'
     fill_in 'description', with: 'I want to see his reaction'
-    uncheck('supersede')
     click_button 'Ok'
 
+    assert_equal package_show_path(project: 'Apache', package: 'apache2'), page.current_path
+    assert page.has_content?(/Created submit request \d+ to kde4/)
     within '#flash-messages' do
       click_link 'submit request'
     end
@@ -295,12 +329,12 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.wont_have_selector 'input#accept_request_button'
   end
 
-  test 'succesful reply comment creation' do
+  def test_succesful_reply_comment_creation
     login_Iggy to: request_show_path(4)
     find(:id, 'reply_link_id_301').click
     fill_in 'reply_body_301', with: 'Comment Body'
     find(:id, 'add_reply_301').click
-    find('#flash-messages').must_have_text 'Comment added successfully '
+    find('#flash-messages').must_have_text 'Comment was successfully created.'
   end
 
   def verify_email(fixture_name, myid, email)
@@ -311,15 +345,17 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     assert_equal should, lines.join("\n")
   end
 
-  test 'comment event' do
+  def test_comment_event
     login_tom to: request_show_path(4)
 
     # adrian is reviewer, Iggy creator, Admin (fixture) commenter
     # tom is commenter *and* author, so doesn't get mail
+    SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       fill_in 'body', with: 'Comment Body'
       find_button('Add comment').click
       page.must_have_text 'Comment Body'
+      SendEventEmails.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
@@ -336,12 +372,11 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
       fill_in 'body', with: 'Another Body'
       find_button('Add comment').click
       page.must_have_text 'Another Body'
+      SendEventEmails.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
     assert_equal 'Request 4 commented by tom (submit Apache/BranchPack)', email.subject
     verify_email('another_comment_event', '4', email)
   end
-
 end
-

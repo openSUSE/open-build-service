@@ -1,5 +1,4 @@
 class TriggerController < ApplicationController
-
   validate_action :runservice => {:method => :post, :response => :status}
 
   #
@@ -23,7 +22,7 @@ class TriggerController < ApplicationController
     token = Token.find_by_string auth[6..-1]
 
     unless token
-      render_error  message: "Token not found", :status => 404
+      render_error message: "Token not found", :status => 404
       return
     end
 
@@ -43,7 +42,5 @@ class TriggerController < ApplicationController
     pass_to_backend path
 
     pkg.sources_changed
-
   end
-  
 end

@@ -4,7 +4,9 @@ class WatchedProjectTest < ActiveSupport::TestCase
   fixtures :all
 
   def test_watchlist_cleaned_after_project_removal
-    tmp_prj = Project.create(name: 'no:use:for:a:name')
+    User.current = users(:Iggy)
+    tmp_prj = Project.create(name: 'home:Iggy:whatever')
+    tmp_prj.write_to_backend
     user_ids = User.limit(5).map{|u|u.id} # Roundup some users to watch tmp_prj
     user_ids.each do |uid|
       tmp_prj.watched_projects.create(user_id: uid)
@@ -27,6 +29,6 @@ class WatchedProjectTest < ActiveSupport::TestCase
     assert_equal WatchedProject.where(user_id: tmp_uid).count, project_ids.length
     tmp_user.destroy
     assert_equal WatchedProject.where(user_id: tmp_uid).count, 0
+    Project.find_by(name: 'home:watcher').destroy
   end
-
 end

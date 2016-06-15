@@ -1,6 +1,4 @@
 class CommentsController < ApplicationController
-
-  before_filter :require_login, only: [:destroy, :create]
   before_filter :find_obj, only: [:show_comments, :create]
 
   def show_comments
@@ -35,7 +33,7 @@ class CommentsController < ApplicationController
       end
     else
       @template = 'request'
-      @obj = BsRequest.find(params[:id])
+      @obj = BsRequest.find_by_number!(params[:id])
     end
   end
 end

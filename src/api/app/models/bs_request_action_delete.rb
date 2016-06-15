@@ -1,9 +1,22 @@
+#
 class BsRequestActionDelete < BsRequestAction
+  #### Includes and extends
+  #### Constants
+  #### Self config
+  #### Attributes
+  #### Associations macros (Belongs to, Has one, Has many)
+  #### Callbacks macros: before_save, after_save, etc.
+  #### Scopes (first the default_scope macro if is used)
+  #### Validations macros
 
+  #### Class methods using self. (public and then private)
   def self.sti_name
     return :delete
   end
 
+  #### To define class methods as private use private_class_method
+  #### private
+  #### Instance methods (public and then protected/private)
   def check_sanity
     super
     errors.add(:source_project, "source can not be used in delete action") if source_project
@@ -18,7 +31,7 @@ class BsRequestActionDelete < BsRequestAction
       raise RepositoryMissing.new "The repository #{self.target_project} / #{self.target_repository} does not exist"
     end
     r.destroy
-    prj.store(lowprio: opts[:lowprio], comment: opts[:comment])
+    prj.store(lowprio: opts[:lowprio], comment: opts[:comment], request: self.bs_request)
   end
 
   def render_xml_attributes(node)
@@ -47,27 +60,19 @@ class BsRequestActionDelete < BsRequestAction
       return
     end
 
-    delete_path = destroy_object
-    # use the request description as comments for history
-    source_history_comment = self.bs_request.description
-    h = {:user => User.current.login, :comment => source_history_comment, :requestid => self.bs_request.id}
-    delete_path << Suse::Backend.build_query_from_hash(h, [:user, :comment, :requestid])
-    Suse::Backend.delete delete_path
-
-    if self.target_package == "_product"
-      Project.find_by_name!(self.target_project).update_product_autopackages
-    end
-
-  end
-
-  def destroy_object
     if self.target_package
-      Package.get_by_project_and_name(self.target_project, self.target_package,
-                                      use_source: true, follow_project_links: false).destroy
+      package = Package.get_by_project_and_name(self.target_project, self.target_package,
+                                                use_source: true, follow_project_links: false)
+      package.commit_opts = { comment: self.bs_request.description, request: self.bs_request }
+      package.destroy
       return Package.source_path self.target_project, self.target_package
     else
-      Project.get_by_name(self.target_project).destroy
+      project = Project.get_by_name(self.target_project)
+      project.commit_opts = { comment: self.bs_request.description, request: self.bs_request }
+      project.destroy
       return "/source/#{self.target_project}"
     end
   end
+
+  #### Alias of methods
 end

@@ -21,4 +21,3 @@ namespace :jobs do
     end
   }
 end
-

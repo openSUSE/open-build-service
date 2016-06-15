@@ -1,4 +1,5 @@
 class Channel < ActiveRecord::Base
+  include ModelHelper
 
   belongs_to :package, foreign_key: :package_id
   has_many :channel_targets, dependent: :destroy
@@ -39,39 +40,139 @@ class Channel < ActiveRecord::Base
   def name
     name = package.name
     name += "."
-    name += package.project.name.gsub(/:/,'_')
+    name += package.project.name.gsub(/:/, '_')
     return name
   end
 
-  def update_from_xml(xmlhash, check=false)
-    xmlhash = Xmlhash.parse(xmlhash) if xmlhash.is_a? String
-    xmlhash.elements('target') { |p|
+  def _update_from_xml_targets(xmlhash)
+    # sync channel targets
+    hasharray=[]
+    xmlhash.elements('target').each { |p|
       prj = Project.find_by_name(p['project'])
+      next unless prj
       r = prj.repositories.find_by_name(p['repository'])
-      self.channel_targets.build(:repository => r, :id_template => p['id_template']) if r
+      next unless r
+      hasharray << { project: r.project,
+                     repository: r, id_template: p['id_template'],
+                     requires_issue: p['requires_issue'],
+                     disabled: (p.has_key? 'disabled') }
     }
-    xmlhash.elements('binaries').each { |p|
-      cbl = self.channel_binary_lists.build()
-      project = p['project']
-      unless project.blank?
-        cbl.project = Project.find_by_name( project )
-        cbl.repository = cbl.project.repositories.find_by_name( p['repository'] ) if p['repository']
-      end
-      cbl.architecture = Architecture.find_by_name( p['arch'] ) if p['arch']
-      cbl.save
-      p.elements('binary') { |b|
-        binary = cbl.channel_binaries.build( name: b['name'] )
-        binary.binaryarch = b['binaryarch']
-        binary.supportstatus = b['supportstatus']
-        binary.architecture = Architecture.find_by_name( b['arch'] ) if b['arch']
-        project = b['project']
-        binary.project = Project.find_by_name( project ) if project
-        binary.package = b['package'] if b['package']
-        binary.repository = binary.project.repositories.find_by_name(b['repository'] ) if b['repository']
-        binary.save
-      }
-    }
-    self.save
+    sync_hash_with_model(ChannelTarget, self.channel_targets, hasharray)
   end
 
+  def _update_from_xml_binary_lists(xmlhash)
+    # sync binary lists
+    hasharray=[]
+    xmlhash.elements('binaries').each { |p|
+      repository = nil
+      project = p['project']
+      unless project.blank?
+        project = Project.find_by_name(project)
+        next unless project
+        repository = project.repositories.find_by_name(p['repository']) if p['repository']
+        next unless repository
+      end
+      arch = nil
+      arch = Architecture.find_by_name!(p['arch']) if p['arch']
+      hasharray << { project: project, architecture: arch,
+                     repository: repository }
+    }
+    sync_hash_with_model(ChannelBinaryList, self.channel_binary_lists, hasharray)
+  end
+
+  def _update_from_xml_binaries(cbl, xmlhash)
+    hasharray=[]
+    xmlhash.each do |b|
+      arch = nil
+      arch = Architecture.find_by_name!(b['arch']) if b['arch']
+      hash = { name: b['name'], binaryarch: b['binaryarch'], supportstatus: b['supportstatus'],
+               project: nil, architecture: arch,
+               package: b['package'], repository: nil }
+      if b['project']
+        hash[:project] = Project.get_by_name(b['project'])
+        hash[:repository] = hash[:project].repositories.find_by_name(b['repository']) if b['repository']
+      end
+      hasharray << hash
+    end
+    sync_hash_with_model(ChannelBinary, cbl.channel_binaries, hasharray)
+  end
+
+  def update_from_xml(xmlhash)
+    xmlhash = Xmlhash.parse(xmlhash) if xmlhash.is_a? String
+
+    _update_from_xml_targets(xmlhash)
+    _update_from_xml_binary_lists(xmlhash)
+
+    if self.package.project.is_maintenance_incident? || self.package.is_link?
+      # we skip binaries in incidents and when they are just a branch
+      # we do not need the data since it is not the origin definition
+      save
+      return
+    end
+
+    # sync binaries for all lists
+    self.channel_binary_lists.each { |cbl|
+      hasharray = Array.new
+      # search the right xml binaries group for this cbl
+      xmlhash.elements('binaries') do |b|
+        next if cbl.project      and b['project'] != cbl.project.name
+        next if cbl.repository   and b['repository'] != cbl.repository.name
+        next if cbl.architecture and b['arch'] != cbl.architecture.name
+        next if cbl.project.nil?      and b['project']
+        next if cbl.repository.nil?   and b['repository']
+        next if cbl.architecture.nil? and b['arch']
+        hasharray << b['binary']
+      end
+      hasharray.flatten!
+      # no match? either not created or searched in the right way
+      raise "Unable to find binary list #{cbl.project.name} #{cbl.repository.name} #{cbl.architecture.name}" if hasharray.size < 1
+      # update...
+      _update_from_xml_binaries(cbl, hasharray)
+    }
+    save
+  end
+
+  def branch_channel_package_into_project(project, comment = nil)
+    cp = self.package
+
+    # create a package container
+    tpkg = Package.new(:name => self.name, :title => cp.title, :description => cp.description)
+    project.packages << tpkg
+    tpkg.store({comment: comment})
+
+    # branch sources
+    tpkg.branch_from(cp.project.name, cp.name, nil, nil, comment)
+    tpkg.sources_changed(wait_for_update: true)
+
+    tpkg
+  end
+
+  def is_active?
+    # no targets defined, the project has some
+    return true if self.channel_targets.size == 0
+
+    self.channel_targets.where(disabled: false).size > 0
+  end
+
+  def add_channel_repos_to_project(tpkg, mode = nil)
+    cp = self.package
+    if self.channel_targets.empty?
+      # not defined in channel, so take all from project
+      tpkg.project.branch_to_repositories_from(cp.project, cp, {extend_names: true})
+      return
+    end
+
+    # defined in channel
+    self.channel_targets.each do |ct|
+      next if mode == :skip_disabled and ct.disabled
+      repo_name = ct.repository.extended_name
+      next unless mode==:enable_all or not ct.disabled
+      # add repositories
+      unless cp.project.repositories.find_by_name(repo_name)
+        tpkg.project.add_repository_with_targets(repo_name, ct.repository, [ct.repository])
+      end
+      # enable package
+      tpkg.enable_for_repository repo_name
+    end
+  end
 end

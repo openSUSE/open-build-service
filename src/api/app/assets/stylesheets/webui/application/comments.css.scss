@@ -6,13 +6,11 @@
   float: right;
 }
 
-.comment_thread {
-}
-
 .comment{
   margin-right: 2em;
   border-top: 1px solid lightgrey;
   padding-top: 10px;
+  padding-bottom: 10px;
 }
 
 .comment_0 {
@@ -24,7 +22,22 @@
 
 .comment_child{
   background: #fff;
+}
+
+.thread_level_1{
   margin-left: 2em;
+}
+
+.thread_level_2{
+  margin-left: 4em;
+}
+
+.thread_level_3{
+  margin-left: 6em;
+}
+
+.thread_level_4{
+  margin-left: 8em;
 }
 
 .comment_odd{

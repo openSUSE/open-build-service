@@ -11,8 +11,8 @@ class UpdateinfoTrackingSecondAttempt < ActiveRecord::Migration
     create_table :updateinfos do |t|
       t.references :repository, null: false
       t.references :package,    null: false
-      t.datetime   :created_at, null: false
-      t.string     :identifier, null: false
+      t.datetime :created_at, null: false
+      t.string :identifier, null: false
     end
 
     add_index :updateinfos, :identifier
@@ -23,5 +23,4 @@ class UpdateinfoTrackingSecondAttempt < ActiveRecord::Migration
     remove_column :binary_releases, :binary_updateinfo
     remove_column :binary_releases, :binary_updateinfo_version
   end
-
 end

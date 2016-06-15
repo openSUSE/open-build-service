@@ -10,7 +10,7 @@
 ### BEGIN INIT INFO
 # Provides:          obsapisetup
 # X-Start-Before:    apache2
-# Should-Start:      obsstoragesetup obssrcserver
+# Should-Start:      obsstoragesetup obssrcserver obsrepserver
 # Should-Stop:       $none
 # Required-Start:    mysql
 # Required-Stop:     $null
@@ -20,14 +20,6 @@
 ### END INIT INFO
 
 . /etc/rc.status
-
-# Determine the base and follow a runlevel link name.
-base=${0##*/}
-link=${base#*[SK][0-9][0-9]}
-
-apidir=/srv/www/obs/api
-
-
 
 # make parsed output predictable 
 export LC_ALL=C
@@ -42,192 +34,11 @@ if [ "$OBS_API_AUTOSETUP" != "yes" ]; then
    exit 0
 fi
 
-if [ -z "$OBS_BASE_DIR" ]; then
-backenddir=/srv/obs
-else
-backenddir="$OBS_BASE_DIR"
-fi
-
-FQHOSTNAME=`hostname -f `
-if type -p ec2-public-hostname; then
-  FQHOSTNAME=`ec2-public-hostname`
-fi
-
-if [ "$?" != "0" ]; then
-  # Fallback to IP of the VM/host
-  FQHOSTNAME=`ip addr | sed -n 's,.*inet \(.*\)/.* brd.*,\1,p' | grep -v ^127. | head -n 1`
-  if [ "$?" != "0" -o "$FQHOSTNAME" = "" ]; then
-    echo "    Can't determine hostname or IP - Network setup failed!"
-    echo "    Check if networking is up and dhcp is working!"
-    echo "    Using 'localhost' as FQHOSTNAME."
-    FQHOSTNAME="localhost"
-  fi
-  USEIP=$FQHOSTNAME
-fi
-
-#Is there a non default configured datadir?
-MYSQL_DATA_DIR=`sed -n 's,^datadir[ \t]*=[\t ]*\(.*\),\1,p' /etc/my.cnf | head -n 1`
-[ -z "$MYSQL_DATA_DIR" ] && MYSQL_DATA_DIR="${backenddir}/MySQL"
-
 rc_reset
 case "$1" in
 	start)
-                if [ ! -d $backenddir/MySQL ]; then
-			mkdir -p $backenddir/MySQL
-		fi
-
-		### In case of the appliance, we never know where we boot up !
-		OLDFQHOSTNAME="NOTHING"
-		if [ -e $backenddir/.oldfqhostname ]; then
-			OLDFQHOSTNAME=`cat $backenddir/.oldfqhostname`
-		fi
-		if [ "$FQHOSTNAME" != "$OLDFQHOSTNAME" ]; then
-			echo "Appliance hostname changed from $OLDFQHOSTNAME to $FQHOSTNAME !"
-			#changed IP means also that leftover jobs are invalid - cope with that
-			echo "Adapting present worker jobs"
-			sed -i "s,server=\"http://[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*:5352,server=\"http://$FQHOSTNAME:5352,g" \
-				/$backenddir/jobs/*/* 2> /dev/null
-			sed -i "s,server=\"http://[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*:5252,server=\"http://$FQHOSTNAME:5252,g" \
-				/$backenddir/jobs/*/* 2> /dev/null
-			#remove old workers status and idling/building markers
-			rm -f /$backenddir/jobs/*/*status 2> /dev/null
-			rm -f /$backenddir/workers/*/* 2> /dev/null
-                        # create repo directory or apache fails when nothing got published
-			mkdir -p /$backenddir/repos
-			chown obsrun.obsrun /$backenddir/repos
-		fi
-		echo "$FQHOSTNAME" > $backenddir/.oldfqhostname
-
-		echo "Adjust configuration for this hostname"
-                # use local host to avoid SSL verification between webui and api
-                sed -i 's,^frontend_host: .*,frontend_host: "localhost",' \
-		    /srv/www/obs/api/config/options.yml
-                sed -i 's,^frontend_port: .*,frontend_port: 443,' \
-		    /srv/www/obs/api/config/options.yml
-                sed -i 's,^frontend_protocol: .*,frontend_protocol: "'"https"'",' \
-		    /srv/www/obs/api/config/options.yml
-                sed -i 's,^external_frontend_host: .*,frontend_host: "'"$FQHOSTNAME"'",' \
-		    /srv/www/obs/api/config/options.yml
-                sed -i 's,^external_frontend_port: .*,frontend_port: 443,' \
-		    /srv/www/obs/api/config/options.yml
-                sed -i 's,^external_frontend_protocol: .*,frontend_protocol: "'"https"'",' \
-		    /srv/www/obs/api/config/options.yml
-# Not needed anymore since 2.5? 
-#               sed -i 's,^download_url: .*,download_url: \"http://'"$FQHOSTNAME:82"'\",' \
-#       	    /srv/www/obs/api/config/options.yml
-#               sed -i 's,^read_only_hosts: .*,read_only_hosts: [ "'"$FQHOSTNAME"'" ],' \
-#       	    /srv/www/obs/api/config/options.yml
-		OBSVERSION=`rpm -q --qf '%{VERSION}' obs-server`
-		OS=`head -n 1 /etc/SuSE-release`
-                RUN_INITIAL_SETUP=""
-                if [ ! -e "$MYSQL_DATA_DIR"/api_production ]; then
-			echo "Initialize MySQL databases (first time only)"
-			mysqladmin -u root create api_production
-			mysqladmin -u root password "opensuse"
-                        RUN_INITIAL_SETUP="true"
-		fi
-                if [ -n "$RUN_INITIAL_SETUP" ]; then
-			echo "Initialize OBS api database (first time only)"
-        		cd $apidir
-			RAILS_ENV=production bundle exec rake db:create db:setup writeconfiguration >> $apidir/log/db_migrate.log
-		else
-			echo
-			echo "Migrate OBS api database"
-			cd $apidir
-			RAILS_ENV=production bundle exec rake db:migrate >> $apidir/log/db_migrate.log
-			echo
-		fi
-
-                # reuse signing key even if hostname changed
-                if [ ! -e $backenddir/certs/server.key ]; then
-                    install -d -m 0700 $backenddir/certs
-                    openssl genrsa -out $backenddir/certs/server.key 1024
-                fi
-
-                if [ ! -e $backenddir/certs/server.${FQHOSTNAME}.created ]; then
-                       # setup ssl certificates (NOT protected with a passphrase)
-                       echo "Creating a default SSL certificate for the server, please replace it with your version in $backenddir/certs directory..."
-                       # hostname specific certs - survive intermediate hostname changes
-                       if [ ! -e $backenddir/certs/server.${FQHOSTNAME}.pem ] ; then
-                           # This is just a dummy SSL certificate, but it has a valid hostname. Admin can replace it with his version.
-		           echo "CC
-Test State or Province
-Test Locality
-Organization Name
-Organizational Unit Name
-$FQHOSTNAME
-test@email.address
-
-
-"                        | openssl req -new -key $backenddir/certs/server.key -out $backenddir/certs/server.${FQHOSTNAME}.csr >& /dev/null
-                           openssl x509 -req -days 365 -in $backenddir/certs/server.${FQHOSTNAME}.csr -signkey $backenddir/certs/server.key -out $backenddir/certs/server.${FQHOSTNAME}.crt
-                           cat $backenddir/certs/server.key $backenddir/certs/server.${FQHOSTNAME}.crt > $backenddir/certs/server.${FQHOSTNAME}.pem
-                           echo "Do not remove this file or new SSL CAs will get created." > $backenddir/certs/server.${FQHOSTNAME}.created
-                       else
-                         echo "ERROR: SSL CAs in $backenddir/certs exists, but were not created for your hostname"
-                         exit 1
-                       fi
-                fi
-
-                # apache has to trust the api ssl certificate
-                if [ ! -e /etc/ssl/certs/server.${FQHOSTNAME}.pem ]; then
-                       cp $backenddir/certs/server.${FQHOSTNAME}.pem /etc/ssl/certs/
-                       c_rehash /etc/ssl/certs/ > /dev/null || true
-                fi
-
-		# change links for certs according to hostnames
-		rm -f $backenddir/certs/server.crt $backenddir/certs/server.pem
-		ln -sf $backenddir/certs/server.${FQHOSTNAME}.crt $backenddir/certs/server.crt
-		ln -sf $backenddir/certs/server.${FQHOSTNAME}.pem $backenddir/certs/server.pem
-
-                cd $apidir
-		chown -R wwwrun.www $apidir/log
-
-		cat > /etc/issue <<EOF
-Welcome to Open Build Service(OBS) Appliance $OBSVERSION
-based on $OS
-
-EOF
-		if ! grep -q "^our \$sign =" /usr/lib/obs/server/BSConfig.pm ; then
-			cat >> /etc/issue <<EOF
-
-  WARNING: **** Package signing is disabled, maybe due to lack of hardware number generator ****
-
-EOF
-		fi
-
-		if [ -n "$FQHOSTNAME" ]; then
-                        sed -e "s,___API_URL___,https://$FQHOSTNAME,g" \
-                            -e "s,___REPO_URL___,http://$FQHOSTNAME:82,g" \
-                            /srv/www/obs/overview/overview.html.TEMPLATE > /srv/www/obs/overview/index.html
-
-			cat >> /etc/issue <<EOF
-
-  Connect to the web interface via:     https://$FQHOSTNAME
-  Connect to the api interface via:     https://$FQHOSTNAME
-  Browse the build packages via:        http://$FQHOSTNAME:82
-
- * "Admin"/"root" user password is "opensuse" by default.
- * Connect to the web interface now to finish the OBS setup.
-
-More informations about this appliance are available here:
-
- http://en.opensuse.org/Build_Service/OBS-Appliance
-
-                                  Greetings from the Open Build Service Team
-                                  http://www.open-build-service.org
-
-EOF
-		else
-                        echo "OBS appliance could not get setup, no network found" > /srv/www/obs/overview/index.html
-			echo '**********************************************' >> /etc/issue
-			echo '**           NETWORK SETUP FAILED           **' >> /etc/issue
-			echo '**                                          **' >> /etc/issue
-			echo '** OBS is not usable                        **' >> /etc/issue
-			echo '** A working DHCP and DNS server in network **' >> /etc/issue
-			echo '** is required!                             **' >> /etc/issue
-			echo '**********************************************' >> /etc/issue
-		fi
+		[[ $HOME == '' ]] && export HOME=/root
+		/usr/lib/obs/server/setup-appliance.sh --non-interactive --setup-only
 		rc_status -v
 	;;
 	stop)

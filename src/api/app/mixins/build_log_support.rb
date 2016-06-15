@@ -1,5 +1,4 @@
 module BuildLogSupport
-
   include Escaper
 
   def raw_log_chunk( project, package, repo, arch, start, theend )
@@ -11,7 +10,7 @@ module BuildLogSupport
   def get_log_chunk( project, package, repo, arch, start, theend )
     log = raw_log_chunk( project, package, repo, arch, start, theend )
     begin
-      log.encode!(invalid: :replace, xml: :text, undef: :replace, cr_newline: true)
+      log.encode!(invalid: :replace, undef: :replace, cr_newline: true)
     rescue Encoding::UndefinedConversionError
       # encode is documented not to throw it if undef: is :replace, but at least we tried - and ruby 1.9.3 is buggy
     end
@@ -44,5 +43,4 @@ module BuildLogSupport
     path = "/build/#{pesc project}/#{pesc repo}/#{pesc arch}/#{pesc package}/_jobstatus"
     ActiveXML::backend.direct_http URI("#{path}"), :timeout => 500
   end
-
 end

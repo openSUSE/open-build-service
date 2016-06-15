@@ -4,8 +4,9 @@ require 'obsapi/test_sphinx'
 class FullTextSearchTest < ActiveSupport::TestCase
   fixtures :all
 
-  setup do
+  def setup
     OBSApi::TestSphinx.ensure
+    User.current = nil
   end
 
   test "search for basedistro" do

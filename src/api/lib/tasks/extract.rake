@@ -58,7 +58,11 @@ namespace :db do
         classname = Event::Base
       end
 
-      next if table_name == 'architectures_distributions'
+      if table_name == 'history_elements'
+        classname = HistoryElement::Base
+      end
+
+      next if %(architectures_distributions roles_static_permissions).include? table_name
 
       begin
         classname = table_name.classify.constantize unless classname
@@ -67,7 +71,7 @@ namespace :db do
         classname = nil
       end
 
-      #next unless table_name == 'taggings'
+      # next unless table_name == 'taggings'
 
       File.open("#{Rails.root}/test/fixtures/#{table_name}.yml", 'w') do |file|
         data = ActiveRecord::Base.connection.select_all(sql % table_name)
@@ -157,9 +161,6 @@ namespace :db do
           end
           if %w(static_permissions packages).include? table_name
             key = classname.find(record.delete(primary)).fixtures_name
-          end
-          if table_name == 'db_project_types'
-            defaultkey = record['name']
           end
           if table_name == 'backend_packages'
             defaultkey = record['package']

@@ -1,7 +1,6 @@
 require 'xmlhash'
 
 class PersonController < ApplicationController
-
   validate_action :userinfo => {:method => :get, :response => :user}
   validate_action :userinfo => {:method => :put, :request => :user, :response => :status}
   validate_action :grouplist => {:method => :get, :response => :directory}
@@ -26,7 +25,7 @@ class PersonController < ApplicationController
   # Returns a list of all users (that optionally start with a prefix)
   def command
     if params[:cmd] == "register"
-      internal_register 
+      internal_register
       return
     end
     raise UnknownCommandError.new "Allowed commands are 'change_password'"
@@ -37,7 +36,7 @@ class PersonController < ApplicationController
 
     if user.login != @http_user.login
       logger.debug "Generating for user from parameter #{user.login}"
-      render :text => user.render_axml(false), :content_type => "text/xml"
+      render :text => user.render_axml(@http_user.is_admin?), :content_type => "text/xml"
     else
       logger.debug "Generating user info for logged in user #{@http_user.login}"
       render :text => @http_user.render_axml(true), :content_type => "text/xml"
@@ -73,7 +72,7 @@ class PersonController < ApplicationController
     login = params[:login]
     user = User.find_by_login(login) if login
 
-    if user 
+    if user
       unless user.login == User.current.login or User.current.is_admin?
         logger.debug "User has no permission to change userinfo"
         render_error :status => 403, :errorcode => 'change_userinfo_no_permission',
@@ -82,7 +81,7 @@ class PersonController < ApplicationController
     else
       if User.current.is_admin?
         user = User.create(:login => login, :password => "notset", :password_confirmation => "notset", :email => "TEMP")
-        user.state = User.states["locked"]
+        user.state = User::STATES["locked"]
       else
         logger.debug "Tried to create non-existing user without admin rights"
         @errorcode = 404
@@ -97,7 +96,7 @@ class PersonController < ApplicationController
     user.realname = xml.value('realname') || ''
     if User.current.is_admin?
       # only admin is allowed to change these, ignore for others
-      user.state = User.states[xml.value('state')]
+      user.state = User::STATES[xml.value('state')]
       update_globalroles(user, xml)
     end
     update_watchlist(user, xml)
@@ -129,7 +128,7 @@ class PersonController < ApplicationController
 
   def internal_register
     xml = REXML::Document.new( request.raw_post )
-    
+
     logger.debug( "register XML: #{request.raw_post}" )
 
     login = xml.elements["/unregisteredperson/login"].text
@@ -159,30 +158,18 @@ class PersonController < ApplicationController
     request.env["RAW_POST_DATA"] = request.env["RAW_POST_DATA"].sub(/<password>(.*)<\/password>/, "<password>STRIPPED<password>")
     raise e
   end
-  
+
   def update_watchlist( user, xml )
     new_watchlist = []
-    old_watchlist = []
-
     xml.get('watchlist').elements("project") do |e|
       new_watchlist << e['name']
     end
 
-    user.watched_projects.each do |wp|
-      old_watchlist << wp.project.name
+    new_watchlist.map! do |name|
+      WatchedProject.find_or_create_by(project: Project.find_by_name!(name), user: user)
     end
-    add_to_watchlist = new_watchlist.collect {|i| old_watchlist.include?(i) ? nil : i}.compact
-    remove_from_watchlist = old_watchlist.collect {|i| new_watchlist.include?(i) ? nil : i}.compact
-
-    remove_from_watchlist.each do |name|
-      user.watched_projects.where(project_id: Project.find_by_name(name).id).delete_all
-    end
-
-    add_to_watchlist.each do |name|
-      user.watched_projects.new(project_id: Project.find_by_name(name).id)
-    end
-
-    return true
+    user.watched_projects.replace(new_watchlist)
+    Rails.cache.delete(["watched_project_names", user])
   end
   private :update_watchlist
 
@@ -191,14 +178,14 @@ class PersonController < ApplicationController
     xml.elements("globalrole") do |e|
       new_globalroles << e.to_s
     end
- 
+
     user.update_globalroles( new_globalroles )
   end
 
   private :update_globalroles
 
   def change_my_password
-    #FIXME3.0: remove this function
+    # FIXME3.0: remove this function
     xml = REXML::Document.new( request.raw_post )
 
     logger.debug( "changepasswd XML: #{request.raw_post}" )
@@ -225,8 +212,8 @@ class PersonController < ApplicationController
       return
     end
     user = User.get_by_login(login)
-    
-    #change password to LDAP if LDAP is enabled    
+
+    # change password to LDAP if LDAP is enabled
     if CONFIG['ldap_mode'] == :on
       ldap_password = Base64.decode64(password)
       if CONFIG['ldap_ssl'] == :on
@@ -242,12 +229,13 @@ class PersonController < ApplicationController
           return
         end
       else
-        render_error :status => 404, :errorcode => 'change_passwd_no_security', :message => "LDAP mode enabled, the user password can only be changed with CONFIG['ldap_ssl'] enabling."
+        render_error :status => 404, :errorcode => 'change_passwd_no_security', :message => "LDAP mode enabled, the user password can only" +
+                                                                                            " be changed with CONFIG['ldap_ssl'] enabling."
         return
       end
     end
 
-    #update password in users db
+    # update password in users db
     user.update_password( password )
     user.save!
   end
@@ -265,7 +253,6 @@ class PersonController < ApplicationController
 
     unless params[:cmd] == "create"
       raise UnknownCommandError.new "Allowed commands are 'create'"
-      return
     end
     pkg = nil
     if params[:project] or params[:package]
@@ -287,5 +274,4 @@ class PersonController < ApplicationController
     token.destroy
     render_ok
   end
-
 end

@@ -43,6 +43,8 @@ sub boolop {
   while (@v1) {
     my $e1 = shift @v1;
     my $e2 = shift @v2;
+    $e1 = '' if ref($e1) eq 'ARRAY' && !@$e1;
+    $e2 = '' if ref($e2) eq 'ARRAY' && !@$e2;
     my $r = shift @cwd;
     if ($r->[4]) {
       push @vr, $r->[4]->boolop($e1, $e2, $op, $negpol);
@@ -163,7 +165,7 @@ sub predicate {
     while (1) {
       my $r = shift @ncwd;
       my $b = shift @$v2;
-      $b = @$_ ? 'true' : '' if ref($b) eq 'ARRAY';
+      $b = @$b ? 'true' : '' if ref($b) eq 'ARRAY';
       if ($b =~ /^-?\d+$/) { 
         push @nvv, $r->[1] if $r->[2] == $b;
       } else {

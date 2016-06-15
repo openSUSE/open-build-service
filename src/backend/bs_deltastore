@@ -1,0 +1,176 @@
+#!/usr/bin/perl -w
+#
+# Copyright (c) 2016 SUSE LLC.
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+################################################################
+#
+# The source delta generator.
+#
+
+BEGIN {
+  my ($wd) = $0 =~ m-(.*)/- ;
+  $wd ||= '.';
+  unshift @INC,  "$wd/build";
+  unshift @INC,  "$wd";
+}
+
+use XML::Structured ':bytes';
+use POSIX;
+use Fcntl qw(:DEFAULT :flock);
+use Digest::MD5 ();
+
+use BSConfiguration;
+use BSUtil;
+use BSSolv;
+
+use strict;
+
+my $bsdir = $BSConfig::bsdir || "/srv/obs";
+
+BSUtil::mkdir_p_chown($bsdir, $BSConfig::bsuser, $BSConfig::bsgroup);
+BSUtil::drop_privs_to($BSConfig::bsuser||$BSConfig::bsuser, $BSConfig::bsgroup||$BSConfig::bsgroup);
+BSUtil::set_fdatasync_before_rename() unless $BSConfig::disable_data_sync || $BSConfig::disable_data_sync;
+
+my $eventdir = "$BSConfig::bsdir/events";
+my $srcrep = "$BSConfig::bsdir/sources";
+my $uploaddir = "$BSConfig::bsdir/upload";
+my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
+
+my $myeventdir = "$eventdir/deltastore";
+
+my $testmode;
+
+sub deltastore {
+  my ($projid, $packid, $file) = @_;
+  print "generating src delta for $projid/$packid/$file\n";
+  mkdir_p($uploaddir);
+  my $tmp = "$uploaddir/deltastore.$$";
+  unlink($tmp);
+  unlink("$tmp.in");
+  die("cannot get rid of $tmp") if -e $tmp;
+  link("$srcrep/$packid/$file", "$tmp.in") || die("link $srcrep/$packid/$file $tmp.in: $!\n");
+  if (BSSolv::isobscpio("$tmp.in")) {
+    print "  - already delta cpio\n";
+    unlink("$tmp.in");
+    return;
+  }
+  if (!BSSolv::makeobscpio("$tmp.in", "$srcrep/$packid/deltastore", $tmp)) {
+    print "  - delta creation error\n";
+    unlink("$tmp.in");
+    unlink($tmp);
+    return;
+  }
+  unlink("$tmp.in");
+  if (1) {
+    if ($file =~ /^([0-9a-f]{32})-/) {
+      my $md5 = $1;
+      print "  - verifying re-expansion...\n";
+      local *F;
+      BSSolv::obscpioopen($tmp, "$srcrep/$packid/deltastore", \*F, $uploaddir) || die("BSSolv::obscpioopen failed\n");
+      my $ctx = Digest::MD5->new;
+      $ctx->addfile(*F);
+      close F;
+      my $rmd5 = $ctx->hexdigest();
+      die("  - md5sum mismatch: $md5 $rmd5\n") if $md5 ne $rmd5;
+    }
+  }
+  if (!rename($tmp, "$srcrep/$packid/$file")) {
+    print "  - rename $tmp $srcrep/$packid/$file: $!\n";
+    unlink("$tmp.in");
+    unlink($tmp);
+    return;
+  }
+}
+
+if (@ARGV && ($ARGV[0] eq '--test-mode' || $ARGV[0] eq '--testmode')) {
+  $testmode = 1;
+  shift @ARGV;
+}
+
+$| = 1;
+$SIG{'PIPE'} = 'IGNORE';
+BSUtil::restartexit($ARGV[0], 'deltastore', "$rundir/bs_deltastore", "$myeventdir/.ping");
+print "starting source delta generator\n";
+
+mkdir_p($rundir);
+open(RUNLOCK, '>>', "$rundir/bs_deltastore.lock") || die("$rundir/bs_deltastore.lock: $!\n");
+flock(RUNLOCK, LOCK_EX | LOCK_NB) || die("deltastore is already running!\n");
+utime undef, undef, "$rundir/bs_deltastore.lock";
+
+mkdir_p($myeventdir);
+if (!-p "$myeventdir/.ping") {
+  POSIX::mkfifo("$myeventdir/.ping", 0666) || die("$myeventdir/.ping: $!");
+  chmod(0666, "$myeventdir/.ping");
+}
+sysopen(PING, "$myeventdir/.ping", POSIX::O_RDWR) || die("$myeventdir/.ping: $!");
+
+while(1) {
+  # drain ping pipe
+  my $dummy;
+  fcntl(PING,F_SETFL,POSIX::O_NONBLOCK);
+  1 while (sysread(PING, $dummy, 1024, 0) || 0) > 0;
+  fcntl(PING,F_SETFL,0);
+
+  # check for events
+  my @events = ls($myeventdir);
+  @events = grep {!/^\./} @events;
+  for my $event (@events) {
+    last if -e "$rundir/bs_deltastore.exit";
+    last if -e "$rundir/bs_deltastore.restart";
+    my $ev = readxml("$myeventdir/$event", $BSXML::event, 1);
+    if (!$ev || !$ev->{'type'} || $ev->{'type'} ne 'deltastore') {
+      unlink("$myeventdir/$event");
+      next;
+    }
+    if (!defined($ev->{'project'}) || !defined($ev->{'package'}) || !defined($ev->{'job'})) {
+      unlink("$myeventdir/$event");
+      next;
+    }
+    eval {
+      deltastore($ev->{'project'}, $ev->{'package'}, $ev->{'job'});
+    };
+    if ($@) {
+      warn($@);
+    } else {
+      unlink("$myeventdir/$event");
+    }
+  }
+
+  if ($testmode) {
+    close(RUNLOCK);
+    print "Test mode, exiting...\n";
+    exit(0);
+  }
+
+  # check for restart/exit
+  if (-e "$rundir/bs_deltastore.exit") {
+    close(RUNLOCK);
+    unlink("$rundir/bs_deltastore.exit");
+    print "exiting...\n";
+    exit(0);
+  }
+  if (-e "$rundir/bs_deltastore.restart") {
+    close(RUNLOCK);
+    unlink("$rundir/bs_deltastore.restart");
+    print "restarting...\n";
+    exec($0);
+    die("$0: $!\n");
+  }
+  print "waiting for an event...\n";
+  sysread(PING, $dummy, 1, 0);
+}
+

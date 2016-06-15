@@ -6,4 +6,3 @@ class Event::Packtrack < Event::Base
   # for package tracking in first place
   create_jobs :update_released_binaries
 end
-

@@ -1,6 +1,5 @@
 class CreateJob
-  
-  def initialize(event) 
+  def initialize(event)
     self.event = event
   end
 
@@ -20,7 +19,6 @@ class CreateJob
       puts exception.inspect, exception.backtrace
       return
     end
-    HoptoadNotifier.notify(exception, job.inspect)
-    notify_hoptoad(ex)
+    HoptoadNotifier.notify(exception, {failed_job: job.inspect})
   end
 end

@@ -2,7 +2,6 @@ require 'rexml/document'
 require "rexml/streamlistener"
 
 class StatisticsController < ApplicationController
-
   include StatisticsCalculations
 
   validate_action :redirect_stats => {:method => :get, :response => :redirect_stats}
@@ -80,7 +79,6 @@ class StatisticsController < ApplicationController
                  :message => "only GET or PUT method allowed for this action"
   end
 
-
   def download_counter
     # FIXME: download stats are currently not supported and needs a re-implementation
     render_error :status => 400, :errorcode => "not_supported", :message => "download stats need a re-implementation"
@@ -89,7 +87,6 @@ class StatisticsController < ApplicationController
   def newest_stats
     render_error :status => 400, :errorcode => "not_supported", :message => "download stats need a re-implementation"
   end
-
 
   def most_active_projects
     # get all packages including activity values
@@ -127,14 +124,12 @@ class StatisticsController < ApplicationController
   end
 
   def latest_added
-
     packages = Package.limit(@limit).order('created_at DESC, name').to_a
     projects = Project.limit(@limit).order('created_at DESC, name').to_a
 
     list = projects
     list.concat packages
     list.sort! { |a, b| b.created_at <=> a.created_at }
-
 
     if @limit
       @list = list[0..@limit-1]
@@ -143,19 +138,35 @@ class StatisticsController < ApplicationController
     end
   end
 
-
   def added_timestamp
-
     @project = Project.get_by_name(params[:project])
     @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: true)
 
     # is it used at all ?
   end
 
-
   def latest_updated
-    @limit = 10 unless @limit
-    @list = get_latest_updated(@limit)
+    if params[:prjfilter].nil?
+      prj_filter = ".*"
+    else
+      prj_filter = params[:prjfilter]
+    end
+
+    if params[:pkgfilter].nil?
+      pkg_filter = ".*"
+    else
+      pkg_filter = params[:pkgfilter]
+    end
+
+    if params[:timelimit].nil?
+      @timelimit = Time.at(0)
+    else
+      @timelimit = params[:timelimit].to_i.day.ago
+      # Override the default, since we want to limit by the time here.
+      @limit = nil if params[:limit].nil?
+    end
+
+    @list = get_latest_updated(@limit, @timelimit, prj_filter, pkg_filter)
   end
 
   def updated_timestamp
@@ -163,9 +174,7 @@ class StatisticsController < ApplicationController
     @package = Package.get_by_project_and_name(params[:project], params[:package], use_source: false, follow_project_links: true)
   end
 
-
   def global_counters
-
     @users = User.count
     @repos = Repository.count
     @projects = Project.count

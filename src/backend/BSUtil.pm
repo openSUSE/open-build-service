@@ -183,12 +183,14 @@ sub mkdir_p_chown {
 
   $user = -1 unless defined $user;
   $group = -1 unless defined $group;
+  my $ouser = $user;
+  my $ogroup = $group;
   
-  if ($user  !~ /^-?\d+$/ && !($user = getpwnam($user))) {
-    warn "user $user unknown\n"; return undef
+  if ($user  !~ /^-?\d+$/ && !defined($user = getpwnam($user))) {
+    warn "user $ouser unknown\n"; return undef
   }
-  if ($group !~ /^-?\d+$/ && !($group = getgrnam($group))) {
-    warn "group $group unknown\n"; return undef
+  if ($group !~ /^-?\d+$/ && !defined($group = getgrnam($group))) {
+    warn "group $ogroup unknown\n"; return undef
   }
 
   my @s = stat($dir);
@@ -508,7 +510,7 @@ sub enabled {
     $score += 2 if defined($_->{'arch'});
     $score += 4 if defined($_->{'repository'});
     if ($score > $enascore) {
-      return 1 if $enascore == 6;		# can't max this!
+      return 1 if $score > $disscore;
       $enascore = $score;
     }
   }
@@ -555,6 +557,22 @@ sub retrieve {
     }
   }
   return $dd;
+}
+
+sub tostorable {
+  my ($d) = @_;
+  return 'pst0'.Storable::nfreeze($d);
+}
+
+sub fromstorable {
+  my ($d, $nonfatal) = @_;
+  return Storable::thaw(substr($d, 4)) unless $nonfatal;
+  eval { $d = Storable::thaw(substr($d, 4)); };
+  if ($@) {
+    warn($@) if $nonfatal == 2;
+    return undef;
+  }
+  return $d;
 }
 
 sub ping {
@@ -675,6 +693,39 @@ sub xsystem {
   } else {
     return ($out, $err);
   }
+}
+
+sub unify {
+  my %h = map {$_ => 1} @_; 
+  return grep(delete($h{$_}), @_); 
+}
+
+sub identical {
+  my ($d1, $d2, $except, $subexcept) = @_;
+
+  if (!defined($d1)) {
+    return defined($d2) ? 0 : 1;
+  }
+  return 0 unless defined($d2);
+  my $r = ref($d1);
+  return 0 if $r ne ref($d2);
+  if ($r eq '') {
+    return 0 if $d1 ne $d2; 
+  } elsif ($r eq 'HASH') {
+    my %k = (%$d1, %$d2);
+    for my $k (keys %k) {
+      next if $except && $except->{$k};
+      return 0 unless identical($d1->{$k}, $d2->{$k}, $subexcept, $subexcept);
+    }    
+  } elsif ($r eq 'ARRAY') {
+    return 0 unless @$d1 == @$d2;
+    for (my $i = 0; $i < @$d1; $i++) {
+      return 0 unless identical($d1->[$i], $d2->[$i], $subexcept, $subexcept);
+    }    
+  } else {
+    return 0;
+  }
+  return 1;
 }
 
 1;

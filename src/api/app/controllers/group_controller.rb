@@ -1,12 +1,10 @@
 class GroupController < ApplicationController
-
   include ValidationHelper
 
   validate_action :groupinfo => { :method => :get, :response => :group }
   validate_action :groupinfo => { :method => :put, :request => :group, :response => :status }
   validate_action :groupinfo => { :method => :delete, :response => :status }
 
-  before_action :require_login, except: [:index, :show]
   # raise an exception if authorize has not yet been called.
   after_action :verify_authorized, :except => [:index, :show]
 
@@ -58,7 +56,10 @@ class GroupController < ApplicationController
     end
     authorize group, :update?
 
-    group.update_from_xml(Xmlhash.parse(request.raw_post))
+    xmlhash = Xmlhash.parse(request.raw_post)
+    raise InvalidParameterError, "group name from path and xml mismatch" unless group.title == xmlhash.value('title')
+
+    group.update_from_xml(xmlhash)
     group.save!
 
     render_ok
@@ -83,5 +84,4 @@ class GroupController < ApplicationController
 
     render_ok
   end
-
 end

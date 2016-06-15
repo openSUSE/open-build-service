@@ -4,7 +4,7 @@ require File.join(Rails.root, 'app/jobs/update_package_meta_job.rb')
 #
 # NOTE: we do not modify, but entirely recreate the tables here, because there is
 #       an issue in (older?) MySQL version which corrupt the database when modifing
-#       these indexes. Since this is just indexed data based on sources we do not want 
+#       these indexes. Since this is just indexed data based on sources we do not want
 #       to go with any risk
 #
 
@@ -14,8 +14,8 @@ class FixProductMediaUniqIndex < ActiveRecord::Migration
     create_table :product_media do |t|
       t.references :product
       t.references :repository
-      t.integer    :arch_filter_id
-      t.string     :name
+      t.integer :arch_filter_id
+      t.string :name
     end
     add_index :product_media, :product_id
     add_index :product_media, :arch_filter_id
@@ -29,7 +29,7 @@ class FixProductMediaUniqIndex < ActiveRecord::Migration
     create_table :product_update_repositories do |t|
       t.references :product
       t.references :repository
-      t.integer    :arch_filter_id
+      t.integer :arch_filter_id
     end
     add_index :product_update_repositories, :product_id
     add_index :product_update_repositories, :arch_filter_id
@@ -46,8 +46,8 @@ class FixProductMediaUniqIndex < ActiveRecord::Migration
     create_table :product_media do |t|
       t.references :product
       t.references :repository
-      t.integer    :arch_filter_id
-      t.string     :name
+      t.integer :arch_filter_id
+      t.string :name
     end
     add_index :product_media, :arch_filter_id
     add_index :product_media, [:product_id, :repository_id, :name], unique: true, :name => "index_unique"
@@ -59,7 +59,7 @@ class FixProductMediaUniqIndex < ActiveRecord::Migration
     create_table :product_update_repositories do |t|
       t.references :product
       t.references :repository
-      t.integer    :arch_filter_id
+      t.integer :arch_filter_id
     end
     add_index :product_update_repositories, :arch_filter_id
     add_index :product_update_repositories, [:product_id, :repository_id], unique: true, :name => "index_unique"

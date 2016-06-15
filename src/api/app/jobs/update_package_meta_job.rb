@@ -1,8 +1,7 @@
-class UpdatePackageMetaJob
-
+class UpdatePackageMetaJob < ActiveJob::Base
   def scan_links
     names = Package.distinct(:name).order(:name).pluck(:name)
-    while !names.empty? do
+    while !names.empty?
       slice = names.slice!(0, 30)
       path = "/search/package/id?match=("
       path += slice.map { |name| "linkinfo/@package='#{CGI.escape(name)}'" }.join("+or+")
@@ -27,6 +26,4 @@ class UpdatePackageMetaJob
 
     BackendPackage.refresh_dirty
   end
-
 end
-

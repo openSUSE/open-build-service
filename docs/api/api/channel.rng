@@ -36,7 +36,14 @@
        <optional>
          <attribute name="id_template"/>
        </optional>
-       <empty/>
+       <optional>
+         <attribute name="requires_issue"/>
+       </optional>
+       <optional>
+         <element ns="" name="disabled">
+           <empty/>
+         </element>
+       </optional>
      </element>
   </define>
 

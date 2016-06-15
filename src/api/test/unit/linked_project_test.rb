@@ -15,5 +15,4 @@ class LinkedProjectTest < ActiveSupport::TestCase
     # already linked
     assert_equal false, prj2.valid?
   end
-  
 end

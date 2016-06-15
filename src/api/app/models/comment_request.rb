@@ -1,5 +1,4 @@
 class CommentRequest < Comment
-
   validates :bs_request, presence: true
 
   def check_delete_permissions
@@ -9,7 +8,7 @@ class CommentRequest < Comment
 
   def create_notification(params = {})
     super
-    BsRequest.find(self.bs_request_id).notify_parameters(params)
+    params = BsRequest.find(self.bs_request_id).notify_parameters(params)
     params[:commenters] = involved_users(:bs_request_id, self.bs_request_id)
 
     # call the action

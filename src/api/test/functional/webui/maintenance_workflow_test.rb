@@ -1,8 +1,7 @@
 require_relative '../../test_helper'
 
 class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
-
-  test 'full maintenance workflow' do
+  def test_full_maintenance_workflow
     use_js
 
     login_king to: project_show_path(project: 'BaseDistro')
@@ -31,7 +30,10 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     find(:css, '#branch_dialog').must_have_text %r{Do you really want to branch package}
     find_button('Ok').click
 
-    find(:css, '#flash-messages').must_have_text %r{Branched package BaseDistro2\.0:LinkedUpdateProject.*pack2}
+    find(:css, '#flash-messages').must_have_text %r{Successfully branched package}
+
+    # do not die with unchanged package
+    Suse::Backend.put("/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/DUMMY_FILE", "dummy")
 
     visit(project_show_path(project: 'home:tom'))
 
@@ -45,57 +47,40 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     find_button('Ok').click
 
     find(:css, 'span.ui-icon.ui-icon-info').text.must_equal 'Created maintenance incident request'
-    find(:link, 'open request').text.must_equal 'open request'
+    find(:link, '1 open request').text.must_equal '1 open request'
     find(:link, '1 Release Target').text.must_equal '1 Release Target'
 
     logout
 
     # now let the coordinator act
-    login_user('maintenance_coord', 'power', to: project_show_path(project: 'My:Maintenance'))
+    login_user('maintenance_coord', 'buildservice', to: project_show_path(project: 'My:Maintenance'))
 
     find(:link, 'open request').click
-    find(:id, 'description_text').text.must_equal 'I want the update'
+    first('.request_link').click
+    find(:id, 'description-text').text.must_equal 'I want the update'
     find(:id, 'action_display_0').must_have_text ('Release in BaseDistro2.0:LinkedUpdateProject')
     fill_in 'reason', with: 'really? ok'
     find(:id, 'accept_request_button').click
-    find(:css, '#action_display_0').must_have_text %r{Submit update from package home:tom:branch.*UpdateProject / pack2 to project My:Maintenance:0}
-
+    # rubocop:disable Metrics/LineLength
+    find(:css, '#action_display_0').must_have_text %r{Submit update from package home:tom:branch.*UpdateProject / pack2 to package My:Maintenance:0 / pack2\..*}
+    # rubocop:enable Metrics/LineLength
     visit(project_show_path(project: 'My:Maintenance:0'))
     find(:link, 'Patchinfo present').click
     find(:id, 'edit-patchinfo').click
 
-    page.evaluate_script('window.confirm = function() { return true; }')                    
+    page.evaluate_script('window.confirm = function() { return true; }')
     find(:link, 'Update issues from sources').click
     page.must_have_text('Patchinfo-Editor for')
 
     find(:id, 'summary').text.must_equal 'I want the update'
-    fill_in 'summary', with: 'pack2: Fixes nothing'
 
-    fill_in 'summary', with: 'Nada'
-    fill_in 'description', with: 'Fixes nothing'
-    find(:id, 'rating').select('critical')
-    check('relogin')
-    check('reboot')
-    find(:id, 'zypp_restart_needed').click
-    page.must_have_selector 'input[id=block_reason][disabled]'
-
+    fill_in 'summary', with: 'pack2 is much better than the old one'
+    fill_in 'description', with: 'Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing'
     check('block')
     fill_in 'block_reason', with: 'locked!'
     find_button('Save Patchinfo').click
 
-    find(:css, 'span.ui-icon.ui-icon-alert').must_have_text %r{Summary is too short}
-    fill_in 'summary', with: 'pack2 is much better than the old one'
-    find_button('Save Patchinfo').click
-
-    find(:css, 'span.ui-icon.ui-icon-alert').must_have_text %r{Description is too short}
-    fill_in 'description', with: 'Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing, Fixes nothing'
-    fill_in 'issue', with: 'bnc#272722'
-    find(:css, "img[alt=\"Add Bug\"]").click
-    # wait till issue is added
-    find_link('bnc#272722')
-    find_button('Save Patchinfo').click
-
-    # summary and description are ok now
+    # summary and description are ok
     page.wont_have_selector 'span.ui-icon.ui-icon-alert'
 
     find(:css, 'span.ui-icon.ui-icon-info').text.must_equal 'Successfully edited patchinfo'
@@ -123,16 +108,17 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     logout
 
     # let the maint-coordinator add the new submit to the running incident and cont
-    login_user('maintenance_coord', 'power', to: project_show_path(project: 'My:Maintenance'))
+    login_user('maintenance_coord', 'buildservice', to: project_show_path(project: 'My:Maintenance'))
 
     find(:link, 'open request').click
-    find(:id, 'description_text').text.must_equal 'I have a additional fix'
+    first('.request_link').click
+    find(:id, 'description-text').text.must_equal 'I have a additional fix'
     find(:link, 'Merge with existing incident').click
     # set to not existing incident
     fill_in 'incident_project', with: '2'
     find_button('Ok').click
     find(:css, 'span.ui-icon.ui-icon-alert').must_have_text 'does not exist'
- 
+
     find(:link, 'Merge with existing incident').click
     fill_in 'incident_project', with: '0'
     find_button('Ok').click
@@ -140,15 +126,16 @@ class Webui::MaintenanceWorkflowTest < Webui::IntegrationTest
     find(:css, 'span.ui-icon.ui-icon-info').must_have_text %r{Set target of request.*to incident 0}
     find(:id, 'accept_request_button').click
 
-    #TODO: make it unique find(:link, "0").click
+    # TODO: make it unique find(:link, "0").click
     visit project_show_path 'My:Maintenance:0'
     find(:link, 'Request to release').click
 
     fill_in 'description', with: 'RELEASE!'
     click_button 'Ok'
 
+    # rubocop:disable Metrics/LineLength
     # we can't release without build results
     find(:css, 'span.ui-icon.ui-icon-alert').must_have_text "The repository 'My:Maintenance:0' / 'BaseDistro2.0_LinkedUpdateProject' / i586 did not finish the build yet"
+    # rubocop:enable Metrics/LineLength
   end
-
 end

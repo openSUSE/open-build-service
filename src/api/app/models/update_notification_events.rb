@@ -1,7 +1,6 @@
 require 'event'
 
 class UpdateNotificationEvents
-
   cattr_accessor :semaphore
 
   def initialize
@@ -9,15 +8,34 @@ class UpdateNotificationEvents
   end
 
   def create_events
-    @last.elements('notification') do |e|
-      type = e['type']
-      data = {}
-      e.elements('data') do |d|
-        data[d['key']] = d['_content']
+    retries=10
+    begin
+      Event::Base.transaction do
+        @last.elements('notification') do |e|
+          type = e['type']
+          data = {}
+          e.elements('data') do |d|
+            data[d['key']] = d['_content']
+          end
+          event = Event::Factory.new_from_type(type, data)
+          event.save!
+        end
       end
-      event = Event::Factory.new_from_type(type, data)
-      event.save!
+    rescue ActiveRecord::StatementInvalid => e
+      retries = retries - 1
+      retry if retries > 0
+      HoptoadNotifier.notify(e, {failed_job: "RETRYED 10 times: #{type.inspect}"})
+      return
+    rescue => e
+      if Rails.env.test?
+        # make debug output useful in test suite, not just showing backtrace to HoptoaddNotifier
+        Rails.logger.error "ERROR: #{e.inspect}: #{e.backtrace}"
+        puts e.inspect, e.backtrace
+      end
+      HoptoadNotifier.notify(e, {failed_job: type.inspect})
+      return
     end
+
     BackendInfo.lastnotification_nr = Integer(@last['next'])
   end
 
@@ -30,6 +48,8 @@ class UpdateNotificationEvents
     # pick first admin so we can see all projects - as this function is called from delayed job
     User.current ||= User.get_default_admin
 
+    limit_reached=false
+    begin
     semaphore.synchronize do
       nr = BackendInfo.lastnotification_nr
       # 0 is a bad start
@@ -46,11 +66,10 @@ class UpdateNotificationEvents
         BackendInfo.lastnotification_nr = Integer(@last['next'])
         return
       end
+      limit_reached=(not @last['limit_reached'].blank?)
 
-      Event::Base.transaction do
-        create_events
-      end
+      create_events
     end
-
+    end while limit_reached
   end
 end

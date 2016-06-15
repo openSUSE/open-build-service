@@ -1,7 +1,6 @@
 require_relative '../../test_helper'
 
 class Webui::ApplicationControllerTest < Webui::IntegrationTest
-
   include Webui::WebuiHelper
 
   def setup
@@ -34,17 +33,7 @@ class Webui::ApplicationControllerTest < Webui::IntegrationTest
     assert_equal([d, "Rocking the ...uild Service"], elide_two(d, t, 40))
   end
 
-  def test_valid_xml_id
-    assert_equal("_10_2", valid_xml_id("10.2"))
-    assert_equal("_b", valid_xml_id("_b"))
-    assert_equal("a_b", valid_xml_id("a+b"))
-    assert_equal("a_b", valid_xml_id("a&b"))
-    assert_equal("a_b", valid_xml_id("a:b"))
-    assert_equal("a_b", valid_xml_id("a b"))
-    assert_equal("a_b", valid_xml_id("a.b"))
-  end
-
-  test 'bento theme can be configured' do
+  def test_bento_theme_can_be_configured
     CONFIG['theme'] = 'bento'
     visit root_path
     # without javascript there is no menu but just links

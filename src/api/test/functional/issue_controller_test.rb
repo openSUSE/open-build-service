@@ -5,22 +5,10 @@ class IssueControllerTest < ActionDispatch::IntegrationTest
 
   def setup
     stub_request(:post, "http://bugzilla.novell.com/xmlrpc.cgi").to_timeout
-    super
-  end
-
-  def teardown
-    super
+    reset_auth
   end
 
   def test_get_issues
-    # bugs are public atm. Secret stuff should not get imported.
-    get '/issue_trackers'
-    assert_response :success
-    get '/issue_trackers/bnc'
-    assert_response :success
-    get '/issue_trackers/bnc/issues/123456'
-    assert_response :success
-
     # as user
     login_Iggy
     get '/issue_trackers'
@@ -119,6 +107,9 @@ class IssueControllerTest < ActionDispatch::IntegrationTest
     get "/search/package/id", :match => '[issue/[@name="123456" and @tracker="bnc"]]'
     assert_response :success
     assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'BaseDistro', :name => 'patchinfo' }
+    get "/search/package/id", :match => '[issue/[@tracker="bnc" and @name="123456"]]' # SQL keeps working
+    assert_response :success
+    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'BaseDistro', :name => 'patchinfo' }
   end
 
   def test_get_issue_for_linked_packages
@@ -135,7 +126,9 @@ Blubber bnc#15\n
     assert_response :success
     put "/source/home:Iggy:branches:BaseDistro/pack1/file.changes", changes
     assert_response :success
-    post "/source/home:Iggy:branches:BaseDistro/pack1", :cmd => "branch", :target_project => "home:Iggy:branches:BaseDistro", :target_package => "pack_new"
+    post "/source/home:Iggy:branches:BaseDistro/pack1",
+         :cmd => "branch", :target_project => "home:Iggy:branches:BaseDistro",
+         :target_package => "pack_new"
     assert_response :success
     changes += "-------------------------------------------------------------------\n
 Aha bnc#123456\n
@@ -147,8 +140,8 @@ Aha bnc#123456\n
 
     # add some more via attribute
     data = "<attributes><attribute namespace='OBS' name='Issues'>
-              <issue name='987' tracker='bnc'/> 
-              <issue name='654' tracker='bnc'/> 
+              <issue name='987' tracker='bnc'/>
+              <issue name='654' tracker='bnc'/>
             </attribute></attributes>"
     post "/source/home:Iggy:branches:BaseDistro/pack_new/_attribute", data
     assert_response :success
@@ -221,21 +214,26 @@ Aha bnc#123456\n
 
     get "/search/package/id", :match => '[issue/[@name="123456" and @tracker="bnc" and @change="added"]]'
     assert_response :success
-    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'home:Iggy:branches:BaseDistro', :name => 'pack_new' }
+    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package",
+                   :attributes => { :project => 'home:Iggy:branches:BaseDistro', :name => 'pack_new' }
 
     get "/search/package/id", :match => '[issue/[@name="123456" and @tracker="bnc" and (@change="added" or @change="changed")]]'
     assert_response :success
-    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'home:Iggy:branches:BaseDistro', :name => 'pack_new' }
+    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package",
+                   :attributes => { :project => 'home:Iggy:branches:BaseDistro', :name => 'pack_new' }
 
     get "/search/package/id", :match => '[issue/[@name="123456" and @tracker="bnc" and @change="kept"]]'
     assert_response :success
-    assert_no_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'home:Iggy:branches:BaseDistro', :name => 'pack_new' }
+    assert_no_xml_tag :parent => { :tag => "collection" }, :tag => "package",
+                      :attributes => { :project => 'home:Iggy:branches:BaseDistro', :name => 'pack_new' }
 
-    get "/search/package/id", :match => '[issue/[@name="987" and @tracker="bnc"]]'
+    # search for attribute issues
+    get "/search/package/id", :match => '[attribute_issue/[@name="987" and @tracker="bnc"]]'
     assert_response :success
-    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package", :attributes => { :project => 'home:Iggy:branches:BaseDistro', :name => 'pack_new' }
+    assert_xml_tag :parent => { :tag => "collection" }, :tag => "package",
+                   :attributes => { :project => 'home:Iggy:branches:BaseDistro', :name => 'pack_new' }
 
-    #cleanup
+    # cleanup
     delete "/source/home:Iggy:branches:BaseDistro"
     assert_response :success
   end
@@ -254,7 +252,8 @@ Blubber bnc#15\n
     assert_response :success
     put "/source/home:Iggy:branches:BaseDistro/pack1/file.changes", changes
     assert_response :success
-    post "/source/home:Iggy:branches:BaseDistro/pack1", :cmd => "branch", :target_project => "home:Iggy:branches:BaseDistro", :target_package => "pack_new"
+    post "/source/home:Iggy:branches:BaseDistro/pack1",
+         :cmd => "branch", :target_project => "home:Iggy:branches:BaseDistro", :target_package => "pack_new"
     assert_response :success
     changes += "-------------------------------------------------------------------\n
 Aha bnc#123456\n
@@ -263,7 +262,8 @@ Aha bnc#123456\n
     changes.gsub!(/bnc#14/, '') # leads to removed
     put "/source/home:Iggy:branches:BaseDistro/pack_new/file.changes?rev=repository", changes
     assert_response :success
-    raw_post "/source/home:Iggy:branches:BaseDistro/pack_new?cmd=commitfilelist&keeplink=1", ' <directory> <entry name="file.changes" md5="'+ Digest::MD5.hexdigest(changes) + '" /> </directory> '
+    raw_post "/source/home:Iggy:branches:BaseDistro/pack_new?cmd=commitfilelist&keeplink=1",
+             ' <directory> <entry name="file.changes" md5="'+ Digest::MD5.hexdigest(changes) + '" /> </directory> '
     assert_response :success
 
     get "/source/home:Iggy:branches:BaseDistro/pack1?view=issues"
@@ -275,7 +275,7 @@ Aha bnc#123456\n
     assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'changed'}}, :tag => 'name', :content => "15"
     assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "123456"
 
-    #cleanup
+    # cleanup
     delete "/source/home:Iggy:branches:BaseDistro"
     assert_response :success
   end
@@ -296,7 +296,8 @@ Blubber bnc#15\n
     assert_response :success
     put "/source/home:Iggy:branches:BaseDistro/new_package/file.changes?rev=repository", changes
     assert_response :success
-    raw_post "/source/home:Iggy:branches:BaseDistro/new_package?cmd=commitfilelist&keeplink=1", ' <directory> <entry name="file.changes" md5="'+ Digest::MD5.hexdigest(changes) + '" /> </directory> '
+    raw_post "/source/home:Iggy:branches:BaseDistro/new_package?cmd=commitfilelist&keeplink=1",
+             ' <directory> <entry name="file.changes" md5="'+ Digest::MD5.hexdigest(changes) + '" /> </directory> '
     assert_response :success
 
     get "/source/home:Iggy:branches:BaseDistro/new_package?view=issues"
@@ -305,12 +306,12 @@ Blubber bnc#15\n
     assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "14"
     assert_xml_tag :parent => { :tag => 'issue', :attributes => {:change => 'added'}}, :tag => 'name', :content => "15"
 
-    #cleanup
+    # cleanup
     delete "/source/home:Iggy:branches:BaseDistro"
     assert_response :success
   end
 
-  test "fate entries" do
+  def test_fate_entries
     changes = "-------------------------------------------------------------------\n
 Blah fate#13\n
 -------------------------------------------------------------------\n

@@ -30,11 +30,11 @@
                             <%= check_box_tag('user_' + role.title + '_' + user.login, '',
                                               @package.user_has_role?(user, role),
                                               disabled: !user_is_maintainer, class: 'trigger') %>
-                            <% if @project.api_obj.user_has_role?(user, role) %>
+                            <% if @project.user_has_role?(user, role) %>
                                 <%= link_to(sprite_tag('project', title: 'Inherited from project'), :controller => 'project', :action => 'users', :project => @project) %>
                             <% end %>
                         <% else %>
-                            <%= check_box_tag('user_' + role.title + '_' + user.login, '', @project.api_obj.user_has_role?(user, role), :disabled => !user_is_maintainer, :class => 'trigger') %>
+                            <%= check_box_tag('user_' + role.title + '_' + user.login, '', @project.user_has_role?(user, role), :disabled => !user_is_maintainer, :class => 'trigger') %>
                         <% end %>
                     <% end %>
                 <% end %>
@@ -76,17 +76,17 @@
           <tbody>
           <% @groups.each do |group| %>
               <tr>
-                <td><%= link_to(group.title, :controller => 'group', :action => 'show', id: group.title) %></td>
+                <td><%= link_to(group.title, :controller => 'groups', :action => 'show', title: group.title) %></td>
                 <% @roles.each do |role| %>
-                    <%= content_tag(:td, data: { group: group, role: role.title, type: 'group' }) do %>
+                    <%= content_tag(:td, data: { group: group.title, role: role.title, type: 'group' }) do %>
                         <% if @package %>
                             <%= check_box_tag('group_' + role.title + '_' + group.title, '', @package.group_has_role?(group, role), disabled: !user_is_maintainer, :class => :trigger) %>
-                            <% if @project.api_obj.group_has_role?(group, role) %>
+                            <% if @project.group_has_role?(group, role) %>
                                 <%= link_to(sprite_tag('project', title: 'Inherited from project'), :controller => 'project', :action => 'users', :project => @project) %>
                             <% end %>
                         <% else %>
                             <%= check_box_tag('group_' + role.title + '_' + group.title, '',
-                                              @project.api_obj.group_has_role?(group, role), disabled: !user_is_maintainer, :class => :trigger) %>
+                                              @project.group_has_role?(group, role), disabled: !user_is_maintainer, :class => :trigger) %>
                         <% end %>
                     <% end %>
                 <% end %>

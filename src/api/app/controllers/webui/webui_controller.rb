@@ -1,9 +1,9 @@
 # Filters added to this controller will be run for all controllers in the application.
 # Likewise, all the methods added will be available for all controllers.
 
-require 'frontend_compat'
-
 class Webui::WebuiController < ActionController::Base
+  helper_method :valid_xml_id
+
   Rails.cache.set_domain if Rails.cache.respond_to?('set_domain')
 
   include Pundit
@@ -11,7 +11,6 @@ class Webui::WebuiController < ActionController::Base
 
   before_filter :setup_view_path
   before_filter :instantiate_controller_and_action_names
-  before_filter :set_return_to, :reset_activexml, :authenticate
   before_filter :check_user
   before_filter :check_anonymous
   before_filter :require_configuration
@@ -36,14 +35,17 @@ class Webui::WebuiController < ActionController::Base
        when "update?" then "update"
        when "edit?" then "edit"
        when "destroy?" then "delete"
+       when "branch?" then "branch"
        else exception.query
     end
-    if exception.message
-      flash[:error] = "Sorry you're not allowed to #{pundit_action} this #{exception.record.class}"
+    message = "Sorry, you are not authorized to " +
+              (exception.message ? "#{pundit_action} this #{exception.record.class}." : "perform this action.")
+    if request.xhr?
+      render json: { error: message }, status: 400
     else
-      flash[:error] = "Sorry, you are not authorized to perform this action."
+      flash[:error] = message
+      redirect_back_or_to root_path
     end
-    redirect_back_or_to root_path
   end
 
   # FIXME: This belongs into the user controller my dear.
@@ -51,11 +53,12 @@ class Webui::WebuiController < ActionController::Base
   # HTTPPaymentRequired, UnauthorizedError or Forbidden
   # here so the exception handler catches it but what the heck...
   rescue_from ActiveXML::Transport::ForbiddenError do |exception|
-    if exception.code == 'unregistered_ichain_user'
-      render template: 'user/request_ichain' and return
-    elsif exception.code == 'unregistered_user'
-      render file: Rails.root.join('public/403'), formats: [:html], status: 402, layout: false and return
-    elsif exception.code == 'unconfirmed_user'
+    case exception.code
+    when "unregistered_ichain_user"
+      render template: "user/request_ichain"
+    when "unregistered_user"
+      render file: Rails.root.join('public/403'), formats: [:html], status: 402, layout: false
+    when "unconfirmed_user"
       render file: Rails.root.join('public/402'), formats: [:html], status: 402, layout: false
     else
       if User.current.is_nobody?
@@ -65,8 +68,8 @@ class Webui::WebuiController < ActionController::Base
       end
     end
   end
-  
-  rescue_from ActionController::RedirectBackError do |exception|
+
+  rescue_from ActionController::RedirectBackError do
     redirect_to root_path
   end
 
@@ -83,33 +86,30 @@ class Webui::WebuiController < ActionController::Base
     end
   end
 
+  # FIXME: This is more than stupid. Why do we tell the user that something isn't found
+  # just because there is some data missing to compute the request? Someone needs to read
+  # http://guides.rubyonrails.org/active_record_validations.html
   class MissingParameterError < Exception; end
   rescue_from MissingParameterError do |exception|
     logger.debug "#{exception.class.name} #{exception.message} #{exception.backtrace.join('\n')}"
     render file: Rails.root.join('public/404'), status: 404, layout: false, formats: [:html]
   end
 
-  protected
-
-  def set_return_to
-    if params['return_to_host']
-      @return_to_host = params['return_to_host']
-    else
-      # we have a proxy in front of us
-      @return_to_host = ::Configuration.first.obs_url
-      unless @return_to_host
-        # fetch old config value and store in db
-        @return_to_host = CONFIG['external_webui_protocol'] || 'http'
-        @return_to_host += '://'
-        @return_to_host += CONFIG['external_webui_host'] || request.host
-        f = ::Configuration.first
-        f.obs_url = @return_to_host
-        f.save
-      end
-    end
-    @return_to_path = params['return_to_path'] || request.env['ORIGINAL_FULLPATH']
-    logger.debug "Setting return_to: \"#{@return_to_path}\""
+  def set_project
+    @project = Project.find_by(name: params[:project])
+    raise ActiveRecord::RecordNotFound unless @project
   end
+
+  def set_project_by_id
+    @project = Project.find(params[:id])
+  end
+
+  def valid_xml_id(rawid)
+    rawid = "_#{rawid}" if rawid !~ /^[A-Za-z_]/ # xs:ID elements have to start with character or '_'
+    CGI.escapeHTML(rawid.gsub(/[+&: .\/\~\(\)@#]/, '_'))
+  end
+
+  protected
 
   # Same as redirect_to(:back) if there is a valid HTTP referer, otherwise redirect_to()
   def redirect_back_or_to(options = {}, response_status = {})
@@ -120,75 +120,40 @@ class Webui::WebuiController < ActionController::Base
     end
   end
 
+  # Renders a json response for jquery dataTables
+  def render_json_response_for_dataTable(options)
+    options[:echo_next_count] ||= 1
+    options[:total_records_count] ||= 0
+    options[:total_displayed_records] ||= 0
+    response = {
+      sEcho:                options[:echo_next_count].to_i + 1,
+      iTotalRecords:        options[:total_records_count].to_i,
+      iTotalDisplayRecords: options[:total_filtered_records_count].to_i,
+      aaData:               options[:records].map do |record|
+        if block_given?
+          yield record
+        else
+          record
+        end
+      end
+    }
+    render json: Yajl::Encoder.encode(response)
+  end
+
   def require_login
-    if User.current.is_nobody?
+    if User.current.nil? || User.current.is_nobody?
       render :text => 'Please login' and return false if request.xhr?
+
       flash[:error] = 'Please login to access the requested page.'
       mode = CONFIG['proxy_auth_mode'] || :off
       if mode == :off
-        redirect_to :controller => :user, :action => :login, :return_to_host => @return_to_host, :return_to_path => @return_to_path
+        redirect_to :controller => :user, :action => :login
       else
-        redirect_to :controller => :main, :return_to_host => @return_to_host, :return_to_path => @return_to_path
+        redirect_to :controller => :main
       end
       return false
     end
     return true
-  end
-
-  # sets session[:login] if the user is authenticated
-  def authenticate
-    mode = CONFIG['proxy_auth_mode'] || :off
-    logger.debug "Authenticating with iChain mode: #{mode}"
-    if mode == :on || mode == :simulate
-      authenticate_proxy
-    else
-      authenticate_form_auth
-    end
-    if session[:login]
-      logger.info "Authenticated request to \"#{@return_to_path}\" from #{session[:login]}"
-    else
-      logger.info "Anonymous request to #{@return_to_path}"
-    end
-  end
-
-  def authenticate_proxy
-    mode = CONFIG['proxy_auth_mode'] || :off
-    proxy_user = request.env['HTTP_X_USERNAME']
-    proxy_email = request.env['HTTP_X_EMAIL']
-    if mode == :simulate
-      proxy_user ||= CONFIG['proxy_auth_test_user'] || CONFIG['proxy_test_user']
-      proxy_email ||= CONFIG['proxy_auth_test_email']
-    end 
-    if proxy_user
-      session[:login] = proxy_user
-      session[:email] = proxy_email
-      # Set the headers for direct connection to the api, TODO: is this thread safe?
-      ActiveXML::api.set_additional_header( 'X-Username', proxy_user )
-      ActiveXML::api.set_additional_header( 'X-Email', proxy_email ) if proxy_email
-      # FIXME: hot fix to allow new users to login at all again
-      frontend.transport.direct_http(URI("/person/#{URI.escape(proxy_user)}"), :method => 'GET')
-    else
-      session[:login] = nil
-      session[:email] = nil
-    end
-  end
-
-  def authenticate_form_auth
-    if session[:login] and session[:password]
-      # pass credentials to transport plugin, TODO: is this thread safe?
-      ActiveXML::api.login session[:login], session[:password]
-    end
-  end
-
-  def frontend
-    FrontendCompat.new
-  end
-
-  def reset_activexml
-    transport = ActiveXML::api
-    transport.delete_additional_header 'X-Username'
-    transport.delete_additional_header 'X-Email'
-    transport.delete_additional_header 'Authorization'
   end
 
   def required_parameters(*parameters)
@@ -218,11 +183,10 @@ class Webui::WebuiController < ActionController::Base
     @current_controller = controller_name
   end
 
+  # Needed to hide/render some views to well known spider bots
+  # FIXME: We should get rid of it
   def check_spiders
-    @spider_bot = false
-    if defined? TREAT_USER_LIKE_BOT or request.env.has_key? 'HTTP_OBS_SPIDER'
-      @spider_bot = true
-    end
+    @spider_bot = request.env.has_key?('HTTP_OBS_SPIDER')
   end
   private :check_spiders
 
@@ -238,11 +202,50 @@ class Webui::WebuiController < ActionController::Base
   def check_user
     check_spiders
     User.current = nil # reset old users hanging around
-    if session[:login]
-      User.current = User.find_by_login(session[:login])
+
+    if CONFIG['proxy_auth_mode'] == :on
+      logger.debug "Authenticating with proxy auth mode"
+      user_login = request.env['HTTP_X_USERNAME']
+      if user_login.blank?
+        User.current = User.find_nobody!
+        return
+      end
+
+      # If the user logs in for the first time (before we have a User with that login)
+      unless User.where(login: user_login).exists?
+        logger.debug "Creating user #{user_login}"
+        chars = ["A".."Z", "a".."z", "0".."9"].collect { |r| r.to_a }.join
+        fakepw = (1..24).collect { chars[rand(chars.size)] }.pack("a"*24)
+        User.create!(login: user_login,
+                     email: request.env['HTTP_X_EMAIL'],
+                     state: User.default_user_state,
+                     realname: "#{request.env['HTTP_X_FIRSTNAME']} #{request.env['HTTP_X_LASTNAME']}".strip,
+                     password: fakepw,
+                     password_confirmation: fakepw)
+      end
+
+      User.current = User.find_by_login(user_login)
+      User.current.update_user_info_from_proxy_env(request.env)
+      return
     end
-    # TODO: rebase on application_controller and use load_nobdy
-    User.current ||= User.find_by_login('_nobody_')
+
+    User.current = User.find_by_login(session[:login]) if session[:login]
+    User.current ||= User.find_nobody!
+  end
+
+  def check_display_user
+    if params['user'].present?
+      begin
+        @displayed_user = User.find_by_login!(params['user'])
+      rescue NotFoundError
+        # admins can see deleted users
+        @displayed_user = User.find_by_login(params['user']) if User.current and User.current.is_admin?
+        redirect_to :back, error: "User not found #{params['user']}" unless @displayed_user
+      end
+    else
+        @displayed_user = User.current
+        @displayed_user ||= User.find_nobody!
+    end
   end
 
   def map_to_workers(arch)
@@ -253,7 +256,7 @@ class Webui::WebuiController < ActionController::Base
     else arch
     end
   end
- 
+
   private
 
   def put_body_to_tempfile(xmlbody)
@@ -271,16 +274,17 @@ class Webui::WebuiController < ActionController::Base
 
   # Before filter to check if current user is administrator
   def require_admin
-    unless User.current.is_admin?
+    if User.current.nil? || !User.current.is_admin?
       flash[:error] = 'Requires admin privileges'
-      redirect_back_or_to :controller => 'main', :action => 'index' and return
+      redirect_back_or_to :controller => 'main', :action => 'index'
+      return
     end
   end
 
   # before filter to only show the frontpage to anonymous users
   def check_anonymous
     if User.current and User.current.is_nobody?
-      unless ::Configuration.anonymous?
+      unless ::Configuration.anonymous
         flash[:error] = "No anonymous access. Please log in!"
         redirect_back_or_to root_path
       end
@@ -294,7 +298,7 @@ class Webui::WebuiController < ActionController::Base
   end
 
   def require_available_architectures
-    @available_architectures = Architecture.where(available: 1)
+    @available_architectures = Architecture.available
   end
 
   def setup_view_path
@@ -314,5 +318,13 @@ class Webui::WebuiController < ActionController::Base
     else
       return User.current
     end
+  end
+
+  # dialog_init is a function name called before dialog is shown
+  def render_dialog(dialog_init = nil)
+    check_ajax
+    @dialog_html = ActionController::Base.helpers.escape_javascript(render_to_string(partial: @current_action.to_s))
+    @dialog_init = dialog_init
+    render partial: 'dialog', content_type: 'application/javascript'
   end
 end

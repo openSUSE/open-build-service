@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<grammar
+    ns="http://buildservice.org/api"
+    xmlns="http://relaxng.org/ns/structure/1.0"
+    datatypeLibrary="http://www.w3.org/2001/XMLSchema-datatypes">
+
+  <include href="obs.rng" />
+
+  <start>
+    <ref name="attrib_type-element"/>
+  </start>
+
+
+  <define ns="" name="attrib_type_value-element">
+    <element name="value">
+      <text/>
+    </element>
+  </define>
+
+  <define ns="" name="attrib_type-element">
+    <element name="definition">
+       <attribute name="namespace">
+         <data type="string" />
+       </attribute>
+       <attribute name="name">
+         <data type="string" />
+       </attribute>
+
+      <interleave>
+        <optional>
+         <element name="count">
+            <data type="integer" />
+         </element>
+        </optional>
+
+        <optional>
+         <element name="description">
+           <text/>
+         </element>
+        </optional>
+
+        <optional>
+          <element name="default">
+            <zeroOrMore>
+              <ref name="attrib_type_value-element"/>
+            </zeroOrMore>
+          </element>
+        </optional>
+
+        <optional>
+          <element name="allowed">
+            <zeroOrMore>
+              <ref name="attrib_type_value-element"/>
+            </zeroOrMore>
+          </element>
+        </optional>
+
+        <optional>
+          <element name="issue_list">
+            <empty/>
+          </element>
+        </optional>
+
+        <zeroOrMore>
+          <element name="modifiable_by">
+            <optional>
+              <attribute name="user">
+                <data type="string" />
+              </attribute>
+            </optional>
+            <optional>
+              <attribute name="group">
+                <data type="string" />
+              </attribute>
+            </optional>
+            <optional>
+              <attribute name="role">
+                <ref name="local-role"/>
+              </attribute>
+            </optional>
+          </element>
+        </zeroOrMore>
+
+      </interleave>
+    </element>
+  </define>
+</grammar>

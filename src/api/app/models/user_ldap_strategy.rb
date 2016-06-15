@@ -1,6 +1,5 @@
 # the purpose of this mixin is to get the user functions having to do with ldap into one file
 class UserLdapStrategy
-
   @@ldap_search_con = nil
 
   def is_in_group?(user, group)
@@ -59,7 +58,7 @@ class UserLdapStrategy
 
     # Update mail/password info
     entry = [
-        LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_mail_attr'], [newemail]),
+        LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_mail_attr'], [newemail])
     ]
     if newpassword
       case CONFIG['ldap_auth_mech']
@@ -116,7 +115,7 @@ class UserLdapStrategy
         LDAP.mod(LDAP::LDAP_MOD_ADD, 'objectclass', CONFIG['ldap_object_class']),
         LDAP.mod(LDAP::LDAP_MOD_ADD, CONFIG['ldap_name_attr'], [login]),
         LDAP.mod(LDAP::LDAP_MOD_ADD, CONFIG['ldap_auth_attr'], [ldap_password]),
-        LDAP.mod(LDAP::LDAP_MOD_ADD, CONFIG['ldap_mail_attr'], [mail]),
+        LDAP.mod(LDAP::LDAP_MOD_ADD, CONFIG['ldap_mail_attr'], [mail])
     ]
     # Added required sn attr
     if CONFIG.has_key('ldap_sn_attr_required') && CONFIG['ldap_sn_attr_required'] == :on
@@ -328,7 +327,7 @@ class UserLdapStrategy
         ldap_password = "{MD5}"+Base64.b64encode(Digest::MD5.digest(password)).chomp
     end
     entry = [
-        LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_auth_attr'], [ldap_password]),
+        LDAP.mod(LDAP::LDAP_MOD_REPLACE, CONFIG['ldap_auth_attr'], [ldap_password])
     ]
     begin
       ldap_con.modify(dn, entry)
@@ -351,7 +350,7 @@ class UserLdapStrategy
 
     case CONFIG['ldap_auth_mech']
     when :cleartext then
-      if ldap_password == password then
+      if ldap_password == password
         authenticated = true
       end
     when :md5 then
@@ -375,8 +374,8 @@ class UserLdapStrategy
     dn = [ dn ].flatten.join(',')
     begin
       dn_components = dn.split(',').map{ |n| n.strip().split('=') }
-      dn_uid = dn_components.select{ |x,y| x == 'uid' }.map{ |x,y| y }
-      dn_path = dn_components.select{ |x,y| x == 'dc' }.map{ |x,y| y }
+      dn_uid = dn_components.select { |x, _| x == 'uid' }.map { |_, y| y }
+      dn_path = dn_components.select { |x, _| x == 'dc' }.map { |_, y| y }
       upn = "#{dn_uid.fetch(0)}@#{dn_path.join('.')}"
     rescue
       # if we run into unexpected input just return an empty string
@@ -425,7 +424,7 @@ class UserLdapStrategy
       else
         user_filter = "(#{CONFIG['ldap_search_attr']}=#{login})"
       end
-      Rails.logger.debug("Search for #{user_filter}")
+      Rails.logger.debug("Search for #{CONFIG['ldap_search_base']} #{user_filter}")
       begin
         ldap_con.search(CONFIG['ldap_search_base'], LDAP::LDAP_SCOPE_SUBTREE, user_filter) do |entry|
           user = entry.to_hash
@@ -466,24 +465,27 @@ class UserLdapStrategy
         user_con.unbind()
       end
     else # If no CONFIG['ldap_authenticate'] is given do not return the ldap_info !
-      Rails.logger.error("Unknown ldap_authenticate setting: '#{CONFIG['ldap_authenticate']}' so  #{user['dn']} not authenticated. Ensure ldap_authenticate uses a valid symbol")
+      Rails.logger.error("Unknown ldap_authenticate setting: '#{CONFIG['ldap_authenticate']}' " +
+                         "so #{user['dn']} not authenticated. Ensure ldap_authenticate uses a valid symbol")
       return nil
     end
 
     # Only collect the required user information *AFTER* we successfully
     # completed the authentication!
-    if user[CONFIG['ldap_mail_attr']] then
+    if user[CONFIG['ldap_mail_attr']]
       ldap_info[0] = String.new(user[CONFIG['ldap_mail_attr']][0])
     else
       ldap_info[0] = dn2user_principal_name(user['dn'])
     end
-    if user[CONFIG['ldap_name_attr']] then
+    if user[CONFIG['ldap_name_attr']]
       ldap_info[1] = String.new(user[CONFIG['ldap_name_attr']][0])
     else
       ldap_info[1] = login
     end
 
-    Rails.cache.write(key, [Digest::MD5.digest(password), ldap_info[0], ldap_info[1]], :expires_in => 2.minute)
+    Rails.cache.write(key,
+                      [Digest::MD5.digest(password), ldap_info[0], ldap_info[1]],
+                      :expires_in => 2.minutes)
     Rails.logger.debug("login success for checking with ldap server")
     ldap_info
   end
@@ -523,7 +525,7 @@ class UserLdapStrategy
   def local_permission_check_with_ldap (group_relationships)
     group_relationships.each do |r|
       return false if r.group.nil?
-      #check whether current user is in this group
+      # check whether current user is in this group
       return true if user_in_group_ldap?(self.login, r.group)
     end
     Rails.logger.debug "Failed with local_permission_check_with_ldap"
@@ -535,7 +537,7 @@ class UserLdapStrategy
     rels = object.relationships.groups.where(:role_id => role.id).includes(:group)
     for rel in rels
       return false if rel.group.nil?
-      #check whether current user is in this group
+      # check whether current user is in this group
       return true if user_in_group_ldap?(self.login, rel.group)
     end
     Rails.logger.debug "Failed with local_role_check_with_ldap"
@@ -598,5 +600,4 @@ class UserLdapStrategy
     Rails.logger.debug("Bound as #{user_name}")
     return conn
   end
-
 end

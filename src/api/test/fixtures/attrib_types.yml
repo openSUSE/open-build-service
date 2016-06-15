@@ -16,6 +16,9 @@ OBS_BranchRepositoriesFromProject:
   value_count: 1
   attrib_namespace_id: 9
   issue_list: 0
+OBS_BranchSkipRepositories:
+  name: BranchSkipRepositories
+  attrib_namespace_id: 9
 OBS_BranchTarget:
   id: 66
   name: BranchTarget
@@ -108,5 +111,17 @@ OBS_IncidentPriority:
   id: 79
   name: IncidentPriority
   value_count: 1
+  attrib_namespace_id: 9
+  issue_list: 0
+OBS_EmbargoDate:
+  id: 80
+  name: EmbargoDate
+  value_count: 1
+  attrib_namespace_id: 9
+  issue_list: 0
+OBS_MakeOriginOlder:
+  id: 81
+  name: MakeOriginOlder
+  value_count: 0
   attrib_namespace_id: 9
   issue_list: 0

@@ -1,4 +1,4 @@
-require 'test_helper'
+require_relative '../test_helper'
 
 class AttribPolicyTest < ActiveSupport::TestCase
   fixtures :all
@@ -59,5 +59,4 @@ class AttribPolicyTest < ActiveSupport::TestCase
     policy = AttribPolicy.new(users(:Iggy), attrib)
     assert_not policy.create?, "#{users(:Iggy)} shouldn't be able to CURD attrib_namespace"
   end
-
 end

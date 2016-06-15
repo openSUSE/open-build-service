@@ -12,15 +12,15 @@
       <%= tab 'incidents', 'Incidents', :controller => :project, :action => :maintenance_incidents %>
       <%= tab 'maintained', 'Maintained Projects', :controller => :project, :action => :maintained_projects %>
     <% else %> <!-- also for incident project -->
-      <%= tab 'repositories', "Repositories", :controller => :project, :action => :repositories unless @project.is_remote? or @spider_bot %>
+      <%= tab 'repositories', "Repositories", :controller => :project, :action => :repositories unless @project.defines_remote_instance? or @spider_bot %>
     <% end %>
-    <% if @project.api_obj.repositories && !@spider_bot -%>
+    <% if @project.repositories.any? && !@spider_bot -%>
       <%= tab 'monitor', "Monitor", :controller => :project, :action => :monitor %>
     <% end -%>
     <% unless @spider_bot -%>
       <%= tab 'requests', "Requests", :controller => :project, :action => 'requests' %>
-      <%= tab 'users', 'Users', :controller => :project, :action => :users unless @project.is_remote? %>
-      <%= tab 'subprojects', 'Subprojects', :controller => :project, :action => :subprojects unless @project.is_remote? or @is_maintenance_project %>
+      <%= tab 'users', 'Users', :controller => :project, :action => :users unless @project.defines_remote_instance? %>
+      <%= tab 'subprojects', 'Subprojects', :controller => :project, :action => :subprojects unless @project.defines_remote_instance? or @is_maintenance_project %>
     <% end -%>
   
     <% if is_advanced_tab? %>
@@ -33,11 +33,11 @@
   </ul>
   <div id="advanced_tabs" class="hidden">
     <ul>
-      <%= tab 'projectconfig', 'Project Config', :controller => :project, :action => :prjconf unless @project.is_remote? or @is_maintenance_project %>
+      <%= tab 'projectconfig', 'Project Config', :controller => :project, :action => :prjconf unless @project.defines_remote_instance? or @is_maintenance_project %>
       <% unless @spider_bot -%>
         <%= tab 'attribute', 'Attributes', :controller => :attribute, :project => @project, :action => 'index' %>
         <%= tab 'meta', "Meta", :controller => :project, :action => :meta %>
-        <%= tab 'status', 'Status', :controller => :project, :action => :status unless @project.is_remote? or @is_maintenance_project %>
+        <%= tab 'status', 'Status', :controller => :project, :action => :status unless @project.defines_remote_instance? or @is_maintenance_project %>
       <% end -%>
     </ul>
   </div>

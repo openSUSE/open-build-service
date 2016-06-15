@@ -5,6 +5,7 @@ class LinkedProject < ActiveRecord::Base
   validate :validate_duplicates
 
   protected
+
   def validate_duplicates
     if not self.project
       errors.add(:project, "Can not link project to not existing project")

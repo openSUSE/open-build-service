@@ -16,7 +16,7 @@
 
 <tr id="tr_request_<%= "#{req.id}" %>" class="request-<%= req.priority %>">
   <td class="nowrap">
-    <span class="hidden"><%= req.created_at.to_i %> - <%= req.id %></span>
+    <span class="hidden"><%= req.created_at.to_i %> - <%= req.number %></span>
     <span title="<%= req.created_at %>"><%= fuzzy_time(req.created_at) %></span>
   </td>
   <td class="request_source">
@@ -51,12 +51,12 @@
     <span title="<%= priority_description(req.priority) %>"><%= req.priority %></span>
   </td>
   <td>
-    <%= link_to(sprite_tag('req-showdiff', title: "Show request ##{req.id}"),
-                { :controller => :request, :action => :show, :id => req.id }, { :class => 'request_link' }) -%>
+    <%= link_to(sprite_tag('req-showdiff', title: "Show request ##{req.number}"),
+                { :controller => :request, :action => :show, :number => req.number }, { :class => 'request_link' }) -%>
     <% if source_package && source_package != :multiple && source_exists %>
-        <%= link_to(sprite_tag('information', title: 'Build results', id: "req_#{req.id}"), source_url) %>
+        <%= link_to(sprite_tag('information', title: 'Build results', number: "req_#{req.number}"), source_url) %>
         <%= javascript_tag do %>
-            setup_buildresult_tooltip('<%= "req_#{req.id}" %>', '<%= buildresult_url %>')
+            setup_buildresult_tooltip('<%= "req_#{req.number}" %>', '<%= buildresult_url %>')
         <% end %>
     <% end %>
   </td>

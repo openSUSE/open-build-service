@@ -2,7 +2,6 @@
 require_relative '../test_helper'
 
 class RequestEventsTest < ActionDispatch::IntegrationTest
-
   fixtures :all
 
   teardown do
@@ -11,6 +10,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
 
   setup do
     ActionMailer::Base.deliveries.clear
+    reset_auth
   end
 
   def verify_email(fixture_name, myid, email)
@@ -18,15 +18,18 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     assert_equal should, email.encoded.lines.map(&:chomp).select { |l| l !~ %r{^Date:} }.join("\n")
   end
 
-  test 'request event' do
+  def test_request_event
     login_Iggy
 
     Timecop.travel(2013, 8, 20, 12, 0, 0)
     myid = 0
+    SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      raw_post '/request?cmd=create', "<request><action type='add_role'><target project='home:tom'/><person name='Iggy' role='reviewer'/></action></request>"
+      raw_post '/request?cmd=create',
+               "<request><action type='add_role'><target project='home:tom'/><person name='Iggy' role='reviewer'/></action></request>"
       assert_response :success
       myid = Xmlhash.parse(@response.body)['id']
+      SendEventEmails.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
@@ -36,15 +39,44 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     verify_email('request_event', myid, email)
   end
 
-  test 'set_bugowner event' do
+  def test_very_large_request_event
     login_Iggy
 
     Timecop.travel(2013, 8, 20, 12, 0, 0)
     myid = 0
+    SendEventEmails.new.perform
+    assert_difference 'ActionMailer::Base.deliveries.size', +1 do
+      body = "<request>\n"
+      actions=1000
+      actions.times do
+        body += "<action type='add_role'><target project='home:tom'/><person name='Iggy' role='reviewer'/></action>\n"
+      end
+      body += "</request>"
+      raw_post '/request?cmd=create', body
+      assert_response :success
+      req = Xmlhash.parse(@response.body)
+      assert_equal actions, req['action'].count
+      myid = req['id']
+      SendEventEmails.new.perform
+    end
+
+    email = ActionMailer::Base.deliveries.last
+
+    assert_match(/^Request #{myid} created by Iggy \(add_role home:tom, /, email.subject)
+    assert_equal %w(tschmidt@example.com), email.to # tom is maintainer
+  end
+
+  def test_set_bugowner_event
+    login_Iggy
+
+    Timecop.travel(2013, 8, 20, 12, 0, 0)
+    myid = 0
+    SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       raw_post '/request?cmd=create', "<request><action type='set_bugowner'><target project='home:tom'/><person name='Iggy'/></action></request>"
       assert_response :success
       myid = Xmlhash.parse(@response.body)['id']
+      SendEventEmails.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
@@ -61,6 +93,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       raw_post "/request/#{myid}?cmd=changestate&newstate=declined", ''
       assert_response :success
+      SendEventEmails.new.perform
     end
     email = nil
     ActionMailer::Base.deliveries.each do |m|
@@ -71,7 +104,7 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     verify_email('tom_declined', myid, email)
   end
 
-  test 'devel package event' do
+  def test_devel_package_event
     login_Iggy
 
     # for this test, ignore reviewers
@@ -80,10 +113,13 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
 
     Timecop.travel(2013, 8, 20, 12, 0, 0)
     myid = ''
+    SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      raw_post '/request?cmd=create', "<request><action type='add_role'><target project='kde4' package='kdelibs'/><person name='Iggy' role='reviewer'/></action></request>"
+      raw_post '/request?cmd=create',
+               "<request><action type='add_role'><target project='kde4' package='kdelibs'/><person name='Iggy' role='reviewer'/></action></request>"
       assert_response :success
       myid = Xmlhash.parse(@response.body)['id']
+      SendEventEmails.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last
@@ -91,15 +127,17 @@ class RequestEventsTest < ActionDispatch::IntegrationTest
     verify_email('tom_gets_mail_too', myid, email)
   end
 
-  test 'repository delete request' do
+  def test_repository_delete_request
     login_Iggy
 
     Timecop.travel(2013, 8, 20, 12, 0, 0)
     myid = ''
+    SendEventEmails.new.perform
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
       raw_post '/request?cmd=create', "<request><action type='delete'><target project='home:coolo' repository='standard'/></action></request>"
       assert_response :success
       myid = Xmlhash.parse(@response.body)['id']
+      SendEventEmails.new.perform
     end
 
     email = ActionMailer::Base.deliveries.last

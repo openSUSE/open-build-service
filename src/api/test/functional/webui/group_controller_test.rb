@@ -1,29 +1,28 @@
 require_relative '../../test_helper'
 
 class Webui::GroupControllerTest < Webui::IntegrationTest
-
   uses_transaction :test_edit_group
 
-  test 'list all groups' do
+  def test_list_all_groups # spec/features/webui/groups_spec.rb
     use_js
 
-    login_king to: configuration_groups_path
+    login_king to: groups_path
 
     find(:id, 'group_table_wrapper').must_have_text 'Showing 1 to 5 of 5 entries'
     find(:id, 'test_group_empty').click
     find(:id, 'content').must_have_text 'This group does not contain users'
 
-    visit configuration_groups_path
+    visit groups_path
     find(:id, 'test_group').click
     find(:id, 'group_members_table_wrapper').must_have_text 'Showing 1 to 2 of 2 entries'
     find(:link, 'adrian').click
     assert page.current_url.end_with? user_show_path(user: 'adrian')
   end
 
-  test 'edit group' do
+  def test_edit_group # spec/features/webui/groups_spec.rb
     use_js
 
-    login_king to: configuration_groups_path
+    login_king to: groups_path
     within '#group-test_group' do
       find('td.users').text.must_equal 'adrian_downloader, adrian'
       click_link 'Edit Group'
@@ -38,13 +37,13 @@ class Webui::GroupControllerTest < Webui::IntegrationTest
     end
   end
 
-  test 'invalid group' do
+  def test_invalid_group # spec/controllers/webui/groups_controller_spec.rb
     visit group_show_path('nogroup')
     flash_message.must_equal "Group 'nogroup' does not exist"
     flash_message_type.must_equal :alert
   end
 
-  test 'input tokens group' do
+  def test_input_tokens_group # spec/controllers/webui/groups_controller_spec.rb
     visit group_tokens_path(term: 'nosuch')
     page.status_code.must_equal 404
 
@@ -56,10 +55,12 @@ class Webui::GroupControllerTest < Webui::IntegrationTest
     visit group_tokens_path(q: 'test')
     page.status_code.must_equal 200
 
-    JSON.parse(page.source).must_equal [{'name' => 'test_group'}, {'name' => 'test_group_b'}, {'name' => 'test_group_empty'}]
+    JSON.parse(page.source).must_equal [{ 'name' => 'test_group' },
+                                        { 'name' => 'test_group_b' },
+                                        { 'name' => 'test_group_empty' }]
   end
 
-  test 'autocomplete group' do
+  def test_autocomplete_group # spec/controllers/webui/groups_controller_spec.rb
     visit group_autocomplete_path(q: 'nosuch')
     page.status_code.must_equal 404
 
@@ -73,5 +74,4 @@ class Webui::GroupControllerTest < Webui::IntegrationTest
 
     JSON.parse(page.source).must_equal %w(test_group test_group_b test_group_empty)
   end
-
 end

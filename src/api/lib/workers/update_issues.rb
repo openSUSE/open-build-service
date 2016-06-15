@@ -1,5 +1,4 @@
 class UpdateIssuesJob
-
   def self.job_queue
     'issuetracker'
   end
@@ -13,7 +12,4 @@ class UpdateIssuesJob
       t.update_issues()
     end
   end
-
 end
-
-

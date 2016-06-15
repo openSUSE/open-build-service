@@ -1,7 +1,7 @@
 require 'event'
+require 'set'
 
 class Comment < ActiveRecord::Base
-
   belongs_to :bs_request, inverse_of: :comments
   belongs_to :project, inverse_of: :comments
   belongs_to :package, inverse_of: :comments
@@ -13,6 +13,12 @@ class Comment < ActiveRecord::Base
 
   has_many :children, dependent: :destroy, :class_name => 'Comment', :foreign_key => 'parent_id'
 
+  extend ActsAsTree::TreeWalker
+  acts_as_tree order: "created_at"
+
+  def to_s
+    body
+  end
 
   def create_notification(params = {})
     params[:commenter] = self.user.id
@@ -22,8 +28,8 @@ class Comment < ActiveRecord::Base
   # build an array of users, commenting on a specific object type
   def involved_users(object_field, object_value)
     record = Comment.where(object_field => object_value)
-    users = []
-    users_mentioned = []
+    users = Set.new
+    users_mentioned = Set.new
     record.each do |comment|
       # take the one making the comment
       users << comment.user_id
@@ -34,16 +40,13 @@ class Comment < ActiveRecord::Base
         end
       end
     end
-    users += User.where(login: users_mentioned).pluck(:id)
-    users.uniq
+    users += User.where(login: users_mentioned.to_a).pluck(:id)
+    users.to_a
   end
 
   def check_delete_permissions
-
     # Admins can always delete all comments
-    if User.current.is_admin?
-      return true
-    end
+    return true if User.current.is_admin?
 
     # Users can always delete their own comments - or if the comments are deleted
     User.current == self.user || self.user.is_nobody?
@@ -61,7 +64,7 @@ class Comment < ActiveRecord::Base
   def blank_or_destroy
     if self.children.exists?
       self.body = 'This comment has been deleted'
-      self.user = User.find_by_login '_nobody_'
+      self.user = User.find_nobody!
       self.save!
     else
       self.destroy

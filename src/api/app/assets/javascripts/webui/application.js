@@ -16,13 +16,15 @@
 //= require jquery.ui.tabs
 //= require jquery.ui.tooltip
 //= require jquery.tokeninput
+//= require jquery.flot
+//= require jquery.flot.resize
+//= require jquery.flot.time
+//= require jquery.flot.stack.js
+//= require jquery.expander.min.js
 //= require jquery_ujs
 //= require dataTables/jquery.dataTables
 //= require cocoon
 //
-//= require webui/application/jquery.expander.js
-//= require webui/application/jquery.flot.js
-//= require webui/application/jquery.flot.stack.js
 //= require webui/application/bento/script.js
 //= require webui/application/bento/global-navigation.js
 //= require webui/application/bento/l10n/global-navigation-data-en_US.js
@@ -33,6 +35,7 @@
 //= require webui/application/comment
 //= require webui/application/attribute
 //= require webui/application/main
+//= require webui/application/repository_tab
 
 // toggle visibility of an element via the CSS "display" property
 // -> does NOT reserve the needed space for the element when not displayed
@@ -64,12 +67,12 @@ function toggle_display_by_name(element_name) {
 
 // open url in a new browser instance
 function goto_url(url) {
-    if (url == '') {
+    if (url === '') {
         document.forms[0].reset();
         document.forms[0].elements[0].blur();
         return;
     }
-    window.open(url, 'helpwindow', 'toolbar=yes,location=yes,scrollbars=yes')
+    window.open(url, 'helpwindow', 'toolbar=yes,location=yes,scrollbars=yes');
     document.forms[0].reset();
     document.forms[0].elements[0].blur();
 }
@@ -97,10 +100,10 @@ function setup_buildresult_tooltip(element_id, url) {
 }
 
 function fillEmptyFields() {
-    if (document.getElementById('username').value == '') {
+    if (document.getElementById('username').value === '') {
         document.getElementById('username').value = "_";
     }
-    if (document.getElementById('password').value == '') {
+    if (document.getElementById('password').value === '') {
         document.getElementById('password').value = "_";
     }
 }
@@ -132,19 +135,19 @@ function project_monitor_ready() {
         $("#archbox").hide();
         $("#repobox").hide();
         return false;
-    })
+    });
     $("#archlink").click(function () {
         toggleBox($(this), "#archbox");
         $("#statusbox").hide();
         $("#repobox").hide();
         return false;
-    })
+    });
     $("#repolink").click(function () {
         toggleBox($(this), "#repobox");
         $("#archbox").hide();
         $("#statusbox").hide();
         return false;
-    })
+    });
 
     $("#statusbox_close").click(function () {
         $("#statusbox").hide();
@@ -195,29 +198,7 @@ function monitor_ready() {
 }
 
 function resizeMonitorBoxes() {
-    return;
     /* needs work */
-    var largestbox = new Object();
-    $(".builderbox").each(function () {
-        var h = $(this).height();
-        var t = $(this).position().top;
-        if (!largestbox[t] || (h > largestbox[t])) {
-            largestbox[t] = h;
-        }
-    });
-    $(".builderbox").each(function () {
-        var h = $(this).height();
-        var nh = largestbox[$(this).position().top];
-        if (h != nh) {
-            console.log("set %d", nh);
-            if (nh) {
-                $(this).height(largestbox[$(this).position().top]);
-            }
-            resizeMonitorBoxes();
-            return;
-        }
-    });
-
 }
 
 function insertServiceRow() {
@@ -282,7 +263,7 @@ function change_role(obj) {
     if (obj.is(':checked')) {
         url = $('#involved_users').data("save-" + type);
     } else {
-        url = $('#involved_users').data("remove")
+        url = $('#involved_users').data("remove");
     }
 
     $('#' + type + '_spinner').show();
@@ -300,37 +281,6 @@ function change_role(obj) {
         }
     });
 }
-
-function flag_trigger() {
-    if (last_triggered_flag)
-        return false;
-    last_triggered_flag = $(this).parents('.flag_table').attr('id');
-
-    $(this).parents('.flag_toggle').hide();
-    $('.flagimage').animate({opacity: 0.2}, 500);
-    $('#spinner_' + last_triggered_flag).show();
-
-    $.ajax({
-        url: change_flag_url,
-        type: 'POST',
-        data: $.extend({}, $(this).data(), $(this).parents(".flagimage").data()),
-        success: function (data) {
-            $('.flag_trigger').click(flag_trigger);
-            /* Re-bind event handler to new '.flag_trigger' elements */
-            $('#error_' + last_triggered_flag).text('');
-        },
-        error: function (data) {
-            $('#error_' + last_triggered_flag).text(data);
-        },
-        complete: function (data) {
-            $('.flagimage').animate({opacity: 1}, 200);
-            $('.spinner').hide();
-            last_triggered_flag = null;
-        }
-    });
-    return false;
-}
-
 
 function collapse_expand(file_id) {
     placeholder = $('#diff_view_' + file_id + '_placeholder');

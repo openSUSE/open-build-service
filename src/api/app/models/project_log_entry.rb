@@ -13,9 +13,11 @@ class ProjectLogEntry < ActiveRecord::Base
   # Creates a new LogEntry record from the information contained in an Event
   def self.create_from(event)
     project_id = Project.unscoped.where(name: event.payload["project"]).pluck(:id).first
+    # Map request number to internal id
+    bs_request_id = BsRequest.find_by_number(event.payload["requestid"]).try(:id)
     entry = new(project_id: project_id,
                 package_name: event.payload["package"],
-                bs_request_id: event.payload["requestid"],
+                bs_request_id: bs_request_id,
                 datetime: event.created_at,
                 event_type: event.class.model_name.to_s.split("::").last.underscore)
     entry.user_name = username_from(event.payload)
@@ -53,14 +55,9 @@ class ProjectLogEntry < ActiveRecord::Base
 
   # Almost equivalent to the ActiveRecord::Base.serialize mechanism
   def additional_info
-    if a = read_attribute(:additional_info)
-      YAML.load(a)
-    else
-      {}
-    end
+    a = read_attribute(:additional_info)
+    (a) ? YAML.load(a) : {}
   end
-
-  private
 
   # Extract the username from the payload of an event, since different names are
   # used for storing it in different situations
