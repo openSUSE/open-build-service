@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<request id="12">
+<request id="12" creator="Iggy">
  <priority>moderate</priority>
  <action type="submit">
    <source project="home:kfreitag" package="kraft" rev="23" />

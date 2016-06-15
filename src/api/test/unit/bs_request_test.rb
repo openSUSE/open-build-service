@@ -95,7 +95,7 @@ class BsRequestTest < ActiveSupport::TestCase
 
   def test_parse_bigger
     xml = <<eos
-<request id="1027">
+<request id="1027" creator="Iggy">
   <action type="submit">
     <source project="home:Iggy" package="TestPack" rev="1"/>
     <target project="kde4" package="mypackage"/>

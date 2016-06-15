@@ -1141,6 +1141,7 @@ our $pattern_id = [
 our $request = [
     'request' =>
 	'id',
+	'creator',
 	'type',		# obsolete, still here to handle OBS pre-1.5 requests
 	'key',		# cache key, not really in request
 	'retryafter',	# timed out waiting for a key change

@@ -38,6 +38,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
 
     # 2 is new, so the group is new too
     assert_equal({"id"          => id,
+                  "creator"     => "king",
                   "action"      => {"type" => "group", "grouped" => {"id" => "2"}},
                   "state"       =>
                                    {"name" => "new", "who" => "king", "when" => "2010-07-12T00:00:00", "comment" => {}},
@@ -64,6 +65,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
 
     # state didn't change, only history
     assert_equal({"id"          => id,
+                  "creator"     => "king",
                   "action"      => {"type" => "group", "grouped" => [{"id" => "2"}, {"id" => adi}]},
                   "state"       =>
                                    {"name" => "new", "who" => "king", "when" => "2010-07-12T00:00:00", "comment" => {}},
@@ -80,6 +82,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
 
     # state changed to review
     assert_equal({"id"          => id,
+                  "creator"     => "king",
                   "action"      => {"type" => "group", "grouped" => [{"id" => "2"}, {"id" => adi}, {"id" => withr}]},
                   "state"       =>
                                    {"name" => "review", "who" => "king", "when" => "2010-07-12T00:00:02", "comment" => {}},
@@ -90,6 +93,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     get "/request/#{adi}"
     assert_response :success
     assert_equal({"id"          => adi,
+                  "creator"     => "king",
                   "action"      => {
                     "type"   => "add_role",
                     "target" => {"project" => "Apache", "package" => "apache2"},
@@ -112,6 +116,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     get "/request/#{adi}?withhistory=1"
     assert_response :success
     assert_equal({"id"          => adi,
+                  "creator"     => "king",
                   "action"      => {
                     "type"   => "add_role",
                     "target" => {"project" => "Apache", "package" => "apache2"},
@@ -218,6 +223,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     get "/request/#{id}"
     assert_response :success
     assert_equal({"id"          => id,
+                  "creator"     => "king",
                   "action"      => {"type"=>"group", "grouped"=>[{"id"=>"2"}, {"id"=>withr}]},
                   "state"       => {
                     "name"    => "review",
@@ -237,6 +243,7 @@ class GroupRequestTest < ActionDispatch::IntegrationTest
     get "/request/#{id}"
     assert_response :success
     assert_equal({"id"          => id,
+                  "creator"     => "king",
                   "action"      => {"type"=>"group", "grouped"=>[{"id"=>"2"}, {"id"=>withr2}]},
                   "state"       => {
                     "name"    => "review",
