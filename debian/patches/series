@@ -1,5 +1,4 @@
 database.yml-settings.patch
-gemfile.lock-version.patch
 gemfile-tweaks.patch
 drop-test-and-development-depends.patch
 drop-ruby-hoptoad-notifier.patch
