@@ -69,7 +69,7 @@ class Webui::HasFlagsTest < Webui::IntegrationTest
     end
   end
 
-  def test_create_project_publish_disabled
+  def test_create_project_publish_disabled # spec/features/webui/projects_spec.rb
     login_tom to: project_subprojects_path(project: 'home:tom')
     find(:id, 'create_subproject_link').click
     fill_in 'project_name', with: 'coolstuff'

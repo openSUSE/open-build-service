@@ -106,19 +106,36 @@ RSpec.feature "Projects", :type => :feature, :js => true do
     end
   end
 
-  scenario "create subproject" do
-    login user
-    visit project_show_path(user.home_project)
-    click_link("Subprojects")
+  describe "subprojects" do
+    scenario "create a subproject" do
+      login user
+      visit project_show_path(user.home_project)
+      click_link("Subprojects")
 
-    expect(page).to have_text("This project has no subprojects")
-    click_link("create_subproject_link")
-    fill_in "project_name", :with => "coolstuff"
-    click_button "Create Project"
-    expect(page).to have_content("Project '#{user.home_project_name}:coolstuff' was created successfully")
+      expect(page).to have_text("This project has no subprojects")
+      click_link("create_subproject_link")
+      fill_in "project_name", :with => "coolstuff"
+      click_button "Create Project"
+      expect(page).to have_content("Project '#{user.home_project_name}:coolstuff' was created successfully")
 
-    expect(page.current_path).to match(project_show_path(project: "#{user.home_project_name}:coolstuff"))
-    expect(find('#project_title').text).to eq("#{user.home_project_name}:coolstuff")
+      expect(page.current_path).to match(project_show_path(project: "#{user.home_project_name}:coolstuff"))
+      expect(find('#project_title').text).to eq("#{user.home_project_name}:coolstuff")
+    end
+
+    scenario "create subproject with checked 'disable publishing' checkbox" do
+      login user
+      visit project_subprojects_path(project: user.home_project)
+
+      click_link("create_subproject_link")
+      fill_in "project_name", with: "coolstuff"
+      check("disable_publishing")
+      click_button("Create Project")
+      click_link("Repositories")
+
+      expect(page).to have_selector(".current_flag_state.icons-publish_disable_blue")
+      subproject = Project.find_by(name: "#{user.home_project_name}:coolstuff")
+      expect(subproject.flags.where(flag: "publish", status: "disable")).to exist
+    end
   end
 
   describe "locked projects" do
