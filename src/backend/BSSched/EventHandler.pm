@@ -21,6 +21,7 @@ use strict;
 use warnings;
 
 use Data::Dumper;
+use Storable;
 
 use BSUtil;
 use BSXML;
@@ -64,6 +65,7 @@ our %event_handlers = (
   'useforbuild'     => \&BSSched::EventHandler::event_useforbuild,
   'configuration'   => \&BSSched::EventHandler::event_configuration,
   'suspendproject'  => \&BSSched::EventHandler::event_suspendproject,
+  'memstats'        => \&BSSched::EventHandler::event_memstats,
 );
 
 =head1 NAME
@@ -568,6 +570,39 @@ sub event_uploadbuildimport_delay {
     return 1;
   }
   return 0;
+}
+
+sub event_memstats {
+  my ($ectx, $ev) = @_;
+  my $gctx = $ectx->{'gctx'};
+  my %gctx = %$gctx;
+  %$gctx = ();
+  eval{
+    my %m = %gctx;
+    for my $q ('rctx') {
+      my $qq = delete $m{$q};
+      $m{"${q}_$_"} = $qq->{$_} for keys %$qq;
+    }
+
+    %m = %{$m{$ev->{'job'}} || {}} if $ev->{'job'};
+
+    my %mm;
+    local $Storable::forgive_me = 1;
+    local $SIG{__WARN__} = sub {};
+    for my $k (sort keys %m) {
+      next unless ref $m{$k};
+      my $l = length(Storable::nfreeze($m{$k}));
+      $mm{$k} = $l;
+    }
+    my @k = sort {$mm{$b} <=> $mm{$a}} keys %mm;
+    @k = splice(@k, 0, 10) if $ev->{'job'};	# top 10 only
+    for my $k (@k) {
+      my $l = int($mm{$k} / 1024);
+      print "$k: $l KB\n" if $l || $ev->{'job'};
+    }
+  };
+  warn($@) if $@;
+  %$gctx = %gctx;
 }
 
 1;

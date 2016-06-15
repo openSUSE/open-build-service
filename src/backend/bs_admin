@@ -208,6 +208,8 @@ Debug Options
 
  --show-delta-store <file>
    Show delta store statistics
+
+ --dump-memstats <architecture> [what]
 ";
 }
 my $emptymd5 = 'd41d8cd98f00b204e9800998ecf8427e';
@@ -440,7 +442,7 @@ sub check_meta_xml {
 }
 
 sub write_event {
-  my ($project, $repo, $arch, $event, $package) = @_;
+  my ($project, $repo, $arch, $event, $package, $job) = @_;
   my $evname = "${event}";
   $evname .= "::$project" if defined $project;
   $evname .= "::$package" if defined $package;
@@ -450,6 +452,7 @@ sub write_event {
   $ev->{'project'} = $project if defined $project;
   $ev->{'package'} = $package if defined $package;
   $ev->{'repository'} = $repo if defined $repo;
+  $ev->{'job'} = $job if defined $job;
   writexml("$eventroot/$arch/.$evname$$", "$eventroot/$arch/$evname", $ev, $BSXML::event);
   local *F;
   if (sysopen(F, "$eventroot/$arch/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
@@ -493,6 +496,11 @@ sub wipe_notyet {
 sub dump_state {
   my ($arch) = @_;
   write_event( undef, undef, $arch, 'dumpstate' );
+}
+
+sub dump_memstats {
+  my ($arch, $job) = @_;
+  write_event( undef, undef, $arch, 'memstats', undef, $job );
 }
 
 sub shutdown_scheduler {
@@ -665,6 +673,11 @@ while (@ARGV) {
     die("ERROR: need architecture as argument!\n") if @ARGV < 1;
     my $arch = shift @ARGV;
     dump_state($arch);
+  } elsif ($arg eq "--dump-memstats") {
+    die("ERROR: need architecture as argument!\n") if @ARGV < 1;
+    my $arch = shift @ARGV;
+    my $job = shift @ARGV if @ARGV;
+    dump_memstats($arch, $job);
   } elsif ($arg eq "--dump-project-from-state") {
     die("ERROR: need project as argument!\n") if @ARGV < 1;
     my $project = shift @ARGV;
