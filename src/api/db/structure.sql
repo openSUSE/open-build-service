@@ -1090,8 +1090,8 @@ CREATE TABLE `users` (
   `password_hash_type` varchar(20) CHARACTER SET utf8 NOT NULL DEFAULT '',
   `password_salt` varchar(10) CHARACTER SET utf8 NOT NULL DEFAULT '1234512345',
   `password_crypted` varchar(64) CHARACTER SET utf8 DEFAULT NULL,
-  `state` int(11) NOT NULL DEFAULT '1',
   `adminnote` text CHARACTER SET utf8,
+  `state` enum('unconfirmed','confirmed','locked','deleted') COLLATE utf8_bin DEFAULT 'unconfirmed',
   PRIMARY KEY (`id`),
   UNIQUE KEY `users_login_index` (`login`(255)),
   KEY `users_password_index` (`password`)
@@ -1679,6 +1679,8 @@ INSERT INTO schema_migrations (version) VALUES ('20160321104000');
 INSERT INTO schema_migrations (version) VALUES ('20160321105300');
 
 INSERT INTO schema_migrations (version) VALUES ('20160518105300');
+
+INSERT INTO schema_migrations (version) VALUES ('20160610105300');
 
 INSERT INTO schema_migrations (version) VALUES ('21');
 

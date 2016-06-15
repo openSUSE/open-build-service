@@ -41,7 +41,7 @@ class PersonControllerTest < ActionDispatch::IntegrationTest
     # it exists
     user = User.find_by_login "deleted"
     assert_not_nil user
-    assert_equal user.state, User::STATES["deleted"]
+    assert_equal user.state, "deleted"
     # but is not visible since it is tagged as deleted
     get "/person/deleted"
     assert_response 404

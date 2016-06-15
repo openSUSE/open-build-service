@@ -80,8 +80,8 @@ class PersonController < ApplicationController
       end
     else
       if User.current.is_admin?
-        user = User.create(:login => login, :password => "notset", :password_confirmation => "notset", :email => "TEMP")
-        user.state = User::STATES["locked"]
+        user = User.create(:login => login, :password => "notset", :email => "TEMP")
+        user.state = "locked"
       else
         logger.debug "Tried to create non-existing user without admin rights"
         @errorcode = 404
@@ -96,7 +96,7 @@ class PersonController < ApplicationController
     user.realname = xml.value('realname') || ''
     if User.current.is_admin?
       # only admin is allowed to change these, ignore for others
-      user.state = User::STATES[xml.value('state')]
+      user.state = xml.value('state')
       update_globalroles(user, xml)
     end
     update_watchlist(user, xml)

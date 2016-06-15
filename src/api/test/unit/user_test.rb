@@ -102,10 +102,6 @@ class UserTest < ActiveSupport::TestCase
     assert_no_xml_tag axml, :tag => :globalrole, :content => 'Admin'
   end
 
-  def test_states
-    assert_not_nil User::STATES
-  end
-
   def test_deleted_user
     assert_not_nil User.find_by_login 'deleted'
     assert_raise NotFoundError do

@@ -649,12 +649,12 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     assert_no_xml_tag tag: 'group', :attributes => { :name => "test_group", :role => "bugowner" }
     # disable a user and check that he disappears
     u=User.find_by_login "Iggy"
-    u.state = User::STATES['unconfirmed']
+    u.state = 'unconfirmed'
     u.save!
     get "/search/owner?project=TEMPORARY&binary=package&filter=bugowner"
     assert_response :success
     assert_no_xml_tag tag: 'person', :attributes => { :name => "Iggy", :role => "bugowner" }
-    u.state = User::STATES['confirmed']
+    u.state = 'confirmed'
     u.save
 
     # group in project meta

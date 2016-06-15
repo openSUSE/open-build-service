@@ -103,7 +103,7 @@ class Webui::UserController < Webui::WebuiController
     @displayed_user.realname = params[:realname]
     @displayed_user.email = params[:email]
     if User.current.is_admin?
-      @displayed_user.state = User::STATES[params[:state]] if params[:state]
+      @displayed_user.state = params[:state] if params[:state]
       @displayed_user.update_globalroles([params[:globalrole]]) if params[:globalrole]
     end
 
@@ -123,19 +123,19 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def delete
-    @displayed_user.state = User::STATES['deleted']
+    @displayed_user.state = 'deleted'
     @displayed_user.save
     redirect_back_or_to :action => 'show', user: @displayed_user
   end
 
   def confirm
-    @displayed_user.state = User::STATES['confirmed']
+    @displayed_user.state = 'confirmed'
     @displayed_user.save
     redirect_back_or_to :action => 'show', user: @displayed_user
   end
 
   def lock
-    @displayed_user.state = User::STATES['locked']
+    @displayed_user.state = 'locked'
     @displayed_user.save
     redirect_back_or_to :action => 'show', user: @displayed_user
   end

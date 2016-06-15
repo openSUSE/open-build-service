@@ -6,8 +6,7 @@ xml.person do
     realname.toutf8
     xml.realname(realname)
   end
-  # FIXME 2.5: turn the state into an enum
-  xml.state(User::STATES.keys[my_model.state-1])
+  xml.state(my_model.state)
 
   my_model.roles.global.each do |role|
     xml.globalrole(role.title)
