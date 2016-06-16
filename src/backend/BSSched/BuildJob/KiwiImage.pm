@@ -233,7 +233,8 @@ sub build {
     no warnings 'redefine';
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
-    return BSSched::BuildJob::create({ %$ctx, 'conf' => $bconf, 'prpsearchpath' => [], 'pool' => $pool }, $packid, $pdata, $info, [], $edeps, $reason, 0);
+    my $nctx = bless { %$ctx, 'conf' => $bconf, 'prpsearchpath' => [], 'pool' => $pool }, ref($ctx);
+    return BSSched::BuildJob::create($nctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
   } else {
     # repo has a configured path, expand kiwi system with it
     my $prp = "$projid/$repoid";
