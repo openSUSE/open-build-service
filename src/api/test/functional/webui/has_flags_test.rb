@@ -1,7 +1,7 @@
 require_relative '../../test_helper'
 
 class Webui::HasFlagsTest < Webui::IntegrationTest
-  def test_project_flag_create
+  def test_project_flag_create # spec/features/webui/projects_spec.rb
     # FIXME: All of this is highly dependent on javascript execution.
     # Unhiding the flagtoggles, posting the link (unobstrusive javascript)
     # and replacing the buttons (unobstrusive javascript). Hence whenever
@@ -23,9 +23,10 @@ class Webui::HasFlagsTest < Webui::IntegrationTest
     end
   end
 
-  def test_project_flag_toggle
+  def test_project_flag_toggle # spec/features/webui/projects_spec.rb
     # FIXME: See above
     skip('The interface in its current form is untestable...')
+    # @henne: No it isn't! ;-)
 
     use_js
     login_tom
@@ -46,7 +47,7 @@ class Webui::HasFlagsTest < Webui::IntegrationTest
     end
   end
 
-  def test_project_flag_remove
+  def test_project_flag_remove # spec/features/webui/projects_spec.rb
     # FIXME: See above
     skip('The interface in its current form is untestable...')
 
