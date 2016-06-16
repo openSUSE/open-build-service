@@ -23,29 +23,28 @@ my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
 my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 
 sub new {
-
   my $class = shift;
   my $self  = {@_};
 
   my $gctx = {
-	arch        => $self->{arch},
-	reporoot    => "$BSConfig::bsdir/build",
-	#extrepodir  => "$BSConfig::bsdir/repos",
-	#extrepodb   => "$BSConfig::bsdir/db/published",
-	remoteproxy => $BSConfig::proxy,
+    arch        => $self->{arch},
+    reporoot    => "$BSConfig::bsdir/build",
+    #extrepodir  => "$BSConfig::bsdir/repos",
+    #extrepodb   => "$BSConfig::bsdir/db/published",
+    remoteproxy => $BSConfig::proxy,
   };
 
   my $ctx = BSRepServer::Checker->new($gctx);
 
   $self->{gctx} = $gctx;
-  $self->{ctx}  = $ctx;
+  $self->{ctx} = $ctx;
 
-  bless($self,$class);
+  bless($self, $class);
 
   # get projpack information for generating remotemap
   $self->get_projpack_via_rpc();
-  $self->{proj}      = $self->{projpack}->{'project'}->[0];
-  $self->{repo}      = $self->{proj}->{'repository'}->[0];
+  $self->{proj} = $self->{projpack}->{'project'}->[0];
+  $self->{repo} = $self->{proj}->{'repository'}->[0];
 
   # generate initial remotemap
   $self->{remotemap} = { map {$_->{'project'} => $_} @{$self->{projpack}->{'remotemap'} || []} };
@@ -59,7 +58,7 @@ sub new {
     $pdata->{'buildenv'} = getbuildenv($self->{projid}, $self->{repoid}, $self->{arch}, $self->{packid}, $pdata->{'srcmd5'}) if $pdata->{'hasbuildenv'};
   }
   die("$pdata->{'buildenv'}->{'error'}\n") if $pdata->{'buildenv'} && $pdata->{'buildenv'}->{'error'};
-  $self->{pdata}     = $pdata;
+  $self->{pdata} = $pdata;
 
   # Prepartion for selection of handler
   $self->{info} = $pdata->{'info'}->[0];
@@ -70,12 +69,12 @@ sub new {
   my $kiwitype;
   if ($buildtype eq 'kiwi') {
     if ($self->{info}->{'imagetype'} && $self->{info}->{'imagetype'}->[0] eq 'product') {
-	  $self->{handler} = BSRepServer::BuildInfo::KiwiProduct->new();
+      $self->{handler} = BSRepServer::BuildInfo::KiwiProduct->new();
     } else {
-	  $self->{handler} = BSRepServer::BuildInfo::KiwiImage->new();
+      $self->{handler} = BSRepServer::BuildInfo::KiwiImage->new();
     }
   } else {
-	  $self->{handler} = BSRepServer::BuildInfo::Generic->new(buildtype=>$buildtype);
+    $self->{handler} = BSRepServer::BuildInfo::Generic->new(buildtype => $buildtype);
   }
   return $self;
 }
@@ -104,7 +103,7 @@ sub getbuildenv {
 }
 
 sub getkiwiproductpackages {
-  my ($self,$proj, $repo, $pdata, $info, $deps) = @_;
+  my ($self, $proj, $repo, $pdata, $info, $deps) = @_;
   my $remotemap = $self->{remotemap};
   my $nodbgpkgs = $info->{'nodbgpkgs'};
   my $nosrcpkgs = $info->{'nosrcpkgs'};
@@ -408,50 +407,50 @@ sub calc_build_deps_kiwiproduct {
   # from the full tree
   my @bdeps = BSUtil::unify(@$pdeps, @$vmdeps, @$sysdeps);
   for (splice(@bdeps)) {
-	my $b = {'name' => $_};
-	my $p = $dep2pkg->{$_};
-	if (!$self->{'internal'}) {
-	  my $prp = $pool->pkg2reponame($p);
-	  ($b->{'project'}, $b->{'repository'}) = split('/', $prp) if $prp ne '';
-	}
-	my $d = $pool->pkg2data($p);
-	$b->{'version'}      = $d->{'version'};
-	$b->{'notmeta'}      = 1;
-	$b->{'epoch'}        = $d->{'epoch'}   if $d->{'epoch'};
-	$b->{'release'}      = $d->{'release'} if exists $d->{'release'};
-	$b->{'arch'}         = $d->{'arch'}    if $d->{'arch'};
-	$b->{'preinstall'}   = 1 if $pdeps->{$_};
-	$b->{'vminstall'}    = 1 if $vmdeps->{$_};
-	$b->{'runscripts'}   = 1 if $runscripts->{$_};
-	push @bdeps, $b;
+    my $b = {'name' => $_};
+    my $p = $dep2pkg->{$_};
+    if (!$self->{'internal'}) {
+      my $prp = $pool->pkg2reponame($p);
+      ($b->{'project'}, $b->{'repository'}) = split('/', $prp) if $prp ne '';
+    }
+    my $d = $pool->pkg2data($p);
+    $b->{'version'}      = $d->{'version'};
+    $b->{'notmeta'}      = 1;
+    $b->{'epoch'}        = $d->{'epoch'}   if $d->{'epoch'};
+    $b->{'release'}      = $d->{'release'} if exists $d->{'release'};
+    $b->{'arch'}         = $d->{'arch'}    if $d->{'arch'};
+    $b->{'preinstall'}   = 1 if $pdeps->{$_};
+    $b->{'vminstall'}    = 1 if $vmdeps->{$_};
+    $b->{'runscripts'}   = 1 if $runscripts->{$_};
+    push @bdeps, $b;
   }
 
   # now the binaries from the packages
   my @bins = $self->getkiwiproductpackages($self->{proj}, $self->{repo}, $self->{pdata}, $self->{info}, $edeps);
   for my $b (@bins) {
-	my @bn = split('/', $b);
-	my $d = { 'binary' => $bn[-1] };
-	if ($bn[-1] =~ /^(?:::import::.*::)?(.+)-([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/) {
-	  $d->{'name'}    = $1;
-	  $d->{'version'} = $2;
-	  $d->{'release'} = $3;
-	  $d->{'arch'}    = $4;
-	} else {
-	  # for now we only support appdata.xml
-	  next unless $bn[-1] =~ /^(.*)-appdata.xml$/;
-	}
-	$d->{'repoarch'}   = $bn[2] if $bn[2] ne $self->{arch};
-	$d->{'project'}    = $bn[0];
-	$d->{'repository'} = $bn[1];
-	$d->{'package'}    = $bn[3];
-	$d->{'noinstall'}  = 1;
-	push @bdeps, $d;
+    my @bn = split('/', $b);
+    my $d = { 'binary' => $bn[-1] };
+    if ($bn[-1] =~ /^(?:::import::.*::)?(.+)-([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+      $d->{'name'}    = $1;
+      $d->{'version'} = $2;
+      $d->{'release'} = $3;
+      $d->{'arch'}    = $4;
+    } else {
+      # for now we only support appdata.xml
+      next unless $bn[-1] =~ /^(.*)-appdata.xml$/;
+    }
+    $d->{'repoarch'}   = $bn[2] if $bn[2] ne $self->{arch};
+    $d->{'project'}    = $bn[0];
+    $d->{'repository'} = $bn[1];
+    $d->{'package'}    = $bn[3];
+    $d->{'noinstall'}  = 1;
+    push @bdeps, $d;
   }
   if ($self->{info}->{'extrasource'}) {
-	push @bdeps, map {{
-	  'name' => $_->{'file'}, 'version' => '', 'repoarch' => $_->{'arch'}, 'arch' => 'src',
-	  'project' => $_->{'project'}, 'package' => $_->{'package'}, 'srcmd5' => $_->{'srcmd5'},
-	}} @{$self->{info}->{'extrasource'}};
+    push @bdeps, map {{
+      'name' => $_->{'file'}, 'version' => '', 'repoarch' => $_->{'arch'}, 'arch' => 'src',
+      'project' => $_->{'project'}, 'package' => $_->{'package'}, 'srcmd5' => $_->{'srcmd5'},
+    }} @{$self->{info}->{'extrasource'}};
   }
   $ret->{'bdep'} = \@bdeps;
   return ($ret, $BSXML::buildinfo);
@@ -460,7 +459,7 @@ sub calc_build_deps_kiwiproduct {
 sub getbuildinfo {
   my $self = shift;
   # The following definition are here for performance and compability reason
-  my ($projid, $repoid, $arch, $packid, $pdata, $info, $repo, $proj) = ($self->{projid},$self->{repoid},$self->{arch},$self->{packid},$self->{pdata},$self->{info}, $self->{repo}, $self->{proj});
+  my ($projid, $repoid, $arch, $packid, $pdata, $info, $repo, $proj) = ($self->{projid}, $self->{repoid}, $self->{arch}, $self->{packid}, $self->{pdata}, $self->{info},  $self->{repo}, $self->{proj});
   my $projpack = $self->{projpack};
 
   #my @configpath = $self->{handler}->expand_configpath;
@@ -481,7 +480,7 @@ sub getbuildinfo {
         map {$remotemap->{$_->{'project'}} = $_} @{$pp->{'remotemap'} || []};
       }
     }
-	# / sub append_to_remotemap
+    # / sub append_to_remotemap
     # sub expand_configpath
     # $self->{handler}->expand_configpath($self->{info},$self->{repo})
     # a repo with no path will expand to just the prp as the only element
