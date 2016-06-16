@@ -105,7 +105,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     inject_build_job( 'home:Iggy', 'TestPack', '10.2', 'x86_64')
     run_scheduler('i586')
     run_scheduler('x86_64')
-    run_publisher
+    wait_for_publisher()
 
     # prerequisite: is our source project setup correctly?
     get '/build/home:Iggy/10.2/i586/TestPack'
@@ -142,7 +142,7 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     # let scheduler process events...
     run_scheduler('i586')
     run_scheduler('x86_64')
-    run_publisher
+    wait_for_publisher()
 
     # get copy project meta and verify copied repositories
     get '/source/IggyHomeCopy/_meta'
