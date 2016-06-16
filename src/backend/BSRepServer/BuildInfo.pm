@@ -73,7 +73,6 @@ sub new {
 	  $self->{handler} = BSRepServer::BuildInfo::KiwiProduct->new();
     } else {
 	  $self->{handler} = BSRepServer::BuildInfo::KiwiImage->new();
-#print "DETECTED: BSRepServer::BuildInfo::KiwiImage\n";
     }
   } else {
 	  $self->{handler} = BSRepServer::BuildInfo::Generic->new(buildtype=>$buildtype);
@@ -121,7 +120,6 @@ sub getpreinstallimages {
 }
 
 sub getkiwiproductpackages {
-#print "Starting getkiwiproductpackages\n";
   my ($self,$proj, $repo, $pdata, $info, $deps) = @_;
   my $remotemap = $self->{remotemap};
   my $nodbgpkgs = $info->{'nodbgpkgs'};
@@ -418,7 +416,6 @@ sub get_deps_from_buildenv {
 }
 
 sub calc_build_deps_kiwiproduct {
-#print "Starting calc_build_deps_kiwiproduct\n";
   my $self = shift;
   my $pool = $self->{pool};
   my ($ret, $pdeps, $vmdeps, $sysdeps, $edeps, $runscripts, $dep2pkg) = @_ ;
@@ -489,17 +486,14 @@ sub getbuildinfo {
   #my %remotemap;
   my $remotemap = $self->{remotemap};
   my @configpath;
-#print "kiwi info 1: $buildtype $kiwitype\n";
   if ($buildtype eq 'kiwi') {
     # sub append_to_remotemap (\%remotemap,$info->{path});
     if (@{$info->{'path'} || []}) {
-#print "buildtype was kiwi\n";
       # fill in all remotemap entries we need
       my @args = map {"project=$_->{'project'}"} grep {$_->{'project'} ne '_obsrepositories'} @{$info->{'path'}};
       if (@args) {
         push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
         my $pp = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withremotemap', 'nopackages', @args);
-#print "got pp. remotemap:\n".Dumper($pp->{'remotemap'});
         map {$remotemap->{$_->{'project'}} = $_} @{$pp->{'remotemap'} || []};
       }
     }
@@ -603,7 +597,6 @@ sub getbuildinfo {
   if ($pdata->{'ldepfile'}) {
     # have local deps, add them to pool
     my $data = {};
-#print "ldepfile: $pdata->{'ldepfile'}\n";
     Build::readdeps({ %$bconf }, $data, $pdata->{'ldepfile'});
     delete $data->{'/url'};
     delete $data->{'/external/'};
@@ -614,12 +607,9 @@ sub getbuildinfo {
   for my $prp (@prp) {
     my ($rprojid, $rrepoid) = split('/', $prp, 2);
     my $r;
-#print "prp: $prp\n";
     if ($remotemap->{$rprojid}) {
-#print "remotemap: $remotemap->{$rprojid}\n";
       $r = BSRepServer::addrepo_remote($self->{pool}, $prp, $arch, $remotemap->{$rprojid});
     } else {
-#print "no remote map found $prp - $arch\n";
       $r = BSRepServer::addrepo_scan($self->{pool}, $prp, $arch);
     }
     die("repository $prp not available\n") unless $r;
@@ -631,7 +621,6 @@ sub getbuildinfo {
   my %dep2src;
   for my $p ($self->{pool}->consideredpackages()) {
     my $n = $self->{pool}->pkg2name($p);
-#print "consideredpackages: name - $n\n";
     $dep2pkg{$n} = $p;
     $dep2src{$n} = $self->{pool}->pkg2srcname($p);
   }
@@ -648,7 +637,6 @@ sub getbuildinfo {
   my @edeps = @{$info->{'dep'} || []};
   local $Build::expand_dbg = 1 if $self->{'debug'};
   $ret->{'expanddebug'} = '' if $self->{'debug'};
-#print "kiwi info 2: $buildtype $kiwitype\n";
   if (grep {$_ eq '-simple_expansion_hack'} @edeps) {
     # special hack to expand dependencies without the build packages
     delete $bconf->{'ignore'};
@@ -658,7 +646,6 @@ sub getbuildinfo {
     $bconf->{'required'} = [];
     $bconf->{'support'} = [];
   }
-#print "kiwi info 2.5: $buildtype $kiwitype\n";
   if ($buildtype eq 'kiwi' && $kiwitype eq 'product') {
     @edeps = (1, @edeps);
   } elsif ($buildtype eq 'kiwi') {
@@ -666,15 +653,11 @@ sub getbuildinfo {
     my $bconfignoreh = $bconf->{'ignoreh'};
     delete $bconf->{'ignore'};
     delete $bconf->{'ignoreh'};
-#print Dumper($self->{pool});
     my $xp = BSSolv::expander->new($self->{pool}, $bconf);
     no warnings 'redefine';
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
-#print Dumper($bconf);
     @edeps = Build::get_build($bconf, [], @edeps, '--ignoreignore--');
-#print "after get_build\n";
-#print Dumper(\@edeps);
     $bconf->{'ignore'} = $bconfignore if $bconfignore;
     $bconf->{'ignoreh'} = $bconfignoreh if $bconfignoreh;
     if (defined($ret->{'expanddebug'})) {
@@ -702,7 +685,6 @@ sub getbuildinfo {
   }
 
   my $epool;
-#print "kiwi info 3: $buildtype $kiwitype\n";
   if ($buildtype eq 'kiwi' && $kiwitype eq 'image' && @{$repo->{'path'} || []} >= 2) {
     # use different path for system setup
     $bconf = BSRepServer::getconfig($projid, $repoid, $arch);
@@ -788,7 +770,6 @@ sub getbuildinfo {
   if ($pdata->{'buildenv'}) {
     return $self->get_deps_from_buildenv($ret,$pdata,\@prp,\%pdeps,\%vmdeps,\%runscripts);
   }
-#print "kiwi info 4: $buildtype $kiwitype\n";
   if ($buildtype eq 'kiwi' && $kiwitype eq 'product') {
     return $self->calc_build_deps_kiwiproduct($ret,\@pdeps,\@vmdeps,\@sysdeps,\@edeps,\%runscripts,\%dep2pkg);
   }
