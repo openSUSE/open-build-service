@@ -217,4 +217,19 @@ sub read_gbininfo_remote {
   return $gbininfo;
 }
 
+sub getpreinstallimages {
+  my ($prpa) = @_;
+  return undef unless -e "$reporoot/$prpa/:preinstallimages";
+  if (-l "$reporoot/$prpa/:preinstallimages") {
+    # small hack: allow symlink to another prpa's file
+    my $l = readlink("$reporoot/$prpa/:preinstallimages") || '';
+    my @l = split('/', "$prpa////$l", -1);
+    $l[-4] = $l[0] if $l[-4] eq '' || $l[-4] eq '..';
+    $l[-3] = $l[1] if $l[-3] eq '' || $l[-3] eq '..';
+    $l[-2] = $l[2] if $l[-2] eq '' || $l[-2] eq '..';
+    $prpa = "$l[-4]/$l[-3]/$l[-2]";
+  }
+  return BSUtil::retrieve("$reporoot/$prpa/:preinstallimages", 1);
+}
+
 1;

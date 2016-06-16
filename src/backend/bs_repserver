@@ -1386,7 +1386,7 @@ sub getpreinstallimageinfos {
   }
   my $imagescnt = 0;
   for my $prpa (@$prpas) {
-    my $images = BSRepServer::BuildInfo::getpreinstallimages($prpa);
+    my $images = BSRepServer::getpreinstallimages($prpa);
     next unless $images;
     $imagescnt += @$images;
     for my $img (@$images) {
