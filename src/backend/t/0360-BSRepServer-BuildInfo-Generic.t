@@ -16,7 +16,7 @@ use Data::Dumper;
 
 no warnings 'once';
 # preparing data directory for testcase 1
-$BSConfig::bsdir = "$FindBin::Bin/data/0360/";
+$BSConfig::bsdir = "$FindBin::Bin/data/shared/";
 $BSConfig::srcserver = 'srcserver';
 $BSConfig::repodownload = 'http://download.opensuse.org/repositories';
 use warnings;

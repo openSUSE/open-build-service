@@ -3,7 +3,7 @@ use warnings;
 
 use Test::More tests => 10;                      # last test to print
 use Data::Dumper;
-
+use FindBin;
 use BSUtil;
 use BSXML;
 use Build;
@@ -11,7 +11,7 @@ use Build;
 no warnings;
 
 $INC{'BSConfig.pm'} = 'BSConfig.pm';
-$BSConfig::bsdir = 'testdata/buildinfo';
+$BSConfig::bsdir = "$FindBin::Bin/data/shared";
 $BSConfig::srcserver = 'srcserver';
 $BSConfig::reposerver = 'reposerver';
 $BSConfig::repodownload = 'http://download.opensuse.org/repositories';
@@ -41,7 +41,7 @@ use warnings;
 
 my $gctx = {
   'arch' => 'i586',
-  'reporoot' => 'testdata/buildinfo/build',
+  'reporoot' => "$BSConfig::bsdir/build",
   'obsname' => 'testobs',
   'myjobsdir' => 'testdata/jobsdir_does_not_exist',
 };
