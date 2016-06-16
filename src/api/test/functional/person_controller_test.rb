@@ -284,6 +284,59 @@ XML
     assert_no_xml_tag :tag => 'person', :child => {:tag => 'globalrole', :content => "Admin"}
   end
 
+  def test_lock_user
+    login_king
+
+    user_xml = "<person>
+  <login>lost_guy</login>
+  <email>lonely_person@universe.com</email>
+  <realname>The Other Guy</realname>
+  <state>confirmed</state>
+</person>"
+
+    # create new user
+    put "/person/lost_guy", user_xml
+    assert_response :success
+
+    # create sub project of home
+    put "/source/home:lost_guy:subproject/_meta", '<project name="home:lost_guy:subproject"><title/><description/></project>'
+    assert_response :success
+
+    # only admins, not even the user itself can lock himself
+    login_Iggy
+    post "/person/lost_guy?cmd=lock", nil
+    assert_response 403
+    post "/person/lost_guy?cmd=delete", nil
+    assert_response 403
+
+    # but the admin can ...
+    login_king
+    post "/person/lost_guy?cmd=lock", nil
+    assert_response :success
+    get "/person/lost_guy"
+    assert_response :success
+    assert_xml_tag tag: "state", content: "locked"
+    get "/source/home:lost_guy:subproject/_meta"
+    assert_response :success
+    assert_xml_tag tag: "lock"
+    get "/source/home:lost_guy/_meta"
+    assert_response :success
+    assert_xml_tag tag: "lock"
+
+    # we can still delete the locked user
+    post "/person/lost_guy?cmd=delete", nil
+    assert_response :success
+    get "/person/lost_guy"
+    assert_response 404
+    get "/source/home:lost_guy:subproject/_meta"
+    assert_response 404
+    get "/source/home:lost_guy/_meta"
+    assert_response 404
+
+    # cleanup
+    User.current = User.find_by(login: 'lost_guy')
+  end
+
   def test_register_disabled
     c = ::Configuration.first
     c.registration = "deny"

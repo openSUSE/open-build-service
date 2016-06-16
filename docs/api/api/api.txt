@@ -151,6 +151,8 @@ XmlResult: status
 
 Parameters:
   cmd: change_password
+  cmd: lock             # will lock the user and his home projects
+  cmd: delete           # will mark the user as deleted and remove her home projects
 
 GET /person/<userid>/token
   
