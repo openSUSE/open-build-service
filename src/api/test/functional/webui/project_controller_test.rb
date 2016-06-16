@@ -71,7 +71,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     assert_equal 2, path_element.position
   end
 
-  def test_save_distributions_with_existing_repository
+  def test_save_distributions_with_existing_repository # spec/models/project_spec.rb
     login_tom
 
     visit "/project/add_repository_from_default_list/home:tom"

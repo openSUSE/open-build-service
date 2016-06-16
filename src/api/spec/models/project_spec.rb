@@ -326,4 +326,108 @@ RSpec.describe Project do
       end
     end
   end
+
+  describe '#save_distributions' do
+    let(:factory_project) { create(:project, name: 'openSUSE:Factory') }
+    let!(:factory_distribution) { create(:distribution, project: 'openSUSE:Factory', name: 'openSUSE Tumbleweed', reponame: 'openSUSE_Tumbleweed') }
+    let!(:factory_repository) { create(:repository, project: factory_project, name: 'standard') }
+    let(:project_save_distributions) { project.save_distributions(['openSUSE_Tumbleweed']) }
+
+    context 'with valid attributes' do
+      context 'of one distribution' do
+        it 'should create one repository' do
+          expect { project_save_distributions }.to change(Repository, :count).by(1)
+        end
+
+        it 'should create one path_element' do
+          expect { project_save_distributions }.to change(PathElement, :count).by(1)
+        end
+
+        it 'should set the link of the path_element' do
+          project_save_distributions
+          path_element = project.repositories.first.path_elements.first
+          expect(path_element.link).to eq(factory_repository)
+        end
+
+        it 'should set the repository architecture' do
+          factory_distribution.architectures = create_list(:architecture, 1)
+          expect {  project_save_distributions }.to change(RepositoryArchitecture, :count).by(1)
+        end
+      end
+
+      context 'of two distributions' do
+        let(:leap_project) { create(:project, name: 'openSUSE:Leap42.1') }
+        let!(:leap_distribution) { create(:distribution, project: 'openSUSE:Leap42.1', name: 'openSUSE Tumbleweed', reponame: 'openSUSE_Leap') }
+        let!(:leap_repository) { create(:repository, project: leap_project, name: 'standard') }
+        let(:project_save_distributions) { project.save_distributions(%w(openSUSE_Tumbleweed openSUSE_Leap)) }
+
+        it 'should create two repositories' do
+          expect { project_save_distributions }.to change(Repository, :count).by(2)
+        end
+
+        it 'should create two path_elements' do
+          expect { project_save_distributions }.to change(PathElement, :count).by(2)
+        end
+
+        it 'should set the link of the path_elements' do
+          project_save_distributions
+          path_element = project.repositories.first.path_elements.first
+          expect(path_element.link).to eq(factory_repository)
+          path_element = project.repositories.second.path_elements.first
+          expect(path_element.link).to eq(leap_repository)
+        end
+
+        it 'should set the repositories architecture' do
+          leap_distribution.architectures = create_list(:architecture, 1)
+          factory_distribution.architectures = create_list(:architecture, 1)
+          expect { project_save_distributions }.to change(RepositoryArchitecture, :count).by(2)
+        end
+      end
+    end
+
+    context 'with invalid attributes' do
+      it 'should not create a repository with nil input' do
+        expect { project.save_distributions(nil) }.to_not change(Repository, :count)
+      end
+
+      it 'should not create a repository with [ ] input' do
+        expect { project.save_distributions([]) }.to_not change(Repository, :count)
+      end
+
+      it 'should not add a distribution if the distribution does not exist' do
+        expect { project.save_distributions(['NonExistentDistro']) }.to_not change(Repository, :count)
+      end
+
+      it 'should raise RecordNotFound exception if target repository does not exist' do
+        factory_distribution.project = 'NotExistent'
+        factory_distribution.save
+        assert_raises(ActiveRecord::RecordNotFound) do
+          project_save_distributions
+        end
+      end
+    end
+
+    context 'with already created distribution' do
+      before do
+        repository = create(:repository, db_project_id: project.id, name: 'openSUSE_Tumbleweed')
+        repository.path_elements.create(link: repository, position: 1)
+      end
+
+      it 'should not create a repository' do
+        expect { project_save_distributions }.to_not change(Repository, :count)
+      end
+
+      it 'should not be valid?' do
+        project_save_distributions
+        expect(project.valid?).to be(false)
+      end
+
+      it 'should not create a repository' do
+        project_save_distributions
+        project.valid?
+        error_message = 'Validation failed: Name openSUSE_Tumbleweed is already used by a repository of this project.'
+        expect(project.errors.full_messages.to_sentence).to eq(error_message)
+      end
+    end
+  end
 end
