@@ -1,41 +1,22 @@
 use strict;
 use warnings;
 
-use Test::More tests => 10;                      # last test to print
+use Test::More tests => 9;			# last test to print
 use Data::Dumper;
 use FindBin;
 use BSUtil;
 use BSXML;
 use Build;
 
-no warnings;
-
 use lib "$FindBin::Bin/lib/";
 
 use Test::Mock::BSConfig;
+use Test::Mock::BSSched::Checker;
 
 use warnings;
 
 use_ok("BSSched::BuildJob::Package");
-use_ok("BSSched::Checker");
 use_ok("BSSched::ProjPacks");
-
-no warnings;
-
-*BSSched::Checker::addrepo = sub {
-  my ($ctx, $pool, $prp, $arch) = @_;
-  my $gctx = $ctx->{'gctx'};
-  $arch ||= $gctx->{'arch'};
-  return $pool->repofromfile($prp, "$gctx->{'reporoot'}/$prp/$arch/:full.solv");
-};
-
-*BSSched::Checker::writejob = sub {
-  my ($ctx, $job, $binfo, $reason) = @_;
-  $ctx->{'buildinfo'} = $binfo;
-  $ctx->{'reason'} = $reason;
-};
-
-use warnings;
 
 my $gctx = {
   'arch' => 'i586',
@@ -58,7 +39,7 @@ my $info = (grep {$_->{'repository'} eq $repoid} @{$pdata->{'info'} || []})[0];
 
 my ($status, $diag);
 
-my $ctx = BSSched::Checker->new($gctx, "$projid/$repoid");
+my $ctx = Test::Mock::BSSched::Checker->new($gctx, "$projid/$repoid");
 
 ($status, $diag) = $ctx->setup();
 is($status, 'scheduling', 'checker setup call');
