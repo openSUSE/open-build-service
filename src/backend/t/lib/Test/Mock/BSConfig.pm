@@ -17,10 +17,15 @@
 package Test::Mock::BSConfig;
 
 use strict;
+use FindBin;
 
-BEGIN {
-  $main::INC{'BSConfig.pm'} = 'BSConfig.pm';
-}
+$main::INC{'BSConfig.pm'} = 'BSConfig.pm';
+
+# this is the dummy config we use in the unit tests
+
+$BSConfig::bsdir = "$FindBin::Bin/data/shared";
+$BSConfig::srcserver = 'srcserver';
+$BSConfig::reposerver = 'reposerver';
+$BSConfig::repodownload = 'http://download.opensuse.org/repositories';
 
 1; 
-

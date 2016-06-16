@@ -10,11 +10,9 @@ use Build;
 
 no warnings;
 
-$INC{'BSConfig.pm'} = 'BSConfig.pm';
-$BSConfig::bsdir = "$FindBin::Bin/data/shared";
-$BSConfig::srcserver = 'srcserver';
-$BSConfig::reposerver = 'reposerver';
-$BSConfig::repodownload = 'http://download.opensuse.org/repositories';
+use lib "$FindBin::Bin/lib/";
+
+use Test::Mock::BSConfig;
 
 use warnings;
 
