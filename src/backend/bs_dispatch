@@ -439,7 +439,7 @@ sub mergeconstraints {
       }
     }
     if ($con2->{'hardware'}) {
-      for my $el (qw{processors disk memory physicalmemory}) {
+      for my $el (qw{processors jobs disk memory physicalmemory}) {
         next unless defined $con2->{'hardware'}->{$el};
         $con->{'hardware'}->{$el} = ref($con2->{'hardware'}->{$el}) ? Storable::dclone($con2->{'hardware'}->{$el}) : $con2->{'hardware'}->{$el};
       }
