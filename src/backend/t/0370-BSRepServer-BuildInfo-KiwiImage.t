@@ -10,7 +10,7 @@ use Test::Mock::BSConfig;
 use Test::OBS::Utils;
 use Test::Mock::BSRepServer::Checker;
 
-use Test::More tests => 3;                      # last test to print
+use Test::More tests => 4;                      # last test to print
 
 use BSUtil;
 use BSXML;
@@ -40,6 +40,10 @@ my ($got,$expected);
 
 # Test Case 01
 { 
+	local *STDOUT;
+	my $out;
+	open(STDOUT,">",\$out);
+
 	($got) = BSRepServer::BuildInfo->new(projid=>'home:M0ses:kanku:Images', repoid=>'images', arch=>'x86_64', packid=>'openSUSE-Leap-42.1-JeOS')->getbuildinfo();
 
         $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc01", $BSXML::buildinfo);
@@ -69,25 +73,22 @@ is_deeply($got, $expected, 'buildinfo for Kiwi Image');
 }
 is_deeply($got, $expected, 'buildinfo for Kiwi Image with remotemap');
 
-# Test Case 03 (does *not* test kiwi images, thus currently disabled
+# Test Case 03
 {
 
-	#local *STDOUT;
-	#my $out;
-	#open(STDOUT,">",\$out);
-	# openSUSE.org:OBS:Server:Unstable" repository="openSUSE_42.1" package="_product"
-	# home:Admin:branches:openSUSE.org:OBS:Server:Unstable/_product:OBS-Addon-release/openSUSE_Leap_42.1/x86_64
-	($got) = BSRepServer::BuildInfo->new(projid=>'home:Admin:branches:openSUSE.org:OBS:Server:Unstable', repoid=>'openSUSE_Leap_42.1', arch=>'x86_64', packid=>'_product:OBS-Addon-release')->getbuildinfo();
+	local *STDOUT;
+	my $out;
+	open(STDOUT,">",\$out);
 
-	#my $data = BSUtil::readstr("$BSConfig::bsdir/result/tc02");
-	#eval "$data";
+	($got) = BSRepServer::BuildInfo->new(projid=>'home:Admin:branches:openSUSE.org:OBS:Server:Unstable', repoid=>'openSUSE_Leap_42.1', arch=>'x86_64', packid=>'_product:OBS-Addon-release')->getbuildinfo();
 
         $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc03", $BSXML::buildinfo);
 
-print "$got->{release}\n";
 	$got->{'bdep'}  = [ sort {$a->{'name'} cmp $b->{'name'}} @{$got->{'bdep'} || []} ];
 	$expected->{'bdep'} = [ sort {$a->{'name'} cmp $b->{'name'}} @{$expected->{'bdep'} || []} ];
+	$got->{subpack} = [ sort { $a cmp $b }  @{ $got->{subpack}  || [] } ];
+	$expected->{subpack} = [ sort { $a cmp $b } @{ $expected->{subpack}  || [] } ];
 }
-#is_deeply($got, $expected, 'buildinfo for Kiwi Image with remotemap');
+is_deeply($got, $expected, 'buildinfo for Kiwi Product with remotemap');
 
 exit 0;
