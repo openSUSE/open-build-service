@@ -5,7 +5,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   uses_transaction :test_admin_can_delete_every_project
   uses_transaction :test_create_project_publish_disabled
 
-  def test_save_distributions
+  def test_save_distributions # spec/controllers/webui/project_controller_spec.rb
     login_tom
     visit "/project/add_repository_from_default_list/home:tom"
     check("OBS Base 2.0")
