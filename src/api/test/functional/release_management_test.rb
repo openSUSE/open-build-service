@@ -6,11 +6,10 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
 
   def setup
     reset_auth
+    wait_for_scheduler_start
   end
 
   def test_move_entire_project
-    wait_for_scheduler_start
-
     login_tom
 
     # try as non-admin
@@ -156,14 +155,6 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
   def test_copy_project_withbinaries
     login_king
 
-    # prerequisite: there should be 4 binaries in source project i586 arch
-    get '/build/home:Iggy/10.2/i586/TestPack'
-    assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
-
-    # prerequisite: no binaries in source project for x86_64 arch
-    get '/build/home:Iggy/10.2/x86_64/TestPack'
-    assert_xml_tag :tag => 'binarylist', :children => { :count => 0 }
-
     run_scheduler('i586')
     run_scheduler('x86_64')
     inject_build_job( 'home:Iggy', 'TestPack', '10.2', 'i586')
@@ -172,29 +163,33 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     run_scheduler('x86_64')
     run_publisher
 
+    # prerequisite: is our source project setup correctly?
+    get '/build/home:Iggy/10.2/i586/TestPack'
+    assert_xml_tag :tag => 'binarylist', :children => { :count => 4 }
+    get '/build/home:Iggy/10.2/x86_64/TestPack'
+    assert_xml_tag :tag => 'binarylist', :children => { :count => 5 }
+
     # our source project is not building
     get '/build/home:Iggy/_result'
+    assert_xml_tag :parent => { tag: 'result',
+                                :attributes => { project:    'home:Iggy',
+                                                 repository: '10.2',
+                                                 arch:       'i586',
+                                                 code:       'published',
+                                                 state:      'published' }
+      },
+      tag: 'status',
+      :attributes => { package: 'TestPack',
+                       code:    'succeeded' }
     assert_xml_tag :parent => {
-        :tag => 'result', :attributes => {
-            :project => 'home:Iggy',
-            :repository => '10.2',
-            :arch => 'i586',
-            :code => 'published',
-            :state => 'published' } },
-      :tag => 'status', :attributes => {
-          :package => 'TestPack',
-          :code => 'succeeded' }
-    assert_xml_tag :parent => {
-        :tag => 'result', :attributes => {
-            :project => 'home:Iggy',
-            :repository => '10.2',
-            :arch => 'x86_64',
-            :code => 'published',
-            :state => 'published' } },
-      :tag => 'status', :attributes => {
-          :package => 'TestPack',
-          :code => 'succeeded' }
-
+        tag: 'result',
+        :attributes => { project:    'home:Iggy',
+                         repository: '10.2',
+                         arch:       'x86_64',
+                         code:       'published',
+                         state:      'published' } },
+      :tag => 'status', :attributes => { package: 'TestPack',
+                                         code:    'succeeded' }
 
     # copy project with binaries
     post '/source/IggyHomeCopy?cmd=copy&oproject=home:Iggy&noservice=1&withbinaries=1&nodelay=1'
@@ -224,26 +219,25 @@ class ReleaseManagementTests < ActionDispatch::IntegrationTest
     # check build results are copied correctly
     get '/build/IggyHomeCopy/_result'
     assert_xml_tag :parent => {
-        :tag => 'result', :attributes => {
-            :project => 'IggyHomeCopy',
-            :repository => '10.2',
-            :arch => 'i586',
-            :code => 'published',
-            :state => 'published' } },
-      :tag => 'status', :attributes => {
-          :package => 'TestPack',
-          :code => 'succeeded' }
+                   tag: 'result',
+                   :attributes => { project:    'IggyHomeCopy',
+                                    repository: '10.2',
+                                    arch:       'i586',
+                                    code:       'published',
+                                    state:      'published' } },
+      tag: 'status',
+      :attributes => { package: 'TestPack', code: 'succeeded' }
 
     assert_xml_tag :parent => {
-        :tag => 'result', :attributes => {
-            :project => 'IggyHomeCopy',
-            :repository => '10.2',
-            :arch => 'x86_64',
-            :code => 'published',
-            :state => 'published' } },
-      :tag => 'status', :attributes => {
-          :package => 'TestPack',
-          :code => 'succeeded' }
+                                tag: 'result',
+                                :attributes => { project:    'IggyHomeCopy',
+                                                 repository: '10.2',
+                                                 arch:       'x86_64',
+                                                 code:       'published',
+                                                 state:      'published' }
+        },
+        tag: 'status',
+        :attributes => { package: 'TestPack', code: 'succeeded' }
 
     # check that the same binaries are copied
     get '/build/home:Iggy/10.2/i586/TestPack'
