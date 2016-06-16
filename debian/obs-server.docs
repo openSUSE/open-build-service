@@ -2,5 +2,4 @@ AUTHORS
 ReleaseNotes-*
 dist/README.SETUP
 dist/README.UPDATERS
-dist/ci/README
 src/backend/README

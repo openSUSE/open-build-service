@@ -1,7 +1,6 @@
 AUTHORS
 COPYING
 ReleaseNotes-*
-dist/ci/README
 dist/{README.UPDATERS,README.SETUP}
 docs/openSUSE.org.xml
 src/backend/README
