@@ -1,0 +1,116 @@
+--- a/dist/find-requires.sh
++++ b/dist/find-requires.sh
+@@ -13,14 +13,14 @@
+ tar xJf $sourcearchive -C $tdir >&/dev/null
+ 
+ pushd $tdir/open-build-service*/src/api >& /dev/null
+-ruby.ruby2.3 -rbundler -e 'exit' || echo "_ERROR_BUNDLER_NOT_INSTALLED_"
++ruby2.3 -rbundler -e 'exit' || echo "_ERROR_BUNDLER_NOT_INSTALLED_"
+ 
+ mode="resolve"
+ if [ "$limig" == "production" ]; then
+   mode="specs_for([:default, :assets])"
+ fi
+ 
+-ruby.ruby2.3 -rbundler -e 'Bundler.definition.'"$mode"' { |s| puts "rubygem('$prefix':#{s.name}) = #{s.version}" }' | while read i; do echo -n $i", "; done
++ruby2.3 -rbundler -e 'Bundler.definition.'"$mode"' { |s| puts "rubygem('$prefix':#{s.name}) = #{s.version}" }' | while read i; do echo -n $i", "; done
+ popd >& /dev/null
+ 
+ #cleanup
+--- a/dist/setup-appliance.sh
++++ b/dist/setup-appliance.sh
+@@ -229,7 +229,7 @@
+ function prepare_database_setup {
+  
+   cd /srv/www/obs/api 
+-  RAILS_ENV=production rake.ruby2.3 db:migrate:status > /dev/null
++  RAILS_ENV=production ruby2.3 db:migrate:status > /dev/null
+ 
+   if [[ $? > 0 ]];then
+     echo "Initialize MySQL databases (first time only)"
+--- a/docs/api/restility/bin/rest_doc
++++ b/docs/api/restility/bin/rest_doc
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env ruby.ruby2.3
++#!/usr/bin/env ruby2.3
+ 
+ require 'optparse'
+ require 'rubygems'
+--- a/docs/api/restility/bin/rest_test
++++ b/docs/api/restility/bin/rest_test
+@@ -1,4 +1,4 @@
+-#!/usr/bin/ruby.ruby2.3
++#!/usr/bin/ruby2.3
+ 
+ require 'optparse'
+ require 'rubygems'
+--- a/src/api/bin/bundle
++++ b/src/api/bin/bundle
+@@ -1,3 +1,3 @@
+-#!/usr/bin/env ruby.ruby2.3
++#!/usr/bin/env ruby2.3
+ ENV['BUNDLE_GEMFILE'] ||= File.expand_path('../../Gemfile', __FILE__)
+ load Gem.bin_path('bundler', 'bundle')
+--- a/src/api/bin/rails
++++ b/src/api/bin/rails
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env ruby.ruby2.3
++#!/usr/bin/env ruby2.3
+ APP_PATH = File.expand_path('../../config/application',  __FILE__)
+ require_relative '../config/boot'
+ require 'rails/commands'
+--- a/src/api/bin/rake
++++ b/src/api/bin/rake
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env ruby.ruby2.3
++#!/usr/bin/env ruby2.3
+ require_relative '../config/boot'
+ require 'rake'
+ Rake.application.run
+--- a/src/api/script/check_database
++++ b/src/api/script/check_database
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env ruby.ruby2.3
++#!/usr/bin/env ruby2.3
+ require File.dirname(__FILE__) + '/../config/boot'
+ require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
+ 
+--- a/src/api/script/delayed_job.api.rb
++++ b/src/api/script/delayed_job.api.rb
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env ruby.ruby2.3
++#!/usr/bin/env ruby2.3
+ 
+ require File.expand_path(File.join(File.dirname(__FILE__), '..', 'config', 'environment'))
+ require 'delayed/command'
+--- a/src/api/script/import
++++ b/src/api/script/import
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env ruby.ruby2.3
++#!/usr/bin/env ruby2.3
+ require File.dirname(__FILE__) + '/../config/boot'
+ 
+ # set this to true if you want to create users that appear in metafiles
+--- a/src/api/script/plugin
++++ b/src/api/script/plugin
+@@ -1,3 +1,3 @@
+-#!/usr/bin/env ruby.ruby2.3
++#!/usr/bin/env ruby2.3
+ require File.dirname(__FILE__) + '/../config/boot'
+ require 'commands/plugin'
+--- a/src/api/script/reformat_memprof
++++ b/src/api/script/reformat_memprof
+@@ -1,4 +1,4 @@
+-#! /usr/bin/ruby.ruby2.3
++#! /usr/bin/ruby2.3
+ 
+ require 'rubygems'
+ require 'json'
+--- a/src/api/script/start_test_backend
++++ b/src/api/script/start_test_backend
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env ruby.ruby2.3
++#!/usr/bin/env ruby2.3
+ ENV['RAILS_ENV'] ||= 'test'
+ ENV['origin_RAILS_ENV'] ||= ENV['RAILS_ENV']
+ ENV['LC_ALL'] = 'C'
