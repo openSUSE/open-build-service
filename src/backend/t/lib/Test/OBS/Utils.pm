@@ -18,46 +18,8 @@ package Test::OBS::Utils;
 
 use strict;
 use warnings;
-use File::Find;
 
 use BSUtil;
-
-
-sub prepare_compressed_files {
-  my @dirs = @_;
-  my @f2d;
-  find(
-	sub { 
-	  push @f2d, $File::Find::name if ( $File::Find::name =~ /\.xz$/ ) 
-	}, 
-	@dirs
-  );
-
-  for my $f (splice @f2d) {
-	system("xz","--decompress","-k",$f);
-	$f =~ s/\.xz$//;
-	push @f2d , $f;
-  } 
-
-  return @f2d;
-}
-
-sub transparent_read_xz {
-  my ($file,$subref,@subargs) = @_;
-  my $f2d;
-  my $ret;
-  if ( -e "$file.xz" ) {
-	system("xz","--decompress","-k","$file.xz");
-	$f2d = $file;
-  }
-
-
-  $ret = $subref->($file,@subargs);
-
-  unlink $f2d if $f2d;
-
-  return $ret;
-}
 
 sub readstrxz {
   my ($fn, $nonfatal) = @_;
