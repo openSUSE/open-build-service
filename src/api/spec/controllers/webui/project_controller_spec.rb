@@ -494,4 +494,181 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { expect(flash[:notice]).to eq("Successfully updated repository") }
     end
   end
+
+  describe 'GET #repositories' do
+    before do
+      get :repositories, project: apache_project
+    end
+
+    it { expect(assigns(:build).to_s).to eq(apache_project.get_flags('build').to_s) }
+    it { expect(assigns(:debuginfo).to_s).to eq(apache_project.get_flags('debuginfo').to_s) }
+    it { expect(assigns(:publish).to_s).to eq(apache_project.get_flags('publish').to_s) }
+    it { expect(assigns(:useforbuild).to_s).to eq(apache_project.get_flags('useforbuild').to_s) }
+    it { expect(assigns(:architectures)).to eq(apache_project.architectures.uniq) }
+  end
+
+  describe 'GET #repository_state' do
+    context 'with a valid repository param' do
+      before do
+        get :repository_state, project: user.home_project, repository: repo_for_user_home.name
+      end
+
+      it { expect(assigns(:repocycles)).to be_a(Hash) }
+      it { expect(assigns(:repository)).to eq(repo_for_user_home) }
+      it { expect(assigns(:archs)).to match_array(repo_for_user_home.architectures.pluck(:name)) }
+    end
+
+    context 'with a non valid repository param' do
+      before do
+        request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+        get :repository_state, project: user.home_project, repository: 'non_valid_repo_name'
+      end
+
+      it { expect(assigns(:repocycles)).to be_a(Hash) }
+      it { expect(assigns(:repository)).to be_falsey }
+      it { is_expected.to redirect_to(:back) }
+    end
+  end
+
+  describe 'GET #rebuild_time' do
+    before do
+      # To not ask backend for build status
+      Project.any_instance.stubs(:number_of_build_problems).returns(0)
+    end
+
+    context 'with an invalid scheduler' do
+      before do
+        get :rebuild_time, project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64', scheduler: 'invalid_scheduler'
+      end
+
+      it { expect(flash[:error]).to eq('Invalid scheduler type, check mkdiststats docu - aehm, source') }
+      it { is_expected.to redirect_to(project_show_path(user.home_project)) }
+    end
+
+    context 'without build dependency info or jobs history' do
+      before do
+        BuilddepInfo.stubs(:find).returns(nil)
+        Jobhistory.stubs(:find).returns(nil)
+        get :rebuild_time, project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64'
+      end
+
+      it { expect(flash[:error]).to start_with('Could not collect infos about repository') }
+      it { is_expected.to redirect_to(project_show_path(user.home_project)) }
+    end
+
+    context 'normal flow' do
+      before do
+        BuilddepInfo.stubs(:find).returns([])
+        Jobhistory.stubs(:find).returns([])
+      end
+
+      context 'with diststats generated' do
+        before do
+          path = Xmlhash::XMLHash.new({'package' => 'package_name' })
+          longestpaths_xml = Xmlhash::XMLHash.new({ 'longestpath' => Xmlhash::XMLHash.new({'path' => path }) })
+          Webui::ProjectController.any_instance.stubs(:call_diststats).returns(longestpaths_xml)
+          get :rebuild_time, project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64'
+        end
+
+        it { expect(assigns(:longestpaths)).to match_array([[], [], [], [], ["package_name"]]) }
+      end
+
+      context 'with diststats not generated' do
+        before do
+          Webui::ProjectController.any_instance.stubs(:call_diststats).returns(nil)
+          get :rebuild_time, project: user.home_project, repository: repo_for_user_home.name, arch: 'x86_64'
+        end
+
+        it { expect(assigns(:longestpaths)).to match_array([[], [], [], []]) }
+      end
+    end
+  end
+
+  describe 'GET #rebuild_time_png' do
+    context 'with an invalid key' do
+      before do
+        get :rebuild_time_png, project: user.home_project, key: 'invalid_key'
+      end
+
+      it { expect(response.body).to be_empty }
+      it { expect(response.header['Content-Type']).to eq('image/png') }
+      it { expect(response.header['Content-Disposition']).to eq('inline') }
+    end
+
+    context 'with a valid key' do
+      before do
+        Rails.cache.write("rebuild-valid_key.png", "PNG Content")
+        get :rebuild_time_png, project: user.home_project, key: 'valid_key'
+      end
+
+      it { expect(response.body).to eq("PNG Content") }
+      it { expect(response.header['Content-Type']).to eq('image/png') }
+      it { expect(response.header['Content-Disposition']).to eq('inline') }
+    end
+  end
+
+  describe 'GET #requests' do
+    before do
+      get :requests, project: apache_project, type: 'my_type', state: 'my_state'
+    end
+
+    it { expect(assigns(:requests)).to eq(apache_project.open_requests) }
+    it { expect(assigns(:default_request_type)).to eq('my_type') }
+    it { expect(assigns(:default_request_state)).to eq('my_state') }
+  end
+
+  describe 'GET #create' do
+    before do
+      login user
+      request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+    end
+
+    shared_examples "a valid project saved" do |project|
+      it { expect(flash[:notice]).to start_with("Project '#{project}' was created successfully") }
+      it { is_expected.to redirect_to(project_show_path(project)) }
+    end
+
+    context "with a namespace called 'base'" do
+      before do
+        get :create, project: { name: 'my_project' }, ns: user.home_project_name
+      end
+
+      it { expect(assigns(:project).name).to eq("#{user.home_project_name}:my_project") }
+      it_should_behave_like "a valid project saved", "home:tom:my_project"
+    end
+
+    context 'with a param called maintenance_project' do
+      before do
+        get :create, project: { name: 'my_project' }, ns: user.home_project_name, maintenance_project: true
+      end
+
+      it { expect(assigns(:project).kind).to eq('maintenance') }
+      it_should_behave_like "a valid project saved", "home:tom:my_project"
+    end
+
+    context 'with a param that disables a flag' do
+      shared_examples "a param that creates a disabled flag" do |param_name, flag_name|
+        before do
+          get :create, :project => { name: 'my_project' }, :ns => user.home_project_name, param_name.to_sym => true
+        end
+
+        it { expect(assigns(:project).flags.pluck(:flag)).to include(flag_name) }
+        it { expect(assigns(:project).flags.find_by(flag: flag_name).status).to eq('disable') }
+        it_should_behave_like "a valid project saved", "home:tom:my_project"
+      end
+
+      it_should_behave_like "a param that creates a disabled flag", :access_protection, 'access'
+      it_should_behave_like "a param that creates a disabled flag", :source_protection, 'sourceaccess'
+      it_should_behave_like "a param that creates a disabled flag", :disable_publishing, 'publish'
+    end
+
+    context 'with an invalid project data' do
+      before do
+        get :create, project: { name: 'my invalid project' }, ns: user.home_project_name
+      end
+
+      it { expect(flash[:error]).to start_with('Failed to save project') }
+      it { is_expected.to redirect_to(:back) }
+    end
+  end
 end
