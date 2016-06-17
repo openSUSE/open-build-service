@@ -1,6 +1,7 @@
 require "rails_helper"
+require "webmock/rspec"
 
-RSpec.describe Project do
+RSpec.describe Project, vcr: true do
   let!(:project) { create(:project) }
 
   describe "validations" do
@@ -428,6 +429,47 @@ RSpec.describe Project do
         error_message = 'Validation failed: Name openSUSE_Tumbleweed is already used by a repository of this project.'
         expect(project.errors.full_messages.to_sentence).to eq(error_message)
       end
+    end
+  end
+
+  describe '#prepend_kiwi_config' do
+    let!(:project) { create(:project, name: 'backend_project') }
+    let(:method) { project.prepend_kiwi_config }
+    let(:config_url) { "http://localhost:3200/source/#{project.name}/_config" }
+
+    it 'should create one repository' do
+      expect {
+        method
+      }.to change(Repository, :count).by(1)
+    end
+
+    it "should set 'images' as repository name" do
+      method
+      expect(project.repositories.first.name).to eq('images')
+    end
+
+    it 'should add available architecture to image repository' do
+      # There are three default architectures created by db/seeds.rb
+      expect {
+        method
+      }.to change(RepositoryArchitecture, :count).by(3)
+    end
+
+    it "should PUT project _config to backend if _config does not match 'Type:'" do
+      Project.any_instance.stubs(:source_file).with('_config').returns('')
+      method
+      expect(a_request(:put, config_url)).to have_been_made.once
+    end
+
+    it "should not PUT project _config to backend if _config does match 'Type:'" do
+      Project.any_instance.stubs(:source_file).with('_config').returns('Type:')
+      method
+      expect(a_request(:put, config_url)).to_not have_been_made.once
+    end
+
+    it 'should GET project _config from backend' do
+      method
+      expect(a_request(:get, config_url)).to have_been_made.once
     end
   end
 end
