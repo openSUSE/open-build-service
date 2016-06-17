@@ -8,6 +8,7 @@ use lib "$FindBin::Bin/lib/";
 use Test::Mock::BSRPC;
 use Test::Mock::BSConfig;
 use Test::OBS::Utils;
+use Test::Mock::BSRepServer::Checker;
 
 use Test::More tests => 4;                      # last test to print
 
@@ -20,8 +21,6 @@ use XML::Structured;
 no warnings 'once';
 # preparing data directory for testcase 1
 $BSConfig::bsdir = "$FindBin::Bin/data/0370";
-$BSConfig::srcserver = 'srcserver';
-$BSConfig::repodownload = 'http://download.opensuse.org/repositories';
 
 
 $Test::Mock::BSRPC::fixtures_map = {
@@ -39,14 +38,11 @@ use_ok("BSRepServer::BuildInfo");
 
 my ($got,$expected);
 
-# decompress fixtures and keep track of them
-my @files2delete = Test::OBS::Utils::prepare_compressed_files("$BSConfig::bsdir/build");
-
 # Test Case 01
 { 
 	($got) = BSRepServer::BuildInfo->new(projid=>'home:M0ses:kanku:Images', repoid=>'images', arch=>'x86_64', packid=>'openSUSE-Leap-42.1-JeOS')->getbuildinfo();
 
-	$expected = Test::OBS::Utils::transparent_read_xz("$BSConfig::bsdir/result/tc01",\&BSUtil::readxml,$BSXML::buildinfo);
+        $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc01", $BSXML::buildinfo);
 
 	$got->{'bdep'}  = [ sort {$a->{'name'} cmp $b->{'name'}} @{$got->{'bdep'} || []} ];
 	$expected->{'bdep'} = [ sort {$a->{'name'} cmp $b->{'name'}} @{$expected->{'bdep'} || []} ];
@@ -66,7 +62,7 @@ is_deeply($got, $expected, 'buildinfo for Kiwi Image');
 	#my $data = BSUtil::readstr("$BSConfig::bsdir/result/tc02");
 	#eval "$data";
 
-	$expected = Test::OBS::Utils::transparent_read_xz("$BSConfig::bsdir/result/tc02",\&BSUtil::readxml,$BSXML::buildinfo);
+        $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc02", $BSXML::buildinfo);
 
 	$got->{'bdep'}  = [ sort {$a->{'name'} cmp $b->{'name'}} @{$got->{'bdep'} || []} ];
 	$expected->{'bdep'} = [ sort {$a->{'name'} cmp $b->{'name'}} @{$expected->{'bdep'} || []} ];
@@ -86,17 +82,12 @@ is_deeply($got, $expected, 'buildinfo for Kiwi Image with remotemap');
 	#my $data = BSUtil::readstr("$BSConfig::bsdir/result/tc02");
 	#eval "$data";
 
-	$expected = Test::OBS::Utils::transparent_read_xz("$BSConfig::bsdir/result/tc03",\&BSUtil::readxml,$BSXML::buildinfo);
+        $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc03", $BSXML::buildinfo);
+
 print "$got->{release}\n";
 	$got->{'bdep'}  = [ sort {$a->{'name'} cmp $b->{'name'}} @{$got->{'bdep'} || []} ];
 	$expected->{'bdep'} = [ sort {$a->{'name'} cmp $b->{'name'}} @{$expected->{'bdep'} || []} ];
 }
 is_deeply($got, $expected, 'buildinfo for Kiwi Image with remotemap');
-
-
-# cleanup decompressed files
-for my $f (@files2delete) {
-  unlink $f;
-};
 
 exit 0;

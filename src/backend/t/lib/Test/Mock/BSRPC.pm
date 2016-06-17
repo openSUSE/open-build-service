@@ -21,6 +21,7 @@ use Carp qw/cluck/;
 
 use BSRPC;
 use BSUtil;
+use Test::OBS::Utils;
 
 BEGIN {
   *BSRPC::rpc = sub {
@@ -42,18 +43,8 @@ BEGIN {
     }
     $uri = "$BSConfig::bsdir/$uri";
 
-    my $ret = '';
-    # hack to get smaller fixtures
-    if (-e "$uri.xz") {
-      local *F;
-      open(F, '-|', 'xz', '--decompress', '-c', "$uri.xz");
-      1 while sysread(F, $ret, 8192, length($ret));
-      close(F) || die("$uri.xz: $?\n");
-    } elsif (-e $uri) {
-      $ret= readstr($uri);
-    } else {
-      die("missing fixture: $uri\n") unless -e $uri;
-    }
+    my $ret = Test::OBS::Utils::readstrxz($uri);
+    die("missing fixture: $uri\n") unless defined $ret;
     my $receiver = $param->{'receiver'};
     if ($receiver) {
       $ret = $receiver->(BSHTTP::str2req($ret), $param, $xmlargs || $param->{'receiverarg'}) if $receiver;

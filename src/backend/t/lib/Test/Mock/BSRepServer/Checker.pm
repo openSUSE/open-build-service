@@ -14,23 +14,31 @@
 # Free Software Foundation, Inc.,
 # 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
 #
-package Test::Mock::BSSched::Checker;
+package Test::Mock::BSRepServer::Checker;
 
-our @ISA = 'BSSched::Checker';
+use BSRepServer::Checker;
+use Test::OBS::Utils;
 
-use BSSched::Checker;
 
-sub addrepo {
+*BSRepServer::Checker::addrepo = sub {
   my ($ctx, $pool, $prp, $arch) = @_;
   my $gctx = $ctx->{'gctx'};
   $arch ||= $gctx->{'arch'};
-  return $pool->repofromfile($prp, "$gctx->{'reporoot'}/$prp/$arch/:full.solv");
-}
-
-sub writejob {
-  my ($ctx, $job, $binfo, $reason) = @_;
-  $ctx->{'buildinfo'} = $binfo;
-  $ctx->{'reason'} = $reason;
-}
+  my ($projid, $repoid) = split('/', $prp, 2);
+  my $remoteprojs = $gctx->{'remoteprojs'};
+  my $r;
+  if ($remoteprojs->{$projid}) {
+    $r = BSRepServer::addrepo_remote($pool, $prp, $arch, $remoteprojs->{$projid});
+    print "- $r\n";
+  } else {
+    my $d = Test::OBS::Utils::readstrxz("$gctx->{'reporoot'}/$prp/$arch/:full.solv", 1);
+    if ($d) {
+      $r = $pool->repofromstr($prp, $d);
+    } else {
+      $r = $pool->repofrombins($prp, '.');
+    }
+  }
+  return $r;
+};
 
 1;
