@@ -10,7 +10,7 @@ use Test::Mock::BSConfig;
 use Test::OBS::Utils;
 use Test::Mock::BSRepServer::Checker;
 
-use Test::More tests => 4;                      # last test to print
+use Test::More tests => 3;                      # last test to print
 
 use BSUtil;
 use BSXML;
@@ -69,7 +69,7 @@ is_deeply($got, $expected, 'buildinfo for Kiwi Image');
 }
 is_deeply($got, $expected, 'buildinfo for Kiwi Image with remotemap');
 
-# Test Case 03
+# Test Case 03 (does *not* test kiwi images, thus currently disabled
 {
 
 	#local *STDOUT;
@@ -88,6 +88,6 @@ print "$got->{release}\n";
 	$got->{'bdep'}  = [ sort {$a->{'name'} cmp $b->{'name'}} @{$got->{'bdep'} || []} ];
 	$expected->{'bdep'} = [ sort {$a->{'name'} cmp $b->{'name'}} @{$expected->{'bdep'} || []} ];
 }
-is_deeply($got, $expected, 'buildinfo for Kiwi Image with remotemap');
+#is_deeply($got, $expected, 'buildinfo for Kiwi Image with remotemap');
 
 exit 0;
