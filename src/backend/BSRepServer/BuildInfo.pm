@@ -32,6 +32,7 @@ sub new {
     #extrepodir  => "$BSConfig::bsdir/repos",
     #extrepodb   => "$BSConfig::bsdir/db/published",
     remoteproxy => $BSConfig::proxy,
+    remoteprojs => {},
   };
 
   my $ctx = BSRepServer::Checker->new($gctx);
@@ -47,7 +48,7 @@ sub new {
   $self->{repo} = $self->{proj}->{'repository'}->[0];
 
   # generate initial remotemap
-  $self->{remotemap} = { map {$_->{'project'} => $_} @{$self->{projpack}->{'remotemap'} || []} };
+  $self->{remotemap} = $gctx->{'remoteprojs'} = { map {$_->{'project'} => $_} @{$self->{projpack}->{'remotemap'} || []} };
 
   # create pdata (package data) if needed and verify
   my $pdata = $self->{pdata};
@@ -588,14 +589,7 @@ sub getbuildinfo {
   }
 
   for my $prp (@prp) {
-    my ($rprojid, $rrepoid) = split('/', $prp, 2);
-    my $r;
-    if ($remotemap->{$rprojid}) {
-      $r = BSRepServer::addrepo_remote($self->{pool}, $prp, $arch, $remotemap->{$rprojid});
-    } else {
-      $r = BSRepServer::addrepo_scan($self->{pool}, $prp, $arch);
-    }
-    die("repository $prp not available\n") unless $r;
+    $self->{ctx}->addrepo($self->{pool}, $prp, $arch);
   }
 
   $self->{pool}->createwhatprovides();
@@ -675,14 +669,7 @@ sub getbuildinfo {
     $epool = $self->{pool};
     $self->{pool} = BSSolv::pool->new();
     for my $prp (@prp) {
-      my ($rprojid, $rrepoid) = split('/', $prp, 2);
-      my $r;
-      if ($remotemap->{$rprojid}) {
-	$r = BSRepServer::addrepo_remote($self->{pool}, $prp, $arch, $remotemap->{$rprojid});
-      } else {
-	$r = BSRepServer::addrepo_scan($self->{pool}, $prp, $arch);
-      }
-      die("repository $prp not available\n") unless $r;
+      $self->{ctx}->addrepo($self->{pool}, $prp, $arch);
     }
     $self->{pool}->createwhatprovides();
   }
@@ -758,9 +745,6 @@ sub getbuildinfo {
   }
 
   my @rdeps;
-  # TBC: fs - epool is only set if repo path greater than two
-  # Question: is this really an performance optimization or could 
-  #           we handle this in a more general way
   if ($buildtype eq 'kiwi' && $kiwitype eq 'image' && $epool) {
     
     # have special system setup pool, first add image packages, then fall through to system setup packages
