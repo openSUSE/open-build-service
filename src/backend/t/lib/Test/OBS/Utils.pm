@@ -20,6 +20,9 @@ use strict;
 use warnings;
 use File::Find;
 
+use BSUtil;
+
+
 sub prepare_compressed_files {
   my @dirs = @_;
   my @f2d;
@@ -56,5 +59,31 @@ sub transparent_read_xz {
   return $ret;
 }
 
-1; 
+sub readstrxz {
+  my ($fn, $nonfatal) = @_;
+  if ($fn =~ /\.xz$/) {
+    local *F;
+    if (!-e $fn || !open(F, '-|', 'xz', '--decompress', '-c', $fn)) {
+      die("$fn: $!\n") unless $nonfatal;
+      return undef;
+    }
+    my $d = ''; 
+    1 while sysread(F, $d, 8192, length($d));
+    if (!close(F)) {
+      die("$fn: $?\n") unless $nonfatal;
+      return undef;
+    }
+    return $d;
+  }
+  return readstrxz("$fn.xz", $nonfatal) if !-e $fn && -e "$fn.xz";
+  return readstr($fn, $nonfatal);
+}
 
+sub readxmlxz {
+  my ($fn, $dtd, $nonfatal) = @_; 
+  my $d = readstrxz($fn, $nonfatal);
+  $d = BSUtil::fromxml($d, $dtd, $nonfatal) if defined $d;
+  return $d;
+}
+
+1; 
