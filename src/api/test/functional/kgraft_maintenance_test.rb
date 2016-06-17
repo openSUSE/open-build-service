@@ -13,6 +13,28 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     Timecop.return
   end
 
+  #   Usually updates are patches for most recent package releases.
+  #   In addition kgraft updates also need to patch previously released
+  #   package submissions.
+  #   This is currently done by some tweaks (adding a placeholder to the
+  #   channel files, ...) made by kgraft packagers.
+  #   This test is meant to cover those additional steps.
+  #
+  # Projects:
+  #
+  # My:Maintenance                    - maintenance project
+  # BaseDistro2.0                     - maintained project
+  # home:king:branches:BaseDistro2.0  - development project
+  # BaseDistro2.0:LinkedUpdateProject - link to update project
+  # My:Maintenance:1                  - maintenance incident project
+  # Channel                           - project to hold channel definitions
+  #
+  # Channels (actuall channel projects):
+  #
+  # BaseDistro2Channel  - channel definition for BaseDistro2 project
+  # Channel/BaseDistro2 - mapping of BaseDistro2Channel into (main) channel
+  # home:king:branches:BaseDistro2.0/BaseDistro2.Channel - branched channel inject placeholder
+  #
   def test_kgraft_update_setup
     Timecop.freeze(2010, 7, 12)
 
@@ -254,6 +276,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                :tag => 'status', :attributes => { package: 'patchinfo', code: 'blocked' }
 
     # upload build result as a worker would do
+    # Those binaries will get picked up based on previously made channel configurations
     inject_build_job( incidentProject, "kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}",
                       kernelIncidentProject.gsub( /:/, '_'), 'i586')
     inject_build_job( incidentProject, "kgraft-incident-0.#{kernelIncidentProject.gsub( /:/, '_')}",
