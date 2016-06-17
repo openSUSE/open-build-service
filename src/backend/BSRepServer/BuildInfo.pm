@@ -35,7 +35,7 @@ sub new {
     remoteprojs => {},
   };
 
-  my $ctx = BSRepServer::Checker->new($gctx);
+  my $ctx = BSRepServer::Checker->new($gctx, project => $self->{projid}, repository => $self->{repoid});
 
   $self->{gctx} = $gctx;
   $self->{ctx} = $ctx;
@@ -46,6 +46,8 @@ sub new {
   $self->get_projpack_via_rpc();
   $self->{proj} = $self->{projpack}->{'project'}->[0];
   $self->{repo} = $self->{proj}->{'repository'}->[0];
+
+  $gctx->{'projpacks'}->{$self->{'projid'}} = $self->{'proj'};
 
   # generate initial remotemap
   $self->{remotemap} = $gctx->{'remoteprojs'} = { map {$_->{'project'} => $_} @{$self->{projpack}->{'remotemap'} || []} };
@@ -104,7 +106,11 @@ sub getbuildenv {
 }
 
 sub getkiwiproductpackages {
-  my ($self, $proj, $repo, $pdata, $info, $deps) = @_;
+  my ($self, $deps) = @_;
+
+  my $proj = $self->{proj};
+  my $repo = $self->{repo};
+  my $info = $self->{info};
   my $remotemap = $self->{remotemap};
   my $nodbgpkgs = $info->{'nodbgpkgs'};
   my $nosrcpkgs = $info->{'nosrcpkgs'};
@@ -276,7 +282,6 @@ sub get_projpack_via_rpc {
   die("no such project\n") unless $proj && $proj->{'name'} eq $self->{projid};
   my $repo = $proj->{'repository'}->[0];
   die("no such repository\n") unless $repo && $repo->{'name'} eq $self->{repoid};
-
 }
 
 =head2 get_deps_from_buildenv - Take _buildenv parameter for cgi as input for dependency generation
@@ -285,21 +290,26 @@ Parameters:
 
   $ret
   $pdata
-  \@prp
-  \%pdeps
-  \%vmdeps
-  \%runscripts
 
 =cut
 
 sub get_deps_from_buildenv {
-  my $self      = shift;
-  my $arch      = $self->{arch};
-  my $pool      = $self->{pool};
-  my $remotemap = $self->{remotemap};
-  my ($ret,$pdata,$prp,$pdeps,$vmdeps,$runscripts) = @_;
-  my @allpackages;
+  my ($self, $ret) = @_;
 
+  my $ctx = $self->{ctx};
+  my $arch      = $self->{arch};
+  my $remotemap = $self->{remotemap};
+
+  my $pool      = $ctx->{pool};
+  my $bconf     = $ctx->{conf};
+
+  my @pdeps = Build::get_preinstalls($bconf);
+  my @vmdeps = Build::get_vminstalls($bconf);
+  my %pdeps = map {$_ => 1} @pdeps;
+  my %vmdeps = map {$_ => 1} @vmdeps;
+  my %runscripts = map {$_ => 1} Build::get_runscripts($bconf);
+
+  my @allpackages;
   if (defined &BSSolv::pool::allpackages) {
     @allpackages = $pool->allpackages();
   } else {
@@ -318,11 +328,11 @@ sub get_deps_from_buildenv {
     next unless $n && $hdrmd5;
     push @{$allpackages{"$n.$hdrmd5"}}, $p;
   }
-  my @bdeps = @{$pdata->{'buildenv'}->{'bdep'}};
+  my @bdeps = @{$self->{pdata}->{'buildenv'}->{'bdep'}};
   # check if we got em all
   if (grep {$_->{'hdrmd5'} && !$allpackages{"$_->{'name'}.$_->{'hdrmd5'}"}} @bdeps) {
     # nope, need to search package data as well
-    for my $aprp (@$prp) {
+    for my $aprp (@{$ctx->{'prpsearchpath'}}) {
       my ($aprojid, $arepoid) = split('/', $aprp, 2);
       my $gbininfo = $self->{ctx}->read_gbininfo($aprp, $arch);
       if ($gbininfo) {
@@ -366,7 +376,6 @@ sub get_deps_from_buildenv {
     }
   }
   for (@bdeps) {
-
     $_->{'name'} =~ s/\.rpm$//;	# workaround bug in buildenv generation
     die("buildenv package $_->{'name'} has no hdrmd5 set\n") if ( ! $_->{'hdrmd5'} );
 
@@ -391,22 +400,31 @@ sub get_deps_from_buildenv {
     $_->{'arch'}    = $d->{'arch'}    if $d->{'arch'};
     $_->{'package'} = $d->{'package'} if defined $d->{'package'};
     $_->{'notmeta'}    = 1;
-    $_->{'preinstall'} = 1 if $pdeps->{$_->{'name'}};
-    $_->{'vminstall'}  = 1 if $vmdeps->{$_->{'name'}};
-    $_->{'runscripts'} = 1 if $runscripts->{$_->{'name'}};
+    $_->{'preinstall'} = 1 if $pdeps{$_->{'name'}};
+    $_->{'vminstall'}  = 1 if $vmdeps{$_->{'name'}};
+    $_->{'runscripts'} = 1 if $runscripts{$_->{'name'}};
   }
   $ret->{'bdep'} = \@bdeps;
   return ($ret, $BSXML::buildinfo);
 }
 
 sub calc_build_deps_kiwiproduct {
-  my $self = shift;
-  my $pool = $self->{pool};
-  my ($ret, $pdeps, $vmdeps, $sysdeps, $edeps, $runscripts, $dep2pkg) = @_ ;
-  my $remotemap = $self->{remotemap};
+  my ($self, $ret, $sysdeps, $edeps) = @_ ;
+
+  my $ctx = $self->{ctx};
+  my $bconf = $ctx->{conf};
+  my $dep2pkg = $ctx->{'dep2pkg'};
+  my $pool = $ctx->{pool};
+
+  my @pdeps = Build::get_preinstalls($bconf);
+  my @vmdeps = Build::get_vminstalls($bconf);
+  my %pdeps = map {$_ => 1} @pdeps;
+  my %vmdeps = map {$_ => 1} @vmdeps;
+  my %runscripts = map {$_ => 1} Build::get_runscripts($bconf);
+
   # things are very different here. first we have the packages needed for kiwi
   # from the full tree
-  my @bdeps = BSUtil::unify(@$pdeps, @$vmdeps, @$sysdeps);
+  my @bdeps = BSUtil::unify(@pdeps, @vmdeps, @$sysdeps);
   for (splice(@bdeps)) {
     my $b = {'name' => $_};
     my $p = $dep2pkg->{$_};
@@ -420,14 +438,14 @@ sub calc_build_deps_kiwiproduct {
     $b->{'epoch'}        = $d->{'epoch'}   if $d->{'epoch'};
     $b->{'release'}      = $d->{'release'} if exists $d->{'release'};
     $b->{'arch'}         = $d->{'arch'}    if $d->{'arch'};
-    $b->{'preinstall'}   = 1 if $pdeps->{$_};
-    $b->{'vminstall'}    = 1 if $vmdeps->{$_};
-    $b->{'runscripts'}   = 1 if $runscripts->{$_};
+    $b->{'preinstall'}   = 1 if $pdeps{$_};
+    $b->{'vminstall'}    = 1 if $vmdeps{$_};
+    $b->{'runscripts'}   = 1 if $runscripts{$_};
     push @bdeps, $b;
   }
 
   # now the binaries from the packages
-  my @bins = $self->getkiwiproductpackages($self->{proj}, $self->{repo}, $self->{pdata}, $self->{info}, $edeps);
+  my @bins = $self->getkiwiproductpackages($edeps);
   for my $b (@bins) {
     my @bn = split('/', $b);
     my $d = { 'binary' => $bn[-1] };
@@ -458,10 +476,9 @@ sub calc_build_deps_kiwiproduct {
 }
 
 sub getbuildinfo {
-  my $self = shift;
+  my ($self) = @_;
   # The following definition are here for performance and compability reason
   my ($projid, $repoid, $arch, $packid, $pdata, $info, $repo, $proj) = ($self->{projid}, $self->{repoid}, $self->{arch}, $self->{packid}, $self->{pdata}, $self->{info},  $self->{repo}, $self->{proj});
-  my $projpack = $self->{projpack};
 
   #my @configpath = $self->{handler}->expand_configpath;
   #my %remotemap  = $self->{handler}->append_to_remotemap;
@@ -469,9 +486,11 @@ sub getbuildinfo {
   my $kiwitype  = $self->{handler}->kiwitype;
   #my %remotemap;
   my $remotemap = $self->{remotemap};
+
+  my @prpsearchpath = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
   my @configpath;
   if ($buildtype eq 'kiwi') {
-    # sub append_to_remotemap (\%remotemap,$info->{path});
+    # sub append_to_remotemap (\%remotemap, $info->{path});
     if (@{$info->{'path'} || []}) {
       # fill in all remotemap entries we need
       my @args = map {"project=$_->{'project'}"} grep {$_->{'project'} ne '_obsrepositories'} @{$info->{'path'}};
@@ -483,18 +502,21 @@ sub getbuildinfo {
     }
     # / sub append_to_remotemap
     # sub expand_configpath
-    # $self->{handler}->expand_configpath($self->{info},$self->{repo})
+    # $self->{handler}->expand_configpath($self->{info}, $self->{repo})
     # a repo with no path will expand to just the prp as the only element
     if ($kiwitype eq 'image' || @{$repo->{'path'} || []} < 2) {
-      @configpath = expandkiwipath($info, $repo);
+      @prpsearchpath = expandkiwipath($info, $repo);
+      @configpath = @prpsearchpath;
       # always put ourselfs in front
       unshift @configpath, "$projid/$repoid" unless @configpath && $configpath[0] eq "$projid/$repoid";
     }
   }
+  my $ctx = $self->{ctx};
+  $ctx->{'prpsearchpath'} = \@prpsearchpath;
+  $ctx->{'configpath'} = \@configpath;
 
-
-  # TODO: implement $self->{handler}->buildtype
-  my $bconf = BSRepServer::getconfig($projid, $repoid, $arch, \@configpath);
+  $ctx->setup();
+  my $bconf = $ctx->{'conf'};
   $bconf->{'type'} = $buildtype if $buildtype;
 
   my $ret;
@@ -505,18 +527,12 @@ sub getbuildinfo {
   $ret->{'arch'} = $arch;
   $ret->{'hostarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'};
   $ret->{'path'} = $repo->{'path'} || [];
-
-  my @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
-
   if ($buildtype eq 'kiwi') {
     $ret->{'imagetype'} = $info->{'imagetype'} || [];
-    if (@prp < 2 || grep {$_->{'project'} eq '_obsrepositories'} @{$info->{'path'} || []}) {
+    if (@{$repo->{'path'} || []} < 2 || grep {$_->{'project'} eq '_obsrepositories'} @{$info->{'path'} || []}) {
       $ret->{'path'} = [ expandkiwipath_hash($info, $repo) ];
     } else {
       push @{$ret->{'path'}}, @{$info->{'path'} || []};	# XXX: should unify
-    }
-    if ($kiwitype eq 'image' || @{$repo->{'path'} || []} < 2) {
-      @prp = expandkiwipath($info, $repo);
     }
   }
   if ($self->{'internal'}) {
@@ -575,39 +591,13 @@ sub getbuildinfo {
     return ($ret, $BSXML::buildinfo);
   }
 
-  $self->{pool} = BSSolv::pool->new();
-  $self->{pool}->settype('deb') if $bconf->{'binarytype'} eq 'deb';
+  $ctx->preparepool($info->{'name'}, $pdata->{'ldepfile'});
+  my $pool = $ctx->{pool};
 
-  if ($pdata->{'ldepfile'}) {
-    # have local deps, add them to pool
-    my $data = {};
-    Build::readdeps({ %$bconf }, $data, $pdata->{'ldepfile'});
-    delete $data->{'/url'};
-    delete $data->{'/external/'};
-    my $r = $self->{pool}->repofromdata('', $data);
-    die("ldepfile repo add failed\n") unless $r;
-  }
-
-  for my $prp (@prp) {
-    $self->{ctx}->addrepo($self->{pool}, $prp, $arch);
-  }
-
-  $self->{pool}->createwhatprovides();
-#TODO: pack to object
-  my %dep2pkg;
-  my %dep2src;
-  for my $p ($self->{pool}->consideredpackages()) {
-    my $n = $self->{pool}->pkg2name($p);
-    $dep2pkg{$n} = $p;
-    $dep2src{$n} = $self->{pool}->pkg2srcname($p);
-  }
-  my $pname = $info->{'name'};
-  my @subpacks = grep {defined($dep2src{$_}) && $dep2src{$_} eq $pname} keys %dep2src;
-  @subpacks = () if $buildtype eq 'kiwi';
   if ($info->{'subpacks'}) {
     $ret->{'subpack'} = $info->{'subpacks'};
-  } elsif (@subpacks) {
-    $ret->{'subpack'} = [ sort @subpacks ];
+  } elsif (@{$ctx->{'subpacks'}->{$info->{'name'}} || []}) {
+    $ret->{'subpack'} = [ sort @{$ctx->{'subpacks'}->{$info->{'name'}} || []} ];
   }
 
   # expand meta deps
@@ -630,7 +620,7 @@ sub getbuildinfo {
     my $bconfignoreh = $bconf->{'ignoreh'};
     delete $bconf->{'ignore'};
     delete $bconf->{'ignoreh'};
-    my $xp = BSSolv::expander->new($self->{pool}, $bconf);
+    my $xp = BSSolv::expander->new($pool, $bconf);
     no warnings 'redefine';
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
@@ -645,11 +635,11 @@ sub getbuildinfo {
   } elsif ($pdata->{'buildenv'}) {
      @edeps = (1);
   } else {
-    my $xp = BSSolv::expander->new($self->{pool}, $bconf);
+    my $xp = BSSolv::expander->new($pool, $bconf);
     no warnings 'redefine';
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
-    @edeps = Build::get_deps($bconf, \@subpacks, @edeps);
+    @edeps = Build::get_deps($bconf, $ctx->{subpacks}->{$info->{'name'}}, @edeps);
     if (defined($ret->{'expanddebug'})) {
       $ret->{'expanddebug'} .= "\n" if $ret->{'expanddebug'};
       $ret->{'expanddebug'} .= "=== meta deps expansion\n";
@@ -665,17 +655,17 @@ sub getbuildinfo {
   if ($buildtype eq 'kiwi' && $kiwitype eq 'image' && @{$repo->{'path'} || []} >= 2) {
     # use different path for system setup
     $bconf = BSRepServer::getconfig($projid, $repoid, $arch);
-    @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
-    $epool = $self->{pool};
-    $self->{pool} = BSSolv::pool->new();
+    my @prp = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
+    $epool = $pool;
+    $self->{ctx}->{pool} = $pool = BSSolv::pool->new();
     for my $prp (@prp) {
-      $self->{ctx}->addrepo($self->{pool}, $prp, $arch);
+      $self->{ctx}->addrepo($pool, $prp, $arch);
     }
-    $self->{pool}->createwhatprovides();
+    $pool->createwhatprovides();
   }
 
   # create expander
-  my $xp = BSSolv::expander->new($self->{pool}, $bconf);
+  my $xp = BSSolv::expander->new($pool, $bconf);
   no warnings 'redefine';
   local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
   use warnings 'redefine';
@@ -698,7 +688,7 @@ sub getbuildinfo {
   if ($pdata->{'buildenv'}) {
     @bdeps = (1);
   } elsif ($self->{'deps'}) {
-    @bdeps = Build::get_deps($bconf, \@subpacks, @{$info->{'dep'} || []}, @{$self->{'add'} || []});
+    @bdeps = Build::get_deps($bconf, $ctx->{subpacks}->{$info->{'name'}}, @{$info->{'dep'} || []}, @{$self->{'add'} || []});
   } elsif ($buildtype eq 'kiwi') {
     @bdeps = (1, @edeps);	# reuse meta deps
   } else {
@@ -706,7 +696,7 @@ sub getbuildinfo {
     push @bdeps, '--ignoreignore--' if @sysdeps;
     my @prereqs = grep {!/^\// || $bconf->{'fileprovides'}->{$_}} @{$info->{'prereq'} || []};
     unshift @prereqs, '--directdepsend--' if @prereqs;
-    @bdeps = Build::get_build($bconf, \@subpacks, @bdeps, @prereqs);
+    @bdeps = Build::get_build($bconf, $ctx->{subpacks}->{$info->{'name'}}, @bdeps, @prereqs);
     if (defined($ret->{'expanddebug'})) {
       $ret->{'expanddebug'} .= "\n" if $ret->{'expanddebug'};
       $ret->{'expanddebug'} .= "=== build expansion\n";
@@ -728,6 +718,13 @@ sub getbuildinfo {
   }
   undef $xp;
 
+  if ($pdata->{'buildenv'}) {
+    return $self->get_deps_from_buildenv($ret);
+  }
+  if ($buildtype eq 'kiwi' && $kiwitype eq 'product') {
+    return $self->calc_build_deps_kiwiproduct($ret, \@sysdeps, \@edeps);
+  }
+
   my @pdeps = Build::get_preinstalls($bconf);
   my @vmdeps = Build::get_vminstalls($bconf);
   my %runscripts = map {$_ => 1} Build::get_runscripts($bconf);
@@ -737,19 +734,14 @@ sub getbuildinfo {
   my %edeps = map {$_ => 1} @edeps;
   my %sysdeps = map {$_ => 1} @sysdeps;
 
-  if ($pdata->{'buildenv'}) {
-    return $self->get_deps_from_buildenv($ret,$pdata,\@prp,\%pdeps,\%vmdeps,\%runscripts);
-  }
-  if ($buildtype eq 'kiwi' && $kiwitype eq 'product') {
-    return $self->calc_build_deps_kiwiproduct($ret,\@pdeps,\@vmdeps,\@sysdeps,\@edeps,\%runscripts,\%dep2pkg);
-  }
+  my $dep2pkg = $self->{ctx}->{'dep2pkg'};
 
   my @rdeps;
   if ($buildtype eq 'kiwi' && $kiwitype eq 'image' && $epool) {
     
     # have special system setup pool, first add image packages, then fall through to system setup packages
     for (@bdeps) {
-      my $p = $dep2pkg{$_};
+      my $p = $dep2pkg->{$_};
       my $b = {'name' => $_};
       if (!$self->{'internal'}) {
 	my $prp = $epool->pkg2reponame($p);
@@ -765,10 +757,10 @@ sub getbuildinfo {
     }
     @edeps = @bdeps = ();
     %edeps = %bdeps = ();
-    %dep2pkg = ();
-    for my $p ($self->{pool}->consideredpackages()) {
-      my $n = $self->{pool}->pkg2name($p);
-      $dep2pkg{$n} = $p;
+    %$dep2pkg = ();
+    for my $p ($pool->consideredpackages()) {
+      my $n = $pool->pkg2name($p);
+      $dep2pkg->{$n} = $p;
     }
   }
 
@@ -776,12 +768,12 @@ sub getbuildinfo {
   @bdeps = BSUtil::unify(@pdeps, @vmdeps, @edeps, @bdeps, @sysdeps);
   for (@bdeps) {
     my $b = {'name' => $_};
-    my $p = $dep2pkg{$_};
+    my $p = $dep2pkg->{$_};
     if (!$self->{'internal'}) {
-      my $prp = $self->{pool}->pkg2reponame($p);
+      my $prp = $pool->pkg2reponame($p);
       ($b->{'project'}, $b->{'repository'}) = split('/', $prp) if $prp ne '';
     }
-    my $d = $self->{pool}->pkg2data($p);
+    my $d = $pool->pkg2data($p);
     $b->{'version'}    = $d->{'version'};
     $b->{'epoch'}      = $d->{'epoch'}   if $d->{'epoch'};
     $b->{'release'}    = $d->{'release'} if exists $d->{'release'};
@@ -795,12 +787,12 @@ sub getbuildinfo {
       $b->{'noinstall'} = 1 if $bdeps{$_} && !($sysdeps{$_} || $vmdeps{$_} || $pdeps{$_});
     }
     push @rdeps, $b;
-    push @preimghdrs, $self->{pool}->pkg2pkgid($p) if !$b->{'noinstall'};
+    push @preimghdrs, $pool->pkg2pkgid($p) if !$b->{'noinstall'};
   }
 
   if (!$self->{'internal'}) {
     my %neededhdrmd5s = map {$_ => 1} grep {$_} @preimghdrs;
-    my @prpas = map {$_->name() . "/$arch"} $self->{pool}->repos();
+    my @prpas = map {$_->name() . "/$arch"} $pool->repos();
 
     my $bestimgn = 2; 
     my $bestimg;

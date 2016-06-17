@@ -24,7 +24,7 @@ use strict;
 sub new {
   my ($class, $gctx, @conf) = @_;
   my $ctx = { 'gctx' => $gctx, @conf };
-  $ctx->{'prp'} = "$ctx->{'project'}/$ctx->{'package'}";
+  $ctx->{'prp'} = "$ctx->{'project'}/$ctx->{'repository'}";
   $ctx->{'gdst'} = "$gctx->{'reporoot'}/$ctx->{'prp'}/$gctx->{'arch'}";
   return bless $ctx, $class;
 }
@@ -32,6 +32,60 @@ sub new {
 sub xrpc {
   my ($ctx, $resource, $param, @args) = @_;
   return BSRPC::rpc($param, @args);
+}
+
+sub setup {
+  my ($ctx) = @_;
+
+  my $gctx = $ctx->{'gctx'};
+  my $projpacks = $gctx->{'projpacks'};
+  my $projid = $ctx->{'project'};
+  my $myarch = $gctx->{'arch'};
+  my $repoid = $ctx->{'repository'};
+  my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
+  die("no repo $repoid in project $projid?\n") unless $repo;
+  $ctx->{'repo'} = $repo;
+  my $bconf = BSRepServer::getconfig($projid, $repoid, $myarch, $ctx->{'configpath'});
+  $ctx->{'conf'} = $bconf;
+}
+
+sub preparepool {
+  my ($ctx, $pname, $ldepfile) = @_;
+
+  my $gctx = $ctx->{'gctx'};
+  my $myarch = $gctx->{'arch'};
+  my $bconf = $ctx->{'conf'};
+  my $pool = BSSolv::pool->new();
+  $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
+  $ctx->{'pool'} = $pool;
+
+  if ($ldepfile) {
+    my $data = {};
+    Build::readdeps({ %$bconf }, $data, $ldepfile);
+    delete $data->{'/url'};
+    delete $data->{'/external/'};
+    my $r = $ctx->{pool}->repofromdata('', $data);
+    die("ldepfile repo add failed\n") unless $r;
+  }
+
+  my $prpsearchpath = $ctx->{'prpsearchpath'};
+  for my $rprp (@$prpsearchpath) {
+    $ctx->addrepo($pool, $rprp, $myarch);
+  }
+  $pool->createwhatprovides();
+  my %dep2src;
+  my %dep2pkg;
+  my %subpacks;
+  for my $p ($pool->consideredpackages()) {
+    my $n = $pool->pkg2name($p);
+    $dep2pkg{$n} = $p; 
+    $dep2src{$n} = $pool->pkg2srcname($p);
+  }
+  $ctx->{'dep2pkg'} = \%dep2pkg;
+  $ctx->{'dep2src'} = \%dep2src;
+  my @subpacks = grep {defined($dep2src{$_}) && $dep2src{$_} eq $pname} keys %dep2src;
+  @subpacks = () if $bconf->{'type'} eq 'kiwi';
+  $ctx->{'subpacks'} = { $pname => \@subpacks };
 }
 
 sub addrepo {
