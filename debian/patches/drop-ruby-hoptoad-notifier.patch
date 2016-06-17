@@ -8,3 +8,14 @@ Description: drop depends on ruby-hoptoad-notifier
 -    HoptoadNotifier.notify(exception, {failed_job: job.inspect})
    end
  end
+--- a/src/api/Gemfile
++++ b/src/api/Gemfile
+@@ -11,8 +11,6 @@
+ gem 'nokogiri', '~>1.6.7'
+ # for delayed tasks
+ gem 'delayed_job_active_record', '>= 4.0.0'
+-# to fill errbit
+-gem 'hoptoad_notifier', "~> 2.3"
+ # as JSON library - the default json conflicts with activerecord (by means of vice-versa monkey patching)
+ gem 'yajl-ruby'
+ # to search the database
