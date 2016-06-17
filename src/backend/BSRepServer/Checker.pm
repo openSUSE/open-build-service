@@ -22,17 +22,10 @@ use BSRPC ':https';
 use strict;
 
 sub new {
-  my ($class, @conf) = @_;
-  my $ctx = { @conf };
-  my $prp = "$ctx->{'project'}/$ctx->{'package'}";
-  $ctx->{'prp'} = $prp;
-  $ctx->{'gdst'} = "$ctx->{'reporoot'}/$prp/$ctx->{'arch'}";
-  # move some stuff into gxtc
-  my $gctx = {};
-  for ('arch', 'reporoot', 'extrepodir', 'extrepodb') {
-    $gctx->{$_} = delete $ctx->{$_};
-  }
-  $ctx->{'gctx'} = $gctx;
+  my ($class, $gctx, @conf) = @_;
+  my $ctx = { 'gctx' => $gctx, @conf };
+  $ctx->{'prp'} = "$ctx->{'project'}/$ctx->{'package'}";
+  $ctx->{'gdst'} = "$gctx->{'reporoot'}/$ctx->{'prp'}/$gctx->{'arch'}";
   return bless $ctx, $class;
 }
 
