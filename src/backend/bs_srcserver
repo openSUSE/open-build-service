@@ -5594,6 +5594,24 @@ sub sourcecommitfilelist {
   return getfilelist($cgi, $projid, $packid);
 }
 
+sub copyproject_sync {
+  my ($projid, $pkgs, $repos, $tmo) = @_;
+  AGAIN: for (; $tmo > 0; $tmo -= 1, sleep(1)) {
+    my $status = (getresult({}, $projid))[0];
+    for my $repo (@{$repos}) {
+      next AGAIN unless grep { $_->{'repository'} eq $repo->{'name'} } @{$status->{'result'}};
+    }
+    for my $repo (@{$status->{'result'}}) {
+      next AGAIN unless $repo->{'status'};
+      for my $pkg (@{$repo->{'status'}}) {
+        next AGAIN unless grep { $_ eq $pkg->{'package'} } @{$pkgs};
+      }
+    }
+    last;
+  }
+  return $tmo > 0;
+}
+
 # copy sources of entire project, project exists ensured by api.
 sub copyproject {
   my ($cgi, $projid) = @_;
@@ -5746,6 +5764,7 @@ sub copyproject {
 	  push @args, "opackage=$packid"; # same package name
 	  push @args, "orepository=$repo->{'name'}"; # same repo name
 	  push @args, 'resign=1' if $cgi->{'resign'};
+	  push @args, 'withmeta=1';
 	  my $param = {
 	    'uri' => "$reposerver/build/$projid/$repo->{'name'}/$arch/$packid",
 	    'request' => 'POST',
@@ -5761,6 +5780,9 @@ sub copyproject {
   }
   # check all packages in project
   notify_repservers('package', $projid);
+  if ($cgi->{'synctimeout'} && $cgi->{'synctimeout'} > 0) {
+    return undef unless copyproject_sync($projid, \@pkgs, \@{$proj->{'repository'} || []}, $cgi->{'synctimeout'});
+  }
   return $BSStdServer::return_ok;	# also resumes the project
 }
 
@@ -8247,7 +8269,7 @@ my $dispatches = [
   'POST:/source/$project cmd=createkey user:? comment:?' => \&createkey,
   'POST:/source/$project cmd=extendkey user:? comment:?' => \&extendkey,
   'POST:/source/$project cmd=undelete user:? comment:?' => \&undeleteproject,
-  'POST:/source/$project cmd=copy user:? comment:? oproject:project withbinaries:bool? withhistory:bool? makeolder:bool? resign:bool? noservice:bool?' => \&copyproject,
+  'POST:/source/$project cmd=copy user:? comment:? oproject:project withbinaries:bool? withhistory:bool? makeolder:bool? resign:bool? noservice:bool? synctimeout:num?' => \&copyproject,
   'POST:/source/$project cmd: *:*' => \&unknowncmd,
   '/source/$project view=info parse:bool? nofilename:bool? repository? arch? package* withchangesmd5:bool?' => \&getprojectsourceinfo,
   '/source/$project deleted:bool? expand:bool? noorigins:bool?' => \&getpackagelist,
