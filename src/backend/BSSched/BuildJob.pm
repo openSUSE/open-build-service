@@ -763,13 +763,16 @@ sub create {
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
   my $job = jobname($prp, $packid);
+  my @otherjobs;
   my $myjobsdir = $gctx->{'myjobsdir'};
-  if (-s "$myjobsdir/$job-$srcmd5") {
-    add_crossmarker($gctx, $bconf->{'hostarch'}, "$job-$srcmd5") if $bconf->{'hostarch'};	# just in case...
-    return ('scheduled', "$job-$srcmd5");
+  if ($myjobsdir) {
+    if (-s "$myjobsdir/$job-$srcmd5") {
+      add_crossmarker($gctx, $bconf->{'hostarch'}, "$job-$srcmd5") if $bconf->{'hostarch'};	# just in case...
+      return ('scheduled', "$job-$srcmd5");
+    }
+    return ('scheduled', $job) if -s "$myjobsdir/$job";   # obsolete
+    @otherjobs = grep {/^\Q$job\E-[0-9a-f]{32}$/} ls($myjobsdir);
   }
-  return ('scheduled', $job) if -s "$myjobsdir/$job";   # obsolete
-  my @otherjobs = grep {/^\Q$job\E-[0-9a-f]{32}$/} ls($myjobsdir);
   $job = "$job-$srcmd5";
 
   # a new one. expand usedforbuild. write info file.

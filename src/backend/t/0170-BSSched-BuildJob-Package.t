@@ -22,7 +22,6 @@ my $gctx = {
   'arch' => 'i586',
   'reporoot' => "$BSConfig::bsdir/build",
   'obsname' => 'testobs',
-  'myjobsdir' => 'testdata/jobsdir_does_not_exist',
 };
 
 my $projpacksin = readxml('testdata/buildinfo/srcserver/getprojpack?withsrcmd5&withdeps&withrepos&withconfig&withremotemap&ignoredisable&project=openSUSE:13.2&repository=standard&arch=i586&package=screen', $BSXML::projpack);

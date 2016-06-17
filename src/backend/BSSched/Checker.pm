@@ -751,7 +751,7 @@ sub checkpkgs {
       # hmm, this might be a bad idea...
       my $job = BSSched::BuildJob::jobname($prp, $packid)."-$pdata->{'srcmd5'}";
       my $myjobsdir = $gctx->{'myjobsdir'};
-      if (-s "$myjobsdir/$job") {
+      if ($myjobsdir && -s "$myjobsdir/$job") {
 	# print "      - $packid ($buildtype)\n";
 	# print "        already scheduled\n";
 	my $bconf = $ctx->{'conf'};
