@@ -210,4 +210,14 @@ if (-r $hostconfig) {
   require $hostconfig;
 }
 
+# For specific build constraints, for example to require a specific
+# security level of the workers.
+#
+#our $dispatch_constraint = sub {
+#  my ($job, $worker) = @_;
+#
+#  return 0 unless (grep {$_ eq "OBS_WORKER_SECURITY_LEVEL_1"} @{$worker->{'hostlabel'} || []});
+#  return 1;
+#}
+
 1;

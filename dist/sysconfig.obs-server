@@ -148,6 +148,17 @@ OBS_WORKER_TEST_MODE=""
 OBS_WORKER_HOSTLABELS=""
 
 ## Path:        Applications/OBS
+## Description: can be used to define a security level of the worker
+## Type:        string
+## Default:     ""
+## Config:      OBS
+#
+# This will extend the hostlabels and can be used to limit the workers
+# to the hosts which have all security fixes deployed.
+#
+OBS_WORKER_SECURITY_LEVEL=""
+
+## Path:        Applications/OBS
 ## Description: Register in SLP server
 ## Type:        ("yes" | "no")
 ## Default:     "yes"
