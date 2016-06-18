@@ -28,6 +28,29 @@ use Fcntl qw(:DEFAULT);
 
 use strict;
 
+=head1 NAME
+
+BSHTTP
+
+=cut
+
+=head1 SYNOPSIS
+
+ TODO
+
+=cut
+
+=head1 DESCRIPTION
+
+This library contains functions to handle http requests in obs
+
+=cut
+
+=head1 FUNCTIONS / METHODS
+
+=cut
+
+
 sub gethead {
   my ($h, $t) = @_;
 
@@ -51,12 +74,30 @@ sub unexpected_eof {
   die("unexpected EOF\n");
 }
 
-#
-# read data from socket, do chunk decoding if needed
-# req: request data
-# maxl = undef: read as much as you can
-# exact = 1: read maxl data, maxl==undef -> read to eof;
-#
+
+=head2 BSHTTP::read_data
+
+read data from socket, do chunk decoding if needed
+
+  my $ret = BSHTTP::read_data(
+    # request data
+    {
+      headers	  => {
+			transfer-encoding => 'chunked'
+			content-length	  => ...
+		     }, #
+      __socket	  => <FILEHANDLE> , # filehandle to socket or opened file
+      __cl	  => ...	  , #
+      __data
+    },
+    $maxl,	  # if undef read as much as you can
+    $exact,	  # Boolean
+		  # if 1 read maxl data
+		  # if maxl == undef -> read to eof
+  );
+
+=cut
+
 sub read_data {
   my ($req, $maxl, $exact) = @_;
 
@@ -205,6 +246,55 @@ sub file_receiver {
   $res->{'md5'} = $ctx->hexdigest if $ctx;
   return $res;
 }
+
+
+=head2 BSHTTP::cpio_receiver
+
+TODO: add meaningful explanation
+
+  my $result = BSHTTP::cpio_receiver(
+    # options given to read_data
+    {
+      ... # SEE BSHTTP::read_data
+    },
+    # all parameters are optional
+    {
+      directory	    => <STRING>        , # store files in given directory
+					 # (Otherwise data is stored in $result->[]
+      withmd5	    => <BOOLEAN>       , #
+      acceptsubdirs => <BOOLEAN>       , #
+      createsubdirs => <BOOLEAN>       , #
+      accept	    => <REGEX|CODEREF> , # Check included files
+					 # by regex or function
+      map	    => <REGEX|CODEREF> , # Rename files
+					 # by regex or function
+      no_unlink	    => <BOOLEAN>       , # Do not remove already existent
+					 # (sub)directories. Only relevant
+					 # if directory is given
+					 #
+      cpiopostfile  => ... , #
+    }
+  );
+
+  # returns an ArrayRef of HashRefs
+  # $result = [
+  #   {
+  #	name	  => <STRING>	  , # filename
+  #	size	  => ...
+  #	mtime	  => ...	  ,
+  #	mode	  => ...	  ,
+  #	md5	  => <STRING>	  , # md5 as hexdigest
+  #				    # only if withmd5 was true
+  #	data	  => <BINARYDATA> , # binary data from file
+  #				    # only if no directory was given
+  #   },
+  #   {
+  #	....
+  #   },
+  #   ....
+  # ];
+
+=cut
 
 sub cpio_receiver {
   my ($req, $param) = @_;
