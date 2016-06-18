@@ -41,13 +41,13 @@ my ($got,$expected);
 
 # Test Case 01
 { 
-	local *STDOUT;
-	my $out;
-	open(STDOUT,">",\$out);
+  local *STDOUT;
+  my $out;
+  open(STDOUT,">",\$out);
 
-	($got) = BSRepServer::BuildInfo->new(projid=>'home:M0ses:kanku:Images', repoid=>'images', arch=>'x86_64', packid=>'openSUSE-Leap-42.1-JeOS')->getbuildinfo();
+  ($got) = BSRepServer::BuildInfo->new(projid=>'home:M0ses:kanku:Images', repoid=>'images', arch=>'x86_64', packid=>'openSUSE-Leap-42.1-JeOS')->getbuildinfo();
 
-        $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc01", $BSXML::buildinfo);
+  $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc01", $BSXML::buildinfo);
 }
 
 clean_results($got,$expected);
@@ -57,13 +57,13 @@ is_deeply($got, $expected, 'buildinfo for Kiwi Image');
 
 # Test Case 02
 {
-	local *STDOUT;
-	my $out;
-	open(STDOUT,">",\$out);
+  local *STDOUT;
+  my $out;
+  open(STDOUT,">",\$out);
 
-	($got) = BSRepServer::BuildInfo->new(projid=>'home:Admin:branches:openSUSE.org:home:M0ses:kanku:Images', repoid=>'images', arch=>'x86_64', packid=>'openSUSE-Leap-42.1-JeOS')->getbuildinfo();
+  ($got) = BSRepServer::BuildInfo->new(projid=>'home:Admin:branches:openSUSE.org:home:M0ses:kanku:Images', repoid=>'images', arch=>'x86_64', packid=>'openSUSE-Leap-42.1-JeOS')->getbuildinfo();
 
-        $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc02", $BSXML::buildinfo);
+  $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc02", $BSXML::buildinfo);
 }
 
 clean_results($got,$expected);
@@ -72,13 +72,13 @@ is_deeply($got, $expected, 'buildinfo for Kiwi Image with remotemap');
 
 # Test Case 03
 {
-	local *STDOUT;
-	my $out;
-	open(STDOUT,">",\$out);
+  local *STDOUT;
+  my $out;
+  open(STDOUT,">",\$out);
 
-	($got) = BSRepServer::BuildInfo->new(projid=>'home:Admin:branches:openSUSE.org:OBS:Server:Unstable', repoid=>'openSUSE_Leap_42.1', arch=>'x86_64', packid=>'_product:OBS-Addon-release')->getbuildinfo();
+  ($got) = BSRepServer::BuildInfo->new(projid=>'home:Admin:branches:openSUSE.org:OBS:Server:Unstable', repoid=>'openSUSE_Leap_42.1', arch=>'x86_64', packid=>'_product:OBS-Addon-release')->getbuildinfo();
 
-        $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc03", $BSXML::buildinfo);
+  $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc03", $BSXML::buildinfo);
 }
 
 clean_results($got,$expected);
@@ -87,13 +87,13 @@ is_deeply($got, $expected, 'buildinfo for regular Package with remotemap');
 
 # Test Case 04
 {
-	local *STDOUT;
-	my $out;
-	open(STDOUT,">",\$out);
+  local *STDOUT;
+  my $out;
+  open(STDOUT,">",\$out);
 
-	($got) = BSRepServer::BuildInfo->new(projid=>'home:Admin:branches:openSUSE.org:OBS:Server:2.7', repoid=>'images', arch=>'x86_64', packid=>'_product:OBS-Addon-cd-cd-x86_64')->getbuildinfo();
+  ($got) = BSRepServer::BuildInfo->new(projid=>'home:Admin:branches:openSUSE.org:OBS:Server:2.7', repoid=>'images', arch=>'x86_64', packid=>'_product:OBS-Addon-cd-cd-x86_64')->getbuildinfo();
 
-        $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc04", $BSXML::buildinfo);
+  $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc04", $BSXML::buildinfo);
 }
 
 clean_results($got,$expected);
