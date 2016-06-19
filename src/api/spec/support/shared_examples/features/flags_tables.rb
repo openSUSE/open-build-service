@@ -27,7 +27,10 @@ RSpec.shared_examples "a flag table" do
     "tr:nth-child(#{row}) td:nth-child(#{col})"
   end
 
-  scenario "has correct table headers" do
+  # default attributes we gone need to verify flags got updated
+  let(:query_attributes) { { repo: nil, architecture_id: nil, flag: flag_type } }
+
+  scenario "has correct table headers (arch labels)" do
     # Repository | All | $archs ...
     expect(subject.find("tr:first-child th:nth-child(1)").text).to eq("Repository")
     expect(subject.find("tr:first-child th:nth-child(2)").text).to eq("All")
@@ -37,8 +40,12 @@ RSpec.shared_examples "a flag table" do
     end
   end
 
-  # default attributes we gone need to verify flags got updated
-  let(:query_attributes) { { repo: nil, architecture_id: nil, flag: flag_type } }
+  scenario "has correct collum descriptions (repository labels)" do
+    # Repository | All | $repositories ...
+    expect(subject.find("tr:nth-child(1) th:first-child").text).to eq("Repository")
+    expect(subject.find("tr:nth-child(2) td:first-child").text).to eq("All")
+    expect(subject.find("tr:nth-child(3) td:first-child").text).to eq(repository.name)
+  end
 
   scenario "toggle flags per repository" do
     query_attributes.merge!(repo: repository.name)
@@ -71,7 +78,7 @@ RSpec.shared_examples "a flag table" do
   end
 
   scenario "toggle a single flag" do
-    query_attributes.merge!(repo: repository.name, architecture_id: Architecture.find_by_name("x86_64"), flag: flag_type)
+    query_attributes.merge!(repo: repository.name, architecture_id: Architecture.find_by_name("x86_64"))
 
     disable_flag_field_for(repository: repository.name, architecture: "x86_64")
     expect(project.flags.reload.where(status: "disable")).to exist
