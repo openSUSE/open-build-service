@@ -355,6 +355,9 @@ touch %{buildroot}/%{secret_key_file}
 chmod 0640 %{buildroot}/%{secret_key_file}
 %endif
 
+# drop testcases for now
+rm -rf %{buildroot}/srv/www/obs/api/spec
+
 %check
 ### TEMPORARY HACK
 # disabling this testsuite, since sphinx startup breaks unreliable in kvm
