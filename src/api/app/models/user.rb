@@ -776,6 +776,28 @@ class User < ActiveRecord::Base
     false
   end
 
+  def lock!
+    self.state = 'locked'
+    self.save!
+
+    # lock also all home projects to avoid unneccessary builds
+    Project.where("name like ?", "#{self.home_project_name}%").each do |prj|
+      next if prj.is_locked?
+      prj.lock("User account got locked")
+    end
+  end
+
+  def delete!
+    self.state = 'deleted'
+    self.save!
+
+    # wipe also all home projects
+    Project.where("name like ?", "#{self.home_project_name}%").each do |prj|
+      prj.commit_opts = { comment: "User account got deleted"}
+      prj.destroy
+    end
+  end
+
   def involved_projects_ids
     # just for maintainer for now.
     role = Role.rolecache['maintainer']

@@ -65,7 +65,22 @@ class PersonController < ApplicationController
       render_ok
       return
     end
-    raise UnknownCommandError.new "Allowed commands are 'change_password'"
+    if params[:cmd] == "lock"
+      return unless require_admin
+      user = User.find_by_login!(params[:login])
+      user.lock!
+      render_ok
+      return
+    end
+    if params[:cmd] == "delete"
+      # maybe we should allow the users to delete themself?
+      return unless require_admin
+      user = User.find_by_login!(params[:login])
+      user.delete!
+      render_ok
+      return
+    end
+    raise UnknownCommandError.new "Allowed commands are 'change_password', 'lock' or 'delete', got #{params[:cmd]}"
   end
 
   def put_userinfo
