@@ -255,9 +255,9 @@ sub find_latest_file {
 }
 
 sub dump_nStore {
-  my ($file, $sel) = @_;
+  my ($file, @sel) = @_;
   my $cache = BSUtil::retrieve($file);
-  $cache = $cache->{$sel} if defined $sel;
+  $cache = $cache->{$_} for @sel;
   print Dumper($cache);
   return $cache
 }
@@ -655,8 +655,7 @@ while (@ARGV) {
   } elsif ($arg eq "--dump-relsync" || $arg eq '--dump') {
     die("ERROR: need file as argument!\n") if @ARGV < 1;
     my $file = shift @ARGV;
-    my $sel = shift @ARGV;
-    dump_nStore($file, $sel);
+    dump_nStore($file, splice @ARGV);
   } elsif ($arg eq "--set-relsync") {
     die("ERROR: need file as argument!\n") if @ARGV < 1;
     my $file = shift @ARGV;
