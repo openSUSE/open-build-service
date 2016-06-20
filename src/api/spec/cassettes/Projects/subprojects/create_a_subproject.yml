@@ -36,7 +36,7 @@ http_interactions:
           <details>404 project 'home:Jane' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Wed, 09 Mar 2016 17:19:14 GMT
+  recorded_at: Wed, 15 Jun 2016 09:36:41 GMT
 - request:
     method: get
     uri: http://localhost:3200/build/home:Jane/_result?view=summary
@@ -73,7 +73,7 @@ http_interactions:
           <details>404 project 'home:Jane' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Wed, 09 Mar 2016 17:19:14 GMT
+  recorded_at: Wed, 15 Jun 2016 09:36:41 GMT
 - request:
     method: get
     uri: http://localhost:3200/build/home:Jane:coolstuff/_result?code=unresolvable&view=status
@@ -110,7 +110,7 @@ http_interactions:
           <details>404 project 'home:Jane:coolstuff' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Wed, 09 Mar 2016 17:19:14 GMT
+  recorded_at: Wed, 15 Jun 2016 09:36:41 GMT
 - request:
     method: get
     uri: http://localhost:3200/build/home:Jane:coolstuff/_result?view=summary
@@ -147,5 +147,5 @@ http_interactions:
           <details>404 project 'home:Jane:coolstuff' does not exist</details>
         </status>
     http_version: 
-  recorded_at: Wed, 09 Mar 2016 17:19:14 GMT
+  recorded_at: Wed, 15 Jun 2016 09:36:41 GMT
 recorded_with: VCR 3.0.1
