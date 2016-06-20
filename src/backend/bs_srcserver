@@ -57,6 +57,7 @@ use BSNotify;
 use BSPgp;
 use BSSrcrep;
 use BSRevision;
+use BSKiwiXML;
 
 use BSXPath;
 use BSXPathKeys;
@@ -7807,6 +7808,80 @@ sub getissuetrackers {
 
 ####################################################################
 
+sub orderkiwirepos_for_prio {
+  my (@repos) = @_;
+  my @prps;
+  my %prps;
+  for my $repo (@repos) {
+    my $prp;
+    my $url = ($repo->{'source'} || {})->{'path'};
+    if ($url =~ /^obs:\/\/\/?([^\/]+)\/([^\/]+)\/?$/) {
+      $prp = "$1/$2";
+    } else {
+      $prp = kiwiurlmapper($url);
+    }
+    $prp ||= ':unknown/unknown';
+    push @prps, $prp;
+    push @{$prps{$prp}}, $repo;
+  }
+  @prps = BSUtil::unify(@prps);
+  my %deps;
+  for my $prp (@prps) {
+    my ($projid, $repoid) = split('/', $prp, 2);
+    my @path;
+    eval {
+      @path = expandsearchpath($projid, $repoid);
+    };
+    if ($@) {
+      die($@) unless $@ =~ /^404/;
+      warn($@);
+    }
+    my $oldrprp;
+    for my $rprp (@path) {
+      unshift @{$deps{$rprp}}, $oldrprp if $oldrprp && $rprp ne $oldrprp;
+      $oldrprp = $rprp;
+      if (!$prps{$rprp}) {
+	$prps{$rprp} = [];
+        push @prps, $rprp;
+      }
+    }
+  }
+  $deps{$_} = [ BSUtil::unify(@{$deps{$_}}) ]  for keys %deps;
+  # hmm, depsort is not really stable...
+  my @cycs;
+  @prps = BSSolv::depsort(\%deps, undef, \@cycs, @prps);
+  print "orderkiwirepo_for_prio cycle: ".join(' -> ', @$_)."\n" for @cycs;
+  return map {@{$prps{$_}}} @prps;
+}
+
+sub orderkiwirepos {
+  my ($cgi) = @_;
+  mkdir_p($uploaddir);
+  die("content read failed\n") unless BSServer::read_file("$uploaddir/$$");
+  my $kiwi = readxml("$uploaddir/$$", $BSKiwiXML::kiwidesc);
+  unlink("$uploaddir/$$");
+  my %prios;
+  my $pkgmanager;
+  $pkgmanager = $kiwi->{'preferences'}->{'packagemanager'} if $kiwi->{'preferences'};
+  $pkgmanager ||= 'zypper';
+  for (@{$kiwi->{'repository'} || []}) {
+    my $prio = $_->{'priority'};
+    $prio = $pkgmanager eq 'smart' ? 0 : 99 unless defined $prio;
+    $prio = 0 + $prio;
+    $prio = -$prio if $pkgmanager eq 'smart';
+    push @{$prios{$prio}}, $_;
+  }
+  if (%prios) {
+    $kiwi->{'repository'} = [];
+    for my $prio (sort {$a <=> $b} keys %prios) {
+      push @{$kiwi->{'repository'}}, orderkiwirepos_for_prio(@{$prios{$prio}});
+    }
+  }
+  return ($kiwi, $BSKiwiXML::kiwidesc);
+}
+
+####################################################################
+
 sub external_notification {
   my ($cgi, $type) = @_;
   my $param = {};
@@ -7850,6 +7925,8 @@ my $dispatches = [
   '!rw :' => undef,
   '!- GET:' => undef,
   '!- HEAD:' => undef,
+
+  'POST:/source cmd=orderkiwirepos' => \&orderkiwirepos,
 
   # /source name space: manage project and package data
   '/source deleted:bool?' => \&getprojectlist,
