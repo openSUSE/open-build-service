@@ -142,13 +142,13 @@ sub updateremoteprojs {
 
   my $remoteprojs = $gctx->{'remoteprojs'};
   for my $projid (keys %$remoteprojs) {
+    my $or = $remoteprojs->{$projid};
+    next if $or && $or->{'partition'};  # XXX how do we update them?
     my $r = $needremoteproj->{$projid};
     if (!$r) {
       delete $remoteprojs->{$projid};	# no longer needed
       next;
     }
-    my $or = $remoteprojs->{$projid};
-    next if $or && $or->{'partition'};  # XXX how do we update them?
     next if $or && $or->{'remoteurl'} eq $r->{'remoteurl'} && $or->{'remoteproject'} eq $r->{'remoteproject'};
     delete $remoteprojs->{$projid};	# changed, need to refetch
   }
