@@ -34,6 +34,9 @@ BEGIN {
       $_ = BSRPC::urlencode($_);
       s/%3D/=/;
     }
+
+    my $org_uri = $uri;
+
     $uri = "$uri?" . join('&', @args);
     if ($Test::Mock::BSRPC::fixtures_map->{$uri}) {
       $uri = $Test::Mock::BSRPC::fixtures_map->{$uri}
@@ -43,15 +46,37 @@ BEGIN {
     }
     $uri = "$BSConfig::bsdir/$uri";
 
-    my $ret = Test::OBS::Utils::readstrxz($uri);
-    die("missing fixture: $uri\n") unless defined $ret;
-    my $receiver = $param->{'receiver'};
-    if ($receiver) {
-      $ret = $receiver->(BSHTTP::str2req($ret), $param, $xmlargs || $param->{'receiverarg'}) if $receiver;
-    } elsif ($xmlargs) {
-      $ret = BSUtil::fromxml($ret, $xmlargs);
+    my $ret;
+    eval {
+      $ret = Test::OBS::Utils::readstrxz($uri);
+
+      die("missing fixture: $uri") unless defined $ret;
+
+      my $receiver = $param->{'receiver'};
+      if ($receiver) {
+	$ret = $receiver->(BSHTTP::str2req($ret), $param, $xmlargs || $param->{'receiverarg'}) if $receiver;
+      } elsif ($xmlargs) {
+	$ret = BSUtil::fromxml($ret, $xmlargs);
+      }
+    };
+
+    if  ( $@ ) {
+      die ("
+$@
+
+Use the following command line to generate them:
+
+curl \"$org_uri\" > \"$uri\"
+
+to compress them use:
+
+xz \"$uri\"
+
+");
     }
+
     return $ret;
+
   };
 }
 

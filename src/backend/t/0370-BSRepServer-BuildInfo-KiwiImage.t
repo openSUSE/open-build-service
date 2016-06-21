@@ -10,7 +10,7 @@ use Test::Mock::BSConfig;
 use Test::OBS::Utils;
 use Test::Mock::BSRepServer::Checker;
 
-use Test::More tests => 3;                      # last test to print
+use Test::More tests => 5;                      # last test to print
 
 use BSUtil;
 use BSXML;
@@ -38,56 +38,76 @@ use_ok("BSRepServer::BuildInfo");
 
 my ($got,$expected);
 
+
 # Test Case 01
 { 
-	($got) = BSRepServer::BuildInfo->new(projid=>'home:M0ses:kanku:Images', repoid=>'images', arch=>'x86_64', packid=>'openSUSE-Leap-42.1-JeOS')->getbuildinfo();
+  local *STDOUT;
+  my $out;
+  open(STDOUT,">",\$out);
 
-        $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc01", $BSXML::buildinfo);
+  ($got) = BSRepServer::BuildInfo->new(projid=>'home:M0ses:kanku:Images', repoid=>'images', arch=>'x86_64', packid=>'openSUSE-Leap-42.1-JeOS')->getbuildinfo();
 
-	$got->{'bdep'}  = [ sort {$a->{'name'} cmp $b->{'name'}} @{$got->{'bdep'} || []} ];
-	$expected->{'bdep'} = [ sort {$a->{'name'} cmp $b->{'name'}} @{$expected->{'bdep'} || []} ];
+  $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc01", $BSXML::buildinfo);
 }
+
+clean_results($got,$expected);
+
 is_deeply($got, $expected, 'buildinfo for Kiwi Image');
 
 
 # Test Case 02
 {
+  local *STDOUT;
+  my $out;
+  open(STDOUT,">",\$out);
 
-	local *STDOUT;
-	my $out;
-	open(STDOUT,">",\$out);
+  ($got) = BSRepServer::BuildInfo->new(projid=>'home:Admin:branches:openSUSE.org:home:M0ses:kanku:Images', repoid=>'images', arch=>'x86_64', packid=>'openSUSE-Leap-42.1-JeOS')->getbuildinfo();
 
-	($got) = BSRepServer::BuildInfo->new(projid=>'home:Admin:branches:openSUSE.org:home:M0ses:kanku:Images', repoid=>'images', arch=>'x86_64', packid=>'openSUSE-Leap-42.1-JeOS')->getbuildinfo();
-
-	#my $data = BSUtil::readstr("$BSConfig::bsdir/result/tc02");
-	#eval "$data";
-
-        $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc02", $BSXML::buildinfo);
-
-	$got->{'bdep'}  = [ sort {$a->{'name'} cmp $b->{'name'}} @{$got->{'bdep'} || []} ];
-	$expected->{'bdep'} = [ sort {$a->{'name'} cmp $b->{'name'}} @{$expected->{'bdep'} || []} ];
+  $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc02", $BSXML::buildinfo);
 }
+
+clean_results($got,$expected);
+
 is_deeply($got, $expected, 'buildinfo for Kiwi Image with remotemap');
 
-# Test Case 03 (does *not* test kiwi images, thus currently disabled
+# Test Case 03
 {
+  local *STDOUT;
+  my $out;
+  open(STDOUT,">",\$out);
 
-	#local *STDOUT;
-	#my $out;
-	#open(STDOUT,">",\$out);
-	# openSUSE.org:OBS:Server:Unstable" repository="openSUSE_42.1" package="_product"
-	# home:Admin:branches:openSUSE.org:OBS:Server:Unstable/_product:OBS-Addon-release/openSUSE_Leap_42.1/x86_64
-	($got) = BSRepServer::BuildInfo->new(projid=>'home:Admin:branches:openSUSE.org:OBS:Server:Unstable', repoid=>'openSUSE_Leap_42.1', arch=>'x86_64', packid=>'_product:OBS-Addon-release')->getbuildinfo();
+  ($got) = BSRepServer::BuildInfo->new(projid=>'home:Admin:branches:openSUSE.org:OBS:Server:Unstable', repoid=>'openSUSE_Leap_42.1', arch=>'x86_64', packid=>'_product:OBS-Addon-release')->getbuildinfo();
 
-	#my $data = BSUtil::readstr("$BSConfig::bsdir/result/tc02");
-	#eval "$data";
-
-        $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc03", $BSXML::buildinfo);
-
-print "$got->{release}\n";
-	$got->{'bdep'}  = [ sort {$a->{'name'} cmp $b->{'name'}} @{$got->{'bdep'} || []} ];
-	$expected->{'bdep'} = [ sort {$a->{'name'} cmp $b->{'name'}} @{$expected->{'bdep'} || []} ];
+  $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc03", $BSXML::buildinfo);
 }
-#is_deeply($got, $expected, 'buildinfo for Kiwi Image with remotemap');
+
+clean_results($got,$expected);
+
+is_deeply($got, $expected, 'buildinfo for regular Package with remotemap');
+
+# Test Case 04
+{
+  local *STDOUT;
+  my $out;
+  open(STDOUT,">",\$out);
+
+  ($got) = BSRepServer::BuildInfo->new(projid=>'home:Admin:branches:openSUSE.org:OBS:Server:2.7', repoid=>'images', arch=>'x86_64', packid=>'_product:OBS-Addon-cd-cd-x86_64')->getbuildinfo();
+
+  $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc04", $BSXML::buildinfo);
+}
+
+clean_results($got,$expected);
+
+is_deeply($got, $expected, 'buildinfo for Kiwi Product with remotemap');
 
 exit 0;
+
+sub clean_results {
+  my ($got,$expected) = @_;
+
+  $got->{'bdep'}  = [ sort {$a->{'name'} cmp $b->{'name'}} @{$got->{'bdep'} || []} ];
+  $expected->{'bdep'} = [ sort {$a->{'name'} cmp $b->{'name'}} @{$expected->{'bdep'} || []} ];
+  $got->{subpack} = [ sort { $a cmp $b }  @{ $got->{subpack}  || [] } ];
+  $expected->{subpack} = [ sort { $a cmp $b } @{ $expected->{subpack}  || [] } ];
+
+};

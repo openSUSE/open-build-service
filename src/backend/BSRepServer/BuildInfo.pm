@@ -12,6 +12,10 @@ use BSFileDB;
 use BSXML;
 use Build;
 use BSSolv;
+
+# required for orderpackids
+use BSSched::ProjPacks;
+
 use BSRepServer;
 use BSRepServer::Checker;
 use BSRepServer::BuildInfo::Generic;
@@ -212,7 +216,7 @@ sub getkiwiproductpackages_compat {
   my $reporoot  = $self->{gctx}->{reporoot};
 
   my $depends = BSUtil::retrieve("$self->{gctx}->{reporoot}/$aprp/$arch/:depends", 1);
-  next unless $depends && $depends->{'subpacks'};
+  return unless $depends && $depends->{'subpacks'};
   my %apackids = (%{$depends->{'subpacks'} || {}}, %{$depends->{'pkgdeps'}});
   for my $apackid (BSSched::ProjPacks::orderpackids({'kind' => $aprojidkind}, keys %apackids)) {
     next if $apackid eq '_volatile';
