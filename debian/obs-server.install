@@ -11,3 +11,10 @@ dist/obs.source_server.reg	/etc/slp.reg.d/
 dist/overview.html.TEMPLATE	/srv/www/obs/overview/
 dist/sysconfig.obs-server       /etc/default/
 src/backend/*			        /usr/lib/obs/server/
+usr/sbin/
+usr/lib/obs/tests/appliance/
+usr/lib/obs/server/
+srv/www/obs/
+var/adm/
+etc/
+
