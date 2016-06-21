@@ -690,7 +690,7 @@ sub checkconstraints {
       $workerseen{$workername} = 1;
       push @all_workers, $worker;
       next if $BSConfig::dispatch_constraint && !$BSConfig::dispatch_constraint->($info, $worker, $constraints);
-      next unless !$constraints || BSDispatcher::Constraints::oracle($worker, $constraints) > 0;
+      next unless BSDispatcher::Constraints::oracle($worker, $constraints);
       $sumworkers++;
       $downworkers++ if $workerstate eq 'down';
     }
@@ -1240,7 +1240,7 @@ while (1) {
         if ($harchcando{"$harch/$arch"} && $worker->{hardware} && exists($worker->{hardware}->{nativeonly})) {
            next;	# worker is not supporting the needed personality change
         }
-	next if $constraints && !BSDispatcher::Constraints::oracle($worker, $constraints);
+	next unless BSDispatcher::Constraints::oracle($worker, $constraints);
 	last unless -e "$jobsdir/$arch/$job";
 	last if $assigned && $tries >= 5;
 	$tries++;
@@ -1266,10 +1266,10 @@ while (1) {
 	$haveassigned = 1;
 	last;
       }
-      # we have jobs that could not be assigned and have constraints.
+      # we have jobs that could not be assigned.
       # check if non idle workers could build these job or if there are no
       # workers that met the constraints
-      if (!$haveassigned && $constraints) {
+      if (!$haveassigned) {
         if ($info->{'allworkercheck'}++ % 5 == 0) {
 	  if (!$info->{'allworkerchecktime'} || $now - $info->{'allworkerchecktime'} > 300) {
 	    $info->{'allworkerchecktime'} = $now;

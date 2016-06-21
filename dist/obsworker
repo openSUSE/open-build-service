@@ -355,6 +355,7 @@ case "$1" in
             fi
 	    echo "screen -t $WORKERID nice -n $OBS_NICE ./bs_worker --hardstatus $vmopt $port --root $R" \
                 "--statedir $workerdir/$I --id $WORKERID $REPO_PARAM $HUGETLBFS $HOSTLABELS" \
+                "${OBS_WORKER_HOSTLABEL_FILTER:+--hostlabel-filtering $OBS_WORKER_HOSTLABEL_FILTER}" \
                 "$HOSTOWNER $OBS_JOBS $OBS_THREADS $OBS_TEST $OBS_WORKER_OPT $TMPFS $DEVICE $SWAP $MEMORY" \
                 "$OBS_CLEANUP_CHROOT $ARCH $EMULATOR" \
                 >> $screenrc

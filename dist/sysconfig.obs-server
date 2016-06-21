@@ -159,6 +159,20 @@ OBS_WORKER_HOSTLABELS=""
 OBS_WORKER_SECURITY_LEVEL=""
 
 ## Path:        Applications/OBS
+## Description: define whether host labels should filter accepted jobs.
+## Type:        ("and" | "or" | "")
+## Default:     ""
+## Config:      OBS
+#
+# Hostlabels can be used to filter accpeted jobs. When
+# OBS_WORKER_HOSTLABEL_FILTER is set to "and" all host labels must be
+# defined for the incoming job to be accepted. When
+# OBS_WORKER_HOSTLABEL_FILTER is set to "or" it is enough for the
+# incoming jobs to have at least one of the worker's host labels.
+#
+OBS_WORKER_HOSTLABEL_FILTER=""
+
+## Path:        Applications/OBS
 ## Description: Register in SLP server
 ## Type:        ("yes" | "no")
 ## Default:     "yes"

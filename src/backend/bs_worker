@@ -87,6 +87,7 @@ my $hostcheck;
 my $localkiwi;
 my $owner;
 my @hostlabel;
+my $hostlabelfiltermode;
 my $getbinariesproxy;
 my $hardstatus;
 
@@ -260,6 +261,8 @@ Usage: $0 [OPTION] --root <directory> --statedir <directory>
 
        --hostlabel : define a host label for build constraints, can be used multiple times
 
+       --hostlabel-filtering : define a host label filtering mode ("and" | "or" | "") (default: "")
+
        --vm-kernel : set kernel to use (xen/kvm)
 
        --vm-initrd : set initrd to use (xen/kvm)
@@ -389,6 +392,16 @@ while (@ARGV) {
     shift @ARGV;
     my $label = shift @ARGV;
     push @hostlabel, $label unless grep {$_ eq $label} @hostlabel;
+    next;
+  }
+  if ($ARGV[0] eq '--hostlabel-filtering') {
+    shift @ARGV;
+    $hostlabelfiltermode = shift @ARGV;
+    undef $hostlabelfiltermode if $hostlabelfiltermode eq "";
+    if ($hostlabelfiltermode !~ /^(or|and)?$/) {
+      print "Error: Invalid host label filter mode '$hostlabelfiltermode'.";
+      undef $hostlabelfiltermode;
+    }
     next;
   }
   if ($ARGV[0] eq '--id') {
@@ -656,6 +669,8 @@ sub device_size($) {
 my $workerinfo = {};
 # host labels
 $workerinfo->{'hostlabel'} = \@hostlabel if @hostlabel;
+# host labelfiltermode
+$workerinfo->{'hostlabelfiltermode'} = $hostlabelfiltermode if $hostlabelfiltermode;
 # sandbox
 $workerinfo->{'sandbox'} = 'chroot';
 $workerinfo->{'sandbox'} = $1 if $vm =~ /(xen|kvm|emulator|lxc|zvm|docker|pvm)/;

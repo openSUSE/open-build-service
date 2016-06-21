@@ -62,6 +62,46 @@ sub getmbsize {
   return $size;
 }
 
+
+=head2 worker_hostlabel_filter - check worker and constraints for matching hostlabels
+
+  return 0 if hostlabels match, 1 otherwise
+
+=cut
+
+sub worker_hostlabel_filter {
+  my ($worker, $constraints) = @_;
+
+  return 1 unless $worker->{'hostlabelfiltermode'};
+  return 1 unless $worker->{'hostlabel'};
+
+  return 0 unless $constraints;
+  return 0 unless $constraints->{'hostlabel'};
+
+  if ($worker->{'hostlabelfiltermode'} eq "or") {
+    for my $l (@{$worker->{'hostlabel'}}) {
+      for my $ll (@{$constraints->{'hostlabel'}}) {
+        return 1 if $ll->{'_content'} eq $l and (not $ll->{'exclude'} or $ll->{'exclude'} ne 'true');
+      }
+    }
+    return 0;
+  }
+
+  if ($worker->{'hostlabelfiltermode'} eq "and") {
+    OUTER: for my $l (@{$worker->{'hostlabel'}}) {
+      for my $ll (@{$constraints->{'hostlabel'}}) {
+        next OUTER if $ll->{'_content'} eq $l and (not $ll->{'exclude'} or $ll->{'exclude'} ne 'true');
+      }
+      return 0;
+    }
+    return 1;
+  }
+
+  warn("Ignoring unsupported hostlabelfiltermode '$worker->{'hostlabelfiltermode'}'.");
+  return 1;
+}
+
+
 =head2 oracle - check constraints against worker
 
   my $ok = oracle($worker_strucht, $constraint_struct);
@@ -75,6 +115,8 @@ sub getmbsize {
 
 sub oracle { 
   my ($worker, $constraints) = @_;
+  return 0 unless worker_hostlabel_filter($worker, $constraints);
+  return 1 unless $constraints;
   for my $l (@{$constraints->{'hostlabel'} || []}) { 
     if ($l->{'exclude'} && $l->{'exclude'} eq 'true') {
       return 0 if grep {$_ eq $l->{'_content'}} @{$worker->{'hostlabel'} || []};
