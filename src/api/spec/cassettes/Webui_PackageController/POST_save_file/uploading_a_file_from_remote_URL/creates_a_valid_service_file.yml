@@ -1,0 +1,476 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:29:46 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/my_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '106'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:29:46 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/my_package/_service
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: _service  no such file
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '122'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>_service: no such file</summary>
+          <details>404 _service: no such file</details>
+        </status>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:29:46 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/my_package/_service?user=tom
+    body:
+      encoding: UTF-8
+      string: |-
+        <services>
+          <service name="download_url">
+            <param name="host">raw.github.com</param>
+            <param name="protocol">https</param>
+            <param name="path">/openSUSE/open-build-service/master/.gitignore</param>
+            <param name="filename">remote_file</param>
+          </service>
+        </services>
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Content-Length:
+      - '279'
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '203'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="7" vrev="7">
+          <srcmd5>bcef8f7c5e8df4e6dbb9b80df230ffc9</srcmd5>
+          <version>unknown</version>
+          <time>1471595386</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:29:46 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom/my_package?cmd=runservice&user=tom
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:29:46 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/my_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '432'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjgiIHZyZXY9Ijgi
+        IHNyY21kNT0iN2FjYWRlNmQyODJmNDRlYzJhMzY1Y2U5ODViMTFhYzgiPgog
+        IDxzZXJ2aWNlaW5mbyBjb2RlPSJydW5uaW5nIiAvPgogIDxlbnRyeSBuYW1l
+        PSJfYWdncmVnYXRlIiBtZDU9IjlmNjE5MGFhOWZhNGU3ZmQ2ODVkMTY3ODk5
+        NzhjZTY4IiBzaXplPSIxNTAiIG10aW1lPSIxNDcxNTk1Mzg1IiAvPgogIDxl
+        bnRyeSBuYW1lPSJfc2VydmljZSIgbWQ1PSI0ZGEyMGJmOWI5YWRmMzM3YTYx
+        ZWM3NTcxMjUzZDdmMyIgc2l6ZT0iMjc5IiBtdGltZT0iMTQ3MTU5NTM4NiIg
+        Lz4KICA8ZW50cnkgbmFtZT0i5a2m5Lmg5oC757uTIiBtZDU9IjZiYTE2N2Q3
+        MmU5Y2M2MDEwOGE3NTY3Y2RhZWM3MjBmIiBzaXplPSI5NzciIG10aW1lPSIx
+        NDcxNTk1Mzg0IiAvPgo8L2RpcmVjdG9yeT4K
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:29:46 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/my_package?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '184'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="my_package" rev="8" vrev="8" srcmd5="4ffb2c6f6536710570c79ee252efb439" verifymd5="61892ecd6b96313adae15291f8c46411">
+          <revtime>1471595386</revtime>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:29:46 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/my_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '477'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjgiIHZyZXY9Ijgi
+        IHNyY21kNT0iN2FjYWRlNmQyODJmNDRlYzJhMzY1Y2U5ODViMTFhYzgiPgog
+        IDxzZXJ2aWNlaW5mbyBjb2RlPSJzdWNjZWVkZWQiIHhzcmNtZDU9IjRmZmIy
+        YzZmNjUzNjcxMDU3MGM3OWVlMjUyZWZiNDM5IiAvPgogIDxlbnRyeSBuYW1l
+        PSJfYWdncmVnYXRlIiBtZDU9IjlmNjE5MGFhOWZhNGU3ZmQ2ODVkMTY3ODk5
+        NzhjZTY4IiBzaXplPSIxNTAiIG10aW1lPSIxNDcxNTk1Mzg1IiAvPgogIDxl
+        bnRyeSBuYW1lPSJfc2VydmljZSIgbWQ1PSI0ZGEyMGJmOWI5YWRmMzM3YTYx
+        ZWM3NTcxMjUzZDdmMyIgc2l6ZT0iMjc5IiBtdGltZT0iMTQ3MTU5NTM4NiIg
+        Lz4KICA8ZW50cnkgbmFtZT0i5a2m5Lmg5oC757uTIiBtZDU9IjZiYTE2N2Q3
+        MmU5Y2M2MDEwOGE3NTY3Y2RhZWM3MjBmIiBzaXplPSI5NzciIG10aW1lPSIx
+        NDcxNTk1Mzg0IiAvPgo8L2RpcmVjdG9yeT4K
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:29:46 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom/my_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '301'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="deaa59272decf330294613a4f3247ad7">
+          <old project="home:tom" package="my_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom" package="my_package" rev="8" srcmd5="7acade6d282f44ec2a365ce985b11ac8" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:29:46 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/my_package/_service
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '279'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <services>
+          <service name="download_url">
+            <param name="host">raw.github.com</param>
+            <param name="protocol">https</param>
+            <param name="path">/openSUSE/open-build-service/master/.gitignore</param>
+            <param name="filename">remote_file</param>
+          </service>
+        </services>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:29:46 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/my_package/remote_file
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 404
+      message: remote_file  no such file
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '128'
+    body:
+      encoding: UTF-8
+      string: |
+        <status code="404">
+          <summary>remote_file: no such file</summary>
+          <details>404 remote_file: no such file</details>
+        </status>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:29:46 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/my_package/_service
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '279'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <services>
+          <service name="download_url">
+            <param name="host">raw.github.com</param>
+            <param name="protocol">https</param>
+            <param name="path">/openSUSE/open-build-service/master/.gitignore</param>
+            <param name="filename">remote_file</param>
+          </service>
+        </services>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:29:46 GMT
+recorded_with: VCR 3.0.1

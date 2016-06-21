@@ -37,6 +37,26 @@ RSpec.feature "Packages", :type => :feature, :js => true do
     end
   end
 
+  describe "editing package files" do
+    let(:file_edit_test_package) { create(:package_with_file, name: "file_edit_test_package", project: user.home_project) }
+
+    before do
+      login(user)
+      visit package_show_path(project: user.home_project, package: file_edit_test_package)
+    end
+
+    scenario "editing an existing file" do
+      # somefile.txt is a file of our test package
+      click_link("somefile.txt")
+      # Workaround to update codemirror text field
+      execute_script("$('.CodeMirror')[0].CodeMirror.setValue('added some new text')")
+      click_button("Save")
+
+      expect(page).to have_text("The file 'somefile.txt' has been successfully saved.")
+      expect(file_edit_test_package.source_file("somefile.txt")).to eq("added some new text")
+    end
+  end
+
   scenario "deleting a package" do
     login user
     visit package_show_path(package: package, project: user.home_project)

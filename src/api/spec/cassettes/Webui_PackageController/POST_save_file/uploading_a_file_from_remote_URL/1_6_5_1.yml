@@ -1,0 +1,367 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:29:46 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/my_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '106'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="my_package" project="home:tom">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:29:46 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/my_package/_service
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Content-Length:
+      - '279'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |-
+        <services>
+          <service name="download_url">
+            <param name="host">raw.github.com</param>
+            <param name="protocol">https</param>
+            <param name="path">/openSUSE/open-build-service/master/.gitignore</param>
+            <param name="filename">remote_file</param>
+          </service>
+        </services>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:29:46 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/my_package/_service?user=tom
+    body:
+      encoding: UTF-8
+      string: |-
+        <services>
+          <service name="download_url">
+            <param name="host">raw.github.com</param>
+            <param name="protocol">https</param>
+            <param name="path">/openSUSE/open-build-service/master/.gitignore</param>
+            <param name="filename">remote_file</param>
+          </service>
+        <service name="download_url"><param name="host">raw.github.com</param><param name="protocol">https</param><param name="path">/openSUSE/open-build-service/master/.gitignore</param><param name="filename">remote_file</param></service></services>
+    headers:
+      Content-Type:
+      - text/plain
+      Accept-Encoding:
+      - identity
+      Content-Length:
+      - '510'
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '203'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="9" vrev="9">
+          <srcmd5>7d86f143acdc167efeb17de934f998e3</srcmd5>
+          <version>unknown</version>
+          <time>1471595387</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:29:47 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom/my_package?cmd=runservice&user=tom
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '21'
+    body:
+      encoding: UTF-8
+      string: '<status code="ok" />
+
+'
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:29:47 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/my_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '434'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjEwIiB2cmV2PSIx
+        MCIgc3JjbWQ1PSJlMDJkYWY5Y2E3MDYxN2RlOGQwYWMwNzZjY2QwNDdhOSI+
+        CiAgPHNlcnZpY2VpbmZvIGNvZGU9InJ1bm5pbmciIC8+CiAgPGVudHJ5IG5h
+        bWU9Il9hZ2dyZWdhdGUiIG1kNT0iOWY2MTkwYWE5ZmE0ZTdmZDY4NWQxNjc4
+        OTk3OGNlNjgiIHNpemU9IjE1MCIgbXRpbWU9IjE0NzE1OTUzODUiIC8+CiAg
+        PGVudHJ5IG5hbWU9Il9zZXJ2aWNlIiBtZDU9IjVkYmM2MTJkYzJiZTc1NGY2
+        YWFiMjcyZDQ1NjdiNWRkIiBzaXplPSI1MTAiIG10aW1lPSIxNDcxNTk1Mzg3
+        IiAvPgogIDxlbnRyeSBuYW1lPSLlrabkuaDmgLvnu5MiIG1kNT0iNmJhMTY3
+        ZDcyZTljYzYwMTA4YTc1NjdjZGFlYzcyMGYiIHNpemU9Ijk3NyIgbXRpbWU9
+        IjE0NzE1OTUzODQiIC8+CjwvZGlyZWN0b3J5Pgo=
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:29:47 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/my_package?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '146'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="my_package" rev="10" vrev="10" srcmd5="e02daf9ca70617de8d0ac076ccd047a9">
+          <error>service in progress</error>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:29:47 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom/my_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '479'
+    body:
+      encoding: ASCII-8BIT
+      string: !binary |-
+        PGRpcmVjdG9yeSBuYW1lPSJteV9wYWNrYWdlIiByZXY9IjEwIiB2cmV2PSIx
+        MCIgc3JjbWQ1PSJlMDJkYWY5Y2E3MDYxN2RlOGQwYWMwNzZjY2QwNDdhOSI+
+        CiAgPHNlcnZpY2VpbmZvIGNvZGU9InN1Y2NlZWRlZCIgeHNyY21kNT0iMTEx
+        NDQxZmZhODNjYzQzN2MwYTI3MjU5YzIwNGQ3M2UiIC8+CiAgPGVudHJ5IG5h
+        bWU9Il9hZ2dyZWdhdGUiIG1kNT0iOWY2MTkwYWE5ZmE0ZTdmZDY4NWQxNjc4
+        OTk3OGNlNjgiIHNpemU9IjE1MCIgbXRpbWU9IjE0NzE1OTUzODUiIC8+CiAg
+        PGVudHJ5IG5hbWU9Il9zZXJ2aWNlIiBtZDU9IjVkYmM2MTJkYzJiZTc1NGY2
+        YWFiMjcyZDQ1NjdiNWRkIiBzaXplPSI1MTAiIG10aW1lPSIxNDcxNTk1Mzg3
+        IiAvPgogIDxlbnRyeSBuYW1lPSLlrabkuaDmgLvnu5MiIG1kNT0iNmJhMTY3
+        ZDcyZTljYzYwMTA4YTc1NjdjZGFlYzcyMGYiIHNpemU9Ijk3NyIgbXRpbWU9
+        IjE0NzE1OTUzODQiIC8+CjwvZGlyZWN0b3J5Pgo=
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:29:47 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom/my_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '302'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="2c48b2a51d9208c9ff37825f9295fd02">
+          <old project="home:tom" package="my_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom" package="my_package" rev="10" srcmd5="e02daf9ca70617de8d0ac076ccd047a9" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Fri, 19 Aug 2016 08:29:47 GMT
+recorded_with: VCR 3.0.1
