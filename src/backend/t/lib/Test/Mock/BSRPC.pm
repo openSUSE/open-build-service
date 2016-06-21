@@ -28,22 +28,25 @@ BEGIN {
     my ($param, $xmlargs, @args) = @_;
     $param = {'uri' => $param} if ref($param) ne 'HASH';
     my $uri = $param->{'uri'};
-    $uri =~ s#https?://##;
 
     for (@args) {
       $_ = BSRPC::urlencode($_);
       s/%3D/=/;
     }
 
+
+    $uri = ( @args ) ? "$uri?" . join('&', @args) : $uri;
     my $org_uri = $uri;
 
-    $uri = "$uri?" . join('&', @args);
+    $uri =~ s#^https?://##;
+
     if ($Test::Mock::BSRPC::fixtures_map->{$uri}) {
       $uri = $Test::Mock::BSRPC::fixtures_map->{$uri}
     } else {
       $uri =~ s/\//_/g;
       $uri =~ s/_/\//;
     }
+
     $uri = "$BSConfig::bsdir/$uri";
 
     my $ret;
@@ -60,19 +63,20 @@ BEGIN {
       }
     };
 
-    if  ( $@ ) {
-      die ("
+    if  ($@) {
+      die <<"END";
 $@
 
 Use the following command line to generate them:
 
-curl \"$org_uri\" > \"$uri\"
+curl "$org_uri" > "$uri"
 
 to compress them use:
 
-xz \"$uri\"
+xz "$uri"
 
-");
+END
+
     }
 
     return $ret;
