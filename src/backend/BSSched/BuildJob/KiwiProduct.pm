@@ -123,7 +123,7 @@ sub check {
     my @configpath = @aprps;
     # always put ourselfs in front
     unshift @configpath, "$projid/$repoid" unless @configpath && $configpath[0] eq "$projid/$repoid";
-    $bconf = BSSched::ProjPacks::getconfig($gctx, $projid, $repoid, $myarch, \@configpath);
+    $bconf = $ctx->getconfig($projid, $repoid, $myarch, \@configpath);
     if (!$bconf) {
       print "      - $packid (kiwi-product)\n";
       print "        no config\n";

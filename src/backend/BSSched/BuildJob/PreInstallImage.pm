@@ -76,7 +76,7 @@ sub check {
   my $repoid = $ctx->{'repository'};
 
   # check if we're blocked
-  my $edeps = $ctx->{'edeps'}->{$packid} || [];
+  my $edeps = $info->{'edeps'} || $ctx->{'edeps'}->{$packid} || [];
   my $notready = $ctx->{'notready'};
   my $dep2src = $ctx->{'dep2src'};
   my $dep2pkg = $ctx->{'dep2pkg'};

@@ -292,7 +292,10 @@ sub writejob {
   my ($ctx, $job, $binfo, $reason) = @_;
 
   # jay! ready for building, write status, reason, and job info
+  $binfo->{'job'} = $job if $job;
+  $binfo->{'readytime'} = time();
   if ($reason) {
+    $binfo->{'reason'} = $reason->{'explain'};
     my $dst = "$ctx->{'gdst'}/$binfo->{'package'}";
     mkdir_p($dst);
     my $now = $binfo->{'readytime'};
@@ -706,6 +709,8 @@ sub addjobhist {
 sub nextbcnt {
   my ($ctx, $packid, $pdata) = @_;
 
+  return undef unless defined $packid;
+  return 1 unless exists $pdata->{'versrel'},;
   my $h;
   my $gdst = $ctx->{'gdst'};
   my $relsyncmax = $ctx->{'relsyncmax'};
@@ -725,7 +730,62 @@ sub nextbcnt {
   return $h->{'bcnt'} + 1;
 }
 
+=head2 filljobdata - create a job skel
+
+ TODO: add description
+
 =cut
+
+sub create_jobdata {
+  my ($ctx, $packid, $pdata, $info, $subpacks) = @_;
+
+  my $gctx = $ctx->{'gctx'};
+  my $bconf = $ctx->{'conf'};
+  my $myarch = $gctx->{'arch'};
+  my $projid = $ctx->{'project'};
+  my $repoid = $ctx->{'repository'};
+  my $binfo = {
+    'project' => $projid,
+    'repository' => $repoid,
+    'arch' => $myarch,
+    'subpack' => $subpacks || [],
+  };
+  $binfo->{'package'} = $packid if defined $packid;
+  $binfo->{'rev'} = $pdata->{'rev'} if $pdata->{'rev'};
+  $binfo->{'srcmd5'} = $pdata->{'srcmd5'} if $pdata->{'srcmd5'};
+  $binfo->{'verifymd5'} = $pdata->{'verifymd5'} || $pdata->{'srcmd5'} if $pdata->{'verifymd5'} || $pdata->{'srcmd5'};
+  $binfo->{'file'} = $info->{'file'} if defined $info->{'file'};
+  $binfo->{'imagetype'} = $info->{'imagetype'} if $info->{'imagetype'};
+  $binfo->{'hostarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'};
+  my $obsname = $gctx->{'obsname'};
+  $binfo->{'disturl'} = "obs://$obsname/$projid/$repoid/$pdata->{'srcmd5'}-$packid" if defined($obsname) && defined($packid);
+  if (defined($packid) && exists($pdata->{'versrel'})) {
+    $binfo->{'versrel'} = $pdata->{'versrel'};
+    # find the last build count we used for this version/release
+    my $bcnt = nextbcnt($ctx, $packid, $pdata);
+    $binfo->{'bcnt'} = $bcnt;
+    my $release = $pdata->{'versrel'};
+    $release = '0' unless defined $release;
+    $release =~ s/.*-//;
+    if (exists($bconf->{'release'})) {
+      if (defined($bconf->{'release'})) {
+	$binfo->{'release'} = $bconf->{'release'};
+	$binfo->{'release'} =~ s/\<CI_CNT\>/$release/g;
+	$binfo->{'release'} =~ s/\<B_CNT\>/$bcnt/g;
+      }
+    } else {
+      $binfo->{'release'} = "$release.$bcnt" if $ctx->{'isreposerver'};
+    }
+  }
+  my $projpacks = $gctx->{'projpacks'};
+  my $proj = $projpacks->{$projid};
+  my $debuginfo = $bconf->{'debuginfo'};
+  $debuginfo = BSUtil::enabled($repoid, $proj->{'debuginfo'}, $debuginfo, $myarch);
+  $debuginfo = BSUtil::enabled($repoid, $pdata->{'debuginfo'}, $debuginfo, $myarch);
+  $binfo->{'debuginfo'} = 1 if $debuginfo;
+  return $binfo;
+}
+
 
 =head2 create - create a new build job
 
@@ -746,7 +806,6 @@ sub nextbcnt {
  other jobs of the same prp/package, write status and job info.
  not that hard, was it?
 
-
 =cut
 
 sub create {
@@ -765,6 +824,7 @@ sub create {
   my $job = jobname($prp, $packid);
   my @otherjobs;
   my $myjobsdir = $gctx->{'myjobsdir'};
+  my $isreposerver = $ctx->{'isreposerver'};
   if ($myjobsdir) {
     if (-s "$myjobsdir/$job-$srcmd5") {
       add_crossmarker($gctx, $bconf->{'hostarch'}, "$job-$srcmd5") if $bconf->{'hostarch'};	# just in case...
@@ -776,7 +836,9 @@ sub create {
   $job = "$job-$srcmd5";
 
   # a new one. expand usedforbuild. write info file.
-  my $buildtype = Build::recipe2buildtype($info->{'file'});
+  my $buildtype = $info->{'buildtype'} || Build::recipe2buildtype($info->{'file'});
+  my $kiwitype = '';
+  $kiwitype = $info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product' ? 'product' : 'image' if $buildtype eq 'kiwi';
 
   my $syspath;
   my $searchpath = path2buildinfopath($gctx, $ctx->{'prpsearchpath'});
@@ -789,7 +851,7 @@ sub create {
   # calculate sysdeps (cannot cache in the kiwi case)
   my @sysdeps;
   if ($buildtype eq 'kiwi') {
-    @sysdeps = Build::get_sysbuild($bconf, 'kiwi-image', [ grep {/^kiwi-.*:/} @{$info->{'dep'} || []} ]);
+    @sysdeps = Build::get_sysbuild($bconf, "kiwi-$kiwitype", [ grep {/^kiwi-.*:/} @{$info->{'dep'} || []} ]);
   } else {
     $ctx->{"sysbuild_$buildtype"} ||= [ Build::get_sysbuild($bconf, $buildtype) ];
     @sysdeps = @{$ctx->{"sysbuild_$buildtype"}};
@@ -807,29 +869,30 @@ sub create {
     @bdeps = Build::get_build($bconf, $subpacks, @bdeps);
   }
   if (!shift(@bdeps)) {
-    print "        unresolvable:\n";
-    print "          $_\n" for @bdeps;
+    if ($ctx->{'verbose'}) {
+      print "        unresolvable:\n";
+      print "          $_\n" for @bdeps;
+    }
     return ('unresolvable', join(', ', @bdeps));
   }
   if (@sysdeps && !shift(@sysdeps)) {
-    print "        unresolvable:\n";
-    print "          $_\n" for @sysdeps;
+    if ($ctx->{'verbose'}) {
+      print "        unresolvable:\n";
+      print "          $_\n" for @sysdeps;
+    }
     return ('unresolvable', join(', ', @sysdeps));
   }
-  if ($BSConfig::enable_download_on_demand) {
+  if (!$isreposerver && $BSConfig::enable_download_on_demand) {
     my $dods = BSSched::DoD::dodcheck($ctx, $ctx->{'pool'}, $myarch, Build::get_preinstalls($bconf), Build::get_vminstalls($bconf), @bdeps, @sysdeps);
     if ($dods) {
-      print "        blocked: $dods\n";
+      print "        blocked: $dods\n" if $ctx->{'verbose'};
       return ('blocked', $dods);
     }
   }
 
-  # find the last build count we used for this version/release
-  my $bcnt = nextbcnt($ctx, $packid, $pdata);
-
   # kill those ancient other jobs
   for my $otherjob (@otherjobs) {
-    print "        killing old job $otherjob\n";
+    print "        killing old job $otherjob\n" if $ctx->{'verbose'};
     killjob($gctx, $otherjob);
   }
 
@@ -841,6 +904,7 @@ sub create {
   my %vmdeps = map {$_ => 1} @vmdeps;
   my %edeps = map {$_ => 1} @$edeps;
   my %sysdeps = map {$_ => 1} @sysdeps;
+
   @bdeps = BSUtil::unify(@pdeps, @vmdeps, @$edeps, @bdeps, @sysdeps);
   for (@bdeps) {
     my $n = $_;
@@ -853,6 +917,17 @@ sub create {
       $_->{'installonly'} = 1 if $sysdeps{$n} && !$bdeps{$n} && $buildtype ne 'kiwi';
       $_->{'noinstall'} = 1 if $bdeps{$n} && !($sysdeps{$n} || $vmdeps{$n} || $pdeps{$n});
     }
+    if ($isreposerver) {
+      my $p = $ctx->{'dep2pkg'}->{$n};
+      my $prp = $ctx->{'pool'}->pkg2reponame($p);
+      ($_->{'project'}, $_->{'repository'}) = split('/', $prp, 2) if $prp;
+      my $d = $ctx->{'pool'}->pkg2data($p);
+      $_->{'epoch'}      = $d->{'epoch'} if $d->{'epoch'};
+      $_->{'version'}    = $d->{'version'};
+      $_->{'release'}    = $d->{'release'} if defined $d->{'release'};
+      $_->{'arch'}       = $d->{'arch'} if $d->{'arch'};
+      $_->{'preimghdrmd5'} = $d->{'hdrmd5'} if !$_->{'noinstall'} &&  $d->{'hdrmd5'};
+    }
   }
   if ($info->{'extrasource'}) {
     push @bdeps, map {{
@@ -860,33 +935,13 @@ sub create {
       'project' => $_->{'project'}, 'package' => $_->{'package'}, 'srcmd5' => $_->{'srcmd5'},
     }} @{$info->{'extrasource'}};
   }
+  unshift @bdeps, @{$ctx->{'extrabdeps'}} if $ctx->{'extrabdeps'};
 
-  my $vmd5 = $pdata->{'verifymd5'} || $pdata->{'srcmd5'};
-  my $binfo = {
-    'project' => $projid,
-    'repository' => $repoid,
-    'package' => $packid,
-    'srcserver' => $workersrcserver,
-    'reposerver' => $workerreposerver,
-    'job' => $job,
-    'arch' => $myarch,
-    'reason' => $reason->{'explain'},
-    'readytime' => time(),
-    'srcmd5' => $pdata->{'srcmd5'},
-    'verifymd5' => $vmd5,
-    'rev' => $pdata->{'rev'},
-    'file' => $info->{'file'},
-    'versrel' => $pdata->{'versrel'},
-    'bcnt' => $bcnt,
-    'subpack' => ($subpacks || []),
-    'bdep' => \@bdeps,
-    'path' => $searchpath,
-    'needed' => $needed,
-  };
-  my $obsname = $gctx->{'obsname'};
-  $binfo->{'disturl'} = "obs://$obsname/$projid/$repoid/$pdata->{'srcmd5'}-$packid";
+  my $binfo = create_jobdata($ctx, $packid, $pdata, $info, $subpacks);
+  $binfo->{'bdep'} = \@bdeps;
+  $binfo->{'path'} = $searchpath;
   $binfo->{'syspath'} = $syspath if $syspath;
-  $binfo->{'hostarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'};
+  $binfo->{'needed'} = $needed;
   $binfo->{'constraintsmd5'} = $pdata->{'constraintsmd5'} if $pdata->{'constraintsmd5'};
   $binfo->{'prjconfconstraint'} = $bconf->{'constraint'} if @{$bconf->{'constraint'} || []};
   $binfo->{'nounchanged'} = 1 if $info->{'nounchanged'};
@@ -899,20 +954,6 @@ sub create {
       $binfo->{'revtime'} = $lpdata->{'revtime'} if ($lpdata->{'revtime'} || 0) > $binfo->{'revtime'};
     }
   }
-  $binfo->{'imagetype'} = $info->{'imagetype'} if $info->{'imagetype'};
-  my $release = $pdata->{'versrel'};
-  $release = '0' unless defined $release;
-  $release =~ s/.*-//;
-  if (defined($bconf->{'release'})) {
-    $binfo->{'release'} = $bconf->{'release'};
-    $binfo->{'release'} =~ s/\<CI_CNT\>/$release/g;
-    $binfo->{'release'} =~ s/\<B_CNT\>/$bcnt/g;
-  }
-  my $debuginfo = $bconf->{'debuginfo'};
-  $debuginfo = BSUtil::enabled($repoid, $proj->{'debuginfo'}, $debuginfo, $myarch);
-  $debuginfo = BSUtil::enabled($repoid, $pdata->{'debuginfo'}, $debuginfo, $myarch);
-  $binfo->{'debuginfo'} = 1 if $debuginfo;
-
   $ctx->writejob($job, $binfo, $reason);
 
   # all done. the dispatcher will now pick up the job and send it
@@ -985,30 +1026,40 @@ sub metacheck {
   my $gdst = $ctx->{'gdst'};
   my @meta = split("\n", (readstr("$gdst/:meta/$packid", 1) || ''));
   if (!@meta) {
-    print "      - $packid ($buildtype)\n";
-    print "        no former build, start build\n";
+    if ($ctx->{'verbose'}) {
+      print "      - $packid ($buildtype)\n";
+      print "        no former build, start build\n";
+    }
     return ('scheduled', [ @$data, {'explain' => 'new build'} ]);
   }
   if ($meta[0] ne $new_meta->[0]) {
-    print "      - $packid ($buildtype)\n";
-    print "        src change, start build\n";
+    if ($ctx->{'verbose'}) {
+      print "      - $packid ($buildtype)\n";
+      print "        src change, start build\n";
+    }
     return ('scheduled', [ @$data, {'explain' => 'source change', 'oldsource' => substr($meta[0], 0, 32)} ]);
   }
   if (@meta == 2 && $meta[1] =~ /^fake/) {
     my @s = stat("$gdst/:meta/$packid");
     if (!@s || $s[9] + 14400 > time()) {
-      print "      - $packid ($buildtype)\n";
-      print "        buildsystem setup failure\n";
+      if ($ctx->{'verbose'}) {
+        print "      - $packid ($buildtype)\n";
+        print "        buildsystem setup failure\n";
+      }
       return ('failed')
     }
-    print "      - $packid ($buildtype)\n";
-    print "        retrying bad build\n";
+    if ($ctx->{'verbose'}) {
+      print "      - $packid ($buildtype)\n";
+      print "        retrying bad build\n";
+    }
     return ('scheduled', [ @$data, { 'explain' => 'retrying bad build' } ]);
   }
   if (join('\n', @meta) eq join('\n', @$new_meta)) {
     if (($buildtype eq 'kiwi-image' || $buildtype eq 'kiwi-product') && $ctx->{'relsynctrigger'}->{$packid}) {
-      print "      - $packid ($buildtype)\n";
-      print "        rebuild counter sync\n";
+      if ($ctx->{'verbose'}) {
+        print "      - $packid ($buildtype)\n";
+        print "        rebuild counter sync\n";
+      }
       return ('scheduled', [ @$data, {'explain' => 'rebuild counter sync'} ]);
     }
     #print "      - $packid ($buildtype)\n";
@@ -1025,9 +1076,11 @@ sub metacheck {
     }
   }
   my @diff = diffsortedmd5(\@meta, $new_meta);
-  print "      - $packid ($buildtype)\n";
-  print "        $_\n" for @diff;
-  print "        meta change, start build\n";
+  if ($ctx->{'verbose'}) {
+    print "      - $packid ($buildtype)\n";
+    print "        $_\n" for @diff;
+    print "        meta change, start build\n";
+  }
   return ('scheduled', [ @$data, {'explain' => 'meta change', 'packagechange' => sortedmd5toreason(@diff)} ]);
 }
 

@@ -20,12 +20,12 @@ package BSSched::BuildJob::KiwiImage;
 use strict;
 use warnings;
 
+use Data::Dumper;
 use Build;
 use BSSolv;
 use BSConfiguration;
 use BSSched::BuildJob;  	# for expandkiwipath
 use BSSched::DoD;       	# for dodcheck
-use BSSched::ProjPacks;         # for getconfig
 
 
 =head1 NAME
@@ -88,10 +88,12 @@ sub check {
   my @configpath = @aprps;
   # always put ourselfs in front
   unshift @configpath, "$projid/$repoid" unless @configpath && $configpath[0] eq "$projid/$repoid";
-  my $bconf = BSSched::ProjPacks::getconfig($gctx, $projid, $repoid, $myarch, \@configpath);
+  my $bconf = $ctx->getconfig($projid, $repoid, $myarch, \@configpath);
   if (!$bconf) {
-    print "      - $packid (kiwi-image)\n";
-    print "        no config\n";
+    if ($ctx->{'verbose'}) {
+      print "      - $packid (kiwi-image)\n";
+      print "        no config\n";
+    }
     return ('broken', 'no config');
   }
 
@@ -101,8 +103,10 @@ sub check {
   my $delayed_errors = '';
   for my $aprp (@aprps) {
     if (!$ctx->checkprpaccess($aprp)) {
-      print "      - $packid (kiwi-image)\n";
-      print "        repository $aprp is unavailable";
+      if ($ctx->{'verbose'}) {
+        print "      - $packid (kiwi-image)\n";
+        print "        repository $aprp is unavailable";
+      }
       return ('broken', "repository $aprp is unavailable");
     }
     my $r = $ctx->addrepo($pool, $aprp);
@@ -113,8 +117,10 @@ sub check {
 	$delayed_errors .= ", $error";
 	next;
       }
-      print "      - $packid (kiwi-image)\n";
-      print "        $error\n";
+      if ($ctx->{'verbose'}) {
+        print "      - $packid (kiwi-image)\n";
+        print "        $error\n";
+      }
       return ('broken', $error);
     }
   }
@@ -132,9 +138,11 @@ sub check {
   use warnings 'redefine';
   my ($eok, @edeps) = Build::get_build($bconf, [], @deps, '--ignoreignore--');
   if (!$eok) {
-    print "      - $packid (kiwi-image)\n";
-    print "        unresolvable:\n";
-    print "            $_\n" for @edeps;
+    if ($ctx->{'verbose'}) {
+      print "      - $packid (kiwi-image)\n";
+      print "        unresolvable:\n";
+      print "            $_\n" for @edeps;
+    }
     return ('unresolvable', join(', ', @edeps));
   }
   $bconf->{'ignore'} = $bconfignore if $bconfignore;
@@ -168,11 +176,13 @@ sub check {
     push @new_meta, $pool->pkg2pkgid($p)."  $aprp/$n" unless @blocked;
   }
   if (@blocked) {
-    print "      - $packid (kiwi-image)\n";
-    if (@blocked < 11) {
-      print "        blocked (@blocked)\n";
-    } else {
-      print "        blocked (@blocked[0..9] ...)\n";
+    if ($ctx->{'verbose'}) {
+      print "      - $packid (kiwi-image)\n";
+      if (@blocked < 11) {
+	print "        blocked (@blocked)\n";
+      } else {
+	print "        blocked (@blocked[0..9] ...)\n";
+      }
     }
     return ('blocked', join(', ', @blocked));
   }
@@ -184,6 +194,7 @@ sub check {
     my $dods = BSSched::DoD::dodcheck($ctx, $pool, $myarch, @edeps);
     return ('blocked', $dods) if $dods;
   }
+  push @$data, $pool, \%dep2pkg;
   return ($state, $data);
 }
 
@@ -199,6 +210,8 @@ sub build {
   my $bconf = $data->[0];	# this is the config used to expand the image packages
   my $edeps = $data->[1];
   my $reason = $data->[2];
+  my $epool = $data->[3];
+  my $edep2pkg = $data->[4];
 
   my $gctx = $ctx->{'gctx'};
   my $projid = $ctx->{'project'};
@@ -207,40 +220,34 @@ sub build {
 
   if (!@{$repo->{'path'} || []}) {
     # repo has no path, use kiwi repositories also for kiwi system setup
-    my $prp = "$projid/$repoid";
-    my @aprps = BSSched::BuildJob::expandkiwipath($info, $ctx->{'prpsearchpath'});
-    # setup pool again for kiwi system expansion
-    my $pool = BSSolv::pool->new();
-    $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
-    for my $aprp (@aprps) {
-      if (!$ctx->checkprpaccess($aprp)) {
-        print "      - $packid (kiwi-image)\n";
-        print "        repository $aprp is unavailable";
-        return ('broken', "repository $aprp is unavailable");
-      }
-      my $r = $ctx->addrepo($pool, $aprp);
-      if (!$r) {
-        my $error = "repository '$aprp' is unavailable";
-        $error .= " (delayed)" if defined $r;
-        print "      - $packid (kiwi-image)\n";
-        print "        $error\n";
-        return ('delayed', $error) if defined $r;
-        return ('broken', $error);
-      }
-    }
-    $pool->createwhatprovides();
-    my $xp = BSSolv::expander->new($pool, $bconf);
+    my $xp = BSSolv::expander->new($epool, $bconf);
     no warnings 'redefine';
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
-    my $nctx = bless { %$ctx, 'conf' => $bconf, 'prpsearchpath' => [], 'pool' => $pool }, ref($ctx);
+    my $nctx = bless { %$ctx, 'conf' => $bconf, 'prpsearchpath' => [], 'pool' => $epool, 'dep2pkg' => $edep2pkg, 'realctx' => $ctx}, ref($ctx);
     return BSSched::BuildJob::create($nctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
-  } else {
-    # repo has a configured path, expand kiwi system with it
-    my $prp = "$projid/$repoid";
-    return ('broken', 'no config') unless $bconf;       # should not happen
-    return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
   }
+  if ($ctx->{'isreposerver'}) {
+    # need to dump the image packages first...
+    my @bdeps;
+    for my $n (@$edeps) {
+      my $b = {'name' => $n};
+      my $p = $edep2pkg->{$n};
+      my $d = $epool->pkg2data($p);
+      my $prp = $epool->pkg2reponame($p);
+      ($b->{'project'}, $b->{'repository'}) = split('/', $prp, 2) if $prp;
+      $b->{'epoch'} = $d->{'epoch'} if $d->{'epoch'};
+      $b->{'version'} = $d->{'version'};
+      $b->{'release'} = $d->{'release'} if defined $d->{'release'};
+      $b->{'arch'} = $d->{'arch'} if $d->{'arch'};
+      $b->{'noinstall'} = 1;
+      push @bdeps, $b;
+    }
+    $edeps = [];
+    $ctx->{'extrabdeps'} = \@bdeps;
+  }
+  # repo has a configured path, expand kiwi build system with it
+  return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
 }
 
 1;

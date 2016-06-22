@@ -29,6 +29,10 @@ sub addrepo {
 
 sub writejob {
   my ($ctx, $job, $binfo, $reason) = @_;
+  $binfo->{'job'} = $job if $job;
+  $binfo->{'reason'} = $reason->{'explain'} if $reason;
+  $binfo->{'srcserver'} ||= 'srcserver';
+  $binfo->{'reposerver'} ||= 'reposerver';
   $ctx->{'buildinfo'} = $binfo;
   $ctx->{'reason'} = $reason;
 }

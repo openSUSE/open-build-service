@@ -992,4 +992,9 @@ sub writejob {
   return BSSched::BuildJob::writejob(@_);
 }
 
+sub getconfig {
+  my ($ctx, $projid, $repoid, $arch, $configpath) = @_;
+  return BSSched::ProjPacks::getconfig($ctx->{'gctx'}, $projid, $repoid, $arch, $configpath);
+}
+
 1;

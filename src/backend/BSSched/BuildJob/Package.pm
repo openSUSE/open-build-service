@@ -77,7 +77,7 @@ sub check {
   my $prp = $ctx->{'prp'};
   my $notready = $ctx->{'notready'};
   my $dep2src = $ctx->{'dep2src'};
-  my $edeps = $ctx->{'edeps'}->{$packid} || [];
+  my $edeps = $info->{'edeps'} || $ctx->{'edeps'}->{$packid} || [];
   my $depislocal = $ctx->{'depislocal'};
   my $gdst = $ctx->{'gdst'};
   my $gctx = $ctx->{'gctx'};
@@ -102,8 +102,10 @@ sub check {
     if (@blocked && $cycpass == 3) {
       # cycpass == 2 means that packages of this cycle are building
       # because of source changes
-      print "      - $packid ($buildtype)\n";
-      print "        blocked by cycle builds ($blocked[0]...)\n";
+      if ($ctx->{'verbose'}) {
+        print "      - $packid ($buildtype)\n";
+        print "        blocked by cycle builds ($blocked[0]...)\n";
+      }
       return ('blocked', join(', ', @blocked));
     }
     my %cycs = map {$_ => 1} @{$ctx->{'cychash'}->{$packid}};
@@ -111,8 +113,10 @@ sub check {
     my $building = $ctx->{'building'};
     @blocked = grep {!$cycs{$dep2src->{$_}} || !$building->{$dep2src->{$_}}} @blocked;
     if (@blocked) {
-      print "      - $packid ($buildtype)\n";
-      print "        blocked ($blocked[0]...)\n";
+      if ($ctx->{'verbose'}) {
+        print "      - $packid ($buildtype)\n";
+        print "        blocked ($blocked[0]...)\n";
+      }
     }
   }
   if (@blocked) {
@@ -149,22 +153,30 @@ sub check {
     }
   }
   if (!$mylastcheck) {
-    print "      - $packid ($buildtype)\n";
-    print "        no meta, start build\n";
+    if ($ctx->{'verbose'}) {
+      print "      - $packid ($buildtype)\n";
+      print "        no meta, start build\n";
+    }
     return ('scheduled', [ { 'explain' => 'new build' } ]);
   } elsif (substr($mylastcheck, 0, 32) ne ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})) {
-    print "      - $packid ($buildtype)\n";
-    print "        src change, start build\n";
+    if ($ctx->{'verbose'}) {
+      print "      - $packid ($buildtype)\n";
+      print "        src change, start build\n";
+    }
     return ('scheduled', [ { 'explain' => 'source change', 'oldsource' => substr($mylastcheck, 0, 32) } ]);
   } elsif (substr($mylastcheck, 32, 32) eq 'fakefakefakefakefakefakefakefake') {
     my @s = stat("$gdst/:meta/$packid");
     if (!@s || $s[9] + 14400 > time()) {
-      print "      - $packid ($buildtype)\n";
-      print "        buildsystem setup failure\n";
+      if ($ctx->{'verbose'}) {
+        print "      - $packid ($buildtype)\n";
+        print "        buildsystem setup failure\n";
+      }
       return ('failed')
     }
-    print "      - $packid ($buildtype)\n";
-    print "        retrying bad build\n";
+    if ($ctx->{'verbose'}) {
+      print "      - $packid ($buildtype)\n";
+      print "        retrying bad build\n";
+    }
     return ('scheduled', [ { 'explain' => 'retrying bad build' } ]);
   } else {
     my $rebuildmethod = $repo->{'rebuild'} || 'transitive';
@@ -272,15 +284,19 @@ sub check {
     }
     my @diff = BSSched::BuildJob::diffsortedmd5(\@meta, \@new_meta);
     my $reason = BSSched::BuildJob::sortedmd5toreason(@diff);
-    print "      - $packid ($buildtype)\n";
-    print "        $_\n" for @diff;
-    print "        meta change, start build\n";
+    if ($ctx->{'verbose'}) {
+      print "      - $packid ($buildtype)\n";
+      print "        $_\n" for @diff;
+      print "        meta change, start build\n";
+    }
     return ('scheduled', [ { 'explain' => 'meta change', 'packagechange' => $reason } ] );
   }
 relsynccheck:
   if ($ctx->{'relsynctrigger'}->{$packid}) {
-    print "      - $packid ($buildtype)\n";
-    print "        rebuild counter sync, start build\n";
+    if ($ctx->{'verbose'}) {
+      print "      - $packid ($buildtype)\n";
+      print "        rebuild counter sync, start build\n";
+    }
     return ('scheduled', [ { 'explain' => 'rebuild counter sync' } ] );
   }
   return ('done');
@@ -306,7 +322,7 @@ sub build {
     }
   }
   $info->{'nounchanged'} = 1 if $ctx->{'cychash'}->{$packid};
-  my ($state, $job) = BSSched::BuildJob::create($ctx, $packid, $pdata, $info, $ctx->{'subpacks'}->{$info->{'name'}} || [], $ctx->{'edeps'}->{$packid} || [], $reason, $needed->{$packid} || 0);
+  my ($state, $job) = BSSched::BuildJob::create($ctx, $packid, $pdata, $info, $ctx->{'subpacks'}->{$info->{'name'}} || [], $info->{'edeps'} || $ctx->{'edeps'}->{$packid} || [], $reason, $needed->{$packid} || 0);
   delete $info->{'nounchanged'};
   return ($state, $job);
 }

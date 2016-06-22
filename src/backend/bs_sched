@@ -901,7 +901,7 @@ eval {
       next;
     }
 
-    my $ctx = BSSched::Checker->new($gctx, $prp, 'changeprp' => $prp, 'changetype' => $lookattype);
+    my $ctx = BSSched::Checker->new($gctx, $prp, 'changeprp' => $prp, 'changetype' => $lookattype, 'verbose' => 1);
     my $gdst = "$reporoot/$prp/$myarch";
 
     # merge bininfo
