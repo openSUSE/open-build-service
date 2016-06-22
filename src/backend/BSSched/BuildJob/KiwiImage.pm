@@ -189,12 +189,11 @@ sub check {
   @new_meta = sort {substr($a, 34) cmp substr($b, 34)} @new_meta;
   unshift @new_meta, map {"$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}"} @{$info->{'extrasource'} || []};
   unshift @new_meta, ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
-  my ($state, $data) = BSSched::BuildJob::metacheck($ctx, $packid, 'kiwi-image', \@new_meta, [ $bconf, \@edeps ]);
+  my ($state, $data) = BSSched::BuildJob::metacheck($ctx, $packid, 'kiwi-image', \@new_meta, [ $bconf, \@edeps, $pool, \%dep2pkg ]);
   if ($BSConfig::enable_download_on_demand && $state eq 'scheduled') {
     my $dods = BSSched::DoD::dodcheck($ctx, $pool, $myarch, @edeps);
     return ('blocked', $dods) if $dods;
   }
-  push @$data, $pool, \%dep2pkg;
   return ($state, $data);
 }
 
@@ -209,9 +208,9 @@ sub build {
   my ($self, $ctx, $packid, $pdata, $info, $data) = @_;
   my $bconf = $data->[0];	# this is the config used to expand the image packages
   my $edeps = $data->[1];
-  my $reason = $data->[2];
-  my $epool = $data->[3];
-  my $edep2pkg = $data->[4];
+  my $epool = $data->[2];
+  my $edep2pkg = $data->[3];
+  my $reason = $data->[4];
 
   my $gctx = $ctx->{'gctx'};
   my $projid = $ctx->{'project'};
