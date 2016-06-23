@@ -682,19 +682,23 @@ class Project < ActiveRecord::Base
 
     # recreate release targets from xml
     xml_hash.elements('releasetarget') do |release_target|
-      project    = release_target['project']
+      project    = Project.find_by(name: release_target['project'])
       repository = release_target['repository']
       trigger    = release_target['trigger']
 
-      if Project.find_by(name: project).defines_remote_instance?
+      unless project
+        raise SaveError, "Project '#{project}' does not exist."
+      end
+
+      if project.defines_remote_instance?
         raise SaveError, "Can not use remote repository as release target '#{project}/#{repository}'"
+      end
+
+      target_repo = Repository.find_by_project_and_name(project.name, repository)
+      if target_repo
+        current_repo.release_targets.new(target_repository: target_repo, trigger: trigger)
       else
-        target_repo = Repository.find_by_project_and_name(project, repository)
-        if target_repo
-          current_repo.release_targets.new(target_repository: target_repo, trigger: trigger)
-        else
-          raise SaveError, "Unknown target repository '#{project}/#{repository}'"
-        end
+        raise SaveError, "Unknown target repository '#{project}/#{repository}'"
       end
     end
   end
