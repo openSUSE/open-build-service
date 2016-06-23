@@ -67,7 +67,7 @@ record_11:
   flag: binarydownload
   project: BinaryprotectedProject
 record_12:
-  status: disable
+  status: enable
   repo: '10.2'
   position: 2
   flag: build
