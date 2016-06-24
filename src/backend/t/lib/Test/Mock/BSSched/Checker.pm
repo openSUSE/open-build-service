@@ -19,6 +19,7 @@ package Test::Mock::BSSched::Checker;
 our @ISA = 'BSSched::Checker';
 
 use BSSched::Checker;
+use Test::OBS::Utils;
 
 sub addrepo {
   my ($ctx, $pool, $prp, $arch) = @_;
