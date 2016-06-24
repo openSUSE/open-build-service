@@ -27,17 +27,19 @@ use Exporter;
 
 use Test::More;
 
+sub bdepkey {
+  my ($x) = @_;
+  return ($x->{'name'}||'')."\0".join("\0", map {"$_:$x->{$_}"} sort keys %$x);
+}
+
 sub cmp_buildinfo {
-  my ($got,$expected,$comment) = @_;
+  my ($got, $expected, $comment) = @_;
 
-  $got->{'bdep'}  = [ sort {$a->{'name'} cmp $b->{'name'}} @{$got->{'bdep'} || []} ];
-  $expected->{'bdep'} = [ sort {$a->{'name'} cmp $b->{'name'}} @{$expected->{'bdep'} || []} ];
-  $got->{subpack} = [ sort { $a cmp $b }  @{ $got->{subpack}  || [] } ];
-  $expected->{subpack} = [ sort { $a cmp $b } @{ $expected->{subpack}  || [] } ];
-
-
-  is_deeply($got,$expected,$comment);
-
-};
+  $got->{'bdep'}       = [ sort {bdepkey($a) cmp bdepkey($b)} @{$got->{'bdep'} || []} ];
+  $expected->{'bdep'}  = [ sort {bdepkey($a) cmp bdepkey($b)} @{$expected->{'bdep'} || []} ];
+  $got->{subpack}      = [ sort { $a cmp $b }  @{ $got->{subpack}  || []} ];
+  $expected->{subpack} = [ sort { $a cmp $b } @{ $expected->{subpack}  || []} ];
+  is_deeply($got, $expected, $comment);
+}
 
 1;
