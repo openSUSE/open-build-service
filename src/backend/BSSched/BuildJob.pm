@@ -756,6 +756,8 @@ sub create_jobdata {
   $binfo->{'verifymd5'} = $pdata->{'verifymd5'} || $pdata->{'srcmd5'} if $pdata->{'verifymd5'} || $pdata->{'srcmd5'};
   $binfo->{'file'} = $info->{'file'} if defined $info->{'file'};
   $binfo->{'imagetype'} = $info->{'imagetype'} if $info->{'imagetype'};
+  $binfo->{'nodbgpkgs'} = $info->{'nodbgpkgs'} if $info->{'nodbgpkgs'};
+  $binfo->{'nosrcpkgs'} = $info->{'nosrcpkgs'} if $info->{'nosrcpkgs'};
   $binfo->{'hostarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'};
   my $obsname = $gctx->{'obsname'};
   $binfo->{'disturl'} = "obs://$obsname/$projid/$repoid/$pdata->{'srcmd5'}-$packid" if defined($obsname) && defined($packid);
