@@ -95,7 +95,8 @@ sub check {
   $buildarch = 'local' if $BSConfig::localarch && grep {$_ eq 'local'} @{$repo->{'arch'} || []};
   # localbuildarch is where we take the buildenv from
   my $localbuildarch = $buildarch eq 'local' && $BSConfig::localarch ? $BSConfig::localarch : $buildarch;
-  my $markerdir = "$reporoot/$projid/$repoid/$buildarch/$packid";
+  my $markerdir;
+  $markerdir = "$reporoot/$projid/$repoid/$buildarch/$packid" unless $ctx->{'isreposerver'};
 
   my %imagearch = map {$_ => 1} @{$info->{'imagearch'} || []};
   return ('broken', 'no architectures for packages') unless grep {$imagearch{$_}} @{$repo->{'arch'} || []};
@@ -103,8 +104,10 @@ sub check {
 
   if ($myarch ne $buildarch && $myarch ne $localbuildarch) {
     if (!grep {$_ eq $myarch} @archs) {
-      print "      - $packid (kiwi-product)\n";
-      print "        not mine\n";
+      if ($ctx->{'verbose'}) {
+        print "      - $packid (kiwi-product)\n";
+        print "        not mine\n";
+      }
       return ('excluded');
     }
   }
@@ -125,8 +128,10 @@ sub check {
     unshift @configpath, "$projid/$repoid" unless @configpath && $configpath[0] eq "$projid/$repoid";
     $bconf = $ctx->getconfig($projid, $repoid, $myarch, \@configpath);
     if (!$bconf) {
-      print "      - $packid (kiwi-product)\n";
-      print "        no config\n";
+      if ($ctx->{'verbose'}) {
+        print "      - $packid (kiwi-product)\n";
+        print "        no config\n";
+      }
       return ('broken', 'no config');
     }
   }
@@ -139,23 +144,29 @@ sub check {
 #print "prps: @aprps\n";
 #print "archs: @archs\n";
 #print "deps: @deps\n";
+  my $pool;
+  my %dep2pkg;
   if ($myarch eq $buildarch || $myarch eq $localbuildarch) {
     # calculate packages needed for building
-    my $pool = BSSolv::pool->new();
+    $pool = BSSolv::pool->new();
     $pool->settype('deb') if $bconf->{'binarytype'} eq 'deb';
     my $delayed_errors = '';
     for my $aprp (@bprps) {
       if (!$ctx->checkprpaccess($aprp)) {
-	print "      - $packid (kiwi-product)\n";
-	print "        repository $aprp is unavailable";
+	if ($ctx->{'verbose'}) {
+	  print "      - $packid (kiwi-product)\n";
+	  print "        repository $aprp is unavailable";
+	}
 	return ('broken', "repository $aprp is unavailable");
       }
       my $r = $ctx->addrepo($pool, $aprp, $localbuildarch);
       if (!$r) {
 	my $error = "repository '$aprp' is unavailable";
 	$error .= " (delayed)" if defined $r;
-	print "      - $packid (kiwi-product)\n";
-	print "        $error\n";
+	if ($ctx->{'verbose'}) {
+	  print "      - $packid (kiwi-product)\n";
+	  print "        $error\n";
+	}
 	if (defined $r) {
 	  $delayed_errors .= ", $error";
 	  next;
@@ -171,20 +182,23 @@ sub check {
     use warnings 'redefine';
     my ($eok, @kdeps) = Build::get_sysbuild($bconf, 'kiwi-product', [ grep {/^kiwi-.*:/} @{$info->{'dep'} || []} ]);
     if (!$eok) {
-      print "      - $packid (kiwi-product)\n";
-      print "        unresolvable for sysbuild:\n";
-      print "          $_\n" for @kdeps;
+      if ($ctx->{'verbose'}) {
+        print "      - $packid (kiwi-product)\n";
+        print "        unresolvable for sysbuild:\n";
+        print "          $_\n" for @kdeps;
+      }
       return ('unresolvable', join(', ', @kdeps));
     }
-    my %dep2pkg;
     for my $p ($pool->consideredpackages()) {
       $dep2pkg{$pool->pkg2name($p)} = $p;
     }
     # check access
     for my $aprp (@aprps) {
       if (!$ctx->checkprpaccess($aprp)) {
-	print "      - $packid (kiwi-product)\n";
-	print "        repository $aprp is unavailable for sysbuild";
+	if ($ctx->{'verbose'}) {
+	  print "      - $packid (kiwi-product)\n";
+	  print "        repository $aprp is unavailable for sysbuild";
+	}
 	return ('broken', "repository $aprp is unavailable");
       }
     }
@@ -210,13 +224,15 @@ sub check {
 	# FIXME: this assumes packid == pname
 	push @blocked, grep {$ps->{$_} && ($ps->{$_} eq 'scheduled' || $ps->{$_} eq 'blocked' || $ps->{$_} eq 'finished')} sort keys %pnames;
       }
-      if (@blocked) {
-	if (! -e "$markerdir/.waiting_for_$localbuildarch") {
-	  mkdir_p($markerdir);
-	  BSUtil::touch("$markerdir/.waiting_for_$localbuildarch");
+      if ($markerdir) {
+        if (@blocked) {
+	  if (! -e "$markerdir/.waiting_for_$localbuildarch") {
+	    mkdir_p($markerdir);
+	    BSUtil::touch("$markerdir/.waiting_for_$localbuildarch");
+	  }
+        } else {
+	  unlink("$markerdir/.waiting_for_$localbuildarch");
 	}
-      } else {
-	unlink("$markerdir/.waiting_for_$localbuildarch");
       }
     } else {
       my $notready = $ctx->{'notready'};
@@ -230,11 +246,13 @@ sub check {
       }
     }
     if (@blocked) {
-      print "      - $packid (kiwi-product)\n";
-      if (@blocked < 10) {
-        print "        blocked for sysbuild (@blocked)\n";
-      } else {
-        print "        blocked for sysbuild (@blocked[0..9] ...)\n";
+      if ($ctx->{'verbose'}) {
+        print "      - $packid (kiwi-product)\n";
+        if (@blocked < 10) {
+          print "        blocked for sysbuild (@blocked)\n";
+        } else {
+          print "        blocked for sysbuild (@blocked[0..9] ...)\n";
+        }
       }
       return ('blocked', join(', ', @blocked));
     }
@@ -279,8 +297,10 @@ sub check {
       if (!$gbininfo && $remoteprojs->{$aprojid}) {
 	my $error = "project binary state of $aprp/$arch is unavailable";
 	$error .= " (delayed)" if defined $gbininfo;
-	print "      - $packid (kiwi-product)\n";
-	print "        $error\n";
+	if ($ctx->{'verbose'}) {
+	  print "      - $packid (kiwi-product)\n";
+	  print "        $error\n";
+	}
 	if (defined $gbininfo) {
 	  $delayed_errors .= ", $error";
 	  next;
@@ -290,7 +310,7 @@ sub check {
       next if $delayed_errors;
       if (!$gbininfo && $arch ne $myarch && -d "$gctx->{'eventdir'}/$arch") {
 	# mis-use unblocked to tell other scheduler that it is missing
-	print "    requesting :repoinfo for $aprp/$arch\n";
+	print "    requesting :repoinfo for $aprp/$arch\n" if $ctx->{'verbose'};
 	BSSched::EventSource::Directory::sendunblockedevent($gctx, $aprp, $arch);
       }
       @apackids = BSUtil::unify(@apackids, sort keys %$gbininfo) if $gbininfo;
@@ -370,7 +390,7 @@ sub check {
     last if @blocked > $maxblocked;
   }
   return ('delayed', substr($delayed_errors, 2)) if $delayed_errors;
-  if ($myarch eq $buildarch) {
+  if ($myarch eq $buildarch && $markerdir) {
     # update waiting_for markers
     for my $arch (grep {$_ ne $buildarch} @archs) {
       if ($blockedarch{$arch}) {
@@ -384,8 +404,10 @@ sub check {
   }
   if (@blocked) {
     push @blocked, '...' if @blocked > $maxblocked;
-    print "      - $packid (kiwi-product)\n";
-    print "        blocked (@blocked)\n";
+    if ($ctx->{'verbose'}) {
+      print "      - $packid (kiwi-product)\n";
+      print "        blocked (@blocked)\n";
+    }
     return ('blocked', join(', ', @blocked));
   }
 
@@ -394,8 +416,10 @@ sub check {
     if (-e "$markerdir/.waiting_for_$myarch") {
       unlink("$markerdir/.waiting_for_$myarch");
       BSSched::EventSource::Directory::sendunblockedevent($gctx, $prp, $buildarch);
-      print "      - $packid (kiwi-product)\n";
-      print "        unblocked\n";
+      if ($ctx->{'verbose'}) {
+        print "      - $packid (kiwi-product)\n";
+        print "        unblocked\n";
+      }
     }
     return ('excluded', "is built in architecture '$buildarch'");
   }
@@ -410,7 +434,7 @@ sub check {
     $id ||= "deaddeaddeaddeaddeaddeaddeaddead";
     push @new_meta, "$id  $rpms_meta{$rpm}";
   }
-  return BSSched::BuildJob::metacheck($ctx, $packid, 'kiwi-product', \@new_meta, [ $bconf, \@rpms ]);
+  return BSSched::BuildJob::metacheck($ctx, $packid, 'kiwi-product', \@new_meta, [ $bconf, \@rpms, $pool, \%dep2pkg ]);
 }
 
 
@@ -434,13 +458,18 @@ sub build {
 
   my $bconf = $data->[0];
   my $rpms = $data->[1];
-  my $reason = $data->[2];
+  my $pool = $data->[2];
+  my $dep2pkg = $data->[3];
+  my $reason = $data->[4];
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
   my $job = BSSched::BuildJob::jobname($prp, $packid);
+  my @otherjobs;
   my $myjobsdir = $gctx->{'myjobsdir'};
-  return ('scheduled', "$job-$srcmd5") if -s "$myjobsdir/$job-$srcmd5";
-  my @otherjobs = grep {/^\Q$job\E-[0-9a-f]{32}$/} ls($myjobsdir);
+  if ($myjobsdir) {
+    return ('scheduled', "$job-$srcmd5") if -s "$myjobsdir/$job-$srcmd5";
+    @otherjobs = grep {/^\Q$job\E-[0-9a-f]{32}$/} ls($myjobsdir);
+  }
   $job = "$job-$srcmd5";
 
   # kill those ancient other jobs
@@ -454,7 +483,7 @@ sub build {
   my $syspath;
   if (@{$repo->{'path'} || []}) {
     # images repo has a configured path, use it to set up the kiwi system
-    $syspath = BSSched::BuildJob::path2buildinfopath($gctx, $gctx->{'prpsearchpath'}->{$prp});
+    $syspath = BSSched::BuildJob::path2buildinfopath($gctx, $ctx->{'prpsearchpath'});
   }
   my @aprps = BSSched::BuildJob::expandkiwipath($info, $ctx->{'prpsearchpath'});
   my $searchpath = BSSched::BuildJob::path2buildinfopath($gctx, \@aprps);
@@ -471,6 +500,7 @@ sub build {
       push @bdeps, { 'name' => $rpm, 'notmeta' => 1, };
       $bdeps[-1]->{'preinstall'} = 1 if $pdeps{$rpm};
       $bdeps[-1]->{'vminstall'} = 1 if $vmdeps{$rpm};
+      $bdeps[-1]->{'runscripts'} = 1 if $runscripts{$rpm};
       $bdeps[-1]->{'repoarch'} = $localbuildarch if $localbuildarch ne $myarch;
       next;
     }
@@ -500,7 +530,6 @@ sub build {
     'project' => $projid,
     'repository' => $repoid,
     'package' => $packid,
-    'job' => $job,
     'arch' => $myarch,
     'srcmd5' => $srcmd5,
     'verifymd5' => $pdata->{'verifymd5'} || $srcmd5,
@@ -510,8 +539,6 @@ sub build {
     'bcnt' => $bcnt,
     'bdep' => \@bdeps,
     'path' => $searchpath,
-    'reason' => $reason->{'explain'},
-    'readytime' => time(),
   };
   my $obsname = $gctx->{'obsname'};
   $binfo->{'disturl'} = "obs://$obsname/$projid/$repoid/$srcmd5-$packid";
@@ -524,7 +551,7 @@ sub build {
   $binfo->{'constraintsmd5'} = $pdata->{'constraintsmd5'} if $pdata->{'constraintsmd5'};
   $binfo->{'prjconfconstraint'} = $bconf->{'constraint'} if @{$bconf->{'constraint'} || []};
 
-  BSSched::BuildJob::writejob($ctx, $job, $binfo, $reason);
+  $ctx->writejob($job, $binfo, $reason);
 
   return ('scheduled', $job);
 }
