@@ -68,6 +68,8 @@ is($status, 'scheduled', 'build call');
 
 my $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc01", $BSXML::buildinfo);
 my $got = $ctx->{'buildinfo'};
+# compat...
+delete $got->{$_} for qw{needed release debuginfo};
 
 cmp_buildinfo($got, $expected, 'kiwi product build job');
 

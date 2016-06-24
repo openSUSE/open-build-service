@@ -462,100 +462,48 @@ sub build {
   my $dep2pkg = $data->[3];
   my $reason = $data->[4];
   my $prp = "$projid/$repoid";
-  my $srcmd5 = $pdata->{'srcmd5'};
-  my $job = BSSched::BuildJob::jobname($prp, $packid);
-  my @otherjobs;
-  my $myjobsdir = $gctx->{'myjobsdir'};
-  if ($myjobsdir) {
-    return ('scheduled', "$job-$srcmd5") if -s "$myjobsdir/$job-$srcmd5";
-    @otherjobs = grep {/^\Q$job\E-[0-9a-f]{32}$/} ls($myjobsdir);
-  }
-  $job = "$job-$srcmd5";
 
-  # kill those ancient other jobs
-  for my $otherjob (@otherjobs) {
-    print "        killing old job $otherjob\n";
-    BSSched::BuildJob::killjob($gctx, $otherjob);
-  }
-
-  my $localbuildarch = $myarch eq 'local' && $BSConfig::localarch ? $BSConfig::localarch : $myarch;
-
-  my $syspath;
-  if (@{$repo->{'path'} || []}) {
-    # images repo has a configured path, use it to set up the kiwi system
-    $syspath = BSSched::BuildJob::path2buildinfopath($gctx, $ctx->{'prpsearchpath'});
-  }
-  my @aprps = BSSched::BuildJob::expandkiwipath($info, $ctx->{'prpsearchpath'});
-  my $searchpath = BSSched::BuildJob::path2buildinfopath($gctx, \@aprps);
+  my $isreposerver = $ctx->{'isreposerver'};
   my @bdeps;
-  my @pdeps = Build::get_preinstalls($bconf);
-  my @vmdeps = Build::get_vminstalls($bconf);
-  my %runscripts = map {$_ => 1} Build::get_runscripts($bconf);
-  my %pdeps = map {$_ => 1} @pdeps;
-  my %vmdeps = map {$_ => 1} @vmdeps;
-  for my $rpm (BSUtil::unify(@pdeps, @vmdeps, @{$rpms || []})) {
+  for my $rpm (BSUtil::unify(@{$rpms || []})) {
     my @b = split('/', $rpm);
-    if (@b == 1) {
-      # this is a build environment package
-      push @bdeps, { 'name' => $rpm, 'notmeta' => 1, };
-      $bdeps[-1]->{'preinstall'} = 1 if $pdeps{$rpm};
-      $bdeps[-1]->{'vminstall'} = 1 if $vmdeps{$rpm};
-      $bdeps[-1]->{'runscripts'} = 1 if $runscripts{$rpm};
-      $bdeps[-1]->{'repoarch'} = $localbuildarch if $localbuildarch ne $myarch;
+    next if @b == 1;
+    next unless @b == 5;
+    my $b;
+    if ($b[4] =~ /^(?:::import::.*::)?(.+)-([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/) {
+      $b = {
+        'name' => $1,
+        'version' => $2,
+        'release' => $3,
+        'arch' => $4,
+        'project' => $b[0],
+        'repository' => $b[1],
+        'repoarch' => $b[2],
+        'package' => $b[3],
+      };
+    } elsif ($isreposerver && ($b[4] =~  /^(.*)-appdata\.xml$/)) {
+      $b = {
+        'project' => $b[0],
+        'repository' => $b[1],
+        'repoarch' => $b[2],
+        'package' => $b[3],
+      };
+    } else {
       next;
     }
-    next unless @b == 5;
-    next unless $b[4] =~ /^(?:::import::.*::)?(.+)-([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
-    push @bdeps, {
-      'name' => $1,
-      'version' => $2,
-      'release' => $3,
-      'arch' => $4,
-      'project' => $b[0],
-      'repository' => $b[1],
-      'repoarch' => $b[2],
-      'package' => $b[3],
-    };
+    if ($isreposerver) {
+      $b->{'noinstall'} = 1;
+      $b->{'binary'} = $b[4];
+      delete $b->{'repoarch'} if $b->{'repoarch'} eq $myarch;
+    }
+    push @bdeps, $b;
   }
-  if ($info->{'extrasource'}) {
-    push @bdeps, map {{
-      'name' => $_->{'file'}, 'version' => '', 'repoarch' => 'src',
-      'project' => $_->{'project'}, 'package' => $_->{'package'}, 'srcmd5' => $_->{'srcmd5'},
-    }} @{$info->{'extrasource'}};
-  }
-
-  my $bcnt = BSSched::BuildJob::nextbcnt($ctx, $packid, $pdata);
-
-  my $binfo = {
-    'project' => $projid,
-    'repository' => $repoid,
-    'package' => $packid,
-    'arch' => $myarch,
-    'srcmd5' => $srcmd5,
-    'verifymd5' => $pdata->{'verifymd5'} || $srcmd5,
-    'rev' => $pdata->{'rev'},
-    'file' => $info->{'file'},
-    'versrel' => $pdata->{'versrel'},
-    'bcnt' => $bcnt,
-    'bdep' => \@bdeps,
-    'path' => $searchpath,
-  };
-  my $obsname = $gctx->{'obsname'};
-  $binfo->{'disturl'} = "obs://$obsname/$projid/$repoid/$srcmd5-$packid";
-  $binfo->{'syspath'} = $syspath if $syspath;
-  $binfo->{'hostarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'};
-  $binfo->{'revtime'} = $pdata->{'revtime'} if $pdata->{'revtime'};
-  $binfo->{'imagetype'} = $info->{'imagetype'} if $info->{'imagetype'};
-  $binfo->{'nodbgpkgs'} = $info->{'nodbgpkgs'} if $info->{'nodbgpkgs'};
-  $binfo->{'nosrcpkgs'} = $info->{'nosrcpkgs'} if $info->{'nosrcpkgs'};
-  $binfo->{'constraintsmd5'} = $pdata->{'constraintsmd5'} if $pdata->{'constraintsmd5'};
-  $binfo->{'prjconfconstraint'} = $bconf->{'constraint'} if @{$bconf->{'constraint'} || []};
-
-  $ctx->writejob($job, $binfo, $reason);
-
-  return ('scheduled', $job);
+  $ctx->{'extrabdeps'} = \@bdeps;
+  my $prpsearchpath = $ctx->{'prpsearchpath'};
+  $prpsearchpath = [] if !@{$repo->{'path'} || []};
+  my $nctx = bless { %$ctx, 'prpsearchpath' => $prpsearchpath, 'conf' => $bconf, 'pool' => $pool, 'dep2pkg' => $dep2pkg, 'realctx' => $ctx}, ref($ctx);
+  return BSSched::BuildJob::create($nctx, $packid, $pdata, $info, [], [], $reason, 0);
 }
-
 
 sub read_bininfo_oldok {
   my ($dir) = @_;
