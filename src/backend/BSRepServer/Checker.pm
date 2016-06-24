@@ -18,20 +18,39 @@
 package BSRepServer::Checker;
 
 use BSRPC ':https';
+use Build;
 
 use strict;
+
+use BSSched::BuildJob::Package;
+use BSSched::BuildJob::KiwiImage;
+use BSSched::BuildJob::KiwiProduct;
+use BSSched::BuildJob::Unknown;
+
+my %handlers = (
+  'kiwi-product'    => BSSched::BuildJob::KiwiProduct->new(),
+  'kiwi-image'      => BSSched::BuildJob::KiwiImage->new(),
+  'unknown'         => BSSched::BuildJob::Unknown->new(),
+  'default'         => BSSched::BuildJob::Package->new(),
+);
 
 sub new {
   my ($class, $gctx, @conf) = @_;
   my $ctx = { 'gctx' => $gctx, @conf };
   $ctx->{'prp'} = "$ctx->{'project'}/$ctx->{'repository'}";
   $ctx->{'gdst'} = "$gctx->{'reporoot'}/$ctx->{'prp'}/$gctx->{'arch'}";
+  $ctx->{'isreposerver'} = 1;
   return bless $ctx, $class;
 }
 
 sub xrpc {
   my ($ctx, $resource, $param, @args) = @_;
   return BSRPC::rpc($param, @args);
+}
+
+sub getconfig {
+  my ($ctx, $projid, $repoid, $arch, $configpath) = @_;
+  return BSRepServer::getconfig($projid, $repoid, $arch, $configpath);
 }
 
 sub setup {
@@ -45,7 +64,7 @@ sub setup {
   my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
   die("no repo $repoid in project $projid?\n") unless $repo;
   $ctx->{'repo'} = $repo;
-  my $bconf = BSRepServer::getconfig($projid, $repoid, $myarch, $ctx->{'configpath'});
+  my $bconf = $ctx->getconfig($projid, $repoid, $myarch, $ctx->{'configpath'});
   $ctx->{'conf'} = $bconf;
 }
 
@@ -88,6 +107,31 @@ sub preparepool {
   $ctx->{'subpacks'} = { $pname => \@subpacks };
 }
 
+# see checkpks in BSSched::Checker
+sub buildinfo {
+  my ($ctx, $packid, $pdata, $info) = @_;
+  my $xp = BSSolv::expander->new($ctx->{'pool'}, $ctx->{'conf'});
+  no warnings 'redefine';
+  local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
+  use warnings 'redefine';
+  my $bconf = $ctx->{'conf'};
+  my $buildtype = $bconf->{'type'};
+  $buildtype = $info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product' ? 'kiwi-product' : 'kiwi-image' if $buildtype eq 'kiwi';
+  $buildtype ||= 'unknown';
+  my $handler = $handlers{$buildtype} || $handlers{'default'};
+  die("$pdata->{'error'}\n") if $pdata->{'error'};
+  die("$info->{'error'}\n") if $info->{'error'};
+  my ($eok, @edeps) = $handler->expand($bconf, $ctx->{'subpacks'}->{$info->{'name'}}, @{$info->{'dep'} || []});
+  die("unresolvable ".join(", ", @edeps)."\n") unless $eok;
+  $info->{'edeps'} = \@edeps;
+  my ($status, $error) = $handler->check($ctx, $packid, $pdata, $info, $bconf->{'type'});
+  die("$status: $error\n") if $status ne 'scheduled';
+  ($status, $error) = $handler->build($ctx, $packid, $pdata, $info, $error);
+  die("$status: $error\n") if $status ne 'scheduled';
+  die("no buildinfo in ctx\n") unless $ctx->{'buildinfo'};
+  return $ctx->{'buildinfo'};
+}
+
 sub addrepo {
   my ($ctx, $pool, $prp, $arch) = @_;
   my $gctx = $ctx->{'gctx'};
@@ -115,6 +159,16 @@ sub read_gbininfo {
   }
   my $reporoot = $gctx->{'reporoot'};
   return BSRepServer::read_gbininfo("$reporoot/$prp/$arch");
+}
+
+sub writejob {
+  my ($ctx, $job, $binfo, $reason) = @_;
+  $ctx = $ctx->{'realctx'} if $ctx->{'realctx'};
+  $ctx->{'buildinfo'} = $binfo;
+}
+
+sub checkprpaccess {
+  return 1;
 }
 
 1;

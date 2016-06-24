@@ -41,10 +41,6 @@ my ($got,$expected);
 
 # Test Case 01
 {
-  local *STDOUT;
-  my $out;
-  open(STDOUT,">",\$out);
-
   ($got) = BSRepServer::BuildInfo->new(projid=>'home:Admin:branches:openSUSE.org:OBS:Server:2.7', repoid=>'images', arch=>'x86_64', packid=>'_product:OBS-Addon-cd-cd-x86_64')->getbuildinfo();
 
   $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc01", $BSXML::buildinfo);

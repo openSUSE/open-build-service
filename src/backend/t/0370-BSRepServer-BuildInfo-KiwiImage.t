@@ -42,10 +42,6 @@ my ($got,$expected);
 
 # Test Case 01
 { 
-  local *STDOUT;
-  my $out;
-  open(STDOUT,">",\$out);
-
   ($got) = BSRepServer::BuildInfo->new(projid=>'home:M0ses:kanku:Images', repoid=>'images', arch=>'x86_64', packid=>'openSUSE-Leap-42.1-JeOS')->getbuildinfo();
 
   $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc01", $BSXML::buildinfo);
@@ -54,10 +50,6 @@ cmp_buildinfo($got, $expected, 'buildinfo for Kiwi Image');
 
 # Test Case 02
 {
-  local *STDOUT;
-  my $out;
-  open(STDOUT,">",\$out);
-
   ($got) = BSRepServer::BuildInfo->new(projid=>'home:Admin:branches:openSUSE.org:home:M0ses:kanku:Images', repoid=>'images', arch=>'x86_64', packid=>'openSUSE-Leap-42.1-JeOS')->getbuildinfo();
 
   $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc02", $BSXML::buildinfo);
