@@ -110,9 +110,7 @@ sub check {
     push @new_meta, $pool->pkg2pkgid($p)."  $dep";
   }
   @new_meta = BSSolv::gen_meta([], @new_meta);
-
-  unshift @new_meta, ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
-  return BSSched::BuildJob::metacheck($ctx, $packid, 'preinstallimage', \@new_meta, [ \@bdeps ]);
+  return BSSched::BuildJob::metacheck($ctx, $packid, $pdata, 'preinstallimage', \@new_meta, [ \@bdeps ]);
 }
 
 sub build {

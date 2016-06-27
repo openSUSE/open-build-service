@@ -1021,10 +1021,11 @@ sub path2buildinfopath {
 =cut
 
 sub metacheck {
-  my ($ctx, $packid, $buildtype, $new_meta, $data) = @_;
+  my ($ctx, $packid, $pdata, $buildtype, $new_meta, $data) = @_;
 
   my $gdst = $ctx->{'gdst'};
   return ('scheduled', [ @$data, {'explain' => 'buildinfo generation'} ]) if $ctx->{'isreposerver'};
+  unshift @$new_meta, ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
   my @meta = split("\n", (readstr("$gdst/:meta/$packid", 1) || ''));
   if (!@meta) {
     if ($ctx->{'verbose'}) {

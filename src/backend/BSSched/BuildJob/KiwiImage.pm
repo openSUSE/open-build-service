@@ -159,12 +159,13 @@ sub check {
   my $notready = $ctx->{'notready'};
   my $prpnotready = $gctx->{'prpnotready'};
   my %nrs;
+  my $neverblock = $ctx->{'isreposerver'} || ($repo->{'block'} || '' eq 'never');
   for my $arepo ($pool->repos()) {
     my $aprp = $arepo->name();
-    if (!$repo->{'block'} || $repo->{'block'} ne 'never') {
-      $nrs{$aprp} = ($prp eq $aprp ? $notready : $prpnotready->{$aprp}) || {};
-    } else {
+    if ($neverblock) {
       $nrs{$aprp} = {};
+    } else {
+      $nrs{$aprp} = ($prp eq $aprp ? $notready : $prpnotready->{$aprp}) || {};
     }
   }
 
@@ -188,8 +189,7 @@ sub check {
   }
   @new_meta = sort {substr($a, 34) cmp substr($b, 34)} @new_meta;
   unshift @new_meta, map {"$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}"} @{$info->{'extrasource'} || []};
-  unshift @new_meta, ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
-  my ($state, $data) = BSSched::BuildJob::metacheck($ctx, $packid, 'kiwi-image', \@new_meta, [ $bconf, \@edeps, $pool, \%dep2pkg ]);
+  my ($state, $data) = BSSched::BuildJob::metacheck($ctx, $packid, $pdata, 'kiwi-image', \@new_meta, [ $bconf, \@edeps, $pool, \%dep2pkg ]);
   if ($BSConfig::enable_download_on_demand && $state eq 'scheduled') {
     my $dods = BSSched::DoD::dodcheck($ctx, $pool, $myarch, @edeps);
     return ('blocked', $dods) if $dods;

@@ -140,6 +140,7 @@ sub check {
   my @rpms;
   my %rpms_meta;
   my %rpms_hdrmd5;
+  my $neverblock = $ctx->{'isreposerver'};
 
 #print "prps: @aprps\n";
 #print "archs: @archs\n";
@@ -245,6 +246,7 @@ sub check {
 	push @blocked, $bin if $nr->{$pname};
       }
     }
+    @blocked = () if $neverblock;
     if (@blocked) {
       if ($ctx->{'verbose'}) {
         print "      - $packid (kiwi-product)\n";
@@ -328,7 +330,7 @@ sub check {
 	if (($allpacks && !$deps{"-$apackid"} && !$deps{'-'.($known{$apackid} || '')}) || $deps{$apackid} || $deps{$known{$apackid} || ''}) {
 	  # hey, we probably need this package! wait till it's finished
 	  my $code = $ps->{$apackid} || 'unknown';
-	  if ($code eq 'scheduled' || $code eq 'blocked' || $code eq 'finished') {
+	  if (!$neverblock && ($code eq 'scheduled' || $code eq 'blocked' || $code eq 'finished')) {
 	    push @blocked, "$aprp/$arch/$apackid";
 	    $blockedarch{$arch} = 1;
 	    last if @blocked > $maxblocked;
@@ -377,7 +379,7 @@ sub check {
 	next unless $needit;
 	# ok we need it. check if the package is built.
 	my $code = $ps->{$apackid} || 'unknown';
-	if ($code eq 'scheduled' || $code eq 'blocked' || $code eq 'finished') {
+	if (!$neverblock && ($code eq 'scheduled' || $code eq 'blocked' || $code eq 'finished')) {
 	  push @blocked, "$aprp/$arch/$apackid";
 	  $blockedarch{$arch} = 1;
 	  last if @blocked > $maxblocked;
@@ -390,7 +392,7 @@ sub check {
     last if @blocked > $maxblocked;
   }
   return ('delayed', substr($delayed_errors, 2)) if $delayed_errors;
-  if ($myarch eq $buildarch && $markerdir) {
+  if ($markerdir && $myarch eq $buildarch) {
     # update waiting_for markers
     for my $arch (grep {$_ ne $buildarch} @archs) {
       if ($blockedarch{$arch}) {
@@ -413,7 +415,7 @@ sub check {
 
   if ($myarch ne $buildarch) {
     # looks good from our side. tell master arch to check it
-    if (-e "$markerdir/.waiting_for_$myarch") {
+    if ($markerdir && -e "$markerdir/.waiting_for_$myarch") {
       unlink("$markerdir/.waiting_for_$myarch");
       BSSched::EventSource::Directory::sendunblockedevent($gctx, $prp, $buildarch);
       if ($ctx->{'verbose'}) {
@@ -426,7 +428,6 @@ sub check {
 
   # now create meta info
   my @new_meta;
-  push @new_meta, ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
   push @new_meta, map {"$_->{'srcmd5'}  $_->{'project'}/$_->{'package'}"} @{$info->{'extrasource'} || []};
   for my $rpm (sort {$rpms_meta{$a} cmp $rpms_meta{$b} || $a cmp $b} grep {$rpms_meta{$_}} @rpms) {
     my $id = $rpms_hdrmd5{$rpm};
@@ -434,7 +435,7 @@ sub check {
     $id ||= "deaddeaddeaddeaddeaddeaddeaddead";
     push @new_meta, "$id  $rpms_meta{$rpm}";
   }
-  return BSSched::BuildJob::metacheck($ctx, $packid, 'kiwi-product', \@new_meta, [ $bconf, \@rpms, $pool, \%dep2pkg ]);
+  return BSSched::BuildJob::metacheck($ctx, $packid, $pdata, 'kiwi-product', \@new_meta, [ $bconf, \@rpms, $pool, \%dep2pkg ]);
 }
 
 
