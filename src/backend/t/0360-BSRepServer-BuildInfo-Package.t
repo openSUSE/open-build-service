@@ -25,6 +25,8 @@ use warnings;
 use_ok("BSRepServer::BuildInfo");
 
 $Test::Mock::BSRPC::fixtures_map = {
+  %{$Test::Mock::BSRPC::fixtures_map},
+#  'srcserver/getprojpack?withsrcmd5&withdeps&withrepos&expandedrepos&withremotemap&ignoredisable&project=openSUSE:13.2&repository=standard&arch=i586&parseremote=1&package=screen' => '../shared/srcserver/fixtures_00001',
   'srcserver/getprojpack?withsrcmd5&withdeps&withrepos&expandedrepos&withremotemap&ignoredisable&project=home:Admin:branches:openSUSE.org:OBS:Server:Unstable&repository=openSUSE_Leap_42.1&arch=x86_64&parseremote=1&package=_product:OBS-Addon-release'
         => 'srcserver/fixture_003_000',
   'srcserver/getconfig?project=home:Admin:branches:openSUSE.org:OBS:Server:Unstable&repository=openSUSE_Leap_42.1'

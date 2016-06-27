@@ -82,6 +82,12 @@ END
     return $ret;
 
   };
+
+  $Test::Mock::BSRPC::fixtures_map = {
+    'srcserver/getprojpack?withsrcmd5&withdeps&withrepos&expandedrepos&withremotemap&ignoredisable&project=openSUSE:13.2&repository=standard&arch=i586&parseremote=1&package=screen' => '../shared/srcserver/fixture_00001',
+    'srcserver/getconfig?project=openSUSE:13.2&repository=standard' => '../shared/srcserver/fixture_00002'
+  };
+
 }
 
 1; 
