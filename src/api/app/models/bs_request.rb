@@ -1168,7 +1168,7 @@ class BsRequest < ApplicationRecord
       opts.delete(:types)
     end
     # Do not allow a full collection to avoid server load
-    if opts[:project].blank? && opts[:user].blank? && opts[:package].blank?
+    if [:project, :user, :package].all? { |filter| opts[filter].blank? }
       raise RuntimeError, 'This call requires at least one filter, either by user, project or package'
     end
     roles = opts[:roles] || []
