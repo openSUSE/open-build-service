@@ -1023,9 +1023,8 @@ sub path2buildinfopath {
 sub metacheck {
   my ($ctx, $packid, $buildtype, $new_meta, $data) = @_;
 
-  my $gctx = $ctx->{'gctx'};
-  my $prp = $ctx->{'prp'};
   my $gdst = $ctx->{'gdst'};
+  return ('scheduled', [ @$data, {'explain' => 'buildinfo generation'} ]) if $ctx->{'isreposerver'};
   my @meta = split("\n", (readstr("$gdst/:meta/$packid", 1) || ''));
   if (!@meta) {
     if ($ctx->{'verbose'}) {
