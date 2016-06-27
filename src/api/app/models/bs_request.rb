@@ -1162,7 +1162,7 @@ class BsRequest < ApplicationRecord
     requests
   end
 
-  def self.list_ids(opts)
+  def self.list(opts)
     # All types means don't pass 'type'
     if opts[:types] == 'all' || (opts[:types].respond_to?(:include?) && opts[:types].include?('all'))
       opts.delete(:types)
@@ -1176,10 +1176,18 @@ class BsRequest < ApplicationRecord
 
     # it's wiser to split the queries
     if opts[:project] && roles.empty? && (states.empty? || states.include?("review"))
-      collection(opts.merge(roles: ["reviewer"])).ids + collection(opts.merge(roles: ["target", "source"])).ids
+      collection(opts.merge(roles: ["reviewer"])) + collection(opts.merge(roles: ["target", "source"]))
     else
-      collection(opts).ids
+      collection(opts)
     end
+  end
+
+  def self.list_ids(opts)
+    list(opts).pluck(:id)
+  end
+
+  def self.list_numbers(opts)
+    list(opts).pluck(:number)
   end
 
   def self.extend_query_for_group(group, requests, roles, review_states)
