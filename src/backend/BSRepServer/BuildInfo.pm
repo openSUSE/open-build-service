@@ -14,6 +14,7 @@ use BSSolv;
 
 use BSRepServer;
 use BSRepServer::Checker;
+use BSSched::BuildJob;		# expandkiwipath
 
 sub new {
   my $class = shift;
@@ -78,6 +79,24 @@ sub new {
         push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
         my $pp = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withremotemap', 'nopackages', @args);
         $remotemap->{$_->{'project'}} = $_ for @{$pp->{'remotemap'} || []};
+      }
+    }
+    if ($self->{info}->{'imagetype'} && $self->{info}->{'imagetype'}->[0] eq 'product') {
+      # sigh. Need to get the project kind of the involved projects
+      my @prpsearchpath = map {"$_->{'project'}/$_->{'repository'}"} @{$self->{repo}->{'path'} || []};
+      my @aprps = BSSched::BuildJob::expandkiwipath($self->{info}, \@prpsearchpath);
+      my %prjkind;
+      for my $aprp (@aprps) {
+	my ($aprojid) = split('/', $aprp, 2);
+	next if $aprojid eq $self->{'projid'} || $remotemap->{$aprojid};
+	$prjkind{$aprojid} = undef;
+      }
+      if (%prjkind) {
+	print "fetching project kind for ".keys(%prjkind)." projects\n";
+	my $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'nopackages', 'noremote', 'ignoredisable', map {"project=$_"} sort(keys %prjkind));
+	for my $p (@{$projpack->{'project'} || []}) {
+	  $gctx->{'projpacks'}->{$p->{'name'}}->{'kind'} = $p->{'kind'};
+	}
       }
     }
   }
@@ -284,6 +303,20 @@ sub addpreinstallimg {
   $binfo->{'preinstallimage'} = $pi;
 }
 
+sub addurltopath {
+  my ($ctx, $binfo) = @_;
+  my $remoteprojs = $ctx->{'gctx'}->{'remoteprojs'};
+  for my $r (@{$binfo->{'path'}}) {
+    delete $r->{'server'};
+    next if $remoteprojs->{$r->{'project'}};	# what to do with those?
+    my $rprp = "$r->{'project'}/$r->{'repository'}";
+    my $rprp_ext = $rprp;
+    $rprp_ext =~ s/:/:\//g;
+    my $rurl = BSRepServer::get_downloadurl($rprp, $rprp_ext);
+    $r->{'url'} = $rurl if $rurl;
+  }
+}
+
 sub getbuildinfo {
   my ($self) = @_;
 
@@ -327,16 +360,7 @@ sub getbuildinfo {
     $binfo->{'syspath'} = [] if grep {$_->{'project'} eq '_obsrepositories'} @{$info->{'path'} || []};
     unshift @{$binfo->{'path'}}, @{delete $binfo->{'syspath'}};
   }
-  my $remoteprojs = $ctx->{'gctx'}->{'remoteprojs'};
-  for my $r (@{$binfo->{'path'}}) {
-    delete $r->{'server'};
-    next if $remoteprojs->{$r->{'project'}};	# what to do with those?
-    my $rprp = "$r->{'project'}/$r->{'repository'}";
-    my $rprp_ext = $rprp;
-    $rprp_ext =~ s/:/:\//g;
-    my $rurl = BSRepServer::get_downloadurl($rprp, $rprp_ext);
-    $r->{'url'} = $rurl if $rurl;
-  }
+  addurltopath($ctx, $binfo);
   # never use the subpacks from the full tree
   $binfo->{'subpack'} = $info->{'subpacks'} if $info->{'subpacks'};
   $binfo->{'subpack'} = [ sort @{$binfo->{'subpack'} } ] if $binfo->{'subpack'};
