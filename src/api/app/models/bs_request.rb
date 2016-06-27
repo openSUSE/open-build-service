@@ -1160,7 +1160,9 @@ class BsRequest < ActiveRecord::Base
 
     # it's wiser to split the queries
     if opts[:project] && roles.empty? && (states.empty? || states.include?("review"))
-      collection(opts.merge(roles: ["reviewer"])).ids + collection(opts.merge(roles: ["target", "source"])).ids
+      # Create a single ActiveRecord query object (=one SQL query)
+      collection(opts.merge(roles: ["reviewer"])).
+        merge(collection(opts.merge(roles: ["target", "source"]))).ids
     else
       collection(opts).ids
     end
