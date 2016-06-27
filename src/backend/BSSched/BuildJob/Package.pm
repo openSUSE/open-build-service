@@ -84,6 +84,9 @@ sub check {
   my $reporoot = $gctx->{'reporoot'};
   my $myarch = $gctx->{'arch'};
 
+  # shortcut for buildinfo queries
+  return ('scheduled', [ {'explain' => 'buildinfo generation'} ]) if $ctx->{'isreposerver'};
+
   # check for localdep repos
   if (exists($pdata->{'originproject'})) {
     if ($repo->{'linkedbuild'} && $repo->{'linkedbuild'} eq 'localdep') {
