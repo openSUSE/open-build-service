@@ -30,7 +30,7 @@
                 <% end %>
               </td>
               <td rowspan="<%= release_targets_ng.length %>" class="nowrap">
-                <% rqs_in = BsRequest.list_ids(roles: %w(target), states: %w(new review), project: incident.name) %>
+                <% rqs_in = BsRequest.list_numbers(roles: %w(target), states: %w(new review), project: incident.name) %>
                 <% if rqs_in.count > 0 %>
                     <% if rqs_in.count == 1 %>
                         <% path = request_show_path(rqs_in.first) %>

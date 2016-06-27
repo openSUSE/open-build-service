@@ -1146,7 +1146,7 @@ class BsRequest < ActiveRecord::Base
     requests
   end
 
-  def self.list_ids(opts)
+  def self.list(opts)
     # All types means don't pass 'type'
     if opts[:types] == 'all' || (opts[:types].respond_to?(:include?) && opts[:types].include?('all'))
       opts.delete(:types)
@@ -1162,10 +1162,18 @@ class BsRequest < ActiveRecord::Base
     if opts[:project] && roles.empty? && (states.empty? || states.include?("review"))
       # Create a single ActiveRecord query object (=one SQL query)
       collection(opts.merge(roles: ["reviewer"])).
-        merge(collection(opts.merge(roles: ["target", "source"]))).ids
+        merge(collection(opts.merge(roles: ["target", "source"])))
     else
-      collection(opts).ids
+      collection(opts)
     end
+  end
+
+  def self.list_ids(opts)
+    self.list(opts).pluck(:id)
+  end
+
+  def self.list_numbers(opts)
+    self.list(opts).pluck(:number)
   end
 
   def self.extend_query_for_group(group, requests, roles, review_states)
