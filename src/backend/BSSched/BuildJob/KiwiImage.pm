@@ -243,7 +243,7 @@ sub build {
       push @bdeps, $b;
     }
     $edeps = [];
-    $ctx->{'extrabdeps'} = \@bdeps;
+    $ctx = bless { %$ctx, 'extrabdeps' => \@bdeps, 'realctx' => $ctx}, ref($ctx);
   }
   # repo has a configured path, expand kiwi build system with it
   return BSSched::BuildJob::create($ctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
