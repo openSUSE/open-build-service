@@ -122,7 +122,7 @@ sub buildinfo {
   die("$pdata->{'error'}\n") if $pdata->{'error'};
   die("$info->{'error'}\n") if $info->{'error'};
   my ($eok, @edeps) = $handler->expand($bconf, $ctx->{'subpacks'}->{$info->{'name'}}, @{$info->{'dep'} || []});
-  die("unresolvable ".join(", ", @edeps)."\n") unless $eok;
+  die("unresolvable: ".join(", ", @edeps)."\n") unless $eok;
   $info->{'edeps'} = \@edeps;
   my ($status, $error) = $handler->check($ctx, $packid, $pdata, $info, $bconf->{'type'});
   die("$status: $error\n") if $status ne 'scheduled';
