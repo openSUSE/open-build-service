@@ -26,10 +26,12 @@ use BSSched::BuildJob::Package;
 use BSSched::BuildJob::KiwiImage;
 use BSSched::BuildJob::KiwiProduct;
 use BSSched::BuildJob::Unknown;
+use BSSched::BuildJob::BuildEnv;
 
 my %handlers = (
   'kiwi-product'    => BSSched::BuildJob::KiwiProduct->new(),
   'kiwi-image'      => BSSched::BuildJob::KiwiImage->new(),
+  'buildenv'        => BSSched::BuildJob::BuildEnv->new(),
   'unknown'         => BSSched::BuildJob::Unknown->new(),
   'default'         => BSSched::BuildJob::Package->new(),
 );
@@ -119,6 +121,7 @@ sub buildinfo {
   $buildtype = $info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product' ? 'kiwi-product' : 'kiwi-image' if $buildtype eq 'kiwi';
   $buildtype ||= 'unknown';
   my $handler = $handlers{$buildtype} || $handlers{'default'};
+  $handler = $handlers{'buildenv'} if $pdata->{'buildenv'};
   die("$pdata->{'error'}\n") if $pdata->{'error'};
   die("$info->{'error'}\n") if $info->{'error'};
   my ($eok, @edeps) = $handler->expand($bconf, $ctx->{'subpacks'}->{$info->{'name'}}, @{$info->{'dep'} || []});
@@ -149,13 +152,13 @@ sub addrepo {
 }
 
 sub read_gbininfo {
-  my ($ctx, $prp, $arch) = @_;
+  my ($ctx, $prp, $arch, $withevr) = @_;
   my $gctx = $ctx->{'gctx'};
   $arch ||= $gctx->{'arch'};
   my ($projid, $repoid) = split('/', $prp, 2);
   my $remoteprojs = $gctx->{'remoteprojs'};
   if ($remoteprojs->{$projid}) {
-    return BSRepServer::read_gbininfo_remote("$prp/$arch", $remoteprojs->{$projid});
+    return BSRepServer::read_gbininfo_remote("$prp/$arch", $remoteprojs->{$projid}, $withevr);
   }
   my $reporoot = $gctx->{'reporoot'};
   return BSRepServer::read_gbininfo("$reporoot/$prp/$arch");

@@ -10,7 +10,6 @@ use BSRPC ':https';
 use BSUtil;
 use BSXML;
 use Build;
-use BSSolv;
 
 use BSRepServer;
 use BSRepServer::Checker;
@@ -146,128 +145,6 @@ sub get_projpack_via_rpc {
   die("no such repository\n") unless $repo && $repo->{'name'} eq $self->{repoid};
 }
 
-=head2 get_deps_from_buildenv - take buildenv data from sources as input for dependency generation
-
-Parameters:
-
-  $ctx
-  $buildenv
-
-=cut
-
-sub get_deps_from_buildenv {
-  my ($ctx, $buildenv) = @_;
-
-  my $arch      = $ctx->{gctx}->{arch};
-  my $remotemap = $ctx->{gctx}->{remoteprojs};
-
-  my $pool      = $ctx->{pool};
-  my $bconf     = $ctx->{conf};
-
-  my @pdeps = Build::get_preinstalls($bconf);
-  my @vmdeps = Build::get_vminstalls($bconf);
-  my %pdeps = map {$_ => 1} @pdeps;
-  my %vmdeps = map {$_ => 1} @vmdeps;
-  my %runscripts = map {$_ => 1} Build::get_runscripts($bconf);
-
-  my @allpackages;
-  if (defined &BSSolv::pool::allpackages) {
-    @allpackages = $pool->allpackages();
-  } else {
-    # crude way to get ids of all packages
-    my $npkgs = 0;
-    for my $r ($pool->repos()) {
-      my @pids = $r->getpathid();
-      $npkgs += @pids / 2;
-    }
-    @allpackages = 2 ... ($npkgs + 1) if $npkgs;
-  }
-  my %allpackages;
-  for my $p (@allpackages) {
-    my $n = $pool->pkg2name($p);
-    my $hdrmd5 = $pool->pkg2pkgid($p);
-    next unless $n && $hdrmd5;
-    push @{$allpackages{"$n.$hdrmd5"}}, $p;
-  }
-  my @bdeps = @{$buildenv->{'bdep'}};
-  # check if we got em all
-  if (grep {$_->{'hdrmd5'} && !$allpackages{"$_->{'name'}.$_->{'hdrmd5'}"}} @bdeps) {
-    # nope, need to search package data as well
-    for my $aprp (@{$ctx->{'prpsearchpath'}}) {
-      my ($aprojid, $arepoid) = split('/', $aprp, 2);
-      my $gbininfo = $ctx->read_gbininfo($aprp, $arch);
-      if ($gbininfo) {
-	for my $packid (sort keys %$gbininfo) {
-	  for (map {$gbininfo->{$packid}->{$_}} sort keys %{$gbininfo->{$packid}}) {
-	    next unless $_->{'name'} && $_->{'hdrmd5'};
-	    $_->{'package'} = $packid;
-	    $_->{'prp'} = $aprp;
-	    push @{$allpackages{"$_->{'name'}.$_->{'hdrmd5'}"}}, $_;
-	  }
-	}
-      }
-      if (!$gbininfo && $remotemap->{$aprojid}) {
-	my $remoteproj = $remotemap->{$aprojid};
-	print "fetching remote project binary state for $aprp/$arch\n";
-	my $param = {
-	  'uri' => "$remoteproj->{'remoteurl'}/build/$remoteproj->{'remoteproject'}/$arepoid/$arch",
-	  'timeout' => 200,
-	  'proxy' => $ctx->{gctx}->{remoteproxy},
-	};
-	my $packagebinarylist = BSRPC::rpc($param, $BSXML::packagebinaryversionlist, "view=binaryversions");
-	for my $binaryversionlist (@{$packagebinarylist->{'binaryversionlist'} || []}) {
-	  for my $binary (@{$binaryversionlist->{'binary'} || []}) {
-	    next unless $binary->{'hdrmd5'};
-	    # XXX: rpm filenames don't have the epoch...
-	    next unless $binary->{'name'} =~ /^(?:::import::.*::)?(.+)-(?:(\d+?):)?([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
-	    my $d = {
-	      'name' => $1,
-	      'epoch' => $2,
-	      'version' => $3,
-	      'release' => $4,
-	      'arch' => $5,
-	      'filename' => $binary->{'name'},
-	      'prp' => $aprp,
-	      'package' => $binaryversionlist->{'package'},
-	    };
-	    push @{$allpackages{"$1.$binary->{'hdrmd5'}"}}, $d;
-	  }
-	}
-      }
-    }
-  }
-  for (@bdeps) {
-    $_->{'name'} =~ s/\.rpm$//;	# workaround bug in buildenv generation
-    die("buildenv package $_->{'name'} has no hdrmd5 set\n") if ( ! $_->{'hdrmd5'} );
-
-    my $n      = $_->{'name'};
-    my $hdrmd5 = $_->{'hdrmd5'};
-    die("package $n\@$hdrmd5 is unavailable\n") unless $allpackages{"$n.$hdrmd5"};
-
-    my $p = $allpackages{"$n.$hdrmd5"}->[0];
-    my ($d, $prp);
-
-    if (ref($p)) {
-      $d   = $p;
-      $prp = $d->{'prp'};
-    } else {
-      $d   = $pool->pkg2data($p);
-      $prp = $pool->pkg2reponame($p);
-    }
-    ($_->{'project'}, $_->{'repository'}) = split('/', $prp) if $prp;
-    $_->{'version'} = $d->{'version'};
-    $_->{'epoch'}   = $d->{'epoch'}   if $d->{'epoch'};
-    $_->{'release'} = $d->{'release'} if defined $d->{'release'};
-    $_->{'arch'}    = $d->{'arch'}    if $d->{'arch'};
-    $_->{'package'} = $d->{'package'} if defined $d->{'package'};
-    $_->{'notmeta'}    = 1;
-    $_->{'preinstall'} = 1 if $pdeps{$_->{'name'}};
-    $_->{'vminstall'}  = 1 if $vmdeps{$_->{'name'}};
-    $_->{'runscripts'} = 1 if $runscripts{$_->{'name'}};
-  }
-  return \@bdeps;
-}
-
 sub addpreinstallimg {
   my ($ctx, $binfo, $preimghdrmd5s) = @_;
   return unless $preimghdrmd5s && %$preimghdrmd5s;
@@ -339,13 +216,7 @@ sub getbuildinfo {
   my $binfo;
 
   eval {
-    if ($pdata->{'buildenv'}) {
-      $binfo = BSSched::BuildJob::create_jobdata($ctx, $packid, $pdata, $info, $ctx->{'subpacks'}->{$info->{'name'}});
-      $binfo->{'path'} = BSSched::BuildJob::path2buildinfopath($ctx->{'gctx'}, $ctx->{'prpsearchpath'});
-      $binfo->{'bdep'} = get_deps_from_buildenv($ctx, $pdata->{'buildenv'});
-    } else {
-      $binfo = $ctx->buildinfo($packid, $pdata, $info);
-    }
+    $binfo = $ctx->buildinfo($packid, $pdata, $info);
   };
   if ($@) {
     $binfo = BSSched::BuildJob::create_jobdata($ctx, $packid, $pdata, $info, $ctx->{'subpacks'}->{$info->{'name'}});
