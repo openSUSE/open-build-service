@@ -196,7 +196,7 @@ sub read_bininfo {
 }
 
 sub read_gbininfo_remote {
-  my ($prpa, $remoteproj) = @_;
+  my ($prpa, $remoteproj, $withevr) = @_;
   my ($projid, $repoid, $arch) = split('/', $prpa, 3);
   print "fetching remote project binary state for $prpa\n";
   my $param = { 
@@ -209,11 +209,17 @@ sub read_gbininfo_remote {
   for my $binaryversionlist (@{$packagebinarylist->{'binaryversionlist'} || []}) {
    my %bins;
    for my $binary (@{$binaryversionlist->{'binary'} || []}) {
-     next unless $binary->{'name'} =~ /^(?:::import::.*::)?(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
-     $bins{$binary->{'name'}} = {'filename' => $binary->{'name'}, 'name' => $1, 'arch' => $2};
+     if ($withevr) {
+       # XXX: rpm filenames don't have the epoch...
+       next unless $binary->{'name'} =~ /^(?:::import::.*::)?(.+)-(?:(\d+?):)?([^-]+)-([^-]+)\.([a-zA-Z][^\.\-]*)\.rpm$/;
+       $bins{$binary->{'name'}} = {'filename' => $binary->{'name'}, 'name' => $1, 'arch' => $5, 'epoch' => $2, 'version' => $3, 'release' => $4, 'hdrmd5' => $binary->{'hdrmd5'}};
+     } else {
+       next unless $binary->{'name'} =~ /^(?:::import::.*::)?(.+)-[^-]+-[^-]+\.([a-zA-Z][^\.\-]*)\.rpm$/;
+       $bins{$binary->{'name'}} = {'filename' => $binary->{'name'}, 'name' => $1, 'arch' => $2};
+     }
    }
    $gbininfo->{$binaryversionlist->{'package'}} = \%bins;
- }
+  }
   return $gbininfo;
 }
 
