@@ -835,10 +835,10 @@ sub create {
     return ('scheduled', $job) if -s "$myjobsdir/$job";   # obsolete
     @otherjobs = grep {/^\Q$job\E-[0-9a-f]{32}$/} ls($myjobsdir);
   }
-  $job = "$job-$srcmd5";
+  $job = "$job-$srcmd5" if $srcmd5;
 
   # a new one. expand usedforbuild. write info file.
-  my $buildtype = $info->{'buildtype'} || Build::recipe2buildtype($info->{'file'});
+  my $buildtype = $pdata->{'buildtype'} || Build::recipe2buildtype($info->{'file'});
   my $kiwitype = '';
   $kiwitype = $info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product' ? 'product' : 'image' if $buildtype eq 'kiwi';
 
@@ -865,7 +865,7 @@ sub create {
   unshift @bdeps, @{$info->{'dep'} || []};
   push @bdeps, '--ignoreignore--' if @sysdeps;
 
-  if ($buildtype eq 'kiwi') {
+  if ($buildtype eq 'kiwi' || $buildtype eq 'buildenv') {
     @bdeps = (1, @$edeps);      # reuse edeps packages, no need to expand again
   } else {
     @bdeps = Build::get_build($bconf, $subpacks, @bdeps);
@@ -908,6 +908,7 @@ sub create {
   my %sysdeps = map {$_ => 1} @sysdeps;
 
   @bdeps = BSUtil::unify(@pdeps, @vmdeps, @$edeps, @bdeps, @sysdeps);
+  @bdeps = () if $buildtype eq 'buildenv';
   for (@bdeps) {
     my $n = $_;
     $_ = {'name' => $_};
