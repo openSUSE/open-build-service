@@ -501,6 +501,13 @@ sub build {
   $ctx->{'extrabdeps'} = \@bdeps;
   my $prpsearchpath = $ctx->{'prpsearchpath'};
   $prpsearchpath = [] if !@{$repo->{'path'} || []};
+
+  # setup expander again for now, to be removed
+  my $xp = BSSolv::expander->new($pool, $bconf);
+  no warnings 'redefine';
+  local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
+  use warnings 'redefine';
+
   my $nctx = bless { %$ctx, 'prpsearchpath' => $prpsearchpath, 'conf' => $bconf, 'pool' => $pool, 'dep2pkg' => $dep2pkg, 'realctx' => $ctx}, ref($ctx);
   return BSSched::BuildJob::create($nctx, $packid, $pdata, $info, [], [], $reason, 0);
 }
