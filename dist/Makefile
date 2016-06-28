@@ -17,6 +17,9 @@ install: install_obsapisetup install_apache install_project_update install_logro
 
 install_obsapisetup: system_dirs
 	$(INSTALL) -m 755 setup-appliance.sh $(DESTDIR)$(OBS_BACKEND_PREFIX)/setup-appliance.sh
+	sed -i \
+	    -e 's|wwwrun\.www|$(APACHE_USER).$(APACHE_GROUP)|' \
+	    $(DESTDIR)$(OBS_BACKEND_PREFIX)/setup-appliance.sh
 
 install_apache:
 	$(INSTALL) -d -m 755  $(DESTDIR)$(APACHE_CONIFGDIR_VHOST)
@@ -33,6 +36,9 @@ install_project_update: system_dirs
 
 install_logrotate: system_dirs
 	$(foreach config,$(LOGROTATE_CONFIGS),$(shell $(INSTALL) -m 644 $(config).logrotate $(DESTDIR)/etc/logrotate.d/$(config)) )
+	sed -i \
+	    -e 's| wwwrun www| $(APACHE_USER) $(APACHE_GROUP)|' \
+	    $(LOGROTATE_CONFIGS:%=$(DESTDIR)/etc/logrotate.d/%)
 
 install_fillups: system_dirs
 	$(INSTALL) -m 0644 sysconfig.obs-server $(DESTDIR)$(FILLUPDIR)
