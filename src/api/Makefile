@@ -29,8 +29,8 @@ docs:
 	cp -av ../../docs/api/api $(DESTDIR)$(OBS_APIDOCS_PREFIX)
 	cp -av ../../docs/api/html/* $(DESTDIR)$(OBS_APIDOCS_PREFIX)/api/html/
 	ln -sf $(OBS_APIDOCS_PREFIX)/api/ $(DESTDIR)$(OBS_API_PREFIX)/public/schema
-	echo 'CONFIG["apidocs_location"] ||= File.expand_path("../docs/api/html/")' >> $(DESTDIR)$(OBS_API_PREFIX)/config/environment.rb
-	echo 'CONFIG["schema_location"] ||= File.expand_path("../docs/api/")' >> $(DESTDIR)$(OBS_API_PREFIX)/config/environment.rb
+	echo 'CONFIG["apidocs_location"] ||= File.expand_path("$(OBS_APIDOCS_PREFIX)/api/html/")' >> $(DESTDIR)$(OBS_API_PREFIX)/config/environment.rb
+	echo 'CONFIG["schema_location"] ||= File.expand_path("$(OBS_APIDOCS_PREFIX)/api/")' >> $(DESTDIR)$(OBS_API_PREFIX)/config/environment.rb
 
 config: prepare_dirs
 	# we need config also in building environment, otherwise rake will break
