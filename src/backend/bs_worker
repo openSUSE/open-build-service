@@ -2274,7 +2274,7 @@ sub getoldpackages {
   rmdir($odir);	# if not needed
   for my $file (@$res) {
     $binariesdownload += 1;
-    $binariesdownloadsize += $file->{'size'} / 1024;
+    $binariesdownloadsize += int($file->{'size'} / 1024);
   }
 }
 
