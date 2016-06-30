@@ -14,7 +14,7 @@
       <br/>
       <label for="description"><b>Description:</b></label>
       <br/>
-      <%= f.text_area :description, cols: 80, rows: 10  %>
+      <%= f.text_area :description, cols: 80, rows: 10, :placeholder => '(markdown markup supported)'  %>
       <br/>
       <% unless configuration['hide_private_options'] %>
           <%= check_box_tag :access_protection, false %>Hide the entire project.

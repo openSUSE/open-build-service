@@ -15,7 +15,7 @@
       <%= link_to('Import from specfile', {:action => 'import_spec', :project => @project, :package => @package, :import => 'description'}, {:id => 'import-spec-link', :remote => true}) %>
       <%= image_tag('ajax-loader.gif', :id => "spinner", :class => "hidden") %>
     <% end %><br/>
-    <%= text_area_tag( "description", @package.description, :cols => "80", :rows => "20" ) %><br/>
+    <%= text_area_tag( "description", @package.description, :cols => "80", :rows => "20", :placeholder => '(markdown markup supported)' ) %><br/>
     <%= hidden_field_tag( "project", @project.name ) %>
     <%= hidden_field_tag( "package", @package.name ) %>
   </p>
