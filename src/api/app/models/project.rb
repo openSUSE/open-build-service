@@ -97,6 +97,9 @@ class Project < ActiveRecord::Base
   scope :home, -> { where("name like 'home:%'") }
   scope :not_home, -> { where.not("name like 'home:%'") }
 
+  attr_accessor :distribution_errors
+
+  validate :distribution_validation
   validates :name, presence: true, length: { maximum: 200 }, uniqueness: true
   validates :title, length: { maximum: 250 }
   validate :valid_name
@@ -1411,6 +1414,14 @@ class Project < ActiveRecord::Base
     errors.add(:name, 'is illegal') unless Project.valid_name?(self.name)
   end
 
+  def distribution_validation
+    if self.distribution_errors
+      errors.add(:base, self.distribution_errors)
+      errors.delete(:repositories)
+      self.distribution_errors = nil
+    end
+  end
+
   # updates packages automatically generated in the backend after submitting a product file
   def update_product_autopackages
     backend_pkgs = Collection.find :id, :what => 'package', :match => "@project='#{self.name}' and starts-with(@name,'_product:')"
@@ -1641,6 +1652,11 @@ class Project < ActiveRecord::Base
 
   # FIXME: will be cleaned up after implementing FATE #308899
   def prepend_kiwi_config
+    repository = repositories.create!(name: 'images')
+    Architecture.available.each_with_index do |architecture, index|
+      repository.repository_architectures.create!(architecture: architecture, position: index + 1)
+    end
+
     prjconf = source_file('_config')
     unless prjconf =~ /^Type:/
       prjconf = "%if \"%_repository\" == \"images\"\nType: kiwi\nRepotype: none\nPatterntype: none\n%endif\n" << prjconf
@@ -1798,6 +1814,28 @@ class Project < ActiveRecord::Base
       end
     end
     {}
+  end
+
+  def save_distributions(distribution_names)
+    distributions = Distribution.all_including_remotes.select{ |distribution| distribution_names.try(:include?, distribution['reponame']) }
+    begin
+      ActiveRecord::Base.transaction do
+        distributions.each do |distribution|
+          repository = repositories.new(name: distribution['reponame'])
+          target_repository =  Repository.find_by_project_and_name(distribution['project'], distribution['repository'])
+          raise ActiveRecord::RecordNotFound unless target_repository
+          repository.path_elements.new(link: target_repository, position: 1 )
+          distribution['architectures'].each_with_index do |architecture, index|
+            repository.repository_architectures.new(architecture: Architecture.archcache[architecture], position: index + 1)
+          end
+          repository.save!
+        end
+      end
+      true
+    rescue ActiveRecord::RecordInvalid => e
+      self.distribution_errors = e.message
+      false
+    end
   end
 
   def has_remote_repositories?

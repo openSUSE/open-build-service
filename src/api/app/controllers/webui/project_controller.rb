@@ -500,39 +500,12 @@ class Webui::ProjectController < Webui::WebuiController
 
   def save_distributions
     authorize @project, :update?
-    params[:distributions] ||= []
 
-    distributions = Distribution.all_including_remotes.select{ |distribution| params[:distributions].include?(distribution['reponame']) }
-
-    begin
-      # FIXME: This should happen in the model
-      ActiveRecord::Base.transaction do
-        distributions.each do |distribution|
-          repository = @project.repositories.new(name: distribution['reponame'])
-          target_repository =  Repository.find_by_project_and_name(distribution['project'], distribution['repository'])
-          unless target_repository
-            raise ActiveRecord::RecordNotFound
-          end
-          repository.path_elements.new(link: target_repository, position: 1 )
-          distribution['architectures'].each_with_index do |architecture, index|
-            repository.repository_architectures.new(architecture: Architecture.archcache[architecture], position: index + 1)
-          end
-          repository.save!
-        end
-      end
-    rescue ActiveRecord::RecordInvalid => e
-      redirect_to :back, error: "Can't add repositories: #{e.message}"
-      return
-    end
-
-    # FIXME:
+    @project.save_distributions(params[:distributions])
     if params['images']
-      repository = @project.repositories.create!(name: 'images')
-      Architecture.available.each_with_index do |architecture, index|
-        repository.repository_architectures.create!(architecture: architecture, position: index + 1)
-      end
       @project.prepend_kiwi_config
     end
+
     if @project.valid?
       @project.store
       redirect_to({ action: :repositories, project: @project }, success: "Successfully added repositories")

@@ -5,7 +5,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   uses_transaction :test_admin_can_delete_every_project
   uses_transaction :test_create_project_publish_disabled
 
-  def test_save_distributions
+  def test_save_distributions # spec/controllers/webui/project_controller_spec.rb
     login_tom
     visit "/project/add_repository_from_default_list/home:tom"
     check("OBS Base 2.0")
@@ -71,7 +71,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     assert_equal 2, path_element.position
   end
 
-  def test_save_distributions_with_existing_repository
+  def test_save_distributions_with_existing_repository # spec/models/project_spec.rb
     login_tom
 
     visit "/project/add_repository_from_default_list/home:tom"

@@ -369,6 +369,75 @@ RSpec.describe Webui::ProjectController, vcr: true do
     end
   end
 
+  describe 'POST #save_distribution' do
+    let(:action) { post :save_distributions, project: apache_project, distributions: ['openSUSE_Tumbleweed'] }
+
+    before do
+      login admin_user
+      Project.any_instance.stubs(:save_distributions).returns(true)
+      Project.any_instance.stubs(:prepend_kiwi_config).returns(nil)
+      Project.any_instance.stubs(:store).returns(true)
+    end
+
+    it "should call 'save_distributions' with [ 'openSUSE_Tumbleweed' ]" do
+      Project.any_instance.expects(:save_distributions).with(['openSUSE_Tumbleweed']).once
+      action
+    end
+
+    context 'with valid distribution attributes' do
+      before do
+        action
+      end
+
+      it { is_expected.to redirect_to(project_repositories_path(apache_project)) }
+      it { expect(flash[:success]).to eq('Successfully added repositories') }
+    end
+
+    context 'with invalid distribution attributes' do
+      before do
+        request.env['HTTP_REFERER'] = root_url
+        # It's necessary to call apache_project, otherwise create will fail due to the error stub
+        apache_project
+        Project.any_instance.stubs(:distribution_errors).returns('error')
+        Project.any_instance.stubs(:save_distributions).returns(false)
+        action
+      end
+
+      it { is_expected.to redirect_to(:back) }
+      it { expect(flash[:error]).to eq("Can't add repositories: error") }
+    end
+
+    context 'with valid image attribute' do
+      let(:action) { post :save_distributions, project: apache_project, images: true }
+
+      it { expect(action).to redirect_to(project_repositories_path(apache_project)) }
+
+      it 'should eq Successfully added repositories' do
+        action
+        expect(flash[:success]).to eq('Successfully added repositories')
+      end
+
+      it "should call 'prepend_kiwi_config'" do
+        Project.any_instance.expects(:prepend_kiwi_config).once
+        action
+      end
+    end
+
+    context 'with valid distribution and image attribute' do
+      let(:action) { post :save_distributions, project: apache_project, images: true, distributions: ['openSUSE_Tumbleweed'] }
+
+      it "should call 'save_distributions' with [ 'openSUSE_Tumbleweed' ]" do
+        Project.any_instance.expects(:save_distributions).with(['openSUSE_Tumbleweed']).once
+        action
+      end
+
+      it "should call 'prepend_kiwi_config'" do
+        Project.any_instance.expects(:prepend_kiwi_config).once
+        action
+      end
+    end
+  end
+
   describe 'GET #add_person' do
     it 'assigns the local roles' do
       login user
