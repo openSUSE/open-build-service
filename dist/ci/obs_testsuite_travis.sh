@@ -35,6 +35,9 @@ if test -z "$SUBTEST"; then
     rspec)
       bundle exec rspec
       ;;
+    rspec)
+      bundle exec rspec
+      ;;
     *)
       bundle exec rake rubocop
       bundle exec rake test:api
