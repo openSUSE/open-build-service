@@ -12,7 +12,8 @@ function renderPackagesTable(packages, length)
 						 var url = packageurl.replace(/REPLACEIT/, encodeURIComponent(obj.aData));
 						 return '<a href="' + url +'">' + obj.aData + '</a>';
 					     }
-					 } ]
+					 } ],
+                                     "iDisplayLength": length
 				    });
 }
 
