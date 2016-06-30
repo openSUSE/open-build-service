@@ -990,7 +990,10 @@ while (@ARGV) {
             my ($hash, $desc) = split(/\s+/, $_);
             next if !defined( $sourcefiles{$hash.'-'.$desc});
             # open link file to look if it links to a file that will be deleted
-            my $link = readxml($sourcefiles{$hash.'-'.$desc}, $BSXML::link);
+	    eval {
+	      my $link = readxml($sourcefiles{$hash.'-'.$desc}, $BSXML::link);
+	    } ;
+	    if ($@) { warn "$@ whilst processing $treesfiles{$file}"; next; }
             next if !defined $link->{"package"} || !defined $link->{"project"} || !defined $link->{"rev"};
             my $revision = getrev($link->{"project"}, $link->{"package"}, $link->{"rev"});
             next if !defined($revision->{"time"});
