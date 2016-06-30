@@ -162,9 +162,9 @@ class Webui::RequestController < Webui::WebuiController
         else
           tprj, tpkg = params[:add_submitter_as_maintainer_0].split('_#_') # split into project and package
           if tpkg
-            target = Package.find_by_project_and_name(tprj, tpkg)
+            target = Package.get_by_project_and_name(tprj, tpkg)
           else
-            target = Project.find_by_name tprj
+            target = Project.get_by_name tprj
           end
           if target.check_write_access
             # the request action type might be permitted in future, but that doesn't mean we
@@ -358,7 +358,7 @@ class Webui::RequestController < Webui::WebuiController
 
   def change_devel_request_dialog
     required_parameters :package, :project
-    @package = Package.find_by_project_and_name(params[:project], params[:package])
+    @package = Package.get_by_project_and_name(params[:project], params[:package])
     if @package.develpackage
       @current_devel_package = @package.develpackage.name
       @current_devel_project = @package.develpackage.project.name
