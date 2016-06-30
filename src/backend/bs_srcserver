@@ -4896,7 +4896,7 @@ sub keeplink {
   for my $file (sort keys %{{%$files, %$ofiles}}) {
     if ($ofiles->{$file}) {
       if (!$files->{$file}) {
-	if (!$ltgtfiles->{$file} && $ofilesl->{$file} && $ofilesl->{$file} eq ($ofiles->{$file} || '')) {
+	if (!$ltgtfiles->{$file}) {
 	  # local file no longer needed
 	  delete $nfiles->{$file};
 	  next;
