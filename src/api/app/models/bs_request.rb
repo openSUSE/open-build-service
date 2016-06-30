@@ -641,7 +641,7 @@ class BsRequest < ActiveRecord::Base
         when :new then what, color = 'reopened review', 'maroon'
         when :declined then what, color = 'reopened request', 'maroon'
         else
-          what = "played with his balls - #{last_history_item.state}"
+          what = "weird state of last history item - #{last_history_item.state}"
         end
       else
         what = "created request"
