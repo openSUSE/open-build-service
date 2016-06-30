@@ -62,6 +62,8 @@ my $rootservicedir = $BSConfig::serviceroot ? "$BSConfig::serviceroot/$servicedi
 my $noproxy = $BSConfig::noproxy;
 my $maxchild = $BSConfig::service_maxchild;
 
+my $noproxy = $BSConfig::noproxy;
+
 sub usage {
   my ($ret) = @_;
 
