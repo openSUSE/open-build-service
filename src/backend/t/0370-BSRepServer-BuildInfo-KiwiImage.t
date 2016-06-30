@@ -33,6 +33,9 @@ $Test::Mock::BSRPC::fixtures_map = {
 	=> 'srcserver/fixture_003_000',
   'srcserver/getconfig?project=home:Admin:branches:openSUSE.org:OBS:Server:Unstable&repository=openSUSE_Leap_42.1'
 	=> 'srcserver/fixture_003_001',
+  "srcserver/getprojpack?withsrcmd5&withdeps&withrepos&expandedrepos&withremotemap&ignoredisable&project=home:Admin:branches:openSUSE.org:home:M0ses:kanku:Images&repository=images&arch=x86_64&parseremote=1&package=openSUSE-Leap-42.1-JeOS" => 'srcserver/fixture_00002.xz',
+  "srcserver/getprojpack?withsrcmd5&withdeps&withrepos&expandedrepos&withremotemap&ignoredisable&project=home:M0ses:kanku:Images&repository=images&arch=x86_64&parseremote=1&package=openSUSE-Leap-42.1-JeOS" => 'srcserver/fixture_00003.xz',
+  "srcserver/getconfig?project=home:M0ses:kanku:Images&repository=images&path=home:M0ses:kanku:Images/images&path=openSUSE:Leap:42.1/standard&path=openSUSE:Leap:42.1:Update/standard" => "srcserver/fixture_00004.xz",
 };
 use warnings;
 
