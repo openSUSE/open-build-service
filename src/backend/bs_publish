@@ -814,9 +814,12 @@ sub createrepo_staticlinks {
       if (/^(.*)-([^-]*)-[^-]*\.rpm$/s) {
         $link = "$1.rpm";
         $link = "$1-$2.rpm" if $versioned;
-      } elsif (/^(.*)_([^_]*)-[^_]*\.deb$/s) {
+      } elsif (/^([^_]*)_.*-[^_]*\.snap$/s) {
         $link = "$1.deb";
         $link = "${1}_$2.deb" if $versioned;
+      } elsif (/^(.*)_([^_]*)-[^_]*\.snap$/s) {
+        $link = "$1.snap";
+        $link = "${1}_$2.snap" if $versioned;
       } elsif (/^(.*)-Build\d\d\d\d(-Media\d)(\.iso?(\.sha256)?)$/s) {
         # product builds
         $link = "$1$2$3"; # no support for versioned links
@@ -1454,7 +1457,9 @@ sub publish {
       if ($bin =~ /^.+-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.d?rpm$/) {
 	$p = "$1/$bin";
 	$p = $1 eq 'src' || $1 eq 'nosrc' ? "SRPMS/$bin" : "RPMS/$bin" if $repotype{'resarchhack'};
-      } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.deb$/) {
+      } elsif ($bin =~ /^.+\.snap$/) {
+        $p = "$bin";
+      } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.snap$/) {
 	$p = "$1/$bin";
       } elsif ($bin =~ /\.exe$/) {
 	$p = "$bin";
