@@ -814,12 +814,12 @@ sub createrepo_staticlinks {
       if (/^(.*)-([^-]*)-[^-]*\.rpm$/s) {
         $link = "$1.rpm";
         $link = "$1-$2.rpm" if $versioned;
-      } elsif (/^([^_]*)_.*-[^_]*\.snap$/s) {
+      } elsif (/^(.*)_([^_]*)-[^_]*\.deb$/s) {
         $link = "$1.deb";
         $link = "${1}_$2.deb" if $versioned;
-      } elsif (/^(.*)_([^_]*)-[^_]*\.snap$/s) {
-        $link = "$1.snap";
-        $link = "${1}_$2.snap" if $versioned;
+      } elsif (/^(.*)_([^_]*)_([^_]*)-Build[^_]*\.snap$/s) {
+        $link = "${1}_${3}.snap";
+        $link = "${1}_${3}_$2.snap" if $versioned;
       } elsif (/^(.*)-Build\d\d\d\d(-Media\d)(\.iso?(\.sha256)?)$/s) {
         # product builds
         $link = "$1$2$3"; # no support for versioned links
@@ -1457,10 +1457,10 @@ sub publish {
       if ($bin =~ /^.+-[^-]+-[^-]+\.([a-zA-Z][^\/\.\-]*)\.d?rpm$/) {
 	$p = "$1/$bin";
 	$p = $1 eq 'src' || $1 eq 'nosrc' ? "SRPMS/$bin" : "RPMS/$bin" if $repotype{'resarchhack'};
-      } elsif ($bin =~ /^.+\.snap$/) {
-        $p = "$bin";
-      } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.snap$/) {
+      } elsif ($bin =~ /^.+_[^_]+_([^_\.]+)\.deb$/) {
 	$p = "$1/$bin";
+      } elsif ($bin =~ /.+\.snap$/) {
+	$p = "$bin";
       } elsif ($bin =~ /\.exe$/) {
 	$p = "$bin";
       } elsif ($bin =~ /\.d?rpm$/) {
@@ -1474,7 +1474,7 @@ sub publish {
 	$p = "$q->{'arch'}/$q->{'name'}_$q->{'version'}";
 	$p .= "-$q->{'release'}" if defined $q->{'release'};
 	$p .= "_$q->{'arch'}.deb";
-      } elsif ($bin =~ /\.(?:pkg\.tar\.gz|pkg\.tar\.xz)$/) {
+      } elsif ($bin =~ /\.(?:pkg\.tar\.gz|pkg\.tar\.xz)(?:\.sig)?$/) {
 	$p = "$arch/$bin";
 	$p = "i686/$bin" if $arch eq 'i586';	# HACK
       } elsif ($bin =~ /\.(?:$binsufsre)$/) {
