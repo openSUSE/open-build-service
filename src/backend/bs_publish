@@ -1475,6 +1475,7 @@ sub publish {
 	$p .= "-$q->{'release'}" if defined $q->{'release'};
 	$p .= "_$q->{'arch'}.deb";
       } elsif ($bin =~ /\.(?:pkg\.tar\.gz|pkg\.tar\.xz)(?:\.sig)?$/) {
+	# special arch linux handling
 	$p = "$arch/$bin";
 	$p = "i686/$bin" if $arch eq 'i586';	# HACK
       } elsif ($bin =~ /\.(?:$binsufsre)$/) {
