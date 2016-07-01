@@ -1,4 +1,4 @@
-$(document).ready(function() {
+$(function() {
   
   // == Login Form UI Actions ================================================
   

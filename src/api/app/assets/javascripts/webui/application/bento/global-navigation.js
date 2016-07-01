@@ -5,7 +5,7 @@ var position_menu = function(button_id, menu_id) {
     $('#' + menu_id).offset({left:left,top:top});
 };
 
-$(document).ready(function() {
+$(function() {
 
     if (!global_navigation_data) return;
 

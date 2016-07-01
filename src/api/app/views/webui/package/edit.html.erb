@@ -23,7 +23,7 @@
 <% end %>
 
 <%= javascript_tag do %>
-  $(document).ready(function() {
+  $(function() {
     var toggleLoading = function () { $('#spinner').toggle(); };
     $('#import-spec-link')
       .bind('ajax:loading', toggleLoading)

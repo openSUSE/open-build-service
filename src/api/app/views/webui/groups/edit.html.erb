@@ -12,7 +12,7 @@
 <% end %>
 
 <%= javascript_tag do %>
-  $(document).ready(function() {
+  $(function() {
     $("#members").tokenInput("<%= url_for :controller => 'user', :action => 'tokens' %>" ,{
                 theme: "facebook",
                 tokenValue: "name",

@@ -43,7 +43,7 @@
 
 
 <%= javascript_tag do %>
-    $(document).ready(function() {
+    $(function() {
     <% if @groups.length > 0 %>
         $('#group_table').dataTable();
     <% end %>
