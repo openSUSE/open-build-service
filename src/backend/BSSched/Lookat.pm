@@ -61,10 +61,12 @@ sub setchanged {
     $changed_dirty->{$prp} = 1;
     return;
   }
+  my $rprpdeps = $gctx->{'rprpdeps'};
   my @cprps;
-  for my $prp (@$prps) {
+  for my $prp (@$prps, sort(keys %{$rprpdeps || {}})) {
     push @cprps, $prp if (split('/', $prp, 2))[0] eq $projid;
   }
+  @cprps = BSUtil::unify(@cprps);
   my %cprps = map {$_ => 1} @cprps;
   @$lookat = grep {!$cprps{$_}} @$lookat;
   if ($changelevel == 2) {
