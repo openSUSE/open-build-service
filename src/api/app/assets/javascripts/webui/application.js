@@ -37,50 +37,6 @@
 //= require webui/application/main
 //= require webui/application/repository_tab
 
-// toggle visibility of an element via the CSS "display" property
-// -> does NOT reserve the needed space for the element when not displayed
-function toggle_display(element_id) {
-    if (document.getElementById) {
-        var element = document.getElementById(element_id);
-        if (element.style.display == "none") {
-            element.style.display = "block";
-        } else {
-            element.style.display = "none";
-        }
-    }
-}
-
-// toggle visibility of an element via the CSS "display" property
-// -> does NOT reserve the needed space for the element when not displayed
-function toggle_display_by_name(element_name) {
-    if (document.getElementsByName) {
-        var elements = document.getElementsByName(element_name);
-        for (var i = 0; i < elements.length; i++) {
-            if (elements[i].style.display == "none") {
-                elements[i].style.display = "inline";
-            } else {
-                elements[i].style.display = "none";
-            }
-        }
-    }
-}
-
-// open url in a new browser instance
-function goto_url(url) {
-    if (url === '') {
-        document.forms[0].reset();
-        document.forms[0].elements[0].blur();
-        return;
-    }
-    window.open(url, 'helpwindow', 'toolbar=yes,location=yes,scrollbars=yes');
-    document.forms[0].reset();
-    document.forms[0].elements[0].blur();
-}
-
-function hide_dialog() {
-    $(".dialog").hide();
-}
-
 function remove_dialog() {
     $(".dialog").remove();
 }
@@ -116,14 +72,6 @@ function toggleBox(link, box) {
         left: leftVal,
         top: topVal
     }).toggle();
-}
-
-function toggleCheck(input) {
-    if (input.is(":checked")) {
-        input.removeAttr("checked");
-    } else {
-        input.attr("checked", "checked");
-    }
 }
 
 function project_monitor_ready() {
@@ -199,24 +147,6 @@ function monitor_ready() {
 
 function resizeMonitorBoxes() {
     /* needs work */
-}
-
-function insertServiceRow() {
-    var name = $('#add_new_parameter').value;
-    var service = $('#servicename').value;
-    var value = $('#add_new_value').value;
-    var number = $('#count_parameters').value + 1;
-
-    $('#pTable tr:last').before('<tr class=\"row_' + number + '\">' +
-        '<td>' + name + '</td>' +
-        '<td id="added_parameter_' + number + '">...</td>' +
-        '<td><a href=\"#\" onclick=\"\$(\'tr.row_' + number + '\').remove(); return false;\">X</a></td>' +
-        '</tr>');
-
-    document.getElementById('count_parameters').value = number;
-
-    var path = "/package/service_parameter_value?number=" + number + "&servicename=" + encodeURIComponent(service) + "&parameter=" + encodeURIComponent(name) + "&value=" + encodeURIComponent(value) + "&package=<%= CGI.escape(@package.name) %>&project=<%= CGI.escape(@project.name) %>";
-    $("#pTable td#added_parameter_" + number).load(path);
 }
 
 function callPiwik() {
