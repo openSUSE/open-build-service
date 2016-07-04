@@ -324,7 +324,7 @@ sub update_dst_full {
   my $jobbininfo;
   if (defined($jobdir)) {
     @jobfiles = sort(ls($jobdir));
-    @jobfiles = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && $_ ne '.bininfo'} @jobfiles;
+    @jobfiles = grep {$_ ne 'history' && $_ ne 'logfile' && $_ ne 'meta' && $_ ne 'status' && $_ ne 'reason' && $_ ne '.bininfo' && $_ ne '.meta.success' && $_ ne '.logfile.success' && $_ ne '.logfile.fail'} @jobfiles;
     $jobbininfo = BSUtil::retrieve("$jobdir/.bininfo", 1);
     if ($jobbininfo && !($jobdir eq $dst) && !$jobbininfo->{'.bininfo'}) {
       # old style jobdir bininfo, ignore
