@@ -248,19 +248,23 @@ sub check {
 	  $dep2meta->{$bin} = $m;
 	}
 	# append meta file to new_meta
-	my $oldlen = @new_meta;
-	for (split("\n", $m->[0])) {
-	  s/  /  $bin\//;
-	  push @new_meta, $_;
+	if (defined &BSSolv::add_meta) {
+	    BSSolv::add_meta(\@new_meta, $m, $bin, $packid);
+	} else {
+	    my $oldlen = @new_meta;
+	    for (split("\n", $m->[0])) {
+	      s/  /  $bin\//;
+	      push @new_meta, $_;
+	    }
+	    next if $oldlen == @new_meta;	# huh?
+	    # do not include our own build results
+	    if ($new_meta[$oldlen] =~  /\/\Q$packid\E$/) {
+	      splice(@new_meta, $oldlen);
+	      next;
+	    }
+	    # fixup first line, it contains the package name and not the binary name
+	    $new_meta[$oldlen] =~ s/  .*/  $bin/;
 	}
-	next if $oldlen == @new_meta;	# huh?
-	# do not include our own build results
-	if ($new_meta[$oldlen] =~  /\/\Q$packid\E$/) {
-	  splice(@new_meta, $oldlen);
-	  next;
-	}
-	# fixup first line, it contains the package name and not the binary name
-	$new_meta[$oldlen] =~ s/  .*/  $bin/;
       } else {
 	# use the hdrmd5 for non-local packages
 	push @new_meta, ($pool->pkg2pkgid($pkg)."  $bin");
