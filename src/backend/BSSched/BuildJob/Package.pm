@@ -219,21 +219,37 @@ sub check {
 	  # meta file is not in cache, read it from the full tree
 	  # the next line works for deb and rpm 
 	  my $mf = substr("$reporoot/$path", 0, -4);
-	  if (! -e "$mf.meta") {
+	  if (-e "$mf.meta") {
+	    my @s = stat(_);
+	    $m = $dep2meta->{"/$s[9]/$s[7]/$s[1]"};
+	  } else {
 	    # the generic version
 	    $mf = "$reporoot/$path";
 	    $mf =~ s/\.(?:$binsufsre)$//;
+	    if (-e "$mf.meta" || -e "$mf-MD5SUMS.meta") {
+	      my @s = stat(_);
+	      $m = $dep2meta->{"/$s[9]/$s[7]/$s[1]"};
+	    }
 	  }
-	  if (open(F, '<', "$mf.meta") || open(F, '<', "$mf-MD5SUMS.meta")) {
-	    local $/ = undef;
-	    $m = <F>;
-	    close F;
+	  if (!$m) {
+	    if (open(F, '<', "$mf.meta") || open(F, '<', "$mf-MD5SUMS.meta")) {
+	      my @s = stat(F);
+	      local $/ = undef;
+	      $m = [ scalar <F>, "/$s[9]/$s[7]/$s[1]" ];
+	      close F;
+	      if ($m->[0]) {
+	        $dep2meta->{$m->[1]} = $m;
+	      } else {
+		undef $m;
+	      }
+	    }
+	    $m ||= [ $pool->pkg2pkgid($pkg)."  $bin\n" ];	# fall back to hdrmd5
 	  }
-	  $m ||= $pool->pkg2pkgid($pkg)."  $bin\n";	# fall back to hdrmd5
 	  $dep2meta->{$bin} = $m;
 	}
+	# append meta file to new_meta
 	my $oldlen = @new_meta;
-	for (split("\n", $m)) {
+	for (split("\n", $m->[0])) {
 	  s/  /  $bin\//;
 	  push @new_meta, $_;
 	}

@@ -190,7 +190,11 @@ sub fctx_add_binary_to_full {
       $fctx->{'metacache'}->{$n} = undef if $fctx->{'metacache_ismerge'};
     }
   }
-  delete $fctx->{'dep2meta'}->{$n} if $fctx->{'dep2meta'};
+  my $dep2meta = $fctx->{'dep2meta'};
+  if ($dep2meta) {
+    my $m = delete $dep2meta->{$n};
+    delete $dep2meta->{$m->[1]} if $m && $m->[1];
+  }
 }
 
 =head2 fctx_del_binary_from_full - remove a single binary from the full tree
@@ -213,7 +217,11 @@ sub fctx_del_binary_from_full {
     delete $fctx->{'metacache'}->{$n};
     $fctx->{'metacache'}->{$n} = undef if $fctx->{'metacache_ismerge'};
   }
-  delete $fctx->{'dep2meta'}->{$n} if $fctx->{'dep2meta'};
+  my $dep2meta = $fctx->{'dep2meta'};
+  if ($dep2meta) {
+    my $m = delete $dep2meta->{$n};
+    delete $dep2meta->{$m->[1]} if $m && $m->[1];
+  }
 }
 
 =head2 volatile_cmp - compare evr of two volatile packages
