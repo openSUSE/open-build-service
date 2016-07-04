@@ -671,4 +671,132 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { is_expected.to redirect_to(:back) }
     end
   end
+
+  describe 'PATCH #update' do
+    before do
+      login user
+    end
+
+    context "with valid data" do
+      before do
+        patch :update, id: user.home_project.id, project: { title: 'New Title' }
+      end
+
+      it { expect(assigns(:project).title).to eq('New Title') }
+      it { expect(flash[:notice]).to eq("Project was successfully updated.") }
+      it { is_expected.to redirect_to(project_show_path(user.home_project)) }
+    end
+
+    context "with no valid data" do
+      before do
+        patch :update, id: user.home_project.id, project: { name: 'non valid name' }
+      end
+
+      it { expect(flash[:error]).to eq("Failed to update project") }
+      it { is_expected.to render_template("webui/project/edit") }
+      it { expect(response).to have_http_status(:success) }
+    end
+  end
+
+  describe 'POST #create_dod_repository' do
+    before do
+      login user
+    end
+
+    context "with an existing repository" do
+      let(:existing_repository) { create(:repository) }
+
+      before do
+        xhr :post, :create_dod_repository, project: user.home_project, name: existing_repository.name,
+                                           arch: Architecture.first.name, url: 'http://whatever.com',
+                                           repotype: 'rpmmd'
+      end
+
+      it { expect(assigns(:error)).to start_with('Repository with name') }
+      it { expect(response).to have_http_status(:success) }
+    end
+
+    context "with no valid repository type" do
+      before do
+        xhr :post, :create_dod_repository, project: user.home_project, name: 'NewRepo',
+                                           arch: Architecture.first.name, url: 'http://whatever.com',
+                                           repotype: 'invalid_repo_type'
+      end
+
+      it { expect(assigns(:error)).to start_with("Couldn't add repository:") }
+      it { expect(response).to have_http_status(:success) }
+    end
+
+    context "with no valid repository Architecture" do
+      before do
+        xhr :post, :create_dod_repository, project: user.home_project, name: 'NewRepo',
+                                           arch: 'non_existent_arch', url: 'http://whatever.com',
+                                           repotype: 'rpmmd'
+      end
+
+      it { expect(assigns(:error)).to start_with("Couldn't add repository:") }
+      it { expect(response).to have_http_status(:success) }
+    end
+
+    context "with valid repository data" do
+      before do
+        xhr :post, :create_dod_repository, project: user.home_project, name: 'NewRepo',
+                                           arch: Architecture.first.name, url: 'http://whatever.com',
+                                           repotype: 'rpmmd'
+      end
+
+      it { expect(assigns(:error)).to be_nil }
+      it { expect(response).to have_http_status(:success) }
+    end
+  end
+
+  describe 'POST #save_repository' do
+    before do
+      login user
+    end
+
+    context "with a no valid repository name" do
+      before do
+        request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+        post :save_repository, project: user.home_project, repository: '_not/valid/name'
+      end
+
+      it { expect(flash[:error]).to eq("Couldn't add repository: 'Name must not start with '_' or contain any of these characters ':/'") }
+      it { is_expected.to redirect_to(:back) }
+    end
+
+    context "with a non valid target repository" do
+      before do
+        request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+        post :save_repository, project: user.home_project, repository: 'valid_name', target_project: another_project, target_repo: 'non_valid_repo'
+      end
+
+      it { expect(flash[:error]).to eq("Can not add repository: Repository 'non_valid_repo' not found in project '#{another_project.name}'.") }
+      it { is_expected.to redirect_to(:back) }
+    end
+
+    context "with a valid repository but with a non valid architecture" do
+      before do
+        target_repo = create(:repository, project: another_project)
+        request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+        post :save_repository, project: user.home_project, repository: 'valid_name', architectures: ['non_existent_arch']
+      end
+
+      it { expect(flash[:error]).to start_with("Can not add repository: Repository ") }
+      it { is_expected.to redirect_to(:back) }
+    end
+
+    context "with a valid repository" do
+      before do
+        target_repo = create(:repository, project: another_project)
+        request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+        post :save_repository, project: user.home_project, repository: 'valid_name', target_project: another_project, target_repo: target_repo.name,
+                               architectures: ['i586']
+      end
+
+      it { expect(flash[:success]).to eq("Successfully added repository") }
+      it { is_expected.to redirect_to(action: :repositories, project: user.home_project) }
+      it { expect(user.home_project.repositories.find_by(name: 'valid_name').repository_architectures.count).to eq(1) }
+    end
+  end
 end
