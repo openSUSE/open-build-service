@@ -163,7 +163,16 @@ RSpec.feature "Requests", :type => :feature, :js => true do
 
   context 'review' do
     describe 'for user' do
-      skip
+      let(:reviewer) { create(:confirmed_user) }
+      it 'opens a review' do
+        login submitter
+        visit request_show_path(bs_request.id)
+        click_link 'Add a review'
+        find(:id, 'review_type').select('User')
+        fill_in 'review_user', with: reviewer.login
+        click_button 'Ok'
+        expect(page).to have_text("Open review for #{reviewer.login}")
+      end
     end
     describe 'for group' do
       let(:review_group) { create(:group) }
@@ -178,25 +187,39 @@ RSpec.feature "Requests", :type => :feature, :js => true do
       end
     end
     describe 'for project' do
-      skip
-    end
-    describe 'for invalid project' do
-      skip
+      it 'opens a review' do
+        login submitter
+        visit request_show_path(bs_request.id)
+        click_link 'Add a review'
+        find(:id, 'review_type').select('Project')
+        fill_in 'review_project', with: submitter.home_project
+        click_button 'Ok'
+        expect(page).to have_text("Review for #{submitter.home_project}")
+      end
     end
     describe 'for package' do
-      skip
+      let(:package) { create(:package, project: submitter.home_project) }
+      it 'opens a review' do
+        login submitter
+        visit request_show_path(bs_request.id)
+        click_link 'Add a review'
+        find(:id, 'review_type').select('Package')
+        fill_in 'review_project', with: submitter.home_project
+        fill_in 'review_package', with: package.name
+        click_button 'Ok'
+        expect(page).to have_text("Review for #{submitter.home_project} / #{package.name}")
+      end
     end
-  end
-
-  context 'comments' do
-    describe 'can be created' do
-      skip
-    end
-    describe 'reply' do
-      skip
-    end
-    describe 'mail notifications' do
-      skip
+    describe 'for invalid reviewer' do
+      it 'opens no review' do
+        login submitter
+        visit request_show_path(bs_request.id)
+        click_link 'Add a review'
+        find(:id, 'review_type').select('Project')
+        fill_in 'review_project', with: 'INVALID/PROJECT'
+        click_button 'Ok'
+        expect(page).to have_css("#flash-messages", text: "Unable add review to")
+      end
     end
   end
 end
