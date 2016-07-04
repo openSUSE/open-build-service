@@ -372,7 +372,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     assert_equal should, lines.join("\n")
   end
 
-  def test_comment_event # spec/features/webui/comments_spec.rb
+  def test_comment_event
     login_tom to: request_show_path(4)
 
     # adrian is reviewer, Iggy creator, Admin (fixture) commenter
