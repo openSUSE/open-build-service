@@ -193,7 +193,10 @@ sub dodfetch {
         '_prpa' => $prpa,
       },
     };
-    $ctx->xrpc("dodfetch/$prpa", $param, undef, "view=binaryversions", map {"binary=$_"} @pkgs);
+    eval {
+      $ctx->xrpc("dodfetch/$prpa", $param, undef, "view=binaryversions", map {"binary=$_"} @pkgs);
+    };
+    warn($@) if $@;
   }
 }
 
