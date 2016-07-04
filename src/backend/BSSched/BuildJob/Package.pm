@@ -210,50 +210,47 @@ sub check {
     my $repodatas = $gctx->{'repodatas'};
     my $dep2meta = $repodatas->{"$prp/$myarch"}->{'meta'};
     $repodatas->{"$prp/$myarch"}->{'meta'} = $dep2meta = {} unless $dep2meta;
-    for my $bpack (@$edeps) {
-      my $pkg = $dep2pkg->{$bpack};
+    for my $bin (@$edeps) {
+      my $pkg = $dep2pkg->{$bin};
       my $path = $pool->pkg2fullpath($pkg, $myarch);
-      if ($depislocal->{$bpack} && $path) {
-        if (!exists $dep2meta->{$bpack}) {
-          my @m;
-          # the next line works for deb and rpm
-          my $mf = substr("$reporoot/$path", 0, -4);
-          #print "        reading meta for $path\n";
-          if (! -e "$mf.meta") {
-            # the generic version
-            $mf = "$reporoot/$path";
-            $mf =~ s/\.(?:$binsufsre)$//;
-          }
-          if (open(F, '<', "$mf.meta") || open(F, '<', "$mf-MD5SUMS.meta")) {
-            @m = <F>;
-            close F;
-            chomp @m;
-            s/  /  $bpack\// for @m;
-          }
-          @m = ($pool->pkg2pkgid($pkg)."  $bpack") unless @m;
-          $dep2meta->{$bpack} = join("\n", @m);
-          # do not include our own build results
-          next if $m[0] =~ /\/\Q$packid\E$/s;
-          # fixup first line
-          $m[0] =~ s/  .*/  $bpack/;
-          push @new_meta, @m;
-        } else {
-          my $oldlen = @new_meta;
-          push @new_meta, split("\n", $dep2meta->{$bpack});
-          next if $oldlen == @new_meta;         # hmm?
-          # do not include our own build results
-          if ($new_meta[$oldlen] =~ /\/\Q$packid\E$/) {
-            splice(@new_meta, $oldlen);
-            next;
-          }
-          # fixup first line
-          $new_meta[$oldlen] =~ s/  .*/  $bpack/;
-        }
+      if ($depislocal->{$bin} && $path) {
+	my $m = $dep2meta->{$bin};
+	if (!$m) {
+	  # meta file is not in cache, read it from the full tree
+	  # the next line works for deb and rpm 
+	  my $mf = substr("$reporoot/$path", 0, -4);
+	  if (! -e "$mf.meta") {
+	    # the generic version
+	    $mf = "$reporoot/$path";
+	    $mf =~ s/\.(?:$binsufsre)$//;
+	  }
+	  if (open(F, '<', "$mf.meta") || open(F, '<', "$mf-MD5SUMS.meta")) {
+	    local $/ = undef;
+	    $m = <F>;
+	    close F;
+	  }
+	  $m ||= $pool->pkg2pkgid($pkg)."  $bin\n";	# fall back to hdrmd5
+	  $dep2meta->{$bin} = $m;
+	}
+	my $oldlen = @new_meta;
+	for (split("\n", $m)) {
+	  s/  /  $bin\//;
+	  push @new_meta, $_;
+	}
+	next if $oldlen == @new_meta;	# huh?
+	# do not include our own build results
+	if ($new_meta[$oldlen] =~  /\/\Q$packid\E$/) {
+	  splice(@new_meta, $oldlen);
+	  next;
+	}
+	# fixup first line, it contains the package name and not the binary name
+	$new_meta[$oldlen] =~ s/  .*/  $bin/;
       } else {
-        my $pkgid = $pool->pkg2pkgid($pkg);
-        push @new_meta, "$pkgid  $bpack";
+	# use the hdrmd5 for non-local packages
+	push @new_meta, ($pool->pkg2pkgid($pkg)."  $bin");
       }
     }
+    print "$_\n" for @new_meta;
     @new_meta = BSSolv::gen_meta($ctx->{'subpacks'}->{$info->{'name'}} || [], @new_meta);
     unshift @new_meta, ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
     if (Digest::MD5::md5_hex(join("\n", @new_meta)) eq substr($mylastcheck, 32, 32)) {
