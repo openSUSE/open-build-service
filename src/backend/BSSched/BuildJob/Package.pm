@@ -250,7 +250,6 @@ sub check {
 	push @new_meta, ($pool->pkg2pkgid($pkg)."  $bin");
       }
     }
-    print "$_\n" for @new_meta;
     @new_meta = BSSolv::gen_meta($ctx->{'subpacks'}->{$info->{'name'}} || [], @new_meta);
     unshift @new_meta, ($pdata->{'verifymd5'} || $pdata->{'srcmd5'})."  $packid";
     if (Digest::MD5::md5_hex(join("\n", @new_meta)) eq substr($mylastcheck, 32, 32)) {
