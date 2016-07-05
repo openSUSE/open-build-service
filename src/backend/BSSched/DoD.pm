@@ -155,10 +155,15 @@ sub dodcheck {
 
 sub dodfetch_resume {
   my ($ctx, $handle, $error) = @_;
-  return if $error;     # hmm
+  my ($projid, $repoid, $arch) = split('/', $handle->{'_prpa'}, 3);
+  if ($error) {
+    if (BSSched::RPC::is_transient_error($error)) {
+      $ctx->{'gctx'}->{'retryevents'}->addretryevent({'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $arch});
+    }
+    return;
+  }
   $ctx->setchanged($handle);
   # drop cache
-  my ($projid, $repoid, $arch) = split('/', $handle->{'_prpa'}, 3);
   $ctx->{'gctx'}->{'repodatas'}->drop("$projid/$repoid", $arch);
 }
 
@@ -178,7 +183,7 @@ sub dodfetch {
     my @pkgs = sort(keys %{$doddownloads->{$prpa} || {}});
     next unless @pkgs;
     print "    requesting ".@pkgs." dod packages from $prpa\n";
-    my ($projid) = split('/', $prpa, 3);
+    my ($projid, $repoid, $arch) = split('/', $prpa, 3);
     my $server = $BSConfig::reposerver || $BSConfig::srcserver;
     if ($remoteprojs->{$projid}) {
       $server = $BSConfig::srcserver;
@@ -196,7 +201,10 @@ sub dodfetch {
     eval {
       $ctx->xrpc("dodfetch/$prpa", $param, undef, "view=binaryversions", map {"binary=$_"} @pkgs);
     };
-    warn($@) if $@;
+    if ($@) {
+      warn($@);
+      $ctx->{'gctx'}->{'retryevents'}->addretryevent({'type' => 'repository', 'project' => $projid, 'repository' => $repoid, 'arch' => $arch});
+    }
   }
 }
 
