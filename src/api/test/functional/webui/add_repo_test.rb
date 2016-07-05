@@ -15,7 +15,7 @@ class Webui::AddRepoTest < Webui::IntegrationTest
 
     page.must_have_text('KIWI image build')
 
-    find('#submitrepos')['disabled'].must_equal true
+    assert find('#submitrepos').disabled?
 
     check 'repo_Base_repo'
     check 'repo_images'
