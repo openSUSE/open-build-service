@@ -74,7 +74,6 @@ module RequestSourceDiff
         end
 
         path = Package.source_path(action.source_project, spkg)
-        query[:filelimit] = 10000
 
         if !provided_in_other_action && !action.updatelink
           # do show the same diff multiple times, so just diff unexpanded so we see possible link changes instead
