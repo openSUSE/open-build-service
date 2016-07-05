@@ -36,7 +36,9 @@ RSpec.shared_examples "a flag table" do
     expect(subject.find("tr:first-child th:nth-child(2)").text).to eq("All")
     architectures.each do |arch|
       pos = architectures.index(arch) + 3
-      expect(subject.find("tr:first-child th:nth-child(#{pos})").text).to eq(arch)
+      # There might be delays when rendering the table. Thus including the
+      # text entry to the selector.
+      subject.find("tr:first-child th:nth-child(#{pos})", text: arch)
     end
   end
 
