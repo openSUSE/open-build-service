@@ -270,6 +270,8 @@ sub filediff {
   my $nodecomp = $opts{'nodecomp'};
   my $arg = $opts{'diffarg'} || '-u';
   my $max = $opts{'fmax'};
+  my $maxc = defined($max) ? $max * 80 : undef;
+  $maxc = $opts{'fmaxc'} if exists $opts{'fmaxc'};
 
   if (!defined($f1) && !defined($f2)) {
     return { 'lines' => 0 , '_content' => ''};
@@ -308,6 +310,7 @@ sub filediff {
     die("diff: $!\n");
   }
   my $lcnt = $opts{'linestart'} || 0;
+  my $ccnt = 0;
   my $d = '';
   my $havediff;
   my $binary;
@@ -330,7 +333,11 @@ sub filediff {
     }
     $lcnt++;
     if (!defined($max) || $lcnt <= $max) {
-      $d .= $_;
+      if (defined($maxc) && length($d) + length($_) > $maxc) {
+	$ccnt++;
+      } else {
+        $d .= $_;
+      }
     }
   }
   close(D);
@@ -367,6 +374,7 @@ sub filediff {
   $ret->{'binary'} = 1 if $binary;
   $ret->{'lines'} = $lcnt;
   $ret->{'shown'} = $max if defined($max) && $lcnt > $max;
+  $ret->{'shown'} = ($ret->{'shown'} || $ret->{'lines'}) - $ccnt if $ccnt;
   $ret->{'_content'} = $d;
   return $ret;
 }
@@ -457,6 +465,10 @@ sub tardiff {
   my ($f1, $f2, %opts) = @_;
 
   my $max = $opts{'tmax'};
+  my $maxc = defined($max) ? $max * 80 : undef;
+  $maxc = $opts{'tmaxc'} if exists $opts{'tmaxc'};
+  my $tfmax = $opts{'tfmax'};
+  my $tfmaxc = $opts{'tfmaxc'};
   my $edir = $opts{'edir'};
 
   my @l1 = listit($f1);
@@ -537,7 +549,7 @@ sub tardiff {
   my $lcnt = 0;
   my $d = '';
   my @ret;
-  my $fmax = $max;
+  my $ccnt = 0;
   for my $f (@f) {
     next if $f eq '';
     if ($ren{$f}) {
@@ -558,15 +570,18 @@ sub tardiff {
       next if $l1{$f}->{'type'} eq $l2{$f}->{'type'} && (!defined($l1{$f}->{'info'}) || $l1{$f}->{'info'} eq $l2{$f}->{'info'});
       next if $l1{$f}->{'type'} eq 'gemdata' && $l2{$f}->{'type'} eq 'gemdata';
     }
+    my $fmax;
     $fmax = $max > $lcnt ? $max - $lcnt : 0 if defined $max;
-    my $r = filediff(fixup($l1{$f}), fixup($l2{$f}), %opts, 'fmax' => $fmax);
+    $fmax = $tfmax if defined($tfmax) && (!defined($fmax) || $fmax > $tfmax);
+    my $r = filediff(fixup($l1{$f}), fixup($l2{$f}), %opts, 'fmax' => $fmax, 'fmaxc' => $tfmaxc);
     $r->{'name'} = $f;
     $r->{'old'} = {'name' => $f, 'md5' => $l1{$f}->{'info'}, 'size' => $l1{$f}->{'size'}} if $l1{$f};
     $r->{'new'} = {'name' => $f, 'md5' => $l2{$f}->{'info'}, 'size' => $l2{$f}->{'size'}} if $l2{$f};
     push @ret, $r;
-    $lcnt += $r->{'lines'};
+    $lcnt += $r->{'shown'} || $r->{'lines'};
+    $ccnt += length($r->{'_content'}) if exists $r->{'_content'};
   }
-  if (defined($max) && $lcnt > $max) {
+  if ((defined($max) && $lcnt > $max) || (defined($maxc) && $ccnt > $maxc)) {
     my $r = {'lines' => $lcnt, 'shown' => 0};
     @ret = ($r);
   }

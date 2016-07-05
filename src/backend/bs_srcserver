@@ -4650,7 +4650,7 @@ sub sourcediff {
   my $ofn = sub { $xobscpio->($orev, $_[0], $_[1]) };
   my $fn  = sub { $xobscpio->($rev, $_[0], $_[1]) };
   if ($view eq 'xml') {
-    my %opts = ('edir' => $tmpdir, 'similar' => 1, 'doarchive' => 1, 'fmax' => $fmax, 'tmax' => $tmax);
+    my %opts = ('edir' => $tmpdir, 'similar' => 1, 'doarchive' => 1, 'fmax' => $fmax, 'tmax' => $tmax, 'tfmax' => $fmax);
     if (!$cgi->{'onlyissues'}) {
       $xmlret->{'files'} = { 'file' => BSSrcdiff::datadiff($ofn, $ofiles, $orev, $fn, $files, $rev, %opts) };
     }
