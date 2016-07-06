@@ -422,15 +422,8 @@ class Package < ActiveRecord::Base
     ActiveXML::Node.new(self.source_file(file, opts))
   end
 
-  def self.dir_hash(project, package, opts = {})
-    directory = Suse::Backend.get(source_path(project, package, nil, opts)).body
-    Xmlhash.parse(directory)
-  rescue ActiveXML::Transport::Error => e
-    Xmlhash::XMLHash.new error: e.summary
-  end
-
   def dir_hash(opts = {})
-    Package.dir_hash(self.project.name, self.name, opts)
+    Directory.hashed(opts.update(project: self.project.name, package: self.name))
   end
 
   def is_patchinfo?

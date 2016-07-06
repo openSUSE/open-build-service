@@ -52,8 +52,8 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
   def sourcediff(opts = {})
     unless opts[:view] == "xml"
       # skip local links
-      hash = Package.dir_hash(source_project, source_package)
-      return '' if hash and hash['linkinfo'] and hash['linkinfo']['project'] == self.source_project
+      hash = Directory.hashed(project: source_project, package: source_package)
+      return '' if hash['linkinfo'] && hash['linkinfo']['project'] == self.source_project
     end
     super(opts)
   end
@@ -64,7 +64,7 @@ class BsRequestActionMaintenanceIncident < BsRequestAction
     new_pkg = nil
 
     # find link target
-    dir_hash = Package.dir_hash(source_project, source_package)
+    dir_hash = Directory.hashed(project: source_project, package: source_package)
     linkinfo = dir_hash['linkinfo']
     if linkinfo and linkinfo['project'] == source_project
       # local link, skip it, it will come via branch command
