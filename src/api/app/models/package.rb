@@ -423,12 +423,10 @@ class Package < ActiveRecord::Base
   end
 
   def self.dir_hash(project, package, opts = {})
-    begin
-      directory = Suse::Backend.get(source_path(project, package, nil, opts)).body
-      Xmlhash.parse(directory)
-    rescue ActiveXML::Transport::Error => e
-      Xmlhash::XMLHash.new error: e.summary
-    end
+    directory = Suse::Backend.get(source_path(project, package, nil, opts)).body
+    Xmlhash.parse(directory)
+  rescue ActiveXML::Transport::Error => e
+    Xmlhash::XMLHash.new error: e.summary
   end
 
   def dir_hash(opts = {})
@@ -892,12 +890,9 @@ class Package < ActiveRecord::Base
   end
 
   def is_local_link?
-    # no link
-    return false unless self.dir_hash
-    li = self.dir_hash['linkinfo']
-    return false unless li
-    # linking to my project?
-    return li['project'] == self.project.name
+    linkinfo = self.dir_hash["linkinfo"]
+
+    linkinfo && (linkinfo["project"] == self.project.name)
   end
 
   def modify_channel(mode = :add_disabled)
