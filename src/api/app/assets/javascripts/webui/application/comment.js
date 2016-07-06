@@ -1,3 +1,5 @@
+// Expand the comment textarea to fit the text
+// as it's being typed.
 function sz(t) {
     var a = t.value.split('\n');
     var b = 1;
@@ -8,10 +10,15 @@ function sz(t) {
     if (b > t.rows) t.rows = b;
 }
 
-function setup_comment_toggles() {
+function setup_comment_page() {
+    // setup toggle events
     $('.togglable_comment').click(function () {
         var toggleid = $(this).data("toggle");
         $("#" + toggleid).toggle();
     });
-}
 
+    // prevent duplicate comment submissions
+    $('.comment_new').submit(function() {
+        $(this).find('input[type="submit"]').prop('disabled', true);
+    });
+}

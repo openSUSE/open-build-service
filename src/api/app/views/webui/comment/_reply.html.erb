@@ -1,4 +1,4 @@
-<div id="<%="reply_form_of_#{comment.id}"%>" style="display: none;">
+<div class="comment_new" id="<%="reply_form_of_#{comment.id}"%>" style="display: none;">
   <%= save_comment_form do %>
     <p>
       <%= text_area_tag 'body', nil, size: '80x1', onkeyup: 'sz(this);', onclick: 'sz(this);', id: "reply_body_#{comment.id}", placeholder: 'Comment Text', required: true %>

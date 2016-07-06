@@ -260,7 +260,7 @@ img.alignright { padding-right: 10px; display:inline; }
 .clear-right{clear:right;}
 .no-shadow{box-shadow:none;-webkit-box-shadow:none;-moz-box-shadow:none;}
 .button, button, input[type="submit"]{border-radius:5px;-moz-border-radius:5px;-webkit-border-radius:5px;-khtml-border-radius:5px;border-color:#999;background:#DDD image-url('images/gradient-medium-short.png') repeat-x scroll 0 0;color:#555;}
-.button:hover, button:hover, input[type="submit"]:hover{background-color:#eee;border-color:#666;color:#069;cursor:pointer;}
+.button:hover, button:hover, input[type="submit"]:not([disabled]):hover{background-color:#eee;border-color:#666;color:#069;cursor:pointer;}
 form *[disabled="disabled"], form *[disabled=""], form *[disabled="true"]{background-color:#f6f6f6;border-color:#ccc;color:#aaa;}
 .main .button, .main button, .main input[type="submit"]{background:#9c0 image-url('images/gradient-light-short-green.png') repeat-x scroll 0 -5px;color:#fcfcfc;}
 .main .button:hover, .main button:hover, .main input[type="submit"]:hover{border-color:#069;cursor:pointer;color:#fff;}
