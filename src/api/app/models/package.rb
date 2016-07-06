@@ -863,12 +863,10 @@ class Package < ActiveRecord::Base
   # local mode (default): last package in link chain in my project
   # no local mode:        first package in link chain outside of my project
   def origin_container(options = { local: true })
-    # no link, so I am origin
-    return self unless self.dir_hash
-
     # link target package name is more important, since local name could be
-    # extended. for example in maintenance incident projects.
+    # extended. For example in maintenance incident projects.
     linkinfo = self.dir_hash['linkinfo']
+    # no link, so I am origin
     return self if linkinfo.nil?
 
     if options[:local] && linkinfo['project'] != self.project.name
