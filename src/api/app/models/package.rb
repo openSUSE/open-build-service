@@ -881,10 +881,9 @@ class Package < ActiveRecord::Base
       return pkg
     end
 
-    # broken or remote link, aborting
-    return nil if pkg.nil?
-
-    return pkg.origin_container(options)
+    # If package is nil it's either broken or a remote one.
+    # Otherwise we continue
+    return pkg.try(:origin_container, options)
   end
 
   def is_local_link?
