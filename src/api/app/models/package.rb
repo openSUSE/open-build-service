@@ -870,19 +870,19 @@ class Package < ActiveRecord::Base
 
     # link target package name is more important, since local name could be
     # extended. for example in maintenance incident projects.
-    li = self.dir_hash['linkinfo']
-    return self unless li
+    linkinfo = self.dir_hash['linkinfo']
+    return self if linkinfo.nil?
 
-    if options[:local]
+    if options[:local] && linkinfo['project'] != self.project.name
       # links to external project, so I am origin
-      return self if li['project'] != self.project.name
+      return self
     end
 
     # local link, go one step deeper
-    prj = Project.get_by_name(li['project'])
-    pkg = prj.find_package(li['package'])
-    unless options[:local]
-      return pkg if self.project != prj
+    prj = Project.get_by_name(linkinfo['project'])
+    pkg = prj.find_package(linkinfo['package'])
+    if !options[:local] && self.project != prj
+      return pkg
     end
 
     # broken or remote link, aborting
