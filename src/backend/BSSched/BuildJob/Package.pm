@@ -20,7 +20,8 @@ use warnings;
 
 use Digest::MD5 ();
 use Build;		# for get_deps
-use BSSolv;		# for gen_meta
+use BSBuild;		# for add_meta
+use BSSolv;		# for add_meta/gen_meta
 use BSSched::BuildJob;
 
 my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
@@ -210,6 +211,7 @@ sub check {
     my $repodatas = $gctx->{'repodatas'};
     my $dep2meta = $repodatas->{"$prp/$myarch"}->{'meta'};
     $repodatas->{"$prp/$myarch"}->{'meta'} = $dep2meta = {} unless $dep2meta;
+    my $addmeta = defined(&BSSolv::add_meta) ? \&BSSolv::add_meta : \&BSBuild::add_meta;
     for my $bin (@$edeps) {
       my $pkg = $dep2pkg->{$bin};
       my $path = $pool->pkg2fullpath($pkg, $myarch);
@@ -248,23 +250,7 @@ sub check {
 	  $dep2meta->{$bin} = $m;
 	}
 	# append meta file to new_meta
-	if (defined &BSSolv::add_meta) {
-	    BSSolv::add_meta(\@new_meta, $m, $bin, $packid);
-	} else {
-	    my $oldlen = @new_meta;
-	    for (split("\n", $m->[0])) {
-	      s/  /  $bin\//;
-	      push @new_meta, $_;
-	    }
-	    next if $oldlen == @new_meta;	# huh?
-	    # do not include our own build results
-	    if ($new_meta[$oldlen] =~  /\/\Q$packid\E$/) {
-	      splice(@new_meta, $oldlen);
-	      next;
-	    }
-	    # fixup first line, it contains the package name and not the binary name
-	    $new_meta[$oldlen] =~ s/  .*/  $bin/;
-	}
+	$addmeta->(\@new_meta, $m, $bin, $packid);
       } else {
 	# use the hdrmd5 for non-local packages
 	push @new_meta, ($pool->pkg2pkgid($pkg)."  $bin");

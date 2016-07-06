@@ -24,6 +24,24 @@ package BSBuild;
 
 use strict;
 
+sub add_meta {
+  my ($new_meta, $m, $bin, $packid) = @_;
+  my $oldlen = @$new_meta;
+  for (split("\n", ref($m) ? $m->[0] : $m)) {
+    s/  /  $bin\//;
+    push @$new_meta, $_;
+  }
+  if (@$new_meta != $oldlen) {
+    if (defined($packid) && $new_meta->[$oldlen] =~  /\/\Q$packid\E$/) {
+      # do not include our own build results
+      splice(@$new_meta, $oldlen);
+    } else {
+      # fixup first line, it contains the package name and not the binary name
+      $new_meta->[$oldlen] =~ s/  .*/  $bin/;
+    }
+  }
+}
+
 sub gen_meta {
   my ($myself, $subp, @deps) = @_;
 
