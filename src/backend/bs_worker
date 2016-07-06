@@ -2251,8 +2251,7 @@ sub getbinaries {
 	}
       }
     }
-    @meta = BSBuild::gen_meta(($buildinfo->{'verifymd5'} || $buildinfo->{'srcmd5'})."  $packid", $buildinfo->{'subpack'} || [], @meta);
-    shift @meta;	# strip srcinfo again
+    @meta = BSBuild::gen_meta($buildinfo->{'subpack'} || [], @meta);
   } else {
     # simply sort the meta
     @meta = sort {substr($a, 34) cmp substr($b, 34)} @meta;

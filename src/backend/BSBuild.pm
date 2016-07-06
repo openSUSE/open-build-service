@@ -43,7 +43,7 @@ sub add_meta {
 }
 
 sub gen_meta {
-  my ($myself, $subp, @deps) = @_;
+  my ($subp, @deps) = @_;
 
   my %depseen;
   my @subp = @{$subp || []};
@@ -78,7 +78,6 @@ sub gen_meta {
   }
   @deps = sort {$helper1{$a} <=> $helper1{$b} || $helper2{$a} cmp $helper2{$b} || $a cmp $b} @deps;
   my @meta;
-  push @meta, $myself if defined($myself) && $myself ne '';
   for my $d (@deps) {
     next if $depseen{$helper3{$d}};	# skip if we already have this pkg with this md5
     next if $subpackre && "/$helper2{$d}/" =~ /$subpackre/;
