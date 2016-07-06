@@ -70,7 +70,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'BsRequest::new_from_xml'                                                 => 113.77,
       'BsRequestAction#check_action_permission!'                                => 117.71,
       'BsRequestAction#check_action_permission_target!'                         => 89.68,
-      'BsRequestAction#create_expand_package'                                   => 443.16,
+      'BsRequestAction#create_expand_package'                                   => 453.98,
       'BsRequestAction#default_reviewers'                                       => 141.02,
       'BsRequestAction#store_from_xml'                                          => 88.01,
       'BsRequestActionMaintenanceIncident#_merge_pkg_into_maintenance_incident' => 130.81,
