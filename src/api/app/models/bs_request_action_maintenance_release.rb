@@ -133,7 +133,7 @@ class BsRequestActionMaintenanceRelease < BsRequestAction
     basePackageName = self.target_package.gsub(/\.[^\.]*$/, '')
     pkg = Package.find_by_project_and_name( self.target_project, basePackageName )
     if pkg
-      opkg = pkg.local_origin_container
+      opkg = pkg.origin_container
       if opkg.name != self.target_package or opkg.project.name != self.target_project
         ai['oproject'] = opkg.project.name
         ai['opackage'] = opkg.name

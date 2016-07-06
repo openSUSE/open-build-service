@@ -862,8 +862,9 @@ class Package < ActiveRecord::Base
     Buildresult.find(project: self.project, package: self, repository: repository, view: view)
   end
 
-  # first package in link chain outside of my project
-  def origin_container
+  # local mode (default): last package in link chain in my project
+  # no local mode:        first package in link chain outside of my project
+  def origin_container(options = { local: true })
     # no link, so I am origin
     return self unless self.dir_hash
 
@@ -872,39 +873,22 @@ class Package < ActiveRecord::Base
     li = self.dir_hash['linkinfo']
     return self unless li
 
-    # from external project, so it is my origin
-    prj = Project.get_by_name(li['project'])
-    pkg = prj.find_package(li['package'])
-    return pkg if self.project != prj
-
-    # broken or remote link, aborting
-    return nil if pkg.nil?
-
-    # local link, go one step deeper
-    return pkg.origin_container
-  end
-
-  # last package in link chain in my project
-  def local_origin_container
-    # no link, so I am origin
-    return self unless self.dir_hash
-
-    # link target package name is more important, since local name could be
-    # extended. for example in maintenance incident projects.
-    li = self.dir_hash['linkinfo']
-    return self unless li
-
-    # links to external project, so I am origin
-    return self if li['project'] != self.project.name
+    if options[:local]
+      # links to external project, so I am origin
+      return self if li['project'] != self.project.name
+    end
 
     # local link, go one step deeper
     prj = Project.get_by_name(li['project'])
     pkg = prj.find_package(li['package'])
+    unless options[:local]
+      return pkg if self.project != prj
+    end
 
     # broken or remote link, aborting
     return nil if pkg.nil?
 
-    return pkg.local_origin_container
+    return pkg.origin_container(options)
   end
 
   def is_local_link?
@@ -927,7 +911,7 @@ class Package < ActiveRecord::Base
     raise InvalidParameterError unless [:add_disabled, :skip_disabled, :enable_all].include? mode
     return if self.is_channel?
 
-    opkg = self.origin_container
+    opkg = self.origin_container(local: false)
     # remote or broken link?
     return if opkg.nil?
 

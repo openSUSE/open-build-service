@@ -307,7 +307,7 @@ module MaintenanceHelper
   end
 
   def instantiate_container(project, opackage, opts = {})
-    opkg = opackage.local_origin_container
+    opkg = opackage.origin_container
     pkg_name = opkg.name
     if opkg.is_a? Package and opkg.project.is_maintenance_release?
       # strip incident suffix
