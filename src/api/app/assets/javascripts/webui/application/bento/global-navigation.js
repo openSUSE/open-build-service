@@ -9,21 +9,21 @@ $(function() {
 
     if (!global_navigation_data) return;
 
-    var html = '';
+    // Build up navigation menus from localization data
+    // then render it.
 
-    $.each(global_navigation_data, function(i,menu){
-        html += '<ul class="global-navigation-menu" id="menu-' + menu.id + '">';
-        $.each(menu.items, function(j,submenu){
-            html += '<li><a href="' + submenu.link +'">';
-            html += '<span class="global-navigation-icon '+ submenu.image +'"></span>'; /*use imagemap and css */
-            html += '<span>' + submenu.title + '</span>';
-            html += '<span class="desc">' + submenu.desc + '</span>';
-            html += '</a></li>';
-        });
-        html += '</ul>';
-    });
-
-    $('#global-navigation').after(html);
+    $('#global-navigation').after(global_navigation_data.reduce(function(html, menu){
+        return html
+        + '<ul class="global-navigation-menu" id="menu-' + menu.id + '">'
+        + menu.items.reduce(function(h, item){
+            return h + '<li><a href="' + item.link +'">'
+              + '<span class="global-navigation-icon '+ item.image +'"></span>' /*use imagemap and css */
+              + '<span>' + item.title + '</span>'
+              + '<span class="desc">' + item.desc + '</span>'
+              + '</a></li>'
+        }, '')
+        + '</ul>'
+    }, ''));
 
     $('#global-navigation li[id^=item-]').click(function(){
         var name = $(this).attr('id').substring(5);
