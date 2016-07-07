@@ -112,17 +112,13 @@ function moveSelectedItems(source, destination) {
 function stopRKey(evt) {
     var evt = (evt) ? evt : ((event) ? event : null);
     var node = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
-    if ((evt.keyCode == 13) && (node.type == "text")) {
+    if (evt.keyCode == 13 && node.type == "text") {
         return false;
     }
 }
 
 function toggle_blockreason(){
-    if (!$("#block").is(":checked")) {
-        $("#block_reason").prop('disabled', true);
-    } else {
-        $("#block_reason").prop('disabled', false);
-    }
+    $("#block_reason").prop('disabled', !$("#block").is(":checked"));
 }
 
 function patchinfoReady() {
