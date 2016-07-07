@@ -85,16 +85,17 @@ function autocomplete_repositories(project_name) {
             $('#target_repo').html('');
             // suggest a name:
             $('#repo_name').attr('value', project_name.replace(/:/g, '_') + '_' + repos[0]);
-            var foundoptions = false;
-            repos.forEach(function(repo) {
-                $('#target_repo').append(new Option(repo));
-                $('#target_repo').prop('disabled', false);
-                $('#repo_name').prop('disabled', false);
-                $('#add_repository_button').prop('disabled', false);
-                foundoptions = true;
-            });
-            if (!foundoptions)
+            if(repos.length === 0) {
                 $('#target_repo').append(new Option('No repos found'));
+                return;
+            }
+
+            $('#target_repo').prop('disabled', false);
+            $('#repo_name').prop('disabled', false);
+            $('#add_repository_button').prop('disabled', false);
+            $('#target_repo').append(repos.map(function(repo) {
+                return new Option(repo);
+            }));
         },
         complete: function (data) {
             $('#loader-repo').hide();
