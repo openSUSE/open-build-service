@@ -24,7 +24,7 @@ Note: Update from OBS 2.5 should also work, but is untested.
   5) Migrate database
 
         cd /srv/www/obs/api/
-        RAILS_ENV="production" rake.ruby2.3 db:migrate
+        RAILS_ENV="production" rails.ruby2.3 db:migrate
 
   6) Make sure that log and tmp are owned by wwwrun
 
@@ -60,7 +60,7 @@ rubygems according to Gemfile need to get installed.
  1) Database migration
 
     # cd /srv/www/obs/api/
-    # RAILS_ENV="production" rake db:migrate
+    # RAILS_ENV="production" rails db:migrate
     # chown -R wwwrun.www log tmp
 
  2) Restart following services in this order
@@ -96,7 +96,7 @@ use port 443 now.
  1) Database migration
 
     # cd /srv/www/obs/api/
-    # RAILS_ENV="production" rake db:migrate
+    # RAILS_ENV="production" rails db:migrate
     # chown -R wwwrun.www log tmp
 
  2) Restart memcached after database migration to wipe possible broken
@@ -144,7 +144,7 @@ use port 443 now.
     also to call the following once to have a working search:
 
     # cd /srv/www/obs/api/
-    # RAILS_ENV="production" rake ts:index
+    # RAILS_ENV="production" rails ts:index
 
 For Updaters to OBS 2.4 from OBS 2.3
 ====================================
@@ -176,11 +176,11 @@ Please check the following files:
  3) Database migration
 
     # cd /srv/www/obs/api/
-    # RAILS_ENV="production" rake db:migrate
+    # RAILS_ENV="production" rails db:migrate
     # chown -R wwwrun.www log tmp
 
     # cd /srv/www/obs/webui/
-    # RAILS_ENV="production" rake db:migrate
+    # RAILS_ENV="production" rails db:migrate
     # chown -R wwwrun.www log tmp
 
  4) Restart memcached after database migration to wipe possible broken
@@ -192,11 +192,11 @@ For Updaters to OBS 2.3 from OBS 2.1
 1) Database migration
 
     # cd /srv/www/obs/api/
-    # RAILS_ENV="production" rake db:migrate
+    # RAILS_ENV="production" rails db:migrate
     # chown -R wwwrun.www log tmp
 
     # cd /srv/www/obs/webui/
-    # RAILS_ENV="production" rake db:migrate
+    # RAILS_ENV="production" rails db:migrate
     # chown -R wwwrun.www log tmp
 
 2) Switch from lighttpd to apache2
@@ -215,11 +215,11 @@ For Updaters to OBS 2.1 from OBS 2.0
 1) Database migration
 
     # cd /srv/www/obs/api/
-    # RAILS_ENV="production" rake db:migrate
+    # RAILS_ENV="production" rails db:migrate
     # chown -R lighttpd.lighttpd log
 
     # cd /srv/www/obs/webui/
-    # RAILS_ENV="production" rake db:migrate
+    # RAILS_ENV="production" rails db:migrate
     # chown -R lighttpd.lighttpd log
 
 2) Build backend source database
@@ -254,7 +254,7 @@ For Updaters to OBS 2.1 from OBS 2.0
 
    * populate the database
       # cd /srv/www/obs/webui/
-      # sudo RAILS_ENV="production" rake db:setup
+      # sudo RAILS_ENV="production" rails db:setup
       # sudo chown lighttpd.lighttpd log/*
 
 
@@ -272,11 +272,11 @@ following steps manually:
 1) Database migration
 
     # cd /srv/www/obs/api/
-    # RAILS_ENV="production" rake db:migrate
+    # RAILS_ENV="production" rails db:migrate
     # chown -R lighttpd.lighttpd log
 
     # cd /srv/www/obs/webui/
-    # RAILS_ENV="production" rake db:migrate
+    # RAILS_ENV="production" rails db:migrate
     # chown -R lighttpd.lighttpd log
 
 2) Default distribution configuration
@@ -304,18 +304,18 @@ For Updaters from OBS 1.6
    Your former used database config, most likely using "frontend_production"
    database is not touched by this, the server will still use this one.
 
-2) Required rake migrate update
+2) Required rails migrate update
 
   When the obs-api package has been updated, it is required to upgrade
   the database. Therefore, you should do
 
     # cd /srv/www/obs/api/
-    # RAILS_ENV="production" rake db:migrate
+    # RAILS_ENV="production" rails db:migrate
 
   and
 
     # cd /srv/www/obs/webui/
-    # RAILS_ENV="production" rake db:migrate
+    # RAILS_ENV="production" rails db:migrate
 
 3) Enable the new services
 
@@ -364,16 +364,16 @@ DOWNLOAD_URL = nil
 
 in your configuration.
 
-2) Recommended rake migrate update
+2) Recommended rails migrate update
 
-A rake migrate is recommended, but not neccessary. It would reimport 
+A rails migrate is recommended, but not neccessary. It would reimport 
 buginfo flags from the backend to fix broken usage in api before.
 
 When the obs-api package has been updated, it might be required to
 upgrade the database. Therefore, you should do
 
     # cd /srv/www/obs/api/
-    # RAILS_ENV="production" rake db:migrate
+    # RAILS_ENV="production" rails db:migrate
 
 after updating obs-api.
 
@@ -396,6 +396,6 @@ All Updaters needs to update their database schema in any case by running the
 following commands:
 
       # cd /srv/www/obs/api/
-      # RAILS_ENV="production" rake db:migrate
+      # RAILS_ENV="production" rails db:migrate
 
 

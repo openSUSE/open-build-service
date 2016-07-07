@@ -22,7 +22,7 @@ cp config/options.yml.example config/options.yml
 cp config/thinking_sphinx.yml.example config/thinking_sphinx.yml
 
 echo "Initialize database"
-bundle exec rake db:drop db:create db:setup --trace
+bundle exec rails db:drop db:create db:setup --trace
 
 # Stuff
 # travis rvm can not deal with our extended executable names

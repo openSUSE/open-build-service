@@ -85,7 +85,7 @@ case "$1" in
         run_in_api $CLOCKWORKD -l -c config/clock.rb stop
 	rc_status -v
 	echo -n "Shutting down OBS searchd daemon "
-        run_in_api rake.ruby2.3 ts:stop
+        run_in_api rails.ruby2.3 ts:stop
 	rc_status -v
 	;;
     try-restart|condrestart)
@@ -103,7 +103,7 @@ case "$1" in
     clean-restart)
 	$0 stop
         rm -f $API_ROOT/db/sphinx/production/*
-        run_in_api rake.ruby2.3 ts:index
+        run_in_api rails.ruby2.3 ts:index
 	$0 start
 
 	rc_status

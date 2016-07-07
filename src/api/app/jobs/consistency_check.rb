@@ -38,7 +38,7 @@ class ConsistencyCheckJob < ApplicationJob
     nil
   end
 
-  # for manual fixing by admin via rake command
+  # for manual fixing by admin via rails command
   def fix_project
     init
     check_project(true)

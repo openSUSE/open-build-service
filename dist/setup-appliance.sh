@@ -229,7 +229,7 @@ function adapt_worker_jobs {
 function prepare_database_setup {
  
   cd /srv/www/obs/api 
-  RAILS_ENV=production rake.ruby2.3 db:migrate:status > /dev/null
+  RAILS_ENV=production rails.ruby2.3 db:migrate:status > /dev/null
 
   if [[ $? > 0 ]];then
     echo "Initialize MySQL databases (first time only)"
@@ -261,8 +261,8 @@ function prepare_database_setup {
   logline "Setting up rails environment"
   for cmd in $RAKE_COMMANDS
   do
-    logline " - Doing 'rake.ruby2.3 $cmd'"
-    RAILS_ENV=production bundle exec rake.ruby2.3 $cmd >> $apidir/log/db_migrate.log
+    logline " - Doing 'rails.ruby2.3 $cmd'"
+    RAILS_ENV=production bundle exec rails.ruby2.3 $cmd >> $apidir/log/db_migrate.log
     if [[ $? > 0 ]];then
       (>&2 echo "Command $cmd FAILED")
       exit 1  
