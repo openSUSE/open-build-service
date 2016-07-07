@@ -47,6 +47,8 @@ gem 'acts_as_tree'
 gem 'flot-rails'
 # colorize for scripts
 gem 'colorize', :require => false
+# XML Serialization got moved here
+gem 'activemodel-serializers-xml'
 
 group :development, :production do
   # to have the delayed job daemon
