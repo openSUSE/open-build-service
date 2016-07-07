@@ -1,4 +1,5 @@
 ENV['origin_RAILS_ENV'] = ENV['RAILS_ENV']
+
 ENV['RAILS_ENV'] = 'test'
 require 'simplecov'
 require 'coveralls'
@@ -160,35 +161,43 @@ module ActionDispatch
   module Integration
     class Session
       def add_auth(headers)
-        headers = Hash.new if headers.nil?
-        if !headers.has_key? 'HTTP_AUTHORIZATION' and IntegrationTest.basic_auth
-          headers['HTTP_AUTHORIZATION'] = IntegrationTest.basic_auth
+        headers = {} if headers.nil?
+        if !headers.has_key?("HTTP_AUTHORIZATION") && IntegrationTest.basic_auth
+          headers["HTTP_AUTHORIZATION"] = IntegrationTest.basic_auth
         end
         return headers
       end
 
-      alias_method :real_process, :process
+      alias_method :real_process, :process_with_kwargs
 
-      def process(method, path, parameters, rack_env)
+      def process_with_kwargs(http_method, path, *args)
         CONFIG['global_write_through'] = true
+        # Hack to pass the APIMatcher (config/routes.rb) without
+        # explicitly setting format: xml
         self.accept = 'text/xml,application/xml'
-        real_process(method, path, parameters, add_auth(rack_env))
+        if kwarg_request?(args)
+          parameters = args[0]
+          parameters[:headers] = add_auth(parameters[:headers])
+          real_process(http_method, path, parameters)
+        else
+          real_process(http_method, path, params: args[0], headers: add_auth(args[1]))
+        end
       end
 
-      def raw_post(path, data, parameters = nil, rack_env = nil)
-        rack_env ||= Hash.new
+      def raw_post(path, data, parameters = {}, rack_env = nil)
+        rack_env ||= {}
         rack_env['CONTENT_TYPE'] ||= 'application/octet-stream'
         rack_env['CONTENT_LENGTH'] = data.length
         rack_env['RAW_POST_DATA'] = data
-        process(:post, path, parameters, add_auth(rack_env))
+        process_with_kwargs(:post, path, parameters, add_auth(rack_env))
       end
 
-      def raw_put(path, data, parameters = nil, rack_env = nil)
-        rack_env ||= Hash.new
+      def raw_put(path, data, parameters = {}, rack_env = nil)
+        rack_env ||= {}
         rack_env['CONTENT_TYPE'] ||= 'application/octet-stream'
         rack_env['CONTENT_LENGTH'] = data.length
         rack_env['RAW_POST_DATA'] = data
-        process(:put, path, parameters, add_auth(rack_env))
+        process_with_kwargs(:put, path, parameters, add_auth(rack_env))
       end
     end
   end
