@@ -545,9 +545,12 @@ class SourceController < ApplicationController
     end
     config = project.is_a?(String) ? ProjectConfigFile.new(project_name: project) : project.config
 
-    return if forward_from_backend(config.full_path(params.slice(:rev)))
+    sliced_params = params.slice(:rev)
+    sliced_params.permit!
 
-    content = config.to_s(params.slice(:rev))
+    return if forward_from_backend(config.full_path(sliced_params.to_h))
+
+    content = config.to_s(sliced_params.to_h)
     unless content
       render_error status: 404, message: config.errors.full_messages.to_sentence
       return
@@ -574,7 +577,11 @@ class SourceController < ApplicationController
 
     params[:user] = User.current.login
     project.config.file = request.body
-    response = project.config.save(params.slice(:user, :comment))
+
+    sliced_params = params.slice(:user, :comment)
+    sliced_params.permit!
+
+    response = project.config.save(sliced_params.to_h)
 
     unless response
       render_error status: 404, message: project.config.errors.full_messages.to_sentence

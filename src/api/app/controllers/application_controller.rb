@@ -540,7 +540,7 @@ class ApplicationController < ActionController::Base
   end
 
   def validate_xml_request(method = nil)
-    opt = params()
+    opt = params
     opt[:method] = method || request.method.to_s
     opt[:type] = 'request'
     logger.debug "Validate XML request: #{request}"
