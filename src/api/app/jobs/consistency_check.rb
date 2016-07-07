@@ -29,6 +29,7 @@ class ConsistencyCheckJob < ActiveJob::Base
       @errors << project_meta_check(project, fix)
     end
     unless @errors.blank?
+      @errors = "FIXING the following errors:\n" << @errors if fix
       Rails.logger.error("Detected problems during consistency check")
       Rails.logger.error(@errors)
 
