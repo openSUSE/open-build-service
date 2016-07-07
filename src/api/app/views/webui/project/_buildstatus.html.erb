@@ -4,7 +4,7 @@
           <p><i>This project is just used to get referenced for using remote resources. </i></p>
       <% elsif @project.repositories.count == 0 %>
           <p><i>This project currently has
-            no <%= link_to "build targets", :controller => :project, :action => 'add_repository_from_default_list', :project => @project %>
+            no <%= link_to "build targets", controller: :repositories, action: :distributions, project: @project %>
             defined. </i></p>
       <% else %>
           <p><i>No build result available</i></p>
@@ -18,7 +18,7 @@
                 <tr>
                   <% if index == 0 %>
                       <td class="repo nowrap" rowspan="<%= archarray.length %>">
-                        <%= link_to(elide(srepo, 26), {:action => 'repository_state', :project => @project.name, :repository => repo}, {:title => "Repository #{srepo}"}) %>
+                        <%= link_to(elide(srepo, 26), { action: :state, project: @project.name, repository: repo, controller: :repositories }, { title: "Repository #{srepo}"}) %>
                       </td>
                       <% index += 1 %>
                   <% end %>

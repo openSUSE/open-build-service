@@ -553,6 +553,7 @@ END
                         :children => { count: 1, :only => { :tag => :path } }
 
     assert_no_xml_tag xml, :tag => :path, :attributes => { project: "My:Branch", repository: "my_branch_sp0_update" }
+    prj.reload
     prj.sync_repository_pathes
     xml = prj.to_axml
     assert_xml_tag xml, :tag => :repository, :attributes => {name: "my_branch_sp1_update"},

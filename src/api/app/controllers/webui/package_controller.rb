@@ -4,7 +4,6 @@ require 'project'
 class Webui::PackageController < Webui::WebuiController
   require_dependency 'opensuse/validator'
   include Webui::HasComments
-  include Webui::HasFlags
   include ParsePackageDiff
   include Webui::PackageHelper
   include Escaper
@@ -14,7 +13,7 @@ class Webui::PackageController < Webui::WebuiController
 
   helper 'webui/comment'
 
-  before_filter :set_project, :only => [:show, :repositories, :users, :linking_packages, :dependency, :binary, :binaries,
+  before_filter :set_project, :only => [:show, :users, :linking_packages, :dependency, :binary, :binaries,
                                         :requests, :statistics, :commit, :revisions, :submit_request_dialog,
                                         :add_person, :add_group, :rdiff, :wizard_new, :wizard, :save_new,
                                         :branch_dialog, :branch, :save_new_link, :save, :delete_dialog,
@@ -34,7 +33,7 @@ class Webui::PackageController < Webui::WebuiController
                                             :abort_build, :trigger_rebuild,
                                             :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
                                             :attributes, :edit, :create_flag, :toggle_flag, :remove_flag,
-                                            :import_spec, :files, :comments, :repositories, :users,
+                                            :import_spec, :files, :comments, :users,
                                             :save_comment]
 
   # make sure it's after the require_, it requires both
@@ -42,7 +41,7 @@ class Webui::PackageController < Webui::WebuiController
                                             :binary, :binaries, :users, :requests, :statistics, :commit,
                                             :revisions, :rdiff, :wizard_new, :view_file, :live_build_log,
                                             :update_build_log, :devel_project, :buildresult, :rpmlint_result,
-                                            :rpmlint_log, :meta, :attributes, :repositories, :files]
+                                            :rpmlint_log, :meta, :attributes, :files]
 
   prepend_before_filter :lockout_spiders, :only => [:revisions, :dependency, :rdiff, :binary, :binaries, :requests]
 
@@ -1059,14 +1058,6 @@ class Webui::PackageController < Webui::WebuiController
   end
 
   def edit
-  end
-
-  def repositories
-    @build = @package.get_flags('build')
-    @debuginfo = @package.get_flags('debuginfo')
-    @publish = @package.get_flags('publish')
-    @useforbuild = @package.get_flags('useforbuild')
-    @architectures = @package.project.architectures.reorder('name').uniq
   end
 
   private

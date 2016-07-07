@@ -1,7 +1,6 @@
 class Webui::ProjectController < Webui::WebuiController
   require_dependency 'opensuse/validator'
   include Webui::HasComments
-  include Webui::HasFlags
   include Webui::RequestHelper
   include Webui::ProjectHelper
   include Webui::LoadBuildresults
@@ -16,14 +15,13 @@ class Webui::ProjectController < Webui::WebuiController
 
   before_filter :set_project, only: [:autocomplete_packages, :autocomplete_repositories, :users, :subprojects,
                                      :new_package, :new_package_branch, :incident_request_dialog, :release_request_dialog,
-                                     :show, :linking_projects, :add_repository_from_default_list, :add_repository,
-                                     :add_person, :add_group, :buildresult, :delete_dialog, :destroy, :remove_path_from_target,
-                                     :update_target, :repositories, :repository_state, :rebuild_time, :packages_simple,
-                                     :requests, :save, :save_distributions, :remove_target, :monitor, :toggle_watch, :meta,
+                                     :show, :linking_projects, :add_person, :add_group, :buildresult, :delete_dialog,
+                                     :destroy, :remove_path_from_target, :rebuild_time, :packages_simple,
+                                     :requests, :save, :monitor, :toggle_watch, :meta,
                                      :prjconf, :create_flag, :toggle_flag, :remove_flag, :edit, :save_comment, :edit_comment,
-                                     :status, :maintained_projects, :create_dod_repository, :remove_dod_repository,
+                                     :status, :maintained_projects,
                                      :add_maintained_project_dialog, :add_maintained_project, :remove_maintained_project,
-                                     :maintenance_incidents, :unlock_dialog, :unlock, :save_person, :save_group, :remove_role, :save_repository,
+                                     :maintenance_incidents, :unlock_dialog, :unlock, :save_person, :save_group, :remove_role,
                                      :move_path, :save_prjconf, :clear_failed_comment]
 
   # TODO: check if get_by_name or set_by_name is used for save_prjconf
@@ -205,28 +203,6 @@ class Webui::ProjectController < Webui::WebuiController
     render_dialog
   end
 
-  # NOTE: This is a GET action, no data will be written
-  def add_repository_from_default_list
-    @distributions = {}
-    Distribution.all_including_remotes.each do |dis|
-      @distributions[dis['vendor']] ||= []
-      @distributions[dis['vendor']] << dis
-    end
-
-    if @distributions.empty?
-      if User.current.is_admin?
-        redirect_to({ controller: 'configuration', action: 'interconnect' },
-                    alert: 'There are no distributions configured. Maybe you want to connect to one of the public OBS instances?')
-      else
-        redirect_to :controller => 'project', :action => 'add_repository', :project => @project
-      end
-    end
-  end
-
-  def add_repository
-    authorize @project, :update?
-  end
-
   def add_person
     authorize @project, :update?
     @roles = Role.local_roles
@@ -292,52 +268,6 @@ class Webui::ProjectController < Webui::WebuiController
       end
     else
       redirect_to project_show_path(@project), notice: "Project can't be removed: #{@project.errors.full_messages.to_sentence}"
-    end
-  end
-
-  def update_target
-    authorize @project, :update?
-
-    repo = @project.repositories.where(name: params[:repo]).first
-    archs = []
-    archs = params[:arch].keys.map { |arch| Architecture.find_by_name(arch) } if params[:arch]
-    repo.architectures = archs
-    repo.save
-    @project.store
-
-    # Merge project repo's arch list with currently available arches from API. This needed as you want
-    # to keep currently non-working arches in the project meta.
-    @repository_arch_hash = Hash.new
-    Architecture.available.each {|arch| @repository_arch_hash[arch.name] = false }
-    repo.architectures.each {|arch| @repository_arch_hash[arch.name] = true }
-    redirect_to({ action: :repositories }, notice: 'Successfully updated repository' )
-  end
-
-  def repositories
-    @build = @project.get_flags('build')
-    @debuginfo = @project.get_flags('debuginfo')
-    @publish = @project.get_flags('publish')
-    @useforbuild = @project.get_flags('useforbuild')
-    @architectures = @project.architectures.reorder('name').uniq
-  end
-
-  def repository_state
-    required_parameters :repository
-
-    # Get cycles of the repository build dependency information
-    @repocycles = {}
-
-    @repository = @project.repositories.where(name: params[:repository]).first
-
-    unless @repository
-      redirect_to :back, alert: "Repository '#{params[:repository]}' not found"
-      return
-    end
-
-    @archs = []
-    @repository.architectures.each do |arch|
-      @archs << arch.name
-      calculate_repo_cycle(arch.name)
     end
   end
 
@@ -436,111 +366,6 @@ class Webui::ProjectController < Webui::WebuiController
     end
   end
 
-  # POST /project/create_dod_repository/:project
-  def create_dod_repository
-    authorize @project, :update?
-
-    if Repository.find_by_name(params[:name])
-      @error = "Repository with name '#{params[:name]}' already exists."
-    end
-
-    begin
-      ActiveRecord::Base.transaction do
-        @new_repository = @project.repositories.create!(name: params[:name])
-        @new_repository.repository_architectures.create!(architecture: Architecture.find_by(name: params[:arch]), position: 1)
-        @new_repository.download_repositories.create!(arch: params[:arch], url: params[:url], repotype: params[:repotype])
-        @project.store
-      end
-    rescue ::Timeout::Error, ActiveRecord::RecordInvalid => e
-      @error = "Couldn't add repository: #{e.message}"
-    end
-  end
-
-  def save_repository
-    authorize @project, :update?
-    params[:architectures] ||= []
-
-    repository = @project.repositories.find_or_initialize_by(name: params[:repository])
-    unless repository.save
-      redirect_to :back, error: "Couldn't add repository: 'Name must not start with '_' or contain any of these characters ':/'"
-      return
-    end
-
-    if params[:target_repo]
-      # add a repository from an existing project
-      target_repository = Repository.find_by_project_and_name(params[:target_project], params[:target_repo])
-      unless target_repository
-        redirect_to :back, error: "Can not add repository: Repository '#{params[:target_repo]}' not found in project '#{params[:target_project]}'."
-        return
-      end
-
-      path_element = repository.path_elements.find_or_initialize_by(link: target_repository)
-      unless path_element.position.present?
-        next_position = repository.path_elements.maximum(:position).to_i + 1
-        path_element.position = next_position
-      end
-    end
-
-    params[:architectures].each_with_index do |architecture, index|
-      repository_architecture = repository.repository_architectures.find_or_initialize_by(architecture: Architecture.find_by(name: architecture))
-      unless repository_architecture.position.present?
-        repository_architecture.position = index + 1
-      end
-    end
-
-    if repository.valid?
-      repository.save
-      @project.reload
-      @project.store
-      redirect_to({ action: :repositories, project: @project }, success: "Successfully added repository")
-    else
-      redirect_to :back, error: "Can not add repository: #{repository.errors.full_messages.to_sentence}"
-    end
-  end
-
-  def save_distributions
-    authorize @project, :update?
-    params[:distributions] ||= []
-
-    distributions = Distribution.all_including_remotes.select{ |distribution| params[:distributions].include?(distribution['reponame']) }
-
-    begin
-      # FIXME: This should happen in the model
-      ActiveRecord::Base.transaction do
-        distributions.each do |distribution|
-          repository = @project.repositories.new(name: distribution['reponame'])
-          target_repository =  Repository.find_by_project_and_name(distribution['project'], distribution['repository'])
-          unless target_repository
-            raise ActiveRecord::RecordNotFound
-          end
-          repository.path_elements.new(link: target_repository, position: 1 )
-          distribution['architectures'].each_with_index do |architecture, index|
-            repository.repository_architectures.new(architecture: Architecture.archcache[architecture], position: index + 1)
-          end
-          repository.save!
-        end
-      end
-    rescue ActiveRecord::RecordInvalid => e
-      redirect_to :back, error: "Can't add repositories: #{e.message}"
-      return
-    end
-
-    # FIXME:
-    if params['images']
-      repository = @project.repositories.create!(name: 'images')
-      Architecture.available.each_with_index do |architecture, index|
-        repository.repository_architectures.create!(architecture: architecture, position: index + 1)
-      end
-      @project.prepend_kiwi_config
-    end
-    if @project.valid?
-      @project.store
-      redirect_to({ action: :repositories, project: @project }, success: "Successfully added repositories")
-    else
-      redirect_to :back, error: "Can't add repositories: #{@project.errors.full_messages.to_sentence}"
-    end
-  end
-
   def remove_target_request_dialog
     render_dialog
   end
@@ -566,22 +391,9 @@ class Webui::ProjectController < Webui::WebuiController
     rescue BsRequestAction::UnknownTargetProject,
            BsRequestAction::UnknownTargetPackage => e
       flash[:error] = e.message
-      redirect_to :action => :repositories, :project => params[:project] and return
+      redirect_to action: :index, controller: :repositories, project: params[:project] and return
     end
     redirect_to :controller => :request, :action => :show, :number => req.number
-  end
-
-  def remove_target
-    authorize @project, :update?
-
-    repository = @project.repositories.find_by(name: params[:target])
-    @project.repositories.delete repository
-    if @project.valid?
-      @project.store
-      redirect_to({action: :repositories, project: @project}, notice: "Repository was removed")
-    else
-      redirect_to :back, error: "Failed to remove repository: #{@project.errors.full_messages.to_sentence}"
-    end
   end
 
   def remove_path_from_target
@@ -592,7 +404,7 @@ class Webui::ProjectController < Webui::WebuiController
     path_element.destroy
     if @project.valid?
       @project.store
-      redirect_to({ action: :repositories, project: @project }, success: "Successfully removed path")
+      redirect_to({ action: :index, controller: :repositories, project: @project }, success: "Successfully removed path")
     else
       redirect_to :back, error: "Can not remove path: #{@project.errors.full_messages.to_sentence}"
     end
@@ -616,9 +428,10 @@ class Webui::ProjectController < Webui::WebuiController
 
     if @project.valid?
       @project.store
-      redirect_to({ :action => :repositories, :project => @project}, notice: "Path moved #{params[:direction]} successfully")
+      redirect_to({ action: :index, controller: :repositories, project: @project}, notice: "Path moved #{params[:direction]} successfully")
     else
-      redirect_to({ :action => :repositories, :project => @project}, notice: "Path can't be moved: #{@project.errors.full_messages.to_sentence}")
+      redirect_to({ action: :index, controller: :repositories, project: @project },
+                  notice: "Path can't be moved: #{@project.errors.full_messages.to_sentence}")
     end
   end
 
@@ -995,46 +808,6 @@ class Webui::ProjectController < Webui::WebuiController
                                     types: %w(maintenance_release),
                                     roles: %w(source)).pluck(:number)
     end
-  end
-
-  def calculate_repo_cycle(arch)
-    cycles = Array.new
-    # skip all packages via package=- to speed up the api call, we only parse the cycles anyway
-    deps = BuilddepInfo.find(:project => @project.name, :package => '-', :repository => @repository.name, :arch => arch)
-    nr_cycles = 0
-    if deps and deps.has_element? :cycle
-      packages = Hash.new
-      deps.each(:cycle) do |cycle|
-        current_cycles = Array.new
-        cycle.each(:package) do |p|
-          p = p.text
-          if packages.has_key? p
-            current_cycles << packages[p]
-          end
-        end
-        current_cycles.uniq!
-        if current_cycles.empty?
-          nr_cycles += 1
-          nr_cycle = nr_cycles
-        elsif current_cycles.length == 1
-          nr_cycle = current_cycles[0]
-        else
-          logger.debug "HELP! #{current_cycles.inspect}"
-        end
-        cycle.each(:package) do |p|
-          packages[p.text] = nr_cycle
-        end
-      end
-    end
-    cycles = Array.new
-    1.upto(nr_cycles) do |i|
-      list = Array.new
-      packages.each do |package, cycle|
-        list.push(package) if cycle == i
-      end
-      cycles << list.sort
-    end
-    @repocycles[arch] = cycles unless cycles.empty?
   end
 
   def call_diststats(bdep, jobs)

@@ -6,17 +6,14 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
   uses_transaction :test_create_project_publish_disabled
 
   def test_save_distributions
+    use_js
     login_tom
     visit "/project/add_repository_from_default_list/home:tom"
     check("OBS Base 2.0")
-    find("#submitrepos").click
-    page.must_have_text "Successfully added repositories"
-    assert_equal "/project/repositories/home:tom", page.current_path
-
-    # Test that repository checkbox get's disabled
-    visit "/project/add_repository_from_default_list/home:tom"
-    assert find("input#repo_Base_repo").disabled?,
-           "Checkbox for 'OBS Base 2.0' should be disabled"
+    page.must_have_text("Successfully added repository 'Base_repo'")
+    visit project_repositories_path(project: 'home:tom')
+    page.must_have_text('Repositories of home:tom')
+    assert first('strong a', text: "Base_repo")
   end
 
   def test_change_project_info # spec/features/webui/projects_spec.rb
@@ -49,7 +46,7 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     find("select#target_repo").select("SUSE_Linux_10.1")
     click_button("Add path to repository SourceprotectedProject_repo")
 
-    assert_equal "/project/repositories/home:tom", page.current_path
+    assert_equal "/repositories/home:tom", page.current_path
     # Basic repository related information
     page.must_have_text "BaseDistro3/BaseDistro3_repo Apache/SUSE_Linux_10.1"
 
@@ -69,25 +66,6 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
 
     assert path_element
     assert_equal 2, path_element.position
-  end
-
-  def test_save_distributions_with_existing_repository
-    login_tom
-
-    visit "/project/add_repository_from_default_list/home:tom"
-    check("OBS Base 2.0")
-
-    # Fake that the project got added meanwhile, eg. when a user has a second screen open
-    project = Project.find_by(name: "home:tom")
-    repository = Repository.create(db_project_id: project.id, name: "Base_repo")
-    repository.path_elements.create(link: repository, position: 1)
-
-    check("OBS Base 2.0")
-    find("#submitrepos").click
-    page.must_have_text "Can't add repositories: Validation failed: Name Base_repo is already used by a repository of this project."
-    assert_equal "/project/add_repository_from_default_list/home:tom", page.current_path
-  ensure
-    repository.destroy if defined?(:repository)
   end
 
   def test_project_show
@@ -229,7 +207,9 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     find(:link, 'Repositories').click
     find(:link, 'Add repositories').click
     find(:id, 'repo_images').click # aka "KIWI image build" checkbox
-    find_button('Add selected repositories').click
+    page.must_have_text('Successfully added image repository')
+
+    visit project_repositories_path(project: 'home:adrian:hasrepotoremove')
     page.must_have_link('Delete repository')
     logout
 
@@ -276,8 +256,10 @@ class Webui::ProjectControllerTest < Webui::IntegrationTest
     find('#tab-repositories a').click
     find(:link, 'Add repositories').click
     find(:id, 'repo_images').click # aka "KIWI image build" checkbox
-    find_button('Add selected repositories').click
+    page.must_have_text('Successfully added image repository')
 
+    visit project_repositories_path(project: 'home:tom:addrepo')
+    page.must_have_text('Repositories of home:tom:addrepo')
     assert first('strong a', text: "images")
 
     find(:link, 'Add repositories').click

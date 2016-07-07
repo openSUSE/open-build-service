@@ -1,6 +1,6 @@
 <div class="box" style="margin: 1em" id="<%= valid_xml_id(repository.name) %>">
   <h2 class="box-header">Edit <%= repository.name %></h2>
-  <%= form_tag({:action => 'update_target'}, :id => "update_target_form-#{valid_xml_id(repository.name)}") do %>
+  <%= form_tag({ action: :update }, :id => "update_target_form-#{valid_xml_id(repository.name)}") do %>
     <p>
       <b>Architectures:</b>
       <% Architecture.available.each do |architecture| %>
@@ -21,17 +21,18 @@
 
               <% if repository.path_elements.size > 1 %>
                 <% if path != repository.path_elements.first %>
-                  <%= link_to(image_tag('arrow_up.png'), { action: :move_path, project: project, repository: repository, path: path, direction: 'up' }, { class: 'x', method: :post, id: "move_path_up-#{path.link.project_name}_#{path.link.name}" }) -%>
+                  <%= link_to(image_tag('arrow_up.png'), { action: :move_path, project: project, repository: repository, path: path, direction: 'up', controller: :project }, { class: 'x', method: :post, id: "move_path_up-#{path.link.project_name}_#{path.link.name}" }) -%>
                 <% end %>
 
                 <% if path != repository.path_elements.last %>
-                  <%= link_to(image_tag('arrow_down.png'), { action: :move_path, project: project, repository: repository, path: path, direction: 'down'}, { class: 'x', method: :post, id: "move_path_down-#{path.link.project_name}_#{path.link.name}" }) -%>
+                  <%= link_to(image_tag('arrow_down.png'), { action: :move_path, project: project, repository: repository, path: path, direction: 'down', controller: :project }, { class: 'x', method: :post, id: "move_path_down-#{path.link.project_name}_#{path.link.name}" }) -%>
                 <% end %>
               <% end %>
 
               <%= link_to(image_tag('drive_delete.png'), { :action => :remove_path_from_target,
                                                            :project => project, :repository => repository,
-                                                           :path => path },
+                                                           :path => path,
+                                                           controller: :project },
                                                          { data: { confirm: "Really remove #{path.link.project_name} / #{path.link.name} path from repository  '#{repository.name}'?" },
                                                            :class => 'x', :method => :post }) -%>
             <% end %>
@@ -41,8 +42,8 @@
         <% rescue; end %>
       </div>
       <p>
-        <%= link_to(image_tag("drive_add.png", :title => "Add Repository"), :action => 'add_repository', :project => project, :torepository => repository.name) %>
-        <%= link_to( 'Add additional path to this repository', :action => 'add_repository', :project => project, :torepository => repository.name) %>
+        <%= link_to(image_tag("drive_add.png", :title => "Add Repository"), :action => 'new', :project => project, :torepository => repository.name) %>
+        <%= link_to( 'Add additional path to this repository', :action => 'new', :project => project, :torepository => repository.name) %>
       </p>
     </div>
 
