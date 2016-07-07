@@ -30,6 +30,8 @@ OBSApi::Application.configure do
   # Expands the lines which load the assets
   config.assets.logger = nil
   config.assets.debug = true
+  # turn of the asset pipeline log. Previously done by quiet_assets gem.
+  config.assets.quiet = true
 
   # Enable debug logging by default
   config.log_level = :debug
