@@ -1,3 +1,6 @@
+# support waiting for ajax to finish
+require 'support/wait_for_ajax'
+
 RSpec.shared_examples "a flag table" do
   def enable_flag_field_for(flag_attributes)
     change_flag_field_from_to(flag_attributes, "Enable", "Disable")
@@ -17,6 +20,7 @@ RSpec.shared_examples "a flag table" do
     #             text similar to "Enable Take default (disable)"
     subject.find(locator, text: /#{from}/).first("a").click
     # Wait for request to finish
+    wait_for_ajax
     subject.find(locator, text: /#{to}/)
   end
 
@@ -27,7 +31,7 @@ RSpec.shared_examples "a flag table" do
     "tr:nth-child(#{row}) td:nth-child(#{col})"
   end
 
-  # default attributes we gone need to verify flags got updated
+  # default attributes we are going to need to verify flags got updated
   let(:query_attributes) { { repo: nil, architecture_id: nil, flag: flag_type } }
 
   scenario "has correct table headers (arch labels)" do
@@ -38,11 +42,12 @@ RSpec.shared_examples "a flag table" do
       pos = architectures.index(arch) + 3
       # There might be delays when rendering the table. Thus including the
       # text entry to the selector.
+      wait_for_ajax
       subject.find("tr:first-child th:nth-child(#{pos})", text: arch)
     end
   end
 
-  scenario "has correct collum descriptions (repository labels)" do
+  scenario "has correct column descriptions (repository labels)" do
     # Repository | All | $repositories ...
     expect(subject.find("tr:nth-child(1) th:first-child").text).to eq("Repository")
     expect(subject.find("tr:nth-child(2) td:first-child").text).to eq("All")
