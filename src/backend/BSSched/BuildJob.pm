@@ -823,7 +823,7 @@ sub create {
   my $proj = $projpacks->{$projid};
   my $prp = "$projid/$repoid";
   my $srcmd5 = $pdata->{'srcmd5'};
-  my $job = jobname($prp, $packid);
+  my $job = $packid ? jobname($prp, $packid) : undef;
   my @otherjobs;
   my $myjobsdir = $gctx->{'myjobsdir'};
   my $isreposerver = $ctx->{'isreposerver'};
@@ -835,7 +835,7 @@ sub create {
     return ('scheduled', $job) if -s "$myjobsdir/$job";   # obsolete
     @otherjobs = grep {/^\Q$job\E-[0-9a-f]{32}$/} ls($myjobsdir);
   }
-  $job = "$job-$srcmd5" if $srcmd5;
+  $job = "$job-$srcmd5" if defined($job) && $srcmd5;
 
   # a new one. expand usedforbuild. write info file.
   my $buildtype = $pdata->{'buildtype'} || Build::recipe2buildtype($info->{'file'});

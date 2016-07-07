@@ -326,8 +326,8 @@ sub build {
       $needed->{$_}++ for map { $dep2src->{$_} || $_ } @{$edeps->{$p}};
     }
   }
-  $info->{'nounchanged'} = 1 if $ctx->{'cychash'}->{$packid};
-  my ($state, $job) = BSSched::BuildJob::create($ctx, $packid, $pdata, $info, $ctx->{'subpacks'}->{$info->{'name'}} || [], $info->{'edeps'} || $ctx->{'edeps'}->{$packid} || [], $reason, $needed->{$packid} || 0);
+  $info->{'nounchanged'} = 1 if $packid && $ctx->{'cychash'}->{$packid};
+  my ($state, $job) = BSSched::BuildJob::create($ctx, $packid, $pdata, $info, $ctx->{'subpacks'}->{$info->{'name'}} || [], $info->{'edeps'} || $ctx->{'edeps'}->{$packid} || [], $reason, $packid ? ($needed->{$packid} || 0) : 0);
   delete $info->{'nounchanged'};
   return ($state, $job);
 }
