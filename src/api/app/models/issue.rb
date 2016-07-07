@@ -1,6 +1,6 @@
 require 'api_exception'
 
-class Issue < ActiveRecord::Base
+class Issue < ApplicationRecord
   class NotFoundError < APIException
     setup "issue_not_found", 404, "Issue not found"
   end

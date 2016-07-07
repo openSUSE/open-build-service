@@ -1,4 +1,4 @@
-class DownloadRepository < ActiveRecord::Base
+class DownloadRepository < ApplicationRecord
   REPOTYPES = ["rpmmd", "susetags", "deb", "arch", "mdk"]
 
   belongs_to :repository

@@ -1,4 +1,4 @@
-class BinaryRelease < ActiveRecord::Base
+class BinaryRelease < ApplicationRecord
   #### Includes and extends
   #### Constants
   #### Self config

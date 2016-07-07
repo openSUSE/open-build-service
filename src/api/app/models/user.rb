@@ -19,7 +19,7 @@ class UserBasicStrategy
   end
 end
 
-class User < ActiveRecord::Base
+class User < ApplicationRecord
   include CanRenderModel
 
   has_many :taggings, :dependent => :destroy
@@ -170,12 +170,12 @@ class User < ActiveRecord::Base
   # This method allows to execute a block while deactivating timestamp
   # updating.
   def self.execute_without_timestamps
-    old_state = ActiveRecord::Base.record_timestamps
-    ActiveRecord::Base.record_timestamps = false
+    old_state = ApplicationRecord.record_timestamps
+    ApplicationRecord.record_timestamps = false
 
     yield
 
-    ActiveRecord::Base.record_timestamps = old_state
+    ApplicationRecord.record_timestamps = old_state
   end
 
   # This method returns an array which contains all valid hash types.

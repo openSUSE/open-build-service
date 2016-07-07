@@ -1,5 +1,5 @@
 # Specifies own namespaces of attributes
-class AttribNamespace < ActiveRecord::Base
+class AttribNamespace < ApplicationRecord
   #### Includes and extends
   #### Constants
   #### Self config

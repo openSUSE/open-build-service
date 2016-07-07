@@ -1,4 +1,4 @@
-class BackendPackage < ActiveRecord::Base
+class BackendPackage < ApplicationRecord
   #### Includes and extends
   #### Constants
   #### Self config

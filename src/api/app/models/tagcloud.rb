@@ -7,12 +7,12 @@ class Tagcloud
 
   # :scope => "global" | "user" | by_given_objects, :user => user
   def initialize(opt)
-    ActiveRecord::Base.logger.debug "[TAG:] building a new tag cloud."
+    ApplicationRecord.logger.debug "[TAG:] building a new tag cloud."
 
     @limit = opt[:limit] or @limit = 0
 
     if opt[:scope] == "by_given_objects"
-      ActiveRecord::Base.logger.debug "[TAG:] Building tag-cloud by given objects."
+      ApplicationRecord.logger.debug "[TAG:] Building tag-cloud by given objects."
       objects = opt[:objects]
       @tags = []
       # get tags for each object and put them in a list.

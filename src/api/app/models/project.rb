@@ -1,7 +1,7 @@
 require_dependency 'opensuse/backend'
 require_dependency 'has_relationships'
 
-class Project < ActiveRecord::Base
+class Project < ApplicationRecord
   include FlagHelper
   include CanRenderModel
   include HasRelationships

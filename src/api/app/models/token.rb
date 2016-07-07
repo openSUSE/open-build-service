@@ -1,4 +1,4 @@
-class Token < ActiveRecord::Base
+class Token < ApplicationRecord
   belongs_to :user, foreign_key: 'user_id', inverse_of: :tokens
   belongs_to :package, inverse_of: :tokens
 

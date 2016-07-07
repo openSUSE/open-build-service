@@ -1,4 +1,4 @@
-class ChannelTarget < ActiveRecord::Base
+class ChannelTarget < ApplicationRecord
   belongs_to :channel
   belongs_to :repository
   has_one :project, through: :repository

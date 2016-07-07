@@ -3,7 +3,7 @@
 # role. You can then check for it being assigned to a role in your application
 # code.
 #
-class StaticPermission < ActiveRecord::Base
+class StaticPermission < ApplicationRecord
   has_many :roles_static_permissions
 
   has_and_belongs_to_many :roles, -> { uniq() }

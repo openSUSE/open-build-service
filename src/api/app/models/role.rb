@@ -7,7 +7,7 @@ require 'api_exception'
 # These modules contain the actual implementation. It is kept there so
 # you can easily provide your own model files without having to all lines
 # from the engine's directory
-class Role < ActiveRecord::Base
+class Role < ApplicationRecord
   class NotFound < APIException
     setup 404
   end

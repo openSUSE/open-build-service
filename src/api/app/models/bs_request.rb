@@ -5,7 +5,7 @@ require 'workers/accept_requests'
 
 include MaintenanceHelper
 
-class BsRequest < ActiveRecord::Base
+class BsRequest < ApplicationRecord
   class InvalidStateError < APIException
     setup 'request_not_modifiable', 404
   end

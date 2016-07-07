@@ -77,7 +77,7 @@ class FullTextSearch
   # return [Boolean]  true if no exception is raised
   def index_and_start
     # Ensure the connection
-    ActiveRecord::Base.connection_pool.with_connection do |_|
+    ApplicationRecord.connection_pool.with_connection do |_|
       # Use the RakeInterface provided by ThinkingSphinx
       interface = ThinkingSphinx::RakeInterface.new
 

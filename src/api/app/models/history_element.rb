@@ -1,6 +1,6 @@
 module HistoryElement
 # This class represents some kind of history element within the build service
-  class Base < ActiveRecord::Base
+  class Base < ApplicationRecord
     belongs_to :user
 
     self.table_name = 'history_elements'

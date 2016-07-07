@@ -5,7 +5,7 @@ require 'rexml/document'
 require_dependency 'has_relationships'
 require_dependency 'opensuse/validator'
 
-class Package < ActiveRecord::Base
+class Package < ApplicationRecord
   include FlagHelper
   include CanRenderModel
   include ForbidsAnonymousUsers

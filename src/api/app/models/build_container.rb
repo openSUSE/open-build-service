@@ -2,7 +2,7 @@ require 'api_exception'
 require 'builder/xchar'
 require 'rexml/document'
 
-class BuildContainer < ActiveRecord::Base
+class BuildContainer < ApplicationRecord
   belongs_to :package, foreign_key: 'package_id'
   belongs_to :project, foreign_key: 'local_project_id'
   belongs_to :repository_architecture, foreign_key: 'repository_architecture_id'

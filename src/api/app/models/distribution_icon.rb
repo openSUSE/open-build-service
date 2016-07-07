@@ -1,4 +1,4 @@
-class DistributionIcon < ActiveRecord::Base
+class DistributionIcon < ApplicationRecord
   validates_presence_of :url
   # TODO: Allow file-upload later on, probably thru CarrierWave gem
 

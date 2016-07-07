@@ -1,4 +1,4 @@
-class Relationship < ActiveRecord::Base
+class Relationship < ApplicationRecord
   class SaveError < APIException; end
 
   belongs_to :role

@@ -1,4 +1,4 @@
-class EventSubscription < ActiveRecord::Base
+class EventSubscription < ApplicationRecord
   belongs_to :user, inverse_of: :event_subscriptions
   belongs_to :group, inverse_of: :event_subscriptions
 
