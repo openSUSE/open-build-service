@@ -1,7 +1,7 @@
 require 'api_exception'
 require 'xmlhash'
 
-class ConsistencyCheckJob < ActiveJob::Base
+class ConsistencyCheckJob < ApplicationJob
   def fix
     perform(true)
   end
