@@ -318,7 +318,7 @@ class Webui::ProjectController < Webui::WebuiController
     @debuginfo = @project.get_flags('debuginfo')
     @publish = @project.get_flags('publish')
     @useforbuild = @project.get_flags('useforbuild')
-    @architectures = @project.architectures.uniq
+    @architectures = @project.architectures.reorder('name').uniq
   end
 
   def repository_state
