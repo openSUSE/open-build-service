@@ -16,6 +16,7 @@ OBSApi::Application.configure do
 
   # see http://guides.rubyonrails.org/action_mailer_basics.html#example-action-mailer-configuration
   config.action_mailer.delivery_method = :sendmail
+  config.action_mailer.perform_caching = false
 
   config.active_support.deprecation = :log
 
@@ -33,6 +34,9 @@ OBSApi::Application.configure do
 
   # Compress JavaScripts and CSS
   config.assets.compress = true
+  # Compress JavaScripts and CSS.
+  config.assets.js_compressor = :uglifier
+  # config.assets.css_compressor = :sass
 
   # Don't fallback to assets pipeline if a precompiled asset is missed
   config.assets.compile = false
@@ -46,6 +50,22 @@ OBSApi::Application.configure do
 
   # compress our HTML
   config.middleware.use Rack::Deflater
+
+  # Use default logging formatter so that PID and timestamp are not suppressed.
+  config.log_formatter = ::Logger::Formatter.new
+
+  # Use a different logger for distributed setups.
+  # require 'syslog/logger'
+  # config.logger = ActiveSupport::TaggedLogging.new(Syslog::Logger.new 'app-name')
+
+  if ENV["RAILS_LOG_TO_STDOUT"].present?
+    logger           = ActiveSupport::Logger.new(STDOUT)
+    logger.formatter = config.log_formatter
+    config.logger = ActiveSupport::TaggedLogging.new(logger)
+  end
+
+  # Do not dump schema after migrations.
+  config.active_record.dump_schema_after_migration = false
 end
 
 # disabled on production for performance reasons

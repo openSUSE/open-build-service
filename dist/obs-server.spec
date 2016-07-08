@@ -605,6 +605,10 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 %dir /srv/www/obs
 %dir /srv/www/obs/api
 %dir /srv/www/obs/api/config
+%config(noreplace) /srv/www/obs/api/config/cable.yml
+%config(noreplace) /srv/www/obs/api/config/puma.rb
+%config(noreplace) /srv/www/obs/api/config/secrets.yml
+%config(noreplace) /srv/www/obs/api/config/spring.rb
 /srv/www/obs/api/config/initializers
 %dir /srv/www/obs/api/config/environments
 %dir /srv/www/obs/api/files
