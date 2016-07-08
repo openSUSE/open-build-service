@@ -21,7 +21,7 @@ class ValidatorTest < ActiveSupport::TestCase
      end
      assert_match("wrong number of arguments (given 1, expected 2)", exception.message)
 
-     request = ActionController::TestRequest.new
+     request = ActionController::TestRequest.create
      exception = assert_raise Suse::ValidationError do
        Suse::Validator.validate 'link', request.raw_post.to_s
      end
