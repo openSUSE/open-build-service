@@ -33,14 +33,11 @@ use warnings;
 
 use_ok("BSRepServer::BuildInfo");
 
-my ($got,$expected);
+my ($got, $expected);
 
 # Test Case 01
-{
-  ($got) = BSRepServer::BuildInfo->new(projid=>'home:Admin:branches:openSUSE.org:OBS:Server:2.7', repoid=>'images', arch=>'x86_64', packid=>'_product:OBS-Addon-cd-cd-x86_64')->getbuildinfo();
-
-  $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc01", $BSXML::buildinfo);
-}
+$got = BSRepServer::BuildInfo->new('home:Admin:branches:openSUSE.org:OBS:Server:2.7', 'images', 'x86_64', '_product:OBS-Addon-cd-cd-x86_64')->getbuildinfo();
+$expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc01", $BSXML::buildinfo);
 cmp_buildinfo($got, $expected, 'buildinfo for Kiwi Product with remotemap');
 
 exit 0;

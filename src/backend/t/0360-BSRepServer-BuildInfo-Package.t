@@ -32,27 +32,16 @@ $Test::Mock::BSRPC::fixtures_map = {
 };
 
 
-my ($got,$expected);
+my ($got, $expected);
 
 ### Test Case 01
-($got) = BSRepServer::BuildInfo->new(projid=>'openSUSE:13.2', repoid=>'standard', arch=>'i586', packid=>'screen')->getbuildinfo();
+$got = BSRepServer::BuildInfo->new('openSUSE:13.2', 'standard', 'i586', 'screen')->getbuildinfo();
 $expected = BSUtil::readxml("$BSConfig::bsdir/result/tc01", $BSXML::buildinfo);
-
 cmp_buildinfo($got, $expected, 'buildinfo for screen');
 
 # Test Case 02
-{
-  local *STDOUT;
-  my $out;
-  if ( ! $ENV{DEBUG} ) {
-    open(STDOUT,">",\$out);
-  }
-
-  ($got) = BSRepServer::BuildInfo->new(projid=>'home:Admin:branches:openSUSE.org:OBS:Server:Unstable', repoid=>'openSUSE_Leap_42.1', arch=>'x86_64', packid=>'_product:OBS-Addon-release')->getbuildinfo();
-
-  $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc02", $BSXML::buildinfo);
-}
-
+$got = BSRepServer::BuildInfo->new('home:Admin:branches:openSUSE.org:OBS:Server:Unstable', 'openSUSE_Leap_42.1', 'x86_64', '_product:OBS-Addon-release')->getbuildinfo();
+$expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc02", $BSXML::buildinfo);
 cmp_buildinfo($got, $expected, 'buildinfo for regular Package with remotemap');
 
 exit 0;

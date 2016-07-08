@@ -2542,17 +2542,13 @@ sub getbuildinfo {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
 
 
-  return BSRepServer::BuildInfo
-			->new(
-			  projid   => $projid,
-			  repoid   => $repoid,
-			  arch     => $arch,
-			  packid   => $packid,
+  my $binfo = BSRepServer::BuildInfo->new($projid, $repoid, $arch, $packid,
 			  internal => $cgi->{'internal'},
 			  add      => $cgi->{'add'},
 			  deps     => $cgi->{'deps'},
 			  debug    => $cgi->{'debug'}
 			)->getbuildinfo();
+  return ($binfo, $BSXML::buildinfo);
 }
 
 sub getbuildinfo_post {
@@ -2637,18 +2633,14 @@ sub getbuildinfo_post {
   }
   $pdata->{'ldepfile'} = $depfile if defined $depfile;
 
-  return BSRepServer::BuildInfo
-			->new(
-			  projid   => $projid,
-			  repoid   => $repoid,
-			  arch     => $arch,
-			  packid   => $packid,
+  my $binfo = BSRepServer::BuildInfo->new($projid, $repoid, $arch, $packid,
 			  pdata	   => $pdata,
 			  internal => $cgi->{'internal'},
 			  add      => $cgi->{'add'},
 			  deps     => $cgi->{'deps'},
 			  debug    => $cgi->{'debug'}
 			)->getbuildinfo();
+  return ($binfo, $BSXML::buildinfo);
 }
 
 sub getbuilddepinfo {

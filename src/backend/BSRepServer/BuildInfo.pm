@@ -17,21 +17,22 @@ use BSRepServer::ProjPacks;
 use BSSched::BuildJob;		# expandkiwipath
 
 sub new {
-  my $class = shift;
-  my $self  = {@_};
+  my ($class, $projid, $repoid, $arch, $packid, %opts) = @_;
+
+  my $self  = {projid => $projid, repoid => $repoid, arch => $arch, packid => $packid, %opts};
 
   my $gctx = {
-    arch        => $self->{arch},
+    arch        => $arch,
     reporoot    => "$BSConfig::bsdir/build",
     #extrepodir  => "$BSConfig::bsdir/repos",
     #extrepodb   => "$BSConfig::bsdir/db/published",
     remoteproxy => $BSConfig::proxy,
+    projpacks => {},
     remoteprojs => {},
   };
 
-  my $ctx = BSRepServer::Checker->new($gctx, project => $self->{projid}, repository => $self->{repoid});
+  my $ctx = BSRepServer::Checker->new($gctx, project => $projid, repository => $repoid);
 
-  $self->{gctx} = $gctx;
   $self->{ctx} = $ctx;
 
   bless($self, $class);
@@ -42,19 +43,19 @@ sub new {
     $kiwipath = $pdata->{'info'}->[0]->{'path'};
   }
 
-  BSRepServer::ProjPacks::get_projpacks($gctx, $self->{'projid'}, $self->{'repoid'}, $self->{'packid'}, !$pdata, $kiwipath);
-  my $proj = $gctx->{'projpacks'}->{$self->{'projid'}};
+  BSRepServer::ProjPacks::get_projpacks($gctx, $projid, $repoid, $self->{'packid'}, !$pdata, $kiwipath);
+  my $proj = $gctx->{'projpacks'}->{$projid};
   die("did not get project back from src server\n") unless $proj;
-  my $repo = (grep {$_->{'name'} eq $self->{'repoid'}} @{$proj->{'repository'} || []})[0];
+  my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
   die("did not get repository back from src server\n") unless $repo;
   $self->{proj} = $proj;
   $self->{repo} = $repo;
 
   if (!$pdata) {
     # take pdata from projpacks if we don't have it
-    $pdata = $proj->{'package'}->{$self->{'packid'}};
+    $pdata = $proj->{'package'}->{$packid};
     die("no such package\n") unless $pdata;
-    $pdata->{'buildenv'} = getbuildenv($self->{projid}, $self->{repoid}, $self->{arch}, $self->{packid}, $pdata->{'srcmd5'}) if $pdata->{'hasbuildenv'};
+    $pdata->{'buildenv'} = getbuildenv($projid, $repoid, $arch, $self->{packid}, $pdata->{'srcmd5'}) if $pdata->{'hasbuildenv'};
   }
   die("$pdata->{'error'}\n") if $pdata->{'error'};
   die("$pdata->{'buildenv'}->{'error'}\n") if $pdata->{'buildenv'} && $pdata->{'buildenv'}->{'error'};
@@ -64,7 +65,7 @@ sub new {
     $pdata->{'debuginfo'} = $self->{proj}->{'package'}->{$self->{packid}}->{'debuginfo'} if $self->{packid};
   }
   $self->{info} = $pdata->{'info'}->[0];
-  die("bad info\n") unless $self->{info} && $self->{info}->{'repository'} eq $self->{repoid};
+  die("bad info\n") unless $self->{info} && $self->{info}->{'repository'} eq $repoid;
 
   # find build type
   my $buildtype = $pdata->{'buildtype'} || Build::recipe2buildtype($self->{info}->{'file'}) || 'spec';
@@ -141,13 +142,12 @@ sub getbuildinfo {
   my $pdata = $self->{pdata};
   my $info = $self->{info};
   my $ctx = $self->{'ctx'};
-  my $gctx = $self->{'gctx'};
   my $projid = $self->{'projid'};
   my $packid = $self->{'packid'};
   my $repo = $self->{'repo'};
 
   my $buildtype = $pdata->{'buildtype'};
-  my @prpsearchpath = BSRepServer::ProjPacks::expandsearchpath($gctx, $projid, $repo);
+  my @prpsearchpath = BSRepServer::ProjPacks::expandsearchpath($ctx->{'gctx'}, $projid, $repo);
   $ctx->{'prpsearchpath'} = \@prpsearchpath;
 
   $ctx->setup();
@@ -182,7 +182,7 @@ sub getbuildinfo {
   #print Dumper($binfo);
   my %preimghdrmd5s = map {delete($_->{'preimghdrmd5'}) => 1} grep {$_->{'preimghdrmd5'}} @{$binfo->{'bdep'}};
   addpreinstallimg($ctx, $binfo, \%preimghdrmd5s) unless $self->{'internal'};
-  return ($binfo, $BSXML::buildinfo);
+  return $binfo;
 }
 
 1;
