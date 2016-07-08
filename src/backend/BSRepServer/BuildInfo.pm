@@ -13,6 +13,7 @@ use Build;
 
 use BSRepServer;
 use BSRepServer::Checker;
+use BSRepServer::ProjPacks;
 use BSSched::BuildJob;		# expandkiwipath
 
 sub new {
@@ -35,31 +36,32 @@ sub new {
 
   bless($self, $class);
 
-  # get projpack information for generating remotemap
-  $self->get_projpack_via_rpc();
-  $self->{proj} = $self->{projpack}->{'project'}->[0];
-  $self->{repo} = $self->{proj}->{'repository'}->[0];
-
-  $gctx->{'projpacks'}->{$self->{'projid'}} = $self->{'proj'};
-
-  # generate initial remotemap
-  $self->{remotemap} = $gctx->{'remoteprojs'} = { map {$_->{'project'} => $_} @{$self->{projpack}->{'remotemap'} || []} };
-
-  # create pdata (package data) if needed and verify
   my $pdata = $self->{pdata};
+  my $kiwipath;
+  if ($pdata && $pdata->{'info'} && $pdata->{'info'}->[0]) {
+    $kiwipath = $pdata->{'info'}->[0]->{'path'};
+  }
+
+  BSRepServer::ProjPacks::get_projpacks($gctx, $self->{'projid'}, $self->{'repoid'}, $self->{'packid'}, !$pdata, $kiwipath);
+  my $proj = $gctx->{'projpacks'}->{$self->{'projid'}};
+  die("did not get project back from src server\n") unless $proj;
+  my $repo = (grep {$_->{'name'} eq $self->{'repoid'}} @{$proj->{'repository'} || []})[0];
+  die("did not get repository back from src server\n") unless $repo;
+  $self->{proj} = $proj;
+  $self->{repo} = $repo;
+
   if (!$pdata) {
-    $pdata = $self->{proj}->{'package'}->[0];
-    die("no such package\n") unless $pdata && $pdata->{'name'} eq $self->{packid};
-    die("$pdata->{'error'}\n") if $pdata->{'error'};
+    # take pdata from projpacks if we don't have it
+    $pdata = $proj->{'package'}->{$self->{'packid'}};
+    die("no such package\n") unless $pdata;
     $pdata->{'buildenv'} = getbuildenv($self->{projid}, $self->{repoid}, $self->{arch}, $self->{packid}, $pdata->{'srcmd5'}) if $pdata->{'hasbuildenv'};
   }
+  die("$pdata->{'error'}\n") if $pdata->{'error'};
   die("$pdata->{'buildenv'}->{'error'}\n") if $pdata->{'buildenv'} && $pdata->{'buildenv'}->{'error'};
   $self->{pdata} = $pdata;
   if ($self->{packid}) {
-    # take debuginfo from package if we have it
-    $pdata->{'debuginfo'} = $self->{proj}->{'package'}->[0]->{'debuginfo'} if $self->{packid};
-    # fixup packages so that it is a hash (needed for kiwi products)
-    $self->{'proj'}->{'package'} = { $self->{packid} => $pdata };
+    # take debuginfo flags from package if we have it
+    $pdata->{'debuginfo'} = $self->{proj}->{'package'}->{$self->{packid}}->{'debuginfo'} if $self->{packid};
   }
   $self->{info} = $pdata->{'info'}->[0];
   die("bad info\n") unless $self->{info} && $self->{info}->{'repository'} eq $self->{repoid};
@@ -67,39 +69,6 @@ sub new {
   # find build type
   my $buildtype = $pdata->{'buildtype'} || Build::recipe2buildtype($self->{info}->{'file'}) || 'spec';
   $pdata->{'buildtype'} = $buildtype;
-
-  if ($buildtype eq 'kiwi') {
-    my $remotemap = $self->{remotemap};
-    my $info = $self->{'info'};
-    if (@{$info->{'path'} || []}) {
-      # fill in all remotemap entries we need
-      my @args = map {"project=$_->{'project'}"} grep {$_->{'project'} ne '_obsrepositories'} @{$info->{'path'}};
-      if (@args) {
-        push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
-        my $pp = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withremotemap', 'nopackages', @args);
-        $remotemap->{$_->{'project'}} = $_ for @{$pp->{'remotemap'} || []};
-      }
-    }
-    if ($self->{info}->{'imagetype'} && $self->{info}->{'imagetype'}->[0] eq 'product') {
-      # sigh. Need to get the project kind of the involved projects
-      my @prpsearchpath = map {"$_->{'project'}/$_->{'repository'}"} @{$self->{repo}->{'path'} || []};
-      my @aprps = BSSched::BuildJob::expandkiwipath($self->{info}, \@prpsearchpath);
-      my %prjkind;
-      for my $aprp (@aprps) {
-	my ($aprojid) = split('/', $aprp, 2);
-	next if $aprojid eq $self->{'projid'} || $remotemap->{$aprojid};
-	$prjkind{$aprojid} = undef;
-      }
-      if (%prjkind) {
-	print "fetching project kind for ".keys(%prjkind)." projects\n";
-	my $projpack = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'nopackages', 'noremote', 'ignoredisable', map {"project=$_"} sort(keys %prjkind));
-	for my $p (@{$projpack->{'project'} || []}) {
-	  $gctx->{'projpacks'}->{$p->{'name'}}->{'kind'} = $p->{'kind'};
-	}
-      }
-    }
-  }
-
   return $self;
 }
 
@@ -115,34 +84,6 @@ sub getbuildenv {
   return BSRPC::rpc({
     'uri' => "$BSConfig::srcserver/source/$projid/$packid/$bifile",
   }, $BSXML::buildinfo, "rev=$srcmd5");
-}
-
-sub get_projpack_via_rpc {
-  my ($self) = @_;
-  
-  # prepare args for rpc call
-  my @args = ("project=$self->{projid}", "repository=$self->{repoid}", "arch=$self->{arch}", "parseremote=1");
-  if (defined($self->{packid})) {
-    push @args, "package=$self->{packid}";
-  } else {
-    push @args, "nopackages";
-  }
-  push @args, "partition=$BSConfig::partition" if $BSConfig::partition;
-
-  # fetch projpack information via rpc
-  if (!$self->{pdata}) {
-    $self->{projpack} = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withsrcmd5', 'withdeps', 'withrepos', 'expandedrepos', 'withremotemap', 'ignoredisable', @args);
-    die("404 no such project/package/repository\n") unless $self->{projpack}->{'project'};
-  } else {
-    $self->{projpack} = BSRPC::rpc("$BSConfig::srcserver/getprojpack", $BSXML::projpack, 'withrepos', 'expandedrepos', 'withremotemap', @args);
-    die("404 no such project/repository\n") unless $self->{projpack}->{'project'};
-  }
-
-  # verify projpack
-  my $proj = $self->{projpack}->{'project'}->[0];
-  die("no such project\n") unless $proj && $proj->{'name'} eq $self->{projid};
-  my $repo = $proj->{'repository'}->[0];
-  die("no such repository\n") unless $repo && $repo->{'name'} eq $self->{repoid};
 }
 
 sub addpreinstallimg {
@@ -200,13 +141,14 @@ sub getbuildinfo {
   my $pdata = $self->{pdata};
   my $info = $self->{info};
   my $ctx = $self->{'ctx'};
+  my $gctx = $self->{'gctx'};
+  my $projid = $self->{'projid'};
   my $packid = $self->{'packid'};
   my $repo = $self->{'repo'};
 
   my $buildtype = $pdata->{'buildtype'};
-  my @prpsearchpath = map {"$_->{'project'}/$_->{'repository'}"} @{$repo->{'path'} || []};
+  my @prpsearchpath = BSRepServer::ProjPacks::expandsearchpath($gctx, $projid, $repo);
   $ctx->{'prpsearchpath'} = \@prpsearchpath;
-  $repo->{'path'} = [] if $buildtype eq 'kiwi' && @{$repo->{'path'} || []} < 2;		# HACK
 
   $ctx->setup();
   my $bconf = $ctx->{'conf'};
@@ -219,7 +161,7 @@ sub getbuildinfo {
     $binfo = $ctx->buildinfo($packid, $pdata, $info);
   };
   if ($@) {
-    $binfo = BSSched::BuildJob::create_jobdata($ctx, $packid, $pdata, $info, $ctx->{'subpacks'}->{$info->{'name'}});
+    $binfo = BSSched::BuildJob::create_jobdata($ctx, $packid, $pdata, $info, $ctx->{'subpacks'}->{$info->{'name'} || ''});
     $binfo->{'error'} = $@;
     chomp($binfo->{'error'});
   } else {

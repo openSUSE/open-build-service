@@ -52,7 +52,7 @@ sub xrpc {
 
 sub getconfig {
   my ($ctx, $projid, $repoid, $arch, $configpath) = @_;
-  return BSRepServer::getconfig($projid, $repoid, $arch, $configpath);
+  return BSRepServer::ProjPacks::getconfig($ctx->{'gctx'}, $projid, $repoid, $arch, $configpath);
 }
 
 sub setup {
@@ -66,7 +66,7 @@ sub setup {
   my $repo = (grep {$_->{'name'} eq $repoid} @{$projpacks->{$projid}->{'repository'} || []})[0];
   die("no repo $repoid in project $projid?\n") unless $repo;
   $ctx->{'repo'} = $repo;
-  my $bconf = $ctx->getconfig($projid, $repoid, $myarch, $ctx->{'configpath'});
+  my $bconf = $ctx->getconfig($projid, $repoid, $myarch, $ctx->{'prpsearchpath'});
   $ctx->{'conf'} = $bconf;
 }
 

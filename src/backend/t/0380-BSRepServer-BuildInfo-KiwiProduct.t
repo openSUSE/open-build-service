@@ -26,12 +26,8 @@ $BSConfig::bsdir = "$FindBin::Bin/data/0380";
 
 $Test::Mock::BSRPC::fixtures_map = {
   # rpc call to fixture map
-  'srcserver/getconfig?project=home:Admin:branches:openSUSE.org:home:M0ses:kanku:Images&repository=images&path=home:Admin:branches:openSUSE.org:home:M0ses:kanku:Images/images&path=openSUSE.org:openSUSE:Leap:42.1:Update/standard&path=openSUSE.org:openSUSE:Leap:42.1/standard'
-	=> 'srcserver/fixture_002_000',
-  'srcserver/getprojpack?withsrcmd5&withdeps&withrepos&expandedrepos&withremotemap&ignoredisable&project=home:Admin:branches:openSUSE.org:OBS:Server:Unstable&repository=openSUSE_Leap_42.1&arch=x86_64&parseremote=1&package=_product:OBS-Addon-release'
-	=> 'srcserver/fixture_003_000',
-  'srcserver/getconfig?project=home:Admin:branches:openSUSE.org:OBS:Server:Unstable&repository=openSUSE_Leap_42.1'
-	=> 'srcserver/fixture_003_001',
+  'srcserver/getprojpack?project=home:Admin:branches:openSUSE.org:OBS:Server:2.7&repository=images&arch=x86_64&package=_product:OBS-Addon-cd-cd-x86_64&withdeps=1&buildinfo=1'
+	=> 'srcserver/fixture_003_002',
 };
 use warnings;
 

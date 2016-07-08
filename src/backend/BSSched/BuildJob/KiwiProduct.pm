@@ -310,7 +310,7 @@ sub check {
 	return ('broken', $error);
       }
       next if $delayed_errors;
-      if (!$gbininfo && $arch ne $myarch && -d "$gctx->{'eventdir'}/$arch") {
+      if (!$gbininfo && $arch ne $myarch && $gctx->{'eventdir'} && -d "$gctx->{'eventdir'}/$arch") {
 	# mis-use unblocked to tell other scheduler that it is missing
 	print "    requesting :repoinfo for $aprp/$arch\n" if $ctx->{'verbose'};
 	BSSched::EventSource::Directory::sendunblockedevent($gctx, $aprp, $arch);

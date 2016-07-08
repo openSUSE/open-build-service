@@ -25,10 +25,10 @@ use warnings;
 use_ok("BSRepServer::BuildInfo");
 
 $Test::Mock::BSRPC::fixtures_map = {
-  'srcserver/getprojpack?withsrcmd5&withdeps&withrepos&expandedrepos&withremotemap&ignoredisable&project=home:Admin:branches:openSUSE.org:OBS:Server:Unstable&repository=openSUSE_Leap_42.1&arch=x86_64&parseremote=1&package=_product:OBS-Addon-release'
-        => 'srcserver/fixture_003_000',
-  'srcserver/getconfig?project=home:Admin:branches:openSUSE.org:OBS:Server:Unstable&repository=openSUSE_Leap_42.1'
-        => 'srcserver/fixture_003_001',
+  'srcserver/getprojpack?project=openSUSE:13.2&repository=standard&arch=i586&package=screen&withdeps=1&buildinfo=1'
+        => 'srcserver/fixture_003_002',
+  'srcserver/getprojpack?project=home:Admin:branches:openSUSE.org:OBS:Server:Unstable&repository=openSUSE_Leap_42.1&arch=x86_64&package=_product:OBS-Addon-release&withdeps=1&buildinfo=1'
+        => 'srcserver/fixture_003_003',
 };
 
 

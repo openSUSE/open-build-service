@@ -2397,6 +2397,17 @@ sub getprojpack {
     };
   }
   $arch ||= 'noarch';
+  if ($cgi->{'buildinfo'}) {
+    die("getprojpack buildinfo requests must have at least one project parameter\n") unless @{$projids || []} >= 1;
+    die("getprojpack buildinfo requests must have exactly one repository parameter\n") unless @{$repoids || []} == 1;
+    die("getprojpack buildinfo requests must not have more than one package parameter\n") unless @{$packids || []} <= 1;
+    $cgi->{'parseremote'} = 1;
+    $cgi->{'withremotemap'} = 1;
+    $cgi->{'withconfig'} = 1;
+    $cgi->{'withrepos'} = 1;
+    $cgi->{'ignoredisable'} = 1;
+    $cgi->{'nopackages'} = 1 unless @{$packids || []};
+  }
   my $partition = $cgi->{'partition'};
   die("No such partition '$partition'\n") if $partition && $BSConfig::partitionservers && !$BSConfig::partitionservers->{$partition};
   my $remotemap = $cgi->{'withremotemap'} ? {} : undef;
@@ -2441,7 +2452,9 @@ sub getprojpack {
   $frozenlinks_cache = {};
   my %channeldata;
   my @res;
-  for my $projid (@$projids) {
+  my @projids = @$projids;
+  while (@projids) {
+    my $projid = shift @projids;
     my $jinfo = { 'name' => $projid };
     my $proj = readproj($projid, 1);
     if ($remotemap && (!$proj || $proj->{'remoteurl'})) {
@@ -2463,6 +2476,18 @@ sub getprojpack {
     if (!$proj && $cgi->{'parseremote'} && $cgi->{'project'} && $remotemap && $remotemap->{$projid}) {
       $proj = $remotemap->{$projid};
     }
+    if ($cgi->{'buildinfo'}) {
+      if (!@res) {
+        die("project $projid does not exist\n") unless $proj;
+        die("repository $repoids->[0] does not exist\n") unless grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []};
+      } else {
+	# kiwi projects, we just need the project data and config
+	$packids = undef;
+	$repoids = undef;;
+	$cgi->{'nopackages'} = 1;
+	$cgi->{'parseremote'} = 0;
+      }
+    }
     next unless $proj;
     for (qw{kind}) {
       $jinfo->{$_} = $proj->{$_} if exists $proj->{$_};
@@ -2471,10 +2496,9 @@ sub getprojpack {
     my %expandedrepos;
 
     if ($cgi->{'withrepos'}) {
-      if ($repoids) {
+      $jinfo->{'repository'} = $proj->{'repository'} || [];
+      if ($repoids && !$cgi->{'buildinfo'}) {
 	$jinfo->{'repository'} = [ grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []} ];
-      } else {
-        $jinfo->{'repository'} = $proj->{'repository'} || [];
       }
       if ($cgi->{'expandedrepos'}) {
 	$jinfo->{'repository'} = Storable::dclone($jinfo->{'repository'});
@@ -2491,12 +2515,27 @@ sub getprojpack {
 	}
       } elsif ($remotemap) {
 	for my $repo (@{$jinfo->{'repository'}}) {
+	  next if $repoids && !$repoids->{$repo->{'name'}};
 	  eval {
 	    my @prps = expandsearchpath($projid, $repo->{'name'}, $remotemap);
             $expandedrepos{"$projid/$repo->{'name'}"} = [ @prps ];
 	  };
 	  $expandedrepos{"$projid/$repo->{'name'}"} = $@ if $@;
 	}
+      }
+    }
+
+    if ($cgi->{'buildinfo'} && !@res) {
+      # add all projects from the expanded path
+      my $er = $expandedrepos{"$projid/$cgi->{'repository'}->[0]"};
+      die($er) unless ref($er);
+      eval {
+	concatconfigs($projid, $cgi->{'repository'}->[0], $remotemap, @$er);
+      };
+      for my $prp (@$er) {
+        my ($p) = split('/', $prp, 2);
+        next if $remotemap && $remotemap->{$p};
+	push @projids, $p unless $p eq $projid || grep {$_ eq $p} @projids;
       }
     }
 
@@ -2997,10 +3036,19 @@ sub getprojpack {
 	      $rinfo->{$_} = $d->{$_} if exists $d->{$_};
 	    }
 	    if ($remotemap && $rinfo->{'path'}) {
+	      my @kiwipath = map {"$_->{'project'}/$_->{'repository'}"} grep {$_->{'project'} ne '_obsrepositories'} @{$rinfo->{'path'}};
 	      # simple way to fill the remote map
 	      eval {
-		concatconfigs($projid, $repoid, $remotemap, map {"$_->{'project'}/$_->{'repository'}"} grep {$_->{'project'} ne '_obsrepositories'} @{$rinfo->{'path'}});
+		concatconfigs($projid, $repoid, $remotemap, @kiwipath);
 	      };
+	      if ($cgi->{'buildinfo'} && !@res) {
+		# add kiwipath projects
+	        for my $prp (@kiwipath) {
+		  my ($p) = split('/', $prp, 2);
+		  next if $remotemap && $remotemap->{$p};
+		  push @projids, $p unless $p eq $projid || grep {$_ eq $p} @projids;
+	        }
+	      }
 	    }
 	  }
 	  $pinfo->{'info'} = \@dinfo if @dinfo;
@@ -7994,7 +8042,7 @@ my $dispatches = [
   '/published/$project/$repository/$arch:filename/$filename/$subfilename:filename view:?' => \&published,
 
   # scheduler calls
-  '/getprojpack $project* $repository* $package* $arch? withrepos:bool? withsrcmd5:bool? withdeps:bool? withconfig:bool? expandedrepos:bool? ignoredisable:bool? nopackages:bool? withremotemap:bool? noremote:bool? parseremote:bool? partition:? view:?' => \&getprojpack,
+  '/getprojpack $project* $repository* $package* $arch? withrepos:bool? withsrcmd5:bool? withdeps:bool? withconfig:bool? expandedrepos:bool? ignoredisable:bool? nopackages:bool? withremotemap:bool? noremote:bool? parseremote:bool? buildinfo:bool? partition:? view:?' => \&getprojpack,
   'POST:/relsync $project $repository $arch' => \&postrelsync,
   '/relsync $project $repository $arch' => \&getrelsync,
 
