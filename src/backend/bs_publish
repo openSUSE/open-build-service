@@ -1676,6 +1676,7 @@ sub publish {
 	push @db_changed, $arch if $arch =~ /\.(?:$binsufsre)$/;
 	push @changed, $arch;
 	$changed = 1;
+	$bins_done{$arch} = 1;
 	next;
       }
     }
