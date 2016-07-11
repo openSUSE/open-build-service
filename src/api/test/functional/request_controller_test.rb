@@ -84,10 +84,10 @@ XML
     # Should respond with a collection of 2 requests
     assert_select 'collection request', 2
 
-    # Request 1000 should have exactly 4 review elements
-    assert_select 'request[id=1000] review', 4
+    # Request 1000 should have exactly 2 review elements
+    assert_select "request[id='1000'] review", 2
     # Request 4 should have exactly 1 review elements
-    assert_select 'request[id=4] review', 1
+    assert_select "request[id='4'] review", 1
 
     # Should show all data belonging to each request
     assert_select 'collection', matches: 2 do
