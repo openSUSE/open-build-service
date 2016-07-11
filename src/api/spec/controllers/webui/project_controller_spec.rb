@@ -861,4 +861,53 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { expect(assigns(:project).repositories.first.repository_architectures.count).to eq(Architecture.available.count) }
     end
   end
+
+  describe 'GET #remove_target_request_dialog' do
+    it "will succeed with an ajax call" do
+        xhr :get, :remove_target_request_dialog
+        expect(response).to have_http_status(:success)
+    end
+
+    it "with a normal http call will raise an ActionController::RoutingError exception" do
+      expect { get :remove_target_request_dialog }.to raise_error ActionController::RoutingError
+    end
+  end
+
+  describe 'POST #remove_target_request' do
+    before do
+      login user
+    end
+
+    context "without target project" do
+      before do
+        BsRequestActionDelete.expects(:new).raises(BsRequestAction::UnknownTargetProject)
+        post :remove_target_request, project: apache_project, description: 'Fake description'
+      end
+
+      it { expect(flash[:error]).to eq("BsRequestAction::UnknownTargetProject") }
+      it { is_expected.to redirect_to(action: :repositories, project: apache_project) }
+    end
+
+    context "without target package" do
+      before do
+        BsRequestActionDelete.expects(:new).raises(BsRequestAction::UnknownTargetPackage)
+        post :remove_target_request, project: apache_project, description: 'Fake description'
+      end
+
+      it { expect(flash[:error]).to eq("BsRequestAction::UnknownTargetPackage") }
+      it { is_expected.to redirect_to(action: :repositories, project: apache_project) }
+    end
+
+    context "with proper params" do
+      before do
+        post :remove_target_request, project: apache_project, description: 'Fake description'
+      end
+
+      it do
+        expect(flash[:success]).to eq("Created <a href='http://test.host/request/show/#{BsRequest.last.number}'>repository delete " +
+                                      "request #{BsRequest.last.number}</a>")
+      end
+      it { is_expected.to redirect_to(controller: :request, action: :show, number: BsRequest.last.number) }
+    end
+  end
 end
