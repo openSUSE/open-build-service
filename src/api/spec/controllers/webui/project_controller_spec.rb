@@ -899,4 +899,43 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { is_expected.to redirect_to(controller: :request, action: :show, number: BsRequest.last.number) }
     end
   end
+
+  describe 'POST #remove_path_from_target' do
+    let(:path_element) { create(:path_element, repository: repo_for_user_home) }
+
+    before do
+      login user
+    end
+
+    it "without a repository param" do
+      expect { post :remove_path_from_target, project: user }.to raise_error ActiveRecord::RecordNotFound
+    end
+
+    it "with a repository param but without a path param" do
+      expect { post :remove_path_from_target, repository: repo_for_user_home, project: user }.to raise_error ActiveRecord::RecordNotFound
+    end
+
+    context "with a repository and path" do
+      before do
+        post :remove_path_from_target, project: user.home_project, repository: repo_for_user_home, path: path_element
+      end
+
+      it { expect(flash[:success]).to eq("Successfully removed path") }
+      it { is_expected.to redirect_to(action: :repositories, project: user.home_project) }
+      it { expect(repo_for_user_home.path_elements.count).to eq(0)}
+    end
+
+    context "with a target repository but letting the project invalid" do
+      before do
+        request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+        path_element # Needed before stubbing Project#valid? to false
+        Project.any_instance.stubs(:valid?).returns(false)
+        post :remove_path_from_target, project: user.home_project, repository: repo_for_user_home, path: path_element
+      end
+
+      it { expect(flash[:error]).to eq("Can not remove path: ") }
+      it { is_expected.to redirect_to(:back) }
+      it { expect(assigns(:project).repositories.count).to eq(1)}
+    end
+  end
 end
