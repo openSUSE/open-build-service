@@ -464,7 +464,7 @@ sub build {
   my $reason = $data->[4];
   my $prp = "$projid/$repoid";
 
-  my $isreposerver = $ctx->{'isreposerver'};
+  my $dobuildinfo = $ctx->{'dobuildinfo'};
   my @bdeps;
   for my $rpm (BSUtil::unify(@{$rpms || []})) {
     my @b = split('/', $rpm);
@@ -482,7 +482,7 @@ sub build {
         'repoarch' => $b[2],
         'package' => $b[3],
       };
-    } elsif ($isreposerver && ($b[4] =~  /^(.*)-appdata\.xml$/)) {
+    } elsif ($dobuildinfo && ($b[4] =~  /^(.*)-appdata\.xml$/)) {
       $b = {
         'project' => $b[0],
         'repository' => $b[1],
@@ -492,7 +492,7 @@ sub build {
     } else {
       next;
     }
-    if ($isreposerver) {
+    if ($dobuildinfo) {
       $b->{'noinstall'} = 1;
       $b->{'binary'} = $b[4];
       delete $b->{'repoarch'} if $b->{'repoarch'} eq $myarch;

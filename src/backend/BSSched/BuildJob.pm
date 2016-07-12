@@ -776,7 +776,7 @@ sub create_jobdata {
 	$binfo->{'release'} =~ s/\<B_CNT\>/$bcnt/g;
       }
     } else {
-      $binfo->{'release'} = "$release.$bcnt" if $ctx->{'isreposerver'};
+      $binfo->{'release'} = "$release.$bcnt" if $ctx->{'dobuildinfo'};
     }
   }
   my $projpacks = $gctx->{'projpacks'};
@@ -826,7 +826,8 @@ sub create {
   my $job = $packid ? jobname($prp, $packid) : undef;
   my @otherjobs;
   my $myjobsdir = $gctx->{'myjobsdir'};
-  my $isreposerver = $ctx->{'isreposerver'};
+  my $dobuildinfo = $ctx->{'dobuildinfo'};
+
   if ($myjobsdir) {
     if (-s "$myjobsdir/$job-$srcmd5") {
       add_crossmarker($gctx, $bconf->{'hostarch'}, "$job-$srcmd5") if $bconf->{'hostarch'};	# just in case...
@@ -884,7 +885,7 @@ sub create {
     }
     return ('unresolvable', join(', ', @sysdeps));
   }
-  if (!$isreposerver && $BSConfig::enable_download_on_demand) {
+  if (!$ctx->{'isreposerver'} && $BSConfig::enable_download_on_demand) {
     my $dods = BSSched::DoD::dodcheck($ctx, $ctx->{'pool'}, $myarch, Build::get_preinstalls($bconf), Build::get_vminstalls($bconf), @bdeps, @sysdeps);
     if ($dods) {
       print "        blocked: $dods\n" if $ctx->{'verbose'};
@@ -920,7 +921,7 @@ sub create {
       $_->{'installonly'} = 1 if $sysdeps{$n} && !$bdeps{$n} && $buildtype ne 'kiwi';
       $_->{'noinstall'} = 1 if $bdeps{$n} && !($sysdeps{$n} || $vmdeps{$n} || $pdeps{$n});
     }
-    if ($isreposerver) {
+    if ($dobuildinfo) {
       my $p = $ctx->{'dep2pkg'}->{$n};
       my $prp = $ctx->{'pool'}->pkg2reponame($p);
       ($_->{'project'}, $_->{'repository'}) = split('/', $prp, 2) if $prp;

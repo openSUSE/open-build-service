@@ -2379,6 +2379,20 @@ sub mergeroles {
   return (\@person, \@group);
 }
 
+sub readbuildenv {
+  my ($pinfo, $rev, $files, $repoid, $arch) = @_;
+  my $bifile = "_buildenv.$repoid.$arch";
+  $bifile = '_buildenv' unless $files->{$bifile};
+  eval {
+    die("$bifile does not exist\n") unless $files->{$bifile};
+    $pinfo->{'hasbuildenv'} = BSSrcrep::repreadstr($rev, $bifile, $files->{$bifile});
+  };
+  if ($@) {
+    $pinfo->{'error'} = "buildenv: $@";
+    chomp($pinfo->{'error'});
+  }
+}
+
 sub getprojpack {
   my ($cgi, $projids, $repoids, $packids, $arch) = @_;
   local *oldbsrpc = *BSRPC::rpc;
@@ -2479,7 +2493,7 @@ sub getprojpack {
     if ($cgi->{'buildinfo'}) {
       if (!@res) {
         die("project $projid does not exist\n") unless $proj;
-        die("repository $repoids->[0] does not exist\n") unless grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []};
+        die("repository @{keys %$repoids} does not exist\n") unless grep {$repoids->{$_->{'name'}}} @{$proj->{'repository'} || []};
       } else {
 	# kiwi projects, we just need the project data and config
 	$packids = undef;
@@ -2922,7 +2936,10 @@ sub getprojpack {
 	    next;
 	  }
 	  $pinfo->{'constraintsmd5'} = $files->{'_constraints'} if $files->{'_constraints'};
-	  $pinfo->{'hasbuildenv'} = 1 if $files->{'_buildenv'};
+	  if ($files->{'_buildenv'}) {
+	    $pinfo->{'hasbuildenv'} = 1;
+	    readbuildenv($pinfo, $rev, $files, (keys %$repoids)[0], $arch) if $cgi->{'buildinfo'};
+	  }
 	  for my $repo (@{$proj->{'repository'} || []}) {
 	    my $repoid = $repo->{'name'};
 	    next if $repoids && !$repoids->{$repoid};

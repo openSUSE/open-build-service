@@ -14,7 +14,7 @@ use Build;
 use BSRepServer;
 use BSRepServer::Checker;
 use BSRepServer::ProjPacks;
-use BSSched::BuildJob;		# expandkiwipath
+use BSSched::BuildJob;		# create_jobdata
 
 sub new {
   my ($class, $projid, $repoid, $arch, $packid, %opts) = @_;
@@ -34,6 +34,7 @@ sub new {
   my $ctx = BSRepServer::Checker->new($gctx, project => $projid, repository => $repoid);
 
   $self->{ctx} = $ctx;
+  $ctx->{'dobuildinfo'} = 1 unless $opts{'internal'};
 
   bless($self, $class);
 
@@ -48,6 +49,7 @@ sub new {
   die("did not get project back from src server\n") unless $proj;
   my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
   die("did not get repository back from src server\n") unless $repo;
+  $repo->{'block'} = 'never';	# buildinfo never blocks
   $self->{proj} = $proj;
   $self->{repo} = $repo;
 
@@ -55,8 +57,9 @@ sub new {
     # take pdata from projpacks if we don't have it
     $pdata = $proj->{'package'}->{$packid};
     die("no such package\n") unless $pdata;
-    $pdata->{'buildenv'} = getbuildenv($projid, $repoid, $arch, $self->{packid}, $pdata->{'srcmd5'}) if $pdata->{'hasbuildenv'};
+    $pdata->{'buildenv'} = BSUtil::fromxml(delete $pdata->{'hasbuildenv'}, $BSXML::buildinfo) if $pdata->{'hasbuildenv'};
   }
+  delete $pdata->{'hasbuildenv'};
   die("$pdata->{'error'}\n") if $pdata->{'error'};
   die("$pdata->{'buildenv'}->{'error'}\n") if $pdata->{'buildenv'} && $pdata->{'buildenv'}->{'error'};
   $self->{pdata} = $pdata;
@@ -71,20 +74,6 @@ sub new {
   my $buildtype = $pdata->{'buildtype'} || Build::recipe2buildtype($self->{info}->{'file'}) || 'spec';
   $pdata->{'buildtype'} = $buildtype;
   return $self;
-}
-
-sub getbuildenv {
-  my ($projid, $repoid, $arch, $packid, $srcmd5) = @_;
-  my $res = BSRPC::rpc({
-    'uri' => "$BSConfig::srcserver/source/$projid/$packid",
-  }, $BSXML::dir, "rev=$srcmd5");
-  my %entries = map {$_->{'name'} => $_} @{$res->{'entry'} || []};
-  my $bifile = "_buildenv.$repoid.$arch";
-  $bifile = '_buildenv' unless $entries{$bifile};
-  die("srcserver is confused about the buildenv\n") unless $entries{$bifile};
-  return BSRPC::rpc({
-    'uri' => "$BSConfig::srcserver/source/$projid/$packid/$bifile",
-  }, $BSXML::buildinfo, "rev=$srcmd5");
 }
 
 sub addpreinstallimg {
@@ -136,6 +125,26 @@ sub addurltopath {
   }
 }
 
+sub fixupbuildinfo {
+  my ($ctx, $binfo, $info) = @_;
+
+  delete $binfo->{$_} for qw{job needed constraintsmd5 prjconfconstraint nounchanged revtime reason nodbgpkgs nosrcpkgs};
+  delete $binfo->{'reason'};
+  $binfo->{'specfile'} = $binfo->{'file'} if $binfo->{'file'};	# compat
+  if ($binfo->{'syspath'}) {
+    $binfo->{'syspath'} = [] if grep {$_->{'project'} eq '_obsrepositories'} @{$info->{'path'} || []};
+    unshift @{$binfo->{'path'}}, @{delete $binfo->{'syspath'}};
+  }
+  addurltopath($ctx, $binfo);
+  # never use the subpacks from the full tree
+  $binfo->{'subpack'} = $info->{'subpacks'} if $info->{'subpacks'};
+  $binfo->{'subpack'} = [ sort @{$binfo->{'subpack'} } ] if $binfo->{'subpack'};
+  $binfo->{'downloadurl'} = $BSConfig::repodownload if defined $BSConfig::repodownload;
+  $binfo->{'debuginfo'} ||= 0;	# XXX: why?
+  my %preimghdrmd5s = map {delete($_->{'preimghdrmd5'}) => 1} grep {$_->{'preimghdrmd5'}} @{$binfo->{'bdep'}};
+  addpreinstallimg($ctx, $binfo, \%preimghdrmd5s);
+}
+
 sub getbuildinfo {
   my ($self) = @_;
 
@@ -154,6 +163,16 @@ sub getbuildinfo {
   my $bconf = $ctx->{'conf'};
   $bconf->{'type'} = $buildtype if $buildtype;
 
+  # simple expansion hack for Steffen's installation_image
+  if (grep {$_ eq '-simple_expansion_hack'} @{$info->{'dep'} || []}) {
+    delete $bconf->{'ignore'};
+    delete $bconf->{'ignoreh'};
+    $bconf->{'preinstall'} = [];
+    $bconf->{'vminstall'} = [];
+    $bconf->{'required'} = [];
+    $bconf->{'support'} = [];
+  }
+
   $ctx->preparepool($info->{'name'}, $pdata->{'ldepfile'});
   my $binfo;
 
@@ -164,24 +183,8 @@ sub getbuildinfo {
     $binfo = BSSched::BuildJob::create_jobdata($ctx, $packid, $pdata, $info, $ctx->{'subpacks'}->{$info->{'name'} || ''});
     $binfo->{'error'} = $@;
     chomp($binfo->{'error'});
-  } else {
-    delete $binfo->{$_} for qw{job needed constraintsmd5 prjconfconstraint nounchanged revtime reason nodbgpkgs nosrcpkgs};
-    delete $binfo->{'reason'};
   }
-  $binfo->{'specfile'} = $binfo->{'file'} if $binfo->{'file'};	# compat
-  if ($binfo->{'syspath'}) {
-    $binfo->{'syspath'} = [] if grep {$_->{'project'} eq '_obsrepositories'} @{$info->{'path'} || []};
-    unshift @{$binfo->{'path'}}, @{delete $binfo->{'syspath'}};
-  }
-  addurltopath($ctx, $binfo);
-  # never use the subpacks from the full tree
-  $binfo->{'subpack'} = $info->{'subpacks'} if $info->{'subpacks'};
-  $binfo->{'subpack'} = [ sort @{$binfo->{'subpack'} } ] if $binfo->{'subpack'};
-  $binfo->{'downloadurl'} = $BSConfig::repodownload if defined $BSConfig::repodownload;
-  $binfo->{'debuginfo'} ||= 0;	# XXX: why?
-  #print Dumper($binfo);
-  my %preimghdrmd5s = map {delete($_->{'preimghdrmd5'}) => 1} grep {$_->{'preimghdrmd5'}} @{$binfo->{'bdep'}};
-  addpreinstallimg($ctx, $binfo, \%preimghdrmd5s) unless $self->{'internal'};
+  fixupbuildinfo($ctx, $binfo, $info) if $ctx->{'dobuildinfo'};
   return $binfo;
 }
 

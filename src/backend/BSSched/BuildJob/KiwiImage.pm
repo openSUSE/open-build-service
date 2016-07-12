@@ -226,7 +226,7 @@ sub build {
     my $nctx = bless { %$ctx, 'conf' => $bconf, 'prpsearchpath' => [], 'pool' => $epool, 'dep2pkg' => $edep2pkg, 'realctx' => $ctx}, ref($ctx);
     return BSSched::BuildJob::create($nctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
   }
-  if ($ctx->{'isreposerver'}) {
+  if ($ctx->{'dobuildinfo'}) {
     # need to dump the image packages first...
     my @bdeps;
     for my $n (@$edeps) {
