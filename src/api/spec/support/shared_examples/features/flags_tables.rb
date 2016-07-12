@@ -1,6 +1,3 @@
-# support waiting for ajax to finish
-require 'support/wait_for_ajax'
-
 RSpec.shared_examples "a flag table" do
   def enable_flag_field_for(flag_attributes)
     change_flag_field_from_to(flag_attributes, "Enable", "Disable")
@@ -20,7 +17,6 @@ RSpec.shared_examples "a flag table" do
     #             text similar to "Enable Take default (disable)"
     subject.find(locator, text: /#{from}/).first("a").click
     # Wait for request to finish
-    wait_for_ajax
     subject.find(locator, text: /#{to}/)
   end
 
@@ -42,7 +38,6 @@ RSpec.shared_examples "a flag table" do
       pos = architectures.index(arch) + 3
       # There might be delays when rendering the table. Thus including the
       # text entry to the selector.
-      wait_for_ajax
       subject.find("tr:first-child th:nth-child(#{pos})", text: arch)
     end
   end
