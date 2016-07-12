@@ -174,23 +174,24 @@ sub parseArchsets( $ )
 
 sub getUrl( $$$ ){
     my ($product,$arch,$searchstring) = @_;
-    my $url="";
+    my $resulturl="";
     foreach my $url ( @{$product->{'urls'}->{'url'}} ){
         if ( "$url->{'name'}" eq "$searchstring" ){
             if ( exists $url->{'arch'} && "$url->{'arch'}" eq "$arch" ) {
-                my $url = $url->{'_content'};
-                $url =~ s/%{_target_cpu}/$arch/g;
-                return $url;
+                my $u = $url->{'_content'};
+                $u =~ s/%{_target_cpu}/$arch/g;
+                return $u;
             } elsif (exists $url->{'arch'}) {
                 next;
             } else {
-                my $url = $url->{'_content'};
-                $url =~ s/%{_target_cpu}/$arch/g;
-                return $url;
+                my $u = $url->{'_content'};
+                $u =~ s/%{_target_cpu}/$arch/g;
+                $resulturl = $u;
+                # Continue searching, in case we find an architecture match
             }
         }
     }
-    return $url;
+    return $resulturl;
 }
 
 sub createArchitectures( $ )
