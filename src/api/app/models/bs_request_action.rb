@@ -524,19 +524,29 @@ class BsRequestAction < ActiveRecord::Base
       missing_ok_link = false
       suffix          = ''
       tprj            = pkg.project
+
       while tprj == pkg.project
         data = Directory.hashed(project: tprj.name, package: ltpkg)
         e = data['linkinfo']
+
         if e
           suffix = ltpkg.gsub(/^#{Regexp.escape(e['package'])}/, '')
           ltpkg = e['package']
           tprj = Project.get_by_name(e['project'])
-          missing_ok_link=true if e['missingok']
+
+          missing_ok_link = true if e['missingok']
         else
           tprj = nil
         end
       end
-      tpkg = tpkg.gsub(/#{Regexp.escape(suffix)}$/, '') # strip distro specific extension
+
+      if tprj.try(:is_maintenance_incident?) && self.is_maintenance_release?
+        data = Directory.hashed(project: tprj.name, package: ltpkg)
+        e = data['linkinfo']
+        tpkg = e['package'] if e
+      else
+        tpkg = tpkg.gsub(/#{Regexp.escape(suffix)}$/, '') # strip distro specific extension
+      end
       tpkg = self.target_package if self.target_package # already given
 
       # maintenance incident actions need a releasetarget
@@ -637,7 +647,6 @@ class BsRequestAction < ActiveRecord::Base
           end
         end
       end
-
       newAction = self.dup
       newAction.source_package = pkg.name
       if self.is_maintenance_incident?
@@ -932,7 +941,7 @@ class BsRequestAction < ActiveRecord::Base
       query = {}
       query[:expand] = "1" unless self.updatelink
       query[:rev] = self.source_rev if self.source_rev
-      # FIXM2.4 we have a Directory model
+      # FIXME we have a Directory model
       url = Package.source_path(self.source_project, self.source_package, nil, query)
       c = Suse::Backend.get(url).body
       if add_revision and !self.source_rev
