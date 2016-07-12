@@ -383,7 +383,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
     # Should respond with a collection of 1 requests
     assert_select 'collection request', 1
     # Request 1000 should have exactly 4 review elements
-    assert_select 'request[id=1000] review', 4
+    assert_select "request[id='1000'] review", 4
 
     # Should show all data belonging to each request
     assert_select 'collection', matches: 2 do
@@ -402,7 +402,7 @@ class SearchControllerTest < ActionDispatch::IntegrationTest
         assert_select 'description', 'want to see his reaction'
       end
       # XPath search is not expected to find requests of groups adrian belongs to
-      assert_select 'request[id=4]', false
+      assert_select "request[id='4']", false
     end
   end
 
