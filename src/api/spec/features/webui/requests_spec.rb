@@ -137,7 +137,7 @@ RSpec.feature "Requests", :type => :feature, :js => true do
       click_link 'Submit package'
       fill_in 'targetproject', with: target_project.name
       fill_in 'description', with: 'Testing superseeding'
-      check("supersede_request_numbers#{bs_request.id}")
+      check("supersede_request_numbers#{bs_request.number}")
       click_button 'Ok'
       within '#flash-messages' do
         click_link 'submit request'
