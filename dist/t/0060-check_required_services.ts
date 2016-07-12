@@ -11,8 +11,8 @@ my @daemons = qw/obsapidelayed  obsdispatcher  	obspublisher  	obsrepserver
 
 foreach my $srv (@daemons) {
 	my @state=`systemctl is-enabled $srv\.service 2>/dev/null`;
-	chomp($state[0]);
-	is($state[0],"enabled","Checking if recommended service $srv is enabled");
+	chomp($state[-1]);
+	is($state[-1],"enabled","Checking if recommended service $srv is enabled");
 }
 
 my %srv_state=();
