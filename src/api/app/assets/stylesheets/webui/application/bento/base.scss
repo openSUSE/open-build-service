@@ -93,7 +93,7 @@ blockquote{border-left:5px solid #690;color:#666;font-style:italic;}
 #global-navigation li:first-child{border-left-width:1px;}
 #global-navigation li{float:left;border-right-width:1px;}
 #global-navigation li a{color:#fefefe;display:block;height:100%;margin:0 15px;padding-top:7px;text-decoration:none;width:100%;}
-#global-navigation li a:hover, #global-navigation li a:focus{color:#690;}
+#global-navigation li:not(.selected) a:hover{color:#690;}
 #global-favorites{float:right !important;border-left-width:1px;}
 #header-logo{float:left;margin-top:1px;margin-right:25px;}
 #header #global-search-form{float:right;margin-top:4px;position:relative;}
