@@ -435,36 +435,23 @@ class ApplicationController < ActionController::Base
   end
 
   def gather_exception_defaults(opt)
-    if opt[:message]
-      @summary = opt[:message]
-    elsif @exception
-      @summary = @exception.message
-    end
-
+    @summary   = opt[:message] || @exception.try(:message)
     @exception = opt[:exception]
     @errorcode = opt[:errorcode]
 
-    if opt[:status]
-      @status = opt[:status].to_i
-    else
-      @status = 400
-    end
 
-    if @status == 401
+    @status = (opt[:status] || 400).to_i
+    case @status
+    when 401
       response.headers["WWW-Authenticate"] = 'basic realm="API login"'
-    end
-    if @status == 404
+    when 404
       @summary ||= "Not found"
       @errorcode ||= "not_found"
     end
 
     @summary ||= "Internal Server Error"
 
-    if @exception
-      @errorcode ||= 'uncaught_exception'
-    else
-      @errorcode ||= 'unknown'
-    end
+    @errorcode = (@exception ? 'uncaught_exception' : 'unknown')
   end
 
   def render_error( opt = {} )
