@@ -2545,7 +2545,6 @@ sub getbuildinfo {
   my $binfo = BSRepServer::BuildInfo->new($projid, $repoid, $arch, $packid,
 			  internal => $cgi->{'internal'},
 			  add      => $cgi->{'add'},
-			  deps     => $cgi->{'deps'},
 			  debug    => $cgi->{'debug'}
 			)->getbuildinfo();
   return ($binfo, $BSXML::buildinfo);
@@ -2637,7 +2636,6 @@ sub getbuildinfo_post {
 			  pdata	   => $pdata,
 			  internal => $cgi->{'internal'},
 			  add      => $cgi->{'add'},
-			  deps     => $cgi->{'deps'},
 			  debug    => $cgi->{'debug'}
 			)->getbuildinfo();
   return ($binfo, $BSXML::buildinfo);
