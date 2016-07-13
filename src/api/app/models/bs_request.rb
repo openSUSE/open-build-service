@@ -258,6 +258,10 @@ class BsRequest < ActiveRecord::Base
     "<request id='#{self.number}'/>\n"
   end
 
+  def to_param
+    number
+  end
+
   def render_xml(opts = {})
     builder = Nokogiri::XML::Builder.new
     builder.request(id: self.number, creator: self.creator) do |r|
