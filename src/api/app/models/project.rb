@@ -1155,7 +1155,7 @@ class Project < ActiveRecord::Base
   # this function is making the products uniq
   def expand_all_products
     p_map = Hash.new
-    products = Product.joins(:package).where("packages.project_id = ? and packages.name = '_product'", self.id)
+    products = Product.joins(:package).where("packages.project_id = ? and packages.name = '_product'", self.id).to_a
     products.each { |p| p_map[p.cpe] = 1 } # existing packages map
     # second path, all packages from indirect linked projects
     self.linking_to.each do |lp|
