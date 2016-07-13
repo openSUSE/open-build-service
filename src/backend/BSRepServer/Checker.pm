@@ -22,6 +22,7 @@ use Build;
 
 use strict;
 
+use BSSched::BuildJob;
 use BSSched::BuildJob::Package;
 use BSSched::BuildJob::KiwiImage;
 use BSSched::BuildJob::KiwiProduct;
@@ -112,7 +113,11 @@ sub preparepool {
 # see checkpks in BSSched::Checker
 sub buildinfo {
   my ($ctx, $packid, $pdata, $info) = @_;
+
+  my $expanddebug = $ctx->{'expanddebug'};
+  local $Build::expand_dbg = 1 if $expanddebug;
   my $xp = BSSolv::expander->new($ctx->{'pool'}, $ctx->{'conf'});
+  $ctx->{'expander'} = $xp;
   no warnings 'redefine';
   local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
   use warnings 'redefine';
@@ -125,6 +130,7 @@ sub buildinfo {
   die("$pdata->{'error'}\n") if $pdata->{'error'};
   die("$info->{'error'}\n") if $info->{'error'};
   my ($eok, @edeps) = $handler->expand($bconf, $ctx->{'subpacks'}->{$info->{'name'}}, @{$info->{'dep'} || []});
+  BSSched::BuildJob::add_expanddebug($ctx, 'meta deps expansion') if $expanddebug;
   die("unresolvable: ".join(", ", @edeps)."\n") unless $eok;
   $info->{'edeps'} = \@edeps;
   my ($status, $error) = $handler->check($ctx, $packid, $pdata, $info, $bconf->{'type'});

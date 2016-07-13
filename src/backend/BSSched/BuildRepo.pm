@@ -298,7 +298,7 @@ sub fctx_gbininfo2full {
         my $or = $full{$r->{'name'}};
         $full{$r->{'name'}} = $r if $or && $or->{'packid'} eq '_volatile' && volatile_cmp($r, $or);
       }
-      $full{$r->{'name'}} ||= $r;
+      $full{$r->{'name'}} ||= $r;		# first one wins
     }
   }
   delete $gbininfo->{$oldpackid} if defined($oldpackid) && !$hadoldpackid;

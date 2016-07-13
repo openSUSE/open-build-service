@@ -788,6 +788,31 @@ sub create_jobdata {
   return $binfo;
 }
 
+=head2 add_expanddebug - add debug data from the expander
+
+ input:  $ctx           - prp context
+         $type          - expandsion type information 
+         $xp            - expander (optional)
+
+=cut
+
+sub add_expanddebug {
+  my ($ctx, $type, $xp) = @_;
+  my $expanddebug = $ctx->{'expanddebug'};
+  return unless ref($expanddebug);
+  $xp ||= $ctx->{'expander'};
+  return unless $xp;
+  return unless defined &BSSolv::expander::debugstr;
+  my $dbg = $xp->debugstr();
+  return unless $dbg;
+  $dbg = substr($dbg, $ctx->{"xp_cut_hack$xp"}) if $ctx->{"xp_cut_hack$xp"};
+  return unless $dbg;
+  $$expanddebug .= "\n" if $$expanddebug;
+  $$expanddebug .= "=== $type\n";
+  $$expanddebug .= $dbg;
+  $dbg = $xp->debugstr();
+  $ctx->{"xp_cut_hack$xp"} = length($dbg) if $dbg;	# sigh
+}
 
 =head2 create - create a new build job
 
@@ -840,8 +865,6 @@ sub create {
 
   # a new one. expand usedforbuild. write info file.
   my $buildtype = $pdata->{'buildtype'} || Build::recipe2buildtype($info->{'file'});
-  my $kiwitype = '';
-  $kiwitype = $info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product' ? 'product' : 'image' if $buildtype eq 'kiwi';
 
   my $syspath;
   my $searchpath = path2buildinfopath($gctx, $ctx->{'prpsearchpath'});
@@ -852,24 +875,31 @@ sub create {
   }
 
   # calculate sysdeps (cannot cache in the kiwi case)
+  my $expanddebug = $ctx->{'expanddebug'};
+
   my @sysdeps;
   if ($buildtype eq 'kiwi') {
-    @sysdeps = Build::get_sysbuild($bconf, "kiwi-$kiwitype", [ grep {/^kiwi-.*:/} @{$info->{'dep'} || []} ]);
+    my $kiwitype = '';
+    $kiwitype = $info->{'imagetype'} && $info->{'imagetype'}->[0] eq 'product' ? 'kiwi-product' : 'kiwi-image';
+    @sysdeps = grep {/^kiwi-.*:/} @{$info->{'dep'} || []};
+    @sysdeps = Build::get_sysbuild($bconf, $kiwitype, [ @sysdeps,  @{$ctx->{'extradeps'} || []} ]);
   } else {
     $ctx->{"sysbuild_$buildtype"} ||= [ Build::get_sysbuild($bconf, $buildtype) ];
     @sysdeps = @{$ctx->{"sysbuild_$buildtype"}};
   }
+  add_expanddebug($ctx,'sysdeps expansion') if $expanddebug && @sysdeps;
 
   # calculate packages needed for building
   my @bdeps = grep {!/^\// || $bconf->{'fileprovides'}->{$_}} @{$info->{'prereq'} || []};
   unshift @bdeps, '--directdepsend--' if @bdeps;
-  unshift @bdeps, @{$info->{'dep'} || []};
+  unshift @bdeps, @{$info->{'dep'} || []}, @{$ctx->{'extradeps'} || []};
   push @bdeps, '--ignoreignore--' if @sysdeps;
 
   if ($buildtype eq 'kiwi' || $buildtype eq 'buildenv') {
     @bdeps = (1, @$edeps);      # reuse edeps packages, no need to expand again
   } else {
     @bdeps = Build::get_build($bconf, $subpacks, @bdeps);
+    add_expanddebug($ctx, 'build expansion') if $expanddebug;
   }
   if (!shift(@bdeps)) {
     if ($ctx->{'verbose'}) {

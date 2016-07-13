@@ -183,6 +183,7 @@ sub check {
     use warnings 'redefine';
     my ($eok, @kdeps) = Build::get_sysbuild($bconf, 'kiwi-product', [ grep {/^kiwi-.*:/} @{$info->{'dep'} || []} ]);
     if (!$eok) {
+      BSSched::BuildJob::add_expanddebug($ctx, 'kiwi sysdeps expansion', $xp) if $ctx->{'expanddebug'};
       if ($ctx->{'verbose'}) {
         print "      - $packid (kiwi-product)\n";
         print "        unresolvable for sysbuild:\n";
@@ -457,11 +458,7 @@ sub build {
   my $remoteprojs = $gctx->{'remoteprojs'};
   my $gdst = $ctx->{'gdst'};
 
-  my $bconf = $data->[0];
-  my $rpms = $data->[1];
-  my $pool = $data->[2];
-  my $dep2pkg = $data->[3];
-  my $reason = $data->[4];
+  my ($bconf, $rpms, $pool, $dep2pkg, $reason) = @$data;
   my $prp = "$projid/$repoid";
 
   my $dobuildinfo = $ctx->{'dobuildinfo'};
@@ -508,7 +505,7 @@ sub build {
   local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
   use warnings 'redefine';
 
-  my $nctx = bless { %$ctx, 'prpsearchpath' => $prpsearchpath, 'conf' => $bconf, 'pool' => $pool, 'dep2pkg' => $dep2pkg, 'extrabdeps' => \@bdeps, 'realctx' => $ctx}, ref($ctx);
+  my $nctx = bless { %$ctx, 'prpsearchpath' => $prpsearchpath, 'conf' => $bconf, 'pool' => $pool, 'dep2pkg' => $dep2pkg, 'extrabdeps' => \@bdeps, 'realctx' => $ctx, 'expander' => $xp}, ref($ctx);
   return BSSched::BuildJob::create($nctx, $packid, $pdata, $info, [], [], $reason, 0);
 }
 

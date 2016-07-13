@@ -35,6 +35,9 @@ sub new {
 
   $self->{ctx} = $ctx;
   $ctx->{'dobuildinfo'} = 1 unless $opts{'internal'};
+  $ctx->{'extradeps'} = $opts{'add'} if $opts{'add'};
+  my $debugoutput = '';
+  $ctx->{'expanddebug'} = \$debugoutput if $opts{'debug'};
 
   bless($self, $class);
 
@@ -143,6 +146,7 @@ sub fixupbuildinfo {
   $binfo->{'debuginfo'} ||= 0;	# XXX: why?
   my %preimghdrmd5s = map {delete($_->{'preimghdrmd5'}) => 1} grep {$_->{'preimghdrmd5'}} @{$binfo->{'bdep'}};
   addpreinstallimg($ctx, $binfo, \%preimghdrmd5s);
+  $binfo->{'expanddebug'} = ${$ctx->{'expanddebug'}} if $ctx->{'expanddebug'};
 }
 
 sub getbuildinfo {

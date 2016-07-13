@@ -132,11 +132,14 @@ sub check {
   delete $bconf->{'ignoreh'};
 
   my @deps = @{$info->{'dep'} || []};
+  my $expanddebug = $ctx->{'expanddebug'};
+  local $Build::expand_dbg = 1 if $expanddebug;
   my $xp = BSSolv::expander->new($pool, $bconf);
   no warnings 'redefine';
   local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
   use warnings 'redefine';
   my ($eok, @edeps) = Build::get_build($bconf, [], @deps, '--ignoreignore--');
+  BSSched::BuildJob::add_expanddebug($ctx, 'kiwi image expansion', $xp) if $expanddebug;
   if (!$eok) {
     if ($ctx->{'verbose'}) {
       print "      - $packid (kiwi-image)\n";
@@ -223,7 +226,7 @@ sub build {
     no warnings 'redefine';
     local *Build::expand = sub { $_[0] = $xp; goto &BSSolv::expander::expand; };
     use warnings 'redefine';
-    my $nctx = bless { %$ctx, 'conf' => $bconf, 'prpsearchpath' => [], 'pool' => $epool, 'dep2pkg' => $edep2pkg, 'realctx' => $ctx}, ref($ctx);
+    my $nctx = bless { %$ctx, 'conf' => $bconf, 'prpsearchpath' => [], 'pool' => $epool, 'dep2pkg' => $edep2pkg, 'realctx' => $ctx, 'expander' => $xp}, ref($ctx);
     return BSSched::BuildJob::create($nctx, $packid, $pdata, $info, [], $edeps, $reason, 0);
   }
   if ($ctx->{'dobuildinfo'}) {
