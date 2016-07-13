@@ -7,7 +7,9 @@ use lib "$FindBin::Bin/lib/";
 
 use Test::Mock::BSRPC;
 use Test::Mock::BSConfig;
+use Test::OBS::Utils;
 use Test::OBS;
+use Test::Mock::BSRepServer::Checker;
 
 use Test::More tests => 3;                      # last test to print
 
@@ -35,12 +37,12 @@ $Test::Mock::BSRPC::fixtures_map = {
 my ($got, $expected);
 
 ### Test Case 01
-$got = BSRepServer::BuildInfo->new('openSUSE:13.2', 'standard', 'i586', 'screen')->getbuildinfo();
-$expected = BSUtil::readxml("$BSConfig::bsdir/result/tc01", $BSXML::buildinfo);
+$got = BSRepServer::BuildInfo::buildinfo('openSUSE:13.2', 'standard', 'i586', 'screen');
+$expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc01", $BSXML::buildinfo);
 cmp_buildinfo($got, $expected, 'buildinfo for screen');
 
 # Test Case 02
-$got = BSRepServer::BuildInfo->new('home:Admin:branches:openSUSE.org:OBS:Server:Unstable', 'openSUSE_Leap_42.1', 'x86_64', '_product:OBS-Addon-release')->getbuildinfo();
+$got = BSRepServer::BuildInfo::buildinfo('home:Admin:branches:openSUSE.org:OBS:Server:Unstable', 'openSUSE_Leap_42.1', 'x86_64', '_product:OBS-Addon-release');
 $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc02", $BSXML::buildinfo);
 cmp_buildinfo($got, $expected, 'buildinfo for regular Package with remotemap');
 

@@ -16,8 +16,6 @@ use Test::More tests => 2;                      # last test to print
 use BSUtil;
 use BSXML;
 use Data::Dumper;
-use XML::Structured;
-
 
 no warnings 'once';
 # preparing data directory for testcase 1
@@ -36,7 +34,7 @@ use_ok("BSRepServer::BuildInfo");
 my ($got, $expected);
 
 # Test Case 01
-$got = BSRepServer::BuildInfo->new('home:Admin:branches:openSUSE.org:OBS:Server:2.7', 'images', 'x86_64', '_product:OBS-Addon-cd-cd-x86_64')->getbuildinfo();
+$got = BSRepServer::BuildInfo::buildinfo('home:Admin:branches:openSUSE.org:OBS:Server:2.7', 'images', 'x86_64', '_product:OBS-Addon-cd-cd-x86_64');
 $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc01", $BSXML::buildinfo);
 cmp_buildinfo($got, $expected, 'buildinfo for Kiwi Product with remotemap');
 

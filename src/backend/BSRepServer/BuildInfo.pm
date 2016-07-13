@@ -16,48 +16,42 @@ use BSRepServer::Checker;
 use BSRepServer::ProjPacks;
 use BSSched::BuildJob;		# create_jobdata
 
-sub new {
-  my ($class, $projid, $repoid, $arch, $packid, %opts) = @_;
+#
+# options:
+#   - pdata:     parsed package data (from buildinfo POST requests)
+#   - debug:     attach expanddebug
+#   - add:       also install those packages
+#   - internal:  generate job data instead of buildinfo
+#
+sub buildinfo {
+  my ($projid, $repoid, $arch, $packid, %opts) = @_;
 
-  my $self  = {projid => $projid, repoid => $repoid, arch => $arch, packid => $packid, %opts};
-
+  # create global context
   my $gctx = {
     arch        => $arch,
     reporoot    => "$BSConfig::bsdir/build",
     #extrepodir  => "$BSConfig::bsdir/repos",
     #extrepodb   => "$BSConfig::bsdir/db/published",
     remoteproxy => $BSConfig::proxy,
-    projpacks => {},
+    projpacks   => {},
     remoteprojs => {},
   };
 
-  my $ctx = BSRepServer::Checker->new($gctx, project => $projid, repository => $repoid);
-
-  $self->{ctx} = $ctx;
-  $ctx->{'dobuildinfo'} = 1 unless $opts{'internal'};
-  $ctx->{'extradeps'} = $opts{'add'} if $opts{'add'};
-  my $debugoutput = '';
-  $ctx->{'expanddebug'} = \$debugoutput if $opts{'debug'};
-
-  bless($self, $class);
-
-  my $pdata = $self->{pdata};
+  # get needed info from the src server
+  my $pdata = $opts{'pdata'};
   my $kiwipath;
   if ($pdata && $pdata->{'info'} && $pdata->{'info'}->[0]) {
     $kiwipath = $pdata->{'info'}->[0]->{'path'};
   }
-
-  BSRepServer::ProjPacks::get_projpacks($gctx, $projid, $repoid, $self->{'packid'}, !$pdata, $kiwipath);
+  BSRepServer::ProjPacks::get_projpacks($gctx, $projid, $repoid, $packid, !$pdata, $kiwipath);
   my $proj = $gctx->{'projpacks'}->{$projid};
   die("did not get project back from src server\n") unless $proj;
   my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
   die("did not get repository back from src server\n") unless $repo;
   $repo->{'block'} = 'never';	# buildinfo never blocks
-  $self->{proj} = $proj;
-  $self->{repo} = $repo;
 
+  # take pdata from projpacks if we don't have it
   if (!$pdata) {
-    # take pdata from projpacks if we don't have it
     $pdata = $proj->{'package'}->{$packid};
     die("no such package\n") unless $pdata;
     $pdata->{'buildenv'} = BSUtil::fromxml(delete $pdata->{'hasbuildenv'}, $BSXML::buildinfo) if $pdata->{'hasbuildenv'};
@@ -65,18 +59,62 @@ sub new {
   delete $pdata->{'hasbuildenv'};
   die("$pdata->{'error'}\n") if $pdata->{'error'};
   die("$pdata->{'buildenv'}->{'error'}\n") if $pdata->{'buildenv'} && $pdata->{'buildenv'}->{'error'};
-  $self->{pdata} = $pdata;
-  if ($self->{packid}) {
-    # take debuginfo flags from package if we have it
-    $pdata->{'debuginfo'} = $self->{proj}->{'package'}->{$self->{packid}}->{'debuginfo'} if $self->{packid};
-  }
-  $self->{info} = $pdata->{'info'}->[0];
-  die("bad info\n") unless $self->{info} && $self->{info}->{'repository'} eq $repoid;
+
+  # take debuginfo flags from package meta if we have it
+  $pdata->{'debuginfo'} ||= $proj->{'package'}->{$packid}->{'debuginfo'} if $packid;
+
+  # get info
+  my $info = $pdata->{'info'}->[0];
+  die("bad info\n") unless $info && $info->{'repository'} eq $repoid;
 
   # find build type
-  my $buildtype = $pdata->{'buildtype'} || Build::recipe2buildtype($self->{info}->{'file'}) || 'spec';
+  my $buildtype = $pdata->{'buildtype'} || Build::recipe2buildtype($info->{'file'}) || 'spec';
   $pdata->{'buildtype'} = $buildtype;
-  return $self;
+
+  # create checker
+  my $ctx = BSRepServer::Checker->new($gctx, project => $projid, repository => $repoid);
+  $ctx->{'dobuildinfo'} = 1 unless $opts{'internal'};
+  $ctx->{'extradeps'} = $opts{'add'} if $opts{'add'};
+  my $debugoutput = '';
+  $ctx->{'expanddebug'} = \$debugoutput if $opts{'debug'};
+
+  my @prpsearchpath = BSRepServer::ProjPacks::expandsearchpath($ctx->{'gctx'}, $projid, $repo);
+  $ctx->{'prpsearchpath'} = \@prpsearchpath;
+
+  # setup config
+  $ctx->setup();
+  my $bconf = $ctx->{'conf'};
+  $bconf->{'type'} = $buildtype;
+
+  # simple expansion hack for Steffen's installation_image
+  simple_expansion_hack($bconf) if grep {$_ eq '-simple_expansion_hack'} @{$info->{'dep'} || []};
+
+  # add repositories
+  $ctx->preparepool($info->{'name'}, $pdata->{'ldepfile'});
+
+  # create buildinfo
+  my $binfo;
+  eval {
+    $binfo = $ctx->buildinfo($packid, $pdata, $info);
+  };
+  if ($@) {
+    $binfo = BSSched::BuildJob::create_jobdata($ctx, $packid, $pdata, $info, $ctx->{'subpacks'}->{$info->{'name'} || ''});
+    $binfo->{'error'} = $@;
+    chomp($binfo->{'error'});
+  }
+
+  fixupbuildinfo($ctx, $binfo, $info) if $ctx->{'dobuildinfo'};
+  return $binfo;
+}
+
+sub simple_expansion_hack {
+  my ($bconf) = @_;
+  delete $bconf->{'ignore'};
+  delete $bconf->{'ignoreh'};
+  $bconf->{'preinstall'} = [];
+  $bconf->{'vminstall'} = [];
+  $bconf->{'required'} = [];
+  $bconf->{'support'} = [];
 }
 
 sub addpreinstallimg {
@@ -147,49 +185,6 @@ sub fixupbuildinfo {
   my %preimghdrmd5s = map {delete($_->{'preimghdrmd5'}) => 1} grep {$_->{'preimghdrmd5'}} @{$binfo->{'bdep'}};
   addpreinstallimg($ctx, $binfo, \%preimghdrmd5s);
   $binfo->{'expanddebug'} = ${$ctx->{'expanddebug'}} if $ctx->{'expanddebug'};
-}
-
-sub getbuildinfo {
-  my ($self) = @_;
-
-  my $pdata = $self->{pdata};
-  my $info = $self->{info};
-  my $ctx = $self->{'ctx'};
-  my $projid = $self->{'projid'};
-  my $packid = $self->{'packid'};
-  my $repo = $self->{'repo'};
-
-  my $buildtype = $pdata->{'buildtype'};
-  my @prpsearchpath = BSRepServer::ProjPacks::expandsearchpath($ctx->{'gctx'}, $projid, $repo);
-  $ctx->{'prpsearchpath'} = \@prpsearchpath;
-
-  $ctx->setup();
-  my $bconf = $ctx->{'conf'};
-  $bconf->{'type'} = $buildtype if $buildtype;
-
-  # simple expansion hack for Steffen's installation_image
-  if (grep {$_ eq '-simple_expansion_hack'} @{$info->{'dep'} || []}) {
-    delete $bconf->{'ignore'};
-    delete $bconf->{'ignoreh'};
-    $bconf->{'preinstall'} = [];
-    $bconf->{'vminstall'} = [];
-    $bconf->{'required'} = [];
-    $bconf->{'support'} = [];
-  }
-
-  $ctx->preparepool($info->{'name'}, $pdata->{'ldepfile'});
-  my $binfo;
-
-  eval {
-    $binfo = $ctx->buildinfo($packid, $pdata, $info);
-  };
-  if ($@) {
-    $binfo = BSSched::BuildJob::create_jobdata($ctx, $packid, $pdata, $info, $ctx->{'subpacks'}->{$info->{'name'} || ''});
-    $binfo->{'error'} = $@;
-    chomp($binfo->{'error'});
-  }
-  fixupbuildinfo($ctx, $binfo, $info) if $ctx->{'dobuildinfo'};
-  return $binfo;
 }
 
 1;

@@ -16,7 +16,6 @@ use Test::More tests => 3;                      # last test to print
 use BSUtil;
 use BSXML;
 use Data::Dumper;
-use XML::Structured;
 
 
 
@@ -39,12 +38,12 @@ use_ok("BSRepServer::BuildInfo");
 my ($got, $expected);
 
 # Test Case 01
-$got = BSRepServer::BuildInfo->new('home:M0ses:kanku:Images', 'images', 'x86_64', 'openSUSE-Leap-42.1-JeOS')->getbuildinfo();
+$got = BSRepServer::BuildInfo::buildinfo('home:M0ses:kanku:Images', 'images', 'x86_64', 'openSUSE-Leap-42.1-JeOS');
 $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc01", $BSXML::buildinfo);
 cmp_buildinfo($got, $expected, 'buildinfo for Kiwi Image');
 
 # Test Case 02
-$got = BSRepServer::BuildInfo->new('home:Admin:branches:openSUSE.org:home:M0ses:kanku:Images', 'images', 'x86_64', 'openSUSE-Leap-42.1-JeOS')->getbuildinfo();
+$got = BSRepServer::BuildInfo::buildinfo('home:Admin:branches:openSUSE.org:home:M0ses:kanku:Images', 'images', 'x86_64', 'openSUSE-Leap-42.1-JeOS');
 $expected = Test::OBS::Utils::readxmlxz("$BSConfig::bsdir/result/tc02", $BSXML::buildinfo);
 cmp_buildinfo($got, $expected, 'buildinfo for Kiwi Image with remotemap');
 

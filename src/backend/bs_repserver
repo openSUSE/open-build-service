@@ -2540,13 +2540,11 @@ $Build::Kiwi::urlmapper = \&kiwiurlmapper;
 
 sub getbuildinfo {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
-
-
-  my $binfo = BSRepServer::BuildInfo->new($projid, $repoid, $arch, $packid,
-			  internal => $cgi->{'internal'},
-			  add      => $cgi->{'add'},
-			  debug    => $cgi->{'debug'}
-			)->getbuildinfo();
+  my $binfo = BSRepServer::BuildInfo::buildinfo($projid, $repoid, $arch, $packid,
+	  internal => $cgi->{'internal'},
+	  add      => $cgi->{'add'},
+	  debug    => $cgi->{'debug'},
+	);
   return ($binfo, $BSXML::buildinfo);
 }
 
@@ -2632,12 +2630,12 @@ sub getbuildinfo_post {
   }
   $pdata->{'ldepfile'} = $depfile if defined $depfile;
 
-  my $binfo = BSRepServer::BuildInfo->new($projid, $repoid, $arch, $packid,
-			  pdata	   => $pdata,
-			  internal => $cgi->{'internal'},
-			  add      => $cgi->{'add'},
-			  debug    => $cgi->{'debug'}
-			)->getbuildinfo();
+  my $binfo = BSRepServer::BuildInfo::buildinfo($projid, $repoid, $arch, $packid,
+	  pdata	   => $pdata,
+	  internal => $cgi->{'internal'},
+	  add      => $cgi->{'add'},
+	  debug    => $cgi->{'debug'},
+	);
   return ($binfo, $BSXML::buildinfo);
 }
 
