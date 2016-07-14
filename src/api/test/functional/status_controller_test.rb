@@ -105,7 +105,9 @@ class StatusControllerTest < ActionDispatch::IntegrationTest
       end
 
       get "/status/history?hours=5&samples=10&key=idle_i586"
-      assert_not_nil assigns(@samples)
+      assert_select "history" do
+        assert_select "value", 0
+      end
     end
   end
 end
