@@ -119,7 +119,7 @@ RSpec.describe Webui::UserController do
 
     it 'renders the requests as json' do
       get :requests, { :format => :json }
-      expect(response.body).to eq({sEcho: 2, iTotalRecords: 1, iTotalDisplayRecords: 1, aaData: []}.to_json)
+      expect(response.body).to eq({sEcho: 2, iTotalRecords: 1, iTotalDisplayRecords: 1, data: []}.to_json)
     end
   end
 

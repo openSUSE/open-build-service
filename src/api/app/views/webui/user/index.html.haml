@@ -10,7 +10,7 @@
     = link_to(sprited_text('user_add', ' Create new user'), :controller => :user, :action => :register_user)
 
   - unless @users.empty?
-    %table#user_table
+    %table.compact#user_table
       %thead
         %tr
           %td

@@ -1,5 +1,5 @@
 <% unless @files.blank? %>
-    <table id="files_table">
+    <table id="files_table" class="compact">
       <thead>
       <tr>
         <th>Filename</th>
@@ -41,7 +41,7 @@
     </table>
     <% content_for :ready_function do %>
         $('#files_table').dataTable({
-        'aoColumns': [null, null, null, {'bSortable': false}],
+        'columns': [null, null, null, {'orderable': false}],
         });
     <% end %>
 <% else %>

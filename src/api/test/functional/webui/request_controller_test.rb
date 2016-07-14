@@ -300,7 +300,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     result = ActiveSupport::JSON.decode(@response.body)
     assert_equal 2, result["sEcho"]
     assert_equal 0, result["iTotalRecords"]
-    assert_equal [], result["aaData"]
+    assert_equal [], result["data"]
   end
 
   def test_going_through_request_list

@@ -6,7 +6,7 @@
 
 - if @parentprojects.present?
   %h3 Parent projects of #{@project}
-  %table#parentprojects_table
+  %table.compact.stripe.no-footer#parentprojects_table
     %thead
       %tr
         %th Parent project
@@ -20,7 +20,7 @@
 %h3= @pagetitle
 - prjlen = @project.name.length
 - if @subprojects.present?
-  %table#subprojects_table
+  %table.compact.stripe.no-footer#subprojects_table
     %thead
       %tr
         %th Subproject

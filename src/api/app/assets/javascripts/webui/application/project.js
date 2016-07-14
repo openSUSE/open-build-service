@@ -1,20 +1,22 @@
 function renderPackagesTable(wrapper, packages, length) {
     length = (typeof length === "undefined") ? 25 : length;
     var packageurl = $("#" + wrapper).data("url");
-    $("#" + wrapper).html('<table cellpadding="0" cellspacing="0" border="0" class="display" id="' + wrapper + '_table"></table>');
-    $("#" + wrapper + "_table").dataTable({"aaData": packages,
-        "bSort": false,
-        "bPaginate": packages.length > 12,
-        "aoColumns": [
+    $("#" + wrapper).html('<table cellpadding="0" cellspacing="0" border="0" class="compact stripe" id="' + wrapper + '_table"></table>');
+    $("#" + wrapper + "_table").dataTable({
+        "data": packages,
+        "ordering": false,
+        "paging": packages.length > 12,
+        "pagingType": "simple",
+        "columns": [
             {
-                "fnRender": function (obj) {
-                    var url = packageurl.replace(/REPLACEIT/, obj.aData);
-                    return '<a href="' + url + '">' + obj.aData + '</a>';
+                "render": function (obj) {
+                    var url = packageurl.replace(/REPLACEIT/, obj);
+                    return '<a href="' + url + '">' + obj + '</a>';
                 }
             }
         ],
-        "iDisplayLength": length,
-        "bStateSave": true
+        "pageLength": length,
+        "stateSave": true
     });
 }
 
@@ -24,21 +26,23 @@ function renderProjectsTable(length) {
     if (!$('#excludefilter').is(":checked"))
         projects = projects.concat(excl_projects);
     var projecturl = $("#projects_table_wrapper").data("url");
-    $("#projects_table_wrapper").html('<table cellpadding="0" cellspacing="0" border="0" class="display" id="projects_table"></table>');
-    $("#projects_table").dataTable({"aaData": projects,
-        "bPaginate": true,
-        "aoColumns": [
+    $("#projects_table_wrapper").html('<table cellpadding="0" cellspacing="0" border="0" class="compact stripe" id="projects_table"></table>');
+    $("#projects_table").dataTable({
+        "data": projects,
+        "paging": true,
+        "pagingType": "simple",
+        "columns": [
             {
-                "sTitle": "Name",
-                "fnRender": function (obj) {
-                    var url = projecturl.replace(/REPLACEIT/, obj.aData[0]);
-                    return '<a href="' + url + '">' + obj.aData[0] + '</a>';
+                "title": "Name",
+                "render": function (obj, type, data_row, meta) {
+                    var url = projecturl.replace(/REPLACEIT/, data_row[0]);
+                    return '<a href="' + url + '">' + data_row[0] + '</a>';
                 }
             },
-            { "sTitle": "Title" }
+            { "title": "Title" }
         ],
-        "iDisplayLength": length,
-        "bStateSave": true
+        "pageLength": length,
+        "stateSave": true
     });
 }
 
@@ -47,26 +51,27 @@ function renderPackagesProjectsTable(options) {
     var name = options.name || "packages_projects_wrapper";
 
     var packageurl = $("#" + name).data("url");
-    $("#" + name).html("<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"display\" id=\"" + name + '_table' + "\"></table>");
+    $("#" + name).html("<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" class=\"compact stripe\" id=\"" + name + '_table' + "\"></table>");
     $("#" + name + "_table").dataTable(
         {
-            "aaData": options.packages,
-            "bPaginate": options.packages.length > 12,
-            "aoColumns": [
+            "data": options.packages,
+            "paging": options.packages.length > 12,
+            "pagingType": "simple",
+            "columns": [
                 {
-                    "sTitle": "Package",
-                    "fnRender": function (obj) {
-                        var url1 = packageurl.replace(/REPLACEPKG/, obj.aData[0]);
-                        var url = url1.replace(/REPLACEPRJ/, obj.aData[1]);
-                        return '<a href="' + url + '">' + obj.aData[0] + '</a>';
+                    "title": "Package",
+                    "render": function (obj, type, data_row, meta) {
+                        var url1 = packageurl.replace(/REPLACEPKG/, data_row[0]);
+                        var url = url1.replace(/REPLACEPRJ/, data_row[1]);
+                        return '<a href="' + url + '">' + data_row[0] + '</a>';
                     }
                 },
                 {
-                    "sTitle": "Project"
+                    "columns.title": "Project"
                 }
             ],
-            "iDisplayLength": length,
-            "bStateSave": true
+            "pageLength": length,
+            "stateSave": true
         });
 }
 
@@ -125,14 +130,14 @@ function repositories_setup_autocomplete() {
 
 function setup_subprojects_tables() {
     $('#parentprojects_table').dataTable({
-        'bPaginate': false,
-        'bFilter': false,
-        'bInfo': false,
+        'paging': false,
+        'searching': false,
+        'info': false
     });
     $('#subprojects_table').dataTable({
-        'bPaginate': false,
-        'bFilter': false,
-        'bInfo': false,
+        'paging': false,
+        'searching': false,
+        'info': false
     });
 
 }
