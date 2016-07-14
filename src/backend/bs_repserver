@@ -642,11 +642,17 @@ sub getbinarylist_repository {
 
   die("unsupported view '$view'\n") if $view && $view ne 'names';
 
+  my $serial;
+  $serial = BSWatcher::serialize("$reporoot/$projid/$repoid/$arch") if $BSStdServer::isajax;
+  return if $BSStdServer::isajax && !defined $serial;
   my $pool = BSSolv::pool->new();
   my $repo = BSRepServer::addrepo_scan($pool, $prp, $arch);
   my %names = $repo ? $repo->pkgnames() : ();
   my @bins = $cgi->{'binary'} ? @{$cgi->{'binary'}} : sort keys %names;
   my @res;
+  my $needscan;
+  my $dodurl = $repo->dodurl();
+  my @handoff = ("/build/$projid/$repoid/$arch/_repository", undef, BSRPC::args($cgi, 'view', 'binary'));
   for my $bin (@bins) {
     my $p = $names{$bin};
     if (!$p) {
@@ -662,6 +668,14 @@ sub getbinarylist_repository {
       if ($id eq 'dod') {
         $r->{'mtime'} = '';
         $r->{'size'} = '';
+	if ($dodurl && $cgi->{'binary'}) {
+	  # this is used in the interconnect, so we need to fetch the dod binary
+	  $path = fetchdodbinary($pool, $repo, $p, $arch, 3, \@handoff);
+	  return unless defined $path;
+          my @s = stat($path);
+          ($r->{'mtime'}, $r->{'size'}) = ($s[9], $s[7]) if @s;
+          $needscan = 1;
+	}
       } else {
         my @s = split('/', $id, 3);
         $r->{'mtime'} = $s[0];
@@ -669,15 +683,14 @@ sub getbinarylist_repository {
       }
     } else {
       my @s = stat("$reporoot/$prp/$arch/:full/$path");
-      if (@s) {
-        $r->{'mtime'} = $s[9];
-        $r->{'size'} = $s[7];
-      }
+      ($r->{'mtime'}, $r->{'size'}) = ($s[9], $s[7]) if @s;
     }
     push @res, $r;
   }
   undef $repo;
   undef $pool;
+  BSWatcher::serialize_end($serial) if defined $serial;
+  forwardevent($cgi, 'scanrepo', $projid, undef, $repoid, $arch) if $needscan;
   return ({'binary' => \@res}, $BSXML::binarylist);
 }
 

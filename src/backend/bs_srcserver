@@ -6115,6 +6115,16 @@ sub getbinarylist {
     my $bvl = BSWatcher::rpc($param, $BSXML::binaryversionlist, @args);
     return ($bvl, $BSXML::binaryversionlist);
   }
+  if ($view && $view eq 'names' && $cgi->{'binary'} && !$BSStdServer::isajax && $packid eq '_repository') {
+    # this can take a while if we have dod configured, in that case handoff
+    my $repo = (grep {$_->{'name'} eq $repoid} @{$proj->{'repository'} || []})[0];
+    if ($repo) {
+      my $doddata = (grep {($_->{'arch'} || '') eq $arch} @{$repo->{'download'} || []})[0];
+      if ($doddata) {
+        BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid", undef, @args);
+      }
+    }
+  }
   if ($view && ($view eq 'cpioheaders' || $view eq 'cpioheaderchksums')) {
      $param->{'ignorestatus'} = 1;
      $param->{'receiver'} = \&BSServer::reply_receiver;
