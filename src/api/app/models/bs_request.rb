@@ -57,7 +57,7 @@ class BsRequest < ActiveRecord::Base
 
   after_update :send_state_change
 
-  def save!
+  def save!(args = {})
     new = self.created_at ? nil : 1
     sanitize! if new and not @skip_sanitize
     super
