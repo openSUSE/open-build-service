@@ -224,7 +224,7 @@ sub server {
     if ($conf->{'periodic'}) {
       my $due = $periodic_next - time();
       if ($due <= 0) {
-	$conf->{'periodic'}->($conf);
+	$conf->{'periodic'}->($conf, $server);
         my $periodic_interval = $conf->{'periodic_interval'} || 3;
 	$periodic_next += $periodic_interval - $due;
 	$due = $periodic_interval;
