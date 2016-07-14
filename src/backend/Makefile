@@ -25,6 +25,9 @@ install: prepare_dirs install_data_dirs bs_config
 	sed -i \
 	    -e 's|/srv/www/obs/api|$(OBS_API_PREFIX)|' \
 	    -e 's|/srv/obs|$(OBS_BACKEND_DATA_DIR)|' \
+	    -e 's|5352|$(OBS_SRCSERVER_PORT)|' \
+	    -e 's|5252|$(OBS_REPOSERVER_PORT)|' \
+	    -e 's|5152|$(OBS_SERVICESERVER_PORT)|' \
 	    $(DESTDIR)$(OBS_BACKEND_PREFIX)/bs_* \
 	    $(DESTDIR)$(OBS_BACKEND_PREFIX)/*.pm \
 	    $(DESTDIR)$(OBS_BACKEND_PREFIX)/*.pm.template \

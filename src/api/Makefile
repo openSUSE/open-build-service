@@ -44,6 +44,10 @@ config: prepare_dirs
 	echo "# This is to prevent fdupes from hardlinking" >> $(DESTDIR)$(OBS_API_PREFIX)/config/database.yml
 	echo "# This is to prevent fdupes from hardlinking" >> $(DESTDIR)$(OBS_API_PREFIX)/config/options.yml
 	echo "# This is to prevent fdupes from hardlinking" >> $(DESTDIR)$(OBS_API_PREFIX)/config/thinking_sphinx.yml
+	sed -i \
+	    -e 's|5352|$(OBS_SRCSERVER_PORT)|' \
+	    $(DESTDIR)$(OBS_API_PREFIX)/config/options.yml \
+	    $(DESTDIR)$(OBS_API_PREFIX)/config/options.yml.example
 
 log_files:
 	$(foreach logfile,$(OBS_API_LOGS),$(shell touch $(DESTDIR)$(OBS_API_PREFIX)/log/$(logfile) ))
