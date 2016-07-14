@@ -151,7 +151,7 @@ class Webui::SpiderTest < Webui::IntegrationTest
     crawl
     ActiveRecord::Base.clear_active_connections!
 
-    @pages_visited.keys.length.must_be :>, 500
+    @pages_visited.keys.length.must_be :>, 490
   end
 
   def test_spider_as_admin
