@@ -422,17 +422,8 @@ class Package < ActiveRecord::Base
     ActiveXML::Node.new(self.source_file(file, opts))
   end
 
-  def self.dir_hash(project, package, opts = {})
-    begin
-      directory = Suse::Backend.get(source_path(project, package, nil, opts)).body
-      Xmlhash.parse(directory)
-    rescue ActiveXML::Transport::Error => e
-      Xmlhash::XMLHash.new error: e.summary
-    end
-  end
-
   def dir_hash(opts = {})
-    Package.dir_hash(self.project.name, self.name, opts)
+    Directory.hashed(opts.update(project: self.project.name, package: self.name))
   end
 
   def is_patchinfo?
@@ -862,58 +853,36 @@ class Package < ActiveRecord::Base
     Buildresult.find(project: self.project, package: self, repository: repository, view: view)
   end
 
-  # first package in link chain outside of my project
-  def origin_container
-    # no link, so I am origin
-    return self unless self.dir_hash
-
+  # local mode (default): last package in link chain in my project
+  # no local mode:        first package in link chain outside of my project
+  def origin_container(options = { local: true })
     # link target package name is more important, since local name could be
-    # extended. for example in maintenance incident projects.
-    li = self.dir_hash['linkinfo']
-    return self unless li
+    # extended. For example in maintenance incident projects.
+    linkinfo = self.dir_hash['linkinfo']
+    # no link, so I am origin
+    return self if linkinfo.nil?
 
-    # from external project, so it is my origin
-    prj = Project.get_by_name(li['project'])
-    pkg = prj.find_package(li['package'])
-    return pkg if self.project != prj
-
-    # broken or remote link, aborting
-    return nil if pkg.nil?
+    if options[:local] && linkinfo['project'] != self.project.name
+      # links to external project, so I am origin
+      return self
+    end
 
     # local link, go one step deeper
-    return pkg.origin_container
-  end
+    prj = Project.get_by_name(linkinfo['project'])
+    pkg = prj.find_package(linkinfo['package'])
+    if !options[:local] && self.project != prj
+      return pkg
+    end
 
-  # last package in link chain in my project
-  def local_origin_container
-    # no link, so I am origin
-    return self unless self.dir_hash
-
-    # link target package name is more important, since local name could be
-    # extended. for example in maintenance incident projects.
-    li = self.dir_hash['linkinfo']
-    return self unless li
-
-    # links to external project, so I am origin
-    return self if li['project'] != self.project.name
-
-    # local link, go one step deeper
-    prj = Project.get_by_name(li['project'])
-    pkg = prj.find_package(li['package'])
-
-    # broken or remote link, aborting
-    return nil if pkg.nil?
-
-    return pkg.local_origin_container
+    # If package is nil it's either broken or a remote one.
+    # Otherwise we continue
+    return pkg.try(:origin_container, options)
   end
 
   def is_local_link?
-    # no link
-    return false unless self.dir_hash
-    li = self.dir_hash['linkinfo']
-    return false unless li
-    # linking to my project?
-    return li['project'] == self.project.name
+    linkinfo = self.dir_hash["linkinfo"]
+
+    linkinfo && (linkinfo["project"] == self.project.name)
   end
 
   def modify_channel(mode = :add_disabled)
@@ -927,7 +896,7 @@ class Package < ActiveRecord::Base
     raise InvalidParameterError unless [:add_disabled, :skip_disabled, :enable_all].include? mode
     return if self.is_channel?
 
-    opkg = self.origin_container
+    opkg = self.origin_container(local: false)
     # remote or broken link?
     return if opkg.nil?
 

@@ -598,7 +598,7 @@ class Webui::PackageController < Webui::WebuiController
     end
     revision = nil
     unless params[:current_revision].blank?
-      dirhash = Package.dir_hash(source_project_name, source_package_name)
+      dirhash = Directory.hashed(project: source_project_name, package: source_package_name)
       if dirhash['error']
         redirect_to :back, error: dirhash['error']
       end

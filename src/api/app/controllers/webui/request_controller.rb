@@ -204,7 +204,7 @@ class Webui::RequestController < Webui::WebuiController
         req = BsRequest.new( state: "new")
         req.description = params[:description]
         @req.bs_request_actions.each do |action|
-          rev = Package.dir_hash(action.target_project, action.target_package)['rev']
+          rev = Directory.hashed(project: action.target_project, package: action.target_package)['rev']
 
           opts = { source_project: action.target_project,
                    source_package: action.target_package,
