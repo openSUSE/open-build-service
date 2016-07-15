@@ -1,6 +1,7 @@
 inherit_from: .rubocop_todo.yml
+Rails:
+  Enabled: true
 AllCops:
-  RunRailsCops: true
   Exclude:
     - 'tmp/**/*'
     - 'lib/templates/**/*'
