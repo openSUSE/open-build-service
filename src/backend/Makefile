@@ -37,6 +37,11 @@ install_data_dirs: prepare_dirs
 		$(shell $(INSTALL) -d -m 755 $(DESTDIR)$(OBS_BACKEND_DATA_DIR)/$(data_dir) ) \
 	)
 	install -d -m 700 $(DESTDIR)$(OBS_BACKEND_DATA_DIR)/gnupg
+ifneq ($(OBS_BACKEND_LOG_DIR),$(OBS_BACKEND_DATA_DIR)/log)
+	$(INSTALL) -d -m 755 $(DESTDIR)$(OBS_BACKEND_LOG_DIR)
+	rmdir $(DESTDIR)$(OBS_BACKEND_DATA_DIR)/log
+	ln -s $(OBS_BACKEND_LOG_DIR) $(DESTDIR)$(OBS_BACKEND_DATA_DIR)/log
+endif
 
 
 test_unit: bs_config
