@@ -239,42 +239,6 @@ class ApplicationController < ActionController::Base
     response.headers["X-Opensuse-APIVersion"] = "#{CONFIG['version']}"
   end
 
-  hide_action :forward_from_backend
-  def forward_from_backend(path)
-    # apache & mod_xforward case
-    if CONFIG['use_xforward'] and CONFIG['use_xforward'] != "false"
-      logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
-      headers['X-Forward'] = "http://#{CONFIG['source_host']}:#{CONFIG['source_port']}#{path}"
-      headers['Cache-Control'] = 'no-transform' # avoid compression
-      head(200)
-      @skip_validation = true
-      return true
-    end
-
-    # lighttpd 1.5 case
-    if CONFIG['x_rewrite_host']
-      logger.debug "[backend] VOLLEY(lighttpd): #{path}"
-      headers['X-Rewrite-URI'] = path
-      headers['X-Rewrite-Host'] = CONFIG['x_rewrite_host']
-      headers['Cache-Control'] = 'no-transform' # avoid compression
-      head(200)
-      @skip_validation = true
-      return true
-    end
-
-    # nginx case
-    if CONFIG['use_nginx_redirect']
-      logger.debug "[backend] VOLLEY(nginx): #{path}"
-      headers['X-Accel-Redirect'] = "#{CONFIG['use_nginx_redirect']}/http/#{CONFIG['source_host']}:#{CONFIG['source_port']}#{path}"
-      headers['Cache-Control'] = 'no-transform' # avoid compression
-      head(200)
-      @skip_validation = true
-      return true
-    end
-
-    false
-  end
-
   def volley_backend_path(path)
     logger.debug "[backend] VOLLEY: #{path}"
     Suse::Backend.start_test_backend
@@ -606,6 +570,41 @@ class ApplicationController < ActionController::Base
   end
 
   private
+
+  def forward_from_backend(path)
+    # apache & mod_xforward case
+    if CONFIG['use_xforward'] and CONFIG['use_xforward'] != "false"
+      logger.debug "[backend] VOLLEY(mod_xforward): #{path}"
+      headers['X-Forward'] = "http://#{CONFIG['source_host']}:#{CONFIG['source_port']}#{path}"
+      headers['Cache-Control'] = 'no-transform' # avoid compression
+      head(200)
+      @skip_validation = true
+      return true
+    end
+
+    # lighttpd 1.5 case
+    if CONFIG['x_rewrite_host']
+      logger.debug "[backend] VOLLEY(lighttpd): #{path}"
+      headers['X-Rewrite-URI'] = path
+      headers['X-Rewrite-Host'] = CONFIG['x_rewrite_host']
+      headers['Cache-Control'] = 'no-transform' # avoid compression
+      head(200)
+      @skip_validation = true
+      return true
+    end
+
+    # nginx case
+    if CONFIG['use_nginx_redirect']
+      logger.debug "[backend] VOLLEY(nginx): #{path}"
+      headers['X-Accel-Redirect'] = "#{CONFIG['use_nginx_redirect']}/http/#{CONFIG['source_host']}:#{CONFIG['source_port']}#{path}"
+      headers['Cache-Control'] = 'no-transform' # avoid compression
+      head(200)
+      @skip_validation = true
+      return true
+    end
+
+    false
+  end
 
   def shutup_rails
     Rails.cache.silence! unless Rails.env.development?
