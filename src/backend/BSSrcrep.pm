@@ -251,7 +251,7 @@ sub calcsrcmd5 {
 }
 
 sub addmeta {
-  my ($projid, $packid, $files, $target) = @_;
+  my ($projid, $packid, $files) = @_;
 
   # calculate new meta sum
   my $meta = '';
