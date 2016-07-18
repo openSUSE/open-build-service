@@ -95,7 +95,7 @@ sub run {
       if ($conf->{'getflavor'} && $maxchild_flavor) {
 	$flavor = $conf->{'getflavor'}->($req);
 	if (defined($flavor) && $maxchild_flavor->{$flavor}) {
-	  if (keys(%{$chld_flavor{$flavor} || {}}) > $maxchild_flavor->{$flavor}) {
+	  if (keys(%{$chld_flavor{$flavor} || {}}) >= $maxchild_flavor->{$flavor}) {
 	    $havedelayed = 1;
 	    next;
 	  }
