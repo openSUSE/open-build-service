@@ -657,6 +657,7 @@ sub checkpkgs {
       next;
     }
 
+    # check if this package is locked
     my $pdata = $pdatas->{$packid};
     if ($pdata->{'lock'}) {
       if (BSUtil::enabled($repoid, $pdata->{'lock'}, $projlocked, $myarch)) {
@@ -670,6 +671,7 @@ sub checkpkgs {
       }
     }
 
+    # check if this package is broken
     if ($pdata->{'error'}) {
       if ($pdata->{'error'} eq 'disabled' || $pdata->{'error'} eq 'locked' || $pdata->{'error'} eq 'excluded') {
 	$packstatus{$packid} = $pdata->{'error'};
@@ -698,6 +700,7 @@ sub checkpkgs {
       next;
     }
 
+    # check if this package is project link excluded
     if (exists($pdata->{'originproject'})) {
       # this is a package from a project link
       my $repo = $ctx->{'repo'};
@@ -708,6 +711,7 @@ sub checkpkgs {
       }
     }
 
+    # check if this package is build disabled
     if ($pdata->{'build'}) {
       if (!BSUtil::enabled($repoid, $pdata->{'build'}, $projbuildenabled, $myarch)) {
 	$packstatus{$packid} = 'disabled';
@@ -748,6 +752,7 @@ sub checkpkgs {
     my $pname = $info->{'name'} || $packid;
 
     if (!$incycle) {
+      # speedup hack: check if a build is already scheduled
       # hmm, this might be a bad idea...
       my $job = BSSched::BuildJob::jobname($prp, $packid)."-$pdata->{'srcmd5'}";
       my $myjobsdir = $gctx->{'myjobsdir'};
@@ -765,18 +770,17 @@ sub checkpkgs {
       }
     }
 
-    # now print expandsion errors
+    # check for expansion errors
     if ($experrors->{$packid}) {
-      my $experror = $experrors->{$packid};
-      print "      - $packid ($buildtype)\n";
-      print "        unresolvable:\n";
-      print "            $experror\n";
+      #print "      - $packid ($buildtype)\n";
+      #print "        unresolvable:\n";
+      #print "            $experrors->{$packid}\n";
       $packstatus{$packid} = 'unresolvable';
-      $packerror{$packid} = $experror;
+      $packerror{$packid} = $experrors->{$packid};
       next;
     }
 
-    # dispatch to handlers
+    # all checks ok, dispatch to handler
     my $handler = $handlers{$buildtype} || $handlers{default};
     my ($astatus, $aerror) = $handler->check($ctx, $packid, $pdata, $info, $buildtype);
     if ($astatus eq 'scheduled') {
