@@ -232,6 +232,7 @@ sub addrev_replace_common {
   my %rfilemd5;
   for my $todo (@todo) {
     my ($tmpfile, $file, $rfile) = @$todo;
+    die("addrev_local_replace must not replace _link files\n") if $suf eq 'rev' && $rfile eq '_link';
     next unless defined($tmpfile);
     mkdir_p($uploaddir);
     unlink("$uploaddir/addrev_meta$$");
@@ -314,6 +315,7 @@ sub addrev_meta_replace {
 sub updatelinkinfodb {
   my ($projid, $packid, $rev, $files) = @_;
 
+  return if $packid eq '_project';	# no links allowed
   mkdir_p($sourcedb) unless -d $sourcedb;
   my $linkdb = BSDB::opendb($sourcedb, 'linkinfo');
   my $linkinfo;
@@ -367,6 +369,9 @@ sub addrev_local {
   # add missing data to complete the revision object
   $rev->{'project'} = $projid;
   $rev->{'package'} = $packid;
+  if (!$files && !$cgi->{'nolinkinfodb'}) {
+    eval { $files = BSSrcrep::lsrev($rev) };
+  }
   # update linked package database
   updatelinkinfodb($projid, $packid, $rev, $files) if $files;
   # kill upload revision as we did a real commit
@@ -374,6 +379,11 @@ sub addrev_local {
   # kill obsolete _pattern file
   unlink("$projectsdir/$projid.pkg/pattern-MD5SUMS") if $packid eq '_pattern';
   return $rev;
+}
+
+sub addrev_meta {
+  my ($cgi, $projid, $packid, $rev) = @_;
+  die("addrev_meta is not implemented (yet)\n");
 }
 
 sub undelete_rev {
