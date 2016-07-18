@@ -862,17 +862,6 @@ RSpec.describe Webui::ProjectController, vcr: true do
     end
   end
 
-  describe 'GET #remove_target_request_dialog' do
-    it "will succeed with an ajax call" do
-        xhr :get, :remove_target_request_dialog
-        expect(response).to have_http_status(:success)
-    end
-
-    it "with a normal http call will raise an ActionController::RoutingError exception" do
-      expect { get :remove_target_request_dialog }.to raise_error ActionController::RoutingError
-    end
-  end
-
   describe 'POST #remove_target_request' do
     before do
       login user
