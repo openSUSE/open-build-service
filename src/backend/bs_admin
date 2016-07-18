@@ -454,11 +454,7 @@ sub write_event {
   $ev->{'repository'} = $repo if defined $repo;
   $ev->{'job'} = $job if defined $job;
   writexml("$eventroot/$arch/.$evname$$", "$eventroot/$arch/$evname", $ev, $BSXML::event);
-  local *F;
-  if (sysopen(F, "$eventroot/$arch/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
-    syswrite(F, 'x');
-    close(F);
-  }
+  BSUtil::ping("$eventroot/$arch/.ping");
 }
 
 sub write_publish_event {
@@ -468,19 +464,13 @@ sub write_publish_event {
   $ev->{'project'} = $project;
   $ev->{'repository'} = $repo;
   writexml("$eventroot/publish/.$evname$$", "$eventroot/publish/$evname", $ev, $BSXML::event);
-  local *F;
-  if (sysopen(F, "$eventroot/publish/.ping", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
-    syswrite(F, 'x');
-    close(F);
-  }
+  BSUtil::ping("$eventroot/publish/.ping");
 }
 
 sub prefer_publish_event {
   my ($name) = @_;
   rename( "$eventroot/publish/$name", "$eventroot/publish/_$name" ) || die("rename of $eventroot/publish/$name failed: $!");
-  if (sysopen(F, "$rundir/bs_publish.rescan", POSIX::O_WRONLY|POSIX::O_NONBLOCK)) {
-    close(F);
-  }
+  BSUtil::touch("$rundir/bs_publish.rescan");
 }
 
 sub scan_repo {
