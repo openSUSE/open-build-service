@@ -263,7 +263,7 @@ sub server {
         BSEvents::schedule();
       };
       writestr("$rundir/$name.AJAX.died", undef, $@);
-      die("AJAX: died\n");
+      die("AJAX: died $@\n");
     }
   }
   mkdir_p($rundir);
