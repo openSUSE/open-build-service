@@ -82,7 +82,7 @@ sub getrev_local {
   if (!defined($revid)) {
     $rev = BSFileDB::fdb_getlast("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay);
     if (!$rev && ($packid eq '_project' && -e "$projectsdir/$projid.conf")) {
-      addrev_meta({'user' => 'internal', 'comment' => 'initial commit'}, $projid, undef, undef, undef, undef, 'rev');
+      addrev_local_replace({'user' => 'internal', 'comment' => 'initial commit'}, $projid, undef);
       $rev = BSFileDB::fdb_getlast("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay);
     }
     $rev ||= {'srcmd5' => $BSSrcrep::emptysrcmd5};
@@ -220,7 +220,8 @@ sub extract_old_meta {
   }
 }
 
-sub addrev_meta_multiple {
+# create a new revision by replacing some files
+sub addrev_replace_common {
   my ($cgi, $projid, $packid, $suf, @todo) = @_;
 
   $suf ||= 'mrev';
@@ -300,13 +301,14 @@ sub addrev_meta_multiple {
   return $nrev;
 }
 
-sub addrev_meta {
-  my ($cgi, $projid, $packid, $tmpfile, $file, $rfile, $suf) = @_;
-  if (defined($rfile)) {
-    return addrev_meta_multiple($cgi, $projid, $packid, $suf,  [ $tmpfile, $file, $rfile ]);
-  } else {
-    return addrev_meta_multiple($cgi, $projid, $packid, $suf);
-  }
+sub addrev_local_replace {
+  my ($cgi, $projid, $packid, @todo) = @_;
+  return addrev_replace_common($cgi, $projid, $packid, 'rev', @todo);
+}
+
+sub addrev_meta_replace {
+  my ($cgi, $projid, $packid, @todo) = @_;
+  return addrev_replace_common($cgi, $projid, $packid, 'mrev', @todo);
 }
 
 sub updatelinkinfodb {

@@ -1112,7 +1112,7 @@ sub addrev {
     };
     mkdir_p($uploaddir);
     writexml("$uploaddir/$$.2", undef, $pack, $BSXML::pack);
-    BSRevision::addrev_meta($cgi, $projid, $packid, "$uploaddir/$$.2", "$projectsdir/$projid.pkg/$packid.xml", '_meta');
+    BSRevision::addrev_meta_replace($cgi, $projid, $packid, [ "$uploaddir/$$.2", "$projectsdir/$projid.pkg/$packid.xml", '_meta' ]);
   }
   die("404 package '$packid' does not exist\n") unless $packid eq '_project' || -e "$projectsdir/$projid.pkg/$packid.xml";
   if ($target && $target eq 'upload') {
@@ -3193,7 +3193,7 @@ sub createkey {
   mkdir_p("$projectsdir/$projid.pkg");
   writestr("$uploaddir/pubkey.$$", undef, $pubkey);
   my $certfile = updatesslcert($projid, "$uploaddir/pubkey.$$", "$uploaddir/signkey.$$");
-  BSRevision::addrev_meta_multiple($cgi, $projid, undef, 'mrev',
+  BSRevision::addrev_meta_replace($cgi, $projid, undef,
 	[ "$uploaddir/pubkey.$$",  "$projectsdir/$projid.pkg/_pubkey",  '_pubkey' ],
 	[ "$uploaddir/signkey.$$", "$projectsdir/$projid.pkg/_signkey", '_signkey' ],
 	[ $certfile, undef, '_sslcert' ]);
@@ -3217,7 +3217,7 @@ sub extendkey {
   mkdir_p($uploaddir);
   writestr("$uploaddir/pubkey.$$", undef, $pubkey);
   my $certfile = updatesslcert($projid, "$uploaddir/pubkey.$$");
-  BSRevision::addrev_meta_multiple($cgi, $projid, undef, 'mrev',
+  BSRevision::addrev_meta_replace($cgi, $projid, undef,
 	[ "$uploaddir/pubkey.$$",  "$projectsdir/$projid.pkg/_pubkey",  '_pubkey' ],
 	[ $certfile, undef, '_sslcert' ]);
   return $BSStdServer::return_ok;
@@ -3234,7 +3234,7 @@ sub deletekey {
     ($sk) = getsignkey({}, $pprojid) if $projid ne $pprojid;
     die("must have a key for signing in this or upper project\n") unless $sk;
   }
-  BSRevision::addrev_meta_multiple($cgi, $projid, undef, 'mrev',
+  BSRevision::addrev_meta_replace($cgi, $projid, undef,
 	[ undef, "$projectsdir/$projid.pkg/_pubkey",  '_pubkey' ],
 	[ undef, "$projectsdir/$projid.pkg/_signkey", '_signkey' ],
 	[ undef, undef,                               '_sslcert' ]);
@@ -3280,7 +3280,7 @@ sub putproject {
   my $oldproj = readxml("$projectsdir/$projid.xml", $BSXML::proj, 1);
   notify($oldproj ? "SRCSRV_UPDATE_PROJECT" : "SRCSRV_CREATE_PROJECT", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
   mkdir_p("$projectsdir") || die("creating $projectsdir: $!\n");
-  BSRevision::addrev_meta($cgi, $projid, undef, "$uploaddir/$$.2", "$projectsdir/$projid.xml", '_meta');
+  BSRevision::addrev_meta_replace($cgi, $projid, undef, [ "$uploaddir/$$.2", "$projectsdir/$projid.xml", '_meta' ]);
   BSConfiguration::check_configuration_once();
   if ($BSConfig::forceprojectkeys) {
     my ($sk) = getsignkey({}, $projid);
@@ -3312,8 +3312,8 @@ sub delproject {
   die("404 project '$projid' does not exist\n") unless -e "$projectsdir/$projid.xml";
 
   # add delete commit to both source and meta
-  BSRevision::addrev_meta($cgi, $projid, undef, undef, undef, undef, 'rev');
-  BSRevision::addrev_meta($cgi, $projid, undef, undef, undef, undef);
+  BSRevision::addrev_local_replace($cgi, $projid, undef);
+  BSRevision::addrev_meta_replace($cgi, $projid, undef);
 
   if (-d "$projectsdir/$projid.pkg") {
     # delete packages in sub process to avoid timeout errors
@@ -3325,7 +3325,7 @@ sub delproject {
       # make sure we have mrev files for all packages
       for my $f (ls("$projectsdir/$projid.pkg")) {
 	next unless $f =~ /^(.*)\.xml$/;
-        BSRevision::addrev_meta($cgi, $projid, $1) unless -f "$projectsdir/$projid.pkg/$1.mrev";
+        BSRevision::addrev_meta_replace($cgi, $projid, $1) unless -f "$projectsdir/$projid.pkg/$1.mrev";
       }
       # now do the real delete on all of those files
       for my $f (ls("$projectsdir/$projid.pkg")) {
@@ -3467,7 +3467,7 @@ sub putpackage {
   my $oldpack = readxml("$projectsdir/$projid.pkg/$packid.xml", $BSXML::pack, 1);
   notify($oldpack ? "SRCSRV_UPDATE_PACKAGE" : "SRCSRV_CREATE_PACKAGE", { "project" => $projid, "package" => $packid, "sender" => ($cgi->{'user'} || "unknown")});
 
-  BSRevision::addrev_meta($cgi, $projid, $packid, "$uploaddir/$$.2", "$projectsdir/$projid.pkg/$packid.xml", '_meta');
+  BSRevision::addrev_meta_replace($cgi, $projid, $packid, [ "$uploaddir/$$.2", "$projectsdir/$projid.pkg/$packid.xml", '_meta' ]);
   my %except = map {$_ => 1} qw{title description devel person group url};
   if (!BSUtil::identical($oldpack, $pack, \%except)) {
     notify_repservers('package', $projid, $packid);
@@ -3488,8 +3488,8 @@ sub delpackage {
   unlink("$projectsdir/$projid.pkg/$packid.upload-MD5SUMS");
 
   # add delete commit to both source and meta
-  BSRevision::addrev_meta($cgi, $projid, $packid, undef, undef, undef, 'rev');
-  BSRevision::addrev_meta($cgi, $projid, $packid, undef, undef, undef);
+  BSRevision::addrev_local_replace($cgi, $projid, $packid);
+  BSRevision::addrev_meta_replace($cgi, $projid, $packid);
 
   # now do the real delete of the package
   BSRevision::delete_rev($cgi, $projid, $packid, "$projectsdir/$projid.pkg/$packid.rev", "$projectsdir/$projid.pkg/$packid.rev.del");
@@ -4110,7 +4110,7 @@ sub putprojectconfig {
     unlink($uploadfile);
     $uploadfile = undef;
   }
-  BSRevision::addrev_meta($cgi, $projid, undef, $uploadfile, "$projectsdir/$projid.conf", '_config', 'rev');
+  BSRevision::addrev_local_replace($cgi, $projid, undef, [ $uploadfile, "$projectsdir/$projid.conf", '_config' ]);
   notify_repservers('project', $projid);
   notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
   return $BSStdServer::return_ok;
@@ -4118,7 +4118,7 @@ sub putprojectconfig {
 
 sub delprojectconfig {
   my ($cgi, $projid) = @_;
-  BSRevision::addrev_meta($cgi, $projid, undef, undef, "$projectsdir/$projid.conf", '_config', 'rev');
+  BSRevision::addrev_local_replace($cgi, $projid, undef, [ undef, "$projectsdir/$projid.conf", '_config' ]);
   notify_repservers('project', $projid);
   notify("SRCSRV_UPDATE_PROJECT_CONFIG", { "project" => $projid, "sender" => ($cgi->{'user'} || "unknown") });
   return $BSStdServer::return_ok;
@@ -4516,7 +4516,7 @@ sub putfile {
     } else {
       die("unsupported meta operation\n");
     }
-    my $rev = BSRevision::addrev_meta($cgi, $projid, $packid, "$uploaddir/$$", undef, $filename);
+    my $rev = BSRevision::addrev_meta_replace($cgi, $projid, $packid, [ "$uploaddir/$$", undef, $filename ]);
     notify_repservers('package', $projid) if $cgi->{'meta'} && $filename eq '_frozenlinks';
     delete $rev->{'project'};
     delete $rev->{'package'};
@@ -5278,7 +5278,7 @@ sub copyproject {
       }
       mkdir_p($uploaddir);
       writexml("$uploaddir/copyproject$$", undef, $pack, $BSXML::pack);
-      BSRevision::addrev_meta($cgi, $projid, $packid, "$uploaddir/copyproject$$", "$projectsdir/$projid.pkg/$packid.xml", '_meta');
+      BSRevision::addrev_meta_replace($cgi, $projid, $packid, [ "$uploaddir/copyproject$$", "$projectsdir/$projid.pkg/$packid.xml", '_meta' ]);
       # need to do this now because the binary copy will fail otherwise
       notify_repservers('package', $projid, $packid) if $cgi->{'withbinaries'};
     }
@@ -5783,7 +5783,7 @@ sub delfile {
     if ($filename ne '_attribute' && $filename ne '_frozenlinks') {
       die("unsupported meta operation\n");
     }
-    my $rev = BSRevision::addrev_meta($cgi, $projid, $packid, undef, undef, $filename);
+    my $rev = BSRevision::addrev_meta_replace($cgi, $projid, $packid, [ undef, undef, $filename ]);
     notify_repservers('package', $projid) if $filename eq '_frozenlinks';
     delete $rev->{'project'};
     delete $rev->{'package'};
@@ -7170,7 +7170,7 @@ sub getsslcert {
       $cert = pubkey2sslcert($projid);
       mkdir_p($uploaddir);
       writestr("$uploaddir/sslcert.$$", undef, $cert);
-      BSRevision::addrev_meta({'comment' => 'automatic cert creation'}, $projid, undef, "$uploaddir/sslcert.$$", undef, '_sslcert');
+      BSRevision::addrev_meta_replace({'comment' => 'automatic cert creation'}, $projid, undef, [ "$uploaddir/sslcert.$$", undef, '_sslcert']);
     } else {
       $cert = BSSrcrep::repreadstr($rev, '_sslcert', $files->{'_sslcert'});
     }
