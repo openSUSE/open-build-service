@@ -1274,11 +1274,17 @@ sub deleterepo {
   rmdir("$reporoot/$prp");
 }
 
+my $publishflavor;
+
 sub publish {
   my ($projid, $repoid, $dbgsplit, $dbgpacktrack) = @_;
   my $prp = "$projid/$repoid";
 
-  print localtime(time)." publishing $prp\n";
+  if ($publishflavor) {
+    print BSUtil::isotime().": publishing $prp [$publishflavor]\n";
+  } else {
+    print BSUtil::isotime().": publishing $prp\n";
+  }
 
   # get info from source server about this project/repository
   # we specify "withsrcmd5" so that we get the patternmd5. It still
@@ -2273,6 +2279,7 @@ sub publishevent {
   }
 
   notify_state($projid, $repoid, 'publishing');
+  $publishflavor = $req->{'flavor'};
   eval {
     publish($projid, $repoid);
   };
