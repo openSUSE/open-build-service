@@ -42,21 +42,9 @@ class Flag < ActiveRecord::Base
 
   def self.default_status(flag_name)
     case flag_name
-    when 'lock'
+    when 'lock', 'debuginfo'
       'disable'
-    when 'build'
-      'enable'
-    when 'publish'
-      'enable'
-    when 'debuginfo'
-      'disable'
-    when 'useforbuild'
-      'enable'
-    when 'binarydownload'
-      'enable'
-    when 'binarydownload'
-      'enable'
-    when 'access'
+    when 'build', 'publish', 'useforbuild', 'binarydownload', 'access'
       'enable'
     else
       'disable'
