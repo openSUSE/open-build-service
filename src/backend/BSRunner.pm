@@ -73,6 +73,7 @@ sub run {
   my %chld;
   my %chld_flavor;
   my $pid;
+  my $server = { 'starttime' => time() };
 
   while(1) {
     drainping($ping);
@@ -84,7 +85,7 @@ sub run {
     for my $event (@events) {
       last if grep {-e $_} sort %{$conf->{'filechecks'} || {}};
 
-      my $req = { 'conf' => $conf, 'event' => $event };
+      my $req = { 'conf' => $conf, 'event' => $event, 'server' => $server };
       my ($notdue, $nofork);
       ($req, $notdue, $nofork) = $conf->{'getevent'}->($req);
       $havedelayed = 1 if $notdue;
@@ -92,7 +93,7 @@ sub run {
 
       my $flavor;
       if ($conf->{'getflavor'} && $maxchild_flavor) {
-	$flavor = $conf->{'getflavor'}->{$req};
+	$flavor = $conf->{'getflavor'}->($req);
 	if (defined($flavor) && $maxchild_flavor->{$flavor}) {
 	  if (keys(%{$chld_flavor{$flavor} || {}}) > $maxchild_flavor->{$flavor}) {
 	    $havedelayed = 1;
