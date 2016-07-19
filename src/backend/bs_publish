@@ -2188,7 +2188,7 @@ sub clear_repoinfo_state {
     my $repoinfo = BSUtil::retrieve("$reporoot/$prp/:repoinfo", 1) || {};
     if ($repoinfo->{'state'}) {
       delete $repoinfo->{'state'};
-      BSUtil::store("$reporoot/$prp/.:repoinfo", "$reporoot/$prp/:repoinfo", $repoinfo);
+      BSUtil::store("$reporoot/$prp/.:repoinfo$$", "$reporoot/$prp/:repoinfo", $repoinfo);
     }
   }
 }
@@ -2287,6 +2287,7 @@ sub publishevent {
     clear_repoinfo_state($prp);
     set_publish_retry($req, time() + 60);
     db_sync();
+    print BSUtil::isotime().": pushlish failed for $prp\n" if $req->{'forked'};
     return 0;
   }
 
@@ -2296,6 +2297,7 @@ sub publishevent {
   writepublishtimeevent($projid, $repoid, $now, $now - $starttime) if $req->{'forked'};
   notify_state($projid, $repoid, 'published');
   db_sync();
+  print BSUtil::isotime().": pushlish done for $prp\n" if $req->{'forked'};
   return 1;
 }
 
