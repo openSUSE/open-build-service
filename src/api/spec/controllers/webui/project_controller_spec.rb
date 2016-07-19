@@ -799,4 +799,104 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { expect(user.home_project.repositories.find_by(name: 'valid_name').repository_architectures.count).to eq(1) }
     end
   end
+
+  describe 'POST #save_distributions' do
+    let(:another_project_repository) { create(:repository, project: another_project) }
+    let(:target_repository) { create(:repository, project: openSUSE_project) }
+    let(:distribution) do
+      create(:distribution, reponame: another_project_repository.name,
+                            project: openSUSE_project, repository: target_repository.name, architectures: ['i586'])
+    end
+    let(:distribution_without_target_repo) { create(:distribution, reponame: another_project_repository.name, project: openSUSE_project) }
+    let(:create_distributions_same_repo) do
+      create_list(:distribution, 2, reponame: another_project_repository.name, project: openSUSE_project, repository: target_repository.name)
+    end
+    let(:create_distributions_other_reponame) { create_list(:distribution, 2, reponame: 'another_repon_name') }
+
+    before do
+      login user
+    end
+
+    context "without any distributions passed" do
+      before do
+        post :save_distributions, project: user.home_project
+      end
+
+      it { expect(flash[:success]).to eq("Successfully added repositories") }
+      it { is_expected.to redirect_to(action: :repositories, project: user.home_project) }
+      it { expect(assigns(:project).repositories.count).to eq(0) }
+    end
+
+    context "with a distribution but without target repository" do
+      it "Raises an ActiveRecord::RecordNotFound exception" do
+        expect do
+          post :save_distributions, project: user.home_project,
+                                    distributions: [distribution_without_target_repo.reponame]
+        end.to raise_error ActiveRecord::RecordNotFound
+      end
+    end
+
+    context "with a distribution properly set" do
+      before do
+        create_distributions_other_reponame
+        post :save_distributions, project: user.home_project, distributions: [distribution.reponame]
+      end
+
+      it { expect(flash[:success]).to eq("Successfully added repositories") }
+      it { is_expected.to redirect_to(action: :repositories, project: user.home_project) }
+      it { expect(assigns(:project).repositories.count).to eq(1) }
+      it { expect(assigns(:project).repositories.first.name).to eq(distribution.reponame) }
+    end
+
+    context "with a distribution called images" do
+      before do
+        Project.any_instance.stubs(:prepend_kiwi_config).returns(true)
+        post :save_distributions, project: user.home_project, images: true
+      end
+
+      it { expect(flash[:success]).to eq("Successfully added repositories") }
+      it { is_expected.to redirect_to(action: :repositories, project: user.home_project) }
+      it { expect(assigns(:project).repositories.count).to eq(1) }
+      it { expect(assigns(:project).repositories.first.name).to eq('images') }
+      it { expect(assigns(:project).repositories.first.repository_architectures.count).to eq(Architecture.available.count) }
+    end
+  end
+
+  describe 'POST #remove_target_request' do
+    before do
+      login user
+    end
+
+    context "without target project" do
+      before do
+        BsRequestActionDelete.expects(:new).raises(BsRequestAction::UnknownTargetProject)
+        post :remove_target_request, project: apache_project, description: 'Fake description'
+      end
+
+      it { expect(flash[:error]).to eq("BsRequestAction::UnknownTargetProject") }
+      it { is_expected.to redirect_to(action: :repositories, project: apache_project) }
+    end
+
+    context "without target package" do
+      before do
+        BsRequestActionDelete.expects(:new).raises(BsRequestAction::UnknownTargetPackage)
+        post :remove_target_request, project: apache_project, description: 'Fake description'
+      end
+
+      it { expect(flash[:error]).to eq("BsRequestAction::UnknownTargetPackage") }
+      it { is_expected.to redirect_to(action: :repositories, project: apache_project) }
+    end
+
+    context "with proper params" do
+      before do
+        post :remove_target_request, project: apache_project, description: 'Fake description'
+      end
+
+      it do
+        expect(flash[:success]).to eq("Created <a href='http://test.host/request/show/#{BsRequest.last.number}'>repository delete " +
+                                      "request #{BsRequest.last.number}</a>")
+      end
+      it { is_expected.to redirect_to(controller: :request, action: :show, number: BsRequest.last.number) }
+    end
+  end
 end
