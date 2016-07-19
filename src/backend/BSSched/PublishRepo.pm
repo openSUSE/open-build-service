@@ -289,7 +289,7 @@ sub prpfinished {
 
   # release lock and ping publisher
   close(F);
-  BSSched::EventSource::Directory::sendpublishevent($ctx->{'gctx'}, $prp);
+  BSSched::EventSource::Directory::sendpublishevent($ctx->{'gctx'}, $prp) if $changed;
   return '';
 }
 
