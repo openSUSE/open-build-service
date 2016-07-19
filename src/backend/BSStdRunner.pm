@@ -21,6 +21,7 @@
 package BSStdRunner;
 
 use POSIX;
+use IO::Handle;
 use Fcntl qw(:DEFAULT :flock);
 
 
