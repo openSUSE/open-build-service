@@ -237,6 +237,7 @@ sub WRITE {
     $xbuf =~ s/\n$//s;
     $xbuf =~ s/\n/\n$prefix/g;
     print $fh substr($xbuf, 1)."\n";
+    $fh->flush();
   }
   return length($buf);
 }
