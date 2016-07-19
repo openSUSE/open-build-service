@@ -12,12 +12,12 @@ RSpec.shared_examples "a flag table" do
   def change_flag_field_from_to(flag_attributes, from, to)
     locator = css_locator_for(flag_attributes[:repository], flag_attributes[:architecture])
 
-    subject.find(locator, text: from).hover
+    subject.find(locator, text: from, visible: false).hover
     # Workaround: There can be an additional link with
     #             text similar to "Enable Take default (disable)"
     subject.find(locator, text: /#{from}/).first("a").click
     # Wait for request to finish
-    subject.find(locator, text: /#{to}/)
+    subject.find(locator, text: /#{to}/, visible: false)
   end
 
   def css_locator_for(repository, architecture)
