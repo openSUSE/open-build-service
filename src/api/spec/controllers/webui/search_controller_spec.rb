@@ -1,4 +1,4 @@
-require 'rails_helper'
+require 'sphinx_helper'
 # WARNING: If you change owner tests make sure you uncomment this line
 # and start a test backend. Some of the Owner methods
 # require real backend answers for projects/packages.
@@ -34,5 +34,8 @@ RSpec.describe Webui::SearchController, vcr: true do
       expect(assigns(:results)[0].users).to eq({"maintainer"=>["DevelIggy"]})
       expect(assigns(:results)[0].users).not_to eq({"maintainer"=>["Iggy"]})
     end
+  end
+
+  describe "GET #search" do
   end
 end
