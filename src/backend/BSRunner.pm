@@ -133,7 +133,6 @@ sub run {
     }
 
     if ($havedelayed) {
-      print "sleeping 10 seconds...\n";
       waitping($ping, 10);
     } else {
       if ($conf->{'testmode'}) {
