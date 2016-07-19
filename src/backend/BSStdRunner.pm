@@ -37,11 +37,12 @@ my $rundir = $BSConfig::rundir ||  $BSConfig::rundir || "$bsdir/run";
 sub lsevents {
   my ($conf) = @_;
   my $myeventdir = $conf->{'eventdir'};
+  my @ev = grep {!/^\./} sort(ls($myeventdir));
   if ($conf->{'inprogress'}) {
-    return grep {!/^\./ && !/::inprogress$/} sort(ls($myeventdir));
-  } else {
-    return grep {!/^\./} sort(ls($myeventdir));
+    my %inprog = map {$_ => 1} grep {s/::inprogress$//} @ev;
+    @ev = grep {!$inprog{$_}} @ev if %inprog;
   }
+  return @ev;
 }
 
 sub getevent {
@@ -218,6 +219,26 @@ sub run {
 
   print BSUtil::isotime().": $name started\n";
   $conf->{'run'}->($conf);
+}
+
+package BSStdRunner::prepend;
+
+sub PUSHED {
+  return bless {}, $_[0];
+}
+
+sub WRITE {
+  my ($obj, $buf, $fh) = @_;
+  my $prefix = $obj->{'prefix'};
+  if (!defined($prefix)) {
+    $obj->{'prefix'} = $buf;
+  } elsif (length($buf)) {
+    my $xbuf = "\n$buf";
+    $xbuf =~ s/\n$//s;
+    $xbuf =~ s/\n/\n$prefix/g;
+    print $fh substr($xbuf, 1)."\n";
+  }
+  return length($buf);
 }
 
 1;
