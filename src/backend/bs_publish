@@ -1274,17 +1274,10 @@ sub deleterepo {
   rmdir("$reporoot/$prp");
 }
 
-my $publishflavor;
-
 sub publish {
   my ($projid, $repoid, $dbgsplit, $dbgpacktrack) = @_;
   my $prp = "$projid/$repoid";
-
-  if ($publishflavor) {
-    print BSUtil::isotime().": publishing $prp [$publishflavor]\n";
-  } else {
-    print BSUtil::isotime().": publishing $prp\n";
-  }
+  print BSUtil::isotime().": publishing $prp\n";
 
   # get info from source server about this project/repository
   # we specify "withsrcmd5" so that we get the patternmd5. It still
@@ -2246,7 +2239,6 @@ sub set_publish_retry {
   $publish_retry{$req->{'event'}} = $due;
   my $ev = $req->{'ev'};
   writepublishtimeevent($ev->{'project'}, $ev->{'repository'}, 0, $due, $req->{'event'}) if $req->{'forked'};
-  BSUtil::ping("$myeventdir/.ping");
 }
 
 sub notify_state {
@@ -2262,6 +2254,13 @@ sub syncdb {
 
 sub publishevent {
   my ($req, $projid, $repoid) = @_;
+
+  if ($req->{'forked'})  {
+    my $prepend = "$$: ";
+    $prepend = "$req->{'flavor'}.$prepend" if $req->{'flavor'};
+    binmode STDOUT, "via(BSStdRunner::prepend)";
+    print $prepend;
+  }
 
   $db_sync_append = 1 if $req->{'forked'};
   syncdb() if $req->{'syncdb'};
@@ -2279,7 +2278,6 @@ sub publishevent {
   }
 
   notify_state($projid, $repoid, 'publishing');
-  $publishflavor = $req->{'flavor'};
   eval {
     publish($projid, $repoid);
   };
