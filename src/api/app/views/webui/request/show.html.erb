@@ -49,8 +49,13 @@
               by <%= link_to @superseded_by, number: @superseded_by %></li>
         <% end %>
         <% if @accept_at -%>
-            <li><%= sprite_tag('exclamation', title: '') %> This request will get accepted in
+            <li><%= sprite_tag('exclamation', title: '') %>
+               <% if Time.now > Time.parse(@accept_at.to_s) %>
+                 This request will get accepted automatically when it enters the 'new' state!
+              <% else %>
+               This request will get accepted in
               <%= distance_of_time_in_words(Time.now, Time.parse(@accept_at.to_s)) %> automatically!
+              <% end %>
             </li>
         <% end -%>
         <% @other_open_reviews.each do |review| %>
