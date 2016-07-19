@@ -45,7 +45,7 @@ class Webui::ProjectController < Webui::WebuiController
   after_action :verify_authorized, only: [:save_new, :new_incident, :save_meta]
 
   def index
-    @show_all = params[:show_all]
+    @show_all = (params[:show_all].to_s == "true")
     projects = Project.all
     projects = projects.not_home unless @show_all
     @projects = projects.pluck(:name, :title)
