@@ -372,7 +372,7 @@ XML
     result = Nokogiri::XML(meta_xml)
     assert_select result, "project", name: "home:adrian" do
       assert_select "title", "My Home Project", 1
-      assert_select "description[not(text())]", 1, "Should have an empty description"
+      assert_select "description", { count: 1, text: "" }, "Should have an empty description"
       assert_select "person", userid: "adrian", role: "maintainer"
     end
     assert_equal 3, result.xpath("/project/child::*").count, "Should not have additional nodes."
@@ -395,7 +395,7 @@ XML
     result = Nokogiri::XML(meta_xml)
     assert_select result, "project", name: "home:adrian" do
       assert_select "title", "My Home Project", 1
-      assert_select "description[not(text())]", 1, "Should have an empty description"
+      assert_select "description", { count: 1, text: "" }, "Should have an empty description"
       assert_select "person", userid: "adrian", role: "maintainer"
     end
     assert_equal 3, result.xpath("/project/child::*").count, "Should not have additional nodes."
