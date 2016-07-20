@@ -330,7 +330,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     assert_equal "/request/show/5", page.current_path
   end
 
-  def test_succesful_comment_creation # spec/features/webui/requests_spec.rb
+  def test_succesful_comment_creation # spec/features/webui/comments_spec.rb
     login_Iggy to: request_show_path(1)
     fill_in 'body', with: 'Comment Body'
     find_button('Add comment').click
@@ -356,7 +356,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     page.wont_have_selector 'input#accept_request_button'
   end
 
-  def test_succesful_reply_comment_creation # spec/features/webui/requests_spec.rb
+  def test_succesful_reply_comment_creation # spec/features/webui/comments_spec.rb
     login_Iggy to: request_show_path(4)
     find(:id, 'reply_link_id_301').click
     fill_in 'reply_body_301', with: 'Comment Body'
@@ -372,7 +372,7 @@ class Webui::RequestControllerTest < Webui::IntegrationTest
     assert_equal should, lines.join("\n")
   end
 
-  def test_comment_event # spec/features/webui/requests_spec.rb
+  def test_comment_event # spec/mailers/event_mailer_spec.rb
     login_tom to: request_show_path(4)
 
     # adrian is reviewer, Iggy creator, Admin (fixture) commenter
