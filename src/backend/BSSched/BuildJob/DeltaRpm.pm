@@ -187,6 +187,7 @@ sub jobfinished {
     unlink("$dst/logfile");
     # keep the logfile so that users can see the errors
     rename("$jobdatadir/logfile", "$dst/logfile");
+    $changed->{$prp} ||= 1;
     unlink("$gdst/:repodone");
     return;
   }
