@@ -136,6 +136,7 @@ sub build {
   my $obsname = $gctx->{'obsname'};
   $binfo->{'disturl'} = "obs://$obsname/$projid/$repoid/$srcmd5-$packid";
   $binfo->{'hostarch'} = $bconf->{'hostarch'} if $bconf->{'hostarch'};
+  $binfo->{'prjconfconstraint'} = $bconf->{'constraint'} if @{$bconf->{'constraint'} || []};
   BSSched::BuildJob::writejob($ctx, $job, $binfo);
   print "    created deltajob...\n";
   return $job;
