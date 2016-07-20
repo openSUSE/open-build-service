@@ -1,5 +1,5 @@
 # as our base helper
-require 'rails_helper'
+require 'browser_helper'
 
 # support shoulda matcher
 require 'support/thinking_sphinx'

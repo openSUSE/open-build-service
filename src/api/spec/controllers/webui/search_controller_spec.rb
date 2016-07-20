@@ -1,4 +1,4 @@
-require 'sphinx_helper'
+require 'rails_helper'
 # WARNING: If you change owner tests make sure you uncomment this line
 # and start a test backend. Some of the Owner methods
 # require real backend answers for projects/packages.
@@ -37,5 +37,77 @@ RSpec.describe Webui::SearchController, vcr: true do
   end
 
   describe "GET #search" do
+    it 'just returns without search text' do
+      get :index
+      expect(response).to have_http_status(:success)
+    end
+
+    context 'with a short search text' do
+      before do
+        get :index, { search_text: 'a' }
+      end
+
+      it { expect(flash[:error]).to eq('Search string must contain at least two characters.') }
+      it { expect(response).to have_http_status(:success) }
+    end
+
+    context 'request number when string starts with a #' do
+      before do
+        get :index, { search_text: '#1' }
+      end
+
+      it { is_expected.to redirect_to(controller: :request, action: :show, number: 1) }
+    end
+
+    context 'with search_text starting with obs://' do
+      context 'and a package' do
+        before do
+          Package.stubs(:exists_by_project_and_name).returns(true)
+          get :index, { search_text: "obs://build.opensuse.org/#{user.home_project.name}/i586/1-#{package.name}" }
+        end
+
+        it { is_expected.to redirect_to(controller: :package, action: :show, project: user.home_project, package: package.name, rev: 1) }
+      end
+
+      context 'and a non existent package' do
+        before do
+          request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
+          get :index, { search_text: "obs://build.opensuse.org/#{user.home_project.name}/i586/1-non_existent_package" }
+        end
+
+        it { expect(flash[:notice]).to eq('Sorry, this disturl does not compute...') }
+        it { is_expected.to redirect_to(:back) }
+      end
+    end
+
+    context 'with bad search_where' do
+      before do
+        get :index, { search_text: 'whatever', name: '0' }
+      end
+
+      it { expect(flash[:error]).to eq("You have to search for whatever in something. Click the advanced button...") }
+      it { expect(response).to have_http_status(:success) }
+    end
+
+    context 'with proper parameters but no results' do
+      before do
+        ThinkingSphinx.stubs(:search).returns([])
+        get :index, { search_text: 'whatever' }
+      end
+
+      it { expect(flash[:notice]).to eq('Your search did not return any results.') }
+      it { expect(response).to have_http_status(:success) }
+      it { expect(assigns(:results)).to be_empty}
+    end
+
+    context 'with proper parameters and some results' do
+      before do
+        ThinkingSphinx.stubs(:search).returns(["Fake result with #{package.name}"])
+        get :index, { search_text: package.name }
+      end
+
+      it { expect(response).to have_http_status(:success) }
+      it { expect(assigns(:results)).not_to be_empty}
+    end
   end
 end
