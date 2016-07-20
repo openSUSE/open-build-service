@@ -43,8 +43,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/My:Maintenance/_meta'
     assert_response :success
 
-    raw_post '/source/My:Maintenance/_attribute',
-             "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-%N-%Y-%C</value></attribute></attributes>"
+    post '/source/My:Maintenance/_attribute',
+         "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-%N-%Y-%C</value></attribute></attributes>"
     assert_response :success
 
     Timecop.freeze(1)
@@ -314,7 +314,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     #
     # create release request
-    raw_post '/request?cmd=create&addrevision=1', '<request>
+    post '/request?cmd=create&addrevision=1', '<request>
                                    <action type="maintenance_release">
                                      <source project="' + incidentProject + '" />
                                    </action>

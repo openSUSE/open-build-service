@@ -3248,7 +3248,7 @@ XML
     put '/source/home:Iggy:fordecline/_meta', "<project name='home:Iggy:fordecline'><title></title><description></description></project>"
     assert_response :success
 
-    raw_post '/request?cmd=create', "<request><action type='add_role'><target project='home:Iggy:fordecline'/><person name='Iggy' role='reviewer'/></action></request>"
+    post '/request?cmd=create', "<request><action type='add_role'><target project='home:Iggy:fordecline'/><person name='Iggy' role='reviewer'/></action></request>"
     assert_response :success
     id = Xmlhash.parse(@response.body)['id']
 
@@ -3304,7 +3304,7 @@ XML
 
   def test_check_target_maintainer
     login_tom
-    raw_post '/request?cmd=create', "<request><action type='submit'><source project='Apache' package='apache2'/><target project='kde4' package='apache2'/></action></request>"
+    post '/request?cmd=create', "<request><action type='submit'><source project='Apache' package='apache2'/><target project='kde4' package='apache2'/></action></request>"
     assert_response :success
     id = Xmlhash.parse(@response.body)['id']
 
@@ -3337,7 +3337,7 @@ XML
     packages(:Devel_BaseDistro_Update_pack2).relationships.create(role: roles(:maintainer), user: users(:Iggy))
 
     login_tom
-    raw_post '/request?cmd=create', "<request><action type='delete'><target project='Devel:BaseDistro:Update' package='pack2'/></action></request>"
+    post '/request?cmd=create', "<request><action type='delete'><target project='Devel:BaseDistro:Update' package='pack2'/></action></request>"
     assert_response :success
     id = Xmlhash.parse(@response.body)['id']
 
@@ -3372,7 +3372,7 @@ XML
     assert_response :success
 
     # Submit apache2 back. It is not the last project.
-    raw_post '/request?cmd=create', "<request><action type='submit'><source project='#{bprj}' package='apache2'/><target project='#{sprj}' package='apache2'/></action></request>"
+    post '/request?cmd=create', "<request><action type='submit'><source project='#{bprj}' package='apache2'/><target project='#{sprj}' package='apache2'/></action></request>"
     assert_response :success
     # Accept our own request :-)
     id = Xmlhash.parse(@response.body)['id']
@@ -3385,7 +3385,7 @@ XML
     assert_xml_tag tag: 'entry', attributes: { name: 'Tidy' }
 
     # Submit Tidy back. It *is* the last project.
-    raw_post '/request?cmd=create', "<request><action type='submit'><source project='#{bprj}' package='Tidy'/><target project='#{sprj}' package='Tidy'/></action></request>"
+    post '/request?cmd=create', "<request><action type='submit'><source project='#{bprj}' package='Tidy'/><target project='#{sprj}' package='Tidy'/></action></request>"
     assert_response :success
     id = Xmlhash.parse(@response.body)['id']
     post "/request/#{id}?cmd=changestate&newstate=accepted"

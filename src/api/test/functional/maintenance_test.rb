@@ -459,7 +459,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     put "/source/#{incidentProject}/pack2.ServicePack_Update/myfile", "modify existing file"
     assert_response :success
 
-    raw_post '/request?cmd=create&ignore_build_state=1', "<request>
+    post '/request?cmd=create&ignore_build_state=1', "<request>
                                    <action type='maintenance_release'>
                                      <source project='#{incidentProject}' />
                                    </action>
@@ -873,7 +873,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     prepare_request_with_user 'maintenance_coord', 'buildservice'
-    raw_post '/source/My:Maintenance/_attribute', "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-%N-%Y-%C</value></attribute></attributes>"
+    post '/source/My:Maintenance/_attribute', "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-%N-%Y-%C</value></attribute></attributes>"
     assert_response :success
 
     Timecop.freeze(1)
@@ -1138,7 +1138,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_xml_tag :parent => { tag: 'result', attributes: { repository: 'BaseDistro2.0_LinkedUpdateProject', arch: 'i586', state: 'unpublished' } },
                :tag => 'status', :attributes => { package: 'patchinfo', code: 'broken' }
     # try to create release request nevertheless
-    raw_post '/request?cmd=create&addrevision=1', '<request>
+    post '/request?cmd=create&addrevision=1', '<request>
                                    <action type="maintenance_release">
                                      <source project="' + incidentProject + '" />
                                    </action>
@@ -1201,7 +1201,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     pi.add_element('binary').text = 'does not exist'
     put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response :success
-    raw_post '/request?cmd=create&addrevision=1', '<request>
+    post '/request?cmd=create&addrevision=1', '<request>
                                    <action type="maintenance_release">
                                      <source project="' + incidentProject + '" />
                                    </action>
@@ -1218,7 +1218,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     run_scheduler('i586')
 
     # publisher run did not happen yet
-    raw_post '/request?cmd=create&addrevision=1', '<request>
+    post '/request?cmd=create&addrevision=1', '<request>
                                    <action type="maintenance_release">
                                      <source project="' + incidentProject + '" />
                                    </action>
@@ -1246,7 +1246,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                     :attributes => { project: incidentProject, package: "pack2.BaseDistro3" } )
 
     # create release request for real
-    raw_post '/request?cmd=create&addrevision=1', '<request>
+    post '/request?cmd=create&addrevision=1', '<request>
                                    <action type="maintenance_release">
                                      <source project="' + incidentProject + '" />
                                    </action>
@@ -1306,7 +1306,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # incident project not visible for tom
     login_tom
-    raw_post '/request?cmd=create&addrevision=1', '<request>
+    post '/request?cmd=create&addrevision=1', '<request>
                                    <action type="maintenance_incident">
                                      <source project="kde4" package="kdelibs" />
                                      <target project="' + incidentProject + '" releaseproject="BaseDistro2.0:LinkedUpdateProject" />
@@ -1316,7 +1316,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response 404
     # new incident request accept is blocked, but decline works
     login_adrian
-    raw_post '/request?cmd=create&addrevision=1', '<request>
+    post '/request?cmd=create&addrevision=1', '<request>
                                    <action type="maintenance_incident">
                                      <source project="kde4" package="kdelibs" />
                                      <target project="' + incidentProject + '" releaseproject="BaseDistro2.0:LinkedUpdateProject" />
@@ -1353,7 +1353,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # leave a comment
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      raw_post create_request_comment_path(id: reqid), 'Release it now!'
+      post create_request_comment_path(id: reqid), 'Release it now!'
       assert_response :success
       SendEventEmails.new.perform
     end
@@ -1366,7 +1366,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # now leave another comment and hope the assi gets it too
     assert_difference 'ActionMailer::Base.deliveries.size', +1 do
-      raw_post create_request_comment_path(id: reqid), 'Slave, can you release it? The master is gone'
+      post create_request_comment_path(id: reqid), 'Slave, can you release it? The master is gone'
       assert_response :success
       SendEventEmails.new.perform
     end

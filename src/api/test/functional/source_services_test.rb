@@ -115,7 +115,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # submit to other package
-    raw_post '/request?cmd=create', '<request>
+    post '/request?cmd=create', '<request>
                                    <action type="submit">
                                      <source project="home:tom" package="service"/>
                                      <target project="home:tom" package="new_package"/>
