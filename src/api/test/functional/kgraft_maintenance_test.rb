@@ -144,7 +144,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # branch channel
     post '/source/Channel/BaseDistro2', :cmd => 'branch', :target_project => "home:king:branches:BaseDistro2.0", :extend_package_names => 1, :add_repositories => 1
     assert_response :success
-    raw_put "/source/home:king:branches:BaseDistro2.0/BaseDistro2.Channel/_channel", "<?xml version='1.0' encoding='UTF-8'?>
+    put "/source/home:king:branches:BaseDistro2.0/BaseDistro2.Channel/_channel", "<?xml version='1.0' encoding='UTF-8'?>
         <channel>
           <target project='BaseDistro2Channel' repository='channel_repo'>
             <disabled/>
@@ -251,7 +251,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     pi.find_first('description').text = 'live patch is always critical'
     pi.find_first('rating').text = 'critical'
     Timecop.freeze(1)
-    raw_put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response :success
 
     ### the backend is now building the packages, injecting results

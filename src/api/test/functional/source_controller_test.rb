@@ -113,9 +113,9 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_use_illegal_encoded_parameters
     login_king
-    raw_put '/source/kde4/kdelibs/DUMMY?comment=working%20with%20Uml%C3%A4ut', 'WORKING'
+    put '/source/kde4/kdelibs/DUMMY?comment=working%20with%20Uml%C3%A4ut', 'WORKING'
     assert_response :success
-    raw_put '/source/kde4/kdelibs/DUMMY?comment=illegalchar%96%96asd', 'NOTWORKING'
+    put '/source/kde4/kdelibs/DUMMY?comment=illegalchar%96%96asd', 'NOTWORKING'
     assert_response 400
     assert_xml_tag :tag => 'status', :attributes => { :code => 'invalid_text_encoding' }
     delete '/source/kde4/kdelibs/DUMMY'
@@ -237,7 +237,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
   def test_invalid_project_and_package_name
     login_king
     %w(_invalid ..).each do |n|
-      raw_put url_for(:controller => :source, :action => :update_project_meta, :project => n), "<project name='#{n}'> <title /> <description /> </project>"
+      put url_for(:controller => :source, :action => :update_project_meta, :project => n), "<project name='#{n}'> <title /> <description /> </project>"
       assert_response 400
       assert_xml_tag :tag => 'status', :attributes => { :code => 'invalid_project_name' }
 
@@ -359,17 +359,17 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_match(/admin rights are required to change projects using remote resources/, @response.body)
 
     # invalid xml
-    raw_put url_for(:controller => :source, :action => :update_project_meta, :project => 'NewProject'), '<asd/>'
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'NewProject'), '<asd/>'
     assert_response 400
     assert_match(/validation error/, @response.body)
 
     # new project
-    raw_put url_for(:controller => :source, :action => :update_project_meta, :project => 'NewProject'), "<project name='NewProject'><title>blub</title><description/></project>"
+    put url_for(:controller => :source, :action => :update_project_meta, :project => 'NewProject'), "<project name='NewProject'><title>blub</title><description/></project>"
     assert_response 403
     assert_xml_tag :tag => 'status', :attributes => { :code => 'create_project_no_permission' }
 
     login_king
-    raw_put url_for(:controller => :source, :action => :update_project_meta, :project => '_NewProject'), "<project name='_NewProject'><title>blub</title><description/></project>"
+    put url_for(:controller => :source, :action => :update_project_meta, :project => '_NewProject'), "<project name='_NewProject'><title>blub</title><description/></project>"
     assert_response 400
     assert_match(/invalid project name/, @response.body)
   end
@@ -1264,21 +1264,21 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
 
   def test_devel_package_cycle
     login_tom
-    raw_put '/source/home:tom/packageA/_meta', "<package project='home:tom' name='packageA'> <title/> <description/> </package>"
+    put '/source/home:tom/packageA/_meta', "<package project='home:tom' name='packageA'> <title/> <description/> </package>"
     assert_response :success
-    raw_put '/source/home:tom/packageB/_meta', "<package project='home:tom' name='packageB'> <title/> <description/> <devel package='packageA' /> </package>"
+    put '/source/home:tom/packageB/_meta', "<package project='home:tom' name='packageB'> <title/> <description/> <devel package='packageA' /> </package>"
     assert_response :success
-    raw_put '/source/home:tom/packageC/_meta', "<package project='home:tom' name='packageC'> <title/> <description/> <devel package='packageB' /> </package>"
+    put '/source/home:tom/packageC/_meta', "<package project='home:tom' name='packageC'> <title/> <description/> <devel package='packageB' /> </package>"
     assert_response :success
     # no self reference
-    raw_put '/source/home:tom/packageA/_meta', "<package project='home:tom' name='packageA'> <title/> <description/> <devel package='packageA' /> </package>"
+    put '/source/home:tom/packageA/_meta', "<package project='home:tom' name='packageA'> <title/> <description/> <devel package='packageA' /> </package>"
     assert_response 400
     # create a cycle via new package
-    raw_put '/source/home:tom/packageB/_meta', "<package project='home:tom' name='packageB'> <title/> <description/> <devel package='packageC' /> </package>"
+    put '/source/home:tom/packageB/_meta', "<package project='home:tom' name='packageB'> <title/> <description/> <devel package='packageC' /> </package>"
     assert_response 400
     assert_xml_tag(:tag => 'status', :attributes => { :code => 'cycle_error' })
     # create a cycle via existing package
-    raw_put '/source/home:tom/packageA/_meta', "<package project='home:tom' name='packageA'> <title/> <description/> <devel package='packageB' /> </package>"
+    put '/source/home:tom/packageA/_meta', "<package project='home:tom' name='packageA'> <title/> <description/> <devel package='packageB' /> </package>"
     assert_response 400
     assert_xml_tag(:tag => 'status', :attributes => { :code => 'cycle_error' })
 
@@ -1296,8 +1296,8 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response response1
     if !(response2 || tag2 || response3 || select3)
       # dummy write to check blocking
-      raw_put url_for(:controller => :source, :action => :update_package_meta, :project => project, :package => package),
-              "<package name=\"#{package}\"><title></title><description></description></package>"
+      put url_for(:controller => :source, :action => :update_package_meta, :project => project, :package => package),
+          "<package name=\"#{package}\"><title></title><description></description></package>"
       assert_response 404
 #      assert_match(/unknown_package/, @response.body)
       assert_match(/unknown_project/, @response.body)
@@ -1650,7 +1650,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     # reset file in backend to fixture setup
-    raw_put '/source/kde4/kdelibs/my_patch.diff?user=king', 'argl'
+    put '/source/kde4/kdelibs/my_patch.diff?user=king', 'argl'
   end
 
   def test_get_package_meta_history
@@ -2884,7 +2884,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     raw_put '/source/home:Iggy/TestPack/TestPack.spec', load_backend_file('source/home:Iggy/TestPack/TestPack.spec')
     assert_response :success
-    raw_put('/source/home:Iggy/TestPack/myfile', 'DummyContent')
+    put('/source/home:Iggy/TestPack/myfile', 'DummyContent')
     assert_response :success
     delete '/source/home:Iggy/TestPack/filename'
     assert_response :success
@@ -2894,12 +2894,12 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     login_Iggy
     post '/source/kde4/kdelibs?cmd=branch&target_project=home:Iggy&target_package=kdelibs_upstream', nil
     assert_response :success
-    raw_put "/source/home:Iggy/kdelibs_upstream/kdelibs.changes", File.open("#{Rails.root}/test/fixtures/backend/source/kde4/kdelibs/kdelibs.changes").read
+    put "/source/home:Iggy/kdelibs_upstream/kdelibs.changes", File.open("#{Rails.root}/test/fixtures/backend/source/kde4/kdelibs/kdelibs.changes").read
     post '/source/home:Iggy/kdelibs_upstream?cmd=branch&target_project=home:Iggy&target_package=kdelibs_branch', nil
     assert_response :success
     # apply conflicting changes for diff3 ... but not for our changes merge tool
-    raw_put "/source/home:Iggy/kdelibs_branch/kdelibs.changes", File.open("#{Rails.root}/test/fixtures/backend/source/kde4/kdelibs/kdelibs.changes.branch").read
-    raw_put "/source/home:Iggy/kdelibs_upstream/kdelibs.changes", File.open("#{Rails.root}/test/fixtures/backend/source/kde4/kdelibs/kdelibs.changes.new").read
+    put "/source/home:Iggy/kdelibs_branch/kdelibs.changes", File.open("#{Rails.root}/test/fixtures/backend/source/kde4/kdelibs/kdelibs.changes.branch").read
+    put "/source/home:Iggy/kdelibs_upstream/kdelibs.changes", File.open("#{Rails.root}/test/fixtures/backend/source/kde4/kdelibs/kdelibs.changes.new").read
 
     # merge is working?
     get '/source/home:Iggy/kdelibs_branch?expand=1'
@@ -3841,7 +3841,7 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     put('/source/home:tom:deltastore/deltapack/_meta', '<package name="deltapack" project="home:tom:deltastore"><title/><description/></package>')
     assert_response :success
 
-    raw_put '/source/home:tom:deltastore/deltapack/archive.obscpio', load_backend_file('source/deltapack/archive.obscpio')
+    put '/source/home:tom:deltastore/deltapack/archive.obscpio', load_backend_file('source/deltapack/archive.obscpio')
     assert_response :success
 
     get '/source/home:tom:deltastore/deltapack'

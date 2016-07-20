@@ -869,7 +869,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     maintenance_project_meta = REXML::Document.new(@response.body)
     maintenance_project_meta.elements['/project'].attributes['kind'] = 'maintenance'
-    raw_put '/source/My:Maintenance/_meta', maintenance_project_meta.to_s
+    put '/source/My:Maintenance/_meta', maintenance_project_meta.to_s
     assert_response :success
 
     prepare_request_with_user 'maintenance_coord', 'buildservice'
@@ -952,7 +952,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # create some changes, including issue tracker references
     Timecop.freeze(1)
-    raw_put '/source/'+incidentProject+'/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes', 'DUMMY bnc#1042'
+    put '/source/'+incidentProject+'/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes', 'DUMMY bnc#1042'
     assert_response :success
     Timecop.freeze(1)
     post '/source/'+incidentProject+'/pack2.BaseDistro2.0_LinkedUpdateProject?unified=1&cmd=diff&filelimit=0&expand=1'
@@ -1004,17 +1004,17 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     pi.add_element 'releasetarget', { project: 'BaseDistro2.0:LinkedUpdateProject' }
     pi.add_element 'releasetarget', { project: 'BaseDistro3' }
     Timecop.freeze(1)
-    raw_put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response :success
     # add broken releasetarget
     pi.add_element 'releasetarget', { project: 'home:tom' } # invalid target
     Timecop.freeze(1)
-    raw_put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response 404
     assert_xml_tag :tag => 'status', :attributes => { code: 'releasetarget_not_found' }
     # add broken tracker
     pi.add_element 'issue', { 'id' => '0815', 'tracker' => 'INVALID'} # invalid tracker
-    raw_put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response 404
     assert_xml_tag :tag => 'status', :attributes => { code: 'tracker_not_found' }
     # continue
@@ -1031,7 +1031,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # add another issue and update patchinfo
     Timecop.freeze(1)
-    raw_put '/source/'+incidentProject+'/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes', 'DUMMY bnc#1042 cve-2009-0815 bnc#4201'
+    put '/source/'+incidentProject+'/pack2.BaseDistro2.0_LinkedUpdateProject/dummy.changes', 'DUMMY bnc#1042 cve-2009-0815 bnc#4201'
     assert_response :success
     get "/source/#{incidentProject}/pack2.BaseDistro2.0_LinkedUpdateProject?view=issues"
     assert_response :success
@@ -1123,7 +1123,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     pi = ActiveXML::Node.new( @response.body )
     s = pi.add_element 'stopped'
     s.text = 'The issue is not fixed for real yet'
-    raw_put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response :success
     # collect the job results
     run_scheduler('x86_64')
@@ -1150,7 +1150,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     # un-block patchinfo build, but filter for an empty result
     pi.delete_element 'stopped'
     pi.add_element('binary').text = 'does not exist'
-    raw_put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response :success
     # collect the job results
     run_scheduler('x86_64')
@@ -1162,7 +1162,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
                :tag => 'status', :attributes => { package: 'patchinfo', code: 'failed' }
     # fix it again
     pi.delete_element 'binary'
-    raw_put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response :success
     # collect the job results
     run_scheduler('x86_64')
@@ -1194,12 +1194,12 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
     maintenance_project_meta = REXML::Document.new(@response.body)
     maintenance_project_meta.elements['/project'].delete_element 'publish'
-    raw_put "/source/#{incidentProject}/_meta", maintenance_project_meta.to_s
+    put "/source/#{incidentProject}/_meta", maintenance_project_meta.to_s
     assert_response :success
 
     # mess up patchinfo and try to create release request
     pi.add_element('binary').text = 'does not exist'
-    raw_put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response :success
     raw_post '/request?cmd=create&addrevision=1', '<request>
                                    <action type="maintenance_release">
@@ -1212,7 +1212,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
 
     # revert
     pi.delete_element 'binary'
-    raw_put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
+    put "/source/#{incidentProject}/patchinfo/_patchinfo", pi.dump_xml
     assert_response :success
     run_scheduler('x86_64')
     run_scheduler('i586')
