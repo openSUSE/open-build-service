@@ -1066,7 +1066,7 @@ class Webui::PackageController < Webui::WebuiController
     @debuginfo = @package.get_flags('debuginfo')
     @publish = @package.get_flags('publish')
     @useforbuild = @package.get_flags('useforbuild')
-    @architectures = @package.project.architectures.uniq
+    @architectures = @package.project.architectures.reorder('name').uniq
   end
 
   private
