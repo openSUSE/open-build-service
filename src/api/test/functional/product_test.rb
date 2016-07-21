@@ -150,8 +150,8 @@ class ProductTests < ActionDispatch::IntegrationTest
     assert_equal pm.repository.name, "BaseDistro_repo"
 
     # invalid uploads
-    raw_put "/source/home:tom:temporary/_product/obs.group",
-            File.open("#{Rails.root}/test/fixtures/backend/source/simple_product/INVALID_obs.group").read()
+    put "/source/home:tom:temporary/_product/obs.group",
+        File.open("#{Rails.root}/test/fixtures/backend/source/simple_product/INVALID_obs.group").read()
     assert_response 400
     assert_xml_tag :tag => "status", :attributes => { :code => '400', :origin => 'backend' }
     assert_match(/Illegal support key ILLEGAL for obs-server/, @response.body)

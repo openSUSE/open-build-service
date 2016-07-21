@@ -554,7 +554,7 @@ XML
 
   def test_invalid_bugowner_requests
     login_Iggy
-    raw_put '/source/home:Iggy:Test/_meta', "<project name='home:Iggy:Test'><title></title><description></description> </project>"
+    put '/source/home:Iggy:Test/_meta', "<project name='home:Iggy:Test'><title></title><description></description> </project>"
     assert_response :success
 
     login_adrian
@@ -595,7 +595,7 @@ XML
 
   def test_set_bugowner_request_locked_project
     login_Iggy
-    raw_put '/source/home:Iggy:Test/_meta', "<project name='home:Iggy:Test'><title></title><description></description>  <lock><enable/></lock></project>"
+    put '/source/home:Iggy:Test/_meta', "<project name='home:Iggy:Test'><title></title><description></description>  <lock><enable/></lock></project>"
     assert_response :success
 
     login_adrian
@@ -630,7 +630,7 @@ XML
     post '/source/home:Iggy:Test', { cmd: 'unlock', comment: 'cleanup' }
     assert_response :success
 
-    raw_put '/source/home:Iggy:Test/pack/_meta', "<package project='home:Iggy:Test' name='pack'><title></title><description></description>  <lock><enable/></lock></package>"
+    put '/source/home:Iggy:Test/pack/_meta', "<package project='home:Iggy:Test' name='pack'><title></title><description></description>  <lock><enable/></lock></package>"
     assert_response :success
 
     login_adrian
@@ -2303,7 +2303,7 @@ XML
 
     # now with modified sources
     login_tom
-    raw_put '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/new_file', "just to have changed source"
+    put '/source/home:tom:branches:BaseDistro2.0:LinkedUpdateProject/pack2/new_file', "just to have changed source"
     assert_response :success
     req = "<request>
             <action type='submit'>
@@ -3245,10 +3245,10 @@ XML
     login_Iggy
 
     Timecop.freeze(2010, 07, 12)
-    raw_put '/source/home:Iggy:fordecline/_meta', "<project name='home:Iggy:fordecline'><title></title><description></description></project>"
+    put '/source/home:Iggy:fordecline/_meta', "<project name='home:Iggy:fordecline'><title></title><description></description></project>"
     assert_response :success
 
-    raw_post '/request?cmd=create', "<request><action type='add_role'><target project='home:Iggy:fordecline'/><person name='Iggy' role='reviewer'/></action></request>"
+    post '/request?cmd=create', "<request><action type='add_role'><target project='home:Iggy:fordecline'/><person name='Iggy' role='reviewer'/></action></request>"
     assert_response :success
     id = Xmlhash.parse(@response.body)['id']
 
@@ -3304,7 +3304,7 @@ XML
 
   def test_check_target_maintainer
     login_tom
-    raw_post '/request?cmd=create', "<request><action type='submit'><source project='Apache' package='apache2'/><target project='kde4' package='apache2'/></action></request>"
+    post '/request?cmd=create', "<request><action type='submit'><source project='Apache' package='apache2'/><target project='kde4' package='apache2'/></action></request>"
     assert_response :success
     id = Xmlhash.parse(@response.body)['id']
 
@@ -3337,7 +3337,7 @@ XML
     packages(:Devel_BaseDistro_Update_pack2).relationships.create(role: roles(:maintainer), user: users(:Iggy))
 
     login_tom
-    raw_post '/request?cmd=create', "<request><action type='delete'><target project='Devel:BaseDistro:Update' package='pack2'/></action></request>"
+    post '/request?cmd=create', "<request><action type='delete'><target project='Devel:BaseDistro:Update' package='pack2'/></action></request>"
     assert_response :success
     id = Xmlhash.parse(@response.body)['id']
 
@@ -3372,7 +3372,7 @@ XML
     assert_response :success
 
     # Submit apache2 back. It is not the last project.
-    raw_post '/request?cmd=create', "<request><action type='submit'><source project='#{bprj}' package='apache2'/><target project='#{sprj}' package='apache2'/></action></request>"
+    post '/request?cmd=create', "<request><action type='submit'><source project='#{bprj}' package='apache2'/><target project='#{sprj}' package='apache2'/></action></request>"
     assert_response :success
     # Accept our own request :-)
     id = Xmlhash.parse(@response.body)['id']
@@ -3385,7 +3385,7 @@ XML
     assert_xml_tag tag: 'entry', attributes: { name: 'Tidy' }
 
     # Submit Tidy back. It *is* the last project.
-    raw_post '/request?cmd=create', "<request><action type='submit'><source project='#{bprj}' package='Tidy'/><target project='#{sprj}' package='Tidy'/></action></request>"
+    post '/request?cmd=create', "<request><action type='submit'><source project='#{bprj}' package='Tidy'/><target project='#{sprj}' package='Tidy'/></action></request>"
     assert_response :success
     id = Xmlhash.parse(@response.body)['id']
     post "/request/#{id}?cmd=changestate&newstate=accepted"
