@@ -177,7 +177,7 @@ sub read_bininfo {
       $r->{'hdrmd5'} = $hdrmd5;
       $r->{'leadsigmd5'} = $leadsigmd5 if $leadsigmd5;
       $bininfo->{$file} = $r;
-    } elsif ($file =~ /-appdata\.xml$/) {
+    } elsif ($file =~ /[-.]appdata\.xml$/) {
       local *F;
       open(F, '<', "$dir/$file") || next;
       my @s = stat(F);

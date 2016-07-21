@@ -476,6 +476,13 @@ sub build {
           return ('broken', $error);
         }
       }
+      if ($d->{'arch'} ne 'src' && $d->{'arch'} ne 'nosrc' && -e "$from/$d->{'name'}.appdata.xml") {
+        unlink("$jobdatadir/$d->{'name'}.appdata.xml");
+        if (!link("$from/$d->{'name'}.appdata.xml", "$jobdatadir/$d->{'name'}.appdata.xml")) {
+          my $error = "link $from/$d->{'name'}.appdata.xml $jobdatadir/$d->{'name'}.appdata.xml: $!\n";
+          return ('broken', $error);
+        }
+      }
       $donebins{$bin} = $tocopy;
       $bininfo->{$bin} = {'name' => $d->{'name'}, 'arch' => $d->{'arch'}, 'hdrmd5' => $d->{'hdrmd5'}, 'filename' => $bin, 'id' => "$s[9]/$s[7]/$s[1]"};
       $bininfo->{$bin}->{'leadsigmd5'} = $d->{'leadsigmd5'} if $d->{'leadsigmd5'};

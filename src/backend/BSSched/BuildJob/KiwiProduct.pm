@@ -479,7 +479,7 @@ sub build {
         'repoarch' => $b[2],
         'package' => $b[3],
       };
-    } elsif ($dobuildinfo && ($b[4] =~  /^(.*)-appdata\.xml$/)) {
+    } elsif ($dobuildinfo && ($b[4] =~  /^(.*)[-.]appdata\.xml$/)) {
       $b = {
         'project' => $b[0],
         'repository' => $b[1],

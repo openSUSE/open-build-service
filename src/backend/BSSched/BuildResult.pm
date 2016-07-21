@@ -536,7 +536,7 @@ sub read_bininfo {
     if ($file !~ /\.(?:$binsufsre)$/) {
       if ($file eq '.channelinfo' || $file eq 'updateinfo.xml') {
         $bininfo->{'.nouseforbuild'} = {};
-      } elsif ($file =~ /-appdata\.xml$/) {
+      } elsif ($file =~ /[-.]appdata\.xml$/) {
         local *F;
         open(F, '<', "$dir/$file") || next;
         my @s = stat(F);

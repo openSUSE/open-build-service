@@ -266,7 +266,7 @@ sub check_package_dir {
       # unchecked for now
     } elsif ($ent =~ /^pesign-/) {
       # unchecked for now
-    } elsif ($ent =~ /-appdata\.xml$/) {
+    } elsif ($ent =~ /[-.]appdata\.xml$/) {
       # unchecked for now
     } elsif ($ent =~ /\.applications$/) {
       # unchecked for now

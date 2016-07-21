@@ -341,6 +341,10 @@ sub build {
       unlink("$jobdatadir/$bi->{'name'}-appdata.xml");
       link("$dir/$bi->{'name'}-appdata.xml", "$jobdatadir/$bi->{'name'}-appdata.xml") || die("link $bi->{'name'}-appdata.xml $jobdatadir/$bi->{'name'}-appdata.xml: $!\n");
     }
+    if ($bi->{'arch'} ne 'src' && $bi->{'arch'} ne 'nosrc' && -e "$dir/$bi->{'name'}.appdata.xml") {
+      unlink("$jobdatadir/$bi->{'name'}.appdata.xml");
+      link("$dir/$bi->{'name'}.appdata.xml", "$jobdatadir/$bi->{'name'}.appdata.xml") || die("link $bi->{'name'}.appdata.xml $jobdatadir/$bi->{'name'}.appdata.xml: $!\n");
+    }
     if (!$checksums_seen{"$arepoid/$apackid"}) {
       $checksums_seen{"$arepoid/$apackid"} = 1;
       # just append the checksums, it does not matter if we pick up too many
