@@ -28,7 +28,7 @@
         </td>
         <td>
           <% if element.class == HistoryElement::RequestSuperseded %>
-            <%= link_to(element.description, :id => element.description_extension) %>
+            <%= link_to(element.description, request_show_path(element.description_extension)) %>
           <% else %>
             <span style="color: <%= element.color %>;"><%= element.description %></span>
           <% end %>

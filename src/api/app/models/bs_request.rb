@@ -726,13 +726,23 @@ class BsRequest < ActiveRecord::Base
       self.commenter = User.current.login
       self.comment = opts[:comment] if opts[:comment]
 
-      newreview = self.reviews.create reason: opts[:comment], by_user: opts[:by_user],
-                                      by_group: opts[:by_group], by_project: opts[:by_project],
-                                      by_package: opts[:by_package], creator: User.current.login
+      newreview = self.reviews.create(
+        reason:     opts[:comment],
+        by_user:    opts[:by_user],
+        by_group:   opts[:by_group],
+        by_project: opts[:by_project],
+        by_package: opts[:by_package],
+        creator:    User.current.login
+      )
       self.save!
-      p={request: self, user_id: User.current.id, description_extension: newreview.id.to_s}
-      p[:comment] = opts[:comment] if opts[:comment]
-      HistoryElement::RequestReviewAdded.create(p)
+
+      history_params = {
+        request:               self,
+        user_id:               User.current.id,
+        description_extension: newreview.id.to_s
+      }
+      history_params[:comment] = opts[:comment] if opts[:comment]
+      HistoryElement::RequestReviewAdded.create(history_params)
       newreview.create_notification(self.notify_parameters)
     end
   end
