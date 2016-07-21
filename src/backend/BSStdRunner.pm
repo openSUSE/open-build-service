@@ -102,6 +102,7 @@ sub dispatch {
 
   if ($conf->{'inprogress'}) {
     rename("$myeventdir/$evname", "$myeventdir/${evname}::inprogress");
+    $req->{'inprogress'} = 1;
   }
 
   my @args = map {$ev->{$_}} @{$dis->{'param'}};
@@ -119,6 +120,7 @@ sub dispatch {
     } else {
       rename("$myeventdir/${evname}::inprogress", "$myeventdir/$evname");
     }
+    delete $req->{'inprogress'};
   } else {
     unlink("$myeventdir/$evname") if $r;
   }
@@ -157,6 +159,7 @@ sub setdue {
   my $myeventdir = $req->{'conf'}->{'eventdir'};
   my $ev = $req->{'ev'};
   my $evname = $req->{'event'};
+  $evname .= '::inprogress' if $req->{'inprogress'};
   $ev->{'due'} = $due;
   writexml("$myeventdir/.$evname$$", "$myeventdir/$evname", $ev, $BSXML::event);
   BSUtil::ping("$myeventdir/.ping");
