@@ -199,6 +199,7 @@ my $conf = {
   'eventdir' => $myeventdir,
   'dispatches' => $dispatches,
   'maxchild' => $maxchild,
+  'inprogress' => 1,
 };
 
 BSStdRunner::run('bs_servicedispatch', \@ARGV, $conf);
