@@ -88,13 +88,13 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     visit search_path
     validate_search_page
 
-    visit root_path + '/search?search_text=basedistro'
+    visit '/search?search_text=basedistro'
     page.must_have_text(/Base.* contains official released updates/)
 
-    visit root_path + '/search?search_text=basedistro3'
+    visit '/search?search_text=basedistro3'
     page.must_have_text(/Base.* distro without update project/)
 
-    visit root_path + '/search?search_text=kdebase'
+    visit '/search?search_text=kdebase'
     page.must_have_link 'kdebase'
   end
 

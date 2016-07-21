@@ -153,7 +153,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   def test_succesful_comment_creation
     use_js
     login_Iggy
-    visit root_path + '/package/show/home:Iggy/TestPack'
+    visit '/package/show/home:Iggy/TestPack'
     # rubocop:disable Metrics/LineLength
     fill_comment "Write some http://link.com\n\nand some other\n\n* Markdown\n* markup\n\nReferencing sr#23, bco#24, fate#25, @_nobody_, @a-dashed-user and @Iggy. https://anotherlink.com"
     # rubocop:enable Metrics/LineLength
@@ -175,7 +175,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   def test_another_succesful_comment_creation
     use_js
     login_Iggy
-    visit root_path + '/package/show?project=home:Iggy&package=TestPack'
+    visit '/package/show?project=home:Iggy&package=TestPack'
     # @Iggy works at the very beginning and requests are case insensitive
     fill_comment "@Iggy likes to mention himself and to write request#23 with capital 'R', like Request#23."
     within('div.thread_level_0') do
@@ -194,7 +194,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   def test_succesful_reply_comment_creation
     use_js
     login_Iggy
-    visit root_path + '/package/show/BaseDistro3/pack2'
+    visit '/package/show/BaseDistro3/pack2'
 
     find(:id, 'reply_link_id_201').click
     fill_in 'reply_body_201', with: 'Comment Body'
