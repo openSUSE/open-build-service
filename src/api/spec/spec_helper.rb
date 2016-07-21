@@ -71,6 +71,11 @@ RSpec.configure do |config|
   # test failures related to randomization by passing the same `--seed` value
   # as the one that triggered the failure.
   Kernel.srand config.seed
+
+  # Custom formatter, but not in Travis-CI
+  unless ENV['TRAVIS']
+    config.formatter = 'NyanUnicornFormatter'
+  end
 end
 
 # We never want the backend to autostart itself...
