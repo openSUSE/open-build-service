@@ -77,10 +77,10 @@ RSpec.feature "Requests", :type => :feature, :js => true do
                                                      person_name: submitter,
                                                      bs_request_id: bs_request.id)
         login receiver
-        visit request_show_path(bs_request.id)
+        visit request_show_path(bs_request)
         click_button 'Accept'
 
-        expect(page).to have_text("Request #{bs_request.id} (accepted)")
+        expect(page).to have_text("Request #{bs_request.number} (accepted)")
         expect(page).to have_text('In state accepted')
       end
     end
@@ -105,10 +105,10 @@ RSpec.feature "Requests", :type => :feature, :js => true do
                                                        person_name: submitter,
                                                        bs_request_id: bs_request.id)
         login receiver
-        visit request_show_path(bs_request.id)
+        visit request_show_path(bs_request)
         click_button 'Accept'
 
-        expect(page).to have_text("Request #{bs_request.id} (accepted)")
+        expect(page).to have_text("Request #{bs_request.number} (accepted)")
         expect(page).to have_text('In state accepted')
       end
     end
@@ -118,11 +118,11 @@ RSpec.feature "Requests", :type => :feature, :js => true do
     it 'can add submitter as maintainer' do
       create_submit_request
       login receiver
-      visit request_show_path(bs_request.id)
+      visit request_show_path(bs_request)
       check 'add_submitter_as_maintainer_0'
       click_button 'Accept request'
 
-      expect(page).to have_text("Request #{bs_request.id} (accepted)")
+      expect(page).to have_text("Request #{bs_request.number} (accepted)")
       expect(page).to have_text('In state accepted')
       expect(submitter.has_local_permission?('change_package', target_project.packages.find_by(name: source_package.name))).to be_truthy
     end
@@ -143,7 +143,7 @@ RSpec.feature "Requests", :type => :feature, :js => true do
         click_link 'submit request'
       end
 
-      expect(page).to have_text("Supersedes #{bs_request.id}")
+      expect(page).to have_text("Supersedes #{bs_request.number}")
     end
   end
 
@@ -151,12 +151,12 @@ RSpec.feature "Requests", :type => :feature, :js => true do
     it 'revokes request' do
       create_submit_request
       login submitter
-      visit request_show_path(bs_request.id)
+      visit request_show_path(bs_request)
       fill_in 'reason', with: 'Oops'
       click_button 'Revoke request'
 
       expect(page).to have_text('Request revoked!')
-      expect(page).to have_text("Request #{bs_request.id} (revoked)")
+      expect(page).to have_text("Request #{bs_request.number} (revoked)")
       expect(page).to have_text("There's nothing to be done right now")
     end
   end
@@ -166,7 +166,7 @@ RSpec.feature "Requests", :type => :feature, :js => true do
       let(:reviewer) { create(:confirmed_user) }
       it 'opens a review' do
         login submitter
-        visit request_show_path(bs_request.id)
+        visit request_show_path(bs_request)
         click_link 'Add a review'
         find(:id, 'review_type').select('User')
         fill_in 'review_user', with: reviewer.login
@@ -178,7 +178,7 @@ RSpec.feature "Requests", :type => :feature, :js => true do
       let(:review_group) { create(:group) }
       it 'opens a review' do
         login submitter
-        visit request_show_path(bs_request.id)
+        visit request_show_path(bs_request)
         click_link 'Add a review'
         find(:id, 'review_type').select('Group')
         fill_in 'review_group', with: review_group.title
@@ -189,7 +189,7 @@ RSpec.feature "Requests", :type => :feature, :js => true do
     describe 'for project' do
       it 'opens a review' do
         login submitter
-        visit request_show_path(bs_request.id)
+        visit request_show_path(bs_request)
         click_link 'Add a review'
         find(:id, 'review_type').select('Project')
         fill_in 'review_project', with: submitter.home_project
@@ -201,7 +201,7 @@ RSpec.feature "Requests", :type => :feature, :js => true do
       let(:package) { create(:package, project: submitter.home_project) }
       it 'opens a review' do
         login submitter
-        visit request_show_path(bs_request.id)
+        visit request_show_path(bs_request)
         click_link 'Add a review'
         find(:id, 'review_type').select('Package')
         fill_in 'review_project', with: submitter.home_project
@@ -213,7 +213,7 @@ RSpec.feature "Requests", :type => :feature, :js => true do
     describe 'for invalid reviewer' do
       it 'opens no review' do
         login submitter
-        visit request_show_path(bs_request.id)
+        visit request_show_path(bs_request)
         click_link 'Add a review'
         find(:id, 'review_type').select('Project')
         fill_in 'review_project', with: 'INVALID/PROJECT'
