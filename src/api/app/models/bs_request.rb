@@ -1,6 +1,7 @@
 require 'xmlhash'
 require 'event'
 require 'opensuse/backend'
+require File.join(Rails.root, "lib/workers/accept_requests")
 
 include MaintenanceHelper
 
