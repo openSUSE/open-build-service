@@ -178,6 +178,20 @@ sub runservice {
   }, undef, 'cmd=notifypackagechange');
 }
 
+sub getevent {
+  my ($req, $notdue, $nofork) = BSStdRunner::getevent(@_);
+  if ($req && $req->{'ev'} && $req->{'conf'}->{'limitinprogress'}) {
+    my ($projid, $packid) = ($req->{'ev'}->{'project'}, $req->{'ev'}->{'package'});
+    if ($projid && $packid) {
+      my @inprogress = grep {/^servicedispatch:\Q$projid\E::\Q$packid\E::.*::inprogress$/} ls($req->{'conf'}->{'eventdir'});
+      if (@inprogress >= $req->{'conf'}->{'limitinprogress'}) {
+        return (undef, 1);
+      }
+    }
+  }
+  return ($req, $notdue, $nofork);
+}
+
 sub servicedispatchevent {
   my ($req, @args) = @_;
   eval {
@@ -199,7 +213,9 @@ my $conf = {
   'eventdir' => $myeventdir,
   'dispatches' => $dispatches,
   'maxchild' => $maxchild,
+  'getevent' => \&getevent,
   'inprogress' => 1,
 };
+$conf->{'limitinprogress'} = $BSConfig::servicedispatch_limitinprogress if $BSConfig::servicedispatch_limitinprogress;
 
 BSStdRunner::run('bs_servicedispatch', \@ARGV, $conf);
