@@ -735,8 +735,8 @@ class BsRequest < ActiveRecord::Base
       )
 
       history_params = {
-        request: self,
-        user_id: User.current.id,
+        request:               self,
+        user_id:               User.current.id,
         description_extension: newreview.number.to_s
       }
       history_params[:comment] = opts[:comment] if opts[:comment]
