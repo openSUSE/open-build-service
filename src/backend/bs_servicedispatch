@@ -17,6 +17,7 @@ use BSSrcrep;
 use BSRevision;
 use BSNotify;
 use BSStdRunner;
+use BSVerify;
 
 use strict;
 
