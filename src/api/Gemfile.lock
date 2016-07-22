@@ -66,8 +66,8 @@ GEM
       activesupport
       tzinfo
     cocoon (1.2.6)
-    codemirror-rails (5.3)
-      railties (>= 3.0, < 5)
+    codemirror-rails (5.16.0)
+      railties (>= 3.0, < 6.0)
     coderay (1.1.0)
     colorize (0.7.7)
     concurrent-ruby (1.0.0)
@@ -217,7 +217,7 @@ GEM
       thor (>= 0.18.1, < 2.0)
     rainbow (2.0.0)
     raindrops (0.15.0)
-    rake (10.4.2)
+    rake (11.2.2)
     rdoc (4.2.2)
       json (~> 1.4)
     redcarpet (3.3.3)

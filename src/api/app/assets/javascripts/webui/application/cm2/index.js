@@ -44,7 +44,6 @@
 //= require codemirror/modes/rpm
 //= require codemirror/modes/rst.js
 //= require codemirror/modes/ruby.js
-//= require codemirror/modes/rust.js
 //= require codemirror/modes/scheme.js
 //= require codemirror/modes/shell.js
 //= require codemirror/modes/sieve.js
