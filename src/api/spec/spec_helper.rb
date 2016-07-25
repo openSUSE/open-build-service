@@ -72,9 +72,11 @@ RSpec.configure do |config|
   # as the one that triggered the failure.
   Kernel.srand config.seed
 
-  # Custom formatter, but not in Travis-CI
-  unless ENV['TRAVIS']
+  # Custom formatter, but not in Travis-CI and neither during package build
+  begin
+    require 'nyan_cat_formatter'
     config.formatter = 'NyanUnicornFormatter'
+  rescue LoadError
   end
 end
 
