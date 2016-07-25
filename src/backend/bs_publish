@@ -782,6 +782,7 @@ sub createrepo_arch {
         qsystem($BSConfig::sign, @signargs, '-D', "$extrep/$arch/$rname.files.tar.gz") && die("    sign failed: $?\n");
         link("$extrep/$arch/$rname.files.tar.gz.sig", "$extrep/$arch/$rname.files.sig");
       }
+      writestr("$extrep/$arch/$rname.key", undef, $data->{'pubkey'}) if $data->{'pubkey'};
     }
   }
 }
@@ -790,7 +791,7 @@ sub deleterepo_arch {
   my ($extrep) = @_;
   for my $arch (ls($extrep)) {
     next unless -d "$extrep/$arch";
-    for (grep {/\.(?:\?db|db\.tar\.gz|files|files\.tar\.gz)(?:\.sig)?$/} ls("$extrep/$arch")) {
+    for (grep {/\.(?:\?db|db\.tar\.gz|files|files\.tar\.gz|key)(?:\.sig)?$/} ls("$extrep/$arch")) {
       unlink("$extrep/$arch/$_");
     }
   }
