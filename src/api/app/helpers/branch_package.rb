@@ -366,11 +366,8 @@ class BranchPackage
   end
 
   def expand_rev_to_srcmd5(p)
-    begin
-      dir = Directory.find(project: params[:project], package: params[:package], rev: params[:rev])
-    rescue
-      raise InvalidFilelistError.new 'no such revision'
-    end
+    dir = Directory.find(project: params[:project], package: params[:package], rev: params[:rev])
+    raise InvalidFilelistError.new 'no such revision' unless dir
     p[:rev] = dir.value(:srcmd5)
     unless p[:rev]
       raise InvalidFilelistError.new 'no srcmd5 revision found'
