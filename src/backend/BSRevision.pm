@@ -72,7 +72,7 @@ sub getrev_local {
     } else {
       $rev = BSFileDB::fdb_getmatch($revfile, $srcrevlay, 'rev', $revid);
     }
-    die("no such revision\n") unless defined $rev;
+    die("404 no such revision\n") unless defined $rev;
     $rev->{'project'} = $projid;
     $rev->{'package'} = $packid;
     return $rev;
@@ -97,7 +97,7 @@ sub getrev_local {
     $rev = {'srcmd5' => $BSSrcrep::emptysrcmd5};
   } else {
     $rev = BSFileDB::fdb_getmatch("$projectsdir/$projid.pkg/$packid.rev", $srcrevlay, 'rev', $revid);
-    die("no such revision\n") unless defined $rev;
+    die("404 no such revision\n") unless defined $rev;
   }
   $rev->{'project'} = $projid;
   $rev->{'package'} = $packid;
@@ -502,6 +502,31 @@ sub lspackages_local {
   my @packids = grep {s/\.xml$//} readdir(D);
   closedir(D);
   return sort @packids;
+}
+
+#
+# small helpers
+#
+sub readproj_local {
+  my ($projid, $nonfatal) = @_;
+  my $proj = readxml("$projectsdir/$projid.xml", $BSXML::proj, 1);
+  die("404 project '$projid' does not exist\n") if !$proj && !$nonfatal;
+  return $proj;
+}
+
+sub readpack_local {
+  my ($projid, $packid, $nonfatal) = @_;
+  my $pack = readxml("$projectsdir/$projid.pkg/$packid.xml", $BSXML::pack, 1);
+  if (!$pack && !$nonfatal) {
+    readproj_local($projid);
+    die("404 package '$packid' does not exist in project '$projid'\n");
+  }
+  return $pack;
+}
+
+sub readconfig_local {
+  my ($projid) = @_;
+  return readstr("$projectsdir/$projid.conf", 1);
 }
 
 1;
