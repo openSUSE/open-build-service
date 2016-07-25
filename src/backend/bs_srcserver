@@ -59,6 +59,9 @@ use BSSrcrep;
 use BSRevision;
 use BSKiwiXML;
 
+use BSSrcServer::Remote;
+use BSSrcServer::Partition;
+
 use BSXPath;
 use BSXPathKeys;
 use BSDB;
@@ -88,7 +91,6 @@ my $reqindexdb = "$BSConfig::bsdir/db/request";
 my $extrepodb = "$BSConfig::bsdir/db/published";
 my $sourcedb = "$BSConfig::bsdir/db/source";
 
-my $remotecache = "$BSConfig::bsdir/remotecache";
 my $notificationpayloaddir = "$BSConfig::bsdir/notificationpayload";
 
 my $srcrevlay = [qw{rev vrev srcmd5 version time user comment requestid}];
@@ -105,10 +107,6 @@ my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
 my $datarepoid;
 my %packagequota;
 
-# remote getrev cache
-my $collect_remote_getrev;
-my $remote_getrev_todo;
-my %remote_getrev_cache;
 my $frozenlinks_cache;
 
 
@@ -262,7 +260,7 @@ sub notify_repservers {
   my @args = ("type=$type", "project=$projid");
   push @args, "package=$packid" if defined $packid;
   push @args, "job=$job" if defined $job;
-  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my $param = {
     'uri' => "$reposerver/event",
     'request'   => 'POST',
@@ -281,15 +279,10 @@ sub notify_repservers {
 sub notify_all_repservers {
   my ($type, $projid, $packid) = @_;
 
-  my %reposervers;
-  if ($BSConfig::partitioning) {
-    %reposervers = map {$_ => 1} values(%$BSConfig::partitionservers);
-  } else {
-    %reposervers = ($BSConfig::reposerver => 1);
-  }
+  my @reposervers = BSSrcServer::Partition::allreposervers();
   my @args = ("type=$type", "project=$projid");
   push @args, "package=$packid" if defined $packid;
-  for my $reposerver (sort keys %reposervers) {
+  for my $reposerver (@reposervers) {
     my $param = {
       'uri' => "$reposerver/event",
       'request'   => 'POST',
@@ -949,7 +942,7 @@ sub getrev_projlink {
     }
     next if $collect_error;
     if ($@ && $@ !~ /^404/) {
-      if ($collect_remote_getrev && $@ =~ /collect_remote_getrev$/) {
+      if ($BSSrcServer::Remote::collect_remote_getrev && $@ =~ /collect_remote_getrev$/) {
         # special case for project links, we don't know if the package exists yet,
         # so collect from all link elements
         $collect_error = $@;
@@ -987,7 +980,7 @@ sub getrev {
     return $rev if $rev;
   }
   if (!$proj || $proj->{'remoteurl'}) {
-    $rev = remote_getrev($projid, $packid, $revid, $linked, $missingok);
+    $rev = BSSrcServer::Remote::remote_getrev($projid, $packid, $revid, $linked, $missingok);
     return $rev if $rev;
   }
   return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'pattern', 'rev' => 'pattern', 'special_meta' => "$projectsdir/$projid.pkg/pattern-MD5SUMS"} if $packid eq '_pattern';
@@ -1982,36 +1975,6 @@ sub findprojects {
   return BSRevision::lsprojects_local($deleted);
 }
 
-sub findpackages_remote {
-  my ($projid, $proj, $nonfatal, $origins, $noexpand, $deleted) = @_;
-
-  my @packids;
-  my @args;
-  push @args, 'deleted=1' if $deleted;
-  push @args, 'expand=1' unless $noexpand || $deleted;
-  my $r;
-  eval {
-    $r = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}", 'proxy' => $proxy}, $BSXML::dir, @args);
-  };
-  if ($@ && $@ =~ /^404/) {
-    # remote project does not exist
-    die($@) unless $nonfatal;
-    return ();
-  }
-  if ($@) {
-    die($@) unless $nonfatal && $nonfatal > 0;	# -1: internal projectlink recursion, errors are still fatal
-    warn($@);
-    push @packids, ':missing_packages' if $nonfatal == 2;
-    return @packids;
-  }
-  @packids = map {$_->{'name'}} @{($r || {})->{'entry'} || []};
-  if ($origins) {
-    for my $entry (@{($r || {})->{'entry'} || []}) {
-      $origins->{$entry->{'name'}} = defined($entry->{'originproject'}) ? maptoremote($proj, $entry->{'originproject'}) : $projid;
-    }
-  }
-  return @packids;
-}
 
 sub findpackages_projlink {
   my ($projid, $proj, $nonfatal, $origins, $seen, @packids) = @_;
@@ -2031,7 +1994,7 @@ sub findpackages_projlink {
     } else {
       my $lproj = readproj($lprojid, 1);
       if (!$lproj || $lproj->{'remoteurl'}) {
-        $lproj = remoteprojid($lprojid);
+        $lproj = BSSrcServer::Remote::remoteprojid($lprojid);
 	next unless $lproj;	# linked project does not exist
       }
       @lpackids = findpackages($lprojid, $lproj, $nonfatal || -1, $lorigins, undef, undef, $seen);
@@ -2054,7 +2017,7 @@ sub findpackages {
 
   # check remote case
   $proj ||= readproj($projid, 1) || {};
-  return findpackages_remote($projid, $proj, $nonfatal, $origins, $noexpand, $deleted) if $proj->{'remoteurl'};
+  return BSSrcServer::Remote::findpackages_remote($projid, $proj, $nonfatal, $origins, $noexpand, $deleted) if $proj->{'remoteurl'};
 
   # get local packages
   my @packids = BSRevision::lspackages_local($projid, $deleted);
@@ -2274,78 +2237,6 @@ $Build::Kiwi::urlmapper = \&kiwiurlmapper;
 
 #########################################################################
 
-sub projid2reposerver {
-  my ($projid) = @_;
-  return $BSConfig::reposerver unless $BSConfig::partitionservers;
-  my @p = @{$BSConfig::partitioning || []};
-  my $par;
-  while (@p) {
-    if ($projid =~ /^$p[0]/) {
-      $par = $p[1];
-      last;
-    }
-    splice(@p, 0, 2);
-  }
-  $par = $BSConfig::partition unless defined $par;
-  die("cannot determine partition for $projid\n") unless defined $par;
-  die("partition '$par' from partitioning does not exist\n") unless $BSConfig::partitionservers->{$par};
-  return $BSConfig::partitionservers->{$par};
-}
-
-sub projid2partition {
-  my ($projid) = @_;
-  return undef unless $BSConfig::partitioning;
-  my @p = @{$BSConfig::partitioning || []};
-  my $par;
-  while (@p) {
-    if ($projid =~ /^$p[0]/) {
-      $par = $p[1];
-      last;
-    }
-    splice(@p, 0, 2);
-  }
-  $par = $BSConfig::partition unless defined $par;
-  return $par;
-}
-
-sub checkpartition {
-  my ($remotemap, $projid, $proj) = @_;
-  $remotemap->{':partitions'}->{$projid} = 1;
-  return if $remotemap->{$projid};
-  my @p = @{$BSConfig::partitioning || []};
-  my $par;
-  while (@p) {
-    if ($projid =~ /^$p[0]/) {
-      $par = $p[1];
-      last;
-    }
-    splice(@p, 0, 2);
-  }
-  $par = $BSConfig::partition unless defined $par;
-  die("cannot determine partition for $projid\n") unless defined $par;
-  return if $par eq $remotemap->{':partition'};
-  my $reposerver = $BSConfig::reposerver;
-  if ($BSConfig::partitionservers) {
-    $reposerver = $BSConfig::partitionservers->{$par};
-    die("partition '$par' from partitioning does not exist\n") unless $reposerver;
-  }
-  $remotemap->{$projid} = {
-    'name' => $projid, 'remoteurl' => $reposerver, 'remoteproject' => $projid, 'partition' => $par,
-  };
-  $proj ||= readproj($projid, 1);
-  if (!$proj) {
-    $remotemap->{$projid} = { 'name' => $projid };	# gone!
-    return;
-  }
-  $remotemap->{$projid}->{'repository'} = $proj->{'repository'} if $proj->{'repository'};
-  $remotemap->{$projid}->{'kind'} = $proj->{'kind'} if $proj->{'kind'};
-  if ($proj->{'access'}) {
-    for ('access', 'publish', 'person', 'group') {
-      $remotemap->{$projid}->{$_} = $proj->{$_} if exists $proj->{$_};
-    }
-  }
-}
-
 sub getprojquotapackage {
   my ($projid) = @_;
   if (!exists($packagequota{':packages'})) {
@@ -2432,18 +2323,17 @@ sub getprojpack {
   $projids = [ findprojects() ] unless $projids;
   if ($partition) {
     for my $projid (splice @$projids) {
-      my $par = projid2partition($projid);
+      my $par = BSSrcServer::Partition::projid2partition($projid);
       die("cannot determine partition for $projid\n") unless defined $par;
-      die("partition '$par' from partitioning does not exist\n") if $BSConfig::partitionservers && !$BSConfig::partitionservers->{$par};
       if ($par ne $partition) {
 	# check if it is remote, if not then it belongs to another partition
 	my $r = readproj($projid, 1);
-	$r = remoteprojid($projid) unless defined $r;
+	$r = BSSrcServer::Remote::remoteprojid($projid) unless defined $r;
 	if (!($r && $r->{'remoteurl'})) {
 	  # not remote, but on wrong partition
 	  # if asked for a specific project, put it in remotemap
 	  next unless $remotemap && $cgi->{'project'};
-	  checkpartition($remotemap, $projid, $r) if $remotemap->{':partitions'} && !$remotemap->{':partitions'}->{$projid};
+	  BSSrcServer::Partition::checkpartition($remotemap, $projid, $r) if $remotemap->{':partitions'} && !$remotemap->{':partitions'}->{$projid};
 	  if ($remotemap->{$projid} && $cgi->{'withconfig'} && $remotemap->{$projid}->{'partition'}) {
 	    # also put config in remotemap is asked for a specific project
 	    my $c = readstr("$projectsdir/$projid.conf", 1);
@@ -2474,16 +2364,16 @@ sub getprojpack {
     if ($remotemap && (!$proj || $proj->{'remoteurl'})) {
       if ($cgi->{'project'}) {
 	# fill remote data if asked for that specific project
-	my $r = remoteprojid($projid);
+	my $r = BSSrcServer::Remote::remoteprojid($projid);
 	if ($r) {
 	  eval {
-	    fetchremoteproj($r, $projid, $remotemap);
-	    fetchremoteconfig($r, $projid, $remotemap) if $cgi->{'withconfig'};
+	    BSSrcServer::Remote::fetchremoteproj($r, $projid, $remotemap);
+	    BSSrcServer::Remote::fetchremoteconfig($r, $projid, $remotemap) if $cgi->{'withconfig'};
 	  };
 	}
       } elsif (!exists($remotemap->{$projid}) ) {
         # put at least the proto into the remotemap
-        my $r = remoteprojid($projid);
+        my $r = BSSrcServer::Remote::remoteprojid($projid);
         $remotemap->{$projid} = {%$r, 'proto' => 1} if $r;
       }
     }
@@ -2555,11 +2445,11 @@ sub getprojpack {
 
     if ($remotemap) {
       for my $lprojid (map {$_->{'project'}} @{$proj->{'link'} || []}) {
-        my $lproj = remoteprojid($lprojid);
+        my $lproj = BSSrcServer::Remote::remoteprojid($lprojid);
 	eval {
-	  fetchremoteproj($lproj, $lprojid, $remotemap) if $lproj;
+	  BSSrcServer::Remote::fetchremoteproj($lproj, $lprojid, $remotemap) if $lproj;
 	};
-        checkpartition($remotemap, $lprojid) if $remotemap->{':partitions'} && !$remotemap->{':partitions'}->{$lprojid};
+        BSSrcServer::Partition::checkpartition($remotemap, $lprojid) if $remotemap->{':partitions'} && !$remotemap->{':partitions'}->{$lprojid};
       }
     }
 
@@ -2671,7 +2561,7 @@ sub getprojpack {
       if (!@packages) {
 	last if !@packages_delayed || $packages_pass;
 	$packages_pass = 1;
-	fill_remote_getrev_cache();
+	BSSrcServer::Remote::fill_remote_getrev_cache();
 	@packages = @packages_delayed;
 	next;
       }
@@ -2732,11 +2622,11 @@ sub getprojpack {
       if ($cgi->{'withsrcmd5'} || $cgi->{'withdeps'}) {
         my $rev;
 	my $linked = [];
-	$collect_remote_getrev = 1 unless $packages_pass;
+	$BSSrcServer::Remote::collect_remote_getrev = 1 unless $packages_pass;
 	eval {
 	  $rev = getrev($projid, $packid, 'build', $linked);
 	};
-	$collect_remote_getrev = 0;
+	$BSSrcServer::Remote::collect_remote_getrev = 0;
         $pinfo->{'originproject'} = $rev->{'originproject'} if $rev && $rev->{'originproject'};
         $pinfo->{'linked'} = $linked if @$linked;
 	if ($@) {
@@ -2783,11 +2673,11 @@ sub getprojpack {
  	  next;
         }
 	if ($files->{'_link'}) {
-	  $collect_remote_getrev = 1 unless $packages_pass;
+	  $BSSrcServer::Remote::collect_remote_getrev = 1 unless $packages_pass;
 	  eval {
 	    $files = handlelinks($rev, $files, {'linked' => $linked});
 	  };
-	  $collect_remote_getrev = 0;
+	  $BSSrcServer::Remote::collect_remote_getrev = 0;
 	  if ($@) {
 	    $files = "$@";
 	    $files =~ s/\n$//;
@@ -2801,7 +2691,7 @@ sub getprojpack {
 		next if $remotemap->{$lprojid} || $remotemap->{':partitions'}->{$lprojid};
 		my $lproj = readproj($lprojid, 1);
 		if ($lproj && !$lproj->{'remoteurl'}) {
-		  checkpartition($remotemap, $lprojid, $lproj);
+		  BSSrcServer::Partition::checkpartition($remotemap, $lprojid, $lproj);
 		} else {
 		  $remotemap->{':partitions'}->{$lprojid} = 1;  # not on a partition
 		}
@@ -2848,12 +2738,12 @@ sub getprojpack {
 	      next if $remotemap->{$aprojid} && !$remotemap->{$aprojid}->{'proto'};
 	      my $aproj = readproj($aprojid, 1);
 	      if (!$aproj || $aproj->{'remoteurl'}) {
-		$aproj = remoteprojid($aprojid);
+		$aproj = BSSrcServer::Remote::remoteprojid($aprojid);
 		eval {
-		  fetchremoteproj($aproj, $aprojid, $remotemap) if $aproj;
+		  BSSrcServer::Remote::fetchremoteproj($aproj, $aprojid, $remotemap) if $aproj;
 		};
 	      } else {
-		checkpartition($remotemap, $aprojid, $aproj) if $remotemap->{':partitions'} && !$remotemap->{':partitions'}->{$aprojid};
+		BSSrcServer::Partition::checkpartition($remotemap, $aprojid, $aproj) if $remotemap->{':partitions'} && !$remotemap->{':partitions'}->{$aprojid};
 	      }
 	    }
 	  }
@@ -3117,7 +3007,7 @@ sub getproject {
   my ($cgi, $projid) = @_;
   # Read the project xml file
   my $proj = readproj($projid, 1, $cgi->{'rev'});
-  $proj = remoteprojid($projid) if !$proj || ($proj->{'remoteurl'} && $proj->{'remoteproject'});
+  $proj = BSSrcServer::Remote::remoteprojid($projid) if !$proj || ($proj->{'remoteurl'} && $proj->{'remoteproject'});
   die("404 project '$projid' does not exist\n") unless $proj;
   if ($proj->{'remoteurl'} && $proj->{'remoteproject'}) {
     my $p = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_meta", 'proxy' => $proxy}, $BSXML::proj);
@@ -3125,14 +3015,14 @@ sub getproject {
     $p->{'name'} = $projid;
     for my $r (@{$p->{'repository'} || []}) {
       for my $re (@{$r->{'path'} || []}) {
-	$re->{'project'} = maptoremote($proj, $re->{'project'});
+	$re->{'project'} = BSSrcServer::Remote::maptoremote($proj, $re->{'project'});
       }
       for my $re (@{$r->{'releasetarget'} || []}) {
-	$re->{'project'} = maptoremote($proj, $re->{'project'});
+	$re->{'project'} = BSSrcServer::Remote::maptoremote($proj, $re->{'project'});
       }
     }
     for my $pp (@{$p->{'link'} || []}) {
-      $pp->{'project'} = maptoremote($proj, $pp->{'project'});
+      $pp->{'project'} = BSSrcServer::Remote::maptoremote($proj, $pp->{'project'});
     }
     delete $p->{'person'};
     delete $p->{'group'};
@@ -3247,7 +3137,7 @@ sub getpubkey {
   my $pubkey;
 
   my $proj = readproj($projid, 1, $cgi->{'rev'});
-  $proj = remoteprojid($projid) if !$proj || $proj->{'remoteurl'};
+  $proj = BSSrcServer::Remote::remoteprojid($projid) if !$proj || $proj->{'remoteurl'};
   die("404 project '$projid' does not exist\n") unless $proj;
 
   if ($proj->{'remoteurl'}) {
@@ -3391,7 +3281,7 @@ sub getpackage {
     my $pack = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid/_meta", 'proxy' => $proxy}, $BSXML::pack, @args);
     $pack->{'project'} = $projid;	# local name
     if ($pack->{'devel'} && exists($pack->{'devel'}->{'project'})) {
-      $pack->{'devel'}->{'project'} = maptoremote($proj, $pack->{'devel'}->{'project'});
+      $pack->{'devel'}->{'project'} = BSSrcServer::Remote::maptoremote($proj, $pack->{'devel'}->{'project'});
     }
     delete $pack->{'person'};
     delete $pack->{'group'};
@@ -3418,7 +3308,7 @@ sub getpackage {
       next if $checked{$lprojid};
       $checked{$lprojid} = 1;
       my $lproj = readproj($lprojid, 1);
-      $lproj = remoteprojid($lprojid) if !$lproj || $lproj->{'remoteurl'};
+      $lproj = BSSrcServer::Remote::remoteprojid($lprojid) if !$lproj || $lproj->{'remoteurl'};
       if ($lproj->{'remoteurl'}) {
 	eval {
 	  $pack = BSRPC::rpc({'uri' => "$lproj->{'remoteurl'}/source/$lproj->{'remoteproject'}/$packid/_meta", 'proxy' => $proxy}, $BSXML::pack);
@@ -3427,7 +3317,7 @@ sub getpackage {
 	if ($pack) {
 	  $pack->{'project'} = $lprojid;	# local name
 	  if ($pack->{'devel'} && exists($pack->{'devel'}->{'project'})) {
-	    $pack->{'devel'}->{'project'} = maptoremote($lproj, $pack->{'devel'}->{'project'});
+	    $pack->{'devel'}->{'project'} = BSSrcServer::Remote::maptoremote($lproj, $pack->{'devel'}->{'project'});
 	  }
 	}
       } else {
@@ -3580,355 +3470,6 @@ sub getpackagehistory {
 
 ##########################################################################
 
-##########################################################################
-
-# XXX -> library
-
-sub remoteprojid {
-  my ($projid) = @_;
-  my $rsuf = '';
-  my $origprojid = $projid;
-
-  my $proj = readproj($projid, 1);
-  if ($proj) {
-    return undef unless $proj->{'remoteurl'};
-    if (!$proj->{'remoteproject'}) {
-      delete $proj->{'remoteurl'};
-      return $proj;
-    }
-    return {
-      'name' => $projid,
-      'root' => $projid,
-      'remoteroot' => $proj->{'remoteproject'},
-      'remoteurl' => $proj->{'remoteurl'},
-      'remoteproject' => $proj->{'remoteproject'},
-    };
-  }
-  while ($projid =~ /^(.*)(:.*?)$/) {
-    $projid = $1;
-    $rsuf = "$2$rsuf";
-    $proj = readproj($projid, 1);
-    if ($proj) {
-      return undef unless $proj->{'remoteurl'};
-      if ($proj->{'remoteproject'}) {
-        $rsuf = "$proj->{'remoteproject'}$rsuf";
-      } else {
-        $rsuf =~ s/^://;
-      }
-      return {
-        'name' => $origprojid,
-        'root' => $projid,
-        'remoteroot' => $proj->{'remoteproject'},
-        'remoteurl' => $proj->{'remoteurl'},
-        'remoteproject' => $rsuf,
-      };
-    }
-  }
-  return undef;
-}
-
-sub maptoremote {
-  my ($proj, $projid) = @_;
-  return "$proj->{'root'}:$projid" unless $proj->{'remoteroot'};
-  return $proj->{'root'} if $projid eq $proj->{'remoteroot'};
-  return '_unavailable' if $projid !~ /^\Q$proj->{'remoteroot'}\E:(.*)$/;
-  return "$proj->{'root'}:$1";
-}
-
-sub fetchremoteproj {
-  my ($proj, $projid, $remotemap) = @_;
-  return undef unless $proj && $proj->{'remoteurl'} && $proj->{'remoteproject'};
-  $projid ||= $proj->{'name'};
-  my $rproj;
-  my $c;
-  if ($remotemap) {
-    $rproj = $remotemap->{$projid};
-    if ($rproj) {
-      die($rproj->{'error'}) if $rproj->{'error'};
-      return $rproj unless $rproj->{'proto'};
-      $c = $rproj->{'config'};	# save old config
-      undef $rproj;
-    }
-  }
-  print "fetching remote project data for $projid\n";
-  my $param = {
-    'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_meta",
-    'timeout' => 60,
-    'proxy' => $proxy,
-  };
-  eval {
-    $rproj = BSRPC::rpc($param, $BSXML::proj);
-  };
-  if ($@) {
-    if ($remotemap) {
-      $rproj = {%$proj, 'error' => $@, 'proto' => 1};
-      $rproj->{'config'} = $c if defined $c;
-      $remotemap->{$projid} = $rproj;
-    }
-    die($@);
-  }
-  for (qw{name root remoteroot remoteurl remoteproject}) {
-    $rproj->{$_} = $proj->{$_};
-  }
-  for my $repo (@{$rproj->{'repository'} || []}) {
-    for my $pathel (@{$repo->{'path'} || []}) {
-      $pathel->{'project'} = maptoremote($proj, $pathel->{'project'});
-    }
-    for my $pathel (@{$repo->{'releasetarget'} || []}) {
-      $pathel->{'project'} = maptoremote($proj, $pathel->{'project'});
-    }
-  }
-  for my $link (@{$rproj->{'link'} || []}) {
-    $link->{'project'} = maptoremote($proj, $link->{'project'});
-  }
-  $remotemap->{$projid} = $rproj if $remotemap;
-  return $rproj;
-}
-
-sub fetchremoteconfig {
-  my ($proj, $projid, $remotemap) = @_;
-  return undef unless $proj && $proj->{'remoteurl'} && $proj->{'remoteproject'};
-  $projid ||= $proj->{'name'};
-  if ($remotemap) {
-    my $rproj = $remotemap->{$projid};
-    if ($rproj) {
-      die($rproj->{'error'}) if $rproj->{'error'};
-      return $rproj->{'config'} if defined $rproj->{'config'};
-    } else {
-      $remotemap->{$projid} = {%$proj, 'proto' => 1};
-    }
-  }
-  print "fetching remote project config for $projid\n";
-  my $param = {
-    'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_config",
-    'timeout' => 60,
-    'proxy' => $proxy,
-  };
-  my $c;
-  eval {
-    $c = BSRPC::rpc($param, undef);
-  };
-  if ($@) {
-    $remotemap->{$projid}->{'error'} = $@ if $remotemap;
-    die($@);
-  }
-  $remotemap->{$projid}->{'config'} = $c if $remotemap;
-  return $c;
-}
-
-sub fill_remote_getrev_cache_projid {
-  my ($projid, $packids) = @_;
-
-  return unless $packids && @$packids;
-  print "filling remote_getrev cache for $projid @$packids\n";
-  my $proj = remoteprojid($projid);
-  return unless $proj;
-  my $silist;
-  my @args;
-  push @args, 'view=info';
-  push @args, 'nofilename=1';
-  push @args, map {"package=$_"} @$packids;
-  eval {
-    $silist = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}", 'proxy' => $proxy}, $BSXML::sourceinfolist, @args);
-  };
-  warn($@) if $@;
-  return unless $silist;
-  for my $si (@{$silist->{'sourceinfo'} || []}) {
-    my $packid = $si->{'package'};
-    my $rev = {};
-    if ($si->{'linked'}) {
-      $rev->{'linked'} = [];
-      for my $l (@{$si->{'linked'}}) {
-        $l->{'project'} = maptoremote($proj, $l->{'project'});
-        push @{$rev->{'linked'}}, $l if defined($l->{'project'}) && $l->{'project'} ne '_unavailable';
-      }
-    }
-    $rev->{'srcmd5'} = $si->{'verifymd5'} || $si->{'srcmd5'};
-    delete $rev->{'srcmd5'} unless defined $rev->{'srcmd5'};
-    if ($si->{'error'}) {
-      if ($si->{'error'} =~ /^(\d+) +(.*?)$/) {
-        $si->{'error'} = "$1 remote error: $2";
-      } else {
-        $si->{'error'} = "remote error: $si->{'error'}";
-      }
-      if ($si->{'error'} eq 'no source uploaded') {
-	delete $si->{'error'};
-	$rev->{'srcmd5'} = $BSSrcrep::emptysrcmd5;
-      } elsif ($si->{'verifymd5'} || $si->{'error'} =~ /^404[^\d]/) {
-	$rev->{'error'} = $si->{'error'};
-	$remote_getrev_cache{"$projid/$packid/"} = $rev;
-      } else {
-	next;
-      }
-    }
-    next unless $rev->{'srcmd5'};
-    my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
-    next unless -e "$treedir/$rev->{'srcmd5'}-MD5SUMS";
-    $rev->{'vrev'} = $si->{'vrev'} || '0';
-    $rev->{'rev'} = $si->{'rev'} || $rev->{'srcmd5'};
-    $remote_getrev_cache{"$projid/$packid/"} = $rev;
-  }
-}
-
-sub fill_remote_getrev_cache {
-  for my $projid (sort keys %{$remote_getrev_todo || {}}) {
-    my @packids = sort keys %{$remote_getrev_todo->{$projid} || {}};
-    next if @packids <= 1;
-    while (@packids) {
-      my @chunk;
-      my $len = 20;
-      while (@packids) {
-	my $packid = shift @packids;
-	push @chunk, $packid;
-	$len += 9 + length($packid);
-	last if $len > 1900;
-      }
-      fill_remote_getrev_cache_projid($projid, \@chunk);
-    }
-  }
-  $remote_getrev_todo = {};
-}
-
-sub remote_getrev {
-  my ($projid, $packid, $rev, $linked, $missingok) = @_;
-  my $proj = remoteprojid($projid);
-  return undef unless $proj;
-  # check if we already know this srcmd5, if yes don't bother to contact
-  # the remote server
-  if ($rev && $rev =~ /^[0-9a-f]{32}$/) {
-    if (BSSrcrep::existstree($projid, $packid, $rev)) {
-      return {'project' => $projid, 'package' => $packid, 'rev' => $rev, 'srcmd5' => $rev};
-    }
-  }
-  if (defined($rev) && $rev eq '0') {
-    return {'srcmd5' => $BSSrcrep::emptysrcmd5, 'project' => $projid, 'package' => $packid};
-  }
-  my @args;
-  push @args, 'expand=1';
-  push @args, "rev=$rev" if defined $rev;
-  my $cacherev = !defined($rev) || $rev eq 'build' ? '' : $rev;
-  if ($remote_getrev_cache{"$projid/$packid/$cacherev"}) {
-    $rev = { %{$remote_getrev_cache{"$projid/$packid/$cacherev"}} };
-    push @$linked, map { { %$_ } } @{$rev->{'linked'}} if $linked && $rev->{'linked'};
-    if ($rev->{'error'}) {
-      return {'project' => $projid, 'package' => $packid, 'srcmd5' => $BSSrcrep::emptysrcmd5} if $missingok && $rev->{'error'} =~ /^404[^\d]/;
-      die("$rev->{'error'}\n");
-    }
-    delete $rev->{'linked'};
-    $rev->{'project'} = $projid;
-    $rev->{'package'} = $packid;
-    return $rev;
-  }
-  if ($collect_remote_getrev && $cacherev eq '') {
-    $remote_getrev_todo->{$projid}->{$packid} = 1;
-    die("collect_remote_getrev\n");
-  }
-  my $dir;
-  eval {
-    $dir = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid", 'proxy' => $proxy}, $BSXML::dir, @args, 'withlinked') if $linked;
-  };
-  if (!$dir || $@) {
-    eval {
-      $dir = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid", 'proxy' => $proxy}, $BSXML::dir, @args);
-    };
-    if ($@) {
-      return {'project' => $projid, 'package' => $packid, 'srcmd5' => $BSSrcrep::emptysrcmd5} if $missingok && $@ =~ /^404[^\d]/;
-      die($@);
-    }
-  }
-  if ($dir->{'error'}) {
-    if ($linked && $dir->{'linkinfo'} && $dir->{'linkinfo'}->{'linked'}) {
-      # add linked info for getprojpack
-      for my $l (@{$dir->{'linkinfo'}->{'linked'}}) {
-        $l->{'project'} = maptoremote($proj, $l->{'project'});
-        push @$linked, $l if defined($l->{'project'}) && $l->{'project'} ne '_unavailable';
-      }
-    }
-    die("$dir->{'error'}\n");
-  }
-  $rev = {};
-  $rev->{'project'} = $projid;
-  $rev->{'package'} = $packid;
-  $rev->{'rev'} = $dir->{'rev'} || $dir->{'srcmd5'};
-  $rev->{'srcmd5'} = $dir->{'srcmd5'};
-  $rev->{'vrev'} = $dir->{'vrev'};
-  $rev->{'vrev'} ||= '0';
-  # now put everything in local source repository
-  my $files = {};
-  for my $entry (@{$dir->{'entry'} || []}) {
-    $files->{$entry->{'name'}} = $entry->{'md5'};
-    # check if we already have the file
-    next if -e BSSrcrep::repfilename($rev, $entry->{'name'}, $entry->{'md5'});
-    # nope, download it
-    if ($linked && $entry->{'size'} > 8192) {
-      # getprojpack request, hand over to AJAX
-      BSHandoff::rpc("/source/$projid/$packid", undef, "rev=$dir->{'srcmd5'}", 'view=notify');
-      die("download in progress\n");
-    }
-    mkdir_p($uploaddir);
-    my $param = {
-      'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid/$entry->{'name'}",
-      'filename' => "$uploaddir/$$",
-      'withmd5' => 1,
-      'receiver' => \&BSHTTP::file_receiver,
-      'proxy' => $proxy,
-    };
-    my $res = BSRPC::rpc($param, undef, "rev=$rev->{'srcmd5'}");
-    die("file download failed\n") unless $res && $res->{'md5'} eq $entry->{'md5'};
-    BSSrcrep::addfile($projid, $packid, "$uploaddir/$$", $entry->{'name'}, $entry->{'md5'});
-  }
-  my $srcmd5 = BSSrcrep::addmeta($projid, $packid, $files);
-  if ($dir->{'serviceinfo'}) {
-    $dir->{'srcmd5'} = $rev->{'srcmd5'} = $srcmd5;
-  }
-  my @linked;
-  if ($dir->{'linkinfo'}) {
-    my $li = $dir->{'linkinfo'};
-    # hack: the following line is used because we fake a linkinfo element
-    # for project links... compatibility to old versions sure has some
-    # drawbacks...
-    if (defined($li->{'project'})) {
-      $dir->{'srcmd5'} = $rev->{'srcmd5'} = $srcmd5;
-      $rev->{'rev'} = $rev->{'srcmd5'} unless $dir->{'rev'};
-    }
-    if ($linked) {
-      # add linked info for getprojpack
-      if ($li->{'linked'}) {
-	for my $l (@{$li->{'linked'}}) {
-	  $l->{'project'} = maptoremote($proj, $l->{'project'});
-	  push @linked, $l if defined($l->{'project'}) && $l->{'project'} ne '_unavailable';
-	}
-	undef $li;
-      }
-      while ($li) {
-        my $lprojid = $li->{'project'};
-        my $lpackid = $li->{'package'};
-        last unless defined($lprojid) && defined($lpackid);
-        my $mlprojid = maptoremote($proj, $lprojid);
-        last unless defined($mlprojid) && $mlprojid ne '_unavailable';
-        push @linked, {'project' => $mlprojid, 'package' => $lpackid};
-	last unless $li->{'srcmd5'} && !$li->{'error'};
-	my $ldir;
-	eval {
-	  $ldir = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$lprojid/$lpackid", 'proxy' => $proxy}, $BSXML::dir, "rev=$li->{'srcmd5'}");
-	};
-	last if $@ || !$ldir;
-	$li = $ldir->{'linkinfo'};
-      }
-      push @$linked, @linked;
-    }
-  }
-  die("srcmd5 mismatch\n") if $dir->{'srcmd5'} ne $srcmd5;
-  if (!$dir->{'linkinfo'} || $linked) {
-    my %revcopy = %$rev;
-    delete $revcopy{'project'};		# save mem
-    delete $revcopy{'package'};
-    $revcopy{'linked'} = [ map { { %$_ } } @linked ] if $dir->{'linkinfo'};
-    $remote_getrev_cache{"$projid/$packid/$cacherev"} = \%revcopy;
-  }
-  return $rev;
-}
-
 sub expandsearchpath {
   my ($projid, $repoid, $remotemap, $base) = @_;
   my %done;
@@ -3948,12 +3489,12 @@ sub expandsearchpath {
 	undef $proj;
 	$proj = $remotemap->{$pid} if $remotemap && $remotemap->{$pid};
 	if (!$proj || $proj->{'proto'}) {
-          $proj = remoteprojid($pid);
-          $proj = fetchremoteproj($proj, $pid, $remotemap);
+          $proj = BSSrcServer::Remote::remoteprojid($pid);
+          $proj = BSSrcServer::Remote::fetchremoteproj($proj, $pid, $remotemap);
           die("404 project '$pid' does not exist\n") unless $proj;
         }
       }
-      checkpartition($remotemap, $pid, $proj) if $remotemap && $remotemap->{':partitions'} && !$remotemap->{':partitions'}->{$pid};
+      BSSrcServer::Partition::checkpartition($remotemap, $pid, $proj) if $remotemap && $remotemap->{':partitions'} && !$remotemap->{':partitions'}->{$pid};
       $done{"/$prp"} = 1;       # mark expanded
       my @repo = grep {$_->{'name'} eq $tid} @{$proj->{'repository'} || []};
       push @path, @{$repo[0]->{'path'}} if @repo && $repo[0]->{'path'};
@@ -3961,10 +3502,10 @@ sub expandsearchpath {
       my $pid = $t->{'project'};
       my $proj = readproj($pid, 1);
       if ((!$proj || $proj->{'remoteurl'}) && !$remotemap->{$pid}) {
-        my $r = remoteprojid($pid);
+        my $r = BSSrcServer::Remote::remoteprojid($pid);
         $remotemap->{$pid} = {%$r, 'proto' => 1} if $r;
       }
-      checkpartition($remotemap, $pid, $proj) if $remotemap && $remotemap->{':partitions'} && !$remotemap->{':partitions'}->{$pid};
+      BSSrcServer::Partition::checkpartition($remotemap, $pid, $proj) if $remotemap && $remotemap->{':partitions'} && !$remotemap->{':partitions'}->{$pid};
     }
   }
   return @ret;
@@ -4007,11 +3548,11 @@ sub concatconfigs {
     if (-s "$projectsdir/$p.conf") {
       $c = readstr("$projectsdir/$p.conf");
     } elsif (!-e "$projectsdir/$p.xml") {
-      my $proj = remoteprojid($p);
-      $c = fetchremoteconfig($proj, $p, $remotemap);
+      my $proj = BSSrcServer::Remote::remoteprojid($p);
+      $c = BSSrcServer::Remote::fetchremoteconfig($proj, $p, $remotemap);
     }
     if ($remotemap && $remotemap->{':partitions'}) {
-      checkpartition($remotemap, $p) if !$remotemap->{':partitions'}->{$p};
+      BSSrcServer::Partition::checkpartition($remotemap, $p) if !$remotemap->{':partitions'}->{$p};
       $remotemap->{$p}->{'config'} = defined($c) ? $c : '' if ($remotemap->{$p} || {})->{'partition'};
     }
     next unless defined $c;
@@ -4135,124 +3676,29 @@ sub getsources {
   return undef;
 }
 
-my %getfilelist_ajax_inprogress;
-
 sub getfilelist_ajax {
   my ($cgi, $projid, $packid) = @_;
 
   my $srcmd5 = $cgi->{'rev'};
-  my $rev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $srcmd5};
   if ($cgi->{'view'} eq 'cpio') {
+    my $rev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $srcmd5};
     my $files = BSSrcrep::lsrev($rev);
     my @files = map {BSSrcrep::repcpiofile($rev, $_, $files->{$_})} sort keys %$files;
     BSWatcher::reply_cpio(\@files);
     return undef;
   }
-  die("unknown view '$cgi->{'view'}'\n") unless $cgi->{'view'} eq 'notify';
-  my $jev = $BSServerEvents::gev;
-  if (!$jev->{'remoteurl'}) {
-    my $proj = remoteprojid($projid);
-    die("missing project/package\n") unless $proj;
-    $jev->{'remoteurl'} = $proj->{'remoteurl'};
-    $jev->{'remoteproject'} = $proj->{'remoteproject'};
-  }
-  if (!$jev->{'filelist'}) {
-    return $BSStdServer::return_ok if $getfilelist_ajax_inprogress{"$projid/$packid/$srcmd5"};
-    my $param = {
-      'uri' => "$jev->{'remoteurl'}/source/$jev->{'remoteproject'}/$packid",
-      'proxy' => $proxy,
-    };
+  if ($cgi->{'view'} eq 'notify') {
     eval {
-      $jev->{'filelist'} = BSWatcher::rpc($param, $BSXML::dir, "rev=$srcmd5");
+      BSSrcServer::Remote::remote_getrev_getfiles($projid, $packid, $srcmd5);
     };
     if ($@) {
-      my $err = $@;
       notify_all_repservers('package', $projid, $packid);
-      die($err);
+      die($@);
     }
-    return undef unless $jev->{'filelist'};
-    $jev = BSWatcher::background($BSStdServer::return_ok);
-    $jev->{'idstring'} = "$projid/$packid/$srcmd5";
-    $getfilelist_ajax_inprogress{"$projid/$packid/$srcmd5"} = $jev;
-    $jev->{'handler'} = sub {delete $getfilelist_ajax_inprogress{"$projid/$packid/$srcmd5"}};
+    notify_all_repservers('package', $projid, $packid);
+    return '';
   }
-  my $havesize = 0;
-  my $needsize = 0;
-  my @need;
-  for my $entry (@{$jev->{'filelist'}->{'entry'} || []}) {
-    if (-e BSSrcrep::repfilename($rev, $entry->{'name'}, $entry->{'md5'})) {
-      $havesize += $entry->{'size'};
-    } else {
-      push @need, $entry;
-      $needsize += $entry->{'size'};
-    }
-  }
-  my $serial;
-  if (@need) {
-    $serial = BSWatcher::serialize("$jev->{'remoteurl'}/source");
-    return undef unless $serial;
-    mkdir_p($uploaddir);
-  }
-  if (@need > 1 && $havesize < 8192) {
-    # download full cpio source
-    my %need = map {$_->{'name'} => $_} @need;
-    my $tmpcpiofile = "$$-$jev->{'id'}-tmpcpio";
-    my $param = {
-      'uri' => "$jev->{'remoteurl'}/source/$jev->{'remoteproject'}/$packid",
-      'directory' => $uploaddir,
-      'tmpcpiofile' => "$uploaddir/$tmpcpiofile",
-      'withmd5' => 1,
-      'receiver' => \&BSHTTP::cpio_receiver,
-      'proxy' => $proxy,
-      'map' => sub { $need{$_[1]} ? "$tmpcpiofile.$_[1]" : undef },
-      'cpiopostfile' => sub {
-	my $name = substr($_[1]->{'name'}, length("$tmpcpiofile."));
-	die("file download confused\n") unless $need{$name} && $_[1]->{'md5'} eq $need{$name}->{'md5'};
-        BSSrcrep::addfile($projid, $packid, "$uploaddir/$_[1]->{'name'}", $name, $_[1]->{'md5'});
-       },
-    };
-    my $res;
-    eval {
-      $res = BSWatcher::rpc($param, undef, "rev=$srcmd5", 'view=cpio');
-    };
-    if ($@) {
-      # notify scheduler that the download failed
-      my $err = $@;
-      BSWatcher::serialize_end($serial) if $serial;
-      notify_all_repservers('package', $projid, $packid);
-      die($err);
-    }
-    return undef unless $res;
-  }
-  for my $entry (@need) {
-    next if -e BSSrcrep::repfilename($rev, $entry->{'name'}, $entry->{'md5'});
-    my $param = {
-      'uri' => "$jev->{'remoteurl'}/source/$jev->{'remoteproject'}/$packid/$entry->{'name'}",
-      'filename' => "$uploaddir/$$-$jev->{'id'}",
-      'withmd5' => 1,
-      'receiver' => \&BSHTTP::file_receiver,
-      'proxy' => $proxy,
-    };
-    my $res;
-    eval {
-      $res = BSWatcher::rpc($param, undef, "rev=$srcmd5");
-    };
-    if ($@) {
-      # notify scheduler that the download failed
-      my $err = $@;
-      BSWatcher::serialize_end($serial) if $serial;
-      notify_all_repservers('package', $projid, $packid);
-      die($err);
-    }
-    return undef unless $res;
-    die("file download failed\n") unless $res && $res->{'md5'} eq $entry->{'md5'};
-    die unless -e "$uploaddir/$$-$jev->{'id'}";
-    BSSrcrep::addfile($projid, $packid, "$uploaddir/$$-$jev->{'id'}", $entry->{'name'}, $entry->{'md5'});
-  }
-  BSWatcher::serialize_end($serial) if $serial;
-  delete $getfilelist_ajax_inprogress{"$projid/$packid/$srcmd5"};
-  notify_all_repservers('package', $projid, $packid);
-  return '';
+  die("unknown view '$cgi->{'view'}'\n");
 }
 
 sub getproductrepositories {
@@ -5191,8 +4637,8 @@ sub moveproject {
 
   my $oproj = readproj($oprojid);
 
-  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
-  my $oreposerver = $BSConfig::partitioning ? projid2reposerver($oprojid) : $BSConfig::reposerver;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
+  my $oreposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($oprojid) : $BSConfig::reposerver;
   if ($reposerver ne $oreposerver) {
     die("cannot copy binaries between different reposiory servers yet\n");
   }
@@ -5237,8 +4683,8 @@ sub copyproject {
   my $proj = readproj($projid);
   my $oproj = readproj($oprojid);
 
-  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
-  my $oreposerver = $BSConfig::partitioning ? projid2reposerver($oprojid) : $BSConfig::reposerver;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
+  my $oreposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($oprojid) : $BSConfig::reposerver;
   if ($cgi->{'withbinaries'} && $reposerver ne $oreposerver) {
     die("cannot copy binaries between different repository servers yet\n");
   }
@@ -5730,7 +5176,7 @@ sub sourcecollectbuildenv {
 	  # arch not included, use error buildenv
 	  $be = { 'error', "$arch missing in $oprojid/$orepoid" };
 	} else {
-	  my $reposerver = $BSConfig::partitioning ? projid2reposerver($oprojid) : $BSConfig::reposerver;
+	  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($oprojid) : $BSConfig::reposerver;
 	  eval {
 	    $be = BSRPC::rpc("$reposerver/build/$oprojid/$orepoid/$arch/$opackid/_buildenv", $BSXML::buildinfo);
 	  };
@@ -5886,7 +5332,7 @@ sub getresult {
   }
 
   my $ps = {};
-  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my @args;
   push @args, 'lastbuild' if $cgi->{'lastbuild'};
   push @args, "oldstate=$cgi->{'oldstate'}" if $cgi->{'oldstate'};
@@ -5956,7 +5402,7 @@ sub docommand {
   }
   die("illegal wipe parameter\n") if $cgi->{'wipe'} && $cgi->{'cmd'} ne 'wipe';
   
-  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my $res;
   my @args;
   push @args, map {"prpa=$_"} @prpas;
@@ -5975,7 +5421,7 @@ sub docommand {
 sub checkprojrepoarch {
   my ($projid, $repoid, $arch, $remoteok) = @_;
   my $proj = readproj($projid, 1);
-  $proj = remoteprojid($projid) if $remoteok && (!$proj || $proj->{'remoteurl'});
+  $proj = BSSrcServer::Remote::remoteprojid($projid) if $remoteok && (!$proj || $proj->{'remoteurl'});
   die("404 project '$projid' does not exist\n") if !$proj;
   die("404 project '$projid' is remote\n") if $proj->{'remoteurl'} && !$remoteok;
   return $proj if $proj->{'remoteurl'};
@@ -5991,7 +5437,7 @@ sub getbuilddepinfo {
   my ($cgi, $projid, $repoid, $arch) = @_;
 
   checkprojrepoarch($projid, $repoid, $arch);
-  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my @args = BSRPC::args($cgi, 'package', 'view');
   my $param = {
     'uri' => "$reposerver/build/$projid/$repoid/$arch/_builddepinfo",
@@ -6009,7 +5455,7 @@ sub getjobhistory {
   my ($cgi, $projid, $repoid, $arch) = @_;
 
   checkprojrepoarch($projid, $repoid, $arch);
-  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my @args = BSRPC::args($cgi, 'limit', 'package', 'code');
   my $res = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/_jobhistory", $BSXML::jobhistlist, @args);
   return ($res, $BSXML::jobhistlist);
@@ -6020,7 +5466,7 @@ sub getpackagelist_build {
   if ($cgi->{'view'}) {
     die("unknown view '$cgi->{'view'}'\n") unless $cgi->{'view'} eq 'binaryversions' || $cgi->{'view'} eq 'binaryversionscode';
     my $proj = checkprojrepoarch($projid, $repoid, $arch, 1);
-    my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+    my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
     my @args = BSRPC::args($cgi, 'view', 'package');
     my $param = {
       'uri' => "$reposerver/build/$projid/$repoid/$arch",
@@ -6045,7 +5491,7 @@ sub getbinarylist {
 
   my $view = $cgi->{'view'};
   my $nosource = $cgi->{'nosource'};
-  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my @args = BSRPC::args($cgi, 'view', 'nosource', 'withmd5', 'binary');
   if ($view && ($view eq 'cache' || $view eq 'cpio' || $view eq 'solv' || $view eq 'solvstate')) {
     # do not check arch in interconnect mode
@@ -6154,7 +5600,7 @@ sub getbinary {
     die("publishedpath does not work for _repository\n") if $packid eq '_repository';
     return published_path($cgi, $projid, $repoid);
   }
-  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my @args;
   push @args, "view=$view" if $view;
   my $param = {
@@ -6163,7 +5609,7 @@ sub getbinary {
     'receiver' => \&BSServer::reply_receiver,
   };
   if ($view && $view eq 'fileinfo_ext') {
-    my $partition = projid2partition($projid);
+    my $partition = BSSrcServer::Partition::projid2partition($projid);
     my $projpack = (getprojpack({'nopackages' => 1, 'withrepos' => 1, 'expandedrepos' => 1, 'withremotemap' => 1, 'withconfig' => 1, 'partition' => $partition}, [ $projid ], [ $repoid ], undef, $arch))[0];
     if ($projpack) {
       if ($projpack->{'project'} && $projpack->{'project'}->[0]->{'name'} eq $projid) {
@@ -6186,7 +5632,7 @@ sub getbinary {
 sub putbinary {
   my ($cgi, $projid, $repoid, $arch, $filename) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
-  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my @args = BSRPC::args($cgi, 'ignoreolder', 'wipe');
   my $param = {
     'uri' => "$reposerver/build/$projid/$repoid/$arch/_repository/$filename",
@@ -6201,7 +5647,7 @@ sub putbinary {
 sub delbinary {
   my ($cgi, $projid, $repoid, $arch, $filename) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
-  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my $param = {
     'uri' => "$reposerver/build/$projid/$repoid/$arch/_repository/$filename",
     'request' => 'DELETE',
@@ -6221,8 +5667,8 @@ sub copybuild {
   # make sure the packages exist. not cheap, but does everything we need
   getrev($projid, $packid);
   getrev($oprojid, $opackid);
-  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
-  my $oreposerver = $BSConfig::partitioning ? projid2reposerver($oprojid) : $BSConfig::reposerver;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
+  my $oreposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($oprojid) : $BSConfig::reposerver;
   if ($reposerver ne $oreposerver) {
     die("cannot copy binaries between different reposiory servers yet\n");
   }
@@ -6246,7 +5692,7 @@ sub uploadbuild {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   die("illegal package '$packid'\n") if $packid =~ /^_/ && !($packid =~ /^_product:/);
   checkprojrepoarch($projid, $repoid, $arch);
-  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my $param = {
     'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid",
     'request' => 'POST',
@@ -6290,7 +5736,7 @@ sub getlogfile {
   if (!$BSStdServer::isajax && !$cgi->{'view'}) {
     BSHandoff::handoff("/build/$projid/$repoid/$arch/$packid/_log", undef, @args);
   }
-  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my $param = {
     'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid/_log",
     'ignorestatus' => 1,
@@ -6304,7 +5750,7 @@ sub getlogfile {
 sub getjobstatus {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
-  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my $jobstatus = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/$packid/_jobstatus", $BSXML::jobstatus);
   return ($jobstatus, $BSXML::jobstatus);
 }
@@ -6312,7 +5758,7 @@ sub getjobstatus {
 sub getbuildhistory {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
-  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my @args = BSRPC::args($cgi, 'limit');
   my $buildhist = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/$packid/_history", $BSXML::buildhist, @args);
   return ($buildhist, $BSXML::buildhist);
@@ -6322,7 +5768,7 @@ sub getbuildinfo {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   $arch = $BSConfig::localarch if $arch eq 'local' && defined($BSConfig::localarch);
   checkprojrepoarch($projid, $repoid, $arch, 1);
-  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my @args = BSRPC::args($cgi, 'internal', 'debug', 'add');
   my $buildinfo = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/$packid/_buildinfo", $BSXML::buildinfo, @args);
   return ($buildinfo, $BSXML::buildinfo);
@@ -6332,7 +5778,7 @@ sub getbuildinfo_post {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   $arch = $BSConfig::localarch if $arch eq 'local' && defined($BSConfig::localarch);
   checkprojrepoarch($projid, $repoid, $arch, 1);
-  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my @args = BSRPC::args($cgi, 'debug', 'add');
   my $param = {
     'uri' => "$reposerver/build/$projid/$repoid/$arch/$packid/_buildinfo",
@@ -6347,7 +5793,7 @@ sub getbuildinfo_post {
 sub getbuildreason {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
-  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my $reason = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/$packid/_reason", $BSXML::buildreason);
   return ($reason, $BSXML::buildreason);
 }
@@ -6355,7 +5801,7 @@ sub getbuildreason {
 sub getbuildstatus {
   my ($cgi, $projid, $repoid, $arch, $packid) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
-  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my $status = BSWatcher::rpc("$reposerver/build/$projid/$repoid/$arch/$packid/_status", $BSXML::buildstatus);
   return ($status, $BSXML::buildstatus);
 }
@@ -6914,7 +6360,7 @@ sub search {
 
 sub postrepo {
   my ($cgi, $projid, $repoid, $arch) = @_;
-  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my $param = {
     'uri' => "$reposerver/build/$projid/$repoid/$arch/_repository",
     'request' => 'POST',
@@ -6968,7 +6414,7 @@ sub published {
   $p .= "/$filename" if defined $filename;
   $p .= "/$subfilename" if defined $subfilename;
   if (defined($projid) || !$BSConfig::partitioning || !$BSConfig::partitionservers) {
-    my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+    my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
     my $param = {
       'uri' => "$reposerver$p",
       'ignorestatus' => 1,
@@ -6982,9 +6428,10 @@ sub published {
     BSWatcher::rpc($param, undef, @args);
     return undef;
   }
-  my %reposervers = map {$_ => 1} values(%$BSConfig::partitionservers);
+  
   my %pubprojids;
-  for my $reposerver (sort keys %reposervers) {
+  my @reposervers = BSSrcServer::Partition::allreposervers();
+  for my $reposerver (@reposervers) {
     my $res;
     eval {
       $res = BSWatcher::rpc("$reposerver/published", $BSXML::dir, @args);
@@ -7214,29 +6661,14 @@ sub findremote {
   my ($projid) = @_;
 
   my $proj = readproj($projid, 1);
-  if ($proj) {
-    if (!$proj->{'remoteurl'}) {
-      my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
-      return ($reposerver, $projid, undef);
-    }
-    die("no remoteproject specified\n") unless $proj->{'remoteproject'};
-    return ($proj->{'remoteurl'}, $proj->{'remoteproject'}, $proxy);
+  $proj = BSSrcServer::Remote::remoteprojid($projid) if !$proj || $proj->{'remoteurl'};
+  die("404 project '$projid' does not exist\n") unless $proj;
+  if (!$proj->{'remoteurl'}) {
+    $proj->{'remoteurl'} = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
+    $proj->{'remoteproject'} = $projid;
+    $proj->{'remoteproxy'} = undef;
   }
-  my $origprojid = $projid;
-  my $rsuf = '';
-  while ($projid =~ /^(.*)(:.*?)$/) {
-    $projid = $1;
-    $rsuf = "$2$rsuf";
-    $proj = readproj($projid, 1);
-    next unless $proj;
-    die("404 project '$origprojid' does not exist\n") unless $proj->{'remoteurl'};
-    if ($proj->{'remoteproject'}) {
-      return ($proj->{'remoteurl'}, "$proj->{'remoteproject'}$rsuf", $proxy);
-    }
-    $rsuf =~ s/^://;
-    return ($proj->{'remoteurl'}, $rsuf, $proxy);
-  }
-  die("404 project '$origprojid' does not exist\n");
+  return $proj;
 }
 
 sub worker_getbinaries {
@@ -7251,137 +6683,20 @@ sub worker_getbinaries {
     BSHandoff::handoff('/getbinaries', undef, @args);
   }
   my @binaries = split(',', $cgi->{'binaries'});
-  my ($remoteurl, $remoteprojid, $remoteproxy) = findremote($projid);
-
-  my $jev = $BSServerEvents::gev;
-  my $binarylist;
-  $binarylist = $jev->{'binarylist'} if $BSStdServer::isajax;
-  $binarylist ||= {};
-  $jev->{'binarylist'} = $binarylist if $BSStdServer::isajax;
-
-  # fill binarylist
-  my @missing = grep {!exists $binarylist->{$_}} @binaries;
-  while (@missing) {
-    my $param = {
-      'uri' => "$remoteurl/build/$remoteprojid/$repoid/$arch/_repository",
-      'proxy' => $remoteproxy,
-    };
-    # chunk it
-    my $binchunkl = 0;
-    for (splice @missing) {
-      $binchunkl += 10 + length($_);
-      last if @missing && $binchunkl > 1900;
-      push @missing, $_;
-    }
-    my $binarylistcpio = BSWatcher::rpc($param, $BSXML::binarylist, "view=names", map {"binary=$_"} @missing);
-    return undef if $BSStdServer::isajax && !$binarylistcpio;
-    for my $b (@{$binarylistcpio->{'binary'} || []}) {
-      my $bin = $b->{'filename'};
-      $bin =~ s/\.(?:$binsufsre)$//;
-      $binarylist->{$bin} = $b;
-    }
-    # make sure that we don't loop forever if the server returns incomplete data
-    for (@missing) {
-      $binarylist->{$_} = {'filename' => $_, 'size' => 0} unless $binarylist->{$_};
-    }
-    @missing = grep {!exists $binarylist->{$_}} @binaries;
-  }
-
-  my @fetch;
-  my @reply;
-  local *LOCK;
-  mkdir_p($remotecache);
-  BSUtil::lockopen(\*LOCK, '>>', "$remotecache/lock");
-  for my $bin (@binaries) {
-    my $b = $binarylist->{$bin};
-    if (!$b || !$b->{'size'} || !$b->{'mtime'}) {
-      push @reply, {'name' => $bin, 'error' => 'not available'};
-      next;
-    }
-    my $cachemd5 = Digest::MD5::md5_hex("$projid/$repoid/$arch/$bin");
-    substr($cachemd5, 2, 0, '/');
-    my @s = stat("$remotecache/$cachemd5");
-    if (!@s || $s[9] != $b->{'mtime'} || $s[7] != $b->{'size'}) {
-      push @fetch, $bin;
-    } else {
-      utime time(), $s[9], "$remotecache/$cachemd5";
-      push @reply, {'name' => $b->{'filename'}, 'filename' => "$remotecache/$cachemd5"};
-    }
-  }
-  my $slot = sprintf("%02x", (int(rand(256))));
-  print "cleaning slot $slot\n";
-  if (-d "$remotecache/$slot") {
-    my $now = time();
-    my $num = 0;
-    for my $f (ls("$remotecache/$slot")) {
-      my @s = stat("$remotecache/$slot/$f");
-      next if $s[8] >= $now - 24*3600;
-      unlink("$remotecache/$slot/$f");
-      $num++;
-    }
-    print "removed $num unused files\n" if $num;
-  }
-  close(LOCK);
-
-  if (@fetch) {
-    my $serialmd5 = Digest::MD5::md5_hex("$projid/$repoid/$arch");
-
-    # serialize this upload
-    my $serial = BSWatcher::serialize("$remotecache/$serialmd5.lock");
-    return undef unless $serial;
-
-    print "fetch: @fetch\n";
-    my %fetch = map {$_ => $binarylist->{$_}} @fetch;
-    my $param = {
-      'uri' => "$remoteurl/build/$remoteprojid/$repoid/$arch/_repository",
-      'receiver' => \&BSHTTP::cpio_receiver,
-      'tmpcpiofile' => "$remotecache/upload$serialmd5.cpio",
-      'directory' => $remotecache,
-      'map' => "upload$serialmd5:",
-      'proxy' => $remoteproxy,
-    };
-    # work around api bug: only get 50 packages at a time
-    @fetch = splice(@fetch, 0, 50) if @fetch > 50;
-    my $cpio = BSWatcher::rpc($param, undef, "view=cpio", map {"binary=$_"} @fetch);
-    return undef if $BSStdServer::isajax && !$cpio;
-    for my $f (@{$cpio || []}) {
-      my $bin = $f->{'name'};
-      $bin =~ s/^upload.*?://;
-      $bin =~ s/\.(?:$binsufsre)$//;
-      if (!$fetch{$bin}) {
-        unlink("$remotecache/$f->{'name'}");
-	next;
-      }
-      $binarylist->{$bin}->{'size'} = $f->{'size'};
-      $binarylist->{$bin}->{'mtime'} = $f->{'mtime'};
-      my $cachemd5 = Digest::MD5::md5_hex("$projid/$repoid/$arch/$bin");
-      substr($cachemd5, 2, 0, '/');
-      mkdir_p("$remotecache/".substr($cachemd5, 0, 2));
-      rename("$remotecache/$f->{'name'}", "$remotecache/$cachemd5");
-      push @reply, {'name' => $fetch{$bin}->{'filename'}, 'filename' => "$remotecache/$cachemd5"};
-      delete $fetch{$bin};
-    }
-    BSWatcher::serialize_end($serial);
-
-    if (@{$cpio || []} >= 50) {
-      # work around api bug: get rest
-      delete $jev->{'binarylist'} if $BSStdServer::isajax;
-      return worker_getbinaries($cgi, $projid, $repoid, $arch);
-    }
-
-    for (sort keys %fetch) {
-      push @reply, {'name' => $_, 'error' => 'not available'};
-    }
-  }
+  my $proj = findremote($projid);
+  my $binarylist = BSSrcServer::Remote::getremotebinarylist($proj, $projid, $repoid, $arch, \@binaries);
+  return undef unless $binarylist;
+  my $reply = BSSrcServer::Remote::getremotebinaries($proj, $projid, $repoid, $arch, \@binaries, $binarylist);
+  return undef unless $reply;
   if ($cgi->{'raw'}) {
-    die("can only transport one binary in raw mode\n") unless @reply == 1;
-    my $f = $reply[0];
+    die("can only transport one binary in raw mode\n") unless @$reply == 1;
+    my $f = $reply->[0];
     die("$f->{'name'}: $f->{'error'}\n") if $f->{'error'};
     die("$f->{'name'}: not found\n") unless $f->{'filename'};
     BSWatcher::reply_file($f->{'filename'});
     return undef;
   }
-  BSWatcher::reply_cpio(\@reply);
+  BSWatcher::reply_cpio($reply);
   return undef;
 }
 
@@ -7398,45 +6713,14 @@ sub worker_getbinaryversions {
     BSHandoff::handoff('/getbinaryversions', undef, @args);
   }
   my @binaries = split(',', $cgi->{'binaries'});
-  my ($remoteurl, $remoteprojid, $remoteproxy) = findremote($projid);
-
-  my $jev = $BSServerEvents::gev;
-  my $binaryversions;
-  $binaryversions = $jev->{'binaryversions'} if $BSStdServer::isajax;
-  $binaryversions ||= {};
-  $jev->{'binaryversions'} = $binaryversions if $BSStdServer::isajax;
-
-  # fill binaryversions
-  my @missing = grep {!exists $binaryversions->{$_}} @binaries;
-  while (@missing) {
-    # chunk it
-    my $binchunkl = 0;
-    for (splice @missing) {
-      $binchunkl += 10 + length($_);
-      last if @missing && $binchunkl > 1900;
-      push @missing, $_;
-    }
-    my $param = {
-      'uri' => "$remoteurl/build/$remoteprojid/$repoid/$arch/_repository",
-      'proxy' => $remoteproxy,
-    };
-    my $bvl = BSWatcher::rpc($param, $BSXML::binaryversionlist, 'view=binaryversions', 'nometa=1', map {"binary=$_"} @missing);
-    return undef if $BSStdServer::isajax && !$bvl;
-    for (@{$bvl->{'binary'} || []}) {
-      my $bin = $_->{'name'};
-      $bin =~ s/\.(?:$binsufsre)$//;
-      $binaryversions->{$bin} = $_;
-    }
-    # make sure that we don't loop forever if the server returns incomplete data
-    for (@missing) {
-      $binaryversions->{$_} = {'name' => $_, 'error' => 'not available'} unless $binaryversions->{$_};
-    }
-    @missing = grep {!exists $binaryversions->{$_}} @binaries;
-  }
+  my $proj = findremote($projid);
+  my $binaryversions = BSSrcServer::Remote::getremotebinaryversions($proj, $projid, $repoid, $arch, \@binaries);
   my $bvl = {};
   $bvl->{'binary'} = [ map {$binaryversions->{$_}} @binaries];
   return ($bvl, $BSXML::binaryversionlist);
 }
+
+####################################################################
 
 # this is shared for AJAX requests
 my @lastev_cache;
@@ -7601,7 +6885,7 @@ sub newevent {
 sub getrelsync {
   my ($cgi, $projid, $repoid, $arch) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
-  my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+  my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
   my $param = {
     'uri' => "$reposerver/build/$projid/$repoid/$arch/_relsync",
     'ignorestatus' => 1,
@@ -7620,7 +6904,7 @@ sub postrelsync {
   for my $a (@{$repo->{'arch'} || []}) {
     next if $a eq $arch;
     next if $BSConfig::relsync_pool && ($BSConfig::relsync_pool->{$arch} || '') ne ($BSConfig::relsync_pool->{$a} || '');
-    my $reposerver = $BSConfig::partitioning ? projid2reposerver($projid) : $BSConfig::reposerver;
+    my $reposerver = $BSConfig::partitioning ? BSSrcServer::Partition::projid2reposerver($projid) : $BSConfig::reposerver;
     my $param = {
       'uri' => "$reposerver/build/$projid/$repoid/$a/_relsync",
       'request' => 'POST',
@@ -7788,7 +7072,7 @@ sub getprojectsourceinfo {
   }
   my @res;
   if (@packages > 1) {
-    $collect_remote_getrev = 1;
+    $BSSrcServer::Remote::collect_remote_getrev = 1;
     for my $packid (splice @packages) {
       my $r = sourceinfo($cgi, $projid, $packid, $bconf);
       if ($r->{'error'} && $r->{'error'} =~ /collect_remote_getrev$/) {
@@ -7797,8 +7081,8 @@ sub getprojectsourceinfo {
       }
       push @res, $r;
     }
-    $collect_remote_getrev = 0;
-    fill_remote_getrev_cache();
+    $BSSrcServer::Remote::collect_remote_getrev = 0;
+    BSSrcServer::Remote::fill_remote_getrev_cache();
   }
   for my $packid (@packages) {
     push @res, sourceinfo($cgi, $projid, $packid, $bconf);
@@ -7838,14 +7122,10 @@ sub putconfiguration {
   unlink("$uploaddir/$$");
   my $configurationxml = BSUtil::toxml($configuration, $BSXML::configuration);
   writestr("$BSConfig::bsdir/.configuration.xml", "$BSConfig::bsdir/configuration.xml", $configurationxml);
+
   # distribute to repo servers
-  my %reposervers;
-  if ($BSConfig::partitionservers) {
-    %reposervers = map {$_ => 1} values(%$BSConfig::partitionservers);
-  } else {
-    $reposervers{$BSConfig::reposerver} = 1;
-  }
-  for my $server (sort keys %reposervers) {
+  my @reposervers = BSSrcServer::Partition::allreposervers();
+  for my $server (@reposervers) {
     my $param = {
       'uri' => "$server/configuration",
       'request' => 'PUT',

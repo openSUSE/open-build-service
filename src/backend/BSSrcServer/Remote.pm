@@ -1,0 +1,721 @@
+# Copyright (c) 2016 SUSE LLC
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License version 2 as
+# published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program (see the file COPYING); if not, write to the
+# Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA
+#
+package BSSrcServer::Remote;
+
+use strict;
+use warnings;
+
+use BSConfiguration;
+use BSRPC;
+use BSWatcher;
+use BSUtil;
+use BSRevision;
+use BSXML;
+use BSSrcrep;
+
+my $remotecache = "$BSConfig::bsdir/remotecache";
+my $projectsdir = "$BSConfig::bsdir/projects";
+
+my $srcrep = "$BSConfig::bsdir/sources";
+my $uploaddir = "$srcrep/:upload";
+
+my $proxy;
+$proxy = $BSConfig::proxy if defined $BSConfig::proxy;
+
+my @binsufs = qw{rpm deb pkg.tar.gz pkg.tar.xz};
+my $binsufsre = join('|', map {"\Q$_\E"} @binsufs);
+
+# remote getrev cache
+our $collect_remote_getrev;
+my $remote_getrev_todo;
+my %remote_getrev_cache;
+
+sub remoteprojid {
+  my ($projid) = @_;
+  my $rsuf = '';
+  my $origprojid = $projid;
+
+  my $proj = BSRevision::readproj_local($projid, 1);
+  if ($proj) {
+    return undef unless $proj->{'remoteurl'};
+    if (!$proj->{'remoteproject'}) {
+      delete $proj->{'remoteurl'};
+      return $proj;
+    }
+    return {
+      'name' => $projid,
+      'root' => $projid,
+      'remoteroot' => $proj->{'remoteproject'},
+      'remoteurl' => $proj->{'remoteurl'},
+      'remoteproject' => $proj->{'remoteproject'},
+      'remoteproxy' => $proxy,
+    };
+  }
+  while ($projid =~ /^(.*)(:.*?)$/) {
+    $projid = $1;
+    $rsuf = "$2$rsuf";
+    $proj = BSRevision::readproj_local($projid, 1);
+    if ($proj) {
+      return undef unless $proj->{'remoteurl'};
+      if ($proj->{'remoteproject'}) {
+        $rsuf = "$proj->{'remoteproject'}$rsuf";
+      } else {
+        $rsuf =~ s/^://;
+      }
+      return {
+        'name' => $origprojid,
+        'root' => $projid,
+        'remoteroot' => $proj->{'remoteproject'},
+        'remoteurl' => $proj->{'remoteurl'},
+        'remoteproject' => $rsuf,
+        'remoteproxy' => $proxy,
+      };
+    }
+  }
+  return undef;
+}
+
+sub findpackages_remote {
+  my ($projid, $proj, $nonfatal, $origins, $noexpand, $deleted) = @_;
+
+  my @packids;
+  my @args;
+  push @args, 'deleted=1' if $deleted;
+  push @args, 'expand=1' unless $noexpand || $deleted;
+  my $r;
+  eval {
+    $r = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}", 'proxy' => $proj->{'remoteproxy'}}, $BSXML::dir, @args);
+  };
+  if ($@ && $@ =~ /^404/) {
+    # remote project does not exist
+    die($@) unless $nonfatal;
+    return ();
+  }
+  if ($@) {
+    die($@) unless $nonfatal && $nonfatal > 0;  # -1: internal projectlink recursion, errors are still fatal
+    warn($@);
+    push @packids, ':missing_packages' if $nonfatal == 2;
+    return @packids;
+  }
+  @packids = map {$_->{'name'}} @{($r || {})->{'entry'} || []};
+  if ($origins) {
+    for my $entry (@{($r || {})->{'entry'} || []}) {
+      $origins->{$entry->{'name'}} = defined($entry->{'originproject'}) ? maptoremote($proj, $entry->{'originproject'}) : $projid;
+    }
+  }
+  return @packids;
+}
+
+
+sub maptoremote {
+  my ($proj, $projid) = @_;
+  return "$proj->{'root'}:$projid" unless $proj->{'remoteroot'};
+  return $proj->{'root'} if $projid eq $proj->{'remoteroot'};
+  return '_unavailable' if $projid !~ /^\Q$proj->{'remoteroot'}\E:(.*)$/;
+  return "$proj->{'root'}:$1";
+}
+
+sub fetchremoteproj {
+  my ($proj, $projid, $remotemap) = @_;
+  return undef unless $proj && $proj->{'remoteurl'} && $proj->{'remoteproject'};
+  $projid ||= $proj->{'name'};
+  my $rproj;
+  my $c;
+  if ($remotemap) {
+    $rproj = $remotemap->{$projid};
+    if ($rproj) {
+      die($rproj->{'error'}) if $rproj->{'error'};
+      return $rproj unless $rproj->{'proto'};
+      $c = $rproj->{'config'};  # save old config
+      undef $rproj;
+    }
+  }
+  print "fetching remote project data for $projid\n";
+  my $param = {
+    'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_meta",
+    'timeout' => 60,
+    'proxy' => $proj->{'remoteproxy'},
+  };
+  eval {
+    $rproj = BSRPC::rpc($param, $BSXML::proj);
+  };
+  if ($@) {
+    if ($remotemap) {
+      $rproj = {%$proj, 'error' => $@, 'proto' => 1};
+      $rproj->{'config'} = $c if defined $c;
+      $remotemap->{$projid} = $rproj;
+    }
+    die($@);
+  }
+  for (qw{name root remoteroot remoteurl remoteproject}) {
+    $rproj->{$_} = $proj->{$_};
+  }
+  for my $repo (@{$rproj->{'repository'} || []}) {
+    for my $pathel (@{$repo->{'path'} || []}) {
+      $pathel->{'project'} = maptoremote($proj, $pathel->{'project'});
+    }
+    for my $pathel (@{$repo->{'releasetarget'} || []}) {
+      $pathel->{'project'} = maptoremote($proj, $pathel->{'project'});
+    }
+  }
+  for my $link (@{$rproj->{'link'} || []}) {
+    $link->{'project'} = maptoremote($proj, $link->{'project'});
+  }
+  $remotemap->{$projid} = $rproj if $remotemap;
+  return $rproj;
+}
+
+sub fetchremoteconfig {
+  my ($proj, $projid, $remotemap) = @_;
+  return undef unless $proj && $proj->{'remoteurl'} && $proj->{'remoteproject'};
+  $projid ||= $proj->{'name'};
+  if ($remotemap) {
+    my $rproj = $remotemap->{$projid};
+    if ($rproj) {
+      die($rproj->{'error'}) if $rproj->{'error'};
+      return $rproj->{'config'} if defined $rproj->{'config'};
+    } else {
+      $remotemap->{$projid} = {%$proj, 'proto' => 1};
+    }
+  }
+  print "fetching remote project config for $projid\n";
+  my $param = {
+    'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_config",
+    'timeout' => 60,
+    'proxy' => $proj->{'remoteproxy'},
+  };
+  my $c;
+  eval {
+    $c = BSRPC::rpc($param, undef);
+  };
+  if ($@) {
+    $remotemap->{$projid}->{'error'} = $@ if $remotemap;
+    die($@);
+  }
+  $remotemap->{$projid}->{'config'} = $c if $remotemap;
+  return $c;
+}
+
+sub fill_remote_getrev_cache_projid {
+  my ($projid, $packids) = @_;
+
+  return unless $packids && @$packids;
+  print "filling remote_getrev cache for $projid @$packids\n";
+  my $proj = remoteprojid($projid);
+  return unless $proj;
+  my $silist;
+  my @args;
+  push @args, 'view=info';
+  push @args, 'nofilename=1';
+  push @args, map {"package=$_"} @$packids;
+  eval {
+    $silist = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}", 'proxy' => $proj->{'remoteproxy'}}, $BSXML::sourceinfolist, @args);
+  };
+  warn($@) if $@;
+  return unless $silist;
+  for my $si (@{$silist->{'sourceinfo'} || []}) {
+    my $packid = $si->{'package'};
+    my $rev = {};
+    if ($si->{'linked'}) {
+      $rev->{'linked'} = [];
+      for my $l (@{$si->{'linked'}}) {
+        $l->{'project'} = maptoremote($proj, $l->{'project'});
+        push @{$rev->{'linked'}}, $l if defined($l->{'project'}) && $l->{'project'} ne '_unavailable';
+      }
+    }
+    $rev->{'srcmd5'} = $si->{'verifymd5'} || $si->{'srcmd5'};
+    delete $rev->{'srcmd5'} unless defined $rev->{'srcmd5'};
+    if ($si->{'error'}) {
+      if ($si->{'error'} =~ /^(\d+) +(.*?)$/) {
+        $si->{'error'} = "$1 remote error: $2";
+      } else {
+        $si->{'error'} = "remote error: $si->{'error'}";
+      }
+      if ($si->{'error'} eq 'no source uploaded') {
+        delete $si->{'error'};
+        $rev->{'srcmd5'} = $BSSrcrep::emptysrcmd5;
+      } elsif ($si->{'verifymd5'} || $si->{'error'} =~ /^404[^\d]/) {
+        $rev->{'error'} = $si->{'error'};
+        $remote_getrev_cache{"$projid/$packid/"} = $rev;
+      } else {
+        next;
+      }
+    }
+    next unless $rev->{'srcmd5'};
+    next unless BSSrcrep::existstree($projid, $packid, $rev->{'srcmd5'});
+    $rev->{'vrev'} = $si->{'vrev'} || '0';
+    $rev->{'rev'} = $si->{'rev'} || $rev->{'srcmd5'};
+    $remote_getrev_cache{"$projid/$packid/"} = $rev;
+  }
+}
+
+sub fill_remote_getrev_cache {
+  for my $projid (sort keys %{$remote_getrev_todo || {}}) {
+    my @packids = sort keys %{$remote_getrev_todo->{$projid} || {}};
+    next if @packids <= 1;
+    while (@packids) {
+      my @chunk;
+      my $len = 20;
+      while (@packids) {
+        my $packid = shift @packids;
+        push @chunk, $packid;
+        $len += 9 + length($packid);
+        last if $len > 1900;
+      }
+      fill_remote_getrev_cache_projid($projid, \@chunk);
+    }
+  }
+  $remote_getrev_todo = {};
+}
+
+sub remote_getrev {
+  my ($projid, $packid, $rev, $linked, $missingok) = @_;
+  my $proj = remoteprojid($projid);
+  return undef unless $proj;
+  # check if we already know this srcmd5, if yes don't bother to contact
+  # the remote server
+  if ($rev && $rev =~ /^[0-9a-f]{32}$/) {
+    if (BSSrcrep::existstree($projid, $packid, $rev)) {
+      return {'project' => $projid, 'package' => $packid, 'rev' => $rev, 'srcmd5' => $rev};
+    }
+  }
+  if (defined($rev) && $rev eq '0') {
+    return {'srcmd5' => $BSSrcrep::emptysrcmd5, 'project' => $projid, 'package' => $packid};
+  }
+  my @args;
+  push @args, 'expand=1';
+  push @args, "rev=$rev" if defined $rev;
+  my $cacherev = !defined($rev) || $rev eq 'build' ? '' : $rev;
+  if ($remote_getrev_cache{"$projid/$packid/$cacherev"}) {
+    $rev = { %{$remote_getrev_cache{"$projid/$packid/$cacherev"}} };
+    push @$linked, map { { %$_ } } @{$rev->{'linked'}} if $linked && $rev->{'linked'};
+    if ($rev->{'error'}) {
+      return {'project' => $projid, 'package' => $packid, 'srcmd5' => $BSSrcrep::emptysrcmd5} if $missingok && $rev->{'error'} =~ /^404[^\d]/;
+      die("$rev->{'error'}\n");
+    }
+    delete $rev->{'linked'};
+    $rev->{'project'} = $projid;
+    $rev->{'package'} = $packid;
+    return $rev;
+  }
+  if ($collect_remote_getrev && $cacherev eq '') {
+    $remote_getrev_todo->{$projid}->{$packid} = 1;
+    die("collect_remote_getrev\n");
+  }
+  my $dir;
+  eval {
+    $dir = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid", 'proxy' => $proj->{'remoteproxy'}}, $BSXML::dir, @args, 'withlinked') if $linked;
+  };
+  if (!$dir || $@) {
+    eval {
+      $dir = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid", 'proxy' => $proj->{'remoteproxy'}}, $BSXML::dir, @args);
+    };
+    if ($@) {
+      return {'project' => $projid, 'package' => $packid, 'srcmd5' => $BSSrcrep::emptysrcmd5} if $missingok && $@ =~ /^404[^\d]/;
+      die($@);
+    }
+  }
+  if ($dir->{'error'}) {
+    if ($linked && $dir->{'linkinfo'} && $dir->{'linkinfo'}->{'linked'}) {
+      # add linked info for getprojpack
+      for my $l (@{$dir->{'linkinfo'}->{'linked'}}) {
+        $l->{'project'} = maptoremote($proj, $l->{'project'});
+        push @$linked, $l if defined($l->{'project'}) && $l->{'project'} ne '_unavailable';
+      }
+    }
+    die("$dir->{'error'}\n");
+  }
+  $rev = {};
+  $rev->{'project'} = $projid;
+  $rev->{'package'} = $packid;
+  $rev->{'rev'} = $dir->{'rev'} || $dir->{'srcmd5'};
+  $rev->{'srcmd5'} = $dir->{'srcmd5'};
+  $rev->{'vrev'} = $dir->{'vrev'};
+  $rev->{'vrev'} ||= '0';
+  # now put everything in local source repository
+  my $files = {};
+  for my $entry (@{$dir->{'entry'} || []}) {
+    $files->{$entry->{'name'}} = $entry->{'md5'};
+    # check if we already have the file
+    next if -e BSSrcrep::repfilename($rev, $entry->{'name'}, $entry->{'md5'});
+    # nope, download it
+    if ($linked && $entry->{'size'} > 8192) {
+      # getprojpack request, hand over to AJAX
+      BSHandoff::rpc("/source/$projid/$packid", undef, "rev=$dir->{'srcmd5'}", 'view=notify');
+      die("download in progress\n");
+    }
+    mkdir_p($uploaddir);
+    my $param = {
+      'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid/$entry->{'name'}",
+      'filename' => "$uploaddir/$$",
+      'withmd5' => 1,
+      'receiver' => \&BSHTTP::file_receiver,
+      'proxy' => $proj->{'remoteproxy'},
+    };
+    my $res = BSRPC::rpc($param, undef, "rev=$rev->{'srcmd5'}");
+    die("file download failed\n") unless $res && $res->{'md5'} eq $entry->{'md5'};
+    BSSrcrep::addfile($projid, $packid, "$uploaddir/$$", $entry->{'name'}, $entry->{'md5'});
+  }
+  my $srcmd5 = BSSrcrep::addmeta($projid, $packid, $files);
+  if ($dir->{'serviceinfo'}) {
+    $dir->{'srcmd5'} = $rev->{'srcmd5'} = $srcmd5;
+  }
+  my @linked;
+  if ($dir->{'linkinfo'}) {
+    my $li = $dir->{'linkinfo'};
+    # hack: the following line is used because we fake a linkinfo element
+    # for project links... compatibility to old versions sure has some
+    # drawbacks...
+    if (defined($li->{'project'})) {
+      $dir->{'srcmd5'} = $rev->{'srcmd5'} = $srcmd5;
+      $rev->{'rev'} = $rev->{'srcmd5'} unless $dir->{'rev'};
+    }
+    if ($linked) {
+      # add linked info for getprojpack
+      if ($li->{'linked'}) {
+        for my $l (@{$li->{'linked'}}) {
+          $l->{'project'} = maptoremote($proj, $l->{'project'});
+          push @linked, $l if defined($l->{'project'}) && $l->{'project'} ne '_unavailable';
+        }
+        undef $li;
+      }
+      while ($li) {
+        my $lprojid = $li->{'project'};
+        my $lpackid = $li->{'package'};
+        last unless defined($lprojid) && defined($lpackid);
+        my $mlprojid = maptoremote($proj, $lprojid);
+        last unless defined($mlprojid) && $mlprojid ne '_unavailable';
+        push @linked, {'project' => $mlprojid, 'package' => $lpackid};
+        last unless $li->{'srcmd5'} && !$li->{'error'};
+        my $ldir;
+        eval {
+          $ldir = BSRPC::rpc({'uri' => "$proj->{'remoteurl'}/source/$lprojid/$lpackid", 'proxy' => $proj->{'remoteproxy'}}, $BSXML::dir, "rev=$li->{'srcmd5'}");
+        };
+        last if $@ || !$ldir;
+        $li = $ldir->{'linkinfo'};
+      }
+      push @$linked, @linked;
+    }
+  }
+  die("srcmd5 mismatch\n") if $dir->{'srcmd5'} ne $srcmd5;
+  if (!$dir->{'linkinfo'} || $linked) {
+    my %revcopy = %$rev;
+    delete $revcopy{'project'};         # save mem
+    delete $revcopy{'package'};
+    $revcopy{'linked'} = [ map { { %$_ } } @linked ] if $dir->{'linkinfo'};
+    $remote_getrev_cache{"$projid/$packid/$cacherev"} = \%revcopy;
+  }
+  return $rev;
+}
+
+my %remote_getrev_getfiles_inprogress;
+
+sub remote_getrev_getfiles {
+  my ($projid, $packid, $srcmd5) = @_;
+
+  my $jev = $BSServerEvents::gev;
+  my $rev = {'project' => $projid, 'package' => $packid, 'srcmd5' => $srcmd5};
+
+  # setup
+  if (!$jev->{'remoteurl'}) {
+    my $proj = remoteprojid($projid);
+    die("missing project/package\n") unless $proj;
+    $jev->{'remoteurl'} = $proj->{'remoteurl'};
+    $jev->{'remoteproject'} = $proj->{'remoteproject'};
+    $jev->{'remoteproxy'} = $proj->{'remoteproxy'};
+  }
+
+  # get the filelist
+  if (!$jev->{'filelist'}) {
+    return $BSStdServer::return_ok if $remote_getrev_getfiles_inprogress{"$projid/$packid/$srcmd5"};
+    my $param = {
+      'uri' => "$jev->{'remoteurl'}/source/$jev->{'remoteproject'}/$packid",
+      'proxy' => $jev->{'remoteproxy'},
+    };   
+    eval {
+      $jev->{'filelist'} = BSWatcher::rpc($param, $BSXML::dir, "rev=$srcmd5");
+    };   
+    if ($@) {
+      my $err = $@;
+      die($err);
+    }
+    return undef unless $jev->{'filelist'};
+    $jev = BSWatcher::background($BSStdServer::return_ok);
+    $jev->{'idstring'} = "$projid/$packid/$srcmd5";
+    $remote_getrev_getfiles_inprogress{"$projid/$packid/$srcmd5"} = $jev;
+    $jev->{'handler'} = sub {delete $remote_getrev_getfiles_inprogress{"$projid/$packid/$srcmd5"}};
+  }
+  
+  # get missing files
+  my $havesize = 0; 
+  my $needsize = 0; 
+  my @need;
+  for my $entry (@{$jev->{'filelist'}->{'entry'} || []}) {
+    if (-e BSSrcrep::repfilename($rev, $entry->{'name'}, $entry->{'md5'})) {
+      $havesize += $entry->{'size'};
+    } else {
+      push @need, $entry;
+      $needsize += $entry->{'size'};
+    }    
+  }
+  my $serial;
+  if (@need) {
+    $serial = BSWatcher::serialize("$jev->{'remoteurl'}/source");
+    return undef unless $serial;
+    mkdir_p($uploaddir);
+  }
+  if (@need > 1 && $havesize < 8192) {
+    # download full cpio source
+    my %need = map {$_->{'name'} => $_} @need;
+    my $tmpcpiofile = "$$-$jev->{'id'}-tmpcpio";
+    my $param = {
+      'uri' => "$jev->{'remoteurl'}/source/$jev->{'remoteproject'}/$packid",
+      'directory' => $uploaddir,
+      'tmpcpiofile' => "$uploaddir/$tmpcpiofile",
+      'withmd5' => 1,
+      'receiver' => \&BSHTTP::cpio_receiver,
+      'proxy' => $jev->{'remoteproxy'},
+      'map' => sub { $need{$_[1]} ? "$tmpcpiofile.$_[1]" : undef },
+      'cpiopostfile' => sub {
+        my $name = substr($_[1]->{'name'}, length("$tmpcpiofile."));
+        die("file download confused\n") unless $need{$name} && $_[1]->{'md5'} eq $need{$name}->{'md5'};
+        BSSrcrep::addfile($projid, $packid, "$uploaddir/$_[1]->{'name'}", $name, $_[1]->{'md5'});
+       },
+    };
+    my $res;
+    eval {
+      $res = BSWatcher::rpc($param, undef, "rev=$srcmd5", 'view=cpio');
+    };
+    if ($@) {
+      my $err = $@;
+      BSWatcher::serialize_end($serial) if $serial;
+      die($err);
+    }
+    return undef unless $res;
+  }
+  for my $entry (@need) {
+    next if -e BSSrcrep::repfilename($rev, $entry->{'name'}, $entry->{'md5'});
+    my $param = {
+      'uri' => "$jev->{'remoteurl'}/source/$jev->{'remoteproject'}/$packid/$entry->{'name'}",
+      'filename' => "$uploaddir/$$-$jev->{'id'}",
+      'withmd5' => 1,
+      'receiver' => \&BSHTTP::file_receiver,
+      'proxy' => $jev->{'remoteproxy'},
+    };
+    my $res;
+    eval {
+      $res = BSWatcher::rpc($param, undef, "rev=$srcmd5");
+    };
+    if ($@) {
+      my $err = $@;
+      BSWatcher::serialize_end($serial) if $serial;
+      die($err);
+    }
+    return undef unless $res;
+    die("file download failed\n") unless $res && $res->{'md5'} eq $entry->{'md5'};
+    die unless -e "$uploaddir/$$-$jev->{'id'}";
+    BSSrcrep::addfile($projid, $packid, "$uploaddir/$$-$jev->{'id'}", $entry->{'name'}, $entry->{'md5'});
+  }
+  BSWatcher::serialize_end($serial) if $serial;
+  delete $remote_getrev_getfiles_inprogress{"$projid/$packid/$srcmd5"};
+  return '';
+}
+
+sub getremotebinarylist {
+  my ($proj, $projid, $repoid, $arch, $binaries) = @_;
+
+  my $jev = $BSServerEvents::gev;
+  my $binarylist;
+  $binarylist = $jev->{'binarylist'} if $BSStdServer::isajax;
+  $binarylist ||= {};
+  $jev->{'binarylist'} = $binarylist if $BSStdServer::isajax;
+
+  # fill binarylist
+  my @missing = grep {!exists $binarylist->{$_}} @$binaries;
+  while (@missing) {
+    my $param = {
+      'uri' => "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch/_repository",
+      'proxy' => $proj->{'remoteproxy'},
+    };
+    # chunk it
+    my $binchunkl = 0;
+    for (splice @missing) {
+      $binchunkl += 10 + length($_);
+      last if @missing && $binchunkl > 1900;
+      push @missing, $_;
+    }
+    my $binarylistcpio = BSWatcher::rpc($param, $BSXML::binarylist, "view=names", map {"binary=$_"} @missing);
+    return undef if $BSStdServer::isajax && !$binarylistcpio;
+    for my $b (@{$binarylistcpio->{'binary'} || []}) {
+      my $bin = $b->{'filename'};
+      $bin =~ s/\.(?:$binsufsre)$//;
+      $binarylist->{$bin} = $b;
+    }
+    # make sure that we don't loop forever if the server returns incomplete data
+    for (@missing) {
+      $binarylist->{$_} = {'filename' => $_, 'size' => 0} unless $binarylist->{$_};
+    }
+    @missing = grep {!exists $binarylist->{$_}} @$binaries;
+  }
+  return $binarylist;
+}
+
+sub getremotebinaryversions {
+  my ($proj, $projid, $repoid, $arch, $binaries) = @_;
+
+  my $jev = $BSServerEvents::gev;
+  my $binaryversions;
+  $binaryversions = $jev->{'binaryversions'} if $BSStdServer::isajax;
+  $binaryversions ||= {};
+  $jev->{'binaryversions'} = $binaryversions if $BSStdServer::isajax;
+
+  # fill binaryversions
+  my @missing = grep {!exists $binaryversions->{$_}} @$binaries;
+  while (@missing) {
+    # chunk it
+    my $binchunkl = 0;
+    for (splice @missing) {
+      $binchunkl += 10 + length($_);
+      last if @missing && $binchunkl > 1900;
+      push @missing, $_;
+    }
+    my $param = {
+      'uri' => "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch/_repository",
+      'proxy' => $proj->{'remoteproxy'},
+    };
+    my $bvl = BSWatcher::rpc($param, $BSXML::binaryversionlist, 'view=binaryversions', 'nometa=1', map {"binary=$_"} @missing);
+    return undef if $BSStdServer::isajax && !$bvl;
+    for (@{$bvl->{'binary'} || []}) {
+      my $bin = $_->{'name'};
+      $bin =~ s/\.(?:$binsufsre)$//;
+      $binaryversions->{$bin} = $_;
+    }
+    # make sure that we don't loop forever if the server returns incomplete data
+    for (@missing) {
+      $binaryversions->{$_} = {'name' => $_, 'error' => 'not available'} unless $binaryversions->{$_};
+    }
+    @missing = grep {!exists $binaryversions->{$_}} @$binaries;
+  }
+  return $binaryversions;
+}
+
+
+sub getremotebinaries_cache {
+  my ($projid, $repoid, $arch, $binaries, $binarylist) = @_;
+
+  my @fetch;
+  my @reply;
+  local *LOCK;
+  mkdir_p($remotecache);
+  BSUtil::lockopen(\*LOCK, '>>', "$remotecache/lock");
+  for my $bin (@$binaries) {
+    my $b = $binarylist->{$bin};
+    if (!$b || !$b->{'size'} || !$b->{'mtime'}) {
+      push @reply, {'name' => $bin, 'error' => 'not available'};
+      next;
+    }
+    my $cachemd5 = Digest::MD5::md5_hex("$projid/$repoid/$arch/$bin");
+    substr($cachemd5, 2, 0, '/');
+    my @s = stat("$remotecache/$cachemd5");
+    if (!@s || $s[9] != $b->{'mtime'} || $s[7] != $b->{'size'}) {
+      push @fetch, $bin;
+    } else {
+      utime time(), $s[9], "$remotecache/$cachemd5";
+      push @reply, {'name' => $b->{'filename'}, 'filename' => "$remotecache/$cachemd5"};
+    }
+  }
+  my $slot = sprintf("%02x", (int(rand(256))));
+  print "cleaning slot $slot\n";
+  if (-d "$remotecache/$slot") {
+    my $now = time();
+    my $num = 0;
+    for my $f (ls("$remotecache/$slot")) {
+      my @s = stat("$remotecache/$slot/$f");
+      next if $s[8] >= $now - 24*3600;
+      unlink("$remotecache/$slot/$f");
+      $num++;
+    }
+    print "removed $num unused files\n" if $num;
+  }
+  close(LOCK);
+  return (\@reply, @fetch);
+}
+
+sub getremotebinaries {
+  my ($proj, $projid, $repoid, $arch, $binaries, $binarylist) = @_;
+
+  # check the cache
+  my ($reply, @fetch) = getremotebinaries_cache($projid, $repoid, $arch, $binaries, $binarylist);
+  return $reply unless @fetch;
+
+  my $jev = $BSServerEvents::gev;
+
+  my $serialmd5 = Digest::MD5::md5_hex("$projid/$repoid/$arch");
+
+  # serialize this upload
+  my $serial = BSWatcher::serialize("$remotecache/$serialmd5.lock");
+  return undef unless $serial;
+
+  print "fetch: @fetch\n";
+  my %fetch = map {$_ => $binarylist->{$_}} @fetch;
+  my $param = {
+    'uri' => "$proj->{'remoteurl'}/build/$proj->{'remoteproject'}/$repoid/$arch/_repository",
+    'receiver' => \&BSHTTP::cpio_receiver,
+    'tmpcpiofile' => "$remotecache/upload$serialmd5.cpio",
+    'directory' => $remotecache,
+    'map' => "upload$serialmd5:",
+    'proxy' => $proj->{'remoteproxy'},
+  };
+  # work around api bug: only get 50 packages at a time
+  @fetch = splice(@fetch, 0, 50) if @fetch > 50;
+  my $cpio = BSWatcher::rpc($param, undef, "view=cpio", map {"binary=$_"} @fetch);
+  return undef if $BSStdServer::isajax && !$cpio;
+  for my $f (@{$cpio || []}) {
+    my $bin = $f->{'name'};
+    $bin =~ s/^upload.*?://;
+    $bin =~ s/\.(?:$binsufsre)$//;
+    if (!$fetch{$bin}) {
+      unlink("$remotecache/$f->{'name'}");
+      next;
+    }
+    $binarylist->{$bin}->{'size'} = $f->{'size'};
+    $binarylist->{$bin}->{'mtime'} = $f->{'mtime'};
+    my $cachemd5 = Digest::MD5::md5_hex("$projid/$repoid/$arch/$bin");
+    substr($cachemd5, 2, 0, '/');
+    mkdir_p("$remotecache/".substr($cachemd5, 0, 2));
+    rename("$remotecache/$f->{'name'}", "$remotecache/$cachemd5");
+    push @$reply, {'name' => $fetch{$bin}->{'filename'}, 'filename' => "$remotecache/$cachemd5"};
+    delete $fetch{$bin};
+  }
+  BSWatcher::serialize_end($serial);
+
+  if (@{$cpio || []} >= 50) {
+    # work around api bug: get rest
+    delete $jev->{'binarylist'} if $BSStdServer::isajax;
+    my $binarylist = getremotebinarylist($proj, $projid, $repoid, $arch, $binaries);
+    return undef unless $binarylist;
+    return getremotebinaries($proj, $projid, $repoid, $arch, $binaries, $binarylist);
+  }
+
+  for (sort keys %fetch) {
+    push @$reply, {'name' => $_, 'error' => 'not available'};
+  }
+
+  return $reply;
+}
+
+1;

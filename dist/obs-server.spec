@@ -546,6 +546,7 @@ chown %{apache_user}:%{apache_group} /srv/www/obs/api/log/production.log
 /usr/lib/obs/server/plugins
 /usr/lib/obs/server/BSRepServer
 /usr/lib/obs/server/BSSched
+/usr/lib/obs/server/BSSrcServer
 /usr/lib/obs/server/XML
 /usr/lib/obs/server/*.pm
 /usr/lib/obs/server/BSConfig.pm.template
