@@ -1,5 +1,5 @@
 module SphinxHelpers
-  def index
+  def reindex_for_search
     ThinkingSphinx::Test.index
     # Wait for Sphinx to finish loading in the new index files.
     sleep 0.25 until index_finished?
