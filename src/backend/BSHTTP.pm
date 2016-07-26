@@ -389,7 +389,7 @@ sub cpio_receiver {
     }
     if (defined($dn) && ($mode & 0xf000) != 0x4000) {
       close(F) || die("close: $!\n");
-      utime($mtime, $mtime, "$dn/$name");
+      utime($mtime, $mtime, "$dn/$name") if $mtime;
     }
     $ent->{'md5'} = $ctx->hexdigest if $ctx && ($mode & 0xf000) != 0x4000;
     $param->{'cpiopostfile'}->($param, $ent) if $param->{'cpiopostfile'};
