@@ -61,6 +61,7 @@ use BSKiwiXML;
 
 use BSSrcServer::Remote;
 use BSSrcServer::Partition;
+use BSSrcServer::Access;
 
 use BSXPath;
 use BSXPathKeys;
@@ -86,6 +87,7 @@ my $requestsdir = "$BSConfig::bsdir/requests";
 my $oldrequestsdir = "$BSConfig::bsdir/requests.old";
 my $rundir = $BSConfig::rundir || "$BSConfig::bsdir/run";
 my $diffcache = "$BSConfig::bsdir/diffcache";
+my $extrepodir = "$BSConfig::bsdir/repos";
 
 my $reqindexdb = "$BSConfig::bsdir/db/request";
 my $extrepodb = "$BSConfig::bsdir/db/published";
@@ -880,23 +882,6 @@ sub getcommitinfo {
   return ($version, $release);
 }
 
-sub checksourceaccess {
-  my ($projid, $packid) = @_;
-
-  my $proj = readproj($projid, 1);
-  return unless $proj;
-  my $pack = readpack($projid, $packid, 1);
-  my $sourceaccess = 1;
-  $sourceaccess = BSUtil::enabled('', $proj->{'sourceaccess'}, $sourceaccess, '');
-  $sourceaccess = BSUtil::enabled('', $pack->{'sourceaccess'}, $sourceaccess, '') if $pack;
-  die("403 source access denied\n") unless $sourceaccess;
-  my $access = 1;
-  $access = BSUtil::enabled('', $proj->{'access'}, $access, '');
-  $access = BSUtil::enabled('', $pack->{'access'}, $access, '') if $pack;
-  die("404 package '$packid' does not exist\n") unless $access;	# hmm...
-  return 1;
-}
-
 sub get_frozenlinks {
   my ($projid) = @_;
   return $frozenlinks_cache->{$projid} if $frozenlinks_cache && exists $frozenlinks_cache->{$projid};
@@ -952,7 +937,7 @@ sub getrev_projlink {
     }
     next unless $rev;
     # make sure that we may access the sources of this package
-    checksourceaccess($lprojid, $packid);
+    BSSrcServer::Access::checksourceaccess($lprojid, $packid);
     # make the tree available
     BSSrcrep::copytree($projid, $packid, $lprojid, $packid, $rev->{'srcmd5'});
     $rev->{'originproject'} ||= $lprojid;
@@ -1739,7 +1724,7 @@ sub handlelinks {
       if (!exists($l->{'package'}) && exists($l->{'project'}) && $l->{'project'} ne $linkinfo[-1]->{'project'}) {
         # be extra careful if the package attribute doesn't exist, but the
         # link points to some other project
-        checksourceaccess($l->{'project'}, $linkinfo[-1]->{'package'});
+        BSSrcServer::Access::checksourceaccess($l->{'project'}, $linkinfo[-1]->{'package'});
       }
     };
     if ($@) {
@@ -1763,7 +1748,7 @@ sub handlelinks {
     eval {
       if ($l->{'missingok'}) {
         # be careful with 'missingok' pointing to protected packages
-        checksourceaccess($projid, $packid);
+        BSSrcServer::Access::checksourceaccess($projid, $packid);
       }
       $lrev = getrev($projid, $packid, $l->{'rev'}, $li ? $li->{'linked'} : undef, $l->{'missingok'} ? 1 : 0);
     };
@@ -2195,7 +2180,7 @@ sub kiwibootcallback {
   my ($projid, $packid) = @_;
   BSVerify::verify_projid($projid);
   BSVerify::verify_packid($packid);
-  checksourceaccess($projid, $packid);
+  BSSrcServer::Access::checksourceaccess($projid, $packid);
   my $rev = getrev($projid, $packid);
   my $files = BSSrcrep::lsrev($rev);
   my $file = findfile($rev, undef, 'kiwi', $files);
@@ -4344,7 +4329,7 @@ sub keeplink {
   if ($l->{'missingok'} && $ltgtfiles->{'srcmd5'} ne $BSSrcrep::emptysrcmd5) {
     # delete missingok flag as it's no longer needed
     eval {
-      checksourceaccess($ltgtprojid, $ltgtpackid);
+      BSSrcServer::Access::checksourceaccess($ltgtprojid, $ltgtpackid);
       delete $l->{'missingok'};
     };
   }
@@ -4908,7 +4893,7 @@ sub sourcecopy {
 	  $olink->{'vrev'} = $lrev{'vrev'} if defined $lrev{'vrev'};
 	  if ($lprojid eq $projid && $lpackid eq $packid) {
 	    eval {
-	      checksourceaccess($projid, $packid);
+	      BSSrcServer::Access::checksourceaccess($projid, $packid);
 	      delete $olink->{'missingok'};
 	    };
 	  }
@@ -5021,7 +5006,7 @@ sub sourcecopy {
 		(defined($latestl->{'project'}) ? $latestl->{'project'} : $oprojid) eq $projid &&
 		(defined($latestl->{'package'}) ? $latestl->{'package'} : $opackid) eq $packid) {
 		eval {
-	          checksourceaccess($projid, $packid);
+	          BSSrcServer::Access::checksourceaccess($projid, $packid);
 		  delete $latestl->{'missingok'};
 		};
 	      }
@@ -5096,7 +5081,7 @@ sub sourcebranch {
   # a missing package entry is bad if the project has sourceaccess
   # disabled, so check if that's the case
   eval {
-    checksourceaccess($oprojid, $opackid) if $opackid eq $packid && $oprojid ne $projid;
+    BSSrcServer::Access::checksourceaccess($oprojid, $opackid) if $opackid eq $packid && $oprojid ne $projid;
   };
   $l->{'package'} = $opackid if $@;
   $l->{'missingok'} = "true" if defined $cgi->{'missingok'} && $orev->{'srcmd5'} eq $BSSrcrep::emptysrcmd5;
@@ -5981,6 +5966,8 @@ sub getajaxstatus {
   return ($r, $BSXML::ajaxstatus);
 }
 
+####################################################################
+
 sub search_proj {
   my ($cgi, $match, $id) = @_;
   $match =~ s/^\[(.*)\]$/$1/s;
@@ -6369,6 +6356,8 @@ sub postrepo {
   return ($res, $BSXML::collection);
 }
 
+####################################################################
+
 sub service {
   my ($cgi, $service) = @_;
   die("404 no such service '$service'\n") unless $BSConfig::serviceserver;
@@ -6380,6 +6369,8 @@ sub listservices {
   return "<servicelist/>\n" unless $BSConfig::serviceserver;
   return BSWatcher::rpc("$BSConfig::serviceserver/service", undef);
 }
+
+####################################################################
 
 sub published {
   my ($cgi, $projid, $repoid, $arch, $filename, $subfilename) = @_;
@@ -6445,12 +6436,10 @@ sub published {
   return ({'entry' => \@res}, $BSXML::dir);
 }
 
-my $extrepodir = "$BSConfig::bsdir/repos";
-
 sub map_to_extrep {
   my ($prp, $prp_ext) = @_;
   
-  my $extrep = "$BSConfig::bsdir/repos/$prp_ext";
+  my $extrep = "$extrepodir/$prp_ext";
   return $extrep unless $BSConfig::publishredirect;
   if ($BSConfig::publishedredirect_use_regex || $BSConfig::publishedredirect_use_regex) {
     for my $key (sort {$b cmp $a} keys %{$BSConfig::publishredirect}) {
@@ -6551,6 +6540,8 @@ sub published_path {
   return ($ret, $BSXML::publishedpath);
 }
   
+####################################################################
+
 sub autoextend_check {
   my ($projid, $pk) = @_;
   return $pk unless $pk;
@@ -6882,6 +6873,8 @@ sub newevent {
   return $BSStdServer::return_ok;
 }
 
+####################################################################
+
 sub getrelsync {
   my ($cgi, $projid, $repoid, $arch) = @_;
   checkprojrepoarch($projid, $repoid, $arch);
@@ -6920,6 +6913,8 @@ sub postrelsync {
   return $BSStdServer::return_ok;
 }
 
+####################################################################
+
 # XXX: support multiple dispatchers
 sub putdispatchprios {
   my ($cgi) = @_;
@@ -6944,6 +6939,8 @@ sub getdispatchprios {
   BSWatcher::rpc($param, undef);
   return undef;
 }
+
+####################################################################
 
 sub sourceinfo {
   my ($cgi, $projid, $packid, $bconf) = @_;
