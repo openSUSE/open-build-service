@@ -276,6 +276,13 @@ sub existstree {
   return -e "$treedir/$srcmd5-MD5SUMS" ? 1 : 0;
 }
 
+sub existstree_nocompat {
+  my ($projid, $packid, $srcmd5) = @_;
+  return 1 if $srcmd5 eq $emptysrcmd5;
+  my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
+  return -e "$treedir/$srcmd5-MD5SUMS" ? 1 : 0;
+}
+
 sub knowntrees {
   my ($projid, $packid) = @_;
   my $treedir = $BSConfig::nosharedtrees ? "$treesdir/$projid/$packid" : "$treesdir/$packid";
