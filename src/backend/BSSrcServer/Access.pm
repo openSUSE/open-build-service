@@ -25,9 +25,9 @@ use BSUtil;
 sub checksourceaccess {
   my ($projid, $packid) = @_;
 
-  my $proj = BSRevision::readproj($projid, 1);
+  my $proj = BSRevision::readproj_local($projid, 1);
   return unless $proj;
-  my $pack = BSRevision::readpack($projid, $packid, 1);
+  my $pack = BSRevision::readpack_local($projid, $packid, 1);
   my $sourceaccess = 1;
   $sourceaccess = BSUtil::enabled('', $proj->{'sourceaccess'}, $sourceaccess, '');
   $sourceaccess = BSUtil::enabled('', $pack->{'sourceaccess'}, $sourceaccess, '') if $pack;
