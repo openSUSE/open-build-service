@@ -791,6 +791,7 @@ sub deleterepo_arch {
   my ($extrep) = @_;
   for my $arch (ls($extrep)) {
     next unless -d "$extrep/$arch";
+    next if $arch eq 'repodata' || $arch eq 'repocache' || $arch eq 'media.1' || $arch eq 'descr';
     for (grep {/\.(?:\?db|db\.tar\.gz|files|files\.tar\.gz|key)(?:\.sig)?$/} ls("$extrep/$arch")) {
       unlink("$extrep/$arch/$_");
     }
