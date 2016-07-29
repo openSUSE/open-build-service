@@ -192,12 +192,6 @@ class User < ActiveRecord::Base
     end
   end
 
-  # Returns true when users with the given state may log in. False otherwise.
-  # The given parameter must be an integer.
-  def self.state_allows_login?(state)
-    'confirmed' == state
-  end
-
   # This static method tries to find a user with the given login and password
   # in the database. Returns the user or nil if he could not be found
   def self.find_with_credentials(login, password)
@@ -292,17 +286,6 @@ class User < ActiveRecord::Base
 
   def self.nobody_login
     '_nobody_'
-  end
-
-  def self.authenticate(user_login, password)
-    user = User.find_with_credentials(user_login, password)
-
-    # User account is not confirmed yet
-    return if user.try(:state) == 'unconfirmed'
-
-    Rails.logger.debug "Authentificated user '#{user.try(:login)}'"
-
-    User.current = user
   end
 
   def self.get_default_admin
