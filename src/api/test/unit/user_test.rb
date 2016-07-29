@@ -8,24 +8,6 @@ class UserTest < ActiveSupport::TestCase
     @user = User.find_by_login('Iggy')
   end
 
-  def test_login
-    user = User.authenticate("tom", "buildservice")
-    assert_equal User.find_by(login: "tom"), user
-    assert_equal User.find_by(login: "tom"), User.current
-
-    user = User.authenticate("tom", "wrong_pw")
-    assert_equal nil, user
-    assert_equal nil, User.current
-
-    user = User.authenticate("nonexistant", "foobar")
-    assert_equal nil, user
-    assert_equal nil, User.current
-
-    user = User.authenticate("unconfirmed_user", "thunder")
-    assert_equal nil, user, "Should not authenticate users with state 'unconfirmed'"
-    assert_equal nil, User.current
-  end
-
   def test_create_home_project # spec/models/user_spec.rb
     User.create(login: 'moises', email: 'moises@home.com', password: '123456')
     assert Project.find_by(name: 'home:moises')
