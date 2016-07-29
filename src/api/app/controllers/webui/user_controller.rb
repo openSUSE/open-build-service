@@ -27,12 +27,22 @@ class Webui::UserController < Webui::WebuiController
   end
 
   def do_login
-    unless User.authenticate(params[:username], params[:password])
+    user = User.find_with_credentials(params[:username], params[:password])
+
+    if user && !user.is_active?
+      redirect_to(root_path, error: "Your account is disabled. Please contact the adminsitrator for details.")
+      return
+    end
+
+    unless user
       redirect_to(user_login_path, error: 'Authentication failed')
       return
     end
 
-    session[:login] = User.current.login
+    Rails.logger.debug "Authentificated user '#{user.try(:login)}'"
+
+    session[:login] = user.login
+    User.current = user
 
     if request.referer.end_with?("/user/login")
       redirect_to home_path
