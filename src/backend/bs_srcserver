@@ -6169,6 +6169,7 @@ sub binary_key_to_data {
   my ($version, $release) = ($versrel, undef);
   ($version, $release) = ($1, $2) if $version =~ /^(.*)-(.*?)$/;
   my $arch = pop(@p);
+  $arch = $1 if ($arch eq 'RPMS' || $arch eq 'SRPMS') && $binary =~ /\.([^\.]+)\.rpm$/;
   while (@p > 1 && $p[0] =~ /:$/) {
     splice(@p, 0, 2, "$p[0]$p[1]");
   }
