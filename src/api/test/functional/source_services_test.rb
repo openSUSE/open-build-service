@@ -534,7 +534,24 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_response 404
     assert_match(/no source service defined/, @response.body)
 
-    # and drop stuff as tom
+    # Locking user blocks the trigger
+    tom = User.find_by_login("tom")
+    tom.state = "locked"
+    tom.save!
+    # with right token
+    post '/trigger/runservice', nil, { 'Authorization' => "Token #{token}" }
+    # success, but no source service configured :)
+    assert_response 403
+    assert_xml_tag tag: "status", attributes: { code: "no_permission" }
+    # with global token
+    post '/trigger/runservice?project=home:tom&package=service', nil, { 'Authorization' => "Token #{alltoken}" }
+    # success, but no source service configured :)
+    assert_response 403
+    assert_xml_tag tag: "status", attributes: { code: "no_permission" }
+
+    # reset and drop stuff as tom
+    tom.state = "confirmed"
+    tom.save!
     login_tom
     get '/person/tom/token'
     assert_response :success

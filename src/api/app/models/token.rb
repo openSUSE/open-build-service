@@ -8,11 +8,6 @@ class Token < ActiveRecord::Base
   def self.find_by_string(token)
     token = Token.where(string: token.to_s).includes(:package, :user).first
     return nil unless token and token.user_id
-    # is token bound to a package?
-    if token.package
-      # check if user has still access
-      return nil unless token.user.can_modify_package? token.package
-    end
 
     # package found and user has write access
     return token
