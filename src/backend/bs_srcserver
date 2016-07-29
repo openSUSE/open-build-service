@@ -965,7 +965,8 @@ sub getrev {
     return $rev if $rev;
   }
   if (!$proj || $proj->{'remoteurl'}) {
-    $rev = BSSrcServer::Remote::remote_getrev($projid, $packid, $revid, $linked, $missingok);
+    $proj = BSSrcServer::Remote::remoteprojid($projid);
+    $rev = BSSrcServer::Remote::getrev_remote($projid, $proj, $packid, $revid, $linked, $missingok) if $proj;
     return $rev if $rev;
   }
   return {'project' => $projid, 'package' => $packid, 'srcmd5' => 'pattern', 'rev' => 'pattern', 'special_meta' => "$projectsdir/$projid.pkg/pattern-MD5SUMS"} if $packid eq '_pattern';

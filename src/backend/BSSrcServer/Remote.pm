@@ -120,7 +120,6 @@ sub findpackages_remote {
   return @packids;
 }
 
-
 sub maptoremote {
   my ($proj, $projid) = @_;
   return "$proj->{'root'}:$projid" unless $proj->{'remoteroot'};
@@ -129,19 +128,41 @@ sub maptoremote {
   return "$proj->{'root'}:$1";
 }
 
+sub mappackagedata {
+  my ($pack, $lproj) = @_;
+  $pack->{'project'} = $lproj->{'name'};	# local name;
+  if ($pack->{'devel'} && exists($pack->{'devel'}->{'project'})) {
+    $pack->{'devel'}->{'project'} = maptoremote($lproj, $pack->{'devel'}->{'project'});
+  }
+}
+
+sub mapprojectdata {
+  my ($proj, $lproj) = @_;
+  $proj->{'name'} = $lproj->{'name'};		# local name;
+  for my $repo (@{$proj->{'repository'} || []}) {
+    for my $pathel (@{$repo->{'path'} || []}) {
+      $pathel->{'project'} = maptoremote($lproj, $pathel->{'project'});
+    }
+    for my $pathel (@{$repo->{'releasetarget'} || []}) {
+      $pathel->{'project'} = maptoremote($lproj, $pathel->{'project'});
+    }
+  }
+  for my $link (@{$proj->{'link'} || []}) {
+    $link->{'project'} = maptoremote($lproj, $link->{'project'});
+  }
+}
+
 sub fetchremoteproj {
   my ($proj, $projid, $remotemap) = @_;
   return undef unless $proj && $proj->{'remoteurl'} && $proj->{'remoteproject'};
   $projid ||= $proj->{'name'};
-  my $rproj;
   my $c;
   if ($remotemap) {
-    $rproj = $remotemap->{$projid};
+    my $rproj = $remotemap->{$projid};
     if ($rproj) {
       die($rproj->{'error'}) if $rproj->{'error'};
       return $rproj unless $rproj->{'proto'};
       $c = $rproj->{'config'};  # save old config
-      undef $rproj;
     }
   }
   print "fetching remote project data for $projid\n";
@@ -150,32 +171,16 @@ sub fetchremoteproj {
     'timeout' => 60,
     'proxy' => $proj->{'remoteproxy'},
   };
+  my $rproj;
   eval {
     $rproj = BSRPC::rpc($param, $BSXML::proj);
   };
-  if ($@) {
-    if ($remotemap) {
-      $rproj = {%$proj, 'error' => $@, 'proto' => 1};
-      $rproj->{'config'} = $c if defined $c;
-      $remotemap->{$projid} = $rproj;
-    }
-    die($@);
-  }
-  for (qw{name root remoteroot remoteurl remoteproject}) {
-    $rproj->{$_} = $proj->{$_};
-  }
-  for my $repo (@{$rproj->{'repository'} || []}) {
-    for my $pathel (@{$repo->{'path'} || []}) {
-      $pathel->{'project'} = maptoremote($proj, $pathel->{'project'});
-    }
-    for my $pathel (@{$repo->{'releasetarget'} || []}) {
-      $pathel->{'project'} = maptoremote($proj, $pathel->{'project'});
-    }
-  }
-  for my $link (@{$rproj->{'link'} || []}) {
-    $link->{'project'} = maptoremote($proj, $link->{'project'});
-  }
+  $rproj = {'error' => $@, 'proto' => 1} if $@;
+  $rproj->{$_} = $proj->{$_} for qw{root remoteroot remoteurl remoteproject};
+  $rproj->{'config'} = $c if defined $c;
+  mapprojectdata($rproj, $proj);
   $remotemap->{$projid} = $rproj if $remotemap;
+  die($rproj->{'error'}) if $rproj->{'error'};
   return $rproj;
 }
 
@@ -189,7 +194,9 @@ sub fetchremoteconfig {
       die($rproj->{'error'}) if $rproj->{'error'};
       return $rproj->{'config'} if defined $rproj->{'config'};
     } else {
-      $remotemap->{$projid} = {%$proj, 'proto' => 1};
+      $rproj = {'proto' => 1};
+      $rproj->{$_} = $proj->{$_} for qw{root remoteroot remoteurl remoteproject};
+      $remotemap->{$projid} = $rproj;
     }
   }
   print "fetching remote project config for $projid\n";
@@ -209,6 +216,47 @@ sub fetchremoteconfig {
   $remotemap->{$projid}->{'config'} = $c if $remotemap;
   return $c;
 }
+
+
+# returns undef if the project does not exist
+sub getproject_remote {
+  my ($projid, $proj, $rev, $missingok) = @_;
+  my @args;
+  push @args, "rev=$rev" if $rev;
+  my $param = {
+    'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/_meta",
+    'timeout' => 600,
+    'proxy' => $proj->{'remoteproxy'},
+  };
+  my $rproj;
+  eval {
+    $rproj = BSRPC::rpc($param, $BSXML::proj, @args);
+  };
+  die($@) if $@ && (!$missingok || $@ !~ /^404/);
+  mapprojectdata($rproj, $proj) if $rproj;
+  return $rproj;
+}
+
+# returns undef if the project or package does not exist
+# dies on other errors
+sub getpackage_remote {
+  my ($projid, $proj, $packid, $rev, $missingok) = @_;
+  my @args;
+  push @args, "rev=$rev" if $rev;
+  my $param = {
+    'uri' => "$proj->{'remoteurl'}/source/$proj->{'remoteproject'}/$packid/_meta",
+    'timeout' => 600,
+    'proxy' => $proj->{'remoteproxy'},
+  };
+  my $pack;
+  eval {
+    $pack = BSRPC::rpc($param, $BSXML::pack, @args);
+  };
+  die($@) if $@ && (!$missingok || $@ !~ /^404/);
+  mappackagedata($pack, $proj) if $pack;
+  return $pack;
+}
+
 
 sub fill_remote_getrev_cache_projid {
   my ($projid, $packids) = @_;
@@ -282,10 +330,8 @@ sub fill_remote_getrev_cache {
   $remote_getrev_todo = {};
 }
 
-sub remote_getrev {
-  my ($projid, $packid, $rev, $linked, $missingok) = @_;
-  my $proj = remoteprojid($projid);
-  return undef unless $proj;
+sub getrev_remote {
+  my ($projid, $proj, $packid, $rev, $linked, $missingok) = @_;
   # check if we already know this srcmd5, if yes don't bother to contact
   # the remote server
   if ($rev && $rev =~ /^[0-9a-f]{32}$/) {
