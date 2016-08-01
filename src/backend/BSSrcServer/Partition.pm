@@ -88,7 +88,7 @@ sub checkpartition {
   $remotemap->{$projid} = {
     'name' => $projid, 'remoteurl' => $reposerver, 'remoteproject' => $projid, 'partition' => $par,
   };
-  $proj ||= BSRevision::readproj_loacal($projid, 1);
+  $proj ||= BSRevision::readproj_local($projid, 1);
   if (!$proj) {
     $remotemap->{$projid} = { 'name' => $projid };      # gone!
     return;
