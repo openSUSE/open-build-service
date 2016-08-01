@@ -15,11 +15,10 @@ class Webui::AddRepoTest < Webui::IntegrationTest
 
     page.must_have_text('KIWI image build')
 
-    assert find('#submitrepos').disabled?
-
     check 'repo_Base_repo'
+    page.must_have_text("Successfully added repository 'Base_repo'")
     check 'repo_images'
-    click_button 'Add selected repositories'
+    page.must_have_text('Successfully added image repository')
 
     visit project_meta_path(project: 'home:Iggy')
     page.must_have_selector('.editor', visible: false)

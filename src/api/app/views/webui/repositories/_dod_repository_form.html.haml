@@ -6,7 +6,7 @@
     %div
       %p
         = label_tag(:name, "Repository name")
-        = text_field_tag(:name, required: true)
+        = text_field_tag(:name, nil, required: true)
 
     %div
       %h4
@@ -22,7 +22,7 @@
         %br
         %br
         = label_tag :url, 'Url', style: "display:inline-block;width:100px;"
-        = text_field_tag :url, required: true
+        = text_field_tag(:url, nil, required: true)
         %br
         %br
         = label_tag :archfilter, 'Arch. Filter' , style: "display:inline-block;width:100px;"

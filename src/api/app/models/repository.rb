@@ -31,6 +31,14 @@ class Repository < ActiveRecord::Base
 
   validates :db_project_id, presence: true
 
+  validate do |repository|
+    repository.path_elements.reject(&:valid?).each do |path_element|
+      path_element.errors.full_messages.each do |msg|
+        errors[:base] << "Path Element: #{msg}"
+      end
+    end
+  end
+
   # FIXME: Don't lie, it's find_or_create_by_project_and_name_if_project_is_remote
   def self.find_by_project_and_name( project, repo )
     result = not_remote.joins(:project).where(:projects => {:name => project}, :name => repo).first

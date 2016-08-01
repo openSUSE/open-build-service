@@ -336,39 +336,6 @@ RSpec.describe Webui::ProjectController, vcr: true do
     it { expect(assigns(:linking_projects)).to match_array([another_project.name]) }
   end
 
-  describe 'GET #add_repository_from_default_list' do
-    context 'with some distributions' do
-      it 'shows repositories from default list' do
-        login user
-        create_list(:distribution, 4, vendor: 'vendor1')
-        create_list(:distribution, 2, vendor: 'vendor2')
-        get :add_repository_from_default_list, project: apache_project
-        expect(assigns(:distributions).length).to eq(2)
-      end
-    end
-
-    context 'without any distribution and being normal user' do
-      before do
-        login user
-        get :add_repository_from_default_list, project: apache_project
-      end
-
-      it { is_expected.to redirect_to(controller: 'project', action: 'add_repository', project: apache_project) }
-      it { expect(assigns(:distributions)).to be_empty }
-    end
-
-    context 'without any distribution and being admin user' do
-      before do
-        login admin_user
-        get :add_repository_from_default_list, project: apache_project
-      end
-
-      it { is_expected.to redirect_to(configuration_interconnect_path) }
-      it { expect(flash[:alert]).to eq('There are no distributions configured. Maybe you want to connect to one of the public OBS instances?') }
-      it { expect(assigns(:distributions)).to be_empty }
-    end
-  end
-
   describe 'GET #add_person' do
     it 'assigns the local roles' do
       login user
@@ -382,16 +349,6 @@ RSpec.describe Webui::ProjectController, vcr: true do
       login user
       get :add_group, project: user.home_project
       expect(assigns(:roles)).to match_array(Role.local_roles)
-    end
-  end
-
-  describe 'POST #save_repository' do
-    it 'does not save invalid repositories' do
-      login user
-      expect {
-        get :save_repository, project: user.home_project, repository: "_invalid"
-      }.to_not change(Repository, :count)
-      expect(flash[:error]).to eq("Couldn't add repository: 'Name must not start with '_' or contain any of these characters ':/'")
     end
   end
 
@@ -455,78 +412,6 @@ RSpec.describe Webui::ProjectController, vcr: true do
       it { expect(Project.count).to eq(1) }
       it { is_expected.to redirect_to(project_show_path(user.home_project)) }
       it { expect(flash[:notice]).to start_with("Project can't be removed:") }
-    end
-  end
-
-  describe 'POST #update_target' do
-    before do
-      login user
-    end
-
-    context 'updating non existent repository' do
-      it 'will raise a NoMethodError' do
-        expect do
-          post :update_target, project: user.home_project, repo: 'standard'
-        end.to raise_error(NoMethodError)
-      end
-    end
-
-    context 'updating the repository without architectures' do
-      before do
-        post :update_target, project: user.home_project, repo: repo_for_user_home.name
-      end
-
-      it { expect(repo_for_user_home.architectures.pluck(:name)).to be_empty }
-      it { expect(assigns(:repository_arch_hash).to_a).to match_array([["armv7l", false], ['i586', false], ['x86_64', false]])}
-      it { is_expected.to redirect_to(action: :repositories) }
-      it { expect(flash[:notice]).to eq("Successfully updated repository") }
-    end
-
-    context 'updating the repository with architectures' do
-      before do
-        post :update_target, project: user.home_project, repo: repo_for_user_home.name, arch: {'i586' => true, 'x86_64' => true}
-      end
-
-      it { expect(repo_for_user_home.architectures.pluck(:name)).to match_array(['i586', 'x86_64']) }
-      it { expect(Architecture.available.pluck(:name)).to match_array(["armv7l", "i586", "x86_64"]) }
-      it { expect(assigns(:repository_arch_hash).to_a).to match_array([["armv7l", false], ['i586', true], ['x86_64', true]])}
-      it { is_expected.to redirect_to(action: :repositories) }
-      it { expect(flash[:notice]).to eq("Successfully updated repository") }
-    end
-  end
-
-  describe 'GET #repositories' do
-    before do
-      get :repositories, project: apache_project
-    end
-
-    it { expect(assigns(:build).to_s).to eq(apache_project.get_flags('build').to_s) }
-    it { expect(assigns(:debuginfo).to_s).to eq(apache_project.get_flags('debuginfo').to_s) }
-    it { expect(assigns(:publish).to_s).to eq(apache_project.get_flags('publish').to_s) }
-    it { expect(assigns(:useforbuild).to_s).to eq(apache_project.get_flags('useforbuild').to_s) }
-    it { expect(assigns(:architectures)).to eq(apache_project.architectures.uniq) }
-  end
-
-  describe 'GET #repository_state' do
-    context 'with a valid repository param' do
-      before do
-        get :repository_state, project: user.home_project, repository: repo_for_user_home.name
-      end
-
-      it { expect(assigns(:repocycles)).to be_a(Hash) }
-      it { expect(assigns(:repository)).to eq(repo_for_user_home) }
-      it { expect(assigns(:archs)).to match_array(repo_for_user_home.architectures.pluck(:name)) }
-    end
-
-    context 'with a non valid repository param' do
-      before do
-        request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
-        get :repository_state, project: user.home_project, repository: 'non_valid_repo_name'
-      end
-
-      it { expect(assigns(:repocycles)).to be_a(Hash) }
-      it { expect(assigns(:repository)).to be_falsey }
-      it { is_expected.to redirect_to(:back) }
     end
   end
 
@@ -698,170 +583,6 @@ RSpec.describe Webui::ProjectController, vcr: true do
     end
   end
 
-  describe 'POST #create_dod_repository' do
-    before do
-      login user
-    end
-
-    context "with an existing repository" do
-      let(:existing_repository) { create(:repository) }
-
-      before do
-        xhr :post, :create_dod_repository, project: user.home_project, name: existing_repository.name,
-                                           arch: Architecture.first.name, url: 'http://whatever.com',
-                                           repotype: 'rpmmd'
-      end
-
-      it { expect(assigns(:error)).to start_with('Repository with name') }
-      it { expect(response).to have_http_status(:success) }
-    end
-
-    context "with no valid repository type" do
-      before do
-        xhr :post, :create_dod_repository, project: user.home_project, name: 'NewRepo',
-                                           arch: Architecture.first.name, url: 'http://whatever.com',
-                                           repotype: 'invalid_repo_type'
-      end
-
-      it { expect(assigns(:error)).to start_with("Couldn't add repository:") }
-      it { expect(response).to have_http_status(:success) }
-    end
-
-    context "with no valid repository Architecture" do
-      before do
-        xhr :post, :create_dod_repository, project: user.home_project, name: 'NewRepo',
-                                           arch: 'non_existent_arch', url: 'http://whatever.com',
-                                           repotype: 'rpmmd'
-      end
-
-      it { expect(assigns(:error)).to start_with("Couldn't add repository:") }
-      it { expect(response).to have_http_status(:success) }
-    end
-
-    context "with valid repository data" do
-      before do
-        xhr :post, :create_dod_repository, project: user.home_project, name: 'NewRepo',
-                                           arch: Architecture.first.name, url: 'http://whatever.com',
-                                           repotype: 'rpmmd'
-      end
-
-      it { expect(assigns(:error)).to be_nil }
-      it { expect(response).to have_http_status(:success) }
-    end
-  end
-
-  describe 'POST #save_repository' do
-    before do
-      login user
-    end
-
-    context "with a no valid repository name" do
-      before do
-        request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
-        post :save_repository, project: user.home_project, repository: '_not/valid/name'
-      end
-
-      it { expect(flash[:error]).to eq("Couldn't add repository: 'Name must not start with '_' or contain any of these characters ':/'") }
-      it { is_expected.to redirect_to(:back) }
-    end
-
-    context "with a non valid target repository" do
-      before do
-        request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
-        post :save_repository, project: user.home_project, repository: 'valid_name', target_project: another_project, target_repo: 'non_valid_repo'
-      end
-
-      it { expect(flash[:error]).to eq("Can not add repository: Repository 'non_valid_repo' not found in project '#{another_project.name}'.") }
-      it { is_expected.to redirect_to(:back) }
-    end
-
-    context "with a valid repository but with a non valid architecture" do
-      before do
-        target_repo = create(:repository, project: another_project)
-        request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
-        post :save_repository, project: user.home_project, repository: 'valid_name', architectures: ['non_existent_arch']
-      end
-
-      it { expect(flash[:error]).to start_with("Can not add repository: Repository ") }
-      it { is_expected.to redirect_to(:back) }
-    end
-
-    context "with a valid repository" do
-      before do
-        target_repo = create(:repository, project: another_project)
-        request.env["HTTP_REFERER"] = root_url # Needed for the redirect_to :back
-        post :save_repository, project: user.home_project, repository: 'valid_name', target_project: another_project, target_repo: target_repo.name,
-                               architectures: ['i586']
-      end
-
-      it { expect(flash[:success]).to eq("Successfully added repository") }
-      it { is_expected.to redirect_to(action: :repositories, project: user.home_project) }
-      it { expect(user.home_project.repositories.find_by(name: 'valid_name').repository_architectures.count).to eq(1) }
-    end
-  end
-
-  describe 'POST #save_distributions' do
-    let(:another_project_repository) { create(:repository, project: another_project) }
-    let(:target_repository) { create(:repository, project: openSUSE_project) }
-    let(:distribution) do
-      create(:distribution, reponame: another_project_repository.name,
-                            project: openSUSE_project, repository: target_repository.name, architectures: ['i586'])
-    end
-    let(:distribution_without_target_repo) { create(:distribution, reponame: another_project_repository.name, project: openSUSE_project) }
-    let(:create_distributions_same_repo) do
-      create_list(:distribution, 2, reponame: another_project_repository.name, project: openSUSE_project, repository: target_repository.name)
-    end
-    let(:create_distributions_other_reponame) { create_list(:distribution, 2, reponame: 'another_repon_name') }
-
-    before do
-      login user
-    end
-
-    context "without any distributions passed" do
-      before do
-        post :save_distributions, project: user.home_project
-      end
-
-      it { expect(flash[:success]).to eq("Successfully added repositories") }
-      it { is_expected.to redirect_to(action: :repositories, project: user.home_project) }
-      it { expect(assigns(:project).repositories.count).to eq(0) }
-    end
-
-    context "with a distribution but without target repository" do
-      it "Raises an ActiveRecord::RecordNotFound exception" do
-        expect do
-          post :save_distributions, project: user.home_project,
-                                    distributions: [distribution_without_target_repo.reponame]
-        end.to raise_error ActiveRecord::RecordNotFound
-      end
-    end
-
-    context "with a distribution properly set" do
-      before do
-        create_distributions_other_reponame
-        post :save_distributions, project: user.home_project, distributions: [distribution.reponame]
-      end
-
-      it { expect(flash[:success]).to eq("Successfully added repositories") }
-      it { is_expected.to redirect_to(action: :repositories, project: user.home_project) }
-      it { expect(assigns(:project).repositories.count).to eq(1) }
-      it { expect(assigns(:project).repositories.first.name).to eq(distribution.reponame) }
-    end
-
-    context "with a distribution called images" do
-      before do
-        Project.any_instance.stubs(:prepend_kiwi_config).returns(true)
-        post :save_distributions, project: user.home_project, images: true
-      end
-
-      it { expect(flash[:success]).to eq("Successfully added repositories") }
-      it { is_expected.to redirect_to(action: :repositories, project: user.home_project) }
-      it { expect(assigns(:project).repositories.count).to eq(1) }
-      it { expect(assigns(:project).repositories.first.name).to eq('images') }
-      it { expect(assigns(:project).repositories.first.repository_architectures.count).to eq(Architecture.available.count) }
-    end
-  end
-
   describe 'POST #remove_target_request' do
     before do
       login user
@@ -874,7 +595,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it { expect(flash[:error]).to eq("BsRequestAction::UnknownTargetProject") }
-      it { is_expected.to redirect_to(action: :repositories, project: apache_project) }
+      it { is_expected.to redirect_to(action: :index, controller: :repositories, project: apache_project) }
     end
 
     context "without target package" do
@@ -884,7 +605,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it { expect(flash[:error]).to eq("BsRequestAction::UnknownTargetPackage") }
-      it { is_expected.to redirect_to(action: :repositories, project: apache_project) }
+      it { is_expected.to redirect_to(action: :index, project: apache_project, controller: :repositories) }
     end
 
     context "with proper params" do
@@ -921,7 +642,7 @@ RSpec.describe Webui::ProjectController, vcr: true do
       end
 
       it { expect(flash[:success]).to eq("Successfully removed path") }
-      it { is_expected.to redirect_to(action: :repositories, project: user.home_project) }
+      it { is_expected.to redirect_to(action: :index, project: user.home_project, controller: :repositories) }
       it { expect(repo_for_user_home.path_elements.count).to eq(0)}
     end
 

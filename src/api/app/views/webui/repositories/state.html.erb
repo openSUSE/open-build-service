@@ -4,7 +4,7 @@
    project_bread_crumb('Repository State')
 -%>
 
-<%= render :partial => 'tabs' %>
+<%= render :partial => 'webui/project/tabs' %>
 
 <!-- this page will also get other repository informations like jobhistory -->
 
@@ -36,7 +36,7 @@
             <% end %>
           </ul>
         <% end %>
-      <p>Check the rebuild time for <%= link_to arch, { action: :rebuild_time, project: @project, arch: arch, repository: @repository.name }, { rel: 'nofollow' } %></p> 
+      <p>Check the rebuild time for <%= link_to arch, { action: :rebuild_time, project: @project, arch: arch, repository: @repository.name, controller: :project }, { rel: 'nofollow' } %></p>
     <% end %>
   </div>
 </div>
