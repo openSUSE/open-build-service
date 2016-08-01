@@ -26,54 +26,27 @@
     <div id="advanced_container" style="display: none;">
     <h4>Search for:</h4>
     <p>
-    <% if params[:project].nil? or params[:project] == "1" %>
-      <input type="hidden" name="project" value="0" />
-      <input checked="checked" id="project" name="project" type="checkbox" value="1" />
-    <% elsif params[:project] == "0" %>
-      <input type="hidden" name="project" value="0" />
-      <input id="project" name="project" type="checkbox" value="1" />
-    <% end %>
-    <label for="project">Projects</label>
+      <%= hidden_field_tag 'project', 0 %>
+      <%= check_box_tag 'project', 1, params[:project].nil? || params[:project] == "1" %>
+      <label for="project">Projects</label>
 
-    <% if params[:package].nil? or params[:package] == "1" %>
-      <input type="hidden" name="package" value="0" />
-      <input checked="checked" id="package" name="package" type="checkbox" value="1" />
-    <% elsif params[:package] == "0" %>
-      <input type="hidden" name="package" value="0" />
-      <input id="package" name="package" type="checkbox" value="1" />
-    <% end %>
-    <label for="package">Packages</label>
-
+      <%= hidden_field_tag 'package', 0 %>
+      <%= check_box_tag 'package', 1, params[:package].nil? || params[:package] == "1" %>
+      <label for="package">Packages</label>
     </p>
     <h4>Search in:</h4>
     <p>
-    <% if params[:name].nil? or params[:name] == "1"%>
-      <input type="hidden" name="name" value="0" />
-      <input checked="checked" id="name" name="name" type="checkbox" value="1" />
-    <% elsif params[:name] == "0" %>
-      <input type="hidden" name="name" value="0" />
-      <input id="name" name="name" type="checkbox" value="1" />
-    <% end %>
-    <label for="name">Name</label>
+      <%= hidden_field_tag 'name', 0 %>
+      <%= check_box_tag 'name', 1, params[:name].nil? || params[:name] == "1" %>
+      <label for="name">Name</label>
 
-    <% if params[:title].nil? or params[:title] == "0"%>
-      <input type="hidden" name="title" value="0" />
-      <input id="title" name="title" type="checkbox" value="1" />
-    <% elsif params[:title] == "1" %>
-      <input type="hidden" name="title" value="0" />
-      <input checked="checked" id="title" name="title" type="checkbox" value="1" />
-    <% end %>
-    <label for="title">Title</label>
+      <%= hidden_field_tag 'title', 0 %>
+      <%= check_box_tag 'title', 1, params[:title] == "1" %>
+      <label for="title">Title</label>
 
-    <% if params[:description].nil? or params[:description] == "0"%>
-      <input type="hidden" name="description" value="0" />
-      <input id="description" name="description" type="checkbox" value="1" />
-    <% elsif params[:description] == "1" %>
-      <input type="hidden" name="description" value="0" />
-      <input checked="checked" id="description" name="description" type="checkbox" value="1" />
-    <% end %>
-    <label for="description">Description</label>
-
+      <%= hidden_field_tag 'description', 0 %>
+      <%= check_box_tag 'description', 1, params[:description] == "1" %>
+      <label for="description">Description</label>
     </p>
     <h4>Require attribute:</h4>
     <p>
@@ -86,4 +59,3 @@
   <%= render :partial => 'results' %>
 <% end %>
 </div>
-
