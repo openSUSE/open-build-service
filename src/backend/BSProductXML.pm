@@ -108,6 +108,7 @@ our $product = [
            'releasepkgname', # defaults to $name-release
            [ 'codestream' =>
               [],
+              'name',          # code stream name, often similar to summary, but may differ on falvours
               'endoflife',     # in ISO 8601 format (YYYY-MM-DD), may need an update to a future patchlevel
            ],
            [ 'register' => 
