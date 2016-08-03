@@ -31,6 +31,11 @@
                                                           'arch_' + arch => 1, :project => params[:project], code => 1, :defaults => 0}, :rel => 'nofollow', :class => 'nowrap') %>
                     <% end %>
                   </td>
+                  <td>
+                    <% counts.each do |code, count| %>
+                        <img title="<%= get_package_status_description(code) %>" class="icons-help" alt="<%= get_package_status_description(code) %>" src='/assets/s.gif' /><br />
+                    <% end %>
+                  </td>
                 </tr>
             <% end %>
         <% end %>
