@@ -4,6 +4,7 @@ require 'digest/md5'
 module Webui::WebuiHelper
   include ActionView::Helpers::JavaScriptHelper
   include ActionView::Helpers::AssetTagHelper
+  include Webui::BuildstatusHelper
 
   def get_frontend_url_for(opt = {})
     opt[:host] ||= CONFIG['external_frontend_host'] || CONFIG['frontend_host']
@@ -61,37 +62,6 @@ module Webui::WebuiHelper
       end
     end
     prjname
-  end
-
-  def arch_repo_table_cell(repo, arch, package_name)
-    status = @statushash[repo][arch][package_name] || { 'package' => package_name }
-    status_id = valid_xml_id("id-#{package_name}_#{repo}_#{arch}")
-    link_title = status['details']
-    if status['code']
-      code = status['code']
-      theclass = 'status_' + code.gsub(/[- ]/, '_')
-    else
-      code = ''
-      theclass = ' '
-    end
-
-    result = "<td class='".html_safe
-    result += "#{theclass}"
-    result +=" buildstatus'>".html_safe
-
-    if %w(- unresolvable blocked excluded scheduled).include?(code)
-      result += link_to(code, '#', title: link_title, id: status_id, class: code)
-    else
-      result += link_to(code.gsub(/\s/, '&nbsp;'),
-                        {
-                          action: :live_build_log, package: package_name, project: @project.to_s,
-                          arch: arch, controller: 'package', repository: repo
-                        },
-                        { title: link_title, rel: 'nofollow' }
-                       )
-    end
-    result += '</td>'.html_safe
-    result
   end
 
   REPO_STATUS_ICONS = {

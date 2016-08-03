@@ -120,21 +120,9 @@
   <div id="legend">
     <h3>Legend</h3>
     <ul>
-      <li><strong>succeeded: </strong><span class="descr">Package has built successfully and can be used to build further packages.</span></li>
-      <li><strong>failed: </strong><span class="descr">The package does not build successfully. No packages have been created. Packages that depend on this package will be built using any previously created packages, if they exist.</span></li>
-      <li><strong>unresolvable: </strong><span class="descr">The build can not begin, because required packages are either missing or not explicitly defined.</span></li>
-      <li><strong>broken: </strong><span class="descr">The sources either contain no build description (e.g. specfile), automatic source processing failed or a merge conflict does exist.</span></li>
-
-      <li><strong>blocked: </strong><span class="descr">This package waits for other packages to be built. These can be in the same or other projects.</span></li>
-      <li><strong>scheduled: </strong><span class="descr">A package has been marked for building, but the build has not started yet.</span></li>
-      <li><strong>dispatching: </strong><span class="descr">A package is being copied to a build host. This is an intermediate state before building.</span></li>
-      <li><strong>building: </strong><span class="descr">The package is currently being built.</span></li>
-      <li><strong>signing: </strong><span class="descr">The package has been built successfully and is assigned to get signed.</span></li>
-      <li><strong>finished: </strong><span class="descr">The package has been built and signed, but has not yet been picked up by the scheduler. This is an intermediate state prior to 'succeeded' or 'failed'.</span></li>
-      
-      <li><strong>disabled: </strong><span class="descr">The package has been disabled from building in project or package metadata.</span></li>
-      <li><strong>excluded: </strong><span class="descr">The package build has been disabled in package build description (for example in the .spec file) or does not provide a matching build description for the target. </span></li>
-      <li><strong>unknown: </strong><span class="descr">The scheduler has not yet evaluated this package. Should be a short intermediate state for new packages.</span></li>
+      <% Webui::WebuiHelper::PACKAGE_STATUS_LIST.each do |status, description| %>
+          <li><strong><%= status %>: </strong><span class="descr"><%= description %></span></li>
+      <% end %>
     </ul>
   </div>
 
