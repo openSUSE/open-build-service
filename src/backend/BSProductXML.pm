@@ -101,11 +101,15 @@ our $product = [
            'migrationtarget',
            [ 'predecessor' ],   # former name of product(s) replaced by this.
            'release',
-           'endoflife',     # in ISO 8601 format (YYYY-MM-DD)
+           'endoflife',     # in ISO 8601 format (YYYY-MM-DD), valid for this patchlevel
            'arch',
            'cpeid',         # generated, not for input
            'productline',
            'releasepkgname', # defaults to $name-release
+           [ 'codestream' =>
+              [],
+              'endoflife',     # in ISO 8601 format (YYYY-MM-DD), may need an update to a future patchlevel
+           ],
            [ 'register' => 
               [],
               'target',     # distro-target for NCC, only for .prod files since SLE 12
