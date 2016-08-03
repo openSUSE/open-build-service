@@ -78,13 +78,13 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     end
   end
 
-  def test_find_search_link_in_footer
+  def test_find_search_link_in_footer # /src/api/spec/features/webui/search_spec.rb
     visit root_path
     find(:css, 'div#footer a.search-link').click
     validate_search_page
   end
 
-  def test_basic_search_functionality
+  def test_basic_search_functionality # /src/api/spec/features/webui/search_spec.rb
     visit search_path
     validate_search_page
 
@@ -98,7 +98,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     page.must_have_link 'kdebase'
   end
 
-  def test_header_search_functionality
+  def test_header_search_functionality # /src/api/spec/features/webui/search_spec.rb
     visit root_path
     fill_in 'search', with: 'kdebase'
     page.evaluate_script("$('#global-search-form').get(0).submit()")
@@ -111,7 +111,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     page.must_have_text(/Base.* distro without update project/)
   end
 
-  def test_search_by_request_number
+  def test_search_by_request_number # /src/api/spec/features/webui/search_spec.rb
     visit root_path
     fill_in 'search', with: '#1'
     page.evaluate_script("$('#global-search-form').get(0).submit()")
@@ -119,7 +119,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     page.must_have_text(/Request 1/)
   end
 
-  def test_search_by_baseurl
+  def test_search_by_baseurl # /src/api/spec/features/webui/search_spec.rb
     visit root_path
     fill_in 'search', with: 'obs://myhost/BaseDistro/BaseDistro_repo/d430c2f61e4d8999f9ca6ed6667a104e-pack2'
     page.evaluate_script("$('#global-search-form').get(0).submit()")
@@ -133,7 +133,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     find('#flash-messages').must_have_text('Sorry, this disturl does not compute...')
   end
 
-  def test_search_for_home_projects
+  def test_search_for_home_projects # /src/api/spec/features/webui/search_spec.rb
     visit search_path
 
     search(
@@ -153,7 +153,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     assert results.count >= 4
   end
 
-  def test_search_for_subprojects
+  def test_search_for_subprojects # /src/api/spec/features/webui/search_spec.rb
     visit search_path
 
     search(
@@ -166,7 +166,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     results.count.must_equal 1
   end
 
-  def test_search_for_projects
+  def test_search_for_projects # /src/api/spec/features/webui/search_spec.rb
     visit search_path
 
     search(
@@ -179,7 +179,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     results.count.must_equal 1
   end
 
-  def test_search_for_packages
+  def test_search_for_packages # /src/api/spec/features/webui/search_spec.rb
     visit search_path
 
     search(
@@ -194,11 +194,11 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     results.count.must_equal 1
   end
 
-  def test_search_by_title
+  def test_search_by_title # /src/api/spec/features/webui/search_spec.rb
     skip("not yet implemented")
   end
 
-  def test_search_by_description
+  def test_search_by_description # /src/api/spec/features/webui/search_spec.rb
     skip("not yet implemented")
   end
 
@@ -206,7 +206,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     skip("not yet implemented")
   end
 
-  def test_search_non_existing_by_name
+  def test_search_non_existing_by_name # /src/api/spec/features/webui/search_spec.rb
     visit search_path
 
     search(
@@ -216,7 +216,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
       :expect => :no_results)
   end
 
-  def test_search_non_existing_by_title
+  def test_search_non_existing_by_title # /src/api/spec/features/webui/search_spec.rb
     visit search_path
 
     search(
@@ -226,7 +226,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
       :expect => :no_results)
   end
 
-  def test_search_non_existing_by_description
+  def test_search_non_existing_by_description # /src/api/spec/features/webui/search_spec.rb
     visit search_path
 
     search(
@@ -236,7 +236,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
       :expect => :no_results)
   end
 
-  def test_search_non_existing_by_attributes
+  def test_search_non_existing_by_attributes # /src/api/spec/features/webui/search_spec.rb
     visit search_path
 
     search(
@@ -247,7 +247,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
       :expect => :no_results)
   end
 
-  def test_search_for_nothing
+  def test_search_for_nothing # /src/api/spec/features/webui/search_spec.rb
     visit search_path
 
     search(
@@ -257,7 +257,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
       :expect => :no_results)
   end
 
-  def test_search_russian
+  def test_search_russian # /src/api/spec/features/webui/search_spec.rb
     visit search_path
 
     search(
@@ -271,7 +271,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
     results.count.must_equal 1
   end
 
-  def test_search_in_nothing
+  def test_search_in_nothing # /src/api/spec/features/webui/search_spec.rb
     visit search_path
 
     search(
@@ -281,7 +281,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
       :expect => :invalid_search_options)
   end
 
-  def test_search_with_empty_text
+  def test_search_with_empty_text # /src/api/spec/controllers/webui/search_controller_spec.rb
     visit search_path
     search(
       :text => '',
@@ -290,7 +290,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
       :expect => :invalid_search_text)
   end
 
-  def test_search_hidden_as_anonymous
+  def test_search_hidden_as_anonymous # /src/api/spec/features/webui/search_spec.rb
     visit search_path
 
     search(
@@ -300,7 +300,7 @@ class Webui::SearchControllerTest < Webui::IntegrationTest
       :expect => :no_results)
   end
 
-  def test_search_hidden_as_adrian
+  def test_search_hidden_as_adrian # /src/api/spec/features/webui/search_spec.rb
     login_adrian to: search_path
 
     search(
