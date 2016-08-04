@@ -49,6 +49,7 @@
     </table>
     <% content_for :ready_function do %>
         $('#<%= request_table_id %>').dataTable({
+          'aaSorting': [[0,'desc']],
           'aoColumns': [
           <%== sort_columns.join(",\n") %>,
           {'bSortable': false}
