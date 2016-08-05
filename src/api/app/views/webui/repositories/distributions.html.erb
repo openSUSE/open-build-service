@@ -8,27 +8,29 @@
 <h2>Add Repositories to <%= @project %></h2>
     <% @distributions.each do |vendor, list| %>
         <h3><%= sprite_tag("distributions-#{vendor.downcase}") %> <%= vendor -%> distributions</h3>
-        <p>
-          <% list.each do |distribution| %>
+         <p>
+         <% list.each do |distribution| %>
               <% selected = @project.has_distribution(distribution['project'], distribution['repository']) %>
               <span class="nowrap">
                   <%= check_box_tag 'distributions[]', distribution['reponame'], selected, :id => 'repo_' + distribution['reponame'], :class => 'repocheckbox' -%>
                   <label for="<%= "repo_#{distribution['reponame']}" %>"><%= distribution['name'] %></label>
-                  <%= form_tag({ action: :create, project: @project }, remote: true, class: 'hidden', id: 'repo_' + distribution['reponame'] + '_create') do %>
-                    <%= hidden_field_tag 'repository', distribution['reponame'] %>
-                    <%= hidden_field_tag 'target_project', distribution['project'] %>
-                    <%= hidden_field_tag 'target_repo', distribution['repository'] %>
-                    <% distribution['architectures'].each do |arch| %>
-                        <%= hidden_field_tag 'architectures[]', arch %>
-                    <% end %>
-                  <% end %>
-                  <%= form_tag({ action: :destroy }, remote: true, class: 'hidden', id: 'repo_' + distribution['reponame'] + '_destroy') do %>
-                    <%= hidden_field_tag 'project', @project.name %>
-                    <%= hidden_field_tag 'target', distribution['reponame'] %>
-                  <% end %>
               </span>
           <% end -%>
-        </p>
+         </p>
+      <% list.each do |distribution| %>
+        <%= form_tag({ action: :create, project: @project }, remote: true, class: 'hidden', id: 'repo_' + distribution['reponame'] + '_create') do %>
+          <%= hidden_field_tag 'repository', distribution['reponame'] %>
+          <%= hidden_field_tag 'target_project', distribution['project'] %>
+          <%= hidden_field_tag 'target_repo', distribution['repository'] %>
+          <% distribution['architectures'].each do |arch| %>
+            <%= hidden_field_tag 'architectures[]', arch %>
+          <% end %>
+        <% end %>
+        <%= form_tag({ action: :destroy }, remote: true, class: 'hidden', id: 'repo_' + distribution['reponame'] + '_destroy') do %>
+          <%= hidden_field_tag 'project', @project.name %>
+          <%= hidden_field_tag 'target', distribution['reponame'] %>
+        <% end %>
+      <% end -%>
     <% end -%>
 
     <h3><%= image_tag('distributions/kiwi.png', :width => 40) %> Kiwi image builds</h3>
