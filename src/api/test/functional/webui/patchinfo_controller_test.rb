@@ -15,7 +15,7 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     delete_patchinfo('home:Iggy')
   end
 
-  def test_create_patchinfo_with_too_short_summary
+  def test_create_patchinfo_with_too_short_summary # /src/api/spec/controllers/webui/patchinfo_controller_spec.rb
     click_link("Create patchinfo")
     fill_in "summary", with: "Too short"
     fill_in "description", with: LONG_DESCRIPTION
@@ -25,7 +25,7 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     flash_message_type.must_equal :alert
   end
 
-  def test_create_patchinfo_with_too_short_desc
+  def test_create_patchinfo_with_too_short_desc # /src/api/spec/controllers/webui/patchinfo_controller_spec.rb
     click_link("Create patchinfo")
     fill_in "summary", with: "This is a test for the patchinfo-editor"
     fill_in "description", with: "This description is too short"
@@ -35,7 +35,7 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     flash_message_type.must_equal :alert
   end
 
-  def test_create_patchinfo_with_too_short_sum_and_desc
+  def test_create_patchinfo_with_too_short_sum_and_desc # /src/api/spec/controllers/webui/patchinfo_controller_spec.rb
     click_link("Create patchinfo")
     fill_in "summary", with: "Too short"
     fill_in "description", with: "This description is too short"
@@ -47,7 +47,7 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
   end
 
   # FIXME: Split this up into separate tests and user setup, etc
-  def test_accessability
+  def test_accessability # /src/api/spec/controllers/webui/patchinfo_controller_spec.rb
     click_link("Create patchinfo")
     fill_in "summary", with: "This is a test for the patchinfo-editor"
     fill_in "description", with: LONG_DESCRIPTION
@@ -76,7 +76,7 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     page.must_have_text('Please Log In')
   end
 
-  def test_create_patchinfo_with_desc_and_sum
+  def test_create_patchinfo_with_desc_and_sum # /src/api/spec/controllers/webui/patchinfo_controller_spec.rb
     click_link("Create patchinfo")
     page.must_have_text("Patchinfo-Editor for")
 
@@ -184,7 +184,7 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     click_button("Save Patchinfo") # FIXME: This doesn't have any effect here
   end
 
-  def delete_patchinfo project
+  def delete_patchinfo project # /src/api/spec/controllers/webui/patchinfo_controller_spec.rb
     visit patchinfo_show_path(package: 'patchinfo', project: project)
     if page.has_link?('delete-patchinfo')
       find(:id, 'delete-patchinfo').click
@@ -204,7 +204,7 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     end
   end
 
-  def test_create_patchinfo_and_edit_it
+  def test_create_patchinfo_and_edit_it # /src/api/spec/controllers/webui/patchinfo_controller_spec.rb
     click_link("Create patchinfo")
     fill_in "summary", with: "This is a test for the patchinfo-editor"
     fill_in "description", with: LONG_DESCRIPTION
@@ -238,7 +238,7 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     page.must_have_text "I don't like it"
   end
 
-  def test_remove
+  def test_remove # /src/api/spec/controllers/webui/patchinfo_controller_spec.rb
     login_tom
     visit project_show_path(project: "home:tom")
     # Workaround until we have nice fixtures / factory girl
@@ -259,7 +259,7 @@ class Webui::PatchinfoControllerTest < Webui::IntegrationTest
     assert !page.has_link?('delete-patchinfo')
   end
 
-  def test_remove_that_fails
+  def test_remove_that_fails # /src/api/spec/controllers/webui/patchinfo_controller_spec.rb
     login_tom
     visit project_show_path(project: "home:tom")
     # Workaround until we have nice fixtures / factory girl
