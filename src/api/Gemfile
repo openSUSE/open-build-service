@@ -104,8 +104,6 @@ group :development do
   gem 'unicorn-rails' # webrick won't work
   # for calling single testd
   gem 'single_test'
-  # as debugging tool in the default error page
-  gem 'web-console', '~> 2.0'
 end
 
 group :development, :test do
