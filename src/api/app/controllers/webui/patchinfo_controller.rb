@@ -134,6 +134,7 @@ class Webui::PatchinfoController < Webui::WebuiController
           issues.to_a.each do |issue|
             unless IssueTracker.find_by_name(issue[1])
               flash[:error] = "Unknown Issue tracker #{issue[1]}"
+              render action: 'edit_patchinfo', project: @project, package: @package
               return
             end
             # people tend to enter entire cve strings instead of just the name
@@ -158,6 +159,7 @@ class Webui::PatchinfoController < Webui::WebuiController
             Package.verify_file!(@package, '_patchinfo', xml)
           rescue APIException => e
             flash[:error] = "patchinfo is invalid: #{e.message}"
+            render action: 'edit_patchinfo', project: @project, package: @package
             return
           end
 
