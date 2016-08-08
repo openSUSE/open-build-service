@@ -355,7 +355,7 @@ DEPENDENCIES
   font-awesome-rails
   haml
   hoptoad_notifier (~> 2.3)
-  jquery-datatables-rails
+  jquery-datatables-rails (= 1.12.2)
   jquery-rails
   jquery-ui-rails (~> 4.2.1)
   kaminari
