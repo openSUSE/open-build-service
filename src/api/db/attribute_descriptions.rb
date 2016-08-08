@@ -23,6 +23,7 @@ def update_all_attrib_type_descriptions
     "QualityCategory"                 => "Use this attrbitue to classify the usability of a project. This gets used by the user package search for instance.",
     "IncidentPriority"                => "A numeric value which defines the importance of this incident project.",
     "EmbargoDate"                     => "A timestamp until outgoing requests can not get accepted.",
+    "PlannedReleaseDate"              => "A timestamp for the planned release date of an incident.",
     "MakeOriginOlder"                 => "Initialize packages by making the build results newer then updated ones"
   }
 
