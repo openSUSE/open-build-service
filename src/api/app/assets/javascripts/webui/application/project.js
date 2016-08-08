@@ -7,6 +7,10 @@ function renderPackagesTable(wrapper, packages, length) {
         "bPaginate": packages.length > 12,
         "aoColumns": [
             {
+                "mData": function (obj) {
+                    var url = packageurl.replace(/REPLACEIT/, obj[0]);
+                    return '<a href="' + url + '">' + obj[0] + '</a>';
+                },
                 "fnRender": function (obj) {
                     var url = packageurl.replace(/REPLACEIT/, obj.aData);
                     return '<a href="' + url + '">' + obj.aData + '</a>';
@@ -30,6 +34,10 @@ function renderProjectsTable(length) {
         "aoColumns": [
             {
                 "sTitle": "Name",
+                "mData": function (obj) {
+                    var url = projecturl.replace(/REPLACEIT/, obj[0]);
+                    return '<a href="' + url + '">' + obj[0] + '</a>';
+                },
                 "fnRender": function (obj) {
                     var url = projecturl.replace(/REPLACEIT/, obj.aData[0]);
                     return '<a href="' + url + '">' + obj.aData[0] + '</a>';
@@ -55,6 +63,11 @@ function renderPackagesProjectsTable(options) {
             "aoColumns": [
                 {
                     "sTitle": "Package",
+                    "mData": function (obj) {
+                        var url1 = packageurl.replace(/REPLACEPKG/, obj[0]);
+                        var url = url1.replace(/REPLACEPRJ/, obj[1]);
+                        return '<a href="' + url + '">' + obj[0] + '</a>';
+                    },
                     "fnRender": function (obj) {
                         var url1 = packageurl.replace(/REPLACEPKG/, obj.aData[0]);
                         var url = url1.replace(/REPLACEPRJ/, obj.aData[1]);
