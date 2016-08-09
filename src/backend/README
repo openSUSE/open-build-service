@@ -18,8 +18,9 @@ To setup an own backend from git:
    ...
 6) on your build clients:
    create a directory /root/bs
-   copy BSBuild.pm BSConfig.pm BSDEBQ.pm BSHTTP.pm BSRPC.pm BSServer.pm
-   BSUtil.pm BSXML.pm XML/Structured.pm bs_build bs_buildhelper bs_worker
+   copy BSBuild.pm BSConfig.pm BSHTTP.pm BSRPC.pm BSServer.pm BSDispatch.pm
+   BSConfiguration.pm BSKiwiXML.pm BSCando.pm BSUtil.pm BSXML.pm
+   XML/Structured.pm bs_worker
    into the directory.
    create a work directory, e.g. /BUILD/root_1
    create a state dir, e.g. /var/run/worker_1
