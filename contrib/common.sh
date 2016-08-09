@@ -5,16 +5,17 @@ function allow_vendor_change() {
 }
 
 function add_common_repos() {
+  zypper -q ar -f http://download.opensuse.org/repositories/devel:/languages:/perl/openSUSE_Leap_42.1/devel:languages:perl.repo
   zypper -q ar -f http://download.opensuse.org/repositories/OBS:/Server:/Unstable/openSUSE_42.1/OBS:Server:Unstable.repo
   zypper -q --gpg-auto-import-keys refresh
 }
 
 function install_common_packages() {
   echo -e "\ninstalling required software packages...\n"
-  zypper -q -n install \
+  zypper -q -n install --replacefiles\
     update-alternatives make gcc gcc-c++ patch cyrus-sasl-devel openldap2-devel \
     libmysqld-devel libxml2-devel zlib-devel libxslt-devel nodejs mariadb memcached \
-    sphinx sphinx phantomjs \
+    sphinx phantomjs \
     screen \
     ruby2.3-devel \
     ruby2.3-rubygem-bundler \
@@ -28,8 +29,12 @@ function install_common_packages() {
     perl-XML-Parser \
     perl-Devel-Cover \
     obs-server \
+    perl-BSSolv \
+    perl-Socket-MsgHdr \
+    perl-JSON-XS \
     curl \
     vim-data \
+    psmisc \
 
   # This is a workaround for a very strange behavior
   # After installing one of the follwing packages - obs-server, curl or vim-data
@@ -61,7 +66,7 @@ function install_bundle() {
   su - vagrant -c "cd /vagrant/src/api/; bundle install --quiet"
 }
 
-function setup_database() {
+function setup_mariadb() {
   echo -e "\nsetting up mariadb...\n"
   systemctl start mysql
   systemctl enable mysql
@@ -75,20 +80,25 @@ function setup_memcached() {
 }
 
 function configure_app() {
-  # Configure the app if it isn't
   if [ ! -f /vagrant/src/api/config/options.yml ] && [ -f /vagrant/src/api/config/options.yml.example ]; then
-    echo "Configuring your app in config/options.yml..." 
-    sed 's/source_port: 5352/source_port: 3200/' /vagrant/src/api/config/options.yml.example > /vagrant/src/api/config/options.yml
-  else
-    echo -e "\n\nWARNING: You have already configured your app in config/options.yml." 
-    echo -e "WARNING: Please make sure this configuration works in this vagrant box!\n\n" 
-  fi 
+    cp /vagrant/src/api/config/options.yml.example /vagrant/src/api/config/options.yml
+  fi
 }
 
 function configure_database() {
   # Configure the database if it isn't
-  if [ ! -f /vagrant/src/api/config/database.yml ] && [ -f /vagrant/src/api/config/database.yml.example ]; then
-    echo -e "\nSetting up your database from config/database.yml...\n"
+  found=0
+  dbs=($(echo "show databases" | mysql -u root --password=opensuse))
+  for db in "${dbs[@]}"
+    do 
+      if [[ $db =~ api_development ]]; then
+        echo -e "Already have api_development db...\n"
+        set $found=1
+        break
+      fi  
+    done
+  if [ $found -eq 0 ]; then
+    echo -e "No database found. Will run setup...\n"
     export DATABASE_URL="mysql2://root:opensuse@localhost/api_development"
     cd /vagrant/src/api
     rake -f /vagrant/src/api/Rakefile db:create
@@ -96,8 +106,7 @@ function configure_database() {
     rake -f /vagrant/src/api/Rakefile test:unit/watched_project_test
     cd -
   else
-    echo -e "\nnWARNING: You have already configured your database in config/database.yml." 
-    echo -e "WARNING: Please make sure this configuration works in this vagrant box!\n\n" 
+    echo -e "You already have a database. Skipping this step.\n"
   fi
 }
 
@@ -133,8 +142,8 @@ function _prepare_bound_directory() {
 
 }
 
-function setup_obs_backend() {
-  echo "Setting up your OBS test backend..."
+function setup_data_dir() {
+  echo "Generating data dir and mounting them So hard links can be used..."
   # Put the backend data dir outside the shared folder so it can use hardlinks
   # which isn't possible with VirtualBox shared folders...
   _prepare_bound_directory tmp
@@ -147,7 +156,7 @@ function setup_obs_backend() {
 
 function print_final_information() {
   echo -e "\nProvisioning of your OBS API rails app done!"
-  echo -e "To start your development OBS backend run: vagrant exec RAILS_ENV=development ./script/start_test_backend\n"
+  echo -e "To start your development OBS backend run: vagrant exec contrib/load_dev_backend.sh\n"
   echo -e "To start your development OBS frontend run: vagrant exec rails s\n"
   echo -e "\nTo start testing : \nvagrant ssh\n";
   echo -e "\nmake -C /vagrant/src/api test\n";
