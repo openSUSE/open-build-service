@@ -5715,6 +5715,8 @@ sub copyproject {
       $newrev->{'time'} = time();
       if ($cgi->{'makeolder'}) {
 	$newrev->{'vrev'} =~ s/(\d+)$/($1+1).".1"/e;
+      } elsif ($cgi->{'withbinaries'}) {
+	$newrev->{'vrev'} =~ s/(\d+)$/$1/e;
       } else {
 	$newrev->{'vrev'} =~ s/(\d+)$/$1+1/e;
       }

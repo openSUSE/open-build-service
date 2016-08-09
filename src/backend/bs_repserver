@@ -2081,6 +2081,7 @@ sub copybuild {
       }
     }
   }
+  link("$odir/history", "$dir/history") if -e "$odir/history";
   link("$odir/.meta.success", "$dir/.meta.success") if -e "$odir/.meta.success";
   link("$ogdst/:meta/$opackid", "$dir/meta") if -e "$ogdst/:meta/$opackid";
   link("$ogdst/:logfiles.success/$opackid", "$dir/.logfile.success");
