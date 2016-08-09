@@ -13,15 +13,17 @@ setup_ruby
 
 install_bundle
 
-setup_database
+configure_app
+
+setup_mariadb
 
 setup_memcached
-
-configure_app
 
 configure_database
 
 print_final_information
+
+setup_data_dir
 
 chown_vagrant_owned_dirs
 
