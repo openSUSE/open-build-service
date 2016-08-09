@@ -388,4 +388,8 @@ module Webui::WebuiHelper
       "']".html_safe
     }.join(",\n").html_safe
   end
+
+  def replace_meta_characters(input)
+    input.sub("!\"#$%&'()*+,./:;<=>?@[\\]^`{|}~", '_')
+  end
 end

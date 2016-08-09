@@ -12,13 +12,13 @@
          <% list.each do |distribution| %>
               <% selected = @project.has_distribution(distribution['project'], distribution['repository']) %>
               <span class="nowrap">
-                  <%= check_box_tag 'distributions[]', distribution['reponame'], selected, :id => 'repo_' + distribution['reponame'], :class => 'repocheckbox' -%>
+                  <%= check_box_tag 'distributions[]', distribution['reponame'], selected, :id => 'repo_' + replace_meta_characters(distribution['reponame']), :class => 'repocheckbox' -%>
                   <label for="<%= "repo_#{distribution['reponame']}" %>"><%= distribution['name'] %></label>
               </span>
           <% end -%>
          </p>
       <% list.each do |distribution| %>
-        <%= form_tag({ action: :create, project: @project }, remote: true, class: 'hidden', id: 'repo_' + distribution['reponame'] + '_create') do %>
+        <%= form_tag({ action: :create, project: @project }, remote: true, class: 'hidden', id: 'repo_' + replace_meta_characters(distribution['reponame']) + '_create') do %>
           <%= hidden_field_tag 'repository', distribution['reponame'] %>
           <%= hidden_field_tag 'target_project', distribution['project'] %>
           <%= hidden_field_tag 'target_repo', distribution['repository'] %>
@@ -26,7 +26,9 @@
             <%= hidden_field_tag 'architectures[]', arch %>
           <% end %>
         <% end %>
-        <%= form_tag({ action: :destroy }, remote: true, class: 'hidden', id: 'repo_' + distribution['reponame'] + '_destroy') do %>
+        <p><%= escape_javascript(distribution['reponame']) %></p>
+        <%= form_tag({ action: :destroy }, remote: true, class: 'hidden', id: 'repo_' + replace_meta_characters(distribution['reponame']) + '_destroy') do %>
+
           <%= hidden_field_tag 'project', @project.name %>
           <%= hidden_field_tag 'target', distribution['reponame'] %>
         <% end %>
