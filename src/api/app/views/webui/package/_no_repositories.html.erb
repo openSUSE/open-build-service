@@ -1,6 +1,6 @@
 <div id="package_buildstatus">
   <% if not @project.repositories.any? %>
-    <p><i>The project this package belongs to currently has no <%= link_to "build targets", :controller => :project, :action => 'add_repository_from_default_list', :project => @project %> defined. </i></p>
+    <p><i>The project this package belongs to currently has no <%= link_to "build targets", :controller => :repositories, :action => 'distributions', :project => @project %> defined. </i></p>
   <% elsif @buildresult.elements('result').blank? %>
     <p><i>No build result available</i></p>
   <% else %>
