@@ -54,7 +54,7 @@ class UpdateNotificationEvents
     semaphore.synchronize do
       nr = BackendInfo.lastnotification_nr
       # 0 is a bad start
-      nr = 1 if nr == 0
+      nr = 1 if nr.zero?
 
       begin
         @last = Xmlhash.parse(Suse::Backend.get("/lastnotifications?start=#{nr}&block=1").body)

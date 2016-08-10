@@ -92,7 +92,7 @@ class Owner
     maintainers=[]
     pkg=nil
 
-    match_all = (limit == 0)
+    match_all = (limit.zero?)
     deepest = (limit < 0)
 
     # binary search via all projects
@@ -104,7 +104,7 @@ class Owner
     answer = Suse::Backend.post path, nil
     data = Xmlhash.parse(answer.body)
     # found binary package?
-    return [] if data["matches"].to_i == 0
+    return [] if data["matches"].to_i.zero?
 
     already_checked = {}
     deepest_match = nil

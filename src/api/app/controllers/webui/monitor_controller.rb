@@ -128,7 +128,7 @@ class Webui::MonitorController < Webui::WebuiController
       time2 ||= 0
       ret << [(time1+time2)/2, value1 + value2]
     end if arr1
-    ret << 0 if ret.length == 0
+    ret << 0 if ret.length.zero?
     return ret
   end
 

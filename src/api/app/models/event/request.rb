@@ -32,7 +32,7 @@ class Event::Request < ::Event::Base
   def headers_for_actions
     ret = {}
     payload['actions'].each_with_index do |a, index|
-      if payload['actions'].length == 1 || index == 0
+      if payload['actions'].length == 1 || index.zero?
         suffix = 'X-OBS-Request-Action'
       else
         suffix = "X-OBS-Request-Action-#{index}"

@@ -148,7 +148,7 @@ class Channel < ApplicationRecord
 
   def is_active?
     # no targets defined, the project has some
-    return true if self.channel_targets.size == 0
+    return true if self.channel_targets.size.zero?
 
     self.channel_targets.where(disabled: false).size > 0
   end

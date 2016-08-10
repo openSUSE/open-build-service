@@ -121,7 +121,7 @@ class Repository < ApplicationRecord
   # returns a list of repositories that include path_elements linking to this one
   # or empty list
   def linking_repositories
-    return [] if links.size == 0
+    return [] if links.size.zero?
     links.map {|l| l.repository}
   end
 
@@ -135,7 +135,7 @@ class Repository < ApplicationRecord
   end
 
   def linking_target_repositories
-    return [] if targetlinks.size == 0
+    return [] if targetlinks.size.zero?
     targetlinks.map {|l| l.target_repository}
   end
 

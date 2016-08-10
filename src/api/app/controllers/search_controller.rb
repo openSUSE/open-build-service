@@ -122,7 +122,7 @@ class SearchController < ApplicationController
         nitems << item
         if @limit
           @limit -= 1
-          break if @limit == 0
+          break if @limit.zero?
         end
       end
     end

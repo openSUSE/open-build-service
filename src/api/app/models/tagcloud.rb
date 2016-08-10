@@ -39,14 +39,14 @@ class Tagcloud
       end
 
       # initialize the tag count and remove unused tags from the list
-      @tags.delete_if {|tag| tag.count(:scope => "global") == 0 }
+      @tags.delete_if { |tag| tag.count(:scope => "global").zero? }
     end
     limit_tags
     @max, @min = max_min(@tags)
   end
 
   def limit_tags
-    if @limit == 0
+    if @limit.zero?
       return
     elsif @tags.size > @limit
       sort_tags(:scope => "count")
