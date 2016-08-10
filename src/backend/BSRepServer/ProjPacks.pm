@@ -36,8 +36,8 @@ sub get_projpacks {
   if ($path) {
     my @xprojs = ($projid);
     for (@$path) {
-      my ($pp) = split('/', $_, 2);
-      push @xprojs, $pp;
+      # FIXME2.8: we need also support for _obsrepositories
+      push @xprojs, $_->{'project'} if $_->{'project'} ne '_obsrepositories';
     }
     @xprojs = BSUtil::unify(@xprojs);
     push @args, map {"project=$_"} splice(@xprojs, 1);
