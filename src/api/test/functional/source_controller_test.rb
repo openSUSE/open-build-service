@@ -117,7 +117,6 @@ class SourceControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
     put '/source/kde4/kdelibs/DUMMY?comment=illegalchar%96%96asd', 'NOTWORKING'
     assert_response 400
-    assert_xml_tag :tag => 'status', :attributes => { :code => 'invalid_text_encoding' }
     delete '/source/kde4/kdelibs/DUMMY'
     assert_response :success
   end

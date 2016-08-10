@@ -4,10 +4,6 @@ require 'api_exception'
 
 module Suse
   class Backend
-    class IllegalEncodingError < APIException
-      setup 'invalid_text_encoding'
-    end
-
     @source_host = CONFIG['source_host']
     @source_port = CONFIG['source_port']
 
@@ -133,9 +129,6 @@ module Suse
           if hash.has_key?(key)
             str = hash[key].to_s
             str.toutf8
-            unless str.isutf8
-              raise IllegalEncodingError.new("Illegal encoded parameter")
-            end
 
             if hash[key].nil?
               # just a boolean argument ?
