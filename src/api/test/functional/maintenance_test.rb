@@ -2335,7 +2335,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     #copyrev = last_revision(copyhistory).rev
     copyvrev = last_revision(copyhistory).value(:vrev)
     assert_equal srcmd5, copysrcmd5
-    assert_equal vrev.to_i + 1, copyvrev.to_i  #the copy gets always a higher vrev
+    assert_equal vrev.to_i, copyvrev.to_i  #the copy gets equal vrev
     assert_equal version, copyversion
     assert_not_equal time, copytime # the timestamp got not copied
     assert_equal last_revision(copyhistory).value(:user), 'king'
