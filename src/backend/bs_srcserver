@@ -3674,15 +3674,18 @@ sub getfilelist_ajax {
     return undef;
   }
   if ($cgi->{'view'} eq 'notify') {
+    my $ret;
     eval {
-      BSSrcServer::Remote::remote_getrev_getfiles($projid, $packid, $srcmd5);
+      $ret = BSSrcServer::Remote::remote_getrev_getfiles($projid, $packid, $srcmd5);
     };
     if ($@) {
-      notify_all_repservers('package', $projid, $packid);
+      my $jev = $BSServerEvents::gev;
+      # notify if backgrounded
+      notify_all_repservers('package', $projid, $packid) unless $jev->{'fd'};
       die($@);
     }
-    notify_all_repservers('package', $projid, $packid);
-    return '';
+    notify_all_repservers('package', $projid, $packid) if defined($ret) && $ret eq '';
+    return $ret;
   }
   die("unknown view '$cgi->{'view'}'\n");
 }
