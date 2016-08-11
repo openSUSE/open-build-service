@@ -268,7 +268,7 @@ class ChannelMaintenanceTests < ActionDispatch::IntegrationTest
     put '/source/BaseDistro3Channel/_config', "Repotype: rpm-md-legacy packagesubdir:rpm\nType: spec"
     assert_response :success
 
-    post '/source/BaseDistro3Channel/_attribute', "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-BaseDistro3Channel-%Y-%C</value></attribute></attributes>"
+    raw_post '/source/BaseDistro3Channel/_attribute', "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-BaseDistro3Channel-%Y-%C</value></attribute></attributes>"
     assert_response :success
 
     put '/source/Channel/_meta', '<project name="Channel"><title/><description/>

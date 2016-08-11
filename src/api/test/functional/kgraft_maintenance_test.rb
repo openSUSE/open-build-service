@@ -43,8 +43,8 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     get '/source/My:Maintenance/_meta'
     assert_response :success
 
-    post '/source/My:Maintenance/_attribute',
-         "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-%N-%Y-%C</value></attribute></attributes>"
+    raw_post '/source/My:Maintenance/_attribute',
+             "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-%N-%Y-%C</value></attribute></attributes>"
     assert_response :success
 
     Timecop.freeze(1)

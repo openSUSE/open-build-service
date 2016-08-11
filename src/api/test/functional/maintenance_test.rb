@@ -873,7 +873,7 @@ class MaintenanceTests < ActionDispatch::IntegrationTest
     assert_response :success
 
     prepare_request_with_user 'maintenance_coord', 'buildservice'
-    post '/source/My:Maintenance/_attribute', "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-%N-%Y-%C</value></attribute></attributes>"
+    raw_post '/source/My:Maintenance/_attribute', "<attributes><attribute namespace='OBS' name='MaintenanceIdTemplate'><value>My-%N-%Y-%C</value></attribute></attributes>"
     assert_response :success
 
     Timecop.freeze(1)
