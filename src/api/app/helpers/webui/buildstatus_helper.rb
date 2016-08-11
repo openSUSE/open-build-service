@@ -22,7 +22,7 @@ module Webui::BuildstatusHelper
   # rubocop:enable Style/AlignHash
 
   def get_package_status_description(status)
-    PACKAGE_STATUS_LIST[status] || "status explanation not found"
+    PACKAGE_STATUS_LIST[status.to_s] || "status explanation not found"
   end
 
   def arch_repo_table_cell(repo, arch, package_name)
@@ -54,6 +54,6 @@ module Webui::BuildstatusHelper
     end
 
     status_desc = get_package_status_description(status['code'])
-    result += " <img title='#{status_desc}' class='icons-help' alt='#{status_desc}' src='/assets/s.gif' /></td>".html_safe
+    result += " #{sprite_tag 'help', title: status_desc}</td>".html_safe
   end
 end
