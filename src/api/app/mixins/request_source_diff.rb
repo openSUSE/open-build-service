@@ -56,8 +56,7 @@ module RequestSourceDiff
         # maintenance release targets will have a base link
         tprj = Project.get_by_name(@target_project)
         if tprj && tprj.is_maintenance_release?
-          @target_package.gsub!(/\.[^\.]*$/, '')
-          tpkg = tprj.find_package(@target_package)
+          tpkg = tprj.find_package(@target_package.gsub(/\.[^\.]*$/, ''))
           if tpkg
             if tpkg.project.is_maintenance_release? && tpkg.is_local_link?
               # use package container from former incident update
