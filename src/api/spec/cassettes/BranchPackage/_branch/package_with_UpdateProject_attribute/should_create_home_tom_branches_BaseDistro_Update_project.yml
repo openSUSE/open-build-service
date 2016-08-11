@@ -1,0 +1,733 @@
+---
+http_interactions:
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title/>
+          <description/>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '129'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom">
+          <title></title>
+          <description></description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 11 Aug 2016 15:30:24 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/BaseDistro/test_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="BaseDistro">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '110'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="BaseDistro">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 11 Aug 2016 15:30:24 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:BaseDistro:Update">
+          <title>Branch project for package test_package</title>
+          <description>This project was created for package test_package via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer"/>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '273'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:BaseDistro:Update">
+          <title>Branch project for package test_package</title>
+          <description>This project was created for package test_package via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer" />
+        </project>
+    http_version: 
+  recorded_at: Thu, 11 Aug 2016 15:30:24 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/test_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom:branches:BaseDistro:Update">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '135'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom:branches:BaseDistro:Update">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 11 Aug 2016 15:30:24 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/test_package/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom:branches:BaseDistro:Update">
+          <title/>
+          <description/>
+        </package>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '135'
+    body:
+      encoding: UTF-8
+      string: |
+        <package name="test_package" project="home:tom:branches:BaseDistro:Update">
+          <title></title>
+          <description></description>
+        </package>
+    http_version: 
+  recorded_at: Thu, 11 Aug 2016 15:30:25 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/test_package?cmd=branch&missingok=1&opackage=test_package&oproject=BaseDistro:Update&user=tom
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '203'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="9" vrev="9">
+          <srcmd5>e3adf4aab58a4a6f27974d4a9fb88e5f</srcmd5>
+          <version>unknown</version>
+          <time>1470929425</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 11 Aug 2016 15:30:25 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '452'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test_package" rev="9" vrev="9" srcmd5="e3adf4aab58a4a6f27974d4a9fb88e5f">
+          <linkinfo project="BaseDistro:Update" package="test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" missingok="true" xsrcmd5="add4a945697eee927c39061d8a0ab589" lsrcmd5="e3adf4aab58a4a6f27974d4a9fb88e5f" />
+          <entry name="_link" md5="463447c51c7a017092296988331b6862" size="142" mtime="1470925700" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 11 Aug 2016 15:30:25 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/test_package?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '350'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="test_package" rev="9" vrev="9" srcmd5="add4a945697eee927c39061d8a0ab589" lsrcmd5="e3adf4aab58a4a6f27974d4a9fb88e5f" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+          <linked project="BaseDistro:Update" package="test_package" />
+          <linked project="BaseDistro" package="test_package" />
+          <revtime>1470929425</revtime>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Thu, 11 Aug 2016 15:30:25 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '452'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test_package" rev="9" vrev="9" srcmd5="e3adf4aab58a4a6f27974d4a9fb88e5f">
+          <linkinfo project="BaseDistro:Update" package="test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" missingok="true" xsrcmd5="add4a945697eee927c39061d8a0ab589" lsrcmd5="e3adf4aab58a4a6f27974d4a9fb88e5f" />
+          <entry name="_link" md5="463447c51c7a017092296988331b6862" size="142" mtime="1470925700" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 11 Aug 2016 15:30:25 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '359'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="5864987603cd90ca6298719b5b72559e">
+          <old project="home:tom:branches:BaseDistro:Update" package="test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom:branches:BaseDistro:Update" package="test_package" rev="1" srcmd5="e3adf4aab58a4a6f27974d4a9fb88e5f" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Thu, 11 Aug 2016 15:30:25 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/test_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '380'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="5b8f274e036175bb2bf4a08a1bfcc3ff">
+          <old project="BaseDistro:Update" package="test_package" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom:branches:BaseDistro:Update" package="test_package" rev="add4a945697eee927c39061d8a0ab589" srcmd5="add4a945697eee927c39061d8a0ab589" />
+          <files />
+        </sourcediff>
+    http_version: 
+  recorded_at: Thu, 11 Aug 2016 15:30:25 GMT
+- request:
+    method: put
+    uri: http://localhost:3200/source/home:tom:branches:BaseDistro:Update/_meta?user=tom
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:BaseDistro:Update">
+          <title>Branch project for package test_package</title>
+          <description>This project was created for package test_package via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer"/>
+          <publish>
+            <disable/>
+          </publish>
+        </project>
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '314'
+    body:
+      encoding: UTF-8
+      string: |
+        <project name="home:tom:branches:BaseDistro:Update">
+          <title>Branch project for package test_package</title>
+          <description>This project was created for package test_package via attribute OBS:Maintained</description>
+          <person userid="tom" role="maintainer" />
+          <publish>
+            <disable />
+          </publish>
+        </project>
+    http_version: 
+  recorded_at: Thu, 11 Aug 2016 15:30:25 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/search/package/id?match=(linkinfo/@package=%22test_package%22%20and%20linkinfo/@project=%22BaseDistro%22%20and%20@project=%22BaseDistro%22)
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '27'
+    body:
+      encoding: UTF-8
+      string: |
+        <collection>
+        </collection>
+    http_version: 
+  recorded_at: Thu, 11 Aug 2016 15:35:09 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom:branches:BaseDistro/test_package?cmd=branch&opackage=test_package&oproject=BaseDistro&user=tom
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '203'
+    body:
+      encoding: UTF-8
+      string: |
+        <revision rev="2" vrev="2">
+          <srcmd5>b869d2a4ed6b5575046364022693cba4</srcmd5>
+          <version>unknown</version>
+          <time>1470929709</time>
+          <user>tom</user>
+          <comment></comment>
+          <requestid/>
+        </revision>
+    http_version: 
+  recorded_at: Thu, 11 Aug 2016 15:35:09 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom:branches:BaseDistro/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '428'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test_package" rev="2" vrev="2" srcmd5="b869d2a4ed6b5575046364022693cba4">
+          <linkinfo project="BaseDistro" package="test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="6b9312d9c5da36d8eeb9d5321cf371bc" lsrcmd5="b869d2a4ed6b5575046364022693cba4" />
+          <entry name="_link" md5="7d769aa3552bc398c1e937e8243daf52" size="118" mtime="1470923639" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 11 Aug 2016 15:35:09 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom:branches:BaseDistro/test_package?nofilename=1&view=info&withchangesmd5=1
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '286'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourceinfo package="test_package" rev="2" vrev="2" srcmd5="6b9312d9c5da36d8eeb9d5321cf371bc" lsrcmd5="b869d2a4ed6b5575046364022693cba4" verifymd5="d41d8cd98f00b204e9800998ecf8427e">
+          <linked project="BaseDistro" package="test_package" />
+          <revtime>1470929709</revtime>
+        </sourceinfo>
+    http_version: 
+  recorded_at: Thu, 11 Aug 2016 15:35:09 GMT
+- request:
+    method: get
+    uri: http://localhost:3200/source/home:tom:branches:BaseDistro/test_package
+    body:
+      encoding: US-ASCII
+      string: ''
+    headers:
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '428'
+    body:
+      encoding: UTF-8
+      string: |
+        <directory name="test_package" rev="2" vrev="2" srcmd5="b869d2a4ed6b5575046364022693cba4">
+          <linkinfo project="BaseDistro" package="test_package" srcmd5="d41d8cd98f00b204e9800998ecf8427e" baserev="d41d8cd98f00b204e9800998ecf8427e" xsrcmd5="6b9312d9c5da36d8eeb9d5321cf371bc" lsrcmd5="b869d2a4ed6b5575046364022693cba4" />
+          <entry name="_link" md5="7d769aa3552bc398c1e937e8243daf52" size="118" mtime="1470923639" />
+        </directory>
+    http_version: 
+  recorded_at: Thu, 11 Aug 2016 15:35:09 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom:branches:BaseDistro/test_package?cmd=diff&linkrev=base&onlyissues=1&orev=0&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Content-Length:
+      - '345'
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="f62fecd662da4556782785d4aed4f163">
+          <old project="home:tom:branches:BaseDistro" package="test_package" rev="0" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom:branches:BaseDistro" package="test_package" rev="1" srcmd5="b869d2a4ed6b5575046364022693cba4" />
+          <files />
+          <issues>
+          </issues>
+        </sourcediff>
+    http_version: 
+  recorded_at: Thu, 11 Aug 2016 15:35:09 GMT
+- request:
+    method: post
+    uri: http://localhost:3200/source/home:tom:branches:BaseDistro/test_package?cmd=linkdiff&linkrev=base&onlyissues=1&view=xml
+    body:
+      encoding: UTF-8
+      string: ''
+    headers:
+      Content-Type:
+      - application/octet-stream
+      Accept-Encoding:
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
+      Accept:
+      - "*/*"
+      User-Agent:
+      - Ruby
+  response:
+    status:
+      code: 200
+      message: OK
+    headers:
+      Content-Type:
+      - text/xml
+      Cache-Control:
+      - no-cache
+      Connection:
+      - close
+      Content-Length:
+      - '366'
+    body:
+      encoding: UTF-8
+      string: |
+        <sourcediff key="04dcee404f9c19d2ac1baed733225168">
+          <old project="BaseDistro" package="test_package" rev="d41d8cd98f00b204e9800998ecf8427e" srcmd5="d41d8cd98f00b204e9800998ecf8427e" />
+          <new project="home:tom:branches:BaseDistro" package="test_package" rev="6b9312d9c5da36d8eeb9d5321cf371bc" srcmd5="6b9312d9c5da36d8eeb9d5321cf371bc" />
+          <files />
+        </sourcediff>
+    http_version: 
+  recorded_at: Thu, 11 Aug 2016 15:35:09 GMT
+recorded_with: VCR 3.0.1

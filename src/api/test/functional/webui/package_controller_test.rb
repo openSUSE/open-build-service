@@ -33,6 +33,8 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_selector '#delete-package'
   end
 
+  # spec/models/branch_package_spec.rb
+  # spec/features/webui/packages_spec.rb
   def test_branch_package
     use_js
     login_Iggy
