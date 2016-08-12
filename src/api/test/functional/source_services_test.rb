@@ -536,7 +536,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
 
     # Locking user blocks the trigger
     tom = User.find_by_login("tom")
-    tom.state = "locked"
+    tom.state = User::STATES['locked']
     tom.save!
     # with right token
     post '/trigger/runservice', nil, { 'Authorization' => "Token #{token}" }
@@ -550,7 +550,7 @@ class SourceServicesTest < ActionDispatch::IntegrationTest
     assert_xml_tag tag: "status", attributes: { code: "no_permission" }
 
     # reset and drop stuff as tom
-    tom.state = "confirmed"
+    tom.state = User::STATES['confirmed']
     tom.save!
     login_tom
     get '/person/tom/token'
