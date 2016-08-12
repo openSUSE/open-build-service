@@ -392,4 +392,9 @@ module Webui::WebuiHelper
   def replace_meta_characters(input)
     input.sub("!\"#$%&'()*+,./:;<=>?@[\\]^`{|}~", '_')
   end
+
+  def word_break(string, length)
+    # adds a <wbr> tag after an amount of given characters
+    string.scan(/.{1,#{length}}/).join("<wbr>")
+  end
 end

@@ -1,6 +1,6 @@
 module Webui::BuildstatusHelper
   # rubocop:disable Style/AlignHash
-  PACKAGE_STATUS_LIST = {
+  PACKAGE_STATUS_LIST = ActiveSupport::HashWithIndifferentAccess.new(
       'succeeded'     => 'Package has built successfully and can be used to build further packages.',
       'failed'        => 'The package does not build successfully. No packages have been created. Packages ' \
                        'that depend on this package will be built using any previously created packages, if they exist.',
@@ -18,7 +18,7 @@ module Webui::BuildstatusHelper
       'excluded'      => 'The package build has been disabled in package build description (for example in the .spec file) or ' \
                        'does not provide a matching build description for the target.',
       'unknown'       => 'The scheduler has not yet evaluated this package. Should be a short intermediate state for new packages.'
-  }
+  )
   # rubocop:enable Style/AlignHash
 
   def get_package_status_description(status)
@@ -39,7 +39,7 @@ module Webui::BuildstatusHelper
 
     result = "<td class='".html_safe
     result += "#{theclass}"
-    result +=" buildstatus'>".html_safe
+    result +=" buildstatus nowrap'>".html_safe
 
     if %w(- unresolvable blocked excluded scheduled).include?(code)
       result += link_to(code, '#', title: link_title, id: status_id, class: code)
@@ -53,7 +53,11 @@ module Webui::BuildstatusHelper
                        )
     end
 
-    status_desc = get_package_status_description(status['code'])
-    result += " <img title='#{status_desc}' class='icons-help' alt='#{status_desc}' src='/assets/s.gif' /></td>".html_safe
+    if !status['code'].nil?
+      status_desc = get_package_status_description(status['code'])
+      result += " #{sprite_tag 'help', title: status_desc}".html_safe
+    end
+
+    result += "</td>".html_safe
   end
 end

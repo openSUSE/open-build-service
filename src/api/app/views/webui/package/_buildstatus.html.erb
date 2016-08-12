@@ -12,8 +12,8 @@
           -%>
           <tr>
             <% if index == 0 %>
-              <td class="nowrap" title="<%= r %>" rowspan="<%= archs.length %>">
-                <%= link_to(elide(r, 20), {:action => :binaries, :controller => :package, :project => @project, :package => @package, :repository => r}, {:title => "Binaries for #{r}"}) %>
+              <td title="<%= r %>" rowspan="<%= archs.length %>">
+                <%= link_to(word_break(r, 22), {:action => :binaries, :controller => :package, :project => @project, :package => @package, :repository => r}, {:title => "Binaries for #{r}"}) %>
               </td>
               <% index += 1 -%>
             <% end # if -%>
