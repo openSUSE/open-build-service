@@ -33,7 +33,7 @@
                   </td>
                   <td>
                     <% counts.each do |code, count| %>
-                        <img title="<%= get_package_status_description(code) %>" class="icons-help" alt="<%= get_package_status_description(code) %>" src='/assets/s.gif' /><br />
+                      <%= sprite_tag "help", title: get_package_status_description(code) %><br />
                     <% end %>
                   </td>
                 </tr>
