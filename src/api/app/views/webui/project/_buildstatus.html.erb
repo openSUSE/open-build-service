@@ -10,15 +10,14 @@
           <p><i>No build result available</i></p>
       <% end %>
   <% else %>
-      <table title="Repositories" class="repostatus">
+      <table class="repostatus">
         <% @buildresult.each do |repo, archarray| %>
             <% index = 0
-               srepo = truncate(repo, :length => 17)
                archarray.each do |arch, counts| %>
                 <tr>
                   <% if index == 0 %>
-                      <td class="repo nowrap" rowspan="<%= archarray.length %>">
-                        <%= link_to(elide(srepo, 26), { action: :state, project: @project.name, repository: repo, controller: :repositories }, { title: "Repository #{srepo}"}) %>
+                      <td class="repo" rowspan="<%= archarray.length %>">
+                        <%= link_to(word_break(repo, 13), { action: :state, project: @project.name, repository: repo, controller: :repositories }, { title: "Repository #{repo}"}) %>
                       </td>
                       <% index += 1 %>
                   <% end %>

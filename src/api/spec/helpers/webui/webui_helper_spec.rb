@@ -40,6 +40,22 @@ RSpec.describe Webui::WebuiHelper do
     end
   end
 
+  describe '#word_break' do
+    it "continuously adds tag after N characters" do
+      expect(
+          word_break("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX", 10)
+      ).to eq("XXXXXXXXXX<wbr>XXXXXXXXXX<wbr>XXXXXXXXXX<wbr>XXXXXXXXXX")
+    end
+
+    it "adds no tag if string is shorter than N characters" do
+      expect(word_break("XX", 10)).to eq("XX")
+    end
+
+    it "adds one tag if string is longer than N characters" do
+      expect(word_break("XXXXXXXXXX", 10)).to eq("XXXXXXXXXX")
+    end
+  end
+
   describe '#repo_status_icon' do
     it 'renders icon' do
       blocked = repo_status_icon('blocked')
