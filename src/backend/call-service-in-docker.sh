@@ -95,8 +95,6 @@ if [ $SCM_COMMAND -eq 1 -a "$PARAM_SCM" == "git" ];then
 fi
 echo "${COMMAND[@]} --outdir $INNEROUTDIR --jailed=1" >> "$MOUNTDIR/${INNERSCRIPT}.command"
 
-DOCKER_VOLUMES="$DOCKER_VOLUMES -v /tmp/kanku:/tmp/kanku"
-
 # useful for debugging purposes
 #DEBUG_OPTIONS="-it"
 #INNERSCRIPT=/bin/bash
