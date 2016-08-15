@@ -174,7 +174,7 @@ OBSApi::Application.routes.draw do
       post 'project/create_image_repository' => :create_image_repository
 
       # Flags
-      post 'flag/:project(/:package)/:flag' => :toggle_flag, constraints: cons
+      put 'flag/:project(/:package)' => :toggle_flag, constraints: cons
       post 'flag/:project(/:package)' => :create_flag, constraints: cons
       delete 'flag/:project(/:package)/:flag' => :remove_flag, constraints: cons
     end
