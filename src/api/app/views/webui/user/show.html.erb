@@ -78,7 +78,7 @@
                                                              :package => 'REPLACEPKG') %> ">
       <% content_for :ready_function do %>
         var ipackages = [  <%= escape_nested_list(@ipackages) %>];
-        renderPackagesProjectsTable({packages: ipackages, length: 15, name: 'ipackages_wrapper'});
+        renderPackagesProjectsTable({packages: ipackages, length: 10, name: 'ipackages_wrapper'});
       <% end %>
     </div>
     <% else %>
@@ -96,7 +96,7 @@
       var excl_projects = [];
       <% end %>
       <% content_for :ready_function do %>
-         renderProjectsTable(length=15);
+         renderProjectsTable(length=10);
          $('#excludefilter').change(renderProjectsTable);
       <% end %>
     </div>
