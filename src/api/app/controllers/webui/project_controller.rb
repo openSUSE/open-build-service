@@ -18,7 +18,7 @@ class Webui::ProjectController < Webui::WebuiController
                                      :show, :linking_projects, :add_person, :add_group, :buildresult, :delete_dialog,
                                      :destroy, :remove_path_from_target, :rebuild_time, :packages_simple,
                                      :requests, :save, :monitor, :toggle_watch, :meta,
-                                     :prjconf, :create_flag, :toggle_flag, :remove_flag, :edit, :save_comment, :edit_comment,
+                                     :prjconf, :edit, :save_comment, :edit_comment,
                                      :status, :maintained_projects,
                                      :add_maintained_project_dialog, :add_maintained_project, :remove_maintained_project,
                                      :maintenance_incidents, :unlock_dialog, :unlock, :save_person, :save_group, :remove_role,

@@ -21,8 +21,7 @@ class Webui::PackageController < Webui::WebuiController
                                         :save_group, :remove_role, :view_file,
                                         :abort_build, :trigger_rebuild,
                                         :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
-                                        :save_meta, :attributes, :edit, :create_flag, :toggle_flag, :remove_flag,
-                                        :import_spec, :files, :comments]
+                                        :save_meta, :attributes, :edit, :import_spec, :files, :comments]
 
   before_filter :require_package, :only => [:show, :linking_packages, :dependency, :binary, :binaries,
                                             :requests, :statistics, :commit, :revisions, :submit_request_dialog,
@@ -32,8 +31,7 @@ class Webui::PackageController < Webui::WebuiController
                                             :save_group, :remove_role, :view_file,
                                             :abort_build, :trigger_rebuild,
                                             :wipe_binaries, :buildresult, :rpmlint_result, :rpmlint_log, :meta,
-                                            :attributes, :edit, :create_flag, :toggle_flag, :remove_flag,
-                                            :import_spec, :files, :comments, :users,
+                                            :attributes, :edit, :import_spec, :files, :comments, :users,
                                             :save_comment]
 
   # make sure it's after the require_, it requires both
