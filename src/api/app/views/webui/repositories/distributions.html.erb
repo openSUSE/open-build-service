@@ -26,9 +26,7 @@
             <%= hidden_field_tag 'architectures[]', arch %>
           <% end %>
         <% end %>
-        <p><%= escape_javascript(distribution['reponame']) %></p>
         <%= form_tag({ action: :destroy }, remote: true, class: 'hidden', id: 'repo_' + replace_meta_characters(distribution['reponame']) + '_destroy') do %>
-
           <%= hidden_field_tag 'project', @project.name %>
           <%= hidden_field_tag 'target', distribution['reponame'] %>
         <% end %>
