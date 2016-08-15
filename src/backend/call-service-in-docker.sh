@@ -3,7 +3,7 @@
 #set -x
 
 #FSDIR="/opt/obs/SourceServiceSystem"
-DOCKER_IMAGE=src-service-docker
+DOCKER_IMAGE=suse/sles12sp1-source-service:latest
 SERVICES_DIR="/srv/obs/service/"
 
 WITH_NET="0"
