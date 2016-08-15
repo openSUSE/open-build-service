@@ -6,8 +6,10 @@
 DOCKER_IMAGE=suse/sles12sp1-source-service:latest
 SERVICES_DIR="/srv/obs/service/"
 
-WITH_NET="0"
+SCM_COMMAND=0
+WITH_NET=0
 COMMAND="$1"
+
 shift
 case "$COMMAND" in
   */download_url|*/download_src_package|*/update_source|*/download_files|*/generator_pom)
