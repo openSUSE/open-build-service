@@ -17,7 +17,6 @@ install: prepare_dirs install_data_dirs bs_config
 	cp -a ./* $(DESTDIR)$(OBS_BACKEND_PREFIX)
 	rm -rf $(DESTDIR)$(OBS_BACKEND_PREFIX)/Makefile
 	rm -rf $(DESTDIR)$(OBS_BACKEND_PREFIX)/t
-	rm -rf $(DESTDIR)$(OBS_BACKEND_PREFIX)/testdata
 	rm -rf $(DESTDIR)$(OBS_BACKEND_PREFIX)/examples
 	# just for check section, it is a %%ghost
 	ln -sf /usr/lib/build $(DESTDIR)$(OBS_BACKEND_PREFIX)/build 
