@@ -106,7 +106,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
   end
 
   uses_transaction :test_delete_package_as_admin
-  def test_delete_package_as_admin
+  def test_delete_package_as_admin # spec/controllers/webui/package_controller_spec.rb
     use_js
 
     login_king

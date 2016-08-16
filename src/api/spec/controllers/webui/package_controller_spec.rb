@@ -1,6 +1,7 @@
 require 'rails_helper'
 
 RSpec.describe Webui::PackageController, vcr: true do
+  let(:admin) { create(:admin_user, login: "admin") }
   let(:user) { create(:user, login: 'tom') }
   let(:source_project) { user.home_project }
   let(:source_package) { create(:package, name: 'my_package', project: source_project) }
@@ -51,6 +52,25 @@ RSpec.describe Webui::PackageController, vcr: true do
   describe "POST #remove" do
     before do
       login(user)
+    end
+
+    describe "authentification" do
+      let(:target_package) { create(:package, name: "forbidden_package", project: target_project) }
+
+      it "does not allow other users than the owner to delete a package" do
+        post :remove, project: target_project, package: target_package
+
+        expect(flash[:error]).to eq("Sorry, you are not authorized to delete this Package.")
+        expect(target_project.packages).not_to be_empty
+      end
+
+      it "allows admins to delete other user's packages" do
+        login(admin)
+        post :remove, project: target_project, package: target_package
+
+        expect(flash[:notice]).to eq("Package was successfully removed.")
+        expect(target_project.packages).to be_empty
+      end
     end
 
     context "a package" do
