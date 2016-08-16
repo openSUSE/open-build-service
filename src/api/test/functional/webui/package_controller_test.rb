@@ -96,6 +96,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.status_code.must_equal 404
   end
 
+  # spec/features/webui/packages_spec.rb
   uses_transaction :test_delete_package_as_user
   def test_delete_package_as_user
     use_js
