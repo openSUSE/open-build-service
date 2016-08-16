@@ -40,7 +40,7 @@
     #create_subproject.hidden
       = render partial: 'form', locals: { project: Project.new, configuration: @configuration, ns: @project.name }
 
-- if @subprojects.present?
+- if @subprojects.present? || @parentprojects.present?
   - content_for :ready_function do
     setup_subprojects_tables();
 - content_for :ready_function do
