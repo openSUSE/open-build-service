@@ -24,7 +24,7 @@ my $gctx = {
   'obsname' => 'testobs',
 };
 
-my $projpacksin = readxml('testdata/buildinfo/srcserver/getprojpack?withsrcmd5&withdeps&withrepos&withconfig&withremotemap&ignoredisable&project=openSUSE:13.2&repository=standard&arch=i586&package=screen', $BSXML::projpack);
+my $projpacksin = readxml("$FindBin::Bin/data/0170/srcserver/fixtures_0001", $BSXML::projpack);
 BSSched::ProjPacks::update_projpacks($gctx, $projpacksin);
 BSSched::ProjPacks::get_projpacks_postprocess($gctx);
 
@@ -62,7 +62,7 @@ is($status, 'scheduled', 'check call');
 ($status, $diag) = $h->build($ctx, $packid, $pdata, $info, $diag);
 is($status, 'scheduled', 'build call');
 
-my $xbi = BSUtil::readxml("testdata/buildjob/result/buildjob_13_2_screen", $BSXML::buildinfo);
+my $xbi = BSUtil::readxml("$FindBin::Bin/data/0170/buildjob/result/buildjob_13_2_screen", $BSXML::buildinfo);
 my $bi = $ctx->{'buildinfo'};
 delete $bi->{'readytime'};
 delete $xbi->{'readytime'};
