@@ -116,7 +116,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     skip("delete must fail (without force option), no matter if the package is in local project or another one")
   end
 
-  def test_Iggy_adds_himself_as_reviewer
+  def test_Iggy_adds_himself_as_reviewer # spec/support/shared_examples/features/user_tab.rb
     use_js
 
     login_Iggy to: package_users_path(package: 'TestPack', project: 'home:Iggy')
@@ -128,7 +128,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.must_have_text '<person userid="Iggy" role="reviewer"/>'
   end
 
-  def test_Iggy_removes_himself_as_bugowner
+  def test_Iggy_removes_himself_as_bugowner # spec/support/shared_examples/features/user_tab.rb
     use_js
 
     login_Iggy to: package_meta_path(package: 'TestPack', project: 'home:Iggy')
@@ -213,7 +213,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     flash_message.must_equal 'Error getting diff: revision is empty'
   end
 
-  def test_group_can_modify
+  def test_group_can_modify # spec/support/shared_examples/features/user_tab.rb
     use_js
 
     # verify we do not test ghosts
