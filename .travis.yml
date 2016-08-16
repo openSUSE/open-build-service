@@ -11,6 +11,7 @@ env:
   - TEST_SUITE=api
   - TEST_SUITE=webui
   - TEST_SUITE=spider
+  - TEST_SUITE=rspec
 matrix:
   fast_finish: true
 notifications:
