@@ -98,7 +98,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
 
   # spec/features/webui/packages_spec.rb
   uses_transaction :test_delete_package_as_user
-  def test_delete_package_as_user
+  def test_delete_package_as_user # spec/controllers/webui/package_controller_spec.rb
     use_js
 
     login_user('fred', 'buildservice')
@@ -113,7 +113,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     delete_and_recreate_kdelibs
   end
 
-  def test_delete_package_with_devel_defintion
+  def test_delete_package_with_devel_defintion # spec/controllers/webui/package_controller_spec.rb
     skip("delete must fail (without force option), no matter if the package is in local project or another one")
   end
 
