@@ -6,8 +6,8 @@ class BranchPackage
   attr_accessor :params
 
   # generic branch function for package based, project wide or request based branch
-  def initialize(_params)
-    self.params = _params
+  def initialize(params)
+    self.params = params
 
     # set defaults
     @attribute = params[:attribute] || 'OBS:Maintained'
@@ -104,7 +104,7 @@ class BranchPackage
 
       # find origin package to be branched
       branch_target_package = p[:target_package]
-      pack_name = branch_target_package.gsub(':', '_')
+      pack_name = branch_target_package.tr(':', '_')
 
       # create branch package
       # no find_package call here to check really this project only
@@ -121,7 +121,7 @@ class BranchPackage
           tpkg = tprj.packages.new(:name => pack_name)
         end
         if tpkg.bcntsynctag && @extend_names
-          tpkg.bcntsynctag << '.' + p[:link_target_project].name.gsub(':', '_')
+          tpkg.bcntsynctag << '.' + p[:link_target_project].name.tr(':', '_')
         end
         tprj.packages << tpkg
       end
@@ -138,7 +138,7 @@ class BranchPackage
         linked_package = p[:link_target_package]
          # user enforce a rename of base package
         linked_package = params[:target_package] if params[:target_package] and params[:package] == ret.value('package')
-        linked_package += '.' + p[:link_target_project].name.gsub(':', '_') if @extend_names
+        linked_package += '.' + p[:link_target_project].name.tr(':', '_') if @extend_names
         ret.set_attribute('package', linked_package)
         Suse::Backend.put tpkg.source_path('_link', user: User.current.login), ret.dump_xml
         tpkg.sources_changed
@@ -184,7 +184,7 @@ class BranchPackage
           opts[:block]   = @block_policy   if @block_policy
           tprj.branch_to_repositories_from(p[:link_target_project], tpkg, opts)
         else
-          # FIXME for remote project instances
+          # FIXME: for remote project instances
           # Please also remove the rubocop ignore comment when you implement the FIXME
         end
         # rubocop:enable Style/EmptyElse
@@ -592,7 +592,7 @@ class BranchPackage
       elsif params[:project]
         @target_project = nil # to be set later after first source location lookup
       else
-        @target_project = User.current.branch_project_name(@attribute.gsub(':', '_'))
+        @target_project = User.current.branch_project_name(@attribute.tr(':', '_'))
         @target_project += ":#{params[:package]}" if params[:package]
       end
       @auto_cleanup = ::Configuration.cleanup_after_days
