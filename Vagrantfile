@@ -1,25 +1,8 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
-
-require 'getoptlong'
-
 dev_mem = (ENV["OBS_VAGRANT_MEM"]) ? ENV["OBS_VAGRANT_MEM"] : 2048
 dev_cpu = (ENV["OBS_VAGRANT_CPU"]) ? ENV["OBS_VAGRANT_CPU"] : 2
-
-opts = GetoptLong.new(
-  [ '--mem', GetoptLong::OPTIONAL_ARGUMENT ],
-  [ '--cpu', GetoptLong::OPTIONAL_ARGUMENT ]
-)
-
-opts.each do |opt,arg|
-  case opt
-    when '--mem'
-      dev_mem = arg.to_i
-    when '--cpu'
-      dev_cpu = arg.to_i
-  end
-end
 
 # Vagrantfile API/syntax version. Don't touch unless you know what you're doing!
 VAGRANTFILE_API_VERSION = '2'
