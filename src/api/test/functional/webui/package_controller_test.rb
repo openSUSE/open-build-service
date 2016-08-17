@@ -407,7 +407,7 @@ class Webui::PackageControllerTest < Webui::IntegrationTest
     page.wont_have_field('supersede_request_numbers[]')
   end
 
-  def test_submit_request_clientside_form_validation
+  def test_submit_request_clientside_form_validation # spec/controllers/webui/package_controller_spec.rb
     use_js
     login_Iggy
 

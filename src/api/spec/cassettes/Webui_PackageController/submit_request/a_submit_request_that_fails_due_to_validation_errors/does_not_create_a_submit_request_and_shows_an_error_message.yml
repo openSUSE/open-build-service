@@ -85,8 +85,8 @@ http_interactions:
     uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Facilis at sapiente id dolore. Aliquid quisquam fugiat voluptates. Consequatur
-        praesentium ea.
+      string: Quis voluptas enim molestias est fugit. Vitae illum doloremque recusandae
+        sunt. Itaque voluptas fugit nihil sint.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -110,8 +110,8 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="6" vrev="6">
-          <srcmd5>66a7bb44fc11902286a1b6ae0a6b3aac</srcmd5>
+        <revision rev="5" vrev="5">
+          <srcmd5>68dbfdbf51e66b8b4b6a2210aa1b7800</srcmd5>
           <version>unknown</version>
           <time>1471445617</time>
           <user>unknown</user>
@@ -119,18 +119,16 @@ http_interactions:
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 14:53:38 GMT
+  recorded_at: Wed, 17 Aug 2016 14:53:37 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_file
+    uri: http://localhost:3200/source/home:tom/package_with_file?expand=1
     body:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -147,46 +145,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '210'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="6" vrev="6" srcmd5="66a7bb44fc11902286a1b6ae0a6b3aac">
-          <entry name="somefile.txt" md5="0d757304d4bc95c315906bd096029452" size="94" mtime="1471445617" />
+        <directory name="package_with_file" rev="5" vrev="5" srcmd5="68dbfdbf51e66b8b4b6a2210aa1b7800">
+          <entry name="somefile.txt" md5="027b7d5ccd9b8e6ef0e3868f7eff98b6" size="113" mtime="1471445617" />
         </directory>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 14:53:38 GMT
-- request:
-    method: post
-    uri: http://localhost:3200/source/home:tom/package_with_file?cmd=diff&expand=1&filelimit=10000&opackage=package_with_file&oproject=home:tom
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/plain
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '0'
-    body:
-      encoding: UTF-8
-      string: ''
-    http_version: 
-  recorded_at: Wed, 17 Aug 2016 14:53:38 GMT
+  recorded_at: Wed, 17 Aug 2016 14:53:37 GMT
 recorded_with: VCR 3.0.1

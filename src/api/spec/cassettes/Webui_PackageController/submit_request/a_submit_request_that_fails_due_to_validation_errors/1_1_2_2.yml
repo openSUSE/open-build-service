@@ -40,14 +40,14 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 14:53:37 GMT
+  recorded_at: Thu, 18 Aug 2016 09:51:01 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_meta
+    uri: http://localhost:3200/source/home:tom/my_package/_meta
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_file" project="home:tom">
+        <package name="my_package" project="home:tom">
           <title/>
           <description/>
         </package>
@@ -70,23 +70,25 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '113'
+      - '106'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_file" project="home:tom">
+        <package name="my_package" project="home:tom">
           <title></title>
           <description></description>
         </package>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 14:53:37 GMT
+  recorded_at: Thu, 18 Aug 2016 09:51:01 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    uri: http://localhost:3200/source/home:tom/my_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Facilis at sapiente id dolore. Aliquid quisquam fugiat voluptates. Consequatur
-        praesentium ea.
+      string: Ullam perferendis expedita qui doloribus quibusdam. Blanditiis ea a
+        asperiores voluptate sunt sed. Fugiat consequatur dolorem et magnam amet est.
+        Perspiciatis dicta placeat et quia alias. Aut et voluptas et at eveniet voluptatem
+        perferendis.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -110,27 +112,25 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="6" vrev="6">
-          <srcmd5>66a7bb44fc11902286a1b6ae0a6b3aac</srcmd5>
+        <revision rev="1" vrev="1">
+          <srcmd5>23c75d4e69419c30e95f9515136a3e87</srcmd5>
           <version>unknown</version>
-          <time>1471445617</time>
+          <time>1471513861</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 14:53:38 GMT
+  recorded_at: Thu, 18 Aug 2016 09:51:01 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_file
+    uri: http://localhost:3200/source/home:tom/my_package?expand=1
     body:
       encoding: US-ASCII
       string: ''
     headers:
-      Content-Type:
-      - text/plain
       Accept-Encoding:
-      - identity
+      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
       Accept:
       - "*/*"
       User-Agent:
@@ -147,46 +147,13 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '203'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="6" vrev="6" srcmd5="66a7bb44fc11902286a1b6ae0a6b3aac">
-          <entry name="somefile.txt" md5="0d757304d4bc95c315906bd096029452" size="94" mtime="1471445617" />
+        <directory name="my_package" rev="1" vrev="1" srcmd5="23c75d4e69419c30e95f9515136a3e87">
+          <entry name="somefile.txt" md5="3c23f8375010ec0d9c95899a266f9b0f" size="241" mtime="1471513861" />
         </directory>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 14:53:38 GMT
-- request:
-    method: post
-    uri: http://localhost:3200/source/home:tom/package_with_file?cmd=diff&expand=1&filelimit=10000&opackage=package_with_file&oproject=home:tom
-    body:
-      encoding: UTF-8
-      string: ''
-    headers:
-      Content-Type:
-      - application/octet-stream
-      Accept-Encoding:
-      - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
-      Accept:
-      - "*/*"
-      User-Agent:
-      - Ruby
-  response:
-    status:
-      code: 200
-      message: OK
-    headers:
-      Content-Type:
-      - text/plain
-      Cache-Control:
-      - no-cache
-      Connection:
-      - close
-      Content-Length:
-      - '0'
-    body:
-      encoding: UTF-8
-      string: ''
-    http_version: 
-  recorded_at: Wed, 17 Aug 2016 14:53:38 GMT
+  recorded_at: Thu, 18 Aug 2016 09:51:01 GMT
 recorded_with: VCR 3.0.1

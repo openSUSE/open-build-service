@@ -40,14 +40,14 @@ http_interactions:
           <person userid="tom" role="maintainer" />
         </project>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 14:53:37 GMT
+  recorded_at: Thu, 18 Aug 2016 09:43:41 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/_meta
+    uri: http://localhost:3200/source/home:tom/my_package/_meta
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_file" project="home:tom">
+        <package name="my_package" project="home:tom">
           <title/>
           <description/>
         </package>
@@ -70,23 +70,24 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '113'
+      - '106'
     body:
       encoding: UTF-8
       string: |
-        <package name="package_with_file" project="home:tom">
+        <package name="my_package" project="home:tom">
           <title></title>
           <description></description>
         </package>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 14:53:37 GMT
+  recorded_at: Thu, 18 Aug 2016 09:43:41 GMT
 - request:
     method: put
-    uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
+    uri: http://localhost:3200/source/home:tom/my_package/somefile.txt
     body:
       encoding: UTF-8
-      string: Facilis at sapiente id dolore. Aliquid quisquam fugiat voluptates. Consequatur
-        praesentium ea.
+      string: Perferendis quis consequatur quisquam dolorem voluptatem sed ut. Vel
+        incidunt quia ea magni sed quia. Dolor sint et natus et eos repellendus fugiat.
+        Error atque eum quod et voluptates quidem. Provident error qui.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -110,19 +111,19 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="6" vrev="6">
-          <srcmd5>66a7bb44fc11902286a1b6ae0a6b3aac</srcmd5>
+        <revision rev="2" vrev="2">
+          <srcmd5>0fc74838613b2020e3d2bf8a637374fd</srcmd5>
           <version>unknown</version>
-          <time>1471445617</time>
+          <time>1471513421</time>
           <user>unknown</user>
           <comment></comment>
           <requestid/>
         </revision>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 14:53:38 GMT
+  recorded_at: Thu, 18 Aug 2016 09:43:41 GMT
 - request:
     method: get
-    uri: http://localhost:3200/source/home:tom/package_with_file
+    uri: http://localhost:3200/source/home:tom/my_package
     body:
       encoding: US-ASCII
       string: ''
@@ -147,18 +148,18 @@ http_interactions:
       Connection:
       - close
       Content-Length:
-      - '209'
+      - '203'
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="6" vrev="6" srcmd5="66a7bb44fc11902286a1b6ae0a6b3aac">
-          <entry name="somefile.txt" md5="0d757304d4bc95c315906bd096029452" size="94" mtime="1471445617" />
+        <directory name="my_package" rev="2" vrev="2" srcmd5="0fc74838613b2020e3d2bf8a637374fd">
+          <entry name="somefile.txt" md5="69396437584614de2858816919a70bfc" size="212" mtime="1471513421" />
         </directory>
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 14:53:38 GMT
+  recorded_at: Thu, 18 Aug 2016 09:43:41 GMT
 - request:
     method: post
-    uri: http://localhost:3200/source/home:tom/package_with_file?cmd=diff&expand=1&filelimit=10000&opackage=package_with_file&oproject=home:tom
+    uri: http://localhost:3200/source/home:tom/my_package?cmd=diff&expand=1&filelimit=10000&opackage=my_package&oproject=home:tom
     body:
       encoding: UTF-8
       string: ''
@@ -188,5 +189,5 @@ http_interactions:
       encoding: UTF-8
       string: ''
     http_version: 
-  recorded_at: Wed, 17 Aug 2016 14:53:38 GMT
+  recorded_at: Thu, 18 Aug 2016 09:43:41 GMT
 recorded_with: VCR 3.0.1
