@@ -1,7 +1,9 @@
 dist/README.UPDATERS
 dist/README.SETUP
+dist/README.devel
 docs/openSUSE.org.xml
 ReleaseNotes-*
 src/backend/README
 COPYING
 AUTHORS
+
