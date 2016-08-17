@@ -1,0 +1,125 @@
+<buildinfo project="openSUSE:13.2" repository="standard" package="screen" srcserver="srcserver" reposerver="reposerver">
+  <job>openSUSE:13.2::standard::screen-195bbad3fdd5f42be14e125f80a098d6</job>
+  <arch>i586</arch>
+  <srcmd5>195bbad3fdd5f42be14e125f80a098d6</srcmd5>
+  <verifymd5>195bbad3fdd5f42be14e125f80a098d6</verifymd5>
+  <rev>1</rev>
+  <disturl>obs://testobs/openSUSE:13.2/standard/195bbad3fdd5f42be14e125f80a098d6-screen</disturl>
+  <reason>new build</reason>
+  <needed>0</needed>
+  <revtime>1409303339</revtime>
+  <readytime>1465562656</readytime>
+  <file>screen.spec</file>
+  <versrel>4.2.1-2.1</versrel>
+  <bcnt>1</bcnt>
+  <release>2.1.1</release>
+  <debuginfo>1</debuginfo>
+  <subpack>screen</subpack>
+  <subpack>screen-debuginfo</subpack>
+  <subpack>screen-debugsource</subpack>
+  <bdep name="aaa_base" preinstall="1" runscripts="1" notmeta="1" />
+  <bdep name="attr" preinstall="1" notmeta="1" />
+  <bdep name="bash" preinstall="1" notmeta="1" />
+  <bdep name="coreutils" preinstall="1" notmeta="1" />
+  <bdep name="diffutils" preinstall="1" notmeta="1" />
+  <bdep name="filesystem" preinstall="1" notmeta="1" />
+  <bdep name="fillup" preinstall="1" notmeta="1" />
+  <bdep name="glibc" preinstall="1" notmeta="1" />
+  <bdep name="grep" preinstall="1" notmeta="1" />
+  <bdep name="libbz2-1" preinstall="1" notmeta="1" />
+  <bdep name="libgcc_s1" preinstall="1" notmeta="1" />
+  <bdep name="m4" preinstall="1" notmeta="1" />
+  <bdep name="libncurses5" preinstall="1" notmeta="1" />
+  <bdep name="pam" preinstall="1" notmeta="1" />
+  <bdep name="permissions" preinstall="1" notmeta="1" />
+  <bdep name="libreadline6" preinstall="1" notmeta="1" />
+  <bdep name="rpm" preinstall="1" notmeta="1" />
+  <bdep name="sed" preinstall="1" notmeta="1" />
+  <bdep name="tar" preinstall="1" notmeta="1" />
+  <bdep name="libz1" preinstall="1" notmeta="1" />
+  <bdep name="libselinux1" preinstall="1" notmeta="1" />
+  <bdep name="liblzma5" preinstall="1" notmeta="1" />
+  <bdep name="libcap2" preinstall="1" notmeta="1" />
+  <bdep name="libacl1" preinstall="1" notmeta="1" />
+  <bdep name="libattr1" preinstall="1" notmeta="1" />
+  <bdep name="libpopt0" preinstall="1" notmeta="1" />
+  <bdep name="libelf1" preinstall="1" notmeta="1" />
+  <bdep name="liblua5_1" preinstall="1" notmeta="1" />
+  <bdep name="libpcre1" preinstall="1" notmeta="1" />
+  <bdep name="util-linux" vminstall="1" notmeta="1" />
+  <bdep name="libmount1" vminstall="1" notmeta="1" />
+  <bdep name="perl-base" vminstall="1" notmeta="1" />
+  <bdep name="libdb-4_8" vminstall="1" notmeta="1" />
+  <bdep name="libsepol1" vminstall="1" notmeta="1" />
+  <bdep name="libblkid1" vminstall="1" notmeta="1" />
+  <bdep name="libuuid1" vminstall="1" notmeta="1" />
+  <bdep name="net-tools" vminstall="1" notmeta="1" />
+  <bdep name="libsmartcols1" vminstall="1" notmeta="1" />
+  <bdep name="kernel-obs-build" vminstall="1" notmeta="1" />
+  <bdep name="makeinfo" notmeta="1" />
+  <bdep name="ncurses-devel" notmeta="1" />
+  <bdep name="utempter-devel" notmeta="1" />
+  <bdep name="autoconf" notmeta="1" />
+  <bdep name="automake" notmeta="1" />
+  <bdep name="rpm-build" notmeta="1" />
+  <bdep name="pam-modules" notmeta="1" />
+  <bdep name="perl" notmeta="1" />
+  <bdep name="build-mkbaselibs" notmeta="1" />
+  <bdep name="brp-check-suse" notmeta="1" />
+  <bdep name="post-build-checks" notmeta="1" />
+  <bdep name="rpmlint-Factory" notmeta="1" />
+  <bdep name="build-compare" notmeta="1" />
+  <bdep name="brp-extract-appdata" notmeta="1" />
+  <bdep name="rpmlint-Factory-strict" notmeta="1" />
+  <bdep name="brp-trim-desktopfiles" notmeta="1" />
+  <bdep name="libzio1" notmeta="1" />
+  <bdep name="libncurses6" notmeta="1" />
+  <bdep name="libutempter0" notmeta="1" />
+  <bdep name="info" notmeta="1" />
+  <bdep name="cpio" notmeta="1" />
+  <bdep name="libgmp10" notmeta="1" />
+  <bdep name="libstdc++6" notmeta="1" />
+  <bdep name="terminfo-base" notmeta="1" />
+  <bdep name="libaudit1" notmeta="1" />
+  <bdep name="libcrack2" notmeta="1" />
+  <bdep name="libmagic1" notmeta="1" />
+  <bdep name="libsemanage1" notmeta="1" />
+  <bdep name="file" notmeta="1" />
+  <bdep name="binutils" notmeta="1" />
+  <bdep name="bzip2" notmeta="1" />
+  <bdep name="gawk" notmeta="1" />
+  <bdep name="gcc" notmeta="1" />
+  <bdep name="glibc-devel" notmeta="1" />
+  <bdep name="xz" notmeta="1" />
+  <bdep name="findutils" notmeta="1" />
+  <bdep name="glibc-locale" notmeta="1" />
+  <bdep name="gzip" notmeta="1" />
+  <bdep name="make" notmeta="1" />
+  <bdep name="patch" notmeta="1" />
+  <bdep name="systemd-rpm-macros" notmeta="1" />
+  <bdep name="which" notmeta="1" />
+  <bdep name="gettext-tools-mini" notmeta="1" />
+  <bdep name="libgdbm4" notmeta="1" />
+  <bdep name="aaa_base-malloccheck" notmeta="1" />
+  <bdep name="rpmlint-mini" notmeta="1" />
+  <bdep name="cracklib" notmeta="1" />
+  <bdep name="file-magic" notmeta="1" />
+  <bdep name="libustr-1_0-1" notmeta="1" />
+  <bdep name="libcap-ng0" notmeta="1" />
+  <bdep name="insserv-compat" notmeta="1" />
+  <bdep name="update-alternatives" notmeta="1" />
+  <bdep name="gcc48" notmeta="1" />
+  <bdep name="cpp" notmeta="1" />
+  <bdep name="linux-glibc-devel" notmeta="1" />
+  <bdep name="gettext-runtime-mini" notmeta="1" />
+  <bdep name="libgomp1" notmeta="1" />
+  <bdep name="libisl10" notmeta="1" />
+  <bdep name="libmpfr4" notmeta="1" />
+  <bdep name="libcloog-isl4" notmeta="1" />
+  <bdep name="libmpc3" notmeta="1" />
+  <bdep name="cpp48" notmeta="1" />
+  <bdep name="libasan0" notmeta="1" />
+  <bdep name="libatomic1" notmeta="1" />
+  <bdep name="libitm1" notmeta="1" />
+  <path project="openSUSE:13.2" repository="standard" server="reposerver" />
+</buildinfo>
