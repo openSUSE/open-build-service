@@ -1441,6 +1441,7 @@ sub publish {
 	  $appdatas = $appdata;
 	}
       }
+      $appdatas->{'origin'} = 'appdata' if $appdatas->{'version'} && $appdatas->{'version'} >= 0.8;
 
       if ($bin =~ /^(.*\.rpm)::(.*\.drpm)$/) {
 	# special drpm handling: only take it if we took the corresponding rpm

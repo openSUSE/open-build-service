@@ -5,8 +5,9 @@ BASE_DIR=$PWD
 TEMP_DIR=$BASE_DIR/tmp
 MYSQL_BASEDIR=$TEMP_DIR/mysql/
 MYSQL_DATADIR=$MYSQL_BASEDIR/data
-MYSQL_SOCKET=$MYSQL_BASEDIR/mysql.socket
 MEMCACHED_PID_FILE=$TEMP_DIR/memcached.pid
+MYSQL_SOCKET_DIR=`mktemp -d`
+MYSQL_SOCKET=$MYSQL_SOCKET_DIR/mysql.socket
 
 MYSQLD_USER=`whoami`
 if [[ $EUID == 0 ]];then
@@ -83,6 +84,6 @@ kill_memcached
 
 #cleanup
 /usr/bin/mysqladmin -u root --socket=$MYSQL_SOCKET shutdown || true
-rm -rf $MYSQL_DATADIR $MYSQL_SOCKET
+rm -rf $MYSQL_DATADIR $MYSQL_SOCKET_DIR
 
 exit 0
