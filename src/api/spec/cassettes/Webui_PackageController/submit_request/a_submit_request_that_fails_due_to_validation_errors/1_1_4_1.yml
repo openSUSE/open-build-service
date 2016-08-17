@@ -85,10 +85,8 @@ http_interactions:
     uri: http://localhost:3200/source/home:tom/package_with_file/somefile.txt
     body:
       encoding: UTF-8
-      string: Sint temporibus beatae quisquam et consequatur. Iure adipisci dignissimos
-        eos accusamus delectus ea. Blanditiis cupiditate deleniti minima qui. Quis
-        eum expedita occaecati fuga. Magnam ratione magni omnis ducimus a explicabo
-        velit.
+      string: Accusamus molestiae dolore quos. Aspernatur atque et reiciendis reprehenderit
+        veritatis magni. Ea earum porro sed et et. Impedit et harum nihil esse.
     headers:
       Accept-Encoding:
       - gzip;q=1.0,deflate;q=0.6,identity;q=0.3
@@ -112,8 +110,8 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <revision rev="7" vrev="7">
-          <srcmd5>859dfd2f3806d6fdb275aaf931f17015</srcmd5>
+        <revision rev="4" vrev="4">
+          <srcmd5>a5639dba074d7a6db2679ca6d62653b4</srcmd5>
           <version>unknown</version>
           <time>1471532038</time>
           <user>unknown</user>
@@ -151,8 +149,8 @@ http_interactions:
     body:
       encoding: UTF-8
       string: |
-        <directory name="package_with_file" rev="7" vrev="7" srcmd5="859dfd2f3806d6fdb275aaf931f17015">
-          <entry name="somefile.txt" md5="e8f40ce605be6542a4c3fb4fec2fee91" size="231" mtime="1471532038" />
+        <directory name="package_with_file" rev="4" vrev="4" srcmd5="a5639dba074d7a6db2679ca6d62653b4">
+          <entry name="somefile.txt" md5="108b2c4cd517b877f1846a0496a9a454" size="149" mtime="1471532038" />
         </directory>
     http_version: 
   recorded_at: Thu, 18 Aug 2016 14:53:58 GMT

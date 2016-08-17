@@ -54,6 +54,20 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
     end
 
+    context "having whitespaces in parameters" do
+      before do
+        login(user)
+        post :submit_request, { project: " #{source_project} ", package: " #{package} ", targetproject: " #{target_project} " }
+      end
+
+      it { expect(flash[:notice]).to match("Created .+submit request \\d.+to .+#{target_project}") }
+      it { expect(response).to redirect_to(package_show_path(project: source_project, package: package)) }
+
+      it "creates a submit request" do
+        expect(BsRequestActionSubmit.where(target_project: target_project.name, target_package: package.name)).to exist
+      end
+    end
+
     context 'not successful' do
       before do
         login(user)
