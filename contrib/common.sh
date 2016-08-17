@@ -68,14 +68,14 @@ function install_bundle() {
 
 function setup_mariadb() {
   echo -e "\nsetting up mariadb...\n"
-  systemctl start mysql
+  systemctl restart mysql
   systemctl enable mysql
-  mysqladmin -u root password 'opensuse' 
+  check_for_databases || mysqladmin -u root password 'opensuse'
 }
 
 function setup_memcached() {
   echo -e "\nsetting up memcached...\n"
-  systemctl start memcached
+  systemctl restart memcached
   systemctl enable memcached
 }
 
@@ -86,9 +86,9 @@ function configure_app() {
 }
 
 function configure_database() {
-  copy_example_file database.yml && \
-  rake -f /vagrant/src/api/Rakefile db:version || \
-  rake -f /vagrant/src/api/Rakefile db:create && \
+  copy_example_file database.yml || return 1
+  check_for_databases && return 1
+  rake -f /vagrant/src/api/Rakefile db:create
   rake -f /vagrant/src/api/Rakefile db:setup
 }
 
@@ -158,11 +158,16 @@ function copy_example_file {
   fi
 
   if [ ! -f /vagrant/src/api/config/$1 ] && [ -f /vagrant/src/api/config/$1.example ]; then
+    echo "Setting up config/$1 from config/$1.exmaple"
     cp /vagrant/src/api/config/$1.example /vagrant/src/api/config/$1
   else
     echo "WARNING: You already have the config file $1, make sure it works with vagrant"
     return 1
   fi
+}
+
+function check_for_databases {
+  echo "show databases" | mysql -u root --password=opensuse|grep -q api_ && return 0 || return 1
 }
 
 function _prepare_bound_directory() {
