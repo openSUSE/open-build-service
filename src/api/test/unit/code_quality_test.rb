@@ -96,7 +96,7 @@ class CodeQualityTest < ActiveSupport::TestCase
       'User::find_with_credentials'                                             => 101.42,
       'UserLdapStrategy::render_grouplist_ldap'                                 => 100.3,
       'Webui::DriverUpdateController#save'                                      => 91.69,
-      'Webui::PackageController#submit_request'                                 => 95.89,
+      'Webui::PackageController#submit_request'                                 => 104.32,
       'Webui::PackageController#dependency'                                     => 83.57,
       'Webui::PatchinfoController#save'                                         => 252.62,
       'Webui::ProjectController#check_devel_package_status'                     => 81.95,
