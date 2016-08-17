@@ -23,6 +23,8 @@ Bugfixes:
 * [webui] fixing redirection after login
 * [webui] fixes for monitor page
 
+* [webui][api] Fixes CVE-2016-6316 in rubygem-actionview
+
 * [api] support handling of no_proxy settings
 
 * [backend] support handling of no_proxy settings
