@@ -15,7 +15,23 @@ RSpec.describe Webui::PackageController, vcr: true do
       end
 
       it { expect(flash[:error]).to eq('Unable to submit: The source of package home:tom/my_package is broken') }
-      it { expect(BsRequestActionSubmit.where(target_project: target_project, target_package: source_package).count).to eq(0) }
+      it { expect(BsRequestActionSubmit.where(target_project: target_project, target_package: source_package)).not_to exist }
+    end
+
+    context "unchanged sources" do
+      let(:package) { create(:package_with_file, name: "my_package", project: source_project) }
+
+      before do
+        login(user)
+        post :submit_request, { project: source_project, package: package, targetproject: source_project }
+      end
+
+      it { expect(flash[:error]).to eq("Unable to submit, sources are unchanged") }
+      it { expect(response).to redirect_to(package_show_path(project: source_project, package: package)) }
+
+      it "doesn't create a submit request" do
+        expect(BsRequestActionSubmit.where(target_project: source_project.name, target_package: package.name)).not_to exist
+      end
     end
   end
 
